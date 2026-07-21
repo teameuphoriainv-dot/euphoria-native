@@ -3,6 +3,7 @@
  * (done / current / locked) with a dashed connector, START on the active node, Atlas
  * peeking alongside. Mock course data until Phase 3 wires real pathway progress.
  */
+import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -75,7 +76,7 @@ export default function Learn() {
             const active = n.i === CURRENT;
             return (
               <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2 }}>
-                <SpringPressable onPress={() => {}} disabled={n.i > CURRENT}>
+                <SpringPressable onPress={() => router.push('/lesson')} disabled={n.i > CURRENT}>
                   <View
                     style={[
                       styles.node,
