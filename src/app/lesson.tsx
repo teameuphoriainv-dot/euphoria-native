@@ -17,6 +17,7 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
+import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
 import { TileBuilder, type TileSpec } from '@/components/tile-builder';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -25,7 +26,14 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'build', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'quiz', 'reveal', 'done'] as const;
+const money = (n: number) => '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const SLIDER: SliderSpec = {
+  prompt: 'Invest $100/month at 8% a year. Drag to guess its value after 30 years.',
+  max: 220000,
+  answer: 150030,
+  format: money,
+};
 const OPTIONS = ["Yes — you break even", "No — you're still down", "No — you're slightly up"];
 const CORRECT = 1;
 const PAYCHECK: TileSpec = {
@@ -44,11 +52,12 @@ export default function Lesson() {
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [buildSolved, setBuildSolved] = useState(false);
+  const [sliderTouched, setSliderTouched] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
-    if (kind === 'quiz' && !checked) {
-      if (pick !== null) setChecked(true);
+    if ((kind === 'quiz' || kind === 'slider') && !checked) {
+      if (kind === 'slider' ? sliderTouched : pick !== null) setChecked(true);
       return;
     }
     if (step < STEPS.length - 1) {
@@ -59,8 +68,8 @@ export default function Lesson() {
     }
   };
 
-  const ctaLabel = kind === 'quiz' && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved);
+  const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -99,6 +108,12 @@ export default function Lesson() {
                 <ThemedText type="body" style={{ flex: 1 }}>The price moves as people disagree on what that slice is worth.</ThemedText>
               </View>
             </Card>
+          </Animated.View>
+        )}
+
+        {kind === 'slider' && (
+          <Animated.View key="slider" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <SliderPredict spec={SLIDER} revealed={checked} onTouched={() => setSliderTouched(true)} />
           </Animated.View>
         )}
 
