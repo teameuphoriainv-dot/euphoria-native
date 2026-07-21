@@ -18,6 +18,7 @@ export type OrderSpec = { title: string; hint?: string; items: string[] };
 
 const shuffledOrder = (n: number): number[] => {
   const a = Array.from({ length: n }, (_, i) => i);
+  if (n <= 1) return a; // 0/1-item list is always already-sorted — the reshuffle-until-different loop would hang
   do {
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));

@@ -8,6 +8,7 @@ import { AtlasRive, AtlasRiveHandle } from '@/components/atlas-rive';
 
 export default function AtlasTest() {
   const atlas = useRef<AtlasRiveHandle>(null);
+  if (!__DEV__) return null; // dev-only Rive smoke test — unreachable in production builds
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0E0A14', gap: 36 }}>
       <AtlasRive ref={atlas} size={300} />

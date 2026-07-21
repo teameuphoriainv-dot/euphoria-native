@@ -102,6 +102,7 @@ export default function Trade() {
           </View>
         </RiseIn>
 
+        {seg === 0 && (<>
         {/* Holdings */}
         <RiseIn delay={170}>
           <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Your positions</ThemedText>
@@ -145,6 +146,18 @@ export default function Trade() {
             ))}
           </Card>
         </RiseIn>
+        </>)}
+
+        {seg !== 0 && (
+          <RiseIn delay={170}>
+            <Card style={styles.comingSoon} elevated>
+              <ThemedText type="heading">{SEGMENTS[seg]}</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center', marginTop: 6 }}>
+                {seg === 1 ? 'Deep research on every asset — coming soon.' : 'Climb the investing leaderboard — coming soon.'}
+              </ThemedText>
+            </Card>
+          </RiseIn>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -161,4 +174,5 @@ const styles = StyleSheet.create({
   sectionLabel: { marginBottom: Spacing.two },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three },
   ticker: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  comingSoon: { alignItems: 'center', paddingVertical: Spacing.four, gap: 6 },
 });
