@@ -9,6 +9,7 @@ import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 're
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { DailyGoalRing } from '@/components/daily-goal-ring';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { NumberRollup } from '@/shared/motion/number-rollup';
@@ -111,6 +112,20 @@ export default function Home() {
           </Card>
         </RiseIn>
 
+        {/* Daily goal ring */}
+        <RiseIn delay={160}>
+          <SpringPressable onPress={() => {}}>
+            <Card style={styles.goalRow}>
+              <DailyGoalRing value={14} goal={20} />
+              <View style={{ flex: 1 }}>
+                <ThemedText type="label" themeColor="mutedForeground">Today&apos;s goal</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: 17, marginTop: 2 }}>14 of 20 minutes</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>6 min to keep your streak alive</ThemedText>
+              </View>
+            </Card>
+          </SpringPressable>
+        </RiseIn>
+
         {/* Continue / Trade duo */}
         <View style={styles.duoRow}>
           <RiseIn delay={180} style={styles.duoHalf}>
@@ -169,4 +184,5 @@ const styles = StyleSheet.create({
   duoCard: { minHeight: 104 },
   challenge: {},
   challengeHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  goalRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
 });
