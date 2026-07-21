@@ -27,8 +27,15 @@ export function ProgressHeader({ step, total, onBack }: { step: number; total: n
   return (
     <View style={styles.progressRow}>
       <BackChevron onPress={onBack} />
-      <View style={[styles.track, { backgroundColor: theme.muted }]}>
-        <View style={[styles.fill, { backgroundColor: theme.primary, width: `${((step + 1) / total) * 100}%` }]} />
+      <View style={styles.segRow}>
+        {[0, 1, 2].map((i) => {
+          const fill = Math.max(0, Math.min(1, ((step + 1) / total) * 3 - i));
+          return (
+            <View key={i} style={[styles.seg, { backgroundColor: theme.muted }]}>
+              <View style={[styles.segFill, { backgroundColor: theme.primary, width: `${fill * 100}%` }]} />
+            </View>
+          );
+        })}
       </View>
     </View>
   );
@@ -122,6 +129,9 @@ export function Stars({ count = 5 }: { count?: number }) {
 const styles = StyleSheet.create({
   chevron: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
+  segRow: { flex: 1, flexDirection: 'row', gap: 6 },
+  seg: { flex: 1, height: 7, borderRadius: 7, overflow: 'hidden' },
+  segFill: { height: 7, borderRadius: 7 },
   track: { flex: 1, height: 6, borderRadius: 6, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 6 },
   option: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
