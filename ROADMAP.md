@@ -30,7 +30,7 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 - [x] MatchingPairs (connect left↔right) — `src/components/matching-pairs.tsx`, wired as `match` step
 - [x] OrderSteps (tap-two-to-swap) — `src/components/order-steps.tsx`, wired as `order` step ✓visually verified
 - [x] BeforeAfterSlider (drag-to-reveal comparison) — `src/components/before-after-slider.tsx`, wired as `compare` step ✓visually verified
-- [ ] GraphPointDrag (drag a point to a target on a chart)
+- [x] GraphPointDrag (drag chart point into target band) — `src/components/graph-point-drag.tsx`, wired as `graph` step ✓visually verified  **§A COMPLETE — 13 step types**
 
 ### B. Explorables → 11 interactive labs (#10 first; names provisional, refine per cycle)
 - [ ] CompoundGrowthLab (principal/rate/years sliders → live curve)
@@ -61,7 +61,7 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 - [ ] New Atlas expressions from ATLAS_ANIM_SPEC.md (extend the 6 — one per cycle)
 - [ ] New Atlas motion behaviors from ATLAS_ANIM_SPEC.md (idle bob, anticipation, shake-on-wrong, bounce-in, etc.)
 
-### F. Onboarding enrichment (toward ~15-step Brilliant spec)
+### F. Onboarding enrichment (toward ~15-step Brilliant spec)  — ⭐ USER PRIORITY: Duolingo-grade motion, implement from ONBOARDING_ANIM_SPEC.md (violet + Atlas, "even better" than Duo)
 - [ ] MascotSpotlight (light-beam entrance)
 - [ ] Motivation 2×2 illustrated cards
 - [ ] Investing-level cards w/ mini finance visuals
