@@ -11,6 +11,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
@@ -75,7 +76,8 @@ export default function Learn() {
             const done = n.i < CURRENT;
             const active = n.i === CURRENT;
             return (
-              <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2 }}>
+              <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size }}>
+                {active && <PulseHalo size={n.size} color={theme.primary} />}
                 <SpringPressable onPress={() => router.push('/lesson')} disabled={n.i > CURRENT}>
                   <View
                     style={[
