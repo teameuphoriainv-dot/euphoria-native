@@ -11,6 +11,8 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withDelay,
+  withSequence,
   withSpring,
 } from 'react-native-reanimated';
 import Svg, { Circle, G, Image as SvgImage, Path } from 'react-native-svg';
@@ -26,15 +28,18 @@ export function Atlas({
   expression = 'default',
   interactive = true,
   glasses = false,
+  celebrate = false,
 }: {
   size?: number;
   expression?: AtlasExpression;
   interactive?: boolean;
   glasses?: boolean;
+  celebrate?: boolean;
 }) {
   const reduced = useReducedMotion();
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
+  const jumpY = useSharedValue(0);
   const spins = useRef(0);
   const [blink, setBlink] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -59,6 +64,12 @@ export function Atlas({
     };
   }, [reduced]);
 
+  // celebratory jump (fired on wins)
+  useEffect(() => {
+    if (!celebrate || reduced) return;
+    jumpY.set(withDelay(180, withSequence(withSpring(-size * 0.28, { stiffness: 320, damping: 9 }), withSpring(0, { stiffness: 220, damping: 12 }))));
+  }, [celebrate, reduced, jumpY, size]);
+
   const spin = () => {
     if (!interactive || reduced) return;
     spins.current += 1;
@@ -68,7 +79,7 @@ export function Atlas({
   };
 
   const bodyProps = useAnimatedProps(() => ({ rotation: rotation.get() }));
-  const wrapStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
+  const wrapStyle = useAnimatedStyle(() => ({ transform: [{ translateY: jumpY.get() }, { scale: scale.get() }] }));
 
   const active: AtlasExpression = spinning ? 'whoa' : expression;
   const showBlink = blink && !spinning && (expression === 'default' || expression === 'watching');

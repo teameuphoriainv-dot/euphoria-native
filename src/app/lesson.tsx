@@ -212,7 +212,7 @@ export default function Lesson() {
         {kind === 'done' && (
           <Animated.View key="done" entering={FadeIn} style={styles.centered}>
             <Confetti />
-            <Atlas size={120} expression="happy" />
+            <Atlas size={120} expression="happy" celebrate />
             <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
             <RewardPop delay={280}>
               <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
