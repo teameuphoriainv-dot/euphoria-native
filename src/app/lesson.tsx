@@ -18,6 +18,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
 import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
+import { SortBuckets, type SortSpec } from '@/components/sort-buckets';
 import { TileBuilder, type TileSpec } from '@/components/tile-builder';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -26,7 +27,18 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'quiz', 'reveal', 'done'] as const;
+const SORT: SortSpec = {
+  title: 'Sort each expense: need, want, or save?',
+  categories: ['Needs', 'Wants', 'Save'],
+  items: [
+    { label: 'Rent', correct: 'Needs' },
+    { label: 'Netflix subscription', correct: 'Wants' },
+    { label: 'Groceries', correct: 'Needs' },
+    { label: 'New sneakers', correct: 'Wants' },
+    { label: 'Emergency fund', correct: 'Save' },
+  ],
+};
 const money = (n: number) => '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const SLIDER: SliderSpec = {
   prompt: 'Invest $100/month at 8% a year. Drag to guess its value after 30 years.',
@@ -53,6 +65,7 @@ export default function Lesson() {
   const [checked, setChecked] = useState(false);
   const [buildSolved, setBuildSolved] = useState(false);
   const [sliderTouched, setSliderTouched] = useState(false);
+  const [sortSolved, setSortSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -69,7 +82,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched);
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -120,6 +133,12 @@ export default function Lesson() {
         {kind === 'build' && (
           <Animated.View key="build" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
             <TileBuilder spec={PAYCHECK} onSolvedChange={setBuildSolved} />
+          </Animated.View>
+        )}
+
+        {kind === 'sort' && (
+          <Animated.View key="sort" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <SortBuckets spec={SORT} onSolvedChange={setSortSolved} />
           </Animated.View>
         )}
 
