@@ -11,6 +11,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
+import { NumberRollup } from '@/shared/motion/number-rollup';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -101,7 +102,7 @@ export default function Home() {
               </View>
             </View>
             <View style={styles.amountRow}>
-              <ThemedText type="display" style={{ fontSize: 34 }}>$104,237</ThemedText>
+              <NumberRollup value={104237} prefix="$" type="display" style={{ fontSize: 34 }} />
               <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: 18, marginBottom: 3 }}>.55</ThemedText>
             </View>
             <View style={{ marginTop: Spacing.two }}>
