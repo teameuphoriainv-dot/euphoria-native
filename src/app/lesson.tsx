@@ -198,7 +198,7 @@ export default function Lesson() {
         {kind === 'quiz' && (
           <Animated.View key="quiz" entering={FadeInDown} style={{ flex: 1 }}>
             <View style={styles.quizHead}>
-              <Atlas size={56} expression={checked ? (pick === CORRECT ? 'happy' : 'watching') : 'default'} interactive={false} />
+              <Atlas size={56} expression={checked ? (pick === CORRECT ? 'happy' : 'oops') : 'default'} shake={checked && pick !== CORRECT} interactive={false} />
               <ThemedText type="title" style={{ flex: 1, fontSize: 21 }}>A stock falls 20%, then rises 20%. Are you back to even?</ThemedText>
             </View>
             <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
@@ -248,7 +248,7 @@ export default function Lesson() {
         {kind === 'done' && (
           <Animated.View key="done" entering={FadeIn} style={styles.centered}>
             <Confetti />
-            <Atlas size={120} expression="happy" celebrate />
+            <Atlas size={120} expression="proud" celebrate entrance="bounce" />
             <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
             <RewardPop delay={280}>
               <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>

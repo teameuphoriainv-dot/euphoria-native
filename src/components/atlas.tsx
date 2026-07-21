@@ -7,17 +7,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedProps,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
   withDelay,
+  withRepeat,
   withSequence,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle, G, Image as SvgImage, Path } from 'react-native-svg';
 
-export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad';
+export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
 const INK = '#1A1523';
 const AnimatedG = Animated.createAnimatedComponent(G);
@@ -29,17 +32,25 @@ export function Atlas({
   interactive = true,
   glasses = false,
   celebrate = false,
+  shake = false,
+  entrance,
 }: {
   size?: number;
   expression?: AtlasExpression;
   interactive?: boolean;
   glasses?: boolean;
   celebrate?: boolean;
+  shake?: boolean;
+  entrance?: 'bounce';
 }) {
   const reduced = useReducedMotion();
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
   const jumpY = useSharedValue(0);
+  const breathY = useSharedValue(0);
+  const shakeX = useSharedValue(0);
+  const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : 1);
+  const entranceOpacity = useSharedValue(entrance === 'bounce' ? 0 : 1);
   const spins = useRef(0);
   const [blink, setBlink] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -70,6 +81,40 @@ export function Atlas({
     jumpY.set(withDelay(180, withSequence(withSpring(-size * 0.28, { stiffness: 320, damping: 9 }), withSpring(0, { stiffness: 220, damping: 12 }))));
   }, [celebrate, reduced, jumpY, size]);
 
+  // idle breathing bob — the "alive" signal (V2 bot reference)
+  useEffect(() => {
+    if (reduced) return;
+    breathY.set(withRepeat(withSequence(
+      withTiming(-size * 0.025, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
+      withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
+    ), -1, true));
+  }, [reduced, breathY, size]);
+
+  // shake on wrong answer (V1 balance-scale reference)
+  useEffect(() => {
+    if (!shake || reduced) return;
+    shakeX.set(withSequence(
+      withTiming(-size * 0.06, { duration: 60 }),
+      withTiming(size * 0.06, { duration: 60 }),
+      withTiming(-size * 0.05, { duration: 55 }),
+      withTiming(size * 0.05, { duration: 55 }),
+      withTiming(-size * 0.025, { duration: 50 }),
+      withSpring(0, { stiffness: 300, damping: 20 }),
+    ));
+  }, [shake, reduced, shakeX, size]);
+
+  // bounce-in entrance (V2 greeting reference)
+  useEffect(() => {
+    if (entrance !== 'bounce') return;
+    if (reduced) { entranceScale.set(1); entranceOpacity.set(1); return; }
+    entranceOpacity.set(withTiming(1, { duration: 80 }));
+    entranceScale.set(withSequence(
+      withSpring(1.12, { stiffness: 320, damping: 8 }),
+      withSpring(0.96, { stiffness: 280, damping: 14 }),
+      withSpring(1.0, { stiffness: 240, damping: 18 }),
+    ));
+  }, [entrance, reduced, entranceScale, entranceOpacity]);
+
   const spin = () => {
     if (!interactive || reduced) return;
     spins.current += 1;
@@ -79,7 +124,10 @@ export function Atlas({
   };
 
   const bodyProps = useAnimatedProps(() => ({ rotation: rotation.get() }));
-  const wrapStyle = useAnimatedStyle(() => ({ transform: [{ translateY: jumpY.get() }, { scale: scale.get() }] }));
+  const wrapStyle = useAnimatedStyle(() => ({
+    opacity: entranceOpacity.get(),
+    transform: [{ translateY: jumpY.get() + breathY.get() }, { translateX: shakeX.get() }, { scale: scale.get() * entranceScale.get() }],
+  }));
 
   const active: AtlasExpression = spinning ? 'whoa' : expression;
   const showBlink = blink && !spinning && (expression === 'default' || expression === 'watching');
@@ -136,6 +184,38 @@ export function Atlas({
             <Circle cx={57.9} cy={29} r={1.6} fill="#fff" />
             <Path d="M27 24 Q35 22 43 25" stroke={INK} strokeWidth={2.6} strokeLinecap="round" fill="none" />
             <Path d="M54 24 Q61 22 68 25" stroke={INK} strokeWidth={2.6} strokeLinecap="round" fill="none" />
+          </>
+        );
+      case 'thinking':
+        return (
+          <>
+            <Circle cx={32} cy={22} r={6.6} fill={INK} />
+            <Circle cx={29.8} cy={20} r={2.2} fill="#fff" />
+            <Circle cx={59} cy={23.5} r={5.8} fill={INK} />
+            <Circle cx={57} cy={21.5} r={1.8} fill="#fff" />
+            <Path d="M26 20 Q34.8 16.5 42 19.5" stroke={INK} strokeWidth={2.4} strokeLinecap="round" fill="none" />
+          </>
+        );
+      case 'proud':
+        return (
+          <>
+            <Circle cx={34.8} cy={22.5} r={6.6} fill={INK} />
+            <Circle cx={32.6} cy={20.5} r={2.2} fill="#fff" />
+            <Circle cx={61.2} cy={21.2} r={6} fill={INK} />
+            <Circle cx={59} cy={19.2} r={2} fill="#fff" />
+            <Path d="M24 28.5 Q34.8 33 45.6 28.5" stroke={INK} strokeWidth={2.6} strokeLinecap="round" fill="none" />
+            <Path d="M51.4 27 Q61.2 31.2 71 27" stroke={INK} strokeWidth={2.6} strokeLinecap="round" fill="none" />
+          </>
+        );
+      case 'oops':
+        return (
+          <>
+            <Circle cx={34.8} cy={32} r={6} fill={INK} />
+            <Circle cx={32.8} cy={30.2} r={1.8} fill="#fff" />
+            <Circle cx={61.2} cy={30.5} r={5.4} fill={INK} />
+            <Circle cx={59.3} cy={28.8} r={1.6} fill="#fff" />
+            <Path d="M25 19 Q34.8 23 43.5 20" stroke={INK} strokeWidth={2.8} strokeLinecap="round" fill="none" />
+            <Path d="M52 19 Q61.2 23 70.5 20" stroke={INK} strokeWidth={2.8} strokeLinecap="round" fill="none" />
           </>
         );
       default:
