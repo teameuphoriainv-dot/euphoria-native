@@ -51,10 +51,10 @@ export default function Learn() {
       <RiseIn>
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <View style={{ flex: 1 }}>
+            <SpringPressable haptic={false} onPress={() => router.push('/courses')} style={{ flex: 1 }}>
               <ThemedText type="title" style={{ fontSize: 22 }}>Investing Foundations</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>Unit 1 · {CURRENT} of {TOTAL} lessons</ThemedText>
-            </View>
+              <ThemedText type="small" style={{ marginTop: 2, color: theme.iconLilac }}>Tap to browse all courses</ThemedText>
+            </SpringPressable>
             <View style={[styles.countPill, { backgroundColor: theme.primary + '24', borderColor: theme.primary + '4D' }]}>
               <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{CURRENT}/{TOTAL}</ThemedText>
             </View>
