@@ -1,8 +1,13 @@
 # Euphoria Native — Autonomous Build Roadmap
 
 Durable build queue for the autonomous loop. **This file is the source of truth for "what's next"**,
-because the session TaskList dies on compaction/restart. Each loop cycle: read this → build ONE
-unchecked item → `tsc` + expo lint clean → verify on sim (screenshot) → commit → check the box here → re-arm.
+because the session TaskList dies on compaction/restart.
+
+**⚠️ WORKING STYLE (user directive 2026-07-21): work in BIGGER BATCHES.** Do NOT dribble one tiny
+widget per 90s cycle — that felt like no progress. Instead: drive a whole epic (or a big coherent
+chunk of one) toward completion in a focused working session, building MULTIPLE related items before
+reporting/stopping. Each session: read this → build a meaningful batch → `tsc` clean → visually verify
+each on sim → commit (can be several commits) → check the boxes → only then consider a break/re-arm.
 
 Rules: Expo SDK **57** (verify APIs at docs.expo.dev/versions/v57.0.0 before writing Expo code).
 Brand: violet (not green), Atlas mascot, finance/investing. Nunito in-app, EB Garamond marketing.
