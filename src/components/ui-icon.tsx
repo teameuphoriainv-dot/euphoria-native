@@ -117,6 +117,26 @@ const P: Record<string, React.ReactNode> = {
       <Path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 17 16H9.5L5 19.5l-.5-3V6.5Z" />
     </>
   ),
+  bell: (
+    <>
+      <Path d="M6.5 10.5a5.5 5.5 0 0 1 11 0c0 4 1.6 5 1.6 5H4.9s1.6-1 1.6-5Z" />
+      <Path d="M10 18.5a2 2 0 0 0 4 0" />
+    </>
+  ),
+  settings: (
+    <>
+      <Path d="M4 7.5h8M17 7.5h3" />
+      <Circle cx={14.5} cy={7.5} r={2.3} />
+      <Path d="M4 16.5h4M12.5 16.5h7.5" />
+      <Circle cx={9.5} cy={16.5} r={2.3} />
+    </>
+  ),
+  search: (
+    <>
+      <Circle cx={11} cy={11} r={6.5} />
+      <Path d="M16 16l4 4" />
+    </>
+  ),
 };
 
 export type UIconName = keyof typeof P;
