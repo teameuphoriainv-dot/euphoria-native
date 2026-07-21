@@ -1,85 +1,58 @@
-# Euphoria Native — Autonomous Build Roadmap
+# Euphoria Native — Build Roadmap (USER-JOURNEY FLOW)
 
-Durable build queue for the autonomous loop. **This file is the source of truth for "what's next"**,
-because the session TaskList dies on compaction/restart.
+The app redesigned **start → end** to EXCEED Duolingo + Brilliant. Read `AI_CONTEXT.md` first.
+Every screen: heavy tasteful motion + Atlas reactions + violet brand. Work in **BIG BATCHES**
+(finish a whole screen, verified — never dribble one tiny widget). **VISUAL-VERIFY every build**
+on the sim (cold-restart + screenshot + actually look) before proceeding.
 
-**⚠️ WORKING STYLE (user directive 2026-07-21): work in BIGGER BATCHES.** Do NOT dribble one tiny
-widget per 90s cycle — that felt like no progress. Instead: drive a whole epic (or a big coherent
-chunk of one) toward completion in a focused working session, building MULTIPLE related items before
-reporting/stopping. Each session: read this → build a meaningful batch → `tsc` clean → visually verify
-each on sim → commit (can be several commits) → check the boxes → only then consider a break/re-arm.
+Verify recipe — lesson steps: `xcrun simctl terminate <udid> host.exp.Exponent; sleep 1; xcrun simctl openurl <udid> "exp://127.0.0.1:8082/--/lesson?step=<name>"; sleep 9` → ios_screenshot. Screens: openurl `exp://127.0.0.1:8082/--/<route>` → screenshot. maestro (`~/.maestro/bin/maestro`) for tap-through flows.
 
-Rules: Expo SDK **57** (verify APIs at docs.expo.dev/versions/v57.0.0 before writing Expo code).
-Brand: violet (not green), Atlas mascot, finance/investing. Nunito in-app, EB Garamond marketing.
-Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7`.
+---
 
-**⚠️ Visual QA is MANDATORY every cycle** (tsc alone is NOT enough — actually SEE the thing render before checking the box):
-- Lesson widgets: register the step name in `lesson.tsx` STEPS, then `xcrun simctl terminate <udid> host.exp.Exponent; sleep 1; xcrun simctl openurl <udid> "exp://127.0.0.1:8082/--/lesson?step=<stepName>"; sleep 9` → `ios_screenshot`. (Cold restart forces a fresh mount so the dev-only `?step=` jump in lesson.tsx applies — navigating to an already-mounted route does NOT re-read the param.)
-- Games: openurl `exp://127.0.0.1:8082/--/games/<route>` → screenshot.
-- Screens (home/league/you/etc.): openurl `exp://127.0.0.1:8082/--/<route>` → screenshot.
-- `~/.maestro/bin/maestro` is available for tap-through interaction flows (execbro RN tap is blocked by Expo Go 401; idb absent).
+## 🗺️ THE JOURNEY — build in this order, each screen to above-Duo quality
+
+### 1. Launch / Splash — [ ] NEW
+Branded splash → Atlas comet/beam entrance into Welcome. Smooth, no white flash.
+
+### 2. Welcome / Atlas spotlight — 🟡 exists (`welcome.tsx`), polish to above-Duo
+Light-beam entrance, Atlas `entrance="bounce"`, staggered copy rise, gradient CTA press spring.
+
+### 3. Onboarding (12–15 steps, Duo-motion) — 🟡 6 steps exist; 0/10 motion upgrades
+`onboarding.tsx` + `onboarding-parts.tsx`. Implement ALL of `ONBOARDING_ANIM_SPEC.md`:
+progress-bar spring fill, Atlas expression-per-step, OptionCard stagger + animated radio, GrowthChart
+line-draw, path reveal sequence, screen transitions. Expand toward the ~15-step Brilliant flow.
+
+### 4. Paywall — [ ] NEW (post-onboarding)  ⚠️ needs monetization model from user
+Beautiful subscription offer: value props, plan cards, Atlas, social proof, "restore". Above-Duo.
+
+### 5. Auth / account create — [ ] (Google / Apple / email)
+
+### 6. Home dashboard — 🟡 ring + NumberRollup exist; full redesign
+Daily-goal ring, streak flame, "continue lesson" hero, Atlas greeting w/ time-of-day expression, XP/level.
+
+### 7. Learn / Pathway trail — 🟡 exists; redesign
+Illustrated vertical unit pathway, node states (locked/active pulse/done), Atlas checkpoints, course chips.
+
+### 8. Lesson viewer — ✅ 13 step types built; polish transitions + reward cascade between steps
+
+### 9. Lesson complete / rewards moment — 🟡 basic; make it a MOMENT
+Confetti + Atlas celebrate + XP roll-up + streak bump + coin toast, staggered.
+
+### 10. Games hub + 14 mini-games — 🟡 1/14 (TermMatch)
+
+### 11. Explorables — [ ] 0/11 interactive finance labs (CompoundGrowthLab first)
+
+### 12. League / leaderboard — 🟡 exists; polish (promotion animations, rank-up)
+
+### 13. Profile / You — [ ] streak calendar, achievements, XP levels, settings
+
+## ↔️ Cross-cutting (touch every screen)
+- **Atlas mascot system** — 🟡 6/20 anims (`ATLAS_ANIM_SPEC.md`). THE mascot — keep enhancing.
+- Motion system, sound (expo-audio), skeletons/loading, a11y pass.
 
 ## ✅ Shipped
-- Lesson viewer (intro→teach→predict-reveal→celebration) + 4 widgets: TileBuilder, SliderPredict, SortBuckets, TapReveal
-- Atlas celebrate-jump, NumberRollup, RewardPop reward cascade
-- Daily-goal ring (Home), League (/league), Courses grid, Welcome spotlight, 6-step onboarding
-- Games hub (/games) + TermMatch game
-- `src/lib/courses.ts` — 277 lessons across 12 courses
-
-## 🔨 Build queue (ordered: sim-verifiable + highest value first)
-
-### A. Lesson widget library → 12+ interactive step types (finish #9)
-- [x] MultipleChoice — covered by inline lesson `quiz` step (single-select + reveal)
-- [x] MultiSelect (choose-all-that-apply) — `src/components/multi-select.tsx`, wired as `multi` step
-- [x] NumberLine (place value on a line) — `src/components/number-line.tsx`, wired as `line` step
-- [x] MatchingPairs (connect left↔right) — `src/components/matching-pairs.tsx`, wired as `match` step
-- [x] OrderSteps (tap-two-to-swap) — `src/components/order-steps.tsx`, wired as `order` step ✓visually verified
-- [x] BeforeAfterSlider (drag-to-reveal comparison) — `src/components/before-after-slider.tsx`, wired as `compare` step ✓visually verified
-- [x] GraphPointDrag (drag chart point into target band) — `src/components/graph-point-drag.tsx`, wired as `graph` step ✓visually verified  **§A COMPLETE — 13 step types**
-
-### B. Explorables → 11 interactive labs (#10 first; names provisional, refine per cycle)
-- [ ] CompoundGrowthLab (principal/rate/years sliders → live curve)
-- [ ] InflationEroder (purchasing power over time)
-- [ ] BudgetSplitter (50/30/20 interactive)
-- [ ] RuleOf72 (rate → doubling time)
-- [ ] DollarCostAveraging (lump vs DCA)
-- [ ] DiversificationMixer (allocation → risk/return)
-- [ ] RiskReturnScatter (asset classes)
-- [ ] LoanAmortizer (payment schedule)
-- [ ] RetirementProjector (contributions → nest egg)
-- [ ] TaxBracketExplorer (marginal vs effective)
-- [ ] OptionPayoff (call/put payoff plot)
-
-### C. Games hub → 14 mini-games (1/14; names provisional)
-- [x] TermMatch
-- [ ] BudgetBlitz  - [ ] MarketDash  - [ ] CompoundQuest  - [ ] FraudSpotter  - [ ] BullOrBear
-- [ ] PortfolioPuzzle  - [ ] CashFlowRun  - [ ] RateHike  - [ ] DiversifyDrop  - [ ] TickerType
-- [ ] SavingsSprint  - [ ] RiskRoulette  - [ ] OptionsOracle
-
-### D. Gamification depth
-- [ ] Streak system (counter + freeze + week calendar)
-- [ ] XP levels (level curve + level-up celebration screen)
-
-### E. Atlas reactivity system  (implement from ATLAS_ANIM_SPEC.md — reference-driven)
-- [ ] Expression per lesson event (happy/whoa/watching/sad) wired across all widgets
-- [ ] Additional celebratory poses beyond the jump
-- [ ] New Atlas expressions from ATLAS_ANIM_SPEC.md (extend the 6 — one per cycle)
-- [ ] New Atlas motion behaviors from ATLAS_ANIM_SPEC.md (idle bob, anticipation, shake-on-wrong, bounce-in, etc.)
-
-### F. Onboarding enrichment (toward ~15-step Brilliant spec)  — ⭐ USER PRIORITY: Duolingo-grade motion, implement from ONBOARDING_ANIM_SPEC.md (violet + Atlas, "even better" than Duo)
-- [ ] MascotSpotlight (light-beam entrance)
-- [ ] Motivation 2×2 illustrated cards
-- [ ] Investing-level cards w/ mini finance visuals
-- [ ] Daily-goal timer-dial cards (10/20/30/60)
-- [ ] Schedule cards (gradient sun/moon icons)
-- [ ] Notifications fake-card screen
-- [ ] Social-proof testimonials screen
-- [ ] Topic constellation "we have everything you need"
-
-### G. System / polish
-- [ ] #13 Sound — expo-audio (SDK57) + useSound hook
-- [ ] #14 Skeleton loaders / loading states
-- [ ] #16 Certificate unlock overlay
-- [ ] #19 Illustration set (EUPHORIA_ICONS)
-- [ ] #20 Auth (Google / Apple / email)
-- [ ] #21 A11y pass (labels, roles, contrast, dynamic type)
+- Lesson widget library — 13 interactive step types (TileBuilder, SliderPredict, SortBuckets,
+  TapReveal, quiz, MultiSelect, NumberLine, MatchingPairs, OrderSteps, BeforeAfterSlider, GraphPointDrag)
+- Atlas: idle breathing bob, `thinking`/`proud`/`oops` expressions, shake-on-wrong, bounce-in entrance
+- daily-goal ring, League, Courses grid, Games hub + TermMatch, `src/lib/courses.ts` (277 lessons)
+- Dev `?step=` deep-link for per-widget visual QA
