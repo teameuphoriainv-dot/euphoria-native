@@ -17,6 +17,7 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
+import { MultiSelect, type MultiSpec } from '@/components/multi-select';
 import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
 import { SortBuckets, type SortSpec } from '@/components/sort-buckets';
 import { TapReveal, type RevealSpec } from '@/components/tap-reveal';
@@ -28,7 +29,7 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'cards', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'cards', 'quiz', 'reveal', 'done'] as const;
 const CARDS: RevealSpec = {
   title: 'Flip to learn four key terms.',
   cards: [
@@ -47,6 +48,17 @@ const SORT: SortSpec = {
     { label: 'Groceries', correct: 'Needs' },
     { label: 'New sneakers', correct: 'Wants' },
     { label: 'Emergency fund', correct: 'Save' },
+  ],
+};
+const MULTI: MultiSpec = {
+  title: 'Which of these are assets? Select all that apply.',
+  hint: 'Assets put money in your pocket — pick every one.',
+  options: [
+    { label: 'A rental property you own', correct: true },
+    { label: 'Credit-card debt', correct: false },
+    { label: 'Dividend-paying stocks', correct: true },
+    { label: 'A car loan', correct: false },
+    { label: 'A high-yield savings account', correct: true },
   ],
 };
 const money = (n: number) => '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -77,6 +89,7 @@ export default function Lesson() {
   const [sliderTouched, setSliderTouched] = useState(false);
   const [sortSolved, setSortSolved] = useState(false);
   const [cardsSolved, setCardsSolved] = useState(false);
+  const [multiSolved, setMultiSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -93,7 +106,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved);
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -150,6 +163,12 @@ export default function Lesson() {
         {kind === 'sort' && (
           <Animated.View key="sort" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
             <SortBuckets spec={SORT} onSolvedChange={setSortSolved} />
+          </Animated.View>
+        )}
+
+        {kind === 'multi' && (
+          <Animated.View key="multi" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <MultiSelect spec={MULTI} onSolvedChange={setMultiSolved} />
           </Animated.View>
         )}
 

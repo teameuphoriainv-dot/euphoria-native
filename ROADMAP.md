@@ -18,8 +18,8 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 ## 🔨 Build queue (ordered: sim-verifiable + highest value first)
 
 ### A. Lesson widget library → 12+ interactive step types (finish #9)
-- [ ] MultipleChoice (canonical single-select w/ reveal)
-- [ ] MultiSelect (choose-all-that-apply)
+- [x] MultipleChoice — covered by inline lesson `quiz` step (single-select + reveal)
+- [x] MultiSelect (choose-all-that-apply) — `src/components/multi-select.tsx`, wired as `multi` step
 - [ ] NumberLine (place value on a line)
 - [ ] MatchingPairs (connect left↔right)
 - [ ] OrderSteps (drag/tap to sequence)
