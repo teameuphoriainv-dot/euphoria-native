@@ -18,6 +18,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
 import { MultiSelect, type MultiSpec } from '@/components/multi-select';
+import { NumberLine, type NumberLineSpec } from '@/components/number-line';
 import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
 import { SortBuckets, type SortSpec } from '@/components/sort-buckets';
 import { TapReveal, type RevealSpec } from '@/components/tap-reveal';
@@ -29,7 +30,7 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'cards', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'cards', 'quiz', 'reveal', 'done'] as const;
 const CARDS: RevealSpec = {
   title: 'Flip to learn four key terms.',
   cards: [
@@ -61,6 +62,15 @@ const MULTI: MultiSpec = {
     { label: 'A high-yield savings account', correct: true },
   ],
 };
+const NUMLINE: NumberLineSpec = {
+  prompt: 'Stocks have historically returned about 10% a year. Tap the line to place that rate.',
+  min: 0,
+  max: 20,
+  target: 10,
+  tolerance: 1.5,
+  ticks: [0, 5, 10, 15, 20],
+  format: (n) => `${Math.round(n)}%`,
+};
 const money = (n: number) => '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const SLIDER: SliderSpec = {
   prompt: 'Invest $100/month at 8% a year. Drag to guess its value after 30 years.',
@@ -90,6 +100,7 @@ export default function Lesson() {
   const [sortSolved, setSortSolved] = useState(false);
   const [cardsSolved, setCardsSolved] = useState(false);
   const [multiSolved, setMultiSolved] = useState(false);
+  const [lineSolved, setLineSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -106,7 +117,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved);
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved) || (kind === 'line' && !lineSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -169,6 +180,12 @@ export default function Lesson() {
         {kind === 'multi' && (
           <Animated.View key="multi" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
             <MultiSelect spec={MULTI} onSolvedChange={setMultiSolved} />
+          </Animated.View>
+        )}
+
+        {kind === 'line' && (
+          <Animated.View key="line" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <NumberLine spec={NUMLINE} onSolvedChange={setLineSolved} />
           </Animated.View>
         )}
 

@@ -20,7 +20,7 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 ### A. Lesson widget library → 12+ interactive step types (finish #9)
 - [x] MultipleChoice — covered by inline lesson `quiz` step (single-select + reveal)
 - [x] MultiSelect (choose-all-that-apply) — `src/components/multi-select.tsx`, wired as `multi` step
-- [ ] NumberLine (place value on a line)
+- [x] NumberLine (place value on a line) — `src/components/number-line.tsx`, wired as `line` step
 - [ ] MatchingPairs (connect left↔right)
 - [ ] OrderSteps (drag/tap to sequence)
 - [ ] BeforeAfterSlider (compare two states)
@@ -49,9 +49,11 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 - [ ] Streak system (counter + freeze + week calendar)
 - [ ] XP levels (level curve + level-up celebration screen)
 
-### E. Atlas reactivity system
+### E. Atlas reactivity system  (implement from ATLAS_ANIM_SPEC.md — reference-driven)
 - [ ] Expression per lesson event (happy/whoa/watching/sad) wired across all widgets
 - [ ] Additional celebratory poses beyond the jump
+- [ ] New Atlas expressions from ATLAS_ANIM_SPEC.md (extend the 6 — one per cycle)
+- [ ] New Atlas motion behaviors from ATLAS_ANIM_SPEC.md (idle bob, anticipation, shake-on-wrong, bounce-in, etc.)
 
 ### F. Onboarding enrichment (toward ~15-step Brilliant spec)
 - [ ] MascotSpotlight (light-beam entrance)
