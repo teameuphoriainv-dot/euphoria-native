@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
 import { MultiSelect, type MultiSpec } from '@/components/multi-select';
 import { MatchingPairs, type MatchSpec } from '@/components/matching-pairs';
+import { BeforeAfterSlider, type BeforeAfterSpec } from '@/components/before-after-slider';
 import { OrderSteps, type OrderSpec } from '@/components/order-steps';
 import { NumberLine, type NumberLineSpec } from '@/components/number-line';
 import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
@@ -32,7 +33,7 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'match', 'order', 'cards', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'match', 'order', 'compare', 'cards', 'quiz', 'reveal', 'done'] as const;
 const CARDS: RevealSpec = {
   title: 'Flip to learn four key terms.',
   cards: [
@@ -94,6 +95,15 @@ const SLIDER: SliderSpec = {
   answer: 150030,
   format: money,
 };
+const BEFOREAFTER: BeforeAfterSpec = {
+  prompt: 'Watch $10,000 lose value to 3% inflation. Slide 20 years forward.',
+  beforeLabel: 'Today',
+  afterLabel: 'In 20 years',
+  beforeValue: 10000,
+  afterValue: 5537,
+  caption: 'Same $10,000 — inflation quietly halved what it buys.',
+  format: money,
+};
 const OPTIONS = ["Yes — you break even", "No — you're still down", "No — you're slightly up"];
 const CORRECT = 1;
 const PAYCHECK: TileSpec = {
@@ -122,6 +132,7 @@ export default function Lesson() {
   const [lineSolved, setLineSolved] = useState(false);
   const [matchSolved, setMatchSolved] = useState(false);
   const [orderSolved, setOrderSolved] = useState(false);
+  const [compareSolved, setCompareSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -138,7 +149,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved) || (kind === 'line' && !lineSolved) || (kind === 'match' && !matchSolved) || (kind === 'order' && !orderSolved);
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved) || (kind === 'line' && !lineSolved) || (kind === 'match' && !matchSolved) || (kind === 'order' && !orderSolved) || (kind === 'compare' && !compareSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -219,6 +230,12 @@ export default function Lesson() {
         {kind === 'order' && (
           <Animated.View key="order" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
             <OrderSteps spec={ORDER} onSolvedChange={setOrderSolved} />
+          </Animated.View>
+        )}
+
+        {kind === 'compare' && (
+          <Animated.View key="compare" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <BeforeAfterSlider spec={BEFOREAFTER} onSolvedChange={setCompareSolved} />
           </Animated.View>
         )}
 

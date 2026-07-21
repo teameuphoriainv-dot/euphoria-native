@@ -29,7 +29,7 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 - [x] NumberLine (place value on a line) — `src/components/number-line.tsx`, wired as `line` step
 - [x] MatchingPairs (connect left↔right) — `src/components/matching-pairs.tsx`, wired as `match` step
 - [x] OrderSteps (tap-two-to-swap) — `src/components/order-steps.tsx`, wired as `order` step ✓visually verified
-- [ ] BeforeAfterSlider (compare two states)
+- [x] BeforeAfterSlider (drag-to-reveal comparison) — `src/components/before-after-slider.tsx`, wired as `compare` step ✓visually verified
 - [ ] GraphPointDrag (drag a point to a target on a chart)
 
 ### B. Explorables → 11 interactive labs (#10 first; names provisional, refine per cycle)
