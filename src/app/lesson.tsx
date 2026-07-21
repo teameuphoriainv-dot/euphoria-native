@@ -17,20 +17,31 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
+import { TileBuilder, type TileSpec } from '@/components/tile-builder';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'build', 'quiz', 'reveal', 'done'] as const;
 const OPTIONS = ["Yes — you break even", "No — you're still down", "No — you're slightly up"];
 const CORRECT = 1;
+const PAYCHECK: TileSpec = {
+  title: 'Split a $3,000 paycheck with the 50/30/20 rule.',
+  slots: [
+    { label: 'Needs · 50%', correct: '$1,500' },
+    { label: 'Wants · 30%', correct: '$900' },
+    { label: 'Save · 20%', correct: '$600' },
+  ],
+  tray: ['$1,500', '$900', '$600', '$1,000', '$300'],
+};
 
 export default function Lesson() {
   const theme = useTheme();
   const [step, setStep] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
+  const [buildSolved, setBuildSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -47,7 +58,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = kind === 'quiz' && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = kind === 'quiz' && !checked && pick === null;
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -86,6 +97,12 @@ export default function Lesson() {
                 <ThemedText type="body" style={{ flex: 1 }}>The price moves as people disagree on what that slice is worth.</ThemedText>
               </View>
             </Card>
+          </Animated.View>
+        )}
+
+        {kind === 'build' && (
+          <Animated.View key="build" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <TileBuilder spec={PAYCHECK} onSolvedChange={setBuildSolved} />
           </Animated.View>
         )}
 
