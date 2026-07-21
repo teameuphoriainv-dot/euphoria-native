@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
 import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
 import { SortBuckets, type SortSpec } from '@/components/sort-buckets';
+import { TapReveal, type RevealSpec } from '@/components/tap-reveal';
 import { TileBuilder, type TileSpec } from '@/components/tile-builder';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -27,7 +28,16 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'cards', 'quiz', 'reveal', 'done'] as const;
+const CARDS: RevealSpec = {
+  title: 'Flip to learn four key terms.',
+  cards: [
+    { term: 'Bull market', def: 'A stretch of rising prices and optimism.' },
+    { term: 'Bear market', def: 'A 20%+ fall, when pessimism sets in.' },
+    { term: 'Dividend', def: 'A slice of profits paid to shareholders.' },
+    { term: 'Diversification', def: 'Spreading money across assets to cut risk.' },
+  ],
+};
 const SORT: SortSpec = {
   title: 'Sort each expense: need, want, or save?',
   categories: ['Needs', 'Wants', 'Save'],
@@ -66,6 +76,7 @@ export default function Lesson() {
   const [buildSolved, setBuildSolved] = useState(false);
   const [sliderTouched, setSliderTouched] = useState(false);
   const [sortSolved, setSortSolved] = useState(false);
+  const [cardsSolved, setCardsSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -82,7 +93,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved);
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -139,6 +150,12 @@ export default function Lesson() {
         {kind === 'sort' && (
           <Animated.View key="sort" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
             <SortBuckets spec={SORT} onSolvedChange={setSortSolved} />
+          </Animated.View>
+        )}
+
+        {kind === 'cards' && (
+          <Animated.View key="cards" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <TapReveal spec={CARDS} onSolvedChange={setCardsSolved} />
           </Animated.View>
         )}
 
