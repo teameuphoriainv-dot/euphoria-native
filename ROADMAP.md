@@ -8,6 +8,12 @@ Rules: Expo SDK **57** (verify APIs at docs.expo.dev/versions/v57.0.0 before wri
 Brand: violet (not green), Atlas mascot, finance/investing. Nunito in-app, EB Garamond marketing.
 Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7`.
 
+**⚠️ Visual QA is MANDATORY every cycle** (tsc alone is NOT enough — actually SEE the thing render before checking the box):
+- Lesson widgets: register the step name in `lesson.tsx` STEPS, then `xcrun simctl terminate <udid> host.exp.Exponent; sleep 1; xcrun simctl openurl <udid> "exp://127.0.0.1:8082/--/lesson?step=<stepName>"; sleep 9` → `ios_screenshot`. (Cold restart forces a fresh mount so the dev-only `?step=` jump in lesson.tsx applies — navigating to an already-mounted route does NOT re-read the param.)
+- Games: openurl `exp://127.0.0.1:8082/--/games/<route>` → screenshot.
+- Screens (home/league/you/etc.): openurl `exp://127.0.0.1:8082/--/<route>` → screenshot.
+- `~/.maestro/bin/maestro` is available for tap-through interaction flows (execbro RN tap is blocked by Expo Go 401; idb absent).
+
 ## ✅ Shipped
 - Lesson viewer (intro→teach→predict-reveal→celebration) + 4 widgets: TileBuilder, SliderPredict, SortBuckets, TapReveal
 - Atlas celebrate-jump, NumberRollup, RewardPop reward cascade

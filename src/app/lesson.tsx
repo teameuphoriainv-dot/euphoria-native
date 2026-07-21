@@ -3,7 +3,7 @@
  * teach → predict-then-reveal quiz → interactive reveal → celebration. Full-screen stack
  * route; Learn's START node pushes here. Mock lesson content until Phase 3 wires courses.
  */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -102,7 +102,10 @@ const PAYCHECK: TileSpec = {
 
 export default function Lesson() {
   const theme = useTheme();
-  const [step, setStep] = useState(0);
+  // dev-only: ?step=<name> jumps straight to a step for visual QA (ignored in production)
+  const params = useLocalSearchParams<{ step?: string }>();
+  const startAt = __DEV__ && params.step ? STEPS.indexOf(params.step as (typeof STEPS)[number]) : -1;
+  const [step, setStep] = useState(startAt >= 0 ? startAt : 0);
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [buildSolved, setBuildSolved] = useState(false);
