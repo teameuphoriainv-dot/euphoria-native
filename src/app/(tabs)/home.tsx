@@ -1,105 +1,148 @@
+/**
+ * Home — matches design mockup: greeting + Atlas + streak pill, weekly check row,
+ * portfolio card with violet area chart, Continue/Trade duo, Daily Challenge.
+ */
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
+import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
-import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const DONE_DAYS = 5; // ponytail: mock data until Phase 2 wires Supabase
+
+function DayCheck({ label, done }: { label: string; done: boolean }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.day}>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>{label}</ThemedText>
+      <Svg width={30} height={30} viewBox="0 0 30 30">
+        <Circle cx={15} cy={15} r={13.5} fill={done ? theme.primary : 'none'} stroke={done ? theme.primary : theme.border} strokeWidth={2} />
+        {done && <Path d="M9.5 15.5l3.5 3.5 7-7.5" stroke="#fff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" fill="none" />}
+      </Svg>
+    </View>
+  );
+}
+
+function PortfolioChart() {
+  const theme = useTheme();
+  return (
+    <Svg width="100%" height={90} viewBox="0 0 320 90" preserveAspectRatio="none">
+      <Defs>
+        <SvgGradient id="area" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={theme.primary} stopOpacity={0.35} />
+          <Stop offset="1" stopColor={theme.primary} stopOpacity={0.02} />
+        </SvgGradient>
+      </Defs>
+      <Path
+        d="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14 L320 90 L0 90 Z"
+        fill="url(#area)"
+      />
+      <Path
+        d="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14"
+        stroke={theme.primary}
+        strokeWidth={2.5}
+        fill="none"
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
 export default function Home() {
   const theme = useTheme();
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
+      <AmbientBackground glow={false} starCount={45} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Greeting + streak */}
+        {/* Greeting */}
         <RiseIn>
           <View style={styles.headerRow}>
-            <View>
-              <ThemedText type="small" themeColor="mutedForeground">Good evening</ThemedText>
-              <ThemedText type="title">Welcome back</ThemedText>
+            <View style={styles.greetLeft}>
+              <Atlas size={46} expression="happy" interactive={false} />
+              <View>
+                <ThemedText type="title" style={{ fontSize: 22 }}>Hey, Siddartha</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">Ready to learn?</ThemedText>
+              </View>
             </View>
-            <View style={[styles.streak, { backgroundColor: theme.warning + '22' }]}>
-              <Icon name="flame" size={18} />
-              <ThemedText type="smallBold" style={{ color: theme.warning }}>7</ThemedText>
+            <View style={[styles.streakPill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
+              <UIcon name="flame" size={15} color={theme.iconLilac} />
+              <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>12</ThemedText>
             </View>
           </View>
         </RiseIn>
 
-        {/* Continue learning */}
-        <RiseIn delay={70}>
-          <Card style={styles.block}>
+        {/* Week row */}
+        <RiseIn delay={60}>
+          <View style={styles.weekRow}>
+            {WEEK.map((d, i) => (
+              <DayCheck key={`${d}${i}`} label={d} done={i < DONE_DAYS} />
+            ))}
+          </View>
+        </RiseIn>
+
+        {/* Portfolio */}
+        <RiseIn delay={120}>
+          <Card style={styles.portfolio}>
             <View style={styles.rowBetween}>
-              <Badge label="Continue" tone="primary" />
-              <ThemedText type="small" themeColor="mutedForeground">Lesson 8 of 25</ThemedText>
+              <ThemedText type="label" themeColor="mutedForeground">Portfolio</ThemedText>
+              <View style={styles.deltaRow}>
+                <Svg width={12} height={12} viewBox="0 0 12 12"><Path d="M6 2l4 6H2z" fill={theme.success} /></Svg>
+                <ThemedText type="smallBold" style={{ color: theme.success }}>+$1,284 today</ThemedText>
+              </View>
             </View>
-            <ThemedText type="heading" style={{ marginTop: Spacing.two }}>Investing Fundamentals</ThemedText>
-            <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 2 }}>Diversification & risk</ThemedText>
-            <View style={styles.progressRow}>
-              <ProgressBar value={0.32} />
-              <ThemedText type="smallBold" themeColor="mutedForeground">32%</ThemedText>
+            <View style={styles.amountRow}>
+              <ThemedText type="display" style={{ fontSize: 34 }}>$104,237</ThemedText>
+              <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: 18, marginBottom: 3 }}>.55</ThemedText>
             </View>
-            <GradientButton label="Resume lesson" full style={{ marginTop: Spacing.three }} onPress={() => router.push('/learn')} />
+            <View style={{ marginTop: Spacing.two }}>
+              <PortfolioChart />
+            </View>
           </Card>
         </RiseIn>
 
-        {/* Stat row */}
-        <View style={styles.statRow}>
-          <RiseIn delay={130} style={styles.statHalf}>
-            <Card>
-              <View style={styles.rowBetween}>
-                <ThemedText type="label" themeColor="mutedForeground">Portfolio</ThemedText>
-                <Icon name="bar-chart" size={18} />
-              </View>
-              <ThemedText type="title" style={{ marginTop: Spacing.one }}>$12,480</ThemedText>
-              <ThemedText type="smallBold" style={{ color: theme.success, marginTop: 2 }}>+2.4% today</ThemedText>
-            </Card>
+        {/* Continue / Trade duo */}
+        <View style={styles.duoRow}>
+          <RiseIn delay={180} style={styles.duoHalf}>
+            <SpringPressable onPress={() => router.push('/learn')}>
+              <Card style={[styles.duoCard, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
+                <UIcon name="arrowRight" size={20} color="#fff" />
+                <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two, color: '#fff' }}>Continue</ThemedText>
+                <ThemedText type="small" style={{ color: 'rgba(255,255,255,0.85)' }}>Foundations · 80%</ThemedText>
+              </Card>
+            </SpringPressable>
           </RiseIn>
-          <RiseIn delay={180} style={styles.statHalf}>
-            <Card>
-              <View style={styles.rowBetween}>
-                <ThemedText type="label" themeColor="mutedForeground">Level 6</ThemedText>
-                <Icon name="crown" size={18} />
-              </View>
-              <ThemedText type="title" style={{ marginTop: Spacing.one }}>2,340</ThemedText>
-              <ThemedText type="smallBold" themeColor="mutedForeground" style={{ marginTop: 2 }}>XP · 160 to go</ThemedText>
-            </Card>
+          <RiseIn delay={230} style={styles.duoHalf}>
+            <SpringPressable onPress={() => router.push('/trade')}>
+              <Card style={styles.duoCard}>
+                <UIcon name="trade" size={20} color={theme.success} />
+                <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two }}>Trade</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">Paper trading</ThemedText>
+              </Card>
+            </SpringPressable>
           </RiseIn>
         </View>
 
         {/* Daily challenge */}
-        <RiseIn delay={230}>
+        <RiseIn delay={290}>
           <SpringPressable onPress={() => {}}>
-            <Card style={styles.listRow}>
-              <View style={[styles.iconBubble, { backgroundColor: theme.primary + '22' }]}>
-                <Icon name="target" size={26} />
+            <Card style={[styles.challenge, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '38' }]}>
+              <View style={styles.challengeHead}>
+                <UIcon name="sparkle" size={15} color={theme.iconLilac} />
+                <ThemedText type="label" style={{ color: theme.iconLilac }}>Daily Challenge</ThemedText>
               </View>
-              <View style={{ flex: 1 }}>
-                <ThemedText type="bodyMedium">Daily Challenge</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">5 questions · +50 XP</ThemedText>
-              </View>
-              <Icon name="ui-arrow" size={20} />
-            </Card>
-          </SpringPressable>
-        </RiseIn>
-
-        {/* Atlas coach */}
-        <RiseIn delay={280}>
-          <SpringPressable onPress={() => {}}>
-            <Card style={styles.atlasRow}>
-              <Atlas size={60} />
-              <View style={{ flex: 1 }}>
-                <ThemedText type="bodyMedium">Ask Atlas</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">Stuck on a concept? Your AI coach explains anything.</ThemedText>
-              </View>
-              <Icon name="ui-arrow" size={20} />
+              <ThemedText type="bodyMedium" style={{ marginTop: Spacing.one, lineHeight: 22 }}>
+                If a stock drops 20% then rises 20%, are you back to even?
+              </ThemedText>
             </Card>
           </SpringPressable>
         </RiseIn>
@@ -111,14 +154,18 @@ export default function Home() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
-  headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  streak: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: Radius.pill },
-  block: {},
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  greetLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
+  streakPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: Radius.pill, borderWidth: 1 },
+  weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
+  day: { alignItems: 'center', gap: 6 },
+  portfolio: { paddingBottom: Spacing.two },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  progressRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: Spacing.three },
-  statRow: { flexDirection: 'row', gap: Spacing.three },
-  statHalf: { flex: 1 },
-  listRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
-  iconBubble: { width: 48, height: 48, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  atlasRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
+  deltaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  amountRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, marginTop: Spacing.one },
+  duoRow: { flexDirection: 'row', gap: Spacing.three },
+  duoHalf: { flex: 1 },
+  duoCard: { minHeight: 104 },
+  challenge: {},
+  challengeHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

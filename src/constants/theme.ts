@@ -8,10 +8,10 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   dark: {
-    // surfaces
+    // surfaces (muted = euphoriaweb's #A79DB5 lavender-grey — legible on dark)
     text: 'hsl(240 5% 96%)',
-    textSecondary: 'hsl(240 5% 60%)',
-    mutedForeground: 'hsl(240 5% 46%)',
+    textSecondary: '#C3BAD0',
+    mutedForeground: '#A79DB5',
     background: '#09090D',
     backgroundElement: 'hsl(240 10% 9%)',
     backgroundSelected: 'hsl(240 10% 13%)',
@@ -20,13 +20,13 @@ export const Colors = {
     border: 'hsl(240 10% 13%)',
     input: 'hsl(240 10% 15%)',
     muted: 'hsl(240 10% 15%)',
-    // brand
-    primary: 'hsl(274 76% 61%)',
-    primaryForeground: 'hsl(0 0% 100%)',
-    accent: 'hsl(278 76% 66%)',
-    success: 'hsl(142 71% 45%)',
-    warning: 'hsl(45 93% 58%)',
-    destructive: 'hsl(0 84% 60%)',
+    // brand (HEX so `color + '22'` alpha suffixes are valid 8-digit hex)
+    primary: '#A855EB',
+    primaryForeground: '#FFFFFF',
+    accent: '#B57BEF',
+    success: '#22C55E',
+    warning: '#F5B33F',
+    destructive: '#EF4444',
     // icon palette (matches EUPHORIA_ICONS fills)
     iconViolet: '#BB83F1',
     iconPurple: '#A451E6',
@@ -67,9 +67,11 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 /** Font families — loaded via useFonts in the root layout (see _layout.tsx). */
 export const Fonts = {
-  /** EB Garamond — display serif for hero headlines */
-  display: 'EBGaramond_600SemiBold',
-  displayBold: 'EBGaramond_700Bold',
+  /** Nunito — rounded, friendly display/headings (matches design mockups) */
+  display: 'Nunito_800ExtraBold',
+  heading: 'Nunito_700Bold',
+  /** EB Garamond — serif reserved for marketing/landing moments */
+  serif: 'EBGaramond_700Bold',
   /** DM Sans — UI + body */
   body: 'DMSans_400Regular',
   medium: 'DMSans_500Medium',
@@ -96,8 +98,8 @@ export const Radius = {
   pill: 999,
 } as const;
 
-/** Primary brand gradient (violet → orchid), for GradientButton / hero glows. */
-export const BrandGradient = ['hsl(274 76% 61%)', 'hsl(278 76% 66%)'] as const;
+/** CTA gradient — light violet → deep violet (matches design mockups). */
+export const BrandGradient = ['#A78BFA', '#7C3AED'] as const;
 
 export const BottomTabInset = Platform.select({ ios: 84, android: 68 }) ?? 68;
 export const MaxContentWidth = 640;

@@ -1,19 +1,18 @@
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
+import { UIcon } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/** Route → EUPHORIA_ICONS name (guardrail G5 — no emoji/defaults). */
+/** Route → UIcon line icon (consistent stroke, per design mockups). */
 const TAB_ICONS: Record<string, string> = {
-  home: 'radiate',
-  learn: 'open-book',
-  trade: 'trend-line',
-  games: 'controller',
-  community: 'forum',
-  profile: 'badge',
+  home: 'home',
+  learn: 'learn',
+  trade: 'trade',
+  digest: 'feed',
+  you: 'you',
 };
 
 type TabBarProps = {
@@ -33,33 +32,27 @@ export function TabBar({ state, navigation }: TabBarProps) {
       style={[
         styles.bar,
         {
-          backgroundColor: theme.card,
+          backgroundColor: theme.background,
           borderTopColor: theme.border,
           paddingBottom: Math.max(insets.bottom, 10),
         },
       ]}>
       {state.routes.map((route, i) => {
         const focused = state.index === i;
-        const iconName = TAB_ICONS[route.name] ?? 'orb';
+        const color = focused ? theme.primary : theme.mutedForeground;
         return (
           <SpringPressable
             key={route.key}
-            scaleTo={0.88}
+            haptic={false}
+            scaleTo={0.9}
             style={styles.tab}
             onPress={() => {
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
             }}>
-            <View
-              style={
-                focused
-                  ? { shadowColor: theme.primary, shadowOpacity: 0.7, shadowRadius: 12, shadowOffset: { width: 0, height: 0 } }
-                  : undefined
-              }>
-              <Icon name={iconName} size={26} opacity={focused ? 1 : 0.4} />
-            </View>
-            <ThemedText type="label" style={{ fontSize: 9, letterSpacing: 0.3, color: focused ? theme.primary : theme.mutedForeground }}>
-              {route.name}
+            <UIcon name={TAB_ICONS[route.name] ?? 'sparkle'} size={24} color={color} strokeWidth={focused ? 2.4 : 2} />
+            <ThemedText type="small" style={{ fontSize: 10, color, fontFamily: focused ? 'Nunito_700Bold' : 'DMSans_500Medium' }}>
+              {route.name === 'you' ? 'You' : route.name.charAt(0).toUpperCase() + route.name.slice(1)}
             </ThemedText>
           </SpringPressable>
         );

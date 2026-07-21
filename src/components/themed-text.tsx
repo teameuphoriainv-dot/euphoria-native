@@ -25,9 +25,9 @@ export function ThemedText({ style, type = 'body', themeColor, ...rest }: Themed
 }
 
 const styles = StyleSheet.create({
-  display: { fontFamily: Fonts.displayBold, fontSize: 40, lineHeight: 46 },
-  title: { fontFamily: Fonts.bold, fontSize: 28, lineHeight: 34, letterSpacing: -0.5 },
-  heading: { fontFamily: Fonts.bold, fontSize: 20, lineHeight: 26, letterSpacing: -0.3 },
+  display: { fontFamily: Fonts.display, fontSize: 32, lineHeight: 40 },
+  title: { fontFamily: Fonts.display, fontSize: 26, lineHeight: 32 },
+  heading: { fontFamily: Fonts.heading, fontSize: 19, lineHeight: 25 },
   body: { fontFamily: Fonts.body, fontSize: 16, lineHeight: 23 },
   bodyMedium: { fontFamily: Fonts.medium, fontSize: 16, lineHeight: 23 },
   small: { fontFamily: Fonts.body, fontSize: 13, lineHeight: 18 },

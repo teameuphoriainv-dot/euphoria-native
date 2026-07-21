@@ -78,8 +78,8 @@ export function GradientButton({
         full && styles.full,
         style,
       ]}>
-      <LinearGradient colors={BrandGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.base}>
-        {loading ? <ActivityIndicator color="#fff" /> : <ThemedText type="bodyMedium" style={{ color: '#fff' }}>{label}</ThemedText>}
+      <LinearGradient colors={BrandGradient} start={{ x: 0, y: 0 }} end={{ x: 0.9, y: 1 }} style={[styles.base, styles.cta]}>
+        {loading ? <ActivityIndicator color="#fff" /> : <ThemedText type="heading" style={{ color: '#fff', fontSize: 17 }}>{label}</ThemedText>}
       </LinearGradient>
     </SpringPressable>
   );
@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.two,
   },
-  gradientWrap: { borderRadius: Radius.pill, overflow: 'hidden' },
+  gradientWrap: { borderRadius: Radius.lg, overflow: 'hidden' },
+  cta: { height: 56, borderRadius: Radius.lg },
   full: { alignSelf: 'stretch' },
 });
