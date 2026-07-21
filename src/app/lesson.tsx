@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card';
 import { Confetti } from '@/components/confetti';
 import { MultiSelect, type MultiSpec } from '@/components/multi-select';
 import { MatchingPairs, type MatchSpec } from '@/components/matching-pairs';
+import { OrderSteps, type OrderSpec } from '@/components/order-steps';
 import { NumberLine, type NumberLineSpec } from '@/components/number-line';
 import { SliderPredict, type SliderSpec } from '@/components/slider-predict';
 import { SortBuckets, type SortSpec } from '@/components/sort-buckets';
@@ -31,7 +32,7 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'match', 'cards', 'quiz', 'reveal', 'done'] as const;
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'match', 'order', 'cards', 'quiz', 'reveal', 'done'] as const;
 const CARDS: RevealSpec = {
   title: 'Flip to learn four key terms.',
   cards: [
@@ -81,6 +82,11 @@ const MATCH: MatchSpec = {
     { left: 'Compounding', right: 'Earning returns on past returns' },
   ],
 };
+const ORDER: OrderSpec = {
+  title: 'Order these from lowest to highest risk.',
+  hint: 'Tap two rows to swap them.',
+  items: ['Savings account', 'Government bonds', 'Index funds', 'Individual stocks'],
+};
 const money = (n: number) => '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const SLIDER: SliderSpec = {
   prompt: 'Invest $100/month at 8% a year. Drag to guess its value after 30 years.',
@@ -115,6 +121,7 @@ export default function Lesson() {
   const [multiSolved, setMultiSolved] = useState(false);
   const [lineSolved, setLineSolved] = useState(false);
   const [matchSolved, setMatchSolved] = useState(false);
+  const [orderSolved, setOrderSolved] = useState(false);
   const kind = STEPS[step];
 
   const next = () => {
@@ -131,7 +138,7 @@ export default function Lesson() {
   };
 
   const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
-  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved) || (kind === 'line' && !lineSolved) || (kind === 'match' && !matchSolved);
+  const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved) || (kind === 'line' && !lineSolved) || (kind === 'match' && !matchSolved) || (kind === 'order' && !orderSolved);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -206,6 +213,12 @@ export default function Lesson() {
         {kind === 'match' && (
           <Animated.View key="match" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
             <MatchingPairs spec={MATCH} onSolvedChange={setMatchSolved} />
+          </Animated.View>
+        )}
+
+        {kind === 'order' && (
+          <Animated.View key="order" entering={FadeInDown} style={{ flex: 1, justifyContent: 'center' }}>
+            <OrderSteps spec={ORDER} onSolvedChange={setOrderSolved} />
           </Animated.View>
         )}
 
