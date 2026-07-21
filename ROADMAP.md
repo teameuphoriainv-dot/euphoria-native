@@ -21,7 +21,7 @@ Branch: `feat/foundation-first-slice` (local only). Metro `:8082`. Sim: iPhone 1
 - [x] MultipleChoice — covered by inline lesson `quiz` step (single-select + reveal)
 - [x] MultiSelect (choose-all-that-apply) — `src/components/multi-select.tsx`, wired as `multi` step
 - [x] NumberLine (place value on a line) — `src/components/number-line.tsx`, wired as `line` step
-- [ ] MatchingPairs (connect left↔right)
+- [x] MatchingPairs (connect left↔right) — `src/components/matching-pairs.tsx`, wired as `match` step
 - [ ] OrderSteps (drag/tap to sequence)
 - [ ] BeforeAfterSlider (compare two states)
 - [ ] GraphPointDrag (drag a point to a target on a chart)
