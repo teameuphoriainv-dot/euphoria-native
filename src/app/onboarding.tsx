@@ -63,7 +63,7 @@ export default function Onboarding() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {step === 0 && (
           <RiseIn key="s0">
-            <Atlas size={64} />
+            <Atlas size={64} entrance="bounce" celebrate={goal !== null} expression={goal !== null ? 'happy' : 'default'} />
             <ThemedText type="display" style={styles.q}>What brings you to Euphoria?</ThemedText>
             <View style={styles.options}>
               {GOALS.map((g) => (
@@ -75,7 +75,7 @@ export default function Onboarding() {
 
         {step === 1 && (
           <RiseIn key="s1">
-            <Atlas size={64} expression="watching" />
+            <Atlas size={64} entrance="bounce" celebrate={level !== null} expression={level !== null ? 'happy' : 'watching'} />
             <ThemedText type="display" style={styles.q}>How much do you already know?</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>Atlas will tune every lesson to your level.</ThemedText>
             <View style={styles.options}>
@@ -89,7 +89,7 @@ export default function Onboarding() {
         {step === 2 && (
           <RiseIn key="s2">
             <View style={styles.centered}>
-              <Atlas size={78} expression="happy" />
+              <Atlas size={78} expression="happy" entrance="bounce" />
               <ThemedText type="display" style={[styles.q, styles.center]}>
                 Practice daily and{'\n'}you'll{' '}
                 <ThemedText type="display" style={{ color: theme.primary }}>grow 4× faster</ThemedText>
@@ -129,7 +129,7 @@ export default function Onboarding() {
         {step === 4 && (
           <RiseIn key="s4">
             <View style={styles.centered}>
-              <Atlas size={112} expression="happy" />
+              <Atlas size={112} expression="proud" entrance="bounce" celebrate />
               <ThemedText type="display" style={[styles.q, styles.center]}>Your path is ready!</ThemedText>
               <ThemedText type="body" themeColor="mutedForeground" style={[styles.sub, styles.center]}>
                 Personalized for a curious {level === 'experienced' ? 'trader' : 'beginner'} who wants to {goal === 'trade' ? 'trade with confidence' : 'grow wealth'}.
@@ -158,7 +158,7 @@ export default function Onboarding() {
         {step === 5 && (
           <RiseIn key="s5">
             <View style={styles.centered}>
-              <Atlas size={100} />
+              <Atlas size={100} entrance="bounce" expression="happy" />
               <ThemedText type="display" style={[styles.q, styles.center]}>
                 Unlock <ThemedText type="display" style={{ color: theme.primary }}>Euphoria Pro</ThemedText>
               </ThemedText>
