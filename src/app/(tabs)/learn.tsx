@@ -11,6 +11,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { Icon } from '@/components/icon';
 import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -19,18 +20,19 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+// EUPHORIA_ICONS = colorful illustration-tier art (like Brilliant's unit illustrations)
 const LESSONS = [
-  { title: 'What is investing?', icon: 'seedling' },
-  { title: 'Stocks & shares', icon: 'trade' },
-  { title: 'Risk & reward', icon: 'bolt' },
-  { title: 'Compound growth', icon: 'target' },
-  { title: 'Diversification', icon: 'globe' },
-  { title: 'Bonds basics', icon: 'wallet' },
-  { title: 'Index funds', icon: 'bookOpen' },
-  { title: 'Reading a chart', icon: 'trade' },
-  { title: 'Your first trade', icon: 'target' },
-  { title: 'Market cycles', icon: 'globe' },
-  { title: 'Fees & taxes', icon: 'wallet' },
+  { title: 'What is investing?', icon: 'money-bag' },
+  { title: 'Stocks & shares', icon: 'trend-line' },
+  { title: 'Risk & reward', icon: 'bull' },
+  { title: 'Compound growth', icon: 'gains' },
+  { title: 'Diversification', icon: 'target' },
+  { title: 'Bonds basics', icon: 'bank' },
+  { title: 'Index funds', icon: 'bar-chart' },
+  { title: 'Reading a chart', icon: 'analytics' },
+  { title: 'Your first trade', icon: 'coin' },
+  { title: 'Market cycles', icon: 'whale' },
+  { title: 'Fees & taxes', icon: 'cash' },
   { title: 'Portfolio review', icon: 'trophy' },
 ];
 const TOTAL = LESSONS.length;
@@ -92,9 +94,10 @@ export default function Learn() {
             const active = n.i === CURRENT;
             const locked = n.i > CURRENT;
             const lesson = LESSONS[n.i];
-            // Duolingo-style raised "button": bright face + a darker bottom lip for depth.
-            const face = done ? theme.primary : active ? theme.primary : theme.card;
-            const lip = done || active ? '#5B21B6' : theme.border;
+            // Brilliant-style: illustration on a surface tile with a colored ring + raised lip.
+            const face = active ? theme.primary + '2E' : theme.card;
+            const lip = active ? '#5B21B6' : done ? theme.primary + '55' : theme.border;
+            const ring = active ? theme.iconLilac : done ? theme.primary : theme.border;
             const labelLeft = n.x + n.size / 2 > cx; // put label on the empty side
             return (
               <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size + LIP }}>
@@ -109,13 +112,13 @@ export default function Learn() {
                       {
                         width: n.size, height: n.size, borderRadius: n.size / 2,
                         backgroundColor: face,
-                        borderColor: active ? theme.iconLilac : locked ? theme.border : 'transparent',
-                        borderWidth: active ? 3 : locked ? StyleSheet.hairlineWidth : 0,
-                        opacity: locked ? 0.55 : 1,
+                        borderColor: ring,
+                        borderWidth: active ? 3 : 2,
+                        opacity: locked ? 0.5 : 1,
                       },
                     ]}>
-                    {done && <UIcon name={lesson.icon} size={28} color="#fff" strokeWidth={2.2} />}
-                    {active && <UIcon name={lesson.icon} size={30} color="#fff" strokeWidth={2.4} />}
+                    {done && <Icon name={lesson.icon} size={38} />}
+                    {active && <Icon name={lesson.icon} size={40} />}
                     {locked && <UIcon name="lock" size={22} color={theme.mutedForeground} />}
                   </View>
                 </SpringPressable>
