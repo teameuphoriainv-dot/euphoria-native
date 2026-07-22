@@ -4,6 +4,7 @@
  */
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
@@ -40,6 +41,7 @@ const SETTINGS = [
 
 export default function You() {
   const theme = useTheme();
+  const router = useRouter();
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={45} />
@@ -90,6 +92,26 @@ export default function You() {
                 </View>
               ))}
             </View>
+          </Card>
+        </RiseIn>
+
+        {/* Play & Compete — makes /games + /league reachable */}
+        <RiseIn delay={290}>
+          <Card padded={false} style={{ marginTop: Spacing.three }}>
+            <SpringPressable haptic={false} onPress={() => router.push('/games')}>
+              <View style={[styles.settingRow, { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+                <UIcon name="sparkle" size={20} color={theme.mutedForeground} />
+                <ThemedText type="bodyMedium" style={{ flex: 1 }}>Games</ThemedText>
+                <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
+              </View>
+            </SpringPressable>
+            <SpringPressable haptic={false} onPress={() => router.push('/league')}>
+              <View style={styles.settingRow}>
+                <UIcon name="trophy" size={20} color={theme.mutedForeground} />
+                <ThemedText type="bodyMedium" style={{ flex: 1 }}>Leaderboard</ThemedText>
+                <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
+              </View>
+            </SpringPressable>
           </Card>
         </RiseIn>
 
