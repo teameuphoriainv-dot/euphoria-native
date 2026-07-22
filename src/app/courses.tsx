@@ -89,7 +89,7 @@ export default function Courses() {
                       </View>
                     )}
                   </View>
-                  <UIcon name="chevronLeft" size={16} color={theme.mutedForeground} strokeWidth={2.4} />
+                  <UIcon name="chevronRight" size={16} color={theme.mutedForeground} strokeWidth={2.4} />
                 </Card>
               </SpringPressable>
             </RiseIn>

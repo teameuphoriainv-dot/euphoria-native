@@ -105,6 +105,14 @@ const P: Record<string, React.ReactNode> = {
     </>
   ),
   chevronLeft: <Path d="M14.5 5 8 12l6.5 7" />,
+  chevronRight: <Path d="M9.5 5 16 12l-6.5 7" />,
+  trophy: (
+    <>
+      <Path d="M7 5h10v3.5a5 5 0 0 1-10 0V5Z" />
+      <Path d="M7 6.5H5a2 2 0 0 0 2 2M17 6.5h2a2 2 0 0 1-2 2" />
+      <Path d="M12 13.5V17M9 20h6" />
+    </>
+  ),
   check: <Path d="m5.5 12.5 4.2 4.2 8.8-9.4" />,
   lock: (
     <>
