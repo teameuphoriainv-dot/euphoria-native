@@ -32,11 +32,13 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 ## Reference material (user-provided) — see `refs/README.md`
 - ~3-4 Brilliant screen-recordings + ~30-40 Brilliant screenshots (Koji mascot, onboarding). **TCC-blocked** — I can't copy them from `~/Library/Messages/Attachments` (`Operation not permitted`). Analysis already captured in `BRILLIANT_REFERENCE.md` / `ATLAS_ANIM_SPEC.md` / `ONBOARDING_ANIM_SPEC.md`. To persist raw files: user grants Full Disk Access OR drags them into `refs/`.
 
-## Next (Phase 1 — Stability)
-1. Cold-boot on sim, walk every route, capture console errors (execbro get_logs).
-2. Fix red-box errors / crashes / broken states.
-3. `tsc --noEmit` clean; remove dead code/unused assets.
-4. Then Phase 2 (interaction polish) per TASKLIST.md.
+## Phase 1 progress
+- ✅ Boot clean (welcome renders, 0 bundle errors). NOTE: execbro CDP attach fails (401 — a stray `:8081` Metro beside `:8082 --dev-client`), so runtime `get_logs` is unavailable that way. Minor infra, not an app bug. Verify visually via `ios_screenshot`/`tap`.
+- ✅ Code-level stability audit (agent) — code is very defensive (no console.error/throw/TODO). Findings: 1 latent hang, 1 dead-state UI, a pile of dead code/assets.
+- ✅ Commit `f32aaff`: OrderSteps `n<=1` hang fix; Trade dead-segment fix (branch on `seg` + designed "coming soon" states); atlas-test `__DEV__` guard. tsc clean.
+- ⬜ **NEXT — dead-code/asset cleanup** (grep-verify 0 importers, then delete): `src/lib/courses.ts`, `src/components/stub-screen.tsx`, `src/components/ui/badge.tsx`, `src/components/themed-view.tsx`, `src/hooks/use-color-scheme*.ts`, `src/shared/motion/use-reduced-motion-safe.ts`; orphan assets (`assets/images/react-logo*`, `expo-logo*`, `expo-badge*`, `tutorial-web.png`, `assets/images/tabIcons/`); prune deps (`expo-glass-effect`/`symbols`/`image`/`device`/`web-browser`). **KEEP** `assets/expo.icon` (app.json icon) + `splash-icon.png`.
+- ⬜ Cosmetic: `courses.tsx:92` chevronLeft→right; matching-pairs keys (append index); `/games` + `/league` are unreachable in prod (link in or mark dev-only).
+- Then **Phase 2** (interaction polish) per TASKLIST.md.
 
 ## Git
 Repo on branch `feat/foundation-first-slice` (directive says commit to main — confirm/resolve branch at first commit). Commit working increments only; never commit broken code.

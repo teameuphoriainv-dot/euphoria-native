@@ -1,45 +1,107 @@
-# Euphoria — Production-Ready Tasklist
+# Euphoria — The Build Loop (single source of truth)
 
-Governed by the Autonomous Build Directive. **Definition of done per item: it works + it's tested (on sim) + it's committed + it's checked here.** Don't check something because it "should" work.
+**This is an automatic, always-running loop.** Take the app phase by phase to production-ready polish
+that beats Duolingo + Brilliant. Slow and steady — one item at a time.
 
-App is ~85% screen-complete (welcome, onboarding, 5 tabs [home/learn/trade/digest/you], lesson w/ 10 widgets, courses, games, league) with a Brilliant-caliber Reanimated motion system. Real gaps: no persistence/backend, some plain screens, missing surfaces. See PROGRESS.md for full state.
+## Loop rules (every phase, every item)
+1. Do the work in the **smallest verifiable increment**.
+2. **ALWAYS launch the iOS simulator and LOOK.** Go screen by screen, screenshot, verify it actually
+   renders + animates + feels right. Never check an item off on "should work" — only on *seen working*.
+3. Reference **`refs/`** (Brilliant videos + screenshots) for the quality/motion bar. Aim for beautiful.
+4. Make the mascot alive through **Rive** where it belongs; use the code motion system elsewhere.
+5. **Commit + push** each working increment (clear message). Never commit broken code.
+6. Check the item off here. Update `PROGRESS.md`. Move to the next item, then the next phase.
+7. If blocked after real effort: log it in `PROGRESS.md` → move to the next unblocked item. Keep looping.
+8. Keep going. Add phases as needed (target ≥24). The app should get better every phase, every loop.
+
+Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-client` · verify via execbro.
 
 ---
 
 ## Phase 1 — Stability
-- [x] Restore normal app boot (index → /welcome; debug redirect removed)
-- [ ] Cold-boot app on iPhone 17 sim; walk every route; capture console errors via execbro get_logs
-- [ ] Fix any red-box errors / crashes / broken states surfaced
-- [ ] `tsc --noEmit` clean
-- [ ] Lint clean (if configured)
-- [ ] Confirm every screen renders correctly (iPhone 17 + one smaller size)
-- [ ] Remove dead code / unused assets / unused imports
-- [ ] Decide fate of `/atlas-test` (keep as dev-only or remove from prod build)
+- [x] Restore normal boot; fix OrderSteps hang; fix Trade dead segments; guard dev route (`f32aaff`)
+- [x] Remove dead code / orphan assets / unused deps; verify boot (`e138e15`)
+- [ ] Walk EVERY screen on the sim (screenshot each): welcome, onboarding steps, home, learn, trade, digest, you, lesson (all step types), courses, games, term-match, league — fix any broken/janky state
+- [ ] `/games` + `/league` are unreachable in prod → link into nav (or mark dev-only)
+- [ ] Add a `chevronRight` icon (courses row uses a left chevron as a forward affordance)
+- [ ] Run `expo lint`, triage results
 
-## Phase 2 — Core interaction polish
-- [ ] Audit every tap/swipe/transition for instant (un-animated) state changes
-- [ ] Standardize timing/easing into shared tokens (extend `src/components/shared/motion/tokens.ts`)
-- [ ] Ensure all pressables use SpringPressable (press state everywhere)
-- [ ] Add success / error / loading states to every interactive element
-- [ ] Tab-bar press bounce; selection fill-wash + ring spring consistency
+## Phase 2 — Rive Atlas: fix animation rendering (the parked blocker)
+- [ ] Add `onPlay`/`onStateChanged`/`onError` to `<Rive>`, read logs via execbro → find why idle/celebrate don't play
+- [ ] Get idle breathe+blink visibly looping + `celebrate` pop firing on `/atlas-test` (verify on sim)
+- [ ] Document the working pipeline recipe in `RIVE_STATUS.md`
 
-## Phase 3 — Flow-level polish
-- [ ] Smooth screen-to-screen transitions (not just within-screen)
-- [ ] Reward moment after lesson: confetti + Atlas celebrate + XP roll-up + streak bump + coin toast, staggered
-- [ ] Streak / progress celebration beats
-- [ ] Designed empty states (no data) + error states (not defaults)
+## Phase 3 — Rive Atlas: full reaction vocabulary
+- [ ] Build happy · oops · watching · proud · wave-in · thinking into ONE `.riv` via the headless pipeline
+- [ ] Trigger-button test each on `/atlas-test`; verify each plays + returns to idle (sim, burst screenshot)
 
-## Phase 4 — Performance & edge cases
-- [ ] Profile animation-heavy screens (lesson, learn trail, trade) for jank; fix frame drops
-- [ ] Slow-network / offline / interrupted states
-- [ ] Data edge cases: empty lists, very long text, extreme numeric values
+## Phase 4 — Rive Atlas: integrate (welcome + onboarding first)
+- [ ] Swap SVG `<Atlas>`→`<AtlasRive>` behind fallback; map events→triggers (correct→happy, wrong→oops, etc.)
+- [ ] Reference Brilliant onboarding refs; verify Atlas reacts on each step on the sim
 
-## Phase 5 — Final pass
-- [ ] Full visual QA vs design system (spacing, color, type scale)
-- [ ] Re-test all Phase 1–4 changes together (full journey walkthrough on sim)
-- [ ] Final PROGRESS.md summary + known-issues list
+## Phase 5 — Motion foundation
+- [ ] Standardize all timing/easing into `shared/motion/tokens.ts`; no hand-tuned one-offs
+- [ ] Every pressable uses SpringPressable (no instant state changes anywhere)
+- [ ] Button press + success + error + loading micro-states audited across the app
+
+## Phase 6 — Welcome + Onboarding polish
+- [ ] Segmented progress, card stagger, Atlas reaction per step, entrance/exit transitions (match Brilliant)
+- [ ] Verify the full onboarding flow tap-through on the sim
+
+## Phase 7 — Home dashboard polish
+- [ ] Daily-goal ring, streak flame, Atlas time-of-day greeting, continue-lesson hero, number roll-ups — verify
+
+## Phase 8 — Learn / pathway polish
+- [ ] Illustrated trail, node states (locked/active-pulse/done), Atlas checkpoints — verify
+
+## Phase 9 — Lesson viewer polish
+- [ ] Smooth step→step transitions; per-step Atlas reactions; micro-feedback on all 10 widgets — verify each
+
+## Phase 10 — Lesson-complete reward moment
+- [ ] Confetti + Atlas celebrate + XP roll-up + streak bump + coin toast, staggered (the Duolingo beat) — verify
+
+## Phase 11 — Trade screen polish
+- [ ] Portfolio chart animation, row press states, real Research/Compete content or refined designed states — verify
+
+## Phase 12 — Digest screen polish
+- [ ] Serif headline rhythm, category filter transitions, post-open animation — verify
+
+## Phase 13 — You / profile polish
+- [ ] Stats grid, streak calendar, achievements, settings rows, Atlas — verify
+
+## Phase 14 — Courses + Games + League polish
+- [ ] Illustrated course pathway, game-card press, leaderboard rank-up/promotion animation — verify
+
+## Phase 15 — State + persistence
+- [ ] zustand + AsyncStorage: XP/level, streak, lesson progress, paper-trading portfolio persist across restart — verify by relaunch
+
+## Phase 16 — Wire real data
+- [ ] Replace mock with the persisted store across home/learn/trade/you/league/lesson; lesson completion writes progress — verify
+
+## Phase 17 — Auth + account creation
+- [ ] Sign-up/sign-in (email → Google/Apple); wire onboarding's final step — verify
+
+## Phase 18 — Splash + app-open
+- [ ] Branded splash → welcome light-beam, no white flash — verify cold start
+
+## Phase 19 — Paywall
+- [ ] Beautiful subscription screen: value props, plan cards, Atlas, social proof, restore — verify
+
+## Phase 20 — Explorables
+- [ ] First interactive finance lab (CompoundGrowthLab) — verify
+
+## Phase 21 — More mini-games
+- [ ] Build toward 12 playable games at Term Match quality (correct=green+haptic, timer, XP, Atlas) — verify each
+
+## Phase 22 — Empty / error / loading states
+- [ ] Designed states everywhere (no RN defaults); force each state and verify
+
+## Phase 23 — Performance
+- [ ] Profile animation-heavy screens (lesson, learn, trade); fix frame drops; confirm smooth 60fps on sim
+
+## Phase 24 — Edge cases + Final QA
+- [ ] Slow/offline/interrupted network; empty/long/extreme data
+- [ ] Full-journey walkthrough on the sim; design-system consistency (spacing/color/type); final PROGRESS summary
 
 ---
-
-## Parked / Blocked
-- [ ] **Rive Atlas migration (experimental)** — rivemcp-generated `.riv` renders but animations don't play on sim; headless render/simulate QA blocked (Chromium not found by the SEA binary even w/ PLAYWRIGHT_BROWSERS_PATH). Production uses the working SVG `<Atlas>`. Full resume path + hypotheses in PROGRESS.md. Only revisit after Phases 1–3 land.
+_The in-tool task tracker is retired — THIS file is the one list. Completed history lives in git + PROGRESS.md._
