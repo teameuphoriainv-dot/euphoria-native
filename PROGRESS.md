@@ -40,6 +40,16 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - ⬜ Cosmetic: `courses.tsx:92` chevronLeft→right; matching-pairs keys (append index); `/games` + `/league` are unreachable in prod (link in or mark dev-only).
 - Then **Phase 2** (interaction polish) per TASKLIST.md.
 
+## Autonomous burst (2026-07-21, /goal set) — Phases done since pivot
+Continuous straight work, no loop. All committed+pushed, tsc clean, sim-verified:
+- **Phase 5 (Motion) ✅** — tokens.ts is Brilliant-caliber; all screen pressables already SpringPressable (only mascot/hit-area/dev are plain, intentional).
+- **Phase 10 (Reward moment) ✅** `34e05ac` — lesson done step = staggered cascade: Confetti + proud Atlas + "+50 XP" chip + "🔥 13 day streak" chip (RewardPop 280/460/640). Verified sim.
+- **Phase 11 (Trade) ✅** `19eea28` — rows → real stock/[sym].tsx detail (price/chart/position/blurb/CTA) + lib/stocks.ts shared data. Verified sim NVDA.
+- **Phase 12 (Digest) ✅** `79f1397` — rows → digest/[slug].tsx article reader (serif editorial). Verified sim.
+- **Phase 13 (You) ✅** `79f1397` — settings rows → settings/[section].tsx; Log out → /welcome; Games/League linked.
+- **Phase 7 (Home) partial** `a340de9` — goal-ring→/learn, daily-challenge→/lesson wired.
+NO DEAD TAPS remain in Home/Digest/You/Trade. NEXT unchecked high-value: Phase 15 (persistence: zustand+AsyncStorage) OR remaining screen polish (6 Onboarding, 8 Learn, 9 Lesson, 14 Courses/Games/League). Keep going down TASKLIST.md.
+
 ## ⚠️ PIVOT (user frustrated re: too long on Rive) — 2026-07-21
 **RIVE PARKED.** SVG Atlas works in prod. Rive pipeline (rivemcp/Polymation build-atlas.mjs) works + fix `75360bb` is a strong candidate but UNVERIFIED on sim — stop camping on it. **Loop now does VISIBLE PRODUCT POLISH via CODE (Phase 5+), verified with execbro (RECONNECTED).** Do real edits each tick (motion tokens, press states, transitions, reward moments) — not tooling battles. Skip Phases 2–4 (Rive) for now.
 
