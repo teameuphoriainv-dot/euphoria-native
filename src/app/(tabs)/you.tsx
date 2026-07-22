@@ -136,7 +136,7 @@ export default function You() {
           </Card>
         </RiseIn>
 
-        <SpringPressable haptic={false} onPress={() => router.replace('/welcome')} style={styles.logout}>
+        <SpringPressable haptic={false} onPress={() => { useApp.getState().signOut(); router.replace('/auth' as never); }} style={styles.logout}>
           <ThemedText type="bodyMedium" style={{ color: theme.destructive }}>Log out</ThemedText>
         </SpringPressable>
       </ScrollView>

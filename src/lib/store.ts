@@ -12,9 +12,12 @@ import { create } from 'zustand';
 const XP_PER_LEVEL = 500;
 
 export type AppState = {
+  signedIn: boolean;
   xp: number;
   streak: number;
   completedLessons: string[];
+  signIn: () => void;
+  signOut: () => void;
   level: () => number;
   levelProgress: () => { into: number; size: number; toNext: number };
   completeLesson: (id: string, xp: number) => void;
@@ -23,9 +26,13 @@ export type AppState = {
 };
 
 export const useApp = create<AppState>()((set, get) => ({
+  signedIn: false,
   xp: 2340,
   streak: 12,
   completedLessons: [],
+
+  signIn: () => set({ signedIn: true }),
+  signOut: () => set({ signedIn: false }),
 
   level: () => Math.floor(get().xp / XP_PER_LEVEL) + 1,
   levelProgress: () => {
