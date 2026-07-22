@@ -112,9 +112,16 @@ export default function You() {
               </View>
             </SpringPressable>
             <SpringPressable haptic={false} onPress={() => router.push('/league')}>
-              <View style={styles.settingRow}>
+              <View style={[styles.settingRow, { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                 <UIcon name="trophy" size={20} color={theme.mutedForeground} />
                 <ThemedText type="bodyMedium" style={{ flex: 1 }}>Leaderboard</ThemedText>
+                <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
+              </View>
+            </SpringPressable>
+            <SpringPressable haptic={false} onPress={() => router.push('/explore/compound' as never)}>
+              <View style={styles.settingRow}>
+                <UIcon name="trade" size={20} color={theme.mutedForeground} />
+                <ThemedText type="bodyMedium" style={{ flex: 1 }}>Compound Growth Lab</ThemedText>
                 <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
               </View>
             </SpringPressable>
