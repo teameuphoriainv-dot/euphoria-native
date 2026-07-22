@@ -41,4 +41,4 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - Then **Phase 2** (interaction polish) per TASKLIST.md.
 
 ## Git
-Repo on branch `feat/foundation-first-slice` (directive says commit to main — confirm/resolve branch at first commit). Commit working increments only; never commit broken code.
+Branch **`main`** → **`origin`** = `github.com/teameuphoriainv-dot/euphoria-native` (PRIVATE). Loop = commit **and `git push`** each working increment. `node_modules` gitignored (rivemcp binary not pushed). Never commit broken code.
