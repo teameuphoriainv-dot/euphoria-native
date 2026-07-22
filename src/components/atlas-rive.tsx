@@ -61,6 +61,9 @@ export const AtlasRive = forwardRef<AtlasRiveHandle, Props>(function AtlasRive(
       autoplay
       fit={Fit.Contain}
       alignment={Alignment.Center}
+      onPlay={(name, isSM) => { if (__DEV__) console.log('[AtlasRive] onPlay', name, 'isSM:', isSM); }}
+      onStateChanged={(sm, state) => { if (__DEV__) console.log('[AtlasRive] onStateChanged', sm, '->', state); }}
+      onError={(err) => { if (__DEV__) console.warn('[AtlasRive] onError', JSON.stringify(err)); }}
       style={{ width: size, height: size }}
     />
   );
