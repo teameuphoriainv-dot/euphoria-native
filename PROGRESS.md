@@ -40,5 +40,12 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - ⬜ Cosmetic: `courses.tsx:92` chevronLeft→right; matching-pairs keys (append index); `/games` + `/league` are unreachable in prod (link in or mark dev-only).
 - Then **Phase 2** (interaction polish) per TASKLIST.md.
 
+## Loop mode (user directive, latest)
+- **CONTINUOUS — NO scheduled loop waits** (drop the 60s ScheduleWakeup pauses). Keep working turn-to-turn; let compaction carry context. User was annoyed by the pauses + by sitting on one screen too long.
+- **Navigate/verify via Maestro** (`~/.maestro/bin/maestro test <flow>.yaml`) for speed — not slow execbro tap-by-tap. Move around, don't camp on one screen.
+  - Onboarding-skip flow: `Let's go → Grow my wealth → Continue → I know the basics → Continue → Continue → Continue → Start learning → Maybe later → <tabs>`.
+  - GOTCHA: `launchApp: clearState:true` boots to /welcome, but if Metro is re-bundling after an edit the welcome text isn't ready → ensure bundle done first (or don't clearState). Save shots to /tmp and Read only what's needed.
+- **Phase 1 walk done:** welcome + 6 onboarding steps + all 5 tabs + lesson viewer — all clean, 0 bugs. `/games`+`/league` now linked into You nav (commit `85f46d5`, tsc clean; sim-verify pending). Remaining Phase 1: courses render check, add `chevronRight` icon (ui-icon.tsx only has chevronLeft), `expo lint`. Finding: You settings rows are no-op (`onPress=(){}`) → Phase 13. Then **Phase 2 (Rive animation fix)**.
+
 ## Git
 Branch **`main`** → **`origin`** = `github.com/teameuphoriainv-dot/euphoria-native` (PRIVATE). Loop = commit **and `git push`** each working increment. `node_modules` gitignored (rivemcp binary not pushed). Never commit broken code.
