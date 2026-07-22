@@ -19,12 +19,27 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const TOTAL = 12;
+const LESSONS = [
+  { title: 'What is investing?', icon: 'seedling' },
+  { title: 'Stocks & shares', icon: 'trade' },
+  { title: 'Risk & reward', icon: 'bolt' },
+  { title: 'Compound growth', icon: 'target' },
+  { title: 'Diversification', icon: 'globe' },
+  { title: 'Bonds basics', icon: 'wallet' },
+  { title: 'Index funds', icon: 'bookOpen' },
+  { title: 'Reading a chart', icon: 'trade' },
+  { title: 'Your first trade', icon: 'target' },
+  { title: 'Market cycles', icon: 'globe' },
+  { title: 'Fees & taxes', icon: 'wallet' },
+  { title: 'Portfolio review', icon: 'trophy' },
+];
+const TOTAL = LESSONS.length;
 const CURRENT = 8; // 0-indexed: 0..7 done, 8 active, 9..11 locked
-const GAP = 118;
-const AMP = 64;
-const NODE = 58;
-const START = 78;
+const GAP = 128;
+const AMP = 66;
+const NODE = 66;
+const START = 84;
+const LIP = 6; // 3D bottom-edge depth (Duolingo button look)
 
 export default function Learn() {
   const theme = useTheme();
@@ -75,31 +90,44 @@ export default function Learn() {
           {nodes.map((n) => {
             const done = n.i < CURRENT;
             const active = n.i === CURRENT;
+            const locked = n.i > CURRENT;
+            const lesson = LESSONS[n.i];
+            // Duolingo-style raised "button": bright face + a darker bottom lip for depth.
+            const face = done ? theme.primary : active ? theme.primary : theme.card;
+            const lip = done || active ? '#5B21B6' : theme.border;
+            const labelLeft = n.x + n.size / 2 > cx; // put label on the empty side
             return (
-              <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size }}>
+              <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size + LIP }}>
                 {active && <PulseHalo size={n.size} color={theme.primary} />}
-                <SpringPressable onPress={() => router.push('/lesson')} disabled={n.i > CURRENT}>
+                <SpringPressable onPress={() => router.push('/lesson')} disabled={locked} scaleTo={0.9}>
+                  {/* bottom lip */}
+                  <View style={{ position: 'absolute', top: LIP, width: n.size, height: n.size, borderRadius: n.size / 2, backgroundColor: lip }} />
+                  {/* face */}
                   <View
                     style={[
                       styles.node,
                       {
-                        width: n.size,
-                        height: n.size,
-                        borderRadius: n.size / 2,
-                        backgroundColor: done ? theme.primary : active ? theme.primary : theme.card,
-                        borderColor: active ? theme.iconLilac : done ? theme.primary : theme.border,
-                        borderWidth: active ? 3 : done ? 0 : StyleSheet.hairlineWidth,
+                        width: n.size, height: n.size, borderRadius: n.size / 2,
+                        backgroundColor: face,
+                        borderColor: active ? theme.iconLilac : locked ? theme.border : 'transparent',
+                        borderWidth: active ? 3 : locked ? StyleSheet.hairlineWidth : 0,
+                        opacity: locked ? 0.55 : 1,
                       },
-                      active && { shadowColor: theme.primary, shadowOpacity: 0.7, shadowRadius: 16, shadowOffset: { width: 0, height: 0 } },
                     ]}>
-                    {done && <UIcon name="check" size={26} color="#fff" strokeWidth={3} />}
-                    {active && <ThemedText type="heading" style={{ fontSize: 14, color: '#fff' }}>START</ThemedText>}
-                    {n.i > CURRENT && <UIcon name="lock" size={22} color={theme.mutedForeground} />}
+                    {done && <UIcon name={lesson.icon} size={28} color="#fff" strokeWidth={2.2} />}
+                    {active && <UIcon name={lesson.icon} size={30} color="#fff" strokeWidth={2.4} />}
+                    {locked && <UIcon name="lock" size={22} color={theme.mutedForeground} />}
                   </View>
                 </SpringPressable>
+                {/* lesson title label */}
+                <View style={[styles.label, labelLeft ? { right: n.size + 12, alignItems: 'flex-end' } : { left: n.size + 12 }]}>
+                  <ThemedText type="smallBold" style={{ color: locked ? theme.mutedForeground : theme.text, fontSize: 13 }} numberOfLines={2}>{lesson.title}</ThemedText>
+                  {active && <ThemedText type="label" style={{ color: theme.iconLilac, marginTop: 1 }}>START</ThemedText>}
+                  {done && <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>Complete</ThemedText>}
+                </View>
                 {active && (
-                  <View style={{ position: 'absolute', left: n.size + 6, top: -6 }}>
-                    <Atlas size={64} expression="watching" interactive={false} />
+                  <View style={{ position: 'absolute', left: labelLeft ? undefined : -70, right: labelLeft ? -70 : undefined, top: -4 }}>
+                    <Atlas size={60} expression="watching" interactive={false} />
                   </View>
                 )}
               </View>
@@ -120,4 +148,5 @@ const styles = StyleSheet.create({
   fill: { height: 6, borderRadius: 6 },
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   node: { alignItems: 'center', justifyContent: 'center' },
+  label: { position: 'absolute', top: 14, width: 130, justifyContent: 'center' },
 });
