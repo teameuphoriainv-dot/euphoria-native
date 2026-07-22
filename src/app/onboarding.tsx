@@ -66,8 +66,10 @@ export default function Onboarding() {
             <Atlas size={64} entrance="bounce" celebrate={goal !== null} expression={goal !== null ? 'happy' : 'default'} />
             <ThemedText type="display" style={styles.q}>What brings you to Euphoria?</ThemedText>
             <View style={styles.options}>
-              {GOALS.map((g) => (
-                <OptionCard key={g.key} icon={g.icon} title={g.title} sub={g.sub} selected={goal === g.key} onPress={() => setGoal(g.key)} />
+              {GOALS.map((g, i) => (
+                <RiseIn key={g.key} delay={140 + i * 70}>
+                  <OptionCard icon={g.icon} title={g.title} sub={g.sub} selected={goal === g.key} onPress={() => setGoal(g.key)} />
+                </RiseIn>
               ))}
             </View>
           </RiseIn>
@@ -79,8 +81,10 @@ export default function Onboarding() {
             <ThemedText type="display" style={styles.q}>How much do you already know?</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>Atlas will tune every lesson to your level.</ThemedText>
             <View style={styles.options}>
-              {LEVELS.map((l) => (
-                <OptionCard key={l.key} icon={l.icon} title={l.title} sub={l.sub} selected={level === l.key} onPress={() => setLevel(l.key)} />
+              {LEVELS.map((l, i) => (
+                <RiseIn key={l.key} delay={140 + i * 70}>
+                  <OptionCard icon={l.icon} title={l.title} sub={l.sub} selected={level === l.key} onPress={() => setLevel(l.key)} />
+                </RiseIn>
               ))}
             </View>
           </RiseIn>
