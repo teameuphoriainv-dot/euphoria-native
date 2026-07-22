@@ -57,7 +57,7 @@ export const AtlasRive = forwardRef<AtlasRiveHandle, Props>(function AtlasRive(
     <Rive
       ref={rive}
       url={uri}
-      {...(stateMachineName ? { stateMachineName } : {})}
+      stateMachineName={stateMachineName ?? DEFAULT_SM}
       autoplay
       fit={Fit.Contain}
       alignment={Alignment.Center}
