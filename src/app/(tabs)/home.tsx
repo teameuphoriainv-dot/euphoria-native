@@ -18,6 +18,7 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { useApp } from '@/lib/store';
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const DONE_DAYS = 5; // ponytail: mock data until Phase 2 wires Supabase
@@ -62,6 +63,7 @@ function PortfolioChart() {
 
 export default function Home() {
   const theme = useTheme();
+  const streak = useApp((s) => s.streak);
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={45} />
@@ -78,7 +80,7 @@ export default function Home() {
             </View>
             <View style={[styles.streakPill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
               <UIcon name="flame" size={15} color={theme.iconLilac} />
-              <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>12</ThemedText>
+              <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{streak}</ThemedText>
             </View>
           </View>
         </RiseIn>
