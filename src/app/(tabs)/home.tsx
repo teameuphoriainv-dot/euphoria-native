@@ -114,7 +114,7 @@ export default function Home() {
 
         {/* Daily goal ring */}
         <RiseIn delay={160}>
-          <SpringPressable onPress={() => {}}>
+          <SpringPressable onPress={() => router.push('/learn')}>
             <Card style={styles.goalRow}>
               <DailyGoalRing value={14} goal={20} />
               <View style={{ flex: 1 }}>
@@ -150,7 +150,7 @@ export default function Home() {
 
         {/* Daily challenge */}
         <RiseIn delay={290}>
-          <SpringPressable onPress={() => {}}>
+          <SpringPressable onPress={() => router.push('/lesson')}>
             <Card style={[styles.challenge, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '38' }]}>
               <View style={styles.challengeHead}>
                 <UIcon name="sparkle" size={15} color={theme.iconLilac} />
