@@ -57,10 +57,16 @@ export function ProgressHeader({ step, total, onBack }: { step: number; total: n
 
 export function RadioDot({ selected }: { selected: boolean }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
+  const fill = useSharedValue(selected ? 1 : 0);
+  useEffect(() => {
+    fill.value = reduced ? (selected ? 1 : 0) : withSpring(selected ? 1 : 0, { stiffness: 500, damping: 16 });
+  }, [selected, reduced, fill]);
+  const inner = useAnimatedProps(() => ({ r: 5.5 * fill.value }));
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Circle cx={12} cy={12} r={10} stroke={selected ? theme.primary : theme.border} strokeWidth={2} fill="none" />
-      {selected && <Circle cx={12} cy={12} r={5.5} fill={theme.primary} />}
+      <AnimatedCircle cx={12} cy={12} fill={theme.primary} animatedProps={inner} />
     </Svg>
   );
 }
