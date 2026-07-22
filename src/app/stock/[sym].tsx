@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { AnimatedLineChart } from '@/components/animated-chart';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
@@ -59,16 +60,16 @@ export default function StockDetail() {
         </RiseIn>
 
         <RiseIn delay={80}>
-          <Svg width="100%" height={90} viewBox="0 0 320 90" preserveAspectRatio="none" style={{ marginTop: Spacing.three }}>
-            <Defs>
-              <SvgGradient id="sarea" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={line} stopOpacity={0.3} />
-                <Stop offset="1" stopColor={line} stopOpacity={0.02} />
-              </SvgGradient>
-            </Defs>
-            <Path d="M0 70 C40 64 70 58 110 60 C150 62 175 40 210 36 C250 31 280 20 320 14 L320 90 L0 90 Z" fill="url(#sarea)" />
-            <Path d="M0 70 C40 64 70 58 110 60 C150 62 175 40 210 36 C250 31 280 20 320 14" stroke={line} strokeWidth={2.5} fill="none" strokeLinecap="round" />
-          </Svg>
+          <View style={{ marginTop: Spacing.three }}>
+            <AnimatedLineChart
+              line="M0 70 C40 64 70 58 110 60 C150 62 175 40 210 36 C250 31 280 20 320 14"
+              area="M0 70 C40 64 70 58 110 60 C150 62 175 40 210 36 C250 31 280 20 320 14 L320 90 L0 90 Z"
+              color={line}
+              gradientId="sarea"
+              height={90}
+              viewBox="0 0 320 90"
+            />
+          </View>
         </RiseIn>
 
         {stock.qty && (

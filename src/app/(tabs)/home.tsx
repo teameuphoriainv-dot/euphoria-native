@@ -9,6 +9,7 @@ import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 're
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { AnimatedLineChart } from '@/components/animated-chart';
 import { DailyGoalRing } from '@/components/daily-goal-ring';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -39,25 +40,14 @@ function DayCheck({ label, done }: { label: string; done: boolean }) {
 function PortfolioChart() {
   const theme = useTheme();
   return (
-    <Svg width="100%" height={90} viewBox="0 0 320 90" preserveAspectRatio="none">
-      <Defs>
-        <SvgGradient id="area" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={theme.primary} stopOpacity={0.35} />
-          <Stop offset="1" stopColor={theme.primary} stopOpacity={0.02} />
-        </SvgGradient>
-      </Defs>
-      <Path
-        d="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14 L320 90 L0 90 Z"
-        fill="url(#area)"
-      />
-      <Path
-        d="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14"
-        stroke={theme.primary}
-        strokeWidth={2.5}
-        fill="none"
-        strokeLinecap="round"
-      />
-    </Svg>
+    <AnimatedLineChart
+      line="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14"
+      area="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14 L320 90 L0 90 Z"
+      color={theme.primary}
+      gradientId="area"
+      height={90}
+      viewBox="0 0 320 90"
+    />
   );
 }
 

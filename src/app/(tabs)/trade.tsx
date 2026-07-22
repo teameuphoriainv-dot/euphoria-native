@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { AnimatedLineChart } from '@/components/animated-chart';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { NumberRollup } from '@/shared/motion/number-rollup';
@@ -67,16 +68,16 @@ export default function Trade() {
               <Svg width={12} height={12} viewBox="0 0 12 12"><Path d="M6 2l4 6H2z" fill={theme.success} /></Svg>
               <ThemedText type="smallBold" style={{ color: theme.success }}>+$1,284 (1.24%) today</ThemedText>
             </View>
-            <Svg width="100%" height={64} viewBox="0 0 320 64" preserveAspectRatio="none" style={{ marginTop: Spacing.two }}>
-              <Defs>
-                <SvgGradient id="tarea" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor={theme.success} stopOpacity={0.3} />
-                  <Stop offset="1" stopColor={theme.success} stopOpacity={0.02} />
-                </SvgGradient>
-              </Defs>
-              <Path d="M0 50 C40 46 70 40 110 42 C150 44 175 30 210 26 C250 21 280 14 320 10 L320 64 L0 64 Z" fill="url(#tarea)" />
-              <Path d="M0 50 C40 46 70 40 110 42 C150 44 175 30 210 26 C250 21 280 14 320 10" stroke={theme.success} strokeWidth={2.5} fill="none" strokeLinecap="round" />
-            </Svg>
+            <View style={{ marginTop: Spacing.two }}>
+              <AnimatedLineChart
+                line="M0 50 C40 46 70 40 110 42 C150 44 175 30 210 26 C250 21 280 14 320 10"
+                area="M0 50 C40 46 70 40 110 42 C150 44 175 30 210 26 C250 21 280 14 320 10 L320 64 L0 64 Z"
+                color={theme.success}
+                gradientId="tarea"
+                height={64}
+                viewBox="0 0 320 64"
+              />
+            </View>
           </Card>
         </RiseIn>
 
