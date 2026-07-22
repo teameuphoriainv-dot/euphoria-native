@@ -69,10 +69,12 @@ Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-clie
 - [ ] Portfolio chart animation, row press states, real Research/Compete content or refined designed states — verify
 
 ## Phase 12 — Digest screen polish
-- [ ] Serif headline rhythm, category filter transitions, post-open animation — verify
+- [x] Post rows now open a real article reader (`digest/[slug].tsx`) — serif headline, category/read-time meta, excerpt lead, "Practice this in a lesson" CTA. VERIFIED on sim (deep-link first-paycheck-guide).
+- [ ] Category filter transitions, list post-open shared animation — later
 
 ## Phase 13 — You / profile polish
-- [ ] Stats grid, streak calendar, achievements, settings rows, Atlas — verify
+- [x] Wired dead buttons: settings rows → settings/[section].tsx detail (titled designed state, no dead ends); "Log out" → /welcome. Games/League already linked. (commit 79f1397)
+- [ ] Streak calendar, achievements detail, real account/notifications/preferences screens — verify
 
 ## Phase 14 — Courses + Games + League polish
 - [ ] Illustrated course pathway, game-card press, leaderboard rank-up/promotion animation — verify
