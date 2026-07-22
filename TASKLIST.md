@@ -21,7 +21,9 @@ Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-clie
 ## Phase 1 — Stability
 - [x] Restore normal boot; fix OrderSteps hang; fix Trade dead segments; guard dev route (`f32aaff`)
 - [x] Remove dead code / orphan assets / unused deps; verify boot (`e138e15`)
-- [ ] Walk EVERY screen on the sim (screenshot each): welcome, onboarding steps, home, learn, trade, digest, you, lesson (all step types), courses, games, term-match, league — fix any broken/janky state
+- [~] Walk EVERY screen on the sim (screenshot each) — fix any broken/janky state
+  - [x] welcome + onboarding (all 6: intro→level→growth→social→path→paywall) + home — all render+interact, Atlas reacts, 0 bugs. Notes: verify growth-chart line-draws on mount; paywall already real (not a stub → helps Phase 19)
+  - [ ] remaining: learn, trade, digest, you, lesson (all step types), courses, games, term-match, league
 - [ ] `/games` + `/league` are unreachable in prod → link into nav (or mark dev-only)
 - [ ] Add a `chevronRight` icon (courses row uses a left chevron as a forward affordance)
 - [ ] Run `expo lint`, triage results
