@@ -2,7 +2,9 @@
  * Onboarding building blocks — matches the design mockups: progress header with back
  * chevron, option cards with icon bubble + radio, growth chart, star rating.
  */
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
@@ -10,6 +12,9 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export function BackChevron({ onPress }: { onPress?: () => void }) {
   const theme = useTheme();
@@ -22,20 +27,29 @@ export function BackChevron({ onPress }: { onPress?: () => void }) {
   );
 }
 
+function Segment({ fill, color, track }: { fill: number; color: string; track: string }) {
+  const reduced = useReducedMotion();
+  const w = useSharedValue(reduced ? fill : 0);
+  useEffect(() => {
+    w.value = reduced ? fill : withSpring(fill, { stiffness: 140, damping: 20 });
+  }, [fill, reduced, w]);
+  const style = useAnimatedStyle(() => ({ width: `${w.value * 100}%` }));
+  return (
+    <View style={[styles.seg, { backgroundColor: track }]}>
+      <Animated.View style={[styles.segFill, { backgroundColor: color }, style]} />
+    </View>
+  );
+}
+
 export function ProgressHeader({ step, total, onBack }: { step: number; total: number; onBack?: () => void }) {
   const theme = useTheme();
   return (
     <View style={styles.progressRow}>
       <BackChevron onPress={onBack} />
       <View style={styles.segRow}>
-        {[0, 1, 2].map((i) => {
-          const fill = Math.max(0, Math.min(1, ((step + 1) / total) * 3 - i));
-          return (
-            <View key={i} style={[styles.seg, { backgroundColor: theme.muted }]}>
-              <View style={[styles.segFill, { backgroundColor: theme.primary, width: `${fill * 100}%` }]} />
-            </View>
-          );
-        })}
+        {[0, 1, 2].map((i) => (
+          <Segment key={i} fill={Math.max(0, Math.min(1, ((step + 1) / total) * 3 - i))} color={theme.primary} track={theme.muted} />
+        ))}
       </View>
     </View>
   );
@@ -89,9 +103,26 @@ export function OptionCard({
   );
 }
 
-/** "With Euphoria" vs "Without daily practice" growth curves (momentum step). */
+/** "With Euphoria" vs "Without daily practice" growth curves — both DRAW ON left→right. */
 export function GrowthChart() {
   const theme = useTheme();
+  const reduced = useReducedMotion();
+  const LEN = 700;
+  const withCurve = useSharedValue(reduced ? 0 : LEN);
+  const withoutCurve = useSharedValue(reduced ? 0 : LEN);
+  const dot = useSharedValue(reduced ? 1 : 0);
+
+  useEffect(() => {
+    if (reduced) return;
+    withoutCurve.value = withDelay(150, withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }));
+    withCurve.value = withDelay(350, withTiming(0, { duration: 1000, easing: Easing.out(Easing.cubic) }));
+    dot.value = withDelay(1250, withTiming(1, { duration: 260 }));
+  }, [reduced, withCurve, withoutCurve, dot]);
+
+  const withProps = useAnimatedProps(() => ({ strokeDashoffset: withCurve.value }));
+  const withoutProps = useAnimatedProps(() => ({ strokeDashoffset: withoutCurve.value }));
+  const dotProps = useAnimatedProps(() => ({ opacity: dot.value, r: 5 * dot.value }));
+
   return (
     <View style={[styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
       <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>Skill</ThemedText>
@@ -99,11 +130,11 @@ export function GrowthChart() {
         <Line x1={0} y1={148} x2={300} y2={148} stroke={theme.border} strokeWidth={1} />
         <Line x1={0} y1={100} x2={300} y2={100} stroke={theme.border} strokeWidth={0.5} />
         <Line x1={0} y1={52} x2={300} y2={52} stroke={theme.border} strokeWidth={0.5} />
-        {/* without practice — shallow dashed */}
-        <Path d="M8 140 C110 132 210 124 292 112" stroke={theme.mutedForeground} strokeWidth={2} strokeDasharray="5 6" fill="none" strokeLinecap="round" />
-        {/* with Euphoria — S-curve */}
-        <Path d="M8 142 C90 138 150 108 200 66 C232 40 262 22 288 14" stroke={theme.primary} strokeWidth={3} fill="none" strokeLinecap="round" />
-        <Circle cx={288} cy={14} r={5} fill={theme.primary} />
+        {/* without practice — shallow dashed (note: dashArray is used for the draw sweep, not visual dashes) */}
+        <AnimatedPath d="M8 140 C110 132 210 124 292 112" stroke={theme.mutedForeground} strokeWidth={2} fill="none" strokeLinecap="round" strokeDasharray={LEN} animatedProps={withoutProps} opacity={0.6} />
+        {/* with Euphoria — S-curve draws on */}
+        <AnimatedPath d="M8 142 C90 138 150 108 200 66 C232 40 262 22 288 14" stroke={theme.primary} strokeWidth={3} fill="none" strokeLinecap="round" strokeDasharray={LEN} animatedProps={withProps} />
+        <AnimatedCircle cx={288} cy={14} fill={theme.primary} animatedProps={dotProps} />
       </Svg>
       <View style={styles.chartLabels}>
         <ThemedText type="smallBold" style={{ color: theme.primary }}>With Euphoria</ThemedText>
