@@ -181,7 +181,7 @@ export default function Lesson() {
       <View style={styles.body}>
         {kind === 'intro' && (
           <Animated.View key="intro" entering={FadeIn} style={styles.centered}>
-            <Atlas size={110} expression="happy" />
+            <Atlas size={132} expression="happy" entrance="bounce" />
             <ThemedText type="label" style={{ color: theme.iconLilac, marginTop: Spacing.four }}>Foundations · Lesson 9</ThemedText>
             <ThemedText type="display" style={styles.title}>What is a stock?</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>A two-minute idea that changes how you see every company you know.</ThemedText>
