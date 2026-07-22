@@ -3,6 +3,7 @@
  * Trade/Research/Compete segments, holdings + watchlist. Mock market data until Phase 4
  * wires live quotes + a native chart.
  */
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,20 +18,10 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { HOLDINGS, WATCH } from '@/lib/stocks';
 
 const SEGMENTS = ['Trade', 'Research', 'Compete'] as const;
 
-const HOLDINGS = [
-  { sym: 'NVDA', name: 'NVIDIA', qty: '12 sh', value: '$14,208', chg: 3.1 },
-  { sym: 'AAPL', name: 'Apple', qty: '40 sh', value: '$9,140', chg: 0.8 },
-  { sym: 'TSLA', name: 'Tesla', qty: '18 sh', value: '$4,392', chg: -1.7 },
-  { sym: 'MSFT', name: 'Microsoft', qty: '9 sh', value: '$4,010', chg: 0.4 },
-];
-const WATCH = [
-  { sym: 'AMZN', name: 'Amazon', price: '$201.44', chg: 1.9 },
-  { sym: 'META', name: 'Meta', price: '$612.30', chg: -0.6 },
-  { sym: 'GOOGL', name: 'Alphabet', price: '$182.11', chg: 2.4 },
-];
 
 function Ticker({ sym }: { sym: string }) {
   const theme = useTheme();
@@ -108,7 +99,7 @@ export default function Trade() {
           <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Your positions</ThemedText>
           <Card padded={false}>
             {HOLDINGS.map((h, i) => (
-              <SpringPressable key={h.sym} onPress={() => {}}>
+              <SpringPressable key={h.sym} onPress={() => router.push(`/stock/${h.sym}`)}>
                 <View style={[styles.row, i < HOLDINGS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <Ticker sym={h.sym} />
                   <View style={{ flex: 1 }}>
@@ -130,7 +121,7 @@ export default function Trade() {
           <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Watchlist</ThemedText>
           <Card padded={false}>
             {WATCH.map((w, i) => (
-              <SpringPressable key={w.sym} onPress={() => {}}>
+              <SpringPressable key={w.sym} onPress={() => router.push(`/stock/${w.sym}`)}>
                 <View style={[styles.row, i < WATCH.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <Ticker sym={w.sym} />
                   <View style={{ flex: 1 }}>
