@@ -40,6 +40,9 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - ⬜ Cosmetic: `courses.tsx:92` chevronLeft→right; matching-pairs keys (append index); `/games` + `/league` are unreachable in prod (link in or mark dev-only).
 - Then **Phase 2** (interaction polish) per TASKLIST.md.
 
+## ⚠️ PIVOT (user frustrated re: too long on Rive) — 2026-07-21
+**RIVE PARKED.** SVG Atlas works in prod. Rive pipeline (rivemcp/Polymation build-atlas.mjs) works + fix `75360bb` is a strong candidate but UNVERIFIED on sim — stop camping on it. **Loop now does VISIBLE PRODUCT POLISH via CODE (Phase 5+), verified with execbro (RECONNECTED).** Do real edits each tick (motion tokens, press states, transitions, reward moments) — not tooling battles. Skip Phases 2–4 (Rive) for now.
+
 ## Loop mode (user directive, latest)
 - **CONTINUOUS — NO scheduled loop waits** (drop the 60s ScheduleWakeup pauses). Keep working turn-to-turn; let compaction carry context. User was annoyed by the pauses + by sitting on one screen too long.
 - **Navigate/verify via Maestro** (`~/.maestro/bin/maestro test <flow>.yaml`) for speed — not slow execbro tap-by-tap. Move around, don't camp on one screen.
