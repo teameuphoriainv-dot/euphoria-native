@@ -317,13 +317,23 @@ export default function Lesson() {
             <Confetti />
             <Atlas size={120} expression="proud" celebrate entrance="bounce" />
             <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
-            <RewardPop delay={280}>
-              <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-                <UIcon name="sparkle" size={18} color={theme.iconLilac} />
-                <NumberRollup value={50} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: 18 }} />
-              </View>
+            <View style={styles.rewardRow}>
+              <RewardPop delay={280}>
+                <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
+                  <UIcon name="sparkle" size={18} color={theme.iconLilac} />
+                  <NumberRollup value={50} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: 18 }} />
+                </View>
+              </RewardPop>
+              <RewardPop delay={460}>
+                <View style={[styles.xpChip, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
+                  <UIcon name="flame" size={18} color="#F97316" />
+                  <NumberRollup value={13} suffix=" day streak" duration={700} type="heading" style={{ color: '#F97316', fontSize: 18 }} />
+                </View>
+              </RewardPop>
+            </View>
+            <RewardPop delay={640}>
+              <ThemedText type="body" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>Atlas is proud of you.</ThemedText>
             </RewardPop>
-            <ThemedText type="body" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>Streak extended to 13 days. Atlas is proud of you.</ThemedText>
           </Animated.View>
         )}
       </View>
@@ -342,6 +352,7 @@ const styles = StyleSheet.create({
   track: { flex: 1, height: 8, borderRadius: 8, overflow: 'hidden' },
   fill: { height: 8, borderRadius: 8 },
   body: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.three },
+  rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { textAlign: 'center', marginTop: Spacing.three },
   center: { textAlign: 'center', marginTop: Spacing.two, paddingHorizontal: Spacing.two },
