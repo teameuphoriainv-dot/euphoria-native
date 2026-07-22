@@ -7,7 +7,9 @@
  * persistence turns on after the dev client is rebuilt (`expo run:ios`): re-add the persist
  * middleware with an AsyncStorage-backed storage. Until then state resets on restart (acceptable).
  */
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 const XP_PER_LEVEL = 500;
 
@@ -25,23 +27,33 @@ export type AppState = {
   reset: () => void;
 };
 
-export const useApp = create<AppState>()((set, get) => ({
-  signedIn: false,
-  xp: 2340,
-  streak: 12,
-  completedLessons: [],
+export const useApp = create<AppState>()(
+  persist(
+    (set, get) => ({
+      signedIn: false,
+      xp: 2340,
+      streak: 12,
+      completedLessons: [],
 
-  signIn: () => set({ signedIn: true }),
-  signOut: () => set({ signedIn: false }),
+      signIn: () => set({ signedIn: true }),
+      signOut: () => set({ signedIn: false }),
 
-  level: () => Math.floor(get().xp / XP_PER_LEVEL) + 1,
-  levelProgress: () => {
-    const into = get().xp % XP_PER_LEVEL;
-    return { into, size: XP_PER_LEVEL, toNext: XP_PER_LEVEL - into };
-  },
+      level: () => Math.floor(get().xp / XP_PER_LEVEL) + 1,
+      levelProgress: () => {
+        const into = get().xp % XP_PER_LEVEL;
+        return { into, size: XP_PER_LEVEL, toNext: XP_PER_LEVEL - into };
+      },
 
-  completeLesson: (id, xp) =>
-    set((s) => (s.completedLessons.includes(id) ? s : { completedLessons: [...s.completedLessons, id], xp: s.xp + xp })),
-  addXp: (n) => set((s) => ({ xp: s.xp + n })),
-  reset: () => set({ xp: 0, streak: 0, completedLessons: [] }),
-}));
+      completeLesson: (id, xp) =>
+        set((s) => (s.completedLessons.includes(id) ? s : { completedLessons: [...s.completedLessons, id], xp: s.xp + xp })),
+      addXp: (n) => set((s) => ({ xp: s.xp + n })),
+      reset: () => set({ xp: 0, streak: 0, completedLessons: [] }),
+    }),
+    {
+      name: 'euphoria-app-state',
+      storage: createJSONStorage(() => AsyncStorage),
+      // only persist data, not the action fns / derived getters
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons }),
+    },
+  ),
+);
