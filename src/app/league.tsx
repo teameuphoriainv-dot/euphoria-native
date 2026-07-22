@@ -14,6 +14,7 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { useApp } from '@/lib/store';
 
 const PLAYERS = [
   { name: 'Maya R.', xp: 2840, color: '#F59E0B' },
@@ -47,6 +48,9 @@ function Zone({ label, color }: { label: string; color: string }) {
 
 export default function League() {
   const theme = useTheme();
+  const xp = useApp((s) => s.xp);
+  // Your live XP re-ranks you against the field in real time.
+  const players = [...PLAYERS.map((p) => (p.me ? { ...p, xp } : p))].sort((a, b) => b.xp - a.xp);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -66,7 +70,7 @@ export default function League() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {PLAYERS.map((p, i) => (
+        {players.map((p, i) => (
           <View key={p.name}>
             {i === PROMOTE && <Zone label="Promotion zone" color={theme.success} />}
             {i === DEMOTE && <Zone label="Demotion zone" color={theme.destructive} />}
