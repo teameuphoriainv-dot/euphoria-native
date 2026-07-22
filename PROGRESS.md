@@ -40,6 +40,10 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - ⬜ Cosmetic: `courses.tsx:92` chevronLeft→right; matching-pairs keys (append index); `/games` + `/league` are unreachable in prod (link in or mark dev-only).
 - Then **Phase 2** (interaction polish) per TASKLIST.md.
 
+## Rive directive (user, 2026-07-21) + Phase 15 status
+- **ALL Atlas animation edits go through the .riv via the headless pipeline** (`scripts/rive/build-atlas.mjs` → rivemcp `export_riv`) — NEVER hand-coded Reanimated. The current .riv breathe/celebrate have visual issues; fix them IN the .riv (edit the spec in build-atlas.mjs → regenerate → re-export → verify on /atlas-test) when Rive work resumes. IMPORTANT: the .riv is currently ONLY on the dev `/atlas-test` route — production screens use the SVG `<Atlas>` (renders clean). So .riv issues don't affect the shipped product yet.
+- **Phase 15 (persistence):** in-memory zustand store DONE (`useApp`, lib/store.ts) — you.tsx reads live xp/level/streak, lesson completion writes +50 XP. Disk persistence via AsyncStorage is BLOCKED: native module not in the dev-client binary (importing it red-boxes the app; fixed by removing the import, commit 318aaa0). **To enable disk persistence AND properly verify/iterate the .riv, a native rebuild is needed: `cd ~/euphoria-native && npx expo run:ios` (~10min).** After that rebuild: re-add persist middleware + AsyncStorage to store.ts.
+
 ## Autonomous burst (2026-07-21, /goal set) — Phases done since pivot
 Continuous straight work, no loop. All committed+pushed, tsc clean, sim-verified:
 - **Phase 5 (Motion) ✅** — tokens.ts is Brilliant-caliber; all screen pressables already SpringPressable (only mascot/hit-area/dev are plain, intentional).
