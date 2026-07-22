@@ -24,7 +24,8 @@ Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-clie
 - [~] Walk EVERY screen on the sim (screenshot each) — fix any broken/janky state
   - [x] welcome + onboarding (all 6: intro→level→growth→social→path→paywall) + home — all render+interact, Atlas reacts, 0 bugs. Notes: verify growth-chart line-draws on mount; paywall already real (not a stub → helps Phase 19)
   - [x] learn (pathway trail 8/12, node states ✓) + trade (portfolio chart, positions; **dead-segment fix VERIFIED on device** — Research/Compete now show designed "coming soon" cards)
-  - [ ] remaining: digest, you, lesson (all step types), courses, games, term-match, league
+  - [x] digest (serif editorial feed, filter pills) + you (profile: level/XP bar, stat grid, certs, settings) — all 5 TABS now verified clean, 0 bugs
+  - [ ] remaining: lesson (all step types) + courses + games + term-match + league (non-tab routes)
 - [ ] `/games` + `/league` are unreachable in prod → link into nav (or mark dev-only)
 - [ ] Add a `chevronRight` icon (courses row uses a left chevron as a forward affordance)
 - [ ] Run `expo lint`, triage results
