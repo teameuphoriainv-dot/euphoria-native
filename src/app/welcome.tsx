@@ -47,7 +47,7 @@ export default function Welcome() {
 
       <View style={styles.center}>
         <Animated.View style={atlasStyle}>
-          <Atlas size={132} expression="happy" />
+          <Atlas size={132} expression="happy" entrance="bounce" />
         </Animated.View>
         <Animated.View entering={FadeIn.delay(420).duration(400)}>
           <ThemedText type="display" style={styles.title}>Hi, I&apos;m Atlas!</ThemedText>
