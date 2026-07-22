@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 
-// ponytail: first-launch always shows onboarding; wire a persisted "completed" flag in Phase 2 (auth).
+// ponytail: new users see welcome; persisted-login gating can come later.
 export default function Index() {
   return <Redirect href="/welcome" />;
 }
