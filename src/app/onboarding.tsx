@@ -141,7 +141,7 @@ export default function Onboarding() {
             </View>
             <View style={{ marginTop: Spacing.four }}>
               {['Foundations — how markets work', 'Risk & psychology', 'Trading with confidence'].map((item, i) => (
-                <View key={item}>
+                <RiseIn key={item} delay={200 + i * 110}>
                   <View style={styles.pathRow}>
                     <View style={[styles.numDot, { backgroundColor: i === 0 ? theme.primary : theme.muted }]}>
                       <ThemedText type="smallBold" style={{ color: i === 0 ? '#fff' : theme.mutedForeground }}>{i + 1}</ThemedText>
@@ -149,7 +149,7 @@ export default function Onboarding() {
                     <ThemedText type="bodyMedium">{item}</ThemedText>
                   </View>
                   {i < 2 && <View style={[styles.divider, { backgroundColor: theme.border }]} />}
-                </View>
+                </RiseIn>
               ))}
             </View>
             <View style={[styles.targetChip, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '44' }]}>
@@ -169,7 +169,7 @@ export default function Onboarding() {
             </View>
             <View style={{ marginTop: Spacing.four }}>
               {PRO_PERKS.map((perk, i) => (
-                <View key={perk}>
+                <RiseIn key={perk} delay={180 + i * 90}>
                   <View style={styles.pathRow}>
                     <Svg width={24} height={24} viewBox="0 0 24 24">
                       <Circle cx={12} cy={12} r={11} fill={theme.primary + '2A'} />
@@ -178,7 +178,7 @@ export default function Onboarding() {
                     <ThemedText type="bodyMedium">{perk}</ThemedText>
                   </View>
                   {i < PRO_PERKS.length - 1 && <View style={[styles.divider, { backgroundColor: theme.border }]} />}
-                </View>
+                </RiseIn>
               ))}
             </View>
             <ThemedText type="small" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>
