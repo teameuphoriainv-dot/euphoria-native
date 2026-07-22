@@ -94,8 +94,9 @@ Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-clie
 ## Phase 19 — Paywall
 - [ ] Beautiful subscription screen: value props, plan cards, Atlas, social proof, restore — verify
 
-## Phase 20 — Explorables
-- [ ] First interactive finance lab (CompoundGrowthLab) — verify
+## Phase 20 — Explorables  ✅
+- [x] Compound Growth Lab (explore/compound.tsx): interactive steppers (monthly/years/rate) + live future-value NumberRollup + growth curve. Linked from You. Verified on sim ($104,185/20yr). (commit 3f33273)
+- [ ] More labs (inflation, diversification) — future
 
 ## Phase 21 — More mini-games
 - [ ] Build toward 12 playable games at Term Match quality (correct=green+haptic, timer, XP, Atlas) — verify each
