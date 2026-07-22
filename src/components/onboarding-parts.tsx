@@ -85,11 +85,21 @@ export function OptionCard({
   onPress: () => void;
 }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
+  const pop = useSharedValue(1);
+  useEffect(() => {
+    if (reduced || !selected) return;
+    pop.value = withSpring(1.035, { stiffness: 500, damping: 12 }, () => {
+      pop.value = withSpring(1, { stiffness: 300, damping: 18 });
+    });
+  }, [selected, reduced, pop]);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
   return (
     <SpringPressable onPress={onPress} style={{ marginBottom: Spacing.two + 4 }}>
-      <View
+      <Animated.View
         style={[
           styles.option,
+          popStyle,
           {
             backgroundColor: selected ? theme.primary + '14' : theme.card,
             borderColor: selected ? theme.primary : theme.border,
@@ -104,7 +114,7 @@ export function OptionCard({
           <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText>
         </View>
         <RadioDot selected={selected} />
-      </View>
+      </Animated.View>
     </SpringPressable>
   );
 }
