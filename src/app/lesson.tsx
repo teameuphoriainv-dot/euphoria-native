@@ -31,6 +31,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
+import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -155,6 +156,7 @@ export default function Lesson() {
       setStep(step + 1);
       setChecked(false);
     } else {
+      useApp.getState().completeLesson('foundations-what-is-a-stock', 50);
       router.back();
     }
   };

@@ -5,6 +5,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
@@ -18,12 +19,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STATS = [
-  { icon: 'flame', label: 'Day streak', value: '12' },
-  { icon: 'open-book', label: 'Lessons', value: '84' },
-  { icon: 'crown', label: 'XP', value: '2,340' },
-  { icon: 'trophy', label: 'Rank', value: '#3' },
-];
 
 const CERTS = [
   { icon: 'medal', label: 'Beginner', done: true },
@@ -42,6 +37,17 @@ const SETTINGS = [
 export default function You() {
   const theme = useTheme();
   const router = useRouter();
+  const xp = useApp((s) => s.xp);
+  const streak = useApp((s) => s.streak);
+  const level = useApp((s) => s.level());
+  const lp = useApp((s) => s.levelProgress());
+  const lessons = useApp((s) => s.completedLessons.length);
+  const STATS = [
+    { icon: 'flame', label: 'Day streak', value: String(streak) },
+    { icon: 'open-book', label: 'Lessons', value: String(84 + lessons) },
+    { icon: 'crown', label: 'XP', value: xp.toLocaleString() },
+    { icon: 'trophy', label: 'Rank', value: '#3' },
+  ];
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={45} />
@@ -52,10 +58,10 @@ export default function You() {
             <Atlas size={72} expression="happy" />
             <View style={{ flex: 1 }}>
               <ThemedText type="title" style={{ fontSize: 22 }}>Siddartha</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground">@siddartha · Level 6</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground">@siddartha · Level {level}</ThemedText>
               <View style={styles.xpRow}>
-                <ProgressBar value={0.68} height={7} />
-                <ThemedText type="small" themeColor="mutedForeground">160 XP to 7</ThemedText>
+                <ProgressBar value={lp.into / lp.size} height={7} />
+                <ThemedText type="small" themeColor="mutedForeground">{lp.toNext} XP to {level + 1}</ThemedText>
               </View>
             </View>
           </Card>
