@@ -2,6 +2,7 @@
  * Digest — Euphoria's money-guides hub. Ported from euphoriaweb DigestHome: serif
  * headline, category filter, featured post, post list. Content in lib/digest-content.ts.
  */
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,7 +36,7 @@ function Pill({ label, active, onPress }: { label: string; active: boolean; onPr
 function PostRow({ post, featured }: { post: (typeof DIGEST_POSTS)[number]; featured?: boolean }) {
   const theme = useTheme();
   return (
-    <SpringPressable onPress={() => {}}>
+    <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)}>
       <Card style={featured ? styles.featured : styles.row} elevated={featured}>
         {featured ? (
           <>

@@ -119,7 +119,7 @@ export default function You() {
         <RiseIn delay={320}>
           <Card padded={false} style={{ marginTop: Spacing.three }}>
             {SETTINGS.map((s, i) => (
-              <SpringPressable key={s.label} haptic={false} onPress={() => {}}>
+              <SpringPressable key={s.label} haptic={false} onPress={() => router.push(`/settings/${s.label.toLowerCase().split(' ')[0]}`)}>
                 <View style={[styles.settingRow, i < SETTINGS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <UIcon name={s.icon} size={20} color={s.accent ? theme.iconLilac : theme.mutedForeground} />
                   <ThemedText type="bodyMedium" style={{ flex: 1, color: s.accent ? theme.iconLilac : theme.text }}>{s.label}</ThemedText>
@@ -130,7 +130,7 @@ export default function You() {
           </Card>
         </RiseIn>
 
-        <SpringPressable haptic={false} onPress={() => {}} style={styles.logout}>
+        <SpringPressable haptic={false} onPress={() => router.replace('/welcome')} style={styles.logout}>
           <ThemedText type="bodyMedium" style={{ color: theme.destructive }}>Log out</ThemedText>
         </SpringPressable>
       </ScrollView>
