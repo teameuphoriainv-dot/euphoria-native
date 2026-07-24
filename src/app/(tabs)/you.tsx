@@ -40,7 +40,9 @@ export default function You() {
   const xp = useApp((s) => s.xp);
   const streak = useApp((s) => s.streak);
   const level = useApp((s) => s.level());
-  const lp = useApp((s) => s.levelProgress());
+  // ponytail: levelProgress() returns a fresh object → unstable zustand snapshot → infinite render loop.
+  // Read it non-reactively; the selected `xp` above already re-renders this component when it changes.
+  const lp = useApp.getState().levelProgress();
   const lessons = useApp((s) => s.completedLessons.length);
   const STATS = [
     { icon: 'flame', label: 'Day streak', value: String(streak) },

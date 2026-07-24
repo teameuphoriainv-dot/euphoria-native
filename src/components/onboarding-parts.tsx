@@ -4,7 +4,7 @@
  */
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
@@ -89,9 +89,10 @@ export function OptionCard({
   const pop = useSharedValue(1);
   useEffect(() => {
     if (reduced || !selected) return;
-    pop.value = withSpring(1.035, { stiffness: 500, damping: 12 }, () => {
-      pop.value = withSpring(1, { stiffness: 300, damping: 18 });
-    });
+    pop.value = withSequence(
+      withSpring(1.035, { stiffness: 500, damping: 12 }),
+      withSpring(1, { stiffness: 300, damping: 18 }),
+    );
   }, [selected, reduced, pop]);
   const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
   return (
