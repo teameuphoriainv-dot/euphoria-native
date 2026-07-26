@@ -3,12 +3,33 @@ import { ScrollView, View, Text } from 'react-native';
 import { LessonArt } from '@/components/lesson-art';
 import { COURSES } from '@/lib/curriculum';
 
+/** Real curriculum titles, one per art key, so the grid doubles as a routing check. */
 const SAMPLE = [
   'The Magic of Compound Interest',
   'Diversification',
-  'Inflation and Purchasing Power',
+  'Inflation & Deflation',
   'Risk vs. Reward',
   'Reading Stock Charts',
+  'Stocks vs. Bonds',
+  'Tax-Advantaged Investing',
+  'Retirement Planning & Withdrawal Strategies',
+  'Budgeting Basics',
+  'Managing Debt Wisely',
+  'Dividend Policy & Share Buybacks',
+  'Understanding Fees & Expense Ratios',
+  'Financial Ratios: X-Raying a Company',
+  'Cognitive Biases That Destroy Wealth',
+  'Real Estate Investing',
+  'The Federal Reserve & Monetary Policy',
+  'International Trade & Globalization',
+  'DCF Analysis & Valuation',
+  'Insurance as a Wealth Tool',
+  'Building an Emergency Fund',
+  'Cash Flow Statement Mastery',
+  'Probability & Expected Value',
+  'Journal Entries & Double-Entry Bookkeeping',
+  'Competitive Analysis & Market Positioning',
+  'Identity Theft & Financial Security',
   'Introduction to Investing',
 ];
 
