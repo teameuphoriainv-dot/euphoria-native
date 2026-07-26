@@ -63,7 +63,9 @@ export default function Onboarding() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {step === 0 && (
           <RiseIn key="s0">
-            <Atlas size={64} entrance="bounce" celebrate={goal !== null} expression={goal !== null ? 'happy' : 'default'} />
+            <View style={styles.centered}>
+              <Atlas size={64} entrance="bounce" celebrate={goal !== null} expression={goal !== null ? 'happy' : 'default'} />
+            </View>
             <ThemedText type="display" style={styles.q}>What brings you to Euphoria?</ThemedText>
             <View style={styles.options}>
               {GOALS.map((g, i) => (
@@ -77,7 +79,9 @@ export default function Onboarding() {
 
         {step === 1 && (
           <RiseIn key="s1">
-            <Atlas size={64} entrance="bounce" celebrate={level !== null} expression={level !== null ? 'happy' : 'watching'} />
+            <View style={styles.centered}>
+              <Atlas size={64} entrance="bounce" celebrate={level !== null} expression={level !== null ? 'happy' : 'watching'} />
+            </View>
             <ThemedText type="display" style={styles.q}>How much do you already know?</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>Atlas will tune every lesson to your level.</ThemedText>
             <View style={styles.options}>

@@ -18,11 +18,27 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, G, Image as SvgImage, Path } from 'react-native-svg';
+import Svg, {
+  Circle,
+  Defs,
+  Ellipse,
+  G,
+  Image as SvgImage,
+  LinearGradient,
+  Path,
+  RadialGradient,
+  Stop,
+} from 'react-native-svg';
 
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
 const INK = '#1A1523';
+/** Head scale inside the 100x104 box. Shrinking the pinwheel makes room for a body without
+ *  touching any expression coordinate — see the <G> transform in the render. */
+const HEAD_S = 0.68;
+/** Body silhouette: a soft pear tucked UNDER the head. Deliberately narrower than the head —
+ *  equal widths read as a snowman (two stacked blobs) instead of one creature. */
+const BODY_D = 'M50 52 C64 52, 72 66, 72 81 C72 93, 62 100, 50 100 C38 100, 28 93, 28 81 C28 66, 36 52, 50 52 Z';
 const AnimatedG = Animated.createAnimatedComponent(G);
 const logo = require('@/assets/images/atlas-logo.png');
 
@@ -82,12 +98,16 @@ export function Atlas({
   }, [celebrate, reduced, jumpY, size]);
 
   // idle breathing bob — the "alive" signal (V2 bot reference)
+  // ponytail: amplitude capped in absolute px, not % of size. At size=64 the old
+  // size*0.025 read as jitter on a bodiless logo; a bob must stay sub-pixel-ish to
+  // feel like breath. Raise the cap only once Atlas has a body with visual mass.
   useEffect(() => {
     if (reduced) return;
-    breathY.set(withRepeat(withSequence(
-      withTiming(-size * 0.025, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
-      withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
-    ), -1, true));
+    const amp = Math.min(size * 0.012, 1.1);
+    breathY.set(withRepeat(
+      withTiming(-amp, { duration: 1400, easing: Easing.inOut(Easing.sin) }),
+      -1, true,
+    ));
   }, [reduced, breathY, size]);
 
   // shake on wrong answer (V1 balance-scale reference)
@@ -230,8 +250,13 @@ export function Atlas({
     }
   };
 
-  const svg = (
-    <Svg width={size} height={size * 1.04} viewBox="0 0 100 104">
+  // The head keeps its ORIGINAL 100x104 coordinate space, scaled down as one unit so every
+  // absolute pupil/glasses coord below stays byte-identical to the web original. Body is
+  // authored in the outer space beneath it.
+  // ponytail: one <G> transform instead of rewriting 9 expressions' coords. Never inline new
+  // eye coords here — rescale HEAD_S and the whole face follows.
+  const head = (
+    <G transform={`translate(${(100 - 100 * HEAD_S) / 2}, 0) scale(${HEAD_S})`}>
       <AnimatedG animatedProps={bodyProps} origin="50, 52">
         <SvgImage href={logo} x={0} y={3} width={100} height={98} preserveAspectRatio="xMidYMid meet" />
       </AnimatedG>
@@ -252,6 +277,33 @@ export function Atlas({
           </G>
         </>
       )}
+    </G>
+  );
+
+  const svg = (
+    <Svg width={size} height={size * 1.04} viewBox="0 0 100 104">
+      <Defs>
+        <LinearGradient id="atlasBody" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#C89CF5" />
+          <Stop offset="0.55" stopColor="#9B6BEF" />
+          <Stop offset="1" stopColor="#6D34D6" />
+        </LinearGradient>
+        <RadialGradient id="atlasShadow" cx="0.5" cy="0.5" r="0.5">
+          <Stop offset="0" stopColor="#7C3AED" stopOpacity={0.55} />
+          <Stop offset="1" stopColor="#7C3AED" stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+
+      {/* contact shadow — the cue that gives a mascot physical weight (MASTER_PLAN B6) */}
+      <Ellipse cx={50} cy={102} rx={25} ry={4.5} fill="url(#atlasShadow)" />
+
+      {/* body: soft rounded form the head sits on. Drawn before the head so it reads as behind. */}
+      <Path d={BODY_D} fill="url(#atlasBody)" />
+      {/* specular highlight, upper-left — a soft blob, NOT a stroke along the edge (that read
+          as a seam). Single top-left light source, consistent with the contact shadow. */}
+      <Ellipse cx={42} cy={71} rx={7.5} ry={5} fill="#EBDCFF" opacity={0.28} />
+
+      {head}
     </Svg>
   );
 
