@@ -1,7 +1,7 @@
 /**
  * Courses — the catalog (Brilliant's Courses grid): tier chips + an illustrated vertical
- * pathway of finance courses connected by a spine line. Push route; opened from Learn.
- * Mock progress until Phase 3 wires real pathway data.
+ * pathway of the 12 real curriculum courses connected by a spine line. Push route; opened
+ * from Learn. Tapping a course makes it the active pathway and returns to Learn.
  */
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -16,32 +16,30 @@ import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { courseAccent } from '@/lib/course-accents';
+import { COURSES, type TierLevel } from '@/lib/curriculum';
+import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-type Tier = 'Foundations' | 'Investing' | 'Advanced';
-
-const COURSES: { tier: Tier; title: string; icon: string; lessons: number; progress: number }[] = [
-  { tier: 'Foundations', title: 'Investing Fundamentals', icon: 'open-book', lessons: 25, progress: 0.32 },
-  { tier: 'Foundations', title: 'Personal Finance', icon: 'money-bag', lessons: 25, progress: 0.6 },
-  { tier: 'Foundations', title: 'Credit & Debt', icon: 'bank', lessons: 20, progress: 0.1 },
-  { tier: 'Foundations', title: 'Budgeting Basics', icon: 'cash', lessons: 18, progress: 0 },
-  { tier: 'Investing', title: 'How Markets Work', icon: 'trend-line', lessons: 25, progress: 0 },
-  { tier: 'Investing', title: 'Diversification', icon: 'target', lessons: 22, progress: 0 },
-  { tier: 'Investing', title: 'Behavioral Finance', icon: 'brain', lessons: 25, progress: 0 },
-  { tier: 'Investing', title: 'Options & Derivatives', icon: 'diamond', lessons: 20, progress: 0 },
-  { tier: 'Advanced', title: 'Corporate Finance', icon: 'building', lessons: 25, progress: 0 },
-  { tier: 'Advanced', title: 'Quantitative Analysis', icon: 'analytics', lessons: 25, progress: 0 },
-  { tier: 'Advanced', title: 'Risk Management', icon: 'lesson-shield', lessons: 22, progress: 0 },
-  { tier: 'Advanced', title: 'Wealth Management', icon: 'crown', lessons: 25, progress: 0 },
+/** Curriculum tiers, in order, with the label the catalog shows. */
+const TIERS: { tier: TierLevel; label: string }[] = [
+  { tier: 'easy', label: 'Foundations' },
+  { tier: 'intermediate', label: 'Intermediate' },
+  { tier: 'advanced', label: 'Advanced' },
 ];
-
-const TIERS: Tier[] = ['Foundations', 'Investing', 'Advanced'];
 
 export default function Courses() {
   const theme = useTheme();
-  const [tier, setTier] = useState<Tier>('Foundations');
+  const [tier, setTier] = useState<TierLevel>('easy');
+  const setActiveCourse = useApp((s) => s.setActiveCourse);
+  const completedLessons = useApp((s) => s.completedLessons);
   const shown = COURSES.filter((c) => c.tier === tier);
+
+  const open = (id: string) => {
+    setActiveCourse(id);
+    router.back();
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -54,46 +52,51 @@ export default function Courses() {
         <ThemedText type="title" style={{ fontSize: 22 }}>Courses</ThemedText>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
         {TIERS.map((t) => {
-          const active = t === tier;
+          const active = t.tier === tier;
           return (
-            <SpringPressable key={t} haptic={false} scaleTo={0.94} onPress={() => setTier(t)}>
+            <SpringPressable key={t.tier} haptic={false} scaleTo={0.94} onPress={() => setTier(t.tier)}>
               <View style={[styles.chip, { borderColor: active ? theme.primary : theme.border, backgroundColor: active ? theme.primary + '24' : 'transparent' }]}>
-                <ThemedText type="smallBold" style={{ color: active ? theme.text : theme.mutedForeground, fontSize: 13 }}>{t}</ThemedText>
+                <ThemedText type="smallBold" style={{ color: active ? theme.text : theme.mutedForeground, fontSize: 13 }}>{t.label}</ThemedText>
               </View>
             </SpringPressable>
           );
         })}
       </ScrollView>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.list} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View>
           {/* spine line behind the icon column */}
           <View style={[styles.spine, { backgroundColor: theme.border }]} />
-          {shown.map((c, i) => (
-            <RiseIn key={c.title} delay={i * 55}>
-              <SpringPressable onPress={() => router.push('/lesson')}>
-                <Card style={styles.courseCard}>
-                  <View style={[styles.bubble, { backgroundColor: theme.primary + '18', borderColor: theme.background }]}>
-                    <Icon name={c.icon} size={40} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <ThemedText type="heading" style={{ fontSize: 17 }}>{c.title}</ThemedText>
-                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-                      {c.progress > 0 ? `${Math.round(c.progress * c.lessons)}/${c.lessons} lessons` : `${c.lessons} lessons`}
-                    </ThemedText>
-                    {c.progress > 0 && (
-                      <View style={{ marginTop: Spacing.two }}>
-                        <ProgressBar value={c.progress} height={5} />
-                      </View>
-                    )}
-                  </View>
-                  <UIcon name="chevronRight" size={16} color={theme.mutedForeground} strokeWidth={2.4} />
-                </Card>
-              </SpringPressable>
-            </RiseIn>
-          ))}
+          {shown.map((c, i) => {
+            const accent = courseAccent(c.id);
+            const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
+            const progress = c.totalLessons ? done / c.totalLessons : 0;
+            return (
+              <RiseIn key={c.id} delay={i * 55}>
+                <SpringPressable onPress={() => open(c.id)}>
+                  <Card style={styles.courseCard}>
+                    <View style={[styles.bubble, { backgroundColor: accent + '1F', borderColor: theme.background }]}>
+                      <Icon name={c.icon} size={40} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <ThemedText type="heading" style={{ fontSize: 17 }}>{c.title}</ThemedText>
+                      <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }} numberOfLines={2}>
+                        {done > 0 ? `${done}/${c.totalLessons} lessons` : `${c.totalLessons} lessons`}
+                      </ThemedText>
+                      {done > 0 && (
+                        <View style={{ marginTop: Spacing.two }}>
+                          <ProgressBar value={progress} height={5} tone={accent} />
+                        </View>
+                      )}
+                    </View>
+                    <UIcon name="chevronRight" size={16} color={theme.mutedForeground} strokeWidth={2.4} />
+                  </Card>
+                </SpringPressable>
+              </RiseIn>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -104,7 +107,10 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   back: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+  // RN gives ScrollView flexGrow:1 — without this the chip row stretches and pushes the list down
+  chipsScroll: { flexGrow: 0, flexShrink: 0 },
   chips: { gap: 8, paddingHorizontal: Spacing.three, paddingVertical: Spacing.three },
+  list: { flex: 1 },
   chip: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   spine: { position: 'absolute', left: Spacing.three + 34, top: 40, bottom: 40, width: 2 },

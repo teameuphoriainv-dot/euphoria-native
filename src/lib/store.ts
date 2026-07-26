@@ -13,13 +13,19 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 const XP_PER_LEVEL = 500;
 
+/** Stable id for one curriculum lesson inside `completedLessons`. */
+export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
+
 export type AppState = {
   signedIn: boolean;
   xp: number;
   streak: number;
   completedLessons: string[];
+  /** Course id the Learn pathway is currently showing — one of COURSES from '@/lib/curriculum'. */
+  activeCourseId: string;
   signIn: () => void;
   signOut: () => void;
+  setActiveCourse: (id: string) => void;
   level: () => number;
   levelProgress: () => { into: number; size: number; toNext: number };
   completeLesson: (id: string, xp: number) => void;
@@ -34,9 +40,11 @@ export const useApp = create<AppState>()(
       xp: 2340,
       streak: 12,
       completedLessons: [],
+      activeCourseId: 'investing-fundamentals',
 
       signIn: () => set({ signedIn: true }),
       signOut: () => set({ signedIn: false }),
+      setActiveCourse: (id) => set({ activeCourseId: id }),
 
       level: () => Math.floor(get().xp / XP_PER_LEVEL) + 1,
       levelProgress: () => {
@@ -53,7 +61,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, activeCourseId: s.activeCourseId }),
     },
   ),
 );
