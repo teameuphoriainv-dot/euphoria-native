@@ -1,6 +1,6 @@
 # Rive Atlas — Pipeline Status (2026-07-21, autonomous run)
 
-Durable record of the Rive migration so far. Read with `AI_CONTEXT.md` (§🎬 Rive is the path for Atlas).
+Durable record of the Rive migration so far. Read with `docs/AI_CONTEXT.md` (§🎬 Rive is the path for Atlas).
 
 ## ✅ Done this session
 - **Rive MCP connected** (127.0.0.1:9791) — read+write verified. NOTE: **no export tool** — exporting `.riv` is a human-only action in the Rive editor.
@@ -38,5 +38,5 @@ Durable record of the Rive migration so far. Read with `AI_CONTEXT.md` (§🎬 R
 - Once solid: swap `<Atlas>` → `<AtlasRive>` where the mascot renders (welcome/onboarding/lesson), keep SVG `<Atlas>` as fallback.
 
 ## Refs
-Coord mapping: `world_x = 250 + (designX-50)*3`, `world_y = 250 + (designY-52)*3`. Eye geometry from `ATLAS_ANIM_SPEC.md` §2 (viewBox 100×104).
+Coord mapping: `world_x = 250 + (designX-50)*3`, `world_y = 250 + (designY-52)*3`. Eye geometry from `docs/specs/ATLAS_ANIM_SPEC.md` §2 (viewBox 100×104).
 Sim iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082` · Expo Go can't run Rive — must use the dev-client build.

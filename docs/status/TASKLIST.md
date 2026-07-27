@@ -10,8 +10,8 @@ that beats Duolingo + Brilliant. Slow and steady — one item at a time.
 3. Reference **`refs/`** (Brilliant videos + screenshots) for the quality/motion bar. Aim for beautiful.
 4. Make the mascot alive through **Rive** where it belongs; use the code motion system elsewhere.
 5. **Commit + push** each working increment (clear message). Never commit broken code.
-6. Check the item off here. Update `PROGRESS.md`. Move to the next item, then the next phase.
-7. If blocked after real effort: log it in `PROGRESS.md` → move to the next unblocked item. Keep looping.
+6. Check the item off here. Update `docs/status/PROGRESS.md`. Move to the next item, then the next phase.
+7. If blocked after real effort: log it in `docs/status/PROGRESS.md` → move to the next unblocked item. Keep looping.
 8. Keep going. Add phases as needed (target ≥24). The app should get better every phase, every loop.
 
 Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-client` · verify via execbro.
@@ -34,7 +34,7 @@ Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-clie
 ## Phase 2 — Rive Atlas: fix animation rendering (the parked blocker)
 - [ ] Add `onPlay`/`onStateChanged`/`onError` to `<Rive>`, read logs via execbro → find why idle/celebrate don't play
 - [ ] Get idle breathe+blink visibly looping + `celebrate` pop firing on `/atlas-test` (verify on sim)
-- [ ] Document the working pipeline recipe in `RIVE_STATUS.md`
+- [ ] Document the working pipeline recipe in `docs/status/RIVE_STATUS.md`
 
 ## Phase 3 — Rive Atlas: full reaction vocabulary
 - [ ] Build happy · oops · watching · proud · wave-in · thinking into ONE `.riv` via the headless pipeline
@@ -112,4 +112,4 @@ Sim: iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082 --dev-clie
 - [ ] Full-journey walkthrough on the sim; design-system consistency (spacing/color/type); final PROGRESS summary
 
 ---
-_The in-tool task tracker is retired — THIS file is the one list. Completed history lives in git + PROGRESS.md._
+_The in-tool task tracker is retired — THIS file is the one list. Completed history lives in git + `docs/status/PROGRESS.md`._

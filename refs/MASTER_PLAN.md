@@ -2,8 +2,8 @@
 
 > Single source of truth for the visual/motion redesign. Grounded in a live 23-screen audit on the
 > iPhone 17 sim (2026-07-24) + a mechanism-level teardown of the user's 3 reference recordings
-> (2 Brilliant, 1 Duolingo) and 21 Brilliant screenshots. Companion: `TASKLIST.md` (phases),
-> `PROGRESS.md` (log), `ATLAS_ANIM_SPEC.md`, `ONBOARDING_ANIM_SPEC.md`, `BRILLIANT_REFERENCE.md`.
+> (2 Brilliant, 1 Duolingo) and 21 Brilliant screenshots. Companion: `docs/status/TASKLIST.md` (phases),
+> `docs/status/PROGRESS.md` (log), `docs/specs/ATLAS_ANIM_SPEC.md`, `docs/specs/ONBOARDING_ANIM_SPEC.md`, `refs/BRILLIANT_REFERENCE.md`.
 > Adaptation constant: **violet not green · Atlas not Koji · finance not math · EB Garamond serif + Nunito.**
 
 ## 0. Status (what's true right now)
@@ -104,8 +104,8 @@ sun/moon=**9057** · notif=**9058** · auth=**9059** · LEVEL-hero=**9060** · t
   Lottie when present, else an enhanced-SVG isometric composition (EUPHORIA_ICON + gradient + contact shadow) —
   never blank. UI glyphs stay on `src/lib/euphoria-icons.ts`.
 - **Bottom nav = floating pill** (rebuild `components/tab-bar.tsx`).
-- **Build on repo specs:** `ATLAS_ANIM_SPEC.md` (10 expressions + B1–B10 behaviors, exact SVG coords) and
-  `ONBOARDING_ANIM_SPEC.md` (per-step table + 10-item checklist) are ground-truthed — follow them.
+- **Build on repo specs:** `docs/specs/ATLAS_ANIM_SPEC.md` (10 expressions + B1–B10 behaviors, exact SVG coords) and
+  `docs/specs/ONBOARDING_ANIM_SPEC.md` (per-step table + 10-item checklist) are ground-truthed — follow them.
 
 ## 5. Motion Kit (`src/shared/motion/`)
 **Reuse:** `tokens.ts` (Spring.{smooth260/30,gentle180/26,bouncy500/18,snappy420/32}, Duration.{fast150,base280,
@@ -160,7 +160,7 @@ Stocks=candlesticks, Risk=scale) for HeroArt + unit art.
 - **Gate 2 MOTION (the real proof):** `simctl io recordVideo /tmp/verify/<x>.mov &` → trigger (execbro `tap`,
   `burst=true` for transient pops) → stop → `ffmpeg -vf fps=30` → **lay sim frames beside the §3 reference frames**;
   pass = same shape/direction/overshoot/duration (±1–2 frames), not just end state. Fail → fix → re-record.
-- **Then:** `tsc --noEmit` clean → commit+push → tick `TASKLIST.md` → update `PROGRESS.md`.
+- **Then:** `tsc --noEmit` clean → commit+push → tick `docs/status/TASKLIST.md` → update `docs/status/PROGRESS.md`.
 - **Infra:** Metro `:8082` alive (`curl :8082/status`); hard reload = terminate→launch→openurl LAN `192.168.1.69`;
   land on a screen via temp `app/index.tsx` Redirect flip → **revert to `/welcome`**; audit **via execbro/Maestro
   tap-through only** (deep-linking tab/param routes red-boxes them out of context). execbro CDP=401 → use OCR/coord taps.

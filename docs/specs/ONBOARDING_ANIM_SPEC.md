@@ -1,4 +1,4 @@
-# ONBOARDING_ANIM_SPEC.md
+# Onboarding Animation Spec — Euphoria Native
 > Implementation-ready animation spec for Euphoria onboarding.
 > Grounded in Duolingo reference video frames + current Euphoria codebase audit.
 > All primitives referenced exist in `src/shared/motion/` unless noted.

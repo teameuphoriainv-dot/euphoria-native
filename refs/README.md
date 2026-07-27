@@ -17,10 +17,10 @@ persists even before the raw files land.
 
 ## Inventory (from analysis this project already did)
 ### Videos (`refs/videos/`) — Brilliant motion references
-- `ScreenRecording … 14-17-49` — Brilliant onboarding flow / character motion (~108s). Analyzed in `ATLAS_ANIM_SPEC.md` (V2 green-bot mascot: idle breathing, eye pan, hop-on-select, wave entrance).
-- `ScreenRecording … 13-12-29` — Brilliant app lesson walkthrough (~122s). Analyzed in `ATLAS_ANIM_SPEC.md` (V1: 3D character gestures, streak unlock cascade, correct/incorrect beats).
+- `ScreenRecording … 14-17-49` — Brilliant onboarding flow / character motion (~108s). Analyzed in `docs/specs/ATLAS_ANIM_SPEC.md` (V2 green-bot mascot: idle breathing, eye pan, hop-on-select, wave entrance).
+- `ScreenRecording … 13-12-29` — Brilliant app lesson walkthrough (~122s). Analyzed in `docs/specs/ATLAS_ANIM_SPEC.md` (V1: 3D character gestures, streak unlock cascade, correct/incorrect beats).
 - `ScreenRecording … 10-50-24` — Brilliant onboarding capture (Koji mascot + step flow).
-- (Duolingo onboarding video, ~4.5min — analyzed in `ONBOARDING_ANIM_SPEC.md`.)
+- (Duolingo onboarding video, ~4.5min — analyzed in `docs/specs/ONBOARDING_ANIM_SPEC.md`.)
 
 ### Images (`refs/images/`) — Brilliant screenshots (~25-40) + Koji mascot
 Brilliant onboarding + app screens: "A world-class tutor for every home" landing, "Hi, I'm Koji!" /
@@ -32,10 +32,10 @@ Level 1"), Courses (Math Foundations pathway), notifications, topic constellatio
 comet-tunnel dive moment. (IMG_9043–9063 = 21 of these stills.)
 
 ## Where the KNOWLEDGE already lives (persisted regardless of raw files)
-- `BRILLIANT_REFERENCE.md` — 25-screenshot analysis → Euphoria build spec (violet-not-green, Atlas-not-Koji, finance-not-math).
-- `ATLAS_ANIM_SPEC.md` — the 2 character videos analyzed → Atlas expression + motion spec.
-- `ONBOARDING_ANIM_SPEC.md` — Duolingo onboarding video analyzed.
-- `AI_CONTEXT.md` — master reference; `RIVE_STATUS.md` — Rive pipeline status.
+- `refs/BRILLIANT_REFERENCE.md` — 25-screenshot analysis → Euphoria build spec (violet-not-green, Atlas-not-Koji, finance-not-math).
+- `docs/specs/ATLAS_ANIM_SPEC.md` — the 2 character videos analyzed → Atlas expression + motion spec.
+- `docs/specs/ONBOARDING_ANIM_SPEC.md` — Duolingo onboarding video analyzed.
+- `docs/AI_CONTEXT.md` — master reference; `docs/status/RIVE_STATUS.md` — Rive pipeline status.
 
 ## North star (why these refs matter)
 Build **above Duolingo + Brilliant**: violet brand, Atlas mascot alive on every screen, finance/investing

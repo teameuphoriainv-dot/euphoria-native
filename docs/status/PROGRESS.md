@@ -1,8 +1,8 @@
 # Euphoria — Build Progress Log
 
 Multi-session memory for the Autonomous Build Directive (production-ready polish, Duolingo/Brilliant
-feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLIST.md` (checkable phases),
-`AI_CONTEXT.md` (master ref), `RIVE_STATUS.md` (Rive detail), `refs/README.md` (reference assets).
+feel). Update EVERY session: what I did, tried, failed, next. Companion: `docs/status/TASKLIST.md` (checkable phases),
+`docs/AI_CONTEXT.md` (master ref), `docs/status/RIVE_STATUS.md` (Rive detail), `refs/README.md` (reference assets).
 
 ---
 
@@ -30,7 +30,7 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - **Decision:** production uses the working SVG `<Atlas>`. Rive is experimental at `/atlas-test`. Free-trial exports: 2 left (license needed for scale — cost approved by user). Playwright Chromium installed.
 
 ## Reference material (user-provided) — see `refs/README.md`
-- ~3-4 Brilliant screen-recordings + ~30-40 Brilliant screenshots (Koji mascot, onboarding). **TCC-blocked** — I can't copy them from `~/Library/Messages/Attachments` (`Operation not permitted`). Analysis already captured in `BRILLIANT_REFERENCE.md` / `ATLAS_ANIM_SPEC.md` / `ONBOARDING_ANIM_SPEC.md`. To persist raw files: user grants Full Disk Access OR drags them into `refs/`.
+- ~3-4 Brilliant screen-recordings + ~30-40 Brilliant screenshots (Koji mascot, onboarding). **TCC-blocked** — I can't copy them from `~/Library/Messages/Attachments` (`Operation not permitted`). Analysis already captured in `refs/BRILLIANT_REFERENCE.md` / `docs/specs/ATLAS_ANIM_SPEC.md` / `docs/specs/ONBOARDING_ANIM_SPEC.md`. To persist raw files: user grants Full Disk Access OR drags them into `refs/`.
 
 ## Phase 1 progress
 - ✅ Boot clean (welcome renders, 0 bundle errors). NOTE: execbro CDP attach fails (401 — a stray `:8081` Metro beside `:8082 --dev-client`), so runtime `get_logs` is unavailable that way. Minor infra, not an app bug. Verify visually via `ios_screenshot`/`tap`.
@@ -38,7 +38,7 @@ feel). Update EVERY session: what I did, tried, failed, next. Companion: `TASKLI
 - ✅ Commit `f32aaff`: OrderSteps `n<=1` hang fix; Trade dead-segment fix (branch on `seg` + designed "coming soon" states); atlas-test `__DEV__` guard. tsc clean.
 - ⬜ **NEXT — dead-code/asset cleanup** (grep-verify 0 importers, then delete): `src/lib/courses.ts`, `src/components/stub-screen.tsx`, `src/components/ui/badge.tsx`, `src/components/themed-view.tsx`, `src/hooks/use-color-scheme*.ts`, `src/shared/motion/use-reduced-motion-safe.ts`; orphan assets (`assets/images/react-logo*`, `expo-logo*`, `expo-badge*`, `tutorial-web.png`, `assets/images/tabIcons/`); prune deps (`expo-glass-effect`/`symbols`/`image`/`device`/`web-browser`). **KEEP** `assets/expo.icon` (app.json icon) + `splash-icon.png`.
 - ⬜ Cosmetic: `courses.tsx:92` chevronLeft→right; matching-pairs keys (append index); `/games` + `/league` are unreachable in prod (link in or mark dev-only).
-- Then **Phase 2** (interaction polish) per TASKLIST.md.
+- Then **Phase 2** (interaction polish) per `docs/status/TASKLIST.md`.
 
 ## Rive directive (user, 2026-07-21) + Phase 15 status
 - **ALL Atlas animation edits go through the .riv via the headless pipeline** (`scripts/rive/build-atlas.mjs` → rivemcp `export_riv`) — NEVER hand-coded Reanimated. The current .riv breathe/celebrate have visual issues; fix them IN the .riv (edit the spec in build-atlas.mjs → regenerate → re-export → verify on /atlas-test) when Rive work resumes. IMPORTANT: the .riv is currently ONLY on the dev `/atlas-test` route — production screens use the SVG `<Atlas>` (renders clean). So .riv issues don't affect the shipped product yet.
@@ -59,9 +59,9 @@ User is right: phases 6/7/8/9/12/13 were marked "done" for RENDERING, not for th
 - ✅ **DONE + verified on real app: charts DRAW ON left→right** (AnimatedLineChart, commit 7fac0b6) — Home/Trade/Stock. This was a specific user complaint.
 - ❌ **STILL NEEDED (real visual redesign, not plumbing):**
   1. **Learning pathway (learn.tsx)** — redesign to look like Duolingo/Brilliant: illustrated unit nodes, richer path, node art. User asked for this repeatedly. Currently plain purple circles on a dashed line.
-  2. **Onboarding** — add motion per ONBOARDING_ANIM_SPEC.md (progress spring-fill, card stagger, Atlas reaction per step, growth-chart line-draw). Currently static.
+  2. **Onboarding** — add motion per `docs/specs/ONBOARDING_ANIM_SPEC.md` (progress spring-fill, card stagger, Atlas reaction per step, growth-chart line-draw). Currently static.
   3. **Digest** — was ~imported from web; needs real design elevation (not just the reader I added).
-  4. Compare every change against refs/ (BRILLIANT_REFERENCE.md / screen recordings) — the user gave many references.
+  4. Compare every change against refs/ (`refs/BRILLIANT_REFERENCE.md` / screen recordings) — the user gave many references.
 - App IS the standalone RN dev-client "Euphoria" app (com.euphoria.native), NOT Expo Go. Launch: `simctl launch com.euphoria.native` then `openurl euphorianative://expo-development-client/?url=http://192.168.1.69:8082`. Charts/screens deep-linkable: stock/NVDA, digest/<slug>, explore/compound.
 
 ## Session state snapshot (latest — read this first on resume)
@@ -78,7 +78,7 @@ Continuous straight work, no loop. All committed+pushed, tsc clean, sim-verified
 - **Phase 12 (Digest) ✅** `79f1397` — rows → digest/[slug].tsx article reader (serif editorial). Verified sim.
 - **Phase 13 (You) ✅** `79f1397` — settings rows → settings/[section].tsx; Log out → /welcome; Games/League linked.
 - **Phase 7 (Home) partial** `a340de9` — goal-ring→/learn, daily-challenge→/lesson wired.
-NO DEAD TAPS remain in Home/Digest/You/Trade. NEXT unchecked high-value: Phase 15 (persistence: zustand+AsyncStorage) OR remaining screen polish (6 Onboarding, 8 Learn, 9 Lesson, 14 Courses/Games/League). Keep going down TASKLIST.md.
+NO DEAD TAPS remain in Home/Digest/You/Trade. NEXT unchecked high-value: Phase 15 (persistence: zustand+AsyncStorage) OR remaining screen polish (6 Onboarding, 8 Learn, 9 Lesson, 14 Courses/Games/League). Keep going down `docs/status/TASKLIST.md`.
 
 ## ⚠️ PIVOT (user frustrated re: too long on Rive) — 2026-07-21
 **RIVE PARKED.** SVG Atlas works in prod. Rive pipeline (rivemcp/Polymation build-atlas.mjs) works + fix `75360bb` is a strong candidate but UNVERIFIED on sim — stop camping on it. **Loop now does VISIBLE PRODUCT POLISH via CODE (Phase 5+), verified with execbro (RECONNECTED).** Do real edits each tick (motion tokens, press states, transitions, reward moments) — not tooling battles. Skip Phases 2–4 (Rive) for now.

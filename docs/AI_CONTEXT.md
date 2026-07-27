@@ -12,14 +12,14 @@ spring physics, reward moments, violet gradients, tasteful depth.
 ## 🐙 Atlas = the mascot (CENTRAL)
 Atlas is THE identity of Euphoria. It must be reactive and present everywhere: an expression per
 event, idle life (breathing), celebration beats, spring entrances. Never a static logo. Spec:
-`ATLAS_ANIM_SPEC.md` (10 expressions + 10 behaviors; 6 shipped, 14 queued).
+`docs/specs/ATLAS_ANIM_SPEC.md` (10 expressions + 10 behaviors; 6 shipped, 14 queued).
 
 ## 📚 References the user provided (ALWAYS take into account)
 | Reference | Source | Captured to | Status |
 |-----------|--------|-------------|--------|
-| Brilliant app (25 screenshots) | user | `BRILLIANT_REFERENCE.md` | ✓ analyzed |
-| Atlas animation (2 videos: Brilliant 3D character + green bot) | Messages | `ATLAS_ANIM_SPEC.md` | ✓ analyzed |
-| Duolingo onboarding (1 video, 4.5min) | Messages | `ONBOARDING_ANIM_SPEC.md` | ✓ analyzed |
+| Brilliant app (25 screenshots) | user | `refs/BRILLIANT_REFERENCE.md` | ✓ analyzed |
+| Atlas animation (2 videos: Brilliant 3D character + green bot) | Messages | `docs/specs/ATLAS_ANIM_SPEC.md` | ✓ analyzed |
+| Duolingo onboarding (1 video, 4.5min) | Messages | `docs/specs/ONBOARDING_ANIM_SPEC.md` | ✓ analyzed |
 | Brilliant stills (21 imgs, IMG_9043–9063) | Messages | — | ⚠️ **TCC-BLOCKED** |
 
 ⚠️ **ACTION FOR USER:** the 21 still images sit behind macOS privacy (Messages dir); I can't read
@@ -54,6 +54,6 @@ was reverted. **Atlas + hero mascot animations go through Rive**, not code.
 5. Durable state in git + these markdown files (session memory dies on compaction).
 
 ## 🗺️ Durable docs
-- `ROADMAP.md` — the user-journey task list (start → end)
-- `ATLAS_ANIM_SPEC.md` · `ONBOARDING_ANIM_SPEC.md` · `BRILLIANT_REFERENCE.md` — reference specs
+- `docs/ROADMAP.md` — the user-journey task list (start → end)
+- `docs/specs/ATLAS_ANIM_SPEC.md` · `docs/specs/ONBOARDING_ANIM_SPEC.md` · `refs/BRILLIANT_REFERENCE.md` — reference specs
 - Branch `feat/foundation-first-slice` · Sim iPhone 17 `F448825D-AF20-48D2-890A-516C12012CA7` · Metro `:8082`

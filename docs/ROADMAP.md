@@ -1,6 +1,6 @@
 # Euphoria Native — Build Roadmap (USER-JOURNEY FLOW)
 
-The app redesigned **start → end** to EXCEED Duolingo + Brilliant. Read `AI_CONTEXT.md` first.
+The app redesigned **start → end** to EXCEED Duolingo + Brilliant. Read `docs/AI_CONTEXT.md` first.
 Every screen: heavy tasteful motion + Atlas reactions + violet brand. Work in **BIG BATCHES**
 (finish a whole screen, verified — never dribble one tiny widget). **VISUAL-VERIFY every build**
 on the sim (cold-restart + screenshot + actually look) before proceeding.
@@ -18,7 +18,7 @@ Branded splash → Atlas comet/beam entrance into Welcome. Smooth, no white flas
 Light-beam entrance, Atlas `entrance="bounce"`, staggered copy rise, gradient CTA press spring.
 
 ### 3. Onboarding (12–15 steps, Duo-motion) — 🟡 6 steps exist; 0/10 motion upgrades
-`onboarding.tsx` + `onboarding-parts.tsx`. Implement ALL of `ONBOARDING_ANIM_SPEC.md`:
+`onboarding.tsx` + `onboarding-parts.tsx`. Implement ALL of `docs/specs/ONBOARDING_ANIM_SPEC.md`:
 progress-bar spring fill, Atlas expression-per-step, OptionCard stagger + animated radio, GrowthChart
 line-draw, path reveal sequence, screen transitions. Expand toward the ~15-step Brilliant flow.
 
@@ -47,7 +47,7 @@ Confetti + Atlas celebrate + XP roll-up + streak bump + coin toast, staggered.
 ### 13. Profile / You — [ ] streak calendar, achievements, XP levels, settings
 
 ## ↔️ Cross-cutting (touch every screen)
-- **Atlas mascot system** — 🟡 6/20 anims (`ATLAS_ANIM_SPEC.md`). THE mascot — keep enhancing.
+- **Atlas mascot system** — 🟡 6/20 anims (`docs/specs/ATLAS_ANIM_SPEC.md`). THE mascot — keep enhancing.
 - Motion system, sound (expo-audio), skeletons/loading, a11y pass.
 
 ## ✅ Shipped
