@@ -45,3 +45,12 @@ example
 # Reference media (local only — analysis in refs/*.md)
 refs/videos/
 refs/images/
+
+# Agent / tooling local state (never commit — churns every run)
+.claude-flow/
+.impeccable/
+.gstack/
+
+# logs
+*.log
+logs/
