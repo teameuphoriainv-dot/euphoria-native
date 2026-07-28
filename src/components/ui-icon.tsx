@@ -114,6 +114,12 @@ const P: Record<string, React.ReactNode> = {
     </>
   ),
   check: <Path d="m5.5 12.5 4.2 4.2 8.8-9.4" />,
+  close: (
+    <>
+      <Path d="M6.5 6.5 17.5 17.5" />
+      <Path d="M17.5 6.5 6.5 17.5" />
+    </>
+  ),
   lock: (
     <>
       <Path d="M7 11V8.5a5 5 0 0 1 10 0V11" />
@@ -155,7 +161,9 @@ export function UIcon({
   color = '#BB83F1',
   strokeWidth = 2.2,
 }: {
-  name: UIconName | string;
+  // deliberately NOT `| string`: the `?? P.sparkle` fallback below is a rendering safety net, not a
+  // licence to pass unknown names. `close` shipped as a silent sparkle for exactly that reason.
+  name: UIconName;
   size?: number;
   color?: string;
   strokeWidth?: number;
