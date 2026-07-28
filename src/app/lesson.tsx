@@ -129,6 +129,9 @@ const PAYCHECK: TileSpec = {
 
 export default function Lesson() {
   const theme = useTheme();
+  // the celebration renders before `next()` writes the completion, so preview the streak the
+  // collect is about to produce rather than the stale stored one
+  const streakAfter = useApp((s) => s.streakIfCompletedToday());
   // dev-only: ?step=<name> jumps straight to a step for visual QA (ignored in production)
   const params = useLocalSearchParams<{ step?: string }>();
   const startAt = __DEV__ && params.step ? STEPS.indexOf(params.step as (typeof STEPS)[number]) : -1;
@@ -329,7 +332,7 @@ export default function Lesson() {
               <RewardPop delay={460}>
                 <View style={[styles.xpChip, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
                   <UIcon name="flame" size={18} color="#F97316" />
-                  <NumberRollup value={13} suffix=" day streak" duration={700} type="heading" style={{ color: '#F97316', fontSize: 18 }} />
+                  <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: '#F97316', fontSize: 18 }} />
                 </View>
               </RewardPop>
             </View>

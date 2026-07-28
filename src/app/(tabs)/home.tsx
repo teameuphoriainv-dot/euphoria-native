@@ -3,6 +3,7 @@
  * portfolio card with violet area chart, Continue/Trade duo, Daily Challenge.
  */
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
@@ -19,10 +20,10 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { useApp } from '@/lib/store';
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-const DONE_DAYS = 5; // ponytail: mock data until Phase 2 wires Supabase
 
 function DayCheck({ label, done }: { label: string; done: boolean }) {
   const theme = useTheme();
@@ -54,6 +55,27 @@ function PortfolioChart() {
 export default function Home() {
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
+  const completedLessons = useApp((s) => s.completedLessons);
+  const activeCourseId = useApp((s) => s.activeCourseId);
+  const minutesDone = useApp((s) => s.minutesDoneToday());
+  const goalMinutes = useApp((s) => s.dailyGoalMinutes());
+
+  // Real progress for the course Learn is currently on. `completedLessons` holds `courseId:num`
+  // keys, so the prefix filter is the whole computation.
+  const course = getCourseById(activeCourseId);
+  const doneInCourse = useMemo(
+    () => completedLessons.filter((k) => k.startsWith(`${activeCourseId}:`)).length,
+    [completedLessons, activeCourseId],
+  );
+  const coursePct = course ? Math.round((doneInCourse / course.totalLessons) * 100) : 0;
+  const remaining = Math.max(0, goalMinutes - minutesDone);
+
+  // The week strip needs per-day history that nothing records yet; `streak` is the only real
+  // signal, so fill backwards from today and stop. Exact when streak <= 7, which is the only
+  // range the strip can show anyway.
+  const todayIdx = (new Date().getDay() + 6) % 7; // Mon=0
+  const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
+
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={45} />
@@ -79,7 +101,7 @@ export default function Home() {
         <RiseIn delay={60}>
           <View style={styles.weekRow}>
             {WEEK.map((d, i) => (
-              <DayCheck key={`${d}${i}`} label={d} done={i < DONE_DAYS} />
+              <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} />
             ))}
           </View>
         </RiseIn>
@@ -108,11 +130,13 @@ export default function Home() {
         <RiseIn delay={160}>
           <SpringPressable onPress={() => router.push('/learn')}>
             <Card style={styles.goalRow}>
-              <DailyGoalRing value={14} goal={20} />
+              <DailyGoalRing value={minutesDone} goal={goalMinutes} />
               <View style={{ flex: 1 }}>
                 <ThemedText type="label" themeColor="mutedForeground">Today&apos;s goal</ThemedText>
-                <ThemedText type="heading" style={{ fontSize: 17, marginTop: 2 }}>14 of 20 minutes</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>6 min to keep your streak alive</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: 17, marginTop: 2 }}>{minutesDone} of {goalMinutes} minutes</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
+                  {remaining === 0 ? 'Done for today — streak safe.' : `${remaining} min to keep your streak alive`}
+                </ThemedText>
               </View>
             </Card>
           </SpringPressable>
@@ -125,7 +149,11 @@ export default function Home() {
               <Card style={[styles.duoCard, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
                 <UIcon name="arrowRight" size={20} color="#fff" />
                 <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two, color: '#fff' }}>Continue</ThemedText>
-                <ThemedText type="small" style={{ color: 'rgba(255,255,255,0.85)' }}>Foundations · 80%</ThemedText>
+                <ThemedText type="small" numberOfLines={1} style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  {/* percent first: the card is half-width and one line, so a long course title
+                      would otherwise truncate the progress number clean off the end */}
+                  {course ? `${coursePct}% · ${course.title}` : 'Pick a course'}
+                </ThemedText>
               </Card>
             </SpringPressable>
           </RiseIn>

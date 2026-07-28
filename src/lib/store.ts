@@ -15,18 +15,39 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Profile } from './onboarding-path';
-import { EMPTY_PROFILE, recommendPath } from './onboarding-path';
+import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
 
 const XP_PER_LEVEL = 500;
 
 /** Stable id for one curriculum lesson inside `completedLessons`. */
 export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
 
+/** Local calendar day, 'YYYY-MM-DD'. Local rather than UTC so the daily goal rolls over at the
+ *  user's midnight, not UTC's. */
+const dayKey = (d: Date = new Date()) =>
+  new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+/** Yesterday's local day key. Used to decide whether a completion extends the streak or restarts it. */
+const prevDayKey = () => dayKey(new Date(Date.now() - 86_400_000));
+
+/** The streak a completion *right now* produces: unchanged if today is already counted, +1 if the
+ *  last active day was yesterday, otherwise restarted at 1. Shared so the lesson celebration and
+ *  the actual write can never disagree. */
+const nextStreak = (streak: number, lastActiveDay: string) => {
+  if (lastActiveDay === dayKey()) return streak;
+  return lastActiveDay === prevDayKey() ? streak + 1 : 1;
+};
+
 export type AppState = {
   signedIn: boolean;
   xp: number;
   streak: number;
   completedLessons: string[];
+  /** Minutes practised on `lastActiveDay`. Read via `minutesDoneToday()`, which zeroes it once
+   *  the day rolls over — don't read this field directly. */
+  minutesToday: number;
+  /** Local day key the `minutesToday` tally belongs to. */
+  lastActiveDay: string;
   /** Course id the Learn pathway is currently showing — one of COURSES from '@/lib/curriculum'. */
   activeCourseId: string;
   /** Everything onboarding collects. Persisted; drives the recommended path. */
@@ -43,6 +64,13 @@ export type AppState = {
   setActiveCourse: (id: string) => void;
   level: () => number;
   levelProgress: () => { into: number; size: number; toNext: number };
+  /** Minutes practised today, 0 after midnight. Derived at read time so the ring resets without
+   *  needing a timer or an app-foreground listener. */
+  minutesDoneToday: () => number;
+  /** The user's chosen daily commitment in minutes, defaulted for pre-onboarding users. */
+  dailyGoalMinutes: () => number;
+  /** Streak the next completion today would produce — for previewing the reward before it's written. */
+  streakIfCompletedToday: () => number;
   completeLesson: (id: string, xp: number) => void;
   addXp: (n: number) => void;
   reset: () => void;
@@ -52,9 +80,13 @@ export const useApp = create<AppState>()(
   persist(
     (set, get) => ({
       signedIn: false,
-      xp: 2340,
-      streak: 12,
+      // A new install has done nothing yet. These were demo literals; `reset()` below already
+      // treated 0/0 as the clean state, so the initial values simply disagreed with it.
+      xp: 0,
+      streak: 0,
       completedLessons: [],
+      minutesToday: 0,
+      lastActiveDay: '',
       activeCourseId: 'investing-fundamentals',
       profile: EMPTY_PROFILE,
 
@@ -79,16 +111,33 @@ export const useApp = create<AppState>()(
         return { into, size: XP_PER_LEVEL, toNext: XP_PER_LEVEL - into };
       },
 
+      minutesDoneToday: () => (get().lastActiveDay === dayKey() ? get().minutesToday : 0),
+      dailyGoalMinutes: () => get().profile.dailyMinutes ?? 10,
+      streakIfCompletedToday: () => nextStreak(get().streak, get().lastActiveDay),
+
       completeLesson: (id, xp) =>
-        set((s) => (s.completedLessons.includes(id) ? s : { completedLessons: [...s.completedLessons, id], xp: s.xp + xp })),
+        set((s) => {
+          if (s.completedLessons.includes(id)) return s;
+          const today = dayKey();
+          // roll the tally over when the calendar day changed since the last completion
+          const base = s.lastActiveDay === today ? s.minutesToday : 0;
+          return {
+            completedLessons: [...s.completedLessons, id],
+            xp: s.xp + xp,
+            minutesToday: base + MINUTES_PER_LESSON,
+            lastActiveDay: today,
+            // nothing incremented this before, so Home's pill and week strip were pinned forever
+            streak: nextStreak(s.streak, s.lastActiveDay),
+          };
+        }),
       addXp: (n) => set((s) => ({ xp: s.xp + n })),
-      reset: () => set({ xp: 0, streak: 0, completedLessons: [] }),
+      reset: () => set({ xp: 0, streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '' }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, activeCourseId: s.activeCourseId, profile: s.profile }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, profile: s.profile }),
     },
   ),
 );

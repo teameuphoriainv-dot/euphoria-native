@@ -78,8 +78,9 @@ export const COURSE_BY_TOPIC: Record<string, string> = {
 
 export const PATH_LENGTH = 3;
 
-/** Average minutes per lesson — used only to estimate pacing copy on the reveal screen. */
-const MINUTES_PER_LESSON = 5;
+/** Average minutes per lesson. Drives reveal pacing copy AND the Home daily-goal ring, so the
+ *  two screens can never disagree about what "2 lessons a day" means in minutes. */
+export const MINUTES_PER_LESSON = 5;
 
 /**
  * Build the recommended path. ALWAYS returns exactly PATH_LENGTH real courses, even for a
