@@ -2,9 +2,18 @@
  * Home — matches design mockup: greeting + Atlas + streak pill, weekly check row,
  * portfolio card with violet area chart, Continue/Trade duo, Daily Challenge.
  */
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
@@ -25,16 +34,81 @@ import { useApp } from '@/lib/store';
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-function DayCheck({ label, done }: { label: string; done: boolean }) {
+function DayCheck({ label, done, today }: { label: string; done: boolean; today: boolean }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
+  const pulse = useSharedValue(0.9);
+
+  // only today-and-not-yet-done breathes: it's the one cell that wants a tap
+  useEffect(() => {
+    if (reduced || !today || done) {
+      pulse.set(0.9);
+      return;
+    }
+    pulse.set(withRepeat(withTiming(0.25, { duration: 1500, easing: Easing.inOut(Easing.ease) }), -1, true));
+  }, [reduced, today, done, pulse]);
+
+  const ringStyle = useAnimatedStyle(() => ({ opacity: pulse.get() }));
+
   return (
     <View style={styles.day}>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>{label}</ThemedText>
-      <Svg width={30} height={30} viewBox="0 0 30 30">
-        <Circle cx={15} cy={15} r={13.5} fill={done ? theme.primary : 'none'} stroke={done ? theme.primary : theme.border} strokeWidth={2} />
-        {done && <Path d="M9.5 15.5l3.5 3.5 7-7.5" stroke="#fff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" fill="none" />}
-      </Svg>
+      {/* never spread `color: undefined` into the style — it overrides themeColor and the label
+          falls back to the default dark text, i.e. invisible on this background */}
+      <ThemedText
+        type={today ? 'smallBold' : 'small'}
+        themeColor={today ? undefined : 'mutedForeground'}
+        style={[{ fontSize: 11 }, today ? { color: theme.iconLilac } : null]}>
+        {label}
+      </ThemedText>
+      <View style={styles.dayMark}>
+        {today && !done && (
+          <Animated.View
+            style={[
+              { position: 'absolute', width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: theme.primary },
+              ringStyle,
+            ]}
+          />
+        )}
+        <Svg width={30} height={30} viewBox="0 0 30 30">
+          <Circle cx={15} cy={15} r={13.5} fill={done ? theme.primary : 'none'} stroke={done ? theme.primary : theme.border} strokeWidth={2} />
+          {done && <Path d="M9.5 15.5l3.5 3.5 7-7.5" stroke="#fff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" fill="none" />}
+        </Svg>
+      </View>
     </View>
+  );
+}
+
+/** A slow highlight sweeping across the primary CTA, so the one card that wants a tap is the one
+ *  thing on the screen still moving after the entrance settles. */
+function Sheen() {
+  const reduced = useReducedMotion();
+  /** One linear 0..1 cycle. The sweep happens in the first SWEEP of it and the band parks off the
+   *  left edge for the remainder — the pause is done here rather than with withDelay, which does
+   *  not reliably re-arm inside withRepeat. */
+  const p = useSharedValue(0);
+  const SWEEP = 0.36;
+
+  useEffect(() => {
+    if (reduced) return;
+    p.set(withRepeat(withTiming(1, { duration: 3600, easing: Easing.linear }), -1, false));
+  }, [reduced, p]);
+
+  const style = useAnimatedStyle(() => {
+    const t = Math.min(1, p.get() / SWEEP);
+    const eased = t * t * (3 - 2 * t); // smoothstep, so it eases in and out of the sweep
+    return { transform: [{ translateX: -90 + eased * 300 }, { rotate: '18deg' }] };
+  });
+
+  if (reduced) return null;
+  return (
+    <Animated.View pointerEvents="none" style={[styles.sheen, style]}>
+      <LinearGradient
+        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.16)', 'rgba(255,255,255,0)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={StyleSheet.absoluteFill}
+      />
+    </Animated.View>
   );
 }
 
@@ -101,7 +175,7 @@ export default function Home() {
         <RiseIn delay={60}>
           <View style={styles.weekRow}>
             {WEEK.map((d, i) => (
-              <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} />
+              <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} today={i === todayIdx} />
             ))}
           </View>
         </RiseIn>
@@ -109,6 +183,15 @@ export default function Home() {
         {/* Portfolio */}
         <RiseIn delay={120}>
           <Card style={styles.portfolio}>
+            {/* static violet wash — depth only. Deliberately NOT animated: this card shows mock
+                numbers, and motion here would read as live data. */}
+            <LinearGradient
+              colors={['rgba(168,85,235,0.14)', 'rgba(168,85,235,0.02)', 'transparent']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[StyleSheet.absoluteFill, { borderRadius: Radius.lg }]}
+              pointerEvents="none"
+            />
             <View style={styles.rowBetween}>
               <ThemedText type="label" themeColor="mutedForeground">Portfolio</ThemedText>
               <View style={styles.deltaRow}>
@@ -146,7 +229,8 @@ export default function Home() {
         <View style={styles.duoRow}>
           <RiseIn delay={180} style={styles.duoHalf}>
             <SpringPressable onPress={() => router.push('/learn')}>
-              <Card style={[styles.duoCard, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
+              <Card style={[styles.duoCard, styles.duoCardPrimary, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
+                <Sheen />
                 <UIcon name="arrowRight" size={20} color="#fff" />
                 <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two, color: '#fff' }}>Continue</ThemedText>
                 <ThemedText type="small" numberOfLines={1} style={{ color: 'rgba(255,255,255,0.85)' }}>
@@ -195,6 +279,7 @@ const styles = StyleSheet.create({
   streakPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: Radius.pill, borderWidth: 1 },
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
+  dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   portfolio: { paddingBottom: Spacing.two },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   deltaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -202,6 +287,8 @@ const styles = StyleSheet.create({
   duoRow: { flexDirection: 'row', gap: Spacing.three },
   duoHalf: { flex: 1 },
   duoCard: { minHeight: 104 },
+  duoCardPrimary: { overflow: 'hidden' },
+  sheen: { position: 'absolute', top: -40, bottom: -40, width: 54 },
   challenge: {},
   challengeHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   goalRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
