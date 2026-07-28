@@ -23,7 +23,6 @@ import Svg, {
   Defs,
   Ellipse,
   G,
-  Image as SvgImage,
   LinearGradient,
   Path,
   RadialGradient,
@@ -38,14 +37,51 @@ const INK = '#1A1523';
 /** Head scale inside the 100x104 box. Shrinking the pinwheel makes room for a body without
  *  touching any expression coordinate — see the <G> transform in the render. */
 const HEAD_S = 0.68;
-/** Body silhouette: a soft pear tucked UNDER the head. Deliberately narrower than the head —
- *  equal widths read as a snowman (two stacked blobs) instead of one creature. */
-const BODY_D = 'M50 52 C64 52, 72 66, 72 81 C72 93, 62 100, 50 100 C38 100, 28 93, 28 81 C28 66, 36 52, 50 52 Z';
+/** Body silhouette: a soft pear the head sits ON, overlapping by a few units so the two read as
+ *  one creature rather than a stack. Deliberately WIDER than the head — equal widths read as a
+ *  snowman, and a head wider than its body reads as a balloon on a stick. */
+const BODY_D = 'M50 44 C68 44, 78 60, 78 78 C78 92, 66 101, 50 101 C34 101, 22 92, 22 78 C22 60, 32 44, 50 44 Z';
+
+/** The head, in the head group's own 100x104 space (so every expression coord below is
+ *  untouched). HEAD_DY drops it onto the body: without it the head floats with a visible gap. */
+const HEAD_CX = 48;
+const HEAD_CY = 27;
+const HEAD_RX = 30;
+const HEAD_RY = 29;
+const HEAD_DY = 10;
 const AnimatedG = Animated.createAnimatedComponent(G);
-const logo = require('@/assets/images/atlas-logo.png');
+
+/**
+ * The pinwheel, as geometry rather than a PNG, worn as a CHEST EMBLEM.
+ *
+ * The head used to be <SvgImage href={atlas-logo.png}>. A bitmap head is why Atlas never felt
+ * animated: nothing inside it can move, so every "animation" had to be one rigid transform of
+ * the whole mascot.
+ *
+ * The mark is no longer the head either. Four ring holes plus two eyes read as six competing
+ * circles, so the face never won and the whole thing looked like a pile. As a small emblem on
+ * the body it stays present, stays on-brand, and turns slowly under its own power.
+ *
+ * Four rings, 90 degrees apart, tilted so the top one sits just right of centre like the logo.
+ * Ring outer radius is ~0.79 of the orbit, which is what makes them interlock as a pinwheel.
+ */
+const RING_CX = 50;
+const RING_CY = 76;
+const ORBIT = 7.4;
+const RING_R = 4.2; // stroke centreline: outer 5.8, hole 2.6
+const RING_W = 3.2;
+const RING_ANGLES = [-80, 10, 100, 190];
+const RINGS = RING_ANGLES.map((deg) => {
+  const r = (deg * Math.PI) / 180;
+  return { cx: +(RING_CX + ORBIT * Math.cos(r)).toFixed(2), cy: +(RING_CY + ORBIT * Math.sin(r)).toFixed(2) };
+});
+
 /** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
- *  (6px of bottom travel on a 136px mascot); we start at half that. One number to tune. */
-const IDLE_SQUASH = 0.022;
+ *  (6px of bottom travel on a 136px mascot). The old 0.022 was half that and read as dead
+ *  on device, so it is now at the measured value. */
+const IDLE_SQUASH = 0.045;
+/** Seconds for one lazy revolution of the pinwheel. Slow enough to be ambient, not a fidget. */
+const SPIN_PERIOD = 14000;
 
 export function Atlas({
   size = 120,
@@ -75,6 +111,8 @@ export function Atlas({
 }) {
   const reduced = useReducedMotion();
   const rotation = useSharedValue(0);
+  /** Continuous idle rotation of the ring cluster, independent of the tap spin. */
+  const drift = useSharedValue(0);
   const scale = useSharedValue(1);
   const jumpY = useSharedValue(0);
   /** Breath PHASE (0..1), not a pixel offset — mapped to scale in `breathStyle` below. */
@@ -162,7 +200,16 @@ export function Atlas({
     setTimeout(() => setSpinning(false), 900);
   };
 
+  // Lazy continuous drift of the ring cluster. This is the motion the mark was always asking
+  // for and the PNG head could never do: the pinwheel turns while the face stays put, so Atlas
+  // is alive on every screen without anything bouncing.
+  useEffect(() => {
+    if (reduced) { drift.set(0); return; }
+    drift.set(withRepeat(withTiming(360, { duration: SPIN_PERIOD, easing: Easing.linear }), -1, false));
+  }, [reduced, drift]);
+
   const bodyProps = useAnimatedProps(() => ({ rotation: rotation.get() }));
+  const driftProps = useAnimatedProps(() => ({ rotation: drift.get() }));
   const wrapStyle = useAnimatedStyle(() => ({
     opacity: entranceOpacity.get(),
     transform: [{ translateY: jumpY.get() }, { translateX: shakeX.get() }, { scale: scale.get() * entranceScale.get() }],
@@ -287,10 +334,10 @@ export function Atlas({
   // ponytail: one <G> transform instead of rewriting 9 expressions' coords. Never inline new
   // eye coords here — rescale HEAD_S and the whole face follows.
   const head = (
-    <G transform={`translate(${(100 - 100 * HEAD_S) / 2}, 0) scale(${HEAD_S})`}>
-      <AnimatedG animatedProps={bodyProps} origin="50, 52">
-        <SvgImage href={logo} x={0} y={3} width={100} height={98} preserveAspectRatio="xMidYMid meet" />
-      </AnimatedG>
+    <G transform={`translate(${(100 - 100 * HEAD_S) / 2}, ${HEAD_DY}) scale(${HEAD_S})`}>
+      <Ellipse cx={HEAD_CX} cy={HEAD_CY} rx={HEAD_RX} ry={HEAD_RY} fill="url(#atlasHead)" />
+      {/* single top-left light source, matching the body highlight and the contact shadow */}
+      <Ellipse cx={HEAD_CX - 11} cy={HEAD_CY - 15} rx={11} ry={7} fill="#F3E7FF" opacity={0.26} />
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       {pupils()}
@@ -323,6 +370,17 @@ export function Atlas({
           <Stop offset="0" stopColor="#7C3AED" stopOpacity={0.55} />
           <Stop offset="1" stopColor="#7C3AED" stopOpacity={0} />
         </RadialGradient>
+        {/* the rings get their own lit-from-above ramp so the cluster has form rather than
+            reading as flat lavender the way the PNG did */}
+        <LinearGradient id="atlasRing" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#D9B4F5" />
+          <Stop offset="1" stopColor="#9B5DE8" />
+        </LinearGradient>
+        {/* head sits a shade lighter than the body so the two forms separate without an outline */}
+        <LinearGradient id="atlasHead" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#D2A9F8" />
+          <Stop offset="1" stopColor="#8B4FE0" />
+        </LinearGradient>
       </Defs>
 
       {/* contact shadow — the cue that gives a mascot physical weight (MASTER_PLAN B6) */}
@@ -332,7 +390,21 @@ export function Atlas({
       <Path d={BODY_D} fill="url(#atlasBody)" />
       {/* specular highlight, upper-left — a soft blob, NOT a stroke along the edge (that read
           as a seam). Single top-left light source, consistent with the contact shadow. */}
-      <Ellipse cx={42} cy={71} rx={7.5} ry={5} fill="#EBDCFF" opacity={0.28} />
+      <Ellipse cx={38} cy={62} rx={8.5} ry={5.5} fill="#EBDCFF" opacity={0.28} />
+
+      {/* Chest emblem. Two nested rotations so the lazy idle drift and the tap spin never fight
+          over one shared value; the head above is outside both, so the face never rotates. */}
+      <AnimatedG animatedProps={driftProps} origin={`${RING_CX}, ${RING_CY}`}>
+        <AnimatedG animatedProps={bodyProps} origin={`${RING_CX}, ${RING_CY}`}>
+          {RINGS.map((p, i) => (
+            <G key={i}>
+              {/* thin keyline, drawn wider behind so it reads on both edges of the ring */}
+              <Circle cx={p.cx} cy={p.cy} r={RING_R} stroke="#EEE2FB" strokeWidth={RING_W + 1.4} fill="none" opacity={0.5} />
+              <Circle cx={p.cx} cy={p.cy} r={RING_R} stroke="url(#atlasRing)" strokeWidth={RING_W} fill="none" />
+            </G>
+          ))}
+        </AnimatedG>
+      </AnimatedG>
 
       {head}
     </Svg>

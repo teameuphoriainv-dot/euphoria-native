@@ -21,7 +21,10 @@ export default function Welcome() {
   const drop = useSharedValue(reduced ? 0 : -(height * 0.42));
 
   useEffect(() => {
-    if (!reduced) drop.set(withSpring(0, { stiffness: 90, damping: 13 }));
+    // damping 13 was underdamped: the drop sprang PAST its resting position and pushed Atlas
+    // down into the headline before settling back. That overshoot is what read as the mascot
+    // falling into the text. 19 lands it with weight but without the dip.
+    if (!reduced) drop.set(withSpring(0, { stiffness: 90, damping: 19 }));
   }, [reduced, drop]);
 
   const atlasStyle = useAnimatedStyle(() => ({ transform: [{ translateY: drop.get() }] }));
@@ -46,10 +49,16 @@ export default function Welcome() {
       </View>
 
       <View style={styles.center}>
-        <Animated.View style={atlasStyle}>
-          <Atlas size={132} expression="happy" entrance="bounce" idle />
-        </Animated.View>
-        <Animated.View entering={FadeIn.delay(420).duration(400)}>
+        {/* Atlas gets its own reserved stage. Without it the mascot and the headline shared one
+            column, so the drop-in travelled straight through the text and the two were briefly
+            on top of each other — the arrival read as falling into the words. */}
+        <View style={styles.stage}>
+          <Animated.View style={atlasStyle}>
+            <Atlas size={132} expression="happy" entrance="bounce" idle />
+          </Animated.View>
+        </View>
+        {/* held until Atlas has actually landed, so the line is never revealed mid-fall */}
+        <Animated.View entering={FadeIn.delay(900).duration(420)}>
           <ThemedText type="display" style={styles.title}>Hi, I&apos;m Atlas!</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
             I&apos;ll be your personal investing coach — one calm lesson at a time.
@@ -67,6 +76,9 @@ export default function Welcome() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  // 132 mascot + 1.04 aspect, plus headroom so the overshoot at the end of the drop still has
+  // somewhere to go. Clipped, so nothing can escape into the headline.
+  stage: { height: 190, width: '100%', alignItems: 'center', justifyContent: 'center' },
   title: { textAlign: 'center', marginTop: Spacing.five },
   sub: { textAlign: 'center', marginTop: Spacing.two, paddingHorizontal: Spacing.five },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
