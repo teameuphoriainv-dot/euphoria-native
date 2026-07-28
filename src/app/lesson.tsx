@@ -17,6 +17,8 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
+import { FeedbackBanner, SparkBurst } from '@/components/lesson-feedback';
+import { StreakIgnite } from '@/components/streak-ignite';
 import { Confetti } from '@/components/confetti';
 import { MultiSelect, type MultiSpec } from '@/components/multi-select';
 import { MatchingPairs, type MatchSpec } from '@/components/matching-pairs';
@@ -36,7 +38,9 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'match', 'order', 'compare', 'graph', 'cards', 'quiz', 'reveal', 'done'] as const;
+// 'streak' is last on purpose: the reference shows lesson-complete, THEN ignites the streak on
+// its own screen. Two smaller payoffs in sequence beat one crowded one.
+const STEPS = ['intro', 'teach', 'slider', 'build', 'sort', 'multi', 'line', 'match', 'order', 'compare', 'graph', 'cards', 'quiz', 'reveal', 'done', 'streak'] as const;
 const CARDS: RevealSpec = {
   title: 'Flip to learn four key terms.',
   cards: [
@@ -172,7 +176,8 @@ export default function Lesson() {
     }
   };
 
-  const ctaLabel = (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'done' ? 'Collect +50 XP' : 'Continue';
+  const ctaLabel =
+    (kind === 'quiz' || kind === 'slider') && !checked ? 'Check' : kind === 'streak' ? 'Collect +50 XP' : 'Continue';
   const ctaDisabled = (kind === 'quiz' && !checked && pick === null) || (kind === 'build' && !buildSolved) || (kind === 'slider' && !checked && !sliderTouched) || (kind === 'sort' && !sortSolved) || (kind === 'cards' && !cardsSolved) || (kind === 'multi' && !multiSolved) || (kind === 'line' && !lineSolved) || (kind === 'match' && !matchSolved) || (kind === 'order' && !orderSolved) || (kind === 'compare' && !compareSolved) || (kind === 'graph' && !graphSolved);
 
   return (
@@ -306,12 +311,6 @@ export default function Lesson() {
                 );
               })}
             </View>
-            {checked && (
-              <Animated.View entering={FadeIn} style={[styles.explain, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '38' }]}>
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac, marginBottom: 2 }}>{pick === CORRECT ? 'Exactly.' : 'Not quite.'}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">$100 → down 20% → $80 → up 20% → $96. A drop needs a bigger gain to recover.</ThemedText>
-              </Animated.View>
-            )}
           </Animated.View>
         )}
 
@@ -365,11 +364,31 @@ export default function Lesson() {
             </RewardPop>
           </Animated.View>
         )}
+        {kind === 'streak' && (
+          <Animated.View key="streak" entering={FadeIn} style={styles.centered}>
+            <StreakIgnite days={streakAfter} />
+          </Animated.View>
+        )}
       </View>
 
-      <View style={styles.footer}>
-        <GradientButton label={ctaLabel} full disabled={ctaDisabled} onPress={next} />
-      </View>
+      {/* The verdict arrives as a bar from the bottom edge with the CTA inside it, so the whole
+          bottom of the screen reacts to the answer instead of one icon recolouring. */}
+      {kind === 'quiz' && checked ? (
+        <View style={styles.verdictWrap}>
+          {pick === CORRECT ? <SparkBurst size={190} /> : null}
+          <FeedbackBanner
+            correct={pick === CORRECT}
+            title={pick === CORRECT ? 'Exactly right.' : 'Not quite.'}
+            detail="$100 → down 20% → $80 → up 20% → $96. A drop needs a bigger gain to recover."
+          >
+            <GradientButton label={ctaLabel} full disabled={ctaDisabled} onPress={next} />
+          </FeedbackBanner>
+        </View>
+      ) : (
+        <View style={styles.footer}>
+          <GradientButton label={ctaLabel} full disabled={ctaDisabled} onPress={next} />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -392,5 +411,6 @@ const styles = StyleSheet.create({
   explain: { marginTop: Spacing.four, padding: Spacing.three, borderRadius: Radius.lg, borderWidth: 1 },
   revealRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   xpChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.pill, borderWidth: 1, marginTop: Spacing.three },
+  verdictWrap: { paddingBottom: Spacing.three },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
 });
