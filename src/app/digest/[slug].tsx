@@ -4,16 +4,19 @@
  * for now the excerpt leads and a "practice in the app" CTA closes, per the Digest promise.
  */
 import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
-import { BottomTabInset, Fonts, Radius, Spacing } from '@/constants/theme';
-import { CATEGORY_ICON, DIGEST_POSTS } from '@/lib/digest-content';
+import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { DIGEST_POSTS } from '@/lib/digest-content';
+import { heroSvg } from '@/lib/digest-heroes';
+import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -22,6 +25,12 @@ export default function DigestArticle() {
   const theme = useTheme();
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const post = DIGEST_POSTS.find((p) => p.slug === slug);
+  const markPostRead = useApp((s) => s.markPostRead);
+
+  // opening the guide is what marks it read — that is what the Digest tab's ticks reflect
+  useEffect(() => {
+    if (post) markPostRead(post.slug);
+  }, [post, markPostRead]);
 
   if (!post) {
     return (
@@ -44,14 +53,14 @@ export default function DigestArticle() {
         </SpringPressable>
 
         <RiseIn>
-          <View style={[styles.heroBubble, { backgroundColor: theme.primary + '1A' }]}>
-            <Icon name={CATEGORY_ICON[post.category]} size={40} />
+          <View style={[styles.heroPanel, { backgroundColor: theme.primary + '14' }]}>
+            {heroSvg(post.hero) ? <SvgXml xml={heroSvg(post.hero)!} width={150} height={150} /> : null}
           </View>
           <View style={styles.metaRow}>
             <ThemedText type="label" style={{ color: theme.iconLilac }}>{post.category}</ThemedText>
             <ThemedText type="small" themeColor="mutedForeground">{post.readMinutes} min read</ThemedText>
           </View>
-          <ThemedText style={styles.headline}>{post.title}</ThemedText>
+          <ThemedText type="title" style={styles.headline}>{post.title}</ThemedText>
         </RiseIn>
 
         <RiseIn delay={90}>
@@ -76,9 +85,9 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four },
   back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: Spacing.three },
-  heroBubble: { width: 64, height: 64, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.three },
+  heroPanel: { height: 170, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.three },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  headline: { fontFamily: Fonts.serif, fontSize: 30, lineHeight: 37, color: '#F3EEFA' },
+  headline: { fontSize: 26, lineHeight: 33 },
   lead: { fontSize: 18, lineHeight: 27, marginTop: Spacing.three },
   body: { marginTop: Spacing.three, lineHeight: 23 },
 });

@@ -50,6 +50,8 @@ export type AppState = {
   lastActiveDay: string;
   /** Course id the Learn pathway is currently showing — one of COURSES from '@/lib/curriculum'. */
   activeCourseId: string;
+  /** Slugs of Digest guides already read. Drives the read ticks in the catch-up list. */
+  readPosts: string[];
   /** Everything onboarding collects. Persisted; drives the recommended path. */
   profile: Profile;
   /** Merge a patch into the profile. Called on every onboarding answer. */
@@ -73,6 +75,7 @@ export type AppState = {
   streakIfCompletedToday: () => number;
   completeLesson: (id: string, xp: number) => void;
   addXp: (n: number) => void;
+  markPostRead: (slug: string) => void;
   reset: () => void;
 };
 
@@ -88,6 +91,7 @@ export const useApp = create<AppState>()(
       minutesToday: 0,
       lastActiveDay: '',
       activeCourseId: 'investing-fundamentals',
+      readPosts: [],
       profile: EMPTY_PROFILE,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
@@ -131,13 +135,15 @@ export const useApp = create<AppState>()(
           };
         }),
       addXp: (n) => set((s) => ({ xp: s.xp + n })),
-      reset: () => set({ xp: 0, streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '' }),
+      markPostRead: (slug) =>
+        set((s) => (s.readPosts.includes(slug) ? s : { readPosts: [...s.readPosts, slug] })),
+      reset: () => set({ xp: 0, streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [] }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, profile: s.profile }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, profile: s.profile }),
     },
   ),
 );
