@@ -23,6 +23,7 @@ import Svg, {
   Defs,
   Ellipse,
   G,
+  Image as SvgImage,
   LinearGradient,
   Path,
   RadialGradient,
@@ -37,51 +38,30 @@ const INK = '#1A1523';
 /** Head scale inside the 100x104 box. Shrinking the pinwheel makes room for a body without
  *  touching any expression coordinate — see the <G> transform in the render. */
 const HEAD_S = 0.68;
-/** Body silhouette: a soft pear the head sits ON, overlapping by a few units so the two read as
- *  one creature rather than a stack. Deliberately WIDER than the head — equal widths read as a
- *  snowman, and a head wider than its body reads as a balloon on a stick. */
-const BODY_D = 'M50 44 C68 44, 78 60, 78 78 C78 92, 66 101, 50 101 C34 101, 22 92, 22 78 C22 60, 32 44, 50 44 Z';
-
-/** The head, in the head group's own 100x104 space (so every expression coord below is
- *  untouched). HEAD_DY drops it onto the body: without it the head floats with a visible gap. */
-const HEAD_CX = 48;
-const HEAD_CY = 27;
-const HEAD_RX = 30;
-const HEAD_RY = 29;
-const HEAD_DY = 10;
+/** Body silhouette: a soft pear tucked UNDER the head. Deliberately narrower than the head —
+ *  equal widths read as a snowman (two stacked blobs) instead of one creature. */
+const BODY_D = 'M50 52 C64 52, 72 66, 72 81 C72 93, 62 100, 50 100 C38 100, 28 93, 28 81 C28 66, 36 52, 50 52 Z';
 const AnimatedG = Animated.createAnimatedComponent(G);
+const logo = require('@/assets/images/atlas-logo.png');
+/** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
+ *  (6px of bottom travel on a 136px mascot). 0.022 was half that and read as dead on device. */
+const IDLE_SQUASH = 0.038;
 
 /**
- * The pinwheel, as geometry rather than a PNG, worn as a CHEST EMBLEM.
+ * Idle loop periods, deliberately COPRIME-ish.
  *
- * The head used to be <SvgImage href={atlas-logo.png}>. A bitmap head is why Atlas never felt
- * animated: nothing inside it can move, so every "animation" had to be one rigid transform of
- * the whole mascot.
- *
- * The mark is no longer the head either. Four ring holes plus two eyes read as six competing
- * circles, so the face never won and the whole thing looked like a pile. As a small emblem on
- * the body it stays present, stays on-brand, and turns slowly under its own power.
- *
- * Four rings, 90 degrees apart, tilted so the top one sits just right of centre like the logo.
- * Ring outer radius is ~0.79 of the orbit, which is what makes them interlock as a pinwheel.
+ * Breath, sway and head-rock on the same period sync into a single pulse and the mascot reads
+ * as one mechanical bob. On different periods they drift in and out of phase, which is what
+ * makes an idle look observed rather than looped. Duolingo and Brilliant both do this.
  */
-const RING_CX = 50;
-const RING_CY = 76;
-const ORBIT = 7.4;
-const RING_R = 4.2; // stroke centreline: outer 5.8, hole 2.6
-const RING_W = 3.2;
-const RING_ANGLES = [-80, 10, 100, 190];
-const RINGS = RING_ANGLES.map((deg) => {
-  const r = (deg * Math.PI) / 180;
-  return { cx: +(RING_CX + ORBIT * Math.cos(r)).toFixed(2), cy: +(RING_CY + ORBIT * Math.sin(r)).toFixed(2) };
-});
+const BREATH_MS = 1600;
+const SWAY_MS = 5200;
+const ROCK_MS = 3900;
 
-/** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
- *  (6px of bottom travel on a 136px mascot). The old 0.022 was half that and read as dead
- *  on device, so it is now at the measured value. */
-const IDLE_SQUASH = 0.045;
-/** Seconds for one lazy revolution of the pinwheel. Slow enough to be ambient, not a fidget. */
-const SPIN_PERIOD = 14000;
+/** Whole-body lean, degrees. Small: this is weight shifting, not a dance. */
+const SWAY_DEG = 1.6;
+/** Head rock, degrees. Larger than the sway because the head is the lighter mass. */
+const ROCK_DEG = 3.4;
 
 export function Atlas({
   size = 120,
@@ -111,13 +91,19 @@ export function Atlas({
 }) {
   const reduced = useReducedMotion();
   const rotation = useSharedValue(0);
-  /** Continuous idle rotation of the ring cluster, independent of the tap spin. */
-  const drift = useSharedValue(0);
   const scale = useSharedValue(1);
   const jumpY = useSharedValue(0);
   /** Breath PHASE (0..1), not a pixel offset — mapped to scale in `breathStyle` below. */
   const breath = useSharedValue(0);
   const shakeX = useSharedValue(0);
+  /** Idle PHASES (0..1), mapped to degrees in the styles below. */
+  const sway = useSharedValue(0);
+  const rock = useSharedValue(0);
+  /** Head follow-through, in DEGREES. Kept separate from `rock` so the idle phase and the
+   *  reaction never fight over one value's units. They sum in headProps. */
+  const headLag = useSharedValue(0);
+  /** Extra squash on top of the breath, for anticipation and landing impact. */
+  const squash = useSharedValue(0);
   const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : 1);
   const entranceOpacity = useSharedValue(entrance === 'bounce' ? 0 : 1);
   const spins = useRef(0);
@@ -144,13 +130,35 @@ export function Atlas({
     };
   }, [reduced]);
 
-  // celebratory hop — a reaction to a user action, not a launch. Kept small (size * 0.10)
-  // and softly damped so it reads as an acknowledging nod; the `expression` flip to 'happy'
-  // carries most of the reaction. Anything larger turns every win into a jump-scare.
+  // Celebratory hop, built as a real piece of character animation rather than one spring.
+  //
+  //   anticipation -> launch -> land -> settle
+  //
+  // The dip before the jump is what sells the weight: without it the mascot teleports upward.
+  // The body STRETCHES on the way up and SQUASHES on impact (volume roughly preserved), and the
+  // head's rock is fired on the same beats but 70ms late, so it trails the body and overshoots
+  // after it stops. That lag is the single biggest reason Duolingo's characters read as alive
+  // and ours did not.
   useEffect(() => {
     if (!celebrate || reduced) return;
-    jumpY.set(withDelay(Duration.fast, withSequence(withSpring(-size * 0.1, Spring.bouncy), withSpring(0, Spring.smooth))));
-  }, [celebrate, celebrateKey, reduced, jumpY, size]);
+    const H = size * 0.12;
+    jumpY.set(withDelay(Duration.fast, withSequence(
+      withTiming(H * 0.18, { duration: 110, easing: Easing.out(Easing.quad) }),   // anticipation dip
+      withSpring(-H, { stiffness: 260, damping: 13 }),                            // launch
+      withSpring(0, { stiffness: 210, damping: 15 }),                             // land
+    )));
+    squash.set(withDelay(Duration.fast, withSequence(
+      withTiming(0.9, { duration: 110 }),      // crouch: wide and short
+      withTiming(-0.7, { duration: 150 }),     // stretch: tall and narrow, in the air
+      withTiming(0.75, { duration: 90 }),      // impact
+      withSpring(0, { stiffness: 190, damping: 12 }),
+    )));
+    // follow-through: the head is a separate mass, so it arrives late and rings down
+    headLag.set(withDelay(Duration.fast + 70, withSequence(
+      withTiming(-5, { duration: 150 }),
+      withSpring(0, { stiffness: 120, damping: 8 }),
+    )));
+  }, [celebrate, celebrateKey, reduced, jumpY, squash, headLag, size]);
 
   // Idle breath — an ANCHORED SQUASH-STRETCH, not a bob. Measured off the Brilliant
   // recordings (refs/videos): the mascot's top edge never moves across 90 frames; only its
@@ -162,12 +170,13 @@ export function Atlas({
       breath.set(withTiming(0, { duration: Duration.base }));
       return;
     }
-    // withRepeat(..., -1, true) reverses, so the full period is 2x duration -> 1600ms.
-    breath.set(withRepeat(
-      withTiming(1, { duration: Duration.slow * 2, easing: Easing.inOut(Easing.sin) }),
-      -1, true,
-    ));
-  }, [idle, reduced, breath]);
+    // withRepeat(..., -1, true) reverses, so the full period is 2x duration.
+    breath.set(withRepeat(withTiming(1, { duration: BREATH_MS, easing: Easing.inOut(Easing.sin) }), -1, true));
+    // Weight shifting side to side, and the head rocking on its own slower clock. Both start
+    // from a half-phase offset so they are already out of step with the breath on frame one.
+    sway.set(withDelay(400, withRepeat(withTiming(1, { duration: SWAY_MS, easing: Easing.inOut(Easing.sin) }), -1, true)));
+    rock.set(withDelay(900, withRepeat(withTiming(1, { duration: ROCK_MS, easing: Easing.inOut(Easing.sin) }), -1, true)));
+  }, [idle, reduced, breath, sway, rock]);
 
   // shake on wrong answer (V1 balance-scale reference)
   useEffect(() => {
@@ -190,7 +199,17 @@ export function Atlas({
     if (reduced) { entranceScale.set(1); entranceOpacity.set(1); return; }
     entranceOpacity.set(withTiming(1, { duration: Duration.fast }));
     entranceScale.set(withSpring(1, { ...Spring.smooth, damping: 24 }));
-  }, [entrance, reduced, entranceScale, entranceOpacity]);
+    // Arrive with weight: a compression on touchdown that rebounds. The scale spring alone
+    // just grew the mascot, which is why the arrival read as a fade rather than a landing.
+    squash.set(withDelay(160, withSequence(
+      withTiming(0.85, { duration: 120, easing: Easing.out(Easing.quad) }),
+      withSpring(0, { stiffness: 170, damping: 11 }),
+    )));
+    headLag.set(withDelay(230, withSequence(
+      withTiming(-4.5, { duration: 140 }),
+      withSpring(0, { stiffness: 110, damping: 8 }),
+    )));
+  }, [entrance, reduced, entranceScale, entranceOpacity, squash, headLag]);
 
   const spin = () => {
     if (!interactive || reduced) return;
@@ -200,19 +219,23 @@ export function Atlas({
     setTimeout(() => setSpinning(false), 900);
   };
 
-  // Lazy continuous drift of the ring cluster. This is the motion the mark was always asking
-  // for and the PNG head could never do: the pinwheel turns while the face stays put, so Atlas
-  // is alive on every screen without anything bouncing.
-  useEffect(() => {
-    if (reduced) { drift.set(0); return; }
-    drift.set(withRepeat(withTiming(360, { duration: SPIN_PERIOD, easing: Easing.linear }), -1, false));
-  }, [reduced, drift]);
-
   const bodyProps = useAnimatedProps(() => ({ rotation: rotation.get() }));
-  const driftProps = useAnimatedProps(() => ({ rotation: drift.get() }));
+  // Idle rock and reaction lag SUM here: the head keeps breathing through a celebration
+  // instead of snapping to the reaction and back.
+  const headProps = useAnimatedProps(() => ({ rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() }));
+
   const wrapStyle = useAnimatedStyle(() => ({
     opacity: entranceOpacity.get(),
-    transform: [{ translateY: jumpY.get() }, { translateX: shakeX.get() }, { scale: scale.get() * entranceScale.get() }],
+    transform: [
+      { translateY: jumpY.get() },
+      { translateX: shakeX.get() },
+      // lean pivots about the feet, not the centre, so the mascot shifts weight rather than
+      // swinging like a pendulum hung from its head
+      { translateY: size * 0.52 },
+      { rotate: `${(sway.get() * 2 - 1) * SWAY_DEG}deg` },
+      { translateY: -size * 0.52 },
+      { scale: scale.get() * entranceScale.get() },
+    ],
   }));
 
   // Breath lives on its OWN inner view. wrapStyle's translateY applies in unscaled parent
@@ -221,9 +244,14 @@ export function Atlas({
   // construction — and breath can no longer stack with jumpY, which was the original bug.
   const breathStyle = useAnimatedStyle(() => {
     const b = breath.get();
-    const sy = 1 + IDLE_SQUASH * b;
-    const sx = 1 - IDLE_SQUASH * 0.5 * b; // partial volume preservation; full 1/sy reads rubbery
-    // scaleY about the centre lifts the top edge by H*(sy-1)/2 — translate down by exactly that.
+    // `squash` is signed: positive = crouched (wide + short), negative = stretched (tall + narrow).
+    // Volume is roughly preserved by moving x the opposite way, which is what stops a squash
+    // from reading as the whole mascot simply getting smaller.
+    const q = squash.get();
+    const sy = 1 + IDLE_SQUASH * b - q * 0.14;
+    const sx = 1 - IDLE_SQUASH * 0.5 * b + q * 0.11; // full 1/sy reads rubbery
+    // scaleY about the centre lifts the top edge by H*(sy-1)/2 — translate down by exactly that,
+    // so the mascot deforms from the ground rather than floating.
     return { transform: [{ translateY: (size * 1.04 * (sy - 1)) / 2 }, { scaleY: sy }, { scaleX: sx }] };
   });
 
@@ -334,10 +362,14 @@ export function Atlas({
   // ponytail: one <G> transform instead of rewriting 9 expressions' coords. Never inline new
   // eye coords here — rescale HEAD_S and the whole face follows.
   const head = (
-    <G transform={`translate(${(100 - 100 * HEAD_S) / 2}, ${HEAD_DY}) scale(${HEAD_S})`}>
-      <Ellipse cx={HEAD_CX} cy={HEAD_CY} rx={HEAD_RX} ry={HEAD_RY} fill="url(#atlasHead)" />
-      {/* single top-left light source, matching the body highlight and the contact shadow */}
-      <Ellipse cx={HEAD_CX - 11} cy={HEAD_CY - 15} rx={11} ry={7} fill="#F3E7FF" opacity={0.26} />
+    <G transform={`translate(${(100 - 100 * HEAD_S) / 2}, 0) scale(${HEAD_S})`}>
+      {/* head rock + follow-through on the OUTER group, tap-spin on the inner one, so a spin
+          mid-idle does not cancel the rock */}
+      <AnimatedG animatedProps={headProps} origin="50, 62">
+        <AnimatedG animatedProps={bodyProps} origin="50, 52">
+          <SvgImage href={logo} x={0} y={3} width={100} height={98} preserveAspectRatio="xMidYMid meet" />
+        </AnimatedG>
+      </AnimatedG>
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       {pupils()}
@@ -370,17 +402,6 @@ export function Atlas({
           <Stop offset="0" stopColor="#7C3AED" stopOpacity={0.55} />
           <Stop offset="1" stopColor="#7C3AED" stopOpacity={0} />
         </RadialGradient>
-        {/* the rings get their own lit-from-above ramp so the cluster has form rather than
-            reading as flat lavender the way the PNG did */}
-        <LinearGradient id="atlasRing" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#D9B4F5" />
-          <Stop offset="1" stopColor="#9B5DE8" />
-        </LinearGradient>
-        {/* head sits a shade lighter than the body so the two forms separate without an outline */}
-        <LinearGradient id="atlasHead" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#D2A9F8" />
-          <Stop offset="1" stopColor="#8B4FE0" />
-        </LinearGradient>
       </Defs>
 
       {/* contact shadow — the cue that gives a mascot physical weight (MASTER_PLAN B6) */}
@@ -390,21 +411,7 @@ export function Atlas({
       <Path d={BODY_D} fill="url(#atlasBody)" />
       {/* specular highlight, upper-left — a soft blob, NOT a stroke along the edge (that read
           as a seam). Single top-left light source, consistent with the contact shadow. */}
-      <Ellipse cx={38} cy={62} rx={8.5} ry={5.5} fill="#EBDCFF" opacity={0.28} />
-
-      {/* Chest emblem. Two nested rotations so the lazy idle drift and the tap spin never fight
-          over one shared value; the head above is outside both, so the face never rotates. */}
-      <AnimatedG animatedProps={driftProps} origin={`${RING_CX}, ${RING_CY}`}>
-        <AnimatedG animatedProps={bodyProps} origin={`${RING_CX}, ${RING_CY}`}>
-          {RINGS.map((p, i) => (
-            <G key={i}>
-              {/* thin keyline, drawn wider behind so it reads on both edges of the ring */}
-              <Circle cx={p.cx} cy={p.cy} r={RING_R} stroke="#EEE2FB" strokeWidth={RING_W + 1.4} fill="none" opacity={0.5} />
-              <Circle cx={p.cx} cy={p.cy} r={RING_R} stroke="url(#atlasRing)" strokeWidth={RING_W} fill="none" />
-            </G>
-          ))}
-        </AnimatedG>
-      </AnimatedG>
+      <Ellipse cx={42} cy={71} rx={7.5} ry={5} fill="#EBDCFF" opacity={0.28} />
 
       {head}
     </Svg>
