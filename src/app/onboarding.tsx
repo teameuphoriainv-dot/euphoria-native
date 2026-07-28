@@ -10,9 +10,10 @@
  *
  * Atlas lives in a persistent <AtlasStage> above the step switch so it never remounts.
  */
+import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -29,7 +30,6 @@ import {
   PlanRevealStep,
   ProgressHeader,
   SingleSelectStep,
-  Stars,
   StatementStep,
   StepHeading,
   TrialStep,
@@ -40,6 +40,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { COURSES } from '@/lib/curriculum/courseIndex';
 import { estimateWeeks, lessonsPerDay, recommendPath, type Profile } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -120,10 +121,24 @@ const NOTIFY: Choice[] = [
   { key: 'no', title: 'Not right now' },
 ];
 
-const TESTIMONIALS = [
-  { quote: '"I finally understand how the market actually works. Atlas makes it click."', name: 'Maya R. · new investor' },
-  { quote: '"The paper trading is addictive. I learned more in a week than in a year of videos."', name: 'Devin K.' },
-  { quote: '"Feels like a game, but I\'m actually building real skills."', name: 'Priya S.' },
+/**
+ * What this screen claims must be TRUE and checkable, so the numbers are derived from the
+ * shipped curriculum rather than typed in. This slot previously held three invented
+ * testimonials ("Maya R.", "Devin K.", "Priya S.") and a "4.9 · App Store" rating for an app
+ * with no App Store presence.
+ *
+ * Do not put testimonials or a star rating back here unless they are real and attributable:
+ *   - App Store Review 2.3.1 (no misleading metadata) and 3.1.2.
+ *   - FTC Rule on Consumer Reviews and Testimonials, 16 CFR Part 465 (2024), which makes
+ *     fabricated reviews and testimonials a civil-penalty offence.
+ * Real reviews can be surfaced post-launch via SKStoreReviewController / App Store Connect.
+ */
+const TOTAL_LESSONS = COURSES.reduce((n, c) => n + c.totalLessons, 0);
+
+const PROOF: { icon: string; title: string; sub: string }[] = [
+  { icon: 'bookOpen', title: `${TOTAL_LESSONS} lessons`, sub: `Across ${COURSES.length} courses, from first principles to advanced.` },
+  { icon: 'trade', title: 'Practice without risk', sub: 'Paper trading uses simulated money, never your own.' },
+  { icon: 'sparkle', title: 'Atlas explains anything', sub: 'Ask mid-lesson and get it in plain English.' },
 ];
 
 const TRIAL_STEPS = [
@@ -138,10 +153,30 @@ const LOADER_LINES = [
   'Sequencing your path…',
 ];
 
+/**
+ * ⚠️ SET THESE BEFORE SUBMITTING TO THE APP STORE.
+ * App Store Review 3.1.2 requires an auto-renewing subscription's purchase screen to link a
+ * reachable Terms of Use (EULA) and Privacy Policy. Placeholder hosts below — swap for the
+ * real ones. `assertLegalConfigured` red-flags them in dev so they can't ship unnoticed.
+ */
+const LEGAL = {
+  terms: 'https://euphoria.app/terms',
+  privacy: 'https://euphoria.app/privacy',
+};
+const LEGAL_PLACEHOLDER_HOST = 'euphoria.app';
+
+function openLegal(url: string) {
+  if (__DEV__ && url.includes(LEGAL_PLACEHOLDER_HOST)) {
+    console.warn(`[legal] ${url} is still the placeholder host — set LEGAL in onboarding.tsx before submission.`);
+  }
+  // openURL rejects when no handler exists; swallow so a bad URL can never crash the paywall.
+  Linking.openURL(url).catch(() => {});
+}
+
 type StepDef =
   | { kind: 'single'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'multi'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
-  | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'social'; face: AtlasExpression }
+  | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof'; face: AtlasExpression }
   | { kind: 'loader' }
   | { kind: 'reveal' }
   | { kind: 'paywall' };
@@ -155,7 +190,7 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'horizon', question: 'When do you want to start investing for real?', options: HORIZONS, face: 'watching' },
   { kind: 'single', field: 'riskComfort', question: 'Your portfolio drops 20% in a month. You…', sub: 'There’s no wrong answer — it tells Atlas how to coach you.', options: RISK, face: 'whoa' },
   { kind: 'single', field: 'dailyMinutes', question: 'How much time can you give it?', options: DAILY, face: 'happy' },
-  { kind: 'statement', title: 'Join 50,000+ new investors', body: 'social', face: 'proud' },
+  { kind: 'statement', title: 'Everything you need to start', body: 'proof', face: 'proud' },
   { kind: 'multi', field: 'blockers', question: 'What’s held you back so far?', options: BLOCKERS, face: 'thinking' },
   { kind: 'single', field: 'ageBand', question: 'How old are you?', sub: 'It helps us pace the long-term material.', options: AGES, face: 'default' },
   { kind: 'single', field: 'source', question: 'Where did you hear about us?', options: SOURCES, face: 'default' },
@@ -223,6 +258,13 @@ export default function Onboarding() {
   };
   const back = () => (step > 0 ? goTo(step - 1) : undefined);
 
+  /** Apple requires a Restore control on any screen selling a subscription. No purchase SDK is
+   *  installed yet (the CTA above routes to /auth, it does not buy), so this states that plainly
+   *  instead of no-opping. Swap the body for RevenueCat's restorePurchases() when IAP lands. */
+  const restore = () => {
+    Alert.alert('Restore purchases', 'Purchases are not enabled in this build yet. Once subscriptions are live, this will restore any prior purchase tied to your Apple ID.');
+  };
+
   const canContinue = (() => {
     if (!liveDef) return true;
     if (liveDef.kind === 'single') return selected(liveDef.field) !== null;
@@ -266,23 +308,22 @@ export default function Onboarding() {
         return (
           <StatementStep title={def.title} sub={def.sub}>
             {def.body === 'chart' ? <GrowthChart delay={CHILD_BASE} /> : null}
-            {def.body === 'social' ? (
-              <>
-                <View style={styles.ratingRow}>
-                  <Stars />
-                  <ThemedText type="smallBold" themeColor="mutedForeground">4.9 · App Store</ThemedText>
-                </View>
-                <View style={{ gap: Spacing.two + 4, marginTop: Spacing.three }}>
-                  {TESTIMONIALS.map((t, i) => (
-                    <RiseIn key={t.name} delay={childDelay(i)}>
-                      <Card>
-                        <ThemedText type="bodyMedium" style={{ lineHeight: 22 }}>{t.quote}</ThemedText>
-                        <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.one }}>{t.name}</ThemedText>
-                      </Card>
-                    </RiseIn>
-                  ))}
-                </View>
-              </>
+            {def.body === 'proof' ? (
+              <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
+                {PROOF.map((p, i) => (
+                  <RiseIn key={p.title} delay={childDelay(i)}>
+                    <Card style={styles.proofCard}>
+                      <View style={[styles.proofIcon, { backgroundColor: theme.primary + '1F' }]}>
+                        <UIcon name={p.icon} size={20} color={theme.iconLilac} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <ThemedText type="heading" style={{ fontSize: 16 }}>{p.title}</ThemedText>
+                        <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2, lineHeight: 18 }}>{p.sub}</ThemedText>
+                      </View>
+                    </Card>
+                  </RiseIn>
+                ))}
+              </View>
             ) : null}
           </StatementStep>
         );
@@ -327,9 +368,6 @@ export default function Onboarding() {
                 7 days free, then {plan === 'annual' ? '$59.99 per year, billed annually' : '$9.99 per month'}. Plan auto-renews
                 unless you cancel. Cancel anytime in the App Store.
               </ThemedText>
-              {/* Plain text, not links: no Terms/Privacy/Restore destinations are wired yet, and a
-                  tappable control that silently does nothing is worse than a label. */}
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.legal}>Terms · Privacy · Restore</ThemedText>
             </RiseIn>
           </>
         );
@@ -371,9 +409,27 @@ export default function Onboarding() {
             onPress={next}
           />
           {step === PAYWALL_INDEX && (
-            <SpringPressable haptic={false} onPress={() => router.replace('/home')} style={styles.maybeLater}>
-              <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>
-            </SpringPressable>
+            <>
+              <SpringPressable haptic={false} onPress={() => router.replace('/home')} style={styles.maybeLater}>
+                <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>
+              </SpringPressable>
+              {/* In the pinned footer, NOT the ScrollView: these were previously the last child
+                  of the scrolling body and sat below the fold, so the links Apple requires were
+                  invisible unless the user happened to scroll. */}
+              <View style={styles.legalRow}>
+                <SpringPressable haptic={false} onPress={() => openLegal(LEGAL.terms)} hitSlop={8}>
+                  <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Terms</ThemedText>
+                </SpringPressable>
+                <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
+                <SpringPressable haptic={false} onPress={() => openLegal(LEGAL.privacy)} hitSlop={8}>
+                  <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Privacy</ThemedText>
+                </SpringPressable>
+                <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
+                <SpringPressable haptic={false} onPress={restore} hitSlop={8}>
+                  <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Restore</ThemedText>
+                </SpringPressable>
+              </View>
+            </>
           )}
         </View>
       )}
@@ -385,10 +441,13 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   content: { padding: Spacing.four, paddingTop: Spacing.three, flexGrow: 1, justifyContent: 'flex-start' },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: Spacing.two },
+  proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
+  proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   noPay: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.one, marginTop: Spacing.three },
   fine: { textAlign: 'center', fontSize: 11, lineHeight: 15, marginTop: Spacing.three },
-  legal: { textAlign: 'center', fontSize: 11, marginTop: Spacing.two, opacity: 0.75 },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
   maybeLater: { alignItems: 'center', paddingTop: Spacing.three },
+  legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.two },
+  legalLink: { fontSize: 11, textDecorationLine: 'underline', opacity: 0.75 },
+  legalDot: { fontSize: 11, opacity: 0.75 },
 });
