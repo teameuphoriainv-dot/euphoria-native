@@ -182,6 +182,16 @@ for (const f of files) {
     if (!p[k]) die(`${f}: missing or unreadable "${k}".\n  Every post needs it for the app.`);
   }
   if (!p.readMinutes) die(`${f}: missing readMinutes.`);
+
+  // Derive the read time from the prose instead of trusting the hand-authored field. Half the
+  // library disagreed with its own body — one post claimed 7 minutes for 552 words. 225 wpm is a
+  // standard adult reading pace; figures get a few seconds each.
+  const words = p.body.split(/\s+/).filter(Boolean).length;
+  const figures = [...p.body.matchAll(/!\[[^\]]*\]\([^)]+\)/g)].length;
+  p.words = words;
+  p.statedMinutes = p.readMinutes;
+  p.readMinutes = Math.max(1, Math.round(words / 225 + figures * 0.1));
+
   posts.push(p);
 }
 posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug)));
@@ -283,6 +293,13 @@ const bodyChars = posts.reduce((n, p) => n + p.body.length, 0);
 const used = new Set(posts.map((p) => p.hero));
 for (const p of posts) for (const m of p.body.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)) used.add(m[1]);
 
+const retimed = posts.filter((p) => p.readMinutes !== p.statedMinutes);
+if (retimed.length) {
+  console.log(`  read times   : recomputed from prose, ${retimed.length}/${posts.length} differed from the web field`);
+  for (const p of retimed.sort((a, b) => Math.abs(b.statedMinutes - b.readMinutes) - Math.abs(a.statedMinutes - a.readMinutes)).slice(0, 5)) {
+    console.log(`                 ${p.slug}: web said ${p.statedMinutes}, prose says ${p.readMinutes} (${p.words} words)`);
+  }
+}
 console.log(`  posts        : ${posts.length}`);
 console.log(`  categories   : ${catOrder.join(', ')}`);
 console.log(`  body prose   : ${bodyChars.toLocaleString()} chars`);

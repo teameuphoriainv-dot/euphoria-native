@@ -17,7 +17,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { heroSvg } from '@/lib/digest-heroes';
 import { useTheme } from '@/hooks/use-theme';
 
-type Block =
+export type Block =
   | { kind: 'h2'; text: string }
   | { kind: 'p'; text: string }
   | { kind: 'bullet'; items: string[] }
@@ -25,7 +25,7 @@ type Block =
   | { kind: 'image'; hero: string; alt: string };
 
 /** Splits the markdown into blocks. Consecutive `- ` lines collapse into one list. */
-function parse(md: string): Block[] {
+export function parseBlocks(md: string): Block[] {
   const out: Block[] = [];
   for (const raw of md.split('\n')) {
     const line = raw.trim();
@@ -67,9 +67,61 @@ function Rich({ text, muted = true }: { text: string; muted?: boolean }) {
   );
 }
 
+/** Renders an arbitrary run of blocks. The paginated reader uses this per section; DigestBody
+ *  below is the whole-article form. */
+export function Blocks({ blocks }: { blocks: Block[] }) {
+  const theme = useTheme();
+  return (
+    <View>
+      {blocks.map((b, i) => {
+        switch (b.kind) {
+          case 'h2':
+            return (
+              <ThemedText key={i} type="heading" style={styles.h2}>
+                {b.text}
+              </ThemedText>
+            );
+          case 'quote':
+            return (
+              <View key={i} style={[styles.quote, { borderLeftColor: theme.primary, backgroundColor: theme.primary + '10' }]}>
+                <ThemedText type="bodyMedium" style={{ lineHeight: 23 }}>
+                  {b.text}
+                </ThemedText>
+              </View>
+            );
+          case 'bullet':
+            return (
+              <View key={i} style={styles.list}>
+                {b.items.map((it, j) => (
+                  <View key={j} style={styles.li}>
+                    <View style={[styles.dot, { backgroundColor: theme.primary }]} />
+                    <View style={{ flex: 1 }}>
+                      <Rich text={it} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            );
+          case 'image': {
+            const xml = heroSvg(b.hero);
+            if (!xml) return null;
+            return (
+              <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
+                <SvgXml xml={xml} width={150} height={150} />
+              </View>
+            );
+          }
+          default:
+            return <Rich key={i} text={b.text} />;
+        }
+      })}
+    </View>
+  );
+}
+
 export function DigestBody({ markdown }: { markdown: string }) {
   const theme = useTheme();
-  const blocks = useMemo(() => parse(markdown), [markdown]);
+  const blocks = useMemo(() => parseBlocks(markdown), [markdown]);
 
   /** Indices covered by the Key Takeaways callout, so they are not also rendered inline.
    *  Detected from the heading text rather than new markdown syntax — that keeps the web
