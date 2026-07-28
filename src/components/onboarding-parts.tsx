@@ -2,19 +2,156 @@
  * Onboarding building blocks — matches the design mockups: progress header with back
  * chevron, option cards with icon bubble + radio, growth chart, star rating.
  */
-import { useEffect } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import type { SharedValue } from 'react-native-reanimated';
+import Animated, { useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
+import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { NumberRollup } from '@/shared/motion/number-rollup';
+import { RewardPop } from '@/shared/motion/reward-pop';
+import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { childDelay } from '@/shared/motion/step-transition';
+import { Duration, Ease, Spring } from '@/shared/motion/tokens';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+export const ATLAS_SIZE = 96;
+/** Exit travel. The stage is sized to contain it: Android clips children that fall outside
+ *  the parent box regardless of overflow:'visible', so the mascot must never leave it. */
+export const ATLAS_RISE = 28;
+export const ATLAS_STAGE_H = Math.round(ATLAS_SIZE * 1.04) + ATLAS_RISE;
+
+/**
+ * The mascot's fixed home for the whole onboarding flow. Mounts ONCE — it must never
+ * remount, or the entrance animation re-fires on every step, which was the original
+ * "Atlas bounces up and down" bug. `t` drives exit (1->0) and entry (0->1) along one path,
+ * so the mascot rises away and descends back in without any extra state.
+ */
+export function AtlasStage({
+  t,
+  expression,
+  celebrateKey,
+  size = ATLAS_SIZE,
+}: {
+  t: SharedValue<number>;
+  expression: AtlasExpression;
+  celebrateKey: number;
+  /** Per-step override. Safe to vary ONLY because callers zero `celebrateKey` on the steps
+   *  that resize — `size` is a dependency of Atlas's celebrate effect, so changing it while
+   *  a celebrate is armed would re-fire the hop. */
+  size?: number;
+}) {
+  const style = useAnimatedStyle(() => {
+    const p = t.get();
+    return {
+      // Reaches full opacity at p=0.625, so it is solid for most of the descend and gone
+      // early on the exit — which keeps the travel short enough to fit the stage.
+      opacity: Math.min(1, Math.max(0, p * 1.6)),
+      transform: [{ translateY: -(1 - p) * ATLAS_RISE }, { scale: 0.88 + 0.12 * p }],
+    };
+  });
+  return (
+    // rise headroom scales with the mascot, so a small mascot doesn't reserve a big gap
+    <View style={[styles.atlasStage, { height: Math.round(size * 1.04) + Math.round((ATLAS_RISE * size) / ATLAS_SIZE) }]} pointerEvents="box-none">
+      <Animated.View style={style}>
+        {/* idle breath is sub-pixel below ~96px — not worth the frame callback there */}
+        <Atlas size={size} expression={expression} idle={size >= ATLAS_SIZE} celebrate={celebrateKey > 0} celebrateKey={celebrateKey} />
+      </Animated.View>
+    </View>
+  );
+}
+
+/** One row of the trial timeline (Cal AI paywall pattern): an icon rail on the left with a
+ *  gradient spine connecting the dots, title + optional caption on the right. */
+export function TrialStep({
+  icon,
+  title,
+  sub,
+  tone,
+  last = false,
+}: {
+  icon: string;
+  title: string;
+  sub?: string;
+  tone: 'solid' | 'soft' | 'muted';
+  last?: boolean;
+}) {
+  const theme = useTheme();
+  const dotBg = tone === 'solid' ? theme.primary : tone === 'soft' ? theme.primary + 'AA' : theme.muted;
+  return (
+    <View style={styles.tlRow}>
+      <View style={styles.tlRail}>
+        <View style={[styles.tlDot, { backgroundColor: dotBg }]}>
+          <UIcon name={icon} size={17} color={tone === 'muted' ? theme.mutedForeground : '#fff'} />
+        </View>
+        {!last && (
+          <LinearGradient colors={[theme.primary, theme.primary + '22']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.tlBar} />
+        )}
+      </View>
+      <View style={styles.tlBody}>
+        <ThemedText type="heading" style={{ fontSize: 17, lineHeight: 22 }}>{title}</ThemedText>
+        {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 3, lineHeight: 19 }}>{sub}</ThemedText> : null}
+      </View>
+    </View>
+  );
+}
+
+/** Selectable pricing tier. The highlighted tier carries a badge tab across its top edge. */
+export function PlanCard({
+  selected,
+  onPress,
+  badge,
+  title,
+  sub,
+  price,
+}: {
+  selected: boolean;
+  onPress: () => void;
+  badge?: string;
+  title: string;
+  sub?: string;
+  price: string;
+}) {
+  const theme = useTheme();
+  return (
+    <SpringPressable onPress={onPress} style={{ marginTop: Spacing.two }}>
+      {badge ? (
+        <View style={[styles.planBadge, { backgroundColor: theme.primary }]}>
+          <ThemedText type="smallBold" style={{ color: '#fff', fontSize: 11, letterSpacing: 0.8 }}>{badge}</ThemedText>
+        </View>
+      ) : null}
+      <View
+        style={[
+          styles.plan,
+          {
+            backgroundColor: selected ? theme.primary + '14' : theme.card,
+            borderColor: selected ? theme.primary : theme.border,
+            borderWidth: selected ? 1.5 : StyleSheet.hairlineWidth,
+            borderTopLeftRadius: badge ? 0 : Radius.lg,
+            borderTopRightRadius: badge ? 0 : Radius.lg,
+          },
+        ]}>
+        <View style={[styles.planRadio, { borderColor: selected ? theme.primary : theme.border, backgroundColor: selected ? theme.primary : 'transparent' }]}>
+          {selected ? <UIcon name="check" size={12} color="#fff" /> : null}
+        </View>
+        <View style={{ flex: 1 }}>
+          <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{title}</ThemedText>
+          {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText> : null}
+        </View>
+        <ThemedText type="smallBold" themeColor="mutedForeground">{price}</ThemedText>
+      </View>
+    </SpringPressable>
+  );
+}
 
 export function BackChevron({ onPress }: { onPress?: () => void }) {
   const theme = useTheme();
@@ -31,9 +168,9 @@ function Segment({ fill, color, track }: { fill: number; color: string; track: s
   const reduced = useReducedMotion();
   const w = useSharedValue(reduced ? fill : 0);
   useEffect(() => {
-    w.value = reduced ? fill : withSpring(fill, { stiffness: 140, damping: 20 });
+    w.set(reduced ? fill : withSpring(fill, Spring.gentle));
   }, [fill, reduced, w]);
-  const style = useAnimatedStyle(() => ({ width: `${w.value * 100}%` }));
+  const style = useAnimatedStyle(() => ({ width: `${w.get() * 100}%` }));
   return (
     <View style={[styles.seg, { backgroundColor: track }]}>
       <Animated.View style={[styles.segFill, { backgroundColor: color }, style]} />
@@ -60,9 +197,9 @@ export function RadioDot({ selected }: { selected: boolean }) {
   const reduced = useReducedMotion();
   const fill = useSharedValue(selected ? 1 : 0);
   useEffect(() => {
-    fill.value = reduced ? (selected ? 1 : 0) : withSpring(selected ? 1 : 0, { stiffness: 500, damping: 16 });
+    fill.set(reduced ? (selected ? 1 : 0) : withSpring(selected ? 1 : 0, Spring.bouncy));
   }, [selected, reduced, fill]);
-  const inner = useAnimatedProps(() => ({ r: 5.5 * fill.value }));
+  const inner = useAnimatedProps(() => ({ r: 5.5 * fill.get() }));
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Circle cx={12} cy={12} r={10} stroke={selected ? theme.primary : theme.border} strokeWidth={2} fill="none" />
@@ -77,29 +214,31 @@ export function OptionCard({
   sub,
   selected,
   onPress,
+  compact = false,
 }: {
-  icon: string;
+  /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
+  icon?: string;
   title: string;
-  sub: string;
+  sub?: string;
   selected: boolean;
   onPress: () => void;
+  /** Tighter row for long lists, where a full icon+subtitle card would swamp the screen. */
+  compact?: boolean;
 }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
   const pop = useSharedValue(1);
   useEffect(() => {
     if (reduced || !selected) return;
-    pop.value = withSequence(
-      withSpring(1.035, { stiffness: 500, damping: 12 }),
-      withSpring(1, { stiffness: 300, damping: 18 }),
-    );
+    pop.set(withSequence(withSpring(1.035, Spring.bouncy), withSpring(1, Spring.smooth)));
   }, [selected, reduced, pop]);
-  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
   return (
     <SpringPressable onPress={onPress} style={{ marginBottom: Spacing.two + 4 }}>
       <Animated.View
         style={[
           styles.option,
+          compact && styles.optionSm,
           popStyle,
           {
             backgroundColor: selected ? theme.primary + '14' : theme.card,
@@ -107,12 +246,16 @@ export function OptionCard({
             borderWidth: selected ? 1.5 : StyleSheet.hairlineWidth,
           },
         ]}>
-        <View style={[styles.bubble, { backgroundColor: theme.primary + '1F' }]}>
-          <UIcon name={icon} size={24} color={theme.iconLilac} />
-        </View>
+        {icon ? (
+          <View style={[styles.bubble, compact && styles.bubbleSm, { backgroundColor: theme.primary + '1F' }]}>
+            <UIcon name={icon} size={compact ? 18 : 24} color={theme.iconLilac} />
+          </View>
+        ) : null}
         <View style={{ flex: 1 }}>
           <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{title}</ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText>
+          {sub && !compact ? (
+            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText>
+          ) : null}
         </View>
         <RadioDot selected={selected} />
       </Animated.View>
@@ -121,7 +264,7 @@ export function OptionCard({
 }
 
 /** "With Euphoria" vs "Without daily practice" growth curves — both DRAW ON left→right. */
-export function GrowthChart() {
+export function GrowthChart({ delay = 0 }: { delay?: number }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
   const LEN = 700;
@@ -131,14 +274,16 @@ export function GrowthChart() {
 
   useEffect(() => {
     if (reduced) return;
-    withoutCurve.value = withDelay(150, withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) }));
-    withCurve.value = withDelay(350, withTiming(0, { duration: 1000, easing: Easing.out(Easing.cubic) }));
-    dot.value = withDelay(1250, withTiming(1, { duration: 260 }));
-  }, [reduced, withCurve, withoutCurve, dot]);
+    // `delay` lets the caller line the draw-on up with the step's stagger instead of
+    // racing it. Draw durations stay chart-specific; only the easing is tokenised.
+    withoutCurve.set(withDelay(delay + Duration.fast, withTiming(0, { duration: 700, easing: Ease.outCubic })));
+    withCurve.set(withDelay(delay + Duration.slow, withTiming(0, { duration: 1000, easing: Ease.outCubic })));
+    dot.set(withDelay(delay + 1250, withTiming(1, { duration: Duration.base })));
+  }, [reduced, delay, withCurve, withoutCurve, dot]);
 
-  const withProps = useAnimatedProps(() => ({ strokeDashoffset: withCurve.value }));
-  const withoutProps = useAnimatedProps(() => ({ strokeDashoffset: withoutCurve.value }));
-  const dotProps = useAnimatedProps(() => ({ opacity: dot.value, r: 5 * dot.value }));
+  const withProps = useAnimatedProps(() => ({ strokeDashoffset: withCurve.get() }));
+  const withoutProps = useAnimatedProps(() => ({ strokeDashoffset: withoutCurve.get() }));
+  const dotProps = useAnimatedProps(() => ({ opacity: dot.get(), r: 5 * dot.get() }));
 
   return (
     <View style={[styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -162,6 +307,211 @@ export function GrowthChart() {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Step archetypes. Every onboarding screen is one of these, so density and
+ * rhythm stay identical across the flow — one idea per screen, big heading,
+ * generous spacing. This consistency is the fix for "the paywall looks overdone":
+ * the paywall isn't too rich, the rest were too thin.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type Choice = { key: string; title: string; sub?: string; icon?: string };
+
+export function StepHeading({ title, sub }: { title: string; sub?: string }) {
+  return (
+    <View style={styles.stepHead}>
+      <ThemedText type="display" style={styles.stepQ}>{title}</ThemedText>
+      {sub ? (
+        <ThemedText type="body" themeColor="mutedForeground" style={styles.stepSub}>{sub}</ThemedText>
+      ) : null}
+    </View>
+  );
+}
+
+export function SingleSelectStep({
+  question,
+  sub,
+  options,
+  value,
+  onChange,
+  compact,
+}: {
+  question: string;
+  sub?: string;
+  options: Choice[];
+  value: string | null;
+  onChange: (key: string) => void;
+  compact?: boolean;
+}) {
+  return (
+    <>
+      <StepHeading title={question} sub={sub} />
+      <View style={styles.stepOptions}>
+        {options.map((o, i) => (
+          <RiseIn key={o.key} delay={childDelay(i)}>
+            <OptionCard
+              icon={o.icon}
+              title={o.title}
+              sub={o.sub}
+              compact={compact ?? options.length > 4}
+              selected={value === o.key}
+              onPress={() => onChange(o.key)}
+            />
+          </RiseIn>
+        ))}
+      </View>
+    </>
+  );
+}
+
+export function MultiSelectStep({
+  question,
+  sub,
+  options,
+  values,
+  onToggle,
+}: {
+  question: string;
+  sub?: string;
+  options: Choice[];
+  values: string[];
+  onToggle: (key: string) => void;
+}) {
+  return (
+    <>
+      <StepHeading title={question} sub={sub ?? 'Pick as many as you like.'} />
+      <View style={styles.stepOptions}>
+        {options.map((o, i) => (
+          <RiseIn key={o.key} delay={childDelay(i)}>
+            <OptionCard
+              icon={o.icon}
+              title={o.title}
+              sub={o.sub}
+              compact={options.length > 4}
+              selected={values.includes(o.key)}
+              onPress={() => onToggle(o.key)}
+            />
+          </RiseIn>
+        ))}
+      </View>
+    </>
+  );
+}
+
+/** A screen that asserts rather than asks — the beats that break up the questions. */
+export function StatementStep({ title, sub, children }: { title: string; sub?: string; children?: React.ReactNode }) {
+  return (
+    <>
+      <StepHeading title={title} sub={sub} />
+      {children ? <View style={{ marginTop: Spacing.three }}>{children}</View> : null}
+    </>
+  );
+}
+
+/**
+ * "Building your plan" — a determinate ring plus rotating status lines. Determinate on
+ * purpose: an indeterminate spinner reads as "loading", while a filling ring reads as
+ * work being done on your behalf, which is the point of the beat.
+ */
+export function LoaderStep({ lines, onDone }: { lines: string[]; onDone: () => void }) {
+  const theme = useTheme();
+  const reduced = useReducedMotion();
+  const p = useSharedValue(0);
+  const [i, setI] = useState(0);
+  const R = 46;
+  const C = 2 * Math.PI * R;
+
+  useEffect(() => {
+    if (reduced) {
+      p.set(1);
+      onDone();
+      return;
+    }
+    const total = Duration.count * 3; // 2700ms — long enough to feel considered, not stalled
+    p.set(withTiming(1, { duration: total, easing: Ease.inOut }));
+    const per = total / lines.length;
+    const tick = setInterval(() => setI((n) => Math.min(n + 1, lines.length - 1)), per);
+    const finish = setTimeout(onDone, total + Duration.base);
+    return () => {
+      clearInterval(tick);
+      clearTimeout(finish);
+    };
+    // mount-only: re-running would restart the plan build mid-flight
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const ring = useAnimatedProps(() => ({ strokeDashoffset: C * (1 - p.get()) }));
+
+  return (
+    <View style={styles.loaderWrap}>
+      <Svg width={R * 2 + 12} height={R * 2 + 12} viewBox={`0 0 ${R * 2 + 12} ${R * 2 + 12}`}>
+        <Circle cx={R + 6} cy={R + 6} r={R} stroke={theme.muted} strokeWidth={6} fill="none" />
+        <AnimatedCircle
+          cx={R + 6}
+          cy={R + 6}
+          r={R}
+          stroke={theme.primary}
+          strokeWidth={6}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={C}
+          animatedProps={ring}
+          // start the sweep at 12 o'clock rather than 3
+          transform={`rotate(-90 ${R + 6} ${R + 6})`}
+        />
+      </Svg>
+      <ThemedText type="display" style={styles.loaderTitle}>Building your plan</ThemedText>
+      <ThemedText type="body" themeColor="mutedForeground" style={styles.loaderLine}>{lines[i]}</ThemedText>
+    </View>
+  );
+}
+
+/** The payoff: the answers become a named, ordered path of REAL courses. */
+export function PlanRevealStep({
+  tierLabel,
+  courses,
+  perDay,
+  weeks,
+}: {
+  tierLabel: string;
+  courses: { id: string; title: string; description: string; totalLessons: number }[];
+  perDay: number;
+  weeks: number;
+}) {
+  const theme = useTheme();
+  const totalLessons = courses.reduce((n, c) => n + c.totalLessons, 0);
+  return (
+    <>
+      <StepHeading title="Your path is ready" sub={`Tuned for a ${tierLabel} track, ${perDay} lesson${perDay === 1 ? '' : 's'} a day.`} />
+      <View style={{ marginTop: Spacing.three }}>
+        {courses.map((c, i) => (
+          <RewardPop key={c.id} delay={childDelay(i)} style={{ marginBottom: Spacing.two }}>
+            <View style={[styles.planRow, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <View style={[styles.planNum, { backgroundColor: i === 0 ? theme.primary : theme.muted }]}>
+                <ThemedText type="smallBold" style={{ color: i === 0 ? '#fff' : theme.mutedForeground }}>{i + 1}</ThemedText>
+              </View>
+              <View style={{ flex: 1 }}>
+                <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{c.title}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{c.totalLessons} lessons</ThemedText>
+              </View>
+            </View>
+          </RewardPop>
+        ))}
+      </View>
+      <View style={styles.planStats}>
+        <View style={styles.planStat}>
+          <NumberRollup value={totalLessons} type="display" style={{ color: theme.primary }} />
+          <ThemedText type="small" themeColor="mutedForeground">lessons</ThemedText>
+        </View>
+        <View style={[styles.planDivider, { backgroundColor: theme.border }]} />
+        <View style={styles.planStat}>
+          <NumberRollup value={weeks} type="display" style={{ color: theme.primary }} />
+          <ThemedText type="small" themeColor="mutedForeground">weeks</ThemedText>
+        </View>
+      </View>
+    </>
+  );
+}
+
 export function Stars({ count = 5 }: { count?: number }) {
   return (
     <View style={{ flexDirection: 'row', gap: 3 }}>
@@ -175,6 +525,18 @@ export function Stars({ count = 5 }: { count?: number }) {
 }
 
 const styles = StyleSheet.create({
+  // flex-end parks the mascot at the bottom so its whole -ATLAS_RISE exit stays in bounds.
+  atlasStage: { height: ATLAS_STAGE_H, alignItems: 'center', justifyContent: 'flex-end' },
+  // trial timeline — the rail column is fixed-width so every title starts on the same x
+  tlRow: { flexDirection: 'row', gap: Spacing.two },
+  tlRail: { width: 30, alignItems: 'center' },
+  tlDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  tlBar: { width: 3, flex: 1, borderRadius: 2, marginTop: 2, minHeight: 14 },
+  tlBody: { flex: 1, paddingBottom: Spacing.two },
+  plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
+  // sits flush on the card's top edge, which squares off its top corners
+  planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
+  planRadio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   chevron: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
   segRow: { flex: 1, flexDirection: 'row', gap: 6 },
@@ -183,7 +545,22 @@ const styles = StyleSheet.create({
   track: { flex: 1, height: 6, borderRadius: 6, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 6 },
   option: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
+  optionSm: { paddingVertical: Spacing.two, gap: Spacing.two },
   bubble: { width: 46, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  bubbleSm: { width: 34, height: 34 },
+  // one idea per screen: the heading owns the top of the viewport, options sit well below it
+  stepHead: { marginTop: Spacing.two },
+  stepQ: { textAlign: 'left', lineHeight: 34 },
+  stepSub: { marginTop: Spacing.two, lineHeight: 21 },
+  stepOptions: { marginTop: Spacing.four },
+  loaderWrap: { alignItems: 'center', paddingTop: Spacing.four },
+  loaderTitle: { marginTop: Spacing.four, textAlign: 'center' },
+  loaderLine: { marginTop: Spacing.two, textAlign: 'center' },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth },
+  planNum: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  planStats: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.four, marginTop: Spacing.three },
+  planStat: { alignItems: 'center' },
+  planDivider: { width: StyleSheet.hairlineWidth, height: 34 },
   chartCard: { borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three, gap: Spacing.one },
   chartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.one },
 });

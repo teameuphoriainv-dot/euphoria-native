@@ -30,6 +30,8 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 
+import { Duration, Spring } from '@/shared/motion/tokens';
+
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
 const INK = '#1A1523';
@@ -41,6 +43,9 @@ const HEAD_S = 0.68;
 const BODY_D = 'M50 52 C64 52, 72 66, 72 81 C72 93, 62 100, 50 100 C38 100, 28 93, 28 81 C28 66, 36 52, 50 52 Z';
 const AnimatedG = Animated.createAnimatedComponent(G);
 const logo = require('@/assets/images/atlas-logo.png');
+/** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
+ *  (6px of bottom travel on a 136px mascot); we start at half that. One number to tune. */
+const IDLE_SQUASH = 0.022;
 
 export function Atlas({
   size = 120,
@@ -48,22 +53,32 @@ export function Atlas({
   interactive = true,
   glasses = false,
   celebrate = false,
+  celebrateKey = 0,
   shake = false,
   entrance,
+  idle = false,
 }: {
   size?: number;
   expression?: AtlasExpression;
   interactive?: boolean;
   glasses?: boolean;
   celebrate?: boolean;
+  /** Bump to re-fire the hop. A boolean `celebrate` latches once and never fires again —
+   *  which is why re-selecting an onboarding option used to produce no reaction. */
+  celebrateKey?: number;
   shake?: boolean;
   entrance?: 'bounce';
+  /** Opt-in idle breath (anchored squash-stretch, top edge pinned). Default OFF: a mascot
+   *  should be still until something happens. Reads correctly from ~96px up; below that
+   *  it's sub-pixel and just costs a frame callback. */
+  idle?: boolean;
 }) {
   const reduced = useReducedMotion();
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
   const jumpY = useSharedValue(0);
-  const breathY = useSharedValue(0);
+  /** Breath PHASE (0..1), not a pixel offset — mapped to scale in `breathStyle` below. */
+  const breath = useSharedValue(0);
   const shakeX = useSharedValue(0);
   const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : 1);
   const entranceOpacity = useSharedValue(entrance === 'bounce' ? 0 : 1);
@@ -91,24 +106,30 @@ export function Atlas({
     };
   }, [reduced]);
 
-  // celebratory jump (fired on wins)
+  // celebratory hop — a reaction to a user action, not a launch. Kept small (size * 0.10)
+  // and softly damped so it reads as an acknowledging nod; the `expression` flip to 'happy'
+  // carries most of the reaction. Anything larger turns every win into a jump-scare.
   useEffect(() => {
     if (!celebrate || reduced) return;
-    jumpY.set(withDelay(180, withSequence(withSpring(-size * 0.28, { stiffness: 320, damping: 9 }), withSpring(0, { stiffness: 220, damping: 12 }))));
-  }, [celebrate, reduced, jumpY, size]);
+    jumpY.set(withDelay(Duration.fast, withSequence(withSpring(-size * 0.1, Spring.bouncy), withSpring(0, Spring.smooth))));
+  }, [celebrate, celebrateKey, reduced, jumpY, size]);
 
-  // idle breathing bob — the "alive" signal (V2 bot reference)
-  // ponytail: amplitude capped in absolute px, not % of size. At size=64 the old
-  // size*0.025 read as jitter on a bodiless logo; a bob must stay sub-pixel-ish to
-  // feel like breath. Raise the cap only once Atlas has a body with visual mass.
+  // Idle breath — an ANCHORED SQUASH-STRETCH, not a bob. Measured off the Brilliant
+  // recordings (refs/videos): the mascot's top edge never moves across 90 frames; only its
+  // body volume changes. This used to translate the whole mascot, which is why onboarding
+  // read as bouncing. Opt-in via `idle`; note `size` is deliberately NOT a dependency, so
+  // a resize can never re-fire the loop.
   useEffect(() => {
-    if (reduced) return;
-    const amp = Math.min(size * 0.012, 1.1);
-    breathY.set(withRepeat(
-      withTiming(-amp, { duration: 1400, easing: Easing.inOut(Easing.sin) }),
+    if (!idle || reduced) {
+      breath.set(withTiming(0, { duration: Duration.base }));
+      return;
+    }
+    // withRepeat(..., -1, true) reverses, so the full period is 2x duration -> 1600ms.
+    breath.set(withRepeat(
+      withTiming(1, { duration: Duration.slow * 2, easing: Easing.inOut(Easing.sin) }),
       -1, true,
     ));
-  }, [reduced, breathY, size]);
+  }, [idle, reduced, breath]);
 
   // shake on wrong answer (V1 balance-scale reference)
   useEffect(() => {
@@ -123,16 +144,14 @@ export function Atlas({
     ));
   }, [shake, reduced, shakeX, size]);
 
-  // bounce-in entrance (V2 greeting reference)
+  // entrance: a calm settle, not an overshoot. One soft spring from a near-final scale plus
+  // the fade — Atlas arrives and comes to rest. The old 1.12 -> 0.96 -> 1.0 sequence stacked
+  // on top of the idle bob and the celebrate jump, which is what made onboarding feel jumpy.
   useEffect(() => {
     if (entrance !== 'bounce') return;
     if (reduced) { entranceScale.set(1); entranceOpacity.set(1); return; }
-    entranceOpacity.set(withTiming(1, { duration: 80 }));
-    entranceScale.set(withSequence(
-      withSpring(1.12, { stiffness: 320, damping: 8 }),
-      withSpring(0.96, { stiffness: 280, damping: 14 }),
-      withSpring(1.0, { stiffness: 240, damping: 18 }),
-    ));
+    entranceOpacity.set(withTiming(1, { duration: Duration.fast }));
+    entranceScale.set(withSpring(1, { ...Spring.smooth, damping: 24 }));
   }, [entrance, reduced, entranceScale, entranceOpacity]);
 
   const spin = () => {
@@ -146,8 +165,20 @@ export function Atlas({
   const bodyProps = useAnimatedProps(() => ({ rotation: rotation.get() }));
   const wrapStyle = useAnimatedStyle(() => ({
     opacity: entranceOpacity.get(),
-    transform: [{ translateY: jumpY.get() + breathY.get() }, { translateX: shakeX.get() }, { scale: scale.get() * entranceScale.get() }],
+    transform: [{ translateY: jumpY.get() }, { translateX: shakeX.get() }, { scale: scale.get() * entranceScale.get() }],
   }));
+
+  // Breath lives on its OWN inner view. wrapStyle's translateY applies in unscaled parent
+  // space (M = T·S), so folding the top-pin compensation into it would be wrong by a factor
+  // of scale x entranceScale during press, entrance and celebrate. Nested, it is correct by
+  // construction — and breath can no longer stack with jumpY, which was the original bug.
+  const breathStyle = useAnimatedStyle(() => {
+    const b = breath.get();
+    const sy = 1 + IDLE_SQUASH * b;
+    const sx = 1 - IDLE_SQUASH * 0.5 * b; // partial volume preservation; full 1/sy reads rubbery
+    // scaleY about the centre lifts the top edge by H*(sy-1)/2 — translate down by exactly that.
+    return { transform: [{ translateY: (size * 1.04 * (sy - 1)) / 2 }, { scaleY: sy }, { scaleX: sx }] };
+  });
 
   const active: AtlasExpression = spinning ? 'whoa' : expression;
   const showBlink = blink && !spinning && (expression === 'default' || expression === 'watching');
@@ -307,14 +338,22 @@ export function Atlas({
     </Svg>
   );
 
-  if (!interactive) return <Animated.View style={wrapStyle}>{svg}</Animated.View>;
+  if (!interactive) {
+    return (
+      <Animated.View style={wrapStyle}>
+        <Animated.View style={breathStyle}>{svg}</Animated.View>
+      </Animated.View>
+    );
+  }
 
   return (
     <Pressable
       onPressIn={() => scale.set(withSpring(0.92, { stiffness: 420, damping: 32 }))}
       onPressOut={() => scale.set(withSpring(1, { stiffness: 420, damping: 32 }))}
       onPress={spin}>
-      <Animated.View style={wrapStyle}>{svg}</Animated.View>
+      <Animated.View style={wrapStyle}>
+        <Animated.View style={breathStyle}>{svg}</Animated.View>
+      </Animated.View>
     </Pressable>
   );
 }
