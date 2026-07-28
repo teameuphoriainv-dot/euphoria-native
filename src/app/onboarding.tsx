@@ -11,7 +11,7 @@
  * Atlas lives in a persistent <AtlasStage> above the step switch so it never remounts.
  */
 import * as Linking from 'expo-linking';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
@@ -141,9 +141,11 @@ const PROOF: { icon: string; title: string; sub: string }[] = [
   { icon: 'sparkle', title: 'Atlas explains anything', sub: 'Ask mid-lesson and get it in plain English.' },
 ];
 
+/** Kept to one line each. At two lines the timeline alone ran ~200pt, which pushed "No payment
+ *  due now" and the renewal terms off the bottom of the screen. */
 const TRIAL_STEPS = [
-  { icon: 'lock', title: 'Today', sub: 'Unlock every lesson, Atlas AI coaching 24/7, and advanced paper trading.', tone: 'solid' as const },
-  { icon: 'bell', title: 'In 5 days — Reminder', sub: "We'll remind you your trial is ending, if you've allowed notifications.", tone: 'soft' as const },
+  { icon: 'lock', title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
+  { icon: 'bell', title: 'In 5 days — Reminder', sub: "We'll remind you before it ends.", tone: 'soft' as const },
   { icon: 'wallet', title: 'In 7 days — Billing starts', tone: 'muted' as const },
 ];
 
@@ -207,7 +209,12 @@ const REVEAL_INDEX = TOTAL - 2;
 export default function Onboarding() {
   const theme = useTheme();
   const scrollRef = useRef<ScrollView>(null);
-  const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(0, scrollRef);
+  // dev-only: ?step=<n> opens straight at a step for visual QA, same pattern as lesson.tsx.
+  // Without it the only way to look at the paywall is to tap through the whole flow, which is
+  // slow enough that it stops getting checked.
+  const params = useLocalSearchParams<{ step?: string }>();
+  const startStep = __DEV__ && params.step ? Math.min(Math.max(0, Number(params.step) || 0), TOTAL - 1) : 0;
+  const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(startStep, scrollRef);
   const [celebrateKey, setCelebrateKey] = useState(0);
   const [plan, setPlan] = useState<'annual' | 'monthly'>('annual');
 
@@ -343,6 +350,10 @@ export default function Onboarding() {
         return (
           <>
             <StepHeading title={'Start your 7-day FREE trial to continue'} />
+            {/* This screen is content-bound, not space-bound: every point of padding added here
+                pushes "No payment due now" off the bottom. The decongestion comes from the
+                one-line TRIAL_STEPS copy and from moving the renewal terms into the pinned
+                footer, NOT from more air. */}
             <View style={{ marginTop: Spacing.four }}>
               {TRIAL_STEPS.map((s, i) => (
                 <RiseIn key={s.title} delay={childDelay(i)}>
@@ -350,24 +361,27 @@ export default function Onboarding() {
                 </RiseIn>
               ))}
             </View>
-            <RiseIn delay={childDelay(TRIAL_STEPS.length)}>
+            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.three }}>
+              {/* The plan NAME carries the billing period and the price carries the amount you
+                  are actually charged. Both cards used to headline a "/mo" figure, so the annual
+                  plan read as a second, cheaper monthly plan rather than as a yearly one. */}
               <PlanCard
                 selected={plan === 'annual'}
                 onPress={() => setPlan('annual')}
-                badge="7 DAYS FREE"
-                title="Start free & save 50%"
-                sub="$59.99 billed annually"
-                price="$4.99/mo"
+                badge="7 DAYS FREE · SAVE 50%"
+                title="Annual"
+                sub="Works out at $4.99 a month"
+                price="$59.99"
+                unit="per year"
               />
-              <PlanCard selected={plan === 'monthly'} onPress={() => setPlan('monthly')} title="Monthly" price="$9.99/mo" />
-              <View style={styles.noPay}>
-                <UIcon name="check" size={16} color={theme.primary} />
-                <ThemedText type="bodyMedium">No payment due now</ThemedText>
-              </View>
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-                7 days free, then {plan === 'annual' ? '$59.99 per year, billed annually' : '$9.99 per month'}. Plan auto-renews
-                unless you cancel. Cancel anytime in the App Store.
-              </ThemedText>
+              <PlanCard
+                selected={plan === 'monthly'}
+                onPress={() => setPlan('monthly')}
+                title="Monthly"
+                sub="Billed every month"
+                price="$9.99"
+                unit="per month"
+              />
             </RiseIn>
           </>
         );
@@ -402,6 +416,14 @@ export default function Onboarding() {
       {/* the loader drives itself — offering a button there would let users outrun it */}
       {!isLoader && (
         <View style={styles.footer}>
+          {/* Reassurance sits with the CTA it reassures about. In the scrolling body it was the
+              first thing clipped whenever the plan cards grew. */}
+          {step === PAYWALL_INDEX && (
+            <View style={styles.noPay}>
+              <UIcon name="check" size={16} color={theme.primary} />
+              <ThemedText type="bodyMedium">No payment due now</ThemedText>
+            </View>
+          )}
           <GradientButton
             label={step === REVEAL_INDEX ? 'Start learning' : step === PAYWALL_INDEX ? 'Start my 7-day free trial' : 'Continue'}
             full
@@ -410,6 +432,13 @@ export default function Onboarding() {
           />
           {step === PAYWALL_INDEX && (
             <>
+              {/* Renewal terms belong in the pinned footer for the same reason the links do:
+                  as the last child of the scrolling body they sat below the fold, and App Store
+                  Review 3.1.2 wants the price and renewal terms ON the purchase screen. */}
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+                7 days free, then {plan === 'annual' ? '$59.99 per year, billed annually' : '$9.99 per month'}. Renews
+                until cancelled. Cancel anytime in the App Store.
+              </ThemedText>
               <SpringPressable haptic={false} onPress={() => router.replace('/home')} style={styles.maybeLater}>
                 <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>
               </SpringPressable>
@@ -443,10 +472,10 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.four, paddingTop: Spacing.three, flexGrow: 1, justifyContent: 'flex-start' },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  noPay: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.one, marginTop: Spacing.three },
-  fine: { textAlign: 'center', fontSize: 11, lineHeight: 15, marginTop: Spacing.three },
+  noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
+  fine: { textAlign: "center", fontSize: 11, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
-  maybeLater: { alignItems: 'center', paddingTop: Spacing.three },
+  maybeLater: { alignItems: "center", paddingTop: Spacing.two },
   legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.two },
   legalLink: { fontSize: 11, textDecorationLine: 'underline', opacity: 0.75 },
   legalDot: { fontSize: 11, opacity: 0.75 },

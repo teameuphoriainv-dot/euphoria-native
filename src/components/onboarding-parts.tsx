@@ -113,6 +113,7 @@ export function PlanCard({
   title,
   sub,
   price,
+  unit,
 }: {
   selected: boolean;
   onPress: () => void;
@@ -120,6 +121,8 @@ export function PlanCard({
   title: string;
   sub?: string;
   price: string;
+  /** Billing period shown under the amount, e.g. "per year". */
+  unit?: string;
 }) {
   const theme = useTheme();
   return (
@@ -147,7 +150,12 @@ export function PlanCard({
           <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{title}</ThemedText>
           {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText> : null}
         </View>
-        <ThemedText type="smallBold" themeColor="mutedForeground">{price}</ThemedText>
+        {/* price stacked over its billing period: the amount is what you are charged, the unit
+            says how often, so annual and monthly are never both reading as "/mo" */}
+        <View style={{ alignItems: 'flex-end' }}>
+          <ThemedText type="heading" style={{ fontSize: 17, lineHeight: 22 }}>{price}</ThemedText>
+          {unit ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 1 }}>{unit}</ThemedText> : null}
+        </View>
       </View>
     </SpringPressable>
   );
@@ -528,7 +536,7 @@ const styles = StyleSheet.create({
   // flex-end parks the mascot at the bottom so its whole -ATLAS_RISE exit stays in bounds.
   atlasStage: { height: ATLAS_STAGE_H, alignItems: 'center', justifyContent: 'flex-end' },
   // trial timeline — the rail column is fixed-width so every title starts on the same x
-  tlRow: { flexDirection: 'row', gap: Spacing.two },
+  tlRow: { flexDirection: "row", gap: Spacing.two + 2 },
   tlRail: { width: 30, alignItems: 'center' },
   tlDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   tlBar: { width: 3, flex: 1, borderRadius: 2, marginTop: 2, minHeight: 14 },
