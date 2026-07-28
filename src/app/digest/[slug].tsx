@@ -32,14 +32,47 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 type Card = { title: string | null; blocks: Block[] };
 
-/** One card per `## ` section; anything before the first heading is the opening card. */
+/** Rough vertical cost of a block, in words-equivalent, so cards can be packed to a consistent
+ *  height. A figure occupies about as much room as 55 words of prose. */
+const COST = (b: Block) => {
+  if (b.kind === 'image') return 55;
+  if (b.kind === 'bullet') return b.items.reduce((n, i) => n + i.split(/\s+/).length, 0) + b.items.length * 4;
+  if (b.kind === 'quote') return b.text.split(/\s+/).length + 8;
+  return b.text.split(/\s+/).length;
+};
+
+/** A card's worth of content. Sections run from 53 to 262 words, so a strict card-per-heading
+ *  leaves the short ones half empty and pushes the long ones past the fold. Sections are packed to
+ *  a budget instead: the heading stays on the first card of its section and the overflow continues
+ *  onto untitled cards. */
+const BUDGET = 105;
+
 function toCards(markdown: string): Card[] {
-  const cards: Card[] = [{ title: null, blocks: [] }];
+  const sections: Card[] = [{ title: null, blocks: [] }];
   for (const b of parseBlocks(markdown)) {
-    if (b.kind === 'h2') cards.push({ title: b.text, blocks: [] });
-    else cards[cards.length - 1].blocks.push(b);
+    if (b.kind === 'h2') sections.push({ title: b.text, blocks: [] });
+    else sections[sections.length - 1].blocks.push(b);
   }
-  return cards.filter((c) => c.title !== null || c.blocks.length > 0);
+
+  const out: Card[] = [];
+  for (const s of sections) {
+    if (s.title === null && s.blocks.length === 0) continue;
+    let cur: Card = { title: s.title, blocks: [] };
+    let spent = s.title ? 12 : 0;
+    for (const b of s.blocks) {
+      const c = COST(b);
+      // never strand a single block on its own card just because it is oversized
+      if (cur.blocks.length && spent + c > BUDGET) {
+        out.push(cur);
+        cur = { title: null, blocks: [] };
+        spent = 0;
+      }
+      cur.blocks.push(b);
+      spent += c;
+    }
+    if (cur.blocks.length || cur.title) out.push(cur);
+  }
+  return out;
 }
 
 export default function DigestArticle() {
@@ -154,9 +187,9 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.three, paddingVertical: Spacing.four },
   cover: { height: 200, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.four },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  headline: { fontFamily: Fonts.readBold, fontSize: 34, lineHeight: 41 },
-  lead: { fontFamily: Fonts.read, fontSize: 20, lineHeight: 31, marginTop: Spacing.three },
-  cardTitle: { fontFamily: Fonts.readBold, fontSize: 29, lineHeight: 36, marginTop: 8, marginBottom: Spacing.two },
+  headline: { fontSize: 28, lineHeight: 35 },
+  lead: { fontFamily: Fonts.medium, fontSize: 17, lineHeight: 26, marginTop: Spacing.three },
+  cardTitle: { fontSize: 24, lineHeight: 31, marginTop: 8, marginBottom: Spacing.two },
   takeaways: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, padding: Spacing.three, marginTop: Spacing.two },
   footer: { padding: Spacing.three, paddingTop: Spacing.two },
   done: { alignItems: 'center', paddingTop: Spacing.three },

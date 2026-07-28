@@ -202,6 +202,10 @@ const RENDERABLE = /^(## |### |> |- |!\[)/;
 
 for (const p of posts) {
   if (!heroes[p.hero]) problems.push(`${p.slug}: hero "${p.hero}" is not in HERO_IMAGES`);
+  // em dashes are banned in Digest copy; fail the sync rather than let one reach the app
+  for (const [field, value] of [['title', p.title], ['excerpt', p.excerpt], ['body', p.body]]) {
+    if (value.includes('—')) problems.push(`${p.slug}: em dash in ${field} — rewrite it in the web post`);
+  }
   for (const m of p.body.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)) {
     if (!heroes[m[1]]) problems.push(`${p.slug}: inline image "${m[1]}" is not in HERO_IMAGES`);
   }

@@ -9,7 +9,7 @@
  * live here came over with the web page and was the only serif in the app.
  */
 import { router } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
@@ -139,6 +139,7 @@ function CatchUpRow({ post, read }: { post: DigestPost; read: boolean }) {
 }
 
 export default function Digest() {
+  const theme = useTheme();
   const readPosts = useApp((s) => s.readPosts);
   const dailyPick = useApp((s) => s.dailyPick);
   const setDailyPick = useApp((s) => s.setDailyPick);
@@ -150,6 +151,8 @@ export default function Digest() {
     if (dailyPick?.day !== day || dailyPick.slug !== today.slug) setDailyPick(day, today.slug);
   }, [day, today.slug, dailyPick, setDailyPick]);
 
+  const [showAll, setShowAll] = useState(false);
+
   // unread first so catch-up always leads with something to do
   const catchUp = useMemo(
     () =>
@@ -158,6 +161,11 @@ export default function Digest() {
       ),
     [today.slug, readPosts],
   );
+
+  // catch-up is a queue, not the library: a short list of what is next, with the rest behind a tap
+  const QUEUE = 5;
+  const shown = showAll ? catchUp : catchUp.slice(0, QUEUE);
+  const hidden = catchUp.length - shown.length;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -168,7 +176,7 @@ export default function Digest() {
             Digest
           </ThemedText>
           <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-            One idea a day — read it, then practice it.
+            One idea a day. Read it, then practice it.
           </ThemedText>
         </RiseIn>
 
@@ -179,7 +187,7 @@ export default function Digest() {
         <RiseIn delay={130}>
           <View style={styles.sectionHead}>
             <ThemedText type="label" themeColor="mutedForeground">
-              Catch up
+              {showAll ? 'All guides' : 'Next up'}
             </ThemedText>
             <ThemedText type="small" themeColor="mutedForeground">
               {readPosts.length} of {DIGEST_POSTS.length} read
@@ -188,12 +196,21 @@ export default function Digest() {
         </RiseIn>
 
         <View style={styles.list}>
-          {catchUp.map((p, i) => (
+          {shown.map((p, i) => (
             <RiseIn key={p.slug} delay={170 + i * 35}>
               <CatchUpRow post={p} read={readPosts.includes(p.slug)} />
             </RiseIn>
           ))}
         </View>
+
+        {hidden > 0 || showAll ? (
+          <SpringPressable haptic={false} onPress={() => setShowAll(!showAll)} style={styles.seeAll}>
+            <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
+              {showAll ? 'Show less' : `See all ${DIGEST_POSTS.length} guides`}
+            </ThemedText>
+            <UIcon name={showAll ? 'chevronLeft' : 'chevronRight'} size={15} color={theme.iconLilac} />
+          </SpringPressable>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -218,5 +235,6 @@ const styles = StyleSheet.create({
   list: { marginTop: Spacing.two, gap: Spacing.one },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.one + 2 },
   thumb: { width: 52, height: 52, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  seeAll: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: Spacing.three },
   tick: { width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
 });

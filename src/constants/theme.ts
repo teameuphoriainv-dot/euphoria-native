@@ -72,11 +72,6 @@ export const Fonts = {
   heading: 'Nunito_700Bold',
   /** EB Garamond — serif reserved for marketing/landing moments */
   serif: 'EBGaramond_700Bold',
-  /** Reading serif: long-form article body. UI chrome stays on DM Sans; only prose you sit and
-   *  read gets this, which is why it is a separate token from `serif` above. */
-  read: 'EBGaramond_400Regular',
-  readMedium: 'EBGaramond_500Medium',
-  readBold: 'EBGaramond_600SemiBold',
   /** DM Sans — UI + body */
   body: 'DMSans_400Regular',
   medium: 'DMSans_500Medium',

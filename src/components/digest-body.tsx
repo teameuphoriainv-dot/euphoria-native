@@ -50,8 +50,8 @@ export function parseBlocks(md: string): Block[] {
 }
 
 /** Renders **bold** runs as nested Text so a bold phrase stays inline in its sentence.
- *  Prose is set in the reading serif at textSecondary — mutedForeground is chrome grey and too
- *  dim to sit and read paragraphs in. */
+ *  Prose uses the app's own body type. It is only lifted to textSecondary, because
+ *  mutedForeground is the chrome grey and is too dim to read paragraphs in. */
 function Rich({ text, muted = true, tight = false }: { text: string; muted?: boolean; tight?: boolean }) {
   const theme = useTheme();
   const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
@@ -110,7 +110,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
             if (!xml) return null;
             return (
               <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width={150} height={150} />
+                <SvgXml xml={xml} width="100%" height={158} />
               </View>
             );
           }
@@ -196,7 +196,7 @@ export function DigestBody({ markdown }: { markdown: string }) {
             if (!xml) return null;
             return (
               <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width={150} height={150} />
+                <SvgXml xml={xml} width="100%" height={158} />
               </View>
             );
           }
@@ -211,9 +211,9 @@ export function DigestBody({ markdown }: { markdown: string }) {
 const styles = StyleSheet.create({
   h2: { fontSize: 19, lineHeight: 25, marginTop: Spacing.four, marginBottom: Spacing.one },
   // prose measures: 18/30 in a serif reads far better than 16/23 in the UI sans
-  para: { fontFamily: Fonts.read, fontSize: 18.5, lineHeight: 30, marginTop: Spacing.three },
+  para: { fontFamily: Fonts.body, fontSize: 16.5, lineHeight: 26, marginTop: Spacing.three },
   paraTight: { marginTop: 0 },
-  strong: { fontFamily: Fonts.readBold, fontSize: 18.5, lineHeight: 30 },
+  strong: { fontFamily: Fonts.semibold, fontSize: 16.5, lineHeight: 26 },
   quote: {
     borderLeftWidth: 3,
     borderRadius: Radius.sm,
@@ -229,9 +229,10 @@ const styles = StyleSheet.create({
   },
   list: { marginTop: Spacing.three, gap: Spacing.two + 2 },
   li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
-  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 13 },
+  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 11 },
   figure: {
-    height: 172,
+    height: 186,
+    paddingHorizontal: Spacing.three,
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
