@@ -110,7 +110,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
             if (!xml) return null;
             return (
               <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width="100%" height={158} />
+                <SvgXml xml={xml} width="100%" height={178} />
               </View>
             );
           }
@@ -196,7 +196,7 @@ export function DigestBody({ markdown }: { markdown: string }) {
             if (!xml) return null;
             return (
               <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width="100%" height={158} />
+                <SvgXml xml={xml} width="100%" height={178} />
               </View>
             );
           }
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 11 },
   figure: {
-    height: 186,
+    height: 206,
     paddingHorizontal: Spacing.three,
     borderRadius: Radius.md,
     alignItems: 'center',

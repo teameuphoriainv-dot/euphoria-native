@@ -35,7 +35,7 @@ type Card = { title: string | null; blocks: Block[] };
 /** Rough vertical cost of a block, in words-equivalent, so cards can be packed to a consistent
  *  height. A figure occupies about as much room as 55 words of prose. */
 const COST = (b: Block) => {
-  if (b.kind === 'image') return 55;
+  if (b.kind === 'image') return 62;
   if (b.kind === 'bullet') return b.items.reduce((n, i) => n + i.split(/\s+/).length, 0) + b.items.length * 4;
   if (b.kind === 'quote') return b.text.split(/\s+/).length + 8;
   return b.text.split(/\s+/).length;
@@ -45,7 +45,7 @@ const COST = (b: Block) => {
  *  leaves the short ones half empty and pushes the long ones past the fold. Sections are packed to
  *  a budget instead: the heading stays on the first card of its section and the overflow continues
  *  onto untitled cards. */
-const BUDGET = 105;
+const BUDGET = 165;
 
 function toCards(markdown: string): Card[] {
   const sections: Card[] = [{ title: null, blocks: [] }];
@@ -57,12 +57,24 @@ function toCards(markdown: string): Card[] {
   const out: Card[] = [];
   for (const s of sections) {
     if (s.title === null && s.blocks.length === 0) continue;
+
+    // Balance rather than greedily fill. Filling each card to the brim leaves the section's last
+    // card holding whatever is left over, which is how you get a packed card followed by a
+    // half-empty one. Splitting the section evenly gives every card a similar amount instead.
+    // Split with slack rather than on a hard ceiling. A plain ceil sends a section a few words
+    // over budget into two half-empty cards; a plain round lets a section 1.4x the budget stay on
+    // one and overflow the fold. Allowing a quarter-budget of overshoot before splitting keeps
+    // cards full without pushing content under the footer.
+    const total = s.blocks.reduce((n, b) => n + COST(b), 0) + (s.title ? 12 : 0);
+    const parts = Math.max(1, Math.ceil((total - BUDGET * 0.25) / BUDGET));
+    const target = total / parts;
+
     let cur: Card = { title: s.title, blocks: [] };
     let spent = s.title ? 12 : 0;
     for (const b of s.blocks) {
       const c = COST(b);
-      // never strand a single block on its own card just because it is oversized
-      if (cur.blocks.length && spent + c > BUDGET) {
+      // break once the card is at least at target, never stranding a lone block
+      if (cur.blocks.length && spent >= target - c / 2) {
         out.push(cur);
         cur = { title: null, blocks: [] };
         spent = 0;
