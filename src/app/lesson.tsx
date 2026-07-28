@@ -17,6 +17,7 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
+import { AtlasSpeech } from '@/components/atlas-speech';
 import { FeedbackBanner, SparkBurst } from '@/components/lesson-feedback';
 import { StreakIgnite } from '@/components/streak-ignite';
 import { Confetti } from '@/components/confetti';
@@ -198,6 +199,11 @@ export default function Lesson() {
         {kind === 'intro' && (
           <Animated.View key="intro" entering={FadeIn} style={styles.centered}>
             <Atlas size={132} expression="happy" entrance="bounce" idle />
+            {/* typing buys the beat time without the screen feeling stalled — the reference
+                never just displays a mascot line, it types it while the character holds still */}
+            <View style={{ alignSelf: 'stretch', alignItems: 'center', marginTop: Spacing.four }}>
+              <AtlasSpeech text="Ready? This one takes about two minutes." delay={420} tail="top" maxWidth={272} />
+            </View>
             <ThemedText type="label" style={{ color: theme.iconLilac, marginTop: Spacing.four }}>Foundations · Lesson 9</ThemedText>
             <ThemedText type="display" style={styles.title}>What is a stock?</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>A two-minute idea that changes how you see every company you know.</ThemedText>

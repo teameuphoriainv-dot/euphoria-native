@@ -120,6 +120,55 @@ export function CelebrationWipe({ duration = 750 }: { duration?: number }) {
   );
 }
 
+/**
+ * A ring of soft puffs that expands outward and fades, revealing whatever is underneath.
+ *
+ * The reference uses this to get the mascot onto a screen it was not on a frame earlier
+ * (t≈148s): rather than fading Duo in, a cloud bursts and he is simply there when it clears.
+ * A fade says "this element appeared". A puff says "something happened".
+ */
+export function CloudPuff({ size = 190, delay = 0, color = '#F6F0FE' }: { size?: number; delay?: number; color?: string }) {
+  const reduced = useReducedMotion();
+  const t = useSharedValue(0);
+
+  useEffect(() => {
+    if (reduced) return;
+    t.set(withDelay(delay, withTiming(1, { duration: 520, easing: Easing.out(Easing.cubic) })));
+  }, [reduced, t, delay]);
+
+  const puffs = 7;
+  const style = useAnimatedStyle(() => {
+    const v = t.get();
+    // snap to full, HOLD, then clear. A linear fade leaves it sitting as a grey smudge for
+    // most of its life; the puff should read as a flash you barely catch.
+    return { opacity: v < 0.1 ? v / 0.1 : v < 0.42 ? 1 : Math.max(0, 1 - (v - 0.42) / 0.58) };
+  });
+  const inner = useAnimatedStyle(() => ({ transform: [{ scale: 0.45 + t.get() * 0.95 }] }));
+
+  if (reduced) return null;
+  return (
+    <Animated.View pointerEvents="none" style={[styles.rays, { width: size, height: size, marginLeft: -size / 2, marginTop: -size / 2 }, style]}>
+      <Animated.View style={[{ width: size, height: size }, inner]}>
+        <Svg width={size} height={size} viewBox="0 0 100 100">
+          {Array.from({ length: puffs }, (_, i) => {
+            const a = (i / puffs) * Math.PI * 2;
+            const r = 30;
+            return (
+              <Path
+                key={i}
+                d={`M${50 + r * Math.cos(a)} ${50 + r * Math.sin(a)} m-17 0 a17 17 0 1 0 34 0 a17 17 0 1 0 -34 0`}
+                fill={color}
+                opacity={1}
+              />
+            );
+          })}
+          <Path d="M50 50 m-22 0 a22 22 0 1 0 44 0 a22 22 0 1 0 -44 0" fill={color} />
+        </Svg>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   rays: { position: 'absolute', left: '50%', top: '50%' },
 });

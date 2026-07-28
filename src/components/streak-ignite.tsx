@@ -32,6 +32,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Stop } from 'react-native-svg';
 
+import { Atlas } from '@/components/atlas';
+import { AtlasSpeech } from '@/components/atlas-speech';
+import { CloudPuff } from '@/components/celebration-burst';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Spacing } from '@/constants/theme';
@@ -41,7 +44,7 @@ const FLAME = 'M50 6 C61 27, 80 39, 80 60 C80 79, 66 93, 50 93 C34 93, 20 79, 20
 const FLAME_INNER = 'M50 40 C56 52, 64 58, 64 68 C64 78, 58 86, 50 86 C42 86, 36 78, 36 68 C36 58, 44 52, 50 40 Z';
 
 /** Beat map, ms. Named so the sequence reads as choreography rather than magic numbers. */
-const T = { quiet: 1500, ignite: 1500, burst: 1750, flame: 1900, count: 2150, dots: 2600, tick: 2950 };
+const T = { quiet: 1500, ignite: 1500, burst: 1750, flame: 1900, count: 2150, dots: 2600, tick: 2950, atlas: 3250 };
 
 const SPARK_COUNT = 16;
 const SPARKS = Array.from({ length: SPARK_COUNT }, (_, i) => {
@@ -215,6 +218,20 @@ export function StreakIgnite({ days, weekIndex = new Date().getDay() }: { days: 
           );
         })}
       </Animated.View>
+
+      {/* Atlas is not on this screen until the streak exists, then a puff bursts and he is
+          simply there — the reference never fades the mascot in for a payoff. */}
+      <View style={styles.atlasRow}>
+        {/* the puff is absolutely positioned against its PARENT's centre, so it needs a parent
+            the size of Atlas — dropped straight into the row it burst off to one side */}
+        <View style={styles.atlasSlot}>
+          <CloudPuff size={140} delay={T.atlas} />
+          <Atlas size={72} expression="proud" entrance="arrive" idle interactive={false} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <AtlasSpeech text="A streak is born. Come back tomorrow and keep it alive." delay={T.atlas + 220} tail="bottom" maxWidth={210} />
+        </View>
+      </View>
     </View>
   );
 }
@@ -226,6 +243,8 @@ const styles = StyleSheet.create({
   spark: { position: 'absolute', backgroundColor: '#FDBA74' },
   countWrap: { alignItems: 'center', marginTop: -Spacing.four },
   week: { flexDirection: 'row', gap: Spacing.two + 2, marginTop: Spacing.four },
+  atlasRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2, marginTop: Spacing.five, paddingHorizontal: Spacing.three },
+  atlasSlot: { width: 72, height: 76, alignItems: 'center', justifyContent: 'center' },
   dayCol: { alignItems: 'center', gap: 5 },
   dot: { width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
 });
