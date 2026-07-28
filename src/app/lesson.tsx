@@ -31,7 +31,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
-import { useApp } from '@/lib/store';
+import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -133,7 +133,14 @@ export default function Lesson() {
   // collect is about to produce rather than the stale stored one
   const streakAfter = useApp((s) => s.streakIfCompletedToday());
   // dev-only: ?step=<name> jumps straight to a step for visual QA (ignored in production)
-  const params = useLocalSearchParams<{ step?: string }>();
+  // `course`/`num` identify which lesson this is. learn.tsx and the Digest reader both pass them;
+  // this screen used to ignore both and always record the same completion.
+  const params = useLocalSearchParams<{ step?: string; course?: string; num?: string }>();
+  const lessonNum = Number(params.num);
+  // Home filters progress on lessonKey's `courseId:num` shape. The old literal
+  // 'foundations-what-is-a-stock' never matched it, so Home read 0% forever while XP accrued.
+  const completionId =
+    params.course && Number.isFinite(lessonNum) ? lessonKey(params.course, lessonNum) : 'foundations-what-is-a-stock';
   const startAt = __DEV__ && params.step ? STEPS.indexOf(params.step as (typeof STEPS)[number]) : -1;
   const [step, setStep] = useState(startAt >= 0 ? startAt : 0);
   const [pick, setPick] = useState<number | null>(null);
@@ -159,7 +166,7 @@ export default function Lesson() {
       setStep(step + 1);
       setChecked(false);
     } else {
-      useApp.getState().completeLesson('foundations-what-is-a-stock', 50);
+      useApp.getState().completeLesson(completionId, 50);
       router.back();
     }
   };
