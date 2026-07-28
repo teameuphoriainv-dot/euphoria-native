@@ -24,7 +24,7 @@ export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`
 
 /** Local calendar day, 'YYYY-MM-DD'. Local rather than UTC so the daily goal rolls over at the
  *  user's midnight, not UTC's. */
-const dayKey = (d: Date = new Date()) =>
+export const dayKey = (d: Date = new Date()) =>
   new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
 /** Yesterday's local day key. Used to decide whether a completion extends the streak or restarts it. */
@@ -52,6 +52,9 @@ export type AppState = {
   activeCourseId: string;
   /** Slugs of Digest guides already read. Drives the read ticks in the catch-up list. */
   readPosts: string[];
+  /** The guide chosen as today's read, pinned to the local day it was chosen on. Pinned so the
+   *  tab does not swap what "today" means the moment you finish reading it. */
+  dailyPick: { day: string; slug: string } | null;
   /** Everything onboarding collects. Persisted; drives the recommended path. */
   profile: Profile;
   /** Merge a patch into the profile. Called on every onboarding answer. */
@@ -76,6 +79,7 @@ export type AppState = {
   completeLesson: (id: string, xp: number) => void;
   addXp: (n: number) => void;
   markPostRead: (slug: string) => void;
+  setDailyPick: (day: string, slug: string) => void;
   reset: () => void;
 };
 
@@ -92,6 +96,7 @@ export const useApp = create<AppState>()(
       lastActiveDay: '',
       activeCourseId: 'investing-fundamentals',
       readPosts: [],
+      dailyPick: null,
       profile: EMPTY_PROFILE,
 
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
@@ -137,13 +142,15 @@ export const useApp = create<AppState>()(
       addXp: (n) => set((s) => ({ xp: s.xp + n })),
       markPostRead: (slug) =>
         set((s) => (s.readPosts.includes(slug) ? s : { readPosts: [...s.readPosts, slug] })),
-      reset: () => set({ xp: 0, streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [] }),
+      setDailyPick: (day, slug) =>
+        set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
+      reset: () => set({ xp: 0, streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, profile: s.profile }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile }),
     },
   ),
 );

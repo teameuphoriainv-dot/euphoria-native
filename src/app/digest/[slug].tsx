@@ -21,7 +21,7 @@ import { Blocks, parseBlocks, type Block } from '@/components/digest-body';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { bodyFor } from '@/lib/digest-bodies';
 import { DIGEST_POSTS } from '@/lib/digest-content';
 import { heroSvg } from '@/lib/digest-heroes';
@@ -149,12 +149,14 @@ const styles = StyleSheet.create({
   close: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   track: { flex: 1, height: 6, borderRadius: Radius.pill, overflow: 'hidden' },
   fill: { height: '100%', borderRadius: Radius.pill },
-  content: { padding: Spacing.three, paddingTop: Spacing.four, paddingBottom: Spacing.four },
+  // flexGrow + centring is what removes the dead space: a short section sits centred in the card
+  // instead of hugging the top with a screen of black beneath it. Long sections still scroll.
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.three, paddingVertical: Spacing.four },
   cover: { height: 200, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.four },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  headline: { fontSize: 27, lineHeight: 34 },
-  lead: { fontSize: 18, lineHeight: 27, marginTop: Spacing.three },
-  cardTitle: { fontSize: 24, lineHeight: 31, marginTop: 6, marginBottom: Spacing.two },
+  headline: { fontFamily: Fonts.readBold, fontSize: 34, lineHeight: 41 },
+  lead: { fontFamily: Fonts.read, fontSize: 20, lineHeight: 31, marginTop: Spacing.three },
+  cardTitle: { fontFamily: Fonts.readBold, fontSize: 29, lineHeight: 36, marginTop: 8, marginBottom: Spacing.two },
   takeaways: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, padding: Spacing.three, marginTop: Spacing.two },
   footer: { padding: Spacing.three, paddingTop: Spacing.two },
   done: { alignItems: 'center', paddingTop: Spacing.three },

@@ -13,7 +13,7 @@ import { StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { heroSvg } from '@/lib/digest-heroes';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -49,14 +49,17 @@ export function parseBlocks(md: string): Block[] {
   return out;
 }
 
-/** Renders **bold** runs as nested Text so a bold phrase stays inline in its sentence. */
-function Rich({ text, muted = true }: { text: string; muted?: boolean }) {
+/** Renders **bold** runs as nested Text so a bold phrase stays inline in its sentence.
+ *  Prose is set in the reading serif at textSecondary — mutedForeground is chrome grey and too
+ *  dim to sit and read paragraphs in. */
+function Rich({ text, muted = true, tight = false }: { text: string; muted?: boolean; tight?: boolean }) {
+  const theme = useTheme();
   const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
   return (
-    <ThemedText type="body" themeColor={muted ? 'mutedForeground' : undefined} style={styles.para}>
+    <ThemedText style={[styles.para, tight && styles.paraTight, { color: muted ? theme.textSecondary : theme.text }]}>
       {parts.map((p, i) =>
         p.startsWith('**') && p.endsWith('**') ? (
-          <ThemedText key={i} type="bodyMedium" style={styles.strong}>
+          <ThemedText key={i} style={[styles.strong, { color: theme.text }]}>
             {p.slice(2, -2)}
           </ThemedText>
         ) : (
@@ -96,7 +99,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
                   <View key={j} style={styles.li}>
                     <View style={[styles.dot, { backgroundColor: theme.primary }]} />
                     <View style={{ flex: 1 }}>
-                      <Rich text={it} />
+                      <Rich text={it} tight />
                     </View>
                   </View>
                 ))}
@@ -148,9 +151,9 @@ export function DigestBody({ markdown }: { markdown: string }) {
               <View style={{ marginTop: Spacing.two, gap: Spacing.one }}>
                 {takeaways.items.map((it, j) => (
                   <View key={j} style={styles.li}>
-                    <View style={[styles.dot, { backgroundColor: theme.primary, marginTop: 13 }]} />
+                    <View style={[styles.dot, { backgroundColor: theme.primary }]} />
                     <View style={{ flex: 1 }}>
-                      <Rich text={it} muted={false} />
+                      <Rich text={it} muted={false} tight />
                     </View>
                   </View>
                 ))}
@@ -182,7 +185,7 @@ export function DigestBody({ markdown }: { markdown: string }) {
                   <View key={j} style={styles.li}>
                     <View style={[styles.dot, { backgroundColor: theme.primary }]} />
                     <View style={{ flex: 1 }}>
-                      <Rich text={it} />
+                      <Rich text={it} tight />
                     </View>
                   </View>
                 ))}
@@ -207,8 +210,10 @@ export function DigestBody({ markdown }: { markdown: string }) {
 
 const styles = StyleSheet.create({
   h2: { fontSize: 19, lineHeight: 25, marginTop: Spacing.four, marginBottom: Spacing.one },
-  para: { marginTop: Spacing.two, lineHeight: 23 },
-  strong: { lineHeight: 23 },
+  // prose measures: 18/30 in a serif reads far better than 16/23 in the UI sans
+  para: { fontFamily: Fonts.read, fontSize: 18.5, lineHeight: 30, marginTop: Spacing.three },
+  paraTight: { marginTop: 0 },
+  strong: { fontFamily: Fonts.readBold, fontSize: 18.5, lineHeight: 30 },
   quote: {
     borderLeftWidth: 3,
     borderRadius: Radius.sm,
@@ -222,9 +227,9 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     marginTop: Spacing.four,
   },
-  list: { marginTop: Spacing.one, gap: 2 },
+  list: { marginTop: Spacing.three, gap: Spacing.two + 2 },
   li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
-  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 15 },
+  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 13 },
   figure: {
     height: 172,
     borderRadius: Radius.md,

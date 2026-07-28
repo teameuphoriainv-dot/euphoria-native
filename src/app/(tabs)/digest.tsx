@@ -9,7 +9,7 @@
  * live here came over with the web page and was the only serif in the app.
  */
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
@@ -21,14 +21,51 @@ import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
 import { heroSvg } from '@/lib/digest-heroes';
-import { useApp } from '@/lib/store';
+import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/** Local day number. Rotates the pick through the library so there is something new each day
- *  without needing an editorial schedule, and it stays put for the whole day. */
+/** Fallback only, for when every guide has been read: rotate by day so the tab still offers
+ *  something rather than going blank. */
 const dayNumber = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86_400_000);
+
+/**
+ * Today's guide: the newest one not yet read, pinned to the day it was chosen on.
+ *
+ * This replaced `DIGEST_POSTS[dayNumber() % DIGEST_POSTS.length]`, which had three problems — a
+ * newly published guide could wait 20 days to surface, adding one shifted the modulo so every
+ * future day's pick changed, and it happily offered something already read while unread guides
+ * sat in the list. Pinning matters because the choice depends on read state: without it, finishing
+ * today's guide would immediately swap the card for a different one.
+ */
+function pickToday(readPosts: string[], pinned: { day: string; slug: string } | null) {
+  const day = dayKey();
+  if (pinned?.day === day) {
+    const still = DIGEST_POSTS.find((p) => p.slug === pinned.slug);
+    if (still) return { day, post: still };
+  }
+  // DIGEST_POSTS is newest-first, so the first unread is the freshest unread
+  const unread = DIGEST_POSTS.find((p) => !readPosts.includes(p.slug));
+  return { day, post: unread ?? DIGEST_POSTS[dayNumber() % DIGEST_POSTS.length] };
+}
+
+/** Category marks for the catch-up thumbnails. The full illustrations are scenes — at 38px their
+ *  detail collapses into noise and their light shapes read as blobs, so the small slot gets a
+ *  single bold shape instead and the illustration is kept for the cover, where it has room. */
+const CATEGORY_MARK: Record<string, string> = {
+  'Money basics': 'mark-money',
+  Investing: 'mark-investing',
+  Markets: 'mark-markets',
+  Credit: 'mark-credit',
+  Strategy: 'mark-strategy',
+};
+
+function Mark({ category, size }: { category: string; size: number }) {
+  const xml = heroSvg(CATEGORY_MARK[category] ?? '');
+  if (!xml) return null;
+  return <SvgXml xml={xml} width={size} height={size} />;
+}
 
 function Hero({ post, size }: { post: DigestPost; size: number }) {
   const xml = heroSvg(post.hero);
@@ -79,7 +116,7 @@ function CatchUpRow({ post, read }: { post: DigestPost; read: boolean }) {
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)}>
       <View style={styles.row}>
         <View style={[styles.thumb, { backgroundColor: theme.primary + '12' }]}>
-          <Hero post={post} size={38} />
+          <Mark category={post.category} size={26} />
         </View>
         <View style={{ flex: 1 }}>
           <ThemedText type="bodyMedium" themeColor={read ? 'mutedForeground' : undefined} style={{ lineHeight: 20 }}>
@@ -103,7 +140,15 @@ function CatchUpRow({ post, read }: { post: DigestPost; read: boolean }) {
 
 export default function Digest() {
   const readPosts = useApp((s) => s.readPosts);
-  const today = DIGEST_POSTS[dayNumber() % DIGEST_POSTS.length];
+  const dailyPick = useApp((s) => s.dailyPick);
+  const setDailyPick = useApp((s) => s.setDailyPick);
+
+  const { day, post: today } = useMemo(() => pickToday(readPosts, dailyPick), [readPosts, dailyPick]);
+
+  // pin the choice so the rest of the day keeps offering the same guide
+  useEffect(() => {
+    if (dailyPick?.day !== day || dailyPick.slug !== today.slug) setDailyPick(day, today.slug);
+  }, [day, today.slug, dailyPick, setDailyPick]);
 
   // unread first so catch-up always leads with something to do
   const catchUp = useMemo(
