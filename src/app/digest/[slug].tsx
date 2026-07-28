@@ -11,7 +11,7 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
@@ -24,6 +24,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { bodyFor } from '@/lib/digest-bodies';
 import { DIGEST_POSTS } from '@/lib/digest-content';
+import { lessonForGuide } from '@/lib/digest-lessons';
 import { heroSvg } from '@/lib/digest-heroes';
 import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
@@ -86,12 +87,20 @@ function toCards(markdown: string): Card[] {
   return out;
 }
 
+/** Every figure in the corpus is authored on a 320x200 viewBox. Sizing the cover panel to that
+ *  exact ratio makes the art full-bleed instead of letterboxed: it used to draw at 168x105 inside
+ *  a 200pt panel, so most of the cover was empty tint. */
+const FIGURE_RATIO = 320 / 200;
+
 export default function DigestArticle() {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
+  const coverH = Math.round((width - Spacing.three * 2) / FIGURE_RATIO);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const post = DIGEST_POSTS.find((p) => p.slug === slug);
   const markPostRead = useApp((s) => s.markPostRead);
 
+  const lesson = post ? lessonForGuide(post.slug) : undefined;
   const cards = useMemo(() => (post ? toCards(bodyFor(post.slug) ?? '') : []), [post]);
   const [i, setI] = useState(0);
   const total = cards.length + 1; // +1 for the cover
@@ -138,14 +147,14 @@ export default function DigestArticle() {
 
       <ScrollView
         key={i}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, i === 0 && styles.contentCover]}
         showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeIn.duration(220)} exiting={FadeOut.duration(120)}>
           {i === 0 ? (
             <RiseIn>
               {xml ? (
-                <View style={[styles.cover, { backgroundColor: theme.primary + '14' }]}>
-                  <SvgXml xml={xml} width={168} height={168} />
+                <View style={[styles.cover, { height: coverH, backgroundColor: theme.primary + '14' }]}>
+                  <SvgXml xml={xml} width="100%" height={coverH} />
                 </View>
               ) : null}
               <View style={styles.metaRow}>
@@ -165,7 +174,15 @@ export default function DigestArticle() {
 
       <View style={styles.footer}>
         {last ? (
-          <GradientButton label="Practice this in a lesson" full onPress={() => router.push('/lesson')} />
+          <GradientButton
+            label="Practice this in a lesson"
+            full
+            onPress={() =>
+              lesson
+                ? router.push({ pathname: '/lesson', params: { course: lesson.course, num: String(lesson.num) } })
+                : router.push('/lesson')
+            }
+          />
         ) : (
           <GradientButton label={i === 0 ? 'Start reading' : 'Continue'} full onPress={() => setI(i + 1)} />
         )}
@@ -189,7 +206,11 @@ const styles = StyleSheet.create({
   // flexGrow + centring is what removes the dead space: a short section sits centred in the card
   // instead of hugging the top with a screen of black beneath it. Long sections still scroll.
   content: { flexGrow: 1, justifyContent: 'flex-start', padding: Spacing.three, paddingTop: Spacing.three, paddingBottom: Spacing.four },
-  cover: { height: 200, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.four },
+  // The cover is the one card that is always short by design, so it is the one card that should
+  // centre. Content cards stay top-aligned: centring those made half-empty sections read as
+  // blocks floating in a void.
+  contentCover: { justifyContent: 'center' },
+  cover: { borderRadius: Radius.lg, overflow: 'hidden', justifyContent: 'center', marginBottom: Spacing.four },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
   headline: { fontSize: 28, lineHeight: 35 },
   lead: { fontFamily: Fonts.medium, fontSize: 17, lineHeight: 26, marginTop: Spacing.three },
