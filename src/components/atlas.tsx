@@ -20,14 +20,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, {
   Circle,
-  Defs,
-  Ellipse,
   G,
   Image as SvgImage,
-  LinearGradient,
   Path,
-  RadialGradient,
-  Stop,
 } from 'react-native-svg';
 
 import { Duration, Spring } from '@/shared/motion/tokens';
@@ -35,12 +30,10 @@ import { Duration, Spring } from '@/shared/motion/tokens';
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
 const INK = '#1A1523';
-/** Head scale inside the 100x104 box. Shrinking the pinwheel makes room for a body without
- *  touching any expression coordinate — see the <G> transform in the render. */
-const HEAD_S = 0.68;
-/** Body silhouette: a soft pear tucked UNDER the head. Deliberately narrower than the head —
- *  equal widths read as a snowman (two stacked blobs) instead of one creature. */
-const BODY_D = 'M50 52 C64 52, 72 66, 72 81 C72 93, 62 100, 50 100 C38 100, 28 93, 28 81 C28 66, 36 52, 50 52 Z';
+/** Head scale inside the 100x104 box. The pinwheel was shrunk to 0.68 to make room for a pear
+ *  body underneath; that body is gone, so the mark fills the frame again. Nothing here touches
+ *  an expression coordinate — see the <G> transform in the render. */
+const HEAD_S = 1;
 const AnimatedG = Animated.createAnimatedComponent(G);
 const logo = require('@/assets/images/atlas-logo.png');
 /** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
@@ -392,27 +385,6 @@ export function Atlas({
 
   const svg = (
     <Svg width={size} height={size * 1.04} viewBox="0 0 100 104">
-      <Defs>
-        <LinearGradient id="atlasBody" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#C89CF5" />
-          <Stop offset="0.55" stopColor="#9B6BEF" />
-          <Stop offset="1" stopColor="#6D34D6" />
-        </LinearGradient>
-        <RadialGradient id="atlasShadow" cx="0.5" cy="0.5" r="0.5">
-          <Stop offset="0" stopColor="#7C3AED" stopOpacity={0.55} />
-          <Stop offset="1" stopColor="#7C3AED" stopOpacity={0} />
-        </RadialGradient>
-      </Defs>
-
-      {/* contact shadow — the cue that gives a mascot physical weight (MASTER_PLAN B6) */}
-      <Ellipse cx={50} cy={102} rx={25} ry={4.5} fill="url(#atlasShadow)" />
-
-      {/* body: soft rounded form the head sits on. Drawn before the head so it reads as behind. */}
-      <Path d={BODY_D} fill="url(#atlasBody)" />
-      {/* specular highlight, upper-left — a soft blob, NOT a stroke along the edge (that read
-          as a seam). Single top-left light source, consistent with the contact shadow. */}
-      <Ellipse cx={42} cy={71} rx={7.5} ry={5} fill="#EBDCFF" opacity={0.28} />
-
       {head}
     </Svg>
   );
