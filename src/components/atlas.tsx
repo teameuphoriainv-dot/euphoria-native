@@ -76,7 +76,10 @@ export function Atlas({
    *  which is why re-selecting an onboarding option used to produce no reaction. */
   celebrateKey?: number;
   shake?: boolean;
-  entrance?: 'bounce';
+  /** 'bounce' grows in from nothing. 'arrive' drops in OVERSIZED and settles down — the
+   *  celebration entry measured off the Duolingo reference, which reads as the character
+   *  rushing at you rather than a UI element appearing. */
+  entrance?: 'bounce' | 'arrive';
   /** Opt-in idle breath (anchored squash-stretch, top edge pinned). Default OFF: a mascot
    *  should be still until something happens. Reads correctly from ~96px up; below that
    *  it's sub-pixel and just costs a frame callback. */
@@ -97,8 +100,8 @@ export function Atlas({
   const headLag = useSharedValue(0);
   /** Extra squash on top of the breath, for anticipation and landing impact. */
   const squash = useSharedValue(0);
-  const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : 1);
-  const entranceOpacity = useSharedValue(entrance === 'bounce' ? 0 : 1);
+  const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : entrance === 'arrive' ? 1.85 : 1);
+  const entranceOpacity = useSharedValue(entrance ? 0 : 1);
   const spins = useRef(0);
   const [blink, setBlink] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -188,17 +191,26 @@ export function Atlas({
   // the fade — Atlas arrives and comes to rest. The old 1.12 -> 0.96 -> 1.0 sequence stacked
   // on top of the idle bob and the celebrate jump, which is what made onboarding feel jumpy.
   useEffect(() => {
-    if (entrance !== 'bounce') return;
+    if (!entrance) return;
     if (reduced) { entranceScale.set(1); entranceOpacity.set(1); return; }
-    entranceOpacity.set(withTiming(1, { duration: Duration.fast }));
-    entranceScale.set(withSpring(1, { ...Spring.smooth, damping: 24 }));
+    entranceOpacity.set(withTiming(1, { duration: entrance === 'arrive' ? 130 : Duration.fast }));
+    if (entrance === 'arrive') {
+      // Overshoot PAST rest on the way down, then spring back: a straight ease to 1 reads as a
+      // zoom-out, the undershoot reads as landing.
+      entranceScale.set(withSequence(
+        withTiming(0.93, { duration: 430, easing: Easing.out(Easing.cubic) }),
+        withSpring(1, { stiffness: 190, damping: 12 }),
+      ));
+    } else {
+      entranceScale.set(withSpring(1, { ...Spring.smooth, damping: 24 }));
+    }
     // Arrive with weight: a compression on touchdown that rebounds. The scale spring alone
     // just grew the mascot, which is why the arrival read as a fade rather than a landing.
-    squash.set(withDelay(160, withSequence(
+    squash.set(withDelay(entrance === 'arrive' ? 400 : 160, withSequence(
       withTiming(0.85, { duration: 120, easing: Easing.out(Easing.quad) }),
       withSpring(0, { stiffness: 170, damping: 11 }),
     )));
-    headLag.set(withDelay(230, withSequence(
+    headLag.set(withDelay(entrance === 'arrive' ? 470 : 230, withSequence(
       withTiming(-4.5, { duration: 140 }),
       withSpring(0, { stiffness: 110, damping: 8 }),
     )));

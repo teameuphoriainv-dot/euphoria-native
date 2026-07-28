@@ -16,6 +16,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
 import { MultiSelect, type MultiSpec } from '@/components/multi-select';
 import { MatchingPairs, type MatchSpec } from '@/components/matching-pairs';
@@ -277,7 +278,16 @@ export default function Lesson() {
         {kind === 'quiz' && (
           <Animated.View key="quiz" entering={FadeInDown} style={{ flex: 1 }}>
             <View style={styles.quizHead}>
-              <Atlas size={56} expression={checked ? (pick === CORRECT ? 'happy' : 'oops') : 'default'} shake={checked && pick !== CORRECT} interactive={false} />
+              {/* Being wrong shook; being right only changed the face, so the penalty had more
+                  physical presence than the reward. The hop fires the moment the answer lands. */}
+              <Atlas
+                size={56}
+                expression={checked ? (pick === CORRECT ? 'happy' : 'oops') : 'default'}
+                shake={checked && pick !== CORRECT}
+                celebrate={checked && pick === CORRECT}
+                celebrateKey={checked && pick === CORRECT ? 1 : 0}
+                interactive={false}
+              />
               <ThemedText type="title" style={{ flex: 1, fontSize: 21 }}>A stock falls 20%, then rises 20%. Are you back to even?</ThemedText>
             </View>
             <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
@@ -326,24 +336,31 @@ export default function Lesson() {
 
         {kind === 'done' && (
           <Animated.View key="done" entering={FadeIn} style={styles.centered}>
+            {/* Beat timing measured off the Duolingo reference in refs/videos: wipe, then the
+                character arrives oversized and settles, and only then does the copy land. Ours
+                used to resolve in under a second with the confetti doing all the celebrating. */}
+            <CelebrationWipe />
             <Confetti />
-            <Atlas size={120} expression="proud" celebrate entrance="bounce" idle />
-            <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
+            <CelebrationRays size={330} delay={120} />
+            <Atlas size={120} expression="proud" celebrate entrance="arrive" idle />
+            <RewardPop delay={900}>
+              <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
+            </RewardPop>
             <View style={styles.rewardRow}>
-              <RewardPop delay={280}>
+              <RewardPop delay={1180}>
                 <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
                   <UIcon name="sparkle" size={18} color={theme.iconLilac} />
                   <NumberRollup value={50} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: 18 }} />
                 </View>
               </RewardPop>
-              <RewardPop delay={460}>
+              <RewardPop delay={1340}>
                 <View style={[styles.xpChip, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
                   <UIcon name="flame" size={18} color="#F97316" />
                   <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: '#F97316', fontSize: 18 }} />
                 </View>
               </RewardPop>
             </View>
-            <RewardPop delay={640}>
+            <RewardPop delay={1620}>
               <ThemedText type="body" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>Atlas is proud of you.</ThemedText>
             </RewardPop>
           </Animated.View>
