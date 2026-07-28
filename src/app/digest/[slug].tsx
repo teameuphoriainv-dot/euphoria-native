@@ -1,7 +1,10 @@
 /**
- * Digest article reader — opened from a Digest post row. Serif headline + category/read-time
- * meta + clean reading column (Brilliant editorial style). Full markdown bodies land later;
- * for now the excerpt leads and a "practice in the app" CTA closes, per the Digest promise.
+ * Digest article reader — opened from a Digest post row. Hero illustration + category/read-time
+ * meta + a single reading column: excerpt as the lead, then the full body from digest-bodies.ts
+ * (the same prose the web publishes), closing on the "practice in the app" CTA.
+ *
+ * Type comes from the shared ThemedText scale, same as every tab. It used to set its own serif,
+ * which arrived with the ported web page and was the only serif in the app.
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
@@ -10,11 +13,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { DigestBody } from '@/components/digest-body';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { DIGEST_POSTS } from '@/lib/digest-content';
+import { bodyFor } from '@/lib/digest-bodies';
 import { heroSvg } from '@/lib/digest-heroes';
 import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
@@ -26,6 +31,7 @@ export default function DigestArticle() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const post = DIGEST_POSTS.find((p) => p.slug === slug);
   const markPostRead = useApp((s) => s.markPostRead);
+  const body = post ? bodyFor(post.slug) : undefined;
 
   // opening the guide is what marks it read — that is what the Digest tab's ticks reflect
   useEffect(() => {
@@ -65,11 +71,13 @@ export default function DigestArticle() {
 
         <RiseIn delay={90}>
           <ThemedText type="body" style={styles.lead}>{post.excerpt}</ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.body}>
-            This guide is part of Euphoria&apos;s {post.category} track. The full breakdown walks through
-            the numbers step by step — then you put it into practice with an interactive lesson, so the
-            idea actually sticks.
-          </ThemedText>
+          {body ? (
+            <DigestBody markdown={body} />
+          ) : (
+            <ThemedText type="body" themeColor="mutedForeground" style={styles.body}>
+              The full write-up for this guide is still being synced from the web library.
+            </ThemedText>
+          )}
         </RiseIn>
 
         <RiseIn delay={160}>

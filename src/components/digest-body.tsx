@@ -1,0 +1,143 @@
+/**
+ * DigestBody — renders a Digest article's markdown with the app's own type scale.
+ *
+ * Purpose-built rather than a markdown dependency: the corpus uses exactly five block kinds
+ * (## heading, paragraph, - bullet, > quote, ![alt](heroKey)) and one inline kind (**bold**),
+ * verified across all 15 posts. A general renderer would ship its own typography, which is the
+ * thing that made Digest look imported in the first place.
+ *
+ * Inline images reference the same DIGEST_HEROES keys the post covers use.
+ */
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+
+import { ThemedText } from '@/components/themed-text';
+import { Radius, Spacing } from '@/constants/theme';
+import { heroSvg } from '@/lib/digest-heroes';
+import { useTheme } from '@/hooks/use-theme';
+
+type Block =
+  | { kind: 'h2'; text: string }
+  | { kind: 'p'; text: string }
+  | { kind: 'bullet'; items: string[] }
+  | { kind: 'quote'; text: string }
+  | { kind: 'image'; hero: string; alt: string };
+
+/** Splits the markdown into blocks. Consecutive `- ` lines collapse into one list. */
+function parse(md: string): Block[] {
+  const out: Block[] = [];
+  for (const raw of md.split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    const img = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (img) {
+      out.push({ kind: 'image', alt: img[1], hero: img[2] });
+    } else if (line.startsWith('## ')) {
+      out.push({ kind: 'h2', text: line.slice(3) });
+    } else if (line.startsWith('> ')) {
+      out.push({ kind: 'quote', text: line.slice(2) });
+    } else if (line.startsWith('- ')) {
+      const prev = out[out.length - 1];
+      if (prev?.kind === 'bullet') prev.items.push(line.slice(2));
+      else out.push({ kind: 'bullet', items: [line.slice(2)] });
+    } else {
+      out.push({ kind: 'p', text: line });
+    }
+  }
+  return out;
+}
+
+/** Renders **bold** runs as nested Text so a bold phrase stays inline in its sentence. */
+function Rich({ text, muted = true }: { text: string; muted?: boolean }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+  return (
+    <ThemedText type="body" themeColor={muted ? 'mutedForeground' : undefined} style={styles.para}>
+      {parts.map((p, i) =>
+        p.startsWith('**') && p.endsWith('**') ? (
+          <ThemedText key={i} type="bodyMedium" style={styles.strong}>
+            {p.slice(2, -2)}
+          </ThemedText>
+        ) : (
+          p
+        ),
+      )}
+    </ThemedText>
+  );
+}
+
+export function DigestBody({ markdown }: { markdown: string }) {
+  const theme = useTheme();
+  const blocks = useMemo(() => parse(markdown), [markdown]);
+
+  return (
+    <View>
+      {blocks.map((b, i) => {
+        switch (b.kind) {
+          case 'h2':
+            return (
+              <ThemedText key={i} type="heading" style={styles.h2}>
+                {b.text}
+              </ThemedText>
+            );
+          case 'quote':
+            return (
+              <View key={i} style={[styles.quote, { borderLeftColor: theme.primary, backgroundColor: theme.primary + '10' }]}>
+                <ThemedText type="bodyMedium" style={{ lineHeight: 23 }}>
+                  {b.text}
+                </ThemedText>
+              </View>
+            );
+          case 'bullet':
+            return (
+              <View key={i} style={styles.list}>
+                {b.items.map((it, j) => (
+                  <View key={j} style={styles.li}>
+                    <View style={[styles.dot, { backgroundColor: theme.primary }]} />
+                    <View style={{ flex: 1 }}>
+                      <Rich text={it} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            );
+          case 'image': {
+            const xml = heroSvg(b.hero);
+            if (!xml) return null;
+            return (
+              <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
+                <SvgXml xml={xml} width={150} height={150} />
+              </View>
+            );
+          }
+          default:
+            return <Rich key={i} text={b.text} />;
+        }
+      })}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  h2: { fontSize: 19, lineHeight: 25, marginTop: Spacing.four, marginBottom: Spacing.one },
+  para: { marginTop: Spacing.two, lineHeight: 23 },
+  strong: { lineHeight: 23 },
+  quote: {
+    borderLeftWidth: 3,
+    borderRadius: Radius.sm,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.two + 2,
+    marginTop: Spacing.three,
+  },
+  list: { marginTop: Spacing.one, gap: 2 },
+  li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
+  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 15 },
+  figure: {
+    height: 172,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.three,
+  },
+});

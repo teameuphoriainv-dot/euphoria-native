@@ -1,7 +1,10 @@
 /**
  * Euphoria Digest content — ported from euphoriaweb src/features/digest/content/posts.
- * Metadata + excerpts for the mobile Digest hub (full markdown bodies load in Phase 7's
- * article reader). Newest first.
+ * Metadata + excerpts. Full article prose lives in digest-bodies.ts, hero art in
+ * digest-heroes.ts, both copied from the same web posts. Newest first.
+ *
+ * Excerpts are app-voice one-liners, deliberately NOT the web's `metaDescription`, which is
+ * SEO copy written for search results.
  */
 export type DigestCategory = 'Money basics' | 'Investing' | 'Credit' | 'Markets' | 'Strategy';
 
