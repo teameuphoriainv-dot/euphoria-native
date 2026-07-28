@@ -30,60 +30,59 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-type Card = { title: string | null; blocks: Block[] };
+/** A card holds a run of blocks, headings included. Headings do NOT start a new card. */
+type Card = { blocks: Block[] };
 
-/** Rough vertical cost of a block, in words-equivalent, so cards can be packed to a consistent
- *  height. A figure occupies about as much room as 55 words of prose. */
+/**
+ * Vertical cost of a block in words-equivalent.
+ *
+ * Calibrated against the real layout rather than guessed: body is 16.5/26 in a ~370pt column,
+ * about 7.5 words a line, so one word is roughly 3.5pt. A heading with its margins is ~55pt, a
+ * figure panel with its margin ~222pt.
+ */
+const WORD_PT = 3.5;
 const COST = (b: Block) => {
-  if (b.kind === 'image') return 62;
+  if (b.kind === 'h2') return 55 / WORD_PT;
+  if (b.kind === 'image') return 222 / WORD_PT;
   if (b.kind === 'bullet') return b.items.reduce((n, i) => n + i.split(/\s+/).length, 0) + b.items.length * 4;
-  if (b.kind === 'quote') return b.text.split(/\s+/).length + 8;
-  return b.text.split(/\s+/).length;
+  if (b.kind === 'quote') return b.text.split(/\s+/).length + 10;
+  return b.text.split(/\s+/).length + 16 / WORD_PT;
 };
 
-/** A card's worth of content. Sections run from 53 to 262 words, so a strict card-per-heading
- *  leaves the short ones half empty and pushes the long ones past the fold. Sections are packed to
- *  a budget instead: the heading stays on the first card of its section and the overflow continues
- *  onto untitled cards. */
-const BUDGET = 165;
+/**
+ * One screen's worth of content.
+ *
+ * The earlier version started a new card at every `## `, which is why cards sat half empty however
+ * the budget was tuned: most sections are only ~110 words and the section boundary, not the
+ * budget, decided the break. Blocks now flow continuously and a heading is just another block, so
+ * two or three short sections share one screen the way Brilliant packs a concept.
+ *
+ * ~640pt of content height at 3.5pt per word is about 180 words-equivalent.
+ */
+const BUDGET = 196;
 
 function toCards(markdown: string): Card[] {
-  const sections: Card[] = [{ title: null, blocks: [] }];
-  for (const b of parseBlocks(markdown)) {
-    if (b.kind === 'h2') sections.push({ title: b.text, blocks: [] });
-    else sections[sections.length - 1].blocks.push(b);
-  }
-
+  const blocks = parseBlocks(markdown);
   const out: Card[] = [];
-  for (const s of sections) {
-    if (s.title === null && s.blocks.length === 0) continue;
+  let cur: Block[] = [];
+  let spent = 0;
 
-    // Balance rather than greedily fill. Filling each card to the brim leaves the section's last
-    // card holding whatever is left over, which is how you get a packed card followed by a
-    // half-empty one. Splitting the section evenly gives every card a similar amount instead.
-    // Split with slack rather than on a hard ceiling. A plain ceil sends a section a few words
-    // over budget into two half-empty cards; a plain round lets a section 1.4x the budget stay on
-    // one and overflow the fold. Allowing a quarter-budget of overshoot before splitting keeps
-    // cards full without pushing content under the footer.
-    const total = s.blocks.reduce((n, b) => n + COST(b), 0) + (s.title ? 12 : 0);
-    const parts = Math.max(1, Math.ceil((total - BUDGET * 0.25) / BUDGET));
-    const target = total / parts;
-
-    let cur: Card = { title: s.title, blocks: [] };
-    let spent = s.title ? 12 : 0;
-    for (const b of s.blocks) {
-      const c = COST(b);
-      // break once the card is at least at target, never stranding a lone block
-      if (cur.blocks.length && spent >= target - c / 2) {
-        out.push(cur);
-        cur = { title: null, blocks: [] };
-        spent = 0;
-      }
-      cur.blocks.push(b);
-      spent += c;
+  for (let n = 0; n < blocks.length; n++) {
+    const b = blocks[n];
+    const c = COST(b);
+    // Allow a modest overshoot instead of breaking early. Breaking the moment a block would cross
+    // the budget leaves cards at ~75% of a screen; letting the last block run a little over packs
+    // them close to full, and the card scrolls if it does spill.
+    const orphanHeading = b.kind === 'h2' && spent + c + COST(blocks[n + 1] ?? b) > BUDGET * 1.12;
+    if (cur.length && (spent + c > BUDGET * 1.12 || orphanHeading)) {
+      out.push({ blocks: cur });
+      cur = [];
+      spent = 0;
     }
-    if (cur.blocks.length || cur.title) out.push(cur);
+    cur.push(b);
+    spent += c;
   }
+  if (cur.length) out.push({ blocks: cur });
   return out;
 }
 
@@ -115,7 +114,6 @@ export default function DigestArticle() {
   }
 
   const card = i > 0 ? cards[i - 1] : null;
-  const isTakeaways = !!card?.title && /^key takeaways$/i.test(card.title);
   const xml = heroSvg(post.hero);
 
   return (
@@ -126,8 +124,15 @@ export default function DigestArticle() {
         <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close}>
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
-        <View style={[styles.track, { backgroundColor: theme.muted }]}>
-          <View style={[styles.fill, { backgroundColor: theme.primary, width: `${((i + 1) / total) * 100}%` }]} />
+        {/* segmented rather than one continuous track: Brilliant's pattern, and it also tells you
+            how many screens are left instead of just how far along you are */}
+        <View style={styles.track}>
+          {Array.from({ length: total }, (_, n) => (
+            <View
+              key={n}
+              style={[styles.seg, { backgroundColor: n <= i ? theme.primary : theme.muted }]}
+            />
+          ))}
         </View>
       </View>
 
@@ -152,20 +157,7 @@ export default function DigestArticle() {
             </RiseIn>
           ) : (
             <RiseIn>
-              <ThemedText type="label" themeColor="mutedForeground">
-                {i} of {total - 1}
-              </ThemedText>
-              {card?.title ? (
-                <ThemedText type="title" style={styles.cardTitle}>{card.title}</ThemedText>
-              ) : null}
-              <View
-                style={
-                  isTakeaways
-                    ? [styles.takeaways, { borderColor: theme.primary + '3D', backgroundColor: theme.primary + '12' }]
-                    : undefined
-                }>
-                <Blocks blocks={card?.blocks ?? []} />
-              </View>
+              <Blocks blocks={card?.blocks ?? []} />
             </RiseIn>
           )}
         </Animated.View>
@@ -192,11 +184,11 @@ const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   close: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  track: { flex: 1, height: 6, borderRadius: Radius.pill, overflow: 'hidden' },
-  fill: { height: '100%', borderRadius: Radius.pill },
+  track: { flex: 1, flexDirection: 'row', gap: 4, height: 6 },
+  seg: { flex: 1, height: '100%', borderRadius: Radius.pill },
   // flexGrow + centring is what removes the dead space: a short section sits centred in the card
   // instead of hugging the top with a screen of black beneath it. Long sections still scroll.
-  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.three, paddingVertical: Spacing.four },
+  content: { flexGrow: 1, justifyContent: 'flex-start', padding: Spacing.three, paddingTop: Spacing.three, paddingBottom: Spacing.four },
   cover: { height: 200, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.four },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
   headline: { fontSize: 28, lineHeight: 35 },

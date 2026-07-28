@@ -74,9 +74,36 @@ function Rich({ text, muted = true, tight = false }: { text: string; muted?: boo
  *  below is the whole-article form. */
 export function Blocks({ blocks }: { blocks: Block[] }) {
   const theme = useTheme();
+  // a "Key Takeaways" heading plus the list under it renders as one callout
+  const takeIdx = blocks.findIndex((b) => b.kind === 'h2' && /^key takeaways$/i.test(b.text));
+  const takeList = takeIdx >= 0 && blocks[takeIdx + 1]?.kind === 'bullet' ? takeIdx + 1 : -1;
+
   return (
     <View>
       {blocks.map((b, i) => {
+        if (takeList > 0 && i === takeIdx) {
+          const list = blocks[takeList];
+          if (list.kind !== 'bullet') return null;
+          return (
+            <View
+              key={i}
+              style={[styles.takeaways, { borderColor: theme.primary + '3D', backgroundColor: theme.primary + '12' }]}>
+              <ThemedText type="label" style={{ color: theme.iconLilac }}>Key takeaways</ThemedText>
+              <View style={{ marginTop: Spacing.two, gap: Spacing.one }}>
+                {list.items.map((it, j) => (
+                  <View key={j} style={styles.li}>
+                    <View style={[styles.dot, { backgroundColor: theme.primary }]} />
+                    <View style={{ flex: 1 }}>
+                      <Rich text={it} muted={false} tight />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          );
+        }
+        if (i === takeList) return null;
+
         switch (b.kind) {
           case 'h2':
             return (
@@ -110,7 +137,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
             if (!xml) return null;
             return (
               <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width="100%" height={178} />
+                <SvgXml xml={xml} width="100%" height={196} />
               </View>
             );
           }
@@ -196,7 +223,7 @@ export function DigestBody({ markdown }: { markdown: string }) {
             if (!xml) return null;
             return (
               <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width="100%" height={178} />
+                <SvgXml xml={xml} width="100%" height={196} />
               </View>
             );
           }
@@ -209,7 +236,7 @@ export function DigestBody({ markdown }: { markdown: string }) {
 }
 
 const styles = StyleSheet.create({
-  h2: { fontSize: 19, lineHeight: 25, marginTop: Spacing.four, marginBottom: Spacing.one },
+  h2: { fontSize: 21, lineHeight: 27, marginTop: Spacing.four, marginBottom: Spacing.one },
   // prose measures: 18/30 in a serif reads far better than 16/23 in the UI sans
   para: { fontFamily: Fonts.body, fontSize: 16.5, lineHeight: 26, marginTop: Spacing.three },
   paraTight: { marginTop: 0 },
@@ -231,7 +258,7 @@ const styles = StyleSheet.create({
   li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 11 },
   figure: {
-    height: 206,
+    height: 224,
     paddingHorizontal: Spacing.three,
     borderRadius: Radius.md,
     alignItems: 'center',
