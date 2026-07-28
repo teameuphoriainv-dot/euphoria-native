@@ -2,7 +2,6 @@
  * Home — matches design mockup: greeting + Atlas + streak pill, weekly check row,
  * portfolio card with violet area chart, Continue/Trade duo, Daily Challenge.
  */
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -78,40 +77,6 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
   );
 }
 
-/** A slow highlight sweeping across the primary CTA, so the one card that wants a tap is the one
- *  thing on the screen still moving after the entrance settles. */
-function Sheen() {
-  const reduced = useReducedMotion();
-  /** One linear 0..1 cycle. The sweep happens in the first SWEEP of it and the band parks off the
-   *  left edge for the remainder — the pause is done here rather than with withDelay, which does
-   *  not reliably re-arm inside withRepeat. */
-  const p = useSharedValue(0);
-  const SWEEP = 0.36;
-
-  useEffect(() => {
-    if (reduced) return;
-    p.set(withRepeat(withTiming(1, { duration: 3600, easing: Easing.linear }), -1, false));
-  }, [reduced, p]);
-
-  const style = useAnimatedStyle(() => {
-    const t = Math.min(1, p.get() / SWEEP);
-    const eased = t * t * (3 - 2 * t); // smoothstep, so it eases in and out of the sweep
-    return { transform: [{ translateX: -90 + eased * 300 }, { rotate: '18deg' }] };
-  });
-
-  if (reduced) return null;
-  return (
-    <Animated.View pointerEvents="none" style={[styles.sheen, style]}>
-      <LinearGradient
-        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.16)', 'rgba(255,255,255,0)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={StyleSheet.absoluteFill}
-      />
-    </Animated.View>
-  );
-}
-
 function PortfolioChart() {
   const theme = useTheme();
   return (
@@ -182,16 +147,9 @@ export default function Home() {
 
         {/* Portfolio */}
         <RiseIn delay={120}>
-          <Card style={styles.portfolio}>
-            {/* static violet wash — depth only. Deliberately NOT animated: this card shows mock
-                numbers, and motion here would read as live data. */}
-            <LinearGradient
-              colors={['rgba(168,85,235,0.14)', 'rgba(168,85,235,0.02)', 'transparent']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[StyleSheet.absoluteFill, { borderRadius: Radius.lg }]}
-              pointerEvents="none"
-            />
+          {/* tint is a static wash — this card shows mock numbers, and motion here would read
+              as live data */}
+          <Card style={styles.portfolio} tint={theme.primary}>
             <View style={styles.rowBetween}>
               <ThemedText type="label" themeColor="mutedForeground">Portfolio</ThemedText>
               <View style={styles.deltaRow}>
@@ -212,7 +170,7 @@ export default function Home() {
         {/* Daily goal ring */}
         <RiseIn delay={160}>
           <SpringPressable onPress={() => router.push('/learn')}>
-            <Card style={styles.goalRow}>
+            <Card style={styles.goalRow} tint={theme.primary}>
               <DailyGoalRing value={minutesDone} goal={goalMinutes} />
               <View style={{ flex: 1 }}>
                 <ThemedText type="label" themeColor="mutedForeground">Today&apos;s goal</ThemedText>
@@ -229,8 +187,7 @@ export default function Home() {
         <View style={styles.duoRow}>
           <RiseIn delay={180} style={styles.duoHalf}>
             <SpringPressable onPress={() => router.push('/learn')}>
-              <Card style={[styles.duoCard, styles.duoCardPrimary, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
-                <Sheen />
+              <Card style={[styles.duoCard, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
                 <UIcon name="arrowRight" size={20} color="#fff" />
                 <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two, color: '#fff' }}>Continue</ThemedText>
                 <ThemedText type="small" numberOfLines={1} style={{ color: 'rgba(255,255,255,0.85)' }}>
@@ -243,7 +200,7 @@ export default function Home() {
           </RiseIn>
           <RiseIn delay={230} style={styles.duoHalf}>
             <SpringPressable onPress={() => router.push('/trade')}>
-              <Card style={styles.duoCard}>
+              <Card style={styles.duoCard} tint={theme.success}>
                 <UIcon name="trade" size={20} color={theme.success} />
                 <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two }}>Trade</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground">Paper trading</ThemedText>
@@ -287,8 +244,6 @@ const styles = StyleSheet.create({
   duoRow: { flexDirection: 'row', gap: Spacing.three },
   duoHalf: { flex: 1 },
   duoCard: { minHeight: 104 },
-  duoCardPrimary: { overflow: 'hidden' },
-  sheen: { position: 'absolute', top: -40, bottom: -40, width: 54 },
   challenge: {},
   challengeHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   goalRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
