@@ -71,9 +71,43 @@ export function DigestBody({ markdown }: { markdown: string }) {
   const theme = useTheme();
   const blocks = useMemo(() => parse(markdown), [markdown]);
 
+  /** Indices covered by the Key Takeaways callout, so they are not also rendered inline.
+   *  Detected from the heading text rather than new markdown syntax — that keeps the web
+   *  renderer, which has no concept of a callout, rendering these posts correctly too. */
+  const takeaways = useMemo(() => {
+    const h = blocks.findIndex((b) => b.kind === 'h2' && /^key takeaways$/i.test(b.text));
+    if (h === -1) return null;
+    const list = blocks[h + 1];
+    if (list?.kind !== 'bullet') return null;
+    return { headingIndex: h, listIndex: h + 1, items: list.items };
+  }, [blocks]);
+
   return (
     <View>
       {blocks.map((b, i) => {
+        if (takeaways && i === takeaways.headingIndex) {
+          return (
+            <View
+              key={i}
+              style={[styles.takeaways, { borderColor: theme.primary + '3D', backgroundColor: theme.primary + '12' }]}>
+              <ThemedText type="label" style={{ color: theme.iconLilac }}>
+                Key takeaways
+              </ThemedText>
+              <View style={{ marginTop: Spacing.two, gap: Spacing.one }}>
+                {takeaways.items.map((it, j) => (
+                  <View key={j} style={styles.li}>
+                    <View style={[styles.dot, { backgroundColor: theme.primary, marginTop: 13 }]} />
+                    <View style={{ flex: 1 }}>
+                      <Rich text={it} muted={false} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          );
+        }
+        if (takeaways && i === takeaways.listIndex) return null;
+
         switch (b.kind) {
           case 'h2':
             return (
@@ -129,6 +163,12 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.two + 2,
     marginTop: Spacing.three,
+  },
+  takeaways: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.md,
+    padding: Spacing.three,
+    marginTop: Spacing.four,
   },
   list: { marginTop: Spacing.one, gap: 2 },
   li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
