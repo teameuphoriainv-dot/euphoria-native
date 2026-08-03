@@ -55,6 +55,15 @@ export type AppState = {
   /** The guide chosen as today's read, pinned to the local day it was chosen on. Pinned so the
    *  tab does not swap what "today" means the moment you finish reading it. */
   dailyPick: { day: string; slug: string } | null;
+  /** True once persist has finished rehydrating from AsyncStorage.
+   *
+   *  Rehydration is ASYNC, so the first render of a cold start sees the INITIAL state, not the
+   *  stored one. Anything that ROUTES on persisted state must wait for this or it will navigate
+   *  on a value that had not loaded yet — see src/app/index.tsx. Deliberately NOT in
+   *  `partialize`: it describes this run's load status, not user data, and persisting it would
+   *  restore `true` before hydration had actually finished and reintroduce the exact race. */
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
   /** Everything onboarding collects. Persisted; drives the recommended path. */
   profile: Profile;
   /** Merge a patch into the profile. Called on every onboarding answer. */
@@ -98,7 +107,9 @@ export const useApp = create<AppState>()(
       readPosts: [],
       dailyPick: null,
       profile: EMPTY_PROFILE,
+      hasHydrated: false,
 
+      setHasHydrated: (v) => set({ hasHydrated: v }),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
       completeOnboarding: () =>
         set((s) => {
@@ -151,6 +162,12 @@ export const useApp = create<AppState>()(
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
       partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile }),
+      // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
+      // cases is deliberate: if storage is unreadable we must still route rather than hang on a
+      // blank screen forever — a new install is the correct fallback for "no readable state".
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );
