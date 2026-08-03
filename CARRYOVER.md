@@ -57,3 +57,8 @@ tools are unreachable. It has NO EXPORT TOOL regardless; .riv export is a manual
 THE LESSON WORTH CARRYING. I spent this session perfecting a static mark to IoU 0.951 and never
 once watched the app move. The user had to tell me the button animation felt wrong. Verify
 MOTION, not just pixels.
+
+## VERIFIED 2026-08-03
+- ENTRY FIXED. src/app/index.tsx now reads profile.completedAt and routes returning users to /(tabs)/home. Gated on a new `hasHydrated` flag in src/lib/store.ts because zustand persist rehydrates ASYNC - without the gate the first frame of a cold start reads completedAt null and redirects returning users to /welcome intermittently. `hasHydrated` is deliberately NOT in partialize. Verified on device: 5/5 cold starts land on Home; null completedAt still lands on /welcome.
+- LEGAL URLS ARE PLACEHOLDERS. src/app/onboarding.tsx:171 references LEGAL_PLACEHOLDER_HOST. Hard App Store blocker, NOT yet fixed.
+- Onboarding has a dev-only ?step=<n> param (src/app/onboarding.tsx:212) but the deep link euphorianative://onboarding?step=N DROPS the param and opens at step 0. Tapping through is currently the only way to reach a later step.
