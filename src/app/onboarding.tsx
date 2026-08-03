@@ -158,19 +158,35 @@ const LOADER_LINES = [
 /**
  * ⚠️ SET THESE BEFORE SUBMITTING TO THE APP STORE.
  * App Store Review 3.1.2 requires an auto-renewing subscription's purchase screen to link a
- * reachable Terms of Use (EULA) and Privacy Policy. Placeholder hosts below — swap for the
- * real ones. `assertLegalConfigured` red-flags them in dev so they can't ship unnoticed.
+ * reachable Terms of Use (EULA) and Privacy Policy. These are the live pages the web app already
+ * serves (euphoriaweb src/pages/Terms.tsx and Privacy.tsx, routed at App.tsx:200-201).
+ *
+ * VERIFIED BY LOADING THE PAGES, not by status code. euphoriaweb's vercel.json rewrites every
+ * non-asset path to index.html, so that host returns 200 for routes that do not exist - a bogus
+ * path returns 200 too. A 200 proves nothing here. Re-check by reading the rendered title.
+ * The apex redirects to www; both resolve.
  */
 const LEGAL = {
-  terms: 'https://euphoria.app/terms',
-  privacy: 'https://euphoria.app/privacy',
+  terms: 'https://euphoriainv.com/terms',
+  privacy: 'https://euphoriainv.com/privacy',
 };
-const LEGAL_PLACEHOLDER_HOST = 'euphoria.app';
+/** Hosts that must never ship, kept as a regression tripwire: euphoria.app is a domain we do not
+ *  own and it reached the paywall unnoticed. */
+const LEGAL_PLACEHOLDER_HOSTS = ['euphoria.app', 'example.com', 'localhost'];
+
+// Fires at MODULE LOAD in dev, not on tap. The previous check only ran inside openLegal, so it
+// needed someone to walk about fifteen taps into onboarding and press the link before it said
+// anything - which is exactly how the placeholder survived this long. A guard you have to walk
+// to is not a guard.
+if (__DEV__) {
+  for (const [key, url] of Object.entries(LEGAL)) {
+    if (LEGAL_PLACEHOLDER_HOSTS.some((h) => url.includes(h))) {
+      console.error(`[legal] LEGAL.${key} is still a placeholder (${url}). App Store 3.1.2 will reject this.`);
+    }
+  }
+}
 
 function openLegal(url: string) {
-  if (__DEV__ && url.includes(LEGAL_PLACEHOLDER_HOST)) {
-    console.warn(`[legal] ${url} is still the placeholder host — set LEGAL in onboarding.tsx before submission.`);
-  }
   // openURL rejects when no handler exists; swallow so a bad URL can never crash the paywall.
   Linking.openURL(url).catch(() => {});
 }
