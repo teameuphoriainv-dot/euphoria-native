@@ -347,7 +347,7 @@ export default function Lesson() {
             <CelebrationWipe />
             <Confetti />
             <CelebrationRays size={330} delay={120} />
-            <Atlas size={120} expression="proud" celebrate entrance="arrive" idle />
+            <Atlas size={120} expression="proud" celebrate celebrateGain={1} entrance="arrive" idle />
             <RewardPop delay={900}>
               <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
             </RewardPop>

@@ -21,10 +21,10 @@ import Animated, {
 import Svg, {
   Circle,
   G,
-  Image as SvgImage,
   Path,
 } from 'react-native-svg';
 
+import { AtlasMarkBody } from '@/components/atlas-mark';
 import { Duration, Spring } from '@/shared/motion/tokens';
 
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
@@ -35,7 +35,6 @@ const INK = '#1A1523';
  *  an expression coordinate — see the <G> transform in the render. */
 const HEAD_S = 1;
 const AnimatedG = Animated.createAnimatedComponent(G);
-const logo = require('@/assets/images/atlas-logo.png');
 /** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
  *  (6px of bottom travel on a 136px mascot). 0.022 was half that and read as dead on device. */
 const IDLE_SQUASH = 0.038;
@@ -56,6 +55,21 @@ const SWAY_DEG = 1.6;
 /** Head rock, degrees. Larger than the sway because the head is the lighter mass. */
 const ROCK_DEG = 3.4;
 
+/** How far each ring trails the one before it on a tap spin. Separate masses do not arrive
+ *  together; 55ms is enough to read as a ripple and short enough to still feel like one gesture. */
+const RING_LAG_MS = 55;
+
+/**
+ * How much of the full hop a celebrate plays.
+ *
+ * The beat's SHAPE — anticipation, launch, land, follow-through — is what makes a reaction read
+ * as deliberate rather than as a glitch, so this scales AMPLITUDE only and leaves every duration
+ * alone. 1.0 was the original cartoon hop: a 12%-of-size jump with a 13% squash. That is correct
+ * for a once-per-lesson payoff and far too loud for something that fires on every option tap,
+ * which is where it actually lives. Turn this up for a bigger moment, not the individual numbers.
+ */
+const CELEBRATE_GAIN = 0.32;
+
 export function Atlas({
   size = 120,
   expression = 'default',
@@ -63,6 +77,7 @@ export function Atlas({
   glasses = false,
   celebrate = false,
   celebrateKey = 0,
+  celebrateGain = CELEBRATE_GAIN,
   shake = false,
   entrance,
   idle = false,
@@ -76,6 +91,10 @@ export function Atlas({
    *  which is why re-selecting an onboarding option used to produce no reaction. */
   celebrateKey?: number;
   shake?: boolean;
+  /** Amplitude of the celebrate hop, as a fraction of the full cartoon beat. Defaults to the
+   *  quiet per-tap reaction. Pass 1 for a once-per-lesson payoff — a global constant made the
+   *  option-tap reaction correct and flattened the lesson-complete moment along with it. */
+  celebrateGain?: number;
   /** 'bounce' grows in from nothing. 'arrive' drops in OVERSIZED and settles down — the
    *  celebration entry measured off the Duolingo reference, which reads as the character
    *  rushing at you rather than a UI element appearing. */
@@ -137,24 +156,24 @@ export function Atlas({
   // and ours did not.
   useEffect(() => {
     if (!celebrate || reduced) return;
-    const H = size * 0.12;
+    const H = size * 0.12 * celebrateGain;
     jumpY.set(withDelay(Duration.fast, withSequence(
       withTiming(H * 0.18, { duration: 110, easing: Easing.out(Easing.quad) }),   // anticipation dip
       withSpring(-H, { stiffness: 260, damping: 13 }),                            // launch
       withSpring(0, { stiffness: 210, damping: 15 }),                             // land
     )));
     squash.set(withDelay(Duration.fast, withSequence(
-      withTiming(0.9, { duration: 110 }),      // crouch: wide and short
-      withTiming(-0.7, { duration: 150 }),     // stretch: tall and narrow, in the air
-      withTiming(0.75, { duration: 90 }),      // impact
+      withTiming(0.9 * celebrateGain, { duration: 110 }),      // crouch: wide and short
+      withTiming(-0.7 * celebrateGain, { duration: 150 }),     // stretch: tall and narrow, in the air
+      withTiming(0.75 * celebrateGain, { duration: 90 }),      // impact
       withSpring(0, { stiffness: 190, damping: 12 }),
     )));
     // follow-through: the head is a separate mass, so it arrives late and rings down
     headLag.set(withDelay(Duration.fast + 70, withSequence(
-      withTiming(-5, { duration: 150 }),
+      withTiming(-5 * celebrateGain, { duration: 150 }),
       withSpring(0, { stiffness: 120, damping: 8 }),
     )));
-  }, [celebrate, celebrateKey, reduced, jumpY, squash, headLag, size]);
+  }, [celebrate, celebrateKey, celebrateGain, reduced, jumpY, squash, headLag, size]);
 
   // Idle breath — an ANCHORED SQUASH-STRETCH, not a bob. Measured off the Brilliant
   // recordings (refs/videos): the mascot's top edge never moves across 90 frames; only its
@@ -221,10 +240,26 @@ export function Atlas({
     spins.current += 1;
     setSpinning(true);
     rotation.set(withSpring(spins.current * 360, { stiffness: 60, damping: 14 }));
+    // rings chase the mark, each one later than the last
+    ringSpin.forEach((v, i) =>
+      v.set(withDelay(i * RING_LAG_MS, withSpring(spins.current * 360, { stiffness: 52, damping: 12 }))));
     setTimeout(() => setSpinning(false), 900);
   };
 
-  const bodyProps = useAnimatedProps(() => ({ rotation: rotation.get() }));
+  /**
+   * Per-ring cascade — the payoff of the vector rebuild.
+   *
+   * The four rings are separate bodies now, so a tap can run THROUGH the mark instead of
+   * rotating it as one rigid plate. Each ring chases the one before it by RING_LAG_MS, which is
+   * the same follow-through principle the head already uses: separate masses do not arrive at
+   * the same instant. The stagger is what makes it read as a pinwheel catching, rather than an
+   * image being rotated.
+   */
+  const ringSpin = [useSharedValue(0), useSharedValue(0), useSharedValue(0), useSharedValue(0)];
+  const ringProps = [
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- fixed length, stable order
+    ...ringSpin.map((v) => useAnimatedProps(() => ({ rotation: v.get() }))),
+  ];
   // Idle rock and reaction lag SUM here: the head keeps breathing through a celebration
   // instead of snapping to the reaction and back.
   const headProps = useAnimatedProps(() => ({ rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() }));
@@ -371,9 +406,7 @@ export function Atlas({
       {/* head rock + follow-through on the OUTER group, tap-spin on the inner one, so a spin
           mid-idle does not cancel the rock */}
       <AnimatedG animatedProps={headProps} origin="50, 62">
-        <AnimatedG animatedProps={bodyProps} origin="50, 52">
-          <SvgImage href={logo} x={0} y={3} width={100} height={98} preserveAspectRatio="xMidYMid meet" />
-        </AnimatedG>
+        <AtlasMarkBody rings={ringProps} />
       </AnimatedG>
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
