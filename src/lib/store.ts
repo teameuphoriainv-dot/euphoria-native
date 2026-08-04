@@ -38,6 +38,44 @@ const nextStreak = (streak: number, lastActiveDay: string) => {
   return lastActiveDay === prevDayKey() ? streak + 1 : 1;
 };
 
+/** Monday of the local week, 'YYYY-MM-DD'. League standings run Monday to Sunday like the
+ *  reference apps. Keyed by the week's start DATE rather than an ISO week number, which is fiddly
+ *  across year boundaries for no benefit here. */
+export const weekKey = (d: Date = new Date()) => {
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  const mondayOffset = (local.getUTCDay() + 6) % 7; // Mon=0 ... Sun=6
+  local.setUTCDate(local.getUTCDate() - mondayOffset);
+  return local.toISOString().slice(0, 10);
+};
+
+/**
+ * What each action is worth.
+ *
+ * Proportioned the way the reference apps do it: frequent small awards, a read worth about half a
+ * lesson because it is lighter work, and a daily-goal bonus worth a full lesson so finishing the
+ * day you committed to is the strongest single move available. 50 stays the lesson baseline so
+ * existing levels do not shift under anyone.
+ *
+ * Before this, ONE call site in the entire app awarded XP (lesson.tsx), which is why the league
+ * could not be climbed.
+ */
+export const XP_LESSON = 50;
+export const XP_GUIDE = 25;
+export const XP_GAME = 20;
+export const XP_DAILY_GOAL = 50;
+
+/**
+ * Apply an XP award to BOTH counters, rolling the weekly tally over when the week has changed.
+ *
+ * EVERY award funnels through here. If a caller ever writes `xp` directly, lifetime and weekly
+ * totals drift apart and the league silently ranks people on stale numbers.
+ */
+const applyXp = (s: { xp: number; weeklyXp: number; weekStart: string }, n: number) => {
+  const wk = weekKey();
+  const carried = s.weekStart === wk ? s.weeklyXp : 0;
+  return { xp: s.xp + n, weeklyXp: carried + n, weekStart: wk };
+};
+
 export type AppState = {
   signedIn: boolean;
   xp: number;
@@ -85,6 +123,20 @@ export type AppState = {
   dailyGoalMinutes: () => number;
   /** Streak the next completion today would produce — for previewing the reward before it's written. */
   streakIfCompletedToday: () => number;
+  /** Lifetime XP earned this league week. Drives STANDINGS (promote/demote) while `xp` drives the
+   *  permanent tier, so a quiet week costs you rank but never costs you the tier you earned. */
+  weeklyXp: number;
+  /** Monday of the week `weeklyXp` belongs to. */
+  weekStart: string;
+  /** Weekly XP, zeroed once the week rolls over. Derived at read time for the same reason
+   *  `minutesDoneToday` is: no timer and no foreground listener needed. */
+  weeklyXpNow: () => number;
+  /** Local day the game bonus was last paid, '' if never. */
+  lastGameDay: string;
+  /** Pay the game bonus, at most once per day. Games are REPLAYABLE, unlike a lesson which has a
+   *  permanent id to dedupe against, so paying every round would let anyone farm the weekly
+   *  standings with a matching game. */
+  awardGameXp: () => void;
   completeLesson: (id: string, xp: number) => void;
   addXp: (n: number) => void;
   markPostRead: (slug: string) => void;
@@ -108,6 +160,9 @@ export const useApp = create<AppState>()(
       dailyPick: null,
       profile: EMPTY_PROFILE,
       hasHydrated: false,
+      weeklyXp: 0,
+      weekStart: '',
+      lastGameDay: '',
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
@@ -135,33 +190,48 @@ export const useApp = create<AppState>()(
       dailyGoalMinutes: () => get().profile.dailyMinutes ?? 10,
       streakIfCompletedToday: () => nextStreak(get().streak, get().lastActiveDay),
 
+      weeklyXpNow: () => (get().weekStart === weekKey() ? get().weeklyXp : 0),
+
       completeLesson: (id, xp) =>
         set((s) => {
           if (s.completedLessons.includes(id)) return s;
           const today = dayKey();
           // roll the tally over when the calendar day changed since the last completion
           const base = s.lastActiveDay === today ? s.minutesToday : 0;
+          const minutes = base + MINUTES_PER_LESSON;
+          // Crossing the daily commitment pays a bonus, and crossing happens exactly once per day,
+          // so this cannot be farmed by finishing more lessons.
+          const goal = s.profile.dailyMinutes ?? 10;
+          const bonus = base < goal && minutes >= goal ? XP_DAILY_GOAL : 0;
           return {
             completedLessons: [...s.completedLessons, id],
-            xp: s.xp + xp,
-            minutesToday: base + MINUTES_PER_LESSON,
+            ...applyXp(s, xp + bonus),
+            minutesToday: minutes,
             lastActiveDay: today,
             // nothing incremented this before, so Home's pill and week strip were pinned forever
             streak: nextStreak(s.streak, s.lastActiveDay),
           };
         }),
-      addXp: (n) => set((s) => ({ xp: s.xp + n })),
+      addXp: (n) => set((s) => applyXp(s, n)),
+      awardGameXp: () =>
+        set((s) => (s.lastGameDay === dayKey() ? s : { lastGameDay: dayKey(), ...applyXp(s, XP_GAME) })),
       markPostRead: (slug) =>
-        set((s) => (s.readPosts.includes(slug) ? s : { readPosts: [...s.readPosts, slug] })),
+        set((s) =>
+          // The idempotence guard is what makes this safe to pay for: [slug].tsx fires it on
+          // reaching the last card, and re-reading a guide must not mint XP again.
+          s.readPosts.includes(slug)
+            ? s
+            : { readPosts: [...s.readPosts, slug], ...applyXp(s, XP_GUIDE) },
+        ),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
@@ -171,3 +241,22 @@ export const useApp = create<AppState>()(
     },
   ),
 );
+
+// Week rollover and the XP funnel are exactly where a silent drift hides: a wrong weekKey means
+// standings never reset, and an award that skips applyXp means lifetime and weekly totals diverge.
+// One runnable check, dev only.
+if (__DEV__) {
+  const eq = (got: unknown, want: unknown, what: string) => {
+    if (got !== want) console.error(`[store] ${what}: got ${String(got)}, expected ${String(want)}`);
+  };
+  // 2026-08-03 is a Monday; every day of that week must key to it, and the next Monday must not.
+  eq(weekKey(new Date('2026-08-03T12:00:00Z')), '2026-08-03', 'Monday keys to itself');
+  eq(weekKey(new Date('2026-08-09T12:00:00Z')), '2026-08-03', 'Sunday still keys to that Monday');
+  eq(weekKey(new Date('2026-08-10T12:00:00Z')), '2026-08-10', 'the next Monday starts a new week');
+
+  const wk = weekKey();
+  eq(applyXp({ xp: 10, weeklyXp: 5, weekStart: wk }, 50).weeklyXp, 55, 'same week accumulates');
+  eq(applyXp({ xp: 10, weeklyXp: 5, weekStart: wk }, 50).xp, 60, 'lifetime always accumulates');
+  eq(applyXp({ xp: 10, weeklyXp: 900, weekStart: '1999-01-04' }, 50).weeklyXp, 50, 'a stale week resets');
+  eq(applyXp({ xp: 10, weeklyXp: 900, weekStart: '1999-01-04' }, 50).xp, 60, 'a stale week never resets lifetime');
+}

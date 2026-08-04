@@ -17,6 +17,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -53,6 +54,13 @@ export default function TermMatch() {
     if (done) return;
     const t = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(t);
+  }, [done]);
+
+  // Finishing a round pays XP, so the league is climbable from more than one surface. The store
+  // caps this to once per local day, because unlike a lesson a game has no permanent id to dedupe
+  // against and paying every round would let anyone farm the weekly standings.
+  useEffect(() => {
+    if (done) useApp.getState().awardGameXp();
   }, [done]);
 
   useEffect(() => {
