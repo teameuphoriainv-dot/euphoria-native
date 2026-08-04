@@ -253,13 +253,24 @@ export const useApp = create<AppState>()(
       awardGameXp: () =>
         set((s) => (s.lastGameDay === dayKey() ? s : { lastGameDay: dayKey(), ...applyXp(s, XP_GAME) })),
       markPostRead: (slug) =>
-        set((s) =>
+        set((s) => {
           // The idempotence guard is what makes this safe to pay for: [slug].tsx fires it on
           // reaching the last card, and re-reading a guide must not mint XP again.
-          s.readPosts.includes(slug)
-            ? s
-            : { readPosts: [...s.readPosts, slug], ...applyXp(s, XP_GUIDE) },
-        ),
+          if (s.readPosts.includes(slug)) return s;
+          const today = dayKey();
+          return {
+            readPosts: [...s.readPosts, slug],
+            ...applyXp(s, XP_GUIDE),
+            // A guide read counts as your day, so Digest can keep a streak alive on its own.
+            streak: nextStreak(s.streak, s.lastActiveDay),
+            lastActiveDay: today,
+            // Rolling the tally is NOT optional next to that stamp. minutesDoneToday() gates on
+            // lastActiveDay === today, so stamping today while leaving a stale minutesToday would
+            // report yesterday's practice minutes as today's. A read credits no minutes of its
+            // own — the daily goal measures practice, and reading is not practice.
+            minutesToday: s.lastActiveDay === today ? s.minutesToday : 0,
+          };
+        }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
       reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
