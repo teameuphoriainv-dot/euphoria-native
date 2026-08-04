@@ -38,8 +38,12 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.0",
+    "odiff-bin": "^4.5.0",
     "prettier": "^3.9.6",
     "rivemcp": "^1.8.3",
+    "sharp": "^0.35.3",
+    "style-dictionary": "^5.5.0",
+    "svgo": "^4.0.2",
     "typescript": "~6.0.3"
   },
   "scripts": {
