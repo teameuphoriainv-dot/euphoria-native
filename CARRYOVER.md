@@ -92,3 +92,8 @@ MOTION, not just pixels.
 - TRAP HIT AND FIXED: useApp((s) => s.friendIds()) returns a fresh array -> unstable zustand snapshot -> "Maximum update depth exceeded". Never select a getter that builds an object/array. A getter returning a NUMBER (friendIds().length in you.tsx) is safe.
 - VERIFIED ON DEVICE: name+handle survive force-quit relaunch; Follow back turns Priya into a friend on both the Friends screen and the league Friends tab; league main tab unchanged.
 - STILL FABRICATED: every person is invented, auth.tsx signIn() still only flips a boolean. Friend Streak deferred - it needs this graph first.
+- ONBOARDING NOW ENDS IN A FIRST ACTION. auth.tsx routes to /start when profile.firstRunDoneAt is null, else Home. Both the CTA and "Maybe later" stamp it, so skipping is permanent.
+- FIRST ACTION IS A DIGEST GUIDE, NOT A LESSON, because lesson.tsx renders hardcoded demo content for every lesson in every course. MOVE IT TO A LESSON once the player is real - that is what Duolingo does. Noted in start.tsx.
+- pickToday extracted to src/lib/digest-pick.ts; digest.tsx imports it. One source for "which guide is today".
+- BUG FOUND IN VERIFICATION AND FIXED: auth enter() wrote name/handle/email as `value || null` unconditionally, wiping a saved identity when an existing user signed back in with blank fields. It now patches only non-empty values.
+- USER FEEDBACK OPEN: the You page reads DULL. refs/BRILLIANT_VISUAL_ANALYSIS.md:7 already names the cause - "Brilliant is COLORFUL + ILLUSTRATED, ours was flat/minimal". Every stat tile uses the same violet chip; the crest is the only colour on the page.
