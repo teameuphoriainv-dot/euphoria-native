@@ -225,11 +225,19 @@ const REVEAL_INDEX = TOTAL - 2;
 export default function Onboarding() {
   const theme = useTheme();
   const scrollRef = useRef<ScrollView>(null);
-  // dev-only: ?step=<n> opens straight at a step for visual QA, same pattern as lesson.tsx.
-  // Without it the only way to look at the paywall is to tap through the whole flow, which is
-  // slow enough that it stops getting checked.
+  // ?step=<n> opens straight at a step for visual QA and is DEV ONLY: without that gate it would
+  // double as a way to skip onboarding entirely.
+  //
+  // `?step=paywall` is the one exception and works in production, because the You page's upsell
+  // row has to be able to reach the paywall. It is named rather than numeric on purpose - linking
+  // by index would silently point somewhere else the moment a step is inserted, and outside dev a
+  // rejected param falls back to step 0, which would drop a returning user into the whole flow.
   const params = useLocalSearchParams<{ step?: string }>();
-  const startStep = __DEV__ && params.step ? Math.min(Math.max(0, Number(params.step) || 0), TOTAL - 1) : 0;
+  const wantsPaywall = params.step === 'paywall';
+  const startStep =
+    params.step && (__DEV__ || wantsPaywall)
+      ? Math.min(Math.max(0, wantsPaywall ? PAYWALL_INDEX : Number(params.step) || 0), TOTAL - 1)
+      : 0;
   const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(startStep, scrollRef);
   const [celebrateKey, setCelebrateKey] = useState(0);
   const [plan, setPlan] = useState<'annual' | 'monthly'>('annual');
@@ -277,6 +285,10 @@ export default function Onboarding() {
       return;
     }
     if (step < TOTAL - 1) goTo(step + 1);
+    // A first-time user finishes onboarding by creating an account. Someone who arrived here from
+    // the You page upsell already HAS one, so sending them to /auth would be nonsense - return
+    // them where they came from instead.
+    else if (profile.completedAt) router.back();
     else router.replace('/auth');
   };
   const back = () => (step > 0 ? goTo(step - 1) : undefined);

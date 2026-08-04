@@ -29,11 +29,22 @@ import { TIERS, tierProgress } from '@/lib/league';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const SETTINGS = [
-  { icon: 'you', label: 'Account' },
-  { icon: 'bell', label: 'Notifications' },
-  { icon: 'sparkle', label: 'Euphoria Pro', accent: true },
-  { icon: 'settings', label: 'Preferences' },
+/**
+ * Rows carry an EXPLICIT route. They used to derive one from the label via
+ * `label.toLowerCase().split(' ')[0]`, which turned "Euphoria Pro" into `euphoria` - not a key in
+ * settings/[section].tsx's TITLES - so the app's only upsell dead-ended on a screen reading
+ * "Settings settings are coming soon". Deriving navigation from display copy means renaming a
+ * label silently moves where it goes.
+ *
+ * `?step=paywall` is matched by NAME in onboarding.tsx, not by index, and is the one step param
+ * that works outside dev.
+ */
+const ROWS = [
+  { icon: 'sparkle', label: 'Games', route: '/games' },
+  { icon: 'you', label: 'Account', route: '/settings/account' },
+  { icon: 'bell', label: 'Notifications', route: '/settings/notifications' },
+  { icon: 'sparkle', label: 'Euphoria Pro', accent: true, route: '/onboarding?step=paywall' },
+  { icon: 'settings', label: 'Preferences', route: '/settings/preferences' },
 ];
 
 /** Counters that change need fixed-width digits, or the number jitters sideways as it climbs. */
@@ -67,6 +78,8 @@ export default function You() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* League hero — the page's headline is the tier, not the person */}
         <RiseIn>
+          {/* The crest is the tap target, so the Leaderboard row could go. */}
+          <SpringPressable haptic={false} onPress={() => router.push('/league')}>
           <Card style={styles.hero} elevated>
             <LeagueCrest tier={tier} size={104} />
             <ThemedText type="label" themeColor="mutedForeground" style={styles.heroKicker}>
@@ -80,6 +93,7 @@ export default function You() {
               {next ? `${xpToNext.toLocaleString()} XP to ${next.name}` : 'Top tier reached'}
             </ThemedText>
           </Card>
+          </SpringPressable>
         </RiseIn>
 
         {/* Identity. No name yet: `profile` has no name field, and inventing one is what the old
@@ -150,39 +164,13 @@ export default function You() {
           </Card>
         </RiseIn>
 
-        {/* Play & Compete — makes /games + /league reachable */}
-        <RiseIn delay={340}>
-          <Card padded={false} style={{ marginTop: Spacing.three }}>
-            <SpringPressable haptic={false} onPress={() => router.push('/games')}>
-              <View style={[styles.settingRow, { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-                <UIcon name="sparkle" size={20} color={theme.mutedForeground} />
-                <ThemedText type="bodyMedium" style={{ flex: 1 }}>Games</ThemedText>
-                <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
-              </View>
-            </SpringPressable>
-            <SpringPressable haptic={false} onPress={() => router.push('/league')}>
-              <View style={[styles.settingRow, { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-                <UIcon name="trophy" size={20} color={theme.mutedForeground} />
-                <ThemedText type="bodyMedium" style={{ flex: 1 }}>Leaderboard</ThemedText>
-                <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
-              </View>
-            </SpringPressable>
-            <SpringPressable haptic={false} onPress={() => router.push('/explore/compound' as never)}>
-              <View style={styles.settingRow}>
-                <UIcon name="trade" size={20} color={theme.mutedForeground} />
-                <ThemedText type="bodyMedium" style={{ flex: 1 }}>Compound Growth Lab</ThemedText>
-                <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
-              </View>
-            </SpringPressable>
-          </Card>
-        </RiseIn>
 
-        {/* Settings */}
+        {/* Everything else this page links to */}
         <RiseIn delay={380}>
           <Card padded={false} style={{ marginTop: Spacing.three }}>
-            {SETTINGS.map((s, i) => (
-              <SpringPressable key={s.label} haptic={false} onPress={() => router.push(`/settings/${s.label.toLowerCase().split(' ')[0]}`)}>
-                <View style={[styles.settingRow, i < SETTINGS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+            {ROWS.map((s, i) => (
+              <SpringPressable key={s.label} haptic={false} onPress={() => router.push(s.route as never)}>
+                <View style={[styles.settingRow, i < ROWS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <UIcon name={s.icon} size={20} color={s.accent ? theme.iconLilac : theme.mutedForeground} />
                   <ThemedText type="bodyMedium" style={{ flex: 1, color: s.accent ? theme.iconLilac : theme.text }}>{s.label}</ThemedText>
                   <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
