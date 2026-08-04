@@ -81,3 +81,8 @@ MOTION, not just pixels.
 - CONTRADICTION, NOT YET FIXED: You says "YOUR LEAGUE: Saver" but tapping the crest opens league.tsx which is hardcoded "Diamond League". league.tsx has not adopted src/lib/league.ts yet. This is now user-visible.
 - "Maybe later" on the paywall lands on Home, not back on You. It has its own handler separate from next(). Minor.
 - NOT LIKE DUOLINGO: Duo keeps Account/Notifications/Preferences behind a GEAR ICON and gives the profile body to identity, stats, achievements and FRIENDS. Ours still reads as a settings list.
+- LEAGUE NOW AGREES WITH YOU. league.tsx takes name+crest from tierForXp() in src/lib/league.ts. The "Diamond League" contradiction is gone.
+- TWO NUMBERS ON PURPOSE: league header tier = LIFETIME xp (earned and kept); standings rank = weeklyXpNow() (defended and reset). Do not make them agree.
+- Mock opponents rescaled 1500-2840 -> 40-520 because they were lifetime-scale and made the weekly board unwinnable. They are FABRICATED placeholders; nothing user-facing may call them real people. Replaced when the backend lands.
+- Countdown derived from weekKey() Monday boundary, was the literal "3 days left".
+- VERIFIED ON DEVICE: header Saver + matching crest, "6 days left" on a Monday, You at rank 10 with 25 weekly XP.
