@@ -40,6 +40,7 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
  * that works outside dev.
  */
 const ROWS = [
+  { icon: 'you', label: 'Friends', route: '/friends' },
   { icon: 'sparkle', label: 'Games', route: '/games' },
   { icon: 'you', label: 'Account', route: '/settings/account' },
   { icon: 'bell', label: 'Notifications', route: '/settings/notifications' },
@@ -61,6 +62,9 @@ export default function You() {
   const lp = useApp.getState().levelProgress();
   const lessons = useApp((s) => s.completedLessons.length);
   const guides = useApp((s) => s.readPosts.length);
+  const name = useApp((s) => s.profile.name);
+  const handle = useApp((s) => s.profile.handle);
+  const friendCount = useApp((s) => s.friendIds().length);
 
   const { tier, next, progress, xpToNext } = tierProgress(xp);
   const fresh = xp === 0 && lessons === 0 && streak === 0;
@@ -96,13 +100,16 @@ export default function You() {
           </SpringPressable>
         </RiseIn>
 
-        {/* Identity. No name yet: `profile` has no name field, and inventing one is what the old
-            hardcoded "Siddartha" did. The name capture is its own cycle. */}
+        {/* Identity. Name and handle come from sign-up; both fall back rather than inventing
+            anything, which is what the old hardcoded name did. */}
         <RiseIn delay={60}>
           <Card style={styles.identity}>
             <Atlas size={62} expression="happy" interactive={false} />
             <View style={{ flex: 1 }}>
-              <ThemedText type="bodyMedium" style={NUM}>Level {level}</ThemedText>
+              <ThemedText type="bodyMedium">{name ?? 'Your profile'}</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+                {handle ? `@${handle} · ` : ''}Level {level}
+              </ThemedText>
               <View style={styles.xpRow}>
                 <ProgressBar value={lp.into / lp.size} height={7} />
               </View>

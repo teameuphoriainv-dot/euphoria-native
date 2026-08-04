@@ -10,10 +10,11 @@
  * The tier name and crest come from src/lib/league.ts so this screen and the You tab can never
  * disagree. They previously did: You said "Saver" while this said "Diamond League".
  *
- * PLAYERS BELOW ARE FABRICATED. There is no backend, so these are nine invented names with
- * invented scores, scaled to what a real week of use produces so the board is climbable. Nothing
- * user-facing may describe them as real people. They get replaced when accounts exist.
+ * The field comes from src/lib/people.ts, which is FABRICATED and shared with the friends
+ * directory so the two features cannot invent contradictory populations. Nothing user-facing may
+ * describe those people as real.
  */
+import { useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,20 +28,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { tierForXp } from '@/lib/league';
+import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
-
-const PLAYERS = [
-  { name: 'Maya R.', xp: 520, color: '#F59E0B' },
-  { name: 'Devin K.', xp: 430, color: '#38BDF8' },
-  { name: 'Priya S.', xp: 365, color: '#34D399' },
-  { name: 'You', xp: 0, color: '#A855EB', me: true },
-  { name: 'Jordan L.', xp: 300, color: '#F472B6' },
-  { name: 'Sam T.', xp: 245, color: '#FBBF24' },
-  { name: 'Alex P.', xp: 190, color: '#818CF8' },
-  { name: 'Chris M.', xp: 145, color: '#2DD4BF' },
-  { name: 'Robin H.', xp: 95, color: '#FB7185' },
-  { name: 'Casey W.', xp: 40, color: '#A3E635' },
-];
 
 const PROMOTE = 3; // top 3 promote
 const DEMOTE = 7; // rank 8+ (index >= 7) demote
@@ -77,7 +66,22 @@ export default function League() {
   const weekly = useApp((s) => s.weeklyXpNow());
   const tier = tierForXp(xp);
   // Standings use WEEKLY xp; the header tier above uses lifetime. See the note at the top.
-  const players = [...PLAYERS.map((p) => (p.me ? { ...p, xp: weekly } : p))].sort((a, b) => b.xp - a.xp);
+  const [tab, setTab] = useState<'league' | 'friends'>('league');
+  // NOT useApp((s) => s.friendIds()): that getter builds a fresh array per call, so zustand sees a
+  // new snapshot every render and loops until "Maximum update depth exceeded". Select the stored
+  // arrays, which are reference-stable, and derive. Same trap documented at you.tsx and store.ts.
+  const following = useApp((s) => s.following);
+  const followers = useApp((s) => s.followers);
+  const friendIds = useMemo(() => following.filter((id) => followers.includes(id)), [following, followers]);
+  // Duolingo splits the same board into Leagues and Friends. Friends ranks only mutual follows,
+  // so promotion and demotion zones are hidden there: you cannot be relegated out of your own
+  // friend group, and drawing the lines would imply otherwise.
+  const field = tab === 'friends' ? PEOPLE.filter((p) => friendIds.includes(p.id)) : PEOPLE;
+  const players = [
+    ...field.map((p) => ({ name: p.name, xp: p.weeklyXp, color: p.color, me: false })),
+    { name: 'You', xp: weekly, color: '#A855EB', me: true },
+  ].sort((a, b) => b.xp - a.xp);
+  const zoned = tab === 'league';
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -96,11 +100,28 @@ export default function League() {
         </View>
       </View>
 
+      <View style={styles.tabs}>
+        {(['league', 'friends'] as const).map((t) => (
+          <SpringPressable key={t} haptic={false} onPress={() => setTab(t)} style={{ flex: 1 }}>
+            <View style={[styles.tab, { borderBottomColor: tab === t ? theme.primary : 'transparent' }]}>
+              <ThemedText type="smallBold" themeColor={tab === t ? 'text' : 'mutedForeground'}>
+                {t === 'league' ? 'League' : 'Friends'}
+              </ThemedText>
+            </View>
+          </SpringPressable>
+        ))}
+      </View>
+
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {tab === 'friends' && friendIds.length === 0 && (
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.friendsEmpty}>
+            No friends yet. Follow someone and they become a friend once they follow you back.
+          </ThemedText>
+        )}
         {players.map((p, i) => (
           <View key={p.name}>
-            {i === PROMOTE && <Zone label="Promotion zone" color={theme.success} />}
-            {i === DEMOTE && <Zone label="Demotion zone" color={theme.destructive} />}
+            {zoned && i === PROMOTE && <Zone label="Promotion zone" color={theme.success} />}
+            {zoned && i === DEMOTE && <Zone label="Demotion zone" color={theme.destructive} />}
             <RiseIn delay={i * 40}>
               <View
                 style={[
@@ -134,6 +155,9 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.two + 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.two + 4, borderRadius: Radius.lg },
   avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  tabs: { flexDirection: 'row', paddingHorizontal: Spacing.three, marginTop: Spacing.two },
+  tab: { alignItems: 'center', paddingVertical: Spacing.two, borderBottomWidth: 2 },
+  friendsEmpty: { textAlign: 'center', lineHeight: 20, paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
   zone: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.two },
   zoneLine: { flex: 1, height: 1 },
 });
