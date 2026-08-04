@@ -69,11 +69,13 @@ export default function You() {
   const { tier, next, progress, xpToNext } = tierProgress(xp);
   const fresh = xp === 0 && lessons === 0 && streak === 0;
 
+  // Accent = that icon's own dominant fill from EUPHORIA_ICONS. Four different hues is what stops
+  // the grid reading as one tile repeated, which is what the uniform violet chip used to do.
   const STATS = [
-    { icon: 'flame', label: 'Day streak', value: String(streak) },
-    { icon: 'open-book', label: 'Lessons', value: String(lessons) },
-    { icon: 'crown', label: 'XP', value: xp.toLocaleString() },
-    { icon: 'post', label: 'Guides read', value: String(guides) },
+    { icon: 'flame', label: 'Day streak', value: String(streak), accent: '#F97316' },
+    { icon: 'open-book', label: 'Lessons', value: String(lessons), accent: '#BB83F1' },
+    { icon: 'crown', label: 'XP', value: xp.toLocaleString(), accent: '#FBBF24' },
+    { icon: 'post', label: 'Guides read', value: String(guides), accent: '#38BDF8' },
   ];
 
   return (
@@ -84,7 +86,7 @@ export default function You() {
         <RiseIn>
           {/* The crest is the tap target, so the Leaderboard row could go. */}
           <SpringPressable haptic={false} onPress={() => router.push('/league')}>
-          <Card style={styles.hero} elevated>
+          <Card style={styles.hero} elevated tint={tier.color}>
             <LeagueCrest tier={tier} size={104} />
             <ThemedText type="label" themeColor="mutedForeground" style={styles.heroKicker}>
               YOUR LEAGUE
@@ -124,10 +126,11 @@ export default function You() {
         <View style={styles.grid}>
           {STATS.map((s, i) => (
             <RiseIn key={s.label} delay={100 + i * 40} style={styles.gridHalf}>
-              <Card style={styles.statTile}>
-                <View style={[styles.statIcon, { backgroundColor: theme.primary + '1A' }]}>
-                  <Icon name={s.icon} size={22} />
-                </View>
+              <Card style={styles.statTile} tint={s.accent}>
+                {/* No chip behind it: these glyphs are already multicolour, and a uniform tinted
+                    square behind each one is what made a gold crown and an orange flame look the
+                    same. Brilliant places icons directly on the card for this reason. */}
+                <Icon name={s.icon} size={34} />
                 <View>
                   <ThemedText type="heading" style={[{ fontSize: 20 }, NUM]}>{s.value}</ThemedText>
                   <ThemedText type="small" themeColor="mutedForeground">{s.label}</ThemedText>
@@ -207,7 +210,6 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.three },
   gridHalf: { width: '47%', flexGrow: 1 },
   statTile: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2 },
-  statIcon: { width: 40, height: 40, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   emptyNote: { textAlign: 'center', marginTop: Spacing.three },
   sectionLabel: { marginTop: Spacing.four, marginBottom: Spacing.two },
   // seven rungs have to fit 402pt without horizontal scroll: space-between rather than a fixed gap
