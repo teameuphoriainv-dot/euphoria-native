@@ -29,6 +29,9 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
   'bull-vs-bear-markets': { course: 'investing-fundamentals', num: 16 },
   'capital-gains-tax-basics': { course: 'investing-fundamentals', num: 18 },
   'market-crashes-what-history-teaches': { course: 'investing-fundamentals', num: 23 },
+  'investment-fees-explained': { course: 'investing-fundamentals', num: 20 },
+  'target-date-funds-explained': { course: 'investing-fundamentals', num: 7 },
+  'what-moves-a-stock-price': { course: 'investing-fundamentals', num: 22 },
 
   // Personal Finance
   'first-paycheck-guide': { course: 'personal-finance', num: 1 },
@@ -37,6 +40,11 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
   'how-credit-scores-work': { course: 'personal-finance', num: 5 },
   'good-debt-vs-bad-debt': { course: 'personal-finance', num: 6 },
   'roth-ira-explained-for-beginners': { course: 'personal-finance', num: 16 },
+  'how-tax-brackets-work': { course: 'personal-finance', num: 7 },
+  // deliberately shares lesson 6 with good-debt-vs-bad-debt: both guides land on carrying a
+  // balance, and there is no closer lesson. A duplicate target is better than no target, which
+  // falls back to the demo lesson.
+  'how-credit-cards-work': { course: 'personal-finance', num: 6 },
 
   // Global Economics
   'inflation-explained': { course: 'global-economics', num: 5 },

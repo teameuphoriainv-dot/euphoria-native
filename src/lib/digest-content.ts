@@ -5,7 +5,7 @@
 // Re-sync with:    ./scripts/sync-digest.sh
 // ============================================================================
 
-export type DigestCategory = "Money basics" | "Markets" | "Strategy" | "Credit" | "Investing";
+export type DigestCategory = "Credit" | "Markets" | "Strategy" | "Investing" | "Money basics";
 
 export type DigestPost = {
   slug: string;
@@ -20,6 +20,11 @@ export type DigestPost = {
 
 /** Newest first. */
 export const DIGEST_POSTS: DigestPost[] = [
+  { slug: "how-credit-cards-work", title: "How Credit Cards Actually Work", excerpt: "Pay in full and the card is free. Carry a balance and it is one of the most expensive loans you can get.", category: "Credit", date: "2026-08-03", readMinutes: 2, hero: "cover-debt-balance" },
+  { slug: "what-moves-a-stock-price", title: "What Actually Moves a Stock Price", excerpt: "Good news sinks stocks all the time. Price does not track results, it tracks surprise.", category: "Markets", date: "2026-08-02", readMinutes: 2, hero: "cover-quote-card" },
+  { slug: "investment-fees-explained", title: "The Fees Quietly Eating Your Returns", excerpt: "One percent a year sounds like a rounding error. Over thirty years it can take a quarter of everything you built.", category: "Strategy", date: "2026-08-01", readMinutes: 2, hero: "cover-compound" },
+  { slug: "target-date-funds-explained", title: "Target-Date Funds Explained", excerpt: "One fund that diversifies itself, rebalances itself, and gets more cautious as you age.", category: "Investing", date: "2026-07-31", readMinutes: 2, hero: "cover-portfolio" },
+  { slug: "how-tax-brackets-work", title: "How Tax Brackets Actually Work", excerpt: "A raise cannot push your whole income into a higher rate. Only the dollars above the line move.", category: "Money basics", date: "2026-07-30", readMinutes: 2, hero: "cover-tax-slice" },
   { slug: "employer-401k-match", title: "What Is a 401(k) Match and Why It Matters", excerpt: "Your employer will pay you extra to save. Here is how the match works and what it costs to skip it.", category: "Money basics", date: "2026-07-24", readMinutes: 4, hero: "cover-401k-match" },
   { slug: "bull-vs-bear-markets", title: "Bull vs Bear Markets, Explained", excerpt: "One is a sustained climb, the other a 20 percent drop. What the labels mean and why they always arrive late.", category: "Markets", date: "2026-07-23", readMinutes: 4, hero: "cover-bull-bear" },
   { slug: "capital-gains-tax-basics", title: "How Capital Gains Tax Works", excerpt: "Sell for more than you paid and the profit is taxed. How long you held it changes how much.", category: "Money basics", date: "2026-07-22", readMinutes: 4, hero: "cover-tax-slice" },

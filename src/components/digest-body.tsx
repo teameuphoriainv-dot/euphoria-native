@@ -24,6 +24,24 @@ export type Block =
   | { kind: 'quote'; text: string }
   | { kind: 'image'; hero: string; alt: string };
 
+/**
+ * Smart Brevity's section labels are ANCHORS, not titles.
+ *
+ * The newer posts are written in Axios's format, where a fixed vocabulary of labels lets the eye
+ * skip to the part it wants. Rendering "Why it matters" at the same 21px as a real heading defeats
+ * that — it reads as a chapter title and the scanning stops working. Eye-tracking is the whole
+ * argument for the format: the reader samples until something catches, so the labels have to look
+ * like signposts, not like prose.
+ *
+ * Detected from the label TEXT rather than new markdown syntax, which is what keeps the web
+ * renderer — which has no concept of this — rendering the same posts correctly as plain headings.
+ * The older 20 posts use ordinary descriptive headings and are untouched by this.
+ */
+const BREVITY_LABELS = /^(why it matters|the big picture|by the numbers|the catch|between the lines|what to do|what it solves|go deeper|the bottom line)$/i;
+
+/** The closer gets its own treatment: it is the one line most readers will actually finish on. */
+const isBottomLine = (text: string) => /^the bottom line$/i.test(text);
+
 /** Splits the markdown into blocks. Consecutive `- ` lines collapse into one list. */
 export function parseBlocks(md: string): Block[] {
   const out: Block[] = [];
@@ -52,14 +70,29 @@ export function parseBlocks(md: string): Block[] {
 /** Renders **bold** runs as nested Text so a bold phrase stays inline in its sentence.
  *  Prose uses the app's own body type. It is only lifted to textSecondary, because
  *  mutedForeground is the chrome grey and is too dim to read paragraphs in. */
-function Rich({ text, muted = true, tight = false }: { text: string; muted?: boolean; tight?: boolean }) {
+function Rich({
+  text,
+  muted = true,
+  tight = false,
+  lead = false,
+}: {
+  text: string;
+  muted?: boolean;
+  tight?: boolean;
+  lead?: boolean;
+}) {
   const theme = useTheme();
   const parts = text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
   return (
-    <ThemedText style={[styles.para, tight && styles.paraTight, { color: muted ? theme.textSecondary : theme.text }]}>
+    <ThemedText
+      style={[
+        lead ? styles.lead : styles.para,
+        tight && styles.paraTight,
+        { color: lead || !muted ? theme.text : theme.textSecondary },
+      ]}>
       {parts.map((p, i) =>
         p.startsWith('**') && p.endsWith('**') ? (
-          <ThemedText key={i} style={[styles.strong, { color: theme.text }]}>
+          <ThemedText key={i} style={[lead ? styles.leadStrong : styles.strong, { color: theme.text }]}>
             {p.slice(2, -2)}
           </ThemedText>
         ) : (
@@ -67,6 +100,30 @@ function Rich({ text, muted = true, tight = false }: { text: string; muted?: boo
         ),
       )}
     </ThemedText>
+  );
+}
+
+/**
+ * A Smart Brevity label renders as a signpost, a real heading renders as a heading.
+ *
+ * Shared by both renderers below so the two cannot drift — this file already carries two near
+ * identical block switches, and a third copy of this rule would be the one that gets forgotten.
+ */
+function H2({ text }: { text: string }) {
+  const theme = useTheme();
+  if (!BREVITY_LABELS.test(text)) {
+    return (
+      <ThemedText type="heading" style={styles.h2}>
+        {text}
+      </ThemedText>
+    );
+  }
+  return (
+    <View style={[styles.label, isBottomLine(text) && { ...styles.bottomRule, borderTopColor: theme.border }]}>
+      <ThemedText type="label" style={{ color: theme.iconLilac }}>
+        {text}
+      </ThemedText>
+    </View>
   );
 }
 
@@ -106,11 +163,7 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
 
         switch (b.kind) {
           case 'h2':
-            return (
-              <ThemedText key={i} type="heading" style={styles.h2}>
-                {b.text}
-              </ThemedText>
-            );
+            return <H2 key={i} text={b.text} />;
           case 'quote':
             return (
               <View key={i} style={[styles.quote, { borderLeftColor: theme.primary, backgroundColor: theme.primary + '10' }]}>
@@ -142,7 +195,9 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
             );
           }
           default:
-            return <Rich key={i} text={b.text} />;
+            // the opening line carries the whole argument in this format — at body size it reads
+            // as just another paragraph and the hook is lost
+            return <Rich key={i} text={b.text} lead={i === 0} />;
         }
       })}
     </View>
@@ -192,11 +247,7 @@ export function DigestBody({ markdown }: { markdown: string }) {
 
         switch (b.kind) {
           case 'h2':
-            return (
-              <ThemedText key={i} type="heading" style={styles.h2}>
-                {b.text}
-              </ThemedText>
-            );
+            return <H2 key={i} text={b.text} />;
           case 'quote':
             return (
               <View key={i} style={[styles.quote, { borderLeftColor: theme.primary, backgroundColor: theme.primary + '10' }]}>
@@ -228,7 +279,9 @@ export function DigestBody({ markdown }: { markdown: string }) {
             );
           }
           default:
-            return <Rich key={i} text={b.text} />;
+            // the opening line carries the whole argument in this format — at body size it reads
+            // as just another paragraph and the hook is lost
+            return <Rich key={i} text={b.text} lead={i === 0} />;
         }
       })}
     </View>
@@ -236,11 +289,27 @@ export function DigestBody({ markdown }: { markdown: string }) {
 }
 
 const styles = StyleSheet.create({
-  h2: { fontSize: 21, lineHeight: 27, marginTop: Spacing.four, marginBottom: Spacing.one },
-  // prose measures: 18/30 in a serif reads far better than 16/23 in the UI sans
-  para: { fontFamily: Fonts.body, fontSize: 16.5, lineHeight: 26, marginTop: Spacing.three },
+  h2: { fontSize: 22, lineHeight: 28, marginTop: Spacing.four, marginBottom: Spacing.one },
+  /**
+   * Prose is 18/29 — a 1.61 ratio.
+   *
+   * It was 16.5/26, which is a UI size, not a reading size. Publishing platforms settle around
+   * 18–21px for body text for a reason: sustained reading at UI scale is work, and work is the
+   * opposite of wanting to keep going. 1.5–1.6 line height is the readability guidance; the extra
+   * leading here is deliberate, because generous leading is what makes a column feel like it falls
+   * down the page instead of having to be climbed.
+   *
+   * `strong` MUST track para's size and lineHeight — it renders as nested Text inside it, and a
+   * mismatch shifts the baseline mid-sentence.
+   */
+  para: { fontFamily: Fonts.body, fontSize: 18, lineHeight: 29, marginTop: Spacing.three },
   paraTight: { marginTop: 0 },
-  strong: { fontFamily: Fonts.semibold, fontSize: 16.5, lineHeight: 26 },
+  strong: { fontFamily: Fonts.semibold, fontSize: 18, lineHeight: 29 },
+  // The lead is the hook. It gets its own scale so the first thing you see is the whole argument.
+  lead: { fontFamily: Fonts.body, fontSize: 21, lineHeight: 31, marginTop: Spacing.two },
+  leadStrong: { fontFamily: Fonts.semibold, fontSize: 21, lineHeight: 31 },
+  label: { marginTop: Spacing.four, marginBottom: Spacing.one },
+  bottomRule: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.three },
   quote: {
     borderLeftWidth: 3,
     borderRadius: Radius.sm,
