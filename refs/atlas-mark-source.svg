@@ -1,0 +1,70 @@
+<!--
+  Atlas — the pinwheel mark, vector source for animation handoff.
+
+  Generated from src/components/atlas-mark.tsx, whose geometry was MEASURED off the original
+  artwork by parameter sweep against its alpha mask (IoU 0.951) — these are not eyeballed numbers.
+
+  THE MARK IS WOVEN, NOT STACKED. Each ring passes over one neighbour and under the other. Painting
+  in order 3,2,1,0 satisfies three of the four crossings; the fourth ("ring 3 back over ring 0")
+  is a cycle that paint order cannot express, so ring 3 is redrawn clipped to ring 0's OUTER DISC.
+  Clipping to the disc rather than the annulus is deliberate: where ring 3 crosses ring 0's hole it
+  is already visible, so redrawing there is a no-op.
+
+  THE RIM SPANS THE FULL BAND AND THE VIOLET IS INSET WITHIN IT. Drawing violet across the whole
+  band and adding the rim outside makes the mark 2*RIM too large and shrinks every hole.
+
+  Colours are the artwork's own measured tones. LIT -> DARK averages to #C37DE7, the original's
+  measured median violet.
+
+  NOT INCLUDED: the face. Eyes, expressions and blink live in src/components/atlas.tsx and are
+  drawn above this mark. Ask for them separately or screenshot the running app.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 104" width="400" height="416">
+  <defs>
+    <!-- objectBoundingBox units so each ring gets its own highlight from one definition.
+         A single global gradient flattens the outer rings. -->
+    <linearGradient id="ring0" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#DEA5F5"/><stop offset="1" stop-color="#A855EB"/>
+    </linearGradient>
+    <linearGradient id="ring1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#DEA5F5"/><stop offset="1" stop-color="#A855EB"/>
+    </linearGradient>
+    <linearGradient id="ring2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#DEA5F5"/><stop offset="1" stop-color="#A855EB"/>
+    </linearGradient>
+    <linearGradient id="ring3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#DEA5F5"/><stop offset="1" stop-color="#A855EB"/>
+    </linearGradient>
+
+    <!-- ring 0's outer disc: R_MID 15.53 + BAND/2 7.36 = 22.89 -->
+    <clipPath id="weave">
+      <circle cx="53.86" cy="75.3" r="22.89"/>
+    </clipPath>
+
+    <!-- one ring = white rim across the FULL band, violet inset by RIM_W 1.21 each side -->
+    <g id="r0">
+      <circle cx="53.86" cy="75.3" r="15.53" fill="none" stroke="#F0EEF4" stroke-width="14.72"/>
+      <circle cx="53.86" cy="75.3" r="15.53" fill="none" stroke="url(#ring0)" stroke-width="12.3"/>
+    </g>
+    <g id="r1">
+      <circle cx="29.32" cy="56.47" r="15.53" fill="none" stroke="#F0EEF4" stroke-width="14.72"/>
+      <circle cx="29.32" cy="56.47" r="15.53" fill="none" stroke="url(#ring1)" stroke-width="12.3"/>
+    </g>
+    <g id="r2">
+      <circle cx="48.15" cy="31.92" r="15.53" fill="none" stroke="#F0EEF4" stroke-width="14.72"/>
+      <circle cx="48.15" cy="31.92" r="15.53" fill="none" stroke="url(#ring2)" stroke-width="12.3"/>
+    </g>
+    <g id="r3">
+      <circle cx="72.7" cy="50.76" r="15.53" fill="none" stroke="#F0EEF4" stroke-width="14.72"/>
+      <circle cx="72.7" cy="50.76" r="15.53" fill="none" stroke="url(#ring3)" stroke-width="12.3"/>
+    </g>
+  </defs>
+
+  <!-- paint order 3,2,1,0 buys three of the four crossings -->
+  <use href="#r3"/>
+  <use href="#r2"/>
+  <use href="#r1"/>
+  <use href="#r0"/>
+  <!-- the one crossing paint order cannot express -->
+  <g clip-path="url(#weave)"><use href="#r3"/></g>
+</svg>
