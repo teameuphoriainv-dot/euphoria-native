@@ -186,6 +186,12 @@ export default function Digest() {
   const doneToday = dailyPick?.day === dayKey() && readPosts.includes(dailyPick.slug);
 
   const [filter, setFilter] = useState<string>(ALL);
+  // On first paint the list staggers in behind the header and hero, so it starts late on purpose.
+  // A filter TAP is a different event: the user acted and wants to see the list answer, so the
+  // cascade starts immediately and only the per-item offset remains. Same animation, different
+  // lead-in, because the two moments mean different things.
+  const [touched, setTouched] = useState(false);
+  const cascadeBase = touched ? 0 : 190;
 
   const library = useMemo(
     () =>
@@ -233,7 +239,13 @@ export default function Digest() {
             {[ALL, ...DIGEST_CATEGORIES].map((c) => {
               const active = filter === c;
               return (
-                <SpringPressable key={c} haptic={false} scaleTo={0.94} onPress={() => setFilter(c)}>
+                <SpringPressable
+                  key={c}
+                  scaleTo={0.94}
+                  onPress={() => {
+                    setFilter(c);
+                    setTouched(true);
+                  }}>
                   <View
                     style={[
                       styles.chip,
@@ -254,9 +266,13 @@ export default function Digest() {
           </ScrollView>
         </RiseIn>
 
-        <View style={styles.list}>
+        {/* keyed by filter so EVERY card remounts and the whole list cascades on a chip tap.
+            Without this key, cards surviving the filter keep their React key, never remount, and
+            never replay RiseIn — so the list changed instantly with no feedback at all and only
+            newly-matching cards animated. Half a list animating is worse than none. */}
+        <View key={filter} style={styles.list}>
           {library.map((p, i) => (
-            <RiseIn key={p.slug} delay={190 + i * 30}>
+            <RiseIn key={p.slug} delay={cascadeBase + i * 30}>
               <GuideCard post={p} read={readPosts.includes(p.slug)} />
             </RiseIn>
           ))}
