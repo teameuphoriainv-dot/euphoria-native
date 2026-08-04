@@ -51,6 +51,15 @@ function shade(hex: string, t: number): string {
   return `#${to2(ch(16))}${to2(ch(8))}${to2(ch(0))}`;
 }
 
+/** Blend two hex colours. `t` is how far from `a` toward `b`. */
+function mix(a: string, b: string, t: number): string {
+  const pa = parseInt(a.replace('#', ''), 16);
+  const pb = parseInt(b.replace('#', ''), 16);
+  const ch = (sh: number) => Math.round((((pa >> sh) & 0xff) * (1 - t)) + (((pb >> sh) & 0xff) * t));
+  const to2 = (v: number) => v.toString(16).padStart(2, '0');
+  return `#${to2(ch(16))}${to2(ch(8))}${to2(ch(0))}`;
+}
+
 export function LeagueCrest({
   tier,
   size = 96,
@@ -61,9 +70,14 @@ export function LeagueCrest({
   /** Tiers not yet reached: drained of colour so the ladder reads as a goal, not a decoration. */
   locked?: boolean;
 }) {
-  const base = locked ? '#3A3546' : tier.color;
-  const lit = shade(base, locked ? 0.1 : 0.42);
-  const dark = shade(base, -0.4);
+  // Locked tiers are muted toward the dark card surface but KEEP THEIR HUE, so the ladder reads
+  // as six colours you are climbing toward rather than one grey shape repeated six times. Mixing
+  // to a flat neutral threw away colour that TIERS already carries.
+  const base = locked ? mix(tier.color, '#15121C', 0.72) : tier.color;
+  // NARROW tonal range. This ran +0.42 to -0.40, which desaturated bronze into tan-to-mud at the
+  // extremes: a wide value spread reads as brown, a tight one reads as metal.
+  const lit = shade(base, locked ? 0.12 : 0.3);
+  const dark = shade(base, locked ? -0.12 : -0.22);
   const id = `${tier.name.replace(/\s/g, '')}${locked ? 'L' : ''}`;
   // pip count rises with rank; league.ts owns the order
   const pips = Math.max(1, TIERS.findIndex((t) => t.name === tier.name) + 1);
@@ -81,7 +95,8 @@ export function LeagueCrest({
           <Stop offset="1" stopColor={shade(base, -0.18)} />
         </LinearGradient>
         <RadialGradient id={`glow${id}`} cx="0.5" cy="0.5" r="0.5">
-          <Stop offset="0" stopColor={base} stopOpacity={locked ? 0 : 0.42} />
+          <Stop offset="0" stopColor={lit} stopOpacity={locked ? 0.12 : 0.55} />
+          <Stop offset="0.55" stopColor={base} stopOpacity={locked ? 0.06 : 0.22} />
           <Stop offset="1" stopColor={base} stopOpacity="0" />
         </RadialGradient>
       </Defs>
@@ -91,11 +106,14 @@ export function LeagueCrest({
       <Path d={SHIELD} fill="#000" opacity={0.28} transform="translate(0, 5)" />
       <Path d={SHIELD} fill={`url(#body${id})`} />
       <Path d={FACE} fill={`url(#face${id})`} />
+      {/* Against near-black an unstroked shape has no edge and reads as a flat blob. */}
+      <Path d={SHIELD} fill="none" stroke={lit} strokeWidth={1.6} opacity={locked ? 0.28 : 0.75} />
       {/* specular sliver along the lit shoulder */}
       <Path d="M50 8 L86 21 L86 30 Q68 17 50 14 Z" fill="#fff" opacity={locked ? 0.05 : 0.2} />
 
       {size >= PIP_MIN_SIZE && (
         <G>
+          <Path d="M26 70 Q50 76 74 70 L74 86 Q50 92 26 86 Z" fill="#000" opacity={0.18} />
           {Array.from({ length: pips }).map((_, i) => (
             <Circle
               key={i}
