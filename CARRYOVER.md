@@ -76,3 +76,8 @@ MOTION, not just pixels.
 - GOTCHA: Icon (src/components/icon.tsx) takes an UNTYPED string and getIconSvg silently falls back to a generic glyph for unknown names (euphoria-icons.ts:138). A typo renders the wrong icon rather than failing the build. UIcon is typed; Icon is not.
 - The floating gear at the top right of every screen is the EXPO DEV CLIENT dev-tools button, not app chrome. It does not ship. Do not try to fix it.
 - STILL OPEN ON YOU: weeklyXpNow() is surfaced in zero screens, so the weekly counter is invisible. profile still has no name field. settings/[section].tsx may render the same stub for all four rows (unverified). No legal links in Settings.
+- YOU MENU TRIMMED to 5 rows with EXPLICIT routes. Removed Leaderboard (crest is the tap target now) and Compound Growth Lab (route kept, entry point removed). Never derive a route from a display label again - that is what broke Euphoria Pro.
+- PAYWALL IS REACHABLE IN PRODUCTION via /onboarding?step=paywall, matched by NAME in onboarding.tsx. Numeric ?step stays dev-only. next() returns back() instead of /auth when profile.completedAt is set.
+- CONTRADICTION, NOT YET FIXED: You says "YOUR LEAGUE: Saver" but tapping the crest opens league.tsx which is hardcoded "Diamond League". league.tsx has not adopted src/lib/league.ts yet. This is now user-visible.
+- "Maybe later" on the paywall lands on Home, not back on You. It has its own handler separate from next(). Minor.
+- NOT LIKE DUOLINGO: Duo keeps Account/Notifications/Preferences behind a GEAR ICON and gives the profile body to identity, stats, achievements and FRIENDS. Ours still reads as a settings list.
