@@ -1,6 +1,14 @@
 /**
- * You — profile hub (euphoriaweb Profile.tsx). Atlas avatar + level/XP, stat grid,
- * certificate preview, settings rows. Mock data until Phase 2/5 wire real profile + auth.
+ * You — the profile hub, built around the league tier you hold.
+ *
+ * Rewritten to lead with the league because a named tier you are climbing is the retention loop
+ * both reference apps are built on, and because the previous version was a settings screen with
+ * an avatar on top.
+ *
+ * IT ALSO USED TO LIE. `84 + lessons` inflated the lesson count by 84 lessons the user had never
+ * done, `Rank: '#3'` was hardcoded, and so was the name. Every number on this page now traces to
+ * real store state: xp, streak, completedLessons, level() and levelProgress(). If you add a stat
+ * here and cannot point at the field behind it, it does not belong on the page.
  */
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,22 +18,16 @@ import { useApp } from '@/lib/store';
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { Icon } from '@/components/icon';
+import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { TIERS, tierProgress } from '@/lib/league';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-
-
-const CERTS = [
-  { icon: 'medal', label: 'Beginner', done: true },
-  { icon: 'trophy', label: 'Advanced', done: true },
-  { icon: 'crown', label: 'Elite', done: false },
-  { icon: 'diamond', label: 'Fellow', done: false },
-];
 
 const SETTINGS = [
   { icon: 'you', label: 'Account' },
@@ -34,51 +36,78 @@ const SETTINGS = [
   { icon: 'settings', label: 'Preferences' },
 ];
 
+/** Counters that change need fixed-width digits, or the number jitters sideways as it climbs. */
+const NUM = { fontVariant: ['tabular-nums' as const] };
+
 export default function You() {
   const theme = useTheme();
   const router = useRouter();
   const xp = useApp((s) => s.xp);
   const streak = useApp((s) => s.streak);
   const level = useApp((s) => s.level());
-  // ponytail: levelProgress() returns a fresh object → unstable zustand snapshot → infinite render loop.
-  // Read it non-reactively; the selected `xp` above already re-renders this component when it changes.
+  // ponytail: levelProgress() returns a fresh object → unstable zustand snapshot → infinite render
+  // loop. Read it non-reactively; the selected `xp` above already re-renders on change.
   const lp = useApp.getState().levelProgress();
   const lessons = useApp((s) => s.completedLessons.length);
+
+  const { tier, next, progress, xpToNext } = tierProgress(xp);
+  const fresh = xp === 0 && lessons === 0 && streak === 0;
+
   const STATS = [
     { icon: 'flame', label: 'Day streak', value: String(streak) },
-    { icon: 'open-book', label: 'Lessons', value: String(84 + lessons) },
+    { icon: 'open-book', label: 'Lessons', value: String(lessons) },
     { icon: 'crown', label: 'XP', value: xp.toLocaleString() },
-    { icon: 'trophy', label: 'Rank', value: '#3' },
+    { icon: 'trophy', label: 'Level', value: String(level) },
   ];
+
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={45} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile header */}
+        {/* League hero — the page's headline is the tier, not the person */}
         <RiseIn>
-          <Card style={styles.profile} elevated>
-            <Atlas size={72} expression="happy" />
+          <Card style={styles.hero} elevated>
+            <LeagueCrest tier={tier} size={104} />
+            <ThemedText type="label" themeColor="mutedForeground" style={styles.heroKicker}>
+              YOUR LEAGUE
+            </ThemedText>
+            <ThemedText type="title" style={styles.heroTitle}>{tier.name}</ThemedText>
+            <View style={styles.heroBar}>
+              <ProgressBar value={progress} height={9} />
+            </View>
+            <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+              {next ? `${xpToNext.toLocaleString()} XP to ${next.name}` : 'Top tier reached'}
+            </ThemedText>
+          </Card>
+        </RiseIn>
+
+        {/* Identity. No name yet: `profile` has no name field, and inventing one is what the old
+            hardcoded "Siddartha" did. The name capture is its own cycle. */}
+        <RiseIn delay={60}>
+          <Card style={styles.identity}>
+            <Atlas size={62} expression="happy" interactive={false} />
             <View style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: 22 }}>Siddartha</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground">@siddartha · Level {level}</ThemedText>
+              <ThemedText type="bodyMedium" style={NUM}>Level {level}</ThemedText>
               <View style={styles.xpRow}>
                 <ProgressBar value={lp.into / lp.size} height={7} />
-                <ThemedText type="small" themeColor="mutedForeground">{lp.toNext} XP to {level + 1}</ThemedText>
               </View>
+              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+                {lp.toNext.toLocaleString()} XP to level {level + 1}
+              </ThemedText>
             </View>
           </Card>
         </RiseIn>
 
-        {/* Stat grid */}
+        {/* Stats. Real values only. */}
         <View style={styles.grid}>
           {STATS.map((s, i) => (
-            <RiseIn key={s.label} delay={80 + i * 40} style={styles.gridHalf}>
+            <RiseIn key={s.label} delay={100 + i * 40} style={styles.gridHalf}>
               <Card style={styles.statTile}>
                 <View style={[styles.statIcon, { backgroundColor: theme.primary + '1A' }]}>
                   <Icon name={s.icon} size={22} />
                 </View>
                 <View>
-                  <ThemedText type="heading" style={{ fontSize: 20 }}>{s.value}</ThemedText>
+                  <ThemedText type="heading" style={[{ fontSize: 20 }, NUM]}>{s.value}</ThemedText>
                   <ThemedText type="small" themeColor="mutedForeground">{s.label}</ThemedText>
                 </View>
               </Card>
@@ -86,25 +115,42 @@ export default function You() {
           ))}
         </View>
 
-        {/* Certificates */}
-        <RiseIn delay={260}>
-          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Certificates</ThemedText>
+        {fresh && (
+          <RiseIn delay={260}>
+            <ThemedText type="small" themeColor="mutedForeground" style={styles.emptyNote}>
+              Finish your first lesson to start climbing.
+            </ThemedText>
+          </RiseIn>
+        )}
+
+        {/* The ladder. Replaces the old certificate row, whose done/not-done was hardcoded and
+            tied to no achievement. These are earned. */}
+        <RiseIn delay={280}>
+          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
+            League ladder
+          </ThemedText>
           <Card>
-            <View style={styles.certRow}>
-              {CERTS.map((c) => (
-                <View key={c.label} style={styles.cert}>
-                  <View style={[styles.certBubble, { backgroundColor: c.done ? theme.primary + '22' : theme.muted, opacity: c.done ? 1 : 0.5 }]}>
-                    <Icon name={c.icon} size={30} />
+            <View style={styles.ladder}>
+              {TIERS.map((t, i) => (
+                <RiseIn key={t.name} delay={300 + i * 45}>
+                  <View style={styles.rung}>
+                    <LeagueCrest tier={t} size={38} locked={xp < t.minXp} />
+                    <ThemedText
+                      type="small"
+                      themeColor={xp >= t.minXp ? 'text' : 'mutedForeground'}
+                      numberOfLines={1}
+                      style={styles.rungLabel}>
+                      {t.name.split(' ')[0]}
+                    </ThemedText>
                   </View>
-                  <ThemedText type="small" themeColor={c.done ? 'text' : 'mutedForeground'} style={{ fontSize: 11 }}>{c.label}</ThemedText>
-                </View>
+                </RiseIn>
               ))}
             </View>
           </Card>
         </RiseIn>
 
         {/* Play & Compete — makes /games + /league reachable */}
-        <RiseIn delay={290}>
+        <RiseIn delay={340}>
           <Card padded={false} style={{ marginTop: Spacing.three }}>
             <SpringPressable haptic={false} onPress={() => router.push('/games')}>
               <View style={[styles.settingRow, { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
@@ -131,7 +177,7 @@ export default function You() {
         </RiseIn>
 
         {/* Settings */}
-        <RiseIn delay={320}>
+        <RiseIn delay={380}>
           <Card padded={false} style={{ marginTop: Spacing.three }}>
             {SETTINGS.map((s, i) => (
               <SpringPressable key={s.label} haptic={false} onPress={() => router.push(`/settings/${s.label.toLowerCase().split(' ')[0]}`)}>
@@ -156,16 +202,22 @@ export default function You() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four },
-  profile: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
-  xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: Spacing.two },
+  hero: { alignItems: 'center', paddingVertical: Spacing.four },
+  heroKicker: { marginTop: Spacing.two, letterSpacing: 1.2 },
+  heroTitle: { fontSize: 26, marginTop: 2 },
+  heroBar: { alignSelf: 'stretch', marginTop: Spacing.three, marginBottom: Spacing.two },
+  identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
+  xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.three },
   gridHalf: { width: '47%', flexGrow: 1 },
   statTile: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2 },
   statIcon: { width: 40, height: 40, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  emptyNote: { textAlign: 'center', marginTop: Spacing.three },
   sectionLabel: { marginTop: Spacing.four, marginBottom: Spacing.two },
-  certRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  cert: { alignItems: 'center', gap: 6 },
-  certBubble: { width: 60, height: 60, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
+  // seven rungs have to fit 402pt without horizontal scroll: space-between rather than a fixed gap
+  ladder: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  rung: { alignItems: 'center', gap: 4, width: 44 },
+  rungLabel: { fontSize: 9 },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three },
   logout: { alignItems: 'center', paddingVertical: Spacing.four },
 });
