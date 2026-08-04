@@ -1,32 +1,45 @@
 /**
- * League — weekly leaderboard (Duolingo/Brilliant league). Ranked players with promotion
- * (top) and demotion (bottom) zones; your row highlighted. Mock standings.
+ * League — the weekly leaderboard.
+ *
+ * TWO DIFFERENT NUMBERS, ON PURPOSE. The header tier comes from LIFETIME xp, because a tier is
+ * earned and kept. The standings rank on WEEKLY xp, because a rank is defended and reset. Do not
+ * "fix" one to match the other: making standings lifetime-based means whoever studied hardest a
+ * year ago outranks everyone permanently and nobody can ever catch up, which is the opposite of
+ * what a weekly league is for.
+ *
+ * The tier name and crest come from src/lib/league.ts so this screen and the You tab can never
+ * disagree. They previously did: You said "Saver" while this said "Diamond League".
+ *
+ * PLAYERS BELOW ARE FABRICATED. There is no backend, so these are nine invented names with
+ * invented scores, scaled to what a real week of use produces so the board is climbable. Nothing
+ * user-facing may describe them as real people. They get replaced when accounts exist.
  */
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Icon } from '@/components/icon';
+import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { useApp } from '@/lib/store';
+import { tierForXp } from '@/lib/league';
+import { useApp, weekKey } from '@/lib/store';
 
 const PLAYERS = [
-  { name: 'Maya R.', xp: 2840, color: '#F59E0B' },
-  { name: 'Devin K.', xp: 2610, color: '#38BDF8' },
-  { name: 'Priya S.', xp: 2480, color: '#34D399' },
-  { name: 'You', xp: 2340, color: '#A855EB', me: true },
-  { name: 'Jordan L.', xp: 2210, color: '#F472B6' },
-  { name: 'Sam T.', xp: 2090, color: '#FBBF24' },
-  { name: 'Alex P.', xp: 1950, color: '#818CF8' },
-  { name: 'Chris M.', xp: 1780, color: '#2DD4BF' },
-  { name: 'Robin H.', xp: 1640, color: '#FB7185' },
-  { name: 'Casey W.', xp: 1500, color: '#A3E635' },
+  { name: 'Maya R.', xp: 520, color: '#F59E0B' },
+  { name: 'Devin K.', xp: 430, color: '#38BDF8' },
+  { name: 'Priya S.', xp: 365, color: '#34D399' },
+  { name: 'You', xp: 0, color: '#A855EB', me: true },
+  { name: 'Jordan L.', xp: 300, color: '#F472B6' },
+  { name: 'Sam T.', xp: 245, color: '#FBBF24' },
+  { name: 'Alex P.', xp: 190, color: '#818CF8' },
+  { name: 'Chris M.', xp: 145, color: '#2DD4BF' },
+  { name: 'Robin H.', xp: 95, color: '#FB7185' },
+  { name: 'Casey W.', xp: 40, color: '#A3E635' },
 ];
 
 const PROMOTE = 3; // top 3 promote
@@ -34,6 +47,18 @@ const DEMOTE = 7; // rank 8+ (index >= 7) demote
 
 function commas(n: number) {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/** Days left in the league week. weekKey() returns the Monday a week belongs to, so it closes at
+ *  the end of the following Sunday. Derived rather than printed, because the previous copy read
+ *  "3 days left" on every day of the week including Sunday. */
+function daysLeft(): string {
+  const monday = new Date(`${weekKey()}T00:00:00`);
+  const endOfSunday = new Date(monday.getTime() + 7 * 86_400_000);
+  const days = Math.ceil((endOfSunday.getTime() - Date.now()) / 86_400_000);
+  if (days <= 1) return 'Ends today';
+  if (days === 2) return '1 day left';
+  return `${days - 1} days left`;
 }
 
 function Zone({ label, color }: { label: string; color: string }) {
@@ -49,8 +74,10 @@ function Zone({ label, color }: { label: string; color: string }) {
 export default function League() {
   const theme = useTheme();
   const xp = useApp((s) => s.xp);
-  // Your live XP re-ranks you against the field in real time.
-  const players = [...PLAYERS.map((p) => (p.me ? { ...p, xp } : p))].sort((a, b) => b.xp - a.xp);
+  const weekly = useApp((s) => s.weeklyXpNow());
+  const tier = tierForXp(xp);
+  // Standings use WEEKLY xp; the header tier above uses lifetime. See the note at the top.
+  const players = [...PLAYERS.map((p) => (p.me ? { ...p, xp: weekly } : p))].sort((a, b) => b.xp - a.xp);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -62,10 +89,10 @@ export default function League() {
         </SpringPressable>
         <View style={{ flex: 1 }}>
           <View style={styles.titleRow}>
-            <Icon name="diamond" size={26} />
-            <ThemedText type="title" style={{ fontSize: 22 }}>Diamond League</ThemedText>
+            <LeagueCrest tier={tier} size={30} />
+            <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{tier.name}</ThemedText>
           </View>
-          <ThemedText type="small" themeColor="mutedForeground">Top 3 advance · 3 days left</ThemedText>
+          <ThemedText type="small" themeColor="mutedForeground">Top 3 advance · {daysLeft()}</ThemedText>
         </View>
       </View>
 
