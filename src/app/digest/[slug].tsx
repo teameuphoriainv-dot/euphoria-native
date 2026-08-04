@@ -25,10 +25,7 @@ import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { bodyFor } from '@/lib/digest-bodies';
 import { DIGEST_POSTS } from '@/lib/digest-content';
 import { lessonForGuide } from '@/lib/digest-lessons';
-import { Atlas } from '@/components/atlas';
-import { CelebrationRays } from '@/components/celebration-burst';
-import { NumberRollup } from '@/shared/motion/number-rollup';
-import { RewardPop } from '@/shared/motion/reward-pop';
+import { ReadReward } from "@/components/read-reward";
 import { heroSvg } from '@/lib/digest-heroes';
 import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
@@ -95,60 +92,6 @@ function toCards(markdown: string): Card[] {
  *  exact ratio makes the art full-bleed instead of letterboxed: it used to draw at 168x105 inside
  *  a 200pt panel, so most of the cover was empty tint. */
 const FIGURE_RATIO = 320 / 200;
-
-/**
- * The payoff for finishing a guide.
- *
- * Reaching the last card awards 25 XP and now advances the streak, and until this existed the
- * app marked both by swapping a button. The state changed and the reader was given nothing to
- * feel, which is the same failure as a value updating on screen with no transition.
- *
- * DELIBERATELY QUIETER THAN A LESSON. lesson.tsx earns its wipe, confetti, oversized arrival and
- * four staggered pops — that is a full lesson's payoff. A two-minute read that out-celebrated it
- * would flatten the difference between them. So: rays and a small proud Atlas, no confetti, no
- * wipe, and the celebrate amplitude left at the quiet default rather than lesson's gain of 1.
- */
-function ReadReward({ streak }: { streak: number }) {
-  const theme = useTheme();
-  return (
-    <View style={styles.reward}>
-      <CelebrationRays size={230} delay={90} />
-      <Atlas size={72} expression="proud" celebrate entrance="arrive" interactive={false} />
-      <RewardPop delay={520}>
-        <ThemedText type="heading" style={{ fontSize: 19, marginTop: Spacing.two }}>
-          Guide finished
-        </ThemedText>
-      </RewardPop>
-      <View style={styles.rewardChips}>
-        <RewardPop delay={700}>
-          <View style={[styles.rewardChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-            <UIcon name="sparkle" size={16} color={theme.iconLilac} />
-            <NumberRollup
-              value={25}
-              prefix="+"
-              suffix=" XP"
-              duration={620}
-              type="heading"
-              style={{ color: theme.iconLilac, fontSize: 16 }}
-            />
-          </View>
-        </RewardPop>
-        <RewardPop delay={840}>
-          <View style={[styles.rewardChip, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
-            <UIcon name="flame" size={16} color="#F97316" />
-            <NumberRollup
-              value={streak}
-              suffix=" day streak"
-              duration={620}
-              type="heading"
-              style={{ color: '#F97316', fontSize: 16 }}
-            />
-          </View>
-        </RewardPop>
-      </View>
-    </View>
-  );
-}
 
 export default function DigestArticle() {
   const theme = useTheme();
@@ -262,17 +205,6 @@ export default function DigestArticle() {
 }
 
 const styles = StyleSheet.create({
-  reward: { alignItems: 'center', marginTop: Spacing.four + Spacing.two, paddingBottom: Spacing.two },
-  rewardChips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.one + 2, marginTop: Spacing.three },
-  rewardChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 13,
-    paddingVertical: 8,
-    borderRadius: Radius.pill,
-    borderWidth: 1,
-  },
   safe: { flex: 1 },
   center: { alignItems: 'center', justifyContent: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
