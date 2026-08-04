@@ -204,7 +204,9 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'experience', question: 'How much do you already know?', options: LEVELS, face: 'watching' },
   { kind: 'single', field: 'goal', question: 'What brings you to Euphoria?', options: GOALS, face: 'default' },
   { kind: 'multi', field: 'topics', question: 'What do you want to learn about?', options: TOPICS, face: 'happy' },
-  { kind: 'statement', title: 'Practice daily and you’ll grow 4× faster', body: 'chart', face: 'proud', sub: 'Ten minutes a day builds real investing instinct.' },
+  // No efficacy multiplier here. The old copy promised "4× faster" with nothing behind it —
+  // an unsubstantiated performance claim inside a paid finance funnel. Credit the habit, not a number.
+  { kind: 'statement', title: 'The habit is what makes it stick', body: 'chart', face: 'proud', sub: 'Ten minutes a day builds real investing instinct.' },
   { kind: 'single', field: 'horizon', question: 'When do you want to start investing for real?', options: HORIZONS, face: 'watching' },
   { kind: 'single', field: 'riskComfort', question: 'Your portfolio drops 20% in a month. You…', sub: 'There’s no wrong answer — it tells Atlas how to coach you.', options: RISK, face: 'whoa' },
   { kind: 'single', field: 'dailyMinutes', question: 'How much time can you give it?', options: DAILY, face: 'happy' },
