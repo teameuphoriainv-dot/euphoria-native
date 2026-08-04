@@ -86,3 +86,9 @@ MOTION, not just pixels.
 - Mock opponents rescaled 1500-2840 -> 40-520 because they were lifetime-scale and made the weekly board unwinnable. They are FABRICATED placeholders; nothing user-facing may call them real people. Replaced when the backend lands.
 - Countdown derived from weekKey() Monday boundary, was the literal "3 days left".
 - VERIFIED ON DEVICE: header Saver + matching crest, "6 days left" on a Monday, You at rank 10 with 25 weekly XP.
+- IDENTITY EXISTS. profile.name/handle/email captured in auth.tsx (it used to discard the email). Handle derives from name when blank. Home and You read it; no hardcoded name anywhere in src.
+- FOLLOW GRAPH, Duolingo-style: following/followers arrays, follow/unfollow idempotent, FRIEND IS DERIVED via relationshipOf() = mutual follow. No request/accept flow exists by design.
+- src/lib/people.ts is the ONE fabricated population, shared by league + friends. SEED_FOLLOWERS makes "follows you" reachable. following starts EMPTY on purpose.
+- TRAP HIT AND FIXED: useApp((s) => s.friendIds()) returns a fresh array -> unstable zustand snapshot -> "Maximum update depth exceeded". Never select a getter that builds an object/array. A getter returning a NUMBER (friendIds().length in you.tsx) is safe.
+- VERIFIED ON DEVICE: name+handle survive force-quit relaunch; Follow back turns Priya into a friend on both the Friends screen and the league Friends tab; league main tab unchanged.
+- STILL FABRICATED: every person is invented, auth.tsx signIn() still only flips a boolean. Friend Streak deferred - it needs this graph first.
