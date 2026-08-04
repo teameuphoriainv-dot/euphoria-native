@@ -16,6 +16,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Profile } from './onboarding-path';
 import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
+import { SEED_FOLLOWERS } from './people';
 
 const XP_PER_LEVEL = 500;
 
@@ -76,6 +77,26 @@ const applyXp = (s: { xp: number; weeklyXp: number; weekStart: string }, n: numb
   return { xp: s.xp + n, weeklyXp: carried + n, weekStart: wk };
 };
 
+/**
+ * How you relate to another learner.
+ *
+ * Modelled on Duolingo, which does not use mutual friend requests: their help centre calls it
+ * "find, follow, and block", and Friend Streak requires someone who "follows you back". So a
+ * follow is one-directional and needs no approval, and FRIEND IS DERIVED - it simply means both
+ * directions exist. Deriving it is what stops `following` and `followers` from disagreeing, the
+ * same reason a tier is derived from xp rather than stored alongside it.
+ */
+export type Relationship = 'none' | 'following' | 'follows-you' | 'friends';
+
+export function relationshipOf(id: string, following: string[], followers: string[]): Relationship {
+  const iFollow = following.includes(id);
+  const theyFollow = followers.includes(id);
+  if (iFollow && theyFollow) return 'friends';
+  if (iFollow) return 'following';
+  if (theyFollow) return 'follows-you';
+  return 'none';
+}
+
 export type AppState = {
   signedIn: boolean;
   xp: number;
@@ -133,6 +154,16 @@ export type AppState = {
   weeklyXpNow: () => number;
   /** Local day the game bonus was last paid, '' if never. */
   lastGameDay: string;
+  /** Ids of people YOU follow. One-directional; no approval needed. */
+  following: string[];
+  /** Ids of people who follow YOU. Seeded from mock people so the "follows you" state is
+   *  reachable at all without a backend. */
+  followers: string[];
+  /** Idempotent: following twice must not duplicate, unfollowing an absent id must be a no-op. */
+  follow: (id: string) => void;
+  unfollow: (id: string) => void;
+  /** Mutual follows, which is what "friend" means here. Derived, never stored. */
+  friendIds: () => string[];
   /** Pay the game bonus, at most once per day. Games are REPLAYABLE, unlike a lesson which has a
    *  permanent id to dedupe against, so paying every round would let anyone farm the weekly
    *  standings with a matching game. */
@@ -163,6 +194,8 @@ export const useApp = create<AppState>()(
       weeklyXp: 0,
       weekStart: '',
       lastGameDay: '',
+      following: [],
+      followers: SEED_FOLLOWERS,
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
@@ -213,6 +246,10 @@ export const useApp = create<AppState>()(
           };
         }),
       addXp: (n) => set((s) => applyXp(s, n)),
+      follow: (id) =>
+        set((s) => (s.following.includes(id) ? s : { following: [...s.following, id] })),
+      unfollow: (id) => set((s) => ({ following: s.following.filter((f) => f !== id) })),
+      friendIds: () => get().following.filter((id) => get().followers.includes(id)),
       awardGameXp: () =>
         set((s) => (s.lastGameDay === dayKey() ? s : { lastGameDay: dayKey(), ...applyXp(s, XP_GAME) })),
       markPostRead: (slug) =>
@@ -225,13 +262,13 @@ export const useApp = create<AppState>()(
         ),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
@@ -259,4 +296,16 @@ if (__DEV__) {
   eq(applyXp({ xp: 10, weeklyXp: 5, weekStart: wk }, 50).xp, 60, 'lifetime always accumulates');
   eq(applyXp({ xp: 10, weeklyXp: 900, weekStart: '1999-01-04' }, 50).weeklyXp, 50, 'a stale week resets');
   eq(applyXp({ xp: 10, weeklyXp: 900, weekStart: '1999-01-04' }, 50).xp, 60, 'a stale week never resets lifetime');
+}
+
+// The follow graph has exactly two failure modes worth guarding: a double-follow that duplicates
+// an id, and a relationship derived from only one of the two arrays. Both are silent.
+if (__DEV__) {
+  const eqR = (got: string, want: string, what: string) => {
+    if (got !== want) console.error(`[follow] ${what}: got ${got}, expected ${want}`);
+  };
+  eqR(relationshipOf('a', [], []), 'none', 'a stranger is none');
+  eqR(relationshipOf('a', ['a'], []), 'following', 'one-way out is following');
+  eqR(relationshipOf('a', [], ['a']), 'follows-you', 'one-way in is follows-you');
+  eqR(relationshipOf('a', ['a'], ['a']), 'friends', 'mutual is friends');
 }

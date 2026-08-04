@@ -31,6 +31,14 @@ export type Profile = {
   notifyOptIn: boolean;
   /** Epoch ms. Non-null means the user reached the end of the flow. */
   completedAt: number | null;
+  /** Identity, captured at sign-up. Null until then.
+   *
+   *  These exist because a follow graph needs someone to follow BACK: without a name and handle
+   *  another learner would be following a nameless "Level 1". auth.tsx used to collect an email
+   *  and discard it on the next line, so persisting these is as much a bug fix as a feature. */
+  name: string | null;
+  handle: string | null;
+  email: string | null;
 };
 
 export const EMPTY_PROFILE: Profile = {
@@ -45,6 +53,9 @@ export const EMPTY_PROFILE: Profile = {
   source: null,
   notifyOptIn: false,
   completedAt: null,
+  name: null,
+  handle: null,
+  email: null,
 };
 
 const TIER_BY_EXPERIENCE: Record<Experience, TierLevel> = {

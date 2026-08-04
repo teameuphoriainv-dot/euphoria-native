@@ -92,6 +92,7 @@ function PortfolioChart() {
 }
 
 export default function Home() {
+  const name = useApp((s) => s.profile.name);
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
   const completedLessons = useApp((s) => s.completedLessons);
@@ -125,7 +126,7 @@ export default function Home() {
             <View style={styles.greetLeft}>
               <Atlas size={46} expression="happy" interactive={false} />
               <View>
-                <ThemedText type="title" style={{ fontSize: 22 }}>Hey, Siddartha</ThemedText>
+                <ThemedText type="title" style={{ fontSize: 22 }}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground">Ready to learn?</ThemedText>
               </View>
             </View>

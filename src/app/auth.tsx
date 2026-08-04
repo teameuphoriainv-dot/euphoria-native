@@ -34,9 +34,23 @@ function ProviderButton({ label, icon, onPress }: { label: string; icon: string;
 export default function Auth() {
   const theme = useTheme();
   const signIn = useApp((s) => s.signIn);
+  const setProfile = useApp((s) => s.setProfile);
+  const [name, setName] = useState('');
+  const [handle, setHandle] = useState('');
   const [email, setEmail] = useState('');
 
+  /** Lowercase, alphanumeric. Nobody should be forced to invent a handle, so an empty one is
+   *  derived from the name; typing your own still wins. */
+  const slug = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+
   const enter = () => {
+    // This used to call signIn() and navigate, discarding everything typed above it. The profile
+    // write is the point: a follow graph needs a name and handle for anyone to follow back.
+    setProfile({
+      name: name.trim() || null,
+      handle: slug(handle) || slug(name) || null,
+      email: email.trim() || null,
+    });
     signIn();
     router.replace('/(tabs)/home');
   };
@@ -66,6 +80,23 @@ export default function Auth() {
             <ThemedText type="small" themeColor="mutedForeground">OR</ThemedText>
             <View style={[styles.line, { backgroundColor: theme.border }]} />
           </View>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Your name"
+            placeholderTextColor={theme.mutedForeground}
+            autoCapitalize="words"
+            style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginBottom: Spacing.two }]}
+          />
+          <TextInput
+            value={handle}
+            onChangeText={setHandle}
+            placeholder={name ? `@${slug(name)}` : '@handle'}
+            placeholderTextColor={theme.mutedForeground}
+            autoCapitalize="none"
+            autoCorrect={false}
+            style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginBottom: Spacing.two }]}
+          />
           <TextInput
             value={email}
             onChangeText={setEmail}
