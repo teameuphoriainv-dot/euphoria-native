@@ -20,35 +20,13 @@ import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
+import { pickToday } from '@/lib/digest-pick';
 import { heroSvg } from '@/lib/digest-heroes';
 import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/** Fallback only, for when every guide has been read: rotate by day so the tab still offers
- *  something rather than going blank. */
-const dayNumber = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86_400_000);
-
-/**
- * Today's guide: the newest one not yet read, pinned to the day it was chosen on.
- *
- * This replaced `DIGEST_POSTS[dayNumber() % DIGEST_POSTS.length]`, which had three problems — a
- * newly published guide could wait 20 days to surface, adding one shifted the modulo so every
- * future day's pick changed, and it happily offered something already read while unread guides
- * sat in the list. Pinning matters because the choice depends on read state: without it, finishing
- * today's guide would immediately swap the card for a different one.
- */
-function pickToday(readPosts: string[], pinned: { day: string; slug: string } | null) {
-  const day = dayKey();
-  if (pinned?.day === day) {
-    const still = DIGEST_POSTS.find((p) => p.slug === pinned.slug);
-    if (still) return { day, post: still };
-  }
-  // DIGEST_POSTS is newest-first, so the first unread is the freshest unread
-  const unread = DIGEST_POSTS.find((p) => !readPosts.includes(p.slug));
-  return { day, post: unread ?? DIGEST_POSTS[dayNumber() % DIGEST_POSTS.length] };
-}
 
 /** Category marks for the catch-up thumbnails. The full illustrations are scenes — at 38px their
  *  detail collapses into noise and their light shapes read as blobs, so the small slot gets a

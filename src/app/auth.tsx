@@ -14,6 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
+import type { Profile } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -35,6 +36,7 @@ export default function Auth() {
   const theme = useTheme();
   const signIn = useApp((s) => s.signIn);
   const setProfile = useApp((s) => s.setProfile);
+  const firstRunDoneAt = useApp((s) => s.profile.firstRunDoneAt);
   const [name, setName] = useState('');
   const [handle, setHandle] = useState('');
   const [email, setEmail] = useState('');
@@ -46,13 +48,19 @@ export default function Auth() {
   const enter = () => {
     // This used to call signIn() and navigate, discarding everything typed above it. The profile
     // write is the point: a follow graph needs a name and handle for anyone to follow back.
-    setProfile({
-      name: name.trim() || null,
-      handle: slug(handle) || slug(name) || null,
-      email: email.trim() || null,
-    });
+    // Only write what was actually typed. Writing `|| null` unconditionally meant an existing
+    // user signing back in with the fields blank had their saved name and handle WIPED, which
+    // showed up on device as the greeting falling back to "Hey there".
+    const patch: Partial<Profile> = {};
+    if (name.trim()) patch.name = name.trim();
+    const h = slug(handle) || slug(name);
+    if (h) patch.handle = h;
+    if (email.trim()) patch.email = email.trim();
+    setProfile(patch);
     signIn();
-    router.replace('/(tabs)/home');
+    // A brand new account gets one concrete thing to do; a returning user signing back in must
+    // never see it. The stamp lives on the profile, so it survives a relaunch.
+    router.replace(firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
   };
 
   return (

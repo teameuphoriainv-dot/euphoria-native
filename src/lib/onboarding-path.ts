@@ -39,6 +39,10 @@ export type Profile = {
   name: string | null;
   handle: string | null;
   email: string | null;
+  /** Epoch ms the guided first action was taken OR skipped. A STAMP rather than inferring from
+   *  readPosts, so skipping is permanent: inferring would hand the screen back on every sign-in,
+   *  and would treat someone who reads their first guide months later as brand new. */
+  firstRunDoneAt: number | null;
 };
 
 export const EMPTY_PROFILE: Profile = {
@@ -56,6 +60,7 @@ export const EMPTY_PROFILE: Profile = {
   name: null,
   handle: null,
   email: null,
+  firstRunDoneAt: null,
 };
 
 const TIER_BY_EXPERIENCE: Record<Experience, TierLevel> = {
