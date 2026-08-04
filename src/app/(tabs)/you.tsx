@@ -49,6 +49,7 @@ export default function You() {
   // loop. Read it non-reactively; the selected `xp` above already re-renders on change.
   const lp = useApp.getState().levelProgress();
   const lessons = useApp((s) => s.completedLessons.length);
+  const guides = useApp((s) => s.readPosts.length);
 
   const { tier, next, progress, xpToNext } = tierProgress(xp);
   const fresh = xp === 0 && lessons === 0 && streak === 0;
@@ -57,7 +58,7 @@ export default function You() {
     { icon: 'flame', label: 'Day streak', value: String(streak) },
     { icon: 'open-book', label: 'Lessons', value: String(lessons) },
     { icon: 'crown', label: 'XP', value: xp.toLocaleString() },
-    { icon: 'trophy', label: 'Level', value: String(level) },
+    { icon: 'post', label: 'Guides read', value: String(guides) },
   ];
 
   return (
@@ -71,7 +72,7 @@ export default function You() {
             <ThemedText type="label" themeColor="mutedForeground" style={styles.heroKicker}>
               YOUR LEAGUE
             </ThemedText>
-            <ThemedText type="title" style={styles.heroTitle}>{tier.name}</ThemedText>
+            <ThemedText type="title" style={[styles.heroTitle, { color: tier.color }]}>{tier.name}</ThemedText>
             <View style={styles.heroBar}>
               <ProgressBar value={progress} height={9} />
             </View>
@@ -216,8 +217,8 @@ const styles = StyleSheet.create({
   sectionLabel: { marginTop: Spacing.four, marginBottom: Spacing.two },
   // seven rungs have to fit 402pt without horizontal scroll: space-between rather than a fixed gap
   ladder: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  rung: { alignItems: 'center', gap: 4, width: 44 },
-  rungLabel: { fontSize: 9 },
+  rung: { alignItems: 'center', gap: 4, width: 47 },
+  rungLabel: { fontSize: 10 },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three },
   logout: { alignItems: 'center', paddingVertical: Spacing.four },
 });
