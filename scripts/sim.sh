@@ -53,11 +53,15 @@ devices)
 screen)
   tree | python3 -c '
 import json,sys
+# Show the DISABLED marker and do not truncate hard. Both cost real debugging time once:
+# a gated Continue looks identical to a broken one without the flag, and TAP TO FLIP sits
+# at the END of a long card label, so a 64-char cut hid which cards were still unflipped.
 for e in json.load(sys.stdin):
-    l=(e.get("AXLabel") or "").strip()
+    l=" ".join((e.get("AXLabel") or "").split())
     if not l or l=="euphoria-native": continue
     f=e["frame"]
-    print(f'"'"'{l[:64]:<66} @ {int(f["x"]+f["width"]/2)},{int(f["y"]+f["height"]/2)}'"'"')'
+    state="" if e.get("enabled", True) else "[DISABLED] "
+    print(f'"'"'{state}{l[:150]:<80} @ {int(f["x"]+f["width"]/2)},{int(f["y"]+f["height"]/2)}'"'"')'
   ;;
 
 tap)
