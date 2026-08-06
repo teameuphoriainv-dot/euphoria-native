@@ -309,6 +309,32 @@ export default function Onboarding() {
   };
   const back = () => (step > 0 ? goTo(step - 1) : undefined);
 
+  /**
+   * Commit-on-tap for single-select steps.
+   *
+   * Onboarding is 15 steps, 8 of them single-select, and every one of those used to cost two
+   * taps: pick, then Continue. That is 8 taps that carry no information — the pick already IS
+   * the answer. YNAB (screen 239304, the one Finance onboarding match in ScreensDesign) commits
+   * on the card tap with no Continue at all.
+   *
+   * Two guards, both load-bearing:
+   *  - `notifyOptIn` is excluded by the caller. Its answer() opens the iOS permission dialog,
+   *    and advancing the screen behind a system modal is disorienting.
+   *  - the step is re-checked after the delay. Continue is still on screen, so a user who taps
+   *    an option and then Continue inside the window would otherwise advance twice.
+   *
+   * 260ms is long enough for the option's selected state to render — advancing instantly reads
+   * as "my tap skipped the question" rather than "my tap answered it".
+   */
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  const advanceAfterPick = () => {
+    const from = step;
+    setTimeout(() => {
+      if (stepRef.current === from) next();
+    }, 260);
+  };
+
   /** Apple requires a Restore control on any screen selling a subscription. No purchase SDK is
    *  installed yet (the CTA above routes to /auth, it does not buy), so this states that plainly
    *  instead of no-opping. Swap the body for RevenueCat's restorePurchases() when IAP lands. */
@@ -342,7 +368,11 @@ export default function Onboarding() {
             sub={def.sub}
             options={def.options}
             value={selected(def.field)}
-            onChange={(k) => answer(def.field, k)}
+            onChange={(k) => {
+              answer(def.field, k);
+              // notifyOptIn opens the iOS permission dialog — do not advance behind it.
+              if (def.field !== 'notifyOptIn') advanceAfterPick();
+            }}
           />
         );
       case 'multi':
