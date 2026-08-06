@@ -30,6 +30,13 @@ export function SpringPressable({
 
   return (
     <AnimatedPressable
+      // Every tappable in the app routes through this wrapper, so the role belongs HERE rather
+      // than at 54 call sites — an audit found all 54 of them unlabelled. `rest` is spread
+      // after, so any caller needing a different role (checkbox, adjustable) still wins.
+      accessibilityRole="button"
+      // Disabled is visual-only otherwise: the opacity change never reaches a screen reader,
+      // which then offers a control that silently does nothing.
+      accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPressIn={() => {
         scale.set(withSpring(scaleTo, Spring.snappy));

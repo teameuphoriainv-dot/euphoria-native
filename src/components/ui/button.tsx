@@ -33,6 +33,7 @@ export function Button({
   return (
     <SpringPressable
       onPress={onPress}
+      accessibilityLabel={label}
       disabled={disabled || loading}
       style={[
         styles.base,
@@ -68,6 +69,7 @@ export function GradientButton({
   return (
     <SpringPressable
       onPress={onPress}
+      accessibilityLabel={label}
       disabled={disabled || loading}
       style={[
         styles.gradientWrap,
