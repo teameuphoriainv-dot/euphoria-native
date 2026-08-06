@@ -71,8 +71,11 @@ function TodayCard({ post }: { post: DigestPost }) {
         </ThemedText>
 
         <View style={styles.cta}>
-          <UIcon name="arrowRight" size={17} color={theme.primary} />
-          <ThemedText type="smallBold" style={{ color: theme.primary }}>
+          {/* iconLilac, not primary: this is 13px semibold, which is NOT "large text" under
+              WCAG, and primary on a card measures 4.49 against a 4.5 threshold. iconLilac is
+              the palette's violet meant for text on dark and measures 8.29 on the same card. */}
+          <UIcon name="arrowRight" size={17} color={theme.iconLilac} />
+          <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
             Read today’s guide
           </ThemedText>
         </View>
