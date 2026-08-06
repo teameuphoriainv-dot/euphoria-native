@@ -182,7 +182,7 @@ export function PlanCard({
 export function BackChevron({ onPress }: { onPress?: () => void }) {
   const theme = useTheme();
   return (
-    <SpringPressable haptic={false} onPress={onPress} style={styles.chevron} scaleTo={0.85}>
+    <SpringPressable haptic={false} onPress={onPress} style={styles.chevron} scaleTo={0.85} hitSlop={10}>
       <Svg width={18} height={18} viewBox="0 0 24 24">
         <Path d="M14.5 5 8 12l6.5 7" stroke={theme.mutedForeground} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </Svg>

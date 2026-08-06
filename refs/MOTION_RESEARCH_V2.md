@@ -184,16 +184,46 @@ export const STAGGER_CAP = 360;
   `claude mcp add --scope user --transport http context7 https://mcp.context7.com/mcp`
 
 **NOT free — do not route the plan through these:**
+- **Rive** — freemium, and the free tier does NOT cover shipping. You can design and animate free,
+  but **exporting `.riv` for production requires a paid plan**: Cadet **$9/mo annual, $17/mo monthly**.
+  So `ATLAS_RIVE_BRIEF.md` costs the $250+ animator **plus an ongoing subscription**.
 - **Polymation / `rivemcp`** — commercial (stunning.gg). Being in `node_modules` does not make it free.
-- **Rive editor** — tiered. **EAS** build/submit/hosting/observe — paid.
-- The **$250+ animator** in `ATLAS_RIVE_BRIEF.md`.
+- **EAS** build/submit/hosting/observe/simulator — paid tiers.
 
 ⚠️ **`ecc:motion-foundations` / `motion-patterns` / `motion-advanced` / `motion-ui` are all
 `motion/react` (Framer Motion) — WEB. None apply to this app.** Four motion skills, zero usable.
 
-**Zero-budget answer to E1 (Rive vs Lottie vs hand-coded):** hand-coded wins by default, and
-`src/components/atlas.tsx` (500 lines) already implements entrance/celebrate/nod/shake/idle/blink/
-ring-spin in SVG + Reanimated. Extend it. `ATLAS_RIVE_BRIEF.md` is a plan for money not being spent.
+### E1 answered — the open-source pipeline that replaces Rive
+
+**`Claude Code → Lottie JSON → <Skottie/> in react-native-skia → shipped.`** Fully open source, $0.
+
+- **`diffusionstudio/lottie`** (OSS) — *"Generate production-ready Lottie animations with Claude
+  Code or Codex."* Authoring happens in the agent you already run. No After Effects, no Rive
+  editor, no animator.
+- **Skia 2.1 ships Skottie natively** — `@shopify/react-native-skia` has a Lottie engine baked into
+  Skia itself; "Lottie animations are now just another Skia drawing primitive." This sidesteps the
+  brief's "no Lottie today" constraint: you are adding **Skia**, not the Lottie native module.
+- Alternative: **`margelo/react-native-skottie`** renders in a native view outside the Skia canvas.
+
+**Order of evaluation for Atlas:** (1) Claude-generated Lottie → Skia Skottie, (2) hand-coded
+SVG + Reanimated by extending the existing `src/components/atlas.tsx` (500 ln, already does
+entrance/celebrate/nod/shake/idle/blink/ring-spin), (3) Rive only if someone funds it.
+
+### Open-source design tooling for screen craft
+
+The anti-generic lever is **illustration and colour**, not layout. `BRILLIANT_VISUAL_ANALYSIS.md`
+already says it: Brilliant uses "rich, colorful, semi-3D illustrations everywhere — not flat line icons."
+
+- **Blender** (+ **Poly Haven** CC0 HDRIs) — semi-3D hero art, the actual Brilliant-parity gap.
+  `ecc:blender-motion-state-inspection` is already installed.
+- **Radix Colors** (MIT) — 12-step **dark** scales with alpha + accessibility pairings. Audit the
+  new `theme.ts` ramp (4/9/14/19/22%) against it.
+- **Iconify** — 275k+ icons, 200+ open collections. **`ecc:ios-icon-gen` already calls its API.**
+- **Lucide / Phosphor / Tabler** (MIT) — pick exactly one; mixing icon sets is a generic-UI tell.
+- **unDraw**, **Open Peeps / Humaaans** (CC0) — recolourable illustration + character art.
+- **Penpot** — the complete OSS Figma alternative, if a design surface is wanted at all.
+- **Inkscape** — vector work on `atlas-mark-source.svg`.
+- Fonts already OSS: `@expo-google-fonts` Nunito / DM Sans / EB Garamond are OFL.
 
 ---
 

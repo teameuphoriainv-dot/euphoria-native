@@ -46,7 +46,7 @@ export default function Courses() {
       <AmbientBackground starCount={45} />
 
       <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back}>
+        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
         </SpringPressable>
         <ThemedText type="title" style={{ fontSize: 22 }}>Courses</ThemedText>

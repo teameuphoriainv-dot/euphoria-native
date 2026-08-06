@@ -137,7 +137,7 @@ export default function Lesson() {
       <AmbientBackground starCount={40} />
 
       <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close}>
+        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close} hitSlop={10}>
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
         <View style={[styles.track, { backgroundColor: theme.muted }]}>
