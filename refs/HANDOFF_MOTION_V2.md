@@ -199,3 +199,60 @@ did so only because it was persisted before compaction. Ship code before reading
 - [ ] Every recommendation carries a number; every number a source + tier, or UNVERIFIED
 - [ ] Every Reanimated API named is v4-correct
 - [ ] At least three things explicitly stated as unverified
+
+---
+
+## APPENDIX — the systematic sweep (NOT done, explicitly assigned to you)
+
+Coverage so far is thin and you should know exactly how thin: **only ~6 windows across the 3 clips
+have been frame-measured, and the 21 stills in `refs/images/` have never been systematically read.**
+Everything measured to date is listed in `MOTION_RESEARCH_V2.md` §2 and `MOTION_FINDINGS_REWARD.md`.
+
+### A. Sweep the stills — cheaply
+
+`refs/images/IMG_9043–9063.PNG` (21 files). **Do NOT read them one at a time** — that is ~21 image
+reads and will exhaust your context. Instead build contact sheets and read 2–3 images total:
+
+```bash
+cd ~/euphoria-native
+python3 - <<'PY'
+import subprocess, glob
+f = sorted(glob.glob('refs/images/*.PNG'))
+for i in range(0, len(f), 8):
+    ins = sum([['-i', p] for p in f[i:i+8]], [])
+    n = len(f[i:i+8])
+    subprocess.run(['ffmpeg','-v','error',*ins,'-filter_complex',
+        ''.join(f'[{j}:v]scale=200:-1[s{j}];' for j in range(n))
+        + ''.join(f'[s{j}]' for j in range(n)) + f'hstack=inputs={n}' if n>1 else '[s0]null',
+        '-frames:v','1','-y',f'/tmp/sheet_{i//8}.png'])
+    print('wrote', f'/tmp/sheet_{i//8}.png', f[i:i+8])
+PY
+```
+Then read the 3 sheets. Extract: **surface lightness values** (sample the dark greys — this
+validates our 4/9/14/19/22% ramp against a shipped dark app), **corner radii**, **spacing rhythm**,
+**icon style consistency**, and **illustration density** — which is the measured answer to D4
+("bland vs sparse"), not layout.
+
+### B. Sweep the clips — you already have the tool
+
+```bash
+python3 scripts/motion_energy.py refs/videos/*.mov   # ranks every burst by energy
+```
+It reports the top 28 bursts per clip; **185 bursts exist in `14-17-49` alone and 4 have been
+measured.** Work down the energy ranking with `scripts/measure.py`, prioritising bursts of
+**200–800ms** (discrete UI reactions) over multi-second ones (those are scrolls and inflate the
+density figures). Named unexplained target: `13-12-29` @ **51.77–52.90s**, peak 43.5, the
+highest-energy moment in that clip.
+
+### C. Correct the record as you go
+
+`refs/README.md` still mislabels video 3 as Brilliant — **it is Duolingo**. Fix it. Also merge
+`MOTION_FINDINGS_REWARD.md` into `MOTION_RESEARCH_V2.md` §2 once session A has stopped writing to
+that file (two agents were editing it concurrently — check `git status` before you trust it).
+
+### Added to DONE MEANS
+
+- [ ] All 21 stills reviewed via contact sheets, with surface/radius/spacing values extracted
+- [ ] At least 15 further motion windows measured, prioritised by the energy ranking
+- [ ] `README.md` video mislabel corrected
+- [ ] `MOTION_FINDINGS_REWARD.md` merged and deleted

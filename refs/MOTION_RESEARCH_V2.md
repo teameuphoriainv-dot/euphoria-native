@@ -61,6 +61,34 @@ A fair rerun would isolate discrete tap→response windows.
 - Energy spikes at frames 8/25/42/59 = a regular **~567ms beat**.
   **Cannot tell from pixels whether that is a staggered cascade or user taps.** Not a stagger claim.
 
+### B5 — the verdict beat, both apps (answers "how long does the verdict hold")
+
+**Duolingo, correct answer "Awesome!"** — `14-17-49` @ 74.0s:
+
+| Beat | Measurement |
+|---|---|
+| Verdict appears | **1 frame** — centroid 135 → 472 (bottom third) in a single step |
+| Then **holds dead still** | frames 18→47 = **967ms with `d_prev` literally 0.0** |
+| Transition out | 11 frames = **367ms**, monotonic decay 7.8→4.8→6.3→5.5→4.3→2.9→2.3→1.6→0.9→0.6→0.3 → **ease-out, NOT spring** |
+| Following beat | 10 frames = **333ms**, symmetric rise-and-fall → **ease-in-out** |
+| Flash | none — luma delta 6.4 |
+
+**Brilliant, "Incorrect" sheet** — `10-50-24` @ 65.2s: same shape. Static for 70 frames, then the
+sheet reaches **centroid 881/960 (bottom 8%) in a single frame**. ⚠️ Window cut at 68.0s while
+motion was still rising — **the tail is unmeasured**.
+
+**The finding:** *neither app slides its verdict in.* Both reach full presence in **≤33ms**.
+
+⚠️ Honest limit: at 30fps a hard cut and a sub-33ms animation are **indistinguishable**. What is
+falsifiable is the negative — **there is no 200–400ms spring entrance on verdict UI in either
+reference app.** If Euphoria animates a correct/incorrect banner in over ~300ms, it is doing
+something neither reference does.
+
+**The design is the hold, not the entrance.** Duolingo gives the verdict **~967ms of complete
+stillness** before anything else moves. Legibility first; the motion budget goes to the *reward*,
+not the *announcement*. Note the curve split — verdict exit is **ease-out (367ms)**, while springs
+are reserved for transitions (467ms) and rewards (3200ms).
+
 ### ❌ One bad window — do not use
 
 `13-12-29` @ 51.6–54.2s returned luma delta 0.0 and no net travel. **Mis-targeted.**
