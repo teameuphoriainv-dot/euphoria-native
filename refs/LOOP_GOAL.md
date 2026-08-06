@@ -23,8 +23,14 @@ A screen counts as done only when every one of these holds:
 1. `npx tsc --noEmit` exits 0.
 2. `npx expo lint` reports **zero errors and zero warnings in the touched files** (repo-wide
    pre-existing issues are out of scope and must be named, not absorbed).
-3. A **device measurement** exists, produced by a named script, recorded as before → after
-   numbers, moving in the direction predicted *before* the change.
+3a. **(every screen)** The screen is measured against all five external anchors below, and every
+   defect found is fixed. A screen with no defect passes 3a with the measurement showing zero.
+3b. **(every fix)** A **device measurement** exists, produced by a named script, recorded as
+   before → after numbers, moving in the direction predicted *before* the change.
+
+   Split approved by the user. 3 previously gated *fixes* but was applied to *screens*, making it
+   unsatisfiable for any clean screen. No threshold changed and nothing was weakened — only the
+   scope was corrected to what it always meant.
 4. `./scripts/sim.sh screen` for that route shows **zero unlabelled interactive elements**.
 5. A commit exists whose diff touches `src/`.
 

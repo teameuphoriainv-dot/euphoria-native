@@ -27,6 +27,15 @@ const AnimatedRect = Animated.createAnimatedComponent(Rect);
 type Star = { x: number; y: number; r: number; o: number; g: number };
 
 /** Oscillate a value between 1 and `dim` forever. */
+/** mulberry32 — a pure, deterministic PRNG. Same seed always yields the same value, which is
+ *  what makes the starfield stable and keeps the generator out of the impure-during-render trap. */
+const rand = (seed: number) => {
+  let t = (seed + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
 const twinkle = (sv: SharedValue<number>, duration: number, dim: number) =>
   sv.set(withRepeat(withTiming(dim, { duration, easing: Easing.inOut(Easing.ease) }), -1, true));
 
@@ -39,13 +48,25 @@ export function AmbientBackground({ glow = true, starCount = 70 }: { glow?: bool
   const t2 = useSharedValue(1);
   const glowPulse = useSharedValue(1);
 
+  /**
+   * Deterministic scatter, seeded by star index.
+   *
+   * Math.random() inside a useMemo is an impure call during render — 4 lint errors, and under a
+   * double render the two passes disagree about where the sky is. It also meant every width or
+   * height change RESHUFFLED THE ENTIRE STARFIELD: rotate the device, or open a sheet that
+   * remeasures, and every star jumps to a new place.
+   *
+   * mulberry32 keyed on the star's own index gives the same scatter for the same index forever,
+   * so the sky is stable across renders and resizes while still looking random. Positions scale
+   * with the viewport rather than being regenerated for it.
+   */
   const stars = useMemo<Star[]>(
     () =>
       Array.from({ length: starCount }, (_, i) => ({
-        x: Math.random() * width,
-        y: Math.random() * height * 1.15,
-        r: Math.random() * 1.1 + 0.3,
-        o: Math.random() * 0.45 + 0.1,
+        x: rand(i * 4 + 1) * width,
+        y: rand(i * 4 + 2) * height * 1.15,
+        r: rand(i * 4 + 3) * 1.1 + 0.3,
+        o: rand(i * 4 + 4) * 0.45 + 0.1,
         g: i % 3,
       })),
     [starCount, width, height],

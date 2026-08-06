@@ -1,0 +1,46 @@
+{
+  "signedIn": false,
+  "xp": 30,
+  "streak": 1,
+  "completedLessons": [
+    "behavioral-finance:1"
+  ],
+  "minutesToday": 5,
+  "lastActiveDay": "2026-08-06",
+  "activeCourseId": "behavioral-finance",
+  "readPosts": [],
+  "dailyPick": {
+    "day": "2026-08-06",
+    "slug": "how-credit-cards-work"
+  },
+  "profile": {
+    "experience": "beginner",
+    "goal": "wealth",
+    "topics": [
+      "valuation",
+      "stocks"
+    ],
+    "horizon": "now",
+    "riskComfort": "sell",
+    "dailyMinutes": 20,
+    "blockers": [
+      "fear"
+    ],
+    "ageBand": "25-34",
+    "source": "youtube",
+    "notifyOptIn": false,
+    "completedAt": 1786036436095,
+    "name": null,
+    "handle": null,
+    "email": null,
+    "firstRunDoneAt": null
+  },
+  "weeklyXp": 30,
+  "weekStart": "2026-08-03",
+  "lastGameDay": "",
+  "following": [],
+  "followers": [
+    "priya",
+    "chris"
+  ]
+}
