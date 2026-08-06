@@ -98,46 +98,101 @@ export const PATH_LENGTH = 3;
  *  two screens can never disagree about what "2 lessons a day" means in minutes. */
 export const MINUTES_PER_LESSON = 5;
 
+/** A chosen course plus the ANSWER that earned it its slot. */
+export type PathPick = { course: CourseMeta; reason: string };
+
+/** Human-readable label for each topic chip, for reason copy. */
+const TOPIC_LABEL: Record<string, string> = {
+  stocks: 'stocks & ETFs',
+  budgeting: 'budgeting & debt',
+  economy: 'the economy',
+  valuation: 'valuing companies',
+  psychology: 'investing psychology',
+  risk: 'risk & hedging',
+  crypto: 'crypto & alternatives',
+  retirement: 'retirement & taxes',
+  business: 'startups & business',
+};
+
+const GOAL_REASON: Record<Goal, string> = {
+  wealth: 'You want to grow long-term wealth',
+  learn: 'You want to learn how investing works',
+  trade: 'You want to trade with confidence',
+  economy: 'You want to make sense of the economy',
+};
+
 /**
- * Build the recommended path. ALWAYS returns exactly PATH_LENGTH real courses, even for a
- * completely empty profile — the reveal screen must never render an empty state.
+ * The ranked candidate list — the actual reasoning, in priority order.
+ *
+ * Every push records WHICH answer earned the slot, so the reveal screen can show its working
+ * instead of presenting three courses as if they fell out of the sky. Order IS the ranking:
+ * the first unique, real course ids win.
+ *
+ * `blockers` and `horizon` were collected by onboarding and then ignored entirely by this
+ * function — two questions asked for nothing. They are read here.
+ *
+ * Kept to EDUCATIONAL sequencing only, per the regulatory note at the top of this file: these
+ * reasons explain why a COURSE is next, never what to do with money.
  */
-export function recommendPath(p: Profile): CourseMeta[] {
-  const tier = p.experience ? TIER_BY_EXPERIENCE[p.experience] : 'easy';
-  const ids: string[] = [];
+function candidates(p: Profile): { id: string; reason: string }[] {
+  const out: { id: string; reason: string }[] = [];
+  const add = (id: string, reason: string) => out.push({ id, reason });
 
-  // 1. A panic-seller gets the behavioural material first regardless of goal — the single
-  //    most useful thing for someone who sells into a drawdown.
-  if (p.riskComfort === 'sell') ids.push('behavioral-finance');
+  // 1. Behaviour beats content. Someone who sells into a drawdown gets that material first
+  //    regardless of goal — it is the single most useful thing for them.
+  if (p.riskComfort === 'sell') add('behavioral-finance', 'You said a 20% drop would make you sell');
 
-  // 2. Goal seeds the spine of the path.
-  ids.push(...SEED_BY_GOAL[p.goal ?? 'learn']);
+  // 2. Stated obstacles. A blocker is the thing the user believes is stopping them, so it
+  //    outranks a general goal: clearing it is what makes the rest reachable.
+  if (p.blockers.includes('fear')) add('risk-management', 'You said losing money holds you back');
+  if (p.blockers.includes('trust')) add('behavioral-finance', 'You said you do not know who to trust');
+  if (p.blockers.includes('jargon')) add('investing-fundamentals', 'You said the jargon is overwhelming');
+  if (p.blockers.includes('start')) add('investing-fundamentals', 'You said you do not know where to start');
 
-  // 3. Explicit topic picks come next, so stated interest beats inferred interest.
+  // 3. Timing. Someone already invested needs risk material sooner than someone still deciding;
+  //    someone unsure benefits from money basics before market mechanics.
+  if (p.horizon === 'now') add('risk-management', 'You have already started investing');
+  if (p.horizon === 'unsure') add('personal-finance', 'You are not sure when you will start');
+
+  // 4. Goal seeds the spine of the path.
+  const goal = p.goal ?? 'learn';
+  for (const id of SEED_BY_GOAL[goal]) add(id, GOAL_REASON[goal]);
+
+  // 5. Explicit topic picks.
   for (const t of p.topics) {
     const id = COURSE_BY_TOPIC[t];
-    if (id) ids.push(id);
+    if (id) add(id, `You picked ${TOPIC_LABEL[t] ?? t}`);
   }
 
-  // 4. Pad from the experience-matched tier, then anything, so we always reach PATH_LENGTH.
-  ids.push(...getCoursesByTier(tier).map((c) => c.id));
-  ids.push(...COURSES.map((c) => c.id));
+  // 6. Pad from the experience-matched tier, then anything, so PATH_LENGTH is always reached.
+  const tier = p.experience ? TIER_BY_EXPERIENCE[p.experience] : 'easy';
+  const tierWord = tier === 'easy' ? 'beginner' : tier === 'intermediate' ? 'intermediate' : 'advanced';
+  for (const c of getCoursesByTier(tier)) add(c.id, `Matched to your ${tierWord} level`);
+  for (const c of COURSES) add(c.id, 'Rounds out your path');
 
-  return resolve(ids);
+  return out;
 }
 
-/** Dedupe, drop ids that aren't real courses, and take the first PATH_LENGTH. */
-function resolve(ids: string[]): CourseMeta[] {
+/**
+ * Build the recommended path WITH the reason for each pick. ALWAYS returns exactly PATH_LENGTH
+ * real courses, even for a completely empty profile — the reveal screen must never be empty.
+ */
+export function recommendPathDetailed(p: Profile): PathPick[] {
   const seen = new Set<string>();
-  const out: CourseMeta[] = [];
-  for (const id of ids) {
-    if (seen.has(id)) continue;
+  const out: PathPick[] = [];
+  for (const { id, reason } of candidates(p)) {
+    if (seen.has(id)) continue; // first mention wins, so the highest-priority reason is kept
     seen.add(id);
     const course = getCourseById(id);
-    if (course) out.push(course);
+    if (course) out.push({ course, reason });
     if (out.length === PATH_LENGTH) break;
   }
   return out;
+}
+
+/** Courses only. Kept so existing callers (the store's active course) are unaffected. */
+export function recommendPath(p: Profile): CourseMeta[] {
+  return recommendPathDetailed(p).map((x) => x.course);
 }
 
 /** Lessons per day implied by the chosen daily commitment. At least 1. */
@@ -149,4 +204,24 @@ export function lessonsPerDay(dailyMinutes: number | null): number {
 export function estimateWeeks(p: Profile, path: CourseMeta[]): number {
   const lessons = path.reduce((n, c) => n + c.totalLessons, 0);
   return Math.max(1, Math.ceil(lessons / lessonsPerDay(p.dailyMinutes) / 7));
+}
+
+// The failure mode here is SILENT and total: a recommender that quietly returns the same three
+// courses for everybody still renders a perfectly nice screen. These assert that answers
+// actually move the result, and that the padding never leaves the reveal screen short.
+if (__DEV__) {
+  const P = (over: Partial<Profile>): Profile => ({ ...EMPTY_PROFILE, ...over });
+  const ids = (p: Profile) => recommendPath(p).map((c) => c.id);
+  const bad = (what: string) => console.error(`[path] ${what}`);
+
+  if (recommendPath(EMPTY_PROFILE).length !== PATH_LENGTH) bad('an empty profile must still fill the path');
+  if (ids(P({ riskComfort: 'sell' }))[0] !== 'behavioral-finance') bad('a panic-seller should lead with behavioural finance');
+  if (!ids(P({ blockers: ['fear'] })).includes('risk-management')) bad('the fear blocker should pull in risk management');
+  if (!ids(P({ horizon: 'now' })).includes('risk-management')) bad('an already-investing user should get risk management');
+
+  // The whole point: different people get different paths.
+  if (String(ids(P({ goal: 'economy' }))) === String(ids(P({ goal: 'wealth' })))) bad('goals must produce different paths');
+
+  // Every pick must be able to explain itself, or the reveal screen renders a blank reason.
+  if (recommendPathDetailed(P({ goal: 'trade' })).some((x) => !x.reason)) bad('every pick needs a reason');
 }

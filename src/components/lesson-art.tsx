@@ -19,7 +19,7 @@ import { courseAccent } from '@/lib/course-accents';
 const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
 
 /** Shift a hex colour toward white (t>0) or black (t<0). t in [-1, 1]. */
-function shade(hex: string, t: number): string {
+export function shade(hex: string, t: number): string {
   const h = hex.replace('#', '');
   const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
   const r = (n >> 16) & 255;

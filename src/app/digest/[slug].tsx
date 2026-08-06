@@ -183,12 +183,16 @@ export default function DigestArticle() {
       <View style={styles.footer}>
         {last ? (
           <GradientButton
-            label="Practice this in a lesson"
+            // Unmapped guides used to fall back to a bare push('/lesson'), which worked only while
+            // the player ignored its params and rendered a demo. It reads them now, so a paramless
+            // push dead-ends on "That lesson isn't available" — send them to the pathway instead,
+            // and don't promise a specific lesson we haven't got.
+            label={lesson ? 'Practice this in a lesson' : 'Keep learning'}
             full
             onPress={() =>
               lesson
                 ? router.push({ pathname: '/lesson', params: { course: lesson.course, num: String(lesson.num) } })
-                : router.push('/lesson')
+                : router.push('/learn')
             }
           />
         ) : (

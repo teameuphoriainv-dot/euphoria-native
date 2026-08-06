@@ -10,10 +10,12 @@ import Animated, { useAnimatedProps, useAnimatedStyle, useReducedMotion, useShar
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { Atlas, type AtlasExpression } from '@/components/atlas';
+import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { courseAccent } from '@/lib/course-accents';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -40,11 +42,15 @@ export function AtlasStage({
   t,
   expression,
   celebrateKey,
+  nodKey = 0,
   size = ATLAS_SIZE,
 }: {
   t: SharedValue<number>;
   expression: AtlasExpression;
   celebrateKey: number;
+  /** Per-tap acknowledgement. Separate from `celebrateKey` on purpose: a tap gets a nod, and
+   *  the hop is reserved for the one moment that earns it. */
+  nodKey?: number;
   /** Per-step override. Safe to vary ONLY because callers zero `celebrateKey` on the steps
    *  that resize — `size` is a dependency of Atlas's celebrate effect, so changing it while
    *  a celebrate is armed would re-fire the hop. */
@@ -64,7 +70,19 @@ export function AtlasStage({
     <View style={[styles.atlasStage, { height: Math.round(size * 1.04) + Math.round((ATLAS_RISE * size) / ATLAS_SIZE) }]} pointerEvents="box-none">
       <Animated.View style={style}>
         {/* idle breath is sub-pixel below ~96px — not worth the frame callback there */}
-        <Atlas size={size} expression={expression} idle={size >= ATLAS_SIZE} celebrate={celebrateKey > 0} celebrateKey={celebrateKey} />
+        <Atlas
+          size={size}
+          expression={expression}
+          idle={size >= ATLAS_SIZE}
+          celebrate={celebrateKey > 0}
+          celebrateKey={celebrateKey}
+          // Full cartoon beat. Atlas's default gain is the timid per-tap value, which was only
+          // ever right because the hop used to fire on taps. The one celebrate left in the flow
+          // is the finished plan, so it should land at full size.
+          celebrateGain={1}
+          nod={nodKey > 0}
+          nodKey={nodKey}
+        />
       </Animated.View>
     </View>
   );
@@ -476,34 +494,76 @@ export function LoaderStep({ lines, onDone }: { lines: string[]; onDone: () => v
 /** The payoff: the answers become a named, ordered path of REAL courses. */
 export function PlanRevealStep({
   tierLabel,
-  courses,
+  picks,
   perDay,
   weeks,
 }: {
   tierLabel: string;
-  courses: { id: string; title: string; description: string; totalLessons: number }[];
+  /** Each course PLUS the answer that earned it its slot — see recommendPathDetailed. */
+  picks: { course: { id: string; title: string; totalLessons: number }; reason: string }[];
   perDay: number;
   weeks: number;
 }) {
   const theme = useTheme();
-  const totalLessons = courses.reduce((n, c) => n + c.totalLessons, 0);
+  const totalLessons = picks.reduce((n, x) => n + x.course.totalLessons, 0);
   return (
-    <>
-      <StepHeading title="Your path is ready" sub={`Tuned for a ${tierLabel} track, ${perDay} lesson${perDay === 1 ? '' : 's'} a day.`} />
+    // Spread across the leftover viewport height instead of packing to the top — the stats used
+    // to sit directly under the last course card with a dead band beneath them.
+    <View style={styles.planBody}>
+      {/* "a advanced track" — tierLabel is data, so the article has to agree with it. */}
+      <StepHeading
+        title="Your path is ready"
+        sub={`Tuned for ${/^[aeiou]/i.test(tierLabel) ? 'an' : 'a'} ${tierLabel} track, ${perDay} lesson${perDay === 1 ? '' : 's'} a day.`}
+      />
       <View style={{ marginTop: Spacing.three }}>
-        {courses.map((c, i) => (
-          <RewardPop key={c.id} delay={childDelay(i)} style={{ marginBottom: Spacing.two }}>
-            <View style={[styles.planRow, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <View style={[styles.planNum, { backgroundColor: i === 0 ? theme.primary : theme.muted }]}>
-                <ThemedText type="smallBold" style={{ color: i === 0 ? '#fff' : theme.mutedForeground }}>{i + 1}</ThemedText>
+        {picks.map(({ course: c, reason }, i) => {
+          // Every course now carries its OWN identity. The app already ships `courseAccent`
+          // (12 distinct hues) and `LessonArt` (a per-course gradient mark) — Home uses both for
+          // its hero — but this screen rendered all three rows in the same `theme.card` grey and
+          // differentiated them with nothing but a small numbered circle. That is what made the
+          // payoff screen read as bland: the moment the path is revealed, the path looked
+          // generic.
+          //
+          // Hierarchy is explicit rather than incidental: course 1 is the one actually starting,
+          // so it takes the tinted card, the larger mark, and the `description` that was already
+          // being passed into this component and thrown away.
+          const accent = courseAccent(c.id);
+          const lead = i === 0;
+          return (
+            <RewardPop key={c.id} delay={childDelay(i)} style={{ marginBottom: Spacing.two }}>
+              <View
+                style={[
+                  styles.planRow,
+                  lead && styles.planRowLead,
+                  {
+                    backgroundColor: lead ? `${accent}14` : theme.card,
+                    borderColor: lead ? `${accent}59` : theme.border,
+                  },
+                ]}>
+                <LessonArt courseId={c.id} title={c.title} index={0} size={lead ? 58 : 40} />
+                <View style={{ flex: 1 }}>
+                  <ThemedText type="label" style={{ color: accent, marginBottom: 2 }}>
+                    {lead ? 'START HERE' : `${c.totalLessons} LESSONS`}
+                  </ThemedText>
+                  <ThemedText type="heading" style={{ fontSize: lead ? 18 : 16, lineHeight: lead ? 23 : 21 }}>
+                    {c.title}
+                  </ThemedText>
+                  {/* The reason is the whole point: it is drawn from the user's OWN answers, so
+                      the path stops looking like three courses that fell out of the sky. Shown
+                      on every row, not just the lead — the ranking is only legible if each
+                      slot explains itself. */}
+                  <ThemedText
+                    type="small"
+                    themeColor="mutedForeground"
+                    style={{ marginTop: 3 }}
+                    numberOfLines={2}>
+                    {reason}
+                  </ThemedText>
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{c.title}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{c.totalLessons} lessons</ThemedText>
-              </View>
-            </View>
-          </RewardPop>
-        ))}
+            </RewardPop>
+          );
+        })}
       </View>
       <View style={styles.planStats}>
         <View style={styles.planStat}>
@@ -516,7 +576,7 @@ export function PlanRevealStep({
           <ThemedText type="small" themeColor="mutedForeground">weeks</ThemedText>
         </View>
       </View>
-    </>
+    </View>
   );
 }
 
@@ -565,7 +625,10 @@ const styles = StyleSheet.create({
   loaderTitle: { marginTop: Spacing.four, textAlign: 'center' },
   loaderLine: { marginTop: Spacing.two, textAlign: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth },
-  planNum: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  /** Course 1 only: a real border (not a hairline) so the accent tint reads as deliberate. */
+  planRowLead: { borderWidth: 1, alignItems: 'flex-start' },
+  /** Heading / course list / stats, spread across whatever height is left over. */
+  planBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
   planStats: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.four, marginTop: Spacing.three },
   planStat: { alignItems: 'center' },
   planDivider: { width: StyleSheet.hairlineWidth, height: 34 },

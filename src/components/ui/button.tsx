@@ -53,6 +53,7 @@ export function GradientButton({
   disabled,
   full,
   style,
+  colors,
 }: {
   label: string;
   onPress?: () => void;
@@ -60,8 +61,10 @@ export function GradientButton({
   disabled?: boolean;
   full?: boolean;
   style?: ViewStyle;
+  /** override the brand gradient — used by surfaces that carry a course accent */
+  colors?: readonly [string, string, ...string[]];
 }) {
-  const theme = useTheme();
+  const ramp = colors ?? BrandGradient;
   return (
     <SpringPressable
       onPress={onPress}
@@ -70,7 +73,7 @@ export function GradientButton({
         styles.gradientWrap,
         {
           opacity: disabled ? 0.5 : 1,
-          shadowColor: theme.primary,
+          shadowColor: ramp[ramp.length - 1],
           shadowOpacity: 0.5,
           shadowRadius: 16,
           shadowOffset: { width: 0, height: 6 },
@@ -78,7 +81,7 @@ export function GradientButton({
         full && styles.full,
         style,
       ]}>
-      <LinearGradient colors={BrandGradient} start={{ x: 0, y: 0 }} end={{ x: 0.9, y: 1 }} style={[styles.base, styles.cta]}>
+      <LinearGradient colors={ramp} start={{ x: 0, y: 0 }} end={{ x: 0.9, y: 1 }} style={[styles.base, styles.cta]}>
         {loading ? <ActivityIndicator color="#fff" /> : <ThemedText type="heading" style={{ color: '#fff', fontSize: 17 }}>{label}</ThemedText>}
       </LinearGradient>
     </SpringPressable>

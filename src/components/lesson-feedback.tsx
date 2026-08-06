@@ -112,7 +112,12 @@ export function FeedbackBanner({
   const tint = correct ? theme.success : theme.primary;
 
   return (
-    <Animated.View style={[styles.banner, { backgroundColor: tint + '1A', borderTopColor: tint + '59' }, style]}>
+    // The tint is only 10% alpha. It needs an OPAQUE base under it or the bar shows whatever it
+    // covers — with real authored questions the option list has four long rows and reads straight
+    // through the verdict. Opaque background + tint as an overlay keeps the colour, kills the
+    // see-through.
+    <Animated.View style={[styles.banner, { backgroundColor: theme.background, borderTopColor: tint + '59' }, style]}>
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tint + '1A' }]} />
       <View style={styles.verdictRow}>
         <View style={[styles.verdictIcon, { backgroundColor: tint }]}>
           <UIcon name={correct ? 'check' : 'close'} size={17} color="#fff" />
@@ -135,6 +140,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopLeftRadius: Radius.lg,
     borderTopRightRadius: Radius.lg,
+    overflow: 'hidden', // clip the tint overlay to the rounded top corners
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
     paddingBottom: Spacing.two,

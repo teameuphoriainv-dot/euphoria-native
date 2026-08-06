@@ -1,9 +1,16 @@
 /**
- * Home — matches design mockup: greeting + Atlas + streak pill, weekly check row,
- * portfolio card with violet area chart, Continue/Trade duo, Daily Challenge.
+ * Home — one job: get you into the next lesson.
+ *
+ * This screen used to lead with a $104,237.55 portfolio card that was entirely invented (no
+ * portfolio state exists anywhere in the app). Removing it left the screen without an anchor, so
+ * Home is now built around a single hero for the next real lesson — course art in the course
+ * accent, the real title, real position in the course, real XP — with the habit signals (streak,
+ * today's minutes, the week strip) compressed into a strip above it.
+ *
+ * Every number on this screen comes from the store or the curriculum. Nothing here is mock.
  */
 import { router } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -14,22 +21,24 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
-import { AnimatedLineChart } from '@/components/animated-chart';
-import { DailyGoalRing } from '@/components/daily-goal-ring';
+
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { NumberRollup } from '@/shared/motion/number-rollup';
+import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { LessonArt, shade } from '@/components/lesson-art';
+import { courseAccent } from '@/lib/course-accents';
+import { loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { getCourseById } from '@/lib/curriculum/courseIndex';
+import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { getCourseById } from '@/lib/curriculum/courseIndex';
-import { useApp } from '@/lib/store';
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -77,20 +86,6 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
   );
 }
 
-function PortfolioChart() {
-  const theme = useTheme();
-  return (
-    <AnimatedLineChart
-      line="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14"
-      area="M0 70 C30 62 55 66 85 58 C120 48 150 56 185 44 C220 32 250 38 285 24 C300 18 312 16 320 14 L320 90 L0 90 Z"
-      color={theme.primary}
-      gradientId="area"
-      height={90}
-      viewBox="0 0 320 90"
-    />
-  );
-}
-
 export default function Home() {
   const name = useApp((s) => s.profile.name);
   const theme = useTheme();
@@ -100,14 +95,32 @@ export default function Home() {
   const minutesDone = useApp((s) => s.minutesDoneToday());
   const goalMinutes = useApp((s) => s.dailyGoalMinutes());
 
-  // Real progress for the course Learn is currently on. `completedLessons` holds `courseId:num`
-  // keys, so the prefix filter is the whole computation.
   const course = getCourseById(activeCourseId);
+  const accent = courseAccent(activeCourseId);
+
+  // The next lesson's title/xp only live inside the course module — a ~1 MB lazy import. Learn
+  // loads the same module and dynamic imports are cached, so this is paid once per course per
+  // session, not once per screen.
+  const [next, setNext] = useState<PathwayLesson | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadCourseLessons(activeCourseId)
+      .then((ls) => {
+        if (cancelled) return;
+        setNext(ls.find((l) => !completedLessons.includes(lessonKey(activeCourseId, l.num))) ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setNext(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCourseId, completedLessons]);
+
   const doneInCourse = useMemo(
     () => completedLessons.filter((k) => k.startsWith(`${activeCourseId}:`)).length,
     [completedLessons, activeCourseId],
   );
-  const coursePct = course ? Math.round((doneInCourse / course.totalLessons) * 100) : 0;
   const remaining = Math.max(0, goalMinutes - minutesDone);
 
   // The week strip needs per-day history that nothing records yet; `streak` is the only real
@@ -120,19 +133,27 @@ export default function Home() {
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={45} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Greeting */}
+        {/* Greeting + habit pills */}
         <RiseIn>
           <View style={styles.headerRow}>
             <View style={styles.greetLeft}>
               <Atlas size={46} expression="happy" interactive={false} />
-              <View>
-                <ThemedText type="title" style={{ fontSize: 22 }}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">Ready to learn?</ThemedText>
+              <View style={{ flex: 1 }}>
+                <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>
+                  {remaining === 0 ? 'Done for today — streak safe.' : `${remaining} min to keep your streak`}
+                </ThemedText>
               </View>
             </View>
-            <View style={[styles.streakPill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
-              <UIcon name="flame" size={15} color={theme.iconLilac} />
-              <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{streak}</ThemedText>
+            <View style={styles.pillStack}>
+              <View style={[styles.pill, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
+                <UIcon name="flame" size={14} color="#F97316" />
+                <ThemedText type="smallBold" style={{ color: '#F97316', fontSize: 12 }}>{streak}</ThemedText>
+              </View>
+              <View style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
+                <UIcon name="target" size={14} color={theme.iconLilac} />
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 12 }}>{minutesDone}/{goalMinutes}</ThemedText>
+              </View>
             </View>
           </View>
         </RiseIn>
@@ -146,60 +167,46 @@ export default function Home() {
           </View>
         </RiseIn>
 
-        {/* Portfolio */}
+        {/* The hero — the next real lesson */}
         <RiseIn delay={120}>
-          {/* tint is a static wash — this card shows mock numbers, and motion here would read
-              as live data */}
-          <Card style={styles.portfolio} tint={theme.primary}>
-            <View style={styles.rowBetween}>
-              <ThemedText type="label" themeColor="mutedForeground">Portfolio</ThemedText>
-              <View style={styles.deltaRow}>
-                <Svg width={12} height={12} viewBox="0 0 12 12"><Path d="M6 2l4 6H2z" fill={theme.success} /></Svg>
-                <ThemedText type="smallBold" style={{ color: theme.success }}>+$1,284 today</ThemedText>
-              </View>
-            </View>
-            <View style={styles.amountRow}>
-              <NumberRollup value={104237} prefix="$" type="display" style={{ fontSize: 34 }} />
-              <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: 18, marginBottom: 3 }}>.55</ThemedText>
-            </View>
-            <View style={{ marginTop: Spacing.two }}>
-              <PortfolioChart />
-            </View>
+          <Card elevated style={[styles.hero, { shadowColor: accent, borderColor: accent + '30' }]} tint={accent}>
+            {next ? (
+              <>
+                <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={190} />
+                <ThemedText type="label" style={{ color: accent, marginTop: Spacing.four }} numberOfLines={1}>
+                  {(course?.title ?? 'Course').toUpperCase()}
+                </ThemedText>
+                <ThemedText type="display" style={styles.heroTitle}>{next.title}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.three }}>
+                  Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
+                </ThemedText>
+                <View style={styles.heroCta}>
+                  <GradientButton
+                    label={doneInCourse === 0 ? 'Start' : 'Continue'}
+                    colors={[shade(accent, 0.3), accent]}
+                    full
+                    onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
+                  />
+                </View>
+              </>
+            ) : (
+              <>
+                <ThemedText type="title" style={{ textAlign: 'center' }}>
+                  {doneInCourse > 0 ? 'Course complete.' : 'Loading your next lesson…'}
+                </ThemedText>
+                {doneInCourse > 0 && (
+                  <View style={styles.heroCta}>
+                    <GradientButton label="Pick a new course" full onPress={() => router.push('/courses')} />
+                  </View>
+                )}
+              </>
+            )}
           </Card>
         </RiseIn>
 
-        {/* Daily goal ring */}
-        <RiseIn delay={160}>
-          <SpringPressable onPress={() => router.push('/learn')}>
-            <Card style={styles.goalRow} tint={theme.primary}>
-              <DailyGoalRing value={minutesDone} goal={goalMinutes} />
-              <View style={{ flex: 1 }}>
-                <ThemedText type="label" themeColor="mutedForeground">Today&apos;s goal</ThemedText>
-                <ThemedText type="heading" style={{ fontSize: 17, marginTop: 2 }}>{minutesDone} of {goalMinutes} minutes</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-                  {remaining === 0 ? 'Done for today — streak safe.' : `${remaining} min to keep your streak alive`}
-                </ThemedText>
-              </View>
-            </Card>
-          </SpringPressable>
-        </RiseIn>
-
-        {/* Continue / Trade duo */}
+        {/* Secondary surfaces */}
         <View style={styles.duoRow}>
           <RiseIn delay={180} style={styles.duoHalf}>
-            <SpringPressable onPress={() => router.push('/learn')}>
-              <Card style={[styles.duoCard, { backgroundColor: theme.primary, borderColor: theme.primary }]}>
-                <UIcon name="arrowRight" size={20} color="#fff" />
-                <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two, color: '#fff' }}>Continue</ThemedText>
-                <ThemedText type="small" numberOfLines={1} style={{ color: 'rgba(255,255,255,0.85)' }}>
-                  {/* percent first: the card is half-width and one line, so a long course title
-                      would otherwise truncate the progress number clean off the end */}
-                  {course ? `${coursePct}% · ${course.title}` : 'Pick a course'}
-                </ThemedText>
-              </Card>
-            </SpringPressable>
-          </RiseIn>
-          <RiseIn delay={230} style={styles.duoHalf}>
             <SpringPressable onPress={() => router.push('/trade')}>
               <Card style={styles.duoCard} tint={theme.success}>
                 <UIcon name="trade" size={20} color={theme.success} />
@@ -208,22 +215,16 @@ export default function Home() {
               </Card>
             </SpringPressable>
           </RiseIn>
+          <RiseIn delay={230} style={styles.duoHalf}>
+            <SpringPressable onPress={() => router.push('/digest')}>
+              <Card style={styles.duoCard} tint={theme.primary}>
+                <UIcon name="bookOpen" size={20} color={theme.iconLilac} />
+                <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two }}>Digest</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">Today&apos;s read</ThemedText>
+              </Card>
+            </SpringPressable>
+          </RiseIn>
         </View>
-
-        {/* Daily challenge */}
-        <RiseIn delay={290}>
-          <SpringPressable onPress={() => router.push('/lesson')}>
-            <Card style={[styles.challenge, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '38' }]}>
-              <View style={styles.challengeHead}>
-                <UIcon name="sparkle" size={15} color={theme.iconLilac} />
-                <ThemedText type="label" style={{ color: theme.iconLilac }}>Daily Challenge</ThemedText>
-              </View>
-              <ThemedText type="bodyMedium" style={{ marginTop: Spacing.one, lineHeight: 22 }}>
-                If a stock drops 20% then rises 20%, are you back to even?
-              </ThemedText>
-            </Card>
-          </SpringPressable>
-        </RiseIn>
       </ScrollView>
     </SafeAreaView>
   );
@@ -232,20 +233,17 @@ export default function Home() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  greetLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
-  streakPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: Radius.pill, borderWidth: 1 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
+  greetLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, flex: 1 },
+  pillStack: { gap: 5, alignItems: 'flex-end' },
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, borderWidth: 1 },
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
   dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  portfolio: { paddingBottom: Spacing.two },
-  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  deltaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  amountRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, marginTop: Spacing.one },
+  hero: { alignItems: 'center', paddingVertical: Spacing.four, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
+  heroTitle: { textAlign: 'center', fontSize: 26, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
+  heroCta: { alignSelf: 'stretch', marginTop: Spacing.four },
   duoRow: { flexDirection: 'row', gap: Spacing.three },
   duoHalf: { flex: 1 },
   duoCard: { minHeight: 104 },
-  challenge: {},
-  challengeHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  goalRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
 });

@@ -41,7 +41,8 @@ import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { COURSES } from '@/lib/curriculum/courseIndex';
-import { estimateWeeks, lessonsPerDay, recommendPath, type Profile } from '@/lib/onboarding-path';
+import { applyDailyNudge } from '@/lib/notifications';
+import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -241,7 +242,9 @@ export default function Onboarding() {
       ? Math.min(Math.max(0, wantsPaywall ? PAYWALL_INDEX : Number(params.step) || 0), TOTAL - 1)
       : 0;
   const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(startStep, scrollRef);
-  const [celebrateKey, setCelebrateKey] = useState(0);
+  // A tap is an acknowledgement, not an achievement — see AtlasStage below for why these are
+  // two different keys.
+  const [nodKey, setNodKey] = useState(0);
   const [plan, setPlan] = useState<'annual' | 'monthly'>('annual');
 
   const profile = useApp((s) => s.profile);
@@ -253,7 +256,9 @@ export default function Onboarding() {
 
   // Derived, not stored: a store getter returning a fresh array would give zustand an
   // unstable snapshot and loop renders (see you.tsx:43).
-  const path = useMemo(() => recommendPath(profile), [profile]);
+  // Detailed picks carry the reason each course was chosen, so the reveal can show its working.
+  const picks = useMemo(() => recommendPathDetailed(profile), [profile]);
+  const path = useMemo(() => picks.map((x) => x.course), [picks]);
   const perDay = lessonsPerDay(profile.dailyMinutes);
   const weeks = estimateWeeks(profile, path);
   const tierLabel = profile.experience === 'experienced' ? 'advanced' : profile.experience === 'basics' ? 'intermediate' : 'beginner';
@@ -261,15 +266,24 @@ export default function Onboarding() {
   /** Single-select write. Two fields aren't strings, so they're coerced here. */
   const answer = (field: keyof Profile, value: string) => {
     if (field === 'dailyMinutes') setProfile({ dailyMinutes: Number.parseInt(value, 10) });
-    else if (field === 'notifyOptIn') setProfile({ notifyOptIn: value === 'yes' });
+    else if (field === 'notifyOptIn') {
+      const want = value === 'yes';
+      // Optimistic so the radio fills immediately, then corrected to whatever iOS actually
+      // granted. Storing the tap alone is how this screen used to promise a nudge that no
+      // code anywhere scheduled.
+      setProfile({ notifyOptIn: want });
+      void applyDailyNudge(want).then((scheduled) => {
+        if (scheduled !== want) setProfile({ notifyOptIn: scheduled });
+      });
+    }
     else setProfile({ [field]: value } as Partial<Profile>);
-    setCelebrateKey((n) => n + 1);
+    setNodKey((n) => n + 1);
   };
 
   const toggle = (field: keyof Profile, value: string) => {
     const current = (profile[field] as string[]) ?? [];
     setProfile({ [field]: current.includes(value) ? current.filter((v) => v !== value) : [...current, value] } as Partial<Profile>);
-    setCelebrateKey((n) => n + 1);
+    setNodKey((n) => n + 1);
   };
 
   const selected = (field: keyof Profile): string | null => {
@@ -375,15 +389,16 @@ export default function Onboarding() {
           />
         );
       case 'reveal':
-        return <PlanRevealStep tierLabel={tierLabel} courses={path} perDay={perDay} weeks={weeks} />;
+        return <PlanRevealStep tierLabel={tierLabel} picks={picks} perDay={perDay} weeks={weeks} />;
       default:
         return (
-          <>
+          <View style={styles.paywallBody}>
             <StepHeading title={'Start your 7-day FREE trial to continue'} />
-            {/* This screen is content-bound, not space-bound: every point of padding added here
-                pushes "No payment due now" off the bottom. The decongestion comes from the
-                one-line TRIAL_STEPS copy and from moving the renewal terms into the pinned
-                footer, NOT from more air. */}
+            {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
+                spread across whatever height is left over, so a tall phone breathes and a small
+                one simply stops spreading and scrolls — the previous flex-start packed
+                everything to the top and left the slack stranded at the bottom. Hardcoding that
+                slack as padding is what would push "No payment due now" off an SE. */}
             <View style={{ marginTop: Spacing.four }}>
               {TRIAL_STEPS.map((s, i) => (
                 <RiseIn key={s.title} delay={childDelay(i)}>
@@ -413,16 +428,27 @@ export default function Onboarding() {
                 unit="per month"
               />
             </RiseIn>
-          </>
+          </View>
         );
     }
   };
 
   const isLoader = liveDef?.kind === 'loader';
+  // The two tail steps must FILL the scroll viewport rather than sit at its top: both are
+  // content-light next to a pinned CTA, so top-packing strands the leftover height as a dead
+  // band above the button. The flex chain is opened up only for them; every question step keeps
+  // its existing top-packed layout untouched.
+  const fillsViewport = renderStep === PAYWALL_INDEX || renderStep === REVEAL_INDEX;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    // AmbientBackground is absoluteFill, so it can only ever paint its PARENT. Nested inside
+    // the SafeAreaView it was clipped to the inset box, which left the home-indicator band at
+    // the bottom bare — the "white space" under the paywall footer. A full-bleed wrapper with
+    // a TRANSPARENT SafeAreaView inside keeps every existing layout rule intact while letting
+    // the gradient and stars run to the physical edges of the screen.
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AmbientBackground />
+      <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <ProgressHeader step={step} total={TOTAL} onBack={back} />
       </View>
@@ -430,16 +456,21 @@ export default function Onboarding() {
       <AtlasStage
         t={atlasT}
         expression={face}
-        // only the question steps react with a hop; zeroing elsewhere makes the paywall's
-        // smaller `size` safe (size is a dependency of Atlas's celebrate effect)
-        celebrateKey={renderStep < REVEAL_INDEX ? celebrateKey : 0}
+        // The hop is reserved for the ONE moment that earns it: the finished plan. It used to
+        // fire on every option tap while the reveal got nothing, which is the reaction map
+        // exactly inverted — the loudest beat on the cheapest action.
+        //
+        // Still zero everywhere else, which also keeps the paywall's smaller `size` safe
+        // (size is a dependency of Atlas's celebrate effect).
+        celebrateKey={renderStep === REVEAL_INDEX ? 1 : 0}
+        nodKey={renderStep < REVEAL_INDEX ? nodKey : 0}
         size={renderStep === PAYWALL_INDEX ? 56 : ATLAS_SIZE}
       />
 
       <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Animated.View style={bodyStyle}>
+        <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
-          <View key={renderStep}>{body()}</View>
+          <View key={renderStep} style={fillsViewport ? styles.grow : undefined}>{body()}</View>
         </Animated.View>
       </ScrollView>
 
@@ -492,16 +523,23 @@ export default function Onboarding() {
           )}
         </View>
       )}
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  /** Full-bleed. Holds the ambient background so it reaches past the safe-area insets. */
+  screen: { flex: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   content: { padding: Spacing.four, paddingTop: Spacing.three, flexGrow: 1, justifyContent: 'flex-start' },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  /** Opens the flex chain so a child can claim the leftover viewport height. */
+  grow: { flexGrow: 1 },
+  /** Heading / trial timeline / plan cards, spread across the leftover height. */
+  paywallBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: 11, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },

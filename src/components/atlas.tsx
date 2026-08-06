@@ -78,6 +78,8 @@ export function Atlas({
   celebrate = false,
   celebrateKey = 0,
   celebrateGain = CELEBRATE_GAIN,
+  nod = false,
+  nodKey = 0,
   shake = false,
   entrance,
   idle = false,
@@ -90,6 +92,11 @@ export function Atlas({
   /** Bump to re-fire the hop. A boolean `celebrate` latches once and never fires again —
    *  which is why re-selecting an onboarding option used to produce no reaction. */
   celebrateKey?: number;
+  /** Acknowledging nod — the correct reaction to a single TAP. Drives the head and a
+   *  micro-squash only; `jumpY` is never touched, so it has no vertical travel. */
+  nod?: boolean;
+  /** Bump to re-fire the nod. Same latch problem as `celebrateKey`. */
+  nodKey?: number;
   shake?: boolean;
   /** Amplitude of the celebrate hop, as a fraction of the full cartoon beat. Defaults to the
    *  quiet per-tap reaction. Pass 1 for a once-per-lesson payoff — a global constant made the
@@ -174,6 +181,28 @@ export function Atlas({
       withSpring(0, { stiffness: 120, damping: 8 }),
     )));
   }, [celebrate, celebrateKey, celebrateGain, reduced, jumpY, squash, headLag, size]);
+
+  // Acknowledging nod — the reaction to a single TAP, and deliberately NOT a quieter hop.
+  //
+  // A hop answers "something was achieved". A tap only means "I heard you", and firing the
+  // celebrate beat on every option tap is what made onboarding read as a mascot bouncing on
+  // the spot. Turning CELEBRATE_GAIN down only made it a small bounce; the gesture itself was
+  // wrong. This drives the head rotation and a micro-squash and never touches `jumpY`, and
+  // `squash` is top-anchored in `breathStyle`, so the nod has NO vertical travel at all.
+  //
+  // Same beat shape as everything else here — dip, return, ring down — so it still reads as
+  // deliberate character rather than a UI tween.
+  useEffect(() => {
+    if (!nod || reduced) return;
+    headLag.set(withSequence(
+      withTiming(-7, { duration: 120, easing: Easing.out(Easing.quad) }),
+      withSpring(0, { stiffness: 150, damping: 9 }),
+    ));
+    squash.set(withSequence(
+      withTiming(0.3, { duration: 100, easing: Easing.out(Easing.quad) }),
+      withSpring(0, { stiffness: 210, damping: 14 }),
+    ));
+  }, [nod, nodKey, reduced, headLag, squash]);
 
   // Idle breath — an ANCHORED SQUASH-STRETCH, not a bob. Measured off the Brilliant
   // recordings (refs/videos): the mascot's top edge never moves across 90 frames; only its
