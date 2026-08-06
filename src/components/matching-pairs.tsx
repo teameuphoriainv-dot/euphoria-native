@@ -74,7 +74,17 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
             const isSel = selected === i;
             const border = isMatched ? theme.success : isSel ? theme.primary : theme.border;
             return (
-              <SpringPressable key={p.left} disabled={isMatched} onPress={() => tapLeft(i)}>
+              <SpringPressable
+                key={p.left}
+                disabled={isMatched}
+                onPress={() => tapLeft(i)}
+                // Selection and matched-ness were carried only by border colour and a tick
+                // glyph. Without them announced, a screen-reader user cannot tell which term
+                // is currently picked up or which pairs are already done.
+                accessibilityRole="button"
+                accessibilityLabel={p.left}
+                accessibilityState={{ selected: isSel, disabled: isMatched }}
+                accessibilityHint={isMatched ? undefined : 'Activate, then choose its definition.'}>
                 <View style={[styles.cell, { borderColor: border, borderWidth: isSel || isMatched ? 2 : StyleSheet.hairlineWidth, backgroundColor: isSel ? theme.primary + '14' : theme.card }]}>
                   <ThemedText type="bodyMedium" style={{ flex: 1 }}>{p.left}</ThemedText>
                   {isMatched && <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />}
@@ -90,7 +100,14 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
             const isWrong = wrong === j;
             const border = isMatched ? theme.success : isWrong ? theme.warning : theme.border;
             return (
-              <SpringPressable key={spec.pairs[j].right} disabled={isMatched} onPress={() => tapRight(j)}>
+              <SpringPressable
+                key={spec.pairs[j].right}
+                disabled={isMatched}
+                onPress={() => tapRight(j)}
+                accessibilityRole="button"
+                accessibilityLabel={spec.pairs[j].right}
+                accessibilityState={{ disabled: isMatched }}
+                accessibilityHint={isMatched ? undefined : 'Activate to match this with the selected term.'}>
                 <View style={[styles.cell, { borderColor: border, borderWidth: isMatched || isWrong ? 2 : StyleSheet.hairlineWidth, backgroundColor: isMatched ? theme.success + '14' : theme.card }]}>
                   <ThemedText type="small" style={{ flex: 1 }}>{spec.pairs[j].right}</ThemedText>
                   {isMatched && <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />}

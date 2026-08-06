@@ -56,7 +56,17 @@ export function MultiSelect({ spec, onSolvedChange }: { spec: MultiSpec; onSolve
           const border = revealWrong ? theme.warning : revealRight ? theme.success : on ? theme.primary : theme.border;
           const fill = on ? border : 'transparent';
           return (
-            <SpringPressable key={o.label} disabled={solved} onPress={() => toggle(i)}>
+            <SpringPressable
+              key={o.label}
+              disabled={solved}
+              onPress={() => toggle(i)}
+              // Selection is the ENTIRE point of a multi-select, and it was conveyed only by a
+              // tick glyph and a border colour — neither of which reaches a screen reader. With
+              // no checked state a VoiceOver user cannot tell what they have picked, and
+              // gates() blocks Continue on this step type, so the lesson becomes uncompletable.
+              accessibilityRole="checkbox"
+              accessibilityLabel={o.label}
+              accessibilityState={{ checked: on, disabled: solved }}>
               <View style={[styles.row, { borderColor: border, borderWidth: on || revealRight ? 2 : StyleSheet.hairlineWidth, backgroundColor: on && !checked ? theme.primary + '14' : theme.card }]}>
                 <View style={[styles.box, { borderColor: border, backgroundColor: fill }]}>
                   {on && <UIcon name="check" size={14} color="#fff" strokeWidth={3} />}

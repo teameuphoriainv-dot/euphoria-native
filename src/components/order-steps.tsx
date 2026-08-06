@@ -73,7 +73,18 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
           const isSel = selected === pos;
           const border = isSel ? theme.primary : inPlace ? theme.success : theme.border;
           return (
-            <SpringPressable key={spec.items[itemIdx]} disabled={solved} onPress={() => tap(pos)}>
+            <SpringPressable
+              key={spec.items[itemIdx]}
+              disabled={solved}
+              onPress={() => tap(pos)}
+              // Reordering is a two-tap swap, so "which row is currently picked up" is the
+              // only state that makes the interaction followable. It was carried purely by a
+              // border colour, which a screen reader cannot see. Position is announced too —
+              // otherwise the user cannot tell what the swap achieved.
+              accessibilityRole="button"
+              accessibilityLabel={`Position ${pos + 1}. ${spec.items[itemIdx]}`}
+              accessibilityState={{ selected: isSel, disabled: solved }}
+              accessibilityHint={isSel ? 'Activate another row to swap with this one.' : 'Activate to pick up this row.'}>
               <View style={[styles.row, { borderColor: border, borderWidth: isSel || inPlace ? 2 : StyleSheet.hairlineWidth, backgroundColor: isSel ? theme.primary + '14' : theme.card }]}>
                 <View style={[styles.num, { backgroundColor: (inPlace ? theme.success : theme.primary) + '22' }]}>
                   <ThemedText type="smallBold" style={{ color: inPlace ? theme.success : theme.iconLilac }}>{pos + 1}</ThemedText>

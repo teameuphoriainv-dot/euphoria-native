@@ -35,6 +35,19 @@ export function SliderPredict({ spec, revealed, onTouched }: { spec: SliderSpec;
       runOnJS(onTouched)();
     });
 
+  /**
+   * Assistive stepping. The only way to set a value here is a PAN gesture, which a VoiceOver
+   * user cannot perform — same class of blocker as NumberLine. 5% per action gives twenty
+   * steps end to end, which is enough resolution to land inside the default 15% tolerance.
+   */
+  const nudge = (dir: 1 | -1) => {
+    if (revealed) return;
+    const f = Math.max(0, Math.min(1, frac.value + dir * 0.05));
+    frac.value = f;
+    setGuess(spec.max * f);
+    onTouched();
+  };
+
   const thumbStyle = useAnimatedStyle(() => ({ left: frac.value * trackW.value - THUMB / 2 }));
   const fillStyle = useAnimatedStyle(() => ({ width: frac.value * trackW.value }));
   const answerPct = Math.min(1, spec.answer / spec.max) * 100;
@@ -58,7 +71,15 @@ export function SliderPredict({ spec, revealed, onTouched }: { spec: SliderSpec;
       </View>
 
       <GestureDetector gesture={pan}>
-        <View style={styles.trackArea} onLayout={(e) => { trackW.value = e.nativeEvent.layout.width; }}>
+        <View
+          style={styles.trackArea}
+          onLayout={(e) => { trackW.value = e.nativeEvent.layout.width; }}
+          accessibilityRole="adjustable"
+          accessibilityLabel={spec.prompt}
+          accessibilityHint="Swipe up or down to change your guess."
+          accessibilityValue={{ min: 0, max: Math.round(spec.max), now: Math.round(guess), text: spec.format(guess) }}
+          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+          onAccessibilityAction={(e) => nudge(e.nativeEvent.actionName === 'decrement' ? -1 : 1)}>
           <View style={[styles.track, { backgroundColor: theme.muted }]}>
             <Animated.View style={[styles.fill, { backgroundColor: theme.primary }, fillStyle]} />
           </View>

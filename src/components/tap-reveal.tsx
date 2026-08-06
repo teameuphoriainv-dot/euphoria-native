@@ -37,7 +37,16 @@ export function TapReveal({ spec, onSolvedChange }: { spec: RevealSpec; onSolved
 
       <View style={styles.grid}>
         {spec.cards.map((c, i) => (
-          <SpringPressable key={c.term} onPress={() => flip(i)} style={styles.cardWrap} haptic={false}>
+          <SpringPressable
+            key={c.term}
+            onPress={() => flip(i)}
+            style={styles.cardWrap}
+            haptic={false}
+            accessibilityRole="button"
+            // State goes in the accessible NAME rather than a checked flag: these are flip
+            // cards, not toggles, and the whole point is whether the definition is showing.
+            accessibilityLabel={revealed[i] ? `${c.term}. ${c.def}` : `${c.term}. Not revealed yet.`}
+            accessibilityHint={revealed[i] ? undefined : 'Activate to reveal the definition.'}>
             {revealed[i] ? (
               <Animated.View entering={ZoomIn.springify().damping(16)} style={[styles.card, { borderColor: theme.primary, backgroundColor: theme.primary + '12' }]}>
                 <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{c.term}</ThemedText>
