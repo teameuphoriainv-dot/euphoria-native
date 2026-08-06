@@ -59,10 +59,17 @@ export function AtlasStage({
   const style = useAnimatedStyle(() => {
     const p = t.get();
     return {
-      // Reaches full opacity at p=0.625, so it is solid for most of the descend and gone
-      // early on the exit — which keeps the travel short enough to fit the stage.
+      // Reaches full opacity at p=0.625, so it is solid for most of the entry and gone
+      // early on the exit.
       opacity: Math.min(1, Math.max(0, p * 1.6)),
-      transform: [{ translateY: -(1 - p) * ATLAS_RISE }, { scale: 0.88 + 0.12 * p }],
+      // NO translateY. The step transition used to move the mascot vertically by ATLAS_RISE on
+      // EVERY step, which is the same gesture the celebrate hop uses to mean "you earned this"
+      // — and the routine version fired ~20x more often, so the reward stopped reading as one.
+      //
+      // Vertical translation is now reserved for earned moments (see
+      // refs/ATLAS_REACTION_MAP.md §0). Everything else deforms, rotates or fades. The scale
+      // range is widened 0.88->0.86 to keep the transition legible without it.
+      transform: [{ scale: 0.86 + 0.14 * p }],
     };
   });
   return (
