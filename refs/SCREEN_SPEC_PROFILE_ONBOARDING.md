@@ -119,7 +119,7 @@ Euphoria's onboarding step 1, read off the simulator a11y tree this session:
 
 Same question, near-identical phrasing, same funnel position. We are already on the pattern.
 
-## Three differences, and what to do about each
+## Four findings, and what to do about each
 
 1. **We require a second tap on every single-select step. VERIFIED in source.**
 
@@ -159,7 +159,7 @@ Same question, near-identical phrasing, same funnel position. We are already on 
    in the handoff and `SCREEN_REDESIGN.md` §1/§4 T1, now confirmed at an exact line rather
    than inferred.
 
-2. **No "Other".** YNAB offers one. Ours has four fixed options with no escape hatch. A user
+3. **No "Other".** YNAB offers one. Ours has four fixed options with no escape hatch. A user
    whose goal is none of the four must pick a wrong answer, and that answer is what we
    personalise on.
 
