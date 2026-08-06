@@ -11,7 +11,7 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
@@ -172,12 +172,12 @@ export default function Lesson() {
               </View>
             )}
 
-            {norm.kind === 'reveal' && <View style={styles.mid}><TapReveal spec={norm.spec} onSolvedChange={setSolved} /></View>}
-            {norm.kind === 'match' && <View style={styles.mid}><MatchingPairs spec={norm.spec} onSolvedChange={setSolved} /></View>}
-            {norm.kind === 'order' && <View style={styles.mid}><OrderSteps spec={norm.spec} onSolvedChange={setSolved} /></View>}
-            {norm.kind === 'line' && <View style={styles.mid}><NumberLine spec={norm.spec} onSolvedChange={setSolved} /></View>}
-            {norm.kind === 'multi' && <View style={styles.mid}><MultiSelect spec={norm.spec} onSolvedChange={setSolved} /></View>}
-            {norm.kind === 'build' && <View style={styles.mid}><TileBuilder spec={norm.spec} onSolvedChange={setSolved} /></View>}
+            {norm.kind === 'reveal' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TapReveal spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'match' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MatchingPairs spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'order' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><OrderSteps spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'line' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><NumberLine spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'multi' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MultiSelect spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'build' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TileBuilder spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
 
             {norm.kind === 'choice' && (
               <View style={{ flex: 1 }}>
@@ -277,7 +277,13 @@ const styles = StyleSheet.create({
   fill: { height: 8, borderRadius: 8 },
   body: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.three },
   stepBody: { flex: 1 },
-  mid: { flex: 1, justifyContent: 'center' },
+  /** Interactive steps SCROLL. As a plain centred View, any step taller than the space
+   *  available overflowed symmetrically — so its bottom slid underneath the pinned footer.
+   *  MultiSelect's own Check button ended up 70% covered by the footer's Continue, and since
+   *  the footer renders after this, it swallowed the taps: the button looked dead. flexGrow
+   *  keeps short steps centred; tall ones scroll instead of hiding under the CTA. */
+  midScroll: { flex: 1 },
+  midContent: { flexGrow: 1, justifyContent: 'center', paddingBottom: Spacing.two },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { textAlign: 'center', marginTop: Spacing.three },
