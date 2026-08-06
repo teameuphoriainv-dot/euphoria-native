@@ -163,7 +163,7 @@ Same question, near-identical phrasing, same funnel position. We are already on 
    whose goal is none of the four must pick a wrong answer, and that answer is what we
    personalise on.
 
-3. **No "Other" escape hatch** is difference 2 above; **they use emoji, we use subtitles.** Ours is arguably better — a subtitle explains the
+4. **They use emoji, we use subtitles.** Ours is arguably better — a subtitle explains the
    option, an emoji decorates it. Not a change; noting it so nobody "fixes" it later.
 
 ## What to run next for a real onboarding spec
