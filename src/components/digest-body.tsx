@@ -1,5 +1,5 @@
 /**
- * DigestBody — renders a Digest article's markdown with the app's own type scale.
+ * Blocks — renders a Digest article's markdown with the app's own type scale.
  *
  * Purpose-built rather than a markdown dependency: the corpus uses exactly five block kinds
  * (## heading, paragraph, - bullet, > quote, ![alt](heroKey)) and one inline kind (**bold**),
@@ -8,13 +8,13 @@
  *
  * Inline images reference the same DIGEST_HEROES keys the post covers use.
  */
-import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
-import { heroSvg } from '@/lib/digest-heroes';
+import type { DigestCategory } from '@/lib/digest-content';
+import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { useTheme } from '@/hooks/use-theme';
 
 export type Block =
@@ -127,9 +127,10 @@ function H2({ text }: { text: string }) {
   );
 }
 
-/** Renders an arbitrary run of blocks. The paginated reader uses this per section; DigestBody
- *  below is the whole-article form. */
-export function Blocks({ blocks }: { blocks: Block[] }) {
+/** Renders an arbitrary run of blocks. The paginated reader uses this per section.
+ *  `category` selects the figure's hue ramp — see lib/hero-tint.ts for why tinting
+ *  happens at render time rather than in the synced artwork. */
+export function Blocks({ blocks, category }: { blocks: Block[]; category: DigestCategory }) {
   const theme = useTheme();
   // a "Key Takeaways" heading plus the list under it renders as one callout
   const takeIdx = blocks.findIndex((b) => b.kind === 'h2' && /^key takeaways$/i.test(b.text));
@@ -186,94 +187,10 @@ export function Blocks({ blocks }: { blocks: Block[] }) {
               </View>
             );
           case 'image': {
-            const xml = heroSvg(b.hero);
+            const xml = tintedHero(b.hero, category);
             if (!xml) return null;
             return (
-              <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
-                <SvgXml xml={xml} width="100%" height={196} />
-              </View>
-            );
-          }
-          default:
-            // the opening line carries the whole argument in this format — at body size it reads
-            // as just another paragraph and the hook is lost
-            return <Rich key={i} text={b.text} lead={i === 0} />;
-        }
-      })}
-    </View>
-  );
-}
-
-export function DigestBody({ markdown }: { markdown: string }) {
-  const theme = useTheme();
-  const blocks = useMemo(() => parseBlocks(markdown), [markdown]);
-
-  /** Indices covered by the Key Takeaways callout, so they are not also rendered inline.
-   *  Detected from the heading text rather than new markdown syntax — that keeps the web
-   *  renderer, which has no concept of a callout, rendering these posts correctly too. */
-  const takeaways = useMemo(() => {
-    const h = blocks.findIndex((b) => b.kind === 'h2' && /^key takeaways$/i.test(b.text));
-    if (h === -1) return null;
-    const list = blocks[h + 1];
-    if (list?.kind !== 'bullet') return null;
-    return { headingIndex: h, listIndex: h + 1, items: list.items };
-  }, [blocks]);
-
-  return (
-    <View>
-      {blocks.map((b, i) => {
-        if (takeaways && i === takeaways.headingIndex) {
-          return (
-            <View
-              key={i}
-              style={[styles.takeaways, { borderColor: theme.primary + '3D', backgroundColor: theme.primary + '12' }]}>
-              <ThemedText type="label" style={{ color: theme.iconLilac }}>
-                Key takeaways
-              </ThemedText>
-              <View style={{ marginTop: Spacing.two, gap: Spacing.one }}>
-                {takeaways.items.map((it, j) => (
-                  <View key={j} style={styles.li}>
-                    <View style={[styles.dot, { backgroundColor: theme.primary }]} />
-                    <View style={{ flex: 1 }}>
-                      <Rich text={it} muted={false} tight />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-          );
-        }
-        if (takeaways && i === takeaways.listIndex) return null;
-
-        switch (b.kind) {
-          case 'h2':
-            return <H2 key={i} text={b.text} />;
-          case 'quote':
-            return (
-              <View key={i} style={[styles.quote, { borderLeftColor: theme.primary, backgroundColor: theme.primary + '10' }]}>
-                <ThemedText type="bodyMedium" style={{ lineHeight: 23 }}>
-                  {b.text}
-                </ThemedText>
-              </View>
-            );
-          case 'bullet':
-            return (
-              <View key={i} style={styles.list}>
-                {b.items.map((it, j) => (
-                  <View key={j} style={styles.li}>
-                    <View style={[styles.dot, { backgroundColor: theme.primary }]} />
-                    <View style={{ flex: 1 }}>
-                      <Rich text={it} tight />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            );
-          case 'image': {
-            const xml = heroSvg(b.hero);
-            if (!xml) return null;
-            return (
-              <View key={i} style={[styles.figure, { backgroundColor: theme.primary + '12' }]}>
+              <View key={i} style={[styles.figure, { backgroundColor: (heroTint(category) ?? theme.primary) + '12' }]}>
                 <SvgXml xml={xml} width="100%" height={196} />
               </View>
             );

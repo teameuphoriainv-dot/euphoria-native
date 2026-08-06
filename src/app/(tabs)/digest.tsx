@@ -29,7 +29,7 @@ import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
 import { pickToday } from '@/lib/digest-pick';
-import { heroSvg } from '@/lib/digest-heroes';
+import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -38,7 +38,7 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 const ALL = 'All';
 
 function Hero({ post, size }: { post: DigestPost; size: number }) {
-  const xml = heroSvg(post.hero);
+  const xml = tintedHero(post.hero, post.category);
   if (!xml) return null;
   // default preserveAspectRatio letterboxes inside the box, so the illustration never distorts
   return <SvgXml xml={xml} width={size} height={size} />;
@@ -50,7 +50,7 @@ function TodayCard({ post }: { post: DigestPost }) {
   return (
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)}>
       <Card style={styles.today} tint={theme.primary} elevated>
-        <View style={[styles.heroPanel, { backgroundColor: theme.primary + '14' }]}>
+        <View style={[styles.heroPanel, { backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
           <Hero post={post} size={132} />
         </View>
 
@@ -146,7 +146,7 @@ function GuideCard({ post, read }: { post: DigestPost; read: boolean }) {
   return (
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)} scaleTo={0.97}>
       <Card style={styles.guide}>
-        <View style={[styles.guideArt, { backgroundColor: theme.primary + '12' }]}>
+        <View style={[styles.guideArt, { backgroundColor: (heroTint(post.category) ?? theme.primary) + '12' }]}>
           <Hero post={post} size={62} />
         </View>
         <View style={{ flex: 1 }}>

@@ -26,7 +26,7 @@ import { bodyFor } from '@/lib/digest-bodies';
 import { DIGEST_POSTS } from '@/lib/digest-content';
 import { lessonForGuide } from '@/lib/digest-lessons';
 import { ReadReward } from "@/components/read-reward";
-import { heroSvg } from '@/lib/digest-heroes';
+import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -130,7 +130,7 @@ export default function DigestArticle() {
   }
 
   const card = i > 0 ? cards[i - 1] : null;
-  const xml = heroSvg(post.hero);
+  const xml = tintedHero(post.hero, post.category);
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -160,7 +160,7 @@ export default function DigestArticle() {
           {i === 0 ? (
             <RiseIn>
               {xml ? (
-                <View style={[styles.cover, { height: coverH, backgroundColor: theme.primary + '14' }]}>
+                <View style={[styles.cover, { height: coverH, backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
                   <SvgXml xml={xml} width="100%" height={coverH} />
                 </View>
               ) : null}
@@ -173,7 +173,7 @@ export default function DigestArticle() {
             </RiseIn>
           ) : (
             <RiseIn>
-              <Blocks blocks={card?.blocks ?? []} />
+              <Blocks blocks={card?.blocks ?? []} category={post.category} />
               {last && firstRead ? <ReadReward streak={streakAfter} /> : null}
             </RiseIn>
           )}
