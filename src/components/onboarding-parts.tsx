@@ -332,7 +332,11 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
         <AnimatedCircle cx={288} cy={14} fill={theme.primary} animatedProps={dotProps} />
       </Svg>
       <View style={styles.chartLabels}>
-        <ThemedText type="smallBold" style={{ color: theme.primary }}>With Euphoria</ThemedText>
+        {/* iconLilac, not primary. This is 13px semibold, which is NOT "large text" under WCAG,
+            so it needs 4.5:1 - and primary measures 4.48:1 on `card`. iconLilac is the palette's
+            violet meant for text on dark and measures 8.26:1. The chart stroke and dot above stay
+            primary: they are graphical, judged at 3:1, and pass. Same call as digest.tsx. */}
+        <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>With Euphoria</ThemedText>
         <ThemedText type="small" themeColor="mutedForeground">Without daily practice</ThemedText>
       </View>
       <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15, alignSelf: 'flex-end' }}>Time</ThemedText>
