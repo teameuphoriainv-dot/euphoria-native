@@ -65,7 +65,7 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
       <ThemedText
         type={today ? 'smallBold' : 'small'}
         themeColor={today ? undefined : 'mutedForeground'}
-        style={[{ fontSize: 11 }, today ? { color: theme.iconLilac } : null]}>
+        style={[{ fontSize: 11, lineHeight: 15 }, today ? { color: theme.iconLilac } : null]}>
         {label}
       </ThemedText>
       <View style={styles.dayMark}>

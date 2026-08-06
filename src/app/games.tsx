@@ -56,7 +56,7 @@ export default function Games() {
                   <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }]}>
                     <Icon name={g.icon} size={40} />
                   </View>
-                  <ThemedText type="heading" style={{ fontSize: 15, marginTop: Spacing.two }}>{g.name}</ThemedText>
+                  <ThemedText type="heading" style={{ fontSize: 15, lineHeight: 20, marginTop: Spacing.two }}>{g.name}</ThemedText>
                 </Card>
               </SpringPressable>
             </RiseIn>

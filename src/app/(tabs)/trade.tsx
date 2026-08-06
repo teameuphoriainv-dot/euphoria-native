@@ -28,7 +28,7 @@ function Ticker({ sym }: { sym: string }) {
   const theme = useTheme();
   return (
     <View style={[styles.ticker, { backgroundColor: theme.primary + '1F' }]}>
-      <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 11 }}>{sym.slice(0, 4)}</ThemedText>
+      <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 11, lineHeight: 15 }}>{sym.slice(0, 4)}</ThemedText>
     </View>
   );
 }

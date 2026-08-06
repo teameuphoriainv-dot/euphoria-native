@@ -66,7 +66,7 @@ export function LessonProse({ label, title, blocks }: { label?: string; title: s
           return (
             <View key={i} style={styles.eventRow}>
               <View style={[styles.when, { backgroundColor: theme.primary + '1F' }]}>
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 11 }}>{b.when}</ThemedText>
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 11, lineHeight: 15 }}>{b.when}</ThemedText>
               </View>
               <View style={{ flex: 1 }}>
                 <ThemedText type="bodyMedium">{b.what}</ThemedText>

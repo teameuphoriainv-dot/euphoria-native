@@ -206,7 +206,7 @@ export function StreakIgnite({ days, weekIndex = new Date().getDay() }: { days: 
           const today = i === ((weekIndex + 6) % 7);
           return (
             <View key={i} style={styles.dayCol}>
-              <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>{d}</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15 }}>{d}</ThemedText>
               <View style={[styles.dot, { borderColor: theme.border, backgroundColor: today ? '#F9731622' : 'transparent' }]}>
                 {today ? (
                   <Animated.View style={tickStyle}>

@@ -147,7 +147,7 @@ export function PlanCard({
     <SpringPressable onPress={onPress} style={{ marginTop: Spacing.two }}>
       {badge ? (
         <View style={[styles.planBadge, { backgroundColor: theme.primary }]}>
-          <ThemedText type="smallBold" style={{ color: '#fff', fontSize: 11, letterSpacing: 0.8 }}>{badge}</ThemedText>
+          <ThemedText type="smallBold" style={{ color: '#fff', fontSize: 11, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
         </View>
       ) : null}
       <View
@@ -313,7 +313,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
 
   return (
     <View style={[styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>Skill</ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15 }}>Skill</ThemedText>
       <Svg width="100%" height={150} viewBox="0 0 300 150">
         <Line x1={0} y1={148} x2={300} y2={148} stroke={theme.border} strokeWidth={1} />
         <Line x1={0} y1={100} x2={300} y2={100} stroke={theme.border} strokeWidth={0.5} />
@@ -328,7 +328,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
         <ThemedText type="smallBold" style={{ color: theme.primary }}>With Euphoria</ThemedText>
         <ThemedText type="small" themeColor="mutedForeground">Without daily practice</ThemedText>
       </View>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, alignSelf: 'flex-end' }}>Time</ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15, alignSelf: 'flex-end' }}>Time</ThemedText>
     </View>
   );
 }

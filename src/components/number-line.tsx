@@ -50,6 +50,27 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
   const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
   const readColor = value == null ? theme.mutedForeground : solved ? theme.success : theme.iconLilac;
 
+  /**
+   * Keyboard/assistive stepping.
+   *
+   * Placing a value here means tapping an exact x-coordinate, which a VoiceOver user cannot
+   * do — and `gates()` blocks Continue on this step type, so without an alternative input a
+   * screen-reader user could not finish the lesson AT ALL. This is a hard blocker, not a
+   * missing label.
+   *
+   * The step is the spec's own tolerance, so stepping can always land inside the accepted
+   * band; it is floored at 1% of the range so a tiny tolerance cannot demand hundreds of
+   * increments.
+   */
+  const step = Math.max(spec.tolerance, (spec.max - spec.min) / 100);
+  const nudge = (dir: 1 | -1) => {
+    if (solved) return;
+    const from = value ?? (spec.min + spec.max) / 2; // first action lands mid-range, not at an edge
+    setValue(Math.max(spec.min, Math.min(spec.max, from + dir * step)));
+    setChecked(false);
+    Haptics.selectionAsync();
+  };
+
   return (
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.four }}>{spec.prompt}</ThemedText>
@@ -58,7 +79,23 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
         {value == null ? 'Tap the line' : fmt(value)}
       </ThemedText>
 
-      <Pressable onPress={place} onLayout={onLayout} style={styles.hit}>
+      <Pressable
+        onPress={place}
+        onLayout={onLayout}
+        style={styles.hit}
+        // 'adjustable' is what this control actually is — a slider — and it is what makes
+        // VoiceOver offer swipe-up/down as increment/decrement.
+        accessibilityRole="adjustable"
+        accessibilityLabel={spec.prompt}
+        accessibilityHint="Swipe up or down to change the value, then activate Check."
+        accessibilityValue={{
+          min: Math.round(spec.min),
+          max: Math.round(spec.max),
+          now: value == null ? Math.round(spec.min) : Math.round(value),
+          text: value == null ? 'No value placed yet' : fmt(value),
+        }}
+        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+        onAccessibilityAction={(e) => nudge(e.nativeEvent.actionName === 'decrement' ? -1 : 1)}>
         <View style={[styles.track, { backgroundColor: theme.muted }]}>
           {checked && !solved && (
             <View style={[styles.target, { left: `${pct(spec.target) * 100}%`, backgroundColor: theme.success }]} />
@@ -88,6 +125,11 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
           disabled={value == null}
           onPress={() => { setChecked(true); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
           style={{ marginTop: Spacing.four }}
+          accessibilityRole="button"
+          // The visible label becomes the miss-feedback sentence after a wrong check, so the
+          // accessible name is stated separately and stays stable.
+          accessibilityLabel="Check your answer"
+          accessibilityState={{ disabled: value == null }}
         >
           <View style={[styles.check, { backgroundColor: value != null ? theme.primary + '1F' : theme.muted, borderColor: value != null ? theme.primary + '4D' : theme.border }]}>
             <ThemedText type="smallBold" style={{ color: value != null ? theme.iconLilac : theme.mutedForeground }}>

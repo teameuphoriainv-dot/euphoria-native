@@ -202,7 +202,7 @@ export default function Learn() {
                   <View style={[styles.label, labelLeft ? { right: n.size + 12, alignItems: 'flex-end' } : { left: n.size + 12 }]}>
                     <ThemedText type="smallBold" style={{ color: locked ? theme.mutedForeground : theme.text, fontSize: 13 }} numberOfLines={2}>{lesson.title}</ThemedText>
                     {active && <ThemedText type="label" style={{ color: accent, marginTop: 1 }}>START</ThemedText>}
-                    {done && <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>Complete</ThemedText>}
+                    {done && <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15 }}>Complete</ThemedText>}
                   </View>
                   {active && (
                     <View style={{ position: 'absolute', left: labelLeft ? undefined : -70, right: labelLeft ? -70 : undefined, top: -4 }}>

@@ -55,7 +55,7 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.four }}>{spec.prompt}</ThemedText>
 
-      <ThemedText type="display" style={{ fontSize: 40, color: revealed ? trend : theme.iconLilac, textAlign: 'center', marginBottom: Spacing.two }}>
+      <ThemedText type="display" style={{ fontSize: 40, lineHeight: 46, color: revealed ? trend : theme.iconLilac, textAlign: 'center', marginBottom: Spacing.two }}>
         {fmt(value)}
       </ThemedText>
       <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center', marginBottom: Spacing.four }}>
