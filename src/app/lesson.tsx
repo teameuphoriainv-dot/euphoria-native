@@ -207,10 +207,25 @@ export default function Lesson() {
                     const showWrong = checked && isPick && i !== norm.correct;
                     const border = showRight ? theme.success : showWrong ? theme.warning : isPick ? theme.primary : theme.border;
                     return (
-                      <SpringPressable key={`${i}-${o}`} disabled={checked} haptic={!checked} onPress={() => setPick(i)}>
+                      <SpringPressable
+                        key={`${i}-${o}`}
+                        disabled={checked}
+                        haptic={!checked}
+                        onPress={() => setPick(i)}
+                        accessibilityLabel={showRight ? `${o}. Correct answer.` : showWrong ? `${o}. Incorrect.` : o}
+                        /* BOTH keys, deliberately. SpringPressable sets accessibilityState={{disabled}}
+                           at its line 46 and spreads {...rest} at 59, so a partial object here would
+                           silently drop `disabled` and VoiceOver would offer a locked option as tappable. */
+                        accessibilityState={{ selected: isPick, disabled: checked }}>
                         <View style={[styles.option, { borderColor: border, borderWidth: isPick || showRight ? 2 : StyleSheet.hairlineWidth, backgroundColor: isPick && !checked ? theme.primary + '14' : theme.card }]}>
                           <ThemedText type="bodyMedium" style={{ flex: 1 }}>{o}</ThemedText>
+                          {/* Every state carries an ICON, not just a border colour. Selection and
+                              correctness were previously signalled by hue alone on two of the three
+                              states, which is invisible to a colour-blind user and is the defect
+                              3 of the 4 ScreensDesign quiz references avoid. */}
                           {showRight && <UIcon name="check" size={20} color={theme.success} strokeWidth={3} />}
+                          {showWrong && <UIcon name="close" size={20} color={theme.warning} strokeWidth={3} />}
+                          {isPick && !checked && <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} />}
                         </View>
                       </SpringPressable>
                     );
