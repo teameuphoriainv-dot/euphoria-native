@@ -6,6 +6,7 @@
  */
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
+import { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -75,6 +76,11 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
           return (
             <SpringPressable
               key={spec.items[itemIdx]}
+              // The reorder was an INSTANT CUT. `LinearTransition` had zero uses anywhere in
+              // src/ — there was no reflow animation in the app at all, which is the mechanical
+              // cause of the ~2%-of-frames measurement on this step. damping 18 sits inside
+              // Brilliant's measured 12–18 overshoot band.
+              layout={LinearTransition.springify().damping(18)}
               disabled={solved}
               onPress={() => tap(pos)}
               // Reordering is a two-tap swap, so "which row is currently picked up" is the

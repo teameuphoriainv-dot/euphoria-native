@@ -24,6 +24,13 @@ export function SpringPressable({
   style?: StyleProp<ViewStyle>;
   haptic?: boolean;
   scaleTo?: number;
+  /** Layout/entrance/exit animations. The underlying element IS an Animated component, so these
+   *  already worked at runtime — but the prop type was plain `PressableProps`, so TypeScript
+   *  rejected them and every caller silently went without. Declaring them here is what lets any
+   *  tappable opt into a reflow animation. */
+  layout?: React.ComponentProps<typeof Animated.View>['layout'];
+  entering?: React.ComponentProps<typeof Animated.View>['entering'];
+  exiting?: React.ComponentProps<typeof Animated.View>['exiting'];
 }) {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));

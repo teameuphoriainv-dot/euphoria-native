@@ -7,12 +7,13 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration } from '@/shared/motion/tokens';
 
 export type NumberLineSpec = {
   prompt: string;
@@ -117,7 +118,7 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
       )}
 
       {solved ? (
-        <Animated.View entering={FadeIn} style={{ marginTop: Spacing.four }}>
+        <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.four }}>
           <ThemedText type="smallBold" style={{ color: theme.success }}>Nailed it — {fmt(spec.target)}.</ThemedText>
         </Animated.View>
       ) : (

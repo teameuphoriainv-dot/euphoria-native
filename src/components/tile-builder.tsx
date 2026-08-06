@@ -7,12 +7,13 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration } from '@/shared/motion/tokens';
 
 export type TileSpec = { title: string; slots: { label: string; correct: string }[]; tray: string[] };
 
@@ -101,7 +102,7 @@ export function TileBuilder({ spec, onSolvedChange }: { spec: TileSpec; onSolved
 
       {/* Feedback */}
       {full && (
-        <Animated.View entering={FadeIn} style={{ marginTop: Spacing.three }}>
+        <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.three }}>
           <ThemedText type="smallBold" style={{ color: allCorrect ? theme.success : theme.warning }}>
             {allCorrect ? 'Nailed it — that’s the 50/30/20 split.' : 'Close. Tap an amber slot to fix it.'}
           </ThemedText>

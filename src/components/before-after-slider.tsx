@@ -7,11 +7,12 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Duration } from '@/shared/motion/tokens';
 
 export type BeforeAfterSpec = {
   prompt: string;
@@ -82,7 +83,7 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
       </View>
 
       {revealed && spec.caption && (
-        <Animated.View entering={FadeIn} style={{ marginTop: Spacing.four }}>
+        <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.four }}>
           <ThemedText type="smallBold" style={{ color: trend, textAlign: 'center' }}>{spec.caption}</ThemedText>
         </Animated.View>
       )}

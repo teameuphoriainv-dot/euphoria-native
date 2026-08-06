@@ -7,7 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
@@ -21,6 +21,7 @@ import { useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration } from '@/shared/motion/tokens';
 
 const PAIRS = [
   { id: 'bull', term: 'Bull market', def: 'Rising prices' },
@@ -130,7 +131,7 @@ export default function TermMatch() {
       </View>
 
       {done && (
-        <Animated.View entering={FadeIn} style={styles.resultsWrap}>
+        <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.resultsWrap}>
           <Card elevated style={styles.results}>
             <Atlas size={96} expression="happy" celebrate />
             <ThemedText type="display" style={{ fontSize: 26, marginTop: Spacing.two }}>Matched!</ThemedText>

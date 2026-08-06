@@ -238,3 +238,51 @@ already says it: Brilliant uses "rich, colorful, semi-3D illustrations everywher
 **Explicitly unverified:** px→pt scale factor (device unknown); whether Duolingo's 567ms rhythm is
 a stagger or user input; Brilliant's Streak Charge beat (mis-targeted window); whether Polymation
 has any free tier.
+
+---
+
+## 8. Phase 1 shipped — 2026-08-06 (session 2)
+
+### 1.1 Reorder no longer cuts — MEASURED
+
+`layout={LinearTransition.springify().damping(18)}` added to `order-steps.tsx` and
+`sort-buckets.tsx`. `LinearTransition` had **0 uses** app-wide before this.
+
+Fresh capture of a live drag-sort swap, re-encoded to **constant 30fps** so it is comparable
+with the competitor clips:
+
+| | Frames animating |
+|---|---|
+| Euphoria drag-sort, before | **2%** |
+| Euphoria drag-sort, after | **39.5%** (75/190) |
+| Brilliant `10-50-24` / `13-12-29` | 34.7% / 39.3% |
+| Duolingo `14-17-49` | 31.8% |
+
+Bursts: 633ms (selection) then 1867ms (swap + settle + in-place marks), peak energy 5.7.
+
+⚠️ **Two method notes, both load-bearing.** The simulator's `recordVideo` is **variable frame
+rate** (avg 20.4fps here). Measuring the VFR file directly gave 41.1% — *inflated*, because a
+VFR recorder emits fewer frames while nothing moves. Always re-encode with `-vf fps=30` first.
+And this measures ONE interaction, not the app; the before number was the same interaction, so
+the before/after is sound, but the competitor comparison stays directional.
+
+### 1.2 `tokens.ts` — merged, not replaced
+
+⚠️ **The v2 paste-ready block would not have compiled.** It omitted `Duration.fast` (**8 call
+sites**), `Duration.slow` (2), `Ease.out` (2) and `Ease.outCubic` (2) — 14 broken references.
+The measured additions (`instant/exit/screen/earned`, `Spring.press/reward`, M3 `Ease.enter`,
+`STAGGER_CAP`) are merged in and every in-use member kept. `Ease.exit` is named `exitCurve`
+because `Duration.exit` already exists and the pair read as the same token.
+
+### 1.3 Exit deficit closed
+
+9 `entering={FadeIn}` sites gained `exiting={FadeOut.duration(Duration.exit)}` across
+`lesson.tsx` (3), `term-match`, `number-line`, `tile-builder`, `before-after-slider`,
+`multi-select`, `sort-buckets`.
+
+### Enabling change
+
+`SpringPressable` typed only as `PressableProps`, so `layout`/`entering`/`exiting` were
+**rejected by TypeScript** even though the underlying element is an Animated component and
+supported them at runtime. Now declared — which is what lets any tappable in the app opt into
+a reflow animation, not just these two components.

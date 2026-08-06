@@ -40,6 +40,7 @@ import { lessonKey, useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration } from '@/shared/motion/tokens';
 
 export default function Lesson() {
   const theme = useTheme();
@@ -147,7 +148,7 @@ export default function Lesson() {
 
       <View style={styles.body}>
         {idx === 0 && (
-          <Animated.View key="intro" entering={FadeIn} style={styles.centered}>
+          <Animated.View key="intro" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
             <Atlas size={132} expression="happy" entrance="bounce" idle />
             <View style={{ alignSelf: 'stretch', alignItems: 'center', marginTop: Spacing.four }}>
               <AtlasSpeech text="Ready? Let's get into it." delay={420} tail="top" maxWidth={272} />
@@ -221,7 +222,7 @@ export default function Lesson() {
         )}
 
         {idx === DONE && (
-          <Animated.View key="done" entering={FadeIn} style={styles.centered}>
+          <Animated.View key="done" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
             <CelebrationWipe />
             <Confetti />
             <CelebrationRays size={330} delay={120} />
@@ -250,7 +251,7 @@ export default function Lesson() {
         )}
 
         {idx === STREAK && (
-          <Animated.View key="streak" entering={FadeIn} style={styles.centered}>
+          <Animated.View key="streak" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
             <StreakIgnite days={streakAfter} />
           </Animated.View>
         )}

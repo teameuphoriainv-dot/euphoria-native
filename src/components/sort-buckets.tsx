@@ -6,13 +6,14 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration } from '@/shared/motion/tokens';
 
 export type SortSpec = { title: string; categories: string[]; items: { label: string; correct: string }[] };
 
@@ -48,7 +49,11 @@ export function SortBuckets({ spec, onSolvedChange }: { spec: SortSpec; onSolved
           const ok = correctness[i];
           const border = ok === true ? theme.success : ok === false ? theme.warning : a != null ? theme.primary : theme.border;
           return (
-            <SpringPressable key={item.label} onPress={() => cycle(i)}>
+            <SpringPressable
+              key={item.label}
+              onPress={() => cycle(i)}
+              // Items move between buckets; without a layout animation they teleport.
+              layout={LinearTransition.springify().damping(18)}>
               <View style={[styles.row, { borderColor: border, borderWidth: a != null ? 2 : StyleSheet.hairlineWidth, backgroundColor: theme.card }]}>
                 <ThemedText type="bodyMedium" style={{ flex: 1 }}>{item.label}</ThemedText>
                 {a != null ? (
@@ -66,7 +71,7 @@ export function SortBuckets({ spec, onSolvedChange }: { spec: SortSpec; onSolved
       </View>
 
       {full && (
-        <Animated.View entering={FadeIn} style={{ marginTop: Spacing.three }}>
+        <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.three }}>
           <ThemedText type="smallBold" style={{ color: allCorrect ? theme.success : theme.warning }}>
             {allCorrect ? 'Sorted — you know needs from wants.' : 'Some are off. Tap an amber item to re-sort.'}
           </ThemedText>
