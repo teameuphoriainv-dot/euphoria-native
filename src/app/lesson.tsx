@@ -180,7 +180,14 @@ export default function Lesson() {
             {norm.kind === 'build' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TileBuilder spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
 
             {norm.kind === 'choice' && (
-              <View style={{ flex: 1 }}>
+              /* SCROLLS. An authored question can run 380pt on its own and each option another
+                 ~190pt, so a four-option step is roughly twice the viewport. As a plain View
+                 the overflow fell under the pinned footer and the LAST OPTIONS COULD NOT BE
+                 TAPPED AT ALL — a question you cannot answer. */
+              <ScrollView
+                style={styles.midScroll}
+                contentContainerStyle={styles.choiceContent}
+                showsVerticalScrollIndicator={false}>
                 <View style={styles.quizHead}>
                   <Atlas
                     size={56}
@@ -208,7 +215,7 @@ export default function Lesson() {
                     );
                   })}
                 </View>
-              </View>
+              </ScrollView>
             )}
           </Animated.View>
         )}
@@ -284,6 +291,9 @@ const styles = StyleSheet.create({
    *  keeps short steps centred; tall ones scroll instead of hiding under the CTA. */
   midScroll: { flex: 1 },
   midContent: { flexGrow: 1, justifyContent: 'center', paddingBottom: Spacing.two },
+  /** Questions start at the TOP rather than centred — a long prompt centred vertically pushes
+   *  its own options off both ends. */
+  choiceContent: { flexGrow: 1, paddingBottom: Spacing.four },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { textAlign: 'center', marginTop: Spacing.three },
