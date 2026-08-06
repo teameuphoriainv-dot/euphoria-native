@@ -12,7 +12,7 @@
  */
 import * as Linking from 'expo-linking';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -327,7 +327,10 @@ export default function Onboarding() {
    * as "my tap skipped the question" rather than "my tap answered it".
    */
   const stepRef = useRef(step);
-  stepRef.current = step;
+  // In an effect, not during render: assigning a ref in the render body is a lint error and,
+  // under concurrent rendering, a render that gets thrown away would still have mutated it.
+  // The 260ms timeout below always fires after commit, so the effect has run by then.
+  useEffect(() => { stepRef.current = step; }, [step]);
   const advanceAfterPick = () => {
     const from = step;
     setTimeout(() => {
