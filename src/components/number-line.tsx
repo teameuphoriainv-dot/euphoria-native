@@ -76,7 +76,10 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.four }}>{spec.prompt}</ThemedText>
 
-      <ThemedText type="display" style={{ fontSize: 34, color: readColor, textAlign: 'center', marginBottom: Spacing.four }}>
+      {/* lineHeight pinned to the override. `display` supplies 40, and 40/34 = 1.18 sits under
+          the 1.2 readability floor — the same class of defect that clipped before-after-slider
+          at ratio 1.0. 42 restores 1.24. */}
+      <ThemedText type="display" style={{ fontSize: 34, lineHeight: 42, color: readColor, textAlign: 'center', marginBottom: Spacing.four }}>
         {value == null ? 'Tap the line' : fmt(value)}
       </ThemedText>
 
