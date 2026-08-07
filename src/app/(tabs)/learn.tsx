@@ -30,35 +30,23 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/*
- * UNIT 7 — DENSITY. Target from §7c: at least TEN nodes in a viewport, up from ~6.
- *
- * THE ARITHMETIC, because this is a geometry change and guessing produces a screen that misses by
- * one node. The trail viewport is roughly 460pt: ~852pt of screen, less ~300pt of course rail plus
- * course header, less ~90pt of tab bar.
- *
- * MEASURED, not computed — the first pass used 460pt of assumed viewport and got EIGHT, because the
- * trail actually starts at y=452 and the tab bar sits at y=819, so the real band is ~367pt:
- *   GAP 100, NODE 66  ->  the ~5-6 that shipped
- *   GAP  46, NODE 36  ->  367 / 46 = 8.0   -> EIGHT on device. Short of the target.
- *   GAP  36, NODE 28  ->  367 / 36 = 10.2  -> TEN, with an 8pt gap between node edges
- *
- * A pitch of 46 is impossible at the old 66pt node — the nodes would overlap — so the node had to
- * shrink with it. That is exactly the change §7b asks for and calls "a different screen, not a
- * spacing change": Promova fits ~14 by using small nodes with inline titles, not by tightening
- * gaps around large ones.
- *
- * AMP drops 66 -> 58 so the serpentine swings less far off centre, which widens the narrowest
- * title gutter — titles here are long ("Cognitive Biases That Destroy Wealth") and they still need
- * two lines at 13pt, which is 34pt and fits inside a 46pt pitch.
- *
- * LIP scales with the node: 6pt of fake depth under a 36pt circle reads as a smudge.
- */
-const GAP = 36;
-const AMP = 54;
-const NODE = 28;
-const START = 38;
-const LIP = 3; // 3D bottom-edge depth (Duolingo button look), scaled to the smaller node
+/* 100, was 128. Nodes are 66pt (84 for the current one), so a 128 pitch left 62pt of dead
+   space between every node edge and only FOUR lessons fitted a viewport. Six learning-path
+   screens across four apps show far more at once — Promova ~14, Duolingo ~6, Lingvano lists
+   chapter cards. 100 brings the gap between node edges to 34pt and the count to ~6, matching
+   the Duolingo trail this screen is modelled on.
+
+   UNIT 7 TRIED TO BEAT THIS AND FAILED. Do not retry it as a constant tweak — the attempt and
+   the arithmetic are in §22 C33. Briefly: the band is ~367pt (trail starts y=452, tab bar
+   y=819); a two-line title at 13pt is ~34pt so pitch must exceed it; a tap target must be
+   >=44pt. Pitch ~58 is therefore the floor, which caps the band at 6-7 nodes — the same count
+   this already achieves with LARGER, more comfortable nodes. Reaching 10+ needs a different
+   layout MODEL (Promova is a list with inline titles, not a serpentine with gutter titles). */
+const GAP = 100;
+const AMP = 66;
+const NODE = 66;
+const START = 84;
+const LIP = 6; // 3D bottom-edge depth (Duolingo button look) // 3D bottom-edge depth (Duolingo button look), scaled to the smaller node
 
 export default function Learn() {
   const theme = useTheme();
@@ -269,7 +257,7 @@ export default function Learn() {
                         },
                       ]}>
                       {locked ? (
-                        <UIcon name="lock" size={16} color={theme.mutedForeground} />
+                        <UIcon name="lock" size={22} color={theme.mutedForeground} />
                       ) : (
                         /*
                          * Stroke mark, NOT the filled LessonArt scene.
@@ -287,7 +275,7 @@ export default function Learn() {
                           courseId={activeCourseId}
                           num={lesson.num}
                           fallbackKey={artKeyFor(lesson.title, n.i)}
-                          size={active ? 26 : 22}
+                          size={active ? 40 : 36}
                           color={lessonMarkColor({ active, accent, text: theme.text })}
                         />
                       )}

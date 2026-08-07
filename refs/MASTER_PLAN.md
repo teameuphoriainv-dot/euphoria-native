@@ -3437,3 +3437,34 @@ with the node.
 `learn.tsx` cannot run on the OLD dev client, and the replacement is still compiling. The count above
 is derived from the layout constants, not read off an a11y tree. §7c is not satisfied until
 `sim.sh screen` confirms it — if the real number is under 10, §0.6 applies and this reverts.
+
+### C33. Unit 7's density target is NOT achievable as a spacing change. Attempt reverted.
+
+§7b/§7c asked for ≥10 visible nodes. Two attempts, both measured on device, both reverted:
+
+| GAP | NODE | visible | outcome |
+|---|---|---|---|
+| 100 | 66 | ~6 | the original |
+| 46 | 36 | 8 | short of target |
+| **36** | **28** | **11** | **target met, screen BROKEN** |
+| 58 | 48 | 6 | clean, but no better than the original with smaller nodes |
+
+At GAP 36 the count was hit and the screen was destroyed: two-line titles collided with each other
+AND ran under the nodes, the milestone badge sat half off its node, 28pt is below the 44pt HIG touch
+minimum, and the serpentine read as a scatter. **I optimised the proxy and broke the artifact — the
+exact §0.1 failure — and never checked title bounding boxes against each other, which is trap #1
+verbatim: an a11y anchor is a POINT, not a BOX.**
+
+**The binding constraints, measured:** band ~367pt (trail y=452, tab bar y=819); a two-line title at
+13pt is ~34pt so pitch must exceed it; a tap target must be ≥44pt. Pitch ~58 is the floor →
+367/58 ≈ 6–7 nodes. **The original already achieves that, with larger and more comfortable nodes.**
+
+So per §0.6 the geometry is reverted to GAP 100 / NODE 66 rather than kept with the goal renamed.
+
+**What Unit 7 would actually need:** a different layout MODEL. Promova fits ~14 because it is a LIST
+with inline titles; this is a serpentine with titles in a side gutter, which spends horizontal space
+on the curve and squeezes titles into a narrow column. Either shorten titles to one line, move them
+under the nodes, or drop the serpentine. That is a redesign, not a constant.
+
+**KEPT from the attempt** (both real, both verified): the render-loop fix, and locked nodes now
+announcing "Finish the lesson before this one to unlock it" instead of being silent dead controls.
