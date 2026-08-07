@@ -80,6 +80,19 @@ export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`
 export const dayKey = (d: Date = new Date()) =>
   new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
+/**
+ * Append today to the trial's active-day set, idempotently.
+ *
+ * Shared by `markActiveDay` and by the five actions that constitute real use, so the trial clock
+ * can never disagree with the thing that advanced it. Slice(-4) is TRIAL_DAYS + 1 — one past the
+ * limit is all `tier()` in lib/entitlement.ts needs to answer "expired", and keeping more would
+ * grow the array for the life of the install with no reader.
+ */
+const withToday = (days: string[]) => {
+  const k = dayKey();
+  return days.includes(k) ? days : [...days, k].slice(-4);
+};
+
 /** Yesterday's local day key. Used to decide whether a completion extends the streak or restarts it. */
 const prevDayKey = () => dayKey(new Date(Date.now() - 86_400_000));
 
@@ -289,6 +302,23 @@ export type AppState = {
    * the user's to clear; the quota is not.
    */
   installId: string;
+  /**
+   * Distinct day keys on which the user did something REAL — finished a lesson, read a guide,
+   * asked Atlas, or placed a trade. NOT app launches: a mis-tap on the home-screen icon must
+   * never burn a trial day.
+   *
+   * DELIBERATELY EXCLUDED FROM `reset()`, for the same reason `isPro` and `installId` are. If
+   * resetting progress restarted the trial, the trial would be a button rather than a limit.
+   *
+   * Capped at TRIAL_DAYS + 1 entries. Once it is over the exact count stops mattering, and an
+   * uncapped array would grow for the life of the install.
+   */
+  activeDays: string[];
+  /**
+   * Idempotent. Records today as a trial day. Called from the four actions that already write on
+   * real use; see the call sites in completeLesson / markPostRead / spendAtlasMessage / buy / sell.
+   */
+  markActiveDay: () => void;
   /** Follow / unfollow. Idempotent both ways. */
   toggleWatch: (sym: string) => void;
   /** Options contracts opened. Counts against `PRO_DERIVATIVE_PREVIEW`. */
@@ -368,6 +398,10 @@ export const useApp = create<AppState>()(
       // need to be — it is a bucket key, not a credential.
       installId: `eu_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`,
       atlasAsked: 0,
+      activeDays: [],
+      // Cap is TRIAL_DAYS + 1 (4). One past the limit is all `tier()` needs to say "expired";
+      // keeping more would grow forever for no reader.
+      markActiveDay: () => set((s) => ({ activeDays: withToday(s.activeDays) })),
       atlasLeft: () => (get().isPro ? Infinity : Math.max(0, FREE_ATLAS_MESSAGES - get().atlasAsked)),
 
       claimReward: () =>
@@ -436,7 +470,7 @@ export const useApp = create<AppState>()(
           // forgetting to check. An unaffordable buy is a no-op, not a negative balance.
           if (shares <= 0 || cost > s.cash) return s;
           const positions = { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares };
-          return { cash: s.cash - cost, positions, valueHistory: snapshot(s, s.cash - cost, positions) };
+          return { cash: s.cash - cost, positions, valueHistory: snapshot(s, s.cash - cost, positions), activeDays: withToday(s.activeDays) };
         }),
       sell: (sym, shares, price) =>
         set((s) => {
@@ -448,9 +482,9 @@ export const useApp = create<AppState>()(
           // instead of a 0-vs-undefined trap.
           if (held - n <= 0) delete rest[sym];
           else rest[sym] = held - n;
-          return { cash: s.cash + n * price, positions: rest, valueHistory: snapshot(s, s.cash + n * price, rest) };
+          return { cash: s.cash + n * price, positions: rest, valueHistory: snapshot(s, s.cash + n * price, rest), activeDays: withToday(s.activeDays) };
         }),
-      spendAtlasMessage: () => set((s) => (s.isPro ? s : { atlasAsked: s.atlasAsked + 1 })),
+      spendAtlasMessage: () => set((s) => (s.isPro ? s : { atlasAsked: s.atlasAsked + 1, activeDays: withToday(s.activeDays) })),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
       completeOnboarding: () =>
         set((s) => {
@@ -496,6 +530,7 @@ export const useApp = create<AppState>()(
             value: Math.round((REWARD_MIN + Math.random() * (REWARD_MAX - REWARD_MIN)) * 100) / 100,
           }));
           return {
+            activeDays: withToday(s.activeDays),
             pendingRewards: [...s.pendingRewards, ...cards],
             completedLessons: [...s.completedLessons, id],
             ...applyXp(s, xp + bonus),
@@ -519,6 +554,7 @@ export const useApp = create<AppState>()(
           if (s.readPosts.includes(slug)) return s;
           const today = dayKey();
           return {
+            activeDays: withToday(s.activeDays),
             readPosts: [...s.readPosts, slug],
             ...applyXp(s, XP_GUIDE),
             // A guide read counts as your day, so Digest can keep a streak alive on its own.
@@ -539,7 +575,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

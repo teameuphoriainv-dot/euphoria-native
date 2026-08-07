@@ -1258,7 +1258,10 @@ If the icon package adds more than ~400KB to the bundle, switch to per-icon impo
 
 ---
 
-## UNIT 3 — Entitlement engine + the 3-day trial
+## UNIT 3 — Entitlement engine + the 3-day trial ✅ **DONE**
+
+`src/lib/entitlement.ts` + `store.activeDays`. See §22 C13 for the four decisions taken with the
+user, and C14 for the one finding that changed the API.
 
 **Read §9 in full before writing any code.** This unit implements §9.1–§9.4.
 
@@ -1298,6 +1301,14 @@ each: **day 1 / day 3 / day 4 expired / Pro**.
 ---
 
 ## UNIT 4 — The gate sheet + paywall redesign
+
+> **BLOCKED ON MCP QUOTA (user decision).** §0.2 makes ScreensDesign mandatory before design work,
+> and the data budget is exhausted. Do not start until quota returns; then run the §14.2 call sheet
+> AND finish the trial-timeline count to ≥4 apps (§22 C9).
+>
+> **Two decisions overrule the text below — read §22 C13 first.** The timeline ships as its own
+> full-screen step, NOT a block inside the paywall. And every surface locks on expiry, not just
+> lessons.
 
 **Implements §9.5 and §9.6.** This is the highest-visibility unit in the run.
 
@@ -3024,3 +3035,63 @@ The ASCII sketch in §9.5 is a centred card. The screen is not.
 - Both put the unlock at *Today*, the reminder at *day 5 of 7*, and the charge at the end. Euphoria's
   trial is 3 days, so the reminder beat has to compress — there is no day 5. Decide whether day 2 is
   the reminder or whether a 3-day trial simply has no reminder beat, and say which.
+
+---
+
+## From Unit 3 (2026-08-07)
+
+### C13. Four decisions taken with the user. These OVERRULE §9.4 and §6.6.2.
+
+| # | Decision | What it overrules |
+|---|---|---|
+| 1 | **On expiry EVERYTHING locks** except the streak / XP / league loop. Paper trading, portfolio, watchlist, quotes, news and guide bodies close alongside lessons, Atlas and options. | §9.4 recommended keeping trading and market data free, on the Bloom precedent. **Rejected.** |
+| 2 | **The trial timeline ships as its OWN full-screen step**, followed by a separate pricing screen — the Promova `138757`→`138758` / Nibble `132921`→`132922` shape. Reopened after C9 showed the plan's evidence claim was false; the user will judge it on device. | §6.6.2's *"never becomes its own route"* and its warning against creating `trial-timeline.tsx`. **That instruction is VOID.** |
+| 3 | **The middle beat is DAY 2 — "We'll remind you before anything is charged."** The reference apps use day 5 of 7, which does not exist in a 3-day trial. | Nothing; this closes the gap flagged in C12. |
+| 4 | **Unit 4 waits for MCP quota.** Unit 3 went first because it needs no design research. | Nothing. |
+
+> **Decision 3 carries an obligation.** That sentence is only honest if a notification actually
+> fires. `notifications.ts` already schedules a local nudge and reports what the OS **actually
+> accepted** — wire the day-2 reminder through it and verify the accepted result. Do not ship the
+> copy on the strength of an intention. If the OS declines, the copy changes, not the claim.
+
+> **Decision 1 has a consequence to design for, not argue with.** An expired user has nothing left
+> to open. The gate sheet's dismiss path and the streak/XP loop are therefore the only re-entry
+> points in the whole app, so both must stay genuinely reachable — a non-dismissible gate would
+> strand the user completely.
+
+### C14. `trialDaysLeft` alone is NOT safe to display. Found by measuring, not reasoning.
+
+On the third active day the device reported `tier=trial` with `daysLeft=0`. Both correct — expiry
+begins on the **fourth** distinct day — but a banner reading **"0 days left" on a day the user can
+still fully use** reads as already expired. That is the shape of bug that produces "I paid and it
+still says my trial ended".
+
+`entitlement.ts` therefore also exports **`trialDayNumber()`** — 1-based, clamped to `TRIAL_DAYS`.
+**Use it for display: "Day 3 of 3", never "0 days left."** Exact wording is Unit 4's call.
+
+### C15. What Unit 3 shipped, and how it was verified.
+
+`store.activeDays: string[]` — persisted, in `partialize`, **excluded from `reset()`** as the third
+deliberate exclusion beside `isPro` and `installId`. Appended by a shared `withToday()` helper from
+exactly five actions: `completeLesson`, `markPostRead`, `spendAtlasMessage`, `buy`, `sell`.
+**App launch is deliberately NOT a call site** — a mis-tap on the icon must not burn a trial day.
+Capped at `TRIAL_DAYS + 1`.
+
+All five states driven on device via a temporary `devtrial` route (since deleted), reading the
+persisted store back each time:
+
+| seeded | tier | daysLeft | features | store |
+|---|---|---|---|---|
+| 0 | trial | 3 | all 6 OPEN | `[]` |
+| 1 | trial | 2 | all 6 OPEN | `["seed-0"]` |
+| **3** | **trial** | **0** | all 6 OPEN | 3 entries |
+| 4 | expired | 0 | **all 6 `LOCKED:trial-expired`** | 4 entries |
+| 1 + `isPro` | **pro** | 2 | all 6 OPEN | `isPro=true` |
+
+The boundary row is the one that matters: **day 3 is still a trial day.** 14 `__DEV__` assertions
+cover it and ran clean on device — `[entitlement]` error lines: 0.
+
+**Housekeeping:** the QA install still holds a leftover `activeDays: ["seed-0"]` from that seeding.
+Inert while `isPro` is true, because `tier()` returns 'pro' regardless — but **a future session that
+flips `isPro` false to test the trial will start at day 1, not day 0.** Clear it first. Pre-seed
+baseline: `refs/BASELINE_STORE_20260807.json`.
