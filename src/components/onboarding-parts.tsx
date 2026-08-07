@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
      Spacing.four (68pt pitch) was tried first and REVERTED: it grew the body by 48pt and
      pushed the Monthly card to 11pt from the pinned footer, the same collision class as the
      MultiSelect Check button. Measured, not guessed. */
-  tlBody: { flex: 1, paddingBottom: Spacing.three },
+  tlBody: { flex: 1, paddingBottom: Spacing.two },
   plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
   // sits flush on the card's top edge, which squares off its top corners
   planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
