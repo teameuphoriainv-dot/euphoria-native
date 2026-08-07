@@ -233,6 +233,9 @@ const TOTAL = STEPS.length;
    would have fired on the trial timeline and the completion stamp with it. */
 const PAYWALL_INDEX = STEPS.findIndex((s) => s.kind === 'paywall');
 const REVEAL_INDEX = STEPS.findIndex((s) => s.kind === 'reveal');
+/* The trial step fills the viewport so its three rows distribute instead of packing to the
+   top. Same findIndex pattern as the two above. */
+const TRIAL_INDEX = STEPS.findIndex((s) => s.kind === 'statement' && s.body === 'trial');
 
 export default function Onboarding() {
   const theme = useTheme();
@@ -399,7 +402,7 @@ export default function Onboarding() {
         );
       case 'statement':
         return (
-          <StatementStep title={def.title} sub={def.sub}>
+          <StatementStep title={def.title} sub={def.sub} fill={def.body === 'trial'}>
             {def.body === 'chart' ? <GrowthChart delay={CHILD_BASE} /> : null}
             {def.body === 'trial' ? (
               <View style={{ marginTop: Spacing.four }}>
@@ -480,7 +483,7 @@ export default function Onboarding() {
   // content-light next to a pinned CTA, so top-packing strands the leftover height as a dead
   // band above the button. The flex chain is opened up only for them; every question step keeps
   // its existing top-packed layout untouched.
-  const fillsViewport = renderStep === PAYWALL_INDEX || renderStep === REVEAL_INDEX;
+  const fillsViewport = renderStep === PAYWALL_INDEX || renderStep === REVEAL_INDEX || renderStep === TRIAL_INDEX;
 
   return (
     // AmbientBackground is absoluteFill, so it can only ever paint its PARENT. Nested inside

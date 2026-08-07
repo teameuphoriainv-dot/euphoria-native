@@ -434,12 +434,34 @@ export function MultiSelectStep({
 }
 
 /** A screen that asserts rather than asks — the beats that break up the questions. */
-export function StatementStep({ title, sub, children }: { title: string; sub?: string; children?: React.ReactNode }) {
+/**
+ * `fill` is OPT-IN, and deliberately so.
+ *
+ * This used to return a bare Fragment, which cannot carry flex — that is why making the trial
+ * step's container grow, and adding it to fillsViewport, were each a no-op on their own. The
+ * grow chain was broken here, in the middle.
+ *
+ * Only the caller that needs to fill passes fill. The chart and proof statement steps render
+ * through the identical path they always did, so this cannot reflow them.
+ */
+export function StatementStep({
+  title,
+  sub,
+  children,
+  fill = false,
+}: {
+  title: string;
+  sub?: string;
+  children?: React.ReactNode;
+  fill?: boolean;
+}) {
   return (
-    <>
+    <View style={fill ? styles.stmtFill : undefined}>
       <StepHeading title={title} sub={sub} />
-      {children ? <View style={{ marginTop: Spacing.three }}>{children}</View> : null}
-    </>
+      {children ? (
+        <View style={[{ marginTop: Spacing.three }, fill && styles.stmtChildrenFill]}>{children}</View>
+      ) : null}
+    </View>
   );
 }
 
@@ -626,6 +648,10 @@ const styles = StyleSheet.create({
   // flex-end parks the mascot at the bottom so its whole -ATLAS_RISE exit stays in bounds.
   atlasStage: { height: ATLAS_STAGE_H, alignItems: 'center', justifyContent: 'flex-end' },
   // trial timeline — the rail column is fixed-width so every title starts on the same x
+  stmtFill: { flexGrow: 1 },
+  /* Centres the body in whatever height is left instead of packing it to the top, which
+     stranded ~267pt of void above the CTA on the trial step. */
+  stmtChildrenFill: { flexGrow: 1, justifyContent: 'center' },
   tlRow: { flexDirection: "row", gap: Spacing.two + 2 },
   tlRail: { width: 30, alignItems: 'center' },
   tlDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
