@@ -22,6 +22,8 @@
  *   2. Supabase row keyed on installId   — lib/auth.ts already scaffolds this
  *   3. Full account auth                 — the trial follows the person, not the device
  */
+import { useMemo } from 'react';
+
 import {
   FREE_ATLAS_MESSAGES,
   FREE_LESSON_LIMIT,
@@ -140,8 +142,39 @@ export function entitled(s: AppState, f: Feature): Refusal {
   }
 }
 
-/** Hook forms, so screens never reach into the store shape themselves. */
-export const useEntitlement = (f: Feature) => useApp((s) => entitled(s, f));
+/**
+ * Hook forms, so screens never reach into the store shape themselves.
+ *
+ * `useEntitlement` selects PRIMITIVES and memoises the result. It must never be written as
+ * `useApp((s) => entitled(s, f))`: `entitled()` builds a fresh object every call, so zustand sees a
+ * changed snapshot on every render and loops until React throws "Maximum update depth exceeded".
+ * That shipped once and took down the whole Learn tab. `useTier` and `useTrialDaysLeft` are safe
+ * because they return a string and a number.
+ *
+ * If you only need the answer at the moment of a tap, do not use this at all — call
+ * `entitled(useApp.getState(), feature)` inside the handler and subscribe to nothing.
+ */
+export const useEntitlement = (f: Feature): Refusal => {
+  const isPro = useApp((s) => s.isPro);
+  const days = useApp((s) => s.activeDays.length);
+  const lessons = useApp((s) => s.completedLessons.length);
+  const asked = useApp((s) => s.atlasAsked);
+  const derivativeTrades = useApp((s) => s.derivativeTrades);
+  return useMemo(
+    () =>
+      entitled(
+        {
+          isPro,
+          activeDays: Array.from({ length: days }, (_, i) => `d${i}`),
+          completedLessons: Array.from({ length: lessons }, (_, i) => `l${i}`),
+          atlasAsked: asked,
+          derivativeTrades,
+        } as unknown as AppState,
+        f,
+      ),
+    [isPro, days, lessons, asked, derivativeTrades, f],
+  );
+};
 export const useTier = () => useApp(tier);
 export const useTrialDaysLeft = () => useApp(trialDaysLeft);
 

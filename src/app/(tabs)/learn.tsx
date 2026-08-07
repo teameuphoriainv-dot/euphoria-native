@@ -18,7 +18,7 @@ import { CourseRailCard, RAIL_CARD_GAP, RAIL_CARD_HEIGHT, RAIL_CARD_WIDTH } from
 import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
 import { artKeyFor } from '@/components/lesson-art';
 import { GateSheet } from '@/components/gate-sheet';
-import { useEntitlement, type Refusal } from '@/lib/entitlement';
+import { entitled, type Refusal } from '@/lib/entitlement';
 import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -37,8 +37,11 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
  * one node. The trail viewport is roughly 460pt: ~852pt of screen, less ~300pt of course rail plus
  * course header, less ~90pt of tab bar.
  *
- *   GAP 100, NODE 66  ->  460 / 100 = 4.6  ->  the ~5-6 that shipped
- *   GAP  46, NODE 36  ->  460 /  46 = 10.0 ->  TEN, with a 10pt gap between node edges
+ * MEASURED, not computed — the first pass used 460pt of assumed viewport and got EIGHT, because the
+ * trail actually starts at y=452 and the tab bar sits at y=819, so the real band is ~367pt:
+ *   GAP 100, NODE 66  ->  the ~5-6 that shipped
+ *   GAP  46, NODE 36  ->  367 / 46 = 8.0   -> EIGHT on device. Short of the target.
+ *   GAP  36, NODE 28  ->  367 / 36 = 10.2  -> TEN, with an 8pt gap between node edges
  *
  * A pitch of 46 is impossible at the old 66pt node — the nodes would overlap — so the node had to
  * shrink with it. That is exactly the change §7b asks for and calls "a different screen, not a
@@ -51,11 +54,11 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
  *
  * LIP scales with the node: 6pt of fake depth under a 36pt circle reads as a smudge.
  */
-const GAP = 46;
-const AMP = 58;
-const NODE = 36;
-const START = 46;
-const LIP = 4; // 3D bottom-edge depth (Duolingo button look), scaled to the smaller node
+const GAP = 36;
+const AMP = 54;
+const NODE = 28;
+const START = 38;
+const LIP = 3; // 3D bottom-edge depth (Duolingo button look), scaled to the smaller node
 
 export default function Learn() {
   const theme = useTheme();
@@ -112,7 +115,6 @@ export default function Learn() {
    * states its own condition (Duolingo's "Finish 7 lessons to start competing" move) while an
    * unentitled one opens the sheet.
    */
-  const lessonRefusal = useEntitlement('lesson');
   const [gate, setGate] = useState<Refusal | null>(null);
 
   const nodes = useMemo(
@@ -230,8 +232,16 @@ export default function Learn() {
                       // Not entitled -> the sheet, over this screen, keeping the user's place.
                       // Navigating to a paywall here would throw away the context that makes the
                       // ask legible, which is the whole mechanism (Astra AI 323575).
-                      if (!lessonRefusal.ok) {
-                        setGate(lessonRefusal);
+                      /*
+                       * Read NON-REACTIVELY at tap time. `entitled()` returns a fresh object, so
+                       * subscribing to it through a zustand selector gave every render a new
+                       * snapshot and looped until React threw "Maximum update depth exceeded" —
+                       * the same trap you.tsx documents at `levelProgress()`. The refusal is only
+                       * needed at the moment of the tap, so nothing has to subscribe at all.
+                       */
+                      const refusal = entitled(useApp.getState(), 'lesson');
+                      if (!refusal.ok) {
+                        setGate(refusal);
                         return;
                       }
                       router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
