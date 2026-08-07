@@ -26,7 +26,12 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const GAP = 128;
+/* 100, was 128. Nodes are 66pt (84 for the current one), so a 128 pitch left 62pt of dead
+   space between every node edge and only FOUR lessons fitted a viewport. Six learning-path
+   screens across four apps show far more at once — Promova ~14, Duolingo ~6, Lingvano lists
+   chapter cards. 100 brings the gap between node edges to 34pt and the count to ~6, matching
+   the Duolingo trail this screen is modelled on. */
+const GAP = 100;
 const AMP = 66;
 const NODE = 66;
 const START = 84;
@@ -112,7 +117,12 @@ export default function Learn() {
           <View style={styles.headerRow}>
             <SpringPressable haptic={false} onPress={() => router.push('/courses')} style={{ flex: 1 }}>
               <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{course?.title ?? 'Courses'}</ThemedText>
-              <ThemedText type="small" style={{ marginTop: 2, color: theme.iconLilac }}>Tap to browse all courses</ThemedText>
+              {/* Data, not an instruction. All six reference path screens put INFORMATION here —
+                  "12 chapters", "Beginner: 2%", "0 of 7 lessons completed", "24 lessons" — none
+                  spends the line telling you the header is tappable. */}
+              <ThemedText type="small" style={{ marginTop: 2, color: theme.iconLilac }} numberOfLines={1}>
+                {total ? `${Math.round((doneCount / total) * 100)}% complete · ${total} lessons` : 'Tap to browse all courses'}
+              </ThemedText>
             </SpringPressable>
             <View style={[styles.countPill, { backgroundColor: accent + '24', borderColor: accent + '4D' }]}>
               <ThemedText type="smallBold" style={{ color: accent }}>{doneCount}/{total || course?.totalLessons || 0}</ThemedText>
