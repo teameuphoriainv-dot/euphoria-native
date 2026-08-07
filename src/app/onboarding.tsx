@@ -43,7 +43,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
-import { LessonArt } from '@/components/lesson-art';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -196,7 +195,7 @@ function openLegal(url: string) {
 type StepDef =
   | { kind: 'single'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'multi'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
-  | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof' | 'trial'; face: AtlasExpression }
+  | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof'; face: AtlasExpression }
   | { kind: 'loader' }
   | { kind: 'reveal' }
   | { kind: 'paywall' };
@@ -219,27 +218,12 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'notifyOptIn', question: 'Want a daily nudge?', options: NOTIFY, face: 'happy' },
   { kind: 'loader' },
   { kind: 'reveal' },
-  /* The trial timeline used to sit ON the paywall, above both plan cards. Together they
-     overran the viewport and the Monthly card was clipped by the pinned footer. Facetune
-     ($11M/mo) shows the timeline BEFORE prices as its own step rather than stacked with them,
-     and ScreensDesign flags that as a distinctive element. Splitting lets both breathe.
-     TITLE IS DRAFT COPY — a new step needs a headline; review it. */
-  { kind: 'statement', title: 'How your free trial works', body: 'trial', face: 'happy' },
   { kind: 'paywall' },
 ];
 
-/** Advances once per paywall mount, so the hero art differs between visits. */
-let HERO_TURN = 0;
-
 const TOTAL = STEPS.length;
-/* Located by KIND, not by offset. These were TOTAL-1 and TOTAL-2, so inserting the trial step
-   below would have silently pointed REVEAL_INDEX at the wrong screen — the reveal celebration
-   would have fired on the trial timeline and the completion stamp with it. */
-const PAYWALL_INDEX = STEPS.findIndex((s) => s.kind === 'paywall');
-const REVEAL_INDEX = STEPS.findIndex((s) => s.kind === 'reveal');
-/* The trial step fills the viewport so its three rows distribute instead of packing to the
-   top. Same findIndex pattern as the two above. */
-const TRIAL_INDEX = STEPS.findIndex((s) => s.kind === 'statement' && s.body === 'trial');
+const PAYWALL_INDEX = TOTAL - 1;
+const REVEAL_INDEX = TOTAL - 2;
 
 export default function Onboarding() {
   const theme = useTheme();
@@ -274,18 +258,6 @@ export default function Onboarding() {
   // unstable snapshot and loop renders (see you.tsx:43).
   // Detailed picks carry the reason each course was chosen, so the reveal can show its working.
   const picks = useMemo(() => recommendPathDetailed(profile), [profile]);
-
-  /**
-   * The paywall hero rotates through the user's OWN recommended courses instead of pinning the
-   * lead one, so a second visit does not show the identical illustration.
-   *
-   * A module-scope counter rather than Math.random(): random in a render body is the impure call
-   * the compiler lint rejects (it is what ambient-background was fixed for), and a counter also
-   * guarantees each course is shown before any repeats. Advancing it in a useState initializer
-   * means it moves once per MOUNT, not once per render — a re-render keeps the same art.
-   */
-  const [heroTurn] = useState(() => HERO_TURN++);
-  const heroPick = picks.length ? picks[heroTurn % picks.length] : undefined;
   const path = useMemo(() => picks.map((x) => x.course), [picks]);
   const perDay = lessonsPerDay(profile.dailyMinutes);
   const weeks = estimateWeeks(profile, path);
@@ -418,23 +390,8 @@ export default function Onboarding() {
         );
       case 'statement':
         return (
-          <StatementStep title={def.title} sub={def.sub} fill={def.body === 'trial'}>
+          <StatementStep title={def.title} sub={def.sub}>
             {def.body === 'chart' ? <GrowthChart delay={CHILD_BASE} /> : null}
-            {def.body === 'trial' ? (
-              <View style={{ marginTop: Spacing.four }}>
-                {TRIAL_STEPS.map((t, i) => (
-                  <TrialStep key={t.title} icon={t.icon} title={t.title} sub={t.sub} tone={t.tone} last={i === TRIAL_STEPS.length - 1} />
-                ))}
-                <View style={[styles.trialPrice, { borderTopColor: theme.border }]}>
-                  <ThemedText type="bodyMedium" style={{ textAlign: 'center' }}>
-                    7 days free, then {plan === 'annual' ? '$59.99 per year' : '$9.99 per month'}
-                  </ThemedText>
-                  <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center', marginTop: 3 }}>
-                    Cancel anytime in the App Store
-                  </ThemedText>
-                </View>
-              </View>
-            ) : null}
             {def.body === 'proof' ? (
               <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
                 {PROOF.map((p, i) => (
@@ -470,16 +427,18 @@ export default function Onboarding() {
         return (
           <View style={styles.paywallBody}>
             <StepHeading title={'Start your 7-day FREE trial to continue'} />
-            {heroPick ? (
-              <View style={styles.paywallHero}>
-                <LessonArt courseId={heroPick.course.id} title={heroPick.course.title} index={0} size={132} />
-              </View>
-            ) : null}
             {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
                 spread across whatever height is left over, so a tall phone breathes and a small
                 one simply stops spreading and scrolls — the previous flex-start packed
                 everything to the top and left the slack stranded at the bottom. Hardcoding that
                 slack as padding is what would push "No payment due now" off an SE. */}
+            <View style={{ marginTop: Spacing.four }}>
+              {TRIAL_STEPS.map((s, i) => (
+                <RiseIn key={s.title} delay={childDelay(i)}>
+                  <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === TRIAL_STEPS.length - 1} />
+                </RiseIn>
+              ))}
+            </View>
             <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.three }}>
               {/* The plan NAME carries the billing period and the price carries the amount you
                   are actually charged. Both cards used to headline a "/mo" figure, so the annual
@@ -512,7 +471,7 @@ export default function Onboarding() {
   // content-light next to a pinned CTA, so top-packing strands the leftover height as a dead
   // band above the button. The flex chain is opened up only for them; every question step keeps
   // its existing top-packed layout untouched.
-  const fillsViewport = renderStep === PAYWALL_INDEX || renderStep === REVEAL_INDEX || renderStep === TRIAL_INDEX;
+  const fillsViewport = renderStep === PAYWALL_INDEX || renderStep === REVEAL_INDEX;
 
   return (
     // AmbientBackground is absoluteFill, so it can only ever paint its PARENT. Nested inside
@@ -607,24 +566,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
-  /* The price on the timeline screen, as Facetune (112333, $11M/mo) does: it states
-     "7-day free trial, then $77.99/year" under its timeline rather than deferring the number
-     to the plan picker. Naming the charge on the screen that explains the charge is the point
-     of the pattern - and it fills the band this screen had left over. */
-  trialPrice: { marginTop: Spacing.four, paddingTop: Spacing.four, borderTopWidth: StyleSheet.hairlineWidth },
   content: { padding: Spacing.four, paddingTop: Spacing.three, flexGrow: 1, justifyContent: 'flex-start' },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
   /** Heading / trial timeline / plan cards, spread across the leftover height. */
-  /* The plans screen needs a VISUAL, not more distribution. Facetune's plans screen (112334,
-     $11M/mo, the neighbour of the timeline screen) carries a full-bleed hero photograph above
-     its two cards. Ours had a headline and two cards floating in nothing, which is why
-     space-between punched a hole and flex-start merely moved it. This is the lead course's own
-     art — it shows what the subscription is FOR — and it restores the three-block composition
-     space-between was written for. */
-  paywallHero: { alignItems: 'center' },
   paywallBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: 11, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
