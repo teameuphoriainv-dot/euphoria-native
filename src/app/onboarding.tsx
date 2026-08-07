@@ -40,6 +40,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { TRIAL_DAYS } from '@/lib/entitlement';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
@@ -47,6 +48,32 @@ import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { CHILD_BASE, childDelay, useStepTransition } from '@/shared/motion/step-transition';
+
+/**
+ * PRICING — one place, with the arithmetic written out so a later edit cannot quietly break the
+ * badge. Set 2026-08-07 from five real captured competitor paywalls (§22 C29/C31).
+ *
+ *   monthly $9.99   unchanged. Already MID-PACK: above Quizlet $7.99, below Bloom $15, far below
+ *                   Astra AI $24. §9.10's "we are half of Bloom" compared us against the single
+ *                   most expensive comparable rather than the set.
+ *   annual  $79.99  RAISED from $59.99. At $59.99 the annual was $5.00/month-equivalent against a
+ *                   peer median near $7.90 — roughly 37% under, which was money left on the table.
+ *                   $79.99 is $6.67/mo, deliberately BELOW the median because Bloom's $15 buys a
+ *                   real brokerage and ours buys paper trading.
+ *
+ *   saving  9.99 * 12 = 119.88 ; 79.99 / 119.88 = 0.667 -> 33% off. Was "SAVE 50%" at $59.99.
+ *
+ * The trial length is interpolated from TRIAL_DAYS, never typed as a literal: this screen said
+ * "7 days free" while the entitlement engine grants THREE, so the paywall was promising more than
+ * the app delivers. Deriving it means that cannot drift again.
+ */
+const PRICING = {
+  monthly: '$9.99',
+  annual: '$79.99',
+  annualPerMonth: '$6.67',
+  savingPct: 33,
+} as const;
+
 
 const GOALS: Choice[] = [
   { key: 'wealth', icon: 'wallet', title: 'Grow my wealth', sub: 'Build long-term investing habits' },
@@ -446,10 +473,10 @@ export default function Onboarding() {
               <PlanCard
                 selected={plan === 'annual'}
                 onPress={() => setPlan('annual')}
-                badge="7 DAYS FREE · SAVE 50%"
+                badge={`${TRIAL_DAYS} DAYS FREE · SAVE ${PRICING.savingPct}%`}
                 title="Annual"
-                sub="Works out at $4.99 a month"
-                price="$59.99"
+                sub={`Works out at ${PRICING.annualPerMonth} a month`}
+                price={PRICING.annual}
                 unit="per year"
               />
               <PlanCard
@@ -457,7 +484,7 @@ export default function Onboarding() {
                 onPress={() => setPlan('monthly')}
                 title="Monthly"
                 sub="Billed every month"
-                price="$9.99"
+                price={PRICING.monthly}
                 unit="per month"
               />
             </RiseIn>
@@ -530,8 +557,11 @@ export default function Onboarding() {
                   as the last child of the scrolling body they sat below the fold, and App Store
                   Review 3.1.2 wants the price and renewal terms ON the purchase screen. */}
               <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-                7 days free, then {plan === 'annual' ? '$59.99 per year, billed annually' : '$9.99 per month'}. Renews
-                until cancelled. Cancel anytime in the App Store.
+                {TRIAL_DAYS} days free, then{' '}
+                {plan === 'annual'
+                  ? `${PRICING.annual} per year, billed annually`
+                  : `${PRICING.monthly} per month`}
+                . Renews until cancelled. Cancel anytime in the App Store.
               </ThemedText>
               <SpringPressable haptic={false} onPress={() => router.replace('/home')} style={styles.maybeLater}>
                 <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>

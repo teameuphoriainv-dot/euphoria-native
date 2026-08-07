@@ -3389,3 +3389,26 @@ doing exactly that) rather than adding navigation. Euphoria already ships five.
 
 Finish the count to 8 apps (Elevate `1395`, Nibble `918`, Praktika `1816`) when quota returns before
 treating this as closed.
+
+### C31. Pricing CHANGED: $9.99/mo unchanged, annual $59.99 → $79.99. And a real bug fixed.
+
+Acting on C29's parked finding, at the user's instruction to pick whatever is best.
+
+| | was | now | why |
+|---|---|---|---|
+| monthly | $9.99 | **$9.99** | already mid-pack: above Quizlet $7.99, below Bloom $15, far below Astra AI $24 |
+| annual | $59.99 | **$79.99** | $59.99 was $5.00/month-equivalent against a peer median near $7.90 — ~37% under |
+| per-month equiv | $5.00 | **$6.67** | deliberately BELOW the median: Bloom's $15 buys a real brokerage, ours buys paper trading |
+| badge | SAVE 50% | **SAVE 33%** | 9.99 × 12 = 119.88 ; 79.99 / 119.88 = 0.667 |
+
+**A REAL BUG FOUND AND FIXED IN THE SAME PLACE.** The paywall badge and the App Store renewal
+terms both read **"7 days free"** while the entitlement engine grants **THREE**. The purchase screen
+was promising more than the app delivers — the kind of mismatch App Store Review 3.1.2 exists to
+catch, and a refund request waiting to happen.
+
+Both now interpolate `TRIAL_DAYS` from `lib/entitlement.ts` rather than carrying a literal, so the
+two cannot drift again. Prices live in a single module-scope `PRICING` const in `onboarding.tsx`
+with the saving arithmetic written out beside it.
+
+Still owed here: §9.6's plan-card redesign and the trial-timeline block inside the paywall body are
+NOT done — only the numbers and the trial length changed.
