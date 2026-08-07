@@ -8,8 +8,12 @@
  *
  * Every piece of art is a pure function of the course ACCENT colour, so the same lesson
  * reads differently across courses and the whole path stays chromatically coherent.
- * Art is chosen by matching the real lesson title against METAPHORS; unmatched titles
- * fall back to a per-index rotation so a path never repeats one icon down the screen.
+ * Art is chosen by matching the real lesson title against METAPHORS — a NARROW concept tier
+ * first, then broader course-level nets. Unmatched titles hash to NEUTRAL.
+ *
+ * The narrow tier is not decoration: without it, matching happened at course granularity and
+ * Behavioral Finance rendered the same `mind` icon on 24 of its 25 nodes, sixteen of them
+ * consecutive. See the comment above METAPHORS for the measurements and the ordering rule.
  */
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { courseAccent } from '@/lib/course-accents';
@@ -74,6 +78,181 @@ type Art = (p: ArtPalette) => React.ReactNode;
  * scene at 38px, few enough to stay crisp. No <text> — it renders with a fallback font.
  */
 const ART: Record<string, Art> = {
+  /* ──────────────────────────────────────────────────────────────────────────────────────
+   * ADDED 2026-08-07 to break within-course repetition. Measured before: behavioralFinance
+   * showed 'mind' on 24 of 25 nodes with a run of SIXTEEN consecutive identical icons;
+   * appliedAccounting 'ledger' 19/25; businessStrategy 'chess' 20/25. The cause was that
+   * METAPHORS matched at COURSE granularity, so every lesson in a course hit one broad
+   * regex. These scenes exist so the narrow tier at the top of METAPHORS has somewhere to
+   * point. Same language as the originals: semi-isometric, one top light, contact shadow.
+   * ────────────────────────────────────────────────────────────────────────────────────── */
+
+  /* Herd behaviour — a cluster following one leader. Reads as "everyone else went that way". */
+  crowd: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={40} rx={15} />
+      <Circle cx={13} cy={26} r={3.4} fill={p.dark} opacity={0.55} />
+      <Path d="M9 38c0-4 2-6 4-6s4 2 4 6Z" fill={p.dark} opacity={0.5} />
+      <Circle cx={22} cy={24} r={3.8} fill={p.base} opacity={0.8} />
+      <Path d="M17 38c0-5 2-7 5-7s5 2 5 7Z" fill={p.base} opacity={0.7} />
+      <Circle cx={34} cy={21} r={4.6} fill="url(#laBall)" />
+      <Path d="M28 38c0-6 3-9 6-9s6 3 6 9Z" fill={p.lite} opacity={0.9} />
+      <Circle cx={32} cy={19} r={1.4} fill="#fff" opacity={0.5} />
+    </>
+  ),
+
+  /* Anchoring — an actual anchor. Distinct from `pricetag`, which is about what a thing IS worth. */
+  anchor: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={41} rx={12} />
+      <Circle cx={24} cy={9} r={4} fill="none" stroke={p.lite} strokeWidth={2.4} />
+      <Path d="M24 13v22" stroke={p.base} strokeWidth={3} strokeLinecap="round" />
+      <Path d="M16 19h16" stroke={p.base} strokeWidth={2.6} strokeLinecap="round" />
+      <Path d="M11 28c0 8 6 11 13 11s13-3 13-11" fill="none" stroke="url(#laBall)" strokeWidth={3} strokeLinecap="round" />
+      <Circle cx={11} cy={28} r={1.8} fill={p.dark} opacity={0.7} />
+      <Circle cx={37} cy={28} r={1.8} fill={p.dark} opacity={0.7} />
+    </>
+  ),
+
+  /* Framing — the same content inside a frame. The frame is the point, not the picture. */
+  frame: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={41} rx={13} />
+      <Rect x={7} y={11} width={34} height={26} rx={3} fill="none" stroke={p.lite} strokeWidth={3} />
+      <Rect x={12} y={16} width={24} height={16} rx={2} fill="url(#laBall)" opacity={0.55} />
+      <Path d="M14 30l6-6 4 4 6-7 5 6" stroke={p.dark} strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.75} />
+    </>
+  ),
+
+  /* Attention / media pull — a horseshoe magnet with filings drawn toward it. */
+  magnet: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={41} rx={12} />
+      <Path d="M14 34V21a10 10 0 0 1 20 0v13" fill="none" stroke="url(#laBall)" strokeWidth={6} strokeLinecap="round" />
+      <Path d="M14 34h6M28 34h6" stroke={p.dark} strokeWidth={5} strokeLinecap="round" opacity={0.8} />
+      <Circle cx={40} cy={14} r={1.5} fill={p.lite} opacity={0.9} />
+      <Circle cx={43} cy={20} r={1.2} fill={p.lite} opacity={0.7} />
+      <Circle cx={7} cy={16} r={1.3} fill={p.lite} opacity={0.7} />
+    </>
+  ),
+
+  /* Narrative fallacy — a speech bubble whose contents are a wandering line, not data. */
+  story: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={41} rx={12} />
+      <Path d="M8 12h32a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H21l-7 6v-6H8a3 3 0 0 1-3-3V15a3 3 0 0 1 3-3Z" fill="url(#laBall)" opacity={0.85} />
+      <Path d="M11 24c4-7 8 4 12-3s7 5 11-1" stroke={p.dark} strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.8} />
+    </>
+  ),
+
+  /* Receivables / payables — a document with an arrow leaving it. Distinct from `receipt` (tax). */
+  invoice: (p) => (
+    <>
+      <Ground p={p} cx={22} cy={41} rx={12} />
+      <Path d="M10 7h16l8 8v22a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" fill="url(#laBall)" />
+      <Path d="M26 7v8h8" fill={p.dark} opacity={0.45} />
+      <Path d="M15 22h12M15 28h8" stroke={p.dark} strokeWidth={2} strokeLinecap="round" opacity={0.7} />
+      <Path d="M32 31l8 6-8 6" stroke={p.lite} strokeWidth={2.6} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+
+  /* Inventory — three stacked crates, isometric. */
+  boxes: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={42} rx={14} />
+      <Path d="M6 28l10-5 10 5-10 5Z" fill={p.lite} opacity={0.9} />
+      <Path d="M6 28v8l10 5v-8Z" fill={p.base} opacity={0.8} />
+      <Path d="M26 28v8l-10 5v-8Z" fill={p.dark} opacity={0.6} />
+      <Path d="M24 18l9-4 9 4-9 4Z" fill={p.lite} opacity={0.75} />
+      <Path d="M24 18v7l9 4v-7Z" fill={p.base} opacity={0.65} />
+      <Path d="M42 18v7l-9 4v-7Z" fill={p.dark} opacity={0.5} />
+    </>
+  ),
+
+  /* Depreciation — a solid mass stepping down. The stair descends, which is the whole idea. */
+  decay: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={42} rx={15} />
+      <Rect x={7} y={14} width={9} height={24} rx={1.5} fill="url(#laBall)" />
+      <Rect x={18} y={21} width={9} height={17} rx={1.5} fill={p.base} opacity={0.8} />
+      <Rect x={29} y={28} width={9} height={10} rx={1.5} fill={p.dark} opacity={0.7} />
+      <Path d="M11 9l0 0M9 8h30" stroke={p.lite} strokeWidth={0} />
+      <Path d="M38 12l4 4-4 4" stroke={p.lite} strokeWidth={2.2} fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
+      <Path d="M14 16h26" stroke={p.lite} strokeWidth={2} strokeLinecap="round" opacity={0.5} strokeDasharray="3 3" />
+    </>
+  ),
+
+  /* Go-to-market / positioning — a flag planted on a mound. Claimed ground. */
+  flag: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={41} rx={14} />
+      <Path d="M6 39c5-9 13-13 18-13s13 4 18 13Z" fill={p.dark} opacity={0.45} />
+      <Path d="M20 39V9" stroke={p.base} strokeWidth={2.8} strokeLinecap="round" />
+      <Path d="M20 10h17l-4 6 4 6H20Z" fill="url(#laBall)" />
+      <Circle cx={20} cy={8} r={2} fill={p.lite} />
+    </>
+  ),
+
+  /* Partnership / M&A — two interlocking links. One object made of two. */
+  handshake: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={41} rx={13} />
+      <Path d="M20 17a8 8 0 0 0 0 14h4" fill="none" stroke="url(#laBall)" strokeWidth={5} strokeLinecap="round" />
+      <Path d="M28 31a8 8 0 0 0 0-14h-4" fill="none" stroke={p.base} strokeWidth={5} strokeLinecap="round" opacity={0.85} />
+      <Circle cx={24} cy={24} r={2.2} fill="#fff" opacity={0.55} />
+    </>
+  ),
+
+  /* Customer acquisition — a funnel: many in, few out. */
+  funnel: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={42} rx={11} />
+      <Path d="M7 10h34l-13 15v11l-8 4V25Z" fill="url(#laBall)" />
+      <Circle cx={13} cy={6} r={1.7} fill={p.lite} opacity={0.85} />
+      <Circle cx={24} cy={5} r={1.7} fill={p.lite} opacity={0.85} />
+      <Circle cx={35} cy={6} r={1.7} fill={p.lite} opacity={0.85} />
+      <Circle cx={24} cy={44} r={1.9} fill={p.dark} opacity={0.8} />
+    </>
+  ),
+
+  /* Machine learning / NLP — nodes and edges. A network, not a chart. */
+  network: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={42} rx={13} />
+      <Path d="M11 15L26 24 11 33M26 24l11-14M26 24l11 14" stroke={p.dark} strokeWidth={1.8} fill="none" opacity={0.65} />
+      <Circle cx={11} cy={15} r={3.4} fill={p.base} opacity={0.85} />
+      <Circle cx={11} cy={33} r={3.4} fill={p.base} opacity={0.85} />
+      <Circle cx={26} cy={24} r={5} fill="url(#laBall)" />
+      <Circle cx={37} cy={10} r={2.8} fill={p.lite} opacity={0.9} />
+      <Circle cx={37} cy={38} r={2.8} fill={p.lite} opacity={0.9} />
+    </>
+  ),
+
+  /* Dashboards — a panel of small readouts. Distinct from `magnifier` (investigation). */
+  dashboard: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={42} rx={15} />
+      <Rect x={5} y={10} width={38} height={27} rx={3} fill="url(#laBall)" opacity={0.9} />
+      <Rect x={9} y={14} width={13} height={9} rx={1.5} fill={p.dark} opacity={0.5} />
+      <Path d="M10 21l3-3 3 2 4-4" stroke={p.lite} strokeWidth={1.6} fill="none" strokeLinecap="round" />
+      <Rect x={26} y={14} width={13} height={9} rx={1.5} fill={p.dark} opacity={0.5} />
+      <Rect x={9} y={27} width={5} height={6} rx={1} fill={p.dark} opacity={0.6} />
+      <Rect x={17} y={25} width={5} height={8} rx={1} fill={p.dark} opacity={0.6} />
+      <Rect x={25} y={28} width={5} height={5} rx={1} fill={p.dark} opacity={0.6} />
+    </>
+  ),
+
+  /* Scaling — ascending blocks. `decay` descends; this climbs, and they must never be confused. */
+  stairs: (p) => (
+    <>
+      <Ground p={p} cx={24} cy={42} rx={15} />
+      <Rect x={7} y={29} width={9} height={9} rx={1.5} fill={p.dark} opacity={0.7} />
+      <Rect x={18} y={22} width={9} height={16} rx={1.5} fill={p.base} opacity={0.85} />
+      <Rect x={29} y={13} width={9} height={25} rx={1.5} fill="url(#laBall)" />
+      <Path d="M35 9l4-4M39 5h-4M39 5v4" stroke={p.lite} strokeWidth={2} fill="none" strokeLinecap="round" />
+    </>
+  ),
+
   /* Compounding — a snowball gathering mass as it rolls DOWNHILL. Direction matters: the
      mass sits low-left with tracks receding up-slope, so it reads as accumulation. */
   snowball: (p) => (
@@ -585,6 +764,177 @@ const ART: Record<string, Art> = {
  * matches on topic vocabulary rather than trying to enumerate every lesson.
  */
 const METAPHORS: ReadonlyArray<readonly [RegExp, string]> = [
+  /* ══════════════════════════════════════════════════════════════════════════════════════
+   * TIER 0 — CONCEPT-LEVEL, matched FIRST. Added 2026-08-07.
+   *
+   * WHY THIS TIER EXISTS. The table below TIER 0 matches at COURSE granularity: every lesson
+   * in Behavioral Finance contains a behavioural word, so all of them hit the `mind` net.
+   * Measured across the real 295 authored lesson titles before this tier existed:
+   *
+   *   behavioralFinance   'mind'      24 of 25 nodes (96%)  — 16 CONSECUTIVE identical icons
+   *   businessStrategy    'chess'     20 of 25 (80%)        —  7 in a row
+   *   appliedAccounting   'ledger'    19 of 25 (76%)        —  6 in a row
+   *   financialAnalytics  'magnifier' 16 of 25 (64%)        —  6 in a row
+   *
+   * A path of 25 nodes showing one glyph is decoration wearing the costume of information —
+   * the same conclusion that got node-TYPE badges removed from learn.tsx. The fix is not more
+   * fallbacks; it is matching the CONCEPT the lesson actually teaches.
+   *
+   * ORDER IS LOAD-BEARING. Every pattern here must stay above the broad nets, and narrower
+   * ones above wider ones inside this tier. `/depreciat/` in particular must precede the
+   * `ledger` net, which also matches it.
+   *
+   * Verify any change with the distribution script: no course may show one icon on more than
+   * ~5 of its 25 nodes, and no icon may repeat on 3+ consecutive nodes.
+   * ══════════════════════════════════════════════════════════════════════════════════════ */
+
+  /* -- behavioural concepts ---------------------------------------------------------- */
+  [/herd behav|social proof|bandwagon/i, 'crowd'],
+  [/anchoring/i, 'anchor'],
+  [/framing|mental account/i, 'frame'],
+  [/nudge|choice architect/i, 'funnel'],
+  [/narrative fallacy|storytell/i, 'story'],
+  [/attention bias|media influence/i, 'magnet'],
+  [/social media/i, 'network'],
+  [/sunk cost/i, 'decay'],
+  [/status quo|inertia/i, 'lock'],
+  [/regret aversion|paralysis/i, 'hourglass'],
+  [/overconfiden|illusion of control|emotional cycle/i, 'balloon'],
+  [/disposition effect|selling winners/i, 'candles'],
+  [/gambler|hot hand/i, 'dice'],
+  [/endowment effect/i, 'house'],
+  [/debiasing|cognitive tool|your brain/i, 'mind'],
+  [/cognitive bias/i, 'bucket'],
+  [/behavioral portfolio/i, 'basket'],
+  [/everyday life/i, 'jars'],
+  [/market anomal/i, 'magnifier'],
+  [/rational (investment )?framework/i, 'stairs'],
+  [/prospect theory/i, 'scale'],
+
+  /* -- accounting concepts ----------------------------------------------------------- */
+  [/balance sheet/i, 'scale'],
+  [/inventory/i, 'boxes'],
+  [/depreciat/i, 'decay'],
+  [/payroll|employee benefit/i, 'crowd'],
+  [/receivable|payable/i, 'handshake'],
+  [/consolidat|group accounting/i, 'basket'],
+  [/information system/i, 'network'],
+  [/financial statement analysis/i, 'dashboard'],
+  [/income statement|revenue recognition|accrual/i, 'invoice'],
+  [/cost accounting|break.?even/i, 'bucket'],
+  [/internal control|\bauditing\b/i, 'lock'],
+  [/forensic|fraud detection|x.?ray/i, 'magnifier'],
+  [/managerial account/i, 'chess'],
+  [/nonprofit|government account/i, 'bank'],
+  [/\bifrs\b|\bgaap\b|international account/i, 'globe'],
+  [/ethics|professional standard/i, 'certificate'],
+  [/journal entr|double.entry|language of account/i, 'ledger'],
+  [/variance analysis/i, 'jars'],
+
+  /* -- strategy concepts ------------------------------------------------------------- */
+  [/market positioning|competitive analysis|go.to.market/i, 'flag'],
+  [/merger|acquisition|partnership|alliance/i, 'handshake'],
+  [/scaling a business|business model|predictive model/i, 'stairs'],
+  [/leadership|organizational|talent strategy|human capital/i, 'crowd'],
+  [/customer acquisition|retention/i, 'funnel'],
+  [/brand building|market perception|financial modeling/i, 'frame'],
+  [/supply chain|\bsql\b|database quer|big data/i, 'boxes'],
+  [/digital transformation|innovation|disrupt|machine learning|\bnlp\b|natural language|python for/i, 'network'],
+  [/data.driven|dashboard|data visuali|what is financial analytics/i, 'dashboard'],
+  [/crisis management|business continuity|stress test/i, 'umbrella'],
+  [/sustainab|\besg\b|social responsib/i, 'dividendtree'],
+  [/platform business|real.time data|streaming/i, 'pipes'],
+  [/product strategy|portfolio analytics/i, 'basket'],
+  [/strategic finance/i, 'ledger'],
+
+  /* -- analytics concepts ------------------------------------------------------------ */
+  [/sentiment analysis|alternative data/i, 'story'],
+  [/time series/i, 'hourglass'],
+  [/credit scoring/i, 'card'],
+  [/a\/b test|experimentation/i, 'funnel'],
+  [/automated reporting/i, 'invoice'],
+  [/anomaly detection|fraud analytics/i, 'lock'],
+  [/monte carlo|descriptive statistic/i, 'dice'],
+  [/regression analysis/i, 'magnifier'],
+
+  /* -- macro / global economics ------------------------------------------------------ */
+  [/supply and demand/i, 'scale'],
+  [/federal reserve|monetary polic|central bank/i, 'bank'],
+  [/\bgdp\b|economic indicator|leading signal/i, 'dashboard'],
+  [/fiscal polic|government spending|deficit|sovereign risk/i, 'invoice'],
+  [/currency market|exchange rate|\bcbdc|digital currency|future of money/i, 'coins'],
+  [/emerging market|development econom|poverty/i, 'stairs'],
+  [/labor market|employment|income inequal|wealth distribution/i, 'crowd'],
+  [/trade war|tariff|sanction|geopolit/i, 'flag'],
+  [/commodit|natural resource/i, 'boxes'],
+  [/climate/i, 'dividendtree'],
+  [/digital economy|platform econom/i, 'network'],
+  [/bubble|financial cris|contagion|systemic risk/i, 'balloon'],
+  [/international trade|globalizat/i, 'globe'],
+
+  /* -- wealth management ------------------------------------------------------------- */
+  [/estate plan|trusts|wealth transfer/i, 'certificate'],
+  [/charitable|philanthrop|impact investing|values.based/i, 'dividendtree'],
+  [/family wealth|multi.generational/i, 'crowd'],
+  [/financial advisor|robo.advisor/i, 'handshake'],
+  [/asset location|tax.efficient|tax.advantaged|tax optimization/i, 'receipt'],
+  [/social security|government benefit/i, 'bank'],
+  [/health care planning|\bhsa/i, 'umbrella'],
+  [/concentrated stock/i, 'candles'],
+  [/divorce|financial separation/i, 'scale'],
+  [/business owner wealth/i, 'flag'],
+  [/preserving wealth|building & preserving/i, 'vault'],
+  [/retirement income|withdrawal strateg/i, 'hourglass'],
+
+  /* -- risk management --------------------------------------------------------------- */
+  [/value at risk|risk decomposition|quantitative risk model/i, 'dice'],
+  [/credit risk|default probab|counterparty|collateral/i, 'card'],
+  [/operational|liquidity risk/i, 'pipes'],
+  [/hedging|\bfx hedg/i, 'umbrella'],
+  [/duration|interest rate (risk|model)/i, 'certificate'],
+  [/enterprise risk|risk governance|board oversight/i, 'chess'],
+  [/basel|regulatory framework/i, 'lock'],
+  [/tail risk|black swan/i, 'balloon'],
+  [/cyber|technology threat/i, 'magnet'],
+  [/model risk|validation|backtest/i, 'frame'],
+  [/scenario analysis|war gaming/i, 'story'],
+  [/risk transfer/i, 'handshake'],
+
+  /* -- quantitative ------------------------------------------------------------------ */
+  [/portfolio optimiz|markowitz/i, 'basket'],
+  [/black.scholes|derivatives pricing|risk.neutral|measure theory/i, 'pricetag'],
+  [/factor model|alpha generation/i, 'network'],
+  [/statistical arbitrage|high.frequency|market microstructure/i, 'candles'],
+  [/algorithmic trading|execution algorithm|transaction cost/i, 'pipes'],
+  [/stochastic calculus/i, 'dice'],
+  [/copula|dependency model/i, 'network'],
+  [/bayesian/i, 'scale'],
+  [/volatilit.*garch|\bgarch\b/i, 'balloon'],
+  [/exotic option|path.dependent/i, 'anchor'],
+  [/quantum computing/i, 'magnet'],
+
+  /* -- investing fundamentals -------------------------------------------------------- */
+  [/compound interest|dollar cost averag/i, 'snowball'],
+  [/stocks vs\.? bonds|mutual fund|fund types/i, 'certificate'],
+  [/diversificat/i, 'basket'],
+  [/etfs? & index|index funds/i, 'boxes'],
+  [/first portfolio|rebalancing/i, 'scale'],
+  [/account types/i, 'vault'],
+  [/reading stock chart|market order|market cycle/i, 'candles'],
+  [/dividend/i, 'dividendtree'],
+  [/growth vs value/i, 'stairs'],
+  [/international investing/i, 'globe'],
+  [/introduction to options/i, 'anchor'],
+  [/investing pitfall/i, 'mind'],
+  [/investment fees/i, 'bucket'],
+  [/due diligence/i, 'magnifier'],
+  [/long.term investing/i, 'hourglass'],
+  [/paper trading/i, 'flag'],
+  [/risk vs\.? reward/i, 'dice'],
+
+  /* -- every course ends in one; keeps the last node from inheriting a broad net ----- */
+  [/capstone|checkpoint/i, 'vault'],
+
   /* -- narrow, high-confidence topics first ------------------------------------------ */
   [/compound|snowball|exponential|growth over time|dollar cost averag|time value|long-term investing/i, 'snowball'],
   [/inflation|purchasing power|cost of living|deflation|hyperinflat/i, 'balloon'],
