@@ -24,17 +24,33 @@
 import Svg from 'react-native-svg';
 
 import { LessonMark, lessonMarkColor } from '../lesson-mark';
+import { M as alternativeInvestments } from './alternative-investments';
+import { M as appliedAccounting } from './applied-accounting';
 import { M as behavioralFinance } from './behavioral-finance';
+import { M as businessStrategy } from './business-strategy';
+import { M as corporateFinance } from './corporate-finance';
+import { M as financialAnalytics } from './financial-analytics';
 import { M as globalEconomics } from './global-economics';
 import { M as investingFundamentals } from './investing-fundamentals';
 import { M as personalFinance } from './personal-finance';
+import { M as quantitativeAnalysis } from './quantitative-analysis';
+import { M as riskManagement } from './risk-management';
+import { M as wealthManagement } from './wealth-management';
 
 /** Course ids are the real ids from lib/curriculum (kebab-case), not the camelCase filenames. */
 const BY_COURSE: Record<string, Record<number, React.ReactNode>> = {
   'investing-fundamentals': investingFundamentals,
   'personal-finance': personalFinance,
-  'behavioral-finance': behavioralFinance,
   'global-economics': globalEconomics,
+  'corporate-finance': corporateFinance,
+  'business-strategy': businessStrategy,
+  'financial-analytics': financialAnalytics,
+  'behavioral-finance': behavioralFinance,
+  'applied-accounting': appliedAccounting,
+  'quantitative-analysis': quantitativeAnalysis,
+  'risk-management': riskManagement,
+  'alternative-investments': alternativeInvestments,
+  'wealth-management': wealthManagement,
 };
 
 export function hasLessonMarkFor(courseId: string, num: number): boolean {

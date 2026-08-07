@@ -3095,3 +3095,60 @@ cover it and ran clean on device — `[entitlement]` error lines: 0.
 Inert while `isPro` is true, because `tier()` returns 'pro' regardless — but **a future session that
 flips `isPro` false to test the trial will start at day 1, not day 0.** Clear it first. Pre-seed
 baseline: `refs/BASELINE_STORE_20260807.json`.
+
+---
+
+## From the per-lesson art work (2026-08-07)
+
+### C16. 300 authored lesson marks. Unit 12's art system, pulled forward and finished.
+
+The user asked three times for "the icon for every single lesson", so this was built in full rather
+than scaled down. Three separate defects were found and fixed on the way, in this order:
+
+**(a) Variety.** `artKeyFor` matched at COURSE granularity, so Behavioral Finance drew one `mind`
+glyph on 24 of 25 nodes, sixteen consecutively. Fixed with 14 new ART scenes (26 → 40) and a
+150-pattern concept tier above the broad nets. Measured: worst repeat 24 → 5, worst run 16 → 2.
+
+**(b) Quality.** The art then still looked bad, and the cause was contrast, not variety.
+`LessonArt` derives its whole palette from the course accent (`base: accent`,
+`lite: shade(+0.42)`, `dark: shade(-0.34)`) while an ACTIVE node's face is `accent + '2E'` — the
+same accent at 18%. Pink art on a pink ground. `components/art/lesson-mark.tsx` replaced the filled
+scenes on nodes with 40 stroke marks, and `lessonMarkColor()` owns the contrast rule in one place:
+near-white on the active node, accent on the neutral ones. **This is the same defect as the
+course-card chip. Colour art to contrast the surface behind it, never to match it.**
+
+**(c) Uniqueness.** A regex table is a preference order, not an assignment, so it can reduce
+collisions but never eliminate them. `components/art/lesson-marks/` is a per-lesson map keyed
+`courseId:num` — 12 files, 25 marks each, **300 total** — so uniqueness holds by construction.
+
+**Verified:** 300/300 authored · keys 1..25 contiguous in all 12 files · **zero within-course
+duplicate geometries** · 270 globally distinct. The 30 overlaps are deliberate: the checkpoint flag
+(lesson 10) and the graduation cap (lesson 25) are shared across courses, because they mark the same
+KIND of moment and §4's own note records that 3 of 6 reference paths punctuate with a consistent
+reward marker. Courses never render side by side.
+
+**The fallback stays on purpose.** `LessonNodeMark` prefers the authored mark and falls back to the
+40-key regex mark, so an unmapped lesson degrades to something good rather than to a blank node, and
+the `__DEV__` check reports coverage out loud rather than letting a partial set look finished.
+
+**`LessonArt` is NOT deleted.** It still serves the Home hero at 96pt, the course cards and
+onboarding, where a filled scene sits on a NEUTRAL card and has real contrast.
+
+**Keyed on number, not title** — renaming a lesson keeps its mark, but RESEQUENCING the curriculum
+moves marks with the number. If lessons are reordered upstream, these maps must be reordered too.
+
+### C17. The curriculum has 300 lessons, not 295. There is no `courseIndex` bug.
+
+An earlier extraction reported 295 and flagged `totalLessons: 25` for corporateFinance as wrong.
+**That was my error.** The regex only matched the `L(n, '…')` form; corporateFinance declares its
+first five lessons in the `num:` object form. All 12 courses have 25 lessons and `courseIndex` is
+correct. Any script counting lessons must match BOTH forms.
+
+### C18. Two self-inflicted traps worth remembering.
+
+- I wrote `require('react-native-svg')` inside a component. That is **trap #27** exactly — a require
+  justified by an import cycle that does not exist. Replaced with a top-level import.
+- My own uniqueness checker reported a false duplicate because its geometry signature captured
+  `d=` and circle attributes but **not `<Rect>` coordinates or `transform=`**. Two `<Rect>`-only
+  marks looked identical to it. **Trap #33 again, in the verification rather than the code:** a
+  check that only looks at part of the artifact will pass or fail for the wrong reason.
