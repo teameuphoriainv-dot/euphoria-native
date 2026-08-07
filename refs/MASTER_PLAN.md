@@ -3177,3 +3177,82 @@ than printing a number that contradicts another screen. That is a stopgap, not a
   say *"Options are part of Pro"* rather than misreporting a spent allowance.
 
 Do not ship the gate sheet until this is one answer.
+
+---
+
+## From the Unit 4 research pass, completed (2026-08-07, after quota returned)
+
+### C20. Trial-timeline convergence is now 4/4. This REFINES C9 — do not read C9 alone.
+
+C9 was written from 2 apps and overstated the case. With 4 pixel- or description-verified:
+
+| app | rev/mo | where the timeline lives | beats |
+|---|---|---|---|
+| Nibble `918` `132921` | $450k | **its own full screen** — "Free trial guide", `X` top-right, `Continue` pinned | TODAY 🔒 / DAY 5 🔔 / DAY 7 ⭐ |
+| Promova `936` `138757` | $250k | **its own full screen**, CTA `START FREE TRIAL`, **no price** → separate pricing screen `138758` | Today / In 5 days / In 7 days |
+| **Headway `891` `128586`** | **$850k** | **its own modal** — "Free trial guide", `X`, full-width `Start free trial` | TODAY / DAY 5 / DAY 7, lock + bell + star |
+| **Quizlet `874` `147530`** | **$2.25M** | **EMBEDDED — it IS the paywall header**, and embedded again in the plan picker `147531` | Today / June 4 2025 |
+
+**So: 4/4 ship a timeline. 3/4 give it its own surface; 1/4 embeds it.** §6.6.2's claim that it is
+*always* "a component inside the paywall" is still wrong — but Quizlet is a genuine embedded case, so
+the plan was not inventing it. C9's "the reference apps do NOT embed" was too strong; **the user's
+standalone-screen decision is now better supported at 3/4, not contradicted at 2/2.**
+
+Note the plan's own §2.1 enum: Headway and Quizlet both record as **"Free Trial - Soft Paywall"**,
+and Quizlet's carries an explicit skip — *"Continue using free Quizlet"*. The two highest earners
+here are SOFT. Euphoria is going hard after 3 days; that is a defensible choice but it is not the
+pattern at the top of this band, and it should be a decision rather than an assumption.
+
+### C21. Headway's full conversion sequence — the most complete reference in the set.
+
+Five screens, positions 37→44, worth copying wholesale rather than in pieces:
+
+1. `128581` **hype** — "You've got this! One more step to claim your **free premium trial**"
+2. `128582` **Commitment pact** (uniqueness **9**) — handshake icon, *"I want to learn one new idea
+   or fact every day by learning 7 summaries per week…"* / *"I commit to my goals."* /
+   *"Tap to commit. Committing to goals boosts motivation."* with a **fingerprint button**
+3. `128586` **the timeline** (see C20)
+4. `128587` **reminder confirmation** — *"We'll send a reminder 2 days before your free trial ends"*
+   with a concrete **date pill: `April 21`**
+5. `128588` **the price** — *"Try 7 days for free / then $7.49 per month / (billed yearly at
+   $89.99)"* · `View other plans` · "Secured with App Store" · CTA `Start free trial` with subtext
+   **"2 taps to start, super easy to cancel"** · Terms · Privacy · **Restore Purchase**
+
+### C22. The reminder beat is expressed RELATIVE TO THE END, with a real date. 3/3.
+
+- Headway `128587` — "a reminder **2 days before** your free trial ends" + `April 21`
+- Nibble `132922` — "We'll remind you **2 days before** your free trial ends" + `April 30`
+- Quizlet `147531` — "**June 1, 2025**: Trial reminder" against a June 4 end = 3 days before
+
+None of them say "day 5". They say *"N days before it ends"* and then **show the date**. That
+matters for Euphoria's 3-day trial: the user's chosen copy — *"We'll remind you before anything is
+charged"* — is compatible, and it gets stronger with a computed date pill beside it. `notifications.ts`
+already reports what the OS actually accepted, so the date can be real rather than promised.
+
+### C23. Restore Purchases confirmed on 2/2 price screens (Headway `128588`, Promova `138758`).
+
+Reinforces the 3/5 settings convergence already recorded and the App Store requirement for Unit 5.
+
+### C24. `SpecialOfferPaywall` band = 9 apps. The mechanism is a SECOND paywall on dismissal.
+
+- **EWA `849`** — *"After dismissing the first paywall, the app immediately presents special offers
+  with prominent discounts and a **countdown timer**"*
+- **Night Sky `1822`** — *"Dynamic Discount Paywall: the price dynamically changes from a high annual
+  price to a much lower weekly price after the user interacts with the plan selector"* (uniqueness 7)
+- **Impulse `1375`** ($1M/mo) — **Post-Subscription Welcome Screen**, *"listing the premium features
+  they have just unlocked"*
+- Paywall counts: Nibble 2 · Headway 2 · Falou 2 · EWA 1 · Impulse 1 · Jumpspeak 1 · Night Sky 1 ·
+  HelloTalk 0 · SmartyMe 0. **3 of 9 ship two paywalls**, the second being the dismissal offer.
+
+**Euphoria has no second offer and no discount to give.** Do not invent urgency (§20.5). Recorded as
+available headroom, not a requirement.
+
+### C25. For Unit 8, from the same pull — Headway's streak mechanics.
+
+- `128564` **"Commit to growing with Headway"** — 7-day *Promising* / 14-day *Determined* / 30-day
+  *Impressive* / 50-day *Unstoppable*. **Named tiers, not bare numbers**, with a mascot line
+  *"Going the extra mile always pays off."* Directly answers §8b's streak-commitment step.
+- `128567` — **"DAY 21 · 21 days may be a great start to build a habit"** with an inline time picker
+  for the reminder, ahead of the system prompt.
+- `128620` — states the rule plainly: *"Finish 3 key points every day to extend your streak.
+  **Miss a day — and it resets to 0.**"*
