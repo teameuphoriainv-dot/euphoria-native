@@ -1143,7 +1143,10 @@ unaffected · anon gets exactly 6 · scopes independent. **Trap #20 was discover
 
 ---
 
-## UNIT 2 — Component library + icon system foundation
+## UNIT 2 — Component library + icon system foundation ✅ **DONE**
+
+NativeWind 4.2.6 + Tailwind 3.4.19 pinned, Hugeicons behind `lib-icon.tsx`. Bundle +52 KB.
+**Read §22 C1–C8 before touching icons** — this unit found three icon systems, not one.
 
 **Why first:** every surface unit below (6, 7, 8, 9) needs these. Installing them mid-redesign means
 half the app uses one system and half uses another.
@@ -1300,7 +1303,13 @@ each: **day 1 / day 3 / day 4 expired / Pro**.
 
 ---
 
-## UNIT 4 — The gate sheet + paywall redesign
+## UNIT 4 — The gate sheet + paywall redesign ⚠️ **PART BUILT, NOT VERIFIED**
+
+`gate-sheet.tsx`, `trial-timeline.tsx`, `why-not-free.tsx` exist and are wired into `learn.tsx`.
+**Still owed:** device verification (the overlay-not-a-route test), the PAYWALL BODY redesign in
+`onboarding.tsx` (plan cards + `Save 50%` badge), and routing the OTHER gated surfaces — Atlas,
+options, digest bodies — through the sheet. §4b's rule is that zero screens push to
+`/onboarding?step=paywall` directly; several still do.
 
 > **BLOCKED ON MCP QUOTA (user decision).** §0.2 makes ScreensDesign mandatory before design work,
 > and the data budget is exhausted. Do not start until quota returns; then run the §14.2 call sheet
@@ -1365,7 +1374,10 @@ cap does. Then say plainly in the report that purchases are not live and what is
 
 ---
 
-## UNIT 6 — You tab redesign
+## UNIT 6 — You tab redesign ✅ **DONE**
+
+Plan status card, five tappable stat tiles, tappable ladder with thresholds, duplicate progress bar
+removed. See §22 C19 and C26 for the options contradiction this unit exposed and resolved.
 
 ### 6a — Research
 
@@ -1612,7 +1624,11 @@ argues for fewer tabs, say so plainly even though the user asked for more, then 
 
 ---
 
-## UNIT 12 — Graphics system
+## UNIT 12 — Graphics system ⚠️ **PART DONE**
+
+Done: 12 course marks, 5 stat-tile marks, **300 per-lesson marks** (§22 C16), 40 stroke lesson marks.
+**Still owed:** the 7 league crests refined, quest icons for Unit 8, and ~35 guide hero covers for
+Unit 9 (authored in the web repo then synced, per decision 4).
 
 Create `src/components/art/` and extend the existing hand-drawn style (`atlas.tsx`, `lesson-art.tsx`,
 `league-crest.tsx`, `hero-tint.ts`).
