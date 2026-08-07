@@ -15,7 +15,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
 import { CourseRailCard, RAIL_CARD_GAP, RAIL_CARD_HEIGHT, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
-import { LessonMark, lessonMarkColor } from '@/components/art/lesson-mark';
+import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
 import { artKeyFor } from '@/components/lesson-art';
 import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
@@ -230,8 +230,10 @@ export default function Learn() {
                          * unchanged (worst repeat 5 in a course, worst run 2, across 295 lessons).
                          * Only the rendering changed. lessonMarkColor owns the contrast rule.
                          */
-                        <LessonMark
-                          markKey={artKeyFor(lesson.title, n.i)}
+                        <LessonNodeMark
+                          courseId={activeCourseId}
+                          num={lesson.num}
+                          fallbackKey={artKeyFor(lesson.title, n.i)}
                           size={active ? 40 : 36}
                           color={lessonMarkColor({ active, accent, text: theme.text })}
                         />
