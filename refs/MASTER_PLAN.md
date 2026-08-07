@@ -3412,3 +3412,28 @@ with the saving arithmetic written out beside it.
 
 Still owed here: §9.6's plan-card redesign and the trial-timeline block inside the paywall body are
 NOT done — only the numbers and the trial length changed.
+
+### C32. Unit 7 density: geometry changed, count COMPUTED not yet measured.
+
+§7c's target is ≥10 nodes in a viewport, up from ~6, and §0.6 says revert if the number does not
+move. The arithmetic, written into `learn.tsx` so a later edit cannot miss by one node:
+
+Trail viewport ≈ **460pt** — ~852pt screen, less ~300pt of course rail + course header, less ~90pt
+of tab bar.
+
+| | GAP | NODE | nodes in 460pt | edge gap |
+|---|---|---|---|---|
+| was | 100 | 66 | 460/100 = **4.6** | 34pt |
+| now | **46** | **36** | 460/46 = **10.0** | 10pt |
+
+A 46pt pitch is impossible at a 66pt node — they would overlap — so the node had to shrink with it.
+That is §7b's point that this is *"a different screen, not a spacing change"*: Promova fits ~14 with
+small nodes and inline titles, not by tightening gaps around large ones. `AMP` 66 → 58 so the
+serpentine swings less far off centre, widening the narrowest title gutter; titles stay at two lines
+of 13pt (34pt), which fits inside a 46pt pitch. `LIP` 6 → 4, and the mark and lock sizes scale down
+with the node.
+
+**NOT YET MEASURED ON DEVICE.** The static `BlurView` import added in the gate-sheet commit means
+`learn.tsx` cannot run on the OLD dev client, and the replacement is still compiling. The count above
+is derived from the layout constants, not read off an a11y tree. §7c is not satisfied until
+`sim.sh screen` confirms it — if the real number is under 10, §0.6 applies and this reverts.

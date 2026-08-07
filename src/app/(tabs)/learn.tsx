@@ -30,16 +30,32 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/* 100, was 128. Nodes are 66pt (84 for the current one), so a 128 pitch left 62pt of dead
-   space between every node edge and only FOUR lessons fitted a viewport. Six learning-path
-   screens across four apps show far more at once — Promova ~14, Duolingo ~6, Lingvano lists
-   chapter cards. 100 brings the gap between node edges to 34pt and the count to ~6, matching
-   the Duolingo trail this screen is modelled on. */
-const GAP = 100;
-const AMP = 66;
-const NODE = 66;
-const START = 84;
-const LIP = 6; // 3D bottom-edge depth (Duolingo button look)
+/*
+ * UNIT 7 — DENSITY. Target from §7c: at least TEN nodes in a viewport, up from ~6.
+ *
+ * THE ARITHMETIC, because this is a geometry change and guessing produces a screen that misses by
+ * one node. The trail viewport is roughly 460pt: ~852pt of screen, less ~300pt of course rail plus
+ * course header, less ~90pt of tab bar.
+ *
+ *   GAP 100, NODE 66  ->  460 / 100 = 4.6  ->  the ~5-6 that shipped
+ *   GAP  46, NODE 36  ->  460 /  46 = 10.0 ->  TEN, with a 10pt gap between node edges
+ *
+ * A pitch of 46 is impossible at the old 66pt node — the nodes would overlap — so the node had to
+ * shrink with it. That is exactly the change §7b asks for and calls "a different screen, not a
+ * spacing change": Promova fits ~14 by using small nodes with inline titles, not by tightening
+ * gaps around large ones.
+ *
+ * AMP drops 66 -> 58 so the serpentine swings less far off centre, which widens the narrowest
+ * title gutter — titles here are long ("Cognitive Biases That Destroy Wealth") and they still need
+ * two lines at 13pt, which is 34pt and fits inside a 46pt pitch.
+ *
+ * LIP scales with the node: 6pt of fake depth under a 36pt circle reads as a smudge.
+ */
+const GAP = 46;
+const AMP = 58;
+const NODE = 36;
+const START = 46;
+const LIP = 4; // 3D bottom-edge depth (Duolingo button look), scaled to the smaller node
 
 export default function Learn() {
   const theme = useTheme();
@@ -243,7 +259,7 @@ export default function Learn() {
                         },
                       ]}>
                       {locked ? (
-                        <UIcon name="lock" size={22} color={theme.mutedForeground} />
+                        <UIcon name="lock" size={16} color={theme.mutedForeground} />
                       ) : (
                         /*
                          * Stroke mark, NOT the filled LessonArt scene.
@@ -261,7 +277,7 @@ export default function Learn() {
                           courseId={activeCourseId}
                           num={lesson.num}
                           fallbackKey={artKeyFor(lesson.title, n.i)}
-                          size={active ? 40 : 36}
+                          size={active ? 26 : 22}
                           color={lessonMarkColor({ active, accent, text: theme.text })}
                         />
                       )}
