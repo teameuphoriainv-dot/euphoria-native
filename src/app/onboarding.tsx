@@ -228,6 +228,9 @@ const STEPS: StepDef[] = [
   { kind: 'paywall' },
 ];
 
+/** Advances once per paywall mount, so the hero art differs between visits. */
+let HERO_TURN = 0;
+
 const TOTAL = STEPS.length;
 /* Located by KIND, not by offset. These were TOTAL-1 and TOTAL-2, so inserting the trial step
    below would have silently pointed REVEAL_INDEX at the wrong screen — the reveal celebration
@@ -271,6 +274,18 @@ export default function Onboarding() {
   // unstable snapshot and loop renders (see you.tsx:43).
   // Detailed picks carry the reason each course was chosen, so the reveal can show its working.
   const picks = useMemo(() => recommendPathDetailed(profile), [profile]);
+
+  /**
+   * The paywall hero rotates through the user's OWN recommended courses instead of pinning the
+   * lead one, so a second visit does not show the identical illustration.
+   *
+   * A module-scope counter rather than Math.random(): random in a render body is the impure call
+   * the compiler lint rejects (it is what ambient-background was fixed for), and a counter also
+   * guarantees each course is shown before any repeats. Advancing it in a useState initializer
+   * means it moves once per MOUNT, not once per render — a re-render keeps the same art.
+   */
+  const [heroTurn] = useState(() => HERO_TURN++);
+  const heroPick = picks.length ? picks[heroTurn % picks.length] : undefined;
   const path = useMemo(() => picks.map((x) => x.course), [picks]);
   const perDay = lessonsPerDay(profile.dailyMinutes);
   const weeks = estimateWeeks(profile, path);
@@ -455,9 +470,9 @@ export default function Onboarding() {
         return (
           <View style={styles.paywallBody}>
             <StepHeading title={'Start your 7-day FREE trial to continue'} />
-            {picks[0] ? (
+            {heroPick ? (
               <View style={styles.paywallHero}>
-                <LessonArt courseId={picks[0].course.id} title={picks[0].course.title} index={0} size={132} />
+                <LessonArt courseId={heroPick.course.id} title={heroPick.course.title} index={0} size={132} />
               </View>
             ) : null}
             {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
