@@ -525,6 +525,29 @@ export function PlanRevealStep({
         title="Your path is ready"
         sub={`Tuned for ${/^[aeiou]/i.test(tierLabel) ? 'an' : 'a'} ${tierLabel} track, ${perDay} lesson${perDay === 1 ? '' : 's'} a day.`}
       />
+      {/*
+        * PROMOTED from the bottom of the screen.
+        *
+        * ScreensDesign, "plan is ready" screens at $550k-$1M/mo (Praktika 121966, BetterMe
+        * 125522, BitePal 178415, Astra 323504): 3 of 4 make the forward projection the visual
+        * centrepiece, and 4 of 4 put a block reflecting the user's own answers near the TOP.
+        * None of them ends on the outcome in bare digits.
+        *
+        * This screen already had the right content in the wrong order: the course catalogue led,
+        * and the commitment the user is actually agreeing to - how much, how long - was two loose
+        * numerals under a hairline at the very bottom. Same numbers, given the weight they earn.
+        */}
+      <View style={[styles.planSummary, { backgroundColor: theme.card, borderColor: theme.border }]}>
+        <View style={styles.planStat}>
+          <NumberRollup value={totalLessons} type="display" style={{ color: theme.primary }} />
+          <ThemedText type="small" themeColor="mutedForeground">lessons</ThemedText>
+        </View>
+        <View style={[styles.planDivider, { backgroundColor: theme.border }]} />
+        <View style={styles.planStat}>
+          <NumberRollup value={weeks} type="display" style={{ color: theme.primary }} />
+          <ThemedText type="small" themeColor="mutedForeground">weeks</ThemedText>
+        </View>
+      </View>
       <View style={{ marginTop: Spacing.three }}>
         {picks.map(({ course: c, reason }, i) => {
           // Every course now carries its OWN identity. The app already ships `courseAccent`
@@ -567,10 +590,13 @@ export function PlanRevealStep({
                       the path stops looking like three courses that fell out of the sky. Shown
                       on every row, not just the lead — the ranking is only legible if each
                       slot explains itself. */}
+                  {/* Lifted from `small` to `body`. This is the user's OWN answer quoted back,
+                      which is the 4/4 pattern across the pulled references - it was the strongest
+                      content on the screen rendered in its smallest type. */}
                   <ThemedText
-                    type="small"
+                    type="body"
                     themeColor="mutedForeground"
-                    style={{ marginTop: 3 }}
+                    style={{ marginTop: 3, fontSize: 14, lineHeight: 19 }}
                     numberOfLines={2}>
                     {reason}
                   </ThemedText>
@@ -579,17 +605,6 @@ export function PlanRevealStep({
             </View>
           );
         })}
-      </View>
-      <View style={styles.planStats}>
-        <View style={styles.planStat}>
-          <NumberRollup value={totalLessons} type="display" style={{ color: theme.primary }} />
-          <ThemedText type="small" themeColor="mutedForeground">lessons</ThemedText>
-        </View>
-        <View style={[styles.planDivider, { backgroundColor: theme.border }]} />
-        <View style={styles.planStat}>
-          <NumberRollup value={weeks} type="display" style={{ color: theme.primary }} />
-          <ThemedText type="small" themeColor="mutedForeground">weeks</ThemedText>
-        </View>
       </View>
     </View>
   );
@@ -644,7 +659,8 @@ const styles = StyleSheet.create({
   planRowLead: { borderWidth: 1, alignItems: 'flex-start' },
   /** Heading / course list / stats, spread across whatever height is left over. */
   planBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
-  planStats: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.four, marginTop: Spacing.three },
+  planSummary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.four,
+    marginTop: Spacing.three, paddingVertical: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth },
   planStat: { alignItems: 'center' },
   planDivider: { width: StyleSheet.hairlineWidth, height: 34 },
   chartCard: { borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three, gap: Spacing.one },
