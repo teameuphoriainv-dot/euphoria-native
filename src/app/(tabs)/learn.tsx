@@ -180,6 +180,17 @@ export default function Learn() {
               // cx is what keeps a 130pt label inside the gutter — real lesson titles are long
               // enough that the old edge-based test pushed them off the left of the screen.
               const labelLeft = n.x > cx;
+              // NODE-TYPE ICONS WERE TRIED AND DROPPED. 4 of 6 reference paths differentiate node
+              // kinds by icon, but that pattern needs lessons OF DIFFERENT KINDS. Every lesson in
+              // this curriculum ends in a challenge, so the badge rendered the identical icon on
+              // every node — decoration wearing the costume of information. Verified on device:
+              // every visible node showed the same target glyph.
+              //
+              // Milestone every 5th lesson. 3 of 6 references punctuate the path with a reward
+              // marker — Duolingo's treasure chest and trophy, Lingvano's MILESTONE 3,
+              // RiseGuide's certificate. A path of 25 identical circles has no landmarks, and
+              // THIS one differentiates because only every fifth node carries it.
+              const milestone = (n.i + 1) % 5 === 0;
               return (
                 <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size + LIP }}>
                   {active && <PulseHalo size={n.size} color={accent} />}
@@ -207,6 +218,25 @@ export default function Learn() {
                         <LessonArt courseId={activeCourseId} title={lesson.title} index={n.i} size={active ? 40 : 38} />
                       )}
                     </View>
+                    {/* Shown on LOCKED nodes too, dimmed. Hiding it until unlocked defeats the
+                        point of a milestone: Duolingo's treasure chest is visible before you reach
+                        it, and that is what makes it a landmark rather than a reward notification.
+                        A path you cannot read ahead has nothing to aim at. */}
+                    {milestone && (
+                      <View
+                        style={[
+                          styles.nodeBadge,
+                          {
+                            backgroundColor: theme.background,
+                            borderColor: theme.warning,
+                            left: n.size - 22,
+                            top: n.size - 16,
+                            opacity: locked ? 0.55 : 1,
+                          },
+                        ]}>
+                        <UIcon name="sparkle" size={12} color={theme.warning} />
+                      </View>
+                    )}
                   </SpringPressable>
                   {/* lesson title label */}
                   <View style={[styles.label, labelLeft ? { right: n.size + 12, alignItems: 'flex-end' } : { left: n.size + 12 }]}>
@@ -240,6 +270,10 @@ const styles = StyleSheet.create({
   // content, so without this the rail gets squeezed and clips its cards.
   railScroll: { flexGrow: 0, flexShrink: 0, height: RAIL_CARD_HEIGHT + Spacing.three + Spacing.two },
   rail: { gap: RAIL_CARD_GAP, paddingHorizontal: Spacing.three, paddingTop: Spacing.three, paddingBottom: Spacing.two },
+  /* Type badge on the node's lower-right. Sits on the page background with a ring, so it reads
+     as attached to the node rather than painted inside it, and stays legible against both the
+     card face and the accent-tinted active face. */
+  nodeBadge: { position: 'absolute', width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   trailScroll: { flex: 1 },
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },
