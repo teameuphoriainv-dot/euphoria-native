@@ -2948,3 +2948,79 @@ cannot read, and the failure is silent: classes compile to nothing. Installed an
 |---|---|---|
 | 32 | **`Write` to an existing path silently clobbers it.** §2d's instruction named `src/components/icon.tsx`, which was a live component with 4 callers; the overwrite was caught only because `tsc` failed afterwards. A tool result reading *"has been updated successfully"* rather than *"File created successfully"* is the tell — **and it arrives after the damage.** | **Before `Write`, confirm the path is free** (`ls`, or `git log -- <path>`). Recover with `git checkout HEAD -- <path>`. Treat any file path in this brief as unverified until checked — §3's map is incomplete, see C1. |
 | 33 | **A regex count is not a name list** (this is trap #5 in another costume). Grepping `plus` in `euphoria-icons.ts` returned 16 hits and `x` returned 111 — every one a substring false positive. Both glyphs were absent. | Enumerate the actual **keys** (`grep -oE "^\s{2}'?[a-zA-Z][a-zA-Z0-9-]*'?:"`), then read the list. |
+
+---
+
+## From the Unit 4 research pass (2026-08-07) — §6.6.2 IS WRONG ABOUT ITS OWN EVIDENCE
+
+### C9. The trial timeline is NOT "a component inside the paywall" in the apps §6.6.2 cites.
+
+§6.6.2 states, and builds a hard instruction on:
+
+> *"In every one of the five references above, the timeline is a **component inside the paywall**
+> ... or a **dismissible explainer modal**. **Not one of them is a full-screen step on the main
+> path.**"* → *"If you find yourself creating `src/app/trial-timeline.tsx`, stop."*
+
+**Both screens checked in PIXELS contradict that.**
+
+| screen | §6.6.2 called it | what the image shows |
+|---|---|---|
+| Nibble `132921` | *"'Free trial guide' modal"* | A **FULL SCREEN** — white ground, `X` top-right, `Continue` pinned to the bottom edge. Position 47, between account creation (46) and *another* full screen (`132922`: goat mascot, "We'll remind you 2 days before your free trial ends", an `April 30` pill). On the main path. |
+| Promova `138757` | *"paywall, vertical timeline"* | A **FULL SCREEN whose entire body IS the timeline**, CTA `START FREE TRIAL`, **and no price anywhere**. Position 38. Followed at 39 by `138758`, a **SEPARATE full-screen paywall** carrying the pricing: *"Try 7 days for free / then US$0.27 per day / billed yearly at US$99.99"*, `SEE OTHER PLANS`, `Restore Purchases`. |
+
+So the verified pattern is **standalone timeline screen → separate pricing screen**, which is precisely
+the shape commit `59c27da` removed.
+
+**What to do with that.** The user rejected a standalone trial-timeline screen outright, and that
+decision stands — it is a product call and it does not need evidence. But the plan must stop
+claiming the reference apps support embedding, **because they do not**. State it honestly instead:
+
+> Euphoria embeds the timeline in the paywall **by user decision**, diverging from the reference
+> apps, which ship it as its own screen. The divergence is deliberate, not evidence-led.
+
+**CONVERGENCE COUNT INCOMPLETE — do not quote a hit rate yet.** Population is real: 30 apps in
+Education + Finance ≥ $250k/mo carry `HasTrialTimeline`. Only **2 of them were verified in pixels**
+(both standalone), which is below §0.2's ≥4 threshold. The ScreensDesign data budget was exhausted
+mid-pass — *"You have flown through your data budget"* — so finish this before Unit 4 ships:
+sample Quizlet `874`, Zutobi `105`, Busuu `981`, Headway `891` and report a real hit rate.
+
+### C10. §9.5's gate-sheet mockup differs from Astra AI `323575` in four ways that affect the build.
+
+The ASCII sketch in §9.5 is a centred card. The screen is not.
+
+1. **It is a BOTTOM SHEET**, anchored to the bottom edge, occupying roughly the lower half. The top
+   ~48% stays visible blurred content. §9.5's centred-card layout is wrong.
+2. **The blur is a real heavy blur, not a scrim.** Text behind is illegible while layout stays
+   readable. Note also that the rows visible behind the sheet (French, Biology, Geography) are
+   *different* from `323574`'s — the user had scrolled, and the gate rose over wherever they were.
+   This is what "keeps their place" actually means.
+3. **The star STRADDLES the sheet's top edge**, half above and half on it, deliberately breaking
+   the rectangle. §9.5 places it "above the sheet".
+4. **The type ratio is about 3:1**, not the near-equal weighting the sketch implies — headline
+   ~56pt against a ~17pt grey sub-line. And the CTA is the single word **`Buy`**.
+   The 🔒 is a literal **emoji**, consistent with Astra AI's emoji-forward habit (see C5).
+   `X` sits top-right inside a circular grey chip; *"❤️ Why isn't Astra AI free?"* is a grey pill,
+   bottom-centre.
+
+### C11. Plan-picker mechanics worth copying, from `323576` and `323577`.
+
+- **The Yearly/Monthly toggle lives INSIDE the plan card**, top-right — not as a page-level control.
+  In the captured frame `Monthly` is the selected pill even though `Yearly · Save 58%` sits beside it.
+- **"See all benefits" expands INLINE.** `323577` is the same screen with the list open — 11 rows
+  with green checks, including *"Improve grades or get a full refund"* and *"Support free access to
+  underprivileged students"*. It is **not** a separate screen, so do not build one.
+- `Ask parent to pay` appears under the expensive tier only.
+- **`Restore Purchases` is present** on Promova's pricing screen `138758`, supporting the 3/5
+  convergence already recorded and the App Store requirement for Unit 5.
+
+### C12. Implementable structure for the timeline block (both verified apps).
+
+- **Nibble:** each step is a rounded-square card with a **coloured label bar across its top**
+  (`TODAY` orange, `DAY 5` purple, `DAY 7` orange) and a flat outline icon beneath; a thin vertical
+  connector joins the cards; copy sits to the right. Icons: open padlock, bell, star.
+- **Promova:** a **3D rendered** icon (padlock, bell, clock) in a rounded white square, same vertical
+  connector, title + description to the right, then a centred trust block —
+  **"Cancel anytime / No hidden fees"** — directly above a black full-width CTA.
+- Both put the unlock at *Today*, the reminder at *day 5 of 7*, and the charge at the end. Euphoria's
+  trial is 3 days, so the reminder beat has to compress — there is no day 5. Decide whether day 2 is
+  the reminder or whether a 3-day trial simply has no reminder beat, and say which.
