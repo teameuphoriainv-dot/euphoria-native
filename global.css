@@ -1,0 +1,5 @@
+/* NativeWind entry. Imported once from src/app/_layout.tsx.
+   Without this import the Tailwind classes compile but never reach the app. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

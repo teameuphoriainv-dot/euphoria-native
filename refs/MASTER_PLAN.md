@@ -22,6 +22,11 @@
 > DONE. Execute units strictly in order. Run the gate after every unit. Commit after every green
 > gate. Push at the milestones named in §12.
 >
+> **Read §22 CORRECTIONS LOG before you trust §3 (the repo map), §10 (the icon decision) or any
+> file path in this document.** Later sessions verified parts of this brief against the actual
+> codebase and found real drift — including two icon systems §3.2 omits entirely, and a §2d
+> instruction that names a path already occupied by a live component.
+>
 > Non-negotiable, and stated by the user in writing more than once:
 > **Never mention context percentage or session cost.** We measure in quality only.
 > **Use the ScreensDesign MCP before every design decision** — §14 gives you the exact calls.
@@ -2775,3 +2780,137 @@ Stated so a session does not assume silence means "already handled":
 8. **Offline behaviour** beyond what AsyncStorage gives for free.
 
 **Do not invent status for any of these.** If asked, say they are untouched.
+
+---
+
+# §22. CORRECTIONS LOG — verified against the codebase, newest first
+
+**Read this before trusting §3, §10, or any file path in this document.** Every entry below was
+found by checking the actual repo, and each one contradicts something stated earlier in this brief.
+Where they conflict, **this section wins** — it was written with the files open.
+
+## From Unit 2 (2026-08-07)
+
+### C1. §3.2's repo map OMITS TWO ICON SYSTEMS. This nearly destroyed a live component.
+
+`§2d` says *"create `src/components/icon.tsx` — the single entry point"*. **That path was already
+occupied.** Writing to it clobbered a real, in-use component, caught only because `tsc` then failed
+in four files. The app has **three** icon systems now, and all three are legitimate:
+
+| file | what it is | callers | union |
+|---|---|---|---|
+| `src/components/icon.tsx` + `src/lib/euphoria-icons.ts` | ~112 **multicolor** SVGs, **shared with `~/euphoriaweb-current` so icons are pixel-identical across platforms**. Decorative / illustration moments. | 4 | `name: string` — **WIDE, no guard** |
+| `src/components/ui-icon.tsx` | 24 hand-drawn 24×24 marks, **stroke 2.2**, single colour. Chrome: tab bar, list rows, inline glyphs. | **34** | narrow, via `satisfies` |
+| `src/components/lib-icon.tsx` | **NEW in Unit 2.** Hugeicons wrapper, `LibIcon` / `LibIconName`. | 0 yet | narrow, via `satisfies` |
+
+`icon.tsx`'s own docblock states a house rule this brief did not know about:
+**"No emoji, no lucide, no template defaults."**
+
+### C2. `ui-icon.tsx` ALREADY HAD 8 of the 9 utility glyphs §2b wanted from a library.
+
+Present before Unit 2: `lock` `close` `chevronLeft` `chevronRight` `check` `bell` `search`
+`arrowRight`. Genuinely missing: **only `share` and `plus`.**
+
+**Therefore `lib-icon.tsx` deliberately contains exactly those two.** Re-exporting a glyph that
+`ui-icon.tsx` already has would let two screens render a *different padlock* depending on which
+import the author reached for — a visual-consistency defect no type-checker catches and no single
+screenshot reveals.
+
+> **RULE, and it is load-bearing: before adding a name to `lib-icon.tsx`, grep `ui-icon.tsx` and
+> `lib/euphoria-icons.ts`. If it exists there, use it from there.**
+
+Hugeicons was kept by explicit user decision after this was surfaced, on the grounds that 46k
+glyphs are available for later units. Cost is honest and measured — see C6.
+
+### C3. §3.5's token values are WRONG in two places. Read `src/constants/theme.ts`, never §3.5.
+
+| token | §3.5 claims | actual |
+|---|---|---|
+| `background` | `hsl(240 10% 4%)` | **`#09090D`** |
+| `backgroundElement` | tier 2 (14%) | **`hsl(240 10% 9%)` — tier 1** |
+| tier 2 (14%) | — | is `cardElevated` / `input` / `muted` |
+| `backgroundSelected` | **omitted entirely** | `hsl(240 10% 19%)` — tier 3, active/selected |
+| `success` | "(green)" | `#22C55E` |
+
+Also absent from §3.5: `accent #B57BEF`, `primaryForeground`, `iconViolet #BB83F1`,
+`iconPurple #A451E6`, `iconGold #FBBF24`, `gradientFrom/To`, `BrandGradient`, `MaxContentWidth 640`.
+`§2c`'s `tailwind.config.js` sketch reproduced the two errors above; **the committed config does not.**
+
+### C4. §3.6 names the type scale but not the prop. `ThemedText` takes `type`, NOT `variant`.
+
+`type?: 'display' | 'title' | 'heading' | 'body' | 'bodyMedium' | 'small' | 'smallBold' | 'label' | 'code'`
+
+### C5. §2a's research conclusion inverts when you look at the PIXELS instead of the prose.
+
+`exhaustive_description` says "each containing an icon" for both Astra AI `323574` and Nibble
+`132884`. **Both are system EMOJI** — 📐 Math, 🪐 Physics, 🧪 Chemistry, 💻 CS, 🇬🇧🇩🇪🇪🇸 languages in a
+grey chip. Nibble's own neighbour `132885` admits it in prose: *"represented by an **emoji**"*.
+
+Verified in pixels, of three $450k–750k/mo education apps:
+
+| app | topic identity | |
+|---|---|---|
+| Elevate `1395` `111647` | bespoke flat art, **distinct accent colour per skill**, each paired with a mini data-viz motif | real art budget |
+| Astra AI `2190` `323574` | system emoji in a grey chip | spends nothing |
+| Nibble `918` `132884` | system emoji | spends nothing |
+
+**ZERO use a generic stroke-icon pack for identity.** The market is bifurcated into
+bespoke-or-emoji and the middle is empty. §10.3's split decision therefore holds, but for a
+sharper reason than §10 gives. Elevate is the strongest transfer: brain-training "skills" are
+abstract domains with no obvious object to draw — structurally identical to *Behavioral Finance*
+and *Quantitative Analysis*. Its mechanism (**one mark + one accent colour per topic**) is exactly
+`courseAccent(id)` tinting a 48×48 path per §10.4.
+
+One divergence, chosen deliberately: Elevate's marks are **filled flat shapes**, not 2.2px strokes.
+§10.4's stroke 2.2 is kept anyway — internal consistency with `ui-icon.tsx`'s 24 existing marks
+beats matching Elevate.
+
+### C6. Measured costs of the Unit 2 install. Disk is NOT bundle.
+
+- `node_modules/@hugeicons/core-free-icons` = **125 MB on disk** — install footprint only.
+- Bundle: `npx expo export -p web` **23,280 KB → 23,332 KB = +52 KB**, covering NativeWind's
+  runtime, the compiled CSS, and 2 Hugeicons glyphs. Well under §2e's 400 KB threshold.
+- **The barrel is the trap, and it is real.** Babel warned on install: *"the code generator has
+  deoptimised the styling of .../core-free-icons/dist/cjs/index.js as it exceeds the max of
+  500KB"*. `lib-icon.tsx` therefore imports **per-glyph subpaths**
+  (`@hugeicons/core-free-icons/Add01Icon` → `dist/esm/Add01Icon.js`, ~350 B, real types at
+  `dist/types/Add01Icon.d.ts`). **Never import from the package root.**
+
+### C7. NativeWind needed a `babel.config.js` THAT DID NOT EXIST, and a cache-clear restart.
+
+Expo SDK 57 ships no babel config by default. Unit 2 created one solely for NativeWind's two hooks
+(`jsxImportSource: 'nativewind'` + the `nativewind/babel` preset). `metro.config.js` was **edited,
+not replaced** — the pre-existing `.riv` `assetExts` push is preserved and `withNativeWind` wraps
+last so it sees it.
+
+**A babel or metro config change is NOT picked up by Fast Refresh.** After either, you must:
+```bash
+lsof -ti:8082 | xargs kill -9; npx expo start --port 8082 --clear
+xcrun simctl terminate "$EUPHORIA_UDID" com.euphoria.native
+xcrun simctl openurl "$EUPHORIA_UDID" \
+  "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8082"
+```
+Note `expo start` **buffers its output when stdout is not a TTY** — an empty log does not mean it
+failed. Check `lsof -ti:8082` instead.
+
+### C8. Tailwind pin confirmed necessary. NativeWind's peer range does not protect you.
+
+`nativewind@4.2.6` declares `peerDependencies: { "tailwindcss": ">3.3.0" }` — which **`4.3.3`
+also satisfies**. A bare `npx expo install tailwindcss` can therefore resolve a v4 that NativeWind 4
+cannot read, and the failure is silent: classes compile to nothing. Installed and verified:
+`tailwindcss@3.4.19`.
+
+**The only proof that any of this works is a measured pixel**, per §0.3. Unit 2's:
+
+| class | measured on device | expected |
+|---|---|---|
+| `bg-primary` | **(168, 85, 235)** | `#A855EB` — exact |
+| `bg-cardElevated` | (32, 32, 39) | (33,33,40) — ±1, hsl→rgb rounding |
+| `bg-card` | (21, 21, 25) | (21,21,26) — ±1 |
+
+## New traps, continuing §4's numbering
+
+| # | trap | the rule that follows |
+|---|---|---|
+| 32 | **`Write` to an existing path silently clobbers it.** §2d's instruction named `src/components/icon.tsx`, which was a live component with 4 callers; the overwrite was caught only because `tsc` failed afterwards. A tool result reading *"has been updated successfully"* rather than *"File created successfully"* is the tell — **and it arrives after the damage.** | **Before `Write`, confirm the path is free** (`ls`, or `git log -- <path>`). Recover with `git checkout HEAD -- <path>`. Treat any file path in this brief as unverified until checked — §3's map is incomplete, see C1. |
+| 33 | **A regex count is not a name list** (this is trap #5 in another costume). Grepping `plus` in `euphoria-icons.ts` returned 16 hits and `x` returned 111 — every one a substring false positive. Both glyphs were absent. | Enumerate the actual **keys** (`grep -oE "^\s{2}'?[a-zA-Z][a-zA-Z0-9-]*'?:"`), then read the list. |

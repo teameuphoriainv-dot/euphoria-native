@@ -8,6 +8,8 @@ import { EBGaramond_400Regular, EBGaramond_500Medium, EBGaramond_600SemiBold, EB
 import { Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { useFonts } from 'expo-font';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+// NativeWind entry. Side-effect import — without it every className silently no-ops.
+import '../../global.css';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
