@@ -3497,3 +3497,31 @@ The overlay mechanism itself is therefore **still unverified** — the "11 under
 result proves only that nothing navigated, which is also what a no-op looks like. Next step: tap the
 node by measured COORDINATE from `idb ui describe-all` rather than by label, and confirm
 `entitled(getState(),'lesson')` refuses at `activeDays:4` on device.
+
+### C36. CONFIRMED BUG: the gate sheet never opens. Not a test artifact. Unit 4 does not work.
+
+C35 wondered whether the failed tap was the test's fault. It was not.
+
+Measured properly with `idb ui describe-all`: the active node's real frame is **84×84 at (206,442)** —
+the wide 130×36 element beside it is the title text, which is what `sim.sh tapon` had been matching.
+Tapped dead centre at **(248,484)** with `isPro:false, activeDays:4` (so `tier()` must return
+'expired'):
+
+- **zero gate labels appeared**
+- **11 underlying Learn labels unchanged** → it did not navigate either
+
+So the tap produced **no effect whatsoever**. Both branches of the handler are unreachable, which
+means the press is not arriving at all rather than `entitled()` answering wrongly.
+
+**Most likely cause, untested:** `{active && <PulseHalo size={n.size} color={accent} />}` renders
+immediately before the `SpringPressable` inside the node's absolute container. If the halo is
+absolutely positioned and larger than the node, it sits over the press target and swallows the touch
+— which is trap #17's shape exactly: *an element that paints last eats the taps*, and it was found
+there by measuring frames rather than reading code. **Check whether PulseHalo sets
+`pointerEvents="none"`; if not, that is the bug.**
+
+Second candidate: the node's own `LIP` offset means the visible face is a child at `top: LIP`, so the
+container's centre may fall between children.
+
+**Unit 4 is NOT working and must not be described as built.** The components render, the copy is
+right, the static gate is clean — and the mechanism has never once fired on device.
