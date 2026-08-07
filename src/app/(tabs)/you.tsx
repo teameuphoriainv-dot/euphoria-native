@@ -23,8 +23,9 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { BottomTabInset, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { TIERS, tierProgress } from '@/lib/league';
 import { money } from '@/lib/stocks';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -66,6 +67,20 @@ export default function You() {
   const guides = useApp((s) => s.readPosts.length);
   // Was in the store and invisible on every screen until now.
   const rewardsEarned = useApp((s) => s.rewardsEarned);
+  // Plan status. 5/5 of the reference set puts account state in this surface, so it leads the page.
+  const planTier = useTier();
+  const trialDay = useApp(trialDayNumber);
+  const lessonsLeft = useApp((st) => st.freeLessonsLeft());
+  const atlasLeft = useApp((st) => st.atlasLeft());
+  /*
+   * NOT SHOWN, deliberately: there are currently TWO disagreeing answers for options.
+   *   store.derivativesLeft()      -> 0 for anyone not Pro ("zero-because-locked")
+   *   entitlement.entitled('options') -> allows PRO_DERIVATIVE_PREVIEW (3) during the trial
+   * §9.4's table says 3 previews in trial; the shipped store getter and options.tsx say Pro-only.
+   * Displaying either number would contradict the other surface, so this card shows only the two
+   * counts both authorities agree on. Unit 4 owns gate copy and reasons — resolve it there, and
+   * whichever wins, ONE of these two has to change. See §22 C19.
+   */
   const name = useApp((s) => s.profile.name);
   const handle = useApp((s) => s.profile.handle);
 
@@ -94,6 +109,57 @@ export default function You() {
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={45} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/*
+          * PLAN STATUS. Leads the page because account state is 5/5 convergence across
+          * Elevate / Praktika / Meetup / Kling / Loora, and because nothing on this screen used
+          * to say what the user had or what was left.
+          *
+          * `trialDayNumber` NOT `trialDaysLeft` — on the third active day daysLeft is 0 while the
+          * trial is still live, and "0 days left" on a usable day reads as already expired.
+          */}
+        <RiseIn>
+          <Card style={styles.plan} tint={planTier === 'pro' ? theme.iconGold : theme.primary}>
+            <View style={styles.planTop}>
+              <UIcon
+                name={planTier === 'pro' ? 'trophy' : 'sparkle'}
+                size={20}
+                color={planTier === 'pro' ? theme.iconGold : theme.primary}
+              />
+              <ThemedText type="bodyMedium">
+                {planTier === 'pro' ? 'Euphoria Pro' : planTier === 'expired' ? 'Free' : 'Free trial'}
+              </ThemedText>
+              <View style={{ flex: 1 }} />
+              {planTier === 'trial' && (
+                <ThemedText type="smallBold" style={[NUM, { color: theme.iconLilac }]}>
+                  Day {trialDay} of {TRIAL_DAYS}
+                </ThemedText>
+              )}
+            </View>
+            <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+              {planTier === 'pro'
+                ? 'Every lesson, unlimited Atlas, the full options desk.'
+                : planTier === 'expired'
+                  ? 'Your free days are up. Pro reopens every lesson and Atlas.'
+                  : `${lessonsLeft} lessons · ${atlasLeft} Atlas questions left`}
+            </ThemedText>
+            {planTier !== 'pro' && (
+              <SpringPressable
+                scaleTo={0.97}
+                onPress={() => router.push('/onboarding?step=paywall')}
+                accessibilityRole="button"
+                accessibilityLabel="See Euphoria Pro">
+                {/* Unit 4 replaces this route with the contextual gate sheet. Until then it goes
+                    where every other upsell in the app already goes, rather than nowhere. */}
+                <View style={[styles.planCta, { borderColor: theme.primary }]}>
+                  <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
+                    See Euphoria Pro
+                  </ThemedText>
+                </View>
+              </SpringPressable>
+            )}
+          </Card>
+        </RiseIn>
+
         {/* League hero — the page's headline is the tier, not the person */}
         <RiseIn>
           {/* The crest is the tap target, so the Leaderboard row could go. */}
@@ -124,11 +190,19 @@ export default function You() {
               <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
                 {handle ? `@${handle} · ` : ''}Level {level}
               </ThemedText>
-              <View style={styles.xpRow}>
-                <ProgressBar value={lp.into / lp.size} height={7} />
-              </View>
+              {/*
+                * NO SECOND PROGRESS BAR HERE, and this is measured rather than aesthetic.
+                * A level spans XP_PER_LEVEL = 500. The first league tier, Saver -> Investor,
+                * spans minXp 0 -> 500. So for the whole of tier 1 the level bar and the league
+                * bar in the hero above are the IDENTICAL measurement — both read "390 XP to …"
+                * at xp 110 — stacked about 40pt apart with no visual distinction. They only
+                * diverge at tier 3, whose span is 1000.
+                *
+                * The hero owns the bar because the page's headline is the tier. Level stays as a
+                * number, which is the part the bar was not already saying.
+                */}
               <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
-                {lp.toNext.toLocaleString()} XP to level {level + 1}
+                {xp.toLocaleString()} XP total · {lp.toNext.toLocaleString()} to level {level + 1}
               </ThemedText>
             </View>
           </Card>
@@ -176,16 +250,37 @@ export default function You() {
             <View style={styles.ladder}>
               {TIERS.map((t, i) => (
                 <RiseIn key={t.name} delay={300 + i * 45}>
-                  <View style={styles.rung}>
-                    <LeagueCrest tier={t} size={38} locked={xp < t.minXp} />
-                    <ThemedText
-                      type="small"
-                      themeColor={xp >= t.minXp ? 'text' : 'mutedForeground'}
-                      numberOfLines={1}
-                      style={styles.rungLabel}>
-                      {t.name.split(' ')[0]}
-                    </ThemedText>
-                  </View>
+                  {/* Tappable, and each rung STATES ITS THRESHOLD. A locked crest that does not
+                      say what unlocks it is decoration; Duolingo's leaderboard gate names its own
+                      condition ("Finish 7 lessons to start competing"), which is the pattern. */}
+                  <SpringPressable
+                    scaleTo={0.92}
+                    haptic={false}
+                    onPress={() => router.push('/league')}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      xp >= t.minXp
+                        ? `${t.name}, reached`
+                        : `${t.name}, needs ${t.minXp.toLocaleString()} XP`
+                    }>
+                    <View style={styles.rung}>
+                      <LeagueCrest tier={t} size={38} locked={xp < t.minXp} />
+                      <ThemedText
+                        type="small"
+                        themeColor={xp >= t.minXp ? 'text' : 'mutedForeground'}
+                        numberOfLines={1}
+                        style={styles.rungLabel}>
+                        {t.name.split(' ')[0]}
+                      </ThemedText>
+                      <ThemedText
+                        type="label"
+                        themeColor={xp >= t.minXp ? 'textSecondary' : 'mutedForeground'}
+                        numberOfLines={1}
+                        style={styles.rungXp}>
+                        {t.minXp === 0 ? 'START' : `${t.minXp / 1000 >= 1 ? `${t.minXp / 1000}k` : t.minXp}`}
+                      </ThemedText>
+                    </View>
+                  </SpringPressable>
                 </RiseIn>
               ))}
             </View>
@@ -225,6 +320,10 @@ const styles = StyleSheet.create({
   heroBar: { alignSelf: 'stretch', marginTop: Spacing.three, marginBottom: Spacing.two },
   identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
   xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
+  plan: { gap: Spacing.two },
+  planTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
+  planCta: { borderWidth: 1, borderRadius: Radius.pill, paddingVertical: Spacing.one + 2, alignItems: 'center' },
+  rungXp: { marginTop: 2, textAlign: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.three },
   gridHalf: { width: '47%', flexGrow: 1 },
   statTile: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2 },

@@ -3152,3 +3152,28 @@ correct. Any script counting lessons must match BOTH forms.
   `d=` and circle attributes but **not `<Rect>` coordinates or `transform=`**. Two `<Rect>`-only
   marks looked identical to it. **Trap #33 again, in the verification rather than the code:** a
   check that only looks at part of the artifact will pass or fail for the wrong reason.
+
+### C19. TWO AUTHORITIES DISAGREE ABOUT OPTIONS. Resolve in Unit 4 before the gate ships.
+
+Found while building the You tab's plan card, which tried to show all three remaining counts:
+
+| source | says |
+|---|---|
+| `store.derivativesLeft()` | **0 for anyone not Pro** — its own comment: *"zero-because-locked, not zero-because-spent. The screen distinguishes the two."* Options are a Pro feature. |
+| `entitlement.entitled(s,'options')` | allows **`PRO_DERIVATIVE_PREVIEW` = 3** during the trial |
+| §9.4's table | *"Options · trial: 3 preview trades · expired: locked"* |
+
+So the plan and the new entitlement engine say three previews; the shipped store getter and
+`options.tsx` say Pro-only. **This is exactly the split-authority problem Unit 3 existed to remove,
+and I reintroduced it by writing `entitled()` from §9.4 without reconciling the getter.**
+
+The You tab now shows only lessons and Atlas — the two counts both authorities agree on — rather
+than printing a number that contradicts another screen. That is a stopgap, not a fix.
+
+**Unit 4 must pick one, and one of the two has to change:**
+- If options ARE trial-previewable, `derivativesLeft()` must stop hard-returning 0 for non-Pro, and
+  `options.tsx`'s locked copy has to change with it.
+- If options are Pro-only, `entitled()` needs a `'pro-only'` refusal reason so the gate sheet can
+  say *"Options are part of Pro"* rather than misreporting a spent allowance.
+
+Do not ship the gate sheet until this is one answer.
