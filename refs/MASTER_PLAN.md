@@ -1,172 +1,2777 @@
-# Euphoria — Master Redesign Plan (Brilliant + Duolingo grade)
+# EUPHORIA — MASTER EXECUTION PLAN v2
+### The complete, self-contained brief for a cold session. Zero prior context assumed.
 
-> Single source of truth for the visual/motion redesign. Grounded in a live 23-screen audit on the
-> iPhone 17 sim (2026-07-24) + a mechanism-level teardown of the user's 3 reference recordings
-> (2 Brilliant, 1 Duolingo) and 21 Brilliant screenshots. Companion: `docs/status/TASKLIST.md` (phases),
-> `docs/status/PROGRESS.md` (log), `docs/specs/ATLAS_ANIM_SPEC.md`, `docs/specs/ONBOARDING_ANIM_SPEC.md`, `refs/BRILLIANT_REFERENCE.md`.
-> Adaptation constant: **violet not green · Atlas not Koji · finance not math · EB Garamond serif + Nunito.**
+**Written:** 2026-08-07 · **Supersedes:** `snuggly-weaving-hummingbird.md` (Unit 1 of which is DONE and committed as `61f61ba`)
+**Repo:** `~/euphoria-native` · **Remote:** `teameuphoriainv-dot/euphoria-native` (private) · **Branch:** `main`
+**Device:** iOS Simulator **"Euphoria QA"** · UDID **`61F7E882-C226-4E97-9918-9BFF536B9A90`** · iOS 26.5
 
-## 0. Status (what's true right now)
-- App runs newest code on the sim (standalone dev-client `com.euphoria.native`, Metro `:8082`).
-- **Two real crashes found and FIXED + sim-verified + committed (`e3d31a7`, pushed):**
-  1. Onboarding card-select → native stack overflow (`onboarding-parts.tsx`, nested `withSpring`-in-callback) → `withSequence`.
-  2. You/profile → infinite render loop (`levelProgress()` unstable zustand selector) → read via `getState()`.
-- **Full 23-screen audit done** (reality table §2). No other crashes on the core journey. Deep-link red-boxes
-  were entry artifacts (screens render fine in-flow) — **audit only via execbro/Maestro tap-through, never deep-link.**
-- The app is **more complete than "everything's flat"** — several strong screens. The real, consistent gap vs
-  both references is **illustration + motion depth on the teaching + card surfaces.**
+---
 
-## 1. Why Brilliant & Duolingo feel so good (the essence to breathe)
-1. **A mascot accountable to every action.** Koji/the Duo coaches *breathe* (squash-preserve ±3% ~1.4s), blink
-   (3–5s), **peek over cards + eye-track the selection**, hop onto the active node, react happy/oops. Our Atlas
-   breathes+blinks+has 9 expressions but has **no body and no eye-track** — it can't peek or react to picks.
-2. **Choreography, never simultaneity.** Lists cascade at **60ms** (translateY+24→0, opacity 0→1, scale 0.96→1);
-   one *hero* overshoots (`bouncy 500/18`) while the rest ease-out (`Ease.out bezier(.16,1,.3,1)`) — focal hierarchy every frame.
-3. **Signature transitions carry brand.** The **violet light-tunnel dive** between steps / into a lesson (mascot
-   falls through a top→bottom gradient beam w/ speed-bars, ~0.9s) — the single most brand-defining moment. We have none.
-4. **Illustrations are scenes, not glyphs.** Each unit = one concrete metaphor *toy*, semi-isometric (tilt 15–25°),
-   single top-light, **soft colored contact shadow** (the premium "weight"), 2–3-stop gradients on near-black.
-   Ours are flat monochrome icon bubbles.
-5. **Blend the two philosophies:** **Brilliant restraint on the teaching surface** (concept/chart reveals: `gentle`,
-   `Ease.out`, diagrammatic) + **Duolingo bounce on the reward/feedback layer** (correct-flash, combo-bolt, geyser
-   wipe, results-stagger, streak-flame, path-node bounce: `bouncy/snappy`, particles).
+# §00. THE LAUNCH PROMPT
 
-Damping band 18–32: entrances overshoot (bouncy 500/18), state-changes snappy (420/32), containers/sheets smooth
-(260/30, no bounce), secondary gentle (180/26). **Palette:** references are green/lime/blue/gold; **keep the measured
-timing/shape, remap color to violet `#7C5CFF`**, gold `#FFC800` only for XP/streak.
+**Paste this into a fresh terminal session. Nothing else is needed.**
 
-## 2. Reality Table (23 screens, live sim audit — score = matches-reference 1–5)
-| Screen | Shot | State | vs Brilliant/Duolingo — gap | Score |
-|---|---|---|---|---|
-| Welcome | euph_welcome | ✅ | Atlas = eyes only, no body/trail (Koji + Duo owl have bodies) | 2.5 |
-| Onboarding 1–2 | ob1 / fix_verify | ✅ **crash fixed** | flat icon-bubbles (9045=3D tiles); no card stagger; Atlas no eye-track | 3 |
-| Onboarding 3 grow | 03_onboard3 | ✅ | violet/grey growth chart (verify draw-on); "4×"/Atlas static | 3 |
-| Onboarding 4 social | 04_onboard4 | ✅ | text testimonials (9051=photo-cards+logos); no Atlas; 50k/stars static | 2.5 |
-| Onboarding 5 path | 05_onboard5 | ✅ | numbered path + $10k goal; plain rows, no stagger/Atlas | 3 |
-| Onboarding 6 paywall | 06_paywall | ✅ | Unlock Pro, 4 props; checks could RewardPop, Atlas flat | 3.5 |
-| Home | home4 | ✅ | strong (streak, goal ring, chart draw-on); flat tab bar; delta/streak not roll-up | 4 |
-| Learn | learn | ✅ | monochrome glyph nodes (9063 rich art; Duo f460 bouncing node+ring); no scroll stagger | 3.5 |
-| Lesson intro | lesson | ✅ | generic Atlas hero (9060=per-topic 3D hero); no tunnel-in | 3 |
-| **Lesson teach** | 41_lesson_teach | ✅ | 🔴 **text-only points, NO diagram/illustration, NO Atlas** — biggest gap | 2 |
-| Lesson widget | 42_lesson_step | ✅ | genuine estimate slider + Check; no live preview/number-roll | 3.5 |
-| Trade | 20_trade | ✅ | strong ($104k green chart, segs, positions); prices static; rows no stagger | 4 |
-| Stock/[sym] | 21_stock_nvda | ✅ | NVDA detail, green chart, ABOUT, CTA; price static; sparse below | 3.5 |
-| Digest | 30_digest | ✅ | serif feed + filter pills; card icons flat; no filter transition | 3.5 |
-| **Digest/[slug]** | 31_digest_article | ✅ | 🟠 **content-STUB** (headline+lead+1 generic ¶); no drop-cap/imagery | 2.5 |
-| You | 10_you | ✅ **crash fixed** | renders clean; static Atlas avatar, XP bar no fill, no streak calendar, flat certs | 3 |
-| Courses | 60_courses | ✅ | compact flat cards (9063=large illustrated cards + spine line) | 3 |
-| Games hub | 51_games | ✅ | 2-col grid, flat glyph icons, PRO locks; cards no press-pop | 3 |
-| Term Match | 52_termmatch | ✅ | match + countdown; no correct-flash/haptic/combo (Duo combo-bolt) | 3 |
-| League | 53_league | ✅ | strong Diamond League + promo/demo zones, You highlighted; static (no rank-up/XP-roll) | 4 |
-| Explore/compound | 50_compound | ✅ | strong explorable ($104,185/20yr + curve + steppers); number no roll on change | 4 |
-| Settings/[section] | 54_settings_account | ✅ | designed "coming soon" + Atlas (no dead end) but not functional | 2.5 |
-| Auth | (real entry TBD) | ⬜ | reach via logout/sign-in (not deep-link); 9059 = social + email | — |
-| Full lesson reward | ⬜ | ⬜ | walk a Learn lesson to done → Duo results-stagger/combo/XP-roll comparison | — |
+> Read `~/euphoria-native/refs/MASTER_PLAN.md` end to end before you touch a single file. It is the
+> complete brief: standing rules, the simulator connection, the full tool and MCP inventory with
+> exact invocation syntax, the repo map, thirty-one traps that each cost real debugging time, the
+> locked decisions, the banked research, the gate, and fourteen units of work with per-unit
+> ScreensDesign call sheets.
+>
+> Then run **§7 THE GATE** cold to establish your baseline, confirm the **Euphoria QA** simulator is
+> booted and the app is running per **§1**, and start at the first unit in **§8** that is not marked
+> DONE. Execute units strictly in order. Run the gate after every unit. Commit after every green
+> gate. Push at the milestones named in §12.
+>
+> Non-negotiable, and stated by the user in writing more than once:
+> **Never mention context percentage or session cost.** We measure in quality only.
+> **Use the ScreensDesign MCP before every design decision** — §14 gives you the exact calls.
+> **Rate limiting is mandatory on anything that spends quota.**
+>
+> Do not ask me to re-approve the plan. It is approved. Work.
 
-Shots in `/tmp/walk/` + `/tmp/euph_welcome.png,home4.png,learn.png,lesson.png,ob1.png,fix_verify.png`.
+**If the user instead says "continue" with no context, that prompt is what they mean.**
 
-**Prioritized findings:** (1) 🔴 lesson teach = text-only, no illustration/Atlas; (2) 🟠 digest articles are stubs;
-(3) 🟡 flat icons on every card surface; (4) 🟡 Atlas has no body; (5) 🟡 static numbers, no tunnel, flat tab bar;
-(6) 🟢 strong bones: Home/Trade/League/Compound/estimate-widget/empty-states.
+---
 
-## 3. Reference Index — every animation traces to the user's footage
-V1 = Brilliant onboarding (`…10-50-24`, 444×960, 30fps 108s) · V2 = Brilliant lesson+league (`…13-12-29`, 122s) ·
-V3 = Duolingo lesson (`…14-17-49`, 296×640, 268s). 2fps frames at `/tmp/bf/v{1,2,3}`.
-**Measure method (at execution, not invention):** `ffmpeg -ss <t> -t <d> -i <vid> -vf fps=30 /tmp/fbf/<n>/f%03d.jpg`
-→ read 8–16 frames → track position/scale → compute ms (`frames/30·1000`), overshoot, easing → map to a token.
+# §0. STANDING RULES — these override your defaults
 
-| Animation → Euphoria screen | Src | Window | Recipe feel |
+These are not style preferences. Every one was paid for with a real failure in a previous session.
+
+## 0.1 Measure in quality only. Never raise cost or context.
+
+**The user has said this in writing, more than once, verbatim:**
+
+> *"in this prompt, you should mention that you should always ignore the context percentage and the
+> cost of the session. We do not want to ever bring that up. We only measure stuff in terms of
+> quality."*
+
+This repo emits `COST CRITICAL` and `SCOPE WARNING` hook lines on many tool calls. They are
+**informational noise**. Concretely:
+
+- Do **not** mention them in your response.
+- Do **not** apologise for them.
+- Do **not** let one change what you do next.
+- Do **not** trim a verification step, a ScreensDesign pull, a device measurement, or a review pass
+  to "save a call".
+- Do **not** summarise your work with a cost or efficiency framing.
+
+There is also a `~/.claude/CLAUDE.md` COST directive telling you to minimise calls. **The user's
+direct, repeated, in-writing instruction for this project overrides it.** If you find yourself
+reasoning about whether a verification is "worth the call", you have already made the wrong trade.
+
+The expensive thing in this repo is **a wrong answer shipped confidently**, never a tool call. The
+proof is a list of real incidents, each caused by reaching for a cheap proxy instead of the real
+artifact:
+
+| the cheap proxy that was used | what it actually cost |
+|---|---|
+| a flow *description* instead of the screen | a whole paywall split was built, shipped, then reverted |
+| a gap in *pagination* read as absence | correct, working code was reverted |
+| an accessibility *anchor* read as a bounding box | reported "32pt of clearance" over a **36pt overlap** |
+| a colour *threshold* applied over a gradient | "starfield renders: 98.2%" — it was measuring the background |
+| a raw *grep count* of `fontSize` overrides | reported 32 "defects"; the real number was 1 |
+| a *dev-server* curl loop instead of the built bundle | a rate limiter that reported 25/25 passes when it worked perfectly |
+
+**Read the screen. Pull the neighbours. Crop the band. Compute the ratio. Run the built bundle.
+Then speak.**
+
+## 0.2 ScreensDesign MCP is mandatory
+
+Before **every** design audit, every design question, and every design change. Not "when unsure",
+not "for big redesigns only". Every one. This is recorded in `AGENTS.md`, which `CLAUDE.md` imports,
+so it loads automatically in every session in this repo.
+
+§2.1 documents the tools. §14 is a **copy-pasteable call sheet with the exact call for every unit**.
+There is no excuse for guessing.
+
+Using it *properly* means all seven of these:
+
+1. **Read the SCREEN, never only the flow or app description.** `screen_detail` with
+   `include_image: true`. Summaries are lossy and are sometimes flatly wrong.
+2. **Use `neighbor_count`.** The screen immediately before or after almost always carries the
+   mechanism. The Astra AI gate modal in §9 is only comprehensible with its neighbours: position
+   130 is the screen the user was actually trying to use, 131 is the gate, 132 is the plan picker.
+3. **Never infer absence from a paginated pull.** See trap #6.
+4. **Count convergence across ≥4 apps and report the hit rate** (4/4, 3/6). A 1/4 pattern is not
+   evidence — either exclude it and say so, or justify it on other grounds and label that clearly.
+5. **State transferability.** Most of the dataset is not finance education. Say which *mechanism*
+   transfers and why, or mark it UNVERIFIED.
+6. **`search_screens` is BROKEN** — it returns a pydantic `extra_forbidden` error on `app_id`. The
+   error payload leaks the matched app ids; feed those to `app_screens`, or route via `search_apps`
+   with `detected_patterns`.
+7. **A pattern that cannot differentiate is decoration.** Lesson node-type icons hit 4/6 in the
+   reference set and were still removed, because every lesson in this curriculum is the same kind,
+   so the badge rendered an identical glyph on every single node. Convergence is necessary, not
+   sufficient.
+
+## 0.3 Nothing is "verified" without a number
+
+A measured before → after from a named command. "Looks better" is not a result. "Row 6 moved from
+`bottom=796` to `bottom=692`, clearing a CTA whose top is at `760`" is a result.
+
+Acceptable evidence: `idb ui describe-all` frames · `./scripts/sim.sh screen` label counts ·
+`./scripts/sim.sh state '<jq>'` values · curl status codes · `tsc` output · lint problem counts ·
+`certify.py` verdicts · byte sizes from `wc -c`.
+
+Not acceptable: "should work" · "I've made it cleaner" · "this looks much better now" · a green
+`tsc` presented as proof the app runs (see trap #2).
+
+## 0.4 Never present modelled, stale, or static data as live
+
+This is the spine of the app's integrity and it is **already enforced in nine places**. Read them
+before writing any data-facing code, and match the pattern:
+
+| file | what it does when the data is not real |
+|---|---|
+| `src/lib/market.ts` | returns `null` without a key; sets `isLiveUnavailable()` |
+| `src/components/price-chart.tsx` | renders "Live prices aren't switched on in this build" |
+| `src/components/key-stats.tsx` | returns `null` — the whole block vanishes rather than showing dashes |
+| `src/components/movers.tsx` | hides rather than rendering an empty market |
+| `src/app/news.tsx` | says so rather than rendering placeholder headlines |
+| `src/components/ticker-logo.tsx` | keeps a lettered badge as the permanent floor |
+| `src/app/options.tsx` | labels Black-Scholes rows **"modelled"**, never "quote" |
+| `src/components/portfolio-chart.tsx` | refuses to back-test; only plots snapshots that were actually taken |
+| `src/app/api/*+api.ts` | answer `503 not_configured`; never invent a payload |
+
+The app has already deleted an invented `$104,237.55` portfolio and a hardcoded bezier curve posing
+as a real chart. **Do not reintroduce that class of thing under any framing.**
+
+## 0.5 No dead controls
+
+A button that writes nothing does not ship. If a control cannot do its job yet, either remove it or
+state plainly *on screen* why it is limited. Three precedents already set in this codebase:
+
+- Thumbs up/down on Atlas replies were **cut at 3/5 convergence** because there is no telemetry
+  endpoint to receive the vote.
+- Bloom's "Share +50" was **not copied** because there is no soft currency and no share destination.
+- The options preview cap **states its own cause** on screen — *"Live options pricing needs an
+  options data provider we haven't connected yet"* — rather than being invented scarcity.
+
+**This rule has one specific consequence for Unit 10:** the paywall currently cannot transact
+(`onboarding.tsx` shows an `Alert` admitting it). Shipping a trial expiry that pushes users at a
+paywall that cannot take money would be the single largest dead control in the app. Unit 12 (IAP)
+is therefore **not optional** if Unit 10 ships. They go together or neither goes.
+
+## 0.6 If a number does not move, revert
+
+Do not keep a change and rename the goal. If the Learn tab redesign was supposed to get from 5
+visible nodes to ≥10 and it got to 6, that is a failed unit, not a "partial improvement".
+
+## 0.7 Stop and ask on taste, build everything else
+
+Ask about: copy, pricing, naming, offer content, visual direction, anything the user will read as
+"the product's voice". Build without asking: architecture, data flow, verification, refactors,
+anything measurable.
+
+## 0.8 One unit per cycle, done properly
+
+The user will say "keep going". Take it literally — and keep the full gate on every cycle. The gate
+is what makes "keep going" safe.
+
+## 0.9 Own what you break
+
+If lint warnings rise from 47 to 48 after your change, you caused it — find it and fix it before
+moving on. This has already happened four times in this project and was fixed four times. The most
+recent: a `require()` added with a comment claiming an import cycle that **did not exist**
+(`stocks.ts` imports nothing). Verify the justification, not just the symptom.
+
+---
+
+# §1. CONNECTING TO THE iOS "EUPHORIA QA" SIMULATOR
+
+**This section is mandatory before any UI work. Device verification is not optional** — a green
+`tsc`, a green lint, and a green `certify.py` have all three coexisted with a completely blank app
+(trap #2) and with a control that could not be tapped at all (traps #1, #4, #17).
+
+## 1.1 The device
+
+```
+Name : Euphoria QA
+UDID : 61F7E882-C226-4E97-9918-9BFF536B9A90
+iOS  : 26.5
+Bundle id : com.euphoria.native
+```
+
+**Export this in every shell you use. Without it, `sim.sh` picks the first booted simulator, and
+there is a second one ("iPhone 17") booted on this machine that does NOT have the app installed.**
+
+```bash
+export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90
+```
+
+## 1.2 Bring-up sequence — run this at session start, in order
+
+```bash
+cd ~/euphoria-native
+export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90
+
+# 1. Is the device there at all?
+xcrun simctl list devices | grep -i "Euphoria QA"
+#    Expect: Euphoria QA (61F7E882-...) (Booted)
+#    If it says (Shutdown):
+xcrun simctl boot "$EUPHORIA_UDID"
+
+# 2. Is the toolchain healthy? (checks idb, simctl, the bundle, the store file)
+./scripts/sim.sh doctor
+
+# 3. Is Metro up? It runs on :8082 in this project, NOT the default :8081.
+lsof -ti:8082 || npx expo start --port 8082
+
+# 4. Is the app actually attached to Metro? Deep-link the dev client at it:
+xcrun simctl openurl "$EUPHORIA_UDID" \
+  "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8082"
+
+# 5. Prove it renders. This is the real check.
+./scripts/sim.sh screen | head -20
+#    Expect real labels: "Ask Atlas", "Hey there", a course title, weekday letters M T W T F S S.
+#    A short or empty tree means the app is blank — go to §1.5 RECOVERY.
+
+# 6. Prove the store is alive and persisted.
+./scripts/sim.sh state '.installId'
+#    Expect a string like "eu_ip96xeozvifmsiy6sdb". `null` -> see trap #3.
+```
+
+## 1.3 `scripts/sim.sh` — the full command surface
+
+This script exists specifically so you answer questions with **text and numbers instead of
+screenshots**. Not to save money — because text produces measurements and a screenshot produces an
+impression.
+
+```bash
+./scripts/sim.sh doctor              # verify the toolchain end to end
+./scripts/sim.sh devices             # list booted simulators
+./scripts/sim.sh screen              # the a11y tree, as "label @ x,y" in POINTS
+./scripts/sim.sh tap <x> <y>         # tap a point
+./scripts/sim.sh tapon "<text>"      # tap BY LABEL — substring match, smallest frame wins
+./scripts/sim.sh state [jq-filter]   # the persisted zustand store, as JSON
+./scripts/sim.sh open <path>         # deep link, e.g. open "onboarding?step=0"
+./scripts/sim.sh motion "<text>" [s] # tap it, then MEASURE whether the mascot translated
+./scripts/sim.sh shot <file.png>     # screenshot to disk (reading it still costs)
+```
+
+**Internals worth knowing:** coordinates come back in **points**, which is exactly what `idb ui tap`
+consumes — there is no retina division anywhere in the file. Device selection is
+`EUPHORIA_UDID` first, else the first booted simulator.
+
+## 1.4 Raw measurement — when an anchor is not enough
+
+`sim.sh screen` gives you an **anchor point**, not a box. For any question about overlap, clearance,
+or layout collision you need real frames:
+
+```bash
+~/.idb-venv/bin/idb ui describe-all --udid "$EUPHORIA_UDID"
+```
+
+Then compare `y .. y+height` ranges, not centres. **This is trap #1 and it is the single most
+expensive measurement error made on this project.** See §4.
+
+## 1.5 Recovery — when the app is blank or wedged
+
+A blank app after an edit is almost always a wedged Fast Refresh bundle, **not** your code. Diagnose
+before you rewrite anything:
+
+```bash
+# What did the runtime actually say?
+xcrun simctl spawn "$EUPHORIA_UDID" log show --last 3m \
+  --predicate 'processImagePath CONTAINS "euphoria"' | grep -iE "ReferenceError|TypeError|Unable to resolve"
+
+# Recover: terminate and re-attach. Do NOT start rewriting files.
+xcrun simctl terminate "$EUPHORIA_UDID" com.euphoria.native
+xcrun simctl openurl "$EUPHORIA_UDID" \
+  "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8082"
+```
+
+**This exact situation has already happened once:** the device log reported
+`ReferenceError: Property 'StrikeRow' doesn't exist` while `grep` found **zero** references to
+`StrikeRow` anywhere in the repo. The file was already correct. The bundle was stale. Terminating
+and re-opening fixed it in one step.
+
+## 1.6 Driving lessons automatically
+
+```bash
+python3 scripts/solve-lesson.py "$EUPHORIA_UDID" [rounds]
+```
+
+Drives a lesson through its gated steps off the a11y tree. **Its answer key is incomplete** — it
+stalls with `"no actionable element three times"`. When it stalls, answer that one question
+manually with `sim.sh tapon`, then re-run it. Known unkeyed questions in
+`investing-fundamentals:1`: the Maya inflation questions, the fill-in-the-blank (answer:
+`inflation`), the $10,400 five-year question, the compound-order puzzle, the multi-select, and the
+asset-matching step.
+
+## 1.7 Baseline state — do not wipe without capturing
+
+Persisted state blocks first-run verification: `completedLessons` already has entries, so you cannot
+see the true first-run experience without a wipe. A baseline is preserved at
+`refs/BASELINE_STORE.json` (xp 30 · streak 1 · minutesToday 5). **Capture again before any wipe:**
+
+```bash
+./scripts/sim.sh state '.' > refs/BASELINE_STORE_$(date +%Y%m%d).json
+```
+
+To wipe for a genuine first-run test:
+```bash
+xcrun simctl terminate "$EUPHORIA_UDID" com.euphoria.native
+# then in-app: the reset() action, or delete the app and re-install from Metro
+```
+
+**Unit 10 (the trial) needs first-run testing specifically** — you cannot verify a 3-day trial
+without controlling day one. §9.7 gives you a way to do it without waiting three days.
+
+---
+
+# §2. COMPLETE TOOL INVENTORY
+
+Everything below is **actually installed and available in this session**. Names, versions and
+invocation syntax are verified, not remembered.
+
+## 2.1 ScreensDesign MCP — the design authority
+
+**Mandatory before every design decision (§0.2).** Server name: `screensdesign`. Research-only —
+it does not generate or render images, it returns recorded screens from real shipping apps.
+
+### The tools
+
+| tool | what it is for | the parameters that matter |
+|---|---|---|
+| `mcp__screensdesign__search_apps` | find apps by name, category, revenue, downloads, or **product mechanics** | `smart_search` (semantic, describe a *mechanic* not a ranking), `category`, `min_revenue`/`max_revenue` (USD/month), `min_downloads`, `detected_patterns`, `excluded_patterns`, `sort`, `limit`, `offset` |
+| `mcp__screensdesign__app_screens` | browse recorded screens for **up to 10 apps at once** | `app_ids` (array, max 10), `query` (narrows to a visible UI concept), `limit` (server caps at 50), `offset` |
+| `mcp__screensdesign__screen_detail` | **THE IMPORTANT ONE.** View up to 10 screens with images and adjacent screens | `screen_ids` (array, max 10), `include_image: true`, **`neighbor_count: 1..3`** |
+| `mcp__screensdesign__app_detail` | product, performance, developer, media and flow info for up to 10 apps | `app_ids`, `include_store_screens`, `include_videos` |
+| `mcp__screensdesign__search_flows` | complete user journeys | `query`, `paywall_type`, `category`, `min_revenue`, `flow_id` |
+| `mcp__screensdesign__find_similar_screens` | visual neighbours of a screen you already have | screen id |
+| `mcp__screensdesign__similar_apps` | competitive set expansion | app id |
+| `mcp__screensdesign__search_store_screens` | **App Store creative**, not recorded screens | use when an app is not in the recorded dataset |
+| `mcp__screensdesign__search_developers` | publisher research | |
+| `mcp__screensdesign__list_collections` / `get_collection` | saved research collections | |
+| `mcp__screensdesign__describe_screensdesign_mcp` | server self-description | |
+| `mcp__screensdesign__get_screensdesign_skill` | local skill compatibility check | call **once per conversation** if the skill is loaded |
+
+### `detected_patterns` — the full enum, and it is a goldmine
+
+These filter to apps whose **latest recorded replay** contains the pattern. For paywall and
+onboarding work these are far more precise than `smart_search`:
+
+```
+HasQuiz · HasTimer · HasVideo · HasAppleBadges · ShowsStarRating · HasDiscountOffer
+HasLifetimeOffer · HasPressMentions · HasTrialTimeline · HasATTWarmupScreen
+HasFeatureCarousel · HasMascotCharacter · RequestsHealthData · HasUserTestimonials
+SpecialOfferPaywall · HasBeforeAfterScreen · HasFeatureHighlights · HasFreeTrialSwitcher
+ShowsPricePerWeekDay · HasRatingWarmupScreen · HasSignToCommitScreen
+HasReviewsTestimonials · HasReinforcementScreens · HasBuildingYourPlanScreen
+HasFeatureComparisonTable · HasPrivacyDedicatedScreen · HasSignUpDuringOnboarding
+HasNotificationWarmupScreen · HasHowDidYouHearAboutUsScreen · HasPostSubscriptionWelcomeScreen
+```
+
+### `paywall_type` — the exact enum for `search_flows`
+
+```
+"Free Trial - Hard Paywall"        <- what Euphoria is becoming (Unit 10)
+"No Free Trial - Hard Paywall"
+"Free Trial - Soft Paywall"
+"No Paywall Free Trial - Soft Paywall"
+"No Free Trial - Soft Paywall"
+"No Paywall"                        <- what Euphoria is today
+```
+
+### KNOWN FAILURES — read before you call
+
+1. **`search_screens` is broken.** Pydantic `extra_forbidden` on `app_id`. The error payload leaks
+   matched app ids — harvest those and feed them to `app_screens`.
+2. **Large results overflow the tool-result limit and get written to a file instead.** This happens
+   constantly with `search_flows` and multi-app `app_screens`. The error tells you the path. **Do
+   not retry with a smaller limit — parse the file:**
+   ```bash
+   F=/path/from/the/error/message.txt
+   jq -r '.results[] | "\(.id) | \(.description[0:200])"' "$F"
+   ```
+   `screens[].description` is an **object**, not a string — `jq` will error with
+   `object cannot be matched, as it is not a string`. Use python:
+   ```bash
+   python3 -c "
+   import json,sys,re
+   d=json.load(open('$F'))
+   for s in d['screens']:
+       desc=s.get('description')
+       txt=desc.get('exhaustive_description','') if isinstance(desc,dict) else str(desc)
+       print(f\"[{s['app_id']}] id={s['id']} pos={s.get('position')} :: {re.sub(r'\s+',' ',txt)[:250]}\")
+   "
+   ```
+3. **Screen `description` objects carry more than prose.** The useful keys are
+   `exhaustive_description`, `screen_type`, `funnel_stage`, `primary_user_goal`, and
+   **`visible_text`** — an array of every string on the screen. `visible_text` is the single best
+   field for copy research and it is easy to miss.
+4. **Never infer absence from pagination** (trap #6).
+
+### Apps confirmed NOT in the recorded dataset
+
+**Coinbase** (`search_apps app_name="Coinbase"` → `total: 0`), **Robinhood** (→ `total: 0`),
+**Zogo, Stash, Greenlight, NGPF**. For any of these use `search_store_screens` and label the result
+as **App Store creative, not a recorded screen**. Do not substitute a different app and call it
+Coinbase — that has been attempted and it is how §0.1's failure table gets longer.
+
+## 2.2 The iOS device toolchain
+
+| tool | path / invocation | role |
+|---|---|---|
+| `simctl` | `xcrun simctl` | boot, terminate, openurl, log show, list devices |
+| `idb` | `~/.idb-venv/bin/idb` | `ui describe-all` (raw frames), `ui tap`, `ui swipe` |
+| `sim.sh` | `./scripts/sim.sh` | the wrapper you should use 95% of the time (§1.3) |
+| `certify.py` | `python3 scripts/certify.py` | static half of a11y criterion 3a across 18 ranked routes; **exits 1 on regression** |
+| `solve-lesson.py` | `python3 scripts/solve-lesson.py <UDID> [rounds]` | drive a lesson through gated steps |
+| `motion_energy.py`, `measure.py` | `scripts/` | competitor frame analysis |
+| `sync-digest.sh` | `./scripts/sync-digest.sh` | regenerate digest content from the web repo |
+
+**`idb ui swipe` without `--duration` is a tap, not a scroll.** Use `--duration 0.4`.
+
+## 2.3 Graphics, animation and icons — installed and verified
+
+| package | version | role |
+|---|---|---|
+| `react-native-svg` | **15.15.4** | **THE runtime.** `Svg, Path, Circle, Rect, G, Defs, LinearGradient, Stop, SvgXml`. Every hand-drawn mark in this app uses it. |
+| `svgo` | **4.0.2** | SVG optimiser, already a dependency. `npx svgo -i in.svg -o out.svg`. **Mandatory before inlining any new hero** — `digest-heroes.ts` is already 113KB. |
+| `rive-react-native` | **9.8.5** | interactive vector animation with **state machines**; `src/components/atlas-rive.tsx` already wires it |
+| `rivemcp` | **1.8.3** | Rive MCP server, already a dependency |
+| `react-native-reanimated` | **4.5.0** | all motion; see `src/shared/motion/` |
+| `expo-image` / RN `Image` | — | raster; `ticker-logo.tsx` cross-fades a real logo over a lettered badge floor |
+| `ecc:fal-ai-media` skill | — | AI image generation via fal.ai. **Requires a fal key.** Skip cleanly and say so if absent. |
+
+### DO NOT ADD LOTTIE
+
+Rive is installed and is strictly better for this app. Rive state machines let Atlas's expression be
+driven by **live app state** — `thinking` while the chat streams, `proud` on a reward — which a
+Lottie file cannot do without swapping whole animation files at runtime. Adding Lottie means **two
+animation runtimes for one job**: duplicate native binary weight and two divergent ways to express
+the same motion. If the user asks again, restate this once, then follow their call.
+
+## 2.4 Component library and icon set — VERIFIED VERSIONS, decision in §10
+
+Every version below was checked against the npm registry on **2026-08-07**:
+
+| package | latest | last published | note |
 |---|---|---|---|
-| Tunnel transition (step→step / into lesson) | V1 | 14.5–17.5s, 24–35s | beam `scaleY withTiming 400 Ease.out`; speed-bars loop; incoming `withDelay(400)` |
-| Card-select pop + mascot react | V1 | 60–63s | `card-pop` withSequence(→1.035 bouncy,→1 smooth); Atlas eye-track |
-| Segmented progress fill | V1 | 15/25/35s | `width withTiming(pct, base, Ease.out)` + leading glow |
-| Mascot idle breathe + blink | V1 | 22–24s | squash-preserve `withRepeat(1.03,1400)`; blink `withSequence(→.1@70,→1@90)` |
-| Correct/Incorrect feedback | V2/V1 | ~40s / f125 | violet ripple + border glow / red border + shake ×3 |
-| Feedback sheet slide-up (bg recede .94) | V2 | ~40s | `translateY withSpring gentle`; backdrop opacity; bg `scale .94` |
-| Coach idle + per-question character swap | V3 | 90–120s | sine idle loop; spring pop-in 0.85→1 |
-| Owl idle drop-in (trailing legs) | V3 | 98.5s | `bouncy`, legs `withDelay(60)` (secondary anim) |
-| **COMBO lightning-bolt burst** | V3 | 97.5–98s | text `withSequence(→1.3,bouncy)`; bolt `strokeDashoffset` |
-| Progress states green→gold-combo→cyan-hard | V3 | 90–130s | `withTiming(pct, slow, Ease.out)` + recolor |
-| **Geyser burst-up** lesson→results wipe | V3 | 131s | `scaleY withSpring bouncy` bottom-anchored + foam stagger |
-| **Results stagger** XP/COMBO/BLAZING + count-up | V3 | 135–137.5s | `ZoomIn.delay(i*60).springify()` + `NumberRollup` |
-| **"Streak is born" flame** + weekday dots | V3 | 149.5–150.5s | bubble `gentle`; "1" `bouncy`; flame `withRepeat` jitter |
-| **Learn-path bouncing node + pulsing ring** | V3 | 230s | node bob loop; ring `scale1→1.15 opacity1→0` loop |
-| Two-tier wrong ("So close" amber vs red) | V3 | 96s | kinder near-miss correction |
-| Tile-select → answer-row travel + Check-enable | V3 | ~115s | shared-element `withSpring snappy`; ghost slot; button color `fast` |
+| `nativewind` | **4.2.6** | 2026-07-08 | approved for NEW surfaces only (decision 6) |
+| `tailwindcss` | **4.3.3** | 2026-08-06 | NativeWind 4.x pairs with Tailwind 3.x — **pin carefully, see §10.2** |
+| `@gluestack-ui/core` | **5.0.15** | 2026-06-25 | v5 supports NativeWind v5 / Tailwind v4, Expo Router first |
+| `@rn-primitives/portal` | **1.5.2** | 2026-07-02 | the unstyled primitives React Native Reusables builds on |
+| `@hugeicons/react-native` | **1.0.15** | 2026-06-24 | 46,000+ icons, 7 styles incl. **Duotone** and **Bulk** |
+| `@hugeicons/core-free-icons` | **4.2.3** | 2026-07-21 | the free icon payload |
+| `react-native-nano-icons` | **0.2.1** | 2026-07-22 | Software Mansion; high-performance icon rendering |
+| `iconoir-react-native` | **7.11.1** | 2026-06-18 | 1,300+ icons on a 24×24 grid |
+| `lucide-react-native` | **1.30.0** | 2026-08-07 | the safest generic line set |
+| `phosphor-react-native` | **3.0.6** | 2026-04-23 | 6 weights incl. duotone |
+| `react-native-purchases` | **10.7.0** | 2026-08-06 | **RevenueCat — the IAP SDK for Unit 12** |
 
-**Static screenshot layout targets (`refs/images/IMG_90xx`):** welcome=9043 · mascot=9044/9062 · quiz=9045/9052 ·
-tile-demo=9047 · subjects=9048/9053 · testimonial=**9051** · constellation=9054/**9055** · timer-dial=**9056** ·
-sun/moon=**9057** · notif=**9058** · auth=**9059** · LEVEL-hero=**9060** · tunnel=**9061** · courses=**9063**.
+## 2.5 Review tooling — for Unit 14
 
-## 4. Foundation Decisions (resolved with user)
-- **Illustration = hybrid:** Atlas → **enhanced SVG** (give it a soft violet blob body; Rive stays parked).
-  Per-unit/lesson hero art → **Lottie** (`lottie-react-native`, one native rebuild). `<HeroArt name>` renders
-  Lottie when present, else an enhanced-SVG isometric composition (EUPHORIA_ICON + gradient + contact shadow) —
-  never blank. UI glyphs stay on `src/lib/euphoria-icons.ts`.
-- **Bottom nav = floating pill** (rebuild `components/tab-bar.tsx`).
-- **Build on repo specs:** `docs/specs/ATLAS_ANIM_SPEC.md` (10 expressions + B1–B10 behaviors, exact SVG coords) and
-  `docs/specs/ONBOARDING_ANIM_SPEC.md` (per-step table + 10-item checklist) are ground-truthed — follow them.
+| tool | invocation | weight |
+|---|---|---|
+| `ecc:security-review` | skill | **highest** — weight it on `_limit.ts`, `auth.ts`, `entitlement.ts`, and all API routes |
+| `ecc:code-review` | skill | full diff |
+| `coderabbit:code-review` | skill / `coderabbit:code-reviewer` agent | full diff, second opinion |
+| `ecc:council` | skill | independent opinions on named questions |
+| `ecc:silent-failure-hunter` | agent | swallowed errors, bad fallbacks — **highly relevant**, this codebase has many `safe()`-style catches |
+| `ecc:type-design-analyzer` | agent | invariant expression; relevant after the `UIcon` incident (trap #19) |
+| `ecc:agent-evaluator` | agent | quality scorecard |
+| `ecc:react-reviewer` | agent | hooks, render performance, server/client boundaries |
+| `ecc:typescript-reviewer` | agent | type safety, async correctness |
+| `ecc:a11y-architect` | agent | WCAG 2.2 — pairs with `certify.py` |
+| `ecc:performance-optimizer` | agent | bundle size; relevant to the 113KB hero file |
 
-## 5. Motion Kit (`src/shared/motion/`)
-**Reuse:** `tokens.ts` (Spring.{smooth260/30,gentle180/26,bouncy500/18,snappy420/32}, Duration.{fast150,base280,
-slow400,count900}, Ease.out, STAGGER_GAP=60 — **never inline literals; that caused the crash**) · `rise-in` ·
-`reward-pop` · `number-rollup` · `spring-pressable` · `animated-chart` (draw-on) · `confetti`/`pulse-halo`/`daily-goal-ring`.
-**New:** `tunnel-transition` · `slide-swap` (onboarding H-slide) · `ripple-feedback` (violet correct / red incorrect) ·
-`card-pop` (safe select-pop) · `stagger` (index→delay helper) · `idle-pulse` (CTA) · **Duolingo-derived:**
-`combo-burst` · `geyser-wipe` · `results-stagger` (ZoomIn+count-up) · `streak-flame`.
+**Do not launch these mid-unit.** Decision 8 is one consolidated pass at the end (Unit 14).
 
-## 6. Atlas Mascot Spec (enhanced SVG)
-`atlas.tsx` = pinwheel mark + eyes, 9 expressions, idle blink/breathe, celebrate/shake/bounce/spin (uses
-`withSequence` safely at :81/96/111). **Add a soft body** (rounded superellipse, violet→magenta gradient, contact
-shadow) behind the eyes, then complete: **eye-track/peek** (body translateY -20 gentle + slot offsetX toward
-selection), hop-on-select, wave entrance, happy/proud, oops, watching, celebrate, **tunnel-dive**. Add
-`ATLAS_ANIM_SPEC §2` expressions (curious/wink…) as capacity allows; all guard `if (reduced) return`.
+## 2.6 Web research tools
 
-## 7. Per-Screen Specs (ref frame · gap · files · motion)
-- **Welcome (9043):** Atlas body + breathe on beam + descending violet trail (reuse `AtlasComet`). `atlas.tsx`, `welcome.tsx`.
-- **Onboarding ×6 (9045/9051/9057):** 56px illustrated tiles + `card-pop` + `stagger`; Atlas watching→eye-track→hop;
-  `slide-swap` between steps, `tunnel-transition` into app; NumberRollup 50k/$10k; star RewardPop; CTA `idle-pulse`.
-  `onboarding.tsx`, `onboarding-parts.tsx`, new primitives, `HeroArt`.
-- **Home (strong):** time-of-day Atlas greeting; NumberRollup delta/streak; week-ticks animate; floating pill. `home.tsx`, `tab-bar.tsx`.
-- **Learn (9063/Duo f460):** colorful gradient nodes (icon+ring+3D lip+shadow); scroll `stagger`; connector draws on;
-  Atlas hop onto active node + PulseHalo. `learn.tsx`.
-- **Lesson (9060 + Duo):** 🔴 **teach steps get a diagram/`HeroArt` + Atlas present** (top gap); per-topic 3D hero;
-  `tunnel-transition` on Continue; `ripple-feedback` correct/incorrect; verify reward cascade (`lesson.tsx:319`). `lesson.tsx`, `HeroArt`, `ripple-feedback`.
-- **Bottom nav (9060/9063):** inset floating pill, 5 items, animated selection blob (snappy). `(tabs)/_layout.tsx`, `tab-bar.tsx`.
-- **Digest:** real article body (fix stubs) + drop-cap + filter transition. `digest.tsx`, `digest/[slug].tsx`.
-- **Long tail:** Trade/Stock (NumberRollup prices, sparkline draw-on) · You (bodied avatar, XP spring-fill, streak
-  heatmap) · Courses (large illustrated cards + spine, 9063) · Games/Term-Match (press-pop, correct=violet+combo) ·
-  League (rank-up + XP roll) · Explore (number roll on stepper).
+| tool | when to use it |
+|---|---|
+| `WebSearch` | current package versions, framework changes, pricing, anything after the knowledge cutoff |
+| `WebFetch` | read one known URL |
+| `mcp__firecrawl__firecrawl_search` | better structured web search with content extraction |
+| `mcp__firecrawl__firecrawl_scrape` | retrieve one page as clean markdown |
+| `mcp__firecrawl__firecrawl_map` | enumerate URLs under a site (e.g. all Expo SDK 57 doc pages) |
+| `mcp__firecrawl__firecrawl_extract` | structured extraction against a schema |
+| `mcp__firecrawl__firecrawl_developer_search` | developer-focused search |
 
-## 8. Signature "missing Brilliant" screens (onboarding value-props)
-Timer-dial goal (9056) · sun/moon time (9057) · topic constellation (9055, finance labels) · testimonial photo-cards +
-CFA/CFP/Wharton/Booth/NYSE logos (9051) · notification-permission fake level-up card (9058) · **finance illustration
-set** (Compounding=snowball, Diversification=basket, Inflation=balloon/bill, Credit=card+ladder, Options=fork,
-Stocks=candlesticks, Risk=scale) for HeroArt + unit art.
+**Expo docs must be read at the versioned URL:** `https://docs.expo.dev/versions/v57.0.0/`.
+`AGENTS.md` says this in its first line. Expo has changed; the unversioned docs will mislead you.
 
-## 9. Build Order (impact ÷ effort — ship + Gate-2 verify + commit each)
-0. ✅ **Audit + crash triage** — DONE (both crashes fixed+verified+committed; 23-screen reality table).
-1. **Native + kit:** `expo run:ios` rebuild (link Lottie) + add motion primitives + `HeroArt` (SVG fallback).
-2. **Mascot body (C)** + Welcome (brand-defining).
-3. **Lesson teach illustration + Atlas** (🔴 highest-value gap) + ripple feedback + tunnel-in.
-4. **Onboarding** illustrated cards + Atlas eye-track + slide + tunnel across all 6.
-5. **Nav pill + Home** polish + number roll-ups.
-6. **Learn** colorful nodes + **Digest** real content + drop-cap.
-7. **Signature onboarding screens** (E) + finance art set.
-8. **Long tail:** Trade/Stock/You/Courses/Games/League/Explore polish; reward-moment Duo parity.
+## 2.7 Browser automation
 
-## 10. Verification Protocol — physically prove motion (two gates)
-- **Gate 1 layout:** `simctl io screenshot` → `sips -Z 850` → Read → compare to named ref frame.
-- **Gate 2 MOTION (the real proof):** `simctl io recordVideo /tmp/verify/<x>.mov &` → trigger (execbro `tap`,
-  `burst=true` for transient pops) → stop → `ffmpeg -vf fps=30` → **lay sim frames beside the §3 reference frames**;
-  pass = same shape/direction/overshoot/duration (±1–2 frames), not just end state. Fail → fix → re-record.
-- **Then:** `tsc --noEmit` clean → commit+push → tick `docs/status/TASKLIST.md` → update `docs/status/PROGRESS.md`.
-- **Infra:** Metro `:8082` alive (`curl :8082/status`); hard reload = terminate→launch→openurl LAN `192.168.1.69`;
-  land on a screen via temp `app/index.tsx` Redirect flip → **revert to `/welcome`**; audit **via execbro/Maestro
-  tap-through only** (deep-linking tab/param routes red-boxes them out of context). execbro CDP=401 → use OCR/coord taps.
+| tool set | when |
+|---|---|
+| `mcp__claude-in-chrome__*` | driving a real Chrome tab; `tabs_context_mcp` **first**, always |
+| `mcp__plugin_ecc_chrome-devtools__*` | performance traces, console, network, Lighthouse |
 
-## 11. Risks / Open Questions
-- **Lottie rebuild** (~10 min) + hero-art asset files — `HeroArt` SVG fallback means nothing blocks; **confirm rebuild.**
-- **Hero-art source:** designer / AI-gen / commissioned? Gates batches 6–7.
-- **Digest article content:** who writes the real bodies (currently stubs)?
-- **Auth entry point + paywall monetization + auth provider** — deferred until the visual pass lands.
+Relevant here only for the **web app** (`~/euphoriaweb-current`) and for reading competitor sites.
+Not needed for the native app.
+
+## 2.8 Expo / EAS plugin skills
+
+| skill | use |
+|---|---|
+| `expo:eas-hosting` | API routes, `web.output: "server"`, deploy. **Already applied** — `app.json` is correct. |
+| `expo:eas-workflows` | CI YAML if deploys get automated |
+| `mcp__plugin_expo_expo__*` | Expo MCP (needs auth) |
+| `mcp__plugin_vercel_vercel__*` | Vercel MCP — not used; the API routes deploy to EAS Hosting |
+
+**Verify a production build of the API routes like this** — and note that this is the ONLY way to
+verify rate limiting (trap #20):
+
+```bash
+npx expo export -p web          # bundles the 3 API routes into dist/
+npx expo serve --port 8090      # serves dist/ with persistent module state
+```
+
+## 2.9 Shell and data tools
+
+`git` · `gh` (see trap #14) · `jq` · `python3` · `node` · `npx` · `curl` · `rg` (ripgrep, aliased
+behind `grep` by the rtk hook) · `md5` · `lsof` · `pkill`
+
+**The `rtk` hook rewrites many shell commands.** It mangles `grep` output into a `path:line:col`
+form and truncates. When you need exact text, prefer the `Read` tool or `python3` over `grep`.
+
+---
+
+# §3. REPO MAP
+
+**Primary working directory:** `~/euphoria-native`
+
+Expo **SDK 57.0.7** · React Native **0.86.0** · React **19.2.3** · Reanimated **4.5.0** ·
+expo-router **57.0.7** · `experiments.typedRoutes: true` · `experiments.reactCompiler: true` ·
+`web.output: "server"` (required for API routes; it was `"static"` and had to be changed).
+
+**Content source of truth:** `~/euphoriaweb-current` — Vite/React + Supabase, **35 edge functions**
+including `polygon-market-data`, `fetch-economic-news`, `execute-trade`, `fill-pending-orders`,
+`process-settlements`, `competition-trade`, `ai-lesson-assistant`, `ask-pluto`, `stripe-*`, `lti-*`.
+The native app shares this Supabase project — which is why `src/lib/auth.ts` targets it.
+
+## 3.1 Routes — they live in `src/app/`, NOT a root `app/`
+
+```
+src/app/
+  _layout.tsx
+  index.tsx                cold-start router; waits on hasHydrated before navigating
+  (tabs)/
+    _layout.tsx            tab bar config
+    home.tsx               greeting, habit pills, next-lesson hero, course rail
+    learn.tsx              course pathway, node pitch 100, milestone every 5th
+    trade.tsx              portfolio, chart, actions, positions, watchlist, movers
+    digest.tsx             today card, category chips, guide list
+    you.tsx                league hero, profile card, 4 stat tiles, ladder, settings rows
+  api/
+    _limit.ts              RATE LIMITER — underscore keeps expo-router off it
+    chat+api.ts            Gemini proxy, non-streaming
+    market+api.ts          Polygon proxy: search|quote|chart|stats|movers|logo|news
+    options+api.ts         Tradier sandbox proxy: expirations|chain
+  digest/[slug].tsx        paginated article reader
+  stock/[sym].tsx          quote, chart, key stats, follow, news, buy/sell
+  settings/[section].tsx   account | notifications | preferences
+  lesson.tsx               intro -> steps -> celebration -> streak
+  onboarding.tsx           ~20 steps ending in a paywall
+  chat.tsx  reward.tsx  options.tsx  news.tsx  search.tsx
+  courses.tsx  league.tsx  friends.tsx  games.tsx  auth.tsx  welcome.tsx  start.tsx
+  explore/  games/  stock/  digest/  settings/
+```
+
+## 3.2 Components
+
+```
+atlas.tsx (22K)            9 expressions: default watching happy whoa silly sad thinking proud oops
+atlas-speech.tsx           typewriter speech bubble, CHAR_MS 26
+atlas-rive.tsx             Rive runtime wiring
+lesson-art.tsx (32K)       per-lesson hand-drawn SVG scenes
+league-crest.tsx           7 tier crests
+ui-icon.tsx                24x24 line icons, stroke 2.2 — NARROW UNION, see trap #19
+ambient-background.tsx     seeded-PRNG starfield (stable across resizes)
+price-chart.tsx            8 ranges, change recomputes per range
+portfolio-chart.tsx        Robinhood ranges 1D 1W 1M 3M 1Y ALL, flat-aware height
+key-stats.tsx  movers.tsx  ticker-logo.tsx  ask-atlas.tsx
+multi-select.tsx  order-steps.tsx  matching-pairs.tsx  number-line.tsx
+tap-reveal.tsx  tile-builder.tsx        <- the 6 gated lesson step kinds
+confetti.tsx  celebration-burst.tsx  streak-ignite.tsx  lesson-feedback.tsx
+onboarding-parts.tsx  tab-bar.tsx
+ui/button.tsx (GradientButton)  ui/card.tsx (Card)  ui/progress-bar.tsx
+```
+
+## 3.3 Library
+
+```
+store.ts           zustand + persist(AsyncStorage, key "euphoria-app-state")
+api.ts             apiBase() origin resolution + ApiError + apiHeaders + apiGet
+auth.ts            Supabase scaffolding, AUTH_ENABLED false without keys
+market.ts          Polygon client — RANGES, seriesChange, toPath, getChain, getStats, getMovers
+options.ts         Black-Scholes + CONTRACT_SIZE 100 + strikesAround + __DEV__ self-check
+atlas-chat.ts      chat client + chatErrorMessage
+stocks.ts          7 seeded tickers, priceOf, money, shares, ALL_SYMS — imports NOTHING
+curriculum/        12 course modules, 5,341 authored steps, lazy-imported (~1MB each)
+digest-content.ts  AUTO-SYNCED, DO NOT EDIT — 25 DigestPost records
+digest-heroes.ts   113KB of inline SVG hero covers
+digest-bodies.ts   markdown bodies keyed by slug
+digest-lessons.ts  lessonForGuide(slug) -> { course, num }, 31 entries for 25 guides
+hero-tint.ts       documented hue-rotation per category
+lesson-steps.ts    normalizeStep() maps 24 authored types -> components; gates()
+onboarding-path.ts Profile, EMPTY_PROFILE, recommendPath, lessonsPerDay, MINUTES_PER_LESSON
+notifications.ts   applyDailyNudge() — returns what the OS ACTUALLY scheduled; NUDGE_HOUR 19
+league.ts          TIERS, tierProgress
+course-accents.ts  courseAccent(id)
+people.ts          SEED_FOLLOWERS
+```
+
+## 3.4 Motion — `src/shared/motion/`
+
+`rise-in.tsx` (entrance) · `reward-pop.tsx` (**earned moments only**) · `spring-pressable.tsx`
+(press feedback; `haptic` and `scaleTo` props) · `number-rollup.tsx` (counting) · `tokens.ts`
+(`Duration`).
+
+**Reward motion is reserved for earned moments.** This is settled. It is why Atlas's vertical travel
+went from 28pt to 2.0pt outside rewards, and why the plan-reveal stagger was removed. Spend it on
+rewards or it stops meaning anything.
+
+## 3.5 Design tokens — `src/constants/theme.ts` (128 lines)
+
+**The dark surface ramp is SETTLED. Never invent a hex.**
+
+```
+background        hsl(240 10% 4%)     tier 0
+card              hsl(240 10% 9%)     tier 1
+backgroundElement hsl(240 10% 14%)    tier 2 — inputs, raised cards
+border            hsl(240 10% 22%)
+primary           #A855EB      iconLilac  #C89CF5
+success           (green)      destructive #EF4444      warning #F5B33F
+text hsl(240 5% 96%)   textSecondary #C3BAD0   mutedForeground #A79DB5
+Spacing.one..six · Radius.sm/md/lg/pill · BottomTabInset · Fonts
+```
+
+**There is no `theme.foreground`. It is `theme.text`.** This has been typo'd before and caught by
+`tsc`. Course accents live in `COURSE_ACCENTS`; category tints are documented hue-rotations in
+`hero-tint.ts`.
+
+## 3.6 Typography — `src/components/themed-text.tsx`
+
+```
+display    32/40  Fonts.display
+title      26/32  Fonts.display
+heading    19/25  Fonts.heading
+body       16/23  Fonts.body
+bodyMedium 16/23  Fonts.medium
+small      13/18  Fonts.body
+smallBold  13/18  Fonts.semibold
+label      11/14  Fonts.semibold  letterSpacing .6  textTransform UPPERCASE
+code       13     Fonts.mono
+```
+
+> **`label` IS AN UPPERCASE EYEBROW TOKEN.** It exists for "YOUR PATH", "DEVELOPER",
+> "TODAY · CREDIT". Using it for conversational text renders **SHOUTING CAPS AT 11PT**. This shipped
+> once on the Atlas chat screen: starter prompts read `WHAT IS COMPOUND INTEREST, SIMPLY?` and the
+> disclaimer was a two-line block of caps. **Body copy uses `body` or `small`.**
+
+## 3.7 Store shape — `src/lib/store.ts`
+
+**Persisted fields:** `signedIn xp streak completedLessons minutesToday lastActiveDay activeCourseId
+readPosts dailyPick profile weeklyXp weekStart lastGameDay following followers isPro atlasAsked cash
+positions valueHistory derivativeTrades derivatives pendingRewards rewardsEarned watchlist
+installId`
+
+**Not persisted (deliberate):** `hasHydrated` — it describes *this run's* load status. Persisting it
+would restore `true` before hydration finished and reintroduce a routing race.
+
+**Derived getters:** `level levelProgress minutesDoneToday dailyGoalMinutes streakIfCompletedToday
+weeklyXpNow friendIds canAccessLesson freeLessonsLeft atlasLeft derivativesLeft portfolioValue`
+
+**Actions:** `completeLesson addXp markPostRead setDailyPick awardGameXp buy sell openDerivative
+claimReward spendAtlasMessage setPro toggleWatch follow unfollow setProfile completeOnboarding
+signIn signOut setActiveCourse setHasHydrated reset`
+
+**Constants:** `FREE_LESSON_LIMIT=5 · FREE_ATLAS_MESSAGES=10 · PRO_DERIVATIVE_PREVIEW=3 ·
+STARTING_CASH=10_000 · REWARD_CARDS_PER_LESSON=3 · XP_LESSON=50 · XP_GUIDE=25 · XP_GAME=20 ·
+XP_DAILY_GOAL=50 · XP_PER_LEVEL=500 · MINUTES_PER_LESSON`
+
+> **`store.ts:10`, verbatim:** *"Anything added to state must ALSO be added to `partialize` at the
+> bottom, or it silently won't survive a restart."*
+
+**`reset()` membership is a deliberate decision, not a default.** Progress resets. Two things do not:
+
+- **`isPro`** — resetting progress must never revoke a purchase.
+- **`installId`** — resetting progress must never mint a fresh identity and thereby reset the rate
+  limit.
+
+**Unit 10 adds a third:** the trial clock. See §9.3 — if `reset()` restarted the trial, the trial
+would be a button, not a limit.
+
+**There is currently NO first-open date, NO active-day list, and NO trial state.** Unit 10 adds
+them. `dayKey()` and `weekKey()` helpers already exist and must be reused.
+
+---
+
+# §4. TRAPS — thirty-one of them, each paid for with real debugging time
+
+| # | trap | the rule that follows |
+|---|---|---|
+| 1 | **An a11y anchor is a POINT, not a BOX.** Comparing row-centre to button-centre reported "32pt clear"; real frames showed **36pt of overlap**. | Always `idb ui describe-all` and compare `y .. y+height` ranges. |
+| 2 | **A green `tsc` does not mean the running app is green.** A blank screen persisted after the file was already correct — Fast Refresh had wedged on an intermediate edit. | Check the device log for `ReferenceError`. Recover with `simctl terminate` + re-open the dev-client URL. §1.5. |
+| 3 | **`sim.sh state` returns `null` when the store grows.** AsyncStorage inlines small values in `manifest.json` and spills large ones to a file named `md5(key)`. Reads exactly like broken persistence; it is not. | Already fixed in `sim.sh`. If it regresses: `.../RCTAsyncLocalStorage_V1/$(printf 'euphoria-app-state' \| md5 -q)`. |
+| 4 | **`idb ui tap` cannot actuate a React Native `Switch`**, even dead-centre on its measured frame. | Make the whole row pressable: `accessibilityRole="switch"` + `accessibilityState={{checked}}` on the row, and hide the `Switch` from the a11y tree so VoiceOver does not announce twice. |
+| 5 | **A raw regex count is not a defect count.** A grep for `pro\|premium\|subscri\|entitle\|paid\|tier\|plan` in `store.ts` returned 3 hits — all false positives ("tier" = league tier, "paid" = game bonus). | Inspect every hit before reporting a number. |
+| 6 | **Never infer absence from a paginated pull.** `app_screens` returned positions 12, 14, 15, 18 — position 13 existed and was simply on another page. That misreading caused correct work to be reverted. | Use `neighbor_count` on a screen you already have. A missing position number is pagination, not evidence. |
+| 7 | **zsh does not word-split unquoted variables**, and `--include=*.tsx` gets glob-mangled. | Quote it: `--include="*.tsx"`. Use `read -r A X Y <<< "$R"`. |
+| 8 | **`git commit -m` with multi-line quoted text breaks in this shell.** | `git commit -F -` with a quoted heredoc. |
+| 9 | **A JSX comment inside a ternary creates a second child and breaks the build.** Made twice. | Put rationale in a `//` comment above the `return`, never inside `{cond ? ( ... )}`. |
+| 10 | **`idb ui swipe` without `--duration` is a tap, not a scroll.** | `--duration 0.4`. |
+| 11 | **`Date.now()` during render is impure.** `react-hooks/purity` is an ERROR in this config. | Capture once into state, or anchor to data — `portfolio-chart.tsx` anchors its window to the newest snapshot. |
+| 12 | **setState synchronously in an effect BODY is a lint ERROR.** Inside the async callback is fine. | Derive the flag instead: keep a `loadedKey` and compute `loading = loadedKey !== key`. |
+| 13 | **`paddingBottom` on a scroll container does NOT lift overflowing content** — it only extends scrollable space beneath it. | To move content up, shrink the content. This is why `OrderSteps` needed density, not padding. |
+| 14 | **`gh` defaults to `s-k-28`, which CANNOT see the private repo.** | `gh auth switch --user teameuphoriainv-dot` before any push. Shell may need `CLAUDE_CONFIG_DIR=~/.claude-account2`. |
+| 15 | **`sim.sh open "onboarding?step=N"` only works from a COLD route.** `startStep` feeds `useStepTransition` as an *initial* value; deep-linking to a route you are already on does not remount it. | Navigate by tapping. |
+| 16 | **Persisted state blocks first-run verification.** `completedLessons` already has entries. | Baseline at `refs/BASELINE_STORE.json` (xp 30 · streak 1 · minutesToday 5). Capture again before any wipe. |
+| 17 | **A step that ships its own CTA collides with the pinned footer.** MultiSelect's "Check answer" sat with **exactly half its height** under the footer's Continue, which paints last and ate the taps. Both render as `SpringPressable`, not `GradientButton`, so grepping for the button component finds **zero**. | `OWN_CTA_STEPS = new Set(['multi','line'])` in `lesson.tsx`; the footer yields while a step owns its action. **Any new self-validating step joins that set.** |
+| 18 | **The floating blue gear is the Expo dev-client button.** It does not ship. | Do not "fix" it. |
+| 19 | **`Record<string, X>` as an ANNOTATION destroys a narrow key union.** `ui-icon.tsx` had `const P: Record<string, React.ReactNode> = {...}`, which widened `UIconName = keyof typeof P` to `string`. The file's own comment said *"deliberately NOT `\| string`"* — the annotation defeated the guard. **Four icons shipped as silent sparkles**: the chat close button, the send button, and three starter rows. | Use `} satisfies Record<string, React.ReactNode>`. Keep the union narrow. New glyph? Author it in `ui-icon.tsx`. |
+| 20 | **The in-memory rate limiter DOES NOT LIMIT against the Metro dev server, and that is not a bug.** 25 POSTs to `:8082` all passed; the same 25 against the exported bundle gave exactly 20 then `429`. The dev server re-evaluates the route module per request to pick up edits, re-creating `buckets` empty every time. | **Verify rate limiting only via `npx expo export -p web` + `npx expo serve`.** A dev-server run looks exactly like a broken limiter. |
+| 21 | **ScreensDesign results routinely exceed the tool-result limit** and are written to a file instead. | Parse the file with `jq`/`python3` — §2.1. Do not retry with a smaller `limit` and lose coverage. |
+| 22 | **`screens[].description` is an OBJECT, not a string.** `jq '.description[0:200]'` errors with `object cannot be matched, as it is not a string`. | Reach for `.description.exhaustive_description`, and do not miss **`.description.visible_text`** — the array of every string on the screen. |
+| 23 | **`portfolioValue()` once ignored open option contracts**, producing a phantom `-$781.06` loss the moment a user opened a position. | Any new asset class must be added to `portfolioValue()` in the same commit that lets a user hold it. |
+| 24 | **"No trades yet" showed while holding 3 AAPL.** The condition keyed on `ret === 0`, and buying at market leaves return *exactly* zero. | Empty states key on **activity**, never on a computed value that can legitimately be zero. |
+| 25 | **`valueHistory` snapshots written before a formula change carry the old formula.** The chart shows a historical dip that no longer reflects how value is computed. | **Deliberately not rewritten.** Restating stored history to match a later formula would make the chart a claim about the past that the past never made. Leave it; document it. |
+| 26 | **The rtk hook rewrites and truncates `grep`.** Output arrives as mangled `path:line:col` fragments. | For exact text use `Read` or `python3`, not `grep`. |
+| 27 | **A `require()` "to break an import cycle" needs the cycle verified.** One was added to `lib/api.ts` with that justification. There was no cycle — `stocks.ts` imports nothing. It cost a lint warning. | Trace the import graph before justifying a workaround with it. |
+| 28 | **zsh globs `?` in an unquoted URL.** `curl http://x/api/market?action=movers` fails with `no matches found`. | Quote every URL containing `?` or `&`. |
+| 29 | **Python heredoc anchors must be grepped from the real file first.** Two `assert ... in s` failures came from anchor strings that did not match actual file content. | Read or grep the exact text immediately before writing the replacement. |
+| 30 | **Two booted simulators exist on this machine.** "iPhone 17" is booted and does NOT have the app. Without `EUPHORIA_UDID`, `sim.sh` may pick it. | `export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90` in every shell. |
+| 31 | **A device-clock trial is trivially bypassed** — change the date, or delete and reinstall. | Ship it anyway as a *courtesy* trial, but **never describe it as enforcement**, and put the real entitlement behind RevenueCat/StoreKit (Unit 12). §9.8. |
+
+---
+
+# §5. DECISIONS LOCKED WITH THE USER
+
+Twenty questions asked across five rounds and answered. **Settled — do not relitigate.** Surface a
+concern once if the data contradicts one, then follow the decision.
+
+| # | question | answer | note |
+|---|---|---|---|
+| 1 | Runtime | **Work now, continuously, locally** | Not a cloud routine. A cloud agent cannot reach the simulator, `sim.sh`, ScreensDesign MCP, or `.env.local`. Every real bug found so far came from device measurement. |
+| 2 | Tab count | **Decide from research, report the hit rate** | User dislikes "only five tabs" but wants data to decide. |
+| 3 | Rate-limit identity | **Device-scoped NOW + Supabase scaffolding behind a flag** | Both, explicitly. **DONE — Unit 1.** |
+| 4 | Article source of truth | **`~/euphoriaweb-current`, synced** | `digest-content.ts` says AUTO-SYNCED / DO NOT EDIT. |
+| 5 | Article topics | **All three streams** | curriculum gaps + market literacy + 18–25 life-stage. |
+| 6 | Styling | **NativeWind on NEW surfaces only** | Do NOT migrate the ~50 existing `StyleSheet` files. |
+| 7 | Graphics | **Hand-authored SVG system + generated hero art** | Generated only where style drift is tolerable. |
+| 8 | Review gating | **One consolidated pass at the end** | Unit 14. |
+| 9 | You tab purpose | **Motivation + conversion, AND identity/stats** | |
+| 10 | Home | **Quests AND path AND richer hero** | All three. |
+| 11 | Learn | **Full Promova-style redesign** | Upgraded from audit-only. |
+| 12 | Trade news | **Horizontal image gallery preferred** | Research confirms. |
+| 13 | Git | **Commit per verified unit, push at milestones** | |
+| 14 | Article shape | **Match existing exactly, AFTER research** | |
+| 15 | Reference apps | Duolingo, Bloom, Investing.com, Brilliant, the $250k–750k cohort | |
+| 16 | Time budget | **Do not cut scope** | |
+| 17 | **Trial model** | **3 days, then hard gate on lessons and Pro content** | New. §9. |
+| 18 | **Component library** | **Find one with good topic icons (e.g. "investing fundamentals")** | New. §10. |
+| 19 | **Completeness** | **"This app is complete today"** | Interpreted in §8.0. |
+| 20 | **Cost/context** | **Never mentioned. Quality only.** | §0.1. |
+
+---
+
+# §6. BANKED RESEARCH — do not re-pull any of this
+
+## 6.1 Duolingo — app `862`
+
+**$48,000,000/mo · 5,000,000 downloads/mo · 4.7★ · Education.**
+Onboarding: **13 steps**, 5 quiz questions, 3 reinforcement screens, 1 paywall, notification warm-up
+present, no social proof.
+
+Dataset-flagged distinctives:
+- **Conversational onboarding quiz** — the entire quiz is a chat with the mascot (uniqueness **8**).
+- **Interactive widget setup guide** (uniqueness **9**) — a dedicated animated tutorial for a
+  system-level feature; the dataset itself notes this "highlights its strategic importance for
+  retention."
+- **Streak commitment goal-setting** (uniqueness **7**) — the app asks the user to *proactively
+  commit* to a multi-day streak goal, framing daily use as a personal challenge from the start.
+- MotionPolish: "several unique and polished animations for character interactions, loading states,
+  and tutorials."
+
+**Gating screens found (new this round):**
+- `112782` pos 137 — Leaderboards placeholder: three greyed avatars with placeholder bars, and the
+  line **"Finish 7 lessons to start competing on Leaderboards!"** A locked feature that states its
+  own unlock condition, in place, without a paywall.
+- `112781` pos 136 — the same gate as a card with a stylised three-tier leaderboard mockup.
+- `112810` pos 165 — "2025 Badges" grid where **March through December each render a lock icon**.
+  Locked future content shown as a grid of locks, not hidden.
+- `112707` pos 62 — **feature comparison table** contrasting SUPER and MAX across "Unlimited
+  Hearts", "No ads", "Personalized Practice".
+- `112733` pos 88 — subscription management with a **"Manage Features"** section that toggles
+  *Unlimited Hearts* and *Super App Icon* — the plan page does real work, it is not just a receipt.
+
+## 6.2 Coinbase and Robinhood — NOT IN THE DATASET
+
+`search_apps app_name="Coinbase"` → **`total: 0`**. Same for Robinhood.
+Do **not** substitute another app and call it Coinbase. Use `search_store_screens` for App Store
+creative and label it as store creative, not recorded screens.
+
+Robinhood's options layout was therefore specced from **Robinhood's own published support docs**:
+*"calls and puts organized side-by-side, and strike prices in the middle"*, plus a "focused view"
+toggled by tapping a heading. Robinhood ranges are **1D 1W 1M 3M 1Y ALL — no 1H, no YTD** (both of
+those are Euphoria's own additions). Robinhood intervals: 1D → 5–10 min, 1W → 10–30 min,
+**1M → 1 hour** (not daily — this was corrected once already).
+
+## 6.3 Bloom — app `2004` — the closest positional competitor
+
+"Bloom: Learn to Invest", Contour Labs. 4.8★, 50,000 downloads/mo, **230 recorded screens**,
+`latest_app_video_id: 2079`. **ScreensDesign has NO revenue estimate (0 for every month of 2026).**
+External reporting: **~$3.5M ARR ≈ $291k/mo**, **$15/mo or $120/yr**, ~2M users, $4.4M raised.
+Treat the external figure as a signal, not verified — but it places Bloom inside the $250k–750k/mo
+cohort.
+
+> **PRICING FINDING, directly actionable:** Bloom charges **$15/mo · $120/yr** for financial literacy
+> modules **plus** fractional investing — essentially Euphoria's Learn + Trade bundle. Euphoria asks
+> **$9.99/mo · $59.99/yr**, roughly **half**. Revisit before IAP ships (Unit 12).
+
+**Bloom's onboarding, 10 steps, 0–115s:** ATT prompt → value proposition → welcome with **press
+mentions (Forbes, Fox Business, Yahoo Finance)** → auto-scrolling **feature carousel** → **social
+proof** (1M+ users, 4.7★, testimonials from UC Berkeley / Harvard students) → phone-number signup +
+SMS code → **"How did you hear about us?"** → name/email/DOB → custom notification + biometric
+warm-up → "You're in!"
+
+**Main flows (usable with `search_flows` by id):**
+
+| id | flow | time |
+|---|---|---|
+| 53302 | Exploring Stocks — dashboard → ETF → chart → timeframes → **chart-type toggle** | 150–193s |
+| 53303 | Using AI Chat — ask about a specific stock | 193–215s |
+| 53307 | Subscribing to Plan | 353–363s |
+| 53304 | Taking a Lesson & Quiz | 406–532s |
+| 53305 | Creating a Portfolio — "playlists", named, curated | 580–663s |
+| 53308 | **Claiming a Reward — scratch card → free stock** | 858–920s |
+| 53306 | Inviting a Friend — contacts → pre-populated SMS | 1227–1282s |
+
+**Reward loop frames (53308), already mined:**
+- `156271` @860.5s — *"Woohoo! You passed & earned 3 free stocks!"*, "Questions completed 5/5",
+  "Oinks earned 123", button **"Claim Free Stocks"**
+- `156274` @878.9s — *"NOW SCRATCH THE CARDS!"*, stack of face-down cards, hand-on-question-mark
+- `156275` @885.3s — reveal: confetti, tilted card, *"CONGRATS! YOU GOT SHIFT4 PAYMENTS"*, FOUR, **$1.00**
+- `156277` @894.8s — banner: *"Oinks are rewarded only when sharing to your friends or social media"*
+- `156278` @902.5s — *"SCRATCH THE NEXT CARD"* · `156279` @906s — SHOP **$0.50** · `156281` @915.3s — UPST **$1.00**
+- Onboarding claim `156127`: *"Bloom users earn around $6 per month from learning and playing."*
+
+**Bloom's LOCKING mechanics (new this round — directly relevant to Unit 10):**
+- `156253` pos 136 — a list of **educational financial terms that are currently LOCKED**, rendered
+  as three vertical cards on a deep purple background with a currency counter showing `16`.
+  Locked content is **shown, titled, and counted** — not hidden.
+- `156247` / `156248` pos 130/131 — the **DICTIONARY** header carries a
+  **"Practice with flashcards" button WITH A LOCK ICON**, plus `0/240 earned today`. The gate lives
+  **on the control itself**, in place, not on a separate screen.
+- `156282` pos 165 — a **locked wallet icon with a coin and a live countdown reading
+  `1d 23h 59m 19s to expire`**. A time-limited unlock with a visible clock.
+- `156322` pos 205 — **"Daily Trivia Streak"** with a three-day tracker where **Day 1 is completed
+  and Days 2 and 3 are locked**. A three-day arc rendered as a progress object.
+- `156245` pos 128 / `156287` pos 170 — lesson-node modals over the winding path: title, difficulty
+  (`EASY`), coin reward (`150 coins`), `Start` button.
+
+**Bloom's Discover tab (`156152`):** search bar + segmented **Stocks | Portfolios | Community**;
+**"Markets are up today"** with S&P 500 +0.99% and NASDAQ cards; "Earning calendar" link;
+**"Trending stocks"** with fire icons; "Auto-invest with top investors" (Warren Buffett portrait);
+"Get personalized stock picks".
+
+**Stock categories (`156223`):** Top 25, Technology, Shopping & Retail, Food & Drink, ETFs, Dividend
+Stocks, Media & Telecom, Finance & Banking, Transportation, Healthcare — each with logos and a count
+badge.
+
+**Key statistics (`156167`):** 52 Week High $613.23 / 52 Week Low $481.80 / Dividend Yield 1.19% /
+Today's Volume 86.22M / Avg Daily Volume 80.93M, plus "Top holdings" for ETFs.
+
+**Auto-Portfolios (`156224`, `156236`):** Nancy Pelosi +31.00% / 5806 investors; Bill Ackman +18.00%
+/ 3831; Ray Dalio +11.00% / 460. Detail shows Yearly avg / Last year / **Trade delay 14 Days** and
+"Current stocks (11)" with % allocations.
+
+**Bloom mechanics DELIBERATELY NOT COPIED, and why:**
+- **Auto-Portfolios** (Pelosi/Ackman/Dalio with investor counts) — needs real 13F holdings data and
+  implies tracking politicians' trades. A large claim with no source behind it.
+- **Playlists with public usernames, emoji reactions, "REACT FOR OINKS"** — requires a social graph
+  and a soft currency, neither of which exists. Both would be dead controls on day one.
+- **"Bloom users earn around $6 per month"** — a revenue promise Euphoria cannot make.
+
+## 6.4 The cohort — $250k–750k/mo, Education + Finance
+
+`search_apps category=[Education, Finance] min_revenue=250000 max_revenue=750000` → **71 apps**.
+
+Top of band: Praktika `1816` $750k · Bloomberg `1580` $750k · Elevate `1395` $750k · PlantIn `998`
+$750k · HelloTalk `990` $750k · Waking Up `900` $700k · Gauth `39` $600k · Astra AI `2190` $550k ·
+Lingvano `820` $550k · Kahoot `1544` $550k · Busuu `981` $550k · Zutobi `105` $550k · flowkey `939`
+$500k · ELSA `1394` $500k · Investing.com `1171` $450k · Nibble `918` $450k · Deepstash `422` $450k ·
+CNBC `212` $450k · LangLearn `2027` $400k · Mondly `1388` $350k · EWA `849` $350k · YNAB `344` $350k ·
+Yuno `415` $350k · Solvely `826` $350k.
+
+Above band: Quizlet `874` **$2.25M** · TradingView `858` $2.25M · Kling `1699` $2.25M ·
+Meetup `107` $1.75M · Invoice2go `727` $1M · Loora `1134` $1M · Epic `921` $800k.
+Also useful: Promova `936` $250k · Airlearn `1682` $250k · Ling `1149` $250k · Micro Learning `1766`
+$250k · BoldVoice `467` $250k · Plantaria `1263` $250k · RiseGuide `2467` $250k ·
+Speech Blubs `59` $450k · Yahoo Finance `1542` · Answer.AI `1089` $75k.
+
+**Shape of the cohort, worth confronting:** of the 30 highest earners in the band, roughly **20 are
+Education and exactly ONE is Finance** (Investing.com). Euphoria sits in the gap between them — that
+is either the opportunity or the reason nobody is there. Resolve it before adding tabs (Unit 9).
+
+## 6.5 Convergence already counted — DO NOT REDO
+
+**AI tutor chat** (Praktika 1816, Astra 2190, Promova 936, Answer.AI 1089, Solvely 826):
+mascot in the thread **5/5** · action-naming input placeholder **5/5** · header carries CONTEXT not a
+title **4/5** · suggested follow-up chips **3/5** (3/3 among text tutors) · feedback controls **3/5**
+(cut — no telemetry) · usage meter in-thread + upgrade **3/5** · explicit thinking state **2/5** ·
+AI disclaimer **1/5** (shipped anyway on domain-risk grounds, labelled as such).
+
+**Settings** (Elevate 1395, Praktika 1816, Meetup 107, Kling 1699, Loora 1134):
+plan/account status in settings **5/5** · help + legal **5/5** · a preference that tunes the CORE
+LOOP **3/5** · notifications with a stated reminder time **3/5** · restore purchases **3/5** ·
+sign out at the bottom **3/5**.
+
+**Charts** (TradingView 858, Bloom 2004, Yahoo 1542): timeframe row under the chart **3/3**, and
+**all three recompute the headline change for the selected range** — that is the mechanism, not the
+row.
+
+**Trade** (Bloom, Investing.com, TradingView, Yahoo): Follow/watchlist beside Buy **3/4** ·
+key statistics block **3/4** · movers **2/4** · category browse **1/4**.
+
+**Digest** (Deepstash 422, Nibble 918, Bloomberg 1580): category organisation **3/3** ·
+saved/library surface **3/3** · search on the feed 2/3 · streak + weekly strip 2/3 · reading-time
+estimate 2/3 · continue-where-you-left-off 2/3 · featured hero 2/3.
+
+**Options chain: NO STRONG MATCH.** Robinhood returns `total: 0`. Investing.com's "Contracts" tab is
+a **futures month table**; TradingView's is an options **search list**. Neither is a chain. Specced
+from Robinhood's support docs instead — see §6.2.
+
+## 6.6 NEW — paywall, trial and gating research (pulled 2026-08-07)
+
+This is the evidence base for **Unit 10**. Read §9 for the resulting spec.
+
+### 6.6.1 The two-stage gate — Astra AI `2190`, screens 130 → 131 → 132
+
+**This is the single most important reference in this document.** Pulled with
+`screen_detail screen_ids=[323575] include_image=true neighbor_count=2`.
+
+| pos | id | what it is |
+|---|---|---|
+| 130 | `323574` | **"Choose a subject"** — the real, functional screen the user was using. Search field, list of subject cards (Math, Physics, Chemistry, Computer Science, English, German, Spanish), "Add your subject". |
+| **131** | **`323575`** | **THE GATE.** A modal sheet rises over that same screen, **which is blurred behind it**. Gradient border. Yellow four-point star above the sheet. Headline **"Upgrade to"** / **"learn faster"** with the second line in yellow. Sub-line: **"You've reached the limit of free."** Then a 🔒 lock glyph + **"Unlock 1000x more daily usage"**. One large blue **"Buy"** button. Below it, a pill: **"❤️ Why isn't Astra AI free?"** An `X` dismisses it. |
+| 132 | `323576` | **THE PLAN PICKER.** "Get better grades and learn 2x faster" / "Everything you need to pass exams". Yearly/Monthly toggle with a **"Save 58%"** badge. Two plan cards — Plus $24/mo, Sigma $80/mo with "8000X MORE USAGE". "See all benefits" expander. "Ask parent to pay". Terms + Privacy. Social proof: **4.87** with five gold stars and laurels. |
+
+**The four mechanisms that transfer, and why:**
+
+1. **The gate is a MODAL over the blurred screen you were already using — not a route change.**
+   The user keeps their place. They can see what they were reaching for. Dismissing returns them
+   exactly where they were. Compare Euphoria today, which pushes to `/onboarding?step=paywall` and
+   loses context entirely.
+2. **The gate does not ask for money. It asks for intent.** One sentence stating the limit, one line
+   stating what unlocking buys, one button. Pricing lives on the NEXT screen. This keeps the
+   interruption small and the decision cheap.
+3. **The gate names the limit in plain language:** *"You've reached the limit of free."* Not "Upgrade
+   to Pro", not "Premium feature". It says what happened.
+4. **"Why isn't Astra AI free?"** — a secondary link that *answers the resentment* rather than
+   ignoring it. This is unusually honest for a paywall and it fits Euphoria's voice precisely.
+
+### 6.6.2 The trial timeline — convergence 5/5 among trial apps
+
+| app | id | screen | what it shows |
+|---|---|---|---|
+| Quizlet `874` | `147530` pos 7 | paywall header | dark header with a **timeline: "Free 7-day trial"**, start today, named end date, over a white body with plans |
+| Quizlet `874` | `147608` pos 85 | paywall | dark-blue header explaining the trial terms with a **"Today" → "June 4, 2025"** timeline visual |
+| Nibble `918` | `132921` pos 47 | "Free trial guide" modal | vertical timeline, three steps: **TODAY 🔒** / **DAY 5 🔔** / **DAY 7 ⭐**, each with copy: no payment now, a reminder before it ends, then billing |
+| Promova `936` | `138757` pos 38 | paywall | **"Claim your free trial"**, vertical timeline: **Today** (unlocks lessons, ad-free practice, unlimited AI role-play) / **In 5 days** (reminder before the trial ends) / end |
+| Zutobi `105` | flow `68560` | "Free Trial Paywall" | *"a hard paywall offering a 3-day free trial that converts to a weekly subscription. It includes benefits, social proof, and a trial timeline."* |
+| Plantaria `1263` | flow `68000` | "Subscription Paywall" | *"a hard paywall presents a 3-day free trial (then weekly) and a lifetime purchase option, gating access to the rest of the app."* |
+
+**Hit rate: 5/5 of the trial-offering apps put a timeline on or immediately before the paywall.**
+
+> **CRITICAL RECONCILIATION.** Euphoria previously built a **standalone** trial-timeline screen and
+> the user **rejected it outright** — git commit `59c27da`, *"Remove the standalone trial-timeline
+> screen — user rejected it outright"*.
+>
+> **The research does not contradict that decision. It refines it.** In every one of the five
+> references above, the timeline is a **component inside the paywall** (Quizlet: it IS the header;
+> Promova: it is the body above the CTA) or a **dismissible explainer modal** (Nibble). **Not one of
+> them is a full-screen step on the main path.**
+>
+> **Therefore: the trial timeline ships as a block inside the paywall. It never becomes its own
+> route.** If you find yourself creating `src/app/trial-timeline.tsx`, stop — you are rebuilding the
+> thing that was rejected.
+
+### 6.6.3 Locked content, shown in place — convergence 4/4
+
+| app | id | mechanic |
+|---|---|---|
+| Astra AI `2190` | `323529` pos 85 | numbered study path where **modules 3–6 render padlock icons**; titles still visible ("Arithmetic Series and Sigma…", "Quadra…") |
+| Bloom `2004` | `156253` pos 136 | **locked financial terms** as three titled cards, with a currency counter |
+| Bloom `2004` | `156247` pos 130 | **"Practice with flashcards" button carries a lock icon** — the gate is on the control |
+| Duolingo `862` | `112810` pos 165 | **badge grid where 10 of 12 months are locks** |
+| Duolingo `862` | `112782` pos 137 | greyed leaderboard + **"Finish 7 lessons to start competing"** — the lock states its own unlock condition |
+
+**4/4 apps show locked content rather than hiding it, and 5/5 of those keep the item's title
+visible.** The mechanism that transfers: **a lock is a promise, not a wall.** Hiding content makes
+the app look small; locking it makes the app look larger than what you have paid for.
+
+### 6.6.4 Countdown to expiry — Bloom `156282`
+
+A **locked wallet icon with a coin** over a **live countdown: `1d 23h 59m 19s to expire`**. Bloom
+renders time-limited access as a visible, ticking object. Directly applicable to "you have 2 days of
+your trial left".
+
+### 6.6.5 Usage-limit copy actually shipped by these apps
+
+From `visible_text`, verbatim, for copy calibration:
+
+- Astra AI: **"You've reached the limit of free."** · **"Unlock 1000x more daily usage"** ·
+  **"Why isn't Astra AI free?"** · **"Improve grades or get a full refund"** ·
+  **"Support free access to underprivileged students"**
+- Astra AI in-chat: reached the limit for creating quizzes, *"suggesting an upgrade to continue"* —
+  the limit is announced **inside the feature**, in the thread, not as an interstitial.
+- Duolingo: **"Finish 7 lessons to start competing on Leaderboards!"**
+- Quizlet: **"Annual + 7-day free trial"**, `$35.99/year`, **"Best Value"**, Monthly `$7.99/month`
+
+---
+
+# §7. THE GATE — run after EVERY unit, no exceptions
+
+```bash
+cd ~/euphoria-native
+export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90
+
+npx tsc --noEmit                          # REQUIRED: "TypeScript: No errors found"
+npx expo lint 2>&1 | grep problems        # REQUIRED: "50 problems (3 errors, 47 warnings)"
+python3 scripts/certify.py | tail -2      # REQUIRED: "ALL ROUTES PASS 3a"
+./scripts/sim.sh screen                   # READ THE REAL SCREEN
+./scripts/sim.sh state '.'                # CHECK THE REAL STORE
+```
+
+**The 3 lint errors are pre-existing and are NOT yours to inherit blame for. A 4th IS.**
+The three are `games/term-match.tsx:71`, `atlas-speech.tsx:34`, `number-rollup.tsx:29` — all
+`react-hooks/set-state-in-effect`. **Baseline warnings: 47.**
+
+If either number rises, **you caused it**. Find it with:
+```bash
+npx expo lint 2>&1 | grep -A4 "src/path/you/touched"
+```
+Fix it before moving on. Five self-inflicted lint problems have been found and fixed this way
+already; the most recent was a `require()` justified by an import cycle that did not exist.
+
+**When the unit touched an API route, the gate gains a fourth step:**
+```bash
+npx expo export -p web && (npx expo serve --port 8090 &) && sleep 6
+# then the relevant curl assertions — see §8 Unit 1f for the shape
+pkill -f "expo serve"
+```
+
+**Device check is not optional.** `tsc` green + lint green + certify green has coexisted with a
+completely blank app (trap #2) and with a control that could not be tapped (traps #1, #4, #17).
+
+---
+
+# §8. THE UNITS
+
+## §8.0 What "complete today" means
+
+The user said: *"we need to make sure this app is complete today."* Read honestly, that cannot mean
+"every unit below finished in one sitting" — Unit 9 alone is 35 authored articles. It means:
+**there must be no incomplete-feeling surface left.** Every screen either does its job or says
+plainly why it cannot (§0.4, §0.5).
+
+**So the order below is dependency-ordered, then value-ordered.** Units 2–5 are the paywall spine
+and unblock everything else. If time runs out, the app must be left at a **unit boundary with a
+green gate and a commit** — never mid-unit. A half-migrated Learn tab is worse than an untouched one.
+
+**Dependency graph:**
+```
+Unit 2 (components + icons) ─┬─> Unit 6 (You)   ─┐
+                             ├─> Unit 7 (Learn) ─┤
+                             ├─> Unit 8 (Home)  ─┼─> Unit 13 (revamp sweep) ─> Unit 14 (review)
+                             └─> Unit 9 (Digest)─┤
+Unit 3 (entitlement+trial) ──┬─> Unit 4 (gate)  ─┤
+                             └─> Unit 5 (IAP)   ─┘
+Unit 12 (graphics) ──────────────> Unit 9 (hero covers)
+```
+
+---
+
+## UNIT 1 — Rate limiting + Supabase auth scaffolding ✅ **DONE**
+
+Committed as **`61f61ba`**, pushed. Do not redo. Summary so the next session knows what exists:
+
+- `src/app/api/_limit.ts` — fixed-window counters keyed `${identity}:${scope}`, swept on write,
+  `take()` / `limited()` / `identify()` / `budgetFor()` / `guard()`, plus a `__DEV__` self-check.
+- Budgets applied at the TOP of all three handlers, before the key check and before any upstream
+  call: chat 20/5min · market:search 60/min · market 120/min · market:logo 200/min · options 30/min ·
+  **anon ÷3**.
+- `store.installId` — persisted, excluded from `reset()`.
+- `lib/api.ts` `apiHeaders()` sends `X-Euphoria-Install: currentUserId() ?? installId`.
+- `lib/auth.ts` — Supabase scaffolding, `AUTH_ENABLED` false without both env vars, no client built.
+- Client 429 handling: `ApiError('rate_limited')` mapped from **status**, `isRateLimited()` kept
+  separate from `isLiveUnavailable()`, Atlas says *"You're asking faster than I can think. Give me a
+  moment."*
+- `.env.example` documents all six env vars with the EXPO_PUBLIC_ reasoning.
+
+**Verified against the exported bundle:** 20 pass then 429 · `Retry-After: 300` · second identity
+unaffected · anon gets exactly 6 · scopes independent. **Trap #20 was discovered here.**
+
+---
+
+## UNIT 2 — Component library + icon system foundation
+
+**Why first:** every surface unit below (6, 7, 8, 9) needs these. Installing them mid-redesign means
+half the app uses one system and half uses another.
+
+### 2a — Research (before installing anything)
+
+```
+mcp__screensdesign__app_screens
+  app_ids=["862","2004","936","1395","2190","918"]
+  query="course category icons, subject tiles with illustrations, topic cards with symbols, learning path node art"
+  limit=20
+```
+Then `screen_detail` `include_image:true` `neighbor_count:1` on the three most icon-dense results.
+
+**The question you are answering:** do the $250k+ apps use a **generic icon set** for topic
+identity, or **bespoke art**? Count it across ≥4 apps and report the hit rate. Known data points to
+start from: Astra AI's "Choose a subject" (`323574`) renders **a distinct coloured icon per subject**
+(Math, Physics, Chemistry, Computer Science, English, German, Spanish). Bloom's stock categories
+(`156223`) render **real company logos plus a count badge**. Duolingo uses **bespoke character art**
+throughout.
+
+### 2b — The decision, and the tension you must resolve
+
+The user asked for *"a good component library where it's going to have good components for stuff
+like the investing fundamentals icon for the learn section."*
+
+**There is a real tension here and you must not paper over it.** The existing plan says
+*"no generic icon set — the hand-drawn art is the single most distinctive thing in this app."* Both
+things are true. **Resolve it by splitting the job**, which is what §10 specifies in full:
+
+- **Utility glyphs** (chevrons, close, search, bell, lock, check, share, plus) → **a library**.
+  There is no differentiation in a chevron and hand-authoring 30 of them is waste.
+- **Topic and course identity** (Investing Fundamentals, Behavioral Finance, Risk Management) →
+  **bespoke, in the existing style**. This is where the app's character lives and where a stock icon
+  pack makes it look like every other template.
+- **The bridge:** pick a library whose **duotone/bulk** style sits close enough to the existing
+  hand-drawn look that the two can share a screen without clashing.
+
+Read **§10** for the full comparison, the recommendation, and the exact install commands.
+
+### 2c — Install
+
+```bash
+cd ~/euphoria-native
+npx expo install nativewind tailwindcss
+npx expo install @hugeicons/react-native @hugeicons/core-free-icons
+```
+
+**`tailwind.config.js` must map `theme.ts`'s ramp** so tokens do not fork into two sources of truth:
+
+```js
+// tailwind.config.js — the ONLY acceptable shape. Values copied from src/constants/theme.ts.
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  presets: [require('nativewind/preset')],
+  theme: {
+    extend: {
+      colors: {
+        background: 'hsl(240 10% 4%)',
+        card: 'hsl(240 10% 9%)',
+        elevated: 'hsl(240 10% 14%)',
+        border: 'hsl(240 10% 22%)',
+        primary: '#A855EB',
+        iconLilac: '#C89CF5',
+        destructive: '#EF4444',
+        warning: '#F5B33F',
+        fg: 'hsl(240 5% 96%)',
+        fgSecondary: '#C3BAD0',
+        fgMuted: '#A79DB5',
+      },
+    },
+  },
+};
+```
+
+**Do NOT touch the ~50 existing `StyleSheet` files** (decision 6). NativeWind is for new surfaces.
+
+### 2d — `src/components/icon.tsx` — the single entry point
+
+Wrap the library so **no screen imports `@hugeicons/*` directly**. One wrapper means one place to
+swap the library, one place to enforce sizing, and one place to keep the union narrow.
+
+```tsx
+// The union stays NARROW, exactly as ui-icon.tsx learned the hard way (trap #19).
+// Use `satisfies`, never a Record<string,...> annotation.
+const GLYPHS = { chevronLeft: ..., lock: ..., ... } satisfies Record<string, IconSvgObject>;
+export type GlyphName = keyof typeof GLYPHS;
+```
+
+**`ui-icon.tsx` stays.** It holds the 24 hand-authored marks already in use. The new wrapper is
+additive. Do not migrate existing call sites — that is churn with no measurable outcome (§0.6).
+
+### 2e — Verification
+
+```bash
+npx tsc --noEmit
+# Prove NativeWind actually compiles a class on device, not just that it installed:
+# render one throwaway <View className="bg-primary h-10" /> on a dev-only screen, screenshot it,
+# confirm the colour is #A855EB, then delete it. A config that silently no-ops is the failure mode.
+```
+Report the **bundle size delta**: `npx expo export -p web` before and after, `du -sh dist`.
+If the icon package adds more than ~400KB to the bundle, switch to per-icon imports and say so.
+
+**GATE. Commit:** `feat(ui): NativeWind + icon system foundation`
+
+---
+
+## UNIT 3 — Entitlement engine + the 3-day trial
+
+**Read §9 in full before writing any code.** This unit implements §9.1–§9.4.
+
+### 3a — What exists today
+
+- `isPro: boolean` in the store, persisted, **excluded from `reset()`**.
+- `canAccessLesson()` and `freeLessonsLeft()` gate on `FREE_LESSON_LIMIT = 5`.
+- `atlasLeft()` gates on `FREE_ATLAS_MESSAGES = 10`.
+- `derivativesLeft()` gates on `PRO_DERIVATIVE_PREVIEW = 3`.
+- **No time dimension at all.** No first-open date, no active-day list, no trial state.
+- `dayKey()` and `weekKey()` helpers exist and must be reused.
+
+### 3b — What to add (full spec in §9.3)
+
+New persisted state: **`activeDays: string[]`** — distinct `dayKey()` values, appended on each
+day's first meaningful action, capped at the trial length + 1 so it cannot grow forever.
+
+New derived getters: `trialDaysUsed()` · `trialDaysLeft()` · `trialExpired()` · `entitled(feature)`.
+
+**All of it goes in a new `src/lib/entitlement.ts`**, not scattered through the store. One module
+answers "can this user do this?" so Unit 4's gate has exactly one thing to ask.
+
+### 3c — `reset()` membership — the third exclusion
+
+`activeDays` **must be excluded from `reset()`**, for the same reason `isPro` and `installId` are.
+If resetting progress restarted the trial, the trial would be a button. Comment it explicitly next
+to the existing two.
+
+### 3d — Verification
+
+You cannot wait three days. §9.7 gives you a `__DEV__`-only time-travel helper that seeds
+`activeDays` with back-dated keys. Verify all four states on device and report the store JSON for
+each: **day 1 / day 3 / day 4 expired / Pro**.
+
+**GATE. Commit:** `feat(entitlement): 3-day trial clock and a single entitlement authority`
+
+---
+
+## UNIT 4 — The gate sheet + paywall redesign
+
+**Implements §9.5 and §9.6.** This is the highest-visibility unit in the run.
+
+### 4a — Research (mandatory, even though §6.6 is banked)
+
+```
+mcp__screensdesign__screen_detail
+  screen_ids=[323575, 323576, 132921, 138757, 147530]
+  include_image=true
+  neighbor_count=1
+```
+Look at them. §6.6 describes them; the images will tell you about spacing, weight and hierarchy that
+prose cannot.
+
+Then, for a fresh convergence count on how the *dismissal* is handled:
+```
+mcp__screensdesign__search_apps
+  detected_patterns=["SpecialOfferPaywall"]
+  category=["Education","Finance"]
+  min_revenue=250000
+  limit=12
+```
+
+### 4b — Build
+
+- `src/components/gate-sheet.tsx` — the modal over the blurred current screen (§9.5).
+- Rewrite the paywall body to carry the **trial timeline as a block**, never as a route (§6.6.2).
+- Every gated control routes through the sheet. **Zero screens push to `/onboarding?step=paywall`
+  directly any more.**
+
+### 4c — Verification
+
+`./scripts/sim.sh screen` with the trial expired: confirm the sheet's labels are present, confirm
+the underlying screen's labels are **still in the tree** (proving it is an overlay, not a route
+change), and confirm the dismiss control is tappable via `sim.sh tapon`.
+
+**GATE. Commit:** `feat(paywall): contextual gate sheet + trial timeline in the paywall`
+
+---
+
+## UNIT 5 — In-app purchase (RevenueCat)
+
+**Without this, Unit 4 is the largest dead control in the app (§0.5).** They ship together.
+
+`react-native-purchases` **10.7.0**. Full spec in **§9.8**, including the honest statement of what
+cannot be verified without App Store Connect products and a sandbox tester.
+
+**If the user cannot supply App Store Connect access today:** build the whole integration behind
+`IAP_ENABLED = !!process.env.EXPO_PUBLIC_REVENUECAT_KEY`, ship the paywall showing real copy with
+the purchase button **disabled and labelled with its own reason**, exactly like the options preview
+cap does. Then say plainly in the report that purchases are not live and what is needed.
+
+**GATE. Commit:** `feat(iap): RevenueCat entitlement wiring behind a flag`
+
+---
+
+## UNIT 6 — You tab redesign
+
+### 6a — Research
+
+```
+mcp__screensdesign__app_screens
+  app_ids=["862","2004","1395","39","1134"]
+  query="profile tab, stats, achievements, streak, subscription status, settings, rewards"
+  limit=10
+```
+Then `screen_detail` `include_image:true` `neighbor_count:1` on the three most relevant.
+**Count convergence across ≥4 apps. Report the hit rate in the commit body.**
+
+Banked and reusable: **plan/account status in settings 5/5**. Gauth's profile carries `Gauth PLUS` +
+renewal date, `Q&A history`, `Reminder`, `Feedback`, `Share with friends`. Bloom's carries an Oinks
+balance, a public username, a reactions toggle, and created/saved portfolios. Duolingo's
+`112733` shows a plan page that does **real work** — it toggles Unlimited Hearts and the Super app
+icon — rather than being a receipt.
+
+### 6b — What is wrong today, measured off the device
+
+`src/app/(tabs)/you.tsx`:
+1. League crest hero — "YOUR LEAGUE / Saver", progress bar, "390 XP to Investor"
+2. "Your profile / Level 1" card with a **second progress bar** — two bars stacked, measuring
+   different things, with no visual distinction
+3. **Four inert stat tiles** — 1 Day streak · 2 Lessons · 110 XP · 0 Guides read.
+   **None are tappable. None lead anywhere.**
+4. LEAGUE LADDER strip — 7 tiers, not tappable, no thresholds shown
+5. `ROWS` list — Friends, Games, Ask Atlas, Account, Notifications, Euphoria Pro, Preferences
+
+**Defects:** nothing states plan status (5/5 convergence says it belongs at the top); nothing
+converts; `rewardsEarned` exists in the store and is **invisible**; the tiles are dead ends; the
+icons are the generic marks the user called out in a screenshot.
+
+### 6c — Build
+
+- **Plan card at the top.** Free / Trial (with days left) / Pro — driven by `entitlement.ts` from
+  Unit 3. Shows `freeLessonsLeft()`, `atlasLeft()`, `derivativesLeft()`. Upgrade CTA opens the
+  **gate sheet** from Unit 4, not the onboarding route.
+- **Five tappable stat tiles**, each with a bespoke mark from Unit 12:
+
+  | tile | value | destination |
+  |---|---|---|
+  | Day streak | `streak` | `/(tabs)/learn` |
+  | Lessons | `completedLessons.length` | `/(tabs)/learn` |
+  | XP | `xp` | `/league` |
+  | Guides read | `readPosts.length` | `/(tabs)/digest` |
+  | **Earned** | `money(rewardsEarned)` | `/(tabs)/trade` |
+
+- **League ladder tiers become tappable**, each explaining its XP threshold from `TIERS`.
+- Resolve the two-progress-bar collision: one is league progress, one is level progress. Either
+  differentiate them clearly or merge them.
+
+### 6d — Verification
+
+`./scripts/sim.sh screen` before and after. **Report the tappable-element count before → after**
+(count lines without `[DISABLED]` carrying `accessibilityRole="button"`). Screenshot both.
+
+**GATE. Commit:** `feat(you): plan status, five tappable stats, bespoke marks`
+
+---
+
+## UNIT 7 — Learn tab: Promova-style density + course identity + locks
+
+### 7a — Research
+
+```
+mcp__screensdesign__app_screens
+  app_ids=["936","862","2190"]
+  query="learning path, lesson nodes, unit sections, progress trail, locked nodes, course header"
+  limit=14
+```
+Banked: Promova shows **~14 nodes** with smaller nodes and inline titles. Astra AI `323529` shows
+**locked modules 3–6 with padlocks and their titles still visible**. The handoff is explicit that
+this is *"a different screen, not a spacing change."*
+
+**Current state:** node pitch **100**, **5 lessons visible**, amber milestone badge every 5th node,
+rail clears the tab bar by 118pt.
+
+### 7b — Build
+
+- Smaller nodes with inline titles. **Target ≥10 nodes visible.**
+- **Course identity icon per course** — this is the "investing fundamentals icon" the user asked
+  for. Twelve courses need twelve marks: `alternativeInvestments, appliedAccounting,
+  behavioralFinance, businessStrategy, corporateFinance, financialAnalytics, globalEconomics,
+  investingFundamentals, personalFinance, quantitativeAnalysis, riskManagement, wealthManagement`.
+  See §10.4 for how to author these.
+- **Locked nodes render locks with titles still visible** (4/4 convergence, §6.6.3), and tapping one
+  opens the gate sheet.
+- Preserve: milestone markers, the course header with % complete, `courseAccent` colours, and the
+  measured 118pt tab-bar clearance.
+
+### 7c — Verification
+
+Count nodes in the viewport from the a11y tree, **before → after**. Report the number. If it did not
+reach 10, §0.6 applies.
+
+**GATE. Commit:** `feat(learn): denser path, course marks, locked nodes`
+
+---
+
+## UNIT 8 — Home: Duolingo mechanics
+
+### 8a — Research
+
+```
+mcp__screensdesign__app_screens app_id="862"
+  query="home path, daily quests, streak goal, hearts, league, chest, daily goal" limit=14
+```
+Plus Bloom `2004` home (`156317`, `156322`). Banked: Duolingo's engine is daily quests feeding the
+streak, plus **streak commitment** (uniqueness 7) and an **animated widget tutorial** (uniqueness 9).
+Bloom `156322` shows a **three-day trivia streak tracker where days 2 and 3 are locked** — a
+three-day arc rendered as a progress object, which is directly reusable for the trial.
+
+### 8b — Build
+
+**`src/lib/quests.ts`** — pure derivation, day-keyed with the existing `dayKey()`:
+
+| quest | source | done when |
+|---|---|---|
+| Finish a lesson | `completedLessons` | count grew today |
+| Read a guide | `readPosts` | count grew today |
+| Make a trade | `valueHistory` | a snapshot exists today |
+| Hit your goal | `minutesDoneToday()` vs `dailyGoalMinutes()` | met |
+
+Pick 2–3 per day **deterministically from the day key** so they do not reshuffle on every render.
+
+**Reward:** completing all of the day's quests grants a reward card — reuse `pendingRewards` and
+`claimReward()`. That mechanic is already built and device-verified (MSFT $1.48 → 0.0033217371787678147
+shares, exact). This gives the reward system a second source beyond lesson completion.
+
+**Streak commitment:** ask once to commit to 3 / 7 / 14 days. Persist `streakGoal` (**add to
+`partialize`**). Home shows progress toward the committed target, not just the raw streak.
+
+**Trial banner:** while the trial is live, Home carries a compact strip — *"Day 2 of 3"* with the
+three-day tracker shape from Bloom `156322`. On expiry it becomes the upgrade entry point.
+
+### 8c — Verification
+
+Complete a quest on device; verify `pendingRewards` grows and the reward screen presents.
+
+**GATE. Commit:** `feat(home): daily quests, streak commitment, trial strip`
+
+---
+
+## UNIT 9 — Digest: manual review of all 25 + ~35 new guides
+
+**The largest unit. Budget accordingly.** Full manifest in §11.
+
+### 9a — Research
+
+```
+mcp__screensdesign__app_screens app_ids=["422","918","1580","862"]
+  query="article list, content feed, reading progress, categories, saved, daily" limit=10
+```
+Banked: category organisation **3/3**; saved/library **3/3**; Deepstash shows "48 ideas | 16 mins";
+Bloomberg shows "5 min read" and a category label above a bold headline.
+
+### 9b — Manual review of all 25 (the user asked for this explicitly, twice)
+
+Source of truth: `~/euphoriaweb-current/src/features/digest/content/posts/`.
+For **each** of the 25 guides in §11.0, read the body and record:
+
+1. **Does the excerpt state a surprise?** (§11.0 has four exemplars.) If not, rewrite it.
+2. **Is there a `lessonForGuide` mapping**, and does it point at a lesson that exists?
+   **31 entries for 25 guides — find the orphans.**
+3. **Does the `hero` key resolve** in `DIGEST_HEROES`?
+4. **Is `readMinutes` honest** against word count at ~200 wpm?
+5. **Is there a worked example with real numbers**, in the Maya/Marcos pattern the lessons use?
+6. **Does the Bottom Line actually conclude**, or just restate the intro?
+
+Write **`refs/DIGEST_REVIEW.md`**: one row per guide — `slug · excerpt-surprise? · lesson-map? ·
+hero-resolves? · readMinutes-honest? · worked-example? · verdict · action`. Then apply the fixes.
+
+### 9c — Gap audit
+
+Map the 25 against the 12 curriculum courses in `src/lib/curriculum/courses/`. Find every concept
+with a lesson but no guide. Known thin categories: **Credit (3)** and **Strategy (4)** against
+Money basics (7).
+
+### 9d — Write the 35 new guides
+
+Full manifest in §11. Every guide ships: `slug` · `title` · `excerpt` (**must state a surprise**) ·
+`category` (one of the five existing) · `date` · `readMinutes` (honest) · `hero` (new SVG, Unit 12) ·
+body in the existing section rhythm (hero → lead → Key Takeaways → explanation → worked example →
+The Bottom Line) · **and** a `lessonForGuide` entry pointing at a lesson that exists.
+
+### 9e — Sync
+
+```bash
+cd ~/euphoria-native && ./scripts/sync-digest.sh
+```
+Regenerates `digest-content.ts`, `digest-bodies.ts`, `digest-heroes.ts` — all marked AUTO-SYNCED /
+DO NOT EDIT. **Never hand-edit the native copies.**
+
+### 9f — Gating
+
+Free/trial users see all titles and excerpts; bodies beyond the free allowance render the gate sheet
+over a blurred first screen of the article (§9.5). **Titles stay visible** — 5/5 convergence
+(§6.6.3).
+
+### 9g — Verification
+
+Digest renders ~60 guides; every category chip filters correctly; the "X of Y read" counter is right;
+**every guide's CTA resolves to a real lesson** (walk a sample of 10 on device).
+
+**GATE. Commit:** `content(digest): review all 25, add 35 guides across three streams`
+
+---
+
+## UNIT 10 — Trade news gallery
+
+### 10a — Research
+```
+mcp__screensdesign__app_screens app_ids=["1580","1171"]
+  query="news feed with images, hero card, related news, market news" limit=8
+```
+Banked: Bloomberg leads with a hero image + headline; rows are `SOURCE · time-ago` then a bold
+headline. Investing.com scopes "Related News" to your holdings — the more useful variant.
+
+### 10b — Build
+Horizontal image cards below the News/Options/Search action row in `src/app/(tabs)/trade.tsx`, fed by
+`getNews()`. **Falls back to text rows with no key — never placeholder headlines.** Reuse the Alpha
+Vantage sentiment badge already built in `news.tsx` (colour by `sentiment`, hidden when absent
+because Polygon articles carry none).
+
+**GATE. Commit:** `feat(trade): news gallery`
+
+---
+
+## UNIT 11 — Tab structure decision
+
+Count tab structures across Duolingo `862`, Bloom `2004`, Gauth `39`, Elevate `1395`,
+Investing.com `1171`, Nibble `918`, Praktika `1816`, Quizlet `874`. **Report the hit rate.**
+
+Known data points: **Gauth ships TWO tabs (Home, Profile) at $600k/mo.** Bloom ships five
+(Home / Discover / Learn / Games / Profile). Duolingo ships five. Investing.com ships five
+(Markets / News / Ideas / Watchlist / More).
+
+Then decide: add a **sixth tab (Rewards/Games)** — where the reward loop and league ladder would
+finally live — or **densify Home** instead. **Decide from the count, not from taste.** If the data
+argues for fewer tabs, say so plainly even though the user asked for more, then let them choose.
+
+**Commit:** `feat(nav): <decision>` with the hit rate in the body.
+
+---
+
+## UNIT 12 — Graphics system
+
+Create `src/components/art/` and extend the existing hand-drawn style (`atlas.tsx`, `lesson-art.tsx`,
+`league-crest.tsx`, `hero-tint.ts`).
+
+**Deliverables:**
+1. **5 stat-tile marks** for You — streak, lessons, XP, guides read, earned
+2. **12 course marks** for Learn — one per curriculum course (§7b)
+3. **7 league crests** refined (Saver, Investor, Analyst, Strategist, Portfolio, Partner, Magnate)
+4. **Quest icons** for Home — one per quest kind
+5. **~35 guide hero covers** for Unit 9, authored in `~/euphoriaweb-current/.../heroes.ts`, then
+   synced. **Run every one through `npx svgo` before inlining** — `digest-heroes.ts` is already 113KB.
+6. Generated hero art via `ecc:fal-ai-media` **only** for large one-off moments; **skip cleanly if
+   there is no fal key** and say so rather than leaving a gap.
+
+**Rule: no generic icon set for identity.** See §10. Utility glyphs come from the library; identity
+art is authored.
+
+**Testing tints:** do NOT test a hue-rotation on the **Credit** category — `#EC4899` pink is
+pre-existing art there and the test passes for the wrong reason. Use **Markets → cyan (H188)**; no
+cyan exists in the violet art, so the test can actually fail.
+
+**Commit:** `feat(art): SVG mark system for stats, courses, crests, quests, covers`
+
+---
+
+## UNIT 13 — Full revamp sweep
+
+The user asked for a **full revamp**. Units 6–12 redesign individual surfaces; this unit makes them
+one app again.
+
+1. **Consistency pass.** Walk all 18 ranked routes from `certify.py`. For each: does it use the
+   token ramp, the type scale, and the same card radius? Record deviations in a table with
+   `file:line`, then fix.
+2. **Every empty state.** Each must either do something or say why it cannot (§0.4). Enumerate them
+   from the a11y tree with an empty store.
+3. **Every loading state.** No spinner without a shape behind it.
+4. **Every error state.** No raw error codes reach a user (`chatErrorMessage` is the pattern).
+5. **Dead-control audit.** Grep every `onPress` in `src/app/` and `src/components/`, and confirm each
+   one writes state, navigates, or calls an API. **Inspect every hit — trap #5.** Report the count.
+6. **a11y.** `python3 scripts/certify.py` must stay green; then a manual pass with
+   `ecc:a11y-architect` on the new surfaces.
+7. **Bundle.** `npx expo export -p web && du -sh dist` before → after. Report the delta.
+
+**Commit:** `chore(revamp): consistency, empty/loading/error states, dead-control audit`
+
+---
+
+## UNIT 14 — Consolidated review pass
+
+Per decision 8, run at the very end.
+
+- **`ecc:security-review`** — weight it on `_limit.ts`, `auth.ts`, `entitlement.ts`, the IAP wiring,
+  and all four API routes. **This is where a real vulnerability can live.**
+- **`ecc:code-review`** over the full diff.
+- **`coderabbit:code-review`** as a second opinion.
+- **`ecc:silent-failure-hunter`** — this codebase has many `safe()`-style catches by design; confirm
+  each one is deliberate and none swallow something a user needed to know.
+- **`ecc:council`** on three specific questions:
+  (a) is the in-memory limiter's stated ceiling honest, and is the sweep correct?
+  (b) does the tab-count data actually support the Unit 11 decision?
+  (c) **is the 3-day trial honestly described everywhere it appears, given it is device-clock based
+  and trivially bypassed?**
+
+Fix every CRITICAL and HIGH. Log everything else to `refs/WORKORDER_ATLAS_TABS.md` with a verdict.
+
+**Commit:** `chore: security + code review fixes`
+
+---
+
+# §9. THE PAYWALL AND THE 3-DAY TRIAL — full specification
+
+Evidence base: **§6.6**. Implemented by **Units 3, 4 and 5**.
+
+## 9.1 What the user asked for, verbatim
+
+> *"we need to have paywall-gated stuff. For example, if they have already used the app for 3 days,
+> that's our 3-day free trial. After that, they should just have to see something like, 'They can't
+> unlock the paywall stuff anymore. They can't unlock the lessons or stuff like that. They have to
+> buy it.'"*
+
+Three requirements, unpacked:
+1. A **3-day free trial measured in days used**, not a purchase-linked StoreKit trial.
+2. On expiry, **lessons and Pro content lock**.
+3. The user is **told**, clearly, that they must buy to continue.
+
+## 9.2 The reading that matters: "used the app for 3 days"
+
+Two possible readings, and they behave very differently:
+
+| reading | rule | what happens to a user who installs and forgets for a week |
+|---|---|---|
+| **(a) calendar** | 3 days since first open | trial gone, having used nothing. Feels like theft. |
+| **(b) days used** ✅ | 3 **distinct days on which they did something** | still has all 3 days waiting. |
+
+**Ship (b).** It matches the user's words exactly ("used the app for 3 days"), it cannot be burned by
+inactivity, and it is the version that survives an App Review conversation about fairness. Document
+(a) as the rejected alternative so nobody re-opens it.
+
+**"Did something" must be a real action**, not app launch — otherwise a mis-tap on the icon burns a
+day. Define it as any of: completed a lesson step, read a guide, sent an Atlas message, or placed a
+trade. That is exactly the set of actions that already write to the store.
+
+## 9.3 State (Unit 3)
+
+### Store additions — `src/lib/store.ts`
+
+```ts
+  /**
+   * Distinct day keys on which the user did something real (a lesson step, a guide, an Atlas
+   * message, a trade). NOT app launches — a mis-tap on the icon must not burn a trial day.
+   *
+   * DELIBERATELY EXCLUDED FROM `reset()`, for the same reason `isPro` and `installId` are: if
+   * resetting progress restarted the trial, the trial would be a button rather than a limit.
+   *
+   * Capped at TRIAL_DAYS + 1 entries — once it is over, the exact count stops mattering and an
+   * uncapped array would grow for the life of the install.
+   */
+  activeDays: string[];
+```
+
+Add to `partialize` (**`store.ts:10` is explicit about this**). Add to the type. Initial value `[]`.
+
+### Marking a day
+
+One action, called from the four places that already write:
+
+```ts
+  /** Idempotent. Call at the top of completeLesson, markPostRead, spendAtlasMessage, buy/sell. */
+  markActiveDay: () =>
+    set((s) => {
+      const k = dayKey();
+      if (s.activeDays.includes(k)) return s;              // idempotent — same day, no growth
+      return { activeDays: [...s.activeDays, k].slice(-(TRIAL_DAYS + 1)) };
+    }),
+```
+
+### `src/lib/entitlement.ts` — the single authority
+
+**Everything that asks "can this user do this?" asks this module and nothing else.** One place to
+read means Unit 4's gate has exactly one question to ask, and Unit 5 can flip the whole app to a
+real receipt by changing one function.
+
+```ts
+export const TRIAL_DAYS = 3;
+
+/** Free (before any use) | Trial (days 1-3) | Expired (day 4+, not paid) | Pro (paid). */
+export type Tier = 'trial' | 'expired' | 'pro';
+
+/** What a gate is protecting. Each maps to a copy string in §9.6. */
+export type Feature = 'lesson' | 'guide' | 'atlas' | 'options' | 'quest-reward';
+
+export function trialDaysUsed(s: AppState): number;   // s.activeDays.length
+export function trialDaysLeft(s: AppState): number;   // max(0, TRIAL_DAYS - used), 0 when expired
+export function tier(s: AppState): Tier;              // pro > expired > trial
+export function entitled(s: AppState, f: Feature): boolean;
+```
+
+**`tier()` order matters:** `isPro` wins over everything. A paying user must never see a trial
+countdown — that is the bug that generates refund requests.
+
+### The interaction with the EXISTING limits
+
+Euphoria already has `FREE_LESSON_LIMIT = 5`, `FREE_ATLAS_MESSAGES = 10`,
+`PRO_DERIVATIVE_PREVIEW = 3`. **Do not delete them and do not stack them confusingly.** The rule:
+
+> **During the trial, the count limits apply. After the trial, nothing applies — it is all Pro.**
+
+So a trial user gets 5 lessons *and* 3 days, whichever runs out first. That is honest, it is simple
+to say in one sentence, and it means the gate copy only ever has to explain one reason at a time.
+**`entitled()` returns false with a `reason` so the gate can say which limit was hit.**
+
+## 9.4 What actually locks
+
+| surface | trial | expired | note |
+|---|---|---|---|
+| Lessons | first 5 free | **locked** | the user named this explicitly |
+| Lesson list / path | fully visible | **visible with locks** | 4/4 convergence, §6.6.3 — never hide |
+| Digest titles + excerpts | visible | **visible** | the excerpt is the marketing |
+| Digest bodies | free | **locked past the first screen** | blur + gate sheet |
+| Atlas chat | 10 messages | **locked** | already metered |
+| Options | 3 preview trades | **locked** | already metered |
+| Paper trading (buy/sell equities) | free | **free** | see below |
+| Portfolio, watchlist, news, quotes | free | **free** | see below |
+| Streak, XP, league | free | **free** | never gate the retention loop |
+
+**Why trading and market data stay free, and this is a recommendation not a decision:** they are the
+habit. Bloom, the direct competitor, gates *lessons and features* and keeps the market surface open,
+because a locked market screen gives a lapsed user no reason to open the app again. **Flag this to
+the user** — if they want trading gated too, it is a one-line change in `entitled()`.
+
+## 9.5 The gate sheet — `src/components/gate-sheet.tsx` (Unit 4)
+
+**Modelled directly on Astra AI `323575` (§6.6.1).** The mechanism, not the pixels.
+
+```
+┌──────────────────────────────────────────┐
+│  (the screen the user was ALREADY on,    │  <- still mounted, still in the a11y tree
+│   rendered normally, then BLURRED)       │     BlurView or an opacity+scale scrim
+│                                          │
+│         ✦  (Atlas, `whoa` expression)    │  <- our mascot, not a generic star (5/5: mascot in-thread)
+│  ┌────────────────────────────────────┐  │
+│  │  ✕                                 │  │
+│  │                                    │  │
+│  │  Your free 3 days                  │  │  <- `title` token, 26/32
+│  │  are up                            │  │     second line in `primary` #A855EB
+│  │                                    │  │
+│  │  You've read 4 guides and finished │  │  <- `body`. STATE WHAT THEY DID. This is
+│  │  2 lessons. Euphoria Pro keeps     │  │     the one place their own numbers make
+│  │  them coming.                      │  │     the ask feel earned rather than abrupt.
+│  │                                    │  │
+│  │  🔒 Every lesson, unlimited Atlas, │  │  <- ONE line on what unlocking buys
+│  │     the full options desk          │  │
+│  │                                    │  │
+│  │  ┌──────────────────────────────┐  │  │
+│  │  │      See Euphoria Pro        │  │  │  <- GradientButton. Opens the plan picker.
+│  │  └──────────────────────────────┘  │  │     NOT a price. Intent, not money (§6.6.1).
+│  │                                    │  │
+│  │      Why isn't Euphoria free?      │  │  <- the Astra AI move. Answers resentment.
+│  └────────────────────────────────────┘  │
+└──────────────────────────────────────────┘
+```
+
+**Hard rules for this component:**
+
+1. **It is a MODAL over the current route. It is never a navigation.** The underlying screen stays
+   mounted. Verify this on device: after the sheet opens, `./scripts/sim.sh screen` must still show
+   the underlying screen's labels. If they are gone, you built a route and it is wrong.
+2. **It does not show a price.** Pricing lives one tap deeper, exactly as Astra AI does it
+   (`323575` → `323576`). This keeps the interruption cheap.
+3. **It states what happened**, using their real numbers from the store. Never
+   *"Upgrade to Pro"* with no cause.
+4. **It is dismissible**, and dismissing returns them to what they were doing. A gate that cannot be
+   closed is a trap and will draw one-star reviews.
+5. **The 🔒 line is one line.** Astra AI uses exactly one. A benefits list belongs on the plan
+   screen.
+6. **"Why isn't Euphoria free?"** opens a short, honest sheet: market data costs money per call, the
+   AI tutor costs money per message, and there are no ads. This is a real differentiator for a
+   finance-education app aimed at 18–25s and it fits the app's existing voice.
+7. **Copy is UNAPPROVED.** The structure is evidence-backed; the exact words are not. Ship it, mark
+   it, and flag it in the report for the user's sign-off (§0.7).
+
+**The blur:** `expo-blur` is likely already available via Expo SDK 57 — check before adding
+anything. If `BlurView` is not viable over the existing gradients, fall back to a scrim of
+`background` at 88% opacity plus a 0.98 scale on the content. **Do not add a new native module for
+this.**
+
+## 9.6 The paywall body (Unit 4)
+
+The existing `onboarding.tsx` paywall step is the base. Three changes:
+
+**1. The trial timeline becomes a block inside it.** 5/5 convergence (§6.6.2), and it resolves the
+earlier rejection: the user rejected a *standalone screen*, and every reference app puts the
+timeline *inside* the paywall. Shape it like Nibble `132921`:
+
+```
+  TODAY      🔒   Full access to every lesson and Atlas
+  DAY 2      🔔   We'll remind you before anything is charged
+  DAY 3      ⭐   Your trial ends — keep going for $X
+```
+
+**2. Real plan cards.** Yearly with a `Save X%` badge is 4/5 across the trial cohort (Quizlet
+`147531`, Astra `323576`, Duolingo `112708`, RiseGuide `72247`). Euphoria's current $9.99/mo ·
+$59.99/yr is a **50% saving** — say so on the badge.
+
+**3. Social proof only if it is true.** Bloom shows press mentions and university testimonials;
+Astra shows `4.87★`. **Euphoria has no ratings and no press.** Do not invent them. Ship the paywall
+without social proof and note the gap — this is §0.4 applied to marketing copy.
+
+## 9.7 Verifying a 3-day trial without waiting 3 days
+
+```ts
+// src/lib/entitlement.ts — DEV ONLY. Guarded so it cannot ship.
+if (__DEV__) {
+  // Seed activeDays with back-dated keys so every trial state is reachable in one session.
+  // Exposed on globalThis rather than a UI control: a debug button is a dead control (§0.5).
+  (globalThis as any).__euphoriaTrialDays = (n: number) => {
+    const days = Array.from({ length: n }, (_, i) => dayKeyOffset(-(n - 1 - i)));
+    useApp.setState({ activeDays: days });
+  };
+}
+```
+
+Then, from the device:
+```bash
+./scripts/sim.sh state '.activeDays'          # observe
+# drive the four states and capture the store for each:
+#   0 days  -> fresh
+#   1 day   -> "2 days left"
+#   3 days  -> "last day"
+#   4 days  -> EXPIRED, gate sheet on every locked control
+#   isPro   -> no countdown anywhere
+```
+
+**Report all five store snapshots in the commit body.** A trial that was only ever tested in one
+state is not tested.
+
+**Also verify the boundary explicitly:** with exactly 3 entries the user is still IN the trial (day
+3 is a trial day). Expiry begins at the **4th distinct day**. An off-by-one here charges people a day
+early and is exactly the kind of bug that produces refunds.
+
+## 9.8 In-app purchase (Unit 5) — and the honest ceiling
+
+`react-native-purchases` **10.7.0** (RevenueCat). Why RevenueCat over raw StoreKit: it handles
+receipt validation, cross-platform entitlements, restore, and subscription state changes — all of
+which are where a hand-rolled StoreKit integration leaks revenue and generates support load.
+
+```bash
+npx expo install react-native-purchases
+```
+
+**Wiring:**
+- `EXPO_PUBLIC_REVENUECAT_IOS_KEY` in `.env.example`. **`EXPO_PUBLIC_` is correct** — the RevenueCat
+  SDK key is a public client key, like the Supabase anon key and unlike `GEMINI_API_KEY`.
+- `IAP_ENABLED = !!process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY`.
+- `setPro(true)` becomes driven by RevenueCat's entitlement state, not a local toggle. Keep the local
+  `isPro` as the cached read so the app works offline; refresh it on `customerInfo` updates.
+- **"Restore purchases" is 3/5 convergence in settings** and is an **App Store review requirement**
+  for a subscription app. Ship it in the You tab's plan card.
+
+**What CANNOT be verified today, and must be said plainly rather than implied:**
+
+| requirement | why it blocks | what to do |
+|---|---|---|
+| App Store Connect products (`euphoria_pro_monthly`, `euphoria_pro_yearly`) | RevenueCat reads offerings from ASC | ask the user; build behind the flag |
+| A sandbox tester account | purchases cannot be exercised on a simulator without one | ask the user |
+| **StoreKit purchases do not work in the iOS Simulator** without a local `.storekit` configuration file | the QA device is a simulator | add a `Configuration.storekit` file for local testing, and say clearly that this validates the **UI flow only**, not real billing |
+
+**Until those exist:** the purchase button renders **disabled with its own reason on screen**, in the
+exact pattern the options preview cap already uses — *"Purchases aren't switched on in this build
+yet."* That is honest, it is consistent with §0.4/§0.5, and it is not a dead control because it
+explains itself.
+
+## 9.9 The honest ceiling of a device-clock trial — say this, do not hide it
+
+**Trap #31.** `activeDays` lives in AsyncStorage on the device and is keyed off the device clock.
+Therefore:
+
+- Deleting and reinstalling the app **resets the trial**.
+- Changing the device date **can add trial days** (though not remove used ones, since the set only
+  grows).
+- There is no server check.
+
+**This is acceptable for launch and must never be described as enforcement.** It is a *courtesy*
+trial: it shapes the honest majority's experience and it costs nothing. The real entitlement lives in
+RevenueCat once Unit 5 lands, because a paid subscription is validated against Apple's receipt, not
+against `activeDays`.
+
+**The upgrade path**, in increasing order of effort — and the same shape as the rate limiter's stated
+ceiling in `_limit.ts`, deliberately:
+1. **RevenueCat anonymous app-user-id** — survives reinstall on the same Apple ID.
+2. **Supabase row keyed on `installId`** — `lib/auth.ts` already scaffolds this; the trial start date
+   moves server-side.
+3. **Full account auth** — trial follows the person, not the device.
+
+**Write this ceiling into the docblock of `entitlement.ts`**, exactly as `_limit.ts` does. A future
+session must not "discover" the bypass and treat it as a defect.
+
+## 9.10 Pricing — flag before shipping
+
+Bloom charges **$15/mo · $120/yr** for financial literacy modules **plus** fractional investing —
+essentially Euphoria's Learn + Trade bundle. Euphoria asks **$9.99/mo · $59.99/yr**, roughly **half**.
+
+Euphoria's trial is **3 days**; the cohort runs 3 days (Zutobi, Plantaria, RiseGuide) to 7 days
+(Quizlet, Nibble). 3 days is defensible and is at the aggressive end.
+
+**Raise this once with the user before Unit 5 ships, then follow their call (§0.7).** Do not change
+a price unilaterally.
+
+---
+
+# §10. COMPONENT LIBRARY AND ICON SYSTEM
+
+The user asked for *"a good component library where it's going to have good components for stuff like
+the investing fundamentals icon for the learn section."* This section answers it with verified
+versions and a decision.
+
+## 10.1 The candidates, verified against npm on 2026-08-07
+
+### Component libraries
+
+| library | latest | philosophy | verdict for Euphoria |
+|---|---|---|---|
+| **React Native Reusables** (`@rn-primitives/*` **1.5.2**) | shadcn/ui for RN. Copy-paste components on unstyled primitives, NativeWind v4. CLI scaffolding, blocks for auth and onboarding. | **You own the code.** Nothing to fight when it does not match the design. | ✅ **RECOMMENDED** |
+| **gluestack-ui** (`@gluestack-ui/core` **5.0.15**) | Successor to NativeBase. Modular, unstyled, accessible, Tailwind-styled. v5 targets **NativeWind v5 / Tailwind v4**, Expo Router first. Docs confirm Expo SDK 54 optimisation. | Excellent, but its v5 line pairs with **Tailwind v4**, and this app is on **NativeWind 4.2.6 / Tailwind 3.x**. Adopting it means a Tailwind major bump mid-run. | ⚠️ strong, wrong timing |
+| **Tamagui** | compiler-optimised, best cross-platform theming | A whole second styling system beside `StyleSheet` and NativeWind. Three is too many. | ❌ |
+| **React Native Paper / Elements** | Material / classic | Material language actively fights this app's look. | ❌ |
+
+### Icon sets
+
+| set | package | count | styles | note |
+|---|---|---|---|---|
+| **Hugeicons** | `@hugeicons/react-native` **1.0.15** + `@hugeicons/core-free-icons` **4.2.3** | 46,000+ free (54,000+ pro) | Stroke, Two-Tone, Solid, **Bulk**, **Duotone**, Rounded, Sharp | Largest by a distance. **Duotone and Bulk are the styles that sit closest to this app's hand-drawn look.** |
+| Phosphor | `phosphor-react-native` **3.0.6** | ~9,000 | 6 weights incl. duotone | Excellent, smaller, very consistent |
+| Iconoir | `iconoir-react-native` **7.11.1** | 1,300+ | 24×24, one style | Clean, MIT, but stroke-only |
+| Lucide | `lucide-react-native` **1.30.0** | ~1,500 | stroke | The safest, plainest choice; closest to `ui-icon.tsx`'s existing 2.2 stroke |
+| Nano Icons | `react-native-nano-icons` **0.2.1** | — | — | Software Mansion; optimised for **render performance**, worth benchmarking if icon count on the Learn path becomes a frame-rate problem |
+
+## 10.2 The Tailwind version trap — read before installing
+
+`nativewind@4.2.6` pairs with **Tailwind 3.x**. `npm view tailwindcss version` returns **4.3.3**,
+which is a **major** ahead. A bare `npx expo install tailwindcss` may resolve to v4 and produce a
+config NativeWind 4 cannot read — and the failure mode is silent: classes compile to nothing and
+every `className` is simply ignored.
+
+**Pin it, and prove it works:**
+```bash
+npx expo install nativewind
+npm install --save-dev "tailwindcss@^3"
+npx tailwindcss --help >/dev/null && echo "tailwind cli ok"
+```
+Then run the **on-device colour check in Unit 2e**. A NativeWind config that silently no-ops looks
+exactly like "the styles just aren't applying yet".
+
+## 10.3 THE DECISION
+
+> **Components:** **React Native Reusables** patterns (`@rn-primitives/*`), copied in, on
+> **NativeWind 4.2.6 + Tailwind 3.x**, **new surfaces only**.
+> **Utility glyphs:** **Hugeicons** free set, **Duotone** style, behind the `src/components/icon.tsx`
+> wrapper from Unit 2d.
+> **Identity art (courses, stat tiles, crests, quests, guide heroes):** **hand-authored SVG**, in the
+> existing `lesson-art.tsx` / `league-crest.tsx` style.
+
+**Three reasons, in order:**
+
+1. **Hugeicons' own documentation admits the gap.** Its comparison page states that *some niche
+   categories such as finance have fewer options than Material Symbols*. That is exactly Euphoria's
+   domain. **A generic set cannot draw "Behavioral Finance" or "Quantitative Analysis" — the two
+   things the Learn tab most needs.** So a library alone cannot satisfy the user's request; it can
+   only satisfy half of it.
+2. **The hand-drawn art is the single most distinctive thing in this app**, and there is already
+   54KB of it (`lesson-art.tsx` 32KB + `atlas.tsx` 22KB) establishing the style. Replacing course
+   identity with a stock pack would make it look like every template.
+3. **Nobody is differentiated by a chevron.** Hand-authoring utility glyphs is pure cost. Hugeicons
+   Duotone gives 46,000 of them in a style that can share a screen with the authored art.
+
+**If the user pushes back and wants everything from a library:** say once that course identity is
+where the app's character lives, then follow their call (§0.7). If they do, use **Hugeicons Bulk**
+for course marks — it is the closest available style to the existing art — and accept that twelve
+courses will not have twelve distinct finance concepts available.
+
+## 10.4 The twelve course marks — the concrete deliverable
+
+This is what the user meant by "the investing fundamentals icon for the learn section". Author each
+in `src/components/art/course-mark.tsx`, 48×48, single `Path` where possible, tinted by
+`courseAccent(id)` so one component serves all twelve:
+
+| course id | the mark |
+|---|---|
+| `investingFundamentals` | a seedling breaking a rising line — growth from a base |
+| `personalFinance` | a wallet with one coin above it |
+| `behavioralFinance` | a head silhouette with an off-centre pendulum inside |
+| `riskManagement` | a shield with a notch cut from one corner |
+| `corporateFinance` | three stacked bars with an arrow threading them |
+| `globalEconomics` | a globe with one latitude line drawn as a chart |
+| `quantitativeAnalysis` | a scatter of four dots with a fitted line |
+| `financialAnalytics` | a magnifier over a candlestick |
+| `appliedAccounting` | a balance scale, deliberately level |
+| `businessStrategy` | a chess knight reduced to three strokes |
+| `wealthManagement` | a tree whose canopy is a coin |
+| `alternativeInvestments` | a key with a chart notch cut into the bit |
+
+**Rules:** stroke **2.2** to match `ui-icon.tsx`; 48×48 viewBox; no gradients (`courseAccent` supplies
+colour); run every one through `npx svgo` before inlining.
+
+**Verification:** render all twelve in a dev-only grid, screenshot once, and confirm **no two read as
+the same silhouette at 48pt**. That is the only test that matters for an icon set — trap #19's
+lesson was that four icons rendered as the same sparkle and nobody noticed for a whole session.
+
+---
+
+# §11. ARTICLE MANIFEST — the 35 new Digest guides
+
+## 11.0 The existing 25 — complete inventory
+
+| slug | category | hero key |
+|---|---|---|
+| how-credit-cards-work | Credit | cover-credit-card |
+| good-debt-vs-bad-debt | Credit | cover-debt-balance |
+| how-credit-scores-work | Credit | cover-credit-score |
+| what-moves-a-stock-price | Markets | cover-price-gap |
+| bull-vs-bear-markets | Markets | cover-bull-bear |
+| how-to-read-a-stock-quote | Markets | cover-quote-card |
+| how-the-stock-market-works | Markets | cover-exchange |
+| inflation-explained | Markets | cover-inflation |
+| market-crashes-what-history-teaches | Markets | cover-crash-recovery |
+| investment-fees-explained | Strategy | cover-fee-drag |
+| what-is-diversification | Strategy | cover-diversify |
+| what-is-risk-tolerance | Strategy | cover-risk-dial |
+| dollar-cost-averaging-explained | Strategy | cover-dca |
+| target-date-funds-explained | Investing | cover-glide-path |
+| what-is-an-etf | Investing | cover-etf |
+| roth-ira-explained-for-beginners | Investing | cover-roth |
+| stocks-vs-bonds-explained | Investing | cover-stocks-bonds |
+| build-your-first-investment-portfolio | Investing | cover-portfolio |
+| how-tax-brackets-work | Money basics | cover-brackets |
+| employer-401k-match | Money basics | cover-401k-match |
+| capital-gains-tax-basics | Money basics | cover-tax-slice |
+| first-paycheck-guide | Money basics | cover-paycheck |
+| budgeting-50-30-20-rule | Money basics | cover-budget-split |
+| emergency-fund-how-much | Money basics | cover-emergency-buffer |
+| what-is-compound-interest | Money basics | cover-compound |
+
+**Distribution:** Money basics 7 · Markets 6 · Investing 5 · Strategy 4 · **Credit 3**.
+`readMinutes` runs 2–5. `lessonForGuide` holds **31 entries for 25 guides** — audit for orphans.
+
+**`DigestPost` shape:**
+```ts
+{ slug: string; title: string; excerpt: string;
+  category: "Credit" | "Markets" | "Strategy" | "Investing" | "Money basics";
+  date: "YYYY-MM-DD"; readMinutes: number; hero: string /* key into DIGEST_HEROES */ }
+```
+
+**The voice to preserve — every excerpt states a SURPRISE:**
+- *"Pay in full and the card is free. Carry a balance and it is one of the most expensive loans you can get."*
+- *"Good news sinks stocks all the time. Price does not track results, it tracks surprise."*
+- *"One percent a year sounds like a rounding error. Over thirty years it can take a quarter of everything you built."*
+- *"A raise cannot push your whole income into a higher rate. Only the dollars above the line move."*
+
+This is the strongest thing about the existing set. **Every new guide must do it.**
+
+## 11.1 Stream A — curriculum gaps (15)
+
+| slug | title | cat | hero | the surprise the excerpt must land |
+|---|---|---|---|---|
+| `loss-aversion-explained` | Why Losing Hurts Twice as Much | Strategy | cover-loss-scale | A loss feels about twice as strong as an equal gain — which is why people sell winners and hold losers. |
+| `anchoring-bias-investing` | The First Number You Hear Wins | Strategy | cover-anchor | The price you bought at is irrelevant to what a stock does next, but your brain will not let it go. |
+| `recency-bias-markets` | Why Last Year Feels Like Forever | Strategy | cover-recency | The most recent twelve months feel like the permanent state of the world. They almost never are. |
+| `confirmation-bias-portfolio` | You Are Only Reading the Good News | Strategy | cover-confirm | Once you own something you start reading only the news that agrees with you. |
+| `position-sizing-basics` | How Much of One Thing Is Too Much | Strategy | cover-position-size | Being right about a stock and wrong about the size can still ruin you. |
+| `correlation-explained` | When Everything Falls Together | Strategy | cover-correlation | Diversification stops working exactly when you need it — in a crash, correlations go to one. |
+| `sequence-of-returns-risk` | Why the Order of Returns Matters | Investing | cover-sequence | Two portfolios with the same average return can end decades apart, purely on the order. |
+| `reading-a-balance-sheet` | What a Balance Sheet Actually Says | Markets | cover-balance-sheet | Assets minus liabilities is the whole idea. Everything else is detail. |
+| `free-cash-flow-explained` | Profit Is an Opinion, Cash Is a Fact | Markets | cover-cash-flow | A company can report a profit and still run out of money. |
+| `what-the-fed-actually-does` | What the Fed Actually Does | Markets | cover-fed | The Fed sets one overnight rate. Everything else is the world reacting to it. |
+| `why-rates-move-everything` | Why One Rate Moves Everything | Markets | cover-rates | Raise the risk-free rate and every other asset has to re-justify itself. |
+| `how-inflation-is-measured` | How Inflation Is Actually Measured | Money basics | cover-cpi-basket | It is a basket someone chose. Your personal inflation rate is not the headline number. |
+| `what-an-average-hides` | What an Average Hides | Money basics | cover-average | "Average return of 8%" can mean a smooth 8% or +40% then −25%. They are not the same life. |
+| `percentiles-explained` | Why Percentiles Beat Averages | Money basics | cover-percentile | The median household and the average household are different households. |
+| `risk-vs-volatility` | Risk Is Not the Same as Volatility | Strategy | cover-risk-vol | Volatility is how much it moves. Risk is the chance you never get it back. |
+
+## 11.2 Stream B — market literacy (10)
+
+| slug | title | cat | hero | the surprise |
+|---|---|---|---|---|
+| `how-to-read-an-earnings-report` | How to Read an Earnings Report | Markets | cover-earnings | The number that moves the stock is rarely the profit — it is the guidance. |
+| `what-a-dividend-actually-is` | What a Dividend Actually Is | Investing | cover-dividend | The stock price drops by roughly the dividend on the day it is paid. It is not free money. |
+| `what-an-etf-actually-holds` | What Your ETF Actually Holds | Investing | cover-etf-holdings | Three "diversified" funds can hold the same six companies. |
+| `why-bonds-move-opposite-rates` | Why Bonds Fall When Rates Rise | Investing | cover-bond-seesaw | Your 3% bond is worth less the moment someone can buy a 5% one. |
+| `what-a-stock-split-does` | What a Stock Split Actually Does | Markets | cover-split | Nothing. You own more slices of the same pizza. |
+| `what-the-market-is-down-means` | What "The Market Is Down" Measures | Markets | cover-index-weight | The S&P is cap-weighted — a handful of companies can drag the whole number. |
+| `premarket-vs-after-hours` | Pre-Market and After-Hours, Explained | Markets | cover-hours | Thin volume means one order can move the price. That gap often closes by 10am. |
+| `market-cap-tiers-explained` | Large, Mid, Small Cap — What Changes | Investing | cover-cap-tiers | Cap size predicts volatility far better than it predicts returns. |
+| `what-volume-tells-you` | What Trading Volume Tells You | Markets | cover-volume | A price move on no volume is a rumour. On heavy volume it is a decision. |
+| `what-an-index-actually-is` | What an Index Actually Is | Markets | cover-index | Someone picks the members and the weights. An index is an opinion with a rulebook. |
+
+## 11.3 Stream C — 18–25 life-stage (10)
+
+| slug | title | cat | hero | the surprise |
+|---|---|---|---|---|
+| `your-first-credit-card` | Choosing Your First Credit Card | Credit | cover-first-card | The rewards rate is the least important number on the page. |
+| `what-a-lease-actually-costs` | What Your First Apartment Really Costs | Money basics | cover-lease | Rent is usually about two-thirds of what living there costs. |
+| `student-loans-repayment-clock` | Student Loans and the Repayment Clock | Credit | cover-loan-clock | Interest often starts before your first payment does. |
+| `enrolling-in-your-first-401k` | Enrolling in Your First 401(k) | Money basics | cover-enroll | The default contribution rate is set to be easy, not to be enough. |
+| `health-insurance-basics` | Health Insurance, Decoded | Money basics | cover-insurance | A low premium with a high deductible is a bet on not getting sick. |
+| `what-builds-a-credit-score` | What Actually Builds a Credit Score | Credit | cover-score-mix | Paying on time and using little of your limit is most of it. The rest is noise. |
+| `buying-your-first-car` | Buying Your First Car | Money basics | cover-first-car | The monthly payment is the wrong number to negotiate. |
+| `splitting-rent-fairly` | How to Split Rent Fairly | Money basics | cover-split-rent | Equal shares of an unequal apartment is how roommates fall out. |
+| `freelance-1099-taxes` | Freelance Income and the Tax Surprise | Money basics | cover-1099 | Nobody withholds anything. The bill arrives all at once. |
+| `emergency-fund-on-a-small-income` | An Emergency Fund on a Small Income | Money basics | cover-small-fund | Three months of expenses is the goal. One month is the thing that changes your life. |
+
+**Resulting distribution after all 60:**
+Money basics 19 · Markets 15 · Strategy 11 · Investing 10 · **Credit 6**.
+Credit remains thinnest — **flag it for a future batch rather than padding now.**
+
+## 11.4 Writing rules for every guide
+
+1. **The excerpt states a surprise.** If it merely describes the topic, rewrite it.
+2. **A worked example with real numbers and a named person**, matching the lesson voice — the
+   established characters are **Maya, 19, lifeguards in Sacramento** and **Marcos, 22, dental tech in
+   Fresno**. Reuse them; do not invent a third unless the scenario genuinely needs one.
+3. `readMinutes` honest at **~200 wpm**. Compute it, do not guess it.
+4. A `lessonForGuide` entry **pointing at a lesson that exists** — the CTA says "Practice this in a
+   lesson" and must not dead-end.
+5. Hero SVG authored in the existing style and **run through `npx svgo`**.
+6. **American spelling** — match the existing corpus.
+7. Section rhythm: hero → lead → **Key Takeaways** → explanation → worked example → **The Bottom
+   Line**. The Bottom Line must *conclude*, not restate the intro.
+
+---
+
+# §12. GIT
+
+```bash
+CLAUDE_CONFIG_DIR=~/.claude-account2 gh auth switch --user teameuphoriainv-dot   # s-k-28 CANNOT see the private repo
+cd ~/euphoria-native && git status --porcelain
+```
+
+**Convention in this repo:** commits land directly on `main` with descriptive, multi-paragraph
+messages. Recent history: `61f61ba` (Unit 1), `6b090d3`, `81cda65`, `5ef9b7a`, `bda99b8`, `4d85b7e`.
+
+**Commit per verified unit, after its gate passes. Push after Units 2, 5, 7, 9, 11, 14.**
+
+**Multi-line messages via heredoc — `-m` with newlines breaks in this shell (trap #8):**
+```bash
+git commit -F - <<'EOF'
+feat(you): plan status, five tappable stats, bespoke marks
+
+Plan card at top — 5/5 convergence across Elevate/Praktika/Meetup/Kling/Loora.
+Four inert tiles -> five tappable, each with a destination.
+rewardsEarned surfaced for the first time (was in the store, invisible).
+Tappable elements on the tab: 9 -> 21.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+EOF
+```
+
+**Every commit body must carry the numbers** that justified the change — hit rates from
+ScreensDesign, before → after measurements from the device. A commit message with no number in it is
+a commit whose gate was probably not run (§0.3).
+
+---
+
+# §13. OPEN ITEMS — non-blocking, but track them
+
+## 13.1 Keys not yet supplied
+
+Every surface already degrades honestly without them — verified on device:
+
+| key | unlocks | current behaviour without it |
+|---|---|---|
+| `POLYGON_API_KEY` | search, quotes, charts, key stats, movers, logos, news fallback | screens say "Live prices aren't switched on in this build"; blocks hide |
+| `TRADIER_TOKEN` | real options chain with greeks | falls back to labelled Black-Scholes rows |
+| `ALPHAVANTAGE_API_KEY` | news + per-article sentiment | falls back to Polygon news, then to "No stories right now" |
+| `GEMINI_API_KEY` | Atlas chat | "Atlas is not switched on in this build yet." |
+| `EXPO_PUBLIC_SUPABASE_URL` + `_ANON_KEY` | real accounts | `AUTH_ENABLED === false`, no client built |
+| `EXPO_PUBLIC_REVENUECAT_IOS_KEY` | purchases (Unit 5) | purchase button disabled with its reason on screen |
+| fal key | generated hero art | skip generated art entirely and say so |
+
+## 13.2 Carried-over honest status
+
+1. **The `line` (number-line) stacked-CTA fix is unverified on device.** It is symmetrical to the
+   `multi` fix, which *was* verified ("Exactly — that's the full set."), but a number-line step was
+   never reached in testing. `OWN_CTA_STEPS = new Set(['multi','line'])` in `lesson.tsx`.
+2. **`valueHistory` pre-fix snapshots carry the old formula** (trap #25). Deliberately not rewritten.
+3. **OrderSteps at ≥5 items now clears the CTA by +68pt**, but the underlying pattern — a step's own
+   control competing with a pinned footer — must be audited whenever a new step type is added
+   (trap #17).
+4. **The paywall cannot transact.** `onboarding.tsx:341–345` shows an `Alert` admitting it. The
+   entitlement layer (`isPro`) is real and gates lessons, Atlas and options — but nothing can be
+   bought. **Unit 5 closes this, and Unit 4 must not ship without it (§0.5).**
+5. **Pricing:** Bloom charges $15/mo · $120/yr for a comparable bundle; Euphoria asks $9.99/$59.99.
+6. **The rate limiter is per-isolate, not global**, and its identity header is unauthenticated.
+   Stated honestly in `_limit.ts`. Upgrade path named there.
+
+---
+
+# §14. SCREENSDESIGN CALL SHEET — every call, copy-pasteable
+
+**§0.2 makes this mandatory. There is no excuse for guessing when the exact call is written below.**
+
+## 14.1 Before you start — one-time
+
+```
+mcp__screensdesign__describe_screensdesign_mcp        # server self-description
+mcp__screensdesign__get_screensdesign_skill           # ONCE per conversation, if the skill is loaded
+```
+
+## 14.2 Per unit
+
+**Unit 2 — components and icons**
+```
+mcp__screensdesign__app_screens
+  app_ids=["862","2004","936","1395","2190","918"]
+  query="course category icons, subject tiles with illustrations, topic cards with symbols, learning path node art"
+  limit=20
+```
+then `screen_detail include_image=true neighbor_count=1` on the 3 most icon-dense.
+
+**Unit 4 — the gate sheet and paywall**
+```
+mcp__screensdesign__screen_detail
+  screen_ids=[323575, 323576, 132921, 138757, 147530]
+  include_image=true
+  neighbor_count=1
+```
+```
+mcp__screensdesign__search_apps
+  detected_patterns=["SpecialOfferPaywall"]
+  category=["Education","Finance"]  min_revenue=250000  limit=12
+```
+```
+mcp__screensdesign__search_flows
+  paywall_type="Free Trial - Hard Paywall"
+  category=["Education","Finance"]  min_revenue=250000
+  query="trial ended, must subscribe to continue"  limit=20
+```
+
+**Unit 5 — IAP and restore**
+```
+mcp__screensdesign__app_screens
+  app_ids=["874","1395","39","1134","862"]
+  query="manage subscription, restore purchases, renewal date, cancel plan, current plan status"
+  limit=12
+```
+
+**Unit 6 — You tab**
+```
+mcp__screensdesign__app_screens
+  app_ids=["862","2004","1395","39","1134"]
+  query="profile tab, stats, achievements, streak, subscription status, settings, rewards"
+  limit=10
+```
+
+**Unit 7 — Learn tab**
+```
+mcp__screensdesign__app_screens
+  app_ids=["936","862","2190"]
+  query="learning path, lesson nodes, unit sections, progress trail, locked nodes, course header"
+  limit=14
+```
+
+**Unit 8 — Home**
+```
+mcp__screensdesign__app_screens app_id="862"
+  query="home path, daily quests, streak goal, hearts, league, chest, daily goal" limit=14
+```
+
+**Unit 9 — Digest**
+```
+mcp__screensdesign__app_screens app_ids=["422","918","1580","862"]
+  query="article list, content feed, reading progress, categories, saved, daily" limit=10
+```
+
+**Unit 10 — Trade news**
+```
+mcp__screensdesign__app_screens app_ids=["1580","1171"]
+  query="news feed with images, hero card, related news, market news" limit=8
+```
+
+**Unit 11 — Tab structure**
+```
+mcp__screensdesign__app_screens
+  app_ids=["862","2004","39","1395","1171","918","1816","874"]
+  query="bottom tab bar navigation" limit=16
+```
+
+**Unit 13 — revamp sweep**
+```
+mcp__screensdesign__app_screens
+  app_ids=["862","2004","1395","874"]
+  query="empty state, loading skeleton, error state, no results" limit=16
+```
+
+## 14.3 App id reference
+
+```
+862  Duolingo        $48M/mo    2004 Bloom          ~$291k/mo (external)
+874  Quizlet         $2.25M     858  TradingView    $2.25M
+1580 Bloomberg       $750k      1395 Elevate        $750k
+1816 Praktika        $750k      900  Waking Up      $700k
+39   Gauth           $600k      2190 Astra AI       $550k
+105  Zutobi          $550k      820  Lingvano       $550k
+1171 Investing.com   $450k      918  Nibble         $450k
+422  Deepstash       $450k      212  CNBC           $450k
+344  YNAB            $350k      936  Promova        $250k
+1134 Loora           $1M        1263 Plantaria      $250k
+2467 RiseGuide       $250k      1542 Yahoo Finance  —
+```
+
+**NOT in the dataset:** Coinbase, Robinhood, Zogo, Stash, Greenlight, NGPF.
+Use `search_store_screens` and label the result **App Store creative**.
+
+---
+
+# §15. THE FIRST FIFTEEN MINUTES OF A NEW SESSION
+
+```bash
+# 1. Environment
+cd ~/euphoria-native
+export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90
+
+# 2. Where are we?
+git log --oneline -5
+git status --porcelain | head -20
+
+# 3. Is the device alive? (§1.2)
+xcrun simctl list devices | grep -i "Euphoria QA"
+./scripts/sim.sh doctor
+lsof -ti:8082 || npx expo start --port 8082
+
+# 4. Baseline the gate BEFORE touching anything (§7)
+npx tsc --noEmit
+npx expo lint 2>&1 | grep problems        # note the numbers; 3 errors / 47 warnings is baseline
+python3 scripts/certify.py | tail -2
+./scripts/sim.sh screen | head -20
+./scripts/sim.sh state '.installId, .isPro, .activeDays'
+
+# 5. Find the first unit in §8 not marked DONE. Start there.
+```
+
+**Then, and only then, write code.**
+
+---
+
+# §16. THE ONE-PARAGRAPH VERSION
+
+Euphoria is an Expo SDK 57 finance-education app with a mascot called Atlas, aimed at 18–25 year
+olds, competing with Bloom (~$291k/mo) and positioned in a cohort where Education apps earn well and
+almost no Finance app does. It has real paper trading, a real options chain, a real AI tutor behind a
+rate-limited proxy, 5,341 authored curriculum steps and 25 published guides. **It cannot currently
+take money, and it has no time-based trial** — those are Units 3, 4 and 5 and they are the spine of
+this run. Everything else is design work on five tabs, thirty-five new articles, and an icon system.
+The rules that matter: read the real screen before designing, measure the real device before
+claiming, never present modelled data as live, never ship a button that does nothing, and never
+mention what any of it cost.
+
+---
+
+# §17. IMPLEMENTATION APPENDIX — write these files, roughly as written
+
+This appendix exists so the next session does not have to re-derive design decisions that were
+already made. **These are starting points with the reasoning attached, not gospel.** If the codebase
+disagrees with something here, the codebase wins — but say which and why.
+
+## 17.1 `src/lib/entitlement.ts` (Unit 3)
+
+```ts
+/**
+ * The single authority on "can this user do this?".
+ *
+ * WHY IT IS ITS OWN MODULE: before this file, the answer was spread across three store getters
+ * (`canAccessLesson`, `atlasLeft`, `derivativesLeft`) with three different shapes and no shared
+ * notion of WHY something was refused. The gate sheet (`components/gate-sheet.tsx`) needs one
+ * question with one answer that carries a reason, or every caller invents its own copy.
+ *
+ * ── THE CEILING, STATED HONESTLY ────────────────────────────────────────────────────────────
+ * The trial clock is DEVICE-LOCAL. `activeDays` lives in AsyncStorage and is keyed off the device
+ * clock, so deleting and reinstalling resets it, and moving the date forward can add days. There is
+ * no server check.
+ *
+ * That is deliberate and acceptable for launch, and it must NEVER be described as enforcement
+ * anywhere in the app or in a commit message. It is a COURTESY trial: it shapes the honest
+ * majority's experience at zero cost. The real entitlement is `isPro`, which RevenueCat drives from
+ * an Apple-validated receipt.
+ *
+ * Upgrade path, increasing effort — same shape as the limiter's ceiling in api/_limit.ts:
+ *   1. RevenueCat anonymous app-user-id  — survives reinstall on the same Apple ID
+ *   2. Supabase row keyed on installId   — lib/auth.ts already scaffolds this
+ *   3. Full account auth                 — the trial follows the person, not the device
+ */
+import { dayKey, useApp, type AppState } from './store';
+
+/** Three distinct days of real use. See MASTER_PLAN §9.2 for why "days used", not "days elapsed". */
+export const TRIAL_DAYS = 3;
+
+export type Tier = 'trial' | 'expired' | 'pro';
+
+/** Everything a gate can protect. Each maps to one copy string — see §20. */
+export type Feature = 'lesson' | 'guide' | 'atlas' | 'options';
+
+/** Why a feature was refused. The gate sheet renders different copy per reason. */
+export type Refusal =
+  | { ok: true }
+  | { ok: false; reason: 'trial-expired' }
+  | { ok: false; reason: 'count-limit'; used: number; limit: number };
+
+export const trialDaysUsed = (s: AppState) => s.activeDays.length;
+
+/** 0 once expired. Never negative — a "-1 days left" has shipped in other apps and looks broken. */
+export const trialDaysLeft = (s: AppState) => Math.max(0, TRIAL_DAYS - s.activeDays.length);
+
+/**
+ * `isPro` wins over everything.
+ *
+ * ORDER MATTERS: a paying user must never see a trial countdown. That specific bug is what
+ * generates "I already paid" support mail and refund requests.
+ */
+export function tier(s: AppState): Tier {
+  if (s.isPro) return 'pro';
+  return s.activeDays.length > TRIAL_DAYS ? 'expired' : 'trial';
+}
+
+/**
+ * The one question.
+ *
+ * During the trial the existing COUNT limits still apply (5 lessons, 10 Atlas messages, 3 options
+ * previews) — so a trial user runs out of whichever comes first. After the trial, nothing applies:
+ * it is all Pro. That keeps the gate copy to ONE reason at a time, which is the whole point of
+ * returning a Refusal rather than a boolean.
+ */
+export function entitled(s: AppState, f: Feature): Refusal {
+  if (s.isPro) return { ok: true };
+  if (tier(s) === 'expired') return { ok: false, reason: 'trial-expired' };
+
+  switch (f) {
+    case 'lesson': {
+      const used = s.completedLessons.length;
+      return used < FREE_LESSON_LIMIT
+        ? { ok: true }
+        : { ok: false, reason: 'count-limit', used, limit: FREE_LESSON_LIMIT };
+    }
+    case 'atlas': {
+      const used = s.atlasAsked;
+      return used < FREE_ATLAS_MESSAGES
+        ? { ok: true }
+        : { ok: false, reason: 'count-limit', used, limit: FREE_ATLAS_MESSAGES };
+    }
+    case 'options': {
+      const used = s.derivativeTrades;
+      return used < PRO_DERIVATIVE_PREVIEW
+        ? { ok: true }
+        : { ok: false, reason: 'count-limit', used, limit: PRO_DERIVATIVE_PREVIEW };
+    }
+    case 'guide':
+      // Guides have never been count-limited and gating them mid-trial would be a new restriction
+      // the user did not ask for. Only the trial expiry closes them.
+      return { ok: true };
+  }
+}
+
+/** Hook form, so screens do not each reach into the store shape. */
+export const useEntitlement = (f: Feature) => useApp((s) => entitled(s, f));
+export const useTier = () => useApp(tier);
+export const useTrialDaysLeft = () => useApp(trialDaysLeft);
+
+if (__DEV__) {
+  // ONE runnable check on the money path. A trial that never expires looks identical to a working
+  // one until the fourth day, by which point it has shipped.
+  const base = { isPro: false, completedLessons: [], atlasAsked: 0, derivativeTrades: 0 } as AppState;
+  const at = (n: number) => ({ ...base, activeDays: Array.from({ length: n }, (_, i) => `d${i}`) });
+
+  if (tier(at(0)) !== 'trial') console.error('[entitlement] day 0 should be trial');
+  if (tier(at(3)) !== 'trial') console.error('[entitlement] DAY 3 IS STILL A TRIAL DAY');
+  if (tier(at(4)) !== 'expired') console.error('[entitlement] day 4 should be expired');
+  if (tier({ ...at(9), isPro: true }) !== 'pro') console.error('[entitlement] isPro must win');
+  if (trialDaysLeft(at(9)) !== 0) console.error('[entitlement] daysLeft must never go negative');
+  if (entitled(at(4), 'guide').ok) console.error('[entitlement] expiry must close guides too');
+
+  // Time travel for device verification (§9.7). globalThis, not a UI control — a debug button
+  // visible to a user is a dead control (§0.5).
+  (globalThis as any).__euphoriaTrialDays = (n: number) =>
+    useApp.setState({ activeDays: Array.from({ length: n }, (_, i) => `seed-${i}`) });
+}
+```
+
+**The boundary assertion is the important one.** `tier(at(3)) === 'trial'` encodes that **day three
+is still a trial day** and expiry begins on the fourth distinct day. Off by one here charges people a
+day early.
+
+## 17.2 `src/components/gate-sheet.tsx` (Unit 4)
+
+```tsx
+/**
+ * The contextual gate. Modelled on Astra AI screen 323575 — see MASTER_PLAN §6.6.1.
+ *
+ * THE MECHANISM, and why it is not a navigation:
+ * the screen the user was already on stays MOUNTED and BLURRED behind this sheet. They keep their
+ * place, they can see what they were reaching for, and dismissing returns them exactly where they
+ * were. Euphoria's previous behaviour — pushing to /onboarding?step=paywall — threw that context
+ * away and made the ask feel like a punishment for tapping.
+ *
+ * VERIFY THIS ON DEVICE: with the sheet open, `./scripts/sim.sh screen` must STILL list the
+ * underlying screen's labels. If they are gone you have built a route, and it is wrong.
+ *
+ * WHAT THIS SHEET DELIBERATELY DOES NOT DO:
+ *  - it does not show a price (that is one tap deeper, exactly as Astra AI does it)
+ *  - it does not list benefits (one line only; the list belongs on the plan screen)
+ *  - it cannot be made non-dismissible (a gate you cannot close is a trap and draws 1-star reviews)
+ *
+ * COPY IS UNAPPROVED. The structure is evidence-backed at 5/5; the exact words are not signed off.
+ */
+```
+
+**Props:** `{ feature: Feature; refusal: Refusal; visible: boolean; onDismiss: () => void }`.
+
+**Body copy is chosen from the refusal, never hardcoded at the call site** — that is the entire
+reason `entitled()` returns a reason. See §20 for the deck.
+
+**The personalised line** — *"You've read 4 guides and finished 2 lessons"* — reads `readPosts.length`
+and `completedLessons.length`. **If both are zero, drop the sentence entirely.** "You've read 0
+guides" is worse than saying nothing, and this is exactly the class of bug that trap #24 describes:
+a count that can legitimately be zero must not drive a message that assumes it is not.
+
+## 17.3 `src/lib/quests.ts` (Unit 8)
+
+```ts
+/**
+ * Daily quests — PURE DERIVATION, no new persisted state beyond what the store already writes.
+ *
+ * WHY DERIVED: a quest table stored in AsyncStorage would need migration, would drift from the
+ * actions that actually satisfy it, and would be a second source of truth about "did you do a
+ * lesson today". Everything below is computed from fields the store already keeps.
+ *
+ * WHY DETERMINISTIC: picking quests with Math.random() reshuffles them on every render, which is
+ * both a purity violation (trap #11 territory) and a UX bug — the user watches their goals change
+ * while looking at them. The day key seeds the pick, so the set is stable for the whole day and
+ * changes at midnight without any scheduled work.
+ */
+import { dayKey } from './store';
+
+export type QuestKind = 'lesson' | 'guide' | 'trade' | 'goal';
+
+export type Quest = { kind: QuestKind; title: string; done: boolean };
+
+const ALL: QuestKind[] = ['lesson', 'guide', 'trade', 'goal'];
+
+/** Stable per-day index from the day key. No Date.now() in render — see trap #11. */
+function seedFor(key: string): number {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/** 2-3 quests, stable for the whole day, derived from state the store already writes. */
+export function questsForToday(s: AppState): Quest[] { /* ... */ }
+
+/** All of today's quests complete -> one reward card. Reuses pendingRewards + claimReward(). */
+export const questsComplete = (q: Quest[]) => q.length > 0 && q.every((x) => x.done);
+```
+
+**The reward hook-up matters:** completing the day's quests should push into `pendingRewards` and be
+claimed through the existing `claimReward()`. That mechanic is already built and device-verified end
+to end — a real reward produced `MSFT $1.48 → 0.0033217371787678147 shares`, exact. **Do not build a
+second reward path.**
+
+## 17.4 The `markActiveDay` call sites (Unit 3)
+
+Four places, and only four. Each already writes to the store, so there is no new lifecycle to manage:
+
+| file | function | why it counts as "used the app" |
+|---|---|---|
+| `src/lib/store.ts` | `completeLesson` | the core loop |
+| `src/lib/store.ts` | `markPostRead` | reading a guide is real use |
+| `src/lib/store.ts` | `spendAtlasMessage` | asking the tutor is real use |
+| `src/lib/store.ts` | `buy` / `sell` | placing a trade is real use |
+
+**Deliberately NOT a call site:** app launch, tab switches, opening a screen, or `setHasHydrated`.
+A mis-tap on the home-screen icon must not burn a trial day (§9.2).
+
+---
+
+# §18. VERIFICATION COOKBOOK — copy-paste per unit
+
+## 18.1 Count tappable elements on the current screen
+
+```bash
+./scripts/sim.sh screen | grep -v "\[DISABLED\]" | wc -l
+```
+Run before and after a redesign. **This is the number Unit 6 must report.**
+
+## 18.2 Measure real frames for an overlap question (trap #1)
+
+```bash
+~/.idb-venv/bin/idb ui describe-all --udid "$EUPHORIA_UDID" \
+  | python3 -c "
+import json,sys
+for e in json.load(sys.stdin):
+    f=e.get('frame') or {}
+    if e.get('AXLabel'):
+        print(f\"{e['AXLabel'][:44]:46} y={f.get('y',0):7.1f} h={f.get('height',0):6.1f} bottom={f.get('y',0)+f.get('height',0):7.1f}\")
+"
+```
+Compare `bottom` of the upper element against `y` of the lower one. **Never compare centres.**
+
+## 18.3 Verify a rate limit (trap #20 — ONLY against the built bundle)
+
+```bash
+npx expo export -p web >/dev/null 2>&1
+(npx expo serve --port 8090 > /tmp/serve.log 2>&1 &)
+for i in $(seq 1 20); do sleep 1; curl -s -o /dev/null --max-time 3 "http://localhost:8090/api/market?action=movers" && break; done
+
+for i in $(seq 1 25); do
+  curl -s -o /dev/null -w "%{http_code} " --max-time 10 -X POST "http://localhost:8090/api/chat" \
+    -H 'Content-Type: application/json' -H 'X-Euphoria-Install: test-abc' \
+    -d '{"messages":[{"role":"user","content":"hi"}]}'
+done; echo
+pkill -f "expo serve"
+```
+**Expect twenty non-429s, then 429s.** Anything else and the limiter is not working — but check you
+are on `:8090`, not `:8082`, before concluding anything.
+
+## 18.4 Drive the four trial states (Unit 3)
+
+```bash
+for n in 0 1 3 4; do
+  echo "--- activeDays=$n ---"
+  # seed via the __DEV__ helper, then read back what the store actually holds
+  ./scripts/sim.sh state '.activeDays, .isPro'
+  ./scripts/sim.sh screen | head -8
+done
+```
+**Report all four, plus the `isPro: true` case.** Five snapshots or the trial is not tested.
+
+## 18.5 Dead-control audit (Unit 13)
+
+```bash
+grep -rn "onPress" src/app src/components --include="*.tsx" | wc -l   # the denominator
+grep -rn "onPress={() => {}}\|onPress={undefined}" src --include="*.tsx"
+```
+**Then inspect every hit by hand — trap #5.** A regex count is not a defect count. Report both the
+raw count and the verified count, and say which is which.
+
+## 18.6 Bundle size delta
+
+```bash
+npx expo export -p web >/dev/null 2>&1 && du -sh dist
+```
+Before and after any dependency addition. **Report the delta in the commit body.**
+
+## 18.7 Confirm a modal is an overlay, not a route (Unit 4)
+
+```bash
+./scripts/sim.sh screen > /tmp/before.txt
+./scripts/sim.sh tapon "<the gated control>"
+./scripts/sim.sh screen > /tmp/after.txt
+comm -12 <(sort /tmp/before.txt) <(sort /tmp/after.txt) | wc -l
+```
+**A healthy overlay keeps most of the underlying labels.** Near-zero overlap means you navigated.
+
+---
+
+# §19. TROUBLESHOOTING — symptom to cause
+
+| symptom | first thing to check | the usual cause |
+|---|---|---|
+| App is blank, `tsc` is green | device log for `ReferenceError` | wedged Fast Refresh bundle — trap #2, §1.5 |
+| `sim.sh state` returns `null` | store size | AsyncStorage spilled to `md5(key)` — trap #3 |
+| `sim.sh` acts on the wrong device | `echo $EUPHORIA_UDID` | two simulators booted — trap #30 |
+| A tap does nothing | `idb ui describe-all` frames | anchor vs box, or a pinned footer eating it — traps #1, #17 |
+| A `Switch` will not toggle | — | `idb` cannot actuate RN `Switch` — trap #4 |
+| Rate limiter never limits | which port? | `:8082` is the dev server — trap #20 |
+| `className` does nothing | `tailwindcss` major version | NativeWind 4 needs Tailwind 3 — §10.2 |
+| An icon renders as a sparkle | `ui-icon.tsx` typing | `Record<string,...>` annotation widened the union — trap #19 |
+| ScreensDesign returns an error about size | the error message | result written to a file; parse it — trap #21, §2.1 |
+| `jq` errors "object cannot be matched" | — | `.description` is an object — trap #22 |
+| `curl` says "no matches found" | quoting | zsh globbed the `?` — trap #28 |
+| `git push` rejected / repo not found | `gh auth status` | wrong account — trap #14 |
+| Lint warnings went 47 → 48 | your diff | you caused it — §0.9, §7 |
+| A python heredoc `assert` fails | the anchor string | it does not match the file — trap #29 |
+
+---
+
+# §20. COPY DECK — unapproved, evidence-shaped
+
+**Everything here is UNAPPROVED.** The structure is backed by 4/5 and 5/5 convergence; the words are
+not signed off. Ship them, mark them, and put them in front of the user (§0.7).
+
+## 20.1 The gate sheet
+
+| refusal | headline | body |
+|---|---|---|
+| `trial-expired` | **Your free 3 days are up** | *"You've read {g} guides and finished {l} lessons. Euphoria Pro keeps them coming."* (drop the sentence entirely if both are 0) |
+| `count-limit` · lesson | **That's 5 lessons** | *"The free run is five. Pro opens all twelve courses."* |
+| `count-limit` · atlas | **Atlas needs a break** | *"You've used your 10 free questions. Pro makes them unlimited."* |
+| `count-limit` · options | **That's your third preview** | *"Options previews are capped at three on free. Pro opens the desk."* |
+
+**Shared lines:** 🔒 *"Every lesson, unlimited Atlas, the full options desk"* · CTA **"See Euphoria
+Pro"** · secondary **"Why isn't Euphoria free?"**
+
+## 20.2 "Why isn't Euphoria free?"
+
+> *"Market data costs us money every time you pull a quote. Atlas costs money every time you ask it
+> something. We don't run ads and we don't sell what you do here, so the only other option is a
+> subscription. That's the whole reason."*
+
+Modelled on Astra AI's *"Why isn't Astra AI free?"* (`323575`). It answers the resentment instead of
+ignoring it, and for a finance app aimed at 18–25s that honesty is a differentiator, not a weakness.
+
+## 20.3 The trial timeline block (inside the paywall, never its own route — §6.6.2)
+
+```
+TODAY   🔓   Everything unlocked — every lesson, unlimited Atlas
+DAY 2   🔔   We'll remind you before anything is charged
+DAY 3   ⭐   Your trial ends. Keep going for $9.99/mo or $59.99/yr
+```
+
+## 20.4 Locked-content labels (in place, titles always visible — §6.6.3 4/4)
+
+- Learn path locked node: the lesson title stays, plus a lock glyph. **No "Pro" badge** — the lock
+  says it.
+- Digest locked body: *"The rest of this guide is part of Euphoria Pro."*
+- Duolingo's move, worth copying where it applies: a lock that **states its own unlock condition**
+  (*"Finish 7 lessons to start competing on Leaderboards!"*). Where a gate is a progress gate rather
+  than a paywall, say the condition — do not show a paywall for something money cannot buy.
+
+## 20.5 Words to avoid
+
+**"Premium"** (says nothing) · **"Unlock your potential"** (says nothing) · **"Limited time"** when
+it is not · **"Join thousands"** — Euphoria has no verified user count and inventing one is §0.4
+applied to marketing.
+
+---
+
+# §21. WHAT THIS DOCUMENT DOES NOT COVER
+
+Stated so a session does not assume silence means "already handled":
+
+1. **Android.** Everything here is iOS-simulator-verified. Android has never been run.
+2. **Real device testing.** Simulator only. StoreKit and push both behave differently on hardware.
+3. **App Store submission.** No screenshots, no description, no privacy nutrition labels, no
+   subscription metadata in App Store Connect.
+4. **Analytics.** There is no telemetry anywhere. This is why the Atlas feedback controls were cut
+   at 3/5 convergence (§0.5) — nothing exists to receive an event.
+5. **Push notifications beyond the local daily nudge.** `notifications.ts` schedules a local
+   reminder at `NUDGE_HOUR 19` and honestly reports what the OS actually accepted. There is no
+   remote push.
+6. **The web app** (`~/euphoriaweb-current`). It is the content source of truth and shares the
+   Supabase project, but no work here touches it except `sync-digest.sh`.
+7. **Localisation.** English only, American spelling.
+8. **Offline behaviour** beyond what AsyncStorage gives for free.
+
+**Do not invent status for any of these.** If asked, say they are untouched.
