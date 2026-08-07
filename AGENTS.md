@@ -34,7 +34,12 @@ Rules that follow from that:
    error on `app_id`. The error payload leaks the matched app ids; feed those to
    `app_screens`, or route via `search_apps` + `detected_patterns` (e.g.
    `HasTrialTimeline`, `SpecialOfferPaywall`).
-6. If a screen genuinely has no match in the dataset, **say "no strong match"** and spec
+6. **NEVER infer absence from a paginated pull.** `app_screens` with an offset returned
+   positions 12, 14, 15, 18 — it skipped 13. That gap was read as "the second screen does
+   not exist", and correct work was reverted on the strength of it. `neighbor_count` on the
+   screen you already have shows what is genuinely adjacent. A missing position number is
+   pagination, not evidence of anything.
+7. If a screen genuinely has no match in the dataset, **say "no strong match"** and spec
    from Apple HIG + the token system, labelled as such. Do not bend an off-topic pull to
    fit — ScreensDesign's own guidance says to validate descriptions before using them.
 
