@@ -172,7 +172,7 @@ export default function Home() {
           <Card elevated style={[styles.hero, { shadowColor: accent, borderColor: accent + '30' }]} tint={accent}>
             {next ? (
               <>
-                <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={190} />
+                <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={132} />
                 <ThemedText type="label" style={{ color: accent, marginTop: Spacing.four }} numberOfLines={1}>
                   {(course?.title ?? 'Course').toUpperCase()}
                 </ThemedText>
