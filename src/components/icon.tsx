@@ -5,10 +5,11 @@
  */
 import { SvgXml } from 'react-native-svg';
 
-import { getIconSvg } from '@/lib/euphoria-icons';
+import { getIconSvg, type EuphoriaIconName } from '@/lib/euphoria-icons';
 
 export type IconProps = {
-  name: string;
+  /** Narrow union, not `string` — see the docblock on EUPHORIA_ICONS for why that matters. */
+  name: EuphoriaIconName;
   size?: number;
   /** Optional wrapper opacity — used for inactive tab tint (icons are multi-color). */
   opacity?: number;

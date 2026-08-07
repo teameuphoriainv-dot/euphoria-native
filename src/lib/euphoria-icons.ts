@@ -3,7 +3,18 @@
 // Usage: import { EUPHORIA_ICONS } from '@/components/icons/euphoria-icons'
 // ═══════════════════════════════════════════════════════════════
 
-export const EUPHORIA_ICONS: Record<string, string> = {
+/**
+ * NO `: Record<string, string>` ANNOTATION HERE. It was there, and it was the same defect
+ * ui-icon.tsx already paid for: the annotation widens the key type to `string`, so
+ * `keyof typeof EUPHORIA_ICONS` collapses to `string` and every misspelled icon name
+ * type-checks. `getIconSvg` then falls back to the 'fallback' glyph, so the failure renders
+ * a PLAUSIBLE WRONG ICON rather than crashing — which is how four broken icons survived a
+ * whole session in ui-icon.tsx before anyone counted them.
+ *
+ * `satisfies` keeps the value check (every entry must still be a string) while preserving the
+ * literal keys, so `EuphoriaIconName` below is a real union and a typo is a compile error.
+ */
+export const EUPHORIA_ICONS = {
   // ── LEARNING (20) ──────────────────────────────────────
   'grad-cap': `<svg viewBox="0 0 48 48"><polygon points="24,8 4,20 24,32 44,20" fill="#BB83F1" opacity="0.9"/><polygon points="24,32 4,20 4,28 24,40 44,28 44,20" fill="#A451E6" opacity="0.7"/><rect x="23" y="18" width="2" height="18" fill="#C89CF5" rx="1"/><circle cx="24" cy="36" r="3" fill="#FBBF24"/></svg>`,
   'brain': `<svg viewBox="0 0 48 48"><path d="M24 6C16 6 10 12 10 18c0 4 2 7 5 9v11a2 2 0 002 2h14a2 2 0 002-2V27c3-2 5-5 5-9 0-6-6-12-14-12z" fill="#BB83F1" opacity="0.25"/><path d="M18 18c0-3 3-6 6-6s6 3 6 6" stroke="#BB83F1" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M15 22c2 2 5 3 9 3s7-1 9-3" stroke="#C89CF5" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M24 12v26" stroke="#A451E6" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 3"/><circle cx="20" cy="16" r="1.5" fill="#FBBF24"/><circle cx="28" cy="16" r="1.5" fill="#FBBF24"/></svg>`,
@@ -131,9 +142,51 @@ export const EUPHORIA_ICONS: Record<string, string> = {
   'ui-trophy': `<svg viewBox="0 0 48 48"><path d="M14 8h20v14c0 6-4 10-10 10S14 28 14 22z" fill="#C57FF3" opacity="0.6"/><rect x="20" y="32" width="8" height="4" fill="#B862ED" rx="1"/><rect x="16" y="36" width="16" height="4" fill="#B862ED" rx="2"/></svg>`,
   'ui-medal': `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14" fill="#C57FF3" opacity="0.15" stroke="#C57FF3" stroke-width="2"/><text x="24" y="29" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="14" fill="#C57FF3">1</text><path d="M16 8l2-3M32 8l-2-3" stroke="#C57FF3" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   'ui-arrow': `<svg viewBox="0 0 48 48"><path d="M14 24h20" stroke="#C57FF3" stroke-width="3" stroke-linecap="round"/><path d="M30 18l6 6-6 6" stroke="#C57FF3" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-};
+} satisfies Record<string, string>;
 
-// Helper: get SVG string by icon name (with fallback)
-export function getIconSvg(name: string): string {
+/** Every registry key, as a real union. A typo is now a compile error, not a wrong glyph. */
+export type EuphoriaIconName = keyof typeof EUPHORIA_ICONS;
+
+/**
+ * The `|| fallback` is now unreachable from TypeScript — a narrow `name` always hits an entry.
+ * It stays for one reason: names can still arrive from untyped JS or persisted store data, and
+ * rendering the fallback beats throwing inside a render. If you are debugging a wrong icon,
+ * this line is where a bad name lands silently.
+ */
+export function getIconSvg(name: EuphoriaIconName): string {
   return EUPHORIA_ICONS[name] || EUPHORIA_ICONS['fallback'];
+}
+
+/**
+ * Coerce an UNTRUSTED icon name — one that TypeScript cannot vouch for — into the union.
+ *
+ * WHY THIS EXISTS: course icons come from `curriculum/courseIndex.ts`, which is
+ * AUTO-SYNCED FROM THE WEB REPO and carries `icon: string`. Both that file and
+ * `curriculum/types.ts` say DO NOT EDIT, so the union cannot be pushed up into them from
+ * here — a local edit would be wiped by the next `./scripts/sync-curriculum.sh`.
+ *
+ * The consequence is real and worth stating: **renaming an icon on the web side silently
+ * changes which glyph this app draws**, because `getIconSvg` falls back rather than failing.
+ * This function cannot prevent that, but it makes it LOUD in development instead of silent.
+ *
+ * Use it only at the boundary where synced data enters. Hand-written arrays in this repo
+ * should type their `icon` field as `EuphoriaIconName` and get a compile error instead.
+ */
+export function asEuphoriaIcon(name: string): EuphoriaIconName {
+  if (__DEV__ && !(name in EUPHORIA_ICONS)) {
+    console.error(
+      `[euphoria-icons] "${name}" is not a registry key, so the fallback glyph will render. ` +
+        `If this came from the curriculum, the web repo and this registry have drifted.`,
+    );
+  }
+  return name as EuphoriaIconName;
+}
+
+if (__DEV__) {
+  // ONE runnable check: 'fallback' must exist, because every miss routes through it. If this
+  // key is ever renamed, getIconSvg starts returning undefined and SvgXml renders nothing —
+  // a blank space, which reads as a layout bug rather than a missing icon.
+  if (!('fallback' in EUPHORIA_ICONS)) {
+    console.error('[euphoria-icons] the "fallback" key is gone — every unknown name now renders blank.');
+  }
 }

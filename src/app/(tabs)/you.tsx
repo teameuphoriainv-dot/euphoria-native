@@ -18,6 +18,7 @@ import { useApp } from '@/lib/store';
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { Icon } from '@/components/icon';
+import { type EuphoriaIconName } from '@/lib/euphoria-icons';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
@@ -71,7 +72,7 @@ export default function You() {
 
   // Accent = that icon's own dominant fill from EUPHORIA_ICONS. Four different hues is what stops
   // the grid reading as one tile repeated, which is what the uniform violet chip used to do.
-  const STATS = [
+  const STATS: { icon: EuphoriaIconName; label: string; value: string; accent: string }[] = [
     { icon: 'flame', label: 'Day streak', value: String(streak), accent: '#F97316' },
     { icon: 'open-book', label: 'Lessons', value: String(lessons), accent: '#BB83F1' },
     { icon: 'crown', label: 'XP', value: xp.toLocaleString(), accent: '#FBBF24' },

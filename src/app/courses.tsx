@@ -17,6 +17,7 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
+import { asEuphoriaIcon } from '@/lib/euphoria-icons';
 import { COURSES, type TierLevel } from '@/lib/curriculum';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -78,7 +79,7 @@ export default function Courses() {
                 <SpringPressable onPress={() => open(c.id)}>
                   <Card style={styles.courseCard}>
                     <View style={[styles.bubble, { backgroundColor: accent + '1F', borderColor: theme.background }]}>
-                      <Icon name={c.icon} size={40} />
+                      <Icon name={asEuphoriaIcon(c.icon)} size={40} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <ThemedText type="heading" style={{ fontSize: 17 }}>{c.title}</ThemedText>

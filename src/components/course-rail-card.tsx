@@ -6,6 +6,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
+import { asEuphoriaIcon } from '@/lib/euphoria-icons';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Radius, Spacing } from '@/constants/theme';
@@ -46,7 +47,7 @@ export function CourseRailCard({
           },
         ]}>
         <View style={[styles.bubble, { backgroundColor: accent + '24' }]}>
-          <Icon name={course.icon} size={30} opacity={selected ? 1 : 0.85} />
+          <Icon name={asEuphoriaIcon(course.icon)} size={30} opacity={selected ? 1 : 0.85} />
         </View>
         <ThemedText
           type="smallBold"

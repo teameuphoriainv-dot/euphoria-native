@@ -29,7 +29,7 @@ import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { DIGEST_HEROES } from '@/lib/digest-heroes';
-import { EUPHORIA_ICONS } from '@/lib/euphoria-icons';
+import { EUPHORIA_ICONS, type EuphoriaIconName } from '@/lib/euphoria-icons';
 import { TIERS } from '@/lib/league';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -65,7 +65,7 @@ export default function DevGallery() {
   if (!__DEV__) return null;
 
   const heroKeys = Object.keys(DIGEST_HEROES);
-  const iconNames = Object.keys(EUPHORIA_ICONS);
+  const iconNames = Object.keys(EUPHORIA_ICONS) as EuphoriaIconName[];
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -87,7 +87,7 @@ export default function DevGallery() {
           ))}
         </Section>
 
-        <Section title="Euphoria icons" note="Multicolour by design. Icon is an UNTYPED string — a typo renders a fallback, not an error.">
+        <Section title="Euphoria icons" note="Multicolour by design. `name` is now a narrow union of all 107 keys, so a typo is a compile error. Names arriving from the AUTO-SYNCED curriculum still cannot be checked at build time — those go through asEuphoriaIcon(), which logs in dev.">
           {iconNames.map((n) => (
             <Cell key={n} label={n}>
               <SvgXml xml={EUPHORIA_ICONS[n]} width={44} height={44} />

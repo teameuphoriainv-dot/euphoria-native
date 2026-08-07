@@ -586,7 +586,14 @@ atlas-speech.tsx           typewriter speech bubble, CHAR_MS 26
 atlas-rive.tsx             Rive runtime wiring
 lesson-art.tsx (32K)       per-lesson hand-drawn SVG scenes
 league-crest.tsx           7 tier crests
-ui-icon.tsx                24x24 line icons, stroke 2.2 — NARROW UNION, see trap #19
+ui-icon.tsx                24x24 line icons, stroke 2.2 — NARROW UNION, see trap #19. 34 callers.
+icon.tsx                   ⚠️ EUPHORIA_ICONS renderer. ~112 MULTICOLOR SVGs via SvgXml, backed by
+                           lib/euphoria-icons.ts and SHARED WITH ~/euphoriaweb-current so icons are
+                           pixel-identical across platforms. 4 callers. Its docblock states a house
+                           rule: "No emoji, no lucide, no template defaults." DO NOT overwrite this
+                           file — §2d used to name its path. See §22 C1.
+lib-icon.tsx               Hugeicons wrapper, LibIcon/LibIconName. ONLY the glyphs ui-icon.tsx
+                           lacks (share, plus). Grep the other two registries before adding. §22 C2.
 ambient-background.tsx     seeded-PRNG starfield (stable across resizes)
 price-chart.tsx            8 ranges, change recomputes per range
 portfolio-chart.tsx        Robinhood ranges 1D 1W 1M 3M 1Y ALL, flat-aware height
@@ -601,6 +608,13 @@ ui/button.tsx (GradientButton)  ui/card.tsx (Card)  ui/progress-bar.tsx
 ## 3.3 Library
 
 ```
+euphoria-icons.ts  EUPHORIA_ICONS — 107 multicolor SVG strings. Uses `satisfies` (NOT a
+                   Record<> annotation) so EuphoriaIconName is a real union and a typo is a
+                   compile error. getIconSvg() falls back to the 'fallback' key, so a bad name
+                   renders a PLAUSIBLE WRONG GLYPH rather than throwing. Curriculum course icons
+                   arrive from the auto-synced web repo as `string` and go through
+                   asEuphoriaIcon(), which logs in __DEV__ — a web-side rename silently changes
+                   which glyph this app draws, and that is the only warning you get.
 store.ts           zustand + persist(AsyncStorage, key "euphoria-app-state")
 api.ts             apiBase() origin resolution + ApiError + apiHeaders + apiGet
 auth.ts            Supabase scaffolding, AUTH_ENABLED false without keys
@@ -637,21 +651,34 @@ rewards or it stops meaning anything.
 **The dark surface ramp is SETTLED. Never invent a hex.**
 
 ```
-background        hsl(240 10% 4%)     tier 0
-card              hsl(240 10% 9%)     tier 1
-backgroundElement hsl(240 10% 14%)    tier 2 — inputs, raised cards
-border            hsl(240 10% 22%)
-primary           #A855EB      iconLilac  #C89CF5
-success           (green)      destructive #EF4444      warning #F5B33F
-text hsl(240 5% 96%)   textSecondary #C3BAD0   mutedForeground #A79DB5
+background          #09090D            tier 0  the screen itself
+card                hsl(240 10% 9%)    tier 1  default raised surface
+backgroundElement   hsl(240 10% 9%)    tier 1  inline element
+cardElevated        hsl(240 10% 14%)   tier 2  inputs, raised cards, fills
+input / muted       hsl(240 10% 14%)   tier 2  (same tier, deliberately same value)
+backgroundSelected  hsl(240 10% 19%)   tier 3  active/selected, must beat tier 2
+border              hsl(240 10% 22%)   line    must exceed what it outlines
+primary #A855EB · primaryForeground #FFFFFF · accent #B57BEF
+success #22C55E · destructive #EF4444 · warning #F5B33F
+iconViolet #BB83F1 · iconPurple #A451E6 · iconLilac #C89CF5 · iconGold #FBBF24
+gradientFrom hsl(274 76% 61%) · gradientTo hsl(278 76% 66%)
+text hsl(240 5% 96%) · textSecondary #C3BAD0 · mutedForeground #A79DB5
 Spacing.one..six · Radius.sm/md/lg/pill · BottomTabInset · Fonts
+BrandGradient ['#A78BFA','#7C3AED'] · MaxContentWidth 640
 ```
+
+> **CORRECTED 2026-08-07 (§22 C3).** This block previously said `background` was
+> `hsl(240 10% 4%)` (it is **`#09090D`**) and put `backgroundElement` at tier 2 (it is **tier 1**;
+> tier 2 is `cardElevated`/`input`/`muted`). `backgroundSelected` was missing entirely. Read
+> `src/constants/theme.ts` if you need certainty — it carries the reasoning per tier.
 
 **There is no `theme.foreground`. It is `theme.text`.** This has been typo'd before and caught by
 `tsc`. Course accents live in `COURSE_ACCENTS`; category tints are documented hue-rotations in
 `hero-tint.ts`.
 
 ## 3.6 Typography — `src/components/themed-text.tsx`
+
+**The prop is `type`, NOT `variant`** (§22 C4): `<ThemedText type="small">`.
 
 ```
 display    32/40  Fonts.display
@@ -1194,7 +1221,14 @@ module.exports = {
 
 **Do NOT touch the ~50 existing `StyleSheet` files** (decision 6). NativeWind is for new surfaces.
 
-### 2d — `src/components/icon.tsx` — the single entry point
+### 2d — the library-glyph wrapper — ⚠️ **NOT** `src/components/icon.tsx`
+
+> **CORRECTED 2026-08-07 (§22 C1). `src/components/icon.tsx` IS A LIVE COMPONENT** — the
+> EUPHORIA_ICONS renderer, ~112 multicolor SVGs shared with the web app, 4 callers. Following
+> this heading literally destroyed it once; it was restored from HEAD. **The wrapper that shipped
+> is `src/components/lib-icon.tsx`** (`LibIcon` / `LibIconName`), and it holds ONLY the glyphs
+> `ui-icon.tsx` lacks — `share` and `plus`. Read §22 C1 and C2 before touching any of the three
+> icon systems.
 
 Wrap the library so **no screen imports `@hugeicons/*` directly**. One wrapper means one place to
 swap the library, one place to enforce sizing, and one place to keep the union narrow.

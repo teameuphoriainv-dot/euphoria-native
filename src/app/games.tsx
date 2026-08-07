@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Icon } from '@/components/icon';
+import { type EuphoriaIconName } from '@/lib/euphoria-icons';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
@@ -16,7 +17,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-const GAMES: { name: string; icon: string; route?: string; pro?: boolean }[] = [
+const GAMES: { name: string; icon: EuphoriaIconName; route?: string; pro?: boolean }[] = [
   { name: 'Term Match', icon: 'brain', route: '/games/term-match' },
   { name: 'Trend Master', icon: 'trend-line' },
   { name: 'Budget Balancer', icon: 'cash' },
