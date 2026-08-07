@@ -17,8 +17,7 @@ import { useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
-import { Icon } from '@/components/icon';
-import { type EuphoriaIconName } from '@/lib/euphoria-icons';
+import { StatMark, type StatMarkName } from '@/components/art/stat-mark';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
@@ -27,6 +26,7 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TIERS, tierProgress } from '@/lib/league';
+import { money } from '@/lib/stocks';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -64,6 +64,8 @@ export default function You() {
   const lp = useApp.getState().levelProgress();
   const lessons = useApp((s) => s.completedLessons.length);
   const guides = useApp((s) => s.readPosts.length);
+  // Was in the store and invisible on every screen until now.
+  const rewardsEarned = useApp((s) => s.rewardsEarned);
   const name = useApp((s) => s.profile.name);
   const handle = useApp((s) => s.profile.handle);
 
@@ -72,11 +74,20 @@ export default function You() {
 
   // Accent = that icon's own dominant fill from EUPHORIA_ICONS. Four different hues is what stops
   // the grid reading as one tile repeated, which is what the uniform violet chip used to do.
-  const STATS: { icon: EuphoriaIconName; label: string; value: string; accent: string }[] = [
-    { icon: 'flame', label: 'Day streak', value: String(streak), accent: '#F97316' },
-    { icon: 'open-book', label: 'Lessons', value: String(lessons), accent: '#BB83F1' },
-    { icon: 'crown', label: 'XP', value: xp.toLocaleString(), accent: '#FBBF24' },
-    { icon: 'post', label: 'Guides read', value: String(guides), accent: '#38BDF8' },
+  /**
+   * Five tiles, each with a DESTINATION. They were four INERT tiles — a stat you cannot act on is a
+   * dead end, and `rewardsEarned` sat in the store invisible on every screen.
+   *
+   * Marks come from art/stat-mark.tsx, not EUPHORIA_ICONS, because that registry was doing double
+   * duty here: `crown` is amber-and-gold multicolour drawn for a league moment and `post` is a
+   * generic document, so the grid read as four unrelated illustrations instead of one set.
+   */
+  const STATS: { icon: StatMarkName; label: string; value: string; accent: string; route: string }[] = [
+    { icon: 'streak', label: 'Day streak', value: String(streak), accent: '#F97316', route: '/(tabs)/learn' },
+    { icon: 'lessons', label: 'Lessons', value: String(lessons), accent: '#BB83F1', route: '/(tabs)/learn' },
+    { icon: 'xp', label: 'XP', value: xp.toLocaleString(), accent: '#FBBF24', route: '/league' },
+    { icon: 'guides', label: 'Guides read', value: String(guides), accent: '#38BDF8', route: '/(tabs)/digest' },
+    { icon: 'earned', label: 'Earned', value: money(rewardsEarned), accent: '#34D399', route: '/(tabs)/trade' },
   ];
 
   return (
@@ -127,16 +138,22 @@ export default function You() {
         <View style={styles.grid}>
           {STATS.map((s, i) => (
             <RiseIn key={s.label} delay={100 + i * 40} style={styles.gridHalf}>
-              <Card style={styles.statTile} tint={s.accent}>
+              <SpringPressable
+                scaleTo={0.96}
+                onPress={() => router.push(s.route as Parameters<typeof router.push>[0])}
+                accessibilityRole="button"
+                accessibilityLabel={`${s.label}, ${s.value}`}>
+                <Card style={styles.statTile} tint={s.accent}>
                 {/* No chip behind it: these glyphs are already multicolour, and a uniform tinted
                     square behind each one is what made a gold crown and an orange flame look the
                     same. Brilliant places icons directly on the card for this reason. */}
-                <Icon name={s.icon} size={34} />
+                  <StatMark name={s.icon} size={34} color={s.accent} />
                 <View>
                   <ThemedText type="heading" style={[{ fontSize: 20 }, NUM]}>{s.value}</ThemedText>
                   <ThemedText type="small" themeColor="mutedForeground">{s.label}</ThemedText>
-                </View>
-              </Card>
+                  </View>
+                </Card>
+              </SpringPressable>
             </RiseIn>
           ))}
         </View>

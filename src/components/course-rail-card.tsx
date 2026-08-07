@@ -1,12 +1,12 @@
 /**
  * CourseRailCard — one tile in Learn's horizontal course rail (Brilliant's course strip).
- * Accent-tinted illustration bubble + title + lesson progress; the selected card gets an
- * accent ring and a lifted surface so the rail reads as a picker, not a list.
+ * An authored, accent-tinted CourseMark sitting directly on the card + title + lesson progress;
+ * the selected card gets an accent ring and a lifted surface so the rail reads as a picker, not a
+ * list. There is deliberately no tinted chip behind the mark — see the note at the call site.
  */
 import { StyleSheet, View } from 'react-native';
 
-import { Icon } from '@/components/icon';
-import { asEuphoriaIcon } from '@/lib/euphoria-icons';
+import { CourseMark } from '@/components/art/course-mark';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Radius, Spacing } from '@/constants/theme';
@@ -46,9 +46,18 @@ export function CourseRailCard({
             borderWidth: selected ? 2 : StyleSheet.hairlineWidth,
           },
         ]}>
-        <View style={[styles.bubble, { backgroundColor: accent + '24' }]}>
-          <Icon name={asEuphoriaIcon(course.icon)} size={30} opacity={selected ? 1 : 0.85} />
-        </View>
+        {/*
+          * NO tinted square behind the mark, and no opacity dimming. The chip was
+          * `accent + '24'` — 14% alpha over a 9%-lightness card — which composited a vivid
+          * #34D399 down to rgb(25,48,43): ~17 per channel from the card behind it. Muddy.
+          * you.tsx already reached this conclusion for the stat tiles and says so at its call
+          * site; the rail simply never got the change.
+          *
+          * The accent is not lost by removing the wash — it moved INTO the mark, which is
+          * stroke-only and tinted by courseAccent. Shape and colour now both differentiate,
+          * which the old EUPHORIA_ICONS could not do (four course icons shared one indigo).
+          */}
+        <CourseMark id={course.id} size={40} />
         <ThemedText
           type="smallBold"
           numberOfLines={2}
@@ -76,7 +85,6 @@ const styles = StyleSheet.create({
     padding: Spacing.two + Spacing.half,
     justifyContent: 'space-between',
   },
-  bubble: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   progress: { gap: Spacing.one },
   track: { flexDirection: 'row' },
 });

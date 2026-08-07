@@ -9,7 +9,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Icon } from '@/components/icon';
+import { CourseMark } from '@/components/art/course-mark';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
-import { asEuphoriaIcon } from '@/lib/euphoria-icons';
+
 import { COURSES, type TierLevel } from '@/lib/curriculum';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -78,8 +78,11 @@ export default function Courses() {
               <RiseIn key={c.id} delay={i * 55}>
                 <SpringPressable onPress={() => open(c.id)}>
                   <Card style={styles.courseCard}>
-                    <View style={[styles.bubble, { backgroundColor: accent + '1F', borderColor: theme.background }]}>
-                      <Icon name={asEuphoriaIcon(c.icon)} size={40} />
+                    {/* Same reasoning as the rail: the `accent + '1F'` wash was a 12%-alpha
+                        mud puddle, and the accent now lives in the mark's own stroke. The spine
+                        line behind this column supplies the structure the chip's border used to. */}
+                    <View style={styles.markSlot}>
+                      <CourseMark id={c.id} size={52} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <ThemedText type="heading" style={{ fontSize: 17 }}>{c.title}</ThemedText>
@@ -116,5 +119,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   spine: { position: 'absolute', left: Spacing.three + 34, top: 40, bottom: 40, width: 2 },
   courseCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
-  bubble: { width: 64, height: 64, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', borderWidth: 3 },
+  // Fixed slot so titles stay aligned down the column even though marks differ in visual weight.
+  markSlot: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center' },
 });
