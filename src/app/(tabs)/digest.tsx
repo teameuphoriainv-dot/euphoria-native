@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { AskAtlasButton } from '@/components/ask-atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
@@ -209,12 +210,17 @@ export default function Digest() {
       <AmbientBackground starCount={40} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: 22 }}>
-            Digest
-          </ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-            One idea a day. Read it, then practice it.
-          </ThemedText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <ThemedText type="title" style={{ fontSize: 22 }}>
+                Digest
+              </ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
+                One idea a day. Read it, then practice it.
+              </ThemedText>
+            </View>
+            <AskAtlasButton topic="Digest" />
+          </View>
         </RiseIn>
 
         <RiseIn delay={70}>

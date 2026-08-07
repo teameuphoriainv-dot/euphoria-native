@@ -17,8 +17,60 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './onboarding-path';
 import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
 import { SEED_FOLLOWERS } from './people';
+import { ALL_SYMS, priceOf } from './stocks';
 
 const XP_PER_LEVEL = 500;
+
+/** How many lessons a free account may finish before Pro is required. THIS IS THE OFFER — change
+ *  this one number to move the free/paid line; nothing else needs to know about it.
+ *
+ *  Counted against `completedLessons` rather than a separate tally on purpose: the allowance is
+ *  "lessons you have SPENT", and a lesson already finished stays open forever (see
+ *  `canAccessLesson`). Losing access to something you already did would read as a bug, not a
+ *  paywall. */
+export const FREE_LESSON_LIMIT = 5;
+
+/**
+ * Paper-trading starting balance.
+ *
+ * $10,000, not the $100,000 the trading apps hand out. This is a personal-finance TEACHING tool
+ * and a six-figure fantasy balance teaches the wrong instinct — a beginner learns more from
+ * sizing a position against a plausible first portfolio. One constant to change if that is wrong.
+ */
+export const STARTING_CASH = 10_000;
+
+/**
+ * Options contracts a PRO member may open, lifetime.
+ *
+ * This cap is HONEST, not invented scarcity. Real options pricing needs an options market-data
+ * provider (chains, greeks, open interest, settlement) that Euphoria has not wired up. Futures are
+ * deliberately out of scope entirely
+ * — the premiums below come from a textbook model, not a market. Capping the preview is how we
+ * offer the mechanic without pretending we have the data. The UI says exactly this.
+ *
+ * Free members get zero: derivatives are a Pro feature.
+ */
+export const PRO_DERIVATIVE_PREVIEW = 3;
+
+/** Atlas messages a free account may send, lifetime. Separate from the lesson allowance because
+ *  chat is the one feature with a real per-use cost — the two limits defend different things and
+ *  should be tunable apart. */
+export const FREE_ATLAS_MESSAGES = 10;
+
+/**
+ * Free-stock reward cards granted per finished lesson.
+ *
+ * Bloom's loop, frame-for-frame (ScreensDesign flow 53308): pass a quiz -> "Woohoo! You passed &
+ * earned 3 free stocks!" -> "NOW SCRATCH THE CARDS!" -> one reveal per stock. Three cards, each a
+ * FRACTIONAL DOLLAR AMOUNT of a real ticker ($0.50, $1.00), not whole shares.
+ *
+ * This is the bridge Euphoria was missing: XP and the paper portfolio existed and nothing joined
+ * them. Learning now pays out into the thing you trade with.
+ */
+export const REWARD_CARDS_PER_LESSON = 3;
+/** Dollar value range of one card. Bloom's observed rewards sat at $0.50–$1.00. */
+const REWARD_MIN = 0.25;
+const REWARD_MAX = 2;
 
 /** Stable id for one curriculum lesson inside `completedLessons`. */
 export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
@@ -71,6 +123,17 @@ export const XP_DAILY_GOAL = 50;
  * EVERY award funnels through here. If a caller ever writes `xp` directly, lifetime and weekly
  * totals drift apart and the league silently ranks people on stale numbers.
  */
+/** Append a portfolio-value snapshot. Capped so a heavy trader cannot grow the persisted blob
+ *  without bound; 500 points is far more than any chart draws. */
+const snapshot = (
+  s: { valueHistory: { t: number; v: number }[] },
+  cash: number,
+  positions: Record<string, number>,
+) => {
+  const v = Object.entries(positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), cash);
+  return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
+};
+
 const applyXp = (s: { xp: number; weeklyXp: number; weekStart: string }, n: number) => {
   const wk = weekKey();
   const carried = s.weekStart === wk ? s.weeklyXp : 0;
@@ -168,6 +231,89 @@ export type AppState = {
    *  permanent id to dedupe against, so paying every round would let anyone farm the weekly
    *  standings with a matching game. */
   awardGameXp: () => void;
+  /** Entitlement. The ONLY thing in the app that means "has paid". Currently flipped by the dev
+   *  toggle in Settings; when IAP lands, the purchase callback sets this same flag and nothing
+   *  downstream changes. Deliberately NOT cleared by `reset()` — resetting progress must never
+   *  revoke a purchase. */
+  isPro: boolean;
+  setPro: (v: boolean) => void;
+  /** Whether a lesson may be opened. Single source of truth for the gate — lesson.tsx enforces it
+   *  and learn.tsx renders from it, so the two can never disagree. Takes a `lessonKey` id. */
+  canAccessLesson: (id: string) => boolean;
+  /** Free lessons still available, 0 once spent. Pro reports Infinity. */
+  freeLessonsLeft: () => number;
+  /** Uninvested paper cash. Real state: every number on the Trade tab derives from this and
+   *  `positions`, so nothing there can drift from what the user actually did. */
+  cash: number;
+  /** Shares held, by ticker. Absent or 0 means no position. */
+  positions: Record<string, number>;
+  /** Total paper account value: cash + every position marked at its current price. */
+  portfolioValue: () => number;
+  /** Buy at `price`. No-op when the cash is not there — the caller must not have to check. */
+  buy: (sym: string, shares: number, price: number) => void;
+  /** Sell at `price`. Clamped to what is actually held, so it cannot go short by accident. */
+  sell: (sym: string, shares: number, price: number) => void;
+  /** Portfolio value snapshots, oldest first. Written on every trade.
+   *
+   *  This is the ONLY honest source for a portfolio chart. Polygon can give per-ticker history,
+   *  but a curve built from today's holdings projected backwards is a BACKTEST of the current
+   *  basket, not what this account was worth — presenting one as the other is the same class of
+   *  lie as the $104,237.55 card. So the chart starts empty and fills as you trade. */
+  valueHistory: { t: number; v: number }[];
+  /** Reward cards earned but not yet revealed. Each is a dollar amount of one ticker. */
+  pendingRewards: { sym: string; value: number }[];
+  /** Total dollar value of stock granted by lessons. Kept separate so the Trade tab can say how
+   *  much of the portfolio was EARNED rather than traded — otherwise free stock silently inflates
+   *  what looks like investing skill. */
+  rewardsEarned: number;
+  /** Reveal the next card: credits fractional shares, no cash spent. Returns nothing; read
+   *  `pendingRewards` to know what is left. */
+  claimReward: () => void;
+  /**
+   * Tickers the user has explicitly followed.
+   *
+   * The Trade tab used to render "watchlist" as `ALL_SYMS minus what you hold` — a list nobody
+   * chose, labelled as though they had. Bloom, Investing.com and TradingView all treat Follow as a
+   * first-class action sitting beside Buy (3/4 of the reference set); a watchlist you did not
+   * build is not a watchlist.
+   */
+  watchlist: string[];
+  /**
+   * Stable per-install identity, generated once.
+   *
+   * Sent as `X-Euphoria-Install` on every API call and used as the rate-limit bucket key. No PII —
+   * a random id, not a device identifier.
+   *
+   * DELIBERATELY EXCLUDED FROM `reset()`, for the same reason `isPro` is: resetting progress must
+   * not mint a fresh identity and thereby hand the caller a fresh rate-limit budget. Progress is
+   * the user's to clear; the quota is not.
+   */
+  installId: string;
+  /** Follow / unfollow. Idempotent both ways. */
+  toggleWatch: (sym: string) => void;
+  /** Options contracts opened. Counts against `PRO_DERIVATIVE_PREVIEW`. */
+  derivativeTrades: number;
+  /** Preview derivative trades remaining. 0 for anyone who is not Pro — this is a Pro feature. */
+  derivativesLeft: () => number;
+  /** Open derivative positions. Simplified: no exercise, no assignment, no expiry processing —
+   *  the screen states that plainly rather than implying a settlement engine exists. */
+  derivatives: {
+    id: string;
+    sym: string;
+    kind: 'call' | 'put';
+    strike: number;
+    days: number;
+    premium: number;
+  }[];
+  /** Open a contract. No-op unless Pro, in budget, and the premium is affordable. */
+  openDerivative: (d: { sym: string; kind: 'call' | 'put'; strike: number; days: number; premium: number }) => void;
+  /** Atlas messages sent on the free allowance. Never decremented — spent is spent. */
+  atlasAsked: number;
+  /** Atlas messages still available. Pro reports Infinity. */
+  atlasLeft: () => number;
+  /** Record one sent message. No-op for Pro, so the counter cannot creep while subscribed and
+   *  then strand a lapsed user at zero. */
+  spendAtlasMessage: () => void;
   completeLesson: (id: string, xp: number) => void;
   addXp: (n: number) => void;
   markPostRead: (slug: string) => void;
@@ -196,8 +342,115 @@ export const useApp = create<AppState>()(
       lastGameDay: '',
       following: [],
       followers: SEED_FOLLOWERS,
+      isPro: false,
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
+      setPro: (v) => set({ isPro: v }),
+
+      canAccessLesson: (id) => {
+        const s = get();
+        if (s.isPro) return true;
+        // Already finished it — never take back what has been earned.
+        if (s.completedLessons.includes(id)) return true;
+        return s.completedLessons.length < FREE_LESSON_LIMIT;
+      },
+      freeLessonsLeft: () =>
+        get().isPro ? Infinity : Math.max(0, FREE_LESSON_LIMIT - get().completedLessons.length),
+      cash: STARTING_CASH,
+      positions: {},
+      valueHistory: [],
+      derivativeTrades: 0,
+      derivatives: [],
+      pendingRewards: [],
+      rewardsEarned: 0,
+      watchlist: [],
+      // Generated at first store creation, then persisted forever. Not cryptographic and does not
+      // need to be — it is a bucket key, not a credential.
+      installId: `eu_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`,
+      atlasAsked: 0,
+      atlasLeft: () => (get().isPro ? Infinity : Math.max(0, FREE_ATLAS_MESSAGES - get().atlasAsked)),
+
+      claimReward: () =>
+        set((s) => {
+          const [card, ...rest] = s.pendingRewards;
+          if (!card) return s;
+          const price = priceOf(card.sym);
+          if (price <= 0) return { pendingRewards: rest };
+          // Fractional shares. A $1 reward on a $1,184 stock is 0.00084 shares — real, and exactly
+          // how fractional brokerages credit it.
+          const shares = card.value / price;
+          const positions = { ...s.positions, [card.sym]: (s.positions[card.sym] ?? 0) + shares };
+          return {
+            pendingRewards: rest,
+            positions,
+            rewardsEarned: s.rewardsEarned + card.value,
+            valueHistory: snapshot(s, s.cash, positions),
+          };
+        }),
+
+      toggleWatch: (sym) =>
+        set((s) => ({
+          watchlist: s.watchlist.includes(sym) ? s.watchlist.filter((w) => w !== sym) : [...s.watchlist, sym],
+        })),
+
+      derivativesLeft: () => {
+        const s = get();
+        // Not Pro -> not zero-because-spent, zero-because-locked. The screen distinguishes the two.
+        if (!s.isPro) return 0;
+        return Math.max(0, PRO_DERIVATIVE_PREVIEW - s.derivativeTrades);
+      },
+      openDerivative: (d) =>
+        set((s) => {
+          if (!s.isPro) return s;
+          if (s.derivativeTrades >= PRO_DERIVATIVE_PREVIEW) return s;
+          if (d.premium > s.cash) return s;
+          return {
+            cash: s.cash - d.premium,
+            derivativeTrades: s.derivativeTrades + 1,
+            derivatives: [...s.derivatives, { ...d, id: `${d.sym}-${d.kind}-${d.strike}-${s.derivativeTrades}` }],
+          };
+        }),
+
+      portfolioValue: () => {
+        const s = get();
+        const equity = Object.entries(s.positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), s.cash);
+        /*
+         * Open option contracts count too, MARKED AT COST.
+         *
+         * Without this, buying a $781 contract read as a straight $781 loss — the cash left but
+         * the asset it bought was invisible, so the Trade tab showed "-$781.06 (7.81%) since you
+         * started" the moment a contract opened. The user holds something; the portfolio has to
+         * say so.
+         *
+         * At COST rather than marked-to-market because re-pricing needs a live chain (spot moved,
+         * time decayed, vol shifted) and we do not have one. Cost means an option contributes a
+         * return of exactly zero until it is priced — understated, but never invented. When the
+         * Tradier chain is connected this becomes a mark against the current bid.
+         */
+        return s.derivatives.reduce((sum, d) => sum + d.premium, equity);
+      },
+      buy: (sym, shares, price) =>
+        set((s) => {
+          const cost = shares * price;
+          // Refusing here rather than at the call site means no screen can create money by
+          // forgetting to check. An unaffordable buy is a no-op, not a negative balance.
+          if (shares <= 0 || cost > s.cash) return s;
+          const positions = { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares };
+          return { cash: s.cash - cost, positions, valueHistory: snapshot(s, s.cash - cost, positions) };
+        }),
+      sell: (sym, shares, price) =>
+        set((s) => {
+          const held = s.positions[sym] ?? 0;
+          const n = Math.min(shares, held);
+          if (n <= 0) return s;
+          const rest = { ...s.positions };
+          // Drop the key entirely at zero, so "do I hold this?" is one truthy check everywhere
+          // instead of a 0-vs-undefined trap.
+          if (held - n <= 0) delete rest[sym];
+          else rest[sym] = held - n;
+          return { cash: s.cash + n * price, positions: rest, valueHistory: snapshot(s, s.cash + n * price, rest) };
+        }),
+      spendAtlasMessage: () => set((s) => (s.isPro ? s : { atlasAsked: s.atlasAsked + 1 })),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
       completeOnboarding: () =>
         set((s) => {
@@ -236,7 +489,14 @@ export const useApp = create<AppState>()(
           // so this cannot be farmed by finishing more lessons.
           const goal = s.profile.dailyMinutes ?? 10;
           const bonus = base < goal && minutes >= goal ? XP_DAILY_GOAL : 0;
+          // Reward cards ride on the SAME dedupe as the completion itself (the `includes` guard
+          // above), so re-opening a finished lesson cannot farm free stock.
+          const cards = Array.from({ length: REWARD_CARDS_PER_LESSON }, () => ({
+            sym: ALL_SYMS[Math.floor(Math.random() * ALL_SYMS.length)],
+            value: Math.round((REWARD_MIN + Math.random() * (REWARD_MAX - REWARD_MIN)) * 100) / 100,
+          }));
           return {
+            pendingRewards: [...s.pendingRewards, ...cards],
             completedLessons: [...s.completedLessons, id],
             ...applyXp(s, xp + bonus),
             minutesToday: minutes,
@@ -273,13 +533,13 @@ export const useApp = create<AppState>()(
         }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

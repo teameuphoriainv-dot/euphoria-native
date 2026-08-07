@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { AskAtlasButton } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
 import { CourseRailCard, RAIL_CARD_GAP, RAIL_CARD_HEIGHT, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
@@ -127,6 +128,7 @@ export default function Learn() {
             <View style={[styles.countPill, { backgroundColor: accent + '24', borderColor: accent + '4D' }]}>
               <ThemedText type="smallBold" style={{ color: accent }}>{doneCount}/{total || course?.totalLessons || 0}</ThemedText>
             </View>
+            <AskAtlasButton topic={course?.title} />
           </View>
           <View style={[styles.track, { backgroundColor: theme.muted }]}>
             <View style={[styles.fill, { backgroundColor: accent, width: `${total ? (doneCount / total) * 100 : 0}%` }]} />

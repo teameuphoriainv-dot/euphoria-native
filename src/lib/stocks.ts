@@ -24,3 +24,35 @@ export const STOCKS: Record<string, Stock> = {
 
 export const HOLDINGS = ['NVDA', 'AAPL', 'TSLA', 'MSFT'].map((s) => STOCKS[s]);
 export const WATCH = ['AMZN', 'META', 'GOOGL'].map((s) => STOCKS[s]);
+
+/** Every ticker, for the buy screen and portfolio maths. */
+export const ALL_SYMS = Object.keys(STOCKS);
+
+/**
+ * Price as a NUMBER.
+ *
+ * `price` is authored as a display string (`'$1,184.00'`) and several screens render it directly,
+ * so parsing here is cheaper and safer than migrating the shape and every reader with it. The
+ * moment live quotes land this is the one function that changes.
+ */
+export const priceOf = (sym: string): number =>
+  Number(STOCKS[sym]?.price.replace(/[$,]/g, '')) || 0;
+
+/**
+ * Share counts, formatted once for the whole app.
+ *
+ * Free-stock rewards credit FRACTIONAL shares — $1 of a $1,184 stock is 0.000844594594... which
+ * renders as exactly that if you interpolate the raw number. Whole positions must still read as
+ * "3", not "3.00".
+ */
+export const shares = (n: number): string => {
+  if (n === 0) return '0';
+  if (Number.isInteger(n)) return String(n);
+  if (n >= 1) return n.toFixed(2).replace(/\.?0+$/, '');
+  // Below one share, two significant figures is the most that carries meaning.
+  return n.toPrecision(2).replace(/0+$/, '').replace(/\.$/, '');
+};
+
+/** Money, formatted the one way the whole app formats it. */
+export const money = (n: number): string =>
+  `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

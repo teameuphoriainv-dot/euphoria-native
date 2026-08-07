@@ -1,0 +1,297 @@
+/**
+ * Market data proxy — Polygon.io.
+ *
+ * Same reason as `chat+api.ts`: the key must never reach the bundle. It also means the client
+ * cannot be rate-limited into someone else's quota, and one place decides how a timeframe maps to
+ * an aggregate window.
+ *
+ * The web app (`euphoriaweb-current/supabase/functions/polygon-market-data`) already proxies these
+ * exact endpoints against the same `POLYGON_API_KEY`; this is the Expo-native equivalent so the
+ * app does not need a Supabase dependency for read-only market data.
+ *
+ * Actions:
+ *   ?action=search&q=apple        -> every matching US ticker (this is what makes "search the NYSE" real)
+ *   ?action=quote&sym=AAPL        -> last close, previous close, change
+ *   ?action=chart&sym=AAPL&range=1M
+ *   ?action=news&sym=AAPL         -> recent articles for a ticker
+ *
+ * Without POLYGON_API_KEY every action answers 503 `not_configured`. The client treats that as
+ * "no live data" and falls back to the static table — it must NEVER dress static numbers up as
+ * live quotes.
+ */
+
+import { guard } from './_limit';
+
+const BASE = 'https://api.polygon.io';
+
+/**
+ * Timeframe -> aggregate window.
+ *
+ * All three reference apps (TradingView $2.25M, Bloom, Yahoo Finance) put a horizontal range row
+ * under the chart, and all three recompute the change figure for the selected range. The bar size
+ * has to scale with the window or a 5Y request asks for ~1800 daily bars to draw 300 pixels.
+ *
+ * NOTE ON 1H: none of the three exposes a one-hour RANGE — Yahoo's shortest is 24H, and its
+ * "1 hour" is a bar INTERVAL. It is included because it was asked for, and because minute
+ * aggregates make it cheap, but outside market hours it returns almost nothing. The client says so
+ * rather than drawing an empty box.
+ */
+const RANGES = {
+  '1H': { mult: 1, span: 'minute', days: 1 / 24, label: 'past hour' },
+  '1D': { mult: 5, span: 'minute', days: 1, label: 'today' },
+  '1W': { mult: 30, span: 'minute', days: 7, label: 'past week' },
+  // Robinhood's published intervals (robinhood.com/support/articles/using-the-charts):
+  // 1D -> 5-10min, 1W -> 10-30min, 1M -> 1 HOUR. Ours had 1M on daily bars, which draws ~22
+  // points for a month and reads as blocky next to the smooth 1W.
+  '1M': { mult: 1, span: 'hour', days: 30, label: 'past month' },
+  '3M': { mult: 1, span: 'day', days: 90, label: 'past 3 months' },
+  YTD: { mult: 1, span: 'day', days: 0, label: 'year to date' },
+  '1Y': { mult: 1, span: 'day', days: 365, label: 'past year' },
+  '5Y': { mult: 1, span: 'week', days: 365 * 5, label: 'past 5 years' },
+} as const;
+
+export type RangeKey = keyof typeof RANGES;
+
+/** ms since epoch for the start of the window. YTD is Jan 1 of the current year, not N days back. */
+function fromMs(range: RangeKey): number {
+  const now = Date.now();
+  if (range === 'YTD') return new Date(new Date(now).getFullYear(), 0, 1).getTime();
+  return now - RANGES[range].days * 86_400_000;
+}
+
+async function poly(path: string, key: string) {
+  const url = `${BASE}${path}${path.includes('?') ? '&' : '?'}apiKey=${key}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    // Polygon echoes the key back in some error payloads. Log, never forward.
+    console.error('[market] upstream', res.status, (await res.text()).slice(0, 300));
+    throw new Error(`upstream_${res.status}`);
+  }
+  return res.json();
+}
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const action = url.searchParams.get('action') ?? '';
+
+  // Per-action budgets: search bursts on every keystroke, logos are many-per-screen but cached a
+  // day, everything else is a cheap read. Gated BEFORE the key check so an unconfigured build
+  // still cannot be used as a free load generator.
+  const gate =
+    action === 'search'
+      ? guard(request, 'market:search', 60, 60_000)
+      : action === 'logo'
+        ? guard(request, 'market:logo', 200, 60_000)
+        : guard(request, 'market', 120, 60_000);
+  if (gate) return gate;
+
+  const key = process.env.POLYGON_API_KEY;
+  if (!key) return Response.json({ error: 'not_configured' }, { status: 503 });
+
+  try {
+    if (action === 'search') {
+      const q = (url.searchParams.get('q') ?? '').trim();
+      if (q.length < 1) return Response.json({ results: [] });
+      const d = await poly(
+        `/v3/reference/tickers?search=${encodeURIComponent(q)}&market=stocks&active=true&limit=20`,
+        key,
+      );
+      return Response.json({
+        results: (d.results ?? []).map((r: Record<string, unknown>) => ({
+          sym: r.ticker,
+          name: r.name,
+          exchange: r.primary_exchange ?? '',
+        })),
+      });
+    }
+
+    if (action === 'quote') {
+      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+      const d = await poly(`/v2/aggs/ticker/${sym}/prev?adjusted=true`, key);
+      const bar = d.results?.[0];
+      if (!bar) return Response.json({ error: 'no_data' }, { status: 404 });
+      const change = bar.c - bar.o;
+      return Response.json({
+        sym,
+        price: bar.c,
+        change,
+        changePct: bar.o ? (change / bar.o) * 100 : 0,
+      });
+    }
+
+    if (action === 'chart') {
+      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      const range = (url.searchParams.get('range') ?? '1M') as RangeKey;
+      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+      if (!RANGES[range]) return Response.json({ error: 'bad_range' }, { status: 400 });
+      const { mult, span, label } = RANGES[range];
+      const d = await poly(
+        `/v2/aggs/ticker/${sym}/range/${mult}/${span}/${Math.floor(fromMs(range))}/${Date.now()}?adjusted=true&sort=asc&limit=5000`,
+        key,
+      );
+      const points: { t: number; c: number }[] = (d.results ?? []).map((b: { t: number; c: number }) => ({ t: b.t, c: b.c }));
+      return Response.json({ sym, range, label, points });
+    }
+
+    if (action === 'logo') {
+      /*
+       * Company branding. Polygon's ticker-details response carries `branding.icon_url` and
+       * `logo_url`, but those asset URLs THEMSELVES require the key appended — which is exactly
+       * why this cannot be done from the client. The proxy fetches the image and re-serves the
+       * bytes, so the key never leaves the server and the app gets a plain cacheable URL.
+       */
+      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+      const d = await poly(`/v3/reference/tickers/${sym}`, key);
+      const brand = (d.results?.branding ?? {}) as { icon_url?: string; logo_url?: string };
+      const src = brand.icon_url ?? brand.logo_url;
+      if (!src) return Response.json({ error: 'no_logo' }, { status: 404 });
+
+      const img = await fetch(`${src}?apiKey=${key}`);
+      if (!img.ok) return Response.json({ error: 'no_logo' }, { status: 404 });
+      return new Response(img.body, {
+        headers: {
+          'Content-Type': img.headers.get('Content-Type') ?? 'image/png',
+          // Logos change about never. A day of caching keeps this off the rate limit.
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    }
+
+    if (action === 'movers') {
+      /*
+       * Daily winners and losers. Investing.com runs "Most Active" and "Daily Winners & Losers"
+       * with a Winners/Losers toggle directly on its markets surface (2/4 of the reference set
+       * carry movers). Polygon serves both from one snapshot family, so one action covers it.
+       */
+      const dir = url.searchParams.get('dir') === 'losers' ? 'losers' : 'gainers';
+      const d = await poly(`/v2/snapshot/locale/us/markets/stocks/${dir}`, key);
+      const raw = (d.tickers ?? []) as Record<string, unknown>[];
+      return Response.json({
+        dir,
+        movers: raw.slice(0, 12).map((t) => {
+          const day = (t.day ?? {}) as { c?: number };
+          return {
+            sym: String(t.ticker ?? ''),
+            price: Number(day.c) || 0,
+            changePct: Number(t.todaysChangePerc) || 0,
+          };
+        }),
+      });
+    }
+
+    if (action === 'stats') {
+      /*
+       * Key statistics — 3/4 of the reference set carry this block.
+       *   Bloom:          52 Week High / Low, Dividend Yield, Today's Volume, Avg Daily Volume
+       *   Investing.com:  Previous Close, Open, Day's Range, 52wk Range, 1-Year Change
+       *   Yahoo Finance:  the same family under the chart
+       *
+       * Two calls, because they answer different questions: `prev` gives yesterday's actual OHLCV
+       * (day range, volume, previous close) and the daily series gives the 52-week envelope. Both
+       * are REAL aggregates — nothing here is derived from a model.
+       */
+      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+
+      const yearAgo = Date.now() - 365 * 86_400_000;
+      const [prev, year] = await Promise.all([
+        poly(`/v2/aggs/ticker/${sym}/prev?adjusted=true`, key),
+        poly(
+          `/v2/aggs/ticker/${sym}/range/1/day/${Math.floor(yearAgo)}/${Date.now()}?adjusted=true&sort=asc&limit=400`,
+          key,
+        ),
+      ]);
+
+      const b = prev.results?.[0];
+      const bars = (year.results ?? []) as { h: number; l: number; c: number; v: number }[];
+      if (!b && bars.length === 0) return Response.json({ error: 'no_data' }, { status: 404 });
+
+      const highs = bars.map((x) => x.h).filter(Number.isFinite);
+      const lows = bars.map((x) => x.l).filter(Number.isFinite);
+      const vols = bars.map((x) => x.v).filter(Number.isFinite);
+
+      return Response.json({
+        sym,
+        previousClose: b?.c ?? null,
+        open: b?.o ?? null,
+        dayLow: b?.l ?? null,
+        dayHigh: b?.h ?? null,
+        volume: b?.v ?? null,
+        weekLow52: lows.length ? Math.min(...lows) : null,
+        weekHigh52: highs.length ? Math.max(...highs) : null,
+        avgVolume: vols.length ? vols.reduce((a, c) => a + c, 0) / vols.length : null,
+        // Over the window we actually have, which may be short for a recent listing. Named
+        // `yearChangePct` but computed from the first bar returned, not an assumed 365 days.
+        yearChangePct:
+          bars.length > 1 && bars[0].c ? ((bars[bars.length - 1].c - bars[0].c) / bars[0].c) * 100 : null,
+      });
+    }
+
+    if (action === 'news') {
+      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+
+      /*
+       * ALPHA VANTAGE FIRST, POLYGON AS FALLBACK.
+       *
+       * Alpha Vantage NEWS_SENTIMENT is what the web app already uses
+       * (euphoriaweb-current/supabase/functions/fetch-economic-news, line 100) and it returns
+       * something Polygon does not: a SENTIMENT SCORE per article. For an app teaching people to
+       * read markets, "this story is bearish on NVDA" is the teachable part — a headline alone is
+       * just a headline.
+       *
+       * Its free tier is 25 requests/day, which is why the web app caches for six hours. That is
+       * also why Polygon backs it up: Polygon news rides the key we already have and is not
+       * day-capped, so the feed degrades to headlines rather than to nothing.
+       */
+      const av = process.env.ALPHAVANTAGE_API_KEY;
+      if (av) {
+        try {
+          const q = sym
+            ? `function=NEWS_SENTIMENT&tickers=${sym}&limit=12`
+            : 'function=NEWS_SENTIMENT&topics=economy_macro,finance&limit=12';
+          const r = await fetch(`https://www.alphavantage.co/query?${q}&apikey=${av}`);
+          const j = await r.json();
+          const feed = (j?.feed ?? []) as Record<string, unknown>[];
+          if (feed.length > 0) {
+            return Response.json({
+              articles: feed.map((a) => ({
+                id: String(a.url),
+                title: a.title,
+                publisher: a.source,
+                url: a.url,
+                // Alpha Vantage stamps time as YYYYMMDDTHHMMSS, which `new Date()` cannot parse.
+                published: String(a.time_published ?? '').replace(
+                  /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/,
+                  '$1-$2-$3T$4:$5:$6Z',
+                ),
+                sentiment: Number(a.overall_sentiment_score) || 0,
+                sentimentLabel: String(a.overall_sentiment_label ?? ''),
+              })),
+            });
+          }
+        } catch (e) {
+          // Day-cap or outage: fall through to Polygon rather than failing the screen.
+          console.error('[market] alphavantage failed, falling back', e);
+        }
+      }
+
+      const d = await poly(`/v2/reference/news?${sym ? `ticker=${sym}&` : ''}order=desc&limit=12`, key);
+      return Response.json({
+        articles: (d.results ?? []).map((a: Record<string, unknown>) => ({
+          id: a.id,
+          title: a.title,
+          publisher: (a.publisher as { name?: string } | undefined)?.name ?? '',
+          url: a.article_url,
+          published: a.published_utc,
+        })),
+      });
+    }
+
+    return Response.json({ error: 'bad_action' }, { status: 400 });
+  } catch (e) {
+    console.error('[market] failed', e);
+    return Response.json({ error: 'upstream' }, { status: 502 });
+  }
+}

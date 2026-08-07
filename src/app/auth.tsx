@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
+import { UIcon, type UIconName } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import type { Profile } from '@/lib/onboarding-path';
@@ -20,7 +20,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-function ProviderButton({ label, icon, onPress }: { label: string; icon: string; onPress: () => void }) {
+function ProviderButton({ label, icon, onPress }: { label: string; icon: UIconName; onPress: () => void }) {
   const theme = useTheme();
   return (
     <SpringPressable onPress={onPress}>

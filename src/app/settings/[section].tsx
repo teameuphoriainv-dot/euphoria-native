@@ -1,17 +1,40 @@
 /**
- * Settings detail — opened from a You-screen settings row. Titled section with a designed
- * placeholder until each area is built (account, notifications, preferences). No dead ends.
+ * Settings — real controls only.
+ *
+ * This screen used to be a placeholder reading "<Section> settings are coming soon" for all three
+ * rows on the You tab. Three rows, one dead end, nothing configurable.
+ *
+ * Shape from a 5-app ScreensDesign pull of the $750k–$2.25M cohort — Elevate 1395, Praktika 1816,
+ * Meetup 107, Kling AI 1699, Loora 1134. Counted:
+ *
+ *   plan/account status shown in settings        5/5   every one of them
+ *   help + legal section                         5/5
+ *   a preference that TUNES THE CORE LOOP        3/5   Elevate "WORKOUT LENGTH 3/4/5 Games",
+ *                                                      Loora "Speaking speed", Praktika "Study mode"
+ *   notifications with a stated reminder time    3/5   Elevate/Loora both show "REMIND ME AT"
+ *   restore purchases                            3/5   and Apple requires it anyway
+ *   sign out at the bottom                       3/5
+ *
+ * The 3/5 one is the interesting one: the high-revenue apps let you retune the product itself from
+ * settings, not just silence notifications. Euphoria's equivalent already existed in the store —
+ * `profile.dailyMinutes` drives the Home ring and `lessonsPerDay` — it simply had no surface after
+ * onboarding. That is what "Daily goal" below is.
+ *
+ * RULE FOR THIS FILE: no control ships unless it changes real state. A toggle that writes nothing
+ * is the dead button this app is trying to delete.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Linking, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { applyDailyNudge, NUDGE_HOUR } from '@/lib/notifications';
+import { FREE_ATLAS_MESSAGES, FREE_LESSON_LIMIT, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -21,6 +44,250 @@ const TITLES: Record<string, string> = {
   preferences: 'Preferences',
 };
 
+/** Same three values onboarding offers, so the two surfaces cannot disagree about what a goal is. */
+const GOALS = [
+  { minutes: 5, label: '5 minutes', sub: 'One lesson a day' },
+  { minutes: 10, label: '10 minutes', sub: 'Two lessons a day' },
+  { minutes: 20, label: '20 minutes', sub: 'Four lessons a day' },
+];
+
+const hourLabel = (h: number) => `${((h + 11) % 12) + 1}:00 ${h < 12 ? 'AM' : 'PM'}`;
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.section}>
+      <ThemedText type="label" themeColor="mutedForeground">{title}</ThemedText>
+      <View style={[styles.group, { backgroundColor: theme.card, borderColor: theme.border }]}>{children}</View>
+    </View>
+  );
+}
+
+function Row({
+  label,
+  value,
+  onPress,
+  danger,
+  last,
+}: {
+  label: string;
+  value?: string;
+  onPress?: () => void;
+  danger?: boolean;
+  last?: boolean;
+}) {
+  const theme = useTheme();
+  const body = (
+    <View style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border }]}>
+      <ThemedText type="body" style={danger ? { color: theme.destructive } : undefined}>{label}</ThemedText>
+      <View style={styles.rowRight}>
+        {!!value && <ThemedText type="small" themeColor="mutedForeground">{value}</ThemedText>}
+        {onPress && <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />}
+      </View>
+    </View>
+  );
+  if (!onPress) return body;
+  return (
+    <SpringPressable haptic={false} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
+      {body}
+    </SpringPressable>
+  );
+}
+
+function ToggleRow({
+  label,
+  sub,
+  value,
+  onValueChange,
+  last,
+}: {
+  label: string;
+  sub?: string;
+  value: boolean;
+  onValueChange: (v: boolean) => void;
+  last?: boolean;
+}) {
+  const theme = useTheme();
+  // The WHOLE ROW toggles, not just the 51pt switch. Standard iOS behaviour, a far bigger hit
+  // target, and it makes the control reachable by the accessibility layer — `idb ui tap` cannot
+  // actuate a React Native Switch even dead-centre on its real frame, so a switch-only row is
+  // untestable on device.
+  return (
+    <SpringPressable
+      haptic={false}
+      onPress={() => onValueChange(!value)}
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value }}
+    >
+      <View style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border }]}>
+        <View style={styles.rowText}>
+          <ThemedText type="body">{label}</ThemedText>
+          {!!sub && <ThemedText type="small" themeColor="mutedForeground">{sub}</ThemedText>}
+        </View>
+        <Switch
+          value={value}
+          onValueChange={onValueChange}
+          trackColor={{ true: theme.primary }}
+          // The row above owns the label; leaving one here makes VoiceOver announce it twice.
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      </View>
+    </SpringPressable>
+  );
+}
+
+function AccountSection() {
+  const theme = useTheme();
+  const isPro = useApp((s) => s.isPro);
+  const setPro = useApp((s) => s.setPro);
+  const name = useApp((s) => s.profile.name);
+  const signOut = useApp((s) => s.signOut);
+  const lessonsLeft = useApp((s) => s.freeLessonsLeft());
+  const atlasLeft = useApp((s) => s.atlasLeft());
+
+  return (
+    <>
+      {/* Plan status first — 5/5 of the reference apps put it at the top of settings. Ours also
+          states what is LEFT, because a plan row that only says "Free" answers the wrong question. */}
+      <Section title="PLAN">
+        <Row label="Status" value={isPro ? 'Euphoria Pro' : 'Free'} />
+        {!isPro && (
+          <Row
+            label="Remaining"
+            value={`${lessonsLeft}/${FREE_LESSON_LIMIT} lessons · ${atlasLeft}/${FREE_ATLAS_MESSAGES} questions`}
+          />
+        )}
+        {!isPro && <Row label="Upgrade to Pro" onPress={() => router.push('/onboarding?step=paywall')} />}
+        <Row
+          label="Restore purchases"
+          last
+          onPress={() =>
+            // Same honest message the paywall gives. Apple requires the control on any screen
+            // selling a subscription; lying about what it does would be worse than not having it.
+            Alert.alert(
+              'Restore purchases',
+              'Purchases are not enabled in this build yet. Once subscriptions are live, this will restore any prior purchase tied to your Apple ID.',
+            )
+          }
+        />
+      </Section>
+
+      <Section title="PROFILE">
+        <Row label="Name" value={name ?? 'Not set'} last />
+      </Section>
+
+      {__DEV__ && (
+        <Section title="DEVELOPER">
+          <ToggleRow
+            label="Euphoria Pro"
+            sub="Flips the real entitlement. Dev builds only."
+            value={isPro}
+            onValueChange={setPro}
+            last
+          />
+        </Section>
+      )}
+
+      <Section title="SUPPORT">
+        <Row label="Privacy Policy" onPress={() => void Linking.openURL('https://euphoria.app/privacy').catch(() => undefined)} />
+        <Row label="Terms of Use" onPress={() => void Linking.openURL('https://euphoria.app/terms').catch(() => undefined)} last />
+      </Section>
+
+      <Section title="SESSION">
+        <Row
+          label="Sign out"
+          danger
+          last
+          onPress={() =>
+            Alert.alert('Sign out?', 'Your progress stays on this device.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Sign out', style: 'destructive', onPress: () => { signOut(); router.replace('/welcome'); } },
+            ])
+          }
+        />
+      </Section>
+      <ThemedText type="small" themeColor="mutedForeground" style={[styles.version, { color: theme.mutedForeground }]}>
+        Euphoria 1.0.0
+      </ThemedText>
+    </>
+  );
+}
+
+function NotificationsSection() {
+  const optIn = useApp((s) => s.profile.notifyOptIn);
+  const setProfile = useApp((s) => s.setProfile);
+  const [busy, setBusy] = useState(false);
+
+  /** Persist what the OS ACTUALLY scheduled, never what was tapped — notifications.ts is explicit
+   *  that iOS keeps a veto at the permission prompt, and storing intent as outcome is how an app
+   *  ends up believing reminders are on while every one is dropped. */
+  const toggle = async (want: boolean) => {
+    setBusy(true);
+    const scheduled = await applyDailyNudge(want);
+    setProfile({ notifyOptIn: scheduled });
+    setBusy(false);
+    if (want && !scheduled) {
+      Alert.alert(
+        'Notifications are off',
+        'iOS is blocking notifications for Euphoria. Turn them on in Settings › Notifications › Euphoria.',
+      );
+    }
+  };
+
+  return (
+    <Section title="DAILY NUDGE">
+      <ToggleRow
+        label="Daily reminder"
+        sub={optIn ? `Every day at ${hourLabel(NUDGE_HOUR)}` : 'Off'}
+        value={optIn}
+        onValueChange={(v) => { if (!busy) void toggle(v); }}
+      />
+      {/* Evening, not morning — the nudge exists to rescue a streak while there is still time to
+          do something about it. Stated rather than hidden, the way Elevate states "REMIND ME AT". */}
+      <Row label="Reminder time" value={hourLabel(NUDGE_HOUR)} last />
+    </Section>
+  );
+}
+
+function PreferencesSection() {
+  const theme = useTheme();
+  const dailyMinutes = useApp((s) => s.dailyGoalMinutes());
+  const setProfile = useApp((s) => s.setProfile);
+
+  return (
+    <Section title="DAILY GOAL">
+      {GOALS.map((g, i) => {
+        const on = dailyMinutes === g.minutes;
+        return (
+          <SpringPressable
+            key={g.minutes}
+            haptic={false}
+            onPress={() => setProfile({ dailyMinutes: g.minutes })}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: on }}
+            accessibilityLabel={`${g.label}, ${g.sub}`}
+          >
+            <View
+              style={[
+                styles.row,
+                i < GOALS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
+              ]}
+            >
+              <View style={styles.rowText}>
+                <ThemedText type="body">{g.label}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">{g.sub}</ThemedText>
+              </View>
+              {on ? <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} /> : null}
+            </View>
+          </SpringPressable>
+        );
+      })}
+    </Section>
+  );
+}
+
 export default function SettingsSection() {
   const theme = useTheme();
   const { section } = useLocalSearchParams<{ section: string }>();
@@ -29,29 +296,56 @@ export default function SettingsSection() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={25} glow={false} />
-      <SpringPressable haptic={false} onPress={() => router.back()} style={styles.back}>
+      <SpringPressable
+        haptic={false}
+        onPress={() => router.back()}
+        style={styles.back}
+        accessibilityRole="button"
+        accessibilityLabel="Back to profile"
+      >
         <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
         <ThemedText type="small" themeColor="mutedForeground">Profile</ThemedText>
       </SpringPressable>
 
-      <View style={styles.center}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
-          <Atlas size={84} expression="thinking" interactive={false} />
+          <ThemedText type="title" style={styles.title}>{title}</ThemedText>
         </RiseIn>
-        <RiseIn delay={90}>
-          <ThemedText type="title" style={{ fontSize: 24, textAlign: 'center', marginTop: Spacing.three }}>{title}</ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
-            {title} settings are coming soon — Atlas is still wiring this one up.
-          </ThemedText>
+        <RiseIn delay={80}>
+          {section === 'account' ? (
+            <AccountSection />
+          ) : section === 'notifications' ? (
+            <NotificationsSection />
+          ) : section === 'preferences' ? (
+            <PreferencesSection />
+          ) : (
+            <Section title="SETTINGS">
+              <Row label="Nothing here yet" last />
+            </Section>
+          )}
         </RiseIn>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 2, padding: Spacing.three },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.four, marginTop: -Spacing.six },
-  sub: { textAlign: 'center', marginTop: Spacing.two, lineHeight: 22, maxWidth: 300 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
+  content: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six, gap: Spacing.four },
+  title: { fontSize: 26, marginTop: Spacing.two },
+  section: { gap: Spacing.two, marginBottom: Spacing.four },
+  group: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.lg, overflow: 'hidden' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.three,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.three,
+    minHeight: 52,
+  },
+  rowText: { flex: 1, gap: 1 },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, flexShrink: 1 },
+  version: { textAlign: 'center', marginTop: -Spacing.two },
 });

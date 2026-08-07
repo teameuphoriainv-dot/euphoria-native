@@ -35,7 +35,7 @@ import {
   TrialStep,
 } from '@/components/onboarding-parts';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
+import { UIcon, type UIconName } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
@@ -136,7 +136,7 @@ const NOTIFY: Choice[] = [
  */
 const TOTAL_LESSONS = COURSES.reduce((n, c) => n + c.totalLessons, 0);
 
-const PROOF: { icon: string; title: string; sub: string }[] = [
+const PROOF: { icon: UIconName; title: string; sub: string }[] = [
   { icon: 'bookOpen', title: `${TOTAL_LESSONS} lessons`, sub: `Across ${COURSES.length} courses, from first principles to advanced.` },
   { icon: 'trade', title: 'Practice without risk', sub: 'Paper trading uses simulated money, never your own.' },
   { icon: 'sparkle', title: 'Atlas explains anything', sub: 'Ask mid-lesson and get it in plain English.' },
@@ -144,7 +144,7 @@ const PROOF: { icon: string; title: string; sub: string }[] = [
 
 /** Kept to one line each. At two lines the timeline alone ran ~200pt, which pushed "No payment
  *  due now" and the renewal terms off the bottom of the screen. */
-const TRIAL_STEPS = [
+const TRIAL_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
   { icon: 'lock', title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
   { icon: 'bell', title: 'In 5 days — Reminder', sub: "We'll remind you before it ends.", tone: 'soft' as const },
   { icon: 'wallet', title: 'In 7 days — Billing starts', tone: 'muted' as const },

@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { AskAtlasRow } from '@/components/ask-atlas';
 import { Blocks, parseBlocks, type Block } from '@/components/digest-body';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -178,6 +179,12 @@ export default function DigestArticle() {
             </RiseIn>
           )}
         </Animated.View>
+
+        {/* Placed at the END OF THE CONTENT, not in the fixed footer. Gauth ($600k/mo) puts its
+            "Still feeling stuck?" escalation inline right after the answer, at the moment the
+            reader knows whether they followed it — a fixed footer competes with the primary CTA
+            and asks before they can possibly know. */}
+        {last ? <AskAtlasRow topic={post.title} /> : null}
       </ScrollView>
 
       <View style={styles.footer}>

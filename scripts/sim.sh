@@ -95,10 +95,20 @@ print(best[1],best[2])' "$1")
   ;;
 
 state)
+  # AsyncStorage INLINES small values in manifest.json but SPILLS large ones to a separate file
+  # named md5(key), leaving `null` inline. This command read only the manifest, so once the store
+  # grew past the threshold it silently returned `null` for every field — which looks exactly like
+  # "persistence is broken" and is not. Read the spill file when the inline value is null.
   C="$(xcrun simctl get_app_container "$(udid)" "$BUNDLE" data)"
-  jq -r '.["euphoria-app-state"]' \
-    "$C/Library/Application Support/$BUNDLE/RCTAsyncLocalStorage_V1/manifest.json" \
-    | jq ".state | ${1:-.}"
+  D="$C/Library/Application Support/$BUNDLE/RCTAsyncLocalStorage_V1"
+  RAW="$(jq -r '.["euphoria-app-state"] // empty' "$D/manifest.json")"
+  if [[ -z "$RAW" || "$RAW" == "null" ]]; then
+    KEYFILE="$D/$(printf 'euphoria-app-state' | md5 -q)"
+    [[ -f "$KEYFILE" ]] || { echo "no persisted state (looked in manifest.json and $KEYFILE)" >&2; exit 1; }
+    jq ".state | ${1:-.}" "$KEYFILE"
+  else
+    printf '%s' "$RAW" | jq ".state | ${1:-.}"
+  fi
   ;;
 
 open)

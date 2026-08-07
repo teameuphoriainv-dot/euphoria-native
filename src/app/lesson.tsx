@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { AskAtlasRow } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
@@ -34,9 +35,9 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { gates, normalizeStep } from '@/lib/lesson-steps';
-import { lessonKey, useApp } from '@/lib/store';
+import { FREE_LESSON_LIMIT, lessonKey, useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -54,6 +55,11 @@ export default function Lesson() {
   // bad params are knowable at render — deriving this keeps setState out of the effect body
   const badParams = !courseId || !Number.isFinite(lessonNum);
   const missing = badParams || notFound;
+  // The gate lives HERE rather than at the three call sites (home.tsx:195, learn.tsx:198,
+  // digest/[slug].tsx:194) because every one of them lands on this route. Guarding the list only
+  // would leave a locked lesson reachable by deep link.
+  const canAccess = useApp((s) => s.canAccessLesson(lessonKey(courseId, lessonNum)));
+  const locked = !badParams && !canAccess;
 
   useEffect(() => {
     if (badParams) return;
@@ -100,7 +106,11 @@ export default function Lesson() {
       setSolved(false);
     } else {
       useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp);
-      router.back();
+      // Bloom pays out free stock the moment a quiz is passed. `completeLesson` queues the cards;
+      // route to them if any landed. A REPEAT of a finished lesson queues nothing (same dedupe),
+      // so this correctly falls through to `back()` and never shows an empty reward screen.
+      if (useApp.getState().pendingRewards.length > 0) router.replace('/reward');
+      else router.back();
     }
   };
 
@@ -120,6 +130,24 @@ export default function Lesson() {
     );
   }
 
+  if (locked) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <AmbientBackground starCount={30} />
+        <View style={styles.centered}>
+          <Atlas size={110} expression="watching" />
+          <ThemedText type="title" style={styles.title}>You&apos;ve used your {FREE_LESSON_LIMIT} free lessons.</ThemedText>
+          <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
+            Go Pro to open every lesson across all {COURSES.length} courses.
+          </ThemedText>
+        </View>
+        <View style={styles.footer}>
+          <GradientButton label="See Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!lesson) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -128,6 +156,29 @@ export default function Lesson() {
       </SafeAreaView>
     );
   }
+
+  /**
+   * Steps that ship their OWN action button must not get a second one from the footer.
+   *
+   * MultiSelect renders "Check answer"; the footer rendered "Continue" directly on top of it.
+   * Measured on device: Check occupied top=738..bottom=782, Continue top=760..bottom=816 — 22pt,
+   * exactly HALF the Check button, underneath a control that paints after it and therefore
+   * swallows the taps. The step could not be submitted.
+   *
+   * `lesson.tsx` already carried a note describing this precise failure as fixed. It was not:
+   * the earlier fix made the step SCROLL, which stopped it being clipped, but two CTAs stacked in
+   * the same place is a z-order problem, not a scrolling one. Removing the duplicate is the fix.
+   *
+   * Once solved, `gates()` opens and the footer returns to carry the user forward.
+   *
+   * GENERALISED, because `multi` was not alone. `number-line` ships the same trailing control
+   * ("Check your answer") and therefore the same collision — it was simply never exercised. Both
+   * render it as a SpringPressable rather than a GradientButton, which is why grepping for the
+   * button component found nothing and the bug stayed invisible. Any future step that validates
+   * itself belongs in this set; steps that only need "keep going" (reveal, order, match) leave the
+   * footer alone.
+   */
+  const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && !solved;
 
   const gated = norm ? gates(norm) && !solved : false;
   const ctaLabel = isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
@@ -280,10 +331,17 @@ export default function Lesson() {
             title={pick === norm.correct ? 'Exactly right.' : 'Not quite.'}
             detail={pick === norm.correct ? norm.right : norm.wrong}
           >
+            {/* Offered ONLY on a wrong answer. Gauth ($600k/mo) fires its "Still feeling stuck?"
+                escalation at the moment of failure, not on success and not on the celebration
+                screen — reward beats are reserved here, and interrupting one to sell help would
+                undo the reward. */}
+            {pick !== norm.correct ? (
+              <AskAtlasRow topic={lesson.title} label="Still not clear?" />
+            ) : null}
             <GradientButton label={ctaLabel} full onPress={advance} />
           </FeedbackBanner>
         </View>
-      ) : (
+      ) : ownsItsCta ? null : (
         <View style={styles.footer}>
           <GradientButton label={ctaLabel} full disabled={ctaDisabled} onPress={advance} />
         </View>
@@ -291,6 +349,30 @@ export default function Lesson() {
     </SafeAreaView>
   );
 }
+
+/** Height the pinned footer occupies: a ~50pt CTA inside `footer`'s 24 bottom / 8 top padding.
+ *  Any scrollable step must reserve this much or its last row renders under the button — and the
+ *  footer paints after the body, so it swallows the taps too.
+ *
+ *  MEASURED, and the measurement corrected a wrong assumption. A 6-row OrderSteps put its last
+ *  row at top=717..bottom=796 against a Continue at top=760..bottom=816 — 36pt, ~46% of the row,
+ *  under the button, and the tap only landed because the row's CENTRE cleared the button's top by
+ *  4pt. Luck, not clearance.
+ *
+ *  WHAT THIS CONSTANT DOES AND DOES NOT DO: the step already overflows its container, so
+ *  `justifyContent: 'center'` on `midContent` is inert and paddingBottom does NOT lift content —
+ *  it extends the scrollable area underneath it. Raising it therefore guarantees the last row can
+ *  be scrolled fully clear of the footer; it does NOT change where that row sits at the default
+ *  scroll offset. Fixing the default position means shortening the step's vertical rhythm, which
+ *  is a design change to OrderSteps, not a padding value. LOGGED, NOT DONE.
+ *
+ *  Re-measure with `idb ui describe-all` and compare FRAMES, never anchors — an anchor is a
+ *  point, not a box, and comparing anchors is what made 96 look sufficient. */
+const FOOTER_CLEARANCE = 170;
+
+/** Step kinds that render their OWN validate control. The footer must not stack a second CTA on
+ *  top of these — see `ownsItsCta`. */
+const OWN_CTA_STEPS = new Set(['multi', 'line']);
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
@@ -306,10 +388,22 @@ const styles = StyleSheet.create({
    *  the footer renders after this, it swallowed the taps: the button looked dead. flexGrow
    *  keeps short steps centred; tall ones scroll instead of hiding under the CTA. */
   midScroll: { flex: 1 },
-  midContent: { flexGrow: 1, justifyContent: 'center', paddingBottom: Spacing.two },
+  /**
+   * `paddingBottom` must clear the FOOTER, not merely add breathing room.
+   *
+   * It was Spacing.two (8pt) while the footer is a ~50pt button inside 24/8 padding — roughly
+   * 90pt tall. So a tall step still ended with its last rows under the CTA. Measured on device:
+   * a 6-row OrderSteps put its sixth row at y=789 with Continue's centre at y=788, and taps on
+   * that row were swallowed exactly as the note above describes. Because the last row of an
+   * ordering puzzle is often the one you must move, the step could not be completed without a
+   * scroll the UI never asked for.
+   *
+   * The scroll fixed the CLIPPING; this fixes the OCCLUSION.
+   */
+  midContent: { flexGrow: 1, justifyContent: 'center', paddingBottom: FOOTER_CLEARANCE },
   /** Questions start at the TOP rather than centred — a long prompt centred vertically pushes
    *  its own options off both ends. */
-  choiceContent: { flexGrow: 1, paddingBottom: Spacing.four },
+  choiceContent: { flexGrow: 1, paddingBottom: FOOTER_CLEARANCE },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { textAlign: 'center', marginTop: Spacing.three },

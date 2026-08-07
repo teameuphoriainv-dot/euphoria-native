@@ -12,7 +12,7 @@ import Svg, { Circle, Line, Path } from 'react-native-svg';
 import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
+import { UIcon, type UIconName } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
@@ -103,7 +103,7 @@ export function TrialStep({
   tone,
   last = false,
 }: {
-  icon: string;
+  icon: UIconName;
   title: string;
   sub?: string;
   tone: 'solid' | 'soft' | 'muted';
@@ -249,7 +249,7 @@ export function OptionCard({
   compact = false,
 }: {
   /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
-  icon?: string;
+  icon?: UIconName;
   title: string;
   sub?: string;
   selected: boolean;
@@ -350,7 +350,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
  * the paywall isn't too rich, the rest were too thin.
  * ──────────────────────────────────────────────────────────────────────────── */
 
-export type Choice = { key: string; title: string; sub?: string; icon?: string };
+export type Choice = { key: string; title: string; sub?: string; icon?: UIconName };
 
 export function StepHeading({ title, sub }: { title: string; sub?: string }) {
   return (

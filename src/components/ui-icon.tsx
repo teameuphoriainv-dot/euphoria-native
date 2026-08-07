@@ -6,7 +6,12 @@
  */
 import Svg, { Circle, Path } from 'react-native-svg';
 
-const P: Record<string, React.ReactNode> = {
+// `satisfies` rather than a `Record<string, …>` ANNOTATION. The annotation widened the key type to
+// `string`, which silently collapsed `UIconName = keyof typeof P` into `string` too — so the
+// "deliberately NOT `| string`" guard below type-checked every unknown name and rendered it as a
+// sparkle. `arrowUp`, `refresh` and `x` all shipped that way. `satisfies` keeps the value check
+// while preserving the literal keys.
+const P = {
   home: (
     <>
       <Path d="M4 11.5 12 4.5l8 7" />
@@ -151,7 +156,7 @@ const P: Record<string, React.ReactNode> = {
       <Path d="M16 16l4 4" />
     </>
   ),
-};
+} satisfies Record<string, React.ReactNode>;
 
 export type UIconName = keyof typeof P;
 

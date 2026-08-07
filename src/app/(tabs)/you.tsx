@@ -20,7 +20,7 @@ import { Atlas } from '@/components/atlas';
 import { Icon } from '@/components/icon';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
+import { UIcon, type UIconName } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Spacing } from '@/constants/theme';
@@ -39,9 +39,10 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
  * `?step=paywall` is matched by NAME in onboarding.tsx, not by index, and is the one step param
  * that works outside dev.
  */
-const ROWS = [
+const ROWS: { icon: UIconName; label: string; accent?: boolean; route: string }[] = [
   { icon: 'you', label: 'Friends', route: '/friends' },
   { icon: 'sparkle', label: 'Games', route: '/games' },
+  { icon: 'sparkle', label: 'Ask Atlas', route: '/chat' },
   { icon: 'you', label: 'Account', route: '/settings/account' },
   { icon: 'bell', label: 'Notifications', route: '/settings/notifications' },
   { icon: 'sparkle', label: 'Euphoria Pro', accent: true, route: '/onboarding?step=paywall' },

@@ -61,14 +61,32 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
     setSelected(null);
   };
 
+  /**
+   * DENSITY SCALES WITH ITEM COUNT.
+   *
+   * At the default 16pt row padding and 12pt gaps, six two-line rows plus the heading run ~620pt
+   * — which is exactly the space between the lesson body's top and the pinned Continue button.
+   * Measured on device, a 6-item step put its last row at top=717..bottom=796 against a footer at
+   * top=760: 36pt of the row underneath the CTA, and because the footer paints last it swallowed
+   * the taps. Since the last row is usually one you have to move, the step could not be finished
+   * without a scroll the UI never asked for.
+   *
+   * Padding the scroll container only added room BELOW the content; it could not pull the rows up.
+   * Tightening the rows themselves is what actually fits them. Short steps keep the roomy
+   * treatment — only the ones that would overflow give anything up.
+   */
+  const dense = spec.items.length >= 5;
+  const rowPad = dense ? Spacing.two + 2 : Spacing.three;
+  const rowGap = dense ? Spacing.two : Spacing.two + 4;
+
   return (
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.two }}>{spec.title}</ThemedText>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: Spacing.four }}>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: dense ? Spacing.three : Spacing.four }}>
         {spec.hint ?? 'Tap two rows to swap them.'}
       </ThemedText>
 
-      <View style={{ gap: Spacing.two + 4 }}>
+      <View style={{ gap: rowGap }}>
         {order.map((itemIdx, pos) => {
           const inPlace = itemIdx === pos;
           const isSel = selected === pos;
@@ -91,7 +109,8 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
               accessibilityLabel={`Position ${pos + 1}. ${spec.items[itemIdx]}`}
               accessibilityState={{ selected: isSel, disabled: solved }}
               accessibilityHint={isSel ? 'Activate another row to swap with this one.' : 'Activate to pick up this row.'}>
-              <View style={[styles.row, { borderColor: border, borderWidth: isSel || inPlace ? 2 : StyleSheet.hairlineWidth, backgroundColor: isSel ? theme.primary + '14' : theme.card }]}>
+              <View style={[styles.row,
+                { padding: rowPad }, { borderColor: border, borderWidth: isSel || inPlace ? 2 : StyleSheet.hairlineWidth, backgroundColor: isSel ? theme.primary + '14' : theme.card }]}>
                 <View style={[styles.num, { backgroundColor: (inPlace ? theme.success : theme.primary) + '22' }]}>
                   <ThemedText type="smallBold" style={{ color: inPlace ? theme.success : theme.iconLilac }}>{pos + 1}</ThemedText>
                 </View>

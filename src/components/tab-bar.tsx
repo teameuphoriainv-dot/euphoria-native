@@ -2,12 +2,12 @@ import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
+import { UIcon, type UIconName } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 /** Route → UIcon line icon (consistent stroke, per design mockups). */
-const TAB_ICONS: Record<string, string> = {
+const TAB_ICONS: Record<string, UIconName> = {
   home: 'home',
   learn: 'learn',
   trade: 'trade',

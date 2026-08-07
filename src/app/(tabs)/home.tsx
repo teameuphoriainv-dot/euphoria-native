@@ -39,6 +39,7 @@ import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { openAtlasChat } from '@/components/ask-atlas';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -139,7 +140,16 @@ export default function Home() {
         <RiseIn>
           <View style={styles.headerRow}>
             <View style={styles.greetLeft}>
-              <Atlas size={46} expression="happy" interactive={false} />
+              {/* The mascot IS the entry to chat. It was already sitting here inert, and a mascot
+                  is the first thing anyone taps — see ask-atlas.tsx for why there is no FAB. */}
+              <SpringPressable
+                haptic={false}
+                onPress={() => openAtlasChat()}
+                accessibilityRole="button"
+                accessibilityLabel="Ask Atlas"
+              >
+                <Atlas size={46} expression="happy" interactive={false} />
+              </SpringPressable>
               <View style={{ flex: 1 }}>
                 <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>
