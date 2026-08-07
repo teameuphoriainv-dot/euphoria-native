@@ -7,12 +7,11 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AnimatedLineChart } from '@/components/animated-chart';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';

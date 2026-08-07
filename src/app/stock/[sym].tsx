@@ -6,7 +6,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AnimatedLineChart } from '@/components/animated-chart';

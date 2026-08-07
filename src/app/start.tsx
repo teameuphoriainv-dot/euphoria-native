@@ -30,14 +30,12 @@ import { ThemedText } from '@/components/themed-text';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { pickToday } from '@/lib/digest-pick';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 export default function Start() {
-  const theme = useTheme();
   const readPosts = useApp((s) => s.readPosts);
   const dailyPick = useApp((s) => s.dailyPick);
   const setProfile = useApp((s) => s.setProfile);

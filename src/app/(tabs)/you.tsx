@@ -23,7 +23,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TIERS, tierProgress } from '@/lib/league';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -64,7 +64,6 @@ export default function You() {
   const guides = useApp((s) => s.readPosts.length);
   const name = useApp((s) => s.profile.name);
   const handle = useApp((s) => s.profile.handle);
-  const friendCount = useApp((s) => s.friendIds().length);
 
   const { tier, next, progress, xpToNext } = tierProgress(xp);
   const fresh = xp === 0 && lessons === 0 && streak === 0;

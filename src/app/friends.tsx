@@ -27,7 +27,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { tierForXp } from '@/lib/league';
 import { PEOPLE, type Person } from '@/lib/people';
 import { relationshipOf, useApp, type Relationship } from '@/lib/store';
-import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 const LABEL: Record<Relationship, string> = {
