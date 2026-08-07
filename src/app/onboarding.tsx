@@ -195,7 +195,7 @@ function openLegal(url: string) {
 type StepDef =
   | { kind: 'single'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'multi'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
-  | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof'; face: AtlasExpression }
+  | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof' | 'trial'; face: AtlasExpression }
   | { kind: 'loader' }
   | { kind: 'reveal' }
   | { kind: 'paywall' };
@@ -218,12 +218,21 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'notifyOptIn', question: 'Want a daily nudge?', options: NOTIFY, face: 'happy' },
   { kind: 'loader' },
   { kind: 'reveal' },
+  /* The trial timeline used to sit ON the paywall, above both plan cards. Together they
+     overran the viewport and the Monthly card was clipped by the pinned footer. Facetune
+     ($11M/mo) shows the timeline BEFORE prices as its own step rather than stacked with them,
+     and ScreensDesign flags that as a distinctive element. Splitting lets both breathe.
+     TITLE IS DRAFT COPY — a new step needs a headline; review it. */
+  { kind: 'statement', title: 'How your free trial works', body: 'trial', face: 'happy' },
   { kind: 'paywall' },
 ];
 
 const TOTAL = STEPS.length;
-const PAYWALL_INDEX = TOTAL - 1;
-const REVEAL_INDEX = TOTAL - 2;
+/* Located by KIND, not by offset. These were TOTAL-1 and TOTAL-2, so inserting the trial step
+   below would have silently pointed REVEAL_INDEX at the wrong screen — the reveal celebration
+   would have fired on the trial timeline and the completion stamp with it. */
+const PAYWALL_INDEX = STEPS.findIndex((s) => s.kind === 'paywall');
+const REVEAL_INDEX = STEPS.findIndex((s) => s.kind === 'reveal');
 
 export default function Onboarding() {
   const theme = useTheme();
@@ -392,6 +401,13 @@ export default function Onboarding() {
         return (
           <StatementStep title={def.title} sub={def.sub}>
             {def.body === 'chart' ? <GrowthChart delay={CHILD_BASE} /> : null}
+            {def.body === 'trial' ? (
+              <View style={{ marginTop: Spacing.four }}>
+                {TRIAL_STEPS.map((t, i) => (
+                  <TrialStep key={t.title} icon={t.icon} title={t.title} sub={t.sub} tone={t.tone} last={i === TRIAL_STEPS.length - 1} />
+                ))}
+              </View>
+            ) : null}
             {def.body === 'proof' ? (
               <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
                 {PROOF.map((p, i) => (
@@ -432,13 +448,6 @@ export default function Onboarding() {
                 one simply stops spreading and scrolls — the previous flex-start packed
                 everything to the top and left the slack stranded at the bottom. Hardcoding that
                 slack as padding is what would push "No payment due now" off an SE. */}
-            <View style={{ marginTop: Spacing.four }}>
-              {TRIAL_STEPS.map((s, i) => (
-                <RiseIn key={s.title} delay={childDelay(i)}>
-                  <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === TRIAL_STEPS.length - 1} />
-                </RiseIn>
-              ))}
-            </View>
             <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.three }}>
               {/* The plan NAME carries the billing period and the price carries the amount you
                   are actually charged. Both cards used to headline a "/mo" figure, so the annual
