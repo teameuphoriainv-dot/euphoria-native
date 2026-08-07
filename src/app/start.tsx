@@ -35,6 +35,11 @@ import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+/** Module scope, so the impure Date.now() is not in render scope. The compiler lint cannot
+ *  prove an arrow defined in a component body is only ever called from an event handler, so
+ *  it flags the call site rather than the caller. Behaviour is identical. */
+const nowMs = () => Date.now();
+
 export default function Start() {
   const readPosts = useApp((s) => s.readPosts);
   const dailyPick = useApp((s) => s.dailyPick);
@@ -45,7 +50,7 @@ export default function Start() {
 
   /** Both paths stamp. Skipping is a decision, not a deferral: without stamping here the screen
    *  would greet the user again on every single sign-in. */
-  const done = () => setProfile({ firstRunDoneAt: Date.now() });
+  const done = () => setProfile({ firstRunDoneAt: nowMs() });
 
   const begin = () => {
     done();

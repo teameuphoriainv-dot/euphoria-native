@@ -12,7 +12,7 @@
  * ⚠️ Everyone listed here is fabricated - see src/lib/people.ts. Nothing on this screen may
  * describe them as real people.
  */
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -91,7 +91,10 @@ export default function Friends() {
   const unfollow = useApp((s) => s.unfollow);
   const [query, setQuery] = useState('');
 
-  const rel = (id: string) => relationshipOf(id, following, followers);
+  /* useCallback, not a plain arrow: the memo below depends on `rel`, and a function
+     recreated every render would make that memo recompute every render — strictly worse
+     than the missing-dependency warning it was silencing. */
+  const rel = useCallback((id: string) => relationshipOf(id, following, followers), [following, followers]);
   const toggle = (id: string) => (following.includes(id) ? unfollow(id) : follow(id));
 
   const { friends, inbound, others } = useMemo(() => {
@@ -105,7 +108,9 @@ export default function Friends() {
       inbound: sorted.filter((p) => rel(p.id) === 'follows-you'),
       others: sorted.filter((p) => rel(p.id) !== 'friends' && rel(p.id) !== 'follows-you' && match(p)),
     };
-  }, [following, followers, query]);
+  /* `rel` is memoised on [following, followers], so naming those here too is redundant —
+     the memo already invalidates through rel. */
+  }, [query, rel]);
 
   const empty = (text: string) => (
     <ThemedText type="small" themeColor="mutedForeground" style={styles.empty}>{text}</ThemedText>
