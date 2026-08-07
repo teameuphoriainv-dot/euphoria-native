@@ -409,6 +409,14 @@ export default function Onboarding() {
                 {TRIAL_STEPS.map((t, i) => (
                   <TrialStep key={t.title} icon={t.icon} title={t.title} sub={t.sub} tone={t.tone} last={i === TRIAL_STEPS.length - 1} />
                 ))}
+                <View style={[styles.trialPrice, { borderTopColor: theme.border }]}>
+                  <ThemedText type="bodyMedium" style={{ textAlign: 'center' }}>
+                    7 days free, then {plan === 'annual' ? '$59.99 per year' : '$9.99 per month'}
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center', marginTop: 3 }}>
+                    Cancel anytime in the App Store
+                  </ThemedText>
+                </View>
               </View>
             ) : null}
             {def.body === 'proof' ? (
@@ -578,6 +586,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
+  /* The price on the timeline screen, as Facetune (112333, $11M/mo) does: it states
+     "7-day free trial, then $77.99/year" under its timeline rather than deferring the number
+     to the plan picker. Naming the charge on the screen that explains the charge is the point
+     of the pattern - and it fills the band this screen had left over. */
+  trialPrice: { marginTop: Spacing.four, paddingTop: Spacing.four, borderTopWidth: StyleSheet.hairlineWidth },
   content: { padding: Spacing.four, paddingTop: Spacing.three, flexGrow: 1, justifyContent: 'flex-start' },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
