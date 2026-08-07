@@ -33,7 +33,7 @@ import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { CourseRailCard } from '@/components/course-rail-card';
-import { LessonArt, shade } from '@/components/lesson-art';
+import { LessonArt } from '@/components/lesson-art';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
@@ -183,9 +183,14 @@ export default function Home() {
                   Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
                 </ThemedText>
                 <View style={styles.heroCta}>
+                  {/* No `colors` override — the brand gradient, like every other CTA in the app.
+                      Across ten pulled references (Elevate blue, Nibble purple, RiseGuide black,
+                      EWA purple, Promova black, Deepstash dark, Facetune cyan, Praktika blue,
+                      BetterMe red, BitePal black) NOT ONE derives its primary button colour from
+                      the content it sits on. The course accent still carries identity here — the
+                      eyebrow, the card tint and its border — but the control is chrome. */}
                   <GradientButton
                     label={doneInCourse === 0 ? 'Start' : 'Continue'}
-                    colors={[shade(accent, 0.3), accent]}
                     full
                     onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
                   />
@@ -274,7 +279,11 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
   greetLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, flex: 1 },
-  pillStack: { gap: 5, alignItems: 'flex-end' },
+  /* A ROW, not a stack. Two pills stacked with a 5pt gap collided against the 46pt Atlas and
+     read as one smeared blob. Every reference header lays its stats out horizontally —
+     Elevate puts the streak counter in the top nav row, EWA puts level + streak + coins in a
+     row. None of the six stacks them. */
+  pillStack: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, borderWidth: 1 },
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
