@@ -26,12 +26,16 @@ import {
   FREE_ATLAS_MESSAGES,
   FREE_LESSON_LIMIT,
   PRO_DERIVATIVE_PREVIEW,
+  TRIAL_DAYS,
   useApp,
   type AppState,
 } from './store';
 
-/** Three distinct days of real use. "Days used", never "days elapsed" — see the note below. */
-export const TRIAL_DAYS = 3;
+/**
+ * Re-exported from the store, which owns it beside `activeDays`. Callers can keep importing it from
+ * here; there is only one definition, so the rule cannot drift between the two modules.
+ */
+export { TRIAL_DAYS };
 
 /**
  * WHY "DAYS USED" AND NOT "DAYS ELAPSED":
@@ -98,9 +102,10 @@ export function tier(s: AppState): Tier {
 /**
  * The one question.
  *
- * During the trial the existing COUNT limits still apply, so a trial user runs out of whichever
- * comes first — 5 lessons, 10 Atlas messages, 3 options previews, or 3 days. After the trial
- * nothing applies: it is all Pro. That keeps the gate copy to ONE reason at a time.
+ * During the trial the COUNT limits still apply, so a trial user runs out of whichever comes first
+ * — 5 lessons, 10 Atlas messages, or 3 days. Options are the exception: their cap is a DATA limit
+ * that binds Pro users equally, so it is not a trial restriction. After the trial nothing applies:
+ * it is all Pro. That keeps the gate copy to ONE reason at a time.
  */
 export function entitled(s: AppState, f: Feature): Refusal {
   if (s.isPro) return { ok: true };
@@ -115,6 +120,16 @@ export function entitled(s: AppState, f: Feature): Refusal {
     case 'atlas':
       return capped(s.atlasAsked, FREE_ATLAS_MESSAGES);
     case 'options':
+      /*
+       * PRO_DERIVATIVE_PREVIEW is a DATA limit, not a tier. There is no options provider connected,
+       * which is why options.tsx says "More arrives with a full options data plan" and why even a
+       * Pro user gets only three. So the same cap applies to a trial user — it is not a lesser
+       * allowance, it is the same allowance, because three is all the app can honestly offer.
+       *
+       * 4/4 reference trials grant full premium access rather than metered previews (Headway
+       * "full access to the Premium experience", Promova "Unlock all lessons", Quizlet "Get instant
+       * access", Nibble "Start daily microlearning lessons and quizzes"). §22 C26.
+       */
       return capped(s.derivativeTrades, PRO_DERIVATIVE_PREVIEW);
     case 'guide':
     case 'trade':

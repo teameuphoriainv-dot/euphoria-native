@@ -3256,3 +3256,46 @@ available headroom, not a requirement.
   for the reminder, ahead of the system prompt.
 - `128620` — states the rule plainly: *"Finish 3 key points every day to extend your streak.
   **Miss a day — and it resets to 0.**"*
+
+### C26. C19 RESOLVED. Options are open during the trial, because the 3-cap is a DATA limit.
+
+The user's call was "options previewable during the trial are fine", and the research agrees — but
+it reframes the question rather than just answering it.
+
+**The evidence.** Every trial timeline in the reference set states what a trial grants, and 4/4 say
+FULL access, not metered previews:
+
+| app | "Today" says |
+|---|---|
+| Headway `128586` | *"No payment now, just **full access to the Premium experience**"* |
+| Promova `138757` | *"**Unlock all lessons**, practice without ads and get unlimited AI role-play"* |
+| Quizlet `147531` | *"Today: **Get instant access**"* |
+| Nibble `132921` | *"No payment now. Start daily microlearning lessons and quizzes"* |
+
+**The reframe that actually resolved it.** `PRO_DERIVATIVE_PREVIEW = 3` is **not a monetisation
+tier**. It is a DATA limit — there is no options provider connected, which is why `options.tsx`
+already says *"More arrives with a full options data plan"* and why **even a Pro user gets only
+three**. So the cap binds everyone WITH ACCESS equally, and access is the only thing gated:
+
+| tier | options |
+|---|---|
+| trial | **open**, capped at 3 — the same 3 a Pro user gets, because 3 is all the app can honestly offer |
+| expired | locked — the wall, which now reads "Pro **reopens** 3 preview contracts" |
+| pro | open, capped at 3 |
+
+**What changed.** `store.derivativesLeft()` no longer hard-returns 0 for non-Pro; it returns 0 only
+once the trial is spent. `options.tsx` gates on ACCESS via `useTier()` rather than on `isPro`, which
+had been locking out precisely the users the trial exists to convert. `TRIAL_DAYS` moved to
+`store.ts` beside `activeDays` and is re-exported from `entitlement.ts`, so expiry has **one**
+definition — store cannot import entitlement without a genuine cycle, unlike trap #27's imaginary
+one.
+
+**Verified on device:** a trial user sees `3 lessons · 9 Atlas · 2 options contracts left` on You and
+reaches the chain reading `2 of 3 preview contracts left`; an expired user gets the wall. Both
+surfaces now report the same number, which is what C19 was about.
+
+**A larger question this exposes, not yet decided.** If 4/4 reference trials mean full access, then
+§9.3's metered trial — 5 lessons and 10 Atlas messages *during* the trial — is off-pattern too. The
+count limits arguably belong to a FREE tier that exists before or instead of the trial, not inside
+it. That is a product decision, not a bug, and it is untouched. Raise it before Unit 5 prices
+anything.

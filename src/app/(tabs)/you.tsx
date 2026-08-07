@@ -73,14 +73,12 @@ export default function You() {
   const lessonsLeft = useApp((st) => st.freeLessonsLeft());
   const atlasLeft = useApp((st) => st.atlasLeft());
   /*
-   * NOT SHOWN, deliberately: there are currently TWO disagreeing answers for options.
-   *   store.derivativesLeft()      -> 0 for anyone not Pro ("zero-because-locked")
-   *   entitlement.entitled('options') -> allows PRO_DERIVATIVE_PREVIEW (3) during the trial
-   * §9.4's table says 3 previews in trial; the shipped store getter and options.tsx say Pro-only.
-   * Displaying either number would contradict the other surface, so this card shows only the two
-   * counts both authorities agree on. Unit 4 owns gate copy and reasons — resolve it there, and
-   * whichever wins, ONE of these two has to change. See §22 C19.
+   * Safe to show again: §22 C26 resolved the split. store.derivativesLeft() and
+   * entitled('options') now agree, because the three-contract cap was reframed as a DATA limit
+   * that binds Pro equally rather than a trial restriction. options.tsx gates on access, so a
+   * trial user genuinely has these.
    */
+  const optionsLeft = useApp((st) => st.derivativesLeft());
   const name = useApp((s) => s.profile.name);
   const handle = useApp((s) => s.profile.handle);
 
@@ -140,7 +138,7 @@ export default function You() {
                 ? 'Every lesson, unlimited Atlas, the full options desk.'
                 : planTier === 'expired'
                   ? 'Your free days are up. Pro reopens every lesson and Atlas.'
-                  : `${lessonsLeft} lessons · ${atlasLeft} Atlas questions left`}
+                  : `${lessonsLeft} lessons · ${atlasLeft} Atlas · ${optionsLeft} options contracts left`}
             </ThemedText>
             {planTier !== 'pro' && (
               <SpringPressable

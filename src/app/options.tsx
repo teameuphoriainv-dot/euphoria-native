@@ -36,6 +36,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { getChain, getExpirations, type Contract } from '@/lib/market';
 import { ASSUMED_VOL, CONTRACT_SIZE, premium, strikesAround } from '@/lib/options';
 import { ALL_SYMS, money, priceOf, STOCKS } from '@/lib/stocks';
+import { useTier } from '@/lib/entitlement';
 import { PRO_DERIVATIVE_PREVIEW, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -145,7 +146,13 @@ function ChainRow({
 
 export default function Options() {
   const theme = useTheme();
-  const isPro = useApp((s) => s.isPro);
+  /*
+   * Gate on ACCESS, not on isPro. A trial user is entitled to options — 4/4 reference trials grant
+   * full premium access, and the three-contract cap is a data limit that binds Pro equally. Gating
+   * on isPro locked out exactly the users the trial was meant to convert. §22 C26.
+   */
+  const planTier = useTier();
+  const hasAccess = planTier !== 'expired';
   const cash = useApp((s) => s.cash);
   const left = useApp((s) => s.derivativesLeft());
   const open = useApp((s) => s.openDerivative);
@@ -226,9 +233,9 @@ export default function Options() {
 
   const picked = pick ? rows.find((r) => r.strike === pick.strike) : null;
   const chosen = picked && pick ? (pick.side === 'call' ? picked.call : picked.put) : null;
-  const canTrade = !!chosen && isPro && left > 0 && chosen.cost > 0 && chosen.cost <= cash;
+  const canTrade = !!chosen && hasAccess && left > 0 && chosen.cost > 0 && chosen.cost <= cash;
 
-  if (!isPro) {
+  if (!hasAccess) {
     return (
       <SafeAreaView edges={['top']} style={styles.safe}>
         <AmbientBackground starCount={26} glow={false} />
@@ -245,7 +252,7 @@ export default function Options() {
               <Atlas size={92} expression="watching" interactive={false} />
               <ThemedText type="heading" style={styles.center}>Options are part of Pro</ThemedText>
               <ThemedText type="small" themeColor="mutedForeground" style={styles.center}>
-                A contract moves on time and volatility, not just direction. Pro unlocks{' '}
+                A contract moves on time and volatility, not just direction. Pro reopens{' '}
                 {PRO_DERIVATIVE_PREVIEW} preview contracts on a real chain so you can watch that happen.
               </ThemedText>
               <GradientButton label="See Pro" full onPress={() => router.push('/onboarding?step=paywall')} />

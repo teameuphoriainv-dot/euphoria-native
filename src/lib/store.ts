@@ -31,6 +31,13 @@ const XP_PER_LEVEL = 500;
 export const FREE_LESSON_LIMIT = 5;
 
 /**
+ * Distinct days of real use the trial lasts. Defined HERE, beside `activeDays`, and re-exported by
+ * lib/entitlement.ts — not the other way round. entitlement.ts imports this module, so a store ->
+ * entitlement import would be a genuine cycle. One definition, no duplication of the rule.
+ */
+export const TRIAL_DAYS = 3;
+
+/**
  * Paper-trading starting balance.
  *
  * $10,000, not the $100,000 the trading apps hand out. This is a personal-finance TEACHING tool
@@ -325,6 +332,8 @@ export type AppState = {
   derivativeTrades: number;
   /** Preview derivative trades remaining. 0 for anyone who is not Pro — this is a Pro feature. */
   derivativesLeft: () => number;
+  /** True once the trial's day allowance is spent. The single definition of expiry. */
+  trialExpired: () => boolean;
   /** Open derivative positions. Simplified: no exercise, no assignment, no expiry processing —
    *  the screen states that plainly rather than implying a settlement engine exists. */
   derivatives: {
@@ -427,10 +436,26 @@ export const useApp = create<AppState>()(
           watchlist: s.watchlist.includes(sym) ? s.watchlist.filter((w) => w !== sym) : [...s.watchlist, sym],
         })),
 
+      trialExpired: () => get().activeDays.length > TRIAL_DAYS,
+
       derivativesLeft: () => {
         const s = get();
-        // Not Pro -> not zero-because-spent, zero-because-locked. The screen distinguishes the two.
-        if (!s.isPro) return 0;
+        /*
+         * CORRECTED 2026-08-07. This used to `return 0` for anyone not Pro, which contradicted
+         * lib/entitlement.ts and made the You tab print "0 options previews left" to a trial user
+         * who was in fact entitled to three. See §22 C19 and C26.
+         *
+         * The reframe that resolved it: PRO_DERIVATIVE_PREVIEW is NOT a monetisation tier. It is a
+         * DATA limit — there is no options provider connected, which is why options.tsx says "More
+         * arrives with a full options data plan" and why even Pro gets only three. So the cap
+         * applies to everyone WITH ACCESS, and access is the thing that is gated.
+         *
+         * 4/4 of the reference trials grant full premium access, not metered previews:
+         * Headway "full access to the Premium experience", Promova "Unlock all lessons",
+         * Quizlet "Get instant access", Nibble "Start daily microlearning lessons and quizzes".
+         * A trial user therefore gets the same three a Pro user gets.
+         */
+        if (!s.isPro && s.trialExpired()) return 0; // zero-because-locked
         return Math.max(0, PRO_DERIVATIVE_PREVIEW - s.derivativeTrades);
       },
       openDerivative: (d) =>
