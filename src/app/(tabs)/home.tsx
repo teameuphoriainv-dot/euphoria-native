@@ -32,9 +32,10 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { CourseRailCard } from '@/components/course-rail-card';
 import { LessonArt, shade } from '@/components/lesson-art';
 import { courseAccent } from '@/lib/course-accents';
-import { loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -92,6 +93,7 @@ export default function Home() {
   const streak = useApp((s) => s.streak);
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
+  const setActiveCourse = useApp((s) => s.setActiveCourse);
   const minutesDone = useApp((s) => s.minutesDoneToday());
   const goalMinutes = useApp((s) => s.dailyGoalMinutes());
 
@@ -172,12 +174,12 @@ export default function Home() {
           <Card elevated style={[styles.hero, { shadowColor: accent, borderColor: accent + '30' }]} tint={accent}>
             {next ? (
               <>
-                <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={132} />
-                <ThemedText type="label" style={{ color: accent, marginTop: Spacing.four }} numberOfLines={1}>
+                <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={96} />
+                <ThemedText type="label" style={{ color: accent, marginTop: Spacing.three }} numberOfLines={1}>
                   {(course?.title ?? 'Course').toUpperCase()}
                 </ThemedText>
                 <ThemedText type="display" style={styles.heroTitle}>{next.title}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.three }}>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.two }}>
                   Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
                 </ThemedText>
                 <View style={styles.heroCta}>
@@ -203,6 +205,43 @@ export default function Home() {
             )}
           </Card>
         </RiseIn>
+
+        {/*
+          * A labelled section plus a horizontal rail, because Home had neither.
+          *
+          * ScreensDesign, six home/dashboard screens across six apps at $250k-$750k/mo
+          * (Elevate 111712, Nibble 132959, Deepstash 247089, Promova 138796,
+          * RiseGuide 270262, EWA 283665):
+          *   6/6  two or more LABELLED content sections
+          *   6/6  a horizontal multi-item row
+          *   0/6  a single hero card dominating the screen
+          *
+          * Onboarding promises a 75-lesson path across three courses and then Home showed
+          * exactly one lesson with no way to see the rest without leaving the tab. That is
+          * the blandness: nothing to browse. CourseRailCard already ships in learn.tsx, so
+          * this is the existing component in a second place, not a new one.
+          */}
+        <View style={styles.sectionHead}>
+          <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
+          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={8}>
+            <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>See all</ThemedText>
+          </SpringPressable>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.rail}
+          style={styles.railScroll}>
+          {COURSES.map((c) => (
+            <CourseRailCard
+              key={c.id}
+              course={c}
+              selected={c.id === activeCourseId}
+              done={completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length}
+              onPress={() => setActiveCourse(c.id)}
+            />
+          ))}
+        </ScrollView>
 
         {/* Secondary surfaces */}
         <View style={styles.duoRow}>
@@ -240,9 +279,15 @@ const styles = StyleSheet.create({
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
   dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  hero: { alignItems: 'center', paddingVertical: Spacing.four, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
-  heroTitle: { textAlign: 'center', fontSize: 26, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
-  heroCta: { alignSelf: 'stretch', marginTop: Spacing.four },
+  hero: { alignItems: 'center', paddingVertical: Spacing.three, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
+  /* 22/28, lineHeight pinned to the override. Was 26 on `display` (lineHeight 40): the hero
+     card ate 55% of the viewport and pushed the new YOUR PATH rail under the tab bar. None of
+     the six reference home screens uses a hero this large. */
+  heroTitle: { textAlign: 'center', fontSize: 22, lineHeight: 28, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
+  heroCta: { alignSelf: 'stretch', marginTop: Spacing.three },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.four, marginBottom: Spacing.two },
+  railScroll: { marginHorizontal: -Spacing.three },
+  rail: { paddingHorizontal: Spacing.three, gap: Spacing.two + 4 },
   duoRow: { flexDirection: 'row', gap: Spacing.three },
   duoHalf: { flex: 1 },
   duoCard: { minHeight: 104 },
