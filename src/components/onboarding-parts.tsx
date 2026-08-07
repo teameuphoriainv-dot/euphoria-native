@@ -17,7 +17,6 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 import { NumberRollup } from '@/shared/motion/number-rollup';
-import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { childDelay } from '@/shared/motion/step-transition';
@@ -538,10 +537,15 @@ export function PlanRevealStep({
           // Hierarchy is explicit rather than incidental: course 1 is the one actually starting,
           // so it takes the tinted card, the larger mark, and the `description` that was already
           // being passed into this component and thrown away.
+          // Plain View, not RewardPop. Three cards popping in on a stagger read as parts
+          // arriving separately rather than a plan being revealed. RewardPop is the EARNED
+          // gesture — same reasoning that cut Atlas's vertical travel from 28pt to 2.0pt:
+          // spend the reward motion on rewards or it stops meaning anything. The step already
+          // crossfades in as a unit via bodyOpacity, so the rows need no entrance of their own.
           const accent = courseAccent(c.id);
           const lead = i === 0;
           return (
-            <RewardPop key={c.id} delay={childDelay(i)} style={{ marginBottom: Spacing.two }}>
+            <View key={c.id} style={{ marginBottom: Spacing.two }}>
               <View
                 style={[
                   styles.planRow,
@@ -572,7 +576,7 @@ export function PlanRevealStep({
                   </ThemedText>
                 </View>
               </View>
-            </RewardPop>
+            </View>
           );
         })}
       </View>
