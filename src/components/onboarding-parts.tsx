@@ -637,7 +637,11 @@ const styles = StyleSheet.create({
      Spacing.four (68pt pitch) was tried first and REVERTED: it grew the body by 48pt and
      pushed the Monthly card to 11pt from the pinned footer, the same collision class as the
      MultiSelect Check button. Measured, not guessed. */
-  tlBody: { flex: 1, paddingBottom: Spacing.two },
+  /* Spacing.five. This was 8pt when the timeline shared the paywall with two plan cards, and
+     raising it there clipped the Monthly card. Now that the timeline has its own step
+     (71d1baa) that constraint is gone and the step had ~180pt of dead band below it, so the
+     rows get the rhythm the rest of the app uses: row pitch 52pt -> 84pt. */
+  tlBody: { flex: 1, paddingBottom: Spacing.five },
   plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
   // sits flush on the card's top edge, which squares off its top corners
   planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
