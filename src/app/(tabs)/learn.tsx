@@ -15,7 +15,8 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
 import { CourseRailCard, RAIL_CARD_GAP, RAIL_CARD_HEIGHT, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
-import { LessonArt } from '@/components/lesson-art';
+import { LessonMark, lessonMarkColor } from '@/components/art/lesson-mark';
+import { artKeyFor } from '@/components/lesson-art';
 import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -217,7 +218,23 @@ export default function Learn() {
                       {locked ? (
                         <UIcon name="lock" size={22} color={theme.mutedForeground} />
                       ) : (
-                        <LessonArt courseId={activeCourseId} title={lesson.title} index={n.i} size={active ? 40 : 38} />
+                        /*
+                         * Stroke mark, NOT the filled LessonArt scene.
+                         *
+                         * LessonArt's palette is derived entirely from the course accent, and an
+                         * active node's face is that same accent at 18% — so the art was
+                         * accent-on-accent and dissolved at 38pt. Behavioral Finance drew pink art
+                         * on a pink ground and its bucket read as an unidentifiable cup.
+                         *
+                         * `artKeyFor` still chooses WHICH mark, so the measured distribution is
+                         * unchanged (worst repeat 5 in a course, worst run 2, across 295 lessons).
+                         * Only the rendering changed. lessonMarkColor owns the contrast rule.
+                         */
+                        <LessonMark
+                          markKey={artKeyFor(lesson.title, n.i)}
+                          size={active ? 40 : 36}
+                          color={lessonMarkColor({ active, accent, text: theme.text })}
+                        />
                       )}
                     </View>
                     {/* Shown on LOCKED nodes too, dimmed. Hiding it until unlocked defeats the
