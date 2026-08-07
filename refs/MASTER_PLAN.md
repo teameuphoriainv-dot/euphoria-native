@@ -3468,3 +3468,32 @@ under the nodes, or drop the serpentine. That is a redesign, not a constant.
 
 **KEPT from the attempt** (both real, both verified): the render-loop fix, and locked nodes now
 announcing "Finish the lesson before this one to unlock it" instead of being silent dead controls.
+
+### C34. The density problem is the HEADER, not the pitch. C33's diagnosis was incomplete.
+
+Measured with the trail scrolled to top: **the first node sits at y=575** and the tab bar at y=819.
+That leaves a **244pt** band, not the ~367pt C33 assumed — so at pitch 100 only **THREE** nodes fit,
+not the ~6 the file's comment has always claimed.
+
+C33's earlier y=452 reading was taken mid-scroll, which made the band look larger than it is. The
+band is what it is because the course rail plus the course header consume ~575pt — **roughly 70% of
+the screen before a single lesson appears.**
+
+**So Unit 7 was aiming at the wrong constant.** Tightening pitch fights for scraps inside a 244pt
+window; the win is upstream — collapse or shrink the rail and header. That is where ≥10 nodes could
+actually come from, and it does not require touching node size or touch targets at all.
+
+### C35. UNRESOLVED: the gate sheet did not open, and the test may be at fault.
+
+Expired user (`isPro:false`, `activeDays:4`) tapping the active node produced **zero** gate labels.
+The 11 underlying Learn labels were unchanged, so nothing navigated and nothing opened.
+
+**Two candidate causes, not yet distinguished:**
+1. `sim.sh tapon "START"` matched the TITLE LABEL, which is a separate a11y element beside the node
+   and is not the pressable. The tap may never have reached the node.
+2. The handler genuinely did not fire, or `entitled()` returned ok.
+
+The overlay mechanism itself is therefore **still unverified** — the "11 underlying labels present"
+result proves only that nothing navigated, which is also what a no-op looks like. Next step: tap the
+node by measured COORDINATE from `idb ui describe-all` rather than by label, and confirm
+`entitled(getState(),'lesson')` refuses at `activeDays:4` on device.
