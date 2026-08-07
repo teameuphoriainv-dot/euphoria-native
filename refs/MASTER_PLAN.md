@@ -3315,3 +3315,77 @@ surfaces now report the same number, which is what C19 was about.
 count limits arguably belong to a FREE tier that exists before or instead of the trial, not inside
 it. That is a product decision, not a bug, and it is untouched. Raise it before Unit 5 prices
 anything.
+
+---
+
+## Decisions taken 2026-08-07 (round 2)
+
+### C27. Trial model: full content access, Atlas stays capped.
+
+The answer given was "#1 and #2", which as written are contradictory (unmetered vs metered). The
+reading being implemented, and it should be corrected if wrong:
+
+- **Content is UNMETERED during the trial** — every lesson, every guide, options. This is what 4/4
+  references mean by a trial (§22 C26) and it means a trial user actually sees the product.
+- **Atlas keeps its cap.** It is the one feature with a real per-message cost to us; lessons and
+  guides are already-authored content that costs nothing incremental to serve. Metering the
+  genuinely expensive thing and opening the rest is the coherent half of each answer.
+- `FREE_LESSON_LIMIT` therefore stops binding during the trial. store.ts calls it "THE OFFER", so
+  this is a real change to the offer, not a tweak.
+- After expiry the hard wall applies to everything (C13 decision 1, reaffirmed below).
+
+### C28. Hard wall REAFFIRMED, with the counter-evidence on the record.
+
+Kept, after being shown that the two highest earners in the band ship SOFT paywalls with a visible
+skip — Headway $850k and Quizlet $2.25M, whose paywall carries *"Continue using free Quizlet"*.
+Euphoria goes hard after three days anyway. The gate sheet stays always-dismissible so users are
+never trapped, and the streak/XP loop plus the day-2 notification are the only re-entry paths.
+
+### C29. Pricing: KEEP $9.99 / $59.99. Recommendation from five real paywalls.
+
+Prices read off actual captured paywalls rather than marketing pages:
+
+| app | rev/mo | monthly | yearly | yearly ÷ 12 |
+|---|---|---|---|---|
+| Quizlet `147531` | $2.25M | $7.99 | $35.99 | **$3.00** |
+| Headway `128588` | $850k | — | $89.99 | **$7.50** |
+| Promova `138758` | $250k | — | $99.99 | **$8.33** |
+| Astra AI `323576` | $550k | $24 (Plus) | — | — |
+| Bloom (external est.) | ~$291k | $15 | $120 | **$10.00** |
+| **Euphoria** | — | **$9.99** | **$59.99** | **$5.00** |
+
+**Euphoria's monthly is already mid-pack** — above Quizlet, below Bloom, far below Astra AI. So the
+"we are half of Bloom" framing in §9.10 is misleading: it compares against the single most expensive
+comparable rather than the set.
+
+**The decisive argument against matching Bloom:** Bloom's $15 buys **real fractional investing** —
+actual money, a real brokerage. Euphoria's buys **paper trading**. Charging Bloom's price for a
+simulator invites the comparison Euphoria loses. Keep $9.99.
+
+**One genuine finding to revisit later, not now:** the ANNUAL is where Euphoria is actually cheap.
+At $59.99 it is $5.00/month-equivalent against a peer median near $7.90 — roughly 37% under. If
+pricing is ever revisited, raise the annual toward ~$89.99 (Headway's exact equivalent) and leave
+the monthly alone. That was offered and not chosen, so it stays a note.
+
+### C30. Tab count: the data says FIVE. It does not support a sixth.
+
+Instruction was to run the count and follow it even if it disagrees with taste. ScreensDesign quota
+ran out mid-pass, so this is **5 of the 8 named apps, not 8** — stated as a limit, not padded:
+
+| app | rev/mo | tabs |
+|---|---|---|
+| Gauth `39` | $600k | **2** (Home, Profile) |
+| Quizlet `874` | $2.25M | **4** (Home, Create, Your library, Free Trial) — from `147535` |
+| Bloom `2004` | ~$291k | **5** (Home, Discover, Learn, Games, Profile) |
+| Duolingo `862` | $48M | **5** |
+| Investing.com `1171` | $450k | **5** (Markets, News, Ideas, Watchlist, More) |
+
+**Five is modal at 3/5. NOT ONE app in the sample ships six.** The range runs 2–5, and the highest
+earner in the sample by a wide margin (Quizlet, $2.25M) ships four.
+
+**So the data does not support adding a sixth tab, and saying so is the instruction.** The reward
+loop and league ladder need a home, but the evidence points at densifying Home (Unit 8 is already
+doing exactly that) rather than adding navigation. Euphoria already ships five.
+
+Finish the count to 8 apps (Elevate `1395`, Nibble `918`, Praktika `1816`) when quota returns before
+treating this as closed.
