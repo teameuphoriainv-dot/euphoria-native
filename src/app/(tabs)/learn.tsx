@@ -17,6 +17,8 @@ import { Atlas } from '@/components/atlas';
 import { CourseRailCard, RAIL_CARD_GAP, RAIL_CARD_HEIGHT, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
 import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
 import { artKeyFor } from '@/components/lesson-art';
+import { GateSheet } from '@/components/gate-sheet';
+import { useEntitlement, type Refusal } from '@/lib/entitlement';
 import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -86,6 +88,16 @@ export default function Learn() {
   // the active node is the first unfinished lesson; -1 once the course is complete
   const current = doneFlags.indexOf(false);
   const total = lessons.length;
+
+  /*
+   * The entitlement gate for lessons. Distinct from `locked` below, which is a PROGRESSION lock
+   * (n.i > current) — money cannot unlock lesson 5 for someone who has not finished lesson 4, and
+   * §20.4 forbids showing a paywall for something money cannot buy. So a sequence-locked node
+   * states its own condition (Duolingo's "Finish 7 lessons to start competing" move) while an
+   * unentitled one opens the sheet.
+   */
+  const lessonRefusal = useEntitlement('lesson');
+  const [gate, setGate] = useState<Refusal | null>(null);
 
   const nodes = useMemo(
     () =>
@@ -198,8 +210,23 @@ export default function Learn() {
                 <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size + LIP }}>
                   {active && <PulseHalo size={n.size} color={accent} />}
                   <SpringPressable
-                    onPress={() => router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } })}
+                    onPress={() => {
+                      // Not entitled -> the sheet, over this screen, keeping the user's place.
+                      // Navigating to a paywall here would throw away the context that makes the
+                      // ask legible, which is the whole mechanism (Astra AI 323575).
+                      if (!lessonRefusal.ok) {
+                        setGate(lessonRefusal);
+                        return;
+                      }
+                      router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
+                    }}
                     disabled={locked}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      locked
+                        ? `${lesson.title}. Finish the lesson before this one to unlock it.`
+                        : lesson.title
+                    }
                     scaleTo={0.9}>
                     {/* bottom lip */}
                     <View style={{ position: 'absolute', top: LIP, width: n.size, height: n.size, borderRadius: n.size / 2, backgroundColor: lip }} />
@@ -276,6 +303,28 @@ export default function Learn() {
           </View>
         )}
       </ScrollView>
+
+      {/*
+        * Rendered INSIDE the screen, so the path stays mounted behind it. Verify on device: with the
+        * sheet open, `sim.sh screen` must still list this screen's labels — if they vanish, someone
+        * turned it back into a route.
+        */}
+      {gate && (
+        <GateSheet
+          feature="lesson"
+          refusal={gate}
+          visible
+          onDismiss={() => setGate(null)}
+          onSeePro={() => {
+            setGate(null);
+            router.push('/onboarding?step=paywall');
+          }}
+          onWhyNotFree={() => {
+            setGate(null);
+            router.push('/why-not-free');
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }

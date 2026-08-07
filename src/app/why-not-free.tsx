@@ -1,0 +1,98 @@
+/**
+ * "Why isn't Euphoria free?" — the honest answer, reachable from the gate sheet.
+ *
+ * Copied in MECHANISM from Astra AI 323575, which carries a "Why isn't Astra AI free?" pill beside
+ * its Buy button. It answers the resentment instead of ignoring it, and for a finance app aimed at
+ * 18-25s that honesty is a differentiator rather than a weakness.
+ *
+ * Every claim here is TRUE of this codebase, which is the only reason it can be said (§0.4):
+ *   - market data really is metered per call — see api/market+api.ts and its rate limits
+ *   - Atlas really does cost per message — api/chat+api.ts proxies a paid model
+ *   - there really are no ads and no data sale — there is no analytics or ad SDK in the tree at all
+ * If any of those stops being true, this screen has to change with it.
+ *
+ * COPY IS UNAPPROVED (§20.2).
+ */
+import { useRouter } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ThemedText } from '@/components/themed-text';
+import { UIcon } from '@/components/ui-icon';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+
+const REASONS: { title: string; body: string }[] = [
+  {
+    title: 'Live prices cost money every time you look',
+    body: 'Every quote, chart and set of key stats is a metered API call. A user who checks ten tickers a day costs real money whether or not they ever pay us.',
+  },
+  {
+    title: 'Atlas costs money every time you ask',
+    body: 'Each question goes to a paid model. Unlimited free answers would mean the heaviest users are funded entirely by nobody.',
+  },
+  {
+    title: 'We do not run ads and we do not sell what you do here',
+    body: 'There is no ad SDK and no analytics in this app. That is a deliberate choice, and it removes the two usual ways a free finance app makes money.',
+  },
+];
+
+export default function WhyNotFree() {
+  const theme = useTheme();
+  const router = useRouter();
+  return (
+    <SafeAreaView edges={['top']} style={[styles.safe, { backgroundColor: theme.background }]}>
+      <Pressable
+        style={[styles.close, { backgroundColor: theme.cardElevated }]}
+        hitSlop={12}
+        accessibilityRole="button"
+        accessibilityLabel="Close"
+        onPress={() => router.back()}>
+        <UIcon name="close" size={18} color={theme.textSecondary} />
+      </Pressable>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <ThemedText type="display" style={styles.title}>
+          Why isn&apos;t{'\n'}Euphoria free?
+        </ThemedText>
+        <ThemedText type="body" themeColor="textSecondary" style={styles.lead}>
+          A fair question, and there is a real answer rather than a marketing one.
+        </ThemedText>
+        <View style={styles.list}>
+          {REASONS.map((r) => (
+            <View key={r.title} style={styles.item}>
+              <ThemedText type="bodyMedium">{r.title}</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground">
+                {r.body}
+              </ThemedText>
+            </View>
+          ))}
+        </View>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.close2}>
+          A subscription is the only other option we could find that does not involve selling you or
+          your data. That is the whole reason.
+        </ThemedText>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1 },
+  close: {
+    position: 'absolute',
+    top: Spacing.six,
+    right: Spacing.four,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 5,
+  },
+  content: { paddingHorizontal: Spacing.four, paddingTop: Spacing.six + Spacing.two, paddingBottom: Spacing.six },
+  title: { marginBottom: Spacing.two },
+  lead: { marginBottom: Spacing.five },
+  list: { gap: Spacing.four },
+  item: { gap: Spacing.one },
+  close2: { marginTop: Spacing.five },
+});
