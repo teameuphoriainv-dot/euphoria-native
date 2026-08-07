@@ -630,7 +630,14 @@ const styles = StyleSheet.create({
   tlRail: { width: 30, alignItems: 'center' },
   tlDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   tlBar: { width: 3, flex: 1, borderRadius: 2, marginTop: 2, minHeight: 14 },
-  tlBody: { flex: 1, paddingBottom: Spacing.two },
+  /* Spacing.four, not .two. Measured from the a11y tree, the timeline rows sat 24-28pt apart
+     while every other block boundary on this screen was 47-95pt — the timeline was running at
+     roughly half the screen's own rhythm, which is what made it read as cramped. 24 brings the
+     row pitch from 52pt to 60pt.
+     Spacing.four (68pt pitch) was tried first and REVERTED: it grew the body by 48pt and
+     pushed the Monthly card to 11pt from the pinned footer, the same collision class as the
+     MultiSelect Check button. Measured, not guessed. */
+  tlBody: { flex: 1, paddingBottom: Spacing.three },
   plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
   // sits flush on the card's top edge, which squares off its top corners
   planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
