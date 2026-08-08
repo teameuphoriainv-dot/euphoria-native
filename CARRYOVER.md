@@ -1,4 +1,4 @@
-**READ  FIRST.** It is the current, verified handoff (2026-08-08).
+**READ `refs/CARRYOVER_PROMPT.md` FIRST.** It is the current, verified handoff (2026-08-08).
 This file is older and parts of it are stale by its own admission; the prompt supersedes it
 wherever they disagree.
 
