@@ -10,6 +10,10 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 // NativeWind entry. Side-effect import — without it every className silently no-ops.
 import '../../global.css';
+// Side-effect import, same reason as the line above: lib/notifications arms the day-2 trial
+// reminder with a module-scope store subscription, and without this it would only be armed for a
+// user who happens to open Settings or onboarding. The paywall promises that reminder.
+import '@/lib/notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
