@@ -103,6 +103,20 @@ export const REWARD_CARDS_PER_LESSON = 3;
 const REWARD_MIN = 0.25;
 const REWARD_MAX = 2;
 
+/**
+ * Mint reward cards. ONE definition, because §17.3 is explicit that a second reward path must not
+ * exist — the lesson payout and the quest payout have to produce the same kind of object or the
+ * reward screen starts having two shapes to render and `rewardsEarned` starts having two meanings.
+ *
+ * Fractional DOLLAR amounts of a real ticker, not whole shares — Bloom's observed rewards sat at
+ * $0.50–$1.00 (flow 53308) and `claimReward` divides by the live price to get the share count.
+ */
+const mintRewardCards = (n: number) =>
+  Array.from({ length: n }, () => ({
+    sym: ALL_SYMS[Math.floor(Math.random() * ALL_SYMS.length)],
+    value: Math.round((REWARD_MIN + Math.random() * (REWARD_MAX - REWARD_MIN)) * 100) / 100,
+  }));
+
 /** Stable id for one curriculum lesson inside `completedLessons`. */
 export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
 
@@ -234,6 +248,14 @@ export type AppState = {
    *  null is meaningfully different from 0: it is what makes the ask appear exactly once. */
   streakGoal: number | null;
   setStreakGoal: (days: number) => void;
+  /** The day the quest reward was already paid. Day-keyed for the same reason `lastGameDay` is:
+   *  it makes the payout once-per-day and unfarmable without a second tally to keep in sync. */
+  lastQuestDay: string;
+  /** Pay for finishing ALL of today's quests. Idempotent per day — §8b asks for a reward card and
+   *  this reuses `pendingRewards` + `claimReward()` rather than building a second reward path.
+   *  ONE card, not the three a lesson pays: a day of quests is lighter than a finished lesson and
+   *  paying the same would make the lesson feel cheaper. */
+  claimQuestReward: () => void;
   /** Everything onboarding collects. Persisted; drives the recommended path. */
   profile: Profile;
   /** Merge a patch into the profile. Called on every onboarding answer. */
@@ -410,6 +432,7 @@ export const useApp = create<AppState>()(
       weeklyXp: 0,
       weekStart: '',
       lastGameDay: '',
+      lastQuestDay: '',
       following: [],
       followers: SEED_FOLLOWERS,
       isPro: false,
@@ -572,10 +595,7 @@ export const useApp = create<AppState>()(
           const bonus = base < goal && minutes >= goal ? XP_DAILY_GOAL : 0;
           // Reward cards ride on the SAME dedupe as the completion itself (the `includes` guard
           // above), so re-opening a finished lesson cannot farm free stock.
-          const cards = Array.from({ length: REWARD_CARDS_PER_LESSON }, () => ({
-            sym: ALL_SYMS[Math.floor(Math.random() * ALL_SYMS.length)],
-            value: Math.round((REWARD_MIN + Math.random() * (REWARD_MAX - REWARD_MIN)) * 100) / 100,
-          }));
+          const cards = mintRewardCards(REWARD_CARDS_PER_LESSON);
           return {
             activeDays: withToday(s.activeDays),
             pendingRewards: [...s.pendingRewards, ...cards],
@@ -592,6 +612,8 @@ export const useApp = create<AppState>()(
         set((s) => (s.following.includes(id) ? s : { following: [...s.following, id] })),
       unfollow: (id) => set((s) => ({ following: s.following.filter((f) => f !== id) })),
       friendIds: () => get().following.filter((id) => get().followers.includes(id)),
+      claimQuestReward: () =>
+        set((s) => (s.lastQuestDay === dayKey() ? s : { lastQuestDay: dayKey(), pendingRewards: [...s.pendingRewards, ...mintRewardCards(1)] })),
       awardGameXp: () =>
         set((s) => (s.lastGameDay === dayKey() ? s : { lastGameDay: dayKey(), ...applyXp(s, XP_GAME) })),
       markPostRead: (slug) =>
@@ -622,7 +644,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

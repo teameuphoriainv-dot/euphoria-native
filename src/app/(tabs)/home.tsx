@@ -34,7 +34,7 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { CourseRailCard } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
-import { hoursUntilReset, questsForToday } from '@/lib/quests';
+import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
@@ -143,6 +143,24 @@ export default function Home() {
   const questState = useApp((st) => st);
   const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
   const hoursLeft = useMemo(() => hoursUntilReset(now), [now]);
+
+  /*
+   * PAY FOR A FINISHED DAY. §8b asks for a reward card when all of today's quests are done, and
+   * `questsComplete` existed with no caller until now — a mechanic named and never wired.
+   *
+   * In an EFFECT, not during render: `claimQuestReward` writes to the store, and a write during
+   * render is the cascading-render lint ERROR this config enforces. Keyed on the boolean so it fires
+   * on the transition rather than on every render.
+   *
+   * The store guards the payout by day key, exactly as `awardGameXp` does, so this effect firing
+   * twice — a remount, a tab switch back — cannot pay twice. The idempotence lives with the state,
+   * not with the caller, which is the only place it is safe to live.
+   */
+  const allQuestsDone = questsComplete(quests);
+  const claimQuestReward = useApp((st) => st.claimQuestReward);
+  useEffect(() => {
+    if (allQuestsDone) claimQuestReward();
+  }, [allQuestsDone, claimQuestReward]);
 
   const streakGoal = useApp((st) => st.streakGoal);
   const setStreakGoal = useApp((st) => st.setStreakGoal);
