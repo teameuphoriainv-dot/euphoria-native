@@ -24,6 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { QuestMark } from '@/components/art/quest-mark';
 import { Atlas } from '@/components/atlas';
 
 import { ThemedText } from '@/components/themed-text';
@@ -411,7 +412,15 @@ export default function Home() {
             {quests.map((q, i) => (
               <View key={q.kind} style={[styles.quest, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border }]}>
                 <View style={[styles.questTick, { backgroundColor: q.done ? theme.success : 'transparent', borderColor: q.done ? theme.success : theme.border }]}>
-                  {q.done && <UIcon name="check" size={13} color={theme.primaryForeground} />}
+                  {/* UNIT 12 deliverable 4. Undone quests carry their authored mark rather than an
+                      empty ring — the row now says WHAT is being asked before you read the title.
+                      Done still flips to the check on a filled ring, so the completion affordance
+                      that already worked is untouched. */}
+                  {q.done ? (
+                    <UIcon name="check" size={13} color={theme.primaryForeground} />
+                  ) : (
+                    <QuestMark name={q.kind} size={16} color={theme.iconLilac} />
+                  )}
                 </View>
                 <View style={{ flex: 1 }}>
                   <ThemedText type="bodyMedium" style={{ color: q.done ? theme.mutedForeground : theme.text }}>

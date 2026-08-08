@@ -24,6 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
 import { Atlas } from '@/components/atlas';
+import { QuestMark, QUEST_MARK_NAMES } from '@/components/art/quest-mark';
 import { LeagueCrest } from '@/components/league-crest';
 import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
@@ -104,6 +105,19 @@ export default function DevGallery() {
           {TIERS.map((t) => (
             <Cell key={t.name + '-locked'} label={t.name + ' locked'}>
               <LeagueCrest tier={t} size={56} locked />
+            </Cell>
+          ))}
+        </Section>
+
+        <Section title="Quest marks" note="UNIT 12 deliverable 4, one per QuestKind. Home rotates two of the three each day, so this grid is the only place all three can be checked together — and the check that matters is that no two share a silhouette at the 16pt they actually ship at.">
+          {QUEST_MARK_NAMES.map((n) => (
+            <Cell key={n} label={n}>
+              <QuestMark name={n} size={16} color="#BB83F1" />
+            </Cell>
+          ))}
+          {QUEST_MARK_NAMES.map((n) => (
+            <Cell key={n + '-lg'} label={n + ' @44'}>
+              <QuestMark name={n} size={44} color="#BB83F1" />
             </Cell>
           ))}
         </Section>

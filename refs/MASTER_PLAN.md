@@ -1633,7 +1633,7 @@ argues for fewer tabs, say so plainly even though the user asked for more, then 
 
 ---
 
-## UNIT 12 — Graphics system ⚠️ **PART DONE**
+## UNIT 12 — Graphics system ✅ **DONE** (C64)
 
 Done: 12 course marks, 5 stat-tile marks, **300 per-lesson marks** (§22 C16), 40 stroke lesson marks.
 **Still owed:** the 7 league crests refined, quest icons for Unit 8, and ~35 guide hero covers for
@@ -4706,3 +4706,31 @@ that loses Calendar is a simulator fault.
 store, the trial day-count and the seeded progress all live there, and C51 already cost two
 sessions to a wrong-simulator problem.
 
+### C64. UNIT 12 CLOSED. Two of its three open items were already done; only the quest icons were real.
+
+§12 listed three things still owed. Checked each against the repo rather than trusting the header:
+
+| owed | actual state |
+|---|---|
+| **7 league crests refined** | **Already authored.** `league-crest.tsx` is 434 lines with all seven cases — Saver, Investor, Analyst, Strategist, **Portfolio Manager**, Partner, Magnate — each carrying its own design rationale. Nothing further was done to them, and the marker should not have implied otherwise. |
+| **~35 guide hero covers** | **Superseded by C57.** The scope cut to 10 app-only guides shipped 10 bespoke covers with **0 hero collisions across all 35**. |
+| **Quest icons** | **Genuinely missing. Built here.** |
+
+**`src/components/art/quest-mark.tsx`** — three authored 48×48 stroke marks, one per `QuestKind`,
+matching `stat-mark.tsx`'s system exactly. Wired into Home's quest ring: an undone quest shows its
+mark, a done one still flips to the check on a filled ring, so the completion affordance that
+already worked is untouched.
+
+**The goal mark was WRONG on its first render, and the repo's own precedent caught it.** It began as
+a broken ring with a tick — "a goal partly travelled" — and on a `sharp` contact sheet it read
+unmistakably as **REFRESH/RELOAD**, because a circle with a tail is that universal glyph and nothing
+else. That is precisely the failure `stat-mark.tsx` documents for its coin stack reading as a
+database. It is now a **flag on a pole**, which cannot be misread and collides with nothing.
+
+**Two verification notes worth keeping:**
+- Home rotates **two of three** quests by day key (documented in `quests.ts`; `goal` is always
+  shown). So the device can never display all three marks at once, and `trade` was unverifiable
+  there. Added to `dev-gallery.tsx` — but that section lands at content **y=6743**, far off-screen,
+  and trap #34 forbids tapping or trusting an off-screen coordinate.
+- The thing that actually verified all three was **`sharp` rendering the SVG headlessly**, per the
+  carryover's note. Milliseconds, no scrolling, and it is what exposed the refresh-glyph defect.
