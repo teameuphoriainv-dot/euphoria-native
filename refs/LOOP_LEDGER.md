@@ -19,4 +19,5 @@ Each row is one wake-up: what triggered it, what it changed, what it proved.
 | 12 | user: keep going | Unit 13 items 3 + 4 — **UNIT 13 CLOSED** | 3 bare spinners → skeletons (verified by forcing the branch) · **raw RevenueCat error reaching users FIXED** in 4 sites, 3 of which only tsc found · lint 45 = baseline · certify green |
 | 13 | 5 min fallback | Unit 16b research | **24 store creatives / 15 apps** · one-phone-headline-above **13/15** · solid brand bg **13/15** · time promise in hero **6/15** · Mindvalley ships an Apple award badge Apple's own rules FORBID |
 | 14 | continued | Unit 16c — first 3 store shots built | 1290x2796, C72's 13/15 layout, real captures · **2 defects surfaced: shot 3 shows a −7.78% LOSS under "Risk nothing"; headline not in Nunito (fc-list = 0)** |
-| 15 | *(pending)* | fix the two store defects, then shots 4-10 | — |
+| 15 | 5 min fallback | Unit 16c — 7 shots, reproducible script, font fixed | **`font: Nunito visible to fontconfig (16 faces)`** · scoped fontconfig, no system install · caught shot 7 showing the WRONG screen on the contact sheet · shot 3's loss still open for the user |
+| 16 | *(pending)* | Unit 16 icon + previews, then Unit 17 | — |

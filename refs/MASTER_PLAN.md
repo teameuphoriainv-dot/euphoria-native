@@ -4948,3 +4948,37 @@ ship — a listing set in the wrong typeface is the first thing a designer will 
 trial user but reads as "everything is paywalled" in a 380px search thumbnail. Worth reconsidering
 against the same screen with more lessons unlocked.
 
+### C74. UNIT 16c — SEVEN store shots, reproducible, brand font fixed. One decision still open.
+
+`scripts/store-shots.mjs` regenerates the whole set from device captures in one command. The first
+three were rendered from a throwaway `node -e`, which is fine once and useless the moment copy or a
+screen changes.
+
+**C73 defect 2 is FIXED and the script proves it itself.** librsvg resolves fonts through
+fontconfig, and `fc-list` had no Nunito, so headlines silently fell back to a system sans — the
+dangerous kind of defect, because it looked close enough to ship. The script now writes a **scoped**
+fontconfig pointing at the Nunito the app already bundles in `node_modules`, and prints
+`font: Nunito visible to fontconfig (16 faces)` on every run. **Nothing is installed into
+`~/Library/Fonts`** — a screenshot script has no business changing the machine it runs on.
+
+**A third defect was caught by looking at the contact sheet.** `dev-league.png` had captured the
+LESSON screen, so shot 7 put "Climb the league" over a duplicate of shot 4. The deep link had failed
+and the capture was taken anyway. **The fix in method: verify the screen with `sim.sh screen` BEFORE
+capturing, not after** — the second attempt confirmed "Saver · Top 3 advance · 1 day left" first.
+
+**Seven, not ten, deliberately.** Apple permits up to ten and does not reward padding.
+
+| # | headline | screen |
+|---|---|---|
+| 1 | Ten minutes a day. / Real money sense. | Home |
+| 2 | A lesson a day, / and a streak to keep it. | Learn |
+| 3 | Practice investing. / Risk nothing. | Trade |
+| 4 | Short lessons that / actually explain why. | Lesson |
+| 5 | One idea a day. / Read it in two minutes. | Digest |
+| 6 | Watch it add up. / XP, streaks, levels. | You |
+| 7 | Climb the league. / Nobody learns alone. | League |
+
+**STILL OPEN — C73 defect 1.** Shot 3 renders `−$777.78 (7.78%) all time` in red beneath "Risk
+nothing." Unresolved by design: it is a decision about how a finance app depicts returns, and §0.4
+forbids the obvious shortcut of inventing a gain.
+
