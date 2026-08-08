@@ -54,6 +54,23 @@ export const TRIAL_DAYS = 3;
 export const STARTING_CASH = 10_000;
 
 /**
+ * Named streak tiers, for the commitment ask on Home.
+ *
+ * NAMED, not bare numbers, because that is what the evidence shows: Headway `128564` offers
+ * 7-day *Promising* / 14-day *Determined* / 30-day *Impressive* / 50-day *Unstoppable* with a mascot
+ * line, and Duolingo's streak-commitment step is flagged uniqueness 7 in the dataset — the app asks
+ * you to PROACTIVELY commit rather than just counting. 2/2 convergence (§22 C25).
+ *
+ * A number alone is a target. A name is an identity, and that is the whole mechanism.
+ */
+export const STREAK_TIERS = [
+  { days: 7, name: 'Promising' },
+  { days: 14, name: 'Determined' },
+  { days: 30, name: 'Impressive' },
+  { days: 50, name: 'Unstoppable' },
+] as const;
+
+/**
  * Options contracts a PRO member may open, lifetime.
  *
  * This cap is HONEST, not invented scarcity. Real options pricing needs an options market-data
@@ -213,6 +230,10 @@ export type AppState = {
    *  restore `true` before hydration had actually finished and reintroduce the exact race. */
   hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
+  /** The streak length the user COMMITTED to, or null if they have not been asked yet.
+   *  null is meaningfully different from 0: it is what makes the ask appear exactly once. */
+  streakGoal: number | null;
+  setStreakGoal: (days: number) => void;
   /** Everything onboarding collects. Persisted; drives the recommended path. */
   profile: Profile;
   /** Merge a patch into the profile. Called on every onboarding answer. */
@@ -378,6 +399,8 @@ export const useApp = create<AppState>()(
       streak: 0,
       completedLessons: [],
       minutesToday: 0,
+      streakGoal: null,
+      setStreakGoal: (days) => set({ streakGoal: days }),
       lastActiveDay: '',
       activeCourseId: 'investing-fundamentals',
       readPosts: [],
@@ -599,7 +622,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

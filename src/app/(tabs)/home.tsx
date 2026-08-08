@@ -35,10 +35,11 @@ import { useTheme } from '@/hooks/use-theme';
 import { CourseRailCard } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
 import { hoursUntilReset, questsForToday } from '@/lib/quests';
+import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
-import { lessonKey, useApp } from '@/lib/store';
+import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { openAtlasChat } from '@/components/ask-atlas';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -142,6 +143,13 @@ export default function Home() {
   const questState = useApp((st) => st);
   const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
   const hoursLeft = useMemo(() => hoursUntilReset(now), [now]);
+
+  const streakGoal = useApp((st) => st.streakGoal);
+  const setStreakGoal = useApp((st) => st.setStreakGoal);
+  const planTier = useTier();
+  const trialDay = useApp(trialDayNumber);
+  /* The committed tier's NAME, which is the whole point of naming them (§22 C25). */
+  const goalTier = STREAK_TIERS.find((t) => t.days === streakGoal);
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
 
   return (
@@ -189,7 +197,106 @@ export default function Home() {
               <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} today={i === todayIdx} />
             ))}
           </View>
+          {/*
+            * PROGRESS TOWARD THE COMMITTED TARGET, not just the raw streak — §8b's actual ask. A
+            * commitment you cannot see progress against is a question you answered once and never
+            * heard about again, which is the opposite of why Duolingo and Headway ask it.
+            *
+            * The NAME leads and the number follows: "Determined · 3 of 14 days" reads as an identity
+            * you are earning. "3/14" is a fraction.
+            */}
+          {goalTier && (
+            <View style={[styles.goalBar, { borderColor: theme.border }]}>
+              <UIcon name="sparkle" size={13} color={theme.iconGold} />
+              <ThemedText type="small" style={{ flex: 1, color: theme.textSecondary }}>
+                <ThemedText type="smallBold">{goalTier.name}</ThemedText>
+                {` · ${String(Math.min(streak, goalTier.days))} of ${String(goalTier.days)} days`}
+              </ThemedText>
+              {streak >= goalTier.days && (
+                <ThemedText type="label" style={{ color: theme.success }}>DONE</ThemedText>
+              )}
+            </View>
+          )}
         </RiseIn>
+
+        {/*
+          * TRIAL STRIP — Bloom `156322`'s shape: a THREE-DAY tracker where the current day is
+          * highlighted and the rest read as pending. Bloom's "Daily Trivia Streak" renders a
+          * three-day arc as a progress OBJECT rather than a sentence, which is exactly what a
+          * 3-day trial is.
+          *
+          * `trialDayNumber` not `trialDaysLeft`: on the third active day daysLeft is 0 while the
+          * trial is still live, and "0 days left" on a fully usable day reads as already expired
+          * (§22 C14). Shown only during the trial — a Pro member must never see a countdown, and an
+          * expired one gets the paywall's own copy instead of a strip about days they no longer have.
+          */}
+        {planTier === 'trial' && (
+          <RiseIn delay={90}>
+            <SpringPressable haptic={false} scaleTo={0.99} onPress={() => router.push('/onboarding?step=paywall')}
+              accessibilityRole="button" accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
+              <Card style={styles.trialStrip} tint={theme.primary}>
+                <View style={{ flex: 1 }}>
+                  <ThemedText type="smallBold">Free trial · day {trialDay} of {TRIAL_DAYS}</ThemedText>
+                  <View style={styles.trialDots}>
+                    {Array.from({ length: TRIAL_DAYS }, (_, i) => (
+                      <View
+                        key={i}
+                        style={[
+                          styles.trialDot,
+                          {
+                            backgroundColor: i < trialDay ? theme.primary : 'transparent',
+                            borderColor: i < trialDay ? theme.primary : theme.border,
+                          },
+                        ]}
+                      />
+                    ))}
+                  </View>
+                </View>
+                <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
+              </Card>
+            </SpringPressable>
+          </RiseIn>
+        )}
+
+        {/*
+          * THE STREAK COMMITMENT ASK — 2/2 convergence, and it appears exactly ONCE.
+          *
+          * Duolingo's streak-commitment step is flagged uniqueness 7 in the dataset: the app asks
+          * you to PROACTIVELY commit to a multi-day goal rather than just counting upward. Headway
+          * `128564` does the same with NAMED tiers — 7-day Promising, 14 Determined, 30 Impressive,
+          * 50 Unstoppable — plus a mascot line. A number is a target; a name is an identity.
+          *
+          * Gated on `streak >= 1` so it never greets a user who has done nothing: asking someone to
+          * commit to fourteen days before their first lesson is asking for a promise about a product
+          * they have not used. `streakGoal === null` is what makes it one-time, which is why null and
+          * 0 are meaningfully different in the store.
+          */}
+        {streakGoal === null && streak >= 1 && (
+          <RiseIn delay={100}>
+            <Card style={styles.commit}>
+              <ThemedText type="bodyMedium">How far do you want to take this?</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground">
+                Pick a streak to aim for. We&apos;ll track it on this screen.
+              </ThemedText>
+              <View style={styles.commitRow}>
+                {STREAK_TIERS.map((t) => (
+                  <SpringPressable
+                    key={t.days}
+                    scaleTo={0.94}
+                    onPress={() => setStreakGoal(t.days)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Commit to a ${String(t.days)} day streak, ${t.name}`}
+                    style={{ flex: 1 }}>
+                    <View style={[styles.commitChip, { borderColor: theme.border, backgroundColor: theme.cardElevated }]}>
+                      <ThemedText type="smallBold">{t.days}</ThemedText>
+                      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>{t.name}</ThemedText>
+                    </View>
+                  </SpringPressable>
+                ))}
+              </View>
+            </Card>
+          </RiseIn>
+        )}
 
         {/* The hero — the next real lesson */}
         <RiseIn delay={120}>
@@ -359,6 +466,13 @@ export default function Home() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three },
+  trialDots: { flexDirection: 'row', gap: 6, marginTop: 6 },
+  trialDot: { width: 26, height: 5, borderRadius: 3, borderWidth: 1 },
+  goalBar: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: Spacing.two, paddingVertical: Spacing.two, paddingHorizontal: Spacing.three, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
+  commit: { gap: Spacing.two },
+  commitRow: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.one },
+  commitChip: { alignItems: 'center', paddingVertical: Spacing.two, borderRadius: Radius.md, borderWidth: 1, gap: 1 },
   quests: { paddingVertical: 0, paddingHorizontal: Spacing.three },
   quest: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three },
   questTick: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
