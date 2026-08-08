@@ -43,6 +43,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
+import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 
 /** Openers for the empty state. Finance-specific and deliberately concrete — "Ask me anything"
  *  produces nothing, a real question produces a real conversation. */
@@ -82,6 +83,16 @@ export default function ChatScreen() {
   const scroller = useRef<ScrollView>(null);
 
   const exhausted = !isPro && left <= 0;
+  /*
+   * EXPIRY IS NOT THE SAME EVENT AS THE COUNT LIMIT, and conflating them was a measured hole:
+   * `store.atlasLeft()` knows nothing about the trial clock, so an EXPIRED user opened this screen
+   * and was offered "9 questions left" with a live composer. Verified on device before this fix.
+   * C13 decision 1 closes every feature on expiry except the streak/XP/league loop.
+   *
+   * Kept as a SEPARATE flag rather than folded into `atlasLeft()`: "questions left" is an allowance
+   * and expiry is a closed door. One value meaning both would make the header pill lie.
+   */
+  const expired = useTier() === 'expired';
 
   /** One path for every request so send and "Ask again" cannot drift apart. `next` is the whole
    *  thread to send, ending in a user turn. */
@@ -131,6 +142,52 @@ export default function ChatScreen() {
     run(turns.slice(0, -1));
   }, [turns, pending, exhausted, run]);
 
+  /*
+   * EXPIRED: the whole feature is closed, so the thread, the starter prompts and the composer all
+   * go. Leaving a composer the user can type into but never send from would be the largest dead
+   * control on the screen (§0.5), and leaving the "N questions left" pill would advertise an
+   * allowance they cannot spend — which is exactly what shipped before this.
+   *
+   * Its own return rather than a branch inside the main tree: an expired user needs a title, the
+   * reason, and two ways out. Rebuilding the close button is a smaller and safer diff than
+   * restructuring a 200-line JSX tree around a conditional.
+   *
+   * The headline is WORD-FOR-WORD the gate sheet's and the lesson wall's. Three surfaces refusing
+   * for the same reason should not invent three sentences for it.
+   */
+  if (expired) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <AmbientBackground starCount={24} />
+        <View style={[styles.header, { borderBottomColor: theme.border }]}>
+          <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Close chat">
+            <UIcon name="close" size={22} color={theme.mutedForeground} />
+          </Pressable>
+          <View style={styles.headerText}>
+            <ThemedText type="bodyMedium">Atlas</ThemedText>
+          </View>
+        </View>
+        <View style={styles.expired}>
+          <Atlas size={110} expression="watching" interactive={false} />
+          <ThemedText type="title" style={styles.expiredTitle}>Your free {TRIAL_DAYS} days are up.</ThemedText>
+          <ThemedText type="body" themeColor="mutedForeground" style={styles.expiredSub}>
+            Euphoria Pro makes Atlas unlimited — every question, no counter.
+          </ThemedText>
+        </View>
+        <View style={styles.expiredFooter}>
+          <GradientButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.expiredOut}
+            accessibilityRole="button"
+            accessibilityLabel="Not now">
+            <ThemedText type="small" themeColor="mutedForeground">Not now</ThemedText>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <AmbientBackground starCount={24} />
@@ -156,7 +213,7 @@ export default function ChatScreen() {
         </View>
         {/* "10/10" told the user nothing — a bare ratio reads as a score, not an allowance. Below
             the warn threshold it becomes a Pro CTA, which is where Answer.AI puts its "+ Add". */}
-        {!isPro &&
+        {!isPro && !expired &&
           (left <= WARN_AT ? (
             <Pressable
               onPress={() => router.push('/onboarding?step=paywall')}
@@ -347,6 +404,13 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   flex: { flex: 1 },
+  // The expired surface. Mirrors lesson.tsx's locked state so the two read as one refusal.
+  expired: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.four, gap: Spacing.three },
+  expiredTitle: { textAlign: 'center' },
+  expiredSub: { textAlign: 'center' },
+  expiredFooter: { padding: Spacing.four, paddingTop: Spacing.two },
+  // 44pt on its own, not via hitSlop — with the feature closed this is the only way back.
+  expiredOut: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.four, marginTop: Spacing.two },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

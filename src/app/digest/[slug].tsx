@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { GateSheet } from '@/components/gate-sheet';
 import { AskAtlasRow } from '@/components/ask-atlas';
 import { Blocks, parseBlocks, type Block } from '@/components/digest-body';
 import { ThemedText } from '@/components/themed-text';
@@ -29,6 +30,7 @@ import { lessonForGuide } from '@/lib/digest-lessons';
 import { ReadReward } from "@/components/read-reward";
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { useApp } from '@/lib/store';
+import { entitled, type Refusal } from '@/lib/entitlement';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -113,6 +115,33 @@ export default function DigestArticle() {
   const [i, setI] = useState(0);
   const total = cards.length + 1; // +1 for the cover
   const last = i === total - 1;
+
+  /*
+   * THE BODY GATE (§9.4, §9f). Verified open before this: an expired user read a whole guide end to
+   * end, because this screen asked nothing about entitlement.
+   *
+   * WHAT STAYS FREE, and it is deliberately not zero: the cover (i=0 — hero, category, read time,
+   * title, excerpt) AND the first body card (i=1). §9f says the sheet rises "over a blurred first
+   * screen of the article", so the reader gets a real taste rather than a wall where the body should
+   * start. That is also the mechanism 5/5 of the references use — a lock is a promise, and a promise
+   * needs something behind it. Gating at the cover would show an expired user nothing they had not
+   * already read on the Digest list.
+   *
+   * Read NON-REACTIVELY at tap time: `entitled()` returns a fresh object, so subscribing through a
+   * selector loops until React throws "Maximum update depth exceeded" (it took down Learn once).
+   */
+  const [gate, setGate] = useState<Refusal | null>(null);
+  const FREE_CARDS = 1;
+  const advance = () => {
+    if (i >= FREE_CARDS) {
+      const refusal = entitled(useApp.getState(), 'guide');
+      if (!refusal.ok) {
+        setGate(refusal);
+        return;
+      }
+    }
+    setI(i + 1);
+  };
 
   // reaching the end is what counts as read, not opening the screen
   useEffect(() => {
@@ -203,7 +232,7 @@ export default function DigestArticle() {
             }
           />
         ) : (
-          <GradientButton label={i === 0 ? 'Start reading' : 'Continue'} full onPress={() => setI(i + 1)} />
+          <GradientButton label={i === 0 ? 'Start reading' : 'Continue'} full onPress={advance} />
         )}
         {last ? (
           <SpringPressable haptic={false} onPress={() => router.back()} style={styles.done}>
@@ -211,6 +240,24 @@ export default function DigestArticle() {
           </SpringPressable>
         ) : null}
       </View>
+
+      {/* Inside the screen, so the article stays mounted and the reader keeps their place. */}
+      {gate && (
+        <GateSheet
+          feature="guide"
+          refusal={gate}
+          visible
+          onDismiss={() => setGate(null)}
+          onSeePro={() => {
+            setGate(null);
+            router.push('/onboarding?step=paywall');
+          }}
+          onWhyNotFree={() => {
+            setGate(null);
+            router.push('/why-not-free');
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
