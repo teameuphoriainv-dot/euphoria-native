@@ -36,6 +36,7 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
+import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeas } from '@/lib/trade-ideas';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -86,6 +87,9 @@ export default function Trade() {
   const watchlist = useApp((s) => s.watchlist);
 
   const held = Object.keys(positions).filter((s) => (positions[s] ?? 0) > 0);
+  // Derived, never stored — same contract as quests. Recomputes whenever cash, positions or the
+  // watchlist move, which is exactly when an observation about them could stop being true.
+  const ideas = tradeIdeas({ cash, positions, watchlist, total });
   // Followed tickers the user does not already hold. NOT "everything minus your positions" —
   // that was a list nobody chose, labelled as though they had.
   const watch = watchlist.filter((s) => !held.includes(s) && STOCKS[s]);
@@ -187,6 +191,62 @@ export default function Trade() {
           </RiseIn>
         )}
 
+        {/*
+          * IDEAS TO PRACTISE — the learning surface the Trade tab was promised and did not have.
+          *
+          * Placed directly UNDER the positions on purpose: every idea quotes a number ("NVDA is
+          * 71% of your portfolio") that the user can check against the list immediately above it.
+          * An observation the reader cannot verify on the same screen is just an assertion.
+          *
+          * The disclaimer is part of the section, not a footnote elsewhere — Investing.com's
+          * WarrenAI `211319` keeps "never financial advice" on the surface that makes the
+          * suggestion, and that is the only place it does any work. See lib/trade-ideas.ts for why
+          * there is deliberately no Long/Short stance chip.
+          */}
+        {ideas.length > 0 && (
+          <RiseIn delay={185}>
+            <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
+              Ideas to practise
+            </ThemedText>
+            <Card padded={false}>
+              {ideas.map((idea, i) => (
+                <SpringPressable
+                  key={idea.id}
+                  haptic={false}
+                  scaleTo={0.98}
+                  onPress={() => router.push('/courses')}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${idea.concept}. ${idea.detail} Opens ${ideaCourseTitle(idea.courseId)}.`}
+                >
+                  <View
+                    style={[
+                      styles.idea,
+                      i < ideas.length - 1 && {
+                        borderBottomColor: theme.border,
+                        borderBottomWidth: StyleSheet.hairlineWidth,
+                      },
+                    ]}
+                  >
+                    <ThemedText type="label" style={{ color: theme.iconLilac }}>
+                      {idea.concept.toUpperCase()}
+                    </ThemedText>
+                    <ThemedText type="small" style={styles.ideaBody}>{idea.detail}</ThemedText>
+                    <View style={styles.ideaLink}>
+                      <ThemedText type="smallBold" themeColor="mutedForeground">
+                        {ideaCourseTitle(idea.courseId)}
+                      </ThemedText>
+                      <UIcon name="arrowRight" size={13} color={theme.mutedForeground} />
+                    </View>
+                  </View>
+                </SpringPressable>
+              ))}
+            </Card>
+            <ThemedText type="small" themeColor="mutedForeground" style={styles.disclaimer}>
+              {IDEAS_DISCLAIMER}
+            </ThemedText>
+          </RiseIn>
+        )}
+
         {/* Movers sit BELOW your own holdings and watchlist: what you own is why you opened the
             tab; the market is context. Investing.com leads with movers because it is a market
             tracker — Euphoria is a portfolio you are learning to run. */}
@@ -222,6 +282,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.three,
     paddingTop: Spacing.two + 2,
   },
+  idea: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two + 2, gap: 3 },
+  ideaBody: { lineHeight: 19 },
+  ideaLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one, fontSize: 11, lineHeight: 15 },
   sectionLabel: { marginBottom: Spacing.two },
   actions: { flexDirection: 'row', gap: Spacing.two },
   action: {
