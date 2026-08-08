@@ -32,6 +32,18 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 /**
+ * ONE GLYPH WAS DOING TWELVE JOBS, and that is why this screen read as templated.
+ *
+ * `sparkle` was the icon for Games, Ask Atlas, Euphoria Pro, the trial plan, lesson milestones,
+ * Digest, chat, and three onboarding rows — twelve unrelated concepts sharing the single most
+ * template-default mark there is. C2 set the rule for the opposite mistake (two padlocks for one
+ * idea); this is the same failure inverted, and it is worse, because an icon that means everything
+ * means nothing and the eye stops reading it.
+ *
+ * Reassigned from the existing 24-mark `ui-icon` set — no new glyph, per C2's grep-before-adding
+ * rule: Games -> `target`, Ask Atlas -> `chat` (it IS a chat), Euphoria Pro -> `trophy`, which is
+ * already what the plan card uses for pro, so the two surfaces now agree.
+ *
  * Rows carry an EXPLICIT route. They used to derive one from the label via
  * `label.toLowerCase().split(' ')[0]`, which turned "Euphoria Pro" into `euphoria` - not a key in
  * settings/[section].tsx's TITLES - so the app's only upsell dead-ended on a screen reading
@@ -43,11 +55,11 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
  */
 const ROWS: { icon: UIconName; label: string; accent?: boolean; route: string }[] = [
   { icon: 'you', label: 'Friends', route: '/friends' },
-  { icon: 'sparkle', label: 'Games', route: '/games' },
-  { icon: 'sparkle', label: 'Ask Atlas', route: '/chat' },
+  { icon: 'target', label: 'Games', route: '/games' },
+  { icon: 'chat', label: 'Ask Atlas', route: '/chat' },
   { icon: 'you', label: 'Account', route: '/settings/account' },
   { icon: 'bell', label: 'Notifications', route: '/settings/notifications' },
-  { icon: 'sparkle', label: 'Euphoria Pro', accent: true, route: '/onboarding?step=paywall' },
+  { icon: 'trophy', label: 'Euphoria Pro', accent: true, route: '/onboarding?step=paywall' },
   { icon: 'settings', label: 'Preferences', route: '/settings/preferences' },
 ];
 
@@ -180,8 +192,11 @@ export default function You() {
         <RiseIn delay={60}>
           <Card style={styles.plan} tint={planTier === 'pro' ? theme.iconGold : theme.primary}>
             <View style={styles.planTop}>
+              {/* `seedling` for a trial, not `sparkle` — see the ROWS note above. A trial is a
+                  thing that GROWS into something, which is the one metaphor in the set that is
+                  actually about a beginning. */}
               <UIcon
-                name={planTier === 'pro' ? 'trophy' : 'sparkle'}
+                name={planTier === 'pro' ? 'trophy' : planTier === 'expired' ? 'lock' : 'seedling'}
                 size={20}
                 color={planTier === 'pro' ? theme.iconGold : theme.primary}
               />
