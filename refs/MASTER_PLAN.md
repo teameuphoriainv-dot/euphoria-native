@@ -5298,3 +5298,46 @@ control can be live and still be a lie, and that is the gap the audit missed.
 
 **Bug 1 (the onboarding freeze) is still unreproduced** and must not be assumed related.
 
+### C85. DECISION: implement Apple AND Google sign-in properly. Full plan, because auth is a trust boundary.
+
+Chosen over removing the buttons. **Guideline 4.8 then genuinely applies** — offering Google
+*requires* a working Sign in with Apple, so a half-done Apple path is a second rejection for the
+same reason. This is why it is planned rather than started at the end of a session: **a partly-wired
+auth screen is worse than either endpoint**, since today's dead buttons at least let a user through.
+
+**Order matters. Apple first — it is the one Guideline 4.8 makes mandatory.**
+
+**1 — Apple, native side**
+- `npx expo install expo-apple-authentication`
+- `app.json` → `plugins: ["expo-apple-authentication"]`, which emits the
+  **`com.apple.developer.applesignin`** entitlement. Today that entitlement count in the built app
+  is **0** (C84)
+- Apple Developer portal → App ID `com.euphoriainv.euphoria` → enable the **Sign In with Apple**
+  capability. Without it the entitlement is rejected at signing
+- `npx expo prebuild -p ios --clean`, then **verify the entitlement is present** — do not assume
+
+**2 — Apple, identity exchange**
+- `AppleAuthentication.signInAsync({ requestedScopes: [FULL_NAME, EMAIL] })`
+- Pass the returned `identityToken` to Supabase `signInWithIdToken({ provider: 'apple' })`
+- **Apple returns the name and email ONCE, on first authorisation only.** Persist them on that first
+  call or they are gone permanently — a classic and unrecoverable mistake
+- Handle `ERR_REQUEST_CANCELED` as a **cancel, not an error** — the same rule `purchases.ts` already
+  applies to `userCancelled` (C71)
+
+**3 — Google**
+- Supabase Google provider + OAuth client IDs, redirect through the app scheme `euphorianative`
+- The reviewer's environment is a fresh device with no Google account — the flow must fail
+  gracefully, not hang
+
+**4 — Verification, and none of it is optional**
+- `applesignin` entitlement present in the BUILT app (currently 0)
+- A real Apple ID sign-in completed on device, screenshotted
+- Cancel at the Apple sheet returns to auth with **no error surfaced**
+- A signed-in user's identity reaches Supabase and survives a relaunch
+- `certify.py` green · lint at the 45-warning C66 baseline
+
+**Until all four land, the buttons must not ship.** If time runs short, the correct fallback is
+C84 option 2 — remove both and ship email-only — never a half-wired provider.
+
+**Bug 1, the onboarding freeze, remains unreproduced.** It must not be assumed to be the same defect.
+
