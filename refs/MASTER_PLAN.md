@@ -1685,7 +1685,7 @@ one app again.
 
 ---
 
-## UNIT 15 — Widgets + the notification system ⚠️ **15b GATE PASSED** (C58) — 15a, 15c, 15d, 15e open
+## UNIT 15 — Widgets + the notification system ✅ **DONE** (C58 · C60 · C63) — 15a-15e shipped; only the springboard RENDER is unverified, blocked by C63
 
 **Researched 2026-08-08. Not started.** Read this whole unit before writing any code: the
 headline risk is native, not visual, and one stated goal is not achievable as stated.
