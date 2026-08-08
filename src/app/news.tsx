@@ -20,25 +20,15 @@ import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { ago, SentimentBadge } from '@/components/sentiment-badge';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getNews, type Article } from '@/lib/market';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-
-/** "3h ago". Absolute timestamps make a reader do arithmetic to answer "is this stale?". */
-function ago(iso: string, now: number): string {
-  const ms = now - new Date(iso).getTime();
-  if (!Number.isFinite(ms) || ms < 0) return '';
-  const m = Math.floor(ms / 60000);
-  if (m < 60) return `${Math.max(1, m)}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
 
 export default function News() {
   const theme = useTheme();
@@ -111,39 +101,7 @@ export default function News() {
                   <ThemedText type="label" themeColor="mutedForeground" style={{ flex: 1 }} numberOfLines={1}>
                     {a.publisher}{a.published ? ` · ${ago(a.published, at)}` : ''}
                   </ThemedText>
-                  {/* Sentiment is the reason Alpha Vantage is the primary source. A headline tells
-                      you what happened; the label tells you how the market read it, which is the
-                      part a learner cannot infer yet. Polygon articles have none, so it hides. */}
-                  {a.sentimentLabel ? (
-                    <View
-                      style={[
-                        styles.sent,
-                        {
-                          backgroundColor:
-                            (a.sentiment ?? 0) > 0.15
-                              ? theme.success + '22'
-                              : (a.sentiment ?? 0) < -0.15
-                                ? theme.destructive + '22'
-                                : theme.muted,
-                        },
-                      ]}
-                    >
-                      <ThemedText
-                        type="smallBold"
-                        style={{
-                          fontSize: 10,
-                          color:
-                            (a.sentiment ?? 0) > 0.15
-                              ? theme.success
-                              : (a.sentiment ?? 0) < -0.15
-                                ? theme.destructive
-                                : theme.mutedForeground,
-                        }}
-                      >
-                        {a.sentimentLabel.toUpperCase()}
-                      </ThemedText>
-                    </View>
-                  ) : null}
+                  <SentimentBadge score={a.sentiment} label={a.sentimentLabel} />
                 </View>
                 <ThemedText type="bodyMedium" style={styles.headline}>{a.title}</ThemedText>
               </Card>
@@ -163,6 +121,5 @@ const styles = StyleSheet.create({
   empty: { paddingVertical: Spacing.four },
   row: { gap: 6 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
-  sent: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.sm },
   headline: { lineHeight: 22 },
 });

@@ -86,9 +86,96 @@ export async function GET(request: Request) {
   if (gate) return gate;
 
   const key = process.env.POLYGON_API_KEY;
-  if (!key) return Response.json({ error: 'not_configured' }, { status: 503 });
+  const av = process.env.ALPHAVANTAGE_API_KEY;
+
+  /*
+   * THE KEY CHECK MOVED, AND THAT IS THE POINT.
+   *
+   * It used to sit here and refuse EVERY action without `POLYGON_API_KEY` — including `news`, which
+   * is the one action with a second, independent provider. Alpha Vantage can serve news alone, and
+   * it is the PREFERRED source because it is the only one carrying a sentiment score. So an install
+   * holding an Alpha Vantage key and no Polygon key got a 503 without the route ever looking at the
+   * provider it prefers: a working path made unreachable by a guard one line too early.
+   *
+   * `news` is therefore dispatched FIRST, below, and the Polygon refusal sits after it.
+   */
 
   try {
+    if (action === 'news') {
+      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+
+      /*
+       * ALPHA VANTAGE FIRST, POLYGON AS FALLBACK.
+       *
+       * Alpha Vantage NEWS_SENTIMENT is what the web app already uses
+       * (euphoriaweb-current/supabase/functions/fetch-economic-news, line 100) and it returns
+       * something Polygon does not: a SENTIMENT SCORE per article. For an app teaching people to
+       * read markets, "this story is bearish on NVDA" is the teachable part — a headline alone is
+       * just a headline.
+       *
+       * Its free tier is 25 requests/day, which is why the web app caches for six hours. That is
+       * also why Polygon backs it up: Polygon news rides the key we already have and is not
+       * day-capped, so the feed degrades to headlines rather than to nothing.
+       */
+      if (av) {
+        try {
+          const q = sym
+            ? `function=NEWS_SENTIMENT&tickers=${sym}&limit=12`
+            : 'function=NEWS_SENTIMENT&topics=economy_macro,finance&limit=12';
+          const r = await fetch(`https://www.alphavantage.co/query?${q}&apikey=${av}`);
+          const j = await r.json();
+          const feed = (j?.feed ?? []) as Record<string, unknown>[];
+          if (feed.length > 0) {
+            return Response.json({
+              articles: feed.map((a) => ({
+                id: String(a.url),
+                title: a.title,
+                publisher: a.source,
+                url: a.url,
+                // Alpha Vantage stamps time as YYYYMMDDTHHMMSS, which `new Date()` cannot parse.
+                published: String(a.time_published ?? '').replace(
+                  /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/,
+                  '$1-$2-$3T$4:$5:$6Z',
+                ),
+                sentiment: Number(a.overall_sentiment_score) || 0,
+                sentimentLabel: String(a.overall_sentiment_label ?? ''),
+                // Alpha Vantage sends `banner_image: ""` for a good share of the feed. Normalise
+                // the empty string to undefined here so no consumer has to know that quirk, and
+                // so `a.image ? ...` is a truthful test rather than a truthy-empty trap.
+                image: String(a.banner_image ?? '').trim() || undefined,
+              })),
+            });
+          }
+        } catch (e) {
+          // Day-cap or outage: fall through to Polygon rather than failing the screen.
+          console.error('[market] alphavantage failed, falling back', e);
+        }
+      }
+
+      // Alpha Vantage was tried and gave nothing. Without a Polygon key there is no second
+      // provider to fall back TO, so answer an empty feed rather than calling `poly` with an
+      // undefined key — which would 401 upstream and surface as a generic failure the screen
+      // cannot explain. An empty list is a state the UI already renders honestly.
+      if (!key) return Response.json({ articles: [] });
+
+      const d = await poly(`/v2/reference/news?${sym ? `ticker=${sym}&` : ''}order=desc&limit=12`, key);
+      return Response.json({
+        articles: (d.results ?? []).map((a: Record<string, unknown>) => ({
+          id: a.id,
+          title: a.title,
+          publisher: (a.publisher as { name?: string } | undefined)?.name ?? '',
+          url: a.article_url,
+          published: a.published_utc,
+          image: String(a.image_url ?? '').trim() || undefined,
+        })),
+      });
+    }
+
+    // Polygon backs every remaining action. `news` is handled ABOVE precisely because it has a
+    // second provider and must stay reachable on an Alpha Vantage key alone; everything below
+    // genuinely cannot run without Polygon, so it refuses here rather than at six call sites.
+    if (!key) return Response.json({ error: 'not_configured' }, { status: 503 });
+
     if (action === 'search') {
       const q = (url.searchParams.get('q') ?? '').trim();
       if (q.length < 1) return Response.json({ results: [] });
@@ -229,65 +316,6 @@ export async function GET(request: Request) {
       });
     }
 
-    if (action === 'news') {
-      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
-
-      /*
-       * ALPHA VANTAGE FIRST, POLYGON AS FALLBACK.
-       *
-       * Alpha Vantage NEWS_SENTIMENT is what the web app already uses
-       * (euphoriaweb-current/supabase/functions/fetch-economic-news, line 100) and it returns
-       * something Polygon does not: a SENTIMENT SCORE per article. For an app teaching people to
-       * read markets, "this story is bearish on NVDA" is the teachable part — a headline alone is
-       * just a headline.
-       *
-       * Its free tier is 25 requests/day, which is why the web app caches for six hours. That is
-       * also why Polygon backs it up: Polygon news rides the key we already have and is not
-       * day-capped, so the feed degrades to headlines rather than to nothing.
-       */
-      const av = process.env.ALPHAVANTAGE_API_KEY;
-      if (av) {
-        try {
-          const q = sym
-            ? `function=NEWS_SENTIMENT&tickers=${sym}&limit=12`
-            : 'function=NEWS_SENTIMENT&topics=economy_macro,finance&limit=12';
-          const r = await fetch(`https://www.alphavantage.co/query?${q}&apikey=${av}`);
-          const j = await r.json();
-          const feed = (j?.feed ?? []) as Record<string, unknown>[];
-          if (feed.length > 0) {
-            return Response.json({
-              articles: feed.map((a) => ({
-                id: String(a.url),
-                title: a.title,
-                publisher: a.source,
-                url: a.url,
-                // Alpha Vantage stamps time as YYYYMMDDTHHMMSS, which `new Date()` cannot parse.
-                published: String(a.time_published ?? '').replace(
-                  /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/,
-                  '$1-$2-$3T$4:$5:$6Z',
-                ),
-                sentiment: Number(a.overall_sentiment_score) || 0,
-                sentimentLabel: String(a.overall_sentiment_label ?? ''),
-              })),
-            });
-          }
-        } catch (e) {
-          // Day-cap or outage: fall through to Polygon rather than failing the screen.
-          console.error('[market] alphavantage failed, falling back', e);
-        }
-      }
-
-      const d = await poly(`/v2/reference/news?${sym ? `ticker=${sym}&` : ''}order=desc&limit=12`, key);
-      return Response.json({
-        articles: (d.results ?? []).map((a: Record<string, unknown>) => ({
-          id: a.id,
-          title: a.title,
-          publisher: (a.publisher as { name?: string } | undefined)?.name ?? '',
-          url: a.article_url,
-          published: a.published_utc,
-        })),
-      });
-    }
 
     return Response.json({ error: 'bad_action' }, { status: 400 });
   } catch (e) {

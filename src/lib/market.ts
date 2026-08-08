@@ -27,6 +27,15 @@ export type Article = {
   /** -1..1 from Alpha Vantage. Absent when the article came from Polygon. */
   sentiment?: number;
   sentimentLabel?: string;
+  /**
+   * Article thumbnail — Alpha Vantage's `banner_image`, Polygon's `image_url`.
+   *
+   * OPTIONAL ON PURPOSE, and the UI must treat it that way. Alpha Vantage returns an empty string
+   * for a large share of its feed, so a layout that REQUIRES an image would show holes on live
+   * data, not just when the key is missing. Every consumer degrades to a text row instead — which
+   * is also §0.4's rule: no placeholder art, ever.
+   */
+  image?: string;
 };
 
 /** True once any call has come back `not_configured`, so the UI can stop pretending live data is
