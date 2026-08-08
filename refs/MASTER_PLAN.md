@@ -5241,3 +5241,26 @@ cascades into the App Group, the widget target, the entitlements, and any provis
 **And it explains the four RevenueCat projects.** They are almost certainly failed attempts to make
 a mismatched configuration work.
 
+### C83. BUNDLE ID CORRECTION VERIFIED END TO END.
+
+`prebuild --clean` + full rebuild under `com.euphoriainv.euphoria`. All three claims measured:
+
+| check | result |
+|---|---|
+| widget target survived `prebuild --clean` | **1 `app-extension`** in the pbxproj — the C58 gate still holds under the new identifier |
+| appex embedded, correct identity | `PlugIns/EuphoriaWidget.appex` present · `CFBundleIdentifier => com.euphoriainv.euphoria` |
+| App Group container at the NEW id | `group.com.euphoriainv.euphoria.plist` exists, holding `dayKey`, `streak`, `xp` |
+| `sim.sh` still drives the app | yes, after the corrected `BUNDLE` — it would have silently targeted a dead bundle otherwise |
+
+**One consequence to know about, and it is correct behaviour rather than a bug.** A new bundle ID
+means a **new data container**. The seeded test state — `streak 3, xp 210, 2 lessons, cash 5666.94`
+— lives in the OLD container and is not visible to this app. The container now reads `streak 0,
+xp 0`, which is a genuine fresh install.
+
+**That state is not lost:** `refs/BASELINE_STORE_20260808_pre_unit13.json` holds it, and C70 records
+the restore procedure that actually works — terminate, write BOTH the manifest inline value and the
+spill file, then launch.
+
+**Still open from C82:** `android.package` remains `com.euphoria.native`. Whether Google Play has a
+listing under it has not been checked, and iOS/Android now diverge on identifier.
+
