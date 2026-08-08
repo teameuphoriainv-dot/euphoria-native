@@ -11,7 +11,7 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
@@ -29,6 +29,7 @@ import { NumberLine } from '@/components/number-line';
 import { OrderSteps } from '@/components/order-steps';
 import { StreakIgnite } from '@/components/streak-ignite';
 import { TapReveal } from '@/components/tap-reveal';
+import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TileBuilder } from '@/components/tile-builder';
 import { UIcon } from '@/components/ui-icon';
@@ -185,7 +186,13 @@ export default function Lesson() {
     return (
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
-        <View style={styles.centered}><ActivityIndicator color={theme.primary} /></View>
+        {/* UNIT 13 item 3: reserve the lesson card's geometry so the screen does not jump when it lands. */}
+        <View style={styles.loadingShape} accessibilityRole="progressbar" accessibilityLabel="Loading lesson">
+          <Skeleton height={22} width="55%" radius={Radius.sm} />
+          <Skeleton height={220} radius={Radius.lg} />
+          <Skeleton height={16} width="80%" />
+          <Skeleton height={16} width="65%" />
+        </View>
       </SafeAreaView>
     );
   }
@@ -409,6 +416,7 @@ const OWN_CTA_STEPS = new Set(['multi', 'line']);
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  loadingShape: { paddingHorizontal: Spacing.three, paddingTop: Spacing.five, gap: Spacing.three },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   close: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   track: { flex: 1, height: 8, borderRadius: Radius.sm, overflow: 'hidden' },

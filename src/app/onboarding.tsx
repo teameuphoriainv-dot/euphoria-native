@@ -41,7 +41,7 @@ import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
-import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases } from '@/lib/purchases';
+import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
 import { NudgeTimePicker } from '@/components/nudge-time-picker';
@@ -435,7 +435,7 @@ export default function Onboarding() {
       setBusy(false);
       if (r.ok && r.isPro) Alert.alert('Welcome back', 'Your Euphoria Pro subscription is active again.');
       else if (r.ok) Alert.alert('Nothing to restore', 'No previous Euphoria Pro purchase was found on this Apple ID.');
-      else if (r.kind !== 'cancelled') Alert.alert('Restore failed', r.kind === 'not-configured' ? IAP_DISABLED_REASON : r.message);
+      else if (r.kind !== 'cancelled') Alert.alert('Restore failed', r.kind === 'not-configured' ? IAP_DISABLED_REASON : purchaseErrorMessage(r.code));
     });
   };
 
@@ -466,7 +466,7 @@ export default function Onboarding() {
       const r = await purchase(pkg);
       setBusy(false);
       if (r.ok && r.isPro) router.replace('/home');
-      else if (!r.ok && r.kind === 'error') Alert.alert('Purchase failed', r.message);
+      else if (!r.ok && r.kind === 'error') Alert.alert('Purchase failed', purchaseErrorMessage(r.code));
       // 'cancelled' is deliberately silent — backing out of the Apple sheet is not an error.
     });
   };

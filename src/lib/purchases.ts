@@ -93,7 +93,7 @@ export type PurchaseResult =
   | { ok: true; isPro: boolean }
   | { ok: false; kind: 'cancelled' }
   | { ok: false; kind: 'not-configured' }
-  | { ok: false; kind: 'error'; message: string };
+  | { ok: false; kind: 'error'; code: string };
 
 let configured = false;
 
@@ -159,9 +159,15 @@ export async function purchase(pkg: PurchasesPackage): Promise<PurchaseResult> {
     // A user backing out of the Apple sheet is NOT an error and must never surface as one. Treating
     // it as a failure is how apps end up showing "Something went wrong" to someone who simply
     // changed their mind.
-    const err = e as { userCancelled?: boolean; message?: string };
+    const err = e as { userCancelled?: boolean; code?: string | number; message?: string };
     if (err.userCancelled) return { ok: false, kind: 'cancelled' };
-    return { ok: false, kind: 'error', message: err.message ?? 'Purchase failed' };
+    /*
+     * The CODE, never the SDK's message. UNIT 13 item 4 forbids a raw error string reaching a user,
+     * and this one did: `Alert.alert('Purchase failed', r.message)` in onboarding printed whatever
+     * RevenueCat happened to throw. Store's own text is written for developers reading a console.
+     */
+    if (__DEV__ && err.message !== undefined) console.log('[purchase] sdk error:', err.message);
+    return { ok: false, kind: 'error', code: String(err.code ?? 'unknown') };
   }
 }
 
@@ -178,7 +184,9 @@ export async function restore(): Promise<PurchaseResult> {
     const info = await Purchases.restorePurchases();
     return { ok: true, isPro: adoptCustomerInfo(info) };
   } catch (e) {
-    return { ok: false, kind: 'error', message: (e as { message?: string }).message ?? 'Restore failed' };
+    const err = e as { code?: string | number; message?: string };
+    if (__DEV__ && err.message !== undefined) console.log('[restore] sdk error:', err.message);
+    return { ok: false, kind: 'error', code: String(err.code ?? 'unknown') };
   }
 }
 
@@ -230,3 +238,34 @@ if (__DEV__) {
     })();
   }
 }
+
+/**
+ * Purchase failures, in Euphoria's voice. Deliberately the same shape as `chatErrorMessage` in
+ * lib/atlas-chat.ts — §13 item 4 names that as the pattern, and having two ways to phrase a failure
+ * is how an app ends up sounding like two apps.
+ *
+ * The SDK's own message is logged in dev and never shown: it is written for a developer reading a
+ * console, and a user who has just tried to pay deserves a sentence about what to do next.
+ */
+export function purchaseErrorMessage(code: string): string {
+  switch (code) {
+    case 'NetworkError':
+    case '10':
+      return 'I could not reach the App Store just then. Check your connection and try again.';
+    case 'PaymentPendingError':
+    case '17':
+      return 'The App Store is still processing that. It may complete on its own shortly.';
+    case 'ProductNotAvailableForPurchaseError':
+    case '23':
+      return 'That plan is not available on this account right now.';
+    case 'PurchaseNotAllowedError':
+    case '3':
+      return 'This device does not allow purchases. Check Screen Time restrictions in Settings.';
+    case 'StoreProblemError':
+    case '2':
+      return 'The App Store had a problem with that. Nothing was charged — try again in a moment.';
+    default:
+      return 'That did not go through, and nothing was charged. Try again in a moment.';
+  }
+}
+

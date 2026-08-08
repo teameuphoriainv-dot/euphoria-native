@@ -16,4 +16,5 @@ Each row is one wake-up: what triggered it, what it changed, what it proved.
 | 9 | continued | radius half of the token sweep | **22 design radii tokenised, 23 geometry radii deliberately left raw** · lint **47 → 45 warnings** (removed, not suppressed) · tsc clean · certify green · app renders |
 | 10 | 5 min fallback | fontSize half of the token sweep | **117 sizes across 46 files → `FontSize`** · 21-step ramp needed for a 9-variant system (the finding) · Home screenshot **pixel-identical** before/after · lint 45 warns · certify green |
 | 11 | continued | Unit 13 item 2 — empty-state audit | **9 routes walked on an empty store, 0 blank screens** · `friends` is the exemplar · store captured to refs/, emptied, restored EXACTLY (streak 3, xp 210, cash 5666.94) after two failed attempts → C70 |
-| 12 | *(pending)* | Unit 13 items 3 and 4 — loading and error states | — |
+| 12 | user: keep going | Unit 13 items 3 + 4 — **UNIT 13 CLOSED** | 3 bare spinners → skeletons (verified by forcing the branch) · **raw RevenueCat error reaching users FIXED** in 4 sites, 3 of which only tsc found · lint 45 = baseline · certify green |
+| 13 | *(pending)* | Units 16 + 17 (store assets, retention) — the last two | — |

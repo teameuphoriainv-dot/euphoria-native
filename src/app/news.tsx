@@ -16,11 +16,12 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ago, SentimentBadge } from '@/components/sentiment-badge';
+import { SkeletonRows } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
@@ -74,7 +75,8 @@ export default function News() {
           </ThemedText>
         </RiseIn>
 
-        {!loaded && <ActivityIndicator color={theme.primary} style={{ marginTop: Spacing.five }} />}
+        {/* UNIT 13 item 3: the shape of the article rows that are coming, not a bare spinner. */}
+        {!loaded && <SkeletonRows count={4} height={92} />}
 
         {loaded && (articles?.length ?? 0) === 0 && (
           <RiseIn delay={60}>

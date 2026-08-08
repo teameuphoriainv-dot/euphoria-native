@@ -1663,7 +1663,7 @@ cyan exists in the violet art, so the test can actually fail.
 
 ---
 
-## UNIT 13 — Full revamp sweep
+## UNIT 13 — Full revamp sweep ✅ **DONE** (C65 · C67 · C68 · C69 · C71) — item 6's manual a11y pass still owed
 
 The user asked for a **full revamp**. Units 6–12 redesign individual surfaces; this unit makes them
 one app again.
@@ -4855,4 +4855,39 @@ mechanism `sim.sh state` already documents from the READ side, and it bites just
 
 **The order that works: terminate → write BOTH the manifest inline value and the spill file →
 launch.** Verified: `streak 3, xp 210, 2 lessons, cash 5666.94` came back exactly.
+
+### C71. UNIT 13 ITEMS 3 AND 4 — three bare spinners fixed, one raw SDK error caught.
+
+**Item 3 — loading states.** Nine `ActivityIndicator` sites. Six already had a shape behind them:
+two inside `GradientButton` (the button IS the shape), one inside a `Card` (`movers`), one inside a
+fixed-height plot (`price-chart`), one in-place where table rows land (`options`), one inside an
+explicit empty container (`learn`). **Three were bare spinners on otherwise blank screens** —
+`news`, `search` and `lesson` — and now render `components/skeleton.tsx`, which reserves the real
+geometry so the layout does not jump when data lands.
+
+**The §0.4 line is written into that file**, because a loading skeleton and a fake-content
+placeholder are visually identical and are not the same thing: a skeleton is legitimate only while a
+fetch is genuinely in flight, never as a stand-in for data that is absent or unconfigured. That case
+gets an empty state with words in it (C69's `friends`), which is why `news-gallery.tsx` renders
+nothing at all when there is no API key.
+
+Verified by forcing the loading branch and screenshotting: title bar, the 220pt card, two text lines
+at 80% and 65%. The transient real load was too fast to catch, which is the point of forcing it.
+
+**Item 4 — error states. ONE genuine defect, and `tsc` found three more sites than grep did.**
+`onboarding.tsx` ran `Alert.alert('Purchase failed', r.message)` where `r.message` was **whatever
+RevenueCat threw** — SDK text written for a developer reading a console, shown to someone who has
+just tried to pay. `restore()` had the same leak, surfaced in two places.
+
+`PurchaseResult` now carries a `code`, never a message; the SDK string is logged in `__DEV__` only;
+and **`purchaseErrorMessage(code)`** maps the real RevenueCat codes to Euphoria's voice, deliberately
+mirroring `chatErrorMessage` because §13 item 4 names that as the pattern and two ways of phrasing a
+failure is how an app starts sounding like two apps. Every message says whether money moved.
+
+**Changing the type was what found the rest.** Grep found one consumer; making `message` not exist
+made the compiler point at four.
+
+**Still owed in §13: item 6's manual `ecc:a11y-architect` pass.** `certify.py` stays green, but the
+agent pass was not run — this session is under a standing instruction not to launch agents unless
+asked.
 

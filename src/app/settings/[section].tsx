@@ -38,7 +38,7 @@ import { applyDailyNudge } from '@/lib/notifications';
 import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
-import { IAP_DISABLED_REASON, IAP_ENABLED, openManageSubscriptions, restore as restorePurchases } from '@/lib/purchases';
+import { IAP_DISABLED_REASON, IAP_ENABLED, openManageSubscriptions, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -193,7 +193,7 @@ function AccountSection() {
             void restorePurchases().then((r) => {
               if (r.ok && r.isPro) Alert.alert('Welcome back', 'Your Euphoria Pro subscription is active again.');
               else if (r.ok) Alert.alert('Nothing to restore', 'No previous Euphoria Pro purchase was found on this Apple ID.');
-              else if (r.kind !== 'cancelled') Alert.alert('Restore failed', r.kind === 'not-configured' ? IAP_DISABLED_REASON : r.message);
+              else if (r.kind !== 'cancelled') Alert.alert('Restore failed', r.kind === 'not-configured' ? IAP_DISABLED_REASON : purchaseErrorMessage(r.code));
             });
           }}
         />

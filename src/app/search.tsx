@@ -11,10 +11,11 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { SkeletonRows } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
 import { UIcon } from '@/components/ui-icon';
@@ -81,7 +82,8 @@ export default function Search() {
       </View>
 
       <ScrollView contentContainerStyle={styles.list} keyboardShouldPersistTaps="handled">
-        {loading && <ActivityIndicator color={theme.primary} style={{ marginTop: Spacing.four }} />}
+        {/* UNIT 13 item 3 */}
+          {loading && <SkeletonRows count={5} height={60} />}
 
         {!loading && !term && (
           <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
