@@ -4891,3 +4891,31 @@ made the compiler point at four.
 agent pass was not run — this session is under a standing instruction not to launch agents unless
 asked.
 
+### C72. UNIT 16b RESEARCH — DONE. Store creative, 24 screenshots across 15 apps.
+
+Pulled via `search_store_screens` (Finance + Education, min revenue $100k/mo). These are **App Store
+listing creatives, not recorded in-app screens** — label them that way, per §2.1.
+
+| pattern | hit rate | evidence |
+|---|---|---|
+| **ONE phone mockup, headline ABOVE it** | **13/15** | YNAB `50628` · EveryDollar `78785` · Nibble `71404` · Headway `68455` · SmartyMe `74727` · Seeking Alpha `39545` · GrowMe `74694` · Deepstash `72010` · Imprint `77299` · Bloomberg `56431` · Justin Guitar `77846` · Settlemate `75171` |
+| **Solid saturated brand background, never a photo** | **13/15** | deep blue, purple, olive, forest green, cream, charcoal |
+| **A TIME PROMISE in the hero headline** | **6/15** | Headway "15-min book summaries" · SmartyMe "Learn in 10 Minutes a Day" · GrowMe "15-Min Book Summaries" · Wiser "Learn more, faster" · Justin Guitar "10 minutes a day. Real progress." · Kalam "See Immediate Results / in the first 7 days" |
+| social-proof badge in the hero | **2/15 — NOT convergent** | Settlemate `75171` "4.9 Stars From 62k+ users" · Mindvalley `34887` |
+| headline is a BENEFIT, not a feature | ~10/15 | YNAB "Never worry about money again" · Imprint "Replace Scrolling With Microlearning" · Settlemate "Companies Owe You Money" |
+
+**Two things worth acting on.**
+
+**The time promise transfers directly and Euphoria already owns one.** Home ships the line
+*"10 min to keep your streak"*. Six of fifteen competitors lead with exactly that shape, and it is
+the single most copyable pattern in the set for an app whose whole model is a daily habit.
+
+**Mindvalley `34887` ships an "APP OF THE DAY" laurel — which Apple's own asset rules FORBID.**
+§16a records the prohibition on Apple-designated recognitions verbatim from
+`developer.apple.com/app-store/asset-best-practices/`. A competitor doing it is not permission; it
+is a competitor with a rejection waiting. **Do not copy it**, and do not copy Settlemate's star
+badge either until Euphoria has ratings of its own — an unverified claim is the same rule.
+
+**Layout decided by the data:** one phone, headline above, solid `#09090D`-family background, no
+photography, no badges. That is 13/15 and it needs no further research.
+

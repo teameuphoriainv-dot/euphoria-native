@@ -17,4 +17,5 @@ Each row is one wake-up: what triggered it, what it changed, what it proved.
 | 10 | 5 min fallback | fontSize half of the token sweep | **117 sizes across 46 files → `FontSize`** · 21-step ramp needed for a 9-variant system (the finding) · Home screenshot **pixel-identical** before/after · lint 45 warns · certify green |
 | 11 | continued | Unit 13 item 2 — empty-state audit | **9 routes walked on an empty store, 0 blank screens** · `friends` is the exemplar · store captured to refs/, emptied, restored EXACTLY (streak 3, xp 210, cash 5666.94) after two failed attempts → C70 |
 | 12 | user: keep going | Unit 13 items 3 + 4 — **UNIT 13 CLOSED** | 3 bare spinners → skeletons (verified by forcing the branch) · **raw RevenueCat error reaching users FIXED** in 4 sites, 3 of which only tsc found · lint 45 = baseline · certify green |
-| 13 | *(pending)* | Units 16 + 17 (store assets, retention) — the last two | — |
+| 13 | 5 min fallback | Unit 16b research | **24 store creatives / 15 apps** · one-phone-headline-above **13/15** · solid brand bg **13/15** · time promise in hero **6/15** · Mindvalley ships an Apple award badge Apple's own rules FORBID |
+| 14 | *(pending)* | Unit 16c — build the assets (blocked on hero copy) | — |
