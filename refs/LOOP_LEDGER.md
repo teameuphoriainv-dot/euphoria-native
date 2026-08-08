@@ -10,4 +10,5 @@ Each row is one wake-up: what triggered it, what it changed, what it proved.
 | 3 | 5 min fallback | chased the widget render through 4 remedies; diagnosed it as a simulator fault and stopped | `chronod: Loaded cached widget metadata: []` for ALL apps · `reloadAllTimelines()` confirmed firing from our JS · recorded as C63 |
 | 4 | user answers | built 15d (three-ask flow) + 15e (tutorial) and verified both on device | ask 2 prints `Source: Duolingo, reported in-app` · `Not now` = **98 x 44** · xp 160 unchanged on emotional path, **160 -> 210** on transactional · asksSeen 3, widgetAdded true, no further asks |
 | 5 | continued | built 15a (notification time picker, both mounts) — **UNIT 15 COMPLETE** | picker renders `7:00 PM` unclipped after a width fix caught in a screenshot · seeded hour 8 shows `Every day at 8:00 AM` AND `8:00 AM` in both mounts · tsc clean · lint 47 warns = baseline |
-| 6 | *(pending)* | Unit 10 — trade news gallery | — |
+| 6 | 5 min fallback | built Unit 10 (trade news gallery) | scoped label renders `NEWS · NVDA` (Investing.com variant) · image card AND text-only card both correct · fixed `CARD_H 176` after a screenshot showed ragged heights + a headline clipped by the tab bar · with no API key the section is cleanly ABSENT, positions at y=568 follow actions at y=508 |
+| 7 | *(pending)* | Unit 12 — graphics system (part done) | — |

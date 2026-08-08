@@ -1596,7 +1596,7 @@ Digest renders ~60 guides; every category chip filters correctly; the "X of Y re
 
 ---
 
-## UNIT 10 — Trade news gallery
+## UNIT 10 — Trade news gallery ✅ **DONE** (C64)
 
 ### 10a — Research
 ```

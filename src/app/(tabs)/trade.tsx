@@ -30,6 +30,7 @@ import { Movers } from '@/components/movers';
 import { PortfolioChart } from '@/components/portfolio-chart';
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
+import { NewsGallery } from '@/components/news-gallery';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
@@ -173,6 +174,11 @@ export default function Trade() {
             ))}
           </View>
         </RiseIn>
+
+        {/* UNIT 10. Directly below the action row per §10b. Renders NOTHING when there are no
+            articles — no skeleton, no placeholder headlines (§0.4). Scoped to the first holding
+            when there is one, which is Investing.com's "Related News" variant. */}
+        <NewsGallery symbols={held} delay={130} />
 
         {held.length > 0 && (
           <RiseIn delay={150}>
