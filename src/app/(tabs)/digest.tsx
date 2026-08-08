@@ -18,7 +18,7 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
@@ -50,24 +50,46 @@ function TodayCard({ post }: { post: DigestPost }) {
   const theme = useTheme();
   return (
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)}>
+      {/*
+        * ART BESIDE THE TEXT, NOT ABOVE IT. Measured on the QA device: this card ran y=146..494 of
+        * an 874pt screen, about 40% of the viewport for ONE guide, and left exactly TWO library
+        * rows visible above the tab bar with 29 guides in the list.
+        *
+        * That is C48's defect returning on a different tab. Home's next-lesson hero occupied 36%
+        * for one lesson and was fixed by exactly this move, so the fix is the one this codebase
+        * has already proven rather than a new idea. The `heroPanel` alone was 150pt tall.
+        *
+        * The art is not shrunk to nothing: 84pt in a 96pt panel still reads as illustration, and
+        * the covers were authored at 320x200 so they survive the reduction. What goes is the
+        * full-bleed band, which was spending a third of the card on decoration.
+        */}
       <Card style={styles.today} tint={theme.primary} elevated>
-        <View style={[styles.heroPanel, { backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
-          <Hero post={post} size={132} />
+        <View style={styles.todayTop}>
+          <View style={[styles.heroPanelSm, { backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
+            <Hero post={post} size={84} />
+          </View>
+          <View style={styles.todayHead}>
+            <View style={styles.metaRow}>
+              <ThemedText type="label" style={{ color: theme.iconLilac }}>
+                Today · {post.category}
+              </ThemedText>
+            </View>
+            <ThemedText type="heading" style={styles.todayTitle}>
+              {post.title}
+            </ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
+              {post.readMinutes} min read
+            </ThemedText>
+          </View>
         </View>
 
-        <View style={styles.metaRow}>
-          <ThemedText type="label" style={{ color: theme.iconLilac }}>
-            Today · {post.category}
-          </ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground">
-            {post.readMinutes} min read
-          </ThemedText>
-        </View>
-
-        <ThemedText type="heading" style={styles.todayTitle}>
-          {post.title}
-        </ThemedText>
-        <ThemedText type="body" themeColor="mutedForeground" style={styles.todayExcerpt}>
+        {/* Two lines. The excerpt states the surprise, which is its whole job on this card, and
+            the third line was always the part that repeated the title. */}
+        <ThemedText
+          type="body"
+          themeColor="mutedForeground"
+          numberOfLines={2}
+          style={styles.todayExcerpt}>
           {post.excerpt}
         </ThemedText>
 
@@ -190,6 +212,15 @@ export default function Digest() {
   const doneToday = dailyPick?.day === dayKey() && readPosts.includes(dailyPick.slug);
 
   const [filter, setFilter] = useState<string>(ALL);
+  const [query, setQuery] = useState('');
+
+  /* Counts are over the WHOLE library including today's pick, because the chip answers "how much
+     Credit is there", not "how much Credit is left in the list below". */
+  const counts = useMemo(() => {
+    const m: Record<string, number> = { [ALL]: DIGEST_POSTS.length };
+    for (const p of DIGEST_POSTS) m[p.category] = (m[p.category] ?? 0) + 1;
+    return m;
+  }, []);
   // On first paint the list staggers in behind the header and hero, so it starts late on purpose.
   // A filter TAP is a different event: the user acted and wants to see the list answer, so the
   // cascade starts immediately and only the per-item offset remains. Same animation, different
@@ -197,12 +228,20 @@ export default function Digest() {
   const [touched, setTouched] = useState(false);
   const cascadeBase = touched ? 0 : 190;
 
+  const q = query.trim().toLowerCase();
   const library = useMemo(
     () =>
-      DIGEST_POSTS.filter((p) => p.slug !== today.slug && (filter === ALL || p.category === filter))
+      DIGEST_POSTS.filter((p) => {
+        if (p.slug === today.slug) return false;
+        if (filter !== ALL && p.category !== filter) return false;
+        if (!q) return true;
+        // Title AND excerpt: the excerpt carries the surprise, so "compound" should find the
+        // guide that explains compounding even when the word is absent from its title.
+        return `${p.title} ${p.excerpt}`.toLowerCase().includes(q);
+      })
         // unread first, so the list always leads with something to do
         .sort((a, b) => Number(readPosts.includes(a.slug)) - Number(readPosts.includes(b.slug))),
-    [today.slug, readPosts, filter],
+    [today.slug, readPosts, filter, q],
   );
 
   return (
@@ -238,6 +277,36 @@ export default function Digest() {
           </View>
         </RiseIn>
 
+        {/*
+          * SEARCH. 3/3 of the reference libraries carry one (Deepstash `247137`, Bloomberg
+          * `101198`, Headway `128659`) and Digest had none. It was survivable at 25 guides and
+          * stops being so at 60: the only way to reach a specific guide was to remember its
+          * category and scroll.
+          *
+          * A plain input rather than a routed search screen, because the list it filters is
+          * already on this screen and a route would throw away the scroll position to show the
+          * same rows.
+          */}
+        <RiseIn delay={145}>
+          <View style={[styles.search, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}>
+            <UIcon name="search" size={17} color={theme.mutedForeground} />
+            <TextInput
+              value={query}
+              onChangeText={(t) => {
+                setQuery(t);
+                setTouched(true);
+              }}
+              placeholder="Search guides"
+              placeholderTextColor={theme.mutedForeground}
+              style={[styles.searchInput, { color: theme.text }]}
+              autoCorrect={false}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+              accessibilityLabel="Search guides"
+            />
+          </View>
+        </RiseIn>
+
         {/* Brilliant's category chips. Horizontal scroll because six chips never fit a phone width. */}
         <RiseIn delay={160}>
           <ScrollView
@@ -263,10 +332,16 @@ export default function Digest() {
                         backgroundColor: active ? theme.primary + '1A' : 'transparent',
                       },
                     ]}>
+                    {/* A COUNT ON THE CHIP. Deepstash `247137` (`Productivity 11`) and Headway
+                        `128675` (`Summaries 10`) both put the size beside the filter, 2/4 in the
+                        pull. It earns its place here for a reason the references do not have:
+                        Credit holds 4 guides and Money basics holds 8, so an uncounted chip row
+                        implies they are equal and hides which categories are actually thin. */}
                     <ThemedText
                       type="smallBold"
                       style={{ color: active ? theme.iconLilac : theme.mutedForeground }}>
                       {c}
+                      {counts[c] ? `  ${counts[c]}` : ''}
                     </ThemedText>
                   </View>
                 </SpringPressable>
@@ -300,17 +375,20 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four },
   today: { marginTop: Spacing.three, padding: Spacing.three },
-  heroPanel: {
-    height: 150,
+  // 96 square beside the text, replacing a 150pt full-bleed band above it. See TodayCard.
+  heroPanelSm: {
+    width: 96,
+    height: 96,
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.three,
   },
+  todayTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  todayHead: { flex: 1 },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  todayTitle: { fontSize: 20, lineHeight: 26, marginTop: 6 },
-  todayExcerpt: { marginTop: Spacing.one, lineHeight: 21 },
-  cta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: Spacing.three },
+  todayTitle: { fontSize: 19, lineHeight: 25, marginTop: 4 },
+  todayExcerpt: { marginTop: Spacing.two, lineHeight: 21 },
+  cta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: Spacing.two },
 
   doneHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2 },
   doneCheck: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
@@ -337,6 +415,17 @@ const styles = StyleSheet.create({
   chipScroll: { marginTop: Spacing.two },
   chipRow: { gap: Spacing.one + 2, paddingRight: Spacing.three },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.pill, borderWidth: 1.5 },
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    height: 44, // HIG minimum, and the row is the tap target for the field
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginTop: Spacing.two,
+  },
+  searchInput: { flex: 1, fontSize: 15, padding: 0 },
 
   list: { marginTop: Spacing.two + 2, gap: Spacing.two },
   guide: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, padding: Spacing.two },
