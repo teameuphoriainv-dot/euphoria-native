@@ -116,7 +116,13 @@ and the cover generator is the fix, and `/dev-gallery` verifies all 54 figures i
   Searched and confirmed absent.
 
 ## ENVIRONMENT
-- Dev-client build installed on sim F448825D-AF20-48D2-890A-516C12012CA7.
+- **USE `Euphoria QA` = 61F7E882-C226-4E97-9918-9BFF536B9A90. `export EUPHORIA_UDID` in every shell.**
+  This line used to name F448825D (iPhone 17). That is a **STALE Aug-3 dev client with ZERO
+  expo-blur and ZERO RevenueCat** — the exact binary that made the gate sheet render nothing and
+  cost two sessions (MASTER_PLAN §22 C37, C51). It is also the sim that is booted by default, so
+  without EUPHORIA_UDID `sim.sh` picks it silently. Euphoria QA is the Aug-7 build: 1073 RevenueCat
+  strings, 11 ExpoBlur. Check any dev client with
+  `strings <app>/euphorianative.debug.dylib | grep -c RevenueCat`.
 - Metro on :8082; the app defaults to :8081, so redirect with:
   `xcrun simctl openurl $U "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8082"`
 - Screenshot coords are POINTS = px / 3 — but prefer XcodeBuildMCP's `semantic-tap` over coordinates.

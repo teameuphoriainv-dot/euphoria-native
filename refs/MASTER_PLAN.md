@@ -4033,3 +4033,75 @@ is no "the biggest app does X" argument available in either direction.
 five. **So Unit 11 closes with NO CODE CHANGE**, which is the honest outcome of a count that was run
 to be followed. The reward loop and league ladder stay on Home (Unit 8 densified it for exactly this
 reason) rather than earning a sixth tab.
+
+---
+
+## From the Unit 4 trade-gating session (2026-08-08, round 3)
+
+### C51. TRAP #30 IS INVERTED, AND THE WRONG SIM IS THE ONE THAT COST C35/C36 TWO SESSIONS.
+
+Trap #30 says *"'iPhone 17' is booted and does NOT have the app"*. **It does have the app.** What it
+has is worse than nothing: a **stale dev client**, and it is the exact binary C37 blames for two
+wasted sessions.
+
+Measured with `stat` and `strings` on the installed bundles:
+
+| sim | built | `RevenueCat` strings | `ExpoBlur` strings | verdict |
+|---|---|---|---|---|
+| **Euphoria QA** `61F7E882` | **Aug 7** | **1073** | **11** | ✅ the only correct device |
+| iPhone 17 `F448825D` | Aug 3 | **0** | **0** | ❌ stale — no blur, no RevenueCat |
+
+C37 established that the gate sheet rendered nothing because the old dev client had no `expo-blur`,
+so `<BlurView>` was an unresolved native component. **`F448825D` is that client**, still installed,
+still booted by default, and `CARRYOVER.md:119` names it as *the* dev client. Anyone following the
+carryover instead of §1.1 reproduces C35/C36 exactly.
+
+Also: at session start **`61F7E882` was Shutdown and `F448825D` was the only booted sim**, so
+`sim.sh`'s "first booted simulator" fallback would have picked the stale one silently. §1.1's
+`export EUPHORIA_UDID=...` is not paranoia, it is the only thing standing between you and this.
+
+> **Cheap check worth keeping, from C46:** `strings <app>/euphorianative.debug.dylib | grep -c
+> RevenueCat` answers "is this native module actually in this build" in one command. Run it on the
+> dev client before believing anything about blur, purchases, or a native module generally.
+
+### C52. C40's CONTROL HALF WAS INVERTED. A greyed CTA reads "broken", not "costs money".
+
+C40 settled *"lock the control, keep the data"* from a count run on **education** apps. Re-run on
+**finance** apps — the actual transfer target for the Trade surface — the data half holds and the
+control half is backwards.
+
+Four apps ≥$250k/mo, every one read in pixels via `screen_detail` `include_image:true`:
+
+| app | the locked control | how it renders |
+|---|---|---|
+| Bloom `156236` | `Invest` on an auto-portfolio | **solid blue, full width, white padlock** |
+| Investing.com `211206` | `Upgrade to Pro` | **full orange gradient**, padlock inline |
+| Investing.com `211090` | `Unlock` on 2 of 8 signal cells | filled cell, blue padlock |
+| Seeking Alpha `285915` | `Subscribe` under a faded section | **full orange fill**, padlock above |
+
+| pattern | hit rate |
+|---|---|
+| the locked control keeps **full visual weight** | **4/4** |
+| the asset's identity and price stay fully readable | **4/4** |
+| a padlock sits **on the control itself** | 3/4 |
+| gated *body* faded/blurred rather than removed | 3/4 |
+| the gate names the **specific** thing (`ratings on INDU`) | 3/4 |
+| **a price on the in-place gate** | **0/4 — never** |
+| **the surface replaced by a paywall route** | **0/4 — never** |
+
+Euphoria shipped `Buy` as a hairline outline pill with a grey padlock — **0/4**. Fixed in `540b65e`.
+The reasoning matters more than the count: a greyed control is the same visual language as
+"unavailable" and "error", so it tells a *false* story. Full fill plus a padlock says "this works,
+it costs money", which is both true and the only version that converts.
+
+**Two mechanisms worth stealing later, both new to this brief:**
+1. **Partial gating inside one data grid** — Investing.com `211090` gates the 5-min and 15-min
+   signals and leaves 30-min through Monthly live. Free users get the shape of the feature. Directly
+   applicable to the options desk.
+2. **Seeking Alpha marks what is still FREE** — `285874` puts an orange `Free` chip on the News tab
+   while Ratings is gated. Euphoria's hint line says the same thing in prose
+   (*"Prices and stats stay open"*); a chip is cheaper to read.
+
+> **Method note.** `app_screens` across 5 apps overflowed the tool limit (trap #21) and
+> `description` was an object (trap #22) — both traps hit on the first call, both already documented,
+> and parsing the file cost one `python3` heredoc. The traps list paid for itself this session.
