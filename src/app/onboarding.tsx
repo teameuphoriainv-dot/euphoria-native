@@ -170,11 +170,32 @@ const PROOF: { icon: UIconName; title: string; sub: string }[] = [
 ];
 
 /** Kept to one line each. At two lines the timeline alone ran ~200pt, which pushed "No payment
- *  due now" and the renewal terms off the bottom of the screen. */
+ *  due now" and the renewal terms off the bottom of the screen.
+ *
+ *  ── THE NUMBERS WERE WRONG AND SHIPPED THAT WAY ─────────────────────────────────────────────
+ *  These beats read "In 5 days — Reminder" and "In 7 days — Billing starts": the reference apps'
+ *  7-day shape (Nibble TODAY/DAY 5/DAY 7, Promova Today/In 5 days/In 7 days) copied literally into
+ *  a THREE-day trial. So this screen promised billing in 7 days while the badge beneath it said
+ *  "3 DAYS FREE" and the engine granted 3. C31 fixed the badge and the renewal terms and missed
+ *  these, the heading and the CTA — four contradictions on one screen. Now every one derives.
+ *
+ *  ── "Day N", NOT "In N days" ────────────────────────────────────────────────────────────────
+ *  The trial is measured in DAYS USED, not calendar days (§9.2), so "in 3 days" would be a second
+ *  lie: someone who opens the app twice a week reaches day 3 a fortnight from now. "Day 2" and
+ *  "Day 3" are the same framing `trialDayNumber` already puts on You and Settings ("Day 3 of 3"),
+ *  so all three surfaces now count the same way.
+ *
+ *  C22 records 3/3 convergence on stating the reminder relative to the END with a real date pill.
+ *  Euphoria deliberately has NO date here: a days-used trial has no computable end date (C32), and
+ *  inventing one would be §0.4 applied to a promise.
+ *
+ *  The reminder beat is TRIAL_DAYS - 1 per C13 decision 3. At TRIAL_DAYS < 3 it would collapse into
+ *  "Today" and this array needs revisiting rather than deriving.
+ */
 const TRIAL_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
   { icon: 'lock', title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
-  { icon: 'bell', title: 'In 5 days — Reminder', sub: "We'll remind you before it ends.", tone: 'soft' as const },
-  { icon: 'wallet', title: 'In 7 days — Billing starts', tone: 'muted' as const },
+  { icon: 'bell', title: `Day ${TRIAL_DAYS - 1} — Reminder`, sub: "We'll remind you before anything is charged.", tone: 'soft' as const },
+  { icon: 'wallet', title: `Day ${TRIAL_DAYS} — Billing starts`, tone: 'muted' as const },
 ];
 
 const LOADER_LINES = [
@@ -453,7 +474,7 @@ export default function Onboarding() {
       default:
         return (
           <View style={styles.paywallBody}>
-            <StepHeading title={'Start your 7-day FREE trial to continue'} />
+            <StepHeading title={`Start your ${TRIAL_DAYS}-day FREE trial to continue`} />
             {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
                 spread across whatever height is left over, so a tall phone breathes and a small
                 one simply stops spreading and scrolls — the previous flex-start packed
@@ -546,7 +567,7 @@ export default function Onboarding() {
             </View>
           )}
           <GradientButton
-            label={step === REVEAL_INDEX ? 'Start learning' : step === PAYWALL_INDEX ? 'Start my 7-day free trial' : 'Continue'}
+            label={step === REVEAL_INDEX ? 'Start learning' : step === PAYWALL_INDEX ? `Start my ${TRIAL_DAYS}-day free trial` : 'Continue'}
             full
             disabled={!canContinue}
             onPress={next}
