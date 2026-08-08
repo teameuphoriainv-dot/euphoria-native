@@ -19,7 +19,7 @@
 # Pick a device with EUPHORIA_UDID=<udid>, otherwise the first booted simulator is used.
 set -euo pipefail
 
-BUNDLE="com.euphoria.native"
+BUNDLE="com.euphoriainv.euphoria"
 IDB="$(command -v idb || echo "$HOME/.idb-venv/bin/idb")"
 
 udid() {

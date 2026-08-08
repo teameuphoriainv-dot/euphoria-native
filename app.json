@@ -9,10 +9,12 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.euphoria.native",
+      "bundleIdentifier": "com.euphoriainv.euphoria",
       "backgroundColor": "#09090D",
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.euphoria.native"]
+        "com.apple.security.application-groups": [
+          "group.com.euphoriainv.euphoria"
+        ]
       },
       "infoPlist": {
         "CADisableMinimumFrameDurationOnPhone": true,
