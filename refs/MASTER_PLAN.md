@@ -4982,3 +4982,30 @@ capturing, not after** — the second attempt confirmed "Saver · Top 3 advance 
 nothing." Unresolved by design: it is a decision about how a finance app depicts returns, and §0.4
 forbids the obvious shortcut of inventing a gain.
 
+### C75. THE LEAGUE SCREEN WAS NEVER REDESIGNED — and I put it in a store screenshot anyway.
+
+The user pointed at League and said so. They were right, and the worse half is mine: I featured the
+**least-designed surface in the app** as App Store shot 7 without noticing it had never been through
+a unit. Units 6–12 redesigned Home, Learn, You, Digest, Trade and the art system. **League was never
+in scope and nothing caught that** — §13's consistency pass measured tokens, not whether a screen
+had been designed at all.
+
+**ScreensDesign was out of data budget for this**, so per §0.2 rule 7 the redesign is specced from
+the app's own language and Apple HIG, and labelled as such rather than bending §6.1's banked
+material — which covers Duolingo's leaderboard GATE (`112782`), not its row design.
+
+| defect | fix |
+|---|---|
+| the one piece of authored art on the screen rendered at **30pt**, smaller than the avatars below it | `LeagueCrest` at **84pt** as the subject, with the tier name in title type and a time pill under it |
+| rows were rank + initial-disc + name + number — a **table** | each row carries an XP bar **relative to the leader**, so the gap is visible. A league's information IS the gap; right-aligned figures hide it |
+| nine saturated discs (orange, cyan, pink, yellow…) read as a borrowed default avatar palette | the person's colour becomes a **ring** on a brand-tinted chip. Identity kept, `lib/people` untouched because Friends shares it |
+| all of the top three shared one amber | 1 gold · 2 silver · 3 amber |
+
+**Guard worth keeping:** `leader` is `Math.max(1, ...)`. A zero would make every bar `NaN%`, which
+React Native renders as **full width** — every player would appear tied with the leader, and it
+would look like a design choice rather than a bug.
+
+**The general lesson, which is bigger than this screen:** a revamp scoped by UNIT misses any surface
+no unit named. Before Unit 14, every route in `certify.py`'s list of 18 should be checked for
+*whether it was ever designed*, not just whether it uses the tokens.
+

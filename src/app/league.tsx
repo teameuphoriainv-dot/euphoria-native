@@ -82,6 +82,11 @@ export default function League() {
     { name: 'You', xp: weekly, color: '#A855EB', me: true },
   ].sort((a, b) => b.xp - a.xp);
   const zoned = tab === 'league';
+  // Never zero: a divide-by-zero here would make every bar NaN% wide, which React Native renders
+  // as full width — every player would look tied with the leader.
+  const leader = Math.max(1, ...players.map((p) => p.xp));
+  const medal = (i: number) =>
+    i === 0 ? theme.iconGold : i === 1 ? theme.textSecondary : i === 2 ? theme.warning : theme.mutedForeground;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -91,14 +96,24 @@ export default function League() {
         <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
         </SpringPressable>
-        <View style={{ flex: 1 }}>
-          <View style={styles.titleRow}>
-            <LeagueCrest tier={tier} size={30} />
-            <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{tier.name}</ThemedText>
-          </View>
-          <ThemedText type="small" themeColor="mutedForeground">Top 3 advance · {daysLeft()}</ThemedText>
-        </View>
       </View>
+
+      {/*
+        The crest is the SUBJECT now. It was rendered at 30pt beside the title, which made the one
+        piece of authored art on this screen smaller than the avatars beneath it — the screen read
+        as a generic ranked list that happened to have a badge, rather than as a place you are
+        trying to climb out of.
+      */}
+      <RiseIn>
+        <View style={styles.crestBlock}>
+          <LeagueCrest tier={tier} size={84} />
+          <ThemedText type="title" style={{ fontSize: FontSize.title }} numberOfLines={1}>{tier.name}</ThemedText>
+          <View style={[styles.timePill, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <UIcon name="bolt" size={13} color={theme.iconLilac} />
+            <ThemedText type="small" themeColor="textSecondary">Top {PROMOTE} advance · {daysLeft()}</ThemedText>
+          </View>
+        </View>
+      </RiseIn>
 
       <View style={styles.tabs}>
         {(['league', 'friends'] as const).map((t) => (
@@ -132,12 +147,41 @@ export default function League() {
                     borderWidth: p.me ? 1.5 : StyleSheet.hairlineWidth,
                   },
                 ]}>
-                <ThemedText type="heading" style={{ width: 26, fontSize: FontSize.body, color: i < 3 ? theme.warning : theme.mutedForeground }}>{i + 1}</ThemedText>
-                <View style={[styles.avatar, { backgroundColor: p.color }]}>
-                  <ThemedText type="smallBold" style={{ color: '#0A0A0F' }}>{p.name[0]}</ThemedText>
+                <ThemedText
+                  type="heading"
+                  style={{ width: 24, fontSize: FontSize.body, fontVariant: ['tabular-nums'], color: medal(i) }}>
+                  {i + 1}
+                </ThemedText>
+                {/*
+                  The person's colour becomes a RING rather than a filled disc. Nine saturated discs
+                  in a violet app read as a default avatar palette borrowed from somewhere else;
+                  as rings on a brand-tinted chip they still identify the person and the screen
+                  stays one app. lib/people is shared with Friends, so the data is untouched.
+                */}
+                <View style={[styles.avatar, { backgroundColor: theme.cardElevated, borderColor: p.color }]}>
+                  <ThemedText type="smallBold" style={{ color: p.color }}>{p.name[0]}</ThemedText>
                 </View>
-                <ThemedText type="bodyMedium" style={{ flex: 1, color: p.me ? theme.text : theme.text }}>{p.me ? 'You' : p.name}</ThemedText>
-                <ThemedText type="bodyMedium" style={{ fontVariant: ['tabular-nums'], color: theme.mutedForeground }}>{commas(p.xp)} XP</ThemedText>
+                <View style={styles.who}>
+                  <ThemedText type="bodyMedium" numberOfLines={1}>{p.me ? 'You' : p.name}</ThemedText>
+                  {/*
+                    Relative to the LEADER, so the list reads as a race rather than a table of
+                    numbers. This is the whole point of a league: the gap is the information, and
+                    a column of right-aligned figures hides it.
+                  */}
+                  <View style={[styles.track, { backgroundColor: theme.muted }]}>
+                    <View
+                      style={[
+                        styles.fill,
+                        { backgroundColor: p.me ? theme.primary : theme.iconViolet, width: `${Math.max(4, Math.round((p.xp / leader) * 100))}%` },
+                      ]}
+                    />
+                  </View>
+                </View>
+                <ThemedText
+                  type="smallBold"
+                  style={{ fontVariant: ['tabular-nums'], color: p.me ? theme.text : theme.textSecondary }}>
+                  {commas(p.xp)}
+                </ThemedText>
               </View>
             </RiseIn>
           </View>
@@ -153,8 +197,13 @@ const styles = StyleSheet.create({
   back: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.two + 2 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.two + 4, borderRadius: Radius.lg },
-  avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two + 2, borderRadius: Radius.lg },
+  avatar: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  crestBlock: { alignItems: 'center', gap: Spacing.two, paddingTop: Spacing.one, paddingBottom: Spacing.three },
+  timePill: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingVertical: Spacing.one + 2, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
+  who: { flex: 1, gap: 5 },
+  track: { height: 4, borderRadius: Radius.hairline, overflow: 'hidden' },
+  fill: { height: 4, borderRadius: Radius.hairline },
   tabs: { flexDirection: 'row', paddingHorizontal: Spacing.three, marginTop: Spacing.two },
   tab: { alignItems: 'center', paddingVertical: Spacing.two, borderBottomWidth: 2 },
   friendsEmpty: { textAlign: 'center', lineHeight: 20, paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
