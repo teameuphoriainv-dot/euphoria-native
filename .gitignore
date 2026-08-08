@@ -54,3 +54,7 @@ refs/images/
 # logs
 *.log
 logs/
+
+# In-App Purchase private keys (.p8). NEVER commit these — Apple serves each exactly once.
+.secrets/
+*.p8

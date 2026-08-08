@@ -5147,3 +5147,31 @@ produces a build that looks configured and silently transacts against nothing �
 failure as C76's placeholder key passing a presence check. **Identify which project owns bundle id
 `com.euphoria.native` first, and delete or rename the rest.**
 
+### C80. NEW IAP KEY GENERATED AND SECURED. Credentials complete; the project ambiguity is not.
+
+Generated in App Store Connect at the user's explicit third request, after the concern in C78/C79
+was raised twice and reaffirmed.
+
+| | |
+|---|---|
+| **Issuer ID** | `86cf89c1-ed5f-441d-9ae4-575aa7433937` |
+| **NEW Key ID** | **`QP24DLK3HJ`** — named "Euphoria IAP 2026-08" |
+| **`.p8` location** | `.secrets/SubscriptionKey_QP24DLK3HJ.p8`, `chmod 600` |
+| dead April key | `V2D263NV4V` — `.p8` unrecoverable. **Leave it, never reuse it** |
+
+**Named `Euphoria IAP 2026-08`, deliberately not "Euphoria app" again.** Two keys with the same name
+and only one usable is how the wrong one gets uploaded.
+
+**Order matters and was followed:** `.gitignore` was updated and **verified with `git check-ignore`
+BEFORE the file was moved into the repo**, so the key never existed in the working tree unignored
+even momentarily. `git status` confirms it is invisible. Verified as a real PKCS#8 key by checking
+its header only — the contents were never printed, and must never be.
+
+`.gitignore` now carries `.secrets/` and `*.p8`.
+
+**STILL BLOCKING, and it is C79's problem, not a credentials problem:** RevenueCat holds **four
+near-identically-named projects** (`Euphoria`, `Euphoria`, `Euphoria App`, `Euphoria Real`).
+**Do not upload this key until it is known which project owns `com.euphoria.native`.** Uploading to
+the wrong one yields a build that looks configured and transacts against nothing — C76's failure
+shape exactly.
+
