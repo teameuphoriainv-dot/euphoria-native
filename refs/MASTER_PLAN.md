@@ -4141,3 +4141,33 @@ gains a member, grep for a call site that passes it, or the engine and the copy 
 `trial-expired`. `seed-trial.sh` cannot express it (it takes days and isPro only); patch
 `state.atlasAsked` in the same spilled-store file the script already targets, then terminate and
 relaunch. Measured: 15 labels → tap → 9 (Modal) → dismiss → 15, thread intact. Fixed in `e253473`.
+
+### C54. Two Unit 4 loose ends CLOSED AS "leave it", with the reasons, so they stay closed.
+
+Both were examined and both are correct as they stand. Recorded because each looks like an
+oversight, and a future session that "fixes" either will make the app worse.
+
+**(a) `chat.tsx:219` / `chat.tsx:341` must NOT be converted to the gate sheet. It would render a
+blank sheet.** These are the pre-refusal warning banners — they fire at `left <= WARN_AT` (3), i.e.
+`atlasAsked` of 7–9. At that point `entitled(s,'atlas')` is `capped(7, 10)` which returns
+**`{ ok: true }`**, and both `headlineFor()` and `bodyFor()` open with `if (refusal.ok) return ''`.
+The sheet would present with no headline and no body.
+
+> **The general rule this exposes: `GateSheet` is for a REFUSAL, not for a warning.** `Refusal`
+> deliberately carries exactly one reason (`gate-sheet.tsx:49` — *"One reason at a time"*), and
+> "you have 3 left" is not a reason to refuse anything. A warning is an advert the user may accept;
+> C53's rule already permits it to route.
+
+**(b) `Follow` / `toggleWatch` at `stock/[sym].tsx:157` stays OPEN for an expired user**, even
+though Investing.com `211206` gates its own `Add to Watchlist` with a padlock.
+
+C13 decision 1 would close it — it is a write, not market data, so C40's "keep the data readable"
+does not cover it. It is left open on **C40's own stated reasoning**, which is the stronger argument:
+
+> *"with everything locked, an expired user has no reason to reopen the app, and C13 leaves them
+> only two re-entry paths. A readable market surface is a third."*
+
+Following a stock **manufactures** a reason to come back — it is the one control on the surface that
+does. Locking it would delete the re-entry path that justified keeping the surface readable in the
+first place, which makes the refinement argue against itself. The divergence from Investing.com is
+deliberate; it is a retention hook, not a premium feature.
