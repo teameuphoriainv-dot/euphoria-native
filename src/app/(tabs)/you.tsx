@@ -132,18 +132,59 @@ export default function You() {
                 </ThemedText>
               )}
             </View>
-            <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
-              {planTier === 'pro'
-                ? 'Every lesson, unlimited Atlas, the full options desk.'
-                : planTier === 'expired'
-                  ? 'Your free days are up. Pro reopens every lesson and Atlas.'
-                  : /* C27: no lesson count any more — content is unmetered during the trial, so the
-                       card says what the trial actually GRANTS rather than counting down an
-                       allowance that no longer exists. This is the line 4/4 references lead with
-                       ("full access to the Premium experience"). Atlas and options still carry
-                       real caps, so those keep their numbers. */
-                    `Every lesson open · ${atlasLeft} Atlas · ${optionsLeft} options contracts left`}
-            </ThemedText>
+            {/*
+              * The trial's position in its own span, as a PROGRESS OBJECT rather than a number the
+              * reader has to hold. Elevate and Duolingo both render progress this way (3/3 in the
+              * profile pull), and it is what makes the trial state prominent instead of a caption.
+              * Hidden for pro and expired — neither is a span with a position in it.
+              */}
+            {planTier === 'trial' && (
+              <ProgressBar value={Math.min(1, trialDay / TRIAL_DAYS)} height={6} />
+            )}
+
+            {planTier === 'expired' ? (
+              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+                Your free days are up. Pro reopens every lesson and Atlas.
+              </ThemedText>
+            ) : (
+              /*
+               * WHY THIS IS THREE COLUMNS AND NOT ONE SENTENCE.
+               *
+               * It read `Every lesson open · ${atlasLeft} Atlas · ${optionsLeft} options contracts
+               * left` — three different KINDS of fact (a boolean, a remaining count, a remaining
+               * count) middot-joined as though they were one list, so the eye could not tell where
+               * a value ended and the next label began.
+               *
+               * Counted across Duolingo `112804`, Elevate `111769`, TradingView `185370` and
+               * Quizlet `147612`: **4/4 render every stat as its own labelled unit — value on top,
+               * small grey caption beneath — and 0/4 join stats with middots.** Duolingo's
+               * "Overview" cards are the exact shape. This screen's own stat grid below already
+               * speaks that language, so the plan card was the only thing on the page that did not.
+               *
+               * Options keeps a number for BOTH tiers on purpose: C26 established the 3-contract
+               * cap is a DATA limit that binds Pro equally, not a trial restriction, so printing
+               * "unlimited" there would be false.
+               */
+              <View style={styles.grants}>
+                {(planTier === 'pro'
+                  ? ([
+                      { label: 'Lessons', value: 'All open' },
+                      { label: 'Atlas', value: 'Unlimited' },
+                      { label: 'Options', value: `${optionsLeft} left` },
+                    ] as const)
+                  : ([
+                      { label: 'Lessons', value: 'All open' },
+                      { label: 'Atlas', value: `${atlasLeft} left` },
+                      { label: 'Options', value: `${optionsLeft} left` },
+                    ] as const)
+                ).map((g) => (
+                  <View key={g.label} style={styles.grant}>
+                    <ThemedText type="bodyMedium" style={NUM}>{g.value}</ThemedText>
+                    <ThemedText type="label" themeColor="mutedForeground">{g.label}</ThemedText>
+                  </View>
+                ))}
+              </View>
+            )}
             {planTier !== 'pro' && (
               <SpringPressable
                 scaleTo={0.97}
@@ -324,6 +365,11 @@ const styles = StyleSheet.create({
   xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
   plan: { gap: Spacing.two },
   planTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
+  // Equal thirds so the three captions sit on one baseline grid. `gap` rather than dividers:
+  // TradingView's stat row (185370) separates by space alone, and a rule between three items in a
+  // card that already has a border is one line too many.
+  grants: { flexDirection: 'row', gap: Spacing.two },
+  grant: { flex: 1, gap: 1 },
   planCta: { borderWidth: 1, borderRadius: Radius.pill, paddingVertical: Spacing.one + 2, alignItems: 'center' },
   rungXp: { marginTop: 2, textAlign: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.three },
