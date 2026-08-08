@@ -7,7 +7,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { ProseBlock } from '@/lib/lesson-steps';
 
@@ -34,7 +34,7 @@ export function LessonProse({ label, title, blocks }: { label?: string; title: s
           if (b.b === 'stat')
             return (
               <Card key={i} elevated style={styles.stat}>
-                <ThemedText type="display" style={{ fontSize: 28, color: theme.iconLilac }}>{b.value}</ThemedText>
+                <ThemedText type="display" style={{ fontSize: FontSize.displaySm, color: theme.iconLilac }}>{b.value}</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground" style={{ flex: 1 }}>{b.label}</ThemedText>
               </Card>
             );
@@ -66,7 +66,7 @@ export function LessonProse({ label, title, blocks }: { label?: string; title: s
           return (
             <View key={i} style={styles.eventRow}>
               <View style={[styles.when, { backgroundColor: theme.primary + '1F' }]}>
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 11, lineHeight: 15 }}>{b.when}</ThemedText>
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.label, lineHeight: 15 }}>{b.when}</ThemedText>
               </View>
               <View style={{ flex: 1 }}>
                 <ThemedText type="bodyMedium">{b.what}</ThemedText>

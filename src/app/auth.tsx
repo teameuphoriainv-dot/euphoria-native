@@ -13,7 +13,7 @@ import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import type { Profile } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
@@ -131,11 +131,11 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
   head: { alignItems: 'center', gap: Spacing.two },
-  title: { fontSize: 24, textAlign: 'center', marginTop: Spacing.two },
+  title: { fontSize: FontSize.title, textAlign: 'center', marginTop: Spacing.two },
   sub: { textAlign: 'center', maxWidth: 280 },
   provider: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, paddingVertical: 15, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginVertical: Spacing.three },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
-  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.three, paddingVertical: 14, fontSize: 16 },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.three, paddingVertical: 14, fontSize: FontSize.body },
   signin: { alignItems: 'center', paddingVertical: Spacing.two },
 });

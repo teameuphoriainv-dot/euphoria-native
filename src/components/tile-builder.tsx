@@ -10,7 +10,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
@@ -71,7 +71,7 @@ export function TileBuilder({ spec, onSolvedChange }: { spec: TileSpec; onSolved
                     styles.slot,
                     { borderColor: border, borderStyle: v ? 'solid' : 'dashed', backgroundColor: v ? theme.primary + '1A' : 'transparent' },
                   ]}>
-                  <ThemedText type="heading" style={{ fontSize: 16, color: v ? theme.text : theme.mutedForeground }}>{v ?? '—'}</ThemedText>
+                  <ThemedText type="heading" style={{ fontSize: FontSize.body, color: v ? theme.text : theme.mutedForeground }}>{v ?? '—'}</ThemedText>
                 </View>
               </SpringPressable>
             </View>
@@ -93,7 +93,7 @@ export function TileBuilder({ spec, onSolvedChange }: { spec: TileSpec; onSolved
               accessibilityState={{ disabled: used || allCorrect, selected: used }}
               accessibilityHint={used ? undefined : 'Activate to place this in the next empty slot.'}>
               <View style={[styles.tile, { borderColor: theme.border, backgroundColor: theme.card, opacity: used ? 0.35 : 1 }]}>
-                <ThemedText type="heading" style={{ fontSize: 16 }}>{tile}</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{tile}</ThemedText>
               </View>
             </SpringPressable>
           );

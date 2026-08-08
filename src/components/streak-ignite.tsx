@@ -37,7 +37,7 @@ import { AtlasSpeech } from '@/components/atlas-speech';
 import { CloudPuff } from '@/components/celebration-burst';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { Spacing } from '@/constants/theme';
+import { Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 const FLAME = 'M50 6 C61 27, 80 39, 80 60 C80 79, 66 93, 50 93 C34 93, 20 79, 20 60 C20 39, 39 27, 50 6 Z';
@@ -195,8 +195,8 @@ export function StreakIgnite({ days, weekIndex = new Date().getDay() }: { days: 
       </View>
 
       <Animated.View style={[styles.countWrap, countStyle]}>
-        <ThemedText type="display" style={{ fontSize: 56, lineHeight: 62, color: '#F97316' }}>{days}</ThemedText>
-        <ThemedText type="heading" style={{ fontSize: 17, color: '#F97316', opacity: 0.85 }}>
+        <ThemedText type="display" style={{ fontSize: FontSize.heroXl, lineHeight: 62, color: '#F97316' }}>{days}</ThemedText>
+        <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, color: '#F97316', opacity: 0.85 }}>
           day streak
         </ThemedText>
       </Animated.View>
@@ -206,7 +206,7 @@ export function StreakIgnite({ days, weekIndex = new Date().getDay() }: { days: 
           const today = i === ((weekIndex + 6) % 7);
           return (
             <View key={i} style={styles.dayCol}>
-              <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15 }}>{d}</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label, lineHeight: 15 }}>{d}</ThemedText>
               <View style={[styles.dot, { borderColor: theme.border, backgroundColor: today ? '#F9731622' : 'transparent' }]}>
                 {today ? (
                   <Animated.View style={tickStyle}>

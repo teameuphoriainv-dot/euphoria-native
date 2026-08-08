@@ -13,7 +13,7 @@ import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 import { NumberRollup } from '@/shared/motion/number-rollup';
@@ -122,7 +122,7 @@ export function TrialStep({
         )}
       </View>
       <View style={styles.tlBody}>
-        <ThemedText type="heading" style={{ fontSize: 17, lineHeight: 22 }}>{title}</ThemedText>
+        <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{title}</ThemedText>
         {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 3, lineHeight: 19 }}>{sub}</ThemedText> : null}
       </View>
     </View>
@@ -153,7 +153,7 @@ export function PlanCard({
     <SpringPressable onPress={onPress} style={{ marginTop: Spacing.two }}>
       {badge ? (
         <View style={[styles.planBadge, { backgroundColor: theme.primary }]}>
-          <ThemedText type="smallBold" style={{ color: '#fff', fontSize: 11, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
+          <ThemedText type="smallBold" style={{ color: '#fff', fontSize: FontSize.label, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
         </View>
       ) : null}
       <View
@@ -171,13 +171,13 @@ export function PlanCard({
           {selected ? <UIcon name="check" size={12} color="#fff" /> : null}
         </View>
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{title}</ThemedText>
+          <ThemedText type="heading" style={{ fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
           {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText> : null}
         </View>
         {/* price stacked over its billing period: the amount is what you are charged, the unit
             says how often, so annual and monthly are never both reading as "/mo" */}
         <View style={{ alignItems: 'flex-end' }}>
-          <ThemedText type="heading" style={{ fontSize: 17, lineHeight: 22 }}>{price}</ThemedText>
+          <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{price}</ThemedText>
           {unit ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 1 }}>{unit}</ThemedText> : null}
         </View>
       </View>
@@ -284,7 +284,7 @@ export function OptionCard({
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: 16, lineHeight: 21 }}>{title}</ThemedText>
+          <ThemedText type="heading" style={{ fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
           {sub && !compact ? (
             <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText>
           ) : null}
@@ -319,7 +319,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
 
   return (
     <View style={[styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15 }}>Skill</ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label, lineHeight: 15 }}>Skill</ThemedText>
       <Svg width="100%" height={150} viewBox="0 0 300 150">
         <Line x1={0} y1={148} x2={300} y2={148} stroke={theme.border} strokeWidth={1} />
         <Line x1={0} y1={100} x2={300} y2={100} stroke={theme.border} strokeWidth={0.5} />
@@ -338,7 +338,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
         <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>With Euphoria</ThemedText>
         <ThemedText type="small" themeColor="mutedForeground">Without daily practice</ThemedText>
       </View>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15, alignSelf: 'flex-end' }}>Time</ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label, lineHeight: 15, alignSelf: 'flex-end' }}>Time</ThemedText>
     </View>
   );
 }
@@ -596,7 +596,7 @@ export function PlanRevealStep({
                   <ThemedText
                     type="body"
                     themeColor="mutedForeground"
-                    style={{ marginTop: 3, fontSize: 14, lineHeight: 19 }}
+                    style={{ marginTop: 3, fontSize: FontSize.smallPlus, lineHeight: 19 }}
                     numberOfLines={2}>
                     {reason}
                   </ThemedText>

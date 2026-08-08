@@ -22,7 +22,7 @@ import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { tierForXp } from '@/lib/league';
 import { PEOPLE, type Person } from '@/lib/people';
@@ -123,7 +123,7 @@ export default function Friends() {
         <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
         </SpringPressable>
-        <ThemedText type="title" style={{ fontSize: 22 }}>Friends</ThemedText>
+        <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Friends</ThemedText>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -169,6 +169,6 @@ const styles = StyleSheet.create({
   avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   num: { fontVariant: ['tabular-nums'] },
   btn: { paddingHorizontal: Spacing.two + 4, paddingVertical: 7, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth, minWidth: 84, alignItems: 'center' },
-  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.two + 4, paddingVertical: 10, fontSize: 15, marginBottom: Spacing.two },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.two + 4, paddingVertical: 10, fontSize: FontSize.bodySm, marginBottom: Spacing.two },
   empty: { paddingVertical: Spacing.two, lineHeight: 20 },
 });

@@ -39,7 +39,7 @@ import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RewardPop } from '@/shared/motion/reward-pop';
 
@@ -126,5 +126,5 @@ const styles = StyleSheet.create({
   wrap: { alignItems: 'center', marginTop: Spacing.four, paddingBottom: Spacing.four },
   stage: { alignItems: 'center', justifyContent: 'center' },
   glow: { position: 'absolute' },
-  title: { fontSize: 20, marginTop: Spacing.one },
+  title: { fontSize: FontSize.headingLg, marginTop: Spacing.one },
 });

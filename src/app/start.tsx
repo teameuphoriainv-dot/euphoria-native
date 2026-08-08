@@ -29,7 +29,7 @@ import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Spacing } from '@/constants/theme';
+import { Spacing, FontSize } from '@/constants/theme';
 import { pickToday } from '@/lib/digest-pick';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   head: { alignItems: 'center' },
   bubble: { alignItems: 'center', marginTop: Spacing.three, marginBottom: Spacing.three },
   card: { gap: 6 },
-  title: { fontSize: 22, marginTop: 2 },
+  title: { fontSize: FontSize.titleSm, marginTop: 2 },
   excerpt: { lineHeight: 22 },
   mins: { marginTop: Spacing.two },
   footer: { paddingHorizontal: Spacing.four, paddingBottom: Spacing.four },

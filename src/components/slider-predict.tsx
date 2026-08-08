@@ -9,7 +9,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type SliderSpec = { prompt: string; max: number; answer: number; format: (n: number) => string; tolerance?: number };
@@ -60,12 +60,12 @@ export function SliderPredict({ spec, revealed, onTouched }: { spec: SliderSpec;
       <View style={styles.readout}>
         <View>
           <ThemedText type="label" themeColor="mutedForeground">Your guess</ThemedText>
-          <ThemedText type="display" style={{ fontSize: 30 }}>{spec.format(guess)}</ThemedText>
+          <ThemedText type="display" style={{ fontSize: FontSize.display }}>{spec.format(guess)}</ThemedText>
         </View>
         {revealed && (
           <View style={{ alignItems: 'flex-end' }}>
             <ThemedText type="label" themeColor="mutedForeground">Actual</ThemedText>
-            <ThemedText type="display" style={{ fontSize: 30, color: theme.success }}>{spec.format(spec.answer)}</ThemedText>
+            <ThemedText type="display" style={{ fontSize: FontSize.display, color: theme.success }}>{spec.format(spec.answer)}</ThemedText>
           </View>
         )}
       </View>

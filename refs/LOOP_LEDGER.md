@@ -14,4 +14,5 @@ Each row is one wake-up: what triggered it, what it changed, what it proved.
 | 7 | 5 min fallback | closed Unit 12 — crests already existed, covers superseded by C57, quest icons built | 3 authored marks, `sharp` contact sheet caught the goal mark reading as REFRESH and it became a flag · both marks render on device in the quest ring · tsc clean · lint 47 warns = baseline |
 | 8 | 5 min fallback | Unit 13 items 5, 7 and part of 1 | **177 onPress, 0 dead** (4 false positives inspected) · bundle **24M** baseline · **23 un-tokenised colours / 45 raw radii / 126 raw fontSizes** measured · `#F97316` streak flame tokenised across 14 sites |
 | 9 | continued | radius half of the token sweep | **22 design radii tokenised, 23 geometry radii deliberately left raw** · lint **47 → 45 warnings** (removed, not suppressed) · tsc clean · certify green · app renders |
-| 10 | *(pending)* | fontSize half of the sweep, then empty states (capture→reset→enumerate→restore) | — |
+| 10 | 5 min fallback | fontSize half of the token sweep | **117 sizes across 46 files → `FontSize`** · 21-step ramp needed for a 9-variant system (the finding) · Home screenshot **pixel-identical** before/after · lint 45 warns · certify green |
+| 11 | *(pending)* | empty states — capture → reset → enumerate → restore | — |

@@ -14,7 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 
@@ -50,7 +50,7 @@ export default function Courses() {
         <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
         </SpringPressable>
-        <ThemedText type="title" style={{ fontSize: 22 }}>Courses</ThemedText>
+        <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Courses</ThemedText>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
@@ -59,7 +59,7 @@ export default function Courses() {
           return (
             <SpringPressable key={t.tier} haptic={false} scaleTo={0.94} onPress={() => setTier(t.tier)}>
               <View style={[styles.chip, { borderColor: active ? theme.primary : theme.border, backgroundColor: active ? theme.primary + '24' : 'transparent' }]}>
-                <ThemedText type="smallBold" style={{ color: active ? theme.text : theme.mutedForeground, fontSize: 13 }}>{t.label}</ThemedText>
+                <ThemedText type="smallBold" style={{ color: active ? theme.text : theme.mutedForeground, fontSize: FontSize.small }}>{t.label}</ThemedText>
               </View>
             </SpringPressable>
           );
@@ -85,7 +85,7 @@ export default function Courses() {
                       <CourseMark id={c.id} size={52} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <ThemedText type="heading" style={{ fontSize: 17 }}>{c.title}</ThemedText>
+                      <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg }}>{c.title}</ThemedText>
                       <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }} numberOfLines={2}>
                         {done > 0 ? `${done}/${c.totalLessons} lessons` : `${c.totalLessons} lessons`}
                       </ThemedText>

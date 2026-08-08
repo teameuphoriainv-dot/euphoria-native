@@ -19,7 +19,7 @@ import { GateSheet } from '@/components/gate-sheet';
 import { entitled, type Refusal } from '@/lib/entitlement';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
@@ -142,7 +142,7 @@ export default function Learn() {
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <SpringPressable haptic={false} onPress={() => router.push('/courses')} style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{course?.title ?? 'Courses'}</ThemedText>
+              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{course?.title ?? 'Courses'}</ThemedText>
               {/* Data, not an instruction. All six reference path screens put INFORMATION here —
                   "12 chapters", "Beginner: 2%", "0 of 7 lessons completed", "24 lessons" — none
                   spends the line telling you the header is tappable. */}
@@ -294,7 +294,7 @@ export default function Learn() {
                       <ThemedText
                         type={active ? 'bodyMedium' : 'body'}
                         numberOfLines={2}
-                        style={{ fontSize: 15, lineHeight: 20, color: locked ? theme.mutedForeground : theme.text }}>
+                        style={{ fontSize: FontSize.bodySm, lineHeight: 20, color: locked ? theme.mutedForeground : theme.text }}>
                         {lesson.title}
                       </ThemedText>
                       {active && <ThemedText type="label" style={{ color: accent, marginTop: 1 }}>START HERE</ThemedText>}

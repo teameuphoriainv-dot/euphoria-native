@@ -32,7 +32,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { applyDailyNudge } from '@/lib/notifications';
 import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   back: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   content: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six, gap: Spacing.four },
-  title: { fontSize: 26, marginTop: Spacing.two },
+  title: { fontSize: FontSize.titleLg, marginTop: Spacing.two },
   section: { gap: Spacing.two, marginBottom: Spacing.four },
   group: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.lg, overflow: 'hidden' },
   row: {

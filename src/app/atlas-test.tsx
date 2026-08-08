@@ -5,6 +5,7 @@
 import { useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { AtlasRive, AtlasRiveHandle } from '@/components/atlas-rive';
+import { FontSize } from '@/constants/theme';
 
 export default function AtlasTest() {
   const atlas = useRef<AtlasRiveHandle>(null);
@@ -20,9 +21,9 @@ export default function AtlasTest() {
           paddingVertical: 15,
           borderRadius: 999,
         })}>
-        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Celebrate 🎉</Text>
+        <Text style={{ color: '#fff', fontWeight: '700', fontSize: FontSize.body }}>Celebrate 🎉</Text>
       </Pressable>
-      <Text style={{ color: '#8B5CF6', fontSize: 12, letterSpacing: 1 }}>RIVE SMOKE TEST</Text>
+      <Text style={{ color: '#8B5CF6', fontSize: FontSize.caption, letterSpacing: 1 }}>RIVE SMOKE TEST</Text>
     </View>
   );
 }

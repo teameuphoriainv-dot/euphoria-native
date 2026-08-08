@@ -1,3 +1,4 @@
+import { FontSize } from '@/constants/theme';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -51,7 +52,7 @@ export function TabBar({ state, navigation }: TabBarProps) {
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
             }}>
             <UIcon name={TAB_ICONS[route.name] ?? 'sparkle'} size={24} color={color} strokeWidth={focused ? 2.4 : 2} />
-            <ThemedText type="small" style={{ fontSize: 10, lineHeight: 13, color, fontFamily: focused ? 'Nunito_700Bold' : 'DMSans_500Medium' }}>
+            <ThemedText type="small" style={{ fontSize: FontSize.tiny, lineHeight: 13, color, fontFamily: focused ? 'Nunito_700Bold' : 'DMSans_500Medium' }}>
               {route.name === 'you' ? 'You' : route.name.charAt(0).toUpperCase() + route.name.slice(1)}
             </ThemedText>
           </SpringPressable>

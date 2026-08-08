@@ -8,7 +8,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -54,7 +54,7 @@ export function TapReveal({ spec, onSolvedChange }: { spec: RevealSpec; onSolved
               </Animated.View>
             ) : (
               <View style={[styles.card, { borderColor: theme.border, backgroundColor: theme.card, alignItems: 'center', justifyContent: 'center' }]}>
-                <ThemedText type="heading" style={{ fontSize: 16, textAlign: 'center' }}>{c.term}</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: FontSize.body, textAlign: 'center' }}>{c.term}</ThemedText>
                 <ThemedText type="label" themeColor="mutedForeground" style={{ marginTop: 6 }}>Tap to flip</ThemedText>
               </View>
             )}

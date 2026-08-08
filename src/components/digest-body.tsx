@@ -12,7 +12,7 @@ import { StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
 import type { DigestCategory } from '@/lib/digest-content';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { useTheme } from '@/hooks/use-theme';
@@ -206,7 +206,7 @@ export function Blocks({ blocks, category }: { blocks: Block[]; category: Digest
 }
 
 const styles = StyleSheet.create({
-  h2: { fontSize: 22, lineHeight: 28, marginTop: Spacing.four, marginBottom: Spacing.one },
+  h2: { fontSize: FontSize.titleSm, lineHeight: 28, marginTop: Spacing.four, marginBottom: Spacing.one },
   /**
    * Prose is 18/29 — a 1.61 ratio.
    *
@@ -219,12 +219,12 @@ const styles = StyleSheet.create({
    * `strong` MUST track para's size and lineHeight — it renders as nested Text inside it, and a
    * mismatch shifts the baseline mid-sentence.
    */
-  para: { fontFamily: Fonts.body, fontSize: 18, lineHeight: 29, marginTop: Spacing.three },
+  para: { fontFamily: Fonts.body, fontSize: FontSize.subhead, lineHeight: 29, marginTop: Spacing.three },
   paraTight: { marginTop: 0 },
-  strong: { fontFamily: Fonts.semibold, fontSize: 18, lineHeight: 29 },
+  strong: { fontFamily: Fonts.semibold, fontSize: FontSize.subhead, lineHeight: 29 },
   // The lead is the hook. It gets its own scale so the first thing you see is the whole argument.
-  lead: { fontFamily: Fonts.body, fontSize: 21, lineHeight: 31, marginTop: Spacing.two },
-  leadStrong: { fontFamily: Fonts.semibold, fontSize: 21, lineHeight: 31 },
+  lead: { fontFamily: Fonts.body, fontSize: FontSize.headingXl, lineHeight: 31, marginTop: Spacing.two },
+  leadStrong: { fontFamily: Fonts.semibold, fontSize: FontSize.headingXl, lineHeight: 31 },
   label: { marginTop: Spacing.four, marginBottom: Spacing.one },
   bottomRule: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.three },
   quote: {

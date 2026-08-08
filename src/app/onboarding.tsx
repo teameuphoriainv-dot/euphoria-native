@@ -38,7 +38,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases } from '@/lib/purchases';
@@ -537,7 +537,7 @@ export default function Onboarding() {
                         <UIcon name={p.icon} size={20} color={theme.iconLilac} />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <ThemedText type="heading" style={{ fontSize: 16 }}>{p.title}</ThemedText>
+                        <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{p.title}</ThemedText>
                         <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2, lineHeight: 18 }}>{p.sub}</ThemedText>
                       </View>
                     </Card>
@@ -750,10 +750,10 @@ const styles = StyleSheet.create({
   /** Heading / trial timeline / plan cards, spread across the leftover height. */
   paywallBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
-  fine: { textAlign: "center", fontSize: 11, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
+  fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
   maybeLater: { alignItems: "center", paddingTop: Spacing.two },
   legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.two },
-  legalLink: { fontSize: 11, textDecorationLine: 'underline', opacity: 0.75 },
-  legalDot: { fontSize: 11, opacity: 0.75 },
+  legalLink: { fontSize: FontSize.label, textDecorationLine: 'underline', opacity: 0.75 },
+  legalDot: { fontSize: FontSize.label, opacity: 0.75 },
 });

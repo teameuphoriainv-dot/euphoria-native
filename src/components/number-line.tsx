@@ -10,7 +10,7 @@ import { GestureResponderEvent, LayoutChangeEvent, Pressable, StyleSheet, View }
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
@@ -79,7 +79,7 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
       {/* lineHeight pinned to the override. `display` supplies 40, and 40/34 = 1.18 sits under
           the 1.2 readability floor — the same class of defect that clipped before-after-slider
           at ratio 1.0. 42 restores 1.24. */}
-      <ThemedText type="display" style={{ fontSize: 34, lineHeight: 42, color: readColor, textAlign: 'center', marginBottom: Spacing.four }}>
+      <ThemedText type="display" style={{ fontSize: FontSize.displayLg, lineHeight: 42, color: readColor, textAlign: 'center', marginBottom: Spacing.four }}>
         {value == null ? 'Tap the line' : fmt(value)}
       </ThemedText>
 

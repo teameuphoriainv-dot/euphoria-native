@@ -9,6 +9,7 @@ import Svg, { Circle, G } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
+import { FontSize } from '@/constants/theme';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -54,8 +55,8 @@ export function DailyGoalRing({ value, goal, size = 88, stroke = 9 }: { value: n
         </G>
       </Svg>
       <View style={{ alignItems: 'center' }}>
-        <ThemedText type="heading" style={{ fontSize: 20 }}>{value}</ThemedText>
-        <ThemedText type="label" themeColor="mutedForeground" style={{ fontSize: 9 }}>min</ThemedText>
+        <ThemedText type="heading" style={{ fontSize: FontSize.headingLg }}>{value}</ThemedText>
+        <ThemedText type="label" themeColor="mutedForeground" style={{ fontSize: FontSize.micro }}>min</ThemedText>
       </View>
     </View>
   );

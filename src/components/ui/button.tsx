@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
-import { BrandGradient, Radius, Spacing } from '@/constants/theme';
+import { BrandGradient, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -108,7 +108,7 @@ export function GradientButton({
         ) : (
           <>
             {icon ? <UIcon name={icon} size={17} color="#fff" /> : null}
-            <ThemedText type="heading" style={{ color: '#fff', fontSize: 17 }}>{label}</ThemedText>
+            <ThemedText type="heading" style={{ color: '#fff', fontSize: FontSize.bodyLg }}>{label}</ThemedText>
           </>
         )}
       </LinearGradient>

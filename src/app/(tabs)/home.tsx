@@ -33,7 +33,7 @@ import { WidgetPromo } from '@/components/widget-promo';
 import { nextWidgetAsk, WIDGET_ASK_XP } from '@/lib/widget-ask';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { CourseRailCard } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
@@ -72,7 +72,7 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
       <ThemedText
         type={today ? 'smallBold' : 'small'}
         themeColor={today ? undefined : 'mutedForeground'}
-        style={[{ fontSize: 11, lineHeight: 15 }, today ? { color: theme.iconLilac } : null]}>
+        style={[{ fontSize: FontSize.label, lineHeight: 15 }, today ? { color: theme.iconLilac } : null]}>
         {label}
       </ThemedText>
       <View style={styles.dayMark}>
@@ -202,7 +202,7 @@ export default function Home() {
                 <Atlas size={46} expression="happy" interactive={false} />
               </SpringPressable>
               <View style={{ flex: 1 }}>
-                <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
+                <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>
                   {remaining === 0 ? 'Done for today — streak safe.' : `${remaining} min to keep your streak`}
                 </ThemedText>
@@ -211,11 +211,11 @@ export default function Home() {
             <View style={styles.pillStack}>
               <View style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
                 <UIcon name="flame" size={14} color={theme.streak} />
-                <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: 12 }}>{streak}</ThemedText>
+                <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: FontSize.caption }}>{streak}</ThemedText>
               </View>
               <View style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
                 <UIcon name="target" size={14} color={theme.iconLilac} />
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 12 }}>{minutesDone}/{goalMinutes}</ThemedText>
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.caption }}>{minutesDone}/{goalMinutes}</ThemedText>
               </View>
             </View>
           </View>
@@ -320,7 +320,7 @@ export default function Home() {
                     style={{ flex: 1 }}>
                     <View style={[styles.commitChip, { borderColor: theme.border, backgroundColor: theme.cardElevated }]}>
                       <ThemedText type="smallBold">{t.days}</ThemedText>
-                      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11 }}>{t.name}</ThemedText>
+                      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label }}>{t.name}</ThemedText>
                     </View>
                   </SpringPressable>
                 ))}
@@ -482,7 +482,7 @@ export default function Home() {
             <SpringPressable onPress={() => router.push('/trade')}>
               <Card style={styles.duoCard} tint={theme.success}>
                 <UIcon name="trade" size={20} color={theme.success} />
-                <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two }}>Trade</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: FontSize.body, marginTop: Spacing.two }}>Trade</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground">Paper trading</ThemedText>
               </Card>
             </SpringPressable>
@@ -491,7 +491,7 @@ export default function Home() {
             <SpringPressable onPress={() => router.push('/digest')}>
               <Card style={styles.duoCard} tint={theme.primary}>
                 <UIcon name="bookOpen" size={20} color={theme.iconLilac} />
-                <ThemedText type="heading" style={{ fontSize: 16, marginTop: Spacing.two }}>Digest</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: FontSize.body, marginTop: Spacing.two }}>Digest</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground">Today&apos;s read</ThemedText>
               </Card>
             </SpringPressable>
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
   /* 22/28, lineHeight pinned to the override. Was 26 on `display` (lineHeight 40): the hero
      card ate 55% of the viewport and pushed the new YOUR PATH rail under the tab bar. None of
      the six reference home screens uses a hero this large. */
-  heroTitle: { textAlign: 'center', fontSize: 22, lineHeight: 28, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
+  heroTitle: { textAlign: 'center', fontSize: FontSize.titleSm, lineHeight: 28, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
   heroCta: { alignSelf: 'stretch', marginTop: Spacing.three },
   sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.four, marginBottom: Spacing.two },
   railScroll: { marginHorizontal: -Spacing.three },

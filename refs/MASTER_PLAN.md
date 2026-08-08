@@ -4805,3 +4805,18 @@ The floor is now 45.
 **This is the part of "tokenise everything" that had to be argued with rather than obeyed**, and it
 is recorded so a later pass does not "finish the job" by tokenising the other 23.
 
+### C68. THE TYPE SWEEP — and the ramp's width is itself the finding.
+
+117 raw `fontSize` values across 46 files now draw from **`FontSize`** in `theme.ts`. Values are the
+ones already shipping; nothing was rounded, for the same reason C67 gives.
+
+**The scale needed 21 steps to cover 117 overrides against a 9-variant type system.** That ratio is
+the real result: callers were routinely escaping `themed-text.tsx` rather than extending it. Naming
+the sizes does not fix that — it makes it visible and changeable in one file. A future pass that
+wants a genuinely tight scale now has the data to collapse steps deliberately, which is a decision
+about pixels and therefore one to take with the user.
+
+**Verified as a no-op:** the Home screenshot after the sweep is pixel-identical to the one before
+it. For a pure tokenisation that is the only verification worth having — `tsc` passing proves the
+names resolve, not that the type still sets the same way.
+

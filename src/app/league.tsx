@@ -23,7 +23,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -94,7 +94,7 @@ export default function League() {
         <View style={{ flex: 1 }}>
           <View style={styles.titleRow}>
             <LeagueCrest tier={tier} size={30} />
-            <ThemedText type="title" style={{ fontSize: 22 }} numberOfLines={1}>{tier.name}</ThemedText>
+            <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{tier.name}</ThemedText>
           </View>
           <ThemedText type="small" themeColor="mutedForeground">Top 3 advance · {daysLeft()}</ThemedText>
         </View>
@@ -132,7 +132,7 @@ export default function League() {
                     borderWidth: p.me ? 1.5 : StyleSheet.hairlineWidth,
                   },
                 ]}>
-                <ThemedText type="heading" style={{ width: 26, fontSize: 16, color: i < 3 ? theme.warning : theme.mutedForeground }}>{i + 1}</ThemedText>
+                <ThemedText type="heading" style={{ width: 26, fontSize: FontSize.body, color: i < 3 ? theme.warning : theme.mutedForeground }}>{i + 1}</ThemedText>
                 <View style={[styles.avatar, { backgroundColor: p.color }]}>
                   <ThemedText type="smallBold" style={{ color: '#0A0A0F' }}>{p.name[0]}</ThemedText>
                 </View>

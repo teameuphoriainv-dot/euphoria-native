@@ -30,7 +30,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /** Eight-point star, drawn once. Sharp points read as an impact; round ones read as a glow. */
@@ -123,7 +123,7 @@ export function FeedbackBanner({
           <UIcon name={correct ? 'check' : 'close'} size={17} color="#fff" />
         </View>
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: 18, lineHeight: 23, color: tint }}>{title}</ThemedText>
+          <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 23, color: tint }}>{title}</ThemedText>
           {detail ? (
             <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2, lineHeight: 18 }}>{detail}</ThemedText>
           ) : null}

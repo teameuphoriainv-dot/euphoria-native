@@ -30,7 +30,7 @@ import { CelebrationRays } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
 import { GradientButton } from '@/components/ui/button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { money, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
@@ -97,7 +97,7 @@ export default function Reward() {
             <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <ThemedText type="title" style={styles.ticker}>{revealed.sym}</ThemedText>
               <ThemedText type="body" themeColor="mutedForeground">{STOCKS[revealed.sym]?.name ?? revealed.sym}</ThemedText>
-              <ThemedText type="display" style={{ fontSize: 34, marginTop: Spacing.two }}>{money(revealed.value)}</ThemedText>
+              <ThemedText type="display" style={{ fontSize: FontSize.displayLg, marginTop: Spacing.two }}>{money(revealed.value)}</ThemedText>
             </View>
           </RewardPop>
         </Animated.View>
@@ -124,7 +124,7 @@ export default function Reward() {
                     { backgroundColor: theme.primary + '22', borderColor: theme.primary + '55', marginLeft: i * -18, top: i * 4 },
                   ]}
                 >
-                  <ThemedText type="display" style={{ fontSize: 26, color: theme.iconLilac }}>?</ThemedText>
+                  <ThemedText type="display" style={{ fontSize: FontSize.titleLg, color: theme.iconLilac }}>?</ThemedText>
                 </View>
               ))}
             </View>
@@ -176,6 +176,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     transform: [{ rotate: '-3deg' }],
   },
-  ticker: { fontSize: 28 },
+  ticker: { fontSize: FontSize.displaySm },
   footer: { padding: Spacing.four, gap: Spacing.two },
 });

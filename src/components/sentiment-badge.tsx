@@ -17,7 +17,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius } from '@/constants/theme';
+import { Radius, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /** The dead band. Scores inside ±0.15 are noise, and colouring them would overstate the signal. */
@@ -48,7 +48,7 @@ export function SentimentBadge({ score, label }: { score?: number; label?: strin
 
   return (
     <View style={[styles.chip, { backgroundColor: tone.bg }]}>
-      <ThemedText type="smallBold" style={{ fontSize: 10, color: tone.fg }}>
+      <ThemedText type="smallBold" style={{ fontSize: FontSize.tiny, color: tone.fg }}>
         {label.toUpperCase()}
       </ThemedText>
     </View>

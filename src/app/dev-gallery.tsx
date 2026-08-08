@@ -28,7 +28,7 @@ import { QuestMark, QUEST_MARK_NAMES } from '@/components/art/quest-mark';
 import { LeagueCrest } from '@/components/league-crest';
 import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Spacing, FontSize } from '@/constants/theme';
 import { DIGEST_HEROES } from '@/lib/digest-heroes';
 import { EUPHORIA_ICONS, type EuphoriaIconName } from '@/lib/euphoria-icons';
 import { TIERS } from '@/lib/league';
@@ -71,7 +71,7 @@ export default function DevGallery() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ThemedText type="title" style={{ fontSize: 22 }}>
+        <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>
           Art gallery
         </ThemedText>
         <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
@@ -155,5 +155,5 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   cell: { width: 104, alignItems: 'center' },
   art: { height: 72, alignItems: 'center', justifyContent: 'center' },
-  caption: { fontSize: 10, marginTop: 2, textAlign: 'center' },
+  caption: { fontSize: FontSize.tiny, marginTop: 2, textAlign: 'center' },
 });

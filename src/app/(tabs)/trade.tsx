@@ -33,7 +33,7 @@ import { TickerLogo } from '@/components/ticker-logo';
 import { NewsGallery } from '@/components/news-gallery';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
@@ -107,7 +107,7 @@ export default function Trade() {
         <RiseIn>
           <View style={styles.titleRow}>
             <View style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: 22 }}>Trade</ThemedText>
+              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Trade</ThemedText>
               {/* "Practice with $10,000. No real money." stated the rules and nothing else. This
                   says what the user GETS. */}
               <ThemedText type="small" themeColor="mutedForeground">
@@ -132,8 +132,8 @@ export default function Trade() {
           <Card elevated>
             <ThemedText type="label" themeColor="mutedForeground">Portfolio value</ThemedText>
             <View style={styles.amountRow}>
-              <NumberRollup value={Math.floor(total)} prefix="$" type="display" style={{ fontSize: 34 }} />
-              <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: 18, marginBottom: 3 }}>
+              <NumberRollup value={Math.floor(total)} prefix="$" type="display" style={{ fontSize: FontSize.displayLg }} />
+              <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.subhead, marginBottom: 3 }}>
                 .{total.toFixed(2).split('.')[1]}
               </ThemedText>
             </View>
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   idea: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two + 2, gap: 3 },
   ideaBody: { lineHeight: 19 },
   ideaLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one, fontSize: 11, lineHeight: 15 },
+  disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one, fontSize: FontSize.label, lineHeight: 15 },
   sectionLabel: { marginBottom: Spacing.two },
   actions: { flexDirection: 'row', gap: Spacing.two },
   action: {

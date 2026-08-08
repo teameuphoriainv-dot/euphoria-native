@@ -24,7 +24,7 @@ import { ago, SentimentBadge } from '@/components/sentiment-badge';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getNews, type Article } from '@/lib/market';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -68,7 +68,7 @@ export default function News() {
         </SpringPressable>
 
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: 26 }}>{sym ? `${sym} news` : 'Market news'}</ThemedText>
+          <ThemedText type="title" style={{ fontSize: FontSize.titleLg }}>{sym ? `${sym} news` : 'Market news'}</ThemedText>
           <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
             {sym ? 'Stories mentioning this company.' : 'What moved, and why.'}
           </ThemedText>

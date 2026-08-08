@@ -31,7 +31,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getChain, getExpirations, type Contract } from '@/lib/market';
 import { ASSUMED_VOL, CONTRACT_SIZE, premium, strikesAround } from '@/lib/options';
@@ -245,7 +245,7 @@ export default function Options() {
             <ThemedText type="small" themeColor="mutedForeground">Trade</ThemedText>
           </SpringPressable>
           <RiseIn>
-            <ThemedText type="title" style={{ fontSize: 26 }}>Options</ThemedText>
+            <ThemedText type="title" style={{ fontSize: FontSize.titleLg }}>Options</ThemedText>
           </RiseIn>
           <RiseIn delay={80}>
             <Card style={styles.locked}>
@@ -276,7 +276,7 @@ export default function Options() {
         </SpringPressable>
 
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: 26 }}>Options</ThemedText>
+          <ThemedText type="title" style={{ fontSize: FontSize.titleLg }}>Options</ThemedText>
           <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
             {STOCKS[sym]?.name ?? sym} at {money(spot)} · {left} of {PRO_DERIVATIVE_PREVIEW} preview contracts left
           </ThemedText>
@@ -372,7 +372,7 @@ export default function Options() {
                   ? `${sym} ${money(pick.strike)} ${pick.side === 'call' ? 'Call' : 'Put'}`
                   : 'Tap a call or a put'}
               </ThemedText>
-              <ThemedText type="heading" style={{ fontSize: 18 }}>{chosen ? money(chosen.cost) : '\u2014'}</ThemedText>
+              <ThemedText type="heading" style={{ fontSize: FontSize.subhead }}>{chosen ? money(chosen.cost) : '\u2014'}</ThemedText>
             </View>
             {!!(pick && chosen) && (
               <View style={styles.ticketRow}>
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   strikeCell: { width: 88, alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.two },
   cell: { paddingVertical: Spacing.two + 2, paddingHorizontal: Spacing.two, alignItems: 'center', justifyContent: 'center' },
   cellCost: { fontVariant: ['tabular-nums'] },
-  cellSub: { fontSize: 11, lineHeight: 14 },
+  cellSub: { fontSize: FontSize.label, lineHeight: 14 },
   ticket: { gap: Spacing.two },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });

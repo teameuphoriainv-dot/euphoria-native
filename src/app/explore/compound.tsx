@@ -13,7 +13,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -34,11 +34,11 @@ function Stepper({ label, value, onDec, onInc }: { label: string; value: string;
       <ThemedText type="small" themeColor="mutedForeground">{label}</ThemedText>
       <View style={styles.stepRow}>
         <SpringPressable scaleTo={0.88} onPress={onDec}>
-          <View style={[styles.stepBtn, { borderColor: theme.border }]}><ThemedText type="heading" style={{ fontSize: 20 }}>−</ThemedText></View>
+          <View style={[styles.stepBtn, { borderColor: theme.border }]}><ThemedText type="heading" style={{ fontSize: FontSize.headingLg }}>−</ThemedText></View>
         </SpringPressable>
-        <ThemedText type="heading" style={{ fontSize: 18, minWidth: 84, textAlign: 'center' }}>{value}</ThemedText>
+        <ThemedText type="heading" style={{ fontSize: FontSize.subhead, minWidth: 84, textAlign: 'center' }}>{value}</ThemedText>
         <SpringPressable scaleTo={0.88} onPress={onInc}>
-          <View style={[styles.stepBtn, { borderColor: theme.border, backgroundColor: theme.primary + '22' }]}><ThemedText type="heading" style={{ fontSize: 20, color: theme.iconLilac }}>+</ThemedText></View>
+          <View style={[styles.stepBtn, { borderColor: theme.border, backgroundColor: theme.primary + '22' }]}><ThemedText type="heading" style={{ fontSize: FontSize.headingLg, color: theme.iconLilac }}>+</ThemedText></View>
         </SpringPressable>
       </View>
     </Card>
@@ -77,14 +77,14 @@ export default function CompoundLab() {
         </SpringPressable>
 
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: 24 }}>Compound Growth Lab</ThemedText>
+          <ThemedText type="title" style={{ fontSize: FontSize.title }}>Compound Growth Lab</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>See how small, steady investing snowballs.</ThemedText>
         </RiseIn>
 
         <RiseIn delay={80}>
           <Card style={styles.resultCard} elevated>
             <ThemedText type="label" themeColor="mutedForeground">In {years} years you&apos;d have</ThemedText>
-            <NumberRollup value={fv} prefix="$" duration={600} type="display" style={{ fontSize: 34, marginTop: 2 }} />
+            <NumberRollup value={fv} prefix="$" duration={600} type="display" style={{ fontSize: FontSize.displayLg, marginTop: 2 }} />
             <View style={styles.splitRow}>
               <ThemedText type="small" themeColor="mutedForeground">You put in ${contributed.toLocaleString()}</ThemedText>
               <ThemedText type="smallBold" style={{ color: theme.success }}>+${growth.toLocaleString()} growth</ThemedText>

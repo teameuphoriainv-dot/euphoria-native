@@ -23,7 +23,7 @@ import { Blocks, parseBlocks, type Block } from '@/components/digest-body';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
-import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
 import { bodyFor } from '@/lib/digest-bodies';
 import { DIGEST_POSTS } from '@/lib/digest-content';
 import { lessonForGuide } from '@/lib/digest-lessons';
@@ -278,9 +278,9 @@ const styles = StyleSheet.create({
   contentCover: { justifyContent: 'center' },
   cover: { borderRadius: Radius.lg, overflow: 'hidden', justifyContent: 'center', marginBottom: Spacing.four },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  headline: { fontSize: 28, lineHeight: 35 },
-  lead: { fontFamily: Fonts.medium, fontSize: 17, lineHeight: 26, marginTop: Spacing.three },
-  cardTitle: { fontSize: 24, lineHeight: 31, marginTop: 8, marginBottom: Spacing.two },
+  headline: { fontSize: FontSize.displaySm, lineHeight: 35 },
+  lead: { fontFamily: Fonts.medium, fontSize: FontSize.bodyLg, lineHeight: 26, marginTop: Spacing.three },
+  cardTitle: { fontSize: FontSize.title, lineHeight: 31, marginTop: 8, marginBottom: Spacing.two },
   takeaways: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, padding: Spacing.three, marginTop: Spacing.two },
   footer: { padding: Spacing.three, paddingTop: Spacing.two },
   done: { alignItems: 'center', paddingTop: Spacing.three },

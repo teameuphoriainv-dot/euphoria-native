@@ -2,6 +2,7 @@
 import { ScrollView, View, Text } from 'react-native';
 import { LessonArt } from '@/components/lesson-art';
 import { COURSES } from '@/lib/curriculum';
+import { FontSize } from '@/constants/theme';
 
 /** Real curriculum titles, one per art key, so the grid doubles as a routing check. */
 const SAMPLE = [
@@ -40,7 +41,7 @@ export default function ArtTest() {
     <ScrollView style={{ flex: 1, backgroundColor: '#0B0710' }} contentContainerStyle={{ padding: 16, paddingTop: 60 }}>
       {courses.map((c) => (
         <View key={c.id} style={{ marginBottom: 20 }}>
-          <Text style={{ color: '#fff', fontSize: 13, marginBottom: 8 }}>{c.title}</Text>
+          <Text style={{ color: '#fff', fontSize: FontSize.small, marginBottom: 8 }}>{c.title}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {SAMPLE.map((t, i) => (
               <View

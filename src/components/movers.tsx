@@ -16,7 +16,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
 import { Card } from '@/components/ui/card';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getMovers, type Mover } from '@/lib/market';
 import { money } from '@/lib/stocks';
@@ -71,7 +71,7 @@ export function Movers() {
                 <ThemedText
                   type="smallBold"
                   style={{
-                    fontSize: 12,
+                    fontSize: FontSize.caption,
                     color: d === dir ? (d === 'gainers' ? theme.success : theme.destructive) : theme.mutedForeground,
                   }}
                 >

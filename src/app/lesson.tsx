@@ -33,7 +33,7 @@ import { ThemedText } from '@/components/themed-text';
 import { TileBuilder } from '@/components/tile-builder';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { gates, normalizeStep } from '@/lib/lesson-steps';
@@ -282,7 +282,7 @@ export default function Lesson() {
                     celebrateKey={checked && pick === norm.correct ? 1 : 0}
                     interactive={false}
                   />
-                  <ThemedText type="title" style={{ flex: 1, fontSize: 21 }}>{norm.prompt}</ThemedText>
+                  <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingXl }}>{norm.prompt}</ThemedText>
                 </View>
                 <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
                   {norm.options.map((o, i) => {
@@ -333,13 +333,13 @@ export default function Lesson() {
               <RewardPop delay={1180}>
                 <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
                   <UIcon name="sparkle" size={18} color={theme.iconLilac} />
-                  <NumberRollup value={xp} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: 18 }} />
+                  <NumberRollup value={xp} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.subhead }} />
                 </View>
               </RewardPop>
               <RewardPop delay={1340}>
                 <View style={[styles.xpChip, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
                   <UIcon name="flame" size={18} color={theme.streak} />
-                  <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: 18 }} />
+                  <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: FontSize.subhead }} />
                 </View>
               </RewardPop>
             </View>

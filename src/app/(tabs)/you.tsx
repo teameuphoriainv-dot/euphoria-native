@@ -23,7 +23,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { TIERS, tierProgress } from '@/lib/league';
@@ -154,7 +154,7 @@ export default function You() {
                 >
                   <ThemedText
                     type="smallBold"
-                    style={{ fontSize: 10, color: planTier === 'pro' ? theme.iconGold : theme.iconLilac }}
+                    style={{ fontSize: FontSize.tiny, color: planTier === 'pro' ? theme.iconGold : theme.iconLilac }}
                   >
                     {planTier === 'pro' ? 'PRO' : planTier === 'expired' ? 'FREE' : 'FREE TRIAL'}
                   </ThemedText>
@@ -316,7 +316,7 @@ export default function You() {
                     same. Brilliant places icons directly on the card for this reason. */}
                   <StatMark name={s.icon} size={34} color={s.accent} />
                 <View>
-                  <ThemedText type="heading" style={[{ fontSize: 20 }, NUM]}>{s.value}</ThemedText>
+                  <ThemedText type="heading" style={[{ fontSize: FontSize.headingLg }, NUM]}>{s.value}</ThemedText>
                   <ThemedText type="small" themeColor="mutedForeground">{s.label}</ThemedText>
                   </View>
                 </Card>
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four },
   hero: { alignItems: 'center', paddingVertical: Spacing.four },
   heroKicker: { marginTop: Spacing.two, letterSpacing: 1.2 },
-  heroTitle: { fontSize: 26, marginTop: 2 },
+  heroTitle: { fontSize: FontSize.titleLg, marginTop: 2 },
   heroBar: { alignSelf: 'stretch', marginTop: Spacing.three, marginBottom: Spacing.two },
   identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
   xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   // seven rungs have to fit 402pt without horizontal scroll: space-between rather than a fixed gap
   ladder: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   rung: { alignItems: 'center', gap: 4, width: 47 },
-  rungLabel: { fontSize: 10 },
+  rungLabel: { fontSize: FontSize.tiny },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three },
   logout: { alignItems: 'center', paddingVertical: Spacing.four },
 });

@@ -10,7 +10,7 @@ import { GestureResponderEvent, LayoutChangeEvent, StyleSheet, View } from 'reac
 import Svg, { Circle, Line, Polyline, Rect } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type GraphSpec = {
@@ -62,7 +62,7 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
   return (
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.two }}>{spec.prompt}</ThemedText>
-      <ThemedText type="display" style={{ fontSize: 30, color: pointColor, textAlign: 'center', marginBottom: Spacing.three }}>{fmt(value)}</ThemedText>
+      <ThemedText type="display" style={{ fontSize: FontSize.display, color: pointColor, textAlign: 'center', marginBottom: Spacing.three }}>{fmt(value)}</ThemedText>
 
       <View
         onLayout={onLayout}

@@ -131,6 +131,45 @@ export const Spacing = {
  * GEOMETRY, not design: it has to track the size, and freezing it to a token would break the circle
  * the moment the size changed. 23 such sites were deliberately left raw.
  */
+/**
+ * The type scale, UNIT 13 item 1.
+ *
+ * `themed-text.tsx` owns nine semantic VARIANTS (display/title/heading/body/small/label/code). This
+ * is the flat size ramp those variants and their overrides draw from, so a size can be changed in
+ * one place instead of grepped for across 117 call sites.
+ *
+ * Values are the ones ALREADY SHIPPING. As with Radius, nothing was rounded onto a tidier scale —
+ * that would have restyled type that was set by eye, which is a worse outcome than the
+ * inconsistency it replaces.
+ *
+ * A ramp this wide (21 steps) is itself the finding: 117 overrides against a 9-variant scale means
+ * callers were routinely escaping it. Naming them does not fix that, it makes it visible.
+ */
+export const FontSize = {
+  micro: 9,
+  tiny: 10,
+  label: 11,
+  caption: 12,
+  small: 13,
+  smallPlus: 14,
+  bodySm: 15,
+  body: 16,
+  bodyLg: 17,
+  subhead: 18,
+  heading: 19,
+  headingLg: 20,
+  headingXl: 21,
+  titleSm: 22,
+  title: 24,
+  titleLg: 26,
+  displaySm: 28,
+  display: 30,
+  displayMd: 32,
+  displayLg: 34,
+  hero: 40,
+  heroXl: 56,
+} as const;
+
 export const Radius = {
   hairline: 2,
   track: 3,

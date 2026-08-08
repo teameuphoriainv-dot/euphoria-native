@@ -19,7 +19,7 @@ import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay
 import Svg, { Path } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /** ms per character. 26 is close to the reference and stays readable; below ~18 it stops
@@ -103,7 +103,7 @@ export function AtlasSpeech({
 }
 
 const styles = StyleSheet.create({
-  line: { fontSize: 15, lineHeight: 21 },
+  line: { fontSize: FontSize.bodySm, lineHeight: 21 },
   overlay: { position: 'absolute', top: 0, left: 0, right: 0 },
   bubble: {
     borderWidth: StyleSheet.hairlineWidth,

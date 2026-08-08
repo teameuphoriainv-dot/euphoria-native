@@ -26,7 +26,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getQuote, type Quote } from '@/lib/market';
 import { money, priceOf, shares, STOCKS } from '@/lib/stocks';
@@ -117,12 +117,12 @@ export default function StockDetail() {
 
         <RiseIn>
           <View style={[styles.ticker, { backgroundColor: theme.primary + '1F' }]}>
-            <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: 13 }}>{sym}</ThemedText>
+            <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.small }}>{sym}</ThemedText>
           </View>
-          <ThemedText type="title" style={{ fontSize: 26, marginTop: Spacing.two }}>{name}</ThemedText>
+          <ThemedText type="title" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>{name}</ThemedText>
           <View style={styles.priceRow}>
-            <ThemedText type="display" style={{ fontSize: 30 }}>{price > 0 ? money(price) : '—'}</ThemedText>
-            <ThemedText type="heading" style={{ color: up ? theme.success : theme.destructive, fontSize: 16 }}>
+            <ThemedText type="display" style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
+            <ThemedText type="heading" style={{ color: up ? theme.success : theme.destructive, fontSize: FontSize.body }}>
               {up ? '+' : ''}{chgPct.toFixed(1)}% today
             </ThemedText>
           </View>
@@ -139,13 +139,13 @@ export default function StockDetail() {
             <Card style={styles.posCard}>
               <View>
                 <ThemedText type="label" themeColor="mutedForeground">You own</ThemedText>
-                <ThemedText type="heading" style={{ fontSize: 18, marginTop: 2 }}>
+                <ThemedText type="heading" style={{ fontSize: FontSize.subhead, marginTop: 2 }}>
                   {shares(held)} {held === 1 ? 'share' : 'shares'}
                 </ThemedText>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <ThemedText type="label" themeColor="mutedForeground">Value</ThemedText>
-                <ThemedText type="heading" style={{ fontSize: 18, marginTop: 2 }}>{money(held * price)}</ThemedText>
+                <ThemedText type="heading" style={{ fontSize: FontSize.subhead, marginTop: 2 }}>{money(held * price)}</ThemedText>
               </View>
             </Card>
           </RiseIn>
@@ -215,7 +215,7 @@ export default function StockDetail() {
                   accessibilityLabel="One share fewer"
                 >
                   <View style={[styles.step, { borderColor: theme.border }]}>
-                    <ThemedText type="heading" style={{ fontSize: 18 }}>−</ThemedText>
+                    <ThemedText type="heading" style={{ fontSize: FontSize.subhead }}>−</ThemedText>
                   </View>
                 </SpringPressable>
                 <ThemedText type="heading" style={styles.qtyNum}>{qty}</ThemedText>
@@ -226,7 +226,7 @@ export default function StockDetail() {
                   accessibilityLabel="One share more"
                 >
                   <View style={[styles.step, { borderColor: theme.border }]}>
-                    <ThemedText type="heading" style={{ fontSize: 18 }}>+</ThemedText>
+                    <ThemedText type="heading" style={{ fontSize: FontSize.subhead }}>+</ThemedText>
                   </View>
                 </SpringPressable>
               </View>
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   qtyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   step: { width: 38, height: 38, borderRadius: 19, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
-  qtyNum: { fontSize: 20, minWidth: 34, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  qtyNum: { fontSize: FontSize.headingLg, minWidth: 34, textAlign: 'center', fontVariant: ['tabular-nums'] },
   costRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

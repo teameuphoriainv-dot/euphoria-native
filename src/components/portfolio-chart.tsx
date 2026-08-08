@@ -17,7 +17,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { toPath } from '@/lib/market';
 import { money } from '@/lib/stocks';
@@ -116,7 +116,7 @@ export function PortfolioChart() {
               style={{ flex: 1 }}
             >
               <View style={[styles.range, on && { backgroundColor: color + '22' }]}>
-                <ThemedText type="smallBold" style={{ fontSize: 12, color: on ? color : theme.mutedForeground }}>
+                <ThemedText type="smallBold" style={{ fontSize: FontSize.caption, color: on ? color : theme.mutedForeground }}>
                   {r.key}
                 </ThemedText>
               </View>

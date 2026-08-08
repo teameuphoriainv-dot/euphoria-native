@@ -18,7 +18,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
 import { UIcon } from '@/components/ui-icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { searchTickers, type TickerHit } from '@/lib/market';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     height: 44,
   },
-  input: { flex: 1, fontSize: 15 },
+  input: { flex: 1, fontSize: FontSize.bodySm },
   list: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six },
   hint: { textAlign: 'center', marginTop: Spacing.four },
   row: {

@@ -27,7 +27,7 @@ import { AskAtlasButton } from '@/components/ask-atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
 import { pickToday } from '@/lib/digest-pick';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
@@ -121,7 +121,7 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
           <UIcon name="check" size={20} color="#fff" strokeWidth={3} />
         </View>
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: 19 }}>
+          <ThemedText type="heading" style={{ fontSize: FontSize.heading }}>
             Done for today
           </ThemedText>
           <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
@@ -251,7 +251,7 @@ export default function Digest() {
         <RiseIn>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: 22 }}>
+              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>
                 Digest
               </ThemedText>
               <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   todayTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   todayHead: { flex: 1 },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  todayTitle: { fontSize: 19, lineHeight: 25, marginTop: 4 },
+  todayTitle: { fontSize: FontSize.heading, lineHeight: 25, marginTop: 4 },
   todayExcerpt: { marginTop: Spacing.two, lineHeight: 21 },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: Spacing.two },
 
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     marginTop: Spacing.two,
   },
-  searchInput: { flex: 1, fontSize: 15, padding: 0 },
+  searchInput: { flex: 1, fontSize: FontSize.bodySm, padding: 0 },
 
   list: { marginTop: Spacing.two + 2, gap: Spacing.two },
   guide: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, padding: Spacing.two },

@@ -15,7 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
@@ -105,8 +105,8 @@ export default function TermMatch() {
         <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
-        <ThemedText type="title" style={{ flex: 1, fontSize: 20 }}>Term Match</ThemedText>
-        <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: 16, fontVariant: ['tabular-nums'] }}>{time}</ThemedText>
+        <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingLg }}>Term Match</ThemedText>
+        <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.body, fontVariant: ['tabular-nums'] }}>{time}</ThemedText>
       </View>
 
       <View style={styles.board}>
@@ -134,12 +134,12 @@ export default function TermMatch() {
         <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.resultsWrap}>
           <Card elevated style={styles.results}>
             <Atlas size={96} expression="happy" celebrate />
-            <ThemedText type="display" style={{ fontSize: 26, marginTop: Spacing.two }}>Matched!</ThemedText>
+            <ThemedText type="display" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>Matched!</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>All 5 pairs in {time}</ThemedText>
             <RewardPop delay={200} style={{ marginTop: Spacing.three }}>
               <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
                 <UIcon name="sparkle" size={16} color={theme.iconLilac} />
-                <NumberRollup value={40} prefix="+" suffix=" XP" type="heading" style={{ color: theme.iconLilac, fontSize: 17 }} />
+                <NumberRollup value={40} prefix="+" suffix=" XP" type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.bodyLg }} />
               </View>
             </RewardPop>
             <GradientButton label="Done" full style={{ marginTop: Spacing.four }} onPress={() => router.back()} />

@@ -12,7 +12,7 @@ import { type EuphoriaIconName } from '@/lib/euphoria-icons';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -39,7 +39,7 @@ export default function Games() {
       <AmbientBackground starCount={40} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: 22 }}>Games</ThemedText>
+          <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Games</ThemedText>
           <ThemedText type="small" themeColor="mutedForeground">Learn by playing — concepts become muscle memory.</ThemedText>
         </RiseIn>
 
@@ -51,13 +51,13 @@ export default function Games() {
                   {g.pro && (
                     <View style={[styles.proBadge, { backgroundColor: theme.warning + '2A' }]}>
                       <UIcon name="lock" size={11} color={theme.warning} />
-                      <ThemedText type="label" style={{ color: theme.warning, fontSize: 9 }}>Pro</ThemedText>
+                      <ThemedText type="label" style={{ color: theme.warning, fontSize: FontSize.micro }}>Pro</ThemedText>
                     </View>
                   )}
                   <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }]}>
                     <Icon name={g.icon} size={40} />
                   </View>
-                  <ThemedText type="heading" style={{ fontSize: 15, lineHeight: 20, marginTop: Spacing.two }}>{g.name}</ThemedText>
+                  <ThemedText type="heading" style={{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }}>{g.name}</ThemedText>
                 </Card>
               </SpringPressable>
             </RiseIn>

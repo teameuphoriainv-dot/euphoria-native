@@ -40,7 +40,7 @@ import { GateSheet } from '@/components/gate-sheet';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   thread: { padding: Spacing.four, gap: Spacing.three, flexGrow: 1 },
   empty: { flex: 1, justifyContent: 'center', gap: Spacing.five },
   emptyHead: { alignItems: 'center', gap: Spacing.two },
-  emptyTitle: { fontSize: 24, textAlign: 'center' },
+  emptyTitle: { fontSize: FontSize.title, textAlign: 'center' },
   emptyLine: { textAlign: 'center', maxWidth: 290 },
   starters: { gap: Spacing.two },
   starter: {
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     paddingVertical: Spacing.two + 2,
     paddingHorizontal: Spacing.three,
-    fontSize: 15,
+    fontSize: FontSize.bodySm,
     lineHeight: 21,
   },
   sendBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },

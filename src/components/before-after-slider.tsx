@@ -10,7 +10,7 @@ import { GestureResponderEvent, LayoutChangeEvent, StyleSheet, View } from 'reac
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Duration } from '@/shared/motion/tokens';
 
@@ -56,7 +56,7 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.four }}>{spec.prompt}</ThemedText>
 
-      <ThemedText type="display" style={{ fontSize: 40, lineHeight: 46, color: revealed ? trend : theme.iconLilac, textAlign: 'center', marginBottom: Spacing.two }}>
+      <ThemedText type="display" style={{ fontSize: FontSize.hero, lineHeight: 46, color: revealed ? trend : theme.iconLilac, textAlign: 'center', marginBottom: Spacing.two }}>
         {fmt(value)}
       </ThemedText>
       <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center', marginBottom: Spacing.four }}>
