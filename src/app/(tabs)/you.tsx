@@ -107,6 +107,69 @@ export default function You() {
       <AmbientBackground starCount={45} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/*
+          * IDENTITY LEADS THE PAGE. Moved here from third, and it is an evidence correction.
+          *
+          * ScreensDesign, counted in pixels across the four profile screens pulled for this tab:
+          * Duolingo `112804`, TradingView `185370`, Elevate `111769`, Quizlet `147612` — **4/4
+          * open with WHO YOU ARE**, and TradingView is the exact shape used here: an identity card
+          * carrying the plan badge, then the subscription card directly beneath it. Euphoria had
+          * the person in third place, under the plan card and the league hero, so the screen
+          * introduced an offer before it introduced a user.
+          *
+          * The docblock's "5/5 puts account state in this surface" is still true and unchanged —
+          * that was about the surface, never about the order.
+          *
+          * Name and handle come from sign-up; both fall back rather than inventing anything.
+          */}
+        <RiseIn>
+          <Card style={styles.identity}>
+            <Atlas size={62} expression="happy" interactive={false} />
+            <View style={{ flex: 1 }}>
+              {/* Name and plan on ONE line, which is TradingView `185370` exactly: `juliascreens`
+                  with an `ESSENTIAL` chip beside it. The badge is what makes an identity card also
+                  answer "what am I paying for", so the plan card below never has to repeat it. */}
+              <View style={styles.identityTop}>
+                <ThemedText type="bodyMedium" numberOfLines={1} style={{ flexShrink: 1 }}>
+                  {name ?? 'Your profile'}
+                </ThemedText>
+                <View
+                  style={[
+                    styles.planChip,
+                    {
+                      backgroundColor: (planTier === 'pro' ? theme.iconGold : theme.primary) + '24',
+                    },
+                  ]}
+                >
+                  <ThemedText
+                    type="smallBold"
+                    style={{ fontSize: 10, color: planTier === 'pro' ? theme.iconGold : theme.iconLilac }}
+                  >
+                    {planTier === 'pro' ? 'PRO' : planTier === 'expired' ? 'FREE' : 'FREE TRIAL'}
+                  </ThemedText>
+                </View>
+              </View>
+              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+                {handle ? `@${handle} · ` : ''}Level {level}
+              </ThemedText>
+              {/*
+                * NO SECOND PROGRESS BAR HERE, and this is measured rather than aesthetic.
+                * A level spans XP_PER_LEVEL = 500. The first league tier, Saver -> Investor,
+                * spans minXp 0 -> 500. So for the whole of tier 1 the level bar and the league
+                * bar in the hero above are the IDENTICAL measurement — both read "390 XP to …"
+                * at xp 110 — stacked about 40pt apart with no visual distinction. They only
+                * diverge at tier 3, whose span is 1000.
+                *
+                * The hero owns the bar because the page's headline is the tier. Level stays as a
+                * number, which is the part the bar was not already saying.
+                */}
+              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+                {xp.toLocaleString()} XP total · {lp.toNext.toLocaleString()} to level {level + 1}
+              </ThemedText>
+            </View>
+          </Card>
+        </RiseIn>
+
+        {/*
           * PLAN STATUS. Leads the page because account state is 5/5 convergence across
           * Elevate / Praktika / Meetup / Kling / Loora, and because nothing on this screen used
           * to say what the user had or what was left.
@@ -114,7 +177,7 @@ export default function You() {
           * `trialDayNumber` NOT `trialDaysLeft` — on the third active day daysLeft is 0 while the
           * trial is still live, and "0 days left" on a usable day reads as already expired.
           */}
-        <RiseIn>
+        <RiseIn delay={60}>
           <Card style={styles.plan} tint={planTier === 'pro' ? theme.iconGold : theme.primary}>
             <View style={styles.planTop}>
               <UIcon
@@ -221,34 +284,6 @@ export default function You() {
             </ThemedText>
           </Card>
           </SpringPressable>
-        </RiseIn>
-
-        {/* Identity. Name and handle come from sign-up; both fall back rather than inventing
-            anything, which is what the old hardcoded name did. */}
-        <RiseIn delay={60}>
-          <Card style={styles.identity}>
-            <Atlas size={62} expression="happy" interactive={false} />
-            <View style={{ flex: 1 }}>
-              <ThemedText type="bodyMedium">{name ?? 'Your profile'}</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
-                {handle ? `@${handle} · ` : ''}Level {level}
-              </ThemedText>
-              {/*
-                * NO SECOND PROGRESS BAR HERE, and this is measured rather than aesthetic.
-                * A level spans XP_PER_LEVEL = 500. The first league tier, Saver -> Investor,
-                * spans minXp 0 -> 500. So for the whole of tier 1 the level bar and the league
-                * bar in the hero above are the IDENTICAL measurement — both read "390 XP to …"
-                * at xp 110 — stacked about 40pt apart with no visual distinction. They only
-                * diverge at tier 3, whose span is 1000.
-                *
-                * The hero owns the bar because the page's headline is the tier. Level stays as a
-                * number, which is the part the bar was not already saying.
-                */}
-              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
-                {xp.toLocaleString()} XP total · {lp.toNext.toLocaleString()} to level {level + 1}
-              </ThemedText>
-            </View>
-          </Card>
         </RiseIn>
 
         {/* Stats. Real values only. */}
@@ -363,6 +398,8 @@ const styles = StyleSheet.create({
   heroBar: { alignSelf: 'stretch', marginTop: Spacing.three, marginBottom: Spacing.two },
   identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
   xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
+  identityTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
+  planChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.sm },
   plan: { gap: Spacing.two },
   planTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
   // Equal thirds so the three captions sit on one baseline grid. `gap` rather than dividers:
