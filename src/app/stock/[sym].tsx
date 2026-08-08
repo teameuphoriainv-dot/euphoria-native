@@ -241,23 +241,40 @@ export default function StockDetail() {
 
             <View style={styles.actions}>
               {expired ? (
-                /* Both actions become the same outline-pill-with-lock. Reuses styles.sell, which is
-                   already exactly Bloom's shape, rather than adding an icon slot to GradientButton
-                   and changing a component with many other callers. */
-                (['Buy', 'Sell'] as const).map((label) => (
+                /* CORRECTED. This used to render BOTH actions as the same outline-pill-with-lock,
+                   on the stated grounds that `styles.sell` "is already exactly Bloom's shape".
+                   Pulled in pixels, Bloom `156236` is the opposite: its locked `Invest` is a
+                   SOLID BLUE FULL-WIDTH pill with a white padlock — visually identical to a live
+                   CTA. Counted across four finance apps ≥$250k/mo (Bloom `156236`,
+                   Investing.com `211206` + `211090`, Seeking Alpha `285915`): **4/4 keep the
+                   locked control at full fill, 0/4 demote it.**
+
+                   Demoting Buy to a hairline outline said "broken". Full fill + a lock says
+                   "available, costs money" — the true statement, and the only one that converts.
+                   Sell stays the outline pill because it is the SECONDARY action; every app in
+                   the set elevates exactly one. */
+                <>
+                  <View style={{ flex: 1 }}>
+                    <GradientButton
+                      label="Buy"
+                      full
+                      icon="lock"
+                      onPress={openGate}
+                      accessibilityLabel="Buy. Paper trading is part of Euphoria Pro."
+                    />
+                  </View>
                   <SpringPressable
-                    key={label}
                     haptic={false}
                     onPress={openGate}
                     accessibilityRole="button"
-                    accessibilityLabel={`${label}. Paper trading is part of Euphoria Pro.`}
+                    accessibilityLabel="Sell. Paper trading is part of Euphoria Pro."
                     style={{ flex: 1 }}>
                     <View style={[styles.sell, styles.locked, { borderColor: theme.border }]}>
-                      <ThemedText type="bodyMedium">{label}</ThemedText>
+                      <ThemedText type="bodyMedium">Sell</ThemedText>
                       <UIcon name="lock" size={16} color={theme.mutedForeground} />
                     </View>
                   </SpringPressable>
-                ))
+                </>
               ) : (
                 <>
                   <View style={{ flex: 1 }}>

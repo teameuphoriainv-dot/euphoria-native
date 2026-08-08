@@ -139,7 +139,7 @@ export default function You() {
             <View style={{ flex: 1 }}>
               {/* Name and plan on ONE line, which is TradingView `185370` exactly: `juliascreens`
                   with an `ESSENTIAL` chip beside it. The badge is what makes an identity card also
-                  answer "what am I paying for", so the plan card below never has to repeat it. */}
+                  answer "what am I paying for" at a glance; the card below owns the detail. */}
               <View style={styles.identityTop}>
                 <ThemedText type="bodyMedium" numberOfLines={1} style={{ flexShrink: 1 }}>
                   {name ?? 'Your profile'}

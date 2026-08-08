@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, StyleSheet, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { UIcon, type UIconName } from '@/components/ui-icon';
 import { BrandGradient, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -55,6 +56,8 @@ export function GradientButton({
   full,
   style,
   colors,
+  icon,
+  accessibilityLabel,
 }: {
   label: string;
   onPress?: () => void;
@@ -64,12 +67,28 @@ export function GradientButton({
   style?: ViewStyle;
   /** override the brand gradient — used by surfaces that carry a course accent */
   colors?: readonly [string, string, ...string[]];
+  /**
+   * Optional leading glyph. Exists for ONE reason: a gated primary CTA must stay at full
+   * visual weight and still say it is gated.
+   *
+   * Counted in pixels across four finance apps ≥$250k/mo — Bloom `156236` (`Invest`),
+   * Investing.com `211206` (`Upgrade to Pro`) and `211090` (`Unlock`), Seeking Alpha `285915`
+   * (`Subscribe`): **4/4 render the locked control at FULL fill, and 0/4 demote it to an
+   * outline or a grey.** A greyed control reads "broken"; a full-weight control with a lock
+   * reads "available, costs money", which is the true statement and the one that converts.
+   *
+   * `styles.base` was already `flexDirection: 'row'` with a gap, so this needed no new style.
+   * Optional, so all 15 existing callers are untouched.
+   */
+  icon?: UIconName;
+  /** Override the label-derived a11y label when the button's purpose differs from its word. */
+  accessibilityLabel?: string;
 }) {
   const ramp = colors ?? BrandGradient;
   return (
     <SpringPressable
       onPress={onPress}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       disabled={disabled || loading}
       style={[
         styles.gradientWrap,
@@ -84,7 +103,14 @@ export function GradientButton({
         style,
       ]}>
       <LinearGradient colors={ramp} start={{ x: 0, y: 0 }} end={{ x: 0.9, y: 1 }} style={[styles.base, styles.cta]}>
-        {loading ? <ActivityIndicator color="#fff" /> : <ThemedText type="heading" style={{ color: '#fff', fontSize: 17 }}>{label}</ThemedText>}
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            {icon ? <UIcon name={icon} size={17} color="#fff" /> : null}
+            <ThemedText type="heading" style={{ color: '#fff', fontSize: 17 }}>{label}</ThemedText>
+          </>
+        )}
       </LinearGradient>
     </SpringPressable>
   );
