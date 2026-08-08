@@ -37,7 +37,8 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { gates, normalizeStep } from '@/lib/lesson-steps';
-import { FREE_LESSON_LIMIT, lessonKey, useApp } from '@/lib/store';
+import { lessonKey, useApp } from '@/lib/store';
+import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -55,11 +56,22 @@ export default function Lesson() {
   // bad params are knowable at render — deriving this keeps setState out of the effect body
   const badParams = !courseId || !Number.isFinite(lessonNum);
   const missing = badParams || notFound;
-  // The gate lives HERE rather than at the three call sites (home.tsx:195, learn.tsx:198,
-  // digest/[slug].tsx:194) because every one of them lands on this route. Guarding the list only
-  // would leave a locked lesson reachable by deep link.
-  const canAccess = useApp((s) => s.canAccessLesson(lessonKey(courseId, lessonNum)));
-  const locked = !badParams && !canAccess;
+  /*
+   * The gate lives HERE rather than at the three call sites (home.tsx, learn.tsx,
+   * digest/[slug].tsx) because every one of them lands on this route. Guarding the list only would
+   * leave a locked lesson reachable by deep link.
+   *
+   * Asks the entitlement module rather than the old `store.canAccessLesson`, which was deleted with
+   * FREE_LESSON_LIMIT in C27. `useTier()` and not an inlined `!isPro && days > TRIAL_DAYS`: writing
+   * the expiry rule out again here would put a second authority on the money path, which is the C19
+   * defect Unit 3 existed to remove. `useTier` returns a STRING, so it is safe to subscribe to —
+   * `entitled()` returns a fresh object and looping on that once took down the whole Learn tab.
+   *
+   * Lessons are unmetered during the trial now, so expiry is the ONLY thing that can lock this
+   * route. That is why this reads a tier rather than a refusal.
+   */
+  const expired = useTier() === 'expired';
+  const locked = !badParams && expired;
 
   useEffect(() => {
     if (badParams) return;
@@ -136,13 +148,34 @@ export default function Lesson() {
         <AmbientBackground starCount={30} />
         <View style={styles.centered}>
           <Atlas size={110} expression="watching" />
-          <ThemedText type="title" style={styles.title}>You&apos;ve used your {FREE_LESSON_LIMIT} free lessons.</ThemedText>
+          {/* C27: the refusal is now always expiry, never a spent lesson count — so the copy says
+              what actually happened. §20.1's headline, matched to the gate sheet's so a user who
+              arrives by deep link reads the same sentence as one who tapped a node. */}
+          <ThemedText type="title" style={styles.title}>Your free {TRIAL_DAYS} days are up.</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
-            Go Pro to open every lesson across all {COURSES.length} courses.
+            Euphoria Pro reopens every lesson across all {COURSES.length} courses.
           </ThemedText>
         </View>
         <View style={styles.footer}>
-          <GradientButton label="See Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+          <GradientButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+          {/*
+           * A WAY OUT, and it is not optional. Found by looking at the screenshot: this state
+           * shipped with only the upsell, so an expired user who arrived by cold deep link had no
+           * back stack and no dismiss — stranded on a wall. §22 C13 names that consequence
+           * explicitly ("a non-dismissible gate would strand the user completely") and the gate
+           * sheet obeys it; this route did not.
+           *
+           * `canGoBack` guarded because the stranding case IS the cold link, where there is nothing
+           * to go back TO — that is the one path a bare router.back() cannot serve.
+           */}
+          <SpringPressable
+            haptic={false}
+            style={styles.lockedOut}
+            accessibilityRole="button"
+            accessibilityLabel="Back to the pathway"
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/learn'))}>
+            <ThemedText type="small" themeColor="mutedForeground">Back to the pathway</ThemedText>
+          </SpringPressable>
         </View>
       </SafeAreaView>
     );
@@ -415,4 +448,7 @@ const styles = StyleSheet.create({
   xpChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.pill, borderWidth: 1, marginTop: Spacing.three },
   verdictWrap: { paddingBottom: Spacing.three },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
+  // 44pt tall so the escape from a wall clears the HIG touch minimum on its own, without relying on
+  // hitSlop — this is the only way off the screen.
+  lockedOut: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.four, marginTop: Spacing.two },
 });

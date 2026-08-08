@@ -1,0 +1,94 @@
+{
+  "signedIn": false,
+  "xp": 110,
+  "streak": 1,
+  "completedLessons": [
+    "behavioral-finance:1",
+    "investing-fundamentals:1"
+  ],
+  "minutesToday": 10,
+  "lastActiveDay": "2026-08-06",
+  "activeCourseId": "behavioral-finance",
+  "readPosts": [],
+  "dailyPick": {
+    "day": "2026-08-07",
+    "slug": "how-credit-cards-work"
+  },
+  "profile": {
+    "experience": "beginner",
+    "goal": "wealth",
+    "topics": [
+      "valuation"
+    ],
+    "horizon": "soon",
+    "riskComfort": "sell",
+    "dailyMinutes": 10,
+    "blockers": [
+      "fear"
+    ],
+    "ageBand": "25-34",
+    "source": "youtube",
+    "notifyOptIn": false,
+    "completedAt": 1786062371025,
+    "name": null,
+    "handle": null,
+    "email": null,
+    "firstRunDoneAt": null
+  },
+  "weeklyXp": 110,
+  "weekStart": "2026-08-03",
+  "lastGameDay": "",
+  "following": [],
+  "followers": [
+    "priya",
+    "chris"
+  ],
+  "isPro": true,
+  "atlasAsked": 1,
+  "cash": 5666.935584964032,
+  "positions": {
+    "NVDA": 3.0006756756756756,
+    "MSFT": 0.0033217371787678147,
+    "TSLA": 0.004098360655737705
+  },
+  "valueHistory": [
+    {
+      "t": 1786072964824,
+      "v": 10000
+    },
+    {
+      "t": 1786072989078,
+      "v": 10000
+    },
+    {
+      "t": 1786077170496,
+      "v": 9220.415584964032
+    },
+    {
+      "t": 1786077192159,
+      "v": 9221.415584964032
+    },
+    {
+      "t": 1786077195369,
+      "v": 9222.215584964031
+    }
+  ],
+  "derivativeTrades": 1,
+  "derivatives": [
+    {
+      "sym": "NVDA",
+      "kind": "call",
+      "strike": 1302,
+      "days": 30,
+      "premium": 781.0644150359678,
+      "id": "NVDA-call-1302-0"
+    }
+  ],
+  "pendingRewards": [],
+  "rewardsEarned": 3.2800000000000002,
+  "watchlist": [
+    "TSLA"
+  ],
+  "installId": "eu_ip96xeozvifmsiy6sdb",
+  "activeDays": []
+}

@@ -70,7 +70,6 @@ export default function You() {
   // Plan status. 5/5 of the reference set puts account state in this surface, so it leads the page.
   const planTier = useTier();
   const trialDay = useApp(trialDayNumber);
-  const lessonsLeft = useApp((st) => st.freeLessonsLeft());
   const atlasLeft = useApp((st) => st.atlasLeft());
   /*
    * Safe to show again: §22 C26 resolved the split. store.derivativesLeft() and
@@ -138,7 +137,12 @@ export default function You() {
                 ? 'Every lesson, unlimited Atlas, the full options desk.'
                 : planTier === 'expired'
                   ? 'Your free days are up. Pro reopens every lesson and Atlas.'
-                  : `${lessonsLeft} lessons · ${atlasLeft} Atlas · ${optionsLeft} options contracts left`}
+                  : /* C27: no lesson count any more — content is unmetered during the trial, so the
+                       card says what the trial actually GRANTS rather than counting down an
+                       allowance that no longer exists. This is the line 4/4 references lead with
+                       ("full access to the Premium experience"). Atlas and options still carry
+                       real caps, so those keep their numbers. */
+                    `Every lesson open · ${atlasLeft} Atlas · ${optionsLeft} options contracts left`}
             </ThemedText>
             {planTier !== 'pro' && (
               <SpringPressable

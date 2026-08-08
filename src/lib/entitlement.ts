@@ -26,7 +26,6 @@ import { useMemo } from 'react';
 
 import {
   FREE_ATLAS_MESSAGES,
-  FREE_LESSON_LIMIT,
   PRO_DERIVATIVE_PREVIEW,
   TRIAL_DAYS,
   useApp,
@@ -104,10 +103,22 @@ export function tier(s: AppState): Tier {
 /**
  * The one question.
  *
- * During the trial the COUNT limits still apply, so a trial user runs out of whichever comes first
- * — 5 lessons, 10 Atlas messages, or 3 days. Options are the exception: their cap is a DATA limit
- * that binds Pro users equally, so it is not a trial restriction. After the trial nothing applies:
- * it is all Pro. That keeps the gate copy to ONE reason at a time.
+ * ── THE TRIAL IS TIME, NOT COUNTS (§22 C27) ───────────────────────────────────────────────────
+ * CONTENT IS UNMETERED during the trial — every lesson, every guide. There used to be a 5-lesson
+ * cap here and it is gone, along with `store.FREE_LESSON_LIMIT`. The reason is evidence: 4/4
+ * reference trials grant FULL access rather than a metered sample (Headway "full access to the
+ * Premium experience", Promova "Unlock all lessons", Quizlet "Get instant access", Nibble "Start
+ * daily microlearning lessons and quizzes"). A metered trial sells a smaller product than the one
+ * being bought, and 5 lessons out of 300 is a very small product.
+ *
+ * TWO CAPS SURVIVE, and it matters that neither is a *trial* restriction:
+ *   - `atlas`   — a real per-message cost to us. Metering the genuinely expensive thing and opening
+ *                 everything else is the coherent position.
+ *   - `options` — a DATA limit that binds Pro users equally (see the case below). Not a tier.
+ *
+ * After expiry nothing is open but the streak/XP/league loop (§22 C13, C28), so `trial-expired`
+ * short-circuits every feature above. One reason at a time, which is why this returns a Refusal
+ * rather than a boolean.
  */
 export function entitled(s: AppState, f: Feature): Refusal {
   if (s.isPro) return { ok: true };
@@ -117,8 +128,6 @@ export function entitled(s: AppState, f: Feature): Refusal {
     used < limit ? { ok: true } : { ok: false, reason: 'count-limit', feature: f, used, limit };
 
   switch (f) {
-    case 'lesson':
-      return capped(s.completedLessons.length, FREE_LESSON_LIMIT);
     case 'atlas':
       return capped(s.atlasAsked, FREE_ATLAS_MESSAGES);
     case 'options':
@@ -133,11 +142,12 @@ export function entitled(s: AppState, f: Feature): Refusal {
        * access", Nibble "Start daily microlearning lessons and quizzes"). §22 C26.
        */
       return capped(s.derivativeTrades, PRO_DERIVATIVE_PREVIEW);
+    case 'lesson':
     case 'guide':
     case 'trade':
     case 'market':
-      // Never count-limited during the trial. Gating these mid-trial would be a new restriction
-      // nobody asked for; only expiry closes them.
+      // Unmetered during the trial — only expiry closes them (§22 C27). `lesson` joined this group
+      // when FREE_LESSON_LIMIT was deleted; it is the whole substance of that change.
       return { ok: true };
   }
 }
@@ -157,22 +167,23 @@ export function entitled(s: AppState, f: Feature): Refusal {
 export const useEntitlement = (f: Feature): Refusal => {
   const isPro = useApp((s) => s.isPro);
   const days = useApp((s) => s.activeDays.length);
-  const lessons = useApp((s) => s.completedLessons.length);
   const asked = useApp((s) => s.atlasAsked);
   const derivativeTrades = useApp((s) => s.derivativeTrades);
+  // `completedLessons` was selected here until C27. It is deliberately NOT reselected: nothing in
+  // `entitled()` reads it any more, and subscribing to it would re-run every consumer on each
+  // finished lesson for no change in the answer.
   return useMemo(
     () =>
       entitled(
         {
           isPro,
           activeDays: Array.from({ length: days }, (_, i) => `d${i}`),
-          completedLessons: Array.from({ length: lessons }, (_, i) => `l${i}`),
           atlasAsked: asked,
           derivativeTrades,
         } as unknown as AppState,
         f,
       ),
-    [isPro, days, lessons, asked, derivativeTrades, f],
+    [isPro, days, asked, derivativeTrades, f],
   );
 };
 export const useTier = () => useApp(tier);
@@ -214,11 +225,19 @@ if (__DEV__) {
     bad(!entitled({ ...at(4), isPro: true } as AppState, f).ok, `Pro must open "${f}"`);
   }
 
-  // A count limit must report the numbers the gate copy needs, not just refuse.
-  const spent = { ...at(1), completedLessons: Array.from({ length: FREE_LESSON_LIMIT }, (_, i) => `l${i}`) } as AppState;
-  const r = entitled(spent, 'lesson');
-  bad(r.ok, 'a spent lesson allowance must refuse');
+  // C27, and this assertion asserted the OPPOSITE until C27 landed: a trial user who has finished a
+  // pile of lessons must still be entitled to the next one. Content is unmetered; only time binds.
+  const many = { ...at(1), completedLessons: Array.from({ length: 40 }, (_, i) => `l${i}`) } as AppState;
+  bad(!entitled(many, 'lesson').ok, 'LESSONS ARE UNMETERED DURING THE TRIAL (C27)');
+  bad(!entitled(many, 'guide').ok, 'guides are unmetered during the trial');
+
+  // A count limit must still report the numbers the gate copy needs, not just refuse. Atlas is the
+  // surviving example, and it is the one with a real per-message cost.
+  const spentAtlas = { ...at(1), atlasAsked: FREE_ATLAS_MESSAGES } as AppState;
+  const r = entitled(spentAtlas, 'atlas');
+  bad(r.ok, 'a spent Atlas allowance must refuse');
   bad(r.ok === false && r.reason !== 'count-limit', 'in-trial refusal must be count-limit, not expiry');
+  bad(r.ok === false && r.reason === 'count-limit' && r.limit !== FREE_ATLAS_MESSAGES, 'refusal must carry the real limit');
 
   /**
    * Time travel for device verification. On globalThis rather than a UI control, because a debug

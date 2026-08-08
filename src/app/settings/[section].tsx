@@ -34,7 +34,8 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { applyDailyNudge, NUDGE_HOUR } from '@/lib/notifications';
-import { FREE_ATLAS_MESSAGES, FREE_LESSON_LIMIT, useApp } from '@/lib/store';
+import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
+import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -144,20 +145,30 @@ function AccountSection() {
   const setPro = useApp((s) => s.setPro);
   const name = useApp((s) => s.profile.name);
   const signOut = useApp((s) => s.signOut);
-  const lessonsLeft = useApp((s) => s.freeLessonsLeft());
   const atlasLeft = useApp((s) => s.atlasLeft());
+  // Three tiers exist, so a boolean `isPro ? 'Pro' : 'Free'` mislabelled a live trial as "Free".
+  const planTier = useTier();
+  const trialDay = useApp(trialDayNumber);
 
   return (
     <>
       {/* Plan status first — 5/5 of the reference apps put it at the top of settings. Ours also
           states what is LEFT, because a plan row that only says "Free" answers the wrong question. */}
       <Section title="PLAN">
-        <Row label="Status" value={isPro ? 'Euphoria Pro' : 'Free'} />
-        {!isPro && (
-          <Row
-            label="Remaining"
-            value={`${lessonsLeft}/${FREE_LESSON_LIMIT} lessons · ${atlasLeft}/${FREE_ATLAS_MESSAGES} questions`}
-          />
+        <Row
+          label="Status"
+          value={
+            planTier === 'pro'
+              ? 'Euphoria Pro'
+              : planTier === 'expired'
+                ? 'Free — trial ended'
+                : `Free trial · day ${trialDay} of ${TRIAL_DAYS}`
+          }
+        />
+        {/* C27: the lesson count is gone because lessons are unmetered during the trial. Atlas is
+            the one allowance still worth counting, and it is the one with a real per-message cost. */}
+        {planTier === 'trial' && (
+          <Row label="Remaining" value={`${atlasLeft}/${FREE_ATLAS_MESSAGES} Atlas questions`} />
         )}
         {!isPro && <Row label="Upgrade to Pro" onPress={() => router.push('/onboarding?step=paywall')} />}
         <Row

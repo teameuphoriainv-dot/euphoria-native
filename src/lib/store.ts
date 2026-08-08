@@ -21,19 +21,26 @@ import { ALL_SYMS, priceOf } from './stocks';
 
 const XP_PER_LEVEL = 500;
 
-/** How many lessons a free account may finish before Pro is required. THIS IS THE OFFER — change
- *  this one number to move the free/paid line; nothing else needs to know about it.
- *
- *  Counted against `completedLessons` rather than a separate tally on purpose: the allowance is
- *  "lessons you have SPENT", and a lesson already finished stays open forever (see
- *  `canAccessLesson`). Losing access to something you already did would read as a bug, not a
- *  paywall. */
-export const FREE_LESSON_LIMIT = 5;
-
 /**
- * Distinct days of real use the trial lasts. Defined HERE, beside `activeDays`, and re-exported by
- * lib/entitlement.ts — not the other way round. entitlement.ts imports this module, so a store ->
- * entitlement import would be a genuine cycle. One definition, no duplication of the rule.
+ * Distinct days of real use the trial lasts. **THIS IS THE OFFER.**
+ *
+ * Defined HERE, beside `activeDays`, and re-exported by lib/entitlement.ts — not the other way
+ * round. entitlement.ts imports this module, so a store -> entitlement import would be a genuine
+ * cycle. One definition, no duplication of the rule.
+ *
+ * ── WHAT REPLACED THE OLD OFFER (§22 C27) ─────────────────────────────────────────────────────
+ * There used to be a `FREE_LESSON_LIMIT = 5` here whose docblock claimed the same title. It is
+ * gone. Content is UNMETERED during the trial — every lesson, every guide — because that is what
+ * 4/4 reference trials actually grant: Headway "full access to the Premium experience", Promova
+ * "Unlock all lessons", Quizlet "Get instant access", Nibble "Start daily microlearning lessons".
+ * A metered trial shows the user a smaller product than the one they are being asked to buy.
+ *
+ * TWO CAPS SURVIVE, and neither is a trial restriction:
+ *   - FREE_ATLAS_MESSAGES — the one feature with a real per-message cost to us.
+ *   - PRO_DERIVATIVE_PREVIEW — a DATA limit that binds Pro users equally (§22 C26).
+ *
+ * So the free/paid line is now purely TIME, and this is the only number that moves it. After the
+ * trial the wall is hard on everything except the streak/XP/league loop (§22 C13, C28).
  */
 export const TRIAL_DAYS = 3;
 
@@ -257,11 +264,12 @@ export type AppState = {
    *  revoke a purchase. */
   isPro: boolean;
   setPro: (v: boolean) => void;
-  /** Whether a lesson may be opened. Single source of truth for the gate — lesson.tsx enforces it
-   *  and learn.tsx renders from it, so the two can never disagree. Takes a `lessonKey` id. */
-  canAccessLesson: (id: string) => boolean;
-  /** Free lessons still available, 0 once spent. Pro reports Infinity. */
-  freeLessonsLeft: () => number;
+  /* `canAccessLesson` and `freeLessonsLeft` USED TO LIVE HERE and are deliberately gone (§22 C27).
+     Lessons are no longer count-limited at all, so a getter answering "how many lessons are left"
+     had no honest answer to give. The one question — may this user open a lesson — is
+     `entitled(s, 'lesson')` in lib/entitlement.ts, which is also the only thing that knows about
+     expiry. Two authorities disagreeing about an allowance is exactly the C19 defect Unit 3 existed
+     to remove; this keeps it at one. */
   /** Uninvested paper cash. Real state: every number on the Trade tab derives from this and
    *  `positions`, so nothing there can drift from what the user actually did. */
   cash: number;
@@ -386,15 +394,6 @@ export const useApp = create<AppState>()(
       setHasHydrated: (v) => set({ hasHydrated: v }),
       setPro: (v) => set({ isPro: v }),
 
-      canAccessLesson: (id) => {
-        const s = get();
-        if (s.isPro) return true;
-        // Already finished it — never take back what has been earned.
-        if (s.completedLessons.includes(id)) return true;
-        return s.completedLessons.length < FREE_LESSON_LIMIT;
-      },
-      freeLessonsLeft: () =>
-        get().isPro ? Infinity : Math.max(0, FREE_LESSON_LIMIT - get().completedLessons.length),
       cash: STARTING_CASH,
       positions: {},
       valueHistory: [],
