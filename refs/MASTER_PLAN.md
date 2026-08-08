@@ -4820,3 +4820,39 @@ about pixels and therefore one to take with the user.
 it. For a pure tokenisation that is the only verification worth having — `tsc` passing proves the
 names resolve, not that the type still sets the same way.
 
+### C69. UNIT 13 ITEM 2 — every empty state checked against a REAL empty store. Zero blank screens.
+
+Captured to `refs/BASELINE_STORE_20260808_pre_unit13.json` per §1.7, emptied, walked, restored.
+`profile.completedAt` was deliberately KEPT so the app lands on the tabs rather than in onboarding —
+the state that matters is "onboarded but has done nothing", not "never opened the app".
+
+| route | labels | empty behaviour |
+|---|---|---|
+| home | 46 | real starting state — `0` streak, "10 min to keep your streak" |
+| learn | 47 | "0% complete · 25 lessons" per course |
+| digest | 54 | "0 of 35 read", today's pick still resolves |
+| you | 43 | "Level 1", "0 XP total · 500 to level 2", "Day 1 of 3" |
+| trade | 37 | `$10,000.00` starting cash; positions section correctly absent |
+| courses | 9 | full course list |
+| league | 48 | "Saver", "Top 3 advance · 1 day left" |
+| friends | 43 | **the exemplar** — "No friends yet. Follow someone below, and it becomes a friendship when they follow you back." |
+| games | 16 | full game list |
+
+**No blank screen, no bare spinner, no section rendering an empty box.** `friends` is the pattern the
+others should be measured against: it states the emptiness AND offers the action that resolves it.
+
+### C70. TRAP: restoring a captured store needs the MANIFEST, not just the spill file.
+
+Two restore attempts failed silently and the app kept showing the emptied state. The cause is the
+mechanism `sim.sh state` already documents from the READ side, and it bites just as hard on write:
+
+**AsyncStorage inlines small values in `manifest.json` and spills large ones to a file named
+`md5(key)`.** The full store spills; the EMPTIED store was small enough to inline. So:
+
+1. Copying the capture over the spill file did nothing — the stale **inline** value won.
+2. Copying it *while the app was running* was also wrong: terminating flushed in-memory state back
+   over the file.
+
+**The order that works: terminate → write BOTH the manifest inline value and the spill file →
+launch.** Verified: `streak 3, xp 210, 2 lessons, cash 5666.94` came back exactly.
+
