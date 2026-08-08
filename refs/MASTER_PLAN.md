@@ -4105,3 +4105,39 @@ it costs money", which is both true and the only version that converts.
 > **Method note.** `app_screens` across 5 apps overflowed the tool limit (trap #21) and
 > `description` was an object (trap #22) — both traps hit on the first call, both already documented,
 > and parsing the file cost one `python3` heredoc. The traps list paid for itself this session.
+
+### C53. §4b's "zero direct pushes" is WRONG AS WRITTEN. 13 of the 16 are correct.
+
+§4b says *"Every gated control routes through the sheet. Zero screens push to
+`/onboarding?step=paywall` directly any more."* Taken literally that is a bad instruction, and a
+session that follows it will break working design. There are **16** references; **13 should stay**:
+
+| kind | n | verdict |
+|---|---|---|
+| the sheet's own `onSeePro` — `learn.tsx:338`, `digest/[slug].tsx:253`, `stock/[sym].tsx:326` | 3 | **correct.** The sheet *is* the gate; its CTA going to where the price lives is the intended second step, and matches Seeking Alpha `285875` (`Try It Now` → paywall) and Astra AI `323575` (`Buy` → plan picker). |
+| voluntary upsells — `you.tsx:62`, `you.tsx:269`, `settings/[section].tsx:174`, `home.tsx:253` | 4 | **correct.** Nothing was refused; the user chose to go and look. C46's spent-user paywall is *reached* this way. |
+| full-screen walls with an exit — `lesson.tsx:160`, `chat.tsx:178`, `options.tsx:258` | 3 | **correct**, decided in C39. The user is already on a dedicated refusal surface. |
+| comments | 3 | — |
+| **an inline refusal that discards context** — `chat.tsx:365` | **1** | ❌ **the only real violation.** |
+
+**Restate the rule as:** *a control that REFUSES an action in place must open the sheet; a control
+the user taps to go LOOK at Pro may route.* The test is whether the user was refused, not whether
+the destination is the paywall.
+
+**The violation, and why it survived review.** `chat.tsx`'s exhausted card carried the comment
+*"The refusal lives IN the thread … rather than throwing the user out to a paywall screen
+mid-question"*, and its only button pushed to `/onboarding?step=paywall`. **The sentence was true of
+the card and false of the control.** This is C43's shape — a surface disagreeing with itself — and a
+grep for the route finds the line while a reader of the comment concludes it is already handled.
+
+**Nothing new had to be written to fix it.** `Feature` already listed `'atlas'`; `entitled()`
+already had the `atlas` count-limit branch; `gate-sheet.tsx` already held *"Atlas needs a break"* /
+*"You've used your 10 free questions. Pro makes them unlimited."* **All three were unreachable
+because no call site ever passed `feature="atlas"`.** Worth a standing check: when a feature enum
+gains a member, grep for a call site that passes it, or the engine and the copy both rot unused.
+
+**A state worth keeping in the toolkit.** Verifying this needs *trial ACTIVE and allowance spent* —
+`activeDays:1 isPro:false atlasAsked:10` — which is the only way to separate `count-limit` from
+`trial-expired`. `seed-trial.sh` cannot express it (it takes days and isPro only); patch
+`state.atlasAsked` in the same spilled-store file the script already targets, then terminate and
+relaunch. Measured: 15 labels → tap → 9 (Modal) → dismiss → 15, thread intact. Fixed in `e253473`.
