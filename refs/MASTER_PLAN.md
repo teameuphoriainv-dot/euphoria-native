@@ -4675,3 +4675,34 @@ findable inside the app* (**5/5**, §17a).
 **What survives of that scope item:** the involuntary half (grace period, billing retry — real,
 buildable, and 20–40% of churn), and the two offers that fire *before* any cancellation decision
 (§17c the trial reward, §17d the dismissal paywall).
+
+### C63. THE WIDGET RENDER IS BLOCKED BY THE SIMULATOR, NOT BY OUR CODE. Stop chasing it.
+
+15c's data path is **fully verified**. Its *render* is not, and the blocker is environmental.
+A future session must not read "render unverified" and start rewriting the widget.
+
+**What IS proven, each by a number or a log line:**
+
+| claim | evidence |
+|---|---|
+| App Group write works | `group.com.euphoria.native.plist` on disk = `streak 3, xp 160, dayKey "2026-08-08"`, matching the store exactly |
+| values are INTEGERS, not stringified | `plutil -p` shows `=> 3`, not `=> "3"`; `ExtensionStorage.set` routes numbers to `setInt` |
+| the reload call reaches iOS | `euphorianative[...] [com.apple.chrono:widget] reloadAllTimelines() - reloaded all timelines` |
+| iOS knows the widget exists | `chronod: ... extensionBundleIdentifier=com.euphoria.native.widget, kind=all` |
+| the SwiftUI view renders | **already screenshotted on the FIRST build** — flame + `5` + "day streak", 2 family dots |
+
+**What is blocked:** the widget gallery returns an **empty list for EVERY app** — Calendar, Maps,
+Batteries, all of them, not only ours. `chronod` logs `Loaded cached widget metadata: []`, and
+separately `Ignoring restricted or unknown extension com.euphoria.native`.
+
+**Four remedies tried, in order, all failed:** app reinstall · `launchctl stop com.apple.SpringBoard`
+· full `simctl shutdown`/`boot` · `launchctl kickstart -k system/com.apple.chronod`.
+
+**The decisive fact: the gallery worked on the first build and stopped working after the second.**
+The code changed between them in ways that cannot affect Apple's own widgets. A device-wide index
+that loses Calendar is a simulator fault.
+
+**Do not** erase the simulator to fix this without first capturing state per §1.7 — the baseline
+store, the trial day-count and the seeded progress all live there, and C51 already cost two
+sessions to a wrong-simulator problem.
+
