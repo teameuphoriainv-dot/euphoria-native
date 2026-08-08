@@ -5264,3 +5264,37 @@ spill file, then launch.
 **Still open from C82:** `android.package` remains `com.euphoria.native`. Whether Google Play has a
 listing under it has not been checked, and iOS/Android now diverge on identifier.
 
+### C84. REJECTION BUG 2 IS A DEAD CONTROL — the exact thing §0.5 forbids, and it cost a rejection.
+
+`src/app/auth.tsx:80-81`:
+
+```tsx
+<ProviderButton label="Continue with Apple"  icon="you"   onPress={enter} />
+<ProviderButton label="Continue with Google" icon="globe" onPress={enter} />
+```
+
+Both call `enter`, the same local function the email form uses. Measured:
+
+- **No `expo-apple-authentication`** in `package.json` — no Apple auth dependency of any kind
+- **No plugin** in `app.json`
+- **`applesignin` entitlement count in the built app: 0**
+
+The file says so itself: *"provider (Apple/Google/Supabase/Clerk) in a later pass — the UI + flow are
+ready."* The UI was ready. Nothing behind it was.
+
+**This is §0.5 — "No dead controls" — and it is the rule this plan has enforced all session.** Unit
+13's audit found 177 `onPress` sites and zero dead controls, because it checked whether each handler
+*does something*. `enter` does something. **What it does not do is what its label promises.** A
+control can be live and still be a lie, and that is the gap the audit missed.
+
+**Two paths, and it is a real decision:**
+
+1. **Implement Sign in with Apple properly** — `expo-apple-authentication`, the entitlement, the
+   Apple Developer capability, and a real Supabase identity exchange. Correct, and Unit 1's
+   scaffolding anticipated it. It is genuine work, not a patch.
+2. **Remove both provider buttons and ship email-only.** Apple's Guideline 4.8 requires offering
+   Sign in with Apple only when you offer OTHER third-party sign-in. Remove Google too and 4.8 does
+   not apply. Far faster, and it makes the screen honest immediately.
+
+**Bug 1 (the onboarding freeze) is still unreproduced** and must not be assumed related.
+
