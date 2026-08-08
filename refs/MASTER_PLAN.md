@@ -4215,3 +4215,36 @@ things it does NOT license:
   implementation of the same thing is how the two repos rot apart.
 - **Letting the web site break.** It stays a working shopfront. "The app leads" is about where
   new work lands, not about neglecting what exists.
+
+### C57. UNIT 9 SCOPE CUT: **10 app-only guides, not 35.** §9d's manifest is superseded.
+
+§9d and §11 specify ~35 new guides. **Ten shipped and the unit's content phase is closed at
+ten, by decision.** A future session should not read §11 and conclude 25 are missing.
+
+| | |
+|---|---|
+| library | **35 posts: 25 shared with the web, 10 app-only** |
+| categories | Credit 6 · Strategy 7 · Investing 7 · Markets 7 · Money basics 8 |
+| covers | 10 bespoke, **0 hero collisions across all 35** |
+| lint | all 10 app-only guides clean |
+
+**Formats, and one thing worth noticing.** The first seven were `myth`, `number`,
+`head2head` and `case` — every format EXCEPT `explainer`, which is the default and the one
+the ten good web guides use. That was an accident of writing the interesting shapes first,
+not a decision, and it went unnoticed until the formats were counted at the end. The last
+batch corrected it with two explainers. **When a format registry exists, count coverage
+across it before declaring a content batch done**; the linter checks each post against its
+own format and cannot see that a whole format is unused.
+
+**Still genuinely open in Unit 9**, and unchanged by the cut:
+
+- **The 15 cohort-B rewrites.** `refs/DIGEST_REVIEW.md` lists them. They end on a
+  "Why this matters for you" house ad instead of a conclusion, and they are the reason
+  `new-digest.mjs lint` still reports 20 errors. Prose is good; the fix is structural.
+- **§9c's gap audit** was never run. The 35 were never mapped against the 12 curriculum
+  courses to find concepts with a lesson and no guide, which is what §9d meant by choosing
+  topics. The ten written were chosen by category thinness and by what an 18-25 reader
+  actually meets, which is defensible but is not the audit the plan asked for.
+- **§9f gating.** Free/trial users see all titles; bodies beyond the allowance should render
+  the gate sheet over a blurred first screen. C39 records guide bodies as closed at card 2,
+  so this is likely already done and merely unverified against 35 guides.
