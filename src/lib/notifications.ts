@@ -12,11 +12,15 @@
  */
 import * as Notifications from 'expo-notifications';
 
-import { TRIAL_DAYS, useApp } from './store';
+import { DEFAULT_NUDGE_HOUR, TRIAL_DAYS, useApp } from './store';
 
-/** Evening, not morning. The nudge exists to rescue a streak before the day ends, which is
- *  only actionable while there is still time to do a five-minute lesson. */
-export const NUDGE_HOUR = 19;
+/**
+ * UNIT 15a. Kept as a named re-export so existing callers and the dev self-check keep compiling,
+ * but it is now only the DEFAULT. The hour actually scheduled comes from the store, because
+ * Headway `128567` captures the time BEFORE the system prompt and that is what makes the prompt
+ * convertible — the user has already decided when, so iOS is only asking whether.
+ */
+export const NUDGE_HOUR = DEFAULT_NUDGE_HOUR;
 
 /** Fixed id so a re-run REPLACES the reminder instead of adding a second one. */
 const DAILY_ID = 'euphoria-daily-nudge';
@@ -37,7 +41,10 @@ Notifications.setNotificationHandler({
  * Safe to call repeatedly: it cancels before it schedules, so re-answering the question — or
  * toggling this later from settings — can never stack duplicate daily reminders.
  */
-export async function applyDailyNudge(optIn: boolean): Promise<boolean> {
+export async function applyDailyNudge(
+  optIn: boolean,
+  hour: number = useApp.getState().nudgeHour,
+): Promise<boolean> {
   // Cancelling an id that was never scheduled is not an error worth propagating.
   await Notifications.cancelScheduledNotificationAsync(DAILY_ID).catch(() => undefined);
   if (!optIn) return false;
@@ -60,7 +67,7 @@ export async function applyDailyNudge(optIn: boolean): Promise<boolean> {
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: NUDGE_HOUR,
+      hour,
       minute: 0,
     },
   });
@@ -95,7 +102,7 @@ const TRIAL_ID = 'euphoria-trial-reminder';
  *  twenty minutes after the session that triggered it is noise, not a reminder. */
 function secondsToNextNudgeHour(now: Date): number {
   const target = new Date(now);
-  target.setHours(NUDGE_HOUR, 0, 0, 0);
+  target.setHours(useApp.getState().nudgeHour, 0, 0, 0);
   if (target.getTime() - now.getTime() < 60 * 60 * 1000) target.setDate(target.getDate() + 1);
   return Math.round((target.getTime() - now.getTime()) / 1000);
 }
@@ -200,8 +207,9 @@ if (__DEV__) {
       // in fact stored correctly at 19:00. A self-check that cries wolf is worse than none.
       const t = daily.trigger as Record<string, unknown> | null;
       const hour = t?.hour ?? (t?.dateComponents as { hour?: number } | undefined)?.hour;
-      if (hour !== undefined && hour !== NUDGE_HOUR) {
-        console.error(`[nudge] scheduled at hour ${String(hour)}, expected ${NUDGE_HOUR}`);
+      const want = useApp.getState().nudgeHour;
+      if (hour !== undefined && hour !== want) {
+        console.error(`[nudge] scheduled at hour ${String(hour)}, expected ${String(want)}`);
       }
     })();
   }, 3000);

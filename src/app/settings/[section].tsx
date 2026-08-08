@@ -24,6 +24,7 @@
  * is the dead button this app is trying to delete.
  */
 import { router, useLocalSearchParams } from 'expo-router';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { Alert, Linking, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,7 +34,8 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { applyDailyNudge, NUDGE_HOUR } from '@/lib/notifications';
+import { applyDailyNudge } from '@/lib/notifications';
+import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, openManageSubscriptions, restore as restorePurchases } from '@/lib/purchases';
@@ -53,7 +55,6 @@ const GOALS = [
   { minutes: 20, label: '20 minutes', sub: 'Four lessons a day' },
 ];
 
-const hourLabel = (h: number) => `${((h + 11) % 12) + 1}:00 ${h < 12 ? 'AM' : 'PM'}`;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const theme = useTheme();
@@ -71,19 +72,22 @@ function Row({
   onPress,
   danger,
   last,
+  children,
 }: {
   label: string;
   value?: string;
   onPress?: () => void;
   danger?: boolean;
   last?: boolean;
+  /** A control rendered on the right, in place of the value text. Added for 15a's time picker. */
+  children?: ReactNode;
 }) {
   const theme = useTheme();
   const body = (
     <View style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border }]}>
       <ThemedText type="body" style={danger ? { color: theme.destructive } : undefined}>{label}</ThemedText>
       <View style={styles.rowRight}>
-        {!!value && <ThemedText type="small" themeColor="mutedForeground">{value}</ThemedText>}
+        {children ?? (!!value && <ThemedText type="small" themeColor="mutedForeground">{value}</ThemedText>)}
         {onPress && <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />}
       </View>
     </View>
@@ -251,6 +255,7 @@ function AccountSection() {
 
 function NotificationsSection() {
   const optIn = useApp((s) => s.profile.notifyOptIn);
+  const nudgeHour = useApp((s) => s.nudgeHour);
   const setProfile = useApp((s) => s.setProfile);
   const [busy, setBusy] = useState(false);
 
@@ -274,13 +279,17 @@ function NotificationsSection() {
     <Section title="DAILY NUDGE">
       <ToggleRow
         label="Daily reminder"
-        sub={optIn ? `Every day at ${hourLabel(NUDGE_HOUR)}` : 'Off'}
+        sub={optIn ? `Every day at ${hourLabel(nudgeHour)}` : 'Off'}
         value={optIn}
         onValueChange={(v) => { if (!busy) void toggle(v); }}
       />
-      {/* Evening, not morning — the nudge exists to rescue a streak while there is still time to
-          do something about it. Stated rather than hidden, the way Elevate states "REMIND ME AT". */}
-      <Row label="Reminder time" value={hourLabel(NUDGE_HOUR)} last />
+      {/* UNIT 15a. This row USED to render a hardcoded constant — it looked editable and was not,
+          which is exactly the dead control §0.5 forbids. It is now the same picker onboarding
+          shows, per §15.3b decision 4: one component, two mounts. Evening remains the default
+          because a nudge is only useful while there is still time to act on it. */}
+      <Row label="Reminder time" value={hourLabel(nudgeHour)} last>
+        <NudgeTimePicker compact />
+      </Row>
     </Section>
   );
 }

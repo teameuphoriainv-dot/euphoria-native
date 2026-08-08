@@ -45,6 +45,14 @@ const XP_PER_LEVEL = 500;
 export const TRIAL_DAYS = 3;
 
 /**
+ * Default hour for the daily nudge. Evening, not morning: the nudge exists to rescue a streak
+ * before the day ends, which is only actionable while there is still time to do a five-minute
+ * lesson. Defined HERE rather than in lib/notifications so the store does not import the module
+ * that imports the store — same direction rule as TRIAL_DAYS above.
+ */
+export const DEFAULT_NUDGE_HOUR = 19;
+
+/**
  * Paper-trading starting balance.
  *
  * $10,000, not the $100,000 the trading apps hand out. This is a personal-finance TEACHING tool
@@ -258,6 +266,13 @@ export type AppState = {
   widgetAdded: boolean;
   recordWidgetAsk: () => void;
   markWidgetAdded: () => void;
+  /**
+   * UNIT 15a. The hour the daily nudge fires. Was a hardcoded 19 that nobody was ever asked about
+   * — Headway `128567` captures the TIME before the system prompt, which is what makes the prompt
+   * convertible: the user has already chosen when, so iOS is only asking whether.
+   */
+  nudgeHour: number;
+  setNudgeHour: (h: number) => void;
   /** The day the quest reward was already paid. Day-keyed for the same reason `lastGameDay` is:
    *  it makes the payout once-per-day and unfarmable without a second tally to keep in sync. */
   lastQuestDay: string;
@@ -446,6 +461,12 @@ export const useApp = create<AppState>()(
        */
       markWidgetAdded: () => {
         set({ widgetAdded: true });
+      },
+      // 19:00 stays the DEFAULT for the same reason it was the constant: evening, so a nudge is
+      // still actionable. It is now a starting point rather than a decision made on the user's behalf.
+      nudgeHour: DEFAULT_NUDGE_HOUR,
+      setNudgeHour: (h) => {
+        set({ nudgeHour: Math.max(0, Math.min(23, Math.round(h))) });
       },
       lastActiveDay: '',
       activeCourseId: 'investing-fundamentals',
@@ -668,7 +689,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

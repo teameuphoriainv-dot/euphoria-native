@@ -44,6 +44,7 @@ import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases } from '@/lib/purchases';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
+import { NudgeTimePicker } from '@/components/nudge-time-picker';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -491,17 +492,27 @@ export default function Onboarding() {
     switch (def.kind) {
       case 'single':
         return (
-          <SingleSelectStep
-            question={def.question}
-            sub={def.sub}
-            options={def.options}
-            value={selected(def.field)}
-            onChange={(k) => {
-              answer(def.field, k);
-              // notifyOptIn opens the iOS permission dialog — do not advance behind it.
-              if (def.field !== 'notifyOptIn') advanceAfterPick();
-            }}
-          />
+          <>
+            <SingleSelectStep
+              question={def.question}
+              sub={def.sub}
+              options={def.options}
+              value={selected(def.field)}
+              onChange={(k) => {
+                answer(def.field, k);
+                // notifyOptIn opens the iOS permission dialog — do not advance behind it.
+                if (def.field !== 'notifyOptIn') advanceAfterPick();
+              }}
+            />
+            {/*
+              UNIT 15a. The time picker sits BEFORE the yes/no, and the placement IS the mechanism
+              (Headway `128567`): once someone has chosen when they want to be nudged, iOS's prompt
+              is only asking whether — a far easier question than a cold "Allow notifications?".
+              Answering here also means the hour is already in the store when answer() fires, so
+              applyDailyNudge schedules against the user's choice on the very first call.
+            */}
+            {def.field === 'notifyOptIn' && <NudgeTimePicker />}
+          </>
         );
       case 'multi':
         return (
