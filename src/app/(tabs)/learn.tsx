@@ -7,19 +7,16 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
-import { Atlas } from '@/components/atlas';
 import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
 import { CourseMark } from '@/components/art/course-mark';
 import { artKeyFor } from '@/components/lesson-art';
 import { GateSheet } from '@/components/gate-sheet';
 import { entitled, type Refusal } from '@/lib/entitlement';
-import { PulseHalo } from '@/components/pulse-halo';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
@@ -30,52 +27,41 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/* ── UNIT 7 GEOMETRY, DERIVED FROM MEASURED FRAMES ───────────────────────────────────────────────
-   Measured on the QA device at TRUE SCROLL TOP (three swipes down first — C33's whole failure was a
-   mid-scroll reading, and C34's correction was wrong too):
+/* ── UNIT 7: THE LIST MODEL, from Promova 138799 in pixels ───────────────────────────────
+   The serpentine could not reach 10 nodes and two attempts proved it (§22 C33, and again this
+   session with the header already fixed). The reason is structural: a serpentine spends horizontal
+   space on the curve and squeezes titles into a 130pt side gutter, so the pitch must clear a 36pt
+   two-line title AND a >=44pt tap target at once. Those two fight, and the loser is the artifact —
+   at GAP 58 the count hit 10 while "Complete" vanished under the active node's halo.
 
-     screen                402 x 874          <- NOT 852; §22 C42
-     course header         y  70 .. 122
-     course RAIL           y 160 .. 310       <- 150pt, the actual problem
-     first lesson node     y 342
-     TAB BAR TOP           y 799
-     usable band           799 - 342 = 457pt  -> 457/100 = 4.6 -> FIVE nodes visible
+   PROMOVA DID NOT ABANDON THE PATH. IT STRAIGHTENED IT. Measured off screen 138799:
 
-   C34 claimed first node y=575, tab bar y=819, a 244pt band and three nodes. All three are wrong.
-   C33 claimed a 367pt band. Also wrong. The band is 457pt and five nodes fit.
+     connector      one thin vertical line, left edge, through every node centre
+     status circle  ~24pt ON the line — done = fill + check, active = dark + bolt, locked = flat grey
+     title          ONE line, left-aligned right of the line, ~15pt
+     trailing glyph a small lesson-type icon at the far right
+     row pitch      ~43pt
+     rows visible   FOURTEEN
 
-   THE FIX IS THE HEADER, NOT THE PITCH — C34 got that part right. Removing the 150pt rail for a 44pt
-   chip returns 106pt, and tightening the trail's top margin returns 16 more:
+   THE INSIGHT THAT DISSOLVES THE PROBLEM: the circle is not the tap target — THE ROW IS. A 24pt
+   circle costs nothing in reachability when the pressable is 370x56. C33's bind was that the node
+   had to be both the visual mark and the 44pt target. A row has to be neither small nor cramped.
 
-     first node   342 - 122 = 220
-     band         799 - 220 = 579pt
-     10 nodes     10 x 58   = 580   -> node 10 sits y=742..794, clear of the tab bar at 799
+   EUPHORIA'S NUMBERS, adapted rather than copied:
+     ROW 56      12pt above the HIG minimum, and 587 / 56 = 10.5 — to be MEASURED, not assumed
+     DOT 28      bigger than Promova's 24 because ours carries a course accent worth seeing
+     title 15pt  up to two lines, with ~274pt of width instead of 130 — the old gutter is the only
+                 reason "Building a Rational Investment Frame…" ever had to truncate
+     mark 24pt   the AUTHORED per-lesson mark (§22 C16's 300 of them) moves to the right edge, where
+                 Promova puts its type glyph. This is the first layout that gives them room.
 
-   THE BINDING CONSTRAINTS, every one measured rather than assumed:
-     - a two-line 13pt title is h=36.0 (measured, consistently). Pitch must exceed it or titles
-       collide with each other — C33 hit exactly this and never checked title BOXES against each
-       other, which is trap #1 verbatim: an a11y anchor is a POINT, not a BOX.
-     - a tap target must be >= 44pt (HIG). C33's 28pt node is why that attempt was reverted.
-     - NODE + LIP <= GAP, or a node's raised lip overlaps the node below it. This is what makes the
-       active node the real constraint: it is the largest.
+   Locked rows keep their titles (4/4, §6.6.3) and tapping one opens the gate sheet. */
+const ROW = 56;
+const DOT = 28;
 
-   So: GAP 58 / NODE 48 / START 52 / LIP 4.
-     node + lip   48 + 4 = 52 <= 58   (6pt clear)
-     active + lip 52 + 4 = 56 <= 58   (2pt clear)
-     title        14..50 inside a 58 pitch -> next title starts at 72, so 22pt between boxes
-     tap target   48 >= 44
-   AMP 58, down from 66, so the serpentine swings less far off centre and the narrowest title gutter
-   widens. §0.6 applies: if the measured count is under 10, this reverts rather than being renamed. */
-const GAP = 100;
-const AMP = 66;
-const NODE = 66;
-const START = 84;
-const LIP = 6; // 3D bottom-edge depth (Duolingo button look)
 
 export default function Learn() {
   const theme = useTheme();
-  const { width } = useWindowDimensions();
-  const cx = (width - Spacing.three * 2) / 2;
 
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
@@ -128,20 +114,6 @@ export default function Learn() {
    * unentitled one opens the sheet.
    */
   const [gate, setGate] = useState<Refusal | null>(null);
-
-  const nodes = useMemo(
-    () =>
-      Array.from({ length: total }, (_, i) => ({
-        i,
-        y: i * GAP,
-        x: cx + Math.sin(i * 0.8) * AMP,
-        size: i === current ? START : NODE,
-      })),
-    [cx, total, current],
-  );
-
-  const trailHeight = total > 0 ? (total - 1) * GAP + START : 0;
-  const pathD = nodes.map((n, i) => `${i === 0 ? 'M' : 'L'} ${n.x} ${n.y + START / 2}`).join(' ');
 
   /*
    * Keep the selected chip in view when the course changes from elsewhere (e.g. /courses).
@@ -253,136 +225,97 @@ export default function Learn() {
             </ThemedText>
           </View>
         ) : (
-          <View style={{ height: trailHeight, marginTop: Spacing.two, opacity: stale ? 0.35 : 1 }}>
-            {/* Dashed connector behind nodes */}
-            <Svg style={StyleSheet.absoluteFill} width={width} height={trailHeight}>
-              <Path d={pathD} stroke={theme.border} strokeWidth={3} strokeDasharray="1 12" strokeLinecap="round" fill="none" />
-            </Svg>
-
-            {nodes.map((n) => {
-              const done = doneFlags[n.i];
-              const active = n.i === current;
-              const locked = current >= 0 && n.i > current;
-              const lesson = lessons[n.i];
-              // Brilliant-style: illustration on a surface tile with a colored ring + raised lip.
-              const face = active ? accent + '2E' : theme.card;
-              const lip = active ? accent + 'AA' : done ? accent + '55' : theme.border;
-              const ring = active ? accent : done ? accent + '99' : theme.border;
-              // put the label on the emptier side. Comparing node CENTRE (not its right edge) to
-              // cx is what keeps a 130pt label inside the gutter — real lesson titles are long
-              // enough that the old edge-based test pushed them off the left of the screen.
-              const labelLeft = n.x > cx;
-              // NODE-TYPE ICONS WERE TRIED AND DROPPED. 4 of 6 reference paths differentiate node
-              // kinds by icon, but that pattern needs lessons OF DIFFERENT KINDS. Every lesson in
-              // this curriculum ends in a challenge, so the badge rendered the identical icon on
-              // every node — decoration wearing the costume of information. Verified on device:
-              // every visible node showed the same target glyph.
-              //
-              // Milestone every 5th lesson. 3 of 6 references punctuate the path with a reward
-              // marker — Duolingo's treasure chest and trophy, Lingvano's MILESTONE 3,
-              // RiseGuide's certificate. A path of 25 identical circles has no landmarks, and
-              // THIS one differentiates because only every fifth node carries it.
-              const milestone = (n.i + 1) % 5 === 0;
+          <View style={{ marginTop: Spacing.two, opacity: stale ? 0.35 : 1 }}>
+            {lessons.map((lesson, i) => {
+              const done = doneFlags[i];
+              const active = i === current;
+              const locked = current >= 0 && i > current;
+              /* Milestone every 5th. 3 of 6 reference paths punctuate the path with a reward marker,
+                 and this differentiates because only every fifth row carries it. */
+              const milestone = (i + 1) % 5 === 0;
+              const dotFill = done ? accent : active ? accent + '2E' : theme.card;
+              const dotRing = done ? accent : active ? accent : theme.border;
+              const first = i === 0;
+              const last = i === lessons.length - 1;
               return (
-                <View key={n.i} style={{ position: 'absolute', top: n.y, left: n.x - n.size / 2, width: n.size, height: n.size + LIP }}>
-                  {active && <PulseHalo size={n.size} color={accent} />}
-                  <SpringPressable
-                    onPress={() => {
-                      // Not entitled -> the sheet, over this screen, keeping the user's place.
-                      // Navigating to a paywall here would throw away the context that makes the
-                      // ask legible, which is the whole mechanism (Astra AI 323575).
-                      /*
-                       * Read NON-REACTIVELY at tap time. `entitled()` returns a fresh object, so
-                       * subscribing to it through a zustand selector gave every render a new
-                       * snapshot and looped until React threw "Maximum update depth exceeded" —
-                       * the same trap you.tsx documents at `levelProgress()`. The refusal is only
-                       * needed at the moment of the tap, so nothing has to subscribe at all.
-                       */
-                      const refusal = entitled(useApp.getState(), 'lesson');
-                      if (!refusal.ok) {
-                        setGate(refusal);
-                        return;
-                      }
-                      router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
-                    }}
-                    disabled={locked}
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      locked
-                        ? `${lesson.title}. Finish the lesson before this one to unlock it.`
-                        : lesson.title
+                <SpringPressable
+                  key={i}
+                  haptic={!locked}
+                  scaleTo={0.98}
+                  onPress={() => {
+                    /*
+                     * Read NON-REACTIVELY at tap time. `entitled()` returns a fresh object, so
+                     * subscribing to it through a zustand selector gave every render a new snapshot
+                     * and looped until React threw "Maximum update depth exceeded" — the same trap
+                     * you.tsx documents at `levelProgress()`. The refusal is only needed at the
+                     * moment of the tap, so nothing has to subscribe at all.
+                     */
+                    const refusal = entitled(useApp.getState(), 'lesson');
+                    if (!refusal.ok) {
+                      setGate(refusal);
+                      return;
                     }
-                    scaleTo={0.9}>
-                    {/* bottom lip */}
-                    <View style={{ position: 'absolute', top: LIP, width: n.size, height: n.size, borderRadius: n.size / 2, backgroundColor: lip }} />
-                    {/* face */}
-                    <View
-                      style={[
-                        styles.node,
-                        {
-                          width: n.size, height: n.size, borderRadius: n.size / 2,
-                          backgroundColor: face,
-                          borderColor: ring,
-                          borderWidth: active ? 3 : 2,
-                          opacity: locked ? 0.5 : 1,
-                        },
-                      ]}>
-                      {locked ? (
-                        <UIcon name="lock" size={22} color={theme.mutedForeground} />
-                      ) : (
-                        /*
-                         * Stroke mark, NOT the filled LessonArt scene.
-                         *
-                         * LessonArt's palette is derived entirely from the course accent, and an
-                         * active node's face is that same accent at 18% — so the art was
-                         * accent-on-accent and dissolved at 38pt. Behavioral Finance drew pink art
-                         * on a pink ground and its bucket read as an unidentifiable cup.
-                         *
-                         * `artKeyFor` still chooses WHICH mark, so the measured distribution is
-                         * unchanged (worst repeat 5 in a course, worst run 2, across 295 lessons).
-                         * Only the rendering changed. lessonMarkColor owns the contrast rule.
-                         */
-                        <LessonNodeMark
-                          courseId={activeCourseId}
-                          num={lesson.num}
-                          fallbackKey={artKeyFor(lesson.title, n.i)}
-                          size={active ? 40 : 36}
-                          color={lessonMarkColor({ active, accent, text: theme.text })}
-                        />
+                    router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
+                  }}
+                  disabled={locked}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    locked
+                      ? `${lesson.title}. Finish the lesson before this one to unlock it.`
+                      : `${lesson.title}${done ? '. Complete' : active ? '. Start here' : ''}`
+                  }>
+                  <View style={styles.row}>
+                    {/* The connector, as two half-segments rather than one Svg path: the first row
+                        must have nothing above it and the last nothing below, which a single path
+                        through all the centres cannot express — it overshot both ends. */}
+                    <View style={styles.railCol}>
+                      {!first && (
+                        <View style={[styles.wire, { top: 0, height: (ROW - DOT) / 2, backgroundColor: done || active ? accent + '66' : theme.border }]} />
                       )}
-                    </View>
-                    {/* Shown on LOCKED nodes too, dimmed. Hiding it until unlocked defeats the
-                        point of a milestone: Duolingo's treasure chest is visible before you reach
-                        it, and that is what makes it a landmark rather than a reward notification.
-                        A path you cannot read ahead has nothing to aim at. */}
-                    {milestone && (
+                      {!last && (
+                        <View style={[styles.wire, { bottom: 0, height: (ROW - DOT) / 2, backgroundColor: done ? accent + '66' : theme.border }]} />
+                      )}
                       <View
                         style={[
-                          styles.nodeBadge,
-                          {
-                            backgroundColor: theme.background,
-                            borderColor: theme.warning,
-                            left: n.size - 22,
-                            top: n.size - 16,
-                            opacity: locked ? 0.55 : 1,
-                          },
+                          styles.dot,
+                          { backgroundColor: dotFill, borderColor: dotRing, borderWidth: active ? 2.5 : 1.5, opacity: locked ? 0.55 : 1 },
                         ]}>
-                        <UIcon name="sparkle" size={12} color={theme.warning} />
+                        {done ? (
+                          <UIcon name="check" size={15} color={theme.primaryForeground} />
+                        ) : locked ? (
+                          <UIcon name="lock" size={13} color={theme.mutedForeground} />
+                        ) : (
+                          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: accent }} />
+                        )}
                       </View>
-                    )}
-                  </SpringPressable>
-                  {/* lesson title label */}
-                  <View style={[styles.label, labelLeft ? { right: n.size + 12, alignItems: 'flex-end' } : { left: n.size + 12 }]}>
-                    <ThemedText type="smallBold" style={{ color: locked ? theme.mutedForeground : theme.text, fontSize: 13 }} numberOfLines={2}>{lesson.title}</ThemedText>
-                    {active && <ThemedText type="label" style={{ color: accent, marginTop: 1 }}>START</ThemedText>}
-                    {done && <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: 11, lineHeight: 15 }}>Complete</ThemedText>}
-                  </View>
-                  {active && (
-                    <View style={{ position: 'absolute', left: labelLeft ? undefined : -70, right: labelLeft ? -70 : undefined, top: -4 }}>
-                      <Atlas size={60} expression="watching" interactive={false} />
                     </View>
-                  )}
-                </View>
+
+                    <View style={styles.rowText}>
+                      <ThemedText
+                        type={active ? 'bodyMedium' : 'body'}
+                        numberOfLines={2}
+                        style={{ fontSize: 15, lineHeight: 20, color: locked ? theme.mutedForeground : theme.text }}>
+                        {lesson.title}
+                      </ThemedText>
+                      {active && <ThemedText type="label" style={{ color: accent, marginTop: 1 }}>START HERE</ThemedText>}
+                    </View>
+
+                    {/* Promova puts a lesson-type glyph here. Ours puts the AUTHORED per-lesson mark,
+                        which until now was squeezed inside a 66pt circle competing with an accent
+                        ring at 18% of the same hue. At 24pt on a neutral ground it finally has both
+                        contrast and room. */}
+                    <View style={styles.rowMark}>
+                      {milestone && <UIcon name="sparkle" size={13} color={theme.warning} />}
+                      <LessonNodeMark
+                        courseId={activeCourseId}
+                        num={lesson.num}
+                        fallbackKey={artKeyFor(lesson.title, i)}
+                        size={24}
+                        color={lessonMarkColor({ active, accent, text: theme.text })}
+                      />
+                    </View>
+                  </View>
+                </SpringPressable>
               );
             })}
           </View>
@@ -427,13 +360,22 @@ const styles = StyleSheet.create({
   chipRow: { gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.two },
   // 44pt exactly: the HIG touch minimum, and the number the whole density fix is spending.
   chip: { height: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
-  /* Type badge on the node's lower-right. Sits on the page background with a ring, so it reads
-     as attached to the node rather than painted inside it, and stays legible against both the
-     card face and the accent-tinted active face. */
-  nodeBadge: { position: 'absolute', width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   trailScroll: { flex: 1 },
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },
-  node: { alignItems: 'center', justifyContent: 'center' },
-  label: { position: 'absolute', top: 14, width: 130, justifyContent: 'center' },
+
+  /* ── THE ROW ────────────────────────────────────────────────────────────────────────────────
+     minHeight, not height: a two-line title has to be allowed to make its own row taller rather
+     than being clipped. Most titles fit one line in ~274pt, so the common row is exactly ROW and
+     the count holds; the long ones grow and the measured count reflects that honestly. */
+  row: { minHeight: ROW, flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  /* Fixed width so every dot lands on the same vertical axis regardless of title length — that
+     shared axis IS the path, and one row indenting differently would break the line. */
+  railCol: { width: DOT, alignItems: 'center', alignSelf: 'stretch', justifyContent: 'center' },
+  wire: { position: 'absolute', width: 2, borderRadius: 1 },
+  dot: { width: DOT, height: DOT, borderRadius: DOT / 2, alignItems: 'center', justifyContent: 'center' },
+  rowText: { flex: 1, paddingVertical: Spacing.one },
+  /* Fixed width so titles all wrap at the same point — a mark column that shrinks with its content
+     would give every row a different text width and the left edge of nothing would line up. */
+  rowMark: { width: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 3 },
 });
