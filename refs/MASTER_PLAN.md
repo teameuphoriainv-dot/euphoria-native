@@ -1303,7 +1303,14 @@ each: **day 1 / day 3 / day 4 expired / Pro**.
 
 ---
 
-## UNIT 4 — The gate sheet + paywall redesign ⚠️ **PART BUILT, NOT VERIFIED**
+## UNIT 4 — The gate sheet + paywall redesign ⚠️ **MECHANISM VERIFIED, WIRING PART DONE**
+
+> **READ §22 C37–C40 FIRST. The status below and C35/C36 above it are BOTH OUT OF DATE.**
+> The gate sheet **works** — it fires on the Learn node, it is an overlay, and dismiss keeps the
+> user's place (C37). It is wired into Learn, the lesson route, Atlas and guide bodies. What is
+> genuinely still owed: **trade/portfolio/watchlist and quotes/news** (C39), and the **paywall body
+> redesign** — §9.6's plan cards and the trial-timeline block are still not built (C31 said so and
+> it is still true).
 
 `gate-sheet.tsx`, `trial-timeline.tsx`, `why-not-free.tsx` exist and are wired into `learn.tsx`.
 **Still owed:** device verification (the overlay-not-a-route test), the PAYWALL BODY redesign in
@@ -3536,3 +3543,144 @@ guess above is needed.
 
 **Unit 4 is NOT working and must not be described as built.** The components render, the copy is
 right, the static gate is clean — and the mechanism has never once fired on device.
+
+---
+
+## From the Unit 4 / C27 session (2026-08-07, round 3)
+
+### C37. **C36 IS WRONG. The gate sheet fires.** Do not spend another session on its "touch path".
+
+C36 concluded *"the press is not arriving at all"* and named three candidates to test. All three are
+moot. Measured with the decisive test C36 itself specified — a readout at the top of the node's
+`onPress`, then a tap by coordinate from `idb ui describe-all`:
+
+| what was measured | result |
+|---|---|
+| active node's real frame | `Button 84×84 at (206.3, 460)`, centre **(248,502)**, `enabled=True` |
+| tap dead centre, `isPro:false activeDays:4` | handler **RAN** — reported `ok=false r=trial-expired` |
+| the gate sheet | **OPENED**, all 8 of its labels present |
+| dismiss | restored **74** underlying Learn labels at the same scroll position |
+| the debug state living in `Learn`'s `useState` | **survived** the open/close cycle |
+
+That last row is the real proof of §9.5's mechanism and it is better than the label count: if Learn
+had unmounted, the state would have reset. **It did not. The user genuinely keeps their place.**
+
+**The actual cause of the original failure is recorded in C32 and nobody connected it:** the old dev
+client had no `expo-blur`, so `<BlurView>` inside the sheet was an unresolved native component and
+the sheet rendered **nothing**. That produces exactly what C35/C36 observed — a press that arrives
+and a screen that does not change. The locally rebuilt dev client contains `expo-blur`, and the
+sheet has worked ever since.
+
+> **The lesson, and it is §0.1's lesson again:** C36 reasoned from "no visible effect" to "no touch",
+> skipping the one cheap instrument that distinguishes them. Two sessions were spent on a touch path
+> that was never broken.
+
+### C38. The sheet is an RN `Modal`, so §9.5's label-count check CAN NEVER PASS. Method corrected.
+
+`gate-sheet.tsx:118` wraps everything in `<Modal transparent>`. On iOS that presents a separate view
+controller, so with the sheet open `sim.sh screen` reports **9 labels, not 74** — the presenting
+screen leaves the a11y tree. §9.5 rule 1, §17.2's docblock and §18.7 all demand the opposite.
+
+**`Modal` is KEPT, by user decision, and the CHECK is what changes.** Reasons, in order:
+1. It is correct iOS dialog semantics — VoiceOver is focus-trapped in the sheet, which is what a
+   modal dialog is supposed to do. An in-screen overlay would let a screen reader wander into the
+   blurred background and would need `accessibilityViewIsModal` hand-rolled to undo that.
+2. It escapes the tab bar for free. An in-screen sheet would be painted over at the bottom — trap
+   #17's exact shape, and the sheet's secondary CTA already ends only 32pt from the screen edge.
+3. The label count was a **proxy** for "is this a route change". Two better artifacts exist and both
+   were captured: the screenshot shows the blurred Learn screen behind the sheet, and Learn's own
+   `useState` survives the cycle.
+
+> **Replace the check.** "Underlying labels still present" is void for this component. Verify instead
+> that (a) a screenshot shows the previous screen behind the blur, and (b) state owned by the
+> underlying screen survives open→dismiss. Update §18.7 accordingly.
+
+### C39. THE HARD WALL HAD HOLES. Two were verified open on device and are now closed.
+
+C13 decision 1 locks everything on expiry except streak/XP/league. It had only ever been built for
+lessons and options. Measured with `isPro:false, activeDays:4`:
+
+| surface | before | now |
+|---|---|---|
+| Lessons (node tap) | gate sheet ✅ | unchanged |
+| Lesson route (deep link) | locked wall ✅ | copy corrected by C27, **plus an escape — see below** |
+| Options | wired via `useTier` (C26) ✅ | unchanged |
+| **Atlas** | **OPEN** — offered *"9 questions left"*, starters, live composer | **closed surface**, no composer |
+| **Guide bodies** | **OPEN** — read a whole article end to end | cover + card 1 free, sheet on card 2 |
+| **Trade / portfolio / watchlist** | **OPEN** | **STILL OPEN** |
+| **Quotes / news** | **OPEN** | **STILL OPEN** |
+
+The cause of the Atlas hole is worth naming because it is a pattern: **`store.atlasLeft()` knows
+nothing about the trial clock.** Any getter that answers "how much is left" will happily answer for a
+user who is entitled to nothing. Expiry has to be asked separately, which is why `chat.tsx` now
+carries an `expired` flag distinct from `exhausted`.
+
+**A defect found by LOOKING AT THE SCREENSHOT, not by any green number:** `lesson.tsx`'s locked state
+shipped with only *"See Euphoria Pro"* and no way out, so an expired user arriving by cold deep link
+was stranded on a wall. C13's own consequence note says a non-dismissible gate "would strand the user
+completely". Added *"Back to the pathway"*, h=44 exactly. The `router.canGoBack()` branch is verified;
+the `replace()` fallback is **not**, because a dev client always occupies the stack root and a true
+no-back-stack cold link cannot be constructed here. Said plainly rather than implied.
+
+### C40. C13 decision 1 REFINED for market surfaces: lock the control, keep the data.
+
+C13 as written closes quotes and news too. Taken back to the user with the evidence, the decision is
+now: **the portfolio, positions, quotes and news stay READABLE, and Buy/Sell/Trade carry a lock that
+opens the sheet.** This is Bloom `156247`'s mechanism, verified in pixels this session.
+
+Convergence, counted across `156247`, `156253`, `323529` plus the two banked Duolingo screens:
+
+| pattern | hit rate |
+|---|---|
+| the locked item's title/identity stays visible | **5/5** |
+| a lock glyph on the item **or its control** | **5/5** |
+| body/detail obscured rather than removed | 2/5 |
+| an explicit textual `LOCKED` badge | **1/5 — NOT convergent** |
+
+So no `LOCKED` badge was added anywhere; the glyph carries it, which is what §20.4 already said.
+The reason this refinement is right rather than merely softer: with everything locked, an expired
+user has no reason to reopen the app, and C13 leaves them only two re-entry paths. A readable market
+surface is a third.
+
+Bloom's neighbour `156248` adds a detail worth reusing in Unit 8: a black card reading
+*"Unlock at least 5 terms to start practicing! You can find terms in lessons, or throughout the
+Bloom app."* — a gate that **states its own unlock condition**, exactly Duolingo's move. Where a gate
+is a progress gate, say the condition; never show a paywall for something money cannot buy.
+
+### C41. C27 IS BUILT. `FREE_LESSON_LIMIT` no longer exists.
+
+Deleted, along with `store.canAccessLesson` and `store.freeLessonsLeft`. Lessons and guides are
+unmetered during the trial; `atlas` and `options` keep their caps and neither is a trial restriction.
+`lesson.tsx` now reads `useTier()` from the entitlement module — deliberately NOT an inlined
+`!isPro && days > TRIAL_DAYS`, because rewriting the expiry rule inside a screen is the C19
+split-authority defect Unit 3 existed to remove.
+
+Three display strings that printed a number which no longer exists were corrected: the lesson wall,
+You's plan card (*"Every lesson open · 9 Atlas · 2 options contracts left"*), and Settings' Remaining
+row. Settings' Status row also stopped calling a live trial *"Free"* — three tiers exist and it was
+reading a boolean.
+
+Five states driven on device via the new **`scripts/seed-trial.sh <days> <isPro>`**, which patches the
+persisted store and relaunches. It replaces the `devtrial` route C15 had to delete — a debug screen a
+user can reach is a dead control, a script outside the bundle cannot ship.
+
+| seeded | store | displayed |
+|---|---|---|
+| 0 | `{isPro:false,days:0}` | Free trial · Day 1 of 3 |
+| 1 | `{isPro:false,days:1}` | Free trial · Day 1 of 3 |
+| **3** | `{isPro:false,days:3}` | **Free trial · Day 3 of 3** — still a trial day |
+| 4 | `{isPro:false,days:4}` | Free / "Your free days are up" |
+| 1 + `isPro` | `{isPro:true,days:1}` | **Euphoria Pro**, no countdown anywhere |
+
+**The proof that matters:** a trial user **six lessons deep** — past the old wall of five — tapped the
+seventh node and reached *"BEHAVIORAL FINANCE · LESSON 7 / Prospect Theory & Decision Making /
+20 steps · 30 XP"*. Under the old rule that was the locked screen.
+
+### C42. Two environment facts that contradict §1 and §7.
+
+- **Metro runs on 8081, not the 8082 §1.2 documents.** `expo run:ios` chose it. Every reattach in
+  this session used `...?url=http%3A%2F%2F127.0.0.1%3A8081`.
+- **The QA device reports 402×874 points, not 852.** Any band arithmetic — Unit 7's especially —
+  must use 874 and a 34pt bottom safe-area inset.
+- `zsh` does not word-split an unquoted variable, so `for spec in "0 false"; do set -- $spec` silently
+  passes nothing. **Trap #7, hit again.** Use `printf '%s\n' ... | while read -r A B`.
