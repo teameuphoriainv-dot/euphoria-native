@@ -3939,3 +3939,97 @@ the diff.
 **Still open on Home:** the course rail is clipped by the tab bar (unchanged, not fixed), and
 `questsComplete()` exists with **no caller** — the quest-completion reward is not wired into
 `pendingRewards` yet, which §8b asks for.
+
+---
+
+## From the RevenueCat / Unit 11 session (2026-08-08, round 2)
+
+### C49. The App Store configuration is blocked by Apple AGAIN, and there is NO partial path.
+
+The carryover said to check that App Store Connect's maintenance banner was gone, because "that is
+what blocked this, not us". **It is not gone. A NEW window opened this morning.** Read off
+`developer.apple.com/system-status` (unauthenticated, so no login needed to answer the question):
+
+| service | state |
+|---|---|
+| **App Store Connect** | **Maintenance In Progress — Today, 7:30 AM, ongoing, ALL users affected** |
+| App Store Connect API | Maintenance In Progress, same window |
+| **App Store - Sandbox** | Maintenance In Progress, same window |
+| App Store Connect — App Processing / App Upload / TestFlight / Analytics / Sales and Trends | all in the same window |
+| App Store - In-App Purchases | Resolved Outage (yesterday 11:00–12:45) |
+
+**The important new fact, and it kills the "do it partially" idea.** I opened
+`app.revenuecat.com/projects/875fc097/new-app/app_store` and read the actual form rather than
+assuming what it wants. It requires THREE things, not two:
+
+1. App name — required
+2. App Bundle ID — required
+3. **In-app purchase key configuration — REQUIRED**, and its own help text says:
+   *"When using Purchases v5.x+ (i.e., StoreKit 2), transactions will fail to be recorded without
+   this key being set. This can result in users not accessing the purchases they are entitled to."*
+
+That key is a `.p8` issued by **App Store Connect** (Users and Access → Integrations → In-App
+Purchase). Euphoria uses `react-native-purchases`, i.e. StoreKit 2, so the warning applies to us
+exactly. **There is therefore no half-configuration worth creating today** — a configuration without
+the key is documented to lose transactions, which is worse than the Test Store we already have.
+
+> **AND DO NOT SWAP THE KEY EARLY EVEN IF A CONFIG APPEARS.** Putting an `appl_` key into
+> `.env.local` before `euphoria_pro_monthly` / `euphoria_pro_yearly` exist in ASC would make the
+> offering resolve empty, and the paywall would render its purchase control DISABLED. That trades a
+> **verified-working** Test Store money path for a broken one. Step 4 of the carryover is gated on
+> step 3, not merely sequenced after it.
+
+**What WAS done, because it needed no Apple involvement:** the stray `lifetime` package is deleted
+from the `default` offering. It is now exactly `$rc_monthly` (`monthly`) + `$rc_annual` (`yearly`).
+The delete control is not unlabelled after all — it carries `aria-label="delete package"` and lives
+inside each package card in the offering's **Edit** view, which is why the previous session could not
+find it by looking. Verified in the code first: `findPackage` only ever matches
+`$rc_monthly|monthly|euphoria_pro_monthly` or `$rc_annual|annual|yearly|euphoria_pro_yearly`, so
+nothing could ever have selected it.
+
+**Verified on device, by LOOKING, not by a count:** seeded `activeDays:4 isPro:false`, opened
+`onboarding?step=paywall`, and read the screenshot. The spent-user branch renders correctly with
+**two** plans — `SAVE 33% / Annual / $79.99 / works out at $6.67 a month` and `Monthly / $9.99` —
+CTA `Get Euphoria Pro — $79.99`. Removing the package broke nothing.
+
+**Left deliberately:** the `lifetime` PRODUCT still exists in the catalog and is still attached to
+the `pro` entitlement, so `pro` reads "3 products". It is inert — `findPackage` reads offering
+packages, not the product catalog — and all three are Test Store products that real App Store
+products will supersede. Flagged rather than deleted, because deleting a product is irreversible and
+was not the ask.
+
+> **A behaviour worth knowing before someone calls it a bug.** `isPro` cannot be seeded to `true` and
+> made to stick. `purchases.ts:122-124` (`adoptCustomerInfo`) syncs `isPro` from every successful
+> `customerInfo` read, and the Test Store customer holds no active `pro` entitlement, so each launch
+> writes it back to `false`. **That is the offline rule working, not a defect** — but it means
+> `seed-trial.sh <n> true` is only good until the next RevenueCat read.
+
+### C50. C30 CLOSED. The tab count is finished at 8 of 8, and it still says five.
+
+C30 stopped at 5 of 8 apps and asked for Elevate `1395`, Nibble `918`, Praktika `1816`. Done, and
+**counted in the pixels** via `screen_detail` with `include_image: true` rather than from the
+`exhaustive_description` — which is C5's lesson and the house rule in AGENTS.md.
+
+| app | rev/mo | tabs | the tabs |
+|---|---|---|---|
+| Gauth `39` | $600k | **2** | Home, Profile |
+| Quizlet `874` | $2.25M | **4** | Home, Create, Your library, Free Trial |
+| Nibble `918` | $450k | **4** | For you, Explore, Library, Settings |
+| Praktika `1816` | $750k | **4** | Lessons, Practice, Progress, Profile |
+| Bloom `2004` | ~$291k | **5** | Home, Discover, Learn, Games, Profile |
+| Duolingo `862` | $48M | **5** | — |
+| Investing.com `1171` | $450k | **5** | Markets, News, Ideas, Watchlist, More |
+| Elevate `1395` | $750k | **5** | Today, Performance, Games, Notifications, Profile |
+
+**FIVE is modal at 4/8 (50%). Four is 3/8. Two is 1/8. ZERO of 8 ship six. The range is 2–5.**
+
+The three new apps did not move the answer, they hardened it: C30 called five modal at 3/5 from a
+partial sample, and the full sample agrees at 4/8 while adding two more fours. Note the two highest
+earners in the set — Duolingo $48M at five and Quizlet $2.25M at four — straddle the mode, so there
+is no "the biggest app does X" argument available in either direction.
+
+**Euphoria already ships exactly five**, verified both ways: `(tabs)/_layout.tsx:8-12` declares
+`home | learn | trade | digest | you`, and the tab bar screenshot shows those five and only those
+five. **So Unit 11 closes with NO CODE CHANGE**, which is the honest outcome of a count that was run
+to be followed. The reward loop and league ladder stay on Home (Unit 8 densified it for exactly this
+reason) rather than earning a sixth tab.
