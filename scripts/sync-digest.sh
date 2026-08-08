@@ -164,10 +164,32 @@ for (const line of mapBody[1].split('\n')) {
 }
 
 // --- 2. parse every post ----------------------------------------------------
-const files = fs.readdirSync(path.join(SRC, 'content/posts')).filter((f) => f.endsWith('.ts'));
+/*
+ * TWO SOURCE DIRECTORIES, AND THE SECOND IS THE POINT.
+ *
+ *   content/posts/       shared. The web site globs this (content/index.ts) and so do we.
+ *   content/posts-app/   APP ONLY. The web site never sees it; this script does.
+ *
+ * The app is meant to carry MORE Digest than the marketing site — the reader is a paying
+ * subscriber on a surface built for reading, not a visitor who arrived from a search result.
+ *
+ * Authored in the web repo regardless, because everything that makes a post correct lives here:
+ * the hero composer (`scripts/gen-digest-covers.mjs`), the em-dash rejection below, the 225 wpm
+ * recompute, and `scripts/new-digest.mjs`'s templates and linter. Authoring app-only posts in the
+ * NATIVE repo would put them outside all four, and would break the AUTO-SYNCED / DO NOT EDIT
+ * contract on the generated files.
+ */
+const POST_DIRS = ['content/posts', 'content/posts-app'];
+const files = POST_DIRS.flatMap((d) => {
+  const abs = path.join(SRC, d);
+  if (!fs.existsSync(abs)) return [];
+  return fs.readdirSync(abs).filter((f) => f.endsWith('.ts')).map((f) => ({ dir: d, f }));
+});
 const posts = [];
-for (const f of files) {
-  const src = fs.readFileSync(path.join(SRC, 'content/posts', f), 'utf8');
+const seen = new Map();
+for (const { dir, f } of files) {
+  const src = fs.readFileSync(path.join(SRC, dir, f), 'utf8');
+  const appOnly = dir.endsWith('posts-app');
   const p = {
     slug: field(src, 'slug', f),
     title: field(src, 'title', f),
@@ -191,6 +213,15 @@ for (const f of files) {
   p.words = words;
   p.statedMinutes = p.readMinutes;
   p.readMinutes = Math.max(1, Math.round(words / 225 + figures * 0.1));
+  p.appOnly = appOnly;
+
+  /*
+   * A slug in both directories would generate two DIGEST_POSTS entries with the same key, and
+   * DIGEST_BODIES would silently keep whichever was written last. Fail loudly instead — this is
+   * the one failure mode the two-directory split introduces.
+   */
+  if (seen.has(p.slug)) die(`duplicate slug "${p.slug}" in ${seen.get(p.slug)} and ${dir}/${f}.`);
+  seen.set(p.slug, `${dir}/${f}`);
 
   posts.push(p);
 }
@@ -304,7 +335,13 @@ if (retimed.length) {
     console.log(`                 ${p.slug}: web said ${p.statedMinutes}, prose says ${p.readMinutes} (${p.words} words)`);
   }
 }
-console.log(`  posts        : ${posts.length}`);
+const appOnly = posts.filter((p) => p.appOnly);
+console.log(`  posts        : ${posts.length}  (${posts.length - appOnly.length} shared with web, ${appOnly.length} app-only)`);
+if (appOnly.length) {
+  // Named, not just counted: an app-only post is invisible on the web site, so the sync log is
+  // the only place the divergence is ever stated.
+  for (const p of appOnly.sort((a, b) => a.slug.localeCompare(b.slug))) console.log(`                 + ${p.slug}`);
+}
 console.log(`  categories   : ${catOrder.join(', ')}`);
 console.log(`  body prose   : ${bodyChars.toLocaleString()} chars`);
 console.log(`  heroes       : ${Object.keys(heroes).length} registered, ${used.size} referenced`);

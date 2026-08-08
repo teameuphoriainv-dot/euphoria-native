@@ -5,7 +5,7 @@
 // Re-sync with:    ./scripts/sync-digest.sh
 // ============================================================================
 
-export type DigestCategory = "Credit" | "Markets" | "Strategy" | "Investing" | "Money basics";
+export type DigestCategory = "Credit" | "Investing" | "Money basics" | "Strategy" | "Markets";
 
 export type DigestPost = {
   slug: string;
@@ -20,6 +20,10 @@ export type DigestPost = {
 
 /** Newest first. */
 export const DIGEST_POSTS: DigestPost[] = [
+  { slug: "carrying-a-balance-myth", title: "Carrying a Balance Does Not Build Credit", excerpt: "Carrying a small balance does not help your score. It is a rumour that costs about $300 a year to believe.", category: "Credit", date: "2026-08-08", readMinutes: 2, hero: "cover-debt-balance" },
+  { slug: "roth-vs-traditional", title: "Roth vs Traditional, Decided", excerpt: "If your tax rate never changes, Roth and Traditional produce exactly the same money. The choice is not about maths.", category: "Investing", date: "2026-08-08", readMinutes: 2, hero: "cover-roth" },
+  { slug: "the-cost-of-waiting-five-years", title: "What Five Years of Waiting Costs", excerpt: "Five years of delay costs about $165,000, but only $12,000 of that is money you did not pay in.", category: "Money basics", date: "2026-08-08", readMinutes: 2, hero: "fig-head-start" },
+  { slug: "the-month-maya-did-nothing", title: "The Month Maya Did Nothing", excerpt: "Maya watched a third of her money disappear in 33 days and did not act. Doing nothing was the hardest thing she did that year.", category: "Strategy", date: "2026-08-08", readMinutes: 2, hero: "cover-crash-recovery" },
   { slug: "how-credit-cards-work", title: "How Credit Cards Actually Work", excerpt: "Pay in full and the card is free. Carry a balance and it is one of the most expensive loans you can get.", category: "Credit", date: "2026-08-03", readMinutes: 2, hero: "cover-credit-card" },
   { slug: "what-moves-a-stock-price", title: "What Actually Moves a Stock Price", excerpt: "Good news sinks stocks all the time. Price does not track results, it tracks surprise.", category: "Markets", date: "2026-08-02", readMinutes: 2, hero: "cover-price-gap" },
   { slug: "investment-fees-explained", title: "The Fees Quietly Eating Your Returns", excerpt: "One percent a year sounds like a rounding error. Over thirty years it can take a quarter of everything you built.", category: "Strategy", date: "2026-08-01", readMinutes: 2, hero: "cover-fee-drag" },

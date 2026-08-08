@@ -48,6 +48,16 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
 
   // Global Economics
   'inflation-explained': { course: 'global-economics', num: 5 },
+
+  /*
+   * APP-ONLY guides (web repo content/posts-app/). They exist in the app and not on the web
+   * site, so these four mappings have no counterpart there. Each targets a lesson that an
+   * existing entry already points at, so the course/num pairs are known-good.
+   */
+  'carrying-a-balance-myth': { course: 'personal-finance', num: 5 },
+  'the-cost-of-waiting-five-years': { course: 'investing-fundamentals', num: 3 },
+  'roth-vs-traditional': { course: 'personal-finance', num: 16 },
+  'the-month-maya-did-nothing': { course: 'investing-fundamentals', num: 23 },
 };
 
 export const lessonForGuide = (slug: string): GuideLesson | undefined => GUIDE_LESSONS[slug];
