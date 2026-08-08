@@ -27,37 +27,37 @@ judgement about the prose, which is mostly good.
 | guide | cat | verdict | what is wrong |
 |---|---|---|---|
 | `avalanche-vs-snowball` | Credit | ship | nothing |
-| `budgeting-50-30-20-rule` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
-| `build-your-first-investment-portfolio` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
-| `bull-vs-bear-markets` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `budgeting-50-30-20-rule` | Money basics | ship | nothing |
+| `build-your-first-investment-portfolio` | Investing | ship | nothing |
+| `bull-vs-bear-markets` | Markets | ship | nothing |
 | `buy-now-pay-later` | Credit | ship | nothing |
-| `capital-gains-tax-basics` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `capital-gains-tax-basics` | Money basics | ship | nothing |
 | `carrying-a-balance-myth` | Credit | ship | nothing |
-| `dollar-cost-averaging-explained` | Strategy | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `emergency-fund-how-much` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `employer-401k-match` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `first-paycheck-guide` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `good-debt-vs-bad-debt` | Credit | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
-| `how-credit-cards-work` | Credit | polish | excerpt may not state a surprise — no contrast or negation |
-| `how-credit-scores-work` | Credit | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
+| `dollar-cost-averaging-explained` | Strategy | ship | nothing |
+| `emergency-fund-how-much` | Money basics | ship | nothing |
+| `employer-401k-match` | Money basics | ship | nothing |
+| `first-paycheck-guide` | Money basics | ship | nothing |
+| `good-debt-vs-bad-debt` | Credit | ship | nothing |
+| `how-credit-cards-work` | Credit | ship | nothing |
+| `how-credit-scores-work` | Credit | ship | nothing |
 | `how-tax-brackets-work` | Money basics | ship | nothing |
-| `how-the-stock-market-works` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation; only 0 numeric facts — §9d wants a worked example with real numbers |
-| `how-to-read-a-stock-quote` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `inflation-explained` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `investment-fees-explained` | Strategy | polish | excerpt may not state a surprise — no contrast or negation |
+| `how-the-stock-market-works` | Markets | ship | nothing |
+| `how-to-read-a-stock-quote` | Markets | ship | nothing |
+| `inflation-explained` | Markets | ship | nothing |
+| `investment-fees-explained` | Strategy | ship | nothing |
 | `lump-sum-vs-dca` | Strategy | ship | nothing |
-| `market-crashes-what-history-teaches` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; only 2 numeric facts — §9d wants a worked example with real numbers |
-| `picking-stocks-myth` | Investing | polish | only 1 numeric facts — §9d wants a worked example with real numbers |
-| `roth-ira-explained-for-beginners` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
+| `market-crashes-what-history-teaches` | Markets | ship | nothing |
+| `picking-stocks-myth` | Investing | ship | nothing |
+| `roth-ira-explained-for-beginners` | Investing | ship | nothing |
 | `roth-vs-traditional` | Investing | ship | nothing |
-| `stocks-vs-bonds-explained` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `target-date-funds-explained` | Investing | polish | excerpt may not state a surprise — no contrast or negation; only 1 numeric facts — §9d wants a worked example with real numbers |
+| `stocks-vs-bonds-explained` | Investing | ship | nothing |
+| `target-date-funds-explained` | Investing | ship | nothing |
 | `the-cost-of-waiting-five-years` | Money basics | ship | nothing |
 | `the-money-order-of-operations` | Strategy | ship | nothing |
 | `the-month-maya-did-nothing` | Strategy | ship | nothing |
 | `the-ten-best-days` | Markets | ship | nothing |
-| `what-is-an-etf` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `what-is-compound-interest` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
-| `what-is-diversification` | Strategy | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; only 0 numeric facts — §9d wants a worked example with real numbers |
-| `what-is-risk-tolerance` | Strategy | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
-| `what-moves-a-stock-price` | Markets | polish | only 1 numeric facts — §9d wants a worked example with real numbers |
+| `what-is-an-etf` | Investing | ship | nothing |
+| `what-is-compound-interest` | Money basics | ship | nothing |
+| `what-is-diversification` | Strategy | ship | nothing |
+| `what-is-risk-tolerance` | Strategy | ship | nothing |
+| `what-moves-a-stock-price` | Markets | ship | nothing |
