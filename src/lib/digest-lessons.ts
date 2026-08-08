@@ -61,6 +61,9 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
   'avalanche-vs-snowball': { course: 'personal-finance', num: 6 },
   'picking-stocks-myth': { course: 'investing-fundamentals', num: 5 },
   'the-ten-best-days': { course: 'investing-fundamentals', num: 16 },
+  'buy-now-pay-later': { course: 'personal-finance', num: 6 },
+  'the-money-order-of-operations': { course: 'personal-finance', num: 4 },
+  'lump-sum-vs-dca': { course: 'investing-fundamentals', num: 8 },
 };
 
 export const lessonForGuide = (slug: string): GuideLesson | undefined => GUIDE_LESSONS[slug];

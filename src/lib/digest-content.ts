@@ -5,7 +5,7 @@
 // Re-sync with:    ./scripts/sync-digest.sh
 // ============================================================================
 
-export type DigestCategory = "Credit" | "Investing" | "Money basics" | "Strategy" | "Markets";
+export type DigestCategory = "Credit" | "Strategy" | "Investing" | "Money basics" | "Markets";
 
 export type DigestPost = {
   slug: string;
@@ -21,10 +21,13 @@ export type DigestPost = {
 /** Newest first. */
 export const DIGEST_POSTS: DigestPost[] = [
   { slug: "avalanche-vs-snowball", title: "Avalanche vs Snowball, Decided", excerpt: "The mathematically optimal way to repay debt is not the one most people finish. That gap matters more than the interest.", category: "Credit", date: "2026-08-08", readMinutes: 2, hero: "cover-two-methods" },
+  { slug: "buy-now-pay-later", title: "What Buy Now Pay Later Actually Costs", excerpt: "The interest really is zero. The cost is somewhere else, and it does not show up until you are running four plans at once.", category: "Credit", date: "2026-08-08", readMinutes: 3, hero: "cover-four-payments" },
   { slug: "carrying-a-balance-myth", title: "Carrying a Balance Does Not Build Credit", excerpt: "Carrying a small balance does not help your score. It is a rumour that costs about $300 a year to believe.", category: "Credit", date: "2026-08-08", readMinutes: 2, hero: "cover-balance-myth" },
+  { slug: "lump-sum-vs-dca", title: "All At Once, or Spread Out?", excerpt: "Investing it all at once wins about two thirds of the time. That is not the same as it being the right choice for you.", category: "Strategy", date: "2026-08-08", readMinutes: 2, hero: "cover-all-at-once" },
   { slug: "picking-stocks-myth", title: "Picking Winners Is Not How Most People Build Wealth", excerpt: "More than half of all US stocks never beat a savings account. The index does not work despite that, it works because of it.", category: "Investing", date: "2026-08-08", readMinutes: 2, hero: "cover-few-winners" },
   { slug: "roth-vs-traditional", title: "Roth vs Traditional, Decided", excerpt: "If your tax rate never changes, Roth and Traditional produce exactly the same money. The choice is not about maths.", category: "Investing", date: "2026-08-08", readMinutes: 2, hero: "cover-two-outcomes" },
   { slug: "the-cost-of-waiting-five-years", title: "What Five Years of Waiting Costs", excerpt: "Five years of delay costs about $165,000, but only $12,000 of that is money you did not pay in.", category: "Money basics", date: "2026-08-08", readMinutes: 2, hero: "cover-head-start" },
+  { slug: "the-money-order-of-operations", title: "The Order to Do Things In", excerpt: "Most money advice is a list of good ideas with no order. The order is worth more than any single item on it.", category: "Strategy", date: "2026-08-08", readMinutes: 2, hero: "cover-order-ladder" },
   { slug: "the-month-maya-did-nothing", title: "The Month Maya Did Nothing", excerpt: "Maya watched a third of her money disappear in 33 days and did not act. Doing nothing was the hardest thing she did that year.", category: "Strategy", date: "2026-08-08", readMinutes: 2, hero: "cover-stayed-put" },
   { slug: "the-ten-best-days", title: "The Ten Days That Made the Difference", excerpt: "Miss ten days out of twenty years and you do not keep half the money. Worse, most of those days landed inside the worst weeks.", category: "Markets", date: "2026-08-08", readMinutes: 2, hero: "cover-best-days" },
   { slug: "how-credit-cards-work", title: "How Credit Cards Actually Work", excerpt: "Pay in full and the card is free. Carry a balance and it is one of the most expensive loans you can get.", category: "Credit", date: "2026-08-03", readMinutes: 2, hero: "cover-credit-card" },
