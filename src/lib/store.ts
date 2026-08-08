@@ -248,6 +248,16 @@ export type AppState = {
    *  null is meaningfully different from 0: it is what makes the ask appear exactly once. */
   streakGoal: number | null;
   setStreakGoal: (days: number) => void;
+  /**
+   * UNIT 15d. How many of the three widget asks have been spent, and on which day the last one
+   * landed. Counted rather than flagged because the ARGUMENT escalates with the count (§15.1) —
+   * a boolean could only ever repeat the same pitch.
+   */
+  widgetAsksSeen: number;
+  widgetAskDay: string;
+  widgetAdded: boolean;
+  recordWidgetAsk: () => void;
+  markWidgetAdded: () => void;
   /** The day the quest reward was already paid. Day-keyed for the same reason `lastGameDay` is:
    *  it makes the payout once-per-day and unfarmable without a second tally to keep in sync. */
   lastQuestDay: string;
@@ -423,6 +433,20 @@ export const useApp = create<AppState>()(
       minutesToday: 0,
       streakGoal: null,
       setStreakGoal: (days) => set({ streakGoal: days }),
+      widgetAsksSeen: 0,
+      widgetAskDay: '',
+      widgetAdded: false,
+      recordWidgetAsk: () => {
+        set((s) => ({ widgetAsksSeen: s.widgetAsksSeen + 1, widgetAskDay: dayKey() }));
+      },
+      /*
+       * iOS gives no API to place a widget or to ask whether one exists, so this records INTENT —
+       * the user reached the tutorial. That is the only signal available, and it is enough to stop
+       * asking someone who has already followed the instructions.
+       */
+      markWidgetAdded: () => {
+        set({ widgetAdded: true });
+      },
       lastActiveDay: '',
       activeCourseId: 'investing-fundamentals',
       readPosts: [],
@@ -644,7 +668,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

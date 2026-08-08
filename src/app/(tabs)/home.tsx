@@ -28,6 +28,8 @@ import { Atlas } from '@/components/atlas';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
+import { WidgetPromo } from '@/components/widget-promo';
+import { nextWidgetAsk, WIDGET_ASK_XP } from '@/lib/widget-ask';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
@@ -166,6 +168,16 @@ export default function Home() {
   const setStreakGoal = useApp((st) => st.setStreakGoal);
   const planTier = useTier();
   const trialDay = useApp(trialDayNumber);
+
+  // UNIT 15d. Held back until one lesson is done — see the note beside <WidgetPromo> below.
+  const widgetAsksSeen = useApp((st) => st.widgetAsksSeen);
+  const widgetAskDay = useApp((st) => st.widgetAskDay);
+  const widgetAdded = useApp((st) => st.widgetAdded);
+  const recordWidgetAsk = useApp((st) => st.recordWidgetAsk);
+  const widgetAsk =
+    completedLessons.length > 0
+      ? nextWidgetAsk({ widgetAsksSeen, widgetAskDay, widgetAdded })
+      : null;
   /* The committed tier's NAME, which is the whole point of naming them (§22 C25). */
   const goalTier = STREAK_TIERS.find((t) => t.days === streakGoal);
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
@@ -477,6 +489,28 @@ export default function Home() {
           </RiseIn>
         </View>
       </ScrollView>
+
+      {/*
+       * UNIT 15d. Home rather than onboarding for the FIRST ask, deliberately: Duolingo pitches its
+       * widget in onboarding (`112661`), but Duolingo's onboarding has already shown you a streak.
+       * Ours has not, so an ask there would be selling a thing the user has no feeling about yet.
+       * The gate below waits for one finished lesson, which is the first moment a streak is real.
+       */}
+      {widgetAsk !== null && (
+        <WidgetPromo
+          visible
+          variant={widgetAsk}
+          onDismiss={recordWidgetAsk}
+          onAdd={() => {
+            recordWidgetAsk();
+            router.push(
+              widgetAsk === 'transactional'
+                ? `/widget-tutorial?xp=${String(WIDGET_ASK_XP)}`
+                : '/widget-tutorial',
+            );
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
