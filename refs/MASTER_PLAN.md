@@ -1767,13 +1767,59 @@ consequences, all of which cost time before a single pixel is designed:
    `expo run:ios` per iteration, and check `strings` on the built binary the way C46 did for
    RevenueCat.
 
+### 15.3b — DECISIONS TAKEN WITH THE USER, 2026-08-08
+
+**1. Full widget push, 15b through 15e in order.** Not the JS-only start. The native unknown
+is accepted deliberately, so **15b is a go/no-go gate**: if the config plugin's target does
+not survive `npx expo prebuild --clean`, stop and re-decide rather than hand-patching
+`/ios`, which is gitignored and will be regenerated.
+
+**2. The statistical ask STAYS. My "we cannot say that" was too strict and was corrected.**
+§0.4 forbids presenting absent or modelled data **as if it were measured**; it does not
+forbid a sourced claim. Headway `128565` shows the correct frame: `+40% habit` with
+*"Based on internal research, 2025"* printed under it. **The footnote is the mechanism.**
+
+Permitted, in preference order:
+- **Mechanism, no number** — *"A streak you can see is a streak you keep."* Nothing to
+  defend, and it may well outperform a borrowed statistic
+- **Attributed** — *"Duolingo found learners with a widget were 60% more likely to keep a
+  month-long streak."* True, citable, and the attribution must be VISIBLE, not a footnote in
+  a doc. Cost: it names a competitor inside our onboarding
+- **Our own number** — only once telemetry exists. This is the single genuinely blocked one,
+  because there is no backend
+
+**Forbidden:** a bare number with no source line, because the reader will assume it is ours.
+That is the $104,237.55 phantom portfolio in a different costume.
+
+**3. FOUR widgets, and they ROTATE.** Both references ship a streak only; Euphoria ships a
+set and cycles them. Divergence is deliberate (decision 21, the app leads).
+
+| widget | source | note |
+|---|---|---|
+| Streak | `streak` | what both references ship; always true, never needs network |
+| Today's Digest guide | `pickToday()` | already deterministic per day, so widget and app agree WITHOUT talking to each other |
+| Next lesson | course + num + title | deep links straight into the lesson route |
+| Portfolio value | `portfolioValue()` | **see the caveat below** |
+
+> **The portfolio widget needs a staleness line and it is not optional.** This is paper
+> trading, not live market data, so §0.4 is satisfiable — but iOS decides widget refresh
+> timing, not us, so the number can be hours old with nothing on screen admitting it. It
+> must carry an "as of" stamp, and it must never be presented as a live market value. The
+> repo has already deleted one invented portfolio figure; a stale one on the home screen is
+> the same defect with worse reach.
+
+**4. The notification time picker goes in BOTH places.** Once in onboarding immediately
+before the system prompt (Headway `128567`'s placement, which is what makes the prompt
+convertible), and again as an editable row in Settings. One shared component, two mounts.
+The Settings row is also what gives the feature a findable home.
+
 ### 15.4 — Build order
 
 **15a. Notification time picker.** Smallest, entirely JS, no native work. Add a warm-up
 before the permission prompt that captures the hour, replacing the hardcoded `NUDGE_HOUR`.
 Verify against the SpringBoard log per C45, including the positive control.
 
-**15b. The widget extension, empty.** Config plugin + App Group + a widget that renders a
+**15b. The widget extension, empty. GO/NO-GO GATE (see 15.3b decision 1).** Config plugin + App Group + a widget that renders a
 hardcoded flame and number. Ship nothing user-facing. This step exists to prove the plugin
 survives a prebuild, and it is where the schedule risk actually lives.
 
