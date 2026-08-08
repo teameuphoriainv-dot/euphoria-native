@@ -1,3 +1,7 @@
+**READ  FIRST.** It is the current, verified handoff (2026-08-08).
+This file is older and parts of it are stale by its own admission; the prompt supersedes it
+wherever they disagree.
+
 Continue work on ~/euphoria-native (Euphoria mobile — Expo SDK 57 / expo-router / RN, finance-education app, mascot "Atlas").
 
 TRUST SOURCE OVER THIS DOC. A previous carryover was found actively lying. Read the file before believing any claim about it.
