@@ -14,8 +14,8 @@ import Svg, { Path } from 'react-native-svg';
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
-import { CourseRailCard, RAIL_CARD_GAP, RAIL_CARD_HEIGHT, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
 import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
+import { CourseMark } from '@/components/art/course-mark';
 import { artKeyFor } from '@/components/lesson-art';
 import { GateSheet } from '@/components/gate-sheet';
 import { entitled, type Refusal } from '@/lib/entitlement';
@@ -30,23 +30,47 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/* 100, was 128. Nodes are 66pt (84 for the current one), so a 128 pitch left 62pt of dead
-   space between every node edge and only FOUR lessons fitted a viewport. Six learning-path
-   screens across four apps show far more at once — Promova ~14, Duolingo ~6, Lingvano lists
-   chapter cards. 100 brings the gap between node edges to 34pt and the count to ~6, matching
-   the Duolingo trail this screen is modelled on.
+/* ── UNIT 7 GEOMETRY, DERIVED FROM MEASURED FRAMES ───────────────────────────────────────────────
+   Measured on the QA device at TRUE SCROLL TOP (three swipes down first — C33's whole failure was a
+   mid-scroll reading, and C34's correction was wrong too):
 
-   UNIT 7 TRIED TO BEAT THIS AND FAILED. Do not retry it as a constant tweak — the attempt and
-   the arithmetic are in §22 C33. Briefly: the band is ~367pt (trail starts y=452, tab bar
-   y=819); a two-line title at 13pt is ~34pt so pitch must exceed it; a tap target must be
-   >=44pt. Pitch ~58 is therefore the floor, which caps the band at 6-7 nodes — the same count
-   this already achieves with LARGER, more comfortable nodes. Reaching 10+ needs a different
-   layout MODEL (Promova is a list with inline titles, not a serpentine with gutter titles). */
+     screen                402 x 874          <- NOT 852; §22 C42
+     course header         y  70 .. 122
+     course RAIL           y 160 .. 310       <- 150pt, the actual problem
+     first lesson node     y 342
+     TAB BAR TOP           y 799
+     usable band           799 - 342 = 457pt  -> 457/100 = 4.6 -> FIVE nodes visible
+
+   C34 claimed first node y=575, tab bar y=819, a 244pt band and three nodes. All three are wrong.
+   C33 claimed a 367pt band. Also wrong. The band is 457pt and five nodes fit.
+
+   THE FIX IS THE HEADER, NOT THE PITCH — C34 got that part right. Removing the 150pt rail for a 44pt
+   chip returns 106pt, and tightening the trail's top margin returns 16 more:
+
+     first node   342 - 122 = 220
+     band         799 - 220 = 579pt
+     10 nodes     10 x 58   = 580   -> node 10 sits y=742..794, clear of the tab bar at 799
+
+   THE BINDING CONSTRAINTS, every one measured rather than assumed:
+     - a two-line 13pt title is h=36.0 (measured, consistently). Pitch must exceed it or titles
+       collide with each other — C33 hit exactly this and never checked title BOXES against each
+       other, which is trap #1 verbatim: an a11y anchor is a POINT, not a BOX.
+     - a tap target must be >= 44pt (HIG). C33's 28pt node is why that attempt was reverted.
+     - NODE + LIP <= GAP, or a node's raised lip overlaps the node below it. This is what makes the
+       active node the real constraint: it is the largest.
+
+   So: GAP 58 / NODE 48 / START 52 / LIP 4.
+     node + lip   48 + 4 = 52 <= 58   (6pt clear)
+     active + lip 52 + 4 = 56 <= 58   (2pt clear)
+     title        14..50 inside a 58 pitch -> next title starts at 72, so 22pt between boxes
+     tap target   48 >= 44
+   AMP 58, down from 66, so the serpentine swings less far off centre and the narrowest title gutter
+   widens. §0.6 applies: if the measured count is under 10, this reverts rather than being renamed. */
 const GAP = 100;
 const AMP = 66;
 const NODE = 66;
 const START = 84;
-const LIP = 6; // 3D bottom-edge depth (Duolingo button look) // 3D bottom-edge depth (Duolingo button look), scaled to the smaller node
+const LIP = 6; // 3D bottom-edge depth (Duolingo button look)
 
 export default function Learn() {
   const theme = useTheme();
@@ -119,12 +143,22 @@ export default function Learn() {
   const trailHeight = total > 0 ? (total - 1) * GAP + START : 0;
   const pathD = nodes.map((n, i) => `${i === 0 ? 'M' : 'L'} ${n.x} ${n.y + START / 2}`).join(' ');
 
-  // keep the selected rail card in view when the course changes from elsewhere (e.g. /courses)
+  /*
+   * Keep the selected chip in view when the course changes from elsewhere (e.g. /courses).
+   *
+   * The old card rail could compute this from RAIL_CARD_WIDTH because every card was 132pt. Chips
+   * are as wide as their course title, so a computed offset would be a magic number that is wrong
+   * for eleven of the twelve. Each chip reports its real x on layout instead, and the scroll uses
+   * the measured value — the same reason §0.3 exists, applied to a layout constant.
+   */
   const rail = useRef<ScrollView>(null);
+  const chipX = useRef<Record<string, number>>({});
   useEffect(() => {
-    const idx = COURSES.findIndex((c) => c.id === activeCourseId);
-    if (idx < 0) return;
-    rail.current?.scrollTo({ x: Math.max(0, idx * (RAIL_CARD_WIDTH + RAIL_CARD_GAP) - RAIL_CARD_WIDTH), animated: true });
+    const x = chipX.current[activeCourseId];
+    if (x === undefined) return;
+    // Leave a chip's width of context to the left so the selected one does not sit flush against
+    // the edge looking like the first item.
+    rail.current?.scrollTo({ x: Math.max(0, x - Spacing.four), animated: true });
   }, [activeCourseId]);
 
   return (
@@ -155,22 +189,59 @@ export default function Learn() {
         </View>
       </RiseIn>
 
-      {/* Course rail — horizontal, one card per real course */}
+      {/*
+        * COMPACT COURSE CHIPS — 44pt, replacing a 150pt card rail.
+        *
+        * The rail was 150pt of the 874pt screen and it is why only five lesson nodes fitted. It kept
+        * ONE function worth keeping — switching course without leaving the screen — and spent 150pt
+        * on art, a progress ring and a count to do it. These chips keep the function at 44pt, which
+        * is also the HIG touch minimum, so nothing was traded for the space.
+        *
+        * The richer presentation still exists: the header taps through to /courses, which is the
+        * surface that can afford course art.
+        */}
       <ScrollView
         ref={rail}
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.railScroll}
-        contentContainerStyle={styles.rail}>
-        {COURSES.map((c) => (
-          <CourseRailCard
-            key={c.id}
-            course={c}
-            selected={c.id === activeCourseId}
-            done={completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length}
-            onPress={() => setActiveCourse(c.id)}
-          />
-        ))}
+        style={styles.chipScroll}
+        contentContainerStyle={styles.chipRow}>
+        {COURSES.map((c) => {
+          const on = c.id === activeCourseId;
+          const cAccent = courseAccent(c.id);
+          const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
+          return (
+            <SpringPressable
+              key={c.id}
+              haptic={false}
+              scaleTo={0.95}
+              onPress={() => setActiveCourse(c.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`${c.title}, ${String(done)} of ${String(c.totalLessons)} complete`}
+              accessibilityState={{ selected: on }}
+              onLayout={(e) => {
+                chipX.current[c.id] = e.nativeEvent.layout.x;
+              }}>
+              <View
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: on ? cAccent + '2E' : theme.card,
+                    borderColor: on ? cAccent : theme.border,
+                    borderWidth: on ? 1.5 : StyleSheet.hairlineWidth,
+                  },
+                ]}>
+                <CourseMark id={c.id} size={20} color={on ? cAccent : theme.mutedForeground} />
+                <ThemedText
+                  type="smallBold"
+                  numberOfLines={1}
+                  style={{ color: on ? theme.text : theme.mutedForeground }}>
+                  {c.title}
+                </ThemedText>
+              </View>
+            </SpringPressable>
+          );
+        })}
       </ScrollView>
 
       <ScrollView style={styles.trailScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -182,7 +253,7 @@ export default function Learn() {
             </ThemedText>
           </View>
         ) : (
-          <View style={{ height: trailHeight, marginTop: Spacing.four, opacity: stale ? 0.35 : 1 }}>
+          <View style={{ height: trailHeight, marginTop: Spacing.two, opacity: stale ? 0.35 : 1 }}>
             {/* Dashed connector behind nodes */}
             <Svg style={StyleSheet.absoluteFill} width={width} height={trailHeight}>
               <Path d={pathD} stroke={theme.border} strokeWidth={3} strokeDasharray="1 12" strokeLinecap="round" fill="none" />
@@ -350,10 +421,12 @@ const styles = StyleSheet.create({
   countPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
   track: { height: 6, borderRadius: 6, overflow: 'hidden', marginTop: Spacing.three },
   fill: { height: 6, borderRadius: 6 },
-  // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~3000pt of
-  // content, so without this the rail gets squeezed and clips its cards.
-  railScroll: { flexGrow: 0, flexShrink: 0, height: RAIL_CARD_HEIGHT + Spacing.three + Spacing.two },
-  rail: { gap: RAIL_CARD_GAP, paddingHorizontal: Spacing.three, paddingTop: Spacing.three, paddingBottom: Spacing.two },
+  // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
+  // content, so without this the chip row gets squeezed and clips.
+  chipScroll: { flexGrow: 0, flexShrink: 0, height: 44 + Spacing.two + Spacing.two },
+  chipRow: { gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.two },
+  // 44pt exactly: the HIG touch minimum, and the number the whole density fix is spending.
+  chip: { height: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
   /* Type badge on the node's lower-right. Sits on the page background with a ring, so it reads
      as attached to the node rather than painted inside it, and stays legible against both the
      card face and the accent-tinted active face. */
