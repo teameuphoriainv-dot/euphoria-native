@@ -1813,6 +1813,24 @@ before the system prompt (Headway `128567`'s placement, which is what makes the 
 convertible), and again as an editable row in Settings. One shared component, two mounts.
 The Settings row is also what gives the feature a findable home.
 
+**5. IF THE PLUGIN FAILS: commit `ios/` and stop regenerating it.** Decided in advance so
+15b's gate has an answer rather than a discussion. Accepted costs, stated before the fact:
+`ios/` enters version control, Expo SDK upgrades stop being clean, and prebuild-set values
+become ours to maintain — CARRYOVER notes `CADisableMinimumFrameDurationOnPhone` is one of
+them, so 120Hz uncapping must be pinned in `app.json` or it is silently lost. **This is hard
+to reverse; try the plugin properly first.**
+
+**6. ONE widget entry, cycling content.** Not four gallery entries. A single "Euphoria"
+widget whose content rotates across streak, today's guide, next lesson and portfolio on
+iOS's refresh schedule. The user gets variety without a gallery full of our name and without
+a configuration surface. Two consequences to design around:
+
+- **The user cannot choose what they see**, so every rotation state must be worth showing on
+  its own. A widget that surfaces the portfolio to someone who has never traded is a bad
+  frame; gate each state on having data rather than rotating blindly.
+- **iOS owns the refresh clock**, so rotation is a timeline of entries handed to WidgetKit
+  in advance, not a timer we run. Build the day's entries in one pass.
+
 ### 15.4 — Build order
 
 **15a. Notification time picker.** Smallest, entirely JS, no native work. Add a warm-up
