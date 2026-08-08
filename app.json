@@ -10,7 +10,13 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.euphoria.native",
-      "backgroundColor": "#09090D"
+      "backgroundColor": "#09090D",
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.euphoria.native"]
+      },
+      "infoPlist": {
+        "CADisableMinimumFrameDurationOnPhone": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -35,7 +41,8 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": true,
