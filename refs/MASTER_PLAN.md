@@ -4734,3 +4734,50 @@ database. It is now a **flag on a pole**, which cannot be misread and collides w
   and trap #34 forbids tapping or trusting an off-screen coordinate.
 - The thing that actually verified all three was **`sharp` rendering the SVG headlessly**, per the
   carryover's note. Milliseconds, no scrolling, and it is what exposed the refresh-glyph defect.
+
+### C65. UNIT 13 PART ONE: the audits are DONE and produced numbers. Items 1-4 are the real work.
+
+§13 has seven items. Three are now answered with measurements rather than impressions.
+
+**Item 5 — dead-control audit. 177 `onPress` sites in `src/app` + `src/components`. ZERO dead.**
+Classified: 61 navigate, 37 call a passed handler, 26 write state, 22 call a function, 31 needed
+manual inspection (trap #5). Of those 31, most were type or prop declarations rather than controls.
+**Four looked dead by grep and are not** — every one pairs its guard with real feedback:
+
+| site | guard | why it is not dead |
+|---|---|---|
+| `options.tsx:113` | `data && onPick(side)` | `accessibilityState.disabled`, and the label becomes "No call at $X" |
+| `options.tsx:387` | `pick && chosen && open(...)` | `disabled={!canTrade}`, label flips to "No previews left", and a line states the reason |
+| `stock/[sym].tsx:290` | `canSell && sell(...)` | `disabled` state, `opacity 0.4`, label "Sell unavailable, you hold none" |
+| `onboarding.tsx:688` | handler swaps on `spent` | carries its own comment citing §0.5 |
+
+This is exactly why trap #5 says inspect every hit: a grep would have reported four false positives.
+
+**Item 7 — bundle. `npx expo export -p web` → `dist` is 24M.** A true before/after was not captured,
+because the measurement was taken after this session's changes. **24M is the baseline for future
+units**, and it should be quoted as that rather than as a delta.
+
+**Item 1 — consistency pass, MEASURED, partially fixed.** Excluding comments, dev-only routes and
+authored art:
+
+| deviation | count |
+|---|---|
+| un-tokenised hex colours | **23 unique, 50 occurrences** |
+| raw `borderRadius` | **45**, across 19 distinct values including 1, 2, 3, 999 |
+| raw `fontSize` | **126**, across 22 distinct values |
+
+**Most of the 50 colours are inside art and animation components** (`atlas.tsx`, `streak-ignite.tsx`,
+`lesson-art.tsx`, `league-crest.tsx`, `celebration-burst.tsx`), where a literal palette is as
+legitimate as it is in `/art/`. **One was a genuine defect and is fixed:** `#F97316`, the streak
+flame, was hardcoded in **fourteen** places across You, Home, Digest and Lesson. The streak is the
+app's central habit signal and its colour could not be changed without a grep. It is now
+`theme.streak`, in both palettes, and zero literals remain in those four files.
+
+**Item 6 — `certify.py` stays green (ALL ROUTES PASS 3a).** The manual `ecc:a11y-architect` pass was
+NOT run: it is a subagent, and this session is under a standing instruction not to launch agents
+unless asked. It remains owed.
+
+**STILL OPEN, and they are the bulk of the unit: items 2, 3 and 4** — every empty state, every
+loading state, every error state. Item 2 in particular needs an EMPTY STORE to enumerate, and §1.7
+forbids wiping the device without capturing baseline state first.
+

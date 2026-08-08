@@ -46,6 +46,13 @@ export const Colors = {
     accent: '#B57BEF',
     success: '#22C55E',
     warning: '#F5B33F',
+    /**
+     * The streak flame. Identity, not a semantic state, so it is the same in both palettes for the
+     * same reason iconGold is. Was hardcoded as #F97316 in FOURTEEN places across You, Home, Digest
+     * and Lesson — the streak is the app's central habit signal and its colour could not be changed
+     * without a grep. Found by UNIT 13's consistency pass.
+     */
+    streak: '#F97316',
     destructive: '#EF4444',
     // Violet/gold accents used by CHROME. This does NOT mirror the icon library: the most
     // common fills in EUPHORIA_ICONS are amber, emerald, mint, sky and indigo, and violet is
@@ -76,6 +83,7 @@ export const Colors = {
     accent: 'hsl(278 76% 66%)',
     success: 'hsl(142 71% 45%)',
     warning: 'hsl(45 93% 58%)',
+    streak: '#F97316',
     destructive: 'hsl(0 84% 60%)',
     iconViolet: '#BB83F1',
     iconPurple: '#A451E6',

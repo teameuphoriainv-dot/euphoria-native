@@ -135,9 +135,9 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
             advancing the streak this session, so anyone whose last read predates that legitimately
             sits at 0 — show them the XP and say nothing about a streak they do not have. */}
         {streak > 0 ? (
-          <View style={[styles.chipStat, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
-            <UIcon name="flame" size={16} color="#F97316" />
-            <ThemedText type="smallBold" style={{ color: '#F97316' }}>
+          <View style={[styles.chipStat, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
+            <UIcon name="flame" size={16} color={theme.streak} />
+            <ThemedText type="smallBold" style={{ color: theme.streak }}>
               {streak} day streak
             </ThemedText>
           </View>

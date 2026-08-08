@@ -209,9 +209,9 @@ export default function Home() {
               </View>
             </View>
             <View style={styles.pillStack}>
-              <View style={[styles.pill, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
-                <UIcon name="flame" size={14} color="#F97316" />
-                <ThemedText type="smallBold" style={{ color: '#F97316', fontSize: 12 }}>{streak}</ThemedText>
+              <View style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
+                <UIcon name="flame" size={14} color={theme.streak} />
+                <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: 12 }}>{streak}</ThemedText>
               </View>
               <View style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
                 <UIcon name="target" size={14} color={theme.iconLilac} />

@@ -107,7 +107,7 @@ export default function You() {
    * generic document, so the grid read as four unrelated illustrations instead of one set.
    */
   const STATS: { icon: StatMarkName; label: string; value: string; accent: string; route: string }[] = [
-    { icon: 'streak', label: 'Day streak', value: String(streak), accent: '#F97316', route: '/(tabs)/learn' },
+    { icon: 'streak', label: 'Day streak', value: String(streak), accent: theme.streak, route: '/(tabs)/learn' },
     { icon: 'lessons', label: 'Lessons', value: String(lessons), accent: '#BB83F1', route: '/(tabs)/learn' },
     { icon: 'xp', label: 'XP', value: xp.toLocaleString(), accent: '#FBBF24', route: '/league' },
     { icon: 'guides', label: 'Guides read', value: String(guides), accent: '#38BDF8', route: '/(tabs)/digest' },

@@ -337,9 +337,9 @@ export default function Lesson() {
                 </View>
               </RewardPop>
               <RewardPop delay={1340}>
-                <View style={[styles.xpChip, { backgroundColor: '#F9731618', borderColor: '#F9731640' }]}>
-                  <UIcon name="flame" size={18} color="#F97316" />
-                  <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: '#F97316', fontSize: 18 }} />
+                <View style={[styles.xpChip, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
+                  <UIcon name="flame" size={18} color={theme.streak} />
+                  <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: 18 }} />
                 </View>
               </RewardPop>
             </View>
