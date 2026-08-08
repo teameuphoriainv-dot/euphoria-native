@@ -34,6 +34,7 @@ import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { CourseRailCard } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
+import { hoursUntilReset, questsForToday } from '@/lib/quests';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
@@ -130,6 +131,17 @@ export default function Home() {
   // signal, so fill backwards from today and stop. Exact when streak <= 7, which is the only
   // range the strip can show anyway.
   const todayIdx = (new Date().getDay() + 6) % 7; // Mon=0
+
+  /*
+   * Quests, derived. `now` is captured ONCE into state rather than read during render — `new Date()`
+   * in a render body is impure and `react-hooks/purity` is an ERROR in this config (trap #11). The
+   * whole store is passed because questsForToday reads four day-scoped fields; it is a pure function
+   * of that snapshot, so a selector per field would be four subscriptions for one answer.
+   */
+  const [now] = useState(() => new Date());
+  const questState = useApp((st) => st);
+  const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
+  const hoursLeft = useMemo(() => hoursUntilReset(now), [now]);
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
 
   return (
@@ -184,14 +196,31 @@ export default function Home() {
           <Card elevated style={[styles.hero, { shadowColor: accent, borderColor: accent + '30' }]} tint={accent}>
             {next ? (
               <>
-                <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={96} />
-                <ThemedText type="label" style={{ color: accent, marginTop: Spacing.three }} numberOfLines={1}>
-                  {(course?.title ?? 'Course').toUpperCase()}
-                </ThemedText>
-                <ThemedText type="display" style={styles.heroTitle}>{next.title}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.two }}>
-                  Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
-                </ThemedText>
+                {/*
+                  * DENSIFIED, and for the same reason Learn's rail was: measured, this card ran from
+                  * y=480 to y=1200 of an 874pt screen — about 36% of the viewport for ONE lesson,
+                  * with 96pt of it pure art. "YOUR PATH" was cut off and the Trade/Digest quick
+                  * actions sat entirely below the fold, present in the a11y tree at y=828 and
+                  * invisible to anyone who did not scroll.
+                  *
+                  * The art moves BESIDE the text instead of above it. Same information, and the
+                  * course accent still carries identity through the eyebrow, tint and border.
+                  * 6/6 of the reference home screens run two or more labelled sections and NONE
+                  * lets a single hero dominate — that count was already in this file's own comment
+                  * and the card had drifted back to dominating anyway.
+                  */}
+                <View style={styles.heroRow}>
+                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={56} />
+                  <View style={{ flex: 1 }}>
+                    <ThemedText type="label" style={{ color: accent }} numberOfLines={1}>
+                      {(course?.title ?? 'Course').toUpperCase()}
+                    </ThemedText>
+                    <ThemedText type="heading" style={{ marginTop: 2 }} numberOfLines={2}>{next.title}</ThemedText>
+                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
+                      Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
+                    </ThemedText>
+                  </View>
+                </View>
                 <View style={styles.heroCta}>
                   {/* No `colors` override — the brand gradient, like every other CTA in the app.
                       Across ten pulled references (Elevate blue, Nibble purple, RiseGuide black,
@@ -218,6 +247,49 @@ export default function Home() {
                 )}
               </>
             )}
+          </Card>
+        </RiseIn>
+
+        {/*
+          * DAILY QUESTS — the 3/3 mechanic Home did not have.
+          *
+          * ScreensDesign, Duolingo 862 + Bloom 2004 + banked Promova 138812:
+          *   3/3  a daily quest set where EVERY quest shows x/y progress
+          *        Duolingo 112764 "Complete your next 2 lessons  2/2"
+          *        Bloom 156310   "Complete 5 lessons ... 2/5 completed"
+          *   2/2  a refresh countdown — Duolingo "12 HOURS", Bloom "17h 56m 16s"
+          *   1/3  an escalating per-day reward — NOT convergent, and there is no soft currency to
+          *        escalate, so it is not copied (§0.5).
+          *
+          * Placed BELOW the continue hero because that is where both references put the daily
+          * mechanic: the primary action stays first. Derived entirely from state the store already
+          * day-scopes — see lib/quests.ts for why there is no "read a guide" quest.
+          */}
+        <RiseIn delay={160}>
+          <View style={styles.sectionHead}>
+            <ThemedText type="label" themeColor="mutedForeground">TODAY&apos;S QUESTS</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground">Resets in {hoursLeft}h</ThemedText>
+          </View>
+          <Card style={styles.quests}>
+            {quests.map((q, i) => (
+              <View key={q.kind} style={[styles.quest, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border }]}>
+                <View style={[styles.questTick, { backgroundColor: q.done ? theme.success : 'transparent', borderColor: q.done ? theme.success : theme.border }]}>
+                  {q.done && <UIcon name="check" size={13} color={theme.primaryForeground} />}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText type="bodyMedium" style={{ color: q.done ? theme.mutedForeground : theme.text }}>
+                    {q.title}
+                  </ThemedText>
+                  {/* The x/y IS the mechanism at 3/3 — a quest without a number is encouragement. */}
+                  <View style={[styles.questTrack, { backgroundColor: theme.muted }]}>
+                    <View style={[styles.questFill, { backgroundColor: q.done ? theme.success : accent, width: `${Math.round((q.at / q.of) * 100)}%` }]} />
+                  </View>
+                </View>
+                <ThemedText type="smallBold" style={{ color: q.done ? theme.success : theme.mutedForeground }}>
+                  {q.at}/{q.of}
+                </ThemedText>
+              </View>
+            ))}
           </Card>
         </RiseIn>
 
@@ -286,6 +358,12 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  quests: { paddingVertical: 0, paddingHorizontal: Spacing.three },
+  quest: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three },
+  questTick: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  questTrack: { height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 6 },
+  questFill: { height: 5, borderRadius: 3 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
   greetLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, flex: 1 },
@@ -298,7 +376,7 @@ const styles = StyleSheet.create({
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
   dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  hero: { alignItems: 'center', paddingVertical: Spacing.three, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
+  hero: { paddingVertical: Spacing.three, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
   /* 22/28, lineHeight pinned to the override. Was 26 on `display` (lineHeight 40): the hero
      card ate 55% of the viewport and pushed the new YOUR PATH rail under the tab bar. None of
      the six reference home screens uses a hero this large. */
