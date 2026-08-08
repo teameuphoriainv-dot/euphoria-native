@@ -3774,3 +3774,67 @@ was needed and left one path where it was not. Now keyed on `days:isPro`, with o
 > request itself** — `xcrun simctl spawn "$UDID" log show --last 3m | grep "identifier: euphoria-"`
 > returns the OS's own record including the trigger type, `repeats`, and `timeInterval`. That is
 > stronger evidence than anything the app can report about itself.
+
+### C46. Unit 5 built. The expired paywall was a DEAD END, and completing the wall exposed it.
+
+Measured before the fix: an expired user (`activeDays:4`, `isPro:false`) arriving from the gate
+sheet's *"See Euphoria Pro"* was shown **"Start your 3-day FREE trial to continue"** and **"No payment
+due now"**, and tapping the CTA **dropped them on Home with `isPro` still false and nothing
+purchased.** §0.5 named this in advance — *"the single largest dead control in the app"* — and closing
+the hard wall (C39/C40) is what made it reachable. It was also simply false: offering a free trial to
+someone who has spent it.
+
+**The paywall now branches on `spent`, and all six things move together** — changing only the button
+would leave the screen contradicting itself the way C43 describes:
+
+| | trial user | spent user |
+|---|---|---|
+| heading | *Start your 3-day FREE trial to continue* | *Your free 3 days are up* |
+| timeline | `TRIAL_STEPS` (Today / Day 2 / Day 3) | `PRO_STEPS` — what the wall actually closed |
+| badge | `3 DAYS FREE · SAVE 33%` | `SAVE 33%` |
+| reassurance | *No payment due now* | *Cancel anytime in the App Store* |
+| CTA | *Start my 3-day free trial* → proceeds | *Get Euphoria Pro — $79.99* → **purchases** |
+| fine print | *3 days free, then $79.99…* | *$79.99 per year, billed annually…* |
+
+**`src/lib/purchases.ts` is the only writer of `isPro`-for-money.** `store.isPro` stays what the app
+reads and `tier()` stays the only authority, so the entitlement engine did not change shape to accept
+real money. That was the whole point of building it as one authority in Unit 3.
+
+> **THE OFFLINE RULE — a correctness rule, not a nicety.** `isPro` is written ONLY from a *successful*
+> `customerInfo` read. A network failure must never flip it false: that revokes a paying member the
+> moment their train enters a tunnel, and it is indistinguishable in the logs from a real lapse.
+
+Two subtleties worth keeping: the purchase picks its package by **product identifier**, never by array
+position, because RevenueCat returns packages in dashboard order and `[0]/[1]` would silently swap the
+plans the day someone reorders them; and `userCancelled` is handled **silently**, because backing out
+of the Apple sheet is not an error and *"Something went wrong"* shown to someone who changed their
+mind is its own defect.
+
+**Subscription-management convergence** (§14.2's Unit 5 call, 60 screens across Loora `1134`, Elevate
+`1395`, Gauth `39`, Duolingo `862`, Quizlet `874`; overflowed the tool limit per trap #21 and was
+parsed from the file per trap #22):
+
+| pattern | hit rate |
+|---|---|
+| plan name shown as account status | **5/5** (already shipped in Unit 6) |
+| a **Manage subscription** entry | **3/5** → built, Pro members only |
+| renewal date stated | 2/5 |
+| *"Cancel on App Store"* named explicitly | 2/5 |
+| a Restore control | 2/5 |
+| an already-subscribed guard | 1/5 |
+
+Restore ships **on App Store requirement grounds, labelled as such** per §0.2 rule 4 rather than
+dressed up as convergence. Quizlet `147614` names its action *"Cancel on App Store"* and hands off
+instead of pretending to cancel in-app; ours does the same, because an app cannot cancel an Apple
+subscription itself.
+
+**WHAT IS NOT VERIFIED, and must not be described as working.** Without
+`EXPO_PUBLIC_REVENUECAT_IOS_KEY`, App Store Connect products and a sandbox tester, **none** of these
+has been exercised: an offering loading, a purchase completing, the entitlement unlocking, or a
+restore finding a real receipt. The purchase control renders disabled with its reason on screen.
+`Configuration.storekit` is committed and validates the **UI flow only, never real billing** — and it
+still needs selecting in the Xcode scheme, a manual step.
+
+Confirmed en route: **RevenueCat really is linked into the dev client** — 1,119 RevenueCat strings in
+`euphorianative.debug.dylib`, against expo-blur's 19. No rebuild needed. `strings <app>/<binary> |
+grep -c RevenueCat` is a cheap way to answer "is this native module actually in the build".
