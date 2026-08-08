@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
+import { Radius } from '@/constants/theme';
+
 const COLORS = ['#A855EB', '#22C55E', '#FBBF24', '#C89CF5', '#B57BEF'];
 const N = 18;
 
@@ -46,5 +48,5 @@ export function Confetti() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  dot: { position: 'absolute', width: 9, height: 9, borderRadius: 3 },
+  dot: { position: 'absolute', width: 9, height: 9, borderRadius: Radius.track },
 });

@@ -121,8 +121,24 @@ export const Spacing = {
   six: 64,
 } as const;
 
+/**
+ * The corner ramp. UNIT 13 item 1 extended the low end with the values ALREADY SHIPPING rather than
+ * rounding them onto a tidier scale — rounding 5 to 6 or 7 to 8 would have changed pixels on
+ * surfaces that were tuned by eye, and a consistency pass that silently restyles the app is a worse
+ * outcome than the inconsistency it replaced.
+ *
+ * NOT every radius belongs here. A `borderRadius` that is exactly half of a stated width is
+ * GEOMETRY, not design: it has to track the size, and freezing it to a token would break the circle
+ * the moment the size changed. 23 such sites were deliberately left raw.
+ */
 export const Radius = {
+  hairline: 2,
+  track: 3,
+  chipSm: 5,
+  chip: 6,
+  chipLg: 7,
   sm: 8,
+  thumb: 10,
   md: 12,
   lg: 16,
   xl: 24,

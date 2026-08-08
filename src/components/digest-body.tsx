@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   list: { marginTop: Spacing.three, gap: Spacing.two + 2 },
   li: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
-  dot: { width: 5, height: 5, borderRadius: 3, marginTop: 11 },
+  dot: { width: 5, height: 5, borderRadius: Radius.track, marginTop: 11 },
   figure: {
     height: 224,
     paddingHorizontal: Spacing.three,

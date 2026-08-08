@@ -411,8 +411,8 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   close: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  track: { flex: 1, height: 8, borderRadius: 8, overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 8 },
+  track: { flex: 1, height: 8, borderRadius: Radius.sm, overflow: 'hidden' },
+  fill: { height: 8, borderRadius: Radius.sm },
   body: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.three },
   stepBody: { flex: 1 },
   /** Interactive steps SCROLL. As a plain centred View, any step taller than the space

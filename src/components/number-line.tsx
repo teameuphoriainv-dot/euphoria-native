@@ -148,7 +148,7 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
 
 const styles = StyleSheet.create({
   hit: { paddingVertical: 22 },
-  track: { height: 8, borderRadius: 8, justifyContent: 'center' },
+  track: { height: 8, borderRadius: Radius.sm, justifyContent: 'center' },
   marker: { position: 'absolute', width: 22, height: 22, borderRadius: 11, top: -7, transform: [{ translateX: -11 }], borderWidth: 3, borderColor: '#fff' },
   target: { position: 'absolute', width: 4, height: 22, borderRadius: 2, top: -7, transform: [{ translateX: -2 }] },
   ticks: { height: 18, position: 'relative', marginTop: 2 },

@@ -100,8 +100,8 @@ export function SliderPredict({ spec, revealed, onTouched }: { spec: SliderSpec;
 const styles = StyleSheet.create({
   readout: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: Spacing.five },
   trackArea: { height: 44, justifyContent: 'center' },
-  track: { height: 8, borderRadius: 8, overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 8 },
+  track: { height: 8, borderRadius: Radius.sm, overflow: 'hidden' },
+  fill: { height: 8, borderRadius: Radius.sm },
   thumb: { position: 'absolute', width: THUMB, height: THUMB, borderRadius: THUMB / 2, borderWidth: 3, top: (44 - THUMB) / 2 },
-  marker: { position: 'absolute', width: 3, height: 26, borderRadius: 2, top: 9 },
+  marker: { position: 'absolute', width: 3, height: 26, borderRadius: Radius.hairline, top: 9 },
 });

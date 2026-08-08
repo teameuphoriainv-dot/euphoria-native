@@ -285,7 +285,7 @@ export default function Learn() {
                         ) : locked ? (
                           <UIcon name="lock" size={13} color={theme.mutedForeground} />
                         ) : (
-                          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: accent }} />
+                          <View style={{ width: 9, height: 9, borderRadius: Radius.chipSm, backgroundColor: accent }} />
                         )}
                       </View>
                     </View>
@@ -352,8 +352,8 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   countPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
-  track: { height: 6, borderRadius: 6, overflow: 'hidden', marginTop: Spacing.three },
-  fill: { height: 6, borderRadius: 6 },
+  track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
+  fill: { height: 6, borderRadius: Radius.chip },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
   // content, so without this the chip row gets squeezed and clips.
   chipScroll: { flexGrow: 0, flexShrink: 0, height: 44 + Spacing.two + Spacing.two },

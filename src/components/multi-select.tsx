@@ -103,6 +103,6 @@ export function MultiSelect({ spec, onSolvedChange }: { spec: MultiSpec; onSolve
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
-  box: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  box: { width: 22, height: 22, borderRadius: Radius.chip, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   check: { alignItems: 'center', paddingVertical: Spacing.two + 4, borderRadius: Radius.lg, borderWidth: 1 },
 });

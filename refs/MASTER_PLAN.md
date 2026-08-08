@@ -4781,3 +4781,27 @@ unless asked. It remains owed.
 loading state, every error state. Item 2 in particular needs an EMPTY STORE to enumerate, and §1.7
 forbids wiping the device without capturing baseline state first.
 
+### C66. LINT BASELINE MOVED: 47 warnings → **45**. Quote the new number.
+
+§7's gate says `expo lint` must read `50 problems (3 errors, 47 warnings)`. After UNIT 13's radius
+tokenisation it reads **48 problems (3 errors, 45 warnings)**. Two warnings were REMOVED, not
+suppressed — they went with the raw numeric literals the sweep replaced.
+
+**The gate's rule is unchanged and still the important one: if the number RISES, you caused it.**
+The floor is now 45.
+
+### C67. THE RADIUS SWEEP, and the 23 sites deliberately left alone.
+
+45 raw `borderRadius` values split cleanly in two, and only one half should ever be tokenised:
+
+- **22 design radii → now `Radius.*`.** The ramp gained `hairline 2, track 3, chipSm 5, chip 6,
+  chipLg 7, thumb 10` — the values ALREADY SHIPPING, not a tidier scale. Rounding 5 to 6 or 7 to 8
+  would have restyled surfaces that were tuned by eye, and a consistency pass that silently changes
+  pixels is a worse outcome than the inconsistency it replaced.
+- **23 geometry radii → deliberately RAW.** A `borderRadius` that is exactly half a stated width is
+  not design, it is a circle. Freezing it to a token breaks the moment the size changes. Detected by
+  looking for a `width`/`height`/`size` of exactly `2 × radius` in the surrounding style block.
+
+**This is the part of "tokenise everything" that had to be argued with rather than obeyed**, and it
+is recorded so a later pass does not "finish the job" by tokenising the other 23.
+
