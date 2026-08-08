@@ -26,28 +26,38 @@ judgement about the prose, which is mostly good.
 
 | guide | cat | verdict | what is wrong |
 |---|---|---|---|
-| `emergency-fund-how-much` | Money basics | **REWRITE** | no "## The bottom line" — the article has no conclusion; ends on "Why this matters for you" — that is a house ad, not a conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `how-the-stock-market-works` | Markets | **REWRITE** | no "## The bottom line" — the article has no conclusion; ends on "Why this matters for you" — that is a house ad, not a conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation; only 0 numeric facts — §9d wants a worked example with real numbers |
-| `inflation-explained` | Markets | **REWRITE** | no "## The bottom line" — the article has no conclusion; ends on "Why this matters for you" — that is a house ad, not a conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `what-is-an-etf` | Investing | **REWRITE** | no "## The bottom line" — the article has no conclusion; ends on "Why this matters for you" — that is a house ad, not a conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `what-is-compound-interest` | Money basics | **REWRITE** | no "## The bottom line" — the article has no conclusion; ends on "Why this matters for you" — that is a house ad, not a conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `budgeting-50-30-20-rule` | Money basics | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line) |
-| `build-your-first-investment-portfolio` | Investing | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line) |
-| `dollar-cost-averaging-explained` | Strategy | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `first-paycheck-guide` | Money basics | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `good-debt-vs-bad-debt` | Credit | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line) |
-| `how-credit-scores-work` | Credit | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line) |
-| `market-crashes-what-history-teaches` | Markets | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); only 2 numeric facts — §9d wants a worked example with real numbers |
-| `roth-ira-explained-for-beginners` | Investing | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line) |
-| `stocks-vs-bonds-explained` | Investing | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `what-is-risk-tolerance` | Strategy | **REWRITE** | no "## The bottom line" — the article has no conclusion; only 0/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line) |
-| `bull-vs-bear-markets` | Markets | polish | only 1/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `capital-gains-tax-basics` | Money basics | polish | only 1/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
-| `employer-401k-match` | Money basics | polish | only 1/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
+| `avalanche-vs-snowball` | Credit | ship | nothing |
+| `budgeting-50-30-20-rule` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
+| `build-your-first-investment-portfolio` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
+| `bull-vs-bear-markets` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `buy-now-pay-later` | Credit | ship | nothing |
+| `capital-gains-tax-basics` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `carrying-a-balance-myth` | Credit | ship | nothing |
+| `dollar-cost-averaging-explained` | Strategy | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `emergency-fund-how-much` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `employer-401k-match` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `first-paycheck-guide` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `good-debt-vs-bad-debt` | Credit | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
 | `how-credit-cards-work` | Credit | polish | excerpt may not state a surprise — no contrast or negation |
+| `how-credit-scores-work` | Credit | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
 | `how-tax-brackets-work` | Money basics | ship | nothing |
-| `how-to-read-a-stock-quote` | Markets | polish | only 1/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); excerpt may not state a surprise — no contrast or negation |
+| `how-the-stock-market-works` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation; only 0 numeric facts — §9d wants a worked example with real numbers |
+| `how-to-read-a-stock-quote` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `inflation-explained` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
 | `investment-fees-explained` | Strategy | polish | excerpt may not state a surprise — no contrast or negation |
+| `lump-sum-vs-dca` | Strategy | ship | nothing |
+| `market-crashes-what-history-teaches` | Markets | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; only 2 numeric facts — §9d wants a worked example with real numbers |
+| `picking-stocks-myth` | Investing | polish | only 1 numeric facts — §9d wants a worked example with real numbers |
+| `roth-ira-explained-for-beginners` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
+| `roth-vs-traditional` | Investing | ship | nothing |
+| `stocks-vs-bonds-explained` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
 | `target-date-funds-explained` | Investing | polish | excerpt may not state a surprise — no contrast or negation; only 1 numeric facts — §9d wants a worked example with real numbers |
-| `what-is-diversification` | Strategy | polish | only 1/5 canonical sections (Why it matters / By the numbers / The catch / What to do / The bottom line); only 0 numeric facts — §9d wants a worked example with real numbers |
+| `the-cost-of-waiting-five-years` | Money basics | ship | nothing |
+| `the-money-order-of-operations` | Strategy | ship | nothing |
+| `the-month-maya-did-nothing` | Strategy | ship | nothing |
+| `the-ten-best-days` | Markets | ship | nothing |
+| `what-is-an-etf` | Investing | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `what-is-compound-interest` | Money basics | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; excerpt may not state a surprise — no contrast or negation |
+| `what-is-diversification` | Strategy | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case; only 0 numeric facts — §9d wants a worked example with real numbers |
+| `what-is-risk-tolerance` | Strategy | polish | matches no format (best: explainer, 1/5). Formats: explainer, myth, number, head2head, case |
 | `what-moves-a-stock-price` | Markets | polish | only 1 numeric facts — §9d wants a worked example with real numbers |
