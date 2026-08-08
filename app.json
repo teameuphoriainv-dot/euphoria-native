@@ -15,7 +15,8 @@
         "com.apple.security.application-groups": ["group.com.euphoria.native"]
       },
       "infoPlist": {
-        "CADisableMinimumFrameDurationOnPhone": true
+        "CADisableMinimumFrameDurationOnPhone": true,
+        "CFBundleDisplayName": "Euphoria"
       }
     },
     "android": {

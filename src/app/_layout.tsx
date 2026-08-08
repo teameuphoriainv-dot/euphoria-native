@@ -14,6 +14,10 @@ import '../../global.css';
 // reminder with a module-scope store subscription, and without this it would only be armed for a
 // user who happens to open Settings or onboarding. The paywall promises that reminder.
 import '@/lib/notifications';
+// Side-effect import, third of the same kind: lib/widget mirrors streak/xp/dayKey into the App
+// Group so the widget process can render them. Without this the widget renders zeros forever and
+// nothing errors — the failure is silent by construction.
+import '@/lib/widget';
 import { refreshEntitlement } from '@/lib/purchases';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';

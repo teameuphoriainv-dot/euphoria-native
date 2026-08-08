@@ -1305,7 +1305,7 @@ each: **day 1 / day 3 / day 4 expired / Pro**.
 
 ---
 
-## UNIT 4 — The gate sheet + paywall redesign ⚠️ **MECHANISM VERIFIED, WIRING PART DONE**
+## UNIT 4 — The gate sheet + paywall redesign ✅ **DONE** (C37 · C39 · C52 · C53 · C54)
 
 > **READ §22 C37–C40 FIRST. The status below and C35/C36 above it are BOTH OUT OF DATE.**
 > The gate sheet **works** — it fires on the Learn node, it is an overlay, and dismiss keeps the
@@ -1367,7 +1367,7 @@ change), and confirm the dismiss control is tappable via `sim.sh tapon`.
 
 ---
 
-## UNIT 5 — In-app purchase (RevenueCat)
+## UNIT 5 — In-app purchase (RevenueCat) ⛔ **BUILT BEHIND A FLAG, BLOCKED ON APPLE** (C46 · C49)
 
 **Without this, Unit 4 is the largest dead control in the app (§0.5).** They ship together.
 
@@ -1448,7 +1448,7 @@ icons are the generic marks the user called out in a screenshot.
 
 ---
 
-## UNIT 7 — Learn tab: Promova-style density + course identity + locks
+## UNIT 7 — Learn tab: Promova-style density + course identity + locks ✅ **DONE** (C47)
 
 ### 7a — Research
 
@@ -1487,7 +1487,7 @@ reach 10, §0.6 applies.
 
 ---
 
-## UNIT 8 — Home: Duolingo mechanics
+## UNIT 8 — Home: Duolingo mechanics ✅ **DONE** (C48)
 
 ### 8a — Research
 
@@ -1531,7 +1531,7 @@ Complete a quest on device; verify `pendingRewards` grows and the reward screen 
 
 ---
 
-## UNIT 9 — Digest: manual review of all 25 + ~35 new guides
+## UNIT 9 — Digest: manual review of all 25 + ~35 new guides ⚠️ **CONTENT PHASE CLOSED** (C57 — 35 guides ship clean; §9c's gap audit still never run)
 
 **The largest unit. Budget accordingly.** Full manifest in §11.
 
@@ -1616,7 +1616,7 @@ because Polygon articles carry none).
 
 ---
 
-## UNIT 11 — Tab structure decision
+## UNIT 11 — Tab structure decision ✅ **DONE** (C30 · C50 — closed at 8 of 8, still five tabs)
 
 Count tab structures across Duolingo `862`, Bloom `2004`, Gauth `39`, Elevate `1395`,
 Investing.com `1171`, Nibble `918`, Praktika `1816`, Quizlet `874`. **Report the hit rate.**
@@ -1685,7 +1685,7 @@ one app again.
 
 ---
 
-## UNIT 15 — Widgets + the notification system
+## UNIT 15 — Widgets + the notification system ⚠️ **15b GATE PASSED** (C58) — 15a, 15c, 15d, 15e open
 
 **Researched 2026-08-08. Not started.** Read this whole unit before writing any code: the
 headline risk is native, not visual, and one stated goal is not achievable as stated.

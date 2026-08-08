@@ -14,6 +14,9 @@ module.exports = (config) => ({
     $widgetBackground: '#09090D',
     $accent: '#A855EB',
     // theme.ts tokens, duplicated here because the target cannot import TS.
+    // brandBackground is the OPAQUE surface the widget paints (C60): a translucent tint took the
+    // colour of the system tray behind it and rendered pale lavender instead of our dark brand.
+    brandBackground: '#09090D',
     brandPrimary: '#A855EB',
     brandFlame: '#F5B33F',
     textPrimary: '#FFFFFF',
