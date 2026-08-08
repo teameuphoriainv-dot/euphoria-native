@@ -41,7 +41,7 @@ import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
-import { IAP_DISABLED_REASON, IAP_ENABLED, PRODUCT_MONTHLY, PRODUCT_YEARLY, getPackages, purchase, restore as restorePurchases } from '@/lib/purchases';
+import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases } from '@/lib/purchases';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
@@ -452,8 +452,9 @@ export default function Onboarding() {
     }
     setBusy(true);
     void getPackages().then(async (pkgs) => {
-      const want = plan === 'annual' ? PRODUCT_YEARLY : PRODUCT_MONTHLY;
-      const pkg = pkgs.find((x) => x.product.identifier === want);
+      // Store-independent lookup — see findPackage. Keying on the App Store product id found
+      // nothing against the Test Store and the honest error path fired, which is how this was found.
+      const pkg = findPackage(pkgs, plan === 'annual' ? 'annual' : 'monthly');
       if (!pkg) {
         setBusy(false);
         // The silent App Store Connect misconfiguration, said out loud rather than shown as a

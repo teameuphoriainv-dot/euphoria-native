@@ -31,12 +31,45 @@ import Purchases, { LOG_LEVEL, type CustomerInfo, type PurchasesPackage } from '
 
 import { useApp } from './store';
 
-/** The App Store product identifiers. These must exist in App Store Connect and be attached to the
- *  offering in the RevenueCat dashboard, or `getOfferings()` returns an offering with no packages
- *  and the paywall has nothing to sell. That failure is silent from the client's side, which is why
- *  `offeringDiagnostics()` below reports the package count rather than just success. */
+/**
+ * The App Store product identifiers, for reference and for the __DEV__ diagnostic. These are what
+ * must exist in App Store Connect for real billing.
+ *
+ * THEY ARE NOT WHAT WE MATCH ON — see `findPackage`. Found by wiring the live dashboard: the
+ * RevenueCat project's Test Store products are `monthly` / `yearly` / `lifetime`, so a lookup keyed
+ * on the App Store product id found nothing and the paywall correctly said "That plan is not
+ * available from the App Store right now." Product ids differ per store; PACKAGE ids do not.
+ */
 export const PRODUCT_MONTHLY = 'euphoria_pro_monthly';
 export const PRODUCT_YEARLY = 'euphoria_pro_yearly';
+
+/**
+ * Resolve the package for a plan, store-independently.
+ *
+ * WHY BY PACKAGE AND NOT BY PRODUCT: a package is RevenueCat's own abstraction over "the monthly
+ * one", and it is the same identifier whether the products behind it come from the Test Store, the
+ * App Store or Play. Keying on the App Store product id worked only in production and failed
+ * silently everywhere else — verified live against the Test Store, where the products are named
+ * `monthly` and `yearly`.
+ *
+ * Still NEVER by array position. RevenueCat returns packages in dashboard order, so `[0]`/`[1]`
+ * would silently swap the plans the day someone reorders them — which is a wrong charge, not a
+ * cosmetic bug.
+ *
+ * Accepts RevenueCat's canonical ids (`$rc_monthly`, `$rc_annual`), the plain ones a hand-built
+ * offering gets (`monthly`, `yearly`, `annual`), and finally the App Store product id, so this keeps
+ * working when a real App Store configuration replaces the Test Store.
+ */
+export function findPackage(pkgs: PurchasesPackage[], plan: 'monthly' | 'annual'): PurchasesPackage | undefined {
+  const wanted = plan === 'annual'
+    ? ['$rc_annual', 'annual', 'yearly', PRODUCT_YEARLY]
+    : ['$rc_monthly', 'monthly', PRODUCT_MONTHLY];
+  const lower = (v: string) => v.toLowerCase();
+  return (
+    pkgs.find((p) => wanted.map(lower).includes(lower(p.identifier))) ??
+    pkgs.find((p) => wanted.map(lower).includes(lower(p.product.identifier)))
+  );
+}
 
 /** The RevenueCat ENTITLEMENT identifier — not a product id. One entitlement ("pro") is unlocked by
  *  either product, so the app never has to ask which SKU someone bought. Must match the dashboard
