@@ -5207,3 +5207,37 @@ settled.** Check ASC → App Information → Bundle ID first.
 **Project IDs, for the sweep:** `89ced465` · `320845df` (has icon, `com.euphoriainv.euphoria`) ·
 `875fc097` ("Euphoria App") · `6e8b425d` ("Euphoria Real").
 
+### C82. RESOLVED, AND IT IS `app.json` THAT IS WRONG. The repo builds a bundle ID Apple has never seen.
+
+App Store Connect, App Information for app `6761808087` "Euphoria: Learn to Invest":
+
+| | |
+|---|---|
+| **Bundle ID (Apple, authoritative)** | **`com.euphoriainv.euphoria`** |
+| SKU | `euphoria-ios-1` · Apple ID `6761808087` |
+| **Bundle ID in `app.json`** | **`com.euphoria.native`** ← **WRONG** |
+
+**RevenueCat project `320845df` was right all along** — its `com.euphoriainv.euphoria` matches Apple.
+The mismatch was never RevenueCat's; it is this repository's.
+
+**Consequences, and they reach today's work:**
+
+1. **No build from this repo can be uploaded to that listing.** Apple binds a listing to one bundle
+   ID permanently. Whatever was reviewed in April was not built from `app.json` as it stands.
+2. **Everything keyed to the bundle ID today is wrong.** The widget App Group is
+   `group.com.euphoria.native` (C58/C80 chain), the entitlements on both sides use it, and
+   `CFBundleDisplayName`/target config were all derived from it. Correcting `app.json` means
+   regenerating the App Group and re-running `prebuild --clean`, then re-verifying the widget.
+3. **C77's rejection is against `com.euphoriainv.euphoria`**, so the onboarding-freeze and Sign in
+   with Apple bugs are in a binary built from a configuration this repo does not currently produce.
+   That gap must be understood before trusting any local reproduction.
+4. `com.euphoria.native` is also the **Android** `package` in `app.json` — check whether Play has a
+   listing under either name before changing it.
+
+**THE FIX IS NOT A ONE-LINE EDIT and must not be treated as one.** Changing `bundleIdentifier`
+cascades into the App Group, the widget target, the entitlements, and any provisioning profile.
+**Do it as its own unit, with a prebuild and a full widget re-verification, not as a quick patch.**
+
+**And it explains the four RevenueCat projects.** They are almost certainly failed attempts to make
+a mismatched configuration work.
+
