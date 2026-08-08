@@ -1865,6 +1865,175 @@ only place the "well animated" goal can actually land.
 
 ---
 
+## UNIT 16 — App Store listing assets
+
+**Added 2026-08-08 at the user's request, with `https://developer.apple.com/app-store/asset-best-practices/`
+as the source. Runs AFTER units 10/12/13 and IMMEDIATELY BEFORE Unit 17** — the listing must
+reflect the finished UI, and reshooting it before 13's revamp sweep is wasted work.
+
+**Why this is a unit and not a chore.** It is the only surface upstream of everything else in the
+funnel. Churn cannot happen to a user who never installs, and Unit 17's entire funnel starts here.
+It is also the one place Euphoria can measure conversion **without any SDK at all** — see 16c.
+
+### 16a — Apple's stated rules, from the source page (not remembered — fetched 2026-08-08)
+
+| asset | hard numbers |
+|---|---|
+| screenshots | **up to 10** on the product page, **only 3 appear in search results** |
+| app previews | **up to 3**, autoplay **muted**, and they **repeat** |
+| icon | must be legible at *every* size; Apple points to Icon Composer for layered/Liquid Glass |
+| in-app events | landscape **16:9** card + portrait **9:16** detail, both required |
+
+**Content rules that constrain the design:**
+- Lead with the strongest benefit; sequence the shots as **one cohesive story**, not a feature list
+- **Do not** spend a whole asset on accolades or a call to action
+- Keep the focal point **centred** — assets get clipped differently per device
+- Previews must **loop seamlessly**, work **silently first**, and avoid quick cuts (accessibility)
+- The **poster frame** is a real design job: it is what people see before the video plays
+
+**Prohibited, and two of these bite us directly:**
+- **No pricing or discounts in assets.** So Unit 17's `-44%` framing CANNOT appear in a screenshot
+- **No Apple recognitions** (Editor's Choice, Design Award badges) and **no unverified claims**
+- No other-platform logos, no URLs, no copyright symbols
+- **Every asset must meet a 4+ age rating**, whatever the app's own rating is
+
+### 16b — Research
+
+Zogo, Stash, Greenlight and NGPF are **not in the recorded dataset** (§2.1). Use
+`search_store_screens` for their App Store creative and **label it as store creative, not a recorded
+screen**. Count convergence across ≥4 (§0.2) on: how many shots are text-overlay vs raw UI, whether
+the mascot appears in shot 1, and whether the first shot states the category or the benefit.
+
+### 16c — Build, and the measurement that needs no SDK
+
+Icon → 10 screenshots → 1–3 previews, in that order. **The first three screenshots carry the whole
+search-result impression** and should survive being seen alone.
+
+**Then turn on Apple's Product Page Optimization.** It A/B tests listing assets and reports which
+converts, entirely inside App Store Connect, **with zero code in the app**. This is the one honest
+number available before Unit 17's telemetry lands, and it satisfies §0.6.
+
+### 16d — Verification
+
+- App Store Connect's **preview tool** used before publishing — the page is checked as rendered
+- The first 3 shots read correctly **in isolation**, at search-result size
+- Each preview watched **muted** start to finish and confirmed to loop with no visible jump
+- A PPO test is **running**, with a stated baseline conversion number
+
+**GATE. Commit:** `feat(store): listing assets built to Apple's spec, with a PPO test running`
+
+---
+
+## UNIT 17 — Retention, churn and monetization
+
+**Added 2026-08-08 at the user's request: *"think about churn, retention rate… making sure we are
+the best app and best money that we make."* Runs after Unit 16, immediately before Unit 14.**
+
+**The hard wall stays** (C28, reaffirmed again here). This unit attacks churn everywhere *except*
+the wall.
+
+### 17a — RESEARCH: DONE 2026-08-08. Do not re-pull it.
+
+250 screens across **5 apps** — Duolingo `862`, Headway `891`, Elevate `1395`, Bloom `2004`,
+Astra AI `2190` — queried for cancel/winback/retention. Hit rates reported honestly per §0.2:
+
+| pattern | hit rate | evidence |
+|---|---|---|
+| **Cancellation is surfaced INSIDE the app, never hidden** | **5/5** | Duolingo `112837` Settings→Manage · Headway `128705` "You need to cancel your subscription before deleting your account" · Elevate `111787` help top-question · Bloom `156332` **featured** help article · Astra `323688` AI support canned prompt |
+| "Cancel anytime" as trust copy **on the paywall** | **3/5** | Duolingo `112738` "Cancel anytime in the App Store" · Headway `128588` "2 taps to start, super easy to cancel" · Elevate `111687` "Cancel anytime" |
+| Purchasable **streak protection** | **2/5** — below threshold | Duolingo `112735` "A Streak Freeze protects your streak for a day. You have 2 of 2 equipped." · Bloom `156314` "Buy for 200" |
+| Rating prompt fired at a **high** moment, tagged `retention` | **2/5** | Bloom `156282` · Astra `323561` |
+| Trial→annual upgrade **framed as a reward** | **1/5** — NOT convergence | Headway `128596`→`128597`, shown twice (pos 53 **and** 112) |
+
+**THE MECHANISM WORTH COPYING, and it is 1/5 so it ships as a bet, not as evidence.**
+Headway's flow is named in the dataset: **`Unlock Post-Subscription Offer`, flow `54941`, 11
+seconds** (240s→251s). Verified in pixels, not from the description:
+
+1. `128596` — **day 1 of the trial**, on the home feed, a gamified treasure-chest modal:
+   *"First reward earned! This chest honors your commitment to grow."* → **`Unlock reward`**
+2. `128597` — the "reward" is an **upsell**: *"Turn your trial into a lifetime discount"*,
+   `-44% FOREVER · SAVE $40.00/Y`, `$89.99` struck through → **`$49.99/year`**, and the reassurance
+   line *"$49.99 instead of $89.99, forever"*
+3. `128598` — straight to App Store checkout: *"Your upgrade will start now. You'll receive a refund
+   for the remainder of your current subscription"*
+
+**Why it matters for a hard wall:** it converts the trial to **annual before the user ever reaches a
+churn decision**, and an annual subscriber cannot churn monthly. It is the highest-leverage thing
+in this entire pull.
+
+**Duolingo does the same trick at the opposite end.** `112831` — Manage Subscription is **not a
+receipt**: under "Current Plan / Next billing date" sits **"Offers for you"** with `UPGRADE TO
+ANNUAL` and `UPGRADE TO SUPER FAMILY`. The screen a user opens *in order to cancel* is an upsell
+surface. **1/5**, but it costs almost nothing to copy.
+
+**NEGATIVE FINDING, and it changes the scope the user picked.** Across 250 screens in 5 apps there
+is **no "before you go" cancel-interception save offer**. That is not pagination (trap #6) — there
+is a **structural** reason: on iOS, cancellation happens in Settings / the App Store, **outside the
+app**, so an app cannot intercept it. **A cancel-flow save offer is not buildable on iOS.** What IS
+buildable is everything before it (17c, 17d) and the involuntary half (17e).
+
+### 17b — Telemetry, and the promise it breaks
+
+**Decision taken with the user 2026-08-08: FULL TRACKING.** Money-only measurement was offered and
+declined; the user wants the in-app drop-off funnel.
+
+- **`src/app/why-not-free.tsx` must be rewritten.** It currently states *"There is no ad SDK and no
+  analytics in this app."* That becomes false. **This is copy, so §0.7 applies — bring the new
+  wording back to the user, do not invent it.** The honest shape is roughly "we measure how the app
+  is used; we never sell it", and the no-ads / no-data-sale half stays true and stays a real
+  differentiator.
+- Funnel to instrument, because this is the map that money-only data can never draw:
+  `install → first lesson → day 2 return → day 3 → paywall seen → paywall dismissed → paid`
+- Pair it with RevenueCat's subscription cohorts (trial→paid, churn, renewal) once C49's Apple
+  block clears, and with App Store Connect's free retention cohorts.
+
+**Nothing else in this unit can be judged by §0.6 until 17b lands. Build it first.**
+
+### 17c — The reward offer (17a's headline mechanism)
+
+Headway's chest, in Euphoria's voice, with Atlas rather than a treasure chest. Fires **during** the
+3-day trial, not at its end. Converts monthly→annual at a real discount. **Annual is locked at
+$79.99 (C31)** — the discount must come off that, and the discounted price is what recurs, which is
+the whole point of "forever".
+
+### 17d — The dismissal offer / second paywall (C24)
+
+`SpecialOfferPaywall` = **9 apps** in the banked set, and the mechanism is a **second paywall on
+dismissal of the first**. Researched in §6.6, **never built** — verified: no `specialOffer` /
+`winback` surface exists anywhere in `src/`. This is the highest-convergence unbuilt lever we own.
+
+### 17e — Involuntary churn
+
+20–40% of subscription churn is **failed payments, not intent**. RevenueCat exposes billing-retry
+and grace-period state; the app must **not** slam the hard wall on a user mid-retry — that converts
+a recoverable card decline into a real loss. Plus: **surface subscription management in-app**
+(5/5 convergence, 17a) and copy Duolingo `112831` by putting the annual upgrade **on that screen**.
+
+### 17f — Activation and time-to-value
+
+Retention is decided long before the wall: if the app has not visibly worked by day 1, day 3's
+paywall is a formality. Banked and directly applicable: Duolingo's **streak commitment goal-setting**
+(§6.1, uniqueness 7) and Astra `323517` Focus Mode — an activation-stage ask with `Maybe later`
+always present, the same shape as the widget ask.
+
+### 17g — Pricing and packaging
+
+$9.99/mo and $79.99/yr stay (C31). What is open: introductory pricing, annual-vs-monthly framing
+(C44's four-paywall plan-card convergence is banked and applies), and whether 3 days is right.
+**Remember 16a: none of this discount framing may appear in an App Store asset.**
+
+### 17h — Verification
+
+- 17b's funnel produces **real numbers** for each step, read off the dashboard, not inferred
+- The reward offer and the dismissal offer both reachable on device, `sim.sh screen`, CTA ≥ 44pt
+- A user in billing-retry is **verifiably not** hard-walled (seed the state, assert the gate)
+- `why-not-free.tsx` reads true against what the app actually does — checked line by line
+- Baseline captured **before** each change, per §0.6
+
+**GATE. Commit:** `feat(retention): telemetry, the trial reward offer, and the dismissal paywall`
+
+---
+
 ## UNIT 14 — Consolidated review pass
 
 Per decision 8, run at the very end.
@@ -4429,3 +4598,80 @@ own format and cannot see that a whole format is unused.
 - **§9f gating.** Free/trial users see all titles; bodies beyond the allowance should render
   the gate sheet over a blurred first screen. C39 records guide bodies as closed at card 2,
   so this is likely already done and merely unverified against 35 guides.
+
+## From the Unit 15b / retention-planning session (2026-08-08, round 4)
+
+### C58. UNIT 15b PASSED. The plugin route works, and `ios/` stays disposable.
+
+**The go/no-go gate in 15.3b decision 1 is answered: `@bacons/apple-targets` v5.0.0 survives
+`npx expo prebuild --clean`.** Decision 5 (commit `ios/`) is NOT invoked and should stay
+un-invoked. Measured, in order:
+
+| check | result |
+|---|---|
+| `productType` count in `project.pbxproj` | **2** — `.application` + **`.app-extension`** |
+| `EuphoriaWidget` references in the pbxproj | **18** |
+| App Group | `group.com.euphoria.native` on **both** sides — app entitlements + `ios/.targets/EuphoriaWidget/generated.entitlements` |
+| `xcodebuild -scheme EuphoriaWidget` | `** BUILD SUCCEEDED **`, **0** diagnostics on `index.swift` |
+| installed bundle | `PlugIns/EuphoriaWidget.appex/EuphoriaWidget`, 57.2K |
+| appex `NSExtensionPointIdentifier` | `com.apple.widgetkit-extension` |
+| `CADisableMinimumFrameDurationOnPhone` | survived the regeneration — and is now **pinned in `app.json`** rather than left to the prebuild template |
+
+**Setup, so it is not re-derived:** `targets/widget/expo-target.config.js` (a `ConfigFunction`
+that mirrors `config.ios.entitlements['com.apple.security.application-groups']`, so the group is
+declared **once** in `app.json`) + `targets/widget/index.swift`. Colours are duplicated from
+`theme.ts` into the target config because a Swift target cannot import TS.
+
+**A SourceKit diagnostic said `'main' attribute cannot be used in a module that contains
+top-level code`. It is a FALSE POSITIVE** — the editor analyses `targets/widget/index.swift`
+with no target context and falls back to script mode. The compiler disagrees, and the compiler
+is the authority. Do not "fix" it.
+
+### C59. THE A11Y TREE OMITTED A WHOLE ROW. C55's lesson, one rung worse.
+
+`describe-all` on the iOS widget gallery listed `Contacts @ 201,470` then `Files @ 201,614` —
+a **144pt gap where the spacing is 72pt**. The screenshot shows the missing row plainly:
+**`euphoria-native`, with the app icon**, at `y=542`. The tree returned **no label at all** for it.
+
+C55 said the tree lists off-screen content at the wrong coordinate. This is worse: **the tree can
+omit an on-screen, tappable row entirely.** The gap in the arithmetic was the only clue, and
+`grep -i euphoria` over the tree returned nothing. **Read the screen.** A tap at the derived
+`201,542` worked first time.
+
+### C60. TWO WIDGET DEFECTS, MINE, OPEN FOR 15c.
+
+1. **The gallery says `euphoria-native`, not "Euphoria".** iOS labels the gallery row and header
+   with the **app's** display name, not the widget's `CFBundleDisplayName` — which is correctly
+   "Euphoria" and shows only as the widget's own title. Fix is `expo.name` in `app.json`, which
+   also changes the springboard icon label.
+2. **The widget background is wrong.** `$widgetBackground: #09090D` was declared, but the view
+   uses `.containerBackground(Color("brandPrimary").opacity(0.14))` — a **translucent** tint, so
+   it picked up the light system tray and rendered pale lavender instead of the dark brand.
+   `textSecondary #C3BAD0` on that is a contrast failure. Use the opaque widget background.
+
+### C61. DECISIONS TAKEN WITH THE USER, and one reverses a shipped promise.
+
+Prompted by *"think about churn, retention rate… this needs to change my life."*
+
+1. **The hard wall STAYS** (C28 holds, third time). Churn is attacked everywhere else.
+2. **FULL TRACKING.** Money-only measurement (RevenueCat + App Store Connect cohorts) was offered
+   with the promise kept, and **declined**. The user wants the in-app drop-off funnel.
+   **Consequence, stated before the fact: `src/app/why-not-free.tsx` becomes false.** It ships
+   today saying *"There is no ad SDK and no analytics in this app."* That is a user-facing promise
+   on a screen written to explain the pricing, and it must be rewritten. **The wording is copy, so
+   §0.7 applies — ask, do not invent.** The no-ads / no-data-sale half stays true.
+3. **App Store assets are their own unit (16), run immediately before retention (17)**, both after
+   10/12/13 and before Unit 14.
+4. **Research pulled immediately** rather than at unit time — banked in §17a, do not re-pull.
+
+### C62. THE CANCEL-FLOW SAVE OFFER IS NOT BUILDABLE ON iOS. Scope corrected before it was built.
+
+The user's scope selection included "cancel flow". Across **250 screens in 5 apps** there is no
+"before you go" interception offer, and this is **not** trap #6 pagination — there is a structural
+reason: **iOS cancellation happens in Settings / the App Store, outside the app**, so no app can
+intercept it. The four highest-revenue apps in the set all instead make cancellation *easy and
+findable inside the app* (**5/5**, §17a).
+
+**What survives of that scope item:** the involuntary half (grace period, billing retry — real,
+buildable, and 20–40% of churn), and the two offers that fire *before* any cancellation decision
+(§17c the trial reward, §17d the dismissal paywall).
