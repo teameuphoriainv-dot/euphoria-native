@@ -5175,3 +5175,35 @@ near-identically-named projects** (`Euphoria`, `Euphoria`, `Euphoria App`, `Euph
 the wrong one yields a build that looks configured and transacts against nothing — C76's failure
 shape exactly.
 
+### C81. BUNDLE ID MISMATCH. RevenueCat says `com.euphoriainv.euphoria`; this repo builds `com.euphoria.native`.
+
+RevenueCat project **`320845df`** ("Euphoria") — the only one of the four with an app icon, and the
+one that looked configured — holds a single App Store app:
+
+| | |
+|---|---|
+| RevenueCat app | `Euphoria (App Store)`, id `appbf28770359` |
+| **Bundle ID there** | **`com.euphoriainv.euphoria`** |
+| **Bundle ID in `app.json`** | **`com.euphoria.native`** |
+
+**These are different apps as far as Apple and RevenueCat are concerned.** A build from this repo can
+never transact against that RevenueCat app, and `appbf28770359`'s public key in `.env.local` would
+produce a configured-looking build with no working purchases — C76's failure shape, one layer up.
+
+**The question this raises is bigger than RevenueCat, and it must be answered before anything is
+uploaded:** what bundle ID does **App Store Connect app `6761808087`** ("Euphoria: Learn to Invest")
+actually carry? It was submitted and reviewed in April, so *some* binary reached it.
+
+- If ASC says **`com.euphoriainv.euphoria`**, then **`app.json` is wrong** and no build from this
+  repo has ever been — or could be — uploaded to that listing. That is a far larger problem than
+  in-app purchase wiring and it would reframe C77 as well.
+- If ASC says **`com.euphoria.native`**, then RevenueCat project `320845df` is simply the wrong
+  project, and one of the other three (`89ced465`, `875fc097`, `6e8b425d`) is the real one — or none
+  is, and a correct app must be created.
+
+**Do not upload the C80 key, and do not put any `appl_` key into `.env.local`, until this is
+settled.** Check ASC → App Information → Bundle ID first.
+
+**Project IDs, for the sweep:** `89ced465` · `320845df` (has icon, `com.euphoriainv.euphoria`) ·
+`875fc097` ("Euphoria App") · `6e8b425d` ("Euphoria Real").
+
