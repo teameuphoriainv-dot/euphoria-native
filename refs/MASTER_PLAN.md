@@ -3513,15 +3513,26 @@ Tapped dead centre at **(248,484)** with `isPro:false, activeDays:4` (so `tier()
 So the tap produced **no effect whatsoever**. Both branches of the handler are unreachable, which
 means the press is not arriving at all rather than `entitled()` answering wrongly.
 
-**Most likely cause, untested:** `{active && <PulseHalo size={n.size} color={accent} />}` renders
-immediately before the `SpringPressable` inside the node's absolute container. If the halo is
-absolutely positioned and larger than the node, it sits over the press target and swallows the touch
-— which is trap #17's shape exactly: *an element that paints last eats the taps*, and it was found
-there by measuring frames rather than reading code. **Check whether PulseHalo sets
-`pointerEvents="none"`; if not, that is the bug.**
+**RULED OUT — do not re-check.** `PulseHalo` (`src/components/pulse-halo.tsx:24`) already sets
+`pointerEvents="none"`. My halo hypothesis was wrong.
 
-Second candidate: the node's own `LIP` offset means the visible face is a child at `top: LIP`, so the
-container's centre may fall between children.
+**Remaining candidates, in the order worth testing:**
+1. **The node's absolute container.** Each node is
+   `<View style={{ position:'absolute', top:n.y, left:n.x-n.size/2, width:n.size, height:n.size+LIP }}>`
+   inside the trail container. On RN, an absolutely-positioned child whose parent lacks an explicit
+   height — or which extends past it — can render visibly while receiving no touches. **Verify the
+   trail container's height covers `trailHeight` and that nothing clips it.**
+2. **A later sibling painting over the trail.** Trap #17's real shape: MultiSelect's own CTA sat
+   under the footer's Continue, which painted last and ate the taps, and grepping for the button
+   component found nothing. Enumerate what renders AFTER the node map — the Atlas mascot sits right
+   beside the active node in the screenshot and is a candidate.
+3. **`SpringPressable` itself.** Confirm it forwards `onPress` when `scaleTo` is set; every other
+   call site in the app passes it, but none of those are inside an absolute container.
+
+**The cheap decisive test:** put a `console.log` at the top of the node's `onPress` and tap by
+coordinate again. If it never logs, the touch is not arriving (1 or 2). If it logs, the bug is in
+`entitled()` or `setGate`, not the touch path. That one line separates the two halves and neither
+guess above is needed.
 
 **Unit 4 is NOT working and must not be described as built.** The components render, the copy is
 right, the static gate is clean — and the mechanism has never once fired on device.
