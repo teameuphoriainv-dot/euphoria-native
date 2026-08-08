@@ -3838,3 +3838,104 @@ still needs selecting in the Xcode scheme, a manual step.
 Confirmed en route: **RevenueCat really is linked into the dev client** — 1,119 RevenueCat strings in
 `euphorianative.debug.dylib`, against expo-blur's 19. No rebuild needed. `strings <app>/<binary> |
 grep -c RevenueCat` is a cheap way to answer "is this native module actually in the build".
+
+### C47. UNIT 7 TARGET MET — but only by changing the layout MODEL. The serpentine is gone.
+
+Three attempts now prove ≥10 nodes is unreachable in a serpentine: C33's two, plus one this session
+made **with the header already fixed**, which was C34's hypothesis and still failed. The reason is
+structural rather than a constant — a serpentine spends horizontal space on the curve and squeezes
+titles into a 130pt side gutter, so the pitch must clear a 36pt two-line title AND a ≥44pt tap target
+at once. Those fight, and the loser is the artifact.
+
+**The measured band, replacing every earlier figure.** Taken at TRUE scroll top (three swipes down
+first — C33's whole failure was a mid-scroll reading):
+
+| | C33 said | C34 said | **MEASURED** |
+|---|---|---|---|
+| screen | 852 | 852 | **402 × 874** |
+| first node | — | 575 | **342** |
+| tab bar top | 819 | 819 | **799** |
+| band | 367 | 244 | **457** |
+| nodes visible | 6 | 3 | **5** |
+
+**Step 1 — the header (C34's correct instinct).** The course rail was `y=160..310`, **150pt of an
+874pt screen**. Replaced with 44pt chips: first node `342 → 212`, band `457 → 587`, nodes **5 → 6**.
+Chip scroll-into-view uses each chip's REAL x captured on layout, because chips are as wide as their
+title and a computed offset would be a magic number wrong for eleven of the twelve.
+
+**Step 2 — the GAP 58 / NODE 48 attempt, built and thrown away.** The count hit 10 and the screen got
+worse: "Complete" was buried under the active node's halo, Atlas overlapped the ring, 48pt nodes
+rendered the authored marks as scribbles, and the serpentine read as a scatter.
+
+> **My own collision check reported ZERO because it filtered to `h==36` two-line titles and never
+> looked at the 15pt sub-lines.** A check that inspects part of the artifact passes for the wrong
+> reason — trap #33, in the verification rather than the code. **The user caught it from a
+> screenshot.** §0.1 exactly: I optimised the proxy and broke the artifact.
+
+**Step 3 — Promova's model, and it did NOT abandon the path. It STRAIGHTENED it.** Measured off
+`138799` in pixels: one thin vertical connector at the left edge through every node centre, ~24pt
+status circles ON that line, a single-line title to the right, a small type glyph at the far right,
+~43pt pitch, **fourteen rows visible**.
+
+> **THE INSIGHT THAT DISSOLVES THE PROBLEM: the circle is not the tap target — THE ROW IS.** A 24pt
+> circle costs nothing in reachability when the pressable is 370×56. C33's bind was that the node had
+> to be both the visual mark and the 44pt target simultaneously. A row has to be neither.
+
+Euphoria's numbers, measured after: `ROW 56` (12pt above HIG), first row y=212, **10 rows above the
+tab bar**, 0 row-box collisions, and *"Building a Rational Investment Framework"* renders **in full** —
+the 130pt gutter was the only reason it ever truncated.
+
+**An unexpected win, and the best thing about the change:** the 300 authored per-lesson marks (C16)
+are **legible for the first time**. They used to sit inside a 66pt circle whose face was the course
+accent at 18% — accent art on an accent ground, which C16(b) already had to patch once by switching
+to stroke marks. At 24pt on a neutral row edge each one reads distinctly. Also **46 a11y labels
+against the serpentine's 74** for the same content.
+
+**Reverting is one command:** the serpentine is intact at `1a971e0`, the list is `685cfce`.
+
+### C48. UNIT 8 COMPLETE. Home's hero was the same defect as Learn's rail.
+
+**Measured:** the next-lesson hero ran `y=480..1200` of an 874pt screen — about **36% of the viewport
+for ONE lesson**, 96pt of it pure art. "YOUR PATH" was cut off and the Trade/Digest quick actions sat
+entirely below the fold, present in the a11y tree at `y=828` and invisible without scrolling. The
+file's own comment already recorded *"0/6 a single hero card dominating the screen"* from a six-app
+pull, and it had drifted back to dominating anyway. Art moved beside the text, title `display →
+heading`: hero ends at **y=357**, and YOUR PATH is above the fold.
+
+**Quests — the 3/3 mechanic Home did not have.** ScreensDesign, Duolingo `862` + Bloom `2004` + banked
+Promova `138812`:
+
+| pattern | hit rate |
+|---|---|
+| a daily quest set where EVERY quest shows x/y progress | **3/3** |
+| quests stated as a COUNT goal, never vague encouragement | **2/2** |
+| a refresh countdown (Duolingo "12 HOURS", Bloom "17h 56m") | **2/2** |
+| locked FUTURE quests shown rather than hidden | **2/2** |
+| an escalating per-day reward (Bloom 10/20/30/40 Oinks) | 1/3 — **not** convergent, not copied |
+
+`lib/quests.ts` is **pure derivation, zero new persisted state.** The pick is seeded by the day key so
+it is stable all day and rolls at midnight with no scheduled work — `Math.random()` would reshuffle on
+every render, both a purity violation (trap #11) and a UX bug where the user watches goals change
+while looking at them.
+
+> **There is deliberately NO "read a guide" quest**, which §17.3 proposed. `markPostRead` appends a
+> slug and stamps `lastActiveDay` with no day-scoped counter, so there is no honest way to ask "did
+> you read one TODAY". A quest that cannot tell whether you completed it is worse than one fewer.
+
+**Streak commitment, 2/2, appears exactly once.** Headway `128564`'s NAMED tiers (C25) — 7 Promising /
+14 Determined / 30 Impressive / 50 Unstoppable. **The names are the mechanism:** a number is a target,
+a name is an identity, so the progress line reads *"Determined · 2 of 14 days"* and never "2/14".
+Gated on `streak >= 1`, because asking for a fourteen-day promise before the first lesson is asking
+for one the user cannot mean. `streakGoal === null` is what makes it one-time — null and 0 are
+different values on purpose.
+
+**Trial strip** — Bloom `156322`'s three-day tracker, the arc as a progress OBJECT. Uses
+`trialDayNumber` not `trialDaysLeft` (C14), and is hidden for Pro.
+
+**Verified `streakGoal` survives a terminate + relaunch.** `store.ts:10` says anything new must reach
+`partialize` or it silently will not persist; that is the check that proves it rather than trusting
+the diff.
+
+**Still open on Home:** the course rail is clipped by the tab bar (unchanged, not fixed), and
+`questsComplete()` exists with **no caller** — the quest-completion reward is not wired into
+`pendingRewards` yet, which §8b asks for.
