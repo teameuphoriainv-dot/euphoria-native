@@ -800,6 +800,7 @@ concern once if the data contradicts one, then follow the decision.
 | 18 | **Component library** | **Find one with good topic icons (e.g. "investing fundamentals")** | New. §10. |
 | 19 | **Completeness** | **"This app is complete today"** | Interpreted in §8.0. |
 | 20 | **Cost/context** | **Never mentioned. Quality only.** | §0.1. |
+| 21 | **App vs web** | **THE APP LEADS. More content, more features, deeper tooling; the web site is the shopfront.** | New, 2026-08-08. See C56 — this has an ongoing cost and every future feature now needs an explicit app-or-both decision. |
 
 ---
 
@@ -2982,7 +2983,7 @@ cannot read, and the failure is silent: classes compile to nothing. Installed an
 |---|---|---|
 | 32 | **`Write` to an existing path silently clobbers it.** §2d's instruction named `src/components/icon.tsx`, which was a live component with 4 callers; the overwrite was caught only because `tsc` failed afterwards. A tool result reading *"has been updated successfully"* rather than *"File created successfully"* is the tell — **and it arrives after the damage.** | **Before `Write`, confirm the path is free** (`ls`, or `git log -- <path>`). Recover with `git checkout HEAD -- <path>`. Treat any file path in this brief as unverified until checked — §3's map is incomplete, see C1. |
 | 33 | **A regex count is not a name list** (this is trap #5 in another costume). Grepping `plus` in `euphoria-icons.ts` returned 16 hits and `x` returned 111 — every one a substring false positive. Both glyphs were absent. | Enumerate the actual **keys** (`grep -oE "^\s{2}'?[a-zA-Z][a-zA-Z0-9-]*'?:"`), then read the list. |
-
+| 34 | **`sim.sh tapon` will tap a coordinate that is OFF THE SCREEN.** The a11y tree reports elements inside a `ScrollView` at their CONTENT coordinate, so a row scrolled below the fold is listed at e.g. `y=933` on an **874pt** screen. `idb ui tap` accepts it, taps nothing, and returns success. A Digest row was twice concluded "unpressable" on this basis; `describe-all` then showed the pressable was a perfectly good `Button 370x91, enabled=True`, and tapping its real on-screen centre navigated first time. | **Guard added to `sim.sh` — it now REFUSES and tells you to scroll.** If you hit this elsewhere: compare the resolved `y` against the 874pt screen height before believing any "nothing happened" result. |
 ---
 
 ## From the Unit 4 research pass (2026-08-07) — §6.6.2 IS WRONG ABOUT ITS OWN EVIDENCE
@@ -4171,3 +4172,46 @@ Following a stock **manufactures** a reason to come back — it is the one contr
 does. Locking it would delete the re-entry path that justified keeping the surface readable in the
 first place, which makes the refinement argue against itself. The divergence from Investing.com is
 deliberate; it is a retention hook, not a premium feature.
+
+
+### C55. THE DIGEST TAP "BUG" WAS THE TEST, NOT THE APP. Trap #34 is the general form.
+
+Reported as open at the end of the redesign: tapping a Digest row did not navigate, twice, by
+label and by coordinate. It was investigated first thing afterwards because it looked like the
+highest-severity thing on the board, being the primary path into all 32 articles.
+
+**There is no defect.** `describe-all` shows every row as `Button`, `enabled=True`,
+`370 x 91` — 91pt against a 44pt HIG minimum. Tapping the first row at its real on-screen
+centre (`201, 545`) navigated immediately: **50 labels to 6**, landing on the article cover.
+
+The failing taps were at **`y=933` and `y=1432` on an 874pt screen.** Both rows were scrolled
+below the fold, and the a11y tree lists off-screen `ScrollView` content at its content
+coordinate. `idb ui tap` accepts an out-of-bounds point, does nothing, and exits 0.
+
+> **This is C36 in a new costume, and I nearly repeated it exactly.** C36 reasoned from "no
+> visible effect" to "the press is not arriving" and burned two sessions on a touch path that
+> was never broken. The only thing that prevented a repeat here was running `describe-all`
+> BEFORE forming a theory, which is precisely what C37 says to do.
+
+**`sim.sh tapon` now refuses an off-screen target** and prints the swipe command instead of
+silently tapping nothing. Verified both ways: an on-screen label taps normally, and
+`tapon "Target-Date Funds"` at `y=1432` refuses with the reason.
+
+### C56. DECISION 21: THE APP LEADS. Recorded because it has a standing cost.
+
+Asked and answered: the app should carry more than the web site, broadly, not only in Digest.
+The web site becomes the shopfront and the app is the product.
+
+Already true as of today: **32 Digest guides in the app against 25 on the web**, via
+`content/posts-app/` which `content/index.ts` does not glob.
+
+**The cost, stated so nobody is surprised by it later.** Every future feature now needs an
+explicit app-or-both decision, and there is no default. That is a real ongoing tax on planning,
+and it is the reason this is a locked decision in §5 rather than an implementation detail. Two
+things it does NOT license:
+
+- **Forking code.** The Digest divergence works because content is authored once, in the web
+  repo, with one hero composer, one linter and one sync. Divergence by adding a second
+  implementation of the same thing is how the two repos rot apart.
+- **Letting the web site break.** It stays a working shopfront. "The app leads" is about where
+  new work lands, not about neglecting what exists.

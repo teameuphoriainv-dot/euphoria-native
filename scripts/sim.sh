@@ -90,6 +90,18 @@ pool = exact or partial
 if not pool: sys.exit("no element matching: "+sys.argv[1])
 best=min(pool)
 print(best[1],best[2])' "$1")
+  # OFF-SCREEN GUARD. The a11y tree reports elements inside a ScrollView at their CONTENT
+  # coordinate, so a row scrolled below the fold is listed at e.g. y=933 on an 874pt screen.
+  # `idb ui tap` accepts that happily, taps nothing, and returns success. Two sessions were
+  # spent concluding a Digest row was unpressable when the row was simply below the display
+  # and the pressable itself measured a perfectly good 370x91. See trap #34.
+  H=$("$IDB" ui describe-all --udid "$(udid)" 2>/dev/null | python3 -c 'import json,sys; print(int(json.load(sys.stdin)[0]["frame"]["height"]))' 2>/dev/null || echo 0)
+  if [ "$H" -gt 0 ] && [ "$Y" -gt "$H" ]; then
+    echo "REFUSED: '$1' resolves to y=$Y but the screen is only ${H}pt tall." >&2
+    echo "  It is scrolled off the bottom. Scroll to it first:" >&2
+    echo "  $IDB ui swipe --udid \$UDID 200 700 200 300 --duration 0.4" >&2
+    exit 1
+  fi
   echo "tapping '$1' @ $X,$Y"
   "$IDB" ui tap --udid "$(udid)" "$X" "$Y"
   ;;
