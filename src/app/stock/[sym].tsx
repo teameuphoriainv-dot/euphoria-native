@@ -31,6 +31,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { getQuote, type Quote } from '@/lib/market';
 import { money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
+import { entitled, useTier, type Refusal } from '@/lib/entitlement';
+import { GateSheet } from '@/components/gate-sheet';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -58,6 +60,30 @@ export default function StockDetail() {
       cancelled = true;
     };
   }, [sym]);
+
+  /*
+   * THE TRADE GATE, done the way Bloom does it (156247, verified in pixels).
+   *
+   * Bloom's locked control is an OUTLINE PILL WITH THE LOCK INSIDE IT, at full contrast and still
+   * tappable — not greyed out, not hidden. Everything around it stays at full contrast too: its
+   * "1/253 unlocked" counter and its unlocked STOCK PRICE card are not dimmed. So here the chart,
+   * key stats, quote, news, follow, quantity stepper and cost row are ALL untouched. Only the
+   * transaction is locked, and tapping it opens the sheet rather than doing nothing.
+   *
+   * WHY NOT `disabled`: a greyed button that cannot say why is the dead end §0.5 forbids, and it is
+   * also not what Bloom ships. A live control that explains itself is the "lock is a promise"
+   * mechanism at 5/5 convergence.
+   *
+   * This REFINES C13 decision 1, which as written closed quotes and news as well — see §22 C40.
+   * Reading the market is what gives a lapsed user a reason to reopen the app at all.
+   *
+   * DECLARED ABOVE the `if (!sym)` early return. Placing these below it made `useTier` and
+   * `useState` conditional and cost two react-hooks/rules-of-hooks ERRORS — lint went 50 -> 52 and
+   * this is the fix, not a suppression.
+   */
+  const expired = useTier() === 'expired';
+  const [gate, setGate] = useState<Refusal | null>(null);
+  const openGate = () => setGate(entitled(useApp.getState(), 'trade'));
 
   if (!sym) {
     return (
@@ -214,36 +240,80 @@ export default function StockDetail() {
             </View>
 
             <View style={styles.actions}>
-              <View style={{ flex: 1 }}>
-                <GradientButton
-                  label="Buy"
-                  full
-                  disabled={!canBuy}
-                  onPress={() => buy(sym, qty, price)}
-                />
-              </View>
-              <SpringPressable
-                haptic={false}
-                onPress={() => canSell && sell(sym, qty, price)}
-                accessibilityRole="button"
-                accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
-                accessibilityState={{ disabled: !canSell }}
-                style={{ flex: 1 }}
-              >
-                <View style={[styles.sell, { borderColor: theme.border, opacity: canSell ? 1 : 0.4 }]}>
-                  <ThemedText type="bodyMedium">Sell</ThemedText>
-                </View>
-              </SpringPressable>
+              {expired ? (
+                /* Both actions become the same outline-pill-with-lock. Reuses styles.sell, which is
+                   already exactly Bloom's shape, rather than adding an icon slot to GradientButton
+                   and changing a component with many other callers. */
+                (['Buy', 'Sell'] as const).map((label) => (
+                  <SpringPressable
+                    key={label}
+                    haptic={false}
+                    onPress={openGate}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${label}. Paper trading is part of Euphoria Pro.`}
+                    style={{ flex: 1 }}>
+                    <View style={[styles.sell, styles.locked, { borderColor: theme.border }]}>
+                      <ThemedText type="bodyMedium">{label}</ThemedText>
+                      <UIcon name="lock" size={16} color={theme.mutedForeground} />
+                    </View>
+                  </SpringPressable>
+                ))
+              ) : (
+                <>
+                  <View style={{ flex: 1 }}>
+                    <GradientButton
+                      label="Buy"
+                      full
+                      disabled={!canBuy}
+                      onPress={() => buy(sym, qty, price)}
+                    />
+                  </View>
+                  <SpringPressable
+                    haptic={false}
+                    onPress={() => canSell && sell(sym, qty, price)}
+                    accessibilityRole="button"
+                    accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
+                    accessibilityState={{ disabled: !canSell }}
+                    style={{ flex: 1 }}
+                  >
+                    <View style={[styles.sell, { borderColor: theme.border, opacity: canSell ? 1 : 0.4 }]}>
+                      <ThemedText type="bodyMedium">Sell</ThemedText>
+                    </View>
+                  </SpringPressable>
+                </>
+              )}
             </View>
 
             {/* Says WHY the button is off. A disabled control with no reason is the same dead end
                 as a button that does nothing. */}
             <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
-              {!canBuy ? `Not enough cash — you have ${money(cash)}.` : `Cash after this buy: ${money(cash - cost)}`}
+              {expired
+                ? 'Paper trading is part of Euphoria Pro. Prices and stats stay open.'
+                : !canBuy
+                  ? `Not enough cash — you have ${money(cash)}.`
+                  : `Cash after this buy: ${money(cash - cost)}`}
             </ThemedText>
           </Card>
         </RiseIn>
       </ScrollView>
+
+      {/* Inside the screen, so the quote and chart stay mounted and readable behind it. */}
+      {gate && (
+        <GateSheet
+          feature="trade"
+          refusal={gate}
+          visible
+          onDismiss={() => setGate(null)}
+          onSeePro={() => {
+            setGate(null);
+            router.push('/onboarding?step=paywall');
+          }}
+          onWhyNotFree={() => {
+            setGate(null);
+            router.push('/why-not-free');
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -298,4 +368,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hint: { textAlign: 'center' },
+  // Bloom puts the lock INSIDE the control, to the right of its label. Row layout, full contrast —
+  // deliberately no opacity change: this control works, it just answers differently.
+  locked: { flexDirection: 'row', gap: Spacing.two },
 });
