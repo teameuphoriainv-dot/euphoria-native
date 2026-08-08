@@ -36,6 +36,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { GateSheet } from '@/components/gate-sheet';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
@@ -43,7 +44,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
-import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
+import { entitled, TRIAL_DAYS, useTier, type Refusal } from '@/lib/entitlement';
 
 /** Openers for the empty state. Finance-specific and deliberately concrete — "Ask me anything"
  *  produces nothing, a real question produces a real conversation. */
@@ -80,6 +81,12 @@ export default function ChatScreen() {
   const [draft, setDraft] = useState('');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /*
+   * Declared with the other state, ABOVE the `if (expired)` early return below — the same hook-order
+   * trap `stock/[sym].tsx` already records. `entitled()` is read at press time from `getState()`
+   * rather than subscribed, because the sheet needs the reason as it was at the moment of refusal.
+   */
+  const [gate, setGate] = useState<Refusal | null>(null);
   const scroller = useRef<ScrollView>(null);
 
   const exhausted = !isPro && left <= 0;
@@ -352,7 +359,18 @@ export default function ChatScreen() {
           )}
 
           {/* The refusal lives IN the thread, the way Answer.AI and Astra AI do it, rather than
-              throwing the user out to a paywall screen mid-question. */}
+              throwing the user out to a paywall screen mid-question.
+
+              THE CARD DID THAT; THE BUTTON DID NOT. `See Pro` pushed straight to
+              /onboarding?step=paywall, so the sentence above was true of the card and false of the
+              only control on it — the thread was still thrown away on the one tap that mattered.
+              Same shape as C43's paywall disagreeing with itself in one frame.
+
+              It now opens the gate sheet, which is what §4b asks of every gated control and what
+              `gate-sheet.tsx:7` was written for. Note the sheet ALREADY had Atlas copy — "Atlas
+              needs a break" / "You've used your 10 free questions" — and `entitled()` already had
+              the `atlas` count-limit branch. Both were unreachable: nothing in the app passed
+              feature="atlas". The engine and the words were built and never connected. */}
           {exhausted && (
             <View style={[styles.limit, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <ThemedText type="bodyMedium">You&apos;ve used your {FREE_ATLAS_MESSAGES} free questions.</ThemedText>
@@ -362,7 +380,7 @@ export default function ChatScreen() {
               <GradientButton
                 label="See Pro"
                 full
-                onPress={() => router.push('/onboarding?step=paywall')}
+                onPress={() => setGate(entitled(useApp.getState(), 'atlas'))}
               />
             </View>
           )}
@@ -397,6 +415,26 @@ export default function ChatScreen() {
           Atlas is AI. General concepts, not personal advice.
         </ThemedText>
       </KeyboardAvoidingView>
+
+      {/* Sibling of the KeyboardAvoidingView, not a child of the ScrollView: the thread stays
+          mounted underneath, so dismissing returns the user to their own conversation rather than
+          to the top of a remounted one. Same placement as stock/[sym].tsx. */}
+      {gate && (
+        <GateSheet
+          feature="atlas"
+          refusal={gate}
+          visible
+          onDismiss={() => setGate(null)}
+          onSeePro={() => {
+            setGate(null);
+            router.push('/onboarding?step=paywall');
+          }}
+          onWhyNotFree={() => {
+            setGate(null);
+            router.push('/why-not-free');
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
