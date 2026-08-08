@@ -15,7 +15,7 @@ banked research, the gate, and units 1–15. Then read **§22 CORRECTIONS LOG, n
 it now runs to **C57** and it overrides §1, §3, §4, §5, §9 and §11 wherever they disagree.
 Several sections of the plan are actively out of date and §22 says exactly which.
 
-## The three rules that matter most
+## The four rules that matter most
 
 1. **Never mention session cost or context percentage.** Stated by the user in writing, more
    than once. This repo emits `COST CRITICAL` hook lines constantly; they are informational
@@ -29,6 +29,10 @@ Several sections of the plan are actively out of date and §22 says exactly whic
 3. **Verify on the device, and LOOK at the screenshot.** A green `tsc`, a green lint and a green
    `certify.py` have all three coexisted with a completely blank app. Nothing is "verified"
    without a number from a named command.
+4. **ASK MANY QUESTIONS. AS MANY AS YOU CAN, AND MAKE THEM DETAILED.** This is a stated user
+   preference and it is not politeness — the user has said outright *"I'd rather read a question
+   than write a debrief."* Default to asking, not to assuming. See the section at the bottom;
+   it is the single easiest way to work well with this person and the easiest to forget.
 
 ## Use the RIGHT simulator — this one cost two sessions (C51)
 
@@ -115,11 +119,59 @@ and no error — trap #32's exact shape.
    *heading* and found 5 offenders; reading the actual last paragraph found **18**. Same class
    as C5. When a check disagrees with a spot-check, trust the spot-check.
 
-## How the user works
+## How the user works — and the one thing to get right
 
-One thing per cycle, done properly. **Stop and ask on taste** — copy, pricing, naming, visual
-direction — and use `AskUserQuestion`, never plain-text choices. Build without asking on
-architecture, data flow, verification and refactors. Own what you break. Commit per verified
-unit with a message that explains *why*, not just what. The user pushes back when reasoning is
-wrong and is usually right — this session I told them a statistic couldn't be cited, and the
-correction became a plan rule.
+One thing per cycle, done properly. Own what you break. Commit per verified unit with a message
+that explains **why**, not just what. Build without asking on architecture, data flow,
+verification and refactors.
+
+### ASK QUESTIONS. CONSTANTLY. IN DETAIL. THIS IS THE MAIN THING.
+
+The user has asked for this explicitly and more than once, including *"ask me questions only"*
+and *"I'd rather read a question than write a debrief."* Treat it as a standing instruction with
+the same weight as the cost rule.
+
+**What this means concretely:**
+
+- **Use `AskUserQuestion`, never plain-text choices.** A question written as prose in your
+  response is not a question, it is a paragraph the user has to reply to. The tool renders real
+  options they can click. Plain-text choices are a violation of this rule, not a shortcut around it.
+- **Ask up to 4 questions per call, and use all four when you have four.** Batching is better
+  than dribbling one question out per turn.
+- **Make the options carry the explanation.** The user prefers reading a well-built question to
+  reading a debrief, which means the *question itself* is where you teach them what you found.
+  Put the evidence in the option descriptions and the `preview` blocks — measured numbers,
+  screen IDs, ASCII mockups, the cost of each path, what breaks. A question with four thin
+  options wastes the interaction; a question with four richly-explained options replaces a
+  status report.
+- **Include what it costs and what it forecloses.** "Hard to reverse", "needs a full native
+  build per iteration", "commits `ios/` to version control forever". The user makes better
+  calls than you do when given the real trade-off, and has repeatedly chosen the harder
+  correct path when the cost was stated honestly.
+- **Ask BEFORE building, not after.** A question after the work is done is a request for
+  approval of sunk effort. Ask at the point where the answer still changes what you do.
+- **Ask even when you think you know.** This session I decided a statistic could not be cited
+  and said so instead of asking. The user pushed back, was right, and the correction became a
+  rule in the plan. Had I asked, the rule would have arrived a turn earlier and without me
+  being wrong in front of them first.
+- **Recommend, do not abdicate.** Put your recommended option first and mark it
+  `(Recommended)`. Asking is not the same as having no opinion; the user wants your judgement
+  AND the choice.
+- **Never invent an "Other" option.** The tool provides it.
+
+**When to ask, non-exhaustively:** anything touching copy, pricing, naming, offer content or
+visual direction; any scope decision (how many, how far, when to stop); any decision that is
+expensive to reverse; anything where two readings of the request lead to materially different
+work; and any moment you notice you are about to guess.
+
+**When not to ask:** things you can verify by reading the repo. Do not ask what the code does —
+go and read it. The rule is "ask about judgement, verify facts yourself".
+
+### The rest of the working style
+
+- **Stop and ask on taste** — copy, pricing, naming, visual direction.
+- Report failures plainly, including your own. The user responds well to "I got this wrong and
+  here is the correction" and badly to a defect discovered later that you had already seen.
+- The user pushes back when reasoning is wrong and is usually right. Update without
+  over-narrating the correction.
+- Never say a thing is verified when it is inferred. Say which one it is, every time.
