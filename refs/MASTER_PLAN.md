@@ -5124,3 +5124,26 @@ App Review is outward-facing and permanent. The answers must be TRUE of the ship
 especially question 4 (what is unlocked without In-App Purchase), which is only answerable honestly
 once Step 1 makes the purchase path real.
 
+### C79. CREDENTIALS: two IDs captured, the `.p8` is LOST, and RevenueCat has FOUR near-identical projects.
+
+**Captured (safe to record — these are identifiers, not secrets):**
+- **Issuer ID** `86cf89c1-ed5f-441d-9ae4-575aa7433937`
+- **In-App Purchase Key ID** `V2D263NV4V`, named "Euphoria app"
+
+**The `.p8` is gone.** ASC shows it was downloaded **Apr 8 2026** — its one and only download — and it
+is not in Downloads, Desktop, Documents, or either repo. The `.p8` files present belong to other
+keys (`MV26G8676X`, `52V3U6UXS7`, one under `radia-rc-key`, a different project). Apple will never
+re-serve it. Either it exists somewhere only the user knows, or **a new key must be generated** —
+permanent, and keys cannot be deleted or modified once created (max 10 active; currently 1).
+
+**The bigger problem, found on the way.** The RevenueCat account holds **FOUR projects with nearly
+the same name**: `Euphoria`, `Euphoria` (again), `Euphoria App`, `Euphoria Real`. Account totals:
+0 active subscriptions, $0 MRR, but **3 new / 4 active customers in the last 28 days** — so
+something has been connecting to something.
+
+**This must be resolved BEFORE any key is uploaded or any `appl_` key is copied into `.env.local`.**
+Uploading the `.p8` to the wrong project, or pointing the app at the wrong project's SDK key,
+produces a build that looks configured and silently transacts against nothing — the same class of
+failure as C76's placeholder key passing a presence check. **Identify which project owns bundle id
+`com.euphoria.native` first, and delete or rename the rest.**
+
