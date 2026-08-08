@@ -4919,3 +4919,32 @@ badge either until Euphoria has ratings of its own — an unverified claim is th
 **Layout decided by the data:** one phone, headline above, solid `#09090D`-family background, no
 photography, no badges. That is 13/15 and it needs no further research.
 
+### C73. UNIT 16c — first three store shots BUILT, and two defects in them are stated not hidden.
+
+`refs/store/store-1..3.png`, **1290 × 2796** (Apple's 6.9-inch requirement), built from real device
+captures with `sharp`. Layout follows C72's 13/15 pattern exactly: one phone, headline above, solid
+saturated brand background, no photography, no badges. Copy is the time-promise direction, decided
+with the user:
+
+| # | role | headline | screen |
+|---|---|---|---|
+| 1 | hook | **"Ten minutes a day. / Real money sense."** | Home |
+| 2 | daily loop | **"A lesson a day, / and a streak to keep it."** | Learn |
+| 3 | differentiator | **"Practice investing. / Risk nothing."** | Trade |
+
+**DEFECT 1 — shot 3 shows a LOSING portfolio.** The seeded device state renders
+`−$777.78 (7.78%) all time` in red, directly under the words "Practice investing. Risk nothing."
+A paper-trading app whose store listing leads with a loss is arguing against itself. **This is not
+fixable by inventing a gain** (§0.4) — the honest options are to seed a different but REAL device
+state, or to choose a Trade screen that does not foreground the all-time figure. **It is a decision
+about how a finance app markets returns, so it belongs with the user, not with a script.**
+
+**DEFECT 2 — the headline is NOT in the brand font.** `fc-list` reports zero Nunito faces, so
+librsvg fell back to a system sans. It reads acceptably but it is not Euphoria's type. Fixing it
+means installing the Nunito face the app bundles before rendering, and it must be fixed before these
+ship — a listing set in the wrong typeface is the first thing a designer will notice.
+
+**Also worth noting for later:** shot 2 shows a mostly-locked course list, which is truthful for a
+trial user but reads as "everything is paywalled" in a 380px search thumbnail. Worth reconsidering
+against the same screen with more lessons unlocked.
+

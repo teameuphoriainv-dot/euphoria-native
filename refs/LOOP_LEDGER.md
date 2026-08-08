@@ -18,4 +18,5 @@ Each row is one wake-up: what triggered it, what it changed, what it proved.
 | 11 | continued | Unit 13 item 2 — empty-state audit | **9 routes walked on an empty store, 0 blank screens** · `friends` is the exemplar · store captured to refs/, emptied, restored EXACTLY (streak 3, xp 210, cash 5666.94) after two failed attempts → C70 |
 | 12 | user: keep going | Unit 13 items 3 + 4 — **UNIT 13 CLOSED** | 3 bare spinners → skeletons (verified by forcing the branch) · **raw RevenueCat error reaching users FIXED** in 4 sites, 3 of which only tsc found · lint 45 = baseline · certify green |
 | 13 | 5 min fallback | Unit 16b research | **24 store creatives / 15 apps** · one-phone-headline-above **13/15** · solid brand bg **13/15** · time promise in hero **6/15** · Mindvalley ships an Apple award badge Apple's own rules FORBID |
-| 14 | *(pending)* | Unit 16c — build the assets (blocked on hero copy) | — |
+| 14 | continued | Unit 16c — first 3 store shots built | 1290x2796, C72's 13/15 layout, real captures · **2 defects surfaced: shot 3 shows a −7.78% LOSS under "Risk nothing"; headline not in Nunito (fc-list = 0)** |
+| 15 | *(pending)* | fix the two store defects, then shots 4-10 | — |
