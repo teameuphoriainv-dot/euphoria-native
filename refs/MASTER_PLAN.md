@@ -3684,3 +3684,93 @@ seventh node and reached *"BEHAVIORAL FINANCE · LESSON 7 / Prospect Theory & De
   must use 874 and a 34pt bottom safe-area inset.
 - `zsh` does not word-split an unquoted variable, so `for spec in "0 false"; do set -- $spec` silently
   passes nothing. **Trap #7, hit again.** Use `printf '%s\n' ... | while read -r A B`.
+
+### C43. The paywall contradicted itself FOUR times about the trial length. C31's fix was 2 of 6.
+
+Measured on device, all visible in ONE frame:
+
+| copy | said | source |
+|---|---|---|
+| heading | *"Start your **7-day** FREE trial to continue"* | hardcoded |
+| timeline beat 2 | *"In **5 days** — Reminder"* | hardcoded |
+| timeline beat 3 | *"In **7 days** — Billing starts"* | hardcoded |
+| badge | *"**3 DAYS FREE** · SAVE 33%"* | derived ✅ |
+| CTA | *"Start my **7-day** free trial"* | hardcoded |
+| renewal terms | *"**3 days** free, then $79.99 per year…"* | derived ✅ |
+
+C31 identified exactly this class — *"the paywall was promising more than the app delivers, the kind
+of mismatch App Store Review 3.1.2 exists to catch"* — fixed the badge and the renewal terms, and
+left four. **Every one now interpolates `TRIAL_DAYS`.**
+
+The two timeline beats were **the reference apps' 7-day shape transplanted literally**: Nibble's
+TODAY/DAY 5/DAY 7 and Promova's Today/In 5 days/In 7 days, dropped into a three-day trial where day
+5 does not exist. C13 decision 3 settled the middle beat as **DAY 2** during Unit 3 and it was never
+implemented on this screen.
+
+**"Day 2" / "Day 3", never "In 2 days".** The trial counts DAYS USED (§9.2), so a calendar phrasing
+is a second lie — someone who opens the app twice a week reaches day 3 a fortnight from now. "Day N"
+is also what `trialDayNumber` already puts on You and Settings ("Day 3 of 3"), so three surfaces now
+count identically. **No date pill**, deliberately: C22's 3/3 date convergence is all calendar trials
+and C32 says ours has no computable end date. Inventing one is §0.4 applied to a promise.
+
+### C44. Plan-card convergence from four real pricing screens, and it settles §9.6 vs C13 #2.
+
+`screen_detail` with images on `323576` (Astra AI), `128588` (Headway), `138758` (Promova),
+`147531` (Quizlet):
+
+| pattern | hit rate |
+|---|---|
+| price stated as one *"trial then $X"* sentence | **4/4** |
+| one default plan pushed, other plans one tap away | **3/4** |
+| a cancel-reassurance line near the CTA | **3/4** |
+| the CTA names the **trial**, not the purchase | **3/4** |
+| visible plan **cards** on the screen | **2/4 — not convergent** |
+| **the timeline embedded on the pricing screen** | **1/4** (Quizlet only) |
+
+**§9.6 says the timeline "becomes a block inside" the paywall; C13 decision 2 voided that; the
+evidence backs standalone at 3/4.** Resolved by user decision: **it stays EMBEDDED**, following
+Quizlet — the highest earner in the whole sample at $2.25M, which embeds it in the plan picker *and*
+carries one in its paywall header. `src/app/trial-timeline.tsx` (166 lines) was **deleted**: it was
+orphaned with zero inbound references, so C13 decision 2 had never actually been live, and a
+duplicate nothing reached would only drift from the real one.
+
+Worth noting for Unit 5: the paywall body already HAD plan cards and the timeline block. C31's
+*"§9.6's plan-card redesign and the trial-timeline block are NOT done"* is **out of date** — both
+exist and render well. What was wrong was the numbers, not the structure.
+
+### C45. The day-2 reminder now fires, and it is verified against iOS rather than against our own code.
+
+C13 decision 3's obligation — *"Do not ship the copy on the strength of an intention"* — was unmet
+for the whole of Units 3 and 4. `notifications.ts` held a daily 19:00 nudge and nothing else.
+
+**What it schedules against.** A days-used trial has no computable end date, so there is no deadline
+to count back from. But the **day-2 transition is exactly computable** — `activeDays.length` reaching
+`TRIAL_DAYS - 1` — so the reminder hangs off the transition and warns that the next day of use is the
+last. Armed by a module-scope store subscription (the store must not do async side effects, and the
+five actions that mark a day should not each have to remember this exists); `_layout.tsx` imports the
+module for its side effect beside `global.css`.
+
+**Verified from SpringBoard's `UserNotificationsServer` log, not from our own read-back:**
+
+| state | armed | OS evidence |
+|---|---|---|
+| day 2, non-Pro | **YES** | `UNNotificationRequest identifier: euphoria-trial-reminder`, `UNTimeIntervalNotificationTrigger repeats: NO, timeInterval: 74892` → 19:00:00 next day, exact, correctly skipping a 19:00 already past |
+| day 4, expired | no | 0 registrations |
+| day 2 + `isPro` | no | 0 registrations |
+| day 2, non-Pro again | **YES** | registers again |
+
+**That last row is the method, not a formality.** A zero can mean "correctly declined" or "nothing is
+running", and reporting the first without excluding the second is §0.1's failure mode exactly. The
+positive control is what makes the two zeros mean anything.
+
+**Two bugs in my own first version, both caught by re-reading it rather than by a test:** the guard
+keyed on the day count alone, so buying Pro *while on day 2* left the reminder scheduled — the "I
+already paid" class `tier()` exists to prevent; and it branched three ways over whether cancelling
+was needed and left one path where it was not. Now keyed on `days:isPro`, with one unconditional
+`applyTrialReminder(arm)` call that cancels first either way.
+
+> **A verification trick worth reusing.** RN `console.log` under Hermes goes to Metro's socket, NOT
+> the iOS syslog, so `log show | grep '[notif]'` finds nothing. But **iOS logs the notification
+> request itself** — `xcrun simctl spawn "$UDID" log show --last 3m | grep "identifier: euphoria-"`
+> returns the OS's own record including the trigger type, `repeats`, and `timeInterval`. That is
+> stronger evidence than anything the app can report about itself.
