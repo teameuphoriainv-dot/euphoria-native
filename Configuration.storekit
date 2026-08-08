@@ -1,0 +1,62 @@
+{
+  "identifier" : "euphoria-local-storekit",
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "euphoria_pro",
+      "localizations" : [],
+      "name" : "Euphoria Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "euphoria_pro_monthly_id",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Every lesson, unlimited Atlas, the full options desk.",
+              "displayName" : "Euphoria Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "euphoria_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Euphoria Pro Monthly",
+          "subscriptionGroupID" : "euphoria_pro",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "79.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "euphoria_pro_yearly_id",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Every lesson, unlimited Atlas, the full options desk. Save 33%.",
+              "displayName" : "Euphoria Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "euphoria_pro_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Euphoria Pro Annual",
+          "subscriptionGroupID" : "euphoria_pro",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : { "major" : 3, "minor" : 0 }
+}

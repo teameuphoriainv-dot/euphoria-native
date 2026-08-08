@@ -14,6 +14,7 @@ import '../../global.css';
 // reminder with a module-scope store subscription, and without this it would only be armed for a
 // user who happens to open Settings or onboarding. The paywall promises that reminder.
 import '@/lib/notifications';
+import { refreshEntitlement } from '@/lib/purchases';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -38,6 +39,19 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
+
+  /*
+   * Ask RevenueCat what this Apple ID is actually entitled to, once per launch, so a subscription
+   * cancelled or expired on another device is reflected here rather than trusting a stale cached
+   * flag forever.
+   *
+   * It cannot revoke access on a network failure — `refreshEntitlement` only writes `isPro` from a
+   * SUCCESSFUL read, because flipping a paying member to free the moment their train enters a tunnel
+   * is indistinguishable in the logs from a real lapse. A no-op without a key.
+   */
+  useEffect(() => {
+    void refreshEntitlement();
+  }, []);
 
   if (!loaded) return null;
 

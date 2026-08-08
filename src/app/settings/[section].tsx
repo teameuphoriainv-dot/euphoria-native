@@ -36,6 +36,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { applyDailyNudge, NUDGE_HOUR } from '@/lib/notifications';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
+import { IAP_DISABLED_REASON, IAP_ENABLED, openManageSubscriptions, restore as restorePurchases } from '@/lib/purchases';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -173,16 +174,38 @@ function AccountSection() {
         {!isPro && <Row label="Upgrade to Pro" onPress={() => router.push('/onboarding?step=paywall')} />}
         <Row
           label="Restore purchases"
-          last
-          onPress={() =>
-            // Same honest message the paywall gives. Apple requires the control on any screen
-            // selling a subscription; lying about what it does would be worse than not having it.
-            Alert.alert(
-              'Restore purchases',
-              'Purchases are not enabled in this build yet. Once subscriptions are live, this will restore any prior purchase tied to your Apple ID.',
-            )
-          }
+          // Last row only when "Manage subscription" below is absent, i.e. for a non-Pro member.
+          // Without this the group drew a divider under its final row.
+          last={planTier !== 'pro'}
+          onPress={() => {
+            // Apple requires this control on any surface selling a subscription, independent of
+            // convergence (2/5 in the Unit 5 pull). Reports what it FOUND: "restored" and "nothing
+            // to restore" are very different things to be told, and a single vague message for both
+            // is how a user concludes the app is broken when it worked correctly.
+            if (!IAP_ENABLED) {
+              Alert.alert('Restore purchases', `${IAP_DISABLED_REASON} Once subscriptions are live, this will restore any prior purchase tied to your Apple ID.`);
+              return;
+            }
+            void restorePurchases().then((r) => {
+              if (r.ok && r.isPro) Alert.alert('Welcome back', 'Your Euphoria Pro subscription is active again.');
+              else if (r.ok) Alert.alert('Nothing to restore', 'No previous Euphoria Pro purchase was found on this Apple ID.');
+              else if (r.kind !== 'cancelled') Alert.alert('Restore failed', r.kind === 'not-configured' ? IAP_DISABLED_REASON : r.message);
+            });
+          }}
         />
+        {/*
+          * MANAGE SUBSCRIPTION — 3/5 convergence (Elevate 1395, Duolingo 862, Quizlet 874), and
+          * Quizlet names the action "Cancel on App Store" rather than pretending to cancel in-app.
+          * That is the only honest framing: an app cannot cancel an Apple subscription itself, and a
+          * "Cancel" button that merely opens Settings while implying it did the work is the kind of
+          * thing that generates chargebacks.
+          *
+          * Shown only to a Pro member. Offering "manage your subscription" to someone without one is
+          * a control with nothing behind it.
+          */}
+        {planTier === 'pro' && (
+          <Row label="Manage subscription" value="App Store" onPress={openManageSubscriptions} last />
+        )}
       </Section>
 
       <Section title="PROFILE">

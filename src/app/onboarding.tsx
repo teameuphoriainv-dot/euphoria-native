@@ -40,7 +40,8 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { TRIAL_DAYS } from '@/lib/entitlement';
+import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
+import { IAP_DISABLED_REASON, IAP_ENABLED, PRODUCT_MONTHLY, PRODUCT_YEARLY, getPackages, purchase, restore as restorePurchases } from '@/lib/purchases';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
@@ -196,6 +197,20 @@ const TRIAL_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid'
   { icon: 'lock', title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
   { icon: 'bell', title: `Day ${TRIAL_DAYS - 1} — Reminder`, sub: "We'll remind you before anything is charged.", tone: 'soft' as const },
   { icon: 'wallet', title: `Day ${TRIAL_DAYS} — Billing starts`, tone: 'muted' as const },
+];
+
+/**
+ * What Pro REOPENS, shown instead of the trial timeline once the three days are spent.
+ *
+ * Not a generic benefits list: each line names something the hard wall actually closed, in the same
+ * order the gate sheet's one-liner names them ("Every lesson, unlimited Atlas, the full options
+ * desk"). A spent user has just been refused by one of these, so the list is a description of their
+ * last five minutes rather than marketing.
+ */
+const PRO_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
+  { icon: 'lock', title: 'Every lesson reopens', sub: 'All 12 courses, 300 lessons, no counter.', tone: 'solid' as const },
+  { icon: 'sparkle', title: 'Atlas becomes unlimited', sub: 'Ask as much as you like, mid-lesson.', tone: 'soft' as const },
+  { icon: 'trade', title: 'Paper trading and the options desk', tone: 'muted' as const },
 ];
 
 const LOADER_LINES = [
@@ -386,11 +401,72 @@ export default function Onboarding() {
     }, 260);
   };
 
-  /** Apple requires a Restore control on any screen selling a subscription. No purchase SDK is
-   *  installed yet (the CTA above routes to /auth, it does not buy), so this states that plainly
-   *  instead of no-opping. Swap the body for RevenueCat's restorePurchases() when IAP lands. */
+  /*
+   * ── THE TWO PAYWALLS ON ONE SCREEN (Unit 5) ─────────────────────────────────────────────────
+   *
+   * A FRESH user is being offered the 3-day trial, which is device-local and free. There is nothing
+   * to buy, so the CTA correctly just proceeds — that was right before this unit and still is.
+   *
+   * An EXPIRED user reaching here from the gate sheet is a completely different person, and until
+   * now they got the same screen. Measured on device: someone with activeDays:4 was shown "Start
+   * your 3-day FREE trial to continue" and "No payment due now", and tapping the CTA dropped them
+   * on Home with isPro still false and nothing purchased. The gate sheet's "See Euphoria Pro" led
+   * to a dead end — §0.5's "single largest dead control in the app", and completing the hard wall
+   * is what made it reachable.
+   *
+   * So `spent` branches the whole purchase surface: heading, timeline, badge, reassurance line,
+   * CTA, and the renewal terms. Offering a free trial to someone who has used it is not just a
+   * dead control, it is a false statement about what they are getting.
+   */
+  const spent = useTier() === 'expired';
+  const [busy, setBusy] = useState(false);
+
+  /** Apple requires a Restore control on any screen selling a subscription — independent of
+   *  convergence (2/5 in the Unit 5 pull, 2/2 on captured price screens). Reports what it FOUND,
+   *  because "restored" and "nothing to restore" are very different things to be told. */
   const restore = () => {
-    Alert.alert('Restore purchases', 'Purchases are not enabled in this build yet. Once subscriptions are live, this will restore any prior purchase tied to your Apple ID.');
+    if (!IAP_ENABLED) {
+      Alert.alert('Restore purchases', `${IAP_DISABLED_REASON} Once subscriptions are live, this will restore any prior purchase tied to your Apple ID.`);
+      return;
+    }
+    setBusy(true);
+    void restorePurchases().then((r) => {
+      setBusy(false);
+      if (r.ok && r.isPro) Alert.alert('Welcome back', 'Your Euphoria Pro subscription is active again.');
+      else if (r.ok) Alert.alert('Nothing to restore', 'No previous Euphoria Pro purchase was found on this Apple ID.');
+      else if (r.kind !== 'cancelled') Alert.alert('Restore failed', r.kind === 'not-configured' ? IAP_DISABLED_REASON : r.message);
+    });
+  };
+
+  /**
+   * BUY. Only reachable when the trial is spent, because that is the only time money is the answer.
+   *
+   * Picks the package matching the selected plan card by its product identifier rather than by
+   * position: RevenueCat returns packages in dashboard order, and keying on [0]/[1] would silently
+   * swap the plans the day someone reorders them.
+   */
+  const buyPro = () => {
+    if (!IAP_ENABLED) {
+      Alert.alert('Euphoria Pro', IAP_DISABLED_REASON);
+      return;
+    }
+    setBusy(true);
+    void getPackages().then(async (pkgs) => {
+      const want = plan === 'annual' ? PRODUCT_YEARLY : PRODUCT_MONTHLY;
+      const pkg = pkgs.find((x) => x.product.identifier === want);
+      if (!pkg) {
+        setBusy(false);
+        // The silent App Store Connect misconfiguration, said out loud rather than shown as a
+        // spinner that never resolves.
+        Alert.alert('Euphoria Pro', 'That plan is not available from the App Store right now.');
+        return;
+      }
+      const r = await purchase(pkg);
+      setBusy(false);
+      if (r.ok && r.isPro) router.replace('/home');
+      else if (!r.ok && r.kind === 'error') Alert.alert('Purchase failed', r.message);
+      // 'cancelled' is deliberately silent — backing out of the Apple sheet is not an error.
+    });
   };
 
   const canContinue = (() => {
@@ -474,16 +550,25 @@ export default function Onboarding() {
       default:
         return (
           <View style={styles.paywallBody}>
-            <StepHeading title={`Start your ${TRIAL_DAYS}-day FREE trial to continue`} />
+            <StepHeading
+              title={
+                spent
+                  ? `Your free ${TRIAL_DAYS} days are up`
+                  : `Start your ${TRIAL_DAYS}-day FREE trial to continue`
+              }
+            />
             {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
                 spread across whatever height is left over, so a tall phone breathes and a small
                 one simply stops spreading and scrolls — the previous flex-start packed
                 everything to the top and left the slack stranded at the bottom. Hardcoding that
                 slack as padding is what would push "No payment due now" off an SE. */}
+            {/* The timeline is about a trial. Showing "Today / Day 2 / Day 3" to someone whose
+                three days are gone describes something that cannot happen to them, so a spent user
+                gets what Pro reopens instead — the gate sheet's one-line promise, expanded. */}
             <View style={{ marginTop: Spacing.four }}>
-              {TRIAL_STEPS.map((s, i) => (
+              {(spent ? PRO_STEPS : TRIAL_STEPS).map((s, i) => (
                 <RiseIn key={s.title} delay={childDelay(i)}>
-                  <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === TRIAL_STEPS.length - 1} />
+                  <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === (spent ? PRO_STEPS : TRIAL_STEPS).length - 1} />
                 </RiseIn>
               ))}
             </View>
@@ -494,7 +579,7 @@ export default function Onboarding() {
               <PlanCard
                 selected={plan === 'annual'}
                 onPress={() => setPlan('annual')}
-                badge={`${TRIAL_DAYS} DAYS FREE · SAVE ${PRICING.savingPct}%`}
+                badge={spent ? `SAVE ${PRICING.savingPct}%` : `${TRIAL_DAYS} DAYS FREE · SAVE ${PRICING.savingPct}%`}
                 title="Annual"
                 sub={`Works out at ${PRICING.annualPerMonth} a month`}
                 price={PRICING.annual}
@@ -560,25 +645,53 @@ export default function Onboarding() {
         <View style={styles.footer}>
           {/* Reassurance sits with the CTA it reassures about. In the scrolling body it was the
               first thing clipped whenever the plan cards grew. */}
-          {step === PAYWALL_INDEX && (
+          {step === PAYWALL_INDEX && !spent && (
             <View style={styles.noPay}>
               <UIcon name="check" size={16} color={theme.primary} />
               <ThemedText type="bodyMedium">No payment due now</ThemedText>
             </View>
           )}
+          {/* 3/4 of the captured pricing screens carry a cancel reassurance beside the CTA
+              (Headway "super easy to cancel", Promova "Cancel anytime", Quizlet "Cancel anytime").
+              For a spent user that replaces "No payment due now", which would now be a lie. */}
+          {step === PAYWALL_INDEX && spent && (
+            <View style={styles.noPay}>
+              <UIcon name="check" size={16} color={theme.primary} />
+              <ThemedText type="bodyMedium">Cancel anytime in the App Store</ThemedText>
+            </View>
+          )}
           <GradientButton
-            label={step === REVEAL_INDEX ? 'Start learning' : step === PAYWALL_INDEX ? `Start my ${TRIAL_DAYS}-day free trial` : 'Continue'}
+            label={
+              step === REVEAL_INDEX
+                ? 'Start learning'
+                : step === PAYWALL_INDEX
+                  ? spent
+                    ? `Get Euphoria Pro — ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
+                    : `Start my ${TRIAL_DAYS}-day free trial`
+                  : 'Continue'
+            }
             full
-            disabled={!canContinue}
-            onPress={next}
+            loading={busy}
+            disabled={!canContinue || busy}
+            onPress={step === PAYWALL_INDEX && spent ? buyPro : next}
           />
+          {/* States its own reason rather than being a silently inert button — the pattern the
+              options preview cap already uses (§0.5). A disabled control with no explanation is
+              the dead end; one that explains itself is not. */}
+          {step === PAYWALL_INDEX && spent && !IAP_ENABLED && (
+            <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+              {IAP_DISABLED_REASON}
+            </ThemedText>
+          )}
           {step === PAYWALL_INDEX && (
             <>
               {/* Renewal terms belong in the pinned footer for the same reason the links do:
                   as the last child of the scrolling body they sat below the fold, and App Store
                   Review 3.1.2 wants the price and renewal terms ON the purchase screen. */}
               <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-                {TRIAL_DAYS} days free, then{' '}
+                {/* App Store Review 3.1.2 wants price and renewal terms ON the purchase screen.
+                    The trial clause is dropped for a spent user: they are not getting one. */}
+                {spent ? '' : `${TRIAL_DAYS} days free, then `}
                 {plan === 'annual'
                   ? `${PRICING.annual} per year, billed annually`
                   : `${PRICING.monthly} per month`}
