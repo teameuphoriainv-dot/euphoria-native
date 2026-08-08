@@ -5042,3 +5042,58 @@ The flag now validates SHAPE: RevenueCat iOS SDK keys are public and always begi
 **Never paste the `.p8` contents into a chat.** It belongs in `.env.local` / RevenueCat's uploader;
 `.env.local` is already gitignored.
 
+### C77. THE APP IS REJECTED AND HAS BEEN SINCE APRIL. Two named bugs. This outranks every open unit.
+
+Found by opening App Store Connect, which nothing in this plan had ever done. **App `6761808087`,
+"Euphoria: Learn to Invest", iOS 1.0, submitted Apr 8 2026, rejected Apr 9, "Unresolved Issues",
+untouched for four months.** The Resolution Center thread is still open.
+
+**Every unit in this plan assumed an unshipped app moving toward a first submission. It had already
+been submitted and knocked back.**
+
+**Review environment:** iPhone 17 Pro Max · iOS 26.4 · active internet · version 1.0 (build 6).
+
+#### Guideline 2.1(a) — Performance — App Completeness
+
+Apple's words, verbatim:
+
+> The app exhibited one or more bugs that would negatively impact users.
+> Bug description:
+> **(1) The app became unresponsive during onboarding process.**
+> **(2) We were unable to complete signing up with Apple due to an error.**
+
+**Both are reproducible targets, not vague feedback.** Onboarding is `src/app/onboarding.tsx`;
+"signing up with Apple" is Sign in with Apple in `src/app/auth.tsx`.
+
+#### Guideline 2.1(b) — Information Needed
+
+Not a bug — a **business-model questionnaire** that must be answered in writing before review
+continues:
+
+1. Who are the users that will use the paid subscriptions in the app?
+2. Where can users purchase the subscriptions that can be accessed in the app?
+3. What specific types of previously purchased subscriptions can a user access in the app?
+4. What paid content, subscriptions, or features are unlocked within the app that do not use
+   In-App Purchase?
+
+**Question 4 is the dangerous one** and it connects straight to C76: the app ships a paywall whose
+purchase button is disabled behind `IAP_ENABLED`. Apple is asking whether anything is unlocked
+WITHOUT In-App Purchase. That answer has to be true and consistent with what actually ships.
+
+#### A correction I have to make about my own reasoning
+
+Before reading the text I inferred from Apple's two attached links — "Testing a Release Build" and
+"Networking Overview" — that the reviewer's build had failed to load, probably because `/api/market`
+is served by Metro in development. **That was wrong.** The links are boilerplate attached to every
+2.1(a); the actual bugs are an onboarding hang and a broken Sign in with Apple. Reasoning from which
+resources Apple chose felt evidential and was not. **Read the text.**
+
+#### What this does to the plan
+
+**Sequencing changes.** Unit 5 makes a rejected app able to take money; fixing 2.1(a) makes it able
+to exist. Two named, reproducible bugs and a written reply now outrank Units 5, 16 and 17.
+
+**Also worth noting:** two reviewer screenshots are attached to the submission
+(`Screenshot-0409-151113.png`, `Screenshot-0409-151139.png`) and have never been looked at. They
+show what the reviewer saw.
+
