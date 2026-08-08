@@ -1367,7 +1367,7 @@ change), and confirm the dismiss control is tappable via `sim.sh tapon`.
 
 ---
 
-## UNIT 5 — In-app purchase (RevenueCat) ⛔ **BUILT BEHIND A FLAG, BLOCKED ON APPLE** (C46 · C49)
+## UNIT 5 — In-app purchase (RevenueCat) 🔶 **APPLE BLOCK CLEARED — ASC access obtained 2026-08-08** (C46 · C49 · C76)
 
 **Without this, Unit 4 is the largest dead control in the app (§0.5).** They ship together.
 
@@ -5008,4 +5008,37 @@ would look like a design choice rather than a bug.
 **The general lesson, which is bigger than this screen:** a revamp scoped by UNIT misses any surface
 no unit named. Before Unit 14, every route in `certify.py`'s list of 18 should be checked for
 *whether it was ever designed*, not just whether it uses the tokens.
+
+### C76. THE IAP FLAG WAS TRUE FOR A PLACEHOLDER KEY. C49's block is cleared; this was under it.
+
+The user obtained App Store Connect access, clearing C49. Checking the wiring before using it found
+a defect that C49's block had been hiding.
+
+`.env.local` holds `EXPO_PUBLIC_REVENUECAT_IOS_KEY` set to a **32-character `test_…` placeholder**.
+The flag was:
+
+```ts
+export const IAP_ENABLED = KEY.length > 0;   // TRUE for a placeholder
+```
+
+So the app believed purchases were live, ran `Purchases.configure()` with a bogus key, and rendered
+a **live-looking Buy button whose only possible outcome was failure**. Unit 4's whole gate sits
+behind that button.
+
+**A placeholder that satisfies a presence check is worse than an empty string**, because an empty
+string degrades honestly — §0.5's disabled-with-a-reason path, which this codebase already builds.
+The flag now validates SHAPE: RevenueCat iOS SDK keys are public and always begin `appl_`.
+
+**What is still needed, and only the user can supply it:**
+
+| # | in App Store Connect | why |
+|---|---|---|
+| 1 | Users and Access → Integrations → **In-App Purchase** → generate key, download the **`.p8`** | RevenueCat cannot validate receipts without it. **Downloadable ONCE** |
+| 2 | **Issuer ID** and **Key ID** from that same page | RevenueCat's form requires both alongside the `.p8` |
+| 3 | Two products: **Monthly $9.99**, **Annual $79.99** | C31's locked prices |
+| 4 | A **Sandbox tester** account | A purchase cannot be verified without one, and §9.8 says so |
+| 5 | The `appl_…` **public SDK key** from RevenueCat → `.env.local` | This is what flips `IAP_ENABLED` |
+
+**Never paste the `.p8` contents into a chat.** It belongs in `.env.local` / RevenueCat's uploader;
+`.env.local` is already gitignored.
 

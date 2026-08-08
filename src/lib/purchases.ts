@@ -83,7 +83,18 @@ const KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY ?? '';
  * key, like the Supabase anon key and unlike GEMINI_API_KEY — it identifies the app, it does not
  * authorise anything a receipt would not already prove.
  */
-export const IAP_ENABLED = KEY.length > 0;
+/**
+ * Purchases are live only for a key that is SHAPED like a real one.
+ *
+ * This was `KEY.length > 0`, and `.env.local` held a 32-character `test_…` placeholder — so the
+ * flag read TRUE, `Purchases.configure()` ran with a bogus key, and the paywall rendered a
+ * live-looking Buy button whose only possible outcome was failure. A placeholder that satisfies a
+ * presence check is worse than an empty string, because an empty string degrades honestly.
+ *
+ * RevenueCat iOS SDK keys are public and always begin `appl_`. Anything else is not a key we can
+ * transact with, and the app should say so rather than pretend.
+ */
+export const IAP_ENABLED = KEY.startsWith('appl_');
 
 /** Why a purchase surface cannot sell right now. Rendered verbatim on the paywall, so it must read
  *  as an explanation to a person and not as a developer note. */
