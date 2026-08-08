@@ -5097,3 +5097,30 @@ to exist. Two named, reproducible bugs and a written reply now outrank Units 5, 
 (`Screenshot-0409-151113.png`, `Screenshot-0409-151139.png`) and have never been looked at. They
 show what the reviewer saw.
 
+### C78. AGREED SEQUENCE AFTER C77. Do these in this order.
+
+Decided with the user 2026-08-08, immediately after the rejection was found.
+
+**STEP 1 — Harvest credentials while ASC and RevenueCat are authenticated.** The user's logged-in
+session is the scarce resource; bugs can be fixed without them present. Needed:
+`.p8` in-app-purchase key · Issuer ID · Key ID · the two products (Monthly $9.99, Annual $79.99 per
+C31) · a Sandbox tester · RevenueCat's `appl_…` public SDK key into `.env.local`.
+
+> **THE `.p8` IS DOWNLOADABLE EXACTLY ONCE AND CANNOT BE RE-DOWNLOADED.** Do not begin generating it
+> at the tail end of a session. Start it with room to finish: download, move into place, and confirm
+> RevenueCat accepted it in one unbroken run. A half-finished key generation leaves an unusable key
+> occupying a slot. **Check first whether a key already exists** — this may need no generation at all.
+> Never paste `.p8` contents into a chat; it belongs in the uploader and in gitignored `.env.local`.
+
+**STEP 2 — the 2.1(a) bugs, in chronological order:**
+1. **Read the reviewer's two screenshots** (`Screenshot-0409-151113.png`, `-151139.png`, attached to
+   the submission). They show the screen where onboarding froze. Never opened.
+2. **Reproduce the onboarding hang** on device.
+3. **Sign in with Apple** — likelier a config defect (capability, Services ID, Supabase redirect)
+   than a code one.
+
+**STEP 3 — the 2.1(b) reply. I draft, the user approves, nothing sends without that.** Replying to
+App Review is outward-facing and permanent. The answers must be TRUE of the shipped binary —
+especially question 4 (what is unlocked without In-App Purchase), which is only answerable honestly
+once Step 1 makes the purchase path real.
+
