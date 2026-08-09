@@ -39,6 +39,17 @@ export type Profile = {
   name: string | null;
   handle: string | null;
   email: string | null;
+  /** Which provider proved this identity, and that provider's stable id for the user.
+   *
+   *  `authProvider: null` means the account was created with the email form, which proves nothing —
+   *  it is a local profile, not a verified identity. Apple and Google DO prove it, and `authId` is
+   *  the id to key that user on (Apple's `user`, Google's `user.id`). Never an email: Apple hands
+   *  out per-app relay addresses that can be turned off, so an email is not a stable identity.
+   *
+   *  Persisted with the rest of the profile, so a verified sign-in survives a relaunch — which
+   *  matters more than usual for Apple, whose name/email come back exactly once ever. */
+  authProvider: 'apple' | 'google' | null;
+  authId: string | null;
   /** Epoch ms the guided first action was taken OR skipped. A STAMP rather than inferring from
    *  readPosts, so skipping is permanent: inferring would hand the screen back on every sign-in,
    *  and would treat someone who reads their first guide months later as brand new. */
@@ -60,6 +71,8 @@ export const EMPTY_PROFILE: Profile = {
   name: null,
   handle: null,
   email: null,
+  authProvider: null,
+  authId: null,
   firstRunDoneAt: null,
 };
 

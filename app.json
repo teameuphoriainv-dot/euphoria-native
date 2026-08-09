@@ -10,6 +10,7 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.euphoria.native",
+      "appleTeamId": "9SS423KXF5",
       "backgroundColor": "#09090D",
       "entitlements": {
         "com.apple.security.application-groups": [
@@ -45,7 +46,8 @@
           "imageWidth": 76
         }
       ],
-      "@bacons/apple-targets"
+      "@bacons/apple-targets",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true,

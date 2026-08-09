@@ -5209,6 +5209,9 @@ settled.** Check ASC → App Information → Bundle ID first.
 
 ### C82. RESOLVED, AND IT IS `app.json` THAT IS WRONG. The repo builds a bundle ID Apple has never seen.
 
+> **VOID — superseded by C90.** The conclusion here is inverted; the listing belongs to
+> `~/euphoriamobile`. Reverted in `ec29aaf`. Retained only as a record of the error.
+
 App Store Connect, App Information for app `6761808087` "Euphoria: Learn to Invest":
 
 | | |
@@ -5242,6 +5245,9 @@ cascades into the App Group, the widget target, the entitlements, and any provis
 a mismatched configuration work.
 
 ### C83. BUNDLE ID CORRECTION VERIFIED END TO END.
+
+> **VOID — superseded by C90.** The conclusion here is inverted; the listing belongs to
+> `~/euphoriamobile`. Reverted in `ec29aaf`. Retained only as a record of the error.
 
 `prebuild --clean` + full rebuild under `com.euphoriainv.euphoria`. All three claims measured:
 
@@ -5341,6 +5347,125 @@ C84 option 2 — remove both and ship email-only — never a half-wired provider
 
 **Bug 1, the onboarding freeze, remains unreproduced.** It must not be assumed to be the same defect.
 
+
+### C86. THE APP COULD NOT HAVE SHIPPED REGARDLESS — the Program License Agreement is unaccepted.
+
+Every unit from C76 onward assumed the blocker was the code. It was not. MEASURED in the live
+developer account (team **9SS423KXF5**, "RAMYA SMITHA CHILAMANTULA", enrolled as Individual):
+
+- `developer.apple.com/account/resources/identifiers/list` returns a modal: **"Unable to process
+  request - PLA Update available. You currently don't have access to this membership resource. To
+  resolve this issue, agree to the latest Program License Agreement in your developer account."**
+- App Store Connect banner: *"In order to update your existing apps and submit new apps, the
+  **Account Holder** must review and accept the updated agreement."*
+- On submission `4a0a0bdf-0f8e-48d4-ad1f-7a5bb925a171`, **"Resubmit to App Review" is greyed out.**
+
+The consequences, in order of how much they cost:
+
+1. **Sign In with Apple cannot be enabled on the App ID** — the capability lives behind
+   Certificates, Identifiers & Profiles, which is exactly what the PLA gate blocks. C85 step 1
+   ("Apple Developer portal → enable the capability") was never actionable.
+2. **No build can be submitted**, so no amount of code work reaches review.
+3. **The App Store Connect API is blocked**, which also gates the RevenueCat `.p8` upload (C79-C81).
+
+The agreement on file reads *"Issued March 30, 2026. Accepted April 7, 2026."* — the submission went
+in on April 8 and was rejected April 9. A NEWER agreement has been issued since and is unaccepted.
+
+**Only the Account Holder can accept it. It is a binding legal contract and must not be accepted on
+their behalf by anyone, including an assistant with an authenticated session.**
+
+**The lesson is C82's, repeated at a higher level.** C82 found the repo building an identifier Apple
+had never seen. This is the same failure one layer up: months of unit work against an account that
+could not transact at all. **Check that the channel is open before optimising what goes down it.**
+
+### C87. TWO MORE ACCOUNT-LEVEL BLOCKERS, neither previously known.
+
+Both from the App Store Connect Apps page, both requiring the Account Holder:
+
+- **EU trader status is not provided.** *"Developers must provide their trader status to submit new
+  apps or app updates for distribution in the European Union (EU). To comply with the Digital
+  Services Act, your trader status must be provided or your apps will be removed from the App Store
+  in the EU."* This is a Digital Services Act requirement and it is a distribution blocker, not a
+  warning.
+- **New age-rating social media questions** are pending in App Information.
+
+Neither is code. Both must be cleared before a submission can complete.
+
+### C88. THE TEAM ID ON THIS MACHINE WAS THE WRONG ONE — and it would have been written into app.json.
+
+`@bacons/apple-targets` warns on every prebuild that `ios.appleTeamId` is missing. The obvious fix
+is to read it from the local provisioning profiles. That yields **`CPRVLR97XJ`** — which decodes to
+`application-identifier => CPRVLR97XJ.com.glowskin.app`, TeamName **"Ravi Pulavarthy"**. A different
+app, belonging to a different developer, that happens to have a profile cached on this Mac.
+
+The correct value, read off the account's own Membership details page, is **`9SS423KXF5`**, and that
+is what `app.json` now carries.
+
+Had the local value been trusted, the repo would have been signing against a team that does not own
+`com.euphoriainv.euphoria` — **the identical failure mode as C82's bundle id**, arrived at by the
+identical route: a plausible local artefact accepted without checking it against the authority.
+Local state describes this machine, never the account.
+
+### C89. THE SIMULATOR CANNOT VERIFY THE APPLE ENTITLEMENT. Do not read a green simulator run as proof.
+
+`euphorianative.entitlements` now contains `com.apple.developer.applesignin` → `Default` (it was 0
+at C84). That is the project config and it is correct.
+
+But MEASURED on the built simulator app:
+
+```
+codesign -dv  →  CodeDirectory flags=0x2(adhoc) · Signature=adhoc · TeamIdentifier=not set
+codesign -d --entitlements -  →  <plist version="1.0"><dict></dict></plist>
+```
+
+**The binary carries NO entitlements at all.** Simulator builds are ad-hoc signed and iOS does not
+enforce entitlements there. So C85's verification item — "`applesignin` entitlement present in the
+BUILT app" — **cannot be satisfied on a simulator**, and a Sign in with Apple flow that appears to
+work there proves nothing about a signed build.
+
+It becomes checkable only on a device or archive build signed with a profile whose App ID has the
+capability enabled — which is blocked by C86. **Sequence: PLA → capability → device build → verify.**
+
+Related measurement, correcting an assumption made while wiring it: the Google native pods ARE
+linked (`GoogleSignIn.bundle`, `GTMAppAuth`, `AppAuthCore` are all embedded in the built app).
+CocoaPods autolinks them from the npm package regardless of whether the config plugin is listed in
+`app.json`. What the config plugin supplies is the `iosUrlScheme` the OAuth callback returns
+through. The provider is therefore "linked but unconfigured", not "missing".
+
+### C90. C82 AND C83 ARE VOID. The listing belongs to a DIFFERENT REPO, and this one was never it.
+
+C82 found `app.json` building `com.euphoria.native` while ASC's listing is bound to
+`com.euphoriainv.euphoria`, and concluded `app.json` was wrong. **The conclusion was inverted.** The
+reviewer screenshots on submission `4a0a0bdf-0f8e-48d4-ad1f-7a5bb925a171` show a **Capacitor** app,
+not this one: its auth screen carries email+password fields this repo has never had, and its error
+string — `"SignInWithApple" plugin is not implemented on ios` — is Capacitor's, not React Native's.
+
+That app is **`~/euphoriamobile`**:
+
+| evidence | value |
+|---|---|
+| `capacitor.config.ts` | `appId: 'com.euphoriainv.euphoria'` |
+| `package.json` | `@capacitor-community/apple-sign-in ^7.1.0` |
+| `project.pbxproj` | `MARKETING_VERSION 1.0.0` |
+
+So the mismatch C82 measured was real; only its reading was wrong. **This repo's identifier did not
+match because this repo was never the shipping app.**
+
+Leaving C82 in place was worse than the bug it claimed to fix: **two repos on this machine then
+declared `com.euphoriainv.euphoria`**, so archiving this one could have been uploaded over the real
+listing. Reverted across all five files C82 touched — `app.json` bundle id + App Group, `sim.sh`,
+`seed-trial.sh`, `widget.ts` `APP_GROUP`, `widget/index.swift` `appGroup`.
+
+**Two costs are already paid.** The App Group container created under C83's id is orphaned, and
+C82's `prebuild --clean` wiped the simulator data container — the seeded state survives in
+`refs/BASELINE_STORE_20260808_pre_unit13.json`, restored by **C70's** procedure (terminate → write
+BOTH the manifest inline value and the spill file → launch), not by a plain write.
+
+**The lesson, and it is the expensive one: a mismatch between two sources does not tell you WHICH
+one is wrong.** C82 saw ASC and `app.json` disagree, assumed the repo was at fault, changed the
+bundle id, the App Group and the tooling, and ran a destructive prebuild — never testing the other
+reading. A single `ls ~/euphoria*` would have found it. **Enumerate the readings before acting on
+one.**
 
 ### C91. BOTH REJECTION BUGS ARE ALREADY FIXED IN ~/euphoriamobile. Neither fix has ever been submitted.
 
