@@ -5642,3 +5642,102 @@ target intact.
 **Nothing here unblocks submission.** The Program License Agreement (C86), EU trader status (C87),
 the age-rating questions (C87) and the absent Paid Applications Agreement (C92) all still stand, and
 the `applesignin` entitlement still cannot be enabled until the PLA is accepted (C89).
+
+### C95. THE APP ICON WAS EXPO'S LOGO. Measured in the built binary, not guessed.
+
+`assets/expo.icon` — the Icon Composer bundle `ios.icon` pointed at — contained `expo-symbol 2.svg`
+over `grid.png` on `extended-srgb:0.0,0.478,1.0`, which is Expo blue. `assets/images/icon.png` was
+the same Expo chevron. The built app's Info.plist read:
+
+```
+CFBundleIconName  = expo
+CFBundleIconFiles = [expo60x60]
+```
+
+**Euphoria would have reached the App Store wearing Expo's branding on the home screen.** Nine
+months of unit work and nobody opened the icon.
+
+Fixed as an iOS 26 layered icon built from the mark already on listing 6761808087 (taken from the
+retired Capacitor build so store page and home screen agree). Alpha is derived per pixel as
+`max(r,g,b)`: the source is a light mark on solid black, so the channel maximum separates figure
+from ground CONTINUOUSLY — the art's soft halo fades out instead of leaving the hard matte line a
+threshold would cut. Ground `#2E1B52`, the store-screenshot gradient's top stop. Reproducible via
+`scripts/make-icon.mjs`. VERIFIED: `CFBundleIconName = euphoria` in the built binary.
+
+**TRAP.** A layer `position` carrying `scale` but no `translation-in-points` does not fail
+validation — it CRASHES `actool` outright: `-[__NSPlaceholderArray initWithObjects:count:]: attempt
+to insert nil object` inside `selectCatalogIconComposerItemsFromCollection`. The template's own
+second layer has no `position` key at all, so absent-position is the shape known to compile. The
+inset is baked into the PNG instead.
+
+### C96. GOOGLE SIGN-IN IS REAL. The client did not exist; it does now.
+
+There was no Google Cloud project for Euphoria under the first account checked (only "ReachLocal").
+The right account holds project `project-89488f28-ff41-4a20-bc4`, which already had **"Euphoria
+Investing" — a WEB client** used by the web app. A web client cannot serve as an iOS client id: no
+bundle id, no reversed URL scheme.
+
+Created **"Euphoria iOS"** there: bundle `com.euphoriainv.euphoria`, App Store ID `6761808087`,
+team `9SS423KXF5`. Client id lives in `.env.local` — a PUBLIC identifier, not a secret, since it
+ships inside the binary and inside the URL scheme. Plugin restored with the reversed scheme, and
+the scheme verified present in `ios/euphorianative/Info.plist`.
+
+`GOOGLE_ENABLED` now evaluates **true** against the real value, so the button renders — CONFIRMED
+on the simulator, not inferred from config.
+
+**Console-automation note:** the Cloud Console form would not submit when its fields were set
+programmatically. It is Angular; assigning `.value` leaves the model untouched, so the form still
+believed itself empty. Dispatching `input` + `change` on the native value setter fixed it. Expect
+this on any Angular console.
+
+### C97. THE PROVIDER BUTTONS WERE LOOKALIKES. Now Apple's and Google's own components.
+
+The buttons drew a generic person glyph and a globe next to "Continue with Apple" / "Continue with
+Google". Apple's Sign in with Apple guidelines require the Apple mark and an approved treatment;
+Google has the equivalent rule. On the exact screen this app was already rejected over, a lookalike
+button is an avoidable second look from review.
+
+Swapped to `AppleAuthentication.AppleAuthenticationButton` (WHITE — BLACK would vanish into this
+background and fail its own contrast guidance) and `GoogleSigninButton`. They no longer match the
+violet pills below; that trade was taken deliberately, with the user's decision.
+
+`GoogleSigninButton` takes a fixed `size` rather than a style width, so it sits NARROWER than the
+Apple pill. Known, not fixed, and not fixable by styling the wrapper.
+
+### C98. NOTHING THE APP FETCHES WILL WORK IN A PRODUCTION BUILD. No API origin, no eas.json.
+
+`apiBase()` (`lib/api.ts`) and `baseUrl()` (`lib/atlas-chat.ts`) both resolve:
+`EXPO_PUBLIC_API_URL` → `Constants.expoConfig.hostUri` → `''`.
+
+MEASURED: **`EXPO_PUBLIC_API_URL` is set nowhere** — not `.env.local`, not any config. And **there
+is no `eas.json` at all**, so no build or deploy profile exists to set it in.
+
+In development this is invisible: `hostUri` points at Metro and everything works. In a production
+or TestFlight build `hostUri` is undefined, the base resolves to `''`, and on native a relative URL
+has nothing to resolve against. `atlas-chat.ts:26` says so in its own comment.
+
+**Three of the app's core features fail in any real build: Atlas, market data, options.** The
+routes exist (`src/app/api/{chat,market,options}+api.ts`) and `web.output` is correctly `"server"`,
+but they have never been deployed anywhere.
+
+This is a defect that is invisible in exactly the environment it is developed in, and it presents
+to a reviewer as features that silently do nothing. Sequence: `eas.json` → deploy the routes to EAS
+Hosting → set `EXPO_PUBLIC_API_URL` to that origin in the production profile → verify on a real
+build, NOT on the simulator.
+
+### C99. THERE IS NO USER BACKEND, AND THAT IS DELIBERATE — but the league population is invented.
+
+All user state (streak, XP, cash, positions, profile, completed lessons) lives on device in zustand
++ AsyncStorage under `euphoria-app-state`. `lib/auth.ts`'s Supabase scaffolding is present but
+`AUTH_ENABLED` is FALSE — no `EXPO_PUBLIC_SUPABASE_URL`/`ANON_KEY` — and `currentUserId()` returns
+a hardcoded null.
+
+Nothing crashes as a result; per-device storage works. What it costs is real: data does not follow a
+user to a new phone, deleting the app destroys their streak and XP, there is no cross-device sync
+and no account recovery.
+
+`lib/people.ts` states the consequence plainly in its own header: *"EVERY PERSON IN THIS FILE IS
+FABRICATED. There is no backend, no accounts, and no real users."* The league races invented rivals.
+The file forbids presenting them as real people and says they are deleted the day accounts exist.
+Whether every surface honours that is UNVERIFIED and worth an audit before launch — fabricated
+social content is something App Review does sometimes challenge.
