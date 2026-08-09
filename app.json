@@ -8,7 +8,7 @@
     "scheme": "euphorianative",
     "userInterfaceStyle": "dark",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/euphoria.icon",
       "bundleIdentifier": "com.euphoriainv.euphoria",
       "appleTeamId": "9SS423KXF5",
       "backgroundColor": "#09090D",
@@ -47,7 +47,13 @@
         }
       ],
       "@bacons/apple-targets",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.1091301249021-jnq84r4gigho6r35725o9e55r9vi219m"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

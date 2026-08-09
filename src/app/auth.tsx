@@ -10,6 +10,8 @@
  *  - A cancel is NOT an error. Backing out of the Apple/Google sheet returns you here silently.
  *  - A provider that is not configured renders NO button. Never a button that cannot work.
  */
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
@@ -18,7 +20,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon, type UIconName } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import type { Profile } from '@/lib/onboarding-path';
@@ -33,43 +34,6 @@ import { useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-
-function ProviderButton({
-  label,
-  icon,
-  onPress,
-  busy = false,
-  disabled = false,
-}: {
-  label: string;
-  icon: UIconName;
-  onPress: () => void;
-  busy?: boolean;
-  disabled?: boolean;
-}) {
-  const theme = useTheme();
-  return (
-    // A provider sheet is a real round trip. Without this guard a second tap starts a second
-    // native request while the first is still open, which is one of the ways an auth screen ends
-    // up looking "unresponsive" to a reviewer.
-    <SpringPressable onPress={onPress} disabled={disabled || busy}>
-      <View
-        style={[
-          styles.provider,
-          { borderColor: theme.border, backgroundColor: theme.card },
-          (disabled || busy) && styles.providerBusy,
-        ]}
-      >
-        {busy ? (
-          <ActivityIndicator size="small" color={theme.text} />
-        ) : (
-          <UIcon name={icon} size={20} color={theme.text} />
-        )}
-        <ThemedText type="bodyMedium">{label}</ThemedText>
-      </View>
-    </SpringPressable>
-  );
-}
 
 export default function Auth() {
   const theme = useTheme();
@@ -170,26 +134,42 @@ export default function Auth() {
             absent button, never a broken one — that distinction is what the rejection was about. */}
         {(appleOk || GOOGLE_ENABLED) && (
           <RiseIn delay={90}>
+            {/* Apple's and Google's OWN button components, not lookalikes.
+             *
+             * These previously rendered a generic person glyph and a globe. Apple's Sign in with
+             * Apple guidelines require the Apple mark and an approved treatment, and Google has the
+             * equivalent rule — so a hand-drawn "Continue with Apple" pill is a guideline problem
+             * on the exact screen this app was already rejected over. Using the vendors' shipped
+             * components makes the question unarguable, at the cost of these two not matching the
+             * violet pills below. That trade was made deliberately. */}
             <View style={{ gap: Spacing.two + 2 }}>
               {appleOk && (
-                <ProviderButton
-                  label="Continue with Apple"
-                  icon="you"
-                  busy={busy === 'apple'}
-                  disabled={busy !== null}
+                <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                  // WHITE on a near-black screen. Apple permits BLACK, WHITE and WHITE_OUTLINE;
+                  // BLACK would vanish into this background and fail its own contrast guidance.
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+                  cornerRadius={Radius.pill}
+                  style={styles.vendorButton}
                   onPress={() => void runProvider('apple')}
                 />
               )}
               {GOOGLE_ENABLED && (
-                <ProviderButton
-                  label="Continue with Google"
-                  icon="globe"
-                  busy={busy === 'google'}
-                  disabled={busy !== null}
-                  onPress={() => void runProvider('google')}
-                />
+                <View style={styles.googleWrap} pointerEvents={busy ? 'none' : 'auto'}>
+                  <GoogleSigninButton
+                    size={GoogleSigninButton.Size.Wide}
+                    color={GoogleSigninButton.Color.Dark}
+                    disabled={busy !== null}
+                    onPress={() => void runProvider('google')}
+                  />
+                </View>
               )}
             </View>
+            {busy && (
+              <View style={styles.vendorBusy}>
+                <ActivityIndicator size="small" color={theme.mutedForeground} />
+              </View>
+            )}
             {authError && (
               <ThemedText type="small" style={[styles.authError, { color: theme.destructive }]}>
                 {authError}
@@ -249,8 +229,13 @@ const styles = StyleSheet.create({
   head: { alignItems: 'center', gap: Spacing.two },
   title: { fontSize: FontSize.title, textAlign: 'center', marginTop: Spacing.two },
   sub: { textAlign: 'center', maxWidth: 280 },
-  provider: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, paddingVertical: 15, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
-  providerBusy: { opacity: 0.6 },
+  // Apple's component draws itself and REQUIRES explicit dimensions -- given none it lays out at
+  // zero height and silently disappears. 52 matches the old pill's 15pt padding + text.
+  vendorButton: { width: '100%', height: 52 },
+  // GoogleSigninButton takes a fixed `size` rather than a style width, so it is centred rather
+  // than stretched; forcing it wider distorts the mark and breaks Google's branding rules.
+  googleWrap: { alignItems: 'center' },
+  vendorBusy: { alignItems: 'center', marginTop: Spacing.two },
   authError: { textAlign: 'center', marginTop: Spacing.two },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginVertical: Spacing.three },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
