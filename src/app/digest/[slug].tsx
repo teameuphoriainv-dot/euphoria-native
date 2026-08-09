@@ -167,7 +167,7 @@ export default function DigestArticle() {
       <AmbientBackground starCount={30} />
 
       <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close} hitSlop={10}>
+        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
         {/* segmented rather than one continuous track: Brilliant's pattern, and it also tells you

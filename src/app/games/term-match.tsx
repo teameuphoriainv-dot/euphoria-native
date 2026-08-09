@@ -102,7 +102,7 @@ export default function TermMatch() {
     <SafeAreaView style={styles.safe}>
       <AmbientBackground starCount={35} />
       <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
+        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10} accessibilityRole="button" accessibilityLabel="Back">
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
         <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingLg }}>Term Match</ThemedText>

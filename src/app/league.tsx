@@ -93,7 +93,7 @@ export default function League() {
       <AmbientBackground starCount={40} />
 
       <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10}>
+        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10} accessibilityRole="button" accessibilityLabel="Back">
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
         </SpringPressable>
       </View>

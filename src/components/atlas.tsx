@@ -475,6 +475,11 @@ export function Atlas({
     <Pressable
       onPressIn={() => scale.set(withSpring(0.92, { stiffness: 420, damping: 32 }))}
       onPressOut={() => scale.set(withSpring(1, { stiffness: 420, damping: 32 }))}
+      // Atlas is decorative here — tapping only spins the mascot. Announcing it as an image with a
+      // name is right; announcing it as a BUTTON would promise a destination it does not have, and
+      // an unnamed button is worse still. The interactive variants elsewhere carry their own label.
+      accessibilityRole="image"
+      accessibilityLabel="Atlas, the Euphoria mascot"
       onPress={spin}>
       <Animated.View style={wrapStyle}>
         <Animated.View style={breathStyle}>{svg}</Animated.View>
