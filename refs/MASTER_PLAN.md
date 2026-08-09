@@ -5598,3 +5598,47 @@ in the code.
 
 **Unchanged and still blocking, none of it code:** the Program License Agreement (C86), EU trader
 status (C87), the age-rating questions (C87), and the absent Paid Applications Agreement (C92).
+
+### C94. THE IDENTIFIER MOVED TO `com.euphoriainv.euphoria` — deliberately, and only after C90's hazard was closed.
+
+This is the fourth time this identifier has changed today and the first time with a verified reason.
+C82 moved it on an inverted conclusion. C90 reverted it correctly on the evidence then available.
+C93 established what neither had: **`euphoria-native` is the product**, so it must take listing
+`6761808087`, which is bound to `com.euphoriainv.euphoria`.
+
+**C90's objection was closed first, not argued away.** Its concern was that two repos on this machine
+would declare the same identifier, so the wrong one could be archived over the live listing.
+`~/euphoriamobile`'s README now carries a RETIRED banner naming the listing and forbidding builds
+from it (local commit; **not pushed** — that repo is the user's to publish). The stronger guard is
+archiving it on GitHub, which is one click and theirs to make.
+
+Changed in six places — the five C82 touched, plus `sim.sh`:
+
+| file | value |
+|---|---|
+| `app.json:12` | `bundleIdentifier` |
+| `app.json:17` | App Group |
+| `src/lib/widget.ts:25` | `APP_GROUP` |
+| `targets/widget/index.swift:11` | `appGroup` |
+| `scripts/seed-trial.sh:20` | `BUNDLE` |
+| `scripts/sim.sh:22` | `BUNDLE` |
+
+All three App Group declarations — `app.json`, the JS constant and the Swift constant — agree.
+**`app.json:33` `android.package` is deliberately left at `com.euphoria.native`**: Google Play is a
+separate listing, nobody has checked whether one exists under that name, and nothing about the App
+Store submission requires it. iOS and Android identifiers now differ on purpose, which is normal.
+
+Gate: tsc clean · lint 48 problems (3 errors, 45 warnings) at the C66 baseline · certify ALL ROUTES
+PASS 3a · digest map OK.
+
+**NOT DONE, and deliberately so: `npx expo prebuild -p ios --clean` has not been run.** The native
+project still carries the old identifier, so this is a config change and not yet a buildable one.
+**C82's prebuild is what wiped the simulator data container**, and it will happen again — the new
+App Group is a new container. Before prebuilding, have `refs/BASELINE_STORE_20260808_pre_unit13.json`
+and **C70's restore procedure** ready (terminate → write BOTH the manifest inline value and the
+spill file → launch). Then verify as C83 did: appex embedded, App Group container on disk, widget
+target intact.
+
+**Nothing here unblocks submission.** The Program License Agreement (C86), EU trader status (C87),
+the age-rating questions (C87) and the absent Paid Applications Agreement (C92) all still stand, and
+the `applesignin` entitlement still cannot be enabled until the PLA is accepted (C89).

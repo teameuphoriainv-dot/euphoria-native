@@ -22,7 +22,7 @@ import { dayKey, useApp } from './store';
  * stops matching, `UserDefaults(suiteName:)` returns nil in the widget and it silently renders
  * zeros — there is no error to see.
  */
-export const APP_GROUP = 'group.com.euphoria.native';
+export const APP_GROUP = 'group.com.euphoriainv.euphoria';
 
 const storage = Platform.OS === 'ios' ? new ExtensionStorage(APP_GROUP) : null;
 

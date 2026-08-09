@@ -8,7 +8,7 @@ import SwiftUI
 /// Mirrored from `app.json` -> `ios.entitlements` by the target config. If this string stops
 /// matching the app side, `UserDefaults(suiteName:)` returns nil and every value falls back to
 /// zero WITHOUT an error — so the fallback below is deliberately distinguishable in `hasData`.
-private let appGroup = "group.com.euphoria.native"
+private let appGroup = "group.com.euphoriainv.euphoria"
 
 struct EuphoriaEntry: TimelineEntry {
   let date: Date

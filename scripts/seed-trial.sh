@@ -17,7 +17,7 @@ set -euo pipefail
 N="${1:?activeDays count required}"
 PRO="${2:-false}"
 UDID="${EUPHORIA_UDID:-$(xcrun simctl list devices | awk '/\(Booted\)/{gsub(/[()]/,"");print $(NF-1);exit}')}"
-BUNDLE=com.euphoria.native
+BUNDLE=com.euphoriainv.euphoria
 
 C="$(xcrun simctl get_app_container "$UDID" "$BUNDLE" data)"
 D="$C/Library/Application Support/$BUNDLE/RCTAsyncLocalStorage_V1"
