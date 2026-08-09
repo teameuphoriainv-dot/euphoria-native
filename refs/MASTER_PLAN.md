@@ -5515,3 +5515,44 @@ questions. **The app has been fixable-and-fixed since 13 May and shippable on no
 Two cautions about that repo: it sits on branch `overnight/2026-06-05`, not `main`, and its tree is
 dirty (`Package.swift`, `package.json`, `App.tsx`, `FinancialGoalStep.tsx`, `CompletionScreen.tsx`,
 `bun.lock`). Resolve both before archiving anything — do not build a release off that state.
+
+### C92. THE ACCOUNT HAS NEVER BEEN ABLE TO SELL ANYTHING. There is no Paid Applications Agreement.
+
+MEASURED on App Store Connect → Business → Agreements today (2026-08-09), account
+**RAMYA SMITHA CHILAMANTULA**, team `9SS423KXF5`. The agreements table holds **exactly one row**:
+
+| Type | Countries | Effective | Status |
+|---|---|---|---|
+| **Free Apps Agreement** | All Countries or Regions | Apr 7, 2026 – Apr 7, 2027 | Active (New Agreement Available) |
+
+Apple's own banner on the same page:
+
+> *"To offer apps or other in-app purchases, you must update your legal entity information prior to
+> signing the **Paid Apps Agreement**."*
+
+**There is no Paid Applications Agreement, so no in-app purchase can be sold, by any build, today.**
+Every paywall unit, the trial timeline convergence work (C9, C14, C20–C24), the RevenueCat project
+hunt (C79–C81), the IAP key (`QP24DLK3HJ`, C80) and C76's `IAP_ENABLED` fix were all built against
+an account with no ability to take money. The key upload was never the last mile.
+
+**This is C86's lesson a third time, and the most expensive instance.** C82 optimised an identifier
+Apple had never seen. C86 found months of unit work aimed at an account that could not submit. C92
+finds a monetisation model aimed at an account that cannot charge. **Check that the channel is open
+before optimising what goes down it** — and check it FIRST, not after the work.
+
+**It also constrains the 2.1(b) reply.** Question 4 asks what is unlocked WITHOUT In-App Purchase.
+Until the Paid Apps Agreement is signed the honest answer is *everything*, because no IAP can
+transact. Do not draft an answer describing a paid tier that cannot currently exist.
+
+**The full account-side blocker list, all re-verified live today. None are code:**
+
+1. **Program License Agreement unaccepted** (C86) — blocks submission, blocks enabling Sign in with
+   Apple, blocks the ASC API. Account Holder only, at `developer.apple.com/account`.
+2. **EU trader status not provided** (C87) — Digital Services Act. Apple must *verify and publicly
+   display* trader contact information. A distribution blocker for the EU.
+3. **Legal entity information incomplete → Paid Apps Agreement unsigned** (this entry) — blocks all
+   IAP revenue.
+4. **Age-rating social media questions** pending in App Information (C87).
+
+Items 2 and 3 require real legal and financial facts about the entity, and item 1 is a binding
+contract. **None can be answered from the repo, and none should be guessed.**
