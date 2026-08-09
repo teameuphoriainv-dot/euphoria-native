@@ -8,8 +8,14 @@
  * Every claim here is TRUE of this codebase, which is the only reason it can be said (§0.4):
  *   - market data really is metered per call — see api/market+api.ts and its rate limits
  *   - Atlas really does cost per message — api/chat+api.ts proxies a paid model
- *   - there really are no ads and no data sale — there is no analytics or ad SDK in the tree at all
- * If any of those stops being true, this screen has to change with it.
+ *   - there really are no ads and no data sale — there is no ad SDK in the tree, and nothing here
+ *     is sold or shared
+ *   - "nothing that identifies you personally" is TRUE OF THE CONFIGURATION, not a hope: see
+ *     lib/analytics.ts, where session replay and autocapture are both off and the identity sent is
+ *     `installId`, never name, handle or email
+ * If any of those stops being true, this screen has to change with it. That is not a style note —
+ * this app once shipped a card claiming "no analytics" while Unit 17b added a tracking SDK, and
+ * the copy was only caught because the claim was written down next to the code that broke it.
  *
  * COPY IS UNAPPROVED (§20.2).
  */
@@ -33,7 +39,7 @@ const REASONS: { title: string; body: string }[] = [
   },
   {
     title: 'We do not run ads and we do not sell what you do here',
-    body: 'There is no ad SDK and no analytics in this app. That is a deliberate choice, and it removes the two usual ways a free finance app makes money.',
+    body: 'No ads, and we never sell your data. We do measure how the app gets used so we can make it better \u2014 nothing that identifies you personally. Those are the two usual ways a free finance app makes money, and we have given both up.',
   },
 ];
 
