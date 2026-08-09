@@ -189,14 +189,33 @@ export const XP_DAILY_GOAL = 50;
  * EVERY award funnels through here. If a caller ever writes `xp` directly, lifetime and weekly
  * totals drift apart and the league silently ranks people on stale numbers.
  */
-/** Append a portfolio-value snapshot. Capped so a heavy trader cannot grow the persisted blob
- *  without bound; 500 points is far more than any chart draws. */
+/**
+ * Append a portfolio-value snapshot. Capped so a heavy trader cannot grow the persisted blob
+ * without bound; 500 points is far more than any chart draws.
+ *
+ * MUST VALUE THE SAME THINGS `portfolioValue()` DOES. It did not, and that was a real defect:
+ * `portfolioValue` counts open option contracts at cost, this counted only cash and shares. So the
+ * headline said $10,003.28 while the chart's newest point sat at $9,222.22 — the exact premium of
+ * one open contract, $781.06, missing from one of them. The Trade tab then rendered
+ * "−$777.78 (7.78%) all time" underneath a portfolio that had not lost anything, permanently, for
+ * anyone who ever opened a contract.
+ *
+ * The comment on `portfolioValue` already describes this bug and fixes it THERE. The fix never
+ * reached here, because the value was computed twice from two different formulas. Same rule now
+ * lives in both: contracts count at COST, so an option contributes a return of exactly zero until
+ * it can be priced — understated, never invented.
+ *
+ * `derivatives` is a parameter rather than read off `s` because `openDerivative` snapshots with the
+ * list it is in the middle of appending to; reading `s.derivatives` there would miss the new one.
+ */
 const snapshot = (
-  s: { valueHistory: { t: number; v: number }[] },
+  s: { valueHistory: { t: number; v: number }[]; derivatives: { premium: number }[] },
   cash: number,
   positions: Record<string, number>,
+  derivatives: { premium: number }[] = s.derivatives,
 ) => {
-  const v = Object.entries(positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), cash);
+  const equity = Object.entries(positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), cash);
+  const v = derivatives.reduce((sum, d) => sum + d.premium, equity);
   return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
 };
 
@@ -553,10 +572,17 @@ export const useApp = create<AppState>()(
           if (!s.isPro) return s;
           if (s.derivativeTrades >= PRO_DERIVATIVE_PREVIEW) return s;
           if (d.premium > s.cash) return s;
+          const derivatives = [...s.derivatives, { ...d, id: `${d.sym}-${d.kind}-${d.strike}-${s.derivativeTrades}` }];
           return {
             cash: s.cash - d.premium,
             derivativeTrades: s.derivativeTrades + 1,
-            derivatives: [...s.derivatives, { ...d, id: `${d.sym}-${d.kind}-${d.strike}-${s.derivativeTrades}` }],
+            derivatives,
+            // Opening a contract wrote no snapshot at all, so the chart had no point for the one
+            // event most likely to move the line. Worse, the NEXT trade's snapshot picked up the
+            // reduced cash while the contract that consumed it was invisible, which is how the
+            // drop got recorded as a loss. Snapshot here, with the list including the new contract.
+            valueHistory: snapshot(s, s.cash - d.premium, s.positions, derivatives),
+            activeDays: withToday(s.activeDays),
           };
         }),
 

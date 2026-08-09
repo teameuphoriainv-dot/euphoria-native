@@ -26,6 +26,22 @@ export function apiBase(): string {
   return host ? `http://${host}` : '';
 }
 
+/**
+ * True when this build has nowhere to send a request.
+ *
+ * THIS IS THE C98 FAILURE, MADE LOUD. On native, `hostUri` exists only while Metro is attached, so
+ * a production or TestFlight build with no `EXPO_PUBLIC_API_URL` resolves its base to `''` and
+ * every fetch goes to a relative path with nothing to resolve against. Atlas, market data and
+ * options all die at once — and NONE of it reproduces in development, because development always
+ * has Metro. The bug is invisible in exactly the environment it is written in.
+ *
+ * Surfacing it as its own code means a misconfigured build says "misconfigured" instead of
+ * impersonating a network outage, and the check is cheap enough to run on every call.
+ */
+export function apiOriginMissing(): boolean {
+  return Platform.OS !== 'web' && apiBase() === '';
+}
+
 /** Thrown with the route's error code, never a raw upstream body. */
 export class ApiError extends Error {
   constructor(public code: string) {
@@ -49,6 +65,10 @@ export function apiHeaders(extra?: Record<string, string>): Record<string, strin
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
+  // Fail before the fetch, not after it. A relative URL on native does not produce a clean error
+  // — it produces something that reads like the user's connection is down, which sends everyone
+  // hunting the wrong problem.
+  if (apiOriginMissing()) throw new ApiError('no_api_origin');
   const res = await fetch(`${apiBase()}${path}`, { headers: apiHeaders() });
   const data = await res.json().catch(() => null);
   if (!res.ok) {

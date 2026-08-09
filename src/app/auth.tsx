@@ -223,6 +223,10 @@ export default function Auth() {
   );
 }
 
+/** GoogleSigninButton Size.Wide. Apple's button is matched to it so the pair aligns. */
+const VENDOR_W = 312;
+const VENDOR_H = 48;
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
@@ -230,10 +234,13 @@ const styles = StyleSheet.create({
   title: { fontSize: FontSize.title, textAlign: 'center', marginTop: Spacing.two },
   sub: { textAlign: 'center', maxWidth: 280 },
   // Apple's component draws itself and REQUIRES explicit dimensions -- given none it lays out at
-  // zero height and silently disappears. 52 matches the old pill's 15pt padding + text.
-  vendorButton: { width: '100%', height: 52 },
-  // GoogleSigninButton takes a fixed `size` rather than a style width, so it is centred rather
-  // than stretched; forcing it wider distorts the mark and breaks Google's branding rules.
+  // zero height and silently disappears.
+  //
+  // The width is matched to GoogleSigninButton rather than to the screen. Google's button takes a
+  // fixed `size` enum, not a style width, and stretching it distorts the mark and breaks Google's
+  // branding rules -- so the only way to get two provider buttons that line up is to bring APPLE
+  // down to Google's width. 312x48 is Size.Wide.
+  vendorButton: { width: VENDOR_W, height: VENDOR_H, alignSelf: 'center' },
   googleWrap: { alignItems: 'center' },
   vendorBusy: { alignItems: 'center', marginTop: Spacing.two },
   authError: { textAlign: 'center', marginTop: Spacing.two },

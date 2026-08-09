@@ -14,7 +14,7 @@
  */
 import Constants from 'expo-constants';
 
-import { apiHeaders } from './api';
+import { apiHeaders, apiOriginMissing } from './api';
 import { Platform } from 'react-native';
 
 export type ChatTurn = { role: 'user' | 'model'; content: string };
@@ -43,6 +43,10 @@ export class ChatError extends Error {
  * about what the network is doing.
  */
 export async function askAtlas(messages: ChatTurn[], signal?: AbortSignal): Promise<string> {
+  // Same C98 guard as `apiGet`. Atlas is the most visible casualty of a missing origin — a
+  // reviewer taps the mascot, nothing happens, and it reads as the app being broken rather than
+  // misconfigured.
+  if (apiOriginMissing()) throw new ChatError('no_api_origin');
   const res = await fetch(`${baseUrl()}/api/chat`, {
     method: 'POST',
     headers: apiHeaders({ 'Content-Type': 'application/json' }),
