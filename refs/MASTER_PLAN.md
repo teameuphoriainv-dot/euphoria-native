@@ -5341,3 +5341,52 @@ C84 option 2 — remove both and ship email-only — never a half-wired provider
 
 **Bug 1, the onboarding freeze, remains unreproduced.** It must not be assumed to be the same defect.
 
+
+### C91. BOTH REJECTION BUGS ARE ALREADY FIXED IN ~/euphoriamobile. Neither fix has ever been submitted.
+
+Verified by running the real repo, not by reading it.
+
+**Bug 1 — "unresponsive during onboarding".** Not a freeze. `ABOnboardingQuiz.tsx` at the submitted
+commit `d2f6ccf` (2026-04-05):
+
+```js
+const step = steps[currentStep];                     // undefined past the end
+const progress = ((currentStep + 1) / totalSteps) * 100;
+if (currentStep < totalSteps - 1) {                  // RENDER-TIME value
+  setCurrentStep((s) => s + 1);                      // LATEST value -- unclamped
+}
+```
+
+A stale-closure race, not a missing guard. Two taps before a re-render both read the same
+`currentStep`, both pass, and the second walks off the end — reachable only on the SECOND-TO-LAST
+step, since on the last one the guard is `4 < 4` and blocks. Result: `steps[5] === undefined` so the
+body renders NOTHING, `((5+1)/5)*100 = 120%` pins the bar full, and the rail prints **"6 of 5"** —
+the reviewer's screenshot, exactly.
+
+HEAD already fixes it: `Math.min(s + 1, totalSteps - 1)`. Locked in by
+`scripts/onboarding-step-regression.mjs` (commit `20aec92`), which reproduces the rejection on the
+old logic and proves the clamp holds for 2, 3, 5, 10 and 50 taps.
+
+**Bug 2 — `"SignInWithApple" plugin is not implemented on ios`.** The native plugin was ABSENT at
+the submitted commit (`git show d2f6ccf:ios/App/CapApp-SPM/Package.swift` → file not present). Added
+2026-05-13 in `9412ec6`, five weeks AFTER the rejection. Verified linked today by building it:
+
+| Check | Result |
+|---|---|
+| `npx cap sync ios` | `@capacitor-community/apple-sign-in@7.1.0` — first of 11 iOS plugins |
+| `xcodebuild -sdk iphonesimulator` | **BUILD SUCCEEDED** |
+| Compiled object | `SignInWithApple.o` (201.0K), `SignInWithApple.swiftmodule/` |
+| Plugin class in app dylib | `_$s15SignInWithAppleAAC13pluginMethods…` exported |
+| Apple framework symbols | `ASAuthorizationControllerDelegate`, `ASAuthorizationController` |
+
+The JS side (`src/pages/Auth.tsx:259`) is also correct: a hashed/raw nonce pair (hashed to Apple,
+raw to Supabase), a missing-`identityToken` guard, and Apple's ONE-SHOT `givenName`/`familyName`
+persisted to `user_metadata` only when not already set.
+
+**So no code fix is outstanding for either rejection bug.** What blocks the resubmission is entirely
+account-side (C86, C87): the Program License Agreement, EU trader status, and the age-rating
+questions. **The app has been fixable-and-fixed since 13 May and shippable on no day since.**
+
+Two cautions about that repo: it sits on branch `overnight/2026-06-05`, not `main`, and its tree is
+dirty (`Package.swift`, `package.json`, `App.tsx`, `FinancialGoalStep.tsx`, `CompletionScreen.tsx`,
+`bun.lock`). Resolve both before archiving anything — do not build a release off that state.
