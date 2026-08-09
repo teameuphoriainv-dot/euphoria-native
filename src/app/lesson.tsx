@@ -35,6 +35,7 @@ import { TileBuilder } from '@/components/tile-builder';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
 import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { gates, normalizeStep } from '@/lib/lesson-steps';
@@ -118,7 +119,17 @@ export default function Lesson() {
       setChecked(false);
       setSolved(false);
     } else {
+      // 17b funnel: first_lesson_completed, the activation step. Sampled BEFORE the call, because
+      // `completeLesson` is what makes the count non-zero — reading it afterwards can never see the
+      // transition. Tracked here rather than in the store: `analytics` imports the store, so the
+      // store importing analytics would close a cycle.
+      const wasFirst = useApp.getState().completedLessons.length === 0;
       useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp);
+      // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
+      // a no-op) cannot re-fire activation.
+      if (wasFirst && useApp.getState().completedLessons.length === 1) {
+        track(Ev.firstLesson, { course: courseId, lesson: lessonNum });
+      }
       // Bloom pays out free stock the moment a quiz is passed. `completeLesson` queues the cards;
       // route to them if any landed. A REPEAT of a finished lesson queues nothing (same dedupe),
       // so this correctly falls through to `back()` and never shows an empty reward screen.

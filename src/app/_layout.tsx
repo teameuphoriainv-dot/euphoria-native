@@ -24,6 +24,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { Ev, track } from '@/lib/analytics';
+import { dayKey, useApp } from '@/lib/store';
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -56,6 +59,28 @@ export default function RootLayout() {
   useEffect(() => {
     void refreshEntitlement();
   }, []);
+
+  /*
+   * 17b funnel: the return steps, which are the ones that decide retention. `install` is NOT sent
+   * from here — PostHog's `captureAppLifecycleEvents` emits Application Installed itself and keeps
+   * its own persisted flag, which is strictly more reliable than anything reconstructed from store
+   * state after a rehydrate.
+   *
+   * A "return" is a launch on a calendar day the user has not been active on yet, and it carries
+   * the day NUMBER, because "came back" and "came back on day 3" are different facts and only the
+   * second one tells you whether the trial length is right.
+   *
+   * Runs once per launch, after rehydration — `activeDays` is persisted, so reading it before the
+   * store settles would count every cold start as day one.
+   */
+  useEffect(() => {
+    if (!loaded) return;
+    const { activeDays } = useApp.getState();
+    const today = dayKey();
+    if (activeDays.length > 0 && !activeDays.includes(today)) {
+      track(Ev.dayReturn, { day_number: activeDays.length + 1 });
+    }
+  }, [loaded]);
 
   if (!loaded) return null;
 

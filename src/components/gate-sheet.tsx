@@ -35,6 +35,7 @@
  * - COPY IS UNAPPROVED. The structure is evidence-backed; the words are not signed off (§20).
  */
 import { BlurView } from 'expo-blur';
+import { useCallback, useEffect } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Atlas } from '@/components/atlas';
@@ -43,6 +44,7 @@ import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Ev, track } from '@/lib/analytics';
 import type { Feature, Refusal } from '@/lib/entitlement';
 import { useApp } from '@/lib/store';
 
@@ -110,12 +112,32 @@ export function GateSheet({
   const guides = useApp((s) => s.readPosts.length);
   const lessons = useApp((s) => s.completedLessons.length);
 
+  // 17b funnel: paywall_seen. Fires on the transition into visible, not on every render, and
+  // carries WHY the user hit the wall — a trial that expired and a per-feature count limit are
+  // different products failing, and a single "saw the paywall" number cannot tell them apart.
+  //
+  // Declared before the early return below: hooks cannot sit after a conditional return.
+  useEffect(() => {
+    if (!visible || refusal.ok) return;
+    track(Ev.paywallSeen, {
+      feature,
+      reason: refusal.reason,
+      lessons_done: lessons,
+      guides_read: guides,
+    });
+  }, [visible, refusal, feature, lessons, guides]);
+
+  const dismiss = useCallback(() => {
+    if (!refusal.ok) track(Ev.paywallDismissed, { feature, reason: refusal.reason });
+    onDismiss();
+  }, [refusal, feature, onDismiss]);
+
   if (refusal.ok) return null;
   const { lead, accentTail } = headlineFor(refusal, feature);
   const body = bodyFor(refusal, feature, guides, lessons);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onDismiss}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={dismiss}>
       {/* Real blur over the live screen — Astra AI 323575 blurs heavily, and the point of this sheet
           is that the user can still SEE what they were reaching for. pointerEvents none so the scrim
           below still receives the dismiss tap.
@@ -131,7 +153,7 @@ export function GateSheet({
         style={[styles.scrim, { backgroundColor: theme.background + '99' }]}
         accessibilityRole="button"
         accessibilityLabel="Dismiss"
-        onPress={onDismiss}
+        onPress={dismiss}
       />
       <View style={styles.dock} pointerEvents="box-none">
         {/* The mark straddles the sheet's top edge rather than sitting above it (C10). Atlas rather
@@ -146,7 +168,7 @@ export function GateSheet({
             hitSlop={12}
             accessibilityRole="button"
             accessibilityLabel="Close"
-            onPress={onDismiss}>
+            onPress={dismiss}>
             <UIcon name="close" size={18} color={theme.textSecondary} />
           </Pressable>
 

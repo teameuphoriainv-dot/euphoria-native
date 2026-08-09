@@ -29,6 +29,7 @@
 import * as Linking from 'expo-linking';
 import Purchases, { LOG_LEVEL, type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 
+import { Ev, track } from './analytics';
 import { useApp } from './store';
 
 /**
@@ -132,6 +133,11 @@ function isProFrom(info: CustomerInfo): boolean {
 function adoptCustomerInfo(info: CustomerInfo): boolean {
   const pro = isProFrom(info);
   const s = useApp.getState();
+  // 17b funnel: the last step. Fires on the FALSE -> TRUE edge only, so a listener that re-delivers
+  // the same entitlement (RevenueCat does, on every app foreground) cannot inflate conversions.
+  // Losing Pro is not tracked here — that is churn, and RevenueCat's own cohorts measure it far
+  // better than a client event can, since the client is usually closed when a renewal fails.
+  if (!s.isPro && pro) track(Ev.paid);
   if (s.isPro !== pro) s.setPro(pro);
   return pro;
 }
