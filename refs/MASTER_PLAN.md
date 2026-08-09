@@ -5556,3 +5556,45 @@ transact. Do not draft an answer describing a paid tier that cannot currently ex
 
 Items 2 and 3 require real legal and financial facts about the entity, and item 1 is a binding
 contract. **None can be answered from the repo, and none should be guessed.**
+
+### C93. `euphoria-native` IS THE PRODUCT. Confirmed by the user, and it settles a question that inverted three times in one day.
+
+**The stable fact nobody checked: which repo does the user actually push to.** Measured across both
+authenticated GitHub accounts (`teameuphoriainv-dot`, `s-k-28`), every repo, sorted by push date:
+
+| repo | last push | |
+|---|---|---|
+| `teameuphoriainv-dot/euphoria-native` | **2026-08-08 / 09** | 311 commits — **the product** |
+| `teameuphoriainv-dot/euphoriaweb*` | 2026-08-04 | content source, not an app |
+| `teameuphoriainv-dot/euphoriamobile` | **2026-07-10** | `main` and `educator-hub-polish` both cold |
+
+`euphoriamobile`'s local tree *looks* current — it carries commits dated 2026-08-08 — but those were
+written by an **assistant session** verifying C91 and were never pushed. A local branch is not
+evidence of a maintained project. **Check the remote, and check who authored the commits.**
+
+**So the App Store listing points at an app that was abandoned in July, and the app being built
+daily has no listing.** That is the real situation, and no correction before this one stated it.
+
+**What follows, and it must be done deliberately rather than by another swing:**
+
+1. **`euphoria-native` has to take listing `6761808087`**, which means its bundle id must become
+   `com.euphoriainv.euphoria` — the change C82 made for a reason C82 did not have, and that C90
+   correctly reverted on the evidence available *then*.
+2. **C90's hazard is still real and must be closed first.** Its objection was that TWO repos on this
+   machine would declare the same identifier, so the wrong one could be archived over the live
+   listing. The fix is to **retire `euphoriamobile`** — not to leave the shipping app on an
+   identifier Apple has never seen. Do not re-apply the id until that repo cannot produce an upload.
+3. **The 2.1(b) reply reverts to `euphoria-native` facts.** The rewrite against `euphoriamobile` is
+   void; its Stripe finding describes an app that will not ship. `euphoria-native` has **no external
+   payment path at all** — the only `stripe`/`checkout` matches in `src/` are lesson prose and an
+   icon comment. Apple IAP through `react-native-purchases` is the only purchase mechanism.
+
+**C82 → C90 → C93 is the same question answered three ways in one day.** Each step reasoned
+correctly from the evidence in front of it, and each was missing the one cheap check that would have
+settled it: C82 never ran `ls ~/euphoria*`; C90 never checked which remote had recent pushes; this
+entry only exists because the user was asked outright. **When a fact keeps inverting, stop
+re-deriving it and go find the authority** — here, the user and the push log, neither of which is
+in the code.
+
+**Unchanged and still blocking, none of it code:** the Program License Agreement (C86), EU trader
+status (C87), the age-rating questions (C87), and the absent Paid Applications Agreement (C92).
