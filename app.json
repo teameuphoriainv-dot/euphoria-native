@@ -9,11 +9,11 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.euphoriainv.euphoria",
+      "bundleIdentifier": "com.euphoria.native",
       "backgroundColor": "#09090D",
       "entitlements": {
         "com.apple.security.application-groups": [
-          "group.com.euphoriainv.euphoria"
+          "group.com.euphoria.native"
         ]
       },
       "infoPlist": {
