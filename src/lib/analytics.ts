@@ -48,6 +48,12 @@ export const Ev = {
   dayReturn: 'day_return',
   paywallSeen: 'paywall_seen',
   paywallDismissed: 'paywall_dismissed',
+  /** 17d. The whole point of the dismissal offer is that `special_offer_seen` divided by
+   *  `paywall_dismissed` is a rate you can actually read, and `special_offer_accepted` over
+   *  `special_offer_seen` tells you whether a second ask is worth the interruption at all. */
+  specialOfferSeen: 'special_offer_seen',
+  specialOfferAccepted: 'special_offer_accepted',
+  specialOfferDismissed: 'special_offer_dismissed',
   trialStarted: 'trial_started',
   paid: 'paid',
 } as const;

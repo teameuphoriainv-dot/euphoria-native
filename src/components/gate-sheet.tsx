@@ -35,7 +35,7 @@
  * - COPY IS UNAPPROVED. The structure is evidence-backed; the words are not signed off (§20).
  */
 import { BlurView } from 'expo-blur';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Atlas } from '@/components/atlas';
@@ -45,6 +45,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Ev, track } from '@/lib/analytics';
+import { IAP_ENABLED } from '@/lib/purchases';
 import type { Feature, Refusal } from '@/lib/entitlement';
 import { useApp } from '@/lib/store';
 
@@ -127,10 +128,60 @@ export function GateSheet({
     });
   }, [visible, refusal, feature, lessons, guides]);
 
+  /*
+   * UNIT 17d — the dismissal offer, and the reason it lives INSIDE this component.
+   *
+   * GateSheet is mounted in four places (learn, digest, chat, stock). Bolting a second sheet onto
+   * each call site would be four chances to wire it differently; triggering on this component's own
+   * dismiss is one implementation and four surfaces.
+   *
+   * EVIDENCE (ScreensDesign, verified in pixels 2026-08-10, not from flow descriptions). Four apps
+   * examined, all four fire a better offer on dismissal of the first paywall — Translator GO flow
+   * 103351 "Special Offer Free Trial", Yazio 76453, StressWatch 100874 (the dataset's own word is
+   * "exit-intent"), Numify 103127. HONEST HIT RATE: 4/4 OF THE APPS I CHECKED, and I chose them
+   * because their summaries suggested exit-intent — that is selection bias, not a random sample of
+   * the 328 apps carrying the pattern. Treat it as a strong lead, not as proof.
+   *
+   * Three things held across all four, and they are what is copied here:
+   *   1. it fires on DISMISSAL, not on a timer or a later session
+   *   2. the second offer is genuinely BETTER than the first
+   *   3. the second screen is drastically SIMPLER — Translator GO drops from two plans, four
+   *      features, social proof and fine print to one image, three lines and a single button
+   *
+   * NOT COPIED: the spin-the-wheel (Yazio, Numify — 2/4). A gambling metaphor attached to a money
+   * decision contradicts this app's own behavioural-finance curriculum. Chosen by the user.
+   */
+  const [phase, setPhase] = useState<'gate' | 'offer'>('gate');
+  const offerSeenAt = useApp((s) => s.specialOfferSeenAt);
+  const isPro = useApp((s) => s.isPro);
+  const markOfferSeen = useApp((s) => s.markSpecialOfferSeen);
+
+  /*
+   * Whether a second ask is honest right now.
+   *
+   * IAP_ENABLED is in here deliberately: without a configured store there is no better offer we
+   * could actually honour, and showing one would be a promise the build cannot keep — the same
+   * §0.5 rule that makes the paywall render its Buy control disabled-with-reason rather than live.
+   * ONCE per install, and never to somebody who already pays.
+   */
+  const offerAvailable = IAP_ENABLED && !isPro && offerSeenAt === null;
+
   const dismiss = useCallback(() => {
     if (!refusal.ok) track(Ev.paywallDismissed, { feature, reason: refusal.reason });
+    if (phase === 'gate' && offerAvailable) {
+      markOfferSeen();
+      track(Ev.specialOfferSeen, { feature });
+      setPhase('offer');
+      return;
+    }
+    if (phase === 'offer') track(Ev.specialOfferDismissed, { feature });
     onDismiss();
-  }, [refusal, feature, onDismiss]);
+  }, [refusal, feature, onDismiss, phase, offerAvailable, markOfferSeen]);
+
+  const acceptOffer = useCallback(() => {
+    track(Ev.specialOfferAccepted, { feature });
+    onSeePro();
+  }, [feature, onSeePro]);
 
   if (refusal.ok) return null;
   const { lead, accentTail } = headlineFor(refusal, feature);
@@ -172,6 +223,48 @@ export function GateSheet({
             <UIcon name="close" size={18} color={theme.textSecondary} />
           </Pressable>
 
+          {phase === 'offer' ? (
+            /*
+             * THE DISMISSAL OFFER. Deliberately the SIMPLEST screen in the app — mechanism 3 from
+             * the evidence, where Translator GO drops from two plans plus four features plus fine
+             * print to one image, three lines, one button.
+             *
+             * NO PRICE AND NO PERCENTAGE HERE, and that is not an omission. §0.4 forbids showing a
+             * number we cannot back, C31 locks annual at $79.99, and the discounted product does
+             * not exist in App Store Connect yet — inventing "$59.99" would put a figure on screen
+             * that no store can charge. The real number belongs on the plan screen, sourced from
+             * the RevenueCat package, the moment that package exists.
+             *
+             * NO FAKE URGENCY either. StressWatch ships "For limited time only, offer ends soon"
+             * with no timer behind it; that is exactly the kind of claim §0.4 exists to prevent.
+             *
+             * COPY IS UNAPPROVED (§20) — structure is evidence-backed, the words are not signed off.
+             */
+            <>
+              <ThemedText type="title" style={styles.lead}>
+                Before you go
+              </ThemedText>
+              <ThemedText type="title" style={[styles.lead, { color: theme.iconLilac }]}>
+                one better offer
+              </ThemedText>
+              <ThemedText type="body" themeColor="textSecondary" style={styles.body}>
+                We&apos;d rather you learned this than didn&apos;t. Take a look at what Pro costs
+                for a year — it works out cheaper than a month of most things you already pay for.
+              </ThemedText>
+              <GradientButton label="Show me the offer" full onPress={acceptOffer} />
+              <Pressable
+                style={styles.why}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="No thanks"
+                onPress={dismiss}>
+                <ThemedText type="small" themeColor="mutedForeground">
+                  No thanks
+                </ThemedText>
+              </Pressable>
+            </>
+          ) : (
+          <>
           {/* ~3:1 type ratio. `title` is the largest token that fits two lines here without
               wrapping a long word; `display` overflows at these headline lengths. */}
           <ThemedText type="title" style={styles.lead}>
@@ -209,6 +302,8 @@ export function GateSheet({
               Why isn&apos;t Euphoria free?
             </ThemedText>
           </Pressable>
+          </>
+          )}
         </View>
       </View>
     </Modal>
