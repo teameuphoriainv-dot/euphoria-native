@@ -6172,3 +6172,41 @@ expo-dev-client Tools button, not app chrome.
 **NOT FINISHED, and `refs/audit/20260810/FINDINGS.md` says so at the top.** 25 captures remain, with
 a per-screen method and a priority order written down. Audit findings are tracked; the PNGs are
 gitignored since they regenerate and would add ~20MB per run.
+
+### C112. THE CORRECTIONS LOG HAD A HOLE, and the carryover's first instruction pointed into it.
+
+`CARRYOVER.md` opens: *"Read `refs/MASTER_PLAN.md` §22 CORRECTIONS LOG C95 → C111 before anything
+else."* **Eleven of those seventeen entries did not exist.** §22 ended mid-C106 at line 5781, which
+was also EOF. C100-C105 and C107-C111 were cited by number in commit subjects and in the carryover,
+and written nowhere.
+
+**THE MECHANISM, because it is repeatable.** C95-C99 landed as their own documentation commit
+(`c01092a`), and C106 as another (`e41c7e4`). Both survived. The eleven that went missing were every
+one that was cited from inside a FEATURE commit -- `fix(portfolio) ... (C100)`,
+`a11y(unit13) ... (C101)`, and so on -- where writing the §22 entry was one more chore inside a
+larger change rather than the point of the commit. The reasoning was preserved, in full, in the
+commit BODY. Only the step that copies it into the log was skipped, every single time it was not
+itself the deliverable.
+
+**WHY THIS IS WORSE THAN A MISSING FILE.** This plan is the authority that C82, C90 and C93 kept
+inverting against, and §22's own closing lesson is "when a fact keeps inverting, stop re-deriving it
+and go find the authority." A log that is CITED BUT NOT WRITTEN is worse than one that is plainly
+absent, because the citation persuades the reader the entry exists and stops them looking. Three
+sessions of carryovers repeated "read C95 → C111" without anyone opening the file to check.
+
+**THE CHECK THAT WOULD HAVE CAUGHT IT COSTS ONE COMMAND:**
+
+```
+grep -c "^### C" refs/MASTER_PLAN.md     ->  100 headings
+highest number cited anywhere            ->  C111
+```
+
+A gap of eleven, visible in one line, at any point in the last two days.
+
+**RULE.** A correction is not recorded until it is IN §22. Citing `CNNN` in a commit subject creates
+an obligation; discharge it with `grep "^### CNNN\." refs/MASTER_PLAN.md` BEFORE committing, not
+after. If the entry is not there, the commit body is the only copy, and commit bodies are not where
+the next session looks.
+
+**Restored in `315ffa2`** from the eleven commit bodies, with a provenance header stating that where
+the reconstruction and a commit body disagree, the commit body wins.
