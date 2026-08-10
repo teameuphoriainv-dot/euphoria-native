@@ -15,8 +15,8 @@ only ONE is Finance (TradingView, $2.25M/mo). The rest are Education** — Duoli
 $14M, Learna $5M, Speak $3.25M, Babbel $3M, Quizlet $2.25M. Euphoria's peer group for MECHANISM is
 learning apps, not brokerages. Compare against Duolingo, not Robinhood.
 
-**Not finished.** This session audited HOME in depth and established the comparator set. The other
-25 captures are on disk and the method above is repeatable. Do not read absence of a screen below as
+**Not finished.** HOME and LEARN are audited in depth and the comparator set is established. The other
+24 captures are on disk and the method above is repeatable. Do not read absence of a screen below as
 "it passed".
 
 ---
@@ -69,11 +69,104 @@ first. Flagged because it looks exactly like a real layout collision.
 
 ---
 
-## TODO — the remaining 25 captures
+## LEARN — audited
+
+Compared against four apps, read as SCREENS (AGENTS.md rule 1), not descriptions:
+
+| App | $/mo | Screen | What it is |
+|---|---|---|---|
+| Duolingo | $48M | `112703` | winding path, circular nodes, unit banner |
+| Learna | $5M | `264998` | winding path, padlocked nodes, section rule |
+| Speak | $3.25M | `167918` | Course tab, unit header + lesson cards |
+| Babbel | $3M | `20450` | Today tab, unit header + lesson cards |
+
+**Selection is not random and the hit rates below inherit that.** These are the four apps in the
+Education $500k+ set whose recorded screens actually contain a course/path surface. Chosen for having
+the screen, not sampled. All four are language-learning; see transferability at the end.
+
+### The 4/4 findings
+
+**1. EVERY ONE SCOPES THE VISIBLE LIST TO A UNIT. Euphoria shows all 25 lessons in one flat scroll.**
+
+```
+Duolingo   SECTION 1, UNIT 1  ·  "Learn Korean vowels"
+Speak      UNIT 1 · 12 LESSONS ·  "Starting a Conversation"
+Babbel     Newcomer I (A1.1) - Unit 1 · "Greet people and say goodbye"
+Learna     "Beginner" as a section rule across the path
+Euphoria   "Behavioral Finance · 4% complete · 25 lessons"   <- the COURSE, no unit
+```
+
+4/4 carry TWO levels: the course/level AND a named group of ~5-12 lessons the learner is inside
+right now. Euphoria carries one. `learn.png` shows nine consecutive padlocked rows below the current
+lesson with no break, no grouping and no theme — **none of the four ever shows more than about six
+items before a divider or a unit boundary.** Duolingo breaks at six and teases the next unit name
+("Learn Korean consonants") behind a rule.
+
+This is a curriculum-shape finding, not a styling one. The 300 authored lessons (C17) are already
+ordered; nothing about grouping them into named units requires new content.
+
+**2. ALL FOUR PUT A STREAK COUNTER ON THE LEARNING SURFACE. Euphoria's Learn has no streak at all.**
+
+```
+Duolingo  flame 1 + gem 500, top strip     Speak   flame 1, top right
+Babbel    flame 1, top right               Learna  flame 0, top right
+Euphoria  "1/25" progress chip, top right — streak lives only on Home
+```
+
+This is the same defect the HOME audit recorded as gap 1, seen from the other side: **persistent
+status does not travel between Euphoria's surfaces.** Home has the streak and no balance; Learn has
+neither. In all four comparators the streak is chrome that follows you. A streak the user cannot see
+while doing the thing that extends it is a weaker commitment device.
+
+**3. LOCKED ITEMS ARE SHOWN RATHER THAN HIDDEN — 4/4, and Euphoria already does this.** Duolingo
+greys the nodes, Learna badges them with padlocks, Speak and Babbel show what is ahead as cards.
+**Parity. Do not "fix" it.** The gap is the RUN LENGTH, covered in finding 1, not the practice.
+
+### The 3/4 finding
+
+**4. THE NEXT ACTION IS A DISTINCT TAPPABLE OBJECT, not a caption.** Speak puts "Start" in a filled
+blue button inside a NEXT UP card. Babbel gives "Review now" a full-width orange card. Duolingo makes
+the active node bigger, bright green and ringed with an animated progress arc. Learna colours the
+active node red but attaches no button — 3/4, so recorded as strong, not unanimous.
+
+Euphoria's "START HERE" is a small pink caption under the lesson title, on a row that looks like
+every other row. The tap target is the row.
+
+### Excluded — below the evidence bar
+
+- **Per-lesson content preview** (2/4). Speak shows a real example phrase per lesson
+  ("Soy Gaby. ¡Mucho gusto!"), Babbel shows illustrations; Duolingo and Learna show icons only.
+  2/4 is not evidence — excluded, per AGENTS.md rule 3.
+- **Timed return object on the path** (1/4, Duolingo's chest at "1d 23h"). Already recorded as HOME
+  gap 2. 1/4 is not evidence on its own.
+
+### Transferability — what carries and what does not
+
+**CARRIES: unit chunking and persistent status.** Both are properties of a long ordered curriculum
+and of session commitment, not of language. Euphoria's 25-lesson courses are structurally the same
+object as a Duolingo unit sequence.
+
+**DOES NOT CARRY: the winding path.** Duolingo and Learna both use one, but their lesson labels are
+one or two words ("Saludos", a star icon). Euphoria's are sentences — "Overconfidence & Illusion of
+Control", "Building a Rational Investment Framework" — which cannot sit inside a circular node.
+**The rail-and-list is the correct choice for this content and should not be converted to a path.**
+Speak and Babbel, both list-based, are the right visual comparators; Duolingo and Learna are the
+right MECHANISM comparators.
+
+### Verify before acting
+
+The gear overlapping the `1/25` chip in `learn.png` is the expo-dev-client Tools button, and the
+white bar with the red badge over the tab bar is its LogBox overlay. Neither exists in a release
+build. Same class as the HOME finding — confirm on a release build before treating either as a
+layout bug.
+
+---
+
+## TODO — the remaining 24 captures
 
 Priority order for the next pass, money and retention first:
 
-1. `learn` · `lesson` — the core loop, compare vs Duolingo path + lesson
+1. `lesson` — the other half of the core loop. `learn` is DONE (above); `lesson` is not.
 2. `trade` — the only Finance comparator is TradingView `858`
 3. `auth` · `start` · `onboarding` — activation, vs Duolingo (52 onboarding steps) and Learna
 4. `you` · `league` — retention surfaces
