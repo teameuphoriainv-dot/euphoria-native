@@ -238,7 +238,12 @@ export function GateSheet({
              * NO FAKE URGENCY either. StressWatch ships "For limited time only, offer ends soon"
              * with no timer behind it; that is exactly the kind of claim §0.4 exists to prevent.
              *
-             * COPY IS UNAPPROVED (§20) — structure is evidence-backed, the words are not signed off.
+             * COPY APPROVED 2026-08-10 (§20). Trimmed from four rendered lines to one, because
+             * mechanism 3 says THREE LINES TOTAL and the headline above already spends two. The
+             * price framing that used to sit here ("cheaper than a month of most things you
+             * already pay for") was CUT rather than reworded — a comparative claim with no number
+             * behind it is the same §0.4 problem as the number itself. The real figure belongs on
+             * the plan screen, sourced from the RevenueCat package, once that package exists.
              */
             <>
               <ThemedText type="title" style={styles.lead}>
@@ -248,8 +253,7 @@ export function GateSheet({
                 one better offer
               </ThemedText>
               <ThemedText type="body" themeColor="textSecondary" style={styles.body}>
-                We&apos;d rather you learned this than didn&apos;t. Take a look at what Pro costs
-                for a year — it works out cheaper than a month of most things you already pay for.
+                We&apos;d rather you learned this than didn&apos;t.
               </ThemedText>
               <GradientButton label="Show me the offer" full onPress={acceptOffer} />
               <Pressable
