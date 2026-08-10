@@ -58,3 +58,7 @@ logs/
 # In-App Purchase private keys (.p8). NEVER commit these — Apple serves each exactly once.
 .secrets/
 *.p8
+
+# Screen-audit captures. The SCRIPT and the FINDINGS are tracked; 26 PNGs at ~1MB each are not --
+# they are regenerable by `scripts/capture-screens.sh` and would add ~20MB per audit run.
+refs/audit/**/*.png
