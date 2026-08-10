@@ -1,7 +1,19 @@
 # Deploying — read before any production build
 
-`eas.json` ships with **`EXPO_PUBLIC_API_URL` deliberately ABSENT** from the `preview` and
-`production` profiles. That is not an oversight; it is the fix for C98.
+**DEPLOYED 2026-08-10.** Production origin is **`https://euphoria-native.expo.app`**, project
+`@s-k-28/euphoria-native` (`8a6dba4a-e52a-4c04-b359-7244670431b1`), and `EXPO_PUBLIC_API_URL` is now
+set in both the `preview` and `production` profiles. C98's structural half is closed.
+
+**What remains: the four SERVER-SIDE keys are not set on the deployment**, so every route answers
+honestly but uselessly. Verified live:
+
+```
+GET /api/market?syms=NVDA  ->  503  {"error":"not_configured"}
+```
+
+Set them with `eas env:create` (see step 2) and redeploy. Until then Atlas, market data and options
+are reachable but non-functional — which is still strictly better than the pre-deploy state, where
+they failed as an unexplained network error.
 
 (It was briefly set to an empty string instead. EAS rejects that outright — *"env.EXPO_PUBLIC_API_URL
 is not allowed to be empty"* — so the key is omitted. Unset trips the same guard, so the loud

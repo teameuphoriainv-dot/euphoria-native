@@ -60,6 +60,30 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "backgroundColor": "#09090D"
+    "backgroundColor": "#09090D",
+    "extra": {
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.euphoriainv.euphoria.widget",
+                  "targetName": "EuphoriaWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.euphoriainv.euphoria"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "8a6dba4a-e52a-4c04-b359-7244670431b1"
+      }
+    },
+    "owner": "s-k-28"
   }
 }
