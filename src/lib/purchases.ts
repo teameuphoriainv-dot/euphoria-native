@@ -137,6 +137,9 @@ export function configurePurchases(): boolean {
  * arrives in the post" case, short enough that a genuinely dead subscription does not read as free
  * access for two months. It is a REVENUE trade and this number is where to argue with it.
  *
+
+ * PINNED BY scripts/billing-retry-regression.mjs. Change this rule and run it.
+ *
  * NOTE this is not the same thing as an App Store billing grace period. With grace period enabled
  * in App Store Connect, RevenueCat already reports the user as active and this code never fires.
  * This covers retry WITHOUT grace period, which is the case that silently loses people.

@@ -12,6 +12,12 @@
  *   - **No autocapture.** Every event in `Ev` below is one somebody chose to send. Autocapture
  *     would quietly ship whatever a future screen happens to render, which is how "we only measure
  *     how the app is used" stops being true without anyone deciding to break it.
+ *
+ *     IT IS OFF BY OMISSION, NOT BY A FLAG, and that is the trap. PostHog only autocaptures through
+ *     `<PostHogProvider autocapture>`; this module constructs the client directly and never mounts
+ *     that Provider. So wrapping the app in `<PostHogProvider>` — a reasonable-looking change —
+ *     silently turns it on and makes `why-not-free.tsx` false. If you add the Provider, pass
+ *     `autocapture={false}` and re-read that screen's copy before shipping.
  *   - **No PII, ever.** Not name, handle or email — the profile holds all three and none of them
  *     go here. The identity is `installId`, the same pseudonymous id the rate limiter already uses.
  *
