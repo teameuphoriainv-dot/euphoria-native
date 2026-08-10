@@ -5741,3 +5741,41 @@ FABRICATED. There is no backend, no accounts, and no real users."* The league ra
 The file forbids presenting them as real people and says they are deleted the day accounts exist.
 Whether every surface honours that is UNVERIFIED and worth an audit before launch — fabricated
 social content is something App Review does sometimes challenge.
+
+### C106. THE REAL REVENUECAT KEY IS IN. IAP_ENABLED is finally true — and the app degrades honestly.
+
+`.env.local` held a 32-character `test_…` placeholder — the exact string that made `IAP_ENABLED`
+read TRUE under the old `KEY.length > 0` check (C76). Replaced with the real public key read off
+the live dashboard: project **`320845df`**, app **`appbf28770359`**, bundle `com.euphoriainv.euphoria`,
+which matches App Store listing 6761808087. `EXPO_PUBLIC_` is correct — an `appl_` key is a PUBLIC
+client key that ships inside the binary.
+
+**This is not in git.** `.env.local` is gitignored, so this entry is the only record.
+
+The app now degrades exactly as designed. Its own diagnostic, on device:
+
+```
+[iap] configured but the current offering has NO packages. Check that
+euphoria_pro_monthly and euphoria_pro_yearly exist in App Store Connect
+```
+
+Correct, not a regression: the key connects and there are no products, because the Paid Applications
+Agreement is still unsigned (C92). The paywall says so rather than pretending.
+
+**Side effect worth recording on its own: 17d became visible.** The dismissal offer was gated on
+`IAP_ENABLED` and could not be rendered before. VERIFIED ON SCREEN — expire the trial, tap a locked
+lesson in Learn, dismiss the gate, and "Before you go / one better offer" rises with Atlas
+straddling the sheet edge and real blur behind it.
+
+**TWO THINGS DELIBERATELY NOT DONE, and both are the wrong-key trap:**
+
+1. RevenueCat's **App Store Connect API** slot is empty and stays empty. The `.p8` in `.secrets` is
+   `SubscriptionKey_QP24DLK3HJ.p8` — an IN-APP PURCHASE key. That slot's own hint reads
+   `AuthKey_XXXXXXXXXX.p8`. They are different key types and uploading ours there misconfigures it.
+2. The **in-app purchase** slot already holds `V2D263NV4V.p8` and RevenueCat reports **"Valid
+   credentials"** — which contradicts this plan's own claim that the April key is dead. A working
+   credential was not replaced on the strength of a note. **Resolve which is true before touching it.**
+
+**Self-criticism, recorded against my own evidence:** 17d's body copy runs four lines. The mechanism
+derived in C104 says the second screen must be DRASTICALLY simpler — Translator GO's is three short
+lines. Trim it when the copy is approved (§20).
