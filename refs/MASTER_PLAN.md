@@ -5742,6 +5742,229 @@ The file forbids presenting them as real people and says they are deleted the da
 Whether every surface honours that is UNVERIFIED and worth an audit before launch — fabricated
 social content is something App Review does sometimes challenge.
 
+<!-- PROVENANCE: C100-C105 and C107-C111 were reconstructed on 2026-08-10 from the commit
+bodies of 0ea399f, f72f415, dcfa316, 75d653f, 8367f79, 8200526, 5a157b0, 757373a, 51cc5d4,
+ea76692 and 517ba15. They were cited by CARRYOVER.md and by those commit subjects but were
+never written into this log -- the log ended at C106. The commits are the authority; where this
+text and a commit body disagree, the commit body wins. -->
+
+### C100. THE CHART AND THE HEADLINE VALUED DIFFERENT PORTFOLIOS. Store shot 3 was the defect.
+
+`portfolioValue()` counts open option contracts at cost. `snapshot()` -- which writes
+`valueHistory`, which is what the chart plots -- counted only cash and shares. Two formulas for one
+number, disagreeing by exactly the open premium.
+
+MEASURED on the real seeded store:
+
+```
+equity (what snapshot recorded)      9222.22
++ one contract at cost               +781.06
+headline (what the user was shown)  10003.28
+```
+
+So the Trade tab rendered **"-$777.78 (7.78%) all time" beneath a portfolio that had lost nothing**,
+PERMANENTLY, for anyone who ever opened a contract. `portfolioValue`'s own comment already describes
+this bug and fixes it THERE; the fix never reached `snapshot()` because the value is computed twice.
+
+Compounding it: `openDerivative` wrote no snapshot at all, so the one event most likely to move the
+line left no point -- and the NEXT trade recorded the reduced cash with the contract that consumed
+it invisible. That is how the drop became a loss.
+
+That screen is **App Store screenshot 3**, captioned "Practice investing. Risk nothing." over a red
+line falling off a cliff. Stored history repaired and reshot: +$3.28 (0.03%) on a rising green line,
+chart agreeing with headline. `scripts/portfolio-snapshot-regression.mjs` pins all of it.
+
+**What still bounds this screen:** `stocks.ts` is a hardcoded mock table and `priceOf` parses a
+static string. Prices never move, so a paper portfolio cannot gain or lose from market movement at
+all. "Wire to live quotes in Phase 16."
+
+### C101. EIGHT CONTROLS WERE SILENT TO VOICEOVER -- and six were the same control.
+
+Unit 13 item 6, owed since C71. The plan specified an `ecc:a11y-architect` subagent pass; this
+session ran under a standing instruction not to launch agents, so the audit was done directly. The
+agent was the proposed vehicle, not the requirement.
+
+`scripts/a11y-audit.mjs` looks for the actual failure rather than counting props: an interactive
+element whose subtree contains NO text and NO `accessibilityLabel`. A raw ratio of
+`accessibilityLabel` to `onPress` proves nothing, because a labelled parent legitimately wraps
+unlabelled children. **156 `onPress` sites, 9 flagged, 8 real** (the ninth is the SpringPressable
+docstring).
+
+All 6 icon-only findings were the SAME control: **every back and close button in the app.** VoiceOver
+announced each as a bare "button" with no name -- WCAG 4.1.2, and the control a user needs most when
+they want out of a screen.
+
+```
+courses · digest/[slug] · friends · games/term-match · league · lesson
+onboarding-parts BackChevron -- a bare SVG path, the way OUT of onboarding
+atlas.tsx -- role "image", not "button": tapping only spins the mascot, and
+  announcing a button would promise a destination it does not have
+```
+
+VERIFIED ON SCREEN, not in source: the league back button now reports "Back" to the accessibility
+tree, where it previously reported nothing. Icon-only unlabelled count **6 -> 0**.
+
+I broke the build partway through this and fixed it: the first attempt put a JSX comment directly
+inside `return (`, which is two sibling expressions where one is allowed. `tsc` caught it at 4
+errors; back to the 3-error baseline.
+
+### C102. THERE WAS NO ANALYTICS OF ANY KIND. 17b is the precondition for judging every other lever.
+
+Unit 17's own precondition: "Nothing else in this unit can be judged until 17b lands. Build it
+first." There was no SDK, nothing -- so this is a from-scratch choice, taken with the user:
+**PostHog**.
+
+**DELIBERATELY OFF, because it is what keeps `why-not-free.tsx` true:**
+
+- **session replay** -- recording a teenager's screen inside a finance app is not a trade this
+  product should make
+- **autocapture** -- every event is one somebody chose to send. Autocapture would quietly ship
+  whatever a future screen renders, which is how "we only measure how the app is used" stops being
+  true without anyone deciding to break it
+- **PII** -- never name, handle or email. Identity is `installId`, the same pseudonymous id the rate
+  limiter already uses
+
+`ANALYTICS_ENABLED` shape-validates `phc_` + base62 -- **C76 applied a third time**, after
+`IAP_ENABLED` (a `test_` placeholder passed a length check) and `GOOGLE_ENABLED`. An unconfigured
+build is inert, not broken.
+
+Loaded via dynamic import and never on the startup path: a tracking SDK that throws during bundle
+evaluation presents as "the app became unresponsive during onboarding", which is the bug Apple
+rejected this app for.
+
+**FUNNEL WIRED**
+
+```
+install                 -> PostHog's own Application Installed. NOT hand-rolled: the SDK
+                           persists its own flag, which beats anything reconstructed from
+                           store state after a rehydrate
+first_lesson_completed  -> lesson.tsx, sampled BEFORE completeLesson because that call is
+                           what makes the count non-zero
+day_return              -> _layout, carries day_number: "came back" and "came back on day 3"
+                           are different facts
+paywall_seen/dismissed  -> gate-sheet, carrying the refusal REASON, since a trial expiring
+                           and a count limit are different products failing
+paid                    -> purchases.ts, on the false->true edge only, so RevenueCat
+                           re-delivering entitlement on every foreground cannot inflate
+                           conversions
+```
+
+Tracked from `lesson.tsx` rather than inside the store: analytics imports the store, so the store
+importing analytics would close a cycle.
+
+**NOTE THE STANDING GAP:** `ANALYTICS_ENABLED` shape-checks `phc_`, and there is no PostHog account
+yet. Every event wired in 17b, 17d and 17f is currently a no-op. Five phases of instrumentation are
+recording nothing.
+
+### C103. 17b MADE `why-not-free.tsx` FALSE. Replaced with wording the user chose.
+
+The screen said *"There is no ad SDK and no analytics in this app."* Adding PostHog made that false.
+§0.7 forbids inventing product copy, so three drafts went to the user; this is the one chosen,
+verbatim:
+
+> No ads, and we never sell your data. We do measure how the app gets used so we can make it better
+> -- nothing that identifies you personally. Those are the two usual ways a free finance app makes
+> money, and we have given both up.
+
+Every clause is true of the CONFIGURATION, not of intent: session replay and autocapture are off in
+`lib/analytics.ts` and the identity sent is `installId`, never name, handle or email. The file header
+now says so and names the failure mode, so the next person to relax an analytics setting has the
+claim written down beside the code that would break it.
+
+VERIFIED ON SCREEN -- the card renders the new body.
+
+**Still owed before submission:** App Privacy answers in App Store Connect must declare analytics
+collection. That is a listing change, not code.
+
+### C104. THE DISMISSAL OFFER. 4/4 convergence -- with the selection bias stated.
+
+Unit 17d, "the highest-convergence unbuilt lever we own". ScreensDesign came back online (data
+budget reset), so this is researched rather than guessed.
+
+EVIDENCE READ FROM SCREENS, not flow descriptions (AGENTS.md rule 1 -- the rule that exists because
+a whole paywall redesign was once built and reverted off a summary). Four apps, all four fire a
+better offer on dismissal of the first paywall:
+
+```
+Translator GO  flow 103351 "Special Offer Free Trial"  -- pos 8 -> 9
+Yazio          flow 76453  "Special Offer Paywall"     -- pos 89 -> 90
+StressWatch    flow 100874 -- the dataset's own word is "exit-intent"
+Numify         flow 103127 "Gamified Discount Paywall"
+```
+
+**HONEST HIT RATE: 4/4 OF THE APPS I CHECKED**, chosen because their summaries suggested exit-intent,
+out of 328 carrying `SpecialOfferPaywall`. That is selection bias and is not a random sample.
+Adjacency is looser than it looks: only Translator GO and Yazio have the offer as the IMMEDIATELY
+next screen; the other two hold by flow timing.
+
+**THREE MECHANISMS COPIED (4/4):**
+
+1. fires on DISMISSAL, not a timer or a later session
+2. the second offer is genuinely BETTER than the first
+3. the second screen is drastically SIMPLER -- Translator GO drops from two plans + four features +
+   social proof + fine print to one image, three lines, one button
+
+**NOT COPIED:** the spin-the-wheel (2/4, Yazio and Numify, both of which also push a SECOND spin). A
+gambling metaphor attached to a money decision contradicts this app's own behavioural-finance
+curriculum. User's decision, and I agree with it.
+
+**IMPLEMENTATION.** Lives INSIDE `GateSheet` rather than at its four mount points (learn, digest,
+chat, stock) -- one implementation, four surfaces, zero call-site changes. `specialOfferSeenAt` is a
+persisted STAMP, once per install ever, not cleared by `reset()` so replaying onboarding cannot mint
+a fresh discount. The evidence shows re-prompting; on a HARD wall that is nagging, not an offer.
+
+**NO PRICE ON THE SCREEN, deliberately.** C31 locks annual at $79.99 and the discounted product does
+not exist in App Store Connect, so a figure here would be one no store can charge (§0.4). No fake
+urgency either -- StressWatch ships "offer ends soon" with no timer behind it.
+
+Gated on `IAP_ENABLED`: without a configured store there is no better offer we could honour, and the
+build must not promise one (§0.5, same rule as the disabled Buy control).
+
+Funnel: `special_offer_seen` / `_accepted` / `_dismissed`, so seen÷dismissed and accepted÷seen are
+both readable from day one.
+
+**Self-criticism carried forward:** mechanism 3 says the second screen must be DRASTICALLY simpler
+and Translator GO's is three short lines. The shipped body runs four. Trim it when the copy is
+approved (§20).
+
+### C105. THE HARD WALL EVICTED MEMBERS MID BILLING-RETRY.
+
+Between a fifth and two fifths of subscription churn is a FAILED PAYMENT, not a decision to leave --
+an expired card, a bank decline, a changed address. Apple retries for up to 60 days and RevenueCat
+reports it as `billingIssueDetectedAt`.
+
+**THE BUG IS THE DEFAULT BEHAVIOUR.** `isProFrom` read only `entitlements.active`. A member in
+billing retry has NO active entitlement, so this app's HARD wall shut on somebody who never chose to
+leave. Being locked out is exactly what makes a person stop trying to fix their card, so the naive
+check converts a recoverable decline into a real cancellation.
+
+`proStateFrom` now reads `entitlements.all` and honours the entitlement for
+`BILLING_RETRY_GRACE_DAYS = 16` past expiry when a billing issue is flagged. 16 and not Apple's 60:
+long enough for "card expired, new one is in the post", short enough that a genuinely dead
+subscription is not two months of free access. **It is a revenue trade and that constant is where to
+argue with it.**
+
+This is NOT an App Store billing grace period. With grace period enabled, RevenueCat already reports
+the user active and this code never runs. This covers retry WITHOUT grace period -- the case that
+loses people silently.
+
+Access alone rescues nobody: only the user can fix the card. So `billingIssue` is persisted and
+surfaced at the TOP of Settings > Plan, above Status, tapping through to App Store subscription
+management. Persisted so a cold start can say it before RevenueCat answers -- that first screen is
+often the whole window in which somebody is willing to act. Wording is deliberately unalarming; most
+of these are an expired card, not a failed human. COPY IS UNAPPROVED (§20).
+
+VERIFIED ON SCREEN, not inferred: seeded `billingIssue=true` into the persisted store, confirmed the
+amber card renders above Status with the right copy, then reset it. The simulator had shut itself
+down mid-session again -- booted rather than theorising about a crash.
+
+The other half of 17e was already built: `openManageSubscriptions` and the Restore/Manage rows exist,
+which is the 5/5-convergence item from 17a.
+
+**GAP FOUND, NOT FIXED: the UIcon set has no warning/alert glyph at all.** Used `bell`, the nearest
+real member, rather than invent a name that would render nothing silently. A finance app with no
+alert icon is worth Unit 16's attention.
+
 ### C106. THE REAL REVENUECAT KEY IS IN. IAP_ENABLED is finally true — and the app degrades honestly.
 
 `.env.local` held a 32-character `test_…` placeholder — the exact string that made `IAP_ENABLED`
@@ -5779,3 +6002,173 @@ straddling the sheet edge and real blur behind it.
 **Self-criticism, recorded against my own evidence:** 17d's body copy runs four lines. The mechanism
 derived in C104 says the second screen must be DRASTICALLY simpler — Translator GO's is three short
 lines. Trim it when the copy is approved (§20).
+
+### C107. `eas.json` WAS INVALID. EAS rejects an empty env value.
+
+C100 shipped `"EXPO_PUBLIC_API_URL": ""` in the preview and production profiles on the reasoning that
+empty is louder than a plausible wrong URL. **The reasoning holds; the format does not.** EAS refuses
+it outright:
+
+```
+eas.json is not valid.
+- build.production.env.EXPO_PUBLIC_API_URL is not allowed to be empty
+```
+
+So the key was OMITTED instead. Unset trips `apiOriginMissing()` exactly the same way, so the loud
+`no_api_origin` failure survives and the file validates -- confirmed, the error moved on to the
+expected `owner` / `eas init` step.
+
+`DEPLOY.md` gains a step 0: **`eas init` binds the app to whichever Expo account is logged in,
+permanently.** The CLI is authenticated as `s-k-28` while the repos live under `teameuphoriainv-dot`.
+Confirm the owner BEFORE creating anything -- this is the same wrong-identifier trap as C82/C90/C93,
+and it is cheaper to ask than to migrate an EAS project later.
+
+### C108. THE API ROUTES ARE LIVE. C98's structural half is closed; the four keys are not.
+
+Linked and deployed. Project `@s-k-28/euphoria-native`
+(`8a6dba4a-e52a-4c04-b359-7244670431b1`), production origin **`https://euphoria-native.expo.app`**,
+`EXPO_PUBLIC_API_URL` now set in the preview and production profiles.
+
+**WHY `s-k-28` AND NOT A TEAM ACCOUNT: there isn't one.** Signing in with the team GitHub account
+landed on `expo.dev/oauth/callback/signup?reason=onboarding-required` -- "Third-party sign up, choose
+a username" -- which CREATES a new empty Expo account rather than opening an existing one. **Expo
+accounts are separate from GitHub orgs**, so owning `teameuphoriainv-dot` on GitHub creates nothing
+on Expo. Chose the account that already exists over inventing a third one; Expo supports renaming and
+project transfer later, so this is reversible.
+
+All three routes exported and deployed: `/api/chat`, `/api/market`, `/api/options`.
+
+VERIFIED LIVE, not assumed:
+
+```
+GET /api/market?syms=NVDA  ->  503  {"error":"not_configured"}
+```
+
+That is the right answer. The route is reachable and says why it cannot serve -- the four
+server-side keys (`GEMINI_API_KEY`, `POLYGON_API_KEY`, `ALPHAVANTAGE_API_KEY`, `TRADIER_TOKEN`)
+exist nowhere in this repo, so nothing could have been set. Before this, the same request produced an
+unexplained network failure on device with no origin at all.
+
+**So C98 is HALF closed.** The origin exists and is wired. Atlas, market data and options stay
+non-functional in a real build until those four keys are set with `eas env:create --environment
+production` and it is redeployed.
+
+### C109. THE GUIDED FIRST ACTION WAS A GENERIC GUIDE -- and I hardcoded "LESSON 1".
+
+`start.tsx` carried its own instruction: *"MOVE THIS TO A LESSON once the player renders real
+curriculum, which is what Duolingo actually does."* It was written when `lesson.tsx` rendered one
+hardcoded demo -- every lesson in every course opening "FOUNDATIONS · LESSON 9 · What is a stock?" --
+so handing a new user that seconds after promising a personalised path would have been the worst
+possible first impression.
+
+**THAT DEFECT IS GONE.** Verified, not assumed: zero matches for `const STEPS` or `FOUNDATIONS` in
+`lesson.tsx`, its header says it loads by course/num, and it rendered real curriculum on device. The
+workaround outlived its reason.
+
+So the first action is now the first INCOMPLETE lesson of the course onboarding just chose, resolved
+with the exact logic `home.tsx` uses for its hero -- two different answers to "what is your next
+lesson" on two screens a tap apart is how a personalised path stops feeling like one.
+
+**WHY THIS IS THE 17f LEVER:** onboarding's whole promise is a personalised plan. Ending it on the
+same daily guide every user gets quietly contradicts that promise at the exact moment it should be
+proved. Activation is decided here; a day-3 paywall is a formality if the app has not visibly worked
+on day 1.
+
+The digest guide REMAINS the fallback. If the course module fails to load or every lesson is
+complete, a working guide beats a dead screen.
+
+Both 17f mechanisms the plan names were ALREADY BUILT and were not rebuilt: streak commitment
+goal-setting with named tiers (`home.tsx`, gated on `streak >= 1`, one-time via `streakGoal === null`)
+and the "Maybe later" activation ask shape.
+
+Funnel: `first_action_started` carries `kind`, separating the real path from the fallback so a drop
+in activation can be told apart from the course module failing to load. `first_action_skipped` is its
+own event rather than an absent one -- a missing event cannot distinguish a deliberate skip from a
+screen that crashed.
+
+VERIFIED ON SCREEN: "LESSON 2 · BEHAVIORAL FINANCE / Cognitive Biases That Destroy Wealth / 30 XP /
+Start your first lesson".
+
+**CAUGHT BY READING THAT SCREEN RATHER THAN THE DIFF:** I had hardcoded "LESSON 1" in the eyebrow.
+The resolver returns the first INCOMPLETE lesson, which is only lesson 1 for a new account, so the
+label was simply false for anyone else. Now uses `lesson.num`. This is the standing argument for
+§LOOK AT THE SCREEN: `tsc` and lint were both green across that defect.
+
+### C110. THE BILLING-RETRY RULE IS PINNED, and `why-not-free` was audited line by line.
+
+17h asks for two things this closes.
+
+**1. "A user in billing-retry is verifiably not hard-walled."** It cannot be asserted on device --
+the state comes from RevenueCat's `billingIssueDetectedAt`, which the app cannot seed. So
+`scripts/billing-retry-regression.mjs` pins the rule instead:
+
+```
+mid-retry (3 days)  -> pro=true    (the pre-C105 check: false)
+day 15 / day 17     -> true / false
+cancelled           -> pro=false
+```
+
+It asserts the three things that matter TOGETHER: a failed payment KEEPS access, an ordinary
+cancellation does NOT (extending it there would just be giving the product away), and the window
+actually ends. Malformed expiry fails closed on access while still reporting the issue -- guessing a
+date would be inventing an entitlement out of bad data.
+
+Same honest limitation as the portfolio regression: **it re-implements the rule rather than importing
+it**, because the source is TypeScript in an Expo app with no test runner. `purchases.ts` now points
+at the test so the coupling is at least written down.
+
+**2. "`why-not-free.tsx` reads true against what the app actually does."** All four claims verified
+against source:
+
+```
+market data metered per call   -> rate limiter present in market+api.ts
+Atlas costs per message        -> chat+api.ts proxies Gemini
+no ad SDK                      -> zero matches in package.json
+nothing identifies you         -> no name/email/handle sent; replay false
+```
+
+**HARDENED ONE GAP:** autocapture is off by OMISSION, not by a flag. PostHog only autocaptures via
+`<PostHogProvider>`, which this module never mounts. Wrapping the app in that Provider -- a
+reasonable-looking change -- would silently turn it on and make that screen's copy false. Documented
+at the point where someone would make the mistake.
+
+### C111. CAPTURE HARNESS FOR 31 ROUTES. The peer group is Education, not brokerages.
+
+The user asked for every screen audited against apps earning $500k/mo+. Built the part that makes
+that possible repeatedly rather than once.
+
+`scripts/capture-screens.sh` walks every route by deep link and saves a PNG. **26 of 31 captured.**
+Driving 31 routes by hand costs several tool calls each and cannot be repeated after a design change;
+this makes capture cheap and DIFFABLE -- run it before and after a change and you have a visual
+regression set.
+
+It captures DEFAULT states only. Empty, loading, error, gated, billing-issue and reward states need a
+seeded store and are listed in `UNCAPTURED.md`, so the gap is explicit. **A route with no screenshot
+is an uncaptured state, not a non-existent one** -- AGENTS.md trap #6, which once caused correct work
+to be reverted.
+
+**COMPARATOR SET ESTABLISHED.** `search_apps` `min_revenue 500000` across Finance and Education
+returns 43 apps. The finding that reframes the whole exercise:
+
+> Of the top ten, only ONE is Finance (TradingView, $2.25M/mo). The rest are Education -- Duolingo
+> $48M, PictureThis $14M, Learna $5M, Speak $3.25M, Babbel $3M, Quizlet $2.25M.
+
+**Euphoria's peer group for MECHANISM is learning apps, not brokerages.**
+
+HOME audited in depth against Duolingo `112710`/`112751`. The next-lesson hero is a structural match
+to the highest-revenue education app in the set, and the NAMED streak tier is ahead of Duolingo's
+bare number. Four gaps recorded, largest first: no persistent currency balance in the header
+(Duolingo shows gems everywhere; Euphoria mints reward cards but never shows a total, so the reward
+loop has no visible ledger), no timed return object on the path, no inline social comparison, no
+streak-projection moment after a lesson.
+
+The social-comparison gap is recorded as **CORRECTLY UNFILLED**: `lib/people.ts` states its
+population is fabricated, so a "you beat 70% of learners" stat would be inventing a number, which
+§0.4 forbids until accounts are real.
+
+Also flagged so nobody "fixes" it: the gear overlapping the daily-goal chip in `home.png` is the
+expo-dev-client Tools button, not app chrome.
+
+**NOT FINISHED, and `refs/audit/20260810/FINDINGS.md` says so at the top.** 25 captures remain, with
+a per-screen method and a priority order written down. Audit findings are tracked; the PNGs are
+gitignored since they regenerate and would add ~20MB per run.
