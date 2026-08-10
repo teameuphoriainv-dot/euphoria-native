@@ -1,150 +1,173 @@
-**READ `refs/CARRYOVER_PROMPT.md` FIRST.** It is the current, verified handoff (2026-08-08).
-This file is older and parts of it are stale by its own admission; the prompt supersedes it
-wherever they disagree.
+# CARRYOVER — paste this whole file into a fresh session
 
-Continue work on ~/euphoria-native (Euphoria mobile — Expo SDK 57 / expo-router / RN, finance-education app, mascot "Atlas").
+Written 2026-08-10. Everything below was VERIFIED today in this repo, on the simulator, or in a live
+dashboard. Where it contradicts anything older, **this file wins.**
 
-TRUST SOURCE OVER THIS DOC. A previous carryover was found actively lying. Read the file before believing any claim about it.
+Continue work on **`~/euphoria-native`** — Euphoria, Expo SDK 57 / expo-router / RN finance education
+for 18-25s, mascot **Atlas**. Content source of truth is `~/euphoriaweb-current`.
 
-## FIRST FIVE MINUTES
-1. `/mcp` → authenticate the **expo** server (installed, unauthenticated).
-2. If you need Rive: **Rive.app must be RUNNING** on the desktop. The MCP fails
-   `ConnectionRefused 127.0.0.1:9791` otherwise — restarting Claude Code is NOT enough.
-3. Run `ecc:skill-stocktake` before reaching for any new tool. See WHY below.
+**Read `refs/MASTER_PLAN.md` §22 CORRECTIONS LOG C95 → C111 before anything else.**
 
-## REPOS — everything pushed, 0 outstanding
-- `~/euphoria-native` → `teameuphoriainv-dot/euphoria-native`, branch `main`.
-- `~/euphoriaweb-current` → `teameuphoriainv-dot/euphoriaweb-mobile-source`, branch `master`.
-  SOURCE OF TRUTH for Digest content. `scripts/sync-digest.sh` generates the app's digest-*.ts
-  from it and defaults to this path.
-- **DO NOT MERGE the original `euphoriaweb` repo.** Its master diverged to an INCOMPATIBLE SCHEMA:
-  `excerpt` removed, `keyPoints[]` added, hero keys renamed (`cover-credit-score` → `credit-card`),
-  new `>>>` callout syntax. Merging + re-syncing breaks mobile three ways — no excerpts on Digest
-  cards, hero lookups resolving to blank art, `>>>` rendering as literal text. Our work is parked on
-  its `digest-mobile-source` branch as backup.
-- Two GitHub accounts are authed. **`teameuphoriainv-dot` must be ACTIVE** or pushes 404 with
-  "Repository not found" (GitHub hides private repos from the wrong account).
+---
 
-## TOOLING INSTALLED 2026-08-04 — USE IT, IT REPLACES SLOW LOOPS
-- **XcodeBuildMCP** ✔ connected. Has **`semantic-tap`** — taps ACCESSIBILITY ELEMENTS, not pixels.
-  Three separate mis-taps by guessed coordinate wasted real money on 2026-08-03. Stop using raw
-  `idb ui tap` with computed points. It also bundles AXe, so `~/.idb-venv/bin/idb` is now optional.
-- **metro-mcp** ✔ connected. Console/network + **eval in the live JS runtime**, no browser.
-- **context7** ✔ connected. Versioned docs — use it for Reanimated 4, react-native-svg, Expo 57
-  rather than trusting model memory.
-- **expo plugin** (22 official skills: expo-router, eas-simulator, expo-upgrade…). Needs `/mcp` auth.
-- **sharp** — RENDER ANY SVG HEADLESSLY. This was the missing loop; every cover on 2026-08-04 was
-  reviewed via a simulator round trip that this does in milliseconds:
-  `node -e "require('sharp')('path/to.svg',{density:300}).png().toFile('/tmp/x.png')"`
-- Also installed: **svgo** (normalise, `--pretty` keeps output diffable), **style-dictionary**
-  (palette fix, see below), **odiff-bin** (screenshot diffing).
-- `skillListingBudgetFraction` raised to **0.05** in ~/.claude/settings.json (backup `.bak`).
-  With ~868 skills and a default ~1% budget, most skills were INVISIBLE unless named exactly.
-  `everything-claude-code` was already disabled and was never the cause.
+## THE THREE FACTS THAT KEEP GETTING RE-DERIVED WRONG. Do not re-litigate.
 
-## HARD INVARIANTS — breaking any of these is silent
-- Anything added to store state MUST go in `partialize` or it does not persist.
-- Every XP award funnels through `applyXp()` in store.ts. Never write `xp` directly.
-- If you stamp `lastActiveDay`, you MUST also roll `minutesToday` — `minutesDoneToday()` gates on
-  `lastActiveDay === today`, so stamping over a stale tally reports yesterday's minutes as today's.
-- NEVER select a zustand getter that builds an object/array: `useApp(s => s.friendIds())` returns a
-  fresh array → unstable snapshot → "Maximum update depth exceeded". A getter returning a NUMBER is safe.
-- `Icon` name is an UNTYPED string; getIconSvg falls back silently (euphoria-icons.ts:138). `UIcon` is typed.
-- Generated, never hand-edit: `src/lib/curriculum/**`, `src/lib/digest-{content,bodies,heroes}.ts`.
-- `src/lib/league.ts` tier colours deliberately override violet-only WITH USER APPROVAL.
-- LeagueCrest renders at 104px AND 38px. 104 can look right while 38 is mush.
-- Digest figures live in the WEB repo (`scripts/gen-digest-covers.mjs`), not here. Edit there, re-sync.
-- sync-digest.sh REJECTS em dashes in post bodies and validates readMinutes against word count.
-- The Digest renderer supports ONLY `##`, `>`, `- `, `**bold**`, `![alt](heroKey)`.
-  Single-asterisk italics render as LITERAL ASTERISKS.
+1. **`~/euphoria-native` IS THE PRODUCT.** `~/euphoriamobile` is a Capacitor app, submitted
+   2026-04-08, rejected 04-09, abandoned. Its local commits dated Aug 8 were written by an assistant
+   verifying C91 and were never pushed.
+2. **Bundle id is `com.euphoriainv.euphoria`** (C94). `android.package` deliberately stays
+   `com.euphoria.native` — Google Play is a separate listing nobody has checked.
+3. **App Group is `group.com.euphoriainv.euphoria`** in all three places: `app.json`,
+   `src/lib/widget.ts`, `targets/widget/index.swift`.
 
-## DEV SURFACES BUILT — these exist, use them
-- **`euphorianative://dev-gallery`** — EVERY art system on one screen: 54 digest figures, 108 icons,
-  7 crests held+locked, Atlas at every shipping size/expression, lesson art. It caught three real
-  defects invisible screen-by-screen (a washed-out cover, a failed amber accent, a regressed figure).
-  Judge palette HERE, change at source.
-- **`euphorianative://dev-beat`** — replays the Digest finish beat in isolation (Replay ~201,821pt).
-  Tuning via the real reader is impossible: the reward only fires on a FIRST read.
-- **Filmstrip method** — `xcrun simctl io $U recordVideo --codec h264 out.mp4`, then
-  `ffmpeg -ss <t> -t <d> -i out.mp4 -vf "fps=60,scale=210:-1,tile=4x3" strip.png`.
-  A STILL FRAME CANNOT JUDGE MOTION. **Use fps=60** — sampling at 8–11fps is too coarse to read a
-  velocity curve and caused two misjudgements.
+---
 
-## MOTION — the researched answer (refs/MOTION_RESEARCH.md, sourced)
-Brilliant and Duolingo BOTH author motion in **Rive**. Brilliant's Rive drives their streak
-celebration and explicitly replaced Lottie, After Effects, native code and GIFs. NEITHER publishes a
-motion token system — their system IS the state machine. The gap is not mistuned springs; it is that
-we express motion in code at all.
-- Runtime already owned: `rive-react-native` installed, `atlas-rive.tsx` fires state-machine inputs,
-  contract is artboard `Atlas` / `State Machine 1` / trigger `celebrate`.
-- **ONLY THE ASSET IS WRONG**: `assets/atlas.riv` wraps the raster atlas-logo.png the app replaced.
-  Brief ready at `refs/ATLAS_RIVE_BRIEF.md`. riveanimator.com publishes mascot from **$250**.
-- **JUDGE MOTION IN RELEASE, NOT DEBUG.** Debug builds are laggy at 120fps. Every animation assessed
-  on 2026-08-03 ran in a debug dev client and is therefore unreliable evidence.
-- Apple springs → Reanimated (mass 1): reward pop = **stiffness 322 / damping 19.7**. The finish beat
-  uses stiffness 82 — roughly 4× too soft.
-- Unused Reanimated capability, ranked: **Layout Animations** (`entering`/`exiting`/`layout` — gives
-  EXIT and REFLOW animations we have none of), **interruptibility** (`withSequence` SNAPS when
-  retargeted mid-flight; our reward pops lean on it), **haptics at the APEX** not the start,
-  **Perf Monitor's UI-vs-JS FPS split**. SKIP Shared Element Transitions (experimental, build flag).
+## WHAT CHANGED TODAY
 
-## BIGGEST OPEN ITEM — the lesson player
-`lesson.tsx` renders HARDCODED demo content. Every lesson in every course opens
-"FOUNDATIONS · LESSON 9 · What is a stock?" — verified on device. Meanwhile `src/lib/curriculum/`
-holds 12 courses / 300 lessons / **5,341 real steps** across 24 step types, lazily loadable, unused.
-Decisions already taken: use the data's `lesson.xp` (30, not the hardcoded 50); FIX unrendered step
-types rather than skipping them. Coverage: static/text types 41% of steps, single-choice family
-(quiz/microCheck/fillBlank/scenario) 25%, reuse-existing-components 23%.
+**Unit 17 is 6 of 8 sections done** — 17a research (was already done), **17b** telemetry, **17d**
+dismissal offer, **17e** involuntary churn, **17f** activation, **17h** partial. Open: **17c** (needs
+a discounted product) and **17g** (pricing decisions, yours not mine).
 
-## PALETTE — measured, and worse than it looked
-Counted across `src/ assets/ scripts/`: **EIGHT violets over ~1,200 hex literals** —
-`#5b21b6`×353, `#a855eb`×233, `#a451e6`×196, `#c89cf5`×145, `#b862ed`×143, `#e7d5fb`×53,
-`#bb83f1`×48, `#332b4a`×35, plus two greens and two ambers. The Digest composer's `#C89CF5`/`#5B21B6`
-appear NOWHERE in theme.ts. **style-dictionary is installed** — one `tokens.ts` feeding both the app
-and the cover generator is the fix, and `/dev-gallery` verifies all 54 figures in one screenshot.
+Plus, outside Unit 17:
 
-## ALSO OPEN
-- Digest figures still lean on stacks-and-blocks; the two strongest (`cover-exchange`,
-  `cover-credit-score`) are the two that are specific OBJECTS. Vocabulary, not execution.
-- No backend at all. No fetch anywhere in src. `auth.tsx signIn()` flips a local boolean.
-  Everyone in `src/lib/people.ts` is FABRICATED — nothing user-facing may call them real.
-- No IAP wiring, so the paywall cannot take payment.
-- Home's portfolio ($104,237.55) is mock; no portfolio state exists.
-- Legal links reachable only from the paywall, not Settings/You. `Linking.openURL` throws the user
-  out to Safari — `expo-web-browser` would keep it in-app (not installed).
-- Friend Streak deferred; the follow graph it needs exists.
-- You still reads as a settings list; Duolingo puts settings behind a gear.
-- Digest reader is PAGINATED (tap-through cards) — structurally like a lesson, possibly wrong for a
-  reading surface. Unresolved design question.
-- No free tool exists for RN visual regression, bundle analysis, startup-time, or iOS a11y auditing.
-  Searched and confirmed absent.
+- **App icon was EXPO'S LOGO** (C95). `CFBundleIconName` was literally `expo`. Now a real iOS 26
+  layered icon, rebuildable via `scripts/make-icon.mjs`.
+- **Google sign-in is real** (C96) — iOS OAuth client created, button renders, verified on screen.
+- **Vendor buttons** (C97) — Apple's and Google's own components, not lookalikes.
+- **Portfolio chart bug** (C100) — `snapshot()` omitted option premium while `portfolioValue()`
+  counted it, so anyone who opened a contract carried a permanent phantom loss. Store shot 3 was a
+  screenshot of that defect.
+- **Accessibility** (C101) — 8 controls were silent to VoiceOver; icon-only unlabelled count 6 → 0.
+- **API routes DEPLOYED** (C108) — `https://euphoria-native.expo.app`.
+
+---
+
+## STATE OF THE OUTSIDE WORLD, verified today
+
+| | |
+|---|---|
+| **PLA** | ✅ **SIGNED** (Free Apps Agreement active, effective Aug 9). This unblocked everything. |
+| **Sign In with Apple** | ✅ Enabled on App ID `com.euphoriainv.euphoria` (`G8VX7UFD2L`), confirmed visually |
+| **Paid Applications Agreement** | ❌ status `New` = unsigned. Gated behind "update your legal entity information". **No IAP can transact until this is done.** |
+| **EU trader status** | ❌ Not provided. DSA — apps get removed from the EU store |
+| **Age-rating social questions** | ❌ Pending in App Information |
+| **App Privacy** | ⚠️ **NOW INACCURATE** — analytics was added today and must be declared |
+| **Resubmit button** | Still greyed out even with the PLA signed |
+| **Reply to App Review** | ✅ Works. `refs/APPLE_2.1b_REPLY_DRAFT.md` awaits approval — **nothing sends without it** |
+
+**Account Holder is RAMYA SMITHA CHILAMANTULA, team `9SS423KXF5`.** Only she can clear the four
+above. **Never accept an agreement on her behalf.**
+
+---
+
+## CREDENTIALS AND THEIR TRAPS
+
+- **RevenueCat key is REAL and IN** (C106) — project `320845df`, app `appbf28770359`. `IAP_ENABLED`
+  is now true. **It lives only in gitignored `.env.local`, so C106 is its only record.**
+- **The `.p8` is the WRONG TYPE for the empty slot.** RevenueCat's App Store Connect API slot wants
+  `AuthKey_XXXXXXXXXX.p8`; `.secrets/` holds `SubscriptionKey_QP24DLK3HJ.p8`, an in-app-purchase
+  key. Different things. Do not upload it there.
+- **The IAP slot already holds `V2D263NV4V.p8` and RevenueCat reports "Valid credentials"** —
+  contradicting the old note that the April key is dead. **Resolve which is true before touching a
+  working credential.**
+- **EAS: there is NO team Expo account.** Signing in with the team GitHub lands on
+  `signup?reason=onboarding-required` — it would CREATE a third empty account. Expo accounts are
+  separate from GitHub orgs. Project is `@s-k-28/euphoria-native`; Expo supports transfer later.
+- **PostHog has no account yet.** `ANALYTICS_ENABLED` shape-checks `phc_`, so every event in 17b,
+  17d and 17f is currently a no-op. **Five phases of instrumentation are recording nothing.**
+
+---
+
+## THE FOUR API KEYS — the last thing blocking working features
+
+`GEMINI_API_KEY` · `POLYGON_API_KEY` · `ALPHAVANTAGE_API_KEY` · `TRADIER_TOKEN` exist **nowhere** in
+the repo. The deployment answers honestly and uselessly:
+
+```
+GET https://euphoria-native.expo.app/api/market?syms=NVDA  ->  503 {"error":"not_configured"}
+```
+
+Set with `eas env:create --environment production --name X --value Y`, then redeploy. Until then
+**Atlas, market data and options are reachable but dead in any real build.** See `refs/DEPLOY.md`.
+
+---
 
 ## ENVIRONMENT
-- **USE `Euphoria QA` = 61F7E882-C226-4E97-9918-9BFF536B9A90. `export EUPHORIA_UDID` in every shell.**
-  This line used to name F448825D (iPhone 17). That is a **STALE Aug-3 dev client with ZERO
-  expo-blur and ZERO RevenueCat** — the exact binary that made the gate sheet render nothing and
-  cost two sessions (MASTER_PLAN §22 C37, C51). It is also the sim that is booted by default, so
-  without EUPHORIA_UDID `sim.sh` picks it silently. Euphoria QA is the Aug-7 build: 1073 RevenueCat
-  strings, 11 ExpoBlur. Check any dev client with
-  `strings <app>/euphorianative.debug.dylib | grep -c RevenueCat`.
-- Metro on :8082; the app defaults to :8081, so redirect with:
-  `xcrun simctl openurl $U "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8082"`
-- Screenshot coords are POINTS = px / 3 — but prefer XcodeBuildMCP's `semantic-tap` over coordinates.
-- The floating gear top-right is the EXPO DEV CLIENT button. It does not ship. Do not fix it.
-- `/ios` is gitignored and regenerated by prebuild. `CADisableMinimumFrameDurationOnPhone` is true
-  there (from Expo's template, not our config) so 120Hz is not capped — pin it in app.json if paranoid.
 
-## HOW TO WORK (the user's stated rhythm)
-- ONE thing per cycle, done perfectly. Plan first, then build.
-- STOP AND ASK at every judgement call: copy, pricing, naming, taste.
-- VERIFY BEHAVIOUR ON DEVICE. Open every screenshot. Never infer a screen from an exit code, and
-  never infer an animation from a still.
-- **SEARCH THIS CODEBASE AND THE INSTALLED SKILLS BEFORE REACHING OUTWARD.** True SEVEN times in one
-  session: multicolour icons + Card tint (You page), DIGEST_CATEGORIES (chips), rive-react-native
-  (mascot), gen-digest-covers.mjs (illustrations), the primitive library (figure redesign), the
-  configured rive + Figma MCP servers, and `ecc:skill-stocktake` itself — the tool for finding
-  installed-and-forgotten things was installed and forgotten. ChatGPT Images was tried for covers and
-  returned glossy 3D clay twice, ignoring both an explicit flat-vector instruction and an attached
-  reference of the real artwork; the in-repo generator beat it outright.
-- COST WAS NOT CONTROLLED. The 2026-08-03/04 session cost **~$285**. Flag it early, give an estimate
-  before any expensive sequence, and prefer one question over ten tool calls.
+```bash
+export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90   # "Euphoria QA" — every shell
+```
+
+Metro on 8081. Screen 402 x 874 pt. **The simulator shut itself down twice today** — run
+`xcrun simctl list devices` before theorising about a crash.
+
+**THE GATE — after every unit:**
+```bash
+npx tsc --noEmit                       # clean
+npx expo lint 2>&1 | grep problems     # 48 problems (3 errors, 45 warnings) — C66 baseline
+python3 scripts/certify.py | tail -2   # ALL ROUTES PASS 3a
+node scripts/check-digest-lessons.mjs
+./scripts/sim.sh screen                # read the REAL screen
+```
+
+**Regression checks added today — run them if you touch the logic:**
+```bash
+node scripts/portfolio-snapshot-regression.mjs   # chart vs headline (C100)
+node scripts/billing-retry-regression.mjs        # 17e grace window (C105)
+node scripts/a11y-audit.mjs                      # unlabelled controls (C101)
+node scripts/make-icon.mjs                       # rebuild the app icon (C95)
+./scripts/capture-screens.sh                     # all 26 route screenshots (C111)
+```
+
+---
+
+## HOW TO WORK — the rules that earned their place today
+
+1. **Never mention session cost or context percentage.** `~/.claude/CLAUDE.md`'s COST directive does
+   NOT apply to this project.
+2. **LOOK AT THE SCREEN.** Today it caught: a hardcoded "LESSON 1" that should have been the real
+   number, and it is how 17d was confirmed at all. `tsc` green + lint green has coexisted with real
+   visual defects all along.
+3. **ScreensDesign is BACK** — the data budget reset. It is MANDATORY for design work. Read the
+   SCREEN, never the flow description. Report hit rate across ≥4 apps. State transferability.
+4. **ASK VIA `AskUserQuestion`, and always end a turn with one.** Put the evidence in the option
+   descriptions. If a question gets confusion, rewrite it in plain English with no jargon.
+5. **The user is authenticated in App Store Connect, RevenueCat and Google Cloud via Claude in
+   Chrome.** ASC screenshots time out — use `get_page_text`. **Claude in Chrome runs its own Chrome
+   profile**: a login the user does elsewhere is NOT visible to it.
+6. `gh` has two accounts. **`teameuphoriainv-dot` owns the repos**; `s-k-28` fails with a bare
+   "Repository not found". **12 commits are unpushed.**
+
+---
+
+## OPEN WORK
+
+- **17c** — trial→annual reward offer. Blocked on a discounted product (needs Paid Apps Agreement).
+- **17g** — pricing. $9.99/mo and $79.99/yr stay (C31). Open: introductory pricing, annual-vs-monthly
+  framing, whether 3 days is right. **§16a: none of this framing may appear in an App Store asset.**
+- **Screen audit** — 1 of 26 screens done. Harness, comparator set, worked example and per-screen
+  method in `refs/audit/20260810/FINDINGS.md`. **The peer group is Education apps, not brokerages —
+  only TradingView is Finance in the top ten at $500k/mo+.**
+- **17d copy is four lines** where the evidence says the second screen must be drastically simpler.
+- **ASO draft** (`refs/ASO_LISTING_DRAFT.md`) — never reviewed by the user.
+- **Unit 16** — preview video, icon audit. **The UIcon set has no warning/alert glyph** (C105).
+- **Unit 14** — final review, deliberately last.
+- **`stocks.ts` is a hardcoded mock table.** Prices never move, so a paper portfolio cannot gain or
+  lose from the market. Bounds what the Trade tab can teach. "Wire to live quotes in Phase 16."
+- **`lib/people.ts` is fabricated** and says so. The league races invented rivals. Fine today;
+  an App Review risk and a §0.4 constraint on any social-proof stat.
+
+---
+
+## THE LESSON THAT COST THE MOST, restated
+
+C82 saw App Store Connect and `app.json` disagree and assumed the repo was wrong. C90 inverted it.
+C93 inverted it again. Each step reasoned correctly from what was in front of it and each was missing
+one cheap check.
+
+**Today added two more of the same shape.** The `.p8` looked like the key RevenueCat wanted — it is a
+different key type, and only the filename hint said so. The team GitHub login looked like a sign-in —
+the URL said `signup`. Both were caught by reading the actual artefact instead of the plausible story.
+
+**ENUMERATE THE READINGS BEFORE ACTING ON ONE.** When a fact keeps inverting, stop re-deriving it and
+go find the authority.
