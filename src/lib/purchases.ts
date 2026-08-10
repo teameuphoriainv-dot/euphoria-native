@@ -121,18 +121,69 @@ export function configurePurchases(): boolean {
   return true;
 }
 
-/** True when RevenueCat says the "pro" entitlement is active. The one place that reads it. */
-function isProFrom(info: CustomerInfo): boolean {
-  return info.entitlements.active[ENTITLEMENT_ID] !== undefined;
+/**
+ * Days past expiry we keep access open while Apple is still retrying the card.
+ *
+ * UNIT 17e. Somewhere between a fifth and two fifths of subscription churn is a FAILED PAYMENT, not
+ * a decision to leave — an expired card, a bank decline, a changed billing address. Apple retries
+ * for up to 60 days, and RevenueCat reports that state as `billingIssueDetectedAt`.
+ *
+ * The default behaviour is the damaging one: the entitlement drops out of `active`, this app's wall
+ * is HARD, and a member who never chose to leave loses every lesson mid-retry. That reliably
+ * converts a recoverable decline into a real cancellation, because the experience of being locked
+ * out is what makes someone stop trying to fix it.
+ *
+ * 16 days rather than Apple's full 60: long enough to cover the common "card expired, new one
+ * arrives in the post" case, short enough that a genuinely dead subscription does not read as free
+ * access for two months. It is a REVENUE trade and this number is where to argue with it.
+ *
+ * NOTE this is not the same thing as an App Store billing grace period. With grace period enabled
+ * in App Store Connect, RevenueCat already reports the user as active and this code never fires.
+ * This covers retry WITHOUT grace period, which is the case that silently loses people.
+ */
+const BILLING_RETRY_GRACE_DAYS = 16;
+
+export type ProState = {
+  pro: boolean;
+  /** True when Apple is retrying a payment — whether or not access is still open. Drives the copy
+   *  that tells the user to fix their card, which is the only thing that actually recovers them. */
+  billingIssue: boolean;
+};
+
+/**
+ * What RevenueCat says, read once. The one place entitlement is interpreted.
+ *
+ * Reads `entitlements.all`, not just `.active`: a member in billing retry has NO active entitlement,
+ * which is precisely why the naive check loses them.
+ */
+function proStateFrom(info: CustomerInfo): ProState {
+  const active = info.entitlements.active[ENTITLEMENT_ID];
+  if (active) return { pro: true, billingIssue: active.billingIssueDetectedAt != null };
+
+  const known = info.entitlements.all[ENTITLEMENT_ID];
+  // No billing issue means this is an ordinary lapse — someone cancelled, or never bought. Nothing
+  // to rescue, and extending access to them would just be giving the product away.
+  if (!known?.billingIssueDetectedAt) return { pro: false, billingIssue: false };
+
+  const expiredAt = known.expirationDate ? Date.parse(known.expirationDate) : NaN;
+  if (!Number.isFinite(expiredAt)) return { pro: false, billingIssue: true };
+
+  const withinRetry = Date.now() - expiredAt < BILLING_RETRY_GRACE_DAYS * 86_400_000;
+  return { pro: withinRetry, billingIssue: true };
 }
+
 
 /**
  * Write RevenueCat's answer into the store. Called from the update listener and after any purchase
  * or restore — never from an error path, per the offline rule in the docblock.
  */
 function adoptCustomerInfo(info: CustomerInfo): boolean {
-  const pro = isProFrom(info);
+  const { pro, billingIssue } = proStateFrom(info);
   const s = useApp.getState();
+  // 17e: the flag the UI needs to TELL them. Keeping access open silently rescues nothing — the
+  // card still has to be fixed, and only the user can do that. Access buys the time; the message
+  // is what converts it.
+  if (s.billingIssue !== billingIssue) s.setBillingIssue(billingIssue);
   // 17b funnel: the last step. Fires on the FALSE -> TRUE edge only, so a listener that re-delivers
   // the same entitlement (RevenueCat does, on every app foreground) cannot inflate conversions.
   // Losing Pro is not tracked here — that is churn, and RevenueCat's own cohorts measure it far

@@ -26,7 +26,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Alert, Linking, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -147,6 +147,7 @@ function ToggleRow({
 function AccountSection() {
   const theme = useTheme();
   const isPro = useApp((s) => s.isPro);
+  const billingIssue = useApp((s) => s.billingIssue);
   const setPro = useApp((s) => s.setPro);
   const name = useApp((s) => s.profile.name);
   const signOut = useApp((s) => s.signOut);
@@ -160,6 +161,25 @@ function AccountSection() {
       {/* Plan status first — 5/5 of the reference apps put it at the top of settings. Ours also
           states what is LEFT, because a plan row that only says "Free" answers the wrong question. */}
       <Section title="PLAN">
+        {/* 17e — the billing-retry message, ABOVE the status row because it outranks it.
+            Apple is retrying a payment. Access stays open for a window (see BILLING_RETRY_GRACE_DAYS
+            in lib/purchases), but only the user can fix the card, so keeping quiet wastes the window.
+            Wording is deliberately not alarming: the overwhelming majority of these are an expired
+            card, not a failed human. COPY IS UNAPPROVED (§20). */}
+        {billingIssue && (
+          <Pressable onPress={openManageSubscriptions} accessibilityRole="button" accessibilityLabel="Fix payment method">
+            <View style={[styles.billingIssue, { backgroundColor: theme.cardElevated, borderColor: theme.warning }]}>
+              <UIcon name="bell" size={18} color={theme.warning} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText type="smallBold">There&apos;s a problem with your payment method</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">
+                  Your subscription is still active while Apple retries. Updating your card in the
+                  App Store keeps it that way.
+                </ThemedText>
+              </View>
+            </View>
+          </Pressable>
+        )}
         <Row
           label="Status"
           value={
@@ -373,6 +393,15 @@ export default function SettingsSection() {
 }
 
 const styles = StyleSheet.create({
+  billingIssue: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.two,
+    padding: Spacing.three,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginBottom: Spacing.two,
+  },
   safe: { flex: 1 },
   back: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   content: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six, gap: Spacing.four },
