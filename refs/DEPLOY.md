@@ -1,7 +1,11 @@
 # Deploying — read before any production build
 
-`eas.json` ships with **`EXPO_PUBLIC_API_URL` deliberately EMPTY** in the `preview` and `production`
-profiles. That is not an oversight; it is the fix for C98.
+`eas.json` ships with **`EXPO_PUBLIC_API_URL` deliberately ABSENT** from the `preview` and
+`production` profiles. That is not an oversight; it is the fix for C98.
+
+(It was briefly set to an empty string instead. EAS rejects that outright — *"env.EXPO_PUBLIC_API_URL
+is not allowed to be empty"* — so the key is omitted. Unset trips the same guard, so the loud
+failure survives and the file validates.)
 
 ## What C98 was
 
@@ -18,13 +22,19 @@ relative URL has nothing to resolve against.
 **Atlas, market data and options all fail at once, and the failure cannot be reproduced in
 development by construction.**
 
-## Why the value is empty rather than a placeholder
+## Why the key is absent rather than a placeholder
 
 A plausible-looking wrong URL fails as a network error, which sends you debugging connectivity. An
-empty value trips `apiOriginMissing()` and every call throws `no_api_origin` before the fetch — a
-code that names its own cause. Empty is louder than wrong.
+absent value trips `apiOriginMissing()` and every call throws `no_api_origin` before the fetch — a
+code that names its own cause. Absent is louder than wrong.
 
 ## The sequence
+
+0. **Link the project first.** `eas init` binds this app to whichever Expo account is logged in,
+   PERMANENTLY and painfully to undo. `eas whoami` before you run it. As of C106 the CLI was
+   authenticated as `s-k-28` while the GitHub repos live under `teameuphoriainv-dot` — confirm which
+   account should own the production app before creating anything. This is the same class of
+   wrong-identifier mistake as C82/C90/C93.
 
 1. **Deploy the API routes.** `app.json` already sets `web.output: "server"`, and the routes exist
    at `src/app/api/{chat,market,options}+api.ts`.

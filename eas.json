@@ -15,16 +15,10 @@
       "distribution": "internal",
       "ios": {
         "simulator": false
-      },
-      "env": {
-        "EXPO_PUBLIC_API_URL": ""
       }
     },
     "production": {
-      "autoIncrement": true,
-      "env": {
-        "EXPO_PUBLIC_API_URL": ""
-      }
+      "autoIncrement": true
     }
   },
   "submit": {
