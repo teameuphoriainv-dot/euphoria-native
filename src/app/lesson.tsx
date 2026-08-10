@@ -37,7 +37,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
-import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { COURSES, getCourseById, lessonKeyTerms, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { gates, normalizeStep } from '@/lib/lesson-steps';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
@@ -94,6 +94,7 @@ export default function Lesson() {
   }, [courseId, lessonNum, badParams]);
 
   const steps = useMemo(() => lesson?.steps ?? [], [lesson]);
+  const keyTerms = useMemo(() => (lesson ? lessonKeyTerms(lesson) : []), [lesson]);
   const total = steps.length;
   // 0 = intro, 1..total = content, total+1 = done, total+2 = streak
   const DONE = total + 1;
@@ -262,6 +263,26 @@ export default function Lesson() {
             <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
               {total} steps · {xp} XP
             </ThemedText>
+            {/*
+              * WHAT THE 20 STEPS ARE ABOUT. Audit finding (FINDINGS.md, LESSON): 3/3 comparators
+              * answer "what will I be able to do" with specifics and this screen answered it with a
+              * cost and a reward only. Every term here is already authored inside the lesson's own
+              * keyTermsCards step — lessonKeyTerms() invents nothing, so §0.7 does not gate it.
+              *
+              * Renders NOTHING for the 114 lessons with no keyTermsCards step. That is the
+              * pre-audit screen, not a broken one — see lessonKeyTerms() for why the hookOpener
+              * fallback was built, measured and then deleted.
+              */}
+            {keyTerms.length > 0 && (
+              <View style={styles.preview}>
+                <ThemedText type="label" style={{ color: theme.iconLilac }}>
+                  YOU&apos;LL LEARN
+                </ThemedText>
+                <ThemedText type="body" themeColor="textSecondary" style={[styles.center, { marginTop: Spacing.two }]}>
+                  {keyTerms.join('  ·  ')}
+                </ThemedText>
+              </View>
+            )}
           </Animated.View>
         )}
 
@@ -460,6 +481,7 @@ const styles = StyleSheet.create({
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { textAlign: 'center', marginTop: Spacing.three },
   center: { textAlign: 'center', marginTop: Spacing.two, paddingHorizontal: Spacing.two },
+  preview: { alignItems: 'center', alignSelf: 'stretch', marginTop: Spacing.four, paddingHorizontal: Spacing.four },
   // flex-start, not center: authored questions run to 7+ lines and a vertically-centred mascot
   // ends up floating in the middle of the paragraph
   quizHead: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two + 4 },

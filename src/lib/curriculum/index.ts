@@ -84,7 +84,7 @@ export {
 export type { StepType } from './stepTypes.generated';
 
 import { STEP_TYPES, type StepType } from './stepTypes.generated';
-import type { LessonStep } from './types';
+import type { LessonStep, PathwayLesson } from './types';
 
 /**
  * Narrow `LessonStep` to one concrete variant.
@@ -98,4 +98,49 @@ const STEP_TYPE_SET: ReadonlySet<string> = new Set<string>(STEP_TYPES);
 /** True if `value` is a step type that occurs somewhere in the curriculum. */
 export function isKnownStepType(value: string): value is StepType {
   return STEP_TYPE_SET.has(value);
+}
+
+// ─── Lesson-start preview ───────────────────────────────────────────────────
+
+/**
+ * Up to three key terms the lesson teaches, for the lesson INTRO screen. Empty
+ * when the lesson has no `keyTermsCards` step — the caller then renders nothing,
+ * which is the pre-audit screen and is correct.
+ *
+ * WHY THIS EXISTS: the screen audit (`refs/audit/20260810/FINDINGS.md`, LESSON)
+ * found 3/3 comparators answer "what will I be able to do" with SPECIFICS —
+ * Duolingo previews three real Korean letters, Speak states the objective then
+ * shows four real dialogue lines, Babbel names its two steps. Euphoria's intro
+ * said "20 steps · 30 XP": a cost and a reward, with nothing between them about
+ * the subject.
+ *
+ * IT INVENTS NOTHING. Every string is already authored inside the lesson's own
+ * steps, so §0.7 does not gate it. Coverage: **186 of 300 lessons (62%)**.
+ *
+ * WHY THERE IS NO FALLBACK, having built one and measured it:
+ *
+ *   - `hookOpener.title` is IDENTICAL to the lesson title in 295 of 300 lessons.
+ *     On device it rendered "Structuring Alternative Investment Vehicles" as the
+ *     title and again directly beneath it. A duplicate reads as a bug.
+ *   - `hookOpener.outcome` is the real objective and is the right CONTENT, but
+ *     its median length is 241 characters (max 405) — six or seven lines on a
+ *     402pt screen. The mechanism the comparators converge on is short and
+ *     scannable: Duolingo three words each, Speak about seventy characters.
+ *   - Splitting `outcome` down to its first clause was rejected: it mangles
+ *     authored copy across 295 varied strings, and shipping a bad split is worse
+ *     than showing nothing.
+ *
+ * So 62% of lessons gain a precise preview and 114 keep the screen they had.
+ * That beats 100% coverage where a third of it looks broken.
+ *
+ * Pinned by `scripts/lesson-preview-coverage.mjs`.
+ */
+export function lessonKeyTerms(lesson: PathwayLesson): string[] {
+  for (const step of lesson.steps) {
+    if (step.type === 'keyTermsCards') {
+      const terms = step.terms.map((t) => t.term.trim()).filter(Boolean).slice(0, 3);
+      if (terms.length > 0) return terms;
+    }
+  }
+  return [];
 }

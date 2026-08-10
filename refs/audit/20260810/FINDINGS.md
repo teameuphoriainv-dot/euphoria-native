@@ -221,9 +221,9 @@ PathwayLesson = { num, title, xp, steps, challenge }     <- no objective/summary
                                                             so the intro already renders
                                                             everything the record carries
 
-hookOpener      present in 295 of 300 lessons  (98%)
-summaryCards    present in 295 of 300 lessons  (98%)
-keyTermsCards   present in 181 of 300 lessons  (60%)
+hookOpener      present in 300 of 300 lessons  (100%)
+keyTermsCards   present in 186 of 300 lessons  (62%)
+lessons with neither                        0
 ```
 
 `keyTermsCards` carries `{ term, definition, example, sentence }` per term — **a direct structural
@@ -234,8 +234,50 @@ So closing the 3/3 gap means SURFACING content the curriculum already holds, not
 does not block this** — no invented product copy is required. That is unusual among this audit's
 findings and is the reason to rank it above cosmetic work.
 
-Coverage caveat if it is built: at 60%, `keyTermsCards` needs a fallback for the other 40%, and
-`hookOpener` at 98% is the better primary source. Five lessons have neither.
+**BUILT — see `lessonKeyTerms()` and the commit that added it.** The intro now carries a
+"YOU'LL LEARN" line with up to three key terms taken from the lesson's own `keyTermsCards` step:
+
+```
+BEHAVIORAL FINANCE · LESSON 2
+Cognitive Biases That Destroy Wealth
+21 steps · 30 XP
+YOU'LL LEARN
+Confirmation Bias · Anchoring Bias · Recency Bias     <- verified on device
+```
+
+Coverage is **186 of 300 lessons (62%)**. The other 114 keep the screen they had.
+
+**A 100%-coverage fallback was built, measured, and deleted.** `hookOpener` is present in all 300
+lessons, so falling back to it looked free. It is not:
+
+- `hookOpener.title` is IDENTICAL to the lesson title in **295 of 300** lessons. On device it
+  rendered "Structuring Alternative Investment Vehicles" as the title and again immediately below
+  it. A duplicate reads as a bug.
+- `hookOpener.outcome` is the true objective and the right CONTENT — "By the end of this lesson,
+  you'll understand what alternative investments are…" — but its median length is **241 characters**
+  (max 405), six or seven lines on a 402pt screen. The mechanism the comparators converge on is
+  short and scannable: Duolingo's items are three words, Speak's objective about seventy characters.
+- Splitting `outcome` to its first clause was rejected: it mangles authored copy across 295 varied
+  strings, and shipping a bad split is worse than showing nothing.
+
+62% with a precise preview beats 100% where a third of it looks broken.
+
+**GETTING THE COVERAGE NUMBER RIGHT TOOK FOUR MEASUREMENTS, AND THE SCREEN CAUGHT TWO OF THEM.**
+
+1. A script matching only `L(` reports 295 lessons and makes `courseIndex` look wrong — the exact
+   error §22 C17 already recorded once. corporateFinance declares its first five as `{ num: n }`
+   objects.
+2. The obvious cross-check is worse than useless: `grep -c "L("` returns 300 by COINCIDENCE, being
+   295 real calls plus five matches inside quantitativeAnalysis's prose, where the maths reads
+   `dL(t,T)`, `L(t,3M)` and `L(data|θ)`. Two errors cancelling to the right total.
+3. Fixing both still under-reported, because those five object-form lessons author steps as raw
+   literals — `{ type: 'hookOpener', ... }` — not helper calls. The script grepped the call;
+   `lessonKeyTerms()` switches on `step.type` at runtime. **The doc said five lessons would show
+   nothing; on device, corporate-finance lesson 1 rendered its preview.**
+4. Only opening a lesson with no terms revealed the duplicated title, which no count could show.
+
+`scripts/lesson-preview-coverage.mjs` now matches both lesson forms and both step-authoring forms,
+and anchors on 25-per-course rather than a global count.
 
 ---
 
