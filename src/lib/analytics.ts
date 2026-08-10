@@ -54,6 +54,12 @@ export const Ev = {
   specialOfferSeen: 'special_offer_seen',
   specialOfferAccepted: 'special_offer_accepted',
   specialOfferDismissed: 'special_offer_dismissed',
+  /** 17f. The guided first action, which is where activation is actually decided. `kind` separates
+   *  the real path (a lesson) from the fallback (a guide), so a drop in activation can be told
+   *  apart from the course module failing to load. Skipping is its own event rather than an absent
+   *  one — a missing event cannot distinguish "chose to skip" from "the screen crashed". */
+  firstActionStarted: 'first_action_started',
+  firstActionSkipped: 'first_action_skipped',
   trialStarted: 'trial_started',
   paid: 'paid',
 } as const;

@@ -16,10 +16,22 @@
  * card awards XP which lights up the tier bar and puts them on the league board. It is currently
  * the only surface where a first action pays off correctly.
  *
- * That is a workaround for a defect, not a preference. MOVE THIS TO A LESSON once the player
- * renders real curriculum, which is what Duolingo actually does.
+ * ── UNIT 17f: THE WORKAROUND IS GONE (C109) ──────────────────────────────────────────────────
+ * The instruction above has been carried out. `lesson.tsx` no longer contains the hardcoded STEPS
+ * demo — verified, zero matches for `const STEPS` or `FOUNDATIONS` — and loads real curriculum by
+ * `course`/`num`. So the first action is now the first LESSON of the path onboarding just built,
+ * which is what Duolingo does and what this comment asked for.
+ *
+ * WHY IT MATTERS MORE THAN IT LOOKS: onboarding's whole promise is a personalised plan. Ending it
+ * on a generic daily guide — the same guide every user gets — quietly contradicts that promise at
+ * the exact moment it should be proved. Activation is decided here; a day-3 paywall is a formality
+ * if the app has not visibly worked on day 1.
+ *
+ * The digest guide REMAINS as the fallback. If the course module fails to load or every lesson is
+ * already complete, a working guide beats a dead screen — the same reason `later()` exists.
  */
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -30,8 +42,10 @@ import { ThemedText } from '@/components/themed-text';
 import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Spacing, FontSize } from '@/constants/theme';
+import { Ev, track } from '@/lib/analytics';
+import { getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { pickToday } from '@/lib/digest-pick';
-import { useApp } from '@/lib/store';
+import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -45,8 +59,30 @@ export default function Start() {
   const dailyPick = useApp((s) => s.dailyPick);
   const setProfile = useApp((s) => s.setProfile);
   const setDailyPick = useApp((s) => s.setDailyPick);
+  const activeCourseId = useApp((s) => s.activeCourseId);
+  const completedLessons = useApp((s) => s.completedLessons);
 
   const { day, post } = pickToday(readPosts, dailyPick);
+
+  // Same resolution home.tsx uses for its hero, deliberately: two different answers to "what is
+  // your next lesson" on two screens a tap apart is how a personalised path stops feeling like one.
+  const [lesson, setLesson] = useState<PathwayLesson | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadCourseLessons(activeCourseId)
+      .then((ls) => {
+        if (cancelled) return;
+        setLesson(ls.find((l) => !completedLessons.includes(lessonKey(activeCourseId, l.num))) ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setLesson(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCourseId, completedLessons]);
+
+  const course = getCourseById(activeCourseId);
 
   /** Both paths stamp. Skipping is a decision, not a deferral: without stamping here the screen
    *  would greet the user again on every single sign-in. */
@@ -54,13 +90,23 @@ export default function Start() {
 
   const begin = () => {
     done();
-    // Pin the pick so the Digest tab shows the same guide they were just handed.
+    if (lesson) {
+      track(Ev.firstActionStarted, { kind: 'lesson', course: activeCourseId, lesson: lesson.num });
+      router.replace({ pathname: '/lesson', params: { course: activeCourseId, num: String(lesson.num) } } as never);
+      return;
+    }
+    // Fallback only. Pin the pick so the Digest tab shows the same guide they were just handed.
+    track(Ev.firstActionStarted, { kind: 'guide' });
     setDailyPick(day, post.slug);
     router.replace(`/digest/${post.slug}` as never);
   };
 
   const later = () => {
     done();
+    // Tracked as its own outcome, not as an absence. "How many people skip the first action" is a
+    // number the funnel needs; inferring it from a missing event cannot distinguish a skip from an
+    // app that crashed on this screen.
+    track(Ev.firstActionSkipped);
     router.replace('/(tabs)/home');
   };
 
@@ -87,14 +133,14 @@ export default function Start() {
         <RiseIn delay={320}>
           <Card style={styles.card} elevated>
             <ThemedText type="label" themeColor="mutedForeground">
-              TODAY · {post.category.toUpperCase()}
+              {lesson ? `LESSON ${String(lesson.num)} · ${(course?.title ?? '').toUpperCase()}` : `TODAY · ${post.category.toUpperCase()}`}
             </ThemedText>
-            <ThemedText type="title" style={styles.title}>{post.title}</ThemedText>
+            <ThemedText type="title" style={styles.title}>{lesson ? lesson.title : post.title}</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.excerpt}>
-              {post.excerpt}
+              {lesson ? `First lesson of the path we just built for you.` : post.excerpt}
             </ThemedText>
             <ThemedText type="small" themeColor="mutedForeground" style={styles.mins}>
-              {post.readMinutes} min read
+              {lesson ? `${String(lesson.xp)} XP` : `${String(post.readMinutes)} min read`}
             </ThemedText>
           </Card>
         </RiseIn>
@@ -102,7 +148,7 @@ export default function Start() {
 
       <View style={styles.footer}>
         <RiseIn delay={420}>
-          <GradientButton label="Read today's guide" full onPress={begin} />
+          <GradientButton label={lesson ? 'Start your first lesson' : "Read today's guide"} full onPress={begin} />
           <SpringPressable haptic={false} onPress={later} style={styles.later}>
             <ThemedText type="bodyMedium" themeColor="mutedForeground">Maybe later</ThemedText>
           </SpringPressable>
