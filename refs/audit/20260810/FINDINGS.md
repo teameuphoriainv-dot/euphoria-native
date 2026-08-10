@@ -15,8 +15,8 @@ only ONE is Finance (TradingView, $2.25M/mo). The rest are Education** — Duoli
 $14M, Learna $5M, Speak $3.25M, Babbel $3M, Quizlet $2.25M. Euphoria's peer group for MECHANISM is
 learning apps, not brokerages. Compare against Duolingo, not Robinhood.
 
-**Not finished.** HOME and LEARN are audited in depth and the comparator set is established. The other
-24 captures are on disk and the method above is repeatable. Do not read absence of a screen below as
+**Not finished.** HOME, LEARN and the LESSON INTRO are audited in depth and the comparator set is
+established. The other 23 captures are on disk and the method above is repeatable. Do not read absence of a screen below as
 "it passed".
 
 ---
@@ -162,11 +162,88 @@ layout bug.
 
 ---
 
-## TODO — the remaining 24 captures
+## LESSON — audited, with two limits stated up front
+
+**LIMIT 1: this audits the lesson INTRO, not the lesson body.** `capture-screens.sh` captures default
+states, and the default state of `lesson` is step 1 of 20 — a mascot, a title, "20 steps · 30 XP" and
+Continue. Steps 2-20 are UNCAPTURED. Nothing below says anything about the exercises themselves.
+
+**LIMIT 2: three apps, not four. The ≥4 bar is NOT met.**
+
+| App | $/mo | Screen | What it is |
+|---|---|---|---|
+| Duolingo | $48M | `112762` | "LET'S LEARN KOREAN!" pre-lesson teach + START LESSON |
+| Speak | $3.25M | `167919` | "Starting a Conversation" objective + sample dialogue |
+| Babbel | $3M | `20499` | "Greeting a neighbor" + two numbered steps + Start |
+
+Learna `264973` was pulled as a candidate and **excluded after reading it**: it is a feature-highlight
+carousel at 0:15 inside the onboarding flow ("Your Private Tutor"), not a lesson start. Bending it to
+fit is the exact failure AGENTS.md rule 7 warns about. **This does NOT mean Learna has no lesson
+intro** — absence cannot be inferred from a pull (trap #6). Closing this to 4/4 means going back for
+Learna's or a fourth app's real lesson-start screen.
+
+### The 3/3 pattern, reported as 3/3
+
+**Every comparator's lesson-start screen answers "what will I be able to do, or what happens next" with
+SPECIFICS. Euphoria's answers "how long, and how much XP."**
+
+```
+Duolingo  three real Korean letters with pronunciations and audio, before the lesson
+Speak     "LEARN HOW TO — Greet someone, introduce yourself, and talk about
+           language skills", then four real dialogue lines you will actually meet
+Babbel    two numbered steps: "1 Listen — Listen to the conversation",
+           "2 Speak your part — Say your part of the conversation"
+Euphoria  "Ready? Let's get into it."  ·  "20 steps · 30 XP"
+```
+
+Duolingo and Speak preview the CONTENT. Babbel previews the SHAPE — what the app is about to ask you
+to do. Euphoria previews neither. "20 steps" is a cost, and "30 XP" is a reward; between them the
+screen never says what the twenty steps are about. On a finance app for 18-25s, where the fear is
+"this will be boring or over my head", that is the question the screen is best placed to answer.
+
+Reported at 3/3 rather than promoted to a rule, because three apps is below this audit's own bar.
+
+### Where Euphoria differs with no evidence either way
+
+**An XP reward on the lesson-start screen: 0/3.** None of the three shows one; Duolingo puts XP on the
+path node, not here. Euphoria shows "30 XP" up front. **0/3 is absence of evidence, not evidence of
+absence** — recorded as a difference, not a gap, and explicitly NOT a recommendation to remove it.
+
+**Parity, 3/3:** an explicit close affordance. Duolingo X top-left, Babbel X top-right, Speak a back
+chevron; Euphoria X top-left. Already correct.
+
+### Why this one is cheap, and does NOT need new copy
+
+Measured in `src/lib/curriculum/`:
+
+```
+PathwayLesson = { num, title, xp, steps, challenge }     <- no objective/summary field
+                                                            so the intro already renders
+                                                            everything the record carries
+
+hookOpener      present in 295 of 300 lessons  (98%)
+summaryCards    present in 295 of 300 lessons  (98%)
+keyTermsCards   present in 181 of 300 lessons  (60%)
+```
+
+`keyTermsCards` carries `{ term, definition, example, sentence }` per term — **a direct structural
+analogue of Duolingo's three preview cards**, and it already exists inside the lesson's own steps.
+`hookOpener` is in 98% of lessons.
+
+So closing the 3/3 gap means SURFACING content the curriculum already holds, not authoring any. **§0.7
+does not block this** — no invented product copy is required. That is unusual among this audit's
+findings and is the reason to rank it above cosmetic work.
+
+Coverage caveat if it is built: at 60%, `keyTermsCards` needs a fallback for the other 40%, and
+`hookOpener` at 98% is the better primary source. Five lessons have neither.
+
+---
+
+## TODO — the remaining 23 captures
 
 Priority order for the next pass, money and retention first:
 
-1. `lesson` — the other half of the core loop. `learn` is DONE (above); `lesson` is not.
+1. `lesson` EXERCISE STEPS (2-20) — uncaptured; needs a seeded run. The lesson INTRO is done.
 2. `trade` — the only Finance comparator is TradingView `858`
 3. `auth` · `start` · `onboarding` — activation, vs Duolingo (52 onboarding steps) and Learna
 4. `you` · `league` — retention surfaces
