@@ -44,7 +44,16 @@ const RANGES = [
 export function PortfolioChart() {
   const theme = useTheme();
   const history = useApp((s) => s.valueHistory);
-  const [i, setI] = useState(RANGES.length - 1); // default ALL — a new account has the least history
+  /*
+   * The selection is stored as a KEY, not an index. It used to be an index into RANGES while the
+   * lookup indexed into `usable`, which is a filtered subset — so the moment history grew and a
+   * range became usable, every index below it shifted and the user's chosen range silently changed
+   * underneath them. Two index spaces, one variable. Found in review.
+   *
+   * 'ALL' is the default because a new account has the least history, and it is the one key that is
+   * always usable.
+   */
+  const [rangeKey, setRangeKey] = useState<string>('ALL');
 
   // Anchored to the MOST RECENT snapshot, not to wall-clock now. Two reasons: `Date.now()` during
   // render is impure (react-hooks/purity, and it would make the chart differ between two renders
@@ -74,8 +83,9 @@ export function PortfolioChart() {
   const usable = RANGES.filter(
     (r) => r.days === Infinity || (history.length > 1 && newest - r.days * 86_400_000 > oldest),
   );
-  const i2 = Math.min(i, usable.length - 1);
-  const range2 = usable[i2] ?? RANGES[RANGES.length - 1];
+  // Falls back to the last usable range (always ALL) if the chosen key stops being usable, which
+  // history alone cannot cause but a reset can.
+  const range2 = usable.find((r) => r.key === rangeKey) ?? usable[usable.length - 1] ?? RANGES[RANGES.length - 1];
   const cutoff = range2.days === Infinity ? 0 : newest - range2.days * 86_400_000;
   const points = history.filter((p) => p.t >= cutoff).map((p) => ({ t: p.t, c: p.v }));
 
@@ -128,13 +138,13 @@ export function PortfolioChart() {
       {usable.length > 1 && (
       <View style={styles.ranges}>
         {usable.map((r, n) => {
-          const on = n === i2;
+          const on = r.key === range2.key;
           return (
             <SpringPressable
               key={r.key}
               haptic={false}
               scaleTo={0.92}
-              onPress={() => setI(n)}
+              onPress={() => setRangeKey(r.key)}
               accessibilityRole="button"
               accessibilityLabel={`Show ${r.key} range`}
               accessibilityState={{ selected: on }}

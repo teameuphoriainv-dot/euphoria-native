@@ -228,7 +228,7 @@ lessons with neither                        0
 
 `keyTermsCards` carries `{ term, definition, example, sentence }` per term — **a direct structural
 analogue of Duolingo's three preview cards**, and it already exists inside the lesson's own steps.
-`hookOpener` is in 98% of lessons.
+`hookOpener` is in 100% of lessons (300 of 300 — the 98% first measured was the helper-call form only, and missed the five object-form lessons that write their steps as raw literals).
 
 So closing the 3/3 gap means SURFACING content the curriculum already holds, not authoring any. **§0.7
 does not block this** — no invented product copy is required. That is unusual among this audit's
@@ -533,7 +533,10 @@ promotion rule the user can read backwards is worth ten minutes.
 
 ---
 
-## TODO — the remaining 18 captures
+## TODO — 18 captured screens still unaudited
+
+26 of 31 routes are CAPTURED; 8 are audited. The 18 below have screenshots on disk and no findings written.
+The five uncaptured routes are a separate list, in `UNCAPTURED.md`.
 
 Priority order for the next pass, money and retention first:
 

@@ -580,7 +580,13 @@ export const useApp = create<AppState>()(
           // Booked at the grant value, not at zero. The shares were free, but a $0 basis would show
           // an infinite return on the Trade tab and teach exactly the wrong lesson. `rewardsEarned`
           // already records that this was earned rather than traded.
-          const costBasis = { ...s.costBasis, [card.sym]: (s.costBasis[card.sym] ?? 0) + card.value };
+          //
+          // Same partial-basis guard as `buy`: granting into a position that predates costBasis must
+          // not mint a basis covering only the granted fraction.
+          const legacyHolding = (s.positions[card.sym] ?? 0) > 0 && s.costBasis[card.sym] === undefined;
+          const costBasis = legacyHolding
+            ? s.costBasis
+            : { ...s.costBasis, [card.sym]: (s.costBasis[card.sym] ?? 0) + card.value };
           return {
             pendingRewards: rest,
             positions,
@@ -661,7 +667,16 @@ export const useApp = create<AppState>()(
           // forgetting to check. An unaffordable buy is a no-op, not a negative balance.
           if (shares <= 0 || cost > s.cash) return s;
           const positions = { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares };
-          const costBasis = { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + cost };
+          // A PARTIAL BASIS IS WORSE THAN NO BASIS. Adding to a position opened before costBasis
+          // existed would record only the NEW cost while `positions` counts ALL the shares, so
+          // `paid / held` divides one share's cost across four: 3 legacy NVDA plus one bought at
+          // $1,184 rendered "avg $296.00, +300.0%" on the Trade tab. A fabricated number on the
+          // money screen is the §22 C100 defect exactly, and this fix reintroduced it until
+          // CodeRabbit caught it. The basis stays ABSENT until the position is fully closed (sell
+          // deletes both keys) and rebuilt from a known price, and the UI already renders nothing
+          // rather than guessing when it is absent.
+          const legacy = (s.positions[sym] ?? 0) > 0 && s.costBasis[sym] === undefined;
+          const costBasis = legacy ? s.costBasis : { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + cost };
           return { cash: s.cash - cost, positions, costBasis, valueHistory: snapshot(s, s.cash - cost, positions), activeDays: withToday(s.activeDays) };
         }),
       sell: (sym, shares, price) =>

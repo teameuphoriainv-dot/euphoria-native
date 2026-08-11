@@ -120,8 +120,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
   },
   tailWrap: { position: 'absolute', left: Spacing.four },
-  // marginLeft pulls back by half the tail's own 18pt width so its POINT lands on centre.
-  tailCenter: { left: '50%', marginLeft: -9 },
+  // -7, not -9. The tail path is `M0 11 L18 11 L7 0 Z` — its POINT is at x=7, not at the midpoint
+  // of the 18pt box, so pulling back by half the width left the point 2pt off centre.
+  tailCenter: { left: '50%', marginLeft: -7 },
   tailBottom: { bottom: -10 },
   tailTop: { top: -10 },
 });
