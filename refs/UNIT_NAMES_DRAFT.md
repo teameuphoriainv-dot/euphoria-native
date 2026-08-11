@@ -1,6 +1,8 @@
-# Unit names — DRAFT, UNAPPROVED (§0.7 / §20)
+# Unit names — APPROVED 2026-08-11 (§0.7 / §20)
 
-**Nothing here renders until you approve it.** 60 names, 12 courses × 5 units of 5 lessons.
+**Approved as drafted, including the four flagged below.** 60 names, 12 courses × 5 units of 5
+lessons. Live in `src/lib/course-units.ts` and rendering in `learn.tsx`; this file stays as the
+record of where each name came from and what was uncertain about it.
 
 ## Why these exist
 
@@ -28,8 +30,8 @@ Each name is derived from the five authored lesson titles it covers, nothing els
 comparator register — short, plain, concrete: Duolingo's "Learn Korean vowels", Babbel's "Greet
 people and say goodbye". 2–5 words, no jargon the unit itself teaches.
 
-**They are my drafts, not authored copy.** §0.7 forbids inventing product copy, so this file is a
-proposal. Approve, edit, or reject any line.
+They were drafts, not authored copy — §0.7 forbids inventing product copy, so they went to the user
+as a proposal and were approved as written.
 
 ---
 
@@ -155,7 +157,7 @@ proposal. Approve, edit, or reject any line.
 
 ---
 
-## Ones I am least confident in, flagged rather than hidden
+## Ones I was least confident in — approved as drafted, kept on the record
 
 - **Quantitative Analysis U5, "The Deep End"** — covers risk-neutral pricing, copulas, Bayesian
   methods and quantum computing. Honest about difficulty, but it is the only name that describes how

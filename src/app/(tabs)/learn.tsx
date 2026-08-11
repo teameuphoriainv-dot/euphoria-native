@@ -6,7 +6,7 @@
  * metaphor from the course + lesson title.
  */
 import { router } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,6 +23,7 @@ import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -261,9 +262,35 @@ export default function Learn() {
               const dotRing = done ? accent : active ? accent : theme.border;
               const first = i === 0;
               const last = i === lessons.length - 1;
+              /*
+                * UNIT HEADER every fifth lesson. Audit finding (FINDINGS.md, LEARN, 4/4): every
+                * comparator scopes the list to a NAMED unit and none shows more than about six
+                * items before a divider. This screen showed 25 in one scroll with nine consecutive
+                * padlocks.
+                *
+                * A Fragment, not a wrapping View: the rows draw a connecting rail from sibling
+                * layout, and boxing them changes it.
+                *
+                * The count is COMPUTED, never "5 LESSONS" hardcoded. That is C109's defect exactly —
+                * a hardcoded "LESSON 1" that was false for everyone past their first lesson, caught
+                * only by reading the screen. All twelve courses are 25 long today; a re-sync that
+                * changes one must not make this header lie.
+                */
+              const unitName = i % LESSONS_PER_UNIT === 0 ? unitNameFor(trailCourseId, i) : null;
+              const unitCount = Math.min(LESSONS_PER_UNIT, lessons.length - i);
               return (
+                <Fragment key={i}>
+                {unitName && (
+                  <View style={[styles.unitHead, i > 0 && { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+                    <ThemedText type="label" style={{ color: accent }}>
+                      UNIT {String(i / LESSONS_PER_UNIT + 1)} · {String(unitCount)} LESSON{unitCount === 1 ? '' : 'S'}
+                    </ThemedText>
+                    <ThemedText type="bodyMedium" style={{ marginTop: 2 }} numberOfLines={2}>
+                      {unitName}
+                    </ThemedText>
+                  </View>
+                )}
                 <SpringPressable
-                  key={i}
                   haptic={!locked}
                   scaleTo={0.98}
                   onPress={() => {
@@ -340,6 +367,7 @@ export default function Learn() {
                     </View>
                   </View>
                 </SpringPressable>
+                </Fragment>
               );
             })}
           </View>
@@ -377,6 +405,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   countPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
   streakPill: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
+  unitHead: { marginTop: Spacing.four, marginBottom: Spacing.two, paddingTop: Spacing.four, paddingHorizontal: Spacing.one },
   track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
   fill: { height: 6, borderRadius: Radius.chip },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
