@@ -126,7 +126,23 @@ export default function Auth() {
           <View style={styles.head}>
             <Atlas size={72} expression="happy" interactive={false} />
             <ThemedText type="title" style={styles.title}>Create your free profile</ThemedText>
-            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>Save your streak, XP, and learning plan.</ThemedText>
+            {/*
+              * "Save your streak, XP, and learning plan." WAS FALSE, and false on the screen where a
+              * user decides whether to trust this app. Nothing on this screen saves anything
+              * anywhere: enter() writes to the LOCAL zustand profile and flips a local boolean, the
+              * Apple and Google buttons run real OAuth and then write that identity to the same
+              * local profile, AUTH_ENABLED is false and currentUserId() returns a hardcoded null.
+              * §22 C99 states the consequence — deleting the app destroys the streak and XP, and
+              * there is no recovery. §0.4 forbids a claim the app cannot back; that rule applies to
+              * a sentence exactly as it applies to a number.
+              *
+              * COPY APPROVED 2026-08-11 (§0.7, §20), chosen from three drafts. It is deliberately
+              * candid rather than reassuring, matching the register the user already approved for
+              * why-not-free.tsx in C103. When Supabase lands — lib/auth.ts is scaffolded for it and
+              * the web app already runs on the same project — this line is the one to change, and
+              * "Save your streak, XP, and learning plan" becomes true and can come back.
+              */}
+            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>Your progress stays on this device.</ThemedText>
           </View>
         </RiseIn>
 
@@ -215,7 +231,11 @@ export default function Auth() {
 
         <RiseIn delay={230}>
           <SpringPressable haptic={false} onPress={enter} style={styles.signin}>
-            <ThemedText type="small" themeColor="mutedForeground">Existing user? <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>Sign in</ThemedText></ThemedText>
+            {/* "Existing user? Sign in" implied ACCOUNT RECOVERY. There is none — a returning user
+                on a new phone signs in and gets an empty account, because there was never an account.
+                The only real journey through here is somebody who signed out on THIS device (you.tsx
+                routes signOut to /auth), which is what the line now describes. */}
+            <ThemedText type="small" themeColor="mutedForeground">Signed out? <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>Sign back in</ThemedText></ThemedText>
           </SpringPressable>
         </RiseIn>
       </View>
