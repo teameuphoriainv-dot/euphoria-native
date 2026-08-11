@@ -15,8 +15,8 @@ only ONE is Finance (TradingView, $2.25M/mo). The rest are Education** — Duoli
 $14M, Learna $5M, Speak $3.25M, Babbel $3M, Quizlet $2.25M. Euphoria's peer group for MECHANISM is
 learning apps, not brokerages. Compare against Duolingo, not Robinhood.
 
-**Not finished.** HOME, LEARN and the LESSON INTRO are audited in depth and the comparator set is
-established. The other 23 captures are on disk and the method above is repeatable. Do not read absence of a screen below as
+**Not finished.** HOME, LEARN, the LESSON INTRO and TRADE are audited in depth and both comparator
+sets are established. The other 22 captures are on disk and the method above is repeatable. Do not read absence of a screen below as
 "it passed".
 
 ---
@@ -281,12 +281,116 @@ and anchors on 25-per-course rather than a global count.
 
 ---
 
-## TODO — the remaining 23 captures
+## TRADE — audited, and the comparator bar had to be lowered to do it
+
+**THE FINANCE PEER GROUP AT $500k/mo DOES NOT EXIST.** `search_apps` with `category: Finance,
+min_revenue: 500000` returns **four apps in total**, and three of them are not finance products:
+
+| App | `category_primary` | $/mo | What it actually is |
+|---|---|---|---|
+| TradingView | Finance | $2.25M | charting + watchlists |
+| Invoice2go | **Business** | $1M | invoicing |
+| Invoice Maker Tofu | **Business** | $800k | invoicing |
+| Bloomberg | **News** | $750k | news |
+
+This is the same finding the HOME audit reported from the other side — only one Finance app in the
+top ten — but seen at full strength. **There is exactly one app above $500k with anything resembling
+a portfolio screen.** 1/1 is not evidence (rule 3).
+
+**SO THE BAR WAS LOWERED, DELIBERATELY, FROM $500k TO $65k**, and every hit rate below inherits that.
+Comparators, read as SCREENS:
+
+| App | $/mo | Screen | What it is |
+|---|---|---|---|
+| TradingView | $2.25M | `185195` | **Paper Trading** dashboard — the only true analogue |
+| Investing.com | $450k | `211291` | My Holdings, market value + P/L + one position |
+| Seeking Alpha | $250k | `285918` | All Holdings, a symbol/price/change TABLE |
+| Yahoo Finance | $65k | `97001` | portfolio total + chart + range selector |
+
+**Three of the four are TRACKERS** — you type in positions you hold at a real broker. Only
+TradingView Paper Trading shares Euphoria's actual mechanic, where the buying happens inside the app.
+So the DISPLAY half has four comparators and the TRANSACTION half has one. Said plainly rather than
+averaged away.
+
+### The finding that reframes this screen: the chart is a MINORITY choice, 1/4
+
+**Only Yahoo Finance shows a performance chart on its portfolio screen.** TradingView's Paper Trading
+dashboard has none — it spends that space on seven account numbers and a Positions/Orders/History tab
+bar. Investing.com has none. Seeking Alpha has none; it goes straight to a data table.
+
+Euphoria gives roughly **40% of the screen** to a chart plus a `1D 1W 1M 3M 1Y ALL` range selector.
+
+**This is NOT a recommendation to remove it.** Three of four comparators are trackers for people who
+already invest; a chart that shows a beginner their portfolio moving over time is doing a teaching
+job none of those apps has. The mechanism does not transfer because the AUDIENCE does not.
+
+**What does need checking is the range selector.** `stocks.ts` is a hardcoded mock table and `priceOf`
+parses a static string, so a paper portfolio cannot move except when the user trades. `valueHistory`
+gains a point per trade, not per day. **1D, 1W, 1M and 3M are therefore offering time windows the
+data cannot fill**, and on a fresh account most of them can only render flat or empty. Not verified —
+it needs a seeded multi-day store — and it is listed in `UNCAPTURED.md` as exactly that kind of
+state. **Verify before acting.**
+
+### 3/4 — the total carries TWO gain figures, today and all-time
+
+```
+TradingView    Realized P&L        AND  Unrealized P&L
+Investing.com  Daily P/L           AND  Open P/L      (+ a Daily|Open toggle)
+Yahoo Finance  Day's Gain          AND  Total Gain
+Seeking Alpha  one aggregate change, plus per-row Change and Change%
+Euphoria       "+$3.28 (0.03%) all time"                      <- one figure
+```
+
+Three of four separate *what happened today* from *what happened since you bought*. Euphoria shows
+only all-time, so a user cannot tell a good day from a good month.
+
+**And the reason is the same mock table.** With static prices, "today" is always exactly $0.00 unless
+the user traded, so the second figure would be honest but useless. **This is a data gap wearing a
+design gap's clothes** — the same shape as C100, where a display bug turned out to be two formulas
+for one number. Wiring live quotes (Phase 16) is the precondition, not a redesign.
+
+### 3/4 — a position shows what you PAID, not just what it is worth
+
+```
+Investing.com  "BUY 100 @ 3,980.51"        <- quantity AND entry price
+Seeking Alpha  Price column, plus after-hours "Post. 282.40"
+Yahoo Finance  per-symbol price in the list
+Euphoria       "NVIDIA · 3 shares · $3,552.80 · +3.1%"
+```
+
+Euphoria shows quantity, current value and percent — but never the price per share, and never the
+cost basis. **For a product whose whole purpose is teaching, cost basis is the most educational
+number on the screen**: it is the one that makes "+3.1%" mean something rather than being a coloured
+number. This one is cheap and needs no new data — the store already holds the entry price it used to
+compute the percentage.
+
+### Excluded — below the bar
+
+- **"Last updated" timestamp** (2/4: Investing.com, Yahoo). Also actively wrong for Euphoria today:
+  a freshness stamp on prices that never change would advertise the mock table.
+- **Hide-balance eye toggle** (2/4: Seeking Alpha, Yahoo).
+- **Market-context strip** (2/4: Seeking Alpha's Dow/S&P, Yahoo's Bitcoin/XRP/FTSE/Nikkei).
+
+### Where Euphoria is doing something none of the four does
+
+The subtitle **"Build a real portfolio. Risk nothing."** None of the four says what its portfolio
+screen is FOR, because their users already know. Euphoria's is the only one aimed at somebody who has
+never held a share, and that line is the only sentence on any of the five screens that teaches. Worth
+protecting, not flattening toward the trackers.
+
+### Verify before acting
+
+The gear top-right in `trade.png` is the expo-dev-client Tools button, and the white bar over the tab
+bar is its LogBox overlay. Neither exists in a release build.
+
+---
+
+## TODO — the remaining 22 captures
 
 Priority order for the next pass, money and retention first:
 
 1. `lesson` EXERCISE STEPS (2-20) — uncaptured; needs a seeded run. The lesson INTRO is done.
-2. `trade` — the only Finance comparator is TradingView `858`
+2. `trade` is DONE (above). Its lesson: the Finance peer group does not exist at $500k.
 3. `auth` · `start` · `onboarding` — activation, vs Duolingo (52 onboarding steps) and Learna
 4. `you` · `league` — retention surfaces
 5. `digest` · `chat` · `options` · `stock` — depth surfaces
