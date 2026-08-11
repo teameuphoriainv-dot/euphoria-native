@@ -42,6 +42,9 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 /** Apple Stocks 100193 puts the change in a FILLED pill, not coloured text: at row density a
  *  coloured number is easy to miss and the pill is the only saturated thing in the row. */
+/** True when this position has no usable cost basis — a holding that predates the tracking. */
+const avgNull = (paid: number | undefined, held: number) => paid === undefined || paid <= 0 || !(held > 0);
+
 function Change({ v }: { v: number }) {
   const theme = useTheme();
   const up = v >= 0;
@@ -226,12 +229,20 @@ export default function Trade() {
                  */
                 const paid = costBasis[sym];
                 const avg = paid !== undefined && paid > 0 && positions[sym] > 0 ? paid / positions[sym] : null;
-                const sub = `${shares(positions[sym])} ${positions[sym] === 1 ? 'share' : 'shares'}`;
+                /* The PRICE PER SHARE goes on every row, basis or not. Seeking Alpha 285918 gives
+                   it a whole column and Investing.com 211291 prints "BUY 100 @ 3,980.51"; it is the
+                   number that makes a position's value explicable. It also means a row without a
+                   recorded cost basis still says something, instead of reading half-empty next to
+                   the SUGGESTED rows that do carry a pill. */
+                const qty = `${shares(positions[sym])} ${positions[sym] === 1 ? 'share' : 'shares'}`;
+                const sub = avgNull(costBasis[sym], positions[sym])
+                  ? `${qty} · ${money(priceOf(sym))}`
+                  : `${qty} · avg ${money((costBasis[sym] as number) / positions[sym])}`;
                 return (
                   <Row
                     key={sym}
                     sym={sym}
-                    sub={avg === null ? sub : `${sub} · avg ${money(avg)}`}
+                    sub={sub}
                     right={money(positions[sym] * priceOf(sym))}
                     change={avg === null ? null : ((priceOf(sym) - avg) / avg) * 100}
                     last={i === held.length - 1}
@@ -334,7 +345,7 @@ const styles = StyleSheet.create({
   ideaBody: { lineHeight: 19 },
   ideaLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one, fontSize: FontSize.label, lineHeight: 15 },
-  sectionLabel: { marginBottom: Spacing.two },
+  sectionLabel: { marginBottom: Spacing.two, marginTop: Spacing.three },
   actions: { flexDirection: 'row', gap: Spacing.four, paddingHorizontal: Spacing.one },
   // Rows sit on the background with hairlines between them, the way Apple Stocks 100193 does.
   // A rounded card per list, now that the hero has none, read as two different screens stacked.

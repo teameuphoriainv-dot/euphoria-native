@@ -14,7 +14,7 @@
  */
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Defs, Line, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -86,6 +86,20 @@ export function PortfolioChart() {
   const up = (delta?.abs ?? 0) >= 0;
   const color = up ? theme.success : theme.destructive;
   const d = toPath(points, W, H);
+
+  /*
+   * A DASHED BASELINE AT THE STARTING VALUE. Without it the green area floats and "up 0.03%" has
+   * nothing to be up FROM — the eye reads the shape, not the delta. Every sparkline in Apple Stocks
+   * 100193 carries one for exactly this reason.
+   *
+   * Mirrors toPath()'s mapping (lib/market.ts:98) rather than exporting it: two callers, four lines,
+   * and a shared y-scale helper would have to travel with pad and inner to be worth it.
+   */
+  const ys = points.map((p) => p.c);
+  const lo = ys.length ? Math.min(...ys) : 0;
+  const hi = ys.length ? Math.max(...ys) : 0;
+  const span = hi - lo;
+  const baseY = first === undefined || span === 0 ? null : 2 + (H - 4) - ((first - lo) / span) * (H - 4);
   // A dead-flat series (every trade at market price leaves total value unchanged) draws a line
   // pinned to the vertical centre with a full-width block of fill under it — which reads as a
   // broken graphic, not "flat". Flat gets the line alone.
@@ -117,6 +131,9 @@ export function PortfolioChart() {
               </LinearGradient>
             </Defs>
             {!!area && <Path d={area} fill="url(#pf)" />}
+            {baseY !== null && (
+              <Line x1={0} y1={baseY} x2={W} y2={baseY} stroke={theme.mutedForeground} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
+            )}
             <Path d={d} stroke={color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
           </Svg>
         ) : (
