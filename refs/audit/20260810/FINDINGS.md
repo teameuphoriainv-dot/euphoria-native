@@ -472,14 +472,75 @@ guide, verified on screen, including the hardcoded "LESSON 1" caught by reading 
 
 ---
 
-## TODO — the remaining 19 captures
+## LEAGUE — audited. The comparators solve the cold-start problem WITHOUT inventing anyone.
+
+Euphoria's league shows six ranked people — Maya R. 520, Devin K. 430, Priya S. 365, Jordan L. 300,
+Sam T. 245, Alex P. 190 — with initial avatars, XP bars, a PROMOTION ZONE divider and "Top 3 advance
+· 6 days left". **All ten people in `lib/people.ts` are fabricated**, and the file says so in its own
+header: *"⚠️ EVERY PERSON IN THIS FILE IS FABRICATED. There is no backend, no accounts, and no real
+users."* §22 C99 records it as an App Review risk. This audit's contribution is not the risk — it is
+that **the comparators already solved it, and none of their answers require a fake human.**
+
+### Duolingo does not show a new user a leaderboard at all — 112781, 112782
+
+> **"Finish 7 lessons to start competing on Leaderboards!"**
+
+The $48M app whose league mechanic everyone copies GATES it behind seven lessons, and the locked
+state is not an empty list: it is a mockup of three podium avatars whose names are **placeholder
+bars**. No names, real or invented, are ever shown to a user who has not earned a place among them.
+
+That is the whole cold-start problem solved by declining to have it. Euphoria populates a full league
+of named strangers for a user who may have completed zero lessons.
+
+### Where social comparison DOES appear, it is anonymous and statistical — 3/3
+
+```
+Duolingo  112745  "You extended your streak before 70.1% of learners!"
+Impulse   142049  "You outperformed 99% of your peers at this difficulty level."
+Impulse   142131  Rankings by PERCENTILE — Memory 9% — over grids of anonymous person icons
+Learna            no leaderboard at all; streak, call time and vocabulary dashboards only
+```
+
+Not one of them puts an individual stranger's name in front of you. They compare you to a
+DISTRIBUTION. That is cheaper to be honest about, impossible to libel, and works from user one.
+
+**Euphoria cannot use the percentile pattern either, and the HOME audit already said so:** with no
+backend there is no distribution to measure, and "you beat 70% of learners" would be inventing a
+number (§0.4). The point is not that percentiles are available — it is that **every comparator's
+solution costs no fabricated people, and Euphoria's costs ten.**
+
+### The options this evidence opens, none of which need a backend
+
+1. **Gate it, as Duolingo does.** Show the crest, the league name and a locked state until the user
+   has some real standing. Costs nothing, ships today, and is the highest-revenue app's own answer.
+2. **Name it what it is.** If the league stays populated, stop presenting invented rivals as users —
+   "Atlas's practice league" with clearly non-human pacers is honest and keeps the mechanic.
+3. **Remove it until accounts exist.** The most conservative, and the only one that also removes the
+   §0.4 exposure on `friends` and any social-proof surface fed by the same file.
+
+All three are product decisions and all three are the user's call. §0.7 covers the copy in options 1
+and 2.
+
+### Worth verifying, not asserted
+
+The green **PROMOTION ZONE** rule sits BETWEEN rank 3 and rank 4 while the pill says "Top 3 advance".
+Read as a label for the region above it, that is correct; read as a heading for the rows beneath it,
+it is exactly inverted. Duolingo's own treatment puts the line under the qualifying group. **Not
+confirmed either way from a static capture** — it needs the code read or a second opinion, and a
+promotion rule the user can read backwards is worth ten minutes.
+
+**STILL UNAUDITED: `you`.** The retention pair was `you` and `league`; only `league` is done here.
+
+---
+
+## TODO — the remaining 18 captures
 
 Priority order for the next pass, money and retention first:
 
 1. `lesson` EXERCISE STEPS (2-20) — uncaptured; needs a seeded run. The lesson INTRO is done.
 2. `trade` is DONE (above). Its lesson: the Finance peer group does not exist at $500k.
 3. `auth` · `start` · `onboarding` are DONE (above).
-4. `you` · `league` — retention surfaces
+4. `you` — retention. `league` is DONE (above).
 5. `digest` · `chat` · `options` · `stock` — depth surfaces
 6. the rest
 
