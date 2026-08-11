@@ -208,12 +208,24 @@ export default function Home() {
                 </ThemedText>
               </View>
             </View>
+            {/*
+              * `accessible` GROUPS each pill so VoiceOver reads one named thing. Without it these
+              * announced as a bare "3" and "0/10" — text is present, so C101's audit correctly did
+              * not flag them (it looks for elements with NO text at all), but a naked number carries
+              * no meaning when you cannot see the flame or the target beside it.
+              */}
             <View style={styles.pillStack}>
-              <View style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
+              <View
+                accessible
+                accessibilityLabel={`${String(streak)} day streak`}
+                style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
                 <UIcon name="flame" size={14} color={theme.streak} />
                 <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: FontSize.caption }}>{streak}</ThemedText>
               </View>
-              <View style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
+              <View
+                accessible
+                accessibilityLabel={`${String(minutesDone)} of ${String(goalMinutes)} minutes today`}
+                style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
                 <UIcon name="target" size={14} color={theme.iconLilac} />
                 <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.caption }}>{minutesDone}/{goalMinutes}</ThemedText>
               </View>

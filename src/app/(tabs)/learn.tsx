@@ -66,6 +66,7 @@ export default function Learn() {
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
   const completedLessons = useApp((s) => s.completedLessons);
+  const streak = useApp((s) => s.streak);
 
   const course = getCourseById(activeCourseId);
   const accent = courseAccent(activeCourseId);
@@ -150,6 +151,29 @@ export default function Learn() {
                 {total ? `${Math.round((doneCount / total) * 100)}% complete · ${total} lessons` : 'Tap to browse all courses'}
               </ThemedText>
             </SpringPressable>
+            {/*
+              * THE STREAK FOLLOWS YOU ONTO THE LEARNING SURFACE. Audit finding (FINDINGS.md, LEARN):
+              * 4/4 comparators show a streak counter here — Duolingo, Speak, Babbel and Learna all
+              * put one in the top strip. This screen showed only `doneCount/total`, which is course
+              * PROGRESS, not session commitment, and the streak lived on Home alone. A streak you
+              * cannot see while doing the thing that extends it is a weaker commitment device.
+              *
+              * Hidden at 0 rather than rendered as "0": a zero streak is the one state where showing
+              * the number argues against the behaviour it exists to encourage. Home has room for the
+              * "X min to keep your streak" line that gives a 0 context; this header does not.
+              *
+              * Same flame + theme.streak treatment as home.tsx, deliberately — the point of the
+              * finding is that persistent status looks the SAME everywhere it appears.
+              */}
+            {streak > 0 && (
+              <View
+                accessible
+                accessibilityLabel={`${String(streak)} day streak`}
+                style={[styles.countPill, styles.streakPill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
+                <UIcon name="flame" size={14} color={theme.streak} />
+                <ThemedText type="smallBold" style={{ color: theme.streak }}>{streak}</ThemedText>
+              </View>
+            )}
             <View style={[styles.countPill, { backgroundColor: accent + '24', borderColor: accent + '4D' }]}>
               <ThemedText type="smallBold" style={{ color: accent }}>{doneCount}/{total || course?.totalLessons || 0}</ThemedText>
             </View>
@@ -352,6 +376,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   countPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
+  streakPill: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
   track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
   fill: { height: 6, borderRadius: Radius.chip },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
