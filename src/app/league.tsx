@@ -135,6 +135,21 @@ export default function League() {
         )}
         {players.map((p, i) => (
           <View key={p.name}>
+            {/*
+              * The BOUNDARY is correct — PROMOTE is 3, this renders before index 3, so the rule
+              * falls between rank 3 and rank 4 and the top three above it advance, matching the
+              * "Top 3 advance" pill exactly. Verified against the code, not assumed.
+              *
+              * THE LABEL IS WHAT IS AMBIGUOUS. "Promotion zone" is a noun phrase naming a REGION,
+              * drawn as a divider between two regions with nothing saying which one it means. A
+              * green rule reading PROMOTION ZONE sitting directly above rank 4 reads just as easily
+              * as "the zone starts here", which is exactly inverted, and a user cannot check it
+              * against anything on this screen.
+              *
+              * Fixed by TINTING the rows the label refers to rather than by rewording it: the
+              * grouping then survives without anyone having to parse a divider, and it needs no new
+              * copy (§0.7). Same trick the demotion end gets, in the opposite colour.
+              */}
             {zoned && i === PROMOTE && <Zone label="Promotion zone" color={theme.success} />}
             {zoned && i === DEMOTE && <Zone label="Demotion zone" color={theme.destructive} />}
             <RiseIn delay={i * 40}>
@@ -142,9 +157,16 @@ export default function League() {
                 style={[
                   styles.row,
                   {
+                    // `me` still wins: knowing where YOU are beats knowing which band a row is in.
                     backgroundColor: p.me ? theme.primary + '22' : theme.card,
-                    borderColor: p.me ? theme.primary : theme.border,
-                    borderWidth: p.me ? 1.5 : StyleSheet.hairlineWidth,
+                    borderColor: p.me
+                      ? theme.primary
+                      : zoned && i < PROMOTE
+                        ? theme.success + '55'
+                        : zoned && i >= DEMOTE
+                          ? theme.destructive + '55'
+                          : theme.border,
+                    borderWidth: p.me ? 1.5 : zoned && (i < PROMOTE || i >= DEMOTE) ? 1 : StyleSheet.hairlineWidth,
                   },
                 ]}>
                 <ThemedText
