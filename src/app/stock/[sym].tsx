@@ -96,15 +96,34 @@ export default function StockDetail() {
     );
   }
 
-  // Live first, static table second. `priceOf` returns 0 for an unknown ticker, which correctly
-  // disables Buy rather than letting someone trade at a price we do not have.
-  const price = live?.price ?? priceOf(sym);
+  /*
+   * ONE MARK FOR TRADING AND VALUING. This used to be `live?.price ?? priceOf(sym)`, which meant a
+   * trade EXECUTED at the live quote while `portfolioValue()`, `snapshot()` and the Trade row all
+   * valued the resulting position with `priceOf()` — the static table. Cost basis in one currency,
+   * the gain computed against another.
+   *
+   * It was invisible only because `/api/market` 503s without the four API keys, so `live` is always
+   * null and the two agree. Setting POLYGON_API_KEY would have armed it: buy NVDA at a live $1,150,
+   * see "+2.96%" on a position that had not moved. §22 C100 and C113 are both this shape — two
+   * sources for one number — and this is the one that was waiting on a config change to fire.
+   *
+   * `priceOf` is the app's canonical mark because the whole valuation model is the static table
+   * (`stocks.ts`). Transacting live against a static book is a half-migration, not a feature. When
+   * Phase 16 makes `priceOf` itself live-backed, execution and valuation move TOGETHER and this line
+   * needs no change.
+   *
+   * `live` stays wired for the CHANGE figure below, which is display-only and values nothing.
+   */
+  const price = priceOf(sym);
   const name = stock?.name ?? sym;
   const chgPct = live?.changePct ?? stock?.chg ?? 0;
   const cost = qty * price;
   const up = chgPct >= 0;
-  const canBuy = cost <= cash && qty > 0;
-  const canSell = held >= qty && qty > 0;
+  // `price > 0` is the guard the old comment CLAIMED priceOf's zero already provided. It did not:
+  // cost is then 0, `0 <= cash` passes, and an unpriced ticker could be bought for nothing —
+  // recording a basis of exactly 0, which is the second door into the partial-basis bug (C113).
+  const canBuy = price > 0 && cost <= cash && qty > 0;
+  const canSell = price > 0 && held >= qty && qty > 0;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>

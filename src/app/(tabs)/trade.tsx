@@ -218,19 +218,15 @@ export default function Trade() {
                  * percentage, which is honest: nothing was recorded to compare against.
                  */
                 /*
-                 * LATENT DEFECT, ARMED BY THE FOUR API KEYS. `stock/[sym].tsx:101` buys at
-                 * `live?.price ?? priceOf(sym)`, so the basis is booked at the LIVE quote when one
-                 * exists — while this row values the position and computes the gain from
-                 * `priceOf(sym)`, the STATIC table. Today `live` is always null (/api/market returns
-                 * 503 with no keys set) so the two agree and the percentage is right. The moment
-                 * POLYGON/ALPHAVANTAGE are configured they diverge, and buying NVDA at a live $1,150
-                 * against a static $1,184 renders "+2.96%" on a position that has not moved.
+                 * THE BASIS AND THIS PERCENTAGE COME FROM ONE PRICE SOURCE, and that is load-bearing.
+                 * `stock/[sym].tsx` used to execute at `live?.price ?? priceOf(sym)` while this row
+                 * values the position with `priceOf()`, so a cost basis was booked in one currency
+                 * and the gain computed against another — invisible only because /api/market 503s
+                 * without the four API keys. Setting POLYGON_API_KEY would have armed it.
                  *
-                 * That is §22 C100 again — two prices for one number — and it is NOT fixed here,
-                 * because the fix is a decision about which price is canonical: transact live and
-                 * value live, or transact static and value static. Valuing live means
-                 * portfolioValue(), snapshot() and this row all need quotes, which is the "wire to
-                 * live quotes in Phase 16" work. Recorded so it cannot land silently.
+                 * That page now trades at `priceOf()` too. If a future change makes valuation live,
+                 * it has to make EXECUTION live in the same commit, or this percentage silently
+                 * becomes fiction again. §22 C113.
                  */
                 const paid = costBasis[sym];
                 const avg = paid !== undefined && paid > 0 && positions[sym] > 0 ? paid / positions[sym] : null;
