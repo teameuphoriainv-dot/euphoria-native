@@ -70,7 +70,6 @@ export default function Learn() {
   const streak = useApp((s) => s.streak);
 
   const course = getCourseById(activeCourseId);
-  const accent = courseAccent(activeCourseId);
 
   // loadCourseLessons is async (dynamic import). Keep the previous course's trail on screen
   // while the next one resolves so switching never flashes an empty path.
@@ -95,6 +94,10 @@ export default function Learn() {
 
   const lessons = useMemo(() => loaded?.lessons ?? [], [loaded]);
   const trailCourseId = loaded?.id ?? activeCourseId;
+  // Keyed to the course actually ON SCREEN, not the one being switched to. During the async
+  // loadCourseLessons swap `loaded.id` is still the outgoing course, so accenting by
+  // `activeCourseId` painted the OLD course's rows and unit names in the NEW course's colour.
+  const accent = courseAccent(trailCourseId);
   const pending = loaded?.id !== activeCourseId;
   /** switching between two courses — dim the outgoing trail instead of flashing an empty path */
   const stale = pending && loaded !== null;

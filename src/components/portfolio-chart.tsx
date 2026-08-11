@@ -80,6 +80,19 @@ export function PortfolioChart() {
    * option. Apple's Stocks does the same from the other end (screen 100195): a 40-year listing
    * offers 6M through ALL and never a window it has no data for.
    */
+  /*
+   * KNOWN LIMITATION, left in deliberately after trying to fix it. The cutoff is anchored to the
+   * NEWEST SNAPSHOT, not to wall-clock now. Trade on day 1 and 2, return a week later: `newest` is
+   * seven days old, `newest - 1 day > oldest` still holds, so 1D is offered — and its window is
+   * "the day before your last trade" while the label reads "today". The §0.4 problem this filter
+   * fixes, displaced in time rather than removed.
+   *
+   * The fix needs `Date.now()`, and calling it during render is impure — the note above `newest`
+   * says so, and eslint's react-hooks/purity rule rejects it outright. Routing it through state or
+   * an effect trades a rare wrong label for machinery on every render, so it is recorded here
+   * instead. The honest alternative is a label naming the window rather than "today", which is
+   * product copy and therefore the user's (§0.7).
+   */
   const usable = RANGES.filter(
     (r) => r.days === Infinity || (history.length > 1 && newest - r.days * 86_400_000 > oldest),
   );

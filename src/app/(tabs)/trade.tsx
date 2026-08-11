@@ -217,6 +217,21 @@ export default function Trade() {
                  * Null for positions opened before costBasis existed. Those show shares only and no
                  * percentage, which is honest: nothing was recorded to compare against.
                  */
+                /*
+                 * LATENT DEFECT, ARMED BY THE FOUR API KEYS. `stock/[sym].tsx:101` buys at
+                 * `live?.price ?? priceOf(sym)`, so the basis is booked at the LIVE quote when one
+                 * exists — while this row values the position and computes the gain from
+                 * `priceOf(sym)`, the STATIC table. Today `live` is always null (/api/market returns
+                 * 503 with no keys set) so the two agree and the percentage is right. The moment
+                 * POLYGON/ALPHAVANTAGE are configured they diverge, and buying NVDA at a live $1,150
+                 * against a static $1,184 renders "+2.96%" on a position that has not moved.
+                 *
+                 * That is §22 C100 again — two prices for one number — and it is NOT fixed here,
+                 * because the fix is a decision about which price is canonical: transact live and
+                 * value live, or transact static and value static. Valuing live means
+                 * portfolioValue(), snapshot() and this row all need quotes, which is the "wire to
+                 * live quotes in Phase 16" work. Recorded so it cannot land silently.
+                 */
                 const paid = costBasis[sym];
                 const avg = paid !== undefined && paid > 0 && positions[sym] > 0 ? paid / positions[sym] : null;
                 const sub = `${shares(positions[sym])} ${positions[sym] === 1 ? 'share' : 'shares'}`;
@@ -258,7 +273,13 @@ export default function Trade() {
                 <Row
                   key={d.id}
                   sym={d.sym}
-                  sub={`${d.kind === 'call' ? 'Call' : 'Put'} · ${money(d.strike)} · ${String(d.days)}-day`}
+                  /* The term is OMITTED at 0 rather than printed. options.tsx passes
+                     `days: picked?.days ?? 0` when the chain has not resolved an expiry, and
+                     "0-day" is not a term any contract has — a made-up number on the money screen
+                     is the thing this whole section exists to stop. */
+                  sub={[d.kind === 'call' ? 'Call' : 'Put', money(d.strike), d.days > 0 ? `${String(d.days)}-day` : '']
+                    .filter(Boolean)
+                    .join(' · ')}
                   right={money(d.premium)}
                   change={null}
                   last={i === derivatives.length - 1}

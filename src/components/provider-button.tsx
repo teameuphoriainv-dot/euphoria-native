@@ -20,11 +20,17 @@
  *   Google `assets/images/google-g.png`, fetched from Google's own branding URL
  *          (developers.google.com/identity/images/g-logo.png), with "Sign in with Google"
  *
- * KNOWN DEVIATION, stated rather than hidden: Google's branding guidelines specify Roboto Medium for
- * the label. This uses the app's own semibold face so the two buttons share one typography, which is
- * the entire point of the change. Everything else — the unmodified mark, the exact wording, the
- * white ground, the clear space — follows the guideline. If a reviewer ever objects, the fix is the
- * font on this one component, not a redesign.
+ * KNOWN DEVIATIONS, BOTH STATED. The label uses the app's own semibold face for BOTH buttons, which
+ * departs from Google's Roboto Medium AND from the system face Apple's Sign in with Apple guidance
+ * expects. One shared typography is the entire point of the change, so the deviation is the feature
+ * — but it is a deviation on both sides and an earlier version of this comment disclosed only the
+ * Google half while claiming the rest "follows the guideline". It does not, for Apple, on the exact
+ * screen this app was previously rejected over.
+ *
+ * Everything else does follow both specs: unmodified marks, exact required wording, white ground,
+ * clear space, contain-fit. If a reviewer objects, the fix is one font on this one component — or
+ * reverting to AppleAuthenticationButton, which is unarguable by construction and was what C97
+ * chose. That trade is the user's, and they made it knowingly.
  */
 import { SymbolView } from 'expo-symbols';
 import { Image, StyleSheet, View } from 'react-native';

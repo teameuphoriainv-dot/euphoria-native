@@ -45,11 +45,27 @@ export function Typewriter({ text, delay = 0, style }: { text: string; delay?: n
     return () => { clearTimeout(start); clearInterval(iv); };
   }, [text, delay, reduced]);
 
+  /*
+   * ACCESSIBILITY. Two copies of the text are on screen: a full one at opacity 0 reserving the box,
+   * and the sliced visible one. An `opacity: 0` Text is STILL in the accessibility tree, so
+   * VoiceOver read every line twice — and once ~10 onboarding questions started routing through
+   * here, that was ten double-announcements. Focus landing mid-type also read a truncated question
+   * ("How much do you k").
+   *
+   * The ghost is hidden from assistive tech, and the visible copy carries the FULL string as its
+   * label so it is announced complete and once, whatever the animation has reached.
+   */
   return (
     <View>
       {/* reserves the final box so the bubble never reflows as characters land */}
-      <ThemedText type="bodyMedium" style={[styles.line, style, { opacity: 0 }]}>{text}</ThemedText>
-      <ThemedText type="bodyMedium" style={[styles.line, style, styles.overlay]}>
+      <ThemedText
+        type="bodyMedium"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={[styles.line, style, { opacity: 0 }]}>
+        {text}
+      </ThemedText>
+      <ThemedText type="bodyMedium" accessibilityLabel={text} style={[styles.line, style, styles.overlay]}>
         {text.slice(0, n)}
       </ThemedText>
     </View>

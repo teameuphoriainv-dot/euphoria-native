@@ -245,7 +245,6 @@ const styles = StyleSheet.create({
   // fixed `size` enum, not a style width, and stretching it distorts the mark and breaks Google's
   // branding rules -- so the only way to get two provider buttons that line up is to bring APPLE
   // down to Google's width. 312x48 is Size.Wide.
-  googleWrap: { alignItems: 'center' },
   vendorBusy: { alignItems: 'center', marginTop: Spacing.two },
   authError: { textAlign: 'center', marginTop: Spacing.two },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginVertical: Spacing.three },

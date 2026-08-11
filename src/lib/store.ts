@@ -583,7 +583,7 @@ export const useApp = create<AppState>()(
           //
           // Same partial-basis guard as `buy`: granting into a position that predates costBasis must
           // not mint a basis covering only the granted fraction.
-          const legacyHolding = (s.positions[card.sym] ?? 0) > 0 && s.costBasis[card.sym] === undefined;
+          const legacyHolding = (s.positions[card.sym] ?? 0) > 0 && !((s.costBasis[card.sym] ?? 0) > 0);
           const costBasis = legacyHolding
             ? s.costBasis
             : { ...s.costBasis, [card.sym]: (s.costBasis[card.sym] ?? 0) + card.value };
@@ -675,7 +675,10 @@ export const useApp = create<AppState>()(
           // CodeRabbit caught it. The basis stays ABSENT until the position is fully closed (sell
           // deletes both keys) and rebuilt from a known price, and the UI already renders nothing
           // rather than guessing when it is absent.
-          const legacy = (s.positions[sym] ?? 0) > 0 && s.costBasis[sym] === undefined;
+          // `> 0`, not `!== undefined`: priceOf() returns 0 for a ticker absent from STOCKS and
+          // canBuy passes a cost of 0, so a basis of exactly 0 can be recorded — DEFINED, and it
+          // would have slipped past an undefined check straight back into the partial-basis bug.
+          const legacy = (s.positions[sym] ?? 0) > 0 && !((s.costBasis[sym] ?? 0) > 0);
           const costBasis = legacy ? s.costBasis : { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + cost };
           return { cash: s.cash - cost, positions, costBasis, valueHistory: snapshot(s, s.cash - cost, positions), activeDays: withToday(s.activeDays) };
         }),

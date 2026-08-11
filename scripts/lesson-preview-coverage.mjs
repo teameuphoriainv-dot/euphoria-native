@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ============================================================================
-// lessonPreview() coverage — pins the lesson-start "YOU'LL LEARN" line.
+// lessonKeyTerms() coverage — pins the lesson-start "YOU'LL LEARN" line.
 //
 //   node scripts/lesson-preview-coverage.mjs
 //
@@ -61,7 +61,7 @@ for (const file of files) {
     const body = src.slice(s.at, to);
     // BOTH AUTHORING FORMS. Most steps are helper calls, `hookOpener(...)`. The five
     // object-form lessons write steps as raw literals, `{ type: 'hookOpener', ... }`.
-    // lessonPreview() switches on step.type at RUNTIME so it never saw a difference;
+    // lessonKeyTerms() switches on step.type at RUNTIME so it never saw a difference;
     // an earlier version of THIS script grepped only the helper call and under-reported
     // those five as having no preview at all. Caught by reading the device screen.
     const hasTerms = body.includes('keyTermsCards(') || body.includes("type: 'keyTermsCards'");
@@ -77,7 +77,7 @@ const check = (label, actual, floor) => {
   if (!ok) fail.push(`${label}: ${actual} < ${floor}`);
 };
 
-console.log(`\nlessonPreview() coverage — ${files.length} course files\n`);
+console.log(`\nlessonKeyTerms() coverage — ${files.length} course files\n`);
 check('lessons', lessons, BASELINE.lessons);
 if (wrongCount.length > 0) {
   console.log('\n  Course files not carrying 25 lessons — the C17 both-forms trap, or real data loss:');
@@ -91,7 +91,7 @@ if (fail.length > 0) {
   console.log('\nFAILED — a curriculum re-sync has emptied the lesson-start preview.\n');
   for (const f of fail) console.log(`  ${f}`);
   console.log('\nEither the web repo dropped hookOpener/keyTermsCards, or sync-curriculum.sh');
-  console.log('changed the helper names. Fix the data or update lessonPreview().\n');
+  console.log('changed the helper names. Fix the data or update lessonKeyTerms().\n');
   process.exit(1);
 }
 
