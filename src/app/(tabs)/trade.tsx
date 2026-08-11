@@ -113,6 +113,7 @@ export default function Trade() {
   const cash = useApp((s) => s.cash);
   const positions = useApp((s) => s.positions);
   const costBasis = useApp((s) => s.costBasis);
+  const derivatives = useApp((s) => s.derivatives);
   const earned = useApp((s) => s.rewardsEarned);
   const total = useApp((s) => s.portfolioValue());
   const watchlist = useApp((s) => s.watchlist);
@@ -261,6 +262,43 @@ export default function Trade() {
                   />
                 );
               })}
+            </View>
+          </RiseIn>
+        )}
+
+        {/*
+          * OPEN CONTRACTS. Not a nav question — an ARITHMETIC one. `portfolioValue()` counts open
+          * option premium (§22 C100 fixed the chart to agree with it), so a contract is already
+          * inside the headline. With one NVDA call open the screen read:
+          *
+          *     cash        $5,666.94
+          *     positions   $3,555.28
+          *     visible     $9,222.22      displayed  $10,003.28
+          *
+          * $781.06 of the user's money — 7.8% of the portfolio — present in the total and named
+          * nowhere on the screen. A headline its own visible parts contradict is exactly the defect
+          * C100 was about, seen from the other side.
+          *
+          * DAYS IS THE TERM AT PURCHASE, NOT A COUNTDOWN. `openDerivative` stores the number of days
+          * chosen when the contract was opened and records no timestamp, so time remaining is not
+          * computable from what is persisted. Written as "30-day" rather than "30 days left", which
+          * would be the C109 mistake — a label that is true only on the first day. An options desk
+          * that cannot say when a contract expires is worth Unit 16's attention.
+          */}
+        {derivatives.length > 0 && (
+          <RiseIn delay={150}>
+            <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Open contracts</ThemedText>
+            <View style={styles.list}>
+              {derivatives.map((d, i) => (
+                <Row
+                  key={d.id}
+                  sym={d.sym}
+                  sub={`${d.kind === 'call' ? 'Call' : 'Put'} · ${money(d.strike)} · ${String(d.days)}-day`}
+                  right={money(d.premium)}
+                  change={null}
+                  last={i === derivatives.length - 1}
+                />
+              ))}
             </View>
           </RiseIn>
         )}
