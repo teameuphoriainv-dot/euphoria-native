@@ -14,7 +14,7 @@
  */
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Defs, Line, LinearGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -54,28 +54,29 @@ export function PortfolioChart() {
   const oldest = history.length ? history[0].t : 0;
 
   /*
-   * ONLY THE RANGES THE DATA CAN FILL. Measured on device 2026-08-11, before this existed:
+   * ONLY THE RANGES THE DATA CAN FILL. This is a correctness fix, kept when the redesign around it
+   * was reverted. Measured on device 2026-08-11, before it existed:
    *
    *   1D -> +$3.28 (0.03%) today          1M -> +$3.28 (0.03%) past month
    *   1W -> +$3.28 (0.03%) past week      1Y -> +$3.28 (0.03%) past year
    *
-   * Six buttons, ONE chart, six labels — five of them false statements about the user's money.
-   * That account's whole history spanned 0.9754 days, so every cutoff swept in every point. The
-   * filter was never wrong; the SELECTOR was, for offering windows a paper account cannot fill and
-   * then naming the same number five different ways. §0.4 forbids a figure we cannot back, and
+   * Six buttons, ONE chart, six labels — five of them false statements about the user's money. That
+   * account's whole history spanned 0.9754 days, so every cutoff swept in every point. The filter
+   * was never wrong; the SELECTOR was, for offering windows a paper account cannot fill and then
+   * naming the same number five different ways. §0.4 forbids a figure we cannot back, and
    * "+$3.28 today" for a gain that accrued across two days is exactly that.
    *
-   * A range earns its button only if its cutoff actually falls AFTER the oldest point, i.e. only if
-   * it excludes something ALL would include. Apple's Stocks does the same thing from the other end
-   * (screen 100195): a 40-year listing offers 6M through ALL, and never a window it has no data for.
-   * ALL is always offered. The row hides itself entirely when ALL is the only truthful option.
+   * A range earns its button only if its cutoff falls AFTER the oldest point — only if it excludes
+   * something ALL would include. ALL is always offered; the row hides when it is the only truthful
+   * option. Apple's Stocks does the same from the other end (screen 100195): a 40-year listing
+   * offers 6M through ALL and never a window it has no data for.
    */
   const usable = RANGES.filter(
     (r) => r.days === Infinity || (history.length > 1 && newest - r.days * 86_400_000 > oldest),
   );
   const i2 = Math.min(i, usable.length - 1);
-  const range = usable[i2] ?? RANGES[RANGES.length - 1];
-  const cutoff = range.days === Infinity ? 0 : newest - range.days * 86_400_000;
+  const range2 = usable[i2] ?? RANGES[RANGES.length - 1];
+  const cutoff = range2.days === Infinity ? 0 : newest - range2.days * 86_400_000;
   const points = history.filter((p) => p.t >= cutoff).map((p) => ({ t: p.t, c: p.v }));
 
   const first = points[0]?.c;
@@ -86,20 +87,6 @@ export function PortfolioChart() {
   const up = (delta?.abs ?? 0) >= 0;
   const color = up ? theme.success : theme.destructive;
   const d = toPath(points, W, H);
-
-  /*
-   * A DASHED BASELINE AT THE STARTING VALUE. Without it the green area floats and "up 0.03%" has
-   * nothing to be up FROM — the eye reads the shape, not the delta. Every sparkline in Apple Stocks
-   * 100193 carries one for exactly this reason.
-   *
-   * Mirrors toPath()'s mapping (lib/market.ts:98) rather than exporting it: two callers, four lines,
-   * and a shared y-scale helper would have to travel with pad and inner to be worth it.
-   */
-  const ys = points.map((p) => p.c);
-  const lo = ys.length ? Math.min(...ys) : 0;
-  const hi = ys.length ? Math.max(...ys) : 0;
-  const span = hi - lo;
-  const baseY = first === undefined || span === 0 ? null : 2 + (H - 4) - ((first - lo) / span) * (H - 4);
   // A dead-flat series (every trade at market price leaves total value unchanged) draws a line
   // pinned to the vertical centre with a full-width block of fill under it — which reads as a
   // broken graphic, not "flat". Flat gets the line alone.
@@ -112,11 +99,11 @@ export function PortfolioChart() {
       <View style={styles.headRow}>
         {delta ? (
           <ThemedText type="smallBold" style={{ color }}>
-            {up ? '+' : '−'}{money(Math.abs(delta.abs))} ({Math.abs(delta.pct).toFixed(2)}%) {range.label}
+            {up ? '+' : '−'}{money(Math.abs(delta.abs))} ({Math.abs(delta.pct).toFixed(2)}%) {range2.label}
           </ThemedText>
         ) : (
           <ThemedText type="small" themeColor="mutedForeground">
-            {history.length === 0 ? 'Your chart builds as you trade' : `Nothing ${range.label}`}
+            {history.length === 0 ? 'Your chart builds as you trade' : `Nothing ${range2.label}`}
           </ThemedText>
         )}
       </View>
@@ -131,9 +118,6 @@ export function PortfolioChart() {
               </LinearGradient>
             </Defs>
             {!!area && <Path d={area} fill="url(#pf)" />}
-            {baseY !== null && (
-              <Line x1={0} y1={baseY} x2={W} y2={baseY} stroke={theme.mutedForeground} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
-            )}
             <Path d={d} stroke={color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
           </Svg>
         ) : (
@@ -156,11 +140,8 @@ export function PortfolioChart() {
               accessibilityState={{ selected: on }}
               style={{ flex: 1 }}
             >
-              {/* Apple Stocks 100195: the active range is a SUBTLE FILLED RECT and the rest are
-                  plain text. A coloured pill per range competes with the line itself for the one
-                  accent the screen is allowed. */}
-              <View style={[styles.range, on && { backgroundColor: theme.cardElevated }]}>
-                <ThemedText type="smallBold" style={{ fontSize: FontSize.caption, color: on ? theme.text : theme.mutedForeground }}>
+              <View style={[styles.range, on && { backgroundColor: color + '22' }]}>
+                <ThemedText type="smallBold" style={{ fontSize: FontSize.caption, color: on ? color : theme.mutedForeground }}>
                   {r.key}
                 </ThemedText>
               </View>
@@ -174,7 +155,7 @@ export function PortfolioChart() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: Spacing.two, marginTop: Spacing.three, paddingHorizontal: Spacing.one },
+  wrap: { gap: Spacing.two, marginTop: Spacing.three },
   headRow: { minHeight: 18 },
   plot: { justifyContent: 'center' },
   // A single hairline rather than an empty box: it reads as "flat so far", which is true.
