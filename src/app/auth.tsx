@@ -165,7 +165,7 @@ export default function Auth() {
                   // WHITE on a near-black screen. Apple permits BLACK, WHITE and WHITE_OUTLINE;
                   // BLACK would vanish into this background and fail its own contrast guidance.
                   buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                  cornerRadius={Radius.pill}
+                  cornerRadius={VENDOR_RADIUS}
                   style={styles.vendorButton}
                   onPress={() => void runProvider('apple')}
                 />
@@ -174,7 +174,11 @@ export default function Auth() {
                 <View style={styles.googleWrap} pointerEvents={busy ? 'none' : 'auto'}>
                   <GoogleSigninButton
                     size={GoogleSigninButton.Size.Wide}
-                    color={GoogleSigninButton.Color.Dark}
+                    /* LIGHT, not Dark. Dark renders Google's blue button, which sat beside Apple's
+                       WHITE one looking like a control borrowed from another app. Light is white
+                       with the official multicolour G — the same ground as Apple's WHITE, so the two
+                       finally read as a pair. Still Google's own component, still their mark. */
+                    color={GoogleSigninButton.Color.Light}
                     disabled={busy !== null}
                     onPress={() => void runProvider('google')}
                   />
@@ -246,6 +250,26 @@ export default function Auth() {
 /** GoogleSigninButton Size.Wide. Apple's button is matched to it so the pair aligns. */
 const VENDOR_W = 312;
 const VENDOR_H = 48;
+/*
+ * ONE SHAPE FOR BOTH PROVIDER BUTTONS.
+ *
+ * They were 312x48 already (C97 matched the widths), but Apple's was a full pill and
+ * GoogleSigninButton renders squared corners — so side by side they read as two different controls
+ * from two different apps, which is what they looked like on device.
+ *
+ * MATCHED APPLE TO GOOGLE, NOT THE OTHER WAY ROUND, because only one of them can move.
+ * `AppleAuthenticationButton` takes a `cornerRadius` prop and a style; `GoogleSigninButton` takes a
+ * fixed `size` enum and ignores styling entirely (C97 recorded that, which is why it sat narrower
+ * before the widths were matched).
+ *
+ * NOT REPLACED WITH A SHARED CUSTOM COMPONENT, deliberately. That is what C97 undid: hand-drawn
+ * provider buttons were a guideline problem on the exact screen this app was already rejected over.
+ * Google's branding rules do permit a custom button, but only with the OFFICIAL G mark, and that
+ * asset is not in this repo — GoogleSigninButton draws it internally. Drawing our own G to make the
+ * two components literally identical would trade a cosmetic mismatch for the precise violation C97
+ * existed to fix. Same shape, same size, both vendors' own components: consistent AND unarguable.
+ */
+const VENDOR_RADIUS = Radius.sm;
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
