@@ -385,13 +385,100 @@ bar is its LogBox overlay. Neither exists in a release build.
 
 ---
 
-## TODO — the remaining 22 captures
+## AUTH · ONBOARDING · START — audited
+
+Comparator onboarding metrics, from `search_apps` intelligence rather than screens (these are counts,
+not visuals, so the screen-reading rule does not apply):
+
+| App | $/mo | steps | quiz | value before sign-up? |
+|---|---|---|---|---|
+| Duolingo | $48M | 13 | 5 | **YES — first lesson precedes account creation** |
+| Learna | $5M | 13 | 8 | no — sign-up wall |
+| Speak | $3.25M | 13 | 4 | no — one required sign-up |
+| Babbel | $3M | 11 | 4 | no — no lesson until after the paywall |
+| Quizlet | $2.25M | 6 | 0 | no — gated behind sign-up and paywall |
+| **Euphoria** | — | **15** | **10** | **no — welcome → onboarding → AUTH → start** |
+
+### AUTH — the screen promises something the architecture cannot do
+
+> **"Create your free profile"**
+> **"Save your streak, XP, and learning plan."**
+
+**Nothing is saved anywhere.** Traced end to end:
+
+- `enter()` (`auth.tsx:66`) writes name/handle/email to the LOCAL zustand profile, calls `signIn()`
+  which flips a local boolean, and navigates. No network call.
+- The Apple and Google buttons DO run a real OAuth flow — `runProvider` → `signInWithApple()` /
+  `signInWithGoogle()` → `enterWith(identity)` — and then write that identity to the same local
+  profile. The user genuinely authenticates and nothing is registered anywhere.
+- `AUTH_ENABLED` is false. `currentUserId()` returns a hardcoded `null` (`auth.ts:60`).
+- §22 C99 states the consequence plainly: *"data does not follow a user to a new phone, deleting the
+  app destroys their streak and XP, there is no cross-device sync and no account recovery."*
+
+So "Save your streak, XP, and learning plan" is **false**, and it is false on the one screen where a
+user decides whether to trust the product. §0.4 forbids a claim the app cannot back; this is that
+rule applied to a sentence rather than a number. **"Existing user? Sign in" is worse** — it implies
+account recovery that does not exist, and a returning user on a new phone gets an empty account.
+
+Signing in with Apple makes it sharper still: a user who authenticates with their Apple ID
+reasonably believes their progress is now tied to it. It is not.
+
+### AUTH — the friction is paid for, and buys the user nothing
+
+**4/5 comparators gate value behind sign-up.** Only Duolingo — the $48M one — delivers the first
+lesson first. So Euphoria gating is NOT the outlier and this is explicitly not a "copy Duolingo"
+finding; four of five successful apps do what Euphoria does.
+
+The problem is different. Those four charge sign-up friction and deliver an ACCOUNT for it: sync,
+recovery, a profile that survives a reinstall. Euphoria charges the same friction — a full screen
+between the quiz and the first lesson, three fields or an OAuth round trip — and delivers a local
+JSON blob. **It pays the cost of the pattern and collects none of the benefit.**
+
+Two coherent resolutions, and they point opposite ways:
+- **Make it true** — wire Supabase, which `lib/auth.ts` is already scaffolded for and which the web
+  app already runs on. The promise becomes accurate and the friction starts earning.
+- **Make it honest** — until then, stop claiming persistence. The screen can ask for a name because
+  a follow graph needs one (which is what `enter()`'s own comment says it is for) without saying
+  "save".
+
+Not resolvable by design. §0.7 puts the copy with the user and the backend is a Unit-scale decision.
+
+### ONBOARDING — strong, and closer to the 4/5 pattern than it looks
+
+15 steps, 10 quiz questions. That is the long end of the mainstream cluster but well inside it —
+Loora runs 26/12 and Solid Starts 44/22. **Already present and matching convergence:**
+
+| Mechanism | Comparators | Euphoria |
+|---|---|---|
+| Deep personalisation quiz | 5/5 | 10 questions |
+| "Building your plan" moment | 4/5 | `{ kind: 'loader' }` |
+| Personalised plan reveal | 3/5 | `{ kind: 'reveal' }`, from `recommendPathDetailed` |
+| Notification warm-up before the OS prompt | 4/5 | "Want a daily nudge?" as a QUESTION |
+| Attribution question | 2/5 | "Where did you hear about us?" |
+
+**The one gap, 4/5: the quiz is a CONVERSATION with a character.** Duolingo runs it as a chat with
+Duo (uniqueness 8), Speak as a chat with its AI tutor (9), Learna the same (8), Solid Starts as a
+consultation with named experts (9). Euphoria renders a static heading above radio cards.
+
+**And Euphoria is most of the way there already.** Every step carries a `face:` — Atlas is
+`watching` for the experience question, `whoa` for the 20%-drop question, `thinking` for blockers.
+The mascot already REACTS per question; he just does not ASK. The gap is framing, not assets, and
+the expression work is done.
+
+### START — already audited
+
+§22 C109 covers it: the guided first action is now a real lesson rather than the generic digest
+guide, verified on screen, including the hardcoded "LESSON 1" caught by reading the device.
+
+---
+
+## TODO — the remaining 19 captures
 
 Priority order for the next pass, money and retention first:
 
 1. `lesson` EXERCISE STEPS (2-20) — uncaptured; needs a seeded run. The lesson INTRO is done.
 2. `trade` is DONE (above). Its lesson: the Finance peer group does not exist at $500k.
-3. `auth` · `start` · `onboarding` — activation, vs Duolingo (52 onboarding steps) and Learna
+3. `auth` · `start` · `onboarding` are DONE (above).
 4. `you` · `league` — retention surfaces
 5. `digest` · `chat` · `options` · `stock` — depth surfaces
 6. the rest
