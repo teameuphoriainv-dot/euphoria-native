@@ -45,13 +45,36 @@ export function PortfolioChart() {
   const theme = useTheme();
   const history = useApp((s) => s.valueHistory);
   const [i, setI] = useState(RANGES.length - 1); // default ALL — a new account has the least history
-  const range = RANGES[i];
 
   // Anchored to the MOST RECENT snapshot, not to wall-clock now. Two reasons: `Date.now()` during
   // render is impure (react-hooks/purity, and it would make the chart differ between two renders
   // of the same state), and on a paper account "the week up to your last trade" is the reading
   // that actually has data in it.
   const newest = history.length ? history[history.length - 1].t : 0;
+  const oldest = history.length ? history[0].t : 0;
+
+  /*
+   * ONLY THE RANGES THE DATA CAN FILL. Measured on device 2026-08-11, before this existed:
+   *
+   *   1D -> +$3.28 (0.03%) today          1M -> +$3.28 (0.03%) past month
+   *   1W -> +$3.28 (0.03%) past week      1Y -> +$3.28 (0.03%) past year
+   *
+   * Six buttons, ONE chart, six labels — five of them false statements about the user's money.
+   * That account's whole history spanned 0.9754 days, so every cutoff swept in every point. The
+   * filter was never wrong; the SELECTOR was, for offering windows a paper account cannot fill and
+   * then naming the same number five different ways. §0.4 forbids a figure we cannot back, and
+   * "+$3.28 today" for a gain that accrued across two days is exactly that.
+   *
+   * A range earns its button only if its cutoff actually falls AFTER the oldest point, i.e. only if
+   * it excludes something ALL would include. Apple's Stocks does the same thing from the other end
+   * (screen 100195): a 40-year listing offers 6M through ALL, and never a window it has no data for.
+   * ALL is always offered. The row hides itself entirely when ALL is the only truthful option.
+   */
+  const usable = RANGES.filter(
+    (r) => r.days === Infinity || (history.length > 1 && newest - r.days * 86_400_000 > oldest),
+  );
+  const i2 = Math.min(i, usable.length - 1);
+  const range = usable[i2] ?? RANGES[RANGES.length - 1];
   const cutoff = range.days === Infinity ? 0 : newest - range.days * 86_400_000;
   const points = history.filter((p) => p.t >= cutoff).map((p) => ({ t: p.t, c: p.v }));
 
@@ -101,9 +124,10 @@ export function PortfolioChart() {
         )}
       </View>
 
+      {usable.length > 1 && (
       <View style={styles.ranges}>
-        {RANGES.map((r, n) => {
-          const on = n === i;
+        {usable.map((r, n) => {
+          const on = n === i2;
           return (
             <SpringPressable
               key={r.key}
@@ -115,8 +139,11 @@ export function PortfolioChart() {
               accessibilityState={{ selected: on }}
               style={{ flex: 1 }}
             >
-              <View style={[styles.range, on && { backgroundColor: color + '22' }]}>
-                <ThemedText type="smallBold" style={{ fontSize: FontSize.caption, color: on ? color : theme.mutedForeground }}>
+              {/* Apple Stocks 100195: the active range is a SUBTLE FILLED RECT and the rest are
+                  plain text. A coloured pill per range competes with the line itself for the one
+                  accent the screen is allowed. */}
+              <View style={[styles.range, on && { backgroundColor: theme.cardElevated }]}>
+                <ThemedText type="smallBold" style={{ fontSize: FontSize.caption, color: on ? theme.text : theme.mutedForeground }}>
                   {r.key}
                 </ThemedText>
               </View>
@@ -124,12 +151,13 @@ export function PortfolioChart() {
           );
         })}
       </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: Spacing.two, marginTop: Spacing.three },
+  wrap: { gap: Spacing.two, marginTop: Spacing.three, paddingHorizontal: Spacing.one },
   headRow: { minHeight: 18 },
   plot: { justifyContent: 'center' },
   // A single hairline rather than an empty box: it reads as "flat so far", which is true.

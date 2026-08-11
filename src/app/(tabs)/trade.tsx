@@ -29,10 +29,8 @@ import { AskAtlasButton } from '@/components/ask-atlas';
 import { Movers } from '@/components/movers';
 import { PortfolioChart } from '@/components/portfolio-chart';
 import { ThemedText } from '@/components/themed-text';
-import { TickerLogo } from '@/components/ticker-logo';
 import { NewsGallery } from '@/components/news-gallery';
 import { UIcon } from '@/components/ui-icon';
-import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
@@ -42,17 +40,17 @@ import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/** Kept as a name so the row markup reads the same; the mark itself is now a real logo with the
- *  lettered tile as its floor. */
-const Ticker = ({ sym }: { sym: string }) => <TickerLogo sym={sym} size={44} />;
-
+/** Apple Stocks 100193 puts the change in a FILLED pill, not coloured text: at row density a
+ *  coloured number is easy to miss and the pill is the only saturated thing in the row. */
 function Change({ v }: { v: number }) {
   const theme = useTheme();
   const up = v >= 0;
   return (
-    <ThemedText type="smallBold" style={{ color: up ? theme.success : theme.destructive }}>
-      {up ? '+' : ''}{v.toFixed(1)}%
-    </ThemedText>
+    <View style={[styles.chgPill, { backgroundColor: up ? theme.success : theme.destructive }]}>
+      <ThemedText type="smallBold" style={{ color: '#FFFFFF', fontSize: FontSize.caption }}>
+        {up ? '+' : ''}{v.toFixed(1)}%
+      </ThemedText>
+    </View>
   );
 }
 
@@ -78,15 +76,27 @@ function Row({ sym, right, sub, last, change }: { sym: string; right: string; su
       /* The row collapses to ONE a11y element, so its label has to carry everything the row shows.
          It used to read "NVIDIA, $3,552.80" — no holding size, no cost basis, no performance, which
          is most of the row. Same class as the bare "3" the streak pills announced. */
-      accessibilityLabel={`${stock.name}, ${sub}, ${right}${change === null ? '' : `, ${change >= 0 ? 'up' : 'down'} ${Math.abs(change).toFixed(1)} percent`}`}
+      accessibilityLabel={[
+        stock.name,
+        sub,
+        right,
+        change === null ? '' : `${change >= 0 ? 'up' : 'down'} ${Math.abs(change).toFixed(1)} percent`,
+      ].filter(Boolean).join(', ')}
     >
+      {/* TICKER AS IDENTITY, not a lettered tile. Apple Stocks 100193 leads every row with the
+          symbol in bold and the company name beneath it in grey; the purple lettered squares here
+          were TickerLogo's FALLBACK art standing in for logos that never load, so the strongest
+          element in each row carried the least information. */}
       <View style={[styles.row, !last && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-        <Ticker sym={sym} />
         <View style={{ flex: 1 }}>
-          <ThemedText type="bodyMedium">{stock.name}</ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground">{sub}</ThemedText>
+          <ThemedText type="bodyMedium">{sym}</ThemedText>
+          {/* `sub` is empty for watchlist rows: the ticker is already the row's title, and
+              "Apple · AAPL" said it twice. */}
+          <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>
+            {sub ? `${stock.name} · ${sub}` : stock.name}
+          </ThemedText>
         </View>
-        <View style={{ alignItems: 'flex-end' }}>
+        <View style={{ alignItems: 'flex-end', gap: 3 }}>
           <ThemedText type="bodyMedium">{right}</ThemedText>
           {change !== null && <Change v={change} />}
         </View>
@@ -100,6 +110,7 @@ export default function Trade() {
   const cash = useApp((s) => s.cash);
   const positions = useApp((s) => s.positions);
   const costBasis = useApp((s) => s.costBasis);
+  const earned = useApp((s) => s.rewardsEarned);
   const total = useApp((s) => s.portfolioValue());
   const watchlist = useApp((s) => s.watchlist);
 
@@ -144,9 +155,15 @@ export default function Trade() {
           </View>
         </RiseIn>
 
+        {/*
+          * NO CARD. Apple Stocks (100193/100195) and the brokerage family it belongs to put the
+          * number straight onto the background — a rounded elevated container around the one thing
+          * the screen is about adds a border, a shadow and 32pt of padding to say "this is
+          * important", which the 44pt number already says. The old hero stacked SEVEN elements
+          * before any content: label, value, delta, chart, six range buttons, divider, cash.
+          */}
         <RiseIn delay={70}>
-          <Card elevated>
-            <ThemedText type="label" themeColor="mutedForeground">Portfolio value</ThemedText>
+          <View style={styles.hero}>
             <View style={styles.amountRow}>
               <NumberRollup value={Math.floor(total)} prefix="$" type="display" style={{ fontSize: FontSize.displayLg }} />
               <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.subhead, marginBottom: 3 }}>
@@ -154,52 +171,49 @@ export default function Trade() {
               </ThemedText>
             </View>
             <PortfolioChart />
-            <View style={[styles.cashRow, { borderTopColor: theme.border }]}>
-              <ThemedText type="small" themeColor="mutedForeground">Cash available</ThemedText>
-              <ThemedText type="smallBold">{money(cash)}</ThemedText>
+            <View style={styles.cashRow}>
+              <ThemedText type="small" themeColor="mutedForeground">
+                Cash <ThemedText type="smallBold" style={{ color: theme.text }}>{money(cash)}</ThemedText>
+              </ThemedText>
+              {earned > 0 && (
+                <ThemedText type="small" themeColor="mutedForeground">
+                  Earned <ThemedText type="smallBold" style={{ color: theme.text }}>{money(earned)}</ThemedText>
+                </ThemedText>
+              )}
             </View>
-          </Card>
+          </View>
         </RiseIn>
 
-        {/* Navigation, grouped and horizontal. As three stacked full-width pills between a
-            section label and its list, these read as list items and orphaned the WATCHLIST
-            header from the watchlist. */}
+        {/*
+          * TWO TEXT LINKS, NOT THREE CHUNKY TILES. The old row was three equal-weight squares —
+          * News, Options and Search — where Search DUPLICATED the search control already in the
+          * header two inches above it. Same action, twice, one of them a 90pt box. Apple Stocks
+          * carries no such grid at all; the brokerage family keeps navigation quiet so the numbers
+          * are the only thing shouting.
+          */}
         <RiseIn delay={110}>
           <View style={styles.actions}>
-            {(
-              [
-                { icon: 'feed', label: 'News', to: '/news' },
-                { icon: 'bolt', label: 'Options', to: '/options' },
-                { icon: 'search', label: 'Search', to: '/search' },
-              ] as const
-            ).map((a) => (
+            {([{ label: 'News', to: '/news' }, { label: 'Options', to: '/options' }] as const).map((a) => (
               <SpringPressable
                 key={a.label}
                 haptic={false}
-                scaleTo={0.95}
+                scaleTo={0.96}
                 onPress={() => router.push(a.to)}
                 accessibilityRole="button"
-                accessibilityLabel={a.label === 'Search' ? 'Search every listed stock' : a.label}
-                style={{ flex: 1 }}
+                accessibilityLabel={a.label}
               >
-                <View style={[styles.action, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                  <UIcon name={a.icon} size={19} color={theme.iconLilac} />
-                  <ThemedText type="smallBold">{a.label}</ThemedText>
-                </View>
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{a.label}</ThemedText>
               </SpringPressable>
             ))}
           </View>
         </RiseIn>
 
-        {/* UNIT 10. Directly below the action row per §10b. Renders NOTHING when there are no
-            articles — no skeleton, no placeholder headlines (§0.4). Scoped to the first holding
-            when there is one, which is Investing.com's "Related News" variant. */}
         <NewsGallery symbols={held} delay={130} />
 
         {held.length > 0 && (
           <RiseIn delay={150}>
             <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Your positions</ThemedText>
-            <Card padded={false}>
+            <View style={styles.list}>
               {held.map((sym, i) => {
                 /*
                  * COST BASIS ON THE ROW. Audit finding (FINDINGS.md, TRADE, 3/4): a position shows
@@ -224,7 +238,7 @@ export default function Trade() {
                   />
                 );
               })}
-            </Card>
+            </View>
           </RiseIn>
         )}
 
@@ -245,7 +259,7 @@ export default function Trade() {
             <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
               Ideas to practise
             </ThemedText>
-            <Card padded={false}>
+            <View style={styles.list}>
               {ideas.map((idea, i) => (
                 <SpringPressable
                   key={idea.id}
@@ -277,7 +291,7 @@ export default function Trade() {
                   </View>
                 </SpringPressable>
               ))}
-            </Card>
+            </View>
             <ThemedText type="small" themeColor="mutedForeground" style={styles.disclaimer}>
               {IDEAS_DISCLAIMER}
             </ThemedText>
@@ -295,11 +309,11 @@ export default function Trade() {
           <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
             {watch.length > 0 ? 'Watchlist' : held.length > 0 ? 'Suggested' : 'Pick your first stock'}
           </ThemedText>
-          <Card padded={false}>
+          <View style={styles.list}>
             {(watch.length > 0 ? watch : suggestions).map((sym, i, arr) => (
-              <Row key={sym} sym={sym} sub={sym} right={STOCKS[sym].price} change={STOCKS[sym].chg} last={i === arr.length - 1} />
+              <Row key={sym} sym={sym} sub="" right={STOCKS[sym].price} change={STOCKS[sym].chg} last={i === arr.length - 1} />
             ))}
-          </Card>
+          </View>
         </RiseIn>
       </ScrollView>
     </SafeAreaView>
@@ -311,28 +325,20 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   amountRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, marginTop: Spacing.one },
-  cashRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    marginTop: Spacing.three,
-    paddingTop: Spacing.two + 2,
-  },
+  // No card means no divider to sit under: the cash line reads as a caption on the hero, which is
+  // what it is. Left-aligned with the number rather than pushed to the far edge.
+  hero: { paddingHorizontal: Spacing.one },
+  cashRow: { flexDirection: 'row', gap: Spacing.three, marginTop: Spacing.two + 2 },
+  chgPill: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.chipSm },
   idea: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two + 2, gap: 3 },
   ideaBody: { lineHeight: 19 },
   ideaLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one, fontSize: FontSize.label, lineHeight: 15 },
   sectionLabel: { marginBottom: Spacing.two },
-  actions: { flexDirection: 'row', gap: Spacing.two },
-  action: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingVertical: Spacing.three,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: Radius.lg,
-  },
+  actions: { flexDirection: 'row', gap: Spacing.four, paddingHorizontal: Spacing.one },
+  // Rows sit on the background with hairlines between them, the way Apple Stocks 100193 does.
+  // A rounded card per list, now that the hero has none, read as two different screens stacked.
+  list: { paddingHorizontal: Spacing.one },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three },
   round: { width: 40, height: 40, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
   searchBar: {
