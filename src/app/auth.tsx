@@ -10,8 +10,6 @@
  *  - A cancel is NOT an error. Backing out of the Apple/Google sheet returns you here silently.
  *  - A provider that is not configured renders NO button. Never a button that cannot work.
  */
-import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
-import * as AppleAuthentication from 'expo-apple-authentication';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
@@ -19,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { ProviderButton } from '@/components/provider-button';
 import { ThemedText } from '@/components/themed-text';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -150,39 +149,22 @@ export default function Auth() {
             absent button, never a broken one — that distinction is what the rejection was about. */}
         {(appleOk || GOOGLE_ENABLED) && (
           <RiseIn delay={90}>
-            {/* Apple's and Google's OWN button components, not lookalikes.
+            {/* ONE COMPONENT FOR BOTH — see components/provider-button.tsx for the full rationale.
              *
-             * These previously rendered a generic person glyph and a globe. Apple's Sign in with
-             * Apple guidelines require the Apple mark and an approved treatment, and Google has the
-             * equivalent rule — so a hand-drawn "Continue with Apple" pill is a guideline problem
-             * on the exact screen this app was already rejected over. Using the vendors' shipped
-             * components makes the question unarguable, at the cost of these two not matching the
-             * violet pills below. That trade was made deliberately. */}
+             * The vendors' shipped components CANNOT be made to match: Apple's renders 312x48 with
+             * centred bold black text, Google's ~303x39 with grey text left of centre, and
+             * GoogleSigninButton ignores style entirely (tested, reverted; §22 C97 was right).
+             *
+             * This is NOT a return to what C97 removed. C97 deleted buttons drawn with a generic
+             * person glyph and a globe — no vendor marks at all. ProviderButton uses Apple's own SF
+             * Symbol and Google's own G, both unmodified, with each company's required wording. Both
+             * publish that as a permitted path. */}
             <View style={{ gap: Spacing.two + 2 }}>
               {appleOk && (
-                <AppleAuthentication.AppleAuthenticationButton
-                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                  // WHITE on a near-black screen. Apple permits BLACK, WHITE and WHITE_OUTLINE;
-                  // BLACK would vanish into this background and fail its own contrast guidance.
-                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                  cornerRadius={VENDOR_RADIUS}
-                  style={styles.vendorButton}
-                  onPress={() => void runProvider('apple')}
-                />
+                <ProviderButton provider="apple" disabled={busy !== null} onPress={() => void runProvider('apple')} />
               )}
               {GOOGLE_ENABLED && (
-                <View style={styles.googleWrap} pointerEvents={busy ? 'none' : 'auto'}>
-                  <GoogleSigninButton
-                    size={GoogleSigninButton.Size.Wide}
-                    /* LIGHT, not Dark. Dark renders Google's blue button, which sat beside Apple's
-                       WHITE one looking like a control borrowed from another app. Light is white
-                       with the official multicolour G — the same ground as Apple's WHITE, so the two
-                       finally read as a pair. Still Google's own component, still their mark. */
-                    color={GoogleSigninButton.Color.Light}
-                    disabled={busy !== null}
-                    onPress={() => void runProvider('google')}
-                  />
-                </View>
+                <ProviderButton provider="google" disabled={busy !== null} onPress={() => void runProvider('google')} />
               )}
             </View>
             {busy && (
@@ -248,28 +230,7 @@ export default function Auth() {
 }
 
 /** GoogleSigninButton Size.Wide. Apple's button is matched to it so the pair aligns. */
-const VENDOR_W = 312;
-const VENDOR_H = 48;
-/*
- * ONE SHAPE FOR BOTH PROVIDER BUTTONS.
- *
- * They were 312x48 already (C97 matched the widths), but Apple's was a full pill and
- * GoogleSigninButton renders squared corners — so side by side they read as two different controls
- * from two different apps, which is what they looked like on device.
- *
- * MATCHED APPLE TO GOOGLE, NOT THE OTHER WAY ROUND, because only one of them can move.
- * `AppleAuthenticationButton` takes a `cornerRadius` prop and a style; `GoogleSigninButton` takes a
- * fixed `size` enum and ignores styling entirely (C97 recorded that, which is why it sat narrower
- * before the widths were matched).
- *
- * NOT REPLACED WITH A SHARED CUSTOM COMPONENT, deliberately. That is what C97 undid: hand-drawn
- * provider buttons were a guideline problem on the exact screen this app was already rejected over.
- * Google's branding rules do permit a custom button, but only with the OFFICIAL G mark, and that
- * asset is not in this repo — GoogleSigninButton draws it internally. Drawing our own G to make the
- * two components literally identical would trade a cosmetic mismatch for the precise violation C97
- * existed to fix. Same shape, same size, both vendors' own components: consistent AND unarguable.
- */
-const VENDOR_RADIUS = Radius.sm;
+// Provider button geometry now lives with the button — see components/provider-button.tsx.
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
@@ -284,7 +245,6 @@ const styles = StyleSheet.create({
   // fixed `size` enum, not a style width, and stretching it distorts the mark and breaks Google's
   // branding rules -- so the only way to get two provider buttons that line up is to bring APPLE
   // down to Google's width. 312x48 is Size.Wide.
-  vendorButton: { width: VENDOR_W, height: VENDOR_H, alignSelf: 'center' },
   googleWrap: { alignItems: 'center' },
   vendorBusy: { alignItems: 'center', marginTop: Spacing.two },
   authError: { textAlign: 'center', marginTop: Spacing.two },
