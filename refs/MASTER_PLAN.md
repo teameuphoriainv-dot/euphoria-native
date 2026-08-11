@@ -6210,3 +6210,97 @@ the next session looks.
 
 **Restored in `315ffa2`** from the eleven commit bodies, with a provenance header stating that where
 the reconstruction and a commit body disagree, the commit body wins.
+
+### C113. FOUR GREEN GATE RUNS SAT OVER A FABRICATED +300%. Review found it; the gate never could.
+
+Four review passes over `d3c69ee..HEAD` — the built-in security review, CodeRabbit, ECC's checklist,
+and a deep multi-agent code review. 21 findings between them. The security pass was CLEAN at its
+confidence bar, including an explicit supply-chain read of the Google mark downloaded this session.
+Everything below came from the other three.
+
+**THE HEADLINE IS NOT THE BUG. IT IS THAT THE GATE PASSED.** `tsc`, `expo lint` at the C66 baseline,
+`certify.py` ALL ROUTES PASS 3a, and six regression scripts were run green FOUR TIMES over a Trade
+tab that would have rendered `avg $296.00, +300.0%` on a position that had not moved. Every check
+this project has, passing, over a fabricated number on the money screen.
+
+#### The bug, and then the same bug through a second door
+
+C100's fix gave positions a cost basis. Legacy positions — every existing user's — carry none, by
+design, and the UI renders nothing rather than guess. Adding to one recorded ONLY the new cost while
+`positions` counted ALL the shares:
+
+```
+3 legacy NVDA (no basis) + buy 1 at $1,184
+  -> basis 1184, shares 4, avg = 1184/4 = $296.00, gain = +300.0%
+```
+
+`avgNull` asked whether a basis EXISTED, never whether it covered every share. CodeRabbit found it.
+
+The fix guarded on `costBasis[sym] === undefined`. **The deep review then found the same bug through
+a second door:** `priceOf()` returns 0 for a ticker absent from `STOCKS`, `canBuy` is
+`cost <= cash && qty > 0` so a cost of 0 passes, and a basis of exactly 0 is DEFINED. One 0-priced
+buy and the next real buy walks straight back into +300%. Now guarded on "no POSITIVE basis".
+
+**Two reviewers, two doors, one bug, in code written the same day to fix that exact class of defect.**
+
+#### A defect the four API keys will arm
+
+`stock/[sym].tsx:101` buys at `live?.price ?? priceOf(sym)`, so the basis is booked at the LIVE quote
+when one exists. `trade.tsx` values the position and computes the gain from `priceOf(sym)`, the
+STATIC table. Today `live` is always null — `/api/market` 503s with no keys — so they agree and the
+percentage is right. **The moment `POLYGON_API_KEY`/`ALPHAVANTAGE_API_KEY` are set they diverge**, and
+a live $1,150 buy against a static $1,184 renders "+2.96%" on a position that has not moved.
+
+C100 was two formulas for one number. This is two PRICES for one number, dormant until configuration
+wakes it. NOT FIXED: the fix is deciding which price is canonical, and valuing live means
+`portfolioValue()`, `snapshot()` and the row all need quotes — the Phase 16 work. Written into
+`trade.tsx` at the line that computes the gain so it cannot land silently.
+
+#### Also real, also fixed
+
+- **`expo-symbols` was never a declared dependency.** `provider-button` imports it; it resolved only
+  transitively through expo-router. A hoisting-strict installer breaks the bundle ON THE SIGN-UP
+  SCREEN, and it is a native module so it must exist at autolink time.
+- **VoiceOver read every onboarding question TWICE.** `Typewriter` renders the full string at
+  `opacity: 0` to reserve the box, and an opacity-0 `Text` stays in the accessibility tree. Routing
+  ten questions through it multiplied a pre-existing bug by ten. Verified fixed on device: one
+  occurrence, was two.
+- `lessonKeyTerms` did `t.term.trim()`, which THROWS on a re-synced term missing its field and
+  white-screens the lesson route — while its own docblock promised "renders nothing".
+- **The five pinning scripts were reachable only by remembering an exact path.** No `package.json`
+  entry, no CI. The curriculum re-sync they exist to catch would have landed green. `npm run check`
+  now runs all six.
+- Unit headers took names from `trailCourseId` and the accent from `activeCourseId`, so mid-switch
+  the old course's rows rendered in the new course's colour.
+- `"0-day"` could print in Open contracts, because `options.tsx` passes `days ?? 0` when the chain has
+  not resolved an expiry.
+
+#### One rejected, one reverted, and both are the point
+
+**REJECTED:** SF Symbol `apple.logo` flagged as iOS-only. True of the symbol, false as a defect —
+`appleAvailable()` returns false unless `Platform.OS === 'ios'` (`social-auth.ts:50`), so it never
+renders where `SymbolView` is absent. Verified, not assumed.
+
+**REVERTED:** the range filter anchors to the newest snapshot rather than now, so a week-old account
+still offers 1D labelled "today". The fix needs `Date.now()` during render — impure, and eslint
+rejects it outright. The comment above `newest` already said exactly that. **I wrote the fix, lint
+caught it, I reverted it.** Recorded in the component rather than adding machinery to beat a rule the
+codebase deliberately follows.
+
+#### The rule this earns
+
+**A GREEN GATE MEANS THE THINGS IT CHECKS ARE FINE. IT DOES NOT MEAN THE NUMBER ON THE SCREEN IS
+TRUE.** `tsc` cannot see that a basis covers the wrong number of shares. Lint cannot see that two
+prices feed one percentage. `certify.py` checks routes, not arithmetic. The regressions passed
+because they tested the rule I had written, not the rule the app needed — and the partial-basis fix
+had to be applied TWICE, once in `store.ts` and again in the script's copy of it, which is the drift
+those scripts warn about happening inside the change that added them.
+
+C109 said LOOK AT THE SCREEN, and that catches what renders. This adds: **for anything that computes
+a number a user will read as their own money, get a second reader.** Every finding above was
+invisible to a green gate and to a screenshot, because the screen rendered a number perfectly and the
+number was wrong.
+
+Open, recorded, not done: extract the three reducers to `src/lib/cost-basis.ts` so the regression
+imports the real rule instead of a copy; unit headers assume 25 lessons per course; `store.ts` is
+833 lines and crossed ECC's 800 threshold today.
