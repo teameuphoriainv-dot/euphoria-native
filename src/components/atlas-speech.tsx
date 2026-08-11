@@ -62,12 +62,20 @@ export function AtlasSpeech({
   delay = 0,
   tail = 'bottom',
   maxWidth = 280,
+  textStyle,
+  tailAlign = 'left',
 }: {
   text: string;
   delay?: number;
   /** Which edge the tail hangs off — 'bottom' when Atlas is below the bubble. */
   tail?: 'bottom' | 'top';
   maxWidth?: number;
+  /** Override the bubble's text size. Onboarding asks its questions in here, and a question set in
+   *  the default 15pt caption size would be the smallest thing on a screen it is the subject of. */
+  textStyle?: object;
+  /** Where the tail hangs. 'left' is the default because Atlas usually sits off to one side; the
+   *  onboarding bubble hangs from a CENTRED Atlas, and a left tail there points at nothing. */
+  tailAlign?: 'left' | 'center';
 }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
@@ -86,9 +94,9 @@ export function AtlasSpeech({
   return (
     <Animated.View style={[{ maxWidth }, style]}>
       <View style={[styles.bubble, { backgroundColor: theme.card, borderColor: theme.border }]}>
-        <Typewriter text={text} delay={delay + 180} />
+        <Typewriter text={text} delay={delay + 180} style={textStyle} />
       </View>
-      <View style={[styles.tailWrap, tail === 'bottom' ? styles.tailBottom : styles.tailTop]}>
+      <View style={[styles.tailWrap, tailAlign === 'center' && styles.tailCenter, tail === 'bottom' ? styles.tailBottom : styles.tailTop]}>
         <Svg width={18} height={11} viewBox="0 0 18 11">
           <Path
             d={tail === 'bottom' ? 'M0 0 L18 0 L7 11 Z' : 'M0 11 L18 11 L7 0 Z'}
@@ -112,6 +120,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
   },
   tailWrap: { position: 'absolute', left: Spacing.four },
+  // marginLeft pulls back by half the tail's own 18pt width so its POINT lands on centre.
+  tailCenter: { left: '50%', marginLeft: -9 },
   tailBottom: { bottom: -10 },
   tailTop: { top: -10 },
 });

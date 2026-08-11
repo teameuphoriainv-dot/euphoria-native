@@ -11,6 +11,7 @@ import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { LessonArt } from '@/components/lesson-art';
+import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -361,10 +362,33 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
 
 export type Choice = { key: string; title: string; sub?: string; icon?: UIconName };
 
-export function StepHeading({ title, sub }: { title: string; sub?: string }) {
+/**
+ * `speech` puts the line in Atlas's mouth instead of setting it as a page title.
+ *
+ * WHY: screen audit (`refs/audit/20260810/FINDINGS.md`, ONBOARDING), 4/4 of the apps checked frame
+ * their onboarding quiz as a CONVERSATION with a character — Duolingo with Duo (uniqueness 8), Speak
+ * with its AI tutor (9), Learna the same (8), Solid Starts with named experts (9). This flow already
+ * had the character and the reactions: every STEPS entry carries a `face`, so Atlas is `watching`
+ * for the experience question and `whoa` for the 20%-drop one. He reacted per question and never
+ * asked one. The gap was framing, not assets.
+ *
+ * ONLY QUESTIONS, NOT STATEMENTS. A statement step carries a chart or a proof block beneath it;
+ * those are the app telling you something, and a speech bubble with a chart hanging off it is a
+ * different, worse idea. `speech` is opt-in and the statement path does not pass it.
+ *
+ * The bubble types at 26ms/char, so a 40-character question takes about a second before it can be
+ * read. That is a real cost on a ten-question flow, taken deliberately because it is the mechanism
+ * the comparators converge on — and `useReducedMotion` renders it instantly for anyone who has
+ * asked the OS for less movement.
+ */
+export function StepHeading({ title, sub, speech }: { title: string; sub?: string; speech?: boolean }) {
   return (
-    <View style={styles.stepHead}>
-      <ThemedText type="display" style={styles.stepQ}>{title}</ThemedText>
+    <View style={[styles.stepHead, speech && styles.stepHeadSpeech]}>
+      {speech ? (
+        <AtlasSpeech text={title} tail="top" tailAlign="center" maxWidth={330} textStyle={styles.stepQSpeech} />
+      ) : (
+        <ThemedText type="display" style={styles.stepQ}>{title}</ThemedText>
+      )}
       {sub ? (
         <ThemedText type="body" themeColor="mutedForeground" style={styles.stepSub}>{sub}</ThemedText>
       ) : null}
@@ -389,7 +413,7 @@ export function SingleSelectStep({
 }) {
   return (
     <>
-      <StepHeading title={question} sub={sub} />
+      <StepHeading title={question} sub={sub} speech />
       <View style={styles.stepOptions}>
         {options.map((o, i) => (
           <RiseIn key={o.key} delay={childDelay(i)}>
@@ -423,7 +447,7 @@ export function MultiSelectStep({
 }) {
   return (
     <>
-      <StepHeading title={question} sub={sub ?? 'Pick as many as you like.'} />
+      <StepHeading title={question} sub={sub ?? 'Pick as many as you like.'} speech />
       <View style={styles.stepOptions}>
         {options.map((o, i) => (
           <RiseIn key={o.key} delay={childDelay(i)}>
@@ -657,6 +681,11 @@ const styles = StyleSheet.create({
   bubbleSm: { width: 34, height: 34 },
   // one idea per screen: the heading owns the top of the viewport, options sit well below it
   stepHead: { marginTop: Spacing.two },
+  // Centred: the bubble hangs from Atlas, who is centred in the persistent stage above.
+  stepHeadSpeech: { alignItems: 'center' },
+  // 18pt, not the bubble's default 15. Still well below `display`, which is the trade the
+  // conversational framing costs — a question Atlas asks is a line of dialogue, not a headline.
+  stepQSpeech: { fontSize: FontSize.subhead, lineHeight: 25 },
   stepQ: { textAlign: 'left', lineHeight: 34 },
   stepSub: { marginTop: Spacing.two, lineHeight: 21 },
   stepOptions: { marginTop: Spacing.four },
