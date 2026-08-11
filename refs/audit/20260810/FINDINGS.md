@@ -533,9 +533,73 @@ promotion rule the user can read backwards is worth ten minutes.
 
 ---
 
-## TODO — 18 captured screens still unaudited
+## YOU — audited. Every tile counts backwards; nothing on the screen is a goal.
 
-26 of 31 routes are CAPTURED; 8 are audited. The 18 below have screenshots on disk and no findings written.
+Comparators, read as SCREENS from the pull made for LEAGUE (no new fetch): Impulse `142130` and
+`142140` (profile), `142141` (share sheet), and Duolingo `112783` (feed). Impulse is $1M/mo and
+Duolingo $48M. **Two apps, not four — this is below the bar and the hit rates say so.**
+
+Euphoria's screen: profile card with Level 1 and "210 XP total · 290 to level 2"; a trial card
+reading "Day 2 of 3" with per-feature metering (All open LESSONS · 0 left ATLAS · 2 left OPTIONS)
+and "See Euphoria Pro"; the league crest with "290 XP to Investor"; then four tiles — 3 Day streak,
+2 Lessons, 210 XP, 1 Guides read.
+
+### The finding: counters, not goals — 2/2
+
+```
+Impulse 142130   Badges 1/20 unlocked · "Hard worker — Train for 10 min · 8/10"
+Impulse 142140   Sherlock Holmes, Walking encyclopedia, Math genius, Busy bee
+                 — each a named badge over a PROGRESS BAR toward a stated task
+Euphoria         3 Day streak · 2 Lessons · 210 XP · 1 Guides read
+```
+
+Every one of Euphoria's four tiles is a **record of what already happened**. Impulse's profile is
+built almost entirely from **unfinished things with a bar under them** — 8/10, 1/20 — so the screen
+gives a reason to open the app rather than a receipt for having opened it. Duolingo's feed does the
+same with its streak card ("Complete a lesson every day to maintain your streak!" + START A LESSON).
+
+**Euphoria is not empty of forward motion — it is just all in the CARDS and none of it in the
+tiles.** "290 to level 2" and "290 XP to Investor" are both goals, and both are good. The four tiles
+beneath them are the largest block on the screen and the only part that points backwards.
+
+### 2/2 — a BEST streak beside the current one
+
+Impulse `142130` shows CURRENT STREAK and BEST STREAK side by side. Euphoria shows only current
+(`3 Day streak`). A personal best is the one number that survives a broken streak, and it is the
+reason to start again rather than the reason to feel the loss.
+
+Cheap: the store already persists `streak`; a `bestStreak` is a max on the same write.
+
+### 2/2, and DELIBERATELY NOT RECOMMENDED — invite/share
+
+Impulse `142140` carries "Invite friends and train your brains together" with a button, and `142141`
+is the share sheet it opens. Duolingo `112783` leads its feed with "Celebrate achievements with
+friends! ADD FRIENDS".
+
+**Recorded as correctly absent, for now.** An invite CTA is the one mechanic here that would create
+REAL users — but it lands them in a friends system whose population is fabricated (`lib/people.ts`),
+and there is no backend to attach an invited person to (C99). Shipping "invite a friend" into that
+is worse than not having it. It becomes the right feature the moment accounts are real, and it
+belongs with the LEAGUE decision rather than ahead of it.
+
+### Where Euphoria is ahead, and should not be flattened
+
+**The trial card meters PER FEATURE and says so** — "All open · 0 left · 2 left" across lessons,
+Atlas and options. Neither comparator does anything like it; both meter invisibly or not at all.
+That card tells a user exactly what they have spent and what remains, on the screen where they
+decide whether to pay. It is the honest version of a paywall's job and it is doing it well.
+
+### Worth verifying
+
+`0 left ATLAS` on a Day-2-of-3 trial means the free Atlas allowance is exhausted before the trial
+is. Whether that is intended pacing or an unbalanced allowance is a 17g question, not an audit one —
+but the two numbers sit two inches apart and a user will read them together.
+
+---
+
+## TODO — 17 captured screens still unaudited
+
+26 of 31 routes are CAPTURED; 9 are audited. The 18 below have screenshots on disk and no findings written.
 The five uncaptured routes are a separate list, in `UNCAPTURED.md`.
 
 Priority order for the next pass, money and retention first:
@@ -543,7 +607,7 @@ Priority order for the next pass, money and retention first:
 1. `lesson` EXERCISE STEPS (2-20) — uncaptured; needs a seeded run. The lesson INTRO is done.
 2. `trade` is DONE (above). Its lesson: the Finance peer group does not exist at $500k.
 3. `auth` · `start` · `onboarding` are DONE (above).
-4. `you` — retention. `league` is DONE (above).
+4. `you` and `league` are DONE (above).
 5. `digest` · `chat` · `options` · `stock` — depth surfaces
 6. the rest
 
