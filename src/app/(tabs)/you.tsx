@@ -255,8 +255,10 @@ export default function You() {
                       { label: 'Atlas', value: `${atlasLeft} left` },
                       { label: 'Options', value: `${optionsLeft} left` },
                     ] as const)
-                ).map((g) => (
-                  <View key={g.label} style={styles.grant}>
+                ).map((g, i, arr) => (
+                  // The last cell right-aligns so its text ends ON the card's right padding rather
+                  // than starting there and trailing off.
+                  <View key={g.label} style={[styles.grant, i === arr.length - 1 && styles.grantLast]}>
                     <ThemedText type="bodyMedium" style={NUM}>{g.value}</ThemedText>
                     <ThemedText type="label" themeColor="mutedForeground">{g.label}</ThemedText>
                   </View>
@@ -420,8 +422,20 @@ const styles = StyleSheet.create({
   // Equal thirds so the three captions sit on one baseline grid. `gap` rather than dividers:
   // TradingView's stat row (185370) separates by space alone, and a rule between three items in a
   // card that already has a border is one line too many.
-  grants: { flexDirection: 'row', gap: Spacing.two },
-  grant: { flex: 1, gap: 1 },
+  /*
+   * SPACE-BETWEEN, NOT THREE EQUAL FLEX COLUMNS. With `flex: 1` each cell took a third of the row
+   * and its text was left-aligned inside it, so "All open" filled its column while "0 left" and
+   * "2 left" left ragged gaps — and the row visibly stopped short of the card's right edge with
+   * dead space after OPTIONS.
+   *
+   * The header directly above already spans edge to edge ("Free trial" … "Day 1 of 3"). Sizing the
+   * cells to their content and spacing between them makes this row do the same, so the first stat
+   * lines up under "Free trial" and the last under the day counter. The alignment is the point:
+   * these two rows are the same width and now look it.
+   */
+  grants: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two },
+  grant: { gap: 1 },
+  grantLast: { alignItems: 'flex-end' },
   planCta: { borderWidth: 1, borderRadius: Radius.pill, paddingVertical: Spacing.one + 2, alignItems: 'center' },
   rungXp: { marginTop: 2, textAlign: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.three },
