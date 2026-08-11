@@ -71,6 +71,7 @@ export default function You() {
   const router = useRouter();
   const xp = useApp((s) => s.xp);
   const streak = useApp((s) => s.streak);
+  const bestStreak = useApp((s) => s.bestStreak ?? 0);
   const level = useApp((s) => s.level());
   // ponytail: levelProgress() returns a fresh object → unstable zustand snapshot → infinite render
   // loop. Read it non-reactively; the selected `xp` above already re-renders on change.
@@ -107,7 +108,23 @@ export default function You() {
    * generic document, so the grid read as four unrelated illustrations instead of one set.
    */
   const STATS: { icon: StatMarkName; label: string; value: string; accent: string; route: string }[] = [
-    { icon: 'streak', label: 'Day streak', value: String(streak), accent: theme.streak, route: '/(tabs)/learn' },
+    /*
+      * BEST BESIDE CURRENT. Audit finding (FINDINGS.md, YOU, 2/2): Impulse 142130 shows CURRENT
+      * STREAK and BEST STREAK side by side, and Euphoria showed only current. A personal best is the
+      * one number that survives a broken streak, which makes it the reason to start again rather
+      * than only the record of having stopped.
+      *
+      * Suppressed while they are equal — on a rising streak "best 5" beside "5" is noise, and it
+      * would read as a second stat rather than a record. It appears exactly when it means something:
+      * after a break, when the current number is lower than the one to beat.
+      */
+    {
+      icon: 'streak',
+      label: bestStreak > streak ? `Day streak · best ${String(bestStreak)}` : 'Day streak',
+      value: String(streak),
+      accent: theme.streak,
+      route: '/(tabs)/learn',
+    },
     { icon: 'lessons', label: 'Lessons', value: String(lessons), accent: '#BB83F1', route: '/(tabs)/learn' },
     { icon: 'xp', label: 'XP', value: xp.toLocaleString(), accent: '#FBBF24', route: '/league' },
     { icon: 'guides', label: 'Guides read', value: String(guides), accent: '#38BDF8', route: '/(tabs)/digest' },

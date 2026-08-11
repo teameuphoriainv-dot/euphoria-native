@@ -250,6 +250,9 @@ export type AppState = {
   signedIn: boolean;
   xp: number;
   streak: number;
+  /** Longest streak ever reached. The one number that survives a broken streak — and therefore the
+   *  reason to start again rather than only the record of having stopped. Never decreases. */
+  bestStreak: number;
   completedLessons: string[];
   /** Minutes practised on `lastActiveDay`. Read via `minutesDoneToday()`, which zeroes it once
    *  the day rolls over — don't read this field directly. */
@@ -504,6 +507,7 @@ export const useApp = create<AppState>()(
       // treated 0/0 as the clean state, so the initial values simply disagreed with it.
       xp: 0,
       streak: 0,
+      bestStreak: 0,
       completedLessons: [],
       minutesToday: 0,
       streakGoal: null,
@@ -723,6 +727,7 @@ export const useApp = create<AppState>()(
             lastActiveDay: today,
             // nothing incremented this before, so Home's pill and week strip were pinned forever
             streak: nextStreak(s.streak, s.lastActiveDay),
+            bestStreak: Math.max(s.bestStreak ?? 0, nextStreak(s.streak, s.lastActiveDay)),
           };
         }),
       addXp: (n) => set((s) => applyXp(s, n)),
@@ -746,6 +751,7 @@ export const useApp = create<AppState>()(
             ...applyXp(s, XP_GUIDE),
             // A guide read counts as your day, so Digest can keep a streak alive on its own.
             streak: nextStreak(s.streak, s.lastActiveDay),
+            bestStreak: Math.max(s.bestStreak ?? 0, nextStreak(s.streak, s.lastActiveDay)),
             lastActiveDay: today,
             // Rolling the tally is NOT optional next to that stamp. minutesDoneToday() gates on
             // lastActiveDay === today, so stamping today while leaving a stale minutesToday would
@@ -756,13 +762,13 @@ export const useApp = create<AppState>()(
         }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
