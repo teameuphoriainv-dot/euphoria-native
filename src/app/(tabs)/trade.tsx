@@ -124,7 +124,15 @@ export default function Trade() {
   // Followed tickers the user does not already hold. NOT "everything minus your positions" —
   // that was a list nobody chose, labelled as though they had.
   const watch = watchlist.filter((s) => !held.includes(s) && STOCKS[s]);
-  // Nothing followed yet: offer the seeded set as SUGGESTIONS, named as suggestions.
+  /*
+   * EVERY STOCK YOU DO NOT ALREADY HAVE, in table order. There is no ranking, no scoring and no
+   * curation in this line, which is why the section is no longer headed "Suggested".
+   *
+   * A finance app aimed at 18-25s that labels an unranked list "Suggested" is implying a
+   * recommendation it is not making and cannot back — §0.4 in its most literal form, and the kind
+   * of implied advice a reviewer is entitled to ask about. "More stocks" describes exactly what the
+   * list is. If real suggestion logic ever exists, the label can earn its old name back.
+   */
   const suggestions = ALL_SYMS.filter((s) => !held.includes(s) && !watchlist.includes(s));
   // The change figure now lives ENTIRELY in PortfolioChart, where it is range-aware. The card used
   // to print its own static "since you started" line directly above the chart's range line — the
@@ -144,14 +152,18 @@ export default function Trade() {
                 Build a real portfolio. Risk nothing.
               </ThemedText>
             </View>
+            {/* NO CIRCLE ON SEARCH. It and the Atlas button were two 40pt circles of identical
+                weight side by side, so the corner had two focal points and neither won. Atlas keeps
+                its circle — it is the mascot and the one thing on this screen with a face; search is
+                a utility and reads fine as a bare glyph. */}
             <SpringPressable
               haptic={false}
               onPress={() => router.push('/search')}
               accessibilityRole="button"
               accessibilityLabel="Search stocks"
             >
-              <View style={[styles.round, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <UIcon name="search" size={19} color={theme.mutedForeground} />
+              <View style={styles.plainIcon}>
+                <UIcon name="search" size={21} color={theme.mutedForeground} />
               </View>
             </SpringPressable>
             <AskAtlasButton topic="Trading" />
@@ -318,7 +330,7 @@ export default function Trade() {
 
         <RiseIn delay={held.length > 0 ? 170 : 120}>
           <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
-            {watch.length > 0 ? 'Watchlist' : held.length > 0 ? 'Suggested' : 'Pick your first stock'}
+            {watch.length > 0 ? 'Watchlist' : held.length > 0 ? 'More stocks' : 'Pick your first stock'}
           </ThemedText>
           <View style={styles.list}>
             {(watch.length > 0 ? watch : suggestions).map((sym, i, arr) => (
@@ -352,6 +364,8 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: Spacing.one },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three },
   round: { width: 40, height: 40, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
+  // 40pt so the tap target still clears the HIG minimum without the circle drawing the eye.
+  plainIcon: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
