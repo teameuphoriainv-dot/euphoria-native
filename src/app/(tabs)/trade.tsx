@@ -56,14 +56,29 @@ function Change({ v }: { v: number }) {
   );
 }
 
-function Row({ sym, right, sub, last }: { sym: string; right: string; sub: string; last: boolean }) {
+/*
+ * `change` IS PASSED IN, never derived from STOCKS here. This row serves two lists that mean
+ * different things by a percentage, and it used to render `STOCKS[sym].chg` for both:
+ *
+ *   watchlist  -> the STOCK moved 3.1%          correct
+ *   positions  -> "you are up 3.1%"             FALSE, and identical for every user
+ *
+ * NVDA showed +3.1% to somebody who had just bought it at the price it still trades at, whose real
+ * return was 0.0%. Same class as §22 C100 — a number the user reads as theirs, computed from
+ * something else. `null` renders no percentage at all, which is what a position with no recorded
+ * cost basis honestly has.
+ */
+function Row({ sym, right, sub, last, change }: { sym: string; right: string; sub: string; last: boolean; change: number | null }) {
   const theme = useTheme();
   const stock = STOCKS[sym];
   return (
     <SpringPressable
       onPress={() => router.push(`/stock/${sym}`)}
       accessibilityRole="button"
-      accessibilityLabel={`${stock.name}, ${right}`}
+      /* The row collapses to ONE a11y element, so its label has to carry everything the row shows.
+         It used to read "NVIDIA, $3,552.80" — no holding size, no cost basis, no performance, which
+         is most of the row. Same class as the bare "3" the streak pills announced. */
+      accessibilityLabel={`${stock.name}, ${sub}, ${right}${change === null ? '' : `, ${change >= 0 ? 'up' : 'down'} ${Math.abs(change).toFixed(1)} percent`}`}
     >
       <View style={[styles.row, !last && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
         <Ticker sym={sym} />
@@ -73,7 +88,7 @@ function Row({ sym, right, sub, last }: { sym: string; right: string; sub: strin
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <ThemedText type="bodyMedium">{right}</ThemedText>
-          <Change v={stock.chg} />
+          {change !== null && <Change v={change} />}
         </View>
       </View>
     </SpringPressable>
@@ -84,6 +99,7 @@ export default function Trade() {
   const theme = useTheme();
   const cash = useApp((s) => s.cash);
   const positions = useApp((s) => s.positions);
+  const costBasis = useApp((s) => s.costBasis);
   const total = useApp((s) => s.portfolioValue());
   const watchlist = useApp((s) => s.watchlist);
 
@@ -184,15 +200,30 @@ export default function Trade() {
           <RiseIn delay={150}>
             <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Your positions</ThemedText>
             <Card padded={false}>
-              {held.map((sym, i) => (
-                <Row
-                  key={sym}
-                  sym={sym}
-                  sub={`${shares(positions[sym])} ${positions[sym] === 1 ? 'share' : 'shares'}`}
-                  right={money(positions[sym] * priceOf(sym))}
-                  last={i === held.length - 1}
-                />
-              ))}
+              {held.map((sym, i) => {
+                /*
+                 * COST BASIS ON THE ROW. Audit finding (FINDINGS.md, TRADE, 3/4): a position shows
+                 * what you PAID, not only what it is worth — Investing.com prints "BUY 100 @
+                 * 3,980.51", Seeking Alpha a price column. For a product whose purpose is teaching,
+                 * the entry price is the number that makes a percentage mean anything.
+                 *
+                 * Null for positions opened before costBasis existed. Those show shares only and no
+                 * percentage, which is honest: nothing was recorded to compare against.
+                 */
+                const paid = costBasis[sym];
+                const avg = paid !== undefined && paid > 0 && positions[sym] > 0 ? paid / positions[sym] : null;
+                const sub = `${shares(positions[sym])} ${positions[sym] === 1 ? 'share' : 'shares'}`;
+                return (
+                  <Row
+                    key={sym}
+                    sym={sym}
+                    sub={avg === null ? sub : `${sub} · avg ${money(avg)}`}
+                    right={money(positions[sym] * priceOf(sym))}
+                    change={avg === null ? null : ((priceOf(sym) - avg) / avg) * 100}
+                    last={i === held.length - 1}
+                  />
+                );
+              })}
             </Card>
           </RiseIn>
         )}
@@ -266,7 +297,7 @@ export default function Trade() {
           </ThemedText>
           <Card padded={false}>
             {(watch.length > 0 ? watch : suggestions).map((sym, i, arr) => (
-              <Row key={sym} sym={sym} sub={sym} right={STOCKS[sym].price} last={i === arr.length - 1} />
+              <Row key={sym} sym={sym} sub={sym} right={STOCKS[sym].price} change={STOCKS[sym].chg} last={i === arr.length - 1} />
             ))}
           </Card>
         </RiseIn>

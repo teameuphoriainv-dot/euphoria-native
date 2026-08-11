@@ -380,6 +380,28 @@ export type AppState = {
   cash: number;
   /** Shares held, by ticker. Absent or 0 means no position. */
   positions: Record<string, number>;
+  /**
+   * TOTAL DOLLARS PAID for the shares currently held, by ticker. Average-cost method: a second buy
+   * adds to it, a sell reduces it proportionally, and it is deleted with the position.
+   *
+   * WHY IT EXISTS. The Trade tab rendered `STOCKS[sym].chg` beside every position — a HARDCODED
+   * field on the stock, identical for every user regardless of what they paid. NVDA showed "+3.1%"
+   * to somebody who had just bought it at the same price it still trades at, whose real return was
+   * 0.0%. A number the user reads as "my gain" that is computed from something else entirely: the
+   * same class of defect as §22 C100, where the chart and the headline valued different portfolios.
+   *
+   * Without a basis there is nothing to subtract from, so the truthful percentage was not merely
+   * wrong, it was uncomputable. This is what makes it computable.
+   *
+   * ABSENT for positions opened before this existed, and there the UI shows no percentage rather
+   * than guessing one. Reward stock is booked at its grant value, so free shares start at 0% rather
+   * than infinity.
+   *
+   * The average-cost rule — in particular that a PARTIAL SELL retires the same fraction of the basis
+   * as of the shares, leaving the average per share unchanged — is pinned by
+   * `scripts/cost-basis-regression.mjs`.
+   */
+  costBasis: Record<string, number>;
   /** Total paper account value: cash + every position marked at its current price. */
   portfolioValue: () => number;
   /** Buy at `price`. No-op when the cash is not there — the caller must not have to check. */
@@ -528,6 +550,7 @@ export const useApp = create<AppState>()(
 
       cash: STARTING_CASH,
       positions: {},
+      costBasis: {},
       valueHistory: [],
       derivativeTrades: 0,
       derivatives: [],
@@ -554,9 +577,14 @@ export const useApp = create<AppState>()(
           // how fractional brokerages credit it.
           const shares = card.value / price;
           const positions = { ...s.positions, [card.sym]: (s.positions[card.sym] ?? 0) + shares };
+          // Booked at the grant value, not at zero. The shares were free, but a $0 basis would show
+          // an infinite return on the Trade tab and teach exactly the wrong lesson. `rewardsEarned`
+          // already records that this was earned rather than traded.
+          const costBasis = { ...s.costBasis, [card.sym]: (s.costBasis[card.sym] ?? 0) + card.value };
           return {
             pendingRewards: rest,
             positions,
+            costBasis,
             rewardsEarned: s.rewardsEarned + card.value,
             valueHistory: snapshot(s, s.cash, positions),
           };
@@ -633,7 +661,8 @@ export const useApp = create<AppState>()(
           // forgetting to check. An unaffordable buy is a no-op, not a negative balance.
           if (shares <= 0 || cost > s.cash) return s;
           const positions = { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares };
-          return { cash: s.cash - cost, positions, valueHistory: snapshot(s, s.cash - cost, positions), activeDays: withToday(s.activeDays) };
+          const costBasis = { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + cost };
+          return { cash: s.cash - cost, positions, costBasis, valueHistory: snapshot(s, s.cash - cost, positions), activeDays: withToday(s.activeDays) };
         }),
       sell: (sym, shares, price) =>
         set((s) => {
@@ -641,11 +670,20 @@ export const useApp = create<AppState>()(
           const n = Math.min(shares, held);
           if (n <= 0) return s;
           const rest = { ...s.positions };
+          const basis = { ...s.costBasis };
           // Drop the key entirely at zero, so "do I hold this?" is one truthy check everywhere
           // instead of a 0-vs-undefined trap.
-          if (held - n <= 0) delete rest[sym];
-          else rest[sym] = held - n;
-          return { cash: s.cash + n * price, positions: rest, valueHistory: snapshot(s, s.cash + n * price, rest), activeDays: withToday(s.activeDays) };
+          if (held - n <= 0) {
+            delete rest[sym];
+            delete basis[sym];
+          } else {
+            rest[sym] = held - n;
+            // Average cost: selling part of a holding retires the SAME fraction of what was paid, so
+            // the remaining average per share is unchanged. Booking the sale against the whole basis
+            // instead would make every partial sale look like a windfall.
+            if (basis[sym] !== undefined) basis[sym] = basis[sym] * ((held - n) / held);
+          }
+          return { cash: s.cash + n * price, positions: rest, costBasis: basis, valueHistory: snapshot(s, s.cash + n * price, rest), activeDays: withToday(s.activeDays) };
         }),
       spendAtlasMessage: () => set((s) => (s.isPro ? s : { atlasAsked: s.atlasAsked + 1, activeDays: withToday(s.activeDays) })),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),
@@ -731,13 +769,13 @@ export const useApp = create<AppState>()(
         }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
     }),
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
