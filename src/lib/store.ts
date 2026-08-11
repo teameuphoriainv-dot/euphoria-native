@@ -10,6 +10,7 @@
  * Anything added to state must ALSO be added to `partialize` at the bottom, or it silently
  * won't survive a restart.
  */
+import { applyBuy, applyGrant, applySell } from './cost-basis';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -576,17 +577,8 @@ export const useApp = create<AppState>()(
           // Fractional shares. A $1 reward on a $1,184 stock is 0.00084 shares — real, and exactly
           // how fractional brokerages credit it.
           const shares = card.value / price;
-          const positions = { ...s.positions, [card.sym]: (s.positions[card.sym] ?? 0) + shares };
-          // Booked at the grant value, not at zero. The shares were free, but a $0 basis would show
-          // an infinite return on the Trade tab and teach exactly the wrong lesson. `rewardsEarned`
-          // already records that this was earned rather than traded.
-          //
-          // Same partial-basis guard as `buy`: granting into a position that predates costBasis must
-          // not mint a basis covering only the granted fraction.
-          const legacyHolding = (s.positions[card.sym] ?? 0) > 0 && !((s.costBasis[card.sym] ?? 0) > 0);
-          const costBasis = legacyHolding
-            ? s.costBasis
-            : { ...s.costBasis, [card.sym]: (s.costBasis[card.sym] ?? 0) + card.value };
+          // Booked at the grant value, not at zero — see applyGrant.
+          const { positions, costBasis } = applyGrant(s, card.sym, shares, card.value);
           return {
             pendingRewards: rest,
             positions,
@@ -666,42 +658,19 @@ export const useApp = create<AppState>()(
           // Refusing here rather than at the call site means no screen can create money by
           // forgetting to check. An unaffordable buy is a no-op, not a negative balance.
           if (shares <= 0 || cost > s.cash) return s;
-          const positions = { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares };
-          // A PARTIAL BASIS IS WORSE THAN NO BASIS. Adding to a position opened before costBasis
-          // existed would record only the NEW cost while `positions` counts ALL the shares, so
-          // `paid / held` divides one share's cost across four: 3 legacy NVDA plus one bought at
-          // $1,184 rendered "avg $296.00, +300.0%" on the Trade tab. A fabricated number on the
-          // money screen is the §22 C100 defect exactly, and this fix reintroduced it until
-          // CodeRabbit caught it. The basis stays ABSENT until the position is fully closed (sell
-          // deletes both keys) and rebuilt from a known price, and the UI already renders nothing
-          // rather than guessing when it is absent.
-          // `> 0`, not `!== undefined`: priceOf() returns 0 for a ticker absent from STOCKS and
-          // canBuy passes a cost of 0, so a basis of exactly 0 can be recorded — DEFINED, and it
-          // would have slipped past an undefined check straight back into the partial-basis bug.
-          const legacy = (s.positions[sym] ?? 0) > 0 && !((s.costBasis[sym] ?? 0) > 0);
-          const costBasis = legacy ? s.costBasis : { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + cost };
+          // The holdings math lives in lib/cost-basis.ts — ONE copy, imported by the regression
+          // script too. §22 C113: the partial-basis fix previously had to be written twice.
+          const { positions, costBasis } = applyBuy(s, sym, shares, cost);
           return { cash: s.cash - cost, positions, costBasis, valueHistory: snapshot(s, s.cash - cost, positions), activeDays: withToday(s.activeDays) };
         }),
       sell: (sym, shares, price) =>
         set((s) => {
-          const held = s.positions[sym] ?? 0;
-          const n = Math.min(shares, held);
-          if (n <= 0) return s;
-          const rest = { ...s.positions };
-          const basis = { ...s.costBasis };
-          // Drop the key entirely at zero, so "do I hold this?" is one truthy check everywhere
-          // instead of a 0-vs-undefined trap.
-          if (held - n <= 0) {
-            delete rest[sym];
-            delete basis[sym];
-          } else {
-            rest[sym] = held - n;
-            // Average cost: selling part of a holding retires the SAME fraction of what was paid, so
-            // the remaining average per share is unchanged. Booking the sale against the whole basis
-            // instead would make every partial sale look like a windfall.
-            if (basis[sym] !== undefined) basis[sym] = basis[sym] * ((held - n) / held);
-          }
-          return { cash: s.cash + n * price, positions: rest, costBasis: basis, valueHistory: snapshot(s, s.cash + n * price, rest), activeDays: withToday(s.activeDays) };
+          // `sold` comes back from applySell because the clamp lives there; re-deriving it here
+          // would be the same rule written twice, which is what §22 C113 is about.
+          const { positions, costBasis, sold } = applySell(s, sym, shares);
+          if (sold <= 0) return s;
+          const cash = s.cash + sold * price;
+          return { cash, positions, costBasis, valueHistory: snapshot(s, cash, positions), activeDays: withToday(s.activeDays) };
         }),
       spendAtlasMessage: () => set((s) => (s.isPro ? s : { atlasAsked: s.atlasAsked + 1, activeDays: withToday(s.activeDays) })),
       setProfile: (patch) => set((s) => ({ profile: { ...s.profile, ...patch } })),

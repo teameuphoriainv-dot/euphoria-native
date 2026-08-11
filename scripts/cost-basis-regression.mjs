@@ -16,10 +16,16 @@
 // move. Get that wrong and every partial sale looks like a windfall or a loss
 // that never happened. That is the case worth a test.
 //
-// SAME HONEST LIMITATION as the portfolio and billing regressions: it
-// re-implements the rule rather than importing it, because the source is
-// TypeScript in an Expo app with no test runner. It pins the RULE, not the code.
-// store.ts points here so the coupling is at least written down.
+// IT IMPORTS THE REAL CODE. It used to re-implement these reducers, because the
+// source is TypeScript and this is plain node — and §22 C113 records what that
+// cost: the partial-basis fix had to be written TWICE, once in store.ts and again
+// in this file's copy, which is the exact drift this script exists to catch,
+// happening inside the change that added it. A test asserting a rule the app does
+// not run is worse than no test, because it is green.
+//
+// Node 24 strips types natively, so `src/lib/cost-basis.ts` loads directly and
+// there is no second copy. If this import ever breaks, the cause is almost
+// certainly non-erasable syntax (an enum, a namespace) added to that module.
 // ============================================================================
 
 let failures = 0;
@@ -31,59 +37,28 @@ function check(label, actual, expected) {
   if (!ok) failures += 1;
 }
 
-// ── the rule, as store.ts implements it ─────────────────────────────────────
+// ── the rule, imported from the app ─────────────────────────────────────────
+import { applyBuy, applySell, applyGrant, avgCostOf as avgOf, gainPct as gainOf } from '../src/lib/cost-basis.ts';
+
 const mk = () => ({ positions: {}, costBasis: {}, cash: 10000 });
 
+// Thin wrappers: cash is the store's business, the BASIS RULE is the imported one.
 function buy(s, sym, shares, price) {
   const cost = shares * price;
   if (shares <= 0 || cost > s.cash) return s;
-  // A partial basis is worse than none: see the store comment. Adding to a position that predates
-  // cost-basis tracking leaves the basis ABSENT rather than recording only the new shares' cost.
-  const legacy = (s.positions[sym] ?? 0) > 0 && s.costBasis[sym] === undefined;
-  return {
-    cash: s.cash - cost,
-    positions: { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares },
-    costBasis: legacy ? s.costBasis : { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + cost },
-  };
+  return { ...applyBuy(s, sym, shares, cost), cash: s.cash - cost };
 }
-
 function sell(s, sym, shares, price) {
-  const held = s.positions[sym] ?? 0;
-  const n = Math.min(shares, held);
-  if (n <= 0) return s;
-  const positions = { ...s.positions };
-  const costBasis = { ...s.costBasis };
-  if (held - n <= 0) {
-    delete positions[sym];
-    delete costBasis[sym];
-  } else {
-    positions[sym] = held - n;
-    if (costBasis[sym] !== undefined) costBasis[sym] = costBasis[sym] * ((held - n) / held);
-  }
-  return { cash: s.cash + n * price, positions, costBasis };
+  const { positions, costBasis, sold } = applySell(s, sym, shares);
+  if (sold <= 0) return s;
+  return { positions, costBasis, cash: s.cash + sold * price };
 }
-
-/** Reward stock is booked at its GRANT VALUE, never at zero. */
 function grant(s, sym, dollars, price) {
-  const shares = dollars / price;
-  const legacy = (s.positions[sym] ?? 0) > 0 && s.costBasis[sym] === undefined;
-  return {
-    ...s,
-    positions: { ...s.positions, [sym]: (s.positions[sym] ?? 0) + shares },
-    costBasis: legacy ? s.costBasis : { ...s.costBasis, [sym]: (s.costBasis[sym] ?? 0) + dollars },
-  };
+  return { ...applyGrant(s, sym, dollars / price, dollars), cash: s.cash };
 }
 
-const avgCost = (s, sym) => {
-  const held = s.positions[sym] ?? 0;
-  const paid = s.costBasis[sym];
-  if (held <= 0 || paid === undefined || paid <= 0) return null;
-  return paid / held;
-};
-const gainPct = (s, sym, mark) => {
-  const avg = avgCost(s, sym);
-  return avg === null ? null : ((mark - avg) / avg) * 100;
-};
+const avgCost = (s, sym) => avgOf(s, sym);
+const gainPct = (s, sym, mark) => gainOf(s, sym, mark);
 
 console.log('\ncost basis — average-cost method\n');
 
