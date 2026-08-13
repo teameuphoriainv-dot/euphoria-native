@@ -60,6 +60,14 @@ export const Ev = {
   specialOfferSeen: 'special_offer_seen',
   specialOfferAccepted: 'special_offer_accepted',
   specialOfferDismissed: 'special_offer_dismissed',
+  /** 17c. The trial reward offer. `trial_reward_accepted` over `trial_reward_seen` is the only
+   *  honest read on whether a reward framing converts a trial to annual, and it has to be readable
+   *  separately from 17d's `special_offer_*` — the two fire at opposite ends of the trial and
+   *  merging them would average a win-moment ask with a wall-moment one. There is no
+   *  `trial_reward_seen` fired on mount: both exits stamp instead, so seen == accepted + dismissed
+   *  exactly, and a sheet torn down by a navigation race never inflates the denominator. */
+  trialRewardAccepted: 'trial_reward_accepted',
+  trialRewardDismissed: 'trial_reward_dismissed',
   /** 17f. The guided first action, which is where activation is actually decided. `kind` separates
    *  the real path (a lesson) from the fallback (a guide), so a drop in activation can be told
    *  apart from the course module failing to load. Skipping is its own event rather than an absent

@@ -32,6 +32,7 @@ import { TapReveal } from '@/components/tap-reveal';
 import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TileBuilder } from '@/components/tile-builder';
+import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -41,6 +42,8 @@ import { COURSES, getCourseById, lessonKeyTerms, loadCourseLessons, type Pathway
 import { gates, normalizeStep } from '@/lib/lesson-steps';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
+import { IAP_ENABLED } from '@/lib/purchases';
+import { trialRewardAvailable } from '@/lib/trial-reward';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -104,6 +107,8 @@ export default function Lesson() {
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
+  /** 17c. Holds the post-lesson navigation open so the reward offer can land on the win. */
+  const [trialReward, setTrialReward] = useState(false);
 
   const norm = useMemo(() => (idx >= 1 && idx <= total ? normalizeStep(steps[idx - 1]) : null), [idx, total, steps]);
   const isChoice = norm?.kind === 'choice';
@@ -130,14 +135,47 @@ export default function Lesson() {
       // a no-op) cannot re-fire activation.
       if (wasFirst && useApp.getState().completedLessons.length === 1) {
         track(Ev.firstLesson, { course: courseId, lesson: lessonNum });
+        /*
+         * 17c fires HERE, on the first lesson finished inside the trial — the win Headway's chest
+         * is anchored to, and the only moment at which the approved copy ("That's your first lesson
+         * done") is true. Navigation is DEFERRED rather than raced: `leave()` runs from the sheet's
+         * own exit handlers, so the free-stock cards and the offer can never both animate in.
+         *
+         * IAP_ENABLED is in the condition for the §0.5 reason the gate sheet uses it: with no
+         * configured store there is no better price we could actually honour, and an "Open it" that
+         * opens onto nothing is a promise the build cannot keep.
+         */
+        const s = useApp.getState();
+        if (
+          trialRewardAvailable({
+            iapEnabled: IAP_ENABLED,
+            isPro: s.isPro,
+            trialRewardSeenAt: s.trialRewardSeenAt,
+            activeDays: s.activeDays.length,
+            trialDays: TRIAL_DAYS,
+          })
+        ) {
+          setTrialReward(true);
+          return;
+        }
       }
-      // Bloom pays out free stock the moment a quiz is passed. `completeLesson` queues the cards;
-      // route to them if any landed. A REPEAT of a finished lesson queues nothing (same dedupe),
-      // so this correctly falls through to `back()` and never shows an empty reward screen.
-      if (useApp.getState().pendingRewards.length > 0) router.replace('/reward');
-      else router.back();
+      leave();
     }
   };
+
+  /**
+   * Where a finished lesson goes. Bloom pays out free stock the moment a quiz is passed;
+   * `completeLesson` queues the cards, so route to them if any landed. A REPEAT of a finished lesson
+   * queues nothing (same dedupe), so this correctly falls through to `back()` and never shows an
+   * empty reward screen.
+   *
+   * Extracted so 17c can run BEFORE it without duplicating the rule — a second copy of this branch
+   * is exactly the drift the regression scripts exist to catch.
+   */
+  function leave() {
+    if (useApp.getState().pendingRewards.length > 0) router.replace('/reward');
+    else router.back();
+  }
 
   if (missing) {
     return (
@@ -418,6 +456,21 @@ export default function Lesson() {
           <GradientButton label={ctaLabel} full disabled={ctaDisabled} onPress={advance} />
         </View>
       )}
+
+      {/* 17c. Mounted here rather than on Home so it lands on the completion screen the user is
+          already looking at — the win it is anchored to. `leave()` on both exits, so the offer
+          always hands back to the normal post-lesson routing. */}
+      <TrialRewardSheet
+        visible={trialReward}
+        onAccept={() => {
+          setTrialReward(false);
+          router.push('/onboarding?step=paywall');
+        }}
+        onDismiss={() => {
+          setTrialReward(false);
+          leave();
+        }}
+      />
     </SafeAreaView>
   );
 }

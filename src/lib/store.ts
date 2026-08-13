@@ -365,6 +365,15 @@ export type AppState = {
    *  discount. */
   specialOfferSeenAt: number | null;
   markSpecialOfferSeen: () => void;
+  /** 17c. The trial reward offer, fired off the first completed lesson inside the trial.
+   *
+   *  SAME once-per-install rule as `specialOfferSeenAt`, and deliberately NOT cleared by `reset()`
+   *  for the same reason: replaying onboarding must not mint a fresh discount. Separate field
+   *  rather than a shared "offerSeenAt", because the two offers fire at opposite ends of the trial
+   *  — 17c on a win inside it, 17d on a wall after it — and a user who declined one has not
+   *  declined the other. */
+  trialRewardSeenAt: number | null;
+  markTrialRewardSeen: () => void;
   /** 17e. Apple is retrying this member's payment. Written ONLY by lib/purchases from a successful
    *  customerInfo read, same authority rule as `isPro`.
    *
@@ -546,11 +555,13 @@ export const useApp = create<AppState>()(
       followers: SEED_FOLLOWERS,
       isPro: false,
       specialOfferSeenAt: null,
+      trialRewardSeenAt: null,
       billingIssue: false,
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
       setPro: (v) => set({ isPro: v }),
       markSpecialOfferSeen: () => set((s) => (s.specialOfferSeenAt ? s : { specialOfferSeenAt: Date.now() })),
+      markTrialRewardSeen: () => set((s) => (s.trialRewardSeenAt ? s : { trialRewardSeenAt: Date.now() })),
       setBillingIssue: (v) => set({ billingIssue: v }),
 
       cash: STARTING_CASH,
@@ -768,7 +779,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
