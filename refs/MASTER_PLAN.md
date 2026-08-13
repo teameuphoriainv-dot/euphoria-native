@@ -6304,3 +6304,81 @@ number was wrong.
 Open, recorded, not done: extract the three reducers to `src/lib/cost-basis.ts` so the regression
 imports the real rule instead of a copy; unit headers assume 25 lessons per course; `store.ts` is
 833 lines and crossed ECC's 800 threshold today.
+
+### C114. UNIT 17g IS CLOSED BY DECISION, and 17c was never built — nothing said so.
+
+**First, the numbering.** The 2026-08-11 carryover states "§22 now holds C1→C114". It ends at C113.
+This is C114, and it is the same off-by-one the carryover itself corrects one section earlier, where
+the previous file claimed C95→C111 over a log that stopped at C106. **A summary's count of its own
+contents is not evidence. Grep the headings.**
+
+**17g had three open items. Two were already answered and nobody had noticed.**
+
+C44 banked four real pricing screens (Astra AI `323576`, Headway `128588`, Promova `138758`,
+Quizlet `147531`). Read back against `src/app/onboarding.tsx`, the paywall already implements every
+convergent pattern in that table, and cites the evidence inline at `:666`:
+
+| C44 pattern | hit rate | ours |
+|---|---|---|
+| price as one "trial then $X" sentence | 4/4 | `:706` |
+| a cancel-reassurance line near the CTA | 3/4 | `:672` |
+| the CTA names the trial, not the purchase | 3/4 | `:682` |
+| one default plan pushed, others one tap away | 3/4 | `:594` |
+| the timeline embedded on the pricing screen | 1/4 | present, by user decision |
+
+The pricing arithmetic holds too: `9.99 × 12 = 119.88`, `79.99 / 119.88 = 0.667` → the stated 33%,
+`$6.67/mo`, deliberately under the ~$7.90 peer median. Trial length interpolates from `TRIAL_DAYS`
+and is never typed as a literal — this screen once advertised "7 days free" over an engine that
+granted three.
+
+**So "annual-vs-monthly framing" was DONE.** What remained were introductory pricing and trial
+length, and **neither had one line of evidence anywhere in this 363KB file** — "introductory pricing"
+appears exactly once, in 17g's own sentence listing it as open.
+
+**Decisions, taken with the user 2026-08-13, with that absence stated plainly rather than papered
+over with a plausible-sounding recommendation:**
+
+- **The trial stays 3 days.** The entitlement engine, the Day 2 reminder beat and the Day 3 billing
+  beat are all built on `TRIAL_DAYS`. Recorded tension, not resolved: 17c's reward offer is specified
+  to fire DURING the trial, and three days is a tight window for a second ask.
+- **No introductory pricing.** §16a already bars discount framing from App Store assets, and the
+  Paid Applications Agreement is unsigned, so an introductory offer could not transact or be tested.
+
+**17g is CLOSED. $9.99/mo and $79.99/yr stand (C31).**
+
+### 17c WAS NEVER BUILT, and no open-work list said so.
+
+17h asks that "the reward offer and the dismissal offer both [be] reachable on device". The
+dismissal offer (17d) is real — `gate-sheet.tsx` fires it on dismissal, once per install, gated on
+`IAP_ENABLED`, with all three funnel events wired. **17c does not exist.** `src/app/reward.tsx` is
+the Bloom free-stock scratch-card loop (flow `53308`) and has nothing to do with converting a trial
+to annual. Grep for `17c`, `rewardOffer` or `trialReward` across `src/` returns nothing.
+
+The 2026-08-10 summary counted "6 of 8 sections" and the carryover's open-work list named only 17g.
+Both were right about what had been DONE and silent about 17c, so the gap survived two handoffs.
+**Unit 17's remainder is 17c and 17h, not 17g.**
+
+### And ScreensDesign is not available.
+
+`search_apps` returns "An active Pro subscription is required for ScreensDesign MCP and API access."
+AGENTS.md makes it mandatory for design work, so any 17c screen design is blocked on restoring it,
+or must be specced from Apple HIG and the token system and **labelled as such** (AGENTS.md rule 7).
+
+### 17b still measures nothing.
+
+`EXPO_PUBLIC_POSTHOG_KEY` is absent from `.env.local`, so `ANALYTICS_ENABLED` is false and every
+event in 17b, 17d and 17f is a no-op. **17h's "real numbers off the dashboard" cannot be satisfied
+by any amount of code.** It needs a PostHog account.
+
+### What did ship: the privacy copy was true by omission (`74da440`).
+
+`why-not-free.tsx` makes four claims. Three were configuration; autocapture was off only because
+nothing mounts `<PostHogProvider>`. Mounting one — a reasonable change, made for a hook — would have
+turned autocapture on and made shipped copy false under a fully green gate.
+`scripts/privacy-claim-pin.mjs` now pins all six facts and is the seventh script in `npm run check`.
+Verified in both directions: it fails on an unguarded Provider, on `enableSessionReplay: true` and
+on a PII-shaped event property, and passes again with `autocapture={false}`.
+
+Its own first run was a false positive — the scan matched the doc comment in `analytics.ts` that
+*warns* about this exact trap. Comments are stripped before the Provider scan. **A checker that has
+never failed has not been tested; run it against the break it exists to catch.**
