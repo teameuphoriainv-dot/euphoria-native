@@ -6382,3 +6382,54 @@ on a PII-shaped event property, and passes again with `autocapture={false}`.
 Its own first run was a false positive — the scan matched the doc comment in `analytics.ts` that
 *warns* about this exact trap. Comments are stripped before the Provider scan. **A checker that has
 never failed has not been tested; run it against the break it exists to catch.**
+
+### C115. 17d IS VERIFIED ON DEVICE — and the offer cannot be reached on the commonest path.
+
+**Verified 2026-08-13** on "Euphoria QA" with `seed-trial.sh 4 false`, driving the real app rather
+than reasoning about it. Full sequence, each step read off the accessibility tree:
+
+| step | result |
+|---|---|
+| locked lesson tapped from the **Learn tab**, trial expired | GateSheet fires, body personalised: "You've read 1 guide and finished 2 lessons" |
+| first dismissal | flips to the offer — "Before you go / one better offer" |
+| `specialOfferSeenAt` | stamped `1786663702459` |
+| "No thanks" | closes cleanly |
+| gate re-triggered | gate returns |
+| second dismissal | closes immediately, **no second offer** |
+
+The offer screen is three lines and one button against the first sheet's five elements, which is the
+"drastically simpler" half of C24's 3/4 convergence. **17h's "the dismissal offer [is] reachable on
+device" is CONFIRMED.**
+
+### THE FINDING: there are FOUR trial-expired surfaces and only ONE carries the offer.
+
+`GateSheet` is mounted in `learn.tsx`, `digest/[slug].tsx`, `chat.tsx:423` and `stock/[sym].tsx`.
+But **`lesson.tsx:167` and `chat.tsx:179` render their own full-screen hard walls** — same Atlas,
+same "Your free 3 days are up.", same "See Euphoria Pro", their own "Back to the pathway" — and
+those walls do not use `GateSheet` at all. `you.tsx:242` is a third shape, an inline banner.
+
+Driven on device: tapping **Start on Home** with an expired trial lands on `lesson.tsx`'s wall.
+Dismissing it returns to Home and **`specialOfferSeenAt` stays null** — the offer never fires and is
+never even consumed. Tapping the same lesson from the **Learn tab** one screen away fires the
+GateSheet and the offer immediately.
+
+So the highest-convergence unbuilt-lever-we-finally-built is invisible to any user whose trial
+expires on the Home path, which is the default path the app itself pushes with a "Start" button
+above the fold. **Not fixed here — the fix is a routing/ownership decision (does `lesson.tsx` defer
+to `GateSheet`, or does the wall grow the offer?) and it is the user's call.**
+
+### OPERATIONAL TRAP: LogBox eats the dismiss control.
+
+The dev build's LogBox error bar sits at **y≈795pt**, exactly over `lesson.tsx`'s "Back to the
+pathway" at `200,794`. `idb ui describe-all` lists the button, `sim.sh tapon` reports tapping it, and
+**nothing happens** — the tree does not model the overlay. Two dismissal attempts were read as "the
+handler is broken" before a screenshot showed the white bar. Dismiss LogBox first, or tap through
+`sim.sh tap` at a y clear of it. **This is C109 again: the tree said gate, the pixels said gate plus
+an overlay, and only the pixels were right.**
+
+### The four LogBox errors are all downstream of known blockers, not new defects.
+
+`[iap] configured but the current offering has NO packages` (no ASC products — the Paid Applications
+Agreement is unsigned), a RevenueCat error behind it, an `expo-notifications` warning, and network
+failures from `/api/market` returning 503 for want of the four API keys. Nothing here is a code
+defect introduced by Unit 17.
