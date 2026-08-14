@@ -39,8 +39,24 @@
 const DIRECTIVE =
   /\b(you\s+(should|ought\s+to|need\s+to|have\s+to|'d|would)|i\s*('d|\s+would)|i\s+recommend|i\s+suggest|my\s+advice|go\s+ahead\s+and|definitely)\b/i;
 
-/** The act, not the concept. */
-const ACT = /\b(buy|buying|sell|selling|short|shorting|invest\s+in|get\s+into|dump|load\s+up\s+on|go\s+long|pick\s+up)\b/i;
+/**
+ * The act, not the concept.
+ *
+ * `put ... into` is matched with a SHORT GAP on purpose. "put" is also an options term this app
+ * teaches — "a put gives you the right to sell" must not trip the guard — so the pattern requires
+ * "into" within twenty characters, which a sentence about put options never satisfies.
+ */
+const ACT =
+  /\b(buy|buying|sell|selling|short|shorting|invest\s+in|get\s+into|dump|load\s+up\s+on|go\s+long|pick\s+up|allocate|put\b[^.]{0,20}\binto)\b/i;
+
+/**
+ * An IMPERATIVE recommendation, which carries no directive word at all.
+ *
+ * "Buy NVDA." is advice and was slipping through, because `DIRECTIVE` looks for "you should" and an
+ * order has no subject. Anchored to the START of a sentence so "buy low, sell high" as a phrase
+ * inside an explanation does not match — and it names no security anyway.
+ */
+const IMPERATIVE = /^\s*(buy|sell|short|dump|avoid)\b/i;
 
 /**
  * Acronyms that look like tickers and are not one.
@@ -55,6 +71,20 @@ const NOT_A_TICKER = new Set([
   'NYSE', 'SP', 'AI', 'CEO', 'CFO', 'OK', 'TL', 'DR', 'FYI', 'ATM', 'NAV', 'YTD', 'AUM',
 ]);
 
+/**
+ * Company NAMES, not just tickers.
+ *
+ * "I recommend selling your Tesla shares" is a recommendation of one security and was allowed,
+ * because the security check only ever looked for uppercase tickers. Atlas writes prose, and prose
+ * says "Tesla", not "TSLA".
+ *
+ * Scoped to the universe this app actually trades (`lib/stocks.ts`) plus the obvious aliases. NOT a
+ * general company list: the point is to catch a recommendation about something the user can buy in
+ * THIS app, and an unbounded name list would start firing on ordinary sentences.
+ */
+const COMPANY =
+  /\b(nvidia|apple|tesla|microsoft|amazon|alphabet|google|meta|facebook)\b/i;
+
 /** `$NVDA`, or a bare uppercase run that is not a known acronym. */
 const CASHTAG = /\$[A-Z]{1,5}\b/;
 const BARE_TICKER = /\b[A-Z]{2,5}\b/g;
@@ -62,6 +92,7 @@ const BARE_TICKER = /\b[A-Z]{2,5}\b/g;
 /** True when the text points at one particular security. */
 function namesASecurity(text: string): boolean {
   if (CASHTAG.test(text)) return true;
+  if (COMPANY.test(text)) return true;
   for (const m of text.match(BARE_TICKER) ?? []) {
     if (!NOT_A_TICKER.has(m)) return true;
   }
@@ -77,7 +108,9 @@ function namesASecurity(text: string): boolean {
  */
 export function isAdvice(text: string): boolean {
   for (const sentence of text.split(/(?<=[.!?])\s+/)) {
-    if (DIRECTIVE.test(sentence) && ACT.test(sentence) && namesASecurity(sentence)) return true;
+    if (!namesASecurity(sentence)) continue;
+    // Either a directive ("you should buy X") or a bare order ("Buy X."). Both are advice.
+    if (ACT.test(sentence) && (DIRECTIVE.test(sentence) || IMPERATIVE.test(sentence))) return true;
   }
   return false;
 }

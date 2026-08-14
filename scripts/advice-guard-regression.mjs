@@ -30,9 +30,25 @@ const BLOCK = [
   'I would pick up some $NVDA on this dip.',
   // Advice hiding after legitimate teaching in the same reply.
   'Diversification spreads risk across holdings. You should buy NVDA today.',
+  // ── found 2026-08-14 by probing the guard directly, all three previously ALLOWED ──────────
+  // The guard runs on ATLAS'S OUTPUT, so these are replies, not questions.
+  // Prose says "Tesla", not "TSLA" — the security check only ever looked for uppercase tickers.
+  'I recommend selling your Tesla shares.',
+  // "put ... into" was not an act. Matched with a short gap so "a put gives you the right to
+  // sell" — an options term this app teaches — still passes.
+  'You ought to put that $5,000 into AAPL.',
+  // An order has no subject, so DIRECTIVE ("you should") could never match one.
+  'Buy NVDA.',
+  'Sell your Apple position.',
 ];
 
 const ALLOW = [
+  // Guards against the widening above over-reaching. Each of these contains an act word and, in
+  // two cases, a company name — and none of them is a recommendation.
+  'A put gives you the right to sell at the strike price.',
+  'Buy low, sell high is the oldest advice there is.',
+  'You should buy an ETF rather than one stock.',
+  'Apple is a good example of a company with a services engine.',
   // The curriculum. Every one of these is the product working.
   'When you buy a share of Apple, you own a small slice of the company.',
   'Buying NVDA and selling it a day later is trading, not investing.',
