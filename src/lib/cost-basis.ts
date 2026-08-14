@@ -49,8 +49,9 @@ export function hasUnknownBasis(h: Holdings, sym: string): boolean {
  * `hasUnknownBasis` true, the Trade row renders no percentage, and the copy already shipped there
  * — "nothing was recorded to compare against" — becomes literally true rather than merely tactful.
  *
- * `positions` and `cash` are untouched. The user keeps every share. Only the claim about what they
- * paid is withdrawn, because that claim was denominated in a currency the app no longer uses.
+ * `positions` and `cash` are untouched BY v1. The user keeps every share. Only the claim about what
+ * they paid is withdrawn, because that claim was denominated in a currency the app no longer uses.
+ * (v2 below DOES adjust cash, by refunding an unwound premium — read it before trusting this line.)
  *
  * `valueHistory` GOES TOO, and forgetting it was the first draft of this function. Those snapshots
  * are portfolio totals computed with the static table — a $10,003 series against a portfolio now
@@ -88,7 +89,17 @@ export function clearStaticPricing<
   if (fromVersion < 1) s = { ...s, costBasis: {}, valueHistory: [] };
   if (fromVersion < 2) {
     const refund = (s.derivatives ?? []).reduce((sum, d) => sum + (d?.premium ?? 0), 0);
-    s = { ...s, derivatives: [], derivativeTrades: 0, cash: (s.cash ?? 0) + refund };
+    s = { ...s, derivatives: [], derivativeTrades: 0 };
+    /*
+     * `cash` is written ONLY when there is something to refund AND a number to add it to.
+     *
+     * The first draft was `cash: (s.cash ?? 0) + refund`, which writes an explicit 0 whenever a
+     * persisted blob lacks `cash` — and zustand merges migrate output OVER the defaults, so that 0
+     * beats STARTING_CASH and the user opens the app with no money. `marks.ts` states the rule this
+     * violates: a zero that reaches the money path is not a safe default, it is a value. `?? 0` is
+     * only safe on a number you are about to READ, never on one you are about to PERSIST.
+     */
+    if (refund > 0 && typeof s.cash === 'number') s = { ...s, cash: s.cash + refund };
   }
   return s;
 }

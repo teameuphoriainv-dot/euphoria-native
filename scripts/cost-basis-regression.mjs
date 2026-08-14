@@ -178,6 +178,14 @@ check('v1 → v2: cash unchanged with no contracts', bumped.cash, 100);
 const current = clearStaticPricing({ ...withDerivs }, 2);
 check('v2 → v2: contracts survive', current.derivatives.length, 1);
 check('v2 → v2: cash is not refunded twice', current.cash, 5666.94);
+// Found in the Unit 14 review, not by a failing test. The first draft wrote `cash: (s.cash ?? 0) +
+// refund`, so a persisted blob missing `cash` got an explicit 0 — and zustand merges migrate output
+// OVER the defaults, so that 0 beats STARTING_CASH and the user opens the app with no money.
+const noCash = clearStaticPricing({ derivatives: [{ premium: 781.06 }], derivativeTrades: 1 }, 1);
+check('partial blob: cash is NOT fabricated as 0', noCash.cash === undefined ? null : 1, null);
+check('partial blob: the contract still unwinds', noCash.derivatives.length, 0);
+const noCashNoDerivs = clearStaticPricing({ positions: { NVDA: 1 } }, 0);
+check('empty blob: cash still absent, defaults survive', noCashNoDerivs.cash === undefined ? null : 1, null);
 
 if (failures > 0) {
   console.log(`\nFAILED — ${failures} check(s). The Trade tab's percentage is wrong again.\n`);
