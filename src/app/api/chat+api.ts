@@ -219,6 +219,25 @@ export async function POST(request: Request) {
         console.error(`[chat] MODEL "${MODEL}" REJECTED — retired or misnamed. Not an outage:`, detail);
         return reply({ error: 'model_unavailable' }, 502);
       }
+      /*
+       * FIFTH instance of the §5.1 shape, and the most expensive place for it. Measured 2026-08-14:
+       * 25 concurrent chat requests produced 8 answers and 17 generic 502s. Gemini was throttling
+       * us — a refusal WE caused — and the app reported it as "Atlas is broken".
+       *
+       * That misreport costs twice. The user is told the feature is broken when it is momentarily
+       * busy, and a client that cannot distinguish "retry shortly" from "this is down" either gives
+       * up or retries blindly into the same limit on the one feature with a real per-message cost.
+       *
+       * 503 rather than 429: a 429 from THIS route means the caller hit OUR budget in `_limit.ts`,
+       * and collapsing the two would make our own rate limiting unreadable in the logs.
+       */
+      if (res.status === 429 || res.status === 503) {
+        console.error('[chat] UPSTREAM THROTTLED, not an outage:', res.status);
+        return Response.json(
+          { error: 'busy' },
+          { status: 503, headers: { 'Cache-Control': 'no-store', 'Retry-After': '20' } },
+        );
+      }
       console.error('[chat] upstream', res.status, detail);
       return reply({ error: 'upstream' }, 502);
     }
