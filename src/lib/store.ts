@@ -11,6 +11,8 @@
  * won't survive a restart.
  */
 import { applyBuy, applyGrant, applySell } from './cost-basis';
+import { dayKey, nextStreak, weekKey, withToday } from './day-keys';
+import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -126,47 +128,12 @@ const mintRewardCards = (n: number) =>
     value: Math.round((REWARD_MIN + Math.random() * (REWARD_MAX - REWARD_MIN)) * 100) / 100,
   }));
 
+// Re-exported: screens already import these from the store, and the rules now live in
+// `day-keys.ts` so a regression can pin them.
+export { dayKey, weekKey } from './day-keys';
+
 /** Stable id for one curriculum lesson inside `completedLessons`. */
 export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
-
-/** Local calendar day, 'YYYY-MM-DD'. Local rather than UTC so the daily goal rolls over at the
- *  user's midnight, not UTC's. */
-export const dayKey = (d: Date = new Date()) =>
-  new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-
-/**
- * Append today to the trial's active-day set, idempotently.
- *
- * Shared by `markActiveDay` and by the five actions that constitute real use, so the trial clock
- * can never disagree with the thing that advanced it. Slice(-4) is TRIAL_DAYS + 1 — one past the
- * limit is all `tier()` in lib/entitlement.ts needs to answer "expired", and keeping more would
- * grow the array for the life of the install with no reader.
- */
-const withToday = (days: string[]) => {
-  const k = dayKey();
-  return days.includes(k) ? days : [...days, k].slice(-4);
-};
-
-/** Yesterday's local day key. Used to decide whether a completion extends the streak or restarts it. */
-const prevDayKey = () => dayKey(new Date(Date.now() - 86_400_000));
-
-/** The streak a completion *right now* produces: unchanged if today is already counted, +1 if the
- *  last active day was yesterday, otherwise restarted at 1. Shared so the lesson celebration and
- *  the actual write can never disagree. */
-const nextStreak = (streak: number, lastActiveDay: string) => {
-  if (lastActiveDay === dayKey()) return streak;
-  return lastActiveDay === prevDayKey() ? streak + 1 : 1;
-};
-
-/** Monday of the local week, 'YYYY-MM-DD'. League standings run Monday to Sunday like the
- *  reference apps. Keyed by the week's start DATE rather than an ISO week number, which is fiddly
- *  across year boundaries for no benefit here. */
-export const weekKey = (d: Date = new Date()) => {
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-  const mondayOffset = (local.getUTCDay() + 6) % 7; // Mon=0 ... Sun=6
-  local.setUTCDate(local.getUTCDate() - mondayOffset);
-  return local.toISOString().slice(0, 10);
-};
 
 /**
  * What each action is worth.
@@ -215,8 +182,7 @@ const snapshot = (
   positions: Record<string, number>,
   derivatives: { premium: number }[] = s.derivatives,
 ) => {
-  const equity = Object.entries(positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), cash);
-  const v = derivatives.reduce((sum, d) => sum + d.premium, equity);
+  const v = valueOf(cash, positions, derivatives, priceOf);
   return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
 };
 
@@ -649,23 +615,15 @@ export const useApp = create<AppState>()(
           };
         }),
 
+      /*
+       * The rule lives in `lib/portfolio-value.ts` and this reads it. It used to be spelled out
+       * here AND inside `snapshot()` above, and those two copies had already diverged once — the
+       * headline counted open contracts, the chart did not, and the Trade tab showed a permanent
+       * loss to anyone who ever opened one. See that file for the full account.
+       */
       portfolioValue: () => {
         const s = get();
-        const equity = Object.entries(s.positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), s.cash);
-        /*
-         * Open option contracts count too, MARKED AT COST.
-         *
-         * Without this, buying a $781 contract read as a straight $781 loss — the cash left but
-         * the asset it bought was invisible, so the Trade tab showed "-$781.06 (7.81%) since you
-         * started" the moment a contract opened. The user holds something; the portfolio has to
-         * say so.
-         *
-         * At COST rather than marked-to-market because re-pricing needs a live chain (spot moved,
-         * time decayed, vol shifted) and we do not have one. Cost means an option contributes a
-         * return of exactly zero until it is priced — understated, but never invented. When the
-         * Tradier chain is connected this becomes a mark against the current bid.
-         */
-        return s.derivatives.reduce((sum, d) => sum + d.premium, equity);
+        return valueOf(s.cash, s.positions, s.derivatives, priceOf);
       },
       buy: (sym, shares, price) =>
         set((s) => {

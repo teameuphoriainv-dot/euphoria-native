@@ -27,19 +27,21 @@ import assert from 'node:assert/strict';
 const PRICES = { NVDA: 1184.0, TSLA: 244.0, MSFT: 445.55 };
 const priceOf = (s) => PRICES[s] ?? 0;
 
-const equityOf = (cash, positions) =>
-  Object.entries(positions).reduce((sum, [sym, sh]) => sum + sh * priceOf(sym), cash);
+import { valueOf } from '../src/lib/portfolio-value.ts';
 
-/** What the user is shown. Contracts at COST — never marked to market, since there is no chain. */
-const portfolioValue = (cash, positions, derivatives) =>
-  derivatives.reduce((sum, d) => sum + d.premium, equityOf(cash, positions));
+/*
+ * IMPORTS the real formula. This file used to define `equityOf`, `portfolioValue` and
+ * `snapshotFixed` locally — a THIRD copy of a rule that already existed twice in store.ts and had
+ * already diverged once, which is the divergence this script exists to catch. A regression that
+ * restates the rule tests its own copy and passes while the app is wrong.
+ */
 
-/** Before: cash + shares only. */
-const snapshotBroken = (cash, positions) => equityOf(cash, positions);
+/** Before the fix: cash + shares only, contracts invisible. Kept to prove the bug is still caught. */
+const snapshotBroken = (cash, positions) => valueOf(cash, positions, [], priceOf);
 
-/** After: same rule as portfolioValue. */
-const snapshotFixed = (cash, positions, derivatives) =>
-  derivatives.reduce((sum, d) => sum + d.premium, equityOf(cash, positions));
+/** After: the one formula the app itself uses. */
+const snapshotFixed = (cash, positions, derivatives) => valueOf(cash, positions, derivatives, priceOf);
+const portfolioValue = snapshotFixed;
 
 // The exact state read off the simulator.
 const cash = 5666.935584964032;

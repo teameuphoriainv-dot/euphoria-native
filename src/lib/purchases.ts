@@ -30,6 +30,7 @@ import * as Linking from 'expo-linking';
 import Purchases, { LOG_LEVEL, type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 
 import { Ev, track } from './analytics';
+import { type CustomerInfoLike, ENTITLEMENT_ID, proStateFrom as proStateFromRule } from './billing-retry';
 import { useApp } from './store';
 
 /**
@@ -72,10 +73,9 @@ export function findPackage(pkgs: PurchasesPackage[], plan: 'monthly' | 'annual'
   );
 }
 
-/** The RevenueCat ENTITLEMENT identifier — not a product id. One entitlement ("pro") is unlocked by
- *  either product, so the app never has to ask which SKU someone bought. Must match the dashboard
- *  exactly; a typo here reads as "the purchase succeeded but nothing unlocked". */
-export const ENTITLEMENT_ID = 'pro';
+// Re-exported, not redefined: `lib/billing-retry.ts` owns it so the rule and the id cannot drift
+// apart. Existing importers of `ENTITLEMENT_ID` from this module keep working.
+export { ENTITLEMENT_ID } from './billing-retry';
 
 const KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY ?? '';
 
@@ -122,29 +122,10 @@ export function configurePurchases(): boolean {
 }
 
 /**
- * Days past expiry we keep access open while Apple is still retrying the card.
- *
- * UNIT 17e. Somewhere between a fifth and two fifths of subscription churn is a FAILED PAYMENT, not
- * a decision to leave — an expired card, a bank decline, a changed billing address. Apple retries
- * for up to 60 days, and RevenueCat reports that state as `billingIssueDetectedAt`.
- *
- * The default behaviour is the damaging one: the entitlement drops out of `active`, this app's wall
- * is HARD, and a member who never chose to leave loses every lesson mid-retry. That reliably
- * converts a recoverable decline into a real cancellation, because the experience of being locked
- * out is what makes someone stop trying to fix it.
- *
- * 16 days rather than Apple's full 60: long enough to cover the common "card expired, new one
- * arrives in the post" case, short enough that a genuinely dead subscription does not read as free
- * access for two months. It is a REVENUE trade and this number is where to argue with it.
- *
-
- * PINNED BY scripts/billing-retry-regression.mjs. Change this rule and run it.
- *
- * NOTE this is not the same thing as an App Store billing grace period. With grace period enabled
- * in App Store Connect, RevenueCat already reports the user as active and this code never fires.
- * This covers retry WITHOUT grace period, which is the case that silently loses people.
+ * The 16-day retry window and the rule that uses it now live in `lib/billing-retry.ts`, so the
+ * regression can import them instead of restating them — which is what it did, and admitted to in
+ * its own header. The reasoning behind the number moved with it.
  */
-const BILLING_RETRY_GRACE_DAYS = 16;
 
 export type ProState = {
   pro: boolean;
@@ -156,24 +137,11 @@ export type ProState = {
 /**
  * What RevenueCat says, read once. The one place entitlement is interpreted.
  *
- * Reads `entitlements.all`, not just `.active`: a member in billing retry has NO active entitlement,
- * which is precisely why the naive check loses them.
+ * A thin cast, not a second implementation: `billing-retry.ts` states the rule structurally so a
+ * Node regression can hand it a plain object, and this adapts RevenueCat's own `CustomerInfo` to
+ * that shape. The rule has one home.
  */
-function proStateFrom(info: CustomerInfo): ProState {
-  const active = info.entitlements.active[ENTITLEMENT_ID];
-  if (active) return { pro: true, billingIssue: active.billingIssueDetectedAt != null };
-
-  const known = info.entitlements.all[ENTITLEMENT_ID];
-  // No billing issue means this is an ordinary lapse — someone cancelled, or never bought. Nothing
-  // to rescue, and extending access to them would just be giving the product away.
-  if (!known?.billingIssueDetectedAt) return { pro: false, billingIssue: false };
-
-  const expiredAt = known.expirationDate ? Date.parse(known.expirationDate) : NaN;
-  if (!Number.isFinite(expiredAt)) return { pro: false, billingIssue: true };
-
-  const withinRetry = Date.now() - expiredAt < BILLING_RETRY_GRACE_DAYS * 86_400_000;
-  return { pro: withinRetry, billingIssue: true };
-}
+const proStateFrom = (info: CustomerInfo): ProState => proStateFromRule(info as CustomerInfoLike);
 
 
 /**

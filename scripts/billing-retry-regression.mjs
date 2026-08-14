@@ -7,7 +7,7 @@
  * against the same logic `proStateFrom` implements.
  *
  * HONEST LIMITATION, the same one scripts/portfolio-snapshot-regression.mjs carries: this
- * re-implements the rule rather than importing it, because the source is TypeScript inside an Expo
+ * imports the real rule from src/lib/billing-retry.ts — see the note below. It used to be an Expo
  * app and there is no test runner configured. It pins the BEHAVIOUR and the numbers. If
  * `proStateFrom` changes, this will not automatically notice — the docblock in lib/purchases.ts
  * points here, which is the only coupling available without adding a framework.
@@ -21,23 +21,21 @@
  */
 import assert from 'node:assert/strict';
 
+import { BILLING_RETRY_GRACE_DAYS, ENTITLEMENT_ID as ID, proStateFrom } from '../src/lib/billing-retry.ts';
+
 const DAY = 86_400_000;
-const BILLING_RETRY_GRACE_DAYS = 16;
-const ID = 'pro';
 
-/** Mirrors proStateFrom in src/lib/purchases.ts. */
-function proStateFrom(info, now = Date.now()) {
-  const active = info.entitlements.active[ID];
-  if (active) return { pro: true, billingIssue: active.billingIssueDetectedAt != null };
-
-  const known = info.entitlements.all[ID];
-  if (!known?.billingIssueDetectedAt) return { pro: false, billingIssue: false };
-
-  const expiredAt = known.expirationDate ? Date.parse(known.expirationDate) : NaN;
-  if (!Number.isFinite(expiredAt)) return { pro: false, billingIssue: true };
-
-  return { pro: now - expiredAt < BILLING_RETRY_GRACE_DAYS * DAY, billingIssue: true };
-}
+/*
+ * IMPORTS the rule now, rather than mirroring it.
+ *
+ * This script used to open by admitting it "re-implements the rule rather than importing it,
+ * because the source is TypeScript inside an Expo app" — so the regression guarding the rule was
+ * testing a second copy of it. The two agreed on the day they were written, which is not the
+ * property anyone wanted; the property wanted is that they cannot disagree later. The rule moved to
+ * `src/lib/billing-retry.ts`, which is erasable-syntax-only and imports nothing, so Node loads it
+ * directly. Same trick as `cost-basis.ts`, extracted after ITS copy drifted and the same fix had to
+ * be applied twice.
+ */
 
 const NOW = Date.parse('2026-08-10T12:00:00Z');
 const iso = (ms) => new Date(ms).toISOString();

@@ -6508,3 +6508,35 @@ always right. It was a COVERAGE bug, and a test on the predicate would have pass
 `scripts/dismissal-offer-regression.mjs` therefore asserts that every dismissible trial-expired wall
 both calls the rule and renders the sheet, and that the approved copy exists in exactly one file.
 **The next person to add a wall will not have read C115.**
+
+### C118. store.ts IS UNDER THE THRESHOLD, and the regressions now test the app instead of themselves.
+
+822 → **780 lines**, and the more important half: two regression scripts stopped grading their own
+homework.
+
+**`portfolio-snapshot-regression.mjs` held a THIRD copy of the valuation formula.** `store.ts` had
+it twice — `portfolioValue()` and `snapshot()`, with a comment saying "Same rule now lives in both"
+— and the script wrote its own `equityOf` / `snapshotFixed` to test against. Those first two copies
+had ALREADY diverged once: the headline counted open contracts, the chart did not, and the Trade tab
+showed a permanent loss to anyone who ever opened one. A regression that restates the rule tests its
+own copy and passes while the app is wrong. Now `lib/portfolio-value.ts`, imported by all three.
+
+**`billing-retry-regression.mjs` said so out loud**, in its own header: *"re-implements the rule
+rather than importing it, because the source is TypeScript inside an Expo app."* Both copies said 16
+days — checked, they agreed — but agreement today was never the property wanted. Now
+`lib/billing-retry.ts`, which owns `ENTITLEMENT_ID` too so the rule and the id cannot part company.
+
+**`lib/day-keys.ts`** takes the calendar and streak rules out of `store.ts`. That file warned at its
+own foot that "the XP funnel is exactly where a silent drift hides: a wrong weekKey means…" and then
+defined `weekKey` inline where nothing could reach it. 19 cases pinned, including the ones that only
+fail on a particular night: 23:30 local staying on the local day, Sunday mapping BACK to Monday, and
+Jan 1 2027 mapping to Dec 28 2026.
+
+`npm run check` is now **12 scripts**. Verified on device rather than only in the gate, because this
+touched a number the user reads as their own money (C113): Trade renders **$10,003.28** headline,
+**+$3.28 (0.03%) all time**, cash **$5,666.94** — the regression's expected "after" values exactly.
+
+**The pattern is now the house style, six files deep:** `cost-basis`, `portfolio-value`,
+`billing-retry`, `day-keys`, `trial-reward`, `dismissal-offer`. Erasable-syntax-only, no imports a
+test cannot follow, dependencies injected. If a rule matters enough to have a regression, the
+regression imports the rule.
