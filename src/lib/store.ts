@@ -10,7 +10,7 @@
  * Anything added to state must ALSO be added to `partialize` at the bottom, or it silently
  * won't survive a restart.
  */
-import { applyBuy, applyGrant, applySell } from './cost-basis';
+import { applyBuy, applyGrant, applySell, clearStaticPricing } from './cost-basis';
 import { dayKey, nextStreak, weekKey, withToday } from './day-keys';
 import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -757,6 +757,11 @@ export const useApp = create<AppState>()(
     {
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
+      // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
+      // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
+      // it rather than restating it — the drift C113 records happened exactly once already.
+      version: 1,
+      migrate: (persisted, from) => clearStaticPricing(persisted as Partial<AppState>, from) as AppState,
       // only persist data, not the action fns / derived getters
       partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch

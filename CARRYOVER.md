@@ -471,11 +471,23 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
   Verified on device: headline `$225.30`, position `3 shares → $676.05`. 20 cases in
   `scripts/marks-regression.mjs` pin that a zero, negative, NaN, string or Infinity can never become
   a price, and that a refused quote leaves the previous mark standing.
-  ⚠️ **What Phase 16 could NOT fix:** a cost basis BOOKED BEFORE it landed was paid in static dollars
-  and is now valued in live ones — a seeded NVDA position shows ~$1,184/share basis against a ~$225
-  mark, an ~81% loss that never happened. Tolerable ONLY because no production or TestFlight build
-  has ever shipped (§11). **Reset the dev store rather than trust that number, and if a build ships
-  before a migration exists, write one.**
+  ✅ **The migration is written** — persist `version: 1`, `clearStaticPricing()` in `cost-basis.ts`.
+  A basis booked before Phase 16 was paid in static dollars and would have shown an ~81% loss on a
+  position that never moved. It is **CLEARED, NOT RESCALED**, because `cost-basis.ts` had already
+  settled this exact question — *"A PARTIAL BASIS IS WORSE THAN NO BASIS… stays ABSENT until the
+  position is closed and rebuilt from a known price."* Rescaling preserves a percentage that was
+  itself fiction. Absent makes `hasUnknownBasis` true, the Trade row renders no percentage, and the
+  copy already shipped there becomes literally true. **`valueHistory` goes too** — that was the first
+  draft's miss, and leaving it would have drawn a 29% cliff on the chart the moment one live-priced
+  snapshot landed. Positions and cash are untouched: the user keeps every share, only the claim about
+  what they paid is withdrawn. Verified on device from a reset v0 store: `costBasis {}`,
+  `valueHistory []`, positions and cash intact, and the `+$3.28 (0.03%) all time` row gone rather
+  than recomputed.
+  🟡 **Still open, and a PRODUCT call:** derivatives opened before Phase 16 hold STATIC strikes — a
+  seeded NVDA call struck at `$1,302.00` against a `$225.30` spot. It is not a phantom computation;
+  `portfolio-value.ts:42` values contracts at the stored `premium`, never against spot, so `$781.06`
+  is simply what was paid. But a $1,302 strike is meaningless now. Closing them and whether to refund
+  the `PRO_DERIVATIVE_PREVIEW` allowance is a decision, not a fix.
   🟡 **Still open:** two disagreeing "today" figures — the badge renders the quote API's `changePct`,
   `price-chart.tsx:70` renders the change across the chart series. Display-only, values nothing.
 - **Driving the sim: `sim.sh open` raises an iOS "Open in euphoria-native?" CONFIRM DIALOG**

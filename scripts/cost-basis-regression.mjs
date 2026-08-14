@@ -38,7 +38,7 @@ function check(label, actual, expected) {
 }
 
 // ── the rule, imported from the app ─────────────────────────────────────────
-import { applyBuy, applySell, applyGrant, avgCostOf as avgOf, gainPct as gainOf } from '../src/lib/cost-basis.ts';
+import { applyBuy, applySell, applyGrant, avgCostOf as avgOf, gainPct as gainOf, clearStaticPricing } from '../src/lib/cost-basis.ts';
 
 const mk = () => ({ positions: {}, costBasis: {}, cash: 10000 });
 
@@ -130,6 +130,31 @@ check('legacy closed out: position gone', reopened.positions.NVDA === undefined 
 reopened = buy({ ...reopened, cash: 10000 }, 'NVDA', 2, 1000);
 check('reopened: basis is knowable again', avgCost(reopened, 'NVDA'), 1000);
 check('reopened: gain is real again', gainPct(reopened, 'NVDA', 1100), 10);
+
+// Phase 16 storage migration. A basis paid in static dollars must not be valued against a live
+// mark — that is an ~81% loss on a position that never moved, which is the C113 shape arriving
+// through the fix for the C113 shape.
+const legacyState = {
+  positions: { NVDA: 3 },
+  costBasis: { NVDA: 3552 },
+  valueHistory: [{ d: '2026-08-12', v: 10003 }],
+  cash: 5000,
+};
+const migrated = clearStaticPricing(legacyState, 0);
+check('v0 → v1: the static-dollar basis is withdrawn', Object.keys(migrated.costBasis).length, 0);
+// valueHistory was the FIRST DRAFT'S MISS. Those snapshots are portfolio totals computed with the
+// static table; leaving them draws a cliff on the chart the moment a live-priced snapshot lands.
+check('v0 → v1: the static-dollar value history goes too', migrated.valueHistory.length, 0);
+check('v0 → v1: shares are NOT touched', migrated.positions.NVDA, 3);
+check('v0 → v1: cash is NOT touched', migrated.cash, 5000);
+// Absent, not rescaled — so the Trade row shows no percentage rather than an invented one.
+check('migrated position has no average to show', avgCost(migrated, 'NVDA'), null);
+const already = clearStaticPricing(
+  { positions: { NVDA: 3 }, costBasis: { NVDA: 676 }, valueHistory: [{ d: '2026-08-13', v: 7126 }], cash: 5000 },
+  1,
+);
+check('v1 → v1: a live-dollar basis is left alone', already.costBasis.NVDA, 676);
+check('v1 → v1: live-dollar history is left alone', already.valueHistory.length, 1);
 
 if (failures > 0) {
   console.log(`\nFAILED — ${failures} check(s). The Trade tab's percentage is wrong again.\n`);

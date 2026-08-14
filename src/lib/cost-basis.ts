@@ -35,6 +35,37 @@ export function hasUnknownBasis(h: Holdings, sym: string): boolean {
 }
 
 /**
+ * Phase 16's storage migration: withdraw every basis that was PAID IN STATIC DOLLARS.
+ *
+ * `priceOf` became live-backed on 2026-08-13. Positions bought before that were executed against
+ * the static table, so they are now valued in one currency against a basis booked in another — a
+ * seeded NVDA holding reads ~$1,184/share paid against a ~$225 mark, an ~81% loss that never
+ * happened. That is C113's exact shape, arriving through the fix for C113's exact shape.
+ *
+ * CLEARED, NOT RESCALED, and the decision is already made above: *"A PARTIAL BASIS IS WORSE THAN NO
+ * BASIS… The basis stays ABSENT until the position is closed and rebuilt from a known price."*
+ * Rescaling would carry forward a percentage that was itself fiction — under a static book nothing
+ * ever moved, so the only honest thing to preserve is nothing. An absent basis makes
+ * `hasUnknownBasis` true, the Trade row renders no percentage, and the copy already shipped there
+ * — "nothing was recorded to compare against" — becomes literally true rather than merely tactful.
+ *
+ * `positions` and `cash` are untouched. The user keeps every share. Only the claim about what they
+ * paid is withdrawn, because that claim was denominated in a currency the app no longer uses.
+ *
+ * `valueHistory` GOES TOO, and forgetting it was the first draft of this function. Those snapshots
+ * are portfolio totals computed with the static table — a $10,003 series against a portfolio now
+ * worth $7,126. Nothing rewrites the series until the next trade, so it reads as merely stale; the
+ * moment one lands, the chart draws a 29% cliff that never happened and the card's "all time" figure
+ * measures a currency change. Clearing one field and not the other is the half-migration §9.3 warns
+ * about, in miniature.
+ */
+export function clearStaticPricing<
+  T extends { costBasis?: Record<string, number>; valueHistory?: unknown[] },
+>(state: T, fromVersion: number): T {
+  return fromVersion < 1 ? { ...state, costBasis: {}, valueHistory: [] } : state;
+}
+
+/**
  * Add bought shares.
  *
  * A PARTIAL BASIS IS WORSE THAN NO BASIS. Adding to a position opened before basis tracking would
