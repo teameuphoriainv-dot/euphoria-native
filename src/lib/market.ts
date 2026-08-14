@@ -8,6 +8,7 @@
  * portfolio, a bezier posing as a chart. `null` forces the UI to say "not live" instead.
  */
 import { ApiError, apiGet } from './api';
+import { setMark } from './marks';
 
 /** Ranges the chart offers. Order matters — this is the row under the chart, left to right.
  *  TradingView, Bloom and Yahoo Finance all ship this control (3/3). */
@@ -71,7 +72,19 @@ async function safe<T>(path: string): Promise<T | null> {
 export const searchTickers = (q: string) =>
   safe<{ results: TickerHit[] }>(`/api/market?action=search&q=${encodeURIComponent(q)}`).then((d) => d?.results ?? []);
 
-export const getQuote = (sym: string) => safe<Quote>(`/api/market?action=quote&sym=${sym}`);
+/**
+ * A quote, and the ONLY place a live mark enters the app.
+ *
+ * Recording the mark here rather than at each caller is deliberate: `stock/[sym].tsx`, the Trade tab
+ * and anything added later all route through this function, so execution and valuation cannot drift
+ * apart again by someone forgetting to update a cache. `safe()` returns null on any failure, so a
+ * refusal leaves the previous mark standing rather than clearing it.
+ */
+export const getQuote = (sym: string) =>
+  safe<Quote>(`/api/market?action=quote&sym=${sym}`).then((q) => {
+    if (q) setMark(q.sym ?? sym, q.price);
+    return q;
+  });
 
 export const getChart = (sym: string, range: RangeKey) =>
   safe<Chart>(`/api/market?action=chart&sym=${sym}&range=${range}`);

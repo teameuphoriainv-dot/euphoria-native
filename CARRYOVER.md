@@ -460,14 +460,24 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
   required"*), and AGENTS.md makes it mandatory for design work. Label any HIG-only work as such.
 - **Live market data has never been seen IN THE APP.** Endpoints verified by curl only. The Trade tab
   and stock screens have not been opened against real prices. **That is a different claim** — C109.
-- 🔴 **THE STOCK SCREEN SHOWS TWO PRICES FOR THE SAME STOCK.** Found on device 2026-08-13, which is
-  the whole argument for C109. `stock/[sym].tsx` for NVDA renders headline **`$1,184.00`** (mock)
-  directly above **previous close `$225.30`**, open `$225.06`, day's range `$223.71–$227.23`,
-  52-week `$164.07–$236.54` (all live). A user reads a +425% move that did not happen. The two
-  change figures disagree with each other too: the badge says `+0.1% today` ( $1.62 ÷ mock 1184 )
-  while the line below says `+$1.62 (0.72%) today` ( $1.62 ÷ live 225.06 ). **Four green gate runs
-  sat over this** — §8 and §0.4, demonstrated. The Trade tab has the same disease: `NVIDIA, 3
-  shares, $3,552.80`.
+- ✅ **PHASE 16 LANDED 2026-08-13 — `priceOf` is live-backed.** Found by opening the app (C109, again):
+  `stock/[sym].tsx` rendered headline **`$1,184.00`** (mock) directly above **previous close
+  `$225.30`** (live) — a +425% move that never happened, on one screen. **Four green gate runs sat
+  over it**, because §8 checks the code, not the number. The Polygon key we set today is what armed
+  it; the code comment had predicted exactly that.
+  **The fix is the one the code named:** a live mark cache (`lib/marks.ts`) sits BEHIND `priceOf`,
+  which stays synchronous, so execution and valuation moved together and **no call site changed** —
+  `valueOf()`, `snapshot()`, cost basis, the Trade rows and the options spot all followed for free.
+  Verified on device: headline `$225.30`, position `3 shares → $676.05`. 20 cases in
+  `scripts/marks-regression.mjs` pin that a zero, negative, NaN, string or Infinity can never become
+  a price, and that a refused quote leaves the previous mark standing.
+  ⚠️ **What Phase 16 could NOT fix:** a cost basis BOOKED BEFORE it landed was paid in static dollars
+  and is now valued in live ones — a seeded NVDA position shows ~$1,184/share basis against a ~$225
+  mark, an ~81% loss that never happened. Tolerable ONLY because no production or TestFlight build
+  has ever shipped (§11). **Reset the dev store rather than trust that number, and if a build ships
+  before a migration exists, write one.**
+  🟡 **Still open:** two disagreeing "today" figures — the badge renders the quote API's `changePct`,
+  `price-chart.tsx:70` renders the change across the chart series. Display-only, values nothing.
 - **Driving the sim: `sim.sh open` raises an iOS "Open in euphoria-native?" CONFIRM DIALOG**
   (`sim.sh:128` says so). Until you `tapon "Open"`, that modal swallows EVERY tap anywhere on
   screen — which reads exactly like the §6.2 LogBox trap and is not it. Deep link, confirm, then

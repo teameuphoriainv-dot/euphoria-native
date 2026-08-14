@@ -20,6 +20,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './onboarding-path';
 import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
 import { SEED_FOLLOWERS } from './people';
+import { allMarks, hydrateMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 
 const XP_PER_LEVEL = 500;
@@ -357,6 +358,13 @@ export type AppState = {
   /** Uninvested paper cash. Real state: every number on the Trade tab derives from this and
    *  `positions`, so nothing there can drift from what the user actually did. */
   cash: number;
+  /**
+   * Persisted live marks, Phase 16. The live copy lives in `lib/marks.ts` (a module map, because
+   * `stocks.ts` cannot import this file without a cycle); this field exists ONLY so the marks
+   * survive the app being killed. Without it, a cold start reverts every position to the static
+   * table — a portfolio-wide reprice that looks exactly like a normal launch.
+   */
+  marks: Record<string, number>;
   /** Shares held, by ticker. Absent or 0 means no position. */
   positions: Record<string, number>;
   /**
@@ -552,6 +560,7 @@ export const useApp = create<AppState>()(
       installId: `eu_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`,
       atlasAsked: 0,
       activeDays: [],
+      marks: {},
       // Cap is TRIAL_DAYS + 1 (4). One past the limit is all `tier()` needs to say "expired";
       // keeping more would grow forever for no reader.
       markActiveDay: () => set((s) => ({ activeDays: withToday(s.activeDays) })),
@@ -749,11 +758,20 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
+      // the store without a cycle), so the state field is only ever a persistence mirror — reading
+      // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
+      // fetched since. Ceiling: this snapshots on the next state write, so a session that fetches
+      // quotes and changes nothing else keeps the previous marks rather than the newest.
+      marks: allMarks(), costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
       onRehydrateStorage: () => (state) => {
+        // Marks BEFORE the flag: `hasHydrated` is what releases routing, and a screen that renders
+        // with an empty mark map prices every holding off the static table for one frame.
+        hydrateMarks(state?.marks);
         state?.setHasHydrated(true);
       },
     },

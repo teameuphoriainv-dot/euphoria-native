@@ -1,7 +1,12 @@
 /**
- * Mock market data for the Trade screen + stock detail. Single source of truth so the
- * Trade rows and the stock/[sym] reader stay in sync. Wire to live quotes in Phase 16.
+ * The static price table, and the formatting helpers the whole app shares.
+ *
+ * Phase 16 (2026-08-13) demoted this from "the market" to "the fallback": `priceOf` now prefers a
+ * live mark from `lib/marks.ts` and only falls back here. Names, blurbs and the holdings/watch lists
+ * are still real data from this table — only the PRICE is superseded.
  */
+import { markOr } from './marks';
+
 export type Stock = {
   sym: string;
   name: string;
@@ -35,8 +40,19 @@ export const ALL_SYMS = Object.keys(STOCKS);
  * so parsing here is cheaper and safer than migrating the shape and every reader with it. The
  * moment live quotes land this is the one function that changes.
  */
+/**
+ * The app's canonical mark, for EXECUTING a trade and for VALUING the resulting position. Phase 16
+ * put a live mark behind it (`lib/marks.ts`); the static table is now the fallback, not the source.
+ *
+ * Deliberately still SYNCHRONOUS. `valueOf()`, `snapshot()`, the Trade rows, the options spot and
+ * cost basis all call this inline, and making it async would push a promise into the money path for
+ * no gain — the mark is a cached number by the time anyone reads it.
+ *
+ * Order is live mark → static table → 0. A ticker that has never been quoted values exactly as it
+ * did before Phase 16, so nothing regresses while the cache is cold.
+ */
 export const priceOf = (sym: string): number =>
-  Number(STOCKS[sym]?.price.replace(/[$,]/g, '')) || 0;
+  markOr(sym, Number(STOCKS[sym]?.price.replace(/[$,]/g, '')) || 0);
 
 /**
  * Share counts, formatted once for the whole app.

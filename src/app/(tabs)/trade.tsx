@@ -224,9 +224,18 @@ export default function Trade() {
                  * and the gain computed against another — invisible only because /api/market 503s
                  * without the four API keys. Setting POLYGON_API_KEY would have armed it.
                  *
-                 * That page now trades at `priceOf()` too. If a future change makes valuation live,
-                 * it has to make EXECUTION live in the same commit, or this percentage silently
-                 * becomes fiction again. §22 C113.
+                 * That page now trades at `priceOf()` too, and PHASE 16 (2026-08-13) made `priceOf`
+                 * itself live-backed — so valuation and execution went live in the SAME commit, which
+                 * is the condition this comment set. Both still read one function.
+                 *
+                 * WHAT PHASE 16 DOES NOT FIX: a basis BOOKED BEFORE IT LANDED was paid in static
+                 * dollars and is now valued in live ones. A seeded NVDA position shows a basis near
+                 * $1,184/share against a live mark near $225 — an ~81% loss that never happened.
+                 * That is this exact percentage becoming fiction, in the one direction the phase
+                 * could not prevent. It is tolerable ONLY because no production or TestFlight build
+                 * has ever shipped (§11), so no real user holds a static-price basis. Dev installs
+                 * must reset the store rather than trust the number. If a build ever ships before a
+                 * migration exists, this needs one.
                  */
                 const paid = costBasis[sym];
                 const avg = paid !== undefined && paid > 0 && positions[sym] > 0 ? paid / positions[sym] : null;

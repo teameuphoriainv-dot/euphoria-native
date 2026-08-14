@@ -108,17 +108,24 @@ export default function StockDetail() {
    * sources for one number — and this is the one that was waiting on a config change to fire.
    *
    * `priceOf` is the app's canonical mark because the whole valuation model is the static table
-   * (`stocks.ts`). Transacting live against a static book is a half-migration, not a feature. When
-   * Phase 16 makes `priceOf` itself live-backed, execution and valuation move TOGETHER and this line
-   * needs no change.
+   * (`stocks.ts`). Transacting live against a static book is a half-migration, not a feature.
    *
-   * `live` stays wired for the CHANGE figure below, which is display-only and values nothing.
+   * PHASE 16 LANDED 2026-08-13 and this line did not change, exactly as predicted. `priceOf` now
+   * prefers a live mark from `lib/marks.ts`, so execution and valuation moved together — every
+   * caller, `valueOf()` and `snapshot()` and the Trade rows and the options spot, followed for free.
    */
   const price = priceOf(sym);
   const name = stock?.name ?? sym;
-  const chgPct = live?.changePct ?? stock?.chg ?? 0;
+  /*
+   * NULL, not `?? stock?.chg ?? 0`. The static table's percent describes a stock whose price is now
+   * live, so pairing them renders two different days on one line. Measured on device before this
+   * change: a `+0.1% today` badge sitting beside a `+$1.62 (0.72%) today` figure for NVDA, because
+   * the badge had fallen back to the table while its neighbour had a live quote. §0.4 — no live
+   * quote, no percent. An absent number is honest; a stale one is not.
+   */
+  const chgPct = live?.changePct ?? null;
   const cost = qty * price;
-  const up = chgPct >= 0;
+  const up = (chgPct ?? 0) >= 0;
   // `price > 0` is the guard the old comment CLAIMED priceOf's zero already provided. It did not:
   // cost is then 0, `0 <= cash` passes, and an unpriced ticker could be bought for nothing —
   // recording a basis of exactly 0, which is the second door into the partial-basis bug (C113).
@@ -141,9 +148,11 @@ export default function StockDetail() {
           <ThemedText type="title" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>{name}</ThemedText>
           <View style={styles.priceRow}>
             <ThemedText type="display" style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
-            <ThemedText type="heading" style={{ color: up ? theme.success : theme.destructive, fontSize: FontSize.body }}>
-              {up ? '+' : ''}{chgPct.toFixed(1)}% today
-            </ThemedText>
+            {chgPct !== null && (
+              <ThemedText type="heading" style={{ color: up ? theme.success : theme.destructive, fontSize: FontSize.body }}>
+                {up ? '+' : ''}{chgPct.toFixed(1)}% today
+              </ThemedText>
+            )}
           </View>
         </RiseIn>
 
