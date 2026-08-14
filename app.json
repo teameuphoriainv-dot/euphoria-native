@@ -19,7 +19,8 @@
       },
       "infoPlist": {
         "CADisableMinimumFrameDurationOnPhone": true,
-        "CFBundleDisplayName": "Euphoria"
+        "CFBundleDisplayName": "Euphoria",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
