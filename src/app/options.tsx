@@ -41,6 +41,17 @@ import { PRO_DERIVATIVE_PREVIEW, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+/**
+ * One greek, or nothing at all.
+ *
+ * DROPPED WHEN IT WOULD ROUND TO ZERO, not merely when it IS zero. Rendering `x.gamma ? ... : ''`
+ * looked right and was not: 0.004 is truthy, so a chain expiring the same day printed
+ * `\u03930.00 \u0398-0.00 \u03bd0.00` across every row — and `\u0398-0.00` reads as broken software rather than as a
+ * quantity too small to matter. Same \u00a70.4 rule the IV column already follows: an absent number is
+ * honest, a rounded-to-nothing one is a fake measurement.
+ */
+const greek = (glyph: string, v: number) => (Math.abs(v) >= 0.005 ? `${glyph}${v.toFixed(2)}` : '');
+
 /** Days out for the modelled fallback expiries, when no live chain exists. */
 const MODEL_DAYS = [7, 30, 90];
 
@@ -89,8 +100,8 @@ function ChainRow({
   onPick,
 }: {
   strike: number;
-  call: { cost: number; sub: string; c?: Contract } | null;
-  put: { cost: number; sub: string; c?: Contract } | null;
+  call: { cost: number; sub: string; greeks?: string; c?: Contract } | null;
+  put: { cost: number; sub: string; greeks?: string; c?: Contract } | null;
   spot: number;
   show: 'both' | 'call' | 'put';
   selected: 'call' | 'put' | null;
@@ -104,7 +115,7 @@ function ChainRow({
 
   const cell = (
     side: 'call' | 'put',
-    data: { cost: number; sub: string; c?: Contract } | null,
+    data: { cost: number; sub: string; greeks?: string; c?: Contract } | null,
     itm: boolean,
   ) => (
     <SpringPressable
@@ -114,7 +125,7 @@ function ChainRow({
       accessibilityRole="button"
       accessibilityLabel={
         data
-          ? `${side === 'call' ? 'Call' : 'Put'} at ${money(strike)}, ${money(data.cost)}, ${data.sub}`
+          ? `${side === 'call' ? 'Call' : 'Put'} at ${money(strike)}, ${money(data.cost)}, ${data.sub}${data.greeks ? `, ${data.greeks}` : ''}`
           : `No ${side} at ${money(strike)}`
       }
       accessibilityState={{ selected: selected === side, disabled: !data }}
@@ -129,6 +140,9 @@ function ChainRow({
       >
         <ThemedText type="bodyMedium" style={styles.cellCost}>{data ? money(data.cost) : '—'}</ThemedText>
         {!!data && <ThemedText type="small" themeColor="mutedForeground" style={styles.cellSub}>{data.sub}</ThemedText>}
+        {!!data?.greeks && (
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.cellGreeks}>{data.greeks}</ThemedText>
+        )}
       </View>
     </SpringPressable>
   );
@@ -221,6 +235,48 @@ export default function Options() {
    */
   const spot = !loading && chainSpot > 0 ? chainSpot : priceOf(sym);
 
+  /*
+   * CENTRING RUNS FROM AN EFFECT, not from the row's onLayout.
+   *
+   * onLayout only fires when layout CHANGES. Switching expiry re-renders the same strikes at the
+   * same positions, so it never fired again and the chain snapped back to $50 — measured on device
+   * moving from 08-14 to 08-21. Keying an effect on symbol+expiry fires once per chain regardless.
+   *
+   * rAF because the effect runs before the new rows have been laid out; by the next frame the ref
+   * points at a measurable view.
+   */
+  /**
+   * Put the money in view. Safe to call repeatedly — `didScroll` makes it once per chain.
+   *
+   * Two triggers, because neither alone is enough. The ATM row's `onLayout` is the reliable one on
+   * first paint; the effect below covers switching EXPIRY, where the same strikes re-render at the
+   * same positions so onLayout never fires again and the chain snapped back to $50 (measured moving
+   * 08-14 -> 08-21). The effect alone does not work either: at rAF time after load the view is not
+   * yet attached and `measureInWindow` never calls back.
+   */
+  const centreOnMoney = (k: string) => {
+    if (didScroll.current === k) return;
+    atmRef.current?.measureInWindow((_x: number, windowY: number) => {
+      if (!Number.isFinite(windowY)) return;
+      didScroll.current = k;
+      // A third of a screen of headroom, so the money reads as the centre of the chain rather than
+      // the top of it. Window coordinates plus the live scroll offset give a content offset without
+      // knowing the header height — which is what makes this survive a layout change.
+      scrollRef.current?.scrollTo({ y: Math.max(0, offsetY.current + windowY - 300), animated: false });
+    });
+  };
+
+  useEffect(() => {
+    if (loading || !live || didScroll.current === key) return;
+    /*
+     * A TIMEOUT, not requestAnimationFrame. On an expiry switch the ATM row is remounted, so at the
+     * next frame `atmRef.current` is still null and `measureInWindow` never calls back — measured:
+     * the chain stayed at $50 after moving 08-14 -> 08-21. One tick later the ref is live.
+     */
+    const id = setTimeout(() => centreOnMoney(key), 120);
+    return () => clearTimeout(id);
+  }, [key, loading, live]);
+
   /** The strike nearest the money, or null when there is nothing to centre on. */
   const atmStrike = (() => {
     if (!live || !(spot > 0)) return null;
@@ -267,6 +323,29 @@ export default function Options() {
                 sub:
                   (x.iv > 0 ? `IV ${(x.iv * 100).toFixed(0)}% \u00b7 ` : '') +
                   `\u0394${x.delta.toFixed(2)}`,
+                /*
+                 * The SECOND line: gamma, theta, vega, compact, per row.
+                 *
+                 * Theta across strikes is the lesson this screen exists to teach — time decay is
+                 * not a constant, it peaks at the money, and that is visible only when you can read
+                 * it DOWN a column. Putting the greeks solely on the ticket meant tapping eleven
+                 * strikes to see a shape that one glance should give you.
+                 *
+                 * Two decimals, not three: a chain row is scanned, not studied, and the ticket
+                 * still carries the precise values. Rho is deliberately omitted here — it is the
+                 * least useful of the four for equity options at these tenors and the line has to
+                 * stay short enough to read.
+                 *
+                 * Each term drops out when 0, because 0 means unknown in this mapping and a printed
+                 * 0.00 reads as a measurement (\u00a70.4).
+                 */
+                greeks: [
+                  greek('\u0393', x.gamma),
+                  greek('\u0398', x.theta),
+                  greek('\u03bd', x.vega),
+                ]
+                  .filter(Boolean)
+                  .join(' '),
                 // The contract itself, so the ticket below can show the FULL greek set. The row
                 // stays deliberately terse \u2014 delta and IV \u2014 because a chain row is a scanning
                 // surface; the greeks belong where the user has committed to one strike.
@@ -281,8 +360,8 @@ export default function Options() {
       // `c: undefined` keeps the modelled row the SAME SHAPE as a live one. Without it the two
       // branches union to a type with no `c`, and the ticket cannot ask for greeks at all — which
       // is also the honest answer here: a Black-Scholes row has no greeks worth printing.
-      call: { cost: premium('call', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled', c: undefined },
-      put: { cost: premium('put', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled', c: undefined },
+      call: { cost: premium('call', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled', greeks: '', c: undefined },
+      put: { cost: premium('put', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled', greeks: '', c: undefined },
       days: MODEL_DAYS[1],
     }));
   })();
@@ -439,49 +518,7 @@ export default function Options() {
                   <View
                     key={r.strike}
                     ref={atmRef}
-                    onLayout={() => {
-                      if (didScroll.current === key) return;
-                      /*
-                       * measureLayout AGAINST THE SCROLL CONTENT, not `onLayout`'s y.
-                       *
-                       * `layout.y` is relative to this row's PARENT, so it is short by the height of
-                       * everything above the list — the news rail, the chips, the headings. Using it
-                       * put the money low in the viewport: measured on device, the chain opened at
-                       * $195 against a $225 spot with the ATM row at y≈680 of an 844pt screen.
-                       * `getInnerViewNode()` is the ScrollView's content node, so this y is the real
-                       * content offset and needs no knowledge of the header at all — which is the
-                       * point, because a hardcoded header height breaks the day the header changes.
-                       *
-                       * Fails soft: no node, or a measure error, and we simply do not scroll. A
-                       * chain that opens at the wrong strike is a worse screen; one that throws is a
-                       * broken one.
-                       */
-                      /*
-                       * measureInWindow, NOT `layout.y` and NOT `getInnerViewNode`.
-                       *
-                       * `layout.y` is relative to this row's PARENT, so it is short by everything
-                       * above the list and put the money low: measured, the chain opened at $195
-                       * against a $225 spot with the ATM row at y≈680 of an 844pt screen.
-                       * `getInnerViewNode()` would give the true content node, but it does not exist
-                       * under the New Architecture, which this SDK uses — it returned nothing and
-                       * the chain simply never scrolled.
-                       *
-                       * Window coordinates plus the CURRENT scroll offset give the content offset
-                       * without knowing anything about the header, which is the property that makes
-                       * this survive a layout change.
-                       *
-                       * Fails soft: no measurement, no scroll. A chain that opens at the wrong
-                       * strike is a worse screen; one that throws is a broken one.
-                       */
-                      atmRef.current?.measureInWindow((_x: number, windowY: number) => {
-                        if (!Number.isFinite(windowY)) return;
-                        didScroll.current = key;
-                        // A third of a screen of headroom, so the money reads as the centre of the
-                        // chain rather than the top of it.
-                        const target = offsetY.current + windowY - 300;
-                        scrollRef.current?.scrollTo({ y: Math.max(0, target), animated: false });
-                      });
-                    }}
+                    onLayout={() => centreOnMoney(key)}
                   >
                     {row}
                   </View>
@@ -618,6 +655,11 @@ const styles = StyleSheet.create({
   cell: { paddingVertical: Spacing.two + 2, paddingHorizontal: Spacing.two, alignItems: 'center', justifyContent: 'center' },
   cellCost: { fontVariant: ['tabular-nums'] },
   cellSub: { fontSize: FontSize.label, lineHeight: 14 },
+  /* The greek line sits a step quieter than the IV/delta line above it: same size, more tracking,
+     so a scanning eye reads price -> IV -> greeks in that order rather than treating them as one
+     block. HIG-derived, NOT validated against reference apps — ScreensDesign Pro is lapsed and
+     AGENTS.md rule 7 requires that be said out loud rather than implied. */
+  cellGreeks: { fontSize: FontSize.label, lineHeight: 14, letterSpacing: 0.2, opacity: 0.75 },
   ticket: { gap: Spacing.two },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });
