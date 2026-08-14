@@ -65,8 +65,11 @@ targets/widget/ the iOS widget, Swift
 |---|---|
 | `lib/entitlement.ts` | The **single** authority on trial/expired/pro. `tier()` orders pro first, so a payer never sees a countdown. |
 | `lib/cost-basis.ts` | The **one** copy of the holdings math. Keep it erasable-syntax-only — a regression imports it under Node, which strips types rather than compiling them. |
-| `lib/trial-reward.ts` | Same pattern, for the 17c offer gate. Dependency-free so it can be tested. |
-| `lib/store.ts` | 822 lines, over the 800 threshold. Splitting it is open work. |
+| `lib/trial-reward.ts` · `lib/dismissal-offer.ts` | The 17c and 17d offer gates. |
+| `lib/portfolio-value.ts` | The **one** valuation formula. It was three, and two of them had already diverged. |
+| `lib/billing-retry.ts` | The retry-window rule and `ENTITLEMENT_ID`, so they cannot part company. |
+| `lib/day-keys.ts` | Calendar keys and the streak rule. Silent failures that only happen at a boundary. |
+| `lib/store.ts` | 780 lines. Anything added to state must ALSO go in `partialize`, or it silently won't persist. |
 | `lib/stocks.ts` | A hardcoded mock price table. **Prices never move**, which bounds what the Trade tab can teach. |
 
 ## Getting started
@@ -93,7 +96,7 @@ Nothing merges without these. Run them in this order:
 
 ```bash
 npx tsc --noEmit                       # must be clean
-npm run check                          # 10 regression + pinning scripts, all must PASS
+npm run check                          # 12 regression + pinning scripts, all must PASS
 npx expo lint 2>&1 | grep problems     # 48 problems (3 errors, 45 warnings) is the accepted baseline
 python3 scripts/certify.py             # every route renders
 node scripts/a11y-audit.mjs            # 1 "unlabelled" is a known docstring false positive
@@ -104,6 +107,7 @@ node scripts/a11y-audit.mjs            # 1 "unlabelled" is a known docstring fal
 
 | script | the failure it prevents |
 |---|---|
+| `day-keys-regression` | a streak lost overnight — local-vs-UTC days, Sunday mapping back to Monday, the year boundary |
 | `cost-basis-regression` | average cost surviving partial sells, grants and legacy state |
 | `portfolio-snapshot-regression` | the chart and the headline valuing the same portfolio differently |
 | `billing-retry-regression` | hard-walling a member whose card is mid-retry — turning a recoverable decline into a real churn |
@@ -111,6 +115,7 @@ node scripts/a11y-audit.mjs            # 1 "unlabelled" is a known docstring fal
 | `unit-names-coverage` | course ids drifting so unit headers stop rendering (60 names, 12 courses) |
 | `check-digest-lessons` | digest guides pointing at lessons that no longer exist |
 | `trial-reward-regression` | the 17c offer firing to a payer, after expiry, or twice per install |
+| `dismissal-offer-regression` | the 17d offer, and structurally that every trial-expired wall consults it |
 | `api-validation-regression` | a crafted ticker walking out of the intended upstream endpoint on our paid key |
 | `identity-regression` | a forged or expired token being believed — `alg: none`, algorithm confusion, tampered payloads |
 | `advice-guard-regression` | Atlas recommending a specific security, and the reverse: the guard eating the curriculum |
@@ -155,7 +160,7 @@ crash.
 
 This repo keeps its decisions, not just its code. In order of authority:
 
-1. **`refs/MASTER_PLAN.md` §22 — the corrections log, `C1`…`C116`.** Every entry records something
+1. **`refs/MASTER_PLAN.md` §22 — the corrections log, `C1`…`C118`.** Every entry records something
    that was got wrong and what is true instead. Commit messages cite these by number. **A commit
    body wins over the reconstruction where they disagree.**
 2. **`CARRYOVER.md`** — the session handoff. Written to be pasted whole into a fresh session.
@@ -217,13 +222,11 @@ an agreement on someone else's behalf.**
 
 ## Open work
 
-- **The trial reward offer is unreachable from Home.** Four surfaces render the trial-expired state
-  and only `GateSheet` carries the dismissal offer; `lesson.tsx` and `chat.tsx` have their own hard
-  walls. See §22 C115.
 - 17 captured screens remain unaudited — `digest`, `chat`, `options`, `stock` next by priority.
 - `lib/people.ts` is fabricated and says so; the league races invented rivals.
+- **The trial reward offer is unreachable from Home** — fixed in C117; see `refs/SECURITY_REVIEW.md`
+  for the three security findings still open (`F6`, `F7`, `F8`).
 - Auth runs real OAuth but creates no account — `currentUserId()` returns null.
-- `store.ts` is over the 800-line threshold.
 
 ---
 

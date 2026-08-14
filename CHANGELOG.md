@@ -1,6 +1,6 @@
 # Changelog
 
-Every commit in `euphoria-native`, newest first — **371 commits** across **16 active days**, 2026-07-20 → 2026-08-13.
+Every commit in `euphoria-native`, newest first — **375 commits** across **16 active days**, 2026-07-20 → 2026-08-13.
 
 This file is generated from `git log`. It is the *record*; the *reasoning* lives in `refs/MASTER_PLAN.md` §22, the corrections log, where entries are numbered `C1`…`C115` and commit messages reference them by number. When a subject here mentions a `C` number, that is where to read why.
 
@@ -9,17 +9,17 @@ This file is generated from `git log`. It is the *record*; the *reasoning* lives
 | type | count | what it means here |
 |---|---:|---|
 | `change` | 182 | pre-convention commits, from before the repo standardised on Conventional Commits |
-| `docs` | 72 | the plan, the corrections log, or a handoff |
+| `docs` | 73 | the plan, the corrections log, or a handoff |
 | `feat` | 52 | a user-visible capability |
-| `fix` | 28 | a defect corrected |
+| `fix` | 29 | a defect corrected |
 | `chore` | 8 | housekeeping |
 | `audit` | 7 | a screen or system reviewed against evidence |
+| `copy` | 4 | user-facing wording, approved per §0.7 |
 | `content` | 4 |  |
 | `test` | 3 | a regression or pin added |
-| `copy` | 3 | user-facing wording, approved per §0.7 |
+| `refactor` | 2 | structure changed, behaviour held |
 | `revert` | 2 | a change backed out |
 | `refs` | 2 |  |
-| `refactor` | 1 | structure changed, behaviour held |
 | `style` | 1 | formatting only |
 | `polish` | 1 |  |
 | `redesign` | 1 | a screen reworked |
@@ -43,15 +43,19 @@ This file is generated from `git log`. It is the *record*; the *reasoning* lives
 | `Atlas` | 6 |
 | `carryover` | 5 |
 | `revamp` | 5 |
+| `17d` | 4 |
 | `league` | 4 |
 | `auth` | 4 |
 | `ios` | 4 |
-| `iap` | 4 |
 
 ---
 
-## 2026-08-13 · 10 commits
+## 2026-08-13 · 14 commits
 
+- `4f2601a` **refactor(store)** — 780 lines, and regressions that stopped grading their own work
+- `4c8d053` **fix(17d)** — the wall now asks before it lets go
+- `079eb5f` **copy** — approve the refusal and the system prompt, and correct a stale marker
+- `5b1e153` **docs** — bring the README back in line with what the gate actually runs
 - `b872a0f` **test(17c)** — verified on device, and three ways the tree lied about it
 - `f4d21a1` **audit(security)** — entitlement stops at the client, and a landmine for later
 - `8667943` **feat(api)** — make signing in mean something to the server
