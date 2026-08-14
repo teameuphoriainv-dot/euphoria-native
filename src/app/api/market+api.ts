@@ -83,6 +83,21 @@ async function poly(path: string, key: string) {
       console.error('[market] PLAN LIMIT, not an outage:', path.split('?')[0], body);
       throw new Error('plan_required');
     }
+    /*
+     * FOURTH TIME, and the same shape as the three above. Polygon's free tier allows **5 requests
+     * per minute** — measured 2026-08-14, ten calls in a row returned 200 200 200 200 200 then five
+     * 429s with "You've exceeded the maximum requests per minute". We were turning that into a
+     * generic `502 upstream`, so the app told the user something had BROKEN when the truth is that
+     * we asked too often, and the client had no way to tell the two apart and back off.
+     *
+     * 5/minute is also why the response cache added alongside this matters more than it looks: a
+     * single stock screen costs quote + stats + chart + news, so uncached that is roughly ONE USER
+     * PER MINUTE for the entire app. Cached, origin traffic is bounded by distinct URLs instead.
+     */
+    if (res.status === 429) {
+      console.error('[market] RATE LIMITED by upstream, not an outage:', path.split('?')[0]);
+      throw new Error('rate_limited');
+    }
     console.error('[market] upstream', res.status, body);
     throw new Error(`upstream_${res.status}`);
   }
@@ -386,6 +401,17 @@ export async function GET(request: Request) {
      */
     if (e instanceof Error && e.message === 'plan_required') {
       return fresh({ error: 'plan_required' }, 501);
+    }
+    /*
+     * A throttle is a 429, not a 502, for the same reason. `Retry-After` is included because the
+     * upstream window is a MINUTE and a client that backs off blindly either hammers a limit it
+     * cannot see or waits far longer than it needs to.
+     */
+    if (e instanceof Error && e.message === 'rate_limited') {
+      return Response.json(
+        { error: 'rate_limited' },
+        { status: 429, headers: { 'Cache-Control': 'no-store', 'Retry-After': '60' } },
+      );
     }
     console.error('[market] failed', e);
     return fresh({ error: 'upstream' }, 502);
