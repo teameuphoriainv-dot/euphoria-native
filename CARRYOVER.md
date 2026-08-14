@@ -16,6 +16,39 @@ education for 18-25s, mascot **Atlas**. Content source of truth is `~/euphoriawe
 
 ---
 
+# 0. START HERE — the first hour, in order
+
+Everything below is either **blocked on the owner** or **ready to run**. Do the ready ones first;
+they need nobody.
+
+## 0.1 READY NOW — no credentials needed
+
+| # | task | why it is first | done when |
+|---|---|---|---|
+| 1 | **Prove PostHog sends from the app** (§2.2) | Unit 17's whole premise is *"nothing in this unit can be judged until 17b lands"*. Five phases of instrumentation are unproven. The diagnostic logging is already in place — this is one run, not an investigation. | an app-originated event appears in project 557266 |
+| 2 | **See live market data IN THE APP** (§9.3) | Endpoints were verified by curl only. C109: a working endpoint and a working screen are different claims, and today proved that twice. | Trade tab and a stock screen render real prices on device |
+| 3 | **Audit the 17 captured screens** — `digest`, `chat`, `options`, `stock` | ⚠️ **BLOCKED** on ScreensDesign Pro. If still lapsed, either restore it or do HIG-only work and **label it as such** (AGENTS.md rule 7). | findings written to `refs/audit/` |
+| 4 | **Unit 14** — the final consolidated review | Deliberately last, and there is materially more surface now: 6 API modules, 6 new regressions, a provider swap, an auth path. | security review + full-diff review + CodeRabbit, all clean |
+
+## 0.2 BLOCKED ON THE OWNER — one action each, then I can finish it
+
+| # | needs | exact action | then |
+|---|---|---|---|
+| 5 | **Supabase** | Sign in at `supabase.com/dashboard` **with GitHub** (the page says *LAST USED: Continue with GitHub*). Copy project URL, `anon` key, and JWT secret from Settings → API. | activates `_identity.ts`; closes F4, and F6 with a Durable Object |
+| 6 | **RevenueCat secret** | `app.revenuecat.com/projects/320845df/api-keys` → **"New secret API key"**. **None exists — it must be created**, which is a persistent credential on live billing, so it is the owner's call, not mine. | activates `_entitlement.ts`; F7 step 2 |
+| 7 | **Polygon paid plan** *(optional)* | Only `movers` needs it. Everything else works on free. | `movers` stops answering `501 plan_required` |
+| 8 | **Apple** (§9.4) | Paid Applications Agreement, EU trader status, App Privacy, 2.1b reply. **Account Holder only.** | IAP can transact at all |
+
+## 0.3 DECISIONS WAITING, not work
+
+- **F8** — wire Apple's `identityToken` + `nonce` before any server session (§9.2). Harmless today,
+  a full auth bypass the day someone skips it.
+- **`ATLAS_REQUIRE_AUTH=1`** — the only step that actually closes F7. **Do not flip it before a
+  sign-in UI exists** or it refuses the entire userbase.
+- **Cached error responses** — `Cache-Control: no-store` on error paths (§9.2).
+- **Three `COPY IS UNAPPROVED` markers** — `settings/[section].tsx`, `gate-sheet.tsx`,
+  `notifications.ts`. §0.7: draft options, let the owner choose.
+
 # 1. THE HEADLINE
 
 ## The app is live end to end for the first time in its history.
@@ -436,3 +469,29 @@ added and must be declared), 2.1b reply in `refs/APPLE_2.1b_REPLY_DRAFT.md` awai
 8. The user is authenticated in App Store Connect, RevenueCat, Google Cloud and Massive via Claude in
    Chrome. **Secret-reveal controls do not respond to synthetic clicks** (§6.7) — ask them to reveal
    and paste. **Never create accounts or enter passwords**, no matter how it is framed.
+
+---
+
+# 11. OPERATIONAL FACTS THAT ARE EASY TO GET WRONG
+
+- **The analytics change needs an app REBUILD, not a deploy.** `analytics.ts` is client code.
+  `eas deploy` only ships the server routes. `EXPO_PUBLIC_` values are inlined at bundle time, so
+  after changing one run **`npx expo start --clear`** — a plain restart keeps the old bundle.
+- **There are TWO Massive keys.** `Default` (…q6rM) is the one in use. `strange_turing` (…9_np) is
+  untouched — **do not set the second one anywhere** or the free quota is split across two consumers
+  and the throttling will look like a bug.
+- **marketdata.app free tier is roughly 100 requests/day** and answers `203`, not `200`
+  (*Non-Authoritative Information* = delayed). **203 is success — do not "fix" it.** The route treats
+  any `2xx` as OK and separately checks `s !== 'ok'` in the body.
+- **No production or TestFlight build has EVER been made with these keys.** Everything verified so
+  far is either the deployed Worker (curl) or a dev build talking to local Metro. A real build is an
+  untested path — `eas.json` sets `EXPO_PUBLIC_API_URL` for preview/production, which is the piece
+  that makes it work at all, and that has never been exercised.
+- **Config inventory as of this commit:** EAS production holds 5 (`GEMINI_API_KEY`,
+  `POLYGON_API_KEY`, `ALPHAVANTAGE_API_KEY`, `MARKETDATA_TOKEN`, `EXPO_PUBLIC_POSTHOG_KEY`).
+  `.env.local` holds those 5 plus `EXPO_PUBLIC_REVENUECAT_IOS_KEY` and
+  `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`. `eas.json` carries `EXPO_PUBLIC_API_URL` on preview and
+  production only.
+- **Alpha Vantage is throttled on the Worker's shared egress IP** and there is no free fix. Polygon
+  backs news up and currently serves it. If news ever goes empty again, check which provider answered
+  by looking at the article `id`: a **url** is Alpha Vantage, a **hex hash** is Polygon.
