@@ -90,6 +90,24 @@ async function poly(path: string, key: string) {
 }
 
 export async function GET(request: Request) {
+  /*
+   * CACHE POLICY, made explicit. This route previously sent NO Cache-Control at all, which left
+   * every response — including refusals — on EAS Hosting's default GET caching, whose TTL nobody
+   * had ever read (§9.2). A cached `501 plan_required` or a cached `502` serves an outage to every
+   * user until it expires, long after the upstream recovered; §4 records exactly that happening
+   * when a live options route served a stale 503 for an hour.
+   *
+   * Successes are safe to cache: this data is delayed by construction (`quote` and `stats` are
+   * built from Polygon's PREVIOUS-day aggregate), so 15 minutes is not meaningfully staler than
+   * fresh. Errors are never cached.
+   */
+  const cached = (body: unknown) =>
+    Response.json(body, {
+      headers: { 'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=3600' },
+    });
+  const fresh = (body: unknown, status: number) =>
+    Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+
   const url = new URL(request.url);
   const action = url.searchParams.get('action') ?? '';
 
@@ -158,7 +176,7 @@ export async function GET(request: Request) {
             if (why) console.error('[market] alphavantage refused:', String(why).slice(0, 200));
           }
           if (feed.length > 0) {
-            return Response.json({
+            return cached({
               articles: feed.map((a) => ({
                 id: String(a.url),
                 title: a.title,
@@ -188,10 +206,10 @@ export async function GET(request: Request) {
       // provider to fall back TO, so answer an empty feed rather than calling `poly` with an
       // undefined key — which would 401 upstream and surface as a generic failure the screen
       // cannot explain. An empty list is a state the UI already renders honestly.
-      if (!key) return Response.json({ articles: [] });
+      if (!key) return cached({ articles: [] });
 
       const d = await poly(`/v2/reference/news?${sym ? `ticker=${sym}&` : ''}order=desc&limit=12`, key);
-      return Response.json({
+      return cached({
         articles: (d.results ?? []).map((a: Record<string, unknown>) => ({
           id: a.id,
           title: a.title,
@@ -206,16 +224,16 @@ export async function GET(request: Request) {
     // Polygon backs every remaining action. `news` is handled ABOVE precisely because it has a
     // second provider and must stay reachable on an Alpha Vantage key alone; everything below
     // genuinely cannot run without Polygon, so it refuses here rather than at six call sites.
-    if (!key) return Response.json({ error: 'not_configured' }, { status: 503 });
+    if (!key) return fresh({ error: 'not_configured' }, 503);
 
     if (action === 'search') {
       const q = (url.searchParams.get('q') ?? '').trim();
-      if (q.length < 1) return Response.json({ results: [] });
+      if (q.length < 1) return cached({ results: [] });
       const d = await poly(
         `/v3/reference/tickers?search=${encodeURIComponent(q)}&market=stocks&active=true&limit=20`,
         key,
       );
-      return Response.json({
+      return cached({
         results: (d.results ?? []).map((r: Record<string, unknown>) => ({
           sym: r.ticker,
           name: r.name,
@@ -226,12 +244,12 @@ export async function GET(request: Request) {
 
     if (action === 'quote') {
       const sym = symbol(url.searchParams.get('sym'));
-      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+      if (!sym) return fresh({ error: 'sym_required' }, 400);
       const d = await poly(`/v2/aggs/ticker/${sym}/prev?adjusted=true`, key);
       const bar = d.results?.[0];
-      if (!bar) return Response.json({ error: 'no_data' }, { status: 404 });
+      if (!bar) return fresh({ error: 'no_data' }, 404);
       const change = bar.c - bar.o;
-      return Response.json({
+      return cached({
         sym,
         price: bar.c,
         change,
@@ -242,15 +260,15 @@ export async function GET(request: Request) {
     if (action === 'chart') {
       const sym = symbol(url.searchParams.get('sym'));
       const range = (url.searchParams.get('range') ?? '1M') as RangeKey;
-      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
-      if (!RANGES[range]) return Response.json({ error: 'bad_range' }, { status: 400 });
+      if (!sym) return fresh({ error: 'sym_required' }, 400);
+      if (!RANGES[range]) return fresh({ error: 'bad_range' }, 400);
       const { mult, span, label } = RANGES[range];
       const d = await poly(
         `/v2/aggs/ticker/${sym}/range/${mult}/${span}/${Math.floor(fromMs(range))}/${Date.now()}?adjusted=true&sort=asc&limit=5000`,
         key,
       );
       const points: { t: number; c: number }[] = (d.results ?? []).map((b: { t: number; c: number }) => ({ t: b.t, c: b.c }));
-      return Response.json({ sym, range, label, points });
+      return cached({ sym, range, label, points });
     }
 
     if (action === 'logo') {
@@ -261,11 +279,11 @@ export async function GET(request: Request) {
        * bytes, so the key never leaves the server and the app gets a plain cacheable URL.
        */
       const sym = symbol(url.searchParams.get('sym'));
-      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+      if (!sym) return fresh({ error: 'sym_required' }, 400);
       const d = await poly(`/v3/reference/tickers/${sym}`, key);
       const brand = (d.results?.branding ?? {}) as { icon_url?: string; logo_url?: string };
       const src = brand.icon_url ?? brand.logo_url;
-      if (!src) return Response.json({ error: 'no_logo' }, { status: 404 });
+      if (!src) return fresh({ error: 'no_logo' }, 404);
 
       /*
        * The URL came out of an upstream response, not from the caller — which is exactly what makes
@@ -275,10 +293,10 @@ export async function GET(request: Request) {
        */
       if (!mayCarryKey(src)) {
         console.error('[market] refused to key a non-Polygon logo host', src.slice(0, 120));
-        return Response.json({ error: 'no_logo' }, { status: 404 });
+        return fresh({ error: 'no_logo' }, 404);
       }
       const img = await fetch(withKey(src, key));
-      if (!img.ok) return Response.json({ error: 'no_logo' }, { status: 404 });
+      if (!img.ok) return fresh({ error: 'no_logo' }, 404);
       return new Response(img.body, {
         headers: {
           'Content-Type': img.headers.get('Content-Type') ?? 'image/png',
@@ -297,7 +315,7 @@ export async function GET(request: Request) {
       const dir = url.searchParams.get('dir') === 'losers' ? 'losers' : 'gainers';
       const d = await poly(`/v2/snapshot/locale/us/markets/stocks/${dir}`, key);
       const raw = (d.tickers ?? []) as Record<string, unknown>[];
-      return Response.json({
+      return cached({
         dir,
         movers: raw.slice(0, 12).map((t) => {
           const day = (t.day ?? {}) as { c?: number };
@@ -322,7 +340,7 @@ export async function GET(request: Request) {
        * are REAL aggregates — nothing here is derived from a model.
        */
       const sym = symbol(url.searchParams.get('sym'));
-      if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+      if (!sym) return fresh({ error: 'sym_required' }, 400);
 
       const yearAgo = Date.now() - 365 * 86_400_000;
       const [prev, year] = await Promise.all([
@@ -335,13 +353,13 @@ export async function GET(request: Request) {
 
       const b = prev.results?.[0];
       const bars = (year.results ?? []) as { h: number; l: number; c: number; v: number }[];
-      if (!b && bars.length === 0) return Response.json({ error: 'no_data' }, { status: 404 });
+      if (!b && bars.length === 0) return fresh({ error: 'no_data' }, 404);
 
       const highs = bars.map((x) => x.h).filter(Number.isFinite);
       const lows = bars.map((x) => x.l).filter(Number.isFinite);
       const vols = bars.map((x) => x.v).filter(Number.isFinite);
 
-      return Response.json({
+      return cached({
         sym,
         previousClose: b?.c ?? null,
         open: b?.o ?? null,
@@ -359,7 +377,7 @@ export async function GET(request: Request) {
     }
 
 
-    return Response.json({ error: 'bad_action' }, { status: 400 });
+    return fresh({ error: 'bad_action' }, 400);
   } catch (e) {
     /*
      * A plan limit is a 501, not a 502. The client can then say "this needs a paid data plan"
@@ -367,9 +385,9 @@ export async function GET(request: Request) {
      * not sent hunting an outage that never happened.
      */
     if (e instanceof Error && e.message === 'plan_required') {
-      return Response.json({ error: 'plan_required' }, { status: 501 });
+      return fresh({ error: 'plan_required' }, 501);
     }
     console.error('[market] failed', e);
-    return Response.json({ error: 'upstream' }, { status: 502 });
+    return fresh({ error: 'upstream' }, 502);
   }
 }

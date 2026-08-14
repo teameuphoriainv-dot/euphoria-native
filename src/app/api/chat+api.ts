@@ -100,6 +100,20 @@ function parseTurns(body: unknown): Turn[] | string {
 }
 
 export async function POST(request: Request) {
+  /*
+   * NOTHING FROM THIS ROUTE IS EVER CACHED, and the reason is privacy rather than freshness.
+   *
+   * A chat reply is per-user content: it answers THIS person's question and may echo what they
+   * typed. EAS Hosting caches GET routes, not POST, so nothing is cached today — but that is an
+   * accident of the method, not a decision, and a future GET variant or an intermediate proxy
+   * would inherit no protection at all. `no-store` states the intent where it cannot be missed.
+   *
+   * It also covers the error paths, which §9.2 flags on every route: a cached 502 or 429 serves
+   * one user's failure to everybody until the TTL expires.
+   */
+  const reply = (body: unknown, status = 200) =>
+    Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+
   // Rate limit FIRST — before the key check, before parsing, before any upstream call. An
   // unlimited proxy just relocates the quota problem instead of solving it.
   const gate = await guard(request, 'chat', 20, 5 * 60_000);
@@ -142,18 +156,18 @@ export async function POST(request: Request) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) {
     console.error('[chat] GEMINI_API_KEY is not set');
-    return Response.json({ error: 'not_configured' }, { status: 503 });
+    return reply({ error: 'not_configured' }, 503);
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: 'bad_json' }, { status: 400 });
+    return reply({ error: 'bad_json' }, 400);
   }
 
   const turns = parseTurns(body);
-  if (typeof turns === 'string') return Response.json({ error: turns }, { status: 400 });
+  if (typeof turns === 'string') return reply({ error: turns }, 400);
 
   try {
     const res = await fetch(`${ENDPOINT}/${MODEL}:generateContent`, {
@@ -203,10 +217,10 @@ export async function POST(request: Request) {
        */
       if (res.status === 404) {
         console.error(`[chat] MODEL "${MODEL}" REJECTED — retired or misnamed. Not an outage:`, detail);
-        return Response.json({ error: 'model_unavailable' }, { status: 502 });
+        return reply({ error: 'model_unavailable' }, 502);
       }
       console.error('[chat] upstream', res.status, detail);
-      return Response.json({ error: 'upstream' }, { status: 502 });
+      return reply({ error: 'upstream' }, 502);
     }
 
     const data = await res.json();
@@ -221,7 +235,7 @@ export async function POST(request: Request) {
     const text = parts.find((p) => typeof p?.text === 'string' && p.text.trim())?.text;
     if (typeof text !== 'string' || !text.trim()) {
       console.error('[chat] no text in response', JSON.stringify(data).slice(0, 500));
-      return Response.json({ error: 'empty' }, { status: 502 });
+      return reply({ error: 'empty' }, 502);
     }
 
     /*
@@ -233,12 +247,12 @@ export async function POST(request: Request) {
      */
     if (isAdvice(text)) {
       console.error('[chat] refused an advice-shaped completion');
-      return Response.json({ text: REFUSAL, refused: 'advice' });
+      return reply({ text: REFUSAL, refused: 'advice' });
     }
 
-    return Response.json({ text });
+    return reply({ text });
   } catch (e) {
     console.error('[chat] request failed', e);
-    return Response.json({ error: 'upstream' }, { status: 502 });
+    return reply({ error: 'upstream' }, 502);
   }
 }
