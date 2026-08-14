@@ -50,7 +50,14 @@ export default function StockDetail() {
   const toggleWatch = useApp((s) => s.toggleWatch);
   const watching = useApp((st) => (sym ? st.watchlist.includes(sym) : false));
   const [qty, setQty] = useState(1);
-  const [live, setLive] = useState<Quote | null>(null);
+  /*
+   * The VALUE is deliberately discarded; the setter is not. `getQuote` records the live mark
+   * (Phase 16), and `priceOf` reads that mark during render — so without a state write here the
+   * screen would keep rendering the static fallback until something unrelated re-rendered it. This
+   * `useState` is the re-render trigger, not a data store. Removing it silently reverts this screen
+   * to static prices.
+   */
+  const [, setLive] = useState<Quote | null>(null);
 
   useEffect(() => {
     if (!sym) return;
@@ -117,15 +124,26 @@ export default function StockDetail() {
   const price = priceOf(sym);
   const name = stock?.name ?? sym;
   /*
-   * NULL, not `?? stock?.chg ?? 0`. The static table's percent describes a stock whose price is now
-   * live, so pairing them renders two different days on one line. Measured on device before this
-   * change: a `+0.1% today` badge sitting beside a `+$1.62 (0.72%) today` figure for NVDA, because
-   * the badge had fallen back to the table while its neighbour had a live quote. §0.4 — no live
-   * quote, no percent. An absent number is honest; a stale one is not.
+   * THERE IS NO "% today" BADGE HERE ANY MORE, and its removal is a correctness fix rather than a
+   * layout preference.
+   *
+   * It rendered `live.changePct`, which `api/market+api.ts` computes from
+   * `/v2/aggs/ticker/{sym}/prev` — the PREVIOUS trading day's bar, `(bar.c - bar.o) / bar.o`. So a
+   * figure labelled "today" described YESTERDAY's session. Measured on device: `+0.1% today` sitting
+   * beside the chart's `+$1.23 (0.55%) today`, a 5x disagreement that read as a rounding problem and
+   * was actually two different days.
+   *
+   * `PriceChart` already renders the change for the SELECTED range with the range named, computed
+   * from the very points it draws — so it cannot disagree with the line the user is looking at, and
+   * at 1D it says "today" truthfully. One change figure, anchored to visible evidence. §0.4: an
+   * absent number is honest, a mislabelled one is not.
+   *
+   * NOTE for whoever wires a real-time feed: `price` from that same endpoint is `bar.c`, the
+   * PREVIOUS CLOSE. The Phase 16 mark is therefore end-of-day on Polygon's free tier — a real market
+   * price, but not an intraday one. "Live" in these comments means "from the market", not "to the
+   * second".
    */
-  const chgPct = live?.changePct ?? null;
   const cost = qty * price;
-  const up = (chgPct ?? 0) >= 0;
   // `price > 0` is the guard the old comment CLAIMED priceOf's zero already provided. It did not:
   // cost is then 0, `0 <= cash` passes, and an unpriced ticker could be bought for nothing —
   // recording a basis of exactly 0, which is the second door into the partial-basis bug (C113).
@@ -148,11 +166,6 @@ export default function StockDetail() {
           <ThemedText type="title" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>{name}</ThemedText>
           <View style={styles.priceRow}>
             <ThemedText type="display" style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
-            {chgPct !== null && (
-              <ThemedText type="heading" style={{ color: up ? theme.success : theme.destructive, fontSize: FontSize.body }}>
-                {up ? '+' : ''}{chgPct.toFixed(1)}% today
-              </ThemedText>
-            )}
           </View>
         </RiseIn>
 

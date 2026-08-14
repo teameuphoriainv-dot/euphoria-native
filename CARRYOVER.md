@@ -497,8 +497,17 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
   7126.53`. **The total moved by zero.**
   **v2, not folded into v1**, because v1 had already run on the dev install — a migration that
   changes meaning after it has run leaves a store in a state no version describes.
-  🟡 **Still open:** two disagreeing "today" figures — the badge renders the quote API's `changePct`,
-  `price-chart.tsx:70` renders the change across the chart series. Display-only, values nothing.
+  ✅ **The "% today" badge is GONE, and that was a correctness fix.** Two "today" figures disagreed
+  5× (`+0.1%` vs `+$1.23 (0.55%)`), which read like a rounding bug and was not. The badge rendered
+  `live.changePct`, and `api/market+api.ts` builds a quote from **`/v2/aggs/ticker/{sym}/prev` — the
+  PREVIOUS trading day's bar**, `(bar.c - bar.o) / bar.o`. A figure labelled "today" described
+  YESTERDAY. `PriceChart` already shows the change for the selected range computed from the points it
+  draws, so it cannot disagree with the line on screen. One change figure, anchored to visible
+  evidence.
+  ⚠️ **READ THIS BEFORE CALLING THE MARK "LIVE":** `price` from that same endpoint is `bar.c`, the
+  **previous close**. The Phase 16 mark is therefore END-OF-DAY on Polygon's free tier — a real
+  market price, but not an intraday one. Everything in this file that says "live" means *from the
+  market*, not *to the second*. A real-time feed is a paid plan, same as `movers`.
 - **Driving the sim: `sim.sh open` raises an iOS "Open in euphoria-native?" CONFIRM DIALOG**
   (`sim.sh:128` says so). Until you `tapon "Open"`, that modal swallows EVERY tap anywhere on
   screen — which reads exactly like the §6.2 LogBox trap and is not it. Deep link, confirm, then
