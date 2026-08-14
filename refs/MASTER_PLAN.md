@@ -6670,3 +6670,38 @@ for.**
 not production. Verifying Atlas on device therefore needs `GEMINI_API_KEY` in `.env.local` as well as
 on EAS. `eas.json` already sets `EXPO_PUBLIC_API_URL` for the preview and production profiles, so
 real builds point at the deployed origin.
+
+### C122. EAS HOSTING EDGE-CACHES GET API ROUTES. Two "failures" today were cached answers.
+
+`cache-status: EAS; fwd=miss` on `/api/options`. A GET API route's response is cached at the edge,
+so **curling it after a deploy can return the PREVIOUS deployment's answer.**
+
+Both of today's confusing results were this:
+
+| symptom | reality |
+|---|---|
+| `/api/options` returned `503 not_configured` after the marketdata.app swap | The route was live. `503` was cached from the Tradier build — and the new route has no `not_configured` path at all, which is exactly the clue that was missed. |
+| `/api/market?action=news` returned `{"articles":[]}` | **Genuinely empty.** Adding `&_cb=<ts>` still returns nothing, so this one is the Alpha Vantage IP throttle and NOT staleness. |
+
+**`/api/chat` never showed the problem because it is a POST.** That is the whole reason the Gemini
+work looked clean while the market and options work looked broken: one method is cached and the
+other is not, and nothing about the symptom says so.
+
+### THE RULE THAT FOLLOWS
+
+**Verify a GET route with a cache-buster, or you are testing the last deploy:**
+
+```bash
+curl -s "https://euphoria-native.expo.app/api/options?action=expirations&sym=AAPL&_cb=$(date +%s)"
+```
+
+`refs/DEPLOY.md` and the README deployment section now say so. This sits alongside the export rule
+from C120: a deploy that succeeds proves nothing, and now a curl that fails proves nothing either.
+
+### WORTH CHECKING BEFORE LAUNCH, NOT FIXED HERE
+
+If a `429` or a `503` can be cached, one throttled caller's refusal could be served to everybody
+until the TTL expires. The market and options payloads are identical for all users so caching the
+SUCCESS path is free performance — it is the ERROR path that needs a `Cache-Control: no-store`.
+Recorded, not changed: it needs the cache TTL confirmed from the EAS dashboard first, and nobody has
+read it.

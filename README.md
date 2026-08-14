@@ -251,6 +251,10 @@ npx eas deploy --prod --environment production --non-interactive
 curl -s -X POST https://euphoria-native.expo.app/api/chat \
   -H 'Content-Type: application/json' \
   -d '{"messages":[{"role":"user","content":"hello"}]}'
+
+# 5. GET routes are EDGE-CACHED (`cache-status: EAS`). Without a cache-buster you are reading
+#    the PREVIOUS deployment's answer — this cost real time twice (§22 C122).
+curl -s "https://euphoria-native.expo.app/api/options?action=expirations&sym=AAPL&_cb=$(date +%s)"
 ```
 
 **Step 2 is the one everybody skips.** The built server bundle contains `process.env.GEMINI_API_KEY`
