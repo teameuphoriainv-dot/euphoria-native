@@ -270,7 +270,21 @@ export async function GET(request: Request) {
     // 401/403 means the token or the caller was refused — a CONFIG problem, not an outage. Polygon's
     // plan limit taught this exact distinction (`501 plan_required`, §5.1).
     if (upstream === 401 || upstream === 403) return fresh({ error: 'provider_refused', upstream }, 502);
-    // `marketdata_no_data` and friends arrive as a status string rather than a number.
-    return fresh({ error: 'upstream', upstream: upstream || undefined, reason: msg }, 502);
+    /*
+     * `reason` IS ALLOWLISTED, NOT PASSED THROUGH, and that is a fix for a leak this handler
+     * introduced when it was written earlier today.
+     *
+     * Most throws here are our own labels — `cboe_403`, `marketdata_no_data`, `cboe_expiry_absent`.
+     * But `res.json()` throws a SyntaxError whose message EMBEDS A FRAGMENT OF THE UPSTREAM BODY:
+     * `Unexpected token 'o', "not json" is not valid JSON`. Echoing `e.message` therefore forwards
+     * upstream bytes to the client on exactly the malformed-response path where we understand least
+     * about what those bytes are. `tradier()` above already states the rule — "never forward an
+     * upstream body, it can echo the token back" — and this violated it two functions later.
+     *
+     * So: only shapes WE mint escape. Anything else becomes `unknown`, and the detail stays in the
+     * server log where it is useful and unreachable.
+     */
+    const safeReason = /^[a-z]+_[a-z0-9_]+$/.test(msg) ? msg : 'unknown';
+    return fresh({ error: 'upstream', upstream: upstream || undefined, reason: safeReason }, 502);
   }
 }

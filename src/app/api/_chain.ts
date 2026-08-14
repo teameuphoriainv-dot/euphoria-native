@@ -68,12 +68,6 @@ export type Contract = {
 };
 
 /**
- * marketdata.app answers COLUMNAR — parallel arrays, not a list of objects. Transpose it.
- *
- * `optionSymbol` is the length authority; a short column is read as a zero rather than throwing,
- * because one missing greek should not cost the user the whole chain.
- */
-/**
  * Implied volatility, or 0 meaning WE DO NOT KNOW.
  *
  * IV is solved numerically from the option price, and the solve is ill-conditioned where the option
@@ -93,6 +87,31 @@ export type Contract = {
  * that would be inventing data in the opposite direction.
  */
 export const plausibleIv = (iv: number): number => (iv >= 0.01 && iv <= 5 ? iv : 0);
+
+/**
+ * A non-negative, finite money or count field, or 0.
+ *
+ * `Number(x) || 0` — which every mapper here used — catches `NaN`, `null` and `undefined` and
+ * catches NEITHER of the two that matter. Probed with a hostile payload 2026-08-14:
+ *   bid: -5     -> survived as -5, because -5 is truthy. A negative price.
+ *   ask: 1e309  -> survived as Infinity, which `JSON.stringify` emits as `null`.
+ * Both then reach `cost = ask * CONTRACT_SIZE` on the buy control. `Infinity > 0` passes the
+ * positive-cost guard, and only `cost <= cash` happens to stop the trade — a guard written for a
+ * different purpose, holding the money path up by accident.
+ *
+ * A price cannot be negative and cannot be infinite. Neither is a measurement, so neither is
+ * rendered. Same rule as `plausibleIv` one function up, applied to the fields that are money.
+ */
+export const finiteNonNegative = (v: unknown): number => {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+};
+
+/** Delta is a probability-like quantity: calls sit in [0,1], puts in [-1,0]. Anything else is noise. */
+export const plausibleDelta = (v: unknown): number => {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= -1 && n <= 1 ? n : 0;
+};
 
 /**
  * OCC option symbol -> expiry, side, strike. `NVDA260814C00050000` is NVDA, 2026-08-14, call, $50.
@@ -168,8 +187,8 @@ export function fromCboe(j: Raw, expiry: string, window = STRIKE_WINDOW): Contra
   return parsed
     .filter((x) => keep.has(x.occ!.strike))
     .map(({ raw, occ }) => {
-      const bid = Number(raw.bid) || 0;
-      const ask = Number(raw.ask) || 0;
+      const bid = finiteNonNegative(raw.bid);
+      const ask = finiteNonNegative(raw.ask);
       return {
         symbol: String(raw.option ?? ''),
         kind: occ!.kind,
@@ -177,19 +196,25 @@ export function fromCboe(j: Raw, expiry: string, window = STRIKE_WINDOW): Contra
         bid,
         ask,
         mid: bid && ask ? (bid + ask) / 2 : ask || bid,
-        iv: plausibleIv(Number(raw.iv) || 0),
-        delta: Number(raw.delta) || 0,
-        openInterest: Number(raw.open_interest) || 0,
-        volume: Number(raw.volume) || 0,
+        iv: plausibleIv(finiteNonNegative(raw.iv)),
+        delta: plausibleDelta(raw.delta),
+        openInterest: finiteNonNegative(raw.open_interest),
+        volume: finiteNonNegative(raw.volume),
       };
     })
     .sort((a, b) => a.strike - b.strike || a.kind.localeCompare(b.kind));
 }
 
+/**
+ * marketdata.app answers COLUMNAR — parallel arrays, not a list of objects. Transpose it.
+ *
+ * `optionSymbol` is the length authority; a short column is read as a zero rather than throwing,
+ * because one missing greek should not cost the user the whole chain.
+ */
 export function fromMarketdata(j: Raw): Contract[] {
   const col = (k: string) => (Array.isArray(j[k]) ? (j[k] as unknown[]) : []);
   const syms = col('optionSymbol');
-  const num = (k: string, i: number) => Number(col(k)[i]) || 0;
+  const num = (k: string, i: number) => finiteNonNegative(col(k)[i]);
   return syms.map((s, i) => {
     const bid = num('bid', i);
     const ask = num('ask', i);
@@ -202,7 +227,8 @@ export function fromMarketdata(j: Raw): Contract[] {
       // Prefer the provider's own mid; fall back to the midpoint, then to whichever side exists.
       mid: num('mid', i) || (bid && ask ? (bid + ask) / 2 : ask || bid),
       iv: plausibleIv(num('iv', i)),
-      delta: num('delta', i),
+      // delta is the one field that is legitimately NEGATIVE (puts), so it cannot use `num`.
+      delta: plausibleDelta(col('delta')[i]),
       openInterest: num('openInterest', i),
       volume: num('volume', i),
     };

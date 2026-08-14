@@ -17,7 +17,9 @@
 import {
   chainPath,
   expiriesFromCboe,
+  finiteNonNegative,
   fromCboe,
+  plausibleDelta,
   fromMarketdata,
   parseOcc,
   plausibleIv,
@@ -159,6 +161,35 @@ check('missing spot degrades deterministically', noSpot[0].strike, 50);
 check('spot is reported from the same payload', spotFromCboe(cboeFixture), 225.3);
 check('no spot reports 0, not a guess', spotFromCboe({ data: { options: [] } }), 0);
 check('a junk spot is not passed through', spotFromCboe({ data: { current_price: 'n/a' } }), 0);
+
+// ── money fields, probed with a HOSTILE payload ─────────────────────────────────────────────
+// `Number(x) || 0` catches NaN and null and catches neither of the two that matter: -5 is truthy
+// and survives as a negative price, and 1e309 is Infinity, which JSON.stringify emits as null.
+// Both reach `cost = ask * CONTRACT_SIZE` on the buy control, where `Infinity > 0` passes the
+// positive-cost guard and only `cost <= cash` happens to stop the trade.
+check('a negative price is refused', finiteNonNegative(-5), 0);
+check('Infinity is refused', finiteNonNegative(1e309), 0);
+check('a string is refused', finiteNonNegative('abc'), 0);
+check('an object is refused', finiteNonNegative({}), 0);
+check('a real price survives', finiteNonNegative(19.5), 19.5);
+check('zero is a legitimate bid', finiteNonNegative(0), 0);
+// Delta is the one field that is legitimately negative — puts sit in [-1, 0].
+check('a put delta survives', plausibleDelta(-0.53), -0.53);
+check('a call delta survives', plausibleDelta(0.47), 0.47);
+check('delta beyond 1 is noise', plausibleDelta(42), 0);
+check('delta below -1 is noise', plausibleDelta(-42), 0);
+check('a non-numeric delta is refused', plausibleDelta('abc'), 0);
+// End to end: the hostile payload must not produce a renderable contract with junk in it.
+const hostile = fromCboe(
+  { data: { current_price: 225, options: [{ option: 'NVDA260814C00225000', bid: -5, ask: 1e309, iv: 'NaN', delta: 'abc', open_interest: null, volume: {} }] } },
+  '2026-08-14',
+  9,
+);
+check('hostile row: bid clamped', hostile[0].bid, 0);
+check('hostile row: ask clamped', hostile[0].ask, 0);
+check('hostile row: mid is not Infinity', hostile[0].mid, 0);
+check('hostile row: delta clamped', hostile[0].delta, 0);
+check('hostile row: open interest clamped', hostile[0].openInterest, 0);
 
 if (fail.length > 0) {
   console.log('\nFAILED\n');
