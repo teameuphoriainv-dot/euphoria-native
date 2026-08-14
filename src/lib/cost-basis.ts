@@ -58,11 +58,39 @@ export function hasUnknownBasis(h: Holdings, sym: string): boolean {
  * moment one lands, the chart draws a 29% cliff that never happened and the card's "all time" figure
  * measures a currency change. Clearing one field and not the other is the half-migration §9.3 warns
  * about, in miniature.
+ *
+ * ── v2: DERIVATIVES ARE UNWOUND, NOT KEPT ─────────────────────────────────────────────────────
+ * Shares survived v1 because a holding is a holding: 3 NVDA is 3 NVDA whatever it cost, so only the
+ * claim about the price was withdrawn. A contract breaks that parallel — its defining parameter IS
+ * a static-dollar number. A call struck at $1,302 against a $225 spot cannot be reinterpreted at
+ * live prices the way a share count can; it is unsalvageable, not merely mispriced.
+ *
+ * So it is reversed rather than repriced: the contract goes, the premium returns to cash, and
+ * `derivativeTrades` is restored. The refund is NET-NEUTRAL, not a grant — cash was always real
+ * dollars, only PRICES were fictional, so returning what was spent on a position we are deleting
+ * leaves the balance where it started. Leaving the cash spent would be a takeaway. And clearing the
+ * contracts WITHOUT restoring the counter would quietly consume part of a lifetime allowance of
+ * `PRO_DERIVATIVE_PREVIEW` (3) for positions the user no longer has.
+ *
+ * v2 rather than folding into v1 because v1 already shipped to dev installs, and a migration that
+ * silently changes meaning after it has run is how a store ends up in a state no version describes.
  */
 export function clearStaticPricing<
-  T extends { costBasis?: Record<string, number>; valueHistory?: unknown[] },
+  T extends {
+    costBasis?: Record<string, number>;
+    valueHistory?: unknown[];
+    derivatives?: { premium: number }[];
+    derivativeTrades?: number;
+    cash?: number;
+  },
 >(state: T, fromVersion: number): T {
-  return fromVersion < 1 ? { ...state, costBasis: {}, valueHistory: [] } : state;
+  let s = state;
+  if (fromVersion < 1) s = { ...s, costBasis: {}, valueHistory: [] };
+  if (fromVersion < 2) {
+    const refund = (s.derivatives ?? []).reduce((sum, d) => sum + (d?.premium ?? 0), 0);
+    s = { ...s, derivatives: [], derivativeTrades: 0, cash: (s.cash ?? 0) + refund };
+  }
+  return s;
 }
 
 /**

@@ -483,11 +483,20 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
   what they paid is withdrawn. Verified on device from a reset v0 store: `costBasis {}`,
   `valueHistory []`, positions and cash intact, and the `+$3.28 (0.03%) all time` row gone rather
   than recomputed.
-  🟡 **Still open, and a PRODUCT call:** derivatives opened before Phase 16 hold STATIC strikes — a
-  seeded NVDA call struck at `$1,302.00` against a `$225.30` spot. It is not a phantom computation;
-  `portfolio-value.ts:42` values contracts at the stored `premium`, never against spot, so `$781.06`
-  is simply what was paid. But a $1,302 strike is meaningless now. Closing them and whether to refund
-  the `PRO_DERIVATIVE_PREVIEW` allowance is a decision, not a fix.
+  ✅ **v2 UNWINDS pre-Phase-16 derivatives.** They held STATIC strikes — a seeded NVDA call struck at
+  `$1,302.00` against a `$225.30` spot. Not a phantom computation: `portfolio-value.ts:42` values
+  contracts at the stored `premium`, never against spot, so `$781.06` was simply what was paid.
+  **Shares survived v1 but contracts do not survive v2, and the asymmetry is the point** — a share
+  count means the same thing in any denomination, whereas a contract's DEFINING parameter is a
+  static-dollar strike, so it is unsalvageable rather than merely mispriced. Reversed, not repriced:
+  contract deleted, premium returned to cash, `derivativeTrades` restored. The refund is
+  **NET-NEUTRAL, not a grant** — cash was always real dollars, only PRICES were fictional. Leaving
+  the cash spent would be a takeaway; clearing contracts without the counter would silently consume
+  part of a lifetime allowance of 3. **Verified on device, arithmetically:** before
+  `5666.94 + 676.05 + 1.48 + 1.00 + 781.06 = 7126.53`, after `6448.00 + 676.05 + 1.48 + 1.00 =
+  7126.53`. **The total moved by zero.**
+  **v2, not folded into v1**, because v1 had already run on the dev install — a migration that
+  changes meaning after it has run leaves a store in a state no version describes.
   🟡 **Still open:** two disagreeing "today" figures — the badge renders the quote API's `changePct`,
   `price-chart.tsx:70` renders the change across the chart series. Display-only, values nothing.
 - **Driving the sim: `sim.sh open` raises an iOS "Open in euphoria-native?" CONFIRM DIALOG**

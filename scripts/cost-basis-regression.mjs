@@ -153,8 +153,31 @@ const already = clearStaticPricing(
   { positions: { NVDA: 3 }, costBasis: { NVDA: 676 }, valueHistory: [{ d: '2026-08-13', v: 7126 }], cash: 5000 },
   1,
 );
-check('v1 → v1: a live-dollar basis is left alone', already.costBasis.NVDA, 676);
-check('v1 → v1: live-dollar history is left alone', already.valueHistory.length, 1);
+check('v1 → v2: a live-dollar basis is left alone', already.costBasis.NVDA, 676);
+check('v1 → v2: live-dollar history is left alone', already.valueHistory.length, 1);
+
+// v2 — static-strike contracts are UNWOUND, not repriced. A $1,302 strike against a $225 spot is
+// unsalvageable, unlike a share count, which survives any change of denomination.
+const withDerivs = {
+  positions: {}, costBasis: {}, valueHistory: [],
+  derivatives: [{ sym: 'NVDA', kind: 'call', strike: 1302, premium: 781.06 }],
+  derivativeTrades: 1, cash: 5666.94,
+};
+const unwound = clearStaticPricing(withDerivs, 1);
+check('v2: the static-strike contract is gone', unwound.derivatives.length, 0);
+// NET-NEUTRAL, not a grant: cash was always real dollars, only prices were fictional.
+check('v2: the premium is refunded to cash', unwound.cash, 6448.0);
+// Clearing contracts without this would silently consume part of a lifetime allowance of 3.
+check('v2: the preview allowance is restored', unwound.derivativeTrades, 0);
+// v1 install: basis was already withdrawn, so v2 must not re-clear a live-dollar basis.
+const v1Install = { costBasis: { NVDA: 676 }, valueHistory: [1], derivatives: [], derivativeTrades: 0, cash: 100 };
+const bumped = clearStaticPricing(v1Install, 1);
+check('v1 → v2: nothing else is disturbed', bumped.costBasis.NVDA, 676);
+check('v1 → v2: cash unchanged with no contracts', bumped.cash, 100);
+// Already current: a no-op in both directions.
+const current = clearStaticPricing({ ...withDerivs }, 2);
+check('v2 → v2: contracts survive', current.derivatives.length, 1);
+check('v2 → v2: cash is not refunded twice', current.cash, 5666.94);
 
 if (failures > 0) {
   console.log(`\nFAILED — ${failures} check(s). The Trade tab's percentage is wrong again.\n`);
