@@ -126,14 +126,34 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const action = url.searchParams.get('action') ?? '';
 
-  // Per-action budgets: search bursts on every keystroke, logos are many-per-screen but cached a
-  // day, everything else is a cheap read. Gated BEFORE the key check so an unconfigured build
-  // still cannot be used as a free load generator.
+  // Gated BEFORE the key check, so an unconfigured build still cannot be used as a free load
+  // generator. (An older note here said search "bursts on every keystroke" — it does not:
+  // `app/search.tsx` debounces 250ms and guards out-of-order responses.)
+  /*
+   * BUDGETS SIZED AGAINST THE UPSTREAM, not against a round number.
+   *
+   * Security review 2026-08-14: these were 120/min general, 60/min search, 200/min logo — while
+   * POLYGON'S ENTIRE FREE TIER IS 5 REQUESTS PER MINUTE, shared across every user of the app (see
+   * `poly()` above, measured). Our own ceiling was twenty-four times the upstream's total capacity,
+   * so a caller could exhaust the quota for everybody while staying comfortably inside what we
+   * explicitly allowed. Varying `sym` defeats the response cache, so each request is a fresh
+   * origin call.
+   *
+   * WHAT THESE NUMBERS CAN AND CANNOT DO. They bound one identity. They CANNOT protect a shared
+   * upstream quota, because an attacker rotating `x-euphoria-install` gets a fresh bucket every
+   * time (see `_limit.ts`) — that needs a shared counter, which needs a credential this app does
+   * not yet have. What they do is stop an honest client from self-inflicting: a retry loop, a stuck
+   * effect, a user hammering refresh.
+   *
+   * Sized from real use rather than guessed. One stock screen costs four calls (quote, stats, chart,
+   * news). Search is debounced 250ms client-side with out-of-order guarding (`app/search.tsx`), so
+   * active typing is a handful a minute, not one per keystroke. Logos are cached for 24 hours.
+   */
   const gate = await (action === 'search'
-    ? guard(request, 'market:search', 60, 60_000)
+    ? guard(request, 'market:search', 20, 60_000)
     : action === 'logo'
-      ? guard(request, 'market:logo', 200, 60_000)
-      : guard(request, 'market', 120, 60_000));
+      ? guard(request, 'market:logo', 60, 60_000)
+      : guard(request, 'market', 30, 60_000));
   if (gate) return gate;
 
   const key = process.env.POLYGON_API_KEY;

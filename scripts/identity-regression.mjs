@@ -50,6 +50,13 @@ await check('nbf already passed', sign(H, { sub: 'u2', exp: secs + 60, nbf: secs
 
 console.log('\n REFUSES forged and malformed tokens');
 await check('WRONG SECRET', sign(H, { sub: 'u', exp: secs + 60 }, 'attacker-secret'), null);
+
+// ── audience, pinned 2026-08-14 before this goes live with a real secret ────────────────────
+// A valid signature proves the token was signed with the project's JWT secret. It does NOT prove
+// the token was minted for THIS purpose — Supabase signs several kinds with the same secret.
+await check('aud "authenticated" is accepted', sign(H, { sub: 'u3', exp: secs + 60, aud: 'authenticated' }), 'u3');
+await check('a token minted for another audience is REFUSED', sign(H, { sub: 'u4', exp: secs + 60, aud: 'admin-api' }), null);
+await check('an absent aud still works (self-issued sessions)', sign(H, { sub: 'u5', exp: secs + 60 }), 'u5');
 await check('alg: none', sign({ alg: 'none', typ: 'JWT' }, { sub: 'u', exp: secs + 60 }), null);
 await check('alg confusion (RS256 claimed)', sign({ alg: 'RS256' }, { sub: 'u', exp: secs + 60 }), null);
 await check('alg: hs256 lowercase', sign({ alg: 'hs256' }, { sub: 'u', exp: secs + 60 }), null);

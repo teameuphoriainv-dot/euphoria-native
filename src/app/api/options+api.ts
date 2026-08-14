@@ -59,6 +59,7 @@ import {
 import { decide, refuse } from './_entitlement';
 import { verifiedUserId } from './_identity';
 import { guard } from './_limit';
+import { ALL_SYMS } from '@/lib/stocks';
 import { isoDate, symbol } from './_validate';
 
 const CBOE_BASE = 'https://cdn.cboe.com/api/global/delayed_quotes/options';
@@ -211,6 +212,20 @@ export async function GET(request: Request) {
   // unescaped `&` starts a parameter we did not write and `../` walks to another endpoint.
   const sym = symbol(url.searchParams.get('sym'));
   if (!sym) return fresh({ error: 'bad_sym' }, 400);
+  /*
+   * MEMBERSHIP, not just shape. `symbol()` proves a string LOOKS like a ticker; it does not prove
+   * this app offers it.
+   *
+   * Security review 2026-08-14: `_chain.ts` sizes its cache and cost model on a CLOSED universe —
+   * seven underlyings — but nothing enforced that, so varying `sym` across shape-valid strings
+   * forced a fresh uncached upstream fetch every time and defeated the ceiling by construction.
+   *
+   * This route can close the set because the SCREEN can: `options.tsx` renders exactly these seven
+   * chips and offers no way to ask for anything else, so a request for anything else did not come
+   * from our UI. `/api/market` deliberately does NOT do this — "search every listed stock" is a
+   * real feature there, and closing that set would break it.
+   */
+  if (!ALL_SYMS.includes(sym)) return fresh({ error: 'unsupported_sym' }, 400);
 
   const tradierToken = process.env.TRADIER_TOKEN;
 

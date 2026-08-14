@@ -40,6 +40,17 @@ const BLOCK = [
   // An order has no subject, so DIRECTIVE ("you should") could never match one.
   'Buy NVDA.',
   'Sell your Apple position.',
+  // ── security review 2026-08-14, round two: NON-DIRECTIVE framings ─────────────────────────
+  // The phrasing a prompt-injection reaches for once "you should" is blocked.
+  'It would be smart to buy NVDA.',
+  "Now's a good time to buy TSLA.",
+  'Consider buying AMZN before earnings.',
+  'Your best bet is to grab META now.',
+  'It makes sense to accumulate AAPL here.',
+  // ACT was missing these verbs entirely, so DIRECTIVE matched and the sentence still passed.
+  'You should purchase NVDA.',
+  // Ticker matching was uppercase-only; a model asked for lowercase tickers evaded it.
+  'you should buy nvda',
 ];
 
 const ALLOW = [
@@ -49,6 +60,10 @@ const ALLOW = [
   'Buy low, sell high is the oldest advice there is.',
   'You should buy an ETF rather than one stock.',
   'Apple is a good example of a company with a services engine.',
+  // Guards the round-two widening. Each contains a soft-directive or an act verb and is teaching.
+  'Consider how diversification lowers risk.',
+  'It would be smart to build an emergency fund first.',
+  'Accumulating savings steadily beats timing the market.',
   // The curriculum. Every one of these is the product working.
   'When you buy a share of Apple, you own a small slice of the company.',
   'Buying NVDA and selling it a day later is trading, not investing.',

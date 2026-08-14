@@ -99,7 +99,7 @@ export async function verifiedSubject(
   if (!ok) return null;
 
   // Only NOW is it safe to believe anything in the payload.
-  let claims: { sub?: unknown; exp?: unknown; nbf?: unknown };
+  let claims: { sub?: unknown; exp?: unknown; nbf?: unknown; aud?: unknown };
   try {
     claims = JSON.parse(decoder.decode(payloadBytes));
   } catch {
@@ -111,6 +111,19 @@ export async function verifiedSubject(
   if (typeof claims.exp !== 'number' || claims.exp <= secs) return null;
   if (typeof claims.nbf === 'number' && claims.nbf > secs) return null;
   if (typeof claims.sub !== 'string' || !claims.sub) return null;
+  /*
+   * `aud` PINNED, added 2026-08-14 before this code goes live with a real secret.
+   *
+   * Signature verification proves a token was signed with the project's JWT secret. It does NOT
+   * prove the token was minted for THIS purpose. Supabase signs several kinds of token with that
+   * same secret, so without an audience check any of them carrying a `sub` would be accepted here
+   * as a logged-in user.
+   *
+   * Moot today — the anon and service_role keys carry `role`, not `sub`, so they already fail the
+   * line above — which is precisely why it is worth adding now rather than after something changes
+   * upstream and the failure is silent. Supabase issues user sessions with `aud: "authenticated"`.
+   */
+  if (claims.aud !== undefined && claims.aud !== 'authenticated') return null;
 
   // Bound it for the same reason `identify()` bounds the header: the identity becomes a map key.
   return claims.sub.length <= 64 ? claims.sub : null;
