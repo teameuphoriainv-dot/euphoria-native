@@ -6705,3 +6705,42 @@ until the TTL expires. The market and options payloads are identical for all use
 SUCCESS path is free performance — it is the ERROR path that needs a `Cache-Control: no-store`.
 Recorded, not changed: it needs the cache TTL confirmed from the EAS dashboard first, and nobody has
 read it.
+
+### C123. MARKET DATA AND OPTIONS ARE LIVE. Seven of eight actions, and the eighth needs money.
+
+`POLYGON_API_KEY` and `MARKETDATA_TOKEN` set 2026-08-13. Verified on production **with cache-busters**
+(C122 — without one you read the previous deployment):
+
+| action | result |
+|---|---|
+| `quote` | ✅ NVDA 225.30 |
+| `chart` | ✅ 1M series |
+| `stats` | ✅ prev close, open, day low/high, volume, 52-week |
+| `search` | ✅ NVDA, NVDQ… |
+| `news` | ✅ **via the Polygon FALLBACK** |
+| `options/expirations` | ✅ TSLA — the symbol that 401'd before the token |
+| `options/chain` | ✅ TSLA contracts with greeks |
+| `movers` | ⛔ **`501 plan_required`** — paid Polygon plan |
+
+**The news result is the interesting one.** Alpha Vantage is still throttled on the Worker's shared
+egress IP, so AV returned nothing and Polygon served the story — the article id is a Polygon hash,
+not an AV url. The two-provider design from the original build did exactly what it was written for,
+and it did it without anybody noticing until the ids were read.
+
+### THE SAME MISTAKE, A THIRD TIME IN ONE DAY
+
+`movers` was returning `502 upstream`. Polygon actually answers
+`403 NOT_AUTHORIZED — "You are not entitled to this data"`: the key is valid, every other action on
+it works, that one endpoint is not in the free plan.
+
+That is the third occurrence today of one shape:
+
+| what happened | what it was reported as |
+|---|---|
+| Gemini model retired (404) | `502 upstream` — "Atlas is broken" |
+| Alpha Vantage throttle (200 + `Information`) | `{"articles":[]}` — "no news today" |
+| Polygon plan limit (403) | `502 upstream` — "Polygon is down" |
+
+**A refusal WE caused must never be reported as a failure THEY caused.** Each one sends the next
+person to check the key, the network and the provider's status page — three things that are all
+fine. `movers` now answers `501 plan_required`, and the log line says PLAN LIMIT, not an outage.

@@ -65,7 +65,25 @@ async function poly(path: string, key: string) {
   const res = await fetch(url);
   if (!res.ok) {
     // Polygon echoes the key back in some error payloads. Log, never forward.
-    console.error('[market] upstream', res.status, (await res.text()).slice(0, 300));
+    const body = (await res.text()).slice(0, 300);
+    /*
+     * 403 IS OUR PLAN, NOT THEIR OUTAGE.
+     *
+     * Measured 2026-08-13: the free tier answers `/v2/snapshot/.../gainers` with
+     * `403 NOT_AUTHORIZED — "You are not entitled to this data."` The key is valid and every other
+     * action on it works; this one endpoint simply is not included.
+     *
+     * Reported as a generic `502 upstream` that reads as "Polygon is down", which sends the next
+     * person to check the key and the network — neither of which is wrong. Third time today the
+     * same shape has bitten: a retired Gemini model as a 502, an Alpha Vantage throttle as an empty
+     * array, and now a plan limit as an outage. **A refusal we caused must not be reported as a
+     * failure they caused.**
+     */
+    if (res.status === 403) {
+      console.error('[market] PLAN LIMIT, not an outage:', path.split('?')[0], body);
+      throw new Error('plan_required');
+    }
+    console.error('[market] upstream', res.status, body);
     throw new Error(`upstream_${res.status}`);
   }
   return res.json();
@@ -343,6 +361,14 @@ export async function GET(request: Request) {
 
     return Response.json({ error: 'bad_action' }, { status: 400 });
   } catch (e) {
+    /*
+     * A plan limit is a 501, not a 502. The client can then say "this needs a paid data plan"
+     * instead of "something went wrong", and — more to the point — the next person reading logs is
+     * not sent hunting an outage that never happened.
+     */
+    if (e instanceof Error && e.message === 'plan_required') {
+      return Response.json({ error: 'plan_required' }, { status: 501 });
+    }
     console.error('[market] failed', e);
     return Response.json({ error: 'upstream' }, { status: 502 });
   }
