@@ -14,7 +14,15 @@
 // it asserts real values rather than merely "not undefined".
 // ============================================================================
 
-import { chainPath, fromMarketdata, plausibleIv, STRIKE_WINDOW } from '../src/app/api/_chain.ts';
+import {
+  chainPath,
+  expiriesFromCboe,
+  fromCboe,
+  fromMarketdata,
+  parseOcc,
+  plausibleIv,
+  STRIKE_WINDOW,
+} from '../src/app/api/_chain.ts';
 
 // Shape copied from a live response, 2026-08-13.
 const live = {
@@ -102,6 +110,49 @@ check('617% is rejected as the other tail', plausibleIv(6.17), 0);
 check('200% is high but REAL, and must survive', plausibleIv(2.0), 2.0);
 check('exactly 1% is kept — the band is inclusive', plausibleIv(0.01), 0.01);
 check('a negative can never be a volatility', plausibleIv(-0.5), 0);
+
+// ── Cboe, the PRIMARY provider ──────────────────────────────────────────────────────────────
+// marketdata.app answers 403 to the deployed Worker while serving the same token from a laptop —
+// its egress IP is blocked, so options was dead in production while every local check passed.
+// Cboe needs no key, so there is no quota and no per-contract billing.
+check('OCC parses expiry, side and strike', parseOcc('NVDA260814C00050000'), { expiry: '2026-08-14', kind: 'call', strike: 50 });
+// THE 1000x TRAP: the strike is 8 digits in THOUSANDTHS. Divide wrong and $227.50 becomes $227,500
+// — which renders as a plausible row, not an error.
+check('strike is thousandths, not units', parseOcc('NVDA260821C00227500').strike, 227.5);
+check('puts are read as puts', parseOcc('NVDA260814P00050000').kind, 'put');
+check('a multi-letter root still parses', parseOcc('GOOGL260814C00200000').strike, 200);
+check('junk is rejected rather than guessed', parseOcc('not-a-symbol'), null);
+
+const cboeFixture = {
+  data: {
+    current_price: 225.3,
+    options: [
+      { option: 'NVDA260814C00050000', bid: 170.7, ask: 179.6, iv: 0.0, delta: 1.0, open_interest: 7, volume: 8 },
+      { option: 'NVDA260814C00225000', bid: 2.7, ask: 2.86, iv: 0.3025, delta: 0.47, open_interest: 900, volume: 120 },
+      { option: 'NVDA260814P00225000', bid: 3.4, ask: 3.6, iv: 0.305, delta: -0.53, open_interest: 800, volume: 90 },
+      { option: 'NVDA260814C00227500', bid: 1.7, ask: 1.9, iv: 0.3018, delta: 0.35, open_interest: 700, volume: 60 },
+      { option: 'NVDA260821C00225000', bid: 5.0, ask: 5.2, iv: 0.31, delta: 0.5, open_interest: 10, volume: 1 },
+    ],
+  },
+};
+check('expiries are deduped and sorted', expiriesFromCboe(cboeFixture), ['2026-08-14', '2026-08-21']);
+const near = fromCboe(cboeFixture, '2026-08-14', 2);
+// THE $50 BUG: the old chain opened 4.5x away from spot. Strikes are chosen by DISTANCE from spot,
+// so the $50 contract must lose to 225 and 227.50 even though it is first in the payload.
+check('the window centres on spot, not on payload order', [...new Set(near.map((c) => c.strike))].sort((a, b) => a - b), [225, 227.5]);
+check('the far strike is dropped', near.some((c) => c.strike === 50), false);
+check('the other expiry is excluded', near.some((c) => c.symbol.includes('260821')), false);
+check('bid and ask map through', near.find((c) => c.strike === 225 && c.kind === 'call').ask, 2.86);
+// Rounded: (2.7 + 2.86) / 2 is 2.7800000000000002 in binary floating point. The midpoint rule is
+// what is under test, not IEEE 754.
+check('mid is derived when both sides quote', Number(near.find((c) => c.strike === 225 && c.kind === 'call').mid.toFixed(4)), 2.78);
+check('open interest survives the transpose', near.find((c) => c.strike === 225 && c.kind === 'put').openInterest, 800);
+// An ill-conditioned deep-ITM iv must be suppressed here too, not only in the marketdata path.
+const wide = fromCboe(cboeFixture, '2026-08-14', 99);
+check('cboe iv also goes through plausibleIv', wide.find((c) => c.strike === 50).iv, 0);
+// No spot means we cannot centre; take the lowest strikes so the failure is deterministic.
+const noSpot = fromCboe({ data: { options: cboeFixture.data.options } }, '2026-08-14', 1);
+check('missing spot degrades deterministically', noSpot[0].strike, 50);
 
 if (fail.length > 0) {
   console.log('\nFAILED\n');

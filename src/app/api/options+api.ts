@@ -46,12 +46,21 @@
  *   ?action=chain&sym=AAPL&expiry=2026-09-18  -> { sym, expiry, contracts: [...] }
  */
 
-import { chainPath, type Contract, fromMarketdata, fromTradier, many } from './_chain';
+import {
+  chainPath,
+  type Contract,
+  expiriesFromCboe,
+  fromCboe,
+  fromMarketdata,
+  fromTradier,
+  many,
+} from './_chain';
 import { decide, refuse } from './_entitlement';
 import { verifiedUserId } from './_identity';
 import { guard } from './_limit';
 import { isoDate, symbol } from './_validate';
 
+const CBOE_BASE = 'https://cdn.cboe.com/api/global/delayed_quotes/options';
 const MD_BASE = 'https://api.marketdata.app/v1/options';
 const TRADIER_BASE = 'https://sandbox.tradier.com/v1/markets/options';
 
@@ -79,6 +88,36 @@ async function marketdata(path: string): Promise<Raw> {
   if (j.s !== 'ok') {
     console.error('[options] marketdata said', String(j.s), String(j.errmsg ?? '').slice(0, 160));
     throw new Error(`marketdata_${String(j.s)}`);
+  }
+  return j;
+}
+
+/**
+ * Cboe's delayed quotes — the PRIMARY chain source, and the reason is not preference.
+ *
+ * marketdata.app answers **403 to the deployed Worker** while serving the identical token from a
+ * laptop: its egress IP is blocked. Options was dead in production and every local check passed,
+ * which is §5.2's Alpha Vantage lesson arriving through a different provider. A provider that works
+ * from a developer machine is not a provider that works.
+ *
+ * Cboe operates the options exchanges and publishes this with NO KEY, so there is no quota to
+ * exhaust, no per-contract billing, and nothing to leak. One response carries every expiry, so the
+ * cache key is the SYMBOL — 7 of them, not 56.
+ *
+ * It is large (~1.7 MB for NVDA, 3,794 contracts). That is why the response is edge-cached for an
+ * hour and why filtering happens in `_chain.ts` rather than by asking the provider for less.
+ */
+async function cboe(sym: string): Promise<Raw> {
+  const res = await fetch(`${CBOE_BASE}/${sym}.json`, { headers: { Accept: 'application/json' } });
+  if (!res.ok) {
+    console.error('[options] cboe', res.status);
+    throw new Error(`cboe_${res.status}`);
+  }
+  const j = (await res.json()) as Raw;
+  // Same silent-failure guard as marketdata: a 200 carrying no options is a refusal, not a quiet
+  // market. Reading only the status would render an empty chain and look like a holiday.
+  if (!((j.data as Raw | undefined)?.options as unknown[] | undefined)?.length) {
+    throw new Error('cboe_no_data');
   }
   return j;
 }
@@ -159,12 +198,17 @@ export async function GET(request: Request) {
     if (action === 'expirations') {
       let dates: string[];
       try {
-        const j = await marketdata(`/expirations/${sym}/`);
-        dates = (Array.isArray(j.expirations) ? j.expirations : []).map(String);
-      } catch (e) {
-        if (!tradierToken) throw e;
-        const d = await tradier(`/expirations?symbol=${sym}&includeAllRoots=true`, tradierToken);
-        dates = many<string>((d?.expirations as Raw | undefined)?.date as string | string[]);
+        dates = expiriesFromCboe(await cboe(sym));
+      } catch (primary) {
+        console.error('[options] cboe expirations failed, trying marketdata', String(primary));
+        try {
+          const j = await marketdata(`/expirations/${sym}/`);
+          dates = (Array.isArray(j.expirations) ? j.expirations : []).map(String);
+        } catch (e) {
+          if (!tradierToken) throw e;
+          const d = await tradier(`/expirations?symbol=${sym}&includeAllRoots=true`, tradierToken);
+          dates = many<string>((d?.expirations as Raw | undefined)?.date as string | string[]);
+        }
       }
       return cached({ sym, expirations: dates.slice(0, 8) });
     }
@@ -175,12 +219,20 @@ export async function GET(request: Request) {
 
       let contracts: Contract[];
       try {
-        contracts = fromMarketdata(await marketdata(chainPath(sym, expiry)));
-      } catch (e) {
-        if (!tradierToken) throw e;
-        contracts = fromTradier(
-          await tradier(`/chains?symbol=${sym}&expiration=${expiry}&greeks=true`, tradierToken),
-        );
+        contracts = fromCboe(await cboe(sym), expiry);
+        // An expiry Cboe does not list yields an empty array, not an error. Fall through to the
+        // other providers rather than rendering an empty chain as "no contracts today".
+        if (contracts.length === 0) throw new Error('cboe_expiry_absent');
+      } catch (primary) {
+        console.error('[options] cboe chain failed, trying marketdata', String(primary));
+        try {
+          contracts = fromMarketdata(await marketdata(chainPath(sym, expiry)));
+        } catch (e) {
+          if (!tradierToken) throw e;
+          contracts = fromTradier(
+            await tradier(`/chains?symbol=${sym}&expiration=${expiry}&greeks=true`, tradierToken),
+          );
+        }
       }
 
       return cached({ sym, expiry, contracts });
@@ -188,7 +240,31 @@ export async function GET(request: Request) {
 
     return fresh({ error: 'bad_action' }, 400);
   } catch (e) {
-    console.error('[options] failed', e);
-    return fresh({ error: 'upstream' }, 502);
+    /*
+     * NAME THE REFUSAL. §5.1 is the most expensive lesson in this repo: three separate times, a
+     * refusal WE caused was reported as a failure THEY caused, and each one sent the next person to
+     * check the key, the network and the provider's status page while all three were fine.
+     *
+     * This route collapsed EVERY failure into `{"error":"upstream"}` with a 502 — and on 2026-08-14
+     * that cost real time. Options was down in production, the body said "upstream", and there was
+     * no way to tell a blocked egress IP from an exhausted quota from a bad token without deploying
+     * a change to find out. Meanwhile `/api/market` answered 200 from the same Worker, so it was
+     * never an outage.
+     *
+     * The upstream STATUS is safe to surface — it is a number, not a body. The body is deliberately
+     * never forwarded: `tradier()` notes it can echo the token back.
+     */
+    const msg = e instanceof Error ? e.message : String(e);
+    const code = /^marketdata_(\d+)$/.exec(msg)?.[1];
+    const upstream = code ? Number(code) : 0;
+    console.error('[options] failed', msg);
+
+    // 429 is OURS to report honestly, and it is not a 502: the provider is fine, we asked too often.
+    if (upstream === 429) return fresh({ error: 'rate_limited', upstream }, 429);
+    // 401/403 means the token or the caller was refused — a CONFIG problem, not an outage. Polygon's
+    // plan limit taught this exact distinction (`501 plan_required`, §5.1).
+    if (upstream === 401 || upstream === 403) return fresh({ error: 'provider_refused', upstream }, 502);
+    // `marketdata_no_data` and friends arrive as a status string rather than a number.
+    return fresh({ error: 'upstream', upstream: upstream || undefined, reason: msg }, 502);
   }
 }

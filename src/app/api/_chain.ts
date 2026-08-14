@@ -94,6 +94,86 @@ export type Contract = {
  */
 export const plausibleIv = (iv: number): number => (iv >= 0.01 && iv <= 5 ? iv : 0);
 
+/**
+ * OCC option symbol -> expiry, side, strike. `NVDA260814C00050000` is NVDA, 2026-08-14, call, $50.
+ *
+ * Root is variable length, the date is `yymmdd`, and the strike is 8 digits in THOUSANDTHS — so
+ * `00050000` is 50.000 and not 50000. Getting that divisor wrong yields a strike a thousand times
+ * too large, which renders as a plausible-looking row rather than an error. Verified against all
+ * 3,794 contracts in a live NVDA payload on 2026-08-14: zero unparsed.
+ */
+export const parseOcc = (s: string): { expiry: string; kind: 'call' | 'put'; strike: number } | null => {
+  const m = /^[A-Z]+(\d{2})(\d{2})(\d{2})([CP])(\d{8})/.exec(s);
+  if (!m) return null;
+  return {
+    expiry: `20${m[1]}-${m[2]}-${m[3]}`,
+    kind: m[4] === 'C' ? 'call' : 'put',
+    strike: Number(m[5]) / 1000,
+  };
+};
+
+/** Every expiry present in a Cboe payload, soonest first. One fetch covers all of them. */
+export function expiriesFromCboe(j: Raw): string[] {
+  const rows = ((j.data as Raw | undefined)?.options ?? []) as Raw[];
+  const seen = new Set<string>();
+  for (const r of rows) {
+    const p = parseOcc(String(r.option ?? ''));
+    if (p) seen.add(p.expiry);
+  }
+  return [...seen].sort();
+}
+
+/**
+ * Cboe's delayed feed -> the same `Contract` shape every screen already consumes.
+ *
+ * WHY CBOE IS THE PRIMARY. marketdata.app answers **403 to the deployed Worker** while serving the
+ * identical token from a laptop — its egress IP is blocked. That is §5.2's Alpha Vantage lesson with
+ * a new provider, and it made the options screen dead in production while every local check passed.
+ * Cboe operates the options exchanges, publishes this feed with **no key at all**, and therefore has
+ * no quota to exhaust and no per-contract billing to budget against — the entire `STRIKE_WINDOW`
+ * cost ceiling exists only for marketdata and stops mattering here.
+ *
+ * ONE FETCH CARRIES EVERY EXPIRY (3,794 contracts for NVDA), so the window is applied HERE rather
+ * than by the provider. Strikes are chosen by distance from spot, which is what `strikeLimit` did
+ * upstream — the screen must open at the money, not at $50 against a $225 stock.
+ */
+export function fromCboe(j: Raw, expiry: string, window = STRIKE_WINDOW): Contract[] {
+  const data = (j.data ?? {}) as Raw;
+  const rows = (data.options ?? []) as Raw[];
+  const spot = Number(data.current_price ?? data.close ?? 0);
+
+  const parsed = rows
+    .map((r) => ({ raw: r, occ: parseOcc(String(r.option ?? '')) }))
+    .filter((x) => x.occ && x.occ.expiry === expiry);
+
+  // Nearest strikes to spot. Without a spot we cannot centre, so take the lowest — deterministic
+  // and visibly wrong rather than randomly wrong.
+  const strikes = [...new Set(parsed.map((x) => x.occ!.strike))].sort((a, b) =>
+    spot > 0 ? Math.abs(a - spot) - Math.abs(b - spot) : a - b,
+  );
+  const keep = new Set(strikes.slice(0, window));
+
+  return parsed
+    .filter((x) => keep.has(x.occ!.strike))
+    .map(({ raw, occ }) => {
+      const bid = Number(raw.bid) || 0;
+      const ask = Number(raw.ask) || 0;
+      return {
+        symbol: String(raw.option ?? ''),
+        kind: occ!.kind,
+        strike: occ!.strike,
+        bid,
+        ask,
+        mid: bid && ask ? (bid + ask) / 2 : ask || bid,
+        iv: plausibleIv(Number(raw.iv) || 0),
+        delta: Number(raw.delta) || 0,
+        openInterest: Number(raw.open_interest) || 0,
+        volume: Number(raw.volume) || 0,
+      };
+    })
+    .sort((a, b) => a.strike - b.strike || a.kind.localeCompare(b.kind));
+}
+
 export function fromMarketdata(j: Raw): Contract[] {
   const col = (k: string) => (Array.isArray(j[k]) ? (j[k] as unknown[]) : []);
   const syms = col('optionSymbol');
