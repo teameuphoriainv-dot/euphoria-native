@@ -125,6 +125,20 @@ export async function GET(request: Request) {
           const r = await fetch(`https://www.alphavantage.co/query?${q}&apikey=${av}`);
           const j = await r.json();
           const feed = (j?.feed ?? []) as Record<string, unknown>[];
+          /*
+           * SAY WHY, instead of falling through in silence.
+           *
+           * Alpha Vantage answers `200 { "Information": "..." }` for a throttled or premium-gated
+           * call — never an error status. This branch treated that as "no news" and dropped to
+           * Polygon, so a REFUSAL and a genuinely quiet news day produced the identical empty array.
+           * Measured 2026-08-13: the same key returns 50 articles from a laptop and nothing from the
+           * deployed Worker, and there was no way to tell throttling from absence without this line.
+           * AV rate-limits by IP as well as by key, and Workers egress from shared addresses.
+           */
+          if (feed.length === 0) {
+            const why = j?.Information ?? j?.Note ?? j?.['Error Message'];
+            if (why) console.error('[market] alphavantage refused:', String(why).slice(0, 200));
+          }
           if (feed.length > 0) {
             return Response.json({
               articles: feed.map((a) => ({
