@@ -78,12 +78,11 @@ export async function GET(request: Request) {
   // Per-action budgets: search bursts on every keystroke, logos are many-per-screen but cached a
   // day, everything else is a cheap read. Gated BEFORE the key check so an unconfigured build
   // still cannot be used as a free load generator.
-  const gate =
-    action === 'search'
-      ? guard(request, 'market:search', 60, 60_000)
-      : action === 'logo'
-        ? guard(request, 'market:logo', 200, 60_000)
-        : guard(request, 'market', 120, 60_000);
+  const gate = await (action === 'search'
+    ? guard(request, 'market:search', 60, 60_000)
+    : action === 'logo'
+      ? guard(request, 'market:logo', 200, 60_000)
+      : guard(request, 'market', 120, 60_000));
   if (gate) return gate;
 
   const key = process.env.POLYGON_API_KEY;

@@ -122,7 +122,7 @@ that host. Also a latent bug: a `src` that already carried a query produced two 
 `api.polygon.io.evil.com` is refused), plus `withKey()` which uses `URL.searchParams` instead of
 string concatenation.
 
-### F4 — No authentication on any API route · MEDIUM · **OPEN, by design for now**
+### F4 — No authentication on any API route · MEDIUM · **WIRED, awaiting credentials**
 
 `lib/auth.ts:61` — `currentUserId()` returns `null`; there is no session flow. Every route is
 therefore open to anyone who knows the URL, and the rate-limit identity is a header the caller
@@ -132,20 +132,54 @@ It is honest scaffolding rather than a bug — the module exists so the limiter 
 identity and falls back, making sign-in a keys-and-wiring change rather than a re-architecture. But
 it should not be mistaken for a control that exists.
 
-**Plan:** wire Supabase auth (the web app already runs on the same project, so user ids match), then
-move the limiter to a Cloudflare Durable Object keyed on the user id. `_limit.ts:19-22` already
-records the three upgrade options and notes any of them is a drop-in for `take()`.
+**Done 2026-08-13.** The subtle part was that fixing this *badly* would have achieved nothing:
+`lib/api.ts` sent `currentUserId() ?? installId` inside `X-Euphoria-Install`, a header the caller
+picks. Signing in would have bought the same trust as a typed string — same header, same rotation
+bypass. Per-user limiting only counts if the server knows the user.
 
-### F5 — Prompt injection into Atlas · LOW-MEDIUM · **OPEN, accepted**
+So the client now sends a Supabase access token, and `api/_identity.ts` **verifies its signature
+server-side** before anyone is allowed to be somebody. It pins `alg: HS256` (the token gets no vote
+on how it is checked), requires `exp`, honours `nbf`, and uses `crypto.subtle.verify` rather than
+comparing signature strings. There is deliberately no path that reads claims from an unverified
+token — decoding a JWT without checking it is an authentication bypass with extra steps.
+
+Identities are namespaced `u:` for verified and `i:` for self-declared, because without that a
+caller who sets their install header to somebody's user id lands in that person's bucket.
+
+**With `SUPABASE_JWT_SECRET` unset — the state today — every request is anonymous and behaviour is
+identical to before. It activates the moment the secret lands.** 24 cases pinned in
+`scripts/identity-regression.mjs`, including `alg: none`, algorithm confusion, an expired token, a
+token with no `exp`, and a tampered payload carrying a previously valid signature.
+
+**Still needed from the owner:** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+(client), and `SUPABASE_JWT_SECRET` (server, via `eas env:set`). Then a sign-in UI, which does not
+exist yet.
+
+### F5 — Prompt injection into Atlas · LOW-MEDIUM · **FIXED**
 
 OWASP's #1, and structurally bounded here: Atlas has no tools, so the worst case is words, not
 actions. The real exposure is **regulatory rather than technical** — the system prompt is the only
 thing stopping a coaxed model from giving individualised investment advice to an 18-25 year old in a
 finance app, and a system prompt is not a control boundary.
 
-**Plan:** an output check on the completion before it renders, refusing responses that name a
-specific security with a buy/sell verb. Cheap, and it converts a prompt-level hope into a code-level
-rule. Not done in this pass — it is copy-adjacent and needs the owner's wording under §0.7.
+**Done 2026-08-13.** `api/_advice.ts` checks the completion before it is returned. The hard part was
+not detection — it was **not breaking the curriculum**. The entire product is about buying things,
+and Atlas explaining "when you buy a share of Apple you own a slice of the company" is the product
+working; a filter that killed that sentence would be switched off within a week, which is worse than
+no filter.
+
+So the discriminator is not the verb. It is a **directive aimed at the reader** ("you should",
+"I'd") co-occurring with a **specific security**, in the same sentence. Education describes; advice
+instructs. Known finance acronyms are excluded from ticker detection so "you should buy an ETF" and
+"you should open an IRA" stay allowed.
+
+23 cases pinned in `scripts/advice-guard-regression.mjs` — 9 refusals and **14 teaching sentences**,
+because a false positive here is the more damaging direction.
+
+**Ceiling:** a regex over English. It will miss paraphrase ("that one's a steal right now") and
+cannot see intent. It sits *under* the system prompt, not in place of it. A model-graded check is
+the upgrade path. The refusal line carries the `COPY IS UNAPPROVED` marker — three alternates go to
+the owner under §0.7.
 
 ### F6 — In-memory limiter is per-isolate · MEDIUM · **OPEN, documented**
 
@@ -160,19 +194,27 @@ isolates each see a fresh bucket. Already stated in `_limit.ts:11-22`. Same fix 
 |---|---|---|---|
 | 1 | ~~Validate every value that reaches an upstream URL~~ | F2, F3 | **done** |
 | 2 | ~~Daily cost cap on the LLM proxy~~ | F1 | **done** |
-| 3 | Output filter on Atlas completions (no named security + buy/sell verb) | F5 | owner's wording (§0.7) |
-| 4 | Wire Supabase auth, move limiter identity to the user id | F4 | Supabase keys |
-| 5 | Move `take()` to a Durable Object keyed on that identity | F1, F4, F6 | step 4 |
+| 3 | ~~Output filter on Atlas completions~~ | F5 | **done** — refusal wording still needs §0.7 sign-off |
+| 4 | ~~Server-verified identity; limiter prefers it~~ | F4 | **done** — needs Supabase keys to activate |
+| 5 | Move `take()` to a Durable Object keyed on that identity | F1, F6 | step 4's keys |
 | 6 | Set `GEMINI_API_KEY` quota/billing alerts provider-side | F1 defence-in-depth | Google Cloud console access |
 
-Steps 4 and 5 are the ones that actually close the class. 1–2 raise the cost of abuse; they do not
-end it, and this document should not be cited as if they do.
+Step 5 is what remains. Steps 1–4 raise the cost of abuse substantially and close the two findings
+that were outright defects — but **an anonymous caller is still billed against a header they choose,
+and the limiter is still per-isolate.** Until a shared counter keyed on a verified identity exists,
+this document should not be cited as if the class is closed.
 
 ---
 
 ## 5. Verification
 
-`scripts/api-validation-regression.mjs` — 33 cases, wired into `npm run check` (now 9 scripts).
+Three regressions, all wired into `npm run check` (now **10 scripts**):
+
+- `api-validation-regression.mjs` — 33 cases on the upstream trust boundary
+- `identity-regression.mjs` — 24 cases on token verification
+- `advice-guard-regression.mjs` — 23 cases, 9 refused and 14 taught
+
+On the first:
 Every refusal case listed in it is a string that **reached an upstream URL before this pass**:
 path traversal, encoded traversal, `&`, `#`, `?`, `%`, `/`, CRLF, over-length, leading dot.
 

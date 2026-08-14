@@ -33,18 +33,39 @@ export const AUTH_ENABLED = !!(URL && ANON_KEY);
 
 let client: SupabaseClient | null = null;
 
+/**
+ * The live session, mirrored into module state so it can be read SYNCHRONOUSLY.
+ *
+ * supabase-js only exposes `getSession()`, which is async. `apiHeaders()` runs on every outbound
+ * request and cannot await — so instead of awaiting per call, we subscribe once and keep the two
+ * fields we need. `onAuthStateChange` fires on sign-in, sign-out AND token refresh, so the mirror
+ * cannot go stale behind a rotated token.
+ */
+let session: { userId: string; accessToken: string } | null = null;
+
 /** Null while auth is off. Constructed lazily so an unconfigured build pays nothing. */
 export function supabase(): SupabaseClient | null {
   if (!AUTH_ENABLED) return null;
-  client ??= createClient(URL!, ANON_KEY!, {
-    auth: {
-      // There is no browser URL to read a session out of in a native app, and leaving this on
-      // makes supabase-js reach for `window` on startup.
-      detectSessionInUrl: false,
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
+  if (!client) {
+    client = createClient(URL!, ANON_KEY!, {
+      auth: {
+        // There is no browser URL to read a session out of in a native app, and leaving this on
+        // makes supabase-js reach for `window` on startup.
+        detectSessionInUrl: false,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
+    // Subscribe BEFORE the first read, so a sign-in that lands mid-startup is not missed.
+    client.auth.onAuthStateChange((_event, s) => {
+      session =
+        s?.user?.id && s.access_token ? { userId: s.user.id, accessToken: s.access_token } : null;
+    });
+    void client.auth.getSession().then(({ data }) => {
+      const s = data.session;
+      if (s?.user?.id && s.access_token) session = { userId: s.user.id, accessToken: s.access_token };
+    });
+  }
   return client;
 }
 
@@ -58,5 +79,22 @@ export function supabase(): SupabaseClient | null {
  * request of a cold start, never a wider one.
  */
 export function currentUserId(): string | null {
-  return null; // No session flow is wired yet. Replaced by a session read when sign-in lands.
+  if (!AUTH_ENABLED) return null;
+  supabase(); // Ensures the subscription exists; cheap after the first call.
+  return session?.userId ?? null;
+}
+
+/**
+ * The access token to prove that id to our own API, or null.
+ *
+ * WHY THIS MATTERS MORE THAN `currentUserId()`. Before this existed, `apiHeaders()` sent the user
+ * id in `X-Euphoria-Install` — a header the caller chooses. The server had no way to tell a real
+ * user id from a typed one, so signing in bought exactly nothing: same header, same trust, same
+ * rotation bypass. The token is the difference between asserting an identity and proving one.
+ * `api/_identity.ts` verifies its signature server-side and ignores anything that fails.
+ */
+export function currentAccessToken(): string | null {
+  if (!AUTH_ENABLED) return null;
+  supabase();
+  return session?.accessToken ?? null;
 }

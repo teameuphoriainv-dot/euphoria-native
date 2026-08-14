@@ -73,7 +73,7 @@ function parseTurns(body: unknown): Turn[] | string {
 export async function POST(request: Request) {
   // Rate limit FIRST — before the key check, before parsing, before any upstream call. An
   // unlimited proxy just relocates the quota problem instead of solving it.
-  const gate = guard(request, 'chat', 20, 5 * 60_000);
+  const gate = await guard(request, 'chat', 20, 5 * 60_000);
   if (gate) return gate;
 
   /*
@@ -88,12 +88,12 @@ export async function POST(request: Request) {
    * on what one caller can cost us in a day.
    *
    * IT DOES NOT MAKE THIS PROXY SAFE FROM A DETERMINED ATTACKER, and must not be described as if
-   * it does. The identity is still an unauthenticated header, so rotating it still mints a fresh
-   * budget, and the limiter is still per-isolate — both ceilings are stated in `_limit.ts`. This
-   * raises the cost of casual abuse and bounds the accidental runaway. Real authentication
-   * (`lib/auth.ts`) and a shared counter are what close it.
+   * it does. A SIGNED-IN caller is now billed against a server-verified subject (`api/_identity.ts`)
+   * which cannot be rotated without the JWT secret — but an anonymous caller is still billed
+   * against a header they choose, and the limiter is still per-isolate. Both ceilings are stated in
+   * `_limit.ts`. A shared counter is the remaining half.
    */
-  const daily = guard(request, 'chat:day', 200, 24 * 60 * 60_000);
+  const daily = await guard(request, 'chat:day', 200, 24 * 60 * 60_000);
   if (daily) return daily;
 
   const key = process.env.GEMINI_API_KEY;

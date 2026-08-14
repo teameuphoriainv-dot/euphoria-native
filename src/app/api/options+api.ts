@@ -38,7 +38,7 @@ async function tradier(path: string, token: string) {
 const many = <T,>(v: T | T[] | null | undefined): T[] => (Array.isArray(v) ? v : v ? [v] : []);
 
 export async function GET(request: Request) {
-  const gate = guard(request, 'options', 30, 60_000);
+  const gate = await guard(request, 'options', 30, 60_000);
   if (gate) return gate;
 
   const token = process.env.TRADIER_TOKEN;

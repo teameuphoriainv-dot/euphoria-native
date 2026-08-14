@@ -15,7 +15,7 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-import { currentUserId } from './auth';
+import { currentAccessToken, currentUserId } from './auth';
 import { useApp } from './store';
 
 export function apiBase(): string {
@@ -61,7 +61,20 @@ export function apiHeaders(extra?: Record<string, string>): Record<string, strin
   // A signed-in user id when one exists, otherwise the install id. This is the ONLY place the
   // two identities meet, so turning auth on does not touch any route.
   const id = currentUserId() ?? useApp.getState().installId;
-  return { 'X-Euphoria-Install': id, ...extra };
+  /*
+   * The bearer token is what makes signing in MEAN anything to the server.
+   *
+   * `X-Euphoria-Install` is a header the caller picks, so on its own a user id in it is an
+   * assertion, not a fact — the server cannot tell it from a string somebody typed. The token
+   * carries a signature `api/_identity.ts` verifies, and only a verified subject gets its own
+   * rate-limit namespace. Sent only when a real session exists; there is no placeholder.
+   */
+  const token = currentAccessToken();
+  return {
+    'X-Euphoria-Install': id,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
+  };
 }
 
 export async function apiGet<T>(path: string): Promise<T> {

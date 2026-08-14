@@ -31,6 +31,8 @@
  * like a broken limiter, and "fixing" it would mean rewriting working code.
  */
 
+import { verifiedUserId } from './_identity';
+
 type Bucket = { count: number; resetAt: number };
 
 /**
@@ -107,7 +109,21 @@ export function limited(v: Extract<Verdict, { ok: false }>): Response {
 export function identify(request: Request): string {
   const id = request.headers.get('x-euphoria-install')?.trim();
   // Bound the length so a caller cannot use the key itself as a memory amplifier.
-  return id && id.length <= 64 ? id : 'anon';
+  return id && id.length <= 64 ? `i:${id}` : 'anon';
+}
+
+/**
+ * The identity to bill, preferring one the SERVER established over one the caller asserted.
+ *
+ * NAMESPACED ON PURPOSE. `u:` for a verified subject, `i:` for a self-declared install id. Without
+ * the prefixes the two namespaces share a keyspace, and a caller who sets their install header to
+ * somebody's user id lands in that person's bucket — which is either a way to exhaust a stranger's
+ * budget or a way to borrow it, depending on who gets there first. Two identities that mean
+ * different things must not be able to collide.
+ */
+export async function identifyVerified(request: Request): Promise<string> {
+  const sub = await verifiedUserId(request);
+  return sub ? `u:${sub}` : identify(request);
 }
 
 /** Anonymous callers get a third of the budget. */
@@ -126,8 +142,13 @@ export function budgetFor(identity: string, limit: number): number {
  *   const gate = guard(request, 'chat', 20, 5 * 60_000);
  *   if (gate) return gate;
  */
-export function guard(request: Request, scope: string, limit: number, windowMs: number): Response | null {
-  const id = identify(request);
+export async function guard(
+  request: Request,
+  scope: string,
+  limit: number,
+  windowMs: number,
+): Promise<Response | null> {
+  const id = await identifyVerified(request);
   const v = take(`${id}:${scope}`, budgetFor(id, limit), windowMs);
   return v.ok ? null : limited(v);
 }
