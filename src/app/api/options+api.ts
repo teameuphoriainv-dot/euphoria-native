@@ -112,9 +112,27 @@ export async function GET(request: Request) {
    * scales with the number of DISTINCT (symbol, expiry) PAIRS instead, and that is a small fixed
    * number: 7 underlyings x 8 expiries. One user or ten thousand cost the same.
    *
-   * 15 minutes is safe because the data is already delayed — marketdata answers `203
-   * Non-Authoritative`, which is the free tier telling you it is not real time. Serving a
-   * 15-minute-old delayed chain is not meaningfully staler than serving a fresh delayed one.
+   * ── WHY ONE HOUR, WHICH IS ARITHMETIC AND NOT TASTE ────────────────────────────────────────
+   * The ceiling is `combinations × refreshes-per-day × credits-per-refresh`. There are 7 underlyings
+   * × 8 expiries = **56** distinct cache keys, and a chain costs 32 credits (`STRIKE_WINDOW`).
+   *
+   *   15 min TTL → 56 × 96 × 32 = **172,032/day**  ← EXCEEDS the 100,000 allowance
+   *   30 min TTL → 56 × 48 × 32 =  86,016/day      ← under, but only 14% headroom
+   *   60 min TTL → 56 × 24 × 32 =  **43,008/day**  ← ~2.3× headroom, plus ~168 for expirations
+   *
+   * The first draft of this shipped at 15 minutes, which is over the limit if every combination
+   * stays warm. That worst case needs demand round the clock on all 56, which a young app will not
+   * have — but "probably under the limit" is not a ceiling, and the failure mode is every user
+   * seeing an error for the rest of the day.
+   *
+   * An hour is honest because the data is ALREADY delayed: marketdata answers `203
+   * Non-Authoritative`, which is the free tier saying it is not real time, and the screen says
+   * "Delayed" in as many words. An hour-old delayed chain and a fresh delayed chain are both "not
+   * live"; only one of them can run the account dry.
+   *
+   * `stale-while-revalidate` costs nothing extra — it only revalidates when a request arrives, so an
+   * idle combination is free. RAISING `STRIKE_WINDOW` OR ADDING UNDERLYINGS CHANGES THIS SUM. Redo
+   * it, against `x-api-ratelimit-limit` read from a live response rather than from this comment.
    *
    * ERRORS GET `no-store`, and that is the half people forget. EAS Hosting edge-caches GET API
    * routes (§4 of the carryover — it is what made a live options route serve a cached 503 for an
@@ -123,7 +141,7 @@ export async function GET(request: Request) {
    */
   const cached = (body: unknown) =>
     Response.json(body, {
-      headers: { 'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=3600' },
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200' },
     });
   const fresh = (body: unknown, status: number) =>
     Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
