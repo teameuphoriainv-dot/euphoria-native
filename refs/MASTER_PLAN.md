@@ -6540,3 +6540,41 @@ touched a number the user reads as their own money (C113): Trade renders **$10,0
 `billing-retry`, `day-keys`, `trial-reward`, `dismissal-offer`. Erasable-syntax-only, no imports a
 test cannot follow, dependencies injected. If a rule matters enough to have a regression, the
 regression imports the rule.
+
+### C119. THE GEMINI KEY IS REAL AND SET. Atlas still 503s, and the reason is NOT the key.
+
+Three separate things were wrong, discovered in this order 2026-08-13. Only one of them was the
+thing anybody was looking for.
+
+**1. The key works, and its shape is not what this repo assumed.** The value is `AQ.…`, 53 chars —
+not the `AIza…` 39-char form. Every shape check written here (including one I had just written)
+would have rejected a working credential. Verified against the live API: `GET /v1beta/models`
+returns **HTTP 200 and 37 models**. Do not add an `AIza` shape gate for Gemini.
+
+**2. `gemini-2.5-flash` HAD SILENTLY RETIRED.** `404 NOT_FOUND — "no longer available to new
+users"`. It is still LISTED in `/v1beta/models`, so listed is not usable and only a call reveals it.
+tsc, lint and twelve regressions all pass over a dead model string, and the route turned the 404
+into a generic `502 upstream` — so **setting the key alone would never have made Atlas work, and the
+symptom would have read as a bad key.** Fixed in `5f48113`: pinned to `gemini-3.5-flash` (verified
+200 on v1 and v1beta), and a provider 404 is now `model_unavailable`, logged as a CONFIG error
+naming the model.
+
+**3. THE CARRYOVER HAS THE EAS COMMAND BACKWARDS.** It states: *"`eas env:create` is DEPRECATED on
+eas-cli 21.7.1. Use `eas env:set`."* On 21.7.1 **`env:set` does not exist** — `eas env --help` lists
+`env:create`, `env:delete`, `env:exec`, `env:get`, `env:list`, `env:pull`, `env:push`, `env:update`.
+Following the carryover produces `Error: command env:set not found`.
+
+### WHAT IS STILL BROKEN, STATED PRECISELY
+
+`GEMINI_API_KEY` is created on EAS production (tried both `secret` and `sensitive` visibility) and
+`eas deploy --prod --environment production` succeeds, but `POST /api/chat` still returns
+`503 not_configured` — which is this route's own check on `process.env.GEMINI_API_KEY` being absent.
+
+**It is not the export.** `dist/server/_expo/functions/api/chat+api.js` contains
+`process.env.GEMINI_API_KEY` as a RUNTIME lookup, not an inlined value, so the variable is simply
+not in the Worker's environment. `eas env:exec --environment production "npx expo export …"` fails
+outright.
+
+**So the remaining work is EAS Hosting configuration, not code.** Next thing to try: the Hosting
+section of the Expo dashboard may hold its own environment variables, separate from the build-time
+ones `eas env:create` writes. Nothing in `src/` needs to change.
