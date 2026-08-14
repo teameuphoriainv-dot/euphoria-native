@@ -6472,3 +6472,39 @@ unchecked, and the app was even *marking the missed answer in green* while the d
 
 **C109, a third time: the accessibility tree tells you what EXISTS, never what a tap will DO.** Two
 of these three were invisible to text and obvious in one image.
+
+### C117. C115's BYPASS IS CLOSED. One rule, one sheet, and a coverage check so it cannot recur.
+
+C115 recorded that four surfaces render the trial-expired state and only `GateSheet` carried the
+dismissal offer, so a user who tapped Start on Home hit `lesson.tsx`'s hard wall, dismissed it, and
+never saw the highest-convergence lever in the unit. Fixed 2026-08-13.
+
+**The hard wall is NOT replaced.** C28 keeps it, Unit 17's own preamble reaffirms it, and swapping a
+route-level wall for a sheet would be a product change nobody asked for. The wall keeps its shape;
+it now makes the second ask before it lets go.
+
+- `src/lib/dismissal-offer.ts` — the rule, dependency-free so a script can import it, mirroring
+  `cost-basis.ts` and `trial-reward.ts`.
+- `src/components/dismissal-offer-sheet.tsx` — the offer, lifted out of `gate-sheet.tsx`'s
+  `phase === 'offer'` branch unchanged. Approved copy moves verbatim.
+- `lesson.tsx`, `chat.tsx` and `gate-sheet.tsx` all consult the one rule and raise the one sheet.
+
+**Verified on device, on the exact path that was broken:** Home → Continue → "Your free 3 days are
+up." → "Back to the pathway" → **"Before you go / one better offer"**, and `specialOfferSeenAt`
+stamped `1786669131624`. That path previously left it null.
+
+### AND A DOUBLE-COUNT NOBODY WOULD HAVE SEEN
+
+`gate-sheet.tsx`'s dismiss ran `track(Ev.paywallDismissed)` before the phase logic, so it fired on
+BOTH dismissals — once closing the gate, once closing the offer. Every user who saw the second ask
+counted **twice** in `paywall_dismissed`.
+
+That is the worst possible sample to over-count: the inflation lands entirely on the users the offer
+reached, so the offer appeared to drive the dismissals it was actually intercepting. 17b exists to
+make that judgement and would have been measuring its own artefact. It now fires once, on the gate.
+
+**The check is structural, not just a unit test.** C115 was never a logic bug — the predicate was
+always right. It was a COVERAGE bug, and a test on the predicate would have passed the whole time.
+`scripts/dismissal-offer-regression.mjs` therefore asserts that every dismissible trial-expired wall
+both calls the rule and renders the sheet, and that the approved copy exists in exactly one file.
+**The next person to add a wall will not have read C115.**

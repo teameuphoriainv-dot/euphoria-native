@@ -32,6 +32,7 @@ import { TapReveal } from '@/components/tap-reveal';
 import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TileBuilder } from '@/components/tile-builder';
+import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
@@ -43,6 +44,7 @@ import { gates, normalizeStep } from '@/lib/lesson-steps';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { IAP_ENABLED } from '@/lib/purchases';
+import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
 import { trialRewardAvailable } from '@/lib/trial-reward';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
@@ -109,6 +111,8 @@ export default function Lesson() {
   const [solved, setSolved] = useState(false);
   /** 17c. Holds the post-lesson navigation open so the reward offer can land on the win. */
   const [trialReward, setTrialReward] = useState(false);
+  /** 17d. Raised when the hard wall is dismissed and a better ask is still unspent. */
+  const [offer, setOffer] = useState(false);
 
   const norm = useMemo(() => (idx >= 1 && idx <= total ? normalizeStep(steps[idx - 1]) : null), [idx, total, steps]);
   const isChoice = norm?.kind === 'choice';
@@ -177,6 +181,33 @@ export default function Lesson() {
     else router.back();
   }
 
+  /**
+   * Where the hard wall goes when the user declines.
+   *
+   * `canGoBack` guarded because the stranding case IS the cold deep link, where there is nothing to
+   * go back TO — the one path a bare `router.back()` cannot serve (§22 C13).
+   */
+  function outOfWall() {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/learn');
+  }
+
+  /**
+   * 17d on the wall. Makes the second ask ONCE, then gets out of the way — and stamps on the way
+   * in rather than on the way out, because unlike 17c this sheet is raised by an explicit dismissal
+   * the user already chose, so there is no navigation race that could tear it down unseen.
+   */
+  function leaveWall() {
+    const s = useApp.getState();
+    if (dismissalOfferAvailable({ iapEnabled: IAP_ENABLED, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt })) {
+      s.markSpecialOfferSeen();
+      track(Ev.specialOfferSeen, { feature: 'lesson' });
+      setOffer(true);
+      return;
+    }
+    outOfWall();
+  }
+
   if (missing) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -224,10 +255,30 @@ export default function Lesson() {
             style={styles.lockedOut}
             accessibilityRole="button"
             accessibilityLabel="Back to the pathway"
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/learn'))}>
+            onPress={leaveWall}>
             <ThemedText type="small" themeColor="mutedForeground">Back to the pathway</ThemedText>
           </SpringPressable>
         </View>
+
+        {/*
+         * 17d, per §22 C115. This wall used to let go without ever making the second ask, because
+         * the offer lived inside GateSheet and this route does not mount it. Verified on device:
+         * tapping Start on Home with an expired trial landed here, and dismissing left
+         * `specialOfferSeenAt` null — the same lesson tapped from the Learn tab fired the offer
+         * immediately. Same user, same refusal, different door.
+         */}
+        <DismissalOfferSheet
+          visible={offer}
+          feature="lesson"
+          onAccept={() => {
+            setOffer(false);
+            router.push('/onboarding?step=paywall');
+          }}
+          onDismiss={() => {
+            setOffer(false);
+            outOfWall();
+          }}
+        />
       </SafeAreaView>
     );
   }

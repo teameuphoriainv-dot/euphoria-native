@@ -36,7 +36,11 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
+import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { GateSheet } from '@/components/gate-sheet';
+import { Ev, track } from '@/lib/analytics';
+import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
+import { IAP_ENABLED } from '@/lib/purchases';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { GradientButton } from '@/components/ui/button';
@@ -87,6 +91,23 @@ export default function ChatScreen() {
    * rather than subscribed, because the sheet needs the reason as it was at the moment of refusal.
    */
   const [gate, setGate] = useState<Refusal | null>(null);
+  /** 17d. Raised when the expired-Atlas wall is dismissed and a better ask is still unspent. */
+  const [offer, setOffer] = useState(false);
+
+  /**
+   * 17d on the wall (§22 C115). Makes the second ask once, then gets out of the way. Stamped on the
+   * way in, because the user has already chosen to leave — there is no navigation race here.
+   */
+  function leaveWall() {
+    const s = useApp.getState();
+    if (dismissalOfferAvailable({ iapEnabled: IAP_ENABLED, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt })) {
+      s.markSpecialOfferSeen();
+      track(Ev.specialOfferSeen, { feature: 'atlas' });
+      setOffer(true);
+      return;
+    }
+    router.back();
+  }
   const scroller = useRef<ScrollView>(null);
 
   const exhausted = !isPro && left <= 0;
@@ -184,13 +205,28 @@ export default function ChatScreen() {
         <View style={styles.expiredFooter}>
           <GradientButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
           <Pressable
-            onPress={() => router.back()}
+            onPress={leaveWall}
             style={styles.expiredOut}
             accessibilityRole="button"
             accessibilityLabel="Not now">
             <ThemedText type="small" themeColor="mutedForeground">Not now</ThemedText>
           </Pressable>
         </View>
+
+        {/* 17d, per §22 C115. This wall is one of the two that never mounted GateSheet, so it let
+            the user go without the second ask. Same rule, same sheet, one more door closed. */}
+        <DismissalOfferSheet
+          visible={offer}
+          feature="atlas"
+          onAccept={() => {
+            setOffer(false);
+            router.push('/onboarding?step=paywall');
+          }}
+          onDismiss={() => {
+            setOffer(false);
+            router.back();
+          }}
+        />
       </SafeAreaView>
     );
   }
