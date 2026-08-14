@@ -85,10 +85,18 @@ export function isAdvice(text: string): boolean {
 /**
  * What the user sees instead.
  *
- * COPY IS UNAPPROVED (§20.2), following the same marker `chat+api.ts`'s SYSTEM block carries. It is
- * shaped to the voice rules already derived from the three lines Atlas speaks in-app — short,
- * second person, contracted, steers rather than scolds — and three alternates were put to the owner
- * under §0.7. Replace this constant with the chosen line; do not leave the choice to a model.
+ * COPY APPROVED 2026-08-13 — the owner delegated the §0.7 choice explicitly rather than picking
+ * from drafts. Recorded that way because §0.7's point is that copy is never invented silently, and
+ * "the owner said choose" is a different provenance from "the owner chose": if the voice is ever
+ * questioned, this line was mine and that is the honest attribution.
+ *
+ * Shaped to the voice rules derived from the three lines Atlas already speaks in-app — short,
+ * second person, contracted, guides rather than lectures. Two sentences because it renders in a
+ * speech bubble. It states the boundary and immediately offers the thing we CAN do, so a refusal
+ * does not read as a door closing.
+ *
+ * Deliberately NOT a question. An earlier draft ended "Want that?", which invites the user to
+ * re-ask the same thing and puts the model back in front of the same wall.
  */
 export const REFUSAL =
-  "I can't tell you what to buy or sell — that's the one thing I'm not here for. I can walk you through how to think about it, though. Want that?";
+  "I can't tell you what to buy or sell — that's the one thing I'm not here for. I can show you how to think it through, though.";

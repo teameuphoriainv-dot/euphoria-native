@@ -17,7 +17,13 @@
  * this app once shipped a card claiming "no analytics" while Unit 17b added a tracking SDK, and
  * the copy was only caught because the claim was written down next to the code that broke it.
  *
- * COPY IS UNAPPROVED (§20.2).
+ * COPY STATUS, corrected 2026-08-13. This header said "COPY IS UNAPPROVED (§20.2)" outright, and
+ * that was already wrong when it was written: §22 C103 records three drafts going to the user and
+ * the THIRD REASON's body being chosen VERBATIM — it is quoted in the log. The blanket marker made
+ * approved copy look unapproved, which is the direction that gets working words rewritten.
+ *
+ * Approved: the third reason's body ("No ads, and we never sell your data…"), per C103.
+ * Still unapproved: the title, the lead, the first two reasons, and the closing line.
  */
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
