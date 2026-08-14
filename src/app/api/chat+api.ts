@@ -8,9 +8,14 @@
  * Requires `web.output: "server"` in app.json — with "static" (the previous value) API routes are
  * not emitted at all.
  *
- * Step 1 of the chat build: ONE non-streaming completion, verifiable with curl. Streaming, rate
- * limiting and the per-session cost cap land in later steps — see refs/HANDOFF.md. Do not add a
- * chat UI against this until the cap exists; an uncapped proxy is an open tab on our account.
+ * Non-streaming, one completion per request. Rate limiting and the daily cost cap are BOTH in
+ * place now (see POST). Streaming is still outstanding — see refs/HANDOFF.md.
+ *
+ * This header used to end "do not add a chat UI against this until the cap exists; an uncapped
+ * proxy is an open tab on our account." `src/app/chat.tsx` shipped while that sentence was still
+ * true, so the warning was load-bearing and unmet for several releases. It is recorded rather than
+ * deleted, because a precondition that was quietly overtaken is worth more as history than a clean
+ * comment is as tidiness.
  */
 
 import { guard } from './_limit';
@@ -69,6 +74,26 @@ export async function POST(request: Request) {
   // unlimited proxy just relocates the quota problem instead of solving it.
   const gate = guard(request, 'chat', 20, 5 * 60_000);
   if (gate) return gate;
+
+  /*
+   * THE DAILY CAP — the "per-session cost cap" this file's header said had to exist before a chat
+   * UI shipped against it. `src/app/chat.tsx` shipped anyway, so the precondition was live and
+   * unmet.
+   *
+   * The burst limit above stops someone holding the button down. It does nothing about a caller
+   * making 20 requests every five minutes forever, which is 5,760 completions a day from one
+   * identity — the shape the 2026 LLMjacking write-ups describe, where a proxy is drained slowly
+   * rather than hammered. This is a SECOND window on the same identity, and it is the honest bound
+   * on what one caller can cost us in a day.
+   *
+   * IT DOES NOT MAKE THIS PROXY SAFE FROM A DETERMINED ATTACKER, and must not be described as if
+   * it does. The identity is still an unauthenticated header, so rotating it still mints a fresh
+   * budget, and the limiter is still per-isolate — both ceilings are stated in `_limit.ts`. This
+   * raises the cost of casual abuse and bounds the accidental runaway. Real authentication
+   * (`lib/auth.ts`) and a shared counter are what close it.
+   */
+  const daily = guard(request, 'chat:day', 200, 24 * 60 * 60_000);
+  if (daily) return daily;
 
   const key = process.env.GEMINI_API_KEY;
   if (!key) {

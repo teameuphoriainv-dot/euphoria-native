@@ -16,6 +16,7 @@
  */
 
 import { guard } from './_limit';
+import { isoDate, symbol } from './_validate';
 
 const BASE = 'https://sandbox.tradier.com/v1/markets/options';
 
@@ -45,8 +46,10 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const action = url.searchParams.get('action') ?? '';
-  const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
-  if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
+  // Validated, not merely uppercased: `sym` is concatenated straight into Tradier's query string
+  // below, where an unescaped `&` starts a parameter we did not write.
+  const sym = symbol(url.searchParams.get('sym'));
+  if (!sym) return Response.json({ error: 'bad_sym' }, { status: 400 });
 
   try {
     if (action === 'expirations') {
@@ -56,8 +59,8 @@ export async function GET(request: Request) {
     }
 
     if (action === 'chain') {
-      const expiry = url.searchParams.get('expiry') ?? '';
-      if (!expiry) return Response.json({ error: 'expiry_required' }, { status: 400 });
+      const expiry = isoDate(url.searchParams.get('expiry'));
+      if (!expiry) return Response.json({ error: 'bad_expiry' }, { status: 400 });
       const d = await tradier(`/chains?symbol=${sym}&expiration=${expiry}&greeks=true`, token);
       const raw = many<Raw>((d?.options as Raw | undefined)?.option as Raw | Raw[]);
 

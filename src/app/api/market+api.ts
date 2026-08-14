@@ -21,6 +21,7 @@
  */
 
 import { guard } from './_limit';
+import { mayCarryKey, symbol, withKey } from './_validate';
 
 const BASE = 'https://api.polygon.io';
 
@@ -102,7 +103,7 @@ export async function GET(request: Request) {
 
   try {
     if (action === 'news') {
-      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      const sym = symbol(url.searchParams.get('sym'));
 
       /*
        * ALPHA VANTAGE FIRST, POLYGON AS FALLBACK.
@@ -193,7 +194,7 @@ export async function GET(request: Request) {
     }
 
     if (action === 'quote') {
-      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      const sym = symbol(url.searchParams.get('sym'));
       if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
       const d = await poly(`/v2/aggs/ticker/${sym}/prev?adjusted=true`, key);
       const bar = d.results?.[0];
@@ -208,7 +209,7 @@ export async function GET(request: Request) {
     }
 
     if (action === 'chart') {
-      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      const sym = symbol(url.searchParams.get('sym'));
       const range = (url.searchParams.get('range') ?? '1M') as RangeKey;
       if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
       if (!RANGES[range]) return Response.json({ error: 'bad_range' }, { status: 400 });
@@ -228,14 +229,24 @@ export async function GET(request: Request) {
        * why this cannot be done from the client. The proxy fetches the image and re-serves the
        * bytes, so the key never leaves the server and the app gets a plain cacheable URL.
        */
-      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      const sym = symbol(url.searchParams.get('sym'));
       if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
       const d = await poly(`/v3/reference/tickers/${sym}`, key);
       const brand = (d.results?.branding ?? {}) as { icon_url?: string; logo_url?: string };
       const src = brand.icon_url ?? brand.logo_url;
       if (!src) return Response.json({ error: 'no_logo' }, { status: 404 });
 
-      const img = await fetch(`${src}?apiKey=${key}`);
+      /*
+       * The URL came out of an upstream response, not from the caller — which is exactly what makes
+       * it easy to trust by accident. It is still a URL from somewhere else, and the next line
+       * staples our Polygon key to it. Allowlist the host before that happens: if a branding record
+       * ever points elsewhere, we decline instead of paying a stranger's server a credential.
+       */
+      if (!mayCarryKey(src)) {
+        console.error('[market] refused to key a non-Polygon logo host', src.slice(0, 120));
+        return Response.json({ error: 'no_logo' }, { status: 404 });
+      }
+      const img = await fetch(withKey(src, key));
       if (!img.ok) return Response.json({ error: 'no_logo' }, { status: 404 });
       return new Response(img.body, {
         headers: {
@@ -279,7 +290,7 @@ export async function GET(request: Request) {
        * (day range, volume, previous close) and the daily series gives the 52-week envelope. Both
        * are REAL aggregates — nothing here is derived from a model.
        */
-      const sym = (url.searchParams.get('sym') ?? '').toUpperCase();
+      const sym = symbol(url.searchParams.get('sym'));
       if (!sym) return Response.json({ error: 'sym_required' }, { status: 400 });
 
       const yearAgo = Date.now() - 365 * 86_400_000;
