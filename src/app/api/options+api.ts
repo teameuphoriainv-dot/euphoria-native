@@ -50,6 +50,7 @@ import {
   chainPath,
   type Contract,
   expiriesFromCboe,
+  spotFromCboe,
   fromCboe,
   fromMarketdata,
   fromTradier,
@@ -218,8 +219,13 @@ export async function GET(request: Request) {
       if (!expiry) return fresh({ error: 'bad_expiry' }, 400);
 
       let contracts: Contract[];
+      // The spot that PRODUCED this chain, so the screen's headline cannot disagree with its strikes.
+      // 0 means we do not know, and the client keeps its own mark rather than rendering a zero.
+      let spot = 0;
       try {
-        contracts = fromCboe(await cboe(sym), expiry);
+        const j = await cboe(sym);
+        spot = spotFromCboe(j);
+        contracts = fromCboe(j, expiry);
         // An expiry Cboe does not list yields an empty array, not an error. Fall through to the
         // other providers rather than rendering an empty chain as "no contracts today".
         if (contracts.length === 0) throw new Error('cboe_expiry_absent');
@@ -235,7 +241,7 @@ export async function GET(request: Request) {
         }
       }
 
-      return cached({ sym, expiry, contracts });
+      return cached({ sym, expiry, spot, contracts });
     }
 
     return fresh({ error: 'bad_action' }, 400);

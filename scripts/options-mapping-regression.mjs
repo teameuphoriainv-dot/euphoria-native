@@ -21,6 +21,7 @@ import {
   fromMarketdata,
   parseOcc,
   plausibleIv,
+  spotFromCboe,
   STRIKE_WINDOW,
 } from '../src/app/api/_chain.ts';
 
@@ -153,6 +154,11 @@ check('cboe iv also goes through plausibleIv', wide.find((c) => c.strike === 50)
 // No spot means we cannot centre; take the lowest strikes so the failure is deterministic.
 const noSpot = fromCboe({ data: { options: cboeFixture.data.options } }, '2026-08-14', 1);
 check('missing spot degrades deterministically', noSpot[0].strike, 50);
+// The spot travels WITH the chain so the header cannot disagree with the strikes. The screen used
+// to read "Apple at $228.50" (static table) above strikes centred on 305.35.
+check('spot is reported from the same payload', spotFromCboe(cboeFixture), 225.3);
+check('no spot reports 0, not a guess', spotFromCboe({ data: { options: [] } }), 0);
+check('a junk spot is not passed through', spotFromCboe({ data: { current_price: 'n/a' } }), 0);
 
 if (fail.length > 0) {
   console.log('\nFAILED\n');

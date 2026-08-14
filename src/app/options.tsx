@@ -162,12 +162,13 @@ export default function Options() {
   const [expiries, setExpiries] = useState<string[]>([]);
   const [expiry, setExpiry] = useState<string>('');
   const [chain, setChain] = useState<Contract[] | null>(null);
+  /** The spot Cboe reported alongside this chain. 0 until one loads. See `spot` below. */
+  const [chainSpot, setChainSpot] = useState(0);
   const [loadedFor, setLoadedFor] = useState('');
   const [pick, setPick] = useState<{ strike: number; side: 'call' | 'put' } | null>(null);
   // 'both' is Robinhood's side-by-side; tapping a heading collapses to their focused view.
   const [show, setShow] = useState<'both' | 'call' | 'put'>('both');
 
-  const spot = priceOf(sym);
   const live = chain !== null && chain.length > 0;
 
   // Expiries for the chosen underlying. An empty result means no token, which the UI states.
@@ -188,12 +189,27 @@ export default function Options() {
   // body — the rule the rest of this codebase follows.
   const key = `${sym}:${expiry}`;
   const loading = expiry !== '' && loadedFor !== key;
+
+  /*
+   * THE SPOT THAT PRODUCED THE CHAIN WINS.
+   *
+   * This was `priceOf(sym)`, which falls back to the static table for any symbol the user has not
+   * opened a stock screen for — so the header rendered "Apple at $228.50" above strikes centred on
+   * Cboe's real 305.35. One screen, one number, two sources: the same defect as the $1,184 headline
+   * above a $225.30 previous close. NVDA hid it, because NVDA happened to have a live mark.
+   *
+   * Gated on `!loading` so switching underlying cannot show the PREVIOUS symbol's spot beside the
+   * new one's strikes for a frame — which would be the same bug with a shorter lifetime. Until the
+   * chain lands, `priceOf` is the honest answer: it is what the rest of the app values with.
+   */
+  const spot = !loading && chainSpot > 0 ? chainSpot : priceOf(sym);
   useEffect(() => {
     if (!expiry) return;
     let cancelled = false;
-    getChain(sym, expiry).then((c) => {
+    getChain(sym, expiry).then((r) => {
       if (cancelled) return;
-      setChain(c);
+      setChain(r?.contracts ?? null);
+      setChainSpot(r?.spot ?? 0);
       setLoadedFor(`${sym}:${expiry}`);
     });
     return () => {

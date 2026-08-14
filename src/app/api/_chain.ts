@@ -112,6 +112,18 @@ export const parseOcc = (s: string): { expiry: string; kind: 'call' | 'put'; str
   };
 };
 
+/**
+ * The underlying's price, as the SAME payload that produced the chain reports it.
+ *
+ * Shipped because the options header read "Apple at $228.50" from the static table while the chain
+ * beside it was centred on Cboe's real 305.35 — strikes from 287.50 up. Two sources for one number,
+ * on one screen, which is the $1,184-versus-$225.30 defect in a second location. The screen has a
+ * live mark only for symbols the user already visited a stock screen for, so every OTHER underlying
+ * was wrong. Returning the spot with the chain means the headline and the strikes cannot disagree.
+ */
+export const spotFromCboe = (j: Raw): number =>
+  Number((j.data as Raw | undefined)?.current_price ?? (j.data as Raw | undefined)?.close ?? 0) || 0;
+
 /** Every expiry present in a Cboe payload, soonest first. One fetch covers all of them. */
 export function expiriesFromCboe(j: Raw): string[] {
   const rows = ((j.data as Raw | undefined)?.options ?? []) as Raw[];

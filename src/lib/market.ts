@@ -139,11 +139,18 @@ export type Contract = {
 export const getExpirations = (sym: string) =>
   safe<{ expirations: string[] }>(`/api/options?action=expirations&sym=${sym}`).then((d) => d?.expirations ?? []);
 
-/** The full chain for one expiry, both sides, with greeks. `null` means no live chain. */
+/**
+ * The chain for one expiry, both sides, with greeks — AND the spot that produced it.
+ *
+ * The spot travels WITH the chain deliberately. The options header used to read `priceOf(sym)`,
+ * which falls back to the static table for any symbol the user has not opened a stock screen for,
+ * so it rendered "Apple at $228.50" above strikes centred on 305.35. Same number, two sources, one
+ * screen — the $1,184 defect again. `null` means no live chain.
+ */
 export const getChain = (sym: string, expiry: string) =>
-  safe<{ contracts: Contract[] }>(`/api/options?action=chain&sym=${sym}&expiry=${expiry}`).then(
-    (d) => d?.contracts ?? null,
-  );
+  safe<{ contracts: Contract[]; spot?: number }>(
+    `/api/options?action=chain&sym=${sym}&expiry=${expiry}`,
+  ).then((d) => (d?.contracts ? { contracts: d.contracts, spot: Number(d.spot) || 0 } : null));
 
 /* ------------------------------------------------------------------ key statistics */
 
