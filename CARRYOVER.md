@@ -458,8 +458,24 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
 - **17 captured screens unaudited** — `digest`, `chat`, `options`, `stock` next by priority.
   **BLOCKED: ScreensDesign Pro has lapsed** (`search_apps` → *"An active Pro subscription is
   required"*), and AGENTS.md makes it mandatory for design work. Label any HIG-only work as such.
-- **Live market data has never been seen IN THE APP.** Endpoints verified by curl only. The Trade tab
-  and stock screens have not been opened against real prices. **That is a different claim** — C109.
+- ✅ **Live market data HAS now been seen in the app** (2026-08-14). Trade tab, stock screen and the
+  options chain all driven on device against real data. What it cost to learn: C109 was right twice
+  — the $1,184-vs-$225.30 contradiction and the "% today" badge showing yesterday were both
+  invisible to curl and to a green gate.
+  **Options is LIVE and the marketdata.app swap works in the app**, not just in curl: NVDA, 85 call
+  strikes $50–$400 across 8 real expiries (`08-14 … 09-11`), near-the-money pricing credible
+  (`$207.50 call, $1,720, IV 63%, Δ0.95`). Header reads `NVIDIA at $225.30 · 3 of 3 preview contracts
+  left` — spot live, and the preview allowance correctly restored by the v2 unwind. Requires Pro:
+  `./scripts/seed-trial.sh 1 true`.
+  🟡 **But the chain OPENS AT $50, 4.5× from spot** — the user's first screen is deep-ITM calls at
+  $17,710 against $6,448 of cash, and $1.00 puts at Δ-0.00. Near-the-money sits at row ~55 of 85.
+  Phase 16 made this newly RELEVANT rather than newly broken: at the old static $1,184 spot, no
+  strike was near the money and the chain never spanned it. Anchoring the initial scroll is DESIGN
+  work — ScreensDesign is mandatory and lapsed. Smaller: the IV column renders provider noise as
+  fact at the wings (`IV 0%` and `IV 617%` on adjacent rows).
+  **Digest has NO live-market surface** — it is curriculum content from `sync-digest.sh`. Renders
+  correctly (35 guides, categories reconcile 6+7+7+8+7), but C109 never applied to it. Do not put it
+  on a market-data checklist again.
 - ✅ **PHASE 16 LANDED 2026-08-13 — `priceOf` is live-backed.** Found by opening the app (C109, again):
   `stock/[sym].tsx` rendered headline **`$1,184.00`** (mock) directly above **previous close
   `$225.30`** (live) — a +425% move that never happened, on one screen. **Four green gate runs sat
