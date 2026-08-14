@@ -130,7 +130,7 @@ const mintRewardCards = (n: number) =>
 
 // Re-exported: screens already import these from the store, and the rules now live in
 // `day-keys.ts` so a regression can pin them.
-export { dayKey, weekKey } from './day-keys';
+export { dayKey, shouldCountReturn, weekKey } from './day-keys';
 
 /** Stable id for one curriculum lesson inside `completedLessons`. */
 export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
@@ -440,6 +440,14 @@ export type AppState = {
    * real use; see the call sites in completeLesson / markPostRead / spendAtlasMessage / buy / sell.
    */
   markActiveDay: () => void;
+  /**
+   * The last local day a `day_return` was counted. Separate from `activeDays` on purpose: that set
+   * is written by real USE, so it cannot also serve as "already counted a return today" — the gap
+   * between launching and doing anything is exactly where the double-count lived.
+   */
+  lastReturnDay: string;
+  /** Stamp today as counted, so the rest of the day's launches are not returns. Idempotent. */
+  markReturnCounted: () => void;
   /** Follow / unfollow. Idempotent both ways. */
   toggleWatch: (sym: string) => void;
   /** Options contracts opened. Counts against `PRO_DERIVATIVE_PREVIEW`. */
@@ -547,6 +555,10 @@ export const useApp = create<AppState>()(
       // Cap is TRIAL_DAYS + 1 (4). One past the limit is all `tier()` needs to say "expired";
       // keeping more would grow forever for no reader.
       markActiveDay: () => set((s) => ({ activeDays: withToday(s.activeDays) })),
+      lastReturnDay: '',
+      markReturnCounted: () => {
+        set({ lastReturnDay: dayKey() });
+      },
       atlasLeft: () => (get().isPro ? Infinity : Math.max(0, FREE_ATLAS_MESSAGES - get().atlasAsked)),
 
       claimReward: () =>
@@ -737,7 +749,7 @@ export const useApp = create<AppState>()(
       name: 'euphoria-app-state',
       storage: createJSONStorage(() => AsyncStorage),
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions, costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

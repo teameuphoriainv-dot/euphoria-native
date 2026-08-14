@@ -36,6 +36,29 @@ export const withToday = (days: string[]) => {
   return days.includes(k) ? days : [...days, k].slice(-4);
 };
 
+/**
+ * Whether a launch right now is a RETURN worth counting, given the day one was last counted.
+ *
+ * Three conditions, each load-bearing:
+ *   - `activeDays.length > 0` — a first-ever install is an install, not a return.
+ *   - `!activeDays.includes(k)` — today has not already counted as a trial day.
+ *   - `lastReturnDay !== k`    — and we have not already counted a return today.
+ *
+ * The third one was missing, and the first two cannot cover for it. `activeDays` is written by real
+ * USE, never by launching — see `withToday`'s call sites — so between opening the app and doing
+ * anything in it, both of the first two conditions stay true on EVERY launch. Verified against
+ * PostHog on 2026-08-13: two launches ninety seconds apart produced two `day_return` events for one
+ * device. That inflates the precise metric the event exists to measure, and day-N retention would
+ * have read as engagement. Same shape as the `paywall_dismissed` double-count in 17d.
+ *
+ * Kept here rather than at the call site because it is a rule about days, and because a unit test on
+ * the old predicate would have passed — the bug was that the predicate was asked once per launch.
+ */
+export const shouldCountReturn = (lastReturnDay: string, activeDays: string[]) => {
+  const k = dayKey();
+  return activeDays.length > 0 && !activeDays.includes(k) && lastReturnDay !== k;
+};
+
 /** Yesterday's local day key. Used to decide whether a completion extends the streak or restarts it. */
 export const prevDayKey = () => dayKey(new Date(Date.now() - 86_400_000));
 

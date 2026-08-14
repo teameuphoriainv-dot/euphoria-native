@@ -24,8 +24,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { Ev, track } from '@/lib/analytics';
-import { dayKey, useApp } from '@/lib/store';
+import { AppState as RNAppState } from 'react-native';
+
+import { Ev, flushAnalytics, track } from '@/lib/analytics';
+import { shouldCountReturn, useApp } from '@/lib/store';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -75,12 +77,32 @@ export default function RootLayout() {
    */
   useEffect(() => {
     if (!loaded) return;
-    const { activeDays } = useApp.getState();
-    const today = dayKey();
-    if (activeDays.length > 0 && !activeDays.includes(today)) {
+    const { activeDays, lastReturnDay, markReturnCounted } = useApp.getState();
+    if (shouldCountReturn(lastReturnDay, activeDays)) {
       track(Ev.dayReturn, { day_number: activeDays.length + 1 });
+      // Stamp BEFORE the day is otherwise recorded. `activeDays` only gains today once the user
+      // does something real, so without this every launch in between counted as another return.
+      markReturnCounted();
     }
   }, [loaded]);
+
+  /**
+   * Flush on the way out. `flushAnalytics` existed with ZERO call sites until 2026-08-13 — the
+   * function was written for exactly this and never wired, so the events of a short session were
+   * simply lost. Measured: two launches fired `day_return`, and neither reached PostHog, because
+   * PostHog's own batch timer had not elapsed before the process died.
+   *
+   * `RNAppState` is aliased because `AppState` in this codebase already means the Zustand store's
+   * shape — importing it unaliased reads as the store and type-checks as neither.
+   */
+  useEffect(() => {
+    const sub = RNAppState.addEventListener('change', (next) => {
+      if (next !== 'active') flushAnalytics();
+    });
+    return () => {
+      sub.remove();
+    };
+  }, []);
 
   if (!loaded) return null;
 

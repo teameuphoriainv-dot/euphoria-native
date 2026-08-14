@@ -18,7 +18,7 @@
 // nothing could test it.
 // ============================================================================
 
-import { dayKey, nextStreak, weekKey, withToday } from '../src/lib/day-keys.ts';
+import { dayKey, nextStreak, shouldCountReturn, weekKey, withToday } from '../src/lib/day-keys.ts';
 
 const fail = [];
 const check = (name, got, want) => {
@@ -61,6 +61,19 @@ check('adds today once', withToday([]), [today]);
 check('adding twice is a no-op', withToday([today]), [today]);
 check('keeps at most 4 (TRIAL_DAYS + 1)', withToday(['a', 'b', 'c', 'd']).length, 4);
 check('keeps the NEWEST when it trims', withToday(['a', 'b', 'c', 'd']).at(-1), today);
+
+console.log('\n shouldCountReturn — one return per day, not one per launch');
+// The whole bug, as one line. Under the OLD predicate — activeDays.length > 0 &&
+// !activeDays.includes(today) — this was TRUE, and stayed true for every launch until the user did
+// something that wrote today into activeDays. Two launches, two day_return events, one device.
+check('already counted today — second launch is not a return', shouldCountReturn(today, [yesterday]), false);
+check('returned today, not yet active — counts once', shouldCountReturn(yesterday, [yesterday]), true);
+check('first-ever install is not a return', shouldCountReturn('', []), false);
+check('never counted, active yesterday — counts', shouldCountReturn('', [yesterday]), true);
+// Upgrade path: installs that predate `lastReturnDay` rehydrate with ''. Someone already active
+// today must not be counted a second time just because the new field is empty.
+check('empty stamp but already active today — not a return', shouldCountReturn('', [yesterday, today]), false);
+check('stale stamp from a previous day — counts again', shouldCountReturn(twoDaysAgo, [twoDaysAgo]), true);
 
 if (fail.length > 0) {
   console.log('\nFAILED\n');
