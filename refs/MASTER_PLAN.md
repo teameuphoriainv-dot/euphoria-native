@@ -6619,3 +6619,54 @@ above rather than edited, because the wrong reasoning is the useful part of the 
 
 Three of the four API keys remain unset (`POLYGON`, `ALPHAVANTAGE`, `TRADIER`), so market data and
 options are still `503`. That is now purely a matter of obtaining them — the pipeline is proven.
+
+### C121. ATLAS ANSWERS IN THE APP. And thinking tokens were eating the answer.
+
+Verified on device 2026-08-13, chat screen, real question and real reply:
+
+> *"Think of it as interest earning its own interest. When you save money, you earn interest on your
+> original deposit. Over time, you also earn interest on the interest you already made. Your money
+> starts growing faster and faster, like a snowball rolling down a hill. **Does that make sense so
+> far?**"*
+
+Short sentences, second person, no markdown, no emoji, and it checks whether the idea landed — the
+system prompt working line by line. Counter decremented 10 → 9.
+
+### THE BUG THAT WAS HIDING INSIDE A WORKING ENDPOINT
+
+The first replies came back **cut mid-sentence** — "you buy a tiny piece of ownership in a". The
+endpoint returned `200`, the body looked fine, and `finishReason` said **`STOP`**. Nothing announced
+a problem.
+
+`usageMetadata` did:
+
+```
+promptTokenCount 10 · thoughtsTokenCount 346 · candidatesTokenCount 30 · totalTokenCount 386
+```
+
+**Gemini 3.x counts THINKING against `maxOutputTokens`.** 346 of the 400-token budget was thought, so
+the visible answer got the scraps. Two separate failures from one setting:
+
+1. **Correctness** — Atlas hands a half-sentence to an 18-25 year old learning about money.
+2. **Cost** — ~17× the tokens for a one-sentence answer, on the single feature with a real
+   per-message cost, quietly undoing the daily cap added hours earlier.
+
+**`thinkingLevel: "low"` IS NOT ENOUGH — measured, it still burned 318.** Only
+`thinkingConfig: { thinkingBudget: 0 }` stops it: 0 thoughts, 22-token answer, complete sentence.
+
+Also hardened: the route read `parts[0].text`, and a thinking model can put a thought part first —
+which this route reports as `empty` and a 502, i.e. "Atlas is broken" for a response that succeeded.
+It now takes the first part that actually has text.
+
+**Pinned in `advice-guard-regression.mjs`**, because none of this is visible in a response body. The
+pin initially failed on its own doc comment — `chat+api.ts` NAMES `thinkingLevel` while explaining
+why not to use it — which is the `privacy-claim-pin` trap for the second time. Comments are stripped
+before the scan. **Twice now, a checker has failed on the prose warning about the thing it checks
+for.**
+
+### AND A DEV-PARITY NOTE
+
+`apiBase()` resolves to Metro's `hostUri` in a dev build, so the simulator talks to the LOCAL server,
+not production. Verifying Atlas on device therefore needs `GEMINI_API_KEY` in `.env.local` as well as
+on EAS. `eas.json` already sets `EXPO_PUBLIC_API_URL` for the preview and production profiles, so
+real builds point at the deployed origin.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ============================================================================
-// Pins the advice guard on Atlas completions.
+// Pins the Atlas chat route: the advice guard, and the request config.
 //
 //   node scripts/advice-guard-regression.mjs
 //
@@ -69,6 +69,36 @@ for (const t of ALLOW) {
   if (!ok) fail.push(`BLOCKED but is teaching: ${t}`);
 }
 
+/*
+ * REQUEST CONFIG. Not about advice — about the two settings whose absence is INVISIBLE.
+ *
+ * Gemini 3.x counts thinking tokens against maxOutputTokens. Measured: 346 of 386 tokens were
+ * thought, so the answer was cut mid-sentence while finishReason said "STOP" and the body looked
+ * fine. Nothing short of reading usageMetadata reveals it, and it costs ~17x per message on the one
+ * feature with a real per-message cost.
+ */
+import { readFileSync } from 'node:fs';
+
+// Comments stripped first — the same trap privacy-claim-pin hit. chat+api.ts NAMES `thinkingLevel`
+// in the comment explaining why it is insufficient, so a naive scan fails on the prose warning
+// against the thing it is checking for.
+const route = readFileSync('src/app/api/chat+api.ts', 'utf8')
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/^\s*\/\/.*$/gm, '');
+console.log('\n REQUEST CONFIG (silent failures)');
+const cfg = [
+  ['thinking is OFF (thinkingBudget: 0)', /thinkingConfig:\s*\{\s*thinkingBudget:\s*0\s*\}/],
+  ['thinkingLevel is NOT used — measured insufficient, still burned 318', /thinkingLevel/, true],
+  ['output is bounded (maxOutputTokens)', /maxOutputTokens:\s*\d+/],
+  ['reads the first part WITH text, not parts[0].text', /parts\.find\(/],
+];
+for (const [name, re, mustBeAbsent] of cfg) {
+  const present = re.test(route);
+  const ok = mustBeAbsent ? !present : present;
+  console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${name}`);
+  if (!ok) fail.push(mustBeAbsent ? `${name}: found it, and it does not work` : `${name}: missing from chat+api.ts`);
+}
+
 if (fail.length > 0) {
   console.log('\nFAILED\n');
   for (const f of fail) console.log(`  ${f}`);
@@ -77,4 +107,4 @@ if (fail.length > 0) {
   process.exit(1);
 }
 
-console.log(`\nPASS — ${BLOCK.length} refused, ${ALLOW.length} taught.\n`);
+console.log(`\nPASS — ${BLOCK.length} refused, ${ALLOW.length} taught, config pinned.\n`);

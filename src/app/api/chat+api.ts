@@ -146,7 +146,34 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM }] },
         contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.content }] })),
-        generationConfig: { maxOutputTokens: 400, temperature: 0.7 },
+        generationConfig: {
+          maxOutputTokens: 400,
+          temperature: 0.7,
+          /*
+           * THINKING OFF, AND THIS IS NOT AN OPTIMISATION — IT IS A CORRECTNESS FIX.
+           *
+           * Gemini 3.x counts thinking tokens against `maxOutputTokens`. Measured on this exact
+           * request, 2026-08-13:
+           *
+           *   promptTokenCount 10 · thoughtsTokenCount 346 · candidatesTokenCount 30 · total 386
+           *
+           * **346 of 386 tokens were thought.** The visible answer got what was left, which is why
+           * Atlas replied "you buy a tiny piece of ownership in a" — cut mid-sentence, with
+           * `finishReason: "STOP"` and a perfectly plausible-looking body. Nothing in the response
+           * says "truncated"; you have to read usageMetadata to see it.
+           *
+           * It is also a COST bug on the one feature with a real per-message cost to us: ~17x the
+           * tokens to produce a one-sentence answer, which quietly undoes the daily cap above.
+           *
+           * `thinkingLevel: "low"` is NOT sufficient — measured, it still burned 318 thought
+           * tokens. Only `thinkingBudget: 0` actually stops it: 0 thoughts, 22-token answer,
+           * complete sentence.
+           *
+           * Atlas answers one short question at a time inside a speech bubble. There is nothing
+           * here worth thinking 346 tokens about.
+           */
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       }),
     });
 
@@ -167,7 +194,15 @@ export async function POST(request: Request) {
     }
 
     const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    /*
+     * The FIRST part with text, not `parts[0].text`. A thinking model can return a thought part
+     * ahead of the answer, and `parts[0]` would then be an object with no `text` — which this route
+     * reports as `empty` and a 502, i.e. "Atlas is broken" for a response that actually succeeded.
+     * `thinkingBudget: 0` above means that should not arise; this costs nothing and removes the
+     * class of failure rather than relying on a config staying put.
+     */
+    const parts: { text?: string }[] = data?.candidates?.[0]?.content?.parts ?? [];
+    const text = parts.find((p) => typeof p?.text === 'string' && p.text.trim())?.text;
     if (typeof text !== 'string' || !text.trim()) {
       console.error('[chat] no text in response', JSON.stringify(data).slice(0, 500));
       return Response.json({ error: 'empty' }, { status: 502 });
