@@ -1,6 +1,6 @@
 # Changelog
 
-Every commit in `euphoria-native`, newest first — **365 commits** across **16 active days**, 2026-07-20 → 2026-08-13.
+Every commit in `euphoria-native`, newest first — **371 commits** across **16 active days**, 2026-07-20 → 2026-08-13.
 
 This file is generated from `git log`. It is the *record*; the *reasoning* lives in `refs/MASTER_PLAN.md` §22, the corrections log, where entries are numbered `C1`…`C115` and commit messages reference them by number. When a subject here mentions a `C` number, that is where to read why.
 
@@ -9,14 +9,14 @@ This file is generated from `git log`. It is the *record*; the *reasoning* lives
 | type | count | what it means here |
 |---|---:|---|
 | `change` | 182 | pre-convention commits, from before the repo standardised on Conventional Commits |
-| `docs` | 71 | the plan, the corrections log, or a handoff |
-| `feat` | 50 | a user-visible capability |
-| `fix` | 27 | a defect corrected |
+| `docs` | 72 | the plan, the corrections log, or a handoff |
+| `feat` | 52 | a user-visible capability |
+| `fix` | 28 | a defect corrected |
 | `chore` | 8 | housekeeping |
-| `audit` | 6 | a screen or system reviewed against evidence |
+| `audit` | 7 | a screen or system reviewed against evidence |
 | `content` | 4 |  |
+| `test` | 3 | a regression or pin added |
 | `copy` | 3 | user-facing wording, approved per §0.7 |
-| `test` | 2 | a regression or pin added |
 | `revert` | 2 | a change backed out |
 | `refs` | 2 |  |
 | `refactor` | 1 | structure changed, behaviour held |
@@ -50,8 +50,14 @@ This file is generated from `git log`. It is the *record*; the *reasoning* lives
 
 ---
 
-## 2026-08-13 · 4 commits
+## 2026-08-13 · 10 commits
 
+- `b872a0f` **test(17c)** — verified on device, and three ways the tree lied about it
+- `f4d21a1` **audit(security)** — entitlement stops at the client, and a landmine for later
+- `8667943` **feat(api)** — make signing in mean something to the server
+- `d067def` **feat(chat)** — check that the model obeyed the rule, instead of trusting it
+- `148feab` **fix(api)** — uppercasing a ticker was standing in for validating it
+- `9f03939` **docs** — a real README, and every commit written down
 - `2abfda1` **feat(17c)** — the trial reward offer, anchored to a win rather than to a day
 - `e5985d6` **docs(17d)** — verified on device, and the offer is unreachable from Home
 - `c064c8f` **docs(17g)** — closed, and the reason 17c kept surviving handoffs
