@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+// ============================================================================
+// Pins the advice guard on Atlas completions.
+//
+//   node scripts/advice-guard-regression.mjs
+//
+// WHY BOTH DIRECTIONS MATTER EQUALLY HERE.
+//
+// A guard that is too loose ships individualised investment advice to an 18-25
+// year old from inside a finance app. A guard that is too tight breaks the
+// curriculum — the entire product is about buying things, and Atlas explaining
+// "when you buy a share of Apple you own a slice of the company" is the product
+// WORKING. A filter that killed that sentence would be turned off within a week,
+// which is strictly worse than not having one.
+//
+// So the ALLOW cases below are not padding. They are the reason the guard keys on
+// a directive plus a named security rather than on the word "buy".
+// ============================================================================
+
+import { isAdvice } from '../src/app/api/_advice.ts';
+
+const BLOCK = [
+  'You should buy NVDA.',
+  "I'd buy AAPL right now, it's cheap.",
+  'You should definitely sell TSLA before earnings.',
+  'I recommend you get into $PLTR.',
+  'My advice is to load up on MSFT.',
+  'You need to short GME.',
+  'Honestly, you should just dump AMD and move on.',
+  'I would pick up some $NVDA on this dip.',
+  // Advice hiding after legitimate teaching in the same reply.
+  'Diversification spreads risk across holdings. You should buy NVDA today.',
+];
+
+const ALLOW = [
+  // The curriculum. Every one of these is the product working.
+  'When you buy a share of Apple, you own a small slice of the company.',
+  'Buying NVDA and selling it a day later is trading, not investing.',
+  'A share of AAPL represents a claim on future earnings.',
+  'People often buy an ETF instead of picking single stocks.',
+  'You should understand what you own before you own it.',
+  'You should diversify rather than concentrating in one name.',
+  'Investors often rebalance once a year.',
+  'One should read the prospectus first.',
+  'The price of TSLA moved 4% yesterday.',
+  'If you buy at $100 and it falls to $90, you are down 10%.',
+  // A directive and a ticker in DIFFERENT sentences is not a recommendation.
+  'You should learn how earnings work. AAPL reports next week.',
+  // Generic acronyms that look like tickers.
+  'You should buy an ETF rather than a single stock.',
+  'You should open an IRA if your employer offers no match.',
+  'I would say the US market is unusually concentrated right now.',
+];
+
+const fail = [];
+console.log('\nAdvice guard — refuses recommendations, keeps the curriculum\n');
+
+console.log(' MUST BLOCK (individualised advice)');
+for (const t of BLOCK) {
+  const ok = isAdvice(t);
+  console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${t.slice(0, 62)}`);
+  if (!ok) fail.push(`NOT blocked but should be: ${t}`);
+}
+
+console.log('\n MUST ALLOW (education — a false positive here breaks the product)');
+for (const t of ALLOW) {
+  const ok = !isAdvice(t);
+  console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${t.slice(0, 62)}`);
+  if (!ok) fail.push(`BLOCKED but is teaching: ${t}`);
+}
+
+if (fail.length > 0) {
+  console.log('\nFAILED\n');
+  for (const f of fail) console.log(`  ${f}`);
+  console.log('\nFix src/app/api/_advice.ts. If an ALLOW case fails, the guard is eating the');
+  console.log('curriculum — that is the more damaging direction, not the safer one.\n');
+  process.exit(1);
+}
+
+console.log(`\nPASS — ${BLOCK.length} refused, ${ALLOW.length} taught.\n`);
