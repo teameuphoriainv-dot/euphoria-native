@@ -62,7 +62,25 @@ export type Contract = {
   ask: number;
   mid: number;
   iv: number;
-  delta: number;
+  /**
+   * THE FULL GREEK SET, because Cboe hands it over for free and dropping it was a self-inflicted
+   * limitation. This type used to carry `delta` alone while the payload it was mapped from also
+   * contained gamma, theta, vega, rho and a theoretical value — every one discarded in the mapper.
+   *
+   * They are what makes an options teaching screen worth having: delta is direction, gamma is how
+   * fast direction changes, theta is what the position loses per day, vega is exposure to a change
+   * in volatility. `stock/[sym].tsx` says the desk exists so a learner can watch a contract move on
+   * "time and volatility, not just direction" — and time and volatility were the two the app could
+   * not show.
+   *
+   * 0 means UNKNOWN throughout, consistent with the rest of this file.
+   */
+  gamma: number;
+  theta: number;
+  vega: number;
+  rho: number;
+  /** The provider's own theoretical value. Useful next to mid: a wide spread shows up as a gap. */
+  theo: number;
   openInterest: number;
   volume: number;
 };
@@ -105,6 +123,20 @@ export const plausibleIv = (iv: number): number => (iv >= 0.01 && iv <= 5 ? iv :
 export const finiteNonNegative = (v: unknown): number => {
   const n = Number(v);
   return Number.isFinite(n) && n >= 0 ? n : 0;
+};
+
+/**
+ * A finite SIGNED greek, or 0.
+ *
+ * theta is negative for a long option, rho is negative for puts, and gamma/vega are positive — so
+ * these cannot use `finiteNonNegative` without silently zeroing the ones that carry the most
+ * meaning. Only non-finite values are rejected. The magnitude is deliberately NOT clamped: unlike
+ * IV there is no universal plausible band for a greek, and inventing one would discard real data
+ * from a short-dated contract.
+ */
+export const finiteSigned = (v: unknown): number => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
 };
 
 /** Delta is a probability-like quantity: calls sit in [0,1], puts in [-1,0]. Anything else is noise. */
@@ -168,7 +200,7 @@ export function expiriesFromCboe(j: Raw): string[] {
  * than by the provider. Strikes are chosen by distance from spot, which is what `strikeLimit` did
  * upstream — the screen must open at the money, not at $50 against a $225 stock.
  */
-export function fromCboe(j: Raw, expiry: string, window = STRIKE_WINDOW): Contract[] {
+export function fromCboe(j: Raw, expiry: string, window?: number): Contract[] {
   const data = (j.data ?? {}) as Raw;
   const rows = (data.options ?? []) as Raw[];
   const spot = Number(data.current_price ?? data.close ?? 0);
@@ -182,7 +214,15 @@ export function fromCboe(j: Raw, expiry: string, window = STRIKE_WINDOW): Contra
   const strikes = [...new Set(parsed.map((x) => x.occ!.strike))].sort((a, b) =>
     spot > 0 ? Math.abs(a - spot) - Math.abs(b - spot) : a - b,
   );
-  const keep = new Set(strikes.slice(0, window));
+  /*
+   * NO WINDOW MEANS THE ENTIRE CHAIN, and that is the normal case now.
+   *
+   * `STRIKE_WINDOW` exists because marketdata.app bills PER CONTRACT. Cboe bills nothing, so
+   * truncating its chain buys us exactly nothing and costs the user every strike outside the box.
+   * A full NVDA expiry is 63-108 strikes, which is a small JSON payload. The window is kept as an
+   * argument solely for the marketdata fallback, where it is still a real budget.
+   */
+  const keep = new Set(window ? strikes.slice(0, window) : strikes);
 
   return parsed
     .filter((x) => keep.has(x.occ!.strike))
@@ -197,7 +237,14 @@ export function fromCboe(j: Raw, expiry: string, window = STRIKE_WINDOW): Contra
         ask,
         mid: bid && ask ? (bid + ask) / 2 : ask || bid,
         iv: plausibleIv(finiteNonNegative(raw.iv)),
+        // Greeks are signed: theta is negative for a long option, rho negative for puts. Only the
+        // magnitude is bounded, so they cannot use the non-negative clamp.
         delta: plausibleDelta(raw.delta),
+        gamma: finiteSigned(raw.gamma),
+        theta: finiteSigned(raw.theta),
+        vega: finiteSigned(raw.vega),
+        rho: finiteSigned(raw.rho),
+        theo: finiteNonNegative(raw.theo),
         openInterest: finiteNonNegative(raw.open_interest),
         volume: finiteNonNegative(raw.volume),
       };
@@ -229,6 +276,12 @@ export function fromMarketdata(j: Raw): Contract[] {
       iv: plausibleIv(num('iv', i)),
       // delta is the one field that is legitimately NEGATIVE (puts), so it cannot use `num`.
       delta: plausibleDelta(col('delta')[i]),
+      gamma: finiteSigned(col('gamma')[i]),
+      theta: finiteSigned(col('theta')[i]),
+      vega: finiteSigned(col('vega')[i]),
+      // marketdata does not publish rho or a theoretical value. 0 means unknown, as everywhere here.
+      rho: 0,
+      theo: 0,
       openInterest: num('openInterest', i),
       volume: num('volume', i),
     };
@@ -241,19 +294,26 @@ export const many = <T,>(v: T | T[] | null | undefined): T[] => (Array.isArray(v
 export function fromTradier(j: Raw): Contract[] {
   return many<Raw>((j?.options as Raw | undefined)?.option as Raw | Raw[]).map((o) => {
     const g = (o.greeks ?? {}) as Raw;
-    const bid = Number(o.bid) || 0;
-    const ask = Number(o.ask) || 0;
+    const bid = finiteNonNegative(o.bid);
+    const ask = finiteNonNegative(o.ask);
     return {
       symbol: String(o.symbol ?? ''),
       kind: o.option_type === 'put' ? 'put' : 'call',
-      strike: Number(o.strike) || 0,
+      strike: finiteNonNegative(o.strike),
       bid,
       ask,
       mid: bid && ask ? (bid + ask) / 2 : ask || bid,
-      iv: plausibleIv(Number(g.mid_iv ?? g.smv_vol) || 0),
-      delta: Number(g.delta) || 0,
-      openInterest: Number(o.open_interest) || 0,
-      volume: Number(o.volume) || 0,
+      iv: plausibleIv(finiteNonNegative(g.mid_iv ?? g.smv_vol)),
+      delta: plausibleDelta(g.delta),
+      // Tradier publishes the full greek set under `greeks`, including rho — the only provider here
+      // that does. `theo` has no Tradier equivalent; 0 means unknown.
+      gamma: finiteSigned(g.gamma),
+      theta: finiteSigned(g.theta),
+      vega: finiteSigned(g.vega),
+      rho: finiteSigned(g.rho),
+      theo: 0,
+      openInterest: finiteNonNegative(o.open_interest),
+      volume: finiteNonNegative(o.volume),
     };
   });
 }

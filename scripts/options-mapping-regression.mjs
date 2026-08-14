@@ -191,6 +191,33 @@ check('hostile row: mid is not Infinity', hostile[0].mid, 0);
 check('hostile row: delta clamped', hostile[0].delta, 0);
 check('hostile row: open interest clamped', hostile[0].openInterest, 0);
 
+// ── THE FULL GREEK SET, and the entire chain ────────────────────────────────────────────────
+// Cboe publishes delta, gamma, theta, vega, rho and a theoretical value for every contract, free.
+// The mapper carried delta ALONE and discarded the rest for the whole life of this feature.
+const greeky = {
+  data: {
+    current_price: 225,
+    options: [
+      { option: 'NVDA260821C00225000', bid: 3.8, ask: 3.9, iv: 0.291, delta: 0.5254, gamma: 0.0435, theta: -0.2683, vega: 0.1244, rho: 0.022, theo: 3.838, open_interest: 46812, volume: 21644 },
+      { option: 'NVDA260821C00050000', bid: 175, ask: 176, iv: 0.0, delta: 1, gamma: 0, theta: 0, vega: 0, rho: 0, theo: 175.2, open_interest: 7, volume: 1 },
+      { option: 'NVDA260821P00400000', bid: 174, ask: 175, iv: 0.4, delta: -0.98, gamma: 0.001, theta: -0.05, vega: 0.02, rho: -0.31, theo: 174.5, open_interest: 3, volume: 0 },
+    ],
+  },
+};
+const atm = fromCboe(greeky, '2026-08-21').find((c) => c.strike === 225);
+check('gamma survives the mapper', atm.gamma, 0.0435);
+check('theta survives, and stays NEGATIVE', atm.theta, -0.2683);
+check('vega survives', atm.vega, 0.1244);
+check('rho survives', atm.rho, 0.022);
+check('the theoretical value survives', atm.theo, 3.838);
+check('open interest is not truncated', atm.openInterest, 46812);
+// rho is legitimately negative for puts — clamping greeks to non-negative would have eaten this.
+check('a put rho stays negative', fromCboe(greeky, '2026-08-21').find((c) => c.strike === 400).rho, -0.31);
+// NO WINDOW MEANS THE WHOLE CHAIN. STRIKE_WINDOW is a marketdata credit budget, and Cboe is free —
+// truncating its chain bought nothing and cost the user every strike outside the box.
+check('no window returns every strike', [...new Set(fromCboe(greeky, '2026-08-21').map((c) => c.strike))].sort((a, b) => a - b), [50, 225, 400]);
+check('a window still narrows, for the paid fallback', [...new Set(fromCboe(greeky, '2026-08-21', 1).map((c) => c.strike))], [225]);
+
 if (fail.length > 0) {
   console.log('\nFAILED\n');
   for (const f of fail) console.log(`  ${f}`);

@@ -122,6 +122,13 @@ export function toPath(points: ChartPoint[], w: number, h: number, pad = 2): str
 
 /* ------------------------------------------------------------------ options chain (Tradier) */
 
+/**
+ * The client's view of a contract. **This is a SECOND declaration of `api/_chain.ts`'s `Contract`**
+ * and the two must stay in step — the client cannot import the server module, so nothing enforces
+ * it. Adding a field to one and not the other is silent: the JSON still arrives, and the screen just
+ * cannot see it. That is exactly how gamma, theta, vega and rho were dropped for the whole life of
+ * this feature while the provider was sending them all along.
+ */
 export type Contract = {
   symbol: string;
   kind: 'call' | 'put';
@@ -130,7 +137,14 @@ export type Contract = {
   ask: number;
   mid: number;
   iv: number;
+  /** The full greek set. 0 means unknown, matching the server mapping. */
   delta: number;
+  gamma: number;
+  theta: number;
+  vega: number;
+  rho: number;
+  /** The provider's theoretical value, where it publishes one. */
+  theo: number;
   openInterest: number;
   volume: number;
 };

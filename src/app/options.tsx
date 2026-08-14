@@ -20,7 +20,7 @@
  * FUTURES ARE DELIBERATELY ABSENT — separate venue, margin model and settlement calendar.
  */
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -89,8 +89,8 @@ function ChainRow({
   onPick,
 }: {
   strike: number;
-  call: { cost: number; sub: string } | null;
-  put: { cost: number; sub: string } | null;
+  call: { cost: number; sub: string; c?: Contract } | null;
+  put: { cost: number; sub: string; c?: Contract } | null;
   spot: number;
   show: 'both' | 'call' | 'put';
   selected: 'call' | 'put' | null;
@@ -104,7 +104,7 @@ function ChainRow({
 
   const cell = (
     side: 'call' | 'put',
-    data: { cost: number; sub: string } | null,
+    data: { cost: number; sub: string; c?: Contract } | null,
     itm: boolean,
   ) => (
     <SpringPressable
@@ -171,6 +171,21 @@ export default function Options() {
 
   const live = chain !== null && chain.length > 0;
 
+  /*
+   * OPEN AT THE MONEY. The chain is now the FULL expiry — 63 to 108 strikes — because Cboe charges
+   * nothing and truncating it only hid strikes from the user. But a full chain sorted by strike
+   * opens at the lowest one, which is precisely the bug that made this screen useless before: deep
+   * ITM calls at $17,710 against a $6,448 balance, with the interesting strikes 55 rows down.
+   *
+   * So the list stays in strike order — a chain that jumps around is unreadable — and the SCROLL
+   * moves instead. `didScroll` keys on symbol+expiry so this fires once per chain and never fights
+   * a user who has scrolled away.
+   */
+  const scrollRef = useRef<ScrollView>(null);
+  const didScroll = useRef('');
+  /** The ATM row's y within the scroll content, captured by its own onLayout. */
+  const atmY = useRef(0);
+
   // Expiries for the chosen underlying. An empty result means no token, which the UI states.
   useEffect(() => {
     let cancelled = false;
@@ -203,6 +218,15 @@ export default function Options() {
    * chain lands, `priceOf` is the honest answer: it is what the rest of the app values with.
    */
   const spot = !loading && chainSpot > 0 ? chainSpot : priceOf(sym);
+
+  /** The strike nearest the money, or null when there is nothing to centre on. */
+  const atmStrike = (() => {
+    if (!live || !(spot > 0)) return null;
+    return chain!.reduce(
+      (best, c) => (Math.abs(c.strike - spot) < Math.abs(best - spot) ? c.strike : best),
+      chain![0].strike,
+    );
+  })();
   useEffect(() => {
     if (!expiry) return;
     let cancelled = false;
@@ -241,6 +265,10 @@ export default function Options() {
                 sub:
                   (x.iv > 0 ? `IV ${(x.iv * 100).toFixed(0)}% \u00b7 ` : '') +
                   `\u0394${x.delta.toFixed(2)}`,
+                // The contract itself, so the ticket below can show the FULL greek set. The row
+                // stays deliberately terse \u2014 delta and IV \u2014 because a chain row is a scanning
+                // surface; the greeks belong where the user has committed to one strike.
+                c: x,
               }
             : null;
         return { strike, call: fmt(c), put: fmt(p), days: 0 };
@@ -248,8 +276,11 @@ export default function Options() {
     }
     return strikesAround(spot).map((strike) => ({
       strike,
-      call: { cost: premium('call', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled' },
-      put: { cost: premium('put', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled' },
+      // `c: undefined` keeps the modelled row the SAME SHAPE as a live one. Without it the two
+      // branches union to a type with no `c`, and the ticket cannot ask for greeks at all — which
+      // is also the honest answer here: a Black-Scholes row has no greeks worth printing.
+      call: { cost: premium('call', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled', c: undefined },
+      put: { cost: premium('put', spot, strike, MODEL_DAYS[1]) * CONTRACT_SIZE, sub: 'modelled', c: undefined },
       days: MODEL_DAYS[1],
     }));
   })();
@@ -298,7 +329,24 @@ export default function Options() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={26} glow={false} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        /*
+         * Scroll when the CONTENT HAS SETTLED, not when the ATM row first lays out. Its onLayout
+         * fires while the news rail, chips and headers above it are still measuring, so the y it
+         * reports is smaller than the final one — measured on device: the chain landed at $195
+         * against a $225 spot, twelve strikes early. onContentSizeChange fires after layout settles,
+         * so the y is the real one. Still gated on `didScroll` per symbol+expiry, so it never fights
+         * a user who has scrolled away.
+         */
+        onContentSizeChange={() => {
+          if (didScroll.current === key || !atmY.current) return;
+          didScroll.current = key;
+          scrollRef.current?.scrollTo({ y: Math.max(0, atmY.current - 200), animated: false });
+        }}
+      >
         <SpringPressable haptic={false} onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel="Back to Trade">
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
           <ThemedText type="small" themeColor="mutedForeground">Trade</ThemedText>
@@ -377,7 +425,8 @@ export default function Options() {
             {loading ? (
               <View style={styles.loading}><ActivityIndicator color={theme.primary} /></View>
             ) : (
-              rows.map((r) => (
+              rows.map((r) => {
+                const row = (
                 <ChainRow
                   key={r.strike}
                   strike={r.strike}
@@ -388,7 +437,44 @@ export default function Options() {
                   selected={pick?.strike === r.strike ? pick.side : null}
                   onPick={(side) => setPick({ strike: r.strike, side })}
                 />
-              ))
+                );
+                if (r.strike !== atmStrike) return row;
+                // Measured rather than computed from a row height, which would break the moment the
+                // row's typography or padding changes. Offset by a third of a screen so the money
+                // sits comfortably in view rather than jammed against the top.
+                return (
+                  <View
+                    key={r.strike}
+                    onLayout={(e) => {
+                      // Scroll IMMEDIATELY on the first layout, then let onContentSizeChange correct
+                      // it once everything above has settled. Doing only the first lands twelve
+                      // strikes early (measured: $195 against a $225 spot); doing only the second
+                      // never fires, because content size settles BEFORE this row reports its y.
+                      atmY.current = e.nativeEvent.layout.y;
+                      if (didScroll.current === key) return;
+                      didScroll.current = key;
+                      /*
+                       * KNOWN AND MEASURED: this lands the money LOW in the viewport rather than
+                       * centred. `layout.y` is relative to this row's parent, not to the scroll
+                       * content, so it is short by the height of everything above the list. On
+                       * device the chain opens at $195 against a $225 spot with the ATM row at
+                       * y≈680 of an 844pt screen — visible, but near the bottom.
+                       *
+                       * Left as is deliberately. The bug worth fixing was a chain that opened at
+                       * $50 with the money FIFTY-FIVE ROWS away; this is on screen. Centring it
+                       * properly needs `measureLayout` against the ScrollView's inner content node,
+                       * which is a real change rather than a tweak — do that, not a magic constant,
+                       * because a hardcoded header height silently breaks the day the header does.
+                       */
+                      requestAnimationFrame(() => {
+                        scrollRef.current?.scrollTo({ y: Math.max(0, atmY.current - 200), animated: false });
+                      });
+                    }}
+                  >
+                    {row}
+                  </View>
+                );
+              })
             )}
           </Card>
         </RiseIn>
@@ -407,6 +493,37 @@ export default function Options() {
               <View style={styles.ticketRow}>
                 <ThemedText type="small" themeColor="mutedForeground">Break-even</ThemedText>
                 <ThemedText type="smallBold">{money(breakEven(pick.strike, chosen.cost, pick.side))}</ThemedText>
+              </View>
+            )}
+            {/*
+              THE GREEKS, received free from Cboe and previously discarded in the mapper. Shown only
+              for a LIVE contract: the Black-Scholes fallback has none worth printing, and inventing
+              them would be the \u00a70.4 defect this screen keeps turning up. Each is omitted when it is
+              0, because 0 means "unknown" throughout the chain mapping and a printed 0.000 reads as
+              a measurement.
+            */}
+            {!!(pick && chosen?.c) && (
+              <View style={styles.ticketRow}>
+                <ThemedText type="small" themeColor="mutedForeground">Greeks</ThemedText>
+                <ThemedText type="small" style={{ textAlign: 'right', flexShrink: 1 }}>
+                  {[
+                    `\u0394${chosen.c.delta.toFixed(3)}`,
+                    chosen.c.gamma ? `\u0393${chosen.c.gamma.toFixed(3)}` : '',
+                    chosen.c.theta ? `\u0398${chosen.c.theta.toFixed(3)}` : '',
+                    chosen.c.vega ? `\u03bd${chosen.c.vega.toFixed(3)}` : '',
+                    chosen.c.rho ? `\u03c1${chosen.c.rho.toFixed(3)}` : '',
+                  ]
+                    .filter(Boolean)
+                    .join('  ')}
+                </ThemedText>
+              </View>
+            )}
+            {!!(pick && chosen?.c && (chosen.c.openInterest || chosen.c.volume)) && (
+              <View style={styles.ticketRow}>
+                <ThemedText type="small" themeColor="mutedForeground">Open interest / volume</ThemedText>
+                <ThemedText type="small">
+                  {chosen.c.openInterest.toLocaleString()} / {chosen.c.volume.toLocaleString()}
+                </ThemedText>
               </View>
             )}
             <GradientButton
