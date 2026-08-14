@@ -494,6 +494,24 @@ export default function Options() {
               )}
             </View>
 
+            {/*
+              A PLAIN ScrollView RENDERS EVERY STRIKE — no virtualisation, 170 to 216 row views.
+              That looks like it should be a FlatList, and it was nearly rewritten as one. Measured
+              on device 2026-08-14 before touching it:
+
+                Home screen (Rive mascot, course carousel)   789.6 MB RSS
+                Options with the full chain rendered         615.3 MB, settling to 407.6 MB
+
+              Opening the chain LOWERS memory, because Home unmounts. Simulator RSS is inflated in
+              absolute terms; the delta is the signal, and the delta says this is not a memory
+              problem.
+
+              Frame rate during a fast scroll is NOT measured — there is no tooling here for it, so
+              it is not claimed either way. If someone finds jank on a real device, FlatList with
+              `scrollToIndex` is the fix and it replaces the centring code below wholesale. Until
+              then this stays, because rewriting a working screen on a hunch is how the chain came
+              to open at $50 in the first place.
+            */}
             {loading ? (
               <View style={styles.loading}><ActivityIndicator color={theme.primary} /></View>
             ) : (
