@@ -112,6 +112,15 @@ export default function League() {
             <UIcon name="bolt" size={13} color={theme.iconLilac} />
             <ThemedText type="small" themeColor="textSecondary">Top {PROMOTE} advance · {daysLeft()}</ThemedText>
           </View>
+          {/*
+            COPY: owner SELECTED this option; the wording is mine — delegated, not owner-authored
+            (§0.7). The standings come from `lib/people.ts`, which is fabricated and whose header
+            forbids presenting its names as real people. Promotion and demotion against invented
+            rivals, with nothing saying so, is the same claim the friends note was making.
+          */}
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.practiceNote}>
+            A practice league. Real rivals arrive when accounts do.
+          </ThemedText>
         </View>
       </RiseIn>
 
@@ -221,6 +230,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.two + 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two + 2, borderRadius: Radius.lg },
   avatar: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  practiceNote: { marginTop: Spacing.two, textAlign: 'center' },
   crestBlock: { alignItems: 'center', gap: Spacing.two, paddingTop: Spacing.one, paddingBottom: Spacing.three },
   timePill: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingVertical: Spacing.one + 2, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
   who: { flex: 1, gap: 5 },

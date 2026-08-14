@@ -127,10 +127,30 @@ export default function Friends() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Section title="YOUR FRIENDS" note="People you follow who follow you back.">
+        {/*
+          COPY: owner SELECTED this option; the wording is mine. Recorded as DELEGATED rather than
+          owner-authored, because §0.7 draws that distinction on purpose — "the owner said choose"
+          is different provenance from "the owner chose".
+
+          The previous note read "People you follow who follow you back." Every person in
+          `lib/people.ts` is fabricated — that file's own header says so and says "nothing
+          user-facing may present them as real people" — so the note asserted a mutual relationship
+          with people who do not exist. That is §0.4 and, for App Review, a social graph of fake
+          accounts presented as real.
+        */}
+        <Section title="YOUR FRIENDS" note="Practice profiles — real friends arrive when accounts do.">
           {friends.length
             ? friends.map((p) => <PersonRow key={p.id} person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />)
-            : empty('No friends yet. Follow someone below, and it becomes a friendship when they follow you back.')}
+            : /*
+                COPY: same delegated provenance as the section note above — owner selected the
+                approach, wording is mine (§0.7).
+                This read "…and it becomes a friendship when they follow you back", which promises
+                an event THAT CANNOT HAPPEN. `follow()` in store.ts only appends to `following`;
+                nothing ever adds to `followers`, which is seeded once with priya and chris. So for
+                every other profile the promised follow-back will never arrive, and the line also
+                contradicted the "practice profiles" label directly above it.
+              */
+              empty('Follow anyone below. Mutual follows show up here once accounts are real.')}
         </Section>
 
         {inbound.length ? (
