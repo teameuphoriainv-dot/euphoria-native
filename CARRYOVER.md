@@ -25,7 +25,7 @@ they need nobody.
 
 | # | task | why it is first | done when |
 |---|---|---|---|
-| 1 | **Prove PostHog sends from the app** (§2.2) | Unit 17's whole premise is *"nothing in this unit can be judged until 17b lands"*. Five phases of instrumentation are unproven. The diagnostic logging is already in place — this is one run, not an investigation. | an app-originated event appears in project 557266 |
+| 1 | ~~Prove PostHog sends from the app~~ ✅ **DONE 2026-08-13** (§2.2) | App-originated events reach project 557266, confirmed at the network layer AND in the dashboard. Unit 17's premise is now MET. It also surfaced two real bugs — a `day_return` double-count and a `flushAnalytics` that was never wired — both fixed. | — |
 | 2 | **See live market data IN THE APP** (§9.3) | Endpoints were verified by curl only. C109: a working endpoint and a working screen are different claims, and today proved that twice. | Trade tab and a stock screen render real prices on device |
 | 3 | **Audit the 17 captured screens** — `digest`, `chat`, `options`, `stock` | ⚠️ **BLOCKED** on ScreensDesign Pro. If still lapsed, either restore it or do HIG-only work and **label it as such** (AGENTS.md rule 7). | findings written to `refs/audit/` |
 | 4 | **Unit 14** — the final consolidated review | Deliberately last, and there is materially more surface now: 6 API modules, 6 new regressions, a provider swap, an auth path. | security review + full-diff review + CodeRabbit, all clean |
@@ -99,42 +99,69 @@ because dev builds talk to the LOCAL Metro server (see §6.4):
 Two public client identifiers in `.env.local` only (they ship in the binary by design):
 `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`), `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`.
 
-## 2.2 PostHog — set and proven at the key level, NOT proven end to end
+## 2.2 PostHog — PROVEN END TO END, 2026-08-13
 
 **Project 557266, US Cloud.** `EXPO_PUBLIC_POSTHOG_KEY=phc_pgnjFMRUXJfgurWUo98gHd95gX2MLWZy3eCQcp2Qyg58`
 — a **public write-only client key**; PostHog labels it *"Safe to use in public apps"*. Set in
 `.env.local` and on EAS production (`plaintext` visibility).
 
-**What IS proven:** the key matches the app's own `/^phc_[A-Za-z0-9]{20,}$/` gate; a direct
-`POST /i/v0/e/` returned `{"status":"Ok"}` and the event appears in the dashboard; Metro exports the
-variable (`env: export … EXPO_PUBLIC_POSTHOG_KEY …`); `posthog-react-native@4.62.0` is installed.
+**App-originated events reach the dashboard.** Verified twice over, in this order:
 
-**What is NOT proven:** that the APP sends anything. No app-originated event has reached the
-dashboard. **Do not record this as working until one does.**
+1. **Network layer, on device.** `us-assets.i.posthog.com` (client constructing), then
+   `https://us.i.posthog.com/batch/`, and the CFNetwork summary for that same connection id reads
+   `response_status=200 … finished successfully`. Native, so it does not depend on JS console
+   plumbing at all.
+2. **Dashboard.** `day_return` rows with `library: posthog-react-native`. That column is the proof of
+   origin — the earlier `carryover_verification` row has an EMPTY library because it was the raw
+   curl. **Read the library column before believing an event came from the app.**
 
-**One false lead already eliminated, so do not repeat it.** `day_return` appeared to be broken. It is
-not — `_layout.tsx` fires it only when `activeDays.length > 0 && !activeDays.includes(today)`, and
-the store read `['seed-0', '2026-08-13']`, i.e. today was already recorded. **The event correctly
-did not fire.** Cleared by reading the persisted store, not by guessing.
+Person id is PostHog's own (`019ffe72-…`); our `install_id` rides as a property, not the distinct id.
 
-**How to settle it in one run:** `analytics.ts` now logs at every step — module load, each `track()`,
-each successful capture, and both failure paths, which used to be `.catch(() => null)` and
-`.catch(() => {})`. Launch, trigger any event, and read:
+### The `[analytics]` log-grep recipe was BLIND. Do not use it.
+
+The previous carryover said to settle this by grepping the device log for `[analytics]`. **That test
+cannot fail informatively.** RN forwards `console.log` to Metro over the websocket, NOT to os_log —
+measured: 1146 native log lines from the app process, zero `[analytics]` lines, **while the event was
+sending successfully**. Absent lines prove nothing. Use the network layer instead:
 
 ```bash
-xcrun simctl spawn $EUPHORIA_UDID log show --last 2m \
-  --predicate 'processImagePath CONTAINS "euphoria"' | grep -oE "\[analytics\][^\"]{0,140}"
+xcrun simctl spawn $EUPHORIA_UDID log show --last 3m \
+  --predicate 'processImagePath CONTAINS "euphoria"' | grep -i posthog
 ```
 
-Absent lines mean `track()` was never called (check the trigger's condition first). A
-`DISABLED, dropping` warning means the key did not reach the bundle — `npx expo start --clear`,
-because `EXPO_PUBLIC_` values are inlined at bundle time. A load or capture error now names itself.
+A `us.i.posthog.com/batch` line is a real send. Cross-reference its `[Cnn]` connection id against the
+`CFNetwork:Summary` line to get the status code. This is the same lesson as §5.1 in a new costume: a
+checker that reports nothing is not the same as a system doing nothing.
+
+### The `day_return` "false lead" note was stale, and was hiding a real bug
+
+The old note recorded `activeDays` as `['seed-0','2026-08-13']` and concluded the event *correctly*
+did not fire. The store actually read `['seed-0','seed-1','seed-2','seed-3']` — **today absent** — so
+it did fire, and firing is what proved the pipeline.
+
+Worse, it fired on **every launch**. `activeDays` is written by real USE (`withToday`'s call sites),
+never by launching, so between opening the app and doing anything in it the old predicate stayed
+true indefinitely. The dashboard showed one `day_return` for every single `Application Opened`.
+Retention would have read as engagement — the same shape as the `paywall_dismissed` double-count in
+§7.2. **Fixed:** `shouldCountReturn()` in `lib/day-keys.ts` plus a persisted `lastReturnDay` stamp,
+pinned by six cases in `scripts/day-keys-regression.mjs`, one of which fails on the old predicate.
+
+### `flushAnalytics` had ZERO call sites
+
+The old §2.2 said "`flushAnalytics()` runs on backgrounding". **Nothing called it.** It was written,
+exported, and never wired, and RN's `AppState` was not imported anywhere in `src` (every `AppState`
+match is the Zustand store's own type — a name collision that hides the absence from a grep). So
+every event of a short session was lost: two launches fired `day_return` and neither reached PostHog,
+because PostHog's batch timer had not elapsed before the process died. Now wired in `_layout.tsx`,
+and `Application Backgrounded` appears in the dashboard for the first time as a result.
+
+**Verifying a change to any of this needs an app REBUILD, not a deploy** — see §11. And note that
+PostHog only initialises on the first `track()`, so on a launch where nothing fires, a queued event
+stays queued. Background the app (`xcrun simctl launch $EUPHORIA_UDID com.apple.Preferences`) to
+force a flush.
 
 **Easiest event to force:** seed an expired trial (`./scripts/seed-trial.sh 4 false`) and open a
 locked lesson from the **Learn tab** — the gate sheet fires `paywall_seen` on becoming visible.
-
-**Also worth knowing:** PostHog RN **batches**. `flushAnalytics()` runs on backgrounding, so a single
-event may sit queued rather than send immediately.
 
 ## 2.3 NOT set — everything below is BUILT, PINNED BY REGRESSION, AND INERT
 
@@ -401,9 +428,9 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
 # 9. OPEN WORK, in priority order
 
 ## 9.1 Needs credentials only — all code is done and pinned
-1. **PostHog — key is SET; prove the app actually sends.** See §2.3 for the exact command and the
-   one false lead already ruled out. Until an app-originated event lands, treat Unit 17's premise
-   (*"nothing in this unit can be judged until 17b lands"*) as still unmet.
+1. ~~**PostHog**~~ ✅ **DONE 2026-08-13.** App-originated events land in project 557266 — see §2.2 for
+   the evidence and for the two bugs it surfaced. Unit 17's premise (*"nothing in this unit can be
+   judged until 17b lands"*) is **MET**; the five instrumented phases can now be read.
 2. **Supabase** → URL + anon key (public) + `SUPABASE_JWT_SECRET` (secret). Activates F4/F6.
    **The account EXISTS** — the sign-in page shows *"LAST USED: Continue with GitHub"*, so sign in
    with GitHub rather than email.
@@ -433,6 +460,18 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
   required"*), and AGENTS.md makes it mandatory for design work. Label any HIG-only work as such.
 - **Live market data has never been seen IN THE APP.** Endpoints verified by curl only. The Trade tab
   and stock screens have not been opened against real prices. **That is a different claim** — C109.
+- 🔴 **THE STOCK SCREEN SHOWS TWO PRICES FOR THE SAME STOCK.** Found on device 2026-08-13, which is
+  the whole argument for C109. `stock/[sym].tsx` for NVDA renders headline **`$1,184.00`** (mock)
+  directly above **previous close `$225.30`**, open `$225.06`, day's range `$223.71–$227.23`,
+  52-week `$164.07–$236.54` (all live). A user reads a +425% move that did not happen. The two
+  change figures disagree with each other too: the badge says `+0.1% today` ( $1.62 ÷ mock 1184 )
+  while the line below says `+$1.62 (0.72%) today` ( $1.62 ÷ live 225.06 ). **Four green gate runs
+  sat over this** — §8 and §0.4, demonstrated. The Trade tab has the same disease: `NVIDIA, 3
+  shares, $3,552.80`.
+- **Driving the sim: `sim.sh open` raises an iOS "Open in euphoria-native?" CONFIRM DIALOG**
+  (`sim.sh:128` says so). Until you `tapon "Open"`, that modal swallows EVERY tap anywhere on
+  screen — which reads exactly like the §6.2 LogBox trap and is not it. Deep link, confirm, then
+  drive. Separately, y≈795–811 IS still LogBox-obstructed: taps at y=102 landed while y=802 did not.
 - **`lib/stocks.ts` is still a hardcoded mock table.** The paper portfolio does not use live prices.
   **If you make valuation live, make EXECUTION live in the same commit**, or every position
   percentage silently becomes fiction.
