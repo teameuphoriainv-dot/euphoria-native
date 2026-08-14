@@ -60,23 +60,52 @@ because dev builds talk to the LOCAL Metro server (see §6.4):
 | `GEMINI_API_KEY` | Atlas | **Shape is `AQ.…` 53 chars, NOT `AIza…` 39.** See §4.1 |
 | `POLYGON_API_KEY` | quote, chart, stats, search, logo, news-fallback | free tier; excludes `movers` |
 | `ALPHAVANTAGE_API_KEY` | news *with sentiment scores* | works locally, **throttled on the Worker** — §5.2 |
-| `MARKETDATA_TOKEN` | options chains for every symbol | without it, **AAPL only** — §4.4 |
+| `MARKETDATA_TOKEN` | options chains for every symbol | without it, **AAPL only** — §5.3 |
+| `EXPO_PUBLIC_POSTHOG_KEY` | analytics | **key proven, app delivery UNVERIFIED — §2.3** |
 
 Two public client identifiers in `.env.local` only (they ship in the binary by design):
 `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`), `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`.
 
+## 2.3 PostHog — set and proven at the key level, NOT proven end to end
+
+**Project 557266, US Cloud.** `EXPO_PUBLIC_POSTHOG_KEY=phc_pgnjFMRUXJfgurWUo98gHd95gX2MLWZy3eCQcp2Qyg58`
+— a **public write-only client key**; PostHog labels it *"Safe to use in public apps"*. Set in
+`.env.local` and on EAS production (`plaintext` visibility).
+
+**What IS proven:** the key matches the app's own `/^phc_[A-Za-z0-9]{20,}$/` gate; a direct
+`POST /i/v0/e/` returned `{"status":"Ok"}` and the event appears in the dashboard; Metro exports the
+variable (`env: export … EXPO_PUBLIC_POSTHOG_KEY …`); `posthog-react-native@4.62.0` is installed.
+
+**What is NOT proven:** that the APP sends anything. No app-originated event has reached the
+dashboard. **Do not record this as working until one does.**
+
+**One false lead already eliminated, so do not repeat it.** `day_return` appeared to be broken. It is
+not — `_layout.tsx` fires it only when `activeDays.length > 0 && !activeDays.includes(today)`, and
+the store read `['seed-0', '2026-08-13']`, i.e. today was already recorded. **The event correctly
+did not fire.** Cleared by reading the persisted store, not by guessing.
+
+**How to settle it in one run:** `analytics.ts` now logs at every step — module load, each `track()`,
+each successful capture, and both failure paths, which used to be `.catch(() => null)` and
+`.catch(() => {})`. Launch, trigger any event, and read:
+
+```bash
+xcrun simctl spawn $EUPHORIA_UDID log show --last 2m \
+  --predicate 'processImagePath CONTAINS "euphoria"' | grep -oE "\[analytics\][^\"]{0,140}"
+```
+
+Absent lines mean `track()` was never called (check the trigger's condition first). A
+`DISABLED, dropping` warning means the key did not reach the bundle — `npx expo start --clear`,
+because `EXPO_PUBLIC_` values are inlined at bundle time. A load or capture error now names itself.
+
+**Easiest event to force:** seed an expired trial (`./scripts/seed-trial.sh 4 false`) and open a
+locked lesson from the **Learn tab** — the gate sheet fires `paywall_seen` on becoming visible.
+
+**Also worth knowing:** PostHog RN **batches**. `flushAnalytics()` runs on backgrounding, so a single
+event may sit queued rather than send immediately.
+
 ## 2.2 NOT set — everything below is BUILT, PINNED BY REGRESSION, AND INERT
 
 Each of these is finished code waiting on one credential. None needs engineering.
-
-### `EXPO_PUBLIC_POSTHOG_KEY` — analytics
-`ANALYTICS_ENABLED` in `src/lib/analytics.ts` shape-checks `/^phc_[A-Za-z0-9]{20,}$/`. Until it
-matches, **every event in 17b, 17d, 17f and 17c is a silent no-op.** Five phases of instrumentation
-record nothing, and Unit 17's entire premise — *"nothing else in this unit can be judged until 17b
-lands"* — is therefore still unmet. The funnel is `install → first lesson → day 2 → day 3 →
-paywall_seen → paywall_dismissed → paid`, plus `special_offer_*`, `trial_reward_*`,
-`first_action_*`. Needs a PostHog account; the key is a **public** client key, so `.env.local` and
-`eas.json` env, not a secret.
 
 ### `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_JWT_SECRET`
 The first two are public (anon key is protected by row-level security); **the JWT secret is
@@ -339,9 +368,15 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
 # 9. OPEN WORK, in priority order
 
 ## 9.1 Needs credentials only — all code is done and pinned
-1. **PostHog account** → `EXPO_PUBLIC_POSTHOG_KEY`. Unblocks all of Unit 17's measurement.
+1. **PostHog — key is SET; prove the app actually sends.** See §2.3 for the exact command and the
+   one false lead already ruled out. Until an app-originated event lands, treat Unit 17's premise
+   (*"nothing in this unit can be judged until 17b lands"*) as still unmet.
 2. **Supabase** → URL + anon key (public) + `SUPABASE_JWT_SECRET` (secret). Activates F4/F6.
-3. **RevenueCat SECRET key** → activates F7 step 2.
+   **The account EXISTS** — the sign-in page shows *"LAST USED: Continue with GitHub"*, so sign in
+   with GitHub rather than email.
+3. **RevenueCat SECRET key** → activates F7 step 2. **NOTE: none exists.** Verified in the dashboard
+   — project Euphoria `320845df` shows *"No secret API keys"*. One must be CREATED, not fetched, and
+   that is a persistent credential on live billing, so it is the owner's call.
 
 ## 9.2 Needs a decision or money
 - **`movers`** needs a paid Polygon plan. Currently an honest `501 plan_required`.

@@ -95,6 +95,7 @@ async function getClient(): Promise<PostHogType | null> {
   if (client) return client;
   loading ??= import('posthog-react-native')
     .then((m) => {
+      if (__DEV__) console.log('[analytics] posthog module loaded');
       client = new m.default(KEY!, {
         host: HOST,
         // See the header. These three are the privacy promise, expressed as configuration.
@@ -104,7 +105,14 @@ async function getClient(): Promise<PostHogType | null> {
       });
       return client;
     })
-    .catch(() => null);
+    .catch((e) => {
+      // WAS `.catch(() => null)`. A tracker that cannot say why it is silent is indistinguishable
+      // from one that is working — and "no events in the dashboard" then has a dozen possible
+      // causes and no evidence. Same silent-failure shape as the retired model, the Alpha Vantage
+      // throttle and the Polygon plan limit: the refusal was there, nothing surfaced it.
+      console.error('[analytics] posthog failed to load:', e);
+      return null;
+    });
   return loading;
 }
 
@@ -113,15 +121,23 @@ async function getClient(): Promise<PostHogType | null> {
  * a lesson that fails to complete because the tracker threw is a bug. Nothing here can reject.
  */
 export function track(event: EvName, properties?: Record<string, string | number | boolean>): void {
-  if (!ANALYTICS_ENABLED) return;
+  if (!ANALYTICS_ENABLED) {
+    // Loud in dev only. Shipping silently is correct; debugging silently is not.
+    if (__DEV__) console.warn(`[analytics] DISABLED, dropping "${event}" — EXPO_PUBLIC_POSTHOG_KEY missing or not phc_-shaped`);
+    return;
+  }
+  if (__DEV__) console.log(`[analytics] track "${event}"`);
   void getClient()
     .then((c) => {
       if (!c) return;
       // The pseudonymous install id, NOT the person. Matches the rate limiter's identity, so a
       // funnel row and a rate-limit bucket describe the same device without naming anybody.
       c.capture(event, { ...properties, install_id: useApp.getState().installId });
+      if (__DEV__) console.log(`[analytics] captured "${event}"`);
     })
-    .catch(() => {});
+    .catch((e) => {
+      console.error(`[analytics] capture failed for "${event}":`, e);
+    });
 }
 
 /** Flush before the app is backgrounded, so the last event of a session is not lost. */
