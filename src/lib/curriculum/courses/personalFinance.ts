@@ -4172,10 +4172,10 @@ const lessons: PathwayLesson[] = [
       ['Happier on average', 'Wealthier on average', '46% more likely to divorce', 'No different from other couples'],
       2, 'Research shows an inverse correlation: more expensive weddings correlate with higher divorce rates. Financial stress from wedding debt contributes to marital conflict.'),
     cq('How much term life insurance should you have if someone depends on your income?',
-      ['1-2x salary', '5x salary, as documented in several well-known investment research papers and widely discussed among certified financial planning professionals', '10-12x salary', '20x salary, this reasoning is frequently cited in financial planning discussions and has been examined in multiple long-term market studies'],
+      ['1-2x salary', '5x salary', '10-12x salary', '20x salary'],
       2, '10-12x annual income ensures dependents maintain their standard of living for 10-12 years. A 30-year-old can get $500K in coverage for just $20-30/month.'),
     cq('What is a sinking fund?',
-      ['An emergency fund, and historical market data across multiple decades and geographic regions provides context for evaluating this particular perspective', 'Monthly savings dedicated to a specific known upcoming expense', 'A retirement account, this approach has been discussed extensively in the financial planning community and is covered in most professional training programs', 'A type of investment, which is the perspective that many seasoned market participants would take based on their experience across various economic conditions'],
+      ['An emergency fund', 'Monthly savings dedicated to a specific known upcoming expense', 'A retirement account', 'A type of investment'],
       1, 'Sinking funds are targeted savings for predictable expenses: $250/month for holiday gifts, $150/month for car maintenance, etc. They prevent "surprise" bills from raiding your emergency fund.')
   ]),
 
@@ -4227,7 +4227,7 @@ const lessons: PathwayLesson[] = [
     ),
     microCheck(
       'What single action prevents 90%+ of new-account identity theft?',
-      ['Paying for credit monitoring, as this represents a viewpoint that is commonly discussed in investment strategy literature and professional development courses', 'Freezing your credit at all three bureaus (free)', 'Changing your password monthly, many portfolio managers and financial researchers have studied this concept and its implications for long-term investment outcomes', 'Using cash only, which reflects an approach that has been thoroughly analyzed in academic literature and discussed in professional investment forums'],
+      ['Paying for credit monitoring', 'Freezing your credit at all three bureaus (free)', 'Changing your password monthly', 'Using cash only'],
       1,
       'Correct! A credit freeze is free, takes 10 minutes, and blocks anyone from opening new accounts in your name. It\'s the single most effective identity theft prevention measure.',
       'Freeze your credit at Equifax, Experian, and TransUnion today. It\'s free, prevents new-account fraud, and you can temporarily thaw whenever YOU need to apply for credit.'
@@ -4575,16 +4575,16 @@ const lessons: PathwayLesson[] = [
       ['$100,000', '$74,000', '$41,000', '$10,000'],
       2, 'At 3% annual inflation, purchasing power drops to ~41% after 30 years. $100K in cash can only buy what $41K buys today. Inflation is the invisible tax on cash.'),
     cq('What is "real return"?',
-      ['Your tax refund, as documented in several well-known investment research papers and widely discussed among certified financial planning professionals', 'Investment return minus inflation, the actual gain in purchasing power', 'The return you see on your statement, this reasoning is frequently cited in financial planning discussions and has been examined in multiple long-term market studies', 'Total profit from an investment, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Your tax refund', 'Investment return minus inflation, the actual gain in purchasing power', 'The return you see on your statement', 'Total profit from an investment, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
       1, 'Real return = nominal return - inflation. Stocks return 10.7% nominally, but after 3% inflation, real return is 7.7%. This is what actually grows your purchasing power.'),
     cq('Rule of 72: at 8% return, investments double approximately every:',
       ['4 years', '6 years', '9 years', '12 years'],
       2, '72 ÷ 8 = 9 years to double. $10K at 8% becomes $20K in 9 years, $40K in 18 years, $80K in 27 years. The Rule of 72 is the fastest way to estimate compound growth.'),
     cq('Which is the WORST place for money you won\'t need for 20 years?',
-      ['S&P 500 index fund, and historical market data across multiple decades and geographic regions provides context for evaluating this particular perspective', 'Checking account at 0.01%', 'HYSA at 5%, this approach has been discussed extensively in the financial planning community and is covered in most professional training programs', 'I-Bonds, which is the perspective that many seasoned market participants would take based on their experience across various economic conditions'],
+      ['S&P 500 index fund', 'Checking account at 0.01%', 'HYSA at 5%', 'I-Bonds'],
       1, 'A checking account at 0.01% loses 3%+ to inflation annually. In 20 years, your purchasing power drops 45%. For 20-year money, stocks (10.7% avg) are the optimal choice.'),
     cq('I-Bonds are ideal for protecting against inflation because:',
-      ['They pay the highest returns, as this represents a viewpoint that is commonly discussed in investment strategy literature and professional development courses', 'Their interest rate adjusts with CPI, matching inflation exactly', 'They have no purchase limits, many portfolio managers and financial researchers have studied this concept and its implications for long-term investment outcomes', 'They can be redeemed anytime, which reflects an approach that has been thoroughly analyzed in academic literature and discussed in professional investment forums'],
+      ['They pay the highest returns', 'Their interest rate adjusts with CPI, matching inflation exactly', 'They have no purchase limits', 'They can be redeemed anytime'],
       1, 'I-Bond rates adjust with CPI inflation, ensuring your money maintains purchasing power. In 2022, they paid 9.62% when inflation spiked. $10K/year purchase limit, 1-year minimum hold.')
   ]),
 
@@ -4899,7 +4899,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('Donating appreciated stock instead of cash saves an additional ___-___% in capital gains taxes.', ['1-5', '5-10', '15-20', '30-40'], 2),
     q('Why is a donor-advised fund (DAF) useful for someone giving $5K/year?',
-      ['DAFs have higher returns, as documented in several well-known investment research papers and widely discussed among certified financial planning professionals', 'Bunching 3 years ($15K) into one DAF contribution pushes you above the standard deduction, creating tax savings you\'d otherwise miss', 'DAFs are required by law, this reasoning is frequently cited in financial planning discussions and has been examined in multiple long-term market studies', 'Charities prefer DAFs, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['DAFs have higher returns', 'Bunching 3 years ($15K) into one DAF contribution pushes you above the standard deduction, creating tax savings you\'d otherwise miss', 'DAFs are required by law', 'Charities prefer DAFs, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
       1, '$5K/year falls below the standard deduction ($14.6K single). No tax benefit. But $15K into a DAF every 3 years pushes itemized deductions above the standard, saving $1,700+ per cycle.'),
     pc('Charitable Giving Math', [
       { prompt: 'Stock: cost $3K, worth $10K. Capital gains avoided by donating stock:', options: ['$0', '$700', '$1,050', '$1,500'], correct: 2 },
@@ -4981,10 +4981,10 @@ const lessons: PathwayLesson[] = [
     whatsNext('Charitable Giving & Tax Benefits', 'Financial Independence & Early Retirement', 'You\'ve learned to earn, save, invest, protect, plan, and give wisely. Now master the ultimate goal: financial independence, the point where work becomes optional. Learn the math, the strategies, and the mindset of the FIRE movement.', 10)
   ], [
     cq('Why is donating appreciated stock better than donating cash?',
-      ['Charities prefer stock, and historical market data across multiple decades and geographic regions provides context for evaluating this particular perspective', 'You avoid capital gains tax AND get a full fair market value deduction, the charity gets the same amount either way', 'Stock donations are tax-free, this approach has been discussed extensively in the financial planning community and is covered in most professional training programs', 'Cash donations aren\'t deductible, which is the perspective that many seasoned market participants would take based on their experience across various economic conditions'],
+      ['Charities prefer stock', 'You avoid capital gains tax AND get a full fair market value deduction, the charity gets the same amount either way', 'Stock donations are tax-free', 'Cash donations aren\'t deductible'],
       1, 'Donating stock directly avoids 15-20% capital gains tax on the appreciation. The charity gets the same $10K. You get the same $10K deduction. But you save $1,050+ in capital gains taxes vs donating cash.'),
     cq('What is the bunching strategy for charitable giving?',
-      ['Giving to many charities at once, as this represents a viewpoint that is commonly discussed in investment strategy literature and professional development courses', 'Combining 2-3 years of donations into one year (via DAF) to exceed the standard deduction and trigger itemization', 'Donating food in bulk, many portfolio managers and financial researchers have studied this concept and its implications for long-term investment outcomes', 'Giving more in December, which reflects an approach that has been thoroughly analyzed in academic literature and discussed in professional investment forums'],
+      ['Giving to many charities at once', 'Combining 2-3 years of donations into one year (via DAF) to exceed the standard deduction and trigger itemization', 'Donating food in bulk', 'Giving more in December'],
       1, 'Bunching: $5K/year gives $0 tax benefit (below $14.6K standard deduction). $15K every 3 years via DAF exceeds the standard deduction, creating $2,000+ in tax savings per cycle.'),
     cq('A charity with 91% program efficiency vs one with 58% means:',
       ['They\'re equally effective, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', '$5,460 vs $3,480 of your $6K reaches the mission, 57% more impact from choosing wisely', 'The 58% charity is better because it has more overhead, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'It doesn\'t matter where you donate, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
@@ -5198,7 +5198,7 @@ const lessons: PathwayLesson[] = [
       ['Retiring at the coast/beach, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students', 'Having enough invested that compound growth alone reaches your FI number by traditional retirement age, you can work any low-stress job', 'Working from a coffee shop, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals', 'Saving 100% of income, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly'],
       1, 'Coast FIRE: $200K invested at 25 grows to $2.1M at 65 at 8% with no additional contributions. You can "coast", work any enjoyable job, just don\'t touch investments.'),
     cq('The 4% rule means:',
-      ['Save 4% of income, as documented in several well-known investment research papers and widely discussed among certified financial planning professionals', 'Withdraw 4% of your portfolio annually, with 95%+ probability of not running out over 30 years', 'Get 4% returns, this reasoning is frequently cited in financial planning discussions and has been examined in multiple long-term market studies', 'Pay 4% in fees, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Save 4% of income', 'Withdraw 4% of your portfolio annually, with 95%+ probability of not running out over 30 years', 'Get 4% returns', 'Pay 4% in fees, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
       1, 'The Trinity Study found that withdrawing 4% annually from a diversified portfolio has survived 95%+ of all 30-year periods since 1926, including the Great Depression and 2008 crisis.')
   ]),
 
@@ -5308,7 +5308,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('Money habits are largely formed by age ___.', ['3', '7', '13', '18'], 1),
     q('Why is a custodial Roth IRA one of the most powerful gifts for a teenager?',
-      ['It\'s tax-deductible, and historical market data across multiple decades and geographic regions provides context for evaluating this particular perspective', '$3K invested at 15 can grow to $437K by 65-50 years of tax-free compounding. The earlier you start, the more powerful time becomes.', 'Teenagers get higher returns, this approach has been discussed extensively in the financial planning community and is covered in most professional training programs', 'It counts as financial aid, which is the perspective that many seasoned market participants would take based on their experience across various economic conditions'],
+      ['It\'s tax-deductible', '$3K invested at 15 can grow to $437K by 65-50 years of tax-free compounding. The earlier you start, the more powerful time becomes.', 'Teenagers get higher returns', 'It counts as financial aid'],
       1, '$3K at 15 → $437K at 65 (tax-free). That\'s 50 years of compounding from a single summer\'s earnings. Compare to starting at 25: the same $3K only becomes $105K. Those 10 early years are worth $332K.'),
     pc('Teaching Kids Money', [
       { prompt: 'By what age are money habits largely formed?', options: ['3', '7', '13', '18'], correct: 1 },
@@ -5399,7 +5399,7 @@ const lessons: PathwayLesson[] = [
       ['All 50', '40', '25', '10'],
       2, 'Only 25 states require personal finance courses for high school graduation (2024). This means parents are the primary financial educators for most children.'),
     cq('The Spend/Save/Give jar system teaches children:',
-      ['How to count money, as this represents a viewpoint that is commonly discussed in investment strategy literature and professional development courses', 'Intentional allocation, some money for now, some for later, some for others', 'That saving means never spending, many portfolio managers and financial researchers have studied this concept and its implications for long-term investment outcomes', 'Math skills only, which reflects an approach that has been thoroughly analyzed in academic literature and discussed in professional investment forums'],
+      ['How to count money', 'Intentional allocation, some money for now, some for later, some for others', 'That saving means never spending', 'Math skills only'],
       1, 'The three-jar system builds the fundamental habit of intentional money allocation. It teaches that money has different purposes and that we CHOOSE how to use it.'),
     cq('Why does financial education need to start before school teaches it?',
       ['Schools teach it too late, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', 'Money habits form by age 7, but most schools don\'t cover finance until 17-10 years of missed habit formation', 'Parents are better teachers, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'Schools don\'t allow money discussions, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
@@ -5617,7 +5617,7 @@ const lessons: PathwayLesson[] = [
       ['Picking winning stocks, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students', 'Starting early and staying consistent, compound growth rewards time above all', 'Having a high income, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals', 'Timing the market perfectly, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly'],
       1, 'Every lesson reinforces: start now + stay consistent + low costs + behavioral discipline = wealth. Waiting one year at 25 costs ~$100K by 65. There is no substitute for time.'),
     cq('The $4.2M gap between financially literate and illiterate graduates comes from:',
-      ['Higher IQ, as documented in several well-known investment research papers and widely discussed among certified financial planning professionals', 'Knowledge + consistent application of basic principles: negotiation, index fund investing, tax optimization, and compound growth over 40 years', 'Luck, this reasoning is frequently cited in financial planning discussions and has been examined in multiple long-term market studies', 'Inheritance, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Higher IQ', 'Knowledge + consistent application of basic principles: negotiation, index fund investing, tax optimization, and compound growth over 40 years', 'Luck', 'Inheritance, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
       1, 'Same jobs, same starting salary. The only difference: 24 lessons of financial knowledge applied consistently. Negotiation, investing, tax strategy, and behavioral discipline compound over decades into millions.')
   ])
 ];
