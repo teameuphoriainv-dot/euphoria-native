@@ -202,9 +202,6 @@ an agreement on someone else's behalf.**
 
 ## Open work
 
-- **17c is not device-verified.** The sheet is built, gated and pinned by regression, but has not
-  been rendered on a simulator — reaching it needs a lesson driven to completion through a
-  correctness-gated MultiSelect.
 - **The trial reward offer is unreachable from Home.** Four surfaces render the trial-expired state
   and only `GateSheet` carries the dismissal offer; `lesson.tsx` and `chat.tsx` have their own hard
   walls. See §22 C115.

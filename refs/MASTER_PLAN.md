@@ -6433,3 +6433,42 @@ an overlay, and only the pixels were right.**
 Agreement is unsigned), a RevenueCat error behind it, an `expo-notifications` warning, and network
 failures from `/api/market` returning 503 for want of the four API keys. Nothing here is a code
 defect introduced by Unit 17.
+
+### C116. 17c IS VERIFIED ON DEVICE. The lesson driver, and why brute force could not get there.
+
+**Verified 2026-08-13** on "Euphoria QA", seeded to trial day 1 with zero completed lessons and
+`trialRewardSeenAt: null`, then driving Corporate Finance lesson 1 to completion for real.
+
+| step | result |
+|---|---|
+| first lesson finished inside the trial | sheet fires |
+| copy | "You've earned / something · That's your first lesson done. Atlas kept something back for you." |
+| CTAs | "Open it" and "Not now", both present |
+| `trialRewardSeenAt` before exit | **null** — stamped on the way OUT, not on mount, as designed |
+| "Not now" | stamps `1786667490127` |
+| where it lands | `/reward`, the Bloom free-stock cards |
+
+That last row is the design working. Navigation is DEFERRED rather than raced, so the offer lands
+first and `leave()` then resumes the normal post-lesson routing — **the offer and the free-stock
+cards can never both animate in.** 17h's device requirement for 17c is CLOSED.
+
+### THREE THINGS COST TIME. All three are the same lesson.
+
+**1. LogBox ate 52 consecutive taps.** The dev build's error bar sits at y≈811 and the lesson-intro
+`Continue` sits at y≈788. `idb ui describe-all` lists the button, `sim.sh tapon` reports tapping it,
+and nothing happens. This is C115's trap firing again *in the very next session after it was
+written down* — which is the argument for writing traps down. **Dismiss LogBox before driving
+anything.**
+
+**2. Brute force cannot pass a MultiSelect.** It will not advance on a wrong answer, so a driver
+that toggles every row just cycles forever. The correct answers had to be read out of
+`curriculum/courses/corporateFinance.ts` (`a: true`) and matched by substring. An automated driver
+for this app needs the answer key, not persistence.
+
+**3. The row is not the toggle.** Tapping the CENTRE of a MultiSelect row does nothing — the
+checkbox is on the left, and centre-tapping a three-line row lands on dead space or on the "answer"
+marker. Only a screenshot showed it: the tree happily reported a tap on a row that was still
+unchecked, and the app was even *marking the missed answer in green* while the driver looped.
+
+**C109, a third time: the accessibility tree tells you what EXISTS, never what a tap will DO.** Two
+of these three were invisible to text and obvious in one image.
