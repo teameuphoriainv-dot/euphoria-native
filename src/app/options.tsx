@@ -183,8 +183,10 @@ export default function Options() {
    */
   const scrollRef = useRef<ScrollView>(null);
   const didScroll = useRef('');
-  /** The ATM row's y within the scroll content, captured by its own onLayout. */
-  const atmY = useRef(0);
+  /** The ATM row itself, measured in window coordinates. */
+  const atmRef = useRef<View>(null);
+  /** Current scroll offset, so a window measurement can be turned into a content offset. */
+  const offsetY = useRef(0);
 
   // Expiries for the chosen underlying. An empty result means no token, which the UI states.
   useEffect(() => {
@@ -333,18 +335,9 @@ export default function Options() {
         ref={scrollRef}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        /*
-         * Scroll when the CONTENT HAS SETTLED, not when the ATM row first lays out. Its onLayout
-         * fires while the news rail, chips and headers above it are still measuring, so the y it
-         * reports is smaller than the final one — measured on device: the chain landed at $195
-         * against a $225 spot, twelve strikes early. onContentSizeChange fires after layout settles,
-         * so the y is the real one. Still gated on `didScroll` per symbol+expiry, so it never fights
-         * a user who has scrolled away.
-         */
-        onContentSizeChange={() => {
-          if (didScroll.current === key || !atmY.current) return;
-          didScroll.current = key;
-          scrollRef.current?.scrollTo({ y: Math.max(0, atmY.current - 200), animated: false });
+        scrollEventThrottle={32}
+        onScroll={(e) => {
+          offsetY.current = e.nativeEvent.contentOffset.y;
         }}
       >
         <SpringPressable haptic={false} onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel="Back to Trade">
@@ -445,29 +438,48 @@ export default function Options() {
                 return (
                   <View
                     key={r.strike}
-                    onLayout={(e) => {
-                      // Scroll IMMEDIATELY on the first layout, then let onContentSizeChange correct
-                      // it once everything above has settled. Doing only the first lands twelve
-                      // strikes early (measured: $195 against a $225 spot); doing only the second
-                      // never fires, because content size settles BEFORE this row reports its y.
-                      atmY.current = e.nativeEvent.layout.y;
+                    ref={atmRef}
+                    onLayout={() => {
                       if (didScroll.current === key) return;
-                      didScroll.current = key;
                       /*
-                       * KNOWN AND MEASURED: this lands the money LOW in the viewport rather than
-                       * centred. `layout.y` is relative to this row's parent, not to the scroll
-                       * content, so it is short by the height of everything above the list. On
-                       * device the chain opens at $195 against a $225 spot with the ATM row at
-                       * y≈680 of an 844pt screen — visible, but near the bottom.
+                       * measureLayout AGAINST THE SCROLL CONTENT, not `onLayout`'s y.
                        *
-                       * Left as is deliberately. The bug worth fixing was a chain that opened at
-                       * $50 with the money FIFTY-FIVE ROWS away; this is on screen. Centring it
-                       * properly needs `measureLayout` against the ScrollView's inner content node,
-                       * which is a real change rather than a tweak — do that, not a magic constant,
-                       * because a hardcoded header height silently breaks the day the header does.
+                       * `layout.y` is relative to this row's PARENT, so it is short by the height of
+                       * everything above the list — the news rail, the chips, the headings. Using it
+                       * put the money low in the viewport: measured on device, the chain opened at
+                       * $195 against a $225 spot with the ATM row at y≈680 of an 844pt screen.
+                       * `getInnerViewNode()` is the ScrollView's content node, so this y is the real
+                       * content offset and needs no knowledge of the header at all — which is the
+                       * point, because a hardcoded header height breaks the day the header changes.
+                       *
+                       * Fails soft: no node, or a measure error, and we simply do not scroll. A
+                       * chain that opens at the wrong strike is a worse screen; one that throws is a
+                       * broken one.
                        */
-                      requestAnimationFrame(() => {
-                        scrollRef.current?.scrollTo({ y: Math.max(0, atmY.current - 200), animated: false });
+                      /*
+                       * measureInWindow, NOT `layout.y` and NOT `getInnerViewNode`.
+                       *
+                       * `layout.y` is relative to this row's PARENT, so it is short by everything
+                       * above the list and put the money low: measured, the chain opened at $195
+                       * against a $225 spot with the ATM row at y≈680 of an 844pt screen.
+                       * `getInnerViewNode()` would give the true content node, but it does not exist
+                       * under the New Architecture, which this SDK uses — it returned nothing and
+                       * the chain simply never scrolled.
+                       *
+                       * Window coordinates plus the CURRENT scroll offset give the content offset
+                       * without knowing anything about the header, which is the property that makes
+                       * this survive a layout change.
+                       *
+                       * Fails soft: no measurement, no scroll. A chain that opens at the wrong
+                       * strike is a worse screen; one that throws is a broken one.
+                       */
+                      atmRef.current?.measureInWindow((_x: number, windowY: number) => {
+                        if (!Number.isFinite(windowY)) return;
+                        didScroll.current = key;
+                        // A third of a screen of headroom, so the money reads as the centre of the
+                        // chain rather than the top of it.
+                        const target = offsetY.current + windowY - 300;
+                        scrollRef.current?.scrollTo({ y: Math.max(0, target), animated: false });
                       });
                     }}
                   >
