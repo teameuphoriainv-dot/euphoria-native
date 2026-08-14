@@ -539,9 +539,32 @@ reading epoch 0 as "unseen", and a `<` that lost the last granted day of the tri
 
 ## 9.4 Apple — unchanged, Account Holder only
 Paid Applications Agreement **unsigned** (no IAP can transact; the offering has no packages), EU
-trader status not provided (DSA — removal from the EU store), App Privacy inaccurate (analytics was
-added and must be declared), 2.1b reply in `refs/APPLE_2.1b_REPLY_DRAFT.md` awaiting approval.
+trader status not provided (DSA — removal from the EU store), 2.1b reply in
+`refs/APPLE_2.1b_REPLY_DRAFT.md` awaiting approval.
 **Never accept an agreement on someone else's behalf.**
+
+### App Privacy — the declaration, inventoried 2026-08-14
+
+It was listed here as "inaccurate, analytics was added and must be declared" with no statement of
+WHAT. This is the audit, so the form can be filled in without re-deriving it. Read from the code,
+not from memory.
+
+**Data collected**
+| Apple category | What, exactly | Linked to identity? | Purpose |
+|---|---|---|---|
+| Identifiers → User ID | `install_id` — client-minted `eu_` + `Math.random()` + `Date.now()` (`store.ts`). **NOT** IDFA, IDFV or any hardware id. | Pseudonymous; no account exists to link to | Analytics |
+| Usage Data → Product Interaction | 14 events: `install`, `first_lesson_completed`, `day_return`, `paywall_seen`, `paywall_dismissed`, `special_offer_seen/accepted/dismissed`, `trial_reward_accepted/dismissed`, `first_action_started/skipped`, `trial_started`, `paid`. Properties are `day_number`, `course`, `lesson`, `feature`, `kind`, `reason`. | Pseudonymous | Analytics |
+| **User Content** | **The user's Atlas messages are sent to Google Gemini.** This is the one most likely to be missed — it is not analytics, it is user-generated content leaving the device to a third party. | Not stored by us; no identifier is sent with it | App Functionality |
+| Purchases | Handled by RevenueCat | Per RevenueCat | App Functionality |
+
+**Third parties that receive anything:** `us.i.posthog.com` (analytics), `generativelanguage.googleapis.com`
+(chat content), `api.revenuecat.com` (purchases). `api.polygon.io`, `cdn.cboe.com` and
+`api.marketdata.app` receive **a ticker symbol and nothing else** — no identifier, no user content —
+so they are not a privacy disclosure, though they are a data flow.
+
+**Not collected, and worth stating because the code enforces it:** no name, no email, no contacts,
+no location, no photos, no IDFA. `analytics.ts` documents a no-PII rule and `enableSessionReplay:
+false` / no `<PostHogProvider autocapture>`; a security review confirmed both hold.
 
 ---
 
