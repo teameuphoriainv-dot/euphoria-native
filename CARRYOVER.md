@@ -1,214 +1,202 @@
 # CARRYOVER — paste this whole file into a fresh session
 
-Written 2026-08-11, replacing the 2026-08-10 file. Everything here was VERIFIED in this repo, on the
-simulator, or in a live dashboard on the date given. **Where this contradicts anything older,
+Written **2026-08-13**, replacing the 2026-08-11 file. Everything here was VERIFIED in this repo, on
+the simulator, or against a live endpoint on the date given. **Where this contradicts anything older,
 including §22 entries written before today, this wins.**
 
 Continue work on **`~/euphoria-native`** — Euphoria, Expo SDK 57 / expo-router / RN finance education
 for 18-25s, mascot **Atlas**. Content source of truth is `~/euphoriaweb-current`.
 
-**Read `refs/MASTER_PLAN.md` §22 C113 before touching code.** It is the most useful thing in the log.
+**`README.md` is now a real reference (531 lines) and is accurate as of this commit.** Read it before
+§22. It carries the architecture, the deploy sequence, the gate, and the traps.
+
+**HEAD `d13b879`. 386 commits, 25 of them today. Tree clean, all pushed. §22 runs C1→C123.**
 
 ---
 
-## THE THREE FACTS THAT KEEP GETTING RE-DERIVED WRONG. Do not re-litigate.
+## THE HEADLINE: THE APP IS LIVE END TO END FOR THE FIRST TIME
 
-1. **`~/euphoria-native` IS THE PRODUCT.** `~/euphoriamobile` is a Capacitor app, submitted
-   2026-04-08, rejected 04-09, abandoned.
-2. **Bundle id is `com.euphoriainv.euphoria`** (C94). `android.package` deliberately stays
-   `com.euphoria.native` — Google Play is a separate listing nobody has checked.
-3. **App Group is `group.com.euphoriainv.euphoria`** in `app.json`, `src/lib/widget.ts` and
-   `targets/widget/index.swift`.
-
----
-
-## WHAT THE PREVIOUS CARRYOVER GOT WRONG
-
-Corrected 2026-08-11, by reading the artefacts rather than the summary:
-
-| It said | Reality |
+| feature | state |
 |---|---|
-| "Read §22 CORRECTIONS LOG C95 → C111" | The log ENDED at C106. C100-C105 and C107-C111 were never written. |
-| "12 commits are unpushed" | 0. `origin/main` matched HEAD exactly. |
-| `.env.local`: "this is a Test Store key (`test_...`)" | The value starts `appl_`. Stale since C106 swapped it. |
+| **Atlas** | ✅ answering in production AND verified on device in the chat screen |
+| **quote / chart / stats / search** | ✅ NVDA 225.30, real 1M series |
+| **news** | ✅ — **via the Polygon fallback**, not Alpha Vantage |
+| **options** expirations + chains | ✅ TSLA, with greeks |
+| **movers** | ⛔ `501 plan_required` — needs a paid Polygon plan |
 
-§22 was restored in `315ffa2` from the eleven commit bodies. **A provenance header says the COMMIT
-BODY wins where it and the reconstruction disagree.** §22 now holds C1→C114.
-
----
-
-## §22 C113 — THE LESSON THAT MATTERS MOST
-
-> **A green gate means the things it checks are fine. It does not mean the number on the screen is
-> true.**
-
-Four review passes (security, CodeRabbit, ECC checklist, deep code review) over one day's work found
-**six real defects**, several in code written that same day to fix that exact class of bug. `tsc`,
-lint at the C66 baseline, `certify.py` and six regressions all ran green FOUR TIMES over a Trade tab
-that would have rendered `avg $296.00, +300.0%` on a position that had not moved.
-
-C109 said LOOK AT THE SCREEN, and that catches what renders. C113 adds: **for anything computing a
-number a user reads as their own money, get a second reader.** Every finding was invisible to both a
-green gate and a screenshot, because the screen rendered the number perfectly and the number was
-wrong.
+Four keys are set on EAS production and in `.env.local`: `GEMINI_API_KEY`, `ALPHAVANTAGE_API_KEY`,
+`POLYGON_API_KEY`, `MARKETDATA_TOKEN`.
 
 ---
 
-## OPERATIONAL TRAPS — each of these cost real time today
+## THE FIVE FACTS THAT KEEP GETTING RE-DERIVED WRONG. Do not re-litigate.
 
-- **`gh auth` REVERTS between pushes.** The active account returns to `s-k-28`, which cannot see the
-  repo and fails with a bare "Repository not found". Run
-  `gh auth switch --user teameuphoriainv-dot` **before every push**.
-- **`npm run check` now exists** and runs all six pinning scripts. Before today they were reachable
-  only by remembering an exact `node scripts/...` path, so the re-syncs they guard would have landed
-  green.
-- **`priceOf()` IS THE SINGLE CANONICAL MARK.** Execution, `portfolioValue()`, `snapshot()` and the
-  Trade row all use it. **If you make valuation live, make EXECUTION live in the same commit** or
-  every position percentage silently becomes fiction. This was an armed defect until `1d4385b`.
-- **`src/lib/cost-basis.ts` is the ONE copy** of the holdings math; `cost-basis-regression.mjs`
-  imports it (Node 24 strips types). **Keep that file erasable-syntax-only** — an enum or namespace
-  breaks the script's import.
-- **`eas env:create` is DEPRECATED** on eas-cli 21.7.1. Use `eas env:set`.
-- **Polygon is now `massive.com`.** `polygon.io` redirects to a signup page.
-- **The Gemini key ALREADY EXISTS.** `team.euphoriainv@gmail.com` → project **Euphoria**
-  (`gen-lang-client-0444883331`) → **"Euphoria Backend Key"**. Do not mint a new one; four Google
-  accounts are signed into that Chrome profile and only that one is right.
-- **The EAS CLI is authenticated as `s-k-28` / `siddarthakodithyala28@gmail.com`** — a different
-  identity again. C108 has the ownership question.
-- **The simulator shuts itself down repeatedly.** Run `xcrun simctl list devices` before theorising
-  about a crash. It happened four times today.
+1. **`~/euphoria-native` IS THE PRODUCT.** `~/euphoriamobile` is a Capacitor app, abandoned 04-09.
+2. **Bundle id `com.euphoriainv.euphoria`.** `android.package` deliberately stays `com.euphoria.native`.
+3. **App Group `group.com.euphoriainv.euphoria`** in `app.json`, `src/lib/widget.ts`, `targets/widget/index.swift`.
+4. **`eas env:set` DOES NOT EXIST** on eas-cli 21.7.1. It is **`env:create`**. The previous carryover
+   said the opposite and cost a deploy cycle. `env:exec` takes the environment **POSITIONALLY**.
+5. **The Gemini key is `AQ.…` 53 chars, NOT `AIza…` 39.** Every shape check in this repo would have
+   rejected a working credential. **Do not add an `AIza` gate.**
 
 ---
 
-## STATE OF THE OUTSIDE WORLD
-
-| | |
-|---|---|
-| **PLA** | ✅ SIGNED (Free Apps Agreement, effective Aug 9) |
-| **Sign In with Apple** | ✅ Enabled on App ID `com.euphoriainv.euphoria` (`G8VX7UFD2L`) |
-| **Paid Applications Agreement** | ❌ status `New` = unsigned. **No IAP can transact.** |
-| **EU trader status** | ❌ Not provided — DSA, apps get removed from the EU store |
-| **Age-rating social questions** | ❌ Pending in App Information |
-| **App Privacy** | ⚠️ INACCURATE — analytics was added and must be declared |
-| **Reply to App Review** | `refs/APPLE_2.1b_REPLY_DRAFT.md` awaits approval. **Nothing sends without it.** |
-
-**Account Holder is RAMYA SMITHA CHILAMANTULA, team `9SS423KXF5`.** Only she can clear those four.
-**Never accept an agreement on her behalf.**
-
----
-
-## CREDENTIALS AND THEIR TRAPS
-
-- **RevenueCat key is REAL and IN** (C106) — project `320845df`, app `appbf28770359`. It lives only
-  in gitignored `.env.local`, so C106 is its only record.
-- **The `.p8` is the WRONG TYPE for the empty slot.** RevenueCat's App Store Connect API slot wants
-  `AuthKey_XXXXXXXXXX.p8`; `.secrets/` holds `SubscriptionKey_QP24DLK3HJ.p8`, an in-app-purchase key.
-- **The IAP slot already holds `V2D263NV4V.p8` and reports "Valid credentials"** — contradicting the
-  old note that the April key is dead. Resolve before touching a working credential.
-- **PostHog has no account.** `ANALYTICS_ENABLED` shape-checks `phc_`, so every event in 17b, 17d and
-  17f is a no-op. Five phases of instrumentation are recording nothing.
-- **`assets/images/google-g.png`** was fetched 2026-08-11 from Google's documented branding URL
-  (`developers.google.com/identity/images/g-logo.png`), SHA-256 `d1ce9c2a…`. The security review
-  cleared it. Provider buttons are now **custom-but-compliant**, which reverses C97 deliberately and
-  at the user's direction — see `src/components/provider-button.tsx` for both disclosed deviations.
-
----
-
-## THE FOUR API KEYS — still the biggest single blocker
-
-`GEMINI_API_KEY` · `POLYGON_API_KEY` · `ALPHAVANTAGE_API_KEY` · `TRADIER_TOKEN` exist nowhere.
-
-```
-GET https://euphoria-native.expo.app/api/market?syms=NVDA  ->  503 {"error":"not_configured"}
-```
-
-**Atlas, market data and options are reachable but dead in any real build.** Set with
-`eas env:set production --name X --value Y --visibility secret --non-interactive`, then redeploy.
-Massive and Tradier need accounts/logins the assistant cannot create; AlphaVantage needs an email
-submitted to a third party.
-
----
-
-## ENVIRONMENT AND THE GATE
+## DEPLOYING. Four steps, and three of them are load-bearing.
 
 ```bash
-export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90   # "Euphoria QA" — every shell
+npx eas env:create --name X --value "<v>" --environment production \
+    --visibility sensitive --scope project --non-interactive
+npx eas env:exec production "npx expo export --platform web"   # POSITIONAL env. NOT optional.
+npx eas deploy --prod --environment production --non-interactive
+curl -s "https://euphoria-native.expo.app/api/...&_cb=$(date +%s)"   # cache-buster, always
 ```
 
-Metro on 8081. Screen 402 x 874 pt.
+**Step 2 is the one everybody skips.** The built bundle does a *runtime* `process.env` lookup, which
+makes it look as though export cannot matter — but the export is what tells EAS Hosting which
+variables the deployment needs. §22 C119 reasoned from that and got it **wrong**; C120 corrects it.
+
+**Step 4 needs the cache-buster.** EAS Hosting **edge-caches GET API routes** (`cache-status: EAS`).
+Without one you read the *previous* deployment's answer. This faked two failures in a row today —
+including an options route that was live the whole time while returning a cached `503` (C122).
+`/api/chat` never showed it because POST is not cached.
+
+---
+
+## THE LESSON OF THE DAY, and it happened THREE TIMES
+
+**A refusal WE caused must never be reported as a failure THEY caused.**
+
+| what actually happened | what it was reported as | now |
+|---|---|---|
+| `gemini-2.5-flash` retired, 404 | `502 upstream` → "Atlas is broken" | `model_unavailable`, logged as CONFIG |
+| Alpha Vantage throttle: `200 {"Information":…}` | `{"articles":[]}` → "no news today" | logged: `alphavantage refused` |
+| Polygon plan limit, 403 | `502 upstream` → "Polygon is down" | `501 plan_required`, logged PLAN LIMIT |
+
+Each one sends the next person to check the key, the network and a status page. All three are fine.
+
+Two more that faked failures in the other direction:
+
+- **Thinking tokens ate the answer.** Gemini 3.x counts thinking against `maxOutputTokens`: measured
+  **346 of 386 tokens were thought**, so Atlas replied mid-sentence with `finishReason: "STOP"` and a
+  plausible body. Only `thinkingConfig: { thinkingBudget: 0 }` fixes it — `thinkingLevel: "low"` still
+  burned 318. It was also ~17× the cost on the one feature with a real per-message cost.
+- **marketdata.app serves AAPL without a token and nothing else.** I tested one ticker, wrote
+  "no account needed", and TSLA returned `401`. Testing a second ticker is what caught it.
+
+---
+
+## OPERATIONAL TRAPS
+
+- **`gh auth` REVERTS between pushes.** Run `gh auth switch --user teameuphoriainv-dot` **before
+  every push** or you get a bare "Repository not found".
+- **LogBox eats taps.** Its error bar sits at **y≈795–811pt**, over some dismiss controls and the
+  lesson-intro `Continue`. `sim.sh` reports a successful tap and nothing happens — it absorbed **52
+  consecutive taps** today. Dismiss it first. **The accessibility tree tells you what EXISTS, never
+  what a tap will DO.**
+- **A MultiSelect row's centre is not its checkbox** (it is on the left), and **it will not advance
+  on a wrong answer** — an automated driver needs the answer key from `curriculum/courses/*.ts`.
+- **`apiBase()` resolves to Metro's `hostUri` in dev**, so the simulator talks to the LOCAL server.
+  Verifying anything server-side on device needs the key in `.env.local` too. `eas.json` already sets
+  `EXPO_PUBLIC_API_URL` for preview/production builds.
+- **Metro does not rate-limit** — it re-evaluates route modules per request. Verify limits against an
+  exported bundle, never `:8081`.
+- **The simulator shuts itself down unprompted.** `xcrun simctl list devices` before theorising.
+- **A checker can fail on its own doc comment.** Happened twice: `privacy-claim-pin` matched the
+  prose naming `<PostHogProvider autocapture>`, and the chat config pin matched the comment
+  explaining why not to use `thinkingLevel`. Strip comments before scanning source.
+
+---
+
+## WHAT SHIPPED TODAY (25 commits, C114→C123)
+
+**Security — 8 findings, 5 closed** (`refs/SECURITY_REVIEW.md` has the research and sources):
+
+- `_validate.ts` — allowlist for everything reaching an upstream URL. `.toUpperCase()` was standing
+  in for validation across 7 call sites; a crafted `sym` walked out of the intended Polygon endpoint.
+- `_identity.ts` — server-verified JWT. Pins `alg: HS256`, requires `exp`, `crypto.subtle.verify`,
+  **no path reads claims from an unverified token**. Inert until `SUPABASE_JWT_SECRET`.
+- `_entitlement.ts` — F7. **Fails OPEN on every uncertain path**, deliberately: a wrong deny locks
+  out a payer. Inert until `REVENUECAT_SECRET_KEY`.
+- `_advice.ts` — refuses individualised investment advice. Keys on a **directive + a named security**,
+  never on the word "buy", because the curriculum is about buying things.
+- `privacy-claim-pin` — the six facts behind `why-not-free.tsx`.
+
+**Unit 17 is COMPLETE.** 17c built and device-verified; 17d's bypass closed (C115→C117) — four
+surfaces rendered the trial-expired state and only `GateSheet` carried the offer, so tapping Start on
+Home dismissed without ever asking. Also fixed a **double-count**: `paywall_dismissed` fired on both
+dismissals, inflating exactly the users the offer reached.
+
+**Refactor.** `store.ts` 822 → **780**. Six rule modules now, each dependency-free so its regression
+imports the *real* rule: `cost-basis`, `portfolio-value`, `billing-retry`, `day-keys`,
+`trial-reward`, `dismissal-offer`, plus `api/_chain.ts`.
+
+**Options moved off Tradier to marketdata.app** — Tradier's signup demands SSN and employment details
+for read-only data.
+
+---
+
+## THE GATE
 
 ```bash
 npx tsc --noEmit                       # clean
-npx expo lint 2>&1 | grep problems     # 48 problems (3 errors, 45 warnings) — C66 baseline
-python3 scripts/certify.py | tail -2   # ALL ROUTES PASS 3a
-npm run check                          # all six pinning scripts
-node scripts/a11y-audit.mjs            # 1 unlabelled = SpringPressable docstring, a known false positive
-./scripts/sim.sh screen                # READ THE REAL SCREEN
+npm run check                          # 15 scripts, all PASS
+npx expo lint 2>&1 | grep problems     # 48 (3 errors, 45 warnings) — C66 baseline
+python3 scripts/certify.py             # ALL ROUTES PASS 3a
+node scripts/a11y-audit.mjs            # 1 known false positive (SpringPressable docstring)
+./scripts/sim.sh screen                # then LOOK AT THE REAL SCREEN
 ```
 
-`./scripts/capture-screens.sh` re-shoots all 31 routes. `./scripts/seed-trial.sh 4 false` = expired
-trial. `sim.sh` answers in TEXT so screenshots stay rare — but C113 is about when text is not enough.
-
----
-
-## WHAT SHIPPED 2026-08-11 (31 commits, all pushed)
-
-- **§22 restored** 100 → 114 corrections, C1→C114 contiguous
-- **Screen audit: 9 of 26 done** — home, learn, lesson, trade, auth, onboarding, start, league, you.
-  Method and comparator sets in `refs/audit/20260810/FINDINGS.md`
-- **Shipped:** lesson-intro key-term previews · 60 approved unit names (`refs/UNIT_NAMES_DRAFT.md`) ·
-  streak on Learn · cost basis and true returns · Atlas asks the onboarding questions · one
-  `ProviderButton` for both providers · open contracts on Trade · league promotion tinting ·
-  best streak · four a11y labels
-- **Copy corrected (all user-approved, §0.7):** 17d trimmed to three lines · "Suggested" →
-  "More stocks" · **"Save your streak, XP…" → "Your progress stays on this device."**
-
-### Six real defects fixed, none on any list when the day started
-
-| | |
-|---|---|
-| `STOCKS[sym].chg` shown as the user's return | every user saw +3.1% on NVDA |
-| Five false chart range labels | "+$3.28 **today**" for a two-day-old gain |
-| $781 missing from a total that counted it | open contracts invisible |
-| Partial cost basis | invented **+300%**, then again via a basis of exactly 0 |
-| Live-vs-static price | armed by the API keys — disarmed in `1d4385b` |
-| VoiceOver read every onboarding question twice | opacity-0 ghost text in the a11y tree |
+**C113 still governs:** a green gate means the things it checks are fine. It does not mean the number
+on the screen is true. **A checker that has never failed has not been tested** — every regression
+added today was verified against the break it exists to catch.
 
 ---
 
 ## OPEN WORK
 
-- **17 captured screens unaudited.** Next by priority: `digest`, `chat`, `options`, `stock`.
-- **The four API keys** — blocked on the user.
-- **17g pricing** — never touched. $9.99/mo and $79.99/yr stay (C31). §16a bars this framing from any
-  App Store asset.
-- **`lib/people.ts` is FABRICATED and says so.** The league races invented rivals. The LEAGUE audit
-  found Duolingo gates its leaderboard behind 7 lessons and shows PLACEHOLDER BARS instead of names —
-  three options recorded, all the user's call.
-- **The You tiles all count backwards.** Best streak is done; badges need authored names (§0.7).
-- **`stocks.ts` is a hardcoded mock table.** Prices never move, so a paper portfolio cannot gain or
-  lose from the market. Bounds what Trade can teach. "Wire to live quotes in Phase 16."
-- **Auth creates no account.** Real OAuth runs, the identity is written to a local profile,
-  `currentUserId()` returns null. Copy is now honest; the friction still buys the user nothing.
-- **`store.ts` is 838 lines**, over ECC's 800 threshold. `portfolio-snapshot` and `billing-retry`
-  regressions still re-implement their rules — the Node 24 trick used for cost-basis applies.
-- **Unit 16** — preview video, icon audit. The UIcon set has no warning/alert glyph (C105).
-- **Unit 14** — final review, deliberately last.
+**Needs credentials (all built and inert):**
+- **PostHog** — no account. `ANALYTICS_ENABLED` shape-checks `phc_`, so every 17b/17d/17f event is a
+  no-op. Five phases of instrumentation record nothing.
+- **Supabase** — `EXPO_PUBLIC_SUPABASE_URL`, `_ANON_KEY`, `SUPABASE_JWT_SECRET`. Activates F4/F6.
+- **RevenueCat SECRET key** (not the `appl_` public one) — activates F7.
+
+**Needs a decision or money:**
+- `movers` needs a paid Polygon plan.
+- **F8** — social sign-in is unverified on-device. `identityToken` and `nonce` appear nowhere in
+  `src/`. Harmless today; **a full auth bypass the day it is wired to a server**, and
+  `api/_identity.ts` is the plausible-looking place someone will wire it.
+- **F6** — the limiter is per-isolate. A Durable Object keyed on the verified identity closes it.
+- Cached error responses: a `429`/`503` could be served to everyone until the TTL expires. The
+  success path is identical for all users so caching it is free; the error path wants `no-store`.
+
+**Product:**
+- **17 captured screens unaudited** — `digest`, `chat`, `options`, `stock` next. **Blocked:
+  ScreensDesign Pro has lapsed**, and AGENTS.md makes it mandatory for design work.
+- **Live market data has never been seen IN THE APP.** Endpoints verified by curl only; the Trade tab
+  and stock screens have not been opened against real prices. That is a different claim (C109).
+- `lib/stocks.ts` is still a hardcoded mock table — the paper portfolio does not use live prices.
+  **If you make valuation live, make EXECUTION live in the same commit** or every position percentage
+  becomes fiction.
+- `lib/people.ts` is fabricated and says so.
+- **Unit 14** — the final consolidated review, deliberately last. There is more surface now: six API
+  modules, five new regressions, a provider swap.
+
+**Apple, unchanged:** Paid Applications Agreement unsigned (no IAP can transact), EU trader status
+missing, App Privacy inaccurate, 2.1b reply awaiting approval. Account Holder only.
 
 ---
 
 ## HOW TO WORK
 
-1. **Never mention session cost or context percentage.** `~/.claude/CLAUDE.md`'s COST directive does
-   NOT apply to this project.
-2. **LOOK AT THE SCREEN**, and for anything computing money, **get a second reader** (C113).
-3. **ScreensDesign is MANDATORY for design work.** Read the SCREEN, never the flow description.
-   Report hit rate across ≥4 apps and say so when the bar is not met. Robinhood, Zogo, Stash and
-   Greenlight are NOT in the dataset — say "no strong match" rather than substituting.
-4. **ASK VIA `AskUserQuestion`, and end every turn with one.** Put the evidence in the option
-   descriptions.
-5. **§0.7: never invent product copy.** Draft options and let the user choose — the C103 procedure,
-   used four times today.
-6. The user is authenticated in App Store Connect, RevenueCat and Google Cloud via Claude in Chrome.
-   **ASC screenshots time out — use `get_page_text`.** Chrome runs its own profile; a login elsewhere
-   is not visible to it.
+1. **LOOK AT THE SCREEN**, and for anything computing money, **get a second reader** (C113).
+2. **Verify by reading the BODY**, with a cache-buster. A successful deploy proves nothing; a curl
+   without `_cb` proves less.
+3. **ScreensDesign is MANDATORY for design work** — read the SCREEN, never the flow description.
+   Report hit rate across ≥4 apps. Currently unavailable; label HIG-only work as such.
+4. **ASK VIA `AskUserQuestion`, and end every turn with one.** Evidence in the option descriptions.
+5. **§0.7: never invent product copy.** Draft options and let the user choose. Three
+   `COPY IS UNAPPROVED` markers remain: `settings/[section].tsx`, `gate-sheet.tsx`, `notifications.ts`.
+6. **Never mention session cost or context percentage.**
+7. The user is authenticated in App Store Connect, RevenueCat, Google Cloud and Massive via Claude in
+   Chrome. **Secret-reveal controls do not respond to synthetic clicks** — four sites tried today,
+   none worked. Ask the user to reveal and paste. **Do not create accounts or enter passwords.**
