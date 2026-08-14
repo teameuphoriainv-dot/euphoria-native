@@ -125,5 +125,23 @@ export async function decide(subject: string | null): Promise<Decision> {
 
 /** The refusal. 402 rather than 403: this is "you have not paid", not "you may not ask". */
 export function refuse(d: Extract<Decision, { allow: false }>): Response {
-  return Response.json({ error: d.reason }, { status: d.reason === 'auth-required' ? 401 : 402 });
+  /*
+   * `no-store`, and this one fails in the direction that costs a CUSTOMER.
+   *
+   * EAS Hosting caches GET responses carrying no Cache-Control, on a default TTL nobody has read
+   * (§9.2). This response had none. So a 402 for one unentitled caller could be cached against a
+   * URL and then served to a PAYING user asking for the same symbol and expiry — refusing someone
+   * who did pay, for as long as the TTL lasts.
+   *
+   * `purchases.ts` already holds the line that a network failure must never revoke a paying
+   * member's access; a cached refusal is that same failure wearing a CDN. Dormant until
+   * REVENUECAT_SECRET_KEY is set, which is exactly why it is fixed now rather than after.
+   */
+  return Response.json(
+    { error: d.reason },
+    {
+      status: d.reason === 'auth-required' ? 401 : 402,
+      headers: { 'Cache-Control': 'no-store' },
+    },
+  );
 }

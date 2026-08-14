@@ -187,6 +187,29 @@ check('partial blob: the contract still unwinds', noCash.derivatives.length, 0);
 const noCashNoDerivs = clearStaticPricing({ positions: { NVDA: 1 } }, 0);
 check('empty blob: cash still absent, defaults survive', noCashNoDerivs.cash === undefined ? null : 1, null);
 
+// ── THE SOFT-LOCK, found in security review 2026-08-14 ──────────────────────────────────────
+// `(s.derivatives ?? [])` only catches null/undefined. A persisted blob whose `derivatives` is an
+// object, a string or a number reached `.reduce` and THREW — inside zustand's migrate, which rejects
+// its promise, which calls onRehydrateStorage with state === undefined, so setHasHydrated(true)
+// never ran and app/index.tsx never routed. Blank screen forever until storage is cleared by hand.
+for (const bad of [{}, 'oops', 42, true, { a: 1 }]) {
+  let threw = false;
+  let out = null;
+  try {
+    out = clearStaticPricing({ derivatives: bad, cash: 100, positions: {} }, 1);
+  } catch {
+    threw = true;
+  }
+  check(`malformed derivatives ${JSON.stringify(bad)}: does not throw`, threw ? 1 : null, null);
+  check(`malformed derivatives ${JSON.stringify(bad)}: cash intact`, out && out.cash, 100);
+}
+// A premium that is not a number must not poison the refund into NaN.
+const junkPremium = clearStaticPricing(
+  { derivatives: [{ premium: 'abc' }, { premium: 10 }], derivativeTrades: 2, cash: 100 },
+  1,
+);
+check('a non-numeric premium is ignored, not added as NaN', junkPremium.cash, 110);
+
 if (failures > 0) {
   console.log(`\nFAILED — ${failures} check(s). The Trade tab's percentage is wrong again.\n`);
   process.exit(1);

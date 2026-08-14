@@ -761,7 +761,21 @@ export const useApp = create<AppState>()(
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
       version: 2,
-      migrate: (persisted, from) => clearStaticPricing(persisted as Partial<AppState>, from) as AppState,
+      /*
+       * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
+       * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
+       * then fires with `state === undefined`, so `setHasHydrated(true)` never runs and
+       * `app/index.tsx` never routes. Returning the persisted blob untouched degrades to "migration
+       * did not happen", which the version number will retry next launch, instead of a blank screen.
+       */
+      migrate: (persisted, from) => {
+        try {
+          return clearStaticPricing(persisted as Partial<AppState>, from) as AppState;
+        } catch (e) {
+          console.error('[store] migration failed, leaving state as-is', e);
+          return persisted as AppState;
+        }
+      },
       // only persist data, not the action fns / derived getters
       partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
@@ -773,11 +787,40 @@ export const useApp = create<AppState>()(
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
+        // `error` was previously ignored. If rehydration fails the app must still ROUTE — a new
+        // install is the correct fallback for unreadable state, and the flag below is what releases
+        // routing at all.
+        if (error) console.error('[store] rehydrate failed', error);
         // Marks BEFORE the flag: `hasHydrated` is what releases routing, and a screen that renders
         // with an empty mark map prices every holding off the static table for one frame.
         hydrateMarks(state?.marks);
-        state?.setHasHydrated(true);
+        /*
+         * `state` is undefined when rehydration REJECTED, so `state?.setHasHydrated(true)` no-ops
+         * and nothing ever routes — the soft-lock this whole block exists to prevent. Falling back
+         * to the live store handle fixes that on device.
+         *
+         * WRAPPED, because the first version of this fallback BROKE THE WEB EXPORT. Static
+         * rendering has no `window`, so rehydration always rejects there, and reaching for the
+         * store handle mid-module-evaluation threw `ReferenceError: window is not defined` and took
+         * `expo export` down with it. Worse, `eas deploy` then reported success while shipping the
+         * previous bundle — §4's "a deploy that succeeds proves nothing" in the flesh.
+         *
+         * On a server render there is nothing to route anyway, so swallowing is correct there and
+         * only there.
+         */
+        if (state) {
+          state.setHasHydrated(true);
+        } else if (typeof window !== 'undefined') {
+          // Rehydration REJECTED on a real client. Without this the flag never flips and
+          // `app/index.tsx` renders nothing forever — the soft-lock this block exists to prevent.
+          useApp.getState().setHasHydrated(true);
+        }
+        // No `window` means STATIC RENDERING, where rehydration always rejects (AsyncStorage needs
+        // one) and there is nothing to route regardless. Reaching for the store handle there threw
+        // `ReferenceError: window is not defined` ASYNCHRONOUSLY — after setHasHydrated triggered a
+        // re-render — so a try/catch around it did not help and `expo export` died. Guarding the
+        // CONDITION rather than the throw is the fix.
       },
     },
   ),

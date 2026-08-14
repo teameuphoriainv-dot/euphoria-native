@@ -88,7 +88,17 @@ export function clearStaticPricing<
   let s = state;
   if (fromVersion < 1) s = { ...s, costBasis: {}, valueHistory: [] };
   if (fromVersion < 2) {
-    const refund = (s.derivatives ?? []).reduce((sum, d) => sum + (d?.premium ?? 0), 0);
+    /*
+     * `Array.isArray`, NOT `?? []`. Found in security review 2026-08-14: `??` only catches null and
+     * undefined, so a persisted blob whose `derivatives` is an object, string or number reaches
+     * `.reduce` and throws. That throw happens INSIDE zustand's migrate, which rejects its promise,
+     * which calls `onRehydrateStorage` with `state === undefined`, so `setHasHydrated(true)` never
+     * runs — and `app/index.tsx` gates all routing on that flag. The app renders nothing, forever,
+     * until storage is cleared by hand. One bad field, permanent soft-lock, and it did not exist
+     * before this migration was added.
+     */
+    const held = Array.isArray(s.derivatives) ? s.derivatives : [];
+    const refund = held.reduce((sum, d) => sum + (Number(d?.premium) || 0), 0);
     s = { ...s, derivatives: [], derivativeTrades: 0 };
     /*
      * `cash` is written ONLY when there is something to refund AND a number to add it to.

@@ -110,7 +110,13 @@ export function take(key: string, limit: number, windowMs: number): Verdict {
 export function limited(v: Extract<Verdict, { ok: false }>): Response {
   return Response.json(
     { error: 'rate_limited', retryAfter: v.retryAfter },
-    { status: 429, headers: { 'Retry-After': String(v.retryAfter) } },
+    /*
+     * `no-store` matters as much as the status. EAS Hosting caches GET responses that carry no
+     * Cache-Control, with a default TTL nobody has read (§9.2) — so ONE throttled caller could have
+     * their 429 cached and served to every other caller of the same URL. The routes' own `fresh()`
+     * wrappers exist for exactly this, and this response is returned BEFORE reaching them.
+     */
+    { status: 429, headers: { 'Retry-After': String(v.retryAfter), 'Cache-Control': 'no-store' } },
   );
 }
 

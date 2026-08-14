@@ -105,8 +105,9 @@ async function marketdata(path: string): Promise<Raw> {
  * exhaust, no per-contract billing, and nothing to leak. One response carries every expiry, so the
  * cache key is the SYMBOL — 7 of them, not 56.
  *
- * It is large (~1.7 MB for NVDA, 3,794 contracts). That is why the response is edge-cached for an
- * hour and why filtering happens in `_chain.ts` rather than by asking the provider for less.
+ * It is large (~1.7 MB for NVDA, 3,794 contracts), which is why filtering happens in `_chain.ts`
+ * rather than by asking the provider for less. NOTE: this response is NO LONGER edge-cached — the
+ * route is entitlement-gated and a shared cache cannot see who is asking. See `cached()` below.
  */
 async function cboe(sym: string): Promise<Raw> {
   const res = await fetch(`${CBOE_BASE}/${sym}.json`, { headers: { Accept: 'application/json' } });
@@ -179,9 +180,27 @@ export async function GET(request: Request) {
    * hour). Cache a 502 and every user gets the outage until the TTL expires, long after the upstream
    * recovered.
    */
+  /*
+   * `private`, NOT `public`. THIS ROUTE IS PAYWALLED AND THE EDGE CACHE DOES NOT KNOW THAT.
+   *
+   * Found in security review 2026-08-14, and it was introduced by the caching commit earlier the
+   * same day. `decide()` runs above, then the success response was returned with
+   * `public, s-maxage=3600`. The CDN's cache key is the URL — symbol and expiry — with no notion of
+   * who is asking. A cache HIT is served from the edge WITHOUT re-invoking the Worker, so the
+   * entitlement check never runs again. One entitled caller warming AAPL's front month would have
+   * handed the same chain to every anonymous caller for an hour: not a weakened gate, an absent one.
+   *
+   * It is invisible today only because entitlement is `not-enforced` while REVENUECAT_SECRET_KEY is
+   * unset — so there is nothing yet to bypass. It would have become a full paywall bypass on the
+   * day that secret was set, which is the same "about to go live" timing as the `_identity.ts` work.
+   *
+   * `private` keeps the DEVICE cache (a repeat view costs nothing) and forbids shared caches. The
+   * cost control this replaces mattered when the provider billed per contract; Cboe is free and
+   * keyless, so the thing being protected now is Worker CPU, not a quota.
+   */
   const cached = (body: unknown) =>
     Response.json(body, {
-      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200' },
+      headers: { 'Cache-Control': 'private, max-age=300' },
     });
   const fresh = (body: unknown, status: number) =>
     Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
