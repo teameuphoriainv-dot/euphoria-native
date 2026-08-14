@@ -11,7 +11,7 @@ education for 18-25s, mascot **Atlas**. Content source of truth is `~/euphoriawe
 > §22. It carries the architecture, the deploy sequence, the gate, the house rules and the traps.
 > This file is the *session* handoff; the README is the *project* reference. Do not duplicate.
 
-**HEAD `166009a`. 387 commits, 26 of them today. Tree clean, everything pushed to
+**HEAD `f155515`. 389 commits, 28 of them today. Tree clean, everything pushed to
 `teameuphoriainv-dot/euphoria-native`. §22 runs C1→C123.**
 
 ---
@@ -61,12 +61,12 @@ because dev builds talk to the LOCAL Metro server (see §6.4):
 | `POLYGON_API_KEY` | quote, chart, stats, search, logo, news-fallback | free tier; excludes `movers` |
 | `ALPHAVANTAGE_API_KEY` | news *with sentiment scores* | works locally, **throttled on the Worker** — §5.2 |
 | `MARKETDATA_TOKEN` | options chains for every symbol | without it, **AAPL only** — §5.3 |
-| `EXPO_PUBLIC_POSTHOG_KEY` | analytics | **key proven, app delivery UNVERIFIED — §2.3** |
+| `EXPO_PUBLIC_POSTHOG_KEY` | analytics | **key proven, app delivery UNVERIFIED — §2.2** |
 
 Two public client identifiers in `.env.local` only (they ship in the binary by design):
 `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (`appl_…`), `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`.
 
-## 2.3 PostHog — set and proven at the key level, NOT proven end to end
+## 2.2 PostHog — set and proven at the key level, NOT proven end to end
 
 **Project 557266, US Cloud.** `EXPO_PUBLIC_POSTHOG_KEY=phc_pgnjFMRUXJfgurWUo98gHd95gX2MLWZy3eCQcp2Qyg58`
 — a **public write-only client key**; PostHog labels it *"Safe to use in public apps"*. Set in
@@ -103,7 +103,7 @@ locked lesson from the **Learn tab** — the gate sheet fires `paywall_seen` on 
 **Also worth knowing:** PostHog RN **batches**. `flushAnalytics()` runs on backgrounding, so a single
 event may sit queued rather than send immediately.
 
-## 2.2 NOT set — everything below is BUILT, PINNED BY REGRESSION, AND INERT
+## 2.3 NOT set — everything below is BUILT, PINNED BY REGRESSION, AND INERT
 
 Each of these is finished code waiting on one credential. None needs engineering.
 
