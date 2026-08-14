@@ -14,6 +14,21 @@
  * still holds the Supabase scaffolding for when that lands; this module deliberately does not use
  * it.
  *
+ * ── READ THIS BEFORE CONNECTING THIS MODULE TO A SERVER ─────────────────────────────────────
+ * `credential.user` below is taken ON-DEVICE and is NOT verified against Apple. Today that is
+ * harmless: nothing server-side trusts it, there is no account, and the id is a local label on
+ * local data. It is not a vulnerability, it is a value with no authority.
+ *
+ * It becomes a FULL AUTHENTICATION BYPASS the moment somebody sends it to a server as an identity,
+ * because a client can claim any `user` string it likes. `api/_identity.ts` now exists and is
+ * exactly the plausible-looking place to plug this in — which is why the warning lives here, next
+ * to the value, rather than in a document nobody opens.
+ *
+ * The correct path when that day comes: pass a `nonce` into `signInAsync`, send
+ * `credential.identityToken` (a JWT) to the server, verify it against Apple's JWKS, check `aud`
+ * against our bundle id and that the nonce matches, and only THEN mint a session. Neither
+ * `identityToken` nor `nonce` appears anywhere in `src/` today — audited 2026-08-13.
+ *
  * CANCEL IS NOT AN ERROR. Both providers report a user backing out through their normal failure
  * channel. Surfacing that as an error would put an alert on screen for someone who simply changed
  * their mind — the same rule `purchases.ts` already applies to `userCancelled` (C71). Both

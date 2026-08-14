@@ -1,8 +1,8 @@
 # Security review — 2026-08-13
 
 Research into how AI-assisted ("vibe-coded") apps get breached, turned into findings against **this**
-codebase. Three defects were found and fixed in the same pass; the rest is recorded honestly,
-including the parts that cannot be closed by writing code.
+codebase. **Eight findings: five closed in this pass, three open and recorded honestly** — including
+the parts that cannot be closed by writing code at all.
 
 Scope covered, at the user's direction: the general vibe-coding threat landscape, agent/LLM-specific
 risk, the fast top-10 checks, and a Euphoria-specific audit.
@@ -90,9 +90,10 @@ Worse, the file's own header carried a live precondition:
 **Fix:** a second window on the same identity — `guard(request, 'chat:day', 200, 24h)`. The stale
 header is rewritten and the overtaken precondition recorded rather than deleted.
 
-**Residual, stated plainly:** the identity is still an unauthenticated header, so rotation still
-mints a fresh budget, and the limiter is still per-isolate. This raises the cost of casual abuse and
-bounds accidental runaway. It does **not** stop a determined attacker. See F4.
+**Residual, stated plainly:** a *signed-in* caller is now billed against a server-verified subject
+that cannot be rotated without the JWT secret (F4). An *anonymous* caller is still billed against a
+header they choose, and the limiter is still per-isolate (F6). This raises the cost of casual abuse
+and bounds accidental runaway. It does **not** stop a determined attacker.
 
 ### F2 — Unvalidated `sym` reaching upstream URLs · MEDIUM-HIGH · **FIXED**
 
@@ -181,6 +182,49 @@ cannot see intent. It sits *under* the system prompt, not in place of it. A mode
 the upgrade path. The refusal line carries the `COPY IS UNAPPROVED` marker — three alternates go to
 the owner under §0.7.
 
+### F7 — No API route checks entitlement · MEDIUM · **OPEN, needs F4 active**
+
+Audited 2026-08-13. `atlas` and `options` are paid features in `entitlement.ts`'s `Feature` union,
+and **every check is client-side**. Grep for `isPro`/`tier(`/`entitlement` across `src/app/api/`
+returns nothing.
+
+So `/api/chat` — the paid Atlas feature, which spends real Gemini tokens — is available to anyone
+who knows the URL, regardless of trial state, expiry, or whether they ever paid. `/api/options`
+spends Tradier quota the same way. The rate limiter bounds the volume; nothing gates the access.
+
+This is not the same bug as F1. F1 was "one caller can spend too much"; F7 is "a caller who is
+entitled to nothing can spend anything at all".
+
+**Why it is not fixed here:** the server has no way to answer "is this person Pro" yet. It needs
+F4's verified identity active *and* a RevenueCat server-side lookup (their secret API key, which is
+a different credential from the `appl_` public SDK key currently in `.env.local`). Both are owner
+actions.
+
+**Plan:** once F4 is live, call RevenueCat's subscriber endpoint server-side keyed on the verified
+subject and refuse `chat`/`options` for non-entitled callers. Cache the answer briefly — an
+entitlement lookup per chat turn is its own cost problem.
+
+**Accepted, and worth stating:** the curriculum itself ships inside the bundle, so lesson content
+cannot be protected server-side no matter what. Entitlement for *content* is inherently advisory on
+a client. Entitlement for *our metered API calls* is not, and that is the half worth closing.
+
+### F8 — Social sign-in identity is never verified · LOW today, HIGH the day auth lands · **DOCUMENTED**
+
+`social-auth.ts` resolves identity on-device and deliberately performs no server exchange.
+`credential.user` is taken as the id; **`identityToken` and `nonce` appear nowhere in `src/`** —
+verified by grep, 2026-08-13.
+
+**Today this is not a vulnerability.** Nothing server-side trusts that id, there is no account, and
+it is a local label on local data. A value with no authority cannot be abused.
+
+**It becomes a full authentication bypass the moment it is sent to a server as an identity**, since
+a client can claim any `user` string. That is a live risk precisely because `api/_identity.ts` now
+exists and is the natural-looking place to wire it.
+
+**Fix, recorded next to the value rather than only here** (`social-auth.ts` header): pass a `nonce`
+into `signInAsync`, send `credential.identityToken` to the server, verify against Apple's JWKS,
+check `aud` against the bundle id and that the nonce matches, and only then mint a session.
+
 ### F6 — In-memory limiter is per-isolate · MEDIUM · **OPEN, documented**
 
 On EAS Hosting these routes are Cloudflare Workers; `buckets` is per-isolate, so two requests on two
@@ -197,6 +241,8 @@ isolates each see a fresh bucket. Already stated in `_limit.ts:11-22`. Same fix 
 | 3 | ~~Output filter on Atlas completions~~ | F5 | **done** — refusal wording still needs §0.7 sign-off |
 | 4 | ~~Server-verified identity; limiter prefers it~~ | F4 | **done** — needs Supabase keys to activate |
 | 5 | Move `take()` to a Durable Object keyed on that identity | F1, F6 | step 4's keys |
+| 5b | Server-side entitlement check on `/api/chat` and `/api/options` | F7 | step 4 + RevenueCat secret key |
+| 5c | Verify Apple's `identityToken` + nonce before any server session | F8 | only when sign-in is built |
 | 6 | Set `GEMINI_API_KEY` quota/billing alerts provider-side | F1 defence-in-depth | Google Cloud console access |
 
 Step 5 is what remains. Steps 1–4 raise the cost of abuse substantially and close the two findings
