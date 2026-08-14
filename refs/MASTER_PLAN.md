@@ -6578,3 +6578,44 @@ outright.
 **So the remaining work is EAS Hosting configuration, not code.** Next thing to try: the Hosting
 section of the Expo dashboard may hold its own environment variables, separate from the build-time
 ones `eas env:create` writes. Nothing in `src/` needs to change.
+
+### C120. ATLAS IS LIVE. And C119's diagnosis was wrong in the way §22 exists to catch.
+
+`POST https://euphoria-native.expo.app/api/chat` → **HTTP 200**:
+
+> *"It is interest you earn on your interest, which makes your money grow"*
+
+Short, second person, no markdown. The system prompt is doing its job. **This is the first time
+Atlas has ever answered.**
+
+### THE ROOT CAUSE — and the wrong turn that hid it
+
+**`expo export` MUST RUN UNDER THE ENVIRONMENT.** The working sequence:
+
+```bash
+npx eas env:exec production "npx expo export --platform web"
+npx eas deploy --prod --environment production
+```
+
+`eas env:exec` takes the environment **POSITIONALLY**. `--environment production` is rejected with
+`Nonexistent flag: --environment` — and the first attempt failed with only `Error: env:exec command
+failed`, which said nothing about why. That swallowed error cost three deploys.
+
+**C119 SAID "IT IS NOT THE EXPORT" AND THAT WAS WRONG.** The reasoning was: the built bundle
+contains `process.env.GEMINI_API_KEY` as a runtime lookup rather than an inlined value, therefore
+the export cannot be the problem. The premise was true and the conclusion did not follow — the
+lookup is real, but the export is what tells EAS Hosting which variables the deployment needs, so a
+value absent at export time is absent from the Worker no matter what the code does at runtime.
+
+**A correct observation plus a plausible inference is still a wrong answer.** C119 is left standing
+above rather than edited, because the wrong reasoning is the useful part of the record.
+
+### THE FULL SEQUENCE, for the next key
+
+1. `npx eas env:create --name X --value Y --environment production --visibility sensitive --scope project --non-interactive`
+2. `npx eas env:exec production "npx expo export --platform web"` ← **positional, and not optional**
+3. `npx eas deploy --prod --environment production --non-interactive`
+4. `curl` the production route and read the body. A deploy that succeeds proves nothing about env.
+
+Three of the four API keys remain unset (`POLYGON`, `ALPHAVANTAGE`, `TRADIER`), so market data and
+options are still `503`. That is now purely a matter of obtaining them — the pipeline is proven.
