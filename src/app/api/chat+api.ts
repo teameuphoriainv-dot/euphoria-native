@@ -19,6 +19,8 @@
  */
 
 import { isAdvice, REFUSAL } from './_advice';
+import { decide, refuse } from './_entitlement';
+import { verifiedUserId } from './_identity';
 import { guard } from './_limit';
 
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -122,6 +124,20 @@ export async function POST(request: Request) {
    */
   const daily = await guard(request, 'chat:day', 200, 24 * 60 * 60_000);
   if (daily) return daily;
+
+  /*
+   * F7. Atlas is a PAID feature and every check for that was client-side, so this route would spend
+   * real Gemini tokens for anyone who knew the URL and had never paid. Different bug from the
+   * limits above: those bound how much one caller spends, this bounds whether they may spend at all.
+   *
+   * Runs BEFORE the key check and before parsing, for the same reason the rate limit does — the
+   * quota should not be touched to discover the caller was not allowed to touch it.
+   *
+   * Allows everything until `REVENUECAT_SECRET_KEY` is set, so today this is a no-op. See
+   * `_entitlement.ts` for the three-step rollout and why only step 3 actually closes F7.
+   */
+  const paid = await decide(await verifiedUserId(request));
+  if (!paid.allow) return refuse(paid);
 
   const key = process.env.GEMINI_API_KEY;
   if (!key) {

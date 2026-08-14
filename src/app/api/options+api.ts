@@ -15,6 +15,8 @@
  * Black-Scholes teaching model — clearly labelled as a model, never as a quote.
  */
 
+import { decide, refuse } from './_entitlement';
+import { verifiedUserId } from './_identity';
 import { guard } from './_limit';
 import { isoDate, symbol } from './_validate';
 
@@ -40,6 +42,11 @@ const many = <T,>(v: T | T[] | null | undefined): T[] => (Array.isArray(v) ? v :
 export async function GET(request: Request) {
   const gate = await guard(request, 'options', 30, 60_000);
   if (gate) return gate;
+
+  // F7. The options desk is a Pro feature and was gated only on the client. Same no-op-until-
+  // configured behaviour as the chat route; see `_entitlement.ts`.
+  const paid = await decide(await verifiedUserId(request));
+  if (!paid.allow) return refuse(paid);
 
   const token = process.env.TRADIER_TOKEN;
   if (!token) return Response.json({ error: 'not_configured' }, { status: 503 });

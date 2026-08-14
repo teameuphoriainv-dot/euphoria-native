@@ -182,7 +182,7 @@ cannot see intent. It sits *under* the system prompt, not in place of it. A mode
 the upgrade path. The refusal line carries the `COPY IS UNAPPROVED` marker — three alternates go to
 the owner under §0.7.
 
-### F7 — No API route checks entitlement · MEDIUM · **OPEN, needs F4 active**
+### F7 — No API route checks entitlement · MEDIUM · **BUILT, inert until configured**
 
 Audited 2026-08-13. `atlas` and `options` are paid features in `entitlement.ts`'s `Feature` union,
 and **every check is client-side**. Grep for `isPro`/`tier(`/`entitlement` across `src/app/api/`
@@ -195,14 +195,32 @@ spends Tradier quota the same way. The rate limiter bounds the volume; nothing g
 This is not the same bug as F1. F1 was "one caller can spend too much"; F7 is "a caller who is
 entitled to nothing can spend anything at all".
 
-**Why it is not fixed here:** the server has no way to answer "is this person Pro" yet. It needs
-F4's verified identity active *and* a RevenueCat server-side lookup (their secret API key, which is
-a different credential from the `appl_` public SDK key currently in `.env.local`). Both are owner
-actions.
+**Built 2026-08-13** in `api/_entitlement.ts`, wired into `/api/chat` and `/api/options` ahead of
+the key check — the quota should not be touched to discover the caller was not allowed to touch it.
 
-**Plan:** once F4 is live, call RevenueCat's subscriber endpoint server-side keyed on the verified
-subject and refuse `chat`/`options` for non-entitled callers. Cache the answer briefly — an
-entitlement lookup per chat turn is its own cost problem.
+**It fails OPEN on every uncertain path**, and that is deliberate rather than lazy. `purchases.ts`
+already holds this line client-side: a network failure must never revoke a paying member's access.
+A wrong deny reads as "I paid and it locked me out", is indistinguishable from a real lapse in the
+logs, and is the worst support ticket this product can generate. So no secret, a 5xx, a timeout and
+a malformed body all ALLOW; only RevenueCat affirmatively answering "no active entitlement" denies.
+**Wrong in the open direction costs tokens. Wrong in the closed direction costs a customer.**
+
+**The rollout is three steps and only one is done:**
+
+1. **Today** — `REVENUECAT_SECRET_KEY` unset, so this is a byte-identical no-op.
+2. **Secret set + sign-in shipped** — verified callers checked; a signed-in non-payer cannot spend.
+3. **`ATLAS_REQUIRE_AUTH=1`** — anonymous refused. **Only step 3 actually closes F7**, because the
+   attack is anonymous: somebody with the URL and no account. Steps 1 and 2 must not be described as
+   having closed it, and step 3 must not be flipped before a sign-in UI exists or it refuses the
+   entire userbase.
+
+**Known gap, recorded not papered over:** this check does not honour the billing-retry grace from
+`lib/billing-retry.ts`, which runs client-side off `customerInfo`. Duplicating that rule here would
+be a second copy of a money rule. A member mid card-retry may be refused by the server while the
+client still grants access. The fix is to share one rule, not to write a second.
+
+15 cases pinned in `scripts/entitlement-regression.mjs`, with `fetch` stubbed so the gate never
+depends on RevenueCat being up.
 
 **Accepted, and worth stating:** the curriculum itself ships inside the bundle, so lesson content
 cannot be protected server-side no matter what. Entitlement for *content* is inherently advisory on
