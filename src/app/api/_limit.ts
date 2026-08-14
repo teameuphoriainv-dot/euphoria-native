@@ -15,11 +15,35 @@
  * instance, and a WEAK one against a distributed attacker.
  *
  * That is a deliberate trade for today, not an oversight, and it must not be described as a global
- * limiter anywhere. The upgrade path, in increasing order of effort:
- *   1. Cloudflare Durable Object keyed by the identity — strongly consistent, single-region hop.
- *   2. Workers KV — eventually consistent, cheap, fine for coarse budgets.
- *   3. Upstash Redis — if the limiter ever needs to be shared with the web app's Supabase functions.
- * Any of the three is a drop-in replacement for `take()`; nothing else in the codebase changes.
+ * limiter anywhere.
+ *
+ * ── MEASURED, 2026-08-14. IT IS WEAKER THAN "WEAK". ─────────────────────────────────────────
+ * Against production, all with the SAME `x-euphoria-install` id, so a working limiter would have
+ * refused nearly all of them:
+ *   100 concurrent requests to /api/market  ->   0 refused by us
+ *    25 concurrent requests to /api/chat    ->   1 refused by us
+ * Under concurrency each request lands on its own isolate and sees an empty bucket, so this is
+ * effectively NOT a limiter against exactly the burst it exists to stop. The only thing actually
+ * rate-limiting this app today is the upstream: Polygon allows 5 requests a minute, and Gemini
+ * throttles under load.
+ *
+ * ── THE UPGRADE PATH THAT USED TO BE WRITTEN HERE DOES NOT EXIST ON THIS PLATFORM ────────────
+ * This block previously offered "1. Cloudflare Durable Object, 2. Workers KV, 3. Upstash Redis"
+ * and called any of the three a drop-in. **1 and 2 are not available on EAS Hosting.** It is a
+ * MANAGED Workers platform: there is no `wrangler.toml`, `eas deploy` exposes no binding flags, and
+ * the documented persistence options are all external services reached over HTTP. A Durable Object
+ * or a KV namespace needs a binding you cannot declare here. Checked 2026-08-14 before writing this.
+ *
+ * So the real path is a store reachable over plain HTTP, and every option costs a credential:
+ *   - Upstash Redis — free tier, REST API, one token. Smallest change, and the natural fit.
+ *   - Supabase — already planned for `_identity.ts`, so it adds no NEW dependency.
+ *   - Cloudflare D1 / Turso — heavier than a counter needs.
+ * Whichever is chosen replaces `take()` and nothing else in the codebase moves.
+ *
+ * DO NOT "fix" this with `caches.default` as a shared counter. It is per-colo rather than global,
+ * and a read-modify-write over a cache has no atomicity — under the concurrent burst that defeats
+ * the current limiter it would undercount too, while LOOKING like a control. A control that cannot
+ * be trusted is worse than a documented gap.
  *
  * ── THIS LIMITER DOES NOT LIMIT AGAINST THE METRO DEV SERVER. NOT A BUG. ────────────────────
  * Measured 2026-08-07: 25 POSTs to /api/chat through `npx expo start` (:8082) returned 25 passes.
