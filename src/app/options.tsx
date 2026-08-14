@@ -516,7 +516,15 @@ export default function Options() {
                 // sits comfortably in view rather than jammed against the top.
                 return (
                   <View
-                    key={r.strike}
+                    /*
+                     * KEYED ON THE CHAIN, not just the strike. React reuses a node whose key is
+                     * unchanged, so switching expiry re-rendered the same ATM strike in the same
+                     * place, `onLayout` never fired again, and the chain snapped back to $50
+                     * (measured moving 08-14 -> 08-21). Including the chain key forces a remount,
+                     * which fires onLayout, which re-centres. One line, and it is the actual cause
+                     * rather than another timing guess.
+                     */
+                    key={`${key}:${r.strike}`}
                     ref={atmRef}
                     onLayout={() => centreOnMoney(key)}
                   >
