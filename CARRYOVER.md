@@ -575,9 +575,22 @@ added and must be declared), 2.1b reply in `refs/APPLE_2.1b_REPLY_DRAFT.md` awai
 - **There are TWO Massive keys.** `Default` (…q6rM) is the one in use. `strange_turing` (…9_np) is
   untouched — **do not set the second one anywhere** or the free quota is split across two consumers
   and the throttling will look like a bug.
-- **marketdata.app free tier is roughly 100 requests/day** and answers `203`, not `200`
-  (*Non-Authoritative Information* = delayed). **203 is success — do not "fix" it.** The route treats
-  any `2xx` as OK and separately checks `s !== 'ok'` in the body.
+- **marketdata.app is billed PER CONTRACT, and the "roughly 100 requests/day" written here before was
+  wrong by a factor of 1000.** Read live from `x-api-ratelimit-limit` on 2026-08-14: the limit is
+  **100,000 credits/day**. But credits are not requests — a full NVDA chain for one expiry returned
+  216 contracts and consumed **193 credits**, i.e. ~518 options screen loads per day for the ENTIRE
+  userbase. That was the hardest production ceiling in the app.
+  **Fixed by `strikeLimit`** (`STRIKE_WINDOW = 16` in `api/_chain.ts`): 32 contracts for **32
+  credits**, a 6× cut to ~3,125 loads/day — and the same parameter centres the chain on the money and
+  removes the ill-conditioned IV at the wings. **Check the live header before trusting any number in
+  this file**, including this one: `curl -D- '…/expirations/NVDA/?token=…'`.
+  Provider spend is now bounded by CACHE, not by user count: the route sends
+  `s-maxage=900, stale-while-revalidate=3600` on success and `no-store` on every error path, so cost
+  scales with distinct (symbol, expiry) pairs — 7 × 8 — rather than with how many people open the
+  screen. **The `no-store` half matters as much**: EAS edge-caches GET API routes, and a cached 502
+  serves the outage to everyone long after the upstream recovered (§4 saw exactly that with a 503).
+- It answers `203`, not `200` (*Non-Authoritative Information* = delayed). **203 is success — do not
+  "fix" it.** The route treats any `2xx` as OK and separately checks `s !== 'ok'` in the body.
 - **No production or TestFlight build has EVER been made with these keys.** Everything verified so
   far is either the deployed Worker (curl) or a dev build talking to local Metro. A real build is an
   untested path — `eas.json` sets `EXPO_PUBLIC_API_URL` for preview/production, which is the piece

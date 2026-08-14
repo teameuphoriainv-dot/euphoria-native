@@ -14,7 +14,7 @@
 // it asserts real values rather than merely "not undefined".
 // ============================================================================
 
-import { fromMarketdata } from '../src/app/api/_chain.ts';
+import { chainPath, fromMarketdata, plausibleIv, STRIKE_WINDOW } from '../src/app/api/_chain.ts';
 
 // Shape copied from a live response, 2026-08-13.
 const live = {
@@ -75,6 +75,33 @@ const allZero = r.every((c) => c.bid === 0);
 console.log(`  ${allZero ? 'ok  ' : 'FAIL'}  a renamed column zeroes the price — proving it fails SILENTLY`);
 if (!allZero) fail.push('expected a renamed column to zero the price; the assumption behind this file is wrong');
 console.log('        (so if this ever ships, the chain looks fine and every quote is a lie)');
+
+// ── the strike window is a COST CONTROL, so it gets pinned like one ─────────────────────────
+// Measured 2026-08-14 on the live account: a full NVDA chain returned 216 contracts and consumed
+// 193 credits of 100,000/day — ~518 options loads per day for the WHOLE userbase. strikeLimit=16
+// returned 32 contracts for 32 credits. Dropping the parameter does not throw; it returns a bigger,
+// correct-looking, 6x more expensive chain and the app quietly runs out of quota in production.
+check('the chain request carries a strike limit', chainPath('NVDA', '2026-08-21').includes('strikeLimit='), true);
+check('it carries the budgeted window', chainPath('NVDA', '2026-08-21').includes(`strikeLimit=${STRIKE_WINDOW}`), true);
+check('the window is 16 — raising it costs credits linearly', STRIKE_WINDOW, 16);
+check('the expiry still reaches the provider', chainPath('NVDA', '2026-08-21').includes('expiration=2026-08-21'), true);
+check('the symbol still reaches the provider', chainPath('NVDA', '2026-08-21').startsWith('/chain/NVDA/'), true);
+
+// ── IV that the provider solved out of noise must not render as a fact ──────────────────────
+// Real values measured on the live NVDA chain 2026-08-14: a clean smile of 0.30-0.41 from strike
+// 210 to 242.50, while the 205 and 207.50 CALLS returned 0.0001 and 0.0026 — and the PUTS at those
+// same strikes were fine at 0.4145 and 0.3862. options.tsx renders IV as a percent, so 0.0001
+// printed a confident "IV 0%" next to correct rows.
+check('a real smile value survives untouched', plausibleIv(0.3025), 0.3025);
+check('the healthy tail survives', plausibleIv(0.4145), 0.4145);
+check('an ill-conditioned deep-ITM solve is rejected', plausibleIv(0.0001), 0);
+check('0.26% is still noise, not a quiet market', plausibleIv(0.0026), 0);
+check('617% is rejected as the other tail', plausibleIv(6.17), 0);
+// WIDE on purpose: a real earnings-week short-dated IV can exceed 200%, and clipping that would be
+// inventing data in the opposite direction.
+check('200% is high but REAL, and must survive', plausibleIv(2.0), 2.0);
+check('exactly 1% is kept — the band is inclusive', plausibleIv(0.01), 0.01);
+check('a negative can never be a volatility', plausibleIv(-0.5), 0);
 
 if (fail.length > 0) {
   console.log('\nFAILED\n');

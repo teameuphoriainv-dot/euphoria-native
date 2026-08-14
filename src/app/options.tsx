@@ -212,8 +212,21 @@ export default function Options() {
       return strikes.map((strike) => {
         const c = chain!.find((x) => x.strike === strike && x.kind === 'call');
         const p = chain!.find((x) => x.strike === strike && x.kind === 'put');
+        /*
+         * The IV segment is OMITTED when we do not have one, rather than printed as "IV 0%".
+         * `plausibleIv` in `api/_chain.ts` zeroes implied volatility that the provider solved out of
+         * an option with no time value \u2014 measured: the deepest ITM calls came back 0.0001 while
+         * their puts at the same strike were a healthy 0.41. Delta is unaffected and stays.
+         */
         const fmt = (x?: Contract) =>
-          x ? { cost: cost(x), sub: `IV ${(x.iv * 100).toFixed(0)}% \u00b7 \u0394${x.delta.toFixed(2)}` } : null;
+          x
+            ? {
+                cost: cost(x),
+                sub:
+                  (x.iv > 0 ? `IV ${(x.iv * 100).toFixed(0)}% \u00b7 ` : '') +
+                  `\u0394${x.delta.toFixed(2)}`,
+              }
+            : null;
         return { strike, call: fmt(c), put: fmt(p), days: 0 };
       });
     }

@@ -46,7 +46,7 @@
  *   ?action=chain&sym=AAPL&expiry=2026-09-18  -> { sym, expiry, contracts: [...] }
  */
 
-import { type Contract, fromMarketdata, fromTradier, many } from './_chain';
+import { chainPath, type Contract, fromMarketdata, fromTradier, many } from './_chain';
 import { decide, refuse } from './_entitlement';
 import { verifiedUserId } from './_identity';
 import { guard } from './_limit';
@@ -104,12 +104,36 @@ export async function GET(request: Request) {
   const paid = await decide(await verifiedUserId(request));
   if (!paid.allow) return refuse(paid);
 
+  /*
+   * CACHING IS A COST CONTROL HERE, not a latency tweak.
+   *
+   * marketdata.app bills per CONTRACT (see `_chain.ts`), so provider spend is driven by how many
+   * times we call it — which, uncached, scales with the number of USERS. Cached at the edge it
+   * scales with the number of DISTINCT (symbol, expiry) PAIRS instead, and that is a small fixed
+   * number: 7 underlyings x 8 expiries. One user or ten thousand cost the same.
+   *
+   * 15 minutes is safe because the data is already delayed — marketdata answers `203
+   * Non-Authoritative`, which is the free tier telling you it is not real time. Serving a
+   * 15-minute-old delayed chain is not meaningfully staler than serving a fresh delayed one.
+   *
+   * ERRORS GET `no-store`, and that is the half people forget. EAS Hosting edge-caches GET API
+   * routes (§4 of the carryover — it is what made a live options route serve a cached 503 for an
+   * hour). Cache a 502 and every user gets the outage until the TTL expires, long after the upstream
+   * recovered.
+   */
+  const cached = (body: unknown) =>
+    Response.json(body, {
+      headers: { 'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=3600' },
+    });
+  const fresh = (body: unknown, status: number) =>
+    Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+
   const url = new URL(request.url);
   const action = url.searchParams.get('action') ?? '';
   // Validated, not merely uppercased: `sym` lands in an upstream path and query string, where an
   // unescaped `&` starts a parameter we did not write and `../` walks to another endpoint.
   const sym = symbol(url.searchParams.get('sym'));
-  if (!sym) return Response.json({ error: 'bad_sym' }, { status: 400 });
+  if (!sym) return fresh({ error: 'bad_sym' }, 400);
 
   const tradierToken = process.env.TRADIER_TOKEN;
 
@@ -124,16 +148,16 @@ export async function GET(request: Request) {
         const d = await tradier(`/expirations?symbol=${sym}&includeAllRoots=true`, tradierToken);
         dates = many<string>((d?.expirations as Raw | undefined)?.date as string | string[]);
       }
-      return Response.json({ sym, expirations: dates.slice(0, 8) });
+      return cached({ sym, expirations: dates.slice(0, 8) });
     }
 
     if (action === 'chain') {
       const expiry = isoDate(url.searchParams.get('expiry'));
-      if (!expiry) return Response.json({ error: 'bad_expiry' }, { status: 400 });
+      if (!expiry) return fresh({ error: 'bad_expiry' }, 400);
 
       let contracts: Contract[];
       try {
-        contracts = fromMarketdata(await marketdata(`/chain/${sym}/?expiration=${expiry}`));
+        contracts = fromMarketdata(await marketdata(chainPath(sym, expiry)));
       } catch (e) {
         if (!tradierToken) throw e;
         contracts = fromTradier(
@@ -141,12 +165,12 @@ export async function GET(request: Request) {
         );
       }
 
-      return Response.json({ sym, expiry, contracts });
+      return cached({ sym, expiry, contracts });
     }
 
-    return Response.json({ error: 'bad_action' }, { status: 400 });
+    return fresh({ error: 'bad_action' }, 400);
   } catch (e) {
     console.error('[options] failed', e);
-    return Response.json({ error: 'upstream' }, { status: 502 });
+    return fresh({ error: 'upstream' }, 502);
   }
 }
