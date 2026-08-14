@@ -23,8 +23,27 @@ import { guard } from './_limit';
 
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-/** Gemini free tier — no card required. Swapping providers is this line plus the fetch body. */
-const MODEL = 'gemini-2.5-flash';
+/**
+ * Swapping providers is this line plus the fetch body.
+ *
+ * WAS `gemini-2.5-flash`, WHICH HAD SILENTLY RETIRED. Verified live 2026-08-13 with a real key:
+ *
+ *   404 NOT_FOUND — "This model models/gemini-2.5-flash is no longer available to new users."
+ *
+ * It still appears in `/v1beta/models`, so LISTED IS NOT USABLE — the only way to know is to call
+ * it. Nothing in this repo would have caught it: tsc, lint and twelve regressions all pass over a
+ * dead model string, and the route turns the 404 into a generic `502 upstream`. The symptom on
+ * device is "Atlas is broken" with no hint that the cause is a model name, which is why the 404
+ * case below now logs as a CONFIG error rather than an upstream blip.
+ *
+ * `gemini-3.5-flash` verified returning 200 on both v1 and v1beta with this project's key.
+ *
+ * PINNED, not `gemini-flash-latest`. The alias would have survived this retirement, but it also
+ * moves the model under a system prompt and an advice guard that were tuned against a known one —
+ * a silent capability change on a finance app aimed at 18-25s is the worse failure. The trade is
+ * deliberate: pin, and let the 404 below say so loudly when it next expires.
+ */
+const MODEL = 'gemini-3.5-flash';
 
 /** Bounds on a SINGLE request. This is input validation at the trust boundary, not rate limiting
  *  — nothing here stops a caller making a thousand valid requests. That is step 3. */
@@ -133,7 +152,17 @@ export async function POST(request: Request) {
 
     if (!res.ok) {
       // Upstream bodies echo quota state and can carry key fragments. Log them, never forward them.
-      console.error('[chat] upstream', res.status, (await res.text()).slice(0, 500));
+      const detail = (await res.text()).slice(0, 500);
+      /*
+       * A 404 here is OUR configuration, not their outage: the model name is wrong or has been
+       * retired. Calling that "upstream" is how `gemini-2.5-flash` sat dead behind a generic 502
+       * and read as a bad API key. Separate code so the next one is obvious from the logs alone.
+       */
+      if (res.status === 404) {
+        console.error(`[chat] MODEL "${MODEL}" REJECTED — retired or misnamed. Not an outage:`, detail);
+        return Response.json({ error: 'model_unavailable' }, { status: 502 });
+      }
+      console.error('[chat] upstream', res.status, detail);
       return Response.json({ error: 'upstream' }, { status: 502 });
     }
 
