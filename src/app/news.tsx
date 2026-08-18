@@ -15,12 +15,13 @@
  * because it looks like it is working.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ago, SentimentBadge } from '@/components/sentiment-badge';
+import { RetryNotice } from '@/components/retry-notice';
 import { SkeletonRows } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -36,22 +37,45 @@ export default function News() {
   const { sym } = useLocalSearchParams<{ sym?: string }>();
   const [articles, setArticles] = useState<Article[] | null>(null);
   const [loaded, setLoaded] = useState(false);
+  /*
+   * getNews().then() had no .catch(), so a rejection left `loaded` false and the skeleton
+   * running forever — the third screen with this exact shape.
+   *
+   * The tempting shortcut is to setLoaded(true) in the catch and let the existing empty state
+   * handle it. That would be a LIE: this screen already says "no news for this symbol" when
+   * articles is empty, and a failed request is not an empty result. Telling a user there is no
+   * news when the truth is that we could not load it is worse than telling them nothing —
+   * they would stop looking.
+   */
+  const [err, setErr] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const retry = useCallback(() => {
+    setErr(null);
+    setNonce((n) => n + 1);
+  }, []);
   // Captured once when the list lands, so every row measures against the same instant and no
   // `Date.now()` runs during render.
   const [at, setAt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    getNews(sym).then((a) => {
-      if (cancelled) return;
-      setArticles(a);
-      setAt(Date.now());
-      setLoaded(true);
-    });
+    setErr(null);
+    getNews(sym)
+      .then((a) => {
+        if (cancelled) return;
+        setArticles(a);
+        setAt(Date.now());
+        setLoaded(true);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        // Deliberately NOT setLoaded(true) — see above. An error is not an empty result.
+        setErr(e instanceof Error ? e.message : 'upstream');
+      });
     return () => {
       cancelled = true;
     };
-  }, [sym]);
+  }, [sym, nonce]);
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -76,7 +100,7 @@ export default function News() {
         </RiseIn>
 
         {/* UNIT 13 item 3: the shape of the article rows that are coming, not a bare spinner. */}
-        {!loaded && <SkeletonRows count={4} height={92} />}
+        {err ? <RetryNotice code={err} onRetry={retry} /> : !loaded && <SkeletonRows count={4} height={92} />}
 
         {loaded && (articles?.length ?? 0) === 0 && (
           <RiseIn delay={60}>
