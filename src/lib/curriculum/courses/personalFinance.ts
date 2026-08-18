@@ -3059,7 +3059,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('The government pays interest on ___ loans while you\'re enrolled in school.', ['private', 'unsubsidized', 'subsidized', 'parent PLUS'], 2),
     q('Why should total student loan debt ideally not exceed your expected first-year salary?',
-      ['It\'s a legal requirement, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation', 'Lenders won\'t approve more, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', 'It ensures manageable repayment, higher ratios lead to financial hardship and 20+ year repayment timelines', 'You can\'t get forgiveness above that amount, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy'],
+      ['It\'s a legal requirement', 'Lenders won\'t approve more', 'It ensures manageable repayment, higher ratios lead to financial hardship and 20+ year repayment timelines', 'You can\'t get forgiveness above that amount'],
       2, 'The 1x rule is a guideline for manageable debt. $30K debt on a $60K salary = standard 10-year repayment at $326/month. $100K debt on a $35K salary = crushing payments that dominate your finances for decades.'),
     pc('Student Loan Math', [
       { prompt: '$30K in unsubsidized loans at 5.5%, how much interest accrues during 4 years of school?', options: ['$0', '$3,300', '$6,600', '$12,000'], correct: 2 },
@@ -3968,10 +3968,10 @@ const lessons: PathwayLesson[] = [
       ['5%', '10%', '15.3%', '25%'],
       2, 'Self-employment tax is 15.3% (12.4% Social Security + 2.9% Medicare) on net side hustle profits. This is ON TOP of regular income tax.'),
     cq('Which side hustle strategy maximizes wealth building?',
-      ['Spend the extra income on lifestyle upgrades, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice', 'Invest 100% of side hustle income, live on your salary', 'Save it in a checking account, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research', 'Use it to fund more side hustles only, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns'],
+      ['Spend the extra income on lifestyle upgrades', 'Invest 100% of side hustle income, live on your salary', 'Save it in a checking account', 'Use it to fund more side hustles only'],
       1, 'Live on your salary, invest 100% of side hustle income. This accelerates financial independence by 5-15 years without reducing your lifestyle.'),
     cq('When evaluating side hustle options, the most important metric is:',
-      ['Total revenue, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes', 'Number of clients, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods', 'Effective hourly rate (total earnings ÷ all hours invested)', 'How fun it is, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials'],
+      ['Total revenue', 'Number of clients', 'Effective hourly rate (total earnings ÷ all hours invested)', 'How fun it is'],
       2, 'Effective hourly rate accounts for ALL time: work, setup, commute, admin. A $2,000/month hustle taking 50 hours = $40/hr. The same income in 20 hours = $100/hr. Time is your scarcest resource.')
   ]),
 
@@ -4022,7 +4022,7 @@ const lessons: PathwayLesson[] = [
     ),
     microCheck(
       'You\'re planning to have a baby in 2 years. What\'s your most important financial preparation?',
-      ['Start buying baby supplies now, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly', 'Increase your emergency fund, start a 529 plan, and get life insurance', 'Wait until the baby arrives to plan, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation', 'Cancel all subscriptions to save money, numerous academic studies and real-world case studies across different market environments have examined this particular approach'],
+      ['Start buying baby supplies now', 'Increase your emergency fund, start a 529 plan, and get life insurance', 'Wait until the baby arrives to plan', 'Cancel all subscriptions to save money'],
       1,
       'Correct! The trifecta: bigger emergency fund (8-12 months), 529 plan for education savings, and life insurance (10-12x income) if anyone depends on your income. Prepare before the baby arrives.',
       'Financial preparation for parenthood: expand emergency fund → get life insurance → start 529 plan → budget for childcare → review health insurance coverage.'
@@ -4081,7 +4081,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('The USDA estimates raising a child to 18 costs $___,605 in 2024 dollars.', ['150', '210', '310', '450'], 2),
     q('Why does starting a 529 plan at birth vs age 10 matter so much?',
-      ['Tax rules change at age 10, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals', '18 years of compound growth produces $86K vs only $27K from 8 years, the extra 10 years nearly triple the result', 'College costs more for younger kids, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students', '529 plans close at age 10, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals'],
+      ['Tax rules change at age 10', '18 years of compound growth produces $86K vs only $27K from 8 years, the extra 10 years nearly triple the result', 'College costs more for younger kids', '529 plans close at age 10'],
       1, '$200/month from birth: 18 years of compounding → $86K. From age 10: only 8 years → $27K. To match $86K starting at 10, you\'d need $530/month, 2.65x more. Start early.'),
     pc('Life Event Finance', [
       { prompt: '$200/month in a 529 from birth to 18 at 7% =', options: ['$43,200', '$60,000', '$86,000', '$120,000'], correct: 2 },
@@ -4286,7 +4286,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('A credit freeze at all three bureaus is ___ and takes about 10 minutes.', ['$30', '$100', 'free', '$500'], 2),
     q('Why is a credit freeze better than credit monitoring?',
-      ['It costs less, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', 'A freeze PREVENTS fraud by blocking new accounts. Monitoring only ALERTS you after fraud occurs. Prevention beats detection.', 'It improves your credit score, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'Monitoring is illegal, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['It costs less', 'A freeze PREVENTS fraud by blocking new accounts. Monitoring only ALERTS you after fraud occurs. Prevention beats detection.', 'It improves your credit score', 'Monitoring is illegal'],
       1, 'Credit monitoring is reactive, it tells you after damage is done. A credit freeze is proactive, it blocks the damage from happening. Both are useful, but the freeze is the priority.'),
     pc('Security Quiz', [
       { prompt: 'The most effective single step to prevent identity theft:', options: ['Strong passwords', 'Credit monitoring', 'Credit freeze at all 3 bureaus', 'Using cash only'], correct: 2 },
@@ -4368,19 +4368,19 @@ const lessons: PathwayLesson[] = [
     whatsNext('Identity Theft & Financial Security', 'Understanding Inflation & Purchasing Power', 'Your finances are protected. Now understand the invisible force eroding your money every day: inflation. Learn how it works, why cash loses value, and how to make your money grow faster than prices rise.', 8)
   ], [
     cq('What single action prevents 90%+ of new-account identity theft?',
-      ['Credit monitoring subscription, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research', 'Freezing credit at all 3 bureaus (free)', 'Using cash for everything, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns', 'Changing passwords monthly, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['Credit monitoring subscription', 'Freezing credit at all 3 bureaus (free)', 'Using cash for everything', 'Changing passwords monthly'],
       1, 'A credit freeze at Equifax, Experian, and TransUnion is free, takes 10 minutes, and prevents anyone from opening new credit accounts in your name.'),
     cq('Two-factor authentication prevents what percentage of account takeovers?',
       ['50%', '75%', '90%', '99%'],
       3, '2FA with an authenticator app prevents 99% of account takeovers. Even if your password is compromised, the attacker can\'t access your account without the second factor.'),
     cq('You get a text saying "Bank of America: Suspicious activity. Click here to verify." Best response?',
-      ['Click the link to check your account, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods', 'Reply "STOP", this is one of the most commonly referenced concepts in financial education literature and professional certification study materials', 'Open the Bank of America app or call the number on your debit card directly', 'Forward to friends as a warning, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice'],
+      ['Click the link to check your account', 'Reply "STOP"', 'Open the Bank of America app or call the number on your debit card directly', 'Forward to friends as a warning'],
       2, 'Never click links in unexpected messages. Go directly to the bank\'s website or app, or call the number on your card. This bypasses the phishing attempt entirely.'),
     cq('Americans lost how much to fraud in 2023?',
       ['$1.2 billion', '$4.5 billion', '$10.3 billion', '$25 billion'],
       2, 'The FTC reported $10.3 billion in total fraud losses in 2023 from 5.4 million reports. Investment fraud ($4.6B) and impersonation scams ($2.7B) were the top categories.'),
     cq('Why is SMS-based 2FA less secure than authenticator app-based 2FA?',
-      ['It\'s slower, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation', 'SMS can be intercepted via SIM swap attacks, where criminals transfer your phone number to their device', 'It uses more data, numerous academic studies and real-world case studies across different market environments have examined this particular approach', 'There\'s no difference, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes'],
+      ['It\'s slower', 'SMS can be intercepted via SIM swap attacks, where criminals transfer your phone number to their device', 'It uses more data', 'There\'s no difference'],
       1, 'SIM swap attacks let criminals transfer your phone number to their device, intercepting all SMS codes. Authenticator apps generate codes locally on your device, making them immune to SIM swaps.')
   ]),
 
@@ -4490,7 +4490,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('At 3% inflation, prices double roughly every ___ years (Rule of 72).', ['12', '18', '24', '36'], 2),
     q('Why are stocks the best long-term inflation hedge?',
-      ['Stock prices are fixed by the government, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students', 'Stocks average 10.7% returns, outpacing 3% inflation by 7%+ annually, real purchasing power grows', 'Stocks don\'t lose value, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals', 'Companies don\'t experience inflation, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly'],
+      ['Stock prices are fixed by the government', 'Stocks average 10.7% returns, outpacing 3% inflation by 7%+ annually, real purchasing power grows', 'Stocks don\'t lose value', 'Companies don\'t experience inflation'],
       1, 'Stocks return 10.7% avg vs 3% inflation = 7.7% real return. Companies can raise prices to offset their costs (passing inflation to consumers), while their stock values reflect this pricing power.'),
     pc('Inflation Math', [
       { prompt: '$100K in cash after 30 years of 3% inflation has purchasing power of:', options: ['$100,000', '$74,000', '$41,000', '$10,000'], correct: 2 },
@@ -4575,7 +4575,7 @@ const lessons: PathwayLesson[] = [
       ['$100,000', '$74,000', '$41,000', '$10,000'],
       2, 'At 3% annual inflation, purchasing power drops to ~41% after 30 years. $100K in cash can only buy what $41K buys today. Inflation is the invisible tax on cash.'),
     cq('What is "real return"?',
-      ['Your tax refund', 'Investment return minus inflation, the actual gain in purchasing power', 'The return you see on your statement', 'Total profit from an investment, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Your tax refund', 'Investment return minus inflation, the actual gain in purchasing power', 'The return you see on your statement', 'Total profit from an investment'],
       1, 'Real return = nominal return - inflation. Stocks return 10.7% nominally, but after 3% inflation, real return is 7.7%. This is what actually grows your purchasing power.'),
     cq('Rule of 72: at 8% return, investments double approximately every:',
       ['4 years', '6 years', '9 years', '12 years'],
@@ -4640,7 +4640,7 @@ const lessons: PathwayLesson[] = [
     ),
     microCheck(
       'Your 401(k) beneficiary is your ex-spouse from 5 years ago. Your will says "everything to my current partner." Who gets the 401(k)?',
-      ['Your current partner, the will controls everything', 'Your ex-spouse, beneficiary designations override wills', 'It\'s split 50/50, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'The government takes it, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['Your current partner, the will controls everything', 'Your ex-spouse, beneficiary designations override wills', 'It\'s split 50/50', 'The government takes it'],
       1,
       'Correct! Beneficiary designations on retirement accounts, life insurance, and bank accounts OVERRIDE your will. If your 401(k) says "ex-spouse," they get it, no matter what your will says. Review beneficiaries after every life change.',
       'Beneficiary designations are the most overlooked part of estate planning. Review them annually and after marriage, divorce, births, and deaths.'
@@ -4699,7 +4699,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('___% of Americans don\'t have a will.', ['25', '45', '68', '90'], 2),
     q('Why do beneficiary designations override a will?',
-      ['They\'re more expensive, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns', 'They\'re federal law, account beneficiaries bypass the probate system entirely and transfer directly', 'The bank decides, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation', 'They don\'t, the will always controls, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions'],
+      ['They\'re more expensive', 'They\'re federal law, account beneficiaries bypass the probate system entirely and transfer directly', 'The bank decides', 'They don\'t, the will always controls'],
       1, 'Beneficiary designations on retirement accounts, insurance, and TOD/POD accounts transfer directly to the named person, bypassing probate and overriding the will. This is why keeping them updated is critical.'),
     pc('Estate Planning Essentials', [
       { prompt: 'What percentage of Americans lack a will?', options: ['25%', '45%', '68%', '90%'], correct: 2 },
@@ -4784,16 +4784,16 @@ const lessons: PathwayLesson[] = [
       ['25%', '45%', '68%', '90%'],
       2, 'Gallup 2024: 68% of Americans don\'t have a will. Without one, your state\'s intestacy laws, not your wishes, determine who gets your assets and who raises your children.'),
     cq('Your 401(k) beneficiary is your ex-spouse. Your will says "everything to my partner." Who gets the 401(k)?',
-      ['Your partner, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials', 'Your ex-spouse, beneficiary designations override wills', '50/50 split, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice', 'The government, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research'],
+      ['Your partner', 'Your ex-spouse, beneficiary designations override wills', '50/50 split', 'The government'],
       1, 'Beneficiary designations on retirement accounts, life insurance, and TOD/POD accounts ALWAYS override the will. The named beneficiary gets the money directly.'),
     cq('Probate without a will typically takes:',
       ['2-4 weeks', '2-6 months', '1-3 years', '5-10 years'],
       2, 'Probate without a will typically takes 1-3 years (or longer with disputes) and costs $3,000-$15,000+ in legal fees. During this time, assets are frozen.'),
     cq('Which document authorizes someone to make medical decisions for you if you\'re incapacitated?',
-      ['Will, numerous academic studies and real-world case studies across different market environments have examined this particular approach', 'Living Trust, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes', 'Healthcare Power of Attorney', 'Beneficiary Designation, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods'],
+      ['Will', 'Living Trust', 'Healthcare Power of Attorney', 'Beneficiary Designation'],
       2, 'Healthcare Power of Attorney (also called Healthcare Proxy) designates who makes medical decisions when you can\'t. Without it, your family may need a court order.'),
     cq('How can you avoid probate on financial accounts?',
-      ['Having a detailed will, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals', 'Using beneficiary designations and transfer-on-death (TOD) designations', 'Keeping accounts secret, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly', 'Having less than $100K, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation'],
+      ['Having a detailed will', 'Using beneficiary designations and transfer-on-death (TOD) designations', 'Keeping accounts secret', 'Having less than $100K'],
       1, 'Beneficiary designations and TOD/POD designations transfer assets directly to named persons, bypassing probate entirely. A living trust also avoids probate for assets held in the trust.')
   ]),
 
@@ -4840,7 +4840,7 @@ const lessons: PathwayLesson[] = [
     ),
     microCheck(
       'You own stock bought for $2K, now worth $8K. You want to give $8K to charity. What\'s the most tax-efficient method?',
-      ['Sell the stock, pay capital gains, donate the cash', 'Donate the stock directly to the charity', 'Donate cash from your savings account', 'Write a check, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students'],
+      ['Sell the stock, pay capital gains, donate the cash', 'Donate the stock directly to the charity', 'Donate cash from your savings account', 'Write a check'],
       1,
       'Correct! Donating the stock directly gives the charity $8K, you get an $8K deduction, AND you avoid $900 in capital gains tax (15% × $6K gain). Donating cash would miss the capital gains savings.',
       'When donating appreciated assets held over 1 year, donate the asset directly, not cash. You avoid capital gains AND get a full fair market value deduction.'
@@ -4899,7 +4899,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('Donating appreciated stock instead of cash saves an additional ___-___% in capital gains taxes.', ['1-5', '5-10', '15-20', '30-40'], 2),
     q('Why is a donor-advised fund (DAF) useful for someone giving $5K/year?',
-      ['DAFs have higher returns', 'Bunching 3 years ($15K) into one DAF contribution pushes you above the standard deduction, creating tax savings you\'d otherwise miss', 'DAFs are required by law', 'Charities prefer DAFs, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['DAFs have higher returns', 'Bunching 3 years ($15K) into one DAF contribution pushes you above the standard deduction, creating tax savings you\'d otherwise miss', 'DAFs are required by law', 'Charities prefer DAFs'],
       1, '$5K/year falls below the standard deduction ($14.6K single). No tax benefit. But $15K into a DAF every 3 years pushes itemized deductions above the standard, saving $1,700+ per cycle.'),
     pc('Charitable Giving Math', [
       { prompt: 'Stock: cost $3K, worth $10K. Capital gains avoided by donating stock:', options: ['$0', '$700', '$1,050', '$1,500'], correct: 2 },
@@ -4987,10 +4987,10 @@ const lessons: PathwayLesson[] = [
       ['Giving to many charities at once', 'Combining 2-3 years of donations into one year (via DAF) to exceed the standard deduction and trigger itemization', 'Donating food in bulk', 'Giving more in December'],
       1, 'Bunching: $5K/year gives $0 tax benefit (below $14.6K standard deduction). $15K every 3 years via DAF exceeds the standard deduction, creating $2,000+ in tax savings per cycle.'),
     cq('A charity with 91% program efficiency vs one with 58% means:',
-      ['They\'re equally effective, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', '$5,460 vs $3,480 of your $6K reaches the mission, 57% more impact from choosing wisely', 'The 58% charity is better because it has more overhead, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'It doesn\'t matter where you donate, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['They\'re equally effective', '$5,460 vs $3,480 of your $6K reaches the mission, 57% more impact from choosing wisely', 'The 58% charity is better because it has more overhead', 'It doesn\'t matter where you donate'],
       1, 'Charity efficiency matters enormously. $6K to a 91% efficient charity = $5,460 at work. Same $6K to a 58% efficient charity = only $3,480. Always check Charity Navigator.'),
     cq('What is a donor-advised fund (DAF)?',
-      ['A mutual fund for donors, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research', 'A charitable investment account: tax deduction on contribution, grants to charities over time', 'A government program, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns', 'A type of trust, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['A mutual fund for donors', 'A charitable investment account: tax deduction on contribution, grants to charities over time', 'A government program', 'A type of trust'],
       1, 'A DAF lets you contribute assets (get immediate tax deduction), invest them tax-free, and recommend grants to charities over time. It\'s the tool that enables bunching and long-term giving strategy.'),
     cq('Americans donated how much to charity in 2023?',
       ['$57 billion', '$157 billion', '$357 billion', '$557 billion'],
@@ -5103,7 +5103,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('Your FI number equals annual expenses multiplied by ___.', ['10', '15', '25', '50'], 2),
     q('Why does a 50% savings rate reach FI faster than a higher income with a 10% savings rate?',
-      ['Tax advantages, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods', 'A higher savings rate simultaneously reduces your FI number (lower expenses) AND increases your investing pace, the math is doubly powerful', 'Index funds perform better at 50%, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials', 'The 4% rule changes, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice'],
+      ['Tax advantages', 'A higher savings rate simultaneously reduces your FI number (lower expenses) AND increases your investing pace, the math is doubly powerful', 'Index funds perform better at 50%', 'The 4% rule changes'],
       1, 'Double impact: 50% savings rate means lower expenses ($40K vs $180K) = lower FI number ($1M vs $4.5M). AND you invest more per year ($40K vs $20K). Lower target + faster saving = FI decades sooner.'),
     pc('FIRE Math', [
       { prompt: '$40K annual expenses × 25 = FI number:', options: ['$500K', '$750K', '$1,000,000', '$1,500,000'], correct: 2 },
@@ -5192,13 +5192,13 @@ const lessons: PathwayLesson[] = [
       ['8 years', '14 years', '22 years', '30 years'],
       1, 'At 50%, you save 1 year of expenses per year worked. Combined with investment growth, FI arrives in ~14 years regardless of income level.'),
     cq('Why is savings rate more important than income for reaching FI?',
-      ['Tax reasons, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation', 'Higher savings rate simultaneously LOWERS your FI number (less spending) and INCREASES your investing, double impact', 'Banks pay more interest on higher percentages, numerous academic studies and real-world case studies across different market environments have examined this particular approach', 'Income doesn\'t matter at all, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes'],
+      ['Tax reasons', 'Higher savings rate simultaneously LOWERS your FI number (less spending) and INCREASES your investing, double impact', 'Banks pay more interest on higher percentages', 'Income doesn\'t matter at all'],
       1, 'Double effect: 50% savings rate on $80K = $40K expenses ($1M FI number) + $40K invested/year. 10% on $200K = $180K expenses ($4.5M FI number) + $20K invested. Lower target + faster saving = FI decades sooner.'),
     cq('What is Coast FIRE?',
-      ['Retiring at the coast/beach, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students', 'Having enough invested that compound growth alone reaches your FI number by traditional retirement age, you can work any low-stress job', 'Working from a coffee shop, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals', 'Saving 100% of income, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly'],
+      ['Retiring at the coast/beach', 'Having enough invested that compound growth alone reaches your FI number by traditional retirement age, you can work any low-stress job', 'Working from a coffee shop', 'Saving 100% of income'],
       1, 'Coast FIRE: $200K invested at 25 grows to $2.1M at 65 at 8% with no additional contributions. You can "coast", work any enjoyable job, just don\'t touch investments.'),
     cq('The 4% rule means:',
-      ['Save 4% of income', 'Withdraw 4% of your portfolio annually, with 95%+ probability of not running out over 30 years', 'Get 4% returns', 'Pay 4% in fees, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Save 4% of income', 'Withdraw 4% of your portfolio annually, with 95%+ probability of not running out over 30 years', 'Get 4% returns', 'Pay 4% in fees'],
       1, 'The Trinity Study found that withdrawing 4% annually from a diversified portfolio has survived 95%+ of all 30-year periods since 1926, including the Great Depression and 2008 crisis.')
   ]),
 
@@ -5402,7 +5402,7 @@ const lessons: PathwayLesson[] = [
       ['How to count money', 'Intentional allocation, some money for now, some for later, some for others', 'That saving means never spending', 'Math skills only'],
       1, 'The three-jar system builds the fundamental habit of intentional money allocation. It teaches that money has different purposes and that we CHOOSE how to use it.'),
     cq('Why does financial education need to start before school teaches it?',
-      ['Schools teach it too late, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', 'Money habits form by age 7, but most schools don\'t cover finance until 17-10 years of missed habit formation', 'Parents are better teachers, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'Schools don\'t allow money discussions, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['Schools teach it too late', 'Money habits form by age 7, but most schools don\'t cover finance until 17-10 years of missed habit formation', 'Parents are better teachers', 'Schools don\'t allow money discussions'],
       1, 'The gap between habit formation (age 7) and school-based education (age 17, if at all) is 10 years. Parents fill this gap, or no one does.')
   ]),
 
@@ -5455,7 +5455,7 @@ const lessons: PathwayLesson[] = [
     ),
     microCheck(
       'What is the correct order for deploying money in the wealth-building system?',
-      ['Invest first, then save, then budget, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research', 'Budget → emergency fund → employer match → high-interest debt → full emergency fund → Roth IRA → HSA → max 401(k) → taxable', 'Pay all debt first, then save, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns', 'Save 100% until you\'re rich, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['Invest first, then save, then budget', 'Budget → emergency fund → employer match → high-interest debt → full emergency fund → Roth IRA → HSA → max 401(k) → taxable', 'Pay all debt first, then save', 'Save 100% until you\'re rich'],
       1,
       'Correct! The order of operations ensures each step multiplies the effectiveness of the next. Don\'t skip steps, the employer match is free money, Roth growth is tax-free, and the system works because each piece builds on the last.',
       'The wealth-building order of operations is the single most important framework in personal finance. Follow it in order, and compound growth handles the rest.'
@@ -5514,7 +5514,7 @@ const lessons: PathwayLesson[] = [
     ]),
     fb('The wealth-building order starts with an emergency fund, then gets the employer ___.', ['bonus', 'stock', 'match', 'raise'], 2),
     q('What\'s the single most important takeaway from the entire personal finance course?',
-      ['Pick the right stocks, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods', 'Start now, stay consistent, and let compound growth do the heavy lifting, time is your most valuable asset', 'Earn a high salary, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials', 'Never spend money on fun, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice'],
+      ['Pick the right stocks', 'Start now, stay consistent, and let compound growth do the heavy lifting, time is your most valuable asset', 'Earn a high salary', 'Never spend money on fun'],
       1, 'Every lesson reinforces: time + consistency + low-cost index funds + behavioral discipline = wealth. You don\'t need to be brilliant. You need to start early, automate good decisions, and never stop.'),
     pc('Capstone Knowledge Check', [
       { prompt: 'First step in the wealth-building order of operations:', options: ['Max out 401(k)', 'Buy a house', 'Build $1K emergency fund', 'Open a brokerage'], correct: 2 },
@@ -5605,7 +5605,7 @@ const lessons: PathwayLesson[] = [
     whatsNext('Personal Finance Capstone', 'Global Economics', 'Congratulations on completing Personal Finance! You\'ve mastered the skills that 90% of adults never learn. Next: expand your understanding to the global economy, how nations trade, currencies work, and macroeconomic forces shape the financial world you now navigate with confidence.', 12)
   ], [
     cq('The first step in the wealth-building order of operations is:',
-      ['Max out Roth IRA, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation', 'Open a brokerage account, numerous academic studies and real-world case studies across different market environments have examined this particular approach', 'Build a $1,000 starter emergency fund', 'Pay off all debt, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes'],
+      ['Max out Roth IRA', 'Open a brokerage account', 'Build a $1,000 starter emergency fund', 'Pay off all debt'],
       2, 'The $1K emergency fund is step 1, it prevents new debt when emergencies strike. Everything else builds on this foundation. Skip it and one flat tire derails your entire plan.'),
     cq('$200/month invested at 10.7% from age 22 to 65 becomes:',
       ['$103,000', '$445,000', '$1,020,000', '$5,000,000'],
@@ -5614,10 +5614,10 @@ const lessons: PathwayLesson[] = [
       ['$500K', '$750K', '$1,000K', '$1,250K'],
       3, '$50,000 × 25 = $1,250,000. The 4% rule: withdraw $50K/year from $1.25M with 95%+ probability of lasting 30+ years. Work becomes optional.'),
     cq('The single most important financial behavior is:',
-      ['Picking winning stocks, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students', 'Starting early and staying consistent, compound growth rewards time above all', 'Having a high income, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals', 'Timing the market perfectly, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly'],
+      ['Picking winning stocks', 'Starting early and staying consistent, compound growth rewards time above all', 'Having a high income', 'Timing the market perfectly'],
       1, 'Every lesson reinforces: start now + stay consistent + low costs + behavioral discipline = wealth. Waiting one year at 25 costs ~$100K by 65. There is no substitute for time.'),
     cq('The $4.2M gap between financially literate and illiterate graduates comes from:',
-      ['Higher IQ', 'Knowledge + consistent application of basic principles: negotiation, index fund investing, tax optimization, and compound growth over 40 years', 'Luck', 'Inheritance, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Higher IQ', 'Knowledge + consistent application of basic principles: negotiation, index fund investing, tax optimization, and compound growth over 40 years', 'Luck', 'Inheritance'],
       1, 'Same jobs, same starting salary. The only difference: 24 lessons of financial knowledge applied consistently. Negotiation, investing, tax strategy, and behavioral discipline compound over decades into millions.')
   ])
 ];

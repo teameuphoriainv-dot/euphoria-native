@@ -2691,10 +2691,10 @@ const lessons: PathwayLesson[] = [
       ['$0','$1,400','$2,100','$3,500'],
       2,'At 2% contribution ($1,400), the employee gets $1,400 in match. At 5% ($3,500), they\'d get $3,500 in match. They\'re missing $2,100/year in free money. Over 30 years at 10% return, that\'s ~$346,000 in lost wealth, all from a 3% contribution gap.'),
     cq('Why is a Roth IRA generally better than a Traditional IRA for a 22-year-old in the 12% tax bracket?',
-      ['Roth has higher contribution limits, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions','Paying 12% tax now is better than likely paying 22-32% tax on withdrawals in retirement, plus decades of tax-free growth','Traditional IRAs don\'t allow stock investments, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy','Roth IRAs have no withdrawal age requirements, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['Roth has higher contribution limits','Paying 12% tax now is better than likely paying 22-32% tax on withdrawals in retirement, plus decades of tax-free growth','Traditional IRAs don\'t allow stock investments','Roth IRAs have no withdrawal age requirements'],
       1,'At 22 in the 12% bracket, you pay very little tax on contributions. But those contributions could grow to 10-20x their value over 43 years, all completely tax-free. If you\'re in a higher bracket in retirement (likely), you\'d pay far more tax on Traditional IRA withdrawals. Roth = pay a little now, save a fortune later.'),
     cq('What makes the HSA unique compared to all other investment accounts?',
-      ['It has the highest contribution limit, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research','It has no age restrictions, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','It offers triple tax advantages: deductible contributions, tax-free growth, AND tax-free withdrawals for medical expenses','It allows unlimited withdrawals at any age, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['It has the highest contribution limit','It has no age restrictions','It offers triple tax advantages: deductible contributions, tax-free growth, AND tax-free withdrawals for medical expenses','It allows unlimited withdrawals at any age'],
       2,'The HSA is the only account with triple tax benefits. No other account, not the 401(k), not the Roth IRA, not the Traditional IRA, gets tax benefits on contributions AND growth AND withdrawals. This makes it the most tax-efficient account in America for those with eligible health plans.'),
     cq('What is the optimal order to fund investment accounts for a young employee with access to all account types?',
       ['Taxable brokerage first → Roth IRA → 401(k) → HSA, since flexible access matters more than any tax break','401(k) match → HSA → Roth IRA → Max 401(k) → Taxable brokerage','Roth IRA → 401(k) → HSA → Taxable brokerage, since tax-free growth should always come before free employer money','Max 401(k) → Max Roth IRA → Taxable brokerage → HSA, filling the largest contribution limits first'],
@@ -3711,7 +3711,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 10, Quiz
     q('Interest rates just rose sharply from 1% to 5%. Based on historical style rotation patterns, which type of stock is most likely to outperform in this environment?',
-      ['Growth stocks, higher rates mean more economic growth, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation','Value stocks, rising rates compress growth stock valuations because distant future earnings are worth less today','Both styles perform equally in rising rate environments, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions','Neither, all stocks crash when rates rise, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy'],
+      ['Growth stocks, higher rates mean more economic growth','Value stocks, rising rates compress growth stock valuations because distant future earnings are worth less today','Both styles perform equally in rising rate environments','Neither, all stocks crash when rates rise'],
       1,
       'Correct! Rising rates hurt growth stocks disproportionately because their value depends on earnings far in the future. At higher discount rates, those future earnings are worth less today. Value stocks, with lower P/Es and current earnings, are less sensitive. This is exactly what happened in 2022: value outperformed growth by over 20 percentage points.'
     ),
@@ -3912,7 +3912,7 @@ const lessons: PathwayLesson[] = [
     // Step 4, Micro-Check
     microCheck(
       'You invest $10,000 in a European ETF. The ETF gains 12% in euro terms over the year. However, the euro falls 7% against the U.S. dollar during the same period. What is your approximate return in U.S. dollars?',
-      ['12%, currency doesn\'t matter, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation', 'Approximately 5%, the euro\'s decline reduced your dollar return', '7%, only the currency move matters, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', '19%, the returns add together, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy'],
+      ['12%, currency doesn\'t matter', 'Approximately 5%, the euro\'s decline reduced your dollar return', '7%, only the currency move matters', '19%, the returns add together'],
       1,
       'Correct! Your ETF gained 12% in euros, but the euro itself lost 7% against the dollar. The approximate dollar return = 12% - 7% = 5% (the exact math is slightly different due to compounding, but ~5% is right). This is currency risk in action, it reduced your return by more than half.',
       'Not quite. When a foreign investment gains in its local currency but that currency weakens against the dollar, your dollar return is reduced. 12% fund return minus 7% currency loss = approximately 5% dollar return. Currency risk can significantly impact international returns in either direction.'
@@ -4000,7 +4000,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 10, Quiz
     q('From 2000-2009, U.S. stocks (S&P 500) returned approximately 9% total, while international developed market stocks returned approximately 31%. What is the primary lesson from this "lost decade"?',
-      ['U.S. stocks are always bad investments, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice','International diversification protects you during periods when your home market underperforms, leadership rotates unpredictably','You should have been 100% international, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research','The U.S. market was rigged during that decade, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns'],
+      ['U.S. stocks are always bad investments','International diversification protects you during periods when your home market underperforms, leadership rotates unpredictably','You should have been 100% international','The U.S. market was rigged during that decade'],
       1,
       'Correct! No one predicted in 2000 that international stocks would crush U.S. stocks for an entire decade. Similarly, no one predicted the U.S. would dominate 2010-2024. Since you can\'t predict which country will lead, owning both ensures you participate in the winner regardless. That\'s the core argument for international diversification.'
     ),
@@ -4059,10 +4059,10 @@ const lessons: PathwayLesson[] = [
     // Step 17, Applied Quiz
     q('Your older brother has a $100,000 portfolio that is 100% S&P 500. He says "U.S. stocks have been the best for the last 15 years, so why diversify internationally?" Using everything you know about home bias, performance rotation, Japan\'s lesson, and currency effects, what\'s the strongest counter-argument?',
       [
-        'He\'s right, U.S. stocks always win, no need for international, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly',
+        'He\'s right, U.S. stocks always win, no need for international',
         'Japan\'s market was also the world\'s best, right before a 34-year bear market. The U.S. won\'t lead forever, and international stocks are now relatively cheap. Adding 25-35% international would protect against a decade like 2000-2009 when U.S. stocks gained only 9% vs. 31% for international',
-        'He should sell everything and go 100% emerging markets, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes, numerous academic studies and real-world case studies across different market environments have examined this particular approach',
-        'International investing is too complicated, just stick with the S&P 500, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods'
+        'He should sell everything and go 100% emerging markets',
+        'International investing is too complicated, just stick with the S&P 500'
       ],
       1,
       'Japan in 1989 is the perfect analogy: it was 45% of world market cap, everyone called it unstoppable, and then came a 34-year bear market. The U.S. is now 60% of world market cap with everyone saying the same thing. History shows that no country dominates permanently. From 2000-2009, a 70/30 U.S./international split would have returned ~20% vs ~9% for U.S.-only. Allocating 25-35% to international reduces concentration risk without sacrificing long-term returns.'
@@ -4133,7 +4133,7 @@ const lessons: PathwayLesson[] = [
     // CHALLENGE ROUND, 5 Questions
     // ═══════════════════════════════════════════
     cq('Japan\'s Nikkei 225 peaked at 38,957 in December 1989 and didn\'t recover until February 2024, a 34-year bear market. What is the most important lesson this teaches about international investing?',
-      ['Never invest in Japan, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals','Even the world\'s dominant stock market can underperform for decades, concentrating in any single country, no matter how strong it appears today, carries enormous risk','International investing is too risky, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students','The U.S. market will also crash for 34 years eventually, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals'],
+      ['Never invest in Japan','Even the world\'s dominant stock market can underperform for decades, concentrating in any single country, no matter how strong it appears today, carries enormous risk','International investing is too risky','The U.S. market will also crash for 34 years eventually'],
       1,'Japan\'s story is the ultimate argument against home bias and country concentration. In 1989, Japan was where the U.S. is today, the world\'s dominant market that "couldn\'t lose." Then it lost for 34 years. No country is immune to multi-decade underperformance. Global diversification ensures you never have your entire portfolio in the next Japan.'),
     cq('An investor compares two portfolios from 2000-2009. Portfolio A: 100% S&P 500 (returned ~9% over 10 years). Portfolio B: 70% S&P 500 / 30% MSCI EAFE (international returned ~31% over 10 years). What was Portfolio B\'s approximate total return?',
       ['About 9%, same as the S&P 500','About 16%, the international allocation boosted returns significantly','About 31%, international returns dominate','About 50%'],
@@ -4142,10 +4142,10 @@ const lessons: PathwayLesson[] = [
       ['A strong dollar means foreign companies are more profitable','A strong dollar means your dollars buy more foreign stock per share. When the dollar eventually weakens (cycles average 7-10 years), you get the stock return PLUS the currency tailwind, a double benefit','A strong dollar has no effect on international returns','Foreign stocks automatically hedge against dollar strength'],
       1,'When the dollar is strong, foreign stocks are effectively "on sale" in dollar terms. Your $100 buys more shares of a European company. When the dollar cycle reverses and weakens (as it did 2002-2008, falling 40%), each share is worth more in dollar terms. You get the stock appreciation AND the currency appreciation. Buying international during dollar strength is like buying stocks during a market dip.'),
     cq('An investor argues: "I own Apple, Google, Nike, and McDonald\'s, they earn 50-60% of revenue overseas, so I\'m already internationally diversified." Why is this argument flawed?',
-      ['Those companies don\'t actually sell products overseas, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions','U.S. multinationals give revenue exposure but not stock market diversification, their stocks still correlate with U.S. market sentiment, trade in dollars, and missed the international outperformance of 2000-2009','The argument is actually correct, U.S. multinationals provide full international diversification, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data','The companies\' foreign revenue is always converted to dollars anyway'],
+      ['Those companies don\'t actually sell products overseas','U.S. multinationals give revenue exposure but not stock market diversification, their stocks still correlate with U.S. market sentiment, trade in dollars, and missed the international outperformance of 2000-2009','The argument is actually correct, U.S. multinationals provide full international diversification','The companies\' foreign revenue is always converted to dollars anyway'],
       1,'This is one of the most common misconceptions. Apple earns 60% of revenue abroad, yet its stock dropped with the S&P 500 during every U.S. selloff. During 2000-2009, U.S. multinationals underperformed actual foreign stocks despite their global revenue. Stock market diversification requires owning stocks listed on foreign exchanges, driven by foreign investors and local sentiment. Revenue exposure is not market exposure.'),
     cq('What is the recommended international stock allocation for a U.S. investor, and what\'s the primary evidence supporting it?',
-      ['0%, the U.S. always outperforms, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research','10%, just a small token allocation, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','25-35%, historical data shows this range provides the best risk-adjusted returns by capturing global leadership rotation while maintaining a U.S. core','50%+, match global market cap weights exactly, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['0%, the U.S. always outperforms','10%, just a small token allocation','25-35%, historical data shows this range provides the best risk-adjusted returns by capturing global leadership rotation while maintaining a U.S. core','50%+, match global market cap weights exactly'],
       2,'Research from Vanguard, Morningstar, and academic studies converges on 25-35% international for U.S. investors. This range captures the diversification benefit (reduced portfolio volatility by 10-15%), participates in global leadership rotation (critical during decades like 2000-2009), and provides currency diversification, without overexposing to emerging market volatility or abandoning the strong U.S. market core.')
   ]),
 
@@ -4201,7 +4201,7 @@ const lessons: PathwayLesson[] = [
     // Step 4, Micro Check
     microCheck(
       'The S&P 500 drops 25% over three months. Cable news is calling it a "bloodbath." What does an understanding of market cycles tell you about this situation?',
-      ['This is unprecedented, the market may never recover, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods', 'This is a normal contraction phase, every bear market in history has been followed by a bull market recovery', 'You should sell immediately to avoid further losses, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials', 'The market only recovers if the government intervenes, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice'],
+      ['This is unprecedented, the market may never recover', 'This is a normal contraction phase, every bear market in history has been followed by a bull market recovery', 'You should sell immediately to avoid further losses', 'The market only recovers if the government intervenes'],
       1,
       'Exactly right. Since 1926, there have been 27 bear markets and 27 recoveries. A 25% drop is a textbook contraction phase. Knowing cycles means understanding this is temporary, and often a buying opportunity.',
       'Not quite. History shows us that a 25% drop is a normal contraction phase in the market cycle. Since 1926, all 27 bear markets have been followed by bull market recoveries. Understanding cycles prevents panic selling at the worst possible time.'
@@ -4289,7 +4289,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 10, Quiz Question
     q('During the 2008 financial crisis, the S&P 500 dropped 57%. An investor who held through the crash and recovery was back to break-even by March 2013. What happened to an investor who sold at the bottom in March 2009?',
-      ['They protected their wealth from further losses, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation','They locked in a 57% permanent loss and missed a 135% recovery rally','They broke even faster because they could reinvest later, numerous academic studies and real-world case studies across different market environments have examined this particular approach','They outperformed buy-and-hold investors, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes'],
+      ['They protected their wealth from further losses','They locked in a 57% permanent loss and missed a 135% recovery rally','They broke even faster because they could reinvest later','They outperformed buy-and-hold investors'],
       1,
       'Selling at the bottom turns a temporary paper loss into a permanent real loss. The investor who sold missed the recovery rally of 135% from the March 2009 lows. By March 2013, the buy-and-hold investor was whole again while the panic seller was still down significantly, even if they eventually reinvested.'
     ),
@@ -4348,10 +4348,10 @@ const lessons: PathwayLesson[] = [
     // Step 17, Applied Quiz
     q('Your co-worker says: "The market just dropped 22%, I\'m selling everything before it goes to zero. I\'ll buy back in when things are safe again." Using your knowledge of market cycles, what\'s the most accurate response?',
       [
-        'Good idea, protecting your money is always the smart move during a bear market, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students',
+        'Good idea, protecting your money is always the smart move during a bear market',
         'Selling during a bear market locks in losses and you\'ll likely miss the recovery since the best days come right after the worst, no bear market has ever gone to zero',
-        'You should sell half your portfolio as a compromise, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals',
-        'Wait for the media to say it\'s safe to invest again, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly'
+        'You should sell half your portfolio as a compromise',
+        'Wait for the media to say it\'s safe to invest again'
       ],
       1,
       'History is clear: panic selling during bear markets is the single most destructive financial behavior. All 27 bear markets since 1926 recovered fully. The best trading days cluster around the worst days. "Waiting until it\'s safe" means buying back at higher prices. Your co-worker would be turning a temporary paper loss into a permanent real loss while missing the recovery.'
@@ -4422,7 +4422,7 @@ const lessons: PathwayLesson[] = [
     // CHALLENGE ROUND, 5 Questions
     // =======================================
     cq('Since 1926, how many bear markets have occurred in the U.S. stock market, and how many have been followed by a full recovery?',
-      ['15 bear markets, 12 recovered','27 bear markets, all 27 followed by full recoveries','27 bear markets, 20 recovered','50 bear markets, 35 recovered, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['15 bear markets, 12 recovered','27 bear markets, all 27 followed by full recoveries','27 bear markets, 20 recovered','50 bear markets, 35 recovered'],
       1,'Every single one of the 27 bear markets since 1926 has been followed by a full bull market recovery. This perfect 27-for-27 record is the strongest argument against panic selling during downturns.'),
     cq('A Fidelity study found that missing the 10 best trading days from 1980-2022 reduced total returns from 2,246% to what percentage?',
       ['1,800%, a small reduction','About 952%, more than halved','1,500%, a moderate reduction','2,000%, barely noticeable'],
@@ -4490,7 +4490,7 @@ const lessons: PathwayLesson[] = [
     // Step 4, Micro Check
     microCheck(
       'You buy a call option on Nike with a strike price of $120 and a premium of $8. Nike\'s stock is currently at $115. What is the breakeven price, and is this option currently "in the money"?',
-      ['Breakeven is $128 and it\'s in the money, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions', 'Breakeven is $128 and it\'s out of the money, Nike needs to rise above $128 for you to profit', 'Breakeven is $112 and it\'s in the money, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'Breakeven is $120 and it\'s at the money, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['Breakeven is $128 and it\'s in the money', 'Breakeven is $128 and it\'s out of the money, Nike needs to rise above $128 for you to profit', 'Breakeven is $112 and it\'s in the money', 'Breakeven is $120 and it\'s at the money'],
       1,
       'Correct! For a call option, breakeven = strike price + premium = $120 + $8 = $128. Since Nike is at $115 (below the strike of $120), this call is "out of the money", it has zero intrinsic value and only time value. Nike needs to rise above $128 for you to profit.',
       'For a call option, breakeven = strike price + premium = $120 + $8 = $128. Since Nike is at $115 (below the $120 strike), this call is "out of the money." Nike would need to rise above $128 for you to make a profit after accounting for the premium you paid.'
@@ -4578,7 +4578,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 10, Quiz Question
     q('You buy a put option on Meta with a strike price of $300 and a premium of $10. Meta\'s stock drops to $270 by expiration. What is your profit or loss per share?',
-      ['$30 profit per share, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research','$20 profit per share (the $30 intrinsic value minus $10 premium)','$10 loss because you paid $10 for the option, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','$270 loss per share, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['$30 profit per share','$20 profit per share (the $30 intrinsic value minus $10 premium)','$10 loss because you paid $10 for the option','$270 loss per share'],
       1,
       'Your put option has $30 of intrinsic value at expiration ($300 strike - $270 stock price = $30). But you paid $10 premium for the contract, so your net profit is $30 - $10 = $20 per share, or $2,000 per contract (100 shares).'
     ),
@@ -4637,10 +4637,10 @@ const lessons: PathwayLesson[] = [
     // Step 17, Applied Quiz
     q('Your friend says: "I\'m going to buy a bunch of cheap out-of-the-money call options expiring next week on a random stock, they only cost $0.10 each so I can buy thousands of contracts for cheap!" Using what you\'ve learned about options, what\'s the biggest problem with this strategy?',
       [
-        'There\'s no problem, cheap options are a great deal, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes',
+        'There\'s no problem, cheap options are a great deal',
         'Options that cheap and close to expiration have almost zero chance of becoming profitable because time decay has destroyed nearly all their value and the stock would need a massive move in days',
-        'The broker won\'t let him buy that many contracts, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods',
-        'He should buy puts instead of calls, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials'
+        'The broker won\'t let him buy that many contracts',
+        'He should buy puts instead of calls'
       ],
       1,
       'Cheap, near-expiration, out-of-the-money options are cheap for a reason: they have essentially zero chance of paying off. Time decay has eaten nearly all their value, and the stock would need to make a huge move in just days. This is how 90% of options expire worthless. It feels like a lottery ticket, and it has about the same odds.'
@@ -4711,10 +4711,10 @@ const lessons: PathwayLesson[] = [
     // CHALLENGE ROUND, 5 Questions
     // =======================================
     cq('You buy a call option on Amazon with a $180 strike and $7 premium. At expiration, Amazon is at $195. What is your profit per share?',
-      ['$15 per share, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','$8 per share ($15 intrinsic value minus $7 premium)','$7 per share, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation','$195 per share, numerous academic studies and real-world case studies across different market environments have examined this particular approach'],
+      ['$15 per share','$8 per share ($15 intrinsic value minus $7 premium)','$7 per share','$195 per share'],
       1,'Intrinsic value at expiration = $195 - $180 = $15. Net profit = $15 - $7 premium = $8 per share, or $800 per contract (100 shares). The breakeven was $187 ($180 strike + $7 premium), and Amazon at $195 is $8 above breakeven.'),
     cq('Why do 90% of options expire worthless?',
-      ['Because the stock market always goes down, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals','Because time decay (theta) erodes option value daily, and most options don\'t move far enough past the strike price to overcome the premium paid before expiration','Because options are scams designed to lose money, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students','Because brokers manipulate options prices, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals'],
+      ['Because the stock market always goes down','Because time decay (theta) erodes option value daily, and most options don\'t move far enough past the strike price to overcome the premium paid before expiration','Because options are scams designed to lose money','Because brokers manipulate options prices'],
       1,'Time decay is the primary reason. Every day, an option loses a portion of its time value, with decay accelerating dramatically in the final 30 days. For an option buyer to profit, the stock must move enough to create intrinsic value exceeding the total premium paid, and that simply doesn\'t happen 90% of the time.'),
     cq('An investor owns 500 shares of Coca-Cola at $60. She sells 5 covered call contracts with a $65 strike for $2 per share. What is her maximum profit and what income did she collect?',
       ['Maximum profit is unlimited; income is $1,000','Maximum profit is $3,500 ($5 stock gain + $2 premium x 500 shares); income collected is $1,000','Maximum profit is $2,500; income is $500','Maximum profit is $1,000; income is $1,000'],
@@ -4723,7 +4723,7 @@ const lessons: PathwayLesson[] = [
       ['They are the same thing','Intrinsic value is the real value if exercised now (stock price vs strike); time value is the extra premium paid for the possibility of future gains, which decays to zero at expiration','Intrinsic value is always higher than time value','Time value increases as expiration approaches'],
       1,'Intrinsic value = tangible, real value if you exercised right now. For a call: stock price minus strike price (if positive). Time value = the extra premium above intrinsic value, representing the possibility of future gains. At expiration, time value = $0 and only intrinsic value remains.'),
     cq('During the GameStop mania of January 2021, the stock rose 2,300% in a month. What mechanism caused this explosive move?',
-      ['Normal market supply and demand, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy','A gamma squeeze, as call options moved in the money, market makers were forced to buy shares to hedge, creating a feedback loop that pushed prices even higher','Government market manipulation, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data','Insider trading by hedge funds'],
+      ['Normal market supply and demand','A gamma squeeze, as call options moved in the money, market makers were forced to buy shares to hedge, creating a feedback loop that pushed prices even higher','Government market manipulation','Insider trading by hedge funds'],
       1,'The gamma squeeze was a feedback loop: retail traders bought massive amounts of call options. As the stock rose, market makers who sold those calls needed to buy shares to hedge their risk. This buying pushed the stock higher, making more calls profitable, forcing more hedging, creating an explosive positive feedback loop that sent the stock parabolic.')
   ]),
 
@@ -4779,7 +4779,7 @@ const lessons: PathwayLesson[] = [
     // Step 4, Micro Check
     microCheck(
       'You bought shares of a stock for $5,000 eleven months ago. The stock is now worth $8,000. You need cash soon. What is the most tax-efficient approach?',
-      ['Sell immediately, time doesn\'t affect taxes, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns', 'Wait one more month to qualify for long-term capital gains rates, potentially saving $660+ on the $3,000 profit', 'Sell half now and half later, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation', 'There\'s no tax on stock profits under $10,000, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions'],
+      ['Sell immediately, time doesn\'t affect taxes', 'Wait one more month to qualify for long-term capital gains rates, potentially saving $660+ on the $3,000 profit', 'Sell half now and half later', 'There\'s no tax on stock profits under $10,000'],
       1,
       'Correct! Waiting one more month converts your $3,000 gain from short-term (taxed up to 22-37%) to long-term (taxed at 0-15%). On $3,000, that\'s a savings of $210-$660+ in federal taxes alone. One month of patience for hundreds in savings is almost always worth it.',
       'Actually, holding period matters enormously for taxes. The $3,000 gain at 11 months would be taxed at your ordinary income rate (up to 22-37%). Waiting one more month qualifies it for long-term rates (0-15%), saving you $210-$660+ in federal taxes.'
@@ -4926,10 +4926,10 @@ const lessons: PathwayLesson[] = [
     // Step 17, Applied Quiz
     q('Alex is 24 years old, earning $55,000 per year (22% tax bracket). He has $10,000 to invest for retirement. He\'s choosing between a Traditional IRA (tax deduction now, taxed on withdrawal) and a Roth IRA (no deduction now, tax-free growth forever). He expects his income to be $150,000+ by his 40s. Which is more likely the better choice and why?',
       [
-        'Traditional IRA, the immediate tax deduction is always worth more, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials',
+        'Traditional IRA, the immediate tax deduction is always worth more',
         'Roth IRA, paying taxes now at 22% is likely better than paying 32%+ in retirement when his income is much higher, and decades of tax-free compounding outweigh the upfront deduction',
-        'Neither, he should use a regular brokerage account, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice',
-        'It doesn\'t matter, they\'re equivalent in the long run, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research'
+        'Neither, he should use a regular brokerage account',
+        'It doesn\'t matter, they\'re equivalent in the long run'
       ],
       1,
       'For a young person in a relatively low tax bracket who expects significant income growth, the Roth IRA is almost certainly better. Paying 22% tax now on $10,000 costs $2,200. But if that $10,000 grows to $175,000 over 40 years, the Traditional IRA withdrawal would be taxed at 32%+ ($56,000+ in taxes). The Roth saves Alex over $50,000 in taxes. Youth + low current bracket + high expected future income = Roth wins.'
@@ -5000,13 +5000,13 @@ const lessons: PathwayLesson[] = [
     // CHALLENGE ROUND, 5 Questions
     // =======================================
     cq('You have $20,000 in long-term capital gains and $15,000 in realized losses from tax-loss harvesting. How much is your net taxable gain, and what happens to unused losses?',
-      ['$20,000, losses don\'t offset gains, numerous academic studies and real-world case studies across different market environments have examined this particular approach','$5,000 net gain, $15,000 offsets gains dollar-for-dollar. If gains were only $12,000, the extra $3,000 would offset ordinary income with the rest carried forward','$35,000 combined, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes','$0, all gains and losses cancel out, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods'],
+      ['$20,000, losses don\'t offset gains','$5,000 net gain, $15,000 offsets gains dollar-for-dollar. If gains were only $12,000, the extra $3,000 would offset ordinary income with the rest carried forward','$35,000 combined','$0, all gains and losses cancel out'],
       1,'Capital losses offset capital gains dollar-for-dollar: $20,000 - $15,000 = $5,000 net taxable gain. If you had more losses than gains, up to $3,000 excess can offset ordinary income per year, with unlimited carry-forward for the rest.'),
     cq('Why is asset location (placing bonds in tax-sheltered accounts and stocks in taxable accounts) more tax-efficient than the reverse?',
-      ['Bonds are riskier so they need more protection, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students','Bond interest is taxed at ordinary income rates (up to 37%) while stock gains and qualified dividends are taxed at lower capital gains rates (0-20%), so sheltering the higher-taxed asset saves more','It doesn\'t matter, all accounts are taxed the same, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','Stocks always lose money in tax-sheltered accounts, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation'],
+      ['Bonds are riskier so they need more protection','Bond interest is taxed at ordinary income rates (up to 37%) while stock gains and qualified dividends are taxed at lower capital gains rates (0-20%), so sheltering the higher-taxed asset saves more','It doesn\'t matter, all accounts are taxed the same','Stocks always lose money in tax-sheltered accounts'],
       1,'Bond interest is taxed at ordinary income rates up to 37%. Stock capital gains and qualified dividends are taxed at 0-20%. By sheltering the higher-taxed asset (bonds) and placing the lower-taxed asset (stocks) in taxable accounts, you minimize total taxes paid without changing your portfolio\'s risk profile.'),
     cq('A 25-year-old earning $60,000 (22% bracket) expects to earn $200,000+ (35% bracket) by age 45. She has $6,500 to invest for retirement. Which account type likely results in the most after-tax wealth?',
-      ['Traditional IRA, always take the deduction','Roth IRA, paying 22% now beats paying 35%+ later on decades of compounded growth','Regular savings account','They\'re mathematically identical, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Traditional IRA, always take the deduction','Roth IRA, paying 22% now beats paying 35%+ later on decades of compounded growth','Regular savings account','They\'re mathematically identical'],
       1,'Paying 22% tax now on $6,500 costs $1,430. If that money grows to $150,000+ over 35+ years in a Roth, all withdrawals are tax-free. In a Traditional IRA, she\'d pay 35%+ on withdrawals: $52,500+ in taxes. The Roth saves her over $50,000 in this scenario. Low current rate + high expected future rate + long time horizon = Roth wins.'),
     cq('You sell Vanguard Total Stock Market ETF (VTI) at a $5,000 loss on December 1st for tax-loss harvesting. Which action would trigger a wash sale violation?',
       ['Buying Schwab Total Stock Market ETF (SWTSX) on December 2nd','Buying Vanguard S&P 500 ETF (VOO) on December 5th','Buying back VTI on December 15th, within 30 days of the sale','Buying individual Apple shares on December 3rd'],
@@ -5068,7 +5068,7 @@ const lessons: PathwayLesson[] = [
     // Step 4, Micro Check
     microCheck(
       'Your portfolio drops 15% in one week. Your gut reaction is intense anxiety and a strong urge to sell everything. Which behavioral bias is primarily driving this reaction?',
-      ['Anchoring bias, you\'re fixated on last week\'s portfolio value, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', 'Loss aversion, you feel the pain of the 15% loss about twice as intensely as you\'d feel the pleasure of a 15% gain', 'Confirmation bias, you\'re seeking information that confirms your fear, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data', 'Overconfidence, you think you can time the bottom'],
+      ['Anchoring bias, you\'re fixated on last week\'s portfolio value', 'Loss aversion, you feel the pain of the 15% loss about twice as intensely as you\'d feel the pleasure of a 15% gain', 'Confirmation bias, you\'re seeking information that confirms your fear', 'Overconfidence, you think you can time the bottom'],
       1,
       'Correct! Loss aversion, identified by Daniel Kahneman, makes losses feel roughly 2x more painful than equivalent gains feel pleasurable. This asymmetry causes the overwhelming urge to "stop the bleeding" by selling, which converts a temporary paper loss into a permanent real loss.',
       'This is primarily loss aversion, Daniel Kahneman\'s research showed that the pain of losing is psychologically about twice as powerful as the pleasure of gaining. This 2:1 pain-to-pleasure ratio is what creates that overwhelming urge to sell during downturns, even when holding is the rational choice.'
@@ -5156,7 +5156,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 10, Quiz Question
     q('Bitcoin drops from $60,000 to $30,000 in two months. Your friend says: "It went to $60,000 before, so it\'ll definitely get back there, I\'m buying more." Which TWO behavioral biases are most influencing his reasoning?',
-      ['Loss aversion and herd mentality, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','Anchoring bias (fixated on $60K as the "real" price) and recency bias (extrapolating recent trend)','Overconfidence and confirmation bias, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation','Disposition effect and FOMO, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions'],
+      ['Loss aversion and herd mentality','Anchoring bias (fixated on $60K as the "real" price) and recency bias (extrapolating recent trend)','Overconfidence and confirmation bias','Disposition effect and FOMO'],
       1,
       'Your friend is anchoring to the $60,000 price as if it\'s the stock\'s "true value", when that price may have been the anomaly, not the norm. He\'s also displaying recency bias, assuming recent price history predicts future returns. The $60K price was a data point, not a guarantee. Fundamental analysis, not price anchoring, should drive the decision.'
     ),
@@ -5215,10 +5215,10 @@ const lessons: PathwayLesson[] = [
     // Step 17, Applied Quiz
     q('A study found that Fidelity\'s best-performing accounts belonged to people who forgot they had accounts or had died. Why does this seemingly absurd finding make perfect sense through the lens of behavioral finance?',
       [
-        'Because Fidelity has special accounts that perform better, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials',
+        'Because Fidelity has special accounts that perform better',
         'Because these investors made zero behavioral mistakes, no panic selling, no FOMO buying, no overtrading, their inaction removed every bias from the equation',
-        'Because the stock market is random and doing nothing is always optimal, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice',
-        'Because those accounts were in special high-performing funds, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research'
+        'Because the stock market is random and doing nothing is always optimal',
+        'Because those accounts were in special high-performing funds'
       ],
       1,
       'Every behavioral bias requires action to cause damage: loss aversion requires selling, FOMO requires buying, overconfidence requires trading. Investors who literally could not act were immune to all of these biases. Their returns were pure market returns, approximately 10.6% annually, undiminished by the 7% behavioral gap. This doesn\'t mean you should forget your account, but it proves that the less you intervene, the better you tend to perform.'
@@ -5289,13 +5289,13 @@ const lessons: PathwayLesson[] = [
     // CHALLENGE ROUND, 5 Questions
     // =======================================
     cq('According to DALBAR research, how much less does the average equity investor earn compared to the S&P 500 annually, and what is the primary cause?',
-      ['2% less due to high fees, numerous academic studies and real-world case studies across different market environments have examined this particular approach','7% less (3.6% vs 10.6%) primarily due to behavioral mistakes like panic selling and FOMO buying','1% less due to bad stock picks, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes','They actually earn more than the index, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods'],
+      ['2% less due to high fees','7% less (3.6% vs 10.6%) primarily due to behavioral mistakes like panic selling and FOMO buying','1% less due to bad stock picks','They actually earn more than the index'],
       1,'The DALBAR behavior gap of approximately 7% annually (3.6% vs 10.6%) is caused almost entirely by behavioral mistakes, not bad stock selection or high fees. Investors buy during euphoria (high prices) and sell during panic (low prices), consistently destroying their own returns.'),
     cq('A study by Barber and Odean found that the most active stock traders earned 6.5% vs 7.5% for buy-and-hold investors. What bias primarily drives this excessive trading?',
-      ['Loss aversion, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals','FOMO, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','Overconfidence, believing they have superior ability to predict market movements','Anchoring bias, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation'],
+      ['Loss aversion','FOMO','Overconfidence, believing they have superior ability to predict market movements','Anchoring bias'],
       2,'Overconfidence causes investors to believe they can outsmart the market through frequent trading. Each trade incurs costs (bid-ask spread, commissions, taxes, slippage) that drag down returns. The study also found men traded 45% more than women and earned 1.4% less annually, a direct overconfidence tax.'),
     cq('During the Bitcoin cycle, retail investors bought at $19,000 (December 2017), sold at $3,200 (December 2018), then bought again at $60,000+ (2021). Which biases were at work in this exact sequence?',
-      ['Only loss aversion','FOMO (buying at $19K peak), loss aversion (selling at $3.2K bottom), FOMO again (buying at $60K peak), the same destructive cycle repeating','Only herd mentality, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals','Only anchoring bias, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students'],
+      ['Only loss aversion','FOMO (buying at $19K peak), loss aversion (selling at $3.2K bottom), FOMO again (buying at $60K peak), the same destructive cycle repeating','Only herd mentality','Only anchoring bias'],
       1,'The Bitcoin cycle perfectly demonstrates how FOMO drives buying at peaks (everyone is getting rich!), loss aversion drives selling at bottoms (stop the pain!), and then FOMO drives the second round of buying at the next peak. This buy-high-sell-low-repeat cycle is the behavioral trap that destroys wealth most reliably.'),
     cq('Fidelity found their best-performing customer accounts belonged to people who had forgotten about them or passed away. What does this prove about the role of human intervention in investing?',
       ['It proves investing is random','It proves that removing all human behavioral intervention (zero FOMO, zero panic selling, zero overtrading) produces returns closest to the full market return','It proves Fidelity has special accounts','It only applies to deceased investors'],
@@ -5357,7 +5357,7 @@ const lessons: PathwayLesson[] = [
     // Step 4, Micro Check
     microCheck(
       'A financial advisor recommends a mutual fund with a 1.2% expense ratio, a 5% front-end sales load, and a 0.25% 12b-1 fee (included in the expense ratio). You invest $50,000. How much do you actually have working for you after the load, and what is the annual fee?',
-      ['$50,000 invested, $600/year in fees, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy', '$47,500 invested (5% load = $2,500 gone immediately), then $570/year in ongoing fees (1.2% of $47,500)', '$50,000 invested, $1,200/year in fees, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data', '$45,000 invested, $300/year in fees'],
+      ['$50,000 invested, $600/year in fees', '$47,500 invested (5% load = $2,500 gone immediately), then $570/year in ongoing fees (1.2% of $47,500)', '$50,000 invested, $1,200/year in fees', '$45,000 invested, $300/year in fees'],
       1,
       'Correct! The 5% front-end load takes $2,500 off the top immediately, only $47,500 actually gets invested. Then the 1.2% annual expense ratio (which includes the 0.25% 12b-1 fee) charges $570/year on that $47,500. You lost 5% before a single dollar was invested, and lose 1.2% every year after.',
       'The 5% front-end load takes $2,500 immediately, leaving $47,500 actually invested. The 1.2% expense ratio (including the 0.25% 12b-1 fee) then charges $570/year on that $47,500. The load means you\'re starting 5% behind, and the annual fee compounds against you every year. A no-load index fund at 0.03% would save you $2,500 upfront and $555/year.'
@@ -5445,7 +5445,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 10, Quiz Question
     q('Two investors each start with $200,000 earning 8% annually. Investor A pays 0.03% in fees (Vanguard index fund). Investor B pays 1.5% in fees (actively managed fund + advisory fee). After 30 years, approximately how much more does Investor A have?',
-      ['About $50,000 more, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','About $200,000 more, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation','About $560,000 more, Investor A has ~$1.94M vs Investor B\'s ~$1.38M','About $1,000,000 more, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions'],
+      ['About $50,000 more','About $200,000 more','About $560,000 more, Investor A has ~$1.94M vs Investor B\'s ~$1.38M','About $1,000,000 more'],
       2,
       'At 8% return minus fees: Investor A earns effectively 7.97% (net of 0.03%), growing $200K to ~$1.94M. Investor B earns effectively 6.5% (net of 1.5%), growing $200K to ~$1.38M. The 1.47% fee difference compounds into approximately $560,000 in lost wealth. That\'s the price of those "small" fees over a lifetime.'
     ),
@@ -5504,10 +5504,10 @@ const lessons: PathwayLesson[] = [
     // Step 17, Applied Quiz
     q('You\'re reviewing two fund options for your retirement account. Fund A: actively managed, 0.85% expense ratio, 10-year average return of 9.2%. Fund B: S&P 500 index, 0.03% expense ratio, 10-year average return of 10.1%. Both track similar large-cap stocks. Which is the better choice and why?',
       [
-        'Fund A, the active manager adds value through stock selection, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials',
+        'Fund A, the active manager adds value through stock selection',
         'Fund B, it has a higher return AND lower fees. After fees, Fund A nets 8.35% while Fund B nets 10.07%, and the fee savings compound into $175,000+ on $200K over 30 years',
-        'Either one, the difference is negligible, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice',
-        'Fund A, you should always pay for professional management, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research'
+        'Either one, the difference is negligible',
+        'Fund A, you should always pay for professional management'
       ],
       1,
       'Fund B wins on both metrics. After fees: Fund A nets 9.2% - 0.85% = 8.35%. Fund B nets 10.1% - 0.03% = 10.07%. The 1.72% after-fee difference compounds enormously. On $200,000 over 30 years: Fund B grows to ~$1.88M vs Fund A at ~$1.27M, a $610,000 difference. Higher fees AND lower performance is a double penalty.'
@@ -5578,19 +5578,19 @@ const lessons: PathwayLesson[] = [
     // CHALLENGE ROUND, 5 Questions
     // =======================================
     cq('On $200,000 over 30 years at 8% return, approximately how much MORE wealth does an investor with 0.03% fees have compared to an investor with 1.5% fees?',
-      ['About $50,000 more, numerous academic studies and real-world case studies across different market environments have examined this particular approach','About $200,000 more, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes','About $560,000 more, roughly $1.94M vs $1.38M','About $100,000 more, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods'],
+      ['About $50,000 more','About $200,000 more','About $560,000 more, roughly $1.94M vs $1.38M','About $100,000 more'],
       2,'At 7.97% net return (8% - 0.03%), $200K grows to approximately $1.94M. At 6.5% net return (8% - 1.5%), $200K grows to approximately $1.38M. The 1.47% fee difference compounds into ~$560,000 in lost wealth. This is why fee awareness is one of the highest-value skills in personal finance.'),
     cq('Warren Buffett\'s $1M bet pitted a Vanguard S&P 500 index fund (0.04% fee) against 5 hedge fund-of-funds (2% + 20% fees). What were the final 10-year returns?',
-      ['Hedge funds won 150% to 100%, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals','Index fund returned 125.8% vs hedge funds\' 36%, the index fund won by almost 90 percentage points','They tied at about 80%, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','Hedge funds won narrowly, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation'],
+      ['Hedge funds won 150% to 100%','Index fund returned 125.8% vs hedge funds\' 36%, the index fund won by almost 90 percentage points','They tied at about 80%','Hedge funds won narrowly'],
       1,'The Vanguard index fund returned 125.8% over 10 years while the hedge fund portfolio returned just 36%. The hedge funds\' "2 and 20" fee structure consumed the vast majority of their gross returns. Even the smartest managers on Wall Street couldn\'t overcome the drag of high fees over a decade.'),
     cq('What did Morningstar research identify as the single best predictor of a fund\'s future performance?',
-      ['Past performance (5-star rating)','The fund manager\'s track record, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals','Expense ratio, and the relationship is inverse: lower fees predict better performance','The size of the fund, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students'],
+      ['Past performance (5-star rating)','The fund manager\'s track record','Expense ratio, and the relationship is inverse: lower fees predict better performance','The size of the fund'],
       2,'Morningstar found that expense ratio beats every other metric, including their own star ratings, as a predictor of future fund performance. The relationship is consistently inverse: the lower the fee, the higher the expected future return. This makes sense mathematically: fees are a guaranteed drag on returns, while past performance is not predictive.'),
     cq('A mutual fund advertises a 0.80% expense ratio. Upon reading the prospectus, you discover it also has a 5% front-end load, a 0.25% 12b-1 fee (included in the ER), and estimated hidden trading costs of 0.30%. What is the true first-year total cost on a $100,000 investment?',
       ['$800','$1,100 (0.80% + 0.30% of $100K)','$6,100 ($5,000 load + $1,100 ongoing costs on the remaining $95,000)','$5,000'],
       2,'The 5% load takes $5,000 immediately, leaving $95,000 invested. The total ongoing cost is 0.80% ER + 0.30% hidden trading costs = 1.10% on $95,000 = $1,045. First-year total cost: $5,000 + $1,045 = $6,045, over 6% of the original investment. Meanwhile, a Vanguard index fund at 0.03% with no load would cost just $30.'),
     cq('Why is the fiduciary standard so important when choosing a financial advisor?',
-      ['It guarantees higher investment returns, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy','It legally requires the advisor to act in YOUR best interest, recommending the lowest-cost suitable options, while the suitability standard allows recommending expensive products that pay the advisor higher commissions','It means the advisor never charges fees','All advisors are fiduciaries by default'],
+      ['It guarantees higher investment returns','It legally requires the advisor to act in YOUR best interest, recommending the lowest-cost suitable options, while the suitability standard allows recommending expensive products that pay the advisor higher commissions','It means the advisor never charges fees','All advisors are fiduciaries by default'],
       1,'A fiduciary must legally put your interests first. A suitability-standard broker only needs to recommend products that are "suitable", not necessarily the best or cheapest. This means a non-fiduciary can legally recommend a 1.2% expense ratio fund that pays them a commission over a 0.03% fund that doesn\'t, as long as both are "suitable." Always ask: "Are you a fiduciary?"')
   ]),
 
@@ -5636,7 +5636,7 @@ const lessons: PathwayLesson[] = [
 
     microCheck(
       'Your portfolio started at 60% stocks / 40% bonds. After a year, it\'s now 72% stocks / 28% bonds. What does rebalancing require you to do?',
-      ['Buy more stocks since they\'re winning, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','Sell some stocks and buy bonds to restore 60/40','Do nothing, let winners run, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation','Sell everything and start over, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions'],
+      ['Buy more stocks since they\'re winning','Sell some stocks and buy bonds to restore 60/40','Do nothing, let winners run','Sell everything and start over'],
       1,
       'Exactly! Rebalancing means selling the overweight asset (stocks at 72%) and buying the underweight asset (bonds at 28%) to restore your 60/40 target. This systematically forces you to sell high and buy low.',
       'Not quite. Rebalancing restores your target. Stocks grew from 60% to 72%, they\'re overweight. You sell enough stocks and buy enough bonds to get back to 60/40. This trims the winner and adds to the laggard.'
@@ -5825,13 +5825,13 @@ const lessons: PathwayLesson[] = [
       ['Both lost about the same','Unbalanced lost 25% vs rebalanced 16%','Unbalanced lost 10% vs rebalanced 5%','Unbalanced gained while rebalanced lost'],
       1,'The 80/20 portfolio suffered approximately 25% losses in 2022 vs about 16% for the disciplined 60/40 portfolio, roughly $9,000 more lost per $100,000 invested. The extra 20% stock exposure that felt great during the bull market became a liability when markets reversed.'),
     cq('Which rebalancing approach is most tax-efficient?',
-      ['Selling stocks in your taxable brokerage account, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials','Rebalancing daily to minimize drift, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice','Directing new contributions to underweight assets and rebalancing in tax-advantaged accounts first','Never rebalancing to avoid any transactions, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research'],
+      ['Selling stocks in your taxable brokerage account','Rebalancing daily to minimize drift','Directing new contributions to underweight assets and rebalancing in tax-advantaged accounts first','Never rebalancing to avoid any transactions'],
       2,'Tax-efficient rebalancing uses new contributions to buy underweight assets (no selling required) and rebalances within tax-advantaged accounts (401k, Roth IRA) first, where sales generate no taxable events. Only use taxable accounts as a last resort for rebalancing.'),
     cq('What is threshold rebalancing?',
-      ['Rebalancing every month on a fixed schedule, numerous academic studies and real-world case studies across different market environments have examined this particular approach','Rebalancing only when an asset class drifts beyond a set band, typically 5% from target','Rebalancing by moving your entire portfolio to cash, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes','Only rebalancing during bear markets, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods'],
+      ['Rebalancing every month on a fixed schedule','Rebalancing only when an asset class drifts beyond a set band, typically 5% from target','Rebalancing by moving your entire portfolio to cash','Only rebalancing during bear markets'],
       1,'Threshold rebalancing triggers a rebalance only when drift exceeds a predetermined band, usually 5% from the target allocation. This approach is more responsive to large market moves than calendar rebalancing and avoids unnecessary trading during calm markets.'),
     cq('Why does rebalancing work as an investment strategy?',
-      ['It predicts which assets will outperform next year, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals','It forces you to systematically sell overweight (expensive) assets and buy underweight (cheap) assets','It eliminates all portfolio risk, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','It guarantees positive returns every year, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation'],
+      ['It predicts which assets will outperform next year','It forces you to systematically sell overweight (expensive) assets and buy underweight (cheap) assets','It eliminates all portfolio risk','It guarantees positive returns every year'],
       1,'Rebalancing works because it mechanically enforces buy-low/sell-high discipline. When stocks surge and become overweight, you trim them (sell high). When bonds are beaten down and underweight, you add to them (buy low). This counter-emotional discipline improves risk-adjusted returns over full market cycles.')
   ]),
 
@@ -5878,7 +5878,7 @@ const lessons: PathwayLesson[] = [
 
     microCheck(
       'A company\'s revenue is growing 25% per year, but its profit margins are shrinking from 20% to 8% over the same period. What does this likely indicate?',
-      ['The company is incredibly healthy','The company is growing unsustainably, spending more than growth justifies','Revenue growth always justifies shrinking margins, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals','Profit margins don\'t matter for growth companies, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students'],
+      ['The company is incredibly healthy','The company is growing unsustainably, spending more than growth justifies','Revenue growth always justifies shrinking margins','Profit margins don\'t matter for growth companies'],
       1,
       'Correct! Revenue growth with shrinking margins often signals unsustainable spending, the company is buying growth rather than earning it. Healthy growth comes with stable or expanding margins. If margins shrink from 20% to 8%, the company may be spending recklessly to inflate top-line numbers.',
       'Not quite. Revenue growth is only valuable if it comes with healthy profitability. Margins shrinking from 20% to 8% means the company is spending more and more to generate each dollar of revenue, a red flag that growth may be unsustainable.'
@@ -6066,16 +6066,16 @@ const lessons: PathwayLesson[] = [
       ['Following Wall Street analyst recommendations','Reading the 10-K annual report footnotes and spotting red flags like negative cash flow and off-book entities','Using technical chart analysis','Listening to the CEO\'s conference calls'],
       1,'Chanos read Enron\'s 10-K filing and noticed: (1) negative free cash flow despite growing earnings, (2) off-balance-sheet entities run by the CFO, and (3) related-party transactions. These red flags were publicly available but ignored by 16 of 17 Wall Street analysts who rated Enron a "buy."'),
     cq('A company has a P/E of 40x and is growing earnings at 20% per year. What is its PEG ratio, and what does it suggest?',
-      ['PEG of 2.0, the stock is expensive relative to its growth','PEG of 0.5, the stock is very cheap, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy','PEG of 40, extremely overvalued, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data','PEG of 20, fair value'],
+      ['PEG of 2.0, the stock is expensive relative to its growth','PEG of 0.5, the stock is very cheap','PEG of 40, extremely overvalued','PEG of 20, fair value'],
       0,'PEG = P/E / Growth Rate = 40 / 20 = 2.0. A PEG above 2.0 suggests the stock is expensive relative to its earnings growth rate. PEG below 1 is considered cheap, 1-1.5 is fair, 1.5-2 is expensive, and above 2 is very expensive. This is more useful than raw P/E alone.'),
     cq('Why is free cash flow (FCF) considered more reliable than reported earnings?',
-      ['FCF is always higher than earnings, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','FCF is easier to manipulate, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation','FCF represents actual cash generated and is much harder to manipulate through accounting practices','FCF includes stock-based compensation while earnings don\'t, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions'],
+      ['FCF is always higher than earnings','FCF is easier to manipulate','FCF represents actual cash generated and is much harder to manipulate through accounting practices','FCF includes stock-based compensation while earnings don\'t'],
       2,'Free cash flow represents real cash flowing through the business, while earnings can be inflated through aggressive accounting (mark-to-market, revenue recognition timing, depreciation adjustments). Enron reported growing earnings for years while free cash flow was actually negative, the cash flow told the truth.'),
     cq('How many Wall Street analysts had a "buy" or "strong buy" rating on Enron before its collapse?',
       ['0 of 17','5 of 17','16 of 17','All 17 of 17'],
       2,'16 of 17 analysts rated Enron a "buy" or "strong buy" even as red flags were clearly visible in public filings. This illustrates why analyst ratings should be treated as one data point, not investment advice, conflicts of interest between analysts and their firms\' investment banking clients create systematic bias toward positive ratings.'),
     cq('Which of the following is NOT one of the four pillars of stock analysis?',
-      ['Revenue growth, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice','Competitive moat, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research','Stock chart patterns','Management quality'],
+      ['Revenue growth','Competitive moat','Stock chart patterns','Management quality'],
       2,'The four pillars of fundamental stock analysis are: (1) Revenue growth, is the business growing? (2) Earnings and profitability, is growth translating to profit? (3) Competitive moat, can the company sustain its advantage? (4) Management quality, are leaders acting in shareholders\' interest? Stock chart patterns are technical analysis, not fundamental analysis.')
   ]),
 
@@ -6121,7 +6121,7 @@ const lessons: PathwayLesson[] = [
 
     microCheck(
       'Since 1926, what is the worst annualized return for ANY 20-year rolling period in the S&P 500?',
-      ['-15% annualized, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes','-5% annualized, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods','0%, break even, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials','+6.4% annualized, never negative'],
+      ['-15% annualized','-5% annualized','0%, break even','+6.4% annualized, never negative'],
       3,
       'Correct! The worst 20-year rolling period in S&P 500 history still returned +6.4% annualized. That means even an investor with the worst possible timing who held for 20 years still made money, through the Great Depression, world wars, and every financial crisis. Time eliminates the risk of loss.',
       'Not quite. The S&P 500 has NEVER produced a negative 20-year annualized return since 1926. The worst 20-year stretch still returned +6.4% annualized. Over 20+ years, time in the market has always produced positive results.'
@@ -6303,13 +6303,13 @@ const lessons: PathwayLesson[] = [
     )
   ],[
     cq('J.P. Morgan research shows that $10,000 fully invested in the S&P 500 from 2003-2022 grew to $61,685. What happened if you missed just the 10 best trading days?',
-      ['$58,000, barely any difference, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','$45,000, modest reduction, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation','$28,260, more than a 54% reduction in wealth','$61,685, the best days don\'t matter, numerous academic studies and real-world case studies across different market environments have examined this particular approach'],
+      ['$58,000, barely any difference','$45,000, modest reduction','$28,260, more than a 54% reduction in wealth','$61,685, the best days don\'t matter'],
       2,'Missing just 10 of the best trading days out of ~5,040 reduced the total from $61,685 to $28,260, a 54% reduction in wealth. The fully invested return was 9.5% annualized; missing 10 days dropped it to 5.3%. This is the strongest mathematical argument against market timing.'),
     cq('What is the worst annualized return for any 20-year rolling period in S&P 500 history since 1926?',
       ['-10% annualized','-2% annualized','0%, break even','+6.4% annualized'],
       3,'The worst 20-year rolling period in S&P 500 history produced +6.4% annualized returns. No 20-year period has ever been negative, not through the Great Depression, World War II, the 1970s stagflation, the dot-com bust, or the 2008 financial crisis. This is the most powerful case for long-term investing.'),
     cq('Why do the best trading days tend to cluster near the worst trading days?',
-      ['It\'s a random coincidence, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals','Markets are perfectly efficient, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students','Sharp declines trigger fear-driven selling, followed by massive relief rallies as buyers step in, creating the best days immediately after the worst','The government always intervenes after bad days, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals'],
+      ['It\'s a random coincidence','Markets are perfectly efficient','Sharp declines trigger fear-driven selling, followed by massive relief rallies as buyers step in, creating the best days immediately after the worst','The government always intervenes after bad days'],
       2,'After sharp market declines, pent-up buying pressure, short-covering, and market stabilization create powerful relief rallies. 7 of the 10 best trading days (2003-2022) occurred within two weeks of the 10 worst days. This clustering makes it mathematically impossible to avoid the bad days and still capture the good ones.'),
     cq('How much does $300 per month invested from age 22 grow to by age 65 at 10% average annual returns?',
       ['About $154,800 (just the contributions)','About $500,000','About $1.0 million','About $1.9 million'],
@@ -6553,7 +6553,7 @@ const lessons: PathwayLesson[] = [
       ['Multiple times per day','Once per day','Once per week','Once per month'],
       2,'Weekly check-ins strike the right balance: frequent enough to learn from market movements and practice documentation, but infrequent enough to build patience and prevent obsessive monitoring.'),
     cq('Your paper portfolio drops 6% in one week. What is the correct response?',
-      ['Sell immediately to prevent further losses, and this view is supported by the kind of analysis that institutional investors and fund managers routinely conduct before decisions','Document the emotion in your journal, review your plan, and hold your allocation','Move everything to bonds until the market recovers, this is a perspective that many investment professionals consider when constructing portfolios and advising clients on strategy','Close the paper trading account, which is based on principles that have been examined through rigorous quantitative analysis and real-world portfolio performance data'],
+      ['Sell immediately to prevent further losses','Document the emotion in your journal, review your plan, and hold your allocation','Move everything to bonds until the market recovers','Close the paper trading account'],
       1,'This is the whole point of paper trading: experiencing the emotional reality of a drop and practicing the correct response. Document the feeling, review your commitment to hold through downturns, and stay the course. Every 20-year S&P 500 period has been positive.')
   ]),
 
@@ -6596,7 +6596,7 @@ const lessons: PathwayLesson[] = [
 
     microCheck(
       'Your paper portfolio returned -1.5% over 30 days while the S&P 500 returned +2.0%. You followed your plan perfectly, held your allocation, documented every decision, and resisted two urges to sell during a dip. How should you evaluate this result?',
-      ['Failure, you lost money and underperformed the benchmark, which is consistent with what most financial experts and industry professionals would recommend based on historical data and academic research','Success, your process was excellent, and 30 days is far too short to evaluate performance','You should change your strategy to match the S&P 500 exactly, the reasoning behind this approach draws on established principles from portfolio theory and decades of observed market patterns','Paper trading doesn\'t work, switch to real money immediately, which many certified financial planners would discuss with their clients as part of a comprehensive financial planning conversation'],
+      ['Failure, you lost money and underperformed the benchmark','Success, your process was excellent, and 30 days is far too short to evaluate performance','You should change your strategy to match the S&P 500 exactly','Paper trading doesn\'t work, switch to real money immediately'],
       1,
       'Correct! Process beats outcome. A 30-day return is statistically meaningless, pure noise. But your behavioral scorecard is perfect: you held your allocation, documented decisions, and resisted impulse selling. That\'s the skill that will make you wealthy over decades.',
       'Not quite. A 30-day return tells you almost nothing about a strategy\'s long-term value. What matters is your PROCESS: Did you follow the plan? Did you resist impulses? A perfect process with a short-term loss is a success.'
@@ -6679,7 +6679,7 @@ const lessons: PathwayLesson[] = [
     fb('When evaluating your 30-day paper trading results, the most important measure is your ___ scorecard, how well you followed your plan, not your short-term returns.',['financial','behavioral','performance','technical'],1),
 
     q('Your paper portfolio returned +4% in 30 days while the S&P 500 returned +5%. Your friend\'s concentrated tech portfolio returned +12%. What is the correct interpretation?',
-      ['Your strategy failed, switch to concentrated tech stocks, and this perspective is shared by many experienced investors who have navigated multiple market cycles over extended time periods','Your diversified approach is working as expected, some months other strategies outperform, but diversification wins over decades','You need more advanced strategies to compete, this is one of the most commonly referenced concepts in financial education literature and professional certification study materials','30 days is too short, but add more tech stocks, according to widely accepted principles taught in most university finance programs and used by professional financial advisors in practice'],
+      ['Your strategy failed, switch to concentrated tech stocks','Your diversified approach is working as expected, some months other strategies outperform, but diversification wins over decades','You need more advanced strategies to compete','30 days is too short, but add more tech stocks'],
       1,
       'A 30-day comparison is statistically meaningless. Your diversified three-fund portfolio will underperform concentrated bets in some months and outperform in others. Over 15+ years, diversified index funds beat 92% of concentrated strategies. Your friend\'s 12% month could easily become a -30% quarter.'
     ),
@@ -6778,19 +6778,19 @@ const lessons: PathwayLesson[] = [
     )
   ],[
     cq('When evaluating your 30-day paper trading results, what is the MOST important metric?',
-      ['Total portfolio return, as this principle has been validated through extensive backtesting, peer-reviewed research, and long-term performance observation','Whether you beat the S&P 500, numerous academic studies and real-world case studies across different market environments have examined this particular approach','Your behavioral scorecard, how well you followed your plan','The number of trades you made, which reflects the consensus view among credentialed financial professionals based on decades of observed market behavior and outcomes'],
+      ['Total portfolio return','Whether you beat the S&P 500','Your behavioral scorecard, how well you followed your plan','The number of trades you made'],
       2,'Your behavioral scorecard measures the skills that determine long-term success: following your allocation, documenting decisions, resisting impulse trades, and holding through dips. A 30-day return is statistical noise, but a high behavioral scorecard predicts decades of good investing.'),
     cq('Your Investment Policy Statement\'s "I WILL NOT" section should include all of the following EXCEPT:',
       ['Panic sell during market declines','Chase hot stock tips from social media','Invest in low-cost index funds','Check my portfolio more than once per week'],
       2,'Investing in low-cost index funds is something you WILL do, it belongs in the "I WILL" section. The "I WILL NOT" section lists behavioral traps: panic selling, tip chasing, obsessive monitoring, and market timing.'),
     cq('What is the minimum amount needed to open a Roth IRA at Fidelity or Schwab and start investing?',
-      ['$500, and most introductory investment courses cover this concept extensively as part of their core curriculum for beginning students','$1,000, this view has gained significant traction in both academic finance circles and among practicing wealth management professionals','$5,000, which many financial planning textbooks cite as a foundational concept that every serious investor should understand thoroughly','$0, there is no minimum'],
+      ['$500','$1,000','$5,000','$0, there is no minimum'],
       3,'Fidelity, Schwab, and Vanguard all offer $0-minimum Roth IRAs with zero-commission trades and fractional shares. You can start with literally $1. The barrier to investing is psychological, not financial.'),
     cq('According to Vanguard research, investing a lump sum immediately beats dollar-cost averaging approximately what percentage of the time?',
       ['50%','60%','68%','90%'],
       2,'Vanguard found that investing immediately outperforms spreading investments over 12 months about 68% of the time. Markets tend to go up, so the earlier your money is invested, the more time it has to grow.'),
     cq('The complete 25-lesson investing fundamentals framework can be summarized as:',
-      ['Pick winning stocks, time the market, and use leverage','Invest in low-cost index funds, diversify, automate, rebalance annually, and hold through everything','Wait for market crashes to invest, then sell at highs','Use advanced options strategies to maximize returns, which aligns with the framework used by many institutional investors, endowment managers, and retirement planning professionals'],
+      ['Pick winning stocks, time the market, and use leverage','Invest in low-cost index funds, diversify, automate, rebalance annually, and hold through everything','Wait for market crashes to invest, then sell at highs','Use advanced options strategies to maximize returns'],
       1,'The entire course distills to one system: low-cost diversified index funds, automated contributions, annual rebalancing, and holding through every market condition. This beats 92% of professionals over 15 years. No stock picking, no genius required, just discipline, patience, and compound interest.')
   ]),
 
