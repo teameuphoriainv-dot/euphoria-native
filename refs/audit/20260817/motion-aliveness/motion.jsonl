@@ -21,3 +21,5 @@
 {"clip": "explore-compound.mp4", "frames": 269, "dur_s": 9.0, "thresh": 0.6, "bursts": 4, "entry_bursts": 4, "idle_pct": 2.0, "idle_peak_px": 1616, "overall_pct": 11.9, "longest_ms": 367, "payoff_ms": 0, "verdict": "STATIC"}
 {"clip": "digest-slug.mp4", "frames": 83, "dur_s": 2.8, "thresh": 0.6, "bursts": 2, "entry_bursts": 2, "idle_pct": 0.0, "idle_peak_px": 0, "overall_pct": 18.3, "longest_ms": 267, "payoff_ms": 0, "verdict": "STATIC"}
 {"clip": "settings-account.mp4", "frames": 270, "dur_s": 9.0, "thresh": 0.6, "bursts": 3, "entry_bursts": 2, "idle_pct": 2.0, "idle_peak_px": 4502, "overall_pct": 14.5, "longest_ms": 800, "payoff_ms": 233, "verdict": "STATIC"}
+{"clip": "why-not-free.mp4", "frames": 175, "dur_s": 5.8, "thresh": 0.6, "bursts": 2, "entry_bursts": 2, "idle_pct": 1.9, "idle_peak_px": 57, "overall_pct": 10.9, "longest_ms": 400, "payoff_ms": 0, "verdict": "STATIC"}
+{"clip": "widget-tutorial.mp4", "frames": 270, "dur_s": 9.0, "thresh": 0.6, "bursts": 2, "entry_bursts": 2, "idle_pct": 51.0, "idle_peak_px": 1268, "overall_pct": 12.6, "longest_ms": 867, "payoff_ms": 0, "verdict": "OK"}
