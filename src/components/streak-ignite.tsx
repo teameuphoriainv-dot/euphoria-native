@@ -40,7 +40,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
-import { Colors } from '@/constants/theme';
+import { Colors, FontSize } from '@/constants/theme';
 import { Duration } from '@/shared/motion/tokens';
 
 // Stage boundaries as fractions of Duration.earned. Named so a change reads as a re-timing of a
@@ -124,8 +124,11 @@ export function StreakIgnite({
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', justifyContent: 'center', paddingVertical: 24 },
-  flame: { fontSize: 84, lineHeight: 96 },
-  count: { fontSize: 52, lineHeight: 60, fontWeight: '800', color: Colors.dark.streak },
+  // FontSize.heroXl and FontSize.hero were both dead steps in the ramp before this — a
+  // celebration is exactly the moment the largest sizes exist for. Leading is 1.25x, above the
+  // 1.2 clipping floor; my first pass used raw 84/96 (ratio 1.143) and type_audit caught it.
+  flame: { fontSize: FontSize.heroXl, lineHeight: FontSize.heroXl * 1.25 },
+  count: { fontSize: FontSize.hero, lineHeight: FontSize.hero * 1.25, fontWeight: '800', color: Colors.dark.streak },
   glow: {
     position: 'absolute',
     width: 160,
