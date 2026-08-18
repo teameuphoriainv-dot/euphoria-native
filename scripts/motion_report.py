@@ -34,7 +34,15 @@ def load(path):
 
 
 def rank_key(r):
-    return (SEVERITY.get(r.get("verdict", "DEAD"), 1), r.get("idle_pct", 0.0))
+    # Within a verdict, order by idle_peak_px — the pixel count that actually changes at rest.
+    # It discriminates 20-40x where idle_pct barely moves (welcome 107px / learn 209px vs
+    # home 7px, all of which score under 1% by frame-share). Peak pixels is what separates a
+    # screen with a living mascot from one with a frozen one.
+    return (
+        SEVERITY.get(r.get("verdict", "DEAD"), 1),
+        r.get("idle_peak_px", 0),
+        r.get("idle_pct", 0.0),
+    )
 
 
 def name_of(r):
@@ -53,19 +61,23 @@ def write_table(rows, out):
         BANDS,
         "## Results",
         "",
-        "| route | verdict | idle % | overall % | bursts | entry | idle | longest ms |",
-        "|---|---|---:|---:|---:|---:|---:|---:|",
+        "`idle px` is the peak pixel count changing at rest — the metric that actually",
+        "discriminates. `payoff ms` excludes the entry transition, so it counts only",
+        "earned beats, not navigation.",
+        "",
+        "| route | verdict | idle px | idle % | overall % | entry ms | payoff ms |",
+        "|---|---|---:|---:|---:|---:|---:|",
     ]
     for r in sorted(rows, key=rank_key):
         if r.get("verdict") == "UNREACHABLE":
             lines.append(
-                f"| `{name_of(r)}` | UNREACHABLE | — | — | — | — | — | {r.get('note','')} |"
+                f"| `{name_of(r)}` | UNREACHABLE | — | — | — | — | {r.get('note','')} |"
             )
             continue
         lines.append(
-            f"| `{name_of(r)}` | **{r['verdict']}** | {r.get('idle_pct',0)} | "
-            f"{r.get('overall_pct',0)} | {r.get('bursts',0)} | {r.get('entry_bursts',0)} | "
-            f"{r.get('idle_bursts',0)} | {r.get('longest_ms',0)} |"
+            f"| `{name_of(r)}` | **{r['verdict']}** | {r.get('idle_peak_px',0)} | "
+            f"{r.get('idle_pct',0)} | {r.get('overall_pct',0)} | "
+            f"{r.get('longest_ms',0)} | {r.get('payoff_ms',0)} |"
         )
 
     counts = {}

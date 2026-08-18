@@ -22,6 +22,8 @@ import json
 import os
 import sys
 
+import subprocess
+
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +32,44 @@ from motion_energy import bursts, load_gray  # noqa: E402
 FPS = 30.0
 ENTRY = (1.0, 3.5)
 IDLE = (4.0, 9.0)
+
+# --- why there is a SECOND, localized metric -------------------------------
+# motion_energy.py averages |delta| over the WHOLE FRAME. That is right for the job it was
+# built for (a 132px mascot reacting, filling a large share of the frame) and badly wrong for
+# idle motion, because a whole-frame mean dilutes anything localized.
+#
+# Measured on this repo's own clips: `welcome` idles with 107 pixels changing at intensity 196
+# — unmistakable motion — yet its whole-frame mean is 0.003, indistinguishable from a dead
+# screen. Judging idle on the global mean alone reports every route as motionless and would
+# have made the entire audit wrong in the same direction.
+#
+# So idle is judged on PIXELS CHANGED, which does not dilute, and the global burst metric is
+# kept for entry transitions where it is the correct instrument.
+LOCAL_W, LOCAL_H = 296, 640
+PIXEL_DELTA = 6     # per-pixel intensity change that counts as real, above encoder noise
+LIVE_PIXELS = 20    # frames with more changed pixels than this are genuinely moving
+
+
+def _gray(path, w, h):
+    cmd = ["ffmpeg", "-v", "error", "-i", path,
+           "-vf", f"scale={w}:{h},format=gray", "-f", "rawvideo", "-"]
+    raw = subprocess.run(cmd, capture_output=True).stdout
+    n = len(raw) // (w * h)
+    return np.frombuffer(raw[: n * w * h], dtype=np.uint8).reshape(n, h, w).astype(np.float32)
+
+
+def local_idle(path):
+    """Localized idle motion: how much of the idle window has real pixel change.
+
+    Returns (pct_of_idle_frames_moving, peak_pixels_changed).
+    """
+    g = _gray(path, LOCAL_W, LOCAL_H)
+    lo, hi = int(IDLE[0] * FPS), min(int(IDLE[1] * FPS), len(g))
+    if hi - lo < 2:
+        return 0.0, 0
+    d = np.abs(np.diff(g[lo:hi], axis=0))
+    changed = (d > PIXEL_DELTA).sum(axis=(1, 2))
+    return round(100.0 * (changed > LIVE_PIXELS).mean(), 1), int(changed.max())
 
 # A burst longer than this is a real payoff beat. 400ms is the documented
 # structural ceiling in src/shared/motion/tokens.ts — nothing in the app
@@ -67,16 +107,23 @@ def analyse(path):
     runs = bursts(diff, thresh)
 
     entry_runs = [r for r in runs if _overlap(r, ENTRY)]
-    idle_runs = [r for r in runs if _overlap(r, IDLE)]
     longest_ms = max((1000 * (e - s) / FPS for s, e in runs), default=0.0)
-    idle_pct = _active_pct(runs, IDLE, len(diff))
+
+    # Idle is judged localized, entry globally — see the note above the constants.
+    idle_pct, idle_peak_px = local_idle(path)
+
+    # Entry transitions run ~460ms (Duration.screen), so a long burst during ENTRY is
+    # navigation, not a payoff. Only a long burst OUTSIDE the entry window is EARNED.
+    payoff_ms = max(
+        (1000 * (e - s) / FPS for s, e in runs if not _overlap((s, e), ENTRY)), default=0.0
+    )
 
     # Ordered most-severe-first: the first band that matches wins.
-    if longest_ms > EARNED_MS:
+    if payoff_ms > EARNED_MS:
         verdict = "GOOD"
-    elif idle_runs and idle_pct >= 1.0:
+    elif idle_pct >= 10.0:
         verdict = "OK"
-    elif entry_runs:
+    elif entry_runs or idle_pct > 0:
         verdict = "STATIC"
     else:
         verdict = "DEAD"
@@ -88,10 +135,11 @@ def analyse(path):
         "thresh": round(thresh, 2),
         "bursts": len(runs),
         "entry_bursts": len(entry_runs),
-        "idle_bursts": len(idle_runs),
-        "idle_pct": round(idle_pct, 1),
+        "idle_pct": idle_pct,
+        "idle_peak_px": idle_peak_px,
         "overall_pct": round(100.0 * sum(e - s for s, e in runs) / len(diff), 1),
         "longest_ms": round(longest_ms),
+        "payoff_ms": round(payoff_ms),
         "verdict": verdict,
     }
 

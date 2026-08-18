@@ -56,6 +56,41 @@ curl -sf -o /dev/null http://localhost:8081/status \
 mkdir -p "$OUT/clips" "$OUT/sheets"
 JSONL="$OUT/motion.jsonl"; : > "$JSONL"
 
+IDB="$(command -v idb || echo "$HOME/.idb-venv/bin/idb")"
+
+# Reuse sim.sh's parser rather than re-implementing it. The first attempt here assumed
+# `idb ui describe-all` emits one JSON object per line; it does not, so every signature
+# hashed the EMPTY string and every route looked identical to the last. sim.sh already
+# gets this right and is the single place that should know the format.
+screen() { EUPHORIA_UDID="$UDID" "$HERE/sim.sh" screen 2>/dev/null || true; }
+labels() { screen | sed 's/ *@ .*//' ; }
+
+# Tap the iOS "Open in Euphoria?" confirm if it is up. Returns 0 if it tapped one.
+dismiss_confirm() {
+  local xy
+  xy="$(screen | awk -F'@' '/^Open  */ {gsub(/ /,"",$2); split($2,a,","); print a[1], a[2]; exit}')"
+  [[ -n "$xy" ]] || return 1
+  "$IDB" ui tap --udid "$UDID" $xy >/dev/null 2>&1 || return 1
+  return 0
+}
+
+# --- priming ----------------------------------------------------------------
+# THE BUG THIS FIXES: iOS raises an "Open in Euphoria?" confirm on the first deep link after
+# launch. The first audit run never tapped it, so all 26 openurl calls QUEUED behind that one
+# modal and the app never navigated once. Every route recorded the same blocked screen, every
+# row came back STATIC, and the numbers looked entirely plausible — 26 rows, zero errors.
+# Only looking at a contact sheet caught it. Prime once here, then assert per route below.
+echo "priming: clearing any confirm dialog and dev menu..."
+xcrun simctl openurl "$UDID" "${SCHEME}://(tabs)/home" >/dev/null 2>&1 || true
+sleep 2
+for _ in $(seq 1 30); do if ! dismiss_confirm; then break; fi; sleep 1; done
+for l in Continue Close; do EUPHORIA_UDID="$UDID" "$HERE/sim.sh" tapon "$l" >/dev/null 2>&1 && sleep 2 || true; done
+sleep 2
+if labels 2>/dev/null | grep -qx "Open"; then
+  echo "FATAL: a confirm dialog is still up after priming. Aborting rather than measuring it." >&2
+  exit 1
+fi
+
 echo "motion audit: ${#ROUTES[@]} routes x ${DUR}s -> $OUT"
 echo "device: $UDID"
 
@@ -80,6 +115,26 @@ for entry in "${ROUTES[@]}"; do
   sleep "$(( DUR - WARM ))"
   kill -INT "$rec" 2>/dev/null || true
   wait "$rec" 2>/dev/null || true
+
+  # ASSERT WE ACTUALLY NAVIGATED. A confirm dialog on top, or an a11y tree identical to the
+  # previous route, means we measured the wrong screen. Both are recorded as tooling defects
+  # rather than passed off as motion findings — a plausible number from the wrong screen is
+  # worse than no number, because nothing downstream can tell it apart from a real one.
+  after="$( { labels | sort | shasum | cut -d' ' -f1; } 2>/dev/null || echo none)"
+  if labels 2>/dev/null | grep -qx "Open"; then
+    rm -f "$raw"
+    printf '{"clip":"%s","verdict":"UNREACHABLE","note":"confirm dialog blocked the route"}\n' "$name" >> "$JSONL"
+    printf "  %-20s UNREACHABLE (confirm dialog)\n" "$name"
+    for _ in $(seq 1 5); do if ! dismiss_confirm; then break; fi; sleep 1; done
+    continue
+  fi
+  if [[ "$after" == "${prev_sig:-}" ]]; then
+    rm -f "$raw"
+    printf '{"clip":"%s","verdict":"UNREACHABLE","note":"screen identical to previous route — did not navigate"}\n' "$name" >> "$JSONL"
+    printf "  %-20s UNREACHABLE (no navigation)\n" "$name"
+    continue
+  fi
+  prev_sig="$after"
 
   if [[ ! -s "$raw" ]]; then
     printf '{"clip":"%s","verdict":"UNREACHABLE","note":"empty recording"}\n' "$name" >> "$JSONL"
