@@ -468,7 +468,9 @@ export default function Home() {
           */}
         <View style={styles.sectionHead}>
           <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
-          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={8}>
+          {/* hitSlop 13 vertical, not 8: the label renders 18pt tall, so 8 gave a 34pt target —
+              under both Apple's 44pt and WCAG 2.5.8's 24pt floor. 18 + 13*2 = 44. */}
+          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
             <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>See all</ThemedText>
           </SpringPressable>
         </View>

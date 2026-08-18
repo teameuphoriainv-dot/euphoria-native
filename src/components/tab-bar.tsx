@@ -64,5 +64,7 @@ export function TabBar({ state, navigation }: TabBarProps) {
 
 const styles = StyleSheet.create({
   bar: { flexDirection: 'row', borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 10 },
-  tab: { flex: 1, alignItems: 'center', gap: 4 },
+  // 44pt is Apple HIG's minimum tappable size. Measured 2026-08-18 the rendered tab was
+  // 80.3 x 41.0 — 3pt short on the app's PRIMARY navigation, on every screen.
+  tab: { flex: 1, alignItems: 'center', gap: 4, minHeight: 44 },
 });
