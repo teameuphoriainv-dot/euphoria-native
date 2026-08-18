@@ -29,8 +29,13 @@ import sys
 
 # A screen only needs these states if it FETCHES. A static screen with no async data has no
 # loading state to get wrong, and flagging it would be noise.
-FETCH_MARKERS = (r"await fetch", r"/api/", r"useEffect\([^)]*fetch", r"\bisLoading\b",
-                 r"\bloading\b", r"\brefetch\b")
+# Direct `fetch` is not how this app fetches. Screens call helpers in src/lib/market, so a
+# marker list of fetch/await only ever matched the REAL fetching screens by accident — via
+# `/api/` appearing in a comment. Stripping comments removed the accident and stock/[sym]
+# silently dropped out of the audit despite calling getQuote.
+#
+# Importing from the market lib IS the structural signal, so that is what is matched.
+FETCH_MARKERS = (r"from '@/lib/market'", r"await fetch", r"\bisLoading\b", r"\brefetch\b")
 
 SIGNALS = {
     # Ordered most-specific first: a skeleton is the correct loading state, a bare spinner is the
@@ -44,8 +49,20 @@ SIGNALS = {
 }
 
 
+def strip_comments(text):
+    """Drop // and /* */ comments before matching.
+
+    trade.tsx was flagged as a data-fetching screen on the strength of `/api/market` appearing
+    in a COMMENT — it has zero .then, .catch or await. Auditing prose as if it were code is the
+    same error as the 30pt "touch target" that turned out to be a non-interactive status pill:
+    the lane was right that the string was there and wrong about what it meant.
+    """
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    return re.sub(r"//[^\n]*", "", text)
+
+
 def fetches(text):
-    return any(re.search(p, text) for p in FETCH_MARKERS)
+    return any(re.search(p, strip_comments(text)) for p in FETCH_MARKERS)
 
 
 def has(text, key):
@@ -55,9 +72,10 @@ def has(text, key):
 def audit():
     rows = []
     for f in sorted(glob.glob("src/app/**/*.tsx", recursive=True)):
-        t = open(f, encoding="utf-8", errors="ignore").read()
-        if not fetches(t):
+        raw = open(f, encoding="utf-8", errors="ignore").read()
+        if not fetches(raw):
             continue
+        t = strip_comments(raw)  # signals must come from code, not from prose about code
         rows.append({
             "file": f,
             "skeleton": has(t, "skeleton"),
@@ -99,6 +117,17 @@ def _demo():
     assert not fetches("export default function Static() { return <View/> }")
     assert fetches("const r = await fetch('/api/market')")
     assert fetches("const [isLoading, setLoading] = useState(false)")
+    # A marker inside a COMMENT must not make a screen count as fetching — this is exactly how
+    # trade.tsx got flagged, on the string /api/market sitting in an explanatory comment.
+    assert not fetches("// invisible only because /api/market 503s")
+    assert not fetches("/* we used to await fetch here */")
+    # The app fetches through its own helpers, so the IMPORT is the signal — not a bare `fetch`.
+    assert fetches("import { getQuote } from '@/lib/market';")
+    # A dynamic import of a bundled chunk is NOT a network fetch and must not be audited as one:
+    # it cannot be rate-limited, and learn.tsx's fall-through-to-empty catch is correct for it.
+    assert not fetches("import('./courses/x').then(m => m.default)")
+    # ...but the same marker in real code still counts.
+    assert fetches("const r = await fetch('/api/market')")
     # Skeleton and spinner are distinct: a bare spinner is the weaker state, not an equal one.
     assert has("<Skeleton/>", "skeleton") and not has("<Skeleton/>", "spinner")
     assert has("<ActivityIndicator/>", "spinner") and not has("<ActivityIndicator/>", "skeleton")
