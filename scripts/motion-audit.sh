@@ -175,8 +175,13 @@ for entry in "${ROUTES[@]}"; do
   # 300ms). None of that motion was ever in the sample, because nothing ever tapped anything.
   #
   # So: find this route's primary CTA, tap it, and measure what comes back.
-  cta="$(EUPHORIA_UDID="$UDID" "$HERE/sim.sh" screen 2>/dev/null \
-        | grep -iE "^(Continue|Check|Start|Next|Got it|Begin)" | head -1 | sed "s/ *@.*//")"
+  icfr=""   # must exist even when this route has no CTA — `set -u` kills the run otherwise
+  # `|| true`: with `set -o pipefail`, grep exiting 1 on NO MATCH fails the whole pipeline,
+  # which fails the assignment, which `set -e` turns into an exit. A route with no CTA is a
+  # normal case, not an error. This exact trap already bit the priming block earlier and I
+  # reintroduced it in new code — hence the guard is now spelled out rather than assumed.
+  cta="$( { EUPHORIA_UDID="$UDID" "$HERE/sim.sh" screen 2>/dev/null \
+        | grep -iE "^(Continue|Check|Start|Next|Got it|Begin)" | head -1 | sed "s/ *@.*//"; } || true)"
   if [[ -n "$cta" ]]; then
     iraw="$OUT/clips/$name.act.raw.mp4"; icfr="$OUT/clips/$name.act.mp4"
     xcrun simctl io "$UDID" recordVideo --codec h264 --force "$iraw" >/dev/null 2>&1 &
@@ -198,7 +203,7 @@ for entry in "${ROUTES[@]}"; do
   row="$(python3 "$HERE/motion_window.py" "$cfr" | tail -1)"
   # Fold the interaction clip's longest burst into the same row, so idle and on-touch motion
   # are never read apart from each other again.
-  if [[ -s "$icfr" ]]; then
+  if [[ -n "${icfr:-}" && -s "${icfr:-}" ]]; then
     act="$(python3 "$HERE/motion_quality.py" "$icfr" 2>/dev/null \
           | python3 -c "import json,sys
 try: print(json.load(sys.stdin).get('beat_ms', 0))
