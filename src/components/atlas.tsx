@@ -35,6 +35,7 @@ const INK = '#1A1523';
  *  an expression coordinate — see the <G> transform in the render. */
 const HEAD_S = 1;
 const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 /** Idle breath depth, as a fraction of height. The Brilliant reference measures ~0.044
  *  (6px of bottom travel on a 136px mascot). 0.022 was half that and read as dead on device. */
 const IDLE_SQUASH = 0.038;
@@ -56,6 +57,19 @@ const SWAY_DEG = 1.6;
 const ROCK_DEG = 3.4;
 /** Saccade amplitude, in viewBox units (~1% of 100). Any larger and the eyes read as shifty. */
 const SACCADE_UNITS = 1.1;
+/*
+ * ARC FLEX — the idle tell for `happy`, which is the one expression that cannot blink.
+ *
+ * `happy` draws the eyes as upward arcs (^^). Closing an arc reads as nothing, so the blink gate
+ * correctly excludes it — which left every `happy` screen with no eye motion at all. Measured
+ * 2026-08-18: home, learn, digest and trade sat at 2 idle events because breath alone was
+ * carrying them, and those screens render `happy`.
+ *
+ * A smile is not static on a real face; it settles and re-tightens. Animating the arc's control
+ * point does exactly that — the eye-smile deepens and relaxes — and it is semantically right for
+ * the expression rather than a motion borrowed from a different one.
+ */
+const ARC_FLEX_UNITS = 1.6;
 
 /** How far each ring trails the one before it on a tap spin. Separate masses do not arrive
  *  together; 55ms is enough to read as a ripple and short enough to still feel like one gesture. */
@@ -130,6 +144,7 @@ export function Atlas({
   // this is sub-pixel-ish and reads as life rather than as the eyes wandering.
   const sacX = useSharedValue(0);
   const sacY = useSharedValue(0);
+  const arcFlex = useSharedValue(0);
   /** Extra squash on top of the breath, for anticipation and landing impact. */
   const squash = useSharedValue(0);
   const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : entrance === 'arrive' ? 1.85 : 1);
@@ -193,6 +208,28 @@ export function Atlas({
       clearTimeout(t);
     };
   }, [reduced, sacX, sacY]);
+
+  // Eye-smile flex. Slower and rarer than a saccade so the two never read as one twitch.
+  useEffect(() => {
+    if (reduced) return;
+    let alive = true;
+    let t: ReturnType<typeof setTimeout>;
+    const loop = () => {
+      t = setTimeout(() => {
+        if (!alive) return;
+        arcFlex.set(withTiming(1, { duration: 260, easing: Easing.out(Easing.quad) }));
+        setTimeout(() => {
+          if (alive) arcFlex.set(withTiming(0, { duration: 420, easing: Easing.inOut(Easing.quad) }));
+        }, 300);
+        loop();
+      }, 2100 + Math.random() * 2600);
+    };
+    loop();
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [reduced, arcFlex]);
 
   // Celebratory hop, built as a real piece of character animation rather than one spring.
   //
@@ -335,6 +372,13 @@ export function Atlas({
   // instead of snapping to the reaction and back.
   const headProps = useAnimatedProps(() => ({ rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() }));
   const saccadeProps = useAnimatedProps(() => ({ x: sacX.get(), y: sacY.get() }));
+  // Control point rises => the arc deepens. Same delta on both eyes so they stay a pair.
+  const happyLeftProps = useAnimatedProps(() => ({
+    d: `M27.3 27.8 Q34.8 ${20.8 - arcFlex.get() * ARC_FLEX_UNITS} 42.3 27.8`,
+  }));
+  const happyRightProps = useAnimatedProps(() => ({
+    d: `M54.4 26.2 Q61.2 ${19.8 - arcFlex.get() * ARC_FLEX_UNITS} 68 26.2`,
+  }));
 
   const wrapStyle = useAnimatedStyle(() => ({
     opacity: entranceOpacity.get(),
@@ -393,8 +437,8 @@ export function Atlas({
       case 'happy':
         return (
           <>
-            <Path d="M27.3 27.8 Q34.8 20.8 42.3 27.8" stroke={INK} strokeWidth={3.2} strokeLinecap="round" fill="none" />
-            <Path d="M54.4 26.2 Q61.2 19.8 68 26.2" stroke={INK} strokeWidth={3.2} strokeLinecap="round" fill="none" />
+            <AnimatedPath animatedProps={happyLeftProps} stroke={INK} strokeWidth={3.2} strokeLinecap="round" fill="none" />
+            <AnimatedPath animatedProps={happyRightProps} stroke={INK} strokeWidth={3.2} strokeLinecap="round" fill="none" />
           </>
         );
       case 'whoa':
