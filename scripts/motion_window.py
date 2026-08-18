@@ -31,7 +31,13 @@ from motion_energy import bursts, load_gray  # noqa: E402
 
 FPS = 30.0
 ENTRY = (1.0, 3.5)
-IDLE = (4.0, 9.0)
+# IDLE was (4.0, 9.0) — a FIVE SECOND window on a process whose events are 2.8-6.2s apart.
+# It could, and did, catch zero blinks. Measured 2026-08-18: three runs of identical code on
+# `start` returned 0, 0 and 150 idle_peak_px, and two full audits of the same code returned
+# 1064 and 2107. A five-measurement spread of 0..2107 with nothing changed means single
+# readings were never evidence, and every before/after built on them was noise.
+# 20s covers ~3 blink cycles and ~10 saccades, so a zero now means genuinely nothing moved.
+IDLE = (4.0, 20.0)
 
 # --- why there is a SECOND, localized metric -------------------------------
 # motion_energy.py averages |delta| over the WHOLE FRAME. That is right for the job it was
@@ -58,18 +64,34 @@ def _gray(path, w, h):
     return np.frombuffer(raw[: n * w * h], dtype=np.uint8).reshape(n, h, w).astype(np.float32)
 
 
-def local_idle(path):
-    """Localized idle motion: how much of the idle window has real pixel change.
+# A frame where this share of the screen changes is a NAVIGATION, a dialog, or a Metro
+# refresh — never a mascot breathing. Windows containing one are contaminated, not idle.
+CONTAMINATION_FRACTION = 0.05
 
-    Returns (pct_of_idle_frames_moving, peak_pixels_changed).
+
+def local_idle(path):
+    """Localized idle motion over the idle window.
+
+    Returns (pct_of_idle_frames_moving, peak_pixels_changed, contaminated).
+
+    WHY THE CONTAMINATION FLAG EXISTS. Measured 2026-08-18: three runs of IDENTICAL code on
+    `start` returned 0, 0 and 150 peak px on a 5s window, and 183706, 152 and 19 on a 20s
+    window. A spread of 19..183706 with nothing changed is not a sparse-sampling problem — it
+    is navigation landing inside the window. 183706 px is most of the frame; a mascot breathing
+    moves hundreds. Any reading from a contaminated window is noise wearing a number's clothes,
+    and every before/after built on one was worthless.
     """
     g = _gray(path, LOCAL_W, LOCAL_H)
     lo, hi = int(IDLE[0] * FPS), min(int(IDLE[1] * FPS), len(g))
     if hi - lo < 2:
-        return 0.0, 0
+        return 0.0, 0, False
     d = np.abs(np.diff(g[lo:hi], axis=0))
     changed = (d > PIXEL_DELTA).sum(axis=(1, 2))
-    return round(100.0 * (changed > LIVE_PIXELS).mean(), 1), int(changed.max())
+    contaminated = bool((changed > LOCAL_W * LOCAL_H * CONTAMINATION_FRACTION).any())
+    if contaminated:
+        # Refuse to report a number rather than report a plausible wrong one.
+        return 0.0, 0, True
+    return round(100.0 * (changed > LIVE_PIXELS).mean(), 1), int(changed.max()), False
 
 # A burst longer than this is a real payoff beat. 400ms is the documented
 # structural ceiling in src/shared/motion/tokens.ts — nothing in the app
@@ -110,7 +132,7 @@ def analyse(path):
     longest_ms = max((1000 * (e - s) / FPS for s, e in runs), default=0.0)
 
     # Idle is judged localized, entry globally — see the note above the constants.
-    idle_pct, idle_peak_px = local_idle(path)
+    idle_pct, idle_peak_px, contaminated = local_idle(path)
 
     # Entry transitions run ~460ms (Duration.screen), so a long burst during ENTRY is
     # navigation, not a payoff. Only a long burst OUTSIDE the entry window is EARNED.
@@ -119,7 +141,9 @@ def analyse(path):
     )
 
     # Ordered most-severe-first: the first band that matches wins.
-    if payoff_ms > EARNED_MS:
+    if contaminated:
+        verdict = "CONTAMINATED"      # navigation inside the idle window; not a motion finding
+    elif payoff_ms > EARNED_MS:
         verdict = "GOOD"
     elif idle_pct >= 10.0:
         verdict = "OK"
@@ -137,6 +161,7 @@ def analyse(path):
         "entry_bursts": len(entry_runs),
         "idle_pct": idle_pct,
         "idle_peak_px": idle_peak_px,
+        "contaminated": contaminated,
         "overall_pct": round(100.0 * sum(e - s for s, e in runs) / len(diff), 1),
         "longest_ms": round(longest_ms),
         "payoff_ms": round(payoff_ms),

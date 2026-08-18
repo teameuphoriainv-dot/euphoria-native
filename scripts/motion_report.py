@@ -10,7 +10,7 @@ import os
 import sys
 
 # Worst first. This ordering IS the worklist.
-SEVERITY = {"UNREACHABLE": 0, "DEAD": 1, "STATIC": 2, "OK": 3, "GOOD": 4}
+SEVERITY = {"UNREACHABLE": 0, "CONTAMINATED": 0, "DEAD": 1, "STATIC": 2, "OK": 3, "GOOD": 4}
 
 BANDS = """\
 | verdict | meaning |
@@ -19,7 +19,7 @@ BANDS = """\
 | **STATIC** | Animates on entry, then flat. Idle is inert. |
 | **OK** | Sustained motion at rest, but longest burst < 400ms — under the structural ceiling. |
 | **GOOD** | A burst over 400ms exists: a real payoff beat. |
-| **UNREACHABLE** | The harness could not reach or record the route. A tooling defect, **not** a motion finding. |
+| **UNREACHABLE** | The harness could not reach or record the route. A tooling defect, **not** a motion finding. |\n| **CONTAMINATED** | Navigation, a dialog or a refresh landed inside the idle window. No number is reported — a plausible wrong one is worse than none. |
 """
 
 

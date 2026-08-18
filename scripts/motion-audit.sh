@@ -10,7 +10,7 @@
 #
 #   [0.0 .. 1.0]  recorder warm-up, discarded
 #   [1.0 .. 3.5]  ENTRY  — the transition on arrival
-#   [4.0 .. 9.0]  IDLE   — does anything move once it has settled
+#   [4.0 .. 20.0] IDLE   — does anything move once it has settled (>= 3 blink cycles)
 #
 # A screen that animates on arrival then goes flat (STATIC) is a different defect from one that
 # never moves (DEAD) and needs a different fix. Windowing is in scripts/motion_window.py.
@@ -33,7 +33,8 @@ source "$HERE/routes.sh"
 BUNDLE="com.euphoriainv.euphoria"
 SCHEME="euphorianative"
 OUT="${1:-refs/audit/$(date +%Y%m%d)/motion}"
-DUR="${DUR:-9}"        # seconds recorded per route
+DUR="${DUR:-22}"       # seconds recorded per route — must exceed the 2.8-6.2s blink period
+                       # by enough to catch several events; 9s sampled a sparse process too short.
 WARM="${WARM:-1}"      # seconds before the deep link fires
 
 udid() {
