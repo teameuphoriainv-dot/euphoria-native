@@ -1,0 +1,116 @@
+"""Empty / loading / error state audit.
+
+The QA research names this the single most commonly skipped audit row, and the reason is
+structural: the POPULATED state is the one that gets designed, reviewed and demoed. The other
+three only appear when something is slow, absent or broken — which is to say, when the user is
+already having a bad time and can least afford a blank screen.
+
+WHAT EACH STATE HAS TO BE, per the research:
+
+  loading   a skeleton, not a blank flash and not a bare spinner. A spinner says "wait"; a
+            skeleton says "here is the shape of what is coming", which measurably reduces
+            perceived wait.
+  empty     helpful copy AND a call to action. "No data" is a dead end; an empty state is the
+            one screen guaranteed to be a user's FIRST experience of a feature.
+  error     a retry affordance and an actionable message. Never a raw error dump — this repo has
+            already shipped a raw RevenueCat string to users once, fixed in Unit 13.
+
+WHAT THIS CANNOT DO, stated plainly because the touch lane taught it: static analysis finds
+whether a BRANCH EXISTS, never whether it renders correctly or is reachable. A screen can have
+all four branches and still flash blank for 200ms before the skeleton mounts. This lane produces
+the worklist; the simulator with a seeded empty store settles it.
+
+    python3 scripts/states_audit.py [--json]
+"""
+import glob
+import json
+import re
+import sys
+
+# A screen only needs these states if it FETCHES. A static screen with no async data has no
+# loading state to get wrong, and flagging it would be noise.
+FETCH_MARKERS = (r"await fetch", r"/api/", r"useEffect\([^)]*fetch", r"\bisLoading\b",
+                 r"\bloading\b", r"\brefetch\b")
+
+SIGNALS = {
+    # Ordered most-specific first: a skeleton is the correct loading state, a bare spinner is the
+    # weaker one the research calls out, so they are counted separately rather than lumped.
+    "skeleton": (r"[Ss]keleton", ),
+    "spinner": (r"ActivityIndicator", ),
+    "empty": (r"[Ee]mptyState", r"length === 0", r"length == 0", r"\.length\s*\?", r"[Nn]o results",
+              r"[Nn]othing here", r"[Nn]o .{0,18} yet"),
+    "error": (r"\berror\b", r"[Cc]atch\s*\(", r"onRetry", r"[Tt]ry again", r"[Rr]etry"),
+    "retry": (r"onRetry", r"[Tt]ry again", r"[Rr]etry"),
+}
+
+
+def fetches(text):
+    return any(re.search(p, text) for p in FETCH_MARKERS)
+
+
+def has(text, key):
+    return any(re.search(p, text) for p in SIGNALS[key])
+
+
+def audit():
+    rows = []
+    for f in sorted(glob.glob("src/app/**/*.tsx", recursive=True)):
+        t = open(f, encoding="utf-8", errors="ignore").read()
+        if not fetches(t):
+            continue
+        rows.append({
+            "file": f,
+            "skeleton": has(t, "skeleton"),
+            "spinner": has(t, "spinner"),
+            "empty": has(t, "empty"),
+            "error": has(t, "error"),
+            "retry": has(t, "retry"),
+        })
+    return {"screens": rows}
+
+
+def report(a):
+    rows = a["screens"]
+    print(f"# Empty / loading / error states\n\n{len(rows)} data-fetching screens\n")
+    print(f"  {'screen':<34}{'loading':>9}{'empty':>7}{'error':>7}{'retry':>7}")
+    for r in rows:
+        load = "skeleton" if r["skeleton"] else ("spinner" if r["spinner"] else "NONE")
+        print(f"  {r['file'].replace('src/app/',''):<34}{load:>9}"
+              f"{'yes' if r['empty'] else 'NO':>7}{'yes' if r['error'] else 'NO':>7}"
+              f"{'yes' if r['retry'] else 'NO':>7}")
+
+    gaps = {
+        "no loading state at all": [r["file"] for r in rows if not r["skeleton"] and not r["spinner"]],
+        "bare spinner, no skeleton": [r["file"] for r in rows if r["spinner"] and not r["skeleton"]],
+        "no empty state": [r["file"] for r in rows if not r["empty"]],
+        "error handled but NO retry": [r["file"] for r in rows if r["error"] and not r["retry"]],
+        "no error handling": [r["file"] for r in rows if not r["error"]],
+    }
+    print("\n## Gaps")
+    for label, files in gaps.items():
+        print(f"  {label}: {len(files)}")
+        for f in files[:6]:
+            print(f"      {f.replace('src/app/','')}")
+    print("\n> A branch EXISTING is not a branch RENDERING. Settle these on a seeded empty store.")
+
+
+def _demo():
+    # A screen that does not fetch must never be audited — it has no loading state to lack.
+    assert not fetches("export default function Static() { return <View/> }")
+    assert fetches("const r = await fetch('/api/market')")
+    assert fetches("const [isLoading, setLoading] = useState(false)")
+    # Skeleton and spinner are distinct: a bare spinner is the weaker state, not an equal one.
+    assert has("<Skeleton/>", "skeleton") and not has("<Skeleton/>", "spinner")
+    assert has("<ActivityIndicator/>", "spinner") and not has("<ActivityIndicator/>", "skeleton")
+    # Retry is a stricter signal than error — handling an error without offering a way out is a gap.
+    assert has("catch (e) {}", "error") and not has("catch (e) {}", "retry")
+    assert has("<Button onRetry={go}/>", "retry")
+    print("states_audit self-check OK")
+
+
+if __name__ == "__main__":
+    if "--demo" in sys.argv:
+        _demo()
+    else:
+        a = audit()
+        print(json.dumps(a, indent=1)) if "--json" in sys.argv else report(a)
