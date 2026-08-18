@@ -159,7 +159,11 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
 }
 
 function fmt(n: number): string {
-  return `$${Math.round(n).toLocaleString()}`;
+  // Pinned to en-US like lib/stocks.ts money(). Unpinned, this formats from the DEVICE
+  // locale, so a German phone rendered "$1.234,56" — a US currency symbol wired to European
+  // separators, inside English copy. The app is English-only by design; the numbers have to
+  // agree with that rather than with whoever's handset they land on.
+  return `$${Math.round(n).toLocaleString('en-US')}`;
 }
 
 /*
