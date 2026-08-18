@@ -218,6 +218,7 @@ export default function Home() {
               <View
                 accessible
                 accessibilityLabel={`${String(streak)} day streak`}
+                accessibilityRole="text"
                 style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
                 <UIcon name="flame" size={14} color={theme.streak} />
                 <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: FontSize.caption }}>{streak}</ThemedText>
@@ -225,6 +226,7 @@ export default function Home() {
               <View
                 accessible
                 accessibilityLabel={`${String(minutesDone)} of ${String(goalMinutes)} minutes today`}
+                accessibilityRole="text"
                 style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
                 <UIcon name="target" size={14} color={theme.iconLilac} />
                 <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.caption }}>{minutesDone}/{goalMinutes}</ThemedText>
