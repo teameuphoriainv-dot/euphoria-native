@@ -21,7 +21,6 @@ earned beats, not navigation.
 
 | route | verdict | idle px | idle % | overall % | entry ms | payoff ms |
 |---|---|---:|---:|---:|---:|---:|
-| `stock-sym` | UNREACHABLE | — | — | — | — | confirm dialog blocked the route |
 | `digest-slug` | **STATIC** | 0 | 0.0 | 24.2 | 267 | 233 |
 | `why-not-free` | **STATIC** | 0 | 0.0 | 26.7 | 400 | 267 |
 | `options` | **STATIC** | 2 | 0.0 | 12.3 | 667 | 233 |
@@ -38,6 +37,7 @@ earned beats, not navigation.
 | `learn` | **STATIC** | 27 | 1.3 | 3.7 | 267 | 267 |
 | `news` | **STATIC** | 39 | 1.4 | 16.8 | 833 | 267 |
 | `games-term-match` | **STATIC** | 60 | 4.7 | 6.7 | 333 | 267 |
+| `stock-sym` | **STATIC** | 61 | 4.0 | 7.4 | 667 | 0 |
 | `settings-account` | **STATIC** | 201 | 0.7 | 9.0 | 567 | 233 |
 | `search` | **OK** | 49 | 26.2 | 8.2 | 467 | 267 |
 | `league` | **OK** | 277 | 49.0 | 13.8 | 1000 | 233 |
@@ -50,10 +50,9 @@ earned beats, not navigation.
 
 ## Summary
 
-- **UNREACHABLE** — 1
-- **STATIC** — 17
+- **STATIC** — 18
 - **OK** — 8
 
-Mean frames-animating across measured routes: **11.2%**.
+Mean frames-animating across measured routes: **11.0%**.
 
 > Program target is >=15% on a release build. Competitor figures (Duolingo 31.8%, Brilliant 34.7-39.3%) are scroll-inflated and are NOT the target.

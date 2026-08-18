@@ -96,6 +96,8 @@ echo "device: $UDID"
 
 for entry in "${ROUTES[@]}"; do
   name="${entry%%:*}"
+  # ONLY=<name> re-runs a single route.
+  if [[ -n "${ONLY:-}" && "$name" != "${ONLY}" ]]; then continue; fi
   path="${entry#*:}"
   raw="$OUT/clips/$name.raw.mp4"
   cfr="$OUT/clips/$name.mp4"
@@ -123,9 +125,14 @@ for entry in "${ROUTES[@]}"; do
   after="$( { labels | sort | shasum | cut -d' ' -f1; } 2>/dev/null || echo none)"
   if labels 2>/dev/null | grep -qx "Open"; then
     rm -f "$raw"
-    printf '{"clip":"%s","verdict":"UNREACHABLE","note":"confirm dialog blocked the route"}\n' "$name" >> "$JSONL"
-    printf "  %-20s UNREACHABLE (confirm dialog)\n" "$name"
-    for _ in $(seq 1 5); do if ! dismiss_confirm; then break; fi; sleep 1; done
+    for _ in $(seq 1 8); do if ! dismiss_confirm; then break; fi; sleep 1; done
+    if [[ "${retried:-}" != "$name" ]]; then
+      retried="$name"; redo=1
+      printf "  %-20s confirm dialog — draining and retrying once\n" "$name"
+    else
+      printf '{"clip":"%s","verdict":"UNREACHABLE","note":"confirm dialog blocked the route twice"}\n' "$name" >> "$JSONL"
+      printf "  %-20s UNREACHABLE (confirm dialog x2)\n" "$name"
+    fi
     continue
   fi
   if [[ "$after" == "${prev_sig:-}" ]]; then
