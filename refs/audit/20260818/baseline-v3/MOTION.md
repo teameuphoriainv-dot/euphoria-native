@@ -26,11 +26,10 @@ columns cannot see. A route can be STATIC at rest and still animate well on touc
 
 | route | verdict | idle px | idle % | overall % | entry ms | payoff ms | act ms |
 |---|---|---:|---:|---:|---:|---:|---:|
-| `digest` | **CONTAMINATED** | 0 | 0.0 | 7.7 | 1333 | 100 | 533 |
-| `options` | **CONTAMINATED** | 0 | 0.0 | 6.8 | 1233 | 267 | 0 |
-| `why-not-free` | **CONTAMINATED** | 0 | 0.0 | 4.1 | 400 | 167 | — |
 | `digest-slug` | **STATIC** | 0 | 0.0 | 9.0 | 233 | 0 | — |
+| `why-not-free` | **STATIC** | 0 | 0.0 | 23.1 | 400 | 0 | — |
 | `news` | **STATIC** | 3163 | 1.5 | 7.4 | 1033 | 0 | — |
+| `options` | **STATIC** | 115625 | 0.4 | 4.2 | 933 | 0 | — |
 | `settings-account` | **REACTIVE** | 16 | 0.0 | 3.6 | 667 | 0 | 600 |
 | `trade` | **REACTIVE** | 20 | 0.0 | 7.3 | 1333 | 0 | 833 |
 | `stock-sym` | **OK** | 46 | 3.1 | 4.4 | 700 | 0 | 900 |
@@ -52,14 +51,14 @@ columns cannot see. A route can be STATIC at rest and still animate well on touc
 | `explore-compound` | **OK** | 3878 | 2.1 | 6.4 | 867 | 0 | — |
 | `onboarding` | **OK** | 5119 | 38.2 | 5.9 | 533 | 233 | 1133 |
 | `start` | **OK** | 5255 | 14.4 | 5.6 | 267 | 0 | 1067 |
+| `digest` | **OK** | 12856 | 4.0 | 4.2 | 567 | 367 | — |
 
 ## Summary
 
-- **CONTAMINATED** — 3
-- **STATIC** — 2
-- **OK** — 19
+- **STATIC** — 4
+- **OK** — 20
 - **REACTIVE** — 2
 
-Mean frames-animating across measured routes: **5.1%**.
+Mean frames-animating across measured routes: **5.6%**.
 
 > Program target is >=15% on a release build. Competitor figures (Duolingo 31.8%, Brilliant 34.7-39.3%) are scroll-inflated and are NOT the target.

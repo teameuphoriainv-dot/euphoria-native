@@ -65,8 +65,18 @@ def _gray(path, w, h):
 
 
 # A frame where this share of the screen changes is a NAVIGATION, a dialog, or a Metro
-# refresh — never a mascot breathing. Windows containing one are contaminated, not idle.
+# refresh — never a mascot breathing.
 CONTAMINATION_FRACTION = 0.05
+# ...but ONE such frame is not enough to condemn a window. digest and options contaminated on
+# every run, and the cause was a boundary artifact, not navigation: exactly 1 frame of 479
+# crossed the line, at t=4.00s — the precise first frame of the idle window — at 6.8%, barely
+# over. That is the tail of the ENTRY transition settling, clipped by where the window happens
+# to start.
+#
+# A real navigation changes most of the screen for many CONSECUTIVE frames. Requiring three
+# makes the guard more specific rather than weaker: it still rejects a dialog or a route change,
+# and stops discarding a whole route's measurement because a transition ended a frame late.
+CONTAMINATION_MIN_FRAMES = 3
 
 
 def local_idle(path):
@@ -91,7 +101,13 @@ def local_idle(path):
         return 0.0, 0, 0, False
     d = np.abs(np.diff(g[lo:hi], axis=0))
     changed = (d > PIXEL_DELTA).sum(axis=(1, 2))
-    contaminated = bool((changed > LOCAL_W * LOCAL_H * CONTAMINATION_FRACTION).any())
+    over = changed > LOCAL_W * LOCAL_H * CONTAMINATION_FRACTION
+    # Longest run of consecutive over-threshold frames.
+    run = best = 0
+    for hot in over:
+        run = run + 1 if hot else 0
+        best = max(best, run)
+    contaminated = best >= CONTAMINATION_MIN_FRAMES
     if contaminated:
         # Refuse to report a number rather than report a plausible wrong one.
         return 0.0, 0, 0, True
@@ -205,6 +221,17 @@ def _demo():
     _arities = {len(n.value.elts) for n in _ast.walk(_fn)
                 if isinstance(n, _ast.Return) and isinstance(n.value, _ast.Tuple)}
     assert _arities == {4}, f"local_idle returns mixed arity: {_arities}"
+    # One boundary frame must NOT condemn a window; a sustained run must.
+    def _longest(bools):
+        r = b = 0
+        for x in bools:
+            r = r + 1 if x else 0
+            b = max(b, r)
+        return b
+    assert _longest([False, True, False, False]) < CONTAMINATION_MIN_FRAMES
+    assert _longest([True, True, True, False]) >= CONTAMINATION_MIN_FRAMES
+    # Non-consecutive hits are not a navigation either.
+    assert _longest([True, False, True, False, True]) < CONTAMINATION_MIN_FRAMES
     # A burst wholly before the windows touches neither.
     assert not _overlap((0, 15), ENTRY) and not _overlap((0, 15), IDLE)
     # IDLE spans 4.0-9.0s = 150 frames; a 75-frame burst inside it is 50%.
