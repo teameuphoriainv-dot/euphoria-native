@@ -15,6 +15,24 @@
  *
  * This module is deliberately pure and rendering-free: it maps text to a viseme timeline and
  * nothing else, so it can be unit-checked without a simulator, a canvas, or a device.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * BLOCKED, 2026-08-18 — ATLAS HAS NO MOUTH.
+ *
+ * This file is finished and self-checked, and it cannot be wired to anything, because the
+ * character has nothing to move. atlas.tsx draws Circles (eye whites, pupils, body rings) and
+ * Paths (arc eyes, glasses) and nothing else; all NINE expressions — default, happy, whoa,
+ * watching, silly, sad, thinking, proud, oops — are EYE-ONLY. There is not one mouth reference
+ * in the component.
+ *
+ * I planned lip sync across several cycles as the Duolingo-parity feature, and wrote the whole
+ * phoneme layer, without ever checking that the mascot has a mouth. The pipeline is correct and
+ * the timing is genuinely free from the typewriter; the asset it needs does not exist.
+ *
+ * Unblocking it means DRAWING A MOUTH on Atlas, which is a character-design decision and belongs
+ * to the owner, not to an audit loop. Until that call is made this module stays unused rather
+ * than deleted — the work is sound and the mapping will not need redoing.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
  */
 
 /** The ten Preston Blair shapes, plus REST for silence between words. */
