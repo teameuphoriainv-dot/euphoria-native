@@ -90,8 +90,20 @@ def local_idle(path):
     contaminated = bool((changed > LOCAL_W * LOCAL_H * CONTAMINATION_FRACTION).any())
     if contaminated:
         # Refuse to report a number rather than report a plausible wrong one.
-        return 0.0, 0, True
-    return round(100.0 * (changed > LIVE_PIXELS).mean(), 1), int(changed.max()), False
+        return 0.0, 0, 0, True
+
+    # EVENT COUNT, not peak. idle_peak_px is a MAX, so it is decided by whether one blink
+    # happened to land inside the window — measured spread on identical code was 4x to 77x.
+    # Counting discrete motion events instead samples the whole window: over 16s a live mascot
+    # produces roughly 3 blinks and 8 saccades, and that total is stable run to run in a way
+    # a single maximum never is.
+    hot = changed > LIVE_PIXELS
+    events, run = 0, False
+    for h in hot:
+        if h and not run:
+            events += 1
+        run = h
+    return round(100.0 * hot.mean(), 1), int(changed.max()), events, False
 
 # A burst longer than this is a real payoff beat. 400ms is the documented
 # structural ceiling in src/shared/motion/tokens.ts — nothing in the app
@@ -132,7 +144,7 @@ def analyse(path):
     longest_ms = max((1000 * (e - s) / FPS for s, e in runs), default=0.0)
 
     # Idle is judged localized, entry globally — see the note above the constants.
-    idle_pct, idle_peak_px, contaminated = local_idle(path)
+    idle_pct, idle_peak_px, idle_events, contaminated = local_idle(path)
 
     # Entry transitions run ~460ms (Duration.screen), so a long burst during ENTRY is
     # navigation, not a payoff. Only a long burst OUTSIDE the entry window is EARNED.
@@ -145,7 +157,7 @@ def analyse(path):
         verdict = "CONTAMINATED"      # navigation inside the idle window; not a motion finding
     elif payoff_ms > EARNED_MS:
         verdict = "GOOD"
-    elif idle_pct >= 10.0:
+    elif idle_events >= 6:
         verdict = "OK"
     elif entry_runs or idle_pct > 0:
         verdict = "STATIC"
@@ -161,6 +173,7 @@ def analyse(path):
         "entry_bursts": len(entry_runs),
         "idle_pct": idle_pct,
         "idle_peak_px": idle_peak_px,
+        "idle_events": idle_events,
         "contaminated": contaminated,
         "overall_pct": round(100.0 * sum(e - s for s, e in runs) / len(diff), 1),
         "longest_ms": round(longest_ms),
