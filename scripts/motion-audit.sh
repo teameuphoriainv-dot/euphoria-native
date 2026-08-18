@@ -176,12 +176,13 @@ for entry in "${ROUTES[@]}"; do
   #
   # So: find this route's primary CTA, tap it, and measure what comes back.
   icfr=""   # must exist even when this route has no CTA — `set -u` kills the run otherwise
-  # `|| true`: with `set -o pipefail`, grep exiting 1 on NO MATCH fails the whole pipeline,
-  # which fails the assignment, which `set -e` turns into an exit. A route with no CTA is a
-  # normal case, not an error. This exact trap already bit the priming block earlier and I
-  # reintroduced it in new code — hence the guard is now spelled out rather than assumed.
-  cta="$( { EUPHORIA_UDID="$UDID" "$HERE/sim.sh" screen 2>/dev/null \
-        | grep -iE "^(Continue|Check|Start|Next|Got it|Begin)" | head -1 | sed "s/ *@.*//"; } || true)"
+  # Structural CTA detection, not a verb list. The first version matched
+  # Continue|Check|Start|Next|Got it|Begin and found NOTHING on welcome or auth — this app ships
+  # "Let's go", "See Euphoria Pro", "Show me the offer", "Restore purchases". A button's wording
+  # is not enumerable in advance; its SHAPE is. find_cta.py takes the widest enabled button in
+  # the lower screen, excluding the tab bar, because tapping a tab navigates away and would
+  # measure a route change instead of this route's response.
+  cta="$(EUPHORIA_UDID="$UDID" python3 "$HERE/find_cta.py" 2>/dev/null || true)"
   if [[ -n "$cta" ]]; then
     iraw="$OUT/clips/$name.act.raw.mp4"; icfr="$OUT/clips/$name.act.mp4"
     xcrun simctl io "$UDID" recordVideo --codec h264 --force "$iraw" >/dev/null 2>&1 &
