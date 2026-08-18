@@ -84,7 +84,11 @@ def local_idle(path):
     g = _gray(path, LOCAL_W, LOCAL_H)
     lo, hi = int(IDLE[0] * FPS), min(int(IDLE[1] * FPS), len(g))
     if hi - lo < 2:
-        return 0.0, 0, False
+        # FOUR values, like every other return in this function. This returned three, and since
+        # the caller unpacks four it raised ValueError and killed the whole audit mid-run — twice,
+        # on the same tail-end routes, leaving 21/26 rows and a clip on disk with no result. A
+        # crash in the ANALYSER takes the harness down with it, so arity here is load-bearing.
+        return 0.0, 0, 0, False
     d = np.abs(np.diff(g[lo:hi], axis=0))
     changed = (d > PIXEL_DELTA).sum(axis=(1, 2))
     contaminated = bool((changed > LOCAL_W * LOCAL_H * CONTAMINATION_FRACTION).any())
@@ -188,6 +192,19 @@ def _demo():
     assert _overlap((30, 60), ENTRY) and not _overlap((30, 60), IDLE)
     # frame 150..180 is t=5.0..6.0s, inside IDLE only.
     assert _overlap((150, 180), IDLE) and not _overlap((150, 180), ENTRY)
+    # Every local_idle return path must have the SAME arity — a 3-tuple from one branch raised
+    # ValueError in the caller and killed the audit mid-run, twice, on the same routes.
+    #
+    # Parsed with ast, not by splitting on commas: the first version of this check did that and
+    # reported {4, 5}, because `round(100.0 * hot.mean(), 1)` contains a comma. The code was
+    # right and the checker was wrong, which is its own lesson about verifiers.
+    import ast as _ast
+    import inspect as _inspect
+    import textwrap as _tw
+    _fn = _ast.parse(_tw.dedent(_inspect.getsource(local_idle))).body[0]
+    _arities = {len(n.value.elts) for n in _ast.walk(_fn)
+                if isinstance(n, _ast.Return) and isinstance(n.value, _ast.Tuple)}
+    assert _arities == {4}, f"local_idle returns mixed arity: {_arities}"
     # A burst wholly before the windows touches neither.
     assert not _overlap((0, 15), ENTRY) and not _overlap((0, 15), IDLE)
     # IDLE spans 4.0-9.0s = 150 frames; a 75-frame burst inside it is 50%.
