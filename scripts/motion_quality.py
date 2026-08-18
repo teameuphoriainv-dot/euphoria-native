@@ -40,7 +40,18 @@ import sys
 
 import numpy as np
 
+import os as _os
+_sys_path = _os.path.dirname(_os.path.abspath(__file__))
+if _sys_path not in sys.path:
+    sys.path.insert(0, _sys_path)
+from motion_energy import bursts as _bursts  # noqa: E402
+
 FPS = 30.0
+# Smoothness is a second derivative. Below this many frames there are too few samples for one,
+# and grading anyway produced "JANKY" on a legitimate 233ms step transition measured over 7
+# frames. beat_ms stays trustworthy at any length; the QUALITY verdict does not, so it is
+# withheld rather than guessed.
+MIN_FRAMES_TO_GRADE = 12
 W, H = 296, 640
 STRIP_FPS = 6  # uniform sampling for the companion strip
 
@@ -96,23 +107,24 @@ def analyse(path, strip=None, after_s=1.0):
     # Isolate the strongest contiguous beat: quality is a property of a beat, not of a clip
     # that is mostly still. Averaging over the still part would flatter every animation.
     thresh = max(np.percentile(d1, 40) * 2.5, 0.6)
-    hot = d1 > thresh
-    best, cur = (0, 0), None
-    for i, h in enumerate(hot):
-        if h and cur is None:
-            cur = i
-        elif not h and cur is not None:
-            if i - cur > best[1] - best[0]:
-                best = (cur, i)
-            cur = None
-    if cur is not None and len(hot) - cur > best[1] - best[0]:
-        best = (cur, len(hot))
-    s, e = best
+    # Reuse motion_energy's burst detector rather than re-implementing it. The hand-rolled loop
+    # that used to live here had NO GAP MERGING, so a single-frame dip inside a real burst split
+    # it into fragments and the "longest beat" came back as one frame. Measured on the same clip:
+    # motion_energy reported a 233ms burst while this file reported 33ms. Two implementations of
+    # one idea will always drift; one is the fix.
+    runs = _bursts(d1, thresh)
+    if not runs:
+        return {"clip": os.path.basename(path), "verdict": "no motion"}
+    s, e = max(runs, key=lambda r: r[1] - r[0])
     if e - s < 4:
         return {"clip": os.path.basename(path), "verdict": "beat too short to grade",
                 "beat_ms": round(1000 * (e - s) / FPS)}
 
     beat = d1[s:e]
+    if len(beat) < MIN_FRAMES_TO_GRADE:
+        return {"clip": os.path.basename(path), "beat_start_s": round(s / FPS, 2),
+                "beat_ms": round(1000 * (e - s) / FPS), "grade": "TOO_SHORT_TO_GRADE",
+                "note": f"{len(beat)} frames — under {MIN_FRAMES_TO_GRADE}, smoothness needs more samples"}
     d2 = np.diff(beat)
 
     # VBench-style smoothness: jerk relative to speed. Smooth motion changes gradually.
@@ -179,6 +191,10 @@ def _demo():
     assert grade(0.9, 0.1, "linear") == "UNEASED"
     assert grade(0.9, 0.1, "ease-out") == "SMOOTH"
     assert grade(0.6, 0.1, "ease-out") == "ROUGH"
+    # A 233ms beat is 7 frames — must be withheld, not graded JANKY on too few samples.
+    assert int(0.233 * FPS) < MIN_FRAMES_TO_GRADE
+    # A 500ms beat is 15 frames and is gradeable.
+    assert int(0.5 * FPS) >= MIN_FRAMES_TO_GRADE
     # CALIBRATION: the reference clips measure 0.82-0.88 smoothness. Anything in that band
     # must not be graded below SMOOTH, or the instrument cannot recognise its own target.
     assert grade(0.82, 0.53, "ease-out") == "SMOOTH"
