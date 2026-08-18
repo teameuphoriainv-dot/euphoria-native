@@ -14,7 +14,7 @@
  * drawn here is decoration pretending to be data. It returns when quotes do.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -30,6 +30,7 @@ import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getQuote, type Quote } from '@/lib/market';
 import { money, priceOf, shares, STOCKS } from '@/lib/stocks';
+import { RetryNotice } from '@/components/retry-notice';
 import { useApp } from '@/lib/store';
 import { entitled, useTier, type Refusal } from '@/lib/entitlement';
 import { GateSheet } from '@/components/gate-sheet';
@@ -58,15 +59,39 @@ export default function StockDetail() {
    * to static prices.
    */
   const [, setLive] = useState<Quote | null>(null);
+  /*
+   * QUOTE FAILURE WAS SILENT, AND SILENT IS THE WRONG FAILURE HERE.
+   *
+   * getQuote().then() had no .catch(), so a rejected request was an unhandled promise and the
+   * screen simply kept rendering `priceOf(sym)` — which, per the comment above, is the STATIC
+   * fallback table. The user saw a number that looked live and was not, with nothing to say so.
+   *
+   * On a trading screen that is a correctness problem rather than a polish one, and it is the
+   * same class CARRYOVER already flags about lib/stocks.ts: a stale price makes every position
+   * percentage derived from it fiction. Polygon's free tier is 5 requests/minute, so this is a
+   * routine path, not a rare one.
+   */
+  const [quoteErr, setQuoteErr] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const retryQuote = useCallback(() => {
+    setQuoteErr(null);
+    setNonce((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     if (!sym) return;
     let cancelled = false;
-    getQuote(sym).then((q) => !cancelled && setLive(q));
+    setQuoteErr(null);
+    getQuote(sym)
+      .then((q) => !cancelled && setLive(q))
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setQuoteErr(e instanceof Error ? e.message : 'upstream');
+      });
     return () => {
       cancelled = true;
     };
-  }, [sym]);
+  }, [sym, nonce]);
 
   /*
    * THE TRADE GATE, done the way Bloom does it (156247, verified in pixels).
@@ -158,6 +183,11 @@ export default function StockDetail() {
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
           <ThemedText type="small" themeColor="mutedForeground">Trade</ThemedText>
         </SpringPressable>
+
+        {/* Non-blocking on purpose: the screen still has a chart, a description and a trade
+            gate worth reading, so a failed QUOTE must not replace all of it. It only has to
+            stop the static fallback price passing itself off as live. */}
+        {quoteErr ? <RetryNotice code={quoteErr} onRetry={retryQuote} /> : null}
 
         <RiseIn>
           <View style={[styles.ticker, { backgroundColor: theme.primary + '1F' }]}>
