@@ -10,11 +10,12 @@
  * below the threshold where typing feels laggy and well above per-character.
  */
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { RetryNotice } from '@/components/retry-notice';
 import { SkeletonRows } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
@@ -30,6 +31,19 @@ export default function Search() {
   // Results carry the term they answer, so "loading" is derived rather than flag-managed — no
   // setState in the effect body, and a stale result can never render under a newer query.
   const [hits, setHits] = useState<{ term: string; results: TickerHit[] } | null>(null);
+  /*
+   * searchTickers().then() had no .catch(). Because `loading` is DERIVED as
+   * `hits?.term !== term`, a rejected request never sets hits, so loading stays true and the
+   * skeleton runs forever — the same hung-loading shape options.tsx had, reached by the same
+   * missing rejection path. Five requests a minute makes typing into this box a normal way to
+   * hit it.
+   */
+  const [err, setErr] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const retry = useCallback(() => {
+    setErr(null);
+    setNonce((n) => n + 1);
+  }, []);
   const seq = useRef(0);
   const term = q.trim();
   const loading = term.length > 0 && hits?.term !== term;
@@ -41,13 +55,21 @@ export default function Search() {
     // Guard against out-of-order responses: a slow "AA" must not overwrite a fast "AAPL".
     const mine = ++seq.current;
     const t = setTimeout(() => {
-      searchTickers(term).then((r) => {
-        if (mine !== seq.current) return;
-        setHits({ term, results: r });
-      });
+      setErr(null);
+      searchTickers(term)
+        .then((r) => {
+          if (mine !== seq.current) return;
+          setHits({ term, results: r });
+        })
+        .catch((e: unknown) => {
+          // Only the latest term may surface an error, or a stale slow failure would blank a
+          // good result — the same out-of-order guard the success path already uses.
+          if (mine !== seq.current) return;
+          setErr(e instanceof Error ? e.message : 'upstream');
+        });
     }, 250);
     return () => clearTimeout(t);
-  }, [q]);
+  }, [q, nonce]);
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -83,7 +105,10 @@ export default function Search() {
 
       <ScrollView contentContainerStyle={styles.list} keyboardShouldPersistTaps="handled">
         {/* UNIT 13 item 3 */}
-          {loading && <SkeletonRows count={5} height={60} />}
+          {/* Blocking: on this screen the results ARE the screen, so an error replaces them
+              rather than sitting alongside. err wins over loading — a skeleton that never
+              resolves tells the user to wait for something that is not coming. */}
+          {err ? <RetryNotice code={err} onRetry={retry} /> : loading && <SkeletonRows count={5} height={60} />}
 
         {!loading && !term && (
           <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
