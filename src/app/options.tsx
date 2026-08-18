@@ -20,8 +20,10 @@
  * FUTURES ARE DELIBERATELY ABSENT — separate venue, margin model and settlement calendar.
  */
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+
+import { RetryNotice } from '@/components/retry-notice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -173,6 +175,21 @@ export default function Options() {
   const held = useApp((s) => s.derivatives);
 
   const [sym, setSym] = useState(ALL_SYMS[0]);
+  /*
+   * ERROR + RETRY. getExpirations().then() had no .catch(), so a rejected request was an unhandled
+   * promise and `loadedFor` never advanced — which means `loading` stayed true FOREVER and the
+   * screen spun with no way out. Polygon's free tier is 5 requests/minute, so that is not a rare
+   * path; it is what a user hits by tapping through a few underlyings.
+   *
+   * `nonce` is what the retry button increments: it is in the effect's dep list, so bumping it
+   * re-runs the fetch without the user leaving and re-entering the screen.
+   */
+  const [err, setErr] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
+  const retry = useCallback(() => {
+    setErr(null);
+    setNonce((n) => n + 1);
+  }, []);
   const [expiries, setExpiries] = useState<string[]>([]);
   const [expiry, setExpiry] = useState<string>('');
   const [chain, setChain] = useState<Contract[] | null>(null);
@@ -205,16 +222,24 @@ export default function Options() {
   // Expiries for the chosen underlying. An empty result means no token, which the UI states.
   useEffect(() => {
     let cancelled = false;
-    getExpirations(sym).then((d) => {
-      if (cancelled) return;
-      setExpiries(d);
-      setExpiry(d[0] ?? '');
-      setPick(null);
-    });
+    setErr(null);
+    getExpirations(sym)
+      .then((d) => {
+        if (cancelled) return;
+        setExpiries(d);
+        setExpiry(d[0] ?? '');
+        setPick(null);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        // The CODE, never the raw error — market+api.ts distinguishes rate_limited from
+        // plan_required precisely so the UI can say something true.
+        setErr(e instanceof Error ? e.message : 'upstream');
+      });
     return () => {
       cancelled = true;
     };
-  }, [sym]);
+  }, [sym, nonce]);
 
   // The chain for the chosen expiry. `loadedFor` derives loading without setState in the effect
   // body — the rule the rest of this codebase follows.
@@ -288,7 +313,13 @@ export default function Options() {
   useEffect(() => {
     if (!expiry) return;
     let cancelled = false;
-    getChain(sym, expiry).then((r) => {
+    getChain(sym, expiry)
+      .catch((e: unknown) => {
+        setErr(e instanceof Error ? e.message : 'upstream');
+        return null;
+      })
+      .then((r) => {
+        if (!r) return;
       if (cancelled) return;
       setChain(r?.contracts ?? null);
       setChainSpot(r?.spot ?? 0);
@@ -513,7 +544,13 @@ export default function Options() {
               to open at $50 in the first place.
             */}
             {loading ? (
-              <View style={styles.loading}><ActivityIndicator color={theme.primary} /></View>
+              // A hung spinner is worse than an error: it tells the user to wait for something
+              // that is never coming. err wins over loading for that reason.
+              err ? (
+                <RetryNotice code={err} onRetry={retry} />
+              ) : (
+                <View style={styles.loading}><ActivityIndicator color={theme.primary} /></View>
+              )
             ) : (
               rows.map((r) => {
                 const row = (
