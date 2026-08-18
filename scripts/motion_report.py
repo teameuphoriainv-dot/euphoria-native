@@ -10,7 +10,22 @@ import os
 import sys
 
 # Worst first. This ordering IS the worklist.
-SEVERITY = {"UNREACHABLE": 0, "CONTAMINATED": 0, "DEAD": 1, "STATIC": 2, "OK": 3, "GOOD": 4}
+SEVERITY = {"UNREACHABLE": 0, "CONTAMINATED": 0, "DEAD": 1, "STATIC": 2,
+            "REACTIVE": 3, "OK": 3, "GOOD": 4}
+
+# A screen that holds still while you READ it and then responds well when you touch it is not
+# a dead screen — it is a correctly designed one. motion_window only sees the idle window, so
+# it cannot know that; act_ms can. Without this, every reading screen in a learning app reads
+# as a defect, which is how an audit ends up arguing for motion in exactly the wrong places.
+REACTIVE_MS = 400
+
+
+def derive_verdict(r):
+    """Promote STATIC/DEAD to REACTIVE when the route answers a tap."""
+    v = r.get("verdict")
+    if v in ("STATIC", "DEAD") and (r.get("act_ms") or 0) >= REACTIVE_MS:
+        return "REACTIVE"
+    return v
 
 BANDS = """\
 | verdict | meaning |
@@ -19,7 +34,7 @@ BANDS = """\
 | **STATIC** | Animates on entry, then flat. Idle is inert. |
 | **OK** | Sustained motion at rest, but longest burst < 400ms — under the structural ceiling. |
 | **GOOD** | A burst over 400ms exists: a real payoff beat. |
-| **UNREACHABLE** | The harness could not reach or record the route. A tooling defect, **not** a motion finding. |\n| **CONTAMINATED** | Navigation, a dialog or a refresh landed inside the idle window. No number is reported — a plausible wrong one is worse than none. |
+| **UNREACHABLE** | The harness could not reach or record the route. A tooling defect, **not** a motion finding. |\n| **CONTAMINATED** | Navigation, a dialog or a refresh landed inside the idle window. No number is reported — a plausible wrong one is worse than none. |\n| **REACTIVE** | Still at rest, but answers a tap with a beat of 400ms or more. A reading screen that holds still and then responds is correct, not dead. |
 """
 
 
@@ -34,6 +49,7 @@ def load(path):
 
 
 def rank_key(r):
+    r = dict(r, verdict=derive_verdict(r))
     # Within a verdict, order by idle_peak_px — the pixel count that actually changes at rest.
     # It discriminates 20-40x where idle_pct barely moves (welcome 107px / learn 209px vs
     # home 7px, all of which score under 1% by frame-share). Peak pixels is what separates a
@@ -78,14 +94,15 @@ def write_table(rows, out):
             )
             continue
         lines.append(
-            f"| `{name_of(r)}` | **{r['verdict']}** | {r.get('idle_peak_px',0)} | "
+            f"| `{name_of(r)}` | **{derive_verdict(r)}** | {r.get('idle_peak_px',0)} | "
             f"{r.get('idle_pct',0)} | {r.get('overall_pct',0)} | "
             f"{r.get('longest_ms',0)} | {r.get('payoff_ms',0)} | {r.get('act_ms','—')} |"
         )
 
     counts = {}
     for r in rows:
-        counts[r.get("verdict", "?")] = counts.get(r.get("verdict", "?"), 0) + 1
+        v = derive_verdict(r) or "?"
+        counts[v] = counts.get(v, 0) + 1
     lines += ["", "## Summary", ""]
     for v in sorted(counts, key=lambda k: SEVERITY.get(k, 9)):
         lines.append(f"- **{v}** — {counts[v]}")
@@ -138,6 +155,14 @@ def _demo():
         {"clip": "y.mp4", "verdict": "STATIC", "idle_pct": 0.1},
     ]
     assert [name_of(r) for r in sorted(same, key=rank_key)] == ["y", "x"]
+    # A STATIC route that answers a tap is REACTIVE, and must outrank a truly static one.
+    assert derive_verdict({"verdict": "STATIC", "act_ms": 867}) == "REACTIVE"
+    assert derive_verdict({"verdict": "STATIC", "act_ms": 100}) == "STATIC"
+    assert derive_verdict({"verdict": "DEAD", "act_ms": 433}) == "REACTIVE"
+    # A route with no interaction data must not be promoted on a missing key.
+    assert derive_verdict({"verdict": "STATIC"}) == "STATIC"
+    # GOOD must never be demoted by this.
+    assert derive_verdict({"verdict": "GOOD", "act_ms": 0}) == "GOOD"
     print("motion_report self-check OK")
 
 
