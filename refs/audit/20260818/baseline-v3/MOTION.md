@@ -1,6 +1,6 @@
 # Per-route motion audit
 
-25 routes. One 9s recording each: entry window 1.0-3.5s, idle window 4.0-9.0s.
+26 routes. One 9s recording each: entry window 1.0-3.5s, idle window 4.0-9.0s.
 All clips re-encoded to CFR 30fps before measurement (VFR inflates the ratio).
 
 ## Verdict bands
@@ -33,6 +33,7 @@ columns cannot see. A route can be STATIC at rest and still animate well on touc
 | `news` | **STATIC** | 3163 | 1.5 | 7.4 | 1033 | 0 | — |
 | `settings-account` | **REACTIVE** | 16 | 0.0 | 3.6 | 667 | 0 | 600 |
 | `trade` | **REACTIVE** | 20 | 0.0 | 7.3 | 1333 | 0 | 833 |
+| `stock-sym` | **OK** | 46 | 3.1 | 4.4 | 700 | 0 | 900 |
 | `search` | **OK** | 51 | 25.9 | 2.4 | 267 | 267 | — |
 | `learn` | **OK** | 78 | 2.7 | 1.7 | 267 | 100 | — |
 | `home` | **OK** | 108 | 16.3 | 3.3 | 333 | 100 | 0 |
@@ -56,7 +57,7 @@ columns cannot see. A route can be STATIC at rest and still animate well on touc
 
 - **CONTAMINATED** — 3
 - **STATIC** — 2
-- **OK** — 18
+- **OK** — 19
 - **REACTIVE** — 2
 
 Mean frames-animating across measured routes: **5.1%**.
