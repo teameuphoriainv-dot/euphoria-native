@@ -40,6 +40,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { UIcon } from '@/components/ui-icon';
 import { Colors, FontSize } from '@/constants/theme';
 import { Duration } from '@/shared/motion/tokens';
 
@@ -49,6 +50,8 @@ const BUILD_END = 0.28;
 const BURN_END = 0.59;
 const BURST_END = 0.72;
 const FLASH_END = 0.8;
+/** Celebration flame size. Larger than any type step because it is a mark, not text. */
+const FLAME_PT = 104;
 
 export function StreakIgnite({
   days,
@@ -80,27 +83,42 @@ export function StreakIgnite({
         scale: interpolate(
           t.get(),
           [0, BUILD_END, BURN_END, BURST_END, FLASH_END, 1],
-          [1, 0.82, 1.24, 1.55, 1.12, 1],
+          [1, 0.82, 1.24, 1.55, 1.12, 1.02],
         ),
       },
     ],
     opacity: interpolate(t.get(), [0, BUILD_END, 1], [1, 0.85, 1]),
   }));
 
+  // The flame keeps easing down through RESOLVE instead of holding a frozen pose.
+  const flameSettle = useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(t.get(), [FLASH_END, 0.9, 1], [-6, 2, 0]) }],
+  }));
+
   // The glow builds under the flame through BURN and dies with the flash, so the burst reads as
   // the glow releasing rather than as a separate element appearing.
   const glowStyle = useAnimatedStyle(() => ({
     opacity: interpolate(t.get(), [0, BUILD_END, BURN_END, BURST_END, FLASH_END], [0, 0.1, 0.55, 0.9, 0]),
-    transform: [{ scale: interpolate(t.get(), [BUILD_END, BURST_END], [0.6, 2.1]) }],
+    // 2.1 on a 160pt circle is a 336pt dome that exceeded the frame — a frame strip showed it
+    // reading as an orange blob swallowing the screen rather than as light behind the flame.
+    // 1.35 keeps it behind the mark.
+    transform: [{ scale: interpolate(t.get(), [BUILD_END, BURST_END], [0.6, 1.35]) }],
   }));
 
   const flashStyle = useAnimatedStyle(() => ({
     opacity: interpolate(t.get(), [BURST_END, 0.76, FLASH_END], [0, 0.92, 0]),
   }));
 
+  // RESOLVE was dead air. The measurement said only 1033ms of the 3200ms carried perceptible
+  // motion, and the frame strip showed why: past the flash, the flame and the count simply sat
+  // there. A settle has to keep moving to read as a settle, so the count now overshoots, eases
+  // back and drifts, and the flame breathes down rather than snapping to rest.
   const countStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(t.get(), [FLASH_END, 0.88], [0, 1]),
-    transform: [{ scale: interpolate(t.get(), [FLASH_END, 0.92, 1], [1.4, 0.98, 1]) }],
+    opacity: interpolate(t.get(), [FLASH_END, 0.86], [0, 1]),
+    transform: [
+      { scale: interpolate(t.get(), [FLASH_END, 0.88, 0.94, 1], [1.5, 0.94, 1.04, 1]) },
+      { translateY: interpolate(t.get(), [FLASH_END, 0.9, 1], [10, -3, 0]) },
+    ],
   }));
 
   return (
@@ -110,8 +128,14 @@ export function StreakIgnite({
       accessibilityLabel={`${days} day streak reached`}
     >
       <Animated.View style={[styles.glow, glowStyle]} />
-      <Animated.View style={flameStyle}>
-        <ThemedText style={styles.flame}>🔥</ThemedText>
+      <Animated.View style={flameSettle}>
+        <Animated.View style={flameStyle}>
+          {/* The app's own flame path, not an emoji. An emoji renders as a different glyph per
+              OS version, ignores the colour tokens entirely, and cannot be animated per-path —
+              three reasons it has no business in a celebration. UIcon.flame is the same mark the
+              streak pill already uses, so the moment resolves into something the user recognises. */}
+          <UIcon name="flame" size={FLAME_PT} color={Colors.dark.streak} strokeWidth={1.6} />
+        </Animated.View>
       </Animated.View>
       <Animated.View style={countStyle}>
         <ThemedText style={styles.count}>{days}</ThemedText>
@@ -124,10 +148,9 @@ export function StreakIgnite({
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', justifyContent: 'center', paddingVertical: 24 },
-  // FontSize.heroXl and FontSize.hero were both dead steps in the ramp before this — a
-  // celebration is exactly the moment the largest sizes exist for. Leading is 1.25x, above the
-  // 1.2 clipping floor; my first pass used raw 84/96 (ratio 1.143) and type_audit caught it.
-  flame: { fontSize: FontSize.heroXl, lineHeight: FontSize.heroXl * 1.25 },
+  // FontSize.hero was a dead ramp step before this — a celebration is exactly the moment the
+  // largest sizes exist for. Leading is 1.25x, above the 1.2 clipping floor; my first pass used
+  // raw 52/60 (ratio 1.154) and type_audit caught it.
   count: { fontSize: FontSize.hero, lineHeight: FontSize.hero * 1.25, fontWeight: '800', color: Colors.dark.streak },
   glow: {
     position: 'absolute',
