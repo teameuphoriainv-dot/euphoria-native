@@ -60,9 +60,52 @@ function fromMs(range: RangeKey): number {
   return now - RANGES[range].days * 86_400_000;
 }
 
+/*
+ * OUTBOUND PACING — what it can and cannot do.
+ *
+ * The 429 below was already CLASSIFIED correctly, but nothing ever stopped us causing it. A cold
+ * stock screen costs quote + stats + chart + news; fired together that is four calls in one tick
+ * against a five-per-minute ceiling, so the last ones fail and the user sees "missing data" for a
+ * stock that exists. Measured 2026-08-17: five tickers in a row returned 200, the next ten
+ * returned 429, and after a 65s wait NVDA/AAPL/SPY resolved fine. Nothing was missing — we simply
+ * asked too fast.
+ *
+ * HONEST LIMIT: no client-side code turns 5/min into more than 5/min. This does two things only —
+ * stops us racing ourselves, and converts one transient 429 into a slower success instead of a
+ * hard failure. The ceiling is real and only a paid plan removes it.
+ *
+ * ponytail: module-scoped chain, single process. On a serverless isolate this paces the calls
+ * WITHIN one request (the burst that actually causes the 429) and cannot pace across concurrent
+ * isolates. That is the 80% case; a shared limiter needs a store, and needs the traffic to justify it.
+ */
+const MIN_GAP_MS = 250;
+let chain: Promise<unknown> = Promise.resolve();
+let lastAt = 0;
+
+function paced<T>(fn: () => Promise<T>): Promise<T> {
+  const run = chain.then(async () => {
+    const wait = Math.max(0, lastAt + MIN_GAP_MS - Date.now());
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    lastAt = Date.now();
+    return fn();
+  });
+  // Keep the chain alive after a rejection, or one failure stalls every later call.
+  chain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
 async function poly(path: string, key: string) {
   const url = `${BASE}${path}${path.includes('?') ? '&' : '?'}apiKey=${key}`;
-  const res = await fetch(url);
+  let res = await paced(() => fetch(url));
+  if (res.status === 429) {
+    // One retry, then give up and let the caller surface `rate_limited` honestly. Retrying
+    // harder on a per-minute quota just spends the next minute's budget too.
+    await new Promise((r) => setTimeout(r, 1500));
+    res = await paced(() => fetch(url));
+  }
   if (!res.ok) {
     // Polygon echoes the key back in some error payloads. Log, never forward.
     const body = (await res.text()).slice(0, 300);
