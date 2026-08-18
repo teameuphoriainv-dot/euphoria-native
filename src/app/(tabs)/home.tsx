@@ -199,7 +199,7 @@ export default function Home() {
                 accessibilityRole="button"
                 accessibilityLabel="Ask Atlas"
               >
-                <Atlas size={46} expression="happy" interactive={false} />
+                <Atlas size={46} expression="happy" interactive={false} idle />
               </SpringPressable>
               <View style={{ flex: 1 }}>
                 <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>

@@ -123,7 +123,7 @@ export default function Auth() {
       <View style={styles.content}>
         <RiseIn>
           <View style={styles.head}>
-            <Atlas size={72} expression="happy" interactive={false} />
+            <Atlas size={72} expression="happy" interactive={false} idle />
             <ThemedText type="title" style={styles.title}>Create your free profile</ThemedText>
             {/*
               * "Save your streak, XP, and learning plan." WAS FALSE, and false on the screen where a

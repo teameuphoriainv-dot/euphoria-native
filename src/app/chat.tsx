@@ -196,7 +196,7 @@ export default function ChatScreen() {
           </View>
         </View>
         <View style={styles.expired}>
-          <Atlas size={110} expression="watching" interactive={false} />
+          <Atlas size={110} expression="watching" interactive={false} idle />
           <ThemedText type="title" style={styles.expiredTitle}>Your free {TRIAL_DAYS} days are up.</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.expiredSub}>
             Euphoria Pro makes Atlas unlimited — every question, no counter.
@@ -290,7 +290,7 @@ export default function ChatScreen() {
           {turns.length === 0 && (
             <View style={styles.empty}>
               <View style={styles.emptyHead}>
-                <Atlas size={104} expression="happy" interactive={false} />
+                <Atlas size={104} expression="happy" interactive={false} idle />
                 <ThemedText type="title" style={styles.emptyTitle}>Hi, I&apos;m Atlas.</ThemedText>
                 <ThemedText type="body" themeColor="mutedForeground" style={styles.emptyLine}>
                   Ask me anything about money. I&apos;ll keep it short.

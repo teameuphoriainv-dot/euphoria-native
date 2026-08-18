@@ -390,7 +390,7 @@ export default function Options() {
           </RiseIn>
           <RiseIn delay={80}>
             <Card style={styles.locked}>
-              <Atlas size={92} expression="watching" interactive={false} />
+              <Atlas size={92} expression="watching" interactive={false} idle />
               <ThemedText type="heading" style={styles.center}>Options are part of Pro</ThemedText>
               <ThemedText type="small" themeColor="mutedForeground" style={styles.center}>
                 A contract moves on time and volatility, not just direction. Pro reopens{' '}

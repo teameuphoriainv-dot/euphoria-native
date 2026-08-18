@@ -54,6 +54,8 @@ const ROCK_MS = 3900;
 const SWAY_DEG = 1.6;
 /** Head rock, degrees. Larger than the sway because the head is the lighter mass. */
 const ROCK_DEG = 3.4;
+/** Saccade amplitude, in viewBox units (~1% of 100). Any larger and the eyes read as shifty. */
+const SACCADE_UNITS = 1.1;
 
 /** How far each ring trails the one before it on a tap spin. Separate masses do not arrive
  *  together; 55ms is enough to read as a ripple and short enough to still feel like one gesture. */
@@ -124,6 +126,10 @@ export function Atlas({
   /** Head follow-through, in DEGREES. Kept separate from `rock` so the idle phase and the
    *  reaction never fight over one value's units. They sum in headProps. */
   const headLag = useSharedValue(0);
+  // Micro eye darts. Amplitude is deliberately ~1% of the 100-unit viewBox: at a 46px mascot
+  // this is sub-pixel-ish and reads as life rather than as the eyes wandering.
+  const sacX = useSharedValue(0);
+  const sacY = useSharedValue(0);
   /** Extra squash on top of the breath, for anticipation and landing impact. */
   const squash = useSharedValue(0);
   const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : entrance === 'arrive' ? 1.85 : 1);
@@ -151,6 +157,42 @@ export function Atlas({
       clearTimeout(t);
     };
   }, [reduced]);
+
+  /*
+   * SACCADES — the micro darts real eyes make constantly. Without them a face reads as a
+   * photograph even while the body breathes. Interval is randomised and a fifth of darts are
+   * doubles, so no two idle windows produce the same signature; a loop you can SEE looping is
+   * worse than no loop.
+   */
+  useEffect(() => {
+    if (reduced) return;
+    let alive = true;
+    let t: ReturnType<typeof setTimeout>;
+    const dart = () => {
+      const dx = (Math.random() * 2 - 1) * SACCADE_UNITS;
+      const dy = (Math.random() * 2 - 1) * SACCADE_UNITS * 0.6;
+      sacX.set(withTiming(dx, { duration: 70, easing: Easing.out(Easing.quad) }));
+      sacY.set(withTiming(dy, { duration: 70, easing: Easing.out(Easing.quad) }));
+      setTimeout(() => {
+        if (!alive) return;
+        sacX.set(withTiming(0, { duration: 110, easing: Easing.inOut(Easing.quad) }));
+        sacY.set(withTiming(0, { duration: 110, easing: Easing.inOut(Easing.quad) }));
+      }, 140 + Math.random() * 180);
+    };
+    const loop = () => {
+      t = setTimeout(() => {
+        if (!alive) return;
+        dart();
+        if (Math.random() < 0.2) setTimeout(() => alive && dart(), 260);
+        loop();
+      }, 900 + Math.random() * 1700);
+    };
+    loop();
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [reduced, sacX, sacY]);
 
   // Celebratory hop, built as a real piece of character animation rather than one spring.
   //
@@ -292,6 +334,7 @@ export function Atlas({
   // Idle rock and reaction lag SUM here: the head keeps breathing through a celebration
   // instead of snapping to the reaction and back.
   const headProps = useAnimatedProps(() => ({ rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() }));
+  const saccadeProps = useAnimatedProps(() => ({ x: sacX.get(), y: sacY.get() }));
 
   const wrapStyle = useAnimatedStyle(() => ({
     opacity: entranceOpacity.get(),
@@ -325,7 +368,16 @@ export function Atlas({
   });
 
   const active: AtlasExpression = spinning ? 'whoa' : expression;
-  const showBlink = blink && !spinning && (expression === 'default' || expression === 'watching');
+  /*
+   * BLINK GATE — was `expression === 'default' || expression === 'watching'`, which froze the
+   * eyes on six of the nine expressions. Measured 2026-08-17: chat, home, trade, learn and
+   * digest showed 5-27 changed pixels across a five-second idle window, i.e. a mascot that
+   * never moves, and those screens render `happy`/`thinking`/`proud`/`oops`.
+   *
+   * Only `happy` is drawn as upward arcs (^^) — closing an arc eye reads as nothing, so it stays
+   * excluded. Every other expression uses round pupils and blinks meaningfully.
+   */
+  const showBlink = blink && !spinning && expression !== 'happy';
   const whiteR = active === 'whoa' ? [14, 12.8] : [13, 11.8];
 
   const pupils = () => {
@@ -439,7 +491,7 @@ export function Atlas({
       </AnimatedG>
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
-      {pupils()}
+      <AnimatedG animatedProps={saccadeProps}>{pupils()}</AnimatedG>
       {glasses && (
         <>
           <G stroke="#141019" strokeWidth={4.4} opacity={0.9} fill="none">

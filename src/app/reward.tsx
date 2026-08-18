@@ -62,7 +62,7 @@ export default function Reward() {
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
         <View style={styles.centre}>
-          <Atlas size={116} expression="proud" interactive={false} />
+          <Atlas size={116} expression="proud" interactive={false} idle />
           <ThemedText type="title" style={styles.centreText}>
             {total > 0 ? `You earned ${money(total)} of stock.` : 'Nothing to claim right now.'}
           </ThemedText>
@@ -104,7 +104,7 @@ export default function Reward() {
       ) : (
         <View style={styles.centre}>
           <RiseIn>
-            <Atlas size={104} expression="happy" interactive={false} />
+            <Atlas size={104} expression="happy" interactive={false} idle />
           </RiseIn>
           <RiseIn delay={90}>
             <ThemedText type="title" style={styles.centreText}>

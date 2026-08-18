@@ -213,7 +213,7 @@ export default function Lesson() {
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
         <View style={styles.centered}>
-          <Atlas size={110} expression="oops" />
+          <Atlas size={110} expression="oops" idle />
           <ThemedText type="title" style={styles.title}>That lesson isn&apos;t available.</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>Pick another from the pathway.</ThemedText>
         </View>
@@ -229,7 +229,7 @@ export default function Lesson() {
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
         <View style={styles.centered}>
-          <Atlas size={110} expression="watching" />
+          <Atlas size={110} expression="watching" idle />
           {/* C27: the refusal is now always expiry, never a spent lesson count — so the copy says
               what actually happened. §20.1's headline, matched to the gate sheet's so a user who
               arrives by deep link reads the same sentence as one who tapped a node. */}

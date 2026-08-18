@@ -73,7 +73,7 @@ export default function WidgetTutorial() {
       {/* Keyed on `step` so the entering animation re-runs per step rather than only on mount. */}
       <View style={styles.stage} key={step}>
         <RiseIn>
-          <Atlas size={104} expression={last ? 'proud' : 'thinking'} interactive={false} />
+          <Atlas size={104} expression={last ? 'proud' : 'thinking'} interactive={false} idle />
         </RiseIn>
 
         <RiseIn delay={childDelay(0)}>

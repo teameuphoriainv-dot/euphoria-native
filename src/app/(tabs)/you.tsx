@@ -152,7 +152,7 @@ export default function You() {
           */}
         <RiseIn>
           <Card style={styles.identity}>
-            <Atlas size={62} expression="happy" interactive={false} />
+            <Atlas size={62} expression="happy" interactive={false} idle />
             <View style={{ flex: 1 }}>
               {/* Name and plan on ONE line, which is TradingView `185370` exactly: `juliascreens`
                   with an `ESSENTIAL` chip beside it. The badge is what makes an identity card also
