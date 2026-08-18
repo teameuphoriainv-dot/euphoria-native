@@ -15,6 +15,17 @@
 # A screen that animates on arrival then goes flat (STATIC) is a different defect from one that
 # never moves (DEAD) and needs a different fix. Windowing is in scripts/motion_window.py.
 #
+# WHAT THIS AUDIT DOES NOT MEASURE, and it matters more than anything it does.
+#
+# Every route is deep-linked and then left ALONE. That measures the passive, at-rest state and
+# nothing else. On 2026-08-18 I reported "no payoff beat in the app exceeds 267ms" from these
+# numbers, and it was wrong: answering one quiz question produces a 1567ms verdict burst —
+# six times the ceiling I had published. The interactive moments were never in the sample.
+#
+# So a STATIC verdict here means "this screen is still when untouched", never "this screen does
+# not animate". Judging a lesson by this alone will conclude an app is dead when its best motion
+# is one tap away.
+#
 # TRAPS THIS FILE HONOURS:
 #   - recordVideo must be stopped with SIGINT, never SIGTERM. SIGTERM leaves a 0-byte file and
 #     leaks the recording session (recover with: killall -9 com.apple.CoreSimulator.CoreSimulatorService).
