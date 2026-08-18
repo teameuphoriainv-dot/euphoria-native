@@ -167,11 +167,46 @@ for entry in "${ROUTES[@]}"; do
     printf "  %-20s UNREACHABLE (ffmpeg)\n" "$name"; continue; }
   rm -f "$raw"
 
+  # --- INTERACTION PASS -------------------------------------------------------------------
+  # The idle clip above measures the screen UNTOUCHED. That is exactly half the picture, and
+  # taking it for the whole picture produced three wrong published claims in one session:
+  # "no payoff beat exceeds 267ms" (a quiz verdict is 1567ms), "no Atlas reaction on answer"
+  # (wired at lesson.tsx:407), and "the lesson is completely static" (steps transition in
+  # 300ms). None of that motion was ever in the sample, because nothing ever tapped anything.
+  #
+  # So: find this route's primary CTA, tap it, and measure what comes back.
+  cta="$(EUPHORIA_UDID="$UDID" "$HERE/sim.sh" screen 2>/dev/null \
+        | grep -iE "^(Continue|Check|Start|Next|Got it|Begin)" | head -1 | sed "s/ *@.*//")"
+  if [[ -n "$cta" ]]; then
+    iraw="$OUT/clips/$name.act.raw.mp4"; icfr="$OUT/clips/$name.act.mp4"
+    xcrun simctl io "$UDID" recordVideo --codec h264 --force "$iraw" >/dev/null 2>&1 &
+    irec=$!
+    sleep 1
+    EUPHORIA_UDID="$UDID" "$HERE/sim.sh" tapon "$cta" >/dev/null 2>&1 || true
+    sleep 4
+    kill -INT "$irec" 2>/dev/null || true; wait "$irec" 2>/dev/null || true
+    if [[ -s "$iraw" ]]; then
+      ffmpeg -y -i "$iraw" -vf fps=30 -an "$icfr" >/dev/null 2>&1 || true
+      rm -f "$iraw"
+    fi
+  fi
+
   # Contact sheet: 6 frames across the clip, so pose and composition stay inspectable.
   ffmpeg -y -i "$cfr" -vf "fps=1,scale=180:-1,tile=6x1" -frames:v 1 \
     "$OUT/sheets/$name.png" >/dev/null 2>&1 || true
 
   row="$(python3 "$HERE/motion_window.py" "$cfr" | tail -1)"
+  # Fold the interaction clip's longest burst into the same row, so idle and on-touch motion
+  # are never read apart from each other again.
+  if [[ -s "$icfr" ]]; then
+    act="$(python3 "$HERE/motion_quality.py" "$icfr" 2>/dev/null \
+          | python3 -c "import json,sys
+try: print(json.load(sys.stdin).get('beat_ms', 0))
+except Exception: print(0)" 2>/dev/null)"
+    row="$(printf '%s' "$row" | python3 -c "
+import json,sys
+d=json.load(sys.stdin); d['act_ms']=int('${act:-0}' or 0); print(json.dumps(d))" 2>/dev/null || printf '%s' "$row")"
+  fi
   # Re-key the row from the clip filename to the route name they share.
   echo "$row" >> "$JSONL"
   printf "  %-20s %s\n" "$name" \

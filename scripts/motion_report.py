@@ -65,19 +65,22 @@ def write_table(rows, out):
         "discriminates. `payoff ms` excludes the entry transition, so it counts only",
         "earned beats, not navigation.",
         "",
-        "| route | verdict | idle px | idle % | overall % | entry ms | payoff ms |",
-        "|---|---|---:|---:|---:|---:|---:|",
+        "`act ms` is the longest burst after tapping the primary CTA — the half the idle",
+        "columns cannot see. A route can be STATIC at rest and still animate well on touch.",
+        "",
+        "| route | verdict | idle px | idle % | overall % | entry ms | payoff ms | act ms |",
+        "|---|---|---:|---:|---:|---:|---:|---:|",
     ]
     for r in sorted(rows, key=rank_key):
         if r.get("verdict") == "UNREACHABLE":
             lines.append(
-                f"| `{name_of(r)}` | UNREACHABLE | — | — | — | — | {r.get('note','')} |"
+                f"| `{name_of(r)}` | UNREACHABLE | — | — | — | — | — | {r.get('note','')} |"
             )
             continue
         lines.append(
             f"| `{name_of(r)}` | **{r['verdict']}** | {r.get('idle_peak_px',0)} | "
             f"{r.get('idle_pct',0)} | {r.get('overall_pct',0)} | "
-            f"{r.get('longest_ms',0)} | {r.get('payoff_ms',0)} |"
+            f"{r.get('longest_ms',0)} | {r.get('payoff_ms',0)} | {r.get('act_ms','—')} |"
         )
 
     counts = {}
