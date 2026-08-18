@@ -97,8 +97,14 @@ def report(a):
               f"{'yes' if r['empty'] else 'NO':>7}{'yes' if r['error'] else 'NO':>7}"
               f"{'yes' if r['retry'] else 'NO':>7}")
 
+    # NOT a gap by itself. stock/[sym] has no loading state and does not need one: it renders
+    # priceOf(sym) from the static table IMMEDIATELY and swaps in the live quote when it lands,
+    # so there is no blank period to fill. A skeleton there would HIDE content that already
+    # exists and make the screen feel slower. "No loading state" is only a defect when the
+    # screen is actually blank while waiting — which static analysis cannot see.
     gaps = {
-        "no loading state at all": [r["file"] for r in rows if not r["skeleton"] and not r["spinner"]],
+        "no loading state (VERIFY: only a defect if the screen is blank while waiting)":
+            [r["file"] for r in rows if not r["skeleton"] and not r["spinner"]],
         "bare spinner, no skeleton": [r["file"] for r in rows if r["spinner"] and not r["skeleton"]],
         "no empty state": [r["file"] for r in rows if not r["empty"]],
         "error handled but NO retry": [r["file"] for r in rows if r["error"] and not r["retry"]],

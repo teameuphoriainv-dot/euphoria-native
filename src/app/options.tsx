@@ -24,6 +24,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { RetryNotice } from '@/components/retry-notice';
+import { SkeletonRows } from '@/components/skeleton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -549,7 +550,11 @@ export default function Options() {
               err ? (
                 <RetryNotice code={err} onRetry={retry} />
               ) : (
-                <View style={styles.loading}><ActivityIndicator color={theme.primary} /></View>
+                // A skeleton, not a spinner. The research is specific about why: a spinner says
+                // "wait", a skeleton says "here is the shape of what is coming", and the chain
+                // has a very predictable shape — rows of strikes. search.tsx and news.tsx
+                // already use SkeletonRows, so this is reuse, not a new component.
+                <SkeletonRows count={8} height={44} />
               )
             ) : (
               rows.map((r) => {
