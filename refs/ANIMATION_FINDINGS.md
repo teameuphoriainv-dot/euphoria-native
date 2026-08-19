@@ -89,6 +89,35 @@ backwards.
 
 ---
 
+## 2b. Where the dead space actually is — regional heatmap
+
+Screen split into an 8×4 grid, measuring what fraction of sampled frames each cell moved during
+the same untouched 2–5s window (more sensitive threshold than §1, so compare within this table
+only):
+
+```
+courses                          learn
+ 0 |:+  |  32  56  10   8         0 |#+==|  80  58  49  46
+ 1 |-=:.|  37  49  28  13         1 |%%+*|  90  90  63  70
+ 2 |.=: |  18  48  27   0         2 |***#|  75  75  75  87
+ 3 |.=: |  18  49  27   0         3 |####|  87  83  85  77
+ 4 |    |   0   0   0   0   <--   4 |###+|  79  85  80  62
+ 5 |    |   0   0   0   3   <--   5 |%#**|  94  85  75  72
+ 6 |    |   0   0   8   0   <--   6 |+===|  56  46  46  48
+ 7 |    |   3   0   0   0   <--   7 |-==-|  35  51  54  35
+```
+
+**The bottom half of `courses` is not low-motion, it is ZERO.** And it is not occluded content —
+pulling the frame shows it is **empty black space**. The Foundations tab holds 3 courses
+(`courseIndex.ts` splits 12 as 3 easy / 4 intermediate / 5 advanced), `courses.tsx:35` defaults to
+`'easy'`, and the three cards fill the top half. The rest is bare, with the starfield too sparse
+there to register.
+
+So the default view of the course catalogue is three cards above ~50% empty screen. Same family
+as the 118pt dead band on Home, at roughly four times the area.
+
+`digest` by contrast is low but non-zero everywhere (11–51%) — genuinely quiet, not empty.
+
 ## 3. Entry transitions are wildly inconsistent
 
 Peak motion in the 1.2s after each route opened, for routes that verifiably navigated:
