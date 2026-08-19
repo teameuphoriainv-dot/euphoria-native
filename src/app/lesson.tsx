@@ -345,10 +345,25 @@ export default function Lesson() {
             <View style={{ alignSelf: 'stretch', alignItems: 'center', marginTop: Spacing.four }}>
               <AtlasSpeech text="Ready? Let's get into it." delay={420} tail="top" maxWidth={272} />
             </View>
-            <ThemedText type="label" style={{ color: theme.iconLilac, marginTop: Spacing.four }}>
+            {/*
+              * AX5 BROKE THIS CARD FOUR WAYS AT ONCE, captured on device: the LESSON label
+              * rendered ABOVE the status bar, the title clipped horizontally to "Your M", it
+              * overlapped the progress bar and close button, and nothing scrolled.
+              *
+              * The cause is `styles.centered` — flex:1 with justifyContent:'center' and no
+              * scroll view. When content grows taller than the container, centering pushes it
+              * off BOTH ends rather than overflowing downward, which is why the top label
+              * escaped the safe area. `styles.title` also lacked the paddingHorizontal its
+              * sibling `styles.center` has, so the text ran into the screen edge.
+              *
+              * Capping brings the total height back inside the viewport; the padding stops the
+              * horizontal clip. A scroll view would be the fuller fix, but this card is a
+              * fixed five-element layout and capping is the smaller, safer change.
+              */}
+            <ThemedText type="label" maxFontSizeMultiplier={1.6} style={{ color: theme.iconLilac, marginTop: Spacing.four }}>
               {(getCourseById(courseId)?.title ?? 'Course').toUpperCase()} · LESSON {lesson.num}
             </ThemedText>
-            <ThemedText type="display" style={styles.title}>{lesson.title}</ThemedText>
+            <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.title}>{lesson.title}</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
               {total} steps · {xp} XP
             </ThemedText>
@@ -583,7 +598,9 @@ const styles = StyleSheet.create({
   choiceContent: { flexGrow: 1, paddingBottom: FOOTER_CLEARANCE },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { textAlign: 'center', marginTop: Spacing.three },
+  // paddingHorizontal matches `center` below. Without it the title ran into the screen edge
+  // at AX5 and clipped mid-word — "Your Brain vs. Your M".
+  title: { textAlign: 'center', marginTop: Spacing.three, paddingHorizontal: Spacing.two },
   center: { textAlign: 'center', marginTop: Spacing.two, paddingHorizontal: Spacing.two },
   preview: { alignItems: 'center', alignSelf: 'stretch', marginTop: Spacing.four, paddingHorizontal: Spacing.four },
   // flex-start, not center: authored questions run to 7+ lines and a vertically-centred mascot
