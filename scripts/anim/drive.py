@@ -51,10 +51,28 @@ def tap(n, settle=1.6):
     time.sleep(settle)
     return labels() != before
 
+def dismiss_logbox():
+    """Clear a React Native LogBox banner if one is up.
+
+    Not cosmetic: the banner sits at y~800-822 and OVERLAPS the Continue button at y=760-816,
+    so it swallows the tap and the step never advances. A live RevenueCat warning ("[iap]
+    configured but the current offering has NO packages") reappears on every launch of this
+    build, so any run longer than one screen has to handle it. Its dismiss X is at the right
+    edge of the banner.
+    """
+    banner = [n for n in nodes() if '[iap]' in n[4] or (len(n[4]) > 2 and n[4][0].isdigit() and n[4][1] == ',')]
+    if not banner: return False
+    sp.run(["idb", "ui", "tap", "--udid", U, "381", "811"], capture_output=True)
+    time.sleep(1.0)
+    return not [n for n in nodes() if '[iap]' in n[4]]
+
+
 def advance():
     """One step forward. Returns (moved, what_was_tried)."""
     if at_launcher():
         return reconnect(), 'reconnect'
+    if dismiss_logbox():
+        return True, 'logbox'
     btn = find('continue') or find('check') or find('next') or find('got it')
     if not btn:
         return False, 'no-button'

@@ -32,7 +32,7 @@ const H = {
   fb: (sentence, options, correct) => ({ kind: 'fillBlank', options, correct }),
   vi: (_d, question, options, correct) => ({ kind: 'visual', options, correct }),
   ds: (prompt, items) => ({ kind: 'dragSort', order: items }),
-  sl: (question, min, max, correct, unit) => ({ kind: 'slider', min, max, correct, unit }),
+  sl: (question, min, max, correct, unit) => ({ kind: 'slider', question, min, max, correct, unit }),
   tf: (statements) => ({ kind: 'trueFalse', answers: statements.map((s) => s.a) }),
   m:  (title, pairs) => ({ kind: 'match', pairs }),
   tr: (title, cards) => ({ kind: 'tapReveal', count: cards.length }),
