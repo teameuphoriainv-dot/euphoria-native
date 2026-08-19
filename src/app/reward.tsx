@@ -20,7 +20,7 @@
  */
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -61,17 +61,17 @@ export default function Reward() {
     return (
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
-        <View style={styles.centre}>
+        <ScrollView contentContainerStyle={styles.centre} showsVerticalScrollIndicator={false}>
           <Atlas size={116} expression="proud" interactive={false} idle />
-          <ThemedText type="title" style={styles.centreText}>
+          <ThemedText type="title" maxFontSizeMultiplier={1.6} style={styles.centreText}>
             {total > 0 ? `You earned ${money(total)} of stock.` : 'Nothing to claim right now.'}
           </ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.centreText}>
+          <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.centreText}>
             {total > 0
               ? 'It is already in your portfolio. Finish another lesson for more.'
               : 'Finish a lesson to earn free stock.'}
           </ThemedText>
-        </View>
+        </ScrollView>
         <View style={styles.footer}>
           <GradientButton label="Back to learning" full onPress={() => router.back()} />
         </View>
@@ -107,10 +107,10 @@ export default function Reward() {
             <Atlas size={104} expression="happy" interactive={false} idle />
           </RiseIn>
           <RiseIn delay={90}>
-            <ThemedText type="title" style={styles.centreText}>
+            <ThemedText type="title" maxFontSizeMultiplier={1.6} style={styles.centreText}>
               You earned {remaining} free {remaining === 1 ? 'stock' : 'stocks'}.
             </ThemedText>
-            <ThemedText type="body" themeColor="mutedForeground" style={styles.centreText}>
+            <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.centreText}>
               Tap a card to see what you got.
             </ThemedText>
           </RiseIn>
@@ -155,7 +155,11 @@ export default function Reward() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  centre: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, paddingHorizontal: Spacing.four },
+  // flexGrow, not flex, because this is now a ScrollView contentContainer: it still centres
+  // while the content is short, and scrolls once Dynamic Type makes it taller than the screen.
+  // As a plain centred flex:1 View it pushed content off BOTH ends at AX5 — the same overflow
+  // that put lesson.tsx's course label above the status bar.
+  centre: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, paddingHorizontal: Spacing.four },
   centreText: { textAlign: 'center' },
   stack: { flexDirection: 'row', marginTop: Spacing.three, paddingLeft: 18 },
   faceDown: {

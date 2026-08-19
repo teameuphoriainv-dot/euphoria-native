@@ -138,7 +138,9 @@ export function StreakIgnite({
         </Animated.View>
       </Animated.View>
       <Animated.View style={countStyle}>
-        <ThemedText style={styles.count}>{days}</ThemedText>
+        {/* Capped so the numeral stays inside the 160pt `glow` disc behind it; uncapped it
+            reaches ~125pt at AX5 and breaks out of its own celebration composition. */}
+        <ThemedText maxFontSizeMultiplier={1.6} style={styles.count}>{days}</ThemedText>
       </Animated.View>
       {/* Full-bleed white frame — the luma spike. Sits above everything and is never interactive. */}
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.flash, flashStyle]} />
@@ -151,7 +153,13 @@ const styles = StyleSheet.create({
   // FontSize.hero was a dead ramp step before this — a celebration is exactly the moment the
   // largest sizes exist for. Leading is 1.25x, above the 1.2 clipping floor; my first pass used
   // raw 52/60 (ratio 1.154) and type_audit caught it.
-  count: { fontSize: FontSize.hero, lineHeight: FontSize.hero * 1.25, fontWeight: '800', color: Colors.dark.streak },
+  // lineHeight is DELIBERATELY absent now. It read `FontSize.hero * 1.25`, which looks
+  // proportional but is computed ONCE at 40pt and then frozen at 50. React Native scales
+  // fontSize with the OS text setting and never scales lineHeight, so at AX5 a 125pt numeral
+  // was being drawn into a 50pt line box — the identical defect the tab bar had with its
+  // hardcoded `lineHeight: 13`. Letting RN derive leading from the SCALED size keeps the ratio
+  // true at every size; its default (~1.2-1.3x) is within a hair of the 1.25 intended here.
+  count: { fontSize: FontSize.hero, fontWeight: '800', color: Colors.dark.streak },
   glow: {
     position: 'absolute',
     width: 160,
