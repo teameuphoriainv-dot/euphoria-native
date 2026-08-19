@@ -422,6 +422,40 @@ export function Atlas({
    * excluded. Every other expression uses round pupils and blinks meaningfully.
    */
   const showBlink = blink && !spinning && expression !== 'happy';
+
+  /*
+   * BROWS — the second acting channel, added 2026-08-19.
+   *
+   * The nine expressions were separated ONLY by pupil cx/cy/r. Measured off the dev-gallery
+   * render: `silly` and `watching` differ by a pupil x of 39.5 vs 31.8 — about 4pt at the 64pt
+   * these ship at — so nine named emotions read as one face. That is not a drawing problem, it
+   * is a channel problem: one variable cannot carry nine states.
+   *
+   * Brows rather than a mouth, deliberately. Atlas has no mouth and adding one is owner-blocked
+   * (it reopens lip-sync). Brows are also the stronger channel for emotion in the first place —
+   * they carry attitude where a mouth mostly carries valence — and they cost two strokes.
+   *
+   * The eye whites sit at cy 26-29 with r~13, so anything above y=12 is clear of them. Inner
+   * ends are the expressive ones: DOWN reads worried, UP reads sceptical, and asymmetry reads
+   * as thinking. `default` draws nothing, so the resting mark is unchanged from the logo.
+   */
+  const brows = () => {
+    if (showBlink || active === 'default') return null;
+    const st = { stroke: INK, strokeWidth: 3, strokeLinecap: 'round' as const, fill: 'none' };
+    switch (active) {
+      case 'happy':   return (<><Path d="M25 14 Q34.5 9 44 13" {...st} /><Path d="M52 12.5 Q61 7.5 70 11.5" {...st} /></>);
+      case 'proud':   return (<><Path d="M25 11 L44 9.5" {...st} /><Path d="M52 9.5 L71 8" {...st} /></>);
+      case 'whoa':    return (<><Path d="M25 9 Q34.5 4 44 8" {...st} /><Path d="M52 7.5 Q61 2.5 70 6.5" {...st} /></>);
+      case 'sad':     return (<><Path d="M25 11 Q34.5 15 44 17" {...st} /><Path d="M52 16 Q61 14 70 10" {...st} /></>);
+      case 'oops':    return (<><Path d="M25 12 Q34.5 16 44 18" {...st} /><Path d="M52 17 Q61 15 70 11" {...st} /></>);
+      /* asymmetric on purpose — one brow up is the universal shorthand for weighing something */
+      case 'thinking':return (<><Path d="M25 15 Q34.5 12 44 14" {...st} /><Path d="M52 8 L71 10" {...st} /></>);
+      case 'silly':   return (<><Path d="M25 9 L44 12" {...st} /><Path d="M52 14 Q61 9 70 13" {...st} /></>);
+      case 'watching':return (<><Path d="M25 13 L44 12" {...st} /><Path d="M52 11.5 L71 10.5" {...st} /></>);
+      default:        return null;
+    }
+  };
+
   const whiteR = active === 'whoa' ? [14, 12.8] : [13, 11.8];
 
   const pupils = () => {
@@ -535,7 +569,7 @@ export function Atlas({
       </AnimatedG>
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
-      <AnimatedG animatedProps={saccadeProps}>{pupils()}</AnimatedG>
+      <AnimatedG animatedProps={saccadeProps}>{pupils()}{brows()}</AnimatedG>
       {glasses && (
         <>
           <G stroke="#141019" strokeWidth={4.4} opacity={0.9} fill="none">
