@@ -164,10 +164,16 @@ export const FontSize = {
   titleLg: 26,
   displaySm: 28,
   display: 30,
-  displayMd: 32,
   displayLg: 34,
   hero: 40,
-  heroXl: 56,
+  // REMOVED, 2026-08-18: displayMd (32) and heroXl (56) had ZERO references by any path —
+  // no `FontSize.x`, no `ThemedText type="x"` (neither name is a ThemedText variant), no
+  // raw use. Verified before deleting rather than trusting the audit, because the same lane
+  // once reported `hero` as dead and streak-ignite.tsx now depends on it.
+  //
+  // The nine remaining 1pt-apart steps between 13 and 22 are NOT touched here. Merging them
+  // changes rendered sizes across the app, which is a visual-design decision and belongs to
+  // the owner, not to an audit loop deleting things it can prove nobody uses.
 } as const;
 
 export const Radius = {

@@ -3,7 +3,7 @@
   lane             wt  raw flags                          adjudicated
   contrast         20  3 AA-normal fails                            0
   dynamic_type     15  28 truncation sites                          0
-  type_scale       15  22 ramp steps, 13 crowded                    0
+  type_scale       15  20 ramp steps, 11 crowded                    0
   leading          15  4 tight-leading steps                        0
   touch            10  1 control below 44pt                         0
   motion           10  4 STATIC of 26 routes                        0
@@ -12,14 +12,14 @@
   locale            3  8 unpinned toLocaleString                    0
 
   DEFECT SCORE: 100 / 100   (adjudicated defects only)
-  OPEN WORKLIST: 68 items — NOT counted in the score above.
+  OPEN WORKLIST: 64 items — NOT counted in the score above.
 
   A 100 here means 'nothing is broken', never 'nothing is left'. The two
   numbers are separate on purpose: collapsing them is how a scorecard starts
   flattering the person who wrote it.
 
-      10  type ramp steps over healthy 12
-      13  crowded type pairs (<1.08 ratio)
+       8  type ramp steps over healthy 12
+      11  crowded type pairs (<1.08 ratio)
        9  raw font sizes bypassing tokens
        8  unpinned toLocaleString (owner)
       28  truncation sites to check on device
