@@ -76,7 +76,15 @@ export function PriceChart({ sym, initialRange = '1D' }: { sym: string; initialR
         )}
       </View>
 
-      <View style={[styles.plot, { height: H }]}>
+      {/*
+        * minHeight, not height. H is the CHART's height and the Svg still draws at exactly H,
+        * but this same box also holds the empty-state sentence, and at AX5 a 13pt note reaches
+        * ~41pt and wraps to about 200pt inside a 120pt container — clipped, so the user is told
+        * nothing about why there is no chart. The audit's earlier reading of this as a
+        * right-edge overflow was wrong; `styles.center` already has horizontal padding. It is
+        * the constrained-container shape: content taller than a fixed box.
+        */}
+      <View style={[styles.plot, { minHeight: H }]}>
         {loading ? (
           <ActivityIndicator color={theme.primary} />
         ) : d ? (
