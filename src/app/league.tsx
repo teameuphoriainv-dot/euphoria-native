@@ -107,7 +107,17 @@ export default function League() {
       <RiseIn>
         <View style={styles.crestBlock}>
           <LeagueCrest tier={tier} size={84} />
-          <ThemedText type="title" style={{ fontSize: FontSize.title }} numberOfLines={1}>{tier.name}</ThemedText>
+          {/*
+            * NOT reproduced on device, and the reason is worth recording: this account sits in
+            * "Saver", which is short enough to fit at AX5, so a device check here returns a
+            * FALSE PASS. The tier list runs to "Unstoppable" and "Impressive" — at 3.12x a 24pt
+            * title is ~75pt, so "Unstoppable" needs roughly 410pt against the ~350pt this block
+            * actually has. The defect is in the data the user has not reached yet.
+            *
+            * Unlike the header and lesson card this is a full-width vertical block, so it needs
+            * no layout change; capping the growth and allowing a second line is enough.
+            */}
+          <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.title }} numberOfLines={2}>{tier.name}</ThemedText>
           <View style={[styles.timePill, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <UIcon name="bolt" size={13} color={theme.iconLilac} />
             <ThemedText type="small" themeColor="textSecondary">Top {PROMOTE} advance · {daysLeft()}</ThemedText>

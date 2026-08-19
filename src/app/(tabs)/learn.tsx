@@ -147,11 +147,27 @@ export default function Learn() {
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <SpringPressable haptic={false} onPress={() => router.push('/courses')} style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{course?.title ?? 'Courses'}</ThemedText>
+              {/*
+                * AX5 REDUCED THIS HEADER TO "Be..." AND "0% co...". Captured on device before
+                * changing anything. Two characters is not a graceful truncation — the learning
+                * surface stopped saying which course you are in.
+                *
+                * Same shape as the home header and lesson card: a flex:1 column beside a fixed
+                * progress pill, so a 22pt title at 3.12x wants far more width than the slot has
+                * and `numberOfLines={1}` resolved it by discarding the word. Caps bound the
+                * growth, and dropping the clamps lets both lines wrap instead of vanish.
+                *
+                * The cap is 1.6, not the 2 used on home. A first attempt at 2 still ellipsised
+                * to "Behavio / ral Fin..." and broke mid-word, because at 44pt only ~7
+                * characters fit a line here. 1.6 gives ~35pt, which puts "Behavioral" on one
+                * line and "Finance" on the next: complete AND cleanly broken. Verified on
+                * device both times rather than assumed.
+                */}
+              <ThemedText type="title" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>{course?.title ?? 'Courses'}</ThemedText>
               {/* Data, not an instruction. All six reference path screens put INFORMATION here —
                   "12 chapters", "Beginner: 2%", "0 of 7 lessons completed", "24 lessons" — none
                   spends the line telling you the header is tappable. */}
-              <ThemedText type="small" style={{ marginTop: 2, color: theme.iconLilac }} numberOfLines={1}>
+              <ThemedText type="small" maxFontSizeMultiplier={2} style={{ marginTop: 2, color: theme.iconLilac }} numberOfLines={2}>
                 {total ? `${Math.round((doneCount / total) * 100)}% complete · ${total} lessons` : 'Tap to browse all courses'}
               </ThemedText>
             </SpringPressable>
