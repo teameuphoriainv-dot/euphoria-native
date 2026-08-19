@@ -16,6 +16,7 @@ import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
 import { CourseMark } from '@/components/art/course-mark';
 import { artKeyFor } from '@/components/lesson-art';
 import { GateSheet } from '@/components/gate-sheet';
+import { RetryNotice } from '@/components/retry-notice';
 import { entitled, type Refusal } from '@/lib/entitlement';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -76,21 +77,35 @@ export default function Learn() {
   // `loaded` holds whichever course is actually on screen, so "still loading" is derived rather
   // than a second state — no setState during the effect body.
   const [loaded, setLoaded] = useState<{ id: string; lessons: PathwayLesson[] } | null>(null);
+  /** Course id whose chunk failed to load. Distinguishes a dropped import from an empty course. */
+  const [failed, setFailed] = useState<string | null>(null);
+  /** Bumped by the retry so the effect re-runs for the same course id. */
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setFailed(null);
     loadCourseLessons(activeCourseId)
       .then((lessons) => {
         if (!cancelled) setLoaded({ id: activeCourseId, lessons });
       })
       .catch(() => {
-        // a failed dynamic import shouldn't blank the tab — fall through to the empty state
-        if (!cancelled) setLoaded({ id: activeCourseId, lessons: [] });
+        /*
+         * A FAILED LOAD IS NOT AN EMPTY COURSE. The previous version fell through to the empty
+         * state so the tab would not blank, which is right about the tab and wrong about the
+         * message: every course in the corpus has 25 lessons, so "No lessons available for this
+         * course yet" is never true, and a user who hits a dropped chunk is told a course they
+         * paid for has no content. Caught in the visual sweep, on personalFinance, which has 25.
+         */
+        if (!cancelled) {
+          setFailed(activeCourseId);
+          setLoaded({ id: activeCourseId, lessons: [] });
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [activeCourseId]);
+  }, [activeCourseId, attempt]);
 
   const lessons = useMemo(() => loaded?.lessons ?? [], [loaded]);
   const trailCourseId = loaded?.id ?? activeCourseId;
@@ -264,9 +279,17 @@ export default function Learn() {
         {total === 0 ? (
           <View style={styles.empty}>
             {pending ? <ActivityIndicator color={accent} /> : null}
-            <ThemedText type="small" themeColor="mutedForeground">
-              {pending ? 'Loading lessons…' : 'No lessons available for this course yet.'}
-            </ThemedText>
+            {failed === activeCourseId && !pending ? (
+              /* RetryNotice already exists for exactly this: a true sentence plus a way out. */
+              <RetryNotice
+                message="This course did not finish loading."
+                onRetry={() => setAttempt((n) => n + 1)}
+              />
+            ) : (
+              <ThemedText type="small" themeColor="mutedForeground">
+                {pending ? 'Loading lessons…' : 'No lessons available for this course yet.'}
+              </ThemedText>
+            )}
           </View>
         ) : (
           <View style={{ marginTop: Spacing.two, opacity: stale ? 0.35 : 1 }}>
