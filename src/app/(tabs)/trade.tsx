@@ -155,7 +155,11 @@ export default function Trade() {
           <Card elevated>
             <ThemedText type="label" themeColor="mutedForeground">Portfolio value</ThemedText>
             <View style={styles.amountRow}>
-              <NumberRollup value={Math.floor(total)} prefix="$" type="display" style={{ fontSize: FontSize.displayLg }} />
+              {/* Capped: displayLg is 34pt, which reaches ~106pt at AX5, and "$10,000" then needs
+                  roughly 450pt inside a ~330pt card — the frame showed it cut to "$10,0" with the
+                  rest pushed out of the card. NumberRollup spreads its props into ThemedText, so
+                  the cap forwards. 1.6 keeps the hero number hero-sized and inside its box. */}
+              <NumberRollup value={Math.floor(total)} prefix="$" type="display" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.displayLg }} />
               <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.subhead, marginBottom: 3 }}>
                 .{total.toFixed(2).split('.')[1]}
               </ThemedText>
