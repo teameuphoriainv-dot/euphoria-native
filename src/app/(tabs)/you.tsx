@@ -158,7 +158,17 @@ export default function You() {
                   with an `ESSENTIAL` chip beside it. The badge is what makes an identity card also
                   answer "what am I paying for" at a glance; the card below owns the detail. */}
               <View style={styles.identityTop}>
-                <ThemedText type="bodyMedium" numberOfLines={1} style={{ flexShrink: 1 }}>
+                {/*
+                  * AX5 CLIPPED THIS TO "Y..". Captured on device. The row pits a flexShrink
+                  * name against the plan chip, and the chip's label was uncapped too — at
+                  * 3.12x "FREE TRIAL" alone claimed most of the row, so the identity this card
+                  * exists to state was the thing that got dropped.
+                  *
+                  * Both sides are capped: the name loosely enough to stay prominent, the chip
+                  * tightly because it is compact status chrome, not content. Two lines let the
+                  * name wrap rather than vanish.
+                  */}
+                <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} numberOfLines={2} style={{ flexShrink: 1 }}>
                   {name ?? 'Your profile'}
                 </ThemedText>
                 <View
@@ -171,6 +181,7 @@ export default function You() {
                 >
                   <ThemedText
                     type="smallBold"
+                    maxFontSizeMultiplier={1.4}
                     style={{ fontSize: FontSize.tiny, color: planTier === 'pro' ? theme.iconGold : theme.iconLilac }}
                   >
                     {planTier === 'pro' ? 'PRO' : planTier === 'expired' ? 'FREE' : 'FREE TRIAL'}
