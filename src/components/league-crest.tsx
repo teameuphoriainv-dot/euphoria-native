@@ -234,8 +234,9 @@ function OrnamentBack({ rank, lit, dark, dim }: { rank: number; lit: string; dar
           ))}
         </G>
       )}
-      {/* 4 — wings. Two feathers a side; three would be mush at ladder size. */}
-      {rank >= 4 && (
+      {/* 4 — wings. RETIRED at rank 6: the sunburst is also radial mass behind the shield,
+          and two radial layers cannot both be read. Magnate trades wings for radiance. */}
+      {rank >= 4 && rank < 6 && (
         <G>
           {/* Three feathers a side, each rooted ON the shield edge and sweeping UP.
               The previous two swept sideways and level, which at ladder size read as a pair of
@@ -249,8 +250,10 @@ function OrnamentBack({ rank, lit, dark, dim }: { rank: number; lit: string; dar
           <Path d="M87 52 Q109 51 108 63 Q97 57 86 62 Z" fill={lit} opacity={0.78} {...rim} />
         </G>
       )}
-      {/* 2 — laurels. */}
-      {rank >= 2 && (
+      {/* 2 — laurels. RETIRED at rank 5+: they sit in the same base-of-shield zone the
+          wings sweep through, and carrying both is what made Partner and Magnate read as one
+          undifferentiated mass rather than as the top of a ladder. */}
+      {rank >= 2 && rank < 5 && (
         <G>
           {/* Sprigs with SEPARATED leaves. One filled blob per side has no internal edge, so at
               44pt it read as a smudge under the shield rather than as laurel. Three leaves and a
