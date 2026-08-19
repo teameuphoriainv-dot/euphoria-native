@@ -62,3 +62,7 @@ logs/
 # Screen-audit captures. The SCRIPT and the FINDINGS are tracked; 26 PNGs at ~1MB each are not --
 # they are regenerable by `scripts/capture-screens.sh` and would add ~20MB per audit run.
 refs/audit/**/*.png
+
+# Python bytecode from the audit lanes in scripts/ — build output, never source.
+__pycache__/
+*.pyc
