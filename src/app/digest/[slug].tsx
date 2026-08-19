@@ -198,7 +198,7 @@ export default function DigestArticle() {
                 <ThemedText type="label" style={{ color: theme.iconLilac }}>{post.category}</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground">{post.readMinutes} min read</ThemedText>
               </View>
-              <ThemedText type="title" style={styles.headline}>{post.title}</ThemedText>
+              <ThemedText type="title" maxFontSizeMultiplier={1.6} style={styles.headline}>{post.title}</ThemedText>
               <ThemedText type="body" style={styles.lead}>{post.excerpt}</ThemedText>
             </RiseIn>
           ) : (
@@ -277,7 +277,10 @@ const styles = StyleSheet.create({
   // blocks floating in a void.
   contentCover: { justifyContent: 'center' },
   cover: { borderRadius: Radius.lg, overflow: 'hidden', justifyContent: 'center', marginBottom: Spacing.four },
-  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  /* gap + flexWrap added: at AX5 both labels grow until they touch, and space-between alone
+     cannot separate them once they fill the row — the frame read "CREDIT2 min read" with no
+     space at all. Wrapping lets the read-time drop to its own line rather than collide. */
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginBottom: 6 },
   headline: { fontSize: FontSize.displaySm, lineHeight: 35 },
   lead: { fontFamily: Fonts.medium, fontSize: FontSize.bodyLg, lineHeight: 26, marginTop: Spacing.three },
   cardTitle: { fontSize: FontSize.title, lineHeight: 31, marginTop: 8, marginBottom: Spacing.two },
