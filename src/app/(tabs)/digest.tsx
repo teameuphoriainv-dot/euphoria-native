@@ -74,7 +74,7 @@ function TodayCard({ post }: { post: DigestPost }) {
                 Today · {post.category}
               </ThemedText>
             </View>
-            <ThemedText type="heading" style={styles.todayTitle}>
+            <ThemedText type="heading" maxFontSizeMultiplier={1.6} style={styles.todayTitle}>
               {post.title}
             </ThemedText>
             <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
@@ -153,7 +153,7 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
       <SpringPressable haptic={false} onPress={() => router.push(`/digest/${post.slug}`)}>
         <View style={[styles.doneRead, { borderColor: theme.border }]}>
           <Hero post={post} size={40} />
-          <ThemedText type="bodyMedium" style={{ flex: 1, lineHeight: 20 }} numberOfLines={2}>
+          <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} style={{ flex: 1, lineHeight: 20 }} numberOfLines={2}>
             {post.title}
           </ThemedText>
           <UIcon name="chevronRight" size={16} color={theme.mutedForeground} />
@@ -386,6 +386,11 @@ const styles = StyleSheet.create({
   todayTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   todayHead: { flex: 1 },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  /* Capped where it is USED, not here — see the ThemedText below. At AX5 this 19pt heading
+     reached ~59pt and broke mid-word as "Avalan / che vs". The frozen lineHeight is left
+     alone deliberately: the device frame shows those lines rendering GENEROUSLY spaced, not
+     crowded, so RN expanded past the 25pt box rather than clipping in it. The defect here was
+     the uncapped font, not the leading. */
   todayTitle: { fontSize: FontSize.heading, lineHeight: 25, marginTop: 4 },
   todayExcerpt: { marginTop: Spacing.two, lineHeight: 21 },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: Spacing.two },
