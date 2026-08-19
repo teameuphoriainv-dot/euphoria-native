@@ -242,3 +242,56 @@ scripts and no visual check.
   structural grounds of cost + mandatory CI, not on staleness.
 - Whether `@storybook/react-native`'s exact `react-native-safe-area-context@5.8.0` peer is a hard
   install failure or an npm warning under this lockfile — not tested (no installs permitted).
+
+---
+
+# ADDENDUM — 2026-08-19, second pass
+
+Resolves two items the first pass left UNVERIFIED, and rejects three more candidates. Every
+version and date below is from a live `npm view` on 2026-08-19.
+
+## Moti — REJECT, with a date
+
+| | |
+|---|---|
+| version | `0.30.0` |
+| last publish | **2025-01-29** |
+| peer | `react-native-reanimated: '*'` — no constraint, so npm will never warn |
+
+**`react-native-reanimated@4.0.0` shipped 2025-07-23.** Moti's last release predates it by six
+months. Moti has therefore never shipped a version that has seen Reanimated 4, which is the
+major that extracted worklets into the separate `react-native-worklets` package this project
+depends on (`0.10.1`). The wildcard peer means this fails silently rather than loudly.
+
+Every 2026 listicle still recommends Moti as *the* declarative wrapper. The recommendation is
+19 months stale. **Do not adopt.**
+
+## @legendapp/motion — REJECT
+
+`2.5.3`, last publish 2025-10-17. Peer requires **`nativewind >= 4.0.0`**, which is not
+installed. Adopting it means adopting a whole styling system to get an animation wrapper.
+
+## MotionSpec (MCP) — REJECT
+
+Top hit on mcpmarket.com for "mobile app animations", and it sounds ideal: "verifies and
+compiles reduced-motion-safe, on-budget UI animation." It is **web-only**. It compiles to GSAP
+and the Web Animations API/CSS, and its audit tool "scans web page HTML and stylesheets."
+React Native has no DOM, no CSS and no WAAPI. Mobile-sounding SEO on a web tool.
+
+## Maestro — RESOLVED, and it is ALREADY INSTALLED
+
+First pass marked this UNVERIFIED because npm `maestro-cli@1.1.10` is an unrelated 2022 package.
+Confirmed: that npm name is a squat, and the real tool installs via curl.
+
+**The real Maestro is on this machine: `2.6.0` at `~/.maestro/bin/maestro`.**
+
+This matters for the audit's Phase B. Maestro suppresses animations and timers by default and
+records video, so it is a stronger lesson driver than a hand-rolled `idb` tap loop — which has
+already stalled once this session on a quiz step that will not advance until an option is
+selected. Worth evaluating against the 9 lesson step kinds before writing more driver code.
+
+## Standing conclusion, unchanged
+
+`react-native-reanimated` (4.5.1, latest 4.5.3 published 2026-07-22) plus `react-native-svg` is
+still the correct stack. The notable finding of this pass is that **the popular alternatives are
+all staler than what is already installed** — Reanimated ships actively; its wrappers do not.

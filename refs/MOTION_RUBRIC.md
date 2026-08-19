@@ -84,13 +84,40 @@ verdict may cite them.
 - **R5 — exit behaviour:** OPEN
 - **R6 — easing shape:** OPEN
 
-## Corpus limitation
+## Corpus
 
-The owner refers to 30+ videos and 100+ screenshots of Duolingo, Brilliant and Finch. An
-exhaustive sweep (all volumes, iCloud Drive, the full Photos library, every `.mov`/`.mp4` over
-1MB under `~`) found only the three recordings above, plus 21 Finch onboarding stills in
-`~/Downloads/Code Projects/Finch iOS Onboarding/`. **No Duolingo video exists on this machine.**
-This rubric is built on Brilliant/Koji only. Point me at the rest and R1–R3 get recomputed.
+Three recordings, plus 21 Finch onboarding stills in
+`~/Downloads/Code Projects/Finch iOS Onboarding/`. An exhaustive sweep (all volumes, iCloud
+Drive, the full Photos library, every `.mov`/`.mp4` over 1MB under `~`) found no others.
+
+> **CORRECTION, 2026-08-19.** An earlier note in this file claimed "no Duolingo video exists on
+> this machine." **That was wrong.** `ScreenRecording_07-21-2026 14-17-49_1.mov` (ref3, 268s,
+> 8,047 frames — the largest of the three, and 198 of the 330 motion windows) is **Duolingo**.
+> The Duo owl is plainly visible once frames are rendered. The error came from judging the file
+> by its generic `ScreenRecording_*` filename instead of opening it. Every number in R1–R3
+> already includes this footage, so the measurements stand; only the provenance claim was wrong.
+> The lesson is the same one this audit keeps re-learning: **look at the artifact, do not infer
+> from its name.**
+
+## R4 — Scale origin: FIRST EVIDENCE (partial)
+
+`scripts/anim/filmstrip.py` tracks the bounding box of the changed region across a window. A
+recording has no accessibility tree, but the diff is non-zero only where something moved, so
+that box *is* the moving element's footprint.
+
+Measured on ref3 frames 381–394 (0.47s), the Duo mascot entering a screen:
+
+| frame | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| box w | 83 | 70 | 70 | 74 | 77 | 78 | 78 | 77 | 72 | 63 |
+| box x | 102 | 94 | 91 | 80 | 65 | 50 | 34 | 22 | 22 | 21 |
+
+**The mascot TRANSLATES at constant size.** Width holds in a 63–83px band across every frame of
+motion while x sweeps 102 → 21. It never scales up from nothing.
+
+**Provisional rule.** The reference introduces an element by moving it, not by growing it from
+zero. `ZoomIn`-from-scale-0 has no counterpart in this footage. Marked provisional because it
+rests on one measured transition; needs 3–5 more before it closes.
 
 ---
 
