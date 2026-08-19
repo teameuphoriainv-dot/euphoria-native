@@ -80,12 +80,13 @@ settled and no gesture has fired:
 Almost every screen is in constant motion. That motion is `AmbientBackground` — a starfield with
 per-star twinkle plus a 19-second drift.
 
-`courses` and `digest` **do** mount `AmbientBackground`; they are quieter because they are dense
-grids of opaque cards that **occlude** it. Cover the background and the screen goes still, because
-the content itself does not animate at rest.
+`courses` and `digest` **do** mount `AmbientBackground`, so the absence of it is not the reason
+they are quiet. My first explanation — "dense card grids occlude the starfield" — is **wrong for
+courses**, and §2b shows why: that screen's quiet half is empty, not covered. `digest` is the case
+where content genuinely sits over the background and neither layer moves.
 
-**So the app feels alive in inverse proportion to how much content is on screen.** That is
-backwards.
+**Either way the conclusion holds: nothing in the content moves at rest.** The app's liveness is a
+background effect, so wherever the background is absent, sparse, or covered, the screen is still.
 
 ---
 
