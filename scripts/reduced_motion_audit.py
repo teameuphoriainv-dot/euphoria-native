@@ -30,6 +30,12 @@ VESTIBULAR = {
     "repeat": r"withRepeat",
     "rotate": r"rotate\s*:",
     "translate": r"translate[XY]\s*:",
+    # WIDENED 2026-08-19. Reanimated's PRESET layout animations move or scale a whole view and
+    # are every bit as vestibular as a hand-rolled translate -- ZoomIn grows a view from scale 0,
+    # SlideIn sweeps it across the screen. They were invisible to this lane because they are
+    # declarative: they never call withTiming/withSpring, so the ANIM gate below skipped the file
+    # before any check ran. tap-reveal.tsx shipped an unguarded ZoomIn through exactly that hole.
+    "layout-preset": r"\b(Zoom|Slide|Flip|Bounce|Lightspeed|Rotate|Stretch)(In|Out)\w*",
 }
 # Animation that is fine — or actively desirable — under Reduced Motion.
 EXEMPT_REASON = {
@@ -38,7 +44,11 @@ EXEMPT_REASON = {
     "components/read-reward.tsx":
         "opacity fade: a cross-fade is what Reduced Motion substitutes FOR motion",
 }
-ANIM = r"withTiming|withRepeat|withSpring|withSequence"
+# WIDENED 2026-08-19. `entering=` / `exiting=` / `layout=` are animation, and a file can use
+# them without ever calling a with* helper. Missing them made this lane report 0 defects on a
+# component that had one -- a lane that UNDER-reports is worse than one that over-reports,
+# because a clean report is read as proof.
+ANIM = r"withTiming|withRepeat|withSpring|withSequence|entering\s*=|exiting\s*=|layout\s*="
 
 
 def audit():
