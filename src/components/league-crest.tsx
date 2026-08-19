@@ -216,37 +216,65 @@ function OrnamentBack({ rank, lit, dark, dim }: { rank: number; lit: string; dar
   return (
     <G opacity={dim}>
       {/* 6 — sunburst. Behind everything, so the crest sits IN light rather than next to it. */}
-      {rank >= 6 &&
-        Array.from({ length: 12 }).map((_, i) => (
-          <Path
-            key={i}
-            d="M50 -14 L54 20 L46 20 Z"
-            fill={lit}
-            opacity={0.6}
-            transform={`rotate(${i * 30} 50 56)`}
-          />
-        ))}
+      {rank >= 6 && (
+        <G>
+          {/* A DISC first, then rays. Twelve 8-unit-wide triangles read as a spiked collar --
+              measured against the shipped gallery, Magnate looked hostile rather than earned.
+              Eight broader rays over a soft disc read as radiance because the eye gets a
+              continuous edge to anchor on before it resolves the spokes. */}
+          <Circle cx={50} cy={56} r={58} fill={lit} opacity={0.10} />
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Path
+              key={i}
+              d="M50 -20 L61 24 L50 32 L39 24 Z"
+              fill={lit}
+              opacity={0.42}
+              transform={`rotate(${i * 45} 50 56)`}
+            />
+          ))}
+        </G>
+      )}
       {/* 4 — wings. Two feathers a side; three would be mush at ladder size. */}
       {rank >= 4 && (
         <G>
-          <Path d="M12 30 Q-14 28 -14 42 Q-1 37 12 44 Z" fill={lit} {...rim} />
-          <Path d="M12 44 Q-9 45 -7 58 Q2 51 14 55 Z" fill={lit} opacity={0.85} {...rim} />
-          <Path d="M88 30 Q114 28 114 42 Q101 37 88 44 Z" fill={lit} {...rim} />
-          <Path d="M88 44 Q109 45 107 58 Q98 51 86 55 Z" fill={lit} opacity={0.85} {...rim} />
+          {/* Three feathers a side, each rooted ON the shield edge and sweeping UP.
+              The previous two swept sideways and level, which at ladder size read as a pair of
+              spikes rather than a wing -- a wing is recognised by its upward arc, not by having
+              two shapes. Each is wider than it is long for the same reason. */}
+          <Path d="M14 30 Q-16 20 -19 34 Q-3 34 12 42 Z" fill={lit} {...rim} />
+          <Path d="M13 41 Q-14 36 -15 50 Q0 47 13 53 Z" fill={lit} opacity={0.9} {...rim} />
+          <Path d="M13 52 Q-9 51 -8 63 Q3 57 14 62 Z" fill={lit} opacity={0.78} {...rim} />
+          <Path d="M86 30 Q116 20 119 34 Q103 34 88 42 Z" fill={lit} {...rim} />
+          <Path d="M87 41 Q114 36 115 50 Q100 47 87 53 Z" fill={lit} opacity={0.9} {...rim} />
+          <Path d="M87 52 Q109 51 108 63 Q97 57 86 62 Z" fill={lit} opacity={0.78} {...rim} />
         </G>
       )}
       {/* 2 — laurels. */}
       {rank >= 2 && (
         <G>
-          <Path d="M24 94 Q7 85 10 64 Q23 73 28 93 Z" fill={lit} {...rim} />
-          <Path d="M76 94 Q93 85 90 64 Q77 73 72 93 Z" fill={lit} {...rim} />
+          {/* Sprigs with SEPARATED leaves. One filled blob per side has no internal edge, so at
+              44pt it read as a smudge under the shield rather than as laurel. Three leaves and a
+              stem give it structure that survives the shrink. */}
+          <Path d="M26 96 Q9 86 12 63" fill="none" stroke={lit} strokeWidth={3} strokeLinecap="round" />
+          <Path d="M13 68 Q4 70 6 79 Q14 77 15 70 Z" fill={lit} {...rim} />
+          <Path d="M17 79 Q7 82 10 91 Q18 88 19 81 Z" fill={lit} {...rim} />
+          <Path d="M22 89 Q14 93 18 100 Q25 96 25 91 Z" fill={lit} {...rim} />
+          <Path d="M74 96 Q91 86 88 63" fill="none" stroke={lit} strokeWidth={3} strokeLinecap="round" />
+          <Path d="M87 68 Q96 70 94 79 Q86 77 85 70 Z" fill={lit} {...rim} />
+          <Path d="M83 79 Q93 82 90 91 Q82 88 81 81 Z" fill={lit} {...rim} />
+          <Path d="M78 89 Q86 93 82 100 Q75 96 75 91 Z" fill={lit} {...rim} />
         </G>
       )}
       {/* 1 — shoulder flanges. Every crest gets these, so no tier is ever a bare plate. */}
       {rank >= 1 && (
         <G>
-          <Path d="M7 21 L-4 28 L-4 41 L7 34 Z" fill={lit} {...rim} />
-          <Path d="M93 21 L104 28 L104 41 L93 34 Z" fill={lit} {...rim} />
+          {/* Deeper and notched. At the shipped 44pt these were ~3pt slivers, so Investor was
+              indistinguishable from Saver in the gallery -- the first rung of the ladder read as
+              no rung at all. The notch gives a silhouette that survives being shrunk. */}
+          <Path d="M7 18 L-11 26 L-11 44 L7 37 Z" fill={lit} {...rim} />
+          <Path d="M-11 33 L1 30 L1 38 L-11 40 Z" fill={dark} opacity={0.55} />
+          <Path d="M93 18 L111 26 L111 44 L93 37 Z" fill={lit} {...rim} />
+          <Path d="M111 33 L99 30 L99 38 L111 40 Z" fill={dark} opacity={0.55} />
         </G>
       )}
     </G>
