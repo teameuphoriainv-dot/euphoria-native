@@ -33,7 +33,7 @@ const H = {
   vi: (_d, question, options, correct) => ({ kind: 'visual', options, correct }),
   ds: (prompt, items) => ({ kind: 'dragSort', order: items }),
   sl: (question, min, max, correct, unit) => ({ kind: 'slider', question, min, max, correct, unit }),
-  tf: (statements) => ({ kind: 'trueFalse', answers: statements.map((s) => s.a) }),
+  tf: (statements) => ({ kind: 'trueFalse', statements: statements.map((s) => ({ text: s.s, a: s.a })) }),
   m:  (title, pairs) => ({ kind: 'match', pairs }),
   tr: (title, cards) => ({ kind: 'tapReveal', count: cards.length }),
   sc: (situation, choices) => ({ kind: 'scenario', correct: choices.findIndex((c) => c.correct) }),

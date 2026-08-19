@@ -101,3 +101,39 @@ if __name__ == '__main__':
         if not moved and how in ('stuck', 'no-button'):
             print(f"  STOPPED — visible: {sorted(labels())[:6]}"); sys.exit(1)
     print(f"did not reach {target!r} in {maxs} steps"); sys.exit(2)
+
+def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3):
+    """Drive one lesson to completion. Returns (done, log).
+
+    STALL DETECTION IS THE POINT. An earlier version looped 28 times reporting "solved" while the
+    screen never changed: the solver returned ok=True, the caller only bailed on ok=False, and a
+    step that is answered but does not ADVANCE is indistinguishable from progress unless the
+    screen is compared. Solving is not advancing, and only advancing counts.
+    """
+    log, stalls = [], 0
+    for i in range(max_steps):
+        text = ' '.join(labels()).lower()
+        if any(k in text for k in ('lesson complete', 'xp earned', 'you earned', 'well done', '+30 xp')):
+            return True, log
+        for c in find('not revealed'):
+            sp.run(["idb", "ui", "tap", "--udid", U, str(c[0] + c[2] // 2), str(c[1] + c[3] // 2)],
+                   capture_output=True)
+            time.sleep(0.5)
+        moved, how = advance()
+        if not moved and how in ('stuck', 'no-button'):
+            ok, kind = solve_mod.answer(lesson)
+            btn = find('check') or find('continue')
+            if ok and btn:
+                before = labels()
+                sp.run(["idb", "ui", "tap", "--udid", U, str(btn[0][0] + btn[0][2] // 2),
+                        str(btn[0][1] + btn[0][3] // 2)], capture_output=True)
+                time.sleep(1.8)
+                moved, how = labels() != before, f'solved:{kind}'
+            else:
+                how = f'unsolved:{kind}'
+        log.append((i, how, moved))
+        stalls = stalls + 1 if not moved else 0
+        if stalls >= stall_limit:
+            return False, log
+    return False, log
+

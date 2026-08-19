@@ -21,7 +21,8 @@ def nodes():
     try: t = json.loads(r.stdout or "[]")
     except json.JSONDecodeError: return []
     return [(round(n['frame']['x']), round(n['frame']['y']), round(n['frame']['width']),
-             round(n['frame']['height']), n['AXLabel']) for n in t if n.get('AXLabel')]
+             round(n['frame']['height']), n['AXLabel'], n.get('role') or '', n.get('AXValue') or '')
+            for n in t if n.get('AXLabel')]
 
 def norm(s):
     # NO TRUNCATION. Truncating to 40 chars cut "Position 1. Pay off high-interest debt (credit
@@ -29,6 +30,21 @@ def norm(s):
     # drag-sort step reported "no-match". The comparison is already substring-based, so length
     # costs nothing and the truncation only ever removed the discriminating tail.
     return ''.join(ch for ch in s.lower() if ch.isalnum())
+
+def find_truefalse(lesson, screen_labels):
+    """A true/false multi-select matches on its STATEMENT TEXT.
+
+    `tf` originally captured only the booleans, so there was nothing to match against the screen
+    and the step reported 'no-match' -- the same omission that made sliders unmatchable. The
+    answer is useless without the thing it is an answer TO.
+    """
+    keys = [norm(l) for l in screen_labels]
+    for st in lesson.get('steps', []) or []:
+        if st.get('kind') != 'trueFalse' or not st.get('statements'): continue
+        hits = sum(1 for s in st['statements'] if any(norm(s['text'])[:50] in k for k in keys))
+        if hits >= max(2, len(st['statements']) - 1): return st
+    return None
+
 
 def find_slider(lesson, screen_labels):
     """A slider has no options to match on, so it matches on its PROMPT."""
@@ -52,39 +68,86 @@ def find_step(lesson, screen_labels):
     return best
 
 def tap(n, settle=1.1):
-    x, y, w, h, _ = n
+    x, y, w, h = n[0], n[1], n[2], n[3]
     sp.run(["idb", "ui", "tap", "--udid", U, str(x + w // 2), str(y + h // 2)], capture_output=True)
     time.sleep(settle)
 
 def place_slider(ns, st):
-    """Tap the track at the correct value.
+    """Tap the track at the correct value, then VERIFY the value that landed.
 
-    number-line.tsx wraps the track in `<Pressable onPress={place}>` with
-    accessibilityRole='adjustable' and accessibilityLabel = the prompt, so a tap places the
-    value proportionally. That is far more reliable than driving the accessibility increment,
-    which idb cannot issue.
+    Selected by accessibility ROLE, not geometry. The prompt appears twice on screen -- once as
+    the heading and once as the track's own label -- and both are 354pt wide, so picking "the
+    widest match" tapped the HEADING and set a value from a stray coordinate. The track reports
+    role 'AXSlider'; the heading reports 'AXStaticText'.
+
+    That same node exposes AXValue ("50%"), so the placement is checked rather than assumed. A
+    proportional tap can miss by a few percent from padding inside the hit area, so it re-taps
+    with a correction. number-line.tsx accepts a tolerance, so landing near is enough.
     """
-    track = [n for n in ns if norm(st['question'])[:60] in norm(n[4]) and n[2] > 150]
+    track = [n for n in ns if n[5] == 'AXSlider']
+    if not track:
+        track = [n for n in ns if norm(st['question'])[:60] in norm(n[4]) and n[5] != 'AXStaticText']
     if not track: return False, 'slider-track-not-found'
-    x, y, w, h, _ = max(track, key=lambda n: n[2])
-    frac = (st['correct'] - st['min']) / (st['max'] - st['min']) if st['max'] != st['min'] else 0.5
-    frac = max(0.0, min(1.0, frac))
-    sp.run(["idb", "ui", "tap", "--udid", U, str(int(x + frac * w)), str(y + h // 2)], capture_output=True)
-    time.sleep(1.1)
-    return True, 'slider'
+    x, y, w, h, _, _, _ = track[0]
+    lo, hi, want = st['min'], st['max'], st['correct']
+    span = (hi - lo) or 1
+
+    def read():
+        for n in nodes():
+            if n[5] == 'AXSlider':
+                try: return float(''.join(c for c in n[6] if c.isdigit() or c == '.' or c == '-'))
+                except ValueError: return None
+        return None
+
+    prev = read()
+    for _ in range(3):
+        frac = max(0.0, min(1.0, (want - lo) / span))
+        sp.run(["idb", "ui", "tap", "--udid", U, str(int(x + frac * w)), str(y + h // 2)], capture_output=True)
+        time.sleep(0.9)
+        got = read()
+        if got is None: return True, 'slider(unverified)'
+        if abs(got - st['correct']) <= max(1.0, span * 0.03):
+            return True, f'slider({got:g})'
+        # A NO-OP IS NOT A MISS. place() early-returns once the step is solved, so the value stops
+        # responding entirely. Chasing that drives `want` out of range until frac clamps to 0 and
+        # the reading is the MINIMUM -- which looks exactly like a tap landing at the far left.
+        # That cost a debugging round: single taps were always exact (0.75 -> 70%), and only this
+        # loop was wrong.
+        if prev is not None and got == prev:
+            return True, f'slider(no-op at {got:g} — already solved?)'
+        prev = got
+        want = want + (st['correct'] - got)   # correct the aim in value-space
+    return True, f'slider(off:{read()})'
 
 
 def answer(lesson):
     """Apply the correct answer for whatever step is on screen. → (solved, kind)"""
     ns = nodes()
     labels = [n[4] for n in ns]
-    st = find_step(lesson, labels) or find_slider(lesson, labels)
+    st = find_step(lesson, labels) or find_truefalse(lesson, labels) or find_slider(lesson, labels)
     if not st: return False, 'no-match'
     if st['kind'] in ('quiz', 'fillBlank', 'visual', 'challenge'):
         want = norm(st['options'][st['correct']])
         hit = [n for n in ns if norm(n[4]) == want or want in norm(n[4])]
         if not hit: return False, f"option-not-on-screen:{st['kind']}"
         tap(hit[0]); return True, st['kind']
+    if st['kind'] == 'trueFalse':
+        # SELECTION IS A TOGGLE, so state must be read before tapping. An unselected row reports
+        # role AXButton; a selected one reports AXGenericElement. Tapping blind meant a second
+        # pass DESELECTED everything the first pass got right, and the step never advanced while
+        # the log cheerfully reported "2 true" each time.
+        picked = already = 0
+        for stmt in st['statements']:
+            hit = [n for n in ns if norm(stmt['text'])[:50] in norm(n[4])]
+            if not hit: continue
+            selected = hit[0][5] != 'AXButton'
+            if stmt['a'] and not selected:
+                tap(hit[0], 0.6); picked += 1
+            elif stmt['a'] and selected:
+                already += 1
+            elif not stmt['a'] and selected:
+                tap(hit[0], 0.6)              # wrongly selected — clear it
+        return (picked + already > 0), f'trueFalse({picked} set, {already} kept)'
     if st['kind'] == 'slider':
         return place_slider(ns, st)
     if st['kind'] == 'dragSort':
