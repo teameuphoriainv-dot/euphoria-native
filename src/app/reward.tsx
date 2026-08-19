@@ -97,7 +97,9 @@ export default function Reward() {
             <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <ThemedText type="title" style={styles.ticker}>{revealed.sym}</ThemedText>
               <ThemedText type="body" themeColor="mutedForeground">{STOCKS[revealed.sym]?.name ?? revealed.sym}</ThemedText>
-              <ThemedText type="display" style={{ fontSize: FontSize.displayLg, marginTop: Spacing.two }}>{money(revealed.value)}</ThemedText>
+              {/* Missed when this file's TITLES were capped earlier — the sweep caught it. A reward
+                  value that wraps mid-figure misstates what the user just earned. */}
+              <ThemedText type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.displayLg, marginTop: Spacing.two }}>{money(revealed.value)}</ThemedText>
             </View>
           </RewardPop>
         </Animated.View>

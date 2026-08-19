@@ -77,14 +77,19 @@ export default function CompoundLab() {
         </SpringPressable>
 
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: FontSize.title }}>Compound Growth Lab</ThemedText>
+          {/* Capped: at AX5 a 24pt title reaches ~75pt and "Compound" alone outgrows the line,
+              breaking mid-word as "Compou / nd". 1.6 keeps whole words on whole lines. */}
+          <ThemedText type="title" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.title }}>Compound Growth Lab</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>See how small, steady investing snowballs.</ThemedText>
         </RiseIn>
 
         <RiseIn delay={80}>
           <Card style={styles.resultCard} elevated>
             <ThemedText type="label" themeColor="mutedForeground">In {years} years you&apos;d have</ThemedText>
-            <NumberRollup value={fv} prefix="$" duration={600} type="display" style={{ fontSize: FontSize.displayLg, marginTop: 2 }} />
+            {/* SPLIT NUMBER guard: displayLg reaches ~106pt at AX5 and a projection wrapping
+                mid-figure reads as a different amount. Numeric data gets cap + one line, the
+                opposite of the treatment prose gets in this codebase. */}
+            <NumberRollup value={fv} prefix="$" duration={600} type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.displayLg, marginTop: 2 }} />
             <View style={styles.splitRow}>
               <ThemedText type="small" themeColor="mutedForeground">You put in ${contributed.toLocaleString()}</ThemedText>
               <ThemedText type="smallBold" style={{ color: theme.success }}>+${growth.toLocaleString()} growth</ThemedText>
