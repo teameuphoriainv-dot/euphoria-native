@@ -142,9 +142,9 @@ function ChainRow({
         ]}
       >
         <ThemedText type="bodyMedium" style={styles.cellCost}>{data ? money(data.cost) : '—'}</ThemedText>
-        {!!data && <ThemedText type="small" themeColor="mutedForeground" style={styles.cellSub}>{data.sub}</ThemedText>}
+        {!!data && <ThemedText type="small" maxFontSizeMultiplier={1.4} themeColor="mutedForeground" style={styles.cellSub}>{data.sub}</ThemedText>}
         {!!data?.greeks && (
-          <ThemedText type="small" themeColor="mutedForeground" style={styles.cellGreeks}>{data.greeks}</ThemedText>
+          <ThemedText type="small" maxFontSizeMultiplier={1.4} themeColor="mutedForeground" style={styles.cellGreeks}>{data.greeks}</ThemedText>
         )}
       </View>
     </SpringPressable>
@@ -722,12 +722,18 @@ const styles = StyleSheet.create({
   strikeCell: { width: 88, alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.two },
   cell: { paddingVertical: Spacing.two + 2, paddingHorizontal: Spacing.two, alignItems: 'center', justifyContent: 'center' },
   cellCost: { fontVariant: ['tabular-nums'] },
-  cellSub: { fontSize: FontSize.label, lineHeight: 14 },
+  /* lineHeight REMOVED. It was frozen at 14 around an 11pt font, and these cells live in a
+     fixed 88pt-wide column — the constrained container is exactly what turned the tab bar's
+     `lineHeight: 13` and streak-ignite's `hero * 1.25` into clipping boxes at AX5. RN never
+     scales lineHeight, so the box could not grow with the text. Capping is right here rather
+     than wrapping: an options chain is dense numeric data whose density IS the information,
+     and 3.12x text in an 88pt column is unreadable however it is laid out. */
+  cellSub: { fontSize: FontSize.label },
   /* The greek line sits a step quieter than the IV/delta line above it: same size, more tracking,
      so a scanning eye reads price -> IV -> greeks in that order rather than treating them as one
      block. HIG-derived, NOT validated against reference apps — ScreensDesign Pro is lapsed and
      AGENTS.md rule 7 requires that be said out loud rather than implied. */
-  cellGreeks: { fontSize: FontSize.label, lineHeight: 14, letterSpacing: 0.2, opacity: 0.75 },
+  cellGreeks: { fontSize: FontSize.label, letterSpacing: 0.2, opacity: 0.75 },
   ticket: { gap: Spacing.two },
   ticketRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });
