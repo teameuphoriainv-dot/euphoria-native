@@ -35,7 +35,13 @@ import sys
 # silently dropped out of the audit despite calling getQuote.
 #
 # Importing from the market lib IS the structural signal, so that is what is matched.
-FETCH_MARKERS = (r"from '@/lib/market'", r"await fetch", r"\bisLoading\b", r"\brefetch\b")
+# The market-lib import is the structural fetch signal. BOTH QUOTE STYLES AND SUBPATHS are
+# matched, because this repo genuinely mixes them — 19 files use double-quoted imports, and a
+# matcher that knew only `from '@/lib/market'` would silently drop a fetching screen the day
+# someone wrote it the other way. That is the false-negative class iteration 60 found in
+# locale_audit, which reported ZERO currency defects while two existed. No screen is hidden
+# TODAY (all 9 market imports happen to be single-quoted); this closes the door before it is.
+FETCH_MARKERS = (r"from ['\"]@/lib/market['\"/]", r"await fetch", r"\bisLoading\b", r"\brefetch\b")
 
 SIGNALS = {
     # Ordered most-specific first: a skeleton is the correct loading state, a bare spinner is the
@@ -129,6 +135,12 @@ def _demo():
     assert not fetches("/* we used to await fetch here */")
     # The app fetches through its own helpers, so the IMPORT is the signal — not a bare `fetch`.
     assert fetches("import { getQuote } from '@/lib/market';")
+    # Both quote styles and subpaths — the blind spot this lane shared with locale_audit.
+    assert fetches('import { getQuote } from "@/lib/market";')
+    assert fetches("import { q } from '@/lib/market/quotes';")
+    # ...and a LOOKALIKE package must still not count, or the fix trades a false negative for a
+    # false positive. The trailing ['\"/] is what makes `market` end where it should.
+    assert not fetches("import { x } from '@/lib/marketing';")
     # A dynamic import of a bundled chunk is NOT a network fetch and must not be audited as one:
     # it cannot be rate-limited, and learn.tsx's fall-through-to-empty catch is correct for it.
     assert not fetches("import('./courses/x').then(m => m.default)")
