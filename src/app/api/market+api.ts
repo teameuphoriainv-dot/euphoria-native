@@ -375,9 +375,54 @@ export async function GET(request: Request) {
       }
       const img = await fetch(withKey(src, key));
       if (!img.ok) return fresh({ error: 'no_logo' }, 404);
-      return new Response(img.body, {
+
+      /*
+       * TRANSCODE WEBP, BECAUSE iOS CANNOT DECODE IT AND FAILS SILENTLY.
+       *
+       * Measured on device 2026-08-19, same endpoint, same screen:
+       *   NVDA -> image/jpeg 400x400  -> renders
+       *   AAPL -> image/webp 800x800  -> renders as the lettered badge
+       *
+       * Polygon re-serves whatever asset the company uploaded, so the format varies per ticker
+       * and nothing about the ticker predicts it. React Native's <Image> decodes WebP on Android
+       * (Fresco) but NOT on iOS, so the fetch succeeds, the decode fails, `onLoad` never fires,
+       * and TickerLogo correctly leaves the badge up. Nothing logs, because nothing errored --
+       * the component is doing exactly what it was designed to do with bytes it cannot read.
+       * That is why this looked like "no logo for AAPL" rather than a format bug.
+       *
+       * Fixing it here rather than in the client is deliberate: `expo-image` would also decode
+       * WebP, but it is a NATIVE module, so it costs a dev-client rebuild and only fixes iOS.
+       * `sharp` is already a dependency and the proxy already has the bytes in hand, so one
+       * transcode fixes iOS, Android and web at once with no app rebuild.
+       *
+       * Everything else passes through untouched -- JPEG and PNG already decode everywhere, and
+       * re-encoding them would cost CPU to produce a worse image.
+       */
+      const upstreamType = img.headers.get('Content-Type') ?? 'image/png';
+      /*
+       * Read the body ONCE, before branching. `arrayBuffer()` consumes the stream, so a
+       * transcode that reads it and then throws would leave the fallback re-serving an
+       * already-drained body -- an empty 200, which is worse than the WebP it replaced.
+       */
+      const raw = Buffer.from(await img.arrayBuffer());
+
+      if (/webp|avif/i.test(upstreamType)) {
+        try {
+          const sharp = (await import('sharp')).default;
+          const png = await sharp(raw).png().toBuffer();
+          return new Response(new Uint8Array(png), {
+            headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' },
+          });
+        } catch (e) {
+          // A transcode failure must not become a broken image. Fall through to the raw bytes:
+          // Android still decodes them, and iOS keeps the lettered badge it already had.
+          console.error('[market] logo transcode failed', sym, String(e).slice(0, 120));
+        }
+      }
+
+      return new Response(new Uint8Array(raw), {
         headers: {
-          'Content-Type': img.headers.get('Content-Type') ?? 'image/png',
+          'Content-Type': upstreamType,
           // Logos change about never. A day of caching keeps this off the rate limit.
           'Cache-Control': 'public, max-age=86400',
         },
