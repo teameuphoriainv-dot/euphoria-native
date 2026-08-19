@@ -141,7 +141,13 @@ function ChainRow({
           selected === side && { backgroundColor: theme.primary + '2A' },
         ]}
       >
-        <ThemedText type="bodyMedium" style={styles.cellCost}>{data ? money(data.cost) : '—'}</ThemedText>
+        {/* SPLIT NUMBER guard. At AX5 this broke as "$57." / "00" and the strike beside it as
+              "$22" / "2.5" / "0" — three lines for one figure, which is unreadable rather than
+              merely ugly. The iteration-52 pass capped the IV and greek sub-lines here and
+              never touched the PRICES, which are the numbers that matter; the split-number
+              sweep then missed them because it only matched display/title/hero tokens and
+              these are bodyMedium and smallBold. Numeric data gets cap + one line. */}
+        <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.4} numberOfLines={1} style={styles.cellCost}>{data ? money(data.cost) : '—'}</ThemedText>
         {!!data && <ThemedText type="small" maxFontSizeMultiplier={1.4} themeColor="mutedForeground" style={styles.cellSub}>{data.sub}</ThemedText>}
         {!!data?.greeks && (
           <ThemedText type="small" maxFontSizeMultiplier={1.4} themeColor="mutedForeground" style={styles.cellGreeks}>{data.greeks}</ThemedText>
@@ -154,7 +160,7 @@ function ChainRow({
     <View style={[styles.chainRow, { borderBottomColor: theme.border }]}>
       {show !== 'put' && cell('call', call, callItm)}
       <View style={styles.strikeCell}>
-        <ThemedText type="smallBold">{money(strike)}</ThemedText>
+        <ThemedText type="smallBold" maxFontSizeMultiplier={1.4} numberOfLines={1}>{money(strike)}</ThemedText>
       </View>
       {show !== 'call' && cell('put', put, putItm)}
     </View>

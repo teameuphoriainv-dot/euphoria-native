@@ -2,7 +2,7 @@
 
   lane             wt  raw flags                          adjudicated
   contrast         20  3 AA-normal fails                            0
-  dynamic_type     15  32 truncation sites                          0
+  dynamic_type     15  34 truncation sites                          0
   type_scale       15  20 ramp steps, 11 crowded                    0
   leading          15  4 tight-leading steps                        0
   touch            10  1 control below 44pt                         0
@@ -12,7 +12,7 @@
   locale            3  6 unpinned toLocaleString                    0
 
   DEFECT SCORE: 100 / 100   (adjudicated defects only)
-  OPEN WORKLIST: 66 items — NOT counted in the score above.
+  OPEN WORKLIST: 68 items — NOT counted in the score above.
 
   A 100 here means 'nothing is broken', never 'nothing is left'. The two
   numbers are separate on purpose: collapsing them is how a scorecard starts
@@ -22,7 +22,7 @@
       11  crowded type pairs (<1.08 ratio)
        9  raw font sizes bypassing tokens
        6  unpinned toLocaleString (owner)
-      32  truncation sites to check on device
+      34  truncation sites to check on device
 ## Why every raw flag was dismissed — the point of the program
 
   contrast        palette pairs that never render; no primary background exists in src/
