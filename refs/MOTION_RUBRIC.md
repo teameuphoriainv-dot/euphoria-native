@@ -84,6 +84,26 @@ treating it as overshoot (defect).
 > The three REFERENCE recordings in `refs/videos/` are genuinely 30fps (verified by ffprobe on
 > their containers), so **R1–R4 are unaffected**. Only device-side capture was degraded.
 
+## CAPTURE FIDELITY — what these recordings can and cannot judge
+
+> **Timing: trustworthy. Visual quality of a fast transition: NOT.**
+>
+> `idb video-stream` encodes h264 at a default compression quality, and frames are extracted at
+> 1/3 scale. During a full-screen change the encoder cannot keep up, and a single mid-transition
+> frame shows torn, duplicated, blocky content that looks exactly like a janky animation.
+>
+> It is not. The tell: in the same frame the **tab bar and status bar are perfectly sharp** while
+> only the changing region is blocky, with hard rectangular macroblock edges. Static regions are
+> preserved by inter-frame compression; changing ones are not. A real rendering fault would not
+> respect that boundary.
+>
+> This was nearly written up as an app defect off one frame of the `learn` entry transition.
+>
+> **So:** segmentation, duration, peak counting and motion density are all valid — they depend on
+> *whether* pixels changed, not on their fidelity. Any claim of the form "this transition looks
+> torn / smeared / janky" needs a lossless capture (`--compression-quality 1.0`, or a screenshot
+> burst) before it can be made.
+
 ## Limits of this pass — stated so nobody over-reads it
 
 Whole-frame differencing answers *when* and *how many*, never *which element* or *by how much*.
