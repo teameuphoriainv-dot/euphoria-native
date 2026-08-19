@@ -95,7 +95,15 @@ export default function Reward() {
           <RewardPop delay={140}>
             {/* The tilted card is Bloom's exact treatment — a physical object you just turned over. */}
             <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <ThemedText type="title" style={styles.ticker}>{revealed.sym}</ThemedText>
+              {/* A TICKER MUST NOT SPLIT, for the same reason a price must not: "AAPL" breaking as
+                  "AA" / "PL" reads as a different symbol. `ticker` is displaySm (28pt), which
+                  reaches ~87pt at AX5 inside a card fixed at width 220, so even a 4-character
+                  symbol wrapped. Capped and held to one line.
+                  The VALUE beside it is deliberately left at its 1.6 cap: rewards are generated
+                  between REWARD_MIN 0.25 and REWARD_MAX 2, so the longest real string is "$2.00"
+                  and it fits. A seeded $1,234.56 ellipsised during testing, but that value cannot
+                  occur, and tightening the cap for it would shrink every real reward for nothing. */}
+              <ThemedText type="title" maxFontSizeMultiplier={1.6} numberOfLines={1} style={styles.ticker}>{revealed.sym}</ThemedText>
               <ThemedText type="body" themeColor="mutedForeground">{STOCKS[revealed.sym]?.name ?? revealed.sym}</ThemedText>
               {/* Missed when this file's TITLES were capped earlier — the sweep caught it. A reward
                   value that wraps mid-figure misstates what the user just earned. */}
