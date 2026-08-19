@@ -51,7 +51,14 @@ export function TabBar({ state, navigation }: TabBarProps) {
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
             }}>
-            <UIcon name={TAB_ICONS[route.name] ?? 'sparkle'} size={24} color={color} strokeWidth={focused ? 2.4 : 2} />
+            {/*
+              * 28, not 24. Measured on device 2026-08-19: the tab icons rendered at 24pt while the
+              * Trade/Digest quick-cards render theirs at 20pt — the tab icons were already the
+              * larger glyph and still read as the smaller one, because a card gives its icon 104pt
+              * of surrounding surface and a tab gives it none. Presence is the icon relative to its
+              * container, not its raw pt. 28 is Apple's own tab-bar glyph size for a compact bar.
+              */}
+            <UIcon name={TAB_ICONS[route.name] ?? 'sparkle'} size={28} color={color} strokeWidth={focused ? 2.4 : 2} />
             {/*
               * AX5 CLIPPED EVERY TAB LABEL MID-WORD — "Hom Lear Trad Dige You". Captured on
               * device at accessibility-extra-extra-extra-large, not inferred from a grep.
