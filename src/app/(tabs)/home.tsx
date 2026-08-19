@@ -42,6 +42,8 @@ import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
+import { LeagueCrest } from '@/components/league-crest';
+import { tierProgress } from '@/lib/league';
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { openAtlasChat } from '@/components/ask-atlas';
@@ -97,6 +99,9 @@ export default function Home() {
   const name = useApp((s) => s.profile.name);
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
+  // Lifetime xp, matching the League screen's header (weekly xp drives standings, not tier).
+  const xp = useApp((s) => s.xp);
+  const league = tierProgress(xp);
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
@@ -535,6 +540,44 @@ export default function Home() {
             </SpringPressable>
           </RiseIn>
         </View>
+
+        {/*
+         * LEAGUE STANDING — fills the dead band at the bottom of Home.
+         *
+         * Measured 2026-08-19 on device: the Trade/Digest row ended at y=676 and the tab bar
+         * began at y=794, leaving 118pt — 13.5% of an 874pt viewport — empty at the scroll end.
+         * That gap was NOT a layout bug: `styles.content` sets
+         * `paddingBottom: BottomTabInset + Spacing.four` = 108, which is correct trailing padding
+         * for a ScrollView. It only read as dead because the content happened to stop there. So
+         * this is a product decision to give the space a job, not a fix.
+         *
+         * Tier and crest come from `lib/league.ts`, the same source the League screen reads, for
+         * the reason stated at league.tsx:10 — two surfaces showing DIFFERENT tiers for the same
+         * player is worse than one surface showing none.
+         *
+         * It deliberately does NOT show a rank. Rank is derived from weekly XP against the
+         * standings field on the League screen; recomputing it here would be a second
+         * implementation of the same rule, and those drift. Progress toward the next tier is
+         * derived from `tierProgress` and cannot disagree with anything.
+         */}
+        <RiseIn delay={280}>
+          <SpringPressable onPress={() => router.push('/league')} accessibilityRole="button"
+            accessibilityLabel={`${league.tier.name} league. ${league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}. Opens standings.`}>
+            <Card style={styles.leagueCard} tint={league.tier.color}>
+              <LeagueCrest tier={league.tier} size={44} />
+              <View style={styles.leagueText}>
+                <ThemedText type="label" themeColor="mutedForeground">{league.tier.name.toUpperCase()} LEAGUE</ThemedText>
+                <View style={[styles.questTrack, { backgroundColor: theme.border, marginTop: Spacing.one + 2 }]}>
+                  <View style={[styles.questFill, { width: `${Math.round(league.progress * 100)}%`, backgroundColor: league.tier.color }]} />
+                </View>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.one }}>
+                  {league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}
+                </ThemedText>
+              </View>
+              <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
+            </Card>
+          </SpringPressable>
+        </RiseIn>
       </ScrollView>
 
       {/*
@@ -578,6 +621,10 @@ const styles = StyleSheet.create({
   questTrack: { height: 5, borderRadius: Radius.track, overflow: 'hidden', marginTop: 6 },
   questFill: { height: 5, borderRadius: Radius.track },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
+  /* League standing strip. Row, not a stack: the crest is the anchor and the text column has to
+     take the remaining width, or a long tier name wraps under the badge. */
+  leagueCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  leagueText: { flex: 1 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
   greetLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, flex: 1 },
   /* A ROW, not a stack. Two pills stacked with a 5pt gap collided against the 46pt Atlas and
