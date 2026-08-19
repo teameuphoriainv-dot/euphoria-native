@@ -696,11 +696,11 @@ const styles = StyleSheet.create({
   /** Course 1 only: a real border (not a hairline) so the accent tint reads as deliberate. */
   planRowLead: { borderWidth: 1, alignItems: 'flex-start' },
   /** Heading / course list / stats, spread across whatever height is left over. */
-  planBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
+  planBody: { flexGrow: 1, justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, paddingBottom: Spacing.two },
   planSummary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.four,
     marginTop: Spacing.three, paddingVertical: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth },
   planStat: { alignItems: 'center' },
   planDivider: { width: StyleSheet.hairlineWidth, height: 34 },
   chartCard: { borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three, gap: Spacing.one },
-  chartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.one },
+  chartLabels: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.one },
 });

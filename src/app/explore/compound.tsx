@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
   content: { flex: 1, padding: Spacing.three },
   back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: Spacing.two },
   resultCard: { marginTop: Spacing.three },
-  splitRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.two },
+  splitRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
   stepper: { gap: Spacing.two },
-  stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two },
   stepBtn: { width: 46, height: 46, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
 });

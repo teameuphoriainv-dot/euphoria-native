@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   },
   todayTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   todayHead: { flex: 1 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two },
   /* Capped where it is USED, not here — see the ThemedText below. At AX5 this 19pt heading
      reached ~59pt and broke mid-word as "Avalan / che vs". The frozen lineHeight is left
      alone deliberately: the device frame shows those lines rendering GENEROUSLY spaced, not
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
   },
 
-  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.four },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four },
   chipScroll: { marginTop: Spacing.two },
   chipRow: { gap: Spacing.one + 2, paddingRight: Spacing.three },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.pill, borderWidth: 1.5 },

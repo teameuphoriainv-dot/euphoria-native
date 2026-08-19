@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   strikeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two,
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.three,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -735,5 +735,5 @@ const styles = StyleSheet.create({
      AGENTS.md rule 7 requires that be said out loud rather than implied. */
   cellGreeks: { fontSize: FontSize.label, letterSpacing: 0.2, opacity: 0.75 },
   ticket: { gap: Spacing.two },
-  ticketRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  ticketRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, alignItems: 'center' },
 });

@@ -96,5 +96,5 @@ const styles = StyleSheet.create({
   track: { height: 10, borderRadius: Radius.thumb, justifyContent: 'center' },
   fill: { position: 'absolute', left: 0, height: 10, borderRadius: Radius.thumb },
   thumb: { position: 'absolute', width: 26, height: 26, borderRadius: 13, top: -8, transform: [{ translateX: -13 }], borderWidth: 3, borderColor: '#fff' },
-  ends: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.two },
+  ends: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
 });

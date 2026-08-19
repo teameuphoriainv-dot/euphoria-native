@@ -748,7 +748,7 @@ const styles = StyleSheet.create({
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
   /** Heading / trial timeline / plan cards, spread across the leftover height. */
-  paywallBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Spacing.two },
+  paywallBody: { flexGrow: 1, justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.four, paddingTop: Spacing.two },

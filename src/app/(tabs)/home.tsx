@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
      row. None of the six stacks them. */
   pillStack: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, borderWidth: 1 },
-  weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.one },
+  weekRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
   dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   hero: { paddingVertical: Spacing.three, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
      the six reference home screens uses a hero this large. */
   heroTitle: { textAlign: 'center', fontSize: FontSize.titleSm, lineHeight: 28, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
   heroCta: { alignSelf: 'stretch', marginTop: Spacing.three },
-  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.four, marginBottom: Spacing.two },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four, marginBottom: Spacing.two },
   railScroll: { marginHorizontal: -Spacing.three },
   rail: { paddingHorizontal: Spacing.three, gap: Spacing.two + 4 },
   duoRow: { flexDirection: 'row', gap: Spacing.three },

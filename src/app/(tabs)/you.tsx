@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   emptyNote: { textAlign: 'center', marginTop: Spacing.three },
   sectionLabel: { marginTop: Spacing.four, marginBottom: Spacing.two },
   // seven rungs have to fit 402pt without horizontal scroll: space-between rather than a fixed gap
-  ladder: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  ladder: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, alignItems: 'flex-start' },
   rung: { alignItems: 'center', gap: 4, width: 47 },
   rungLabel: { fontSize: FontSize.tiny },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three },

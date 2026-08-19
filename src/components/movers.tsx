@@ -118,7 +118,7 @@ export function Movers() {
 }
 
 const styles = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.two },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginBottom: Spacing.two },
   toggle: { flexDirection: 'row', gap: 4 },
   tab: { paddingVertical: 4, paddingHorizontal: Spacing.two + 2, borderRadius: Radius.pill },
   loading: { padding: Spacing.four, alignItems: 'center' },

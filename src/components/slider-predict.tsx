@@ -98,7 +98,7 @@ export function SliderPredict({ spec, revealed, onTouched }: { spec: SliderSpec;
 }
 
 const styles = StyleSheet.create({
-  readout: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: Spacing.five },
+  readout: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, alignItems: 'flex-end', marginBottom: Spacing.five },
   trackArea: { height: 44, justifyContent: 'center' },
   track: { height: 8, borderRadius: Radius.sm, overflow: 'hidden' },
   fill: { height: 8, borderRadius: Radius.sm },

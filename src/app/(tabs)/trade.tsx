@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   amountRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, marginTop: Spacing.one },
   cashRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two,
     alignItems: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
     marginTop: Spacing.three,

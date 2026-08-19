@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     height: RAIL_CARD_HEIGHT,
     borderRadius: Radius.lg,
     padding: Spacing.two + Spacing.half,
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two,
   },
   progress: { gap: Spacing.one },
   track: { flexDirection: 'row' },

@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   label: { marginTop: Spacing.four, marginBottom: Spacing.two },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', flexWrap: 'wrap',
     alignItems: 'center',
     gap: Spacing.three,
     paddingVertical: Spacing.two + 3,
