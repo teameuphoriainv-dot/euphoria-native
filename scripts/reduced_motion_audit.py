@@ -28,8 +28,17 @@ import sys
 # Motion that can trigger vestibular symptoms and therefore needs a guard.
 VESTIBULAR = {
     "repeat": r"withRepeat",
-    "rotate": r"rotate\s*:",
-    "translate": r"translate[XY]\s*:",
+    # ONLY NON-LITERAL VALUES. `rotate: '-4deg'` and `translateX: -13` are STATIC layout --
+    # a card pinned at an angle, a thumb offset by half its width -- and they never move. Matching
+    # the property name alone flagged three files whose only animation is an opacity fade, and an
+    # opacity fade is what Reduced Motion SUBSTITUTES for motion. Widening this lane to catch
+    # `entering=` briefly traded a false negative for three false positives; a literal value is
+    # the discriminator, because an animated transform must read from a shared value.
+    # NOTE the \s* sits INSIDE each lookahead. Outside it, the engine backtracks the
+    # whitespace, evaluates the lookahead at the space, fails to see a number there, and the
+    # NEGATION therefore succeeds -- so every static transform still matched.
+    "rotate": r"rotate\s*:(?!\s*['\"`]?-?[\d.]+deg)",
+    "translate": r"translate[XY]\s*:(?!\s*-?[\d.]+\s*[,}])",
     # WIDENED 2026-08-19. Reanimated's PRESET layout animations move or scale a whole view and
     # are every bit as vestibular as a hand-rolled translate -- ZoomIn grows a view from scale 0,
     # SlideIn sweeps it across the screen. They were invisible to this lane because they are
@@ -49,6 +58,38 @@ EXEMPT_REASON = {
 # component that had one -- a lane that UNDER-reports is worse than one that over-reports,
 # because a clean report is read as proof.
 ANIM = r"withTiming|withRepeat|withSpring|withSequence|entering\s*=|exiting\s*=|layout\s*="
+
+
+
+def selftest():
+    """Prove the lane can still CATCH a defect before its zero is believed.
+
+    This lane has reported a false zero once already: it matched only with*/rotate/translate and
+    so never scanned files that animate declaratively via `entering=`, which is how an unguarded
+    ZoomIn shipped in tap-reveal.tsx. Widening it then produced three FALSE POSITIVES, because
+    matching a property NAME cannot tell `rotate: '-4deg'` (a card pinned at an angle, forever)
+    from a rotation driven by a shared value.
+
+    So a zero from this lane means nothing on its own. These fixtures are the evidence that a
+    zero is real, and they are asserted rather than eyeballed.
+    """
+    must_flag = [
+        ("animated rotate",    "const s=useAnimatedStyle(()=>({transform:[{rotate:`${r.get()}deg`}]}));"),
+        ("animated translate", "const s=useAnimatedStyle(()=>({transform:[{translateX: x.get()}]}));"),
+        ("repeat",             "v.set(withRepeat(withTiming(1,{duration:900}),-1,true));"),
+        ("zoom preset",        "<Animated.View entering={ZoomIn.springify()} />"),
+    ]
+    must_ignore = [
+        ("static rotate",    "card: { transform: [{ rotate: '-4deg' }] },"),
+        ("static translateX","thumb: { transform: [{ translateX: -13 }] },"),
+        ("fade preset",      "<Animated.View entering={FadeIn} exiting={FadeOut} />"),
+    ]
+    kinds = lambda src: sorted(k for k, pat in VESTIBULAR.items() if re.search(pat, src))
+    for label, src in must_flag:
+        assert kinds(src), f"lane MISSED {label}: {src}"
+    for label, src in must_ignore:
+        assert not kinds(src), f"lane FALSE-POSITIVED on {label}: {kinds(src)}"
+    print(f"self-check OK — {len(must_flag)} defect shapes caught, {len(must_ignore)} static shapes ignored")
 
 
 def audit():
@@ -111,6 +152,9 @@ def _demo():
 
 
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        selftest()
+        sys.exit(0)
     if "--demo" in sys.argv:
         _demo()
     else:
