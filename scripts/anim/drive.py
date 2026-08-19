@@ -25,10 +25,24 @@ def tree():
 
 def nodes():
     return [(round(n['frame']['x']), round(n['frame']['y']), round(n['frame']['width']),
-             round(n['frame']['height']), n['AXLabel']) for n in tree() if n.get('AXLabel')]
+             round(n['frame']['height']), n['AXLabel'], n.get('role') or '', n.get('AXValue') or '')
+            for n in tree() if n.get('AXLabel')]
 
 def labels(): return {n[4] for n in nodes()}
 def find(sub): return [n for n in nodes() if sub.lower() in n[4].lower()]
+
+
+def button(*subs):
+    """Find a tappable BUTTON whose label contains one of `subs`.
+
+    Substring matching alone tapped a PARAGRAPH. On the multi-select step the prose
+    "Select all that apply, then check." contains "check", sits above the real "Check answer"
+    button, and matched first -- so the driver tapped body text and reported the step as stuck.
+    Filtering on role AXButton and preferring the LOWEST match (action buttons sit at the
+    bottom) fixes a whole class of silent stalls, not just this one.
+    """
+    hits = [n for n in nodes() if n[5] == 'AXButton' and any(s.lower() in n[4].lower() for s in subs)]
+    return sorted(hits, key=lambda n: -n[1])
 
 def at_launcher():
     l = labels()
@@ -38,7 +52,7 @@ def reconnect():
     """The launcher trap. Tapping the dev-server row re-enters the app."""
     rows = [n for n in nodes() if '8081' in n[4]]
     if not rows: return False
-    x, y, w, h, _ = rows[0]
+    x, y, w, h = rows[0][0], rows[0][1], rows[0][2], rows[0][3]
     sp.run(["idb", "ui", "tap", "--udid", U, str(x + w // 2), str(y + h // 2)], capture_output=True)
     time.sleep(14)
     return not at_launcher()
@@ -46,7 +60,7 @@ def reconnect():
 def tap(n, settle=1.6):
     """Tap and report whether the screen actually changed."""
     before = labels()
-    x, y, w, h, _ = n
+    x, y, w, h = n[0], n[1], n[2], n[3]
     sp.run(["idb", "ui", "tap", "--udid", U, str(x + w // 2), str(y + h // 2)], capture_output=True)
     time.sleep(settle)
     return labels() != before
@@ -73,7 +87,7 @@ def advance():
         return reconnect(), 'reconnect'
     if dismiss_logbox():
         return True, 'logbox'
-    btn = find('continue') or find('check') or find('next') or find('got it')
+    btn = button('continue', 'check', 'next', 'got it')
     if not btn:
         return False, 'no-button'
     if tap(btn[0]):
@@ -85,7 +99,7 @@ def advance():
         if n[3] < 24 or n[3] > 110: continue
         if any(s in n[4].lower() for s in skip): continue
         if tap(n, 0.9): break
-    btn = find('continue') or find('check')
+    btn = button('continue', 'check')
     if btn and tap(btn[0]):
         return True, 'solve+button'
     return False, 'stuck'
@@ -122,7 +136,7 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3):
         moved, how = advance()
         if not moved and how in ('stuck', 'no-button'):
             ok, kind = solve_mod.answer(lesson)
-            btn = find('check') or find('continue')
+            btn = button('check', 'continue')
             if ok and btn:
                 before = labels()
                 sp.run(["idb", "ui", "tap", "--udid", U, str(btn[0][0] + btn[0][2] // 2),

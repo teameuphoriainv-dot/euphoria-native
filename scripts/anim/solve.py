@@ -31,6 +31,17 @@ def norm(s):
     # costs nothing and the truncation only ever removed the discriminating tail.
     return ''.join(ch for ch in s.lower() if ch.isalnum())
 
+def find_match(lesson, screen_labels):
+    """A match step matches on its PAIR TEXTS -- both sides must be on screen."""
+    keys = [norm(l) for l in screen_labels]
+    for st in lesson.get('steps', []) or []:
+        if st.get('kind') != 'match' or not st.get('pairs'): continue
+        hits = sum(1 for p in st['pairs']
+                   if any(norm(p[0])[:40] in k for k in keys) and any(norm(p[1])[:40] in k for k in keys))
+        if hits >= max(2, len(st['pairs']) - 1): return st
+    return None
+
+
 def find_truefalse(lesson, screen_labels):
     """A true/false multi-select matches on its STATEMENT TEXT.
 
@@ -124,23 +135,41 @@ def answer(lesson):
     """Apply the correct answer for whatever step is on screen. → (solved, kind)"""
     ns = nodes()
     labels = [n[4] for n in ns]
-    st = find_step(lesson, labels) or find_truefalse(lesson, labels) or find_slider(lesson, labels)
+    st = (find_step(lesson, labels) or find_match(lesson, labels)
+          or find_truefalse(lesson, labels) or find_slider(lesson, labels))
     if not st: return False, 'no-match'
     if st['kind'] in ('quiz', 'fillBlank', 'visual', 'challenge'):
         want = norm(st['options'][st['correct']])
         hit = [n for n in ns if norm(n[4]) == want or want in norm(n[4])]
         if not hit: return False, f"option-not-on-screen:{st['kind']}"
         tap(hit[0]); return True, st['kind']
+    if st['kind'] == 'match':
+        # "Tap a term, then tap its match." Pair them one at a time, re-reading the tree between
+        # pairs: matched rows leave the list, so coordinates captured up front go stale.
+        done = 0
+        for left, right in st['pairs']:
+            cur = nodes()
+            a = [n for n in cur if norm(left)[:40] in norm(n[4])]
+            b = [n for n in cur if norm(right)[:40] in norm(n[4])]
+            if not a or not b: continue
+            tap(a[0], 0.5); tap(b[0], 0.6); done += 1
+        return (done > 0), f'match({done} pairs)'
     if st['kind'] == 'trueFalse':
-        # SELECTION IS A TOGGLE, so state must be read before tapping. An unselected row reports
-        # role AXButton; a selected one reports AXGenericElement. Tapping blind meant a second
-        # pass DESELECTED everything the first pass got right, and the step never advanced while
-        # the log cheerfully reported "2 true" each time.
+        # SELECTION IS A TOGGLE, so state must be read before tapping -- tapping blind means a
+        # second pass DESELECTS everything the first pass got right, while the log cheerfully
+        # reports "2 true" each time.
+        #
+        # STATE IS IN AXValue, NOT THE ROLE. Probed on device: the row reads
+        # 'checkbox, unchecked' -> 'checkbox, checked' and its role stays AXButton THROUGHOUT.
+        # An earlier guess keyed on role (AXButton vs AXGenericElement) and was simply wrong --
+        # the AXGenericElement seen once was a different node that happened to contain matching
+        # text. Three attempts were spent reasoning about this before measuring it.
         picked = already = 0
         for stmt in st['statements']:
             hit = [n for n in ns if norm(stmt['text'])[:50] in norm(n[4])]
             if not hit: continue
-            selected = hit[0][5] != 'AXButton'
+            val = (hit[0][6] or '').lower()
+            selected = 'checked' in val and 'unchecked' not in val
             if stmt['a'] and not selected:
                 tap(hit[0], 0.6); picked += 1
             elif stmt['a'] and selected:
