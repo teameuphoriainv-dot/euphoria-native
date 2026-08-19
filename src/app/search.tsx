@@ -159,7 +159,10 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.lg,
     paddingHorizontal: Spacing.three,
-    height: 44,
+    // minHeight, not height: 44 is the HIG touch-target floor and must be KEPT, but at AX5 the
+    // input text reaches ~50pt inside a 44pt box and clips. minHeight preserves the tap target
+    // while letting the field grow — the same shape the price chart's fixed 120pt plot had.
+    minHeight: 44,
   },
   input: { flex: 1, fontSize: FontSize.bodySm },
   list: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six },

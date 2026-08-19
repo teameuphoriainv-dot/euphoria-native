@@ -1,0 +1,56 @@
+# AX5 Dynamic Type audit — closing summary
+
+Iterations 41–63. Every screen in the app was opened at
+`accessibility-extra-extra-extra-large` (3.12x, iOS body 17pt -> 53pt) and photographed.
+
+## The four defect shapes, and the fix each takes
+
+| shape | what it looks like | fix |
+|---|---|---|
+| **TRUNCATION** | an uncapped font loses its own words, or pushes out of its card | `maxFontSizeMultiplier` — 1.4 compact chrome, 1.6 competing with a fixed sibling or in a button, 2 with room |
+| **OVERFLOW** | content taller than a container that cannot grow | `ScrollView` (`flexGrow:1` + `justifyContent:'center'`, absoluteFill overlays OUTSIDE) or `minHeight` instead of `height`. **A font cap does NOT fix this** — it only postpones the overflow |
+| **COLLISION** | two elements grow into each other; `space-between` cannot separate children once they fill the row | `gap` + `flexWrap` |
+| **SPLIT NUMBER** | a figure wraps mid-number and reads as a DIFFERENT NUMBER | cap **plus** `numberOfLines={1}` — the OPPOSITE of the prose treatment |
+
+The last one is the important one. Every other shape is visibly broken, so a user knows not to
+trust it. `"$228.5" / "0"` is quietly wrong: it reads as $228.5. On a finance screen that is a
+correctness problem, not a cosmetic one. For prose, wrapping beats truncating; for a price the
+order reverses, because an ellipsis reads as incomplete while a split reads as a wrong figure.
+
+## Confirmed on device (17)
+
+tab bar · home header · featured lesson card · learn header · lesson intro (4 defects) ·
+GradientButton (fixes every primary CTA app-wide) · reward titles · you identity card ·
+digest TODAY card · digest article (2) · trade portfolio value · stock price ·
+compound header · compound projection · price-chart empty note · news.tsx (clean) ·
+search field
+
+## Applied but UNVERIFIED (5), with the reason each is unreachable
+
+| fix | why it could not be verified |
+|---|---|
+| lesson DONE state | sits after 20 interactive steps; blind driving stalls at the first choice step by design |
+| StreakIgnite | sits after the DONE state, same barrier |
+| options chain cells | screen unreachable in 2 navigation attempts; settled from the code instead |
+| league tier name | this account is tier "Saver", which FITS — device testing returns a false pass. The defect lives in data the account has not reached |
+| reward revealed value | needs a pending reward this account does not have |
+
+## Seven false reports avoided by asking why before filing
+
+1. 3 contrast "AA failures" — palette pairs that never render; `Colors.dark.primary` is used as a background nowhere
+2. touch target "See all" at 18pt — the lane cannot see `hitSlop`; it is exactly 44.0pt
+3. `reset()` sparing 18 fields — "fixing" it would have opened a reward-farming exploit
+4. safe-area: 3 findings that dissolved (the provider comes from expo-router's `SafeAreaProviderCompat`)
+5. "the lesson cannot be completed at AX5" — choice steps already scroll; the taps never scrolled
+6. a 30-file lineHeight sweep — disproved by the device
+7. "the app renders blank at AX5" — reproduced at default size too; it was cold-launch latency
+
+## Four times a lane, or one of my own patches, was wrong
+
+- `dynamic_type_audit` was **counting its own comments** as defects — the count rose after a fix, which is the only reason it surfaced
+- `leading_audit`'s headroom ranking **does not predict** the two real defects; it is published as an inventory, not a verdict
+- `locale_audit` had a **false negative**, reporting zero currency defects while two existed, because it knew only the template-literal shape and not the JSX one
+- my own patch contained a **tautological assertion** (`assert X or True`) that could never fail, papering over a real flaw in the same regex
+
+A lane that under-reports is worse than one that over-reports: it certifies a broken screen as
+clean. That is why every matcher change now asserts BOTH directions.
