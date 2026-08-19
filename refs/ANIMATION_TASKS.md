@@ -43,30 +43,37 @@ amplitude is 1pt. The easing was never the problem.
 
 ---
 
-## QUEUE — after the sweep, in this order
+## QUEUE — after the sweep, in this order (owner-confirmed 2026-08-19)
 
-- [ ] **1. Raise idle amplitudes, then prove the delta.**
-      Increase `SACCADE_UNITS`, `ARC_FLEX_UNITS`, `SWAY_DEG`, `ROCK_DEG`. Re-measure motion
-      density on welcome / home / chat with the same method and box, and publish before/after.
-      A change that cannot be shown to raise density is not a fix.
-      *Constraint:* it must still pass `reduced_motion_audit.py --selftest`, and larger sway/rock
-      must not push R1 outside its band.
+- [ ] **0. Fix the driver's 0-steps stall.**
+      The sweep navigates and records correctly but drove 0 steps on lesson 1 — it is filming
+      static intros rather than interaction. Owner accepted recording-only for THIS run and asked
+      for the fix afterwards, so the next sweep captures interaction animation too.
 
-- [ ] **2. Give `happy` a real blink.**
-      It cannot blink today because you cannot close an arc — so instead squeeze/flatten the arc
-      briefly. Targets exactly the screens measured as dead: welcome, home, you, auth, reward.
+- [ ] **1. Raise idle amplitudes, and PROVE the delta.**
+      `SACCADE_UNITS` 1.1 · `ARC_FLEX_UNITS` 1.6 · `SWAY_DEG` 1.6° · `ROCK_DEG` 3.4°.
+      Harness is built: `scripts/anim/mascot_density.py` reports the **lift of mascot over a
+      same-frame control**, because on welcome the control (69%) beat the mascot (38%) and an
+      uncontrolled number would have called that screen lively.
+      Baseline to beat — welcome **38% vs 69% control, lift −31**.
+      *Constraints:* must still pass `reduced_motion_audit.py --selftest`; larger sway/rock must
+      not push R1 outside its band.
 
-- [ ] **3. Read the sweep's filmstrips and fix what they show.**
-      Per-lesson verdicts FIX / IMPROVE / KEEP, each citing a rubric rule and a measured number.
-      This is the part that must be *looked at*, not machine-judged — it is the whole reason for
-      the audit.
+- [ ] **2. Give content its own resting motion.**
+      The structural finding. `courses` (35%) and `digest` (49%) mount `AmbientBackground` but
+      are dense grids of opaque cards that **occlude** it, so they go still. The app currently
+      feels alive in inverse proportion to how much content is on screen. Content that breathes
+      at rest fixes that regardless of layout density.
 
-- [ ] **4. Digest pass — 15–20 articles.**
-      Queued behind the sweep: one simulator means device work is strictly serial, and two passes
-      at once would interleave taps and corrupt both recordings. Owner is happy with Digest
-      structurally; the ask is the **article hero/logo animations**.
+- [ ] **3. Standardise entry choreography.**
+      ~3000× spread across routes that verifiably navigated: welcome 245,582 peak px → search 84.
+      That is not a design decision.
 
----
+- [ ] **4. Re-run the whole-app route audit** with `goto_lesson`-style verification per route and
+      a longer recording budget. The first pass is retracted: only 9 of 23 routes navigated.
+
+- [ ] **5. Digest pass — 15–20 articles.** Owner is happy with Digest structurally; the ask is the
+      **article hero/logo animations**.
 
 ## OPEN, NOT BLOCKING
 
