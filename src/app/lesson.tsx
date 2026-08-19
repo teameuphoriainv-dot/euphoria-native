@@ -473,13 +473,21 @@ export default function Lesson() {
         )}
 
         {idx === DONE && (
-          <Animated.View key="done" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
+          <Animated.View key="done" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.midScroll}>
             <CelebrationWipe />
             <Confetti />
             <CelebrationRays size={330} delay={120} />
+            {/*
+              * Same overflow the intro had: an unscrolled centred container pushes content off
+              * BOTH ends once Dynamic Type makes it taller than the screen. The three
+              * celebration layers above stay OUTSIDE this ScrollView because they are
+              * StyleSheet.absoluteFill — scrolling them would drag the confetti away with the
+              * content. `rewardRow` needed nothing; it already carries flexWrap.
+              */}
+            <ScrollView contentContainerStyle={styles.introContent} showsVerticalScrollIndicator={false}>
             <Atlas size={120} expression="proud" celebrate celebrateGain={1} entrance="arrive" idle />
             <RewardPop delay={900}>
-              <ThemedText type="display" style={styles.title}>Lesson complete!</ThemedText>
+              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.title}>Lesson complete!</ThemedText>
             </RewardPop>
             <View style={styles.rewardRow}>
               <RewardPop delay={1180}>
@@ -498,6 +506,7 @@ export default function Lesson() {
             <RewardPop delay={1620}>
               <ThemedText type="body" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>Atlas is proud of you.</ThemedText>
             </RewardPop>
+            </ScrollView>
           </Animated.View>
         )}
 
