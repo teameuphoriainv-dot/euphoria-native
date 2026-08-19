@@ -54,3 +54,33 @@ search field
 
 A lane that under-reports is worse than one that over-reports: it certifies a broken screen as
 clean. That is why every matcher change now asserts BOTH directions.
+
+## Default-size regression pass (added after the audit shipped a regression)
+
+The AX5 program swept every screen at 3.12x and **never once swept at default size**. That is
+how a regression from its own iteration-55 collision sweep reached the owner, who reported it
+before the audit noticed: `flexWrap: 'wrap'` on `course-rail-card`'s `card` style, a COLUMN
+with a fixed `height: 150`, which makes flexbox start a second column to the right and pushed
+"Alternative Investments" out past the card border.
+
+The error was SCOPE, not premise. Collision is a ROW phenomenon — two elements growing toward
+each other horizontally. On a column, `space-between` distributes vertically and nothing can
+collide that way, so the sweep should never have matched columns. `gap` on a row is confirmed
+inert; `flexWrap` on a fixed-height column is not, and I justified the sweep on the former
+without testing the latter.
+
+**14 screens re-verified clean at default size:** reward, home, stock, lesson intro, course
+rail, compound, search, news, learn, trade, you, digest, digest article, options.
+
+**One defect the audit itself introduced:** the flexWrap regression, fixed and confirmed.
+
+**One defect the audit's own sweep MISSED**, found only because options turned out to be
+reachable after being marked otherwise: the chain's prices split as "$57." / "00" and the
+strike $222.50 as "$22" / "2.5" / "0". The earlier pass had capped that screen's IV and greek
+sub-lines and never its prices, and the split-number sweep matched only display/title/hero
+tokens while these were bodyMedium and smallBold.
+
+**A 12-site `money()` worklist resolved to ZERO fixes.** Every one sits in a flexible or
+wrapping container, unlike the options cells in their fixed 88pt column, and two were verified
+on device at AX5 rather than merely reasoned about. Blanket-capping all twelve would have
+repeated the flexWrap mistake exactly.
