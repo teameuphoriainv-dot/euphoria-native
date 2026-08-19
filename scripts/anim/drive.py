@@ -170,7 +170,7 @@ if __name__ == '__main__':
             print(f"  STOPPED — visible: {sorted(labels())[:6]}"); sys.exit(1)
     print(f"did not reach {target!r} in {maxs} steps"); sys.exit(2)
 
-def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3):
+def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
     """Drive one lesson to completion. Returns (done, log).
 
     STALL DETECTION IS THE POINT. An earlier version looped 28 times reporting "solved" while the
@@ -180,6 +180,12 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3):
     """
     log, stalls = [], 0
     for i in range(max_steps):
+        # STOP WHEN THE RECORDING DOES. Without this the thread outlives its capture window and
+        # keeps TAPPING while the next lesson tries to deep-link -- lesson N's driver fighting
+        # lesson N+1's navigation. That is what made 27 consecutive lessons report
+        # "did-not-navigate" when goto_lesson works perfectly when called on its own.
+        if stop is not None and stop.is_set():
+            return False, log
         text = ' '.join(labels()).lower()
         if any(k in text for k in ('lesson complete', 'xp earned', 'you earned', 'well done', '+30 xp')):
             return True, log

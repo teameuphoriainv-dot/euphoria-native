@@ -45,11 +45,15 @@ def one(course, num, secs, scale=3):
 
     h264 = f"{OUT}/{course}-{num}.h264"
     res = {}
+    stop = threading.Event()
     def go():
-        res['done'], res['log'] = drive.run_lesson(L, solve, max_steps=60)
+        res['done'], res['log'] = drive.run_lesson(L, solve, max_steps=60, stop=stop)
     t = threading.Thread(target=go); t.start()
     record(h264, secs)
-    t.join(timeout=45)
+    stop.set()                    # the capture window closed; the driver must stop tapping too
+    t.join(timeout=30)
+    if t.is_alive():
+        print(f"    warn: driver thread for {course}-{num} still alive after stop", flush=True)
 
     n, rate = real_rate(h264, secs + 1.2)
     fd = f"{OUT}/fr-{course}-{num}"
