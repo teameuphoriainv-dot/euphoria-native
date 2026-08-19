@@ -195,7 +195,18 @@ export default function StockDetail() {
           </View>
           <ThemedText type="title" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>{name}</ThemedText>
           <View style={styles.priceRow}>
-            <ThemedText type="display" style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
+            {/*
+              * A PRICE MUST NEVER BREAK. At AX5 this 30pt display reached ~94pt against a
+              * ~360pt row and wrapped as "$228.5" / "0" — which does not merely look wrong, it
+              * reads as a DIFFERENT NUMBER. Someone glancing at it sees $228.5.
+              *
+              * `numberOfLines={1}` is deliberate here even though this audit has spent most of
+              * its time REMOVING such clamps. Everywhere else, wrapping beats truncating. For a
+              * price the order reverses: an ellipsis reads as incomplete, a split reads as a
+              * wrong figure, and being obviously cut off is safer than being quietly wrong.
+              * The 1.6 cap keeps it from reaching the ellipsis in the first place.
+              */}
+            <ThemedText type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
           </View>
         </RiseIn>
 
