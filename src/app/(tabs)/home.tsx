@@ -376,10 +376,20 @@ export default function Home() {
                 <View style={styles.heroRow}>
                   <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={56} />
                   <View style={{ flex: 1 }}>
-                    <ThemedText type="label" style={{ color: accent }} numberOfLines={1}>
+                    {/*
+                      * AX5 REDUCED THIS TITLE TO "Your" / "Brain", losing "vs. Your Money".
+                      * Worse than the header greeting, because this card's button says Start:
+                      * an unreadable title means the user cannot tell what they are starting.
+                      *
+                      * The art is a fixed 56pt beside a flex:1 column, so at 3.12x a 19pt
+                      * heading becomes ~59pt in roughly 200pt of width and two lines buys two
+                      * words. Capping at 2x and allowing a third line fits the whole title.
+                      * The course label is capped for the same reason — it read "BEHAVIORA...".
+                      */}
+                    <ThemedText type="label" maxFontSizeMultiplier={2} style={{ color: accent }} numberOfLines={1}>
                       {(course?.title ?? 'Course').toUpperCase()}
                     </ThemedText>
-                    <ThemedText type="heading" style={{ marginTop: 2 }} numberOfLines={2}>{next.title}</ThemedText>
+                    <ThemedText type="heading" maxFontSizeMultiplier={2} style={{ marginTop: 2 }} numberOfLines={3}>{next.title}</ThemedText>
                     <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
                       Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
                     </ThemedText>
