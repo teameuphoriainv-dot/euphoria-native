@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""Screen capture for the animation audit — at a frame rate that can actually see a spring.
+
+WHY NOT `simctl io recordVideo`: it records at a FIXED 15 fps. Measured 2026-08-19 --
+`r_frame_rate=15/1`, 138 frames across 9.2s. A 280ms transition therefore gets ~4 samples,
+which is not enough to distinguish a clean settle from an overshoot. Extracting such a file
+at `fps=30` does NOT recover anything: ffmpeg simply duplicates every frame, and the
+resulting "50% of frames identical" reads exactly like an app rendering at half rate. That
+misreading happened during this audit before the container was checked.
+
+`idb video-stream --fps 60` measured 481 frames in 10.1s = 47.7 fps on the same machine.
+3.2x the temporal resolution, and enough to resolve a 280ms curve into ~13 real samples.
+
+GOTCHA, measured: passing `--scale-factor` makes the stream write a ZERO-BYTE file and exit
+without an error. Do not "optimise" the capture with it.
+
+Output is a raw h264 elementary stream with no container timing, so ffprobe reports a
+nonsense `r_frame_rate`. Count frames by decoding, never by trusting the header.
+"""
+import subprocess as sp, time, os, re, sys
+
+UDID = "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
+
+def record(path, seconds, fps=60, during=None):
+    """Record the screen. `during` is called once the stream is warm."""
+    if os.path.exists(path): os.remove(path)
+    p = sp.Popen(["idb", "video-stream", "--fps", str(fps), "--format", "h264",
+                  "--udid", UDID, path], stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+    time.sleep(1.2)                       # let the stream warm up before acting
+    if during: during()
+    time.sleep(seconds)
+    p.terminate()
+    try: p.wait(timeout=10)
+    except Exception: p.kill()
+    return path
+
+def frames(path, out_dir, fps=60):
+    """Decode to PNGs. Returns the real decoded frame count."""
+    sp.run(["rm", "-rf", out_dir]); os.makedirs(out_dir)
+    sp.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-r", str(fps), "-i", path,
+            f"{out_dir}/%04d.png"], check=True)
+    return len([f for f in os.listdir(out_dir) if f.endswith('.png')])
+
+def real_rate(path, wall_seconds):
+    """Decoded frame count / wall time. The header cannot be trusted for raw h264."""
+    r = sp.run(["ffmpeg", "-nostdin", "-i", path, "-f", "null", "-"], capture_output=True, text=True)
+    m = re.findall(r'frame=\s*(\d+)', r.stderr)
+    n = int(m[-1]) if m else 0
+    return n, n / wall_seconds if wall_seconds else 0
+
+def demo():
+    """Self-check: no device needed — verify the frame-count parser on ffmpeg's own output."""
+    sample = "frame=  12 fps=0.0 q=-0.0 size=N/A time=00:00:00.20\nframe=  481 fps=47 q=-0.0 Lsize=N/A"
+    m = re.findall(r'frame=\s*(\d+)', sample)
+    assert m and int(m[-1]) == 481, m
+    assert int(m[0]) == 12, m
+    print("self-check OK  parsed frame counts", m)
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == '--demo': demo(); sys.exit()
+    secs = float(sys.argv[2]) if len(sys.argv) > 2 else 5.0
+    p = record(sys.argv[1], secs)
+    n, rate = real_rate(p, secs + 1.2)
+    print(f"{p}: {n} frames, {rate:.1f} fps effective, {os.path.getsize(p)//1024} KB")

@@ -64,6 +64,26 @@ treating it as overshoot (defect).
 
 ---
 
+## CAPTURE RATE — a correction that affects every device measurement
+
+> **`simctl io recordVideo` records at a fixed 15 fps.** Measured 2026-08-19:
+> `r_frame_rate=15/1`, 138 frames across 9.223s. Earlier notes in this audit described device
+> captures as "30fps". **They were not.** A 280ms transition gets ~4 samples at 15fps, which
+> cannot separate a clean settle from an overshoot.
+>
+> Extracting such a file at `fps=30` recovers nothing — ffmpeg duplicates every frame. The
+> resulting "50% of frames are identical" was briefly misread here as *the app rendering at
+> 15fps*, when it was the recorder's rate all along. Check the container before blaming the app.
+>
+> **Use `idb video-stream --fps 60` instead:** measured 481 frames in 10.1s = **47.7 fps**,
+> 3.2× the resolution, ~13 real samples across a 280ms curve. Wrapped in `scripts/anim/capture.py`.
+>
+> **Gotcha:** adding `--scale-factor` makes `video-stream` write a **zero-byte file and exit
+> without an error**. Do not "optimise" the capture with it.
+>
+> The three REFERENCE recordings in `refs/videos/` are genuinely 30fps (verified by ffprobe on
+> their containers), so **R1–R4 are unaffected**. Only device-side capture was degraded.
+
 ## Limits of this pass — stated so nobody over-reads it
 
 Whole-frame differencing answers *when* and *how many*, never *which element* or *by how much*.
