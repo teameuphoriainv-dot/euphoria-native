@@ -202,8 +202,20 @@ export default function Home() {
                 <Atlas size={46} expression="happy" interactive={false} idle />
               </SpringPressable>
               <View style={{ flex: 1 }}>
-                <ThemedText type="title" style={{ fontSize: FontSize.titleSm }} numberOfLines={1}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>
+                {/*
+                  * AX5 CLIPPED THIS HEADER TO "H..." AND "5 m...". Captured on device, not
+                  * inferred. This column is flex:1 beside a 46pt Atlas and the streak pills,
+                  * so at 3.12x a 22pt greeting wants ~340pt of width in a ~150pt slot and
+                  * `numberOfLines={1}` resolved that by throwing away the sentence.
+                  *
+                  * A header should get TALLER, not shorter — that is what iOS itself does.
+                  * The clamps are gone so both lines wrap, and `maxFontSizeMultiplier` bounds
+                  * the growth so the greeting cannot push the whole page below the fold.
+                  * These are CONTENT, so the cap is deliberately looser than the tab bar's
+                  * 1.6: chrome may cap hard, content should scale as far as it can.
+                  */}
+                <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2}>
                   {remaining === 0 ? 'Done for today — streak safe.' : `${remaining} min to keep your streak`}
                 </ThemedText>
               </View>
