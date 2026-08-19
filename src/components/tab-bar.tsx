@@ -52,7 +52,27 @@ export function TabBar({ state, navigation }: TabBarProps) {
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
             }}>
             <UIcon name={TAB_ICONS[route.name] ?? 'sparkle'} size={24} color={color} strokeWidth={focused ? 2.4 : 2} />
-            <ThemedText type="small" style={{ fontSize: FontSize.tiny, lineHeight: 13, color, fontFamily: focused ? 'Nunito_700Bold' : 'DMSans_500Medium' }}>
+            {/*
+              * AX5 CLIPPED EVERY TAB LABEL MID-WORD — "Hom Lear Trad Dige You". Captured on
+              * device at accessibility-extra-extra-extra-large, not inferred from a grep.
+              *
+              * Two causes, and the second is the one that actually did the damage:
+              *   1. Five tabs share the screen width, so a 3.12x label cannot fit.
+              *   2. `lineHeight: 13` was HARDCODED. React Native scales fontSize with the
+              *      OS text setting but NEVER scales lineHeight, so a 10pt font growing to
+              *      31pt was being drawn into a 13pt line box. Removed, so RN computes it
+              *      from whatever the scaled size turns out to be.
+              *
+              * The cap is what Apple's own tab bars do — system tab bars stop scaling and
+              * show a long-press HUD instead, because unreadable navigation is worse than
+              * small navigation. 1.6 keeps "Digest", the longest label, on one line.
+              * allowFontScaling stays ON: capping is accessible, opting out is not.
+              */}
+            <ThemedText
+              type="small"
+              maxFontSizeMultiplier={1.6}
+              numberOfLines={1}
+              style={{ fontSize: FontSize.tiny, color, fontFamily: focused ? 'Nunito_700Bold' : 'DMSans_500Medium' }}>
               {route.name === 'you' ? 'You' : route.name.charAt(0).toUpperCase() + route.name.slice(1)}
             </ThemedText>
           </SpringPressable>
