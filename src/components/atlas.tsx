@@ -30,6 +30,30 @@ import { Duration, Spring } from '@/shared/motion/tokens';
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
 const INK = '#1A1523';
+
+/*
+ * RESTING HEAD TILT — the third acting channel, after pupils and brows.
+ *
+ * Only a handful of expressions get one, and none gets much. This is a Z rotation, so it can
+ * express a head cocked to one side and nothing else: `proud` wants a chin lifted and `whoa` a
+ * head pulled back, neither of which is a Z rotation, so both stay at 0 rather than being faked
+ * with a tilt that means something different.
+ *
+ * Degrees are small on purpose. The head already carries an idle rock of +/-ROCK_DEG and a
+ * reaction lag, and this SUMS with both -- a large resting angle would swamp the motion that
+ * makes Atlas look alive and leave it looking broken instead.
+ */
+const EXPRESSION_TILT: Record<AtlasExpression, number> = {
+  default: 0,
+  watching: 0,
+  happy: 0,
+  whoa: 0,      // pulled back, not sideways — not expressible here
+  proud: 0,     // chin up, not sideways — not expressible here
+  silly: 6,
+  sad: 3,
+  thinking: -7, // the classic cocked head; the largest of the set because it is the most legible
+  oops: -3,
+};
 /** Head scale inside the 100x104 box. The pinwheel was shrunk to 0.68 to make room for a pear
  *  body underneath; that body is gone, so the mark fills the frame again. Nothing here touches
  *  an expression coordinate — see the <G> transform in the render. */
@@ -368,9 +392,12 @@ export function Atlas({
     // eslint-disable-next-line react-hooks/rules-of-hooks -- fixed length, stable order
     ...ringSpin.map((v) => useAnimatedProps(() => ({ rotation: v.get() }))),
   ];
-  // Idle rock and reaction lag SUM here: the head keeps breathing through a celebration
-  // instead of snapping to the reaction and back.
-  const headProps = useAnimatedProps(() => ({ rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() }));
+  // Idle rock, reaction lag AND the expression's resting tilt all SUM here: the head keeps
+  // breathing through a celebration instead of snapping to the reaction and back, and a tilted
+  // expression still rocks rather than freezing at its angle.
+  const headProps = useAnimatedProps(() => ({
+    rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() + EXPRESSION_TILT[expression],
+  }));
   const saccadeProps = useAnimatedProps(() => ({ x: sacX.get(), y: sacY.get() }));
   // Control point rises => the arc deepens. Same delta on both eyes so they stay a pair.
   const happyLeftProps = useAnimatedProps(() => ({
@@ -441,9 +468,13 @@ export function Atlas({
    */
   const brows = () => {
     if (showBlink || active === 'default') return null;
-    const st = { stroke: INK, strokeWidth: 3, strokeLinecap: 'round' as const, fill: 'none' };
+    /* 2.4, not 3. At the 46pt Home renders, a 3-unit stroke on a 100-unit viewBox is ~1.4pt of
+       solid ink sitting directly on the eye's own outline, and the two merge into a bar. Checked
+       on device at 46pt: 2.4 still reads as a brow at the smallest size Atlas ships at, which is
+       the size that decides the weight -- anything legible at 46 is legible at 132. */
+    const st = { stroke: INK, strokeWidth: 2.4, strokeLinecap: 'round' as const, fill: 'none' };
     switch (active) {
-      case 'happy':   return (<><Path d="M25 14 Q34.5 9 44 13" {...st} /><Path d="M52 12.5 Q61 7.5 70 11.5" {...st} /></>);
+      case 'happy':   return (<><Path d="M25 12 Q34.5 7.5 44 11" {...st} /><Path d="M52 10.5 Q61 6 70 9.5" {...st} /></>);
       case 'proud':   return (<><Path d="M25 11 L44 9.5" {...st} /><Path d="M52 9.5 L71 8" {...st} /></>);
       case 'whoa':    return (<><Path d="M25 9 Q34.5 4 44 8" {...st} /><Path d="M52 7.5 Q61 2.5 70 6.5" {...st} /></>);
       case 'sad':     return (<><Path d="M25 11 Q34.5 15 44 17" {...st} /><Path d="M52 16 Q61 14 70 10" {...st} /></>);
