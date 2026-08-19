@@ -33,7 +33,29 @@ UNPINNED = re.compile(r"\.toLocale(?:String|DateString|TimeString)\(\s*(?:\)|\{)
 PINNED = re.compile(r"\.toLocale(?:String|DateString|TimeString)\(\s*['\"]")
 # A currency symbol immediately before an interpolated number is the highest-severity shape:
 # it hardcodes one region's symbol onto another region's separators.
-CURRENCY_ADJACENT = re.compile(r"[$£€]\s*\$\{[^}]*toLocale")
+# A currency symbol immediately before an interpolated number is the highest-severity shape.
+#
+# TWO SHAPES, and telling them apart needs more than a regex. The raw text `${x}` is AMBIGUOUS:
+#   template literal   `You put in $${x.toLocaleString()}`   -> the escaped $$ is currency
+#   JSX text           You put in ${x.toLocaleString()}      -> the $ is a literal character
+#   template interp    `${x.toLocaleString()} XP`            -> the $ is SYNTAX, not currency
+# The first version of this lane knew only the template form and REPORTED ZERO while
+# compound.tsx sat there rendering "$42.000" on a German phone. That is a FALSE NEGATIVE,
+# which is worse than a false positive: it says "clean" about a broken screen.
+#
+# The discriminator is the BACKTICK. Inside a template literal `${` is interpolation syntax;
+# on a line with no backtick, a `$` before `{` is a character the user actually reads.
+TEMPLATE_CURRENCY = re.compile(r"[$£€]\s*\$\{[^}]*toLocale")
+JSX_CURRENCY = re.compile(r"[$£€]\{[^}]*toLocale")
+
+
+def currency_adjacent(line):
+    """True when a currency symbol the USER SEES sits against an unpinned number."""
+    if TEMPLATE_CURRENCY.search(line):
+        return True
+    # Only trust a bare `${` as currency when the line is not a template literal at all.
+    return bool(JSX_CURRENCY.search(line)) and "`" not in line
+
 
 
 def strip_comments(text):
@@ -54,7 +76,7 @@ def audit():
             if UNPINNED.search(ln):
                 row = {"file": f, "line": i, "src": ln.strip()[:78]}
                 unpinned.append(row)
-                if CURRENCY_ADJACENT.search(ln):
+                if currency_adjacent(ln):
                     currency.append(row)
     return {"unpinned": unpinned, "pinned_correctly": pinned, "currency_adjacent": currency}
 
@@ -83,8 +105,13 @@ def _demo():
     assert PINNED.search("n.toLocaleString('en-US', { minimumFractionDigits: 2 })")
     assert not UNPINNED.search("n.toLocaleString('en-US')")
     # A currency symbol adjacent to an unpinned number is the worst shape.
-    assert CURRENCY_ADJACENT.search("`$${contributed.toLocaleString()}`")
-    assert not CURRENCY_ADJACENT.search("`${xp.toLocaleString()} XP`")
+    assert currency_adjacent("`$${contributed.toLocaleString()}`")   # escaped $$ in a template
+    # JSX form: a literal $ then an interpolation. The first version of this lane missed it.
+    assert currency_adjacent("You put in ${contributed.toLocaleString()}")
+    assert currency_adjacent("+${growth.toLocaleString()} growth")
+    # ...but the SAME characters inside a template literal are interpolation syntax, not money.
+    assert not currency_adjacent("`${xp.toLocaleString()} XP`")
+    assert not currency_adjacent("`${lp.toNext.toLocaleString()} to level`")
     print("locale_audit self-check OK")
 
 

@@ -9,10 +9,10 @@
   motion           10  4 STATIC of 26 routes                        0
   states            8  4 fetching screens, 3/4 skeleton             0
   compatibility     4  0 double-pad, 0 wrong-lib                    0
-  locale            3  8 unpinned toLocaleString                    0
+  locale            3  6 unpinned toLocaleString                    0
 
   DEFECT SCORE: 100 / 100   (adjudicated defects only)
-  OPEN WORKLIST: 68 items — NOT counted in the score above.
+  OPEN WORKLIST: 66 items — NOT counted in the score above.
 
   A 100 here means 'nothing is broken', never 'nothing is left'. The two
   numbers are separate on purpose: collapsing them is how a scorecard starts
@@ -21,7 +21,7 @@
        8  type ramp steps over healthy 12
       11  crowded type pairs (<1.08 ratio)
        9  raw font sizes bypassing tokens
-       8  unpinned toLocaleString (owner)
+       6  unpinned toLocaleString (owner)
       32  truncation sites to check on device
 ## Why every raw flag was dismissed — the point of the program
 

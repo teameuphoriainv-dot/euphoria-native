@@ -91,8 +91,12 @@ export default function CompoundLab() {
                 opposite of the treatment prose gets in this codebase. */}
             <NumberRollup value={fv} prefix="$" duration={600} type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.displayLg, marginTop: 2 }} />
             <View style={styles.splitRow}>
-              <ThemedText type="small" themeColor="mutedForeground">You put in ${contributed.toLocaleString()}</ThemedText>
-              <ThemedText type="smallBold" style={{ color: theme.success }}>+${growth.toLocaleString()} growth</ThemedText>
+              {/* 'en-US' pinned, matching lib/stocks.ts money(). The $ here is a LITERAL character in
+                  JSX text, so an unpinned number renders "$42.000" on a German phone — a US symbol
+                  wired to European separators. The locale lane reported 0 of these until its regex
+                  learned the JSX shape; it only knew the template-literal one. */}
+              <ThemedText type="small" themeColor="mutedForeground">You put in ${contributed.toLocaleString('en-US')}</ThemedText>
+              <ThemedText type="smallBold" style={{ color: theme.success }}>+${growth.toLocaleString('en-US')} growth</ThemedText>
             </View>
             <Svg width="100%" height={100} viewBox="0 0 320 100" preserveAspectRatio="none" style={{ marginTop: Spacing.two }}>
               <Defs>
