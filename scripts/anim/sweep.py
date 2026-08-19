@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from capture import record, real_rate
 from segment import diffs, windows
 from oscillate import peaks
+from filmstrip import strip
 import drive, solve
 
 OUT = "/private/tmp/claude-501/-Users-siddarthakodithyala/3c0f7888-16d4-4c65-b1fa-67076f930cd2/scratchpad/sweep"
@@ -31,9 +32,30 @@ def one(course, num, secs, scale=3):
     L = next((l for l in solve.load(course) if l['num'] == num), None)
     if not L: return {'course': course, 'num': num, 'error': 'no-such-lesson'}
     if drive.at_launcher(): drive.reconnect()
+
+    # CLEAR ANY STALE COMPLETION SCREEN FIRST.
+    # The previous lesson's "Lesson complete! +30 XP" can still be up when this one opens, and
+    # run_lesson's very first check looks for exactly that text -- so the new lesson returned
+    # done=True after ZERO steps, recorded 150s of a static victory screen, and scored 298
+    # "transitions" off it. One stale screen would have poisoned all 60 runs identically, and
+    # every one would have looked like a pass.
+    for _ in range(5):
+        if not any(k in ' '.join(drive.labels()).lower()
+                   for k in ('lesson complete', 'xp earned', 'xp', 'atlas is proud', 'collect')):
+            break
+        b = drive.button('collect', 'continue', 'done', 'close')
+        if not b: break
+        sp.run(["idb", "ui", "tap", "--udid", drive.U,
+                str(b[0][0] + b[0][2] // 2), str(b[0][1] + b[0][3] // 2)], capture_output=True)
+        time.sleep(2.0)
+
     sp.run(["xcrun", "simctl", "openurl", drive.U,
             f"euphorianative://lesson?course={slug(course)}&num={num}"], capture_output=True)
     time.sleep(3.5); drive.dismiss_logbox()
+
+    # And verify we are actually AT a lesson, not still on a completion screen.
+    if any(k in ' '.join(drive.labels()).lower() for k in ('lesson complete', 'atlas is proud')):
+        return {'course': course, 'num': num, 'error': 'stuck-on-completion-screen'}
 
     h264 = f"{OUT}/{course}-{num}.h264"
     res = {}
@@ -67,7 +89,23 @@ def one(course, num, secs, scale=3):
     out['transitions'] = f_out
     out['R1_out'] = sum(1 for f in f_out if f['R1'] != 'PASS')
     out['R2_fail'] = sum(1 for f in f_out if f['R2'] != 'PASS')
-    sp.run(["rm", "-rf", fd])          # frames are large; the h264 and the scores are kept
+
+    # FILMSTRIPS FOR THE FLAGGED ONES. A pass/fail count says a transition is wrong; it cannot
+    # say WHAT is wrong, and "what" is the whole point of this audit. Every R2 failure and the
+    # three longest windows get rendered so the motion can actually be LOOKED AT.
+    shots = f"{OUT}/strips"; os.makedirs(shots, exist_ok=True)
+    flagged = [x for x in zip(windows(series, tot), f_out) if x[1]['R2'] != 'PASS']
+    longest = sorted(zip(windows(series, tot), f_out), key=lambda x: -x[1]['dur'])[:3]
+    made = []
+    for (a, b), f in (flagged + longest)[:8]:
+        name = f"{shots}/{course}-{num}-t{f['t']}-{f['R2']}.png"
+        try:
+            strip(frames[a:b + 1][:24], name, cols=12, scale=1)
+            made.append(os.path.basename(name))
+        except Exception as e:
+            pass
+    out['strips'] = made
+    sp.run(["rm", "-rf", fd])          # raw frames are large; h264, scores and strips are kept
     return out
 
 def main():
