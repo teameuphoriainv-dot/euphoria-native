@@ -81,12 +81,66 @@ def dismiss_logbox():
     return not [n for n in nodes() if '[iap]' in n[4]]
 
 
+def dismiss_sheet():
+    """Close a modal sheet if one is up (trial reward, gate, dismissal offer).
+
+    These block EVERYTHING behind them and are invisible to a label check that only looks for
+    lesson text. A reward sheet -- "You've earned something / Open it / Not now" -- appears after
+    the first completed lesson and stalled a 60-lesson sweep on its very first run: the driver
+    reported 0 steps while 150 seconds of a static modal were recorded as 295 "transitions".
+
+    "Not now" / "Dismiss" is preferred over "Open it", which would navigate somewhere new.
+    """
+    ns = nodes()
+    labs = ' '.join(n[4] for n in ns).lower()
+    if not any(k in labs for k in ("you've earned", 'not now', 'maybe later', 'open it')):
+        return False
+    for want in ('not now', 'maybe later', 'dismiss', 'close'):
+        b = [n for n in ns if n[5] == 'AXButton' and want in n[4].lower()]
+        if b:
+            sp.run(["idb", "ui", "tap", "--udid", U, str(b[0][0] + b[0][2] // 2),
+                    str(b[0][1] + b[0][3] // 2)], capture_output=True)
+            time.sleep(1.4)
+            return True
+    return False
+
+
+def goto_lesson(course_slug, num, title=None, tries=3):
+    """Deep-link to a lesson and VERIFY it actually opened.
+
+    Deep links silently fail when the app is already on a pushed screen -- measured across a
+    26-route walk where only 9 of 23 routes actually navigated, while every one of them was
+    recorded and scored as if it had. A deep link that does nothing is indistinguishable from a
+    screen with no animation, which is the worst possible failure for an animation audit.
+
+    So: clear anything blocking, fire the link, and confirm the lesson's own title is on screen.
+    Falling back through home resets the navigation stack when a direct link will not take.
+    """
+    for attempt in range(tries):
+        dismiss_logbox(); dismiss_sheet()
+        if attempt:                     # a pushed screen blocks deep links; reset via home first
+            sp.run(["xcrun", "simctl", "openurl", U, "euphorianative://home"], capture_output=True)
+            time.sleep(2.5)
+        sp.run(["xcrun", "simctl", "openurl", U,
+                f"euphorianative://lesson?course={course_slug}&num={num}"], capture_output=True)
+        time.sleep(3.5)
+        dismiss_logbox(); dismiss_sheet()
+        labs = ' '.join(labels()).lower()
+        if title and title.lower()[:28] in labs:
+            return True
+        if not title and ('lesson' in labs or 'continue' in labs):
+            return True
+    return False
+
+
 def advance():
     """One step forward. Returns (moved, what_was_tried)."""
     if at_launcher():
         return reconnect(), 'reconnect'
     if dismiss_logbox():
         return True, 'logbox'
+    if dismiss_sheet():
+        return True, 'sheet'
     btn = button('continue', 'check', 'next', 'got it')
     if not btn:
         return False, 'no-button'

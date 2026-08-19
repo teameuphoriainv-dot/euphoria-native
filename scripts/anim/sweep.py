@@ -33,29 +33,15 @@ def one(course, num, secs, scale=3):
     if not L: return {'course': course, 'num': num, 'error': 'no-such-lesson'}
     if drive.at_launcher(): drive.reconnect()
 
-    # CLEAR ANY STALE COMPLETION SCREEN FIRST.
-    # The previous lesson's "Lesson complete! +30 XP" can still be up when this one opens, and
-    # run_lesson's very first check looks for exactly that text -- so the new lesson returned
-    # done=True after ZERO steps, recorded 150s of a static victory screen, and scored 298
-    # "transitions" off it. One stale screen would have poisoned all 60 runs identically, and
-    # every one would have looked like a pass.
-    for _ in range(5):
-        if not any(k in ' '.join(drive.labels()).lower()
-                   for k in ('lesson complete', 'xp earned', 'xp', 'atlas is proud', 'collect')):
-            break
-        b = drive.button('collect', 'continue', 'done', 'close')
-        if not b: break
-        sp.run(["idb", "ui", "tap", "--udid", drive.U,
-                str(b[0][0] + b[0][2] // 2), str(b[0][1] + b[0][3] // 2)], capture_output=True)
-        time.sleep(2.0)
-
-    sp.run(["xcrun", "simctl", "openurl", drive.U,
-            f"euphorianative://lesson?course={slug(course)}&num={num}"], capture_output=True)
-    time.sleep(3.5); drive.dismiss_logbox()
-
-    # And verify we are actually AT a lesson, not still on a completion screen.
-    if any(k in ' '.join(drive.labels()).lower() for k in ('lesson complete', 'atlas is proud')):
-        return {'course': course, 'num': num, 'error': 'stuck-on-completion-screen'}
+    # NAVIGATE AND VERIFY. Two failures killed earlier runs, and both looked like success:
+    #   * a stale "Lesson complete" screen made run_lesson return done=True in ZERO steps
+    #   * a reward SHEET ("You've earned something / Not now") blocked the whole screen while
+    #     150s of static modal were scored as 295 "transitions"
+    # goto_lesson clears both, fires the deep link, and confirms THIS lesson's own title is on
+    # screen -- deep links silently no-op on a pushed screen, and a link that does nothing is
+    # indistinguishable from a screen with no animation.
+    if not drive.goto_lesson(slug(course), num, L.get('title')):
+        return {'course': course, 'num': num, 'title': L.get('title'), 'error': 'did-not-navigate'}
 
     h264 = f"{OUT}/{course}-{num}.h264"
     res = {}
