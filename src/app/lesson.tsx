@@ -340,7 +340,8 @@ export default function Lesson() {
 
       <View style={styles.body}>
         {idx === 0 && (
-          <Animated.View key="intro" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
+          <Animated.View key="intro" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.midScroll}>
+            <ScrollView contentContainerStyle={styles.introContent} showsVerticalScrollIndicator={false}>
             <Atlas size={132} expression="happy" entrance="bounce" idle />
             <View style={{ alignSelf: 'stretch', alignItems: 'center', marginTop: Spacing.four }}>
               <AtlasSpeech text="Ready? Let's get into it." delay={420} tail="top" maxWidth={272} />
@@ -356,9 +357,16 @@ export default function Lesson() {
               * escaped the safe area. `styles.title` also lacked the paddingHorizontal its
               * sibling `styles.center` has, so the text ran into the screen edge.
               *
-              * Capping brings the total height back inside the viewport; the padding stops the
-              * horizontal clip. A scroll view would be the fuller fix, but this card is a
-              * fixed five-element layout and capping is the smaller, safer change.
+              * CORRECTION. A previous pass claimed capping was "the smaller, safer change" than
+              * a scroll view. The device frame disproved that: capping fixed the title and the
+              * label, but the speech bubble still overflowed into the notch and Continue still
+              * painted over the step preview. Content taller than its container is a SCROLLING
+              * problem, and no font cap solves it — it only postpones the overflow.
+              *
+              * The fix reuses this file's own idiom. `midContent` already reserves
+              * FOOTER_CLEARANCE so a step body cannot slide under the Continue button; the
+              * intro simply never used it. `styles.centered` is left alone because four other
+              * render states share it (loading, done, streak) and none of them needs changing.
               */}
             <ThemedText type="label" maxFontSizeMultiplier={1.6} style={{ color: theme.iconLilac, marginTop: Spacing.four }}>
               {(getCourseById(courseId)?.title ?? 'Course').toUpperCase()} · LESSON {lesson.num}
@@ -387,6 +395,7 @@ export default function Lesson() {
                 </ThemedText>
               </View>
             )}
+            </ScrollView>
           </Animated.View>
         )}
 
@@ -593,6 +602,11 @@ const styles = StyleSheet.create({
    * The scroll fixed the CLIPPING; this fixes the OCCLUSION.
    */
   midContent: { flexGrow: 1, justifyContent: 'center', paddingBottom: FOOTER_CLEARANCE },
+  // Intro card. flexGrow keeps it vertically centred while the content is short, and lets it
+  // scroll once Dynamic Type makes it taller than the screen — at AX5 it was overflowing off
+  // BOTH ends, putting the course label above the status bar. FOOTER_CLEARANCE is the same
+  // reservation midContent makes, so Continue cannot paint over the step preview.
+  introContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: FOOTER_CLEARANCE },
   /** Questions start at the TOP rather than centred — a long prompt centred vertically pushes
    *  its own options off both ends. */
   choiceContent: { flexGrow: 1, paddingBottom: FOOTER_CLEARANCE },

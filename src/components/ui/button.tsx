@@ -42,7 +42,7 @@ export function Button({
         full && styles.full,
         style,
       ]}>
-      {loading ? <ActivityIndicator color={fg} /> : <ThemedText type="bodyMedium" style={{ color: fg }}>{label}</ThemedText>}
+      {loading ? <ActivityIndicator color={fg} /> : <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ color: fg }}>{label}</ThemedText>}
     </SpringPressable>
   );
 }
@@ -108,7 +108,13 @@ export function GradientButton({
         ) : (
           <>
             {icon ? <UIcon name={icon} size={17} color="#fff" /> : null}
-            <ThemedText type="heading" style={{ color: '#fff', fontSize: FontSize.bodyLg }}>{label}</ThemedText>
+            {/*
+              * AX5 pushed "Continue" straight out of its own button: bodyLg is 17pt, which
+              * scales to ~53pt against a 56pt box. Capped rather than opted out of scaling —
+              * `allowFontScaling={false}` would freeze the label for users who need it large.
+              * The styles below also swap height for minHeight so the button can grow.
+              */}
+            <ThemedText type="heading" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ color: '#fff', fontSize: FontSize.bodyLg }}>{label}</ThemedText>
           </>
         )}
       </LinearGradient>
@@ -118,7 +124,7 @@ export function GradientButton({
 
 const styles = StyleSheet.create({
   base: {
-    height: 52,
+    minHeight: 52,   // was `height` — a fixed box clipped its own label at AX5
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
@@ -127,6 +133,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   gradientWrap: { borderRadius: Radius.lg, overflow: 'hidden' },
-  cta: { height: 56, borderRadius: Radius.lg },
+  cta: { minHeight: 56, borderRadius: Radius.lg },   // minHeight, so a scaled label grows the button
   full: { alignSelf: 'stretch' },
 });
