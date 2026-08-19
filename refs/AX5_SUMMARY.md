@@ -25,7 +25,29 @@ digest TODAY card · digest article (2) · trade portfolio value · stock price 
 compound header · compound projection · price-chart empty note · news.tsx (clean) ·
 search field
 
-## Applied but UNVERIFIED (5), with the reason each is unreachable
+## Applied but UNVERIFIED — resolved down to 2, and those settled from the code
+
+Four of the original five were cleared by SEEDING the state that exposes them, which turned
+out to be the answer to a "false pass" rather than an excuse for one:
+
+- **options chain** — was called unreachable; it is reachable by deep link, and checking it
+  found a REAL defect the audit's own sweep had missed (prices splitting as "$57." / "00").
+- **league tier** — this account holds "Saver", 5 characters, which fits and passes for the
+  wrong reason. Seeding `xp` to 5200 forces "Portfolio Manager", 17 characters, the longest
+  name in the app. CONFIRMED wrapping to two complete lines.
+- **reward revealed value** — seeding `pendingRewards` reached the branch and found the TICKER
+  splitting as "AA" / "PL". Fixed and confirmed. The value's ellipsis turned out to be an
+  artifact of my own extreme seed: rewards can only ever be $0.25–$2.00, so the cap was
+  deliberately left alone rather than tightened for a value that cannot occur.
+
+**The remaining 2 are settled from the code, NOT device-confirmed, and are labelled as such:**
+
+| state | why the device could not reach it | why the code settles it |
+|---|---|---|
+| lesson DONE | `idx` is LOCAL component state, so seeding cannot set it, and two drive attempts (34 tap-cycles at default size, and an earlier pass at AX5) failed to advance past the intro | it uses `styles.introContent`, the SAME idiom as the lesson intro, which is confirmed at AX5 and at default size in the same file |
+| StreakIgnite | sits one step beyond DONE, behind the same barrier | its `wrap` sets no fixed width or height, and `count` has no `lineHeight` since the frozen one was removed, capped at 1.6 → max 64pt. A streak is 1–3 digits; "365" at 64pt is ~115pt in an unconstrained box |
+
+### The original list, for the record
 
 | fix | why it could not be verified |
 |---|---|
