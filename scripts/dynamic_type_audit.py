@@ -50,6 +50,27 @@ MIN_TEXT_BOX_PT = 20.0
 TEXT_MARKERS = ("<Text", "<ThemedText", "ThemedText", "Text>")
 
 
+def blank_comments(text):
+    """Replace comment CONTENT with spaces, keeping every newline.
+
+    This lane counts `numberOfLines` occurrences and reports the line each sits on. Without
+    this it counted its own documentation: two comments written while FIXING the AX5
+    truncations quote `numberOfLines={1}` to explain what was wrong, and the audit scored
+    those sentences as fresh defects. The count moved UP after a fix that removed two real
+    clamps, which is the only reason the bug was noticed.
+
+    states_audit.py already learned this — trade.tsx was misclassified as a fetching screen
+    because `/api/market` appeared in prose. Same error, different lane.
+
+    Comments are BLANKED rather than deleted so line numbers stay truthful; dropping them
+    would shift every reported line and make the worklist unusable.
+    """
+    def keep_newlines(m):
+        return re.sub(r"[^\n]", " ", m.group(0))
+    text = re.sub(r"/\*.*?\*/", keep_newlines, text, flags=re.S)
+    return re.sub(r"//[^\n]*", keep_newlines, text)
+
+
 def sources():
     return [f for f in glob.glob("src/**/*.tsx", recursive=True) if "node_modules" not in f]
 
@@ -57,7 +78,7 @@ def sources():
 def audit():
     trunc, fixed, opted_out = [], [], []
     for f in sources():
-        lines = open(f, encoding="utf-8", errors="ignore").read().split("\n")
+        lines = blank_comments(open(f, encoding="utf-8", errors="ignore").read()).split("\n")
         for i, ln in enumerate(lines, 1):
             if "numberOfLines" in ln:
                 m = re.search(r"numberOfLines=\{?(\d+)", ln)
@@ -122,6 +143,14 @@ def report(a):
 
 
 def _demo():
+    # A comment that MENTIONS numberOfLines is documentation, not a truncation site.
+    assert "numberOfLines" not in blank_comments("  /* uses numberOfLines={1} here */")
+    assert "numberOfLines" not in blank_comments("  // numberOfLines={2} was wrong")
+    # Real code must survive untouched.
+    assert "numberOfLines" in blank_comments("<Text numberOfLines={1}>hi</Text>")
+    # Line numbers must not shift, or every reported line becomes a lie.
+    assert blank_comments("a\n/* x\ny */\nb").count("\n") == 3
+
     assert abs(AX5_SCALE - 3.12) < 0.01, "Apple's body ramp is 17 -> 53pt"
     assert AX5_SCALE > WCAG_RESIZE, "AX5 exceeds WCAG's 200% floor, so passing 200% is not enough"
     # A 44pt row fits one 17pt line comfortably and cannot fit one 53pt line.
