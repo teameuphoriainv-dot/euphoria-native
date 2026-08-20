@@ -311,6 +311,28 @@ observation, NOT queued as a fix.
 bouncing: on interactive steps the multi-peak is the driver tapping, and on content steps it is
 compression on static text. Neither is an app defect.
 
+## 2f. Frame-by-frame across the whole-app recording (15,329 frames)
+
+The six largest motion windows, one per route, read frame by frame:
+
+| route | window | what the frames show |
+|---|---|---|
+| options | 4.17s / 31 peaks | dense options table churning — the walk's own SCROLL, not an entrance |
+| onboarding | 3.17s / 12 peaks | "Create your free profile" form, with a dark transition mid-sequence |
+| "welcome" | 3.06s / 1 peak | **a different screen entirely** — route labels here are unreliable |
+| start | 2.81s / 11 peaks | "How much do you already know?" with Atlas — real staggered content |
+| **league** | 2.60s / **26 peaks** | crest plus leaderboard rows arriving progressively — good choreography |
+| **reward** | 2.29s / 14 peaks | Atlas visibly motion-blurred across frames — genuine mascot animation |
+
+**This corroborates the entrance work.** `league`, `start` and `reward` all show real multi-peak
+staggered entrances, matching their `RiseIn` usage. The screens with none were `search`,
+`friends` and `why-not-free` — the three that were fixed. The targeting was right for a reason
+that can be checked, not because it felt right.
+
+**Two cautions this read reinforces.** The route labelled "welcome" shows different content
+entirely, because label attribution in that pass came from a walk where only 9 of 23 routes
+navigated. And `options`' 31 peaks is the walk's own scrolling. Neither is an app property.
+
 ## 3. Entry transitions are wildly inconsistent
 
 Peak motion in the 1.2s after each route opened, for routes that verifiably navigated:
