@@ -333,6 +333,37 @@ that can be checked, not because it felt right.
 entirely, because label attribution in that pass came from a walk where only 9 of 23 routes
 navigated. And `options`' 31 peaks is the walk's own scrolling. Neither is an app property.
 
+## 2g. Verified per-route table (replaces the retracted one)
+
+`scripts/anim/route_audit.py`, navigation confirmed per route by comparing label sets. 24 of 25
+routes navigated; `home` was skipped by a harness bug (it parked on home, so home->home changed
+nothing) which is now fixed. Idle motion = share of frames changing while the screen sits
+untouched.
+
+| route | idle% | wins | | route | idle% | wins |
+|---|---|---|---|---|---|---|
+| lesson | 62.1 | 11 | | options | 18.7 | 10 |
+| welcome | 58.7 | 14 | | news | 17.2 | 4 |
+| reward | 54.1 | 13 | | courses | 16.9 | 7 |
+| chat | 50.5 | 13 | | digest | 13.1 | 4 |
+| friends | 46.7 | 11 | | stock-sym | 11.8 | 4 |
+| onboarding | 39.3 | 11 | | learn | 11.6 | 2 |
+| auth | 38.8 | 13 | | games-term-match | 11.5 | 3 |
+| digest-slug | 33.7 | 16 | | settings-account | 3.1 | 1 |
+| you | 30.4 | 13 | | **explore-compound** | **1.0** | **0** |
+| games | 23.0 | 6 | | **search** | **0.0** | **0** |
+| trade | 22.5 | 5 | | league | 20.5 | 7 |
+| why-not-free | 22.2 | 8 | | start | 19.5 | 9 |
+
+**`search` and `explore-compound` are the only screens with zero motion windows**, and
+`settings-account` has one. All three mount `AmbientBackground`, so the starfield is not absent.
+
+**Not filed as a defect.** `starCount` does not explain it — `news` runs 24 stars with `glow`
+off and still reaches 17.2%, against `search`'s 22 stars at 0.0% — so the difference is content,
+not configuration. Search with an empty query, a calculator at rest and a settings list are all
+screens with nothing that ought to be moving. Recorded because the contrast is real and someone
+should decide it deliberately, not because a number is low.
+
 ## 3. Entry transitions are wildly inconsistent
 
 Peak motion in the 1.2s after each route opened, for routes that verifiably navigated:
