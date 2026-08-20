@@ -141,7 +141,16 @@ amplitude is 1pt. The easing was never the problem.
       never captured — **not** because they are static. Re-run with a longer budget.
 - [!] **RevenueCat offering has no packages** — `refs/IAP_OFFERING_REPORT.md`. Dashboard fix,
       no code change available to me. Its LogBox banner also overlaps `Continue` and eats taps.
-- [ ] **Crest ladder** — Saver (rank 0) is still a bare shield; emblems could carry more identity.
+- [-] **Crest ladder — the note was WRONG, dropped.** It claimed "Saver (rank 0) is still a bare
+      shield". `league-crest.tsx:113-120` renders Saver as three stacked ellipses (coins seen
+      edge-on), with a comment stating it is deliberately the most literal mark in the set because
+      "tier 1 is where the metaphor has to be legible without having learned the ladder yet."
+      What Saver lacks is ORNAMENTS, which by design start at rank 2 and accumulate: flanges,
+      laurels, banner, wings, gem, sunburst. That is a documented Clash-Royale-style structure
+      ladder where each rank keeps what the ranks below earned and adds one piece of hardware.
+      Rank 1 having no hardware is the FLOOR the ladder is measured from, not a gap in it.
+      Retraction #12: the note was written from the ornament code without reading the emblem
+      switch twelve lines above it.
 
 ---
 
