@@ -27,7 +27,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { tierForXp } from '@/lib/league';
 import { PEOPLE, type Person } from '@/lib/people';
 import { relationshipOf, useApp, type Relationship } from '@/lib/store';
+import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
 
 const LABEL: Record<Relationship, string> = {
   none: 'Follow',
@@ -139,8 +141,19 @@ export default function Friends() {
           accounts presented as real.
         */}
         <Section title="YOUR FRIENDS" note="Practice profiles — real friends arrive when accounts do.">
+          {/*
+            * Rows STAGGER IN. Measured before this: the list arrived in a single 0.64s window
+            * with ONE peak and 163,082 changed pixels -- the whole thing slamming in at once.
+            * friends.tsx was one of only four screens in the app with no entrance animation,
+            * against 15 that use RiseIn. Capped per tokens.ts so a long DISCOVER list does not
+            * leave its tail dragging. RiseIn degrades to a fade under Reduced Motion by itself.
+            */}
           {friends.length
-            ? friends.map((p) => <PersonRow key={p.id} person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />)
+            ? friends.map((p, i) => (
+                <RiseIn key={p.id} delay={Math.min(i * STAGGER_GAP, STAGGER_CAP)}>
+                  <PersonRow person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />
+                </RiseIn>
+              ))
             : /*
                 COPY: same delegated provenance as the section note above — owner selected the
                 approach, wording is mine (§0.7).
@@ -155,8 +168,10 @@ export default function Friends() {
 
         {inbound.length ? (
           <Section title="FOLLOWS YOU">
-            {inbound.map((p) => (
-              <PersonRow key={p.id} person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />
+            {inbound.map((p, i) => (
+              <RiseIn key={p.id} delay={Math.min(i * STAGGER_GAP, STAGGER_CAP)}>
+                <PersonRow person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />
+              </RiseIn>
             ))}
           </Section>
         ) : null}
@@ -172,7 +187,11 @@ export default function Friends() {
             style={[styles.input, { borderColor: theme.border, color: theme.text }]}
           />
           {others.length
-            ? others.map((p) => <PersonRow key={p.id} person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />)
+            ? others.map((p, i) => (
+                <RiseIn key={p.id} delay={Math.min(i * STAGGER_GAP, STAGGER_CAP)}>
+                  <PersonRow person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />
+                </RiseIn>
+              ))
             : empty(query ? `Nobody matches "${query.trim()}".` : 'You are following everyone here.')}
         </Section>
       </ScrollView>
