@@ -50,14 +50,32 @@ amplitude is 1pt. The easing was never the problem.
       static intros rather than interaction. Owner accepted recording-only for THIS run and asked
       for the fix afterwards, so the next sweep captures interaction animation too.
 
-- [ ] **1. Raise idle amplitudes, and PROVE the delta.**
-      `SACCADE_UNITS` 1.1 · `ARC_FLEX_UNITS` 1.6 · `SWAY_DEG` 1.6° · `ROCK_DEG` 3.4°.
-      Harness is built: `scripts/anim/mascot_density.py` reports the **lift of mascot over a
-      same-frame control**, because on welcome the control (69%) beat the mascot (38%) and an
-      uncontrolled number would have called that screen lively.
-      Baseline to beat — welcome **38% vs 69% control, lift −31**.
+- [ ] **1. Raise idle amplitudes — iterate toward the Duolingo anchor.**
+
+      **Target (rubric R7, measured on ref3/Duolingo, 16.7s of mascot at rest):**
+      motion in **81% of frames**, mean changed region **54% × 48% of the mascot's own box**.
+
+      **Method — double, measure, repeat.** Owner asked for the anchor as the goal but stepped
+      iteration as the route, so no single large jump:
+
+      | pass | SACCADE | ARC_FLEX | SWAY° | ROCK° |
+      |---|---|---|---|---|
+      | current | 1.1 | 1.6 | 1.6 | 3.4 |
+      | 1 | 2.2 | 3.2 | 3.0 | 5.0 |
+      | 2 | 4.4 | 6.4 | 4.5 | 7.0 |
+      | 3 | 8.0 | 10.0 | 6.0 | 9.0 |
+
+      After each pass run `scripts/anim/mascot_density.py welcome` and record **lift = mascot% −
+      control%**. Stop at the first pass that clears the anchor, or when it visibly overshoots
+      into distraction — whichever comes first. **Baseline to beat: welcome 38% vs 69% control,
+      lift −31.**
+
+      *Before quoting any gap against R7, re-measure Euphoria like-for-like* — the 38% used a
+      different region and threshold than the Duolingo 81%, so they are not yet comparable.
+
       *Constraints:* must still pass `reduced_motion_audit.py --selftest`; larger sway/rock must
-      not push R1 outside its band.
+      not push R1 outside its band; `default` expression must keep drawing no brows so the
+      resting brand mark is unchanged.
 
 - [ ] **2. Give content its own resting motion.**
       The structural finding. `courses` (35%) and `digest` (49%) mount `AmbientBackground` but
