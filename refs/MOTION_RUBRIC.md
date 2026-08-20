@@ -406,3 +406,28 @@ the way there at the halfway point, not a linear ramp.
 **What would work:** an element that enters onto a screen with no ambient behind it and no
 outgoing element sharing its pixels — a reward chip or a modal, rather than a headline replacing
 a headline. The instrument is built; only the target needs choosing.
+
+## A MATCHED LABEL IS NOT A MATCHED ELEMENT — draw the box, every time
+
+> Three separate times in this audit, an element lookup returned a **plausible but wrong**
+> element, and every one was caught only by drawing the rectangle on a screenshot and looking:
+>
+> 1. **The guessed mascot rectangle.** A region invented rather than read, sitting ~200pt above
+>    Atlas. It produced the audit's single biggest false finding and survived four analyses,
+>    because all four inherited the same bad input.
+> 2. **A centre-anchored headline box.** Derived correctly from the prompt's a11y frame, then
+>    centred on it — but the prompt is a four-line 128pt block and Atlas is top-aligned to its
+>    first line, so the box sat ~30pt low over empty space.
+> 3. **A label matching the wrong node.** Searching for `'incorrect'` to find the lesson feedback
+>    sheet matched an OPTION ROW instead, whose own accessibility label is `"25. Incorrect."`.
+>    The box landed on the quiz rows, 290pt above the sheet, and the measurement returned a flat
+>    series that looked like an element which never moved.
+>
+> **The rule.** Taking the region from the accessibility tree is necessary and NOT sufficient.
+> A label match is a hypothesis about which element you have. Render the box, look at it, and
+> only then measure. In all three cases the numbers that followed were internally consistent and
+> completely wrong — nothing in the data said so.
+>
+> Corollaries that keep recurring: prefer the element's OWN copy over a generic word that other
+> nodes may share; disambiguate with position when several nodes match (the feedback sheet is
+> always the bottom-most); and anchor on the edge that actually aligns, not on a centre.

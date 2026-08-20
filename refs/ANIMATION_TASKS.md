@@ -174,6 +174,25 @@ amplitude is 1pt. The easing was never the problem.
 
 ---
 
+
+## RUBRIC RULES — status after the per-element instrument
+
+- [x] **R4 scale origin — CLOSED.** Measured on both sides. Reference (ref3, Duo entering) holds
+      a 63–83px width band while x sweeps 102→21. Euphoria's onboarding headline holds
+      272–276pt across **three** captures, ratio **0.99**. Elements enter by MOVING, not growing.
+      This is the rule that condemned `tap-reveal`'s original `ZoomIn`-from-scale-0.
+- [~] **R5 exit behaviour — shape established, duration not.** The headline exits by FADING over
+      multiple frames, never a one-frame cut. Two clean captures gave 135ms and 62ms against
+      `step-transition.ts`'s 150ms `EXIT`. **Quote the shape, not the milliseconds.** Stays open
+      as a reference-derived rule: a video has no accessibility tree, so the reference side
+      cannot be measured this way.
+- [~] **R6 easing shape — OPEN, two metrics eliminated.** Thresholded overlap is wrong by
+      construction (gating at brightness 200 makes every opacity ramp read as ease-in). Mean
+      luminance is right in principle but finds no usable rise, because the cross-fade plus
+      `AmbientBackground` means the region never nears zero. Now being measured by POSITION on
+      `lesson-feedback.tsx` — 190pt of travel, ζ=0.607, predicted 9.1% overshoot peaking at
+      266ms. Predictions pre-registered in `CARRYOVER.md` Appendix E3 before the capture.
+
 ## SETTLED — do not redo
 
 - [x] `tap-reveal` cross-fade (`c499b09`) — hard cut + ZoomIn-from-0 + ζ=0.8 bounce, all measured
