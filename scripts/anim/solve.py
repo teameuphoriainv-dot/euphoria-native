@@ -73,7 +73,17 @@ def find_step(lesson, screen_labels):
     for st in lesson.get('steps', []) or []:
         opts = st.get('options') or st.get('order')
         if not opts or len(opts) < 2: continue
-        present = sum(1 for o in opts if any(norm(o) and norm(o) in k or k in norm(o) for k in keys))
+        # PRECEDENCE BUG, fixed. This read
+        #     any(norm(o) and norm(o) in k or k in norm(o) for k in keys)
+        # which Python groups as (norm(o) and (norm(o) in k)) or (k in norm(o)) -- so any SHORT
+        # screen label contained in a long option counted as a match. "20%" on a slider screen
+        # is a substring of plenty of drag-sort items, so a dragSort step matched a slider screen
+        # and the wrong answer was applied. Now the OPTION must appear in the LABEL, one
+        # direction only, with a length floor so trivial strings cannot match.
+        def present_on_screen(o):
+            n = norm(o)
+            return len(n) >= 4 and any(n in k for k in keys)
+        present = sum(1 for o in opts if present_on_screen(o))
         if present == len(opts):
             best = st; break
     return best
@@ -95,19 +105,33 @@ def place_slider(ns, st):
     proportional tap can miss by a few percent from padding inside the hit area, so it re-taps
     with a correction. number-line.tsx accepts a tolerance, so landing near is enough.
     """
-    track = [n for n in ns if n[5] == 'AXSlider']
-    if not track:
-        track = [n for n in ns if norm(st['question'])[:60] in norm(n[4]) and n[5] != 'AXStaticText']
+    # IDENTIFIED BY ITS VALUE, NOT ITS ROLE. The same track has been observed as AXSlider and
+    # as AXButton on different reads -- role instability has now bitten four different element
+    # types in this app. What is stable is that the track is the node carrying a numeric AXValue
+    # ("20%"). Role is kept only as a first preference.
+    def numeric(v):
+        d = ''.join(c for c in (v or '') if c.isdigit() or c in '.-')
+        return d not in ('', '-', '.', '-.')
+    # RE-READ, do not trust the caller's snapshot. Direct taps at the computed coordinates were
+    # verified to work (frac 0.8 -> 80%, 0.5 -> 58%) while place_slider reported a no-op from the
+    # same maths -- the difference was stale geometry. Third handler to need this; match and
+    # trueFalse already do.
+    ns = nodes()
+    track = ([n for n in ns if n[5] == 'AXSlider']
+             or [n for n in ns if numeric(n[6]) and norm(st['question'])[:40] in norm(n[4])]
+             or [n for n in ns if numeric(n[6]) and n[2] > 150])
     if not track: return False, 'slider-track-not-found'
     x, y, w, h, _, _, _ = track[0]
     lo, hi, want = st['min'], st['max'], st['correct']
     span = (hi - lo) or 1
 
     def read():
+        # Same rule as the track lookup: the value, not the role.
         for n in nodes():
-            if n[5] == 'AXSlider':
-                try: return float(''.join(c for c in n[6] if c.isdigit() or c == '.' or c == '-'))
-                except ValueError: return None
+            if n[5] != 'AXSlider' and not (numeric(n[6]) and norm(st['question'])[:40] in norm(n[4])):
+                continue
+            try: return float(''.join(c for c in n[6] if c.isdigit() or c in '.-'))
+            except ValueError: return None
         return None
 
     prev = read()
