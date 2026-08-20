@@ -531,3 +531,28 @@ is nothing to fix.** Filed before it could be written up as a defect.
 Note the method is now available and self-checked, so the open `oops` / `thinking` tilt question
 can be settled the same way — it needs a still of a tilted expression, which needs a wrong
 answer left on screen.
+
+## 11. Scroll and list performance — no defect found in source, and NOT measurable on device
+
+**Source audit.** There is **not one `FlatList` or `SectionList` in the app**; every list is a
+`ScrollView` with `.map()`. That is only a defect when a list is long enough that virtualisation
+pays for itself, and none of them are:
+
+| list | file | size |
+|---|---|---|
+| `STOCKS` / `ALL_SYMS` | `lib/stocks.ts` | **7** (the Mag 7) |
+| `COURSES` | `lib/curriculum/courseIndex.ts` | 12 |
+| `WEEK` | `app/(tabs)/home.tsx` | 7 |
+| digest `library` | `lib/digest-content.ts` | **35**, cards render **no images** |
+
+At these sizes `ScrollView` + `map` is the correct choice — `FlatList` would add virtualisation
+bookkeeping for no benefit, and the digest cards carry no image decode to defer. **No defect is
+evident from source.**
+
+**Device measurement: not possible.** See `MOTION_RUBRIC.md` — the capture path is bandwidth-
+limited, so during a scroll its own frame rate collapses to ~9fps and reports the recorder rather
+than the app. Both a "digest janks" and a "scrolling is fine" conclusion are unsupported.
+
+**Recommended instead:** React Native's Perf Monitor (dev menu → Show Perf Monitor) reports UI
+and JS thread FPS live on-device. Ten seconds of scrolling with it open answers this question
+directly and costs nothing. Filed as the next step rather than guessed at.

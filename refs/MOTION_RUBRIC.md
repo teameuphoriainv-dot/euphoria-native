@@ -252,3 +252,36 @@ The 3D flip is **rejected by owner direction** and is not under consideration.
 > prompt's TOP edge, not its centre** — the prompt is a multi-line block up to 128pt tall and
 > Atlas is top-aligned to its first line. Centring put the box ~30pt low, catching Atlas's
 > bottom third plus empty space. Caught, as always, by drawing the box and looking at it.
+
+## SCROLL PERFORMANCE IS NOT MEASURABLE WITH THIS CAPTURE PATH
+
+> **`idb video-stream` is bandwidth-limited to roughly 100 KB/s.** Measured across three takes
+> on the same device and resolution:
+>
+> | capture | frames | size | KB/frame | **KB/s** |
+> |---|---|---|---|---|
+> | lesson shake | 144 | 294KB | 2.0 | 113 |
+> | lesson celebrate | 186 | 306KB | 1.6 | 90 |
+> | **digest scroll** | **22** | 252KB | **11.5** | 105 |
+>
+> Bytes per second is constant; bytes per FRAME differ sixfold. A scroll changes every pixel, so
+> inter-frame compression buys nothing and each frame costs ~6× more — and 6× fewer fit through
+> the pipe. The resulting **9.2 fps is the RECORDER's rate, not the app's.**
+>
+> Confirmed by a second, independent line. Scrolling `courses` returned 35.8fps against digest's
+> 9.2 — but courses' changed-pixel fraction collapses to 0–1% after ~10 frames because the short
+> list reaches its end, while digest sustains 40–64% for the whole window. **Frame rate tracks how
+> long full-screen motion lasts, not how heavy the content is.** If the app were janking under
+> list weight, the relationship would be the other way round.
+>
+> **Therefore: no dropped-frame or smoothness claim may be made from these captures**, in either
+> direction. Not "digest scrolls badly", and equally not "scrolling is fine".
+>
+> **A duplicate-frame metric is also invalid here** for a second reason: after a flick decelerates
+> the content genuinely stops, and settled frames are identical. `scroll_probe.py` counted those
+> as dropped frames and reported 29.4% on a list that had simply finished scrolling. Any such
+> metric must gate on the content still being in motion.
+>
+> **The right instrument is the React Native Perf Monitor** (dev menu → Show Perf Monitor), which
+> reports real UI and JS thread FPS on-device in seconds and costs nothing to run. Use that, or
+> `xctrace`, for scroll work. Not this.
