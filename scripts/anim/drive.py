@@ -181,13 +181,28 @@ def goto_lesson(course_slug, num, title=None, tries=3):
 
 
 def advance():
-    """One step forward. Returns (moved, what_was_tried)."""
+    """One step forward. Returns (moved, what_was_tried).
+
+    NOTE THE TUPLE. `if not advance():` is always False because a non-empty tuple is truthy --
+    that mistake hid a stall for 8 steps. Unpack it: `moved, how = advance()`.
+    """
     if at_launcher():
         return reconnect(), 'reconnect'
     if dismiss_logbox():
         return True, 'logbox'
     if dismiss_sheet():
         return True, 'sheet'
+    # TAP-REVEAL GATE. A reveal step renders its cards as "<term>. Not revealed yet." and the
+    # Continue button stays inert until every one is flipped -- so the generic button tap below
+    # is a silent no-op and the driver burns its whole step budget on a screen it can never
+    # leave. Measured: 8 identical no-op steps. The a11y label states the card's own state, so
+    # flip them all first and let the next call take the button.
+    hidden = [n for n in nodes() if 'not revealed yet' in n[4].lower()]
+    if hidden:
+        for n in hidden:
+            tap(n, 0.5)
+        return True, f'reveal x{len(hidden)}'
+
     btn = button('continue', 'check', 'next', 'got it')
     if not btn:
         return False, 'no-button'
