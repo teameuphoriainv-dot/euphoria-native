@@ -9,6 +9,36 @@ reads of `atlas.tsx`. Where a number is not trustworthy, it says so.
 
 ---
 
+## CORRECTION, later the same day — the finding is sharper than "amplitude"
+
+A like-for-like re-measure (R7 method: tight box, bbox, threshold 8) against Duolingo changes the
+diagnosis. **Amplitude per event is fine. Two different things are wrong.**
+
+| | frames with motion | mean changed region |
+|---|---|---|
+| **Euphoria** welcome | **46%** | **60% × 50%** of its box |
+| **Duolingo** (R7) | **81%** | 54% × 48% of its box |
+
+When Euphoria's mascot moves it changes *slightly more* of itself than Duo does. The gap is **how
+often**. And its 46% is generous — three control regions on the same frames scored **99% / 55% /
+53%**, so part of that 46% is starfield inside the box, and the mascot is the least-animated
+region on its own hero screen.
+
+**Why 54% of frames register nothing even though breath runs continuously:**
+
+`IDLE_SQUASH = 0.038` — a 3.8% scale cycle. At welcome's 132pt that is a 5.0pt total excursion
+across a 1600ms half-cycle, which at 48fps is 77 frames. Peak per-frame change is therefore
+5.0 × π / 77 ≈ **0.20pt per frame**. Continuous, and invisible.
+
+So:
+
+- **Breath** — continuous but ~0.2pt/frame. An *amplitude* problem.
+- **Saccade / arcFlex** — visibly sized, but gated behind `2100 + random×2600`ms, so roughly one
+  event every 3.4s. A *frequency* problem.
+
+Fixing only the amplitude constants, as originally planned, would have left the mascot moving in
+sharp isolated bursts separated by stillness. Both need to change, and they are different edits.
+
 ## The finding, in one line
 
 **The app's sense of life comes from a background layer, not from its content. The content

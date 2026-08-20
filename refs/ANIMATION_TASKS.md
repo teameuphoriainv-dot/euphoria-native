@@ -50,32 +50,28 @@ amplitude is 1pt. The easing was never the problem.
       static intros rather than interaction. Owner accepted recording-only for THIS run and asked
       for the fix afterwards, so the next sweep captures interaction animation too.
 
-- [ ] **1. Raise idle amplitudes — iterate toward the Duolingo anchor.**
+- [ ] **1. Fix idle liveness — TWO edits, not one.**
 
-      **Target (rubric R7, measured on ref3/Duolingo, 16.7s of mascot at rest):**
-      motion in **81% of frames**, mean changed region **54% × 48% of the mascot's own box**.
+      Superseded the earlier "raise amplitude" plan after a like-for-like re-measure. Amplitude
+      per event is already fine (Euphoria 60%×50% of its box vs Duolingo 54%×48%); the gap is
+      **frequency** plus one genuinely-too-small continuous animation.
 
-      **Method — double, measure, repeat.** Owner asked for the anchor as the goal but stepped
-      iteration as the route, so no single large jump:
+      **1a. Breath amplitude.** `IDLE_SQUASH = 0.038` → 5.0pt excursion at 132pt over a 1600ms
+      half-cycle = **0.20pt per frame** at 48fps. Continuous and invisible. Raise it.
 
-      | pass | SACCADE | ARC_FLEX | SWAY° | ROCK° |
-      |---|---|---|---|---|
-      | current | 1.1 | 1.6 | 1.6 | 3.4 |
-      | 1 | 2.2 | 3.2 | 3.0 | 5.0 |
-      | 2 | 4.4 | 6.4 | 4.5 | 7.0 |
-      | 3 | 8.0 | 10.0 | 6.0 | 9.0 |
+      **1b. Idle event frequency.** Saccade and arcFlex are both gated behind
+      `2100 + random×2600`ms — about one event every 3.4s, so most frames show nothing. Shorten
+      the gap.
 
-      After each pass run `scripts/anim/mascot_density.py welcome` and record **lift = mascot% −
-      control%**. Stop at the first pass that clears the anchor, or when it visibly overshoots
-      into distraction — whichever comes first. **Baseline to beat: welcome 38% vs 69% control,
-      lift −31.**
+      **Target (R7):** motion in ~81% of frames. **Baseline: 46%**, and that 46% is inflated by
+      starfield — controls on the same frames scored 99% / 55% / 53%.
 
-      *Before quoting any gap against R7, re-measure Euphoria like-for-like* — the 38% used a
-      different region and threshold than the Duolingo 81%, so they are not yet comparable.
+      **Method:** change one of 1a/1b at a time and re-measure, so it is clear which produced the
+      lift. `scripts/anim/mascot_density.py` reports mascot-vs-control lift.
 
-      *Constraints:* must still pass `reduced_motion_audit.py --selftest`; larger sway/rock must
-      not push R1 outside its band; `default` expression must keep drawing no brows so the
-      resting brand mark is unchanged.
+      *Constraints:* `reduced_motion_audit.py --selftest` must still pass; `default` keeps drawing
+      no brows so the resting brand mark is unchanged; watch that faster saccades do not read as
+      twitchy rather than alive.
 
 - [ ] **2. Give content its own resting motion.**
       The structural finding. `courses` (35%) and `digest` (49%) mount `AmbientBackground` but
