@@ -145,7 +145,19 @@ for (const sym of syms) {
     const { verdict, buf } = viaProxy ? await fetchViaProxy(sym, proxyBase) : await fetchOne(sym, key);
     if (verdict === 'ok') {
       const sharp = (await import('sharp')).default;
-      writeFileSync(file, await sharp(buf).png().toBuffer());
+      /*
+       * RESIZE, BECAUSE THESE ARE BADGES AND THE SOURCE ART IS NOT.
+       *
+       * TickerLogo draws at size 44 by default and 56 at its largest, so 168px covers @3x with
+       * headroom. Polygon re-serves whatever the company uploaded: NVDA arrived at 62,996 bytes
+       * and the first 32 symbols totalled 1.7MB, which extrapolates to roughly 5MB of app bundle
+       * for images never displayed above 168px. `fit: inside` preserves aspect ratio and
+       * `withoutEnlargement` leaves anything already smaller untouched.
+       */
+      writeFileSync(file, await sharp(buf)
+        .resize(192, 192, { fit: 'inside', withoutEnlargement: true })
+        .png({ compressionLevel: 9 })
+        .toBuffer());
       manifest[sym] = 'ok'; wrote++; console.log('written');
     } else if (verdict === 'no_art') {
       manifest[sym] = 'no_art'; noArt++; console.log('no art (recorded, will not retry)');
