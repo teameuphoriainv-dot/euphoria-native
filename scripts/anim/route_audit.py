@@ -33,7 +33,11 @@ def one(name, path, dwell=7.0):
     os.makedirs(OUT, exist_ok=True)
     if drive.at_launcher(): drive.reconnect()
     drive.dismiss_logbox(); drive.dismiss_sheet()
-    sp.run(["xcrun", "simctl", "openurl", drive.U, "euphorianative://(tabs)/home"], capture_output=True)
+    # PARK SOMEWHERE THAT IS NOT THE ROUTE UNDER TEST. Parking on home unconditionally meant the
+    # `home` route navigated home->home, changed 0 labels, and was correctly-but-uselessly
+    # reported SKIPPED. The verification was right; the harness was asking an impossible question.
+    park = 'euphorianative://(tabs)/learn' if 'home' in path else 'euphorianative://(tabs)/home'
+    sp.run(["xcrun", "simctl", "openurl", drive.U, park], capture_output=True)
     time.sleep(2.5)
     drive.dismiss_logbox(); drive.dismiss_sheet()
     before = drive.labels()
