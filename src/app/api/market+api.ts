@@ -607,6 +607,56 @@ export async function GET(request: Request) {
       }
     }
 
+    if (action === 'marks') {
+      /*
+       * EVERY PRICE IN ONE CALL — the only shape that fits a 5/min ceiling.
+       *
+       * MEASURED 2026-08-20: `setMark` is called only from getQuote, and getQuote only from
+       * stock/[sym].tsx, so trade.tsx fetches NOTHING. On a fresh install every price on that
+       * screen falls through markOr() to the hardcoded table in stocks.ts. AAPL is listed there
+       * at $228.50 while the live previous close measured $316.83 -- a 38.7% error -- so a
+       * 40-share position rendered $9,140 against a real $12,673. marks.ts already states the
+       * principle this violates: "a stale price makes every position percentage derived from it
+       * fiction".
+       *
+       * Per-symbol quotes cannot fix it: the tab shows about seven tickers and the free tier
+       * allows five requests a minute, which is the same burst that produced the logo 429 storm.
+       * Grouped daily bars return the whole US market's previous close in ONE request, so the
+       * cost is independent of how many tickers the screen shows.
+       *
+       * `date` is resolved by walking back from today until a session returns rows -- weekends
+       * and holidays return an empty results array rather than an error, and treating that as
+       * "no prices" would blank the app every Sunday.
+       */
+      /*
+       * FILTERED SERVER-SIDE. The grouped response carries the whole market -- measured 12,548
+       * tickers -- which is a quarter of a megabyte of JSON to hand a phone so it can read seven
+       * numbers out of it. `syms` costs the same ONE upstream call and returns only what was
+       * asked for. Unfiltered stays available because it is genuinely useful from a script.
+       */
+      const want = (url.searchParams.get('syms') ?? '')
+        .split(',')
+        .map((x) => symbol(x))
+        .filter((x): x is string => !!x);
+      const out: Record<string, number> = {};
+      for (let back = 1; back <= 5; back++) {
+        const d = new Date(Date.now() - back * 86_400_000).toISOString().slice(0, 10);
+        const g = await poly(`/v2/aggs/grouped/locale/us/market/stocks/${d}?adjusted=true`, key);
+        const rows = (g.results ?? []) as { T?: string; c?: number }[];
+        if (!rows.length) continue;
+        const keep = want.length ? new Set(want) : null;
+        for (const r of rows) {
+          if (!r.T || typeof r.c !== 'number' || r.c <= 0) continue;
+          if (keep && !keep.has(r.T)) continue;
+          out[r.T] = r.c;
+        }
+        return cached({ date: d, count: Object.keys(out).length, marks: out });
+      }
+      // Five consecutive empty sessions is not a weekend, it is an outage. Say so rather than
+      // returning an empty marks map that reads as "every price is zero".
+      return fresh({ error: 'no_session' }, 503);
+    }
+
     if (action === 'movers') {
       /*
        * Daily winners and losers. Investing.com runs "Most Active" and "Daily Winners & Losers"

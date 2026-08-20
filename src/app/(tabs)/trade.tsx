@@ -20,6 +20,7 @@
  *
  * The chart is gone for the same reason — a line needs a series, and there isn't one.
  */
+import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -41,6 +42,7 @@ import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeas } from '@/lib/trade-ideas
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { getMarks } from '@/lib/market';
 
 /** Kept as a name so the row markup reads the same; the mark itself is now a real logo with the
  *  lettered tile as its floor. */
@@ -111,6 +113,44 @@ export default function Trade() {
   // Followed tickers the user does not already hold. NOT "everything minus your positions" —
   // that was a list nobody chose, labelled as though they had.
   const watch = watchlist.filter((s) => !held.includes(s) && STOCKS[s]);
+
+  /*
+   * PRICE THE SCREEN. Without this the Trade tab fetched nothing at all, so `priceOf` fell
+   * through markOr() to the hardcoded table in stocks.ts for every holding, watch row and the
+   * portfolio total on top of them.
+   *
+   * MEASURED 2026-08-20 against the real previous close: NVDA listed at $1,184.00 against an
+   * actual $217.56, GOOGL at $182.11 against $344.72, AAPL at $228.50 against $316.83. The
+   * twelve-share NVDA position rendered $14,208 where the market said $2,611. That is not a
+   * stale-looking number, it is a portfolio total nobody could act on.
+   *
+   * ONE call regardless of how many tickers are on screen -- grouped daily bars cover the whole
+   * market, which is the only shape that fits a five-per-minute ceiling. Seven per-symbol quotes
+   * would reproduce the burst that caused the logo 429s.
+   *
+   * `setLoaded` exists to re-render: getMarks writes into the module-level marks map, which
+   * `priceOf` reads during render, so without a state write the screen keeps showing the
+   * fallback until something unrelated re-renders it. Same mechanism stock/[sym].tsx documents.
+   * A failure leaves the previous marks standing rather than clearing them -- safe() returns
+   * null and the fallback is still better than blank.
+   */
+  const [, setPriced] = useState(0);
+  useEffect(() => {
+    const syms = [...new Set([...held, ...watch, ...Object.keys(STOCKS)])];
+    if (!syms.length) return;
+    let cancelled = false;
+    getMarks(syms)
+      .then((r) => {
+        if (!cancelled && r?.count) setPriced((n) => n + 1);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+    // Deliberately mount-only: prices move slower than this screen re-renders, and refetching on
+    // every holdings change would spend the rate limit on a number that did not move.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   /*
    * EVERY STOCK YOU DO NOT ALREADY HAVE, in table order. No ranking, no scoring, no curation — which
    * is why the section is no longer headed "Suggested". A finance app aimed at 18-25s labelling an

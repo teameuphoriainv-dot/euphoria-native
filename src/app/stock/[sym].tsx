@@ -37,6 +37,27 @@ import { GateSheet } from '@/components/gate-sheet';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Label a previous-session close by date, and by age once it is genuinely stale.
+ *
+ * Two days is the threshold because a Monday morning legitimately shows Friday's close, so
+ * "1 day ago" would cry wolf every week. Formatted from a fixed month list rather than
+ * toLocaleDateString: unpinned locale formatting is already a tracked concern in this repo.
+ *
+ * Lives at module scope, and is called from the effect rather than during render, because
+ * Date.now() in a render body is an impure read -- react-hooks/purity flags it, and rightly:
+ * a component that reads the clock while rendering produces a different tree on every pass.
+ */
+function closeLabel(asOf: number | null | undefined): string | null {
+  if (!asOf) return null;
+  const d = new Date(asOf);
+  const stamp = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  const days = Math.floor((Date.now() - asOf) / 86_400_000);
+  return days >= 2 ? `Previous close · ${stamp} · ${days} days ago` : `Previous close · ${stamp}`;
+}
+
 export default function StockDetail() {
   const theme = useTheme();
   const { sym } = useLocalSearchParams<{ sym: string }>();
@@ -75,6 +96,19 @@ export default function StockDetail() {
    * routine path, not a rare one.
    */
   const [quoteErr, setQuoteErr] = useState<string | null>(null);
+  /*
+   * "PREVIOUS CLOSE", BECAUSE THAT IS WHAT THIS NUMBER ACTUALLY IS.
+   *
+   * The quote endpoint reads /v2/aggs/ticker/{sym}/prev -- the previous session's aggregate --
+   * and until `asOf` was added it returned no timestamp at all, so a price from this morning and
+   * one three weeks old rendered identically.
+   *
+   * COMPUTED IN THE EFFECT, NOT IN RENDER. The first version built this label inline next to
+   * `price`, which called Date.now() during render -- an impure read that react-hooks/purity
+   * flags, and rightly: a component that reads the clock while rendering produces a different
+   * tree on every pass. The clock is read once, when the quote actually lands.
+   */
+  const [asOfLabel, setAsOfLabel] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
   const retryQuote = useCallback(() => {
     setQuoteErr(null);
@@ -86,7 +120,11 @@ export default function StockDetail() {
     let cancelled = false;
     setQuoteErr(null);
     getQuote(sym)
-      .then((q) => !cancelled && setLive(q))
+      .then((q) => {
+        if (cancelled) return;
+        setLive(q);
+        setAsOfLabel(closeLabel(q?.asOf));
+      })
       .catch((e: unknown) => {
         if (cancelled) return;
         setQuoteErr(e instanceof Error ? e.message : 'upstream');
@@ -149,33 +187,6 @@ export default function StockDetail() {
    * prefers a live mark from `lib/marks.ts`, so execution and valuation moved together — every
    * caller, `valueOf()` and `snapshot()` and the Trade rows and the options spot, followed for free.
    */
-  /*
-   * "PREVIOUS CLOSE", BECAUSE THAT IS WHAT THIS NUMBER ACTUALLY IS.
-   *
-   * The quote endpoint reads /v2/aggs/ticker/{sym}/prev -- the previous session's aggregate --
-   * and until `asOf` was added it returned no timestamp at all, so a price from this morning and
-   * one from three weeks ago rendered identically. Measured on the sibling chart endpoint the
-   * same day: a span labelled "past month" was serving bars 22 days old with nothing saying so.
-   *
-   * Only shown when a LIVE quote actually arrived. On the fallback path `price` comes from the
-   * static table in stocks.ts, and stamping a date on a static number would be worse than saying
-   * nothing -- it would make the fiction look sourced. RetryNotice already covers that case.
-   *
-   * Formatted from a fixed month list rather than toLocaleDateString: unpinned locale formatting
-   * is already a tracked concern in this repo, and this is not the place to add another site.
-   */
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const asOfLabel = (() => {
-    const t = live?.asOf;
-    if (!t || quoteErr) return null;
-    const d = new Date(t);
-    const stamp = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
-    const days = Math.floor((Date.now() - t) / 86_400_000);
-    // Two days is the first point a close can be genuinely stale rather than just "yesterday's",
-    // since a Monday morning legitimately shows Friday's close.
-    return days >= 2 ? `Previous close · ${stamp} · ${days} days ago` : `Previous close · ${stamp}`;
-  })();
-
   const price = priceOf(sym);
   const name = stock?.name ?? sym;
   /*
@@ -238,7 +249,7 @@ export default function StockDetail() {
               */}
             <ThemedText type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
           </View>
-          {asOfLabel ? (
+          {asOfLabel && !quoteErr ? (
             <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{asOfLabel}</ThemedText>
           ) : null}
         </RiseIn>

@@ -97,6 +97,31 @@ export const getQuote = (sym: string) =>
     return q;
   });
 
+/**
+ * Price many symbols in ONE upstream call.
+ *
+ * WHY THIS EXISTS. `setMark` was reachable only through `getQuote`, and `getQuote` only from
+ * stock/[sym].tsx -- so the Trade tab, which fetches nothing, priced every holding from the
+ * hardcoded fallback table in stocks.ts. MEASURED 2026-08-20 against the real previous close:
+ * NVDA was listed at $1,184.00 against an actual $217.56 (-81.6%), GOOGL at $182.11 against
+ * $344.72 (+89.3%), AAPL at $228.50 against $316.83 (+38.7%). A twelve-share NVDA position
+ * rendered $14,208 where the market said $2,611.
+ *
+ * Per-symbol quotes cannot fix that: seven tickers against a five-per-minute ceiling is the same
+ * burst that produced the logo 429s. Grouped daily bars cover the entire US market in a single
+ * request, so the cost does not grow with the number of tickers on screen.
+ *
+ * Marks are recorded HERE for the same reason getQuote records its own: routing every price
+ * through one place is what stops execution and valuation drifting apart again.
+ */
+export const getMarks = (syms: string[]) =>
+  safe<{ date: string; count: number; marks: Record<string, number> }>(
+    `/api/market?action=marks&syms=${syms.map(encodeURIComponent).join(',')}`,
+  ).then((r) => {
+    if (r?.marks) for (const [sym, price] of Object.entries(r.marks)) setMark(sym, price);
+    return r;
+  });
+
 export const getChart = (sym: string, range: RangeKey) =>
   safe<Chart>(`/api/market?action=chart&sym=${sym}&range=${range}`);
 

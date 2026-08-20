@@ -24,6 +24,7 @@
  * transcodes WebP to PNG, so this script never touches a credential and gets the same bytes the
  * app would. It still respects the upstream 5/min ceiling by pacing identically.
  */
+import { Buffer } from 'node:buffer';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
