@@ -457,11 +457,28 @@ export async function GET(request: Request) {
        * response is still capped upstream, so 1M came back with about nine days of hourly bars
        * under a "past month" label. The rest is on `next_url`, which nothing was following.
        *
-       * The cap is deliberate and low. Every extra page is another request against a
-       * five-per-minute ceiling, and spending a chart's whole budget on backfill is what starves
-       * the logo and quote calls sharing it -- the exact failure this file already documents. So:
-       * stop as soon as the oldest bar reaches the start of the requested window, and refuse to
-       * exceed MAX_PAGES whatever happens. A chart costs at most three calls.
+       * WHAT THE CAP ACTUALLY IS, measured 2026-08-20 rather than assumed. The obvious theory was
+       * a result-count limit, which coarser bars would sidestep. They do not:
+       *
+       *   1 x hour   125 points   9.5 day span
+       *   2 x hour    70 points   9.5 day span
+       *   4 x hour    39 points   9.5 day span
+       *
+       * Identical coverage at a third of the points, so the ceiling is a TIME WINDOW of roughly
+       * 9.5 days of intraday aggregate per request, not a row count. Pagination is the only thing
+       * that extends it, at about 8.5 days per extra call.
+       *
+       * WHY THE CAP STAYS AT 2. Raising it was measured too: at 5 the loop stopped early on its
+       * own coverage check at 28.6 days and 336 points, so THREE pages is all the range can use.
+       * That buys 26.5 -> 28.6 days for one more request. A stock screen already spends a chart
+       * plus a quote, so a fourth chart call makes ONE screen view consume the entire
+       * five-per-minute budget -- and that budget is shared with the logo and marks calls this
+       * app depends on. Two extra pages is where the curve stops being worth it.
+       *
+       * Daily bars would cover the full month in a single call, and 1M used to use them. It was
+       * moved to hourly deliberately (see RANGES) because ~21 points draws a chunky line. That
+       * trade is still the right one; this comment exists so the next person does not re-derive
+       * it from scratch.
        *
        * Best-effort by design: any failure breaks the loop and returns what we already have,
        * because a partial chart drawn from real bars beats an error page.
