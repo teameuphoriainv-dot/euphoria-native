@@ -141,7 +141,7 @@ rules must therefore come from manual filmstrip inspection of specific reference
 which is the next pass and is **not yet done**. Until it is, R4/R5/R6 below are open, and no
 verdict may cite them.
 
-- **R4 — scale origin:** OPEN
+- **R4 — scale origin:** **CLOSED for Euphoria, 2026-08-20.** See "R4 CLOSED" below.
 - **R5 — exit behaviour:** OPEN
 - **R6 — easing shape:** OPEN
 
@@ -303,3 +303,70 @@ The 3D flip is **rejected by owner direction** and is not under consideration.
 > This does not invalidate the earlier route-audit percentages, which deliberately measured
 > *idle motion density* and were correct to include the starfield. It invalidates any use of a
 > low threshold to measure a **discrete transition's duration** on an ambient-bearing screen.
+
+
+## R4 — SCALE ORIGIN: CLOSED
+
+The rule was provisional on one reference transition. It is now measured on **both sides**.
+
+**Reference (ref3, Duo entering, frames 381-394).** Box width holds in a 63-83px band across
+every frame of motion while x sweeps 102 -> 21. The mascot **translates at constant size**.
+
+**Euphoria (onboarding headline, `scripts/anim/element_curve.py`).** Region taken from the
+accessibility tree and verified by drawing it. Element width across the transition:
+
+| capture | width p10..p90 | ratio | verdict |
+|---|---|---|---|
+| take 1 | 272.4 .. 275.4pt | **0.99** | translate |
+| take 2 (lossless) | 272.3 .. 275.4pt | **0.99** | translate |
+
+Reproduced independently, and robust where pixel-overlap was not: a dropped frame reported a
+69pt width on a 279pt element, which is why the measure trims to p10..p90 rather than using
+min/max. One bad frame turned a stationary headline into "GROWS from small" before that.
+
+**RULE (closed).** An element enters by **moving**, not by growing. A width ratio below ~0.85
+across a transition means something is scaling up, and needs a stated per-element reason.
+`ZoomIn`-from-scale-0 has no counterpart in the reference footage and none in Euphoria's own
+onboarding.
+
+This is what condemned `tap-reveal`'s original `ZoomIn` (scale 0 -> 1, text rasterised near zero
+and resampled up — the reported "pixel mess"), and the replacement cross-fade satisfies it.
+
+**Still open:** R5 (exit behaviour) and R6 (easing shape). No verdict may cite them.
+
+## R5 — EXIT BEHAVIOUR: measured on Euphoria (reference side still not possible)
+
+**Method.** `scripts/anim/element_curve.py`, tracking the onboarding headline. Region from the
+accessibility tree, drawn and eyeballed. Metric is **overlap against frame 0** — what fraction of
+the ORIGINAL element's lit pixels are still lit — because a pixel COUNT cannot tell slide A's
+white headline from slide B's white headline in the same rectangle. Captured at
+`--compression-quality 1.0`; 160 frames @ 66.7fps, contamination 1.0%.
+
+**Result.** The headline holds a 0.93-1.00 plateau from 0 to **675ms**, then is sustainedly
+gone by **810ms**.
+
+| | value |
+|---|---|
+| last sustained present | 675ms |
+| first sustained gone | 810ms |
+| **exit duration** | **135ms** |
+| `step-transition.ts` `EXIT` | **150ms** |
+
+**A fade, not a hard cut, and it matches its own token to within 10%.** 135ms sits just above
+R1's p10 (130ms), which is right: an exit should be faster than an entrance, and both Material
+and iOS specify exactly that asymmetry.
+
+The timeline reconciles with source: the tap fires, `advanceAfterPick` waits 260ms
+(`onboarding.tsx:398`), then EXIT runs 150ms. Predicted gone ≈660ms; measured sustained-gone at
+810ms, the difference being the 3-consecutive-frame confirmation the detector requires plus tap
+latency.
+
+**Read only the plateau and the drop.** Past ~900ms the series is noisy (the incoming headline
+partially overlaps the outgoing one's pixels, and compression adds isolated dips), so nothing
+after the exit should be quoted.
+
+**R5 stays OPEN as a reference-derived rule.** A video has no accessibility tree, so the same
+per-element measurement cannot be run on `refs/videos/*.mov`. What is established is Euphoria's
+**conformance to its own documented exit constant**, which is a narrower and honest claim.
+
+- **R6 — easing shape:** still OPEN.

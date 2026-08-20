@@ -226,7 +226,15 @@ def main():
         print("nothing to tap"); return 1
 
     def go():
-        time.sleep(0.5)
+        """Fired by record() AFTER the stream is warm.
+
+        This used to run on a thread started before record(), sleeping 0.5s. record() spends its
+        first 1.2s warming the stream, so the tap landed DURING warmup and the transition was
+        over before frame 0. The overlap then compared the NEXT slide's headline against itself,
+        read a flat 1.00, and reported 'persists' -- a confident answer about the wrong element.
+        capture.record() takes `during` for exactly this reason.
+        """
+        time.sleep(0.25)
         sp.run(["idb", "ui", "tap", "--udid", U,
                 str(target[0] + target[2] // 2), str(target[1] + target[3] // 2)], capture_output=True)
 
@@ -254,8 +262,7 @@ def main():
 
     h = f"{OUT}/el.h264"
     for attempt in range(4):
-        t = threading.Thread(target=go); t.start()
-        record(h, a.secs, quality=1.0); t.join(timeout=8)
+        record(h, a.secs, quality=1.0, during=go)
         blue = overlay_blue(h)
         if blue <= 0.15:
             print(f"contamination {blue*100:.1f}% -> CLEAN (attempt {attempt+1})")
