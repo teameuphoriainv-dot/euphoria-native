@@ -556,3 +556,39 @@ than the app. Both a "digest janks" and a "scrolling is fine" conclusion are uns
 **Recommended instead:** React Native's Perf Monitor (dev menu → Show Perf Monitor) reports UI
 and JS thread FPS live on-device. Ten seconds of scrolling with it open answers this question
 directly and costs nothing. Filed as the next step rather than guessed at.
+
+## 12. Onboarding: a pick auto-advances after 260ms, so the perceived slide change is ~930ms
+
+Found while building the slide-by-slide audit, and it corrects a model this audit had been
+working from.
+
+**The flow.** Tapping an option on a `single` slide does not wait for Continue. `onboarding.tsx:398`:
+
+```js
+const advanceAfterPick = () => {
+  const from = step;
+  setTimeout(() => { if (stepRef.current === from) next(); }, 260);
+};
+```
+
+Verified two ways: the option's label leaves the accessibility tree immediately after a tap
+(nothing to select, nothing to confirm), and the source above schedules `next()` on a 260ms
+timer. The guard `stepRef.current === from` correctly cancels the auto-advance if the user has
+already moved on — that is careful code, not a race.
+
+**What it means for the rubric.** `MOTION_RUBRIC.md` credits `step-transition.ts` with
+EXIT 150 + GAP 90 + HEADLINE 280 + ATLAS_LEAD 150 = **670ms**, and marks it KEEP at R1's p75.
+That verdict is about the **choreography**, and it still holds. But on a `single` slide the user
+does not experience 670ms — they experience **260 + 670 ≈ 930ms** from finger-up to the next
+headline settling, because the pick delay runs first.
+
+930ms sits between R1's p75 (670ms) and p90 (1200ms). Inside the reference range, at the slow
+end. **No change made**: the 260ms exists so a selection is visibly acknowledged before the
+screen moves, which is the correct instinct — an option that vanishes the instant it is touched
+reads as a mis-tap. Recorded so the number is not mistaken for 670ms in future work.
+
+**Harness note.** The first two slide-by-slide attempts failed because they assumed a Continue
+tap on every slide. On a `single` slide there is none, and the recorded tap landed on the NEXT
+screen's button or on nothing — which the harness reported as a transition duration. Any future
+onboarding driver must branch on slide kind: `single` auto-advances on pick, `multi` and
+`statement` need Continue.
