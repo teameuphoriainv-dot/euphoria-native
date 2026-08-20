@@ -180,6 +180,19 @@ def main():
     before = set(drive.labels())
     sp.run(["xcrun", "simctl", "openurl", U, f"euphorianative://{a.route}"], capture_output=True)
     time.sleep(3.5); drive.dismiss_logbox()
+    # A reload can drop the app to the Expo dev-client launcher, which reads as a perfectly
+    # valid screen with a handful of labels -- 'DEVELOPMENT SERVERS', 'Development Build'.
+    # It is checked at startup, but the drop can also happen DURING navigation when another
+    # process touches a watched file, so check again here before trusting anything on screen.
+    for _ in range(3):
+        if not drive.at_launcher():
+            break
+        print("dropped to the dev-client launcher — reconnecting", flush=True)
+        drive.reconnect(); time.sleep(4)
+        sp.run(["xcrun", "simctl", "openurl", U, f"euphorianative://{a.route}"], capture_output=True)
+        time.sleep(3.5); drive.dismiss_logbox()
+    if drive.at_launcher():
+        print("still at the launcher after 3 reconnects"); return 1
     if set(drive.labels()) == before:
         print(f"NAVIGATION FAILED to {a.route}"); return 1
 
@@ -242,7 +255,7 @@ def main():
     h = f"{OUT}/el.h264"
     for attempt in range(4):
         t = threading.Thread(target=go); t.start()
-        record(h, a.secs); t.join(timeout=8)
+        record(h, a.secs, quality=1.0); t.join(timeout=8)
         blue = overlay_blue(h)
         if blue <= 0.15:
             print(f"contamination {blue*100:.1f}% -> CLEAN (attempt {attempt+1})")
@@ -273,14 +286,20 @@ def main():
     print(f"\n{len(fr)} frames @ {rate:.1f}fps ({1000/rate:.0f}ms/frame)")
     print(f"R5 exit behaviour (by pixel count):   {classify(counts)}")
     print(f"R5 exit behaviour (by overlap w/ f0): {classify([int(v*1000) for v in sim])}")
-    lo = [i for i, v in enumerate(sim) if v < 0.15]
-    if lo:
-        hi = [i for i in range(lo[0]) if sim[i] > 0.85]
-        if hi:
-            print(f"  original element present until {hi[-1]/rate*1000:.0f}ms, "
-                  f"gone by {lo[0]/rate*1000:.0f}ms -> exit took {(lo[0]-hi[-1])/rate*1000:.0f}ms")
+    # SUSTAINED, like classify(). The first version took the first frame under threshold and
+    # reported an 18ms exit off a single-frame h264 dropout, while classify() -- already
+    # hardened -- said fade-out over 17 frames from the same series. Two numbers from one
+    # measurement disagreeing is how a wrong one gets quoted.
+    gone = _sustained(lambda v: v < 0.15, sim, 3)
+    if gone is not None:
+        present = _sustained(lambda v: v > 0.85, sim[:gone], 3)
+        if present is not None:
+            last = present + 2
+            print(f"  original element present until {last/rate*1000:.0f}ms, "
+                  f"gone by {gone/rate*1000:.0f}ms -> exit took {(gone-last)/rate*1000:.0f}ms")
     else:
-        print(f"  original element NEVER left (min overlap {min(sim):.2f}) — the tap did not swap it")
+        print(f"  original element never sustained a drop (min overlap {min(sim):.2f}); "
+              f"isolated dips are compression, not an exit")
     print("  overlap: " + " ".join(f"{v:.2f}" for v in sim[:30]))
     peak = max(counts) or 1
     print("\n  ms   count   width   x      bar")

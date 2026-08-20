@@ -21,11 +21,26 @@ import subprocess as sp, time, os, re, sys
 
 UDID = "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
 
-def record(path, seconds, fps=60, during=None):
-    """Record the screen. `during` is called once the stream is warm."""
+def record(path, seconds, fps=60, during=None, quality=None):
+    """Record the screen. `during` is called once the stream is warm.
+
+    `quality` maps to idb's --compression-quality (0..1.0). Leave it None for timing work: the
+    default is fine for asking WHEN pixels changed, and a raised quality costs frames, because
+    the stream is bandwidth-limited near 100 KB/s (measured: bytes-per-second held at 90-113
+    across three takes while bytes-per-FRAME varied 1.6-11.5).
+
+    Pass 1.0 for PER-ELEMENT PIXEL work. At the default quality, inter-frame reconstruction
+    drops a region for runs of about three frames at a time -- measured 8 such runs in 132
+    frames -- and an element's pixel overlap collapses to ~0.08 and recovers, which is
+    indistinguishable from the element leaving and coming back. That artifact defeated an
+    R5 exit measurement twice before it was traced.
+    """
     if os.path.exists(path): os.remove(path)
-    p = sp.Popen(["idb", "video-stream", "--fps", str(fps), "--format", "h264",
-                  "--udid", UDID, path], stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+    cmd = ["idb", "video-stream", "--fps", str(fps), "--format", "h264", "--udid", UDID]
+    if quality is not None:
+        cmd += ["--compression-quality", str(quality)]
+    cmd.append(path)
+    p = sp.Popen(cmd, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
     time.sleep(1.2)                       # let the stream warm up before acting
     if during: during()
     time.sleep(seconds)
