@@ -592,3 +592,37 @@ tap on every slide. On a `single` slide there is none, and the recorded tap land
 screen's button or on nothing — which the harness reported as a transition duration. Any future
 onboarding driver must branch on slide kind: `single` auto-advances on pick, `multi` and
 `statement` need Continue.
+
+### 12b. Onboarding transition DURATION is not measurable by whole-frame differencing
+
+Four attempts on one 26s / 1422-frame walk (contamination 1.1%, clean), each defeated for a
+reason worth recording rather than worked around:
+
+| method | gate | result | why it fails |
+|---|---|---|---|
+| pixel count | 1.2% of frame | every slide = **1863ms** | ambient floor; the window never closes |
+| pixel count | 8% of frame | **37–55ms**, 13 windows | above the transition's own amplitude |
+| changed bbox | height > 30% | **101 windows** | scattered stars give a full-screen bbox |
+| bbox **fill ratio** | fill > 0.12 | **11 windows, 37–128ms** | isolates the dense swap only |
+
+**Two structural reasons**, both verified:
+1. **`AmbientBackground` never stops.** Onboarding mounts it three times at the default 70 stars
+   with glow, each star on `withRepeat(..., -1, true)`. Twinkle is scattered over the whole
+   frame, so it defeats a pixel-count floor AND a bounding box.
+2. **Atlas persists across slides** in `AtlasStage`, and the shared background does not change.
+   Only the headline and options swap, so a slide change is a fraction of the screen — the peak
+   whole-frame delta measured just **10–20%**, not the 30–60% a full-screen transition gives.
+
+**The fill-ratio pass is the only one that isolated signal** (p90 fill 0.379 against a median of
+0.025) and it found **exactly 11 dense-change events for ~11 taps** — which confirms the walk
+really did advance through the flow. But 37–128ms is the duration of the *dense text swap*
+alone, not of the choreography around it, so it cannot be compared to the 670ms figure.
+
+**Not reported as a finding in either direction.** No claim that onboarding transitions are
+abrupt, and none that they are correct. What is established is `step-transition.ts`'s 670ms
+choreography from source, already marked KEEP, plus the 260ms pick delay above it.
+
+**What would settle it:** per-element bbox tracking keyed to the headline's accessibility frame,
+which is the method `MOTION_RUBRIC.md` already names as the way to close R4/R5/R6 for Euphoria —
+the a11y tree gives every element's frame, so one element's settle can be timed directly without
+the starfield ever entering the measurement. Not built; recorded as the next step.
