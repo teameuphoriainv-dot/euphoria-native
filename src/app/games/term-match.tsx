@@ -133,7 +133,7 @@ export default function TermMatch() {
       {done && (
         <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.resultsWrap}>
           <Card elevated style={styles.results}>
-            <Atlas size={96} expression="happy" celebrate />
+            <Atlas size={96} expression="happy" celebrate idle />
             <ThemedText type="display" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>Matched!</ThemedText>
             <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>All 5 pairs in {time}</ThemedText>
             <RewardPop delay={200} style={{ marginTop: Spacing.three }}>

@@ -116,7 +116,7 @@ export default function Start() {
       <View style={styles.content}>
         <RiseIn>
           <View style={styles.head}>
-            <Atlas size={92} expression="happy" interactive={false} entrance="bounce" />
+            <Atlas size={92} expression="happy" interactive={false} entrance="bounce" idle />
           </View>
         </RiseIn>
 
