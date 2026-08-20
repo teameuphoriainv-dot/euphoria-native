@@ -432,6 +432,15 @@ export default function Lesson() {
                     shake={checked && pick !== norm.correct}
                     celebrate={checked && pick === norm.correct}
                     celebrateKey={checked && pick === norm.correct ? 1 : 0}
+                    /* MEASURED 2026-08-20: at the default gain of 0.32 this hop moved the
+                       mascot 2.7-3.2pt, while the WRONG-answer shake moved it 3.33pt — so
+                       getting a question right and getting it wrong looked the same, and the
+                       error was marginally the louder of the two. 0.5 puts the hop at roughly
+                       4.2-5.0pt, clearly above the shake, while leaving lesson-complete
+                       (celebrateGain={1}, line 488) twice as loud again so the end-of-lesson
+                       payoff still reads as the bigger moment. Set HERE rather than on the
+                       default, because the 0.32 default is right for onboarding taps. */
+                    celebrateGain={0.5}
                     interactive={false}
                   />
                   <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingXl }}>{norm.prompt}</ThemedText>
