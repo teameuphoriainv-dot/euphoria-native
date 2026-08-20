@@ -480,3 +480,34 @@ From `atlas.tsx:269-275`, after a `Duration.fast` = 150ms delay:
 
 **P3 is the one that matters.** P1/P2 are conformance checks; P3 is a design question the
 numbers can settle.
+
+### Appendix E3 — R6 by position, predicted BEFORE measuring (2026-08-20)
+
+Target chosen on evidence, not preference. The three sheets (`gate-sheet`, `trial-reward-sheet`,
+`dismissal-offer-sheet`) contain **zero animation code** — no `withTiming`, no `withSpring`, no
+`entering` — so there is nothing in them to measure. `lesson-feedback.tsx` wins on four counts:
+190pt of travel, ζ=0.61 (underdamped, so it overshoots), 350ms, and a driver path already proven.
+
+**Position, not pixel value.** Both earlier R6 metrics failed on pixel values: a brightness
+threshold makes every opacity ramp read as ease-in, and mean luminance never reaches its floor
+with `AmbientBackground` behind. Position has neither problem — which is why R4's width ratio
+returned 0.99 on three captures while pixel overlap thrashed between 0.08 and 1.00.
+
+From `lesson-feedback.tsx:98-110`: `withSpring(1, { stiffness: 220, damping: 18 })` driving
+`translateY: (1 - t) * 190`.
+
+| quantity | predicted |
+|---|---|
+| ζ | **0.607** |
+| overshoot | **9.1%** → progress peaks near **1.091** |
+| distance past target | **17.3pt** on 190pt of travel |
+| time to peak | **266ms** |
+| 2% settle | **460ms** |
+
+- **P5 — the curve must be NON-MONOTONIC.** No cubic-bezier easing can reverse direction, so a
+  measured overshoot proves a spring outright rather than by comparing shapes. This is the
+  sharpest discriminator available for R6.
+- **P6 — the source comment corroborates it independently:** *"slightly underdamped so the bar
+  overshoots a few pixels and settles: it should feel thrown into place, not slid."* If the
+  measurement shows no overshoot, either the spring is not running or the instrument is wrong —
+  and the comment says which answer the author intended.
