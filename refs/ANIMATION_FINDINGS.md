@@ -206,12 +206,23 @@ tapping, and it exposes a limit in the metric: `peaks()` counts maxima inside a 
 **two taps close together are indistinguishable from one overshooting spring.** The 16% R2 rate
 is therefore inflated on interactive steps and should not be quoted as an app defect count.
 
-**(b) The route entry cross-fade overlaps two screens' content.**
-`alternativeInvestments-1 t=0.18` is the lesson entry. For roughly the first 7 of 15 frames
+**(b) A cross-fade overlaps two screens' content.**
+`alternativeInvestments-1 t=0.18`. For roughly the first 7 of 15 frames
 (~0.15s of a ~0.31s transition) the OUTGOING screen's dense body text and the INCOMING lesson
 intro are both drawn at partial opacity, superimposed — two blocks of running text on top of
 each other. It is legible text over legible text, so this is opacity blending, not the
 compression artefact described elsewhere in this document.
+
+> **ATTRIBUTION IS UNCERTAIN, and the sweep cannot settle it.** `sweep.one()` calls
+> `goto_lesson`, which navigates and waits **3.5s**, and only then starts recording — so a route
+> entry animation is over before the camera rolls. The content of this strip (dense body text
+> dissolving into the lesson *intro*) looks like route entry, but it could equally be the first
+> step transition. Relatedly, the "first transition" of every swept lesson reads t=0.0 with
+> dur≈0.06s, uniform across all 15 — those are **recording-start artefacts, not entries**, and
+> any table built from them is invalid. Capturing route entry needs recording to begin BEFORE
+> the deep link fires.
+>
+> The overlap itself is real and visible in the frames; only which transition produced it is open.
 
 This contradicts the app's own stated principle. `shared/motion/step-transition.ts` explains why
 its step choreography inserts a dead beat:
