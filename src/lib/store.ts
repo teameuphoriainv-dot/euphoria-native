@@ -20,7 +20,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './onboarding-path';
 import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
 import { SEED_FOLLOWERS } from './people';
-import { allMarks, hydrateMarks } from './marks';
+import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 
 const XP_PER_LEVEL = 500;
@@ -783,7 +783,7 @@ export const useApp = create<AppState>()(
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
       // fetched since. Ceiling: this snapshots on the next state write, so a session that fetches
       // quotes and changes nothing else keeps the previous marks rather than the newest.
-      marks: allMarks(), costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      marks: persistableMarks(allMarks(), [...Object.keys(s.positions), ...s.watchlist]), costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".

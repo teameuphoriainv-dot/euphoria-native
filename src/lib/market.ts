@@ -113,10 +113,20 @@ export const getQuote = (sym: string) =>
  *
  * Marks are recorded HERE for the same reason getQuote records its own: routing every price
  * through one place is what stops execution and valuation drifting apart again.
+ *
+ * CALLED WITH NO ARGUMENT ON PURPOSE. The grouped response covers the WHOLE US market -- 12,548
+ * tickers measured -- for the same single request, so filtering it to the seven symbols on the
+ * Trade tab would throw away 12,541 prices that had already been paid for. Taking all of them
+ * means a searched ticker, a mover, or any stock screen is priced the moment it renders, with no
+ * further API call against a five-per-minute ceiling.
+ *
+ * `syms` stays available for callers that genuinely want a small payload. Only what the user
+ * holds or watches is PERSISTED -- see partialize in store.ts, which runs on every state write
+ * and must not serialise a quarter megabyte each time.
  */
-export const getMarks = (syms: string[]) =>
+export const getMarks = (syms?: string[]) =>
   safe<{ date: string; count: number; marks: Record<string, number> }>(
-    `/api/market?action=marks&syms=${syms.map(encodeURIComponent).join(',')}`,
+    `/api/market?action=marks${syms?.length ? `&syms=${syms.map(encodeURIComponent).join(',')}` : ''}`,
   ).then((r) => {
     if (r?.marks) for (const [sym, price] of Object.entries(r.marks)) setMark(sym, price);
     return r;

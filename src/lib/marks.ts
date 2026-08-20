@@ -59,6 +59,32 @@ export const markOf = (sym: string): number => marks.get(sym.toUpperCase()) ?? 0
  */
 export const markOr = (sym: string, fallback: number): number => markOf(sym) || fallback;
 
+/**
+ * Narrow a mark snapshot to what is worth carrying across launches.
+ *
+ * WHY THIS IS NOT JUST `allMarks()`. One grouped request prices the entire US market -- 12,548
+ * tickers measured on 2026-08-20 -- and holding all of them in memory is the point: a searched
+ * ticker is priced the instant it renders. PERSISTING all of them is a different question.
+ * `partialize` in store.ts runs on EVERY state write, so a full snapshot would serialise roughly
+ * a quarter megabyte of JSON to AsyncStorage every time XP ticks or a lesson step advances.
+ *
+ * What must survive a cold start is what the user actually owns or follows; everything else is
+ * re-fetched by one call on the next launch anyway. Symbols are upper-cased to match `setMark`,
+ * and a symbol with no mark is skipped rather than written as 0 -- `markOr` treats 0 as "never
+ * quoted", so persisting one would be indistinguishable from having no price at all.
+ */
+export const persistableMarks = (
+  snapshot: Record<string, number>,
+  keep: string[],
+): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const sym of keep) {
+    const v = snapshot[sym.toUpperCase()];
+    if (typeof v === 'number' && v > 0) out[sym.toUpperCase()] = v;
+  }
+  return out;
+};
+
 /** Snapshot for persistence. Plain object so it survives JSON. */
 export const allMarks = (): Record<string, number> => Object.fromEntries(marks);
 

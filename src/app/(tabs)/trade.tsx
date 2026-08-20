@@ -136,10 +136,11 @@ export default function Trade() {
    */
   const [, setPriced] = useState(0);
   useEffect(() => {
-    const syms = [...new Set([...held, ...watch, ...Object.keys(STOCKS)])];
-    if (!syms.length) return;
     let cancelled = false;
-    getMarks(syms)
+    // No symbol list: one grouped request prices the ENTIRE market, so restricting it to what is
+    // currently on screen would discard prices already paid for and force another call the moment
+    // the user searches for anything else.
+    getMarks()
       .then((r) => {
         if (!cancelled && r?.count) setPriced((n) => n + 1);
       })
