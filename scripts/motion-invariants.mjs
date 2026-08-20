@@ -106,14 +106,63 @@ const INVARIANTS = [
       return hits;
     },
   },
+  {
+    name: 'springs set their own stiffness',
+    why: 'R2 of MOTION_RUBRIC: bounce must be CHOSEN per element, never inherited. '
+       + '.springify().damping(n) with no .stiffness() inherits Reanimated default 100 -- that is '
+       + 'how tap-reveal ended up at zeta 0.8 and bouncing, which the owner reported.',
+    test(file, src) {
+      const hits = [];
+      for (const line of src.split('\n')) {
+        if (line.includes('.springify()') && !line.includes('.stiffness(')) {
+          hits.push('springify() inherits Reanimated default stiffness 100');
+        }
+      }
+      return hits;
+    },
+  },
+  {
+    name: 'inline spring constants are justified in a comment',
+    why: 'R2 again: an inline {stiffness, damping} pair IS a per-element choice, so it has to '
+       + 'carry the reason someone chose it. Without that, the next person cannot tell a measured '
+       + 'decision from a number that was typed once and copied.',
+    /*
+     * atlas.tsx is exempt and NAMED rather than pattern-matched: it is the mascot character file,
+     * its twelve springs at zeta 0.37-0.58 are deliberate squash-and-stretch measured during the
+     * audit, and its file-level docstring explains the acting model they serve. It is also owned
+     * by another session right now, so quietly rewriting it would collide.
+     */
+    test(file, src, raw) {
+      if (file.endsWith('atlas.tsx')) return [];
+      const lines = raw.split('\n');
+      const hits = [];
+      lines.forEach((line, i) => {
+        if (!/\{\s*stiffness:\s*[\d.]+\s*,\s*damping:/.test(line)) return;
+        const ctx = lines.slice(Math.max(0, i - 7), i).join('\n');
+        if (!/\/\/|\/\*|^\s*\*/m.test(ctx)) hits.push(`undocumented spring: ${line.trim().slice(0, 54)}`);
+      });
+      return hits;
+    },
+  },
+  {
+    name: 'infinite repeats are reduced-motion guarded',
+    why: 'withRepeat(..., -1) never stops, which is the clearest vestibular trigger in the app. '
+       + 'VERIFIED PASSING when added -- every infinite repeat already sits behind a '
+       + 'useReducedMotion check, so this locks in a property rather than filing a todo.',
+    test(file, src) {
+      if (!/withRepeat\([\s\S]{0,140}?,\s*-1/.test(src)) return [];
+      return /useReducedMotion/.test(src) ? [] : ['infinite withRepeat with no reduced-motion guard'];
+    },
+  },
 ];
 
 function run(files) {
   const failures = [];
   for (const f of files) {
-    const src = stripComments(readFileSync(f, 'utf8'));
+    const raw = readFileSync(f, 'utf8');
+    const src = stripComments(raw);
     for (const inv of INVARIANTS) {
-      for (const detail of inv.test(f, src)) failures.push({ file: f, inv: inv.name, detail, why: inv.why });
+      for (const detail of inv.test(f, src, raw)) failures.push({ file: f, inv: inv.name, detail, why: inv.why });
     }
   }
   return failures;
@@ -123,7 +172,7 @@ if (process.argv.includes('--selftest')) {
   const ok = (cond, msg) => { if (!cond) { console.error(`selftest FAILED: ${msg}`); process.exit(1); } };
   const probe = (name, body) => {
     const inv = INVARIANTS.find((i) => i.name === name);
-    return inv.test('src/components/scratch.tsx', stripComments(body));
+    return inv.test('src/components/scratch.tsx', stripComments(body), body);
   };
   // Each seeded regression must be CAUGHT.
   ok(probe('no scale-pop on ordinary interaction',
@@ -151,7 +200,26 @@ if (process.argv.includes('--selftest')) {
   ok(!probe('nothing enters by growing from zero',
       '<Animated.View entering={FadeInDown.delay(60)}>').length,
     'FadeInDown was wrongly flagged as ZoomIn');
-  console.log('motion-invariants selftest ok — 4 regressions caught, 4 harmless edits ignored');
+  // Invariants 5-7, added after the first four.
+  ok(probe('springs set their own stiffness',
+      'layout={LinearTransition.springify().damping(18)}').length,
+    'seeded inherited stiffness was not caught');
+  ok(!probe('springs set their own stiffness',
+      'layout={LinearTransition.springify().damping(26).stiffness(180)}').length,
+    'an EXPLICIT stiffness was wrongly flagged');
+  ok(probe('inline spring constants are justified in a comment',
+      'const a = 1;\nconst b = 2;\nx.set(withSpring(1, { stiffness: 500, damping: 18 }));').length,
+    'seeded undocumented spring was not caught');
+  ok(!probe('inline spring constants are justified in a comment',
+      '// measured: zeta 0.55, a reward chip should pop\nx.set(withSpring(1, { stiffness: 500, damping: 18 }));').length,
+    'a DOCUMENTED spring was wrongly flagged');
+  ok(probe('infinite repeats are reduced-motion guarded',
+      'bob.set(withRepeat(withTiming(1, { duration: 900 }), -1, true));').length,
+    'seeded unguarded infinite repeat was not caught');
+  ok(!probe('infinite repeats are reduced-motion guarded',
+      'const reduced = useReducedMotion();\nbob.set(withRepeat(withTiming(1), -1, true));').length,
+    'a GUARDED infinite repeat was wrongly flagged');
+  console.log('motion-invariants selftest ok — 7 regressions caught, 7 harmless edits ignored');
   process.exit(0);
 }
 

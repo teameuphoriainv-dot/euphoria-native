@@ -99,6 +99,10 @@ export function AtlasSpeech({
 
   useEffect(() => {
     if (reduced) return;
+    /* zeta = 15/(2*sqrt(260)) = 0.47, so this overshoots about 19% before settling. That is a
+       real pop, not a hint of one, and it is DELIBERATE: the speech bubble should arrive with
+       character rather than slide into place. R2 asks only that a bounce be chosen per element
+       and justified, which is what this comment is. */
     pop.set(withDelay(delay, withSpring(1, { stiffness: 260, damping: 15 })));
   }, [reduced, pop, delay]);
 

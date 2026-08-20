@@ -13,7 +13,7 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { Duration } from '@/shared/motion/tokens';
+import { Duration, Spring } from '@/shared/motion/tokens';
 
 export type SortSpec = { title: string; categories: string[]; items: { label: string; correct: string }[] };
 
@@ -53,7 +53,7 @@ export function SortBuckets({ spec, onSolvedChange }: { spec: SortSpec; onSolved
               key={item.label}
               onPress={() => cycle(i)}
               // Items move between buckets; without a layout animation they teleport.
-              layout={LinearTransition.springify().damping(18)}>
+              layout={LinearTransition.springify().damping(Spring.gentle.damping).stiffness(Spring.gentle.stiffness)}>
               <View style={[styles.row, { borderColor: border, borderWidth: a != null ? 2 : StyleSheet.hairlineWidth, backgroundColor: theme.card }]}>
                 <ThemedText type="bodyMedium" style={{ flex: 1 }}>{item.label}</ThemedText>
                 {a != null ? (
