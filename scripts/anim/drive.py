@@ -38,10 +38,18 @@ def button(*subs):
     Substring matching alone tapped a PARAGRAPH. On the multi-select step the prose
     "Select all that apply, then check." contains "check", sits above the real "Check answer"
     button, and matched first -- so the driver tapped body text and reported the step as stuck.
-    Filtering on role AXButton and preferring the LOWEST match (action buttons sit at the
-    bottom) fixes a whole class of silent stalls, not just this one.
+
+    The fix is to exclude PROSE, not to require a button role: see the comment below. Matches are
+    returned lowest-first, because action buttons sit at the bottom of these screens.
     """
-    hits = [n for n in nodes() if n[5] == 'AXButton' and any(s.lower() in n[4].lower() for s in subs)]
+    # EXCLUDE STATIC TEXT, do not require AXButton. Requiring AXButton fixed the paragraph bug
+    # and immediately caused a worse one: the lesson-intro Continue renders as AXGenericElement
+    # (a different button component), so `button()` returned nothing and every lesson in the
+    # sweep drove 0 steps while recording 150s of a static intro. Both failure modes are covered
+    # by the real distinction -- a tappable control is anything that is NOT prose or an image.
+    SKIP = {'AXStaticText', 'AXImage', 'AXApplication'}
+    hits = [n for n in nodes()
+            if n[5] not in SKIP and any(s.lower() in n[4].lower() for s in subs)]
     return sorted(hits, key=lambda n: -n[1])
 
 def at_launcher():
@@ -95,8 +103,11 @@ def dismiss_sheet():
     labs = ' '.join(n[4] for n in ns).lower()
     if not any(k in labs for k in ("you've earned", 'not now', 'maybe later', 'open it')):
         return False
+    # Reuses button() rather than re-testing the role here. The AXButton assumption was wrong
+    # once already -- the lesson-intro Continue renders as AXGenericElement -- and a duplicated
+    # assumption is one that only gets fixed in one place.
     for want in ('not now', 'maybe later', 'dismiss', 'close'):
-        b = [n for n in ns if n[5] == 'AXButton' and want in n[4].lower()]
+        b = button(want)
         if b:
             sp.run(["idb", "ui", "tap", "--udid", U, str(b[0][0] + b[0][2] // 2),
                     str(b[0][1] + b[0][3] // 2)], capture_output=True)

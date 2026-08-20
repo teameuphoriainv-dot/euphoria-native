@@ -66,25 +66,34 @@ function RevealFaces({ term, def, revealed }: { term: string; def: string; revea
   const frontStyle = useAnimatedStyle(() => ({ opacity: 1 - t.get() }));
 
   return (
-    // flex:1 so the card fills the row's height. Without it each card sizes to its OWN
-    // definition, so two cards side by side end up different heights -- visible on device as a
-    // short revealed card next to a tall unrevealed one. The row is already `alignItems:
-    // stretch` by default; this is what lets the child actually take the offer.
     <View style={styles.faces}>
-      {/* Back face is in FLOW so the card reserves the definition's height from the start.
-          That is what removes the reflow: revealing changes no layout, only opacity. */}
+      {/*
+        * WHICHEVER FACE IS SHOWING SITS IN FLOW; the other is absolute and contributes no height.
+        *
+        * The first version of this fix kept the BACK face permanently in flow so that revealing
+        * changed no layout. That removed reflow -- but reflow was never a reported defect, and
+        * the cost was measured on device: every unrevealed card reserved its definition's height,
+        * so cards grew from minHeight 118 to 235pt, the six-card grid roughly doubled, and the
+        * last row ended up 68pt BELOW the screen and behind the Continue button, where it could
+        * not be tapped. That is a worse bug than the one it prevented.
+        *
+        * Swapping which face is in flow keeps the cross-fade -- both faces stay mounted the whole
+        * time, so there is still no hard cut and still no scale-from-zero -- while the card sizes
+        * to the state it is actually in.
+        */}
       <Animated.View
-        style={[styles.card, styles.fill, backStyle, { borderColor: theme.primary, backgroundColor: theme.primary + '12' }]}>
+        style={[
+          styles.card, backStyle, revealed ? null : StyleSheet.absoluteFill,
+          { borderColor: theme.primary, backgroundColor: theme.primary + '12' },
+        ]}
+        pointerEvents="none">
         <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{term}</ThemedText>
         <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4, lineHeight: 18 }}>{def}</ThemedText>
       </Animated.View>
-      {/* Front face is absolute ON TOP, so revealing does not change the card's height and the
-          grid never reflows mid-transition. `pointerEvents none` once faded so it cannot eat
-          the tap that belongs to the SpringPressable wrapping it. */}
       <Animated.View
-        pointerEvents={revealed ? 'none' : 'auto'}
+        pointerEvents="none"
         style={[
-          styles.card, StyleSheet.absoluteFill, frontStyle,
+          styles.card, frontStyle, revealed ? StyleSheet.absoluteFill : null,
           { borderColor: theme.border, backgroundColor: theme.card, alignItems: 'center', justifyContent: 'center' },
         ]}>
         <ThemedText type="heading" style={{ fontSize: FontSize.body, textAlign: 'center' }}>{term}</ThemedText>
@@ -139,6 +148,5 @@ const styles = StyleSheet.create({
   cardWrap: { width: '47.5%', flexGrow: 1 },
   /* The two stacked faces of one card. flex:1 lets it take the row height the grid offers. */
   faces: { flex: 1 },
-  fill: { flex: 1 },
   card: { minHeight: 118, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three },
 });
