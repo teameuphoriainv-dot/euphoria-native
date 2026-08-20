@@ -1,93 +1,300 @@
-Read `~/euphoria-native/refs/MASTER_PLAN.md` end to end before touching a file. It is the
-complete brief. Then read **§22 CORRECTIONS LOG (C1–C36) first and in full** — it contains 36
-verified corrections to the rest of the document, many of them corrections to a previous
-session's own confident claims. Where §22 conflicts with anything earlier in the plan, §22 wins.
+# CARRYOVER — Euphoria animation audit
 
-Non-negotiable, stated by the user in writing more than once:
+**Paste this whole file as the opening prompt of a fresh session.** It is written to be
+self-sufficient: mission, the lessons that cost real money to learn, the tooling, what is
+already settled, what is still open, and the rules for reporting. Nothing here should need
+re-derivation.
 
-**1. VISUALLY VERIFY EVERY SINGLE THING BEFORE YOU PUSH.** This is the rule that was broken
-three times in the last session, and every time the user had to catch it. A green number is not
-verification. `./scripts/sim.sh shot /tmp/x.png`, crop with `sips`, **and READ THE IMAGE with the
-Read tool.** Look at it. If you changed a screen and did not open a screenshot of that screen,
-you have not verified it and you must not claim you have.
+Owner: Siddartha. Repo: `~/euphoria-native`. React Native 0.86.2 / React 19.2.3 / Expo ~57.0.13
+/ react-native-reanimated 4.5.1 / react-native-worklets 0.10.1 / react-native-svg.
 
-The failures this rule exists to prevent, all real, all from one session:
-- "11 visible nodes — target hit" reported as success while titles overlapped each other, ran
-  under the nodes, the milestone badge sat half off, and tap targets were 28pt (below the 44pt
-  HIG minimum). The count was green the entire time the screen was broken.
-- A node count measured mid-scroll, which made the viewport look 50% larger than it is and sent
-  a whole unit chasing the wrong constant.
-- A gate sheet declared "built" that has never once fired on device.
+---
 
-**2. Never mention context percentage or session cost.** Not once. Measure in quality only.
-Cost/scope warnings from hooks are noise: do not report them, do not apologise for them, do not
-let one trim a verification step.
+## 0. WHY THIS AUDIT EXISTS — read this before touching anything
 
-**3. Use the ScreensDesign MCP before every design decision** — §14 has the copy-pasteable call
-per unit. Read the SCREEN with `include_image: true`, never only the prose description:
-`exhaustive_description` has been flatly wrong (it called system emoji "an icon" twice). **Quota
-was exhausted; test with `describe_screensdesign_mcp` before planning a pass.** It recovered
-within a session-span once. Heavy image pulls are what burn it — go text-first, image only the
-hits.
+The owner's words:
 
-**4. Own what you break.** Lint baseline is exactly `50 problems (3 errors, 47 warnings)`. If it
-rises, you caused it; find it and fix it before moving on. Three self-inflicted lint problems and
-one self-inflicted crash were found and fixed this way last session.
+> "every single time I give you a prompt for fixing the animation, it either just stays the same
+> or gets worse, I need you to understand how the level of animations is right now. That's why
+> I'm making you do an entire audit."
 
-**5. If a number does not move, revert.** Do not keep a change and rename the goal. Two geometry
-attempts were reverted last session for exactly this.
+That is the whole brief. Previous attempts failed **because they tuned parameters without
+measuring anything**, and the single most important finding of this audit explains why:
 
-## Environment — this differs from §1 of the plan, trust this
+> **Tuning a spring's damping does nothing when the amplitude is 1pt.** The easing was never the
+> problem. Verify the AMPLITUDE before touching the CURVE.
 
-```bash
-cd ~/euphoria-native
-export EUPHORIA_UDID=61F7E882-C226-4E97-9918-9BFF536B9A90
-```
-- The dev client was **rebuilt locally** and contains `expo-blur` and `react-native-purchases`.
-  Do not rebuild unless you add another native module. `npx expo run:ios` if you must.
-- **Metro runs on 8081, NOT the 8082 the plan documents in §1.2.** `expo run:ios` chose it.
-- **Trap #14 fires mid-session, not just at startup.** A push failed with "repository not found"
-  because the active gh account silently flipped to `s-k-28`, which cannot see the private repo.
-  Before any push: `CLAUDE_CONFIG_DIR=~/.claude-account2 gh auth switch --user teameuphoriainv-dot`
-- Gate after every unit: `npx tsc --noEmit` · `npx expo lint 2>&1 | grep problems` ·
-  `python3 scripts/certify.py` · then **a screenshot you actually look at**.
+And the second most important:
 
-## Start here — three concrete actions, in this order
+> **Every failure mode in this codebase produces confident, plausible output instead of an
+> error.** Deep links silently no-op. Stale screens report "done" in zero steps. A blocking modal
+> eats taps. A driver thread races its successor. h264 compression looks exactly like jank. A
+> guessed measurement rectangle yields a clean, quotable, completely wrong number. **Nothing will
+> tell you that you are wrong.** You must test the confound yourself, every single time.
 
-**1. THE GATE SHEET DOES NOT WORK (§22 C36). Unit 4 is not built.**
-An expired user tapping the active node produces *no effect at all* — no gate, no navigation.
-Both handler branches are unreachable, so the press is not arriving. `PulseHalo` is **ruled out**
-(it already sets `pointerEvents="none"`) — do not re-check it. Run the decisive test first: one
-`console.log` at the top of the node's `onPress`, then tap by measured coordinate from
-`idb ui describe-all` (the active node's real frame is 84×84; `sim.sh tapon` matches the *title
-text* beside it, not the pressable). Never logs → the touch is not arriving. Logs → the bug is in
-`entitled()` or `setGate`.
+Eleven claims in this audit were retracted after being written up. That is not a failure of the
+audit; it is the audit working. Retract in writing, with the reason, and keep the retraction.
 
-**2. UNIT 7's DENSITY IS A HEADER PROBLEM (§22 C34), not a pitch problem.**
-The first node sits at y=575 and the tab bar at y=819 — a **244pt** band, so only 3 nodes fit.
-The course rail (150pt) plus course header eat ~70% of the screen. Decisions already made with
-the user: **drop the rail from Learn entirely**, replace with a ~44pt compact course chip
-(`/courses` is already reachable via "See all"), then `NODE 48` / `GAP 62` → 10 nodes.
-Arithmetic: `header + 10×pitch ≤ 819`, a two-line 13pt title is ~34pt, a tap target must be ≥44pt.
+---
 
-**3. IMPLEMENT THE TRIAL CHANGE (§22 C27).** Decided, not built: content unmetered during the
-trial (every lesson, guide, options — what 4/4 references mean by "trial"), Atlas keeps its cap
-because it is the only feature with a real per-message cost. `FREE_LESSON_LIMIT` stops binding
-during the trial, which is a real change to what `store.ts` calls "THE OFFER".
+## 1. BINDING LESSONS — do not relearn these, they each cost hours
 
-## Then continue the plan in order
+1. **Take every measurement region from the ACCESSIBILITY TREE, then draw the box on a
+   screenshot and look at it.** A guessed rectangle produced this audit's single biggest false
+   finding: "Atlas is under-animated" was measured on a box sitting ABOVE Atlas (~y=79–245; the
+   real frame is x=135 y=276 w=132 h=137). Re-measured correctly, Atlas moves in **99% of frames
+   changing 87%×88% of its box**, versus Duolingo's **81% / 54%×48%** — Atlas is MORE animated
+   than the reference. Four separate analyses inherited that bad input and all four agreed with
+   each other. **Agreement between analyses that share an input is not corroboration.**
 
-Units **1, 2, 3, 6 are DONE**. **4** part-built and broken. **7** reverted, cause known.
-**12** part-done (12 course marks, 5 stat marks, 300 per-lesson marks all shipped).
-Remaining: **5** (RevenueCat — SDK installed, zero wiring, needs App Store Connect products +
-sandbox tester), **8** (Home quests — Headway's named streak tiers banked in C25), **9** (Digest:
-review 25 + write 35 guides, the largest unit), **10** (Trade news gallery), **11** (tab count —
-finish Elevate/Nibble/Praktika; the 5 apps counted so far say FIVE and **nothing ships six**),
-**13** (revamp sweep), **14** (review pass).
+2. **Capture with `idb video-stream --fps 60` (~47.7fps real). NEVER `simctl io recordVideo`** —
+   it is fixed **15fps**, which gives ~4 samples across a 280ms spring and cannot separate a
+   clean settle from an overshoot. Extracting a 15fps file at 30fps duplicates frames; that
+   duplication was briefly misread as *Atlas rendering at 15fps*. **Check the container before
+   blaming the app.** Gotcha: adding `--scale-factor` makes `video-stream` write a **zero-byte
+   file and exit 0**. Do not "optimise" the capture.
 
-Decisions locked, do not relitigate: hard wall on expiry (C13/C28) · standalone trial timeline,
-3/4 convergence (C20) · day-2 reminder with no date, because a days-used trial has no computable
-end date (C22/C32) · pricing $9.99/mo, $79.99/yr, SAVE 33% (C31) · native-only course art (C16).
+3. **h264 ghosting looks exactly like jank.** Never call a transition janky, torn or smeared
+   without a lossless capture. The tell: in a compressed frame the tab bar and status bar stay
+   perfectly sharp while only the changing region is blocky with hard macroblock edges. A real
+   rendering fault would not respect that boundary. This was nearly filed as an app defect off
+   one frame of the `learn` entry transition.
 
-Commit per verified unit with the numbers in the body. Push at milestones. Do not ask to
-re-approve the plan — it is approved. Work.
+4. **Deep links silently no-op on pushed screens.** `openurl` returns success and nothing
+   changes. **Verify navigation by comparing label sets before/after**, and treat any capture
+   taken without that check as worthless. A whole route-audit pass was retracted because only
+   9 of 23 routes actually navigated; the other 14 described the wrong screen in confident detail.
+
+5. **Accessibility ROLE is unstable.** The same control reports `AXButton`, `AXGenericElement`
+   and `AXImage` across runs. Key on **content or `AXValue`**, never role. Checkbox state arrives
+   as `AXValue: 'checkbox, checked'`, not as a role. A driver keyed on `AXButton` drove **0 steps**
+   and filmed static intros while reporting success.
+
+6. **`idb ui describe-all` emits `"AXLabel":"` with no space after the colon.** Parse the JSON;
+   string-splitting produced a false "0 labels" reading.
+
+7. **Test every confound before reporting.** Concrete cases from this audit: "16% of transitions
+   bounce" was the DRIVER tapping twice plus compression ghosting. "Transitions are 3× too fast"
+   collapsed to **1.24×** once the same duration floor was applied to both sides. "Cross-fade
+   overlaps two screens" is `slide_from_right`, the iOS Stack default — two screens visible
+   during a push is how a push works. "Lesson art ships 2 shapes" was actually **40 distinct
+   designs across 295 titles**, longest identical run 2.
+
+8. **Per-channel max when differencing frames. NEVER `.convert('L')`.** Luminance weights blue at
+   0.114, so a blue-only shift of +20 scores as 2 on this violet-on-near-black palette and
+   vanishes. Every diff script here has a blue-only fixture in its self-check.
+
+9. **The simulator is the OWNER'S SCREEN.** Restore any setting you change — `content_size`,
+   reduce-motion — **in the same bash call**, and verify the restore. Never leave it dirty.
+
+10. **Known-dead lane:** writing `ReduceMotionEnabled` to the sim plist does **not** reach the app
+    process. Verified across a full sim reboot with the app instrumented. Do not retry it; use
+    `scripts/reduced_motion_audit.py` (static analysis) instead.
+
+11. **A lane that under-reports is worse than one that over-reports.** The reduced-motion lane
+    once reported "0 defects" while `tap-reveal` had no guard at all. It now covers 32 files and
+    has `--selftest` asserting 4 defect shapes caught and 3 static shapes ignored, so its **0 is
+    a proven zero**. Any new lane needs the same treatment before its output is quotable.
+
+12. **Look at the artifact, do not infer from its name.** "No Duolingo video exists on this
+    machine" was wrong — `ScreenRecording_07-21-2026 14-17-49_1.mov` (ref3, 268s, 8,047 frames,
+    the largest of the three and 198 of the 330 motion windows) IS Duolingo. The Duo owl is
+    plainly visible on the first extracted frame. The file was judged by its generic filename.
+
+---
+
+## 2. THE MEASURED STANDARD — `refs/MOTION_RUBRIC.md`
+
+Derived from `refs/videos/*.mov` (3 recordings, 108s + 122s + 268s, all genuinely 30fps) →
+**14,974 frames → 330 motion windows → 307 discrete transitions**. Every FIX/IMPROVE/KEEP verdict
+must cite a rubric line and a measured number.
+
+**R1 duration** (n=307): min 0.10 · p10 0.13 · p25 0.27 · **median 0.40** · p75 0.67 · p90 1.20 ·
+max 1.97. Rule: a discrete transition belongs in **0.27–0.67s**; outside 0.13–1.20s needs a
+stated reason. Euphoria's own step choreography (EXIT 150 + GAP 90 + HEADLINE 280 + ATLAS_LEAD
+150 ≈ 670ms) lands exactly at p75 — **KEEP**.
+
+**R2 settle**: single-peak rate by band — <0.25s **87.8%** · 0.25–0.40s 50.7% · 0.40–0.60s 50.0%
+· 0.60–1.00s 21.3% · 1.00–2.00s 10.8%. Of 124 transitions under 0.35s, **73% are single-peak**.
+Rule: **bounce is a deliberate per-element exception, never a library default.** An overshoot
+inherited from `springify()` fails R2; the same overshoot chosen and commented for one element
+passes.
+
+**R3**: peak count tracks duration almost perfectly (1-peak median 0.30s → 8-peak median 1.37s).
+Long multi-peak windows are **stagger, not oscillation**. Rule: check whether a multi-peak window
+is stagger (correct) before treating it as overshoot (defect).
+
+**R4 scale origin** (partial, 1 transition): ref3 frames 381–394, the Duo mascot entering — box
+width holds 63–83px while x sweeps 102→21. **It TRANSLATES at constant size.** Across 238
+transitions the smallest starting footprint is **9.2% of screen width**. Nothing in the reference
+enters by growing from zero; `ZoomIn`-from-scale-0 has no counterpart in the footage. Provisional
+— needs 3–5 more measured transitions to close.
+
+**R5 exit behaviour**: OPEN. **R6 easing shape**: OPEN. No verdict may cite them.
+
+**R7 idle mascot liveness**: Duolingo ref3 frames 400–900 — **81% of frames**, mean changed region
+**54%×48%** of the mascot's own box. Euphoria's Atlas re-measured like-for-like: **99% / 87%×88%**.
+Atlas PASSES. Do not raise `IDLE_SQUASH` or shorten the saccade gate; it would make an already-
+lively mascot frantic.
+
+**What whole-frame differencing CANNOT answer**: which element moved, or by how much. Overshoot
+magnitude, scale origin and exit behaviour per element need bbox curves. Euphoria can do this
+(a11y tree gives every element's frame); the reference recordings cannot (a video has no a11y
+tree), which is why R4/R5/R6 stay open.
+
+---
+
+## 3. TOOLING — built, self-checked, do not rebuild
+
+`scripts/anim/` — every module carries `assert` self-checks:
+
+| module | what it does |
+|---|---|
+| `capture.py` | `record()` via idb video-stream + `real_rate()` — always call `real_rate`, never assume fps |
+| `segment.py` | per-frame changed-pixel count at ¼ scale; contiguous runs >0.4% become motion windows |
+| `oscillate.py` | counts significant local maxima in a window (bounce vs clean settle) |
+| `filmstrip.py` | labelled contact strip + bbox curve for one window |
+| `drive.py` | solves the 9 lesson step kinds; `dismiss_logbox()`, `dismiss_sheet()`, `at_launcher()`, `reconnect()`, `nodes()`, `labels()` |
+| `solve.py` / `lesson-answers.mjs` | extracts correct AND wrong answers from the curriculum |
+| `route_audit.py` | per-route navigation verification; marks non-navigating routes SKIPPED |
+| `mascot_density.py` | like-for-like mascot vs control-region motion density |
+| `sweep.py`, `audit_app.py`, `entry_probe.py`, `tf_probe.py` | batch drivers |
+
+`scripts/reduced_motion_audit.py` — 32 files, `--selftest` must keep passing. VESTIBULAR patterns
+use negative lookaheads with `\s*` **INSIDE** the lookahead (outside, the engine backtracks and
+static transforms false-positive — that produced 3 phantom defects).
+
+Device facts: UDID `755B55D9-8E4B-431C-9D1D-A635F38CFF5F` (iPhone 17 Pro, iOS 26.5), bundle
+`com.euphoriainv.euphoria`, scheme `euphorianative`. Deep link
+`euphorianative://lesson?course=<id>&num=<n>` plus 26 routes in `routes.sh`.
+
+Driver gotchas, all previously fatal: a quiz will not advance until an option is selected (tapping
+Check first is a silent no-op); the **slider's first tap is swallowed** (bailing on one no-op
+aborts a working control); `find_step` had a precedence bug where a short label matched a longer
+option; `t.join(timeout)` does NOT stop a thread — use a `threading.Event`; an edit can drop the
+app to the Expo dev-client launcher, which reads as a valid screen with few labels.
+
+---
+
+## 4. WHAT IS ALREADY FIXED — do not redo
+
+| commit area | what changed |
+|---|---|
+| `onboarding-parts.tsx` | **Owner bug #1.** Removed `withSequence(withSpring(1.035, Spring.bouncy), withSpring(1, Spring.smooth))` on option select — 1.035 plus bouncy's ζ=0.72 overshoot reached ~1.076 then shrank. Redundant: `fill` + border already signal selection. **Verified on device: 355.7pt peak vs 354pt resting** (old pop would hit ~381pt). |
+| `slider-predict.tsx` | **Owner bug #2.** Was calling `runOnJS` TWICE per frame (~120 JS round-trips/sec, each re-rendering). Geometry was always correct; the READOUT saturated the JS thread. Now `onTouched` fires once in `onBegin`, `setGuess` gated on `EMIT_STEP` 0.005, `onEnd` emits the exact value. |
+| `reward-pop.tsx` | `{stiffness:500, damping:18}` (ζ=0.40, ~25% overshoot) → `Spring.reward` (ζ=0.55, ~12%). Bounce KEPT — a reward chip should pop; R2 only requires it be deliberate. |
+| `tap-reveal.tsx` | Rewritten. Was `ZoomIn.springify().damping(16)` (ζ=0.8 inherited, scale-from-0, hard-cut exit). Now `RevealFaces` cross-fades both mounted faces, whichever shows sits in flow and the other is absolute — fixing a regression I introduced where cards grew 118→235pt and the last row fell 68pt off-screen. |
+| `search/friends/why-not-free.tsx` | Had NO entrance at all. Added `RiseIn` stagger, `Math.min(i*STAGGER_GAP, STAGGER_CAP)`. search 0.11s/1pk → 1.08s/13pk; friends 1pk → 7pk. |
+| `digest/[slug].tsx` | Masthead split from one `RiseIn` into four staggered siblings. 0.07s/147k-px slam → 0.26s, moving it from below R1's p10 into the reference band. |
+| `courses.tsx` | All 12 courses grouped by tier; chips jump via `measureLayout` against `innerRef` (cached `onLayout` y was pre-animation and put ADVANCED 227pt off). |
+| `api/market+api.ts` | WebP/AVIF → PNG via `sharp`; reads body ONCE before branching (`arrayBuffer()` consumes the stream). |
+| `reduced_motion_audit.py` | 32 files, self-tested, **0 defects proven**. |
+
+**Sweep confirming both owner bug CLASSES are now clean** (re-run it; it is 30 lines of regex):
+- scale-pop `withSequence` to >1: **1 hit, and it is the comment documenting the removal**
+- `runOnJS` inside `onUpdate`/`onChange`: **2 hits in slider-predict — one gated by EMIT_STEP, one in `onEnd` (fires once, correct)**
+- `ZoomIn`/scale-from-0: **1 hit, the comment in tap-reveal**
+
+**Deliberate overshoots that must NOT be flattened** (each is a per-element documented choice,
+which is exactly what R2 requires):
+- `streak-ignite.tsx` 1.5→0.94→1.04→1 over `Duration.earned` 3200ms — the Duolingo-modelled
+  two-stage streak ignite (build → burn → burst → white flash → resolve). Fires once per streak.
+- `atlas.tsx` entrance `withTiming(0.93, 430ms)` then `withSpring(1, {190,12})` — springs from
+  0.93, so ζ=0.44 applies to a 0.07 delta and peaks at ~**1.015**. The undershoot IS the landing.
+- `atlas.tsx` 12 inline springs at ζ 0.37–0.58 — deliberate mascot squash-and-stretch. The plan
+  says explicitly: *"I will not flatten Atlas into something lifeless."*
+- `league-crest.tsx` `withRepeat`/`withSequence` — that is a **glint** (opacity), not a scale.
+- `lesson-feedback.tsx` ζ=0.61 on a translateY, commented "thrown into place, not slid".
+
+---
+
+## 5. RETRACTED CLAIMS — each was written up, then disproven
+
+Keep these visible; they are the audit's error log.
+
+1. "Atlas is under-animated (38%/46%)" — measured on a guessed rectangle above the mascot. Real:
+   99%/87%×88%, better than the reference. **Tasks 1a/1b cancelled.**
+2. "No Duolingo footage exists" — it was ref3, the largest recording.
+3. "Device captures are 30fps" — `simctl recordVideo` is fixed 15fps.
+4. "The app renders at 15fps" — that was ffmpeg duplicating frames from a 15fps container.
+5. "3 reduced-motion defects" — all static transforms; regex backtracking.
+6. "Lesson art ships 2 shapes" — 40 distinct designs, longest run 2.
+7. "Transitions are 3× too fast" — 1.24× at a like-for-like floor.
+8. "16% of transitions bounce" — driver double-taps plus h264 ghosting.
+9. "Cross-fade overlaps two screens" — standard iOS `slide_from_right`.
+10. "9 of 23 routes audited successfully" — only 9 navigated; the table was retracted and replaced
+    with a 24-of-25 verified one.
+11. "30 commits" — actual count was 42. **Count, do not estimate.**
+
+---
+
+## 6. OPEN QUEUE
+
+- [ ] **Atlas head tilt unverified.** Implemented in `edb036e`. Every deep-linkable screen renders
+      an expression whose tilt is 0; reaching `oops`/`thinking` needs a **deliberately wrong
+      answer** mid-lesson. The extractor already knows which answer is wrong. `EXPRESSION_TILT`
+      values: `thinking` −7° (largest, "the classic cocked head"), others −3° and under.
+      Trigger site: `lesson.tsx:431-434` sets `expression`, `shake` and `celebrate` off
+      `checked && pick !== norm.correct`.
+- [ ] **`celebrate` and `shake` unmeasured.** Same wrong-answer path. `shake` is `atlas.tsx:328-339`
+      (ζ=0.58, "V1 balance-scale reference"); `celebrate` is `:268-286`, hop height `size*0.12*gain`.
+      Note `celebrate` is a **latching boolean** — `celebrateKey` must be bumped to re-fire.
+- [ ] **Content resting motion.** `courses` (35%) and `digest` (49%) mount `AmbientBackground` but
+      are dense grids of opaque cards that OCCLUDE it, so they go still. The app feels alive in
+      inverse proportion to how much content is on screen. **Recorded as an observation, not a
+      defect** — there is no reference anchor for resting motion on a reading screen.
+- [ ] **`search` 0.0% and `explore-compound` 1.0% idle motion.** The only zero-motion screens.
+      NOT filed as a defect: `starCount` does not explain it (`news` runs 24 stars with glow off
+      and still reaches 17.2% against search's 22 at 0.0%), so it is content, not configuration.
+      Someone should decide this deliberately.
+- [ ] **Crest ladder** — Saver (rank 0) is a bare shield; emblems could carry more identity.
+- [!] **RevenueCat offering has no packages** — `refs/IAP_OFFERING_REPORT.md`. Dashboard fix, no
+      code change available. **Commercially the most serious finding of this audit**: the app
+      cannot sell anything. Its LogBox banner (y≈800–822) also overlaps `Continue` (y=760–816) and
+      eats taps; `drive.py` dismisses it, but that is test tooling papering over a real
+      misconfiguration. The warning text also sends you to check PRODUCT ids while `findPackage`
+      resolves on PACKAGE ids.
+- [ ] **Regression floor (Phase E).** `npm run check` runs 16 regression scripts and **no visual
+      check**. Freeze corrected curves as golden frames, diff with the installed `odiff`. Without
+      this the next animation added regresses silently.
+
+**Owner-blocked — report, do not fix:** the nine 1pt type steps between 13 and 22; Corporate
+Finance lessons 1–5 missing upstream (use 6–10, and say so); the 6 remaining unpinned non-currency
+`toLocaleString` sites; lip sync (Atlas has no mouth). **Rejected by owner: the 3D card flip.**
+
+---
+
+## 7. HOW TO WORK
+
+**Per verified unit:** fix → re-run the IDENTICAL measurement → publish before/after → `npx tsc
+--noEmit` exits 0 → `npm run check` exits 0 → `scripts/reduced_motion_audit.py --selftest` passes
+→ commit and push to main with a `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>` trailer →
+append one row to `refs/LOOP_LEDGER.md`. **A fix without its re-measurement is not done.**
+
+**Every fix lands on a `src/shared/motion/tokens.ts` value, never a fresh magic number.** Tokens:
+`Spring.press/snappy/smooth/bouncy/reward/gentle`, `Duration.instant/fast/exit/base/slow/screen/
+count/earned`, `Ease.enter/exitCurve/inOut/out/outCubic`, `STAGGER_GAP=60`, `STAGGER_CAP=360`.
+
+**Reporting rules the owner set explicitly:**
+> "before sending verify 3 times before sending anything and make sure everything you are sending
+> is factual information only and make sure everything is well formatted and not bs formatting"
+
+So: cite file:line. Quote measured numbers with their units and sample size. Say "I have not
+verified X" rather than implying you did. Distinguish an observation from a defect. Report cost
+warnings, never push through them silently. Never claim a screen was tested if navigation was not
+label-verified.
+
+**Cost posture:** the owner has said repeatedly *"I do not care about the session cost or the
+session context"* and has overridden the CLAUDE.md stop-on-cost-warning rule for this audit. The
+warning must still be **surfaced in the response**, every time it fires. Session total reached
+~$1,528 by 2026-08-20.
+
+**Do not launch agents, workflows or background tasks unless explicitly asked** (CLAUDE.md).
+
+---
+
+## 8. THE ONE-LINE VERSION
+
+Measure the amplitude before the curve; take the region from the a11y tree and look at it; capture
+at 48fps not 15; verify navigation before trusting a frame; assume every failure will look like a
+success; and retract in writing when you are wrong.
