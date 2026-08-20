@@ -69,13 +69,11 @@ amplitude is 1pt. The easing was never the problem.
       multi-peaked, clustered at 0.20–0.35s, mostly 2-peak. Short-plus-bouncing is what reads as
       "abrupt". Worth tracing to the components that produce them once the sweep completes.
 
-- [ ] **1e. A cross-fade overlaps two screens** (route entry OR first step — unattributed). Seen in a filmstrip: for ~0.15s of a
-      ~0.31s lesson entry, the outgoing screen's body text and the incoming title are both drawn
-      at partial opacity, superimposed. `step-transition.ts` already documents the fix the app
-      believes in — a dead beat so the two never coexist. **First fix the harness**: `sweep.one()`
-      starts recording 3.5s AFTER navigating, so route entries are never captured and the t=0.0
-      windows are recording-start artefacts. Record before the deep link fires, then attribute the
-      overlap before changing any transition code.
+- [-] **1e. Cross-fade overlap — DROPPED, not a defect.** Re-captured at compression-quality 1.0:
+      the incoming screen enters from the RIGHT EDGE while the outgoing one is still visible.
+      That is `slide_from_right`, the iOS Stack default, and `_layout.tsx` sets no `animation`
+      option so it inherits it. Two screens visible during a push is how a push works. The
+      original observation was slide overlap plus h264 ghosting.
 
 - [ ] **2. Give content its own resting motion.**
       The structural finding. `courses` (35%) and `digest` (49%) mount `AmbientBackground` but

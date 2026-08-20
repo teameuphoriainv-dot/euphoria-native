@@ -244,7 +244,18 @@ tapping, and it exposes a limit in the metric: `peaks()` counts maxima inside a 
 **two taps close together are indistinguishable from one overshooting spring.** The 16% R2 rate
 is therefore inflated on interactive steps and should not be quoted as an app defect count.
 
-**(b) A cross-fade overlaps two screens' content.**
+**(b) WITHDRAWN — it is a standard iOS push, not a cross-fade defect.**
+
+Re-captured at `--compression-quality 1.0` and read frame by frame: the incoming screen's
+content ("League", "Saver") enters from the **right edge** while the outgoing screen is still
+visible on the left. That is `slide_from_right`, the iOS default for a Stack push, and
+`_layout.tsx` sets no `animation` option so it inherits exactly that. **Two screens being
+visible at once is how a push works** — it is not an overlap defect.
+
+The original observation below was the slide overlap plus the h264 ghosting documented earlier
+in this file. It is kept for the record, struck through in effect:
+
+**(b, original and wrong) A cross-fade overlaps two screens' content.**
 `alternativeInvestments-1 t=0.18`. For roughly the first 7 of 15 frames
 (~0.15s of a ~0.31s transition) the OUTGOING screen's dense body text and the INCOMING lesson
 intro are both drawn at partial opacity, superimposed — two blocks of running text on top of
