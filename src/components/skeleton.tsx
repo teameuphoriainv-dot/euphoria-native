@@ -25,6 +25,7 @@ import { useEffect } from 'react';
 
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Duration } from '@/shared/motion/tokens';
 
 export function Skeleton({
   height,
@@ -46,7 +47,7 @@ export function Skeleton({
       pulse.set(0.6);
       return;
     }
-    pulse.set(withRepeat(withTiming(0.75, { duration: 900, easing: Easing.inOut(Easing.ease) }), -1, true));
+    pulse.set(withRepeat(withTiming(0.75, { duration: Duration.count, easing: Easing.inOut(Easing.ease) }), -1, true));
   }, [reduced, pulse]);
 
   const style = useAnimatedStyle(() => ({ opacity: pulse.get() }));

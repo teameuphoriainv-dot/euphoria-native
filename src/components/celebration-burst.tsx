@@ -28,6 +28,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import { Duration } from '@/shared/motion/tokens';
 
 const RAY_COUNT = 14;
 const VB = 300;
@@ -51,7 +52,7 @@ export function CelebrationRays({ size = 300, delay = 0 }: { size?: number; dela
 
   useEffect(() => {
     if (reduced) return;
-    t.set(withDelay(delay, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) })));
+    t.set(withDelay(delay, withTiming(1, { duration: Duration.count, easing: Easing.out(Easing.cubic) })));
   }, [reduced, t, delay]);
 
   const style = useAnimatedStyle(() => {
