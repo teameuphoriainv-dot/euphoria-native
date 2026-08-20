@@ -30,7 +30,9 @@ ROUTES=(
   "games:games"
   "games-term-match:games/term-match"
   "explore-compound:explore/compound"
-  "digest-slug:digest/the-rule-of-72"
+  # the-rule-of-72 does not exist in digest-content.ts, so this route rendered
+  # "Article not found" in every audit that walked it. Use a real slug.
+  "digest-slug:digest/avalanche-vs-snowball"
   "stock-sym:stock/NVDA"
   "settings-account:settings/account"
   "why-not-free:why-not-free"
