@@ -16,6 +16,7 @@ import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { STAGGER_CAP } from '@/shared/motion/tokens';
 
 const GAMES: { name: string; icon: EuphoriaIconName; route?: string; pro?: boolean }[] = [
   { name: 'Term Match', icon: 'brain', route: '/games/term-match' },
@@ -45,7 +46,7 @@ export default function Games() {
 
         <View style={styles.grid}>
           {GAMES.map((g, i) => (
-            <RiseIn key={g.name} delay={i * 40} style={styles.cell}>
+            <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
               <SpringPressable onPress={() => g.route && router.push(g.route as never)} disabled={!!g.pro}>
                 <Card style={[styles.gameCard, g.pro && { opacity: 0.6 }]}>
                   {g.pro && (

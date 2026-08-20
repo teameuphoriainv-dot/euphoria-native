@@ -35,6 +35,7 @@ import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { STAGGER_CAP } from '@/shared/motion/tokens';
 
 const ALL = 'All';
 
@@ -356,7 +357,7 @@ export default function Digest() {
             newly-matching cards animated. Half a list animating is worse than none. */}
         <View key={filter} style={styles.list}>
           {library.map((p, i) => (
-            <RiseIn key={p.slug} delay={cascadeBase + i * 30}>
+            <RiseIn key={p.slug} delay={cascadeBase + Math.min(i * 30, STAGGER_CAP)}>
               <GuideCard post={p} read={readPosts.includes(p.slug)} />
             </RiseIn>
           ))}

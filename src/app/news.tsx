@@ -31,6 +31,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { getNews, type Article } from '@/lib/market';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { STAGGER_CAP } from '@/shared/motion/tokens';
 
 export default function News() {
   const theme = useTheme();
@@ -115,7 +116,7 @@ export default function News() {
         )}
 
         {articles?.map((a, i) => (
-          <RiseIn key={a.id ?? i} delay={60 + i * 25}>
+          <RiseIn key={a.id ?? i} delay={60 + Math.min(i * 25, STAGGER_CAP)}>
             <SpringPressable
               scaleTo={0.98}
               onPress={() => void Linking.openURL(a.url).catch(() => undefined)}
