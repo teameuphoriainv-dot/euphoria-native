@@ -23,7 +23,9 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { searchTickers, type TickerHit } from '@/lib/market';
+import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
 
 export default function Search() {
   const theme = useTheme();
@@ -124,9 +126,19 @@ export default function Search() {
           </ThemedText>
         )}
 
+        {/*
+          * Results STAGGER IN. Measured before this: they appeared in a single 0.11s window with
+          * one peak -- an instantaneous hard cut, well under the reference's 0.27-0.67s band, and
+          * the only list in the app that arrived without choreography. search.tsx was one of just
+          * four screens with no entrance animation at all, alongside friends.tsx.
+          *
+          * Capped at STAGGER_CAP for the reason tokens.ts gives: an uncapped cascade leaves the
+          * tail of a long list dragging behind the user, and ticker search can return dozens.
+          * RiseIn degrades to a fade under Reduced Motion on its own, so no guard is needed here.
+          */}
         {results?.map((h, i) => (
+          <RiseIn key={`${h.sym}-${i}`} delay={Math.min(i * STAGGER_GAP, STAGGER_CAP)}>
           <SpringPressable
-            key={`${h.sym}-${i}`}
             onPress={() => router.push(`/stock/${h.sym}`)}
             accessibilityRole="button"
             accessibilityLabel={`${h.sym}, ${h.name}`}
@@ -142,6 +154,7 @@ export default function Search() {
               <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
             </View>
           </SpringPressable>
+          </RiseIn>
         ))}
       </ScrollView>
     </SafeAreaView>
