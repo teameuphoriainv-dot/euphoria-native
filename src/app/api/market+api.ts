@@ -413,11 +413,30 @@ export async function GET(request: Request) {
       if (!sym) return fresh({ error: 'sym_required' }, 400);
       if (!RANGES[range]) return fresh({ error: 'bad_range' }, 400);
       const { mult, span, label } = RANGES[range];
+      /*
+       * SORT DESC, THEN REVERSE — because truncation has to lose the OLDEST bars, not the newest.
+       *
+       * MEASURED 2026-08-20 with `sort=asc`: the 1M chart, which draws HOURLY bars, asked for the
+       * 30 days ending now and came back with 95 bars running 2026-07-21 to 2026-07-29 -- the
+       * first eight days of the window and nothing after. Its most recent point was 22 DAYS OLD
+       * while the header said "past month". The same call on other spans was fine: 1D (5-minute)
+       * ended 2026-08-19 23:59, 1Y (daily) ended 2026-08-19. So the data is current and only this
+       * span was truncated.
+       *
+       * The response is capped somewhere upstream and `next_url` was never followed, so with
+       * ascending order the cut fell on the recent end. Descending means the cut falls on the
+       * distant end instead: a chart missing its oldest week is barely visible, whereas one
+       * missing its last three weeks is simply wrong, and wrong while claiming otherwise.
+       *
+       * Reversed back to ascending before returning, because every consumer draws left-to-right.
+       */
       const d = await poly(
-        `/v2/aggs/ticker/${sym}/range/${mult}/${span}/${Math.floor(fromMs(range))}/${Date.now()}?adjusted=true&sort=asc&limit=5000`,
+        `/v2/aggs/ticker/${sym}/range/${mult}/${span}/${Math.floor(fromMs(range))}/${Date.now()}?adjusted=true&sort=desc&limit=5000`,
         key,
       );
-      const points: { t: number; c: number }[] = (d.results ?? []).map((b: { t: number; c: number }) => ({ t: b.t, c: b.c }));
+      const points: { t: number; c: number }[] = (d.results ?? [])
+        .map((b: { t: number; c: number }) => ({ t: b.t, c: b.c }))
+        .reverse();
       return cached({ sym, range, label, points });
     }
 
