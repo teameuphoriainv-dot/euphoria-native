@@ -30,8 +30,20 @@ import { join } from 'node:path';
 const OUT = 'assets/logos';
 const MANIFEST = join(OUT, 'manifest.json');
 const BASE = 'https://api.polygon.io';
-/* Free tier is 5/min. 13s leaves headroom for clock skew rather than riding the exact edge. */
-const GAP_MS = 13_000;
+/*
+ * PACING, AND THE MISTAKE IT ENCODES.
+ *
+ * Free tier is 5 requests/minute. The first version used one 13s gap for both modes, which is
+ * right for --direct (each symbol makes its two upstream calls 13s apart, so ~4.6/min) but WRONG
+ * for --via-proxy: there, ONE proxy request costs TWO Polygon calls internally, so a 13s gap runs
+ * at ~9.2 calls/min against a 5/min ceiling. Measured: a 67-symbol pass wrote ZERO and every
+ * single symbol came back rate-limited. Half-speed pacing looked fine on a 24-symbol batch, where
+ * 12 of 24 succeeded, which is exactly how a pacing bug hides.
+ *
+ * So the gap is per-mode, and reflects what each mode actually costs upstream.
+ */
+const GAP_DIRECT_MS = 13_000;
+const GAP_PROXY_MS = 26_000;
 
 /**
  * THE CLASSIFIER, and the whole reason this script has a self-test.
@@ -73,7 +85,7 @@ async function fetchOne(sym, key) {
   const brand = (await meta.json())?.results?.branding ?? {};
   const src = brand.icon_url ?? brand.logo_url;
   if (!src) return { verdict: 'no_art' };
-  await sleep(GAP_MS);
+  await sleep(GAP_DIRECT_MS);
   const img = await fetch(`${src}${src.includes('?') ? '&' : '?'}apiKey=${key}`);
   const iv = classify(img.status);
   if (iv !== 'ok') return { verdict: iv };
@@ -142,7 +154,7 @@ for (const sym of syms) {
     }
   } catch (e) { failed.push(sym); console.log(`error: ${String(e).slice(0, 70)}`); }
   writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
-  await sleep(GAP_MS);
+  await sleep(viaProxy ? GAP_PROXY_MS : GAP_DIRECT_MS);
 }
 
 const total = writeIndex();
