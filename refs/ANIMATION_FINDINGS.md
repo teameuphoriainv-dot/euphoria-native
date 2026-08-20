@@ -195,6 +195,34 @@ supported, and should not be acted on.
 0.20–0.35s, overwhelmingly 2-peak (145) or 3-peak (62). Short-plus-bouncing is what reads as
 "abrupt".
 
+## 2d. What the R2 failures actually look like — read, not counted
+
+Two filmstrips from the sweep, inspected frame by frame.
+
+**(a) Most R2 failures on interactive steps are MY DRIVER, not the app.**
+`alternativeInvestments-1 t=10.87` is a multi-select quiz. Across 13 frames the highlighted
+option changes three times — option 1, then option 2, then option 1 again. That is the driver
+tapping, and it exposes a limit in the metric: `peaks()` counts maxima inside a motion window, so
+**two taps close together are indistinguishable from one overshooting spring.** The 16% R2 rate
+is therefore inflated on interactive steps and should not be quoted as an app defect count.
+
+**(b) The route entry cross-fade overlaps two screens' content.**
+`alternativeInvestments-1 t=0.18` is the lesson entry. For roughly the first 7 of 15 frames
+(~0.15s of a ~0.31s transition) the OUTGOING screen's dense body text and the INCOMING lesson
+intro are both drawn at partial opacity, superimposed — two blocks of running text on top of
+each other. It is legible text over legible text, so this is opacity blending, not the
+compression artefact described elsewhere in this document.
+
+This contradicts the app's own stated principle. `shared/motion/step-transition.ts` explains why
+its step choreography inserts a dead beat:
+
+> the incoming step would mount *below* the outgoing one … The reference has a gap, so the two
+> steps never need to coexist
+
+The **step** transition honours that. The **route** transition does not. Same product, two
+different answers to the same question, and the route one produces the overlap the step one was
+written to avoid.
+
 ## 3. Entry transitions are wildly inconsistent
 
 Peak motion in the 1.2s after each route opened, for routes that verifiably navigated:
