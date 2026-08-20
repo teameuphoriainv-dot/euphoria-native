@@ -52,13 +52,16 @@ export default function StockDetail() {
   const watching = useApp((st) => (sym ? st.watchlist.includes(sym) : false));
   const [qty, setQty] = useState(1);
   /*
-   * The VALUE is deliberately discarded; the setter is not. `getQuote` records the live mark
-   * (Phase 16), and `priceOf` reads that mark during render — so without a state write here the
-   * screen would keep rendering the static fallback until something unrelated re-rendered it. This
-   * `useState` is the re-render trigger, not a data store. Removing it silently reverts this screen
-   * to static prices.
+   * The setter is the re-render trigger. `getQuote` records the live mark (Phase 16) and
+   * `priceOf` reads that mark during render, so without a state write here the screen would keep
+   * rendering the static fallback until something unrelated re-rendered it. Removing this
+   * silently reverts the screen to static prices.
+   *
+   * The VALUE used to be discarded — this read `const [, setLive]` — because nothing needed it.
+   * It does now: `asOf` is the only thing that can say WHEN this price is from, and the quote
+   * endpoint discarded that field entirely until it was added.
    */
-  const [, setLive] = useState<Quote | null>(null);
+  const [live, setLive] = useState<Quote | null>(null);
   /*
    * QUOTE FAILURE WAS SILENT, AND SILENT IS THE WRONG FAILURE HERE.
    *
@@ -146,6 +149,33 @@ export default function StockDetail() {
    * prefers a live mark from `lib/marks.ts`, so execution and valuation moved together — every
    * caller, `valueOf()` and `snapshot()` and the Trade rows and the options spot, followed for free.
    */
+  /*
+   * "PREVIOUS CLOSE", BECAUSE THAT IS WHAT THIS NUMBER ACTUALLY IS.
+   *
+   * The quote endpoint reads /v2/aggs/ticker/{sym}/prev -- the previous session's aggregate --
+   * and until `asOf` was added it returned no timestamp at all, so a price from this morning and
+   * one from three weeks ago rendered identically. Measured on the sibling chart endpoint the
+   * same day: a span labelled "past month" was serving bars 22 days old with nothing saying so.
+   *
+   * Only shown when a LIVE quote actually arrived. On the fallback path `price` comes from the
+   * static table in stocks.ts, and stamping a date on a static number would be worse than saying
+   * nothing -- it would make the fiction look sourced. RetryNotice already covers that case.
+   *
+   * Formatted from a fixed month list rather than toLocaleDateString: unpinned locale formatting
+   * is already a tracked concern in this repo, and this is not the place to add another site.
+   */
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const asOfLabel = (() => {
+    const t = live?.asOf;
+    if (!t || quoteErr) return null;
+    const d = new Date(t);
+    const stamp = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+    const days = Math.floor((Date.now() - t) / 86_400_000);
+    // Two days is the first point a close can be genuinely stale rather than just "yesterday's",
+    // since a Monday morning legitimately shows Friday's close.
+    return days >= 2 ? `Previous close · ${stamp} · ${days} days ago` : `Previous close · ${stamp}`;
+  })();
+
   const price = priceOf(sym);
   const name = stock?.name ?? sym;
   /*
@@ -208,6 +238,9 @@ export default function StockDetail() {
               */}
             <ThemedText type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.display }}>{price > 0 ? money(price) : '—'}</ThemedText>
           </View>
+          {asOfLabel ? (
+            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{asOfLabel}</ThemedText>
+          ) : null}
         </RiseIn>
 
         <RiseIn delay={60}>
