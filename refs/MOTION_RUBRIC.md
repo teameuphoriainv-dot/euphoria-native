@@ -64,6 +64,27 @@ treating it as overshoot (defect).
 
 ---
 
+## R7 — Idle mascot liveness (reference-anchored)
+
+Measured on **ref3 (Duolingo)**, frames 400–900 — 16.7s of the mascot at rest, after its
+entrance has settled. Changed-region bounding box inside the mascot's own footprint, threshold 8:
+
+| metric | Duolingo |
+|---|---|
+| frames showing motion in the mascot box | **81%** |
+| mean changed region | **54% × 48% of the mascot's own box** |
+| max changed region | 90×97px of a 90×107px box (i.e. the whole mascot) |
+
+**Rule.** A resting mascot should be moving most of the time, and when it moves it should change
+a substantial fraction of itself — not a stroke's control point. Duo changes roughly half its own
+area on a typical frame.
+
+Euphoria's welcome mascot measured **38%** of frames by a different method (larger region,
+threshold 30), so the two are **not directly comparable and must be re-measured like-for-like**
+before the gap is quoted as a figure. `scripts/anim/mascot_density.py` exists for exactly that.
+The direction is not in doubt: Euphoria's idle amplitudes are 1–3% of a 100-unit viewBox
+(0.5–2pt at shipping sizes), which cannot produce a change of half the mascot's area.
+
 ## CAPTURE RATE — a correction that affects every device measurement
 
 > **`simctl io recordVideo` records at a fixed 15 fps.** Measured 2026-08-19:

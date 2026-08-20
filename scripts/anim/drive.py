@@ -18,10 +18,29 @@ import subprocess as sp, json, time, sys
 U = "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
 BUNDLE = "com.euphoriainv.euphoria"
 
-def tree():
+# Short-lived cache for the accessibility tree.
+#
+# WHY: one driver step calls labels(), find(), at_launcher(), dismiss_logbox(), dismiss_sheet()
+# and button() before it taps anything -- six full `idb ui describe-all` round-trips at roughly
+# 0.5-1.5s each. That is ~6s of pure overhead per step and ~350s for a 16-step lesson, and
+# nothing on screen changes across those calls because no tap has happened yet.
+#
+# WHY A BARE TTL IS SAFE HERE: every tap in this module is followed by a settle sleep of at
+# least 0.5s (tap 1.1s, dismiss_logbox 1.0s, dismiss_sheet 1.4s, reveal 0.5s, check 1.8s), all
+# longer than this TTL. So the cache is always expired by the time anything could have changed.
+# Anything added later with a shorter settle must pass fresh=True.
+_CACHE = {'at': 0.0, 'val': None}
+_TTL = 0.30
+
+def tree(fresh=False):
+    now = time.time()
+    if not fresh and _CACHE['val'] is not None and now - _CACHE['at'] < _TTL:
+        return _CACHE['val']
     r = sp.run(["idb", "ui", "describe-all", "--udid", U], capture_output=True, text=True)
-    try: return json.loads(r.stdout or "[]")
-    except json.JSONDecodeError: return []
+    try: out = json.loads(r.stdout or "[]")
+    except json.JSONDecodeError: out = []
+    _CACHE['val'], _CACHE['at'] = out, time.time()
+    return out
 
 def nodes():
     return [(round(n['frame']['x']), round(n['frame']['y']), round(n['frame']['width']),
