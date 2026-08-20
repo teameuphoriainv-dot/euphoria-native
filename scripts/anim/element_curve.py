@@ -299,15 +299,65 @@ def main():
     # measurement disagreeing is how a wrong one gets quoted.
     gone = _sustained(lambda v: v < 0.15, sim, 3)
     if gone is not None:
-        present = _sustained(lambda v: v > 0.85, sim[:gone], 3)
+        # LAST sustained-present frame, not the first. _sustained returns the START of the first
+        # qualifying run, so using it directly reported 'present until 31ms' on an element that
+        # held a solid plateau for 675ms, and an exit of 738ms instead of 135ms.
+        last = None
+        run = 0
+        for i in range(gone):
+            run = run + 1 if sim[i] > 0.85 else 0
+            if run >= 3:
+                last = i
+        present = last
         if present is not None:
-            last = present + 2
             print(f"  original element present until {last/rate*1000:.0f}ms, "
                   f"gone by {gone/rate*1000:.0f}ms -> exit took {(gone-last)/rate*1000:.0f}ms")
     else:
         print(f"  original element never sustained a drop (min overlap {min(sim):.2f}); "
               f"isolated dips are compression, not an exit")
     print("  overlap: " + " ".join(f"{v:.2f}" for v in sim[:30]))
+
+    # R6 — EASING SHAPE, on the INCOMING element. sim is overlap against frame 0, so it can only
+    # watch the outgoing one. Comparing every frame against the SETTLED final frame instead
+    # tracks the arrival, and the shape of that rise is the easing.
+    # MEAN LUMINANCE, not thresholded overlap. `similarity` counts pixels above brightness 200,
+    # so text fading in only registers once its opacity passes ~78% -- which turns any opacity
+    # ramp into something that looks ease-IN regardless of its real curve. Mean luminance over
+    # the element's rectangle is linear in opacity and has no threshold to distort it.
+    def mean_lum(img):
+        px = img.load(); W, H = img.size; t = 0
+        for y in range(0, H, 2):
+            for x in range(0, W, 2):
+                r, g, b = px[x, y]
+                t += r + g + b
+        return t / (3 * (W // 2 + 1) * (H // 2 + 1))
+    lum = [mean_lum(Image.open(f).convert('RGB').crop((x0, y0, x1, y1))) for f in fr]
+    lo_l, hi_l = min(lum), max(lum)
+    sim_in = [(v - lo_l) / (hi_l - lo_l) if hi_l > lo_l else 0 for v in lum]
+    arrive = _sustained(lambda v: v > 0.85, sim_in, 3)
+    start = None
+    if arrive is not None:
+        for i in range(arrive, -1, -1):
+            if sim_in[i] < 0.15:
+                start = i; break
+    if start is not None and arrive is not None and arrive - start >= 4:
+        seg = sim_in[start:arrive + 1]
+        n = len(seg)
+        print(f"\nR6 easing (mean luminance): incoming element rises {start/rate*1000:.0f}ms -> {arrive/rate*1000:.0f}ms "
+              f"({(arrive-start)/rate*1000:.0f}ms, {n} frames)")
+        # normalised progress at the midpoint separates the standard shapes:
+        #   linear     ~0.50   ease-out (fast start) >0.60   ease-in (slow start) <0.40
+        mid = seg[n // 2]
+        lo, hi = min(seg), max(seg)
+        p = (mid - lo) / (hi - lo) if hi > lo else 0
+        shape = 'ease-OUT (fast start, slow settle)' if p > 0.60 else (
+                'ease-IN (slow start)' if p < 0.40 else 'roughly LINEAR')
+        over = max(seg[n//2:]) > 1.0 * 0.995 and any(v < max(seg) * 0.97 for v in seg[n//2:])
+        print(f"  midpoint progress {p:.2f} -> {shape}")
+        print(f"  non-monotonic tail (overshoot/settle): {over}")
+        print("  rise (normalised mean luminance): " + " ".join(f"{v:.2f}" for v in seg[:24]))
+    else:
+        print("\nR6 easing: no clean incoming rise in this window")
     peak = max(counts) or 1
     print("\n  ms   count   width   x      bar")
     for i, (cnt, bb) in enumerate(c):

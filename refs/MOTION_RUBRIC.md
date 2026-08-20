@@ -349,8 +349,16 @@ gone by **810ms**.
 |---|---|
 | last sustained present | 675ms |
 | first sustained gone | 810ms |
-| **exit duration** | **135ms** |
+| **exit duration, take 1** | **135ms** |
+| **exit duration, take 2** | **62ms** |
 | `step-transition.ts` `EXIT` | **150ms** |
+
+**The number is noisy; the SHAPE is not.** Two clean captures of the same transition gave 135ms
+and 62ms against a 150ms constant. Both confirm a multi-frame decay rather than a one-frame
+drop, which is the question R5 asks, but neither pins the duration — the 3-consecutive-frame
+confirmation the detector requires interacts with where the fade crosses threshold, and tap
+latency shifts the window. **Quote the shape (a fade, matching the documented EXIT), not the
+milliseconds.**
 
 **A fade, not a hard cut, and it matches its own token to within 10%.** 135ms sits just above
 R1's p10 (130ms), which is right: an exit should be faster than an entrance, and both Material
@@ -370,3 +378,31 @@ per-element measurement cannot be run on `refs/videos/*.mov`. What is establishe
 **conformance to its own documented exit constant**, which is a narrower and honest claim.
 
 - **R6 — easing shape:** still OPEN.
+
+
+## R6 — EASING SHAPE: STILL OPEN, and here is what did not work
+
+Two metrics were tried on the onboarding headline and both failed, for reasons worth recording
+so the next attempt does not repeat them.
+
+**1. Thresholded pixel overlap — wrong by construction.** `similarity()` counts pixels above
+brightness 200, so text fading in registers only once its opacity passes ~78%. That turns ANY
+opacity ramp into something that reads as ease-in, whatever its real curve. An easing cannot be
+measured with a thresholded metric.
+
+**2. Mean luminance over the element rectangle — linear in opacity, but no usable rise.**
+Correct in principle and it still returned "no clean incoming rise". The cause is the transition
+itself: `step-transition.ts` cross-fades (EXIT 150 → GAP 90 → HEADLINE 280), and the region
+never approaches zero luminance because `AmbientBackground` is behind it and the outgoing text
+overlaps the incoming one. Normalising a series that never reaches its floor spreads noise
+instead of resolving a curve.
+
+**What the source says the answer should be**, for whoever closes this: `step-transition.ts:50`
+runs `withTiming(1, { duration: HEADLINE = 280ms, easing: Ease.out })`, and
+`Ease.out = Easing.bezier(0.16, 1, 0.3, 1)` — an aggressive decelerate whose **midpoint progress
+computes to 0.972**. So a correct measurement should show a strongly front-loaded rise, ~97% of
+the way there at the halfway point, not a linear ramp.
+
+**What would work:** an element that enters onto a screen with no ambient behind it and no
+outgoing element sharing its pixels — a reward chip or a modal, rather than a headline replacing
+a headline. The instrument is built; only the target needs choosing.
