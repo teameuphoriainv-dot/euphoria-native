@@ -162,31 +162,38 @@ as the 118pt dead band on Home, at roughly four times the area.
 
 `digest` by contrast is low but non-zero everywhere (11–51%) — genuinely quiet, not empty.
 
-## 2c. PRELIMINARY — lesson transitions run ~3× faster than the reference
+## 2c. Transition pace — the "3× faster" claim, tested and largely withdrawn
 
-From the 24-lesson recorded sweep, **partial (first 6 lessons, 1,458 transitions)**. Same
-`segment.py` on both sides, so the comparison is method-consistent:
+An earlier pass here reported that Euphoria's lesson transitions run ~3× faster than the
+reference at every percentile. That was marked preliminary because the driver's tap cadence
+inflates the short end. **Tested by applying the same duration floor to both sides, and it mostly
+does not survive:**
 
-| percentile | Euphoria lessons | reference (R1) |
-|---|---|---|
-| p10 | 0.06s | 0.13s |
-| p25 | 0.08s | 0.27s |
-| **median** | **0.14s** | **0.40s** |
-| p75 | 0.30s | 0.67s |
-| p90 | 0.59s | 1.20s |
+| floor | Euphoria median | reference median | ratio |
+|---|---|---|---|
+| none | 0.12s | 0.43s | **3.67×** |
+| ≥0.12s | 0.25s | 0.45s | 1.83× |
+| ≥0.20s | 0.36s | 0.50s | 1.40× |
+| **≥0.27s** (R1's p25) | **0.46s** | **0.57s** | **1.24×** |
 
-Roughly 3× faster at **every** percentile. The app is not sluggish — it snaps.
+Excluding sub-0.27s events from both, Euphoria's transitions are **1.24× faster** — modest, and
+nothing like 3×. The headline gap was the short-event population, not transition duration.
 
-**16% of transitions (228 / 1,458) fail R2**: short *and* multi-peaked, i.e. bouncing inside a
-very brief window. Failure durations cluster at 0.20–0.35s and are overwhelmingly 2-peak (145)
-or 3-peak (62). Short-plus-bouncing is what reads as "abrupt", which is the word the owner used
-about the card flip.
+**What IS real, normalised by recording length:**
 
-> **CONFOUND, not yet excluded.** The driver taps on a steady ~8s cadence and every tap emits
-> short press-feedback events, which drags the low percentiles down. The reference recordings are
-> a human using the app at human pace. A 3× gap at *every* percentile is unlikely to be entirely
-> artefact, but this stays PRELIMINARY until all 24 lessons are in and the short-window events
-> have been separated from genuine transitions.
+| | motion events / second |
+|---|---|
+| reference (330 windows / 499s) | **0.66** |
+| Euphoria (2,930 windows / 2,000s) | **1.47** |
+
+**Euphoria produces ~2.2× more motion events per second.** The difference is not that its
+transitions are short; it is that there are many more small ones. Whether that reads as busy or
+as responsive is a judgement this measurement cannot make — but "everything is too fast" is not
+supported, and should not be acted on.
+
+**R2 failures remain real**: 228 of 1,458 (16%) are short *and* multi-peaked, clustered at
+0.20–0.35s, overwhelmingly 2-peak (145) or 3-peak (62). Short-plus-bouncing is what reads as
+"abrupt".
 
 ## 3. Entry transitions are wildly inconsistent
 

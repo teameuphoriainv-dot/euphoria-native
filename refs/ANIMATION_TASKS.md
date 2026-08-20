@@ -73,12 +73,16 @@ amplitude is 1pt. The easing was never the problem.
       no brows so the resting brand mark is unchanged; watch that faster saccades do not read as
       twitchy rather than alive.
 
-- [ ] **1c. Investigate transition DURATION.** (Owner: after the mascot work.)
-      Preliminary from the sweep — Euphoria's lesson transitions run ~3× faster than the
-      reference at every percentile (median **0.14s** vs **0.40s**), and 16% fail R2 by bouncing
-      inside a very short window. Before acting: separate genuine transitions from tap
-      press-feedback, since the driver's cadence inflates the short end. Potentially the
-      widest-reaching defect found, because it touches every screen rather than one component.
+- [-] **1c. Transition duration — DROPPED as a defect.** The "~3× faster" reading did not
+      survive its own confound check: applying the same duration floor to both sides brings the
+      median ratio from 3.67× down to **1.24×** at R1's p25. Euphoria's transitions are only
+      modestly faster than the reference. What is real is **2.2× more motion events per second**
+      (1.47/s vs 0.66/s) — more small events, not shorter transitions. Not actionable as "slow
+      the animations down".
+
+- [ ] **1d. The R2 failures ARE real.** 228 of 1,458 sweep transitions (16%) are short *and*
+      multi-peaked, clustered at 0.20–0.35s, mostly 2-peak. Short-plus-bouncing is what reads as
+      "abrupt". Worth tracing to the components that produce them once the sweep completes.
 
 - [ ] **2. Give content its own resting motion.**
       The structural finding. `courses` (35%) and `digest` (49%) mount `AmbientBackground` but
