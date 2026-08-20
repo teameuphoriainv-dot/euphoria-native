@@ -681,7 +681,36 @@ point of this sheet is that the user can still SEE what they were reaching for"*
 on the blur reading as a settling layer over the whole screen. A blur that wipes up from the
 bottom reads as a panel with a blurred header attached, not as the screen receding.
 
-**NOT DEVICE-VERIFIED, and here is why.** All three sheets mount only on real state: `GateSheet`
+### CONFIRMED at the framework level (2026-08-20)
+
+Upgraded from deduction by reading React Native's own implementation rather than reasoning about
+it. `node_modules/react-native/Libraries/Modal/Modal.js`:
+
+- Its own prop documentation: *"`slide` slides in from the bottom"* — a property of the modal,
+  not of any child.
+- Line 333 passes `animationType` to **`<RCTModalHostView>`**, the NATIVE host view, and renders
+  `this.props.children` INSIDE it.
+
+The native host animates as **one unit**. Every child therefore moves together, and an
+`absoluteFill` backdrop is a child. **The blur and scrim slide with the sheet.** That is a
+framework-level fact about the four call sites, not an inference about them.
+
+A device capture is still absent, and that distinction is kept below.
+
+**A DEVICE CAPTURE WAS ATTEMPTED AND DID NOT TRIGGER.** `widget-promo.tsx` uses the identical
+pattern and mounts from `home.tsx:590` on ordinary state, so it was the reachable instance. The
+probe launched, navigated home, and reported **NOT TRIGGERED**: `nextWidgetAsk` returned null
+because this session's earlier lesson-driving had already consumed the ask. It printed the
+failure rather than measuring an empty screen and reporting a number — which is the only reason
+this entry is not a fifteenth retraction.
+
+**The test remains valid for whoever can trigger one:** sample brightness in a strip at the TOP
+of the screen against one at the BOTTOM. Fading darkens both on the same curve; sliding darkens
+the bottom first, with the top lagging by the travel time. The lag needs no knowledge of the
+animation's duration. Probe kept at `/tmp/backdrop_probe.py`; it prints
+*"FADE — the deduction was WRONG"* if that is what the frames show.
+
+**Original reasoning, before the framework check:** All three sheets mount only on real state: `GateSheet`
 on an entitlement refusal (`gate` truthy), `TrialRewardSheet` after a trial grant,
 `DismissalOfferSheet` on a dismissal. Reaching a refusal needs an exhausted free quota, and
 `dev-gallery` does not render any of them. The mechanism above is deduced from documented
