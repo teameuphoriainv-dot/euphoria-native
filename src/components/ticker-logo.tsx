@@ -14,10 +14,22 @@
  * The bytes come through our own proxy because Polygon's asset URLs require the API key appended;
  * fetching them from the client would put the key in the bundle, which is the one thing every
  * network path in this app is built to avoid.
+ *
+ * BUNDLED FIRST, PROXY SECOND. Measured 2026-08-20 against the live endpoint: a cold trade screen
+ * mounts seven rows in one tick against Polygon's 5-requests-per-minute free tier, so AAPL and
+ * NVDA resolved 200 while MSFT, AMZN, META and GOOG all came back 429 and correctly fell back to
+ * the lettered badge. No amount of client pacing turns 5/min into more than 5/min, and a
+ * server-side cache does not help either -- the route module is re-evaluated per request, so its
+ * Map is empty every time. The only thing that removes a cold-start network call is bytes that
+ * are already on disk, which is what `scripts/fetch-logos.mjs` puts there.
+ *
+ * The proxy stays as the path for anything not bundled, and the badge stays as the floor under
+ * both. A symbol missing from the map costs nothing -- it simply behaves as it did before.
  */
 import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
+import { BUNDLED_LOGOS } from '@/assets/logos';
 import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -29,6 +41,8 @@ export function TickerLogo({ sym, size = 44 }: { sym: string; size?: number }) {
   const [loaded, setLoaded] = useState(false);
 
   const radius = size >= 40 ? Radius.md : Radius.sm;
+  // A bundled asset is a module id (number); the proxy needs a {uri}. Both are valid ImageSource.
+  const bundled = BUNDLED_LOGOS[sym.toUpperCase()];
 
   return (
     <View style={[styles.wrap, { width: size, height: size, borderRadius: radius, backgroundColor: theme.primary + '1F' }]}>
@@ -42,7 +56,7 @@ export function TickerLogo({ sym, size = 44 }: { sym: string; size?: number }) {
         </ThemedText>
       )}
       <Image
-        source={{ uri: `${apiBase()}/api/market?action=logo&sym=${encodeURIComponent(sym)}` }}
+        source={bundled ?? { uri: `${apiBase()}/api/market?action=logo&sym=${encodeURIComponent(sym)}` }}
         style={[StyleSheet.absoluteFill, { borderRadius: radius, opacity: loaded ? 1 : 0 }]}
         resizeMode="contain"
         onLoad={() => setLoaded(true)}
