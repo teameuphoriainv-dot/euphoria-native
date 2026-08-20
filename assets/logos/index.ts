@@ -2,10 +2,22 @@
 // Metro requires literal paths, so a computed require() cannot work here.
 export const BUNDLED_LOGOS: Record<string, number> = {
   AAPL: require('./AAPL.png'),
+  AMD: require('./AMD.png'),
   AMZN: require('./AMZN.png'),
+  BA: require('./BA.png'),
+  CVX: require('./CVX.png'),
   GOOGL: require('./GOOGL.png'),
+  HD: require('./HD.png'),
+  JPM: require('./JPM.png'),
   META: require('./META.png'),
   MSFT: require('./MSFT.png'),
+  NFLX: require('./NFLX.png'),
+  NKE: require('./NKE.png'),
   NVDA: require('./NVDA.png'),
+  ORCL: require('./ORCL.png'),
+  PFE: require('./PFE.png'),
+  PG: require('./PG.png'),
   TSLA: require('./TSLA.png'),
+  V: require('./V.png'),
+  WMT: require('./WMT.png'),
 };

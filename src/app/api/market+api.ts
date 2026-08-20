@@ -399,11 +399,25 @@ export async function GET(request: Request) {
       const bar = d.results?.[0];
       if (!bar) return fresh({ error: 'no_data' }, 404);
       const change = bar.c - bar.o;
+      /*
+       * `asOf` EXISTS BECAUSE A STALE PRICE LOOKED EXACTLY LIKE A LIVE ONE.
+       *
+       * This endpoint reads `/prev`, the previous session's aggregate, and used to return only
+       * price and change -- discarding `bar.t`, the one field that says WHEN. Nothing downstream
+       * could tell a quote from this morning apart from one three weeks old, so the UI had no way
+       * to caveat it even if it wanted to. Measured on the sibling chart endpoint the same day: a
+       * span that claimed "past month" was serving bars 22 days old, and nothing anywhere said so.
+       *
+       * Note `change` is the prior session's OPEN-to-CLOSE move, not previous-close-to-close. That
+       * is a defensible definition of "that day's change" but it is not the one a day-over-day
+       * ticker implies, so it is written down here rather than left to be rediscovered.
+       */
       return cached({
         sym,
         price: bar.c,
         change,
         changePct: bar.o ? (change / bar.o) * 100 : 0,
+        asOf: bar.t ?? null,
       });
     }
 
@@ -430,12 +444,54 @@ export async function GET(request: Request) {
        *
        * Reversed back to ascending before returning, because every consumer draws left-to-right.
        */
+      const from = Math.floor(fromMs(range));
       const d = await poly(
-        `/v2/aggs/ticker/${sym}/range/${mult}/${span}/${Math.floor(fromMs(range))}/${Date.now()}?adjusted=true&sort=desc&limit=5000`,
+        `/v2/aggs/ticker/${sym}/range/${mult}/${span}/${from}/${Date.now()}?adjusted=true&sort=desc&limit=5000`,
         key,
       );
-      const points: { t: number; c: number }[] = (d.results ?? [])
-        .map((b: { t: number; c: number }) => ({ t: b.t, c: b.c }))
+
+      /*
+       * FOLLOW next_url, BUT ONLY FAR ENOUGH TO COVER THE RANGE.
+       *
+       * Sorting descending fixed the freshness bug -- the newest bars now always arrive -- but the
+       * response is still capped upstream, so 1M came back with about nine days of hourly bars
+       * under a "past month" label. The rest is on `next_url`, which nothing was following.
+       *
+       * The cap is deliberate and low. Every extra page is another request against a
+       * five-per-minute ceiling, and spending a chart's whole budget on backfill is what starves
+       * the logo and quote calls sharing it -- the exact failure this file already documents. So:
+       * stop as soon as the oldest bar reaches the start of the requested window, and refuse to
+       * exceed MAX_PAGES whatever happens. A chart costs at most three calls.
+       *
+       * Best-effort by design: any failure breaks the loop and returns what we already have,
+       * because a partial chart drawn from real bars beats an error page.
+       */
+      const MAX_PAGES = 2;
+      const bars = [...((d.results ?? []) as { t: number; c: number }[])];
+      let next = d.next_url as string | undefined;
+      for (let page = 0; page < MAX_PAGES; page++) {
+        if (!next) break;
+        // Oldest bar so far. Descending order means the tail is the far end of the window.
+        if ((bars[bars.length - 1]?.t ?? Infinity) <= from) break;
+        if (!mayCarryKey(next)) {
+          console.error('[market] refused to key a non-Polygon next_url');
+          break;
+        }
+        try {
+          const r = await paced(() => fetch(withKey(next as string, key)));
+          if (!r.ok) break;
+          const nd = (await r.json()) as { results?: { t: number; c: number }[]; next_url?: string };
+          if (!nd.results?.length) break;
+          bars.push(...nd.results);
+          next = nd.next_url;
+        } catch {
+          break;
+        }
+      }
+
+      const points: { t: number; c: number }[] = bars
+        .filter((b) => b.t >= from)
+        .map((b) => ({ t: b.t, c: b.c }))
         .reverse();
       return cached({ sym, range, label, points });
     }

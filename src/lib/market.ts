@@ -15,7 +15,18 @@ import { setMark } from './marks';
 export const RANGES = ['1H', '1D', '1W', '1M', '3M', 'YTD', '1Y', '5Y'] as const;
 export type RangeKey = (typeof RANGES)[number];
 
-export type Quote = { sym: string; price: number; change: number; changePct: number };
+export type Quote = {
+  sym: string;
+  price: number;
+  change: number;
+  changePct: number;
+  /**
+   * Epoch ms of the bar this price came from, or null if upstream omitted it. Present so a
+   * caller can say how old a price is -- without it a three-week-old quote renders identically
+   * to a live one, which is exactly what happened before it was added.
+   */
+  asOf?: number | null;
+};
 export type ChartPoint = { t: number; c: number };
 export type Chart = { sym: string; range: RangeKey; label: string; points: ChartPoint[] };
 export type TickerHit = { sym: string; name: string; exchange: string };
