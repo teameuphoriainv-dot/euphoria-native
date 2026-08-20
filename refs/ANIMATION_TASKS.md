@@ -88,7 +88,13 @@ amplitude is 1pt. The easing was never the problem.
       ~3000× spread across routes that verifiably navigated: welcome 245,582 peak px → search 84.
       That is not a design decision.
 
-- [~] **4. Re-run the whole-app route audit** — `scripts/anim/route_audit.py` built and running; verifies navigation per route and marks non-navigating routes SKIPPED.
+- [x] **4. Whole-app route audit — DONE.** `scripts/anim/route_audit.py` verifies navigation per
+      route. **24 of 25 routes navigated** (against 9 of 23 in the retracted first pass). Table in
+      `ANIMATION_FINDINGS.md` §2g. Found and fixed a harness bug where the audit parked on home,
+      so home could never be tested. `search` (0.0%) and `explore-compound` (1.0%) are the only
+      zero-motion screens — recorded as an observation, NOT a defect: `starCount` does not explain
+      it (`news` runs 24 stars with glow off and reaches 17.2% against search's 22 at 0.0%), so it
+      is content, not configuration.
 - [-] **4-old. Re-run the whole-app route audit** with `goto_lesson`-style verification per route and
       a longer recording budget. The first pass is retracted: only 9 of 23 routes navigated.
 
@@ -96,7 +102,34 @@ amplitude is 1pt. The easing was never the problem.
 - [-] **5-old. Digest pass — 15–20 articles.** Owner is happy with Digest structurally; the ask is the
       **article hero/logo animations**.
 
+- [x] **6. Owner's two reported bugs — FIXED.** "Click something and it becomes huge then small"
+      was `onboarding-parts.tsx` running `withSequence(withSpring(1.035, Spring.bouncy), ...)` on
+      select — 1.035 plus bouncy's ζ=0.72 overshoot reached ~1.076. Removed; it was redundant with
+      `fill`/border. **Verified on device: 355.7pt peak vs 354pt resting**, where the old pop
+      would have hit ~381pt. "Drag moves all over the place" was `slider-predict.tsx` calling
+      `runOnJS` TWICE per frame (~120 JS round-trips/sec, each re-rendering) — the geometry was
+      always correct, the READOUT saturated the JS thread. Now gated on `EMIT_STEP`.
+
+- [x] **7. Both bug CLASSES swept, not just the instances.** Regex sweep across all `src/**/*.ts(x)`:
+      scale-pop `withSequence`→>1 = 1 hit (the comment documenting the removal); `runOnJS` inside
+      `onUpdate`/`onChange` = 2 hits in slider-predict (one `EMIT_STEP`-gated, one in `onEnd` which
+      fires once); `ZoomIn`/scale-from-0 = 1 hit (the comment in tap-reveal). **Both classes clean
+      in live code.** 18 inline springs remain, but 12 are `atlas.tsx` squash-and-stretch at
+      ζ 0.37–0.58 which the plan explicitly protects, and `lesson-feedback`'s ζ=0.61 is a
+      documented per-element choice on a translateY — which R2 requires rather than forbids.
+
 ## OPEN, NOT BLOCKING
+
+- [~] **Atlas head tilt / shake / celebrate — capture UNBLOCKED, running.** Three driver bugs
+      stood in the way and are now fixed: `goto_lesson` returned True on the screen reading "That
+      lesson isn't available." (its check was `'lesson' in labs`, and that failure sentence
+      contains the word "lesson"); route ids are kebab-case while the answers JSON is camelCase;
+      and `advance()` could not pass a tap-reveal step, whose cards read "…Not revealed yet." and
+      keep Continue inert until all are flipped. Route to the reaction: `personalFinance` lesson 1,
+      `fillBlank`, options `['56','25','10','80']`, correct `0` — tap a wrong one, then Check.
+      **Predictions on record BEFORE measuring** (`CARRYOVER.md` Appendix E): at the quiz-head
+      size of 56pt, shake = ±3.36pt (6.7pt peak-to-peak) over 280ms + a ζ=0.58 settle; `oops`
+      tilt = −3° ≈ 2.9pt of edge travel.
 
 - [ ] **Atlas head tilt is unverified.** Implemented in `edb036e`; every deep-linkable screen
       renders an expression whose tilt is 0. Reaching `oops`/`thinking` needs a wrong answer
