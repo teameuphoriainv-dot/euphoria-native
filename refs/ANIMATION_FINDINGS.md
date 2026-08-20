@@ -28,11 +28,21 @@ region on its own hero screen.
 
 `IDLE_SQUASH = 0.038` — a 3.8% scale cycle. At welcome's 132pt that is a 5.0pt total excursion
 across a 1600ms half-cycle, which at 48fps is 77 frames. Peak per-frame change is therefore
-5.0 × π / 77 ≈ **0.20pt per frame**. Continuous, and invisible.
+5.0 × π / 77 ≈ **0.20pt per frame**.
+
+> **Measured vs inferred, kept separate.** What is MEASURED is that 54% of frames register no
+> change above the detector's threshold, and that Duolingo registers on 81% against Euphoria's
+> 46%. That breath is therefore *imperceptible to a person* is an INFERENCE, not a measurement —
+> a smooth 3.8% scale over 1.6s may well read to the eye even when consecutive frames differ by
+> 0.2pt, because human perception integrates over time and a frame-differ does not. The honest
+> claim is that breath contributes almost nothing to frame-to-frame change, which is what makes
+> the mascot read as still in a side-by-side against Duo.
 
 So:
 
-- **Breath** — continuous but ~0.2pt/frame. An *amplitude* problem.
+- **Breath** — continuous but ~0.2pt/frame, so it contributes almost nothing frame to frame.
+  Likely an *amplitude* problem, but see the measured-vs-inferred note above before treating
+  "invisible" as established.
 - **Saccade / arcFlex** — visibly sized, but gated behind `2100 + random×2600`ms, so roughly one
   event every 3.4s. A *frequency* problem.
 
