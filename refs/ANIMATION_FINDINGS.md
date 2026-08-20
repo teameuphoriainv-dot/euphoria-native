@@ -466,3 +466,68 @@ explanation next to a completely frozen one, against R7's reference of 81% of fr
 **Filed as an observation, not a defect.** A still mascot beside text a learner is reading is a
 defensible choice, and this audit has already retracted one Atlas liveness claim made without a
 reference anchor. Deciding it needs a design call, not a measurement.
+
+## 9. Celebrate hop measured — and the reward is the same size as the penalty
+
+Predictions were committed in `b4c95f7` **before** this capture ran.
+
+**Route:** same `fillBlank`, tapping the CORRECT option. Registration verified by label change —
+`'Exactly right.'`, `'That fits.'`. 185 frames @ 54.4fps, contamination 3.6% (clean).
+Measured as per-frame **vertical** centroid of Atlas's violet pixels.
+
+| prediction | outcome |
+|---|---|
+| **P1** vertical excursion 2.5–3.1pt | **CONSISTENT** — sustained deviations of −2.66 to −3.16pt |
+| **P2** duration 700–900ms | **CONSISTENT** — activity from ~37ms to ~662ms, then quiet |
+| **P3** hop smaller than the ±3.33pt shake | **NOT CONFIRMED** — they are the same size |
+
+One frame at 55ms read −13.72pt, eight times its neighbours on both sides. Discarded as a
+decode artifact, not averaged in.
+
+### The result that matters
+
+`H = size × 0.12 × celebrateGain = 56 × 0.12 × 0.32 = 2.15pt`, and the measured hop lands at
+**~2.7–3.2pt** once the ζ=0.40 launch overshoot is included. The wrong-answer shake measured a
+first step of **3.33pt**.
+
+**Getting it right and getting it wrong move the mascot by the same amount** — about 3pt on a
+56pt mascot, roughly 5% of its size. The error reaction is, if anything, marginally larger.
+
+This is a **design observation, not a defect**, and the distinction matters. Every constant here
+is deliberate and documented: `CELEBRATE_GAIN = 0.32` exists precisely so the per-tap reaction
+stays quiet, and `atlas.tsx:141` records why — a global constant "made the option-tap reaction
+correct and flattened the lesson-complete moment along with it". The lesson-complete Atlas
+(`lesson.tsx:488`) passes `celebrateGain={1}`, i.e. **three times** this amplitude, which is the
+payoff this quiet beat is deliberately saving room for.
+
+So the question is not "is 0.32 wrong" but "should the per-question correct answer read louder
+than the per-question wrong answer". That is a product call, not a measurement, and it is put
+here for the owner rather than acted on.
+
+### Caveats — this capture is weaker than the shake capture
+
+Unlike the shake, the celebrate signal is **confounded three ways** and no single clean step
+isolates it: the feedback panel slides in on the same frames, the expression flips to `happy`
+whose arc eyes redistribute the very pixels being tracked, and the ScrollView may shift. The
+amplitude agreement with P1 is real but should be read as *consistent with*, not *confirmation
+of*. The shake number (3.33pt vs 3.36pt predicted, with a clean first step) is the stronger of
+the two measurements.
+
+## 10. RETRACTION #13 — the "every static Atlas is tilted −3.4°" bug is NOT real
+
+Hypothesised from source: `rock = useSharedValue(0)` (`atlas.tsx:163`) and head rotation is
+`(rock.get() * 2 - 1) * ROCK_DEG` (`atlas.tsx:399`), whose neutral input is rock = **0.5**, not
+0. With `idle={false}` the idle effect returns early and never animates rock, so the arithmetic
+predicts every static Atlas sitting permanently at −3.4°. Seventeen instances render that way.
+
+**Measured: −0.61°.** Eye-line angle by PCA on the sclera pixel cloud — the two whites form an
+elongated blob whose principal axis is the eye line — self-checked against synthetic disc pairs
+at 0.0°, −3.4°, −6.4° and +5.0°, worst error 0.65°.
+
+−0.61° against a predicted −3.40° is a clear negative. Whatever the reason (the eyes may sit
+outside the rotated `<G>`, or rock may not hold 0 at paint), **the visible tilt is zero and there
+is nothing to fix.** Filed before it could be written up as a defect.
+
+Note the method is now available and self-checked, so the open `oops` / `thinking` tilt question
+can be settled the same way — it needs a still of a tilted expression, which needs a wrong
+answer left on screen.
