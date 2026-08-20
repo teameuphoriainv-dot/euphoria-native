@@ -78,6 +78,78 @@ function fromMs(range: RangeKey): number {
  * WITHIN one request (the burst that actually causes the 429) and cannot pace across concurrent
  * isolates. That is the 80% case; a shared limiter needs a store, and needs the traffic to justify it.
  */
+/*
+ * LOGO BYTE CACHE — the only thing that actually removes the 429s.
+ *
+ * MEASURED 2026-08-20, seven Mag-7 rows against the live endpoint: AAPL 200 (28,756B png),
+ * NVDA 200 (11,296B jpeg), TSLA 404, and MSFT/AMZN/META/GOOG all 429 at ~1.7s each. The pacer
+ * above already stops us racing ourselves and it is honest that nothing turns 5/min into more
+ * than 5/min. So the fix is not to ask faster or slower -- it is to STOP ASKING.
+ *
+ * Before this, the only caching was a `Cache-Control: max-age=86400` header, which delegates the
+ * whole problem to whichever client happens to be asking. A cold app start with an empty image
+ * cache mounts every row at once and pays full price again.
+ *
+ * NEGATIVE ENTRIES MATTER MORE THAN POSITIVE ONES. TSLA has no branding record at Polygon and
+ * never will, yet every mount spent a rate-limit slot to be told 404 again -- quota burned on a
+ * guaranteed negative, which is what starves the tickers that DO have art. A 404 is cached here
+ * exactly like a hit.
+ *
+ * IN-FLIGHT DEDUPE: seven rows mount in the same tick, so seven identical requests would each
+ * miss an empty cache and each hit upstream. Sharing one promise per symbol collapses that burst
+ * to one call, which is the burst that caused the 429 in the first place.
+ *
+ * MEASURED LIMIT -- READ THIS BEFORE TRUSTING THE CACHE. 2026-08-20, against the Expo dev
+ * server: AAPL returned 200 twice, then 429 on five consecutive calls a minute later. With a
+ * 24h in-memory entry it should have been an instant hit forever. It was not, so THIS PROCESS
+ * RE-EVALUATES THE ROUTE MODULE PER REQUEST and the Map is empty every time. Production runs on
+ * Workers isolates, which are equally short-lived and share nothing.
+ *
+ * So this layer is a genuine win only where a process survives several requests, and it is NOT
+ * the fix for a cold start -- that needs bytes that never require a network call at all, i.e.
+ * bundled assets. Kept because it is cheap, correct, and strictly better than nothing; do not
+ * quote it as having solved the 429s, because it has not been shown to.
+ *
+ * ponytail: module-scoped Map, single process, no eviction beyond TTL. Logos change about never
+ * and the universe is a few hundred tickers, so bounded growth is fine. A shared store needs
+ * traffic to justify it.
+ */
+type LogoHit = { body: Uint8Array; type: string } | { miss: true };
+const LOGO_TTL_MS = 86_400_000;
+const logoCache = new Map<string, { at: number; val: LogoHit }>();
+const logoInflight = new Map<string, Promise<LogoHit>>();
+
+function logoCached(sym: string): LogoHit | undefined {
+  const e = logoCache.get(sym);
+  if (!e) return undefined;
+  if (Date.now() - e.at > LOGO_TTL_MS) {
+    logoCache.delete(sym);
+    return undefined;
+  }
+  return e.val;
+}
+
+function logoStore(sym: string, val: LogoHit) {
+  logoCache.set(sym, { at: Date.now(), val });
+  return val;
+}
+
+/**
+ * Serve a cached logo result, positive or negative. Builds its own Response rather than calling
+ * `fresh()`, which is scoped inside the request handler and not visible at module level.
+ */
+function logoResponse(val: LogoHit) {
+  if ('miss' in val) {
+    return new Response(JSON.stringify({ error: 'no_logo' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    });
+  }
+  return new Response(new Uint8Array(val.body), {
+    headers: { 'Content-Type': val.type, 'Cache-Control': 'public, max-age=86400' },
+  });
+}
+
 const MIN_GAP_MS = 250;
 let chain: Promise<unknown> = Promise.resolve();
 let lastAt = 0;
@@ -358,10 +430,17 @@ export async function GET(request: Request) {
        */
       const sym = symbol(url.searchParams.get('sym'));
       if (!sym) return fresh({ error: 'sym_required' }, 400);
+
+      const hit = logoCached(sym);
+      if (hit) return logoResponse(hit);
+      const flying = logoInflight.get(sym);
+      if (flying) return logoResponse(await flying);
+
+      const work = (async (): Promise<LogoHit> => {
       const d = await poly(`/v3/reference/tickers/${sym}`, key);
       const brand = (d.results?.branding ?? {}) as { icon_url?: string; logo_url?: string };
       const src = brand.icon_url ?? brand.logo_url;
-      if (!src) return fresh({ error: 'no_logo' }, 404);
+      if (!src) return { miss: true };
 
       /*
        * The URL came out of an upstream response, not from the caller — which is exactly what makes
@@ -371,10 +450,28 @@ export async function GET(request: Request) {
        */
       if (!mayCarryKey(src)) {
         console.error('[market] refused to key a non-Polygon logo host', src.slice(0, 120));
-        return fresh({ error: 'no_logo' }, 404);
+        return { miss: true };
       }
       const img = await fetch(withKey(src, key));
-      if (!img.ok) return fresh({ error: 'no_logo' }, 404);
+      /*
+       * A FAILED IMAGE FETCH IS NOT THE SAME AS "NO LOGO", AND CONFLATING THEM IS A REAL BUG.
+       *
+       * This read `if (!img.ok) return no_logo` -- so a 429 on the ASSET fetch reported the
+       * company as having no branding at all. MEASURED 2026-08-20: TSLA returned 404 no_logo on
+       * one pass and 200 with 13,615 bytes of art on a later pass. Nothing about TSLA changed
+       * between them; the first pass was rate-limited and mislabelled. An earlier note in this
+       * audit called TSLA "a genuine coverage gap" on the strength of that 404. It was not.
+       *
+       * It matters more now that outcomes are cached: a transient 429 stored as a miss would
+       * blank a real logo for the whole TTL, which is exactly the failure the cache exists to
+       * prevent. So separate them -- 429 and 5xx throw and stay uncached, and only a genuine
+       * 404/410 from the asset host counts as "this company has no art".
+       */
+      if (img.status === 429 || img.status >= 500) {
+        console.error('[market] logo asset fetch transient', sym, img.status);
+        throw new Error('rate_limited');
+      }
+      if (!img.ok) return { miss: true };
 
       /*
        * TRANSCODE WEBP, BECAUSE iOS CANNOT DECODE IT AND FAILS SILENTLY.
@@ -410,9 +507,7 @@ export async function GET(request: Request) {
         try {
           const sharp = (await import('sharp')).default;
           const png = await sharp(raw).png().toBuffer();
-          return new Response(new Uint8Array(png), {
-            headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' },
-          });
+          return { body: new Uint8Array(png), type: 'image/png' };
         } catch (e) {
           // A transcode failure must not become a broken image. Fall through to the raw bytes:
           // Android still decodes them, and iOS keeps the lettered badge it already had.
@@ -420,13 +515,21 @@ export async function GET(request: Request) {
         }
       }
 
-      return new Response(new Uint8Array(raw), {
-        headers: {
-          'Content-Type': upstreamType,
-          // Logos change about never. A day of caching keeps this off the rate limit.
-          'Cache-Control': 'public, max-age=86400',
-        },
-      });
+      return { body: new Uint8Array(raw), type: upstreamType };
+      })();
+
+      logoInflight.set(sym, work);
+      try {
+        // Cache the OUTCOME, hit or miss. A 404 that is not remembered costs a rate-limit slot
+        // on every future mount to be told the same thing.
+        return logoResponse(logoStore(sym, await work));
+      } catch (e) {
+        // An upstream 429 or outage must NOT be cached -- that would turn one transient failure
+        // into a day of lettered badges. Surface it and let the next mount try again.
+        throw e;
+      } finally {
+        logoInflight.delete(sym);
+      }
     }
 
     if (action === 'movers') {
