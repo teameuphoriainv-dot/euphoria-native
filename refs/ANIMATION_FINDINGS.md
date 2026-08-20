@@ -653,3 +653,50 @@ animates below a visibility floor.** Whatever is wrong with the motion, it is no
 clean bounds the classes it checks and says nothing about the ones it does not. The two real
 defects found earlier — the logo hard cut and the two permanently frozen mascots — were found by
 targeted reading of specific components, not by pattern sweeps.
+
+## 14. The three sheets slide their BACKDROP up instead of fading it — source-level, NOT device-verified
+
+Found by asking why `gate-sheet`, `trial-reward-sheet` and `dismissal-offer-sheet` contain zero
+animation code. They do not: they delegate to React Native's `<Modal animationType="slide">`.
+Delegating to the platform is the right instinct. The problem is what is inside the Modal.
+
+```jsx
+<Modal visible={visible} transparent animationType="slide" onRequestClose={dismiss}>
+  <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+  <Pressable style={[styles.scrim, …]} />          {/* scrim: {...StyleSheet.absoluteFill} */}
+  …the sheet…
+</Modal>
+```
+
+`animationType="slide"` translates the **entire modal container** up from the bottom edge. With
+`transparent`, that container is everything above — **including the full-screen blur and the
+full-screen scrim**. So the dimming and the blur do not fade in place; they **sweep upward like a
+curtain**, and the top of the screen stays undimmed until the sweep reaches it.
+
+The intended behaviour, and what every iOS sheet does, is: **the sheet slides, the backdrop
+fades.** Two different animations on two different layers.
+
+**Why it matters here specifically.** `gate-sheet`'s own comment states the design intent — *"the
+point of this sheet is that the user can still SEE what they were reaching for"* — which depends
+on the blur reading as a settling layer over the whole screen. A blur that wipes up from the
+bottom reads as a panel with a blurred header attached, not as the screen receding.
+
+**NOT DEVICE-VERIFIED, and here is why.** All three sheets mount only on real state: `GateSheet`
+on an entitlement refusal (`gate` truthy), `TrialRewardSheet` after a trial grant,
+`DismissalOfferSheet` on a dismissal. Reaching a refusal needs an exhausted free quota, and
+`dev-gallery` does not render any of them. The mechanism above is deduced from documented
+`Modal` behaviour plus the component structure, **not measured**, and this audit's own rule is
+that a deduction is a hypothesis until a capture confirms it.
+
+**How to verify in one capture:** open any sheet and sample the brightness of a strip at the TOP
+of the screen against one at the bottom. If the backdrop fades, both darken together on the same
+curve. If it slides, the top strip stays bright until the sweep arrives — a lag equal to the
+travel time across the screen.
+
+**The fix, if confirmed:** `animationType="none"`, then animate the two layers separately —
+backdrop opacity 0→1 over `Duration.base`, sheet `translateY` on a spring. That also brings these
+surfaces onto the app's motion tokens, which the platform default bypasses entirely.
+
+**Not shipped.** It is a real change to three files on a commercially important surface, and this
+audit has a standing rule that a fix is not done without its re-measurement. Since the
+measurement is blocked, the finding is filed rather than acted on.
