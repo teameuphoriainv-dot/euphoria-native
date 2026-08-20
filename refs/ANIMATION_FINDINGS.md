@@ -626,3 +626,30 @@ choreography from source, already marked KEEP, plus the 260ms pick delay above i
 which is the method `MOTION_RUBRIC.md` already names as the way to close R4/R5/R6 for Euphoria —
 the a11y tree gives every element's frame, so one element's settle can be timed directly without
 the starfield ever entering the measurement. Not built; recorded as the next step.
+
+## 13. Nine further bug classes swept — all clean. What that does and does not mean.
+
+Run after the fixes already shipped, to bound what is left rather than to find something.
+
+| class | hits | verdict |
+|---|---|---|
+| `entering=` with no `exiting=` | 4 | **not defects.** `rise-in` is an entrance primitive by design; `chat` messages never unmount; `welcome`'s copy leaves with the stack transition; `digest/[slug]` HAS `exiting` |
+| index keys on animated list items | 3 | **not defects.** `chat` is append-only (both `setTurns` calls append), so indices are stable; `digest/[slug]`'s `key={i}` is the card index, and re-mounting per card is the intended cross-fade |
+| one shared value written from several effects | 8 | **not defects.** All `atlas.tsx`, where `headLag`/`squash`/`entranceScale` are deliberately summed across celebrate, nod and shake — the file documents this |
+| `withRepeat` with no cleanup | **0** | clean |
+| scale deltas under 2% | **0** | clean |
+| translate ranges under 2pt | **0** | clean |
+| rotations under 1.5° | **0** | clean |
+| opacity ranges under 0.12 | **0** | clean |
+| nested/duplicated `entering=` | **0** | clean |
+| animating `useEffect` with no dep array | 3 | **false positives of my own regex.** All three carry `}, [reduced, t, delay]`; the non-greedy body match terminated early inside `withTiming(1, {...})` |
+
+**The four sub-visible classes are the significant ones.** The audit's original headline was that
+Atlas's idle amplitudes were 1–3% and "too small to see" — a claim later **retracted** as
+measurement error. This sweep confirms the concern has no other instance: **nothing in the app
+animates below a visibility floor.** Whatever is wrong with the motion, it is not amplitude.
+
+**What this does NOT mean.** These are source patterns, not behaviour. A sweep that comes back
+clean bounds the classes it checks and says nothing about the ones it does not. The two real
+defects found earlier — the logo hard cut and the two permanently frozen mascots — were found by
+targeted reading of specific components, not by pattern sweeps.
