@@ -285,3 +285,21 @@ The 3D flip is **rejected by owner direction** and is not under consideration.
 > **The right instrument is the React Native Perf Monitor** (dev menu → Show Perf Monitor), which
 > reports real UI and JS thread FPS on-device in seconds and costs nothing to run. Use that, or
 > `xctrace`, for scroll work. Not this.
+
+## THE AMBIENT STARFIELD IS A MEASUREMENT FLOOR — gate above it
+
+> `AmbientBackground` runs `withRepeat(..., -1, true)` on every star, so on any screen that
+> mounts it **something is changing in every frame, forever**. Onboarding mounts it three times
+> at the default `starCount = 70` with `glow` on — the densest in the app.
+>
+> A segmentation threshold set near 1% therefore **never closes its activity window**. Measured
+> consequence: every onboarding slide transition came back as **1863–1864ms with 13–15 peaks**,
+> which is not a transition duration at all — it is the length of the recording. The digest hero
+> produced the same artefact at 2816ms.
+>
+> **Measured amplitudes:** ambient twinkle sits at **1–2% of the frame**; a real slide transition
+> runs **30–60%**. Gate at **8%** — comfortably above the floor and far below any true transition.
+>
+> This does not invalidate the earlier route-audit percentages, which deliberately measured
+> *idle motion density* and were correct to include the starfield. It invalidates any use of a
+> low threshold to measure a **discrete transition's duration** on an ambient-bearing screen.
