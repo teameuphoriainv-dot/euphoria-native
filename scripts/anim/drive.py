@@ -151,16 +151,28 @@ def goto_lesson(course_slug, num, title=None, tries=3):
     So: clear anything blocking, fire the link, and confirm the lesson's own title is on screen.
     Falling back through home resets the navigation stack when a direct link will not take.
     """
+    # The ROUTE ids are kebab-case ('personal-finance'); the answers JSON is keyed camelCase
+    # ('personalFinance'). Callers hold the JSON key, so convert here rather than at every call
+    # site -- an ad-hoc caller that passed the camelCase key straight through got the "That
+    # lesson isn't available." screen and this function returned True (see below).
+    slug = ''.join('-' + c.lower() if c.isupper() else c for c in course_slug)
     for attempt in range(tries):
         dismiss_logbox(); dismiss_sheet()
         if attempt:                     # a pushed screen blocks deep links; reset via home first
             sp.run(["xcrun", "simctl", "openurl", U, "euphorianative://home"], capture_output=True)
             time.sleep(2.5)
         sp.run(["xcrun", "simctl", "openurl", U,
-                f"euphorianative://lesson?course={course_slug}&num={num}"], capture_output=True)
+                f"euphorianative://lesson?course={slug}&num={num}"], capture_output=True)
         time.sleep(3.5)
         dismiss_logbox(); dismiss_sheet()
         labs = ' '.join(labels()).lower()
+        # REJECT THE FAILURE SCREEN FIRST. lesson.tsx renders "That lesson isn't available." when
+        # the course id or num does not resolve -- and that sentence CONTAINS the word "lesson",
+        # so the generic fallback below matched the exact screen that means failure and returned
+        # True. Measured: a bad slug produced 8 identical "advance" steps against a dead end while
+        # the driver reported success. Check the negative before the positive.
+        if "available" in labs and "pick another" in labs:
+            continue
         if title and title.lower()[:28] in labs:
             return True
         if not title and ('lesson' in labs or 'continue' in labs):
