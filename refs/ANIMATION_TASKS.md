@@ -50,28 +50,13 @@ amplitude is 1pt. The easing was never the problem.
       static intros rather than interaction. Owner accepted recording-only for THIS run and asked
       for the fix afterwards, so the next sweep captures interaction animation too.
 
-- [ ] **1. Fix idle liveness — TWO edits, not one.**
-
-      Superseded the earlier "raise amplitude" plan after a like-for-like re-measure. Amplitude
-      per event is already fine (Euphoria 60%×50% of its box vs Duolingo 54%×48%); the gap is
-      **frequency** plus one genuinely-too-small continuous animation.
-
-      **1a. Breath amplitude.** `IDLE_SQUASH = 0.038` → 5.0pt excursion at 132pt over a 1600ms
-      half-cycle = **0.20pt per frame** at 48fps. Continuous and invisible. Raise it.
-
-      **1b. Idle event frequency.** Saccade and arcFlex are both gated behind
-      `2100 + random×2600`ms — about one event every 3.4s, so most frames show nothing. Shorten
-      the gap.
-
-      **Target (R7):** motion in ~81% of frames. **Baseline: 46%**, and that 46% is inflated by
-      starfield — controls on the same frames scored 99% / 55% / 53%.
-
-      **Method:** change one of 1a/1b at a time and re-measure, so it is clear which produced the
-      lift. `scripts/anim/mascot_density.py` reports mascot-vs-control lift.
-
-      *Constraints:* `reduced_motion_audit.py --selftest` must still pass; `default` keeps drawing
-      no brows so the resting brand mark is unchanged; watch that faster saccades do not read as
-      twitchy rather than alive.
+- [-] **1. Idle liveness — DROPPED. The finding was measurement error.**
+      Atlas was measured on a GUESSED rectangle sitting above the mascot. On its real a11y box
+      (x=135 y=276 w=132 h=137, verified by drawing it on a screenshot) Atlas shows motion in
+      **99% of frames**, changing **87% × 88%** of its own box — against Duolingo's 81% and
+      54% × 48%. `mascot_density.py`: **mascot 97.1% vs control 88.4%, lift +8.7**.
+      Atlas is *more* animated than the reference. Raising `IDLE_SQUASH` or shortening the
+      saccade gate would have made an already-lively mascot frantic.
 
 - [-] **1c. Transition duration — DROPPED as a defect.** The "~3× faster" reading did not
       survive its own confound check: applying the same duration floor to both sides brings the

@@ -1,5 +1,43 @@
 # How Euphoria's animation actually looks — measured
 
+> # ⛔ RETRACTION — 2026-08-19, read this first
+>
+> **The central claim of this document — that Atlas is under-animated — is WRONG, and the error
+> was mine.**
+>
+> Every "mascot region" figure below (38%, 46%, and the amplitude reasoning built on them) was
+> measured on a **rectangle I guessed at**, roughly y=79–245, which sits ABOVE Atlas and captures
+> the spotlight cone and empty space. Atlas's real frame, from the accessibility tree, is
+> **x=135, y=276, w=132, h=137** — verified by drawing the box on a screenshot, where it lands
+> exactly on the mascot.
+>
+> Re-measured on the correct box, same R7 method:
+>
+> | | frames with motion | mean changed region |
+> |---|---|---|
+> | **Euphoria Atlas** | **99%** | **87% × 88%** of its box |
+> | Duolingo (R7) | 81% | 54% × 48% |
+>
+> And via `mascot_density.py` with its own control: **mascot 97.1% vs control 88.4%, lift +8.7.**
+>
+> **Atlas moves more often, and changes more of itself, than Duolingo's mascot does.** It is not
+> dead, it is not under-amplitude, and its idle events are not too rare.
+>
+> **Cancelled as a result:** task 1a (raise `IDLE_SQUASH`) and task 1b (shorten the saccade /
+> arc-flex gate). Acting on them would have added violence to something already moving more than
+> the reference — the precise "your fixes make it worse" outcome this audit existed to prevent.
+>
+> **Still standing** (measured on regions that were not guessed): `courses` has a dead, empty
+> bottom half; entry choreography spans ~3000× across routes; a cross-fade superimposes two text
+> layers for ~0.15s. The Atlas brow work already shipped stands on its own — it was verified
+> visually, by making nine expressions distinguishable, not by these density numbers.
+>
+> **Method lesson, the sharpest of the session:** every other error today was caught by testing a
+> confound. This one survived four separate analyses because they all inherited the same guessed
+> rectangle. *Take the measurement region from the accessibility tree, never from an eyeball
+> estimate over a screenshot.*
+
+
 Written 2026-08-19 to answer one question: *what is the real state of motion in this app?* The
 owner's report was that animation fixes "either stay the same or get worse," which is a symptom
 of fixing the wrong variable. This is the diagnosis.
