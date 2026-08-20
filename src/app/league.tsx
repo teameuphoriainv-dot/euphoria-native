@@ -30,6 +30,7 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { tierForXp } from '@/lib/league';
 import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
+import { STAGGER_CAP } from '@/shared/motion/tokens';
 
 const PROMOTE = 3; // top 3 promote
 const DEMOTE = 7; // rank 8+ (index >= 7) demote
@@ -171,7 +172,7 @@ export default function League() {
               */}
             {zoned && i === PROMOTE && <Zone label="Promotion zone" color={theme.success} />}
             {zoned && i === DEMOTE && <Zone label="Demotion zone" color={theme.destructive} />}
-            <RiseIn delay={i * 40}>
+            <RiseIn delay={Math.min(i * 40, STAGGER_CAP)}>
               <View
                 style={[
                   styles.row,

@@ -30,6 +30,7 @@ import { TIERS, tierProgress } from '@/lib/league';
 import { money } from '@/lib/stocks';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { STAGGER_CAP } from '@/shared/motion/tokens';
 
 /**
  * ONE GLYPH WAS DOING TWELVE JOBS, and that is why this screen read as templated.
@@ -334,7 +335,7 @@ export default function You() {
         {/* Stats. Real values only. */}
         <View style={styles.grid}>
           {STATS.map((s, i) => (
-            <RiseIn key={s.label} delay={100 + i * 40} style={styles.gridHalf}>
+            <RiseIn key={s.label} delay={100 + Math.min(i * 40, STAGGER_CAP)} style={styles.gridHalf}>
               <SpringPressable
                 scaleTo={0.96}
                 onPress={() => router.push(s.route as Parameters<typeof router.push>[0])}
@@ -372,7 +373,7 @@ export default function You() {
           <Card>
             <View style={styles.ladder}>
               {TIERS.map((t, i) => (
-                <RiseIn key={t.name} delay={300 + i * 45}>
+                <RiseIn key={t.name} delay={300 + Math.min(i * 45, STAGGER_CAP)}>
                   {/* Tappable, and each rung STATES ITS THRESHOLD. A locked crest that does not
                       say what unlocks it is decoration; Duolingo's leaderboard gate names its own
                       condition ("Finish 7 lessons to start competing"), which is the pattern. */}
