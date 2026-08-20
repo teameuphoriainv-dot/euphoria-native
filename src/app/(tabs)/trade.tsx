@@ -20,9 +20,9 @@
  *
  * The chart is gone for the same reason — a line needs a series, and there isn't one.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -135,21 +135,53 @@ export default function Trade() {
    * null and the fallback is still better than blank.
    */
   const [, setPriced] = useState(0);
+  const lastPricedAt = useRef(0);
   useEffect(() => {
     let cancelled = false;
-    // No symbol list: one grouped request prices the ENTIRE market, so restricting it to what is
-    // currently on screen would discard prices already paid for and force another call the moment
-    // the user searches for anything else.
-    getMarks()
-      .then((r) => {
-        if (!cancelled && r?.count) setPriced((n) => n + 1);
-      })
-      .catch(() => undefined);
+    const load = () => {
+      // No symbol list: one grouped request prices the ENTIRE market, so restricting it to what
+      // is currently on screen would discard prices already paid for and force another call the
+      // moment the user searches for anything else.
+      getMarks()
+        .then((r) => {
+          if (cancelled || !r?.count) return;
+          lastPricedAt.current = Date.now();
+          setPriced((n) => n + 1);
+        })
+        .catch(() => undefined);
+    };
+    load();
+
+    /*
+     * KEEP IT CURRENT ACROSS DAYS, which a mount-only effect does not.
+     *
+     * Tab screens stay mounted, so the fetch above runs ONCE per app launch. Someone who leaves
+     * the app open overnight -- or simply across a session close -- would keep seeing the marks
+     * from whenever they first opened it, with the "Previous close" caption on the stock screen
+     * quietly aging. That is the same failure this whole lane exists to remove: a number that
+     * looks current and is not.
+     *
+     * Refetching on FOREGROUND rather than on a timer is deliberate. A timer fires while the app
+     * is backgrounded and spends the rate limit on a screen nobody is looking at; returning to
+     * the app is the moment a stale price actually starts misleading someone.
+     *
+     * Thirty minutes is the floor between fetches. The data is a daily close, so anything shorter
+     * spends a request against a five-per-minute ceiling to receive the identical number -- and
+     * that ceiling is shared with the logo and chart calls this app already starves.
+     */
+    const MIN_GAP_MS = 30 * 60_000;
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next !== 'active') return;
+      if (Date.now() - lastPricedAt.current < MIN_GAP_MS) return;
+      load();
+    });
     return () => {
       cancelled = true;
+      sub.remove();
     };
-    // Deliberately mount-only: prices move slower than this screen re-renders, and refetching on
-    // every holdings change would spend the rate limit on a number that did not move.
+    // Mount-only by design: `load` closes over nothing that changes, and the AppState listener is
+    // what keeps it current. Re-running on holdings changes would spend the limit re-fetching a
+    // market-wide snapshot to price one new row it already contains.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   /*

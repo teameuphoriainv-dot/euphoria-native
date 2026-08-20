@@ -639,9 +639,37 @@ export async function GET(request: Request) {
         .map((x) => symbol(x))
         .filter((x): x is string => !!x);
       const out: Record<string, number> = {};
-      for (let back = 1; back <= 5; back++) {
-        const d = new Date(Date.now() - back * 86_400_000).toISOString().slice(0, 10);
-        const g = await poly(`/v2/aggs/grouped/locale/us/market/stocks/${d}?adjusted=true`, key);
+      /*
+       * THE WALK STARTS AT YESTERDAY, AND THAT IS MEASURED, NOT ASSUMED.
+       *
+       * Starting at TODAY was tried on 2026-08-20 at 23:24 UTC, hours after the US close, on the
+       * theory that today's session would already be published. It is not, on this tier:
+       * `?date=2026-08-20` returned `plan_required` while `?date=2026-08-19` returned rows. Worse,
+       * `poly()` throws on a non-OK response, so beginning at 0 made the whole endpoint answer
+       * 501 instead of falling through -- a live regression, caught only because it was tested.
+       *
+       * So back=1 is correct here AND cheaper: on this plan a back=0 probe is a guaranteed wasted
+       * request against a five-per-minute ceiling, every single time.
+       *
+       * EVERY DAY IS INDIVIDUALLY FALLIBLE, which is the part that has to keep working unattended.
+       * A weekend returns an empty array, a holiday returns an empty array, and a plan-gated or
+       * flaky day THROWS. None of those should end the walk -- only a rate limit should, because
+       * continuing then just spends the next minute's budget to be refused six more times.
+       *
+       * `?date=` overrides the walk, for checking a specific session without guessing.
+       */
+      const forced = url.searchParams.get('date');
+      for (let back = 1; back <= 6; back++) {
+        const d = forced ?? new Date(Date.now() - back * 86_400_000).toISOString().slice(0, 10);
+        let g: { results?: { T?: string; c?: number }[] };
+        try {
+          g = await poly(`/v2/aggs/grouped/locale/us/market/stocks/${d}?adjusted=true`, key);
+        } catch (e) {
+          // A rate limit is terminal; anything else is just a day we cannot use.
+          if (String(e).includes('rate_limited')) throw e;
+          if (forced) return fresh({ error: 'no_data_for_date', date: forced }, 404);
+          continue;
+        }
         const rows = (g.results ?? []) as { T?: string; c?: number }[];
         if (!rows.length) continue;
         const keep = want.length ? new Set(want) : null;
@@ -652,6 +680,7 @@ export async function GET(request: Request) {
         }
         return cached({ date: d, count: Object.keys(out).length, marks: out });
       }
+      if (forced) return fresh({ error: 'no_data_for_date', date: forced }, 404);
       // Five consecutive empty sessions is not a weekend, it is an outage. Say so rather than
       // returning an empty marks map that reads as "every price is zero".
       return fresh({ error: 'no_session' }, 503);
