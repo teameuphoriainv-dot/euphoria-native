@@ -431,3 +431,37 @@ a headline. The instrument is built; only the target needs choosing.
 > Corollaries that keep recurring: prefer the element's OWN copy over a generic word that other
 > nodes may share; disambiguate with position when several nodes match (the feedback sheet is
 > always the bottom-most); and anchor on the edge that actually aligns, not on a centre.
+
+
+## R6 — SIX ATTEMPTS, ALL FAILED. What does not work, and why.
+
+Recorded in full because every one produced output that LOOKED like data. None errored. One even
+printed `OVERSHOOT: YES`. This is the audit's central pattern: measurement failures here publish
+rather than crash.
+
+| # | approach | outcome | cause |
+|---|---|---|---|
+| 1 | thresholded pixel overlap | reads ease-in always | gating at brightness 200 means text registers only past ~78% opacity — **wrong by construction for any opacity curve** |
+| 2 | mean luminance of the element box | "no clean rise" | correct in principle, but the region never nears its floor: `AmbientBackground` sits behind and the outgoing text overlaps the incoming |
+| 3 | position, crop padded 140pt above | flat 197 = crop's own top | swept in the option rows, which **recolour on Check** (correct green, chosen red) |
+| 4 | position, element by label `'incorrect'` | plausible flat series | matched an **option row**, whose own label is `"25. Incorrect."` — 290pt from the sheet |
+| 5 | position, changed-region top edge | −4.97 progress values | a frame diff during a slide covers **both** old and new positions, so its top edge is not the element's; settle−start read 21pt against 132pt of travel |
+| 6 | position, colour segmentation | flat 760, then pinned to 583 | the footer **Check button** renders at y=760 in the same violet; moving the corridor up then caught the **option borders** at its new top edge |
+
+**The structural problem.** The lesson screen is violet nearly everywhere — option borders, the
+footer button, Atlas, the panel's own icon and copy — so no colour gate isolates one element. And
+the panel's travel corridor is bounded above by the options and below by the button, leaving no
+clean band. **This element cannot be tracked by whole-region methods, in any variant tried.**
+
+**What the source says the answer is**, for whoever closes R6: `lesson-feedback.tsx:104` runs
+`withSpring(1, { stiffness: 220, damping: 18 })` on `translateY: (1 - t) * 190`.
+ζ = **0.607**, overshoot = **9.1%** (17.3pt of 190), peak at **266ms**, 2% settle at **460ms**.
+The author's own comment states the intent: *"slightly underdamped so the bar overshoots a few
+pixels and settles: it should feel thrown into place, not slid."*
+
+**What would actually work.** Not another region heuristic. Either (a) instrument the app —
+expose the shared value's frames in `__DEV__` and read them back, which measures the animation
+rather than a picture of it; or (b) pick an element with genuine colour isolation against its
+background, which no element on the lesson screen has.
+
+**R6 remains OPEN.** No verdict may cite it.
