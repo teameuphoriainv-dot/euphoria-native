@@ -449,3 +449,34 @@ hurts most. It is a hypothesis with a number attached, nothing more, until captu
 To reach it: `drive.goto_lesson('personalFinance', 1)` → advance to a step with `options` →
 tap a WRONG option → tap Check. `personalFinance` lesson 1 has a `fillBlank` with
 `options ['56','25','10','80'], correct 0`.
+
+### Appendix E2 — celebrate + oops tilt, predicted BEFORE measuring (2026-08-20)
+
+Committed before the capture ran, so the result can be judged honestly. The shake round of this
+same discipline landed within 1% (3.33pt measured vs 3.36pt predicted).
+
+`lesson.tsx:433-434` passes `celebrate` and `celebrateKey` but **not** `celebrateGain`, so the
+default `CELEBRATE_GAIN = 0.32` applies (`atlas.tsx:111`). At the quiz-head `size={56}`:
+
+**H = size × 0.12 × celebrateGain = 56 × 0.12 × 0.32 = 2.15pt**
+
+From `atlas.tsx:269-275`, after a `Duration.fast` = 150ms delay:
+
+| beat | target | spring | ζ |
+|---|---|---|---|
+| anticipation dip | +0.39pt (down) | timing 110ms | — |
+| launch | **−2.15pt (up)** | k=260 c=13 | 0.40 |
+| land | 0 | k=210 c=15 | 0.52 |
+
+- **P1 — vertical centroid excursion ≈ 2.5–3.1pt** (dip +0.39 to launch −2.15, plus ~25%
+  overshoot from ζ=0.40 on the launch spring).
+- **P2 — total duration ≈ 700–900ms** (150 delay + 110 dip + two spring settles).
+- **P3 — the celebration moves LESS than the error.** The shake measured ±3.33pt horizontally;
+  the hop is predicted at ~2.15pt vertically. If confirmed, getting it right is a physically
+  smaller reaction than getting it wrong, on the same mascot at the same size.
+- **P4 — `oops` head tilt = −3°** (`EXPRESSION_TILT`), ≈2.9pt of edge travel on a 56pt box.
+  To be measured from STILLS (default vs oops) via the angle of the line between eye centres,
+  not from video — a rotation barely moves a centroid, so the video method cannot see it.
+
+**P3 is the one that matters.** P1/P2 are conformance checks; P3 is a design question the
+numbers can settle.
