@@ -33,6 +33,8 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { RiseIn } from '@/shared/motion/rise-in';
+import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
 
 const REASONS: { title: string; body: string }[] = [
   {
@@ -70,13 +72,21 @@ export default function WhyNotFree() {
           A fair question, and there is a real answer rather than a marketing one.
         </ThemedText>
         <View style={styles.list}>
-          {REASONS.map((r) => (
-            <View key={r.title} style={styles.item}>
-              <ThemedText type="bodyMedium">{r.title}</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground">
-                {r.body}
-              </ThemedText>
-            </View>
+          {/*
+            * Reasons STAGGER IN. This was one of four screens in the app with no entrance
+            * animation at all, against 15 that use RiseIn. It matters more here than on a list
+            * screen: this page exists to answer "why isn't this free?", and arguments land
+            * better arriving one at a time than as a wall of text that was already there.
+            */}
+          {REASONS.map((r, i) => (
+            <RiseIn key={r.title} delay={Math.min(i * STAGGER_GAP, STAGGER_CAP)}>
+              <View style={styles.item}>
+                <ThemedText type="bodyMedium">{r.title}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">
+                  {r.body}
+                </ThemedText>
+              </View>
+            </RiseIn>
           ))}
         </View>
         <ThemedText type="small" themeColor="textSecondary" style={styles.close2}>
