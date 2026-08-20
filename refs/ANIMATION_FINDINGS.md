@@ -162,6 +162,32 @@ as the 118pt dead band on Home, at roughly four times the area.
 
 `digest` by contrast is low but non-zero everywhere (11–51%) — genuinely quiet, not empty.
 
+## 2c. PRELIMINARY — lesson transitions run ~3× faster than the reference
+
+From the 24-lesson recorded sweep, **partial (first 6 lessons, 1,458 transitions)**. Same
+`segment.py` on both sides, so the comparison is method-consistent:
+
+| percentile | Euphoria lessons | reference (R1) |
+|---|---|---|
+| p10 | 0.06s | 0.13s |
+| p25 | 0.08s | 0.27s |
+| **median** | **0.14s** | **0.40s** |
+| p75 | 0.30s | 0.67s |
+| p90 | 0.59s | 1.20s |
+
+Roughly 3× faster at **every** percentile. The app is not sluggish — it snaps.
+
+**16% of transitions (228 / 1,458) fail R2**: short *and* multi-peaked, i.e. bouncing inside a
+very brief window. Failure durations cluster at 0.20–0.35s and are overwhelmingly 2-peak (145)
+or 3-peak (62). Short-plus-bouncing is what reads as "abrupt", which is the word the owner used
+about the card flip.
+
+> **CONFOUND, not yet excluded.** The driver taps on a steady ~8s cadence and every tap emits
+> short press-feedback events, which drags the low percentiles down. The reference recordings are
+> a human using the app at human pace. A 3× gap at *every* percentile is unlikely to be entirely
+> artefact, but this stays PRELIMINARY until all 24 lessons are in and the short-window events
+> have been separated from genuine transitions.
+
 ## 3. Entry transitions are wildly inconsistent
 
 Peak motion in the 1.2s after each route opened, for routes that verifiably navigated:

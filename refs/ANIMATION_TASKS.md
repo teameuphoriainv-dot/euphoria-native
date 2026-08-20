@@ -73,6 +73,13 @@ amplitude is 1pt. The easing was never the problem.
       no brows so the resting brand mark is unchanged; watch that faster saccades do not read as
       twitchy rather than alive.
 
+- [ ] **1c. Investigate transition DURATION.** (Owner: after the mascot work.)
+      Preliminary from the sweep — Euphoria's lesson transitions run ~3× faster than the
+      reference at every percentile (median **0.14s** vs **0.40s**), and 16% fail R2 by bouncing
+      inside a very short window. Before acting: separate genuine transitions from tap
+      press-feedback, since the driver's cadence inflates the short end. Potentially the
+      widest-reaching defect found, because it touches every screen rather than one component.
+
 - [ ] **2. Give content its own resting motion.**
       The structural finding. `courses` (35%) and `digest` (49%) mount `AmbientBackground` but
       are dense grids of opaque cards that **occlude** it, so they go still. The app currently
