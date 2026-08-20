@@ -45,7 +45,8 @@ amplitude is 1pt. The easing was never the problem.
 
 ## QUEUE — after the sweep, in this order (owner-confirmed 2026-08-19)
 
-- [ ] **0. Fix the driver's 0-steps stall.**
+- [x] **0. Driver 0-steps stall — FIXED.** `button()` required role AXButton; the lesson-intro Continue renders as AXGenericElement, so nothing matched. Now excludes prose instead. Driver went 0 -> 38 steps.
+- [-] **0-old. Fix the driver's 0-steps stall.**
       The sweep navigates and records correctly but drove 0 steps on lesson 1 — it is filming
       static intros rather than interaction. Owner accepted recording-only for THIS run and asked
       for the fix afterwards, so the next sweep captures interaction animation too.
@@ -65,7 +66,8 @@ amplitude is 1pt. The easing was never the problem.
       (1.47/s vs 0.66/s) — more small events, not shorter transitions. Not actionable as "slow
       the animations down".
 
-- [ ] **1d. The R2 failures ARE real.** 228 of 1,458 sweep transitions (16%) are short *and*
+- [-] **1d. R2 failures — NOT app defects.** Read frame by frame: on interactive steps the multi-peak is the DRIVER tapping; on content steps it is h264 ghosting on static text. `peaks()` cannot tell two taps from one overshoot. The 16% figure is not quotable as a defect count.
+- [-] **1d-old. The R2 failures ARE real.** 228 of 1,458 sweep transitions (16%) are short *and*
       multi-peaked, clustered at 0.20–0.35s, mostly 2-peak. Short-plus-bouncing is what reads as
       "abrupt". Worth tracing to the components that produce them once the sweep completes.
 
@@ -81,14 +83,17 @@ amplitude is 1pt. The easing was never the problem.
       feels alive in inverse proportion to how much content is on screen. Content that breathes
       at rest fixes that regardless of layout density.
 
-- [ ] **3. Standardise entry choreography.**
+- [x] **3. Entry choreography — DONE.** Source audit (which screens import RiseIn) found exactly four with no entrance: search, friends, why-not-free (all now staggered and measured) and index (a redirect, correctly none). search 0.11s/1pk -> 1.08s/13pk; friends 1pk -> 7pk.
+- [-] **3-old. Standardise entry choreography.**
       ~3000× spread across routes that verifiably navigated: welcome 245,582 peak px → search 84.
       That is not a design decision.
 
-- [ ] **4. Re-run the whole-app route audit** with `goto_lesson`-style verification per route and
+- [~] **4. Re-run the whole-app route audit** — `scripts/anim/route_audit.py` built and running; verifies navigation per route and marks non-navigating routes SKIPPED.
+- [-] **4-old. Re-run the whole-app route audit** with `goto_lesson`-style verification per route and
       a longer recording budget. The first pass is retracted: only 9 of 23 routes navigated.
 
-- [ ] **5. Digest pass — 15–20 articles.** Owner is happy with Digest structurally; the ask is the
+- [x] **5. Digest pass — DONE.** 18 of 35 articles opened in sequence, all 18 rendered correctly (title + read-time, no 404). Masthead staggered: 0.07s/147k px slam -> 0.26s, moving it from below R1's p10 into the reference band. Also fixed routes.sh, which pointed at a slug that does not exist.
+- [-] **5-old. Digest pass — 15–20 articles.** Owner is happy with Digest structurally; the ask is the
       **article hero/logo animations**.
 
 ## OPEN, NOT BLOCKING
