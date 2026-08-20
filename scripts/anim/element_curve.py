@@ -96,22 +96,36 @@ def curve(frames, box, scale):
     return out
 
 
-def classify(counts):
-    """R5: how did the element leave? Judged on the DROP, not on the whole series."""
+def _sustained(pred, series, n=3):
+    """First index where `pred` holds for n CONSECUTIVE frames, else None.
+
+    h264 drops a region for a frame now and then, and a single bad frame reads as the element
+    vanishing and reappearing. Measured on a real take, the overlap series ran
+    1.00 0.99 0.99 0.00 0.00 1.00 1.00 -- a two-frame dropout that the first version of this
+    function called an exit taking 19ms, on a headline that had not moved. Requiring a RUN is
+    what separates a transition from a compression artifact.
+    """
+    run = 0
+    for i, v in enumerate(series):
+        run = run + 1 if pred(v) else 0
+        if run >= n:
+            return i - n + 1
+    return None
+
+
+def classify(counts, min_run=3):
+    """R5: how did the element leave? Judged on a SUSTAINED drop, never on one frame."""
     if not counts or max(counts) == 0:
         return 'absent'
     peak = max(counts)
-    lo = [i for i, c in enumerate(counts) if c < peak * 0.15]
-    if not lo:
+    gone = _sustained(lambda c: c < peak * 0.15, counts, min_run)
+    if gone is None:
         return 'persists'
-    first_lo = lo[0]
-    hi = [i for i in range(first_lo) if counts[i] > peak * 0.85]
-    if not hi:
+    present = _sustained(lambda c: c > peak * 0.85, counts[:gone], min_run)
+    if present is None:
         return 'unclear'
-    # frames between "clearly present" and "clearly gone"
-    span = first_lo - hi[-1]
-    return 'hard-cut' if span <= 1 else f'fade-out over {span} frames'
-
+    span = gone - (present + min_run - 1)
+    return 'hard-cut' if span <= 1 else 'fade-out over %d frames' % span
 
 def main():
     ap = argparse.ArgumentParser()
@@ -135,9 +149,9 @@ def main():
         n2, bb2 = bright_stats(stars)
         assert bb2 is None, f'starfield must not register as an element, got {n2} px'
         # classify: a one-frame drop is a cut; a ramp is a fade
-        assert classify([100, 100, 100, 0, 0]) == 'hard-cut'
-        assert classify([100, 100, 80, 60, 40, 20, 5]).startswith('fade-out'), classify([100,100,80,60,40,20,5])
-        assert classify([100, 100, 100]) == 'persists'
+        assert classify([100, 100, 100, 0, 0, 0]) == 'hard-cut'   # 3 zeros = sustained
+        assert classify([100, 100, 100, 80, 60, 40, 20, 5, 2, 1]).startswith('fade-out')
+        assert classify([100, 100, 100, 100]) == 'persists'
         assert classify([0, 0]) == 'absent'
         # a translate holds width while x moves; a zoom grows width from near zero
         w_translate = [40, 40, 41, 40, 39]
@@ -149,7 +163,10 @@ def main():
         B = Image.new('RGB', (40, 20), (0,0,0)); ImageDraw.Draw(B).rectangle([20,0,39,19], fill=(255,255,255))
         assert similarity(A, A) == 1.0
         assert similarity(A, B) == 0.0, 'same pixel COUNT, no overlap -> must read as gone'
-        print('element_curve --selftest: 11 assertions passed')
+        assert classify([100,100,100,0,0,100,100,100,100]) == 'persists', 'a 2-frame dropout is not an exit'
+        assert classify([100,100,100,0,0,0,0]) == 'hard-cut'
+        assert classify([100,100,100,80,60,40,20,0,0,0]).startswith('fade-out')
+        print('element_curve --selftest: 14 assertions passed')
         return 0
 
     import drive
@@ -247,7 +264,6 @@ def main():
     sp.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-i", h, f"{fd}/%05d.png"], check=True)
     fr = sorted(glob.glob(f"{fd}/*.png"))
     c = curve(fr, box, sx)
-    sp.run(["rm", "-rf", fd])
 
     counts = [x[0] for x in c]
     # overlap with frame 0 — the measure that survives one headline replacing another
@@ -273,12 +289,17 @@ def main():
         w = f"{bb[2]-bb[0]:5.1f}" if bb else "    -"
         x = f"{bb[0]:5.1f}" if bb else "    -"
         print(f"{i/rate*1000:5.0f} {cnt:6d}  {w}  {x}   {'#'*int(cnt/peak*40)}")
-    widths = [bb[2] - bb[0] for _, bb in c if bb]
+    widths = sorted(bb[2] - bb[0] for _, bb in c if bb)
+    if len(widths) >= 10:
+        # p10/p90, not min/max: one dropped frame reported a 69pt width on a 279pt headline and
+        # turned a stationary element into "GROWS from small".
+        widths = widths[len(widths)//10 : 9*len(widths)//10 + 1]
     if widths:
         print(f"\nR4 scale origin: width {min(widths):.1f}..{max(widths):.1f}pt  "
               f"ratio {min(widths)/max(widths):.2f}  -> "
               f"{'TRANSLATE (constant size)' if min(widths)/max(widths) > 0.85 else 'GROWS from small'}")
-    json.dump({'rate': rate, 'counts': counts}, open(f"{OUT}/curve.json", 'w'))
+    json.dump({'rate': rate, 'counts': counts, 'sim': sim}, open(f"{OUT}/curve.json", 'w'))
+    sp.run(["rm", "-rf", fd])          # only after every reader is done with them
     return 0
 
 

@@ -131,11 +131,31 @@ amplitude is 1pt. The easing was never the problem.
       size of 56pt, shake = ±3.36pt (6.7pt peak-to-peak) over 280ms + a ζ=0.58 settle; `oops`
       tilt = −3° ≈ 2.9pt of edge travel.
 
-- [ ] **Atlas head tilt is unverified.** Implemented in `edb036e`; every deep-linkable screen
+- [~] **Atlas head tilt — partially settled, one retraction.** A predicted bug that every
+      `idle={false}` Atlas sits permanently at −3.4° (because `rock` initialises to 0 while the
+      rotation maps `(rock*2-1)*ROCK_DEG`, whose neutral input is 0.5) was **measured at −0.61°
+      and retracted** — eye-line angle by PCA on the sclera cloud, self-checked against synthetic
+      disc pairs to ±0.65°. The `oops` / `thinking` `EXPRESSION_TILT` values remain unmeasured;
+      the method now exists and needs one still with a tilted expression on screen.
+
+- [-] **Atlas head tilt is unverified — superseded by the entry above.** Implemented in `edb036e`; every deep-linkable screen
       renders an expression whose tilt is 0. Reaching `oops`/`thinking` needs a wrong answer
       mid-lesson — now trivial, since the extractor knows which answer is wrong.
-- [ ] **`celebrate` and `shake` still unmeasured.** The sweep should capture celebrate on every
-      lesson completion; check the strips before re-attempting by hand.
+- [x] **`celebrate` and `shake` — MEASURED.** Both captured on the lesson quiz head via a
+      deliberately wrong / right answer, registration label-verified each time.
+      **shake**: five alternating decaying steps over **271ms**, first step **3.33pt** against
+      3.36pt predicted (1% error) — matches `atlas.tsx:331-338`'s five `withTiming` steps
+      totalling 280ms. **KEEP**: R1 p25, and R2 treats multi-peak-under-0.35s as the deliberate
+      exception, which a hand-written commented sequence qualifies as.
+      **celebrate**: sustained deviations of 2.66–3.16pt, i.e. the SAME size as the error shake.
+      Owner chose to make correct read louder; `celebrateGain` set to 0.5 at the quiz head and
+      re-measured at **4.57pt** (1.45x, against 1.56x predicted). Lesson-complete stays at gain 1.
+- [x] **Per-element instrument BUILT** — `scripts/anim/element_curve.py`. Tracks one element
+      from its a11y rectangle, draws the box for verification, and scores **overlap against
+      frame 0** rather than a pixel count, because slide A's white headline and slide B's white
+      headline occupy the same box and a count cannot tell them apart. Carries a Fast Refresh
+      detector with retries. This is what R4/R5/R6 have been waiting on.
+
 - [ ] **Route coverage gap.** The whole-app pass ran out of recording before `stock-sym`,
       `settings-account`, `why-not-free`, `widget-tutorial`. They show 0 windows because they were
       never captured — **not** because they are static. Re-run with a longer budget.
