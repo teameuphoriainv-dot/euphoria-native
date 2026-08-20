@@ -174,14 +174,24 @@ export default function Trade() {
 
         {/* Navigation, grouped and horizontal. As three stacked full-width pills between a
             section label and its list, these read as list items and orphaned the WATCHLIST
-            header from the watchlist. */}
+            header from the watchlist.
+
+            SEARCH WAS REMOVED FROM THIS ROW because it was a genuine duplicate: the round search
+            button in the header above pushes '/search', and this tile pushed '/search' too --
+            the same destination twice, about 90pt apart on the same screen.
+
+            NEWS STAYS, and the reasoning is worth recording because the opposite was assumed.
+            It looks redundant against the NewsGallery directly below it, but they are not the
+            same content: news.tsx with no `sym` is MARKET-WIDE ("What moved, and why"), while
+            NewsGallery reads `const scope = symbols[0]` and shows at most eight articles about
+            your FIRST HOLDING. Removing the tile would delete the only route to market-wide news
+            on this screen. Verified in source before touching it, not inferred from the layout. */}
         <RiseIn delay={110}>
           <View style={styles.actions}>
             {(
               [
                 { icon: 'feed', label: 'News', to: '/news' },
                 { icon: 'bolt', label: 'Options', to: '/options' },
-                { icon: 'search', label: 'Search', to: '/search' },
               ] as const
             ).map((a) => (
               <SpringPressable
@@ -190,7 +200,7 @@ export default function Trade() {
                 scaleTo={0.95}
                 onPress={() => router.push(a.to)}
                 accessibilityRole="button"
-                accessibilityLabel={a.label === 'Search' ? 'Search every listed stock' : a.label}
+                accessibilityLabel={a.label}
                 style={{ flex: 1 }}
               >
                 <View style={[styles.action, { backgroundColor: theme.card, borderColor: theme.border }]}>
