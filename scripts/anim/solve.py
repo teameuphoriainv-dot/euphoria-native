@@ -166,7 +166,12 @@ def answer(lesson):
         # text. Three attempts were spent reasoning about this before measuring it.
         picked = already = 0
         for stmt in st['statements']:
-            hit = [n for n in ns if norm(stmt['text'])[:50] in norm(n[4])]
+            # RE-READ BEFORE EVERY TAP. `ns` was snapshotted once at the top of answer(), and a
+            # tap here can shift the layout -- the "Not quite" banner appearing or clearing
+            # changes row positions -- so stale coordinates land on the WRONG statement and check
+            # something that should have been cleared. Same failure already fixed for `match`.
+            cur = nodes()
+            hit = [n for n in cur if norm(stmt['text'])[:50] in norm(n[4])]
             if not hit: continue
             val = (hit[0][6] or '').lower()
             selected = 'checked' in val and 'unchecked' not in val

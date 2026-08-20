@@ -47,7 +47,12 @@ def button(*subs):
     # (a different button component), so `button()` returned nothing and every lesson in the
     # sweep drove 0 steps while recording 150s of a static intro. Both failure modes are covered
     # by the real distinction -- a tappable control is anything that is NOT prose or an image.
-    SKIP = {'AXStaticText', 'AXImage', 'AXApplication'}
+    # ONLY PROSE IS EXCLUDED. The same Continue button has now been observed as AXButton,
+    # AXGenericElement AND AXImage across three reads of the same app -- the role is simply not
+    # stable here. Excluding AXImage cost another stall. AXStaticText is the only role that
+    # actually caused the original bug (the paragraph "Select all that apply, then check."), so
+    # it is the only one worth excluding.
+    SKIP = {'AXStaticText', 'AXApplication'}
     hits = [n for n in nodes()
             if n[5] not in SKIP and any(s.lower() in n[4].lower() for s in subs)]
     return sorted(hits, key=lambda n: -n[1])
@@ -201,7 +206,16 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
         if any(k in text for k in ('lesson complete', 'xp earned', 'you earned', 'well done', '+30 xp')):
             return True, log
         for c in find('not revealed'):
-            sp.run(["idb", "ui", "tap", "--udid", U, str(c[0] + c[2] // 2), str(c[1] + c[3] // 2)],
+            # TAP NEAR THE CARD'S TOP, NOT ITS CENTRE. Continue is a fixed footer and the grid
+            # scrolls under it: as earlier cards reveal they grow (118 -> 217/271pt), pushing the
+            # last row to y=707..825 while Continue occupies 760..816. The card's centre (766)
+            # then lands ON Continue, so the tap reveals nothing and the step stalls forever.
+            # Measured on alternative-investments lesson 1.
+            ty = c[1] + min(28, max(8, c[3] // 4))
+            foot = button('continue', 'check')
+            if foot and ty >= foot[0][1]:
+                ty = max(c[1] + 8, foot[0][1] - 16)
+            sp.run(["idb", "ui", "tap", "--udid", U, str(c[0] + c[2] // 2), str(ty)],
                    capture_output=True)
             time.sleep(0.5)
         moved, how = advance()
@@ -210,10 +224,19 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
             btn = button('check', 'continue')
             if ok and btn:
                 before = labels()
+                time.sleep(0.5)          # let the selection taps settle before checking them
+                btn = button('check', 'continue') or btn      # re-read: layout may have shifted
                 sp.run(["idb", "ui", "tap", "--udid", U, str(btn[0][0] + btn[0][2] // 2),
                         str(btn[0][1] + btn[0][3] // 2)], capture_output=True)
                 time.sleep(1.8)
-                moved, how = labels() != before, f'solved:{kind}'
+                after = labels()
+                # A WRONG ANSWER CHANGES THE SCREEN WITHOUT ADVANCING. multi-select relabels its
+                # button to "Not quite -- answers are marked. Fix and check again.", so a naive
+                # `labels() != before` reads as progress and the stall detector never fires: one
+                # run reported moved=True thirty times in a row while sitting on one step.
+                rejected = any('not quite' in l.lower() for l in after)
+                moved = (after != before) and not rejected
+                how = f'solved:{kind}' + ('/rejected' if rejected else '')
             else:
                 how = f'unsolved:{kind}'
         log.append((i, how, moved))
