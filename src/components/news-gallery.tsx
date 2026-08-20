@@ -21,8 +21,13 @@ import { Card } from '@/components/ui/card';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getNews, type Article } from '@/lib/market';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+
 import { RiseIn } from '@/shared/motion/rise-in';
+import { Duration, Ease } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 const CARD_W = 236;
 const IMAGE_H = 96;
@@ -42,6 +47,10 @@ function GalleryCard({ a, at }: { a: Article; at: number }) {
    * than showing a grey rectangle where a photo should be.
    */
   const [broken, setBroken] = useState(false);
+  const [shown, setShown] = useState(false);
+  const shownT = useSharedValue(0);
+  useEffect(() => { shownT.set(withTiming(shown ? 1 : 0, { duration: Duration.base, easing: Ease.out })); }, [shown, shownT]);
+  const imgStyle = useAnimatedStyle(() => ({ opacity: shownT.get() }));
   const withImage = a.image !== undefined && a.image !== '' && !broken;
 
   return (
@@ -53,10 +62,16 @@ function GalleryCard({ a, at }: { a: Article; at: number }) {
     >
       <Card padded={false} style={[styles.card, { width: CARD_W, height: CARD_H }]}>
         {withImage && (
-          <Image
+          /* FADE IN ON DECODE. This had no onLoad and no opacity at all, so a remote image
+             replaced the placeholder tint on a single frame — a 0ms swap, below R1's p10 of
+             0.13s. Each article's bytes arrive whenever the network returns them, so a row of
+             cards snapped in at unrelated moments. Opacity only, so no reduced-motion guard is
+             needed; there is no vestibular motion in a fade. */
+          <AnimatedImage
             source={{ uri: a.image }}
-            style={[styles.image, { backgroundColor: theme.cardElevated }]}
+            style={[styles.image, { backgroundColor: theme.cardElevated }, imgStyle]}
             resizeMode="cover"
+            onLoad={() => setShown(true)}
             onError={() => setBroken(true)}
             accessible={false}
           />
