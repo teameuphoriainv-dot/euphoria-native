@@ -41,11 +41,14 @@ sharp isolated bursts separated by stillness. Both need to change, and they are 
 
 ## The finding, in one line
 
-**The app's sense of life comes from a background layer, not from its content. The content
-animations are real, well-built, correctly guarded — and 1–3% in amplitude, which is at or below
-what a person can see.**
+**The app's sense of life comes from a background layer, not from its content. The content's own
+motion is either too small to see (breath, ~0.2pt/frame) or too rare to register (saccade and
+arc-flex, one event per ~3.4s).**
 
-That is why tuning easing curves changed nothing. The curve was never the problem.
+That is why tuning easing curves changed nothing. The curve was never the problem — and, per the
+correction above, neither was the amplitude *of the discrete events*. Section 1 below reads the
+static constants; the correction reads what actually reaches the screen, and it supersedes
+section 1 wherever the two differ.
 
 ---
 
@@ -166,8 +169,11 @@ A ~3000× range. Some routes have real entrance choreography; others have essent
 
 ## What this means for the fix
 
-1. **Raise amplitude before touching easing.** A spring's damping is invisible when the travel is
-   1pt. This is the change the owner's previous prompts were reaching for.
+1. **Two separate idle edits, measured separately.** (a) Raise `IDLE_SQUASH` — breath is
+   continuous but ~0.2pt/frame, so it never registers. (b) Shorten the `2100 + random×2600`ms gate
+   on saccade and arc-flex — those events are already well sized, just rare. Doing only (a), as
+   this document originally proposed, would leave the mascot moving in isolated bursts separated
+   by stillness. Easing is not involved in either.
 2. **Give `happy` a liveness cue that survives arc eyes** — squeeze/flatten the arc rather than
    closing it. It is the most-used expression and currently the deadest.
 3. **Content needs its own resting motion** on screens that occlude the background, or those
