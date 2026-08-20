@@ -283,6 +283,34 @@ The **step** transition honours that. The **route** transition does not. Same pr
 different answers to the same question, and the route one produces the overlap the step one was
 written to avoid.
 
+## 2e. Frame-by-frame across the lesson sweep — what the recordings actually show
+
+248 filmstrips over 22 recordings (1.5GB) from 18 lessons. Read as a cross-lesson montage: the
+worst R2-flagged window from each of six different courses, sampled frame by frame.
+
+| lesson | what the flagged window contains |
+|---|---|
+| alternativeInvestments-1 | pension-fund quiz — static; only a selection border changes |
+| alternativeInvestments-2 | dense text with vertical ghosting — driver scroll plus compression |
+| alternativeInvestments-3 | "Cryptocurrency" intro with Atlas — 7 near-identical frames |
+| appliedAccounting-1 | Enron text screen — slight ghosting mid-sequence |
+| appliedAccounting-2 | Hertz text, last 2 frames jump to "Key terms" — a real step transition |
+| behavioralFinance-1 | "Why Your Brain Costs You Money" — 7 near-identical frames |
+
+**Lesson content screens are static once settled.** Across every sampled window the detected
+motion resolves to one of three things: a selection border changing, a step transition at the
+boundary, or h264 ghosting on dense text. Genuine animation appears only at step boundaries.
+
+**Whether that is a defect is a judgement, not a measurement.** These are reading screens — a
+learner is parsing a paragraph about Enron, and ambient movement under body text competes with
+comprehension. The reference apps were not measured for resting motion on their own reading
+screens, so there is no anchor here of the kind R7 provides for mascots. Recorded as an
+observation, NOT queued as a fix.
+
+**It does explain the R2 count.** 16% of transitions "failing" R2 was never 16% of animations
+bouncing: on interactive steps the multi-peak is the driver tapping, and on content steps it is
+compression on static text. Neither is an app defect.
+
 ## 3. Entry transitions are wildly inconsistent
 
 Peak motion in the 1.2s after each route opened, for routes that verifiably navigated:
