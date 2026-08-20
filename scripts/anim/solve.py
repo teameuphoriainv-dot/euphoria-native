@@ -135,7 +135,8 @@ def place_slider(ns, st):
         return None
 
     prev = read()
-    for _ in range(3):
+    noop = 0
+    for _ in range(4):
         frac = max(0.0, min(1.0, (want - lo) / span))
         sp.run(["idb", "ui", "tap", "--udid", U, str(int(x + frac * w)), str(y + h // 2)], capture_output=True)
         time.sleep(0.9)
@@ -148,8 +149,17 @@ def place_slider(ns, st):
         # the reading is the MINIMUM -- which looks exactly like a tap landing at the far left.
         # That cost a debugging round: single taps were always exact (0.75 -> 70%), and only this
         # loop was wrong.
+        # A SINGLE no-op is not a stall -- THE FIRST TAP ON THIS CONTROL IS SWALLOWED.
+        # Measured: tapping the computed coordinates by hand left the value at 20, while
+        # place_slider hit the same coordinates and reached 80 -- the difference was purely that
+        # it retried. Bailing on the first no-op therefore aborted a control that was about to
+        # work, and produced "already solved?" on a step that was not solved at all.
         if prev is not None and got == prev:
-            return True, f'slider(no-op at {got:g} — already solved?)'
+            noop += 1
+            if noop >= 2:
+                return True, f'slider(no-op x2 at {got:g})'
+        else:
+            noop = 0
         prev = got
         want = want + (st['correct'] - got)   # correct the aim in value-space
     return True, f'slider(off:{read()})'
