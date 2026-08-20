@@ -269,19 +269,24 @@ export function OptionCard({
 }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
-  const pop = useSharedValue(1);
-  useEffect(() => {
-    if (reduced || !selected) return;
-    pop.set(withSequence(withSpring(1.035, Spring.bouncy), withSpring(1, Spring.smooth)));
-  }, [selected, reduced, pop]);
-  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
+  /*
+   * NO SCALE POP ON SELECT. This used to run
+   *   withSequence(withSpring(1.035, Spring.bouncy), withSpring(1, Spring.smooth))
+   * so tapping an option grew it to 1.035 -- and Spring.bouncy is zeta 0.72, which overshoots a
+   * further ~4% -- reaching roughly 1.076 before shrinking back to 1. Grow-then-shrink on every
+   * tap is what the owner described as "click something and it becomes huge and becomes small",
+   * and it was REDUNDANT: `fill` and the border already animate to show selection, so the scale
+   * carried no information the row was not already conveying.
+   *
+   * The press itself still has feedback -- SpringPressable scales to 0.97 under the finger,
+   * which is a 3% inward move bound to the touch rather than an outward pop after it.
+   */
   return (
     <SpringPressable onPress={onPress} style={{ marginBottom: Spacing.two + 4 }}>
       <Animated.View
         style={[
           styles.option,
           compact && styles.optionSm,
-          popStyle,
           {
             backgroundColor: selected ? theme.primary + '14' : theme.card,
             borderColor: selected ? theme.primary : theme.border,

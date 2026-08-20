@@ -23,16 +23,42 @@ export function SliderPredict({ spec, revealed, onTouched }: { spec: SliderSpec;
   const startFrac = useSharedValue(0.4);
   const [guess, setGuess] = useState(spec.max * 0.4);
 
+  /**
+   * The thumb itself is driven entirely on the UI thread (`frac` is a shared value), so the drag
+   * tracks the finger regardless of what JS is doing. What crosses to JS is throttled.
+   *
+   * BEFORE: every `onUpdate` frame called runOnJS TWICE -- once for setGuess and once for
+   * onTouched. At 60fps that is ~120 JS round-trips per second during a drag, each setGuess
+   * triggering a React re-render of this component. The gesture stayed geometrically correct and
+   * felt unsteady, because the JS thread was saturated by the readout while the finger moved.
+   *
+   * NOW: `onTouched` fires ONCE per gesture, in onBegin -- it is a "the learner has engaged with
+   * this step" signal and never needed to be per-frame. `setGuess` only crosses when the value
+   * has moved by at least half a percent of the range, which is ~200 updates across a full-width
+   * drag: far more than the formatted readout can distinguish, and a fraction of the traffic.
+   * onEnd emits the exact final value so the committed guess is never a rounded intermediate.
+   */
+  const lastEmit = useSharedValue(-1);
+  const EMIT_STEP = 0.005;
+
   const pan = Gesture.Pan()
     .onBegin(() => {
       startFrac.value = frac.value;
+      lastEmit.value = frac.value;
+      if (!revealed) runOnJS(onTouched)();
     })
     .onUpdate((e) => {
       if (revealed || trackW.value === 0) return;
       const f = Math.max(0, Math.min(1, startFrac.value + e.translationX / trackW.value));
       frac.value = f;
-      runOnJS(setGuess)(spec.max * f);
-      runOnJS(onTouched)();
+      if (Math.abs(f - lastEmit.value) >= EMIT_STEP) {
+        lastEmit.value = f;
+        runOnJS(setGuess)(spec.max * f);
+      }
+    })
+    .onEnd(() => {
+      if (revealed) return;
+      runOnJS(setGuess)(spec.max * frac.value);
     });
 
   /**
