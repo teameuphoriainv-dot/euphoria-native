@@ -407,3 +407,62 @@ A ~3000× range. Some routes have real entrance choreography; others have essent
   described the wrong screen. Re-running with verified navigation is queued.
 - **R1 "failures" are inflated** by the walk's deliberate scrolling; R3 says continuous scroll is
   choreography, not a defect.
+
+## 8. The wrong-answer reaction, MEASURED at last — and it is correctly built
+
+The last unmeasured animation in the app. Three driver bugs and one measurement bug stood
+between the audit and this number; all are recorded in `CARRYOVER.md` Appendix C.
+
+**Route:** `personalFinance` lesson 1, `fillBlank` (`options ['56','25','10','80']`, correct 0),
+tap `'25'`, then Check. Tap registration **verified by label change** — `'25. Incorrect.'`,
+`'56. Correct answer.'`, `'Not the one.'` appeared. Capture 144 frames @ 55.4fps, contamination
+1.9%.
+
+**Method:** per-frame centroid of Atlas's own violet pixels, region derived from the prompt's
+a11y frame and verified by drawing it (Atlas carries no a11y label when `interactive={false}`).
+
+| ms | deviation from resting centroid |
+|---|---|
+| 90 | **−3.33pt** |
+| 162 | +6.16pt |
+| 235 | −5.38pt |
+| 289 | +4.94pt |
+| 361 | −3.70pt |
+| 379→2582 | ≤0.44pt (settled) |
+
+**Five alternating, decaying deviations spanning 271ms.** `atlas.tsx:331-338` is exactly five
+`withTiming` steps — 60+60+55+55+50 = **280ms** — before a ζ=0.58 spring to 0. Step count
+matches; duration matches within one frame at 18ms/frame.
+
+**The prediction, written in `CARRYOVER.md` Appendix E BEFORE the measurement, was ±size×0.06 =
+±3.36pt at size 56. The first step measured 3.33pt — 1% error.** Recorded this way so it could
+be judged honestly rather than retrofitted.
+
+**Verdict: KEEP.** R1 — 271ms sits at the reference p25 (0.27s), inside the 0.27–0.67s band at
+its lower edge, which is right for a corrective jolt rather than a transition. R2 — it is
+multi-peak under 0.35s, which R2 treats as the *deliberate exception*, and it qualifies: the
+sequence is hand-written per element and commented "V1 balance-scale reference", not inherited
+from a library default. **This animation was never the problem.**
+
+### Two caveats, stated so the number is not over-read
+
+1. **The later peaks are confounded.** `expression` flips to `oops` on the same frame, and the
+   `oops` face redraws brows and eyes, which moves a colour centroid independently of any
+   translate. The **first** step (3.33pt vs 3.36pt predicted) is the clean one; treat +6.16 as
+   shake plus expression change, not as shake amplitude.
+2. **Timing is inferred.** The tap was scheduled 800ms after the recorder started, yet the
+   oscillation appears at 90–361ms, so `idb video-stream` evidently drops ~1s of startup before
+   its first frame. The identification rests on the signature, not the clock: five alternating
+   decaying steps over 271ms, matching a five-step 280ms sequence, with `idle={false}` meaning
+   **no other motion source exists on this screen** — and dead-flat afterwards.
+
+### What IS worth noting: the mascot freezes the moment it finishes reacting
+
+Post-settle motion is **≤0.44pt across 1.8s**. The quiz-head Atlas is `idle={false}`
+(`lesson.tsx:429-435` passes no `idle`; `atlas.tsx:125` defaults it false; `atlas.tsx:316`
+zeroes breath/sway/rock when it is false). So the learner shakes the mascot, then reads an
+explanation next to a completely frozen one, against R7's reference of 81% of frames in motion.
+
+**Filed as an observation, not a defect.** A still mascot beside text a learner is reading is a
+defensible choice, and this audit has already retracted one Atlas liveness claim made without a
+reference anchor. Deciding it needs a design call, not a measurement.

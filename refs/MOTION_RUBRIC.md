@@ -199,3 +199,56 @@ except for R2, which is closed and already failed: the spring must move onto a
 `shared/motion/tokens.ts` value chosen deliberately, not Reanimated's default stiffness.
 
 The 3D flip is **rejected by owner direction** and is not under consideration.
+
+## FAST REFRESH CORRUPTS DEVICE CAPTURES — found 2026-08-20
+
+> **If anything edits a watched file while you record, Metro reloads the app mid-take.**
+>
+> Expo's dev client paints a **full-screen blue "Refreshing…" overlay** during a reload. The
+> mascot disappears behind it, the measured region fills with overlay blue, and a centroid
+> series computed over those frames reads as a violent oscillation — a clean, quotable,
+> completely wrong number. It was nearly reported as the wrong-answer shake.
+>
+> Found by building a contact sheet and **looking at the frames**. No amount of staring at the
+> series would have revealed it; the series looked like a damped oscillation, which is exactly
+> what a shake looks like.
+>
+> This happens whenever a second agent, an editor, or your own commit touches `src/` during a
+> capture. **A shared working directory makes every device measurement unreliable**, and being
+> careful with `git` does not help — Metro watches the filesystem, not the index.
+>
+> **Mitigation, now in the probe:** sample frames at 6fps, count pixels where
+> `b>120 and b>r+40 and b>g+30`, and **void the take if any frame is >15% overlay blue**.
+> Fix the cause by giving the other worker its own `git worktree`.
+
+## WHOLE-FRAME DIFF CANNOT MEASURE A TRANSLATE — use a centroid
+
+> Segmentation answers *when* something moved. It cannot answer *how far*, and for a mascot
+> that also breathes, blinks and sways it cannot even isolate *which* motion you are looking at.
+>
+> The wrong-answer shake is `translateX ±size*0.06`. Against an Atlas that idles at 99% of
+> frames, a changed-pixel count is saturated before the shake begins. The right instrument is a
+> **per-frame centroid of the element's own pixels** — segment the mascot by colour (saturated
+> violet on near-black: `r>70 and b>90 and b>g+25`), take the mean x, and read the excursion.
+> A translate shows up as a clean signed deviation from the resting centroid; breath and blink
+> barely move it.
+>
+> **Watch the baseline.** A first pass measured a 701-pixel floor that turned out to be the
+> **progress bar**, which is the same violet. Print the segmented bounding box, not just the
+> count, and confirm it sits where the element is.
+
+## ATLAS HAS NO ACCESSIBILITY LABEL WHEN `interactive={false}`
+
+> `atlas.tsx` puts `accessibilityLabel="Atlas, the Euphoria mascot"` only on the **Pressable**
+> branch. Every caller passing `interactive={false}` — including the lesson quiz head — renders
+> through the early return with no label, so **Atlas never appears in `describe-all`** there.
+>
+> That is defensible product behaviour: a decorative mascot should not be announced when the
+> text feedback already carries the meaning. It is NOT a defect and should not be "fixed" to
+> make measurement easier.
+>
+> **So derive the region from a labelled SIBLING.** In the quiz head the row is
+> `[Atlas size=56][prompt flex:1]`, so Atlas is the band left of the prompt. **Anchor on the
+> prompt's TOP edge, not its centre** — the prompt is a multi-line block up to 128pt tall and
+> Atlas is top-aligned to its first line. Centring put the box ~30pt low, catching Atlas's
+> bottom third plus empty space. Caught, as always, by drawing the box and looking at it.
