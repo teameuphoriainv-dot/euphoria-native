@@ -24,6 +24,9 @@ export type BeforeAfterSpec = {
   format?: (n: number) => string;
 };
 
+/** Haptic steps across the track. A picker ticks per detent, not per frame. */
+const DETENTS = 24;
+
 export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
   const fmt = spec.format ?? ((n: number) => String(Math.round(n)));
@@ -44,10 +47,29 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
     }
   }, [revealed, onSolvedChange]);
 
+  /**
+   * HAPTICS TICK PER DETENT, NOT PER EVENT.
+   *
+   * This fired `Haptics.selectionAsync()` on every `onResponderMove`, which arrives at display
+   * rate — roughly 60 native haptic calls per SECOND while a finger is down. `selectionAsync` is
+   * Apple's selection-CHANGED feedback, built to tick once per discrete step the way a picker
+   * wheel clicks; driving it continuously saturates the engine and is felt as a buzz rather than
+   * as feedback. It is the same class of defect as the per-frame `runOnJS` removed from
+   * `slider-predict`, which the owner reported as a drag that "moves all over the place".
+   *
+   * DETENTS is 24 across the track, so the tick rate matches a real picker instead of the
+   * refresh rate.
+   */
+  const lastDetent = useRef(-1);
   const setFromX = (x: number) => {
     if (width === 0) return;
-    setPos(Math.max(0, Math.min(width, x)));
-    Haptics.selectionAsync();
+    const next = Math.max(0, Math.min(width, x));
+    setPos(next);
+    const detent = Math.round((next / width) * DETENTS);
+    if (detent !== lastDetent.current) {
+      lastDetent.current = detent;
+      Haptics.selectionAsync();
+    }
   };
 
   const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);

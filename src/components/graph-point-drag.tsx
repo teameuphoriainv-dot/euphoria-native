@@ -23,12 +23,16 @@ export type GraphSpec = {
   format?: (n: number) => string;
 };
 
+/** Haptic steps across the axis. A picker ticks per detent, not per frame. */
+const DETENTS = 24;
+
 export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
   const fmt = spec.format ?? ((n: number) => String(Math.round(n)));
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [value, setValue] = useState((spec.min + spec.max) / 2);
   const solvedRef = useRef(false);
+  const lastDetent = useRef(-1);
 
   const solved = Math.abs(value - spec.target) <= spec.tolerance;
 
@@ -47,11 +51,22 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
   const n = spec.history.length;
   const xFor = (i: number) => pad + (w - 2 * pad) * (i / n);
 
+  /**
+   * HAPTICS TICK PER DETENT, NOT PER EVENT. See the same note in `before-after-slider`: this
+   * fired `Haptics.selectionAsync()` on every `onResponderMove`, i.e. ~60 native haptic calls a
+   * second with a finger down. `selectionAsync` is selection-CHANGED feedback and is meant to
+   * tick once per discrete step, like a picker wheel.
+   */
   const setFromY = (yPx: number) => {
     if (h === 0) return;
     const clampedY = Math.max(pad, Math.min(h - pad, yPx));
-    setValue(spec.min + (1 - (clampedY - pad) / (h - 2 * pad)) * (spec.max - spec.min));
-    Haptics.selectionAsync();
+    const next = spec.min + (1 - (clampedY - pad) / (h - 2 * pad)) * (spec.max - spec.min);
+    setValue(next);
+    const detent = Math.round(((next - spec.min) / (spec.max - spec.min)) * DETENTS);
+    if (detent !== lastDetent.current) {
+      lastDetent.current = detent;
+      Haptics.selectionAsync();
+    }
   };
 
   const onLayout = (e: LayoutChangeEvent) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height });

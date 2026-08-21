@@ -760,3 +760,37 @@ fixed in the second.
 **What is NOT established:** that the result looks right. A ten-second look by anyone who can
 trigger a sheet settles it — the backdrop should darken evenly across the whole screen while the
 sheet rises, rather than the dimming wiping up from the bottom.
+
+## 15. Two more draggables fired a native haptic on EVERY move event
+
+The owner's reported drag bug had a third and fourth instance, missed until now because the
+earlier sweep looked for `Gesture.Pan` and **these use React Native's older responder API**.
+
+| file | handler |
+|---|---|
+| `before-after-slider.tsx:71` | `onResponderMove={(e) => setFromX(e.nativeEvent.locationX)}` |
+| `graph-point-drag.tsx:72` | `onResponderMove={(e) => setFromY(e.nativeEvent.locationY)}` |
+
+Both setters ended with `Haptics.selectionAsync()`. `onResponderMove` arrives at display rate, so
+a finger on either control fired roughly **60 native haptic calls per second**.
+
+**This is an API misuse, not just a volume problem.** `selectionAsync` is Apple's
+*selection-changed* feedback — built to tick once per discrete step, the way a picker wheel
+clicks. Driven continuously it saturates the haptic engine and is felt as a buzz rather than as
+feedback. It is the same defect class as the per-frame `runOnJS` removed from `slider-predict`,
+which is what the owner described as a drag that "moves all over the place".
+
+**Fixed** by quantising to 24 detents across the control: the tick now follows the value's
+discrete steps rather than the refresh rate. The thumb still tracks the finger continuously.
+
+**A related cost is documented but NOT fixed.** Both components drive their thumb from React
+state, so every move event also re-renders — and `graph-point-drag` rebuilds an entire SVG
+`Polyline` points string per event. Gating the state update would fix the re-renders but make
+the thumb visibly steppy, so the correct fix is the one `slider-predict` already uses: drive
+position from a Reanimated shared value on the UI thread and let React state carry only the
+readout. That is a real change to two lesson step kinds and is left as a recorded improvement
+rather than made blind.
+
+**Only one `Gesture` handler exists in the whole app** (`slider-predict`'s Pan, already fixed),
+and `PanResponder`, `useAnimatedGestureHandler` and `PanGestureHandler` return zero hits. With
+these two, every draggable surface in Euphoria has now been audited.
