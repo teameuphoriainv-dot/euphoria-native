@@ -14,6 +14,7 @@
 // ever gets shown valid tokens has not been tested.
 // ============================================================================
 
+import { Buffer } from 'node:buffer';
 import { bearer, verifiedSubject } from '../src/app/api/_identity.ts';
 
 const SECRET = 'test-secret-do-not-use-anywhere-real';

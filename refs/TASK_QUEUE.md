@@ -115,3 +115,29 @@ is not something to do unattended at 01:45. **Reverted and left clean.**
 **To finish this:** restart Metro with `--clear`, relaunch, profile 8s idle on Home, and compare
 `CssInterop.View` per commit against the 136 baseline. If it goes to zero, this is the single
 largest render win available in the app.
+
+---
+
+## Analysed and deliberately NOT changed: the 8 `set-state-in-effect` errors
+
+ESLint reports `react-hooks/set-state-in-effect` in eight places, warning that setState inside an
+effect "can trigger cascading renders". Given the night was spent on render cost, each was read
+rather than pattern-matched. **None is a cascading render.**
+
+| site | what it is | why it is fine |
+|---|---|---|
+| `learn.tsx:87`, `news.tsx:63`, `options.tsx:232`, `stock/[sym].tsx:143` | `setErr(null)` before an async fetch | React 18 bails out via `Object.is` when the value is unchanged, so setting `null` on already-`null` renders nothing |
+| `atlas-speech.tsx:34`, `number-rollup.tsx:51` | reduced-motion instant path | one extra render on mount, not a loop |
+| `term-match.tsx:71` | three setStates in one match handler | React 18 batches them into a single render |
+| `price-chart.tsx:77` | the empty-range fallback | guarded by `autoStepped`, fires at most once |
+
+**So they are not fixed.** Rewriting eight correct call sites to satisfy a conservative rule is
+churn, and churn in effects is how subtle bugs arrive. The genuine per-frame offender the rule
+exists to catch was NumberRollup, and that one was found by profiling and fixed on its merits.
+
+**What this leaves:** `npm run lint` exits non-zero on 8 known-benign errors, and a permanently
+red gate is one nobody reads. Resolving that is a project decision — either downgrade this rule to
+`warn` with the reasoning above, or add targeted disables naming it. Not taken unilaterally.
+
+The 4 `no-undef` errors in the same report WERE genuine (Buffer used without importing it) and are
+fixed: 12 errors down to 8.

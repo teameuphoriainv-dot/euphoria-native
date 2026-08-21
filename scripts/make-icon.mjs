@@ -17,6 +17,7 @@
  *
  * Run: node scripts/make-icon.mjs
  */
+import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import path from 'node:path';
 

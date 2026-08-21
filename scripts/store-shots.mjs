@@ -21,6 +21,7 @@
  * node_modules. Nothing is installed into ~/Library/Fonts: a screenshot script has no business
  * changing the machine it runs on.
  */
+import { Buffer } from 'node:buffer';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
