@@ -203,6 +203,28 @@ export function normalizeStep(step: LessonStep): Normalized {
       };
 
     // ─── not renderable yet — show the real title, never a blank screen ───────
+    case 'explorable':
+      /*
+       * MEASURED, not assumed: these rendered as an EMPTY SCREEN. `explorable` had no case, so it
+       * fell to the `todo` default below, which pulls setup/principle/optimalOutcome/formula --
+       * none of which an explorable has. scripts/lesson-render-audit.mjs ran the real normaliser
+       * over all 5,341 steps and found 3 of 3 explorables thin, and two of the three are in
+       * investing-fundamentals LESSON 1: the second screen a brand-new user ever sees was a
+       * label, a title and a Continue button over empty space.
+       *
+       * The authored content was there the whole time. `prompt` sets the scene and `insight` is
+       * the payoff -- "Nobody touched the bill. It still says $100. But 3% inflation for 30 years
+       * ate 5 of your 8 tickets." Rendering them invents nothing.
+       *
+       * STILL MISSING and deliberately not faked here: the interactive widget itself, and the
+       * step's `check` MCQ. A one-screen normaliser cannot carry both the insight and a gated
+       * question, and a question about a thing that was never explained is worse than no question.
+       */
+      return {
+        kind: 'prose',
+        title: s.title,
+        blocks: paras([s.prompt, s.insight]),
+      };
     default:
       return {
         kind: 'todo',
