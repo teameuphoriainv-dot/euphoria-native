@@ -20,12 +20,30 @@ was measured on device.
 | **click-pop** | `onboarding-parts.tsx` ran `withSequence(withSpring(1.035, Spring.bouncy), …)` on select. 1.035 plus bouncy's ζ=0.72 overshoot reached **~1.076**, then shrank. Redundant — `fill` and border already signalled selection. | removed | **measured on device: 355.7pt peak vs 354pt resting.** The old pop would have hit ~381pt |
 | **drag** | `slider-predict.tsx` called `runOnJS` **twice per frame** — ~120 JS round-trips/sec, each re-rendering. The geometry was always correct; the *readout* saturated the JS thread | `onTouched` once in `onBegin`; `setGuess` gated on `EMIT_STEP` | source |
 
-**The drag had two more instances the first sweep missed** — `before-after-slider.tsx` and
+**The drag had three more instances the first sweep missed** — `before-after-slider.tsx` and
 `graph-point-drag.tsx` use the OLDER responder API, so a `Gesture.Pan` search never matched them.
 Both fired `Haptics.selectionAsync()` on **every `onResponderMove`** — roughly **60 native haptic
-calls per second**. That is an API misuse, not just volume: `selectionAsync` is Apple's
-selection-*changed* feedback, built to tick once per detent like a picker wheel. Quantised to 24
-detents per control.
+calls per second** — and both re-rendered per move to move a thumb. All now quantised to 24
+detents with geometry on the UI thread.
+
+> ### ⚠️ CORRECTION — the drag fixes are to code the app never renders
+>
+> Established later (§19, §19b): **`SliderPredict`, `BeforeAfterSlider`, `GraphPointDrag` and
+> `SortBuckets` are rendered nowhere.** No imports, no JSX, no registry — verified across every
+> `.ts`/`.tsx` in `src`.
+>
+> They are the **earlier drag-based versions** of interactions the app reimplemented as TAPS:
+> `dragSort` (231 steps) renders as `OrderSteps`, whose hint is *"Tap two rows to swap them"*,
+> and `slider` (198 steps) renders as the tap-stepped `NumberLine`.
+>
+> **So there is no drag gesture anywhere in the shipping app**, and every drag fix above — while
+> correct — is to dormant code. **The owner's reported drag defect therefore has no identified
+> source.** The only drag-like interaction a user can actually perform is **scrolling**, which
+> makes it the most likely referent. This audit could not test that: the capture path is
+> bandwidth-limited and reports the recorder's frame rate during a full-screen scroll, not the
+> app's. **The RN Perf Monitor settles it in ten seconds.**
+>
+> Stated here rather than left implied by a list of drag fixes.
 
 ## Everything fixed
 
@@ -100,6 +118,14 @@ ghosting looks exactly like jank, and a guessed region yields internally consist
 Every finding here was confound-tested because of that.
 
 ## Still open
+
+- **The reported drag defect is UNEXPLAINED.** See the correction above. Most likely scrolling;
+  needs the RN Perf Monitor, which this capture path cannot substitute for
+- **~460 lines of superseded drag components** are unreachable but maintained. Safe to delete —
+  nothing imports them — but whether the drag variants return is a product decision
+- **290 `interactiveGraph` steps render as prose** (5.4% of 5,341). Deliberate and commented
+  — *"the chart itself is a later cycle"* — but it is the one authored-interactive type that
+  currently shows as text
 
 - **RevenueCat's current offering has no packages** — `IAP_OFFERING_REPORT.md`. Dashboard fix, no
   code change available. **Commercially the most serious thing found: the app cannot sell
