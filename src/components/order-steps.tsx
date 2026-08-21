@@ -99,7 +99,12 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
               // src/ — there was no reflow animation in the app at all, which is the mechanical
               // cause of the ~2%-of-frames measurement on this step. damping 18 sits inside
               // Brilliant's measured 12–18 overshoot band.
-              layout={LinearTransition.springify().damping(Spring.gentle.damping).stiffness(Spring.gentle.stiffness)}
+              // `.mass(1)` is not decoration. `.springify()` routes to withSpring, which in
+              // Reanimated 4 DEFAULTS mass to 4 -- so damping 26 / stiffness 180, chosen for
+              // Spring.gentle's zeta 0.969, was actually running at zeta 0.485 and overshooting
+              // 19.4% on every row swap. Reflow that overshoots reads as the row bouncing past
+              // its slot, which is the opposite of what a settled reorder should look like.
+              layout={LinearTransition.springify().damping(Spring.gentle.damping).stiffness(Spring.gentle.stiffness).mass(1)}
               disabled={solved}
               onPress={() => tap(pos)}
               // Reordering is a two-tap swap, so "which row is currently picked up" is the

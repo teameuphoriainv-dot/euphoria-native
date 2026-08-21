@@ -114,8 +114,11 @@ const INVARIANTS = [
     test(file, src) {
       const hits = [];
       for (const line of src.split('\n')) {
-        if (line.includes('.springify()') && !line.includes('.stiffness(')) {
-          hits.push('springify() inherits Reanimated default stiffness 100');
+        // `.dampingRatio()` also satisfies this: it puts withSpring on its DURATION path, where
+        // stiffness is RECOMPUTED from duration + dampingRatio and any stiffness passed in is
+        // discarded. Demanding `.stiffness()` there would be demanding a value that cannot apply.
+        if (line.includes('.springify()') && !line.includes('.stiffness(') && !line.includes('.dampingRatio(')) {
+          hits.push('springify() inherits a default stiffness — set .stiffness() or .dampingRatio()');
         }
       }
       return hits;
@@ -158,6 +161,36 @@ const INVARIANTS = [
       const hits = [];
       for (const m of src.matchAll(/\{[^{}]*\bstiffness:\s*[\d.]+[^{}]*\}/g)) {
         if (!/\bmass:/.test(m[0])) hits.push(`spring without explicit mass: ${m[0].slice(0, 54)}`);
+      }
+      // LAYOUT ANIMATIONS REACH THE SAME DEFAULT. `.springify()` sets type = withSpring and
+      // forwards only the variables you explicitly set (ComplexAnimationBuilder
+      // getAnimationAndConfig), so an unset mass falls through to withSpring's 4. Measured:
+      // order-steps' row reflow asked for Spring.gentle's zeta 0.969 and ran at 0.485,
+      // overshooting 19.4% on every swap. The duration path is exempt -- there mass is absorbed
+      // into the stiffness the solver computes and cannot change the curve.
+      for (const line of src.split('\n')) {
+        if (!line.includes('.springify()')) continue;
+        if (line.includes('.duration(') || line.includes('.dampingRatio(')) continue;
+        if (!line.includes('.mass(')) hits.push('springify() chain with no .mass() — defaults to 4');
+      }
+      return hits;
+    },
+  },
+  {
+    name: 'springify chains do not pass stiffness or damping that is then ignored',
+    why: 'withSpring sets `useDuration: !!(userConfig.duration || userConfig.dampingRatio)` '
+       + '(spring.ts:80). On that path it RECOMPUTES stiffness from duration + dampingRatio and '
+       + 'discards any stiffness or damping passed in. rise-in.tsx -- the app\'s entrance '
+       + 'primitive -- carried .damping(26).stiffness(180) next to a .duration() for exactly that '
+       + 'reason, and neither value had any effect. Config that reads as deliberate and is inert '
+       + 'is worse than no config: the next person tunes it and nothing happens.',
+    test(file, src) {
+      const hits = [];
+      for (const line of src.split('\n')) {
+        if (!line.includes('.springify()') || !line.includes('.duration(')) continue;
+        if (line.includes('.stiffness(') || line.includes('.damping(')) {
+          hits.push('duration path ignores the .stiffness()/.damping() on this chain');
+        }
       }
       return hits;
     },
@@ -286,6 +319,24 @@ if (process.argv.includes('--selftest')) {
   ok(!probe('inline springs set their own mass',
       'x.set(withSpring(1, { stiffness: 220, damping: 18, mass: 1 }));').length,
     'an EXPLICIT mass was wrongly flagged');
+  ok(probe('inline springs set their own mass',
+      'layout={LinearTransition.springify().damping(26).stiffness(180)}').length,
+    'seeded mass-less springify chain was not caught');
+  ok(!probe('inline springs set their own mass',
+      'layout={LinearTransition.springify().damping(26).stiffness(180).mass(1)}').length,
+    'a springify chain WITH .mass(1) was wrongly flagged');
+  ok(!probe('inline springs set their own mass',
+      'entering={FadeInDown.duration(400).springify().dampingRatio(1)}').length,
+    'the DURATION path was wrongly required to set mass');
+  ok(probe('springify chains do not pass stiffness or damping that is then ignored',
+      'entering={FadeInDown.duration(400).springify().damping(26).stiffness(180)}').length,
+    'seeded inert stiffness/damping was not caught');
+  ok(!probe('springify chains do not pass stiffness or damping that is then ignored',
+      'entering={FadeInDown.duration(400).springify().dampingRatio(1)}').length,
+    'a clean duration-path chain was wrongly flagged');
+  ok(!probe('springs set their own stiffness',
+      'entering={FadeInDown.duration(400).springify().dampingRatio(1)}').length,
+    'a dampingRatio chain was wrongly required to set stiffness');
   ok(probe('infinite repeats are reduced-motion guarded',
       'bob.set(withRepeat(withTiming(1, { duration: 900 }), -1, true));').length,
     'seeded unguarded infinite repeat was not caught');
@@ -308,7 +359,7 @@ if (process.argv.includes('--selftest')) {
     'a throttled NumberRollup was wrongly flagged');
   ok(!nrInv.test('src/components/other.tsx', 'setN(value);').length,
     'a different file was wrongly checked for the NumberRollup throttle');
-  console.log('motion-invariants selftest ok — 11 regressions caught, 11 harmless edits ignored');
+  console.log('motion-invariants selftest ok — 13 regressions caught, 15 harmless edits ignored');
   process.exit(0);
 }
 
