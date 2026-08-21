@@ -7,11 +7,13 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Duration } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 export type MatchSpec = { title: string; pairs: { left: string; right: string }[] };
@@ -87,7 +89,17 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                 accessibilityHint={isMatched ? undefined : 'Activate, then choose its definition.'}>
                 <View style={[styles.cell, { borderColor: border, borderWidth: isSel || isMatched ? 2 : StyleSheet.hairlineWidth, backgroundColor: isSel ? theme.primary + '14' : theme.card }]}>
                   <ThemedText type="bodyMedium" style={{ flex: 1 }}>{p.left}</ThemedText>
-                  {isMatched && <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />}
+                  {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
+                      most satisfying moment in the step, well below R1's p10 of 130ms, while
+                      sibling step kinds (`order-steps`, `sort-buckets`) animate their state
+                      change. A fade and not a scale: motion-invariant 1 forbids a scale-pop on
+                      ordinary interaction, which is the rule protecting the defect the owner
+                      originally reported. */}
+                  {isMatched && (
+                    <Animated.View entering={FadeIn.duration(Duration.fast)}>
+                      <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
+                    </Animated.View>
+                  )}
                 </View>
               </SpringPressable>
             );
@@ -110,7 +122,17 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                 accessibilityHint={isMatched ? undefined : 'Activate to match this with the selected term.'}>
                 <View style={[styles.cell, { borderColor: border, borderWidth: isMatched || isWrong ? 2 : StyleSheet.hairlineWidth, backgroundColor: isMatched ? theme.success + '14' : theme.card }]}>
                   <ThemedText type="small" style={{ flex: 1 }}>{spec.pairs[j].right}</ThemedText>
-                  {isMatched && <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />}
+                  {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
+                      most satisfying moment in the step, well below R1's p10 of 130ms, while
+                      sibling step kinds (`order-steps`, `sort-buckets`) animate their state
+                      change. A fade and not a scale: motion-invariant 1 forbids a scale-pop on
+                      ordinary interaction, which is the rule protecting the defect the owner
+                      originally reported. */}
+                  {isMatched && (
+                    <Animated.View entering={FadeIn.duration(Duration.fast)}>
+                      <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
+                    </Animated.View>
+                  )}
                 </View>
               </SpringPressable>
             );

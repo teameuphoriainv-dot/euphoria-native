@@ -794,3 +794,36 @@ rather than made blind.
 **Only one `Gesture` handler exists in the whole app** (`slider-predict`'s Pan, already fixed),
 and `PanResponder`, `useAnimatedGestureHandler` and `PanGestureHandler` return zero hits. With
 these two, every draggable surface in Euphoria has now been audited.
+
+## 16. Haptic and feedback audit across the lesson step kinds
+
+**Every `Haptics` call in the app was classified (27 total).** Two were the per-move defect fixed
+in §15. The remaining 25 are correct, and one apparent problem turned out to be good engineering:
+
+Six components fire a success haptic from `useEffect(…, [solved, onSolvedChange])` with **no
+once-guard**, which looks like a repeat-fire bug. It is not: every caller passes
+`onSolvedChange={setSolved}` (`lesson.tsx:412-417`), and a React setState function has a
+**stable identity by guarantee**, so the effect only re-runs when `solved` actually changes.
+
+The two components that DO carry a `solvedRef` guard — `before-after-slider` and
+`graph-point-drag` — are exactly the two whose `solved` is derived from a **continuous drag
+value**, so it flickers across the threshold as the finger moves. The guards exist precisely
+where they are needed. **An asymmetry that looked like inconsistency was the correct design.**
+
+### `matching-pairs` had no animation at all — the check icon now fades
+
+132 lines, zero `Animated`, zero `layout`, zero `entering`, while its sibling step kinds animate
+(`order-steps` carries a `LinearTransition` whose own comment records that its reorder "was an
+INSTANT CUT" before it was fixed).
+
+On a correct match the border colour and width changed instantly and the tick appeared on one
+frame — a **0ms transition on the most satisfying moment in the step**, well below R1's p10 of
+130ms. Same defect class as the ticker-logo hard cut.
+
+**Fixed narrowly:** the check icon fades in over `Duration.fast`. A fade and not a scale —
+motion-invariant 1 forbids a scale-pop on ordinary interaction, which is the rule that exists to
+protect the defect the owner originally reported.
+
+**Left alone and recorded:** the border colour and width still change instantly. Animating them
+needs `interpolateColor` across four states with 8-digit-hex tints, which is materially more
+risk than the moment warrants, and this audit's rule is not to make changes it cannot verify.
