@@ -569,10 +569,33 @@ being quietly retrofitted.
 |---|---|---|---|
 | wrong-answer shake | ±3.36pt, 5 steps, 280ms | **3.33pt, 5 steps, 271ms** | **1%** |
 | celebrate, before | — | 3.16pt | — |
-| celebrate, after `gain` 0.5 | 1.56× | **4.57pt (1.45×)** | 7% |
+| celebrate, after `gain` 0.5 | 1.56× | ~~4.57pt~~ **superseded — see below** | — |
 | logo cross-fade | 280ms | **286ms** | 2% |
 | click-pop removed | ≤354pt | **355.7pt** | noise |
 | headline width ratio (R4) | ~1.0 | **0.99** ×3 captures | — |
+
+**Which of these the `mass: 1` fix touched, checked one by one:**
+
+| measurement | driven by | affected? |
+|---|---|---|
+| wrong-answer shake 3.33pt | five `withTiming` steps | **no** — mass-invariant |
+| logo cross-fade 286ms | `withTiming` | **no** |
+| click-pop removed, 355.7pt | `SpringPressable` → `Spring.snappy`, a token with `mass: 1` | **no** |
+| headline width ratio 0.99 (R4) | `step-transition.ts` timings | **no** |
+| **celebrate hop** | `atlas.tsx:271` `withSpring(-H, {260, 13})` — **inline, no mass** | **YES** |
+
+**Celebrate, restated.** The peak is `(1 + overshoot) × H`, so it moved **5.12pt → 4.20pt** against
+the 3.33pt shake: **1.54× → 1.26×**. `lesson.tsx` asks for *"roughly 4.2–5.0pt, clearly above the
+shake"* — 4.20pt sits **at that floor, inside the range**, so the fix did not undo the owner's
+tuning and `celebrateGain` stays at 0.5. Three attempts to measure this with a pixel centroid gave
+4.11 / 3.38 / 3.12pt, including a higher gain measuring smaller, and **all three are retracted**:
+Atlas changes EXPRESSION on answer, which moves the bright-pixel centroid without the mascot
+moving, and the feedback banner re-lays-out the screen by an amount comparable to the hop itself.
+See `scripts/anim/celebrate_probe.py`.
+
+**R7 is NOT affected.** Breath, sway and rock are all `withTiming` inside `withRepeat`
+(`atlas.tsx:316-324`) — no spring anywhere in the idle loop, so mascot liveness is untouched and
+needed no re-measurement.
 
 **The shake verdict — KEEP.** Five alternating decaying steps over 271ms matches
 `atlas.tsx:331-338`'s five `withTiming` steps totalling 280ms. R1: 271ms sits at p25, right for a
