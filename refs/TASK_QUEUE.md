@@ -112,9 +112,37 @@ commit before, 6,987/51 = 137 after. Unchanged, so the old bundle was still bein
 Verifying it needs `npx expo start --clear`, i.e. restarting the owner's running dev server, which
 is not something to do unattended at 01:45. **Reverted and left clean.**
 
-**To finish this:** restart Metro with `--clear`, relaunch, profile 8s idle on Home, and compare
-`CssInterop.View` per commit against the 136 baseline. If it goes to zero, this is the single
-largest render win available in the app.
+## CORRECTION 2026-08-21: the babel fix above CANNOT WORK. Wrong mechanism.
+
+Metro WAS restarted with `--clear` (full rebuild, iOS bundled 11586ms) and the app re-profiled.
+`CssInterop.View` per commit was **unchanged**: 5,382 / 39 commits = **138**, against the 136 and
+137 measured before. Three independent measurements, one real cache clear, no movement.
+
+**Why.** `CssInterop.View` does NOT come from `jsxImportSource`. It comes from
+`react-native-css-interop/dist/runtime/components.js`, which patches React Native's own
+components as TOP-LEVEL IMPORT SIDE EFFECTS:
+
+```js
+cssInterop(View,      { className: "style" });
+cssInterop(Text,      { className: "style" });
+cssInterop(Pressable, { className: "style" });
+```
+
+That module is pulled in by `import '../../global.css'` at `src/app/_layout.tsx:12`. Every `View`
+in the app is the patched one from the moment that import runs, whatever babel does with JSX.
+
+**The babel change is also actively unsafe.** `nativewind/dist/doctor.js:10` THROWS when
+jsxImportSource is not 'nativewind'. Metro exited with code 7 during static web rendering
+(`react-dom-server-legacy`, `environment=node`, in `ContextNavigator -> useStore -> getRoutes`)
+while the change was applied. Reverted.
+
+**The real lever is the `global.css` import**, and it is an owner decision, not a one-liner:
+dropping it removes the runtime patching AND disables NativeWind everywhere. tailwind.config.js
+decision 6 says "NEW SURFACES ONLY" and those surfaces still do not exist, so the cost is
+currently paid for nothing — but the moment one is built, the import has to come back.
+
+**Not attempted.** Measuring the win would mean removing the import, which turns off a
+framework the project has decided to keep.
 
 ---
 
