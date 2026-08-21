@@ -20,8 +20,8 @@ Ordered by owner instruction 2026-08-20. Worked top-down, not in parallel.
 | 5 | **Memoisation sweep** | ✅ done — only 2 clean candidates remain (`AtlasMarkBody`, `CelebrationRays`, both small). The rest take arrays/objects where shallow compare cannot help. |
 | 6 | **Measure the memo wins** | ✅ done — A/B on the Learn screen (profiler works there; only lessons break it). Pre-memo 256 commits / 1029ms → memoised 114 / 732ms. **−55% commits, −29% duration**, and −55 to −61% on every SVG component. |
 | 7 | **Profile home and digest** | ✅ done — identical 6-scroll interaction: **Trade 0 commits, Home 43 / 100ms, Digest 97 / 296ms**. Two leads below. |
-| 8 | **NumberRollup setState-per-frame** — `setN()` inside a requestAnimationFrame loop, ~54 re-renders of its subtree per mount over Duration.count (900ms). Should drive a shared value on the UI thread instead. Money display, so needs care. | ⬜ next |
-| 9 | **Why do Home and Digest commit during scroll at all?** Trade produces 0 after the AmbientBackground memo; Home 43 and Digest 97. Not scroll-handler setState (only two exist and both are guarded), not a setInterval on those screens. Cause UNKNOWN — do not guess it. | ⬜ |
+| 8 | ✅ DONE — **NumberRollup setState-per-frame** — `setN()` inside a requestAnimationFrame loop, ~54 re-renders of its subtree per mount over Duration.count (900ms). Now stores the STRING and caps at 24fps: ~70% fewer renders (54 -> 13 for XP, 54 -> 17 for money). The complete fix (shared value + TextInput animatedProps) is deliberately NOT done — it swaps the element away from ThemedText on a money display. | ✅ |
+| 9 | ⬜ NEXT — **Why do Home and Digest commit during scroll at all?** Trade produces 0 after the AmbientBackground memo; Home 43 and Digest 97. Not scroll-handler setState (only two exist and both are guarded), not a setInterval on those screens. Cause UNKNOWN — do not guess it. | ⬜ |
 | 10 | **Understand CssInterop.View** — 35,454 commits pre-memo, 15,504 after; still the second-largest self cost. | ⬜ |
 
 ## Method in force
