@@ -40,6 +40,7 @@
 import { BlurView } from 'expo-blur';
 import { useCallback } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
@@ -49,6 +50,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Ev, track } from '@/lib/analytics';
 import { useApp } from '@/lib/store';
+import { useSheetEntrance } from '@/shared/motion/sheet-entrance';
 
 export function TrialRewardSheet({
   visible,
@@ -61,6 +63,7 @@ export function TrialRewardSheet({
   onDismiss: () => void;
 }) {
   const theme = useTheme();
+  const { backdrop, sheet } = useSheetEntrance();
   const markSeen = useApp((s) => s.markTrialRewardSeen);
 
   /*
@@ -81,17 +84,19 @@ export function TrialRewardSheet({
   }, [markSeen, onDismiss]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={dismiss}>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={dismiss}>
       {/* Native module: renders nothing until a dev client containing expo-blur is built. The scrim
           below is what keeps the sheet legible in the meantime. */}
-      <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+      <Animated.View style={[StyleSheet.absoluteFill, backdrop]} pointerEvents="box-none">
+        <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
       <Pressable
         style={[styles.scrim, { backgroundColor: theme.background + '99' }]}
         accessibilityRole="button"
         accessibilityLabel="Dismiss"
         onPress={dismiss}
       />
-      <View style={styles.dock} pointerEvents="box-none">
+      </Animated.View>
+      <Animated.View style={[styles.dock, sheet]} pointerEvents="box-none">
         {/* `proud`, not the gate sheet's `whoa`. That sheet catches someone at a wall; this one
             catches them straight off a win, and the mascot has to agree with the sentence
             underneath it. */}
@@ -132,7 +137,7 @@ export function TrialRewardSheet({
             </ThemedText>
           </Pressable>
         </View>
-      </View>
+      </Animated.View>
     </Modal>
   );
 }

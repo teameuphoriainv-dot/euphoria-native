@@ -25,6 +25,7 @@
 import { BlurView } from 'expo-blur';
 import { useCallback } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
@@ -33,6 +34,7 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Ev, track } from '@/lib/analytics';
+import { useSheetEntrance } from '@/shared/motion/sheet-entrance';
 
 export function DismissalOfferSheet({
   visible,
@@ -47,6 +49,7 @@ export function DismissalOfferSheet({
   onDismiss: () => void;
 }) {
   const theme = useTheme();
+  const { backdrop, sheet } = useSheetEntrance();
 
   const accept = useCallback(() => {
     track(Ev.specialOfferAccepted, { feature });
@@ -59,15 +62,17 @@ export function DismissalOfferSheet({
   }, [feature, onDismiss]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={dismiss}>
-      <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+    <Modal visible={visible} transparent animationType="none" onRequestClose={dismiss}>
+      <Animated.View style={[StyleSheet.absoluteFill, backdrop]} pointerEvents="box-none">
+        <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
       <Pressable
         style={[styles.scrim, { backgroundColor: theme.background + '99' }]}
         accessibilityRole="button"
         accessibilityLabel="Dismiss"
         onPress={dismiss}
       />
-      <View style={styles.dock} pointerEvents="box-none">
+      </Animated.View>
+      <Animated.View style={[styles.dock, sheet]} pointerEvents="box-none">
         <View style={styles.markWrap} pointerEvents="none">
           <Atlas size={72} expression="whoa" interactive={false} />
         </View>
@@ -105,7 +110,7 @@ export function DismissalOfferSheet({
             </ThemedText>
           </Pressable>
         </View>
-      </View>
+      </Animated.View>
     </Modal>
   );
 }

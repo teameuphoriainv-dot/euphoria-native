@@ -37,6 +37,7 @@
 import { BlurView } from 'expo-blur';
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
@@ -50,6 +51,7 @@ import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
 import { IAP_ENABLED } from '@/lib/purchases';
 import type { Feature, Refusal } from '@/lib/entitlement';
 import { useApp } from '@/lib/store';
+import { useSheetEntrance } from '@/shared/motion/sheet-entrance';
 
 /** §20.1's copy deck. One reason at a time — that is the whole point of Refusal carrying one. */
 function headlineFor(refusal: Refusal, feature: Feature): { lead: string; accentTail: string } {
@@ -112,6 +114,7 @@ export function GateSheet({
   onWhyNotFree: () => void;
 }) {
   const theme = useTheme();
+  const { backdrop, sheet } = useSheetEntrance();
   const guides = useApp((s) => s.readPosts.length);
   const lessons = useApp((s) => s.completedLessons.length);
 
@@ -214,14 +217,15 @@ export function GateSheet({
   const body = bodyFor(refusal, feature, guides, lessons);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={dismiss}>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={dismiss}>
       {/* Real blur over the live screen — Astra AI 323575 blurs heavily, and the point of this sheet
           is that the user can still SEE what they were reaching for. pointerEvents none so the scrim
           below still receives the dismiss tap.
 
           expo-blur is a NATIVE module: this renders nothing until a dev client has been built that
           contains it. The scrim below is what keeps the sheet legible in the meantime. */}
-      <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+      <Animated.View style={[StyleSheet.absoluteFill, backdrop]} pointerEvents="box-none">
+        <BlurView intensity={38} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
       {/* Scrim. ALWAYS rendered — it is the fallback when there is no blur AND the contrast floor
           when there is. Tapping it dismisses, the expected gesture for a sheet and one more way out
           per the always-dismissible rule above. Alpha is lower when blurring, since the blur is
@@ -232,7 +236,8 @@ export function GateSheet({
         accessibilityLabel="Dismiss"
         onPress={dismiss}
       />
-      <View style={styles.dock} pointerEvents="box-none">
+      </Animated.View>
+      <Animated.View style={[styles.dock, sheet]} pointerEvents="box-none">
         {/* The mark straddles the sheet's top edge rather than sitting above it (C10). Atlas rather
             than Astra AI's generic star: the mascot in-thread is 5/5 convergence in this dataset. */}
         <View style={styles.markWrap} pointerEvents="none">
@@ -287,7 +292,7 @@ export function GateSheet({
             </ThemedText>
           </Pressable>
         </View>
-      </View>
+      </Animated.View>
     </Modal>
   );
 }
