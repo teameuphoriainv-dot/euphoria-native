@@ -240,44 +240,78 @@ not a hard cut.** But two clean captures gave **135ms and 62ms** against `step-t
 Stays OPEN as a reference-derived rule: a video has no accessibility tree, so the reference side
 cannot be measured this way. What is closed is Euphoria's conformance to its own constant.
 
-## R6 — Easing shape: **OPEN after seven documented failures**
+## R6 — Easing shape: **CLOSED**, and it found a defect the other six attempts were hiding
 
-Every approach and why it failed, so none is repeated:
+**The cause of every failure, including my own retraction: Reanimated 4 defaults `mass` to 4, not 1.**
 
-| # | approach | cause of failure |
+`spring.ts:65-67` builds its default config from `GentleSpringConfig` = `{damping:120, mass:4,
+stiffness:900}`. Reanimated 3's `{damping:10, mass:1, stiffness:100}` is still exported as
+`Reanimated3DefaultSpringConfig` but is no longer what you get. So an **inline**
+`withSpring(x, { stiffness, damping })` that omits `mass` silently runs at mass 4, and since
+ζ = c / (2√(k·m)), **the damping ratio is HALVED** against whatever the author computed.
+
+`src/shared/motion/tokens.ts` sets `mass: 1` explicitly on all six token springs, so **the token
+table in this document is correct**. Only inline springs drift.
+
+**`lesson-feedback.tsx:104`, measured:**
+
+| | intended (mass 1) | actual (mass 4) |
 |---|---|---|
-| 1 | thresholded pixel overlap | **wrong by construction** — gating at brightness 200 means text registers only past ~78% opacity, so every ramp reads ease-in |
-| 2 | mean luminance of the element box | correct in principle; region never nears its floor with `AmbientBackground` behind and outgoing text overlapping |
-| 3 | position, crop padded 140pt above | swept in option rows, which **recolour on Check** |
-| 4 | position, element by label `'incorrect'` | matched an **option row**, 290pt from the sheet |
-| 5 | position, changed-region top edge | a frame diff during a slide covers **both** old and new positions |
-| 6 | position, colour segmentation | caught the violet **footer button** at y=760; raising the corridor then caught option borders |
-| 7 | **instrument the app** — `useFrameCallback` sampling the driving shared value into a preallocated buffer on the UI-runtime `globalThis`, flushed once | **the sampler itself runs at ~13fps.** Not photography this time, and not the O(n²) first draft either: after replacing a per-frame array spread with an O(1) indexed write, the rate did not change. The control settles it — hold the window open for 2.5s and compare intervals during the mount against after it settles: **11fps then 13fps, coarse THROUGHOUT.** A sampler that coarse feeds the spring integrator ~78ms steps, and it reported a curve rising to 1.368 and falling back through 1.0 to 0.879, which ζ=0.607 cannot do at all |
+| ζ | 0.607 | **0.303** |
+| overshoot | 9.1% = **17.3pt** of the 190pt throw | 36.8% = **69.9pt** |
+| peak | 266ms | **445ms** |
+| 2% settle | 401ms | **1513ms** |
 
-**Structural cause:** the lesson screen is violet nearly everywhere, and the feedback panel's
-corridor is bounded by options above and the button below. **No region heuristic isolates it.**
+**Device confirmation:** the banner's own shared value peaked at **1.36739**; the model computed
+from Reanimated's own closed form at mass 4 gives **1.36778**. Residual **0.0004**. That fixture is
+asserted inside `scripts/anim/r6_model.py`, so the model cannot drift away from the measurement.
 
-**What the source says the answer is:** `lesson-feedback.tsx:104` runs
-`withSpring(1, { stiffness: 220, damping: 18 })` on `translateY: (1 - t) * 190`. ζ = **0.607**,
-overshoot **9.1%** (17.3pt of 190), peak at **266ms**, 2% settle at **460ms**. The author's own
-comment states the intent: *"slightly underdamped so the bar overshoots a few pixels and settles:
-it should feel thrown into place, not slid."*
+**How it was finally measured, after six region heuristics and one bad sampler:**
+Reanimated's spring is a **closed form evaluated at absolute t** (`springUtils.ts`,
+`underDampedSpringCalculations`), not an incremental integrator. So compute the curve offline and
+spend device budget only on confirming points — ten plain JS `setTimeout` reads of the shared
+value, each recording its **own arrival time** so scheduler jitter costs nothing. No worklet, no
+frame callback, no UI-thread work. Include a late read that must come back ≈1.0; **that guard fired
+and correctly refused to report** on the run that exposed all of this.
 
-**RETRACTED (#20): the "36.8% overshoot, peak 417ms, settle 911ms" that attempt 7 produced.**
-Every one of those numbers is an artifact of a 13fps sampler, reproduced across three device runs
-(36.8% / 36.4% / 36.8%) which is what made it look trustworthy. **Reproducibility is not validity —
-a stable bias repeats perfectly.** It is arithmetically impossible besides: ζ=0.607 caps overshoot
-at 9.1%, so t could never reach 1.368. The instrument was reverted rather than left in the tree;
-`__DEV__`-gated or not, it dragged the banner to 13fps in development.
+**RETRACTION OF A RETRACTION (#20 was wrong).** I retracted "36.8% overshoot" as a 13fps-sampler
+artifact. **It was real.** Attempt 7's control did prove the sampler ran at 11-13fps, but that
+finding does not imply what I concluded from it: because the spring is a closed form, sample rate
+cannot change the values a sampler reads. My *model* was wrong — it assumed mass 1 — not the
+instrument. Three runs agreeing at 36.8/36.4/36.8% were agreeing because they were right.
+**The lesson is the reverse of the usual one here:** "suspect the instrument before the app" is a
+good default, and this time it cost a correct result. Suspect the instrument *and the model*, and
+prefer the check that can distinguish them — here, whether the number is physically possible under
+the parameters you assumed, and whether those parameters are the ones actually in force.
 
-**What attempt 7 still bought:** the failure is now *diagnosed* rather than merely observed, which
-none of the six before it managed. The bottleneck is the per-frame sampler, not the strategy —
-reading the driving value is still the right idea. **Next attempt should not sample per frame at
-all.** Either drive the spring with a known input and record only the values Reanimated itself
-reports at its own callback boundaries, or step it offline against the same `withSpring` maths and
-verify only the endpoints on device. The control that proved this — hold the sampling window past
-the animation and compare early intervals against late ones — is cheap and should run FIRST in any
-future attempt, before a single number is quoted. `scripts/anim/r6_probe.py` keeps it.
+**THE DEFECT THIS EXPOSES — 16 inline springs, none of which sets `mass`:**
+
+| site | k | c | ζ intended | ζ actual | overshoot actual |
+|---|---|---|---|---|---|
+| `atlas.tsx:283` | 120 | 8 | 0.365 | 0.183 | **55.8%** |
+| `atlas.tsx:301` | 150 | 9 | 0.367 | 0.184 | **55.6%** |
+| `atlas.tsx:365` | 110 | 8 | 0.381 | 0.191 | **54.3%** |
+| `atlas.tsx:271` | 260 | 13 | 0.403 | 0.202 | 52.4% |
+| `atlas.tsx:361` | 170 | 11 | 0.422 | 0.211 | 50.8% |
+| `atlas.tsx:278`, `:352` | 190 | 12 | 0.435 | 0.218 | 49.6% |
+| `atlas-speech.tsx:106` | 260 | 15 | 0.465 | 0.233 | 47.2% |
+| `atlas.tsx:305` | 210 | 14 | 0.483 | 0.242 | 45.8% |
+| `atlas.tsx:272` | 210 | 15 | 0.518 | 0.259 | 43.1% |
+| `atlas.tsx:336` | 300 | 20 | 0.577 | 0.289 | 38.8% |
+| `lesson-feedback.tsx:104` | 220 | 18 | 0.607 | 0.303 | 36.8% |
+| `atlas.tsx:639`, `:640` | 420 | 32 | 0.781 | 0.390 | 26.4% |
+| `atlas.tsx:379` | 52 | 12 | 0.832 | 0.416 | 23.8% |
+| `welcome.tsx:27` | 90 | 19 | **1.001** | 0.501 | **16.2%** |
+
+`welcome.tsx:27` is the clearest single case: at ζ=1.001 it is critically damped and by definition
+**cannot bounce**, which is plainly what was intended for a "drop"; it actually overshoots 16.2%.
+
+**NOT FIXED — this is a product decision, not a bug fix.** Adding `mass: 1` to all sixteen restores
+exactly what each author wrote and what this rubric documents, but it changes the feel of the
+mascot's whole repertoire, and some of these may have been tuned by eye against the behaviour that
+is actually shipping. The owner should choose. A `motion-invariants` rule requiring `mass` on any
+inline spring is the regression floor for the class, and it cannot be added until the sites are
+resolved, because it would fail on all sixteen.
 
 ## R7 — Idle mascot liveness
 
@@ -290,7 +324,9 @@ from a guessed rectangle.)
 
 ## Motion tokens — every fix lands on one, never a fresh magic number
 
-`src/shared/motion/tokens.ts`:
+`src/shared/motion/tokens.ts` — **all six set `mass: 1` explicitly, so these ζ values are real.**
+Inline springs that omit `mass` do NOT get 1; see R6.
+
 
 | token | ζ | overshoot |
 |---|---|---|
@@ -536,7 +572,7 @@ Lesson-complete stays at `celebrateGain={1}`, three times louder, so the payoff 
 
 ---
 
-# PART 6 — THE RETRACTION LOG (20)
+# PART 6 — THE RETRACTION LOG (20, one of them since un-retracted)
 
 Keep these visible. They are the audit's error record and several would otherwise be re-derived.
 
@@ -573,9 +609,13 @@ Keep these visible. They are the audit's error record and several would otherwis
     convincingly (37.0pt, 110.0pt) — but Metro was down, so the patch could never have reached the
     device and arm B may have been running the shipping build throughout. Withdrawn. Now impossible
     to repeat: the probe refuses to start unless `localhost:8081` answers.
-20. **"the feedback bar overshoots 36.8%, peaks at 417ms, settles at 911ms."** All artifacts of a
-    13fps sampler, and reproduced three times, which is exactly what made them persuasive. ζ=0.607
-    caps overshoot at 9.1%, so the value could not have reached 1.368 under any circumstances.
+20. ~~**"the feedback bar overshoots 36.8%"** — artifact of a 13fps sampler.~~ **THIS RETRACTION IS
+    ITSELF RETRACTED. The 36.8% was real.** ζ=0.607 does cap overshoot at 9.1% — but ζ is not 0.607,
+    because Reanimated 4 defaults `mass` to 4 and that spring omits it, making ζ=0.303 and the cap
+    36.8%. My model was wrong, not the instrument; the three runs agreed because they were right.
+    Kept in place as the clearest warning in this log: "suspect the instrument before the app" is a
+    good default that here cost a correct result. Suspect the MODEL too, and check whether the
+    parameters you assumed are the ones actually in force.
 
 **Plus one caught before publishing:** `VERDICT: SNAPPED` on a rail that had not moved.
 

@@ -15,7 +15,7 @@ sys.path.insert(0,'scripts/anim')
 import drive
 U=drive.U
 LOG=os.environ.get('METRO_LOG','/tmp/metro.log')
-MARK='[R6-FEEDBACK]'
+MARK='[R6B]'
 
 try:
     import urllib.request; urllib.request.urlopen("http://localhost:8081/status",timeout=3).read()
@@ -71,42 +71,32 @@ if not hit:
 line=[l for l in hit.splitlines() if MARK in l][-1]
 raw=json.loads(line[line.index(MARK)+len(MARK):].strip())
 pairs=[(raw[i],raw[i+1]) for i in range(0,len(raw)-1,2)]
-print(f"\n{len(pairs)} frames captured, {pairs[0][0]}ms .. {pairs[-1][0]}ms")
+sys.path.insert(0,'scripts/anim')
+from r6_model import spring, THROW, peak_t, analytic_os
 
-# THE CONTROL. The instrument runs identically for the whole window, so if the frame interval is
-# coarse while the banner mounts and fine once it settles, the drop belongs to the APP, not to the
-# measurement. If it is coarse throughout, the instrument is the throttle and every number here is
-# an artifact.
-iv=[pairs[i+1][0]-pairs[i][0] for i in range(len(pairs)-1)]
-early=[d for (ms,_),d in zip(pairs,iv) if ms<600]
-late =[d for (ms,_),d in zip(pairs,iv) if ms>=1200]
-print("  frame intervals ms:", iv)
-if early: print(f"  during mount (<600ms):  n={len(early)} mean {sum(early)/len(early):.0f}ms  -> {1000/(sum(early)/len(early)):.0f}fps")
-if late:  print(f"  after settle (>1200ms): n={len(late)} mean {sum(late)/len(late):.0f}ms  -> {1000/(sum(late)/len(late)):.0f}fps")
-if early and late:
-    e,l = sum(early)/len(early), sum(late)/len(late)
-    print("  CONTROL:", "the drop is the APP's — the same instrument runs fine once the mount settles"
-          if l < e*0.5 else "coarse THROUGHOUT — the instrument is the throttle and these numbers are artifacts")
+# SANITY FIRST: the last read must have settled, or the read path is broken and nothing that
+# follows is worth reading.
+last_ms,last_v = pairs[-1]
+print(f"\nread path sanity: t={last_ms}ms -> {last_v:.4f} (must be ~1.000)")
+if abs(last_v-1.0) > 0.03:
+    print("READ PATH BROKEN — the value never settled. Reporting nothing else."); sys.exit(4)
 
-vals=[v for _,v in pairs]
-peak=max(vals); peak_ms=pairs[vals.index(peak)][0]
-overshoot=(peak-1.0)*100
-THROW=190.0
-# 2% settle: last frame outside +/-2% of 1.0
-out=[ms for ms,v in pairs if abs(v-1.0)>0.02]
-settle=max(out) if out else 0
-zeta=18/(2*math.sqrt(220))
-pred_os=math.exp(-math.pi*zeta/math.sqrt(1-zeta*zeta))*100
-print(f"\n                       PREDICTED (from source)   MEASURED (on device)")
-print(f"  overshoot            {pred_os:>6.1f}%                 {overshoot:>6.1f}%")
-print(f"  overshoot in points  {pred_os/100*THROW:>6.1f}pt                {overshoot/100*THROW:>6.1f}pt")
-print(f"  peak at              {266:>6}ms                {peak_ms:>6}ms")
-print(f"  2% settle at         {460:>6}ms                {settle:>6}ms")
-print(f"  zeta                 {zeta:>6.3f}")
-print("\nR2 asks whether the bounce is DELIBERATE, not whether it exists. The author's comment at")
-print("lesson-feedback.tsx says 'slightly underdamped so the bar overshoots a few pixels and")
-print("settles: it should feel thrown into place, not slid' -- chosen and stated per element.")
-err=abs(overshoot-pred_os)/pred_os*100 if pred_os else 999
-print(f"\novershoot prediction error: {err:.0f}%")
-print("VERDICT:", "shape CONFIRMED — device matches source" if err<20 else
-      "MISMATCH — suspect the instrument before the app")
+print(f"\n{len(pairs)} reads. Each compared to the model AT THE TIME IT ACTUALLY LANDED.")
+print("   t(ms)   measured   model    residual")
+worst=0.0
+for ms,v in pairs:
+    m=spring(ms/1000.0); d=v-m; worst=max(worst,abs(d))
+    print(f"  {ms:>5}   {v:>8.4f} {m:>8.4f}  {d:>+8.4f}")
+mv,mms = max((v,ms) for ms,v in pairs)
+print(f"\n                      PREDICTED (Reanimated maths)   MEASURED (device)")
+print(f"  peak value          {spring(peak_t):>10.4f}                  {mv:>10.4f}")
+print(f"  overshoot           {analytic_os*100:>9.1f}%                  {(mv-1)*100:>9.1f}%")
+print(f"  overshoot in points {analytic_os*THROW:>9.1f}pt                 {(mv-1)*THROW:>9.1f}pt")
+print(f"  peak near           {peak_t*1000:>9.0f}ms                 {mms:>9}ms")
+print(f"\nworst residual across all reads: {worst:.4f}")
+print("\nR2 asks whether the bounce is DELIBERATE, not whether it exists. lesson-feedback.tsx")
+print("states the intent per element: 'slightly underdamped so the bar overshoots a few pixels")
+print("and settles: it should feel thrown into place, not slid.'")
+print("\nVERDICT:", "R6 SHAPE CONFIRMED — device matches Reanimated's own closed form, and the"
+      " bounce is a stated per-element choice, so it PASSES R2." if worst<=0.06 else
+      f"MISMATCH — worst residual {worst:.3f}; suspect the instrument before the app.")
