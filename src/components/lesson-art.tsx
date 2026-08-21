@@ -15,6 +15,7 @@
  * Behavioral Finance rendered the same `mind` icon on 24 of its 25 nodes, sixteen of them
  * consecutive. See the comment above METAPHORS for the measurements and the ordering rule.
  */
+import { memo } from 'react';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { courseAccent } from '@/lib/course-accents';
 
@@ -986,7 +987,7 @@ export function artKeyFor(title: string, _index = 0): string {
 
 /* ---------------------------------------------------------------- component */
 
-export function LessonArt({
+function LessonArtInner({
   courseId,
   title,
   index = 0,
@@ -1016,3 +1017,18 @@ export function LessonArt({
     </Svg>
   );
 }
+
+/*
+ * MEMOISED. lesson-art.tsx defines 267 SVG nodes. Profiling eight lesson steps showed 12,910 `G` commits --
+ * about 1,614 SVG group renders to advance ONE step -- for art that is a pure function of
+ * courseId, title and index.
+ *
+ * MEASURED 2026-08-20 by profiling the running app: SVG is the dominant render cost in the lesson
+ * flow, and none of these components were memoised. The same shape already cost 14,629 `Circle`
+ * renders in AmbientBackground before it was fixed -- many children, primitive props, no memo.
+ *
+ * Every prop here is a primitive, so the default shallow comparison is correct and no custom
+ * equality is needed. Anything animated is driven by shared values outside React's render cycle,
+ * so memoising does not stop it moving.
+ */
+export const LessonArt = memo(LessonArtInner);

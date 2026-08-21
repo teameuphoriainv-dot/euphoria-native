@@ -17,7 +17,7 @@
  * colour-blind users. They are hidden below `PIP_MIN_SIZE` where they would be sub-pixel mush;
  * in the ladder strip, order already conveys rank, so nothing is lost there.
  */
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, {
   Easing,
@@ -306,7 +306,7 @@ function OrnamentFront({ rank, lit, dark, dim }: { rank: number; lit: string; da
   );
 }
 
-export function LeagueCrest({
+function LeagueCrestInner({
   tier,
   size = 96,
   locked = false,
@@ -463,3 +463,17 @@ export function LeagueCrest({
     </Animated.View>
   );
 }
+
+/*
+ * MEMOISED. league-crest.tsx defines 74 SVG nodes and a rank ladder of ornaments, redrawn whenever any
+ * ancestor re-rendered.
+ *
+ * MEASURED 2026-08-20 by profiling the running app: SVG is the dominant render cost in the lesson
+ * flow, and none of these components were memoised. The same shape already cost 14,629 `Circle`
+ * renders in AmbientBackground before it was fixed -- many children, primitive props, no memo.
+ *
+ * Every prop here is a primitive, so the default shallow comparison is correct and no custom
+ * equality is needed. Anything animated is driven by shared values outside React's render cycle,
+ * so memoising does not stop it moving.
+ */
+export const LeagueCrest = memo(LeagueCrestInner);

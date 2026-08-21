@@ -4,6 +4,7 @@
  * EUPHORIA_ICONS (multicolor, decorative) stays for large illustration moments;
  * UIcon is for chrome: tab bar, option bubbles, list rows, inline glyphs.
  */
+import { memo } from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 // `satisfies` rather than a `Record<string, …>` ANNOTATION. The annotation widened the key type to
@@ -160,7 +161,7 @@ const P = {
 
 export type UIconName = keyof typeof P;
 
-export function UIcon({
+function UIconInner({
   name,
   size = 24,
   color = '#BB83F1',
@@ -188,3 +189,17 @@ export function UIcon({
     </Svg>
   );
 }
+
+/*
+ * MEMOISED. UIcon renders on every tab, button and list row in the app -- it is the single most-instantiated
+ * SVG component here, and it was re-rendering with each of them.
+ *
+ * MEASURED 2026-08-20 by profiling the running app: SVG is the dominant render cost in the lesson
+ * flow, and none of these components were memoised. The same shape already cost 14,629 `Circle`
+ * renders in AmbientBackground before it was fixed -- many children, primitive props, no memo.
+ *
+ * Every prop here is a primitive, so the default shallow comparison is correct and no custom
+ * equality is needed. Anything animated is driven by shared values outside React's render cycle,
+ * so memoising does not stop it moving.
+ */
+export const UIcon = memo(UIconInner);
