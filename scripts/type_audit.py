@@ -16,7 +16,8 @@ WHAT IT CHECKS, and the authority for each threshold:
               that future work will copy.
   RAW SIZES   A fontSize literal that is not in the token set defeats the ramp entirely.
   LEADING     lineHeight:fontSize below MIN_LEADING clips descenders. 1.0 is the specific defect
-              that produced the before-after-slider clipping bug already recorded in this repo.
+              that produced the before-after-slider clipping bug recorded in this repo (that
+              component has since been deleted as dead code; the defect class has not).
 
 Thresholds are committed HERE, before the run, so results cannot be argued into passing.
 

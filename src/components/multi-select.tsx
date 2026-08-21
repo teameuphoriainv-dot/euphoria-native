@@ -2,7 +2,7 @@
  * MultiSelect — choose-all-that-apply lesson step. Tap options to toggle, press Check to
  * validate the whole set. Correct picks lock green, wrong picks turn amber; on a miss the
  * correct answers are marked so the learner can fix and re-check. onSolvedChange(true) only
- * when the selected set exactly matches the correct set. Sibling to SortBuckets/TileBuilder.
+ * when the selected set exactly matches the correct set. Sibling to OrderSteps/TileBuilder.
  */
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';

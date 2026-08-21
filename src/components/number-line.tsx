@@ -2,7 +2,7 @@
  * NumberLine — place-a-value-on-a-line lesson step. Tap the track to drop a marker; press
  * Check to validate against a hidden target within a tolerance. On a miss the true target is
  * revealed (green) with the delta so the learner can re-place. onSolvedChange(true) when the
- * placed value is within tolerance. Sibling to SliderPredict/MultiSelect.
+ * placed value is within tolerance. Sibling to TileBuilder/MultiSelect.
  */
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
@@ -77,8 +77,8 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
       <ThemedText type="title" style={{ marginBottom: Spacing.four }}>{spec.prompt}</ThemedText>
 
       {/* lineHeight pinned to the override. `display` supplies 40, and 40/34 = 1.18 sits under
-          the 1.2 readability floor — the same class of defect that clipped before-after-slider
-          at ratio 1.0. 42 restores 1.24. */}
+          the 1.2 readability floor — the same class of defect that clipped the
+          since-deleted before-after-slider at ratio 1.0. 42 restores 1.24. */}
       <ThemedText type="display" style={{ fontSize: FontSize.displayLg, lineHeight: 42, color: readColor, textAlign: 'center', marginBottom: Spacing.four }}>
         {value == null ? 'Tap the line' : fmt(value)}
       </ThemedText>

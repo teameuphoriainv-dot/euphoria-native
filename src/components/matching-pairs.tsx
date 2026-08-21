@@ -2,7 +2,7 @@
  * MatchingPairs — connect left terms to right definitions. Tap a term, then tap its match;
  * a correct pair locks green, a wrong tap flashes amber and clears. The right column is
  * shuffled once on mount. onSolvedChange(true) when every pair is matched. Sibling to
- * SortBuckets/MultiSelect.
+ * OrderSteps/MultiSelect.
  */
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
@@ -136,7 +136,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                   <ThemedText type="bodyMedium" style={{ flex: 1 }}>{p.left}</ThemedText>
                   {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
                       most satisfying moment in the step, well below R1's p10 of 130ms, while
-                      sibling step kinds (`order-steps`, `sort-buckets`) animate their state
+                      sibling step kinds (`order-steps`, `multi-select`) animate their state
                       change. A fade and not a scale: motion-invariant 1 forbids a scale-pop on
                       ordinary interaction, which is the rule protecting the defect the owner
                       originally reported. */}
@@ -171,7 +171,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                   <ThemedText type="small" style={{ flex: 1 }}>{spec.pairs[j].right}</ThemedText>
                   {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
                       most satisfying moment in the step, well below R1's p10 of 130ms, while
-                      sibling step kinds (`order-steps`, `sort-buckets`) animate their state
+                      sibling step kinds (`order-steps`, `multi-select`) animate their state
                       change. A fade and not a scale: motion-invariant 1 forbids a scale-pop on
                       ordinary interaction, which is the rule protecting the defect the owner
                       originally reported. */}

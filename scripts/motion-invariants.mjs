@@ -63,7 +63,7 @@ const INVARIANTS = [
   },
   {
     name: 'no per-frame runOnJS inside a gesture',
-    why: 'Owner report: "whenever I drag something it moves all over the place". slider-predict '
+    why: 'Owner report: "whenever I drag something it moves all over the place". the since-deleted slider-predict '
        + 'called runOnJS twice per frame, about 120 JS round-trips a second, each re-rendering.',
     test(file, src) {
       const hits = [];

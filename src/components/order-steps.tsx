@@ -2,7 +2,7 @@
  * OrderSteps — arrange rows into the correct sequence by tapping two of them to swap. The
  * list starts shuffled (never pre-solved); each row shows its position number. A row sitting
  * in its correct slot gets a green accent + check; onSolvedChange(true) when the whole order
- * matches. Sibling to MatchingPairs/SortBuckets.
+ * matches. Sibling to MatchingPairs/MultiSelect.
  */
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
