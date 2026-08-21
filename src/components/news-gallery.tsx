@@ -39,7 +39,25 @@ const IMAGE_H = 96;
  */
 const CARD_H = 176;
 
-function GalleryCard({ a, at }: { a: Article; at: number }) {
+/*
+ * `eager` GATES THE IMAGE FETCH, and it exists because of what the network log showed.
+ *
+ * OBSERVED in the running app 2026-08-20: one Trade tab visit pulled
+ *   crescent-capital-bdc-logo-1200x675.png   463.4 KB
+ *   deutsche-bank-bl.JPG                     183.8 KB
+ *   ndsn-stock-pops...jpg                    140.4 KB
+ * -- roughly 830KB of full-size press images, nearly three times the whole market-marks payload,
+ * on every visit.
+ *
+ * The rail renders EIGHT cards and about one and a half fit on a 402pt screen, so six of those
+ * downloads were for cards nobody had scrolled to. Publisher art cannot be resized at the source
+ * and proxying arbitrary remote URLs through our own server to shrink them would be an SSRF
+ * surface, so the fix is simply not to fetch what is not on screen yet.
+ *
+ * The text card renders identically in the meantime -- `withImage` already degrades to the
+ * text-only variant, which is the same discipline ticker-logo uses for a missing mark.
+ */
+function GalleryCard({ a, at, eager }: { a: Article; at: number; eager: boolean }) {
   const theme = useTheme();
   /*
    * Same discipline as ticker-logo.tsx: a remote image is an UPGRADE to a card that already works.
@@ -51,7 +69,7 @@ function GalleryCard({ a, at }: { a: Article; at: number }) {
   const shownT = useSharedValue(0);
   useEffect(() => { shownT.set(withTiming(shown ? 1 : 0, { duration: Duration.base, easing: Ease.out })); }, [shown, shownT]);
   const imgStyle = useAnimatedStyle(() => ({ opacity: shownT.get() }));
-  const withImage = a.image !== undefined && a.image !== '' && !broken;
+  const withImage = eager && a.image !== undefined && a.image !== '' && !broken;
 
   return (
     <SpringPressable
@@ -115,6 +133,9 @@ export function NewsGallery({ symbols, delay = 0 }: { symbols: string[]; delay?:
     };
   }, [scope]);
 
+  /** How many cards may fetch their image. Grows as the rail scrolls. */
+  const [eagerCount, setEagerCount] = useState(3);
+
   // null = still loading, [] = nothing to show. Both render NOTHING rather than a placeholder.
   if (articles === null || articles.length === 0) return null;
 
@@ -126,6 +147,13 @@ export function NewsGallery({ symbols, delay = 0 }: { symbols: string[]; delay?:
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        /* Reveal the next card's image as the rail moves, one card-width at a time. Two ahead of
+           the leading edge so a fetch has started before the card arrives. */
+        onScroll={(e) => {
+          const lead = Math.ceil(e.nativeEvent.contentOffset.x / (CARD_W + 8)) + 3;
+          if (lead > eagerCount) setEagerCount(Math.min(8, lead));
+        }}
         contentContainerStyle={styles.rail}
         /*
          * SNAP TO THE CARD GRID. Without this the rail free-scrolls and comes to rest wherever
@@ -146,8 +174,8 @@ export function NewsGallery({ symbols, delay = 0 }: { symbols: string[]; delay?:
         // user it scrolls. Padding lives on the content, not the ScrollView.
         style={styles.railOuter}
       >
-        {articles.slice(0, 8).map((a) => (
-          <GalleryCard key={a.id} a={a} at={at} />
+        {articles.slice(0, 8).map((a, i) => (
+          <GalleryCard key={a.id} a={a} at={at} eager={i < eagerCount} />
         ))}
       </ScrollView>
     </RiseIn>
