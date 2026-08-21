@@ -7,6 +7,7 @@ drift is silent because a wrong answer looks like a hard step. So instead: read 
 screen, find the lesson step whose options all appear there, and use ITS answer. Index-free,
 so it cannot desynchronise.
 """
+import re
 import json, subprocess as sp, time, os
 
 U = "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
@@ -230,6 +231,23 @@ def answer(lesson):
     return False, f"unhandled:{st['kind']}"
 
 def demo():
+    # order solver: a known permutation must be reduced to the identity
+    assert plan_order_swaps(['c','a','b'], ['a','b','c']) , 'must produce swaps'
+    _c = ['c','a','b']
+    for _i,_j in plan_order_swaps(_c, ['a','b','c']):
+        _c[_i], _c[_j] = _c[_j], _c[_i]
+    assert _c == ['a','b','c'], _c
+    assert plan_order_swaps(['a','b'], ['a','b']) == [], 'already sorted needs no swaps'
+    # order_rows parses the a11y label, and the pure planner passing says nothing about it --
+    # a missing `import re` shipped once because only the planner was covered.
+    _nodes = [(0, 100, 300, 50, 'Position 2. Gold ETF shares'),
+              (0, 40, 300, 50, 'Position 1. Publicly traded REITs'),
+              (0, 200, 300, 50, 'Continue')]
+    _rows = order_rows(_nodes)
+    assert set(_rows) == {0, 1}, _rows
+    assert _rows[0][0] == norm('Publicly traded REITs'), _rows[0][0]
+    assert _rows[1][0] == norm('Gold ETF shares'), _rows[1][0]
+
     """Self-check: content matching, with no device involved."""
     lesson = {'steps': [
         {'kind': 'quiz', 'options': ['25% more', '50% more', '75% more'], 'correct': 2},
@@ -243,3 +261,53 @@ def demo():
 
 if __name__ == '__main__':
     demo()
+
+def plan_order_swaps(current, target):
+    """Swaps that turn `current` into `target`, as (i, j) index pairs.
+
+    OrderSteps reorders by TAPPING TWO ROWS TO SWAP (its own docstring), so the driver needs
+    pairs, not a drag. Selection sort is the right shape here: it makes at most n-1 swaps and
+    never moves a row that is already correct, which keeps the tap count low and each tap
+    meaningful if a run has to be read back later.
+
+    Pure and index-based so it can be self-checked without a device.
+    """
+    cur = list(current)
+    swaps = []
+    for i in range(len(target)):
+        if cur[i] == target[i]:
+            continue
+        j = next((k for k in range(i + 1, len(cur)) if cur[k] == target[i]), None)
+        if j is None:
+            continue                      # target item absent; leave the row alone
+        cur[i], cur[j] = cur[j], cur[i]
+        swaps.append((i, j))
+    return swaps
+
+
+def order_rows(nodes_list):
+    """On-screen rows as {position_index: item_text}, read from `Position N. <item>` labels."""
+    out = {}
+    for n in nodes_list:
+        m = re.match(r'Position (\d+)\.\s*(.+)', n[4])
+        if m:
+            out[int(m.group(1)) - 1] = (norm(m.group(2)), n)
+    return out
+
+
+def solve_order(step, nodes_list, tap_fn):
+    """Drive an order/dragSort step to its correct sequence. Returns the number of swaps made."""
+    target = [norm(x) for x in (step.get('order') or [])]
+    rows = order_rows(nodes_list)
+    if not target or len(rows) != len(target):
+        return 0
+    current = [rows[i][0] for i in range(len(rows))]
+    made = 0
+    for i, j in plan_order_swaps(current, target):
+        fresh = order_rows(nodes())
+        if i not in fresh or j not in fresh:
+            break
+        tap_fn(fresh[i][1], 0.6)
+        tap_fn(fresh[j][1], 0.6)
+        made += 1
+    return made
