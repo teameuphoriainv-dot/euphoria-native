@@ -118,6 +118,31 @@ amplitude is 1pt. The easing was never the problem.
       ζ 0.37–0.58 which the plan explicitly protects, and `lesson-feedback`'s ζ=0.61 is a
       documented per-element choice on a translateY — which R2 requires rather than forbids.
 
+## FINAL STATE — 2026-08-20
+
+**Every actionable item is closed.** What remains needs the owner, app instrumentation, or
+entitlement state that cannot be changed safely on the owner's simulator. See
+`AUDIT_REPORT.md` for the consolidated picture.
+
+- [x] **Owner's two reported defects — FIXED, with five instances between them.** The click-pop
+      (`onboarding-parts`, verified on device at 355.7pt vs 354pt resting) and the drag, which
+      turned out to have FOUR sources: `slider-predict`'s 120 JS round-trips/sec, 60Hz haptic
+      misuse in `before-after-slider` and `graph-point-drag`, and a full re-render per move event
+      in both of those. All four draggables now move on the UI thread.
+- [x] **Motion regression floor** — `motion-invariants.mjs` (7 rules, 174 files) and
+      `reduced_motion_audit.py` both run in `npm run check`, which previously had none.
+- [x] **R4 scale origin CLOSED** — width ratio 0.99 across three captures.
+- [-] **R5 exit** — shape established (a fade, not a cut); duration not (135ms and 62ms against a
+      150ms constant). Quote the shape.
+- [-] **R6 easing** — abandoned after six documented failures. Needs `__DEV__` instrumentation.
+- [-] **`EXPRESSION_TILT`** — three measurement routes closed. `headProps` rotates only the body
+      rings, and the file header says "eyes stay upright", so the architecture is deliberate.
+      Whether the resting tilt should be exempt is an OWNER DECISION.
+- [!] **RevenueCat offering has no packages** — the most commercially serious finding of this
+      audit, and not an animation issue. Dashboard fix.
+- [!] **Four sheets shipped unverified** — all mount only on entitlement state, and the simulator
+      account is on an active free trial.
+
 ## OPEN, NOT BLOCKING
 
 - [~] **Atlas head tilt / shake / celebrate — capture UNBLOCKED, running.** Three driver bugs
