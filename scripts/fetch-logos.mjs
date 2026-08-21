@@ -149,15 +149,23 @@ for (const sym of syms) {
       /*
        * RESIZE, BECAUSE THESE ARE BADGES AND THE SOURCE ART IS NOT.
        *
-       * TickerLogo draws at size 44 by default and 56 at its largest, so 168px covers @3x with
-       * headroom. Polygon re-serves whatever the company uploaded: NVDA arrived at 62,996 bytes
-       * and the first 32 symbols totalled 1.7MB, which extrapolates to roughly 5MB of app bundle
-       * for images never displayed above 168px. `fit: inside` preserves aspect ratio and
-       * `withoutEnlargement` leaves anything already smaller untouched.
+       * SIZED AND ENCODED FOR A BADGE, because that is all this ever is.
+       *
+       * MEASURED: every TickerLogo call site renders at 42-44pt (trade 44, search 42, movers 42),
+       * so 132px covers @3x exactly and 144 leaves headroom. Polygon re-serves whatever the
+       * company uploaded at whatever size they uploaded it -- NVDA arrived at 62,996 bytes.
+       *
+       * `palette: true` is the bigger win of the two. Logos are flat brand art with few colours,
+       * so an indexed PNG encodes them far more cheaply than truecolour. Across 203 logos:
+       * 3.48MB -> 0.78MB, 77% smaller. Checked visually against the hardest cases in the set
+       * before adopting -- the JPMC copper gradient and Disney's fine linework are indistinguishable
+       * from the 192px truecolour versions at render size.
+       *
+       * `fit: inside` preserves aspect ratio; `withoutEnlargement` leaves smaller art alone.
        */
       writeFileSync(file, await sharp(buf)
-        .resize(192, 192, { fit: 'inside', withoutEnlargement: true })
-        .png({ compressionLevel: 9 })
+        .resize(144, 144, { fit: 'inside', withoutEnlargement: true })
+        .png({ palette: true, quality: 90, compressionLevel: 9 })
         .toBuffer());
       manifest[sym] = 'ok'; wrote++; console.log('written');
     } else if (verdict === 'no_art') {
