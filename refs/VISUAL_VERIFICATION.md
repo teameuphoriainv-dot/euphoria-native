@@ -101,3 +101,47 @@ frame and looking at it took seconds and showed Home.
 - The stock screen chart, which renders **"No data for this range"** on device because a stock
   screen needs 6–7 upstream calls against a five-per-minute ceiling. That is a plan limit, not a
   rendering fault, and the fix is to defer the below-the-fold sections.
+
+---
+
+## The bounce question, settled
+
+The owner's standing concern was that animations "bounce up and down or are being silly". Answered
+three ways, and the third is the one that closes it.
+
+**1. Source.** Seven motion invariants in `npm run check` pass: no scale-pop on ordinary
+interaction, no inherited `springify()` stiffness, nothing entering from scale 0, all
+index-multiplied staggers capped. Deliberate overshoots are named, not pattern-matched away.
+
+**2. Profiling.** Scrolling produced **131 React commits with 14,629 `Circle` renders**; after
+memoising `AmbientBackground` the identical interaction produces **0**. The confound was checked —
+two tab switches as a control gave 132 commits, so the profiler was attached and the zero is real.
+
+**3. Frame-by-frame, and this one needed two attempts.**
+
+A first pass reported **2 multi-peak windows**, which would mean something oscillating. Its
+navigation check had read **0 labels changed** — so it had filmed something that was not the
+transition, and the number was worthless.
+
+Re-run with navigation verified (**70 labels changed**, Home → Trade):
+
+| | first pass (nav unverified) | verified |
+|---|---|---|
+| frames | 235 @ 52.2fps | 179 @ 51.1fps |
+| motion windows | 14 | 9 |
+| **multi-peak** | **2** | **0** |
+| longest window | 0.31s | 0.14s |
+
+**Every scored window is a single settle.** Nothing oscillates.
+
+The discriminator used, in case it is needed again: **stagger and bounce differ in SPACE, not
+time.** Two peaks at different vertical positions are two elements entering in sequence, which R3
+says is correct. Two peaks at the same position are one element overshooting. Measuring the
+changed-region centroid at each peak separates them without judgement.
+
+### And the lesson that keeps recurring
+
+This is the THIRD time in one session that an unverified navigation produced a confident, wrong
+number — first 249 frames of the home screen labelled as digest, then a stock screen whose "no
+prices" was a dead deep link, now 2 phantom bounces. Every one looked plausible. **The label diff
+is not a formality; it is the only thing standing between a measurement and a fiction.**
