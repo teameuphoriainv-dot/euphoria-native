@@ -78,9 +78,23 @@ export function TickerLogo({ sym, size = 44 }: { sym: string; size?: number }) {
           {sym.slice(0, 4)}
         </ThemedText>
       </Animated.View>
+      {/*
+        * EXPLICIT WIDTH AND HEIGHT, not absoluteFill alone.
+        *
+        * A `{uri}` source has no intrinsic size, so absoluteFill sized it and the proxy path
+        * looked right for years. A STATIC require() DOES carry one -- the bundled marks are
+        * 192x192 -- and React Native laid the image out at that intrinsic size, leaving the
+        * wrapper's `overflow: hidden` to clip it. The visible result was a centre crop: NVIDIA
+        * rendered as a plain green square, Tesla as a plain red one, and Microsoft as a white
+        * square with one orange pixel in a corner, which is what gave it away.
+        *
+        * VERIFIED ON DEVICE 2026-08-20. Nothing in tsc, npm run check, or the accessibility tree
+        * could see this -- every label read correctly the whole time, prices included -- which is
+        * exactly why bundled art has to be looked at rather than assumed.
+        */}
       <AnimatedImage
         source={bundled ?? { uri: `${apiBase()}/api/market?action=logo&sym=${encodeURIComponent(sym)}` }}
-        style={[StyleSheet.absoluteFill, { borderRadius: radius }, markStyle]}
+        style={[StyleSheet.absoluteFill, { width: size, height: size, borderRadius: radius }, markStyle]}
         resizeMode="contain"
         onLoad={() => setLoaded(true)}
         // Silent on purpose: a missing logo is normal (most tickers have none) and is not an

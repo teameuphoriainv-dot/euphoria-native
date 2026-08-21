@@ -85,6 +85,28 @@ export const persistableMarks = (
   return out;
 };
 
+/*
+ * SESSION CHANGE, kept beside the mark.
+ *
+ * The Trade tab's watchlist rendered `STOCKS[sym].chg` -- a hardcoded percentage -- next to a
+ * hardcoded price. Replacing only the price would have put a live number beside a stale
+ * percentage that disagrees with it, which is worse than either alone. Stored separately from
+ * `marks` because a change of exactly 0 is MEANINGFUL (a flat session), whereas a price of 0
+ * means "never quoted" -- collapsing them into one map would lose that distinction.
+ */
+const changes = new Map<string, number>();
+
+export const setChange = (sym: string, pct: number): void => {
+  if (!Number.isFinite(pct)) return;
+  changes.set(sym.toUpperCase(), pct);
+};
+
+/** Session change percent, or null when this symbol has never been quoted. */
+export const changeOf = (sym: string): number | null => {
+  const v = changes.get(sym.toUpperCase());
+  return v === undefined ? null : v;
+};
+
 /** Snapshot for persistence. Plain object so it survives JSON. */
 export const allMarks = (): Record<string, number> => Object.fromEntries(marks);
 

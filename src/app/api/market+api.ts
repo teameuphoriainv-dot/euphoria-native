@@ -656,6 +656,7 @@ export async function GET(request: Request) {
         .map((x) => symbol(x))
         .filter((x): x is string => !!x);
       const out: Record<string, number> = {};
+      const chg: Record<string, number> = {};
       /*
        * THE WALK STARTS AT YESTERDAY, AND THAT IS MEASURED, NOT ASSUMED.
        *
@@ -678,7 +679,7 @@ export async function GET(request: Request) {
       const forced = url.searchParams.get('date');
       for (let back = 1; back <= 6; back++) {
         const d = forced ?? new Date(Date.now() - back * 86_400_000).toISOString().slice(0, 10);
-        let g: { results?: { T?: string; c?: number }[] };
+        let g: { results?: { T?: string; c?: number; o?: number }[] };
         try {
           g = await poly(`/v2/aggs/grouped/locale/us/market/stocks/${d}?adjusted=true`, key);
         } catch (e) {
@@ -687,15 +688,23 @@ export async function GET(request: Request) {
           if (forced) return fresh({ error: 'no_data_for_date', date: forced }, 404);
           continue;
         }
-        const rows = (g.results ?? []) as { T?: string; c?: number }[];
+        const rows = (g.results ?? []) as { T?: string; c?: number; o?: number }[];
         if (!rows.length) continue;
         const keep = want.length ? new Set(want) : null;
+        /*
+         * CLOSE **AND** CHANGE. The first version kept only `c`, so the Trade tab could show a
+         * live price beside a hardcoded percentage -- worse than showing neither, because the two
+         * would disagree with each other on screen. `o` is already in the same row, and
+         * close-minus-open is exactly how `action=quote` defines change, so the two surfaces
+         * cannot drift apart.
+         */
         for (const r of rows) {
           if (!r.T || typeof r.c !== 'number' || r.c <= 0) continue;
           if (keep && !keep.has(r.T)) continue;
           out[r.T] = r.c;
+          if (typeof r.o === 'number' && r.o > 0) chg[r.T] = ((r.c - r.o) / r.o) * 100;
         }
-        return cached({ date: d, count: Object.keys(out).length, marks: out });
+        return cached({ date: d, count: Object.keys(out).length, marks: out, changes: chg });
       }
       if (forced) return fresh({ error: 'no_data_for_date', date: forced }, 404);
       // Five consecutive empty sessions is not a weekend, it is an outage. Say so rather than

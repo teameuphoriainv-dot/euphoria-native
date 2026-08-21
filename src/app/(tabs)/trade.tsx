@@ -43,6 +43,7 @@ import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { getMarks } from '@/lib/market';
+import { changeOf } from '@/lib/marks';
 
 /** Kept as a name so the row markup reads the same; the mark itself is now a real logo with the
  *  lettered tile as its floor. */
@@ -449,8 +450,27 @@ export default function Trade() {
             {watch.length > 0 ? 'Watchlist' : held.length > 0 ? 'More stocks' : 'Pick your first stock'}
           </ThemedText>
           <Card padded={false}>
+            {/*
+              * LIVE, NOT THE STATIC STRING. This rendered `STOCKS[sym].price` -- the hardcoded
+              * string from stocks.ts -- and `STOCKS[sym].chg` beside it, so no amount of live
+              * pricing could ever reach these rows. Caught on device: after the marks fetch
+              * shipped, the positions above were live while the watchlist still read
+              * "NVIDIA, NVDA, $1,184.00" against a real close of $217.56, and
+              * "Alphabet, GOOGL, $182.11" against $344.72.
+              *
+              * `priceOf` falls back to the same static number when no mark has arrived, so the
+              * cold-start frame is unchanged; it simply stops being the ONLY thing this row can
+              * ever show. The change percent falls back the same way.
+              */}
             {(watch.length > 0 ? watch : suggestions).map((sym, i, arr) => (
-              <Row key={sym} sym={sym} sub={sym} right={STOCKS[sym].price} change={STOCKS[sym].chg} last={i === arr.length - 1} />
+              <Row
+                key={sym}
+                sym={sym}
+                sub={sym}
+                right={money(priceOf(sym))}
+                change={changeOf(sym) ?? STOCKS[sym].chg}
+                last={i === arr.length - 1}
+              />
             ))}
           </Card>
         </RiseIn>
