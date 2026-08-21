@@ -292,3 +292,25 @@ would surface.
 
 **File restored:** 2 LeagueCrest instances present, zero ablation markers, byte-identical to HEAD,
 tsc 0, npm run check 0.
+
+### Shipped: the course loader had no cache
+
+Found in the network log, not in source. `personalFinance.bundle` had been fetched **twenty
+times**, 664.7 KB each — about 13MB of the same module. Four screens call `loadCourseLessons` on
+mount with no cache and no dedupe between them: `home.tsx:120`, `learn.tsx:88`, `lesson.tsx:86`,
+`start.tsx:72`.
+
+Now caches the PROMISE, which makes it a dedupe as well as a cache — two screens mounting in the
+same tick share one in-flight load instead of racing two. A rejection is evicted, so the retry
+button in `learn.tsx` can genuinely retry rather than being handed a permanently-failed promise.
+
+**Measured after: 20 Home↔Learn navigations produced 2 fetches**, both within 71ms at the start
+(the initial concurrent mount), then none.
+
+**Honest scope:** in production `import()` already caches the module, so the shipped win is the
+duplicate in-flight loads and the repeated promise setup. The 664KB refetch it removes is a
+development cost. Worth having for both, but not sold as a user-facing win.
+
+**A note for the memory thread:** this adds no new retention. Dynamic `import()` keeps its module
+in the registry permanently, so the lesson data was already held — the cache just stops re-deriving
+a reference to it.
