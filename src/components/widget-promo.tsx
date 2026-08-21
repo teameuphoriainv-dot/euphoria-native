@@ -41,7 +41,7 @@ export function WidgetPromo({
   onAdd: () => void;
 }) {
   const theme = useTheme();
-  const { backdrop, sheet } = useSheetEntrance();
+  const { backdrop, sheet } = useSheetEntrance(visible);
   const ask = WIDGET_ASKS[variant];
 
   return (

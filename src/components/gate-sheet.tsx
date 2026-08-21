@@ -114,7 +114,7 @@ export function GateSheet({
   onWhyNotFree: () => void;
 }) {
   const theme = useTheme();
-  const { backdrop, sheet } = useSheetEntrance();
+  const { backdrop, sheet } = useSheetEntrance(visible);
   const guides = useApp((s) => s.readPosts.length);
   const lessons = useApp((s) => s.completedLessons.length);
 

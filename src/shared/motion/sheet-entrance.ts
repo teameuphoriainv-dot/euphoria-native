@@ -20,7 +20,7 @@
  *
  * Usage — set `animationType="none"` on the Modal, then:
  *
- *   const { backdrop, sheet } = useSheetEntrance();
+ *   const { backdrop, sheet } = useSheetEntrance(visible);
  *   <Animated.View style={[StyleSheet.absoluteFill, backdrop]} pointerEvents="box-none">
  *     <BlurView … /><Pressable style={styles.scrim} … />
  *   </Animated.View>
@@ -40,14 +40,31 @@ import { Duration, Ease, Spring } from './tokens';
 /** Far enough that no sheet starts on screen; it is clipped by the screen edge either way. */
 const TRAVEL = 460;
 
-export function useSheetEntrance() {
+/**
+ * `visible` is REQUIRED, and the reason is a bug this hook shipped with for one commit.
+ *
+ * Two of the four call sites keep the component mounted and toggle the prop —
+ * `<TrialRewardSheet visible={trialReward} />` and `<DismissalOfferSheet visible={offer} />` —
+ * while the other two mount conditionally. A mount-only effect therefore ran once with
+ * `visible` false, settled at 1, and the sheet was already at its final position by the time it
+ * opened: NO entrance animation, on exactly the surfaces the fix was meant to improve. Driving
+ * the effect from `visible` covers both shapes.
+ */
+export function useSheetEntrance(visible: boolean) {
   const reduced = useReducedMotion();
   // Two clocks on purpose. The backdrop is a plain fade — a scrim that springs would wobble the
   // whole screen's brightness — while the sheet gets the spring that makes it feel physical.
-  const dim = useSharedValue(reduced ? 1 : 0);
-  const rise = useSharedValue(reduced ? 1 : 0);
+  const dim = useSharedValue(0);
+  const rise = useSharedValue(0);
 
   useEffect(() => {
+    if (!visible) {
+      // Snap back so the next open animates from the bottom again rather than from wherever the
+      // last one finished. No animation on the way out: the Modal is already gone by then.
+      dim.set(0);
+      rise.set(0);
+      return;
+    }
     if (reduced) {
       dim.set(1);
       rise.set(1);
@@ -55,7 +72,7 @@ export function useSheetEntrance() {
     }
     dim.set(withTiming(1, { duration: Duration.base, easing: Ease.out }));
     rise.set(withSpring(1, Spring.smooth));
-  }, [reduced, dim, rise]);
+  }, [visible, reduced, dim, rise]);
 
   const backdrop = useAnimatedStyle(() => ({ opacity: dim.get() }));
   const sheet = useAnimatedStyle(() => ({

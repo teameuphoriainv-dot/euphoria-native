@@ -63,7 +63,7 @@ export function TrialRewardSheet({
   onDismiss: () => void;
 }) {
   const theme = useTheme();
-  const { backdrop, sheet } = useSheetEntrance();
+  const { backdrop, sheet } = useSheetEntrance(visible);
   const markSeen = useApp((s) => s.markTrialRewardSeen);
 
   /*

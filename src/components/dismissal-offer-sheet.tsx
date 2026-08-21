@@ -49,7 +49,7 @@ export function DismissalOfferSheet({
   onDismiss: () => void;
 }) {
   const theme = useTheme();
-  const { backdrop, sheet } = useSheetEntrance();
+  const { backdrop, sheet } = useSheetEntrance(visible);
 
   const accept = useCallback(() => {
     track(Ev.specialOfferAccepted, { feature });
