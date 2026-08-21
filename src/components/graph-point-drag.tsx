@@ -29,6 +29,7 @@ export type GraphSpec = {
 const DETENTS = 24;
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedPolyline = Animated.createAnimatedComponent(Polyline);
 
 export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
@@ -99,6 +100,7 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
    * ~60 times a second, for output that never changes. Memoised on the data and the measured
    * box, which is everything they actually depend on.
    */
+  const xEnd = xFor(n);
   const historyPts = useMemo(
     () => spec.history.map((v, i) => `${xFor(i)},${yFor(v)}`).join(' '),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- xFor/yFor are pure functions of these
@@ -111,7 +113,17 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
     // eslint-disable-next-line react-hooks/exhaustive-deps -- same
     [spec.history, w, h, spec.min, spec.max, theme.mutedForeground],
   );
-  const linePts = `${historyPts} ${xFor(n)},${yFor(value)}`;
+  /*
+   * THE LINE MUST TRACK THE POINT. Moving the circle to the UI thread while the polyline's last
+   * vertex still came from throttled React state made them diverge by up to 1% of the range
+   * mid-drag -- about 2.4pt on this chart, seen as the line detaching from the point it is
+   * supposed to end at. Both now read the same shared value, so they cannot drift apart.
+   */
+  const lineProps = useAnimatedProps(() => ({
+    points: `${historyPts} ${xEnd},${
+      h === 0 ? 0 : pad + (h - 2 * pad) * (1 - (valueSV.get() - spec.min) / (spec.max - spec.min))
+    }`,
+  }));
 
   /*
    * THE SOLVE WAS A CUT. `fill={solved ? theme.success : theme.primary}` flipped on one frame at
@@ -153,7 +165,7 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
               fill={theme.success + '22'}
             />
             <Line x1={0} y1={yFor(spec.target)} x2={w} y2={yFor(spec.target)} stroke={theme.success} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
-            <Polyline points={linePts} fill="none" stroke={theme.primary} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            <AnimatedPolyline animatedProps={lineProps} fill="none" stroke={theme.primary} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             {historyDots}
             <AnimatedCircle cx={xFor(n)} r={11} animatedProps={pointProps} stroke="#fff" strokeWidth={3} />
           </Svg>
