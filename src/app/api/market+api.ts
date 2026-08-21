@@ -701,8 +701,18 @@ export async function GET(request: Request) {
         for (const r of rows) {
           if (!r.T || typeof r.c !== 'number' || r.c <= 0) continue;
           if (keep && !keep.has(r.T)) continue;
-          out[r.T] = r.c;
-          if (typeof r.o === 'number' && r.o > 0) chg[r.T] = ((r.c - r.o) / r.o) * 100;
+          /*
+           * ROUNDED, BECAUSE FULL FLOAT PRECISION IS 400KB OF NOISE.
+           *
+           * OBSERVED in the running app's network log: this response was 464.4 KB. The cause was
+           * precision nobody can use -- a change of `-1.8541074570307146` is 22 characters to say
+           * "down 1.85%", and there are 12,548 tickers. A price gets 2 decimals because that is
+           * what money has; a percent gets 2 because the UI renders one.
+           */
+          out[r.T] = Math.round(r.c * 100) / 100;
+          if (typeof r.o === 'number' && r.o > 0) {
+            chg[r.T] = Math.round(((r.c - r.o) / r.o) * 10000) / 100;
+          }
         }
         return cached({ date: d, count: Object.keys(out).length, marks: out, changes: chg });
       }

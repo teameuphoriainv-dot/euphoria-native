@@ -123,13 +123,34 @@ export const getQuote = (sym: string) =>
  * holds or watches is PERSISTED -- see partialize in store.ts, which runs on every state write
  * and must not serialise a quarter megabyte each time.
  */
+/*
+ * SKIP THE REFETCH WHEN THE MARKS ARE STILL GOOD.
+ *
+ * OBSERVED in the running app: this response is 300KB (131KB gzipped) for 12,548 tickers, and it
+ * was being fetched on every stock-screen mount as well as every Trade tab foreground. The data
+ * is a DAILY CLOSE -- refetching it minutes later returns the identical numbers, for 300KB and a
+ * request against a five-per-minute ceiling that the chart and stats calls are already losing.
+ *
+ * Fifteen minutes matches the proxy's own `s-maxage=900`, so the client stops asking on exactly
+ * the cadence the server stops recomputing. Callers that genuinely need a refresh (the Trade tab
+ * on foreground after a longer gap) still get one; nothing needs to know this exists.
+ */
+let lastMarksAt = 0;
+const MARKS_TTL_MS = 15 * 60_000;
+
 export const getMarks = (syms?: string[]) =>
+  Date.now() - lastMarksAt < MARKS_TTL_MS && !syms?.length
+    ? Promise.resolve(null)
+    : _fetchMarks(syms);
+
+const _fetchMarks = (syms?: string[]) =>
   safe<{ date: string; count: number; marks: Record<string, number>; changes?: Record<string, number> }>(
     `/api/market?action=marks${syms?.length ? `&syms=${syms.map(encodeURIComponent).join(',')}` : ''}`,
   ).then((r) => {
     if (r?.marks) for (const [sym, price] of Object.entries(r.marks)) setMark(sym, price);
     if (r?.changes) for (const [sym, pct] of Object.entries(r.changes)) setChange(sym, pct);
     if (r?.date) setMarkDate(r.date);
+    if (r?.count) lastMarksAt = Date.now();
     return r;
   });
 

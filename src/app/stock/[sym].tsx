@@ -162,11 +162,20 @@ export default function StockDetail() {
     getMarks()
       .then((r) => {
         if (cancelled) return;
-        if (!r?.count) {
+        /*
+         * A NULL RESULT IS NOT A FAILURE HERE. getMarks() resolves null when the marks it already
+         * holds are still inside their fifteen-minute window -- it skips a 300KB refetch that
+         * would return identical numbers. Treating that as an error would show a retry notice on
+         * a screen whose price is perfectly good, which is worse than the request it saved.
+         *
+         * The real failure signal is having no session date at all: nothing has ever landed.
+         */
+        const stamped = markDateOf();
+        if (!r?.count && !stamped) {
           setQuoteErr('upstream');
           return;
         }
-        setAsOfLabel(closeLabel(markDateOf()));
+        setAsOfLabel(closeLabel(stamped));
       })
       .catch((e: unknown) => {
         if (cancelled) return;
