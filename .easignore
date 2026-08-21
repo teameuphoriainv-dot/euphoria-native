@@ -1,0 +1,37 @@
+# What NOT to upload to EAS Build.
+#
+# WHY: without this file EAS falls back to .gitignore, which meant shipping every tracked
+# file -- including ~166MB of audit screen recordings under refs/ -- producing a 304MB
+# archive that has to be compressed and uploaded on EVERY build.
+#
+# NOTE: .easignore REPLACES .gitignore for EAS, it does not extend it. So the usual
+# build/vendor excludes have to be repeated here or they come back.
+
+# --- standard excludes (would be covered by .gitignore, must be restated) ---
+node_modules/
+.git/
+.expo/
+dist/
+web-build/
+ios/build/
+ios/Pods/
+android/build/
+android/app/build/
+android/.gradle/
+*.log
+.DS_Store
+.env*.local
+
+# --- never ship credentials ---
+.secrets/
+*.p8
+*.p12
+*.mobileprovision
+credentials.json
+
+# --- dev-only research artifacts: the actual 166MB ---
+refs/
+screenshots/
+scripts/anim/
+*.mp4
+*.gif
