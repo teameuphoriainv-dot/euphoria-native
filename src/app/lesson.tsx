@@ -24,6 +24,7 @@ import { Confetti } from '@/components/confetti';
 import { FeedbackBanner, SparkBurst } from '@/components/lesson-feedback';
 import { LessonProse } from '@/components/lesson-prose';
 import { MatchingPairs } from '@/components/matching-pairs';
+import { CalcBlanks } from '@/components/calc-blanks';
 import { MultiSelect } from '@/components/multi-select';
 import { NumberLine } from '@/components/number-line';
 import { OrderSteps } from '@/components/order-steps';
@@ -418,6 +419,7 @@ export default function Lesson() {
             {norm.kind === 'line' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><NumberLine spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
             {norm.kind === 'multi' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MultiSelect spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
             {norm.kind === 'build' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TileBuilder spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'calc' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled"><CalcBlanks spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
 
             {norm.kind === 'choice' && (
               /* SCROLLS. An authored question can run 380pt on its own and each option another

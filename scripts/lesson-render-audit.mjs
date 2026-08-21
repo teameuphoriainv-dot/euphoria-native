@@ -103,7 +103,11 @@ function isThin(n) {
   switch (n.kind) {
     case 'choice':
       return !(n.prompt ?? '').trim() || (n.options ?? []).length < 2;
-    case 'reveal': case 'match': case 'order': case 'line': case 'multi': case 'build': {
+    // EVERY spec-driven kind must be listed here. `calc` was missing when it was added and all
+    // 3 calculator steps read as thin -- a `calc` has no `blocks`, so it fell to the branch
+    // below and `[].every()` is vacuously true. Sixth time this checker has under-read a shape
+    // it checks; the shape list is the thing to keep in step with lesson-steps.ts's Normalized.
+    case 'reveal': case 'match': case 'order': case 'line': case 'multi': case 'build': case 'calc': {
       const spec = n.spec ?? {};
       const arrays = Object.values(spec).filter(Array.isArray);
       // a spec-driven interactive is thin only if it has nothing to interact with

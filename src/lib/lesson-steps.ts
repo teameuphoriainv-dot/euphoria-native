@@ -15,6 +15,7 @@ import type { MultiSpec } from '@/components/multi-select';
 import type { NumberLineSpec } from '@/components/number-line';
 import type { OrderSpec } from '@/components/order-steps';
 import type { RevealSpec } from '@/components/tap-reveal';
+import type { CalcSpec } from '@/components/calc-blanks';
 import type { TileSpec } from '@/components/tile-builder';
 
 export type ProseBlock =
@@ -39,6 +40,7 @@ export type Normalized =
   | { kind: 'line'; spec: NumberLineSpec }
   | { kind: 'multi'; spec: MultiSpec }
   | { kind: 'build'; spec: TileSpec }
+  | { kind: 'calc'; spec: CalcSpec }
   | { kind: 'todo'; type: string; title: string; blocks: ProseBlock[] };
 
 const p = (text: string): ProseBlock => ({ b: 'p', text });
@@ -262,6 +264,14 @@ export function normalizeStep(step: LessonStep): Normalized {
       };
 
     // ─── not renderable yet — show the real title, never a blank screen ───────
+    case 'calculator':
+      /*
+       * Was falling to the `todo` default, which pulls setup/principle/optimalOutcome/formula --
+       * so these rendered a title and their formula, and the `blanks` that ARE the exercise were
+       * dropped. Every blank carries its own tolerance, which only means something if a learner
+       * can type a number, so they get a typed answer rather than invented multiple choice.
+       */
+      return { kind: 'calc', spec: { title: s.title, formula: s.formula, blanks: s.blanks ?? [] } };
     case 'explorableCheck':
       /*
        * The comprehension question an `explorable` carries. Lifted to its own screen by
@@ -435,5 +445,5 @@ export function expandSteps(steps: LessonStep[]): LessonStep[] {
 
 /** Steps that gate Continue until solved. Prose never blocks; interactives always do. */
 export function gates(n: Normalized): boolean {
-  return n.kind === 'reveal' || n.kind === 'match' || n.kind === 'order' || n.kind === 'line' || n.kind === 'multi' || n.kind === 'build';
+  return n.kind === 'reveal' || n.kind === 'match' || n.kind === 'order' || n.kind === 'line' || n.kind === 'multi' || n.kind === 'build' || n.kind === 'calc';
 }
