@@ -54,6 +54,31 @@ export function PriceChart({ sym, initialRange = '1D' }: { sym: string; initialR
     };
   }, [sym, range]);
 
+  /*
+   * FALL BACK WHEN THE SELECTED RANGE IS GENUINELY EMPTY.
+   *
+   * MEASURED 2026-08-20 against the live endpoint: 1D returned 0 points while 1W returned 132 and
+   * 1M returned 212. 1D asks for FIVE-MINUTE bars from the last 24 hours, and on a free tier the
+   * current session is plan-gated -- so outside market hours those bars do not exist and the
+   * chart correctly rendered "No data for this range" as its whole content.
+   *
+   * The screen was not broken and nothing was rate limited; the DEFAULT was asking for the one
+   * range this plan cannot serve. Stepping up to the next range that has data means the chart
+   * always draws something, and the user can still pick 1D deliberately.
+   *
+   * Only ever steps up once, and only from the untouched initial range: a deliberate 1D tap must
+   * stay on 1D and show the empty state honestly rather than silently redirecting.
+   */
+  const [autoStepped, setAutoStepped] = useState(false);
+  useEffect(() => {
+    if (autoStepped || range !== initialRange) return;
+    if (loadedKey !== key) return;
+    if (chart && chart.points.length === 0) {
+      setAutoStepped(true);
+      setRange('1W');
+    }
+  }, [chart, loadedKey, key, range, initialRange, autoStepped]);
+
   const points = loading ? [] : (chart?.points ?? []);
   const delta = seriesChange(points);
   const up = (delta?.abs ?? 0) >= 0;

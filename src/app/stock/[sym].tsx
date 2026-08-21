@@ -118,6 +118,19 @@ export default function StockDetail() {
    * Both problems disappear once the label is set when the fetch actually lands.
    */
   const [asOfLabel, setAsOfLabel] = useState<string | null>(null);
+  /**
+   * Set on the first scroll. Gates the requests that first paint does not need.
+   *
+   * MEASURED 2026-08-20, counting upstream calls per action in market+api.ts: this screen costs
+   * marks(1) + chart(1 + 1 page) + stats(2) = FIVE requests against a free tier allowing five per
+   * minute. They land together, so the last ones lose -- `stats` returned 429 and the chart
+   * rendered "No data for this range" on device.
+   *
+   * Deferring in TIME would not help: a rolling sixty-second window still sees all five.
+   * Deferring until VISIBLE does, because a reader who never scrolls never spends those two
+   * requests, and one who does spends them a beat later when the window has room.
+   */
+  const [belowFold, setBelowFold] = useState(false);
   const [nonce, setNonce] = useState(0);
   const retryQuote = useCallback(() => {
     setQuoteErr(null);
@@ -249,7 +262,15 @@ export default function StockDetail() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={28} glow={false} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        /* 40pt is deliberately small: it fires on the first real gesture, long before KeyStats
+           reaches the viewport, so its data has landed by the time anyone looks at it. */
+        onScroll={(e) => {
+          if (!belowFold && e.nativeEvent.contentOffset.y > 40) setBelowFold(true);
+        }}>
         <SpringPressable haptic={false} onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel="Back to Trade">
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
           <ThemedText type="small" themeColor="mutedForeground">Trade</ThemedText>
@@ -330,7 +351,8 @@ export default function StockDetail() {
         </RiseIn>
 
         <RiseIn delay={130}>
-          <KeyStats sym={sym} />
+          {/* Gated: KeyStats costs TWO upstream requests and sits below the fold. See onScroll. */}
+          {belowFold ? <KeyStats sym={sym} /> : null}
         </RiseIn>
 
         <RiseIn delay={140}>
