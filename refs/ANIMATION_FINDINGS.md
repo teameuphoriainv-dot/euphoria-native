@@ -1087,10 +1087,19 @@ established there is no drag gesture at all.
   the rail bleeds past the screen edge so a card is visibly cut off, which is what signals it
   scrolls. It now lands on a card boundary rather than mid-card
 
-**The other five are left alone.** Four are chip rails, where free-scroll is correct — snapping
-small variable-width chips would feel worse, not better. `CourseRailCard` has no fixed width, so
-a snap interval would be ill-defined; guessing one is exactly the kind of change that makes
-motion worse.
+**Four of the other five are left alone**, and that classification is verified rather than
+assumed: `digest:313`, `learn:234`, `courses:88` and `options:495` all use `styles.chipRow` /
+`chipScroll` and render variable-width text chips — category filters, course chips, tier chips,
+expiry chips. Free-scroll is correct there; snapping variable-width chips would feel worse.
+
+**CORRECTION — `home.tsx:506` WAS fixable, and I said it wasn't.** I reported that
+`CourseRailCard` has no fixed width, so a snap interval would be ill-defined. That was wrong:
+`course-rail-card.tsx:82` sets `width: RAIL_CARD_WIDTH` (132). My check had searched only inside
+the component function body, and the width lives in the `StyleSheet` object below it.
+
+Fixed: `RAIL_CARD_WIDTH` is now exported and **imported into `home.tsx`** rather than written out
+as a literal, so the snap interval cannot drift from the card's own width if the card is resized.
+Interval = 132 + `Spacing.two + 4` = **144**. This is the rail on the screen the app opens to.
 
 **NOT device-verified.** Snapping is a native `ScrollView` behaviour with no animation to capture,
 and this audit's capture path cannot measure scroll regardless (§11). Worth ten seconds of the

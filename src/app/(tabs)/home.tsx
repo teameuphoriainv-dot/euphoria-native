@@ -35,7 +35,7 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { CourseRailCard } from '@/components/course-rail-card';
+import { CourseRailCard, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
@@ -507,6 +507,18 @@ export default function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.rail}
+          /*
+           * SNAP TO THE CARD GRID. This rail free-scrolled, so a flick came to rest wherever
+           * momentum died and left course cards halfway off the edge — the same defect fixed on
+           * the market-news rail, and here it is on the screen the app opens to.
+           *
+           * The interval is IMPORTED rather than written out: RAIL_CARD_WIDTH is the card's own
+           * width, so the snap cannot drift away from it if the card is ever resized. The gap
+           * term matches `styles.rail` below.
+           */
+          snapToInterval={RAIL_CARD_WIDTH + Spacing.two + 4}
+          snapToAlignment="start"
+          decelerationRate="fast"
           style={styles.railScroll}>
           {COURSES.map((c) => (
             <CourseRailCard
