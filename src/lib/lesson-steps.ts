@@ -89,6 +89,64 @@ export function visualIsRenderable(v?: AnimatedVisual): boolean {
   return Array.isArray(rows) && rows.length > 0;
 }
 
+/**
+ * One coherent sentence describing a chart, for the screen reader.
+ *
+ * WHY. These charts carry their meaning in bar LENGTH, stacked segment WIDTH, pie wedges and
+ * authored hex COLOUR -- none of which VoiceOver can see. Left alone, a chart is a scatter of text
+ * fragments read in layout order: a title, then a label, then a number, then another label, with
+ * nothing tying them together and no statement of what is being compared.
+ *
+ * INVENTS NOTHING. Every word comes from a field the author wrote -- title, label,
+ * value/displayValue, percent, footer, trend, centerLabel, total. The only added tokens are the
+ * separators and the word the component ALREADY renders on screen for a trend ("Upward"/
+ * "Downward"), so a sighted and an unsighted reader get the same claim.
+ *
+ * It lives in this pure module, next to visualIsRenderable, so scripts/lesson-render-audit.mjs can
+ * assert every chart in the corpus produces a non-empty label without importing React Native.
+ */
+export function chartLabel(v?: AnimatedVisual): string {
+  const a = v as (AnimatedVisual & Record<string, any>) | undefined;
+  if (!a?.type) return '';
+  const txt = (x: unknown) => (typeof x === 'string' && x.trim() ? x.trim() : '');
+  const num = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? `${x}%` : '');
+  const parts: string[] = [txt(a.title)];
+  const pair = (label: unknown, value: unknown) => [txt(label), txt(value)].filter(Boolean).join(': ');
+
+  switch (a.type) {
+    case 'metric':
+      parts.push(txt(a.value), txt(a.detail));
+      break;
+    case 'bars':
+      parts.push((a.items ?? []).map((i: any) => pair(i.label, i.displayValue ?? String(i.value ?? ''))).filter(Boolean).join(', '));
+      break;
+    case 'comparison':
+      parts.push((a.rows ?? []).map((r: any) => pair(r.label, r.value)).filter(Boolean).join(', '));
+      break;
+    case 'grid':
+      parts.push((a.items ?? []).map((i: any) => pair(i.label, i.value)).filter(Boolean).join(', '));
+      break;
+    case 'flow':
+      // "then" mirrors the arrow the sighted reader sees between nodes
+      parts.push((a.nodes ?? []).map((n: any) => pair(n.label, n.value)).filter(Boolean).join(', then '));
+      break;
+    case 'stack':
+      parts.push(txt(a.total), (a.segments ?? []).map((sg: any) => pair(sg.label, txt(sg.value) || num(sg.percent))).filter(Boolean).join(', '));
+      break;
+    case 'pie':
+      parts.push(txt(a.centerLabel), (a.segments ?? []).map((sg: any) => pair(sg.label, num(sg.percent))).filter(Boolean).join(', '));
+      break;
+    case 'line':
+      parts.push(a.trend === 'down' ? 'Downward over the period' : 'Upward over the period',
+                 (a.points ?? []).map((pt: any) => pair(pt.label, pt.value)).filter(Boolean).join(', '));
+      break;
+    default:
+      return '';
+  }
+  parts.push(txt(a.footer));
+  return parts.filter(Boolean).join('. ');
+}
+
 /** A chart block, or nothing when the step carries no RENDERABLE visual. Keeps the three call
  *  sites honest: a visual is an addition to prose that already works, never a replacement. */
 const vis = (v?: AnimatedVisual): ProseBlock[] =>

@@ -27,7 +27,7 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const COURSES = join(ROOT, 'src/lib/curriculum/courses');
-const { normalizeStep, gates, expandSteps, visualIsRenderable } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { normalizeStep, gates, expandSteps, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
 
@@ -51,10 +51,15 @@ if (process.argv.includes('--selftest')) {
   ok(blockText({ b: 'visual', visual: { type: 'bars', title: 'T', items: [{ label: 'L', displayValue: '9%' }] } }).includes('9%'),
     'blockText could not see inside a visual block');
   ok(blockText({ b: 'stat', value: 'V', label: 'L' }) === 'V L', 'blockText regressed on stat');
+  ok(chartLabel({ type: 'bars', title: 'T', items: [{ label: 'L', displayValue: '9%' }] }) === 'T. L: 9%',
+    'chartLabel did not build a sentence from the fields that exist');
+  ok(chartLabel({ type: 'pixel', title: 'T' }) === '', 'chartLabel invented a label for an unrenderable kind');
+  ok(!chartLabel({ type: 'bars', title: 'T', items: [{ label: 'L' }] }).includes('undefined'),
+    'chartLabel leaked an undefined into the label');
   const lost = expandSteps([{ type: 'progressiveCalc', title: 't', calcSteps: [{ nonsense: true }] }]);
   ok(lost.length === 0, 'a malformed calcStep produced a step it should not have');
   ok(expandSteps([{ type: 'quiz', question: 'q' }]).length === 1, 'a normal step was not passed through');
-  console.log('lesson-render-audit selftest ok — 3 detectors seeded, 4 valid shapes ignored');
+  console.log('lesson-render-audit selftest ok — 12 assertions (8 must hold, 4 must not fire)');
   process.exit(0);
 }
 
@@ -123,7 +128,7 @@ function isThin(n) {
 
 const files = readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort();
 let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0, rawDecisions = 0;
-const unrenderable = [];
+const unrenderable = [], unlabelled = [];
 const visualKinds = new Map();
 const byType = new Map();
 const thinByType = new Map();
@@ -159,6 +164,11 @@ for (const f of files) {
           visualsInData += 1;
           if (!visualIsRenderable(v)) {
             unrenderable.push(`${f.replace('.ts', '')} L${lesson.num} ${step.type}.${k} type=${v.type}`);
+          } else if (chartLabel(v).length < 4) {
+            // A chart carries its meaning in length, width, wedges and colour. If it cannot produce
+            // a sentence, a VoiceOver user gets a silent card -- the same silence this whole unit
+            // was built to remove, just moved to a different audience.
+            unlabelled.push(`${f.replace('.ts', '')} L${lesson.num} ${step.type}.${k} type=${v.type}`);
           }
         }
       }
@@ -182,7 +192,7 @@ for (const f of files) {
 console.log(`\ncourses ${files.length}   lessons ${lessons}   steps ${steps}   distinct types ${byType.size}`);
 console.log(`fell through to the 'todo' default: ${todo} step(s)`);
 console.log(`THIN (reach the screen with no readable body and no interaction): ${thin}`);
-console.log(`AnimatedVisuals in the data: ${visualsInData}   reaching the screen: ${visualBlocks}`);
+console.log(`AnimatedVisuals in the data: ${visualsInData}   reaching the screen: ${visualBlocks}   all labelled for VoiceOver: ${unlabelled.length === 0 ? 'yes' : 'NO'}`);
 if (visualKinds.size) {
   console.log('  ' + [...visualKinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('   '));
 }
@@ -219,6 +229,11 @@ const gradedDecisions = byType.get('simDecision') ?? 0;
 console.log(`decisions in data ${rawDecisions} -> graded ${gradedDecisions} + tied-as-prose ${tiedDecisions}`);
 if (rawDecisions !== gradedDecisions + tiedDecisions) {
   console.error(`\nDECISIONS LOST: ${rawDecisions} in the data, ${gradedDecisions + tiedDecisions} accounted for.`);
+  process.exit(1);
+}
+if (unlabelled.length) {
+  console.error(`\n${unlabelled.length} chart(s) with no accessibility label:`);
+  for (const u of unlabelled.slice(0, 20)) console.error(`  ${u}`);
   process.exit(1);
 }
 if (unrenderable.length) {

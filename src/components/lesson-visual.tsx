@@ -37,6 +37,7 @@ import { Card } from '@/components/ui/card';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { AnimatedVisual } from '@/lib/curriculum';
+import { chartLabel } from '@/lib/lesson-steps';
 
 type Sentiment = 'positive' | 'negative' | undefined;
 
@@ -129,7 +130,8 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
         let acc = 0;
         return (
           <View style={styles.pieRow}>
-            <Svg width={SIZE} height={SIZE}>
+            {/* Decorative: every number in it is already in the Card's own label. */}
+            <Svg width={SIZE} height={SIZE} accessible={false}>
               {segs.map((s, n) => {
                 const len = (pct(s.percent) / 100) * C;
                 // stroke-dash arithmetic rather than arc paths: an offset cannot draw a bad wedge
@@ -226,8 +228,20 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
 
   if (!body) return null;
 
+  /*
+   * ONE STOP, ONE SENTENCE. `accessible` on the Card merges its descendants into a single VoiceOver
+   * element, which is the fix rather than a nicety: a chart carries its meaning in bar LENGTH,
+   * segment WIDTH, wedges and colour, so unmerged it reads as a scatter of fragments in layout
+   * order — a title, a label, a number, another label — with nothing saying what is being compared.
+   * `image` is the role because that is what this is: a graphic with a description.
+   */
   return (
-    <Card style={{ gap: Spacing.two }}>
+    <Card
+      style={{ gap: Spacing.two }}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={chartLabel(v)}
+    >
       {v.title ? <ThemedText type="smallBold">{v.title}</ThemedText> : null}
       {body}
       {v.footer ? <ThemedText type="small" themeColor="mutedForeground">{v.footer}</ThemedText> : null}
