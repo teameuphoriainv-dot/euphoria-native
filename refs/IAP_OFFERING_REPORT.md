@@ -254,3 +254,44 @@ the unset prices.
 4. Delete the empty "Monthly" group.
 
 Only after (1) and (2) will `getOfferings()` return packages.
+
+---
+
+## CORRECTION (same day) — Blocker 2 was WRONG. Prices ARE set.
+
+Both subscriptions already carry prices, across 175 countries:
+
+| Product | Apple ID | US price | Notes |
+|---|---|---|---|
+| `euphoria_pro_monthly` | 6761810298 | **$9.99** | EUR 9.99, AUD 14.99, $11.99 in some markets |
+| `euphoria_pro_yearly`  | 6761810312 | **$59.99** | $69.99 in some markets |
+
+**How I got it wrong.** The price table sits inside a collapsed "Current Pricing
+for New Subscribers" accordion. Neither the page-text extraction nor the
+accessibility-tree query expands it, so both returned only the section's
+empty-state sentence -- and I read "no price row" as "no price". Two methods
+agreeing meant nothing here, because both failed the same way. Expanding the
+accordion first shows all 175 rows.
+
+**This is the governing failure mode of this whole audit, again:** a failed
+measurement does not error, it returns a clean, plausible, quotable answer.
+
+**Consequence.** The remaining diagnosis is simpler and entirely one thing:
+
+> **The Paid Apps Agreement being "Pending User Info" is the ONLY confirmed
+> cause of the empty `availablePackages`.**
+
+Nothing in the app, the product configuration, the pricing, the localization or
+the RevenueCat setup is wrong. Bank account + tax forms + re-accepting the
+updated Developer Program License Agreement is the entire fix, and all three are
+the account holder's to complete.
+
+**Incidental, and pleasing:** the competitor research independently landed on
+$9.99 / $59.99 -- matching Blossom's annual exactly at a 50% effective annual
+discount. The prices already in App Store Connect are the ones the research
+recommends. No change made or needed.
+
+**Lower confidence, not re-verified:** Blocker 3 (missing review screenshot).
+The "Choose File" control with no filename is a more reliable empty indicator
+than a collapsed accordion, but after the above I am flagging it as unconfirmed
+rather than asserting it.
