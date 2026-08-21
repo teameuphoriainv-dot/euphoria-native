@@ -183,3 +183,74 @@ The original entry said to *"check that `euphoria_pro_monthly` and `euphoria_pro
 App Store Connect and are attached to the current offering."* **They exist and they are attached.**
 The failure is one step further out — the products exist but cannot be VERIFIED, and a product
 RevenueCat cannot verify is a product the SDK will not serve.
+
+---
+
+## DEFINITIVE ROOT CAUSE — App Store Connect (verified in-browser, 2026-08-20)
+
+Signed in as the account holder. App = **Euphoria: Learn to Invest**, Apple ID
+`6761808087`, iOS 1.0 **Rejected**.
+
+### Blocker 1 — Paid Apps Agreement is NOT active  ← decisive
+
+`appstoreconnect.apple.com/business` → Paid Apps Agreement,
+term Aug 16 2026 – Apr 7 2027, status **"Pending User Info"**.
+Account holder RAMYA SMITHA CHILAMANTULA, McKinney TX.
+
+Three outstanding items, verbatim from the page:
+- "To receive payments from Apple, you must add a bank account."  → [Add Bank Account]
+- "One or more tax forms still need to be completed for your account."  → [Add Tax Form]
+- "The Apple Developer Program License Agreement has been updated and needs to be reviewed."
+
+Without an **active** Paid Applications Agreement, StoreKit returns **zero**
+products — sandbox included. `availablePackages` is built only from products
+StoreKit successfully fetches, so it comes back empty. This one fact produces
+the observed symptom on its own, and it also explains RevenueCat's
+"Could not check" on both App Store products.
+
+### Blocker 2 — neither subscription has a price
+
+`euphoria_pro_monthly` (Apple ID `6761810298`): the **Subscription Prices**
+section is empty. Verified two independent ways — page-text extraction shows
+no price row, and an accessibility-tree query for a price value returns only
+the empty-state string. A product with no price is not fetchable.
+
+### Blocker 3 — no review screenshot
+
+Review Information → Screenshot shows an unfilled **[Choose File]**.
+Blocks *submission*, not *fetching*. Needed before launch, not before testing.
+
+### Verified CORRECT — do not change
+
+| Item | State |
+|---|---|
+| Product IDs | `euphoria_pro_monthly`, `euphoria_pro_yearly` — match the app exactly |
+| Group | "Euphoria Pro" (id `22020937`), 2 subs, levels 1 and 2 |
+| Durations | 1 month / 1 year |
+| Localization | English (U.S.) — "Euphoria Pro Monthly" + description, complete |
+| Availability | All countries or regions |
+| `src/lib/purchases.ts` | correct |
+| RevenueCat offering `default` | current, 2 packages, both mapped |
+
+### Housekeeping
+
+A stray **empty subscription group named "Monthly" with 0 subscriptions** sits
+beside the real "Euphoria Pro" group. Harmless; should be deleted.
+
+### Correction to the earlier section of this file
+
+The earlier ROOT CAUSE section blamed a missing In-App Purchase Key. That is
+**wrong**. The IAP Key only powers RevenueCat's *dashboard* status check;
+`availablePackages` is populated by **StoreKit on-device**, which never uses a
+RevenueCat credential. The real cause is the inactive Paid Apps Agreement plus
+the unset prices.
+
+### Fix order
+
+1. Bank account + tax forms + re-accept the Developer Program License Agreement
+   → agreement flips to Active.  **Account holder only — financial credentials.**
+2. Set prices on both subscriptions.
+3. Upload a 1024x1024 review screenshot on each.
+4. Delete the empty "Monthly" group.
+
+Only after (1) and (2) will `getOfferings()` return packages.

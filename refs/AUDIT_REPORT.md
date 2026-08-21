@@ -139,3 +139,59 @@ Every finding here was confound-tested because of that.
 - **Two draggables still re-render per move** — the correct fix is a Reanimated conversion, not
   attempted because a Pan inside a scrolling container can steal the scroll and it cannot be
   verified from here
+
+---
+
+## Part 7.1 CLOSED — course-rail snap is VERIFIED
+
+Measured 2026-08-20 with `scripts/anim/snap_probe.py` (2-D crop correlation).
+
+| | |
+|---|---|
+| Displacement | **864px = 288.0pt** |
+| Card pitch | 144pt (`RAIL_CARD_WIDTH` 132 + `Spacing.two` 8 + 4) |
+| Multiple | **2.000 x** |
+| Distance from grid | **0.0pt** (tolerance 10pt) |
+| Correlation | **1.000** (floor 0.75) |
+| Vertical drift | 0px |
+| **VERDICT** | **SNAPPED** |
+
+### Why the earlier probe failed and this one did not
+
+`snap2_probe.py` collapsed the rail band to a single row (`resize((w, 1))`)
+before correlating, discarding every vertical feature. It scored 0.695 on a
+real flick -- under the 0.75 floor -- so it produced no verdict. The 2-D
+matcher keeps the full band and scores 1.000 on the same gesture.
+
+### Two guards, both of which fired usefully
+
+1. **Selftest (14 assertions).** It caught a genuine bug in my own matcher: the
+   rows were subsampled BEFORE the vertical offset was applied, making `dy` a
+   multiple of `ROW_STEP`, so a 3px drift could not be corrected and the search
+   locked onto a harmonic. Fixed by aligning at full resolution first.
+2. **Peak-ambiguity check.** A card rail repeats every 144pt, so a harmonic can
+   impersonate the true shift. Reported peaks:
+
+   | rank | dx | pt | x pitch | r |
+   |---|---|---|---|---|
+   | 1 | 864px | 288.0 | 2.00 | **1.000** |
+   | 2 | 0px | 0.0 | 0.00 | 0.288 |
+   | 3 | 432px | 144.0 | 1.00 | 0.197 |
+
+   The 1x harmonic scoring 0.197 proves the cards are visually distinct
+   (green sprout / violet wallet / cyan globe, confirmed by eye in `band.png`)
+   and that 864px is the unique true displacement, not a periodic artifact.
+
+### Guards retained from the earlier failure
+
+- Non-zero-movement assert before any grid test. Zero is an exact multiple of
+  everything, which is how a previous probe printed SNAPPED on a stationary rail.
+- Band drawn to `band.png` and verified by eye before the number is trusted.
+- Correlation floor pre-registered at 0.75, not chosen after seeing the result.
+
+### Navigation finding
+
+`euphorianative://home` does **not** reliably land on Home -- the app restores
+its last tab (observed landing on Trade). The probe now taps the Home tab in the
+fixed bottom bar (y=790..840) with a 3-attempt loop. Any future driver should do
+the same rather than trust that deep link.
