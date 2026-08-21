@@ -19,8 +19,10 @@ Ordered by owner instruction 2026-08-20. Worked top-down, not in parallel.
 | 4 | **Make the nav check unskippable** — `record_transition()` refuses to film unless the trigger provably navigated. | ✅ done |
 | 5 | **Memoisation sweep** | ✅ done — only 2 clean candidates remain (`AtlasMarkBody`, `CelebrationRays`, both small). The rest take arrays/objects where shallow compare cannot help. |
 | 6 | **Measure the memo wins** | ✅ done — A/B on the Learn screen (profiler works there; only lessons break it). Pre-memo 256 commits / 1029ms → memoised 114 / 732ms. **−55% commits, −29% duration**, and −55 to −61% on every SVG component. |
-| 7 | **Profile home and digest** — the two surfaces not yet profiled. | ⬜ next |
-| 8 | **Understand CssInterop.View** — 27,956 commits in the lesson flow, second-largest self cost. | ⬜ |
+| 7 | **Profile home and digest** | ✅ done — identical 6-scroll interaction: **Trade 0 commits, Home 43 / 100ms, Digest 97 / 296ms**. Two leads below. |
+| 8 | **NumberRollup setState-per-frame** — `setN()` inside a requestAnimationFrame loop, ~54 re-renders of its subtree per mount over Duration.count (900ms). Should drive a shared value on the UI thread instead. Money display, so needs care. | ⬜ next |
+| 9 | **Why do Home and Digest commit during scroll at all?** Trade produces 0 after the AmbientBackground memo; Home 43 and Digest 97. Not scroll-handler setState (only two exist and both are guarded), not a setInterval on those screens. Cause UNKNOWN — do not guess it. | ⬜ |
+| 10 | **Understand CssInterop.View** — 35,454 commits pre-memo, 15,504 after; still the second-largest self cost. | ⬜ |
 
 ## Method in force
 1. Runtime first — network log and console before reading source.
