@@ -199,9 +199,24 @@ def advance():
     # flip them all first and let the next call take the button.
     hidden = [n for n in nodes() if 'not revealed yet' in n[4].lower()]
     if hidden:
-        for n in hidden:
-            tap(n, 0.5)
-        return True, f'reveal x{len(hidden)}'
+        # SCROLL FOR THE REST. Revealing only what is on screen leaves cards below the fold
+        # hidden, and Continue stays inert until EVERY card is flipped -- so the driver reveals
+        # what it can see, taps a dead button, and stalls forever on an unchanged label set.
+        # Measured: nine steps of a lesson driven correctly, then four identical iterations at a
+        # tap-reveal, which blocked a device verification entirely.
+        total = 0
+        for _ in range(6):
+            batch = [n for n in nodes() if 'not revealed yet' in n[4].lower()]
+            if not batch:
+                break
+            for n in batch:
+                tap(n, 0.45)
+            total += len(batch)
+            # look further down for more cards; harmless when the list already fits
+            sp.run(["idb", "ui", "swipe", "--udid", U, "--duration", "0.25",
+                    "200", "600", "200", "330"], capture_output=True)
+            time.sleep(0.8)
+        return True, f'reveal x{total}'
 
     btn = button('continue', 'check', 'next', 'got it')
     if not btn:
