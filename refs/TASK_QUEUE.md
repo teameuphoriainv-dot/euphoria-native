@@ -22,7 +22,7 @@ Ordered by owner instruction 2026-08-20. Worked top-down, not in parallel.
 | 7 | **Profile home and digest** | ✅ done — identical 6-scroll interaction: **Trade 0 commits, Home 43 / 100ms, Digest 97 / 296ms**. Two leads below. |
 | 8 | ✅ DONE — **NumberRollup setState-per-frame** — `setN()` inside a requestAnimationFrame loop, ~54 re-renders of its subtree per mount over Duration.count (900ms). Now stores the STRING and caps at 24fps: ~70% fewer renders (54 -> 13 for XP, 54 -> 17 for money). The complete fix (shared value + TextInput animatedProps) is deliberately NOT done — it swaps the element away from ThemedText on a money display. | ✅ |
 | 9 | ✅ INVESTIGATED — **the app re-renders ~8x/second while IDLE, on every screen.** Not a scroll problem at all: Home 66 commits and Trade 61 commits in 8 seconds with ZERO touches. Cause NOT found; see below. | ⚠️ open |
-| 10 | **Understand CssInterop.View** — 35,454 commits pre-memo, 15,504 after; still the second-largest self cost. | ⬜ |
+| 10 | ✅ INVESTIGATED — **CssInterop.View wraps every View for a feature with ZERO usage.** Proposed fix costed and written up below; NOT applied, because verifying it needs a Metro restart on the owner's machine. | ⚠️ ready to apply |
 
 ## Method in force
 1. Runtime first — network log and console before reading source.
@@ -68,3 +68,50 @@ which has four `useEffect`s and a `ThemeProvider` above every screen.
 
 Recorded as unknown on purpose. Three false findings earlier in this session came from filling a
 gap exactly like this one with a plausible story.
+
+---
+
+## Ready to apply: drop the global NativeWind JSX wrapper (item 10)
+
+**The cost, measured.** `CssInterop.View` is the second-largest render cost in the app:
+
+| context | commits | self time |
+|---|---|---|
+| 8 lesson steps | 27,956 | ~5,871ms |
+| Learn, pre-memo | 35,454 | ~6,736ms |
+| Home, 8s IDLE | 8,976 | ~1,616ms |
+
+**The usage, swept.** `src/` contains **zero** `className`, zero `styled()`, zero `cssInterop()`,
+zero `remapProps()`, and no imports from `nativewind` at all. `tailwind.config.js` says why:
+
+> "NEW SURFACES ONLY (decision 6) — the ~50 existing StyleSheet files are NOT migrating."
+
+Those new surfaces do not exist yet, so ~50 screens pay for a feature with no users.
+
+**The cause.** `babel.config.js` sets `jsxImportSource: 'nativewind'` on `babel-preset-expo`, which
+routes EVERY JSX element in the app through the interop wrapper — not only files that want it.
+
+**The change.** One line, and it does not reverse decision 6:
+
+```js
+// before
+presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
+// after
+presets: ['babel-preset-expo', 'nativewind/babel'],
+```
+
+NativeWind stays installed, `nativewind/babel` stays, `global.css` stays imported,
+`tailwind.config.js` is untouched. A new surface that wants Tailwind adds one line at the top of
+its own file — `/** @jsxImportSource nativewind */` — and `className` works there exactly as
+before.
+
+**Why it is NOT applied.** It was applied, and it did nothing, because Metro caches transforms
+keyed by the babel config. The tell was the RATIO, not the count: 8,976/66 = 136 wrapped views per
+commit before, 6,987/51 = 137 after. Unchanged, so the old bundle was still being served.
+
+Verifying it needs `npx expo start --clear`, i.e. restarting the owner's running dev server, which
+is not something to do unattended at 01:45. **Reverted and left clean.**
+
+**To finish this:** restart Metro with `--clear`, relaunch, profile 8s idle on Home, and compare
+`CssInterop.View` per commit against the 136 baseline. If it goes to zero, this is the single
+largest render win available in the app.
