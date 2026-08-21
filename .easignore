@@ -29,6 +29,13 @@ android/.gradle/
 *.mobileprovision
 credentials.json
 
+# --- generated native projects (CNG) ---
+# .gitignore:42-43 excludes /ios and /android because `expo prebuild` regenerates them.
+# .easignore REPLACES .gitignore, so without these two lines a 1.5GB local ios/ dir gets
+# uploaded and EAS builds YOUR machine's stale Xcode workspace instead of prebuilding.
+/ios
+/android
+
 # --- dev-only research artifacts: the actual 166MB ---
 refs/
 screenshots/
