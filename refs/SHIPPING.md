@@ -91,9 +91,12 @@ and the EAS build cache.
 - The build archive is ~158MB and only ~15MB of that is tracked files. Unexplained.
   `.easignore` excluding `/ios` changed nothing, because `ios/` is gitignored and EAS
   archives via git — that exclusion fixed a non-problem.
-- `[store] rehydrate failed ReferenceError: window is not defined` appears during
-  EAGER_BUNDLE. Non-fatal, but it means a persisted store silently fails to rehydrate
-  during bundling. Worth a look.
+- ~~`[store] rehydrate failed ReferenceError: window is not defined` during EAGER_BUNDLE~~
+  RESOLVED, and it was never a defect. Static rendering has no `window`, AsyncStorage needs
+  one, so rehydration always rejects there; `store.ts` already guarded the routing fallback
+  on exactly that condition. The bug was the LOG SEVERITY -- an expected rejection reported
+  at `console.error`, which reads like a production failure in build output and cost an
+  investigation. Now guarded on the same condition, so a real client failure still logs.
 - The project lives under `s-k-28`; the owner wants it on `euphoria-team`, which is
   currently empty. Migration needs project re-init, credentials redone (another Apple 2FA)
   and all 7 env vars re-pushed.
