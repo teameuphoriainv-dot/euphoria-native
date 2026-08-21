@@ -729,3 +729,34 @@ surfaces onto the app's motion tokens, which the platform default bypasses entir
 **Not shipped.** It is a real change to three files on a commercially important surface, and this
 audit has a standing rule that a fix is not done without its re-measurement. Since the
 measurement is blocked, the finding is filed rather than acted on.
+
+
+## 14b. The sheet fix is SHIPPED but still not device-verified — and here is exactly why
+
+Two commits (`5900ed4`, `b59b618`) changed animation on four Modals. Neither was captured. The
+blocker is not tooling:
+
+**The simulator account is on an active FREE TRIAL**, which grants Pro access. Verified on the
+`you` screen: `FREE TRIAL`, `Free trial`, `See Euphoria Pro`. With entitlement granted:
+
+- `GateSheet` needs a refusal — an advanced lesson (`quantitative-analysis` #3) opened **ungated**
+- `DismissalOfferSheet` needs `leaveWall()`, which needs a paywall wall — circular with the gate
+- `TrialRewardSheet` fires on the trial grant, which already happened
+- `WidgetPromo` was the reachable one, and this session's own lesson-driving consumed its
+  once-daily ask (`nextWidgetAsk` returned null)
+
+Ending the trial or clearing entitlement would make all four reachable, but that is **owner app
+state**, and the standing rule is that anything changed on the simulator is restored in the same
+call. Entitlement is not safely restorable, so it was not touched.
+
+**What IS established:** the mechanism is confirmed in React Native's own source
+(`Modal.js:333` passes `animationType` to the native `<RCTModalHostView>` with children inside,
+so the host animates as one unit and an `absoluteFill` backdrop travels with the sheet); `tsc`,
+`npm run check` and ESLint including rules-of-hooks all pass; `visible` is bound before the hook
+call in all four files; and a regression introduced by the first commit — a mount-only effect
+leaving two always-mounted sheets with no entrance at all — was found by auditing call sites and
+fixed in the second.
+
+**What is NOT established:** that the result looks right. A ten-second look by anyone who can
+trigger a sheet settles it — the backdrop should darken evenly across the whole screen while the
+sheet rises, rather than the dimming wiping up from the bottom.
