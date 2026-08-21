@@ -17,11 +17,52 @@
 export {
   /** The 12 course metadata entries (id, title, description, tier, color, icon, totalLessons). */
   COURSES,
-  /** Lazily load the 25 lessons for a course. Resolves to [] for an unknown id. */
-  loadCourseLessons,
   getCourseById,
   getCoursesByTier,
 } from './courseIndex';
+
+import { loadCourseLessons as loadCourseLessonsUncached } from './courseIndex';
+
+/*
+ * ONE LOAD PER COURSE, SHARED BY EVERY CALLER.
+ *
+ * OBSERVED in the running app's network log: `personalFinance.bundle` was fetched TWENTY times,
+ * 664.7 KB each — about 13MB of the same module. Four screens call this on mount with no cache
+ * and no dedupe between them: home.tsx:120, learn.tsx:88, lesson.tsx:86 and start.tsx:72. Opening
+ * Learn, backing out and opening it again pays again.
+ *
+ * THE PROMISE IS CACHED, NOT THE RESULT, which is what makes this a dedupe as well as a cache:
+ * two screens mounting in the same tick share one in-flight load instead of racing two.
+ *
+ * A REJECTION IS EVICTED. Caching a failed promise forever would turn one dropped chunk into a
+ * course that can never load again for the life of the process — and learn.tsx has a retry button
+ * whose whole purpose is to recover from exactly that. The `attempt` counter it bumps would have
+ * become useless.
+ *
+ * Honest scope: in production `import()` already caches the MODULE, so this mainly saves the
+ * repeated promise setup and the duplicate in-flight loads. In development, where Metro re-serves
+ * the lazy bundle, it saves the 664KB refetch outright.
+ *
+ * IT LIVES HERE, NOT IN courseIndex.ts, AND THAT IS THE WHOLE POINT. courseIndex.ts is OWNED by
+ * ./scripts/sync-curriculum.sh, which deletes and rewrites it on every run. This cache was
+ * hand-written into that generated file and a routine sync destroyed it silently — the sync
+ * reported success, tsc passed, `npm run check` passed, and the only symptom would have been the
+ * 13MB of refetching quietly coming back. index.ts is the one file in this folder the sync skips
+ * (sync-curriculum.sh:263), so anything native-only belongs here, wrapping the generated export
+ * rather than editing it.
+ */
+const lessonCache = new Map<string, Promise<PathwayLesson[]>>();
+
+/** Lazily load the 25 lessons for a course. Resolves to [] for an unknown id. */
+export function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
+  const hit = lessonCache.get(courseId);
+  if (hit) return hit;
+  const p = loadCourseLessonsUncached(courseId);
+  lessonCache.set(courseId, p);
+  // Evict on failure so a retry can genuinely retry.
+  void p.catch(() => lessonCache.delete(courseId));
+  return p;
+}
 
 // ─── Core types ─────────────────────────────────────────────────────────────
 

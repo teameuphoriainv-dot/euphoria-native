@@ -29,39 +29,7 @@ export function getCourseById(id: string): CourseMeta | undefined {
   return COURSES.find(c => c.id === id);
 }
 
-/*
- * ONE LOAD PER COURSE, SHARED BY EVERY CALLER.
- *
- * OBSERVED in the running app's network log: `personalFinance.bundle` was fetched TWENTY times,
- * 664.7 KB each — about 13MB of the same module. Four screens call this on mount with no cache
- * and no dedupe between them: home.tsx:120, learn.tsx:88, lesson.tsx:86 and start.tsx:72. Opening
- * Learn, backing out and opening it again pays again.
- *
- * THE PROMISE IS CACHED, NOT THE RESULT, which is what makes this a dedupe as well as a cache:
- * two screens mounting in the same tick share one in-flight load instead of racing two.
- *
- * A REJECTION IS EVICTED. Caching a failed promise forever would turn one dropped chunk into a
- * course that can never load again for the life of the process — and learn.tsx has a retry button
- * whose whole purpose is to recover from exactly that. The `attempt` counter it bumps would have
- * become useless.
- *
- * Honest scope: in production `import()` already caches the MODULE, so this mainly saves the
- * repeated promise setup and the duplicate in-flight loads. In development, where Metro re-serves
- * the lazy bundle, it saves the 664KB refetch outright.
- */
-const lessonCache = new Map<string, Promise<PathwayLesson[]>>();
-
-export function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
-  const hit = lessonCache.get(courseId);
-  if (hit) return hit;
-  const p = loadCourseLessonsUncached(courseId);
-  lessonCache.set(courseId, p);
-  // Evict on failure so a retry can genuinely retry.
-  void p.catch(() => lessonCache.delete(courseId));
-  return p;
-}
-
-async function loadCourseLessonsUncached(courseId: string): Promise<PathwayLesson[]> {
+export async function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
   try {
     switch (courseId) {
       case 'investing-fundamentals':
