@@ -574,14 +574,22 @@ maximises correlation IS the displacement, in screen pixels.** 144pt = 432px at 
 **Assert the displacement is NON-ZERO before testing whether it is on-grid**, or you will
 reproduce the false positive above.
 
-**A working probe already exists at `/tmp/snap2_probe.py`** (copy it somewhere durable). It ran and
-correctly reported `THE RAIL DID NOT MOVE` rather than a false pass — and the reason is the last
-piece the next session needs:
+**A working probe exists at `/tmp/snap2_probe.py`** (copy it somewhere durable). It has been run
+twice and the below-the-fold blocker is already solved inside it — it scrolls the page down until
+the rail clears the screen edge, re-reads the band from the a11y tree (y moves 804..954 → 304..454),
+and flicks at 40% into the visible band.
 
-> **The course rail sits at y = 804..954 on an 874pt screen**, so it is PARTIALLY BELOW THE FOLD.
-> A swipe at its a11y midpoint (y≈879) lands in the home-indicator area and never reaches the app.
-> **Scroll the home page down first to bring the rail fully on screen, THEN flick it horizontally.**
-> Take the band's y from the a11y tree again after scrolling — it will have changed.
+**Latest run — SUGGESTIVE BUT NOT REPORTABLE, and this is where to pick up:**
+
+> The flick moved the rail **878px = 292.7pt**. That is **2.03 × 144**, i.e. **4.7pt off a card
+> boundary**, inside the 10pt tolerance — consistent with the snap working. **But the correlation
+> was 0.695 against the 0.75 floor pre-registered in the probe, so it refused to report, and that
+> refusal was correct.** Do not quote 292.7pt as a confirmed snap.
+>
+> **Why the correlation is low:** after an 878px shift the overlapping region is much smaller and
+> the visible cards differ, so a one-row luminance signature has little to match on.
+> **Fix it by flicking SHORTER** (a ~150–250px swipe instead of 340→60), which keeps most of the
+> strip in both frames. Or correlate a 2-D crop instead of collapsing to one row.
 
 The same probe works for `news-gallery` on the Trade tab with `INTERVAL_PT = 244`.
 
