@@ -7,9 +7,8 @@
  * That is precisely the class of thing this app has been removing — an invented $104,237.55
  * portfolio, a bezier posing as a chart. `null` forces the UI to say "not live" instead.
  */
-import { ApiError, apiGet } from './api';
+import { ApiError, apiBase, apiGet } from './api';
 import { setChange, setMark, setMarkDate } from './marks';
-
 /** Ranges the chart offers. Order matters — this is the row under the chart, left to right.
  *  TradingView, Bloom and Yahoo Finance all ship this control (3/3). */
 export const RANGES = ['1H', '1D', '1W', '1M', '3M', 'YTD', '1Y', '5Y'] as const;
@@ -248,5 +247,35 @@ export type Mover = { sym: string; price: number; changePct: number };
 
 /** Today's biggest movers. `[]` when there is no key — the section hides rather than showing an
  *  empty table, the same rule the rest of this file follows. */
-export const getMovers = (dir: 'gainers' | 'losers') =>
-  safe<{ movers: Mover[] }>(`/api/market?action=movers&dir=${dir}`).then((d) => d?.movers ?? []);
+/*
+ * ASK ONCE, NOT ON EVERY MOUNT.
+ *
+ * OBSERVED IN THE RUNNING APP 2026-08-20 via the network log, not inferred: every visit to the
+ * Trade tab fired `action=movers&dir=gainers` and every one came back **501 plan_required**. The
+ * snapshot endpoint movers needs is not on this Polygon tier, so that request cannot ever succeed
+ * for this deployment -- and it was being spent repeatedly against a five-request-per-minute
+ * ceiling shared with the prices and logos that CAN succeed.
+ *
+ * A 501 here is a statement about the PLAN, not about the moment, so it is remembered for the
+ * process rather than retried. Everything else still retries normally: a network blip or a 5xx
+ * leaves the flag alone, because those are about the moment.
+ *
+ * Module-scoped on purpose -- a fresh launch asks again, which is what should happen if the plan
+ * is upgraded.
+ */
+let moversPlanGated = false;
+
+export const getMovers = (dir: 'gainers' | 'losers') => {
+  if (moversPlanGated) return Promise.resolve<Mover[]>([]);
+  return fetch(`${apiBase()}/api/market?action=movers&dir=${dir}`)
+    .then(async (r) => {
+      if (r.status === 501) {
+        moversPlanGated = true;
+        return [];
+      }
+      if (!r.ok) return [];
+      const d = (await r.json()) as { movers?: Mover[] };
+      return d.movers ?? [];
+    })
+    .catch(() => []);
+};
