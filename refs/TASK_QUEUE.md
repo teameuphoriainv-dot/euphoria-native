@@ -144,7 +144,7 @@ fixed: 12 errors down to 8.
 
 ---
 
-## Open signal: ~70MB retained across 50 navigations (measured 2026-08-21, 03:05)
+## Confirmed: ~85MB retained across 50 navigations — profiler ruled out (2026-08-21, 03:40)
 
 Nothing tonight had looked at memory. It is a signal worth someone's daylight, and it is NOT yet
 a defect.
@@ -175,3 +175,34 @@ instrument. If ~70MB still sticks, bisect by disabling the marks fetch.
 
 Recorded as a signal rather than a leak. Measuring something and naming what could explain it is
 the whole method that kept tonight honest.
+
+### Follow-up: the profiler was NOT the cause
+
+The obvious suspect was my own instrumentation — `start_profiling` had been attached about eight
+times and its fiber commit hook accumulates records. Re-ran the identical protocol on a FRESH
+launch with the profiler never attached:
+
+| | with profiler history | profiler never attached |
+|---|---|---|
+| baseline | 72.74 MB | **41.98 MB** (fresh launch) |
+| after 25 navigations | 129.53 MB | 112.69 MB |
+| after 50 + 45s idle GC | 142.74 MB | **126.92 MB** |
+| **retained above baseline** | +70.0 MB | **+84.9 MB** |
+
+**Retention is HIGHER without the profiler, not lower.** Confound eliminated: this is the app or
+the dev build, not the instrument. About **1.7MB retained per tab navigation** after collection.
+
+Worth noting separately: the earlier run's "baseline" of 72.74MB was itself inflated. A genuinely
+fresh launch sits at **41.98MB**, so roughly 31MB had already accumulated before that measurement
+began — which is why a fresh relaunch is now part of the protocol.
+
+**Still not ruled out:** the dev build. Source maps, the inspector and HMR all retain, and none of
+that ships. Settling it needs a release build, which cannot be profiled through metro-mcp because
+that requires a Metro dev connection.
+
+**Ruled out as explanations:** the marks map (fetched once per 15 minutes, so it cannot grow per
+navigation) and news images (now lazy, ~10KB per Trade visit rather than 831KB).
+
+**Next bisect, cheapest first:** repeat with only TWO screens in the cycle instead of five. If
+retention per navigation holds, it is generic screen mount/unmount; if it concentrates on one
+screen, that screen is the target.
