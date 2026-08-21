@@ -824,9 +824,15 @@ frame — a **0ms transition on the most satisfying moment in the step**, well b
 motion-invariant 1 forbids a scale-pop on ordinary interaction, which is the rule that exists to
 protect the defect the owner originally reported.
 
-**Left alone and recorded:** the border colour and width still change instantly. Animating them
-needs `interpolateColor` across four states with 8-digit-hex tints, which is materially more
-risk than the moment warrants, and this audit's rule is not to make changes it cannot verify.
+**Border animation — subsequently DONE, with the risky half left out.** A `MatchCell` component
+now animates `borderColor` and `borderWidth` across three stages (0 idle, 1 accented, 2 matched)
+over `Duration.fast`. The two columns pass different accents — `theme.primary` for selection on
+the left, `theme.warning` for a wrong pick on the right — so one component serves both.
+
+**The background tint is still instant, on purpose.** Those tints are 8-digit hex
+(`theme.primary + '14'`), and whether `interpolateColor` handles an alpha channel in hex is not
+something this audit can verify from here. The border is what carries the meaning; animating it
+and leaving the tint is a smaller, checkable change than animating both and guessing.
 
 ## 17. Lesson step animation coverage — one gap, and two false alarms
 

@@ -7,7 +7,14 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -26,6 +33,42 @@ const shuffle = <T,>(arr: T[]): T[] => {
   }
   return a;
 };
+
+
+/**
+ * One term/definition cell, whose border animates between three states instead of cutting.
+ *
+ * The border colour and width carried ALL the matched/selected signal and changed on a single
+ * frame — 0ms, far below R1's p10 of 130ms, on the moment the learner succeeds. `stage` is
+ * 0 idle, 1 accented (selected on the left, wrong on the right), 2 matched.
+ *
+ * BACKGROUND TINT IS LEFT INSTANT, deliberately. The tints are 8-digit hex (`theme.primary +
+ * '14'`) and `interpolateColor`'s handling of an alpha channel in hex is not something this
+ * audit can verify from here. The border is what carries the meaning; animating it and leaving
+ * the tint is a smaller, checkable change than animating both and guessing.
+ */
+function MatchCell({
+  stage,
+  accent,
+  tint,
+  children,
+}: {
+  stage: 0 | 1 | 2;
+  accent: string;
+  tint: string;
+  children: React.ReactNode;
+}) {
+  const theme = useTheme();
+  const t = useSharedValue(stage);
+  useEffect(() => {
+    t.set(withTiming(stage, { duration: Duration.fast }));
+  }, [stage, t]);
+  const style = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(t.get(), [0, 1, 2], [theme.border, accent, theme.success]),
+    borderWidth: interpolate(t.get(), [0, 1, 2], [StyleSheet.hairlineWidth, 2, 2]),
+  }));
+  return <Animated.View style={[styles.cell, { backgroundColor: tint }, style]}>{children}</Animated.View>;
+}
 
 export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
@@ -74,7 +117,6 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
           {spec.pairs.map((p, i) => {
             const isMatched = matched.includes(i);
             const isSel = selected === i;
-            const border = isMatched ? theme.success : isSel ? theme.primary : theme.border;
             return (
               <SpringPressable
                 key={p.left}
@@ -87,7 +129,10 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                 accessibilityLabel={p.left}
                 accessibilityState={{ selected: isSel, disabled: isMatched }}
                 accessibilityHint={isMatched ? undefined : 'Activate, then choose its definition.'}>
-                <View style={[styles.cell, { borderColor: border, borderWidth: isSel || isMatched ? 2 : StyleSheet.hairlineWidth, backgroundColor: isSel ? theme.primary + '14' : theme.card }]}>
+                <MatchCell
+                  stage={isMatched ? 2 : isSel ? 1 : 0}
+                  accent={theme.primary}
+                  tint={isSel ? theme.primary + '14' : theme.card}>
                   <ThemedText type="bodyMedium" style={{ flex: 1 }}>{p.left}</ThemedText>
                   {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
                       most satisfying moment in the step, well below R1's p10 of 130ms, while
@@ -100,7 +145,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                       <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
                     </Animated.View>
                   )}
-                </View>
+                </MatchCell>
               </SpringPressable>
             );
           })}
@@ -110,7 +155,6 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
           {rightOrder.map((j) => {
             const isMatched = matched.includes(j);
             const isWrong = wrong === j;
-            const border = isMatched ? theme.success : isWrong ? theme.warning : theme.border;
             return (
               <SpringPressable
                 key={spec.pairs[j].right}
@@ -120,7 +164,10 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                 accessibilityLabel={spec.pairs[j].right}
                 accessibilityState={{ disabled: isMatched }}
                 accessibilityHint={isMatched ? undefined : 'Activate to match this with the selected term.'}>
-                <View style={[styles.cell, { borderColor: border, borderWidth: isMatched || isWrong ? 2 : StyleSheet.hairlineWidth, backgroundColor: isMatched ? theme.success + '14' : theme.card }]}>
+                <MatchCell
+                  stage={isMatched ? 2 : isWrong ? 1 : 0}
+                  accent={theme.warning}
+                  tint={isMatched ? theme.success + '14' : theme.card}>
                   <ThemedText type="small" style={{ flex: 1 }}>{spec.pairs[j].right}</ThemedText>
                   {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
                       most satisfying moment in the step, well below R1's p10 of 130ms, while
@@ -133,7 +180,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                       <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
                     </Animated.View>
                   )}
-                </View>
+                </MatchCell>
               </SpringPressable>
             );
           })}
