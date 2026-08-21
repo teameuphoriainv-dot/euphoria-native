@@ -118,7 +118,7 @@ function isThin(n) {
 }
 
 const files = readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort();
-let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0;
+let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0, rawDecisions = 0;
 const unrenderable = [];
 const visualKinds = new Map();
 const byType = new Map();
@@ -133,6 +133,7 @@ for (const f of files) {
     // audit what the app ACTUALLY renders, which is the expanded list
     for (const raw of lesson.steps ?? []) {
       if (raw?.type === 'progressiveCalc') rawCalcSteps += (raw.calcSteps ?? []).length;
+      if (raw?.type === 'simulationFinale') rawDecisions += (raw.decisions ?? []).length;
     }
     for (const step of expandSteps(lesson.steps ?? [])) {
       steps += 1;
@@ -206,10 +207,16 @@ if (VERBOSE && thinExamples.length) {
 // The number is a CEILING, not a target: this exits non-zero the moment a sync or an edit makes
 // MORE steps thin, which is the regression nothing else in `npm run check` would notice.
 const BASELINE = 0;
-const { droppedCalcSteps } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { droppedCalcSteps, tiedDecisions } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 const emittedCalc = byType.get('calcQuiz') ?? 0;
 const emittedWalk = byType.get('calcWalkthrough') ?? 0;
 console.log(`calcSteps in data ${rawCalcSteps} -> emitted ${emittedCalc + emittedWalk} (dropped ${droppedCalcSteps})`);
+const gradedDecisions = byType.get('simDecision') ?? 0;
+console.log(`decisions in data ${rawDecisions} -> graded ${gradedDecisions} + tied-as-prose ${tiedDecisions}`);
+if (rawDecisions !== gradedDecisions + tiedDecisions) {
+  console.error(`\nDECISIONS LOST: ${rawDecisions} in the data, ${gradedDecisions + tiedDecisions} accounted for.`);
+  process.exit(1);
+}
 if (unrenderable.length) {
   console.error(`\n${unrenderable.length} visual(s) the app CANNOT render:`);
   for (const u of unrenderable.slice(0, 20)) console.error(`  ${u}`);

@@ -262,6 +262,22 @@ export function normalizeStep(step: LessonStep): Normalized {
       };
 
     // ─── not renderable yet — show the real title, never a blank screen ───────
+    case 'simProse':
+      // The scenario's setup, or its debrief. Both are authored prose that used to share ONE screen
+      // with the decisions the learner never got to make.
+      return { kind: 'prose', label: s.label, title: s.title, blocks: paras(s.paragraphs) };
+    case 'simDecision': {
+      /*
+       * One decision out of a simulationFinale. `correct` is the option with the highest authored
+       * `score`; the feedback is that option's own `consequence`, so nothing is invented. Both the
+       * right and wrong branches show it, which is what `quiz` already does with its single
+       * explanation -- the learner needs to know which choice was best either way.
+       */
+      const opts: any[] = s.options ?? [];
+      const best = opts.reduce((b, o, i) => ((o?.score ?? -Infinity) > (opts[b]?.score ?? -Infinity) ? i : b), 0);
+      const why = String(opts[best]?.consequence ?? '');
+      return { kind: 'choice', prompt: s.prompt, options: opts.map((o) => String(o?.label ?? '')), correct: best, right: why, wrong: why };
+    }
     case 'calcQuiz':
       /*
        * One question out of a progressiveCalc, lifted to its own screen by expandSteps() below.
@@ -332,10 +348,49 @@ export function normalizeStep(step: LessonStep): Normalized {
  *  cannot otherwise see data lost inside this function. Any value above zero is a defect. */
 export let droppedCalcSteps = 0;
 
+/** Decisions rendered as prose because their top score is TIED (or they have fewer than two
+ *  options), so a graded question would mark an equally-good answer wrong. Read by the render
+ *  audit so `decisions in data === graded + tied` can be asserted rather than assumed. */
+export let tiedDecisions = 0;
+
 export function expandSteps(steps: LessonStep[]): LessonStep[] {
   const out: LessonStep[] = [];
   for (const step of steps) {
     const s = step as Record<string, any>;
+    if (s?.type === 'simulationFinale' && Array.isArray(s.decisions) && s.decisions.length > 0) {
+      /*
+       * A finale is a SCENARIO: a setup, a series of decisions, then the debrief. It used to render
+       * as one prose screen carrying the setup, the principle and the optimal outcome, with all 783
+       * decisions across the corpus dropped -- the learner read what the right answer was without
+       * ever being asked. Same shape of loss as progressiveCalc, same fix.
+       */
+      out.push({ type: 'simProse', label: 'The scenario', title: s.title, paragraphs: [s.setup] } as unknown as LessonStep);
+      for (const d of s.decisions) {
+        const opts: any[] = Array.isArray(d?.options) ? d.options : [];
+        const scores = opts.map((o) => o?.score ?? -Infinity);
+        const top = Math.max(...scores);
+        const tied = scores.filter((x) => x === top).length > 1;
+        if (opts.length < 2 || tied) {
+          tiedDecisions += 1;
+          /*
+           * TWO of the 783 decisions have a TIED top score, and a graded question cannot represent
+           * that -- it would mark an equally-good answer wrong. Those render as prose showing every
+           * option with its authored consequence, so the reasoning still lands and nothing the
+           * author wrote is contradicted.
+           */
+          out.push({
+            type: 'simProse',
+            label: 'Consider',
+            title: String(d?.prompt ?? s.title),
+            paragraphs: opts.map((o) => `${o?.label ?? ''} — ${o?.consequence ?? ''}`),
+          } as unknown as LessonStep);
+        } else {
+          out.push({ type: 'simDecision', prompt: d.prompt, options: opts } as unknown as LessonStep);
+        }
+      }
+      out.push({ type: 'simProse', label: 'The takeaway', title: s.title, paragraphs: [s.optimalOutcome, s.principle] } as unknown as LessonStep);
+      continue;
+    }
     if (s?.type !== 'progressiveCalc' || !Array.isArray(s.calcSteps) || s.calcSteps.length === 0) {
       out.push(step);
       continue;
