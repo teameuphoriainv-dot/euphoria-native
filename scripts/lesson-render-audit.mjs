@@ -81,7 +81,8 @@ function isThin(n) {
 }
 
 const files = readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort();
-let steps = 0, lessons = 0, thin = 0, todo = 0;
+let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0;
+const visualKinds = new Map();
 const byType = new Map();
 const thinByType = new Map();
 const thinExamples = [];
@@ -105,6 +106,12 @@ for (const f of files) {
         continue;
       }
       if (n.kind === 'todo') todo += 1;
+      for (const b of (Array.isArray(n.blocks) ? n.blocks : [])) {
+        if (b?.b === 'visual' && b.visual?.type) {
+          visualBlocks += 1;
+          visualKinds.set(b.visual.type, (visualKinds.get(b.visual.type) ?? 0) + 1);
+        }
+      }
       if (isThin(n)) {
         thin += 1;
         thinByType.set(step.type, (thinByType.get(step.type) ?? 0) + 1);
@@ -118,7 +125,12 @@ for (const f of files) {
 
 console.log(`\ncourses ${files.length}   lessons ${lessons}   steps ${steps}   distinct types ${byType.size}`);
 console.log(`fell through to the 'todo' default: ${todo} step(s)`);
-console.log(`THIN (reach the screen with no readable body and no interaction): ${thin}\n`);
+console.log(`THIN (reach the screen with no readable body and no interaction): ${thin}`);
+console.log(`AnimatedVisuals reaching the screen: ${visualBlocks}`);
+if (visualKinds.size) {
+  console.log('  ' + [...visualKinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('   '));
+}
+console.log('');
 
 if (thinByType.size) {
   console.log('thin steps by type:');

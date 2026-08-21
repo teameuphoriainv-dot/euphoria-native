@@ -9,7 +9,7 @@
  * Anything not yet renderable returns kind 'todo' WITH its real title, so an unsupported step
  * shows something honest instead of a blank screen.
  */
-import type { LessonStep } from '@/lib/curriculum';
+import type { AnimatedVisual, LessonStep } from '@/lib/curriculum';
 import type { MatchSpec } from '@/components/matching-pairs';
 import type { MultiSpec } from '@/components/multi-select';
 import type { NumberLineSpec } from '@/components/number-line';
@@ -22,7 +22,13 @@ export type ProseBlock =
   | { b: 'stat'; value: string; label: string }
   | { b: 'term'; term: string; definition: string; example?: string }
   | { b: 'pair'; leftLabel: string; left: string; rightLabel: string; right: string }
-  | { b: 'event'; when: string; what: string; detail?: string };
+  | { b: 'event'; when: string; what: string; detail?: string }
+  /**
+   * A chart the curriculum authored. 1,309 of these existed in the data and NONE of them reached
+   * the screen before this block type: `AnimatedVisual` appeared only in the data layer, in zero
+   * components. The same lesson on the web showed the chart; the app showed the prose around it.
+   */
+  | { b: 'visual'; visual: AnimatedVisual };
 
 export type Normalized =
   | { kind: 'prose'; label?: string; title: string; blocks: ProseBlock[] }
@@ -40,6 +46,10 @@ const p = (text: string): ProseBlock => ({ b: 'p', text });
 const paras = (xs?: string[]): ProseBlock[] => (xs ?? []).filter((t) => t?.trim()).map(p);
 const terms = (xs?: { term: string; definition: string; example?: string }[]): ProseBlock[] =>
   (xs ?? []).map((t) => ({ b: 'term', term: t.term, definition: t.definition, example: t.example }));
+
+/** A chart block, or nothing when the step carries no visual. Keeps the three call sites honest:
+ *  a visual is an addition to prose that already works, never a replacement for it. */
+const vis = (v?: AnimatedVisual): ProseBlock[] => (v ? [{ b: 'visual', visual: v }] : []);
 
 /** de-duplicate a tray while preserving author order — repeated distractors would be unplaceable */
 const uniq = (xs: string[]): string[] => Array.from(new Set(xs));
@@ -141,7 +151,8 @@ export function normalizeStep(step: LessonStep): Normalized {
     case 'concept':
       return { kind: 'prose', title: `${s.emoji ?? ''} ${s.title}`.trim(), blocks: [p(s.body)] };
     case 'hookOpener':
-      return { kind: 'prose', label: 'To start', title: s.title, blocks: [p(s.fact), p(s.outcome)] };
+      // the visual sits between the fact and the outcome, which is where the web places it
+      return { kind: 'prose', label: 'To start', title: s.title, blocks: [p(s.fact), ...vis(s.visual), p(s.outcome)] };
     case 'teachingSlide':
       return {
         kind: 'prose',
@@ -149,6 +160,7 @@ export function normalizeStep(step: LessonStep): Normalized {
         title: s.title,
         blocks: [
           ...paras(s.paragraphs),
+          ...vis(s.diagramVisual),
           ...terms(s.highlightedTerms),
           ...(s.realExample
             ? [{ b: 'stat' as const, value: s.realExample.metric, label: `${s.realExample.company} — ${s.realExample.outcome}` }, p(s.realExample.explanation)]
@@ -175,6 +187,8 @@ export function normalizeStep(step: LessonStep): Normalized {
             rightLabel: s.withLabel ?? s.with?.label ?? 'With this',
             right: s.with?.detail ?? '',
           },
+          ...vis(s.withoutVisual),
+          ...vis(s.withVisual),
         ],
       };
     case 'misconceptions':

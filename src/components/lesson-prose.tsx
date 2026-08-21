@@ -5,6 +5,7 @@
  */
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { LessonVisual } from '@/components/lesson-visual';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -30,6 +31,8 @@ export function LessonProse({ label, title, blocks }: { label?: string; title: s
       <View style={{ gap: Spacing.three }}>
         {blocks.map((b, i) => {
           if (b.b === 'p') return <ThemedText key={i} type="body" themeColor="textSecondary">{b.text}</ThemedText>;
+
+          if (b.b === 'visual') return <LessonVisual key={i} visual={b.visual} />;
 
           if (b.b === 'stat')
             return (
