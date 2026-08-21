@@ -206,3 +206,29 @@ navigation) and news images (now lazy, ~10KB per Trade visit rather than 831KB).
 **Next bisect, cheapest first:** repeat with only TWO screens in the cycle instead of five. If
 retention per navigation holds, it is generic screen mount/unmount; if it concentrates on one
 screen, that screen is the target.
+
+### Bisect: it is NOT the data-heavy screen
+
+Three fresh-launch runs, 50 navigations each, 45s idle for GC, profiler never attached:
+
+| cycle | retained | per navigation |
+|---|---|---|
+| all five tabs | +84.9 MB | **1.70 MB** |
+| Home ↔ You | +37.4 MB | 0.75 MB |
+| **Home ↔ Trade** | **+13.3 MB** | **0.27 MB** |
+
+**Trade is the cleanest, which is the opposite of the obvious guess.** It carries the news images,
+the bundled logos and the 12,548-entry marks map, and it retains a third of what the You tab does.
+That also independently supports ruling the marks map out: if a Map of 12,548 tickers were the
+problem, the Trade cycle would be the worst, not the best.
+
+So generic screen mount/unmount costs about **0.27MB** per navigation, and the excess sits in
+**You**, and by elimination in **Learn and/or Digest** — the two screens the five-tab cycle adds.
+
+**Caveat on precision.** These are single measurements, not averages, and GC timing is not under
+my control — `totalHeap` differed between runs (44MB, 48MB, 80MB, 84MB), so the exact figures
+carry noise. The ORDERING is a 6x spread and far exceeds that noise; the individual numbers should
+be read as approximate.
+
+**Next:** Home ↔ Learn and Home ↔ Digest, the two cycles not yet run, to finish attributing the
+remaining ~1MB per navigation.
