@@ -31,9 +31,10 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "zapatoshake@gmail.com",
-        "ascAppId": "6761808087",
-        "appleTeamId": "9SS423KXF5"
+        "ascApiKeyPath": "./.secrets/AuthKey_NJ4H5Q7248.p8",
+        "ascApiKeyId": "NJ4H5Q7248",
+        "ascApiKeyIssuerId": "86cf89c1-ed5f-441d-9ae4-575aa7433937",
+        "ascAppId": "6761808087"
       }
     }
   }
