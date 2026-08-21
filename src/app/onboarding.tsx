@@ -305,7 +305,7 @@ export default function Onboarding() {
     params.step && (__DEV__ || wantsPaywall)
       ? Math.min(Math.max(0, wantsPaywall ? PAYWALL_INDEX : Number(params.step) || 0), TOTAL - 1)
       : 0;
-  const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(startStep, scrollRef);
+  const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(startStep, scrollRef, TOTAL);
   // A tap is an acknowledgement, not an achievement — see AtlasStage below for why these are
   // two different keys.
   const [nodKey, setNodKey] = useState(0);

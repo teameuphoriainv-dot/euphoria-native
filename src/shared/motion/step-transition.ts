@@ -29,12 +29,30 @@ export const CHILD_BASE = GAP + HEADLINE;
 /** Stagger delay for the i-th child of a step. Capped per tokens.ts ("first ~12 items"). */
 export const childDelay = (i: number) => CHILD_BASE + Math.min(i, 11) * STAGGER_GAP;
 
-export function useStepTransition(initial: number, scrollRef: RefObject<ScrollView | null>) {
+/**
+ * Keep a step index inside [0, count-1].
+ *
+ * Apple rejected iOS 1.0 under guideline 2.1(a) with a screenshot of the onboarding header
+ * reading "6/5" over a completely blank body and a dead Continue button. That is an index
+ * past the end of STEPS: `const def = STEPS[renderStep]` (onboarding.tsx) returns undefined,
+ * so nothing renders and there is no step left to advance from. To a reviewer it reads as
+ * "the app became unresponsive during onboarding process", which is what they wrote.
+ *
+ * The call sites in onboarding.tsx do currently guard their own arithmetic. Clamping HERE
+ * instead makes the state unreachable regardless of who calls goTo, and survives the next
+ * step being inserted into STEPS by someone who does not know about this.
+ */
+export function clampStep(n: number, count: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(Math.max(0, Math.trunc(n)), Math.max(0, count - 1));
+}
+
+export function useStepTransition(initial: number, scrollRef: RefObject<ScrollView | null>, count: number) {
   const reduced = useReducedMotion();
   /** Logical step — drives the progress bar and button label the moment the tap lands. */
-  const [step, setStep] = useState(initial);
+  const [step, setStep] = useState(() => clampStep(initial, count));
   /** Committed step — lags behind `step`, drives the body and the mascot's expression. */
-  const [renderStep, setRenderStep] = useState(initial);
+  const [renderStep, setRenderStep] = useState(() => clampStep(initial, count));
   const bodyOpacity = useSharedValue(reduced ? 1 : 0);
   /** 0 = risen, shrunk and transparent · 1 = at rest. Exit and entry share one path. */
   const atlasT = useSharedValue(reduced ? 1 : 0);
@@ -55,8 +73,9 @@ export function useStepTransition(initial: number, scrollRef: RefObject<ScrollVi
   );
 
   const goTo = useCallback(
-    (next: number) => {
+    (raw: number) => {
       if (busy.current) return;
+      const next = clampStep(raw, count);
       setStep(next); // progress bar moves on the tap, not after the transition
       if (reduced) {
         setRenderStep(next);
@@ -74,7 +93,7 @@ export function useStepTransition(initial: number, scrollRef: RefObject<ScrollVi
       clearTimeout(timer.current);
       timer.current = setTimeout(() => commit(next), EXIT);
     },
-    [reduced, commit, bodyOpacity, atlasT],
+    [reduced, commit, bodyOpacity, atlasT, count],
   );
 
   // never commit into an unmounted screen
