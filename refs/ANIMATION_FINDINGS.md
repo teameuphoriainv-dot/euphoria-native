@@ -1030,3 +1030,31 @@ dormant-code fixes as though they answered it.
 scrolling with it open distinguishes "the app is fine and the complaint is about something else"
 from "there is real jank with a cause still to find." Everything above narrows where to look in
 the second case.
+
+## 21. The click-pop question, closed completely
+
+The owner's other reported defect — *"whenever I click on something, it doesn't become huge and
+become small"* — was traced to `onboarding-parts`' option row and fixed (measured on device:
+355.7pt peak against 354pt resting, where the old pop reached ~381pt). This closes out every
+remaining candidate.
+
+| candidate | verdict |
+|---|---|
+| **`SpringPressable`** — the universal tappable wrapper, on every button and card | **not a cause.** Uses `Spring.snappy` (ζ=0.84) for press-in AND release. Its 0.8% overshoot applies to a 0.03 delta, so the release peaks at scale **1.0002** — invisible |
+| **`Spring.bouncy`**, the spring that caused the original defect | **one live use left** (`onboarding-parts:242`), and the other two mentions are comments documenting the removal |
+| that one use | drives `r: 5.5 * fill` — the selection dot's radius. ζ=0.72 overshoots 4%, so the dot reaches **5.72pt** before settling at 5.5pt: an overshoot of **0.22pt** |
+
+**The 0.22pt overshoot is not the reported defect and needs no change.** This audit's own
+headline established that amplitudes of 1–3% are below the visibility floor; 0.22pt on a 5.5pt
+radius is 4% of a dot that is 11pt across. Removing it would flatten character for no perceptual
+gain — and this audit has already retracted one attempt to "fix" an amplitude that turned out to
+be fine.
+
+**So the click-pop had exactly one visible source, and it is fixed and measured.** Unlike the
+drag report (§19b), this one is fully resolved.
+
+### Minor: `Spring.press` is a dead token
+
+Used **0 times**. `SpringPressable` — the component it is named for — uses `Spring.snappy`
+instead. Harmless, but it is a token whose name implies a contract nothing honours. Left in
+place: removing it is a rename-adjacent change with no behavioural benefit.
