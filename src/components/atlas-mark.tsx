@@ -20,6 +20,7 @@
  * Because a circle rotating about its own centre has an unchanged silhouette, that clip stays
  * valid under any per-ring ROTATION. It would need to follow along under translation or scale.
  */
+import { memo } from 'react';
 import Animated from 'react-native-reanimated';
 import Svg, {
   Circle,
@@ -86,7 +87,7 @@ function Ring({ i, animated }: { i: number; animated?: Record<string, unknown> }
 }
 
 /** The mark alone, drawn into an existing <Svg>. Caller owns the viewBox. */
-export function AtlasMarkBody({ rings }: { rings?: RingProps }) {
+function AtlasMarkBodyInner({ rings }: { rings?: RingProps }) {
   return (
     <>
       <Defs>
@@ -121,3 +122,11 @@ export function AtlasMark({ size = 120, rings }: { size?: number; rings?: RingPr
     </Svg>
   );
 }
+
+/*
+ * MEMOISED for the same reason the rest of the SVG set was: many child nodes, primitive props, and
+ * previously no memo — the shape that cost AmbientBackground 14,629 Circle renders per scroll.
+ * Smaller than the others, so the win is smaller; included because leaving one unmemoised member
+ * of a set invites the next person to assume none of them need it.
+ */
+export const AtlasMarkBody = memo(AtlasMarkBodyInner);

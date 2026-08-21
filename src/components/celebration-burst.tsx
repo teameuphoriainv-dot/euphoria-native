@@ -17,7 +17,7 @@
  *
  * Euphoria's palette, not Duolingo's: the violet ramp, never the green.
  */
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Easing,
@@ -46,7 +46,7 @@ function ray(i: number) {
 const RAYS = Array.from({ length: RAY_COUNT }, (_, i) => ray(i));
 
 /** Radial burst behind the mascot. Sits under it, so mount it before <Atlas>. */
-export function CelebrationRays({ size = 300, delay = 0 }: { size?: number; delay?: number }) {
+function CelebrationRaysInner({ size = 300, delay = 0 }: { size?: number; delay?: number }) {
   const reduced = useReducedMotion();
   const t = useSharedValue(0);
 
@@ -173,3 +173,11 @@ export function CloudPuff({ size = 190, delay = 0, color = '#F6F0FE' }: { size?:
 const styles = StyleSheet.create({
   rays: { position: 'absolute', left: '50%', top: '50%' },
 });
+
+/*
+ * MEMOISED for the same reason the rest of the SVG set was: many child nodes, primitive props, and
+ * previously no memo — the shape that cost AmbientBackground 14,629 Circle renders per scroll.
+ * Smaller than the others, so the win is smaller; included because leaving one unmemoised member
+ * of a set invites the next person to assume none of them need it.
+ */
+export const CelebrationRays = memo(CelebrationRaysInner);

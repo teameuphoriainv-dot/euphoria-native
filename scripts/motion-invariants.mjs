@@ -172,6 +172,55 @@ const INVARIANTS = [
       return /useReducedMotion/.test(src) ? [] : ['infinite withRepeat with no reduced-motion guard'];
     },
   },
+  {
+    name: 'measured memoisations stay memoised',
+    why: 'Each of these was profiled before and after. AmbientBackground alone went from 131 React '
+       + 'commits per scroll to 0, and the SVG set from 256 commits to 114 (-55%). None of that is '
+       + 'visible in a diff -- deleting a memo() looks like tidying, and the cost only reappears '
+       + 'on a device nobody is profiling.',
+    /*
+     * NAMED, not inferred. A rule like "components with many children must be memoised" would be
+     * wrong: several here take arrays or objects, where the default shallow comparison cannot
+     * help and memo is theatre. This list is exactly the set that was MEASURED, and it should
+     * grow only when a new measurement justifies it.
+     *
+     *   ambient-background   131 commits/scroll -> 0
+     *   ui-icon              in every tab, button and row
+     *   lesson-art           267 svg nodes; 1,614 G renders per lesson step before
+     *   league-crest          74 svg nodes
+     *   atlas-mark            8 svg nodes, part of the same set
+     *   celebration-burst     7 svg nodes, part of the same set
+     */
+    test(file, src) {
+      const MEASURED = {
+        'ambient-background.tsx': 'AmbientBackground',
+        'ui-icon.tsx': 'UIcon',
+        'lesson-art.tsx': 'LessonArt',
+        'league-crest.tsx': 'LeagueCrest',
+        'atlas-mark.tsx': 'AtlasMarkBody',
+        'celebration-burst.tsx': 'CelebrationRays',
+      };
+      const name = Object.entries(MEASURED).find(([f]) => file.endsWith(f))?.[1];
+      if (!name) return [];
+      return new RegExp(`export const ${name} = memo\\(`).test(src)
+        ? []
+        : [`${name} lost its memo() -- profiled win, see the comment in its file`];
+    },
+  },
+  {
+    name: 'NumberRollup does not set state every frame',
+    why: 'It drove setState inside a requestAnimationFrame loop -- about 54 re-renders per 900ms '
+       + 'count, of itself and everything under it, on a component that renders the portfolio '
+       + 'total, cash and XP. Storing the STRING and capping the rate cut that by roughly 70%.',
+    test(file, src) {
+      if (!file.endsWith('number-rollup.tsx')) return [];
+      const hits = [];
+      // The rAF loop is fine; what must not come back is an unthrottled numeric setState in it.
+      if (!/MIN_GAP_MS/.test(src)) hits.push('the frame-rate cap (MIN_GAP_MS) is gone');
+      if (!/lastText/.test(src)) hits.push('the identical-string skip (lastText) is gone');
+      return hits;
+    },
+  },
 ];
 
 function run(files) {
@@ -243,7 +292,23 @@ if (process.argv.includes('--selftest')) {
   ok(!probe('infinite repeats are reduced-motion guarded',
       'const reduced = useReducedMotion();\nbob.set(withRepeat(withTiming(1), -1, true));').length,
     'a GUARDED infinite repeat was wrongly flagged');
-  console.log('motion-invariants selftest ok — 8 regressions caught, 8 harmless edits ignored');
+  // Invariants 9-10 (measured memoisations, NumberRollup throttle) -- added 2026-08-21.
+  const memoInv = INVARIANTS.find((x) => x.name === 'measured memoisations stay memoised');
+  ok(memoInv.test('src/components/ui-icon.tsx', 'export function UIcon() {}').length,
+    'a UIcon that lost its memo was NOT caught');
+  ok(!memoInv.test('src/components/ui-icon.tsx', 'export const UIcon = memo(UIconInner);').length,
+    'a correctly memoised UIcon was wrongly flagged');
+  ok(!memoInv.test('src/components/themed-text.tsx', 'export function ThemedText() {}').length,
+    'an UNLISTED component was wrongly required to be memoised');
+  const nrInv = INVARIANTS.find((x) => x.name === 'NumberRollup does not set state every frame');
+  ok(nrInv.test('src/shared/motion/number-rollup.tsx', 'setN(value * p);').length,
+    'an unthrottled NumberRollup was NOT caught');
+  ok(!nrInv.test('src/shared/motion/number-rollup.tsx',
+      'const MIN_GAP_MS = 1000 / 24; let lastText = String();').length,
+    'a throttled NumberRollup was wrongly flagged');
+  ok(!nrInv.test('src/components/other.tsx', 'setN(value);').length,
+    'a different file was wrongly checked for the NumberRollup throttle');
+  console.log('motion-invariants selftest ok — 11 regressions caught, 11 harmless edits ignored');
   process.exit(0);
 }
 
