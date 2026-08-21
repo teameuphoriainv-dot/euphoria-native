@@ -262,6 +262,14 @@ export function normalizeStep(step: LessonStep): Normalized {
       };
 
     // ─── not renderable yet — show the real title, never a blank screen ───────
+    case 'explorableCheck':
+      /*
+       * The comprehension question an `explorable` carries. Lifted to its own screen by
+       * expandSteps so it lands AFTER the insight that answers it -- asking first would be a
+       * question about something never explained, which is why the explorable case renders prose
+       * and does not try to carry both on one screen.
+       */
+      return { kind: 'choice', prompt: s.question, options: s.options, correct: s.correct, right: s.explanationCorrect, wrong: s.explanationWrong };
     case 'simProse':
       // The scenario's setup, or its debrief. Both are authored prose that used to share ONE screen
       // with the decisions the learner never got to make.
@@ -357,6 +365,13 @@ export function expandSteps(steps: LessonStep[]): LessonStep[] {
   const out: LessonStep[] = [];
   for (const step of steps) {
     const s = step as Record<string, any>;
+    if (s?.type === 'explorable' && Array.isArray(s?.check?.options) && s.check.options.length > 1) {
+      // The prose screen first (prompt + insight), then the author's own check. Both are already
+      // written; only the interactive widget itself remains unrendered.
+      out.push(step);
+      out.push({ type: 'explorableCheck', ...s.check } as unknown as LessonStep);
+      continue;
+    }
     if (s?.type === 'simulationFinale' && Array.isArray(s.decisions) && s.decisions.length > 0) {
       /*
        * A finale is a SCENARIO: a setup, a series of decisions, then the debrief. It used to render

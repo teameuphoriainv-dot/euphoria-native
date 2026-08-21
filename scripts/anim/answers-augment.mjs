@@ -38,7 +38,7 @@ const { expandSteps, normalizeStep } = await import(
   pathToFileURL(join(REPO, 'src/lib/lesson-steps.ts')).href
 );
 
-const SYNTHETIC = new Set(['calcQuiz', 'simDecision']);
+const SYNTHETIC = new Set(['calcQuiz', 'simDecision', 'explorableCheck']);
 
 let existing = {};
 try {
@@ -75,10 +75,10 @@ writeFileSync(OUT, JSON.stringify(existing));
 console.log(`added ${added} driver answers across ${lessonsTouched} lessons -> ${OUT}`);
 
 // A green run means nothing unless the numbers are the ones the app will actually show.
-const expectCalc = 136, expectDecisions = 781;
-if (added !== expectCalc + expectDecisions) {
-  console.error(`EXPECTED ${expectCalc + expectDecisions} (136 calcQuiz + 781 graded decisions), got ${added}.`);
+const expectCalc = 136, expectDecisions = 781, expectChecks = 2;   // TWO, not three: corporateFinance L3's explorable carries no `check` at all
+if (added !== expectCalc + expectDecisions + expectChecks) {
+  console.error(`EXPECTED ${expectCalc + expectDecisions + expectChecks} (136 calcQuiz + 781 graded decisions + 2 explorable checks), got ${added}.`);
   console.error('Either the corpus changed or expandSteps did — reconcile before trusting a driver run.');
   process.exit(1);
 }
-console.log(`matches the audit: ${expectCalc} calcQuiz + ${expectDecisions} graded decisions`);
+console.log(`matches the audit: ${expectCalc} calcQuiz + ${expectDecisions} graded decisions + ${expectChecks} explorable checks`);
