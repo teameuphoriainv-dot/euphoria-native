@@ -22,7 +22,7 @@ Ordered by owner instruction 2026-08-20. Worked top-down, not in parallel.
 | 7 | **Profile home and digest** | ✅ done — identical 6-scroll interaction: **Trade 0 commits, Home 43 / 100ms, Digest 97 / 296ms**. Two leads below. |
 | 8 | ✅ DONE — **NumberRollup setState-per-frame** — `setN()` inside a requestAnimationFrame loop, ~54 re-renders of its subtree per mount over Duration.count (900ms). Now stores the STRING and caps at 24fps: ~70% fewer renders (54 -> 13 for XP, 54 -> 17 for money). The complete fix (shared value + TextInput animatedProps) is deliberately NOT done — it swaps the element away from ThemedText on a money display. | ✅ |
 | 9 | ✅ INVESTIGATED — **the app re-renders ~8x/second while IDLE, on every screen.** Not a scroll problem at all: Home 66 commits and Trade 61 commits in 8 seconds with ZERO touches. Cause NOT found; see below. | ⚠️ open |
-| 10 | ✅ INVESTIGATED — **CssInterop.View wraps every View for a feature with ZERO usage.** Proposed fix costed and written up below; NOT applied, because verifying it needs a Metro restart on the owner's machine. | ⚠️ ready to apply |
+| 10 | ✅ **DONE 2026-08-21** — **CssInterop.View eliminated.** NativeWind unwired at all three hooks (metro.config withNativeWind, babel jsxImportSource, the global.css import). Measured on one screen, 8s idle, `--clear` between runs: 4,672 → 4,985 → **0** commits. App visually identical (screenshot). The two earlier one-line attempts failed because each left another hook intact. | ✅ |
 
 ## Method in force
 1. Runtime first — network log and console before reading source.
@@ -369,3 +369,21 @@ development cost. Worth having for both, but not sold as a user-facing win.
 **A note for the memory thread:** this adds no new retention. Dynamic `import()` keeps its module
 in the registry permanently, so the lesson data was already held — the cache just stops re-deriving
 a reference to it.
+
+
+---
+
+## Item 10 closed: what made it hard
+
+Two prior attempts changed ONE thing, measured no difference, and read as "the bundle must be
+stale". That inference was wrong and it cost three rounds.
+
+The bundle was NOT stale. NativeWind wires itself in three independent places, and
+`react-native-css-interop/dist/runtime/components.js` patches `View`, `Text` and `Pressable`
+as top-level import side effects — so any ONE surviving hook re-wraps the entire app. A
+single-hook change is indistinguishable from a no-op, which is exactly what was observed.
+
+The lesson generalises: **when a change measures as no-change, "the build is stale" and "there
+is a second code path" look identical.** Prove which before acting. Here, `--clear` was run
+properly the third time and the number STILL did not move, which is what finally ruled out
+staleness and pointed at metro.config.js.
