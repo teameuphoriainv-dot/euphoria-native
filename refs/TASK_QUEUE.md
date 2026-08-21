@@ -141,8 +141,35 @@ dropping it removes the runtime patching AND disables NativeWind everywhere. tai
 decision 6 says "NEW SURFACES ONLY" and those surfaces still do not exist, so the cost is
 currently paid for nothing — but the moment one is built, the import has to come back.
 
-**Not attempted.** Measuring the win would mean removing the import, which turns off a
-framework the project has decided to keep.
+**MEASURED 2026-08-21, and the answer is that NONE of the one-line routes work.**
+
+Three A/B profiles, 8s idle each, real `--clear` rebuild between every one:
+
+| config | CssInterop.View | commits | per commit |
+|---|---|---|---|
+| everything on (lesson screen) | 5,382 | 39 | 138 |
+| `global.css` import removed (index) | 4,672 | 32 | 146 |
+| import AND jsxImportSource removed (index) | 4,985 | 40 | 125 |
+
+Still present in every case. The two index rows are the comparable pair, and the component
+does not go away.
+
+**Why: NativeWind is wired at THREE layers, not one.**
+
+1. `metro.config.js` — `withNativeWind(config, { input: './global.css' })`. Metro injects the
+   runtime into the bundle. **This is the dominant one**, and it explains why removing the
+   import changed nothing: the import was already redundant.
+2. `babel.config.js` — `jsxImportSource: 'nativewind'` compiles every file's JSX to import
+   `nativewind/jsx-runtime`, which pulls in `runtime/components.js`.
+3. `src/app/_layout.tsx:12` — the `global.css` import, the same runtime a third time.
+
+`runtime/components.js` calls `cssInterop(View)`, `cssInterop(Text)`, `cssInterop(Pressable)`
+etc. as TOP-LEVEL IMPORT SIDE EFFECTS, so any one of these three paths patches every core
+component for the whole app.
+
+**Conclusion: removing CssInterop.View means uninstalling NativeWind**, all three hooks
+together. That is a project decision, not a perf tweak, and it is squarely the owner's call.
+Do not attempt a one-line version of it again — this is the third time it has been tried.
 
 ---
 
