@@ -25,7 +25,7 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://euphoria-native.expo.app"
       },
-      "node": "22.11.0"
+      "node": "24.14.1"
     }
   },
   "submit": {
