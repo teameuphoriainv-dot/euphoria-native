@@ -5,13 +5,15 @@
  * lands there. Uses the RN responder API for drag. Sibling to BeforeAfterSlider/NumberLine.
  */
 import * as Haptics from 'expo-haptics';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import Animated, { interpolateColor, useAnimatedProps, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Polyline, Rect } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Duration } from '@/shared/motion/tokens';
 
 export type GraphSpec = {
   prompt: string;
@@ -25,6 +27,8 @@ export type GraphSpec = {
 
 /** Haptic steps across the axis. A picker ticks per detent, not per frame. */
 const DETENTS = 24;
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
@@ -72,7 +76,40 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
   const onLayout = (e: LayoutChangeEvent) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height });
 
   const pointColor = solved ? theme.success : theme.primary;
-  const linePts = [...spec.history.map((v, i) => `${xFor(i)},${yFor(v)}`), `${xFor(n)},${yFor(value)}`].join(' ');
+  /*
+   * THE HISTORY IS STATIC; ONLY THE DRAGGED POINT MOVES. Both the polyline string and the
+   * history dots were rebuilt on every `onResponderMove`, which arrives at display rate — so a
+   * finger on this chart re-mapped the whole history array and recreated N <Circle> elements
+   * ~60 times a second, for output that never changes. Memoised on the data and the measured
+   * box, which is everything they actually depend on.
+   */
+  const historyPts = useMemo(
+    () => spec.history.map((v, i) => `${xFor(i)},${yFor(v)}`).join(' '),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- xFor/yFor are pure functions of these
+    [spec.history, w, h, spec.min, spec.max],
+  );
+  const historyDots = useMemo(
+    () => spec.history.map((v, i) => (
+      <Circle key={i} cx={xFor(i)} cy={yFor(v)} r={4} fill={theme.mutedForeground} />
+    )),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- same
+    [spec.history, w, h, spec.min, spec.max, theme.mutedForeground],
+  );
+  const linePts = `${historyPts} ${xFor(n)},${yFor(value)}`;
+
+  /*
+   * THE SOLVE WAS A CUT. `fill={solved ? theme.success : theme.primary}` flipped on one frame at
+   * the moment the learner succeeds — 0ms, far below R1's p10 of 130ms. Animated with
+   * `useAnimatedProps`, the pattern `atlas.tsx` already uses six times for SVG. A colour fade
+   * carries no vestibular motion, so no reduced-motion guard is required.
+   */
+  const solveT = useSharedValue(0);
+  useEffect(() => {
+    solveT.set(withTiming(solved ? 1 : 0, { duration: Duration.base }));
+  }, [solved, solveT]);
+  const pointProps = useAnimatedProps(() => ({
+    fill: interpolateColor(solveT.get(), [0, 1], [theme.primary, theme.success]),
+  }));
 
   return (
     <View>
@@ -98,10 +135,8 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
             />
             <Line x1={0} y1={yFor(spec.target)} x2={w} y2={yFor(spec.target)} stroke={theme.success} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
             <Polyline points={linePts} fill="none" stroke={theme.primary} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            {spec.history.map((v, i) => (
-              <Circle key={i} cx={xFor(i)} cy={yFor(v)} r={4} fill={theme.mutedForeground} />
-            ))}
-            <Circle cx={xFor(n)} cy={yFor(value)} r={11} fill={pointColor} stroke="#fff" strokeWidth={3} />
+            {historyDots}
+            <AnimatedCircle cx={xFor(n)} cy={yFor(value)} r={11} animatedProps={pointProps} stroke="#fff" strokeWidth={3} />
           </Svg>
         )}
       </View>
