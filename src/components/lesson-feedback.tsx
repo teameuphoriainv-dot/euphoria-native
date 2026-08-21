@@ -101,7 +101,7 @@ export function FeedbackBanner({
     if (reduced) { t.set(1); return; }
     // slightly underdamped so the bar overshoots a few pixels and settles: it should feel
     // thrown into place, not slid
-    t.set(withSpring(1, { stiffness: 220, damping: 18 }));
+    t.set(withSpring(1, { stiffness: 220, damping: 18, mass: 1 }));
   }, [reduced, t]);
 
   const style = useAnimatedStyle(() => ({

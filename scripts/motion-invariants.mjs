@@ -145,6 +145,24 @@ const INVARIANTS = [
     },
   },
   {
+    name: 'inline springs set their own mass',
+    why: 'Reanimated 4 DEFAULTS mass TO 4, not 1: spring.ts builds its default config from '
+       + 'GentleSpringConfig {damping:120, mass:4, stiffness:900}, and Reanimated 3\'s mass-1 '
+       + 'default is only still reachable as Reanimated3DefaultSpringConfig. Since '
+       + 'zeta = c / (2*sqrt(k*m)), an inline spring that omits mass runs at HALF the damping '
+       + 'ratio its author computed. Measured, not assumed: lesson-feedback.tsx went from an '
+       + 'intended zeta 0.607 to an actual 0.303, overshoot 9.1% to 36.8% -- 69.9pt of a 190pt '
+       + 'throw instead of 17.3pt -- and the device agreed to four decimals, peak 1.36739 against '
+       + 'a model 1.36778. Sixteen springs were affected before this rule existed.',
+    test(file, src) {
+      const hits = [];
+      for (const m of src.matchAll(/\{[^{}]*\bstiffness:\s*[\d.]+[^{}]*\}/g)) {
+        if (!/\bmass:/.test(m[0])) hits.push(`spring without explicit mass: ${m[0].slice(0, 54)}`);
+      }
+      return hits;
+    },
+  },
+  {
     name: 'infinite repeats are reduced-motion guarded',
     why: 'withRepeat(..., -1) never stops, which is the clearest vestibular trigger in the app. '
        + 'VERIFIED PASSING when added -- every infinite repeat already sits behind a '
@@ -213,13 +231,19 @@ if (process.argv.includes('--selftest')) {
   ok(!probe('inline spring constants are justified in a comment',
       '// measured: zeta 0.55, a reward chip should pop\nx.set(withSpring(1, { stiffness: 500, damping: 18 }));').length,
     'a DOCUMENTED spring was wrongly flagged');
+  ok(probe('inline springs set their own mass',
+      'x.set(withSpring(1, { stiffness: 220, damping: 18 }));').length,
+    'seeded mass-less spring was not caught');
+  ok(!probe('inline springs set their own mass',
+      'x.set(withSpring(1, { stiffness: 220, damping: 18, mass: 1 }));').length,
+    'an EXPLICIT mass was wrongly flagged');
   ok(probe('infinite repeats are reduced-motion guarded',
       'bob.set(withRepeat(withTiming(1, { duration: 900 }), -1, true));').length,
     'seeded unguarded infinite repeat was not caught');
   ok(!probe('infinite repeats are reduced-motion guarded',
       'const reduced = useReducedMotion();\nbob.set(withRepeat(withTiming(1), -1, true));').length,
     'a GUARDED infinite repeat was wrongly flagged');
-  console.log('motion-invariants selftest ok — 7 regressions caught, 7 harmless edits ignored');
+  console.log('motion-invariants selftest ok — 8 regressions caught, 8 harmless edits ignored');
   process.exit(0);
 }
 

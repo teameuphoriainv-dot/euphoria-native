@@ -72,7 +72,12 @@ line=[l for l in hit.splitlines() if MARK in l][-1]
 raw=json.loads(line[line.index(MARK)+len(MARK):].strip())
 pairs=[(raw[i],raw[i+1]) for i in range(0,len(raw)-1,2)]
 sys.path.insert(0,'scripts/anim')
-from r6_model import spring, THROW, peak_t, analytic_os
+from r6_model import spring, THROW
+import os as _os, math as _math
+MASS=float(_os.environ.get('R6_MASS','4'))
+_z=18/(2*_math.sqrt(220*MASS)); _w0=_math.sqrt(220/MASS); _wd=_w0*_math.sqrt(1-_z*_z)
+peak_t=_math.pi/_wd; analytic_os=_math.exp(-_math.pi*_z/_math.sqrt(1-_z*_z))
+print(f'comparing against mass={MASS:.0f}: zeta {_z:.4f}, peak {1+analytic_os:.4f} at {peak_t*1000:.0f}ms')
 
 # SANITY FIRST: the last read must have settled, or the read path is broken and nothing that
 # follows is worth reading.
@@ -85,11 +90,11 @@ print(f"\n{len(pairs)} reads. Each compared to the model AT THE TIME IT ACTUALLY
 print("   t(ms)   measured   model    residual")
 worst=0.0
 for ms,v in pairs:
-    m=spring(ms/1000.0); d=v-m; worst=max(worst,abs(d))
+    m=spring(ms/1000.0, mass=MASS); d=v-m; worst=max(worst,abs(d))
     print(f"  {ms:>5}   {v:>8.4f} {m:>8.4f}  {d:>+8.4f}")
 mv,mms = max((v,ms) for ms,v in pairs)
 print(f"\n                      PREDICTED (Reanimated maths)   MEASURED (device)")
-print(f"  peak value          {spring(peak_t):>10.4f}                  {mv:>10.4f}")
+print(f"  peak value          {spring(peak_t, mass=MASS):>10.4f}                  {mv:>10.4f}")
 print(f"  overshoot           {analytic_os*100:>9.1f}%                  {(mv-1)*100:>9.1f}%")
 print(f"  overshoot in points {analytic_os*THROW:>9.1f}pt                 {(mv-1)*THROW:>9.1f}pt")
 print(f"  peak near           {peak_t*1000:>9.0f}ms                 {mms:>9}ms")

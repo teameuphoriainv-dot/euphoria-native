@@ -64,11 +64,21 @@ assert abs(x - spring(0.30)) < 1e-3, f"closed form {spring(0.30):.6f} vs integra
 # highest of ten timed JS reads during a real lesson-feedback mount. The model must reproduce that
 # peak, or the mass=4 explanation is wrong and R6 reopens. This is what turns the model from an
 # assertion into a measured result.
-MEASURED_PEAK = 1.3673927854651562
-model_peak = spring(math.pi / (math.sqrt(STIFF / MASS) * math.sqrt(1 - (DAMP / (2 * math.sqrt(STIFF * MASS))) ** 2)))
-assert abs(model_peak - MEASURED_PEAK) < 1e-3, f"model peak {model_peak:.6f} vs device {MEASURED_PEAK:.6f}"
+def _peak(m):
+    z = DAMP / (2 * math.sqrt(STIFF * m))
+    return spring(math.pi / (math.sqrt(STIFF / m) * math.sqrt(1 - z * z)), mass=m)
+
+# Two measurements of the SAME animation, before and after `mass: 1` was made explicit. The model
+# has to reproduce both, which is a far stronger check than either alone: one number can be fitted,
+# two that differ 3.4x by a single parameter cannot.
+MEASURED_PEAK_MASS4 = 1.3673927854651562   # as shipped, mass defaulted to 4
+MEASURED_PEAK_MASS1 = 1.0879               # after `mass: 1`, same screen, same instrument
+assert abs(_peak(4.0) - MEASURED_PEAK_MASS4) < 1e-3, f"m=4 model {_peak(4.0):.6f} vs {MEASURED_PEAK_MASS4:.6f}"
+assert abs(_peak(1.0) - MEASURED_PEAK_MASS1) < 4e-3, f"m=1 model {_peak(1.0):.6f} vs {MEASURED_PEAK_MASS1:.6f}"
+model_peak = _peak(MASS)
 print("self-checks passed (start, settle, overshoot identity, independent integration,")
-print(f"                   and the device fixture: model {model_peak:.5f} vs measured {MEASURED_PEAK:.5f})")
+print(f"                   and BOTH device fixtures: m=4 {_peak(4.0):.5f} vs {MEASURED_PEAK_MASS4:.5f},")
+print(f"                                              m=1 {_peak(1.0):.5f} vs {MEASURED_PEAK_MASS1:.5f})")
 
 print(f"\nstiffness {STIFF:.0f}  damping {DAMP:.0f}  mass {MASS:.0f}")
 print(f"  zeta   {zeta:.4f}   omega0 {omega0:.3f} rad/s   omega1 {omega1:.3f} rad/s")

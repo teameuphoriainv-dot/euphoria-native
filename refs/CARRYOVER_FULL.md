@@ -306,12 +306,27 @@ the parameters you assumed, and whether those parameters are the ones actually i
 `welcome.tsx:27` is the clearest single case: at ζ=1.001 it is critically damped and by definition
 **cannot bounce**, which is plainly what was intended for a "drop"; it actually overshoots 16.2%.
 
-**NOT FIXED — this is a product decision, not a bug fix.** Adding `mass: 1` to all sixteen restores
-exactly what each author wrote and what this rubric documents, but it changes the feel of the
-mascot's whole repertoire, and some of these may have been tuned by eye against the behaviour that
-is actually shipping. The owner should choose. A `motion-invariants` rule requiring `mass` on any
-inline spring is the regression floor for the class, and it cannot be added until the sites are
-resolved, because it would fail on all sixteen.
+**FIXED — all sixteen, with a measured before/after on the one that was instrumented.**
+
+| | BEFORE (mass defaulted to 4) | AFTER (`mass: 1` explicit) |
+|---|---|---|
+| peak, measured on device | **1.3674** | **1.0879** |
+| peak, model | 1.3678 | 1.0909 |
+| overshoot | **36.7%** = 69.8pt of a 190pt throw | **8.8%** = 16.7pt |
+| 2% settle | 1513ms | **401ms** |
+
+Both peaks match their own model to within 0.003, and they are **3.4× apart** — which is a much
+stronger check than either alone, because one number can be fitted and two that differ 3.4× under a
+single parameter cannot. Both are asserted as fixtures in `scripts/anim/r6_model.py`.
+
+**Quote the PEAK, not the timing.** The JS-side mirror of a shared value lags — best fit 73ms after
+the fix, 81ms before, and it visibly goes stale (two identical reads in a row, zeros at the start).
+A lag shifts *when* a value is read, not how high the curve goes, so **peak amplitude is
+lag-invariant and timing is not.** With the lag fitted, mean |residual| across the ten reads is
+**0.0185** and no point misses by more than 0.057.
+
+**Regression floor:** `motion-invariants.mjs` invariant 8, *"inline springs set their own mass"*,
+with a seeded regression and a harmless-edit pair in `--selftest`. 8 invariants across 170 files.
 
 ## R7 — Idle mascot liveness
 

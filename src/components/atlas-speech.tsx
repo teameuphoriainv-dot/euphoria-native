@@ -103,7 +103,7 @@ export function AtlasSpeech({
        real pop, not a hint of one, and it is DELIBERATE: the speech bubble should arrive with
        character rather than slide into place. R2 asks only that a bounce be chosen per element
        and justified, which is what this comment is. */
-    pop.set(withDelay(delay, withSpring(1, { stiffness: 260, damping: 15 })));
+    pop.set(withDelay(delay, withSpring(1, { stiffness: 260, damping: 15, mass: 1 })));
   }, [reduced, pop, delay]);
 
   const style = useAnimatedStyle(() => ({

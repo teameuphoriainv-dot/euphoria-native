@@ -24,7 +24,7 @@ export default function Welcome() {
     // damping 13 was underdamped: the drop sprang PAST its resting position and pushed Atlas
     // down into the headline before settling back. That overshoot is what read as the mascot
     // falling into the text. 19 lands it with weight but without the dip.
-    if (!reduced) drop.set(withSpring(0, { stiffness: 90, damping: 19 }));
+    if (!reduced) drop.set(withSpring(0, { stiffness: 90, damping: 19, mass: 1 }));
   }, [reduced, drop]);
 
   const atlasStyle = useAnimatedStyle(() => ({ transform: [{ translateY: drop.get() }] }));

@@ -268,19 +268,19 @@ export function Atlas({
     const H = size * 0.12 * celebrateGain;
     jumpY.set(withDelay(Duration.fast, withSequence(
       withTiming(H * 0.18, { duration: 110, easing: Easing.out(Easing.quad) }),   // anticipation dip
-      withSpring(-H, { stiffness: 260, damping: 13 }),                            // launch
-      withSpring(0, { stiffness: 210, damping: 15 }),                             // land
+      withSpring(-H, { stiffness: 260, damping: 13, mass: 1 }),                            // launch
+      withSpring(0, { stiffness: 210, damping: 15, mass: 1 }),                             // land
     )));
     squash.set(withDelay(Duration.fast, withSequence(
       withTiming(0.9 * celebrateGain, { duration: 110 }),      // crouch: wide and short
       withTiming(-0.7 * celebrateGain, { duration: 150 }),     // stretch: tall and narrow, in the air
       withTiming(0.75 * celebrateGain, { duration: 90 }),      // impact
-      withSpring(0, { stiffness: 190, damping: 12 }),
+      withSpring(0, { stiffness: 190, damping: 12, mass: 1 }),
     )));
     // follow-through: the head is a separate mass, so it arrives late and rings down
     headLag.set(withDelay(Duration.fast + 70, withSequence(
       withTiming(-5 * celebrateGain, { duration: 150 }),
-      withSpring(0, { stiffness: 120, damping: 8 }),
+      withSpring(0, { stiffness: 120, damping: 8, mass: 1 }),
     )));
   }, [celebrate, celebrateKey, celebrateGain, reduced, jumpY, squash, headLag, size]);
 
@@ -298,11 +298,11 @@ export function Atlas({
     if (!nod || reduced) return;
     headLag.set(withSequence(
       withTiming(-7, { duration: 120, easing: Easing.out(Easing.quad) }),
-      withSpring(0, { stiffness: 150, damping: 9 }),
+      withSpring(0, { stiffness: 150, damping: 9, mass: 1 }),
     ));
     squash.set(withSequence(
       withTiming(0.3, { duration: 100, easing: Easing.out(Easing.quad) }),
-      withSpring(0, { stiffness: 210, damping: 14 }),
+      withSpring(0, { stiffness: 210, damping: 14, mass: 1 }),
     ));
   }, [nod, nodKey, reduced, headLag, squash]);
 
@@ -333,7 +333,7 @@ export function Atlas({
       withTiming(-size * 0.05, { duration: 55 }),
       withTiming(size * 0.05, { duration: 55 }),
       withTiming(-size * 0.025, { duration: 50 }),
-      withSpring(0, { stiffness: 300, damping: 20 }),
+      withSpring(0, { stiffness: 300, damping: 20, mass: 1 }),
     ));
   }, [shake, reduced, shakeX, size]);
 
@@ -349,7 +349,7 @@ export function Atlas({
       // zoom-out, the undershoot reads as landing.
       entranceScale.set(withSequence(
         withTiming(0.93, { duration: 430, easing: Easing.out(Easing.cubic) }),
-        withSpring(1, { stiffness: 190, damping: 12 }),
+        withSpring(1, { stiffness: 190, damping: 12, mass: 1 }),
       ));
     } else {
       entranceScale.set(withSpring(1, { ...Spring.smooth, damping: 24 }));
@@ -358,11 +358,11 @@ export function Atlas({
     // just grew the mascot, which is why the arrival read as a fade rather than a landing.
     squash.set(withDelay(entrance === 'arrive' ? 400 : 160, withSequence(
       withTiming(0.85, { duration: 120, easing: Easing.out(Easing.quad) }),
-      withSpring(0, { stiffness: 170, damping: 11 }),
+      withSpring(0, { stiffness: 170, damping: 11, mass: 1 }),
     )));
     headLag.set(withDelay(entrance === 'arrive' ? 470 : 230, withSequence(
       withTiming(-4.5, { duration: 140 }),
-      withSpring(0, { stiffness: 110, damping: 8 }),
+      withSpring(0, { stiffness: 110, damping: 8, mass: 1 }),
     )));
   }, [entrance, reduced, entranceScale, entranceOpacity, squash, headLag]);
 
@@ -376,7 +376,7 @@ export function Atlas({
     // spring on the UI thread that drove nothing. Removed along with its useSharedValue.
     // rings chase the mark, each one later than the last
     ringSpin.forEach((v, i) =>
-      v.set(withDelay(i * RING_LAG_MS, withSpring(spins.current * 360, { stiffness: 52, damping: 12 }))));
+      v.set(withDelay(i * RING_LAG_MS, withSpring(spins.current * 360, { stiffness: 52, damping: 12, mass: 1 }))));
     setTimeout(() => setSpinning(false), 900);
   };
 
@@ -636,8 +636,8 @@ export function Atlas({
 
   return (
     <Pressable
-      onPressIn={() => scale.set(withSpring(0.92, { stiffness: 420, damping: 32 }))}
-      onPressOut={() => scale.set(withSpring(1, { stiffness: 420, damping: 32 }))}
+      onPressIn={() => scale.set(withSpring(0.92, { stiffness: 420, damping: 32, mass: 1 }))}
+      onPressOut={() => scale.set(withSpring(1, { stiffness: 420, damping: 32, mass: 1 }))}
       // Atlas is decorative here — tapping only spins the mascot. Announcing it as an image with a
       // name is right; announcing it as a BUTTON would promise a destination it does not have, and
       // an unnamed button is worse still. The interactive variants elsewhere carry their own label.
