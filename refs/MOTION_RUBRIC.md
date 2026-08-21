@@ -465,3 +465,38 @@ rather than a picture of it; or (b) pick an element with genuine colour isolatio
 background, which no element on the lesson screen has.
 
 **R6 remains OPEN.** No verdict may cite it.
+
+## PCA EYE-LINE ANGLE CANNOT MEASURE TILT ON AN *IDLE* MASCOT
+
+> The method — principal axis of the sclera pixel cloud — is sound, and self-checks to ±0.65°
+> against synthetic disc pairs. It correctly **disproved** the "every static Atlas sits at −3.4°"
+> hypothesis (retraction #13, measured −0.61°). But that measurement had `idle={false}`.
+>
+> **With `idle` on it is confounded twice over**, and the confound is larger than the signal:
+>
+> | source | effect on the white-pixel cloud |
+> |---|---|
+> | **saccade** | pupils are DARK and sit ON the sclera, so moving them reshapes the white region and rotates its principal axis |
+> | **blink** | the eyes close entirely every 2.8–6.2s, so the cloud briefly is not two discs at all |
+>
+> Measured consequence on the `oops` screen: `rock` alone is ±3.4° (6.8° of swing), but the
+> observed swing was **9.21° over 5s and 20.16° over 16s** — the longer window simply caught more
+> blinks. A mean taken across that is not a tilt.
+>
+> **Two things the exercise did establish:**
+> 1. **Idle head rock is confirmed running on device** — a differential measure, immune to the
+>    averaging problem. This had been an open question since the idle constants were written.
+> 2. **Atlas's eyes are asymmetric BY DESIGN** — `atlas.tsx:601-602`, left `cy=26.5 r=13`, right
+>    `cy=25 r=11.8`. The eye line therefore rests at **−3.25°** before any rotation is applied.
+>    Any prediction that assumes a level baseline is wrong by that much, and the earlier −3.0°
+>    prediction did exactly that.
+>
+> **How to measure `oops` tilt properly:** use the QUIZ-HEAD Atlas, which renders `oops` on a
+> wrong answer with **no `idle` prop** (`lesson.tsx:431`) — so no saccade, no blink, and `rock`
+> pinned at its initial value. Region comes from the prompt sibling, the derivation already
+> proven in the shake measurement. **Not run: the tilt stays unmeasured, with a stated path.**
+
+> **Sampling rule, learned here:** `ROCK_MS = 3900` with `withRepeat(..., -1, true)` gives a
+> **7.8s** cycle. A 5s capture covered 64% of it and its mean carried a ~+4.7° un-averaged
+> offset, which read as a tilt mismatch when it was a window-length error. **Any mean taken
+> across a repeating animation needs at least two full cycles.**
