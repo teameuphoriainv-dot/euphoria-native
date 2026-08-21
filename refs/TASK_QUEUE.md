@@ -141,3 +141,37 @@ red gate is one nobody reads. Resolving that is a project decision — either do
 
 The 4 `no-undef` errors in the same report WERE genuine (Buffer used without importing it) and are
 fixed: 12 errors down to 8.
+
+---
+
+## Open signal: ~70MB retained across 50 navigations (measured 2026-08-21, 03:05)
+
+Nothing tonight had looked at memory. It is a signal worth someone's daylight, and it is NOT yet
+a defect.
+
+| point | used heap | total heap | % |
+|---|---|---|---|
+| baseline | 72.74 MB | 100 MB | 72.7% |
+| after 25 tab navigations | 129.53 MB | 168 MB | 77.1% |
+| after 50 | **177.91 MB** | 188 MB | **94.6%** |
+| after 45s idle (GC ran) | 142.74 MB | 204 MB | 70.0% |
+
+**GC works** — it reclaimed ~35MB on idle, so this is not a runaway. But the floor moved:
+**72.74MB → 142.74MB, about 70MB retained after 50 navigations**, roughly 1.4MB per navigation
+that survives collection. Total heap also grew 100MB → 204MB.
+
+**Confounds NOT ruled out, and any one could explain most of it:**
+
+1. **This is a dev build.** Source maps, the inspector and HMR all retain.
+2. **My own profiler.** `start_profiling` was attached about eight times tonight and its fiber
+   commit hook accumulates per-commit records. That is a plausible large contributor and it is
+   *my* instrumentation, not the app.
+3. **Legitimate caches.** `getMarks()` deliberately holds all 12,548 tickers in a JS Map, bundled
+   logos decode into memory, and every Trade visit decodes news images.
+
+**How to settle it, cheapest first:** relaunch the app, take a baseline, run 50 navigations with
+the profiler NEVER attached, idle, and re-measure. If retention largely disappears, it was the
+instrument. If ~70MB still sticks, bisect by disabling the marks fetch.
+
+Recorded as a signal rather than a leak. Measuring something and naming what could explain it is
+the whole method that kept tonight honest.
