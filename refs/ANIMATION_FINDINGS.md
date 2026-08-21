@@ -891,6 +891,13 @@ resting tilt — rotate the body rings beneath a face that does not move.**
 and annotates `thinking: -7` as *"the classic cocked head; the largest of the set because it is
 the most legible."* A cocked head that leaves the eyes level is not the gesture that describes.
 
+**CORROBORATED AS DELIBERATE, at least for the spin.** `atlas.tsx:5` states the intent in the
+file's own header: *"Body spins on tap (eyes stay upright)."* So the face sitting outside the
+rotated group is a design choice, not an oversight — which **weakens the "tension with the
+documentation" reading above**. The question is narrower than first stated: the architecture is
+intentional, and the open part is only whether the resting TILT — a different channel from the
+spin — should be exempt from it.
+
 **NOT filed as a defect, and not fixed.** Whether the face should ride the rotation is a design
 decision, not a correctness one: Atlas's eyes float over a ring cluster rather than sitting on a
 skull, and a designer may well have chosen to keep them level. Moving the sclera and

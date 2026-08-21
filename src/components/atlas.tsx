@@ -152,7 +152,6 @@ export function Atlas({
   idle?: boolean;
 }) {
   const reduced = useReducedMotion();
-  const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
   const jumpY = useSharedValue(0);
   /** Breath PHASE (0..1), not a pixel offset — mapped to scale in `breathStyle` below. */
@@ -371,7 +370,10 @@ export function Atlas({
     if (!interactive || reduced) return;
     spins.current += 1;
     setSpinning(true);
-    rotation.set(withSpring(spins.current * 360, { stiffness: 60, damping: 14 }));
+    // The whole-mark `rotation` shared value that used to be set here was NEVER READ by any
+    // animated style or props. `ringSpin` is what actually turns the rings, and this file's own
+    // header states the intent: "Body spins on tap (eyes stay upright)." So every tap started a
+    // spring on the UI thread that drove nothing. Removed along with its useSharedValue.
     // rings chase the mark, each one later than the last
     ringSpin.forEach((v, i) =>
       v.set(withDelay(i * RING_LAG_MS, withSpring(spins.current * 360, { stiffness: 52, damping: 12 }))));
