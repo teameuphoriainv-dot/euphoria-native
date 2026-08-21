@@ -7,7 +7,12 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -33,6 +38,34 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
   const [width, setWidth] = useState(0);
   const [pos, setPos] = useState(0);
   const solvedRef = useRef(false);
+
+  /*
+   * THE THUMB MOVES ON THE UI THREAD; REACT ONLY HEARS ABOUT IT IN STEPS.
+   *
+   * `pos` drove three different things: the fill/thumb geometry, the headline number, and
+   * `revealed`. Only the first needs to change every frame — and because it lived in React
+   * state, every `onResponderMove` (display rate) re-rendered the whole component to move a
+   * thumb. Same shape as the per-frame `runOnJS` removed from `slider-predict`, which the owner
+   * reported as a drag that "moves all over the place".
+   *
+   * The gesture system is deliberately UNCHANGED. Converting to `Gesture.Pan` is the textbook
+   * fix, but a Pan inside a scrolling container can steal the scroll, and that cannot be
+   * verified from here — a shared value written from the JS thread gets the same result with
+   * none of that risk.
+   *
+   * React still receives the value, throttled to 1% of the track: ~100 updates across a full
+   * drag, far more than a formatted number can show, and `onResponderRelease` commits the exact
+   * final position so the committed value is never a rounded intermediate.
+   */
+  const posSV = useSharedValue(0);
+  const widthSV = useSharedValue(0);
+  const lastEmit = useRef(-1);
+  const fillStyle = useAnimatedStyle(() => ({
+    width: `${widthSV.get() === 0 ? 0 : (posSV.get() / widthSV.get()) * 100}%`,
+  }));
+  const thumbStyle = useAnimatedStyle(() => ({
+    left: `${widthSV.get() === 0 ? 0 : (posSV.get() / widthSV.get()) * 100}%`,
+  }));
 
   const t = width === 0 ? 0 : pos / width;
   const value = spec.beforeValue + t * (spec.afterValue - spec.beforeValue);
@@ -61,10 +94,14 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
    * refresh rate.
    */
   const lastDetent = useRef(-1);
-  const setFromX = (x: number) => {
+  const setFromX = (x: number, commit = false) => {
     if (width === 0) return;
     const next = Math.max(0, Math.min(width, x));
-    setPos(next);
+    posSV.set(next);                                   // UI thread — no React re-render
+    if (commit || Math.abs(next - lastEmit.current) >= width * 0.01) {
+      lastEmit.current = next;
+      setPos(next);                                    // readout + `revealed` only
+    }
     const detent = Math.round((next / width) * DETENTS);
     if (detent !== lastDetent.current) {
       lastDetent.current = detent;
@@ -72,7 +109,10 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
     }
   };
 
-  const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
+  const onLayout = (e: LayoutChangeEvent) => {
+    setWidth(e.nativeEvent.layout.width);
+    widthSV.set(e.nativeEvent.layout.width);
+  };
 
   return (
     <View>
@@ -91,11 +131,12 @@ export function BeforeAfterSlider({ spec, onSolvedChange }: { spec: BeforeAfterS
         onMoveShouldSetResponder={() => true}
         onResponderGrant={(e: GestureResponderEvent) => setFromX(e.nativeEvent.locationX)}
         onResponderMove={(e: GestureResponderEvent) => setFromX(e.nativeEvent.locationX)}
+        onResponderRelease={(e: GestureResponderEvent) => setFromX(e.nativeEvent.locationX, true)}
         style={styles.hit}
       >
         <View style={[styles.track, { backgroundColor: theme.muted }]}>
-          <View style={[styles.fill, { width: `${t * 100}%`, backgroundColor: theme.primary }]} />
-          <View style={[styles.thumb, { left: `${t * 100}%`, backgroundColor: theme.primary }]} />
+          <Animated.View style={[styles.fill, { backgroundColor: theme.primary }, fillStyle]} />
+          <Animated.View style={[styles.thumb, { backgroundColor: theme.primary }, thumbStyle]} />
         </View>
       </View>
 

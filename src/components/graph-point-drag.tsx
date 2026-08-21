@@ -38,6 +38,17 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
   const solvedRef = useRef(false);
   const lastDetent = useRef(-1);
 
+  /*
+   * THE POINT MOVES ON THE UI THREAD; REACT ONLY HEARS IT IN STEPS. Same split as
+   * `before-after-slider`: `value` drove the dragged circle's cy, the readout, the polyline's
+   * last vertex AND `solved`, but only the circle needs to change every frame — and because it
+   * lived in React state, every `onResponderMove` re-rendered the component to move one point.
+   * The gesture system is unchanged on purpose; a Pan inside a scrolling container can steal the
+   * scroll, and a shared value written from JS gets the same result without that risk.
+   */
+  const valueSV = useSharedValue((spec.min + spec.max) / 2);
+  const lastEmit = useRef(-1);
+
   const solved = Math.abs(value - spec.target) <= spec.tolerance;
 
   useEffect(() => {
@@ -61,11 +72,16 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
    * second with a finger down. `selectionAsync` is selection-CHANGED feedback and is meant to
    * tick once per discrete step, like a picker wheel.
    */
-  const setFromY = (yPx: number) => {
+  const setFromY = (yPx: number, commit = false) => {
     if (h === 0) return;
     const clampedY = Math.max(pad, Math.min(h - pad, yPx));
     const next = spec.min + (1 - (clampedY - pad) / (h - 2 * pad)) * (spec.max - spec.min);
-    setValue(next);
+    valueSV.set(next);                                   // UI thread — no React re-render
+    const span = spec.max - spec.min;
+    if (commit || Math.abs(next - lastEmit.current) >= span * 0.01) {
+      lastEmit.current = next;
+      setValue(next);                                    // readout, polyline and `solved` only
+    }
     const detent = Math.round(((next - spec.min) / (spec.max - spec.min)) * DETENTS);
     if (detent !== lastDetent.current) {
       lastDetent.current = detent;
@@ -109,6 +125,8 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
   }, [solved, solveT]);
   const pointProps = useAnimatedProps(() => ({
     fill: interpolateColor(solveT.get(), [0, 1], [theme.primary, theme.success]),
+    // cy on the UI thread too, so the dragged point tracks the finger without a re-render
+    cy: h === 0 ? 0 : pad + (h - 2 * pad) * (1 - (valueSV.get() - spec.min) / (spec.max - spec.min)),
   }));
 
   return (
@@ -122,6 +140,7 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
         onMoveShouldSetResponder={() => true}
         onResponderGrant={(e: GestureResponderEvent) => setFromY(e.nativeEvent.locationY)}
         onResponderMove={(e: GestureResponderEvent) => setFromY(e.nativeEvent.locationY)}
+        onResponderRelease={(e: GestureResponderEvent) => setFromY(e.nativeEvent.locationY, true)}
         style={[styles.chart, { backgroundColor: theme.card }]}
       >
         {w > 0 && (
@@ -136,7 +155,7 @@ export function GraphPointDrag({ spec, onSolvedChange }: { spec: GraphSpec; onSo
             <Line x1={0} y1={yFor(spec.target)} x2={w} y2={yFor(spec.target)} stroke={theme.success} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
             <Polyline points={linePts} fill="none" stroke={theme.primary} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             {historyDots}
-            <AnimatedCircle cx={xFor(n)} cy={yFor(value)} r={11} animatedProps={pointProps} stroke="#fff" strokeWidth={3} />
+            <AnimatedCircle cx={xFor(n)} r={11} animatedProps={pointProps} stroke="#fff" strokeWidth={3} />
           </Svg>
         )}
       </View>
