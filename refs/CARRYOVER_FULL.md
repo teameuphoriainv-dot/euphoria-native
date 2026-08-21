@@ -558,75 +558,57 @@ Keep these visible. They are the audit's error record and several would otherwis
 
 # PART 7 — WHAT IS STILL OPEN
 
-## 7.1 THE HIGHEST-VALUE THING YOU CAN DO
+## 7.1 CAROUSEL SNAP — **CLOSED, CONFIRMED ON DEVICE**
 
-**Verify the carousel snap.** Two rails were fixed and neither is confirmed:
-`home.tsx` course rail (interval 144) and `news-gallery` market news (interval 244).
+**`home.tsx` course rail (interval 144pt) is verified snapped.** Measured by A/B against the app
+itself with `scripts/anim/snap_rest.py AB`. Among rests trustworthy on the pre-registered
+correlation floor (>= 0.60):
 
-This is the strongest remaining candidate for the owner's *"whenever I drag something, it moves all
-over the place"* — and it was never in the animation code at all.
+| arm | what it is | rests | worst offset from the 144pt grid |
+|---|---|---|---|
+| **A** | the shipping build | **3/3 at phase 16.0pt** (all five flicks read 16.0pt) | **0.0pt** |
+| **B** | `snapToInterval`/`snapToAlignment`/`decelerationRate` stripped via Fast Refresh | 3/3 scattered | **63.7pt** (also 50.0, 8.0) |
 
-**Both obvious routes are closed:** the a11y tree is content-space so it cannot see scroll offset,
-and the capture path cannot measure scroll.
+Clean separation, so the instrument discriminates and arm A is not measuring a tautology.
+**Confirmed by eye too, and this is the owner-facing part:** arm B's final rest shows a card sliced
+off the left edge and another sliced off the right; arm A's shows three whole cards with the first
+flush at the 16pt inset. That sliced frame **is** the owner's *"whenever I drag something, it moves
+all over the place"* — and it was never in the animation code. It was six horizontal `ScrollView`s
+with no snapping.
 
-**AND SO IS THE THIRD — cross-correlation is retired. Do not spend another run on it.**
+**The instrument.** Total displacement is NOT the claim and cannot be measured here (see the
+retirement note below). `snapToAlignment="start"` means every rest puts a card edge on the content
+inset — one number per flick. `snap_rest.py` phase-matches a 144pt/132pt square wave against the
+rail band's column profile, built from **per-channel max, never `.convert('L')`**.
 
-> **RETRACTED (#18): "the flick moved the rail 878px = 292.7pt = 2.03 × 144".** That number is not
-> a measurement of the displacement. It is the argmax of a search window that did not contain the
-> true value. The loop stops once the overlap falls below its minimum, so it only ever searched
-> shifts up to ~806px, and it dutifully returned the best match inside that window.
->
-> **The proof is in the two frames themselves.** Before the flick the rail shows *Investing
-> Fundamentals / Personal Finance / Global Economics*; after it shows *Business Strategy /
-> Financial Analytics / Behavioral Finance*. **Not one card is common to both.** The true
-> displacement is therefore at least three cards — over 432pt — and the frame is only 402pt wide.
-> **No correlation between two 402pt frames can express a shift larger than 402pt.** This is
-> structural, not a tuning problem; flicking shorter does not fix it, it only hides it.
+**Two traps this hit, both now guarded in the script:**
 
-**MEASURE THE RESTING PHASE INSTEAD — total displacement was never the claim.** `snapToAlignment`
-is `"start"`, so the testable statement is that *every* resting position puts a card's left edge on
-the content inset. That is one number per flick and it needs no frame-to-frame matching at all.
+1. **The movement guard was blind to the exact case it protects.** It first compared the same
+   card-BODY rows the phase is measured on — and those rows are uniform fill on every card, so a
+   shift of one whole card leaves the profile IDENTICAL when the rail rests on an exact multiple of
+   144pt. It reported "did not move" on all five flicks *because the snap was working perfectly*.
+   The tell was the template correlation alternating 0.936/0.337 as the selected violet card entered
+   and left the band. **Movement is now detected on the ICON rows (10–30% of the band), which are
+   differently coloured per course, while the phase stays on body rows (34–42%, between icon and
+   title, so glyph strokes cannot forge an edge).**
+2. **Metro must be up.** With the dev server down the arm-B patch never reaches the device and arm B
+   silently measures the shipping build. `at_launcher()` returns **False** on the connect-error
+   screen so the existing check misses it, and `reconnect()` cannot repair it. The probe now refuses
+   to start unless `localhost:8081` answers. Start it with `npm start`.
 
-**The instrument, in `scripts/anim/snap_rest.py`:** take the rail band's column brightness profile
-over card-body rows only (rows 34–42% of the band — between the icon and the title, so icon strokes
-and glyphs cannot forge an edge), built from **per-channel max, never `.convert('L')`**. Phase-match
-a square wave of period 144pt and duty 132pt against it; the phase that maximises correlation IS the
-resting offset.
+**RETIRED — do not spend a run on cross-correlation.** *(Retraction #18.)* The recorded
+"878px = 292.7pt = 2.03 × 144" is not a measurement; it is the argmax of a search window that
+stopped at ~806px and never contained the true value. The frames prove it: before a flick the rail
+shows *Investing Fundamentals / Personal Finance / Global Economics*, after it shows *Business
+Strategy / Financial Analytics / Behavioral Finance* — **not one card in common**, so the true shift
+is ≥432pt against a 402pt frame. No correlation between two 402pt frames can express that. The
+recorded "flick shorter" fix would have hidden the problem, not solved it. The retired probe is kept
+at `scripts/anim/snap_probe.py`.
 
-**Already validated on two frames that were captured before it existed:** both return phase
-**48px = 16.0pt exactly** — the content inset — and the post-flick frame scores **0.936**. (The
-pre-flick frame only scores 0.331 because the second card is the selected one and carries a violet
-border and lighter fill, which breaks the uniform template. The phase is still right; just score
-rests on a **corr ≥ 0.60** floor.)
-
-**Two guards, both of which have already caught a false verdict here:**
-- **Assert the rail MOVED before scoring a rest.** A stationary rail rests on the grid trivially —
-  that is retraction #18's ancestor, the `VERDICT: SNAPPED` printed on a rail that never scrolled.
-- **Alternate the flick direction.** Five flicks the same way run the rail out of content and the
-  last three rests are the same frozen frame. Observed: 3 of 5 flicks unmoved.
-
-**RUN IT AS AN A/B — a single arm proves nothing.** `snap_rest.py` takes an arm argument. Arm A is
-the shipping build; arm B patches `snapToInterval`/`snapToAlignment`/`decelerationRate` out of
-`home.tsx`, lets Fast Refresh apply it, and restores the file in a `finally` block. If both arms
-rest on the grid, the instrument cannot tell them apart and **arm A proves nothing**. Run
-`python3 scripts/anim/snap_rest.py AB`.
-
-**THE BLOCKER YOU WILL HIT FIRST — check this before anything else:**
-
-> **The Metro dev server must be running.** It died mid-session and the app then showed
-> *"Could not connect to http://192.168.1.69:8081"* — four labels, no rail, and `at_launcher()`
-> returns **False**, so the launcher check does **not** catch it and `drive.reconnect()` does not
-> fix it (it only taps a dev-server row that is not on screen). A run with Metro down is worse than
-> no run: **an arm-B patch cannot reach the device, so arm B silently measures the shipping build.**
-> That is why arm B's numbers from this session are retracted rather than reported.
->
-> Guard it: `curl -s -m 3 http://localhost:8081/status` must answer before the probe starts.
-> Start it with `npx expo start` (`npm start`) from `~/euphoria-native`.
-
-The same probe works for `news-gallery` on the Trade tab with `INTERVAL_PT = 244`.
-
-Simplest of all: ask the owner to flick the course rail on Home and say whether cards now settle
-aligned instead of half-off-screen.
+**STILL OPEN: the `news-gallery` market-news rail (interval 244pt) on the Trade tab.** Same
+instrument, same A/B; set `INTERVAL_PT=244.0` and `CARD_PT=236.0`, and patch
+`news-gallery.tsx:142-144` for arm B. Its band comes from a11y the same way — but take the card
+node by its own copy, not by `/25`, which is the course-card marker.
 
 ## 7.2 Owner-blocked
 

@@ -64,16 +64,35 @@ def bring_on_screen():
     got=rail_band()
     if not got: return None
     y0,y1=got
-    for _ in range(4):
+    for _ in range(7):
         if y1<=834: break
         sp.run(["idb","ui","swipe","--udid",U,"--duration","0.25","200","640","200","380"],capture_output=True)
-        time.sleep(1.4); got=rail_band()
+        time.sleep(1.8); got=rail_band()
         if not got: return None
         y0,y1=got
     return (y0,y1) if y1<=834 else None
 
 def shot(tag):
     p=f"{OUT}/{tag}.png"; sp.run(["xcrun","simctl","io",U,"screenshot",p],capture_output=True); return p
+
+def icon_profile(path, band):
+    """Movement is detected on the ICON rows, NOT the rows the phase is measured on.
+
+    The phase profile samples card-BODY rows, which are the same uniform fill on every card. That
+    is what makes them a clean square wave -- and it is also why they cannot see movement: if the
+    rail rests on an exact multiple of 144pt, a shift of one whole card leaves that profile
+    IDENTICAL. The movement guard would therefore report 'did not move' precisely when the snap is
+    working perfectly, which is the failure it exists to prevent. Observed: all 5 flicks read NO
+    while the template correlation alternated 0.936/0.337 as the selected violet card entered and
+    left the band -- proof the rail was moving the whole time.
+
+    Icons are differently coloured per course, so they DO change when a different card scrolls in.
+    """
+    im=Image.open(path).convert('RGB').crop(band)
+    r,g,b=im.split(); m=ImageChops.lighter(ImageChops.lighter(r,g),b)
+    W,H=m.size; px=m.load()
+    ys=list(range(int(H*0.10),int(H*0.30)))   # the icon row
+    return [sum(px[x,y] for y in ys)/len(ys) for x in range(W)]
 
 def profile(path, band):
     im=Image.open(path).convert('RGB').crop(band)
@@ -104,15 +123,16 @@ def run_arm(name):
     d=Image.open(p0); ImageDraw.Draw(d).rectangle(list(band),outline=(255,0,0),width=6)
     d.save(f"{OUT}/{name}_band.png")
     print(f"[{name}] rail band y={y0}..{y1} from a11y; band drawn -> {OUT}/{name}_band.png")
-    prev=profile(p0,band); out=[]
+    prev=icon_profile(p0,band); out=[]
     for i,(dur,x0,x1) in enumerate(FLICKS,1):
         ym=int(y0+(y1-y0)*0.4)
         sp.run(["idb","ui","swipe","--udid",U,"--duration",dur,str(x0),str(ym),str(x1),str(ym)],capture_output=True)
         time.sleep(2.6)
-        p=shot(f"{name}_rest{i}"); col=profile(p,band)
-        moved=sum(abs(a-b) for a,b in zip(col,prev))/len(col) > 3.0
-        prev=col
-        ph,r=phase(col,sx)
+        p=shot(f"{name}_rest{i}")
+        ic=icon_profile(p,band)
+        moved=sum(abs(a-b) for a,b in zip(ic,prev))/len(ic) > 3.0
+        prev=ic
+        ph,r=phase(profile(p,band),sx)
         off=min(abs(ph-INSET_PT)%INTERVAL_PT, INTERVAL_PT-(abs(ph-INSET_PT)%INTERVAL_PT))
         out.append((i,dur,moved,ph,r,off))
     return out
@@ -150,7 +170,7 @@ try:
         assert patched!=orig, "counterfactual patch did not apply"
         open(HOME,'w').write(patched)
         print("\n[counterfactual] snap props REMOVED; waiting for Fast Refresh")
-        time.sleep(8)
+        time.sleep(12)
         B=run_arm("B_free")
 finally:
     open(HOME,'w').write(orig)
