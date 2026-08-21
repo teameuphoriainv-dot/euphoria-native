@@ -46,3 +46,69 @@ something I can speed up — it is EAS queue time and Apple's processing.
 
 - Enter credentials or accept App Store agreements — those need you.
 - Anything in the ASC or RevenueCat dashboards that changes settings needs your go-ahead per action.
+
+---
+
+## Verified in the browser, 2026-08-21 ~09:15
+
+### RevenueCat ✅ correctly configured — and my first theory was wrong
+
+There are FOUR projects, two named identically "Euphoria", plus "Euphoria App" and "Euphoria Real".
+That looked like an obvious key/project mismatch, so I tested it rather than assuming: the console
+gave the SDK's anonymous customer id, and searching each project for it found the app talks to
+**`320845df` ("Euphoria")** — not found in the other three.
+
+That project is **correctly set up**: `default` offering, Active, **2 packages**. The `$rc_monthly`
+package carries BOTH a RevenueCat Test Store product (`monthly`) and the App Store product
+(`euphoria_pro_monthly`).
+
+**So the dashboard is not the problem.** The SDK drops packages whose store product it cannot
+fetch, which on a simulator it cannot — exactly as its own error says. This supersedes the original
+`IAP_OFFERING_REPORT.md` conclusion, and it means **TestFlight on a real device is the correct test**.
+
+### PostHog ✅ working
+
+Project `557266`. Events arriving from `posthog-react-native`, including the app's own custom
+instrumentation — `day_return`, `first_action_skipped`, `trial_reward_dismissed`. Most recent event
+9 hours old; nothing during the overnight automation, plausibly SDK batching or the dev-launcher
+drops observed at the time. Not investigated further.
+
+### App Store Connect ⚠️ not signed in
+
+Redirected to login with `authResult=FAILED`. Entering credentials is not something I do, and
+Apple requires 2FA on your device regardless.
+
+### EAS keys ✅ FIXED
+
+`EXPO_PUBLIC_REVENUECAT_IOS_KEY` and `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` pushed to the production
+environment. All seven now load — confirmed by the build log itself.
+
+---
+
+## THE BLOCKER — one command, and it needs you
+
+The build ran through everything and stopped at credentials:
+
+> Distribution Certificate is not validated for non-interactive builds.
+> Credentials are not set up. Run this command again in interactive mode.
+
+It also surfaced that there are **TWO targets** needing separate provisioning profiles:
+`com.euphoriainv.euphoria` and `com.euphoriainv.euphoria.widget`.
+
+**Run this, and sign in to Apple when prompted:**
+
+```
+cd ~/euphoria-native && npx eas build --platform ios --profile production
+```
+
+Then when it completes:
+
+```
+npx eas submit --platform ios --profile production --latest
+```
+
+Everything else is ready: profiles configured, submit credentials present (ascAppId 6761808087),
+buildNumber already incremented to 2, all seven env vars loading.
+
+**Timeline once you start it:** build 15-25 min, submit plus Apple processing 10-20 min. So
+roughly 35-50 minutes to TestFlight, and none of that is something either of us can speed up.
