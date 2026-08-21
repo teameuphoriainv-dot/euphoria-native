@@ -914,3 +914,51 @@ confound that defeated the absolute-angle measurement.
 
 `rock` may well be running; this says only that **the measurement never showed it**, and the
 claim is withdrawn. Nothing in the eye line can confirm or deny a rotation applied to the rings.
+
+## 19. THE THREE DRAGGABLE COMPONENTS ARE DEAD CODE — nothing in the app renders them
+
+Found while looking for a lesson step that would let me device-verify the drag fixes.
+
+| component | rendered at |
+|---|---|
+| `SliderPredict` | **nowhere** |
+| `BeforeAfterSlider` | **nowhere** |
+| `GraphPointDrag` | **nowhere** |
+| `SortBuckets` | **nowhere** |
+| `MatchingPairs` | `lesson.tsx:413` |
+| `NumberLine` | `lesson.tsx:415` |
+| `TileBuilder` | `lesson.tsx:417` |
+
+The only references to the four dead ones are their own definitions and **docstring
+cross-references in sibling files** ("Sibling to NumberLine/SliderPredict"). No imports, no JSX,
+no registry, no dynamic map. Verified by scanning every `.ts`/`.tsx` in `src/`.
+
+**Why they are unreachable:** `lesson.tsx` renders nine step kinds —
+`prose · choice · multi · reveal · order · match · build · line · todo`. There is no `slider`,
+`beforeAfter` or `graph` kind. And `lesson-steps.ts:154` normalises the curriculum's
+`interactiveGraph` type to **`kind: 'prose'`**, with the comment *"the chart itself is a later
+cycle; its written analysis stands on its own."* The charts were deliberately deferred; the
+components were built and never wired up.
+
+### What this means for the owner's reported drag defect
+
+**`slider-predict` — the headline fix for "whenever I drag something, it doesn't move all over
+the place" — is a component the app never shows.** The per-frame `runOnJS` was real and the fix
+is correct, but it cannot have been what the owner experienced.
+
+The same applies to the 60Hz haptic misuse and the per-move re-renders fixed in
+`before-after-slider` and `graph-point-drag`. All four fixes are correct, and all four are to
+code that does not currently run.
+
+**So the owner's drag complaint has no identified source.** The remaining candidates, none
+verified:
+
+1. **Scrolling.** `ScrollView` is the only drag-like interaction the app actually exposes. The
+   audit measured scroll and found no source-level defect (§11), but also proved the capture path
+   **cannot** measure scroll frame rate — it is bandwidth-limited and reports the recorder's rate.
+2. **These components are MEANT to be wired up** and their absence is itself the bug — a
+   `slider`/`graph` step kind that silently renders as prose.
+
+**Not resolved here, and not guessed at.** The honest position is that the fixes shipped are
+improvements to dormant code, and the defect the owner described remains unexplained. That
+should be said plainly rather than left implied by a list of drag fixes.
