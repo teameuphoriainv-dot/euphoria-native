@@ -1,6 +1,25 @@
 /**
- * <SpringPressable> — snappy tap feedback (scale down on press) + haptic. The universal
- * tappable wrapper; use instead of bare Pressable for buttons/cards.
+ * <SpringPressable> — tap feedback (scale down on press) + haptic. The universal tappable
+ * wrapper; use instead of bare Pressable for buttons/cards.
+ *
+ * MEASURED 2026-08-21, after the owner reported "whenever I click on something, it doesn't
+ * become huge and become small". They were right, and the arithmetic says why.
+ *
+ * This used `Spring.snappy` (k=158, c=21 -> zeta 0.835, response 0.50s) while `Spring.press`
+ * (k=632, c=50 -> zeta 0.994, response 0.25s) sat in tokens.ts UNUSED, documented for exactly
+ * this job. A spring does not jump to its target: on a typical 80ms tap it only travels part
+ * of the way before the finger lifts and it reverses.
+ *
+ *   at scaleTo 0.97, 80ms tap:  snappy reaches 0.9914 — a 0.86% squish. Invisible.
+ *                               press  reaches 0.9820 — 1.80%. 2.08x better, still slight.
+ *
+ * So both halves were wrong: the wrong spring AND a target too shallow to survive the
+ * truncation. `press` covers 59.9% of its travel in 80ms, so landing a real 3% squish needs
+ * scaleTo 0.95, which is what it now is.
+ *
+ * Damping stays critical. tokens.ts is explicit that this is on purpose — "wobble on a ~100ms
+ * beat reads as lag rather than life" — so the fix is a faster, deeper press, NOT a bouncier
+ * one. scripts/press-feedback-pin.mjs holds the perceptual floor.
  */
 import type { ReactNode } from 'react';
 import * as Haptics from 'expo-haptics';
@@ -17,7 +36,7 @@ export function SpringPressable({
   style,
   haptic = true,
   disabled,
-  scaleTo = 0.97,
+  scaleTo = 0.95,
   ...rest
 }: PressableProps & {
   children: ReactNode;
@@ -46,10 +65,10 @@ export function SpringPressable({
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPressIn={() => {
-        scale.set(withSpring(scaleTo, Spring.snappy));
+        scale.set(withSpring(scaleTo, Spring.press));
       }}
       onPressOut={() => {
-        scale.set(withSpring(1, Spring.snappy));
+        scale.set(withSpring(1, Spring.press));
       }}
       onPress={(e) => {
         if (haptic) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
