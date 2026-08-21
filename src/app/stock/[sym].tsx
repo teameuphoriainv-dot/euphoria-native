@@ -28,7 +28,8 @@ import { GradientButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getQuote, type Quote } from '@/lib/market';
+import { getMarks } from '@/lib/market';
+import { markDateOf } from '@/lib/marks';
 import { money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { RetryNotice } from '@/components/retry-notice';
 import { useApp } from '@/lib/store';
@@ -82,7 +83,6 @@ export default function StockDetail() {
    * It does now: `asOf` is the only thing that can say WHEN this price is from, and the quote
    * endpoint discarded that field entirely until it was added.
    */
-  const [live, setLive] = useState<Quote | null>(null);
   /*
    * QUOTE FAILURE WAS SILENT, AND SILENT IS THE WRONG FAILURE HERE.
    *
@@ -108,6 +108,15 @@ export default function StockDetail() {
    * flags, and rightly: a component that reads the clock while rendering produces a different
    * tree on every pass. The clock is read once, when the quote actually lands.
    */
+  /*
+   * COMPUTED IN THE EFFECT, NOT IN RENDER, for two separate reasons.
+   *
+   * closeLabel reads Date.now(), and a component that reads the clock while rendering produces a
+   * different tree on every pass -- react-hooks/purity flagged exactly that in an earlier version
+   * of this line. And markDateOf() is a MODULE read: nothing about it re-renders this screen, so
+   * a caption derived from it during render would show whatever the value was on first paint.
+   * Both problems disappear once the label is set when the fetch actually lands.
+   */
   const [asOfLabel, setAsOfLabel] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
   const retryQuote = useCallback(() => {
@@ -119,11 +128,32 @@ export default function StockDetail() {
     if (!sym) return;
     let cancelled = false;
     setQuoteErr(null);
-    getQuote(sym)
-      .then((q) => {
+    /*
+     * ONE SHARED CALL, NOT A PER-SYMBOL QUOTE.
+     *
+     * This used to call getQuote(sym), which spent a request to fetch a price the app very likely
+     * already had: getMarks() prices the ENTIRE market in a single grouped request, and `priceOf`
+     * reads that same map. So the quote bought nothing but a timestamp.
+     *
+     * It also cost correctness. /prev and grouped are different endpoints and can sit a session
+     * apart -- measured 2026-08-20, NVDA read $216.85 from /prev and $217.56 from grouped -- and
+     * because getQuote wrote its result through setMark, the price on the TRADE tab changed
+     * depending on whether you had opened this screen. The same ticker showed two numbers.
+     *
+     * And it cost reliability. MEASURED: a stock screen fires quote + chart + stats + news, and
+     * the chart may paginate, so 4-6 requests land at once against a five-per-minute ceiling.
+     * The third call back returned 429 and the chart rendered "No data for this range". Dropping
+     * the quote returns a request to that budget, and the one it is replaced by is shared with
+     * every other screen rather than being spent on this symbol alone.
+     */
+    getMarks()
+      .then((r) => {
         if (cancelled) return;
-        setLive(q);
-        setAsOfLabel(closeLabel(q?.asOf));
+        if (!r?.count) {
+          setQuoteErr('upstream');
+          return;
+        }
+        setAsOfLabel(closeLabel(markDateOf()));
       })
       .catch((e: unknown) => {
         if (cancelled) return;

@@ -8,7 +8,7 @@
  * portfolio, a bezier posing as a chart. `null` forces the UI to say "not live" instead.
  */
 import { ApiError, apiGet } from './api';
-import { setChange, setMark } from './marks';
+import { setChange, setMark, setMarkDate } from './marks';
 
 /** Ranges the chart offers. Order matters — this is the row under the chart, left to right.
  *  TradingView, Bloom and Yahoo Finance all ship this control (3/3). */
@@ -130,6 +130,7 @@ export const getMarks = (syms?: string[]) =>
   ).then((r) => {
     if (r?.marks) for (const [sym, price] of Object.entries(r.marks)) setMark(sym, price);
     if (r?.changes) for (const [sym, pct] of Object.entries(r.changes)) setChange(sym, pct);
+    if (r?.date) setMarkDate(r.date);
     return r;
   });
 

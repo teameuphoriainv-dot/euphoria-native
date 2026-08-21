@@ -86,6 +86,24 @@ export const persistableMarks = (
 };
 
 /*
+ * WHICH SESSION THESE MARKS ARE FROM.
+ *
+ * One grouped request prices the whole market, and the response says which trading day it read.
+ * Keeping that here means any screen can caption its price honestly without spending a second
+ * request to ask "when" -- which is exactly what the stock screen used to do, and why the same
+ * ticker could show two different prices depending on how you navigated to it.
+ */
+let markDate: number | null = null;
+
+export const setMarkDate = (iso: string): void => {
+  const t = Date.parse(`${iso}T20:00:00Z`); // US close, so the label lands on the right day
+  if (Number.isFinite(t)) markDate = t;
+};
+
+/** Epoch ms of the session these marks came from, or null before any fetch has landed. */
+export const markDateOf = (): number | null => markDate;
+
+/*
  * SESSION CHANGE, kept beside the mark.
  *
  * The Trade tab's watchlist rendered `STOCKS[sym].chg` -- a hardcoded percentage -- next to a

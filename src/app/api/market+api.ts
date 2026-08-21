@@ -483,7 +483,7 @@ export async function GET(request: Request) {
        * Best-effort by design: any failure breaks the loop and returns what we already have,
        * because a partial chart drawn from real bars beats an error page.
        */
-      const MAX_PAGES = 2;
+      const MAX_PAGES = 1;
       const bars = [...((d.results ?? []) as { t: number; c: number }[])];
       let next = d.next_url as string | undefined;
       for (let page = 0; page < MAX_PAGES; page++) {
