@@ -863,3 +863,47 @@ appearance carries the meaning. Recorded as an improvement with its cost, not le
 **What this establishes:** every lesson step has an entrance and an exit, from a single wrapper.
 The remaining instant transitions are *within-step state changes*, not missing entrances — a
 materially smaller class than the audit started with.
+
+## 18. `headProps` rotates ONLY the body rings — the face is outside the rotated group
+
+Definitive, from source, and it needed no capture. `atlas.tsx:594-603`:
+
+```jsx
+<AnimatedG animatedProps={headProps} origin="50, 62">
+  <AtlasMarkBody rings={ringProps} />        {/* the ONLY child */}
+</AnimatedG>
+<Circle cx={34.8} cy={26.5} r={whiteR[0]} …/>   {/* sclera — sibling, not child */}
+<Circle cx={61.2} cy={25}   r={whiteR[1]} …/>   {/* sclera — sibling */}
+<AnimatedG animatedProps={saccadeProps}>{pupils()}{brows()}</AnimatedG>
+```
+
+And `headProps` (`atlas.tsx:398-400`) is:
+
+```js
+rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() + EXPRESSION_TILT[expression]
+```
+
+**So all three rotation channels — idle rock, reaction follow-through, and the expression's
+resting tilt — rotate the body rings beneath a face that does not move.**
+
+**This is in tension with the file's own documentation.** `atlas.tsx:35-40` introduces
+`EXPRESSION_TILT` as *"RESTING HEAD TILT — the third acting channel, after pupils and brows"*,
+and annotates `thinking: -7` as *"the classic cocked head; the largest of the set because it is
+the most legible."* A cocked head that leaves the eyes level is not the gesture that describes.
+
+**NOT filed as a defect, and not fixed.** Whether the face should ride the rotation is a design
+decision, not a correctness one: Atlas's eyes float over a ring cluster rather than sitting on a
+skull, and a designer may well have chosen to keep them level. Moving the sclera and
+`saccadeProps` inside the rotated `<G>` is a two-line change that alters every expression at
+once, and this audit does not ship visual changes it cannot verify. **Flagged for an owner
+decision with the mechanism spelled out.**
+
+### RETRACTION #17 — "idle head rock is confirmed running" was wrong
+
+Recorded one round earlier from an eye-line swing of 9.21° over 5s and 20.16° over 16s. **The
+eyes are outside the rotated group, so `rock` cannot move them.** That swing was the saccade
+displacing dark pupils across the white, plus blinks closing the eyes entirely — the same
+confound that defeated the absolute-angle measurement.
+
+`rock` may well be running; this says only that **the measurement never showed it**, and the
+claim is withdrawn. Nothing in the eye line can confirm or deny a rotation applied to the rings.
