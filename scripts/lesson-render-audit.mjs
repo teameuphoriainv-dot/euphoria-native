@@ -27,9 +27,36 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const COURSES = join(ROOT, 'src/lib/curriculum/courses');
-const { normalizeStep, gates, expandSteps } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { normalizeStep, gates, expandSteps, visualIsRenderable } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
+
+// A GREEN RUN MEANS NOTHING UNLESS THE LANE CAN GO RED. Each detector added after the
+// silent-failure review is seeded with the exact shape it exists to catch, and a harmless shape it
+// must ignore. Every one of these three was a real blind spot: an unrenderable kind tallied as
+// "reaching the screen", a degenerate payload that returned a truthy-but-empty element, and a
+// visual-only step that read as zero content because blockText could not see inside a chart.
+if (process.argv.includes('--selftest')) {
+  const ok = (c, m) => { if (!c) { console.error(`selftest FAILED: ${m}`); process.exit(1); } };
+  ok(!visualIsRenderable({ type: 'pixel', title: 'x', items: [{ label: 'a' }] }),
+    'an UNRENDERABLE kind was accepted');
+  ok(!visualIsRenderable({ type: 'stack', title: 'x', segments: [] }),
+    'a known kind with an EMPTY payload was accepted');
+  ok(!visualIsRenderable({ type: 'metric', title: 'x' }),
+    'a metric with no value was accepted');
+  ok(visualIsRenderable({ type: 'stack', title: 'x', segments: [{ label: 'a', percent: 50 }] }),
+    'a VALID stack was wrongly rejected');
+  ok(visualIsRenderable({ type: 'metric', title: 'x', value: '$1' }),
+    'a VALID metric was wrongly rejected');
+  ok(blockText({ b: 'visual', visual: { type: 'bars', title: 'T', items: [{ label: 'L', displayValue: '9%' }] } }).includes('9%'),
+    'blockText could not see inside a visual block');
+  ok(blockText({ b: 'stat', value: 'V', label: 'L' }) === 'V L', 'blockText regressed on stat');
+  const lost = expandSteps([{ type: 'progressiveCalc', title: 't', calcSteps: [{ nonsense: true }] }]);
+  ok(lost.length === 0, 'a malformed calcStep produced a step it should not have');
+  ok(expandSteps([{ type: 'quiz', question: 'q' }]).length === 1, 'a normal step was not passed through');
+  console.log('lesson-render-audit selftest ok — 3 detectors seeded, 4 valid shapes ignored');
+  process.exit(0);
+}
 
 /** Text a prose/todo block actually puts on screen.
  *
@@ -47,6 +74,16 @@ const VERBOSE = process.argv.includes('--thin');
  */
 function blockText(b) {
   if (!b || typeof b !== 'object') return '';
+  // A `visual` block carries its content one level down. Without this, a step whose ONLY block is
+  // a chart -- possible for a teachingSlide with a diagramVisual and no paragraphs -- reads as
+  // zero content and gets flagged thin, which would be the checker reporting itself again.
+  if (b.b === 'visual') {
+    const v = b.visual ?? {};
+    const rows = v.items ?? v.rows ?? v.segments ?? v.nodes ?? v.points ?? [];
+    return [v.title, v.value, v.detail, v.footer, v.centerLabel, v.total,
+            ...rows.flatMap((r) => [r?.label, r?.value, r?.displayValue])]
+      .filter((x) => typeof x === 'string').join(' ').trim();
+  }
   return [b.text, b.value, b.label, b.term, b.definition, b.example,
           b.leftLabel, b.left, b.rightLabel, b.right, b.when, b.what, b.detail]
     .filter((v) => typeof v === 'string')
@@ -81,7 +118,8 @@ function isThin(n) {
 }
 
 const files = readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort();
-let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0;
+let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0;
+const unrenderable = [];
 const visualKinds = new Map();
 const byType = new Map();
 const thinByType = new Map();
@@ -93,6 +131,9 @@ for (const f of files) {
   for (const lesson of list) {
     lessons += 1;
     // audit what the app ACTUALLY renders, which is the expanded list
+    for (const raw of lesson.steps ?? []) {
+      if (raw?.type === 'progressiveCalc') rawCalcSteps += (raw.calcSteps ?? []).length;
+    }
     for (const step of expandSteps(lesson.steps ?? [])) {
       steps += 1;
       byType.set(step.type, (byType.get(step.type) ?? 0) + 1);
@@ -106,6 +147,16 @@ for (const f of files) {
         continue;
       }
       if (n.kind === 'todo') todo += 1;
+      // Count every visual the DATA carries, so a chart that never became a block is visible.
+      for (const k of ['visual', 'diagramVisual', 'withVisual', 'withoutVisual']) {
+        const v = step?.[k];
+        if (v?.type) {
+          visualsInData += 1;
+          if (!visualIsRenderable(v)) {
+            unrenderable.push(`${f.replace('.ts', '')} L${lesson.num} ${step.type}.${k} type=${v.type}`);
+          }
+        }
+      }
       for (const b of (Array.isArray(n.blocks) ? n.blocks : [])) {
         if (b?.b === 'visual' && b.visual?.type) {
           visualBlocks += 1;
@@ -126,7 +177,7 @@ for (const f of files) {
 console.log(`\ncourses ${files.length}   lessons ${lessons}   steps ${steps}   distinct types ${byType.size}`);
 console.log(`fell through to the 'todo' default: ${todo} step(s)`);
 console.log(`THIN (reach the screen with no readable body and no interaction): ${thin}`);
-console.log(`AnimatedVisuals reaching the screen: ${visualBlocks}`);
+console.log(`AnimatedVisuals in the data: ${visualsInData}   reaching the screen: ${visualBlocks}`);
 if (visualKinds.size) {
   console.log('  ' + [...visualKinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('   '));
 }
@@ -155,6 +206,19 @@ if (VERBOSE && thinExamples.length) {
 // The number is a CEILING, not a target: this exits non-zero the moment a sync or an edit makes
 // MORE steps thin, which is the regression nothing else in `npm run check` would notice.
 const BASELINE = 0;
+const { droppedCalcSteps } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const emittedCalc = byType.get('calcQuiz') ?? 0;
+const emittedWalk = byType.get('calcWalkthrough') ?? 0;
+console.log(`calcSteps in data ${rawCalcSteps} -> emitted ${emittedCalc + emittedWalk} (dropped ${droppedCalcSteps})`);
+if (unrenderable.length) {
+  console.error(`\n${unrenderable.length} visual(s) the app CANNOT render:`);
+  for (const u of unrenderable.slice(0, 20)) console.error(`  ${u}`);
+  process.exit(1);
+}
+if (rawCalcSteps !== emittedCalc + emittedWalk || droppedCalcSteps > 0) {
+  console.error(`\nCALC STEPS LOST: ${rawCalcSteps} in the data, ${emittedCalc + emittedWalk} emitted.`);
+  process.exit(1);
+}
 if (thin > BASELINE) {
   console.error(`\nREGRESSION: ${thin} thin steps, baseline is ${BASELINE}.`);
   console.error('Re-run with --thin to list them.');

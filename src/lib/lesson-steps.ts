@@ -47,9 +47,50 @@ const paras = (xs?: string[]): ProseBlock[] => (xs ?? []).filter((t) => t?.trim(
 const terms = (xs?: { term: string; definition: string; example?: string }[]): ProseBlock[] =>
   (xs ?? []).map((t) => ({ b: 'term', term: t.term, definition: t.definition, example: t.example }));
 
-/** A chart block, or nothing when the step carries no visual. Keeps the three call sites honest:
- *  a visual is an addition to prose that already works, never a replacement for it. */
-const vis = (v?: AnimatedVisual): ProseBlock[] => (v ? [{ b: 'visual', visual: v }] : []);
+/**
+ * The visual kinds LessonVisual can actually draw. Single source of truth, and it lives in this
+ * PURE module rather than in the component so that scripts/lesson-render-audit.mjs can import it
+ * under plain Node -- the component pulls in React Native and cannot be loaded there.
+ *
+ * `AnimatedVisual` also declares `pixel` and `pictograph`. Neither occurs in the corpus today and
+ * neither is implemented, so they are deliberately ABSENT here: that makes an unrenderable kind a
+ * loud, countable event instead of a card that quietly disappears.
+ */
+export const RENDERABLE_VISUAL_KINDS = new Set([
+  'bars', 'comparison', 'stack', 'pie', 'grid', 'flow', 'line', 'metric',
+]);
+
+/**
+ * True when a visual will actually put something on screen.
+ *
+ * TWO ways it can fail, and BOTH used to be invisible:
+ *   1. an unrenderable `type` -- LessonVisual's switch falls to `default: return null`, which drops
+ *      the whole card including its title and footer;
+ *   2. a KNOWN type whose driving array is empty or missing -- a `stack` with no `segments`, say.
+ *      That one is nastier, because the component still returns a truthy element (an empty View is
+ *      still an object), so no `!body` guard catches it and the learner gets an empty frame.
+ *
+ * Rejecting here means the step keeps its prose and the audit can count what was rejected, rather
+ * than the corpus silently growing charts that nobody renders.
+ */
+export function visualIsRenderable(v?: AnimatedVisual): boolean {
+  const a = v as (AnimatedVisual & Record<string, any>) | undefined;
+  if (!a?.type || !RENDERABLE_VISUAL_KINDS.has(a.type)) return false;
+  const rows: unknown =
+    a.type === 'bars' || a.type === 'grid' ? a.items
+    : a.type === 'comparison' ? a.rows
+    : a.type === 'stack' || a.type === 'pie' ? a.segments
+    : a.type === 'flow' ? a.nodes
+    : a.type === 'line' ? a.points
+    : null;
+  if (rows === null) return typeof a.value === 'string' && a.value.length > 0;  // metric
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+/** A chart block, or nothing when the step carries no RENDERABLE visual. Keeps the three call
+ *  sites honest: a visual is an addition to prose that already works, never a replacement. */
+const vis = (v?: AnimatedVisual): ProseBlock[] =>
+  (v && visualIsRenderable(v) ? [{ b: 'visual', visual: v }] : []);
 
 /** de-duplicate a tray while preserving author order — repeated distractors would be unplaceable */
 const uniq = (xs: string[]): string[] => Array.from(new Set(xs));
@@ -287,6 +328,10 @@ export function normalizeStep(step: LessonStep): Normalized {
  * shifts every index after a progressiveCalc. That is tooling, not product, and is called out
  * here so the next person does not read a driver mismatch as a content bug.
  */
+/** Count of calcSteps expandSteps could not place. Read by scripts/lesson-render-audit.mjs, which
+ *  cannot otherwise see data lost inside this function. Any value above zero is a defect. */
+export let droppedCalcSteps = 0;
+
 export function expandSteps(steps: LessonStep[]): LessonStep[] {
   const out: LessonStep[] = [];
   for (const step of steps) {
@@ -300,6 +345,18 @@ export function expandSteps(steps: LessonStep[]): LessonStep[] {
         out.push({ type: 'calcQuiz', prompt: c.prompt, options: c.options, correct: c.correct } as unknown as LessonStep);
       } else if (typeof c?.formula === 'string') {
         out.push({ type: 'calcWalkthrough', label: c.label, formula: c.formula, result: c.result } as unknown as LessonStep);
+      } else {
+        // NOT SILENTLY DROPPED. A calcStep that is neither shape would otherwise vanish one layer
+        // BEFORE the render audit looks -- the audit iterates what expandSteps emits, so anything
+        // lost in here is structurally uncountable by it. Emitting a marker keeps the loss visible
+        // to both the audit and __DEV__, instead of a question quietly disappearing from a lesson.
+        droppedCalcSteps += 1;
+        // `typeof` guard, not a bare `__DEV__`: this module is PURE and is imported by
+        // scripts/lesson-render-audit.mjs under plain Node, where the React Native global does
+        // not exist. The audit's own selftest caught this by throwing here on the first run.
+        if (typeof __DEV__ !== 'undefined' && __DEV__) {
+          console.warn('[lesson-steps] unrecognised calcStep shape dropped:', Object.keys(c ?? {}));
+        }
       }
     }
   }

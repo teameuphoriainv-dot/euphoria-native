@@ -215,9 +215,11 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
       }
 
       default:
-        // Unreachable for the eight kinds that occur. Returning null rather than a placeholder is
-        // deliberate: the caller drops the whole card when there is no body, so an unknown kind
-        // costs nothing instead of printing an empty frame.
+        // Defence in depth only. The REAL gate is upstream: `vis()` in lib/lesson-steps.ts asks
+        // visualIsRenderable() before it ever emits a visual block, so an unrenderable kind or an
+        // empty payload keeps the step's prose and is COUNTED by scripts/lesson-render-audit.mjs
+        // rather than silently swallowing the card here. Reaching this line at all means the two
+        // have drifted apart, and RENDERABLE_VISUAL_KINDS there is the list to reconcile against.
         return null;
     }
   })();
