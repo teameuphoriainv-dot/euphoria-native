@@ -566,30 +566,62 @@ Keep these visible. They are the audit's error record and several would otherwis
 This is the strongest remaining candidate for the owner's *"whenever I drag something, it moves all
 over the place"* — and it was never in the animation code at all.
 
-**How, given both obvious routes are closed:** the a11y tree is content-space so it cannot see
-scroll offset, and the capture path cannot measure scroll. **Take a screenshot before a flick and
-one after, crop the rail band, and cross-correlate the two strips horizontally — the shift that
-maximises correlation IS the displacement, in screen pixels.** 144pt = 432px at 3x.
+**Both obvious routes are closed:** the a11y tree is content-space so it cannot see scroll offset,
+and the capture path cannot measure scroll.
 
-**Assert the displacement is NON-ZERO before testing whether it is on-grid**, or you will
-reproduce the false positive above.
+**AND SO IS THE THIRD — cross-correlation is retired. Do not spend another run on it.**
 
-**A working probe exists at `/tmp/snap2_probe.py`** (copy it somewhere durable). It has been run
-twice and the below-the-fold blocker is already solved inside it — it scrolls the page down until
-the rail clears the screen edge, re-reads the band from the a11y tree (y moves 804..954 → 304..454),
-and flicks at 40% into the visible band.
-
-**Latest run — SUGGESTIVE BUT NOT REPORTABLE, and this is where to pick up:**
-
-> The flick moved the rail **878px = 292.7pt**. That is **2.03 × 144**, i.e. **4.7pt off a card
-> boundary**, inside the 10pt tolerance — consistent with the snap working. **But the correlation
-> was 0.695 against the 0.75 floor pre-registered in the probe, so it refused to report, and that
-> refusal was correct.** Do not quote 292.7pt as a confirmed snap.
+> **RETRACTED (#18): "the flick moved the rail 878px = 292.7pt = 2.03 × 144".** That number is not
+> a measurement of the displacement. It is the argmax of a search window that did not contain the
+> true value. The loop stops once the overlap falls below its minimum, so it only ever searched
+> shifts up to ~806px, and it dutifully returned the best match inside that window.
 >
-> **Why the correlation is low:** after an 878px shift the overlapping region is much smaller and
-> the visible cards differ, so a one-row luminance signature has little to match on.
-> **Fix it by flicking SHORTER** (a ~150–250px swipe instead of 340→60), which keeps most of the
-> strip in both frames. Or correlate a 2-D crop instead of collapsing to one row.
+> **The proof is in the two frames themselves.** Before the flick the rail shows *Investing
+> Fundamentals / Personal Finance / Global Economics*; after it shows *Business Strategy /
+> Financial Analytics / Behavioral Finance*. **Not one card is common to both.** The true
+> displacement is therefore at least three cards — over 432pt — and the frame is only 402pt wide.
+> **No correlation between two 402pt frames can express a shift larger than 402pt.** This is
+> structural, not a tuning problem; flicking shorter does not fix it, it only hides it.
+
+**MEASURE THE RESTING PHASE INSTEAD — total displacement was never the claim.** `snapToAlignment`
+is `"start"`, so the testable statement is that *every* resting position puts a card's left edge on
+the content inset. That is one number per flick and it needs no frame-to-frame matching at all.
+
+**The instrument, in `scripts/anim/snap_rest.py`:** take the rail band's column brightness profile
+over card-body rows only (rows 34–42% of the band — between the icon and the title, so icon strokes
+and glyphs cannot forge an edge), built from **per-channel max, never `.convert('L')`**. Phase-match
+a square wave of period 144pt and duty 132pt against it; the phase that maximises correlation IS the
+resting offset.
+
+**Already validated on two frames that were captured before it existed:** both return phase
+**48px = 16.0pt exactly** — the content inset — and the post-flick frame scores **0.936**. (The
+pre-flick frame only scores 0.331 because the second card is the selected one and carries a violet
+border and lighter fill, which breaks the uniform template. The phase is still right; just score
+rests on a **corr ≥ 0.60** floor.)
+
+**Two guards, both of which have already caught a false verdict here:**
+- **Assert the rail MOVED before scoring a rest.** A stationary rail rests on the grid trivially —
+  that is retraction #18's ancestor, the `VERDICT: SNAPPED` printed on a rail that never scrolled.
+- **Alternate the flick direction.** Five flicks the same way run the rail out of content and the
+  last three rests are the same frozen frame. Observed: 3 of 5 flicks unmoved.
+
+**RUN IT AS AN A/B — a single arm proves nothing.** `snap_rest.py` takes an arm argument. Arm A is
+the shipping build; arm B patches `snapToInterval`/`snapToAlignment`/`decelerationRate` out of
+`home.tsx`, lets Fast Refresh apply it, and restores the file in a `finally` block. If both arms
+rest on the grid, the instrument cannot tell them apart and **arm A proves nothing**. Run
+`python3 scripts/anim/snap_rest.py AB`.
+
+**THE BLOCKER YOU WILL HIT FIRST — check this before anything else:**
+
+> **The Metro dev server must be running.** It died mid-session and the app then showed
+> *"Could not connect to http://192.168.1.69:8081"* — four labels, no rail, and `at_launcher()`
+> returns **False**, so the launcher check does **not** catch it and `drive.reconnect()` does not
+> fix it (it only taps a dev-server row that is not on screen). A run with Metro down is worse than
+> no run: **an arm-B patch cannot reach the device, so arm B silently measures the shipping build.**
+> That is why arm B's numbers from this session are retracted rather than reported.
+>
+> Guard it: `curl -s -m 3 http://localhost:8081/status` must answer before the probe starts.
+> Start it with `npx expo start` (`npm start`) from `~/euphoria-native`.
 
 The same probe works for `news-gallery` on the Trade tab with `INTERVAL_PT = 244`.
 
