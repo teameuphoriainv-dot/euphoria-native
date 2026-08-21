@@ -357,7 +357,43 @@ def main():
         print(f"  non-monotonic tail (overshoot/settle): {over}")
         print("  rise (normalised mean luminance): " + " ".join(f"{v:.2f}" for v in seg[:24]))
     else:
-        print("\nR6 easing: no clean incoming rise in this window")
+        print("\nR6 easing (mean luminance): no clean incoming rise in this window")
+
+    # R6 BY POSITION — the measure that survives compression.
+    #
+    # Both pixel-value metrics failed on an opacity cross-fade: a brightness threshold turns any
+    # ramp into something that reads as ease-in, and mean luminance never reaches its floor while
+    # AmbientBackground sits behind the element. POSITION has neither problem, which is exactly
+    # why R4's width ratio came back 0.99 on three separate captures while overlap was thrashing.
+    #
+    # A translate also gives R6 its sharpest possible discriminator: an underdamped spring
+    # OVERSHOOTS its target and returns, and no cubic-bezier easing can be non-monotonic. So the
+    # presence of a reversal separates a spring from a timing curve outright, rather than by
+    # comparing curve shapes.
+    ys = [(i, bb[1]) for i, (_, bb) in enumerate(c) if bb]
+    if len(ys) >= 8:
+        vals = [y for _, y in ys]
+        travel = max(vals) - min(vals)
+        print(f"\nR6 by POSITION: bbox top {min(vals):.1f}..{max(vals):.1f}pt  travel {travel:.1f}pt")
+        if travel >= 6:
+            # settle = the median of the last quarter, which is where the element ends up
+            tail = sorted(vals[3 * len(vals) // 4:])
+            settle = tail[len(tail) // 2]
+            start = vals[0]
+            sign = 1 if settle > start else -1
+            prog = [ (v - start) / (settle - start) if settle != start else 0 for v in vals ]
+            past = [p for p in prog if p > 1.02]
+            print(f"  start {start:.1f}pt -> settle {settle:.1f}pt")
+            print(f"  OVERSHOOT past settle: {'YES, max ' + format(max(prog), '.2f') if past else 'no'}"
+                  f"  -> {'SPRING (no bezier is non-monotonic)' if past else 'monotonic: a TIMING curve'}")
+            n = len(prog)
+            mid = prog[n // 2]
+            shape = 'ease-OUT (front-loaded)' if mid > 0.60 else (
+                    'ease-IN (back-loaded)' if mid < 0.40 else 'roughly LINEAR')
+            print(f"  midpoint progress {mid:.2f} -> {shape}")
+            print("  progress: " + " ".join(f"{p:.2f}" for p in prog[:26]))
+        else:
+            print(f"  travel {travel:.1f}pt is too small to read a curve from")
     peak = max(counts) or 1
     print("\n  ms   count   width   x      bar")
     for i, (cnt, bb) in enumerate(c):
