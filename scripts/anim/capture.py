@@ -79,7 +79,7 @@ if __name__ == '__main__':
     n, rate = real_rate(p, secs + 1.2)
     print(f"{p}: {n} frames, {rate:.1f} fps effective, {os.path.getsize(p)//1024} KB")
 
-def record_transition(path, seconds, trigger, *, expect_change=20, settle=3.0, **kw):
+def record_transition(path, seconds, trigger, *, reset=None, expect_change=20, settle=3.0, **kw):
     """Record a transition, REFUSING to film unless the trigger actually navigated.
 
     THIS EXISTS BECAUSE THE SAME MISTAKE HAPPENED THREE TIMES IN ONE SESSION, and every time it
@@ -96,9 +96,21 @@ def record_transition(path, seconds, trigger, *, expect_change=20, settle=3.0, *
     label set can, and it costs one call. So the check is no longer something a caller remembers
     to do -- it is the only way in.
 
-    `trigger` is called twice: once to prove it navigates, once to be filmed. Anything not
-    idempotent (a one-shot reward, a lesson step) should be filmed with plain `record` and its own
-    verification, not with this.
+    `trigger` is called TWICE — once to prove it navigates, once to be filmed — so the caller must
+    say how to get back to the starting state in between. That is what `reset` is for.
+
+    THIS WAS WRONG IN THE FIRST VERSION AND THE BUG WAS SILENT. Without a reset, the verify pass
+    navigates to the destination and the film pass taps the same control again, which for a tab
+    switch is a no-op: the recording captures a screen already at rest. Measured 2026-08-21,
+    Home->Learn reported ZERO motion windows, which reads exactly like "this screen has no
+    entrance animation" and is instead "nothing happened while filming". A guard that produces a
+    confident empty result is the same failure it was written to prevent, one level up.
+
+    So `reset` is REQUIRED for any trigger whose second invocation would be a no-op — which is
+    every navigation. Pass the action that returns to the origin.
+
+    Anything not idempotent at all (a one-shot reward, a lesson step that consumes state) still
+    belongs in plain `record` with its own verification.
     """
     import drive  # local import: capture.py must stay importable without a live device
 
@@ -113,6 +125,16 @@ def record_transition(path, seconds, trigger, *, expect_change=20, settle=3.0, *
             f"the screen probably did not navigate, and a capture of the wrong screen is worse "
             f"than no capture. on screen: {sorted(x for x in after if x)[:6]}"
         )
+
+    # Re-arm: without this the film pass triggers a no-op and records a resting screen.
+    if reset is not None:
+        reset()
+        time.sleep(settle)
+        if set(drive.labels()) == after:
+            raise RuntimeError(
+                "refusing to record: reset() did not return to the starting state, so the film "
+                "pass would capture a no-op. the recording would look like 'no animation'."
+            )
 
     th = threading.Thread(target=trigger)
     th.start()
