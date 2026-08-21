@@ -962,3 +962,42 @@ verified:
 **Not resolved here, and not guessed at.** The honest position is that the fixes shipped are
 improvements to dormant code, and the defect the owner described remains unexplained. That
 should be said plainly rather than left implied by a list of drag fixes.
+
+### 19b. REFINEMENT — the app renders every drag CONCEPT as a tap, deliberately
+
+The dead components looked alarming. Auditing the full normalizer (`lesson-steps.ts`) against
+`stepTypes.generated.ts` gives a far more coherent picture:
+
+| curriculum type | steps | renders as | component | live |
+|---|---|---|---|---|
+| `dragSort` / `sorting` | 231 | `order` | `OrderSteps` — hint: *"Tap two rows to swap them."* | ✅ |
+| `slider` | 198 | `line` | `NumberLine` — tap-based | ✅ |
+| `interactiveGraph` | 290 | **`prose`** | — | ❌ |
+| quiz / microCheck / fillBlank / scenario | 1,309 | `choice` | ✅ | ✅ |
+| `trueFalse` | 273 | `multi` | `MultiSelect` | ✅ |
+| `match` | 267 | `match` | `MatchingPairs` | ✅ |
+| `tapReveal` / `keyTermsCards` | 433 | `reveal` | `TapReveal` | ✅ |
+| `buildIt` | 29 | `build` | `TileBuilder` | ✅ |
+
+**2,509 steps render interactively. Only `interactiveGraph`'s 290 (5.4% of 5,341) are authored
+as interactive and rendered as text**, and that one is deliberate and commented.
+
+**So the four dead components are not an oversight — they are superseded.** Every drag concept in
+the curriculum was reimplemented as a TAP interaction: `dragSort` became tap-two-to-swap,
+`slider` became a tap-stepped `NumberLine`. `SliderPredict`, `BeforeAfterSlider`, `GraphPointDrag`
+and `SortBuckets` are the earlier drag-based versions, left in the tree.
+
+**This strengthens the conclusion about the owner's drag complaint.** There is genuinely no drag
+gesture anywhere in the shipping app — not merely "the ones I fixed are dormant", but **none at
+all**. The only drag-like interaction a user can perform is **scrolling**, which makes scrolling
+by far the most likely referent of *"whenever I drag something, it doesn't move all over the
+place"*.
+
+That is testable, and this audit could not test it: §11 established that the capture path is
+bandwidth-limited and reports the recorder's frame rate rather than the app's during a
+full-screen scroll. **The RN Perf Monitor answers it in ten seconds** and is the right next step.
+
+**Recommended cleanup, not performed:** the four superseded components are ~460 lines of
+maintained-but-unreachable code that this audit spent real effort improving. Deleting them is
+safe — nothing imports them — but it is a product decision about whether the drag variants are
+meant to return.
