@@ -303,8 +303,31 @@ the parameters you assumed, and whether those parameters are the ones actually i
 | `atlas.tsx:379` | 52 | 12 | 0.832 | 0.416 | 23.8% |
 | `welcome.tsx:27` | 90 | 19 | **1.001** | 0.501 | **16.2%** |
 
-`welcome.tsx:27` is the clearest single case: at ζ=1.001 it is critically damped and by definition
-**cannot bounce**, which is plainly what was intended for a "drop"; it actually overshoots 16.2%.
+`welcome.tsx:27` is the clearest single case, and it is now **measured on device by A/B**
+(`scripts/anim/drop_probe.py`). The author's own comment says damping was raised 13 → 19 because
+*"the drop sprang PAST its resting position and pushed Atlas down into the headline."* **That fix
+never worked** — at mass 4, damping 19 is ζ=0.501, so it moved the dip from 33.1% to 16.2% rather
+than removing it.
+
+Reading the driving shared value directly, `drop` running from −367pt to 0:
+
+| read | arm A (shipping, `mass: 1`) | arm B (mass 4) |
+|---|---|---|
+| 909ms | −17.03pt | −16.03pt |
+| 1110ms | −6.11pt | **+39.46pt** |
+| 1509ms | −0.72pt | **+46.13pt** |
+| 2217ms | **0.00pt** | −6.54pt (still ringing) |
+| **furthest past 0** | **0.00pt** | **46.13pt** |
+
+Arm A is monotonic and never crosses zero; arm B crosses between 909 and 1110ms and dips 46pt into
+the headline. Arm B's 12.7% is a **lower bound** on its true 16.2% peak — the reads are 200–400ms
+apart around the peak and the JS mirror lags ~75ms, so sparse sampling cannot land on the maximum.
+Direction and magnitude are unambiguous either way.
+
+**Note the measurement that failed first**, because it is the same trap as R6: tracking the lowest
+bright pixel row in a band over the top 70% of the screen reported 34.7pt of travel on a 367pt drop
+— that band's lowest bright row is the static HEADLINE TEXT, not the mascot. Region heuristics keep
+losing on this app. Reading the value that drives the animation keeps winning.
 
 **FIXED — all sixteen, with a measured before/after on the one that was instrumented.**
 
