@@ -704,6 +704,20 @@ export async function GET(request: Request) {
           /*
            * ROUNDED, BECAUSE FULL FLOAT PRECISION IS 400KB OF NOISE.
            *
+           * SIZE, MEASURED 2026-08-20 -- and why it is not restructured further. At 12,548
+           * tickers the response is 300KB raw. Three options were measured on the real payload:
+           *     merge into {SYM:[price,chg]}   241KB   20% smaller
+           *     parallel arrays s/p/c          216KB   28% smaller
+           *     gzip, schema untouched         131KB   56% smaller
+           * Restructuring buys the least and costs a client contract change; compression buys the
+           * most and costs nothing. This route sends no Content-Encoding of its own on purpose:
+           * EAS Hosting fronts production with Cloudflare, which compresses at the edge, and
+           * setting the header here would risk double-encoding where the platform already does
+           * it. The uncompressed 300KB is a DEV-server artifact, not what a user downloads.
+           *
+           * The client-side fix that does help everywhere is not asking again -- see the
+           * fifteen-minute guard in lib/market.ts.
+           *
            * OBSERVED in the running app's network log: this response was 464.4 KB. The cause was
            * precision nobody can use -- a change of `-1.8541074570307146` is 22 characters to say
            * "down 1.85%", and there are 12,548 tickers. A price gets 2 decimals because that is
