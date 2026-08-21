@@ -325,7 +325,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
     // racing it. Draw durations stay chart-specific; only the easing is tokenised.
     withoutCurve.set(withDelay(delay + Duration.fast, withTiming(0, { duration: 700, easing: Ease.outCubic })));
     withCurve.set(withDelay(delay + Duration.slow, withTiming(0, { duration: 1000, easing: Ease.outCubic })));
-    dot.set(withDelay(delay + 1250, withTiming(1, { duration: Duration.base })));
+    dot.set(withDelay(delay + 1250, withTiming(1, { duration: Duration.base, easing: Ease.enter })));
   }, [reduced, delay, withCurve, withoutCurve, dot]);
 
   const withProps = useAnimatedProps(() => ({ strokeDashoffset: withCurve.get() }));

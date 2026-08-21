@@ -25,7 +25,7 @@ import Svg, {
 } from 'react-native-svg';
 
 import { AtlasMarkBody } from '@/components/atlas-mark';
-import { Duration, Spring } from '@/shared/motion/tokens';
+import { Duration, Ease, Spring } from '@/shared/motion/tokens';
 
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
@@ -343,7 +343,7 @@ export function Atlas({
   useEffect(() => {
     if (!entrance) return;
     if (reduced) { entranceScale.set(1); entranceOpacity.set(1); return; }
-    entranceOpacity.set(withTiming(1, { duration: entrance === 'arrive' ? 130 : Duration.fast }));
+    entranceOpacity.set(withTiming(1, { duration: entrance === 'arrive' ? 130 : Duration.fast, easing: Ease.enter }));
     if (entrance === 'arrive') {
       // Overshoot PAST rest on the way down, then spring back: a straight ease to 1 reads as a
       // zoom-out, the undershoot reads as landing.

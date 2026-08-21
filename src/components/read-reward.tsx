@@ -28,6 +28,7 @@
  * TUNE is the iteration surface. Preview in isolation at /dev-beat.
  */
 import { useEffect } from 'react';
+import { Ease } from '@/shared/motion/tokens';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -82,7 +83,7 @@ export function ReadReward({ streak, runKey = 0 }: { streak: number; runKey?: nu
 
   useEffect(() => {
     glow.set(0);
-    glow.set(withDelay(TUNE.glowDelay, withTiming(1, { duration: TUNE.glowIn })));
+    glow.set(withDelay(TUNE.glowDelay, withTiming(1, { duration: TUNE.glowIn, easing: Ease.enter })));
   }, [runKey, glow]);
 
   const glowStyle = useAnimatedStyle(() => ({ opacity: glow.get() * TUNE.glowPeak }));

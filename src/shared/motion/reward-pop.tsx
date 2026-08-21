@@ -3,6 +3,7 @@
  * spring (Brilliant/Duolingo). Reduced-motion → instant.
  */
 import type { ReactNode } from 'react';
+import { Ease } from '@/shared/motion/tokens';
 import { useEffect } from 'react';
 import type { ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
@@ -32,7 +33,7 @@ export function RewardPop({ children, delay = 0, style }: { children: ReactNode;
      * bounce is kept and made deliberate rather than removed.
      */
     scale.set(withDelay(delay, withSpring(1, Spring.reward)));
-    opacity.set(withDelay(delay, withTiming(1, { duration: 200 })));
+    opacity.set(withDelay(delay, withTiming(1, { duration: 200, easing: Ease.enter })));
   }, [reduced, delay, scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.get(), transform: [{ scale: scale.get() }] }));

@@ -4,6 +4,7 @@
  * Reuse everywhere a static <Path> chart lived (Home portfolio, Trade, Stock detail, Compound Lab).
  */
 import { useEffect } from 'react';
+import { Ease } from '@/shared/motion/tokens';
 import Animated, { Easing, useAnimatedProps, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
@@ -41,7 +42,7 @@ export function AnimatedLineChart({
   useEffect(() => {
     if (reduced) return;
     progress.value = withDelay(delay, withTiming(0, { duration, easing: Easing.out(Easing.cubic) }));
-    areaOpacity.value = withDelay(delay + duration * 0.45, withTiming(1, { duration: duration * 0.5 }));
+    areaOpacity.value = withDelay(delay + duration * 0.45, withTiming(1, { duration: duration * 0.5, easing: Ease.enter }));
   }, [reduced, delay, duration, progress, areaOpacity]);
 
   const strokeProps = useAnimatedProps(() => ({ strokeDashoffset: progress.value }));
