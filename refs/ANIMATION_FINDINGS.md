@@ -1058,3 +1058,40 @@ drag report (§19b), this one is fully resolved.
 Used **0 times**. `SpringPressable` — the component it is named for — uses `Spring.snappy`
 instead. Harmless, but it is a token whose name implies a contract nothing honours. Left in
 place: removing it is a rename-adjacent change with no behavioural benefit.
+
+## 22. Every horizontal carousel free-scrolls — the best match yet for the drag report
+
+Checked after §19b concluded the drag complaint had no identified source. **All six horizontal
+`ScrollView`s in the app have no `pagingEnabled`, no `snapToInterval`, and the default
+`decelerationRate`:**
+
+| | |
+|---|---|
+| `components/news-gallery.tsx:126` | market news cards, **`CARD_W = 236`** |
+| `app/(tabs)/digest.tsx:313`, `learn.tsx:234`, `courses.tsx:88`, `options.tsx:495` | chip rails |
+| `app/(tabs)/home.tsx:506` | `CourseRailCard` |
+
+A rail with no snapping comes to rest **wherever momentum happens to die**, so a flick leaves
+cards halfway off the edge at arbitrary offsets. **That is a much closer match to "whenever I
+drag something, it doesn't move all over the place" than vertical scrolling is** — a horizontal
+card rail is the one thing in this app a user would call *dragging something*, and §19b
+established there is no drag gesture at all.
+
+**Fixed on `news-gallery` only**, and the restraint is deliberate:
+
+- it has genuinely fixed-width cards (236 + `Spacing.two` = **244** interval), so the snap target
+  is unambiguous
+- it is the market-news rail the owner has actually commented on (*"I do like how it is showing
+  the images as well"*)
+- `snapToAlignment="start"` preserves the existing affordance: the file's own comment explains
+  the rail bleeds past the screen edge so a card is visibly cut off, which is what signals it
+  scrolls. It now lands on a card boundary rather than mid-card
+
+**The other five are left alone.** Four are chip rails, where free-scroll is correct — snapping
+small variable-width chips would feel worse, not better. `CourseRailCard` has no fixed width, so
+a snap interval would be ill-defined; guessing one is exactly the kind of change that makes
+motion worse.
+
+**NOT device-verified.** Snapping is a native `ScrollView` behaviour with no animation to capture,
+and this audit's capture path cannot measure scroll regardless (§11). Worth ten seconds of the
+owner's eyes: flick the market-news rail and see whether cards now land aligned.

@@ -127,6 +127,21 @@ export function NewsGallery({ symbols, delay = 0 }: { symbols: string[]; delay?:
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.rail}
+        /*
+         * SNAP TO THE CARD GRID. Without this the rail free-scrolls and comes to rest wherever
+         * momentum happens to die, so a flick leaves cards halfway off the edge at arbitrary
+         * offsets — the behaviour the owner described as dragging something and having it "move
+         * all over the place". Every horizontal rail in the app had no paging, no snapping and
+         * the default deceleration.
+         *
+         * The interval is the card plus the gap between cards: CARD_W (236) + Spacing.two (8).
+         * `start` alignment keeps the existing affordance intact — the rail still bleeds past the
+         * screen edge so the next card is visibly cut off, which is what tells the user it
+         * scrolls; it now lands on a card boundary instead of mid-card.
+         */
+        snapToInterval={CARD_W + Spacing.two}
+        snapToAlignment="start"
+        decelerationRate="fast"
         // The rail bleeds to the screen edge so a card is visibly cut off, which is what tells the
         // user it scrolls. Padding lives on the content, not the ScrollView.
         style={styles.railOuter}
