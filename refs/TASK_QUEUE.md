@@ -232,3 +232,33 @@ be read as approximate.
 
 **Next:** Home ↔ Learn and Home ↔ Digest, the two cycles not yet run, to finish attributing the
 remaining ~1MB per navigation.
+
+### Attribution complete: You and Digest, not Trade
+
+Five fresh-launch runs, 50 navigations each, 45s idle for GC, profiler never attached:
+
+| cycle | retained | per navigation |
+|---|---|---|
+| all five tabs | +84.9 MB | 1.70 MB |
+| **Home ↔ You** | +37.4 MB | **0.75 MB** |
+| **Home ↔ Digest** | +31.8 MB | **0.64 MB** |
+| Home ↔ Learn | +18.0 MB | 0.36 MB |
+| Home ↔ Trade | +13.3 MB | **0.27 MB** |
+
+**Trade is the floor at 0.27MB, and You and Digest retain roughly 2.5x that.** Every pair includes
+Home, so each figure is Home-plus-one-screen; the ordering is what matters.
+
+**The pattern the numbers suggest** — offered as a hypothesis, not a conclusion, because nothing
+here proves causation: the two worst screens are the two that render MANY SVG-HEAVY LIST ITEMS.
+`You` draws the tier ladder, seven `LeagueCrest` instances at 74 SVG nodes each. `Digest` draws 35
+guide cards with cover art. `Trade`, the cleanest, has seven rows and a chart — far fewer SVG
+nodes per screen despite carrying the images, the bundled logos and the 12,548-entry marks map.
+
+**What this does NOT establish.** That SVG retention is the mechanism. React Native holds decoded
+SVG and image data outside the JS heap in places `performance.memory` does not see, and the dev
+build retains source maps and inspector state on top. The correlation is suggestive and the
+ordering is robust across a 6x spread; the cause is not proven.
+
+**Cheapest next test:** navigate Home ↔ You 50 times with the tier ladder temporarily not
+rendered. If retention drops toward the 0.27MB floor, the SVG list is the mechanism. That is a
+source edit plus one run, and it is the first thing that would actually prove it.
