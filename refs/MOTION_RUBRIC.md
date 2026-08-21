@@ -532,3 +532,25 @@ direction.**
 directly in `__DEV__` — or compare two expressions that BOTH draw brows and differ only in tilt,
 so the occlusion is common to both sides. `sad` (tilt +3) against `oops` (tilt −3) would give a
 6° separation with brows present in both.
+
+## ACCESSIBILITY FRAMES ARE CONTENT-SPACE — they cannot measure scroll position
+
+> A snap is a resting POSITION, not an animation, so the plan was to verify it from the
+> accessibility tree and sidestep the capture path's bandwidth limit entirely. **The tree cannot
+> answer it.**
+>
+> Measured on the home course rail: card x-positions read **16, 160, 304, 448 … 1600** — well past
+> the 402pt screen width. Those are **content-space coordinates inside the scroll view**, not
+> screen positions, so they are IDENTICAL before and after a flick.
+>
+> The probe therefore reported every card as `moved = 0`, which made "0.0pt off a 144pt boundary"
+> trivially true, and it printed **`VERDICT: SNAPPED`**. That verdict is a **false positive**: a
+> metric that divides displacement by an interval passes perfectly when the displacement is zero.
+> **Any on-grid test must first assert that something actually moved.**
+>
+> **The one real datum:** consecutive cards sit exactly **144pt** apart (16 → 160 → 304 → …),
+> which independently confirms `RAIL_CARD_WIDTH (132) + Spacing.two + 4 (12) = 144` is the correct
+> snap interval. The value is right; whether the snap engages is still unverified.
+>
+> **What would verify it:** a screenshot before and after the flick, comparing the pixel offset of
+> a card edge — screen space, not content space. Or simply flicking it by hand.
