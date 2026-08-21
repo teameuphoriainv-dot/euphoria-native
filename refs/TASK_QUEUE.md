@@ -262,3 +262,33 @@ ordering is robust across a 6x spread; the cause is not proven.
 **Cheapest next test:** navigate Home ↔ You 50 times with the tier ladder temporarily not
 rendered. If retention drops toward the 0.27MB floor, the SVG list is the mechanism. That is a
 source edit plus one run, and it is the first thing that would actually prove it.
+
+### Ablation: SVG list items account for about half the retention
+
+The hypothesis was that SVG-heavy list items drive the per-navigation retention. Tested by
+removing them and re-running the identical cycle — both `LeagueCrest` instances on the You screen
+(the 104pt profile crest and the 7-item tier ladder at 38pt) replaced with plain Views of the same
+size. Ablation verified ON SCREEN before measuring, because Metro caching had already invalidated
+one experiment tonight.
+
+| Home ↔ You, 50 navigations | baseline | after + GC | retained | per nav |
+|---|---|---|---|---|
+| crests present (control) | 41.08 MB | 78.48 MB | **+37.4 MB** | 0.75 MB |
+| **crests ablated** | 40.45 MB | 60.60 MB | **+20.2 MB** | **0.40 MB** |
+
+**Removing eight SVG crests cut retention by 46%**, and moved the screen from 0.75MB per
+navigation to 0.40 — close to the 0.27MB floor Trade sets. The hypothesis is supported.
+
+**What it does not say.** Removing the crests also removes their layout and children, so this
+measures "that subtree" rather than "SVG" specifically. And 0.40MB still sits above the floor, so
+SVG is a large contributor, not the only one. Single measurements with GC noise, as before.
+
+**This is a diagnosis, not a fix, and no fix is proposed.** The crests are the tier ladder — real
+UI that earns its place, and `LeagueCrest` was already memoised earlier tonight. The finding worth
+carrying forward is the general one: **in this app, react-native-svg subtrees retain across
+mount/unmount, so a screen rendering many of them costs memory that does not come back.** That is
+worth knowing before adding the next SVG-heavy list, and it is the kind of thing no static review
+would surface.
+
+**File restored:** 2 LeagueCrest instances present, zero ablation markers, byte-identical to HEAD,
+tsc 0, npm run check 0.
