@@ -791,7 +791,12 @@ export const useApp = create<AppState>()(
         // `error` was previously ignored. If rehydration fails the app must still ROUTE — a new
         // install is the correct fallback for unreadable state, and the flag below is what releases
         // routing at all.
-        if (error) console.error('[store] rehydrate failed', error);
+        // Guarded on `window` for the same reason the routing fallback below is: no `window`
+        // means STATIC RENDERING, where rehydration ALWAYS rejects because AsyncStorage needs
+        // one. That failure is expected and harmless, but logging it as an error puts a red
+        // `[store] rehydrate failed ReferenceError: window is not defined` into every EAS build
+        // log, where it reads like a production defect. It cost a real investigation once.
+        if (error && typeof window !== 'undefined') console.error('[store] rehydrate failed', error);
         // Marks BEFORE the flag: `hasHydrated` is what releases routing, and a screen that renders
         // with an empty mark map prices every holding off the static table for one frame.
         hydrateMarks(state?.marks);
