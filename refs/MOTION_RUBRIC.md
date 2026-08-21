@@ -500,3 +500,35 @@ background, which no element on the lesson screen has.
 > **7.8s** cycle. A 5s capture covered 64% of it and its mean carried a ~+4.7° un-averaged
 > offset, which read as a tilt mismatch when it was a window-length error. **Any mean taken
 > across a repeating animation needs at least two full cycles.**
+
+### The differential form fails too — brows occlude the sclera asymmetrically
+
+The obvious fix to the idle-mascot problem was to compare the SAME element across two
+expressions, cancelling the geometric baseline and the pinned `rock` term. The quiz-head Atlas
+shows `default` before Check and `oops` after, with no `idle` prop, so nothing else moves.
+
+Measured: **Δ = −0.71°** against −3.00° predicted, which the probe classified as
+**"NO TILT APPLIED"** — a clean, quotable claim that `EXPRESSION_TILT` never reaches the face.
+
+**It is not supportable.** The sclera pixel count fell **1692 → 1377, a 19% loss**, and that is
+the giveaway:
+
+| | brows | sclera y | brow y |
+|---|---|---|---|
+| `default` | **none** (the brow fn returns null for it) | 13.2–39.5 | — |
+| `oops` | two strokes | 13.2–39.5 | **11–18** |
+
+The brows **overlap the sclera tops**, and the two slope in OPPOSITE directions — left descending
+`M25 12 Q34.5 16 44 18`, right ascending `M52 17 Q61 15 70 11`. They therefore erase white pixels
+asymmetrically, which rotates the principal axis on its own. The comparison was a browless face
+against a browed one, not a rotation against no rotation.
+
+**Every route to this measurement is now closed for this method:** the absolute angle is defeated
+by saccade and blink on an idle mascot, and the differential is defeated by brow occlusion on a
+static one. **`EXPRESSION_TILT` remains unverified, and no claim may be made about it in either
+direction.**
+
+**What would actually settle it:** instrument the app — read the `headProps` rotation value
+directly in `__DEV__` — or compare two expressions that BOTH draw brows and differ only in tilt,
+so the occlusion is common to both sides. `sad` (tilt +3) against `oops` (tilt −3) would give a
+6° separation with brows present in both.
