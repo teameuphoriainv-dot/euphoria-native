@@ -466,9 +466,25 @@ in this app a user would call "dragging something".**
 - `home.tsx` course rail — `RAIL_CARD_WIDTH 132` + `Spacing.two + 4` = **144**, imported rather than
   written as a literal so the interval cannot drift from the card width
 
-**Left four alone:** `digest:313`, `learn:234`, `courses:88`, `options:495` are all chip rails
-(verified: `styles.chipRow`/`chipScroll`, variable-width text chips). Snapping variable-width chips
-would feel worse.
+**Left four alone — CONCLUSION HOLDS, but the recorded reason was WRONG.** `digest:313`,
+`learn:234`, `courses:88`, `options:495`. The original justification was that variable-width chips
+have no well-defined snap interval, so snapping them is not possible. **That is false:** React
+Native's `snapToOffsets` takes an array of per-item offsets and exists precisely for variable-width
+items. `snapToInterval` was never the only option.
+
+The real reason is a product one, and it survives the correction. All four are **selectors, not
+content**: `digest` filters categories, `learn` and `courses` pick a course or tier, `options` picks
+an expiry — every chip is a tap target carrying an `active` state (source-verified in all four).
+A card rail holds units you consume, so a card half off the edge is a defect; a chip rail holds
+targets you tap once, and the partially visible next chip **is** the affordance that says more
+exist. Snapping would add friction to a control whose entire job is a single tap.
+
+Re-counted while checking: **6 horizontal `ScrollView`s, 2 snapped** (the card rails, both A/B
+confirmed on device) **and 4 free** (these chips) — matching the original inventory exactly.
+
+*Not visually confirmed on device.* Two attempts to grab the chip band both selected the wrong
+region — one by geometry, one by a label list built from a regex that returned nothing — so the
+conclusion rests on the source read and the product argument, not on a screenshot.
 
 **NOT VERIFIED.** The a11y tree reports content-space coordinates so it cannot measure scroll
 offset, and the capture path cannot measure scroll. **This is the single highest-value thing for
