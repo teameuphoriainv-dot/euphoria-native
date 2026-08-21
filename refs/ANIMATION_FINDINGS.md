@@ -1001,3 +1001,32 @@ full-screen scroll. **The RN Perf Monitor answers it in ten seconds** and is the
 maintained-but-unreachable code that this audit spent real effort improving. Deleting them is
 safe — nothing imports them — but it is a product decision about whether the drag variants are
 meant to return.
+
+## 20. Scroll performance: every source-side cause checked, none found
+
+Since scrolling is the most likely referent of the owner's drag complaint (§19b) and the capture
+path cannot measure it (§11), the remaining option was to eliminate the known source-level causes
+of RN scroll jank. All are clean.
+
+| cause | finding |
+|---|---|
+| `onScroll` handler calling `setState` per event | **one** `onScroll` in the whole app (`options.tsx:456`), no `setState`, `scrollEventThrottle={32}` |
+| long unvirtualised lists | longest is 35 text-only digest cards (§11); `STOCKS` is 7, `COURSES` 12 |
+| images decoding in list rows | **zero** `<Image>` on `digest`, `courses`, `home`, `league` |
+| shadows/elevation per row | zero on digest/courses/league; 4 shadow refs on `home` |
+| ambient animation load | **5 shared values total for 70 stars** — one `translateY` for drift, three shared twinkle phases, one glow opacity. The naive per-star implementation was deliberately avoided |
+| per-frame JS during gesture | fixed in all four draggables — and all four are dormant anyway (§19) |
+
+**So the source contains no scroll-performance defect**, and this audit cannot produce one by
+measurement either, having proved the capture path reports the recorder's frame rate rather than
+the app's during full-screen motion.
+
+**The honest end state for the owner's drag report:** it is **unexplained**. Not dismissed — the
+audit simply could not reproduce or locate it, and says so rather than pointing at the five
+dormant-code fixes as though they answered it.
+
+**One instrument settles it and this audit does not have it:** the React Native Perf Monitor
+(dev menu → Show Perf Monitor) reports UI and JS thread FPS live on device. Ten seconds of
+scrolling with it open distinguishes "the app is fine and the complaint is about something else"
+from "there is real jank with a cause still to find." Everything above narrows where to look in
+the second case.
