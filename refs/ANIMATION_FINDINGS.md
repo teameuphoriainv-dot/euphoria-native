@@ -827,3 +827,33 @@ protect the defect the owner originally reported.
 **Left alone and recorded:** the border colour and width still change instantly. Animating them
 needs `interpolateColor` across four states with 8-digit-hex tints, which is materially more
 risk than the moment warrants, and this audit's rule is not to make changes it cannot verify.
+
+## 17. Lesson step animation coverage — one gap, and two false alarms
+
+Applied the test that found §16 (a component with no animation whose siblings animate) across
+all twelve lesson step components.
+
+**Three returned zero animation. Two are correct:**
+
+- `lesson-prose.tsx` and `lesson-art.tsx` carry none internally, and do not need it: **every step
+  kind renders inside one shared wrapper** — `lesson.tsx:403`,
+  `<Animated.View key={`s${idx}`} entering={FadeInDown} exiting={FadeOut}>`. Keyed by step index,
+  so each step remounts and replays its entrance, and every step has a real exit. An initial
+  reading that one of the two `LessonProse` call sites was unwrapped was **wrong** — a
+  160-character detection window that did not reach the wrapper.
+
+**One is a genuine, small gap:**
+
+- `graph-point-drag.tsx` changes `pointColor` from `theme.primary` to `theme.success` and swaps
+  its caption between *"Drag the point into the green band."* and *"On target — nice
+  prediction."* — both **instantly**, on the moment the learner succeeds. Same 0ms class as §16's
+  tick.
+
+**Not fixed, deliberately.** The colour lives on an SVG `Circle` and animating it needs
+`interpolateColor`; the caption is a text swap needing both strings mounted to cross-fade. Both
+are more surgery than the moment justifies, and unlike §16 there is no single element whose
+appearance carries the meaning. Recorded as an improvement with its cost, not left implied.
+
+**What this establishes:** every lesson step has an entrance and an exit, from a single wrapper.
+The remaining instant transitions are *within-step state changes*, not missing entrances — a
+materially smaller class than the audit started with.
