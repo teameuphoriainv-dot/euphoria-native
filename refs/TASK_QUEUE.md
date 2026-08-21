@@ -17,9 +17,9 @@ Ordered by owner instruction 2026-08-20. Worked top-down, not in parallel.
 | # | task | status |
 |---|---|---|
 | 4 | **Make the nav check unskippable** — `record_transition()` refuses to film unless the trigger provably navigated. | ✅ done |
-| 5 | **Memoisation sweep** — find remaining components with many children + primitive props + no `React.memo`. Verify each is safe, not just faster. | ⬜ next |
-| 6 | **Measure the memo wins without the profiler** — attaching it inside a lesson breaks navigation, so quantify by frame timing instead. | ⬜ |
-| 7 | **Profile home and digest** — the two surfaces not yet profiled. | ⬜ |
+| 5 | **Memoisation sweep** | ✅ done — only 2 clean candidates remain (`AtlasMarkBody`, `CelebrationRays`, both small). The rest take arrays/objects where shallow compare cannot help. |
+| 6 | **Measure the memo wins** | ✅ done — A/B on the Learn screen (profiler works there; only lessons break it). Pre-memo 256 commits / 1029ms → memoised 114 / 732ms. **−55% commits, −29% duration**, and −55 to −61% on every SVG component. |
+| 7 | **Profile home and digest** — the two surfaces not yet profiled. | ⬜ next |
 | 8 | **Understand CssInterop.View** — 27,956 commits in the lesson flow, second-largest self cost. | ⬜ |
 
 ## Method in force
