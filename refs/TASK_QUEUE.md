@@ -10,8 +10,21 @@ Ordered by owner instruction 2026-08-20. Worked top-down, not in parallel.
 
 **Not doing:** consolidate-and-stop (owner: "never do #1").
 
+---
+
+## Overnight queue (self-paced loop, 2026-08-20 → morning)
+
+| # | task | status |
+|---|---|---|
+| 4 | **Make the nav check unskippable** — `record_transition()` refuses to film unless the trigger provably navigated. | ✅ done |
+| 5 | **Memoisation sweep** — find remaining components with many children + primitive props + no `React.memo`. Verify each is safe, not just faster. | ⬜ next |
+| 6 | **Measure the memo wins without the profiler** — attaching it inside a lesson breaks navigation, so quantify by frame timing instead. | ⬜ |
+| 7 | **Profile home and digest** — the two surfaces not yet profiled. | ⬜ |
+| 8 | **Understand CssInterop.View** — 27,956 commits in the lesson flow, second-largest self cost. | ⬜ |
+
 ## Method in force
 1. Runtime first — network log and console before reading source.
-2. Navigation verified by label diff before trusting any capture.
+2. Navigation verified by label diff before trusting any capture — now enforced by `record_transition`.
 3. Confounds tested before anything is called a defect.
 4. Device work batched into single launches.
+5. Ship on verified-safe; never claim verified-faster without the measurement.

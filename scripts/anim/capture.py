@@ -1,3 +1,4 @@
+import threading
 #!/usr/bin/env python3
 """Screen capture for the animation audit — at a frame rate that can actually see a spring.
 
@@ -77,3 +78,46 @@ if __name__ == '__main__':
     p = record(sys.argv[1], secs)
     n, rate = real_rate(p, secs + 1.2)
     print(f"{p}: {n} frames, {rate:.1f} fps effective, {os.path.getsize(p)//1024} KB")
+
+def record_transition(path, seconds, trigger, *, expect_change=20, settle=3.0, **kw):
+    """Record a transition, REFUSING to film unless the trigger actually navigated.
+
+    THIS EXISTS BECAUSE THE SAME MISTAKE HAPPENED THREE TIMES IN ONE SESSION, and every time it
+    produced a confident, plausible, wrong number:
+
+      * 249 frames scored as "digest cards render fine" -- it was the HOME screen; the deep link
+        had silently no-opped.
+      * A stock screen reported as showing "no prices" -- the link was fired from a pushed screen,
+        where deep links do nothing.
+      * Two multi-peak windows reported as possible BOUNCING -- filmed with nav unverified. With
+        navigation checked, the same transition had zero.
+
+    Whole-frame differencing cannot tell you which screen it is looking at. The accessibility
+    label set can, and it costs one call. So the check is no longer something a caller remembers
+    to do -- it is the only way in.
+
+    `trigger` is called twice: once to prove it navigates, once to be filmed. Anything not
+    idempotent (a one-shot reward, a lesson step) should be filmed with plain `record` and its own
+    verification, not with this.
+    """
+    import drive  # local import: capture.py must stay importable without a live device
+
+    before = set(drive.labels())
+    trigger()
+    time.sleep(settle)
+    after = set(drive.labels())
+    changed = len(after ^ before)
+    if changed < expect_change:
+        raise RuntimeError(
+            f"refusing to record: trigger changed only {changed} labels (need {expect_change}). "
+            f"the screen probably did not navigate, and a capture of the wrong screen is worse "
+            f"than no capture. on screen: {sorted(x for x in after if x)[:6]}"
+        )
+
+    th = threading.Thread(target=trigger)
+    th.start()
+    try:
+        return record(path, seconds, **kw), changed
+    finally:
+        th.join(timeout=seconds + 5)
+
