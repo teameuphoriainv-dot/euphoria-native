@@ -568,8 +568,22 @@ over the place"* — and it was never in the animation code at all.
 
 **How, given both obvious routes are closed:** the a11y tree is content-space so it cannot see
 scroll offset, and the capture path cannot measure scroll. **Take a screenshot before a flick and
-one after, and compare a card edge's PIXEL offset — screen space.** Assert the offset is non-zero
-BEFORE testing whether it lands on the grid, or you will reproduce the false positive above.
+one after, crop the rail band, and cross-correlate the two strips horizontally — the shift that
+maximises correlation IS the displacement, in screen pixels.** 144pt = 432px at 3x.
+
+**Assert the displacement is NON-ZERO before testing whether it is on-grid**, or you will
+reproduce the false positive above.
+
+**A working probe already exists at `/tmp/snap2_probe.py`** (copy it somewhere durable). It ran and
+correctly reported `THE RAIL DID NOT MOVE` rather than a false pass — and the reason is the last
+piece the next session needs:
+
+> **The course rail sits at y = 804..954 on an 874pt screen**, so it is PARTIALLY BELOW THE FOLD.
+> A swipe at its a11y midpoint (y≈879) lands in the home-indicator area and never reaches the app.
+> **Scroll the home page down first to bring the rail fully on screen, THEN flick it horizontally.**
+> Take the band's y from the a11y tree again after scrolling — it will have changed.
+
+The same probe works for `news-gallery` on the Trade tab with `INTERVAL_PT = 244`.
 
 Simplest of all: ask the owner to flick the course rail on Home and say whether cards now settle
 aligned instead of half-off-screen.
