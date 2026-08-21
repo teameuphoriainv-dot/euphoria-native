@@ -125,3 +125,61 @@ the local StoreKit file with correct product ids is evidence against it.
 selected in the scheme, and read the console again. If offerings populate, this is a local launch
 configuration issue and a config plugin closes it. If they stay empty, the dashboard theory
 survives and the original report stands.
+
+---
+
+# ROOT CAUSE FOUND — 2026-08-20, via the RevenueCat dashboard
+
+**The offering is NOT empty, and the app code is NOT wrong.** Both earlier hypotheses in this
+document are superseded by what the dashboard actually shows.
+
+## Which project the app talks to — confirmed, not assumed
+
+The account `team.euphoriainv@gmail.com` holds **four similarly-named projects**:
+`Euphoria` (`89ced465`) · `Euphoria` (`320845df`) · `Euphoria App` (`875fc097`) ·
+`Euphoria Real` (`6e8b425d`). That alone is a trap worth knowing about.
+
+The app talks to **`Euphoria` / `320845df`**, established two ways:
+- its App Store app's **Bundle ID is `com.euphoriainv.euphoria`**, which matches the built app
+- its **SDK Compatibility panel shows live iOS traffic**: `react-native-purchases 10.7.0`, 100%
+
+## What is correctly configured (so do NOT "fix" these)
+
+| | state |
+|---|---|
+| offering `default` | **exists and is current** — every one of the four projects has one |
+| packages | **2** — `$rc_monthly` and `$rc_annual` |
+| `$rc_monthly` products | `monthly` (Test Store) **and `euphoria_pro_monthly` (App Store)** |
+| `$rc_annual` products | `yearly` (Test Store) **and `euphoria_pro_yearly` (App Store)** |
+| app code | **correct.** `findPackage` already matches `['$rc_monthly','monthly',PRODUCT_MONTHLY]` and `['$rc_annual','annual','yearly',PRODUCT_YEARLY]`, so the `$rc_` prefix is handled |
+
+## THE ACTUAL FAULT
+
+**Both App Store products show status `⚠️ Could not check`** in Product catalog → Products.
+The Test Store products show no warning.
+
+`getPackages()` returns `offerings.current?.availablePackages ?? []`. **`availablePackages` only
+includes packages whose products RevenueCat could actually fetch from the store.** When the App
+Store products cannot be verified, they are dropped — and the packages with them — so the array
+comes back **empty even though the offering and packages are fully configured**. That is exactly
+the log line the app emits.
+
+**So this is an App Store Connect ↔ RevenueCat link problem, not an offering problem.**
+
+## What to fix, in order
+
+1. **App Store Connect credentials in RevenueCat.** The app needs an **In-App Purchase Key**
+   (App Store Connect → Users and Access → Integrations → In-App Purchase) uploaded to the
+   `Euphoria (App Store)` app config. Without it RevenueCat cannot query product status, which is
+   what "Could not check" reports.
+2. **Product state in App Store Connect.** `euphoria_pro_monthly` and `euphoria_pro_yearly` must
+   not be in *Missing Metadata*. They need a price, a localisation, and a review screenshot.
+3. **Paid Applications Agreement.** If it is not signed and active, no product is fetchable at
+   all, and every product shows exactly this status.
+
+## Correction to this document's earlier advice
+
+The original entry said to *"check that `euphoria_pro_monthly` and `euphoria_pro_yearly` exist in
+App Store Connect and are attached to the current offering."* **They exist and they are attached.**
+The failure is one step further out — the products exist but cannot be VERIFIED, and a product
+RevenueCat cannot verify is a product the SDK will not serve.
