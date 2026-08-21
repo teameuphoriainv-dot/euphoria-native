@@ -46,7 +46,11 @@ const uniq = (xs: string[]): string[] => Array.from(new Set(xs));
 
 export function normalizeStep(step: LessonStep): Normalized {
   const s = step as Extract<LessonStep, { type: string }> & Record<string, any>;
-  switch (s.type) {
+  // `as string`: expandSteps() below emits two SYNTHETIC types ('calcQuiz', 'calcWalkthrough')
+  // that are not in the curriculum union, because they are screens this app derives rather than
+  // content the web repo authors. Every case body reads fields through the Record<string, any>
+  // above, so the union's narrowing was never load-bearing here.
+  switch (s.type as string) {
     // ─── single-choice family → the quiz UI lesson.tsx already has ─────────────
     case 'quiz':
       return { kind: 'choice', prompt: s.question, options: s.options, correct: s.correct, right: s.explanation, wrong: s.explanation };
@@ -203,6 +207,21 @@ export function normalizeStep(step: LessonStep): Normalized {
       };
 
     // ─── not renderable yet — show the real title, never a blank screen ───────
+    case 'calcQuiz':
+      /*
+       * One question out of a progressiveCalc, lifted to its own screen by expandSteps() below.
+       * calcSteps carry no explanation of their own, so the feedback is a short generic line --
+       * the same compromise `fillBlank` above already makes ('That fits.' / 'Not the one.'), and
+       * for the same reason: the alternative is an empty feedback bar.
+       */
+      return { kind: 'choice', prompt: s.prompt, options: s.options, correct: s.correct, right: 'That is the one.', wrong: 'Not that one.' };
+    case 'calcWalkthrough':
+      /*
+       * A worked line of a progressiveCalc: `formula` produces `result`. Rendered as a stat so the
+       * result reads as the answer and the formula sits under it as its label -- both strings are
+       * authored, and nothing is invented to join them.
+       */
+      return { kind: 'prose', title: s.label, blocks: [{ b: 'stat', value: s.result, label: s.formula }] };
     case 'explorable':
       /*
        * MEASURED, not assumed: these rendered as an EMPTY SCREEN. `explorable` had no case, so it
@@ -233,6 +252,44 @@ export function normalizeStep(step: LessonStep): Normalized {
         blocks: paras([s.setup, s.principle, s.optimalOutcome, s.formula]),
       };
   }
+}
+
+/**
+ * Lift each `progressiveCalc` into the screens it actually contains.
+ *
+ * MEASURED: all 44 progressiveCalc steps rendered as a bare title over empty space, because the
+ * type has no case and the `todo` default pulls setup/principle/optimalOutcome/formula -- none of
+ * which it has. The content was never missing: those 44 steps hold 170 calcSteps between them
+ * (136 questions and 34 worked lines, 3 to 8 per step, no other shapes anywhere in the corpus).
+ *
+ * The renderer shows ONE screen per step, so a case could only ever have surfaced one of them.
+ * Showing the first question and dropping the rest, or revealing every answer as a "walkthrough",
+ * would both quietly lose authored assessment. Expanding the LIST instead loses nothing: 44 empty
+ * screens become 170 real ones.
+ *
+ * Everything else passes through untouched, so this is a no-op for 5,297 of the 5,341 steps.
+ *
+ * NOTE FOR THE DEVICE DRIVER: scripts/anim/solve.py keys answers by step INDEX, and expansion
+ * shifts every index after a progressiveCalc. That is tooling, not product, and is called out
+ * here so the next person does not read a driver mismatch as a content bug.
+ */
+export function expandSteps(steps: LessonStep[]): LessonStep[] {
+  const out: LessonStep[] = [];
+  for (const step of steps) {
+    const s = step as Record<string, any>;
+    if (s?.type !== 'progressiveCalc' || !Array.isArray(s.calcSteps) || s.calcSteps.length === 0) {
+      out.push(step);
+      continue;
+    }
+    for (const c of s.calcSteps) {
+      if (Array.isArray(c?.options)) {
+        out.push({ type: 'calcQuiz', prompt: c.prompt, options: c.options, correct: c.correct } as unknown as LessonStep);
+      } else if (typeof c?.formula === 'string') {
+        out.push({ type: 'calcWalkthrough', label: c.label, formula: c.formula, result: c.result } as unknown as LessonStep);
+      }
+    }
+  }
+  return out;
 }
 
 /** Steps that gate Continue until solved. Prose never blocks; interactives always do. */

@@ -40,7 +40,7 @@ import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
 import { COURSES, getCourseById, lessonKeyTerms, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
-import { gates, normalizeStep } from '@/lib/lesson-steps';
+import { expandSteps, gates, normalizeStep } from '@/lib/lesson-steps';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { IAP_ENABLED } from '@/lib/purchases';
@@ -98,7 +98,10 @@ export default function Lesson() {
     };
   }, [courseId, lessonNum, badParams]);
 
-  const steps = useMemo(() => lesson?.steps ?? [], [lesson]);
+  // expandSteps lifts each progressiveCalc into the questions it contains. Without it those 44
+  // steps render a bare title over empty space, because the renderer shows one screen per step
+  // and a progressiveCalc holds 3-8. It is a no-op for every other step type.
+  const steps = useMemo(() => expandSteps(lesson?.steps ?? []), [lesson]);
   const keyTerms = useMemo(() => (lesson ? lessonKeyTerms(lesson) : []), [lesson]);
   const total = steps.length;
   // 0 = intro, 1..total = content, total+1 = done, total+2 = streak

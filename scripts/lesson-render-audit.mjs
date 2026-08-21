@@ -27,14 +27,28 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const COURSES = join(ROOT, 'src/lib/curriculum/courses');
-const { normalizeStep, gates } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { normalizeStep, gates, expandSteps } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
 
-/** Text a prose/todo block actually puts on screen. */
+/** Text a prose/todo block actually puts on screen.
+ *
+ * Enumerated against the real ProseBlock union in src/lib/lesson-steps.ts, not guessed. The first
+ * version read `b.text/left/right/term/def/q/a` and therefore could not see a `stat` block at all,
+ * whose fields are `value` and `label` -- so 34 perfectly good walkthrough screens were reported
+ * thin. `term` was wrong too: the field is `definition`, not `def`. A checker that under-reads the
+ * shape it checks reports the checker, not the app.
+ *
+ *   p     -> text
+ *   stat  -> value, label
+ *   term  -> term, definition, example
+ *   pair  -> leftLabel, left, rightLabel, right
+ *   event -> when, what, detail
+ */
 function blockText(b) {
   if (!b || typeof b !== 'object') return '';
-  return [b.t, b.text, b.left, b.right, b.leftLabel, b.rightLabel, b.term, b.def, b.q, b.a]
+  return [b.text, b.value, b.label, b.term, b.definition, b.example,
+          b.leftLabel, b.left, b.rightLabel, b.right, b.when, b.what, b.detail]
     .filter((v) => typeof v === 'string')
     .join(' ')
     .trim();
@@ -77,7 +91,8 @@ for (const f of files) {
   const list = mod.default ?? [];
   for (const lesson of list) {
     lessons += 1;
-    for (const step of lesson.steps ?? []) {
+    // audit what the app ACTUALLY renders, which is the expanded list
+    for (const step of expandSteps(lesson.steps ?? [])) {
       steps += 1;
       byType.set(step.type, (byType.get(step.type) ?? 0) + 1);
       let n;
@@ -127,7 +142,7 @@ if (VERBOSE && thinExamples.length) {
 //
 // The number is a CEILING, not a target: this exits non-zero the moment a sync or an edit makes
 // MORE steps thin, which is the regression nothing else in `npm run check` would notice.
-const BASELINE = 44;
+const BASELINE = 0;
 if (thin > BASELINE) {
   console.error(`\nREGRESSION: ${thin} thin steps, baseline is ${BASELINE}.`);
   console.error('Re-run with --thin to list them.');
