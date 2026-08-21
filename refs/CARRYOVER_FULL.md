@@ -240,7 +240,7 @@ not a hard cut.** But two clean captures gave **135ms and 62ms** against `step-t
 Stays OPEN as a reference-derived rule: a video has no accessibility tree, so the reference side
 cannot be measured this way. What is closed is Euphoria's conformance to its own constant.
 
-## R6 — Easing shape: **OPEN after six documented failures**
+## R6 — Easing shape: **OPEN after seven documented failures**
 
 Every approach and why it failed, so none is repeated:
 
@@ -252,6 +252,7 @@ Every approach and why it failed, so none is repeated:
 | 4 | position, element by label `'incorrect'` | matched an **option row**, 290pt from the sheet |
 | 5 | position, changed-region top edge | a frame diff during a slide covers **both** old and new positions |
 | 6 | position, colour segmentation | caught the violet **footer button** at y=760; raising the corridor then caught option borders |
+| 7 | **instrument the app** — `useFrameCallback` sampling the driving shared value into a preallocated buffer on the UI-runtime `globalThis`, flushed once | **the sampler itself runs at ~13fps.** Not photography this time, and not the O(n²) first draft either: after replacing a per-frame array spread with an O(1) indexed write, the rate did not change. The control settles it — hold the window open for 2.5s and compare intervals during the mount against after it settles: **11fps then 13fps, coarse THROUGHOUT.** A sampler that coarse feeds the spring integrator ~78ms steps, and it reported a curve rising to 1.368 and falling back through 1.0 to 0.879, which ζ=0.607 cannot do at all |
 
 **Structural cause:** the lesson screen is violet nearly everywhere, and the feedback panel's
 corridor is bounded by options above and the button below. **No region heuristic isolates it.**
@@ -262,9 +263,21 @@ overshoot **9.1%** (17.3pt of 190), peak at **266ms**, 2% settle at **460ms**. T
 comment states the intent: *"slightly underdamped so the bar overshoots a few pixels and settles:
 it should feel thrown into place, not slid."*
 
-**What would work:** instrument the app — expose the shared value's frames in `__DEV__` and read
-them back. That measures the animation rather than a picture of it. Region heuristics are the
-wrong tool.
+**RETRACTED (#20): the "36.8% overshoot, peak 417ms, settle 911ms" that attempt 7 produced.**
+Every one of those numbers is an artifact of a 13fps sampler, reproduced across three device runs
+(36.8% / 36.4% / 36.8%) which is what made it look trustworthy. **Reproducibility is not validity —
+a stable bias repeats perfectly.** It is arithmetically impossible besides: ζ=0.607 caps overshoot
+at 9.1%, so t could never reach 1.368. The instrument was reverted rather than left in the tree;
+`__DEV__`-gated or not, it dragged the banner to 13fps in development.
+
+**What attempt 7 still bought:** the failure is now *diagnosed* rather than merely observed, which
+none of the six before it managed. The bottleneck is the per-frame sampler, not the strategy —
+reading the driving value is still the right idea. **Next attempt should not sample per frame at
+all.** Either drive the spring with a known input and record only the values Reanimated itself
+reports at its own callback boundaries, or step it offline against the same `withSpring` maths and
+verify only the endpoints on device. The control that proved this — hold the sampling window past
+the animation and compare early intervals against late ones — is cheap and should run FIRST in any
+future attempt, before a single number is quoted. `scripts/anim/r6_probe.py` keeps it.
 
 ## R7 — Idle mascot liveness
 
@@ -523,7 +536,7 @@ Lesson-complete stays at `celebrateGain={1}`, three times louder, so the payoff 
 
 ---
 
-# PART 6 — THE RETRACTION LOG (17)
+# PART 6 — THE RETRACTION LOG (20)
 
 Keep these visible. They are the audit's error record and several would otherwise be re-derived.
 
@@ -551,6 +564,18 @@ Keep these visible. They are the audit's error record and several would otherwis
     last vertex on throttled React state, so the line detached from the point by up to 2.4pt.
 17. **"Idle head rock is confirmed running"** — withdrawn within the hour. The eyes sit OUTSIDE the
     rotated group, so `rock` cannot move them; that swing was saccade and blink.
+
+18. **"the flick moved the rail 878px = 292.7pt = 2.03 × 144"** — not a measurement at all, but the
+    argmax of a search window that stopped at ~806px and never contained the true value. The frames
+    prove it: not one card is common to the before and after, so the true shift is ≥432pt against a
+    402pt frame. Cross-correlation is structurally incapable here and is retired.
+19. **A counterfactual arm measured against itself.** Arm B of the first snap A/B scattered
+    convincingly (37.0pt, 110.0pt) — but Metro was down, so the patch could never have reached the
+    device and arm B may have been running the shipping build throughout. Withdrawn. Now impossible
+    to repeat: the probe refuses to start unless `localhost:8081` answers.
+20. **"the feedback bar overshoots 36.8%, peaks at 417ms, settles at 911ms."** All artifacts of a
+    13fps sampler, and reproduced three times, which is exactly what made them persuasive. ζ=0.607
+    caps overshoot at 9.1%, so the value could not have reached 1.368 under any circumstances.
 
 **Plus one caught before publishing:** `VERDICT: SNAPPED` on a rail that had not moved.
 
@@ -605,10 +630,22 @@ is ≥432pt against a 402pt frame. No correlation between two 402pt frames can e
 recorded "flick shorter" fix would have hidden the problem, not solved it. The retired probe is kept
 at `scripts/anim/snap_probe.py`.
 
-**STILL OPEN: the `news-gallery` market-news rail (interval 244pt) on the Trade tab.** Same
-instrument, same A/B; set `INTERVAL_PT=244.0` and `CARD_PT=236.0`, and patch
-`news-gallery.tsx:142-144` for arm B. Its band comes from a11y the same way — but take the card
-node by its own copy, not by `/25`, which is the course-card marker.
+**The `news-gallery` market-news rail (interval 244pt) is ALSO CONFIRMED.** Same instrument, same
+A/B — `python3 scripts/anim/snap_rest.py news AB`:
+
+| arm | rests | worst offset from the 244pt grid |
+|---|---|---|
+| **A** | **5/5 flicks at phase 16.0pt**, 3 scored | **0.0pt** |
+| **B** | 5/5 scored, scattered (150.0, 227.0, 167.7, 16.0, 188.3pt) | **110.0pt** |
+
+**One thing it needed that the course rail did not:** the top ~54% of a news card is the article
+**photograph** — bright and arbitrary — so a template of uniform cards cannot match there. The first
+run returned correlations of 0.15–0.36 against the 0.60 floor and scored nothing, *even though arm A
+sat at 16.0pt on all five flicks*. Moving the phase rows to the uniform strip between the image and
+the publisher line (56–63% of the band) took arm A to 0.90/0.77 and arm B to 0.91. **The phase rows
+are per-rail** and live in the `RAILS` config; arm B kept the rest of the machinery unchanged.
+
+**Both fixed rails are now verified. The carousel work is closed.**
 
 ## 7.2 Owner-blocked
 
@@ -628,8 +665,11 @@ node by its own copy, not by `/25`, which is the course-card marker.
   tops and slope OPPOSITELY, so they erase white asymmetrically — the sclera count fell 1692 → 1377,
   a 19% loss, which is what exposed it).
 - **Four sheets shipped unverified** — all mount only on entitlement state.
-- **~460 lines of superseded drag components** — safe to delete, nothing imports them, but whether
-  the drag variants return is a product decision.
+- ~~**~460 lines of superseded drag components**~~ — **DELETED** (actually 567 lines: slider-predict
+  133, before-after-slider 163, graph-point-drag 184, sort-buckets 87). Re-verified first, because
+  the initial check returned a *false zero* when zsh ate an unquoted `--include` glob — the same
+  confident-empty-result shape as two earlier wrong claims. Every surviving mention is a comment,
+  and those were repaired rather than left pointing at files that no longer exist.
 - **290 `interactiveGraph` steps render as prose** — deliberate and commented, but it is the one
   authored-interactive type currently shown as text.
 
