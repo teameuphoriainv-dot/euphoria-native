@@ -4,7 +4,7 @@
  * the logo as an inner <Image>, whites + expression pupils drawn on top at the EXACT web
  * coords. Body spins on tap (eyes stay upright); idle blink; 6 expressions.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable } from 'react-native';
 import Animated, {
   Easing,
@@ -173,7 +173,18 @@ export function Atlas({
   const entranceScale = useSharedValue(entrance === 'bounce' ? 0 : entrance === 'arrive' ? 1.85 : 1);
   const entranceOpacity = useSharedValue(entrance ? 0 : 1);
   const spins = useRef(0);
-  const [blink, setBlink] = useState(false);
+  /*
+   * BLINK IS A SHARED VALUE, NOT REACT STATE.
+   *
+   * It used to be useState, so every blink fired setBlink(true) then setBlink(false) -- two
+   * React commits, each re-rendering the whole tree. Measured 2026-08-21 with five Atlas
+   * instances mounted at once: 30 blinks in 6 IDLE seconds producing ~60 of the 97 commits in
+   * that window, over a 7,025-fiber tree. That is what starved entrance animations of frames.
+   *
+   * Both eye states are now always rendered and crossfaded on the UI thread by opacity, so a
+   * blink costs zero React work.
+   */
+  const blinkV = useSharedValue(0);
   const [spinning, setSpinning] = useState(false);
 
   // idle blink every 2.8–6.2s (130ms)
@@ -184,8 +195,9 @@ export function Atlas({
     const loop = () => {
       t = setTimeout(() => {
         if (!alive) return;
-        setBlink(true);
-        setTimeout(() => alive && setBlink(false), 130);
+        blinkV.set(1);
+        // instant on/off, matching the original state flip -- a faded blink reads as a droop
+        setTimeout(() => alive && blinkV.set(0), 130);
         loop();
       }, 2800 + Math.random() * 3400);
     };
@@ -194,7 +206,7 @@ export function Atlas({
       alive = false;
       clearTimeout(t);
     };
-  }, [reduced]);
+  }, [reduced, blinkV]);
 
   /*
    * SACCADES — the micro darts real eyes make constantly. Without them a face reads as a
@@ -389,11 +401,33 @@ export function Atlas({
    * the same instant. The stagger is what makes it read as a pinwheel catching, rather than an
    * image being rotated.
    */
-  const ringSpin = [useSharedValue(0), useSharedValue(0), useSharedValue(0), useSharedValue(0)];
-  const ringProps = [
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- fixed length, stable order
-    ...ringSpin.map((v) => useAnimatedProps(() => ({ rotation: v.get() }))),
-  ];
+  /*
+   * THE ARRAY IDENTITY MATTERS AS MUCH AS THE CONTENTS.
+   *
+   * This was `[...ringSpin.map((v) => useAnimatedProps(...))]`, which builds a NEW ARRAY on
+   * every render. It is passed straight to <AtlasMarkBody rings={ringProps} />, and
+   * AtlasMarkBody is memo()-wrapped -- so its shallow compare saw a different array every time
+   * and the memo never once hit. The whole mark re-rendered on every commit: four
+   * LinearGradients, a ClipPath, Defs and eight Circles, times however many Atlas instances
+   * are mounted (measured: five at once on the lesson screen).
+   *
+   * Measured 2026-08-21 by walking the fiber tree per commit and attributing SELF time:
+   * RNSVGCircle / RNSVGGroup / RNSVGLinearGradient / RNSVGClipPath / RNSVGDefs were all doing
+   * real work in 33 of 33 idle commits. Memoising the array is what makes memo() effective.
+   */
+  const spin0 = useSharedValue(0);
+  const spin1 = useSharedValue(0);
+  const spin2 = useSharedValue(0);
+  const spin3 = useSharedValue(0);
+  const ringSpin = useMemo(() => [spin0, spin1, spin2, spin3], [spin0, spin1, spin2, spin3]);
+  const ringProp0 = useAnimatedProps(() => ({ rotation: spin0.get() }));
+  const ringProp1 = useAnimatedProps(() => ({ rotation: spin1.get() }));
+  const ringProp2 = useAnimatedProps(() => ({ rotation: spin2.get() }));
+  const ringProp3 = useAnimatedProps(() => ({ rotation: spin3.get() }));
+  const ringProps = useMemo(
+    () => [ringProp0, ringProp1, ringProp2, ringProp3],
+    [ringProp0, ringProp1, ringProp2, ringProp3],
+  );
   // Idle rock, reaction lag AND the expression's resting tilt all SUM here: the head keeps
   // breathing through a celebration instead of snapping to the reaction and back, and a tilted
   // expression still rocks rather than freezing at its angle.
@@ -401,6 +435,9 @@ export function Atlas({
     rotation: (rock.get() * 2 - 1) * ROCK_DEG + headLag.get() + EXPRESSION_TILT[expression],
   }));
   const saccadeProps = useAnimatedProps(() => ({ x: sacX.get(), y: sacY.get() }));
+  // Blink crossfade, driven entirely on the UI thread so no blink costs a React commit.
+  const openEyeProps   = useAnimatedProps(() => ({ opacity: 1 - blinkV.get() }));
+  const closedEyeProps = useAnimatedProps(() => ({ opacity: blinkV.get() }));
   // Control point rises => the arc deepens. Same delta on both eyes so they stay a pair.
   const happyLeftProps = useAnimatedProps(() => ({
     d: `M27.3 27.8 Q34.8 ${20.8 - arcFlex.get() * ARC_FLEX_UNITS} 42.3 27.8`,
@@ -450,7 +487,7 @@ export function Atlas({
    * Only `happy` is drawn as upward arcs (^^) — closing an arc eye reads as nothing, so it stays
    * excluded. Every other expression uses round pupils and blinks meaningfully.
    */
-  const showBlink = blink && !spinning && expression !== 'happy';
+  const blinkable = !spinning && expression !== 'happy';
 
   /*
    * BROWS — the second acting channel, added 2026-08-19.
@@ -469,7 +506,7 @@ export function Atlas({
    * as thinking. `default` draws nothing, so the resting mark is unchanged from the logo.
    */
   const brows = () => {
-    if (showBlink || active === 'default') return null;
+    if (active === 'default') return null;
     /* 2.4, not 3. At the 46pt Home renders, a 3-unit stroke on a 100-unit viewBox is ~1.4pt of
        solid ink sitting directly on the eye's own outline, and the two merge into a bar. Checked
        on device at 46pt: 2.4 still reads as a brow at the smallest size Atlas ships at, which is
@@ -491,15 +528,15 @@ export function Atlas({
 
   const whiteR = active === 'whoa' ? [14, 12.8] : [13, 11.8];
 
+  /** The closed eyes. Always mounted; opacity decides whether they are visible. */
+  const closedEyes = (
+    <>
+      <Path d="M26 27.5 Q34.8 31.5 43.6 27.5" stroke={INK} strokeWidth={3} strokeLinecap="round" fill="none" />
+      <Path d="M53.2 26 Q61.2 29.6 69.2 26" stroke={INK} strokeWidth={3} strokeLinecap="round" fill="none" />
+    </>
+  );
+
   const pupils = () => {
-    if (showBlink) {
-      return (
-        <>
-          <Path d="M26 27.5 Q34.8 31.5 43.6 27.5" stroke={INK} strokeWidth={3} strokeLinecap="round" fill="none" />
-          <Path d="M53.2 26 Q61.2 29.6 69.2 26" stroke={INK} strokeWidth={3} strokeLinecap="round" fill="none" />
-        </>
-      );
-    }
     switch (active) {
       case 'happy':
         return (
@@ -602,7 +639,10 @@ export function Atlas({
       </AnimatedG>
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
-      <AnimatedG animatedProps={saccadeProps}>{pupils()}{brows()}</AnimatedG>
+      <AnimatedG animatedProps={saccadeProps}>
+        <AnimatedG animatedProps={openEyeProps}>{pupils()}{brows()}</AnimatedG>
+        {blinkable && <AnimatedG animatedProps={closedEyeProps}>{closedEyes}</AnimatedG>}
+      </AnimatedG>
       {glasses && (
         <>
           <G stroke="#141019" strokeWidth={4.4} opacity={0.9} fill="none">
