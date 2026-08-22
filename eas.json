@@ -7,9 +7,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "ios": {
-        "simulator": true
-      }
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
@@ -18,14 +16,24 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://euphoria-native.expo.app"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_API_URL": "https://euphoria-native.expo.app"
       },
-      "node": "24.14.1"
+      "node": "24.14.1",
+      "channel": "production"
+    },
+    "development-simulator": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "channel": "development"
     }
   },
   "submit": {

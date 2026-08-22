@@ -14,6 +14,7 @@
       "backgroundColor": "#09090D",
       "entitlements": {
         "com.apple.security.application-groups": [
+          "group.com.euphoriainv.euphoria",
           "group.com.euphoriainv.euphoria"
         ]
       },
@@ -85,6 +86,12 @@
         "projectId": "8a6dba4a-e52a-4c04-b359-7244670431b1"
       }
     },
-    "owner": "s-k-28"
+    "owner": "s-k-28",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8a6dba4a-e52a-4c04-b359-7244670431b1"
+    }
   }
 }
