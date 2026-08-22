@@ -437,7 +437,7 @@ filename in `.secrets/`.
 | EAS account | `s-k-28` (`app.json` hard-codes `owner`) |
 | Bundle ids | `com.euphoriainv.euphoria`, `com.euphoriainv.euphoria.widget` |
 | App group | `group.com.euphoriainv.euphoria` |
-| Current build | **11** |
+| Current build | **12** — the first OTA-capable build |
 
 **AFTER EVERY SUCCESSFUL SUBMIT YOU MUST ATTACH THE BUILD TO THE TESTER GROUPS.** A build that is
 `VALID` but in no group is installable by **nobody**. This is exactly what left builds 6, 7 and 8
@@ -452,6 +452,90 @@ POST /v1/betaGroups/{groupId}/relationships/builds   body: {data:[{type:'builds'
 A watcher that polls until the build is `VALID` then attaches it lives at
 `scratchpad/watch-latest.mjs` — **but note its bug**: it attaches the *newest* build, and if an older
 build is already `VALID` it fires immediately on the wrong one. Filter by the expected version.
+
+### 6.1b DO NOT REBUILD FOR A JS FIX — SHIP IT OVER THE AIR IN ~2 MINUTES
+
+Set up 2026-08-22. **Read this before you cut a single build.** A full build is ~20-25 minutes;
+an over-the-air update is ~1-2. Almost every fix in a feedback-driven debug session is JavaScript.
+
+```bash
+npx eas update --branch production --environment production --message "what you fixed"
+```
+
+Testers force-quit and reopen; the update is live. `--environment` is REQUIRED in
+`--non-interactive` mode or the command errors.
+
+| channel | branch | who is on it |
+|---|---|---|
+| `production` | `production` | everyone on TestFlight |
+| `preview` | `preview` | internal-distribution builds |
+| `development` | `development` | dev-client builds |
+
+**What OTA CANNOT ship — these still need a real build:** any native module added or removed,
+anything in `app.json` that affects the native project (icon, splash, permissions, entitlements,
+plugins, bundle identifiers), and any change to `runtimeVersion`. If you are unsure whether a change
+is native, it is safer to build.
+
+**runtimeVersion policy is `appVersion`.** An update only reaches builds whose app version matches.
+Bump `version` in `app.json` and every existing install stops receiving updates until it is
+replaced. Do not bump it casually mid-session.
+
+**Builds 8-11 can NEVER receive updates.** A binary only listens if it was compiled with a channel,
+and `expo-updates` did not exist before build 12. **Build 12 is the first OTA-capable build** and
+everyone must install it once.
+
+**A bug that WILL bite you if this ever regresses:** `eas update` publishes iOS and Android in ONE
+manifest. An invalid Android config rejects the iOS update too. `android.package` was
+`com.euphoria.native` and `native` is a reserved Java keyword, so every update failed with an
+Android validation error on an iOS-only app. Fixed to `com.euphoriainv.euphoria`. If an update ever
+fails for a reason that makes no sense, check the Android half of the manifest.
+
+**Verify the pipeline before you depend on it.** The above was found by publishing a deliberate
+no-op update as a test rather than discovering it on the first real fix.
+
+### 6.1c INSTANT ITERATION WITH THE DEV CLIENT
+
+For anyone with a development build installed:
+
+```bash
+npx expo start --tunnel      # public URL: phones do NOT need to be on this Wi-Fi
+```
+
+Every save appears on every connected phone in under a second, no command and no build. This is the
+fastest possible loop and the right default when working live with the owner.
+
+`eas.json` profiles: `development` is the **physical device** build (`developmentClient: true`,
+`distribution: internal`, and it must NOT set `ios.simulator`). `development-simulator` is the
+simulator variant. The original profile set `ios.simulator: true`, which builds a simulator-only
+binary that can never install on a phone.
+
+**Device registration.** `npx eas device:create` prints a QR and a shareable link; one link
+registers the whole team. **UDIDs are baked into the binary at build time** — anyone registering
+after a build needs a rebuild with `--refresh-ad-hoc-provisioning-profile`. Expo captures the UDID
+at registration and syncs it to Apple during the build, so Apple's device list legitimately lags
+Expo's; that is not a fault.
+
+**Ad-hoc credentials cannot be created non-interactively.** `eas build --profile development
+--non-interactive` fails with "couldn't find any credentials suitable for internal distribution."
+The owner must run it interactively **once**; after that the profile is stored on EAS and every
+later dev build is non-interactive. Same shape as the distribution-certificate wall.
+
+**Check env vars per environment.** The first dev build warned "No environment variables found for
+the development environment" and would have launched with no RevenueCat key, no PostHog and no
+Google client ID — an app broken in ways that look exactly like new bugs. All 7 vars now cover
+`production`, `preview` and `development`. Add new ones to all three with
+`eas env:update --variable-name X --variable-environment production --environment production
+--environment preview --environment development`, which never reads or reprints the secret.
+
+### 6.1d STOP PIPING BUILD OUTPUT THROUGH `tail`
+
+`npx eas build ... | tail -30` reports **exit code 0 even when the build failed**, because `tail`'s
+status is what the shell sees. This masked two separate failures in one session and cost real time
+both times. Grep for the outcome instead:
+
+```bash
+grep -aiE "Build failed|Submitted your app|successfully uploaded|Error:" "$LOGFILE" | tail -8
+```
 
 ### 6.2 Reading an EAS build log — the recipe that actually works
 
