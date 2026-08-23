@@ -28,7 +28,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
-import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
+import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost, type DigestCategory } from '@/lib/digest-content';
 import { pickToday } from '@/lib/digest-pick';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { dayKey, useApp } from '@/lib/store';
@@ -36,7 +36,29 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
-import { PixelSpriteView, bolt, flame as flameSprite } from '@/lib/pixel';
+import {
+  PixelSpriteView, bolt, chartUp, compass, creditCard, flame as flameSprite,
+  stockTicker, wallet, type PixelSprite,
+} from '@/lib/pixel';
+
+/**
+ * A mark per Digest category.
+ *
+ * The section rows carried no art at all — five near-identical cards separated only by a tint and
+ * a word, on the screen whose whole job is letting you pick one. A mark is what makes a row
+ * findable at a glance rather than read.
+ *
+ * All five distinct, and all already in the shared catalogue. `DigestCategory` is a union, so a
+ * category added without a mark is a COMPILE error rather than a blank slot — the same reasoning
+ * as StatMark, and the reason this needs no pin.
+ */
+const CATEGORY_ART: Record<DigestCategory, PixelSprite> = {
+  Credit: creditCard,
+  Strategy: compass,
+  Investing: chartUp,
+  'Money basics': wallet,
+  Markets: stockTicker,
+};
 
 const ALL = 'All';
 
@@ -347,6 +369,7 @@ export default function Digest() {
                     accessibilityRole="button"
                     accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
                     <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
+                      <PixelSpriteView sprite={CATEGORY_ART[c]} size={26} />
                       <View style={{ flex: 1 }}>
                         <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{c}</ThemedText>
                         <ThemedText type="small" themeColor="mutedForeground">
