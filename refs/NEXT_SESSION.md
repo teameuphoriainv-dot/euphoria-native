@@ -1009,6 +1009,58 @@ specifically to stop you making a change that was already tried and reverted.
 
 ---
 
+## 7.5 PRE-MORTEM — HOW THIS SESSION FAILS, AND WHAT PREVENTS IT
+
+Written before the session, assuming it went badly. Each of these has already happened in some form.
+
+**1. You read the feedback doc's captions instead of its screenshots.** The single most likely
+failure, because it is the cheapest path and feels like progress. Every fabricated finding in this
+project came from reasoning off a description. *Prevention: Gate 0. Open every image. If you cannot
+open one, say so rather than working around it.*
+
+**2. Chrome disconnects and you quietly stop doing web comparison.** The extension dropped mid-
+session in the previous run and could not be reconnected from inside. The temptation is to carry on
+iOS-only and stop mentioning it. *Prevention: if Chrome dies, SAY SO IMMEDIATELY and ask for a
+restart. Do not silently downgrade the workflow the owner explicitly asked for.*
+
+**3. The owner's web login expires and half the reference disappears.** *Prevention: capture the
+lesson walkthrough into `refs/webapp/` EARLY, at full coverage. Files survive an expired session;
+a live tab does not.*
+
+**4. Context compacts and you lose the thread.** A session with hundreds of screenshots will
+compact repeatedly. *Prevention: `refs/FEEDBACK_LOG.md` and `refs/webapp/` are the memory. Update
+them after every item, not at the end. If it is not in a file, it does not exist.*
+
+**5. You batch too large and the owner cannot verify.** Twenty fixes in one build is a verification
+task he will not complete, so nothing gets marked verified and the log rots. *Prevention: batch by
+SCREEN, 5-15 items, and tell him exactly what to look at and where. Make verification cheap for him
+or it will not happen.*
+
+**6. You fix symptoms of the idle-render lag one at a time.** Many "feels slow / laggy / delayed"
+items share one unsolved root cause (§4.1). Fixing them individually is endless. *Prevention: when
+an item smells like it, tag it `perf-root` in the log and group them. Solve the cause once.*
+
+**7. You claim something is fixed that the owner has not seen.** *Prevention: `verified` is his word
+only. Yours is `ready-for-verification`. This is the rule he chose deliberately.*
+
+**8. You break something you were not asked to touch.** Two build breaks this session came from
+partial patches. *Prevention: Gate 5 and Gate 9. Read the actual diff, grep every caller.*
+
+**9. You spend the session on tooling instead of bugs.** Tonight lost real time to Metro dying four
+times, an extension dropping, and a `setsid` that does not exist on macOS. *Prevention: tooling is
+not the job. If something fights you twice, route around it or hand it to the owner and move on.*
+
+**10. You go quiet during long work.** *Prevention: report after every batch — what shipped, what he
+should test, what you found that nobody reported.*
+
+### What "quality" means for this specific session
+
+Not the number of items closed. It is: **the cofounders re-test and cannot find what they wrote
+down**, and they do not find three new things you introduced. A session that closes 40 items and
+creates 5 regressions is worse than one that closes 25 cleanly.
+
+---
+
 ## 8. DEFINITION OF DONE
 
 The session is complete when **all** of the following hold:
