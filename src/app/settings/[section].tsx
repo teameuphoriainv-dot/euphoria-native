@@ -314,11 +314,13 @@ function NotificationsSection() {
   );
 }
 
-/** N22. `system` first, because it is the default and the answer most people want. */
+/** N22. Dark leads because it IS the default — the list should read in the order of what you get
+ *  if you never come here. `system` is last for the same reason: it is the deliberate choice now,
+ *  not the assumption. */
 const THEMES = [
-  { key: 'system', label: 'Match my device', sub: 'Follows your iOS appearance setting' },
   { key: 'dark', label: 'Dark', sub: 'The Euphoria default' },
   { key: 'light', label: 'Light', sub: 'Bright backgrounds, same art' },
+  { key: 'system', label: 'Match my device', sub: 'Follows your iOS appearance setting' },
 ] as const;
 
 function PreferencesSection() {

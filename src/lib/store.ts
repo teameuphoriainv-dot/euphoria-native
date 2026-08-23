@@ -402,9 +402,13 @@ export type AppState = {
   /**
    * N22 — "Add Light Mode / Dark Mode + other color preferences".
    *
-   * Three values, not a boolean. `system` is the default and the one most users never change; a
-   * two-state toggle would force everyone to pick a side and then ignore the OS setting they
-   * already configured once.
+   * DEFAULTS TO DARK, NOT TO THE DEVICE. `system` was the first default and it was wrong: it put
+   * everyone whose phone is set to Light into a light app they never asked for, on a brand that is
+   * dark-first. Owner's call on sight of it, and the right one — the option still exists for
+   * anyone who wants it, it is just no longer imposed.
+   *
+   * `system` remains SELECTABLE. Removing it would be an overcorrection: someone who deliberately
+   * wants the app to follow their phone should be able to say so.
    */
   themePref: 'system' | 'light' | 'dark';
   setThemePref: (v: 'system' | 'light' | 'dark') => void;
@@ -654,7 +658,7 @@ export const useApp = create<AppState>()(
       hasHydrated: false,
       weeklyXp: 0,
       weekStart: '',
-      themePref: 'system',
+      themePref: 'dark',
       lastWeekResolved: '',
       lastWeekOutcome: null,
       pendingTierUp: null,
@@ -1091,7 +1095,7 @@ export const useApp = create<AppState>()(
       // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
-      version: 2,
+      version: 3,
       /*
        * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
        * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
@@ -1101,7 +1105,19 @@ export const useApp = create<AppState>()(
        */
       migrate: (persisted, from) => {
         try {
-          return clearStaticPricing(persisted as Partial<AppState>, from) as AppState;
+          const next = clearStaticPricing(persisted as Partial<AppState>, from) as AppState;
+          /*
+           * v3. The first light-mode release defaulted themePref to 'system', so every install
+           * that launched it has 'system' PERSISTED — changing the initial value alone would not
+           * reach them, and anyone on a light phone would stay in a light app.
+           *
+           * Only 'system' is rewritten. A deliberate 'light' is left alone: this is undoing a bad
+           * default, not overriding a choice someone made.
+           */
+          if (from < 3 && (next as Partial<AppState>).themePref === 'system') {
+            (next as Partial<AppState>).themePref = 'dark';
+          }
+          return next;
         } catch (e) {
           console.error('[store] migration failed, leaving state as-is', e);
           return persisted as AppState;
