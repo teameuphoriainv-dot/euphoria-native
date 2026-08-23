@@ -14,6 +14,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ITEM_ART } from '@/lib/item-art';
+import { achievementById, isEarned, type AchievementState } from '@/lib/achievements';
 import { useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -75,6 +76,7 @@ type Row = { icon: UIconName; label: string; accent?: boolean; route: string };
  * this groups rather than moves — and N12 is answered on Home instead, where there is now room.
  */
 const PLAY_ROWS: Row[] = [
+  { icon: 'trophy', label: 'Achievements', route: '/achievements' },
   { icon: 'you', label: 'Friends', route: '/friends' },
   { icon: 'target', label: 'Games', route: '/games' },
   { icon: 'chat', label: 'Ask Atlas', route: '/chat' },
@@ -110,6 +112,24 @@ export default function You() {
 
   /* Equipped cosmetics (N21). Read here rather than inside the card so the card stays presentational. */
   const equipped = useApp((s) => s.equipped);
+  /* The title only renders while it is still EARNED. Reading the predicate rather than trusting
+   * the stored id means a reset, or a threshold that moves, cannot leave a stale claim on screen. */
+  const titleId = useApp((s) => s.titleId);
+  const titleAch = achievementById(titleId);
+  const titleState: AchievementState = {
+    xp: useApp((x) => x.xp),
+    bestStreak: useApp((x) => x.bestStreak),
+    completedLessons: useApp((x) => x.completedLessons),
+    readPosts: useApp((x) => x.readPosts),
+    inventory: useApp((x) => x.inventory),
+    positions: useApp((x) => x.positions),
+    derivativeTrades: useApp((x) => x.derivativeTrades),
+    coins: useApp((x) => x.coins),
+    following: useApp((x) => x.following),
+    followers: useApp((x) => x.followers),
+    watchlist: useApp((x) => x.watchlist),
+  };
+  const wornTitle = titleAch && isEarned(titleAch, titleState) ? titleAch.title : null;
   /* Was a ternary enumerating exactly two badges, so any badge added later equipped to an
    * invisible profile. Shared map now — see src/lib/item-art.ts. */
   const badgeSprite = equipped.badge ? ITEM_ART[equipped.badge] : undefined;
@@ -241,6 +261,14 @@ export default function You() {
                   </ThemedText>
                 </View>
               </View>
+              {/* The worn TITLE sits directly under the name, which is where a title goes. It is
+                  rendered from the achievement rather than from stored copy, so a title you no
+                  longer qualify for simply stops appearing instead of persisting a claim. */}
+              {wornTitle ? (
+                <View style={[styles.titleChip, { borderColor: theme.primary + '55', backgroundColor: theme.primary + '18' }]}>
+                  <ThemedText type="label" style={{ color: theme.primary }}>{wornTitle}</ThemedText>
+                </View>
+              ) : null}
               <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
                 {handle ? `@${handle} · ` : ''}Level {level}
               </ThemedText>
@@ -503,6 +531,14 @@ export default function You() {
 }
 
 const styles = StyleSheet.create({
+  titleChip: {
+    alignSelf: 'flex-start',
+    marginTop: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+  },
   safe: { flex: 1 },
   // A single vertical rhythm for the column. The identity card and the plan card had NO margin
   // between them at all — identity carried a marginTop and plan carried nothing — so two 16pt-padded

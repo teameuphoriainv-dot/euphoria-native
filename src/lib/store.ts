@@ -419,6 +419,13 @@ export type AppState = {
    */
   avatarId: string;
   setAvatarId: (id: string) => void;
+  /**
+   * The achievement whose TITLE you are wearing, or '' for none. An achievement id rather than the
+   * word itself, so the copy can be rewritten without a migration, and so a title you no longer
+   * qualify for stops rendering on its own rather than persisting a claim you cannot back up.
+   */
+  titleId: string;
+  setTitleId: (id: string) => void;
   /** A tier crossed but not yet celebrated. Persisted, so closing the app cannot swallow it. */
   pendingTierUp: string | null;
   /** Show the celebration, pay TIER_UP_BONUS, clear it. Idempotent: a second call pays nothing. */
@@ -667,6 +674,7 @@ export const useApp = create<AppState>()(
       weekStart: '',
       themePref: 'dark',
       avatarId: DEFAULT_AVATAR_ID,
+      titleId: '',
       lastWeekResolved: '',
       lastWeekOutcome: null,
       pendingTierUp: null,
@@ -849,6 +857,8 @@ export const useApp = create<AppState>()(
       setThemePref: (v) => set({ themePref: v }),
 
       setAvatarId: (id) => set({ avatarId: id }),
+
+      setTitleId: (id) => set({ titleId: id }),
 
       claimTierUp: () =>
         // Guarded rather than trusting the caller: the sheet's dismiss and its button can both
@@ -1134,7 +1144,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
