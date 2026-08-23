@@ -436,6 +436,25 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
         <AnimatedPath d="M8 142 C90 138 150 108 200 66 C232 40 262 22 288 14" stroke={theme.primary} strokeWidth={3} fill="none" strokeLinecap="round" strokeDasharray={LEN} animatedProps={withProps} />
         <AnimatedCircle cx={288} cy={14} fill={theme.primary} animatedProps={dotProps} />
       </Svg>
+      {/*
+        * "Time" BELONGS TO THE AXIS, not to the legend.
+        *
+        * Reported 2026-08-23: "the x-axis 'time' label needs to move — it's currently under the
+        * words and looks weird. It should be on the right side of the axis instead."
+        *
+        * Right, and the cause was ORDERING, not alignment. This sat AFTER `chartLabels`, so the
+        * two-line legend ("With Euphoria" / "Without daily practice") came between the label and
+        * the axis it describes. `alignSelf: flex-end` was already putting it on the right — the
+        * horizontal position was never the problem.
+        *
+        * It now sits immediately under the axis at its right end, where an x-axis label goes, and
+        * the legend follows beneath both.
+        *
+        * NOTE: the audit files this under "first lesson". It is actually onboarding step 3,
+        * `The habit is what makes it stick` (onboarding.tsx). Same screen, different place than
+        * reported — worth knowing before hunting for it in the lesson runner.
+        */}
+      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label, lineHeight: 15, alignSelf: 'flex-end' }}>Time</ThemedText>
       <View style={styles.chartLabels}>
         {/* iconLilac, not primary. This is 13px semibold, which is NOT "large text" under WCAG,
             so it needs 4.5:1 - and primary measures 4.48:1 on `card`. iconLilac is the palette's
@@ -444,7 +463,6 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
         <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>With Euphoria</ThemedText>
         <ThemedText type="small" themeColor="mutedForeground">Without daily practice</ThemedText>
       </View>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label, lineHeight: 15, alignSelf: 'flex-end' }}>Time</ThemedText>
     </View>
   );
 }
