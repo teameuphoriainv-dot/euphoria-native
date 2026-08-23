@@ -206,7 +206,25 @@ export default function Home() {
               >
                 <Atlas size={46} expression="happy" interactive={false} idle />
               </SpringPressable>
-              <View style={{ flex: 1 }}>
+              {/*
+                * THE GREETING IS THE WAY INTO YOUR PROFILE, now that You is not a tab.
+                *
+                * The mascot beside it is already the documented entry to chat and is not being
+                * repurposed. Tapping your own name to reach your own profile is the affordance
+                * most apps already teach, and it needs no new chrome in a header that AX5 has
+                * already broken once.
+                *
+                * CEILING, stated: this puts profile on HOME only. The web app keeps it reachable
+                * from every screen via the hamburger. A persistent header entry on all five tabs
+                * is the fuller version and is not done here.
+                */}
+              <SpringPressable
+                haptic={false}
+                scaleTo={0.98}
+                onPress={() => router.push('/you')}
+                accessibilityRole="button"
+                accessibilityLabel="Your profile"
+                style={{ flex: 1 }}>
                 {/*
                   * AX5 CLIPPED THIS HEADER TO "H..." AND "5 m...". Captured on device, not
                   * inferred. This column is flex:1 beside a 46pt Atlas and the streak pills,
@@ -223,7 +241,7 @@ export default function Home() {
                 <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2}>
                   {remaining === 0 ? 'Done for today. Streak safe.' : `${remaining} min to keep your streak`}
                 </ThemedText>
-              </View>
+              </SpringPressable>
             </View>
             {/*
               * `accessible` GROUPS each pill so VoiceOver reads one named thing. Without it these

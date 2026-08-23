@@ -16,7 +16,7 @@ const TAB_ICONS: Record<string, UIconName> = {
   learn: 'learn',
   trade: 'trade',
   digest: 'feed',
-  you: 'you',
+  games: 'target',
 };
 
 /** How far the selected tab's glyph rides above the others, in pt. */
