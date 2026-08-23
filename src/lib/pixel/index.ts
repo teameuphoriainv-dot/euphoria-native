@@ -31,3 +31,4 @@ export * from './sprites';
 // Authored here, pending contribution upstream — see sprites-additions.ts.
 export * from './sprites-additions';
 export * from './sprites-crests';
+export * from './sprites-lesson';
