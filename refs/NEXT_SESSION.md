@@ -659,6 +659,63 @@ That is the permanent fix and it was recommended twice.
 
 ---
 
+## 6.8 THE WEB APP IS THE DESIGN REFERENCE — LOOK AT IT, REPEATEDLY
+
+**The owner's instruction, verbatim in intent:** connect Claude in Chrome, go through the
+euphoriainv.com web app, *see it visually many many times*, and apply the same logic to the iOS app.
+Treat the web product as the reference implementation. When a cofounder reports that something in
+iOS feels wrong, **the web app is very often the thing they are unconsciously comparing it against.**
+
+**Do this before you start fixing, not after.** Walk the web flows first so you have the reference
+in mind, then walk the same flows in the simulator. A large share of "this feels off" feedback
+resolves to "this does not match the web app," and you cannot see that without having looked.
+
+### The constraint you must plan around
+
+`euphoriainv.com` is a **MARKETING LANDING PAGE**, not the running product. Verified 2026-08-22.
+
+Public and fetchable with no auth:
+`/` `/pricing` `/digest` `/digest/faq` `/digest/support` `/ferpa` `/privacy` `/terms` `/legal`
+Nav labels: Features, Courses, Pricing, Digest, Log in, Get started
+
+The lessons, paper-trading simulator, portfolio and Atlas coach are **described** on that page, not
+runnable. The real application is behind **"Log in"**.
+
+**You cannot sign in.** Entering a password is prohibited in every session regardless of
+authorisation. So:
+
+- **Public pages**: browse freely, screenshot freely, no help needed. Copy, pricing, positioning,
+  FERPA and legal wording all live here and are directly comparable to in-app copy.
+- **The authenticated app**: the OWNER must log in once in the connected Chrome and leave the
+  session alive. Ask for that at the START of the session, not when you hit the wall — an expired
+  session mid-flow wastes a whole investigation.
+
+### How to use Chrome well here
+
+Load the tools in ONE ToolSearch call — `tabs_context_mcp,navigate,computer,read_page,
+tabs_create_mcp,tabs_close_mcp` — never one per call. Then use `browser_batch` to chain
+navigate/wait/screenshot in a single round trip; separate calls are dramatically slower and this is
+a workflow where you will take dozens of screenshots.
+
+Known failure modes hit in the previous session:
+- **The extension disconnects.** `list_connected_browsers` returning `[]` means Chrome must be
+  running with the Claude extension enabled and signed into the same account. You cannot reconnect
+  it yourself; ask.
+- **Screenshots can be permission-blocked per domain** even when navigation works. `get_page_text`
+  sometimes still succeeds where `computer:screenshot` is refused — try it before giving up.
+- Screenshot coordinates go stale if the window resizes between the screenshot and the click. A
+  batch that resizes mid-sequence will click the wrong place; re-screenshot after any resize.
+- Decline cookie/consent banners (most privacy-preserving option) rather than accepting.
+
+### Building the comparison
+
+For each surface you touch, capture the web version and the iOS version and put them side by side
+before deciding what "correct" means. Save them under `refs/webapp/` so the comparison survives
+context compaction and the owner can check your reasoning. Where they differ, the web app wins
+unless there is a platform reason it should not — and if you deviate, write down why.
+
+---
+
 ## 7. ARCHITECTURE ORIENTATION
 
 React Native 0.86.2, React 19.2.3, Expo ~57.0.13, expo-router, reanimated 4.5.1, react-native-svg,
