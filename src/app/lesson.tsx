@@ -36,7 +36,7 @@ import { TileBuilder } from '@/components/tile-builder';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
-import { PixelSpriteView, heart as heartSprite } from '@/lib/pixel';
+import { PixelSpriteView, coin as coinSprite, heart as heartSprite } from '@/lib/pixel';
 import { SlabButton } from '@/components/ui/button';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -46,6 +46,7 @@ import { COURSES, getCourseById, lessonKeyTerms, loadCourseLessons, type Pathway
 import { expandSteps, gates, normalizeStep } from '@/lib/lesson-steps';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
+import { EARN } from '@/lib/shop-items';
 import { IAP_ENABLED } from '@/lib/purchases';
 import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
 import { trialRewardAvailable } from '@/lib/trial-reward';
@@ -596,7 +597,23 @@ export default function Lesson() {
                   <NumberRollup value={xp} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.subhead }} />
                 </View>
               </RewardPop>
+              {/*
+                * THE EUPHORIUM EARNED, and the one place a sprite is allowed to move.
+                *
+                * The web plays `coin` with play="once" on exactly this screen, and its house rule
+                * is "no idle loops... 'once' for a reaction (a coin awarded, a streak extended)".
+                * A lesson completing is that reaction. It plays through and parks on its still.
+                *
+                * The amount matches completeLesson's arithmetic rather than restating a number:
+                * min(lessonMax, lessonMin + xp).
+                */}
               <RewardPop delay={1340}>
+                <View style={[styles.xpChip, { backgroundColor: theme.iconGold + '18', borderColor: theme.iconGold + '40' }]}>
+                  <PixelSpriteView sprite={coinSprite} size={18} play="once" playKey={idx} />
+                  <NumberRollup value={Math.min(EARN.lessonMax, EARN.lessonMin + xp)} prefix="+" duration={700} type="heading" style={{ color: theme.iconGold, fontSize: FontSize.body }} />
+                </View>
+              </RewardPop>
+              <RewardPop delay={1500}>
                 <View style={[styles.xpChip, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
                   <UIcon name="flame" size={18} color={theme.streak} />
                   <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: FontSize.subhead }} />
