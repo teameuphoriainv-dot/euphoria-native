@@ -786,7 +786,7 @@ export default function Onboarding() {
                     ? 'Back to learning'
                     : offersTrial
                       ? `Start my ${TRIAL_DAYS}-day free trial`
-                      : `Get Euphoria Pro — ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
+                      : `Get Euphoria Pro · ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
                   : 'Continue'
             }
             full

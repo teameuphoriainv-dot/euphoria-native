@@ -461,7 +461,7 @@ export default function Home() {
 
         {/* The hero — the next real lesson */}
         <RiseIn delay={120}>
-          <Card elevated style={[styles.hero, { shadowColor: accent, borderColor: accent + '30' }]} tint={accent}>
+          <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
             {next ? (
               <>
                 {/*
@@ -722,7 +722,17 @@ const styles = StyleSheet.create({
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
   dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  hero: { paddingVertical: Spacing.three, borderWidth: 1, shadowOpacity: 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
+  /*
+   * HARD-CUT depth, zero blur. This was `shadowColor: accent` with `shadowRadius: 30,
+   * shadowOpacity: 0.3` — a 30px halo in the course's own hue behind the biggest card on Home.
+   * That is the exact thing the design doc rejects ("they can't have the vibe-coded glow behind
+   * them"), and it is the same defect that was removed from the CTA, just on a card instead.
+   *
+   * The card still has depth: a solid near-black shadow at radius 0 reads as an object sitting
+   * above the surface, which is the SlabButton language. The accent keeps carrying identity
+   * through the tint and the border, where it belongs.
+   */
+  hero: { paddingVertical: Spacing.three, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.55, shadowRadius: 0, shadowOffset: { width: 0, height: 5 } },
   /* 22/28, lineHeight pinned to the override. Was 26 on `display` (lineHeight 40): the hero
      card ate 55% of the viewport and pushed the new YOUR PATH rail under the tab bar. None of
      the six reference home screens uses a hero this large. */

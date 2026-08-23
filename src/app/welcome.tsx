@@ -61,7 +61,7 @@ export default function Welcome() {
         <Animated.View entering={FadeIn.delay(900).duration(420)}>
           <ThemedText type="display" style={styles.title}>Hi, I&apos;m Atlas!</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
-            I&apos;ll be your personal investing coach — one calm lesson at a time.
+            I&apos;ll be your personal investing coach. One calm lesson at a time.
           </ThemedText>
         </Animated.View>
       </View>

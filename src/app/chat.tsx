@@ -199,7 +199,7 @@ export default function ChatScreen() {
           <Atlas size={110} expression="watching" interactive={false} idle />
           <ThemedText type="title" style={styles.expiredTitle}>Your free {TRIAL_DAYS} days are up.</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.expiredSub}>
-            Euphoria Pro makes Atlas unlimited — every question, no counter.
+            Euphoria Pro makes Atlas unlimited. Every question, no counter.
           </ThemedText>
         </View>
         <View style={styles.expiredFooter}>
@@ -388,7 +388,7 @@ export default function ChatScreen() {
             >
               <UIcon name="sparkle" size={16} color={theme.iconLilac} />
               <ThemedText type="small" style={{ flex: 1, color: theme.iconLilac }}>
-                {left === 1 ? '1 free question left' : `${left} free questions left`} — go Pro for unlimited.
+                {left === 1 ? '1 free question left' : `${left} free questions left`}. Go Pro for unlimited.
               </ThemedText>
               <UIcon name="arrowRight" size={15} color={theme.iconLilac} />
             </Pressable>
@@ -411,7 +411,7 @@ export default function ChatScreen() {
             <View style={[styles.limit, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <ThemedText type="bodyMedium">You&apos;ve used your {FREE_ATLAS_MESSAGES} free questions.</ThemedText>
               <ThemedText type="small" themeColor="mutedForeground" style={styles.limitSub}>
-                Go Pro to keep going — every lesson unlocked too.
+                Go Pro to keep going. Every lesson unlocked too.
               </ThemedText>
               <SlabButton
                 label="See Pro"
