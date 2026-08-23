@@ -127,3 +127,21 @@ nothing for an installed binary. It needs, in order:
 
 Deploying a server is an owner decision (it costs money and creates a public endpoint), so it is
 flagged rather than done.
+
+---
+## N20 — API ORIGIN DEPLOYED AND WIRED, 2026-08-23
+
+Owner authorised deploying to EAS Hosting.
+
+- `npx expo export --platform web` + `npx eas deploy --prod` → **https://euphoria-native.expo.app**
+- **VERIFIED the endpoint works before wiring anything to it.** `POST /api/chat` returned a real
+  Gemini answer in Atlas's own voice: "Compound interest is earning interest on your interest...
+  Does that make sense so far?" So the model, the key and the route are all good.
+- `EXPO_PUBLIC_API_URL` created in **production, preview AND development** (verified 1 occurrence
+  each). It was previously absent from all three, which is the entire cause of N20.
+
+**STILL NEEDS A BUILD.** `EXPO_PUBLIC_*` is inlined at BUILD time. Build 13 was compiled before the
+variable existed, so Atlas is still dark on it, and no OTA can change that. Build 14 will carry it.
+
+Note `/api/market` answers 400 `bad_action` to a bare query — that is param validation, not a
+failure. The route is up.
