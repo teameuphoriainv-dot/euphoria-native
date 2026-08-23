@@ -24,7 +24,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { QuestMark } from '@/components/art/quest-mark';
 import { Atlas } from '@/components/atlas';
 
 import { ThemedText } from '@/components/themed-text';
@@ -44,12 +43,33 @@ import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { LeagueCrest } from '@/components/league-crest';
 import { TierUpSheet } from '@/components/tier-up-sheet';
-import { PixelSpriteView, coin as coinSprite, flame as flameSprite, targetGoal } from '@/lib/pixel';
+import {
+  PixelSpriteView, book, chartUp, coin as coinSprite, controller,
+  flame as flameSprite, targetGoal, type PixelSprite,
+} from '@/lib/pixel';
+
 import { tierProgress } from '@/lib/league';
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { openAtlasChat } from '@/components/ask-atlas';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+
+/**
+ * Quest art, one sprite per QuestKind.
+ *
+ * Was <QuestMark>, a hand-drawn SVG set written before the pixel system was ported. Same reasoning
+ * as shop-art.tsx's own header records: iOS-only art the shared catalogue does not have is a second
+ * library by another name. Every one of these already existed in sprites.ts.
+ *
+ * `targetGoal` rather than the raw bullseye, because the daily goal is the one quest that also has
+ * a pill in the header — the two should not be different pictures of the same thing.
+ */
+const QUEST_SPRITE: Record<string, PixelSprite> = {
+  lesson: book,
+  goal: targetGoal,
+  trade: chartUp,
+};
+
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -580,7 +600,7 @@ export default function Home() {
                   {q.done ? (
                     <UIcon name="check" size={13} color={theme.primaryForeground} />
                   ) : (
-                    <QuestMark name={q.kind} size={16} color={theme.iconLilac} />
+                    <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={16} />
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
@@ -673,7 +693,9 @@ export default function Home() {
         <RiseIn delay={180}>
           <SpringPressable onPress={() => router.push('/games')} accessibilityRole="button" accessibilityLabel="Games">
             <Card style={styles.gamesCard} tint={theme.iconGold}>
-              <UIcon name="target" size={22} color={theme.iconGold} />
+              {/* Was a TARGET — the daily-goal mark — on the Games card, so two unrelated things wore the
+                  same symbol. A controller says what this is without reading the label. */}
+              <PixelSpriteView sprite={controller} size={22} />
               <View style={{ flex: 1 }}>
                 <ThemedText type="heading" style={{ fontSize: FontSize.body }}>Games</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground">Term match and quick drills</ThemedText>

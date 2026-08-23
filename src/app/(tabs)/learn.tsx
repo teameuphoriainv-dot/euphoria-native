@@ -262,7 +262,7 @@ export default function Learn() {
                     borderWidth: on ? 1.5 : StyleSheet.hairlineWidth,
                   },
                 ]}>
-                <CourseMark id={c.id} size={20} color={on ? cAccent : theme.mutedForeground} />
+                <CourseMark id={c.id} size={20} muted={!on} />
                 <ThemedText
                   type="smallBold"
                   numberOfLines={1}
