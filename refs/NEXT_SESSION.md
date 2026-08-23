@@ -27,10 +27,31 @@ These were settled by explicit question and answer at the end of the previous se
 suggestions and they are not defaults you may reinterpret. If you find yourself wanting to deviate,
 that is a signal to re-read this section, not to improvise.
 
-**1.1 — Feedback arrives as one pasted dump in chat.** Not a file, not drip-fed. The owner will
-paste a large block of prose. Your very first action on receiving it is to parse it into a numbered,
-deduplicated task list. Do that before you fix anything, because the shape of the list determines
-the batching, and because a list is the only way the owner can see progress.
+**1.1 — Feedback arrives as a DOCUMENT CONTAINING SCREENSHOTS plus detailed written notes.**
+Updated 2026-08-22, superseding the earlier "pasted prose" plan. A cofounder has assembled a doc
+with annotated screenshots and specific written critique.
+
+**The screenshots are primary evidence, not decoration.** You must LOOK at every one. A caption
+saying "this looks wrong" is worthless next to the image showing which pixel is wrong. Three
+separate findings in this project's history were fabrications produced by reasoning from a
+description instead of looking, and `AGENTS.md` opens with a whole section about a paywall redesign
+that was built, shipped and reverted because a flow DESCRIPTION was treated as evidence. Do not
+repeat it with your own cofounders' notes.
+
+Getting the doc in, by format:
+- **Google Doc** — authenticate the Google Drive MCP and read it directly; that preserves the
+  inline images.
+- **PDF** — `Read` with the `pages` parameter, max 20 pages per call. It renders images.
+- **Loose screenshots plus text** — have them dropped in `refs/feedback/` and `Read` each one.
+  `.heic` needs converting first: `sips -s format png in.heic --out out.png`.
+- **A video walkthrough** — extract frames with ffmpeg at 1fps and build a contact sheet; that
+  worked well on a 28-second recording in the previous session and is far cheaper than reading
+  frames one at a time.
+
+Your very first action is to parse the whole thing into a numbered, deduplicated task list in
+`refs/FEEDBACK_LOG.md`, **with the relevant screenshot saved and referenced per row**. Do that
+before fixing anything: the shape of the list determines the batching, and it is the only way the
+owner can see progress.
 
 **1.2 — Triage and rank, but fix everything.** The owner's words: *"you actually fix everything.
 There's no reason to defer anything without an actual proper reason."* You may and should order the
@@ -713,6 +734,44 @@ For each surface you touch, capture the web version and the iOS version and put 
 before deciding what "correct" means. Save them under `refs/webapp/` so the comparison survives
 context compaction and the owner can check your reasoning. Where they differ, the web app wins
 unless there is a platform reason it should not — and if you deviate, write down why.
+
+---
+
+## 6.9 THE SIMULTANEOUS WEB / iOS COMPARISON — RUN THIS PER ITEM
+
+The owner's explicit instruction: hold the web app and the iOS app open **at the same time** and
+work item by item across both. Not a one-off tour at the start — a continuous side-by-side for the
+whole session. Cost and context are explicitly not a constraint here; he said so directly.
+
+**The standing setup, established once at session start:**
+
+1. Chrome connected, owner logged into the web app (he must do the login; you cannot).
+2. Metro running and the iOS app live in the simulator, or the dev client on a device.
+3. `refs/webapp/` created for captures.
+
+**Then, for every single feedback item:**
+
+| step | what |
+|---|---|
+| 1 | Read the cofounder's screenshot. Do not skip to the caption. |
+| 2 | Reproduce it on **iOS**. Verify the route with `get_current_route` before trusting any capture. |
+| 3 | Open the **same surface on the web app** and capture it. |
+| 4 | Put the two side by side and decide what "correct" actually is. |
+| 5 | Fix, then re-capture iOS and compare against the web capture again. |
+| 6 | Save both into `refs/webapp/<item-number>-{web,ios}-{before,after}.png`. |
+
+**Why this ordering matters.** A cofounder saying "this feels off" is usually comparing against the
+web product without realising it. If you fix iOS in isolation you will produce something that is
+merely *different* rather than *consistent*, and the same person will report it again next round.
+The web capture is what turns a vague complaint into a specific, checkable target.
+
+**Where they disagree, the web app wins** — unless there is a genuine platform reason (touch
+targets, safe areas, native navigation idiom, iOS HIG). When you deviate, write the reason into the
+log row. An undocumented deviation is indistinguishable from an oversight to the next reader.
+
+**Build the comparison sheet as you go, not at the end.** Context will compact during a session
+this size; the files in `refs/webapp/` are what survive, and they are also how the owner audits
+your judgement without re-testing everything himself.
 
 ---
 
