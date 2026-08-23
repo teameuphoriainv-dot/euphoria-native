@@ -48,6 +48,15 @@ const CATEGORY_RAMPS: Partial<Record<string, readonly string[]>> = {
   Housing: ['#215BB6', '#3A82ED', '#5590EB', '#9CC0F5', '#D5E5FB'],
   // magenta, H320 — an alarm hue that is NOT Credit's rose, so a fraud guide never reads as debt
   'Staying safe': ['#B62194', '#ED3AC4', '#EB55CB', '#F59CE2', '#FBD5F1'],
+  // yellow-green, H80 — far enough from Investing's H158 emerald to never be mistaken for it
+  Insurance: ['#7CB621', '#A8ED3A', '#B0EB55', '#D3F59C', '#EDFBD5'],
+  /*
+   * DESATURATED SLATE, and deliberately the only unsaturated ramp in the set. Every other hue is
+   * spoken for, and rather than squeeze a seventh colour between two existing ones this category
+   * opts out: a car or a wedding is the considered, expensive decision, and a grey-blue band reads
+   * as exactly that beside six bright ones.
+   */
+  'Big purchases': ['#3F4A5C', '#5D6E8A', '#7286A6', '#A9B7C9', '#D8DFE8'],
 };
 
 const RAMP_RE = new RegExp(VIOLET_RAMP.join('|'), 'gi');

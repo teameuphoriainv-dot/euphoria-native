@@ -18,10 +18,13 @@
 import type { DigestCategory, DigestPost } from './digest-content';
 import { DIGEST_POSTS } from './digest-content';
 import { DIGEST_BODIES } from './digest-bodies';
-import { gift, handshake, house, key, paycheck, phone, type PixelSprite } from './pixel';
+import {
+  calculator, car, firstAid, gift, handshake, house, key, lock, paycheck, phone,
+  receipt, scales, taxForm, umbrella, type PixelSprite,
+} from './pixel';
 
 /** Categories iOS adds. Kept apart from DigestCategory so the synced union stays untouched. */
-export type ExtraCategory = 'Earning' | 'Housing' | 'Staying safe';
+export type ExtraCategory = 'Earning' | 'Housing' | 'Staying safe' | 'Insurance' | 'Big purchases';
 export type AnyDigestCategory = DigestCategory | ExtraCategory;
 
 export type ExtraPost = Omit<DigestPost, 'category'> & { category: AnyDigestCategory };
@@ -34,9 +37,89 @@ export const EXTRA_HERO_ART: Record<string, PixelSprite> = {
   'px-house': house,
   'px-phone': phone,
   'px-gift': gift,
+  'px-calculator': calculator,
+  'px-umbrella': umbrella,
+  'px-firstaid': firstAid,
+  'px-car': car,
+  'px-scales': scales,
+  'px-taxform': taxForm,
+  'px-receipt': receipt,
+  'px-lock': lock,
 };
 
 export const EXTRA_POSTS: ExtraPost[] = [
+  {
+    slug: 'what-a-deductible-costs',
+    title: 'What a Deductible Actually Costs You',
+    excerpt: 'A lower premium is not a cheaper policy. The two numbers move against each other, and only one of them shows up on a bad day.',
+    category: 'Insurance',
+    date: '2026-08-23',
+    readMinutes: 3,
+    hero: 'px-calculator',
+  },
+  {
+    slug: 'renters-insurance',
+    title: 'Renters Insurance Is the Cheapest Thing You Will Ever Buy',
+    excerpt: 'It runs about the price of one coffee a month and it is the only thing standing between you and replacing everything you own.',
+    category: 'Insurance',
+    date: '2026-08-23',
+    readMinutes: 3,
+    hero: 'px-umbrella',
+  },
+  {
+    slug: 'four-health-numbers',
+    title: 'Why Health Insurance Has Four Different Numbers',
+    excerpt: 'Premium, deductible, copay, out-of-pocket maximum. Confusing them is how people pick the plan that costs them the most.',
+    category: 'Insurance',
+    date: '2026-08-23',
+    readMinutes: 4,
+    hero: 'px-firstaid',
+  },
+  {
+    slug: 'a-car-costs-more',
+    title: 'A Car Costs About Twice the Sticker Price',
+    excerpt: 'Insurance, fuel, maintenance and depreciation are not extras. They are most of what a car costs, and none of them are on the window.',
+    category: 'Big purchases',
+    date: '2026-08-23',
+    readMinutes: 4,
+    hero: 'px-car',
+  },
+  {
+    slug: 'twenty-four-ten',
+    title: 'The 20/4/10 Rule for Buying a Car',
+    excerpt: 'Three numbers that decide whether a car is a purchase or a problem, and you can check them before you go to the lot.',
+    category: 'Big purchases',
+    date: '2026-08-23',
+    readMinutes: 3,
+    hero: 'px-scales',
+  },
+  {
+    slug: 'freelance-money-1099',
+    title: 'Freelance Money Is Not All Yours',
+    excerpt: 'No employer withheld anything. Roughly a third of every payment already belongs to someone else, and the bill arrives in April.',
+    category: 'Earning',
+    date: '2026-08-23',
+    readMinutes: 4,
+    hero: 'px-taxform',
+  },
+  {
+    slug: 'reading-a-lease',
+    title: 'How to Read a Lease Before You Sign It',
+    excerpt: 'It is the largest contract most people sign before thirty, and almost nobody reads past the rent.',
+    category: 'Housing',
+    date: '2026-08-23',
+    readMinutes: 4,
+    hero: 'px-receipt',
+  },
+  {
+    slug: 'freeze-your-credit',
+    title: 'Freeze Your Credit. It Is Free.',
+    excerpt: 'The single most effective thing you can do against identity theft takes fifteen minutes, costs nothing, and almost nobody does it.',
+    category: 'Staying safe',
+    date: '2026-08-23',
+    readMinutes: 3,
+    hero: 'px-lock',
+  },
   {
     slug: 'gross-vs-net-pay',
     title: 'Why Your First Paycheck Is Smaller Than Your Salary',
@@ -94,6 +177,220 @@ export const EXTRA_POSTS: ExtraPost[] = [
 ];
 
 export const EXTRA_BODIES: Record<string, string> = {
+  'what-a-deductible-costs': `## Two numbers that move against each other
+
+Every insurance policy has a **premium** (what you pay monthly, whether or not anything happens) and a **deductible** (what you pay yourself before the insurer pays anything).
+
+Lower one and the other goes up. There is no plan where both are small, because the deductible is how the insurer decides how much risk you are keeping.
+
+## The arithmetic nobody does
+
+Say two car policies:
+
+- **Plan A:** $120/month, $500 deductible
+- **Plan B:** $85/month, $2,000 deductible
+
+Plan B looks $420 a year cheaper. It is, right up until you have one accident. Then you pay $1,500 more out of pocket, and the "cheaper" plan cost you $1,080 more that year.
+
+> The question is not which premium is lower. It is: **could I write a cheque for the deductible tomorrow without borrowing?**
+
+## How to actually choose
+
+- **If you have savings**, take the higher deductible. You are being paid several hundred a year to carry a risk you can absorb.
+- **If you do not**, take the lower one. A $2,000 deductible you cannot pay is not insurance, it is a bill you have not received yet.
+- **Match the deductible to your emergency fund**, not to the monthly price.
+
+That last line is the whole guide. The right deductible is the largest number you could pay today without it becoming a crisis.`,
+
+  'renters-insurance': `## About the price of one coffee a month
+
+Renters insurance runs roughly $12 to $20 a month in most of the country. It is the best value in personal finance and most renters do not have it, usually because they assume the landlord's policy covers them.
+
+It does not. **The landlord insures the building. You insure everything inside it.**
+
+## What it actually covers
+
+- **Your things**, against fire, theft, burst pipes and storm damage. Add up a laptop, a phone, a bike, clothes and a mattress and most people are past $10,000 without noticing.
+- **Liability**, if someone is hurt in your place and sues. This is the part nobody thinks about and it is the part with no ceiling.
+- **Loss of use.** If the building becomes unlivable, it pays for somewhere to stay while it is repaired.
+
+> The liability cover alone is worth the premium. Everything else is a bonus.
+
+## Two words that change the payout
+
+- **Actual cash value** pays what your five-year-old laptop was worth, which is not much.
+- **Replacement cost** pays what a new equivalent costs.
+
+Replacement cost is a few dollars more a month and it is the entire point of having the policy. Check which one you have.
+
+## Before you buy
+
+- Photograph or film every room. It takes ten minutes and it is what turns a claim into a payment.
+- Check whether your deductible is $500 or $1,000, and read the deductible guide.
+- Ask about bundling it with car insurance. The discount often makes renters insurance close to free.`,
+
+  'four-health-numbers': `## Four numbers, and they do different jobs
+
+Health plans are compared on the wrong number almost every time. There are four, and only understanding all of them tells you what a plan costs.
+
+- **Premium.** Paid monthly, whether or not you see a doctor. The only one that is certain.
+- **Deductible.** What you pay yourself before the plan starts paying.
+- **Copay / coinsurance.** Your share *after* the deductible. A $30 copay per visit, or 20% of the bill.
+- **Out-of-pocket maximum.** The ceiling. Once you hit it, the plan pays 100% for the rest of the year.
+
+## Why the cheapest premium is often the most expensive plan
+
+A plan with a $40 monthly premium and a $7,000 deductible costs $480 a year if you are healthy, and $7,480 if you are not. A plan at $200 a month with a $1,000 deductible costs $2,400 healthy and $3,400 in a bad year.
+
+> The out-of-pocket maximum is the number that tells you the WORST case. Compare those first, then look at premiums.
+
+## The one that matters most
+
+For anyone young and healthy, the honest answer is usually the out-of-pocket maximum, because the realistic scenarios are "nothing happens" or "something serious happens". The middle is rarer than people expect.
+
+## Terms worth knowing before you need them
+
+- **In-network** means the plan negotiated a price. Out of network, that protection is gone and the bill can be several times larger.
+- **Preventive care** (checkups, vaccines, screenings) is usually covered at 100% *before* the deductible. Free, and most people never use it.
+- **HSA** accounts pair with high-deductible plans and are the only account that is untaxed going in, growing, and coming out for medical costs.`,
+
+  'a-car-costs-more': `## The sticker is about half of it
+
+A $20,000 car does not cost $20,000. Over five years it costs closer to $40,000, and every part of the difference is predictable.
+
+## Where the other half goes
+
+- **Depreciation.** The largest cost and the one nobody counts, because no bill arrives. A new car loses roughly 20% in year one and about 60% over five years.
+- **Insurance.** $1,500 to $3,000 a year for a young driver, more in cities.
+- **Fuel.** 12,000 miles a year at 25 mpg is about 480 gallons.
+- **Maintenance and tyres.** Averages $800 to $1,200 a year once a car is out of warranty.
+- **Registration, inspection, parking, tolls.** Small individually and constant.
+
+> Depreciation is why a three-year-old car is usually the best value on the lot. Someone else already absorbed the steepest part of the curve.
+
+## New, used, or lease
+
+- **New** is the most expensive way to own, and you are paying for the first year of depreciation.
+- **Used at three to four years** skips that and still has most of its life left.
+- **Leasing** is renting. It is not cheaper, it is smaller payments for a car you give back.
+
+## The question to ask instead
+
+Not "can I afford the payment?" The payment is designed to be affordable, which is what a longer loan is for.
+
+Ask **"what does this cost me per year, all in?"** Then compare that to what the same money does anywhere else. A car is often the second largest financial decision of someone's twenties, and it is usually made in an afternoon.`,
+
+  'twenty-four-ten': `## Three numbers, checked before you go
+
+The 20/4/10 rule is the shortest reliable test for whether a car is a purchase or a problem.
+
+- **20% down.** Enough deposit that you are not immediately underwater.
+- **4 year loan, maximum.** If you cannot afford it over four years, you cannot afford it.
+- **10% of gross income**, covering the payment AND insurance together.
+
+## Why each number exists
+
+**The 20% stops you owing more than the car is worth.** A car loses about 20% in the first year. Put nothing down and you spend a year or more "underwater", where selling the car does not clear the loan. If it is written off in that window, the insurer pays what the car is worth, and you keep paying the difference.
+
+**The four years is a bluntness test.** Loans stretch to 72 and 84 months now, and they exist to make expensive cars feel affordable. A seven-year loan on a car with a ten-year life means years of paying for something well past its best.
+
+**The 10% keeps a car from eating a life.** On a $50,000 salary that is $416 a month for payment and insurance combined. Not payment alone, which is the mistake dealers are happy to let you make.
+
+> A dealer optimises the monthly payment because that is the number you are watching. Watch the loan LENGTH and the total instead.
+
+## If the numbers do not work
+
+They are telling you something real: this is a more expensive car than your income supports. The answer is a cheaper car, not a longer loan. A longer loan does not make a car affordable, it makes the unaffordability last longer.`,
+
+  'freelance-money-1099': `## Nobody withheld anything
+
+An employer takes tax out before you see it. A client does not. When $2,000 lands from freelance work, somewhere between $500 and $700 of it already belongs to the government, and nothing about your bank balance says so.
+
+This is the single most common way people in their twenties end up owing money they have already spent.
+
+## What is different about 1099 income
+
+- **No withholding.** Nothing is taken automatically. You are responsible for the whole amount.
+- **Self-employment tax.** This is the big one. As an employee you pay 7.65% FICA and your employer quietly pays the other half. Self-employed, you pay **both halves: 15.3%**.
+- **Quarterly estimated payments.** If you will owe more than about $1,000 for the year, the government expects payment four times a year, not once. Missing them adds penalties.
+
+> Rule of thumb: the moment freelance money arrives, move **30%** of it somewhere you will not touch. A separate savings account is enough.
+
+## The part that works in your favour
+
+Self-employed people deduct expenses employees cannot.
+
+- Equipment, software and subscriptions used for the work
+- A genuine home office, calculated on square footage
+- Mileage driven for work, at the standard rate
+- Half of that self-employment tax is itself deductible
+
+Keep receipts as you go. Reconstructing a year of expenses in April is how deductions get abandoned.
+
+## The habit that prevents the problem
+
+Two accounts. Client money lands in one, 30% stays there, the rest moves to the account you actually spend from. It takes one transfer per payment and it turns April from an event into a formality.`,
+
+  'reading-a-lease': `## The biggest contract most people sign before thirty
+
+A lease is usually twelve to twenty pages and almost everyone reads the rent, the dates and nothing else. The clauses that cost money are the ones further in, and they are all negotiable before signing and none of them after.
+
+## Find these seven things before you sign
+
+- **The full monthly cost.** Rent plus any mandatory fees: parking, pet rent, trash, "amenity" or "administrative" fees. The advertised number is often not the number.
+- **What breaking it costs.** Two months rent? The remainder of the term? This is the clause that matters most, because plans change.
+- **Automatic renewal.** Many leases roll into a new fixed term unless you give notice, often 60 days out. Miss it and you are committed for another year.
+- **Who fixes what, and how fast.** Repairs should have a defined process and a timeframe.
+- **The guest and subletting policy**, if you might ever travel or need someone to take over.
+- **How rent increases work** at renewal, if it says anything at all.
+- **The condition report.** If one is attached, fill it in properly. It is the deposit guide's photographs in written form.
+
+> Anything a leasing agent promises verbally is worth nothing. If it matters, it goes in the lease in writing before you sign.
+
+## What you can usually negotiate
+
+More than people think, especially outside peak season: a lower deposit, a fee waived, an earlier move-in, a repair done before you arrive, a shorter first term.
+
+The worst outcome of asking is that the answer is no.
+
+## After you sign
+
+Keep a copy, the signed condition report, your photographs, and every message with the landlord in one place. Most disputes are decided by whoever kept better records.`,
+
+  'freeze-your-credit': `## Fifteen minutes, no cost, almost nobody does it
+
+A credit freeze stops anyone from opening a new account in your name. Lenders cannot pull your file, so an application cannot be approved, so the fraud does not happen.
+
+It has been **free by law across the United States since 2018**. There is no reason not to have one.
+
+## How it works
+
+You freeze your file at each of the three bureaus separately.
+
+- **Equifax**
+- **Experian**
+- **TransUnion**
+
+All three, or it is not a freeze. A thief only needs the one you skipped.
+
+## What it does and does not do
+
+- **Does:** block new credit accounts, most new loans, and most new cards opened in your name.
+- **Does not:** affect your existing cards, your score, your ability to use credit you already have, or your ability to check your own report.
+
+> A freeze is not a lock. "Credit lock" products are sold monthly by the bureaus and do broadly the same thing, for money, with weaker legal backing. Take the free one.
+
+## When you actually need credit
+
+Unfreeze it. It takes minutes online and you can lift it temporarily, for a set window, then it refreezes itself. Applying for an apartment, a phone contract or a car loan is a five-minute detour, once.
+
+## Do it for the people around you too
+
+Children are targeted precisely because nobody checks a nine-year-old's credit for a decade. You can freeze a minor's file as their parent or guardian, and it is the version of this with the longest payoff.
+
+## If something already happened
+
+Go to identitytheft.gov. It is the FTC's site, it is free, and it generates a recovery plan and the affidavit letters that banks accept.`,
   'gross-vs-net-pay': `## The number you agreed to is not the number that arrives
 
 An offer says $52,000 a year. Divided by 26 pay periods, that looks like $2,000 every two weeks. The first payslip says something closer to $1,500, and nothing has gone wrong.

@@ -43,7 +43,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
 import {
-  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, house, paycheck, shield,
+  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, car, house, paycheck, shield, umbrella,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 
@@ -68,6 +68,8 @@ const CATEGORY_ART: Record<AnyDigestCategory, PixelSprite> = {
   Earning: paycheck,
   Housing: house,
   'Staying safe': shield,
+  Insurance: umbrella,
+  'Big purchases': car,
 };
 
 const ALL = 'All';
