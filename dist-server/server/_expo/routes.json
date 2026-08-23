@@ -1,0 +1,266 @@
+{
+  "apiRoutes": [
+    {
+      "file": "_expo/functions/api/chat+api.js",
+      "page": "/api/chat",
+      "namedRegex": "^/api/chat(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "_expo/functions/api/market+api.js",
+      "page": "/api/market",
+      "namedRegex": "^/api/market(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "_expo/functions/api/options+api.js",
+      "page": "/api/options",
+      "namedRegex": "^/api/options(?:/)?$",
+      "routeKeys": {}
+    }
+  ],
+  "htmlRoutes": [
+    {
+      "file": "./index.tsx",
+      "page": "/index",
+      "namedRegex": "^/(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/you.tsx",
+      "page": "/(tabs)/you",
+      "namedRegex": "^(?:/\\(tabs\\))?/you(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/home.tsx",
+      "page": "/(tabs)/home",
+      "namedRegex": "^(?:/\\(tabs\\))?/home(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./news.tsx",
+      "page": "/news",
+      "namedRegex": "^/news(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./chat.tsx",
+      "page": "/chat",
+      "namedRegex": "^/chat(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./auth.tsx",
+      "page": "/auth",
+      "namedRegex": "^/auth(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/trade.tsx",
+      "page": "/(tabs)/trade",
+      "namedRegex": "^(?:/\\(tabs\\))?/trade(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/learn.tsx",
+      "page": "/(tabs)/learn",
+      "namedRegex": "^(?:/\\(tabs\\))?/learn(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./start.tsx",
+      "page": "/start",
+      "namedRegex": "^/start(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./games.tsx",
+      "page": "/games",
+      "namedRegex": "^/games(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/digest.tsx",
+      "page": "/(tabs)/digest",
+      "namedRegex": "^(?:/\\(tabs\\))?/digest(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./search.tsx",
+      "page": "/search",
+      "namedRegex": "^/search(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./reward.tsx",
+      "page": "/reward",
+      "namedRegex": "^/reward(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./lesson.tsx",
+      "page": "/lesson",
+      "namedRegex": "^/lesson(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./league.tsx",
+      "page": "/league",
+      "namedRegex": "^/league(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./welcome.tsx",
+      "page": "/welcome",
+      "namedRegex": "^/welcome(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./options.tsx",
+      "page": "/options",
+      "namedRegex": "^/options(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./friends.tsx",
+      "page": "/friends",
+      "namedRegex": "^/friends(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./courses.tsx",
+      "page": "/courses",
+      "namedRegex": "^/courses(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "expo-router/build/views/Sitemap.js",
+      "page": "/_sitemap",
+      "namedRegex": "^/_sitemap(?:/)?$",
+      "routeKeys": {},
+      "generated": true
+    },
+    {
+      "file": "./dev-beat.tsx",
+      "page": "/dev-beat",
+      "namedRegex": "^/dev\\-beat(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./art-test.tsx",
+      "page": "/art-test",
+      "namedRegex": "^/art\\-test(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./api/_limit.ts",
+      "page": "/api/_limit",
+      "namedRegex": "^/api/_limit(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./api/_chain.ts",
+      "page": "/api/_chain",
+      "namedRegex": "^/api/_chain(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./onboarding.tsx",
+      "page": "/onboarding",
+      "namedRegex": "^/onboarding(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./api/_advice.ts",
+      "page": "/api/_advice",
+      "namedRegex": "^/api/_advice(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./dev-gallery.tsx",
+      "page": "/dev-gallery",
+      "namedRegex": "^/dev\\-gallery(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./why-not-free.tsx",
+      "page": "/why-not-free",
+      "namedRegex": "^/why\\-not\\-free(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./api/_validate.ts",
+      "page": "/api/_validate",
+      "namedRegex": "^/api/_validate(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./api/_identity.ts",
+      "page": "/api/_identity",
+      "namedRegex": "^/api/_identity(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./widget-tutorial.tsx",
+      "page": "/widget-tutorial",
+      "namedRegex": "^/widget\\-tutorial(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./games/term-match.tsx",
+      "page": "/games/term-match",
+      "namedRegex": "^/games/term\\-match(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./explore/compound.tsx",
+      "page": "/explore/compound",
+      "namedRegex": "^/explore/compound(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./api/_entitlement.ts",
+      "page": "/api/_entitlement",
+      "namedRegex": "^/api/_entitlement(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./stock/[sym].tsx",
+      "page": "/stock/[sym]",
+      "namedRegex": "^/stock/(?<sym>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "sym": "sym"
+      }
+    },
+    {
+      "file": "./settings/[section].tsx",
+      "page": "/settings/[section]",
+      "namedRegex": "^/settings/(?<section>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "section": "section"
+      }
+    },
+    {
+      "file": "./digest/[slug].tsx",
+      "page": "/digest/[slug]",
+      "namedRegex": "^/digest/(?<slug>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "slug": "slug"
+      }
+    }
+  ],
+  "notFoundRoutes": [
+    {
+      "file": "expo-router/build/views/Unmatched.js",
+      "page": "/+not-found",
+      "namedRegex": "^(?:/(?<notfound>.+?))?(?:/)?$",
+      "routeKeys": {
+        "notfound": "not-found"
+      },
+      "generated": true
+    }
+  ],
+  "redirects": [],
+  "rewrites": []
+}
