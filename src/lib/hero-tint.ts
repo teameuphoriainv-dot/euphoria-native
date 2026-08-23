@@ -18,14 +18,18 @@
  * ~20% of content-band art brand-hued. That is the Brilliant benchmark (20.2%),
  * not an oversight. See refs/MOTION_RESEARCH_V3.md §D2.
  */
-import type { DigestCategory } from './digest-content';
 import { heroSvg } from './digest-heroes';
 
 /** The violet ramp every synced illustration is built from, darkest first. */
 const VIOLET_RAMP = ['#5B21B6', '#7C3AED', '#A855EB', '#C89CF5', '#E7D5FB'] as const;
 
 /** Hue-rotated ramps, index-aligned to VIOLET_RAMP. Hues come from COURSE_ACCENTS. */
-const CATEGORY_RAMPS: Partial<Record<DigestCategory, readonly string[]>> = {
+/*
+ * Keyed by plain string, not DigestCategory. iOS adds its own categories in digest-extra.ts, and
+ * that module imports the pixel catalogue — narrowing this to a union that lives in digest-extra
+ * would make hero-tint depend on it and close an import cycle. The categories are data either way.
+ */
+const CATEGORY_RAMPS: Partial<Record<string, readonly string[]>> = {
   // risk / alternative-investments rose, H351
   Credit: ['#B62137', '#ED3A54', '#EB556B', '#F59CA9', '#FBD5DB'],
   // global-economics cyan, H188
@@ -35,6 +39,15 @@ const CATEGORY_RAMPS: Partial<Record<DigestCategory, readonly string[]>> = {
   // investing-fundamentals green, H158
   Investing: ['#21B680', '#3AEDAC', '#55EBB4', '#9CF5D5', '#D5FBED'],
   // 'Money basics' intentionally omitted -> keeps personal-finance violet.
+
+  // ── categories added on iOS (digest-extra.ts). Hues chosen to sit clear of the four above, so
+  //    no two category bands read as the same colour when the library is scrolled.
+  // warm orange, H25 — money coming IN, deliberately warmer than Strategy's amber
+  Earning: ['#B65221', '#ED7A3A', '#EB8A55', '#F5BE9C', '#FBE4D5'],
+  // blue, H215 — the one cool hue not already spoken for by Markets' cyan
+  Housing: ['#215BB6', '#3A82ED', '#5590EB', '#9CC0F5', '#D5E5FB'],
+  // magenta, H320 — an alarm hue that is NOT Credit's rose, so a fraud guide never reads as debt
+  'Staying safe': ['#B62194', '#ED3AC4', '#EB55CB', '#F59CE2', '#FBD5F1'],
 };
 
 const RAMP_RE = new RegExp(VIOLET_RAMP.join('|'), 'gi');
@@ -42,7 +55,7 @@ const RAMP_RE = new RegExp(VIOLET_RAMP.join('|'), 'gi');
 /** key + category -> tinted svg. Synced art is static, so this never invalidates. */
 const cache = new Map<string, string | undefined>();
 
-export function tintedHero(key: string, category: DigestCategory): string | undefined {
+export function tintedHero(key: string, category: string): string | undefined {
   const cacheKey = `${category}\0${key}`;
   if (cache.has(cacheKey)) return cache.get(cacheKey);
 
@@ -72,6 +85,6 @@ export function tintedHero(key: string, category: DigestCategory): string | unde
  *
  * Returns undefined for 'Money basics' (deliberately untinted) — callers keep theme.primary.
  */
-export function heroTint(category: DigestCategory): string | undefined {
+export function heroTint(category: string): string | undefined {
   return CATEGORY_RAMPS[category]?.[2];
 }

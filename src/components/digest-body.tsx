@@ -130,7 +130,7 @@ function H2({ text }: { text: string }) {
 /** Renders an arbitrary run of blocks. The paginated reader uses this per section.
  *  `category` selects the figure's hue ramp — see lib/hero-tint.ts for why tinting
  *  happens at render time rather than in the synced artwork. */
-export function Blocks({ blocks, category }: { blocks: Block[]; category: DigestCategory }) {
+export function Blocks({ blocks, category }: { blocks: Block[]; category: string }) {
   const theme = useTheme();
   // a "Key Takeaways" heading plus the list under it renders as one callout
   const takeIdx = blocks.findIndex((b) => b.kind === 'h2' && /^key takeaways$/i.test(b.text));

@@ -24,8 +24,9 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
 import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
-import { bodyFor } from '@/lib/digest-bodies';
-import { DIGEST_POSTS } from '@/lib/digest-content';
+// The MERGED lookup: iOS-added guides live in digest-extra.ts, and the synced bodyFor cannot see them.
+import { allBodyFor as bodyFor, ALL_DIGEST_POSTS, EXTRA_HERO_ART } from '@/lib/digest-extra';
+import { PixelSpriteView } from '@/lib/pixel';
 import { lessonForGuide } from '@/lib/digest-lessons';
 import { ReadReward } from "@/components/read-reward";
 import { heroTint, tintedHero } from '@/lib/hero-tint';
@@ -102,7 +103,7 @@ export default function DigestArticle() {
   const { width } = useWindowDimensions();
   const coverH = Math.round((width - Spacing.three * 2) / FIGURE_RATIO);
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const post = DIGEST_POSTS.find((p) => p.slug === slug);
+  const post = ALL_DIGEST_POSTS.find((p) => p.slug === slug);
   const markPostRead = useApp((s) => s.markPostRead);
   // a getter returning a NUMBER is a safe selector; one that builds an array is not. This previews
   // the streak the read is about to produce, because the reward renders before the write lands.
@@ -161,6 +162,7 @@ export default function DigestArticle() {
   }
 
   const card = i > 0 ? cards[i - 1] : null;
+  const heroSprite = EXTRA_HERO_ART[post.hero];
   const xml = tintedHero(post.hero, post.category);
 
   return (
@@ -200,7 +202,16 @@ export default function DigestArticle() {
              * The cover keeps delay 0 so nothing feels slower to start than it did before.
              */
             <>
-              {xml ? (
+              {/* A `px-` hero is an iOS-written guide and renders as a sprite. Centred rather than
+                  stretched: a 16x16 sprite blown to full cover width would be four enormous
+                  squares. See digest-extra.ts. */}
+              {heroSprite ? (
+                <RiseIn>
+                  <View style={[styles.cover, { height: coverH, backgroundColor: (heroTint(post.category) ?? theme.primary) + '14', alignItems: 'center', justifyContent: 'center' }]}>
+                    <PixelSpriteView sprite={heroSprite} size={Math.round(coverH * 0.5)} />
+                  </View>
+                </RiseIn>
+              ) : xml ? (
                 <RiseIn>
                   <View style={[styles.cover, { height: coverH, backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
                     <SvgXml xml={xml} width="100%" height={coverH} />

@@ -28,7 +28,13 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
-import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost, type DigestCategory } from '@/lib/digest-content';
+import {
+  ALL_DIGEST_CATEGORIES as DIGEST_CATEGORIES,
+  ALL_DIGEST_POSTS as DIGEST_POSTS,
+  EXTRA_HERO_ART,
+  type AnyDigestCategory,
+  type ExtraPost,
+} from '@/lib/digest-extra';
 import { pickToday } from '@/lib/digest-pick';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { dayKey, useApp } from '@/lib/store';
@@ -37,7 +43,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
 import {
-  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite,
+  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, house, paycheck, shield,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 
@@ -52,17 +58,30 @@ import {
  * category added without a mark is a COMPILE error rather than a blank slot — the same reasoning
  * as StatMark, and the reason this needs no pin.
  */
-const CATEGORY_ART: Record<DigestCategory, PixelSprite> = {
+const CATEGORY_ART: Record<AnyDigestCategory, PixelSprite> = {
   Credit: creditCard,
   Strategy: compass,
   Investing: chartUp,
   'Money basics': wallet,
   Markets: stockTicker,
+  // ── iOS-added categories (digest-extra.ts)
+  Earning: paycheck,
+  Housing: house,
+  'Staying safe': shield,
 };
 
 const ALL = 'All';
 
-function Hero({ post, size }: { post: DigestPost; size: number }) {
+function Hero({ post, size }: { post: ExtraPost; size: number }) {
+  /*
+   * TWO KINDS OF HERO, and the key tells them apart. The 35 synced guides carry SVG scenes from
+   * the web repo. Guides added on iOS carry a `px-` key that resolves to a sprite instead, because
+   * the synced art cannot be changed from here and new art should not be written in a style the
+   * rest of the app has left behind.
+   */
+  const sprite = EXTRA_HERO_ART[post.hero];
+  if (sprite) return <PixelSpriteView sprite={sprite} size={Math.round(size * 0.66)} />;
+
   const xml = tintedHero(post.hero, post.category);
   if (!xml) return null;
   // default preserveAspectRatio letterboxes inside the box, so the illustration never distorts
@@ -70,7 +89,7 @@ function Hero({ post, size }: { post: DigestPost; size: number }) {
 }
 
 /** Today's guide, before it has been read. Brilliant's big-hero treatment. */
-function TodayCard({ post }: { post: DigestPost }) {
+function TodayCard({ post }: { post: ExtraPost }) {
   const theme = useTheme();
   return (
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)}>
@@ -136,7 +155,7 @@ function TodayCard({ post }: { post: DigestPost }) {
  * says the day is closed, shows what the read bought, and points at tomorrow. The library below
  * stays fully readable: this frames the habit, it does not gate the content.
  */
-function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
+function DoneCard({ post, streak }: { post: ExtraPost; streak: number }) {
   const theme = useTheme();
   return (
     <Card style={styles.today} tint={theme.success} elevated>
@@ -192,7 +211,7 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
 }
 
 /** Brilliant's unit card: rich illustration on the LEFT, title beside it, at a size that reads. */
-function GuideCard({ post, read }: { post: DigestPost; read: boolean }) {
+function GuideCard({ post, read }: { post: ExtraPost; read: boolean }) {
   const theme = useTheme();
   return (
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)} scaleTo={0.97}>
