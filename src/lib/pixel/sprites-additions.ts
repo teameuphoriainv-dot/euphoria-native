@@ -19,6 +19,7 @@
  * rather than K — the web's own index says K is invisible against the app's dark canvas.
  */
 import type { PixelSprite } from './types';
+import { target } from './sprites';
 
 export const themeNeon: PixelSprite = {
   id: 'theme-neon',
@@ -171,3 +172,23 @@ export const frameRainbow: PixelSprite = {
 };
 
 export const ADDED_SPRITES: PixelSprite[] = [themeNeon, themeMidnight, themeGold, frameFire, frameDiamond, frameRainbow];
+
+/**
+ * The daily-goal target, RETINTED — not redrawn.
+ *
+ * The catalogue's `target` is a red-and-white bullseye, and red in this palette is documented as
+ * "the negative sentiment accent". A red target on the daily-goal pill therefore reads as a loss
+ * indicator on the one control that exists to say you are winning, and it clashes with the pill's
+ * own orchid tint.
+ *
+ * A palette override reuses the existing art rather than adding a second 16x16 of the same shape,
+ * so if the bullseye is ever redrawn this follows it automatically. Built once at module scope:
+ * compileSprite caches on object identity, so deriving this per render would miss every time.
+ * Gold centre because the centre is the thing you are trying to hit.
+ */
+export const targetGoal: PixelSprite = {
+  ...target,
+  id: 'target-goal',
+  name: 'Daily goal target',
+  palette: { r: '#8028C3', w: '#E3C4FA', R: '#F0A72B' },
+};

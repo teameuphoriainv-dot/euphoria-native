@@ -43,7 +43,7 @@ import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { LeagueCrest } from '@/components/league-crest';
-import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
+import { PixelSpriteView, coin as coinSprite, flame as flameSprite, targetGoal } from '@/lib/pixel';
 import { tierProgress } from '@/lib/league';
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -265,7 +265,10 @@ export default function Home() {
                 accessibilityRole="button"
                 accessibilityLabel={`${String(coins)} Euphorium. Open the shop.`}
                 style={[styles.pill, { backgroundColor: theme.iconGold + '18', borderColor: theme.iconGold + '40' }]}>
-                <UIcon name="sparkle" size={14} color={theme.iconGold} />
+                {/* The catalogue's coin, not a vector sparkle. The balance is currency, so it should
+                    carry the same mark the Shop prices it in. Still, not animated: a balance sitting
+                    there is not a reaction. */}
+                <PixelSpriteView sprite={coinSprite} size={15} />
                 <ThemedText type="smallBold" style={{ color: theme.iconGold, fontSize: FontSize.caption }}>{coins}</ThemedText>
               </SpringPressable>
               <View
@@ -287,7 +290,7 @@ export default function Home() {
                 accessibilityLabel={`${String(minutesDone)} of ${String(goalMinutes)} minutes today`}
                 accessibilityRole="text"
                 style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
-                <UIcon name="target" size={14} color={theme.iconLilac} />
+                <PixelSpriteView sprite={targetGoal} size={15} />
                 <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.caption }}>{minutesDone}/{goalMinutes}</ThemedText>
               </View>
             </View>

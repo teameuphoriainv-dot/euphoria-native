@@ -25,6 +25,7 @@ import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
 import { EARN, SHOP_CATEGORIES, SHOP_ITEMS, type Rarity, type ShopCategory } from '@/lib/shop-items';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -71,7 +72,7 @@ export default function Shop() {
           <ThemedText type="small" themeColor="mutedForeground">Spend your coins on boosts and looks</ThemedText>
         </View>
         <View style={[styles.balance, { borderColor: theme.iconGold + '55', backgroundColor: theme.iconGold + '18' }]}>
-          <UIcon name="sparkle" size={14} color={theme.iconGold} />
+          <PixelSpriteView sprite={coinSprite} size={15} />
           <ThemedText type="smallBold" style={[NUM, { color: theme.iconGold }]}>{coins}</ThemedText>
         </View>
       </View>
@@ -145,7 +146,7 @@ export default function Shop() {
                       <ThemedText type="small" themeColor="mutedForeground" numberOfLines={3} style={{ marginTop: 2 }}>{item.description}</ThemedText>
                       <View style={styles.priceRow}>
                         <View style={styles.price}>
-                          <UIcon name="sparkle" size={13} color={theme.iconGold} />
+                          <PixelSpriteView sprite={coinSprite} size={14} />
                           <ThemedText type="smallBold" style={[NUM, { color: theme.iconGold }]}>{item.price}</ThemedText>
                         </View>
                         {isEquipped ? (
