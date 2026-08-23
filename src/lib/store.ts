@@ -16,6 +16,7 @@ import { resolveStreak } from './streak-freeze';
 import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { outcomeFor, type WeekOutcome } from './league-week';
+import { TIER_UP_BONUS, tierForXp } from './league';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -198,10 +199,34 @@ const snapshot = (
   return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
 };
 
-const applyXp = (s: { xp: number; weeklyXp: number; weekStart: string }, n: number) => {
+const applyXp = (
+  s: { xp: number; weeklyXp: number; weekStart: string; pendingTierUp: string | null },
+  n: number,
+) => {
   const wk = weekKey();
   const carried = s.weekStart === wk ? s.weeklyXp : 0;
-  return { xp: s.xp + n, weeklyXp: carried + n, weekStart: wk };
+  const xp = s.xp + n;
+  /*
+   * TIER CROSSINGS ARE DETECTED HERE, in the one function every XP award already routes through,
+   * for the same reason the awards themselves were centralised: an award that skips applyXp makes
+   * lifetime and weekly totals diverge, and one that skipped this would silently swallow the
+   * milestone. There is no second place to remember.
+   *
+   * `?? s.pendingTierUp` is load bearing: returning null on a non-crossing award would CLEAR a
+   * milestone the user has not seen yet — finish a lesson that promotes you, earn a game bonus
+   * before opening Home, and the celebration is gone forever.
+   *
+   * Paid on claim, not here. One caller sets `coins` immediately before spreading this
+   * (`coins: s.coins + EARN.gameWinMin, ...applyXp(...)`), so returning coins from applyXp would
+   * silently override it and eat that award.
+   */
+  const crossed = tierForXp(xp).name !== tierForXp(s.xp).name;
+  return {
+    xp,
+    weeklyXp: carried + n,
+    weekStart: wk,
+    pendingTierUp: crossed ? tierForXp(xp).name : s.pendingTierUp,
+  };
 };
 
 /**
@@ -371,6 +396,10 @@ export type AppState = {
    * nothing. See league-week.ts.
    */
   resolveLeagueWeek: () => void;
+  /** A tier crossed but not yet celebrated. Persisted, so closing the app cannot swallow it. */
+  pendingTierUp: string | null;
+  /** Show the celebration, pay TIER_UP_BONUS, clear it. Idempotent: a second call pays nothing. */
+  claimTierUp: () => void;
   /** Local day the game bonus was last paid, '' if never. */
   lastGameDay: string;
   /** Ids of people YOU follow. One-directional; no approval needed. */
@@ -615,6 +644,7 @@ export const useApp = create<AppState>()(
       weekStart: '',
       lastWeekResolved: '',
       lastWeekOutcome: null,
+      pendingTierUp: null,
       lastGameDay: '',
       lastQuestDay: '',
       following: [],
@@ -790,6 +820,11 @@ export const useApp = create<AppState>()(
       streakIfCompletedToday: () => nextStreak(get().streak, get().lastActiveDay),
 
       weeklyXpNow: () => (get().weekStart === weekKey() ? get().weeklyXp : 0),
+
+      claimTierUp: () =>
+        // Guarded rather than trusting the caller: the sheet's dismiss and its button can both
+        // fire, and paying twice for one crossing is exactly the kind of thing nobody notices.
+        set((s) => (s.pendingTierUp ? { coins: s.coins + TIER_UP_BONUS, pendingTierUp: null } : s)),
 
       resolveLeagueWeek: () =>
         set((s) => {
@@ -1058,7 +1093,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
@@ -1125,10 +1160,22 @@ if (__DEV__) {
   eq(weekKey(new Date('2026-08-10T12:00:00Z')), '2026-08-10', 'the next Monday starts a new week');
 
   const wk = weekKey();
-  eq(applyXp({ xp: 10, weeklyXp: 5, weekStart: wk }, 50).weeklyXp, 55, 'same week accumulates');
-  eq(applyXp({ xp: 10, weeklyXp: 5, weekStart: wk }, 50).xp, 60, 'lifetime always accumulates');
-  eq(applyXp({ xp: 10, weeklyXp: 900, weekStart: '1999-01-04' }, 50).weeklyXp, 50, 'a stale week resets');
-  eq(applyXp({ xp: 10, weeklyXp: 900, weekStart: '1999-01-04' }, 50).xp, 60, 'a stale week never resets lifetime');
+  const at = (xp: number, weeklyXp: number, weekStart: string, pendingTierUp: string | null = null) =>
+    ({ xp, weeklyXp, weekStart, pendingTierUp });
+  eq(applyXp(at(10, 5, wk), 50).weeklyXp, 55, 'same week accumulates');
+  eq(applyXp(at(10, 5, wk), 50).xp, 60, 'lifetime always accumulates');
+  eq(applyXp(at(10, 900, '1999-01-04'), 50).weeklyXp, 50, 'a stale week resets');
+  eq(applyXp(at(10, 900, '1999-01-04'), 50).xp, 60, 'a stale week never resets lifetime');
+
+  // Tier crossings. The preserve case is the one that actually bit: an award that does not cross
+  // must never clear a milestone the user has not been shown yet.
+  eq(applyXp(at(10, 5, wk), 5).pendingTierUp, null, 'an award inside one tier raises nothing');
+  eq(applyXp(at(499, 5, wk), 1).pendingTierUp, 'Investor', 'crossing a threshold raises the tier');
+  eq(applyXp(at(498, 5, wk), 1).pendingTierUp, null, 'stopping one short of a threshold raises nothing');
+  eq(
+    applyXp(at(600, 5, wk, 'Investor'), 10).pendingTierUp, 'Investor',
+    'a non-crossing award must PRESERVE an unseen milestone, not clear it',
+  );
 }
 
 // The follow graph has exactly two failure modes worth guarding: a double-follow that duplicates

@@ -15,6 +15,16 @@
  */
 export type Tier = { name: string; color: string; minXp: number };
 
+/**
+ * Paid once per tier crossed, on claim.
+ *
+ * BOUNDED BY CONSTRUCTION, which is the whole reason it can be this large: there are seven tiers
+ * and the first is where everyone starts, so this can be collected exactly six times in a lifetime
+ * — 1500 Euphorium, ever. The weekly bar is the repeatable income (150/week, capped); this is the
+ * milestone, and a milestone that pays less than a good week would not read as one.
+ */
+export const TIER_UP_BONUS = 250;
+
 /** Career ladder rather than market jargon: a beginner should be offered a role to aspire to,
  *  not vocabulary ("small cap", "blue chip") they have not been taught yet. */
 export const TIERS: Tier[] = [

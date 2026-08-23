@@ -43,6 +43,7 @@ import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { LeagueCrest } from '@/components/league-crest';
+import { TierUpSheet } from '@/components/tier-up-sheet';
 import { PixelSpriteView, coin as coinSprite, flame as flameSprite, targetGoal } from '@/lib/pixel';
 import { tierProgress } from '@/lib/league';
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
@@ -108,6 +109,10 @@ export default function Home() {
    * never be paid, and the whole point is that the ladder resolves whether or not you watch it.
    */
   const resolveLeagueWeek = useApp((s) => s.resolveLeagueWeek);
+  // Raised by applyXp wherever the crossing happened — a lesson, a game, a guide — and shown here
+  // rather than at the award site, so no single screen has to remember to celebrate.
+  const pendingTierUp = useApp((s) => s.pendingTierUp);
+  const claimTierUp = useApp((s) => s.claimTierUp);
   useEffect(() => {
     resolveLeagueWeek();
   }, [resolveLeagueWeek]);
@@ -702,6 +707,10 @@ export default function Home() {
           }}
         />
       )}
+
+      {/* Crossing a tier is the rarest thing a user does — six times in a lifetime — and until now
+          it happened in total silence. Mounted last so it sits above everything on Home. */}
+      <TierUpSheet tier={pendingTierUp} onClaim={claimTierUp} />
     </SafeAreaView>
   );
 }
