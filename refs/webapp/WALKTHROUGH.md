@@ -62,3 +62,50 @@ instead of measuring real elapsed time, this is where the wrong number comes fro
 Trade, Games, Shop, Classes, the wrong/right answer paths, lesson completion and reward.
 Stopped here deliberately — the divergence above is large enough to need a decision before
 more comparison is useful.
+
+---
+# WEB TABS WALKED 2026-08-23 — Games and Shop
+Captured live, signed in. These two answer feedback items outright.
+
+## Games — a 14-game library, not a feature
+Header: **"Game Library · 14 interactive finance games"**, with search.
+Gating banner: **"5 of 14 games available on Free"** with an Upgrade link.
+
+FLAGSHIP GAMES seen:
+| game | tag | note |
+|---|---|---|
+| Trading Duel | **Live Multiplayer** | "Create a room, share the code, and outtrade your friends on the same server-run market in a five minute round." Real-time rooms. |
+| Trend Master | Featured | "Master 20+ real chart patterns from uptrends to head-and-shoulders." |
+| Invest Life | Epic · **locked** | "Live an entire financial life from 18 to retirement and beyond." |
+| Black Swan | Strategy · **locked** | "Navigate your economy through 10 rounds of unpredictable crises." |
+
+**iOS has ONE game — `src/app/games/term-match.tsx`.**
+
+This reframes **N12**. "Games are buried — only discoverable by clicking into Profile" is true, but
+the deeper fact is that iOS has ~1 of the 14 games that exist on web. Surfacing the entry (done,
+2026-08-23) makes the door visible; it does not put anything behind it. Games are also a PAID
+surface on web (9 of 14 locked), so this is monetisation, not just engagement.
+
+## Shop — the in-app currency, fully specified. This IS N21.
+**"Euphorium Shop — Spend your coins on boosts and looks."** Balance shown top-right.
+
+HOW TO EARN EUPHORIUM (four tiles, verbatim):
+| action | award |
+|---|---|
+| Complete lessons | **+50–100** |
+| Daily streaks | **+25** |
+| Win games | **+10–50** |
+| Daily challenges | **+30** |
+
+Three catalogue tabs: **Power-Ups · Avatar Items · Profile**.
+Items carry RARITY tags (Common / Uncommon / Rare / Epic) and two prices — a coin price and a
+second lower number beside a padlock, which is very likely the Pro price.
+
+Seen: "Double XP (1 Hour)" Uncommon **200** (190) · "Double XP (3 Hours)" Rare **450** (440).
+
+**N21 said "a separate game-style currency (like the web app has)". This is it, named and priced.**
+Do not invent a parallel economy for iOS — the award rates above are the spec, and iOS already has
+the four earn events (lessons, streaks, games, daily quests) wired.
+
+## Still not walked
+Trade, Classes.
