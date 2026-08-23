@@ -36,6 +36,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { PixelSpriteView, bolt, flame as flameSprite } from '@/lib/pixel';
 
 const ALL = 'All';
 
@@ -137,14 +138,17 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
             sits at 0 — show them the XP and say nothing about a streak they do not have. */}
         {streak > 0 ? (
           <View style={[styles.chipStat, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-            <UIcon name="flame" size={16} color={theme.streak} />
+            {/* The same pixel flame the Home header wears. These two chips carry exactly the
+                Home pills' semantics — streak and XP — so they should not be a different picture
+                of the same thing one tab over. */}
+            <PixelSpriteView sprite={flameSprite} size={16} />
             <ThemedText type="smallBold" style={{ color: theme.streak }}>
               {streak} day streak
             </ThemedText>
           </View>
         ) : null}
         <View style={[styles.chipStat, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-          <UIcon name="sparkle" size={16} color={theme.iconLilac} />
+          <PixelSpriteView sprite={bolt} size={16} />
           <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
             +25 XP
           </ThemedText>
