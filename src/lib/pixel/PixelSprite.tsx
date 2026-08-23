@@ -77,17 +77,43 @@ export function PixelSpriteView({
   const still = compileSprite(sprite, cv);
   const frames = compileFrames(sprite, cv);
   const [frame, setFrame] = useState(0);
+
+  /*
+   * LATEST-REF, WRITTEN IN AN EFFECT. Assigning `done.current` during render is a ref write in the
+   * render phase, which React can discard under Strict Mode and concurrent rendering — the callback
+   * would silently never fire. The effect has no dependency array on purpose: it must run after
+   * EVERY render so the interval's closure always calls the newest `onAnimationEnd`, which is the
+   * entire reason this is a ref rather than a dependency.
+   */
   const done = useRef(onAnimationEnd);
-  done.current = onAnimationEnd;
+  useEffect(() => {
+    done.current = onAnimationEnd;
+  });
 
   const animated = play !== 'none' && !reduced && frames.length > 1;
 
-  useEffect(() => {
-    if (!animated) {
-      setFrame(0);
-      return;
-    }
+  /*
+   * RESTARTING THE SEQUENCE IS A RENDER-PHASE ADJUSTMENT, NOT AN EFFECT.
+   *
+   * The sequence must start at frame 0 whenever the run changes — a new `playKey` is how a caller
+   * replays a "once" animation (the coin on a balance change, the flame on a streak). That used to
+   * be `setFrame(0)` inside the interval effect, which is a synchronous setState in an effect: it
+   * schedules a SECOND render pass for every sprite on mount, and this repo has an open
+   * idle-render investigation measuring 4-5 commits per second while completely idle.
+   *
+   * Comparing the run against the previous one during render is React's own documented pattern for
+   * adjusting state when a prop changes. It re-renders immediately with the corrected value instead
+   * of painting a stale frame and then correcting it.
+   */
+  const runId = `${String(animated)}|${play}|${String(playKey ?? '')}`;
+  const [prevRun, setPrevRun] = useState(runId);
+  if (runId !== prevRun) {
+    setPrevRun(runId);
     setFrame(0);
+  }
+
+  useEffect(() => {
+    if (!animated) return;
     const ms = frameMs ?? sprite.frameMs ?? 120;
     const id = setInterval(() => {
       setFrame((f) => {
