@@ -146,7 +146,26 @@ const BLOCKERS: Choice[] = [
  * The en dashes below are NUMERIC RANGES and stay — see the em-dash pass, which deliberately left
  * these alone. An en dash between two numbers is correct typography, not the roughness reported.
  */
+/**
+ * THE AGE FLOOR (N3), and why "Under 13" is on the list rather than absent.
+ *
+ * COPPA turns on ACTUAL KNOWLEDGE: an operator may not knowingly collect personal information
+ * from a child under 13. Euphoria's onboarding collects a name, an age band, goals and an
+ * experience level, so the floor has to be real.
+ *
+ * The tempting version is to simply start the list at 13–17 and call the floor implied. That is
+ * not a gate — it is a list with no way to answer honestly, and it teaches a 12-year-old to pick
+ * 13–17 to get past it. Offering the option and stopping on it is the version that actually
+ * knows, which is the version the rule is about.
+ *
+ * It is NOT a dead end. Nothing is persisted and back still works, so a mis-tap costs one tap to
+ * undo. A permanent lockout would punish a slip on a five-option list.
+ */
+export const AGE_FLOOR = 13;
+const UNDER_AGE = 'under-13';
+
 const AGES: Choice[] = [
+  { key: UNDER_AGE, title: `Under ${String(AGE_FLOOR)}` },
   { key: '13-17', title: '13–17' },
   { key: '18-24', title: '18–24' },
   { key: '25-34', title: '25–34' },
@@ -548,7 +567,11 @@ export default function Onboarding() {
     });
   };
 
+  /** True only on the age step with the under-13 band chosen — see AGE_FLOOR above. */
+  const underAge = liveDef?.kind === 'single' && liveDef.field === 'ageBand' && profile.ageBand === UNDER_AGE;
+
   const canContinue = (() => {
+    if (underAge) return false;
     if (!liveDef) return true;
     if (liveDef.kind === 'single') return selected(liveDef.field) !== null;
     if (liveDef.kind === 'multi') return ((profile[liveDef.field] as string[]) ?? []).length > 0;
@@ -577,6 +600,14 @@ export default function Onboarding() {
               value={selected(def.field)}
               onChange={(k) => {
                 answer(def.field, k);
+                /*
+                 * UNDER 13 MUST NOT ADVANCE. Single-select steps auto-advance on pick, so guarding
+                 * only `canContinue` left the gate wide open — the Continue button was disabled
+                 * while the screen had already moved past it. Found by tapping it on the
+                 * simulator; the static pin passed the whole time, which is exactly why the pin
+                 * now asserts this line too.
+                 */
+                if (def.field === 'ageBand' && k === UNDER_AGE) return;
                 // notifyOptIn opens the iOS permission dialog — do not advance behind it.
                 if (def.field !== 'notifyOptIn') advanceAfterPick();
               }}
@@ -805,6 +836,11 @@ export default function Onboarding() {
           {/* States its own reason rather than being a silently inert button — the pattern the
               options preview cap already uses (§0.5). A disabled control with no explanation is
               the dead end; one that explains itself is not. */}
+          {underAge && (
+            <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+              {`Euphoria is built for ages ${String(AGE_FLOOR)} and up. Come back when you get there. We'll be here.`}
+            </ThemedText>
+          )}
           {step === PAYWALL_INDEX && !offersTrial && !isProNow && !IAP_ENABLED && (
             <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
               {IAP_DISABLED_REASON}
