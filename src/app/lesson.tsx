@@ -36,6 +36,7 @@ import { TileBuilder } from '@/components/tile-builder';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
+import { PixelSpriteView, heart as heartSprite } from '@/lib/pixel';
 import { SlabButton } from '@/components/ui/button';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -115,6 +116,15 @@ export default function Lesson() {
   const [idx, setIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
+  /* Hearts and hints (N21). Both are shop mechanics the web has and iOS did not, so buying a
+   * Heart Refill or a Hint Pack now buys something that exists. Kept ADDITIVE and contained: the
+   * curriculum re-sync is about to change this runner, and a restructure would collide with it. */
+  const hearts = useApp((st) => st.heartsNow());
+  const hintsLeft = useApp((st) => st.hints);
+  const loseHeart = useApp((st) => st.loseHeart);
+  const spendHint = useApp((st) => st.spendHint);
+  /** Revealed by a spent hint, so the reveal survives re-renders and cannot be re-bought per render. */
+  const [hinted, setHinted] = useState(false);
   const [solved, setSolved] = useState(false);
   /** 17c. Holds the post-lesson navigation open so the reward offer can land on the win. */
   const [trialReward, setTrialReward] = useState(false);
@@ -127,7 +137,13 @@ export default function Lesson() {
 
   const advance = () => {
     if (isChoice && !checked) {
-      if (pick !== null) setChecked(true);
+      if (pick !== null) {
+        setChecked(true);
+        // ONE heart per WRONG step, charged here rather than in render: `checked` flips once and
+        // this branch runs once, so a re-render cannot re-charge it. A hinted step is free — the
+        // learner already paid for the answer.
+        if (norm && pick !== norm.correct && !hinted) loseHeart();
+      }
       return;
     }
     if (idx < STREAK) {
@@ -135,6 +151,7 @@ export default function Lesson() {
       setPick(null);
       setChecked(false);
       setSolved(false);
+      setHinted(false);
     } else {
       // 17b funnel: first_lesson_completed, the activation step. Sampled BEFORE the call, because
       // `completeLesson` is what makes the count non-zero — reading it afterwards can never see the
@@ -353,6 +370,33 @@ export default function Lesson() {
         <View style={[styles.track, { backgroundColor: theme.muted }]}>
           <View style={[styles.fill, { backgroundColor: theme.primary, width: `${((idx + 1) / (STREAK + 1)) * 100}%` }]} />
         </View>
+        {/*
+          * HEARTS, only inside the lesson. The web shows them where they are at stake and nowhere
+          * else; a heart count on Home would be an anxiety meter for a state nothing is threatening.
+          * Refills at read time on a new day key — no timer, same pattern as minutesDoneToday.
+          */}
+        <View style={styles.hearts} accessible accessibilityRole="text" accessibilityLabel={`${String(hearts)} hearts left`}>
+          {/* The catalogue's own heart, not a red flame glyph. UIcon has no heart; the pixel system
+              does, and using it is the whole point of porting the catalogue rather than redrawing. */}
+          <PixelSpriteView sprite={heartSprite} size={16} />
+          <ThemedText type="smallBold" style={[NUM_L, { color: hearts > 0 ? theme.destructive : theme.mutedForeground, fontSize: FontSize.caption }]}>{hearts}</ThemedText>
+        </View>
+        {/*
+          * HINT. Shown only on an unanswered question, and only when one is owned — an always-visible
+          * hint button on a screen with no hints is a dead control advertising a purchase.
+          */}
+        {isChoice && !checked && hintsLeft > 0 && !hinted && (
+          <SpringPressable
+            haptic={false}
+            scaleTo={0.9}
+            onPress={() => { if (spendHint()) setHinted(true); }}
+            accessibilityRole="button"
+            accessibilityLabel={`Use a hint. ${String(hintsLeft)} left.`}
+            style={[styles.hintBtn, { borderColor: theme.iconGold + '55' }]}>
+            <UIcon name="sparkle" size={13} color={theme.iconGold} />
+            <ThemedText type="smallBold" style={[NUM_L, { color: theme.iconGold, fontSize: FontSize.tiny }]}>{hintsLeft}</ThemedText>
+          </SpringPressable>
+        )}
       </View>
 
       <View style={styles.body}>
@@ -493,7 +537,9 @@ export default function Lesson() {
                 <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
                   {norm.options.map((o, i) => {
                     const isPick = pick === i;
-                    const showRight = checked && i === norm.correct;
+                    // A spent hint reveals the correct option immediately, which is what the item
+                    // says it does: "Reveals the correct answer on tough questions."
+                    const showRight = (checked || hinted) && i === norm.correct;
                     const showWrong = checked && isPick && i !== norm.correct;
                     const border = showRight ? theme.success : showWrong ? theme.warning : isPick ? theme.primary : theme.border;
                     return (
@@ -637,8 +683,13 @@ const FOOTER_CLEARANCE = 170;
  *  top of these — see `ownsItsCta`. */
 const OWN_CTA_STEPS = new Set(['multi', 'line']);
 
+/** Fixed-width digits, so a heart or hint count does not shift the header as it drops. */
+const NUM_L = { fontVariant: ['tabular-nums' as const] };
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  hearts: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  hintBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth },
   loadingShape: { paddingHorizontal: Spacing.three, paddingTop: Spacing.five, gap: Spacing.three },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   close: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
