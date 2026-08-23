@@ -581,13 +581,37 @@ export default function Onboarding() {
             {/* The timeline is about a trial. Showing "Today / Day 2 / Day 3" to someone whose
                 three days are gone describes something that cannot happen to them, so a spent user
                 gets what Pro reopens instead — the gate sheet's one-line promise, expanded. */}
-            <View style={{ marginTop: Spacing.four }}>
-              {(spent ? PRO_STEPS : TRIAL_STEPS).map((s, i) => (
-                <RiseIn key={s.title} delay={childDelay(i)}>
-                  <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === (spent ? PRO_STEPS : TRIAL_STEPS).length - 1} />
-                </RiseIn>
-              ))}
-            </View>
+            {/*
+              * THE CHART TAKES THE TIMELINE'S PLACE. Owner's call 2026-08-22 after seeing three
+              * layouts captured side by side on the simulator.
+              *
+              * The trial timeline (Today / Day 2 — Reminder / Day 3 — Billing starts) was set from
+              * five captured competitor paywalls, so this is not a free swap. What it cost and why
+              * it is still safe:
+              *   - The BILLING DISCLOSURE is not lost. The footer already states it in full: "3
+              *     days free, then <annual> per year, billed annually. Renews until cancelled.
+              *     Cancel anytime in the App Store." That sentence, not the timeline, is what
+              *     App Review reads.
+              *   - What IS lost is the "We'll remind you before anything is charged" trust beat.
+              *     That is a conversion cost, not a compliance one, and it is worth watching: if
+              *     trial starts drop after this ships, this line is the first suspect.
+              *
+              * `spent` users never saw the trial timeline anyway — they get PRO_STEPS — so they
+              * keep their existing screen unchanged.
+              */}
+            {spent ? (
+              <View style={{ marginTop: Spacing.four }}>
+                {PRO_STEPS.map((s, i) => (
+                  <RiseIn key={s.title} delay={childDelay(i)}>
+                    <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === PRO_STEPS.length - 1} />
+                  </RiseIn>
+                ))}
+              </View>
+            ) : (
+              <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.four }}>
+                <PremiumBenefits />
+              </RiseIn>
+            )}
             <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.three }}>
               {/* The plan NAME carries the billing period and the price carries the amount you
                   are actually charged. Both cards used to headline a "/mo" figure, so the annual
@@ -609,16 +633,6 @@ export default function Onboarding() {
                 price={PRICING.monthly}
                 unit="per month"
               />
-              {/*
-                * BELOW the plans, not above them, and this was measured on the simulator rather
-                * than reasoned about. Placed above, the chart pushed BOTH plan cards past the fold:
-                * the screen that asks for money showed no price at rest. The prices are still
-                * disclosed in the footer, so it was not a compliance defect, but it moved the
-                * purchase decision off screen to make room for the argument for it, which is
-                * backwards. Here the fold is exactly what it was before the chart existed and the
-                * chart is strictly additive for anyone who scrolls to weigh it up.
-                */}
-              <PremiumBenefits />
             </RiseIn>
           </View>
         );
