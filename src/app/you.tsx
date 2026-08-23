@@ -389,7 +389,7 @@ export default function You() {
                 {/* No chip behind it: these glyphs are already multicolour, and a uniform tinted
                     square behind each one is what made a gold crown and an orange flame look the
                     same. Brilliant places icons directly on the card for this reason. */}
-                  <StatMark name={s.icon} size={34} color={s.accent} />
+                  <StatMark name={s.icon} size={34} />
                 <View>
                   <ThemedText type="heading" style={[{ fontSize: FontSize.headingLg }, NUM]}>{s.value}</ThemedText>
                   <ThemedText type="small" themeColor="mutedForeground">{s.label}</ThemedText>
