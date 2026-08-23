@@ -224,3 +224,48 @@ NEEDS THE OWNER'S CALL — do not restructure the tab bar on my own reading of a
 The audit still says "Assuming AI isn't supposed to work right now" and "Assuming Trade is bugged
 since no data has been added yet." Both assumptions are wrong and both are now disproven:
 Trade renders with live data, and Atlas works — build 14 carries the API origin.
+
+---
+# N21 DELIVERED IN FULL — 2026-08-23
+
+Owner chose "match the web Shop fully" after being shown the two blockers. Both are now cleared.
+
+## What shipped
+| layer | what |
+|---|---|
+| catalogue | `src/lib/shop-items.ts` — the web's 21 items VERBATIM, 3 tabs, award rates |
+| economy | coins / inventory / doubleXpUntil / streakFreezes / hints / hearts / equipped, all persisted |
+| earning | lessons `min(100, 50+xp)`, streak +25 **only when it advances**, quests +30, game win +10 |
+| shop | `src/app/shop.tsx` — 3 tabs, rarity tags, shortfall pill, device-local disclosure |
+| pixel art | `src/lib/pixel/*` — **86 sprites, 5 files copied byte-for-byte**, 1 new renderer |
+| hearts | lost on a wrong answer, refill at read time on a new day, shown only in a lesson |
+| hints | button appears only when owned, reveals the correct option |
+| avatar | crown / top hat / wizard hat / shades / monocle / ring, worn by Atlas |
+| profile | 3 themes tint the identity card, 3 frames ring the avatar, 2 badges sit with the plan chip |
+| reactions | coin and flame play ONCE on real events, never idle-loop |
+
+## The two things that would have been wrong without looking
+1. **The padlocked second price is `item.price - coins`** — how many MORE you need. It reads
+   unmistakably as a discounted Pro tier (every gap was exactly -10). Confirmed at
+   `CoinShop.tsx:224`. Inferring it from pixels would have shipped a pricing tier that does not
+   exist.
+2. **The pixel renderer must NOT loop.** My first version defaulted to `animate: true`. The bolt
+   came out white on iOS and gold on web because `bolt`'s frame 0 is deliberately blown out. The
+   web states the rule in its props: "Animation, off by default... no idle loops." On an app with
+   an open idle-render investigation (§4.1, 4-5 commits/sec at rest), 21 shop cards each holding a
+   60ms interval would have been that bug authored on purpose.
+
+Both were found by RENDERING BOTH APPS AND COMPARING, not by reading either one alone.
+
+## Deviations, stated
+- **Hats go on Atlas.** The web dresses a separate user avatar; iOS has none, because Atlas is a
+  mascot rather than a player character. Inventing a second character to hang hats on would be
+  worse than the deviation.
+- **The wallet is device-local and says so on screen.** The web wallet is Supabase behind an
+  account. Owner approved on condition it is stated, not hidden.
+- **Shop has no tab.** Games took the last slot. Entry is the wallet pill in the Home header.
+
+## Still not done
+- `streakFreezes` is counted and purchasable but nothing CONSUMES it yet — the streak logic does
+  not check it on a missed day. The item banks, it does not yet protect.
+- Running out of hearts does not gate anything. Hearts count down and floor at 0.
