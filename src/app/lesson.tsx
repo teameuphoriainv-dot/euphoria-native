@@ -126,6 +126,7 @@ export default function Lesson() {
   const spendHint = useApp((st) => st.spendHint);
   /** Revealed by a spent hint, so the reveal survives re-renders and cannot be re-bought per render. */
   const [hinted, setHinted] = useState(false);
+  const [outOfHearts, setOutOfHearts] = useState(false);
   const [solved, setSolved] = useState(false);
   /** 17c. Holds the post-lesson navigation open so the reward offer can land on the win. */
   const [trialReward, setTrialReward] = useState(false);
@@ -145,6 +146,20 @@ export default function Lesson() {
         // learner already paid for the answer.
         if (norm && pick !== norm.correct && !hinted) loseHeart();
       }
+      return;
+    }
+    /*
+     * OUT OF HEARTS. Checked AFTER the answer is graded, so the last wrong answer still shows its
+     * feedback rather than being swallowed by a gate — being told "you're out" without being told
+     * "and that one was wrong" is two pieces of bad news delivered as one confusing one.
+     *
+     * This does NOT strand anyone, and that is not optional: the same file already carries the
+     * §22 C13 note that "a non-dismissible gate would strand the user completely". The sheet below
+     * always offers a way out of the lesson, and hearts refill on their own tomorrow, so the shop
+     * is an accelerator and never the only exit.
+     */
+    if (isChoice && checked && norm && pick !== norm.correct && hearts <= 0) {
+      setOutOfHearts(true);
       return;
     }
     if (idx < STREAK) {
@@ -663,6 +678,36 @@ export default function Lesson() {
       {/* 17c. Mounted here rather than on Home so it lands on the completion screen the user is
           already looking at — the win it is anchored to. `leave()` on both exits, so the offer
           always hands back to the normal post-lesson routing. */}
+      {/*
+        * The out-of-hearts wall. Two ways forward and ONE of them costs nothing: hearts refill on
+        * their own on a new day, which is stated rather than left implicit so the shop reads as an
+        * accelerator rather than a toll gate.
+        */}
+      {outOfHearts && (
+        <View style={styles.heartWall}>
+          <View style={[styles.heartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <PixelSpriteView sprite={heartSprite} size={44} />
+            <ThemedText type="title" style={{ fontSize: FontSize.titleSm, textAlign: 'center' }}>Out of hearts</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center' }}>
+              They come back tomorrow. A refill puts you straight back in.
+            </ThemedText>
+            <SlabButton
+              label="Get a refill"
+              full
+              onPress={() => { setOutOfHearts(false); router.push('/shop'); }}
+            />
+            <SpringPressable
+              haptic={false}
+              style={styles.lockedOut}
+              accessibilityRole="button"
+              accessibilityLabel="Leave the lesson"
+              onPress={() => { setOutOfHearts(false); router.back(); }}>
+              <ThemedText type="small" themeColor="mutedForeground">Come back tomorrow</ThemedText>
+            </SpringPressable>
+          </View>
+        </View>
+      )}
+
       <TrialRewardSheet
         visible={trialReward}
         onAccept={() => {
@@ -759,5 +804,7 @@ const styles = StyleSheet.create({
   footer: { padding: Spacing.four, paddingTop: Spacing.two },
   // 44pt tall so the escape from a wall clears the HIG touch minimum on its own, without relying on
   // hitSlop — this is the only way off the screen.
+  heartWall: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: '#09090DE6', padding: Spacing.four },
+  heartCard: { alignItems: 'center', gap: Spacing.two, padding: Spacing.four, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, alignSelf: 'stretch' },
   lockedOut: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.four, marginTop: Spacing.two },
 });

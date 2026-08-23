@@ -11,7 +11,8 @@
  * won't survive a restart.
  */
 import { applyBuy, applyGrant, applySell, clearStaticPricing } from './cost-basis';
-import { dayKey, nextStreak, weekKey, withToday } from './day-keys';
+import { dayBeforeKey, dayKey, nextStreak, prevDayKey, weekKey, withToday } from './day-keys';
+import { resolveStreak } from './streak-freeze';
 import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
@@ -814,7 +815,20 @@ export const useApp = create<AppState>()(
            * A 30 XP lesson pays 80, a 50 XP lesson pays the 100 ceiling.
            */
           const lessonCoins = Math.min(EARN.lessonMax, EARN.lessonMin + xp);
-          const streakNext = nextStreak(s.streak, s.lastActiveDay);
+          /*
+           * A STREAK FREEZE IS SPENT HERE, inside the same `set` that writes the streak. Doing it in
+           * a second write could interleave and take the paid item without crediting the day.
+           * resolveStreak absorbs exactly ONE missed day, which is all the item promises.
+           */
+          const resolved = resolveStreak({
+            streak: s.streak,
+            lastActiveDay: s.lastActiveDay,
+            today,
+            yesterday: prevDayKey(),
+            dayBefore: dayBeforeKey(),
+            freezes: s.streakFreezes,
+          });
+          const streakNext = resolved.streak;
           // +25 only when the streak actually ADVANCES. Finishing a second lesson the same day is
           // not a second streak day, and paying it twice would make the streak farmable.
           const streakCoins = streakNext > s.streak ? EARN.dailyStreak : 0;
@@ -833,9 +847,12 @@ export const useApp = create<AppState>()(
             minutesToday: minutes,
             lessonsToday: (s.lastActiveDay === today ? s.lessonsToday : 0) + 1,
             lastActiveDay: today,
-            // nothing incremented this before, so Home's pill and week strip were pinned forever
-            streak: nextStreak(s.streak, s.lastActiveDay),
-            bestStreak: Math.max(s.bestStreak ?? 0, nextStreak(s.streak, s.lastActiveDay)),
+            // nothing incremented this before, so Home's pill and week strip were pinned forever.
+            // Reads `streakNext` rather than recomputing: recomputing would ignore the freeze that
+            // was just resolved, and the two values would silently disagree.
+            streak: streakNext,
+            bestStreak: Math.max(s.bestStreak ?? 0, streakNext),
+            streakFreezes: resolved.freezeUsed ? s.streakFreezes - 1 : s.streakFreezes,
           };
         }),
       /* ── EUPHORIUM ────────────────────────────────────────────────────────────

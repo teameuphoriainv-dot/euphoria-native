@@ -62,6 +62,10 @@ export const shouldCountReturn = (lastReturnDay: string, activeDays: string[]) =
 /** Yesterday's local day key. Used to decide whether a completion extends the streak or restarts it. */
 export const prevDayKey = () => dayKey(new Date(Date.now() - 86_400_000));
 
+/** Two days back. Only the Streak Freeze needs it: a freeze bridges exactly one missed day, so the
+ *  rule has to be able to name the day BEFORE yesterday to recognise that gap and no wider one. */
+export const dayBeforeKey = () => dayKey(new Date(Date.now() - 2 * 86_400_000));
+
 /** The streak a completion *right now* produces: unchanged if today is already counted, +1 if the
  *  last active day was yesterday, otherwise restarted at 1. Shared so the lesson celebration and
  *  the actual write can never disagree. */
