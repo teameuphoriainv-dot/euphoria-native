@@ -10,7 +10,7 @@
  * XP comes from the data (`lesson.xp`), not a hardcoded 50.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
@@ -54,6 +54,8 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
 
 export default function Lesson() {
+  /** When this lesson was opened. A ref, so re-renders never restart the clock. */
+  const openedAt = useRef(Date.now());
   const theme = useTheme();
   const streakAfter = useApp((s) => s.streakIfCompletedToday());
   const params = useLocalSearchParams<{ course?: string; num?: string }>();
@@ -139,7 +141,17 @@ export default function Lesson() {
       // transition. Tracked here rather than in the store: `analytics` imports the store, so the
       // store importing analytics would close a cycle.
       const wasFirst = useApp.getState().completedLessons.length === 0;
-      useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp);
+      /*
+       * REAL TIME, not the lesson's listed length. Reported 2026-08-22: "it looks like the app
+       * measures time based on the lesson's listed duration, not actual time spent in-app. After
+       * finishing a lesson it shows 5 minutes even if you were on the app much longer."
+       *
+       * Measured from mount, so the intro screen and any thinking time count — a learner who sat
+       * with a question for four minutes did spend those four minutes here. The store clamps the
+       * value; this side only reports it.
+       */
+      const minutesSpent = (Date.now() - openedAt.current) / 60000;
+      useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp, minutesSpent);
       // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
       // a no-op) cannot re-fire activation.
       if (wasFirst && useApp.getState().completedLessons.length === 1) {

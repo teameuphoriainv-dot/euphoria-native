@@ -30,7 +30,6 @@
  * worse than one fewer quest, so it is omitted rather than faked. Add a day-keyed guide counter to
  * the store and this becomes a fourth quest in about six lines.
  */
-import { MINUTES_PER_LESSON } from './onboarding-path';
 import { dayKey, type AppState } from './store';
 
 export type QuestKind = 'lesson' | 'goal' | 'trade';
@@ -66,9 +65,10 @@ function isToday(ms: number, now: Date): boolean {
 export function questsForToday(s: AppState, now: Date): Quest[] {
   const minutes = s.lastActiveDay === dayKey() ? s.minutesToday : 0;
   const goal = s.profile.dailyMinutes ?? 10;
-  // minutesToday grows by MINUTES_PER_LESSON per finished lesson and rolls over on a new day, so
-  // this is a real count of lessons done today rather than a guess.
-  const lessonsToday = Math.floor(minutes / MINUTES_PER_LESSON);
+  // COUNTED, not divided. This was `Math.floor(minutes / MINUTES_PER_LESSON)`, which held only
+  // while every lesson credited the same fixed 5 minutes. completeLesson now credits real elapsed
+  // time, so the division would report e.g. 3 lessons for one long one — and 0 for a fast one.
+  const lessonsToday = s.lastActiveDay === dayKey() ? s.lessonsToday : 0;
   const tradesToday = s.valueHistory.filter((v) => isToday(v.t, now)).length;
 
   const all: Quest[] = [

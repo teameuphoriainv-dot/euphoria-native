@@ -25,6 +25,11 @@ import { ALL_SYMS, priceOf } from './stocks';
 
 const XP_PER_LEVEL = 500;
 
+/** Bounds on the minutes ONE lesson may credit to the daily goal. The floor pays a genuinely fast
+ *  completion; the ceiling stops a lesson left open in a pocket from swallowing the whole goal. */
+const MIN_MINUTES_PER_LESSON = 1;
+const MAX_MINUTES_PER_LESSON = 30;
+
 /**
  * Distinct days of real use the trial lasts. **THIS IS THE OFFER.**
  *
@@ -224,6 +229,15 @@ export type AppState = {
   /** Minutes practised on `lastActiveDay`. Read via `minutesDoneToday()`, which zeroes it once
    *  the day rolls over — don't read this field directly. */
   minutesToday: number;
+  /**
+   * Lessons finished on `lastActiveDay`. Counted, not inferred.
+   *
+   * quests.ts used to derive this as `minutesToday / MINUTES_PER_LESSON`, which was only ever
+   * correct while every lesson credited exactly the same fixed number of minutes. It no longer
+   * does — `completeLesson` credits real elapsed time — so the division would have quietly
+   * reported the wrong number of lessons the moment a lesson took anything other than 5 minutes.
+   */
+  lessonsToday: number;
   /** Local day key the `minutesToday` tally belongs to. */
   lastActiveDay: string;
   /** Course id the Learn pathway is currently showing — one of COURSES from '@/lib/curriculum'. */
@@ -483,7 +497,9 @@ export type AppState = {
   /** Record one sent message. No-op for Pro, so the counter cannot creep while subscribed and
    *  then strand a lapsed user at zero. */
   spendAtlasMessage: () => void;
-  completeLesson: (id: string, xp: number) => void;
+  /** `minutesSpent` is real elapsed time in the lesson; omitted, it falls back to the old
+   *  MINUTES_PER_LESSON constant. Clamped by the implementation. */
+  completeLesson: (id: string, xp: number, minutesSpent?: number) => void;
   addXp: (n: number) => void;
   markPostRead: (slug: string) => void;
   setDailyPick: (day: string, slug: string) => void;
@@ -501,6 +517,7 @@ export const useApp = create<AppState>()(
       bestStreak: 0,
       completedLessons: [],
       minutesToday: 0,
+      lessonsToday: 0,
       streakGoal: null,
       setStreakGoal: (days) => set({ streakGoal: days }),
       widgetAsksSeen: 0,
@@ -694,13 +711,33 @@ export const useApp = create<AppState>()(
 
       weeklyXpNow: () => (get().weekStart === weekKey() ? get().weeklyXp : 0),
 
-      completeLesson: (id, xp) =>
+      /**
+       * `minutes` is REAL ELAPSED TIME in the lesson, not a constant.
+       *
+       * Reported 2026-08-22: "it looks like the app measures time based on the lesson's listed
+       * duration, not actual time spent in-app. After finishing a lesson it shows 5 minutes even
+       * if you were on the app much longer." Exactly right — this added MINUTES_PER_LESSON (5)
+       * per completion no matter what, so the daily goal was counting lessons and calling them
+       * minutes. A four-minute lesson and a twenty-minute one paid the same.
+       *
+       * CLAMPED, because elapsed wall-clock is not the same as time spent. A lesson left open
+       * while the phone is in a pocket would otherwise credit hours against a ten-minute goal.
+       * The floor keeps a fast, genuine completion from paying nothing.
+       *
+       * Optional with the old constant as its default, so a caller that omits it degrades to the
+       * previous behaviour rather than crediting zero.
+       */
+      completeLesson: (id, xp, minutesSpent) =>
         set((s) => {
           if (s.completedLessons.includes(id)) return s;
           const today = dayKey();
           // roll the tally over when the calendar day changed since the last completion
           const base = s.lastActiveDay === today ? s.minutesToday : 0;
-          const minutes = base + MINUTES_PER_LESSON;
+          const earned = Math.min(
+            MAX_MINUTES_PER_LESSON,
+            Math.max(MIN_MINUTES_PER_LESSON, Math.round(minutesSpent ?? MINUTES_PER_LESSON)),
+          );
+          const minutes = base + earned;
           // Crossing the daily commitment pays a bonus, and crossing happens exactly once per day,
           // so this cannot be farmed by finishing more lessons.
           const goal = s.profile.dailyMinutes ?? 10;
@@ -714,6 +751,7 @@ export const useApp = create<AppState>()(
             completedLessons: [...s.completedLessons, id],
             ...applyXp(s, xp + bonus),
             minutesToday: minutes,
+            lessonsToday: (s.lastActiveDay === today ? s.lessonsToday : 0) + 1,
             lastActiveDay: today,
             // nothing incremented this before, so Home's pill and week strip were pinned forever
             streak: nextStreak(s.streak, s.lastActiveDay),
@@ -777,7 +815,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
