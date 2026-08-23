@@ -775,6 +775,54 @@ your judgement without re-testing everything himself.
 
 ---
 
+## 6.9b THE OPENING RITUAL — WALK THE WEB LESSONS BEFORE YOU FIX ANYTHING
+
+**The owner's instruction, and the reason for it:** the cofounders reference the web app constantly.
+When they say a lesson "should work like this" or "feels different," they mean the web product. You
+cannot interpret their feedback correctly without having seen what they saw. **Chrome stays open for
+the entire session, positioned beside the simulator, not opened ad hoc when you get stuck.**
+
+**Do this before touching the feedback list. It is not optional and it is not a shortcut you may
+skip because the list looks urgent.** An hour spent here makes every subsequent item faster, because
+half of "this feels off" resolves instantly once you have the reference in your head.
+
+### The walkthrough
+
+Ask the owner to log in first — you cannot (§6.8). Then walk, capturing every screen into
+`refs/webapp/` with names that say what they are:
+
+1. **A full course, end to end.** Not one lesson — a whole course. Course list → course detail →
+   lesson intro → every step type → completion → reward. The iOS lesson runner has 25-step lessons
+   with comprehension checks, explorable content, type-the-number calculator steps and reward
+   sequences. **Find each of those on the web and capture it.** These step types are exactly where
+   "it works differently" reports come from.
+2. **The lesson intro screen** specifically. Atlas, the speech bubble, the title, "N steps · N XP",
+   "YOU'LL LEARN", the Continue button. The owner already reported Atlas taking ~1.5s to appear on
+   iOS. Time the web equivalent — if it is instant there, that is your target and your proof.
+3. **Wrong-answer and right-answer paths.** Deliberately fail a check. Capture what the web does:
+   copy, timing, whether it advances, what Atlas does. This is high-frequency feedback territory.
+4. **Progress, streak and XP surfaces.** Anything numeric is where "the number is wrong" reports live.
+5. **The paywall and pricing.** `/pricing` is public so you can capture it with no login at all.
+   Compare the tiers, the copy, the trial terms and the prices against the iOS paywall — iOS
+   hardcodes `$9.99` / `$79.99` at `onboarding.tsx:73-74`, so a web/iOS price divergence is possible
+   and would be a serious bug nobody has checked.
+6. **Sign in / sign up.** The web has real accounts. iOS has none — `auth.tsx` says so outright.
+   That gap will generate feedback; understand the web version before you respond to it.
+7. **Digest.** `/digest`, `/digest/faq`, `/digest/support` are public.
+
+### What to record while walking
+
+Keep a running `refs/webapp/WALKTHROUGH.md` as you go, one row per screen: web capture path, the
+matching iOS route, and any difference you notice **before** anyone reports it. Differences you spot
+proactively are worth more than the ones in the doc, because they are the reports you have not
+received yet.
+
+**Do not summarise a screen you did not open.** `AGENTS.md` opens with a paywall redesign that was
+built, shipped and reverted because a flow *description* was treated as evidence. The same failure
+is available here and it is the single most expensive mistake this project has made.
+
+---
+
 ## 6.10 THE VERIFICATION PROTOCOL — NO ITEM CLOSES WITHOUT ALL OF IT
 
 The owner asked for a heavy, explicit verification process. This is it. **Every gate applies to
@@ -835,6 +883,33 @@ ships. Authorised standing for the session (§1.5).
 
 Only he moves a row to `verified`. Your screenshot is evidence the fix is ready, never proof it
 works. Batch items and tell him precisely what to look at and where.
+
+### Gate 9 — Per-batch integrity check
+
+Before any batch ships, in one pass:
+
+```bash
+npx tsc --noEmit && npm run check
+node scripts/motion-invariants.mjs --selftest
+python3 scripts/reduced_motion_audit.py --selftest
+git status --porcelain          # nothing unexpected, no stray files
+git log --oneline origin/main..HEAD   # every commit intentional
+```
+
+Then re-read your own diff (`git diff origin/main`) line by line before pushing. Not the summary —
+the diff. Two build breaks this session came from partial patches that read fine in summary.
+
+### Gate 10 — End-of-session full sweep
+
+Before declaring the session done:
+
+1. Every row in `refs/FEEDBACK_LOG.md` is `verified` or `wontfix` with a real reason.
+2. Re-walk the **whole app** on the simulator, screen by screen, looking for anything the fixes
+   broke. Not the fixed screens — the ones you never touched.
+3. Re-walk the **web app** and diff against iOS one final time.
+4. A final TestFlight build, attached to both tester groups, confirmed installable.
+5. Tell the owner to run `/code-review ultra`, and address what it finds.
+6. Update this file and write the transferable lessons into the global `~/.claude/CLAUDE.md`.
 
 ### The three lies this protocol exists to catch
 
