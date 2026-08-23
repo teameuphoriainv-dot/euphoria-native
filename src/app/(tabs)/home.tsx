@@ -44,7 +44,7 @@ import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { LeagueCrest } from '@/components/league-crest';
 import { TierUpSheet } from '@/components/tier-up-sheet';
 import {
-  PixelSpriteView, book, chartUp, coin as coinSprite, controller,
+  PixelSpriteView, book, chartUp, coin as coinSprite, controller, star,
   flame as flameSprite, targetGoal, type PixelSprite,
 } from '@/lib/pixel';
 
@@ -352,7 +352,7 @@ export default function Home() {
             */}
           {goalTier && (
             <View style={[styles.goalBar, { borderColor: theme.border }]}>
-              <UIcon name="sparkle" size={13} color={theme.iconGold} />
+              <PixelSpriteView sprite={star} size={14} />
               <ThemedText type="small" style={{ flex: 1, color: theme.textSecondary }}>
                 <ThemedText type="smallBold">{goalTier.name}</ThemedText>
                 {` · ${String(Math.min(streak, goalTier.days))} of ${String(goalTier.days)} days`}

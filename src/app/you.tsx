@@ -18,7 +18,7 @@ import { useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ProfileAvatar } from '@/components/profile-avatar';
-import { PixelSpriteView } from '@/lib/pixel';
+import { PixelSpriteView, lock, seedling, trophy } from '@/lib/pixel';
 import { StatMark, type StatMarkName } from '@/components/art/stat-mark';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
@@ -268,10 +268,9 @@ export default function You() {
               {/* `seedling` for a trial, not `sparkle` — see the ROWS note above. A trial is a
                   thing that GROWS into something, which is the one metaphor in the set that is
                   actually about a beginning. */}
-              <UIcon
-                name={planTier === 'pro' ? 'trophy' : planTier === 'expired' ? 'lock' : 'seedling'}
+              <PixelSpriteView
+                sprite={planTier === 'pro' ? trophy : planTier === 'expired' ? lock : seedling}
                 size={20}
-                color={planTier === 'pro' ? theme.iconGold : theme.primary}
               />
               <ThemedText type="bodyMedium">
                 {planTier === 'pro' ? 'Euphoria Pro' : planTier === 'expired' ? 'Free' : 'Free trial'}

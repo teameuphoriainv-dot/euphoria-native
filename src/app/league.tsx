@@ -28,7 +28,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { tierForXp } from '@/lib/league';
-import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
+import { PixelSpriteView, bolt, coin as coinSprite } from '@/lib/pixel';
 import { labelFor } from '@/lib/league-week';
 import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
@@ -125,7 +125,7 @@ export default function League() {
             */}
           <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.title }} numberOfLines={2}>{tier.name}</ThemedText>
           <View style={[styles.timePill, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <UIcon name="bolt" size={13} color={theme.iconLilac} />
+            <PixelSpriteView sprite={bolt} size={14} />
             <ThemedText type="small" themeColor="textSecondary">Top {PROMOTE} advance · {daysLeft()}</ThemedText>
           </View>
           {/*
