@@ -20,10 +20,14 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './onboarding-path';
 import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
 import { SEED_FOLLOWERS } from './people';
+import { EARN, itemById } from './shop-items';
 import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 
 const XP_PER_LEVEL = 500;
+
+/** Hearts, mirroring the web's `heart_refill` metadata ({ hearts: 5 }). */
+const MAX_HEARTS = 5;
 
 /** Bounds on the minutes ONE lesson may credit to the daily goal. The floor pays a genuinely fast
  *  completion; the ceiling stops a lesson left open in a pocket from swallowing the whole goal. */
@@ -238,6 +242,43 @@ export type AppState = {
    * reported the wrong number of lessons the moment a lesson took anything other than 5 minutes.
    */
   lessonsToday: number;
+
+  /* ── EUPHORIUM (N21) ────────────────────────────────────────────────────────
+   * The in-app currency, ported from the web Shop. RULE ZERO: rates and prices come from
+   * lib/shop-items.ts, which is the web's table verbatim — never re-derived here.
+   *
+   * DEVICE-LOCAL, and the Shop screen says so out loud. The web wallet lives in Supabase
+   * (`profiles.coins`, `user_inventory`, `active_powerups`, `coin_transactions`) behind an account.
+   * iOS has no accounts, so this balance cannot sync and a learner with coins on web starts at zero
+   * here. Owner's call, 2026-08-23, on condition it is stated in the UI rather than hidden — the
+   * same standard applied to the practice profiles on Friends.
+   */
+  /** Euphorium balance. */
+  coins: number;
+  /** Owned shop item ids. Cosmetics stay owned forever; consumables are counted separately. */
+  inventory: string[];
+  /** Epoch ms until which XP is doubled, or 0. A timestamp, not a boolean, so it survives a restart. */
+  doubleXpUntil: number;
+  /** Unspent streak freezes. */
+  streakFreezes: number;
+  /** Unspent hints. */
+  hints: number;
+  /** Hearts remaining. Refills on a new day, or by buying a refill. */
+  hearts: number;
+  /** Day key the hearts were last topped up on, so they refill once per day and not per render. */
+  heartsDay: string;
+  /** Equipped cosmetics by slot. Slot names come from the web items' own metadata. */
+  equipped: { hat?: string; accessory?: string; theme?: string; frame?: string; badge?: string };
+
+  awardCoins: (n: number) => void;
+  /** Returns false when the balance is short or the item is already owned. */
+  buyItem: (id: string) => boolean;
+  equipItem: (id: string) => void;
+  unequipSlot: (slot: 'hat' | 'accessory' | 'theme' | 'frame' | 'badge') => void;
+  spendHint: () => boolean;
+  loseHeart: () => void;
+  heartsNow: () => number;
+  xpMultiplier: () => number;
   /** Local day key the `minutesToday` tally belongs to. */
   lastActiveDay: string;
   /** Course id the Learn pathway is currently showing — one of COURSES from '@/lib/curriculum'. */
@@ -518,6 +559,14 @@ export const useApp = create<AppState>()(
       completedLessons: [],
       minutesToday: 0,
       lessonsToday: 0,
+      coins: 0,
+      inventory: [],
+      doubleXpUntil: 0,
+      streakFreezes: 0,
+      hints: 0,
+      hearts: MAX_HEARTS,
+      heartsDay: '',
+      equipped: {},
       streakGoal: null,
       setStreakGoal: (days) => set({ streakGoal: days }),
       widgetAsksSeen: 0,
@@ -758,11 +807,29 @@ export const useApp = create<AppState>()(
           // Reward cards ride on the SAME dedupe as the completion itself (the `includes` guard
           // above), so re-opening a finished lesson cannot farm free stock.
           const cards = mintRewardCards(REWARD_CARDS_PER_LESSON);
+
+          /*
+           * EUPHORIUM. The web pays 50-100 per lesson; the band exists so a longer lesson pays more
+           * than a short one, so the award scales with the lesson's own XP and clamps to the band.
+           * A 30 XP lesson pays 80, a 50 XP lesson pays the 100 ceiling.
+           */
+          const lessonCoins = Math.min(EARN.lessonMax, EARN.lessonMin + xp);
+          const streakNext = nextStreak(s.streak, s.lastActiveDay);
+          // +25 only when the streak actually ADVANCES. Finishing a second lesson the same day is
+          // not a second streak day, and paying it twice would make the streak farmable.
+          const streakCoins = streakNext > s.streak ? EARN.dailyStreak : 0;
+
+          // Double XP applies to the LESSON award and its goal bonus, which is what the item says
+          // ("All XP earned is doubled"). It deliberately does not touch coins — the web's boost is
+          // an XP item, not a coin multiplier, and doubling both would compound.
+          const mult = get().doubleXpUntil > Date.now() ? 2 : 1;
+
           return {
             activeDays: withToday(s.activeDays),
             pendingRewards: [...s.pendingRewards, ...cards],
             completedLessons: [...s.completedLessons, id],
-            ...applyXp(s, xp + bonus),
+            coins: s.coins + lessonCoins + streakCoins,
+            ...applyXp(s, (xp + bonus) * mult),
             minutesToday: minutes,
             lessonsToday: (s.lastActiveDay === today ? s.lessonsToday : 0) + 1,
             lastActiveDay: today,
@@ -771,15 +838,122 @@ export const useApp = create<AppState>()(
             bestStreak: Math.max(s.bestStreak ?? 0, nextStreak(s.streak, s.lastActiveDay)),
           };
         }),
+      /* ── EUPHORIUM ────────────────────────────────────────────────────────────
+       * All rates come from `shop-items.ts::EARN`, which is the web Shop's own "How to earn
+       * Euphorium" panel. Nothing here invents a number.
+       */
+      awardCoins: (n) => set((s) => (n > 0 ? { coins: s.coins + Math.round(n) } : s)),
+
+      /**
+       * Buy once, then own. Cosmetics live in `inventory` forever; consumables are counted so
+       * buying two hint packs gives thirteen hints rather than one "owned" flag.
+       *
+       * Returns false rather than throwing: the caller is a tap handler, and a shop that throws on
+       * a price check is a crash on the screen whose job is taking money.
+       */
+      buyItem: (id) => {
+        const item = itemById(id);
+        if (!item) return false;
+        const s = get();
+        if (s.coins < item.price) return false;
+        // Cosmetics are one-per-account; consumables may be bought repeatedly.
+        const cosmetic = item.category !== 'power-up';
+        if (cosmetic && s.inventory.includes(id)) return false;
+
+        const next: Partial<AppState> = { coins: s.coins - item.price };
+        if (cosmetic) next.inventory = [...s.inventory, id];
+
+        switch (item.itemType) {
+          case 'double_xp': {
+            const mins = Number(item.metadata.duration_minutes ?? 0);
+            // EXTENDS an active boost rather than replacing it, so buying a second one while the
+            // first is running cannot shorten what was already paid for.
+            const from = Math.max(Date.now(), s.doubleXpUntil);
+            next.doubleXpUntil = from + mins * 60_000;
+            break;
+          }
+          case 'streak_freeze':
+            next.streakFreezes = s.streakFreezes + Number(item.metadata.uses ?? 1);
+            break;
+          case 'hint':
+            next.hints = s.hints + Number(item.metadata.uses ?? 1);
+            break;
+          case 'heart_refill':
+            next.hearts = MAX_HEARTS;
+            next.heartsDay = dayKey();
+            break;
+          default:
+            break;
+        }
+        set(next as AppState);
+        return true;
+      },
+
+      /** Equipping swaps whatever occupied the slot; the old item stays owned. */
+      equipItem: (id) =>
+        set((s) => {
+          const item = itemById(id);
+          if (!item || !s.inventory.includes(id)) return s;
+          const slot =
+            item.itemType === 'avatar_item' ? String(item.metadata.slot)
+            : item.itemType === 'profile_theme' ? 'theme'
+            : item.itemType === 'profile_frame' ? 'frame'
+            : item.itemType === 'profile_badge' ? 'badge'
+            : null;
+          if (!slot) return s;
+          return { equipped: { ...s.equipped, [slot]: id } };
+        }),
+
+      unequipSlot: (slot) =>
+        set((s) => {
+          const next = { ...s.equipped };
+          delete next[slot];
+          return { equipped: next };
+        }),
+
+      spendHint: () => {
+        if (get().hints <= 0) return false;
+        set((s) => ({ hints: s.hints - 1 }));
+        return true;
+      },
+
+      /** Hearts refill on a NEW DAY, read-time, for the same reason minutesDoneToday is: no timer. */
+      heartsNow: () => (get().heartsDay === dayKey() ? get().hearts : MAX_HEARTS),
+
+      loseHeart: () =>
+        set((s) => {
+          const today = dayKey();
+          const base = s.heartsDay === today ? s.hearts : MAX_HEARTS;
+          return { hearts: Math.max(0, base - 1), heartsDay: today };
+        }),
+
+      /** 2 while a Double XP boost is live, else 1. Read at award time, never cached. */
+      xpMultiplier: () => (get().doubleXpUntil > Date.now() ? 2 : 1),
+
       addXp: (n) => set((s) => applyXp(s, n)),
       follow: (id) =>
         set((s) => (s.following.includes(id) ? s : { following: [...s.following, id] })),
       unfollow: (id) => set((s) => ({ following: s.following.filter((f) => f !== id) })),
       friendIds: () => get().following.filter((id) => get().followers.includes(id)),
+      /* +{EARN.dailyChallenge} rides the SAME lastQuestDay guard that already makes the card payout
+       * idempotent. A second guard would be a second thing to get wrong. */
       claimQuestReward: () =>
-        set((s) => (s.lastQuestDay === dayKey() ? s : { lastQuestDay: dayKey(), pendingRewards: [...s.pendingRewards, ...mintRewardCards(1)] })),
+        set((s) =>
+          s.lastQuestDay === dayKey()
+            ? s
+            : { lastQuestDay: dayKey(), coins: s.coins + EARN.dailyChallenge, pendingRewards: [...s.pendingRewards, ...mintRewardCards(1)] },
+        ),
+      /*
+       * The web pays 10-50 Euphorium for WINNING A GAME. iOS has one game and one once-per-day
+       * award rather than a per-win one, so it pays the floor of that band: paying the top of a
+       * range for a weaker version of the action would inflate this economy against the web's.
+       */
       awardGameXp: () =>
-        set((s) => (s.lastGameDay === dayKey() ? s : { lastGameDay: dayKey(), ...applyXp(s, XP_GAME) })),
+        set((s) =>
+          s.lastGameDay === dayKey()
+            ? s
+            : { lastGameDay: dayKey(), coins: s.coins + EARN.gameWinMin, ...applyXp(s, XP_GAME) },
+        ),
       markPostRead: (slug) =>
         set((s) => {
           // The idempotence guard is what makes this safe to pay for: [slug].tsx fires it on
@@ -828,7 +1002,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
