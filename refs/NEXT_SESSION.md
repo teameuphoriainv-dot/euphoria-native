@@ -21,6 +21,72 @@ build, any of the problems they wrote down.
 
 ---
 
+## 0.5 PRE-FLIGHT — RUN THIS FIRST, FIX EVERYTHING RED, THEN START
+
+**Do not read the feedback, do not open a file, do not fix anything until every line below is
+green.** Starting with a broken connection means discovering it mid-investigation, and half the
+wasted time in the previous session came from exactly that. This takes two minutes.
+
+### The checks
+
+```bash
+# 1. repo clean and synced
+cd ~/euphoria-native && git status --porcelain && git fetch -q origin \
+  && echo "unpushed: $(git rev-list --count origin/main..HEAD)"
+
+# 2. toolchain green BEFORE you change anything, so a later failure is provably yours
+npx tsc --noEmit && npm run check
+
+# 3. simulator booted
+xcrun simctl list devices booted | grep -i booted
+
+# 4. Metro up (only needed for simulator/dev-client work, NOT for eas update)
+curl -s -m 3 http://localhost:8081/status >/dev/null && echo "metro ok" || echo "metro DOWN"
+
+# 5. the app is attached to Metro
+curl -s -m 3 http://localhost:8081/json/list | grep -c euphoria
+
+# 6. App Store Connect API reachable
+node -e 'import("./scratchpad/asc.mjs").then(async({api})=>{
+  const a=await api("apps/6761808087"); console.log("ASC ok:", a.data.attributes.name);})'
+```
+
+Then, via MCP:
+- `mcp__metro-mcp__list_devices` — must return the app, not `[]`
+- `mcp__metro-mcp__get_current_route` — must return a route
+- `mcp__claude-in-chrome__list_connected_browsers` — must NOT return `[]`
+- `mcp__XcodeBuildMCP__session_show_defaults` — required before your first build/run/test call
+
+### The four things ONLY THE OWNER can fix, so ask at the very start
+
+1. **Chrome connected.** `list_connected_browsers` returning `[]` means the extension is down. You
+   cannot reconnect it. He must run Chrome with the Claude extension enabled and signed into the
+   same account, possibly restarting Chrome.
+2. **Logged into the web app.** `euphoriainv.com` is a marketing page; the real product is behind
+   Log in and you can never enter a password. Without this, §6.9 and §6.9b are impossible.
+3. **Metro in HIS terminal**, not started by you — `cd ~/euphoria-native && npx expo start`. Started
+   from inside a session it gets killed by task reaping; it died four times in one session.
+4. **He is on build 12 or later.** Builds 8-11 cannot receive OTA updates, so every `eas update` you
+   ship will silently never reach him and you will both be confused about why a fix "did not work."
+
+**Ask for all four in one message at the start.** Do not discover them one at a time.
+
+### Open and keep open for the whole session
+
+| what | why |
+|---|---|
+| Chrome, logged into the web app | the reference implementation, consulted per item |
+| the simulator, app running | where you reproduce and re-verify |
+| `refs/NEXT_SESSION.md` | this contract |
+| `refs/FEEDBACK_LOG.md` | the spine — created in your first action |
+| `refs/webapp/WALKTHROUGH.md` | the web/iOS comparison, built as you go |
+
+**If any of the four owner-items cannot be resolved, say so explicitly and state which parts of the
+protocol you are therefore unable to run.** Do not silently downgrade. A session that quietly stops
+doing web comparison because Chrome died is worse than one that stops and says so.
+
+---
+
 ## 1. BINDING DECISIONS — THE OWNER ANSWERED THESE, DO NOT RE-ASK
 
 These were settled by explicit question and answer at the end of the previous session. They are not
