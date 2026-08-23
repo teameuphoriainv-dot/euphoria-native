@@ -37,6 +37,7 @@ import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
+import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
@@ -372,13 +373,38 @@ export default function Lesson() {
               * intro simply never used it. `styles.centered` is left alone because four other
               * render states share it (loading, done, streak) and none of them needs changing.
               */}
-            <ThemedText type="label" maxFontSizeMultiplier={1.6} style={{ color: theme.iconLilac, marginTop: Spacing.four }}>
-              {(getCourseById(courseId)?.title ?? 'Course').toUpperCase()} · LESSON {lesson.num}
-            </ThemedText>
-            <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.title}>{lesson.title}</ThemedText>
-            <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
-              {total} steps · {xp} XP
-            </ThemedText>
+            {/*
+              * THE LESSON OPENS, it does not simply appear. Reported 2026-08-22: "When I click
+              * into Investing Fundamentals, the first lesson, I see an initial screen with no
+              * animation or lesson start animation."
+              *
+              * He was describing a real thing even though this view was never literally static:
+              * the whole intro sat inside ONE `entering={FadeIn}` on the container, so Atlas, the
+              * speech bubble, the title, the step count and the key terms all resolved on the same
+              * frame at the same opacity. A single simultaneous fade of six elements reads as a
+              * screen materialising, not as something starting.
+              *
+              * Staggering them gives the eye an order to follow — course, then title, then cost,
+              * then what you'll learn — which is the order someone actually reads them in.
+              *
+              * Delays are LITERAL, not index-multiplied, and the largest is 230ms against a
+              * STAGGER_CAP of 360: the last element has to land before the thumb reaches Continue.
+              * `alignSelf: 'stretch'` keeps each wrapper full width so the centred text inside
+              * stays centred rather than shrinking to its own content.
+              */}
+            <RiseIn delay={40} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
+              <ThemedText type="label" maxFontSizeMultiplier={1.6} style={{ color: theme.iconLilac, marginTop: Spacing.four }}>
+                {(getCourseById(courseId)?.title ?? 'Course').toUpperCase()} · LESSON {lesson.num}
+              </ThemedText>
+            </RiseIn>
+            <RiseIn delay={120} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
+              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.title}>{lesson.title}</ThemedText>
+            </RiseIn>
+            <RiseIn delay={190} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
+              <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
+                {total} steps · {xp} XP
+              </ThemedText>
+            </RiseIn>
             {/*
               * WHAT THE 20 STEPS ARE ABOUT. Audit finding (FINDINGS.md, LESSON): 3/3 comparators
               * answer "what will I be able to do" with specifics and this screen answered it with a
@@ -390,6 +416,7 @@ export default function Lesson() {
               * fallback was built, measured and then deleted.
               */}
             {keyTerms.length > 0 && (
+              <RiseIn delay={260} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
               <View style={styles.preview}>
                 <ThemedText type="label" style={{ color: theme.iconLilac }}>
                   YOU&apos;LL LEARN
@@ -398,6 +425,7 @@ export default function Lesson() {
                   {keyTerms.join('  ·  ')}
                 </ThemedText>
               </View>
+              </RiseIn>
             )}
             </ScrollView>
           </Animated.View>

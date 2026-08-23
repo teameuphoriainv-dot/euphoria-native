@@ -1,11 +1,14 @@
 import { FontSize } from '@/constants/theme';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Spring } from '@/shared/motion/tokens';
 
 /** Route → UIcon line icon (consistent stroke, per design mockups). */
 const TAB_ICONS: Record<string, UIconName> = {
@@ -15,6 +18,61 @@ const TAB_ICONS: Record<string, UIconName> = {
   digest: 'feed',
   you: 'you',
 };
+
+/** How far the selected tab's glyph rides above the others, in pt. */
+const LIFT = 3;
+
+/**
+ * <TabGlyph> — the tab icon, which now moves when its tab becomes the current one.
+ *
+ * Added 2026-08-22, from the cofounder design doc: "The icons are currently completely static.
+ * They don't have any sort of animation, and so I would love to see if we could have a small
+ * type of SVG animation every time you click a different page. Whether that is just the icon
+ * moving or coming to fruition."
+ *
+ * WHY A LIFT AND NOT A POP. `motion-invariants.mjs` holds "no scale-pop on ordinary interaction",
+ * and switching tabs is the most ordinary interaction in the app — it happens dozens of times a
+ * session. A glyph that punches up in scale every time becomes noise by the third tap. A 3pt rise
+ * on `Spring.bouncy` (zeta 0.70) overshoots once and settles, so the movement is legible in the
+ * moment and then simply reads as "the active tab sits a little higher".
+ *
+ * The lift is STATEFUL, not a one-shot: it holds at 1 while focused and releases on `Spring.smooth`
+ * (zeta 1.0, no overshoot) when another tab takes over. A tab handing off should not bounce — only
+ * the one being chosen does.
+ *
+ * REDUCED MOTION. Translation is exactly what this setting targets, so under it the glyph does not
+ * move at all and the selection reads through opacity instead, which is the substitution
+ * `reduced_motion_audit.py` documents. Colour and stroke weight already changed on focus and still
+ * do in both modes, so selection is never conveyed by motion alone.
+ */
+function TabGlyph({ name, focused, color }: { name: UIconName; focused: boolean; color: string }) {
+  const reduced = useReducedMotion();
+  // seeded from `focused` so the tab that is already selected at mount does not animate into place
+  const lift = useSharedValue(focused ? 1 : 0);
+
+  useEffect(() => {
+    lift.set(withSpring(focused ? 1 : 0, focused ? Spring.bouncy : Spring.smooth));
+  }, [focused, lift]);
+
+  const style = useAnimatedStyle(() =>
+    reduced
+      ? { opacity: 0.65 + lift.get() * 0.35 }
+      : { transform: [{ translateY: -LIFT * lift.get() }] },
+  );
+
+  return (
+    <Animated.View style={style}>
+      {/*
+        * 28, not 24. Measured on device 2026-08-19: the tab icons rendered at 24pt while the
+        * Trade/Digest quick-cards render theirs at 20pt — the tab icons were already the
+        * larger glyph and still read as the smaller one, because a card gives its icon 104pt
+        * of surrounding surface and a tab gives it none. Presence is the icon relative to its
+        * container, not its raw pt. 28 is Apple's own tab-bar glyph size for a compact bar.
+        */}
+      <UIcon name={name} size={28} color={color} strokeWidth={focused ? 2.4 : 2} />
+    </Animated.View>
+  );
+}
 
 type TabBarProps = {
   state: { index: number; routes: { key: string; name: string }[] };
@@ -51,14 +109,7 @@ export function TabBar({ state, navigation }: TabBarProps) {
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
             }}>
-            {/*
-              * 28, not 24. Measured on device 2026-08-19: the tab icons rendered at 24pt while the
-              * Trade/Digest quick-cards render theirs at 20pt — the tab icons were already the
-              * larger glyph and still read as the smaller one, because a card gives its icon 104pt
-              * of surrounding surface and a tab gives it none. Presence is the icon relative to its
-              * container, not its raw pt. 28 is Apple's own tab-bar glyph size for a compact bar.
-              */}
-            <UIcon name={TAB_ICONS[route.name] ?? 'sparkle'} size={28} color={color} strokeWidth={focused ? 2.4 : 2} />
+            <TabGlyph name={TAB_ICONS[route.name] ?? 'sparkle'} focused={focused} color={color} />
             {/*
               * AX5 CLIPPED EVERY TAB LABEL MID-WORD — "Hom Lear Trad Dige You". Captured on
               * device at accessibility-extra-extra-extra-large, not inferred from a grep.
