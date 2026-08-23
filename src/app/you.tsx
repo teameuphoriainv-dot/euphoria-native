@@ -16,7 +16,8 @@ import { useRouter } from 'expo-router';
 import { useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Atlas } from '@/components/atlas';
+import { ProfileAvatar } from '@/components/profile-avatar';
+import { PixelSpriteView, rocket, whale } from '@/lib/pixel';
 import { StatMark, type StatMarkName } from '@/components/art/stat-mark';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
@@ -86,6 +87,13 @@ const SETTINGS_ROWS: Row[] = [
 ];
 
 /** Counters that change need fixed-width digits, or the number jitters sideways as it climbs. */
+/** Profile theme tints, keyed by item id. Values are the theme's own name on web. */
+const THEME_TINT: Record<string, string> = {
+  theme_neon: '#22D3EE',
+  theme_midnight: '#3B82F6',
+  theme_gold: '#F0A72B',
+};
+
 const NUM = { fontVariant: ['tabular-nums' as const] };
 
 export default function You() {
@@ -98,6 +106,11 @@ export default function You() {
   // ponytail: levelProgress() returns a fresh object → unstable zustand snapshot → infinite render
   // loop. Read it non-reactively; the selected `xp` above already re-renders on change.
   const lp = useApp.getState().levelProgress();
+
+  /* Equipped cosmetics (N21). Read here rather than inside the card so the card stays presentational. */
+  const equipped = useApp((s) => s.equipped);
+  const badgeSprite = equipped.badge === 'badge_whale' ? whale : equipped.badge === 'badge_rocket' ? rocket : undefined;
+  const cardTint = equipped.theme ? (THEME_TINT[equipped.theme] ?? undefined) : undefined;
   const lessons = useApp((s) => s.completedLessons.length);
   const guides = useApp((s) => s.readPosts.length);
   // Was in the store and invisible on every screen until now.
@@ -173,8 +186,12 @@ export default function You() {
           * Name and handle come from sign-up; both fall back rather than inventing anything.
           */}
         <RiseIn>
-          <Card style={styles.identity}>
-            <Atlas size={62} expression="happy" interactive={false} idle />
+          {/* An equipped profile theme tints the identity card — the one surface on iOS that is
+              recognisably "your profile". THEME_TINT is keyed by the item's own metadata value. */}
+          <Card style={styles.identity} tint={cardTint}>
+            {/* Atlas wearing whatever is equipped (N21). See profile-avatar.tsx for why the
+                hats go on the mascot rather than on an invented player character. */}
+            <ProfileAvatar size={62} />
             <View style={{ flex: 1 }}>
               {/* Name and plan on ONE line, which is TradingView `185370` exactly: `juliascreens`
                   with an `ESSENTIAL` chip beside it. The badge is what makes an identity card also
@@ -193,6 +210,9 @@ export default function You() {
                 <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} numberOfLines={2} style={{ flexShrink: 1 }}>
                   {name ?? 'Your profile'}
                 </ThemedText>
+                {/* An equipped badge sits with the plan chip: both are status, both are compact,
+                    and putting the badge anywhere else would give it a row of its own for one glyph. */}
+                {badgeSprite ? <PixelSpriteView sprite={badgeSprite} size={18} /> : null}
                 <View
                   style={[
                     styles.planChip,
