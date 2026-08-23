@@ -15,9 +15,9 @@ done.** Only the owner sets `verified`, on his own phone (§1.3). Nothing below 
 
 | state | count | which |
 |---|---|---|
-| ready-for-verification | 20 | N1 N2 N3 N4 N6 N7 N8 N9 N10 N11 N12 N13 N14 N15 N17 N18 N20 N21 N22 N23 + all of BATCH A |
+| ready-for-verification | 21 | N1 N2 N3 N4 N6 N7 N8 N9 N10 N11 N12 N13 N14 N15 N17 N18 N20 N21 N22 N23 + N5 + all of BATCH A |
 | partial | 1 | N16 — the 3-lesson gate ships, the discounted annual rate does not |
-| open | 1 | N5 — widened to every lesson; needs the curriculum re-sync, not a code fix |
+| open | 0 | — |
 | blocked | 1 | N19 — not reproducible, needs a repro from the reporter |
 
 **The status column was wrong before this pass.** Eleven rows still read `open` for work that had
@@ -62,7 +62,7 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 ## BATCH C — Lessons
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N5 | "the 'Americans can't cover a $1,000 emergency expense' question shows up more than once in the first personal finance lesson." | wrong-data | P1 | **open** | WIDENED by the rewritten audit from "the first lesson" to every lesson. Needs the curriculum re-sync, not a code fix|
+| N5 | "the 'Americans can't cover a $1,000 emergency expense' question shows up more than once in the first personal finance lesson." | wrong-data | P1 | ready-for-verification | MEASURED: exactly 2 instances across 299 lessons, both Personal Finance, both a checkpoint question repeating one from the lesson body. The audit's widening to "every lesson" was wrong. `lesson-question-pin`|
 | N6 | "it looks like the app measures time based on the lesson's listed duration, not actual time spent in-app. After finishing a lesson it shows 5 minutes even if you were on the app much longer" | wrong-data | P1 | ready-for-verification | real elapsed minutes, clamped 1-30; `goal-minutes-pin`|
 | N7 | "the drag-to-order steps sometimes load with answers already in the correct position... None of them should ever start in the correct spot. Confirmed happening across every lesson" | **crash-class bug** | **P0** | ready-for-verification | DERANGED, not merely unsolved; `order-derangement-pin`|
 
