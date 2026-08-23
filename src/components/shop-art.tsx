@@ -11,8 +11,9 @@
  * second library by another name.
  */
 import {
-  bolt, crown, diamondRing, frame, heart, lightbulb, monocle, rocket,
-  snowflake, sunglasses, theme as themeSprite, topHat, whale, wizardHat,
+  bolt, crown, diamondRing, frame, frameDiamond, frameFire, frameRainbow, heart,
+  lightbulb, monocle, rocket, snowflake, sunglasses, theme as themeSprite,
+  themeGold, themeMidnight, themeNeon, topHat, whale, wizardHat,
   type PixelSprite,
 } from '@/lib/pixel';
 import { PixelSpriteView } from '@/lib/pixel/PixelSprite';
@@ -27,6 +28,13 @@ const BY_ID: Record<string, PixelSprite> = {
   avatar_diamond_ring: diamondRing,
   badge_whale: whale,
   badge_rocket: rocket,
+  // Six cosmetics that BOTH apps drew with one generic mark each. See sprites-additions.ts.
+  theme_neon: themeNeon,
+  theme_midnight: themeMidnight,
+  theme_gold: themeGold,
+  frame_fire: frameFire,
+  frame_diamond: frameDiamond,
+  frame_rainbow: frameRainbow,
 };
 
 /** The per-itemType fallback, so an item added later is never blank. */

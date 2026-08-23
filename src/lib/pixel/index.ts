@@ -28,3 +28,5 @@ export { EUPHORIA_PIXEL_PALETTE, TRANSPARENT } from './palette';
 export type { PixelSprite, PixelRect, CompiledSprite } from './types';
 export { PIXEL_SPRITES, SPRITES_BY_ID, getSprite } from './sprites';
 export * from './sprites';
+// Authored here, pending contribution upstream — see sprites-additions.ts.
+export * from './sprites-additions';
