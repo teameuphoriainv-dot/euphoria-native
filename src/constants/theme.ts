@@ -67,6 +67,20 @@ export const Colors = {
      * ctaDepth is the same hue as `primary` (274) at L36% rather than L61% — dark enough to read
      * as the side of a solid object, not as a shadow.
      */
+    /**
+     * PREMIUM COLOURWAY — pink -> orange, and it is NOT the brand violet.
+     *
+     * Lifted 2026-08-22 from the owner's own web pricing page (design doc refs 4 and 5): the
+     * `Premium` wordmark, the Premium column's border, its check marks and the "Go Premium" CTA
+     * all run this ramp, while everything non-Premium stays violet. That contrast IS the signal —
+     * "We have special Premium colors... We will want these colors to be represented here and
+     * throughout all Premium branding across the entire platform."
+     *
+     * Reserved for Premium surfaces. Using it on an ordinary CTA spends the one colour that means
+     * "this is the paid thing" on something that isn't.
+     */
+    premiumFrom: '#E0409B',
+    premiumTo: '#F5842B',
     ctaDepth: '#6516A2',
     ctaNeutral: '#F1EFF5',
     ctaNeutralDepth: '#BFB6CE',
@@ -102,6 +116,8 @@ export const Colors = {
     warning: 'hsl(45 93% 58%)',
     streak: '#F97316',
     destructive: 'hsl(0 84% 60%)',
+    premiumFrom: '#E0409B',
+    premiumTo: '#F5842B',
     ctaDepth: 'hsl(274 76% 36%)',
     ctaNeutral: 'hsl(0 0% 100%)',
     ctaNeutralDepth: 'hsl(240 6% 80%)',

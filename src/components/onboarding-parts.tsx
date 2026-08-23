@@ -131,6 +131,83 @@ export function TrialStep({
 }
 
 /** Selectable pricing tier. The highlighted tier carries a badge tab across its top edge. */
+/**
+ * The five differences between Free and Premium, taken VERBATIM from the owner's own web
+ * pricing page (design doc refs 4 and 5) so the two surfaces cannot drift apart.
+ *
+ * `free` is what the free tier actually gets, and it matches the web's Basic card word for word
+ * ("First lessons, games, and paper trading") rather than being talked up. Overstating the free
+ * tier here would make the chart argue against the upgrade; understating it is a false claim on a
+ * purchase screen, which is an App Review problem on an app that already carries an open 2.1(a).
+ */
+const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
+  { label: 'All 12 courses, 300+ lessons', free: false },
+  { label: 'Coaching by Atlas', free: false },
+  { label: 'AI market simulations', free: false },
+  { label: 'Unlimited paper trading', free: false },
+  { label: 'Games, streaks & leaderboards', free: true },
+];
+
+/**
+ * <PremiumBenefits> — "Subscription screen needs a features list — right now it's just an image;
+ * users can't tell what premium actually includes" (notes, N17) and "a chart that we've built
+ * that outlines the differences between the non-Premium version and the Premium version"
+ * (prompt, P6). Two reporters, one screen.
+ *
+ * The web renders this as a wide table with one Premium column. On a 393pt phone a full
+ * side-by-side table would wrap every label to three lines, so the columns are compressed to two
+ * narrow marks and the label carries the row. The INFORMATION is identical; the shape is not, and
+ * that is a platform reason rather than a deviation.
+ *
+ * ADDED beside the trial timeline, not instead of it. That timeline is documented as set from
+ * five captured competitor paywalls (C29/C31) — deleting measured work to satisfy a styling note
+ * would be trading evidence for a preference.
+ */
+export function PremiumBenefits() {
+  const theme = useTheme();
+  return (
+    <View style={pb.wrap}>
+      <View style={pb.row}>
+        <ThemedText type="label" themeColor="mutedForeground" style={pb.label}>BENEFITS</ThemedText>
+        <ThemedText type="label" themeColor="mutedForeground" style={pb.col}>FREE</ThemedText>
+        {/* The one place the premium ramp is allowed to speak as a word rather than a mark. */}
+        <ThemedText type="label" style={[pb.col, { color: theme.premiumFrom }]}>PRO</ThemedText>
+      </View>
+      {PREMIUM_BENEFITS.map((b, i) => (
+        <View
+          key={b.label}
+          style={[pb.row, i > 0 ? { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border } : null]}>
+          <ThemedText type="small" maxFontSizeMultiplier={1.4} numberOfLines={2} style={pb.label}>{b.label}</ThemedText>
+          <View style={pb.col}>
+            {b.free
+              ? <UIcon name="check" size={13} color={theme.mutedForeground} />
+              : <View style={[pb.dash, { backgroundColor: theme.border }]} />}
+          </View>
+          <View style={pb.col}>
+            <LinearGradient
+              colors={[theme.premiumFrom, theme.premiumTo]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={pb.tick}>
+              <UIcon name="check" size={11} color="#fff" />
+            </LinearGradient>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const pb = StyleSheet.create({
+  wrap: { marginTop: Spacing.three },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: Spacing.two },
+  label: { flex: 1 },
+  col: { width: 48, alignItems: 'center' },
+  // a dash, not a cross: the free tier is missing this, it has not failed at it
+  dash: { width: 11, height: 2, borderRadius: 1 },
+  tick: { width: 19, height: 19, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+});
+
 export function PlanCard({
   selected,
   onPress,

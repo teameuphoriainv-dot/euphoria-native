@@ -32,8 +32,7 @@ import {
   SingleSelectStep,
   StatementStep,
   StepHeading,
-  TrialStep,
-} from '@/components/onboarding-parts';
+  TrialStep, PremiumBenefits } from '@/components/onboarding-parts';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
@@ -287,6 +286,11 @@ const STEPS: StepDef[] = [
 
 const TOTAL = STEPS.length;
 const PAYWALL_INDEX = TOTAL - 1;
+
+/** Atlas on the paywall. 56 read as a favicon on the one screen that asks for money;
+ *  the design doc asks for Atlas here and asks for it to be "super beautiful". 76 gives the
+ *  mascot presence while still leaving the plan cards above the fold on a 393pt phone. */
+const PAYWALL_ATLAS = 76;
 const REVEAL_INDEX = TOTAL - 2;
 
 export default function Onboarding() {
@@ -605,6 +609,16 @@ export default function Onboarding() {
                 price={PRICING.monthly}
                 unit="per month"
               />
+              {/*
+                * BELOW the plans, not above them, and this was measured on the simulator rather
+                * than reasoned about. Placed above, the chart pushed BOTH plan cards past the fold:
+                * the screen that asks for money showed no price at rest. The prices are still
+                * disclosed in the footer, so it was not a compliance defect, but it moved the
+                * purchase decision off screen to make room for the argument for it, which is
+                * backwards. Here the fold is exactly what it was before the chart existed and the
+                * chart is strictly additive for anyone who scrolls to weigh it up.
+                */}
+              <PremiumBenefits />
             </RiseIn>
           </View>
         );
@@ -642,7 +656,7 @@ export default function Onboarding() {
         // (size is a dependency of Atlas's celebrate effect).
         celebrateKey={renderStep === REVEAL_INDEX ? 1 : 0}
         nodKey={renderStep < REVEAL_INDEX ? nodKey : 0}
-        size={renderStep === PAYWALL_INDEX ? 56 : ATLAS_SIZE}
+        size={renderStep === PAYWALL_INDEX ? PAYWALL_ATLAS : ATLAS_SIZE}
       />
 
       <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

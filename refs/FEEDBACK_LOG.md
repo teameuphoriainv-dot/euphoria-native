@@ -26,12 +26,12 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 ## BATCH A — the prompt doc (design direction)  <-- STARTING HERE
 | # | reporter | verbatim | class | sev | status | files | commit |
 |---|---|---|---|---|---|---|---|
-| P1 | prompt | "I see an initial screen with no animation or lesson start animation. Build a quick lesson start animation or some sort of transition from when you first click the start button to get into the lesson" | visual | P2 | open | `lesson.tsx`, `start.tsx` | |
+| P1 | prompt | "I see an initial screen with no animation or lesson start animation. Build a quick lesson start animation or some sort of transition from when you first click the start button to get into the lesson" | visual | P2 | ready-for-verification | `lesson.tsx` | stagger |
 | P2 | prompt | "The biggest thing that we have to fix throughout the entire application is our buttons... I don't like the gradient look... I like a deep purple, brilliant, styled button that's super defined and hard cut... implement that on every purple button" | visual | **P0** | ready-for-verification | `ui/button.tsx` (+19 callers) | slab CTA |
 | P3 | prompt | "we can't have the same type of gradient behind it because it looks extremely vibe-coded... similar buttons that are white, pushed up... they can't have the vibe-coded glow behind them" | visual | **P0** | ready-for-verification | `ui/button.tsx` | slab CTA |
-| P4 | prompt | "The icons are currently completely static... I would love to see if we could have a small type of SVG animation every time you click a different page" | visual | P2 | open | `tab-bar.tsx`, `ui-icon.tsx` | |
+| P4 | prompt | "The icons are currently completely static... I would love to see if we could have a small type of SVG animation every time you click a different page" | visual | P2 | ready-for-verification | `tab-bar.tsx` | TabGlyph |
 | P5 | prompt | "On the profile page, the spacing between the 'Your Profile' and 'Free Trial' (along with 'Atlas' on the left and 'Your Profile Stats' and the 'Free Trial' button right under) is messed up. Let's add some padding" | visual | P1 | ready-for-verification | `(tabs)/you.tsx` | spacing |
-| P6 | prompt | "take the screenshots, take the coloring, take the color scheme, font, and all of the things that we give in the screenshots design system, and apply them to the new pricing conversion page" + "on the free trial page, we want Atlas there, and we want it to be super beautiful" | visual | P1 | open | `onboarding.tsx`, `theme.ts` | |
+| P6 | prompt | "take the screenshots, take the coloring, take the color scheme, font, and all of the things that we give in the screenshots design system, and apply them to the new pricing conversion page" + "on the free trial page, we want Atlas there, and we want it to be super beautiful" | visual | P1 | ready-for-verification | `onboarding.tsx`, `theme.ts` | premium chart |
 
 ## BATCH B — Onboarding
 | # | verbatim | class | sev | status |
@@ -68,7 +68,7 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 | N14 | "Post-lesson 'open the present' reward currently offers 'Start your free trial' even to users who are already on the free trial — confirmed bug." | broken-flow | **P0** | open |
 | N15 | "Same bug on Home: tapping the arrow next to the trial banner says 'Start your free trial to continue' even when already enrolled." | broken-flow | **P0** | open |
 | N16 | "instead of prompting after every single lesson, consider triggering the 'present' after a few lessons and offering a discounted annual rate" | confusion | P2 | open |
-| N17 | "Subscription screen needs a features list — right now it's just an image; users can't tell what premium actually includes." | visual | P1 | open (= P6) |
+| N17 | "Subscription screen needs a features list — right now it's just an image; users can't tell what premium actually includes." | visual | P1 | ready-for-verification (= P6) — NOTE: chart sits below the fold, see open question |
 
 ## BATCH G — Digest / Trading / AI / Rewards / Settings / Copy
 | # | verbatim | class | sev | status |
@@ -85,3 +85,16 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 1. **PRICE DIVERGENCE.** Web `/pricing` (prompt doc IMG 5) says Premium **$9.99/mo, $99.99 billed yearly**. iOS `onboarding.tsx` PRICING says **$9.99 / $79.99**. `refs/PRICE_DESYNC.md` records an earlier app-vs-store mismatch. Three different annual numbers are in play and `pricing-pin.mjs` will fail the build if the derived badge/per-month lines are not updated together. **RESOLVED 2026-08-22 — owner: keep $79.99 on iOS, web will be changed instead. No iOS change. ~~Which annual price is real?~~**
 2. **RESOLVED — owner: remove seeded profiles, real friends only.** ~~N13 fake friends.~~ "Priya S / Chris M" being seeded bots is a product/ethics call, not a styling one.
 3. **RESOLVED — owner: my call = 13+ (COPPA line); and DO THIS LAST, after everything else.** ~~N3 age range.~~ Under-18 users change COPPA/FERPA posture. Needs an explicit floor.
+
+---
+## FOUND BY ME, NOT REPORTED (2026-08-22)
+- **Paywall cannot fit everything above the fold on a 393pt phone.** Trial timeline (3 rows) +
+  2 plan cards + benefits chart + pinned footer exceeds one viewport. The chart is currently
+  BELOW the plan cards so the price stays at the fold, which means N17's "users can't tell what
+  premium includes" still needs a scroll. Swapping the timeline out for the chart would fix that
+  but deletes work measured from five competitor paywalls (C29/C31). **Owner decision.**
+- **`[iap] configured but the current offering has NO packages`** fires on every launch. Confirms
+  §4.2's open item — RevenueCat offering→package→product mapping still unverified. CAVEAT: seen on
+  the SIMULATOR, where StoreKit does not fetch products without a config file. Unverified on device.
+- The installed simulator app is a **dev-client build with no embedded bundle** — it cannot run
+  without Metro. Worth knowing before anyone assumes the sim reflects a TestFlight build.
