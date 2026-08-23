@@ -17,21 +17,13 @@
 import { View } from 'react-native';
 
 import { Atlas } from '@/components/atlas';
-import {
-  PixelSpriteView, crown, diamondRing, monocle, sunglasses, topHat, wizardHat,
-  type PixelSprite,
-} from '@/lib/pixel';
+import { PixelSpriteView } from '@/lib/pixel';
+import { ITEM_ART } from '@/lib/item-art';
 import { useApp } from '@/lib/store';
 
-const WEARABLE: Record<string, PixelSprite> = {
-  avatar_crown: crown,
-  avatar_top_hat: topHat,
-  avatar_wizard_hat: wizardHat,
-  avatar_sunglasses: sunglasses,
-  avatar_monocle: monocle,
-  avatar_diamond_ring: diamondRing,
-};
-
+/* The wearables map lived here as a third copy of the same id -> sprite table. It is now shared:
+ * `equipped.hat` and `equipped.accessory` only ever hold ids equipItem wrote from an item's own
+ * slot metadata, so reading the full catalogue map cannot put a badge on Atlas's head. */
 /** Frame colours, keyed by the item's `frame` metadata value. */
 const FRAME_TINT: Record<string, string> = {
   fire: '#F97316',
@@ -42,8 +34,8 @@ const FRAME_TINT: Record<string, string> = {
 export function ProfileAvatar({ size = 62 }: { size?: number }) {
   const equipped = useApp((s) => s.equipped);
 
-  const hat = equipped.hat ? WEARABLE[equipped.hat] : undefined;
-  const accessory = equipped.accessory ? WEARABLE[equipped.accessory] : undefined;
+  const hat = equipped.hat ? ITEM_ART[equipped.hat] : undefined;
+  const accessory = equipped.accessory ? ITEM_ART[equipped.accessory] : undefined;
   const frameKey = equipped.frame?.replace('frame_', '');
   const frameTint = frameKey ? FRAME_TINT[frameKey] : undefined;
 

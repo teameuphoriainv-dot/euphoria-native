@@ -23,7 +23,10 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Profile } from './onboarding-path';
 import { EMPTY_PROFILE, MINUTES_PER_LESSON, recommendPath } from './onboarding-path';
 import { SEED_FOLLOWERS } from './people';
-import { EARN, itemById } from './shop-items';
+import { EARN } from './shop-items';
+// The MERGED catalogue, not shop-items' own lookup: that file is the web's table verbatim and does
+// not know about the items iOS added, so buying one would silently no-op.
+import { allItemById as itemById } from './shop-items-extra';
 import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 

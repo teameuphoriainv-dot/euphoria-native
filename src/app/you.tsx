@@ -13,11 +13,12 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { ITEM_ART } from '@/lib/item-art';
 import { useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ProfileAvatar } from '@/components/profile-avatar';
-import { PixelSpriteView, rocket, whale } from '@/lib/pixel';
+import { PixelSpriteView } from '@/lib/pixel';
 import { StatMark, type StatMarkName } from '@/components/art/stat-mark';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
@@ -109,7 +110,9 @@ export default function You() {
 
   /* Equipped cosmetics (N21). Read here rather than inside the card so the card stays presentational. */
   const equipped = useApp((s) => s.equipped);
-  const badgeSprite = equipped.badge === 'badge_whale' ? whale : equipped.badge === 'badge_rocket' ? rocket : undefined;
+  /* Was a ternary enumerating exactly two badges, so any badge added later equipped to an
+   * invisible profile. Shared map now — see src/lib/item-art.ts. */
+  const badgeSprite = equipped.badge ? ITEM_ART[equipped.badge] : undefined;
   const cardTint = equipped.theme ? (THEME_TINT[equipped.theme] ?? undefined) : undefined;
   const lessons = useApp((s) => s.completedLessons.length);
   const guides = useApp((s) => s.readPosts.length);
