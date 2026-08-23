@@ -188,7 +188,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
       </View>
 
       {solved && (
-        <ThemedText type="smallBold" style={{ color: theme.success, marginTop: Spacing.three }}>All matched — nicely done.</ThemedText>
+        <ThemedText type="smallBold" style={{ color: theme.success, marginTop: Spacing.three }}>All matched. Nicely done.</ThemedText>
       )}
     </View>
   );

@@ -494,7 +494,7 @@ export default function StockDetail() {
               {expired
                 ? 'Paper trading is part of Euphoria Pro. Prices and stats stay open.'
                 : !canBuy
-                  ? `Not enough cash — you have ${money(cash)}.`
+                  ? `Not enough cash. You have ${money(cash)}.`
                   : `Cash after this buy: ${money(cash - cost)}`}
             </ThemedText>
           </Card>

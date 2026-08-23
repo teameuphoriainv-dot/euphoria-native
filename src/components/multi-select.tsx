@@ -82,7 +82,7 @@ export function MultiSelect({ spec, onSolvedChange }: { spec: MultiSpec; onSolve
 
       {solved ? (
         <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.three }}>
-          <ThemedText type="smallBold" style={{ color: theme.success }}>Exactly — that&apos;s the full set.</ThemedText>
+          <ThemedText type="smallBold" style={{ color: theme.success }}>Exactly. That&apos;s the full set.</ThemedText>
         </Animated.View>
       ) : (
         <SpringPressable
@@ -92,7 +92,7 @@ export function MultiSelect({ spec, onSolvedChange }: { spec: MultiSpec; onSolve
         >
           <View style={[styles.check, { backgroundColor: anyPicked ? theme.primary + '1F' : theme.muted, borderColor: anyPicked ? theme.primary + '4D' : theme.border }]}>
             <ThemedText type="smallBold" style={{ color: anyPicked ? theme.iconLilac : theme.mutedForeground }}>
-              {checked ? 'Not quite — answers are marked. Fix and check again.' : 'Check answer'}
+              {checked ? 'Not quite. Answers are marked, fix and check again.' : 'Check answer'}
             </ThemedText>
           </View>
         </SpringPressable>

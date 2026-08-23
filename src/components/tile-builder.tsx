@@ -104,7 +104,7 @@ export function TileBuilder({ spec, onSolvedChange }: { spec: TileSpec; onSolved
       {full && (
         <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.three }}>
           <ThemedText type="smallBold" style={{ color: allCorrect ? theme.success : theme.warning }}>
-            {allCorrect ? 'Nailed it — that’s the 50/30/20 split.' : 'Close. Tap an amber slot to fix it.'}
+            {allCorrect ? 'Nailed it. That’s the 50/30/20 split.' : 'Close. Tap an amber slot to fix it.'}
           </ThemedText>
         </Animated.View>
       )}

@@ -151,7 +151,7 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
       </View>
 
       {solved && (
-        <ThemedText type="smallBold" style={{ color: theme.success, marginTop: Spacing.three }}>In order — well done.</ThemedText>
+        <ThemedText type="smallBold" style={{ color: theme.success, marginTop: Spacing.three }}>In order. Well done.</ThemedText>
       )}
     </View>
   );

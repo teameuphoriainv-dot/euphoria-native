@@ -92,7 +92,7 @@ export default function Search() {
           <TextInput
             value={q}
             onChangeText={setQ}
-            placeholder="Search any stock — name or ticker"
+            placeholder="Search any stock by name or ticker"
             placeholderTextColor={theme.mutedForeground}
             autoFocus
             autoCapitalize="characters"

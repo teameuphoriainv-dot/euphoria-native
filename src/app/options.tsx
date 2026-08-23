@@ -474,8 +474,8 @@ export default function Options() {
           <View style={[styles.notice, { backgroundColor: theme.primary + '12', borderColor: theme.primary + '33' }]}>
             <ThemedText type="small" themeColor="mutedForeground">
               {live
-                ? 'Delayed. Currency in USD. Prices shown are the ask — what a buyer actually pays.'
-                : `No live chain connected, so these are Black-Scholes estimates at ${Math.round(ASSUMED_VOL * 100)}% assumed volatility — a teaching model, not quotes.`}
+                ? 'Delayed. Currency in USD. Prices shown are the ask, which is what a buyer actually pays.'
+                : `No live chain connected, so these are Black-Scholes estimates at ${Math.round(ASSUMED_VOL * 100)}% assumed volatility. A teaching model, not quotes.`}
             </ThemedText>
           </View>
         </RiseIn>

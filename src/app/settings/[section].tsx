@@ -186,7 +186,7 @@ function AccountSection() {
             planTier === 'pro'
               ? 'Euphoria Pro'
               : planTier === 'expired'
-                ? 'Free — trial ended'
+                ? 'Free, trial ended'
                 : `Free trial · day ${trialDay} of ${TRIAL_DAYS}`
           }
         />

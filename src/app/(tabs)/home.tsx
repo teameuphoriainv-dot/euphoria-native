@@ -221,7 +221,7 @@ export default function Home() {
                   */}
                 <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
                 <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2}>
-                  {remaining === 0 ? 'Done for today — streak safe.' : `${remaining} min to keep your streak`}
+                  {remaining === 0 ? 'Done for today. Streak safe.' : `${remaining} min to keep your streak`}
                 </ThemedText>
               </View>
             </View>

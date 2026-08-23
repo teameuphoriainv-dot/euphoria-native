@@ -110,7 +110,7 @@ const HORIZONS: Choice[] = [
 
 /** Behavioural signal, not a risk score — see the regulatory note in onboarding-path.ts. */
 const RISK: Choice[] = [
-  { key: 'sell', icon: 'flame', title: 'Sell — I want out', sub: 'Protect what I have left' },
+  { key: 'sell', icon: 'flame', title: 'Sell, I want out', sub: 'Protect what I have left' },
   { key: 'wait', icon: 'seedling', title: 'Wait it out', sub: 'Do nothing and hold' },
   { key: 'buy', icon: 'rocket', title: 'Buy more', sub: "It's on sale" },
 ];
@@ -195,8 +195,8 @@ const PROOF: { icon: UIconName; title: string; sub: string }[] = [
  */
 const TRIAL_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
   { icon: 'lock', title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
-  { icon: 'bell', title: `Day ${TRIAL_DAYS - 1} — Reminder`, sub: "We'll remind you before anything is charged.", tone: 'soft' as const },
-  { icon: 'wallet', title: `Day ${TRIAL_DAYS} — Billing starts`, tone: 'muted' as const },
+  { icon: 'bell', title: `Day ${TRIAL_DAYS - 1} · Reminder`, sub: "We'll remind you before anything is charged.", tone: 'soft' as const },
+  { icon: 'wallet', title: `Day ${TRIAL_DAYS} · Billing starts`, tone: 'muted' as const },
 ];
 
 /**
@@ -272,7 +272,7 @@ const STEPS: StepDef[] = [
   // an unsubstantiated performance claim inside a paid finance funnel. Credit the habit, not a number.
   { kind: 'statement', title: 'The habit is what makes it stick', body: 'chart', face: 'proud', sub: 'Ten minutes a day builds real investing instinct.' },
   { kind: 'single', field: 'horizon', question: 'When do you want to start investing for real?', options: HORIZONS, face: 'watching' },
-  { kind: 'single', field: 'riskComfort', question: 'Your portfolio drops 20% in a month. You…', sub: 'There’s no wrong answer — it tells Atlas how to coach you.', options: RISK, face: 'whoa' },
+  { kind: 'single', field: 'riskComfort', question: 'Your portfolio drops 20% in a month. You…', sub: 'There’s no wrong answer. It tells Atlas how to coach you.', options: RISK, face: 'whoa' },
   { kind: 'single', field: 'dailyMinutes', question: 'How much time can you give it?', options: DAILY, face: 'happy' },
   { kind: 'statement', title: 'Everything you need to start', body: 'proof', face: 'proud' },
   { kind: 'multi', field: 'blockers', question: 'What’s held you back so far?', options: BLOCKERS, face: 'thinking' },

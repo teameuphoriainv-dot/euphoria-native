@@ -33,7 +33,7 @@ const STEPS = [
   },
   {
     title: 'Search Euphoria',
-    body: 'Pick a size — small fits the streak, medium adds your XP — then tap Add Widget.',
+    body: 'Pick a size: small fits the streak, medium adds your XP. Then tap Add Widget.',
   },
 ];
 

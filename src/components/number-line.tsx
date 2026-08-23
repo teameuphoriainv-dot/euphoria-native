@@ -122,7 +122,7 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
 
       {solved ? (
         <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.four }}>
-          <ThemedText type="smallBold" style={{ color: theme.success }}>Nailed it — {fmt(spec.target)}.</ThemedText>
+          <ThemedText type="smallBold" style={{ color: theme.success }}>Nailed it. {fmt(spec.target)}.</ThemedText>
         </Animated.View>
       ) : (
         <SpringPressable
@@ -137,7 +137,7 @@ export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onS
         >
           <View style={[styles.check, { backgroundColor: value != null ? theme.primary + '1F' : theme.muted, borderColor: value != null ? theme.primary + '4D' : theme.border }]}>
             <ThemedText type="smallBold" style={{ color: value != null ? theme.iconLilac : theme.mutedForeground }}>
-              {checked && !solved ? `Off by ${fmt(Math.abs((value ?? 0) - spec.target))} — green is the target. Try again.` : 'Check'}
+              {checked && !solved ? `Off by ${fmt(Math.abs((value ?? 0) - spec.target))}. Green is the target. Try again.` : 'Check'}
             </ThemedText>
           </View>
         </SpringPressable>

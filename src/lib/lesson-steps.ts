@@ -264,7 +264,7 @@ export function normalizeStep(step: LessonStep): Normalized {
           ...vis(s.diagramVisual),
           ...terms(s.highlightedTerms),
           ...(s.realExample
-            ? [{ b: 'stat' as const, value: s.realExample.metric, label: `${s.realExample.company} — ${s.realExample.outcome}` }, p(s.realExample.explanation)]
+            ? [{ b: 'stat' as const, value: s.realExample.metric, label: `${s.realExample.company} · ${s.realExample.outcome}` }, p(s.realExample.explanation)]
             : []),
         ],
       };
@@ -465,7 +465,7 @@ export function expandSteps(steps: LessonStep[]): LessonStep[] {
             type: 'simProse',
             label: 'Consider',
             title: String(d?.prompt ?? s.title),
-            paragraphs: opts.map((o) => `${o?.label ?? ''} — ${o?.consequence ?? ''}`),
+            paragraphs: opts.map((o) => `${o?.label ?? ''}: ${o?.consequence ?? ''}`),
           } as unknown as LessonStep);
         } else {
           out.push({ type: 'simDecision', prompt: d.prompt, options: opts } as unknown as LessonStep);

@@ -140,7 +140,7 @@ export default function Friends() {
           with people who do not exist. That is §0.4 and, for App Review, a social graph of fake
           accounts presented as real.
         */}
-        <Section title="YOUR FRIENDS" note="Practice profiles — real friends arrive when accounts do.">
+        <Section title="YOUR FRIENDS" note="Practice profiles. Real friends arrive when accounts do.">
           {/*
             * Rows STAGGER IN. Measured before this: the list arrived in a single 0.64s window
             * with ONE peak and 163,082 changed pixels -- the whole thing slamming in at once.
@@ -184,7 +184,7 @@ export default function Friends() {
           * the next reads as "the labelled ones are fake and these ones are real", which is worse
           * than no label at all.
           */}
-        <Section title="DISCOVER" note="Practice profiles — real people appear here when accounts do.">
+        <Section title="DISCOVER" note="Practice profiles. Real people appear here when accounts do.">
           <TextInput
             value={query}
             onChangeText={setQuery}

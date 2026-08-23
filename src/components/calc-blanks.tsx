@@ -96,7 +96,7 @@ export function CalcBlanks({ spec, onSolvedChange }: { spec: CalcSpec; onSolvedC
               // Reveal the true answer on a miss, as NumberLine does — a wrong number with no
               // target is a dead end, and these steps exist to teach the arithmetic.
               <ThemedText type="small" style={{ color: theme.destructive }}>
-                {`Not quite — it is ${b.answer}${b.tolerance > 0 ? ` (within ${b.tolerance})` : ''}.`}
+                {`Not quite. It is ${b.answer}${b.tolerance > 0 ? ` (within ${b.tolerance})` : ''}.`}
               </ThemedText>
             ) : null}
           </View>

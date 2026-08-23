@@ -302,7 +302,7 @@ export function purchaseErrorMessage(code: string): string {
       return 'This device does not allow purchases. Check Screen Time restrictions in Settings.';
     case 'StoreProblemError':
     case '2':
-      return 'The App Store had a problem with that. Nothing was charged — try again in a moment.';
+      return 'The App Store had a problem with that. Nothing was charged. Try again in a moment.';
     default:
       return 'That did not go through, and nothing was charged. Try again in a moment.';
   }

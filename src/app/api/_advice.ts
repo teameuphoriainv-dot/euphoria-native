@@ -164,4 +164,4 @@ export function isAdvice(text: string): boolean {
  * re-ask the same thing and puts the model back in front of the same wall.
  */
 export const REFUSAL =
-  "I can't tell you what to buy or sell — that's the one thing I'm not here for. I can show you how to think it through, though.";
+  "I can't tell you what to buy or sell. That's the one thing I'm not here for. I can show you how to think it through, though.";

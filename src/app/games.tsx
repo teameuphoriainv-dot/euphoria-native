@@ -41,7 +41,7 @@ export default function Games() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
           <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Games</ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground">Learn by playing — concepts become muscle memory.</ThemedText>
+          <ThemedText type="small" themeColor="mutedForeground">Learn by playing. Concepts become muscle memory.</ThemedText>
         </RiseIn>
 
         <View style={styles.grid}>
