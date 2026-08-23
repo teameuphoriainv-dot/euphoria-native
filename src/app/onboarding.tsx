@@ -39,7 +39,7 @@ import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
+import { TRIAL_DAYS, trialDayNumber, useTier, useTrialStarted } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
@@ -423,7 +423,34 @@ export default function Onboarding() {
    * CTA, and the renewal terms. Offering a free trial to someone who has used it is not just a
    * dead control, it is a false statement about what they are getting.
    */
-  const spent = useTier() === 'expired';
+  const tierNow = useTier();
+  const spent = tierNow === 'expired';
+  /**
+   * EXTENDED 2026-08-22. The paragraph above fixed the EXPIRED user; two more people fell through
+   * the same hole, and both were reported by cofounders on the same day:
+   *
+   *   N15 "tapping the arrow next to the trial banner says 'Start your free trial to continue'
+   *        even when already enrolled."
+   *   N14 "the post-lesson 'open the present' reward offers 'Start your free trial' even to users
+   *        who are already on the free trial."
+   *
+   * They are ONE bug. Both surfaces `router.push('/onboarding?step=paywall')`, and this screen only
+   * asked `spent`. `tier()` answers 'trial' for activeDays 0 THROUGH TRIAL_DAYS, so a person on day
+   * 2 of 3 was indistinguishable from a person who had never opened the app — and the CTA they got
+   * was `next`, which does not even purchase. It advanced onboarding.
+   *
+   * A FOURTH case, not reported and worse: `tier === 'pro'` also yields spent === false, so a
+   * PAYING SUBSCRIBER reaching this screen was told to start a free trial. entitlement.ts:95 warns
+   * about exactly this — "a paying user must never see a trial countdown. That specific bug is what
+   * generates 'I already paid' support mail and refund requests."
+   *
+   * So the question this screen must ask is not "is the trial spent" but "may I offer a trial at
+   * all", which is true for exactly one person: a non-Pro user whose trial clock has not started.
+   */
+  const isProNow = tierNow === 'pro';
+  const trialRunning = useTrialStarted();
+  const trialDay = useApp(trialDayNumber);
+  const offersTrial = tierNow === 'trial' && !trialRunning;
   const [busy, setBusy] = useState(false);
 
   /** Apple requires a Restore control on any screen selling a subscription — independent of
@@ -568,9 +595,13 @@ export default function Onboarding() {
           <View style={styles.paywallBody}>
             <StepHeading
               title={
-                spent
-                  ? `Your free ${TRIAL_DAYS} days are up`
-                  : `Start your ${TRIAL_DAYS}-day FREE trial to continue`
+                isProNow
+                  ? "You're on Euphoria Pro"
+                  : spent
+                    ? `Your free ${TRIAL_DAYS} days are up`
+                    : offersTrial
+                      ? `Start your ${TRIAL_DAYS}-day FREE trial to continue`
+                      : `You're on day ${trialDay} of ${TRIAL_DAYS}`
               }
             />
             {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
@@ -619,7 +650,7 @@ export default function Onboarding() {
               <PlanCard
                 selected={plan === 'annual'}
                 onPress={() => setPlan('annual')}
-                badge={spent ? `SAVE ${PRICING.savingPct}%` : `${TRIAL_DAYS} DAYS FREE · SAVE ${PRICING.savingPct}%`}
+                badge={offersTrial ? `${TRIAL_DAYS} DAYS FREE · SAVE ${PRICING.savingPct}%` : `SAVE ${PRICING.savingPct}%`}
                 title="Annual"
                 sub={`Works out at ${PRICING.annualPerMonth} a month`}
                 price={PRICING.annual}
@@ -685,7 +716,7 @@ export default function Onboarding() {
         <View style={styles.footer}>
           {/* Reassurance sits with the CTA it reassures about. In the scrolling body it was the
               first thing clipped whenever the plan cards grew. */}
-          {step === PAYWALL_INDEX && !spent && (
+          {step === PAYWALL_INDEX && offersTrial && (
             <View style={styles.noPay}>
               <UIcon name="check" size={16} color={theme.primary} />
               <ThemedText type="bodyMedium">No payment due now</ThemedText>
@@ -694,7 +725,7 @@ export default function Onboarding() {
           {/* 3/4 of the captured pricing screens carry a cancel reassurance beside the CTA
               (Headway "super easy to cancel", Promova "Cancel anytime", Quizlet "Cancel anytime").
               For a spent user that replaces "No payment due now", which would now be a lie. */}
-          {step === PAYWALL_INDEX && spent && (
+          {step === PAYWALL_INDEX && !offersTrial && !isProNow && (
             <View style={styles.noPay}>
               <UIcon name="check" size={16} color={theme.primary} />
               <ThemedText type="bodyMedium">Cancel anytime in the App Store</ThemedText>
@@ -705,20 +736,30 @@ export default function Onboarding() {
               step === REVEAL_INDEX
                 ? 'Start learning'
                 : step === PAYWALL_INDEX
-                  ? spent
-                    ? `Get Euphoria Pro — ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
-                    : `Start my ${TRIAL_DAYS}-day free trial`
+                  ? isProNow
+                    ? 'Back to learning'
+                    : offersTrial
+                      ? `Start my ${TRIAL_DAYS}-day free trial`
+                      : `Get Euphoria Pro — ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
                   : 'Continue'
             }
             full
             loading={busy}
             disabled={!canContinue || busy}
-            onPress={step === PAYWALL_INDEX && spent ? buyPro : next}
+            onPress={
+              step === PAYWALL_INDEX
+                ? isProNow
+                  ? () => router.replace('/home')
+                  : offersTrial
+                    ? next
+                    : buyPro
+                : next
+            }
           />
           {/* States its own reason rather than being a silently inert button — the pattern the
               options preview cap already uses (§0.5). A disabled control with no explanation is
               the dead end; one that explains itself is not. */}
-          {step === PAYWALL_INDEX && spent && !IAP_ENABLED && (
+          {step === PAYWALL_INDEX && !offersTrial && !isProNow && !IAP_ENABLED && (
             <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
               {IAP_DISABLED_REASON}
             </ThemedText>
@@ -731,7 +772,7 @@ export default function Onboarding() {
               <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
                 {/* App Store Review 3.1.2 wants price and renewal terms ON the purchase screen.
                     The trial clause is dropped for a spent user: they are not getting one. */}
-                {spent ? '' : `${TRIAL_DAYS} days free, then `}
+                {offersTrial ? `${TRIAL_DAYS} days free, then ` : ''}
                 {plan === 'annual'
                   ? `${PRICING.annual} per year, billed annually`
                   : `${PRICING.monthly} per month`}

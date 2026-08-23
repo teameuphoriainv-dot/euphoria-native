@@ -90,6 +90,23 @@ export const trialDayNumber = (s: AppState) =>
   Math.min(TRIAL_DAYS, Math.max(1, s.activeDays.length || 1));
 
 /**
+ * Has the trial clock actually STARTED?
+ *
+ * `tier()` returns 'trial' for activeDays.length 0 through TRIAL_DAYS, so it cannot tell a person
+ * who has never used the app from one who is on day 2 of 3. Both are "trial", and the paywall was
+ * treating both as "hasn't got a trial yet" — which is how it came to offer a free trial to someone
+ * already on one (reported twice on 2026-08-22, from the post-lesson reward and from the Home
+ * banner).
+ *
+ * `activeDays` is the right signal precisely because it is written by real USE and never by
+ * launching — see withToday's call sites in store.ts. A fresh install sitting on the onboarding
+ * paywall genuinely has length 0 and genuinely has no trial yet, so onboarding's copy is unchanged.
+ * One completed lesson, one trade or one Atlas message makes it 1, and from that moment the trial
+ * is running and offering to start one is a false statement.
+ */
+export const trialStarted = (s: AppState) => s.activeDays.length > 0;
+
+/**
  * `isPro` wins over everything.
  *
  * ORDER MATTERS: a paying user must never see a trial countdown. That specific bug is what
@@ -188,6 +205,7 @@ export const useEntitlement = (f: Feature): Refusal => {
 };
 export const useTier = () => useApp(tier);
 export const useTrialDaysLeft = () => useApp(trialDaysLeft);
+export const useTrialStarted = () => useApp(trialStarted);
 
 if (__DEV__) {
   // ONE runnable check, on the money path. A trial that never expires looks identical to a working

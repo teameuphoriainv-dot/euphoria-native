@@ -65,8 +65,8 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 ## BATCH F — Subscription & Monetization
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N14 | "Post-lesson 'open the present' reward currently offers 'Start your free trial' even to users who are already on the free trial — confirmed bug." | broken-flow | **P0** | open |
-| N15 | "Same bug on Home: tapping the arrow next to the trial banner says 'Start your free trial to continue' even when already enrolled." | broken-flow | **P0** | open |
+| N14 | "Post-lesson 'open the present' reward currently offers 'Start your free trial' even to users who are already on the free trial — confirmed bug." | broken-flow | **P0** | ready-for-verification |
+| N15 | "Same bug on Home: tapping the arrow next to the trial banner says 'Start your free trial to continue' even when already enrolled." | broken-flow | **P0** | ready-for-verification |
 | N16 | "instead of prompting after every single lesson, consider triggering the 'present' after a few lessons and offering a discounted annual rate" | confusion | P2 | open |
 | N17 | "Subscription screen needs a features list — right now it's just an image; users can't tell what premium actually includes." | visual | P1 | ready-for-verification (= P6) — NOTE: chart sits below the fold, see open question |
 
