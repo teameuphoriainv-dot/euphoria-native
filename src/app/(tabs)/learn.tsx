@@ -27,7 +27,7 @@ import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { PixelSpriteView, coin } from '@/lib/pixel';
+import { PixelSpriteView, checkBadge, coin, lock } from '@/lib/pixel';
 
 /* ── UNIT 7: THE LIST MODEL, from Promova 138799 in pixels ───────────────────────────────
    The serpentine could not reach 10 nodes and two attempts proved it (§22 C33, and again this
@@ -376,10 +376,14 @@ export default function Learn() {
                           styles.dot,
                           { backgroundColor: dotFill, borderColor: dotRing, borderWidth: active ? 2.5 : 1.5, opacity: locked ? 0.55 : 1 },
                         ]}>
+                        {/* The glyphs inside the node are sprites; the RING is not. The ring carries
+                            the course accent and the done/active/locked state, and it is the rail's
+                            own structure — the wires above and below attach to it. Replacing it with
+                            a sprite would throw away the only thing on this row that shows state. */}
                         {done ? (
-                          <UIcon name="check" size={15} color={theme.primaryForeground} />
+                          <PixelSpriteView sprite={checkBadge} size={15} />
                         ) : locked ? (
-                          <UIcon name="lock" size={13} color={theme.mutedForeground} />
+                          <PixelSpriteView sprite={lock} size={13} />
                         ) : (
                           <View style={{ width: 9, height: 9, borderRadius: Radius.chipSm, backgroundColor: accent }} />
                         )}
