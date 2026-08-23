@@ -1,6 +1,6 @@
 /**
  * OrderSteps — arrange rows into the correct sequence by tapping two of them to swap. The
- * list starts shuffled (never pre-solved); each row shows its position number. A row sitting
+ * list starts DERANGED (no row is ever in its correct slot); each row shows its position number. A row sitting
  * in its correct slot gets a green accent + check; onSolvedChange(true) when the whole order
  * matches. Sibling to MatchingPairs/MultiSelect.
  */
@@ -18,15 +18,37 @@ import { Spring } from '@/shared/motion/tokens';
 
 export type OrderSpec = { title: string; hint?: string; items: string[] };
 
+/**
+ * A DERANGEMENT — a permutation in which NOTHING sits in its own place.
+ *
+ * FIXED 2026-08-22. Reported: "the drag-to-order steps sometimes load with answers already in the
+ * correct position (e.g., step 3 correct one time, steps 4 & 5 correct another time). None of them
+ * should ever start in the correct spot. Confirmed happening across every lesson."
+ *
+ * The old guard was `while (a.every((v, i) => v === i))`, which only rejects the ONE arrangement
+ * where the whole list is already solved. That is a much weaker condition than it looks. A uniform
+ * random permutation has, by linearity of expectation, exactly ONE fixed point on average
+ * regardless of n — each of the n positions is its own with probability 1/n. So the previous code
+ * shipped, on average, one row already in place, and this component paints a row in its correct
+ * slot with a green accent and a check. The lesson was marking a step correct before the learner
+ * had touched it, on roughly every question. That is why it reproduced "across every lesson".
+ *
+ * Rejection-sampling for a full derangement is the right cost: derangements are D(n)/n! -> 1/e of
+ * all permutations, so this loop runs ~e = 2.72 times on average and is O(n) per attempt, for
+ * lists of 3-6 rows. No closed-form generator is worth the extra code at this size.
+ *
+ * n <= 1 still returns early. It is not a shortcut — D(1) = 0, there is NO derangement of one
+ * element, so the loop below would never terminate.
+ */
 const shuffledOrder = (n: number): number[] => {
   const a = Array.from({ length: n }, (_, i) => i);
-  if (n <= 1) return a; // 0/1-item list is always already-sorted — the reshuffle-until-different loop would hang
+  if (n <= 1) return a;
   do {
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
     }
-  } while (a.every((v, i) => v === i));
+  } while (a.some((v, i) => v === i));
   return a;
 };
 
