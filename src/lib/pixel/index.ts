@@ -32,3 +32,4 @@ export * from './sprites';
 export * from './sprites-additions';
 export * from './sprites-crests';
 export * from './sprites-lesson';
+export * from './sprites-characters';

@@ -30,6 +30,7 @@ import { relationshipOf, useApp, type Relationship } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
+import { PixelSpriteView } from '@/lib/pixel';
 
 const LABEL: Record<Relationship, string> = {
   none: 'Follow',
@@ -45,8 +46,10 @@ function PersonRow({ person, rel, onToggle }: { person: Person; rel: Relationshi
   const active = rel === 'none' || rel === 'follows-you';
   return (
     <View style={styles.row}>
-      <View style={[styles.avatar, { backgroundColor: person.color }]}>
-        <ThemedText type="smallBold" style={{ color: '#0A0A0F' }}>{person.name[0]}</ThemedText>
+      {/* Same mark this person wears in the league standings, so following someone and then racing
+          them is visibly the same person. A ring in their colour, their sprite inside it. */}
+      <View style={[styles.avatar, { backgroundColor: theme.cardElevated, borderColor: person.color, borderWidth: 1.5 }]}>
+        <PixelSpriteView sprite={person.avatar} size={22} />
       </View>
       <View style={{ flex: 1 }}>
         <ThemedText type="bodyMedium" numberOfLines={1}>{person.name}</ThemedText>

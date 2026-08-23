@@ -17,6 +17,7 @@ import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { outcomeFor, type WeekOutcome } from './league-week';
 import { TIER_UP_BONUS, tierForXp } from './league';
+import { DEFAULT_AVATAR_ID } from './avatars';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -412,6 +413,12 @@ export type AppState = {
    */
   themePref: 'system' | 'light' | 'dark';
   setThemePref: (v: 'system' | 'light' | 'dark') => void;
+  /**
+   * The pixel avatar the player chose for themselves. An id into lib/avatars, not a sprite, so the
+   * persisted blob stays a plain string and the art can be re-drawn without a migration.
+   */
+  avatarId: string;
+  setAvatarId: (id: string) => void;
   /** A tier crossed but not yet celebrated. Persisted, so closing the app cannot swallow it. */
   pendingTierUp: string | null;
   /** Show the celebration, pay TIER_UP_BONUS, clear it. Idempotent: a second call pays nothing. */
@@ -659,6 +666,7 @@ export const useApp = create<AppState>()(
       weeklyXp: 0,
       weekStart: '',
       themePref: 'dark',
+      avatarId: DEFAULT_AVATAR_ID,
       lastWeekResolved: '',
       lastWeekOutcome: null,
       pendingTierUp: null,
@@ -839,6 +847,8 @@ export const useApp = create<AppState>()(
       weeklyXpNow: () => (get().weekStart === weekKey() ? get().weeklyXp : 0),
 
       setThemePref: (v) => set({ themePref: v }),
+
+      setAvatarId: (id) => set({ avatarId: id }),
 
       claimTierUp: () =>
         // Guarded rather than trusting the caller: the sheet's dismiss and its button can both
@@ -1124,7 +1134,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote

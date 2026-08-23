@@ -18,6 +18,7 @@ import { View } from 'react-native';
 
 import { Atlas } from '@/components/atlas';
 import { PixelSpriteView } from '@/lib/pixel';
+import { avatarFor } from '@/lib/avatars';
 import { ITEM_ART } from '@/lib/item-art';
 import { useApp } from '@/lib/store';
 
@@ -33,6 +34,7 @@ const FRAME_TINT: Record<string, string> = {
 
 export function ProfileAvatar({ size = 62 }: { size?: number }) {
   const equipped = useApp((s) => s.equipped);
+  const chosen = avatarFor(useApp((s) => s.avatarId));
 
   const hat = equipped.hat ? ITEM_ART[equipped.hat] : undefined;
   const accessory = equipped.accessory ? ITEM_ART[equipped.accessory] : undefined;
@@ -54,7 +56,14 @@ export function ProfileAvatar({ size = 62 }: { size?: number }) {
           }}
         />
       ) : null}
-      <Atlas size={size} expression="happy" interactive={false} idle />
+      {/* The player's CHOSEN mark is the base now. Atlas remains the default and stays vector, so
+          `chosen === null` means "wearing Atlas" rather than "no avatar". The hat and accessory
+          offsets below are relative to `size`, so they land the same on either base. */}
+      {chosen ? (
+        <PixelSpriteView sprite={chosen.sprite} size={size} />
+      ) : (
+        <Atlas size={size} expression="happy" interactive={false} idle />
+      )}
       {/* A hat sits ON the head, so it overhangs the top of the mascot's box rather than inside it. */}
       {hat ? (
         <View pointerEvents="none" style={{ position: 'absolute', top: -size * 0.16, alignSelf: 'center' }}>

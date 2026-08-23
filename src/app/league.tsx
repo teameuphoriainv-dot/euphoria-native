@@ -28,7 +28,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { tierForXp } from '@/lib/league';
-import { PixelSpriteView, bolt, coin as coinSprite } from '@/lib/pixel';
+import { PixelSpriteView, bolt, coin as coinSprite, star } from '@/lib/pixel';
+import { ITEM_ART } from '@/lib/item-art';
+import { avatarFor } from '@/lib/avatars';
 import { labelFor } from '@/lib/league-week';
 import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
@@ -83,9 +85,19 @@ export default function League() {
   // so promotion and demotion zones are hidden there: you cannot be relegated out of your own
   // friend group, and drawing the lines would imply otherwise.
   const field = tab === 'friends' ? PEOPLE.filter((p) => friendIds.includes(p.id)) : PEOPLE;
+  /*
+   * YOUR mark in the standings is the badge you EQUIPPED, which is the first place the shop shows
+   * up outside the shop. Buying the whale and then seeing it beside your name in the league is the
+   * whole point of a cosmetic; falling back to `star` keeps the row filled before you own one.
+   */
+  const chosen = avatarFor(useApp((st) => st.avatarId));
+  const equippedBadge = useApp((st) => st.equipped.badge);
+  // Your CHOSEN avatar first, then a badge you bought, then a default. Atlas is `null` here and
+  // falls through to the badge, because the mascot at 22pt in a 36pt ring is unreadable.
+  const myAvatar = chosen?.sprite ?? (equippedBadge ? ITEM_ART[equippedBadge] : undefined) ?? star;
   const players = [
-    ...field.map((p) => ({ name: p.name, xp: p.weeklyXp, color: p.color, me: false })),
-    { name: 'You', xp: weekly, color: '#A855EB', me: true },
+    ...field.map((p) => ({ name: p.name, xp: p.weeklyXp, color: p.color, avatar: p.avatar, me: false })),
+    { name: 'You', xp: weekly, color: '#A855EB', avatar: myAvatar, me: true },
   ].sort((a, b) => b.xp - a.xp);
   const zoned = tab === 'league';
   // Never zero: a divide-by-zero here would make every bar NaN% wide, which React Native renders
@@ -226,13 +238,14 @@ export default function League() {
                   {i + 1}
                 </ThemedText>
                 {/*
-                  The person's colour becomes a RING rather than a filled disc. Nine saturated discs
-                  in a violet app read as a default avatar palette borrowed from somewhere else;
-                  as rings on a brand-tinted chip they still identify the person and the screen
-                  stays one app. lib/people is shared with Friends, so the data is untouched.
+                  The person's colour stays a RING, and their mark inside it is now a sprite rather
+                  than the first letter of an invented name. Nine lettered circles read as a
+                  contacts list, which is the one thing on this screen that did not look like the
+                  rest of the app. The ring still carries their colour, so the row is identifiable
+                  twice over.
                 */}
                 <View style={[styles.avatar, { backgroundColor: theme.cardElevated, borderColor: p.color }]}>
-                  <ThemedText type="smallBold" style={{ color: p.color }}>{p.name[0]}</ThemedText>
+                  <PixelSpriteView sprite={p.avatar} size={22} />
                 </View>
                 <View style={styles.who}>
                   <ThemedText type="bodyMedium" numberOfLines={1}>{p.me ? 'You' : p.name}</ThemedText>

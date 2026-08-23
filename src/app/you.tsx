@@ -194,7 +194,15 @@ export default function You() {
           <Card style={styles.identity} tint={cardTint}>
             {/* Atlas wearing whatever is equipped (N21). See profile-avatar.tsx for why the
                 hats go on the mascot rather than on an invented player character. */}
-            <ProfileAvatar size={62} />
+            {/* Tapping your own face is where every game puts this, so it is where it goes. */}
+            <SpringPressable
+              haptic={false}
+              scaleTo={0.93}
+              onPress={() => router.push('/avatar')}
+              accessibilityRole="button"
+              accessibilityLabel="Change your avatar">
+              <ProfileAvatar size={62} />
+            </SpringPressable>
             <View style={{ flex: 1 }}>
               {/* Name and plan on ONE line, which is TradingView `185370` exactly: `juliascreens`
                   with an `ESSENTIAL` chip beside it. The badge is what makes an identity card also
