@@ -28,7 +28,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
-import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost, type DigestCategory } from '@/lib/digest-content';
+import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
 import { pickToday } from '@/lib/digest-pick';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { dayKey, useApp } from '@/lib/store';
@@ -36,29 +36,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
-import {
-  PixelSpriteView, bolt, chartUp, compass, creditCard, flame as flameSprite,
-  stockTicker, wallet, type PixelSprite,
-} from '@/lib/pixel';
-
-/**
- * A mark per Digest category.
- *
- * The section rows carried no art at all — five near-identical cards separated only by a tint and
- * a word, on the screen whose whole job is letting you pick one. A mark is what makes a row
- * findable at a glance rather than read.
- *
- * All five distinct, and all already in the shared catalogue. `DigestCategory` is a union, so a
- * category added without a mark is a COMPILE error rather than a blank slot — the same reasoning
- * as StatMark, and the reason this needs no pin.
- */
-const CATEGORY_ART: Record<DigestCategory, PixelSprite> = {
-  Credit: creditCard,
-  Strategy: compass,
-  Investing: chartUp,
-  'Money basics': wallet,
-  Markets: stockTicker,
-};
 
 const ALL = 'All';
 
@@ -160,17 +137,14 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
             sits at 0 — show them the XP and say nothing about a streak they do not have. */}
         {streak > 0 ? (
           <View style={[styles.chipStat, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-            {/* The same pixel flame the Home header wears. These two chips carry exactly the
-                Home pills' semantics — streak and XP — so they should not be a different picture
-                of the same thing one tab over. */}
-            <PixelSpriteView sprite={flameSprite} size={16} />
+            <UIcon name="flame" size={16} color={theme.streak} />
             <ThemedText type="smallBold" style={{ color: theme.streak }}>
               {streak} day streak
             </ThemedText>
           </View>
         ) : null}
         <View style={[styles.chipStat, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-          <PixelSpriteView sprite={bolt} size={16} />
+          <UIcon name="sparkle" size={16} color={theme.iconLilac} />
           <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
             +25 XP
           </ThemedText>
@@ -369,7 +343,6 @@ export default function Digest() {
                     accessibilityRole="button"
                     accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
                     <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
-                      <PixelSpriteView sprite={CATEGORY_ART[c]} size={26} />
                       <View style={{ flex: 1 }}>
                         <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{c}</ThemedText>
                         <ThemedText type="small" themeColor="mutedForeground">
