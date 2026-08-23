@@ -98,3 +98,32 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
   the SIMULATOR, where StoreKit does not fetch products without a config file. Unverified on device.
 - The installed simulator app is a **dev-client build with no embedded bundle** — it cannot run
   without Metro. Worth knowing before anyone assumes the sim reflects a TestFlight build.
+
+---
+## N19 / N20 — INVESTIGATED 2026-08-22. Both reports are WRONG about the cause.
+
+Both were filed as "expected, since no data/content has been added yet". Neither is that.
+
+**N19 "Trade tab is bugged."** It is not. Captured on the simulator: portfolio $10,000.00, cash
+available, News and Options entries, MARKET NEWS with live articles (Norwegian Cruise Line / Simply
+Wall St, a Yahoo Finance item), and an IDEAS TO PRACTISE rail. The tab renders and has real data.
+Whatever the cofounder hit, it was not an empty tab — needs a specific repro from him.
+
+**N20 "AI feature not working."** Real, and fully diagnosed — the feature is BUILT, not missing.
+
+  - `src/lib/atlas-chat.ts:49` throws `ChatError('no_api_origin')` when the API origin is absent.
+  - `src/lib/api.ts:41` `apiOriginMissing()` is `Platform.OS !== 'web' && apiBase() === ''`.
+  - `apiBase()` reads **`EXPO_PUBLIC_API_URL`**, and that variable is set in **ZERO** environments —
+    production, preview and development all return 0 occurrences from `eas env:list`.
+  - `atlas-chat.ts:46` predicted this in a comment: "Atlas is the most visible casualty of a
+    missing origin."
+  - `GEMINI_API_KEY` **is** configured, so the model side is ready. Only the host is missing.
+
+**THE FIX IS NOT AN OTA.** `EXPO_PUBLIC_*` is inlined at BUILD time, so setting the variable does
+nothing for an installed binary. It needs, in order:
+  1. the API server deployed (Expo Router API routes need a host — EAS Hosting or equivalent),
+  2. `EXPO_PUBLIC_API_URL` set to that origin in all three environments,
+  3. a NEW BUILD. Build 13 and every OTA on top of it will still have no origin.
+
+Deploying a server is an owner decision (it costs money and creates a public endpoint), so it is
+flagged rather than done.
