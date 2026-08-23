@@ -29,17 +29,10 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { tierForXp } from '@/lib/league';
 import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
-import type { WeekResult } from '@/lib/league-week';
+import { labelFor } from '@/lib/league-week';
 import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
-
-/** What last week's outcome is called on screen. The store holds the verb; this holds the copy. */
-const RESULT_COPY: Record<WeekResult, string> = {
-  promoted: 'Promoted',
-  held: 'Held your place',
-  demoted: 'Demoted',
-};
 
 const PROMOTE = 3; // top 3 promote
 const DEMOTE = 7; // rank 8+ (index >= 7) demote
@@ -158,7 +151,7 @@ export default function League() {
             <View style={{ flex: 1, gap: 2 }}>
               <ThemedText type="label" themeColor="mutedForeground">LAST WEEK</ThemedText>
               <ThemedText type="bodyMedium">
-                {`Finished #${String(lastWeek.rank)} · ${RESULT_COPY[lastWeek.result]}`}
+                {`${commas(lastWeek.xp)} XP · ${labelFor(lastWeek.result)}`}
               </ThemedText>
             </View>
             {lastWeek.coins > 0 && (

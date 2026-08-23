@@ -16,7 +16,6 @@ import { resolveStreak } from './streak-freeze';
 import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { outcomeFor, type WeekOutcome } from './league-week';
-import { PEOPLE } from './people';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -198,9 +197,6 @@ const snapshot = (
   const v = valueOf(cash, positions, derivatives, priceOf);
   return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
 };
-
-/** The rival scores the league board ranks you against. Read once: PEOPLE is a static module. */
-const LEAGUE_FIELD = PEOPLE.map((p) => p.weeklyXp);
 
 const applyXp = (s: { xp: number; weeklyXp: number; weekStart: string }, n: number) => {
   const wk = weekKey();
@@ -805,7 +801,7 @@ export const useApp = create<AppState>()(
            * zustand skips the notify, so calling this on every Home mount is free.
            */
           if (!s.weekStart || s.weekStart === wk || s.lastWeekResolved === s.weekStart) return s;
-          const outcome = outcomeFor(s.weekStart, s.weeklyXp, LEAGUE_FIELD);
+          const outcome = outcomeFor(s.weekStart, s.weeklyXp);
           return {
             coins: s.coins + outcome.coins,
             lastWeekResolved: s.weekStart,
