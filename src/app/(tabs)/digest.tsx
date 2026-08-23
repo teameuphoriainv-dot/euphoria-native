@@ -227,6 +227,8 @@ export default function Digest() {
   // cascade starts immediately and only the per-item offset remains. Same animation, different
   // lead-in, because the two moments mean different things.
   const [touched, setTouched] = useState(false);
+  /** Show the section index rather than a list: no category chosen and nothing searched. */
+  const browsing = filter === ALL && query.trim() === '';
   const cascadeBase = touched ? 0 : 190;
 
   const q = query.trim().toLowerCase();
@@ -308,53 +310,74 @@ export default function Digest() {
           </View>
         </RiseIn>
 
-        {/* Brilliant's category chips. Horizontal scroll because six chips never fit a phone width. */}
-        <RiseIn delay={160}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipRow}
-            style={styles.chipScroll}>
-            {[ALL, ...DIGEST_CATEGORIES].map((c) => {
-              const active = filter === c;
+        {/*
+         * SECTIONS DOWN THE PAGE, NOT CHIPS ACROSS THE TOP.
+         *
+         * Reported 2026-08-22 (N18): "replace the current dropdown-oval categories (credit,
+         * strategy, etc.) with distinct sections/rectangles stacked down the screen (similar to the
+         * Euphoria web app). Tapping a section opens its article list. Goal: more visual separation
+         * between categories."
+         *
+         * The chip row filtered ONE flat list in place, so Credit and Strategy guides sat in the
+         * same column in the same card shape and the only thing separating them was a word in the
+         * caption. That is the "more visual separation" he is asking for: a category should be a
+         * PLACE you enter, not a predicate applied to a list you are already looking at.
+         *
+         * Each section carries the category's own hero tint, so the colour that already identifies
+         * a guide's art now identifies its section too — no new palette invented for this.
+         *
+         * Search still bypasses sections entirely: a query is a search across everything, and
+         * making someone pick a category first would be a worse search.
+         */}
+        {browsing ? (
+          <View style={styles.sections}>
+            {DIGEST_CATEGORIES.map((c, i) => {
+              const tint = heroTint(c) ?? theme.primary;
               return (
-                <SpringPressable
-                  key={c}
-                  scaleTo={0.94}
-                  onPress={() => {
-                    setFilter(c);
-                    setTouched(true);
-                  }}>
-                  <View
-                    style={[
-                      styles.chip,
-                      {
-                        borderColor: active ? theme.primary : theme.border,
-                        backgroundColor: active ? theme.primary + '1A' : 'transparent',
-                      },
-                    ]}>
-                    {/* A COUNT ON THE CHIP. Deepstash `247137` (`Productivity 11`) and Headway
-                        `128675` (`Summaries 10`) both put the size beside the filter, 2/4 in the
-                        pull. It earns its place here for a reason the references do not have:
-                        Credit holds 4 guides and Money basics holds 8, so an uncounted chip row
-                        implies they are equal and hides which categories are actually thin. */}
-                    <ThemedText
-                      type="smallBold"
-                      style={{ color: active ? theme.iconLilac : theme.mutedForeground }}>
-                      {c}
-                      {counts[c] ? `  ${counts[c]}` : ''}
-                    </ThemedText>
-                  </View>
-                </SpringPressable>
+                <RiseIn key={c} delay={160 + Math.min(i * 40, STAGGER_CAP)}>
+                  <SpringPressable
+                    onPress={() => {
+                      setFilter(c);
+                      setTouched(true);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
+                    <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
+                      <View style={{ flex: 1 }}>
+                        <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{c}</ThemedText>
+                        <ThemedText type="small" themeColor="mutedForeground">
+                          {counts[c] ?? 0} {counts[c] === 1 ? 'guide' : 'guides'}
+                        </ThemedText>
+                      </View>
+                      <UIcon name="arrowRight" size={16} color={tint} />
+                    </View>
+                  </SpringPressable>
+                </RiseIn>
               );
             })}
-          </ScrollView>
-        </RiseIn>
+          </View>
+        ) : (
+          /* Inside a category: a way back out. Without this the only exit from a section is the
+             tab bar, which loses your place in the library. */
+          filter !== ALL ? (
+            <RiseIn delay={80}>
+              <SpringPressable
+                onPress={() => setFilter(ALL)}
+                accessibilityRole="button"
+                accessibilityLabel="Back to all categories"
+                style={styles.backRow}>
+                <UIcon name="chevronLeft" size={16} color={theme.iconLilac} />
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>All categories</ThemedText>
+              </SpringPressable>
+            </RiseIn>
+          ) : null
+        )}
 
         {/* keyed by filter so EVERY card remounts and the whole list cascades on a chip tap.
             Without this key, cards surviving the filter keep their React key, never remount, and
             never replay RiseIn — so the list changed instantly with no feedback at all and only
             newly-matching cards animated. Half a list animating is worse than none. */}
+        {browsing ? null : (
         <View key={filter} style={styles.list}>
           {library.map((p, i) => (
             <RiseIn key={p.slug} delay={cascadeBase + Math.min(i * 30, STAGGER_CAP)}>
@@ -367,6 +390,7 @@ export default function Digest() {
             </ThemedText>
           ) : null}
         </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -419,6 +443,16 @@ const styles = StyleSheet.create({
 
   sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four },
   chipScroll: { marginTop: Spacing.two },
+  sections: { gap: Spacing.two, marginTop: Spacing.three },
+  sectionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    padding: Spacing.three,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, marginTop: Spacing.three, paddingVertical: Spacing.one },
   chipRow: { gap: Spacing.one + 2, paddingRight: Spacing.three },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.pill, borderWidth: 1.5 },
   search: {
