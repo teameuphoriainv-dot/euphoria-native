@@ -375,7 +375,35 @@ export default function Onboarding() {
     else if (profile.completedAt) router.back();
     else router.replace('/auth');
   };
-  const back = () => (step > 0 ? goTo(step - 1) : undefined);
+  /**
+   * BACK MEANS "UNDO MY LAST STEP", NOT "DECREMENT THE INDEX".
+   *
+   * Two reports on 2026-08-22, one function:
+   *
+   *   N2 "Back arrow doesn't work on the 'How much do you already know?' screen."
+   *      That screen is step 0. `step > 0` was false, so this returned undefined while
+   *      BackChevron still drew a live-looking button. Dead control, fixed there.
+   *
+   *   N4 "tapping the free trial banner takes you to the subscription screen; hitting back from
+   *      there sends you to onboarding instead of back to Home."
+   *      The banner deep-links to `?step=paywall`, which starts at PAYWALL_INDEX (14). Walking the
+   *      index back put a returning user on step 13 — the middle of a flow they finished weeks ago.
+   *
+   * The index alone cannot tell those apart; where the user ENTERED can. Steps above the entry
+   * point are this screen's own history and are walked back one at a time. At the entry point there
+   * is nothing of ours left to undo, so back belongs to whoever pushed us — Home, the reward sheet
+   * or the You upsell. `entryStep` is a ref so a re-render can never move the boundary.
+   */
+  const entryStep = useRef(startStep);
+  const back = () => {
+    if (step > entryStep.current) {
+      goTo(step - 1);
+      return;
+    }
+    if (router.canGoBack()) router.back();
+  };
+  /** Whether there is anywhere to go back TO. Drives whether a chevron is drawn at all. */
+  const hasBack = step > entryStep.current || router.canGoBack();
 
   /**
    * Commit-on-tap for single-select steps.
@@ -687,7 +715,7 @@ export default function Onboarding() {
       <AmbientBackground />
       <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
-        <ProgressHeader step={step} total={TOTAL} onBack={back} />
+        <ProgressHeader step={step} total={TOTAL} onBack={hasBack ? back : undefined} />
       </View>
 
       <AtlasStage

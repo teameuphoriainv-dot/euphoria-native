@@ -265,6 +265,20 @@ export function PlanCard({
 
 export function BackChevron({ onPress }: { onPress?: () => void }) {
   const theme = useTheme();
+  /*
+   * NO onPress => NO CONTROL, just the space one would occupy.
+   *
+   * Reported 2026-08-22: "Back arrow doesn't work on the 'How much do you already know?' screen.
+   * (Also: do we even need a back button here?)" That screen is step 0, where onboarding's `back`
+   * returned undefined — but this still rendered a full SpringPressable that highlighted on touch
+   * and announced itself to VoiceOver as the button "Back". A control that looks live, feels live,
+   * answers to a screen reader and does nothing is worse than no control; the reporter read it as
+   * broken rather than absent, which is precisely right.
+   *
+   * The placeholder keeps the progress segments in the same place, so hiding the chevron does not
+   * shift the header on the screens that have no way back.
+   */
+  if (!onPress) return <View style={styles.chevron} />;
   // The chevron is a bare SVG path, so without a role and label VoiceOver announces "button" and
   // nothing else — the one control that gets a user OUT of onboarding was unnamed.
   return (
