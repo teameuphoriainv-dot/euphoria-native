@@ -13,7 +13,7 @@ import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { LessonArt } from '@/components/lesson-art';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon, type UIconName } from '@/components/ui-icon';
+import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
@@ -22,6 +22,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { childDelay } from '@/shared/motion/step-transition';
 import { Duration, Ease, Spring } from '@/shared/motion/tokens';
+import { PixelSpriteView, type PixelSprite } from '@/lib/pixel';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -104,7 +105,7 @@ export function TrialStep({
   tone,
   last = false,
 }: {
-  icon: UIconName;
+  icon: PixelSprite;
   title: string;
   sub?: string;
   tone: 'solid' | 'soft' | 'muted';
@@ -116,7 +117,7 @@ export function TrialStep({
     <View style={styles.tlRow}>
       <View style={styles.tlRail}>
         <View style={[styles.tlDot, { backgroundColor: dotBg }]}>
-          <UIcon name={icon} size={17} color={tone === 'muted' ? theme.mutedForeground : '#fff'} />
+          <PixelSpriteView sprite={icon} size={17} />
         </View>
         {!last && (
           <LinearGradient colors={[theme.primary, theme.primary + '22']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.tlBar} />
@@ -350,7 +351,7 @@ export function OptionCard({
   compact = false,
 }: {
   /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
-  icon?: UIconName;
+  icon?: PixelSprite;
   title: string;
   sub?: string;
   selected: boolean;
@@ -386,7 +387,7 @@ export function OptionCard({
         ]}>
         {icon ? (
           <View style={[styles.bubble, compact && styles.bubbleSm, { backgroundColor: theme.primary + '1F' }]}>
-            <UIcon name={icon} size={compact ? 18 : 24} color={theme.iconLilac} />
+            <PixelSpriteView sprite={icon} size={compact ? 18 : 22} />
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
@@ -474,7 +475,13 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
  * the paywall isn't too rich, the rest were too thin.
  * ──────────────────────────────────────────────────────────────────────────── */
 
-export type Choice = { key: string; title: string; sub?: string; icon?: UIconName };
+/**
+ * `icon` is a SPRITE, not a UIcon name. These are content marks — a wallet beside "Grow my
+ * wealth", a seedling beside "Total beginner" — on the first screens anyone sees, and they were
+ * the last vector art in a flow the rest of the app no longer matches. Typing it as PixelSprite
+ * rather than a string key means a choice added without art will not compile.
+ */
+export type Choice = { key: string; title: string; sub?: string; icon?: PixelSprite };
 
 /**
  * `speech` puts the line in Atlas's mouth instead of setting it as a page title.

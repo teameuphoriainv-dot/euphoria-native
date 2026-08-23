@@ -34,7 +34,7 @@ import {
   StepHeading,
   TrialStep, PremiumBenefits } from '@/components/onboarding-parts';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon, type UIconName } from '@/components/ui-icon';
+import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -49,6 +49,10 @@ import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { CHILD_BASE, childDelay, useStepTransition } from '@/shared/motion/step-transition';
+import {
+  PixelSpriteView, bolt, book, chartUp, clock, flame, globe, graduationCap, lock, magnifier, rocket,
+  seedling, star, trophy, wallet, type PixelSprite,
+} from '@/lib/pixel';
 
 /**
  * PRICING — one place, with the arithmetic written out so a later edit cannot quietly break the
@@ -77,28 +81,28 @@ const PRICING = {
 
 
 const GOALS: Choice[] = [
-  { key: 'wealth', icon: 'wallet', title: 'Grow my wealth', sub: 'Build long-term investing habits' },
-  { key: 'learn', icon: 'gradCap', title: 'Learn how investing works', sub: 'Start from the fundamentals' },
-  { key: 'trade', icon: 'bolt', title: 'Trade with confidence', sub: 'Practice without real risk' },
-  { key: 'economy', icon: 'globe', title: 'Understand the economy', sub: 'Make sense of money & markets' },
+  { key: 'wealth', icon: wallet, title: 'Grow my wealth', sub: 'Build long-term investing habits' },
+  { key: 'learn', icon: graduationCap, title: 'Learn how investing works', sub: 'Start from the fundamentals' },
+  { key: 'trade', icon: bolt, title: 'Trade with confidence', sub: 'Practice without real risk' },
+  { key: 'economy', icon: globe, title: 'Understand the economy', sub: 'Make sense of money & markets' },
 ];
 
 const LEVELS: Choice[] = [
-  { key: 'beginner', icon: 'seedling', title: 'Total beginner', sub: "I'm starting from zero" },
-  { key: 'basics', icon: 'bookOpen', title: 'I know the basics', sub: 'Stocks, saving, a little more' },
-  { key: 'experienced', icon: 'rocket', title: "I'm experienced", sub: 'I want to sharpen my edge' },
+  { key: 'beginner', icon: seedling, title: 'Total beginner', sub: "I'm starting from zero" },
+  { key: 'basics', icon: book, title: 'I know the basics', sub: 'Stocks, saving, a little more' },
+  { key: 'experienced', icon: rocket, title: "I'm experienced", sub: 'I want to sharpen my edge' },
 ];
 
 const TOPICS: Choice[] = [
-  { key: 'stocks', icon: 'trade', title: 'Stocks & ETFs' },
-  { key: 'budgeting', icon: 'wallet', title: 'Budgeting & debt' },
-  { key: 'economy', icon: 'globe', title: 'The economy' },
-  { key: 'valuation', icon: 'search', title: 'Valuing companies' },
-  { key: 'psychology', icon: 'sparkle', title: 'Investing psychology' },
-  { key: 'risk', icon: 'lock', title: 'Risk & hedging' },
-  { key: 'crypto', icon: 'bolt', title: 'Crypto & alternatives' },
-  { key: 'retirement', icon: 'trophy', title: 'Retirement & taxes' },
-  { key: 'business', icon: 'rocket', title: 'Startups & business' },
+  { key: 'stocks', icon: chartUp, title: 'Stocks & ETFs' },
+  { key: 'budgeting', icon: wallet, title: 'Budgeting & debt' },
+  { key: 'economy', icon: globe, title: 'The economy' },
+  { key: 'valuation', icon: magnifier, title: 'Valuing companies' },
+  { key: 'psychology', icon: star, title: 'Investing psychology' },
+  { key: 'risk', icon: lock, title: 'Risk & hedging' },
+  { key: 'crypto', icon: bolt, title: 'Crypto & alternatives' },
+  { key: 'retirement', icon: trophy, title: 'Retirement & taxes' },
+  { key: 'business', icon: rocket, title: 'Startups & business' },
 ];
 
 const HORIZONS: Choice[] = [
@@ -110,15 +114,15 @@ const HORIZONS: Choice[] = [
 
 /** Behavioural signal, not a risk score — see the regulatory note in onboarding-path.ts. */
 const RISK: Choice[] = [
-  { key: 'sell', icon: 'flame', title: 'Sell, I want out', sub: 'Protect what I have left' },
-  { key: 'wait', icon: 'seedling', title: 'Wait it out', sub: 'Do nothing and hold' },
-  { key: 'buy', icon: 'rocket', title: 'Buy more', sub: "It's on sale" },
+  { key: 'sell', icon: flame, title: 'Sell, I want out', sub: 'Protect what I have left' },
+  { key: 'wait', icon: seedling, title: 'Wait it out', sub: 'Do nothing and hold' },
+  { key: 'buy', icon: rocket, title: 'Buy more', sub: "It's on sale" },
 ];
 
 const DAILY: Choice[] = [
-  { key: '5', icon: 'flame', title: '5 minutes', sub: 'One lesson a day' },
-  { key: '10', icon: 'bolt', title: '10 minutes', sub: 'Two lessons a day' },
-  { key: '20', icon: 'rocket', title: '20 minutes', sub: 'Four lessons a day' },
+  { key: '5', icon: flame, title: '5 minutes', sub: 'One lesson a day' },
+  { key: '10', icon: bolt, title: '10 minutes', sub: 'Two lessons a day' },
+  { key: '20', icon: rocket, title: '20 minutes', sub: 'Four lessons a day' },
 ];
 
 const BLOCKERS: Choice[] = [
@@ -183,7 +187,7 @@ const SOURCES: Choice[] = [
 ];
 
 const NOTIFY: Choice[] = [
-  { key: 'yes', icon: 'bell', title: 'Yes, keep me on streak', sub: 'One nudge a day, no spam' },
+  { key: 'yes', icon: clock, title: 'Yes, keep me on streak', sub: 'One nudge a day, no spam' },
   { key: 'no', title: 'Not right now' },
 ];
 
@@ -201,10 +205,10 @@ const NOTIFY: Choice[] = [
  */
 const TOTAL_LESSONS = COURSES.reduce((n, c) => n + c.totalLessons, 0);
 
-const PROOF: { icon: UIconName; title: string; sub: string }[] = [
-  { icon: 'bookOpen', title: `${TOTAL_LESSONS} lessons`, sub: `Across ${COURSES.length} courses, from first principles to advanced.` },
-  { icon: 'trade', title: 'Practice without risk', sub: 'Paper trading uses simulated money, never your own.' },
-  { icon: 'sparkle', title: 'Atlas explains anything', sub: 'Ask mid-lesson and get it in plain English.' },
+const PROOF: { icon: PixelSprite; title: string; sub: string }[] = [
+  { icon: book, title: `${TOTAL_LESSONS} lessons`, sub: `Across ${COURSES.length} courses, from first principles to advanced.` },
+  { icon: chartUp, title: 'Practice without risk', sub: 'Paper trading uses simulated money, never your own.' },
+  { icon: star, title: 'Atlas explains anything', sub: 'Ask mid-lesson and get it in plain English.' },
 ];
 
 /** Kept to one line each. At two lines the timeline alone ran ~200pt, which pushed "No payment
@@ -230,10 +234,10 @@ const PROOF: { icon: UIconName; title: string; sub: string }[] = [
  *  The reminder beat is TRIAL_DAYS - 1 per C13 decision 3. At TRIAL_DAYS < 3 it would collapse into
  *  "Today" and this array needs revisiting rather than deriving.
  */
-const TRIAL_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
-  { icon: 'lock', title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
-  { icon: 'bell', title: `Day ${TRIAL_DAYS - 1} · Reminder`, sub: "We'll remind you before anything is charged.", tone: 'soft' as const },
-  { icon: 'wallet', title: `Day ${TRIAL_DAYS} · Billing starts`, tone: 'muted' as const },
+const TRIAL_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
+  { icon: lock, title: 'Today', sub: 'Every lesson, Atlas coaching, and paper trading.', tone: 'solid' as const },
+  { icon: clock, title: `Day ${TRIAL_DAYS - 1} · Reminder`, sub: "We'll remind you before anything is charged.", tone: 'soft' as const },
+  { icon: wallet, title: `Day ${TRIAL_DAYS} · Billing starts`, tone: 'muted' as const },
 ];
 
 /**
@@ -244,10 +248,10 @@ const TRIAL_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid'
  * desk"). A spent user has just been refused by one of these, so the list is a description of their
  * last five minutes rather than marketing.
  */
-const PRO_STEPS: { icon: UIconName; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
-  { icon: 'lock', title: 'Every lesson reopens', sub: 'All 12 courses, 300 lessons, no counter.', tone: 'solid' as const },
-  { icon: 'sparkle', title: 'Atlas becomes unlimited', sub: 'Ask as much as you like, mid-lesson.', tone: 'soft' as const },
-  { icon: 'trade', title: 'Paper trading and the options desk', tone: 'muted' as const },
+const PRO_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
+  { icon: lock, title: 'Every lesson reopens', sub: 'All 12 courses, 300 lessons, no counter.', tone: 'solid' as const },
+  { icon: star, title: 'Atlas becomes unlimited', sub: 'Ask as much as you like, mid-lesson.', tone: 'soft' as const },
+  { icon: chartUp, title: 'Paper trading and the options desk', tone: 'muted' as const },
 ];
 
 const LOADER_LINES = [
@@ -429,18 +433,24 @@ export default function Onboarding() {
    * The index alone cannot tell those apart; where the user ENTERED can. Steps above the entry
    * point are this screen's own history and are walked back one at a time. At the entry point there
    * is nothing of ours left to undo, so back belongs to whoever pushed us — Home, the reward sheet
-   * or the You upsell. `entryStep` is a ref so a re-render can never move the boundary.
+   * or the You upsell.
+   *
+   * FROZEN WITH useState, NOT useRef. The point has always been that a re-render cannot move the
+   * boundary, and a state initialiser freezes it just as hard — while a ref does not: reading
+   * `.current` during render is what React's own rule forbids, because a ref is not render-safe in
+   * general even when, as here, nothing ever writes to it. `hasBack` reads this on every render to
+   * decide whether a chevron is drawn at all, so it has to be a render-safe value.
    */
-  const entryStep = useRef(startStep);
+  const [entryStep] = useState(startStep);
   const back = () => {
-    if (step > entryStep.current) {
+    if (step > entryStep) {
       goTo(step - 1);
       return;
     }
     if (router.canGoBack()) router.back();
   };
   /** Whether there is anywhere to go back TO. Drives whether a chevron is drawn at all. */
-  const hasBack = step > entryStep.current || router.canGoBack();
+  const hasBack = step > entryStep || router.canGoBack();
 
   /**
    * Commit-on-tap for single-select steps.
@@ -642,7 +652,7 @@ export default function Onboarding() {
                   <RiseIn key={p.title} delay={childDelay(i)}>
                     <Card style={styles.proofCard}>
                       <View style={[styles.proofIcon, { backgroundColor: theme.primary + '1F' }]}>
-                        <UIcon name={p.icon} size={20} color={theme.iconLilac} />
+                        <PixelSpriteView sprite={p.icon} size={20} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{p.title}</ThemedText>
