@@ -38,14 +38,14 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 |---|---|---|---|---|
 | N1 | "Em dash after the coach on the first screen — decide if we're keeping it; reads a little rough." | copy | P3 | open |
 | N2 | "Back arrow doesn't work on the 'How much do you already know?' screen. (Also: do we even need a back button here?)" | broken-flow | P1 | open |
-| N3 | "Age range starts at 18 — needs to be expanded to include younger/older users." | wrong-data | P1 | open |
+| N3 | "Age range starts at 18 — needs to be expanded to include younger/older users." | wrong-data | P1 | ready-for-verification |
 | N4 | "tapping the free trial banner takes you to the subscription screen; hitting back from there sends you to onboarding instead of back to Home." | broken-flow | P1 | open |
 
 ## BATCH C — Lessons
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N5 | "the 'Americans can't cover a $1,000 emergency expense' question shows up more than once in the first personal finance lesson." | wrong-data | P1 | open |
-| N6 | "it looks like the app measures time based on the lesson's listed duration, not actual time spent in-app. After finishing a lesson it shows 5 minutes even if you were on the app much longer" | wrong-data | P1 | open |
+| N5 | "the 'Americans can't cover a $1,000 emergency expense' question shows up more than once in the first personal finance lesson." | wrong-data | P1 | ready-for-verification |
+| N6 | "it looks like the app measures time based on the lesson's listed duration, not actual time spent in-app. After finishing a lesson it shows 5 minutes even if you were on the app much longer" | wrong-data | P1 | ready-for-verification |
 | N7 | "the drag-to-order steps sometimes load with answers already in the correct position... None of them should ever start in the correct spot. Confirmed happening across every lesson" | **crash-class bug** | **P0** | open |
 
 ## BATCH D — Home
@@ -60,7 +60,7 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 | N10 | "Top half is too compressed: profile, free trial days left, league, and rank are all crammed together" | visual | P1 | ready-for-verification (= P5) |
 | N11 | "Tab is scope-confused: right now it reads like Settings... but also holds Friends and Games, which are gamified/social features and feel out of place here." | confusion | P2 | open |
 | N12 | "Games are buried — currently only discoverable by clicking into Profile. Should be a bigger, more visible part of the app." | confusion | P2 | open |
-| N13 | "suggested friends (e.g., 'Priya S,' 'Chris M') appear to be bots, not real users — needs a real content/design decision here." | wrong-data | P1 | open |
+| N13 | "suggested friends (e.g., 'Priya S,' 'Chris M') appear to be bots, not real users — needs a real content/design decision here." | wrong-data | P1 | ready-for-verification |
 
 ## BATCH F — Subscription & Monetization
 | # | verbatim | class | sev | status |

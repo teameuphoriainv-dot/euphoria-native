@@ -282,6 +282,63 @@ export default function Home() {
         </RiseIn>
 
         {/*
+         * LEAGUE MOVED UP, and the Trade/Digest quick cards deleted. Both from 2026-08-22:
+         *
+         *   N8 "'Saver League' (rank) is at the bottom of the page — should be moved up near the
+         *      top; it's a key status indicator."
+         *   N9 "'Your Path' section feels crowded/redundant — Lessons, Trade, and Digest already
+         *      have their own full tabs, so duplicating them here feels cluttered."
+         *
+         * The league card was placed at the bottom on 2026-08-19 to give a measured 118pt dead
+         * band a job. That reasoning was sound about the SPACE and wrong about the CARD: tier is
+         * status, and status belongs beside the streak and the week strip, not below every piece
+         * of content on the screen. Removing the Trade/Digest row takes ~120pt out of the bottom
+         * half, which is roughly what the league card occupied there — so the band it was filling
+         * largely goes away with it rather than reopening.
+         *
+         * The deleted row was two cards reading "Trade / Paper trading" and "Digest / Today's
+         * read". Both are bottom tabs, permanently on screen, one tap away. A card whose only job
+         * is to duplicate a tab is the clutter he is describing.
+         */}
+        {/*
+         * LEAGUE STANDING — fills the dead band at the bottom of Home.
+         *
+         * Measured 2026-08-19 on device: the Trade/Digest row ended at y=676 and the tab bar
+         * began at y=794, leaving 118pt — 13.5% of an 874pt viewport — empty at the scroll end.
+         * That gap was NOT a layout bug: `styles.content` sets
+         * `paddingBottom: BottomTabInset + Spacing.four` = 108, which is correct trailing padding
+         * for a ScrollView. It only read as dead because the content happened to stop there. So
+         * this is a product decision to give the space a job, not a fix.
+         *
+         * Tier and crest come from `lib/league.ts`, the same source the League screen reads, for
+         * the reason stated at league.tsx:10 — two surfaces showing DIFFERENT tiers for the same
+         * player is worse than one surface showing none.
+         *
+         * It deliberately does NOT show a rank. Rank is derived from weekly XP against the
+         * standings field on the League screen; recomputing it here would be a second
+         * implementation of the same rule, and those drift. Progress toward the next tier is
+         * derived from `tierProgress` and cannot disagree with anything.
+         */}
+        <RiseIn delay={280}>
+          <SpringPressable onPress={() => router.push('/league')} accessibilityRole="button"
+            accessibilityLabel={`${league.tier.name} league. ${league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}. Opens standings.`}>
+            <Card style={styles.leagueCard} tint={league.tier.color}>
+              <LeagueCrest tier={league.tier} size={44} />
+              <View style={styles.leagueText}>
+                <ThemedText type="label" themeColor="mutedForeground">{league.tier.name.toUpperCase()} LEAGUE</ThemedText>
+                <View style={[styles.questTrack, { backgroundColor: theme.border, marginTop: Spacing.one + 2 }]}>
+                  <View style={[styles.questFill, { width: `${Math.round(league.progress * 100)}%`, backgroundColor: league.tier.color }]} />
+                </View>
+                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.one }}>
+                  {league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}
+                </ThemedText>
+              </View>
+              <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
+            </Card>
+          </SpringPressable>
+        </RiseIn>
+
+        {/*
           * TRIAL STRIP — Bloom `156322`'s shape: a THREE-DAY tracker where the current day is
           * highlighted and the rest read as pending. Bloom's "Daily Trivia Streak" renders a
           * three-day arc as a progress OBJECT rather than a sentence, which is exactly what a
@@ -531,65 +588,7 @@ export default function Home() {
           ))}
         </ScrollView>
 
-        {/* Secondary surfaces */}
-        <View style={styles.duoRow}>
-          <RiseIn delay={180} style={styles.duoHalf}>
-            <SpringPressable onPress={() => router.push('/trade')}>
-              <Card style={styles.duoCard} tint={theme.success}>
-                <UIcon name="trade" size={20} color={theme.success} />
-                <ThemedText type="heading" style={{ fontSize: FontSize.body, marginTop: Spacing.two }}>Trade</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">Paper trading</ThemedText>
-              </Card>
-            </SpringPressable>
-          </RiseIn>
-          <RiseIn delay={230} style={styles.duoHalf}>
-            <SpringPressable onPress={() => router.push('/digest')}>
-              <Card style={styles.duoCard} tint={theme.primary}>
-                <UIcon name="bookOpen" size={20} color={theme.iconLilac} />
-                <ThemedText type="heading" style={{ fontSize: FontSize.body, marginTop: Spacing.two }}>Digest</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">Today&apos;s read</ThemedText>
-              </Card>
-            </SpringPressable>
-          </RiseIn>
-        </View>
 
-        {/*
-         * LEAGUE STANDING — fills the dead band at the bottom of Home.
-         *
-         * Measured 2026-08-19 on device: the Trade/Digest row ended at y=676 and the tab bar
-         * began at y=794, leaving 118pt — 13.5% of an 874pt viewport — empty at the scroll end.
-         * That gap was NOT a layout bug: `styles.content` sets
-         * `paddingBottom: BottomTabInset + Spacing.four` = 108, which is correct trailing padding
-         * for a ScrollView. It only read as dead because the content happened to stop there. So
-         * this is a product decision to give the space a job, not a fix.
-         *
-         * Tier and crest come from `lib/league.ts`, the same source the League screen reads, for
-         * the reason stated at league.tsx:10 — two surfaces showing DIFFERENT tiers for the same
-         * player is worse than one surface showing none.
-         *
-         * It deliberately does NOT show a rank. Rank is derived from weekly XP against the
-         * standings field on the League screen; recomputing it here would be a second
-         * implementation of the same rule, and those drift. Progress toward the next tier is
-         * derived from `tierProgress` and cannot disagree with anything.
-         */}
-        <RiseIn delay={280}>
-          <SpringPressable onPress={() => router.push('/league')} accessibilityRole="button"
-            accessibilityLabel={`${league.tier.name} league. ${league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}. Opens standings.`}>
-            <Card style={styles.leagueCard} tint={league.tier.color}>
-              <LeagueCrest tier={league.tier} size={44} />
-              <View style={styles.leagueText}>
-                <ThemedText type="label" themeColor="mutedForeground">{league.tier.name.toUpperCase()} LEAGUE</ThemedText>
-                <View style={[styles.questTrack, { backgroundColor: theme.border, marginTop: Spacing.one + 2 }]}>
-                  <View style={[styles.questFill, { width: `${Math.round(league.progress * 100)}%`, backgroundColor: league.tier.color }]} />
-                </View>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.one }}>
-                  {league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}
-                </ThemedText>
-              </View>
-              <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
-            </Card>
-          </SpringPressable>
-        </RiseIn>
       </ScrollView>
 
       {/*
