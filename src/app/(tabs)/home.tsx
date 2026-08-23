@@ -98,6 +98,19 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
 
 export default function Home() {
   const name = useApp((s) => s.profile.name);
+  /*
+   * CLOSE OUT A FINISHED LEAGUE WEEK. Home is the right place: it is the screen every session
+   * lands on, so the result is banked before the user can reach the league board and see a stale
+   * one. The action is a no-op mid-week and after a week is already paid — it returns the same
+   * state object, so zustand skips the notify and this costs nothing to call every mount.
+   *
+   * Not in league.tsx, where it would look more at home: someone who never opens that screen would
+   * never be paid, and the whole point is that the ladder resolves whether or not you watch it.
+   */
+  const resolveLeagueWeek = useApp((s) => s.resolveLeagueWeek);
+  useEffect(() => {
+    resolveLeagueWeek();
+  }, [resolveLeagueWeek]);
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
   const coins = useApp((st) => st.coins);

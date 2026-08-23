@@ -28,9 +28,18 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { tierForXp } from '@/lib/league';
+import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
+import type { WeekResult } from '@/lib/league-week';
 import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
+
+/** What last week's outcome is called on screen. The store holds the verb; this holds the copy. */
+const RESULT_COPY: Record<WeekResult, string> = {
+  promoted: 'Promoted',
+  held: 'Held your place',
+  demoted: 'Demoted',
+};
 
 const PROMOTE = 3; // top 3 promote
 const DEMOTE = 7; // rank 8+ (index >= 7) demote
@@ -65,6 +74,9 @@ export default function League() {
   const theme = useTheme();
   const xp = useApp((s) => s.xp);
   const weekly = useApp((s) => s.weeklyXpNow());
+  // Resolved on Home, shown here. Null until a week has actually finished — which is not the same
+  // as never having played, so it must not render an empty "you finished #0" state.
+  const lastWeek = useApp((s) => s.lastWeekOutcome);
   const tier = tierForXp(xp);
   // Standings use WEEKLY xp; the header tier above uses lifetime. See the note at the top.
   const [tab, setTab] = useState<'league' | 'friends'>('league');
@@ -134,6 +146,32 @@ export default function League() {
           </ThemedText>
         </View>
       </RiseIn>
+
+      {/*
+        * LAST WEEK'S RESULT. Until this existed the promotion zone was decoration: the line was
+        * drawn, the week ended, and the app never once said what happened. A ladder you can climb
+        * but are never told you climbed is not a ladder.
+        */}
+      {lastWeek && (
+        <RiseIn delay={40}>
+          <View style={[styles.lastWeek, { borderColor: theme.border, backgroundColor: theme.card }]}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <ThemedText type="label" themeColor="mutedForeground">LAST WEEK</ThemedText>
+              <ThemedText type="bodyMedium">
+                {`Finished #${String(lastWeek.rank)} · ${RESULT_COPY[lastWeek.result]}`}
+              </ThemedText>
+            </View>
+            {lastWeek.coins > 0 && (
+              <View style={styles.lastWeekPay}>
+                <PixelSpriteView sprite={coinSprite} size={15} />
+                <ThemedText type="smallBold" style={{ color: theme.iconGold }}>
+                  {`+${String(lastWeek.coins)}`}
+                </ThemedText>
+              </View>
+            )}
+          </View>
+        </RiseIn>
+      )}
 
       <View style={styles.tabs}>
         {(['league', 'friends'] as const).map((t) => (
@@ -250,6 +288,17 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', paddingHorizontal: Spacing.three, marginTop: Spacing.two },
   tab: { alignItems: 'center', paddingVertical: Spacing.two, borderBottomWidth: 2 },
   friendsEmpty: { textAlign: 'center', lineHeight: 20, paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
+  lastWeek: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    marginHorizontal: Spacing.three,
+    marginBottom: Spacing.two,
+    padding: Spacing.three,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  lastWeekPay: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   zone: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.two },
   zoneLine: { flex: 1, height: 1 },
 });

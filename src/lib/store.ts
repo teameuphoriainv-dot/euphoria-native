@@ -15,6 +15,8 @@ import { dayBeforeKey, dayKey, nextStreak, prevDayKey, weekKey, withToday } from
 import { resolveStreak } from './streak-freeze';
 import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { outcomeFor, type WeekOutcome } from './league-week';
+import { PEOPLE } from './people';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -197,6 +199,9 @@ const snapshot = (
   return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
 };
 
+/** The rival scores the league board ranks you against. Read once: PEOPLE is a static module. */
+const LEAGUE_FIELD = PEOPLE.map((p) => p.weeklyXp);
+
 const applyXp = (s: { xp: number; weeklyXp: number; weekStart: string }, n: number) => {
   const wk = weekKey();
   const carried = s.weekStart === wk ? s.weeklyXp : 0;
@@ -356,6 +361,20 @@ export type AppState = {
   /** Weekly XP, zeroed once the week rolls over. Derived at read time for the same reason
    *  `minutesDoneToday` is: no timer and no foreground listener needed. */
   weeklyXpNow: () => number;
+  /** The `weekStart` whose result has already been paid. Guards against paying a week twice —
+   *  `resolveLeagueWeek` runs on every Home mount, so it WILL be called repeatedly. */
+  lastWeekResolved: string;
+  /** Last week's finishing position and bonus, for the league screen to show. Null until a week
+   *  has actually finished, which is not the same as "no weeks played". */
+  lastWeekOutcome: WeekOutcome | null;
+  /**
+   * Close out a finished league week: pay the zone bonus, record the result, start a clean week.
+   *
+   * Before this existed, `applyXp` simply carried zero forward at the week boundary, so a finished
+   * week was discarded rather than resolved and the PROMOTION ZONE on the league screen paid
+   * nothing. See league-week.ts.
+   */
+  resolveLeagueWeek: () => void;
   /** Local day the game bonus was last paid, '' if never. */
   lastGameDay: string;
   /** Ids of people YOU follow. One-directional; no approval needed. */
@@ -598,6 +617,8 @@ export const useApp = create<AppState>()(
       hasHydrated: false,
       weeklyXp: 0,
       weekStart: '',
+      lastWeekResolved: '',
+      lastWeekOutcome: null,
       lastGameDay: '',
       lastQuestDay: '',
       following: [],
@@ -773,6 +794,28 @@ export const useApp = create<AppState>()(
       streakIfCompletedToday: () => nextStreak(get().streak, get().lastActiveDay),
 
       weeklyXpNow: () => (get().weekStart === weekKey() ? get().weeklyXp : 0),
+
+      resolveLeagueWeek: () =>
+        set((s) => {
+          const wk = weekKey();
+          /*
+           * Three ways there is nothing to do, and all three are normal rather than exceptional:
+           * a user who has never earned XP has no weekStart at all; a user mid-week is not
+           * finished; and a week already paid must never pay again. Returning `s` unchanged means
+           * zustand skips the notify, so calling this on every Home mount is free.
+           */
+          if (!s.weekStart || s.weekStart === wk || s.lastWeekResolved === s.weekStart) return s;
+          const outcome = outcomeFor(s.weekStart, s.weeklyXp, LEAGUE_FIELD);
+          return {
+            coins: s.coins + outcome.coins,
+            lastWeekResolved: s.weekStart,
+            lastWeekOutcome: outcome,
+            // Start the new week here rather than leaving it to the next XP award, so the board
+            // reads 0 immediately instead of showing last week's total until you earn something.
+            weeklyXp: 0,
+            weekStart: wk,
+          };
+        }),
 
       /**
        * `minutes` is REAL ELAPSED TIME in the lesson, not a constant.
@@ -1019,7 +1062,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
