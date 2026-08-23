@@ -1,4 +1,30 @@
-# LIVE PRICE DESYNC — found 2026-08-23, NOT FIXED, needs an owner decision
+# PRICE DESYNC — found AND FIXED 2026-08-23
+
+## RESOLVED: the App Store was raised to match the app
+Owner's decision: the app's $79.99 was the deliberate, documented number, so the STORE moved.
+
+`euphoria_pro_yearly` raised to the $79.99 tier in **175/175 territories, 0 failures**, using
+Apple's OWN equalisation of the USA $79.99 price point rather than any hand-computed conversion.
+Spot-checked by name rather than trusting the count (§3.5): USA 79.99, GBR 79.99, CAN 99.99,
+AUS 129.99, IND 7900, JPN 13000, DEU 89.99, BRA 499.90.
+
+`preserveCurrentPrice: true` on every write, so anyone already subscribed keeps what they signed up
+for. Nobody is, which is exactly why this was the cheapest possible moment to do it.
+
+**The app's derived arithmetic is now TRUE rather than aspirational:** 79.99/12 = $6.67 and
+1 - 79.99/119.88 = 33%. `pricing-pin.mjs` has been asserting both against a store that disagreed.
+
+A verification note worth keeping: the first read-back after the USA write still said 59.99 and
+looked like a failed write. It was not — a subscription carries TWO price rows, the preserved one
+(`startDate: null, preserved: true`) and the new effective one (`startDate` set, `preserved: false`).
+Reading "the first row for this territory" reads the wrong one. Filter on `preserved === false`.
+
+Also: finding the $79.99 price point at all needed pagination to exhaustion — there are **140,132**
+price points and the first `limit=200` page contains none of the useful ones. A single page returning
+nothing is not evidence the tier does not exist (§3.6).
+
+---
+# ORIGINAL FINDING, kept for the record
 
 Queried from App Store Connect directly. Both problems are about the same screen.
 
