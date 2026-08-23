@@ -28,7 +28,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
-import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost } from '@/lib/digest-content';
+import { DIGEST_CATEGORIES, DIGEST_POSTS, type DigestPost, type DigestCategory } from '@/lib/digest-content';
 import { pickToday } from '@/lib/digest-pick';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { dayKey, useApp } from '@/lib/store';
@@ -36,6 +36,29 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
+import {
+  PixelSpriteView, bolt, chartUp, compass, creditCard, flame as flameSprite,
+  stockTicker, wallet, type PixelSprite,
+} from '@/lib/pixel';
+
+/**
+ * A mark per Digest category.
+ *
+ * The section rows carried no art at all — five near-identical cards separated only by a tint and
+ * a word, on the screen whose whole job is letting you pick one. A mark is what makes a row
+ * findable at a glance rather than read.
+ *
+ * All five distinct, and all already in the shared catalogue. `DigestCategory` is a union, so a
+ * category added without a mark is a COMPILE error rather than a blank slot — the same reasoning
+ * as StatMark, and the reason this needs no pin.
+ */
+const CATEGORY_ART: Record<DigestCategory, PixelSprite> = {
+  Credit: creditCard,
+  Strategy: compass,
+  Investing: chartUp,
+  'Money basics': wallet,
+  Markets: stockTicker,
+};
 
 const ALL = 'All';
 
@@ -137,14 +160,17 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
             sits at 0 — show them the XP and say nothing about a streak they do not have. */}
         {streak > 0 ? (
           <View style={[styles.chipStat, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-            <UIcon name="flame" size={16} color={theme.streak} />
+            {/* The same pixel flame the Home header wears. These two chips carry exactly the
+                Home pills' semantics — streak and XP — so they should not be a different picture
+                of the same thing one tab over. */}
+            <PixelSpriteView sprite={flameSprite} size={16} />
             <ThemedText type="smallBold" style={{ color: theme.streak }}>
               {streak} day streak
             </ThemedText>
           </View>
         ) : null}
         <View style={[styles.chipStat, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-          <UIcon name="sparkle" size={16} color={theme.iconLilac} />
+          <PixelSpriteView sprite={bolt} size={16} />
           <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
             +25 XP
           </ThemedText>
@@ -334,25 +360,27 @@ export default function Digest() {
             {DIGEST_CATEGORIES.map((c, i) => {
               const tint = heroTint(c) ?? theme.primary;
               return (
-                <RiseIn key={c} delay={160 + Math.min(i * 40, STAGGER_CAP)}>
-                  <SpringPressable
-                    onPress={() => {
-                      setFilter(c);
-                      setTouched(true);
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
-                    <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
-                      <View style={{ flex: 1 }}>
-                        <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{c}</ThemedText>
+                <View key={c} style={styles.sectionCell}>
+                  <RiseIn delay={160 + Math.min(i * 40, STAGGER_CAP)}>
+                    <SpringPressable
+                      onPress={() => {
+                        setFilter(c);
+                        setTouched(true);
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
+                      <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
+                        <PixelSpriteView sprite={CATEGORY_ART[c]} size={44} />
+                        <ThemedText type="heading" style={{ fontSize: FontSize.body, textAlign: 'center' }} numberOfLines={2}>
+                          {c}
+                        </ThemedText>
                         <ThemedText type="small" themeColor="mutedForeground">
                           {counts[c] ?? 0} {counts[c] === 1 ? 'guide' : 'guides'}
                         </ThemedText>
                       </View>
-                      <UIcon name="arrowRight" size={16} color={tint} />
-                    </View>
-                  </SpringPressable>
-                </RiseIn>
+                    </SpringPressable>
+                  </RiseIn>
+                </View>
               );
             })}
           </View>
@@ -443,12 +471,30 @@ const styles = StyleSheet.create({
 
   sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four },
   chipScroll: { marginTop: Spacing.two },
-  sections: { gap: Spacing.two, marginTop: Spacing.three },
-  sectionCard: {
+  /*
+   * A GRID, NOT A STACK. Five full-width rows each ~100pt tall put one and a half categories on
+   * screen under the Done card, and every one of them was a big rectangle holding a word, a count
+   * and an arrow. Two columns fit the whole library above the fold and give the mark room to be
+   * the thing you actually scan for, which is what a category picker is for.
+   */
+  sections: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
+    marginTop: Spacing.three,
+  },
+  /** Just under half, so two fit per row with the gap between them and the wrap is not fragile. */
+  sectionCell: { width: '48%' },
+  sectionCard: {
     alignItems: 'center',
-    gap: Spacing.three,
-    padding: Spacing.three,
+    justifyContent: 'center',
+    gap: Spacing.two,
+    // Fixed, so a two-line name ("Money basics") does not make its tile taller than the one beside
+    // it and break the grid's rhythm.
+    minHeight: 132,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.two,
     borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
   },
