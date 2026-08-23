@@ -189,3 +189,38 @@ waiting on it. 6 OTAs published on `production`.
    it fine. Only a cold launch proves a new component.
 2. **`idb ui swipe` silently no-ops without `--duration`.** It exits 0 and changes nothing, which
    reads exactly like "the app did not scroll". `--duration 0.6` works.
+
+---
+# DOC REWRITTEN 2026-08-23 — "notes" is now "Euphoria Audit"
+Re-read in full. Same doc id, flat prose now, no [tags]. Most items map to the existing N-numbers.
+THREE DELTAS that change what is already shipped or add work:
+
+### N24 — NEW, not in the previous version
+> "On the 'habit that makes it stick' screen, the x-axis 'time' label needs to move — it's
+> currently under the words and looks weird. It should be on the right side of the axis instead.
+> <- first lesson"
+
+Never reported before. A chart axis label in the first lesson. Not started.
+
+### N5 — WIDENED
+Previous: the $1,000 question repeats "in the first personal finance lesson".
+Now: **"this needs to be fixed for every lesson, not just that one."**
+So it is not one bad lesson, it is a de-duplication pass over the whole corpus. Still deferred to
+the curriculum re-sync per the owner, but the SCOPE is now every lesson.
+
+### N11 / N12 — ESCALATED, and my shipped fix does NOT satisfy this
+> "Friends and Games should be moved **out of the You tab** and made a bigger, more visible part
+> of the app overall."
+
+What I shipped groups them INSIDE the You tab (PLAY & PEOPLE / SETTINGS) and adds a Games card to
+Home. He is now asking for them to LEAVE the You tab. That is the web app's structure — Games is a
+top-level tab there, and there is no You tab at all.
+
+**This reopens the navigation-restructure question the owner previously answered "fix them
+individually".** The doc has since been rewritten to ask for the structural change explicitly.
+NEEDS THE OWNER'S CALL — do not restructure the tab bar on my own reading of a reworded sentence.
+
+### Also worth noting
+The audit still says "Assuming AI isn't supposed to work right now" and "Assuming Trade is bugged
+since no data has been added yet." Both assumptions are wrong and both are now disproven:
+Trade renders with live data, and Atlas works — build 14 carries the API origin.
