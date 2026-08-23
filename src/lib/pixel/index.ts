@@ -30,3 +30,4 @@ export { PIXEL_SPRITES, SPRITES_BY_ID, getSprite } from './sprites';
 export * from './sprites';
 // Authored here, pending contribution upstream — see sprites-additions.ts.
 export * from './sprites-additions';
+export * from './sprites-crests';
