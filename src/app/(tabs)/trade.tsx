@@ -44,6 +44,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { getMarks } from '@/lib/market';
 import { changeOf } from '@/lib/marks';
+import { PixelSpriteView, arrowSplit, newspaper } from '@/lib/pixel';
 
 /** Kept as a name so the row markup reads the same; the mark itself is now a real logo with the
  *  lettered tile as its floor. */
@@ -263,9 +264,13 @@ export default function Trade() {
         <RiseIn delay={110}>
           <View style={styles.actions}>
             {(
+              /* Sprites rather than UIcon names: these two are CONTENT entry points — a newspaper
+                 and a contract — not navigation controls, so they follow the same rule as the
+                 Games grid and the course rail. The search glyph and the row chevrons above stay
+                 vector, because those ARE controls. */
               [
-                { icon: 'feed', label: 'News', to: '/news' },
-                { icon: 'bolt', label: 'Options', to: '/options' },
+                { sprite: newspaper, label: 'News', to: '/news' },
+                { sprite: arrowSplit, label: 'Options', to: '/options' },
               ] as const
             ).map((a) => (
               <SpringPressable
@@ -278,7 +283,7 @@ export default function Trade() {
                 style={{ flex: 1 }}
               >
                 <View style={[styles.action, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                  <UIcon name={a.icon} size={19} color={theme.iconLilac} />
+                  <PixelSpriteView sprite={a.sprite} size={20} />
                   <ThemedText type="smallBold">{a.label}</ThemedText>
                 </View>
               </SpringPressable>

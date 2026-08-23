@@ -7,8 +7,10 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Icon } from '@/components/icon';
-import { type EuphoriaIconName } from '@/lib/euphoria-icons';
+import {
+  PixelSpriteView, bolt, chartUp, chat, crack, factory, globe, ladder, lightbulb,
+  magnifier, rocket, scales, stockTicker, type PixelSprite,
+} from '@/lib/pixel';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
@@ -18,19 +20,32 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
 
-const GAMES: { name: string; icon: EuphoriaIconName; route?: string; pro?: boolean }[] = [
-  { name: 'Term Match', icon: 'brain', route: '/games/term-match' },
-  { name: 'Trend Master', icon: 'trend-line' },
-  { name: 'Budget Balancer', icon: 'cash' },
-  { name: 'Credit Climb', icon: 'bank' },
-  { name: 'Market Reaction', icon: 'bolt' },
-  { name: 'Bias Busted', icon: 'target', pro: true },
-  { name: 'Black Swan', icon: 'whale', pro: true },
-  { name: 'Trade War', icon: 'sword', pro: true },
-  { name: 'Invest Life', icon: 'rocket', pro: true },
-  { name: 'Startup Sim', icon: 'building', pro: true },
-  { name: 'AI Rival', icon: 'alien', pro: true },
-  { name: 'Candlesticks', icon: 'bar-chart', pro: true },
+/**
+ * THE SPRITE LIVES ON THE ENTRY, not in a lookup keyed by name.
+ *
+ * A `Record<string, PixelSprite>` beside this list would let a game be added with no art and fail
+ * silently — a blank tile in a 12-tile grid, which reads as a broken layout rather than as missing
+ * art. That is the exact bug course-mark-pin exists to catch, and here the type system can catch it
+ * for free instead: `sprite` is required, so a game with no art will not compile.
+ *
+ * All twelve are distinct and all come from the shared catalogue — nothing was drawn for this.
+ * The pairings read the game, not its category: Budget Balancer is `scales` because the game IS a
+ * balance, Credit Climb is `ladder` because it is a climb, Black Swan is `crack` because the point
+ * of a black swan is the break, not the bird.
+ */
+const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean }[] = [
+  { name: 'Term Match', sprite: lightbulb, route: '/games/term-match' },
+  { name: 'Trend Master', sprite: chartUp },
+  { name: 'Budget Balancer', sprite: scales },
+  { name: 'Credit Climb', sprite: ladder },
+  { name: 'Market Reaction', sprite: bolt },
+  { name: 'Bias Busted', sprite: magnifier, pro: true },
+  { name: 'Black Swan', sprite: crack, pro: true },
+  { name: 'Trade War', sprite: globe, pro: true },
+  { name: 'Invest Life', sprite: rocket, pro: true },
+  { name: 'Startup Sim', sprite: factory, pro: true },
+  { name: 'AI Rival', sprite: chat, pro: true },
+  { name: 'Candlesticks', sprite: stockTicker, pro: true },
 ];
 
 export default function Games() {
@@ -56,7 +71,7 @@ export default function Games() {
                     </View>
                   )}
                   <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }]}>
-                    <Icon name={g.icon} size={40} />
+                    <PixelSpriteView sprite={g.sprite} size={40} />
                   </View>
                   <ThemedText type="heading" style={{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }}>{g.name}</ThemedText>
                 </Card>
