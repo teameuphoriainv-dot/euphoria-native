@@ -145,3 +145,47 @@ variable existed, so Atlas is still dark on it, and no OTA can change that. Buil
 
 Note `/api/market` answers 400 `bad_action` to a bare query — that is param validation, not a
 failure. The route is up.
+
+---
+# SESSION STATE — 2026-08-23
+
+## Ready for the owner to verify on a phone (20 of 29)
+| # | what shipped |
+|---|---|
+| P2/P3 | `SlabButton` — solid face, hard-cut slab, no glow. 19 call sites, one component. |
+| P5/N10 | Profile spacing. The identity card and plan card were rendering FLUSH. |
+| P4 | `TabGlyph` — 3pt lift on the focused tab. A lift, not a scale-pop (invariant). |
+| P1 | Lesson intro staggers 40/120/190/260ms instead of one simultaneous fade. |
+| P6/N17 | Premium colourway `#E0409B -> #F5842B` + Free-vs-Pro chart. Chart replaced the trial timeline (owner's variant A). |
+| N7 | Order steps DERANGED, not merely unsolved. Was handing out ~1 correct answer per question. **pinned** |
+| N14/N15 | Paywall no longer offers a trial to someone on one — or to a Pro subscriber. **pinned** |
+| N6 | Daily goal counts REAL elapsed minutes; quests count lessons directly. **pinned** |
+| N2/N4 | Onboarding back respects the entry step; no more dead chevron on step 0. |
+| N8/N9 | League moved to the top; duplicate Trade/Digest cards deleted. |
+| N13 | No fabricated follower relationships; DISCOVER now discloses practice profiles. |
+| N11/N12 | You tab split into PLAY & PEOPLE / SETTINGS; Games surfaced on Home. |
+| N18 | Digest categories are stacked sections with their own tints, not oval chips. |
+
+## Open
+- **N20** — FIXED but needs build 14. API deployed to `https://euphoria-native.expo.app`,
+  `/api/chat` verified returning real answers, `EXPO_PUBLIC_API_URL` set in all 3 environments.
+  `EXPO_PUBLIC_*` inlines at BUILD time, so no OTA can deliver it.
+- **N19** — NOT REPRODUCIBLE. Trade tab renders with live portfolio, live market news and an ideas
+  rail. Needs a specific repro from the cofounder.
+- **N5** — deferred to the curriculum re-sync, owner's decision.
+- **N1 / N23** — em-dash copy pass. ~50 candidates across 30 files; needs per-string judgement
+  because en dashes in ranges (`18–24`) are correct typography and must stay.
+- **N16** — reward pacing. **N21** — in-app currency (web has a Shop tab). **N22** — light/dark.
+- **N3** — age floor to 13+. Owner: DO THIS LAST. Everything except copy is now done.
+
+## Shipping state
+Builds 13 and 14. Build 13 is VALID and attached to Internal Testers + Cofounders (verified from
+the relationship endpoint, not from the attach script's own claim). Build 14 has an attach poller
+waiting on it. 6 OTAs published on `production`.
+
+## Two things that cost me time today, recorded so they do not again
+1. **Fast Refresh does not reliably mount a NEWLY ADDED component.** A screenshot after an edit
+   showed empty space where the Games card was; the source was correct and a COLD LAUNCH rendered
+   it fine. Only a cold launch proves a new component.
+2. **`idb ui swipe` silently no-ops without `--duration`.** It exits 0 and changes nothing, which
+   reads exactly like "the app did not scroll". `--duration 0.6` works.
