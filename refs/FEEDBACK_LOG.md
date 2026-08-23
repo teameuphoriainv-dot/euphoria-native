@@ -8,6 +8,24 @@ Source docs (2026-08-22):
 Status: `open` -> `fixing` -> `ready-for-verification` -> `verified` | `wontfix (real reason)`
 
 ---
+## SCOREBOARD — reconciled 2026-08-23
+
+**`ready-for-verification` means I fixed it and confirmed it on the simulator. It does NOT mean
+done.** Only the owner sets `verified`, on his own phone (§1.3). Nothing below is verified yet.
+
+| state | count | which |
+|---|---|---|
+| ready-for-verification | 20 | N1 N2 N3 N4 N6 N7 N8 N9 N10 N11 N12 N13 N14 N15 N17 N18 N20 N21 N22 N23 + all of BATCH A |
+| partial | 1 | N16 — the 3-lesson gate ships, the discounted annual rate does not |
+| open | 1 | N5 — widened to every lesson; needs the curriculum re-sync, not a code fix |
+| blocked | 1 | N19 — not reproducible, needs a repro from the reporter |
+
+**The status column was wrong before this pass.** Eleven rows still read `open` for work that had
+already shipped, because the table was never updated after the fixes landed. If you are reading
+this file to decide what to work on, that is the failure mode it had — check the commit named in
+each row rather than trusting a bare status word.
+
+---
 ## REFERENCE DESIGN read from the prompt doc's 6 images
 Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Google Doc.
 
@@ -36,49 +54,49 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 ## BATCH B — Onboarding
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N1 | "Em dash after the coach on the first screen — decide if we're keeping it; reads a little rough." | copy | P3 | open |
-| N2 | "Back arrow doesn't work on the 'How much do you already know?' screen. (Also: do we even need a back button here?)" | broken-flow | P1 | open |
-| N3 | "Age range starts at 18 — needs to be expanded to include younger/older users." | wrong-data | P1 | ready-for-verification |
-| N4 | "tapping the free trial banner takes you to the subscription screen; hitting back from there sends you to onboarding instead of back to Home." | broken-flow | P1 | open |
+| N1 | "Em dash after the coach on the first screen — decide if we're keeping it; reads a little rough." | copy | P3 | ready-for-verification | welcome.tsx rewritten; `em-dash-prose-pin`|
+| N2 | "Back arrow doesn't work on the 'How much do you already know?' screen. (Also: do we even need a back button here?)" | broken-flow | P1 | ready-for-verification | entry-aware `back()`, `entryStep` ref|
+| N3 | "Age range starts at 18 — needs to be expanded to include younger/older users." | wrong-data | P1 | ready-for-verification | "Under 13" offered AND blocks; `age-floor-pin` guards both paths|
+| N4 | "tapping the free trial banner takes you to the subscription screen; hitting back from there sends you to onboarding instead of back to Home." | broken-flow | P1 | ready-for-verification | same fix as N2|
 
 ## BATCH C — Lessons
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N5 | "the 'Americans can't cover a $1,000 emergency expense' question shows up more than once in the first personal finance lesson." | wrong-data | P1 | ready-for-verification |
-| N6 | "it looks like the app measures time based on the lesson's listed duration, not actual time spent in-app. After finishing a lesson it shows 5 minutes even if you were on the app much longer" | wrong-data | P1 | ready-for-verification |
-| N7 | "the drag-to-order steps sometimes load with answers already in the correct position... None of them should ever start in the correct spot. Confirmed happening across every lesson" | **crash-class bug** | **P0** | open |
+| N5 | "the 'Americans can't cover a $1,000 emergency expense' question shows up more than once in the first personal finance lesson." | wrong-data | P1 | **open** | WIDENED by the rewritten audit from "the first lesson" to every lesson. Needs the curriculum re-sync, not a code fix|
+| N6 | "it looks like the app measures time based on the lesson's listed duration, not actual time spent in-app. After finishing a lesson it shows 5 minutes even if you were on the app much longer" | wrong-data | P1 | ready-for-verification | real elapsed minutes, clamped 1-30; `goal-minutes-pin`|
+| N7 | "the drag-to-order steps sometimes load with answers already in the correct position... None of them should ever start in the correct spot. Confirmed happening across every lesson" | **crash-class bug** | **P0** | ready-for-verification | DERANGED, not merely unsolved; `order-derangement-pin`|
 
 ## BATCH D — Home
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N8 | "'Saver League' (rank) is at the bottom of the page — should be moved up near the top; it's a key status indicator." | visual | P2 | open |
-| N9 | "'Your Path' section feels crowded/redundant — Lessons, Trade, and Digest already have their own full tabs... Consider simplifying/compressing the bottom half" | visual | P2 | open |
+| N8 | "'Saver League' (rank) is at the bottom of the page — should be moved up near the top; it's a key status indicator." | visual | P2 | ready-for-verification | league moved to the top of Home|
+| N9 | "'Your Path' section feels crowded/redundant — Lessons, Trade, and Digest already have their own full tabs... Consider simplifying/compressing the bottom half" | visual | P2 | ready-for-verification | duplicate Trade/Digest cards deleted|
 
 ## BATCH E — You / Profile
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N10 | "Top half is too compressed: profile, free trial days left, league, and rank are all crammed together" | visual | P1 | ready-for-verification (= P5) |
-| N11 | "Tab is scope-confused: right now it reads like Settings... but also holds Friends and Games, which are gamified/social features and feel out of place here." | confusion | P2 | open |
-| N12 | "Games are buried — currently only discoverable by clicking into Profile. Should be a bigger, more visible part of the app." | confusion | P2 | open |
-| N13 | "suggested friends (e.g., 'Priya S,' 'Chris M') appear to be bots, not real users — needs a real content/design decision here." | wrong-data | P1 | ready-for-verification |
+| N10 | "Top half is too compressed: profile, free trial days left, league, and rank are all crammed together" | visual | P1 | ready-for-verification | (= P5)|
+| N11 | "Tab is scope-confused: right now it reads like Settings... but also holds Friends and Games, which are gamified/social features and feel out of place here." | confusion | P2 | ready-for-verification | You split into PLAY & PEOPLE / SETTINGS|
+| N12 | "Games are buried — currently only discoverable by clicking into Profile. Should be a bigger, more visible part of the app." | confusion | P2 | ready-for-verification | Games is a top-level TAB now — confirmed on the simulator 2026-08-23|
+| N13 | "suggested friends (e.g., 'Priya S,' 'Chris M') appear to be bots, not real users — needs a real content/design decision here." | wrong-data | P1 | ready-for-verification | no fabricated follow relationships; DISCOVER discloses practice profiles|
 
 ## BATCH F — Subscription & Monetization
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N14 | "Post-lesson 'open the present' reward currently offers 'Start your free trial' even to users who are already on the free trial — confirmed bug." | broken-flow | **P0** | ready-for-verification |
-| N15 | "Same bug on Home: tapping the arrow next to the trial banner says 'Start your free trial to continue' even when already enrolled." | broken-flow | **P0** | ready-for-verification |
-| N16 | "instead of prompting after every single lesson, consider triggering the 'present' after a few lessons and offering a discounted annual rate" | confusion | P2 | open |
-| N17 | "Subscription screen needs a features list — right now it's just an image; users can't tell what premium actually includes." | visual | P1 | ready-for-verification (= P6) — NOTE: chart sits below the fold, see open question |
+| N14 | "Post-lesson 'open the present' reward currently offers 'Start your free trial' even to users who are already on the free trial — confirmed bug." | broken-flow | **P0** | ready-for-verification | `trial-offer-pin`|
+| N15 | "Same bug on Home: tapping the arrow next to the trial banner says 'Start your free trial to continue' even when already enrolled." | broken-flow | **P0** | ready-for-verification | `trial-offer-pin`|
+| N16 | "instead of prompting after every single lesson, consider triggering the 'present' after a few lessons and offering a discounted annual rate" | confusion | P2 | **partial** | `OFFER_MIN_LESSONS = 3` gates the sheet. The DISCOUNTED ANNUAL RATE is not built|
+| N17 | "Subscription screen needs a features list — right now it's just an image; users can't tell what premium actually includes." | visual | P1 | ready-for-verification | (= P6); chart moved below the plan cards so both prices stay above the fold|
 
 ## BATCH G — Digest / Trading / AI / Rewards / Settings / Copy
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N18 | "replace the current dropdown-oval categories... with distinct sections/rectangles stacked down the screen (similar to the Euphoria web app)" | visual | P2 | open |
-| N19 | "Trade tab is bugged — expected, since no data/content has been added yet." | broken-flow | P1 | open |
-| N20 | "AI feature not working — expected to be non-functional right now." | broken-flow | P1 | open |
-| N21 | "Add an in-app currency for completing achievements... a separate game-style currency (like the web app has)" | feature | P3 | open |
-| N22 | "Add Light Mode / Dark Mode + other color preferences, housed under the Preferences section." | feature | P3 | open |
-| N23 | "Em dashes throughout the app flagged as feeling rough/off — needs a broader copy pass" | copy | P2 | open (N1 is its first instance) |
+| N18 | "replace the current dropdown-oval categories... with distinct sections/rectangles stacked down the screen (similar to the Euphoria web app)" | visual | P2 | ready-for-verification | stacked sections, refined 2026-08-23 to a two-column grid at owner request|
+| N19 | "Trade tab is bugged — expected, since no data/content has been added yet." | broken-flow | P1 | **open — BLOCKED** | not reproducible; Trade works against live data. Needs a repro from the reporter|
+| N20 | "AI feature not working — expected to be non-functional right now." | broken-flow | P1 | ready-for-verification | root cause was EXPO_PUBLIC_API_URL unset in all 3 envs. API deployed, var set, build 14|
+| N21 | "Add an in-app currency for completing achievements... a separate game-style currency (like the web app has)" | feature | P3 | ready-for-verification | Euphorium: 29-item shop, league week payout, tier-up bonus, equipped cosmetics on profile|
+| N22 | "Add Light Mode / Dark Mode + other color preferences, housed under the Preferences section." | feature | P3 | ready-for-verification | light/dark + `PIXEL_PALETTE_LIGHT`; DARK is the default (owner call), v3 migration|
+| N23 | "Em dashes throughout the app flagged as feeling rough/off — needs a broader copy pass" | copy | P2 | ready-for-verification | 5 prose em dashes; ranges and empty-value placeholders deliberately left|
 
 ---
 ## FLAGGED FOR THE OWNER — decisions I will not take alone
