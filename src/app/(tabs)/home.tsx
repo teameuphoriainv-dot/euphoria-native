@@ -43,6 +43,7 @@ import { courseAccent } from '@/lib/course-accents';
 import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { LeagueCrest } from '@/components/league-crest';
+import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
 import { tierProgress } from '@/lib/league';
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -272,7 +273,13 @@ export default function Home() {
                 accessibilityLabel={`${String(streak)} day streak`}
                 accessibilityRole="text"
                 style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-                <UIcon name="flame" size={14} color={theme.streak} />
+                {/*
+                  * The catalogue's flame, playing ONCE when the streak CHANGES — which is exactly
+                  * how the web's StreakDisplay does it (play="once", playKey={currentStreak}).
+                  * A streak advancing is a reaction; a streak sitting still is not, so it does not
+                  * loop. See PixelSprite.tsx on why idle loops are a defect class here.
+                  */}
+                <PixelSpriteView sprite={flameSprite} size={15} play="once" playKey={streak} />
                 <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: FontSize.caption }}>{streak}</ThemedText>
               </View>
               <View

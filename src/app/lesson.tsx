@@ -36,7 +36,7 @@ import { TileBuilder } from '@/components/tile-builder';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
-import { PixelSpriteView, coin as coinSprite, heart as heartSprite } from '@/lib/pixel';
+import { PixelSpriteView, coin as coinSprite, flame as flameSprite, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
 import { SlabButton } from '@/components/ui/button';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -394,7 +394,8 @@ export default function Lesson() {
             accessibilityRole="button"
             accessibilityLabel={`Use a hint. ${String(hintsLeft)} left.`}
             style={[styles.hintBtn, { borderColor: theme.iconGold + '55' }]}>
-            <UIcon name="sparkle" size={13} color={theme.iconGold} />
+            {/* The web's HintButton uses this exact sprite. A lightbulb IS the hint. */}
+            <PixelSpriteView sprite={lightbulbSprite} size={14} />
             <ThemedText type="smallBold" style={[NUM_L, { color: theme.iconGold, fontSize: FontSize.tiny }]}>{hintsLeft}</ThemedText>
           </SpringPressable>
         )}
@@ -615,7 +616,8 @@ export default function Lesson() {
               </RewardPop>
               <RewardPop delay={1500}>
                 <View style={[styles.xpChip, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-                  <UIcon name="flame" size={18} color={theme.streak} />
+                  {/* Same flame, same 'once' reaction as Home — a streak extending is the event. */}
+                  <PixelSpriteView sprite={flameSprite} size={18} play="once" playKey={streakAfter} />
                   <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: FontSize.subhead }} />
                 </View>
               </RewardPop>
