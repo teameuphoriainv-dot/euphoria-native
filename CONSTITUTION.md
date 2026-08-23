@@ -12,6 +12,57 @@ Almost everything below follows from that one sentence.
 
 ---
 
+# RULE ZERO — THE WEB APP IS THE REFERENCE. LOOK AT IT.
+
+**Set by the owner, 2026-08-23, as the one rule that outranks the rest of this file.**
+
+Before you build or change anything on iOS, open `euphoriainv.com` and look at how the web app does
+it. Not the marketing page — the signed-in product. Walk the actual screen. Then mimic it.
+
+This is not "consult it when stuck". It is the default starting move for every task.
+
+### Why it is rule zero
+Every time this project has looked at the web app, it has found something it would otherwise have
+invented wrongly:
+
+- The Premium colourway. Guessed from a screenshot, then **confirmed** against the live "Go Pro /
+  Upgrade" button: `#E0409B -> #F5842B`. The guess happened to be right; the confirmation is why we
+  know it.
+- The button system. `SlabButton` was built from reference images, then independently confirmed by
+  the web's own "Show me around" and "Warm up" CTAs. Same construction, so it is a SYSTEM, not four
+  cherry-picked screenshots.
+- Four feedback items — games buried, in-app currency, crowded Your Path, scope-confused You tab —
+  turned out to be cofounders describing the WEB STRUCTURE without naming it. Reading the feedback
+  alone would have produced four unrelated patches instead of one navigation answer.
+- The Euphorium economy. Award rates, 21 items, prices, rarities and category tabs were all sitting
+  in the web Shop, fully specified. Inventing an economy would have been both wasted work and a
+  second source of truth.
+- The pixel art. ASCII-art sprites compiled to `<rect>`s — portable to `react-native-svg` almost
+  unchanged. Without looking, iOS would have grown a parallel art pipeline with binary assets.
+
+### What "mimic it" means in practice
+1. **Open the screen.** Not the repo, not a description, not a memory of it. `AGENTS.md` opens with a
+   paywall that was built, shipped and reverted because a flow *summary* was treated as evidence.
+2. **Read the implementation too, when there is one.** `refs/webapp/` holds what has been read so far
+   — the lesson engine, the pixel system, the shop. Extend those files; do not re-derive them.
+3. **Share the source of truth wherever the platform allows it.** The pixel catalogue, the shop item
+   table and the curriculum should each exist ONCE, with two renderers — never twice, with two
+   copies that drift. Drift is what the curriculum re-sync exists to undo; do not create a second
+   instance of that problem.
+4. **Where they disagree, the web wins** — unless there is a genuine platform reason (touch targets,
+   safe areas, native navigation idiom, iOS HIG). Deviating is allowed. Deviating *silently* is not:
+   write the reason down, because an undocumented deviation is indistinguishable from an oversight.
+5. **When the web has no answer, say so** and spec from the token system and Apple HIG, labelled as
+   such — rather than bending something off-topic to fit.
+
+### The failure this prevents
+Building something that is merely DIFFERENT rather than CONSISTENT. A cofounder saying "this feels
+off" is usually comparing against the web product without realising it. Fix iOS in isolation and the
+same person reports the same feeling again next round, because the gap you closed was not the gap
+they saw.
+
+---
+
 ## I. Evidence
 
 ### 1. Verify the route before trusting any capture — L2
@@ -163,7 +214,7 @@ paragraphs about it.
 
 ---
 
-## VII. The web app is the reference
+## VII. The web app is the reference (see RULE ZERO — this section is its detail)
 
 ### 28. `euphoriainv.com` is the design reference for iOS — L2
 When someone says an iOS surface "feels off", they are usually comparing it against the web product
