@@ -175,6 +175,9 @@ export function GateSheet({
     iapEnabled: IAP_ENABLED,
     isPro,
     specialOfferSeenAt: offerSeenAt,
+    // See OFFER_MIN_LESSONS: this and the first-lesson reward chest are each once per install, but
+    // both used to land around lesson one, which reads as one sheet that keeps returning.
+    lessonsDone: lessons,
   });
 
   const dismiss = useCallback(() => {

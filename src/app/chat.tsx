@@ -100,7 +100,7 @@ export default function ChatScreen() {
    */
   function leaveWall() {
     const s = useApp.getState();
-    if (dismissalOfferAvailable({ iapEnabled: IAP_ENABLED, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt })) {
+    if (dismissalOfferAvailable({ iapEnabled: IAP_ENABLED, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, lessonsDone: s.completedLessons.length })) {
       s.markSpecialOfferSeen();
       track(Ev.specialOfferSeen, { feature: 'atlas' });
       setOffer(true);

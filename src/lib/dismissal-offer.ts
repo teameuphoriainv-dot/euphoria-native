@@ -26,13 +26,36 @@
  * push a second spin — but an offer that reappears on every dismissal is not an offer, it is
  * nagging, and on a HARD wall it is the only thing between the user and the app.
  */
+/**
+ * Lessons that must be finished before this offer may fire.
+ *
+ * ADDED 2026-08-23 from the audit: "Instead of showing this after every single lesson, consider
+ * showing it after a few lessons."
+ *
+ * The premise is not literally true — this offer and the trial reward are BOTH once per install,
+ * and neither repeats. But there are TWO of them and they both fired around lesson one: the reward
+ * chest on the first completion, and this one the first time a wall was dismissed. Two monetisation
+ * sheets inside a couple of minutes is indistinguishable, from the outside, from one sheet that
+ * keeps coming back. The perception is the defect even though the count was already correct.
+ *
+ * Three, because it is the smallest number that guarantees the two cannot stack: the reward is
+ * anchored to lesson one, so a floor of three puts at least one clean lesson between them.
+ */
+export const OFFER_MIN_LESSONS = 3;
+
 export function dismissalOfferAvailable(p: {
   iapEnabled: boolean;
   isPro: boolean;
   specialOfferSeenAt: number | null;
+  /** Completed lessons. Optional so a caller that cannot cheaply count them still behaves as
+   *  before rather than silently suppressing the offer forever. */
+  lessonsDone?: number;
 }): boolean {
   if (!p.iapEnabled) return false;
   if (p.isPro) return false;
   // `!== null`, never truthiness: a stamp of 0 is a stamp. Epoch 0 is not "unseen".
-  return p.specialOfferSeenAt === null;
+  if (p.specialOfferSeenAt !== null) return false;
+  // Undefined means "caller did not say", which must not mean "zero" — that would gate the offer
+  // shut on every surface that has not been updated.
+  return p.lessonsDone === undefined || p.lessonsDone >= OFFER_MIN_LESSONS;
 }

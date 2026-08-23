@@ -22,7 +22,7 @@ import { readFileSync } from 'node:fs';
 
 import { dismissalOfferAvailable } from '../src/lib/dismissal-offer.ts';
 
-const base = { iapEnabled: true, isPro: false, specialOfferSeenAt: null };
+const base = { iapEnabled: true, isPro: false, specialOfferSeenAt: null, lessonsDone: 3 };
 const fail = [];
 const check = (name, got, want) => {
   const ok = got === want;
@@ -39,6 +39,19 @@ check('NO STORE — an offer we cannot honour is a dead control', dismissalOffer
 // The trap: `if (seenAt)` reads epoch 0 as unseen and re-mints the offer.
 check('seen at epoch 0 is still SEEN', dismissalOfferAvailable({ ...base, specialOfferSeenAt: 0 }), false);
 check('pro AND seen', dismissalOfferAvailable({ ...base, isPro: true, specialOfferSeenAt: 1 }), false);
+
+// ── the lesson floor, added 2026-08-23 ────────────────────────────────────────
+// The reward chest fires on lesson ONE. This offer used to be able to fire the moment a wall was
+// dismissed, so both could land inside a couple of minutes — which reads as one sheet that keeps
+// coming back, even though each is once per install. The floor keeps a clean lesson between them.
+check('lesson 1 — too early, the reward chest just fired', dismissalOfferAvailable({ ...base, lessonsDone: 1 }), false);
+check('lesson 2 — still too early', dismissalOfferAvailable({ ...base, lessonsDone: 2 }), false);
+check('lesson 3 — the floor, offer allowed', dismissalOfferAvailable({ ...base, lessonsDone: 3 }), true);
+check('lesson 9 — well past it', dismissalOfferAvailable({ ...base, lessonsDone: 9 }), true);
+// A caller that has not been updated must behave as BEFORE, not be silently gated shut forever.
+check('lessonsDone omitted — unchanged, not suppressed', dismissalOfferAvailable({ iapEnabled: true, isPro: false, specialOfferSeenAt: null }), true);
+// and the floor must never outrank the two rules that protect a payer
+check('pro at lesson 50 — still never', dismissalOfferAvailable({ ...base, isPro: true, lessonsDone: 50 }), false);
 
 /*
  * COVERAGE. Every file that renders a DISMISSIBLE trial-expired wall must consult the rule.

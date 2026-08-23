@@ -216,7 +216,7 @@ export default function Lesson() {
    */
   function leaveWall() {
     const s = useApp.getState();
-    if (dismissalOfferAvailable({ iapEnabled: IAP_ENABLED, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt })) {
+    if (dismissalOfferAvailable({ iapEnabled: IAP_ENABLED, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, lessonsDone: s.completedLessons.length })) {
       s.markSpecialOfferSeen();
       track(Ev.specialOfferSeen, { feature: 'lesson' });
       setOffer(true);
