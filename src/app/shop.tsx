@@ -132,7 +132,7 @@ export default function Shop() {
                   accessibilityLabel={`${item.name}, ${String(item.price)} Euphorium`}>
                   <Card padded={false} style={[styles.card, { borderColor: tint + '33' }]}>
                     <View style={[styles.art, { backgroundColor: tint + '12' }]}>
-                      <ShopArt itemType={item.itemType} size={52} />
+                      <ShopArt id={item.id} itemType={item.itemType} size={52} />
                       <View style={styles.rarity}>
                         <View style={[styles.dot, { backgroundColor: tint }]} />
                         <ThemedText type="small" style={{ fontSize: FontSize.tiny, color: tint }}>
