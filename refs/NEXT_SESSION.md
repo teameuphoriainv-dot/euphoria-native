@@ -437,7 +437,7 @@ filename in `.secrets/`.
 | EAS account | `s-k-28` (`app.json` hard-codes `owner`) |
 | Bundle ids | `com.euphoriainv.euphoria`, `com.euphoriainv.euphoria.widget` |
 | App group | `group.com.euphoriainv.euphoria` |
-| Current build | **12** — the first OTA-capable build |
+| Current build | **12** — the first OTA-capable build. 8-11 can never receive updates. |
 
 **AFTER EVERY SUCCESSFUL SUBMIT YOU MUST ATTACH THE BUILD TO THE TESTER GROUPS.** A build that is
 `VALID` but in no group is installable by **nobody**. This is exactly what left builds 6, 7 and 8
@@ -606,6 +606,56 @@ xcrun simctl terminate <DEV> com.euphoriainv.euphoria && xcrun simctl launch <DE
 
 Foreground `sleep` is blocked by the harness. Use `end=$((SECONDS+8)); until [ $SECONDS -ge $end ];
 do sleep 1; done` or `run_in_background`.
+
+---
+
+## 6.7 THE TESTER ROSTER, AND HOW TESTFLIGHT ONBOARDING ACTUALLY WORKS
+
+State as of 2026-08-22. Check it with the API before assuming; people install between sessions.
+
+| person | ASC role | TestFlight | note |
+|---|---|---|---|
+| `siddarthakodithyala28@gmail.com` | ADMIN | **INSTALLED** | the owner |
+| `bodlasriyan@gmail.com` | DEVELOPER | **INSTALLED** | cofounder, working |
+| `deon.yesudas@icloud.com` | DEVELOPER | INVITED | cofounder, provisioned correctly, had not opened it |
+| `zapatoshake@gmail.com` | ACCOUNT_HOLDER, ADMIN | INVITED | never installed |
+| `deony.joey@gmail.com` | pending, DEAD | — | **no Apple Account at this address**, see below |
+
+Groups: `Internal Testers` b0a6793e-891f-4751-aee1-fb013212116a (internal, no Apple review) and
+`Cofounders` cd11088f-5f96-495a-a766-38bff3d2fc9e (external, needs Beta App Review, unused).
+
+**Hours were lost to this. The rules, learned the hard way:**
+
+1. **An internal tester MUST be an ACCEPTED App Store Connect team member first.** Adding a pending
+   invitee to an internal group returns `409 Tester(s) cannot be assigned`. There is no override.
+2. **Apple matches invitations to the APPLE ID, not the inbox.** An invite to an address with no
+   Apple Account cannot ever be accepted. `deony.joey@gmail.com` had none: Apple offered "Create
+   Your Apple Account", the cofounder signed in with his real account instead, and Apple looped him
+   back to "Sign in to accept your invitation" forever. Diagnosed from a screen recording. The fix
+   was inviting `deon.yesudas@icloud.com`, his actual Apple ID, which worked immediately.
+   **ASK FOR THE APPLE ID, NOT "YOUR EMAIL".**
+3. **TestFlight uses the Media & Purchases Apple ID, which is a DIFFERENT setting from iCloud.**
+   `Settings -> tap your name -> Media & Purchases`. If that differs from the invited address,
+   TestFlight shows "Ready To Test" with no apps and nothing will ever fix it but inviting the
+   right address.
+4. **There is NO redeem code for internal testers.** The "Redeem Code" box in TestFlight is for
+   public promo codes. A cofounder tried to type an App Store Connect API key ID into it because it
+   appeared in a message that got forwarded. **Never put key ids, issuer ids or any credential in
+   text the owner might forward.**
+5. **Internal testers do not need the email at all.** Once they are in the group, opening TestFlight
+   signed in as the invited Apple ID shows the app automatically. If it does not, the signed-in
+   identity is wrong — that is the diagnostic, not a delivery problem.
+6. **What this App Manager key CANNOT do:** delete a user invitation (`403 FORBIDDEN`) or create a
+   second invite to an address that already has one pending (`409 The email is already being
+   used`). A DIFFERENT address has no conflict and works fine. Revoking requires the owner in the
+   ASC UI at `appstoreconnect.apple.com/access/users`.
+7. `state=INVITED` vs `INSTALLED` is entirely about whether that human tapped the link. You cannot
+   move it. `appDevices: []` confirms TestFlight has never seen a device for them.
+
+**If onboarding friction recurs, stop doing it per-person.** Enable a public link on the external
+`Cofounders` group: no Apple ID matching, no team membership, anyone installs from one URL. It costs
+one Beta App Review (~24h) and needs `betaAppReviewDetail` plus `betaAppLocalizations` filled in.
+That is the permanent fix and it was recommended twice.
 
 ---
 
