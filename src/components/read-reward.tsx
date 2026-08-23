@@ -18,8 +18,10 @@
  *   - two pill chips, and the orange streak pill read LOUDER than the primary button under it
  *   - no bloom at all, so the mascot arrived against flat black
  *
- * The glow is a RadialGradient. A background colour with a borderRadius is a flat disc with a hard
- * edge; at any useful size it swamps the character instead of blooming behind it.
+ * The glow is a STACK OF FLAT RINGS, not a RadialGradient and not a flat disc. A background colour
+ * with a borderRadius is a flat disc with a hard edge; at any useful size it swamps the character
+ * instead of blooming behind it. A smooth radial is the soft halo the design doc rejects. Stepped
+ * rings are the pixel-art answer to both — see Glow below.
  *
  * Quieter than lesson.tsx on purpose. That screen earns its wipe, confetti and four staggered pops
  * because it ends a whole lesson. A two-minute read that out-celebrated it would flatten the
@@ -36,7 +38,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle } from 'react-native-svg';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
@@ -60,18 +62,44 @@ const TUNE = {
   statAt: 840,
 } as const;
 
+/**
+ * STEPPED, not smooth — and not a flat disc either.
+ *
+ * This was a RadialGradient, and the note above still argues correctly against the obvious
+ * alternative: "a background colour with a borderRadius is a flat disc with a hard edge; at any
+ * useful size it swamps the character instead of blooming behind it." That reasoning holds. What
+ * changed is that a smooth falloff is the soft coloured halo the design doc rejects, so BOTH of
+ * the options originally considered are now wrong.
+ *
+ * The third option is the one pixel art has always used for a bloom: discrete rings. Each is a
+ * flat fill, so there is no gradient anywhere, and the stack still falls off toward the edge, so
+ * it blooms rather than swamping. It is the same trick as a dither ramp, done with circles.
+ *
+ * Four rings is the count where the banding stops reading as steps and starts reading as glow at
+ * this size; fewer looks like a target, more is indistinguishable from the gradient it replaced
+ * and costs nodes for nothing.
+ */
+const GLOW_RINGS = [
+  { r: 0.5, o: 0.06 },
+  { r: 0.38, o: 0.1 },
+  { r: 0.27, o: 0.16 },
+  { r: 0.16, o: 0.3 },
+];
+
 function Glow({ size, color, style }: { size: number; color: string; style: object }) {
   return (
     <Animated.View pointerEvents="none" style={[styles.glow, style]}>
       <Svg width={size} height={size}>
-        <Defs>
-          <RadialGradient id="readGlow" cx="50%" cy="50%" r="50%">
-            <Stop offset="0" stopColor={color} stopOpacity={0.5} />
-            <Stop offset="0.5" stopColor={color} stopOpacity={0.16} />
-            <Stop offset="1" stopColor={color} stopOpacity={0} />
-          </RadialGradient>
-        </Defs>
-        <Circle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#readGlow)" />
+        {GLOW_RINGS.map((ring) => (
+          <Circle
+            key={ring.r}
+            cx={size / 2}
+            cy={size / 2}
+            r={size * ring.r}
+            fill={color}
+            opacity={ring.o}
+          />
+        ))}
       </Svg>
     </Animated.View>
   );

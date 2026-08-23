@@ -27,7 +27,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { Duration } from '@/shared/motion/tokens';
 
 const RAY_COUNT = 14;
@@ -44,6 +44,11 @@ function ray(i: number) {
   return `M${pt(inner, a - w * 0.4)} L${pt(outer, a - w)} L${pt(outer, a + w)} L${pt(inner, a + w * 0.4)} Z`;
 }
 const RAYS = Array.from({ length: RAY_COUNT }, (_, i) => ray(i));
+
+/** Orchid base and shadow, straight from the pixel palette (P and p), so the celebration is made
+ *  of the same colours as the sprites it bursts behind. */
+const RAY_LIT = '#A451E6';
+const RAY_DEEP = '#8028C3';
 
 /** Radial burst behind the mascot. Sits under it, so mount it before <Atlas>. */
 function CelebrationRaysInner({ size = 300, delay = 0 }: { size?: number; delay?: number }) {
@@ -67,14 +72,19 @@ function CelebrationRaysInner({ size = 300, delay = 0 }: { size?: number; delay?
   return (
     <Animated.View pointerEvents="none" style={[styles.rays, { width: size, height: size, marginLeft: -size / 2, marginTop: -size / 2 }, style]}>
       <Svg width={size} height={size} viewBox={`0 0 ${VB} ${VB}`}>
-        <Defs>
-          <LinearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor="#C89CF5" stopOpacity={0.85} />
-            <Stop offset="1" stopColor="#5B21B6" stopOpacity={0.1} />
-          </LinearGradient>
-        </Defs>
+        {/*
+          * SOLID, ALTERNATING — no gradient. This was a `rayGrad` fading #C89CF5 to #5B21B6 at 0.1
+          * opacity, which is the soft coloured falloff the design doc rejects ("I don't like the
+          * gradient look that we've put across the entire app"), sitting on the two biggest
+          * celebration moments in the app.
+          *
+          * Alternating two flat tones from the pixel palette does the job the fade was doing —
+          * separating neighbouring rays so the burst reads as spokes rather than a disc — without
+          * any blur. Hard edges are also what makes it sit beside the pixel art and the slab
+          * buttons instead of looking imported from a different product.
+          */}
         {RAYS.map((d, i) => (
-          <Path key={i} d={d} fill="url(#rayGrad)" />
+          <Path key={i} d={d} fill={i % 2 === 0 ? RAY_LIT : RAY_DEEP} />
         ))}
       </Svg>
     </Animated.View>
@@ -105,74 +115,20 @@ export function CelebrationWipe({ duration = 750 }: { duration?: number }) {
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       <Animated.View style={[{ position: 'absolute', top: -height * 0.2, width: band, height: height * 1.4 }, style]}>
-        <Svg width="100%" height="100%">
-          <Defs>
-            <LinearGradient id="wipeGrad" x1="0" y1="0" x2="1" y2="0">
-              <Stop offset="0" stopColor="#5B21B6" stopOpacity={0} />
-              <Stop offset="0.28" stopColor="#5B21B6" stopOpacity={1} />
-              <Stop offset="0.62" stopColor="#A855EB" stopOpacity={1} />
-              <Stop offset="1" stopColor="#C89CF5" stopOpacity={0} />
-            </LinearGradient>
-          </Defs>
-          <Path d="M0 0 H10000 V10000 H0 Z" fill="url(#wipeGrad)" />
-        </Svg>
+        {/*
+          * TWO SOLID SLABS with a hard cut between them, replacing a four-stop gradient that faded
+          * in and out at both ends. The soft ends were doing the work of hiding the band's edges;
+          * a slab does not need them hidden, because a hard edge sweeping past IS the effect —
+          * the same reasoning as SlabButton, where the edge is the point.
+          */}
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <View style={{ flex: 1, backgroundColor: RAY_DEEP }} />
+          <View style={{ flex: 1, backgroundColor: RAY_LIT }} />
+        </View>
       </Animated.View>
     </View>
   );
 }
-
-/**
- * A ring of soft puffs that expands outward and fades, revealing whatever is underneath.
- *
- * The reference uses this to get the mascot onto a screen it was not on a frame earlier
- * (t≈148s): rather than fading Duo in, a cloud bursts and he is simply there when it clears.
- * A fade says "this element appeared". A puff says "something happened".
- */
-export function CloudPuff({ size = 190, delay = 0, color = '#F6F0FE' }: { size?: number; delay?: number; color?: string }) {
-  const reduced = useReducedMotion();
-  const t = useSharedValue(0);
-
-  useEffect(() => {
-    if (reduced) return;
-    t.set(withDelay(delay, withTiming(1, { duration: 520, easing: Easing.out(Easing.cubic) })));
-  }, [reduced, t, delay]);
-
-  const puffs = 7;
-  const style = useAnimatedStyle(() => {
-    const v = t.get();
-    // snap to full, HOLD, then clear. A linear fade leaves it sitting as a grey smudge for
-    // most of its life; the puff should read as a flash you barely catch.
-    return { opacity: v < 0.1 ? v / 0.1 : v < 0.42 ? 1 : Math.max(0, 1 - (v - 0.42) / 0.58) };
-  });
-  const inner = useAnimatedStyle(() => ({ transform: [{ scale: 0.45 + t.get() * 0.95 }] }));
-
-  if (reduced) return null;
-  return (
-    <Animated.View pointerEvents="none" style={[styles.rays, { width: size, height: size, marginLeft: -size / 2, marginTop: -size / 2 }, style]}>
-      <Animated.View style={[{ width: size, height: size }, inner]}>
-        <Svg width={size} height={size} viewBox="0 0 100 100">
-          {Array.from({ length: puffs }, (_, i) => {
-            const a = (i / puffs) * Math.PI * 2;
-            const r = 30;
-            return (
-              <Path
-                key={i}
-                d={`M${50 + r * Math.cos(a)} ${50 + r * Math.sin(a)} m-17 0 a17 17 0 1 0 34 0 a17 17 0 1 0 -34 0`}
-                fill={color}
-                opacity={1}
-              />
-            );
-          })}
-          <Path d="M50 50 m-22 0 a22 22 0 1 0 44 0 a22 22 0 1 0 -44 0" fill={color} />
-        </Svg>
-      </Animated.View>
-    </Animated.View>
-  );
-}
-
-const styles = StyleSheet.create({
-  rays: { position: 'absolute', left: '50%', top: '50%' },
-});
 
 /*
  * MEMOISED for the same reason the rest of the SVG set was: many child nodes, primitive props, and
@@ -181,3 +137,8 @@ const styles = StyleSheet.create({
  * of a set invites the next person to assume none of them need it.
  */
 export const CelebrationRays = memo(CelebrationRaysInner);
+
+const styles = StyleSheet.create({
+  /** Centred on its parent by margin, so callers position the hub rather than the box. */
+  rays: { position: 'absolute', left: '50%', top: '50%' },
+});
