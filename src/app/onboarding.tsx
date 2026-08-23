@@ -129,7 +129,25 @@ const BLOCKERS: Choice[] = [
   { key: 'trust', title: "I don't know who to trust" },
 ];
 
+/**
+ * AGE BANDS. Opened DOWN to 13, 2026-08-23.
+ *
+ * Audit: "Expand the age range — it currently starts at 18." Euphoria's own marketing calls it
+ * "Financial Literacy & Investing for Students" and the web app ships a Classes tab with teacher
+ * class codes, so a floor of 18 excluded the audience the product is named for.
+ *
+ * THIRTEEN, NOT LOWER, and that is a compliance line rather than a preference. COPPA attaches
+ * below 13: an under-13 account needs verifiable parental consent, a different data-collection
+ * posture and App Store kids-category handling. That is a build, not a picker option, so offering
+ * a "under 13" band here would be writing a cheque the app cannot cash.
+ *
+ * 45+ already covered "older", so only the bottom needed opening.
+ *
+ * The en dashes below are NUMERIC RANGES and stay — see the em-dash pass, which deliberately left
+ * these alone. An en dash between two numbers is correct typography, not the roughness reported.
+ */
 const AGES: Choice[] = [
+  { key: '13-17', title: '13–17' },
   { key: '18-24', title: '18–24' },
   { key: '25-34', title: '25–34' },
   { key: '35-44', title: '35–44' },
