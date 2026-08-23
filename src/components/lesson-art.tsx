@@ -309,6 +309,45 @@ export function artKeyFor(title: string, _index = 0): string {
   return NEUTRAL[hash(title) % NEUTRAL.length];
 }
 
+/**
+ * One DISTINCT mark per lesson, across a whole course.
+ *
+ * `artKeyFor` picks by meaning, and meaning repeats: "Budgeting Basics" and "Tracking Your
+ * Spending" both match the `jars` net, so a 25-lesson course resolves to 12–22 distinct keys and
+ * the path shows the same picture two rows apart. On a vertical list you are scrolling to find
+ * your place in, that is worse than a slightly-off metaphor — the mark's job there is to be
+ * recognisable, and a repeat destroys exactly that.
+ *
+ * So: the semantic choice WINS whenever it is still free, and a collision falls through to the
+ * next unused sprite. Courses are at most 25 lessons and ART holds 40, so uniqueness is always
+ * reachable — `lesson-art-pin` asserts that headroom rather than leaving it to luck.
+ *
+ * The fallback scan starts at a TITLE-DERIVED offset, not at index 0. Starting at 0 would hand
+ * every course the same substitutes in the same order, so the second half of every path would
+ * rhyme. Deriving it from the title keeps the assignment deterministic — the same course always
+ * renders the same marks, which matters because a user learns "the ladder one is lesson 8".
+ */
+const ART_ORDER = Object.keys(ART);
+
+export function assignLessonArt(titles: readonly string[]): PixelSprite[] {
+  const used = new Set<string>();
+  return titles.map((title, i) => {
+    let key = artKeyFor(title, i);
+    if (used.has(key)) {
+      const start = hash(title) % ART_ORDER.length;
+      for (let n = 0; n < ART_ORDER.length; n++) {
+        const cand = ART_ORDER[(start + n) % ART_ORDER.length];
+        if (!used.has(cand)) {
+          key = cand;
+          break;
+        }
+      }
+    }
+    used.add(key);
+    return ART[key] ?? coin;
+  });
+}
+
 /* ---------------------------------------------------------------- component */
 
 function LessonArtInner({

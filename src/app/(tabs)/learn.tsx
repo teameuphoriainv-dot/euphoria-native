@@ -12,9 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
-import { LessonNodeMark, lessonMarkColor } from '@/components/art/lesson-marks';
 import { CourseMark } from '@/components/art/course-mark';
-import { artKeyFor } from '@/components/lesson-art';
+import { assignLessonArt } from '@/components/lesson-art';
 import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
 import { entitled, type Refusal } from '@/lib/entitlement';
@@ -28,6 +27,7 @@ import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { PixelSpriteView, coin } from '@/lib/pixel';
 
 /* ── UNIT 7: THE LIST MODEL, from Promova 138799 in pixels ───────────────────────────────
    The serpentine could not reach 10 nodes and two attempts proved it (§22 C33, and again this
@@ -108,6 +108,9 @@ export default function Learn() {
   }, [activeCourseId, attempt]);
 
   const lessons = useMemo(() => loaded?.lessons ?? [], [loaded]);
+  /* One distinct mark per lesson, assigned across the WHOLE course rather than per row — a row
+   * cannot know what the row above already took. See assignLessonArt. */
+  const lessonArt = useMemo(() => assignLessonArt(lessons.map((l) => l.title)), [lessons]);
   const trailCourseId = loaded?.id ?? activeCourseId;
   // Keyed to the course actually ON SCREEN, not the one being switched to. During the async
   // loadCourseLessons swap `loaded.id` is still the outgoing course, so accenting by
@@ -399,13 +402,23 @@ export default function Learn() {
                         contrast and room. */}
                     <View style={styles.rowMark}>
                       {milestone && <UIcon name="sparkle" size={13} color={theme.warning} />}
-                      <LessonNodeMark
-                        courseId={activeCourseId}
-                        num={lesson.num}
-                        fallbackKey={artKeyFor(lesson.title, i)}
-                        size={24}
-                        color={lessonMarkColor({ active, accent, text: theme.text })}
-                      />
+                      {/*
+                        * The SAME metaphor art the Home hero uses. This node used to be one of
+                        * ~300 hand-authored per-lesson SVGs with a 40-mark SVG fallback behind it —
+                        * two more art systems, in an app whose identity is pixel art, for a mark
+                        * rendered at 24pt.
+                        *
+                        * `artKeyFor(title)` was ALREADY being computed here to pick that fallback,
+                        * so the path and the hero were always agreeing on the metaphor and then
+                        * drawing it two different ways. Now they draw the same sprite.
+                        *
+                        * State is opacity, as on the course rail: a sprite carries its own palette,
+                        * and muting it to one tone would throw away the thing that makes a lesson
+                        * recognisable when you scroll back to find it.
+                        */}
+                      <View style={{ opacity: active ? 1 : 0.45 }}>
+                        <PixelSpriteView sprite={lessonArt[i] ?? coin} size={24} />
+                      </View>
                     </View>
                   </View>
                 </SpringPressable>

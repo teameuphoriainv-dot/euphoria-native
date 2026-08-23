@@ -53,6 +53,28 @@ assert.deepEqual(
   'courses drew the same scene in three tints',
 );
 
+/*
+ * HEADROOM FOR UNIQUENESS. assignLessonArt gives every lesson in a course a DIFFERENT mark, and it
+ * can only do that while ART holds at least as many sprites as the longest course holds lessons.
+ * Without this the failure is silent and gradual: add a 41st lesson to a course and exactly one
+ * row somewhere in the middle of that path starts sharing a picture with another.
+ */
+import { readdirSync } from 'node:fs';
+const COURSES = 'src/lib/curriculum/courses';
+let longest = 0;
+let longestFile = '';
+for (const f of readdirSync(COURSES).filter((x) => x.endsWith('.ts'))) {
+  const n = [...readFileSync(`${COURSES}/${f}`, 'utf8').matchAll(/\bL\(\s*\d+\s*,\s*'/g)].length;
+  if (n > longest) { longest = n; longestFile = f; }
+}
+assert.ok(longest > 0, 'parsed no lessons — the L( count regex has drifted');
+assert.ok(
+  entries.length >= longest,
+  `ART has ${entries.length} sprites but ${longestFile} has ${longest} lessons — assignLessonArt ` +
+  'cannot give every lesson a distinct mark, so one row will silently share a picture',
+);
+
 console.log(
-  `lesson-art-pin: OK — ${entries.length} metaphors, all distinct, covering ${emitted.size} emittable keys.`,
+  `lesson-art-pin: OK — ${entries.length} metaphors, all distinct, covering ${emitted.size} ` +
+  `emittable keys, with headroom for the longest course (${longest} lessons).`,
 );
