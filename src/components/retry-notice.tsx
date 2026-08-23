@@ -21,7 +21,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { Colors, FontSize, Radius, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 /** Maps the market API's error codes to a sentence a person can act on. */
@@ -51,12 +52,13 @@ export function RetryNotice({
   message?: string;
   onRetry: () => void;
 }) {
+  const theme = useTheme();
   const text = message ?? retryMessage(code);
   const canRetry = code !== 'plan_required'; // retrying a plan limit just fails again
 
   return (
     <View style={styles.wrap} accessibilityRole="alert">
-      <UIcon name="target" size={22} color={Colors.dark.mutedForeground} strokeWidth={2} />
+      <UIcon name="target" size={22} color={theme.mutedForeground} strokeWidth={2} />
       <ThemedText style={styles.text} themeColor="mutedForeground">
         {text}
       </ThemedText>
@@ -64,9 +66,9 @@ export function RetryNotice({
         <SpringPressable
           onPress={onRetry}
           accessibilityLabel="Try again"
-          style={styles.button}
+          style={[styles.button, { borderColor: theme.border }]}
         >
-          <ThemedText style={styles.buttonText}>Try again</ThemedText>
+          <ThemedText style={[styles.buttonText, { color: theme.accent }]}>Try again</ThemedText>
         </SpringPressable>
       )}
     </View>
@@ -84,7 +86,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     borderRadius: Radius.pill,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
   },
-  buttonText: { fontSize: FontSize.bodySm, color: Colors.dark.accent },
+  buttonText: { fontSize: FontSize.bodySm },
 });

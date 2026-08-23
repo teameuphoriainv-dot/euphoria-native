@@ -6,6 +6,21 @@
  */
 import { Platform } from 'react-native';
 
+/*
+ * ALPHA-APPEND INVARIANT — read before changing any value below.
+ *
+ * 88 call sites in this app add transparency by string concatenation: `theme.primary + '30'`.
+ * That produces a valid 8-digit hex ONLY if the value is hex. An `hsl(...)` value concatenated
+ * with '30' is `hsl(274 76% 61%)30`, which React Native cannot parse — and it does not throw, it
+ * renders the colour at FULL opacity. A 14% tint wash becomes a solid slab.
+ *
+ * That is exactly what light mode shipped as on the first pass: the free-trial card's tint painted
+ * over its own progress bar. Five keys were involved; dark mode was unaffected only because its
+ * values happened to already be hex.
+ *
+ * So: any key that is alpha-appended anywhere MUST be hex in BOTH palettes. theme-alpha-pin
+ * enforces it by scanning the call sites rather than trusting a list kept here by hand.
+ */
 export const Colors = {
   dark: {
     // surfaces (muted = euphoriaweb's #A79DB5 lavender-grey — legible on dark)
@@ -101,7 +116,7 @@ export const Colors = {
     text: 'hsl(240 10% 10%)',
     textSecondary: 'hsl(240 4% 40%)',
     mutedForeground: 'hsl(240 4% 46%)',
-    background: 'hsl(0 0% 98%)',
+    background: '#FAFAFA',
     backgroundElement: 'hsl(240 5% 95%)',
     backgroundSelected: 'hsl(240 5% 90%)',
     card: 'hsl(0 0% 100%)',
@@ -109,13 +124,13 @@ export const Colors = {
     border: 'hsl(240 6% 90%)',
     input: 'hsl(240 6% 90%)',
     muted: 'hsl(240 5% 95%)',
-    primary: 'hsl(274 76% 61%)',
+    primary: '#A650E7',
     primaryForeground: 'hsl(0 0% 100%)',
     accent: 'hsl(278 76% 66%)',
-    success: 'hsl(142 71% 45%)',
-    warning: 'hsl(45 93% 58%)',
+    success: '#21C45D',
+    warning: '#F8C630',
     streak: '#F97316',
-    destructive: 'hsl(0 84% 60%)',
+    destructive: '#EF4343',
     premiumFrom: '#E0409B',
     premiumTo: '#F5842B',
     ctaDepth: 'hsl(274 76% 36%)',

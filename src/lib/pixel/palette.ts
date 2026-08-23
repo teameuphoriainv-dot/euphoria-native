@@ -75,3 +75,42 @@ export const EUPHORIA_PIXEL_PALETTE: Record<string, string> = {
   B: "#60A5FA",
 };
 
+
+/**
+ * THE LIGHT-CANVAS OVERRIDES.
+ *
+ * The palette above is tuned for one background and says so: "#1A1523 on the #0A090F canvas is
+ * invisible", which is why sprites outline with the deep steps. On a LIGHT canvas the inverse
+ * breaks — every pale step disappears instead. That is not hypothetical: the daily-goal target is
+ * built from white rings, the Magnate crest's crown emblem is drawn in W, and the whole Investor
+ * crest is X/x/w, so it would render as a white shape on a white page.
+ *
+ * Only the pale steps move. The deep outline ramp (O/E/D/I) and the ink (K/k) already read on a
+ * light ground, and the mid steps of every hue are legible on both — changing them would make the
+ * same sprite two different colours for no reason.
+ *
+ * Each replacement stays on its own hue ramp, so a sprite keeps its identity: gold light becomes a
+ * deeper gold rather than a grey, and orchid light becomes a deeper orchid. The target is roughly
+ * 4.5:1 against a #F7F5FA page, which is where a shape stops being a smudge.
+ */
+export const PIXEL_PALETTE_LIGHT: Record<string, string> = {
+  ...EUPHORIA_PIXEL_PALETTE,
+
+  // Neutrals — the worst offenders. White on a near-white page is nothing at all.
+  w: "#5C5468",
+  W: "#3B3547",
+  x: "#7A7188",
+
+  // The bright end of each hue ramp, pulled down onto its own colour.
+  q: "#8E3FD1",
+  Q: "#6B26A8",
+  y: "#B57D14",
+  m: "#128C6C",
+  s: "#C24545",
+  T: "#0E8F84",
+  F: "#C93B84",
+  B: "#2A6FD6",
+
+  // Fire's pale hot core would otherwise burn out completely.
+  "5": "#D98A2B",
+};

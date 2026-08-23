@@ -41,7 +41,7 @@ import Add01Icon from '@hugeicons/core-free-icons/Add01Icon';
 import Share01Icon from '@hugeicons/core-free-icons/Share01Icon';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react-native';
 
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 /**
  * `satisfies`, NEVER `const G: Record<string, IconSvgElement>`.
@@ -77,11 +77,16 @@ export type LibIconProps = {
 export function LibIcon({
   name,
   size = 24,
-  color = Colors.dark.text,
+  color,
   strokeWidth = 2.2,
 }: LibIconProps) {
+  /* Defaulted from the THEME, not from Colors.dark. A default-parameter cannot call a hook, and
+   * the old default was a near-white — every icon that relied on it would have been invisible on
+   * a light page. Callers passing an explicit colour are untouched. */
+  const theme = useTheme();
+  const tint = color ?? theme.text;
   return (
-    <HugeiconsIcon icon={GLYPHS[name]} size={size} color={color} strokeWidth={strokeWidth} />
+    <HugeiconsIcon icon={GLYPHS[name]} size={size} color={tint} strokeWidth={strokeWidth} />
   );
 }
 

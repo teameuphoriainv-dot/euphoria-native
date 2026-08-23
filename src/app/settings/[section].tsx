@@ -314,12 +314,50 @@ function NotificationsSection() {
   );
 }
 
+/** N22. `system` first, because it is the default and the answer most people want. */
+const THEMES = [
+  { key: 'system', label: 'Match my device', sub: 'Follows your iOS appearance setting' },
+  { key: 'dark', label: 'Dark', sub: 'The Euphoria default' },
+  { key: 'light', label: 'Light', sub: 'Bright backgrounds, same art' },
+] as const;
+
 function PreferencesSection() {
   const theme = useTheme();
   const dailyMinutes = useApp((s) => s.dailyGoalMinutes());
   const setProfile = useApp((s) => s.setProfile);
+  const themePref = useApp((s) => s.themePref);
+  const setThemePref = useApp((s) => s.setThemePref);
 
   return (
+    <>
+    <Section title="APPEARANCE">
+      {THEMES.map((t, i) => {
+        const on = themePref === t.key;
+        return (
+          <SpringPressable
+            key={t.key}
+            haptic={false}
+            onPress={() => setThemePref(t.key)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: on }}
+            accessibilityLabel={`${t.label}, ${t.sub}`}
+          >
+            <View
+              style={[
+                styles.row,
+                i < THEMES.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
+              ]}
+            >
+              <View style={styles.rowText}>
+                <ThemedText type="body">{t.label}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">{t.sub}</ThemedText>
+              </View>
+              {on ? <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} /> : null}
+            </View>
+          </SpringPressable>
+        );
+      })}
+    </Section>
     <Section title="DAILY GOAL">
       {GOALS.map((g, i) => {
         const on = dailyMinutes === g.minutes;
@@ -348,6 +386,7 @@ function PreferencesSection() {
         );
       })}
     </Section>
+    </>
   );
 }
 

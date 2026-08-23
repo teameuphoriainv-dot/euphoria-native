@@ -30,7 +30,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'react-native-reanimated';
 import Svg, { Rect } from 'react-native-svg';
 
-import { compileFrames, compileSprite } from './compile';
+import { useThemeMode } from '@/hooks/use-theme';
+
+import { compileFrames, compileSprite, type PixelCanvas } from './compile';
 import type { PixelSprite } from './types';
 
 export type PixelPlayMode = 'none' | 'once' | 'loop';
@@ -43,6 +45,7 @@ export function PixelSpriteView({
   playKey,
   frameMs,
   onAnimationEnd,
+  canvas,
 }: {
   sprite: PixelSprite;
   /** Rendered width in points. Ignored when `scale` is given. */
@@ -55,10 +58,24 @@ export function PixelSpriteView({
   /** Overrides the sprite's authored frameMs, so one sprite can play at different speeds. */
   frameMs?: number;
   onAnimationEnd?: () => void;
+  /**
+   * Which background this sprite sits on. Defaults to the active theme.
+   *
+   * Pass `"dark"` explicitly when the sprite sits on a deliberately dark plate that does NOT
+   * follow the theme — a tinted tile, a coloured card, a scrim. Getting this wrong is quiet: the
+   * sprite renders, it is just the wrong contrast for what is behind it.
+   *
+   * See palette.ts. The shared palette is tuned for #0A090F and outlines with the deep ramp
+   * because ink is invisible there; on a light page the pale steps vanish instead, which would
+   * make the Investor crest (X/x/w) a white shape on a white background.
+   */
+  canvas?: PixelCanvas;
 }) {
   const reduced = useReducedMotion();
-  const still = compileSprite(sprite);
-  const frames = compileFrames(sprite);
+  const mode = useThemeMode();
+  const cv = canvas ?? mode;
+  const still = compileSprite(sprite, cv);
+  const frames = compileFrames(sprite, cv);
   const [frame, setFrame] = useState(0);
   const done = useRef(onAnimationEnd);
   done.current = onAnimationEnd;

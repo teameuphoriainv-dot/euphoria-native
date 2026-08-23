@@ -1,4 +1,7 @@
-import { EUPHORIA_PIXEL_PALETTE, TRANSPARENT } from "./palette";
+import { EUPHORIA_PIXEL_PALETTE, PIXEL_PALETTE_LIGHT, TRANSPARENT } from "./palette";
+
+/** Which background a sprite is being drawn on. Chooses the palette; see palette.ts. */
+export type PixelCanvas = "dark" | "light";
 import type { CompiledSprite, PixelRect, PixelSprite } from "./types";
 
 /**
@@ -15,7 +18,21 @@ import type { CompiledSprite, PixelRect, PixelSprite } from "./types";
  * between them.
  */
 
-const cache = new WeakMap<PixelSprite, CompiledSprite>();
+/*
+ * KEYED BY SPRITE **AND** PALETTE. This was a flat WeakMap<PixelSprite, CompiledSprite>, which was
+ * correct while there was exactly one palette. Light mode adds a second, and the same sprite object
+ * is rendered under both — so a flat cache would return the dark-canvas mesh for a light-canvas
+ * request, silently, and the sprite would be invisible on the page it was retinted for. The bug
+ * would appear only after the sprite had been drawn once in the other theme.
+ */
+const cache = new WeakMap<PixelSprite, Map<string, CompiledSprite>>();
+
+const cacheGet = (sprite: PixelSprite, key: string) => cache.get(sprite)?.get(key);
+const cacheSet = (sprite: PixelSprite, key: string, v: CompiledSprite) => {
+  const byPalette = cache.get(sprite) ?? new Map<string, CompiledSprite>();
+  byPalette.set(key, v);
+  cache.set(sprite, byPalette);
+};
 const framesCache = new WeakMap<PixelSprite, CompiledSprite[]>();
 
 export class PixelSpriteError extends Error {}
@@ -52,14 +69,17 @@ function validate(sprite: PixelSprite): { width: number; height: number } {
   return { width, height: rows.length };
 }
 
-export function compileSprite(sprite: PixelSprite): CompiledSprite {
-  const hit = cache.get(sprite);
+export function compileSprite(sprite: PixelSprite, canvas: PixelCanvas = 'dark'): CompiledSprite {
+  const hit = cacheGet(sprite, canvas);
   if (hit) return hit;
 
   const { width, height } = validate(sprite);
-  const palette = { ...EUPHORIA_PIXEL_PALETTE, ...(sprite.palette ?? {}) };
+  const base = canvas === 'light' ? PIXEL_PALETTE_LIGHT : EUPHORIA_PIXEL_PALETTE;
+  // A sprite's OWN palette still wins: an override is deliberate art direction (the drained locked
+  // crests, the retinted goal target) and must not be second-guessed by the canvas.
+  const palette = { ...base, ...(sprite.palette ?? {}) };
   const compiled = mesh(sprite.rows, palette, width, height);
-  cache.set(sprite, compiled);
+  cacheSet(sprite, canvas, compiled);
   return compiled;
 }
 
@@ -67,18 +87,18 @@ export function compileSprite(sprite: PixelSprite): CompiledSprite {
  * Compiles every animation frame. Returns a single-entry array for a still
  * sprite, so callers never branch on whether animation exists.
  */
-export function compileFrames(sprite: PixelSprite): CompiledSprite[] {
+export function compileFrames(sprite: PixelSprite, canvas: PixelCanvas = 'dark'): CompiledSprite[] {
   const hit = framesCache.get(sprite);
   if (hit) return hit;
 
   const { width, height } = validate(sprite);
   if (!sprite.frames?.length) {
-    const out = [compileSprite(sprite)];
+    const out = [compileSprite(sprite, canvas)];
     framesCache.set(sprite, out);
     return out;
   }
 
-  const palette = { ...EUPHORIA_PIXEL_PALETTE, ...(sprite.palette ?? {}) };
+  const palette = { ...(canvas === 'light' ? PIXEL_PALETTE_LIGHT : EUPHORIA_PIXEL_PALETTE), ...(sprite.palette ?? {}) };
   const out = sprite.frames.map((rows, i) => {
     if (rows.length !== height) {
       throw new PixelSpriteError(

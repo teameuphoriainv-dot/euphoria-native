@@ -7,7 +7,7 @@ import {
 import { EBGaramond_400Regular, EBGaramond_500Medium, EBGaramond_600SemiBold, EBGaramond_700Bold } from '@expo-google-fonts/eb-garamond';
 import { Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { useFonts } from 'expo-font';
-import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 // NativeWind was unwired 2026-08-21 (see metro.config.js for the full reasoning and how to
 // restore it). This import was already redundant: withNativeWind injected the same runtime
 // through Metro, so removing it alone changed nothing measurable.
@@ -22,6 +22,8 @@ import '@/lib/widget';
 import { refreshEntitlement } from '@/lib/purchases';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+
+import { useTheme, useThemeMode } from '@/hooks/use-theme';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -105,13 +107,23 @@ export default function RootLayout() {
     };
   }, []);
 
+  const theme = useTheme();
+  const mode = useThemeMode();
+
   if (!loaded) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={DarkTheme}>
-        <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#09090D' } }}>
+      {/*
+        * N22. These three were hardcoded to dark and sit ABOVE every screen in the app, so they
+        * are the difference between light mode working and light mode being a light card on a
+        * near-black page: the navigator's own background shows through during transitions and
+        * anywhere a screen does not paint edge to edge, and a light status bar is unreadable on a
+        * white one.
+        */}
+      <ThemeProvider value={mode === 'light' ? DefaultTheme : DarkTheme}>
+        <StatusBar style={mode === 'light' ? 'dark' : 'light'} />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
