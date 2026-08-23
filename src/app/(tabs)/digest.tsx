@@ -37,7 +37,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
 import {
-  PixelSpriteView, bolt, chartUp, compass, creditCard, flame as flameSprite,
+  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 
@@ -141,9 +141,10 @@ function DoneCard({ post, streak }: { post: DigestPost; streak: number }) {
   return (
     <Card style={styles.today} tint={theme.success} elevated>
       <View style={styles.doneHead}>
-        <View style={[styles.doneCheck, { backgroundColor: theme.success }]}>
-          <UIcon name="check" size={20} color="#fff" strokeWidth={3} />
-        </View>
+        {/* The catalogue's own check, not a vector tick on a green disc. This card is the payoff
+            for finishing a guide and it sits directly above a grid of pixel marks — a smooth
+            circle here was the one thing on the screen speaking a different language. */}
+        <PixelSpriteView sprite={checkBadge} size={40} />
         <View style={{ flex: 1 }}>
           <ThemedText type="heading" style={{ fontSize: FontSize.heading }}>
             Done for today
