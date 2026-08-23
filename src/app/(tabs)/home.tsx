@@ -99,6 +99,7 @@ export default function Home() {
   const name = useApp((s) => s.profile.name);
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
+  const coins = useApp((st) => st.coins);
   // Lifetime xp, matching the League screen's header (weekly xp drives standings, not tier).
   const xp = useApp((s) => s.xp);
   const league = tierProgress(xp);
@@ -250,6 +251,22 @@ export default function Home() {
               * no meaning when you cannot see the flame or the target beside it.
               */}
             <View style={styles.pillStack}>
+              {/*
+                * THE WALLET, and the way into the Shop. The web puts the balance top-right of its
+                * Shop tab; iOS has no spare tab slot (Games took the last one), so the balance
+                * lives beside the streak and goal pills it belongs with and is the entry point.
+                * Tappable, unlike its neighbours — hence SpringPressable rather than a bare View.
+                */}
+              <SpringPressable
+                haptic={false}
+                scaleTo={0.94}
+                onPress={() => router.push('/shop')}
+                accessibilityRole="button"
+                accessibilityLabel={`${String(coins)} Euphorium. Open the shop.`}
+                style={[styles.pill, { backgroundColor: theme.iconGold + '18', borderColor: theme.iconGold + '40' }]}>
+                <UIcon name="sparkle" size={14} color={theme.iconGold} />
+                <ThemedText type="smallBold" style={{ color: theme.iconGold, fontSize: FontSize.caption }}>{coins}</ThemedText>
+              </SpringPressable>
               <View
                 accessible
                 accessibilityLabel={`${String(streak)} day streak`}
