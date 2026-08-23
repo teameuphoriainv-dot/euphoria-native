@@ -588,6 +588,38 @@ export default function Home() {
           ))}
         </ScrollView>
 
+        {/*
+         * GAMES, ON THE SCREEN THE APP OPENS TO.
+         *
+         * Reported 2026-08-22 (N12): "Games are buried — currently only discoverable by clicking
+         * into Profile. Should be a bigger, more visible part of the app."
+         *
+         * True: the only route in was a single row inside the You tab, below Friends.
+         *
+         * This is NOT the clutter that N9 asked to remove. Those were two cards reading
+         * "Trade / Paper trading" and "Digest / Today's read" — both permanent bottom tabs, so the
+         * cards were a second way to reach a place already on screen. Games has NO tab. For it,
+         * a card on Home is not a duplicate route, it is the only discoverable one. It also lands
+         * in roughly the space the deleted row freed, so the bottom half is still lighter than it
+         * was.
+         *
+         * The web app answers the same complaint by promoting Games to a top-level tab. The owner
+         * chose to fix these individually rather than restructure navigation, so this is the
+         * discoverability without the tab-bar surgery.
+         */}
+        <RiseIn delay={180}>
+          <SpringPressable onPress={() => router.push('/games')} accessibilityRole="button" accessibilityLabel="Games">
+            <Card style={styles.gamesCard} tint={theme.iconGold}>
+              <UIcon name="target" size={22} color={theme.iconGold} />
+              <View style={{ flex: 1 }}>
+                <ThemedText type="heading" style={{ fontSize: FontSize.body }}>Games</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">Term match and quick drills</ThemedText>
+              </View>
+              <UIcon name="arrowRight" size={16} color={theme.iconGold} />
+            </Card>
+          </SpringPressable>
+        </RiseIn>
+
 
       </ScrollView>
 
@@ -634,6 +666,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   /* League standing strip. Row, not a stack: the crest is the anchor and the text column has to
      take the remaining width, or a long tier name wraps under the badge. */
+  gamesCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
   leagueCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   leagueText: { flex: 1 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },

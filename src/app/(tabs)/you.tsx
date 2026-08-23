@@ -54,10 +54,31 @@ import { STAGGER_CAP } from '@/shared/motion/tokens';
  * `?step=paywall` is matched by NAME in onboarding.tsx, not by index, and is the one step param
  * that works outside dev.
  */
-const ROWS: { icon: UIconName; label: string; accent?: boolean; route: string }[] = [
+type Row = { icon: UIconName; label: string; accent?: boolean; route: string };
+
+/**
+ * TWO GROUPS, NOT ONE LIST.
+ *
+ * Reported 2026-08-22 (N11): "Tab is scope-confused: right now it reads like Settings (account,
+ * notifications, plan status, preferences, log out) but also holds Friends and Games, which are
+ * gamified/social features and feel out of place here."
+ *
+ * He is describing a real thing: this was ONE undifferentiated list of seven, so Friends sat in the
+ * same visual container as Notifications and the eye had no way to tell a place-you-go from a
+ * setting-you-change. Splitting them costs nothing and says what the tab is: your stuff first, then
+ * the machinery.
+ *
+ * The web app resolves the same tension by promoting Games and Shop to top-level tabs and having no
+ * You tab at all. The owner chose to fix these individually rather than restructure navigation, so
+ * this groups rather than moves — and N12 is answered on Home instead, where there is now room.
+ */
+const PLAY_ROWS: Row[] = [
   { icon: 'you', label: 'Friends', route: '/friends' },
   { icon: 'target', label: 'Games', route: '/games' },
   { icon: 'chat', label: 'Ask Atlas', route: '/chat' },
+];
+
+const SETTINGS_ROWS: Row[] = [
   { icon: 'you', label: 'Account', route: '/settings/account' },
   { icon: 'bell', label: 'Notifications', route: '/settings/notifications' },
   { icon: 'trophy', label: 'Euphoria Pro', accent: true, route: '/onboarding?step=paywall' },
@@ -412,12 +433,28 @@ export default function You() {
         </RiseIn>
 
 
-        {/* Everything else this page links to */}
+        {/* PLACES YOU GO, then the machinery. See the ROWS note above for why they are separated. */}
         <RiseIn delay={380}>
-          <Card padded={false} style={{ marginTop: Spacing.three }}>
-            {ROWS.map((s, i) => (
+          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>PLAY &amp; PEOPLE</ThemedText>
+          <Card padded={false}>
+            {PLAY_ROWS.map((s, i) => (
               <SpringPressable key={s.label} haptic={false} onPress={() => router.push(s.route as never)}>
-                <View style={[styles.settingRow, i < ROWS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+                <View style={[styles.settingRow, i < PLAY_ROWS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+                  <UIcon name={s.icon} size={20} color={s.accent ? theme.iconLilac : theme.mutedForeground} />
+                  <ThemedText type="bodyMedium" style={{ flex: 1, color: s.accent ? theme.iconLilac : theme.text }}>{s.label}</ThemedText>
+                  <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
+                </View>
+              </SpringPressable>
+            ))}
+          </Card>
+        </RiseIn>
+
+        <RiseIn delay={420}>
+          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>SETTINGS</ThemedText>
+          <Card padded={false}>
+            {SETTINGS_ROWS.map((s, i) => (
+              <SpringPressable key={s.label} haptic={false} onPress={() => router.push(s.route as never)}>
+                <View style={[styles.settingRow, i < SETTINGS_ROWS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <UIcon name={s.icon} size={20} color={s.accent ? theme.iconLilac : theme.mutedForeground} />
                   <ThemedText type="bodyMedium" style={{ flex: 1, color: s.accent ? theme.iconLilac : theme.text }}>{s.label}</ThemedText>
                   <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
