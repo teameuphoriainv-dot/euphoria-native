@@ -43,10 +43,20 @@ export const PEOPLE: Person[] = [
 export const personById = (id: string): Person | undefined => PEOPLE.find((p) => p.id === id);
 
 /**
- * Who already follows you on a fresh install.
+ * Who already follows you on a fresh install. NOBODY.
  *
- * Seeded so the "follows you" and "follow back into friends" states are reachable at all without
- * a backend. Kept short on purpose: a long list of admirers for a brand new account with no XP
- * would read as obviously fake.
+ * EMPTIED 2026-08-22, owner's decision — "change the fake friends to only having real friends".
+ * Reported: "suggested friends (e.g., 'Priya S,' 'Chris M') appear to be bots, not real users."
+ *
+ * This used to seed `['priya', 'chris']`, and that was the one genuine falsehood on the screen.
+ * A tinted row in DISCOVER is an unlabelled placeholder; "Priya S. follows you" is a claim about a
+ * relationship, made to a user on their first launch, about a person who does not exist. This
+ * file's own header already forbade it — "nothing user-facing may present them as real people".
+ *
+ * WHAT THIS COSTS, stated rather than discovered later: `followers` is the only input to the
+ * 'follows-you' and 'friends' relationships, and `follow()` in store.ts appends only to
+ * `following` — nothing ever writes `followers`. So both states are now unreachable until accounts
+ * are real, YOUR FRIENDS is permanently empty, and FOLLOWS YOU never renders. That is the correct
+ * behaviour for an app with no accounts: the friends list can now only ever contain real mutuals.
  */
-export const SEED_FOLLOWERS = ['priya', 'chris'];
+export const SEED_FOLLOWERS: string[] = [];

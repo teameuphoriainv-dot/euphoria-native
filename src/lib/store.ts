@@ -551,6 +551,19 @@ export const useApp = create<AppState>()(
       lastGameDay: '',
       lastQuestDay: '',
       following: [],
+      /*
+       * NOT PERSISTED, deliberately — see partialize. `followers` has exactly one writer, this
+       * seed. `follow()` appends only to `following`, and nothing anywhere writes `followers`, so
+       * a persisted copy can only ever hold whatever the seed was on the day of install.
+       *
+       * That mattered on 2026-08-22: emptying SEED_FOLLOWERS stops NEW installs claiming that
+       * invented people follow you, but every EXISTING install had ['priya','chris'] already in
+       * AsyncStorage and would have kept it forever. Dropping it from partialize re-seeds from here
+       * on every launch, which clears it everywhere without a migration.
+       *
+       * IF A BACKEND EVER WRITES THIS, it must go back into partialize in the same commit — from
+       * that moment the persisted copy stops being derivable from a constant.
+       */
       followers: SEED_FOLLOWERS,
       isPro: false,
       specialOfferSeenAt: null,
@@ -815,7 +828,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, followers: s.followers, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote

@@ -176,7 +176,15 @@ export default function Friends() {
           </Section>
         ) : null}
 
-        <Section title="DISCOVER">
+        {/*
+          * The SAME disclosure YOUR FRIENDS already carried. It did not, and this is the section
+          * the reporter was actually looking at: "suggested friends (e.g., 'Priya S,' 'Chris M')
+          * appear to be bots, not real users." They are — lib/people.ts says so in its first line —
+          * and the one section that listed them said nothing. A label on one section and silence on
+          * the next reads as "the labelled ones are fake and these ones are real", which is worse
+          * than no label at all.
+          */}
+        <Section title="DISCOVER" note="Practice profiles — real people appear here when accounts do.">
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -192,7 +200,7 @@ export default function Friends() {
                   <PersonRow person={p} rel={rel(p.id)} onToggle={() => toggle(p.id)} />
                 </RiseIn>
               ))
-            : empty(query ? `Nobody matches "${query.trim()}".` : 'You are following everyone here.')}
+            : empty(query ? `Nobody matches "${query.trim()}".` : 'No one left to follow here yet.')}
         </Section>
       </ScrollView>
     </SafeAreaView>
