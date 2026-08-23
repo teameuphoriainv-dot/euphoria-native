@@ -39,7 +39,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
@@ -148,7 +148,7 @@ export default function Start() {
 
       <View style={styles.footer}>
         <RiseIn delay={420}>
-          <GradientButton label={lesson ? 'Start your first lesson' : "Read today's guide"} full onPress={begin} />
+          <SlabButton label={lesson ? 'Start your first lesson' : "Read today's guide"} full onPress={begin} />
           <SpringPressable haptic={false} onPress={later} style={styles.later}>
             <ThemedText type="bodyMedium" themeColor="mutedForeground">Maybe later</ThemedText>
           </SpringPressable>

@@ -15,7 +15,7 @@ import Animated from 'react-native-reanimated';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { AtlasExpression } from '@/components/atlas';
@@ -86,7 +86,7 @@ export function WidgetPromo({
             </View>
           )}
 
-          <GradientButton label={ask.cta} full onPress={onAdd} />
+          <SlabButton label={ask.cta} full onPress={onAdd} />
 
           {/* Always present, never conditional, >= 44pt. */}
           <Pressable

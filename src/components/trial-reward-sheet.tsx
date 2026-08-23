@@ -44,7 +44,7 @@ import Animated from 'react-native-reanimated';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -124,7 +124,7 @@ export function TrialRewardSheet({
             That&apos;s your first lesson done. Atlas kept something back for you.
           </ThemedText>
 
-          <GradientButton label="Open it" full onPress={accept} />
+          <SlabButton label="Open it" full onPress={accept} />
 
           <Pressable
             style={styles.why}

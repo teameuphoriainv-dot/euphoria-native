@@ -19,7 +19,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ProviderButton } from '@/components/provider-button';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import type { Profile } from '@/lib/onboarding-path';
 import {
@@ -212,7 +212,7 @@ export default function Auth() {
             autoCapitalize="none"
             style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card }]}
           />
-          <GradientButton label="Sign up" full onPress={enter} style={{ marginTop: Spacing.two + 2 }} />
+          <SlabButton label="Sign up" full onPress={enter} style={{ marginTop: Spacing.two + 2 }} />
         </RiseIn>
 
         <RiseIn delay={230}>

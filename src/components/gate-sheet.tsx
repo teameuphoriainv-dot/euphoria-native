@@ -43,7 +43,7 @@ import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Ev, track } from '@/lib/analytics';
@@ -277,7 +277,7 @@ export function GateSheet({
             </ThemedText>
           </View>
 
-          <GradientButton label="See Euphoria Pro" full onPress={onSeePro} />
+          <SlabButton label="See Euphoria Pro" full onPress={onSeePro} />
 
           {/* The Astra AI move — it answers the resentment instead of ignoring it. For a finance app
               aimed at 18-25s that honesty is a differentiator, not a weakness. */}

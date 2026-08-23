@@ -15,7 +15,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useApp } from '@/lib/store';
@@ -104,7 +104,7 @@ export default function WidgetTutorial() {
       </View>
 
       <View style={styles.actions}>
-        <GradientButton
+        <SlabButton
           label={last ? 'Done' : 'Next'}
           full
           onPress={() => {

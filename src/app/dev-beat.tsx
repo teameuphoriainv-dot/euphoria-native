@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AmbientBackground } from '@/components/ambient-background';
 import { ReadReward } from '@/components/read-reward';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 
 export default function DevBeat() {
@@ -36,7 +36,7 @@ export default function DevBeat() {
         <ReadReward key={run} streak={4} runKey={run} />
       </ScrollView>
       <View style={styles.footer}>
-        <GradientButton label="Replay" full onPress={() => setRun(run + 1)} />
+        <SlabButton label="Replay" full onPress={() => setRun(run + 1)} />
       </View>
     </SafeAreaView>
   );

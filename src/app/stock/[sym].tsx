@@ -24,7 +24,7 @@ import { KeyStats } from '@/components/key-stats';
 import { PriceChart } from '@/components/price-chart';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -442,7 +442,7 @@ export default function StockDetail() {
                    the set elevates exactly one. */
                 <>
                   <View style={{ flex: 1 }}>
-                    <GradientButton
+                    <SlabButton
                       label="Buy"
                       full
                       icon="lock"
@@ -465,7 +465,7 @@ export default function StockDetail() {
               ) : (
                 <>
                   <View style={{ flex: 1 }}>
-                    <GradientButton
+                    <SlabButton
                       label="Buy"
                       full
                       disabled={!canBuy}

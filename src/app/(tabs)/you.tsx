@@ -437,16 +437,26 @@ export default function You() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four },
+  // A single vertical rhythm for the column. The identity card and the plan card had NO margin
+  // between them at all — identity carried a marginTop and plan carried nothing — so two 16pt-padded
+  // cards rendered flush and read as one block. Reported 2026-08-22: "Top half is too compressed:
+  // profile, free trial days left, league, and rank are all crammed together". `gap` spaces every
+  // direct child of the scroller equally, so a card added later cannot reintroduce the same gap.
+  content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   hero: { alignItems: 'center', paddingVertical: Spacing.four },
   heroKicker: { marginTop: Spacing.two, letterSpacing: 1.2 },
   heroTitle: { fontSize: FontSize.titleLg, marginTop: 2 },
   heroBar: { alignSelf: 'stretch', marginTop: Spacing.three, marginBottom: Spacing.two },
-  identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
+  // gap 20 not 16: Atlas renders at 62pt here and the tighter gutter let the mascot touch the name.
+  // marginTop drops to 8 because `content` now owns the between-card rhythm; this only sets the
+  // distance from the safe-area edge to the first card.
+  identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three + Spacing.one, marginTop: Spacing.two },
   xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
   identityTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
   planChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.sm },
-  plan: { gap: Spacing.two },
+  // 8 -> 16. This card stacks four things (title row, progress bar, grant row, CTA) and at 8pt the
+  // CTA sat directly under the grant captions — the "'Free Trial' button right under" in the report.
+  plan: { gap: Spacing.three },
   planTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
   // Equal thirds so the three captions sit on one baseline grid. `gap` rather than dividers:
   // TradingView's stat row (185370) separates by space alone, and a rule between three items in a
@@ -467,11 +477,11 @@ const styles = StyleSheet.create({
   grantLast: { alignItems: 'flex-end' },
   planCta: { borderWidth: 1, borderRadius: Radius.pill, paddingVertical: Spacing.one + 2, alignItems: 'center' },
   rungXp: { marginTop: 2, textAlign: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.three },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
   gridHalf: { width: '47%', flexGrow: 1 },
   statTile: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2 },
   emptyNote: { textAlign: 'center', marginTop: Spacing.three },
-  sectionLabel: { marginTop: Spacing.four, marginBottom: Spacing.two },
+  sectionLabel: { marginTop: Spacing.two, marginBottom: Spacing.two },
   // seven rungs have to fit 402pt without horizontal scroll: space-between rather than a fixed gap
   ladder: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, alignItems: 'flex-start' },
   rung: { alignItems: 'center', gap: 4, width: 47 },

@@ -12,7 +12,7 @@ import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-nati
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Spacing } from '@/constants/theme';
 
 export default function Welcome() {
@@ -67,7 +67,7 @@ export default function Welcome() {
       </View>
 
       <View style={styles.footer}>
-        <GradientButton label="Let's go" full onPress={() => router.replace('/onboarding')} />
+        <SlabButton label="Let's go" full onPress={() => router.replace('/onboarding')} />
       </View>
     </SafeAreaView>
   );

@@ -27,10 +27,10 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 | # | reporter | verbatim | class | sev | status | files | commit |
 |---|---|---|---|---|---|---|---|
 | P1 | prompt | "I see an initial screen with no animation or lesson start animation. Build a quick lesson start animation or some sort of transition from when you first click the start button to get into the lesson" | visual | P2 | open | `lesson.tsx`, `start.tsx` | |
-| P2 | prompt | "The biggest thing that we have to fix throughout the entire application is our buttons... I don't like the gradient look... I like a deep purple, brilliant, styled button that's super defined and hard cut... implement that on every purple button" | visual | **P0** | open | `ui/button.tsx` (+19 callers) | |
-| P3 | prompt | "we can't have the same type of gradient behind it because it looks extremely vibe-coded... similar buttons that are white, pushed up... they can't have the vibe-coded glow behind them" | visual | **P0** | open | `ui/button.tsx` | |
+| P2 | prompt | "The biggest thing that we have to fix throughout the entire application is our buttons... I don't like the gradient look... I like a deep purple, brilliant, styled button that's super defined and hard cut... implement that on every purple button" | visual | **P0** | ready-for-verification | `ui/button.tsx` (+19 callers) | slab CTA |
+| P3 | prompt | "we can't have the same type of gradient behind it because it looks extremely vibe-coded... similar buttons that are white, pushed up... they can't have the vibe-coded glow behind them" | visual | **P0** | ready-for-verification | `ui/button.tsx` | slab CTA |
 | P4 | prompt | "The icons are currently completely static... I would love to see if we could have a small type of SVG animation every time you click a different page" | visual | P2 | open | `tab-bar.tsx`, `ui-icon.tsx` | |
-| P5 | prompt | "On the profile page, the spacing between the 'Your Profile' and 'Free Trial' (along with 'Atlas' on the left and 'Your Profile Stats' and the 'Free Trial' button right under) is messed up. Let's add some padding" | visual | P1 | open | `(tabs)/you.tsx` | |
+| P5 | prompt | "On the profile page, the spacing between the 'Your Profile' and 'Free Trial' (along with 'Atlas' on the left and 'Your Profile Stats' and the 'Free Trial' button right under) is messed up. Let's add some padding" | visual | P1 | ready-for-verification | `(tabs)/you.tsx` | spacing |
 | P6 | prompt | "take the screenshots, take the coloring, take the color scheme, font, and all of the things that we give in the screenshots design system, and apply them to the new pricing conversion page" + "on the free trial page, we want Atlas there, and we want it to be super beautiful" | visual | P1 | open | `onboarding.tsx`, `theme.ts` | |
 
 ## BATCH B — Onboarding
@@ -57,7 +57,7 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 ## BATCH E — You / Profile
 | # | verbatim | class | sev | status |
 |---|---|---|---|---|
-| N10 | "Top half is too compressed: profile, free trial days left, league, and rank are all crammed together" | visual | P1 | open (= P5) |
+| N10 | "Top half is too compressed: profile, free trial days left, league, and rank are all crammed together" | visual | P1 | ready-for-verification (= P5) |
 | N11 | "Tab is scope-confused: right now it reads like Settings... but also holds Friends and Games, which are gamified/social features and feel out of place here." | confusion | P2 | open |
 | N12 | "Games are buried — currently only discoverable by clicking into Profile. Should be a bigger, more visible part of the app." | confusion | P2 | open |
 | N13 | "suggested friends (e.g., 'Priya S,' 'Chris M') appear to be bots, not real users — needs a real content/design decision here." | wrong-data | P1 | open |
@@ -82,6 +82,6 @@ Saved: `refs/webapp/prompt-img{0..5}.md` (descriptions); images live in the Goog
 
 ---
 ## FLAGGED FOR THE OWNER — decisions I will not take alone
-1. **PRICE DIVERGENCE.** Web `/pricing` (prompt doc IMG 5) says Premium **$9.99/mo, $99.99 billed yearly**. iOS `onboarding.tsx` PRICING says **$9.99 / $79.99**. `refs/PRICE_DESYNC.md` records an earlier app-vs-store mismatch. Three different annual numbers are in play and `pricing-pin.mjs` will fail the build if the derived badge/per-month lines are not updated together. **Which annual price is real?**
-2. **N13 fake friends.** "Priya S / Chris M" being seeded bots is a product/ethics call, not a styling one.
-3. **N3 age range.** Under-18 users change COPPA/FERPA posture. Needs an explicit floor.
+1. **PRICE DIVERGENCE.** Web `/pricing` (prompt doc IMG 5) says Premium **$9.99/mo, $99.99 billed yearly**. iOS `onboarding.tsx` PRICING says **$9.99 / $79.99**. `refs/PRICE_DESYNC.md` records an earlier app-vs-store mismatch. Three different annual numbers are in play and `pricing-pin.mjs` will fail the build if the derived badge/per-month lines are not updated together. **RESOLVED 2026-08-22 — owner: keep $79.99 on iOS, web will be changed instead. No iOS change. ~~Which annual price is real?~~**
+2. **RESOLVED — owner: remove seeded profiles, real friends only.** ~~N13 fake friends.~~ "Priya S / Chris M" being seeded bots is a product/ethics call, not a styling one.
+3. **RESOLVED — owner: my call = 13+ (COPPA line); and DO THIS LAST, after everything else.** ~~N3 age range.~~ Under-18 users change COPPA/FERPA posture. Needs an explicit floor.

@@ -36,7 +36,7 @@ import { TileBuilder } from '@/components/tile-builder';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
@@ -222,7 +222,7 @@ export default function Lesson() {
           <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>Pick another from the pathway.</ThemedText>
         </View>
         <View style={styles.footer}>
-          <GradientButton label="Back" full onPress={() => router.back()} />
+          <SlabButton label="Back" full onPress={() => router.back()} />
         </View>
       </SafeAreaView>
     );
@@ -243,7 +243,7 @@ export default function Lesson() {
           </ThemedText>
         </View>
         <View style={styles.footer}>
-          <GradientButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+          <SlabButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
           {/*
            * A WAY OUT, and it is not optional. Found by looking at the screenshot: this state
            * shipped with only the upsell, so an expired user who arrived by cold deep link had no
@@ -318,7 +318,7 @@ export default function Lesson() {
    *
    * GENERALISED, because `multi` was not alone. `number-line` ships the same trailing control
    * ("Check your answer") and therefore the same collision — it was simply never exercised. Both
-   * render it as a SpringPressable rather than a GradientButton, which is why grepping for the
+   * render it as a SpringPressable rather than a SlabButton, which is why grepping for the
    * button component found nothing and the bug stayed invisible. Any future step that validates
    * itself belongs in this set; steps that only need "keep going" (reveal, order, match) leave the
    * footer alone.
@@ -546,12 +546,12 @@ export default function Lesson() {
             {pick !== norm.correct ? (
               <AskAtlasRow topic={lesson.title} label="Still not clear?" />
             ) : null}
-            <GradientButton label={ctaLabel} full onPress={advance} />
+            <SlabButton label={ctaLabel} full onPress={advance} />
           </FeedbackBanner>
         </View>
       ) : ownsItsCta ? null : (
         <View style={styles.footer}>
-          <GradientButton label={ctaLabel} full disabled={ctaDisabled} onPress={advance} />
+          <SlabButton label={ctaLabel} full disabled={ctaDisabled} onPress={advance} />
         </View>
       )}
 

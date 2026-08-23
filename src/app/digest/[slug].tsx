@@ -22,7 +22,7 @@ import { AskAtlasRow } from '@/components/ask-atlas';
 import { Blocks, parseBlocks, type Block } from '@/components/digest-body';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
 import { bodyFor } from '@/lib/digest-bodies';
 import { DIGEST_POSTS } from '@/lib/digest-content';
@@ -237,7 +237,7 @@ export default function DigestArticle() {
 
       <View style={styles.footer}>
         {last ? (
-          <GradientButton
+          <SlabButton
             // Unmapped guides used to fall back to a bare push('/lesson'), which worked only while
             // the player ignored its params and rendered a demo. It reads them now, so a paramless
             // push dead-ends on "That lesson isn't available" — send them to the pathway instead,
@@ -251,7 +251,7 @@ export default function DigestArticle() {
             }
           />
         ) : (
-          <GradientButton label={i === 0 ? 'Start reading' : 'Continue'} full onPress={advance} />
+          <SlabButton label={i === 0 ? 'Start reading' : 'Continue'} full onPress={advance} />
         )}
         {last ? (
           <SpringPressable haptic={false} onPress={() => router.back()} style={styles.done}>

@@ -29,7 +29,7 @@ import { Atlas } from '@/components/atlas';
 import { CelebrationRays } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { money, STOCKS } from '@/lib/stocks';
@@ -73,7 +73,7 @@ export default function Reward() {
           </ThemedText>
         </ScrollView>
         <View style={styles.footer}>
-          <GradientButton label="Back to learning" full onPress={() => router.back()} />
+          <SlabButton label="Back to learning" full onPress={() => router.back()} />
         </View>
       </SafeAreaView>
     );
@@ -143,11 +143,11 @@ export default function Reward() {
       )}
 
       <View style={styles.footer}>
-        {/* One handler per button. An earlier draft wrapped this GradientButton in a
+        {/* One handler per button. An earlier draft wrapped this SlabButton in a
             SpringPressable that ALSO called next(), which fires the reveal twice on one tap and
             silently burns a card. */}
         {revealed ? (
-          <GradientButton
+          <SlabButton
             label={remaining > 0 ? 'Next card' : 'Done'}
             full
             onPress={() => {
@@ -156,7 +156,7 @@ export default function Reward() {
             }}
           />
         ) : (
-          <GradientButton label={`Reveal a card (${remaining})`} full onPress={next} />
+          <SlabButton label={`Reveal a card (${remaining})`} full onPress={next} />
         )}
       </View>
     </SafeAreaView>

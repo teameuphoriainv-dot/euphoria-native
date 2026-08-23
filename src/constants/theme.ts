@@ -54,6 +54,23 @@ export const Colors = {
      */
     streak: '#F97316',
     destructive: '#EF4444',
+    /**
+     * CTA SLAB — the hard-cut block beneath a primary button.
+     *
+     * Added 2026-08-22 from the cofounder design doc: "I like a deep purple, brilliant, styled
+     * button that's super defined and hard cut" and "they can't have the vibe-coded glow behind
+     * them". The old GradientButton drew a violet->orchid LinearGradient over a 16px-radius box
+     * and hung a shadowRadius:16 / shadowOpacity:.5 halo off it. That halo is the thing being
+     * rejected. A slab is the opposite: a solid offset shape with ZERO blur, so the edge stays
+     * hard at any scale.
+     *
+     * ctaDepth is the same hue as `primary` (274) at L36% rather than L61% — dark enough to read
+     * as the side of a solid object, not as a shadow.
+     */
+    ctaDepth: '#6516A2',
+    ctaNeutral: '#F1EFF5',
+    ctaNeutralDepth: '#BFB6CE',
+    ctaNeutralInk: '#17141F',
     // Violet/gold accents used by CHROME. This does NOT mirror the icon library: the most
     // common fills in EUPHORIA_ICONS are amber, emerald, mint, sky and indigo, and violet is
     // only the 6th. The old "matches EUPHORIA_ICONS fills" comment here is probably where the
@@ -85,6 +102,10 @@ export const Colors = {
     warning: 'hsl(45 93% 58%)',
     streak: '#F97316',
     destructive: 'hsl(0 84% 60%)',
+    ctaDepth: 'hsl(274 76% 36%)',
+    ctaNeutral: 'hsl(0 0% 100%)',
+    ctaNeutralDepth: 'hsl(240 6% 80%)',
+    ctaNeutralInk: 'hsl(240 10% 10%)',
     iconViolet: '#BB83F1',
     iconPurple: '#A451E6',
     iconLilac: '#C89CF5',

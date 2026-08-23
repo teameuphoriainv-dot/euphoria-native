@@ -31,7 +31,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { WidgetPromo } from '@/components/widget-promo';
 import { nextWidgetAsk, WIDGET_ASK_XP } from '@/lib/widget-ask';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -407,7 +407,7 @@ export default function Home() {
                       BetterMe red, BitePal black) NOT ONE derives its primary button colour from
                       the content it sits on. The course accent still carries identity here — the
                       eyebrow, the card tint and its border — but the control is chrome. */}
-                  <GradientButton
+                  <SlabButton
                     label={doneInCourse === 0 ? 'Start' : 'Continue'}
                     full
                     onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
@@ -421,7 +421,7 @@ export default function Home() {
                 </ThemedText>
                 {doneInCourse > 0 && (
                   <View style={styles.heroCta}>
-                    <GradientButton label="Pick a new course" full onPress={() => router.push('/courses')} />
+                    <SlabButton label="Pick a new course" full onPress={() => router.push('/courses')} />
                   </View>
                 )}
               </>

@@ -43,7 +43,7 @@ import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
 import { IAP_ENABLED } from '@/lib/purchases';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
@@ -203,7 +203,7 @@ export default function ChatScreen() {
           </ThemedText>
         </View>
         <View style={styles.expiredFooter}>
-          <GradientButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+          <SlabButton label="See Euphoria Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
           <Pressable
             onPress={leaveWall}
             style={styles.expiredOut}
@@ -413,7 +413,7 @@ export default function ChatScreen() {
               <ThemedText type="small" themeColor="mutedForeground" style={styles.limitSub}>
                 Go Pro to keep going — every lesson unlocked too.
               </ThemedText>
-              <GradientButton
+              <SlabButton
                 label="See Pro"
                 full
                 onPress={() => setGate(entitled(useApp.getState(), 'atlas'))}

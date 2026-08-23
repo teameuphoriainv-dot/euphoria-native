@@ -32,7 +32,7 @@ import { AskAtlasRow } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -434,7 +434,7 @@ export default function Options() {
                 A contract moves on time and volatility, not just direction. Pro reopens{' '}
                 {PRO_DERIVATIVE_PREVIEW} preview contracts on a real chain so you can watch that happen.
               </ThemedText>
-              <GradientButton label="See Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
+              <SlabButton label="See Pro" full onPress={() => router.push('/onboarding?step=paywall')} />
             </Card>
           </RiseIn>
           <RiseIn delay={140}>
@@ -649,7 +649,7 @@ export default function Options() {
                 </ThemedText>
               </View>
             )}
-            <GradientButton
+            <SlabButton
               label={left > 0 ? 'Open contract' : 'No previews left'}
               full
               disabled={!canTrade}

@@ -36,7 +36,7 @@ import {
 } from '@/components/onboarding-parts';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -672,7 +672,7 @@ export default function Onboarding() {
               <ThemedText type="bodyMedium">Cancel anytime in the App Store</ThemedText>
             </View>
           )}
-          <GradientButton
+          <SlabButton
             label={
               step === REVEAL_INDEX
                 ? 'Start learning'

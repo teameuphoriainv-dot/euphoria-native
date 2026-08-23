@@ -13,7 +13,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { GradientButton } from '@/components/ui/button';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -142,7 +142,7 @@ export default function TermMatch() {
                 <NumberRollup value={40} prefix="+" suffix=" XP" type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.bodyLg }} />
               </View>
             </RewardPop>
-            <GradientButton label="Done" full style={{ marginTop: Spacing.four }} onPress={() => router.back()} />
+            <SlabButton label="Done" full style={{ marginTop: Spacing.four }} onPress={() => router.back()} />
           </Card>
         </Animated.View>
       )}
