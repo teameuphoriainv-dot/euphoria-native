@@ -441,6 +441,19 @@ export type AppState = {
   claimTierUp: () => void;
   /** Local day the game bonus was last paid, '' if never. */
   lastGameDay: string;
+  /**
+   * Guides finished today, as a SELF-CONTAINED (day, count) pair — deliberately not folded into
+   * the `lastActiveDay` family.
+   *
+   * `lessonsToday` and `minutesToday` roll off `lastActiveDay`, which means EVERY writer that
+   * stamps that field has to remember to roll them too; store.ts already carries a comment about
+   * exactly that trap. Adding a third rider would put the same bug one forgotten writer away:
+   * read a guide Monday, do a lesson first thing Tuesday, and Tuesday's guide quest would already
+   * read as done. Carrying its own day stamp makes the reader `guidesDay === dayKey() ? n : 0`,
+   * which is self-healing and has precisely one writer. Same shape as `heartsDay`/`hearts`.
+   */
+  guidesDay: string;
+  guidesToday: number;
   /** Ids of people YOU follow. One-directional; no approval needed. */
   following: string[];
   /** Ids of people who follow YOU. Seeded from mock people so the "follows you" state is
@@ -689,6 +702,8 @@ export const useApp = create<AppState>()(
       lastWeekOutcome: null,
       pendingTierUp: null,
       lastGameDay: '',
+      guidesDay: '',
+      guidesToday: 0,
       lastQuestDay: '',
       following: [],
       /*
@@ -1106,6 +1121,9 @@ export const useApp = create<AppState>()(
           return {
             activeDays: withToday(s.activeDays),
             readPosts: [...s.readPosts, slug],
+            // Rides the guard above, so re-reading a guide cannot inflate today's count.
+            guidesDay: today,
+            guidesToday: (s.guidesDay === today ? s.guidesToday : 0) + 1,
             ...applyXp(s, XP_GUIDE),
             // A guide read counts as your day, so Digest can keep a streak alive on its own.
             streak: nextStreak(s.streak, s.lastActiveDay),
@@ -1157,7 +1175,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote

@@ -23,16 +23,25 @@
  *   1/3  an escalating per-day reward (Bloom's 10/20/30/40 Oinks) — NOT convergent, and Euphoria
  *        has no soft currency to escalate, so it is not copied (§0.5).
  *
- * ── WHY THERE IS NO "READ A GUIDE" QUEST, and this is deliberate ───────────────────────────────
- * §17.3 proposed one. The store has `readPosts` but nothing day-scoped about it — `markPostRead`
- * appends a slug and stamps `lastActiveDay`, so there is no honest way to ask "did you read one
- * TODAY" without adding a persisted counter. A quest that cannot tell whether you completed it is
- * worse than one fewer quest, so it is omitted rather than faked. Add a day-keyed guide counter to
- * the store and this becomes a fourth quest in about six lines.
+ * ── THE POOL GREW, ON REQUEST ─────────────────────────────────────────────────────────────────
+ * The owner's words: "there's only one, and I don't like that one. There's only a couple of them.
+ * I need you to make more." Two changes, both honest:
+ *
+ *   1. SIX rotating quests instead of two, and THREE shown instead of two. The pool is what makes
+ *      tomorrow feel different from today; the count is what makes the card look like a day's work
+ *      rather than an afterthought.
+ *   2. Two of the six are the SAME action at a higher count ("Finish 3 lessons", "Place 2 paper
+ *      trades"). That is not padding — an x/y quest whose y is always 1 never shows progress, and
+ *      progress is the 3/3 mechanic the evidence actually converged on.
+ *
+ * This block previously explained why there was no "read a guide" quest: `markPostRead` stamped
+ * `lastActiveDay` but nothing counted guides per day, and a quest that cannot tell whether it was
+ * completed is worse than one fewer quest. The store now carries `guidesDay`/`guidesToday`, so the
+ * quest is real rather than faked, and the objection is retired rather than ignored.
  */
 import { dayKey, type AppState } from './store';
 
-export type QuestKind = 'lesson' | 'goal' | 'trade';
+export type QuestKind = 'lesson' | 'goal' | 'trade' | 'guide' | 'game';
 
 export type Quest = {
   kind: QuestKind;
@@ -70,31 +79,45 @@ export function questsForToday(s: AppState, now: Date): Quest[] {
   // time, so the division would report e.g. 3 lessons for one long one — and 0 for a fast one.
   const lessonsToday = s.lastActiveDay === dayKey() ? s.lessonsToday : 0;
   const tradesToday = s.valueHistory.filter((v) => isToday(v.t, now)).length;
+  // Both self-contained (day, value) pairs, so neither depends on another writer rolling it.
+  const guidesToday = s.guidesDay === dayKey() ? s.guidesToday : 0;
+  const playedGame = s.lastGameDay === dayKey() ? 1 : 0;
 
-  const all: Quest[] = [
-    { kind: 'lesson', title: 'Finish a lesson', at: Math.min(lessonsToday, 1), of: 1, done: lessonsToday >= 1 },
-    {
-      kind: 'goal',
-      title: `Reach your ${String(goal)}-minute goal`,
-      at: Math.min(minutes, goal),
-      of: goal,
-      done: minutes >= goal,
-    },
-    { kind: 'trade', title: 'Place a paper trade', at: Math.min(tradesToday, 1), of: 1, done: tradesToday >= 1 },
+  /** One place to build an x/y quest, so `at` can never disagree with `done`. */
+  const q = (kind: QuestKind, title: string, at: number, of: number): Quest => ({
+    kind,
+    title,
+    at: Math.min(at, of),
+    of,
+    done: at >= of,
+  });
+
+  const goalQuest = q('goal', `Reach your ${String(goal)}-minute goal`, minutes, goal);
+
+  const rotating: Quest[] = [
+    q('lesson', 'Finish a lesson', lessonsToday, 1),
+    q('lesson', 'Finish 3 lessons', lessonsToday, 3),
+    q('trade', 'Place a paper trade', tradesToday, 1),
+    q('trade', 'Place 2 paper trades', tradesToday, 2),
+    q('guide', 'Read a guide', guidesToday, 1),
+    q('game', 'Play a game', playedGame, 1),
   ];
 
   /*
-   * Two of the three, chosen by the day key. Duolingo shows ONE daily quest plus locked upcoming
-   * ones; Bloom shows many. Two is the middle and it keeps the card to a height Home can afford —
-   * the whole reason Home had no quests is that nothing would fit, so a quest card that pushes the
-   * course rail off the screen would trade one defect for another.
+   * The goal quest plus TWO distinct picks from the six.
    *
-   * The goal quest is always included because it is the only one that measures the commitment the
-   * user actually set, and rotating it out would make the daily target invisible on some days.
+   * The goal is always present because it is the only quest measuring the commitment the user
+   * themselves set; rotating it out would make their own daily target invisible on some days.
+   *
+   * The two picks must be DISTINCT, and the arithmetic makes that a property rather than a hope:
+   * the second index is `i + 1 + (k mod (n-1))` where k >= 0, so the offset lands in [1, n-1] and
+   * can never be 0 mod n. A shuffle would need a seeded PRNG and a loop to say the same thing.
+   * The second seed is drawn from a salted key so the two picks do not move in lockstep.
    */
-  const rotating = all.filter((q) => q.kind !== 'goal');
-  const pick = rotating[seedFor(dayKey()) % rotating.length];
-  return [all.find((q) => q.kind === 'goal')!, pick];
+  const n = rotating.length;
+  const i = seedFor(dayKey()) % n;
+  const j = (i + 1 + (seedFor(`${dayKey()}b`) % (n - 1))) % n;
+  return [goalQuest, rotating[i], rotating[j]];
 }
 
 /** All of today's quests done. Feeds the reward hook-up in home.tsx. */
@@ -115,16 +138,37 @@ if (__DEV__) {
   const base = {
     minutesToday: 0,
     lastActiveDay: dayKey(),
+    lessonsToday: 0,
     valueHistory: [],
+    guidesDay: '',
+    guidesToday: 0,
+    lastGameDay: '',
     profile: { dailyMinutes: 10 },
   } as unknown as AppState;
   const now = new Date(2026, 0, 15, 12, 0, 0);
 
   const fresh = questsForToday(base, now);
-  if (fresh.length !== 2) console.error('[quests] expected exactly 2 quests');
+  if (fresh.length !== 3) console.error('[quests] expected exactly 3 quests');
+  // The distinctness of the two picks is an arithmetic property, so assert it as one: every day
+  // key must yield two different rotating quests, not merely the handful this test happens to see.
+  for (let d = 0; d < 400; d++) {
+    const picks = questsForToday(base, new Date(2026, 0, 1 + d, 12)).slice(1);
+    if (picks[0].title === picks[1].title) {
+      console.error('[quests] the two rotating picks collided — a day shows one quest twice');
+      break;
+    }
+  }
   if (fresh.some((q) => q.done)) console.error('[quests] a fresh day must have nothing done');
   if (questsComplete(fresh)) console.error('[quests] a fresh day must not read as complete');
   if (!fresh.some((q) => q.kind === 'goal')) console.error('[quests] the goal quest must always be present');
+
+  // A higher-count quest must NOT read as done on partial progress — the bug that would pay out a
+  // reward card for one lesson when the quest asked for three.
+  const partial = questsForToday({ ...base, lessonsToday: 1 } as AppState, now);
+  for (const p of partial) {
+    if (p.title === 'Finish 3 lessons' && p.done) console.error('[quests] 1 of 3 lessons is not done');
+    if (p.at > p.of) console.error('[quests] progress overshot its own target');
+  }
 
   const met = questsForToday({ ...base, minutesToday: 10 } as AppState, now);
   const goalQ = met.find((q) => q.kind === 'goal');

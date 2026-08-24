@@ -45,7 +45,7 @@ import { LeagueCrest } from '@/components/league-crest';
 import { TierUpSheet } from '@/components/tier-up-sheet';
 import {
   PixelSpriteView, book, chartUp, coin as coinSprite, controller, star,
-  flame as flameSprite, targetGoal, type PixelSprite,
+  flame as flameSprite, newspaper, targetGoal, type PixelSprite,
 } from '@/lib/pixel';
 
 import { tierProgress } from '@/lib/league';
@@ -68,6 +68,8 @@ const QUEST_SPRITE: Record<string, PixelSprite> = {
   lesson: book,
   goal: targetGoal,
   trade: chartUp,
+  guide: newspaper,
+  game: controller,
 };
 
 
@@ -698,7 +700,7 @@ export default function Home() {
               <PixelSpriteView sprite={controller} size={22} />
               <View style={{ flex: 1 }}>
                 <ThemedText type="heading" style={{ fontSize: FontSize.body }}>Games</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">Term match and quick drills</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">Beat your best score</ThemedText>
               </View>
               <UIcon name="arrowRight" size={16} color={theme.iconGold} />
             </Card>
