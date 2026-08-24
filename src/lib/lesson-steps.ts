@@ -31,8 +31,19 @@ export type ProseBlock =
    */
   | { b: 'visual'; visual: AnimatedVisual };
 
+/**
+ * Explorable widget key -> the screen that actually implements it.
+ *
+ * ONE entry today, and that is the honest state: `compoundGrowthLab` has a built screen and
+ * `inflationEroder` does not. A map rather than an if, so adding the second widget is one line and
+ * a missing one is simply absent rather than a broken link.
+ */
+const EXPLORABLE_LABS: Record<string, { route: string; label: string } | undefined> = {
+  compoundGrowthLab: { route: '/explore/compound', label: 'Open the lab' },
+};
+
 export type Normalized =
-  | { kind: 'prose'; label?: string; title: string; blocks: ProseBlock[] }
+  | { kind: 'prose'; label?: string; title: string; blocks: ProseBlock[]; lab?: { route: string; label: string } }
   | { kind: 'choice'; prompt: string; options: string[]; correct: number; right: string; wrong: string }
   | { kind: 'reveal'; spec: RevealSpec }
   | { kind: 'match'; spec: MatchSpec }
@@ -382,14 +393,25 @@ export function normalizeStep(step: LessonStep): Normalized {
        * the payoff -- "Nobody touched the bill. It still says $100. But 3% inflation for 30 years
        * ate 5 of your 8 tickets." Rendering them invents nothing.
        *
-       * STILL MISSING and deliberately not faked here: the interactive widget itself, and the
-       * step's `check` MCQ. A one-screen normaliser cannot carry both the insight and a gated
-       * question, and a question about a thing that was never explained is worse than no question.
+       * THE WIDGET IS NO LONGER MISSING — it was ORPHANED. This comment used to say the
+       * interactive widget was "still missing and deliberately not faked". It was not missing:
+       * src/app/explore/compound.tsx is a complete, working Compound Growth Lab (live curve, three
+       * steppers) that NOTHING in the app linked to. A route audit found it, and its widget key
+       * matches this step's `compoundGrowthLab` exactly.
+       *
+       * The prose stays and the widget is offered beside it rather than replacing it: `insight`
+       * carries the payoff line the author wrote, and a lab with no conclusion is a toy. The lab
+       * uses router.back(), so opening it from here returns to this exact step.
+       *
+       * STILL MISSING, unchanged: `inflationEroder` has no screen anywhere, and the step's `check`
+       * MCQ is not rendered — a question about a thing that was never explained is worse than no
+       * question.
        */
       return {
         kind: 'prose',
         title: s.title,
         blocks: paras([s.prompt, s.insight]),
+        lab: EXPLORABLE_LABS[s.widget],
       };
     default:
       return {

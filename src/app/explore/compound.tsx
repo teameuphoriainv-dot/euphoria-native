@@ -73,7 +73,8 @@ export default function CompoundLab() {
       <View style={styles.content}>
         <SpringPressable haptic={false} onPress={() => router.back()} style={styles.back}>
           <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
-          <ThemedText type="small" themeColor="mutedForeground">Explore</ThemedText>
+          {/* "Explore" named a section that does not exist — this is reached from a lesson step. */}
+          <ThemedText type="small" themeColor="mutedForeground">Back</ThemedText>
         </SpringPressable>
 
         <RiseIn>

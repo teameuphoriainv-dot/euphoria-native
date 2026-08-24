@@ -37,7 +37,7 @@ import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { PixelSpriteView, coin as coinSprite, flame as flameSprite, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
-import { SlabButton } from '@/components/ui/button';
+import { Button, SlabButton } from '@/components/ui/button';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
@@ -506,7 +506,33 @@ export default function Lesson() {
 
         {norm && (
           <Animated.View key={`s${idx}`} entering={FadeInDown} exiting={FadeOut} style={styles.stepBody}>
-            {norm.kind === 'prose' && <LessonProse label={norm.label} title={norm.title} blocks={norm.blocks} />}
+            {norm.kind === 'prose' && (
+              <>
+                <LessonProse label={norm.label} title={norm.title} blocks={norm.blocks} />
+                {/*
+                  * THE INTERACTIVE LAB, offered beside the prose rather than instead of it.
+                  *
+                  * Only `explorable` steps carry `lab`, and only when a screen for that widget
+                  * actually exists (see EXPLORABLE_LABS in lesson-steps.ts). The lab uses
+                  * router.back(), so this opens it and returns the learner to this exact step —
+                  * no progress lost, no special-casing needed here.
+                  *
+                  * `outline`, not the primary CTA: Continue is what moves the lesson forward and
+                  * must stay the loudest thing on the screen. This is an invitation, not the path.
+                  */}
+                {norm.lab ? (
+                  <View style={{ paddingHorizontal: Spacing.four, paddingTop: Spacing.three }}>
+                    <Button
+                      variant="outline"
+                      label={norm.lab.label}
+                      // Read into a const first: `norm.lab` inside a closure is not narrowed by the
+                      // guard above, and TS is right to say so.
+                      onPress={((lab) => () => { router.push(lab.route as never); })(norm.lab)}
+                    />
+                  </View>
+                ) : null}
+              </>
+            )}
 
             {norm.kind === 'todo' && (
               <View style={{ flex: 1, justifyContent: 'center' }}>
