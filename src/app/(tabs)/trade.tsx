@@ -45,6 +45,7 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { getMarks } from '@/lib/market';
 import { changeOf } from '@/lib/marks';
 import { PixelSpriteView, arrowSplit, newspaper } from '@/lib/pixel';
+import { ProfileButton } from '@/components/profile-button';
 
 /** Kept as a name so the row markup reads the same; the mark itself is now a real logo with the
  *  lettered tile as its floor. */
@@ -223,6 +224,7 @@ export default function Trade() {
               </View>
             </SpringPressable>
             <AskAtlasButton topic="Trading" />
+            <ProfileButton />
           </View>
         </RiseIn>
 

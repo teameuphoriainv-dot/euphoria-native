@@ -20,6 +20,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { ProfileButton } from '@/components/profile-button';
 
 /**
  * THE SPRITE LIVES ON THE ENTRY, not in a lookup keyed by name.
@@ -57,8 +58,14 @@ export default function Games() {
       <AmbientBackground starCount={40} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
-          <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Games</ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground">Learn by playing. Concepts become muscle memory.</ThemedText>
+          {/* Was a bare title with no row, so the profile button had nowhere to sit. */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.two }}>
+            <View style={{ flex: 1 }}>
+              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Games</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground">Learn by playing. Concepts become muscle memory.</ThemedText>
+            </View>
+            <ProfileButton />
+          </View>
         </RiseIn>
 
         <View style={styles.grid}>

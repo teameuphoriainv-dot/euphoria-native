@@ -46,6 +46,7 @@ import {
   PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, car, house, paycheck, shield, umbrella,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
+import { ProfileButton } from '@/components/profile-button';
 
 /**
  * A mark per Digest category.
@@ -310,6 +311,7 @@ export default function Digest() {
               </ThemedText>
             </View>
             <AskAtlasButton topic="Digest" />
+            <ProfileButton />
           </View>
         </RiseIn>
 

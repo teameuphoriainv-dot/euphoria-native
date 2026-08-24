@@ -76,6 +76,15 @@ type Row = { icon: UIconName; label: string; accent?: boolean; route: string };
  * this groups rather than moves — and N12 is answered on Home instead, where there is now room.
  */
 const PLAY_ROWS: Row[] = [
+  /*
+   * "I do not see a profile pathway anywhere."
+   *
+   * The editor was reachable ONLY by tapping the avatar image at the top of this screen — no
+   * chevron, no label, nothing that reads as a control. Combined with Home's greeting tap, that
+   * made the whole chain two invisible hops: invisible greeting -> /you, invisible avatar ->
+   * /avatar. The avatar tap stays as a shortcut; this row is the part you can actually find.
+   */
+  { icon: 'sparkle', label: 'Avatar & banner', route: '/avatar' },
   { icon: 'trophy', label: 'Achievements', route: '/achievements' },
   { icon: 'you', label: 'Friends', route: '/friends' },
   { icon: 'target', label: 'Games', route: '/games' },

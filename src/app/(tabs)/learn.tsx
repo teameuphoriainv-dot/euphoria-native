@@ -28,6 +28,7 @@ import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { PixelSpriteView, checkBadge, coin, lock } from '@/lib/pixel';
+import { ProfileButton } from '@/components/profile-button';
 
 /* ── UNIT 7: THE LIST MODEL, from Promova 138799 in pixels ───────────────────────────────
    The serpentine could not reach 10 nodes and two attempts proved it (§22 C33, and again this
@@ -216,6 +217,7 @@ export default function Learn() {
               <ThemedText type="smallBold" style={{ color: accent }}>{doneCount}/{total || course?.totalLessons || 0}</ThemedText>
             </View>
             <AskAtlasButton topic={course?.title} />
+            <ProfileButton />
           </View>
           <View style={[styles.track, { backgroundColor: theme.muted }]}>
             <View style={[styles.fill, { backgroundColor: accent, width: `${total ? (doneCount / total) * 100 : 0}%` }]} />

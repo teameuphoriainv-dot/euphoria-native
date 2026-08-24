@@ -55,6 +55,7 @@ import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { openAtlasChat } from '@/components/ask-atlas';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { ProfileButton } from '@/components/profile-button';
 
 /**
  * Quest art, one sprite per QuestKind.
@@ -348,15 +349,24 @@ export default function Home() {
                 <PixelSpriteView sprite={flameSprite} size={15} play="once" playKey={streak} />
                 <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: FontSize.caption }}>{streak}</ThemedText>
               </View>
-              <View
-                accessible
-                accessibilityLabel={`${String(minutesDone)} of ${String(goalMinutes)} minutes today`}
-                accessibilityRole="text"
-                style={[styles.pill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '3A' }]}>
-                <PixelSpriteView sprite={targetGoal} size={15} />
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac, fontSize: FontSize.caption }}>{minutesDone}/{goalMinutes}</ThemedText>
-              </View>
+              {/*
+                * THE GOAL PILL WAS REMOVED HERE, and it is a deletion rather than a sacrifice.
+                *
+                * It was a plain non-tappable <View> reading "0/5", and TODAY'S QUESTS sits a few
+                * hundred points below on the same screen showing "Reach your 5-minute goal … 0/5"
+                * — the same two numbers, with a progress bar and a label explaining them. One
+                * screen said the same thing twice and only one of the two was legible on its own.
+                *
+                * Removing it is what makes room for <ProfileButton>. Measured on device: with four
+                * items in this row at DEFAULT text size the greeting collapsed to "Hey / there" over
+                * two lines and "5 min to / keep your / streak" over three. That is the AX5 failure
+                * this header already has a history of, arriving without needing accessibility sizes
+                * at all. Three items fit; four did not.
+                */}
             </View>
+            {/* Third group in this row, and it is a tight row with an AX5 history — verified on
+                device at the largest text size rather than assumed. See profile-button.tsx. */}
+            <ProfileButton />
           </View>
         </RiseIn>
 
