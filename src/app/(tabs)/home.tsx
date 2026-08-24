@@ -95,7 +95,17 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
   const ringStyle = useAnimatedStyle(() => ({ opacity: pulse.get() }));
 
   return (
-    <View style={styles.day}>
+    /*
+     * GROUPED AND LABELLED. Done / today / upcoming was conveyed ENTIRELY by a filled circle and a
+     * checkmark, so VoiceOver read seven cells as "M", "T", "W" — the week strip's whole meaning is
+     * whether you kept the streak, and that was the one thing it never said. This file already gets
+     * it right for the streak pill a couple of hundred lines down; DayCheck was simply missed.
+     */
+    <View
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={`${label}, ${done ? 'completed' : today ? 'today, not done yet' : 'not done'}`}
+      style={styles.day}>
       {/* never spread `color: undefined` into the style — it overrides themeColor and the label
           falls back to the default dark text, i.e. invisible on this background */}
       <ThemedText

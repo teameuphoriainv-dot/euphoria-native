@@ -72,17 +72,30 @@ export default function Games() {
           {GAMES.map((g, i) => (
             <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
               <SpringPressable onPress={() => g.route && router.push(g.route as never)} disabled={!!g.pro}>
-                <Card style={[styles.gameCard, g.pro && { opacity: 0.6 }]}>
+                {/*
+                  * THE DIM IS ON THE CONTENT, NOT THE CARD.
+                  *
+                  * `opacity: 0.6` on the whole Card dimmed the Pro badge along with the art, and a
+                  * composited measurement put the badge text at ~3.55:1 against the screen — below
+                  * the 4.5 AA minimum, and 9pt label text does not qualify as large text. The badge
+                  * is the one thing on a locked card that must stay readable, since it is the entire
+                  * explanation for why the card does not respond.
+                  */}
+                <Card style={styles.gameCard}>
                   {g.pro && (
                     <View style={[styles.proBadge, { backgroundColor: theme.warning + '2A' }]}>
                       <UIcon name="lock" size={11} color={theme.warning} />
                       <ThemedText type="label" style={{ color: theme.warning, fontSize: FontSize.micro }}>Pro</ThemedText>
                     </View>
                   )}
-                  <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }]}>
+                  <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }, g.pro && { opacity: 0.6 }]}>
                     <PixelSpriteView sprite={g.sprite} size={40} />
                   </View>
-                  <ThemedText type="heading" style={{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }}>{g.name}</ThemedText>
+                  <ThemedText
+                    type="heading"
+                    style={[{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }, g.pro && { opacity: 0.6 }]}>
+                    {g.name}
+                  </ThemedText>
                 </Card>
               </SpringPressable>
             </RiseIn>

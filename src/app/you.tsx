@@ -275,7 +275,12 @@ export default function You() {
                   longer qualify for simply stops appearing instead of persisting a claim. */}
               {wornTitle ? (
                 <View style={[styles.titleChip, { borderColor: theme.primary + '55', backgroundColor: theme.primary + '18' }]}>
-                  <ThemedText type="label" style={{ color: theme.primary }}>{wornTitle}</ThemedText>
+                  {/* iconLilac, NOT primary. Measured 4.08:1 for primary on this chip's own
+                      composited background — below the 4.5 AA minimum, and 11pt semibold does not
+                      qualify as large text. digest.tsx already found and fixed exactly this
+                      (its comment records primary at 4.49 vs iconLilac at 8.29); the fix simply
+                      never reached this chip. */}
+                  <ThemedText type="label" style={{ color: theme.iconLilac }}>{wornTitle}</ThemedText>
                 </View>
               ) : null}
               <ThemedText type="small" themeColor="mutedForeground" style={NUM}>

@@ -20,6 +20,7 @@
  * live quotes.
  */
 
+import { finiteNonNegative } from './_chain';
 import { guard } from './_limit';
 import { mayCarryKey, symbol, withKey } from './_validate';
 
@@ -398,7 +399,33 @@ export async function GET(request: Request) {
       const d = await poly(`/v2/aggs/ticker/${sym}/prev?adjusted=true`, key);
       const bar = d.results?.[0];
       if (!bar) return fresh({ error: 'no_data' }, 404);
-      const change = bar.c - bar.o;
+
+      /*
+       * VALIDATE THE UPSTREAM NUMBERS BEFORE THEY BECOME A PRICE.
+       *
+       * `bar.c` and `bar.o` arrive from Polygon's untyped JSON and used to be used raw. Polygon
+       * documents its aggregate fields as nullable, and `null - null` is NaN, so a single thin
+       * ticker could put NaN into `price`. `lib/api.ts`'s `apiGet<T>` is a pure type ASSERTION with
+       * no runtime check, so nothing between here and `setMark()` would have caught it — and
+       * setMark is, by its own doc comment, "the ONE place a live mark enters the app". From there
+       * it reaches portfolio valuation, cost-basis percentages and the `cost > s.cash` affordability
+       * check that decides whether a buy is allowed.
+       *
+       * This app has already shipped this bug class twice, both recorded in this repo: NVDA priced
+       * at $1,184 against a real $217, and a portfolio value that disagreed with its own chart. The
+       * sibling options path was hardened with `finiteNonNegative` after a hostile-payload probe;
+       * the quote path never got the same treatment. It does now — same helper, same rule.
+       *
+       * A refusal, not a zero. `finiteNonNegative` returns 0 for a bad value, which is correct for
+       * an options greek that can legitimately be absent, but 0 IS a plausible-looking price and
+       * this is the money path. A quote we cannot trust must fail as `no_data` and let the caller's
+       * existing "unknown" handling run, rather than assert that the stock is worth nothing.
+       */
+      const close = finiteNonNegative(bar.c);
+      const open = finiteNonNegative(bar.o);
+      if (close <= 0) return fresh({ error: 'no_data' }, 404);
+
+      const change = open > 0 ? close - open : 0;
       /*
        * `asOf` EXISTS BECAUSE A STALE PRICE LOOKED EXACTLY LIKE A LIVE ONE.
        *
@@ -414,9 +441,9 @@ export async function GET(request: Request) {
        */
       return cached({
         sym,
-        price: bar.c,
+        price: close,
         change,
-        changePct: bar.o ? (change / bar.o) * 100 : 0,
+        changePct: open > 0 ? (change / open) * 100 : 0,
         asOf: bar.t ?? null,
       });
     }

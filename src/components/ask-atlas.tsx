@@ -38,7 +38,8 @@ export function AskAtlasButton({ topic }: { topic?: string }) {
   return (
     <SpringPressable
       haptic={false}
-      onPress={() => open(topic)}
+      onPress={() => { open(topic); }}
+      hitSlop={4}
       accessibilityRole="button"
       accessibilityLabel={topic ? `Ask Atlas about ${topic}` : 'Ask Atlas'}
     >
@@ -79,6 +80,10 @@ export function AskAtlasRow({ topic, label }: { topic?: string; label?: string }
 
 const styles = StyleSheet.create({
   round: {
+    // 40pt drawn, but the press target is widened by hitSlop at the call site below: this button
+    // sits in three tab headers directly beside the 44pt ProfileButton, and the app's own standard
+    // (profile-button.tsx) is the 44pt HIG minimum. Growing the circle would change the design;
+    // hitSlop 4 makes the TARGET 48pt without moving a pixel.
     width: 40,
     height: 40,
     borderRadius: 20,

@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   chipScroll: { flexGrow: 0, flexShrink: 0, height: 44 + Spacing.two + Spacing.two },
   chipRow: { gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.two },
   // 44pt exactly: the HIG touch minimum, and the number the whole density fix is spending.
-  chip: { height: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
+  chip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
   trailScroll: { flex: 1 },
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },

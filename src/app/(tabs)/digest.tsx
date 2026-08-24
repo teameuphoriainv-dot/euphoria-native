@@ -395,7 +395,7 @@ export default function Digest() {
                       accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
                       <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
                         <PixelSpriteView sprite={CATEGORY_ART[c]} size={44} />
-                        <ThemedText type="heading" style={{ fontSize: FontSize.body, textAlign: 'center' }} numberOfLines={2}>
+                        <ThemedText type="heading" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.body, textAlign: 'center' }} numberOfLines={2}>
                           {c}
                         </ThemedText>
                         <ThemedText type="small" themeColor="mutedForeground">

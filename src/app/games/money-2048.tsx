@@ -55,6 +55,14 @@ const START_TILES = [2, 2, 3, 4];
 /** Below this a swipe is a tap that wandered, not a direction. */
 const SWIPE_MIN = 24;
 
+/** The accessible controls. Arrows are drawn as text so they scale with Dynamic Type for free. */
+const DIRS: { dir: Dir; glyph: string; label: string }[] = [
+  { dir: 'left', glyph: '\u2190', label: 'Move left' },
+  { dir: 'down', glyph: '\u2193', label: 'Move down' },
+  { dir: 'up', glyph: '\u2191', label: 'Move up' },
+  { dir: 'right', glyph: '\u2192', label: 'Move right' },
+];
+
 export default function Money2048() {
   const theme = useTheme();
   const { width } = useWindowDimensions();
@@ -180,7 +188,14 @@ export default function Money2048() {
       </View>
 
       <GestureDetector gesture={pan}>
-        <View style={[styles.board, { width: board, height: board, padding: gap, backgroundColor: theme.card }]}>
+        <View
+          accessible
+          // RN has no "grid" role on iOS; "summary" is the closest that reads as a status region.
+          accessibilityRole="summary"
+          // Announces the STATE, since the individual tiles are decorative to VoiceOver. Without
+          // this the board reads as an unlabelled box and the player has no idea what they hold.
+          accessibilityLabel={`Board. Score ${String(score)}. Highest bill $${String(LADDER[Math.max(...grid.flat())])}.`}
+          style={[styles.board, { width: board, height: board, padding: gap, backgroundColor: theme.card }]}>
           {grid.map((row, r) =>
             row.map((v, c) => (
               <View
@@ -225,6 +240,35 @@ export default function Money2048() {
         {over ? 'No moves left' : won ? 'You made a $100. Keep going.' : 'Swipe to merge bills'}
       </ThemedText>
 
+      {/*
+        * THE D-PAD, and it is not an optional extra — without it this game cannot be played at all
+        * by a VoiceOver user.
+        *
+        * A one-finger swipe IS VoiceOver's own navigation gesture. It never reaches the Pan
+        * recogniser, so the entire game was unreachable: no per-tile labels, no role on the board,
+        * one gesture and nothing else. Term Match works under VoiceOver because its tiles are real
+        * buttons, and Trend Master works because "Up"/"Down" are real buttons. This is the same
+        * answer, and it is the pattern already proven one directory over.
+        *
+        * VISIBLE TO EVERYONE rather than hidden behind an accessibility flag. Swiping is the fun
+        * way to play and stays the default, but a visible control also serves anyone who cannot
+        * make a precise swipe — a hidden control would fix the audit and not the person.
+        */}
+      {!over && (
+        <View style={[styles.dpad, { width: board }]}>
+          {DIRS.map(({ dir, glyph, label }) => (
+            <SpringPressable
+              key={dir}
+              onPress={() => { swipe(dir); }}
+              accessibilityRole="button"
+              accessibilityLabel={label}
+              style={[styles.dkey, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <ThemedText type="display" style={{ fontSize: FontSize.bodyLg, color: theme.text }}>{glyph}</ThemedText>
+            </SpringPressable>
+          ))}
+        </View>
+      )}
+
       {over && (
         <Animated.View entering={FadeIn} style={[styles.end, { width: board }]}>
           <SlabButton label="Play again" full onPress={restart} />
@@ -243,5 +287,8 @@ const styles = StyleSheet.create({
   board: { borderRadius: Radius.lg, position: 'relative' },
   cell: { position: 'absolute', borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   hint: { marginTop: Spacing.three },
+  dpad: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.three, marginTop: Spacing.three },
+  /** 48pt: above the 44pt HIG minimum, because these are pressed repeatedly and fast. */
+  dkey: { width: 48, height: 48, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
   end: { marginTop: Spacing.four, gap: Spacing.three },
 });
