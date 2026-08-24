@@ -10,6 +10,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import {
   PixelSpriteView, bolt, chartUp, chat, crack, factory, globe, ladder, lightbulb,
   magnifier, rocket, scales, stockTicker, type PixelSprite,
+  stackCash,
 } from '@/lib/pixel';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -36,6 +37,7 @@ import { STAGGER_CAP } from '@/shared/motion/tokens';
 const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean }[] = [
   { name: 'Term Match', sprite: lightbulb, route: '/games/term-match' },
   { name: 'Trend Master', sprite: chartUp, route: '/games/trend-master' },
+  { name: 'Money 2048', sprite: stackCash, route: '/games/money-2048' },
   { name: 'Budget Balancer', sprite: scales },
   { name: 'Credit Climb', sprite: ladder },
   { name: 'Market Reaction', sprite: bolt },
