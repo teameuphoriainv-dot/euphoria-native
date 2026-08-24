@@ -80,6 +80,7 @@ export default function TrendMaster() {
     setRound({ series: makeSeries(seed.current, floor), cursor: 0 });
     setScore(0); setStreak(0); setLives(LIVES); setLeft(ROUND_SECONDS);
     leftRef.current = ROUND_SECONDS; scoreRef.current = 0;
+    runId.current += 1;
     setReveal(null); setPop(null); setPhase('play');
     // `floor` is a real dependency: finishing a lesson elsewhere and coming back must start the
     // next run at the new difficulty, not the one captured when this screen first mounted.
@@ -114,6 +115,25 @@ export default function TrendMaster() {
    */
   const scoreRef = useRef(0);
   const leftRef = useRef(ROUND_SECONDS);
+  /** The pending reveal. Cleared on unmount; `call` is its only writer. */
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (revealTimer.current) clearTimeout(revealTimer.current); }, []);
+
+  /*
+   * WHICH RUN A PENDING REVEAL BELONGS TO.
+   *
+   * Clearing the timer in start() would have been the obvious fix and the compiler refuses it: a
+   * ref written from two different functions is the same react-hooks/immutability error that bit
+   * scoreRef in this file. So the timeout carries its run's number instead and retires itself if
+   * the number has moved on — which is strictly more robust anyway, because it also covers a
+   * timeout that fires between the clear and the reset rather than only before it.
+   *
+   * Without this: lose on the clock with 0.25s left, tap "Play again" inside 340ms, and the old
+   * reveal banks its points into the fresh run — pre-scored, pre-streaked, one bar in.
+   *
+   * `start` is its only writer, so it stays within the one-writer rule too.
+   */
+  const runId = useRef(0);
 
   useEffect(() => {
     if (phase !== 'play') return;
@@ -140,6 +160,13 @@ export default function TrendMaster() {
   }, [phase, finish]);
 
   const call = (dir: 'up' | 'down') => {
+    /*
+     * `reveal` being set already blocks a second call mid-reveal, so this is belt-and-braces for
+     * the one case it does not cover: a timeout left pending by a run that has already ended. It
+     * also keeps `call` the SINGLE writer of revealTimer — the compiler rejects a ref written from
+     * two different functions, which is the same rule that bit scoreRef earlier in this file.
+     */
+    if (revealTimer.current) { clearTimeout(revealTimer.current); revealTimer.current = null; }
     if (phase !== 'play' || reveal) return;
     const ok = isCorrect(round, dir);
     setReveal({ ok, value: nextValue(round) });
@@ -163,37 +190,79 @@ export default function TrendMaster() {
       ok ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error,
     );
 
-    // The pause IS the game. Resolving instantly removes the only moment of tension it has.
-    setTimeout(() => {
+    /*
+     * The pause IS the game. Resolving instantly removes the only moment of tension it has.
+     *
+     * TRACKED IN A REF AND CLEARED, which it was not. Nothing cancelled this timeout — not the
+     * phase change, not unmount — and every one of the three consequences is real:
+     *
+     *   - Lose on the clock with 0.25s left, tap "Play again" instantly, and the orphan fires into
+     *     the NEW run: it banks the old call's points, bumps the streak, extends the clock and
+     *     advances the cursor. The fresh run starts pre-scored and one bar in.
+     *   - Leave the screen mid-reveal and it sets state on a dead tree, and on a third-life loss
+     *     writes recordGameScore and awardGameXp from a screen that no longer exists.
+     *   - Even without a replay, finish() banks scoreRef.current BEFORE this adds the last call's
+     *     points, so the RUN OVER card can show a score higher than the one actually stored.
+     *
+     * term-match.tsx documents fixing exactly this and uses exactly this ref; this file never got
+     * it. start() clears it too, so a replay cannot inherit a pending reveal.
+     */
+    const forRun = runId.current;
+    revealTimer.current = setTimeout(() => {
+      revealTimer.current = null;
+      // The run this reveal belonged to is over. Resolving it now would score a different game.
+      if (forRun !== runId.current) return;
       setReveal(null);
       setPop(null);
+
+      /*
+       * THE BOUNDS CHECK IS SHARED BY BOTH BRANCHES NOW.
+       *
+       * Only the correct branch re-seeded near the end of the series. A WRONG call at cursor 65 of
+       * an 80-long series set the cursor to 66, so nextValue read series[80] — undefined. The chart
+       * then did Math.min(...[...w, undefined]) = NaN, every bar height became NaN and the whole
+       * chart rendered blank; worse, isCorrect compares `undefined >= last`, which is always false,
+       * so "down" scored correct and "up" scored wrong until the run ended. The next call was
+       * rigged. Hoisting the check makes the two paths structurally unable to disagree.
+       *
+       * The re-seed also mutated seed.current from INSIDE a setRound updater. Updaters must be
+       * pure — they can run twice under the React Compiler — so the advance happens out here.
+       */
+      const nextStreak = ok ? streak + 1 : 0;
+      const r = round;
+      const nextCursor = r.cursor + 1;
+      if (nextCursor + WINDOW >= r.series.length) {
+        seed.current = (seed.current * 1103515245 + 12345) >>> 0;
+        setRound({ series: makeSeries(seed.current, floor + Math.floor(nextStreak / 3)), cursor: 0 });
+      } else {
+        setRound({ ...r, cursor: nextCursor });
+      }
+
       if (ok) {
         const gained = scoreFor(streak);
         scoreRef.current += gained;
         setScore((v) => v + gained);
-        setStreak((v) => v + 1);
+        setStreak(nextStreak);
         // Buying time is the reward. Capped at the starting length so a long streak cannot make a
         // run effectively endless, which would flatten the score curve for everyone else.
         leftRef.current = Math.min(ROUND_SECONDS, leftRef.current + TIME_BONUS);
         setLeft(leftRef.current);
-        setRound((r) => {
-          const nextCursor = r.cursor + 1;
-          // Re-seed with rising difficulty as the streak grows, rather than shortening the clock.
-          if (nextCursor + WINDOW >= r.series.length) {
-            seed.current = (seed.current * 1103515245 + 12345) >>> 0;
-            return { series: makeSeries(seed.current, floor + Math.floor((streak + 1) / 3)), cursor: 0 };
-          }
-          return { ...r, cursor: nextCursor };
-        });
-      } else {
-        setStreak(0);
-        setLives((l) => {
-          const rest = l - 1;
-          if (rest <= 0) finish(score);
-          return rest;
-        });
-        setRound((r) => ({ ...r, cursor: r.cursor + 1 }));
+        return;
       }
+
+      /*
+       * finish() OUT OF THE UPDATER. This was `setLives((l) => { ... finish(score) ... })`, which
+       * is the same defect this file documents fixing on the CLOCK path sixty lines up — an updater
+       * runs during React's render phase and finish() sets state and writes to the store, notifying
+       * every other subscriber mid-render. The fix landed on one path and not the other.
+       *
+       * `lives` is safe to read directly because this timeout is the only writer, and it banks
+       * scoreRef.current rather than `score` so both loss paths agree on what the run was worth.
+       */
+      const rest = lives - 1;
+      setStreak(0);
+      setLives(rest);
+      if (rest <= 0) finish(scoreRef.current);
     }, REVEAL_MS);
   };
 
@@ -254,7 +323,7 @@ export default function TrendMaster() {
             Trend Master
           </ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.blurb}>
-            Read the chart. Call the next move. Three lives, sixty seconds, and every third correct
+            Read the chart. Call the next move. Three lives, forty-five seconds, and every third correct
             call raises your multiplier.
           </ThemedText>
           {best > 0 && (

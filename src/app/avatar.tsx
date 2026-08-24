@@ -112,7 +112,14 @@ export default function AvatarPicker() {
    * empty string while you clear it — the store REJECTS empty, so a store-backed input would fight
    * the user's backspace and snap the old name back under their cursor.
    */
-  const [draft, setDraft] = useState(name);
+  /*
+   * Seeded from the RAW value, not from `name`. `name` falls back to the literal "You" for an
+   * account that skipped onboarding, and seeding the draft with it meant tapping into the field and
+   * tapping straight out fired commitName("You") — which the store accepts, since it is non-empty
+   * after trimming. A placeholder would have been silently promoted to a real chosen name.
+   * The banner preview still reads `draft || name`, so it keeps showing "You" until you type.
+   */
+  const [draft, setDraft] = useState(() => useApp.getState().profile.name ?? '');
   const commitName = () => {
     setDisplayName(draft);
     // Re-seat from the store, so the trim/cap/reject rules are visible instead of leaving the
@@ -173,6 +180,16 @@ export default function AvatarPicker() {
                 disabled={!open}
                 onPress={() => { setBannerId(b.id); }}
                 accessibilityRole="button"
+                /*
+                 * WHICH ONE IS CHOSEN, said out loud. Selection was a border colour and nothing
+                 * else, so VoiceOver read eleven identical "Use the X banner" buttons with no way
+                 * to tell which was active (WCAG 1.4.1, 4.1.2).
+                 *
+                 * `disabled` is repeated here on purpose: SpringPressable spreads {...rest} AFTER
+                 * its own accessibilityState, so a caller-supplied object REPLACES it rather than
+                 * merging. Omitting disabled here would silently drop the locked state.
+                 */
+                accessibilityState={{ selected: bannerId === b.id, disabled: !open }}
                 accessibilityLabel={open ? `Use the ${b.label} banner` : `${b.label} banner, locked. ${req?.hint ?? ''}`}>
                 <View style={[styles.bannerRow, { borderColor: bannerId === b.id ? theme.primary : 'transparent', opacity: open ? 1 : 0.45 }]}>
                   <ProfileBanner bannerId={b.id} name={b.label} height={56} />

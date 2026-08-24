@@ -86,50 +86,78 @@ export default function Money2048() {
   const [over, setOver] = useState(false);
   const [won, setWon] = useState(false);
   const [pop, setPop] = useState<{ id: number; text: string } | null>(null);
-  const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (popTimer.current) clearTimeout(popTimer.current); }, []);
+
+  /*
+   * THE POP CLEARS ITSELF, in an effect keyed on the pop.
+   *
+   * It was a ref plus a manual clearTimeout inside the swipe handler, and that ref is read by the
+   * gesture's useMemo transitively — which runs during render, so the compiler correctly refused
+   * it. An effect keyed on `pop` needs no ref at all: React cancels the previous timeout when the
+   * pop changes, which is exactly the "a newer merge cancels an older fade" behaviour the ref was
+   * hand-rolling, and it tears down on unmount for free.
+   */
+  useEffect(() => {
+    if (!pop) return;
+    const id = pop.id;
+    const t = setTimeout(() => { setPop((p) => (p?.id === id ? null : p)); }, 900);
+    return () => { clearTimeout(t); };
+  }, [pop]);
 
   const board = Math.min(width - Spacing.four * 2, 360);
   const gap = Spacing.two;
   const cell = (board - gap * (SIZE + 1)) / SIZE;
 
+  /*
+   * EVERY EFFECT RUNS IN THE EVENT, NOT IN THE UPDATER.
+   *
+   * This was one big `setGrid((g) => { ... })` whose updater consumed rand() (mutating the PRNG),
+   * fired haptics, called setScore — whose own updater called recordGameScore — set a pop timer,
+   * and called awardGameXp. Two zustand writes inside React's render phase, which is precisely the
+   * condition that produced the "Cannot update a component while rendering a different component"
+   * warning trend-master.tsx documents catching on device.
+   *
+   * The React Compiler is ON for this project, and under a dev double-invoke every one of those
+   * ran TWICE per swipe: rand() advanced twice so the two passes placed the tile differently, and
+   * both store writes fired twice.
+   *
+   * Reading `grid` and `score` from STATE with both in the dependency list — not from refs. Refs
+   * were the first attempt and the compiler was right to refuse them: the gesture is built in a
+   * useMemo, which runs during render, and it closes over this callback, so a ref read here is a
+   * ref read during render. State plus honest dependencies gets the same pure-updater result with
+   * nothing discardable.
+   */
   const swipe = useCallback((dir: Dir) => {
     if (over) return;
-    setGrid((g) => {
-      const res = move(g, dir);
-      // Rule 3: a move that changes nothing must not spawn. Swiping into a wall is free.
-      if (!res.moved) return g;
 
-      const next = spawn(res.grid, rand);
-      if (res.gained > 0) {
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setScore((s) => {
-          const total = s + res.gained;
-          recordGameScore(GAME_ID, total);
-          return total;
-        });
-        // CLEARED ON A TIMER. The first version only ever REPLACED the pop on the next merge, so
-        // a "+2" sat beside the score indefinitely — through every non-scoring swipe after it —
-        // and read as a stuck label rather than a reward. Caught on device: 24 swipes later it was
-        // still there. The ref lets a later merge cancel an earlier fade instead of racing it.
-        const id = Date.now();
-        setPop({ id, text: `+${String(res.gained)}` });
-        if (popTimer.current) clearTimeout(popTimer.current);
-        popTimer.current = setTimeout(() => { setPop((p) => (p?.id === id ? null : p)); }, 900);
-      }
-      if (next.flat().includes(GOAL) && !won) {
-        setWon(true);
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        useApp.getState().awardGameXp();
-      }
-      // Checked on the board AFTER the spawn, which is the board the player will actually face.
-      if (!canMove(next)) {
-        setOver(true);
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      }
-      return next;
-    });
-  }, [over, rand, recordGameScore, won]);
+    const res = move(grid, dir);
+    // Rule 3, unchanged: a move that changes nothing must not spawn. Swiping into a wall is free.
+    if (!res.moved) return;
+
+    const next = spawn(res.grid, rand);
+    setGrid(next);
+
+    if (res.gained > 0) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      const total = score + res.gained;
+      setScore(total);
+      recordGameScore(GAME_ID, total);
+      // Cleared on a timer so a "+2" cannot sit beside the score through every later swipe. The
+      // ref lets a newer merge cancel an older fade instead of racing it.
+      setPop({ id: Date.now(), text: `+${String(res.gained)}` });
+    }
+
+    if (next.flat().includes(GOAL) && !won) {
+      setWon(true);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      useApp.getState().awardGameXp();
+    }
+
+    // Checked on the board AFTER the spawn, which is the board the player will actually face.
+    if (!canMove(next)) {
+      setOver(true);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+  }, [over, rand, recordGameScore, won, grid, score]);
 
   /*
    * ONE pan gesture, resolved on END, rather than four fling gestures.

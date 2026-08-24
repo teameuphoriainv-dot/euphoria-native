@@ -201,6 +201,36 @@ export default function You() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={45} />
+
+      {/*
+        * A WAY OUT. Reported by the owner: "after I click my profile I can't get out of it."
+        *
+        * This screen had NO router.back() anywhere. The Stack runs headerShown:false, so the only
+        * exits were the iOS edge-swipe — undiscoverable, and unreliable when a ScrollView is under
+        * the finger — or the Log out button, which is not a way back, it is a way out of the
+        * account. A dead end.
+        *
+        * It was survivable while /you was reachable from one easily-missed greeting tap. Putting a
+        * profile button on all five tabs turned a rarely-visited dead end into a ONE-TAP TRAP, so
+        * this is a defect my own navigation change promoted, not one I merely found.
+        *
+        * I hit it myself while testing and worked around it with an edge-swipe instead of
+        * recognising it. Working around your own product is the signal, not the fix.
+        *
+        * Matches avatar.tsx: chevron, top-left, 22pt with hitSlop 10 for a ~52pt target.
+        */}
+      <View style={styles.backRow}>
+        <SpringPressable
+          haptic={false}
+          scaleTo={0.85}
+          onPress={() => { router.back(); }}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Back">
+          <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
+        </SpringPressable>
+      </View>
+
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/*
           * IDENTITY LEADS THE PAGE. Moved here from third, and it is an evidence correction.
@@ -553,6 +583,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     borderWidth: 1,
   },
+  backRow: { paddingHorizontal: Spacing.four, paddingTop: Spacing.two, paddingBottom: Spacing.one },
   safe: { flex: 1 },
   // A single vertical rhythm for the column. The identity card and the plan card had NO margin
   // between them at all — identity carried a marginTop and plan carried nothing — so two 16pt-padded

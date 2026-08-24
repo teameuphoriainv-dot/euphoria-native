@@ -172,7 +172,13 @@ export default function TermMatch() {
           <Card elevated style={styles.results}>
             <Atlas size={96} expression="happy" celebrate idle />
             <ThemedText type="display" style={{ fontSize: FontSize.titleLg, marginTop: Spacing.two }}>Matched!</ThemedText>
-            <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>All 5 pairs in {time}</ThemedText>
+            <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>
+              {/* Was a hardcoded "All 5 pairs", which the adaptive board made wrong for three of
+                  the four phases: a new learner matches 4 and was told 5, a fluent one matches 7
+                  and was told 5. A count that contradicts what the player just did reads as the
+                  game not having noticed. */}
+              {`All ${String(pairs.length)} pairs in ${time}`}
+            </ThemedText>
             <RewardPop delay={200} style={{ marginTop: Spacing.three }}>
               <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
                 <UIcon name="sparkle" size={16} color={theme.iconLilac} />

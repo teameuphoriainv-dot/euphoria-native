@@ -94,16 +94,33 @@ function isToday(ms: number, now: Date): boolean {
  * and stay pure across a render — the same discipline portfolio-chart.tsx uses for its window.
  */
 export function questsForToday(s: QuestState, now: Date): Quest[] {
-  const minutes = s.lastActiveDay === dayKey() ? s.minutesToday : 0;
+  /*
+   * ONE CLOCK. This function took `now` and then ignored it in five of six places, calling the
+   * argument-less `dayKey()` — which reads the REAL clock — for minutes, lessons, guides, the game
+   * flag and BOTH seeds, while only tradesToday honoured `now`. Two clocks in one pure function.
+   *
+   * The bug that produced: Home captures `now` once at mount and tab screens stay mounted. Sit on
+   * Home at 23:50 with two trades placed; at 00:05 any store write re-runs the memo. dayKey() has
+   * rolled to Tuesday so minutes/lessons/guides/game correctly reset AND a new rotating pair is
+   * picked — but tradesToday still filters against Monday, and reports 2. If Tuesday's roll lands
+   * on "Place 2 paper trades" it renders 2/2 on a day the user has done nothing, and that feeds
+   * questsComplete -> claimQuestReward. A reward paid for yesterday's work.
+   *
+   * It also made this file's own distinctness assertion VACUOUS: it looped over 400 different dates
+   * while the pick was seeded from dayKey(), so all 400 iterations tested the same day. The check
+   * that existed to prove the two picks never collide was proving nothing.
+   */
+  const today = dayKey(now);
+  const minutes = s.lastActiveDay === today ? s.minutesToday : 0;
   const goal = s.profile.dailyMinutes ?? 10;
   // COUNTED, not divided. This was `Math.floor(minutes / MINUTES_PER_LESSON)`, which held only
   // while every lesson credited the same fixed 5 minutes. completeLesson now credits real elapsed
   // time, so the division would report e.g. 3 lessons for one long one — and 0 for a fast one.
-  const lessonsToday = s.lastActiveDay === dayKey() ? s.lessonsToday : 0;
+  const lessonsToday = s.lastActiveDay === today ? s.lessonsToday : 0;
   const tradesToday = s.valueHistory.filter((v) => isToday(v.t, now)).length;
   // Both self-contained (day, value) pairs, so neither depends on another writer rolling it.
-  const guidesToday = s.guidesDay === dayKey() ? s.guidesToday : 0;
-  const playedGame = s.lastGameDay === dayKey() ? 1 : 0;
+  const guidesToday = s.guidesDay === today ? s.guidesToday : 0;
+  const playedGame = s.lastGameDay === today ? 1 : 0;
 
   /** One place to build an x/y quest, so `at` can never disagree with `done`. */
   const q = (kind: QuestKind, title: string, at: number, of: number): Quest => ({
@@ -137,8 +154,8 @@ export function questsForToday(s: QuestState, now: Date): Quest[] {
    * The second seed is drawn from a salted key so the two picks do not move in lockstep.
    */
   const n = rotating.length;
-  const i = seedFor(dayKey()) % n;
-  const j = (i + 1 + (seedFor(`${dayKey()}b`) % (n - 1))) % n;
+  const i = seedFor(today) % n;
+  const j = (i + 1 + (seedFor(`${today}b`) % (n - 1))) % n;
   return [goalQuest, rotating[i], rotating[j]];
 }
 
@@ -157,9 +174,16 @@ export function hoursUntilReset(now: Date): number {
 if (__DEV__) {
   // ONE runnable check. A quest that reports itself done when it is not would pay out a reward
   // card for nothing, which is a real-money-adjacent bug in an app that grants fractional shares.
+  /*
+   * The fixture's day must be the INJECTED day, not the real one. It was `dayKey()` while `now`
+   * was a fixed 2026-01-15, so the two never matched and every counter read 0 — which made the
+   * "nothing done" assertions pass for the wrong reason and would have made the "10 minutes is
+   * done" assertion below fail outright once the function stopped reading the real clock.
+   */
+  const now = new Date(2026, 0, 15, 12, 0, 0);
   const base = {
     minutesToday: 0,
-    lastActiveDay: dayKey(),
+    lastActiveDay: dayKey(now),
     lessonsToday: 0,
     valueHistory: [],
     guidesDay: '',
@@ -167,12 +191,14 @@ if (__DEV__) {
     lastGameDay: '',
     profile: { dailyMinutes: 10 },
   } as unknown as QuestState;
-  const now = new Date(2026, 0, 15, 12, 0, 0);
 
   const fresh = questsForToday(base, now);
   if (fresh.length !== 3) console.error('[quests] expected exactly 3 quests');
-  // The distinctness of the two picks is an arithmetic property, so assert it as one: every day
-  // key must yield two different rotating quests, not merely the handful this test happens to see.
+  /*
+   * NOW A REAL TEST. This loop varied the date and the pick did not, because the seeds came from
+   * `dayKey()` rather than `dayKey(now)` — 400 iterations of the same day. With one clock it
+   * actually walks 400 distinct day keys, which is what it always claimed to do.
+   */
   for (let d = 0; d < 400; d++) {
     const picks = questsForToday(base, new Date(2026, 0, 1 + d, 12)).slice(1);
     if (picks[0].title === picks[1].title) {
