@@ -26,18 +26,59 @@
  * REDUCED MOTION. `rows` is always the canonical still, kept separate from `frames` by the format
  * itself, so honouring the setting costs one boolean and never needs a second asset.
  */
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'react-native-reanimated';
-import Svg, { Rect } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 import { useThemeMode } from '@/hooks/use-theme';
 
 import { compileFrames, compileSprite, type PixelCanvas } from './compile';
-import type { PixelSprite } from './types';
+import type { CompiledSprite, PixelSprite } from './types';
+
+/**
+ * ONE <Path> PER COLOUR, not one <Rect> per rect.
+ *
+ * react-native-svg backs every element with a NATIVE VIEW, and this renderer emitted a <Rect>
+ * each. MEASURED by running compile.ts over the whole catalogue: 84 sprites, 2433 rects, mean 29
+ * per sprite. A sprite only uses a handful of palette steps, so grouping by fill gives 305 paths
+ * total — mean 3.6, an 8.0x reduction. (An earlier estimate off the raw ASCII said ~137 rects a
+ * sprite; that counted horizontal runs only and missed how much the greedy mesh merges VERTICALLY.
+ * The 29 is the real figure, from the real compiler.)
+ *
+ * Home draws roughly twenty sprites across the header pills, quest card, course rail and tab bar,
+ * so this is ~580 native views down to ~70 in one ScrollView. That is a contributor to the
+ * ~0.1-0.2s input lag reported on TestFlight, not on its own the whole of it. What it is NOT is a
+ * backend problem: nothing on Home touches the network while you scroll.
+ *
+ * Identical output:
+ * the mesh emits non-overlapping rects and every subpath is wound the same way (right, down, left,
+ * close), so the default nonzero fill rule paints exactly what the rects did. Do NOT switch this
+ * to evenodd — shared edges between adjacent rects would cancel and punch holes in the art.
+ *
+ * Keyed on the COMPILED sprite, which compile.ts already caches per (sprite, canvas), so this runs
+ * once per sprite per theme for the life of the app rather than once per render.
+ *
+ * This lives here, and not in compile.ts, on purpose: compile/types/palette/sprites/catalogue are
+ * byte-for-byte copies of the web's and must stay re-copyable. A renderer optimisation belongs in
+ * the renderer, which is the one file in this folder that was never the web's.
+ */
+const pathCache = new WeakMap<CompiledSprite, { fill: string; d: string }[]>();
+
+function pathsFor(c: CompiledSprite): { fill: string; d: string }[] {
+  const hit = pathCache.get(c);
+  if (hit) return hit;
+  const byFill = new Map<string, string>();
+  for (const r of c.rects) {
+    byFill.set(r.fill, (byFill.get(r.fill) ?? '') + `M${String(r.x)} ${String(r.y)}h${String(r.w)}v${String(r.h)}h${String(-r.w)}z`);
+  }
+  const out = [...byFill].map(([fill, d]) => ({ fill, d }));
+  pathCache.set(c, out);
+  return out;
+}
 
 export type PixelPlayMode = 'none' | 'once' | 'loop';
 
-export function PixelSpriteView({
+function PixelSpriteViewInner({
   sprite,
   size,
   scale,
@@ -135,9 +176,42 @@ export function PixelSpriteView({
 
   return (
     <Svg width={px} height={px} viewBox={`0 0 ${String(shown.width)} ${String(shown.height)}`}>
-      {shown.rects.map((r, i) => (
-        <Rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+      {pathsFor(shown).map((p) => (
+        <Path key={p.fill} d={p.d} fill={p.fill} />
       ))}
     </Svg>
   );
 }
+
+/*
+ * MEMOISED, FOR THE REASON ambient-background.tsx ALREADY PROVED ON THIS CODEBASE.
+ *
+ * That file carries a measurement from 2026-08-20: profiling five vertical scrolls, four rail
+ * drags and three scroll-backs gave 131 commits in which `Circle` ALONE accounted for 14,629 —
+ * about 1.75s of self time redrawing a background that never changed. The cause was not computing
+ * the stars (already useMemo'd) but RE-CREATING and reconciling the elements every time a parent
+ * re-rendered, and a scroll re-renders the screen. Wrapping it in memo() fixed it.
+ *
+ * This renderer had precisely the same shape and was never wrapped. Every sprite rebuilt its full
+ * element list on any parent re-render — measured at mean 29 rects a sprite before the path
+ * batching above, across roughly twenty sprites on Home. That is the same defect the starfield had,
+ * in the art that is on every single screen, and it is the strongest candidate for the ~0.1-0.2s
+ * input lag reported on TestFlight.
+ *
+ * WHY A CUSTOM COMPARATOR. Every prop but one is a primitive or a module-scope sprite object, so
+ * the default shallow compare would be exactly right — except `onAnimationEnd`, which callers pass
+ * as an inline arrow that is a new function identity on every render and would defeat the memo
+ * completely. It is already latched into a ref by the effect above (written there rather than in
+ * render, so Strict Mode cannot discard it), and the whole point of that ref is that the interval
+ * always calls the NEWEST callback. So skipping it here is not merely safe, it is what makes the
+ * latch worth having.
+ */
+export const PixelSpriteView = memo(PixelSpriteViewInner, (a, b) =>
+  a.sprite === b.sprite &&
+  a.size === b.size &&
+  a.scale === b.scale &&
+  a.play === b.play &&
+  a.playKey === b.playKey &&
+  a.frameMs === b.frameMs &&
+  a.canvas === b.canvas,
+);

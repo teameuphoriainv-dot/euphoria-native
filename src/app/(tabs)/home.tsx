@@ -49,6 +49,8 @@ import {
 } from '@/lib/pixel';
 
 import { tierProgress } from '@/lib/league';
+import { useShallow } from 'zustand/react/shallow';
+
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { openAtlasChat } from '@/components/ask-atlas';
@@ -190,7 +192,28 @@ export default function Home() {
    * of that snapshot, so a selector per field would be four subscriptions for one answer.
    */
   const [now] = useState(() => new Date());
-  const questState = useApp((st) => st);
+  /*
+   * THE EIGHT FIELDS questsForToday READS, NOT THE WHOLE STORE.
+   *
+   * This was `useApp((st) => st)`. Zustand compares the selector's RESULT with Object.is, and
+   * every set() produces a new state object, so selecting the store itself meant EVERY write
+   * anywhere in the app re-rendered the whole of Home — its twenty-odd pixel sprites, seventeen
+   * entering animations and the course rail included. The comment defending it argued a selector
+   * per field would be "four subscriptions for one answer"; that was the wrong trade, and useShallow
+   * gets the one answer with none of the churn.
+   */
+  const questState = useApp(
+    useShallow((st) => ({
+      lastActiveDay: st.lastActiveDay,
+      minutesToday: st.minutesToday,
+      lessonsToday: st.lessonsToday,
+      valueHistory: st.valueHistory,
+      guidesDay: st.guidesDay,
+      guidesToday: st.guidesToday,
+      lastGameDay: st.lastGameDay,
+      profile: st.profile,
+    })),
+  );
   const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
   const hoursLeft = useMemo(() => hoursUntilReset(now), [now]);
 

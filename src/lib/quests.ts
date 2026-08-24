@@ -41,6 +41,28 @@
  */
 import { dayKey, type AppState } from './store';
 
+/**
+ * EXACTLY the fields today's quests are derived from — not the whole store.
+ *
+ * Home used to subscribe with `useApp((st) => st)` to feed this, which meant every write anywhere
+ * in the app re-rendered the entire screen. Narrowing the PARAMETER is what makes the narrow
+ * subscription safe to keep: adding a field to a quest without adding it to this type is a compile
+ * error, so the two can never drift back apart silently.
+ *
+ * Same shape as achievements.ts's AchievementState, and for the same reason.
+ */
+export type QuestState = Pick<
+  AppState,
+  | 'lastActiveDay'
+  | 'minutesToday'
+  | 'lessonsToday'
+  | 'valueHistory'
+  | 'guidesDay'
+  | 'guidesToday'
+  | 'lastGameDay'
+  | 'profile'
+>;
+
 export type QuestKind = 'lesson' | 'goal' | 'trade' | 'guide' | 'game';
 
 export type Quest = {
@@ -71,7 +93,7 @@ function isToday(ms: number, now: Date): boolean {
  * Today's quests, derived. `now` is injected rather than read inside so a caller can capture it once
  * and stay pure across a render — the same discipline portfolio-chart.tsx uses for its window.
  */
-export function questsForToday(s: AppState, now: Date): Quest[] {
+export function questsForToday(s: QuestState, now: Date): Quest[] {
   const minutes = s.lastActiveDay === dayKey() ? s.minutesToday : 0;
   const goal = s.profile.dailyMinutes ?? 10;
   // COUNTED, not divided. This was `Math.floor(minutes / MINUTES_PER_LESSON)`, which held only
@@ -144,7 +166,7 @@ if (__DEV__) {
     guidesToday: 0,
     lastGameDay: '',
     profile: { dailyMinutes: 10 },
-  } as unknown as AppState;
+  } as unknown as QuestState;
   const now = new Date(2026, 0, 15, 12, 0, 0);
 
   const fresh = questsForToday(base, now);
@@ -164,13 +186,13 @@ if (__DEV__) {
 
   // A higher-count quest must NOT read as done on partial progress — the bug that would pay out a
   // reward card for one lesson when the quest asked for three.
-  const partial = questsForToday({ ...base, lessonsToday: 1 } as AppState, now);
+  const partial = questsForToday({ ...base, lessonsToday: 1 }, now);
   for (const p of partial) {
     if (p.title === 'Finish 3 lessons' && p.done) console.error('[quests] 1 of 3 lessons is not done');
     if (p.at > p.of) console.error('[quests] progress overshot its own target');
   }
 
-  const met = questsForToday({ ...base, minutesToday: 10 } as AppState, now);
+  const met = questsForToday({ ...base, minutesToday: 10 }, now);
   const goalQ = met.find((q) => q.kind === 'goal');
   if (!goalQ?.done) console.error('[quests] 10 minutes against a 10-minute goal must be done');
   if (goalQ && goalQ.at !== goalQ.of) console.error('[quests] a done quest must show at === of');
