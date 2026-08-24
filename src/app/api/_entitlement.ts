@@ -36,6 +36,8 @@
  * is anonymous and requiring auth would refuse the entire userbase.
  */
 
+import { ENTITLEMENT_ID, withinRetryGrace } from '../../lib/billing-retry.ts';
+
 /** Cheap, bounded memo. An entitlement lookup per chat turn is its own cost problem. */
 type Cached = { entitled: boolean; at: number };
 const cache = new Map<string, Cached>();
@@ -43,7 +45,13 @@ const TTL_MS = 5 * 60_000;
 /** Bound the map for the same reason `_limit.ts` bounds its keys: it is keyed on caller input. */
 const MAX_CACHED = 5_000;
 
-export const ENTITLEMENT_ID = 'pro';
+/*
+ * Re-exported from the shared module rather than re-declared. It was a second literal `'pro'`
+ * living beside the client's, which is the same one-rule-stated-twice shape as the grace period
+ * below — and a rename on one side would have silently stopped matching on the other.
+ */
+
+export { ENTITLEMENT_ID };
 
 /** What the route needs to know, and why — so a 403 body can say something true. */
 export type Decision =
@@ -86,14 +94,31 @@ async function lookup(subject: string, secret: string): Promise<boolean | null> 
     }
     /*
      * `expires_date` null means a non-expiring entitlement (lifetime). A date in the past is a
-     * lapse. Note this does NOT re-implement the billing-retry grace from `lib/billing-retry.ts` —
-     * that rule runs client-side off `customerInfo`, and duplicating it here would be a second copy
-     * of a money rule, which is the thing this repo keeps extracting modules to avoid. A member
-     * mid-retry may therefore be refused by this check while the client still grants them access.
-     * Recorded as a known gap rather than papered over; the fix is to share one rule, not two.
+     * lapse — UNLESS Apple is mid-retry on a declined card, which is what the grace period is for.
+     *
+     * THE GAP THIS CLOSES. This block used to say it deliberately did not re-implement the
+     * billing-retry grace, and that "a member mid-retry may therefore be refused by this check
+     * while the client still grants them access... the fix is to share one rule, not two". That
+     * was correct about not duplicating and wrong to stop there: the moment REVENUECAT_SECRET_KEY
+     * is set, a paying member whose card is being retried would open Atlas, get a real 402, and be
+     * told by their OWN billing banner to fix their card rather than that they had lost access.
+     * Two halves of one app disagreeing about whether somebody has paid.
+     *
+     * It imports the rule now rather than restating it. `billing-retry.ts` is plain
+     * erasable-syntax TypeScript with no React and no client-only import, the same discipline that
+     * lets `_chain.ts` and `cost-basis.ts` be shared, so this costs nothing at the boundary.
+     *
+     * The REST shape differs from the SDK's: RevenueCat reports the retry on the SUBSCRIPTION as
+     * `billing_issues_detected_at`, and separately offers `grace_period_expires_date`. Either is
+     * sufficient evidence of a retry in progress, so both are accepted.
      */
     const expires = ent.expires_date ? Date.parse(ent.expires_date) : null;
-    const entitled = expires === null || (Number.isFinite(expires) && expires > Date.now());
+    const sub = data?.subscriber?.subscriptions?.[ent.product_identifier];
+    const inRetry = sub?.billing_issues_detected_at != null || ent.grace_period_expires_date != null;
+    const entitled =
+      expires === null ||
+      (Number.isFinite(expires) && expires > Date.now()) ||
+      withinRetryGrace(expires ?? NaN, Boolean(inRetry));
     remember(subject, entitled);
     return entitled;
   } catch (e) {

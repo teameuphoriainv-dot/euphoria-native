@@ -21,7 +21,9 @@
  */
 import assert from 'node:assert/strict';
 
-import { BILLING_RETRY_GRACE_DAYS, ENTITLEMENT_ID as ID, proStateFrom } from '../src/lib/billing-retry.ts';
+import { readFileSync } from 'node:fs';
+
+import { BILLING_RETRY_GRACE_DAYS, ENTITLEMENT_ID as ID, proStateFrom, withinRetryGrace } from '../src/lib/billing-retry.ts';
 
 const DAY = 86_400_000;
 
@@ -92,7 +94,37 @@ assert.deepEqual(proStateFrom(ent({}), NOW), { pro: false, billingIssue: false }
 const noDate = ent({ all: { pro: { billingIssueDetectedAt: iso(NOW), expirationDate: null } } });
 assert.deepEqual(proStateFrom(noDate, NOW), { pro: false, billingIssue: true });
 
+// ── THE SERVER MUST SHARE THIS RULE, NOT RESTATE IT ──────────────────────────────────────────
+// `_entitlement.ts` used to carry a comment admitting it did not implement the grace period, and
+// that a member mid-retry "may therefore be refused by this check while the client still grants
+// them access". Dormant only because REVENUECAT_SECRET_KEY is unset — the day it is set, a paying
+// member whose card is being retried gets a 402 while their own banner says "fix your card".
+//
+// Asserted structurally because the branch itself needs a live RevenueCat response to exercise.
+// If someone deletes the import, this fails loudly instead of waiting for a billing incident.
+// COMMENTS STRIPPED FIRST. The first version of this check matched the bare identifier anywhere in
+// the file, so it passed even with the CALL deleted — the import line and this very explanation
+// kept it green. Verified by deleting the call and watching it still pass. A check that a comment
+// can satisfy is not a check.
+const serverRaw = readFileSync(new URL('../src/app/api/_entitlement.ts', import.meta.url), 'utf8');
+const server = serverRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+assert.ok(
+  /withinRetryGrace\s*\(/.test(server),
+  '_entitlement.ts no longer uses withinRetryGrace — the server has stopped honouring the billing-retry grace period, so a paying member mid-retry will be refused',
+);
+assert.ok(
+  !/BILLING_RETRY_GRACE_DAYS\s*\*/.test(server),
+  '_entitlement.ts is doing its own grace arithmetic — that is the two-copies-of-one-money-rule shape this pin exists to prevent',
+);
+
+// The shared primitive's own boundary, called directly rather than through proStateFrom.
+assert.equal(withinRetryGrace(NOW - 15 * DAY, true, NOW), true, 'day 15 is inside the window');
+assert.equal(withinRetryGrace(NOW - 17 * DAY, true, NOW), false, 'day 17 is outside the window');
+assert.equal(withinRetryGrace(NOW - DAY, false, NOW), false, 'no billing issue is not rescued');
+assert.equal(withinRetryGrace(NaN, true, NOW), false, 'an unreadable date is not a licence');
+
 console.log('PASS — billing retry keeps access, cancellation does not, and the window ends.');
+console.log('  server shares the rule (withinRetryGrace imported, no second copy of the maths)');
 console.log(`  mid-retry (3d)   -> pro=${proStateFrom(inRetry, NOW).pro}   (old check: ${naive(inRetry)})`);
 console.log(`  day 15 / day 17  -> ${proStateFrom(justInside, NOW).pro} / ${proStateFrom(justOutside, NOW).pro}`);
 console.log(`  cancelled        -> pro=${proStateFrom(cancelled, NOW).pro}`);

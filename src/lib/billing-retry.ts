@@ -75,6 +75,30 @@ const DAY = 86_400_000;
  *
  * `now` is injectable so the regression can pin the day-15/day-17 boundary without sleeping.
  */
+/**
+ * THE ONE GRACE RULE, extracted so the server can share it instead of restating it.
+ *
+ * `_entitlement.ts` used to carry a comment saying it deliberately did NOT re-implement this, and
+ * that "a member mid-retry may therefore be refused by this check while the client still grants
+ * them access... the fix is to share one rule, not two". This is that fix. Refusing to duplicate
+ * the rule was right; leaving the server without it was the part still outstanding.
+ *
+ * Takes primitives rather than a CustomerInfo, because the two callers see different shapes: the
+ * client has the RevenueCat SDK object, the server has the REST subscriber JSON. The RULE is the
+ * same and only the plumbing differs, which is exactly what belongs in a shared function.
+ *
+ * Returns false for an unparseable expiry: an unreadable date is not a licence.
+ */
+export function withinRetryGrace(
+  expiresAtMs: number,
+  hasBillingIssue: boolean,
+  now: number = Date.now(),
+): boolean {
+  if (!hasBillingIssue) return false;
+  if (!Number.isFinite(expiresAtMs)) return false;
+  return now - expiresAtMs < BILLING_RETRY_GRACE_DAYS * DAY;
+}
+
 export function proStateFrom(info: CustomerInfoLike, now: number = Date.now()): ProState {
   const active = info.entitlements.active[ENTITLEMENT_ID];
   if (active) return { pro: true, billingIssue: active.billingIssueDetectedAt != null };
@@ -88,5 +112,5 @@ export function proStateFrom(info: CustomerInfoLike, now: number = Date.now()): 
   // An unparseable date is not a licence. Flag the issue, withhold access.
   if (!Number.isFinite(expiredAt)) return { pro: false, billingIssue: true };
 
-  return { pro: now - expiredAt < BILLING_RETRY_GRACE_DAYS * DAY, billingIssue: true };
+  return { pro: withinRetryGrace(expiredAt, true, now), billingIssue: true };
 }
