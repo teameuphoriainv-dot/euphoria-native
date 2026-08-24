@@ -7,6 +7,7 @@
  * would mean 45–70 timers for an effect nobody can resolve individually. Three desynced groups
  * read as random shimmer and cost three.
  */
+import { useIsFocused } from 'expo-router';
 import { memo, useEffect, useMemo } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, {
@@ -42,6 +43,7 @@ const twinkle = (sv: SharedValue<number>, duration: number, dim: number) =>
 function AmbientBackgroundInner({ glow = true, starCount = 70 }: { glow?: boolean; starCount?: number }) {
   const { width, height } = useWindowDimensions();
   const reduced = useReducedMotion();
+  const focused = useIsFocused();
   const drift = useSharedValue(0);
   const t0 = useSharedValue(1);
   const t1 = useSharedValue(1);
@@ -74,15 +76,39 @@ function AmbientBackgroundInner({ glow = true, starCount = 70 }: { glow?: boolea
 
   // starts the loops. was a useMemo, which fires during render — the wrong place for a side effect
   // and unreliable under a double render.
+  /*
+   * §4.1: THE STARFIELD ONLY TWINKLES ON THE SCREEN YOU ARE LOOKING AT.
+   *
+   * `drift` is free — it is a plain useAnimatedStyle transform on an Animated.View, which the UI
+   * thread owns end to end. The four TWINKLES are not: t0/t1/t2/glowPulse feed useAnimatedProps on
+   * <G> and <Rect>, which are react-native-svg components, and RNSVG cannot natively animate most
+   * SVG attributes — so every frame of those crosses into JS and costs a React commit. That is the
+   * exact mechanism measured in atlas.tsx, which took Home's idle commits from 3.04/s to ~1.1/s.
+   *
+   * This component had NO focus gate at all and is mounted on 30+ screens, so on Home it was the
+   * loudest loop still running once Atlas went quiet. React Navigation keeps unfocused tabs
+   * MOUNTED, so every tab you have ever visited was twinkling behind the one you were reading.
+   *
+   * Settling to the resting value on blur rather than just returning: freezing mid-twinkle would
+   * leave a screen's stars stuck at a random brightness, which reads as a rendering bug when you
+   * come back to it. Same reasoning as Atlas's breath loop.
+   */
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || !focused) {
+      drift.set(withTiming(0, { duration: 400 }));
+      t0.set(withTiming(1, { duration: 400 }));
+      t1.set(withTiming(1, { duration: 400 }));
+      t2.set(withTiming(1, { duration: 400 }));
+      glowPulse.set(withTiming(1, { duration: 400 }));
+      return;
+    }
     drift.set(withRepeat(withTiming(-26, { duration: 19000, easing: Easing.inOut(Easing.ease) }), -1, true));
     // prime numbers-ish periods so the three groups never re-sync into a visible common pulse
     twinkle(t0, 2600, 0.35);
     twinkle(t1, 3700, 0.55);
     twinkle(t2, 4900, 0.25);
     twinkle(glowPulse, 6500, 0.62);
-  }, [reduced, drift, t0, t1, t2, glowPulse]);
+  }, [reduced, focused, drift, t0, t1, t2, glowPulse]);
 
   const driftStyle = useAnimatedStyle(() => ({ transform: [{ translateY: drift.get() }] }));
   const g0 = useAnimatedProps(() => ({ opacity: t0.get() }));

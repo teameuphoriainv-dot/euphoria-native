@@ -159,6 +159,43 @@ export async function identifyVerified(request: Request): Promise<string> {
 /** Anonymous callers get a third of the budget. */
 export const ANON_DIVISOR = 3;
 
+/**
+ * THE NETWORK BUCKET — a second, independent limit that a caller cannot rotate away.
+ *
+ * `identify()`'s own comment says a determined caller "rotates the header [and] gets a fresh bucket
+ * each time", and treats a real identity as the only answer. That is right about identity and wrong
+ * about the interim: there IS a second signal here, and the reason recorded for skipping it does not
+ * hold on this platform. The note says IP would be "the edge node, behind a CDN". EAS Hosting is a
+ * MANAGED CLOUDFLARE WORKERS platform — this file establishes that a few lines up — and Cloudflare
+ * sets `cf-connecting-ip` to the TRUE client address, not the edge. The edge-node objection applies
+ * to a naive `x-forwarded-for` read, which is why that is only the fallback here.
+ *
+ * WHY THE NETWORK BUDGET IS DELIBERATELY HUGE. A school, a library and anyone behind carrier-grade
+ * NAT share one address. Sized like a per-user limit this would let one classroom throttle itself,
+ * which is exactly the failure the original note was protecting against — the objection was sound
+ * even though its stated mechanism was not. At NETWORK_MULTIPLIER the bucket is far above any
+ * plausible shared-network load and only trips on abuse that a single actor is generating.
+ *
+ * HONEST CEILING, because a control that overclaims is worse than none: this does NOT make the
+ * limiter global. It is still the same per-isolate Map, so it inherits the concurrency gap measured
+ * above, and a caller with a proxy pool gets a fresh address the same way they got a fresh header.
+ * What it removes is the FREE bypass — rotating a header you already control, which costs nothing.
+ * Making abuse require real infrastructure is worth having while the shared store is unbuilt.
+ */
+const NETWORK_MULTIPLIER = 12;
+
+export function networkKey(request: Request): string {
+  // Cloudflare's own header first: it is set by the edge and cannot be spoofed by the client,
+  // because Cloudflare overwrites whatever the caller sent.
+  const cf = request.headers.get('cf-connecting-ip')?.trim();
+  if (cf) return `n:${cf}`;
+  // Fallback only. X-Forwarded-For IS caller-writable, so the leftmost entry is untrusted — it is
+  // still better than nothing for casual abuse, and it is never the only control.
+  const xff = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (xff && xff.length <= 64) return `n:${xff}`;
+  return 'n:unknown';
+}
+
 /** Budget for a scope, tightened when the caller declined to identify itself. */
 export function budgetFor(identity: string, limit: number): number {
   return identity === 'anon' ? Math.max(1, Math.floor(limit / ANON_DIVISOR)) : limit;
@@ -180,10 +217,48 @@ export async function guard(
 ): Promise<Response | null> {
   const id = await identifyVerified(request);
   const v = take(`${id}:${scope}`, budgetFor(id, limit), windowMs);
-  return v.ok ? null : limited(v);
+  if (!v.ok) return limited(v);
+
+  /*
+   * BOTH buckets must have room. Checked AFTER the identity bucket so a caller who is simply over
+   * their own limit still gets the precise per-identity Retry-After rather than the network one.
+   *
+   * A verified user is exempt: `u:` means the server established who they are, so they are already
+   * rate-limited as a person and should not additionally be punished for sharing a school's IP with
+   * thirty classmates. The network bucket exists to make the SELF-ASSERTED path unprofitable.
+   */
+  if (id.startsWith('u:')) return null;
+  const n = take(`${networkKey(request)}:${scope}`, limit * NETWORK_MULTIPLIER, windowMs);
+  return n.ok ? null : limited(n);
 }
 
 if (__DEV__) {
+  /*
+   * THE BYPASS THIS EXISTS TO CLOSE, asserted rather than described. A caller rotating
+   * `x-euphoria-install` used to get a fresh budget on every single request, forever, for free.
+   * The network bucket must stop that. If this ever passes with the network check removed, the
+   * control is decorative.
+   */
+  const netProbe = (n: number) => {
+    const headers = new Headers({ 'cf-connecting-ip': '203.0.113.7' });
+    let served = 0;
+    for (let i = 0; i < n; i++) {
+      headers.set('x-euphoria-install', `rotating-${String(i)}`);
+      // Mirrors guard()'s two takes without needing an async context here.
+      const idKey = `i:rotating-${String(i)}:probe`;
+      if (!take(idKey, 5, 60_000).ok) continue;
+      if (take('n:203.0.113.7:probe', 5 * NETWORK_MULTIPLIER, 60_000).ok) served += 1;
+    }
+    return served;
+  };
+  const served = netProbe(200);
+  if (served >= 200) {
+    console.error('[limit] header rotation still buys an unlimited budget — the network bucket is not working');
+  }
+  if (served !== 5 * NETWORK_MULTIPLIER) {
+    console.error(`[limit] expected the network bucket to cap a rotating caller at ${String(5 * NETWORK_MULTIPLIER)}, got ${String(served)}`);
+  }
+
   // One runnable check on the money path. A limiter that never limits looks identical to a working
   // one from the outside — it just quietly costs money — so assert the behaviour that must hold.
   const k = `selftest-${Math.random()}`;

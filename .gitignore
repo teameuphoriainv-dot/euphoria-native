@@ -31,7 +31,14 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+#
+# `.env*.local` alone left a real gap: a plain `.env` was NOT ignored, so the first person to
+# follow the usual convention and put live keys in `.env` would have committed them. Verified with
+# `git check-ignore .env` before the fix — it matched nothing. `.env.example` stays TRACKED on
+# purpose: it is the template, and every value in it is empty.
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo
