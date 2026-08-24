@@ -35,7 +35,7 @@ import { STAGGER_CAP } from '@/shared/motion/tokens';
  */
 const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean }[] = [
   { name: 'Term Match', sprite: lightbulb, route: '/games/term-match' },
-  { name: 'Trend Master', sprite: chartUp },
+  { name: 'Trend Master', sprite: chartUp, route: '/games/trend-master' },
   { name: 'Budget Balancer', sprite: scales },
   { name: 'Credit Climb', sprite: ladder },
   { name: 'Market Reaction', sprite: bolt },

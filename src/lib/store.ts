@@ -426,6 +426,15 @@ export type AppState = {
    */
   titleId: string;
   setTitleId: (id: string) => void;
+  /**
+   * Best score per game id. The thing that makes a 60-second game worth a second run — without a
+   * number to beat, a score is a receipt for time already spent.
+   *
+   * Keyed by game id rather than a field per game, so a new game needs no store change at all.
+   */
+  gameBest: Record<string, number>;
+  /** Records a run. Only ever raises the best, so a bad run cannot erase a good one. */
+  recordGameScore: (gameId: string, score: number) => void;
   /** A tier crossed but not yet celebrated. Persisted, so closing the app cannot swallow it. */
   pendingTierUp: string | null;
   /** Show the celebration, pay TIER_UP_BONUS, clear it. Idempotent: a second call pays nothing. */
@@ -675,6 +684,7 @@ export const useApp = create<AppState>()(
       themePref: 'dark',
       avatarId: DEFAULT_AVATAR_ID,
       titleId: '',
+      gameBest: {},
       lastWeekResolved: '',
       lastWeekOutcome: null,
       pendingTierUp: null,
@@ -859,6 +869,9 @@ export const useApp = create<AppState>()(
       setAvatarId: (id) => set({ avatarId: id }),
 
       setTitleId: (id) => set({ titleId: id }),
+
+      recordGameScore: (gameId, score) =>
+        set((st) => (score > (st.gameBest[gameId] ?? 0) ? { gameBest: { ...st.gameBest, [gameId]: score } } : st)),
 
       claimTierUp: () =>
         // Guarded rather than trusting the caller: the sheet's dismiss and its button can both
@@ -1144,7 +1157,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
