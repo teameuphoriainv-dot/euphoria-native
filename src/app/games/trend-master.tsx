@@ -30,6 +30,7 @@ import { SlabButton } from '@/components/ui/button';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { PixelSpriteView, heart } from '@/lib/pixel';
+import { phaseIndex, phaseOf } from '@/lib/learner-phase';
 import { useApp } from '@/lib/store';
 import {
   LIVES, REVEAL_MS, ROUND_SECONDS, TIME_BONUS, WINDOW, isCorrect, makeSeries, multiplierFor,
@@ -50,6 +51,17 @@ export default function TrendMaster() {
 
   const [phase, setPhase] = useState<Phase>('intro');
   const [round, setRound] = useState<Round>({ series: [], cursor: 0 });
+
+  /*
+   * THE DIFFICULTY THIS PLAYER STARTS AT, from their learning phase.
+   *
+   * Every run used to open at difficulty 0 regardless of who was holding the phone. The streak
+   * still raises it within a run — this only moves the FLOOR, so a new learner keeps the gentle
+   * opening and a fluent one is not made to sit through it. Capped by phaseIndex's own 0..3 range,
+   * which lands inside makeSeries's `min(difficulty, 6)` noise clamp with room to spare.
+   */
+  const completedLessons = useApp((st) => st.completedLessons);
+  const floor = phaseIndex(phaseOf({ completedLessons }));
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [lives, setLives] = useState(LIVES);
@@ -62,11 +74,16 @@ export default function TrendMaster() {
 
   const start = useCallback(() => {
     seed.current = (seed.current * 1103515245 + 12345) >>> 0;
-    setRound({ series: makeSeries(seed.current, 0), cursor: 0 });
+    // Starts where this learner IS, not at zero for everybody. A fluent player spending the first
+    // fifteen seconds on charts that only slope one way is not being eased in, they are being made
+    // to wait for the game to start.
+    setRound({ series: makeSeries(seed.current, floor), cursor: 0 });
     setScore(0); setStreak(0); setLives(LIVES); setLeft(ROUND_SECONDS);
     leftRef.current = ROUND_SECONDS; scoreRef.current = 0;
     setReveal(null); setPop(null); setPhase('play');
-  }, []);
+    // `floor` is a real dependency: finishing a lesson elsewhere and coming back must start the
+    // next run at the new difficulty, not the one captured when this screen first mounted.
+  }, [floor]);
 
   const finish = useCallback((final: number) => {
     setPhase('over');
@@ -164,7 +181,7 @@ export default function TrendMaster() {
           // Re-seed with rising difficulty as the streak grows, rather than shortening the clock.
           if (nextCursor + WINDOW >= r.series.length) {
             seed.current = (seed.current * 1103515245 + 12345) >>> 0;
-            return { series: makeSeries(seed.current, Math.floor((streak + 1) / 3)), cursor: 0 };
+            return { series: makeSeries(seed.current, floor + Math.floor((streak + 1) / 3)), cursor: 0 };
           }
           return { ...r, cursor: nextCursor };
         });

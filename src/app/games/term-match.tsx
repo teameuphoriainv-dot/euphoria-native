@@ -4,7 +4,7 @@
  */
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -17,39 +17,51 @@ import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { phaseOf, startedCourses } from '@/lib/learner-phase';
+import { roundFor, shuffleSeeded } from '@/lib/term-bank';
 import { useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
 
-const PAIRS = [
-  { id: 'bull', term: 'Bull market', def: 'Rising prices' },
-  { id: 'bear', term: 'Bear market', def: 'A 20%+ decline' },
-  { id: 'div', term: 'Dividend', def: 'A profit payout' },
-  { id: 'diver', term: 'Diversification', def: 'Spreading risk' },
-  { id: 'comp', term: 'Compounding', def: 'Interest on interest' },
-];
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 export default function TermMatch() {
   const theme = useTheme();
-  const defs = useMemo(() => shuffle(PAIRS), []);
+
+  /*
+   * THE BOARD IS BUILT FOR THIS LEARNER, not for everybody.
+   *
+   * This file used to open with five hardcoded pairs and `useMemo(() => shuffle(PAIRS), [])`, so
+   * a first-day user and someone thirty lessons deep were handed the identical five terms — and
+   * `shuffle` used Math.random, meaning the "memo" was only stable by accident of the empty
+   * dependency array. Both are gone: roundFor picks from the 60-term bank by phase and by which
+   * courses you have actually started, and the shuffle inside it is seeded.
+   *
+   * TWO SEPARATE useState INITIALISERS, deliberately. `seed` is captured ONCE at mount — a fresh
+   * seed per render would reshuffle the board while the player is looking at it, which is the
+   * purity trap quests.ts documents. `pairs` derives from it and is likewise frozen for the round.
+   */
+  const [seed] = useState(() => Date.now());
+  const completedLessons = useApp((st) => st.completedLessons);
+  const [pairs] = useState(() => {
+    const st = { completedLessons };
+    return roundFor({ phase: phaseOf(st), started: startedCourses(st), seed });
+  });
+  /*
+   * The definition column is shuffled INDEPENDENTLY of the term column, on its own seed.
+   *
+   * A plain reverse() would have done it in one character and would have been a real gameplay bug:
+   * on a four-tile board the answer is then always the mirror of the prompt, and a player works
+   * that out in about two rounds. Different seed, so the two columns share no ordering.
+   */
+  const defs = useMemo(() => shuffleSeeded(pairs, seed + 7), [pairs, seed]);
   const [selTerm, setSelTerm] = useState<string | null>(null);
   const [selDef, setSelDef] = useState<string | null>(null);
   const [matched, setMatched] = useState<string[]>([]);
   const [wrong, setWrong] = useState<string[]>([]);
   const [elapsed, setElapsed] = useState(0);
 
-  const done = matched.length === PAIRS.length;
+  const done = matched.length === pairs.length;
 
   useEffect(() => {
     if (done) return;
@@ -64,25 +76,50 @@ export default function TermMatch() {
     if (done) useApp.getState().awardGameXp();
   }, [done]);
 
-  useEffect(() => {
-    if (selTerm && selDef) {
-      if (selTerm === selDef) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        setMatched((m) => [...m, selTerm]);
-        setSelTerm(null);
-        setSelDef(null);
-      } else {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        setWrong([selTerm, selDef]);
-        const t = setTimeout(() => {
-          setWrong([]);
-          setSelTerm(null);
-          setSelDef(null);
-        }, 500);
-        return () => clearTimeout(t);
-      }
+  /*
+   * RESOLVING A PAIR IS AN EVENT, NOT A DERIVED STATE.
+   *
+   * This was a useEffect watching [selTerm, selDef] and calling setState when both were filled,
+   * which react-hooks/set-state-in-effect flags as an ERROR — and it was failing at HEAD, unseen,
+   * because `npm run check` runs the 37 pins and never runs eslint. It is not a style nit either:
+   * every tap rendered once to store the selection, then the effect fired and rendered AGAIN to
+   * resolve it. Two commits per tap, in a game, on a codebase with an open render-cost complaint.
+   *
+   * A tap is the event that decides a match, so the decision belongs in the handler. `pick` takes
+   * the id the player just chose plus the OTHER column's current selection, resolves immediately,
+   * and the timeout that clears a wrong pair is the one genuinely deferred piece.
+   *
+   * The timer is tracked in a ref and cleared on unmount: leaving the screen mid-mistake used to
+   * leave a 500ms setTimeout holding setState on an unmounted tree.
+   */
+  const wrongTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (wrongTimer.current) clearTimeout(wrongTimer.current); }, []);
+
+  const pick = (side: 'term' | 'def', id: string) => {
+    // A pending mistake is still on screen; ignore taps until it clears, or the board can be
+    // advanced past its own feedback.
+    if (wrongTimer.current) return;
+    const other = side === 'term' ? selDef : selTerm;
+    if (side === 'term') setSelTerm(id); else setSelDef(id);
+    if (other === null) return;
+
+    if (other === id) {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setMatched((m) => [...m, id]);
+      setSelTerm(null);
+      setSelDef(null);
+      return;
     }
-  }, [selTerm, selDef]);
+
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    setWrong([id, other]);
+    wrongTimer.current = setTimeout(() => {
+      wrongTimer.current = null;
+      setWrong([]);
+      setSelTerm(null);
+      setSelDef(null);
+    }, 500);
+  };
 
   const cardStyle = (id: string, selected: boolean) => {
     const isMatched = matched.includes(id);
@@ -111,8 +148,8 @@ export default function TermMatch() {
 
       <View style={styles.board}>
         <View style={styles.col}>
-          {PAIRS.map((p) => (
-            <SpringPressable key={p.id} disabled={matched.includes(p.id)} onPress={() => setSelTerm(p.id)}>
+          {pairs.map((p) => (
+            <SpringPressable key={p.id} disabled={matched.includes(p.id)} onPress={() => { pick('term', p.id); }}>
               <View style={[styles.cell, cardStyle(p.id, selTerm === p.id)]}>
                 <ThemedText type="bodyMedium" style={{ textAlign: 'center' }}>{p.term}</ThemedText>
               </View>
@@ -121,7 +158,7 @@ export default function TermMatch() {
         </View>
         <View style={styles.col}>
           {defs.map((p) => (
-            <SpringPressable key={p.id} disabled={matched.includes(p.id)} onPress={() => setSelDef(p.id)}>
+            <SpringPressable key={p.id} disabled={matched.includes(p.id)} onPress={() => { pick('def', p.id); }}>
               <View style={[styles.cell, cardStyle(p.id, selDef === p.id)]}>
                 <ThemedText type="small" style={{ textAlign: 'center' }}>{p.def}</ThemedText>
               </View>
