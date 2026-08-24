@@ -13,8 +13,8 @@
  * everywhere the moment it is made, so a commit step would be ceremony around nothing.
  */
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -25,7 +25,13 @@ import { useTheme } from '@/hooks/use-theme';
 import { Atlas } from '@/components/atlas';
 import { ATLAS_AVATAR_ID, CHARACTER_AVATARS, MARK_AVATARS, type Avatar } from '@/lib/avatars';
 import { PixelSpriteView } from '@/lib/pixel';
-import { useApp } from '@/lib/store';
+import { useShallow } from 'zustand/react/shallow';
+
+import { NAME_MAX, useApp } from '@/lib/store';
+import { achievementById, pickAchievementState } from '@/lib/achievements';
+import { BANNERS, unlockedBanners } from '@/lib/banners';
+import { ProfileBanner } from '@/components/profile-banner';
+import { ProfileAvatar } from '@/components/profile-avatar';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
@@ -80,6 +86,41 @@ export default function AvatarPicker() {
   const theme = useTheme();
   const avatarId = useApp((s) => s.avatarId);
   const setAvatarId = useApp((s) => s.setAvatarId);
+  const bannerId = useApp((s) => s.bannerId);
+  const setBannerId = useApp((s) => s.setBannerId);
+  // `profile.name` is nullable — onboarding can be skipped — so the fallback is the label the
+  // rest of the app already uses for an unnamed account rather than an empty banner.
+  const name = useApp((s) => s.profile.name ?? 'You');
+  const titleId = useApp((s) => s.titleId);
+  const setDisplayName = useApp((s) => s.setDisplayName);
+
+  /*
+   * The whole store, ONCE, for the achievement predicates — and then narrowed.
+   *
+   * `unlockedBanners` needs an AchievementState, which is many fields, so useShallow over exactly
+   * those is the right shape: the same reasoning that took Home off `useApp((st) => st)`, applied
+   * before this screen could acquire the same defect.
+   */
+  const achState = useApp(useShallow(pickAchievementState));
+  const unlocked = useMemo(() => new Set(unlockedBanners(achState).map((b) => b.id)), [achState]);
+
+  /*
+   * The name is edited in a LOCAL draft and committed on blur, not on every keystroke.
+   *
+   * Writing straight to the store per character would persist to AsyncStorage on every letter and
+   * re-render every subscriber of profile.name mid-word. The draft also lets the field hold an
+   * empty string while you clear it — the store REJECTS empty, so a store-backed input would fight
+   * the user's backspace and snap the old name back under their cursor.
+   */
+  const [draft, setDraft] = useState(name);
+  const commitName = () => {
+    setDisplayName(draft);
+    // Re-seat from the store, so the trim/cap/reject rules are visible instead of leaving the
+    // field showing something that was never saved.
+    setDraft(useApp.getState().profile.name ?? '');
+  };
+
+  const earnedTitle = titleId ? achievementById(titleId)?.title ?? '' : '';
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -98,10 +139,56 @@ export default function AvatarPicker() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <ThemedText type="display" style={{ fontSize: FontSize.titleSm }}>Your avatar</ThemedText>
-        <ThemedText type="body" themeColor="mutedForeground" style={{ marginTop: 4 }}>
-          Pick the character that shows up on your profile and in the league.
+        {/* A LIVE PREVIEW, first. Every control below changes this exact strip, which is what makes
+            the screen a profile editor rather than three unrelated pickers. */}
+        <ProfileBanner bannerId={bannerId} name={draft || name} title={earnedTitle}>
+          <ProfileAvatar size={56} />
+        </ProfileBanner>
+
+        <ThemedText type="label" themeColor="mutedForeground" style={styles.groupLabel}>DISPLAY NAME</ThemedText>
+        <TextInput
+          value={draft}
+          onChangeText={setDraft}
+          onBlur={commitName}
+          onSubmitEditing={commitName}
+          returnKeyType="done"
+          maxLength={NAME_MAX}
+          placeholder="Your name"
+          placeholderTextColor={theme.mutedForeground}
+          accessibilityLabel="Display name"
+          style={[styles.input, { color: theme.text, backgroundColor: theme.card, borderColor: theme.border }]}
+        />
+        <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
+          {`${String(draft.length)}/${String(NAME_MAX)}`}
         </ThemedText>
+
+        <ThemedText type="label" themeColor="mutedForeground" style={styles.groupLabel}>BANNER</ThemedText>
+        <View style={styles.bannerList}>
+          {BANNERS.map((b) => {
+            const open = unlocked.has(b.id);
+            const req = b.requires ? achievementById(b.requires) : null;
+            return (
+              <SpringPressable
+                key={b.id}
+                disabled={!open}
+                onPress={() => { setBannerId(b.id); }}
+                accessibilityRole="button"
+                accessibilityLabel={open ? `Use the ${b.label} banner` : `${b.label} banner, locked. ${req?.hint ?? ''}`}>
+                <View style={[styles.bannerRow, { borderColor: bannerId === b.id ? theme.primary : 'transparent', opacity: open ? 1 : 0.45 }]}>
+                  <ProfileBanner bannerId={b.id} name={b.label} height={56} />
+                  {/* A locked banner states WHAT TO DO, never just that it is locked. Same rule as
+                      the achievements list: a lock with no hint is a dead end. */}
+                  {!open && (
+                    <ThemedText type="small" themeColor="mutedForeground" style={styles.lockHint}>
+                      {req?.hint ?? 'Locked'}
+                    </ThemedText>
+                  )}
+                </View>
+              </SpringPressable>
+            );
+          })}
+        </View>
+
 
         <ThemedText type="label" themeColor="mutedForeground" style={styles.groupLabel}>CHARACTERS</ThemedText>
         <View style={styles.grid}>
@@ -150,6 +237,16 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.one },
   scroll: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.six },
+  input: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
+    fontSize: FontSize.bodyLg,
+  },
+  bannerList: { gap: Spacing.three },
+  bannerRow: { borderWidth: 2, borderRadius: Radius.lg, padding: 2, gap: 4 },
+  lockHint: { paddingHorizontal: Spacing.two, paddingBottom: 2 },
   groupLabel: { marginTop: Spacing.four },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: Spacing.two },
   /** Four across. 25% each with the gap taken as padding, so the wrap cannot round into three. */

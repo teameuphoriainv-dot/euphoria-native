@@ -41,6 +41,27 @@ export type AchievementState = {
   watchlist: string[];
 };
 
+/**
+ * THE SELECTOR for AchievementState, so no screen has to spell the field list out again.
+ *
+ * Every caller needs the same eleven fields, and each one that hand-rolls them is a chance to
+ * subscribe to the whole store instead — the exact defect Home carried until it was measured. Pair
+ * this with useShallow and a screen re-renders only when an achievement input actually moves.
+ */
+export const pickAchievementState = (s: AchievementState): AchievementState => ({
+  xp: s.xp,
+  bestStreak: s.bestStreak,
+  completedLessons: s.completedLessons,
+  readPosts: s.readPosts,
+  inventory: s.inventory,
+  positions: s.positions,
+  derivativeTrades: s.derivativeTrades,
+  coins: s.coins,
+  following: s.following,
+  followers: s.followers,
+  watchlist: s.watchlist,
+});
+
 export type Achievement = {
   id: string;
   /** The badge's own name. */

@@ -153,6 +153,13 @@ export { dayKey, shouldCountReturn, weekKey } from './day-keys';
 export const lessonKey = (courseId: string, num: number) => `${courseId}:${num}`;
 
 /**
+ * Longest display name. 18 fits the league row and the profile banner at the largest Dynamic Type
+ * step without truncating, which is the constraint that actually matters — a name that ellipsises
+ * on the leaderboard is worse than one the owner had to shorten themselves.
+ */
+export const NAME_MAX = 18;
+
+/**
  * What each action is worth.
  *
  * Proportioned the way the reference apps do it: frequent small awards, a read worth about half a
@@ -425,6 +432,16 @@ export type AppState = {
    * qualify for stops rendering on its own rather than persisting a claim you cannot back up.
    */
   titleId: string;
+  /** Chosen profile banner. Falls back to the default if the id is unknown — see banners.ts. */
+  bannerId: string;
+  setBannerId: (id: string) => void;
+  /**
+   * Rename yourself. Trimmed and capped at NAME_MAX here rather than at the input, so every future
+   * caller inherits the same rule — a validation that lives in one text field is a validation that
+   * the next screen forgets. An empty result is REJECTED rather than stored: a blank name would
+   * render an anonymous profile with no way back to a real one from the UI.
+   */
+  setDisplayName: (name: string) => void;
   setTitleId: (id: string) => void;
   /**
    * Best score per game id. The thing that makes a 60-second game worth a second run — without a
@@ -697,6 +714,7 @@ export const useApp = create<AppState>()(
       themePref: 'dark',
       avatarId: DEFAULT_AVATAR_ID,
       titleId: '',
+      bannerId: 'slate',
       gameBest: {},
       lastWeekResolved: '',
       lastWeekOutcome: null,
@@ -884,6 +902,12 @@ export const useApp = create<AppState>()(
       setAvatarId: (id) => set({ avatarId: id }),
 
       setTitleId: (id) => set({ titleId: id }),
+      setBannerId: (id) => set({ bannerId: id }),
+      setDisplayName: (name) =>
+        set((st) => {
+          const clean = name.trim().slice(0, NAME_MAX);
+          return clean ? { profile: { ...st.profile, name: clean } } : st;
+        }),
 
       recordGameScore: (gameId, score) =>
         set((st) => (score > (st.gameBest[gameId] ?? 0) ? { gameBest: { ...st.gameBest, [gameId]: score } } : st)),
@@ -1175,7 +1199,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
