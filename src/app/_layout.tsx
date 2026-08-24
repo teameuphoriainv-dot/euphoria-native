@@ -27,6 +27,7 @@ import { useTheme, useThemeMode } from '@/hooks/use-theme';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+
 import { AppState as RNAppState } from 'react-native';
 
 import { Ev, flushAnalytics, track } from '@/lib/analytics';

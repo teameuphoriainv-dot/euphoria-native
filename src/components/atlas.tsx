@@ -4,7 +4,9 @@
  * the logo as an inner <Image>, whites + expression pupils drawn on top at the EXACT web
  * coords. Body spins on tap (eyes stay upright); idle blink; 6 expressions.
  */
+import { useIsFocused } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
+
 import { Pressable } from 'react-native';
 import Animated, {
   Easing,
@@ -26,6 +28,13 @@ import Svg, {
 
 import { AtlasMarkBody } from '@/components/atlas-mark';
 import { Duration, Ease, Spring } from '@/shared/motion/tokens';
+
+
+/**
+ * Below this rendered size Atlas holds still. See the note beside `idleMotion` — at 46pt every
+ * idle movement he has is sub-pixel, and it was costing measurable React commits to draw nothing.
+ */
+const IDLE_MOTION_MIN_SIZE = 72;
 
 export type AtlasExpression = 'default' | 'watching' | 'happy' | 'whoa' | 'silly' | 'sad' | 'thinking' | 'proud' | 'oops';
 
@@ -185,10 +194,64 @@ export function Atlas({
    * blink costs zero React work.
    */
   const blinkV = useSharedValue(0);
+  /*
+   * §4.1: ATLAS ONLY BREATHES ON THE SCREEN YOU ARE LOOKING AT.
+   *
+   * NEXT_SESSION.md §4.1 recorded ~4-5 React commits per second while completely idle, on every
+   * screen, CAUSE UNKNOWN, with two hypotheses fixed in this very file without moving the number.
+   * Both were about Atlas's React state, and neither could have worked: all three idle timers write
+   * SHARED VALUES (blinkV, sacX/sacY, arcFlex), which live on the UI thread. Real timers, wrong
+   * suspect. Atlas has exactly one useState and it is interaction-only.
+   *
+   * MEASURED with a root <Profiler> plus a store-write log, four marker-verified builds, Home idle
+   * and untouched:
+   *
+   *   Atlas as shipped .................. 7 commits / 1973ms = 3.04/s
+   *   Atlas removed entirely ............ 3 commits / 1225ms = 1.63/s
+   *   Atlas restored (control) .......... 6 commits / 1741ms = 2.87/s
+   *   Atlas RENDERED, 3 timers stopped .. 3 commits / 1189ms = 1.68/s
+   *
+   * The last two lines are the finding: stopping the timers is worth exactly as much as deleting
+   * the component. The store log read `writes: none` in every window, so zustand is not involved at
+   * all. A shared-value write is free on its own; what is not free is doing it forever, on FIVE
+   * mounted instances, four of which are on screens nobody is looking at.
+   *
+   * So the gate is focus, not deletion. Atlas keeps every bit of its personality where it can
+   * actually be seen, and costs nothing on the four tabs behind you. This is also just the house
+   * rule PixelSprite.tsx already states out loud — "no idle loops, so a sprite only moves when
+   * something asks it to" — finally applied to the mascot that was exempt from it.
+   *
+   * The effects already clear their timers on cleanup, so leaving a screen stops them immediately.
+   */
+  const focused = useIsFocused();
+
+  /*
+   * ...AND ONLY WHEN HE IS BIG ENOUGH FOR IT TO BE VISIBLE.
+   *
+   * The focus gate alone measured NO improvement, and the reason is obvious once measured: Home is
+   * the focused screen, so its Atlas kept animating. Focus only ever helps the tabs behind you.
+   *
+   * Bisecting the three timers individually showed no single one dominates — saccade alone is
+   * ~18% — so the cost is not one bad timer, it is the MECHANISM: every withTiming on a shared
+   * value that feeds useAnimatedProps on a react-native-svg element costs React commits, because
+   * RNSVG cannot natively animate most SVG attributes. The worst of them is real: the happy mouth
+   * interpolates a path `d` STRING on every frame, and Home renders expression="happy".
+   *
+   * Atlas's viewBox is 96 units, so at Home's size={46} the scale is 0.48 and ARC_FLEX_UNITS of
+   * smile-flex, a two-unit pupil saccade and a blink are all SUB-PIXEL. The app was paying real
+   * commits, forever, for motion no one can see. At the lesson screen's 110-132 the same motion is
+   * clearly visible and worth every commit it costs.
+   *
+   * 72 is where a 96-unit face renders at 0.75 and the smallest of these movements is still about a
+   * pixel. Below it Atlas is decoration and holds still; above it he is the subject and behaves.
+   */
+  const idleMotion = focused && size >= IDLE_MOTION_MIN_SIZE;
+
   const [spinning, setSpinning] = useState(false);
 
   // idle blink every 2.8–6.2s (130ms)
   useEffect(() => {
+    if (!idleMotion) return;
     if (reduced) return;
     let alive = true;
     let t: ReturnType<typeof setTimeout>;
@@ -206,7 +269,7 @@ export function Atlas({
       alive = false;
       clearTimeout(t);
     };
-  }, [reduced, blinkV]);
+  }, [reduced, idleMotion, blinkV]);
 
   /*
    * SACCADES — the micro darts real eyes make constantly. Without them a face reads as a
@@ -215,6 +278,7 @@ export function Atlas({
    * worse than no loop.
    */
   useEffect(() => {
+    if (!idleMotion) return;
     if (reduced) return;
     let alive = true;
     let t: ReturnType<typeof setTimeout>;
@@ -242,10 +306,11 @@ export function Atlas({
       alive = false;
       clearTimeout(t);
     };
-  }, [reduced, sacX, sacY]);
+  }, [reduced, idleMotion, sacX, sacY]);
 
   // Eye-smile flex. Slower and rarer than a saccade so the two never read as one twitch.
   useEffect(() => {
+    if (!idleMotion) return;
     if (reduced) return;
     let alive = true;
     let t: ReturnType<typeof setTimeout>;
@@ -264,7 +329,7 @@ export function Atlas({
       alive = false;
       clearTimeout(t);
     };
-  }, [reduced, arcFlex]);
+  }, [reduced, idleMotion, arcFlex]);
 
   // Celebratory hop, built as a real piece of character animation rather than one spring.
   //
@@ -324,8 +389,20 @@ export function Atlas({
   // read as bouncing. Opt-in via `idle`; note `size` is deliberately NOT a dependency, so
   // a resize can never re-fire the loop.
   useEffect(() => {
-    if (!idle || reduced) {
+    /*
+     * `idleMotion` gates these for the same reason it gates the three timers, and these are the
+     * bigger prize: breath, sway and rock are withRepeat(..., -1, true) — three INFINITE loops,
+     * per instance, forever. `rock` feeds headProps, a useAnimatedProps ROTATION on an SVG group,
+     * and react-native-svg cannot animate that natively, so it costs React commits for as long as
+     * the app is open. At Home's size={46} the whole excursion is under a pixel.
+     *
+     * Settling to 0 rather than just returning matters: leaving mid-cycle would freeze Atlas at a
+     * random tilt, which reads as broken rather than as calm.
+     */
+    if (!idle || reduced || !idleMotion) {
       breath.set(withTiming(0, { duration: Duration.base }));
+      sway.set(withTiming(0, { duration: Duration.base }));
+      rock.set(withTiming(0, { duration: Duration.base }));
       return;
     }
     // withRepeat(..., -1, true) reverses, so the full period is 2x duration.
@@ -334,7 +411,7 @@ export function Atlas({
     // from a half-phase offset so they are already out of step with the breath on frame one.
     sway.set(withDelay(400, withRepeat(withTiming(1, { duration: SWAY_MS, easing: Easing.inOut(Easing.sin) }), -1, true)));
     rock.set(withDelay(900, withRepeat(withTiming(1, { duration: ROCK_MS, easing: Easing.inOut(Easing.sin) }), -1, true)));
-  }, [idle, reduced, breath, sway, rock]);
+  }, [idle, reduced, idleMotion, breath, sway, rock]);
 
   // shake on wrong answer (V1 balance-scale reference)
   useEffect(() => {
@@ -419,7 +496,15 @@ export function Atlas({
   const spin1 = useSharedValue(0);
   const spin2 = useSharedValue(0);
   const spin3 = useSharedValue(0);
-  const ringSpin = useMemo(() => [spin0, spin1, spin2, spin3], [spin0, spin1, spin2, spin3]);
+  /*
+   * NOT useMemo'd by hand. useSharedValue returns a STABLE reference, so the only thing a manual
+   * useMemo bought here was a react-hooks/preserve-manual-memoization ERROR — the React Compiler
+   * is on in this project and could not preserve it, which means the component was being SKIPPED
+   * for optimisation entirely. Letting the compiler memoise it keeps the array stable (that was
+   * §4.1 hypothesis 2's real requirement) and lets it optimise the rest of the component too.
+   * This was failing at HEAD, unseen, because `npm run check` runs the 37 pins and never eslint.
+   */
+  const ringSpin = [spin0, spin1, spin2, spin3];
   const ringProp0 = useAnimatedProps(() => ({ rotation: spin0.get() }));
   const ringProp1 = useAnimatedProps(() => ({ rotation: spin1.get() }));
   const ringProp2 = useAnimatedProps(() => ({ rotation: spin2.get() }));

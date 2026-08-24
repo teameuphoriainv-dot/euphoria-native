@@ -463,7 +463,46 @@ about it.
 
 ## 4. WHAT IS ALREADY KNOWN BROKEN — IN SCOPE, NOT YET FIXED
 
-### 4.1 The idle re-render lag — THE BIG ONE, CAUSE UNKNOWN
+### 4.1 The idle re-render lag — CAUSE FOUND 2026-08-23, ~64% cut. Residual still open.
+
+**FOUND: Atlas's idle motion, and the mechanism is `useAnimatedProps` on react-native-svg.**
+
+Both earlier hypotheses failed because they targeted Atlas's REACT STATE. There was never any to
+find: Atlas has exactly one `useState` and it is interaction-only, and all its idle animation writes
+SHARED VALUES. The cost is not the write, it is what the value feeds — `useAnimatedProps` on an SVG
+element. RNSVG cannot natively animate most SVG attributes, so each of these crosses into JS every
+frame: a path `d` STRING interpolated for the happy mouth, a `rotation` on the head group, `x`/`y`
+on the pupil group.
+
+Measured with a root `<Profiler>` counting commits plus a `useApp.subscribe` log of changed keys,
+Home idle and untouched, every build marker-verified so no reading came from a stale bundle:
+
+| build | state | commits | span | rate |
+|---|---|---|---|---|
+| — | as shipped | 7 | 1973ms | **3.04/s** |
+| b2 | Atlas removed entirely | 3 | 1225ms | 1.63/s |
+| b3 | Atlas restored (control) | 6 | 1741ms | 2.87/s |
+| b4 | Atlas rendered, 3 timers stopped | 3 | 1189ms | 1.68/s |
+| b5 | saccade only stopped | 6 | 2002ms | 2.50/s |
+| FIX2 | idle motion gated on size | 3 | 1856ms | **1.10/s** |
+
+`writes: none` in every window — **zustand is not involved at all**. b4 ≡ b2 is the finding:
+stopping the timers is worth exactly as much as deleting the component. b5 shows no single timer
+dominates (saccade ~18%), so it is the mechanism, not one bad timer.
+
+**The fix:** idle motion requires `focused && size >= 72`. Atlas's viewBox is 96 units, so at Home's
+`size={46}` (scale 0.48) the blink, the pupil saccade and the smile-flex are all SUB-PIXEL — the app
+was paying commits forever to draw nothing. The three `withRepeat(..., -1, true)` loops (breath,
+sway, rock) were the bigger prize and are gated too. Verified by pixel-diffing the mascot's head
+across six frames: Home 4856 -> **28** changed px (still), lesson at 110pt **24,459** (fully alive).
+
+**STILL OPEN:** ~1.1/s remained at the FIX2 measurement, which was taken BEFORE the breath/sway/rock
+loops were gated, so the true residual is lower and unmeasured. Whatever is left is NOT Atlas and
+NOT the store. Next instrument: the same root Profiler, bisecting the other always-mounted trees.
+
+---
+
+#### Original entry, kept for the record
 
 **This is very likely the single root cause behind a large fraction of the feedback you are about to
 receive.** Anything a cofounder describes as laggy, sluggish, slow to appear, stuttery, or
