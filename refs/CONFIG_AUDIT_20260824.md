@@ -245,9 +245,31 @@ If the marker does not read `HUD-1`, the bundle is stale and the number means no
   client, tapped the "Free trial · day 3 of 3" row on Home (a real surface, not a deep link),
   the paywall rendered, backgrounded the app to force a flush, and `paywall_seen` appeared in
   PostHog "a few seconds ago" — the first time it has ever fired in project 557266.
-- **The app→project mapping is circumstantial.** `320845df` has the right bundle id, matching SDK
-  version, and 7 of 8 recent customers — but the SDK key was not fingerprint-matched (revealing it
-  was blocked by a permission classifier).
+- ~~The app→project mapping is circumstantial.~~ **SETTLED 2026-08-24 by elimination**, after a
+  near-miss worth recording: **project `875fc097` "Euphoria App" has an entitlement literally named
+  `pro`, created 2026-08-08** — exactly what the code said. If the app pointed there, changing the
+  constant would have BROKEN a working setup rather than fixing a broken one.
+
+  It does not point there, and the reasoning does not depend on reading a key:
+
+  | Project | Entitlement | App Store app? | Customers /28d |
+  |---|---|---|---|
+  | `320845df` "Euphoria" | `Euphoria Pro` | YES — `com.euphoriainv.euphoria`, `appbf28770359` | 7 |
+  | `89ced465` "Euphoria" | `Euphoria Pro` | — | 0 |
+  | `875fc097` "Euphoria App" | **`pro`** | **NO — Test Store only** | 1 |
+  | `6e8b425d` "Euphoria Real" | `Euphoria Real Pro` | — | 0 |
+
+  1. The production key is `appl_`-prefixed, which is an App Store app key.
+  2. `875fc097` has no App Store configuration at all — its own checklist says "Your app is
+     connected to the Test Store. Before uploading, add a real App Store or Play Store
+     configuration." It cannot have issued an `appl_` key.
+  3. `320845df` has the App Store app with the correct bundle and `react-native-purchases` 10.7.0
+     at 100%, matching `package.json`.
+  4. 8 new customers across all projects = 7 in `320845df` + 1 in `875fc097`. The other two are dead.
+  5. Even the alternative agrees: `89ced465` also uses `Euphoria Pro`.
+
+  **STILL NOT PROVEN END TO END.** Nobody has completed a purchase against this entitlement. The
+  gold standard is a sandbox purchase after §3.1 and §3.2 are done, and it has not been run.
 - **`SUPABASE_JWT_SECRET` is unset in production**, so `_identity.ts` returns `null` for every
   request: there are no verified users server-side and the rate limiter's classroom exemption
   never fires. Consequences not traced further.
