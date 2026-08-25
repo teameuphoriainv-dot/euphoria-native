@@ -332,7 +332,7 @@ const PAYWALL_INDEX = TOTAL - 1;
 /** Atlas on the paywall. 56 read as a favicon on the one screen that asks for money;
  *  the design doc asks for Atlas here and asks for it to be "super beautiful". 76 gives the
  *  mascot presence while still leaving the plan cards above the fold on a 393pt phone. */
-const PAYWALL_ATLAS = 76;
+const PAYWALL_ATLAS = 56;
 const REVEAL_INDEX = TOTAL - 2;
 
 export default function Onboarding() {
@@ -746,7 +746,7 @@ export default function Onboarding() {
               * keep their existing screen unchanged.
               */}
             {spent ? (
-              <View style={{ marginTop: Spacing.four }}>
+              <View style={{ marginTop: Spacing.three }}>
                 {PRO_STEPS.map((s, i) => (
                   <RiseIn key={s.title} delay={childDelay(i)}>
                     <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === PRO_STEPS.length - 1} />
@@ -754,11 +754,11 @@ export default function Onboarding() {
                 ))}
               </View>
             ) : (
-              <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.four }}>
+              <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.three }}>
                 <PremiumBenefits />
               </RiseIn>
             )}
-            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.three }}>
+            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.two }}>
               {/* The plan NAME carries the billing period and the price carries the amount you
                   are actually charged. Both cards used to headline a "/mo" figure, so the annual
                   plan read as a second, cheaper monthly plan rather than as a yearly one. */}
@@ -837,15 +837,14 @@ export default function Onboarding() {
               <ThemedText type="bodyMedium">No payment due now</ThemedText>
             </View>
           )}
-          {/* 3/4 of the captured pricing screens carry a cancel reassurance beside the CTA
-              (Headway "super easy to cancel", Promova "Cancel anytime", Quizlet "Cancel anytime").
-              For a spent user that replaces "No payment due now", which would now be a lie. */}
-          {step === PAYWALL_INDEX && !offersTrial && !isProNow && (
-            <View style={styles.noPay}>
-              <UIcon name="check" size={16} color={theme.primary} />
-              <ThemedText type="bodyMedium">Cancel anytime in the App Store</ThemedText>
-            </View>
-          )}
+          {/*
+            * THE STANDALONE CANCEL ROW IS GONE, 2026-08-25. 3/4 of the captured pricing screens
+            * carry a cancel reassurance beside the CTA, and this had one — but the renewal terms
+            * directly below it already end with the identical sentence, "Cancel anytime in the
+            * App Store". It was the same words twice, about 30pt apart, on a screen that did not
+            * fit without scrolling. The reassurance survives; only the duplicate row went.
+            * "No payment due now" above is NOT a duplicate and stays for trial users.
+            */}
           <SlabButton
             label={
               step === REVEAL_INDEX
@@ -931,7 +930,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
-  content: { padding: Spacing.four, paddingTop: Spacing.three, flexGrow: 1, justifyContent: 'flex-start' },
+  content: { padding: Spacing.four, paddingTop: Spacing.two, flexGrow: 1, justifyContent: 'flex-start' },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
@@ -939,10 +938,10 @@ const styles = StyleSheet.create({
   /** Heading / trial timeline / plan cards, spread across the leftover height. */
   paywallBody: { flexGrow: 1, justifyContent: 'space-between', gap: Spacing.two, paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
-  fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.two, paddingHorizontal: Spacing.two },
-  footer: { padding: Spacing.four, paddingTop: Spacing.two },
+  fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.one, paddingHorizontal: Spacing.two },
+  footer: { padding: Spacing.three, paddingTop: Spacing.one },
   maybeLater: { alignItems: "center", paddingTop: Spacing.two },
-  legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.two },
+  legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.one },
   legalLink: { fontSize: FontSize.label, textDecorationLine: 'underline', opacity: 0.75 },
   legalDot: { fontSize: FontSize.label, opacity: 0.75 },
 });
