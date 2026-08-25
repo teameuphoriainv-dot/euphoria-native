@@ -39,6 +39,7 @@ import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Ev, track } from '@/lib/analytics';
 import { TRIAL_DAYS, trialDayNumber, useTier, useTrialStarted } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { COURSES } from '@/lib/curriculum/courseIndex';
@@ -526,6 +527,33 @@ export default function Onboarding() {
   const trialRunning = useTrialStarted();
   const trialDay = useApp(trialDayNumber);
   const offersTrial = tierNow === 'trial' && !trialRunning;
+
+  /*
+   * PAYWALL_SEEN. This screen carried NO analytics at all — it was the one paid surface in the app
+   * that reported nothing.
+   *
+   * MEASURED IN POSTHOG 2026-08-24. Every engagement event has fired in production
+   * (first_lesson_completed, day_return, first_action_started/skipped, trial_reward_*), and every
+   * monetisation event had fired ZERO times: paywall_seen, paywall_dismissed, special_offer_*,
+   * trial_started, paid. gate-sheet.tsx does fire paywall_seen for the four in-app walls, but the
+   * onboarding paywall is the one every new user reaches, and it was silent.
+   *
+   * Without this event the funnel has no denominator, and the two failures that matter are
+   * indistinguishable: "nobody reaches the paywall" and "everybody reaches it and nobody buys"
+   * need opposite fixes. `paid` already fires from purchases.ts on the transition to Pro, so this
+   * completes the pair.
+   *
+   * Fired from an effect on arrival, never during render, and latched by a ref so that re-renders
+   * from `busy`, plan selection or the trial banner cannot inflate the count. `surface`
+   * distinguishes it from the gate-sheet walls, which share the event name deliberately: one
+   * paywall_seen across all surfaces is the number you want, broken down by surface when you ask.
+   */
+  const paywallSeenRef = useRef(false);
+  useEffect(() => {
+    if (step !== PAYWALL_INDEX || paywallSeenRef.current) return;
+    paywallSeenRef.current = true;
+    track(Ev.paywallSeen, { surface: 'onboarding', tier: tierNow, offers_trial: offersTrial, is_pro: isProNow });
+  }, [step, tierNow, offersTrial, isProNow]);
   const [busy, setBusy] = useState(false);
 
   /** Apple requires a Restore control on any screen selling a subscription — independent of
