@@ -429,6 +429,14 @@ export default function Options() {
           </SpringPressable>
           <RiseIn>
             <ThemedText type="title" style={{ fontSize: FontSize.titleLg }}>Options</ThemedText>
+            {/* The live header below carries a subtitle and this one did not, so the gated screen
+                read as unfinished: a title with nothing under it, then a card. Deliberately NOT a
+                shorter version of the card underneath, which already explains what a contract is.
+                Restating the same fact twice on one screen is the defect that was just removed from
+                the Learn tab. This says where options SIT for someone who has only bought shares. */}
+            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
+              Where investing gets interesting.
+            </ThemedText>
           </RiseIn>
           <RiseIn delay={80}>
             <Card style={styles.locked}>
