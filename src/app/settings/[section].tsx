@@ -325,6 +325,8 @@ const THEMES = [
 
 function PreferencesSection() {
   const theme = useTheme();
+  const perfHud = useApp((s) => s.perfHud);
+  const setPerfHud = useApp((s) => s.setPerfHud);
   const dailyMinutes = useApp((s) => s.dailyGoalMinutes());
   const setProfile = useApp((s) => s.setProfile);
   const themePref = useApp((s) => s.themePref);
@@ -332,6 +334,32 @@ function PreferencesSection() {
 
   return (
     <>
+    <Section title="DIAGNOSTICS">
+      {/*
+        * A JS-thread frame counter, off by default and NOT persisted, so it cannot survive a
+        * relaunch into a real user's session. It exists because every performance number in this
+        * repo was measured in the simulator and the app is reported laggy on real hardware, where
+        * there is no profiler and console.log does not reach the syslog. Turn it on, use the app,
+        * screenshot the number.
+        */}
+      <SpringPressable
+        haptic={false}
+        onPress={() => { setPerfHud(!perfHud); }}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: perfHud }}
+        accessibilityLabel="Performance overlay"
+      >
+        <View style={styles.row}>
+          <View style={styles.rowText}>
+            <ThemedText type="body">Performance overlay</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground">
+              Shows frames per second and the worst frame. Resets when the app restarts.
+            </ThemedText>
+          </View>
+          {perfHud ? <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} /> : null}
+        </View>
+      </SpringPressable>
+    </Section>
     <Section title="APPEARANCE">
       {THEMES.map((t, i) => {
         const on = themePref === t.key;

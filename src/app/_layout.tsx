@@ -8,6 +8,8 @@ import { EBGaramond_400Regular, EBGaramond_500Medium, EBGaramond_600SemiBold, EB
 import { Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+
+import { PerfHud } from '@/components/perf-hud';
 // NativeWind was unwired 2026-08-21 (see metro.config.js for the full reasoning and how to
 // restore it). This import was already redundant: withNativeWind injected the same runtime
 // through Metro, so removing it alone changed nothing measurable.
@@ -129,6 +131,8 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
         </Stack>
+        {/* Renders nothing unless Preferences turns it on, so an OTA carrying it is invisible. */}
+        <PerfHud />
       </ThemeProvider>
     </GestureHandlerRootView>
   );

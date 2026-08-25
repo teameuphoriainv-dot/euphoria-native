@@ -489,6 +489,11 @@ export type AppState = {
    *  toggle in Settings; when IAP lands, the purchase callback sets this same flag and nothing
    *  downstream changes. Deliberately NOT cleared by `reset()` — resetting progress must never
    *  revoke a purchase. */
+  /** Perf HUD. SESSION ONLY, deliberately absent from `partialize`: a diagnostic overlay that
+   *  survived a relaunch would be a way to ship a permanently visible HUD to a real user by
+   *  accident. Off by default, so an OTA carrying this is invisible until someone opts in. */
+  perfHud: boolean;
+  setPerfHud: (v: boolean) => void;
   isPro: boolean;
   setPro: (v: boolean) => void;
   /** Epoch ms the 17d dismissal offer was shown, or null. A STAMP rather than a boolean so we can
@@ -744,7 +749,9 @@ export const useApp = create<AppState>()(
       billingIssue: false,
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
-      setPro: (v) => set({ isPro: v }),
+      perfHud: false,
+  setPerfHud: (v) => set({ perfHud: v }),
+  setPro: (v) => set({ isPro: v }),
       markSpecialOfferSeen: () => set((s) => (s.specialOfferSeenAt ? s : { specialOfferSeenAt: Date.now() })),
       markTrialRewardSeen: () => set((s) => (s.trialRewardSeenAt ? s : { trialRewardSeenAt: Date.now() })),
       setBillingIssue: (v) => set({ billingIssue: v }),

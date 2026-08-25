@@ -194,6 +194,49 @@ changes a backend:
 
 **Do that first.** Migrating a backend to fix a render problem would cost weeks and change nothing.
 
+### 5.1 Static hunt, 2026-08-24 — what is and is not a suspect
+
+RULED OUT, checked and clean:
+- **No whole-store subscriptions.** `useApp()` with no selector appears nowhere.
+- **No selectors returning fresh objects or arrays**, which would re-render on every store write.
+- **§4.1's fix held.** `ambient-background.tsx:97` still gates its four `useAnimatedProps` loops on
+  `reduced || !focused`.
+- **Courses are dynamically imported** (`courseIndex.ts`, `await import('./courses/…')`), so the
+  ~10MB of curriculum is not in the startup bundle. Opening one still parses ~1MB.
+- **`onboarding-parts.tsx` has three ungated `useAnimatedProps` on SVG** (`r`,
+  `strokeDashoffset`) — the §4.1 shape. But it is imported ONLY by `onboarding.tsx` and its
+  animations are finite `withTiming`/`withSpring`, not `withRepeat`. A one-time cost on a screen a
+  returning user never sees. **Not the everyday lag.**
+
+THE LEADING SUSPECT: **the app has ZERO virtualised lists.** 113 `ScrollView` uses against 0 real
+`FlatList` — both "FlatList" hits in the codebase are *comments*. And one of those comments, at
+`src/app/options.tsx:539-556`, is a direct hit on this report:
+
+> "A PLAIN ScrollView RENDERS EVERY STRIKE — no virtualisation, **170 to 216 row views**. […]
+> Frame rate during a fast scroll is **NOT measured** — there is no tooling here for it, so it is
+> not claimed either way. **If someone finds jank on a real device, FlatList with `scrollToIndex`
+> is the fix** and it replaces the centring code below wholesale."
+
+That trigger condition has now occurred. A `ScrollView` mounting 200 row views blocks the JS
+thread, which is exactly what "laggy" describes.
+
+### 5.2 The HUD — measure it on YOUR device
+
+`src/components/perf-hud.tsx`, toggled from **Preferences → Diagnostics → Performance overlay**.
+Off by default and NOT persisted, so it cannot leak into a real user's session.
+
+It reports `HUD-1  <fps>  worst <ms>  stalls <n>`. requestAnimationFrame fires from the JS thread,
+so the gap between callbacks IS JS-thread responsiveness — a blocked JS thread cannot answer a
+touch. It does not measure the native thread, so a Reanimated animation on the UI thread will look
+fine to it and genuinely be fine.
+
+Verified on the simulator: **60 fps, worst 17ms, 0 stalls** on a static Preferences screen. That is
+the reference. **What to do:** turn it on, then use the app normally and screenshot the HUD on the
+screens that feel bad — especially the options chain, mid-scroll. `worst` and `stalls` are the
+numbers that matter; a dropping `fps` with a high `worst` is a blocked JS thread.
+
+If the marker does not read `HUD-1`, the bundle is stale and the number means nothing.
+
 ---
 
 ## 6. UNVERIFIED — do not treat as established
