@@ -10,7 +10,9 @@
  *   1. EXPO_PUBLIC_API_URL   — set to the deployed EAS Hosting origin for production builds
  *   2. Constants.expoConfig.hostUri — the Metro dev server the app is already talking to, so
  *      development needs no configuration at all
- *   3. '' — relative, correct on web and only on web
+ *   3. '' — relative, correct on web and only on web (web only)
+ *   4. DEFAULT_API_ORIGIN — the deployed origin, compiled in, so a native build can never end up
+ *      with nowhere to send a request
  */
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
@@ -18,12 +20,40 @@ import { Platform } from 'react-native';
 import { currentAccessToken, currentUserId } from './auth';
 import { useApp } from './store';
 
+/**
+ * The deployed API origin, COMPILED IN.
+ *
+ * WHY THIS IS NOT LEFT TO THE ENVIRONMENT ALONE. `EXPO_PUBLIC_API_URL` is inlined at BUNDLE time,
+ * and this app has two ways of producing a bundle. `eas build` reads `eas.json`, where the value is
+ * set under both build profiles, so a BUILD has always had it. `eas update` does not read that
+ * block at all: it takes its variables from `--environment`, which is a flag a human has to
+ * remember on every publish. Miss it once and the OTA that lands on top of a perfectly good build
+ * has no origin.
+ *
+ * WHAT THAT LOOKED LIKE. `apiBase()` returned `''`, every `/api/market` call threw
+ * `no_api_origin` before its fetch, `safe()` in `lib/market.ts` turned each one into `null`, and
+ * `priceOf` fell through to the static table in `stocks.ts` — so the Trade tab rendered NVDA at
+ * $1,184.00 against a real $208.48, with no logos, on a build whose own binary was configured
+ * correctly. Atlas and the options chain died in the same instant and for the same reason.
+ *
+ * WHY A CONSTANT IS SAFE HERE AND A PLACEHOLDER WOULD NOT BE. §"Why the key is absent rather than a
+ * placeholder" in DEPLOY.md argues against a plausible-looking WRONG url, because that fails as a
+ * network error and sends you debugging connectivity. This is not a stand-in for the origin, it IS
+ * the origin — the same string `eas.json` already hardcodes in two places, and a public hostname
+ * rather than a secret. `scripts/api-origin-pin.mjs` fails the build if the three ever disagree.
+ *
+ * The environment still WINS when it is set, so a preview deployment or a local override behaves
+ * exactly as before. This only replaces the case that used to be `''`, which was never a working
+ * configuration on native — only a silent one.
+ */
+const DEFAULT_API_ORIGIN = 'https://euphoria-native.expo.app';
+
 export function apiBase(): string {
   const explicit = process.env.EXPO_PUBLIC_API_URL;
   if (explicit) return explicit.replace(/\/$/, '');
   if (Platform.OS === 'web') return '';
   const host = Constants.expoConfig?.hostUri;
-  return host ? `http://${host}` : '';
+  return host ? `http://${host}` : DEFAULT_API_ORIGIN;
 }
 
 /**

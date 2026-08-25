@@ -74,6 +74,31 @@ code that names its own cause. Absent is louder than wrong.
    running and open Atlas, the Trade tab and an options lesson. If any of them throws
    `no_api_origin`, step 3 did not take.
 
+## Shipping an OTA, which is the step this document used to be missing
+
+Everything above configures a BUILD. An over-the-air update is a second, completely separate way of
+producing the bundle that actually runs, and it does **not** read the `env` block in `eas.json`.
+
+```
+npm run ota -- --message "what changed"
+```
+
+That wraps `eas update --branch production --environment production`. The
+`--environment` flag is what loads `EXPO_PUBLIC_API_URL`, and on Expo SDK 55 and above the CLI
+requires it. Publishing without it produces a bundle whose `apiBase()` has nothing in it.
+
+**This is how a correctly configured build still lost its market data.** Build 18 carried the origin
+in its binary and worked. An OTA published on top of it did not, and an OTA bundle wins over the one
+inside the app. Atlas went quiet, the options chain emptied, and the Trade tab fell back to the
+static table in `stocks.ts` and drew NVDA at $1,184.00 against a real $208.48, with no logos.
+Nothing in the app said a word, because falling back to that table is the designed behaviour when a
+price is unavailable.
+
+`src/lib/api.ts` now compiles the origin in as `DEFAULT_API_ORIGIN` so this specific mistake can no
+longer take the API offline, and `scripts/api-origin-pin.mjs` fails `npm run check` if that constant
+and `eas.json` ever disagree. Use `npm run ota` anyway. The constant is a floor, not a licence to
+publish without the environment, and every non-public variable still comes from `--environment`.
+
 ## Other build facts
 
 - Bundle id `com.euphoriainv.euphoria` · team `9SS423KXF5` · ASC app `6761808087`
