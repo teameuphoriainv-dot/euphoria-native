@@ -108,7 +108,7 @@ This is the part I was not diligent about. Follow it literally.
 npm run check && npx tsc --noEmit && npx eslint <the files you touched>
 ```
 
-All three. `npm run check` runs 36 pins and **does not run eslint** (see §5.2). Chain the
+All three. `npm run check` runs 37 pins and **does not run eslint** (see §5.2). Chain the
 commit off the conjunction, never off `git add`.
 
 ### 2.2 Before claiming any behaviour works
@@ -190,7 +190,7 @@ reference has no You tab either. Profile lives behind a header button. Do not re
 
 ### The gate
 
-`npm run check` runs **36 pins**: 35 `scripts/*.mjs` plus `scripts/reduced_motion_audit.py`.
+`npm run check` runs **37 pins**: 36 `scripts/*.mjs` plus `scripts/reduced_motion_audit.py`.
 They are genuinely good — several exist to prove a specific bug *fails silently* — and they
 are fast. Read `package.json`'s `check` script for the full list.
 
@@ -307,36 +307,39 @@ is outward-facing and permanent.
 
 ### 5.2 Make the lint gate green, then wire it into `npm run check`
 
-**Status:** the owner picked this task explicitly at the end of the session and I had only
-measured it when the session turned. **Here are the real numbers, freshly measured:**
+**Status:** the owner picked this task explicitly at the end of the session. **The inventory
+below was re-measured at `e421309`. The previous one was wrong in every particular — no
+`no-undef` errors exist, the `purity` error is an `immutability` error in a different file, and
+two of the seven `set-state-in-effect` sites had moved. Re-measure before trusting this one too.**
 
 ```
-ERRORS: 14        WARNINGS: 52
+ERRORS: 8         WARNINGS: 62
 
-errors by rule                     warnings by rule
-  7  react-hooks/set-state-in-effect    43  @typescript-eslint/no-unused-vars
-  6  no-undef                            5  import/first
-  1  react-hooks/purity                  2  @typescript-eslint/array-type
+errors by rule                          warnings by rule
+  7  react-hooks/set-state-in-effect      45  @typescript-eslint/no-unused-vars
+  1  react-hooks/immutability              8  import/first
+                                           4  import/no-duplicates
+                                           3  no-unused-vars
+                                           1  @typescript-eslint/array-type
 ```
 
 **Every error site:**
 
 ```
-scripts/fetch-logos.mjs:78          no-undef
-scripts/fetch-logos.mjs:92          no-undef
-scripts/identity-regression.mjs:22  no-undef
-scripts/make-icon.mjs:44            no-undef
-scripts/store-shots.mjs:77          no-undef
-scripts/store-shots.mjs:95          no-undef
-src/app/(tabs)/learn.tsx:87         react-hooks/set-state-in-effect
-src/app/games/term-match.tsx:71     react-hooks/set-state-in-effect
-src/app/news.tsx:63                 react-hooks/set-state-in-effect
-src/app/options.tsx:232             react-hooks/set-state-in-effect
-src/app/stock/[sym].tsx:87          react-hooks/set-state-in-effect
-src/app/stock/[sym].tsx:173         react-hooks/purity
-src/components/atlas-speech.tsx:34  react-hooks/set-state-in-effect
-src/shared/motion/number-rollup.tsx:29  react-hooks/set-state-in-effect
+src/app/(tabs)/learn.tsx:88             react-hooks/set-state-in-effect
+src/app/news.tsx:63                     react-hooks/set-state-in-effect
+src/app/options.tsx:232                 react-hooks/set-state-in-effect
+src/app/stock/[sym].tsx:143             react-hooks/set-state-in-effect
+src/components/atlas-speech.tsx:34      react-hooks/set-state-in-effect
+src/components/price-chart.tsx:77       react-hooks/set-state-in-effect
+src/shared/motion/number-rollup.tsx:51  react-hooks/set-state-in-effect
+src/components/lesson-visual.tsx:153    react-hooks/immutability
 ```
+
+**Six more were fixed at `e421309`:** `src/lib/pixel/index.ts` re-exported `PIXEL_SPRITES` /
+`SPRITES_BY_ID` / `getSprite` on the line directly above `export * from './sprites'`, which
+already covers all three — six `import/export` errors from one duplicated line, 14 → 8. That
+was the real free win. The "free −6 from Node globals" step below never applied.
 
 **Why it matters:** three real errors hid at HEAD *today* because `npm run check` never runs
 eslint — a `set-state-in-effect` error in `term-match.tsx`, a React Compiler
@@ -349,14 +352,14 @@ was individually read and judged benign, and that the decision of how to resolve
 *deliberately not taken unilaterally*. It is a project decision. Respect that — bring the
 owner an option list, do not silently add `// eslint-disable` lines across seven files.
 
-**The 6 `no-undef` are not real defects.** They are all in `scripts/*.mjs` — Node scripts being
-linted against a config that does not declare Node globals. Fixing the eslint config for
-`scripts/**` removes all six with zero code change. Do this first; it is free and it shrinks
-the problem from 14 to 8.
+**There are no `no-undef` errors.** The previous inventory claimed six in `scripts/*.mjs` and a
+free fix by declaring Node globals. Measured at `e421309`: **zero**. Do not add an
+`eslint.config.js` override for `scripts/**` — there is nothing for it to fix.
 
 **Suggested plan, in order:**
 
-1. Add a `scripts/**` override to `eslint.config.js` declaring Node globals. **-6 errors.**
+1. ~~Add a `scripts/**` override for Node globals.~~ **Does not apply — no `no-undef` errors
+   exist.** The equivalent free win was already taken at `e421309`.
 2. Triage the 7 `set-state-in-effect` against `TASK_QUEUE.md`. For each, decide: real fix
    (`term-match.tsx:71` was fixable in ten minutes — the pattern is to resolve in the event
    handler, not the effect), or a targeted `// eslint-disable-next-line` **carrying the reason
@@ -365,7 +368,7 @@ the problem from 14 to 8.
    violations are what §3.1 of `NEXT_SESSION.md` calls "produces plausible output, not an
    error". Read it properly.
 4. Only once errors are 0, add eslint to `check`. Use `--max-warnings` pinned at the current
-   warning count so the 52 warnings do not block, but no *new* ones can land.
+   warning count so the 62 warnings do not block, but no *new* ones can land.
 
 **How to verify:** `npx eslint src scripts -f json -o /tmp/l.json` and count severities. Then
 deliberately introduce a `set-state-in-effect` and confirm `npm run check` now fails.
@@ -826,7 +829,17 @@ gap, not a bug. Turning it on would be a large mechanical change; weigh it again
 - `market+api.ts` validates Polygon's `bar.c`/`bar.o` and **refuses** rather than zeroing
 - Money 2048 has a VoiceOver D-pad
 - `/you` has a back control
-- `quests.ts` has one clock
+\1- `reduced_motion_audit.py` can now FAIL. It printed `[DEFECT]` and exited 0 for its whole
+  life, so `check`'s `&&` chain walked straight past it. It also matched its own documentation —
+  `money-2048.tsx` was the reported defect, for a `ZoomIn` inside a comment saying that `ZoomIn`
+  had been removed. It now strips comments before matching, and `--selftest` / `--demo` run on
+  the default path (they appeared in no script, and `_demo`'s `rotate` assertion contradicted the
+  pattern it guards, failing in silence, for months)
+- **All 37 pins swept for that same bug: no other one has it.** Zero have no failure mechanism;
+  18 fail at top level; the other 19 use a reachable `if (bad.length) process.exit(1)`.
+  CEILING: only 3 of 37 are *dynamically* proven — `reduced_motion_audit`, plus `no-glow-pin`
+  and `em-dash-prose-pin`, break-tested live (planted violation → exit 1 → revert → exit 0).
+  The other 34 are verified structurally only; proving them means 34 targeted mutations, unspent
 
 And from earlier sessions, so you do not re-hunt them: NativeWind is fully unwired
 (`CssInterop.View` 4,672 → 0 commits), the course loader has a promise cache (20 → 2 fetches),
