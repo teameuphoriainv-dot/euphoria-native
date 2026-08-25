@@ -34,18 +34,27 @@ is the only reason the entitlement bug cost nothing. It would have cost the firs
 
 ## 3. WHAT ONLY YOU CAN DO
 
-### 3.1 🔴 Replace the In-App Purchase key in RevenueCat
+### 3.1 🟡 The In-App Purchase key — DOWNGRADED, I over-called this
+
+**CORRECTION 2026-08-24.** I first rated this critical on the strength of the handoff calling
+`V2D263NV4V` "the dead April key". Looking at the actual control, RevenueCat shows that key with a
+**"Valid credentials"** badge, which means it authenticates against Apple. The handoff called it
+dead because the LOCAL `.p8` copy was unrecoverable, not because Apple revoked it — RevenueCat
+still holds a working copy. So this is probably not broken. Replace it if you want the key you can
+actually reproduce; it is not the emergency I first described.
 
 `app.revenuecat.com/projects/320845df/apps/appbf28770359` → "In-app purchase key configuration"
 
-Currently holds **`V2D263NV4V.p8`** — the April key your own notes call *"dead, unrecoverable,
-never reuse."* The live one is **`QP24DLK3HJ`**, at `.secrets/SubscriptionKey_QP24DLK3HJ.p8`.
+Currently holds **`V2D263NV4V.p8`**, reported by RevenueCat as valid. The key you still have a
+local copy of is **`QP24DLK3HJ`**, at `.secrets/SubscriptionKey_QP24DLK3HJ.p8`. To swap it: the ⟳
+icon beside the "Valid credentials" badge is the replace control, then update the Key ID field and
+press Save changes.
 
 RevenueCat's own warning on that page: with Purchases v5+ (StoreKit 2 — you run
 `react-native-purchases` 10.7.0) *"transactions will fail to be recorded without this key being
 set. This can result in users not accessing the purchases they are entitled to."*
 
-### 3.2 🔴 Upload the App Store Connect API key to RevenueCat
+### 3.2 🔴 Upload the App Store Connect API key (this one IS empty) to RevenueCat
 
 Same page, "App Store Connect API" section — currently empty and marked Required. Without it
 RevenueCat cannot verify products: both App Store products currently show status
