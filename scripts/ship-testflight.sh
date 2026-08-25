@@ -54,5 +54,31 @@ fi
 echo
 echo "=== SUBMIT ==="
 npx eas submit --platform ios --profile production --latest --non-interactive
+
 echo
-echo "Submitted. Apple processing usually takes 5-15 minutes before it appears in TestFlight."
+echo "=== DISTRIBUTE ==="
+# THE STEP THIS SCRIPT USED TO BE MISSING. `eas submit` stops at "uploaded". Apple then parks the
+# build at READY_FOR_BETA_TESTING, which is uploaded-but-INVISIBLE: no tester sees it until it is
+# attached to a beta group. Somebody had been doing that by hand in the ASC web UI and stopped.
+#
+# MEASURED 2026-08-25: builds 17 and 18 were never uploaded at all, and build 16 was uploaded and
+# attached to nothing. The owner reported "the latest one I can see is only build 15" -- build 15
+# was simply the last one anyone remembered to attach.
+#
+# Apple needs a few minutes of processing before a build can be attached, so this retries rather
+# than failing on the first miss.
+for attempt in $(seq 1 10); do
+  if node scripts/testflight-distribute.mjs; then
+    echo
+    echo "Shipped and distributed to the internal group."
+    echo "For the external Cofounders group: node scripts/testflight-distribute.mjs --external"
+    exit 0
+  fi
+  echo "  not processed by Apple yet; retrying in 60s (attempt $attempt/10)"
+  sleep 60
+done
+
+echo
+echo "UPLOADED BUT NOT DISTRIBUTED. Apple has the build; no tester can see it."
+echo "Run this once processing finishes:  node scripts/testflight-distribute.mjs"
+exit 1
