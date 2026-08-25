@@ -39,6 +39,7 @@ import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { ALL_AVATARS } from '@/lib/avatars';
 import { Ev, track } from '@/lib/analytics';
 import { TRIAL_DAYS, trialDayNumber, useTier, useTrialStarted } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
@@ -297,12 +298,67 @@ function openLegal(url: string) {
   Linking.openURL(url).catch(() => {});
 }
 
+/**
+ * AVATAR STEP. src/app/avatar.tsx has existed the whole time and is reachable ONLY from Profile
+ * to "Avatar & banner", so every new user finished onboarding as the default Atlas and most never
+ * found out they could change it. Choosing a face is the cheapest personalisation in the app and
+ * it belongs where the rest of the personalisation already happens.
+ *
+ * NO NEW ART AND NO NEW STATE. These are the same ALL_AVATARS the profile screen offers, drawn
+ * with the same PixelSpriteView, writing the same `avatarId`. It never blocks Continue because
+ * avatarId already defaults to Atlas, so skipping this step lands exactly where the flow landed
+ * before it existed.
+ */
+function AvatarStep() {
+  const theme = useTheme();
+  const avatarId = useApp((s) => s.avatarId);
+  const setAvatarId = useApp((s) => s.setAvatarId);
+  return (
+    <View>
+      <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>
+        Pick your avatar
+      </ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 4 }}>
+        This is you around the app. You can change it any time from your profile.
+      </ThemedText>
+      <View style={styles.avatarGrid}>
+        {ALL_AVATARS.map((a) => {
+          const on = a.id === avatarId;
+          return (
+            <SpringPressable
+              key={a.id}
+              haptic={false}
+              scaleTo={0.92}
+              onPress={() => { setAvatarId(a.id); }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: on }}
+              accessibilityLabel={a.label}>
+              <View
+                style={[
+                  styles.avatarTile,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: on ? theme.primary : theme.border,
+                    borderWidth: on ? 2 : StyleSheet.hairlineWidth,
+                  },
+                ]}>
+                <PixelSpriteView sprite={a.sprite} size={40} />
+              </View>
+            </SpringPressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 type StepDef =
   | { kind: 'single'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'multi'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof'; face: AtlasExpression }
   | { kind: 'loader' }
   | { kind: 'reveal' }
+  | { kind: 'avatar' }
   | { kind: 'paywall' };
 
 /** The flow. Adding a question is a new entry here — no JSX, no new branch. */
@@ -321,6 +377,7 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'ageBand', question: 'How old are you?', sub: 'It helps us pace the long-term material.', options: AGES, face: 'default' },
   { kind: 'single', field: 'source', question: 'Where did you hear about us?', options: SOURCES, face: 'default' },
   { kind: 'single', field: 'notifyOptIn', question: 'Want a daily nudge?', options: NOTIFY, face: 'happy' },
+  { kind: 'avatar' },
   { kind: 'loader' },
   { kind: 'reveal' },
   { kind: 'paywall' },
@@ -621,7 +678,8 @@ export default function Onboarding() {
       : def.kind === 'reveal' ? 'proud'
         : def.kind === 'paywall' ? 'happy'
           : def.kind === 'loader' ? 'thinking'
-            : def.face;
+            : def.kind === 'avatar' ? 'happy'
+              : def.face;
 
   const bodyStyle = useAnimatedStyle(() => ({ opacity: bodyOpacity.get() }));
 
@@ -660,6 +718,8 @@ export default function Onboarding() {
             {def.field === 'notifyOptIn' && <NudgeTimePicker />}
           </>
         );
+      case 'avatar':
+        return <AvatarStep />;
       case 'multi':
         return (
           <MultiSelectStep
@@ -936,6 +996,8 @@ const styles = StyleSheet.create({
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
+  avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
+  avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Heading / trial timeline / plan cards, spread across the leftover height. */
   paywallBody: { flexGrow: 1, justifyContent: 'space-between', gap: Spacing.two, paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
