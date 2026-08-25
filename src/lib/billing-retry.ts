@@ -22,11 +22,22 @@
  */
 
 /**
- * The RevenueCat ENTITLEMENT identifier — not a product id. One entitlement ("pro") is unlocked by
- * either product, so the app never has to ask which SKU someone bought. Must match the dashboard
- * exactly; a typo here reads as "the purchase succeeded but nothing unlocked".
+ * The RevenueCat ENTITLEMENT identifier — not a product id, and NOT the internal `Tier` union in
+ * entitlement.ts, which also has a member spelled 'pro'. One entitlement is unlocked by either
+ * product, so the app never has to ask which SKU someone bought.
+ *
+ * READ FROM THE DASHBOARD, 2026-08-24. Project 320845df, entitlement entl79bcb589c6:
+ *   Identifier    Euphoria Pro
+ *   Display Name  Euphoria Pro
+ *
+ * THIS SAID 'pro' AND THE DASHBOARD NEVER DID. Both the client (purchases.ts) and the server
+ * (_entitlement.ts) look the entitlement up by this exact string, so `entitlements.active[...]`
+ * was permanently undefined: the purchase completes, Apple charges, and nothing unlocks. It never
+ * burned a customer only because the dashboard shows zero purchases have ever been made.
+ *
+ * Change this and the dashboard together, never one alone. entitlement-id-pin.mjs holds the line.
  */
-export const ENTITLEMENT_ID = 'pro';
+export const ENTITLEMENT_ID = 'Euphoria Pro';
 
 /** The shape this rule needs. Structural, so the regression can hand it a plain object. */
 export type EntitlementLike = {

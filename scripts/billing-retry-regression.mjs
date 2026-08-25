@@ -41,25 +41,32 @@ const DAY = 86_400_000;
 
 const NOW = Date.parse('2026-08-10T12:00:00Z');
 const iso = (ms) => new Date(ms).toISOString();
+/*
+ * FIXTURE KEYS USE [ID], NOT A LITERAL. These objects stand in for RevenueCat's payload, so the
+ * key must be the entitlement identifier the app actually looks up. Hardcoding 'pro' here made
+ * this regression pass while the real dashboard identifier was 'Euphoria Pro' -- the test proved
+ * the rule against a key production never sees. The `pro:` inside the EXPECTED objects below is a
+ * different thing entirely: it is proStateFrom's own result field, and it stays spelled 'pro'.
+ */
 const ent = (o) => ({ entitlements: { active: o.active ?? {}, all: o.all ?? {} } });
 
 // ── An ordinary paying member ────────────────────────────────────────────────────────────────
 assert.deepEqual(
-  proStateFrom(ent({ active: { pro: { billingIssueDetectedAt: null } } }), NOW),
+  proStateFrom(ent({ active: { [ID]: { billingIssueDetectedAt: null } } }), NOW),
   { pro: true, billingIssue: false },
 );
 
 // Active but flagged: Apple has a grace period configured, so RevenueCat still reports active.
 // Access continues AND the banner must show — the card still needs fixing.
 assert.deepEqual(
-  proStateFrom(ent({ active: { pro: { billingIssueDetectedAt: iso(NOW - DAY) } } }), NOW),
+  proStateFrom(ent({ active: { [ID]: { billingIssueDetectedAt: iso(NOW - DAY) } } }), NOW),
   { pro: true, billingIssue: true },
 );
 
 // ── THE CASE THIS EXISTS FOR: retry with NO grace period ─────────────────────────────────────
 // No active entitlement, a billing issue, expired 3 days ago. The naive check locks them out.
 const inRetry = ent({
-  all: { pro: { billingIssueDetectedAt: iso(NOW - 3 * DAY), expirationDate: iso(NOW - 3 * DAY) } },
+  all: { [ID]: { billingIssueDetectedAt: iso(NOW - 3 * DAY), expirationDate: iso(NOW - 3 * DAY) } },
 });
 assert.equal(proStateFrom(inRetry, NOW).pro, true, 'a member mid-retry must KEEP access');
 assert.equal(proStateFrom(inRetry, NOW).billingIssue, true, 'and must be TOLD, or nothing gets fixed');
@@ -70,10 +77,10 @@ assert.equal(naive(inRetry), false, 'the old check evicted them, which is the bu
 
 // ── The window has an end ────────────────────────────────────────────────────────────────────
 const justInside = ent({
-  all: { pro: { billingIssueDetectedAt: iso(NOW), expirationDate: iso(NOW - 15 * DAY) } },
+  all: { [ID]: { billingIssueDetectedAt: iso(NOW), expirationDate: iso(NOW - 15 * DAY) } },
 });
 const justOutside = ent({
-  all: { pro: { billingIssueDetectedAt: iso(NOW), expirationDate: iso(NOW - 17 * DAY) } },
+  all: { [ID]: { billingIssueDetectedAt: iso(NOW), expirationDate: iso(NOW - 17 * DAY) } },
 });
 assert.equal(proStateFrom(justInside, NOW).pro, true, 'day 15 still covered');
 assert.equal(proStateFrom(justOutside, NOW).pro, false, 'day 17 is not — this is not free access');
@@ -82,7 +89,7 @@ assert.equal(proStateFrom(justOutside, NOW).pro, false, 'day 17 is not — this 
 // Someone who cancelled has no billing issue. Extending access to them would be giving the
 // product away, and it is the failure mode a careless version of this fix would introduce.
 const cancelled = ent({
-  all: { pro: { billingIssueDetectedAt: null, expirationDate: iso(NOW - DAY) } },
+  all: { [ID]: { billingIssueDetectedAt: null, expirationDate: iso(NOW - DAY) } },
 });
 assert.deepEqual(proStateFrom(cancelled, NOW), { pro: false, billingIssue: false });
 
@@ -91,7 +98,7 @@ assert.deepEqual(proStateFrom(ent({}), NOW), { pro: false, billingIssue: false }
 
 // A malformed expiry must fail CLOSED on access but still report the issue — guessing a date here
 // would be inventing an entitlement out of bad data.
-const noDate = ent({ all: { pro: { billingIssueDetectedAt: iso(NOW), expirationDate: null } } });
+const noDate = ent({ all: { [ID]: { billingIssueDetectedAt: iso(NOW), expirationDate: null } } });
 assert.deepEqual(proStateFrom(noDate, NOW), { pro: false, billingIssue: true });
 
 // ── THE SERVER MUST SHARE THIS RULE, NOT RESTATE IT ──────────────────────────────────────────

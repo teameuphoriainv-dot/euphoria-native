@@ -22,7 +22,13 @@
 // `fetch` is stubbed — a regression must never depend on RevenueCat being up.
 // ============================================================================
 
-import { decide } from '../src/app/api/_entitlement.ts';
+/*
+ * ENTITLEMENT_ID comes from the module under test, never from a literal here. These fixtures stand
+ * in for RevenueCat's subscriber payload, so the key has to be the identifier production actually
+ * looks up. A hardcoded 'pro' made this regression green while the live dashboard identifier was
+ * 'Euphoria Pro' -- it asserted the fail-open rules against a key no real response ever contains.
+ */
+import { decide, ENTITLEMENT_ID as ID } from '../src/app/api/_entitlement.ts';
 
 const fail = [];
 let n = 0;
@@ -61,13 +67,13 @@ await check('no secret, signed in', {}, true, 'not-enforced');
 
 console.log('\n CONFIGURED — RevenueCat answers');
 await check('active entitlement', {
-  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { pro: { expires_date: future } } } }),
+  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { [ID]: { expires_date: future } } } }),
 }, true, 'entitled');
 await check('lifetime (expires_date null)', {
-  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { pro: { expires_date: null } } } }),
+  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { [ID]: { expires_date: null } } } }),
 }, true, 'entitled');
 await check('EXPIRED entitlement', {
-  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { pro: { expires_date: past } } } }),
+  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { [ID]: { expires_date: past } } } }),
 }, false, 'not-entitled');
 await check('no pro entitlement at all', {
   secret: 's', fetcher: () => ok({ subscriber: { entitlements: {} } }),
@@ -86,7 +92,7 @@ await check('malformed body', {
   secret: 's', fetcher: () => new Response('not json', { status: 200 }),
 }, true, 'lookup-failed');
 await check('unparseable expiry date', {
-  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { pro: { expires_date: 'nonsense' } } } }),
+  secret: 's', fetcher: () => ok({ subscriber: { entitlements: { [ID]: { expires_date: 'nonsense' } } } }),
 }, false, 'not-entitled');
 
 console.log('\n ANONYMOUS — the rollout switch');
