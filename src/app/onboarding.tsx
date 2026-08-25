@@ -253,7 +253,9 @@ const TRIAL_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'soli
 const PRO_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
   { icon: lock, title: 'Every lesson reopens', sub: 'All 12 courses, 300 lessons, no counter.', tone: 'solid' as const },
   { icon: star, title: 'Atlas becomes unlimited', sub: 'Ask as much as you like, mid-lesson.', tone: 'soft' as const },
-  { icon: chartUp, title: 'Paper trading and the options desk', tone: 'muted' as const },
+  // A one-liner like the two above it. Without one this row rendered as a bare title against two
+  // subtitled siblings, which reads as unfinished rather than as a shorter point.
+  { icon: chartUp, title: 'Paper trading and the options desk', sub: 'Trade stocks and options with virtual money.', tone: 'muted' as const },
 ];
 
 const LOADER_LINES = [
