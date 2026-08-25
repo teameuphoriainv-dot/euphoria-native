@@ -31,6 +31,10 @@ export function Typewriter({ text, delay = 0, style }: { text: string; delay?: n
   const [n, setN] = useState(reduced ? text.length : 0);
 
   useEffect(() => {
+    // Reduced Motion takes the instant path: show the whole string rather than type it. One
+    // extra render on mount, no interval, no loop -- the state is already seeded to this value,
+    // so React bails unless `text` changed.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (reduced) { setN(text.length); return; }
     setN(0);
     let i = 0;

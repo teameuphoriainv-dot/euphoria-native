@@ -127,32 +127,37 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
       case 'pie': {
         const segs: any[] = v.segments ?? [];
         const R = 34, SW = 14, C = 2 * Math.PI * R, SIZE = (R + SW) * 2;
-        let acc = 0;
+        const lens = segs.map((s) => (pct(s.percent) / 100) * C);
+        /*
+         * PREFIX SUMS, NOT A RUNNING ACCUMULATOR. This was `let acc = 0` mutated inside the map
+         * body, which React Compiler flags as react-hooks/immutability: mutation during render is
+         * precisely what defeats memoisation, and the compiler bails out of the WHOLE component
+         * when it sees one -- so the cost is not the loop, it is every optimisation in this file.
+         * Output is identical: offs[n] is the sum of every length before n, which is what the
+         * accumulator held when segment n was drawn.
+         * ponytail: O(n^2), and n is the number of pie segments -- 2 to 6 across this curriculum.
+         */
+        const offs = lens.map((_, i) => lens.slice(0, i).reduce((a, b) => a + b, 0));
         return (
           <View style={styles.pieRow}>
             {/* Decorative: every number in it is already in the Card's own label. */}
             <Svg width={SIZE} height={SIZE} accessible={false}>
-              {segs.map((s, n) => {
-                const len = (pct(s.percent) / 100) * C;
+              {segs.map((s, n) => (
                 // stroke-dash arithmetic rather than arc paths: an offset cannot draw a bad wedge
-                const el = (
-                  <Circle
-                    key={n}
-                    cx={SIZE / 2}
-                    cy={SIZE / 2}
-                    r={R}
-                    fill="none"
-                    stroke={s.color ?? accent}
-                    strokeWidth={SW}
-                    strokeDasharray={`${len} ${C - len}`}
-                    strokeDashoffset={-acc}
-                    // start at twelve o'clock instead of three
-                    transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
-                  />
-                );
-                acc += len;
-                return el;
-              })}
+                <Circle
+                  key={n}
+                  cx={SIZE / 2}
+                  cy={SIZE / 2}
+                  r={R}
+                  fill="none"
+                  stroke={s.color ?? accent}
+                  strokeWidth={SW}
+                  strokeDasharray={`${lens[n]} ${C - lens[n]}`}
+                  strokeDashoffset={-offs[n]}
+                  // start at twelve o'clock instead of three
+                  transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+                />
+              ))}
             </Svg>
             <View style={{ flex: 1, gap: 6 }}>
               {v.centerLabel ? <ThemedText type="smallBold" style={{ color: accent }}>{v.centerLabel}</ThemedText> : null}

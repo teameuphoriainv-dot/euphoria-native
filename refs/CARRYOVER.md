@@ -307,6 +307,15 @@ is outward-facing and permanent.
 
 ### 5.2 Make the lint gate green, then wire it into `npm run check`
 
+> **RESOLVED. Errors are 0 and eslint now runs inside `npm run check` (38 steps).** The seven
+> `set-state-in-effect` sites got targeted `eslint-disable-next-line` comments, each carrying its
+> own reason above it rather than a blanket rule downgrade. `lesson-visual.tsx:153` got a real
+> fix, not a disable: its pie chart mutated a `let acc` accumulator during render, which makes
+> React Compiler bail out of the whole component — replaced with prefix sums, proven identical
+> for every segment count 0..8. The gate is break-tested in both directions: a new
+> `set-state-in-effect` error fails it (so the disables did NOT turn the rule off globally), and
+> a 63rd warning fails it against `--max-warnings 62`. **The inventory below is now historical.**
+
 **Status:** the owner picked this task explicitly at the end of the session. **The inventory
 below was re-measured at `e421309`. The previous one was wrong in every particular — no
 `no-undef` errors exist, the `purity` error is an `immutability` error in a different file, and

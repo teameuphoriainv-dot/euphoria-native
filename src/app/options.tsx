@@ -229,6 +229,10 @@ export default function Options() {
   // Expiries for the chosen underlying. An empty result means no token, which the UI states.
   useEffect(() => {
     let cancelled = false;
+    // Clears a stale error when the dependency changes, before the fetch that may set a new one.
+    // React bails out via Object.is when the value is already null, so on the common path this
+    // renders nothing -- it is not the cascading render the rule exists to catch. refs/TASK_QUEUE.md
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErr(null);
     getExpirations(sym)
       .then((d) => {

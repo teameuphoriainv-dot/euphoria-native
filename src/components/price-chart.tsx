@@ -74,6 +74,9 @@ export function PriceChart({ sym, initialRange = '1D' }: { sym: string; initialR
     if (autoStepped || range !== initialRange) return;
     if (loadedKey !== key) return;
     if (chart && chart.points.length === 0) {
+      // Fires at most once per mount: `autoStepped` is checked at the top of this effect and set
+      // here, so the branch cannot be re-entered. Batched with setRange into a single render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAutoStepped(true);
       setRange('1W');
     }

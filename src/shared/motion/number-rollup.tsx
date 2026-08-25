@@ -48,6 +48,9 @@ export function NumberRollup({
   useEffect(() => {
     const render = (v: number) => prefix + withCommas(v) + suffix;
     if (reduced) {
+      // Reduced Motion takes the instant path: land on the final value instead of animating to
+      // it. One render, then return -- there is no rAF loop on this branch.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setText(render(value));
       return;
     }
