@@ -127,14 +127,14 @@ export function TrialStep({
     <View style={styles.tlRow}>
       <View style={styles.tlRail}>
         <View style={[styles.tlDot, { backgroundColor: dotBg }]}>
-          <PixelSpriteView sprite={icon} size={17} />
+          <PixelSpriteView sprite={icon} size={22} />
         </View>
         {!last && (
           <LinearGradient colors={[dotBg, dotBg + '22']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.tlBar} />
         )}
       </View>
       <View style={styles.tlBody}>
-        <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{title}</ThemedText>
+        <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{title}</ThemedText>
         {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 3, lineHeight: 19 }}>{sub}</ThemedText> : null}
       </View>
     </View>
@@ -271,13 +271,13 @@ export function PlanCard({
           {selected ? <UIcon name="check" size={12} color="#fff" /> : null}
         </View>
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
+          <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{title}</ThemedText>
           {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText> : null}
         </View>
         {/* price stacked over its billing period: the amount is what you are charged, the unit
             says how often, so annual and monthly are never both reading as "/mo" */}
         <View style={{ alignItems: 'flex-end' }}>
-          <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{price}</ThemedText>
+          <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{price}</ThemedText>
           {unit ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 1 }}>{unit}</ThemedText> : null}
         </View>
       </View>
@@ -802,14 +802,14 @@ const styles = StyleSheet.create({
   atlasStage: { height: ATLAS_STAGE_H, alignItems: 'center', justifyContent: 'flex-end' },
   // trial timeline — the rail column is fixed-width so every title starts on the same x
   tlRow: { flexDirection: "row", gap: Spacing.two + 2 },
-  tlRail: { width: 30, alignItems: 'center' },
-  tlDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  tlRail: { width: 38, alignItems: 'center' },
+  tlDot: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   tlBar: { width: 3, flex: 1, borderRadius: Radius.hairline, marginTop: 2, minHeight: 14 },
-  tlBody: { flex: 1, paddingBottom: Spacing.two },
-  plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg },
+  tlBody: { flex: 1, paddingBottom: Spacing.three },
+  plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three + 4, borderRadius: Radius.lg },
   // sits flush on the card's top edge, which squares off its top corners
   planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
-  planRadio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  planRadio: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   chevron: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
   segRow: { flex: 1, flexDirection: 'row', gap: 6 },

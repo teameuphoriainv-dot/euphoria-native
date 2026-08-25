@@ -389,7 +389,7 @@ const PAYWALL_INDEX = TOTAL - 1;
 /** Atlas on the paywall. 56 read as a favicon on the one screen that asks for money;
  *  the design doc asks for Atlas here and asks for it to be "super beautiful". 76 gives the
  *  mascot presence while still leaving the plan cards above the fold on a 393pt phone. */
-const PAYWALL_ATLAS = 56;
+const PAYWALL_ATLAS = 64;
 const REVEAL_INDEX = TOTAL - 2;
 
 export default function Onboarding() {
