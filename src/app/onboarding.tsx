@@ -858,6 +858,7 @@ export default function Onboarding() {
                   : 'Continue'
             }
             full
+            {...(step === PAYWALL_INDEX && !isProNow ? { tone: 'premium' as const } : {})}
             loading={busy}
             disabled={!canContinue || busy}
             onPress={

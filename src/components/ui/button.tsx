@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -123,7 +124,13 @@ export function SlabButton({
    * up"). Same slab construction, light face, dark ink — used where a second CTA sits beside
    * the purple one and must not compete with it.
    */
-  tone?: 'primary' | 'neutral';
+  /**
+   * `premium` paints the web app's own purple-to-pink-to-orange ramp across the face, using the
+   * theme's existing gradientFrom / premiumFrom / premiumTo. It exists so the paywall CTA reads
+   * as the same product as euphoriainv.com, where the upgrade path is that ramp everywhere. No
+   * new colour is introduced: all three stops are already in the palette.
+   */
+  tone?: 'primary' | 'neutral' | 'premium';
   /** Override the label-derived a11y label when the button's purpose differs from its word. */
   accessibilityLabel?: string;
 }) {
@@ -132,8 +139,15 @@ export function SlabButton({
   const press = useSharedValue(0);
 
   const neutral = tone === 'neutral';
+  const premium = tone === 'premium';
   const face = neutral ? theme.ctaNeutral : theme.primary;
-  const slab = neutral ? theme.ctaNeutralDepth : theme.ctaDepth;
+  /*
+   * NO DEPTH SLAB UNDER THE PREMIUM FACE. The slab is a solid block sitting SLAB points below the
+   * face, so the button reads as a physical key you press down onto it. Under the gradient it
+   * showed as a flat purple strip beneath a purple-to-orange ramp, which read as a stray border
+   * rather than depth. Transparent keeps the press travel exactly as it was and removes the strip.
+   */
+  const slab = neutral ? theme.ctaNeutralDepth : premium ? 'transparent' : theme.ctaDepth;
   const ink = neutral ? theme.ctaNeutralInk : '#fff';
 
   const faceStyle = useAnimatedStyle(() =>
@@ -153,6 +167,17 @@ export function SlabButton({
       style={[styles.slabWrap, { opacity: disabled ? 0.5 : 1 }, full && styles.full, style]}>
       <View style={[styles.slab, { backgroundColor: slab }]} />
       <Animated.View style={[styles.face, { backgroundColor: face }, faceStyle]}>
+        {/* Absolutely positioned and FIRST, so the label and any icon paint on top of it. The
+            radius is repeated here rather than inherited: an absolute child does not clip to its
+            parent's corners on iOS, and without it the ramp squares off the pill. */}
+        {premium ? (
+          <LinearGradient
+            colors={[theme.gradientFrom, theme.premiumFrom, theme.premiumTo]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[StyleSheet.absoluteFill, { borderRadius: Radius.pill }]}
+          />
+        ) : null}
         {loading ? (
           <ActivityIndicator color={ink} />
         ) : (
