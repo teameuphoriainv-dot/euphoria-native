@@ -13,7 +13,7 @@
 import * as Linking from 'expo-linking';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -47,7 +47,7 @@ import { COURSES } from '@/lib/curriculum/courseIndex';
 import { applyDailyNudge } from '@/lib/notifications';
 import { NudgeTimePicker } from '@/components/nudge-time-picker';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
-import { useApp } from '@/lib/store';
+import { NAME_MAX, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { CHILD_BASE, childDelay, useStepTransition } from '@/shared/motion/step-transition';
@@ -301,6 +301,42 @@ function openLegal(url: string) {
 }
 
 /**
+ * NAME STEP. Home renders `Hey there, {name}` from profile.name, and onboarding never asked for a
+ * name, so that greeting fell back to a bare "Hey there" for everyone. profile.name was only ever
+ * written by auth.tsx at sign-in, and only when that field happened to be filled in.
+ *
+ * A LOCAL DRAFT DRIVES THE INPUT, and the store gets the trimmed value on every keystroke.
+ * setDisplayName trims and caps at NAME_MAX, so binding the input straight to the store would eat
+ * the space the moment you typed it and make "Anna Maria" impossible. avatar.tsx solves the same
+ * problem the same way.
+ */
+function NameStep({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const theme = useTheme();
+  return (
+    <View>
+      <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>
+        What should we call you?
+      </ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 4 }}>
+        It goes on your home screen and your profile. You can change it any time.
+      </ThemedText>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder="Your first name"
+        placeholderTextColor={theme.mutedForeground}
+        maxLength={NAME_MAX}
+        autoCapitalize="words"
+        autoCorrect={false}
+        returnKeyType="done"
+        accessibilityLabel="Your name"
+        style={[styles.nameInput, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
+      />
+    </View>
+  );
+}
+
+/**
  * AVATAR STEP. src/app/avatar.tsx has existed the whole time and is reachable ONLY from Profile
  * to "Avatar & banner", so every new user finished onboarding as the default Atlas and most never
  * found out they could change it. Choosing a face is the cheapest personalisation in the app and
@@ -360,11 +396,13 @@ type StepDef =
   | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof'; face: AtlasExpression }
   | { kind: 'loader' }
   | { kind: 'reveal' }
+  | { kind: 'name' }
   | { kind: 'avatar' }
   | { kind: 'paywall' };
 
 /** The flow. Adding a question is a new entry here — no JSX, no new branch. */
 const STEPS: StepDef[] = [
+  { kind: 'name' },
   { kind: 'single', field: 'experience', question: 'How much do you already know?', options: LEVELS, face: 'watching' },
   { kind: 'single', field: 'goal', question: 'What brings you to Euphoria?', options: GOALS, face: 'default' },
   { kind: 'multi', field: 'topics', question: 'What do you want to learn about?', options: TOPICS, face: 'happy' },
@@ -413,6 +451,12 @@ export default function Onboarding() {
   const { step, renderStep, bodyOpacity, atlasT, goTo } = useStepTransition(startStep, scrollRef, TOTAL);
   // A tap is an acknowledgement, not an achievement — see AtlasStage below for why these are
   // two different keys.
+  /* Draft lives here, not in NameStep, because canContinue has to read it to gate the button. */
+  const [nameDraft, setNameDraft] = useState(() => useApp.getState().profile.name ?? '');
+  const onNameChange = (v: string) => {
+    setNameDraft(v);
+    useApp.getState().setDisplayName(v);
+  };
   const [nodKey, setNodKey] = useState(0);
   const [plan, setPlan] = useState<'annual' | 'monthly'>('annual');
 
@@ -670,6 +714,7 @@ export default function Onboarding() {
   const canContinue = (() => {
     if (underAge) return false;
     if (!liveDef) return true;
+    if (liveDef.kind === 'name') return nameDraft.trim().length > 0;
     if (liveDef.kind === 'single') return selected(liveDef.field) !== null;
     if (liveDef.kind === 'multi') return ((profile[liveDef.field] as string[]) ?? []).length > 0;
     return true;
@@ -680,6 +725,7 @@ export default function Onboarding() {
       : def.kind === 'reveal' ? 'proud'
         : def.kind === 'paywall' ? 'happy'
           : def.kind === 'loader' ? 'thinking'
+            : def.kind === 'name' ? 'happy'
             : def.kind === 'avatar' ? 'happy'
               : def.face;
 
@@ -720,6 +766,8 @@ export default function Onboarding() {
             {def.field === 'notifyOptIn' && <NudgeTimePicker />}
           </>
         );
+      case 'name':
+        return <NameStep value={nameDraft} onChange={onNameChange} />;
       case 'avatar':
         return <AvatarStep />;
       case 'multi':
@@ -998,6 +1046,7 @@ const styles = StyleSheet.create({
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
+  nameInput: { marginTop: Spacing.four, minHeight: 52, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.three, fontSize: FontSize.bodyLg },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Heading / trial timeline / plan cards, spread across the leftover height. */
