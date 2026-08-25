@@ -160,8 +160,6 @@ export default function Home() {
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
-  const minutesDone = useApp((s) => s.minutesDoneToday());
-  const goalMinutes = useApp((s) => s.dailyGoalMinutes());
 
   const course = getCourseById(activeCourseId);
   const accent = courseAccent(activeCourseId);
@@ -189,7 +187,6 @@ export default function Home() {
     () => completedLessons.filter((k) => k.startsWith(`${activeCourseId}:`)).length,
     [completedLessons, activeCourseId],
   );
-  const remaining = Math.max(0, goalMinutes - minutesDone);
 
   // The week strip needs per-day history that nothing records yet; `streak` is the only real
   // signal, so fill backwards from today and stop. Exact when streak <= 7, which is the only
@@ -304,21 +301,6 @@ export default function Home() {
                   * 1.6: chrome may cap hard, content should scale as far as it can.
                   */}
                 <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
-                {/*
-                  * THE NUDGE IS NOT A CAPTION. This was `type="small"` in mutedForeground: 13px at
-                  * the lowest contrast on the screen, sitting directly under a 22px title, so the
-                  * one line asking you to do something read as the least important thing on Home.
-                  * It now carries weight and the streak colour, the same colour the flame pill
-                  * beside it already uses, so no new colour is introduced and the contrast is
-                  * already proven on this background. Green when the day is done, because "Streak
-                  * safe" is a success state and orange would keep asking for something.
-                  */}
-                <ThemedText
-                  type="smallBold"
-                  maxFontSizeMultiplier={2}
-                  style={{ color: remaining === 0 ? theme.success : theme.streak }}>
-                  {remaining === 0 ? 'Done for today. Streak safe.' : `${remaining} min to keep your streak`}
-                </ThemedText>
               </SpringPressable>
             </View>
             {/*
