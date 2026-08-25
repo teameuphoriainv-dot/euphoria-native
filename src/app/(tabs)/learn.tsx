@@ -187,12 +187,6 @@ export default function Learn() {
                 * device both times rather than assumed.
                 */}
               <ThemedText type="title" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>{course?.title ?? 'Courses'}</ThemedText>
-              {/* Data, not an instruction. All six reference path screens put INFORMATION here —
-                  "12 chapters", "Beginner: 2%", "0 of 7 lessons completed", "24 lessons" — none
-                  spends the line telling you the header is tappable. */}
-              <ThemedText type="small" maxFontSizeMultiplier={2} style={{ marginTop: 2, color: theme.iconLilac }} numberOfLines={2}>
-                {total ? `${Math.round((doneCount / total) * 100)}% complete · ${total} lessons` : 'Tap to browse all courses'}
-              </ThemedText>
             </SpringPressable>
             {/*
               * THE STREAK FOLLOWS YOU ONTO THE LEARNING SURFACE. Audit finding (FINDINGS.md, LEARN):
@@ -217,9 +211,6 @@ export default function Learn() {
                 <ThemedText type="smallBold" style={{ color: theme.streak }}>{streak}</ThemedText>
               </View>
             )}
-            <View style={[styles.countPill, { backgroundColor: accent + '24', borderColor: accent + '4D' }]}>
-              <ThemedText type="smallBold" style={{ color: accent }}>{doneCount}/{total || course?.totalLessons || 0}</ThemedText>
-            </View>
             <AskAtlasButton topic={course?.title} />
             <ProfileButton />
           </View>
@@ -322,21 +313,16 @@ export default function Learn() {
                 * A Fragment, not a wrapping View: the rows draw a connecting rail from sibling
                 * layout, and boxing them changes it.
                 *
-                * The count is COMPUTED, never "5 LESSONS" hardcoded. That is C109's defect exactly —
-                * a hardcoded "LESSON 1" that was false for everyone past their first lesson, caught
-                * only by reading the screen. All twelve courses are 25 long today; a re-sync that
-                * changes one must not make this header lie.
+                * The "UNIT n · m LESSONS" line above the name was REMOVED 2026-08-25: the unit's own
+                * name says what the section is, and the count restated a number the progress bar
+                * already carries. Only the name remains.
                 */
               const unitName = i % LESSONS_PER_UNIT === 0 ? unitNameFor(trailCourseId, i) : null;
-              const unitCount = Math.min(LESSONS_PER_UNIT, lessons.length - i);
               return (
                 <Fragment key={i}>
                 {unitName && (
                   <View style={[styles.unitHead, i > 0 && { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-                    <ThemedText type="label" style={{ color: accent }}>
-                      UNIT {String(i / LESSONS_PER_UNIT + 1)} · {String(unitCount)} LESSON{unitCount === 1 ? '' : 'S'}
-                    </ThemedText>
-                    <ThemedText type="bodyMedium" style={{ marginTop: 2 }} numberOfLines={2}>
+                    <ThemedText type="bodyMedium" numberOfLines={2}>
                       {unitName}
                     </ThemedText>
                   </View>
@@ -391,7 +377,7 @@ export default function Learn() {
                         ) : locked ? (
                           <PixelSpriteView sprite={lock} size={13} />
                         ) : (
-                          <View style={{ width: 9, height: 9, borderRadius: Radius.chipSm, backgroundColor: accent }} />
+                          <View style={{ width: 9, height: 9, borderRadius: 1, backgroundColor: accent }} />
                         )}
                       </View>
                     </View>
@@ -491,8 +477,21 @@ const styles = StyleSheet.create({
   /* Fixed width so every dot lands on the same vertical axis regardless of title length — that
      shared axis IS the path, and one row indenting differently would break the line. */
   railCol: { width: DOT, alignItems: 'center', alignSelf: 'stretch', justifyContent: 'center' },
-  wire: { position: 'absolute', width: 2, borderRadius: 1 },
-  dot: { width: DOT, height: DOT, borderRadius: DOT / 2, alignItems: 'center', justifyContent: 'center' },
+  wire: { position: 'absolute', width: 2, borderRadius: 0 },
+  /*
+   * PIXELATED NODE. This was a true circle (borderRadius: DOT / 2) and it was the last round
+   * thing on a screen whose glyphs are all pixel sprites, so the ring read as a different visual
+   * system to everything inside it.
+   *
+   * SQUARED OFF RATHER THAN REPLACED WITH A SPRITE, deliberately. PixelSpriteView takes
+   * sprite/size/scale/play/playKey/frameMs/canvas and has NO colour prop, so a sprite bakes its
+   * palette in. This ring carries the COURSE ACCENT and three states (done, active, locked), and
+   * the wires above and below attach to it. A sprite ring would need one variant per state per
+   * course accent and would still lose the accent, which is exactly what the note beside the node
+   * warns about. A small radius keeps every one of those properties and costs no extra views, on
+   * a screen that renders 25 of these.
+   */
+  dot: { width: DOT, height: DOT, borderRadius: 3, alignItems: 'center', justifyContent: 'center' },
   rowText: { flex: 1, paddingVertical: Spacing.one },
   /* Fixed width so titles all wrap at the same point — a mark column that shrinks with its content
      would give every row a different text width and the left edge of nothing would line up. */
