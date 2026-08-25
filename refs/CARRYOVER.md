@@ -1,257 +1,851 @@
-# Euphoria iOS — session carryover
+# Euphoria iOS — carryover and backlog
 
-Written at the end of a long session. Read this before touching anything.
+Written at the end of a long session, at the owner's instruction, after his note that
+**"you are not diligent enough."** That is fair and it is evidenced in §1.
 
-The owner's parting note was **"you are not diligent enough."** That is fair and it is
-evidenced below. The failures were not knowledge gaps — they were verification gaps. Read
-§1 before §2, because §1 is what went wrong about *how I worked*, and it will happen to you
-too unless you build against it.
+This document is in two halves. §1–§4 are how to work here and what state things are in.
+**§5 onward is the backlog** — every open item I could find or verify, with file:line, the
+reason it matters, how to verify it, and what "done" means. Work from §5.
+
+Read §1 first. It is not throat-clearing. Every failure in it produced a real defect that
+reached the owner, and the failures were not knowledge gaps — they were verification gaps.
+You will make the same ones unless you build against them deliberately.
 
 ---
 
-## 1. HOW I FAILED, SPECIFICALLY. Do not repeat these.
+# PART ONE — HOW TO WORK HERE
 
-### 1.1 I wrote THREE tests that could not fail
+## 1. HOW I FAILED, SPECIFICALLY
 
-Each looked rigorous and proved nothing:
+### 1.1 I wrote three tests that could not fail
 
-- **`quests.ts` distinctness loop.** Iterated 400 different dates asserting the two rotating
-  quests never collide. The pick was seeded from `dayKey()` — the *argument-less* one, which
-  reads the real clock. All 400 iterations tested the same day. Caught by a review agent, not
-  by me.
-- **`billing-retry-regression.mjs` shared-rule pin.** Asserted `/withinRetryGrace/` appeared
-  in `_entitlement.ts`. I deleted the actual call to test it and **it still passed** — the
-  import line and my own explanatory comment satisfied the regex. Now strips comments and
-  matches `withinRetryGrace\(`.
-- **`course-mark-pin`** (earlier session, same shape): its own sanity floor of `>= 12` masked
-  the failure it existed to catch.
+Each looked rigorous. Each proved nothing.
 
-**The rule:** after writing any check, *break the thing it guards and watch it fail.* If you
-cannot make it fail, it is decoration. This is already the house culture — `order-derangement-pin`
-literally prints "and the pre-fix shuffle is confirmed to fail this" — I just kept not doing it.
+**The quests distinctness loop.** `src/lib/quests.ts` picks two rotating quests a day and the
+two must never collide. I wrote a loop over 400 consecutive dates asserting they differ. The
+pick was seeded from `dayKey()` — the *argument-less* overload, which reads the real system
+clock — so all 400 iterations tested the same day. The check that existed to prove the
+property proved nothing at all. Found by a review agent, not by me. Fixed: `questsForToday`
+now derives `const today = dayKey(now)` once and every day computation uses it.
+
+**The shared-rule pin.** `scripts/billing-retry-regression.mjs` asserts `_entitlement.ts` uses
+the shared grace rule rather than restating it. I wrote `assert.ok(/withinRetryGrace/.test(server))`.
+I then deleted the actual *call* to test the pin — **and it still passed**, because the import
+line and my own explanatory comment both contain the identifier. It now strips comments first
+and matches `withinRetryGrace\(`, and I re-ran the deletion to watch it fail.
+
+**`course-mark-pin`** (an earlier session, same shape): its own sanity floor of `>= 12` masked
+the exact failure it existed to catch. Lowered to `>= 1`.
+
+> **The rule: after writing any check, break the thing it guards and watch it fail.** If you
+> cannot make it fail, it is decoration. This is already the house culture —
+> `order-derangement-pin` prints *"and the pre-fix shuffle is confirmed to fail this"* — I
+> simply kept not doing it. `refs/NEXT_SESSION.md` §3.3 says the same thing. It is written
+> down twice and I still shipped three of them in one day.
 
 ### 1.2 I worked around my own product instead of filing it
 
-While testing, my back-taps on `/you` did nothing, so I used the iOS edge-swipe and moved on.
-The owner then reported *"after I click my profile I can't get out of it."* `/you` had **no
-`router.back()` anywhere** — the only exits were an undiscoverable edge-swipe or the Log out
-button. I experienced the bug, routed around it, and shipped it.
+While testing navigation, my back-taps on `/you` did nothing. I used the iOS edge-swipe
+gesture instead and carried on. Hours later the owner wrote: *"After I click my profile I
+cant get out of it btw."*
 
-**The rule:** if you find yourself working around the app, that IS the bug. Stop and write it down.
+`/you` had **no `router.back()` anywhere**. The Stack runs `headerShown: false`, so the only
+exits were an undiscoverable edge-swipe or the **Log out** button — which is not a way back,
+it is a way out of the account. It was survivable while `/you` sat behind one easily-missed
+greeting tap. I then added a profile button to all five tab headers and turned a rarely-visited
+dead end into a **one-tap trap**, without noticing, while personally experiencing it.
 
-### 1.3 I nearly filed a false bug report — twice
+> **The rule: if you find yourself working around the app, that IS the bug.** Stop and write
+> it down before continuing. A workaround you invent in ten seconds is a wall to someone else.
 
-- I told the owner the Money 2048 D-pad was broken after a rewrite. **It was not.** My tap
-  coordinate (200) fell in the dead gap between ↓ (169) and ↑ (233). Verified working: 12 taps
-  → score 13 with `$2` and `$5` merges.
-- I reported the banner unlock gate as leaking because I read `completedLessons: []` off the
-  simulator. That was a **stale app container**. The achievements screen said "3 of 26 earned".
-  The gate was right; my measurement was wrong.
+### 1.3 I nearly filed two false bug reports
 
-**The rule:** before reporting a defect, prove the *measurement* first. Read the running app,
-not a file that merely looks like its state. Compute button centres from the screenshot you
-are about to tap, every time.
+**The D-pad.** After rewriting Money 2048's swipe handler I told the owner the accessible
+D-pad had stopped registering taps. It had not. My tap coordinate (`x=200`) fell in the dead
+gap between the ↓ key at `169` and the ↑ key at `233`. Verified working immediately after
+recomputing: twelve taps produced score 13 with `$2` and `$5` merges. Had I not checked, the
+next session would have burned time hunting a bug that did not exist.
 
-### 1.4 I committed off `git add` instead of off the gate
+**The banner gate.** I reported the "First Step" banner as unlocking without its achievement,
+having read `completedLessons: []` off the simulator's filesystem. That was a **stale app
+container**. The achievements screen in the running app said "3 of 26 earned" with "Getting
+Going 1/10". The gate was correct; my measurement was wrong.
 
-`git add -A && git commit` — so a commit landed with two motion defects in it that
-`npm run check` would have caught. The gates worked; my shell did not.
+> **The rule: prove the measurement before reporting the defect.** Read the running app, not
+> a file that merely looks like its state. Recompute button centres from the screenshot you
+> are about to tap — never reuse coordinates across a layout change.
 
-**The rule:** `npm run check && npx tsc --noEmit && git commit …`. Chain the commit off the
-verification, never off the staging.
+### 1.4 I chained a commit off `git add` instead of off the gate
 
-### 1.5 What I did do right, keep doing
+`git add -A && git commit -q …` — so a commit landed carrying two motion defects that
+`npm run check` catches and reports. I had to amend. The gates worked; my shell did not.
 
-Proving engines before building UI (`money-2048.ts` assertions ran and were *deliberately
-broken* before any screen existed), recording honest ceilings in comments rather than
-overclaiming, and correcting my own wrong numbers in writing (137 rects → measured 29).
+> **The rule:** `npm run check && npx tsc --noEmit && npx eslint <files> && git commit …`
+
+### 1.5 What I did do right — keep doing these
+
+- **Proved engines before building UI.** `money-2048.ts` had its full assertion suite written
+  and *deliberately broken* (chain-merge rule disabled → three assertions failed) before a
+  single line of screen existed. That caught nothing at the time and paid off within the hour:
+  when the board appeared frozen after 24 swipes, I already knew the engine was right, so I
+  looked at my test instead — and rule 3 was working exactly as designed.
+- **Recorded honest ceilings.** The network rate-limit bucket's comment states plainly that it
+  does not make the limiter global and that a proxy pool still defeats it. A control that
+  overclaims is worse than no control.
+- **Corrected my own numbers in writing.** I estimated 137 rects per sprite from the raw ASCII
+  and claimed a 13x win; running the real compiler gave 29 and 8.0x. The commit message carries
+  the correction so the next reader does not re-derive the wrong figure.
 
 ---
 
-## 2. THE ONE THING THAT IS ACTUALLY UNVERIFIED
+## 2. THE VERIFICATION PROTOCOL
 
-**Nothing is known-broken.** Working tree clean at `ee55f2d`, 36 gates green, tsc clean,
-0 eslint problems, three OTAs shipped, build 18 on TestFlight.
+This is the part I was not diligent about. Follow it literally.
 
-**The genuinely open question:** the owner has never told me whether the performance work
-*feels* better on a real device. Everything in §4 below is measured on a simulator. Ask for
-that read before doing more perf work — it decides whether the remaining ~1.1 idle commits/sec
-matters at all.
+### 2.1 Before every commit
+
+```
+npm run check && npx tsc --noEmit && npx eslint <the files you touched>
+```
+
+All three. `npm run check` runs 36 pins and **does not run eslint** (see §5.2). Chain the
+commit off the conjunction, never off `git add`.
+
+### 2.2 Before claiming any behaviour works
+
+Tap it. Not a deep link — **tap it**, the way a user reaches it. Deep-linking to every screen
+is precisely how a profile editor got built that nobody could navigate to, and how a Compound
+Growth Lab sat orphaned in the routes for weeks.
+
+To load the app:
+
+```bash
+xcrun simctl launch booted com.euphoria.native
+xcrun simctl openurl booted "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F192.168.1.69%3A8081"
+```
+
+> **A bare `simctl launch` crashes** with `Assertion failed: (isNumber()), jsi.h:1937` before
+> any JS runs. Reproduced at HEAD with a cleared Metro cache, so it is environmental, not a
+> branch defect. Always go through the dev-client URL.
+
+Coordinates: `displayed × 1.31 = original px`, `original px ÷ 3 = points`. Recompute from the
+screenshot you are about to act on. A 48pt button is ~63 displayed px wide — the gaps between
+adjacent buttons are wide enough to swallow a tap, which is exactly what happened in §1.3.
+
+### 2.3 Before claiming a performance change
+
+Measure it, twice, with a marker in the readout proving which build produced the number. In
+this session I stamped `[b2]`, `[b3]`, `[b4]`, `[FIX2]` into an on-screen HUD precisely so a
+stale bundle could not silently produce a reading. `refs/NEXT_SESSION.md` §3.4 exists because
+"stale build" and "second code path" look identical from the outside.
+
+`console.log` does **not** reach the iOS syslog in this dev-client setup. If you need runtime
+numbers, render them on screen and screenshot them. Account for the observer: a HUD that sets
+state every 2s adds exactly 0.5 commits/sec, and you must subtract it rather than ignore it.
+
+### 2.4 Before trusting a subagent's finding
+
+Two of the six review agents in this session produced findings that were **already fixed** or
+**already documented as deliberate**, and one flagged three false positives (dynamic routes
+`/digest/[slug]`, `/stock/[sym]`, `/settings/[section]` matched as "orphaned" because a literal
+string search misses `` `/stock/${sym}` ``). Verify every claim against the code before acting
+or reporting. They are extremely useful and they are not oracles.
+
+### 2.5 Report failures the moment you find them
+
+Including your own. Especially your own. The owner's trust in a report is worth more than the
+appearance of a clean session, and a defect you conceal costs him a cofounder demo.
 
 ---
 
 ## 3. WHAT THIS APP IS
 
-Euphoria — an Expo/React Native **iOS** financial-literacy app for teenagers.
-`~/euphoria-native`. RN 0.86.2, React 19.2.3, Expo ~57, expo-router, Reanimated 4.5.1,
-react-native-svg, zustand 5 + persist over AsyncStorage. **React Compiler is ON.**
+**Euphoria** — an Expo/React Native **iOS** financial-literacy app for teenagers.
+Repo: `~/euphoria-native`.
 
-- Simulator UDID `755B55D9-8E4B-431C-9D1D-A635F38CFF5F`, bundle `com.euphoria.native`
-- Tabs: Home / Learn / Trade / Digest / Games. **Five is the maximum** — a sixth makes iOS
-  show a "More" overflow and the labels truncate at accessibility sizes. A "You" tab was
-  tried and deliberately removed; profile lives behind a header button.
-- Governed by `refs/NEXT_SESSION.md` and `refs/FEEDBACK_LOG.md`. **`AGENTS.md` requires the
-  ScreensDesign MCP for every design decision**, and says to read the SCREEN, never the flow
-  description — a whole paywall redesign was once built and reverted on a lossy summary.
+| | |
+|---|---|
+| Stack | RN 0.86.2, React 19.2.3, Expo ~57, expo-router, Reanimated 4.5.1, react-native-svg |
+| State | zustand 5 + `persist` over AsyncStorage, currently `version: 3` |
+| Compiler | **React Compiler is ON** (`app.json`) — manual `useMemo` over stable values makes it *skip* the whole component |
+| Simulator | UDID `755B55D9-8E4B-431C-9D1D-A635F38CFF5F`, bundle `com.euphoria.native` |
+| Tabs | Home / Learn / Trade / Digest / Games |
+| Deep links | `euphorianative://<route>` |
 
-### The verification gate
+**Five tabs is the maximum.** A sixth makes iOS show a "More" overflow and the labels truncate
+at accessibility sizes. A "You" tab existed and was **deliberately removed** — the cofounder
+asked for Games to leave it and become "a bigger, more visible part of the app", and the web
+reference has no You tab either. Profile lives behind a header button. Do not re-litigate this.
 
-`npm run check` runs **36 pins** (`scripts/*.mjs` + `reduced_motion_audit.py`).
+### Where the art lives
 
-> **`npm run check` does NOT run eslint.** Three real errors hid at HEAD today because of
-> that: a `set-state-in-effect` **error** in `term-match.tsx`, a React Compiler
-> `preserve-manual-memoization` **error** in `atlas.tsx`, and one still open in `learn.tsx:88`.
-> Run `npx eslint` separately, always. Adding it to `check` is a one-line change the owner has
-> been offered twice and not yet taken — offer it again.
+- `src/lib/pixel/{types,palette,compile,sprites,catalogue}.ts` are **byte-for-byte copies of
+  the web repo's**. When a sprite changes on web, **re-copy; never re-draw.**
+- `src/lib/pixel/PixelSprite.tsx` is the one file in that folder that was never the web's. iOS
+  renderer optimisations belong there.
+- iOS-owned additions live in separate files so the synced ones stay copyable:
+  `sprites-additions.ts`, `sprites-crests.ts`, `sprites-characters.ts`, `sprites-lesson.ts`.
+- `src/lib/curriculum/**` is **auto-synced from the web repo** and marked DO-NOT-EDIT. That
+  includes the 64 digest hero figures.
 
-### Loading the app on the simulator
+### The gate
 
-**A bare `simctl launch` crashes** with `Assertion failed: (isNumber()), jsi.h:1937` before any
-JS runs — reproduced at HEAD with a clean Metro cache, so it is environmental, not a branch
-defect. Use the dev-client URL:
+`npm run check` runs **36 pins**: 35 `scripts/*.mjs` plus `scripts/reduced_motion_audit.py`.
+They are genuinely good — several exist to prove a specific bug *fails silently* — and they
+are fast. Read `package.json`'s `check` script for the full list.
 
-```
-xcrun simctl launch booted com.euphoria.native
-xcrun simctl openurl booted "exp+euphoria-native://expo-development-client/?url=http%3A%2F%2F192.168.1.69%3A8081"
-```
-
-Deep links are `euphorianative://<route>`. **Prefer tapping through the UI** — deep-linking
-everywhere is exactly how I shipped a profile editor nobody could reach.
-
-Screenshot coordinate maths: `displayed × 1.31 = original px`, `original ÷ 3 = points`.
-Recompute per screenshot; do not reuse coordinates across layout changes (see §1.3).
-
----
-
-## 4. WHAT WAS DONE THIS SESSION (12 commits)
-
-**Games.** `money-2048.ts/tsx` (2048 on the real US denomination ladder $1→$2→$5→$10→$20→
-$50→$100 — the non-doubling ladder is *why* it teaches), `trend-master.tsx` made genuinely
-fun (drift over noise, a clock you *extend* by playing well, 340ms reveals, score pops).
-Term Match made adaptive.
-
-**Adaptive layer.** `learner-phase.ts` (4 phases derived from `completedLessons`, never
-stored), `term-bank.ts` (60 terms × 12 courses × 3 tiers). Term Match was
-`shuffle(PAIRS)` over 5 hardcoded terms for every human on earth.
-
-**Performance.** Pixel sprites went from one native `<Rect>` per rect to one `<Path>` per
-colour — **measured 2433 rects → 305 paths, 8.0x**. `PixelSpriteView` memoised (the repo's own
-note records memoising the starfield killing **14,629 `Circle` commits** across five scrolls).
-Home stopped subscribing to the whole store.
-
-**§4.1 — the repo's "THE BIG ONE, CAUSE UNKNOWN".** Solved. Idle React commits **3.04/s → ~1.1/s**.
-Cause: `useAnimatedProps` on react-native-svg. RNSVG cannot natively animate most SVG
-attributes, so every frame crosses into JS. Two prior sessions failed because they hunted
-Atlas's *React state* — there is none; Atlas has one `useState` and it is interaction-only.
-Fixed by gating idle motion on `focused && size >= 72` (at Home's `size={46}` the motion is
-literally sub-pixel), then the same gate on `ambient-background.tsx`'s four infinite
-`withRepeat` loops. Full measurement table is in `refs/NEXT_SESSION.md` §4.1.
-
-**Profile.** Earnable banners gated on real achievements, editable display name, and a
-`ProfileButton` (the user's avatar) rightmost in all five tab headers.
-
-**Security.** Closed a free rate-limit bypass — the bucket keyed on `x-euphoria-install`, a
-**client-set header**, so rotating it bought a fresh budget forever. Added a second network
-bucket on `cf-connecting-ip` (EAS Hosting is managed Cloudflare Workers; that header is set by
-the edge and cannot be spoofed). **Proven: 500 rotating-header requests now serve 60.**
-Also closed a `.gitignore` gap where plain `.env` was not ignored.
-
----
-
-## 5. OPEN ITEMS, RANKED
-
-### 5.1 Rate limiting is still per-isolate — the top real exposure
-`_limit.ts` is `const buckets = new Map()`. The repo's own measurement: **100 concurrent
-requests → 0 refused** on `/api/market`. I removed the *free* bypass; a proxy pool still
-defeats it. `/api/chat` is a billed Gemini proxy and `_entitlement.ts` fails open at every
-step (no secret → allow, anonymous → allow, lookup fails → allow), so **anyone who finds the
-endpoint can spend the owner's Gemini budget**. The fix is a shared store; `_limit.ts` already
-records that Durable Objects and Workers KV are unavailable on EAS Hosting and names Upstash
-Redis or **Supabase (already a dependency via `_identity.ts`)**. Only `take()` changes.
-
-### 5.2 Confirm Supabase RLS — needs the owner's dashboard
-The anon key is public *by design*; safety comes entirely from Row Level Security. Research
-finding: **83% of Supabase exposures are RLS misconfiguration**. Cannot be verified from the
-repo. Also: Supabase is retiring legacy `anon`/`service_role` JWTs in late 2026 for
-`sb_publishable_…` / `sb_secret_…`.
-
-### 5.3 `isPro` is client-only
-A plain zustand setter persisted to AsyncStorage, flippable from a JS debugger. Low impact
-*today* only because the server routes do not check it. It becomes real the moment they do.
-
-### 5.4 Curriculum drift has no runtime validation
-`lesson-steps.ts` `normalizeStep()` reads ~20 fields off `Record<string, any>` from curriculum
-that is **auto-synced from the web repo and can change shape without warning**. A renamed field
-is a silent `undefined` in rendered UI — no throw, no dev warning. `euphoria-icons.ts`
-(`asEuphoriaIcon`) solves the identical problem correctly: warns loudly in `__DEV__`, falls
-back safely in prod. Copy that.
-
-### 5.5 Add eslint to `npm run check`
-See §3. One line. Expect a small backlog to triage (`learn.tsx:88` is a real
-`set-state-in-effect` error that has been failing at HEAD unseen).
-
-### 5.6 Features the owner asked for and has not got
-- **`inflationEroder` has no widget.** Lesson 1 step 1 of Investing Fundamentals — literally
-  the first thing a new user touches — renders as prose where it should be interactive. The
-  sibling `compoundGrowthLab` widget exists at `/explore/compound` and is now wired in;
-  `EXPLORABLE_LABS` in `lesson-steps.ts` takes one more line once a screen exists.
-- **Show the earned banner on `/you`.** You can earn and pick one, but your actual profile
-  shows a plain card — the banner only appears in the picker. Same "built it, never surfaced
-  it" shape as the two navigation bugs.
-- **More Digest articles** (14 exist across 5 iOS-owned categories in `digest-extra.ts`).
-- **A third game.** Compound Tower (Stack-style timing) and Coin Run (endless runner) were
-  both proposed and neither built. The owner rejected three quiz-shaped proposals in one word
-  — *"smn else ts all bung"* — and accepted Money 2048 because it is an **arcade mechanic with
-  finance as the art, not as the questions.** Hold that bar.
-
-### 5.7 Blocked, not forgotten
-N19 (needs a repro), sandbox IAP purchase (needs a physical device), and the 64 digest hero
-figures that are **web-owned and auto-synced — do not edit them from iOS.**
-
----
-
-## 6. STANDING RULES FROM THE OWNER
+### Standing rules from the owner — do not re-ask
 
 - **"Only do the pixel art things for iOS side only."** The web repo is hands-off.
-- **No vibe-coded animations, icons, gradients or glows.** Deleted this session:
-  `quest-mark.tsx`, `pulse-halo.tsx`, `CloudPuff`, `lesson-mark.tsx` + 12 files. When you find
-  hand-drawn SVG that the pixel system has superseded, delete it.
+- **No vibe-coded animations, icons, gradients or glows.** Deleted this session for that
+  reason: `components/art/quest-mark.tsx`, `pulse-halo.tsx`, `CloudPuff`,
+  `components/art/lesson-mark.tsx` and 12 files under `lesson-marks/`. When you find
+  hand-drawn SVG the pixel system has superseded, delete it.
 - **Atlas stays vector.** A pixel Atlas was proposed and explicitly rejected.
-- **Games must be genuinely fun.** *"Learn how to make an enjoyable game."*
-- **Cost discipline** (from the user's global CLAUDE.md): batch aggressively, do not launch
-  agents/workflows unless explicitly asked, prefer one question over ten calls.
-- **Secrets:** never print `GEMINI_API_KEY`, `MARKETDATA_TOKEN`, or the ASC key. The ASC key
-  lives gitignored at `.secrets/`. Never put key ids or issuer ids in text the owner might
-  forward.
-- **Finish every turn with an `AskUserQuestion`** offering concrete next options.
+- **Games must be genuinely fun.** *"Learn how to make an enjoyable game."* He rejected three
+  quiz-shaped proposals in one word — *"smn else ts all bung"* — and accepted Money 2048
+  because it is an **arcade mechanic with finance as the art, not as the questions.**
+- **Never print secrets.** `GEMINI_API_KEY`, `MARKETDATA_TOKEN`, the ASC key (gitignored at
+  `.secrets/`). Never put key ids or issuer ids into text he might forward.
+- **Cost discipline** (his global `CLAUDE.md`): batch aggressively, never launch agents or
+  workflows unless explicitly asked, prefer one question over ten calls.
+- **End every substantive turn with an `AskUserQuestion`** offering concrete options.
 
----
+### The house engineering culture — match it, do not dilute it
 
-## 7. THE HOUSE ENGINEERING CULTURE — match it
-
-This codebase is unusually good and the comments carry the reasoning. Two review agents
-independently called it *"unusually well-hardened"* and *"unusually disciplined."* Match the
-standard rather than diluting it:
+Two independent review agents called this codebase *"unusually well-hardened"* and
+*"unusually disciplined."* That is earned. Five patterns carry it:
 
 1. **Pure logic separates from the screen and is proven first.** `money-2048.ts`,
-   `trend-game.ts`, `_chain.ts`, `cost-basis.ts`, `billing-retry.ts` are all React-free and
-   node-importable so pins can load them directly.
-2. **Comments record the MEASUREMENT and the DEFECT, not the intent.** "Measured on device:
-   the greeting collapsed to two lines at default text size" beats "improves layout".
-3. **State honest ceilings.** A control that overclaims is worse than none. The network
-   rate-limit bucket's comment says plainly that it does not make the limiter global.
-4. **One rule, one place.** Duplicating a money rule is the recurring defect here —
-   ENTITLEMENT_ID and the billing grace were both stated twice and both drifted.
-5. **`0` is not a safe fallback on a money path.** `finiteNonNegative` returns 0, which is
-   right for an options greek and *wrong* for a price — a quote we cannot trust must refuse.
-   This app has shipped that bug class twice (NVDA at $1,184 vs a real $217).
+   `trend-game.ts`, `_chain.ts`, `cost-basis.ts`, `billing-retry.ts`, `learner-phase.ts` are
+   React-free and node-importable so pins load them directly with `node --experimental-strip-types`.
+2. **Comments record the MEASUREMENT and the DEFECT, not the intent.** *"Measured on device:
+   the greeting collapsed to two lines at default text size"* beats *"improves layout"*.
+3. **Honest ceilings are stated.** See `_limit.ts`, which documents its own concurrency
+   failure rather than implying a control it does not have.
+4. **One rule, one place.** Duplicating a money rule is the recurring defect here.
+   `ENTITLEMENT_ID` and the billing-retry grace period were each stated twice and each drifted.
+5. **`0` is never a safe fallback on a money path.** `finiteNonNegative` returns 0, which is
+   correct for an options greek that can legitimately be absent and *wrong* for a price. This
+   app has shipped that bug class twice — NVDA at $1,184 against a real $217, and a portfolio
+   value that disagreed with its own chart.
 
 ---
 
-## 8. FIRST THINGS TO DO
+## 4. STATE AS OF THIS HANDOFF
 
-1. Ask the owner **how the app actually feels** after the perf and §4.1 work. Everything is
-   simulator-measured; their read decides whether §4.1's remaining ~1.1/s is worth chasing.
-2. Offer §5.5 (eslint in `check`) again — it has now hidden three real errors.
-3. Then pick from §5.6. My recommendation: **the `inflationEroder` widget**, because it is the
-   first interactive moment a brand-new user would ever have and it is currently prose.
+Working tree clean at `3937f7b`. 36 gates green, `tsc` clean.
+
+**Shipped this session** (12 commits, three OTAs, build 18 on TestFlight):
+
+| Area | What |
+|---|---|
+| Games | Money 2048 (new), Trend Master made fun, Term Match made adaptive |
+| Adaptive | `learner-phase.ts` (4 phases from `completedLessons`), `term-bank.ts` (60 terms × 12 courses × 3 tiers) |
+| Perf | Sprites 2433 rects → **305 paths (8.0x fewer native views)**; `PixelSpriteView` memoised; Home off the whole-store subscription |
+| §4.1 | **Idle React commits 3.04/s → ~1.1/s.** Cause found after two prior sessions failed |
+| Profile | Earnable banners, editable display name, `ProfileButton` on all five tabs, back control on `/you` |
+| Quests | 1 rotating quest → 6 in the pool, 3 shown |
+| Security | Closed a free rate-limit bypass (proven 500 → 60), closed a `.gitignore` hole |
+| Content | Compound Growth Lab wired into Investing Fundamentals lesson 1 step 7 |
+
+**§4.1 is the headline.** `refs/NEXT_SESSION.md` called it *"THE BIG ONE, CAUSE UNKNOWN"* and
+predicted it was behind a large fraction of incoming feedback. The cause is `useAnimatedProps`
+on **react-native-svg**: RNSVG cannot natively animate most SVG attributes, so every frame of
+such an animation crosses into JS and costs a React commit. Two prior sessions failed because
+they hunted Atlas's *React state* — there is none worth finding; Atlas has one `useState` and
+it is interaction-only. The fix gates idle motion on `focused && size >= 72` (at Home's
+`size={46}` the entire excursion is sub-pixel), then applies the same gate to
+`ambient-background.tsx`'s four infinite `withRepeat` loops. The six-build measurement table
+is in `refs/NEXT_SESSION.md` §4.1.
+
+**The single most valuable thing you can do first:** ask the owner whether the app actually
+*feels* better on his device. Every number above is simulator-measured. His answer decides
+whether the residual ~1.1 commits/sec is worth another session.
+
+---
+
+# PART TWO — THE BACKLOG
+
+Ordered P0 → P4. Each item states **what**, **why it matters**, **where**, **how to verify**,
+and **done means**. Sizes are rough: S = under an hour, M = a session block, L = a full session.
+
+---
+
+## 5. P0 — DO THESE FIRST
+
+### 5.1 The App Store submission is REJECTED — and nobody knows why
+
+**Status:** app info and version 1.0 are both in state `REJECTED`, with a review submission
+from 2026-04-08 sitting in `UNRESOLVED_ISSUES`. Recorded in `refs/NEXT_SESSION.md` §4.4 and
+`refs/APP_REVIEW_REJECTION.md`.
+
+**Why it matters:** this is not a TestFlight blocker, which is why it has been ignored — but
+it is an absolute blocker on public launch, and **the rejection reason was never retrieved.**
+Everything else in this backlog is worthless if the app cannot ship.
+
+**Where:** `refs/APP_REVIEW_REJECTION.md`, `refs/APPLE_REPLY_DRAFT.md`,
+`refs/APPLE_2.1b_REPLY_DRAFT.md`, `refs/APPLE_SIGNIN_TRIAGE.md`. The ASC API helper recipe is
+in `refs/NEXT_SESSION.md` §6.3.
+
+**How to verify:** pull the actual rejection message through the App Store Connect API. Do not
+guess from the draft replies — they were written against a *presumed* reason.
+
+**Known context:** review contact is Sriyan Bodla, `team.euphoriainv@gmail.com`, with a demo
+account on file. **Only `APP_IPHONE_65` screenshots exist**; modern submissions generally want
+6.9-inch too, which is a likely metadata rejection all by itself. `2.1b` in one of the draft
+filenames suggests a "app completeness / demo account" class of rejection.
+
+**Done means:** the rejection reason is written down verbatim in
+`refs/APP_REVIEW_REJECTION.md`, each cited guideline has a named remedy, and the owner has
+been shown the list. **Do not submit a reply without his approval** — App Review correspondence
+is outward-facing and permanent.
+
+**Size:** M to diagnose, unknown to fix.
+
+---
+
+### 5.2 Make the lint gate green, then wire it into `npm run check`
+
+**Status:** the owner picked this task explicitly at the end of the session and I had only
+measured it when the session turned. **Here are the real numbers, freshly measured:**
+
+```
+ERRORS: 14        WARNINGS: 52
+
+errors by rule                     warnings by rule
+  7  react-hooks/set-state-in-effect    43  @typescript-eslint/no-unused-vars
+  6  no-undef                            5  import/first
+  1  react-hooks/purity                  2  @typescript-eslint/array-type
+```
+
+**Every error site:**
+
+```
+scripts/fetch-logos.mjs:78          no-undef
+scripts/fetch-logos.mjs:92          no-undef
+scripts/identity-regression.mjs:22  no-undef
+scripts/make-icon.mjs:44            no-undef
+scripts/store-shots.mjs:77          no-undef
+scripts/store-shots.mjs:95          no-undef
+src/app/(tabs)/learn.tsx:87         react-hooks/set-state-in-effect
+src/app/games/term-match.tsx:71     react-hooks/set-state-in-effect
+src/app/news.tsx:63                 react-hooks/set-state-in-effect
+src/app/options.tsx:232             react-hooks/set-state-in-effect
+src/app/stock/[sym].tsx:87          react-hooks/set-state-in-effect
+src/app/stock/[sym].tsx:173         react-hooks/purity
+src/components/atlas-speech.tsx:34  react-hooks/set-state-in-effect
+src/shared/motion/number-rollup.tsx:29  react-hooks/set-state-in-effect
+```
+
+**Why it matters:** three real errors hid at HEAD *today* because `npm run check` never runs
+eslint — a `set-state-in-effect` error in `term-match.tsx`, a React Compiler
+`preserve-manual-memoization` error in `atlas.tsx` (which made the compiler **skip optimising
+the whole component**), and one still open in `learn.tsx:87`. A gate that does not run is not
+a gate.
+
+**Read `refs/TASK_QUEUE.md` before touching the 7.** `NEXT_SESSION.md` §4.5 records that each
+was individually read and judged benign, and that the decision of how to resolve them was
+*deliberately not taken unilaterally*. It is a project decision. Respect that — bring the
+owner an option list, do not silently add `// eslint-disable` lines across seven files.
+
+**The 6 `no-undef` are not real defects.** They are all in `scripts/*.mjs` — Node scripts being
+linted against a config that does not declare Node globals. Fixing the eslint config for
+`scripts/**` removes all six with zero code change. Do this first; it is free and it shrinks
+the problem from 14 to 8.
+
+**Suggested plan, in order:**
+
+1. Add a `scripts/**` override to `eslint.config.js` declaring Node globals. **-6 errors.**
+2. Triage the 7 `set-state-in-effect` against `TASK_QUEUE.md`. For each, decide: real fix
+   (`term-match.tsx:71` was fixable in ten minutes — the pattern is to resolve in the event
+   handler, not the effect), or a targeted `// eslint-disable-next-line` **carrying the reason
+   in a comment**, not a blanket rule downgrade.
+3. `stock/[sym].tsx:173` `react-hooks/purity` is a different and more serious class — purity
+   violations are what §3.1 of `NEXT_SESSION.md` calls "produces plausible output, not an
+   error". Read it properly.
+4. Only once errors are 0, add eslint to `check`. Use `--max-warnings` pinned at the current
+   warning count so the 52 warnings do not block, but no *new* ones can land.
+
+**How to verify:** `npx eslint src scripts -f json -o /tmp/l.json` and count severities. Then
+deliberately introduce a `set-state-in-effect` and confirm `npm run check` now fails.
+
+**Done means:** `npm run check` includes eslint, exits 0, and fails when a new error is
+introduced — *demonstrated*, not assumed.
+
+**Size:** M.
+
+---
+
+### 5.3 Rate limiting is still per-isolate — the live security exposure
+
+**Status:** partially mitigated this session. `src/app/api/_limit.ts`.
+
+**What is true today:** the limiter is `const buckets = new Map()` — in-memory, per Worker
+isolate. The repo's own measurement, recorded in that file: **100 concurrent requests to
+`/api/market` → 0 refused; 25 concurrent to `/api/chat` → 1 refused.**
+
+I closed the *free* bypass: the bucket was keyed on `x-euphoria-install`, a **client-set
+header**, so rotating it bought a fresh budget on every request forever. There is now a second
+bucket keyed on `cf-connecting-ip` (EAS Hosting is managed Cloudflare Workers; that header is
+set by the edge and cannot be spoofed by the caller). Proven: 500 rotating-header requests now
+serve 60 instead of 500. Verified users (`u:` prefix) are exempt so a school does not throttle
+its own classroom, and the network budget is 12× for carrier-grade NAT.
+
+**What is still true:** it is not a global limiter. A caller with a proxy pool gets a fresh
+address the same way they got a fresh header, and the concurrency gap above is untouched.
+
+**Why it matters more than it looks:** `/api/chat` is a **billed Gemini proxy**, and
+`_entitlement.ts` `decide()` fails open at every step — no `REVENUECAT_SECRET_KEY` → allow,
+anonymous → allow, lookup failed → allow. `ATLAS_REQUIRE_AUTH` is off by default and correctly
+so, because there is no sign-in UI yet and enabling it would refuse everyone. Net: **anyone who
+finds the endpoint can spend the owner's Gemini budget.** That is the realistic attack on this
+app — not data theft, of which there is very little.
+
+**The fix is already scoped in the file.** `_limit.ts` records that Cloudflare Durable Objects
+and Workers KV are *not available* on EAS Hosting (checked 2026-08-14: no `wrangler.toml`,
+`eas deploy` exposes no binding flags), and names the real options: **Upstash Redis** (free
+tier, REST, one token) or **Supabase** — which is already a dependency via `_identity.ts` and
+therefore adds nothing new. Only `take()` changes; nothing else in the codebase moves.
+
+> **Do not "fix" this with `caches.default`.** The file explains why: it is per-colo rather
+> than global, and a read-modify-write over a cache has no atomicity, so it would undercount
+> under exactly the burst that defeats the current limiter — while *looking* like a control.
+
+**Blocked on the owner:** either option needs a credential he must create.
+
+**Done means:** two isolates share one counter, demonstrated by a concurrent burst that gets
+refused, and the honest-ceiling comment updated to match the new truth.
+
+**Size:** M once the credential exists.
+
+---
+
+### 5.4 Confirm Supabase Row Level Security — owner-only, five minutes
+
+**Status:** unverifiable from the repo.
+
+**Why it matters:** `EXPO_PUBLIC_SUPABASE_ANON_KEY` ships in the client bundle and is readable
+by anyone who downloads the IPA. That is **correct and by design** — the anon key is public and
+safety comes entirely from RLS policies, not from hiding it. Research finding from this
+session: **83% of Supabase data exposures are RLS misconfiguration.** Without RLS on a table,
+that public key can read, modify and delete every row in it.
+
+**What to do:** ask the owner to confirm, in the Supabase dashboard, that **RLS is enabled on
+every table** the anon key can reach. Also flag that Supabase is retiring legacy
+`anon`/`service_role` JWTs in late 2026 in favour of `sb_publishable_…` / `sb_secret_…`.
+
+**Done means:** the owner has confirmed it and the answer is written into
+`refs/SECURITY_REVIEW.md` with a date.
+
+**Size:** S, but it is his five minutes, not yours.
+
+---
+
+## 6. P1 — THE OWNER'S OWN QUEUE
+
+`refs/NEXT_SESSION.md` §1.2 records these **in his order**, with the last one explicitly last
+at his instruction. Nothing below was done this session. Do not reorder without asking.
+
+### 6.1 Light-mode sweep
+
+**Status:** verified in light mode: **Home, Preferences, Shop, Digest**. Unverified:
+**Lesson, Trade, Games, You** — and `You` has changed substantially this session (a new
+`ProfileButton` on every tab, a new back control, a re-coloured title chip), so it needs
+looking at regardless.
+
+Plus **37 hardcoded hex literals** still in `src/app` and `src/components` that will not
+respond to the theme at all.
+
+**Why it matters:** build 18 is live. A cofounder can find a broken light screen right now.
+
+**Two traps documented from the last sweep:**
+- `theme.x + 'NN'` alpha-append **only works on hex**. An `hsl(...)` value concatenated with an
+  alpha suffix produces an unparseable string that React Native renders at **full opacity,
+  silently**. `theme-alpha-pin` scans the call sites; five light values were converted to hex
+  for exactly this reason.
+- Contrast must be *computed*, not eyeballed. This session found `you.tsx`'s worn-title chip at
+  **4.08:1** against its own composited background — under the 4.5 AA minimum — and
+  `digest.tsx` had already fixed the identical defect with a comment recording
+  `primary 4.49 vs iconLilac 8.29`. The fix simply never reached the other file.
+
+**How to verify:** set the simulator to light, walk **Lesson → Trade → Games → You** by
+tapping, screenshot each, and compute contrast on anything that looks marginal. Then grep the
+37 literals and decide per site whether it is deliberate art (a banner colour, a chosen
+cosmetic) or a themable surface that was missed.
+
+**Done means:** all four screens screenshotted in light, every failure fixed with a measured
+ratio in the comment, and the literal count recorded.
+
+**Size:** M.
+
+---
+
+### 6.2 Pixel art on Trade and Games
+
+**Status:** these are **the two tabs still entirely on vector icons**. Both are iOS-owned, so
+this is fully in scope — unlike the 64 digest hero figures, which are web-owned and synced.
+
+**Why it matters:** the owner's standing direction is that the app should feel gamified and
+that the pixel style should be integrated *properly*, not sprinkled. Two tabs on a different
+visual system is exactly the inconsistency he keeps catching.
+
+**Where to look:** `src/app/(tabs)/trade.tsx` and `src/app/(tabs)/games.tsx`. The Games grid
+already uses `PixelSpriteView` for the twelve game tiles; what remains is the surrounding
+chrome. Trade is the bigger job — position rows, the portfolio header, the search affordance,
+the news rail.
+
+**How to do it well:** reuse `src/lib/pixel/sprites.ts` first. It has 77 sprites and this
+session found the right one already existed nearly every time (`stackCash`, `newspaper`,
+`controller`, `scales`, `ladder`, `bolt`, `crack`, `globe`, `rocket`, `factory`, `chat`,
+`stockTicker`). Only author into `sprites-additions.ts` when nothing fits — and remember that
+authoring into `sprites.ts` breaks the re-copy contract with web.
+
+**Done means:** both tabs screenshotted before and after, no new vector icon introduced, and
+the `no-glow-pin` and `motion-invariants` gates still green.
+
+**Size:** L.
+
+---
+
+### 6.3 N5 — the duplicate lesson question
+
+**Status:** needs the **curriculum re-sync**, not a code fix.
+
+**What is actually true, measured:** exactly **2** instances across 299 lessons — not "every
+lesson" as the rewritten audit widened it to. In both, a checkpoint question repeats one from
+the lesson body verbatim.
+
+**Why it is not a code fix:** the lesson corpus is auto-synced from the web repo. Editing it in
+`src/lib/curriculum/**` would be overwritten by the next `./scripts/sync-curriculum.sh`.
+
+**Done means:** the two instances identified by course and lesson number, handed to whoever
+owns the web curriculum, and a note in `refs/FEEDBACK_LOG.md` that the fix is upstream.
+
+**Size:** S to document, blocked to fix.
+
+---
+
+### 6.4 Real StoreKit prices
+
+**Status:** the owner said **"not yet."** Do not do this without re-asking.
+
+**What is wrong:** prices are hardcoded strings. `pkg.product.priceString` from RevenueCat is
+the localised, currency-correct value.
+
+**Why it matters:** an Indian user currently sees **"$79.99"** where they will actually be
+charged **₹7,900**. That is a price-misrepresentation issue, and it is the kind of thing App
+Review notices — which is worth weighing against §5.1.
+
+**Where:** `src/lib/purchases.ts`, the paywall in `src/app/onboarding.tsx?step=paywall`, and
+`pricing-pin.mjs` guards the current claims.
+
+**Done means:** every displayed price comes from `priceString`, `pricing-pin` updated to assert
+that no hardcoded currency string reaches the paywall, and the pin proven to fail.
+
+**Size:** M.
+
+---
+
+### 6.5 `PixelSprite.tsx` lint — partially overtaken
+
+**Status:** §1.2 lists two react-hooks errors here. **The current measurement shows none in
+that file** — the memo comparator work this session appears to have resolved them, and the
+remaining seven `set-state-in-effect` errors are elsewhere (see §5.2 for the exact list).
+
+**Action:** verify against §5.2's inventory and, if genuinely clear, strike this item from
+`NEXT_SESSION.md` §1.2 rather than leaving a stale entry. **A queue that lists fixed work
+trains people to skim it.** This session found the feedback log's status column actively wrong
+on 11 rows for the same reason.
+
+**Size:** S.
+
+---
+
+### 6.6 More Digest articles — explicitly LAST
+
+**Status:** the owner said *"do this after everything else is done."* Honour that.
+
+**What exists:** `src/lib/digest-extra.ts` holds **14 iOS-owned guides across 5 new
+categories** (Earning, Housing, Staying safe, Insurance, Big purchases), each with pixel hero
+art keyed `px-…`, exposed via `ALL_DIGEST_POSTS` / `ALL_DIGEST_CATEGORIES` / `allBodyFor` so
+the synced web corpus stays untouched. `digest-extra-pin.mjs` guards it.
+
+**When you get to it:** the pattern is established, the pin exists, and the constraint is that
+new categories need pixel art from the existing catalogue. Watch the em-dash rule —
+`em-dash-prose-pin` caught 13 in the last batch of digest bodies.
+
+**Size:** M per batch.
+
+---
+
+## 7. P2 — BUILT BUT NEVER SURFACED
+
+Three defects this session shared one shape: **the thing existed and nobody could reach it.**
+That is now the first thing to look for, and these are the known remaining instances.
+
+### 7.1 The `inflationEroder` widget does not exist
+
+**Where:** `src/lib/curriculum/courses/investingFundamentals.ts:86` — Investing Fundamentals,
+lesson 1, **step 1**. The comment above it reads *"Explorable Opener (interact before reading
+anything)"*.
+
+**What happens today:** `lesson-steps.ts`'s `explorable` case renders `prompt` + `insight` as
+prose. So the *first interactive moment a brand-new user is ever offered* is a wall of text
+that explicitly promises interaction.
+
+**Why this is the best next feature:** the sibling `compoundGrowthLab` explorable at step 7 now
+opens a real interactive lab, because the widget already existed at `/explore/compound` and was
+merely orphaned. `inflationEroder` has no screen at all. `EXPLORABLE_LABS` in
+`src/lib/lesson-steps.ts` takes **one more line** the moment one exists.
+
+**The content is already written.** From the curriculum:
+- prompt: *"Grandma's $100 birthday bill buys 8 movie tickets today. She says keep it somewhere
+  safe. The drawer feels safe."*
+- insight: *"Nobody touched the bill. It still says $100. But 3% inflation for 30 years ate 5
+  of your 8 tickets."*
+- params: `{ billAmount: 100, inflation: 3, years: 10, itemName: 'movie tickets', itemPrice: 12 }`
+
+**The design that writes itself:** a $100 bill that never changes, a years slider, and the
+count of movie tickets it buys visibly falling from 8 to 3. The bill staying identical while
+the tickets vanish *is* the lesson.
+
+**Model it on `src/app/explore/compound.tsx`** — steppers, a live figure, `router.back()` so it
+returns to the lesson step, and a "Back" label (not "Explore", which names a section that does
+not exist).
+
+**Done means:** the screen exists, `EXPLORABLE_LABS` maps `inflationEroder` to it, and you have
+**tapped through Learn → Investing Fundamentals → lesson 1 → step 1 → the lab → back**, not
+deep-linked.
+
+**Size:** M.
+
+---
+
+### 7.2 Your earned banner does not appear on your own profile
+
+**Where:** `src/app/you.tsx` header card vs `src/components/profile-banner.tsx`.
+
+**What is wrong:** you can earn banners from real achievements and choose one in
+`/avatar` — and your actual profile shows a **plain card**. The banner renders only in the
+picker. A cosmetic you cannot see is a cosmetic nobody works for.
+
+**The catch to handle:** `ProfileBanner`'s `band` and `ink` are **literal hex, deliberately**,
+because a banner is a chosen decoration that must look identical in both themes — like an
+avatar. The `/you` card's existing text (`Level 1`, `125 XP total`, the FREE TRIAL chip) uses
+*theme* colours. Compositing themed text over a fixed band is exactly how you get a contrast
+failure. All 11 pairs measure 8.30:1–14.18:1 for the **banner's own ink**; that guarantee does
+not extend to arbitrary theme tokens laid on top.
+
+**Done means:** the profile header shows the worn banner, and every text colour on it is drawn
+from the banner's own ink with a computed ratio in the comment.
+
+**Size:** S–M.
+
+---
+
+### 7.3 Run an orphan sweep again after any navigation change
+
+**What I did:** audited all 35 routes. Result: 6 tabs/root, 22 properly linked, 3 dev-only
+(`/art-test`, `/dev-beat`, `/dev-gallery` — deliberately unlinked), 3 **false positives**
+(dynamic routes pushed as templates), and **1 genuine orphan** (`/explore/compound`, now wired).
+
+**The script that found it** is worth keeping: walk `src/app/**` into route paths, then search
+all of `src/` for a literal reference to each. **Then verify every hit by hand** — the literal
+search misses `` router.push(`/stock/${sym}`) `` entirely, which is how three routes were
+wrongly flagged.
+
+**Do this again** any time you add or move a screen. And extend it: a route being *linked* is
+not the same as being *findable*. `/you` was linked from exactly one invisible greeting tap for
+weeks.
+
+**Size:** S.
+
+---
+
+## 8. P3 — THE TEN UNBUILT GAMES
+
+`src/app/(tabs)/games.tsx` lists **twelve** games. **Three exist** — Term Match, Trend Master,
+Money 2048. Nine are placeholder tiles that do nothing when tapped, four of them behind a Pro
+lock. Every tile already has an assigned sprite and the pairings read the game, not its
+category: *"Budget Balancer is `scales` because the game IS a balance, Credit Climb is `ladder`
+because it is a climb, Black Swan is `crack` because the point of a black swan is the break,
+not the bird."*
+
+**The bar, in the owner's words:** he rejected three proposals in one word — *"smn else ts all
+bung"* — when they were a swipe-sort, a resource-manager and a cash-out game. He accepted
+Money 2048 immediately. The difference is that **2048 is a mechanic teenagers already play, and
+the finance is the art rather than the questions.** Term Match is already the quiz slot. Do not
+build a second one.
+
+The three surviving design constraints, learned the hard way while making Trend Master fun:
+
+1. **Skill must beat noise.** Trend Master's first version had `noise = 0.55 + difficulty*0.14`
+   against a drift of `1.6`, so the random term routinely outvoted the trend and a correct read
+   still lost. *"A walk where noise dominates is a coin flip wearing a chart, and a coin flip is
+   not a game."*
+2. **Time should be earnable.** A clock that only falls means every run is the same length. A
+   correct call now buys 1.2s back, capped at the starting length.
+3. **The reward needs a visible moment.** Score ticking silently in a corner is information; a
+   `+30` that flies off the bar is a reward.
+
+### The nine, with a brief each
+
+**Budget Balancer** (`scales`) — the balance metaphor is right there. Avoid the chore-simulator
+trap that got the sorting proposal rejected: this should be a *balancing* mechanic with physics
+or tension, not a form you fill in. Consider: income on one pan, expenses landing on the other,
+and you tilt.
+
+**Credit Climb** (`ladder`) — a climb. Credit scores move slowly upward and fall fast, which is
+naturally an ascent-with-falls mechanic. The real lesson (one missed payment costs months of
+progress) is a *mechanic*, not a fact to state.
+
+**Market Reaction** (`bolt`) — reflex. A headline appears, the market moves, you react. This is
+the closest to Trend Master so be careful it is not a reskin; the differentiator should be
+*reading the headline* rather than reading the chart.
+
+**Bias Busted** (Pro, `magnifier`) — behavioural finance. High risk of becoming a quiz. If it
+cannot be made arcade, consider cutting the tile rather than shipping a second Term Match.
+
+**Black Swan** (Pro, `crack`) — the break is the point. A long calm you must prepare for,
+punctuated by a rare catastrophic event. Genuinely teaches tail risk. Careful: this is
+adjacent to gambling mechanics — keep the player's decisions about *preparation*, not betting.
+
+**Trade War** (Pro, `globe`), **Invest Life** (Pro, `rocket`), **Startup Sim** (Pro, `factory`),
+**AI Rival** (Pro, `chat`), **Candlesticks** (Pro, `stockTicker`) — all larger. `Invest Life`
+and `Startup Sim` are full simulation games and are probably a session each on their own.
+
+**Two arcade ideas already pitched and not built** (the owner picked Money 2048 over them, so
+they are pre-vetted as on-brand):
+
+- **Compound Tower** — the Stack game. A block slides, you tap to drop it; land clean and the
+  tower compounds, miss and you shave the overhang and the next block is narrower. Pure timing,
+  gets brutal, and each floor is a year of growth so the number climbing beside you is real
+  compound interest.
+- **Coin Run** — one-thumb endless runner. Hold to rise, release to fall, collect coins, dodge
+  fees that shrink your stack, speed ramps until you die. Zero reading, pure reflex.
+
+**How to build one properly**, following the pattern that worked:
+
+1. Write the engine as a **React-free `src/lib/<game>.ts`** with a seeded PRNG (never
+   `Math.random`, which makes a round unrepeatable and untestable).
+2. Write its assertions **before any UI**, run them with
+   `node --experimental-strip-types`, then **deliberately break a rule and confirm they fail.**
+3. Only then build the screen.
+4. **Make it accessible from the start.** A one-finger swipe *is* VoiceOver's navigation
+   gesture — Money 2048 shipped unplayable for VoiceOver users because of exactly this, and
+   needed a D-pad retrofitted. If your mechanic is a gesture, design the button alternative in
+   the same pass.
+5. Adapt it: `phaseIndex(phaseOf({ completedLessons }))` gives 0–3 and every existing game uses
+   it to set a floor. Difficulty should change the *pressure*, never the *rules*.
+6. Register it in `games.tsx` with a sprite from the existing catalogue.
+7. Wire `recordGameScore(GAME_ID, score)` and `awardGameXp()` — and check the daily
+   `lastGameDay` interaction, because the "Play a game" quest keys off it.
+
+**Size:** M each for the arcade ones, L for the simulations.
+
+---
+
+## 9. P4 — INFRASTRUCTURE AND UNEXPLAINED NUMBERS
+
+### 9.1 The build archive is 158MB and 143MB of it is unexplained
+
+`refs/NEXT_SESSION.md` §4.5: archives upload at ~158MB, of which only ~15MB is tracked files.
+`.easignore` already excludes `refs/`, `screenshots/`, `scripts/anim/`, the native dirs and all
+credential patterns. **The remaining ~143MB was never explained.**
+
+**Why it matters:** it is 3–4 minutes of every build, and an unexplained 143MB in an archive
+that gets uploaded is also a mild disclosure question — nobody has enumerated what is in there.
+
+**How to start:** `npx eas build --platform ios --profile production --dry-run` or inspect the
+tarball EAS produces. Sort by size. Prime suspects: `node_modules` fragments, `.expo/`, iOS
+build intermediates, or a large asset directory not covered by `.easignore`.
+
+**Size:** S to diagnose.
+
+### 9.2 Memory: the floor moved from 72.7MB to 142.7MB
+
+~85MB retained across 50 navigations, roughly 1.4MB per navigation. GC reclaims ~35MB on idle
+so it is **not a runaway**, but the floor doubled and **the dev-build confound was never
+closed** — nobody has measured this on a release build.
+
+**Do not chase this before §5.1 and the owner's queue.** It is the kind of number that looks
+alarming and may be entirely a dev-build artefact.
+
+### 9.3 Curriculum drift has no runtime validation
+
+`src/lib/lesson-steps.ts` `normalizeStep()` casts to `Record<string, any>` and reads ~20 fields
+across the case bodies — `s.question`, `s.options`, `s.correct`, `s.pairs`, `s.statements` — off
+curriculum data that the file header itself says is *"AUTO-SYNCED FROM THE WEB REPO… can change
+shape without warning."*
+
+If the web repo renames a field, `tsc` reports nothing (the type is already erased) and at
+runtime the field reads `undefined` and flows straight into rendered UI — a blank quiz prompt,
+an `undefined` in an options array. **No throw, no dev warning.**
+
+**The correct pattern already exists in this repo.** `src/lib/euphoria-icons.ts`'s
+`asEuphoriaIcon` handles the identical curriculum-drift problem properly: warns loudly in
+`__DEV__`, falls back safely in production. Copy it.
+
+**Note:** `scripts/lesson-render-audit.mjs` already runs the real normaliser over all 5,341
+steps — that is the harness to extend. It is how the `explorable` steps were found rendering as
+an empty screen.
+
+**Size:** M.
+
+### 9.4 `isPro` is client-only
+
+`src/lib/store.ts` — a plain zustand setter persisted to AsyncStorage. Flippable from an
+attached JS debugger or by editing the persisted blob. **Low impact today** only because the
+server routes do not check it; it unlocks client-rendered gates and nothing cost-bearing. It
+becomes real the moment `REVENUECAT_SECRET_KEY` is set and server logic starts trusting it.
+Worth a ticket, not an incident.
+
+### 9.5 `noUncheckedIndexedAccess` is off
+
+Confirmed absent from both `tsconfig.json` and `expo/tsconfig.base`. A TypeScript review traced
+every indexed lookup it could find (`GLYPHS[n]`, `EUPHORIA_ICONS[name]`, `RANGES[range]`) and
+found each individually guarded at its call site — **no live crash**. Recorded as a standing
+gap, not a bug. Turning it on would be a large mechanical change; weigh it against the value.
+
+---
+
+## 10. THINGS THAT ARE FIXED — DO NOT REDO
+
+`refs/NEXT_SESSION.md` §5 has the full table. From **this** session specifically:
+
+- Sprites render one `<Path>` per colour, not one `<Rect>` per rect (2433 → 305 views)
+- `PixelSpriteView` is memoised with a custom comparator that deliberately excludes
+  `onAnimationEnd` (it is ref-latched, and including it would defeat the memo on every render)
+- Home no longer subscribes to the whole store
+- Atlas idle motion gates on `focused && size >= 72`
+- `ambient-background.tsx`'s four twinkle loops gate on focus
+- The rate limiter has a network bucket
+- `.gitignore` covers plain `.env`
+- `_entitlement.ts` shares one billing-grace rule with the client
+- `market+api.ts` validates Polygon's `bar.c`/`bar.o` and **refuses** rather than zeroing
+- Money 2048 has a VoiceOver D-pad
+- `/you` has a back control
+- `quests.ts` has one clock
+
+And from earlier sessions, so you do not re-hunt them: NativeWind is fully unwired
+(`CssInterop.View` 4,672 → 0 commits), the course loader has a promise cache (20 → 2 fetches),
+news images went 831KB → 10.6KB, the logo bundle 3.48MB → 0.79MB.
+
+---
+
+## 11. FIRST FIVE MOVES
+
+1. **Ask the owner how the app actually feels** after the perf and §4.1 work. Everything is
+   simulator-measured. His answer decides whether §4.1's residual matters.
+2. **Ask him to check Supabase RLS** (§5.4). Five minutes of his time, and it is the single
+   highest-severity thing nobody can verify from here.
+3. **Retrieve the App Store rejection reason** (§5.1). Nothing else in this backlog matters if
+   the app cannot ship.
+4. **Fix the eslint config for `scripts/**`** (§5.2 step 1) — six errors gone for free — then
+   bring him the options for the remaining eight.
+5. **Then §7.1**, the `inflationEroder` widget: it is the first interactive moment a new user
+   is ever offered, the content is already written, and the pattern is proven.
+
+And throughout: **tap through the app rather than deep-linking**, and **break every check you
+write.** Those two habits would have prevented most of §1.
