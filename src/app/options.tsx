@@ -548,11 +548,21 @@ export default function Options() {
               absolute terms; the delta is the signal, and the delta says this is not a memory
               problem.
 
-              Frame rate during a fast scroll is NOT measured — there is no tooling here for it, so
-              it is not claimed either way. If someone finds jank on a real device, FlatList with
-              `scrollToIndex` is the fix and it replaces the centring code below wholesale. Until
-              then this stays, because rewriting a working screen on a hunch is how the chain came
-              to open at $50 in the first place.
+              MEASURED 2026-08-24, and the answer is no. The owner reported the app feeling laggy on
+              TestFlight, which is the trigger this note named, so the frame rate finally got taken
+              with components/perf-hud.tsx: 16 fast flings through the full chain held
+
+                  60 fps, worst frame 23ms, 0 stalls over 50ms
+
+              One 23ms frame is a single dropped frame at 60Hz. This list does NOT block the JS
+              thread, so the FlatList rewrite was NOT done — doing it on this evidence would be the
+              same hunch-driven rewrite this note warns about.
+
+              THE CEILING, because a clean number is read as proof: that was the SIMULATOR on a dev
+              build, and the HUD measures requestAnimationFrame gaps, which is the JS thread only.
+              Mounting 200 views taxes the native view system too, and this does not see that. If a
+              real device still janks HERE specifically, FlatList with `scrollToIndex` remains the
+              fix and it replaces the centring code below wholesale.
             */}
             {loading ? (
               // A hung spinner is worse than an error: it tells the user to wait for something

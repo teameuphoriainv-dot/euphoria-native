@@ -226,8 +226,18 @@ THE LEADING SUSPECT: **the app has ZERO virtualised lists.** 113 `ScrollView` us
 > not claimed either way. **If someone finds jank on a real device, FlatList with `scrollToIndex`
 > is the fix** and it replaces the centring code below wholesale."
 
-That trigger condition has now occurred. A `ScrollView` mounting 200 row views blocks the JS
-thread, which is exactly what "laggy" describes.
+That trigger condition occurred, so **it was finally measured — and the hypothesis did not hold.**
+16 fast flings through the full chain with the HUD on:
+
+    60 fps, worst frame 23ms, 0 stalls over 50ms
+
+One 23ms frame is a single dropped frame at 60Hz. The unvirtualised chain does NOT block the JS
+thread, and the FlatList rewrite was deliberately NOT done — on this evidence it would be the
+hunch-driven rewrite `options.tsx` itself warns against.
+
+**CEILING:** simulator, dev build, and the HUD measures rAF gaps, which is the JS thread only.
+Mounting 200 views also taxes the native view system, which this does not see. The number to
+trust is one taken on real hardware.
 
 ### 5.2 The HUD — measure it on YOUR device
 
