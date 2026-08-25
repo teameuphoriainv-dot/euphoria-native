@@ -57,7 +57,11 @@ EXEMPT_REASON = {
 # them without ever calling a with* helper. Missing them made this lane report 0 defects on a
 # component that had one -- a lane that UNDER-reports is worse than one that over-reports,
 # because a clean report is read as proof.
-ANIM = r"withTiming|withRepeat|withSpring|withSequence|entering\s*=|exiting\s*=|layout\s*="
+# WIDENED 2026-08-24. A file can rotate a view every frame with useAnimatedStyle reading a shared
+# value and never call a with* helper or use a declarative prop -- budget-balancer.tsx does exactly
+# that, and this lane could not see it. Same hole shape as the tap-reveal.tsx ZoomIn: the gate below
+# skipped the file before any check ran.
+ANIM = r"withTiming|withRepeat|withSpring|withSequence|entering\s*=|exiting\s*=|layout\s*=|useAnimatedStyle"
 
 
 

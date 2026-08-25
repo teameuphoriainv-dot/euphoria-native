@@ -39,7 +39,7 @@ const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean 
   { name: 'Term Match', sprite: lightbulb, route: '/games/term-match' },
   { name: 'Trend Master', sprite: chartUp, route: '/games/trend-master' },
   { name: 'Money 2048', sprite: stackCash, route: '/games/money-2048' },
-  { name: 'Budget Balancer', sprite: scales },
+  { name: 'Budget Balancer', sprite: scales, route: '/games/budget-balancer' },
   { name: 'Credit Climb', sprite: ladder },
   { name: 'Market Reaction', sprite: bolt },
   { name: 'Bias Busted', sprite: magnifier, pro: true },
