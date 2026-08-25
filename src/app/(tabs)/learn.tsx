@@ -321,7 +321,19 @@ export default function Learn() {
               return (
                 <Fragment key={i}>
                 {unitName && (
-                  <View style={[styles.unitHead, i > 0 && { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+                  <View
+                    style={[
+                      styles.unitHead,
+                      /*
+                       * THE FIRST UNIT GETS NO TOP SPACE. unitHead carries marginTop AND paddingTop
+                       * so that one unit is clearly separated from the one above it, which is right
+                       * for every header except the first: there is nothing above it to separate
+                       * from, so that space landed as a blank band directly under the course chips
+                       * and pushed the whole pathway down the screen for no reason.
+                       */
+                      i === 0 && { marginTop: 0, paddingTop: 0 },
+                      i > 0 && { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}>
                     <ThemedText type="bodyMedium" numberOfLines={2}>
                       {unitName}
                     </ThemedText>

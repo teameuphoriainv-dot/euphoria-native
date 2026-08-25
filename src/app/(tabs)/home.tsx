@@ -313,8 +313,20 @@ export default function Home() {
                   * These are CONTENT, so the cap is deliberately looser than the tab bar's
                   * 1.6: chrome may cap hard, content should scale as far as it can.
                   */}
-                <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>{name ? `Hey, ${name}` : 'Hey there'}</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2}>
+                <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
+                {/*
+                  * THE NUDGE IS NOT A CAPTION. This was `type="small"` in mutedForeground: 13px at
+                  * the lowest contrast on the screen, sitting directly under a 22px title, so the
+                  * one line asking you to do something read as the least important thing on Home.
+                  * It now carries weight and the streak colour, the same colour the flame pill
+                  * beside it already uses, so no new colour is introduced and the contrast is
+                  * already proven on this background. Green when the day is done, because "Streak
+                  * safe" is a success state and orange would keep asking for something.
+                  */}
+                <ThemedText
+                  type="smallBold"
+                  maxFontSizeMultiplier={2}
+                  style={{ color: remaining === 0 ? theme.success : theme.streak }}>
                   {remaining === 0 ? 'Done for today. Streak safe.' : `${remaining} min to keep your streak`}
                 </ThemedText>
               </SpringPressable>
