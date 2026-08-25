@@ -78,8 +78,15 @@ Apple sent. I could not reach it — ASC needs your Apple ID, and I will not ent
 
 ## 4. THE APP STORE LISTING DESCRIBES FEATURES THAT DO NOT EXIST
 
-This is the part I would fix before resubmitting anything, regardless of what the original
-rejection said — because these would justify a fresh rejection on their own.
+**PUSHED 2026-08-24 via the ASC API (`PATCH 200`), then read back from Apple and confirmed
+byte-identical.** Description, promotional text and keywords are now accurate. The classroom pitch
+was KEPT but rewritten to state that class management lives on the web — `onboarding.tsx:141`
+confirms the web app ships a Classes tab with teacher class codes, so that claim is true as scoped.
+
+Review notes were NOT changed: they still say "We are currently in beta", which is a Guideline 2.2
+invitation. That needs a separate decision.
+
+The table below is what WAS wrong, kept as the record of why.
 
 | Claim in the live description | Reality |
 |---|---|
@@ -143,6 +150,30 @@ helps you and the first actively invites Guideline 2.2.
 
 ---
 
+## 4.5 RUNTIME: THE OFFERING HAS NO PACKAGES
+
+On launch the app logs, in red:
+
+    [iap] configured but the current offering has NO packages. Check that
+    euphoria_pro_monthly and euphoria_pro_yearly exist in App Store Connect and are attached
+    to the current offering in RevenueCat.
+
+`.env.local` and EAS production carry the SAME RevenueCat key (`appl_OGtY…KGnvkg`), so this is not
+a dev-only configuration.
+
+**HONEST CEILING: this does not by itself prove a production bug.** The iOS Simulator cannot load
+StoreKit products from App Store Connect without a StoreKit configuration file, so an empty
+offering here is partly expected. What IS independently true: both products are `READY_TO_SUBMIT`
+and have never been approved, and the ASC API key is not uploaded to RevenueCat (§3.2), so
+RevenueCat reports their status as "Could not check". Settle it on a real device with a sandbox
+account, after §3.1 and §3.2 are done.
+
+Related and confirmed on screen: the paywall renders a **hardcoded `$79.99`** rather than
+`pkg.product.priceString` — `refs/NEXT_SESSION.md` §6.4. An Indian user sees $79.99 and is charged
+₹7,900.
+
+---
+
 ## 5. THE TESTFLIGHT LAG
 
 You said the app is "still pretty laggy on TestFlight". Two things worth stating before anyone
@@ -162,8 +193,10 @@ changes a backend:
 
 ## 6. UNVERIFIED — do not treat as established
 
-- **`paywall_seen` has not been observed firing.** The code is committed and typechecks; nobody
-  has run the app to the paywall and watched PostHog receive it.
+- ~~`paywall_seen` has not been observed firing.~~ **VERIFIED 2026-08-24.** Launched the dev
+  client, tapped the "Free trial · day 3 of 3" row on Home (a real surface, not a deep link),
+  the paywall rendered, backgrounded the app to force a flush, and `paywall_seen` appeared in
+  PostHog "a few seconds ago" — the first time it has ever fired in project 557266.
 - **The app→project mapping is circumstantial.** `320845df` has the right bundle id, matching SDK
   version, and 7 of 8 recent customers — but the SDK key was not fingerprint-matched (revealing it
   was blocked by a permission classifier).
