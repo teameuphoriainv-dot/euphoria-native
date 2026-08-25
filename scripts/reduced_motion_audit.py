@@ -83,8 +83,14 @@ def selftest():
         ("static rotate",    "card: { transform: [{ rotate: '-4deg' }] },"),
         ("static translateX","thumb: { transform: [{ translateX: -13 }] },"),
         ("fade preset",      "<Animated.View entering={FadeIn} exiting={FadeOut} />"),
+        # THE FALSE POSITIVE THIS LANE ACTUALLY SHIPPED: a comment that names the preset it
+        # removed. money-2048.tsx read "This was ZoomIn and BOTH gates caught it" and was
+        # reported as an unguarded defect for its own changelog.
+        ("preset in a line comment",  "// FADE, NOT ZOOM. This was ZoomIn and both gates caught it"),
+        ("preset in a block comment", "/* was SlideInLeft, replaced with a fade */"),
+        ("url that looks like one",   "// see https://example.com/x -- keeps strings intact"),
     ]
-    kinds = lambda src: sorted(k for k, pat in VESTIBULAR.items() if re.search(pat, src))
+    kinds = vestibular_kinds
     for label, src in must_flag:
         assert kinds(src), f"lane MISSED {label}: {src}"
     for label, src in must_ignore:
@@ -92,17 +98,42 @@ def selftest():
     print(f"self-check OK — {len(must_flag)} defect shapes caught, {len(must_ignore)} static shapes ignored")
 
 
+# STRIP COMMENTS BEFORE MATCHING. money-2048.tsx was reported as a defect for a ZoomIn that
+# lived in a COMMENT explaining an already-fixed ZoomIn -- the lane matched its own documentation
+# and named a clean file. Strings are consumed first so a "https://..." URL is never read as a
+# line comment. ponytail: no JS regex-literal handling; a bare /re/ with a // inside could still
+# confuse it, which costs a false NEGATIVE only in a file that has no other vestibular match.
+_TOKENS = re.compile(r"""
+    "(?:\\.|[^"\\])*"    |
+    '(?:\\.|[^'\\])*'    |
+    `(?:\\.|[^`\\])*`    |
+    //[^\n]*              |
+    /\*.*?\*/
+""", re.S | re.X)
+
+
+def strip_comments(src):
+    return _TOKENS.sub(lambda m: "" if m.group(0)[:2] in ("//", "/*") else m.group(0), src)
+
+
+def vestibular_kinds(src):
+    """One matcher, used by both the audit and its self-check, so they cannot drift."""
+    code = strip_comments(src)
+    return sorted(k for k, pat in VESTIBULAR.items() if re.search(pat, code))
+
+
 def audit():
     rows = []
     for f in sorted(glob.glob("src/**/*.tsx", recursive=True) + glob.glob("src/**/*.ts", recursive=True)):
         src = open(f, encoding="utf-8", errors="ignore").read()
-        if not re.search(ANIM, src):
+        code = strip_comments(src)
+        if not re.search(ANIM, code):
             continue
         short = f.replace("src/", "")
-        kinds = sorted(k for k, pat in VESTIBULAR.items() if re.search(pat, src))
+        kinds = vestibular_kinds(src)
         rows.append({
             "file": short,
-            "guarded": "useReducedMotion" in src,
+            "guarded": "useReducedMotion" in code,
             "vestibular": kinds,
             "exempt": EXEMPT_REASON.get(short),
         })
@@ -135,7 +166,12 @@ def _demo():
     # Vestibular motion is what needs guarding.
     assert re.search(VESTIBULAR["repeat"], "scale.set(withRepeat(withTiming(1)))")
     assert re.search(VESTIBULAR["translate"], "transform: [{ translateY: y.get() }]")
-    assert re.search(VESTIBULAR["rotate"], "transform: [{ rotate: '4deg' }]")
+    # An ANIMATED rotate reads from a shared value, so the lane must flag it...
+    assert re.search(VESTIBULAR["rotate"], "transform: [{ rotate: spin.get() }]")
+    # ...and a LITERAL degree value is static layout, so it must not. This assertion asserted the
+    # OPPOSITE and had failed on every run since the lane was narrowed to non-literal values --
+    # invisible because --demo was in no script. Both directions are pinned so it cannot drift back.
+    assert not re.search(VESTIBULAR["rotate"], "transform: [{ rotate: '4deg' }]")
     # A plain scale is NOT in the vestibular set — press feedback must not be flagged.
     assert not any(re.search(p, "transform: [{ scale: s.get() }]") for p in VESTIBULAR.values())
     # ...and the two real exemptions are named, so they cannot be silently re-flagged.
@@ -158,5 +194,14 @@ if __name__ == "__main__":
     if "--demo" in sys.argv:
         _demo()
     else:
+        # RUN THE SELF-CHECKS ON THE DEFAULT PATH. --selftest and --demo were never wired into
+        # `npm run check`, so nothing invoked them: _demo's rotate assertion contradicted the
+        # pattern it guards and had been failing in silence. A check nothing runs is not a check.
+        selftest()
+        _demo()
         a = audit()
         print(json.dumps(a, indent=1)) if "--json" in sys.argv else report(a)
+        # EXIT NON-ZERO ON A DEFECT. This printed [DEFECT] and returned 0 for its whole life, so
+        # `npm run check` chained straight past it with && and money-2048.tsx's unguarded
+        # layout-preset shipped. A check that cannot fail the gate is decoration, not a gate.
+        sys.exit(1 if a["unguarded_vestibular"] else 0)
