@@ -112,7 +112,17 @@ export function TrialStep({
   last?: boolean;
 }) {
   const theme = useTheme();
-  const dotBg = tone === 'solid' ? theme.primary : tone === 'soft' ? theme.primary + 'AA' : theme.muted;
+  /*
+   * THE THREE DOTS WALK THE WEB'S RAMP: purple, then pink, then orange, top to bottom, the same
+   * progression euphoriainv.com uses across its upgrade surfaces. The third was theme.muted, a
+   * flat dark grey, so the last benefit read as disabled rather than as the end of a sequence.
+   *
+   * HEX STOPS ONLY, deliberately. The rail below appends alpha with `dotBg + '22'`, and appending
+   * to an hsl() string produces an unparseable colour that React Native renders at FULL opacity
+   * with no error. theme.primary, premiumFrom and premiumTo are hex; gradientFrom is hsl and is
+   * therefore NOT used here.
+   */
+  const dotBg = tone === 'solid' ? theme.primary : tone === 'soft' ? theme.premiumFrom : theme.premiumTo;
   return (
     <View style={styles.tlRow}>
       <View style={styles.tlRail}>
@@ -120,7 +130,7 @@ export function TrialStep({
           <PixelSpriteView sprite={icon} size={17} />
         </View>
         {!last && (
-          <LinearGradient colors={[theme.primary, theme.primary + '22']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.tlBar} />
+          <LinearGradient colors={[dotBg, dotBg + '22']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.tlBar} />
         )}
       </View>
       <View style={styles.tlBody}>
@@ -231,9 +241,20 @@ export function PlanCard({
   return (
     <SpringPressable onPress={onPress} style={{ marginTop: Spacing.two }}>
       {badge ? (
-        <View style={[styles.planBadge, { backgroundColor: theme.primary }]}>
+        /*
+         * THE WEB'S RAMP, not a flat fill. euphoriainv.com runs purple to pink to orange across
+         * every upgrade surface, and this badge sits directly above the plan it is selling, so a
+         * flat theme.primary here read as a different product to the gradient CTA below it. The
+         * three stops are the palette's own gradientFrom / premiumFrom / premiumTo; no new colour
+         * is introduced. The gradient IS the background, so it carries the badge's radii itself.
+         */
+        <LinearGradient
+          colors={[theme.gradientFrom, theme.premiumFrom, theme.premiumTo]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.planBadge}>
           <ThemedText type="smallBold" style={{ color: '#fff', fontSize: FontSize.label, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
-        </View>
+        </LinearGradient>
       ) : null}
       <View
         style={[
