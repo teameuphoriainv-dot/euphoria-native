@@ -16,9 +16,8 @@
  */
 import { View } from 'react-native';
 
-import { Atlas } from '@/components/atlas';
 import { PixelSpriteView } from '@/lib/pixel';
-import { avatarFor } from '@/lib/avatars';
+import { CHARACTER_AVATARS, avatarFor } from '@/lib/avatars';
 import { ITEM_ART } from '@/lib/item-art';
 import { useApp } from '@/lib/store';
 
@@ -56,13 +55,19 @@ export function ProfileAvatar({ size = 62 }: { size?: number }) {
           }}
         />
       ) : null}
-      {/* The player's CHOSEN mark is the base now. Atlas remains the default and stays vector, so
-          `chosen === null` means "wearing Atlas" rather than "no avatar". The hat and accessory
-          offsets below are relative to `size`, so they land the same on either base. */}
+      {/* THE FALLBACK IS A FACE, NOT ATLAS. This used to render the Atlas mascot whenever nothing
+          was chosen, and avatarFor() returns null for the atlas id BY DESIGN, so that was every
+          user who had not been to Profile then Avatar and banner, which was effectively everyone
+          because those were the only two links to the picker. On Home that put Atlas in the
+          profile circle while the mascot was already beside the greeting, so the header showed
+          Atlas twice and the user had no picture of their own. Reported from a device that way.
+
+          Atlas is not pickable, it is the default and nothing else, so nothing is lost by dropping
+          it here. Hat and accessory offsets are relative to size and land the same either way. */}
       {chosen ? (
         <PixelSpriteView sprite={chosen.sprite} size={size} />
       ) : (
-        <Atlas size={size} expression="happy" interactive={false} idle />
+        <PixelSpriteView sprite={CHARACTER_AVATARS[0].sprite} size={size} />
       )}
       {/* A hat sits ON the head, so it overhangs the top of the mascot's box rather than inside it. */}
       {hat ? (

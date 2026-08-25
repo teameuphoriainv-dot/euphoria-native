@@ -272,16 +272,6 @@ export default function Home() {
         <RiseIn>
           <View style={styles.headerRow}>
             <View style={styles.greetLeft}>
-              {/* The mascot IS the entry to chat. It was already sitting here inert, and a mascot
-                  is the first thing anyone taps — see ask-atlas.tsx for why there is no FAB. */}
-              <SpringPressable
-                haptic={false}
-                onPress={() => openAtlasChat()}
-                accessibilityRole="button"
-                accessibilityLabel="Ask Atlas"
-              >
-                <Atlas size={46} expression="happy" interactive={false} idle />
-              </SpringPressable>
               {/*
                 * THE GREETING IS THE WAY INTO YOUR PROFILE, now that You is not a tab.
                 *
@@ -386,9 +376,27 @@ export default function Home() {
                 * at all. Three items fit; four did not.
                 */}
             </View>
-            {/* Third group in this row, and it is a tight row with an AX5 history — verified on
-                device at the largest text size rather than assumed. See profile-button.tsx. */}
-            <ProfileButton />
+            {/*
+              * ATLAS SITS BESIDE YOUR AVATAR, avatar furthest right. It used to sit on the far left
+              * against the greeting, which read as decoration rather than as a control, and made
+              * the header show two mascots for anyone still on the default avatar.
+              *
+              * WRAPPED, not added as a fourth sibling. headerRow's own note says "Three items fit;
+              * four did not" at the largest text size, and this row has an AX5 history. Grouping
+              * the two circles keeps headerRow at three children, and pulling Atlas out of the
+              * greeting block gives the greeting back the width it was competing for.
+              */}
+            <View style={styles.rightCluster}>
+              <SpringPressable
+                haptic={false}
+                onPress={() => openAtlasChat()}
+                accessibilityRole="button"
+                accessibilityLabel="Ask Atlas"
+              >
+                <Atlas size={36} expression="happy" interactive={false} idle />
+              </SpringPressable>
+              <ProfileButton />
+            </View>
           </View>
         </RiseIn>
 
@@ -822,6 +830,7 @@ const styles = StyleSheet.create({
      Elevate puts the streak counter in the top nav row, EWA puts level + streak + coins in a
      row. None of the six stacks them. */
   pillStack: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  rightCluster: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, borderWidth: 1 },
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, paddingHorizontal: Spacing.one },
   day: { alignItems: 'center', gap: 6 },
