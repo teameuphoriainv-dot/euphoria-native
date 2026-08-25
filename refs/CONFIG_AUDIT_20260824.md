@@ -97,7 +97,12 @@ The table below is what WAS wrong, kept as the record of why.
 | "the **#1** gamified way to learn to invest" | Unsubstantiated superlative ranking claim. |
 | Review notes: "**We are currently in beta**" | Guideline 2.2 — Apple rejects apps presented as beta. |
 
-Also: **screenshots exist only at 6.5" (`APP_IPHONE_65`)**. No 6.9". No app preview video.
+~~Also: screenshots exist only at 6.5" (`APP_IPHONE_65`). No 6.9".~~ **FIXED 2026-08-24.** Seven
+finished 1290×2796 shots already existed in `refs/store/` — `store-shots.mjs` had been rendering
+them at the right size all along — and had simply never been uploaded. Created an `APP_IPHONE_67`
+set and uploaded all seven via the ASC API; Apple processed every one to `state=COMPLETE` with no
+validation errors. Note there is no `APP_IPHONE_69` in the API: `APP_IPHONE_67` IS the 6.9" slot,
+and 1290×2796 is its native size. Still no app preview video.
 
 ### 4.1 Rewritten description — every claim verified against the code
 
