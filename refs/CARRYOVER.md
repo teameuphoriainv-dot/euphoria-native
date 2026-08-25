@@ -849,3 +849,472 @@ news images went 831KB → 10.6KB, the logo bundle 3.48MB → 0.79MB.
 
 And throughout: **tap through the app rather than deep-linking**, and **break every check you
 write.** Those two habits would have prevented most of §1.
+
+---
+
+# PART THREE — APPENDICES
+
+Expanded at the owner's request. Everything here is measured against the code as it stands at
+`5520397`, not restated from older docs. Where an existing doc disagrees with what I measured,
+both numbers are given and the disagreement is flagged rather than silently resolved.
+
+---
+
+## APPENDIX A — THE LIGHT-MODE SWEEP, SCREEN BY SCREEN
+
+### A.1 A correction to the count
+
+`refs/NEXT_SESSION.md` §1.2 says **37 hardcoded hex literals** remain in `src/app` and
+`src/components`. My count, excluding the files where literal hex is *deliberate art*
+(`banners.ts`, `sprites*`, `palette.ts`, everything under `pixel/`), is **59**.
+
+I have not reconciled the difference and you should not assume either figure is authoritative.
+The likely causes are a different exclusion set or drift since the count was taken. **Recount
+before you start**, and record the exclusion rule you used alongside the number so the next
+person can reproduce it:
+
+```bash
+grep -rn "#[0-9A-Fa-f]\{6\}\b" src/app src/components \
+  | grep -v "banners.ts\|sprites\|palette\|pixel/"
+```
+
+### A.2 Where they are, ranked
+
+```
+ 7  src/app/you.tsx
+ 6  src/components/atlas.tsx
+ 5  src/components/atlas-mark.tsx
+ 5  src/app/shop.tsx
+ 5  src/app/dev-gallery.tsx
+ 3  src/components/provider-button.tsx
+ 3  src/components/profile-avatar.tsx
+ 3  src/components/celebration-burst.tsx
+ 3  src/components/ambient-background.tsx
+ 3  src/app/welcome.tsx
+ 3  src/app/art-test.tsx
+ 2  src/app/games/money-2048.tsx
+ 2  src/app/chat.tsx
+ 1  each: ui-icon, tier-up-sheet, streak-ignite, onboarding-parts,
+         lesson-feedback, course-rail-card, confetti, …
+```
+
+### A.3 Triage rule — most of these are not defects
+
+Do **not** mechanically replace all 59. Sort each site into one of three buckets:
+
+**Bucket 1 — deliberate, leave it.** A colour that must look identical in both themes because
+it is *chosen decoration*, not a themed surface. `money-2048.tsx`'s `TILE`/`INK` arrays are the
+clearest example: the tile ramp is a deliberate temperature progression (cool and quiet at the
+bottom, warm and loud at the top, so the board's temperature tells you how the run is going
+before you read a number) and inverting it per theme would destroy the design. `banners.ts` is
+the same and is already excluded. **Add a one-line comment saying why**, so the next sweep does
+not re-flag it.
+
+**Bucket 2 — Atlas.** `atlas.tsx` and `atlas-mark.tsx` account for 11 of the 59. Atlas is a
+brand mascot with a fixed palette (`LIT #DEA5F5 / DARK #A855EB` per `dev-gallery.tsx`). These
+are almost certainly Bucket 1, but they are worth one deliberate look in light mode because
+Atlas sits on a themed background.
+
+**Bucket 3 — genuine misses.** A colour that *should* follow the theme and does not. These are
+what the sweep is for. `you.tsx` (7 sites) is the highest-value file to check because it
+changed substantially this session and is now one tap from every tab.
+
+### A.4 The two traps, both previously shipped
+
+**`hsl()` + alpha concatenation renders at FULL OPACITY, silently.** The codebase writes
+`theme.x + '30'` in **88 places** to get a translucent tint. That works on hex. It does not
+work on `hsl(...)` — the concatenation produces an unparseable string and React Native falls
+back to fully opaque. Nothing errors. Five light-mode values were converted to hex for exactly
+this reason and `theme-alpha-pin.mjs` now scans the call sites. **If you add a light-mode
+colour, it must be hex.**
+
+**Contrast must be computed.** This session found `you.tsx`'s worn-title chip at **4.08:1**
+against its own composited background — under the 4.5 AA minimum — while `digest.tsx` had
+*already fixed the identical defect*, with a comment recording `primary 4.49 vs iconLilac 8.29`.
+The fix never reached the other file. Two more were found the same way: the Games Pro badge at
+**~3.55:1** (because `opacity: 0.6` on the whole card dimmed the badge along with the art), and
+`friends.tsx` dark-on-violet which scores 4.68 in light and 6.5 in dark — checked, and white
+would have been *worse*.
+
+When you composite, composite properly: `primary + '18'` is ~9.4% alpha over the card token,
+and you must resolve that to a solid colour before measuring against the text.
+
+### A.5 The screens
+
+| Screen | Status | Notes |
+|---|---|---|
+| Home | verified light | re-check: the goal pill was removed and `ProfileButton` added |
+| Preferences | verified light | |
+| Shop | verified light | 5 hex sites, likely deliberate cosmetic art |
+| Digest | verified light | already has the contrast fix others need |
+| **Lesson** | **unverified** | the longest screen, most step types |
+| **Trade** | **unverified** | live data, red/green semantics — check both directions |
+| **Games** | **unverified** | Pro badge contrast was just changed |
+| **You** | **unverified** | changed most this session |
+
+Also unverified and reachable: `/avatar` (new banner list, 11 fixed-hex bands on a themed
+page), `/achievements`, `/league`, `/friends`, `/explore/compound`, and the three game screens.
+
+### A.6 Done means
+
+All four §1.2 screens plus `/avatar` screenshotted in light mode; every failure fixed with the
+**measured ratio written into the comment**; every remaining literal sorted into a bucket with
+a one-line reason; and the literal count recorded with its exclusion rule.
+
+---
+
+## APPENDIX B — PIXEL ART ON TRADE AND GAMES: THE SCOPE IS SMALLER THAN IT SOUNDS
+
+### B.1 A second correction
+
+`§1.2` item 2 describes Trade and Games as *"the two tabs still entirely on vector icons."*
+**That is not what the code shows.** Measured:
+
+```
+Trade:  UIcon name="arrowRight" ×1,  UIcon name="search" ×1
+Games:  UIcon name="lock" ×1
+```
+
+**Three vector icons between them.** The Games grid already renders twelve `PixelSpriteView`
+tiles, and the tab bar icons themselves are already pixel. So the framing is stale.
+
+### B.2 And most remaining UIcons should STAY vector
+
+The house rule, stated in the art files: **utility glyphs come from the library, identity art
+is authored.** Across the whole app the UIcon usage is dominated by exactly the utility set:
+
+```
+16 check      15 chevronLeft   13 arrowRight   12 close
+ 4 sparkle     4 lock           3 search        2 flame
+```
+
+`check`, `chevronLeft`, `chevronRight`, `close`, `arrowRight`, `search` are navigation and
+affordance chrome. Converting those to pixel art would be **wrong** — it would make every back
+button a bespoke asset, and it is the kind of over-application the owner has pushed back on.
+
+### B.3 So what is actually left
+
+Not icons — **identity surfaces**. Ask of each: *is this a picture of something, or is it a
+control?* Pictures become pixel; controls stay vector.
+
+**On Trade:**
+- Position rows — each holds a ticker. Company/sector identity art is a real candidate, and
+  `sprites.ts` already has `bull`, `bear`, `stockTicker`, `chartUp`, `chartDown`, `dividend`,
+  `briefcase`, `factory`, `bank`, `globe`.
+- The portfolio header — currently a `NumberRollup`. Could carry `wallet` or `stackCash`.
+- The news rail — `newspaper` exists and is already used for the Digest quest.
+- The empty state, if there is one.
+
+**On Games:**
+- Largely done. The Pro lock badge is a *control*, so it stays.
+
+**On Home** (not in §1.2 but the same question): the league crest is already pixel, the header
+pills are already pixel, the quest marks are already pixel, the course rail art is already
+pixel. Home is essentially complete.
+
+### B.4 The rule for adding sprites
+
+Reuse first. `sprites.ts` has **77** and this session found the right one already existed
+nearly every time — `stackCash`, `newspaper`, `controller`, `scales`, `ladder`, `bolt`,
+`crack`, `globe`, `rocket`, `factory`, `chat`, `stockTicker`, `book`, `target`, `crown`,
+`diamondRing`, `gem`.
+
+If nothing fits, author into **`sprites-additions.ts`**, never `sprites.ts` — that file is a
+byte-for-byte copy of the web's and authoring into it breaks the re-copy contract.
+
+Sprite format: ASCII rows, **one character per pixel**, character → hex via the palette. Width
+and height derive from the rows, and `compile.ts` **rejects** a row of the wrong width — which
+is how a generator that emitted two-character palette keys (`s1`, `h1`) was caught immediately.
+A per-sprite `palette` override merges over the base (sprite wins).
+
+### B.5 Done means
+
+Trade screenshotted before and after; every added sprite drawn from the existing catalogue or
+justified in `sprites-additions.ts`; no utility glyph converted; `no-glow-pin`,
+`course-mark-pin` and `motion-invariants` still green.
+
+---
+
+## APPENDIX C — DESIGN BRIEFS FOR THE NINE UNBUILT GAMES
+
+### C.1 The bar, and why three proposals were rejected
+
+The owner rejected a swipe-sort ("scam or legit"), a budget resource-manager, and a
+cash-out-before-the-crash game in **one word**: *"smn else ts all bung."* He accepted Money
+2048 immediately. The difference is worth naming precisely, because it is the whole spec:
+
+- **A swipe-sort is a multiple-choice question wearing a game costume.** Term Match already
+  occupies the quiz slot. Do not build a second one.
+- **A resource-manager is a form you fill in.** Filling a form is not a mechanic.
+- **A cash-out game is a slot machine.** For a teen financial-literacy app that is not a taste
+  issue, it is a duty-of-care issue. Do not build one, and say why if asked.
+
+What worked: **a mechanic teenagers already play, with finance as the art rather than as the
+questions.** 2048's ladder became the real US denomination ladder — $1 $2 $5 $10 $20 $50 $100 —
+and that ladder is *why it teaches*: 2048's own ladder doubles every merge, but money does not.
+Two $2 make $5 (2.5×) and two $20 make $50 (2.5×), while two $5 make $10 (2×). A player feels
+that asymmetry long before they could name it. **That is the target: the finance should be in
+the mechanic's shape, not in a question attached to it.**
+
+### C.2 Three rules learned making Trend Master fun
+
+**1. Skill must beat noise.** The first version had `noise = 0.55 + difficulty*0.14` against a
+drift of `1.6`, so the random term routinely outvoted the trend and a correct read still lost.
+*A walk where noise dominates is a coin flip wearing a chart, and a coin flip is not a game.*
+Now `0.34 + min(difficulty,6)*0.11` against `2.6`.
+
+**2. Time should be earnable.** A clock that only falls means every run is the same length no
+matter how well it goes. A correct call buys back `TIME_BONUS` (1.2s), capped at the starting
+length so a long streak cannot make a run endless and flatten the score curve for everyone else.
+
+**3. The reward needs a visible moment.** Score ticking silently in a corner is information. A
+`+30` that flies off the bar is a reward. Crossing a multiplier renders larger and in the
+accent, because that is the moment the run got worth more and nothing else on screen said so.
+
+A fourth, learned from a defect: **the reveal is the tension, but it must not be dead air.** At
+620ms a 45-second run spent a third of itself waiting. `REVEAL_MS` is 340.
+
+### C.3 The build recipe — follow it in this order
+
+1. **Engine first, React-free.** `src/lib/<game>.ts`, no imports from `react` or
+   `react-native`. Seeded PRNG only — `Math.random` makes a round unrepeatable and untestable,
+   and `quests.ts`, `trend-game.ts`, `term-bank.ts` and `money-2048.ts` all say so in comments.
+2. **Assertions before UI**, in a `__DEV__` block. Cover every rule that has a *wrong version*.
+3. **Break a rule and watch them fail.** Non-negotiable — see §1.1. For Money 2048 I disabled
+   the chain-merge guard and confirmed three assertions failed before writing any screen.
+4. **Then the screen.**
+5. **Accessibility in the same pass, not retrofitted.** A one-finger swipe **is** VoiceOver's
+   navigation gesture; Money 2048 shipped unplayable and needed a D-pad added afterwards. If
+   your mechanic is a gesture, design the button alternative now.
+6. **Adapt it.** `phaseIndex(phaseOf({ completedLessons }))` returns 0–3. Change the
+   *pressure*, never the *rules* — a harder start must not be a different game.
+7. **Wire the economy.** `recordGameScore(GAME_ID, score)` and `awardGameXp()`. Note
+   `awardGameXp` stamps `lastGameDay`, which the "Play a game" daily quest reads.
+8. **Register** in `src/app/(tabs)/games.tsx` with a catalogue sprite.
+
+### C.4 The nine
+
+Each already has an assigned sprite, and the pairings read the game rather than its category.
+
+---
+
+**Budget Balancer** — sprite `scales`. *The game IS a balance.*
+
+The metaphor is doing the work already, so build the balance rather than a budget form. Income
+lands on one pan, expenses on the other, and the pan tilts; you act on the tilt. The failure
+mode to avoid is the one that got the sorting proposal killed — if the player is *categorising*
+things, it is a quiz. If the player is *reacting to physics*, it is a game.
+
+The teachable thing is that fixed costs are hard to move and variable ones are not, which maps
+to weight that is stuck versus weight you can slide.
+
+**Size:** M. **Risk:** medium — easiest of the nine to accidentally turn into a form.
+
+---
+
+**Credit Climb** — sprite `ladder`. *It is a climb.*
+
+Credit scores rise slowly and fall fast. That asymmetry is already a mechanic: a long patient
+ascent punctuated by drops that cost far more than the last gain. One missed payment erasing
+months of progress should be something the player *feels* in the climb, not a fact stated after.
+
+Consider a tension mechanic — the higher you are, the more a fall costs — so the interesting
+decision is when to consolidate versus push.
+
+**Size:** M. **Risk:** low. Strong candidate for the next one built.
+
+---
+
+**Market Reaction** — sprite `bolt`. *Reflex.*
+
+A headline lands, the market moves, you react before it settles. **The trap is that this is a
+Trend Master reskin** — both are "call a direction under time pressure". The differentiator has
+to be that you are reading the *headline*, not the chart: the same price action means different
+things after "earnings beat" versus "CEO resigns".
+
+If you cannot make the headline the actual skill, do not build it — ship Compound Tower instead.
+
+**Size:** M. **Risk:** high — reskin risk is real.
+
+---
+
+**Bias Busted** — Pro, sprite `magnifier`. *Behavioural finance.*
+
+**Highest quiz risk of the nine.** Cognitive biases are naturally quiz-shaped and Term Match
+already exists. To justify building it, the bias has to be something the player *does* and then
+gets shown, not something they identify from a list. A game that lets you fall for anchoring
+and then reveals the anchor is a game; a game that asks "which bias is this?" is a flashcard.
+
+**If it cannot be made arcade, cut the tile.** Twelve tiles with nine placeholders is already a
+promise the app is not keeping; shipping a weak one to fill a slot makes it worse.
+
+**Size:** M. **Risk:** high. **Consider cutting.**
+
+---
+
+**Black Swan** — Pro, sprite `crack`. *The break is the point, not the bird.*
+
+Genuinely teaches tail risk, which almost nothing else in the app does. A long calm you must
+spend *preparing* for, punctuated by a rare catastrophic event.
+
+**One caution:** this sits adjacent to gambling mechanics. Keep every decision about
+**preparation** (hedging, reserves, diversification) and never about **betting on when**. The
+distinction matters for a teen audience and the app already refuses the cash-out genre for the
+same reason.
+
+**Size:** M–L. **Risk:** medium — needs care, not avoidance.
+
+---
+
+**Trade War** — Pro, sprite `globe`. Multi-actor, likely turn-based, macro. Large.
+
+**Invest Life** — Pro, sprite `rocket`. A life simulation. **Probably a full session on its
+own** and the most likely to sprawl. Scope hard before starting.
+
+**Startup Sim** — Pro, sprite `factory`. Same class as Invest Life.
+
+**AI Rival** — Pro, sprite `chat`. An opponent to play against. **Note:** if this routes through
+`/api/chat` it inherits every constraint in §5.3 — a billed Gemini proxy behind a per-isolate
+limiter. Do not ship a game that calls it until the shared store exists, or you have built a
+free-to-abuse endpoint with a game-shaped front door.
+
+**Candlesticks** — Pro, sprite `stockTicker`. Pattern reading. High quiz risk, same as Bias
+Busted; the saving grace would be making it a *drawing* or *prediction* mechanic rather than
+recognition.
+
+---
+
+### C.5 The two pre-vetted arcade ideas
+
+Both were pitched alongside Money 2048 and the owner chose 2048 over them — so they are
+**on-brand and already sighted**, which makes them lower-risk than anything in C.4.
+
+**Compound Tower** — the Stack game. A block slides across, you tap to drop it. Land it clean
+and the tower compounds; miss and the overhang is shaved off and the next block is narrower.
+Pure timing, gets brutal fast, and **each floor is a year** so the number climbing beside you is
+real compound growth. The mechanic *is* the lesson: early perfect drops make every later floor
+wider, which is exactly why time beats contribution.
+
+**Coin Run** — one-thumb endless runner. Hold to rise, release to fall. Collect coins, dodge
+fees that shrink your stack, speed ramps until you die. Zero reading, pure reflex, closest to
+the Subway Surfers/Flappy energy a teenager expects. The finance is thin here — fees eroding a
+stack — but it is honest and it is *felt*.
+
+**Recommendation:** if you build one game, build **Compound Tower**. It has the tightest
+mechanic-to-lesson fit of anything on the list, it is a proven addictive genre, and it reinforces
+the single most important concept in the whole curriculum.
+
+---
+
+## APPENDIX D — RECIPES THAT ACTUALLY WORK
+
+### D.1 Run a pure-logic module's assertions outside the app
+
+The pattern used to prove the 2048 engine, the rate limiter and the quest logic:
+
+```bash
+mkdir -p /tmp/x && cd ~/euphoria-native
+sed 's/if (__DEV__)/const __DEV__=true;\nif (__DEV__)/' src/lib/<module>.ts > /tmp/x/m.ts
+cd /tmp/x
+# stub any import the module has, e.g.:
+echo 'export const dayKey = (d = new Date()) => …' > stub.ts
+python3 - <<'PY'
+s=open('m.ts').read().replace("from './store'", "from './stub.ts'")
+open('m.ts','w').write(s)
+PY
+cat > run.mjs <<'EOF'
+let bad=0; const o=console.error; console.error=(...a)=>{bad++;o('  FAIL:',...a);};
+await import('./m.ts');
+console.error=o;
+console.log(bad===0 ? 'PASS' : `${bad} FAILED`);
+EOF
+node run.mjs
+```
+
+**Node needs explicit `.ts` extensions on relative imports.** That is why the pins import
+`../src/lib/billing-retry.ts` with the extension, and why `allowImportingTsExtensions` is now on
+in `tsconfig.json` (type-check only; `noEmit` is set in `expo/tsconfig.base`).
+
+**Then break the module and re-run.** A suite you have not seen fail is not evidence.
+
+### D.2 Measure something at runtime
+
+`console.log` does **not** reach the iOS syslog in this dev-client setup. Render it on screen
+and screenshot it. Two rules learned doing this:
+
+- **Stamp a build marker into the readout** (`[b2]`, `[b3]`, `[FIX2]`). Otherwise a stale bundle
+  produces a number you will trust. `NEXT_SESSION.md` §3.4 exists because "stale build" and
+  "second code path" are indistinguishable from outside.
+- **Account for the observer.** A HUD that sets state every 2s adds exactly 0.5 commits/sec.
+  Subtract it in the reading and say so, rather than pretending it is free.
+
+### D.3 Prove a visual change without a video
+
+Take N screenshots ~350ms apart, crop to the region you care about, and diff:
+
+```python
+from PIL import Image, ImageChops
+box = (455, 940, 765, 1250)   # crop tightly — exclude the animated starfield
+ims = [Image.open(f'f{i}.png').convert('RGB').crop(box) for i in range(1, 7)]
+mx = max(sum(1 for p in list(ImageChops.difference(ims[0], im).getdata()) if sum(p) > 18)
+         for im in ims[1:])
+```
+
+This is how the Atlas gate was verified: **Home @46pt went 4,856 → 28 changed pixels** (still),
+while **Lesson @110pt stayed at 24,459** (fully alive). Crop tightly — a loose crop catches the
+ambient starfield and proves nothing about the thing you changed.
+
+### D.4 Ship
+
+```bash
+npx eas update --branch production --environment production --message "…"
+```
+
+`--environment` is **required** in non-interactive mode. Runtime is `1.0.0`; every JS change
+this session went out this way in ~2 minutes. **Do not rebuild for a JS fix**
+(`NEXT_SESSION.md` §6.1b). A native build is `npx eas build --platform ios --profile production
+--non-interactive --no-wait`; `autoIncrement: true` assigns the number, and **you cannot reissue
+a build number** — App Store Connect rejects a duplicate for the same version.
+
+Build 18 finished in **8 minutes**.
+
+### D.5 Navigate by tapping
+
+```bash
+idb ui tap  --udid $U <x> <y>
+idb ui swipe --udid $U <x1> <y1> <x2> <y2> --duration 0.3   # --duration is REQUIRED
+```
+
+Tab bar sits at **y ≈ 831 points**; tabs at **x ≈ 40 / 120 / 200 / 281 / 361**. An iOS
+edge-swipe back is `swipe 3 400 350 400 --duration 0.4` — and note that *needing* it is a
+finding (§1.2).
+
+**Recompute every other coordinate from the screenshot you are about to tap.** A 48pt button is
+~63 displayed px wide and the gaps between adjacent buttons will swallow a tap — that is
+exactly the false bug report in §1.3.
+
+---
+
+## APPENDIX E — FILE MAP
+
+**Pure logic, React-free, node-importable** — extend this set rather than putting logic in
+screens: `money-2048.ts`, `trend-game.ts`, `learner-phase.ts`, `term-bank.ts`, `quests.ts`,
+`achievements.ts`, `banners.ts`, `league-week.ts`, `billing-retry.ts`, `cost-basis.ts`,
+`item-art.ts`, `digest-extra.ts`, and under `api/`: `_chain.ts`, `_validate.ts`, `_advice.ts`,
+`_limit.ts`, `_entitlement.ts`, `_identity.ts`.
+
+**Synced from web — re-copy, never edit:** `src/lib/pixel/{types,palette,compile,sprites,
+catalogue}.ts` and everything under `src/lib/curriculum/` except the hand-written `index.ts`.
+
+**iOS-owned art:** `sprites-additions.ts`, `sprites-crests.ts`, `sprites-characters.ts`,
+`sprites-lesson.ts`, `PixelSprite.tsx`, `league-crest.tsx`, `profile-banner.tsx`,
+`profile-button.tsx`, `avatars.ts`.
+
+**The server:** `src/app/api/*+api.ts` are the routes; the `_`-prefixed files are shared
+helpers. `_entitlement.ts` must stay node-loadable — two pins import it directly.
+
+**Where the reasoning lives:** `refs/NEXT_SESSION.md` is the master doc (§1.2 the owner's
+queue, §3 the hard-won rules, §4 known-broken, §6 tooling recipes). `refs/TASK_QUEUE.md` has
+the per-error lint analysis. `refs/FEEDBACK_LOG.md` is the cofounder feedback spine — **its
+status column was found actively wrong on 11 rows**, so verify a row against the code before
+trusting it.
