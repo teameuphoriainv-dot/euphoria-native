@@ -26,18 +26,35 @@ measurement or a candidate. The measurement plan at the end is how to tell them 
 
 ## Candidates, ranked by how much evidence points at them
 
-### 1. AmbientBackground on every screen, repeating forever
-Thirty-five screens mount it, each with 22 to 45 stars, animating through
-`Animated.createAnimatedComponent(G)` and `(Rect)`. The repeat count is `-1`, so it
-never stops while a screen is mounted.
+> Ranking revised the same day. Candidate 1 was written from a grep and demoted after
+> reading the component, which already documents its own mechanism and already carries
+> the mitigation. Recorded rather than silently reordered, because the reason a rank
+> changed is worth more than the rank.
 
-WHAT IS NOT KNOWN: whether react-native-svg is driving these natively or falling back
-to the JS thread on this version. Reanimated 3 runs worklets on the UI thread, so this
-is only a problem if the SVG attribute path is not native. **That is the single most
-valuable thing to measure**, because if it is native this candidate is dead, and if it
-is not, it is almost certainly the answer.
+### 1. AmbientBackground, ALREADY LARGELY MITIGATED
+Demoted after reading the component rather than only grepping for it. This entry first
+said the decisive unknown was whether react-native-svg animates natively. It is not
+unknown: `ambient-background.tsx:82` states the mechanism outright, and someone already
+fixed the expensive half.
 
-It IS guarded by `useReducedMotion`, which is correct and rules out an accessibility
+CONFIRMED, from the source: `t0/t1/t2/glowPulse` feed `useAnimatedProps` on `<G>` and
+`<Rect>`, and RNSVG cannot natively animate most SVG attributes, so every frame of those
+crosses into JS and costs a React commit. The same mechanism was measured in `atlas.tsx`
+and taking it out moved Home's idle commits from 3.04/s to about 1.1/s.
+
+ALREADY MITIGATED, two ways:
+  - A FOCUS GATE. `if (reduced || !focused)` settles every twinkle to its resting value.
+    React Navigation keeps unfocused tabs mounted, so before this every tab you had ever
+    visited was twinkling behind the one you were reading. It no longer is.
+  - THREE GROUPS, NOT PER-STAR. 22 to 45 stars share three desynced `<G>` opacities, so
+    the cost is four animated props, not one per star.
+
+So the honest reading is four JS-crossing props on the ONE visible screen, plus a drift
+transform the UI thread owns end to end. That is much smaller than "35 screens animating
+forever", which is what the first version of this file implied. Still worth measuring,
+no longer the leading candidate.
+
+It is guarded by `useReducedMotion`, which is correct and rules out an accessibility
 defect here.
 
 ### 2. An 18.2 MB bundle, 59% of it lessons
