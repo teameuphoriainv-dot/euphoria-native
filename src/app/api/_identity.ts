@@ -50,12 +50,77 @@ const decoder = new TextDecoder();
  * @param secret  the project's JWT secret
  * @param now     injectable for the regression; defaults to wall clock
  */
+/*
+ * ES256 VERIFICATION, VIA THE PROJECT'S JWKS.
+ *
+ * MEASURED 26 Aug: this project signs user sessions with ES256, not HS256. A real token's header
+ * is {"alg":"ES256","kid":"c53394cc-...","typ":"JWT"} and the JWKS endpoint serves the matching
+ * EC P-256 key. The HS256 pin below would have rejected every one of them.
+ *
+ * THAT FAILURE WOULD HAVE BEEN SILENT, which is why this is here rather than a note. `verifiedUserId`
+ * returns null on a rejected token and `apiHeaders` falls back to the install id, so signing in
+ * would have appeared to work while the server quietly ignored every session. Same class as the
+ * OTA that served a static price table.
+ *
+ * The issuer is taken from CONFIGURATION, never from the token's own `iss`, which an attacker
+ * controls. A token claiming an issuer we did not configure is refused below.
+ */
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+
+/** Cached briefly: keys rotate rarely, and a fetch per request would put the auth provider on the
+ *  critical path of every authenticated call. */
+let jwksCache: { at: number; keys: Record<string, CryptoKey> } | null = null;
+const JWKS_TTL_MS = 10 * 60 * 1000;
+
+async function jwksKey(kid: string, now: number): Promise<CryptoKey | null> {
+  if (!SUPABASE_URL) return null;
+  if (!jwksCache || now - jwksCache.at > JWKS_TTL_MS) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
+      if (!r.ok) return null;
+      const body = (await r.json()) as { keys?: JsonWebKey[] };
+      const keys: Record<string, CryptoKey> = {};
+      for (const jwk of body.keys ?? []) {
+        // Import ONLY signing keys on the curve we accept. A JWKS is fetched over the network, so
+        // it is input: nothing here trusts a `kty` or `crv` we did not ask for.
+        if (jwk.kty !== 'EC' || jwk.crv !== 'P-256' || (jwk.use && jwk.use !== 'sig')) continue;
+        const id = (jwk as { kid?: string }).kid;
+        if (!id) continue;
+        try {
+          keys[id] = await crypto.subtle.importKey(
+            'jwk',
+            jwk,
+            { name: 'ECDSA', namedCurve: 'P-256' },
+            false,
+            ['verify'],
+          );
+        } catch {
+          // A malformed key in the set must not take the whole set down.
+        }
+      }
+      jwksCache = { at: now, keys };
+    } catch {
+      return null;
+    }
+  }
+  return jwksCache.keys[kid] ?? null;
+}
+
 export async function verifiedSubject(
   token: string,
   secret: string,
   now: number = Date.now(),
 ): Promise<string | null> {
-  if (!token || !secret) return null;
+  /*
+   * A SECRET IS NO LONGER REQUIRED UP FRONT, because ES256 does not use one.
+   *
+   * This line used to read `if (!token || !secret) return null`, which refused every ES256 token
+   * before the algorithm branch could look at it. The HS256 path still demands a secret, at the
+   * point where it actually needs one. Found by testing against a real token rather than assuming
+   * the implementation was right: the crypto verified fine in isolation and this guard was
+   * swallowing it two lines earlier.
+   */
+  if (!token) return null;
 
   const parts = token.split('.');
   if (parts.length !== 3) return null;
@@ -75,31 +140,54 @@ export async function verifiedSubject(
    * asymmetric alg is the second oldest — both work against code that reads `alg` from the token
    * and does what it says. The token does not get a vote on how it is checked.
    */
-  if (header.alg !== 'HS256') return null;
+  const alg = header.alg;
+  if (alg !== 'HS256' && alg !== 'ES256') return null;
 
   const sig = b64url(s);
   const payloadBytes = b64url(p);
   if (!sig || !payloadBytes) return null;
 
   const enc = new TextEncoder();
+  const signed = enc.encode(`${h}.${p}`);
   let ok: boolean;
   try {
-    const key = await crypto.subtle.importKey(
-      'raw',
-      enc.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify'],
-    );
-    // subtle.verify is constant-time. Never compare signature strings with ===.
-    ok = await crypto.subtle.verify('HMAC', key, sig as BufferSource, enc.encode(`${h}.${p}`));
+    if (alg === 'ES256') {
+      /*
+       * The `kid` selects WHICH published key, and nothing else. It cannot select a weaker
+       * algorithm: `alg` was pinned to one of two values above, and this branch only ever imports
+       * an EC P-256 verify key. An unknown kid fails closed.
+       */
+      const kid = (header as { kid?: unknown }).kid;
+      if (typeof kid !== 'string' || !kid) return null;
+      const key = await jwksKey(kid, now);
+      if (!key) return null;
+      ok = await crypto.subtle.verify(
+        { name: 'ECDSA', hash: 'SHA-256' },
+        key,
+        sig as BufferSource,
+        signed,
+      );
+    } else {
+      // HS256, the legacy shared-secret path. Kept because a project configured the old way still
+      // works, and because removing a verification path you have not proven is unused is careless.
+      if (!secret) return null;
+      const key = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(secret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['verify'],
+      );
+      // subtle.verify is constant-time. Never compare signature strings with ===.
+      ok = await crypto.subtle.verify('HMAC', key, sig as BufferSource, signed);
+    }
   } catch {
     return null;
   }
   if (!ok) return null;
 
   // Only NOW is it safe to believe anything in the payload.
-  let claims: { sub?: unknown; exp?: unknown; nbf?: unknown; aud?: unknown };
+  let claims: { sub?: unknown; exp?: unknown; nbf?: unknown; aud?: unknown; iss?: unknown };
   try {
     claims = JSON.parse(decoder.decode(payloadBytes));
   } catch {
@@ -124,6 +212,15 @@ export async function verifiedSubject(
    * upstream and the failure is silent. Supabase issues user sessions with `aud: "authenticated"`.
    */
   if (claims.aud !== undefined && claims.aud !== 'authenticated') return null;
+  /*
+   * `iss` PINNED to the CONFIGURED project, added with ES256 support.
+   *
+   * A JWKS is fetched from a URL. If that URL ever came from the token, an attacker could publish
+   * their own keys and mint tokens this code would happily verify. SUPABASE_URL is configuration,
+   * and this line refuses any token that does not claim to come from it.
+   */
+  const iss = (claims as { iss?: unknown }).iss;
+  if (SUPABASE_URL && iss !== undefined && iss !== `${SUPABASE_URL}/auth/v1`) return null;
 
   // Bound it for the same reason `identify()` bounds the header: the identity becomes a map key.
   return claims.sub.length <= 64 ? claims.sub : null;

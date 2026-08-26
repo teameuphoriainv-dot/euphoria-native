@@ -14,6 +14,7 @@
 // ever gets shown valid tokens has not been tested.
 // ============================================================================
 
+import { readFileSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
 import { bearer, verifiedSubject } from '../src/app/api/_identity.ts';
 
@@ -94,6 +95,39 @@ bcheck('case-insensitive scheme', hdr('bearer abc'), 'abc');
 bcheck('extra whitespace trimmed', hdr('Bearer   abc  '), 'abc');
 bcheck('wrong scheme refused', hdr('Basic abc'), null);
 bcheck('absent header', hdr(null), null);
+
+
+/* ── ES256, ADDED 26 AUG ───────────────────────────────────────────────────────────────────────
+ *
+ * MEASURED against the live project: it signs user sessions with ES256, not HS256. Every real
+ * token would have been rejected on the algorithm pin, and rejection here is SILENT — apiHeaders
+ * falls back to the install id, so signing in would have looked like it worked while the server
+ * ignored every session.
+ *
+ * The bug that actually bit was subtler than the pin: `verifiedSubject` opened with
+ * `if (!token || !secret) return null`, which refused ES256 tokens two lines BEFORE the algorithm
+ * branch could look at them. The crypto verified fine in isolation. These assertions exist because
+ * a source check would have caught it and a unit test on the crypto would not.
+ */
+{
+  const src = readFileSync('src/app/api/_identity.ts', 'utf8');
+
+  if (/if \(!token \|\| !secret\) return null;/.test(src)) {
+    fail.push('verifiedSubject still refuses a missing secret up front, which rejects every ES256 token before the algorithm branch runs.');
+  }
+  if (!/alg !== 'HS256' && alg !== 'ES256'/.test(src)) {
+    fail.push("the algorithm pin no longer accepts exactly HS256 and ES256. Widening it is how alg:none gets in; narrowing it silently drops real sessions.");
+  }
+  if (!/namedCurve: 'P-256'/.test(src) || !/jwk\.kty !== 'EC'/.test(src)) {
+    fail.push('the JWKS import no longer pins EC P-256. A JWKS is fetched over the network, so it is input and must not be trusted for key type.');
+  }
+  if (!/SUPABASE_URL && iss !== undefined/.test(src)) {
+    fail.push('the issuer is no longer pinned to the configured project. Without it a token could name a JWKS host of its own choosing.');
+  }
+  if (!/process\.env\.EXPO_PUBLIC_SUPABASE_URL/.test(src)) {
+    fail.push('the JWKS host no longer comes from configuration. It must never be read from the token.');
+  }
+}
 
 if (fail.length > 0) {
   console.log('\nFAILED\n');
