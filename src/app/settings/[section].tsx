@@ -34,6 +34,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { deleteServerAccount } from '@/lib/auth';
 import { applyDailyNudge, applyMarketAlert, applyWinBack } from '@/lib/notifications';
 import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
@@ -266,19 +267,35 @@ function AccountSection() {
                   style: 'destructive',
                   onPress: () => {
                     /*
-                     * ORDER MATTERS. deleteProfile() runs FIRST, then the notification cleanup.
+                     * ORDER MATTERS TWICE OVER.
+                     *
+                     * The SERVER account goes first, while the session is still alive to authorise
+                     * it. deleteProfile() does not clear the Supabase session, but doing it the
+                     * other way round invites exactly that bug the first time someone reorders
+                     * these lines.
+                     *
+                     * Then deleteProfile(), then the notification cleanup.
                      * applyMarketAlert() cancels and then RE-SCHEDULES if the user still holds a
                      * symbol, so calling it before the wipe could queue a fresh alert about the
                      * portfolio being deleted. After the wipe there are no positions and no
                      * watchlist, so it cancels and returns null, which is the intent.
                      */
-                    useApp.getState().deleteProfile();
-                    void Promise.all([
-                      applyDailyNudge(false),
-                      applyWinBack(false),
-                      applyMarketAlert(),
-                    ]).finally(() => {
-                      router.replace('/welcome');
+                    void deleteServerAccount().then((server) => {
+                      // Local data goes regardless. Somebody who asked to be forgotten must not be
+                      // left with their progress intact because a network call failed.
+                      useApp.getState().deleteProfile();
+                      return Promise.all([
+                        applyDailyNudge(false),
+                        applyWinBack(false),
+                        applyMarketAlert(),
+                      ]).finally(() => {
+                        router.replace('/welcome');
+                        // Said AFTER routing, and only on failure: they must not be told the server
+                        // copy is gone when it is not.
+                        if (!server.ok && server.message) {
+                          Alert.alert('Profile deleted on this device', server.message);
+                        }
+                      });
                     });
                   },
                 },

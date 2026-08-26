@@ -211,3 +211,44 @@ export async function signOutServer(): Promise<void> {
   await supabase()?.auth.signOut();
   session = null;
 }
+
+/**
+ * Delete the signed-in user's SERVER account, for App Store Guideline 5.1.1(v).
+ *
+ * WHY AN RPC. A client cannot delete from `auth.users`; that needs elevated privilege, and the
+ * service_role key must never ship inside an app. The standard shape is a SECURITY DEFINER
+ * function that deletes `auth.uid()` and nothing else, so a caller can only ever remove
+ * themselves:
+ *
+ *   create or replace function public.delete_own_account() returns void
+ *     language plpgsql security definer set search_path = pg_catalog
+ *     as $$ begin delete from auth.users where id = auth.uid(); end; $$;
+ *   revoke all on function public.delete_own_account() from public, anon;
+ *   grant execute on function public.delete_own_account() to authenticated;
+ *
+ * RETURNS A RESULT RATHER THAN THROWING, and the caller deletes local data either way. A user who
+ * asked to be forgotten must not be left with their progress intact because a network call failed
+ * — but they also must not be told the server copy is gone when it is not. `ok: false` means
+ * exactly that, and the screen says so.
+ *
+ * `ok: true` when there is no session: there is no server account to delete, so there is nothing
+ * to fail at. That is the honest answer for a device-local profile, not a papered-over error.
+ */
+export async function deleteServerAccount(): Promise<{ ok: boolean; message?: string }> {
+  const sb = supabase();
+  if (!sb || !session) return { ok: true };
+  const { error } = await sb.rpc('delete_own_account');
+  if (error) {
+    // A missing function is the expected state until the SQL above has been run once. Say which.
+    const missing = /function .*delete_own_account.* does not exist|PGRST202/i.test(error.message);
+    return {
+      ok: false,
+      message: missing
+        ? 'Your account on our servers could not be removed yet. Your data on this device has been deleted.'
+        : 'Your account on our servers could not be reached. Your data on this device has been deleted.',
+    };
+  }
+  await sb.auth.signOut();
+  session = null;
+  return { ok: true };
+}
