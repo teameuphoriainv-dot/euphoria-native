@@ -111,9 +111,11 @@ export default function News() {
           <RiseIn delay={60}>
             <Card style={styles.empty}>
               <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
-                {/* Two different failures, said differently. Collapsing them would hide a missing
-                    key behind an apparently quiet news day. */}
-                No stories right now. Live news isn’t switched on in this build.
+                {/* This branch is now ONLY a genuinely quiet feed. A missing key and an upstream
+                    failure both refuse at the API and land in RetryNotice above, so this copy no
+                    longer has to carry two meanings — and must not, or it would claim news is
+                    switched off on a day it simply had nothing to report. */}
+                No stories right now.
               </ThemedText>
             </Card>
           </RiseIn>

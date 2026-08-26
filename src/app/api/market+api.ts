@@ -291,6 +291,8 @@ export async function GET(request: Request) {
     if (action === 'news') {
       const sym = symbol(url.searchParams.get('sym'));
 
+      let avFailed = false;
+
       /*
        * ALPHA VANTAGE FIRST, POLYGON AS FALLBACK.
        *
@@ -349,15 +351,31 @@ export async function GET(request: Request) {
           }
         } catch (e) {
           // Day-cap or outage: fall through to Polygon rather than failing the screen.
+          avFailed = true;
           console.error('[market] alphavantage failed, falling back', e);
         }
       }
 
-      // Alpha Vantage was tried and gave nothing. Without a Polygon key there is no second
-      // provider to fall back TO, so answer an empty feed rather than calling `poly` with an
-      // undefined key — which would 401 upstream and surface as a generic failure the screen
-      // cannot explain. An empty list is a state the UI already renders honestly.
-      if (!key) return cached({ articles: [] });
+      /*
+       * REFUSE WHEN NOTHING IS CONFIGURED, RATHER THAN ANSWERING "NO NEWS".
+       *
+       * This branch used to return an empty feed unconditionally, and CACHE it. So a deployment
+       * holding neither key rendered "no news today" — indistinguishable from a genuinely quiet
+       * day, cached, on a screen whose own comments insist those two must never be confused.
+       * Every other action in this file answers a missing key with 503 `not_configured`; news was
+       * the one exception, and it was the exception in the dangerous direction.
+       *
+       * The distinction matters in BOTH directions, which is why this is not a blanket 503:
+       *   - no providers at all              -> not_configured. Nothing was ever asked.
+       *   - Alpha Vantage asked, and failed  -> upstream_unavailable. We asked and could not hear.
+       *   - Alpha Vantage asked, and it was genuinely quiet -> an empty feed is the TRUTH.
+       * Answering 503 for that last case would be the same lie wearing the opposite coat.
+       */
+      if (!key) {
+        if (!av) return fresh({ error: 'not_configured' }, 503);
+        if (avFailed) return fresh({ error: 'upstream_unavailable' }, 503);
+        return cached({ articles: [] });
+      }
 
       const d = await poly(`/v2/reference/news?${sym ? `ticker=${sym}&` : ''}order=desc&limit=12`, key);
       return cached({

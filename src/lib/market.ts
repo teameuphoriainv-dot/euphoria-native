@@ -65,7 +65,7 @@ export const isLiveUnavailable = () => liveUnavailable;
 let rateLimited = false;
 export const isRateLimited = () => rateLimited;
 
-async function safe<T>(path: string): Promise<T | null> {
+async function safe<T>(path: string, rethrow = false): Promise<T | null> {
   try {
     const out = await apiGet<T>(path);
     rateLimited = false;
@@ -73,6 +73,14 @@ async function safe<T>(path: string): Promise<T | null> {
   } catch (e) {
     if (e instanceof ApiError && e.code === 'not_configured') liveUnavailable = true;
     if (e instanceof ApiError && e.code === 'rate_limited') rateLimited = true;
+    /*
+     * `rethrow` exists so a caller can keep the flag bookkeeping above AND still see the real
+     * error code. Swallowing to null loses WHICH failure happened, and `retryMessage()` maps
+     * codes to different sentences — 'not_configured' says "this is not switched on yet" while
+     * an unknown code only manages "that did not load". Re-wrapping in a fresh ApiError here
+     * would have quietly downgraded every news failure to the vaguer of the two.
+     */
+    if (rethrow) throw e;
     return null;
   }
 }
@@ -157,8 +165,25 @@ const _fetchMarks = (syms?: string[]) =>
 export const getChart = (sym: string, range: RangeKey) =>
   safe<Chart>(`/api/market?action=chart&sym=${sym}&range=${range}`);
 
-export const getNews = (sym?: string) =>
-  safe<{ articles: Article[] }>(`/api/market?action=news${sym ? `&sym=${sym}` : ''}`).then((d) => d?.articles ?? []);
+/**
+ * REJECTS ON FAILURE. That is the point, and it is a change from `?? []`.
+ *
+ * `news.tsx` carries a deliberate `.catch()` whose comment reads: telling a user there is no news
+ * when the truth is that we could not load it is worse than telling them nothing, because they
+ * would stop looking. That catch was DEAD CODE. `safe()` turns every failure into null and the
+ * `?? []` here turned null into an empty list, so the screen could never tell a quiet news day
+ * apart from an outage — it just said "no news for this symbol" either way.
+ *
+ * Both callers already handle a rejection: `news.tsx` shows its error-and-retry state, and
+ * `news-gallery.tsx` catches to [] and renders nothing at all.
+ */
+export const getNews = async (sym?: string): Promise<Article[]> => {
+  const d = await safe<{ articles: Article[] }>(
+    `/api/market?action=news${sym ? `&sym=${sym}` : ''}`,
+    true,
+  );
+  return d?.articles ?? [];
+};
 
 /**
  * Change over the whole series, which is what the range row is really selecting.
