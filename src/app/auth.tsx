@@ -25,6 +25,7 @@ import type { Profile } from '@/lib/onboarding-path';
 import {
   AUTH_ENABLED,
   PASSWORD_MIN,
+  signInWithIdToken,
   sendPasswordReset,
   signInWithEmail,
   signUpWithEmail,
@@ -195,7 +196,27 @@ export default function Auth() {
     setBusy(which);
     try {
       const identity = which === 'apple' ? await signInWithApple() : await signInWithGoogle();
-      if (identity) enterWith(identity);
+      if (!identity) return;
+      /*
+       * EXCHANGE THE PROVIDER TOKEN FOR A SUPABASE SESSION, when accounts are on.
+       *
+       * Without this, email sign-up created a SERVER account while Apple and Google created only
+       * a LOCAL profile, so one screen meant two different things by "account" and Delete profile
+       * could not mean one thing either.
+       *
+       * NO SILENT FALLBACK. If Supabase rejects the token we surface it and stop, rather than
+       * quietly writing a local profile as though sign-in had worked. A social button that appears
+       * to succeed while creating nothing on the server is exactly the missing-configuration-looks-
+       * like-success failure this codebase has spent the week deleting.
+       */
+      if (AUTH_ENABLED && identity.idToken) {
+        const r = await signInWithIdToken(which, identity.idToken);
+        if (!r.ok) {
+          setAuthError(r.message);
+          return;
+        }
+      }
+      enterWith(identity);
     } catch {
       setAuthError(
         which === 'apple'
