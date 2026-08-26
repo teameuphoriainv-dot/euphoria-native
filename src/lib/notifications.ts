@@ -13,6 +13,7 @@
 import * as Notifications from 'expo-notifications';
 
 import { DEFAULT_NUDGE_HOUR, TRIAL_DAYS, useApp } from './store';
+import { canSpend, clampToWindow, type NotifEntry } from './notif-budget';
 
 /**
  * UNIT 15a. Kept as a named re-export so existing callers and the dev self-check keep compiling,
@@ -214,3 +215,108 @@ if (__DEV__) {
     })();
   }, 3000);
 }
+
+
+/* ── WIN-BACK ──────────────────────────────────────────────────────────────────────────────────
+ *
+ * Three touches while someone is away, then silence. The intervals and the FRAMINGS are both from
+ * measured behaviour, not taste:
+ *
+ *   day 3   reminder framing            recovers 15-25% of the cohort
+ *   day 7   value-restatement framing   recovers 8-15%
+ *   day 14  win-back framing            recovers 3-8%
+ *
+ * Two findings shape this and both are easy to get wrong. First, the same message three times
+ * performs far worse than three different framings, so these deliberately do not rhyme with each
+ * other. Second, CONTINUING PAST DAY 14 ACCELERATES UNINSTALL: after the third touch the correct
+ * behaviour is to stop entirely rather than drop to a slower drip. There is no day 21 here, and
+ * adding one would make this worse, not more thorough.
+ *
+ * Rescheduled from zero every time the user opens the app, because "three days after they last
+ * used it" is the only reading of day 3 that means anything. Cancelling first means an active
+ * user can never accumulate a queue of these.
+ */
+const WINBACK: { id: string; days: number; title: string; body: string }[] = [
+  {
+    id: 'euphoria-winback-3',
+    days: 3,
+    title: 'Three days off',
+    body: 'Five minutes today puts you back on track.',
+  },
+  {
+    id: 'euphoria-winback-7',
+    days: 7,
+    title: 'Markets moved this week',
+    body: 'Come and see what changed while you were away.',
+  },
+  {
+    id: 'euphoria-winback-14',
+    days: 14,
+    title: 'Your progress is saved',
+    body: 'Pick up exactly where you left off.',
+  },
+];
+
+/**
+ * Schedule (or clear) the win-back sequence. Returns the ids the OS ACTUALLY accepted, which is
+ * the same rule the two functions above document and for the same reason: what we asked for and
+ * what iOS stored are different questions.
+ *
+ * Never requests permission. A lapsed user is the worst possible moment to raise a system prompt.
+ */
+export async function applyWinBack(schedule: boolean, now: Date = new Date()): Promise<string[]> {
+  await Promise.all(
+    WINBACK.map((w) => Notifications.cancelScheduledNotificationAsync(w.id).catch(() => undefined)),
+  );
+  if (!schedule) return [];
+
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') return [];
+
+  const st = useApp.getState();
+  const streakOn = st.profile.notifyOptIn === true;
+  /*
+   * Accumulated LOCALLY as well as read from the store. Scheduling three in one pass means the
+   * second and third must see the first, and a store write does not land in time to be read back
+   * inside the same loop.
+   */
+  const spent: NotifEntry[] = [...st.notifLedger];
+
+  for (const w of WINBACK) {
+    const at = clampToWindow(new Date(now.getTime() + w.days * 24 * 60 * 60 * 1000));
+    const ms = at.getTime();
+    if (!canSpend('winback', spent, ms, streakOn)) continue;
+
+    const seconds = Math.round((ms - now.getTime()) / 1000);
+    if (seconds <= 0) continue;
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: w.id,
+      content: { title: w.title, body: w.body, sound: true },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds,
+        repeats: false,
+      },
+    });
+    spent.push({ at: ms, kind: 'winback' });
+    st.recordNotif('winback', ms);
+  }
+
+  // Read back what iOS is really holding rather than trusting the writes above.
+  const queued = await scheduledNudges();
+  return WINBACK.map((w) => w.id).filter((id) => queued.some((n) => n.identifier === id));
+}
+
+/*
+ * ARMING IT. Keyed on the day the user was last active: opening the app on a new day pushes the
+ * whole sequence out by that much. Same module-scope subscription pattern as the trial reminder,
+ * and for the same reason given there.
+ */
+let lastDayKey = '';
+useApp.subscribe((s) => {
+  if (s.lastActiveDay === lastDayKey) return;
+  lastDayKey = s.lastActiveDay;
+  if (!s.lastActiveDay) return;
+  void applyWinBack(true);
+});

@@ -13,6 +13,7 @@
 import { applyBuy, applyGrant, applySell, clearStaticPricing } from './cost-basis';
 import { dayBeforeKey, dayKey, nextStreak, prevDayKey, weekKey, withToday } from './day-keys';
 import { resolveStreak } from './streak-freeze';
+import { prune as pruneNotifs, type NotifEntry, type NotifKind } from './notif-budget';
 import { valueOf } from './portfolio-value';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { outcomeFor, type WeekOutcome } from './league-week';
@@ -355,6 +356,13 @@ export type AppState = {
    * convertible: the user has already chosen when, so iOS is only asking whether.
    */
   nudgeHour: number;
+  /**
+   * Every notification this app has scheduled in the last week, so the frequency budget survives
+   * a restart. Without persistence the cap resets on every cold start, which is exactly how an
+   * app that believes it sends two a day sends eight.
+   */
+  notifLedger: NotifEntry[];
+  recordNotif: (kind: NotifKind, at: number) => void;
   setNudgeHour: (h: number) => void;
   /** The day the quest reward was already paid. Day-keyed for the same reason `lastGameDay` is:
    *  it makes the payout once-per-day and unfarmable without a second tally to keep in sync. */
@@ -705,6 +713,10 @@ export const useApp = create<AppState>()(
       // 19:00 stays the DEFAULT for the same reason it was the constant: evening, so a nudge is
       // still actionable. It is now a starting point rather than a decision made on the user's behalf.
       nudgeHour: DEFAULT_NUDGE_HOUR,
+      notifLedger: [],
+      // Prunes on every write, so the ledger cannot grow without bound on a long-lived install.
+      recordNotif: (kind, at) =>
+        set((s) => ({ notifLedger: pruneNotifs([...s.notifLedger, { at, kind }], at) })),
       setNudgeHour: (h) => {
         set({ nudgeHour: Math.max(0, Math.min(23, Math.round(h))) });
       },
@@ -1212,7 +1224,7 @@ export const useApp = create<AppState>()(
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
       // fetched since. Ceiling: this snapshots on the next state write, so a session that fetches
       // quotes and changes nothing else keeps the previous marks rather than the newest.
-      marks: persistableMarks(allMarks(), [...Object.keys(s.positions), ...s.watchlist]), costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour }),
+      marks: persistableMarks(allMarks(), [...Object.keys(s.positions), ...s.watchlist]), costBasis: s.costBasis, valueHistory: s.valueHistory, derivativeTrades: s.derivativeTrades, derivatives: s.derivatives, pendingRewards: s.pendingRewards, rewardsEarned: s.rewardsEarned, watchlist: s.watchlist, installId: s.installId, activeDays: s.activeDays, lastReturnDay: s.lastReturnDay, streakGoal: s.streakGoal, lastQuestDay: s.lastQuestDay, widgetAsksSeen: s.widgetAsksSeen, widgetAskDay: s.widgetAskDay, widgetAdded: s.widgetAdded, nudgeHour: s.nudgeHour, notifLedger: s.notifLedger }),
       // Fires after rehydration settles, on success AND on failure. Flipping the flag in both
       // cases is deliberate: if storage is unreadable we must still route rather than hang on a
       // blank screen forever — a new install is the correct fallback for "no readable state".
