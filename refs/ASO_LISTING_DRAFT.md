@@ -30,7 +30,7 @@ clear gain.
 ## Subtitle — limit 30
 
 ```
-Stock Market Course & Practice
+Personal Finance for Beginners
 ```
 
 The subtitle is indexed for search at nearly the weight of the name, so it should carry keywords
@@ -40,7 +40,7 @@ while still describing the app truthfully.
 ## Keywords field — limit 100
 
 ```
-investing,money,trading,beginner,portfolio,finance,wealth,budget,simulator,etf,options,teen,401k
+money,stocks,trading,simulator,paper,practice,budget,portfolio,market,ai,teen,student,literacy,risk
 ```
 
 Three rules applied:
@@ -53,7 +53,7 @@ Three rules applied:
 ## Promotional text — limit 170
 
 ```
-Learn investing in minutes a day. Real lessons, a risk-free practice portfolio, and Atlas, your AI guide. Build a streak, climb the league, finally understand money.
+Learn investing by doing. Interactive lessons, a market simulator with real data, and an AI coach that explains every move. Virtual money, zero risk. Start free.
 ```
 
 Promotional text is **not indexed for search** but sits above the description and can be changed
@@ -67,27 +67,34 @@ is there for the machines: see the AEO section below for why an app has to be li
 sentence to be recommended by an answer engine at all.
 
 ```
-Investing is not complicated. It is just badly explained.
+Learn investing by actually doing it, with practice money. No real funds, no brokerage account, and no parent signup required.
 
-Euphoria is an investing education app for teenagers and complete beginners, aged 13 and up. It teaches how money and markets actually work through short daily lessons and a practice portfolio that uses simulated money, never real money. There is no brokerage account, no deposits, and nothing real to lose.
+Euphoria is an investing education app for teenagers and complete beginners, aged 13 and up. It teaches how money and markets actually work through short daily lessons and a practice portfolio that runs on real market data using simulated money. You cannot deposit, withdraw, or lose anything real.
+
+WHY NO REAL MONEY
+Most investing apps aimed at young people ask you to fund an account first. Euphoria does the opposite. You learn the mechanics, make the mistakes, and understand what you are doing before a single real dollar is involved. Nothing to deposit, nothing to lose, and nothing for a parent to approve.
 
 WHO IT IS FOR
 Anyone starting from zero. Students, first-time investors, and anyone who has nodded along to a conversation about index funds and quietly had no idea what one is. No jargon, no lectures, no assumed knowledge.
 
 HOW IT WORKS
-Short lessons you can finish in five minutes a day. Build a portfolio with practice money and watch what actually happens to it over time. Ask Atlas, your AI guide, anything a lesson raises that you would feel awkward asking a person.
+Short lessons you can finish in five minutes a day. Every lesson is interactive: you make a decision, see what it does, and build real confidence before any of it counts. Then build a portfolio with practice money and watch what it actually does over weeks and months.
 
-WHAT MAKES IT DIFFERENT
-- Simulated money only. You cannot deposit, withdraw, or lose anything real.
-- Built for beginners aged 13 and up, not for active traders.
-- An AI guide that answers in plain language, in context, while you learn.
-- Twelve full courses, from personal finance through to derivatives.
+MEET ATLAS
+Atlas is your AI guide. Ask it anything, in plain language, whenever a lesson raises a question you would feel awkward asking a person. It explains any move, any term, any time.
+
+TWELVE FULL COURSES
+Personal Finance, Investing Fundamentals, Behavioral Finance, Risk Management, Corporate Finance, Wealth Management, Global Economics, Quantitative Analysis, Financial Analytics, Applied Accounting, Business Strategy, and Alternative Investments.
 
 WHAT YOU WILL LEARN
 - How stocks, ETFs and index funds actually work
 - What compound growth does over time, and why starting early matters so much
 - Options and derivatives, explained without the intimidation
 - How to read the market without doom-scrolling it
+- Earning, housing, insurance, big purchases, and staying safe with money
+
+LEARN BY PLAYING
+Money 2048, Trend Master and Term Match turn the maths into games you will actually replay.
 
 KEEP THE STREAK
 A daily streak, XP, levels and a weekly league against other learners. Your streak, XP and league place are free forever and never expire.
@@ -95,7 +102,10 @@ A daily streak, XP, levels and a weekly league against other learners. Your stre
 WHAT IT COSTS
 Start with a 3-day free trial with everything unlocked. The trial counts days you actually use the app, so nothing is lost if life gets in the way. After that, Euphoria Pro unlocks the full lesson library, guides, unlimited Atlas, the practice portfolio and the market screens.
 
-Euphoria is an education product. It is not a brokerage and not financial advice. No real money is ever involved.
+FOR PARENTS
+There is no brokerage account, no deposits and no withdrawals. A teenager cannot lose money using Euphoria, because there is no real money in it anywhere. Rated for ages 13 and up.
+
+Euphoria is an education product. It is not a brokerage and it is not financial advice. No real money is ever involved.
 ```
 
 ---
