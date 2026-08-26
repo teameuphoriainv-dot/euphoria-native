@@ -23,6 +23,13 @@ import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import type { Profile } from '@/lib/onboarding-path';
 import {
+  AUTH_ENABLED,
+  PASSWORD_MIN,
+  sendPasswordReset,
+  signInWithEmail,
+  signUpWithEmail,
+} from '@/lib/auth';
+import {
   appleAvailable,
   GOOGLE_ENABLED,
   signInWithApple,
@@ -40,13 +47,25 @@ export default function Auth() {
   const setProfile = useApp((s) => s.setProfile);
   const firstRunDoneAt = useApp((s) => s.profile.firstRunDoneAt);
   const [name, setName] = useState('');
-  const [handle, setHandle] = useState('');
   const [email, setEmail] = useState('');
   /** null until the OS answers. The Apple button renders only on `true` — an iPad on iOS 12 or an
    *  Android build must not show a button the platform cannot service. */
   const [appleOk, setAppleOk] = useState(false);
   const [busy, setBusy] = useState<'apple' | 'google' | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  /*
+   * PASSWORD STATE, and it only does anything when AUTH_ENABLED.
+   *
+   * Everything below degrades to the original local-profile behaviour when the Supabase variables
+   * are absent, which is deliberate: a build shipped without them must look and behave exactly as
+   * this screen did before, not render a password field that cannot work.
+   */
+  const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<'signup' | 'signin'>('signup');
+  const [pending, setPending] = useState(false);
+  /** A non-error message, e.g. "check your inbox". Kept apart from authError so a success is not
+   *  painted in the destructive colour. */
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -62,7 +81,9 @@ export default function Auth() {
    *  derived from the name; typing your own still wins. */
   const slug = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
 
-  const enter = () => {
+  /** Writes whatever was typed into the local profile and routes on. Shared by both paths, because
+   *  a Supabase session still needs the local profile the rest of the app reads. */
+  const land = () => {
     // This used to call signIn() and navigate, discarding everything typed above it. The profile
     // write is the point: a follow graph needs a name and handle for anyone to follow back.
     // Only write what was actually typed. Writing `|| null` unconditionally meant an existing
@@ -70,7 +91,15 @@ export default function Auth() {
     // showed up on device as the greeting falling back to "Hey there".
     const patch: Partial<Profile> = {};
     if (name.trim()) patch.name = name.trim();
-    const h = slug(handle) || slug(name);
+    /*
+     * DERIVED FROM THE NAME, because the field is gone.
+     *
+     * The @handle input asked every new user to invent something that appears in exactly one place,
+     * as a prefix to "Level n" on the profile header (you.tsx:317). That is not worth a form field
+     * on the first screen of the app. Removing the INPUT does not remove the handle: this line
+     * already fell back to the name whenever the field was left blank, which was most of the time.
+     */
+    const h = slug(name);
     if (h) patch.handle = h;
     if (email.trim()) patch.email = email.trim();
     setProfile(patch);
@@ -78,6 +107,67 @@ export default function Auth() {
     // A brand new account gets one concrete thing to do; a returning user signing back in must
     // never see it. The stamp lives on the profile, so it survives a relaunch.
     router.replace(firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+  };
+
+  /**
+   * The button. Local-only when accounts are off, a real Supabase call when they are on.
+   *
+   * The guard is not defensive padding: `AUTH_ENABLED` is false in every build shipped so far, so
+   * this branch is the behaviour that has already passed review once. It must keep working.
+   */
+  const enter = () => {
+    if (!AUTH_ENABLED) {
+      land();
+      return;
+    }
+    const e = email.trim();
+    if (!e || !password) {
+      setAuthError('Enter an email address and a password.');
+      return;
+    }
+    if (mode === 'signup' && password.length < PASSWORD_MIN) {
+      setAuthError(`Passwords need at least ${String(PASSWORD_MIN)} characters.`);
+      return;
+    }
+    setAuthError(null);
+    setNotice(null);
+    setPending(true);
+    void (mode === 'signup' ? signUpWithEmail(e, password) : signInWithEmail(e, password))
+      .then((r) => {
+        if (!r.ok) {
+          setAuthError(r.message);
+          return;
+        }
+        /*
+         * "Confirm email" is ON for this project, so a successful SIGN UP returns no session. The
+         * user is not signed in yet and must not be routed onward as though they were; that is how
+         * somebody ends up on Home with no account behind them.
+         */
+        if (r.needsConfirmation) {
+          setNotice('Check your inbox and confirm your email, then sign in.');
+          setMode('signin');
+          return;
+        }
+        land();
+      })
+      .finally(() => setPending(false));
+  };
+
+  /** Reset link. Reports success even for an unknown address, on purpose: see sendPasswordReset. */
+  const forgot = () => {
+    const e = email.trim();
+    if (!e) {
+      setAuthError('Enter your email address first, then tap this again.');
+      return;
+    }
+    setAuthError(null);
+    setPending(true);
+    void sendPasswordReset(e)
+      .then((r) => {
+        if (r.ok) setNotice('If that address has an account, a reset link is on its way.');
+        else setAuthError(r.message);
+      })
+      .finally(() => setPending(false));
   };
 
   /**
@@ -141,7 +231,7 @@ export default function Auth() {
               * the web app already runs on the same project — this line is the one to change, and
               * "Save your streak, XP, and learning plan" becomes true and can come back.
               */}
-            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>Your progress stays on this device.</ThemedText>
+            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>{AUTH_ENABLED ? 'Your progress follows your account.' : 'Your progress stays on this device.'}</ThemedText>
           </View>
         </RiseIn>
 
@@ -195,15 +285,6 @@ export default function Auth() {
             style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginBottom: Spacing.two }]}
           />
           <TextInput
-            value={handle}
-            onChangeText={setHandle}
-            placeholder={name ? `@${slug(name)}` : '@handle'}
-            placeholderTextColor={theme.mutedForeground}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginBottom: Spacing.two }]}
-          />
-          <TextInput
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
@@ -212,9 +293,73 @@ export default function Auth() {
             autoCapitalize="none"
             style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card }]}
           />
-          <SlabButton label="Sign up" full onPress={enter} style={{ marginTop: Spacing.two + 2 }} />
+          {/*
+            * THE PASSWORD FIELD, and it renders only when accounts are actually configured.
+            *
+            * Shipping it against an unconfigured project would be worse than not shipping it: a
+            * password box that silently cannot authenticate is the "plausible output from missing
+            * configuration" failure this codebase has been hunting all week. AUTH_ENABLED is the
+            * same gate lib/auth.ts uses, so the two can never disagree.
+            */}
+          {AUTH_ENABLED && (
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder={mode === 'signup' ? `Password (${String(PASSWORD_MIN)}+ characters)` : 'Password'}
+              placeholderTextColor={theme.mutedForeground}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType={mode === 'signup' ? 'newPassword' : 'password'}
+              style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginTop: Spacing.two }]}
+            />
+          )}
+          {notice ? (
+            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.two }}>
+              {notice}
+            </ThemedText>
+          ) : null}
+          <SlabButton
+            label={!AUTH_ENABLED ? 'Sign up' : mode === 'signup' ? 'Create account' : 'Sign in'}
+            full
+            disabled={pending}
+            onPress={enter}
+            style={{ marginTop: Spacing.two + 2 }}
+          />
+          {AUTH_ENABLED && (
+            <View style={styles.modeRow}>
+              <SpringPressable
+                haptic={false}
+                onPress={() => {
+                  setMode(mode === 'signup' ? 'signin' : 'signup');
+                  setAuthError(null);
+                  setNotice(null);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={mode === 'signup' ? 'Switch to signing in' : 'Switch to creating an account'}>
+                <ThemedText type="small" themeColor="mutedForeground">
+                  {mode === 'signup' ? 'Already have an account? ' : 'Need an account? '}
+                  <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
+                    {mode === 'signup' ? 'Sign in' : 'Create one'}
+                  </ThemedText>
+                </ThemedText>
+              </SpringPressable>
+              {mode === 'signin' && (
+                <SpringPressable haptic={false} onPress={forgot} accessibilityRole="button" accessibilityLabel="Send a password reset link">
+                  <ThemedText type="small" style={{ color: theme.iconLilac }}>Forgot password?</ThemedText>
+                </SpringPressable>
+              )}
+            </View>
+          )}
         </RiseIn>
 
+        {/*
+          * HIDDEN ONCE ACCOUNTS ARE REAL. With AUTH_ENABLED the mode toggle above already offers
+          * "Already have an account? Sign in", and two sign-in affordances on one screen is design
+          * rule 1: say a thing once. This line survives only for the local-profile build, where it
+          * is the ONLY way back in and its copy is accurate.
+          */}
+        {!AUTH_ENABLED && (
         <RiseIn delay={230}>
           <SpringPressable haptic={false} onPress={enter} style={styles.signin}>
             {/* "Existing user? Sign in" implied ACCOUNT RECOVERY. There is none — a returning user
@@ -224,6 +369,7 @@ export default function Auth() {
             <ThemedText type="small" themeColor="mutedForeground">Signed out? <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>Sign back in</ThemedText></ThemedText>
           </SpringPressable>
         </RiseIn>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -233,6 +379,15 @@ export default function Auth() {
 // Provider button geometry now lives with the button — see components/provider-button.tsx.
 
 const styles = StyleSheet.create({
+  /** Mode toggle and the reset link share a row so neither reads as the primary action. */
+  modeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 14,
+  },
   safe: { flex: 1 },
   content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
   head: { alignItems: 'center', gap: Spacing.two },

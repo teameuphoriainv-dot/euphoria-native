@@ -98,3 +98,116 @@ export function currentAccessToken(): string | null {
   supabase();
   return session?.accessToken ?? null;
 }
+
+/* ── EMAIL AND PASSWORD ────────────────────────────────────────────────────────────────────────
+ *
+ * Everything above this line existed to READ a session. Nothing could create one, which is why
+ * `/auth` shipped with a name/handle/email form that wrote a LOCAL profile and no password field
+ * at all. These are the missing half.
+ *
+ * ONE SHAPE FOR EVERY OUTCOME. Each function returns `AuthResult` rather than throwing, because
+ * every caller is a screen that must render something either way, and a screen that has to
+ * try/catch to know whether to show a spinner or a sentence gets it wrong eventually.
+ */
+
+/** Supabase's own floor. Stated here so the UI can refuse before a round trip rather than after. */
+export const PASSWORD_MIN = 6;
+
+export type AuthResult =
+  | { ok: true; needsConfirmation: boolean }
+  | { ok: false; message: string };
+
+/**
+ * A sentence a person can act on, from an error only a developer can read.
+ *
+ * NEVER SURFACE A RAW MESSAGE. Supabase returns strings like "Invalid login credentials" and
+ * "AuthApiError: User already registered", which are accurate and useless: the first does not say
+ * which half was wrong, and the second reads as a crash. The same rule `chatErrorMessage` and
+ * `retryMessage` already follow in this codebase.
+ *
+ * Matched on substrings rather than codes because supabase-js does not expose a stable code for
+ * most of these, and an unmatched error still lands on a truthful default.
+ */
+function authMessage(raw: string | undefined): string {
+  const m = (raw ?? '').toLowerCase();
+  if (m.includes('invalid login credentials')) return 'That email and password do not match.';
+  if (m.includes('already registered') || m.includes('already exists'))
+    return 'That email already has an account. Try signing in instead.';
+  if (m.includes('email not confirmed'))
+    return 'Confirm your email address first. Check your inbox for the link.';
+  if (m.includes('password') && m.includes('6')) return `Passwords need at least ${String(PASSWORD_MIN)} characters.`;
+  if (m.includes('rate limit') || m.includes('too many'))
+    return 'Too many attempts just now. Wait a moment and try again.';
+  if (m.includes('network') || m.includes('fetch')) return 'Could not reach the server. Check your connection.';
+  return 'That did not work. Try again in a moment.';
+}
+
+/** Auth is configured but unreachable is a different failure from auth being switched off. */
+const OFF: AuthResult = { ok: false, message: 'Accounts are not switched on in this build yet.' };
+
+/**
+ * Create an account.
+ *
+ * `needsConfirmation` is the whole reason this returns a shape rather than a boolean. The project
+ * has "Confirm email" ON, so a successful sign-up returns a user with NO session: the caller must
+ * say "check your inbox" rather than routing onward as though the user were signed in. Reading
+ * `data.session` is how you tell, and getting it wrong strands someone on a screen that thinks
+ * they are logged in.
+ */
+export async function signUpWithEmail(email: string, password: string): Promise<AuthResult> {
+  const sb = supabase();
+  if (!sb) return OFF;
+  const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
+  if (error) return { ok: false, message: authMessage(error.message) };
+  return { ok: true, needsConfirmation: data.session === null };
+}
+
+/** Sign in to an existing account. A session here always means a session. */
+export async function signInWithEmail(email: string, password: string): Promise<AuthResult> {
+  const sb = supabase();
+  if (!sb) return OFF;
+  const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+  if (error) return { ok: false, message: authMessage(error.message) };
+  return { ok: true, needsConfirmation: false };
+}
+
+/**
+ * Send a reset link.
+ *
+ * DELIBERATELY REPORTS SUCCESS EVEN WHEN THE ADDRESS IS UNKNOWN, which is why there is no "no
+ * account found" branch. Telling a stranger which addresses have accounts turns this form into an
+ * account-enumeration oracle. Supabase behaves the same way; this comment exists so nobody
+ * "fixes" it later.
+ */
+export async function sendPasswordReset(email: string): Promise<AuthResult> {
+  const sb = supabase();
+  if (!sb) return OFF;
+  const { error } = await sb.auth.resetPasswordForEmail(email.trim());
+  if (error) return { ok: false, message: authMessage(error.message) };
+  return { ok: true, needsConfirmation: false };
+}
+
+/**
+ * Sign in with an Apple or Google identity token from the native sheet.
+ *
+ * NATIVE, NOT OAUTH. `expo-apple-authentication` and Google Sign-In already completed the flow on
+ * device and handed back a signed id token; Supabase verifies it directly. That is why the Apple
+ * provider needs only the BUNDLE ID in its Client IDs field and no private key: the key and the
+ * six-month secret rotation belong to the web OAuth path this app never takes.
+ */
+export async function signInWithIdToken(
+  provider: 'apple' | 'google',
+  token: string,
+): Promise<AuthResult> {
+  const sb = supabase();
+  if (!sb) return OFF;
+  const { error } = await sb.auth.signInWithIdToken({ provider, token });
+  if (error) return { ok: false, message: authMessage(error.message) };
+  return { ok: true, needsConfirmation: false };
+}
+
+/** End the server session. Local profile state is the caller's business, not this module's. */
+export async function signOutServer(): Promise<void> {
+  await supabase()?.auth.signOut();
+  session = null;
+}
