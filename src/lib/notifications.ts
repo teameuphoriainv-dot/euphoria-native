@@ -14,6 +14,7 @@ import * as Notifications from 'expo-notifications';
 
 import { DEFAULT_NUDGE_HOUR, TRIAL_DAYS, useApp } from './store';
 import { canSpend, clampToWindow, type NotifEntry } from './notif-budget';
+import { getNews } from './market';
 
 /**
  * UNIT 15a. Kept as a named re-export so existing callers and the dev self-check keep compiling,
@@ -319,4 +320,90 @@ useApp.subscribe((s) => {
   lastDayKey = s.lastActiveDay;
   if (!s.lastActiveDay) return;
   void applyWinBack(true);
+  // Same once-a-day trigger. Budget-gated inside, so on most days this schedules nothing at all.
+  void applyMarketAlert();
 });
+
+
+/* ── MARKET NEWS ───────────────────────────────────────────────────────────────────────────────
+ *
+ * FOREGROUND-SCHEDULED, AND THAT LIMIT IS DELIBERATE. Firing the moment news breaks would need
+ * expo-background-task or expo-task-manager, which are native modules this app does not have.
+ * Adding one on submission day, to a build that is otherwise ready, is not a trade worth making.
+ * So this reads the feed while the app is open and schedules at most one alert for later.
+ *
+ * What that genuinely cannot do: notice a story while the app has never been opened. Stated here
+ * rather than discovered later, because a limitation nobody wrote down is indistinguishable from
+ * a bug.
+ *
+ * WHAT EARNS AN INTERRUPTION. Alpha Vantage scores every article -1..1 and stops qualifying its
+ * own label at 0.35: below that it says "Somewhat-Bullish" or "Somewhat-Bearish". A story the
+ * provider itself will not call decisive is not worth a notification, so the bar is the provider's
+ * boundary rather than a number picked here.
+ *
+ * And it is scoped to ONE symbol the user actually holds or watches. Market-wide news would fire
+ * most days, which is the definition of the thing that gets an app muted.
+ */
+const MARKET_ID = 'euphoria-market-alert';
+
+/** Alpha Vantage's own threshold for a decisively signed story. */
+const STRONG_SENTIMENT = 0.35;
+
+/**
+ * Schedule at most one market-news alert. Returns the headline used, or null when nothing
+ * qualified, which is the common and correct outcome on most days.
+ *
+ * Never requests permission, and never schedules a story that would land on a later day: news
+ * delivered tomorrow morning about yesterday afternoon is not news.
+ */
+export async function applyMarketAlert(now: Date = new Date()): Promise<string | null> {
+  await Notifications.cancelScheduledNotificationAsync(MARKET_ID).catch(() => undefined);
+
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') return null;
+
+  const st = useApp.getState();
+  // Their own holdings first, then the watchlist. No symbol of their own means no alert.
+  const sym = Object.keys(st.positions)[0] ?? st.watchlist[0];
+  if (!sym) return null;
+
+  const at = clampToWindow(new Date(now.getTime() + 3 * 60 * 60 * 1000));
+  // Clamping pushed it past midnight, so the story would arrive stale. Skip rather than mislead.
+  if (at.getDate() !== now.getDate()) return null;
+  if (!canSpend('market', st.notifLedger, at.getTime(), st.profile.notifyOptIn === true)) return null;
+
+  let articles;
+  try {
+    articles = await getNews(sym);
+  } catch {
+    // getNews now rejects rather than returning []. A feed we could not read is not a quiet day,
+    // and neither is a reason to bother the user.
+    return null;
+  }
+
+  const strong = articles.find((a) => Math.abs(a.sentiment ?? 0) >= STRONG_SENTIMENT);
+  if (!strong) return null;
+
+  const seconds = Math.round((at.getTime() - now.getTime()) / 1000);
+  if (seconds <= 0) return null;
+
+  await Notifications.scheduleNotificationAsync({
+    identifier: MARKET_ID,
+    content: {
+      title: `${sym} is in the news`,
+      // The real headline, trimmed. Never a generated summary: rule 3.1, no invented content.
+      body: strong.title.length > 120 ? `${strong.title.slice(0, 117)}...` : strong.title,
+      sound: true,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds,
+      repeats: false,
+    },
+  });
+  st.recordNotif('market', at.getTime());
+
+  // Read back what iOS actually holds, per the rule this file has followed since it was written.
+  const queued = await scheduledNudges();
+  return queued.some((n) => n.identifier === MARKET_ID) ? strong.title : null;
+}
