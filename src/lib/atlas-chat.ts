@@ -6,28 +6,20 @@
  * The API route is served by the Metro dev server in development and by EAS Hosting in
  * production, so the base URL has to be worked out at runtime rather than hardcoded.
  *
- * Resolution order, first hit wins:
- *   1. EXPO_PUBLIC_API_URL — set this to the deployed EAS Hosting origin for production builds.
- *   2. Constants.expoConfig.hostUri — the Metro dev server the app is already talking to, so
- *      development needs no configuration at all.
- *   3. '' — relative, which is correct on web and only on web.
+ * Resolution order lives in ONE place, `apiBase()` in `./api`. It used to be duplicated here, and
+ * the duplicate is what made this file dangerous. The C98 fix gave `apiBase()` a compiled-in
+ * DEFAULT_API_ORIGIN so an OTA could never ship without an origin; this copy never got it. An OTA
+ * published without `--environment` would therefore leave market data working off the constant
+ * while Atlas ALONE resolved to '' and fetched a relative URL native cannot resolve — a partial
+ * outage, which is harder to read than a total one, because the half that works argues the
+ * configuration is fine.
+ *
+ * `scripts/api-origin-pin.mjs` now fails the build if EXPO_PUBLIC_API_URL is read anywhere but
+ * `src/lib/api.ts`, so a third copy cannot appear the way this second one did.
  */
-import Constants from 'expo-constants';
-
-import { apiHeaders, apiOriginMissing } from './api';
-import { Platform } from 'react-native';
+import { apiBase, apiHeaders, apiOriginMissing } from './api';
 
 export type ChatTurn = { role: 'user' | 'model'; content: string };
-
-function baseUrl(): string {
-  const explicit = process.env.EXPO_PUBLIC_API_URL;
-  if (explicit) return explicit.replace(/\/$/, '');
-  if (Platform.OS === 'web') return '';
-  // hostUri looks like '192.168.1.5:8081'. It is undefined in a production build, which is exactly
-  // when EXPO_PUBLIC_API_URL must have been set instead.
-  const host = Constants.expoConfig?.hostUri;
-  return host ? `http://${host}` : '';
-}
 
 /** Error codes the route returns. `not_configured` means the server has no API key. */
 export class ChatError extends Error {
@@ -47,7 +39,7 @@ export async function askAtlas(messages: ChatTurn[], signal?: AbortSignal): Prom
   // reviewer taps the mascot, nothing happens, and it reads as the app being broken rather than
   // misconfigured.
   if (apiOriginMissing()) throw new ChatError('no_api_origin');
-  const res = await fetch(`${baseUrl()}/api/chat`, {
+  const res = await fetch(`${apiBase()}/api/chat`, {
     method: 'POST',
     headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ messages }),
