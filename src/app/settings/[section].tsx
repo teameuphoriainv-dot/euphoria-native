@@ -34,7 +34,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { applyDailyNudge } from '@/lib/notifications';
+import { applyDailyNudge, applyMarketAlert, applyWinBack } from '@/lib/notifications';
 import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
@@ -233,7 +233,59 @@ function AccountSection() {
       </Section>
 
       <Section title="PROFILE">
-        <Row label="Name" value={name ?? 'Not set'} last />
+        <Row label="Name" value={name ?? 'Not set'} />
+        {/*
+          * DELETE PROFILE — App Store Guideline 5.1.1(v): an app that supports account creation must
+          * offer deletion inside the app, and `/auth` offers Sign in with Apple and Google, so this
+          * app does support it. Without this control the reviewer looks for deletion, does not find
+          * it, and rejects; the guideline is one of the more mechanically enforced ones.
+          *
+          * It says PROFILE rather than ACCOUNT because that is the truth: there is no server-side
+          * account to delete. `auth.tsx` says so on the screen itself ("Your progress stays on this
+          * device"), and claiming to delete a remote account that never existed would be its own
+          * small lie.
+          *
+          * The confirm is destructive and names what goes, because a one-tap wipe of a streak
+          * somebody has held for months is not a thing to do on a mis-tap. Cancelling the scheduled
+          * notifications first matters for the same reason: a win-back that fires three days after
+          * you deleted your profile, greeting a name that no longer exists, is the kind of detail
+          * that makes an app feel broken.
+          */}
+        <Row
+          label="Delete profile"
+          danger
+          last
+          onPress={() => {
+            Alert.alert(
+              'Delete profile?',
+              'This removes your name, avatar, progress, streak and practice portfolio from this device. It cannot be undone.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete',
+                  style: 'destructive',
+                  onPress: () => {
+                    /*
+                     * ORDER MATTERS. deleteProfile() runs FIRST, then the notification cleanup.
+                     * applyMarketAlert() cancels and then RE-SCHEDULES if the user still holds a
+                     * symbol, so calling it before the wipe could queue a fresh alert about the
+                     * portfolio being deleted. After the wipe there are no positions and no
+                     * watchlist, so it cancels and returns null, which is the intent.
+                     */
+                    useApp.getState().deleteProfile();
+                    void Promise.all([
+                      applyDailyNudge(false),
+                      applyWinBack(false),
+                      applyMarketAlert(),
+                    ]).finally(() => {
+                      router.replace('/welcome');
+                    });
+                  },
+                },
+              ],
+            );
+          }}
+        />
       </Section>
 
       {__DEV__ && (

@@ -672,6 +672,19 @@ export type AppState = {
   markPostRead: (slug: string) => void;
   setDailyPick: (day: string, slug: string) => void;
   reset: () => void;
+  /**
+   * ACCOUNT DELETION, for App Store Guideline 5.1.1(v): an app that supports account creation must
+   * offer deletion inside the app. Euphoria's account is device-local, so this is the whole account.
+   *
+   * Clears everything `reset()` does AND the identity itself: name, handle, email, the provider that
+   * proved it, the avatar, worn cosmetics and every onboarding answer.
+   *
+   * DELIBERATELY KEEPS `installId`, `isPro` and the trial clock, for the same reason `reset()` does
+   * and the store already documents: if deleting a profile restarted the trial, the trial would be a
+   * button rather than a limit. Those three are not identity, they are entitlement and rate-limit
+   * bookkeeping, and none of them names a person.
+   */
+  deleteProfile: () => void;
 };
 
 export const useApp = create<AppState>()(
@@ -1182,6 +1195,23 @@ export const useApp = create<AppState>()(
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
       reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
+      deleteProfile: () =>
+        set({
+          xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0,
+          bestStreak: 0, completedLessons: [], minutesToday: 0, lessonsToday: 0, lastActiveDay: '',
+          readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {},
+          valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [],
+          rewardsEarned: 0, watchlist: [],
+          // the identity itself, which is what "delete my account" actually means
+          profile: EMPTY_PROFILE,
+          avatarId: DEFAULT_AVATAR_ID,
+          titleId: '',
+          bannerId: '',
+          streakGoal: null,
+          activeDays: [],
+          notifLedger: [],
+          signedIn: false,
+        }),
     }),
     {
       name: 'euphoria-app-state',
