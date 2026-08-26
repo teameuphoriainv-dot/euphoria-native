@@ -218,7 +218,12 @@ export async function signOutServer(): Promise<void> {
  * WHY AN RPC. A client cannot delete from `auth.users`; that needs elevated privilege, and the
  * service_role key must never ship inside an app. The standard shape is a SECURITY DEFINER
  * function that deletes `auth.uid()` and nothing else, so a caller can only ever remove
- * themselves:
+ * themselves.
+ *
+ * CREATED AND VERIFIED 26 Aug on project iviuktnksjymnuxifakt. Proven against the live API in
+ * five steps: sign in 200, an ANON caller refused 401 by the revoke, the authenticated user's own
+ * delete 204, the old token then 403, and a re-sign-in 400 because the row is genuinely gone.
+ * The statement, kept here so it survives a project rebuild:
  *
  *   create or replace function public.delete_own_account() returns void
  *     language plpgsql security definer set search_path = pg_catalog
@@ -239,7 +244,9 @@ export async function deleteServerAccount(): Promise<{ ok: boolean; message?: st
   if (!sb || !session) return { ok: true };
   const { error } = await sb.rpc('delete_own_account');
   if (error) {
-    // A missing function is the expected state until the SQL above has been run once. Say which.
+    // The function exists on the current project. This branch remains for a project rebuilt or
+    // restored without it, where saying WHICH failure occurred is the difference between a user
+    // retrying and a user assuming their data is gone when it is not.
     const missing = /function .*delete_own_account.* does not exist|PGRST202/i.test(error.message);
     return {
       ok: false,
