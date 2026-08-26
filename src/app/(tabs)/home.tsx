@@ -300,7 +300,27 @@ export default function Home() {
                   * These are CONTENT, so the cap is deliberately looser than the tab bar's
                   * 1.6: chrome may cap hard, content should scale as far as it can.
                   */}
-                <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
+                <ThemedText
+                  type="title"
+                  maxFontSizeMultiplier={2}
+                  /*
+                   * ONE LINE, AND STILL NOT THE AX5 BUG.
+                   *
+                   * The greeting must not stack onto two lines. The obvious fix, a bare
+                   * `numberOfLines={1}`, is exactly what caused AX5: on device it clipped this
+                   * header to "H..." because a 22pt greeting wanted ~340pt of width in a ~150pt
+                   * slot beside the pills, and truncation threw the sentence away.
+                   *
+                   * `adjustsFontSizeToFit` resolves the same constraint by SHRINKING instead of
+                   * truncating, and `minimumFontScale` floors that shrink so it can never become
+                   * unreadable. A long name gets smaller; it never becomes an ellipsis, and the
+                   * user never loses their own name. Dynamic Type still grows the text up to the
+                   * multiplier, it simply cannot force a wrap any more.
+                   */
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.6}
+                  style={{ fontSize: FontSize.titleSm }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
               </SpringPressable>
             </View>
             {/*
