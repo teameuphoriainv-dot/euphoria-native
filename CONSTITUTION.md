@@ -1,246 +1,273 @@
-# CONSTITUTION — euphoria-native
+# CONSTITUTION
 
-**These are advisory.** Nothing here blocks a commit and nothing here overrides your judgement.
-They are guidance, and the reason each one exists is stated so you can decide whether it applies.
+**Every line here came from an answer the owner gave.** Nothing is inferred, nothing is carried
+over from another document unless he affirmed it again. Where a rule can become a check in
+`npm run check`, it is one, and that check has been watched failing. Written rules get ignored.
+Failing builds do not.
 
-Every rule below was bought with a real mistake in this repository. Where a rule cites a file and
-line, that citation is the scar. If you are about to do the opposite of one of these, that is not
-forbidden — but you should be able to say why this time is different.
-
-**The dominant failure mode of this project is not crashing. It is looking fine while being wrong.**
-Almost everything below follows from that one sentence.
-
----
-
-# RULE ZERO — THE WEB APP IS THE REFERENCE. LOOK AT IT.
-
-**Set by the owner, 2026-08-23, as the one rule that outranks the rest of this file.**
-
-Before you build or change anything on iOS, open `euphoriainv.com` and look at how the web app does
-it. Not the marketing page — the signed-in product. Walk the actual screen. Then mimic it.
-
-This is not "consult it when stuck". It is the default starting move for every task.
-
-### Why it is rule zero
-Every time this project has looked at the web app, it has found something it would otherwise have
-invented wrongly:
-
-- The Premium colourway. Guessed from a screenshot, then **confirmed** against the live "Go Pro /
-  Upgrade" button: `#E0409B -> #F5842B`. The guess happened to be right; the confirmation is why we
-  know it.
-- The button system. `SlabButton` was built from reference images, then independently confirmed by
-  the web's own "Show me around" and "Warm up" CTAs. Same construction, so it is a SYSTEM, not four
-  cherry-picked screenshots.
-- Four feedback items — games buried, in-app currency, crowded Your Path, scope-confused You tab —
-  turned out to be cofounders describing the WEB STRUCTURE without naming it. Reading the feedback
-  alone would have produced four unrelated patches instead of one navigation answer.
-- The Euphorium economy. Award rates, 21 items, prices, rarities and category tabs were all sitting
-  in the web Shop, fully specified. Inventing an economy would have been both wasted work and a
-  second source of truth.
-- The pixel art. ASCII-art sprites compiled to `<rect>`s — portable to `react-native-svg` almost
-  unchanged. Without looking, iOS would have grown a parallel art pipeline with binary assets.
-
-### What "mimic it" means in practice
-1. **Open the screen.** Not the repo, not a description, not a memory of it. `AGENTS.md` opens with a
-   paywall that was built, shipped and reverted because a flow *summary* was treated as evidence.
-2. **Read the implementation too, when there is one.** `refs/webapp/` holds what has been read so far
-   — the lesson engine, the pixel system, the shop. Extend those files; do not re-derive them.
-3. **Share the source of truth wherever the platform allows it.** The pixel catalogue, the shop item
-   table and the curriculum should each exist ONCE, with two renderers — never twice, with two
-   copies that drift. Drift is what the curriculum re-sync exists to undo; do not create a second
-   instance of that problem.
-4. **Where they disagree, the web wins** — unless there is a genuine platform reason (touch targets,
-   safe areas, native navigation idiom, iOS HIG). Deviating is allowed. Deviating *silently* is not:
-   write the reason down, because an undocumented deviation is indistinguishable from an oversight.
-5. **When the web has no answer, say so** and spec from the token system and Apple HIG, labelled as
-   such — rather than bending something off-topic to fit.
-
-### The failure this prevents
-Building something that is merely DIFFERENT rather than CONSISTENT. A cofounder saying "this feels
-off" is usually comparing against the web product without realising it. Fix iOS in isolation and the
-same person reports the same feeling again next round, because the gap you closed was not the gap
-they saw.
+Sources are marked: **[25 Aug]** is an answer given in the session of 25 August 2026.
+**[carryover]** is an answer recorded in `refs/CARRYOVER_20260825.md`, itself written from a run of
+forty answered questions.
 
 ---
 
-## I. Evidence
+## 1. Verification
 
-### 1. Verify the route before trusting any capture — L2
-Call `get_current_route` (or otherwise confirm what is on screen) before believing a screenshot or a
-profile. Three separate findings in this project's history were fabrications produced by capturing a
-screen the app was never on: 249 frames scored as the digest screen were the home screen.
-*(`refs/NEXT_SESSION.md` §3.2)*
+### 1.1 Never report a defect you have not reproduced. No exceptions. **[carryover]**
 
-### 2. A still frame is not evidence of an animation — L2
-If the change is motion, record it and sample frames. A screenshot taken after the animation settles
-looks identical whether the animation ran or not. The lesson-intro stagger (P1) was only provable
-from a 6-second simulator recording sampled at 14fps.
+**Do not tell him something is broken until you have made it break in front of you.** No hedged
+maybes. No "this might be". No "I noticed something that could be". A thing is a defect when it has
+been reproduced and confirmed, and until then it does not get mentioned at all.
 
-### 3. Read the screen, never only a description of it — L2
-`AGENTS.md` opens with a paywall redesign that was built, shipped and reverted because a flow
-*summary* was treated as evidence. The screen contradicted the summary and took one call to pull.
-*(`AGENTS.md:24`)*
+Development artifacts are not defects and reporting one as a defect is a failure. The red LogBox
+screens about RevenueCat offerings come from `src/lib/purchases.ts` inside an `if (__DEV__)` guard
+that never runs in a release build, and the SDK cannot fetch products in a simulator with no
+StoreKit configuration. The floating gear labelled **Tools** is the expo-dev-client launcher; the
+string appears nowhere in `src`. Neither has ever been a bug in this app.
 
-### 4. When a result looks clean, spend one more call trying to falsify it — L3
-Nearly every serious error here came from accepting a plausible result. Nearly every real finding
-came from a second look that contradicted the first.
+Wasting his attention on a phantom is worse than staying silent, because he then has to disprove
+it himself. That is the whole reason this rule is worded like this.
 
-### 5. Only the owner marks something verified, and only on a physical device — L2
-A passing gate means *ready for verification*. It does not mean fixed. Write
-`ready-for-verification` and let a human on a real phone move it. *(`refs/NEXT_SESSION.md` §1.3)*
+### 1.2 Visual proof, twice, before proceeding to anything else. **[25 Aug]**
 
----
+Every single thing you fix or add is visually verified **two** times before you move on to
+anything else. Not once. Two independent confirmations, then continue.
 
-## II. Tests and gates
+### 1.3 Verify on the simulator, not in the diff. **[25 Aug]**
 
-### 6. `npx tsc --noEmit` and `npm run check` should both exit 0 before committing — L2
-`npm run check` is currently 25 regression gates. Each exists because the thing it checks was
-actually broken once.
+Connect to the simulator and see it working on a screen. Reading the code back is necessary and is
+not sufficient. "The code now says" is not verification. A picture of the actual screen is.
 
-### 7. A test that cannot fail proves nothing — L2
-Before trusting a new check, ask what result would falsify the hypothesis. If nothing would, it is
-theatre. A clean-clone `npm ci` test once "proved" the lockfile healthy while running the very npm
-that wrote it — structurally incapable of reproducing the failure, and it misdirected four builds.
+### 1.4 His bar is higher than yours. **[carryover]**
 
-### 8. A new pin should be shown to FAIL against the pre-fix code — L2
-`scripts/order-derangement-pin.mjs:58` asserts that the *previous* shuffle fails the same check.
-Without that, a pin that passes tells you nothing about whether it can distinguish the bug from the
-fix.
+Your screenshot is evidence. His confirmation on a real TestFlight build on his own phone is proof.
+Never describe anything as confirmed on his behalf.
 
-### 9. Prefer pinning the OUTCOME over the constants — L3
-`press-feedback-pin.mjs` computes the shrink an 80ms tap actually produces, so swapping in a slower
-spring fails even though nothing in the diff looks wrong.
+### 1.5 A pin must be able to fail, and you must have watched it fail. **[carryover]**
 
-### 10. An absence assertion should strip comments first — L2
-An assertion that some old code is *gone* will match the comment explaining why it is gone.
-`goal-minutes-pin.mjs` failed on exactly this on its first run; `pricing-pin.mjs` already stripped
-for the same reason.
-
-### 11. Do not judge a build by output piped through `tail` — L2
-`npx eas build … | tail -30` reports exit 0 even when the build failed, because the shell sees
-`tail`'s status. This masked two separate failures. Grep the log for the outcome instead.
-*(`refs/NEXT_SESSION.md` §6.1d)*
+Every check added is deliberately broken first, watched to exit non-zero, then restored. This is
+not optional and it is not a formality. `reduced_motion_audit.py` shipped printing `[DEFECT]` and
+exiting 0, so it had never once failed in its life and nobody knew.
 
 ---
 
-## III. The purchase surface
+## 2. How Claude works and reports
 
-This is the highest-consequence code in the app. It is the one place where being wrong costs money
-and can hold up App Review, and it has already shipped the same class of bug twice.
+### 2.1 Ask as many questions as possible. **[25 Aug]**
 
-### 12. No bare price literal outside `PRICING` in `onboarding.tsx` — L2
-Change `annual` alone and the "SAVE 33%" badge and the "$6.67 a month" line silently become lies.
-*(`scripts/pricing-pin.mjs:52`)*
+He does not mind answering. Quality output requires knowing exactly what he wants, and the way to
+get there is questions, not assumptions. Ask in batches. Never guess where a question would do.
+A question costs him a moment; a wrong assumption costs a build.
 
-### 13. A free trial may be offered only to a non-Pro user whose clock has not started — L2
-`tier()` answers `'trial'` from `activeDays.length` 0 through TRIAL_DAYS, so it cannot tell a fresh
-install from someone on day 2 of 3. Asking `spent` alone offered a trial to people already on one,
-and to paying subscribers. *(`src/lib/entitlement.ts:107`, and the warning at `:112` — "a paying
-user must never see a trial countdown")*
+### 2.2 Disagree once, then execute. **[25 Aug]**
 
-### 14. Prices and renewal terms belong ON the purchase screen — L2
-App Store Review 3.1.2. The footer sentence is what Review reads, not the timeline above it.
+State the concern in a sentence or two with the evidence, then do what he asked. No repeating it.
+No quiet non-compliance. No shipping a watered-down version and calling it done. He has heard it
+and the decision is his.
 
-### 15. Never advertise something the store cannot deliver — L2
-The paywall once promised a free trial that existed in no territory, and rendered healthy-looking
-prices from hardcoded constants while the products behind them were unfetchable. A dead purchase
-path looks exactly like a working one.
+### 2.3 Report failures immediately, plainly, with the fix. **[25 Aug]**
 
----
+Say what broke, say you caused it if you did, say what you are doing about it. Never bury a failure
+in a status update and never soften it. A flat correction, not an apology, and then move on.
 
-## IV. State
+Worked example from 25 Aug: Claude asserted that git was reporting wrongly and that the `rtk`
+proxy might be serving stale reads. Git had been consistent the whole time; HEAD had moved under
+the session because another session was writing to the repo. The correct report is one sentence
+saying exactly that, with no self-flagellation and no re-litigating.
 
-### 16. Anything added to the store must also be added to `partialize` — L2
-Otherwise it silently does not survive a restart. The file says so at `src/lib/store.ts:10`; it is
-repeated here because "silently" is the operative word.
+### 2.4 Preparing is free. Sending anything outward stops and asks. **[carryover]**
 
-### 17. Never derive one counter from another by dividing by a constant — L2
-`quests.ts` recovered the lesson count as `minutes / MINUTES_PER_LESSON`. Two bugs cancelled out —
-the goal over-counted minutes, quests under-counted lessons — so both looked right. Fixing either
-alone corrupts the other, with no throw. *(`scripts/goal-minutes-pin.mjs`)*
+Build, stage, write, verify, refactor without asking. Stop and ask before anything a tester, a
+reviewer or a payment system sees: submitting to Apple, publishing an OTA, pushing metadata,
+promoting a TestFlight group.
 
-### 18. Validate at the boundary — L2
-Clamp values that come from outside the reducer. Elapsed wall-clock is not time spent; a lesson left
-open in a pocket should not swallow a ten-minute goal.
+Commit and push freely to `main` once checks are green.
 
----
+### 2.5 Something serious found mid-flight gets fixed, not queued. **[carryover]**
 
-## V. Motion and accessibility
+Fix it and keep going, unless it is outward facing, in which case stop and ask.
 
-### 19. Vestibular motion needs a real `useReducedMotion` guard — L2
-Translation, rotation, infinite repeats and preset layout animations. The audit's exemption list is
-documentation only and deliberately does **not** suppress the check — a whitelist that can hide a
-real defect is a trapdoor. *(`scripts/reduced_motion_audit.py`)*
+### 2.6 Cost is not a constraint. **[25 Aug]**
 
-### 20. Reduced Motion does not mean no animation — L3
-It means no vestibular triggers. An opacity cross-fade is what the setting substitutes *for* motion,
-and finger-bound press feedback is kept. Removing all animation is its own defect.
+The standing cost rule in `~/.claude/CLAUDE.md` is suspended and stays suspended. Spend what
+correctness needs. A cheaper sweep on 25 Aug would have missed the duplicate origin resolver in
+`atlas-chat.ts` entirely.
 
-### 21. No scale-pop on ordinary interaction — L2
-Tab switching happens dozens of times a session; a glyph that punches in scale becomes noise by the
-third tap. A 3pt lift reads once and then simply says "this one is selected".
-*(`scripts/motion-invariants.mjs`)*
+### 2.7 Assume you are not alone in the repository. **[25 Aug]**
 
-### 22. Never convey state by motion alone — L2
-Colour and weight carry selection in both motion modes, or the state is invisible under the setting.
+Another session may be writing concurrently. On 25 Aug one branched to `feat/ugc-attribution` and
+swept an uncommitted fix into its own commit under an unrelated message. Re-verify branch and HEAD
+immediately before every commit. Never rewrite a branch you did not create.
 
 ---
 
-## VI. Making changes
+## 3. What Euphoria will never do
 
-### 23. Fix at the shared source, not per caller — L2
-`GradientButton` → `SlabButton` was one component change that reached 19 call sites. A guard in the
-shared function is a smaller diff than a guard in every caller, and patching only the path a ticket
-names leaves every sibling still broken.
+These are hard lines. They outrank any future feature request. **[25 Aug]**
 
-### 24. Grep every caller before and after — L2
-A fix that repairs one screen and breaks its sibling is a net loss. This repo has produced exactly
-that: a `STAGGER_CAP` import missed in three files, and a partial patch that left `belowFold`
-undefined.
+### 3.1 Never show a fabricated number.
 
-### 25. The comments here are load-bearing — L2
-They record incidents, measurements and dates. Several exist specifically to stop you making a
-change that was already tried and reverted. Read the comment before changing the code it sits on.
+A price, a return, a portfolio value: real, or absent, and never invented to fill a screen. This is
+already stated at the top of `src/lib/market.ts` and it is why NVDA rendering at $1,184.00 against
+a real $208.48 was treated as a serious incident rather than a cosmetic one.
 
-### 26. Ship on "verified safe"; never claim "faster" without the numbers — L2
-A NativeWind babel change was committed as a performance win before being measured. It was worthless
-*and* unsafe, and had to be reverted. Two Atlas fixes were real defects that changed the aggregate by
-nothing — and their commit messages say so.
+The corollary, learned the same day: **a fallback that produces plausible output is worse than an
+error.** A misconfiguration that renders as a working screen full of wrong numbers is the single
+most dangerous failure shape this codebase has. Missing configuration must produce a refusal, not
+a plausible answer. See §6.3.
 
-### 27. Correct the record in one sentence and move on — L3
-Several claims here have been retracted: that TSLA was a coverage gap (a rate limit mislabelled as a
-404), that ASC API access needed Apple review (instant). Say it plainly, do not write three
-paragraphs about it.
+### 3.2 Never handle real money or securities.
 
----
+No brokerage. No deposits. No real trades. Simulated portfolios only.
 
-## VII. The web app is the reference (see RULE ZERO — this section is its detail)
+### 3.3 Never give personalised financial advice.
 
-### 28. `euphoriainv.com` is the design reference for iOS — L2
-When someone says an iOS surface "feels off", they are usually comparing it against the web product
-without realising it. Capture both before deciding what "correct" means.
-*(`refs/webapp/WALKTHROUGH.md`)*
+Teach the mechanism. Never say "you should buy this". Partially enforced by
+`scripts/advice-guard-regression.mjs`.
 
-### 29. Where they disagree, the web app wins — unless there is a platform reason — L2
-Touch targets, safe areas, native navigation idiom, iOS HIG. When you deviate, write the reason
-down. An undocumented deviation is indistinguishable from an oversight to the next reader.
+### 3.4 Never sell or share user data.
 
-### 30. Do not summarise a screen you did not open — L2
-This is rule 3 again, and it is here twice on purpose. It is the single most expensive mistake this
-project has made.
+No PII to analytics, no data brokers. `src/lib/analytics.ts` holds this line today by identifying
+users with a pseudonymous `installId` and never a name, handle or email. If that is ever relaxed,
+the copy in `why-not-free.tsx` must change in the same commit.
 
 ---
 
-## VIII. Reporting
+## 4. Voice
 
-### 31. Trust the tester — L2
-If a human found something confusing, that is the bug, even when the code is technically correct. If
-the logic is right but a person misread it, the defect is in the clarity.
+**[25 Aug]** Written for a teenager. Plain language. No jargon without explaining it. Benefit before
+feature. Short lines rather than feature lists. Section names are allowed personality, in the vein
+of "What Quietly Eats Returns" and "The Ideas Everything Rests On". Never corporate. Never
+condescending.
 
-### 32. Say what you did NOT do, in the same message — L2
-Never let a gap be discovered later. "Low priority" is not a reason to drop something; "this needs a
-design decision only you can make" is.
+No em dashes in user-facing prose. Enforced by `scripts/em-dash-prose-pin.mjs`. **[carryover]**
 
-### 33. Do not add another carryover document — L3
-There are already six files with CARRYOVER or HANDOFF in the name, and their existence is itself a
-problem. Update `refs/NEXT_SESSION.md`.
+---
+
+## 5. How the app looks
+
+**[25 Aug]** All eleven rules from `refs/DESIGN_RULES.md` are affirmed and carried in whole, and
+every one that can become a check becomes one. Rules marked PINNED fail `npm run check` today.
+
+1. **Say a thing once.** Never state the same number or sentence twice on one screen. Before adding
+   a label, find what already says it. Usually something does.
+2. **No dead space, and no half-finished rows.** If a screen already fits, grow the components
+   rather than leave slack. If sibling rows have a subtitle, all of them do.
+3. **Screens that ask for money do not scroll.** Headline, benefits, both plans, CTA, renewal terms
+   and legal row all visible at once. App Store Review 3.1.2 wants price and renewal terms on the
+   purchase screen. Verify at the largest Dynamic Type size the screen supports.
+4. **The call to action is never the quietest thing on the screen.** Weight and colour go to what
+   you want tapped, reusing a colour already present.
+5. **Pixel art is the system, not a decoration.** Round shapes beside pixel sprites read as a
+   different product. `PixelSpriteView` has no colour prop, so anything carrying a course accent
+   cannot be a sprite. Reuse the 84-sprite catalogue first. New art goes in `sprites-additions.ts`,
+   never in the web-synced files, which are byte-for-byte copies and get re-copied.
+6. **One mascot per screen. PINNED.** Atlas is Atlas, the avatar is the user, never the same glyph
+   on one screen. On Home the right cluster reads coins, streak, Atlas, avatar, avatar furthest right.
+7. **Paid surfaces carry the web's ramp.** Purple to pink to orange, using stops already in the
+   palette (`gradientFrom`, `premiumFrom` `#E0409B`, `premiumTo` `#F5842B`). No new colour. Do not
+   paint the ramp on anything that is not selling.
+8. **Colour comes from the theme. PINNED as a ratchet.** Hardcoded hex outside the art files is
+   capped at its current count. Alpha-append (`theme.x + '30'`) works only on HEX; appending to an
+   `hsl()` string renders at full opacity, silently, with no error.
+9. **Contrast is computed, never eyeballed.** 4.5:1 minimum for body text, compositing counted. Put
+   the measured ratio in the comment.
+10. **Touch targets and motion.** 44pt minimum. A one-finger swipe is VoiceOver's navigation
+    gesture, so any gesture mechanic needs a button alternative designed in the same pass. Money
+    2048 shipped unplayable for VoiceOver. Vestibular motion must be guarded by `useReducedMotion`.
+11. **Structure.** Five tabs maximum, settled, do not re-litigate. A screen nothing links to is not
+    shipped.
+
+---
+
+## 6. How code is written
+
+### 6.1 Comments explain the defect they prevent. **[25 Aug]**
+
+Every non-obvious decision carries a comment naming the failure it prevents, with the evidence:
+the file, the measurement, the date, the incident. This is a rule, not a stylistic accident.
+
+It is why the entire configuration surface of this codebase could be traced on 25 Aug without
+asking him a single question, and why that sweep found a real defect in under an hour. It costs
+keystrokes and saves sessions.
+
+### 6.2 Changing the consumer of a value is not the same as providing it. **[carryover]**
+
+The greeting was "fixed" by changing the string to `Hey there, {name}` while nothing anywhere set
+`profile.name`, so the screen kept rendering a bare "Hey there". Trace the value to its source.
+
+### 6.3 Missing configuration must refuse, never degrade into plausible output. **[carryover, 25 Aug]**
+
+This is the highest-value rule in this document and the class it names has bitten twice.
+
+`EXPO_PUBLIC_API_URL` is inlined at bundle time. `eas build` reads `eas.json`; `eas update` does
+not, and takes variables from `--environment`. An OTA published without it had no origin, so
+`apiBase()` returned `''`, every call threw before its fetch, and `priceOf` fell back to the static
+table. Nothing said a word, because falling back is the designed behaviour.
+
+Rules that follow:
+- Validate configuration by **shape**, never by presence. `IAP_ENABLED` was once `KEY.length > 0`,
+  which was true for a `test_…` placeholder, so the app shipped a Buy button that could only fail.
+  It is now `KEY.startsWith('appl_')`. `ANALYTICS_ENABLED` is `/^phc_[A-Za-z0-9]{20,}/`.
+- A refusal must be **specific**. `503 not_configured` is actionable; a generic failure is not.
+- Do not cache a refusal, and never cache an empty result that stands in for one.
+- Never resolve the same configuration in two places. `atlas-chat.ts` carried a second copy of the
+  origin logic and never received the fix that protected the first, producing a partial outage in
+  which the half that still worked argued the configuration was fine.
+  Pinned by `scripts/api-origin-pin.mjs`.
+- **Never run `eas update` without `--environment production`.** Use `npm run ota`.
+
+### 6.4 Grep every caller before changing a shared function. **[25 Aug]**
+
+`getNews` ended `.then((d) => d?.articles ?? [])`, flattening every failure into an empty list, so
+the careful `.catch()` in `news.tsx` could never fire. Its comment reads: telling a user there is
+no news when the truth is that we could not load it is worse than telling them nothing, because
+they would stop looking. That handling was dead code for as long as it existed.
+
+### 6.5 Report what actually happened, not what was requested. **[carryover]**
+
+`applyDailyNudge` and `applyTrialReminder` return what the OS accepted, never what the user tapped.
+Storing an intent as though it were an outcome is how an app ends up believing notifications are on
+while the OS drops every one.
+
+### 6.6 Read the exit code, not the stderr. **[carryover]**
+
+`entitlement-regression.mjs` prints a stack trace about `not json` on the way past. That is a
+fixture exercising a bad-JSON path deliberately, not a failure.
+
+### 6.7 Never wrap long EAS commands in `timeout`. **[carryover]**
+
+It kills the command mid-flight and eats the log. Build 18 was reported as failed when it had been
+at Apple the whole time. Run in the background and wait once.
+
+---
+
+## 7. Notifications
+
+**[25 Aug]** The caps are research, not preference, and they must not drift. Pinned by
+`scripts/notif-budget-pin.mjs`, break-tested three ways.
+
+- **2 per day, maximum, counting everything.** Duolingo's ceiling. It cut churn from 47% to 28% and
+  holds roughly 55% month-over-month DAU retention.
+- **App-initiated messages share 2 per rolling week.** Above 6 a week, users are 3.4x more likely
+  to uninstall within 30 days, and CTR falls 10-20% per message past five.
+- **The streak reminder sits outside that budget** at 1 per day, because a reminder the user
+  switched on and chose the hour for is their own alarm clock, not an app-initiated push. That
+  distinction is why Duolingo can send one daily without paying the penalty.
+- **Nothing is ever delivered outside 09:00-21:00.**
+- **Precedence is billing, then win-back, then market.** Billing first because missing it costs the
+  user money, which is a refund request and a one-star review.
+- **Win-back is day 3, day 7, day 14, and then silence.** Three different framings, because the same
+  message three times performs far worse: reminder (recovers 15-25%), value restatement (8-15%),
+  win-back (3-8%). There is deliberately no day 21; continuing past day 14 accelerates uninstall.
+
+---
+
+## 8. Definition of done
+
+**[carryover]** Every screen walked and confirmed right on a real build, compared against intent,
+with anything wrong listed before submission. Not "nothing obviously broken".
+
+**[25 Aug]** Everything functional. Every button works. Paywalls set up. All text present. No UI
+errors. No storage or backend gaps. Onboarding optimised for free-to-trial and trial-to-paid
+conversion. Lessons at parity with the web app.
