@@ -94,12 +94,12 @@ export default function Shop() {
         </RiseIn>
 
         {/*
-          * SAID OUT LOUD, not hidden. The web wallet lives behind an account in Supabase; iOS has no
-          * accounts, so this balance cannot follow anyone between the two. Owner's condition when he
+          * SAID OUT LOUD, not hidden. The web wallet lives behind an account in Supabase; iOS has
+          * accounts now too, but the wallet ledgers are still separate. Owner's condition when he
           * approved shipping it local — the same standard as the practice-profiles note on Friends.
           */}
         <ThemedText type="small" themeColor="mutedForeground" style={styles.localNote}>
-          Your balance lives on this device until accounts arrive. It does not follow you to the web app yet.
+          Your balance lives on this device. It does not follow you to the web app yet.
         </ThemedText>
 
         <View style={styles.tabs}>

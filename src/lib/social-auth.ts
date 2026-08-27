@@ -8,16 +8,14 @@
  * Apple due to an error." A control can be live and still be a lie; this module is what makes the
  * labels true.
  *
- * SCOPE: identity only, resolved on-device. There is no server exchange here on purpose — the app
- * keeps every other piece of user state (streak, XP, portfolio) locally, so posting the identity
- * to Supabase would create an account that disagrees with the data attached to it. `lib/auth.ts`
- * still holds the Supabase scaffolding for when that lands; this module deliberately does not use
- * it.
+ * SCOPE: identity token only, resolved on-device. This module does not create the Supabase session
+ * itself; auth.tsx hands the provider token to lib/auth.ts when AUTH_ENABLED is true. Keeping that
+ * exchange out of this file prevents a provider credential from being mistaken for server trust.
  *
  * ── READ THIS BEFORE CONNECTING THIS MODULE TO A SERVER ─────────────────────────────────────
  * `credential.user` below is taken ON-DEVICE and is NOT verified against Apple. Today that is
- * harmless: nothing server-side trusts it, there is no account, and the id is a local label on
- * local data. It is not a vulnerability, it is a value with no authority.
+ * harmless: nothing server-side trusts it, and the id is only a local label on local data. It is
+ * not a vulnerability, it is a value with no authority.
  *
  * It becomes a FULL AUTHENTICATION BYPASS the moment somebody sends it to a server as an identity,
  * because a client can claim any `user` string it likes. `api/_identity.ts` now exists and is

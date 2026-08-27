@@ -1,21 +1,20 @@
 /**
- * Supabase auth — SCAFFOLDING ONLY, OFF BY DEFAULT.
+ * Supabase auth.
  *
  * WHY IT EXISTS NOW: the rate limiter keys on a per-install id (`store.installId`). That is the
- * right identity for a signed-out app and the wrong one the moment accounts exist — one person on
- * a phone and a tablet would get two budgets, and a reinstall would mint a fresh one. Rather than
- * leave that as a future rewrite touching every route, the limiter already asks THIS module for an
- * identity first and falls back to the install id. Turning real auth on is then a keys change plus
- * wiring `signIn`, not a re-architecture.
+ * right identity for a signed-out app and the wrong one once accounts exist — one person on a
+ * phone and a tablet would get two budgets, and a reinstall would mint a fresh one. Rather than
+ * leave that as a rewrite touching every route, the limiter asks THIS module for an identity first
+ * and falls back to the install id.
  *
- * WHAT IT DOES TODAY: nothing. `AUTH_ENABLED` is false without `EXPO_PUBLIC_SUPABASE_URL`, so
+ * WHEN AUTH IS NOT CONFIGURED: `AUTH_ENABLED` is false without both Supabase public values, so
  * `currentUserId()` returns null and every caller uses the install id. No client is constructed,
- * no network call is made, and there is no sign-in UI. This is deliberately NOT a dead control —
- * nothing in the app renders a button that depends on it.
+ * no network call is made, and the auth screen falls back to local-profile behavior.
  *
- * The web app (~/euphoriaweb-current) already runs on this same Supabase project, so when the keys
- * land the user ids are the same ones its 35 edge functions already use.
+ * The web app (~/euphoriaweb-current) already runs on this same Supabase project, so user ids can
+ * be the same across clients even while progress and wallet state remain device-local on iOS.
  */
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -49,6 +48,9 @@ export function supabase(): SupabaseClient | null {
   if (!client) {
     client = createClient(URL!, ANON_KEY!, {
       auth: {
+        // React Native has no browser localStorage. Without this adapter supabase-js persists to
+        // memory only, so a successful sign-in silently disappears after a force-quit.
+        storage: AsyncStorage,
         // There is no browser URL to read a session out of in a native app, and leaving this on
         // makes supabase-js reach for `window` on startup.
         detectSessionInUrl: false,

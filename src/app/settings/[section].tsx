@@ -241,10 +241,10 @@ function AccountSection() {
           * app does support it. Without this control the reviewer looks for deletion, does not find
           * it, and rejects; the guideline is one of the more mechanically enforced ones.
           *
-          * It says PROFILE rather than ACCOUNT because that is the truth: there is no server-side
-          * account to delete. `auth.tsx` says so on the screen itself ("Your progress stays on this
-          * device"), and claiming to delete a remote account that never existed would be its own
-          * small lie.
+          * It says PROFILE rather than ACCOUNT because the visible thing being erased is the local
+          * profile: progress, streak, cosmetics and practice portfolio. When there is a signed-in
+          * Supabase account, deleteServerAccount() removes that first while the session can still
+          * authorise it.
           *
           * The confirm is destructive and names what goes, because a one-tap wipe of a streak
           * somebody has held for months is not a thing to do on a mis-tap. Cancelling the scheduled
@@ -330,7 +330,7 @@ function AccountSection() {
           onPress={() =>
             Alert.alert('Sign out?', 'Your progress stays on this device.', [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Sign out', style: 'destructive', onPress: () => { signOut(); router.replace('/welcome'); } },
+              { text: 'Sign out', style: 'destructive', onPress: () => { void signOut().finally(() => router.replace('/welcome')); } },
             ])
           }
         />

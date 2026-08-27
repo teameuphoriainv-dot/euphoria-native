@@ -11,6 +11,7 @@
  * won't survive a restart.
  */
 import { applyBuy, applyGrant, applySell, clearStaticPricing } from './cost-basis';
+import { signOutServer } from './auth';
 import { dayBeforeKey, dayKey, nextStreak, prevDayKey, weekKey, withToday } from './day-keys';
 import { resolveStreak } from './streak-freeze';
 import { prune as pruneNotifs, type NotifEntry, type NotifKind } from './notif-budget';
@@ -288,8 +289,8 @@ export type AppState = {
    *
    * DEVICE-LOCAL, and the Shop screen says so out loud. The web wallet lives in Supabase
    * (`profiles.coins`, `user_inventory`, `active_powerups`, `coin_transactions`) behind an account.
-   * iOS has no accounts, so this balance cannot sync and a learner with coins on web starts at zero
-   * here. Owner's call, 2026-08-23, on condition it is stated in the UI rather than hidden — the
+   * iOS now has accounts too, but this balance still cannot sync until the two clients share one
+   * ledger. Owner's call, 2026-08-23, on condition it is stated in the UI rather than hidden — the
    * same standard applied to the practice profiles on Friends.
    */
   /** Euphorium balance. */
@@ -382,7 +383,7 @@ export type AppState = {
    *  (pure, in onboarding-path.ts) from a useMemo instead. */
   completeOnboarding: () => void;
   signIn: () => void;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   setActiveCourse: (id: string) => void;
   level: () => number;
   levelProgress: () => { into: number; size: number; toNext: number };
@@ -914,7 +915,13 @@ export const useApp = create<AppState>()(
         }),
 
       signIn: () => set({ signedIn: true }),
-      signOut: () => set({ signedIn: false }),
+      signOut: async () => {
+        try {
+          await signOutServer();
+        } finally {
+          set({ signedIn: false });
+        }
+      },
       setActiveCourse: (id) => set({ activeCourseId: id }),
 
       level: () => Math.floor(get().xp / XP_PER_LEVEL) + 1,

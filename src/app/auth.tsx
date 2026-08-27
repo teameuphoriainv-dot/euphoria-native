@@ -239,20 +239,18 @@ export default function Auth() {
             {/*
               * "Save your streak, XP, and learning plan." WAS FALSE, and false on the screen where a
               * user decides whether to trust this app. Nothing on this screen saves anything
-              * anywhere: enter() writes to the LOCAL zustand profile and flips a local boolean, the
-              * Apple and Google buttons run real OAuth and then write that identity to the same
-              * local profile, AUTH_ENABLED is false and currentUserId() returns a hardcoded null.
-              * §22 C99 states the consequence — deleting the app destroys the streak and XP, and
-              * there is no recovery. §0.4 forbids a claim the app cannot back; that rule applies to
-              * a sentence exactly as it applies to a number.
+              * anywhere. When AUTH_ENABLED is true, Supabase stores a session and proves identity;
+              * when it is false, enter() writes only to the LOCAL zustand profile. In both cases,
+              * streak, XP and the learning plan still live in the persisted app store, not in a
+              * remote progress table. §0.4 forbids a claim the app cannot back; that rule applies
+              * to a sentence exactly as it applies to a number.
               *
               * COPY APPROVED 2026-08-11 (§0.7, §20), chosen from three drafts. It is deliberately
               * candid rather than reassuring, matching the register the user already approved for
-              * why-not-free.tsx in C103. When Supabase lands — lib/auth.ts is scaffolded for it and
-              * the web app already runs on the same project — this line is the one to change, and
-              * "Save your streak, XP, and learning plan" becomes true and can come back.
+              * why-not-free.tsx in C103. Supabase now proves identity, but the learning state still
+              * lives in the persisted app store, so account copy must not imply cross-device sync.
               */}
-            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>{AUTH_ENABLED ? 'Your progress follows your account.' : 'Your progress stays on this device.'}</ThemedText>
+            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>{AUTH_ENABLED ? 'Your account lets you sign in. Progress stays on this device.' : 'Your progress stays on this device.'}</ThemedText>
           </View>
         </RiseIn>
 

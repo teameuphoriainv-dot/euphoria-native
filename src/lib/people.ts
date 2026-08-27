@@ -2,10 +2,10 @@ import { bear, bull, compass, crown, gem, rocket, seedling, snowflake, trophy, t
 /**
  * The other learners.
  *
- * ⚠️ EVERY PERSON IN THIS FILE IS FABRICATED. There is no backend, no accounts, and no real
- * users: these are invented names with invented scores. Nothing user-facing may present them as
- * real people. They exist so the league has a field and the friends directory has someone to
- * follow, and they get deleted the day accounts are real.
+ * ⚠️ EVERY PERSON IN THIS FILE IS FABRICATED. They are not read from the account backend and they
+ * are not real users: these are invented names with invented scores. Nothing user-facing may
+ * present them as real people. They exist so the league has a field and the friends directory has
+ * someone to follow until social data is backed by real rows.
  *
  * ONE population, deliberately. The league and the friends directory both read this list, so
  * adding Maya as a friend and then racing Maya in your league is coherent. Two separate invented
@@ -62,8 +62,8 @@ export const personById = (id: string): Person | undefined => PEOPLE.find((p) =>
  *
  * WHAT THIS COSTS, stated rather than discovered later: `followers` is the only input to the
  * 'follows-you' and 'friends' relationships, and `follow()` in store.ts appends only to
- * `following` — nothing ever writes `followers`. So both states are now unreachable until accounts
- * are real, YOUR FRIENDS is permanently empty, and FOLLOWS YOU never renders. That is the correct
- * behaviour for an app with no accounts: the friends list can now only ever contain real mutuals.
+ * `following` — nothing ever writes `followers`. So both states are now unreachable until social
+ * follows are real, YOUR FRIENDS is permanently empty, and FOLLOWS YOU never renders. That is the
+ * correct behaviour while friends are local: the friends list can only ever contain real mutuals.
  */
 export const SEED_FOLLOWERS: string[] = [];
