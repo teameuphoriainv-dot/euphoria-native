@@ -4,7 +4,7 @@
  *
  * RULE ZERO: built from the web Shop screen, walked 2026-08-23, not from a description of it.
  * What was copied, and what was checked rather than assumed:
- *   - header, subtitle and the "How to earn Euphorium" panel: the web's own copy and rates.
+ *   - header and subtitle: the web's own copy.
  *   - three tabs in the web's order with the web's labels.
  *   - a two-column card grid: tinted art panel with a RARITY TAG top-right, then name,
  *     description, then a price row.
@@ -26,7 +26,7 @@ import { Card } from '@/components/ui/card';
 import { BottomTabInset, FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
-import { EARN, SHOP_CATEGORIES, type Rarity, type ShopCategory } from '@/lib/shop-items';
+import { SHOP_CATEGORIES, type Rarity, type ShopCategory } from '@/lib/shop-items';
 import { ALL_SHOP_ITEMS as SHOP_ITEMS } from '@/lib/shop-items-extra';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -54,13 +54,6 @@ export default function Shop() {
 
   const items = useMemo(() => SHOP_ITEMS.filter((i) => i.category === tab), [tab]);
 
-  const EARN_TILES = [
-    { label: 'Complete lessons', value: `+${String(EARN.lessonMin)}–${String(EARN.lessonMax)}` },
-    { label: 'Daily streaks', value: `+${String(EARN.dailyStreak)}` },
-    { label: 'Win games', value: `+${String(EARN.gameWinMin)}–${String(EARN.gameWinMax)}` },
-    { label: 'Daily challenges', value: `+${String(EARN.dailyChallenge)}` },
-  ];
-
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={26} />
@@ -79,20 +72,6 @@ export default function Shop() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <RiseIn>
-          <Card style={styles.earn}>
-            <ThemedText type="label" themeColor="mutedForeground">HOW TO EARN EUPHORIUM</ThemedText>
-            <View style={styles.earnGrid}>
-              {EARN_TILES.map((t) => (
-                <View key={t.label} style={[styles.earnTile, { borderColor: theme.border }]}>
-                  <ThemedText type="smallBold" style={[NUM, { color: theme.iconGold }]}>{t.value}</ThemedText>
-                  <ThemedText type="small" themeColor="mutedForeground" style={styles.earnLabel} numberOfLines={2}>{t.label}</ThemedText>
-                </View>
-              ))}
-            </View>
-          </Card>
-        </RiseIn>
-
         {/*
           * SAID OUT LOUD, not hidden. The web wallet lives behind an account in Supabase; iOS has
           * accounts now too, but the wallet ledgers are still separate. Owner's condition when he
@@ -181,11 +160,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
   balance: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, paddingHorizontal: Spacing.two + 2, paddingVertical: Spacing.one + 2, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
-  earn: { gap: Spacing.two },
-  earnGrid: { flexDirection: 'row', gap: Spacing.two },
-  earnTile: { flex: 1, alignItems: 'center', gap: 2, paddingVertical: Spacing.two, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
-  earnLabel: { fontSize: FontSize.tiny, textAlign: 'center' },
-  localNote: { marginTop: -Spacing.one },
+  localNote: { marginTop: Spacing.one },
   tabs: { flexDirection: 'row', gap: Spacing.two },
   tab: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },

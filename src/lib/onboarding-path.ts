@@ -29,6 +29,8 @@ export type Profile = {
   ageBand: string | null;
   source: string | null;
   notifyOptIn: boolean;
+  /** Explicit, revocable consent for pseudonymous PostHog product analytics. Default off. */
+  analyticsOptIn: boolean;
   /** Epoch ms. Non-null means the user reached the end of the flow. */
   completedAt: number | null;
   /** Identity, captured at sign-up. Null until then.
@@ -67,6 +69,7 @@ export const EMPTY_PROFILE: Profile = {
   ageBand: null,
   source: null,
   notifyOptIn: false,
+  analyticsOptIn: false,
   completedAt: null,
   name: null,
   handle: null,

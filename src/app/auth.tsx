@@ -299,6 +299,7 @@ export default function Auth() {
             value={name}
             onChangeText={setName}
             placeholder="Your name"
+            accessibilityLabel="Your name"
             placeholderTextColor={theme.mutedForeground}
             autoCapitalize="words"
             style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginBottom: Spacing.two }]}
@@ -307,6 +308,7 @@ export default function Auth() {
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
+            accessibilityLabel="Email"
             placeholderTextColor={theme.mutedForeground}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -325,6 +327,7 @@ export default function Auth() {
               value={password}
               onChangeText={setPassword}
               placeholder={mode === 'signup' ? `Password (${String(PASSWORD_MIN)}+ characters)` : 'Password'}
+              accessibilityLabel="Password"
               placeholderTextColor={theme.mutedForeground}
               secureTextEntry
               autoCapitalize="none"
@@ -349,6 +352,8 @@ export default function Auth() {
             <View style={styles.modeRow}>
               <SpringPressable
                 haptic={false}
+                hitSlop={12}
+                style={styles.modeAction}
                 onPress={() => {
                   setMode(mode === 'signup' ? 'signin' : 'signup');
                   setAuthError(null);
@@ -364,7 +369,13 @@ export default function Auth() {
                 </ThemedText>
               </SpringPressable>
               {mode === 'signin' && (
-                <SpringPressable haptic={false} onPress={forgot} accessibilityRole="button" accessibilityLabel="Send a password reset link">
+                <SpringPressable
+                  haptic={false}
+                  hitSlop={12}
+                  style={styles.modeAction}
+                  onPress={forgot}
+                  accessibilityRole="button"
+                  accessibilityLabel="Send a password reset link">
                   <ThemedText type="small" style={{ color: theme.iconLilac }}>Forgot password?</ThemedText>
                 </SpringPressable>
               )}
@@ -407,6 +418,7 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 14,
   },
+  modeAction: { minHeight: 44, justifyContent: 'center' },
   safe: { flex: 1 },
   content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
   head: { alignItems: 'center', gap: Spacing.two },

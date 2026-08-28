@@ -76,6 +76,18 @@ function assertPinned(src) {
   if (!f.persistSession) fail('createClient(...).auth must keep persistSession: true.');
   if (!f.autoRefreshToken) fail('createClient(...).auth must keep autoRefreshToken: true.');
   if (!f.detectSessionInUrl) fail('createClient(...).auth must keep detectSessionInUrl: false on native.');
+
+  const deletion = stripComments(src).slice(stripComments(src).indexOf('export async function deleteServerAccount'));
+  if (!/\.rpc\(['"]delete_own_account['"]\)/.test(deletion)) {
+    fail('account deletion must call the authenticated delete_own_account RPC.');
+  }
+  const localSignOuts = deletion.match(/\.auth\.signOut\(\{\s*scope:\s*['"]local['"]\s*\}\)/g) ?? [];
+  if (localSignOuts.length < 2) {
+    fail('account deletion must clear the persisted local Supabase session after both RPC success and failure.');
+  }
+  if (!/export async function signOutServer[\s\S]*?\.auth\.signOut\(\)/.test(stripComments(src))) {
+    fail('ordinary sign out must still invalidate the Supabase server session.');
+  }
 }
 
 function selftest() {

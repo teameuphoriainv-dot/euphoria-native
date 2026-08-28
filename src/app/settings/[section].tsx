@@ -35,6 +35,7 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { deleteServerAccount } from '@/lib/auth';
+import { setAnalyticsConsent } from '@/lib/analytics';
 import { applyDailyNudge, applyMarketAlert, applyWinBack } from '@/lib/notifications';
 import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
@@ -266,6 +267,7 @@ function AccountSection() {
                   text: 'Delete',
                   style: 'destructive',
                   onPress: () => {
+                    const usedApple = useApp.getState().profile.authProvider === 'apple';
                     /*
                      * ORDER MATTERS TWICE OVER.
                      *
@@ -292,8 +294,13 @@ function AccountSection() {
                         router.replace('/welcome');
                         // Said AFTER routing, and only on failure: they must not be told the server
                         // copy is gone when it is not.
+                        const appleRevocation = usedApple
+                          ? ' To revoke Euphoria\'s Apple sign-in access, open iOS Settings, tap your Apple Account, then Sign in with Apple, Euphoria, and Delete.'
+                          : '';
                         if (!server.ok && server.message) {
-                          Alert.alert('Profile deleted on this device', server.message);
+                          Alert.alert('Profile deleted on this device', `${server.message}${appleRevocation}`);
+                        } else if (usedApple) {
+                          Alert.alert('Profile deleted', `Your Euphoria account and device data were deleted.${appleRevocation}`);
                         }
                       });
                     });
@@ -318,8 +325,8 @@ function AccountSection() {
       )}
 
       <Section title="SUPPORT">
-        <Row label="Privacy Policy" onPress={() => void Linking.openURL('https://euphoria.app/privacy').catch(() => undefined)} />
-        <Row label="Terms of Use" onPress={() => void Linking.openURL('https://euphoria.app/terms').catch(() => undefined)} last />
+        <Row label="Privacy Policy" onPress={() => void Linking.openURL('https://euphoriainv.com/privacy').catch(() => undefined)} />
+        <Row label="Terms of Use" onPress={() => void Linking.openURL('https://euphoriainv.com/terms').catch(() => undefined)} last />
       </Section>
 
       <Section title="SESSION">
@@ -400,9 +407,22 @@ function PreferencesSection() {
   const setProfile = useApp((s) => s.setProfile);
   const themePref = useApp((s) => s.themePref);
   const setThemePref = useApp((s) => s.setThemePref);
+  const analyticsOptIn = useApp((s) => s.profile.analyticsOptIn);
 
   return (
     <>
+    <Section title="PRIVACY">
+      <ToggleRow
+        label="Share app analytics"
+        sub="Sends pseudonymous feature-use events to PostHog. No name, email, ads, or screen recording."
+        value={analyticsOptIn}
+        onValueChange={(value) => {
+          setProfile({ analyticsOptIn: value });
+          void setAnalyticsConsent(value);
+        }}
+        last
+      />
+    </Section>
     <Section title="DIAGNOSTICS">
       {/*
         * A JS-thread frame counter, off by default and NOT persisted, so it cannot survive a

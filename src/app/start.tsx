@@ -123,7 +123,7 @@ export default function Start() {
         <RiseIn delay={120}>
           <View style={styles.bubble}>
             <AtlasSpeech
-              text="Your plan is ready. Let's start with one idea, then I'll show you around."
+              text="Your plan is ready. Start the first lesson, then Atlas will show you what to practice next."
               delay={260}
               tail="top"
             />

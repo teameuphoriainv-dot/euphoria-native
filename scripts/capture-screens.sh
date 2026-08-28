@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Capture every route in the app as a PNG, for the ScreensDesign audit.
 #
-# WHY A SCRIPT AND NOT A HAND CRAWL: there are 31 routes. Driving them one at a time through an
+# WHY A SCRIPT AND NOT A HAND CRAWL: the route table changes. Driving routes one at a time through an
 # assistant costs several tool calls each and cannot be repeated after a design change without
 # paying the whole cost again. This makes the capture cheap, repeatable, and diffable — run it
 # before and after a change and you have a visual regression set.

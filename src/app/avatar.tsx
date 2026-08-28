@@ -170,38 +170,51 @@ export default function AvatarPicker() {
         </ThemedText>
 
         <ThemedText type="label" themeColor="mutedForeground" style={styles.groupLabel}>BANNER</ThemedText>
-        <View style={styles.bannerList}>
+        <View style={styles.bannerGrid}>
           {BANNERS.map((b) => {
             const open = unlocked.has(b.id);
             const req = b.requires ? achievementById(b.requires) : null;
+            const selected = bannerId === b.id;
             return (
-              <SpringPressable
-                key={b.id}
-                disabled={!open}
-                onPress={() => { setBannerId(b.id); }}
-                accessibilityRole="button"
-                /*
-                 * WHICH ONE IS CHOSEN, said out loud. Selection was a border colour and nothing
-                 * else, so VoiceOver read eleven identical "Use the X banner" buttons with no way
-                 * to tell which was active (WCAG 1.4.1, 4.1.2).
-                 *
-                 * `disabled` is repeated here on purpose: SpringPressable spreads {...rest} AFTER
-                 * its own accessibilityState, so a caller-supplied object REPLACES it rather than
-                 * merging. Omitting disabled here would silently drop the locked state.
-                 */
-                accessibilityState={{ selected: bannerId === b.id, disabled: !open }}
-                accessibilityLabel={open ? `Use the ${b.label} banner` : `${b.label} banner, locked. ${req?.hint ?? ''}`}>
-                <View style={[styles.bannerRow, { borderColor: bannerId === b.id ? theme.primary : 'transparent', opacity: open ? 1 : 0.45 }]}>
-                  <ProfileBanner bannerId={b.id} name={b.label} height={56} />
-                  {/* A locked banner states WHAT TO DO, never just that it is locked. Same rule as
-                      the achievements list: a lock with no hint is a dead end. */}
-                  {!open && (
-                    <ThemedText type="small" themeColor="mutedForeground" style={styles.lockHint}>
-                      {req?.hint ?? 'Locked'}
+              <View key={b.id} style={styles.bannerCell}>
+                <SpringPressable
+                  disabled={!open}
+                  onPress={() => { setBannerId(b.id); }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected, disabled: !open }}
+                  accessibilityLabel={open ? `Use the ${b.label} banner` : `${b.label} banner, locked. ${req?.hint ?? ''}`}>
+                  <View
+                    style={[
+                      styles.bannerOption,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: selected ? theme.primary : theme.border,
+                        borderWidth: selected ? 2 : StyleSheet.hairlineWidth,
+                      },
+                    ]}>
+                    <View style={[styles.bannerSwatch, { backgroundColor: b.band }]}>
+                      <PixelSpriteView sprite={b.motif} size={24} canvas="dark" />
+                      <ThemedText type="bodyMedium" numberOfLines={1} style={[styles.bannerName, { color: b.ink }]}>
+                        {b.label}
+                      </ThemedText>
+                      <View style={[styles.bannerStatus, { backgroundColor: b.band }]}>
+                        <UIcon
+                          name={selected ? 'check' : open ? 'sparkle' : 'lock'}
+                          size={14}
+                          color={b.ink}
+                        />
+                      </View>
+                    </View>
+                    <ThemedText
+                      type="small"
+                      themeColor="mutedForeground"
+                      numberOfLines={2}
+                      style={styles.bannerMeta}>
+                      {selected ? 'Selected' : open ? 'Available' : req?.hint ?? 'Locked'}
                     </ThemedText>
-                  )}
-                </View>
-              </SpringPressable>
+                  </View>
+                </SpringPressable>
+              </View>
             );
           })}
         </View>
@@ -261,9 +274,28 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     fontSize: FontSize.bodyLg,
   },
-  bannerList: { gap: Spacing.three },
-  bannerRow: { borderWidth: 2, borderRadius: Radius.lg, padding: 2, gap: 4 },
-  lockHint: { paddingHorizontal: Spacing.two, paddingBottom: 2 },
+  bannerGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
+  bannerCell: { width: '48.5%' },
+  bannerOption: { borderRadius: Radius.lg, padding: Spacing.one, minHeight: 92 },
+  bannerSwatch: {
+    height: 52,
+    borderRadius: Radius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.two,
+  },
+  bannerName: { flex: 1 },
+  bannerStatus: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#FFFFFF33',
+  },
+  bannerMeta: { minHeight: 30, paddingHorizontal: Spacing.one, paddingTop: Spacing.one },
   groupLabel: { marginTop: Spacing.four },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: Spacing.two },
   /** Four across. 25% each with the gap taken as padding, so the wrap cannot round into three. */

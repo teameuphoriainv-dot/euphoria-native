@@ -193,7 +193,7 @@ export default function League() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {tab === 'friends' && friendIds.length === 0 && (
           <ThemedText type="small" themeColor="mutedForeground" style={styles.friendsEmpty}>
-            No friends yet. Follow someone and they become a friend once they follow you back.
+            No friends yet. Follow practice profiles here. Mutual friends arrive when real accounts do.
           </ThemedText>
         )}
         {players.map((p, i) => (

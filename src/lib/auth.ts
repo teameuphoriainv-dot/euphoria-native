@@ -16,6 +16,7 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { AppState, Platform } from 'react-native';
 
 const URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -41,6 +42,26 @@ let client: SupabaseClient | null = null;
  * cannot go stale behind a rotated token.
  */
 let session: { userId: string; accessToken: string } | null = null;
+type AuthUserListener = (userId: string | null) => void;
+const authUserListeners = new Set<AuthUserListener>();
+let autoRefreshBound = false;
+
+function adoptSession(next: { user?: { id?: string }; access_token?: string } | null): void {
+  const previousUserId = session?.userId ?? null;
+  session =
+    next?.user?.id && next.access_token
+      ? { userId: next.user.id, accessToken: next.access_token }
+      : null;
+  const userId = session?.userId ?? null;
+  if (userId !== previousUserId) authUserListeners.forEach((listener) => listener(userId));
+}
+
+/** Keep account-scoped SDKs aligned with Supabase without importing them into the auth layer. */
+export function onAuthUserChange(listener: AuthUserListener): () => void {
+  authUserListeners.add(listener);
+  listener(session?.userId ?? null);
+  return () => authUserListeners.delete(listener);
+}
 
 /** Null while auth is off. Constructed lazily so an unconfigured build pays nothing. */
 export function supabase(): SupabaseClient | null {
@@ -58,14 +79,20 @@ export function supabase(): SupabaseClient | null {
         autoRefreshToken: true,
       },
     });
+    if (Platform.OS !== 'web' && !autoRefreshBound) {
+      autoRefreshBound = true;
+      AppState.addEventListener('change', (state) => {
+        if (state === 'active') client?.auth.startAutoRefresh();
+        else client?.auth.stopAutoRefresh();
+      });
+      if (AppState.currentState === 'active') client.auth.startAutoRefresh();
+    }
     // Subscribe BEFORE the first read, so a sign-in that lands mid-startup is not missed.
     client.auth.onAuthStateChange((_event, s) => {
-      session =
-        s?.user?.id && s.access_token ? { userId: s.user.id, accessToken: s.access_token } : null;
+      adoptSession(s);
     });
     void client.auth.getSession().then(({ data }) => {
-      const s = data.session;
-      if (s?.user?.id && s.access_token) session = { userId: s.user.id, accessToken: s.access_token };
+      adoptSession(data.session);
     });
   }
   return client;
@@ -211,7 +238,7 @@ export async function signInWithIdToken(
 /** End the server session. Local profile state is the caller's business, not this module's. */
 export async function signOutServer(): Promise<void> {
   await supabase()?.auth.signOut();
-  session = null;
+  adoptSession(null);
 }
 
 /**
@@ -246,6 +273,11 @@ export async function deleteServerAccount(): Promise<{ ok: boolean; message?: st
   if (!sb || !session) return { ok: true };
   const { error } = await sb.rpc('delete_own_account');
   if (error) {
+    // The server copy may still exist, but this device must not keep a refreshable session after
+    // the local profile is erased. Local scope avoids claiming that the failed deletion revoked
+    // sessions on other devices; the error message still tells the user to retry server deletion.
+    await sb.auth.signOut({ scope: 'local' });
+    adoptSession(null);
     // The function exists on the current project. This branch remains for a project rebuilt or
     // restored without it, where saying WHICH failure occurred is the difference between a user
     // retrying and a user assuming their data is gone when it is not.
@@ -257,7 +289,9 @@ export async function deleteServerAccount(): Promise<{ ok: boolean; message?: st
         : 'Your account on our servers could not be reached. Your data on this device has been deleted.',
     };
   }
-  await sb.auth.signOut();
-  session = null;
+  // The RPC has already destroyed the server identity. Clear the persisted native session without
+  // making a second server request against a user that no longer exists.
+  await sb.auth.signOut({ scope: 'local' });
+  adoptSession(null);
   return { ok: true };
 }

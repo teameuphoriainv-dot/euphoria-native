@@ -35,13 +35,13 @@ import { ProfileButton } from '@/components/profile-button';
  * balance, Credit Climb is `ladder` because it is a climb, Black Swan is `crack` because the point
  * of a black swan is the break, not the bird.
  */
-const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean }[] = [
+const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean; comingSoon?: boolean }[] = [
   { name: 'Term Match', sprite: lightbulb, route: '/games/term-match' },
   { name: 'Trend Master', sprite: chartUp, route: '/games/trend-master' },
   { name: 'Money 2048', sprite: stackCash, route: '/games/money-2048' },
   { name: 'Budget Balancer', sprite: scales, route: '/games/budget-balancer' },
-  { name: 'Credit Climb', sprite: ladder },
-  { name: 'Market Reaction', sprite: bolt },
+  { name: 'Credit Climb', sprite: ladder, comingSoon: true },
+  { name: 'Market Reaction', sprite: bolt, comingSoon: true },
   { name: 'Bias Busted', sprite: magnifier, pro: true },
   { name: 'Black Swan', sprite: crack, pro: true },
   { name: 'Trade War', sprite: globe, pro: true },
@@ -69,37 +69,43 @@ export default function Games() {
         </RiseIn>
 
         <View style={styles.grid}>
-          {GAMES.map((g, i) => (
-            <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
-              <SpringPressable onPress={() => g.route && router.push(g.route as never)} disabled={!!g.pro}>
-                {/*
-                  * THE DIM IS ON THE CONTENT, NOT THE CARD.
-                  *
-                  * `opacity: 0.6` on the whole Card dimmed the Pro badge along with the art, and a
-                  * composited measurement put the badge text at ~3.55:1 against the screen — below
-                  * the 4.5 AA minimum, and 9pt label text does not qualify as large text. The badge
-                  * is the one thing on a locked card that must stay readable, since it is the entire
-                  * explanation for why the card does not respond.
-                  */}
-                <Card style={styles.gameCard}>
-                  {g.pro && (
-                    <View style={[styles.proBadge, { backgroundColor: theme.warning + '2A' }]}>
-                      <UIcon name="lock" size={11} color={theme.warning} />
-                      <ThemedText type="label" style={{ color: theme.warning, fontSize: FontSize.micro }}>Pro</ThemedText>
+          {GAMES.map((g, i) => {
+            const inactive = !!g.pro || !!g.comingSoon;
+            const badgeColor = g.pro ? theme.warning : theme.iconLilac;
+            return (
+              <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
+                <SpringPressable onPress={() => g.route && router.push(g.route as never)} disabled={!!g.pro || !!g.comingSoon}>
+                  {/*
+                    * THE DIM IS ON THE CONTENT, NOT THE CARD.
+                    *
+                    * `opacity: 0.6` on the whole Card dimmed the Pro badge along with the art, and a
+                    * composited measurement put the badge text at ~3.55:1 against the screen — below
+                    * the 4.5 AA minimum, and 9pt label text does not qualify as large text. The badge
+                    * is the one thing on a locked card that must stay readable, since it is the entire
+                    * explanation for why the card does not respond.
+                    */}
+                  <Card style={styles.gameCard}>
+                    {(g.pro || g.comingSoon) && (
+                      <View style={[styles.statusBadge, { backgroundColor: badgeColor + '2A' }]}>
+                        <UIcon name={g.pro ? 'lock' : 'sparkle'} size={11} color={badgeColor} />
+                        <ThemedText type="label" style={{ color: badgeColor, fontSize: FontSize.micro }}>
+                          {g.pro ? 'Pro' : 'Soon'}
+                        </ThemedText>
+                      </View>
+                    )}
+                    <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }, inactive && { opacity: 0.6 }]}>
+                      <PixelSpriteView sprite={g.sprite} size={40} />
                     </View>
-                  )}
-                  <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }, g.pro && { opacity: 0.6 }]}>
-                    <PixelSpriteView sprite={g.sprite} size={40} />
-                  </View>
-                  <ThemedText
-                    type="heading"
-                    style={[{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }, g.pro && { opacity: 0.6 }]}>
-                    {g.name}
-                  </ThemedText>
-                </Card>
-              </SpringPressable>
-            </RiseIn>
-          ))}
+                    <ThemedText
+                      type="heading"
+                      style={[{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }, inactive && { opacity: 0.6 }]}>
+                      {g.name}
+                    </ThemedText>
+                  </Card>
+                </SpringPressable>
+              </RiseIn>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -113,5 +119,5 @@ const styles = StyleSheet.create({
   cell: { width: '47%', flexGrow: 1 },
   gameCard: { alignItems: 'center', paddingVertical: Spacing.four },
   iconBubble: { width: 68, height: 68, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
-  proBadge: { position: 'absolute', top: 10, right: 10, flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 7, paddingVertical: 3, borderRadius: Radius.pill },
+  statusBadge: { position: 'absolute', top: 10, right: 10, flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 7, paddingVertical: 3, borderRadius: Radius.pill },
 });

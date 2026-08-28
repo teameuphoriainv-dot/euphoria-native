@@ -25,6 +25,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ANALYTICS = readFileSync('src/lib/analytics.ts', 'utf8');
+const PROFILE = readFileSync('src/lib/onboarding-path.ts', 'utf8');
+const PREFERENCES = readFileSync('src/app/settings/[section].tsx', 'utf8');
 const PKG = JSON.parse(readFileSync('package.json', 'utf8'));
 
 /** Property keys that would make "nothing that identifies you personally" false. */
@@ -71,6 +73,26 @@ if (unguarded.length > 0) {
 //    SDK default has changed before and a default is not a decision.
 if (/enableSessionReplay:\s*false/.test(ANALYTICS)) pass('session replay off');
 else bad('session replay off', 'analytics.ts no longer sets enableSessionReplay: false');
+
+// Product analytics is data collection even when the payload is pseudonymous. Apple 5.1.1(ii)
+// requires consent and an accessible withdrawal path, so default-off is part of the claim.
+if (/defaultOptIn:\s*false/.test(ANALYTICS)) pass('analytics defaults off');
+else bad('analytics defaults off', 'PostHog no longer sets defaultOptIn: false');
+
+if (/analyticsOptIn:\s*false/.test(PROFILE)) pass('profile analytics consent defaults off');
+else bad('profile analytics consent defaults off', 'EMPTY_PROFILE no longer defaults analyticsOptIn to false');
+
+if (/profile\.analyticsOptIn/.test(ANALYTICS) && /\.optOut\(\)/.test(ANALYTICS)) {
+  pass('analytics capture is consent-gated and revocable');
+} else {
+  bad('analytics capture is consent-gated and revocable', 'analytics.ts must guard capture with profile.analyticsOptIn and expose optOut()');
+}
+
+if (/Share app analytics/.test(PREFERENCES) && /setAnalyticsConsent\(value\)/.test(PREFERENCES)) {
+  pass('analytics consent control is in Settings');
+} else {
+  bad('analytics consent control is in Settings', 'Preferences must expose a Share app analytics control wired to setAnalyticsConsent');
+}
 
 // 3. IDENTITY. The funnel is pseudonymous or the copy is wrong.
 if (/install_id:\s*useApp\.getState\(\)\.installId/.test(ANALYTICS)) pass('identity is installId');

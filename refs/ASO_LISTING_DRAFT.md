@@ -34,8 +34,8 @@ Personal Finance for Beginners
 ```
 
 The subtitle is indexed for search at nearly the weight of the name, so it should carry keywords
-the name does not. This one adds **stock**, **market**, **course**, **practice** — four new terms —
-while still describing the app truthfully.
+the name does not. This one adds **personal finance** and **beginners**, which the name does not
+carry, while still describing the app truthfully.
 
 ## Keywords field — limit 100
 

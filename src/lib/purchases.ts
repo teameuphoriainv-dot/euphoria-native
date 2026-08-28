@@ -30,6 +30,7 @@ import * as Linking from 'expo-linking';
 import Purchases, { LOG_LEVEL, type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 
 import { Ev, track } from './analytics';
+import { onAuthUserChange } from './auth';
 import { type CustomerInfoLike, ENTITLEMENT_ID, proStateFrom as proStateFromRule } from './billing-retry';
 import { useApp } from './store';
 
@@ -108,6 +109,34 @@ export type PurchaseResult =
   | { ok: false; kind: 'error'; code: string };
 
 let configured = false;
+let identityBound = false;
+let revenueCatUserId: string | null = null;
+let identitySync: Promise<void> = Promise.resolve();
+
+/**
+ * RevenueCat and the server must use the same subscriber key. The API verifies a Supabase token
+ * and asks RevenueCat for that UUID, so leaving the SDK anonymous would make every signed-in buyer
+ * look unpaid as soon as server enforcement is enabled.
+ */
+function syncRevenueCatUser(userId: string | null): void {
+  if (!configured || userId === revenueCatUserId) return;
+  identitySync = identitySync
+    .then(async () => {
+      if (userId === revenueCatUserId) return;
+      if (userId) {
+        const { customerInfo } = await Purchases.logIn(userId);
+        revenueCatUserId = userId;
+        adoptCustomerInfo(customerInfo);
+        return;
+      }
+      const customerInfo = await Purchases.logOut();
+      revenueCatUserId = null;
+      adoptCustomerInfo(customerInfo);
+    })
+    .catch((error: unknown) => {
+      if (__DEV__) console.warn('[iap] could not synchronize account identity', error);
+    });
+}
 
 /** Idempotent. Safe to call from several screens; only the first call reaches the SDK. */
 export function configurePurchases(): boolean {
@@ -118,6 +147,10 @@ export function configurePurchases(): boolean {
   // Anonymous app-user-id by default, which is §9.9's upgrade step 1: the entitlement survives a
   // reinstall on the same Apple ID, where `activeDays` in AsyncStorage does not.
   Purchases.addCustomerInfoUpdateListener(adoptCustomerInfo);
+  if (!identityBound) {
+    identityBound = true;
+    onAuthUserChange(syncRevenueCatUser);
+  }
   return true;
 }
 
@@ -307,4 +340,3 @@ export function purchaseErrorMessage(code: string): string {
       return 'That did not go through, and nothing was charged. Try again in a moment.';
   }
 }
-

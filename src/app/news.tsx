@@ -102,6 +102,9 @@ export default function News() {
           <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
             {sym ? 'Stories mentioning this company.' : 'What moved, and why.'}
           </ThemedText>
+          <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
+            Third-party headlines for learning, not recommendations.
+          </ThemedText>
         </RiseIn>
 
         {/* UNIT 13 item 3: the shape of the article rows that are coming, not a bare spinner. */}

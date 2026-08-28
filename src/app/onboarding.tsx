@@ -425,11 +425,8 @@ const STEPS: StepDef[] = [
 
 const TOTAL = STEPS.length;
 const PAYWALL_INDEX = TOTAL - 1;
+const PAYWALL_ATLAS = 52;
 
-/** Atlas on the paywall. 56 read as a favicon on the one screen that asks for money;
- *  the design doc asks for Atlas here and asks for it to be "super beautiful". 76 gives the
- *  mascot presence while still leaving the plan cards above the fold on a 393pt phone. */
-const PAYWALL_ATLAS = 64;
 const REVEAL_INDEX = TOTAL - 2;
 
 export default function Onboarding() {
@@ -829,11 +826,8 @@ export default function Onboarding() {
                       : `You're on day ${trialDay} of ${TRIAL_DAYS}`
               }
             />
-            {/* Space is DISTRIBUTED here, never added as fixed padding. The three blocks are
-                spread across whatever height is left over, so a tall phone breathes and a small
-                one simply stops spreading and scrolls — the previous flex-start packed
-                everything to the top and left the slack stranded at the bottom. Hardcoding that
-                slack as padding is what would push "No payment due now" off an SE. */}
+            {/* The body stays top-packed, and the action follows it in the same scroll stack so no
+                flex spacer can separate Monthly from the CTA. */}
             {/* The timeline is about a trial. Showing "Today / Day 2 / Day 3" to someone whose
                 three days are gone describes something that cannot happen to them, so a spent user
                 gets what Pro reopens instead — the gate sheet's one-line promise, expanded. */}
@@ -864,7 +858,7 @@ export default function Onboarding() {
                 ))}
               </View>
             ) : (
-              <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.three }}>
+              <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.one }}>
                 <PremiumBenefits />
               </RiseIn>
             )}
@@ -900,7 +894,104 @@ export default function Onboarding() {
   // content-light next to a pinned CTA, so top-packing strands the leftover height as a dead
   // band above the button. The flex chain is opened up only for them; every question step keeps
   // its existing top-packed layout untouched.
-  const fillsViewport = renderStep === PAYWALL_INDEX || renderStep === REVEAL_INDEX;
+  const fillsViewport = renderStep === REVEAL_INDEX;
+
+  const actionFooter = (
+    <View style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}>
+      {step === PAYWALL_INDEX && offersTrial && (
+        <View style={styles.noPay}>
+          <UIcon name="check" size={16} color={theme.primary} />
+          <ThemedText type="bodyMedium">No payment due now</ThemedText>
+        </View>
+      )}
+      <SlabButton
+        label={
+          step === REVEAL_INDEX
+            ? 'Start learning'
+            : step === PAYWALL_INDEX
+              ? isProNow
+                ? 'Back to learning'
+                : offersTrial
+                  ? `Start my ${TRIAL_DAYS}-day free trial`
+                  : `Get Euphoria Pro · ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
+              : 'Continue'
+        }
+        full
+        {...(step === PAYWALL_INDEX && !isProNow ? { tone: 'premium' as const } : {})}
+        loading={busy}
+        disabled={!canContinue || busy}
+        onPress={
+          step === PAYWALL_INDEX
+            ? isProNow
+              ? () => router.replace('/home')
+              : offersTrial
+                ? next
+                : buyPro
+            : next
+        }
+      />
+      {underAge && (
+        <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+          {`Euphoria is built for ages ${String(AGE_FLOOR)} and up. Come back when you get there. We'll be here.`}
+        </ThemedText>
+      )}
+      {step === PAYWALL_INDEX && !offersTrial && !isProNow && !IAP_ENABLED && (
+        <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+          {IAP_DISABLED_REASON}
+        </ThemedText>
+      )}
+      {step === PAYWALL_INDEX && (
+        <>
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+            {offersTrial ? `${TRIAL_DAYS} days free, then ` : ''}
+            {plan === 'annual'
+              ? `${PRICING.annual} per year, billed annually`
+              : `${PRICING.monthly} per month`}
+            . Renews until cancelled. Cancel anytime in the App Store.
+          </ThemedText>
+          <SpringPressable
+            haptic={false}
+            onPress={() => router.replace('/home')}
+            style={styles.maybeLater}
+            accessibilityRole="button"
+            accessibilityLabel="Maybe later">
+            <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>
+          </SpringPressable>
+          <View style={styles.legalRow}>
+            <SpringPressable
+              haptic={false}
+              onPress={() => openLegal(LEGAL.terms)}
+              style={styles.legalAction}
+              hitSlop={{ top: 13, bottom: 13 }}
+              accessibilityRole="link"
+              accessibilityLabel="Terms">
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Terms</ThemedText>
+            </SpringPressable>
+            <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
+            <SpringPressable
+              haptic={false}
+              onPress={() => openLegal(LEGAL.privacy)}
+              style={styles.legalAction}
+              hitSlop={{ top: 13, bottom: 13 }}
+              accessibilityRole="link"
+              accessibilityLabel="Privacy">
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Privacy</ThemedText>
+            </SpringPressable>
+            <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
+            <SpringPressable
+              haptic={false}
+              onPress={restore}
+              style={styles.legalAction}
+              hitSlop={{ top: 13, bottom: 13 }}
+              accessibilityRole="button"
+              accessibilityLabel="Restore purchases">
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Restore</ThemedText>
+            </SpringPressable>
+          </View>
+        </>
+      )}
+    </View>
+  );
 
   return (
     // AmbientBackground is absoluteFill, so it can only ever paint its PARENT. Nested inside
@@ -910,7 +1001,7 @@ export default function Onboarding() {
     // the gradient and stars run to the physical edges of the screen.
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AmbientBackground />
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={styles.safe} edges={renderStep === PAYWALL_INDEX ? ['top'] : undefined}>
       <View style={styles.header}>
         <ProgressHeader step={step} total={TOTAL} onBack={hasBack ? back : undefined} />
       </View>
@@ -929,108 +1020,19 @@ export default function Onboarding() {
         size={renderStep === PAYWALL_INDEX ? PAYWALL_ATLAS : ATLAS_SIZE}
       />
 
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={[styles.content, renderStep === PAYWALL_INDEX && styles.paywallContent]}
+        showsVerticalScrollIndicator={false}>
         <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
           <View key={renderStep} style={fillsViewport ? styles.grow : undefined}>{body()}</View>
         </Animated.View>
+        {renderStep === PAYWALL_INDEX && !isLoader ? actionFooter : null}
       </ScrollView>
 
       {/* the loader drives itself — offering a button there would let users outrun it */}
-      {!isLoader && (
-        <View style={styles.footer}>
-          {/* Reassurance sits with the CTA it reassures about. In the scrolling body it was the
-              first thing clipped whenever the plan cards grew. */}
-          {step === PAYWALL_INDEX && offersTrial && (
-            <View style={styles.noPay}>
-              <UIcon name="check" size={16} color={theme.primary} />
-              <ThemedText type="bodyMedium">No payment due now</ThemedText>
-            </View>
-          )}
-          {/*
-            * THE STANDALONE CANCEL ROW IS GONE, 2026-08-25. 3/4 of the captured pricing screens
-            * carry a cancel reassurance beside the CTA, and this had one — but the renewal terms
-            * directly below it already end with the identical sentence, "Cancel anytime in the
-            * App Store". It was the same words twice, about 30pt apart, on a screen that did not
-            * fit without scrolling. The reassurance survives; only the duplicate row went.
-            * "No payment due now" above is NOT a duplicate and stays for trial users.
-            */}
-          <SlabButton
-            label={
-              step === REVEAL_INDEX
-                ? 'Start learning'
-                : step === PAYWALL_INDEX
-                  ? isProNow
-                    ? 'Back to learning'
-                    : offersTrial
-                      ? `Start my ${TRIAL_DAYS}-day free trial`
-                      : `Get Euphoria Pro · ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
-                  : 'Continue'
-            }
-            full
-            {...(step === PAYWALL_INDEX && !isProNow ? { tone: 'premium' as const } : {})}
-            loading={busy}
-            disabled={!canContinue || busy}
-            onPress={
-              step === PAYWALL_INDEX
-                ? isProNow
-                  ? () => router.replace('/home')
-                  : offersTrial
-                    ? next
-                    : buyPro
-                : next
-            }
-          />
-          {/* States its own reason rather than being a silently inert button — the pattern the
-              options preview cap already uses (§0.5). A disabled control with no explanation is
-              the dead end; one that explains itself is not. */}
-          {underAge && (
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-              {`Euphoria is built for ages ${String(AGE_FLOOR)} and up. Come back when you get there. We'll be here.`}
-            </ThemedText>
-          )}
-          {step === PAYWALL_INDEX && !offersTrial && !isProNow && !IAP_ENABLED && (
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-              {IAP_DISABLED_REASON}
-            </ThemedText>
-          )}
-          {step === PAYWALL_INDEX && (
-            <>
-              {/* Renewal terms belong in the pinned footer for the same reason the links do:
-                  as the last child of the scrolling body they sat below the fold, and App Store
-                  Review 3.1.2 wants the price and renewal terms ON the purchase screen. */}
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-                {/* App Store Review 3.1.2 wants price and renewal terms ON the purchase screen.
-                    The trial clause is dropped for a spent user: they are not getting one. */}
-                {offersTrial ? `${TRIAL_DAYS} days free, then ` : ''}
-                {plan === 'annual'
-                  ? `${PRICING.annual} per year, billed annually`
-                  : `${PRICING.monthly} per month`}
-                . Renews until cancelled. Cancel anytime in the App Store.
-              </ThemedText>
-              <SpringPressable haptic={false} onPress={() => router.replace('/home')} style={styles.maybeLater}>
-                <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>
-              </SpringPressable>
-              {/* In the pinned footer, NOT the ScrollView: these were previously the last child
-                  of the scrolling body and sat below the fold, so the links Apple requires were
-                  invisible unless the user happened to scroll. */}
-              <View style={styles.legalRow}>
-                <SpringPressable haptic={false} onPress={() => openLegal(LEGAL.terms)} hitSlop={8}>
-                  <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Terms</ThemedText>
-                </SpringPressable>
-                <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
-                <SpringPressable haptic={false} onPress={() => openLegal(LEGAL.privacy)} hitSlop={8}>
-                  <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Privacy</ThemedText>
-                </SpringPressable>
-                <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
-                <SpringPressable haptic={false} onPress={restore} hitSlop={8}>
-                  <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Restore</ThemedText>
-                </SpringPressable>
-              </View>
-            </>
-          )}
-        </View>
-      )}
+      {!isLoader && renderStep !== PAYWALL_INDEX ? actionFooter : null}
       </SafeAreaView>
     </View>
   );
@@ -1042,6 +1044,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   content: { padding: Spacing.four, paddingTop: Spacing.two, flexGrow: 1, justifyContent: 'flex-start' },
+  paywallContent: { paddingTop: 0, paddingBottom: 0 },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
@@ -1049,13 +1052,15 @@ const styles = StyleSheet.create({
   nameInput: { marginTop: Spacing.four, minHeight: 52, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.three, fontSize: FontSize.bodyLg },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  /** Heading / trial timeline / plan cards, spread across the leftover height. */
-  paywallBody: { flexGrow: 1, justifyContent: 'space-between', gap: Spacing.two, paddingBottom: Spacing.two },
+  /** Content-sized so no flexible spacer can separate Monthly from the purchase action. */
+  paywallBody: { gap: Spacing.one, paddingBottom: Spacing.two },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.one, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.three, paddingTop: Spacing.one },
+  paywallFooter: { paddingTop: 0, paddingBottom: Spacing.two },
   maybeLater: { alignItems: "center", paddingTop: Spacing.two },
   legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.one },
+  legalAction: { minWidth: 44, alignItems: 'center' },
   legalLink: { fontSize: FontSize.label, textDecorationLine: 'underline', opacity: 0.75 },
   legalDot: { fontSize: FontSize.label, opacity: 0.75 },
 });

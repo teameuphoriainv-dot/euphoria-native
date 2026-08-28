@@ -17,10 +17,10 @@ SMALL_TYPES = ('small','smallBold','body','bodyMedium','label','heading')
 
 ROUTES = [('home','src/app/(tabs)/home.tsx'),('learn','src/app/(tabs)/learn.tsx'),
  ('lesson','src/app/lesson.tsx'),('digest','src/app/(tabs)/digest.tsx'),
- ('you','src/app/(tabs)/you.tsx'),('trade','src/app/(tabs)/trade.tsx'),
+ ('you','src/app/you.tsx'),('trade','src/app/(tabs)/trade.tsx'),
  ('courses','src/app/courses.tsx'),('settings','src/app/settings/[section].tsx'),
  ('league','src/app/league.tsx'),('friends','src/app/friends.tsx'),
- ('games','src/app/games.tsx'),('stock','src/app/stock/[sym].tsx'),
+ ('games','src/app/(tabs)/games.tsx'),('stock','src/app/stock/[sym].tsx'),
  ('explore/compound','src/app/explore/compound.tsx'),('welcome','src/app/welcome.tsx'),
  ('auth','src/app/auth.tsx'),('start','src/app/start.tsx'),('index','src/app/index.tsx'),
  ('onboarding','src/app/onboarding.tsx')]

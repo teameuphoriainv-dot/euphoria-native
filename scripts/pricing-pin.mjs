@@ -39,6 +39,23 @@ const expectedSaving = Math.round((1 - annual / (monthly * 12)) * 100);
 assert.equal(savingPct, expectedSaving,
   `savingPct is ${savingPct}% but 1 - ${annual}/(${monthly}*12) rounds to ${expectedSaving}%`);
 
+// Simulator StoreKit must mirror the paywall. This file is deliberately local-only testing data,
+// but a stale amount here would make the simulator validate a different purchase than the UI.
+const storekit = JSON.parse(readFileSync(new URL('../Configuration.storekit', import.meta.url), 'utf8'));
+const subscriptions = storekit.subscriptionGroups.flatMap((group) => group.subscriptions);
+const configuredMonthly = subscriptions.find((item) => item.productID === 'euphoria_pro_monthly');
+const configuredAnnual = subscriptions.find((item) => item.productID === 'euphoria_pro_yearly');
+assert.ok(configuredMonthly, 'Configuration.storekit is missing euphoria_pro_monthly');
+assert.ok(configuredAnnual, 'Configuration.storekit is missing euphoria_pro_yearly');
+assert.equal(Number(configuredMonthly.displayPrice), monthly,
+  `Configuration.storekit monthly price is $${configuredMonthly.displayPrice}, paywall is $${monthly}`);
+assert.equal(Number(configuredAnnual.displayPrice), annual,
+  `Configuration.storekit annual price is $${configuredAnnual.displayPrice}, paywall is $${annual}`);
+
+const appConfig = JSON.parse(readFileSync(new URL('../app.json', import.meta.url), 'utf8'));
+assert.ok(appConfig.expo.plugins.includes('./plugins/with-storekit-config'),
+  'app.json must wire Configuration.storekit into the generated Xcode launch scheme');
+
 // an annual that costs more than twelve months is not a saving
 assert.ok(annual < monthly * 12, 'the annual plan must cost less than 12 monthly payments');
 assert.ok(savingPct > 0 && savingPct < 100, `savingPct ${savingPct} is not a plausible discount`);

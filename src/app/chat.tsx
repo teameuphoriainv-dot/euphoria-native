@@ -23,6 +23,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -85,6 +86,9 @@ export default function ChatScreen() {
   const [draft, setDraft] = useState('');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Consent is intentionally session-scoped. Leaving and reopening Atlas asks again before any
+  // new text is shared with the third-party model, and no old consent survives a reinstall.
+  const [aiConsent, setAiConsent] = useState(false);
   /*
    * Declared with the other state, ABOVE the `if (expired)` early return below — the same hook-order
    * trap `stock/[sym].tsx` already records. `entitled()` is read at press time from `getState()`
@@ -149,10 +153,31 @@ export default function ChatScreen() {
     (text: string) => {
       const body = text.trim();
       if (!body || pending || exhausted) return;
-      setDraft('');
-      run([...turns, { role: 'user', content: body }]);
+      const submit = () => {
+        if (pending || exhausted) return;
+        setDraft('');
+        void run([...turns, { role: 'user', content: body }]);
+      };
+      if (aiConsent) {
+        submit();
+        return;
+      }
+      Alert.alert(
+        'Share this chat with Atlas?',
+        'Your question and this chat history will be sent to Google Gemini to generate a response. Do not include personal or sensitive information.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Continue',
+            onPress: () => {
+              setAiConsent(true);
+              submit();
+            },
+          },
+        ],
+      );
     },
-    [turns, pending, exhausted, run],
+    [turns, pending, exhausted, run, aiConsent],
   );
 
   /**
@@ -448,7 +473,7 @@ export default function ChatScreen() {
         </View>
 
         <ThemedText type="small" themeColor="mutedForeground" style={styles.disclaimer}>
-          Atlas is AI. General concepts, not personal advice.
+          Atlas uses Google Gemini. General concepts, not personal advice.
         </ThemedText>
       </KeyboardAvoidingView>
 

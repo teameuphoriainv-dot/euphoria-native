@@ -58,7 +58,13 @@ function PersonRow({ person, rel, onToggle }: { person: Person; rel: Relationshi
         </ThemedText>
       </View>
       <LeagueCrest tier={tierForXp(person.xp)} size={22} />
-      <SpringPressable haptic={false} onPress={onToggle} hitSlop={8}>
+      <SpringPressable
+        haptic={false}
+        onPress={onToggle}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel={`${LABEL[rel]} ${person.name}`}
+      >
         <View
           style={[
             styles.btn,
@@ -192,6 +198,7 @@ export default function Friends() {
             value={query}
             onChangeText={setQuery}
             placeholder="Search by name or handle"
+            accessibilityLabel="Search friends"
             placeholderTextColor={theme.mutedForeground}
             autoCapitalize="none"
             autoCorrect={false}

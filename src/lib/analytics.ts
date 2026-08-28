@@ -24,7 +24,7 @@
  * That set is what keeps `why-not-free.tsx` honest. If any of it is relaxed, THAT COPY MUST CHANGE
  * IN THE SAME COMMIT.
  */
-import type PostHogType from 'posthog-react-native';
+import { PostHog } from 'posthog-react-native';
 
 import { useApp } from './store';
 
@@ -80,28 +80,30 @@ export const Ev = {
 
 export type EvName = (typeof Ev)[keyof typeof Ev];
 
-let client: PostHogType | null = null;
-let loading: Promise<PostHogType | null> | null = null;
+let client: PostHog | null = null;
+let loading: Promise<PostHog | null> | null = null;
 
 /**
- * Loaded lazily and never on the startup path.
+ * Constructed lazily and never on the startup path.
  *
  * Analytics must not be able to delay or break app launch — a tracking SDK that throws while the
  * bundle is evaluating presents as "the app became unresponsive during onboarding", which is
- * literally the bug Apple rejected this app for. Nothing here runs until the first event.
+ * literally the bug Apple rejected this app for. The SDK is statically bundled because Metro's
+ * development runtime cannot reliably resolve a dynamically imported chunk after Fast Refresh;
+ * no PostHog client or network work starts until consent is enabled and this function is called.
  */
-async function getClient(): Promise<PostHogType | null> {
+async function getClient(): Promise<PostHog | null> {
   if (!ANALYTICS_ENABLED) return null;
   if (client) return client;
-  loading ??= import('posthog-react-native')
-    .then((m) => {
+  loading ??= Promise.resolve()
+    .then(() => {
       if (__DEV__) console.log('[analytics] posthog module loaded');
-      client = new m.default(KEY!, {
+      client = new PostHog(KEY!, {
         host: HOST,
         // See the header. These three are the privacy promise, expressed as configuration.
         enableSessionReplay: false,
         captureAppLifecycleEvents: true,
-        defaultOptIn: true,
+        defaultOptIn: false,
       });
       return client;
     })
@@ -126,10 +128,13 @@ export function track(event: EvName, properties?: Record<string, string | number
     if (__DEV__) console.warn(`[analytics] DISABLED, dropping "${event}" — EXPO_PUBLIC_POSTHOG_KEY missing or not phc_-shaped`);
     return;
   }
+  if (!useApp.getState().profile.analyticsOptIn) return;
   if (__DEV__) console.log(`[analytics] track "${event}"`);
   void getClient()
-    .then((c) => {
-      if (!c) return;
+    .then(async (c) => {
+      if (!c || !useApp.getState().profile.analyticsOptIn) return;
+      await c.optIn();
+      if (!useApp.getState().profile.analyticsOptIn) return;
       // The pseudonymous install id, NOT the person. Matches the rate limiter's identity, so a
       // funnel row and a rate-limit bucket describe the same device without naming anybody.
       c.capture(event, { ...properties, install_id: useApp.getState().installId });
@@ -140,9 +145,19 @@ export function track(event: EvName, properties?: Record<string, string | number
     });
 }
 
+/** Apply or withdraw the preference immediately. The profile field is the source of truth; this
+ * synchronizes the SDK's own persisted opt-out flag after the caller updates that field. */
+export async function setAnalyticsConsent(enabled: boolean): Promise<void> {
+  if (!ANALYTICS_ENABLED) return;
+  const c = await getClient();
+  if (!c) return;
+  if (enabled) await c.optIn();
+  else await c.optOut();
+}
+
 /** Flush before the app is backgrounded, so the last event of a session is not lost. */
 export function flushAnalytics(): void {
-  if (!ANALYTICS_ENABLED) return;
+  if (!ANALYTICS_ENABLED || !useApp.getState().profile.analyticsOptIn) return;
   void getClient()
     .then((c) => c?.flush())
     .catch(() => {});

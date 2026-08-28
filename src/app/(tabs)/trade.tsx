@@ -210,7 +210,7 @@ export default function Trade() {
               {/* "Practice with $10,000. No real money." stated the rules and nothing else. This
                   says what the user GETS. */}
               <ThemedText type="small" themeColor="mutedForeground">
-                Build a real portfolio. Risk nothing.
+                Build a practice portfolio. Risk nothing.
               </ThemedText>
             </View>
             <SpringPressable
