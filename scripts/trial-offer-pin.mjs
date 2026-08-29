@@ -47,5 +47,18 @@ assert.match(src, /const isProNow = tierNow === 'pro';/, 'the pro case is not di
 assert.match(src, /isProNow\s*\n?\s*\?\s*"You're on Euphoria Pro"/,
   'a pro user must not be shown a trial or purchase heading — this is the "I already paid" refund bug');
 
+// 6. Completing the loader stamps profile.completedAt before the paywall. The final routing
+// decision must therefore use a value frozen on entry, not the now-mutated live profile. Otherwise
+// first-time users skip /auth, which makes the App Review credentials impossible to follow.
+assert.match(src, /const \[enteredWithCompletedOnboarding\] = useState\(\(\) => Boolean\(useApp\.getState\(\)\.profile\.completedAt\)\);/,
+  'onboarding must freeze whether completion existed on entry; the loader mutates the live value');
+assert.match(src, /else if \(enteredWithCompletedOnboarding\) router\.back\(\);\s*else router\.replace\('\/auth'\);/,
+  'the final first-run step must route to /auth while returning upsell visitors go back');
+assert.match(src, /const dismissPaywall = \(\) => \{\s*if \(enteredWithCompletedOnboarding\) router\.replace\('\/home'\);\s*else router\.replace\('\/auth'\);\s*\};/,
+  'Maybe later must not let a first-time user bypass the reviewer sign-in screen');
+assert.match(src, /accessibilityLabel="Maybe later">/,
+  'the dismiss control must remain reachable to App Review and assistive technology');
+
 console.log('PASS — a free trial is offered only to a non-pro user whose trial clock has not '
-  + 'started; mid-trial, expired and pro users each get their own copy and CTA.');
+  + 'started; mid-trial, expired and pro users each get their own copy and CTA; first-run dismissal '
+  + 'still reaches account setup.');

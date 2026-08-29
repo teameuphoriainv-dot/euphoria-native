@@ -456,6 +456,12 @@ export default function Onboarding() {
   };
   const [nodKey, setNodKey] = useState(0);
   const [plan, setPlan] = useState<'annual' | 'monthly'>('annual');
+  /**
+   * Freeze how this visit began. `completeOnboarding()` stamps `profile.completedAt` in the loader,
+   * before the reveal and paywall. Reading the live value at the final step therefore made every
+   * brand-new learner look like a returning upsell visitor and skipped `/auth` entirely.
+   */
+  const [enteredWithCompletedOnboarding] = useState(() => Boolean(useApp.getState().profile.completedAt));
 
   const profile = useApp((s) => s.profile);
   const setProfile = useApp((s) => s.setProfile);
@@ -514,7 +520,14 @@ export default function Onboarding() {
     // A first-time user finishes onboarding by creating an account. Someone who arrived here from
     // the You page upsell already HAS one, so sending them to /auth would be nonsense - return
     // them where they came from instead.
-    else if (profile.completedAt) router.back();
+    else if (enteredWithCompletedOnboarding) router.back();
+    else router.replace('/auth');
+  };
+
+  /** Dismissing the first-run offer still has to finish account setup. A returning user who opened
+   * the paywall from inside the app goes back to Home instead. */
+  const dismissPaywall = () => {
+    if (enteredWithCompletedOnboarding) router.replace('/home');
     else router.replace('/auth');
   };
   /**
@@ -953,7 +966,7 @@ export default function Onboarding() {
           </ThemedText>
           <SpringPressable
             haptic={false}
-            onPress={() => router.replace('/home')}
+            onPress={dismissPaywall}
             style={styles.maybeLater}
             accessibilityRole="button"
             accessibilityLabel="Maybe later">
