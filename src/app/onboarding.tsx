@@ -875,14 +875,16 @@ export default function Onboarding() {
                 price={PRICING.annual}
                 unit="per year"
               />
-              <PlanCard
-                selected={plan === 'monthly'}
-                onPress={() => setPlan('monthly')}
-                title="Monthly"
-                sub="Billed every month"
-                price={PRICING.monthly}
-                unit="per month"
-              />
+              <View style={styles.monthlyPlan}>
+                <PlanCard
+                  selected={plan === 'monthly'}
+                  onPress={() => setPlan('monthly')}
+                  title="Monthly"
+                  sub="Billed every month"
+                  price={PRICING.monthly}
+                  unit="per month"
+                />
+              </View>
             </RiseIn>
           </View>
         );
@@ -1053,7 +1055,8 @@ const styles = StyleSheet.create({
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Content-sized so no flexible spacer can separate Monthly from the purchase action. */
-  paywallBody: { gap: Spacing.one, paddingBottom: Spacing.two },
+  paywallBody: { gap: Spacing.one, paddingBottom: Spacing.two + Spacing.one },
+  monthlyPlan: { marginTop: Spacing.one },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.one, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.three, paddingTop: Spacing.one },

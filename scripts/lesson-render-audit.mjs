@@ -2,8 +2,8 @@
 // ============================================================================
 // LESSON RENDER AUDIT — every step of every lesson, through the REAL normaliser.
 //
-//   node scripts/lesson-render-audit.mjs          # summary
-//   node scripts/lesson-render-audit.mjs --thin   # also list every thin step
+//   node --import ./scripts/ts-resolve-hooks.mjs scripts/lesson-render-audit.mjs
+//   node --import ./scripts/ts-resolve-hooks.mjs scripts/lesson-render-audit.mjs --thin
 //
 // WHY THIS EXISTS. The corpus is byte-identical to the web repo — that was
 // proven by diff. What that does NOT prove is that the app can RENDER it. A
@@ -27,7 +27,7 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const COURSES = join(ROOT, 'src/lib/curriculum/courses');
-const { normalizeStep, gates, expandSteps, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { normalizeStep, expandSteps, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
 

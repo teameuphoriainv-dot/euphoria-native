@@ -13,8 +13,10 @@
 #   (src/features/pathway/**), then re-run this script here to pull it over.
 #
 #   Usage:
-#     ./scripts/sync-curriculum.sh                 # defaults to ~/euphoriaweb-current
-#     ./scripts/sync-curriculum.sh /path/to/web    # explicit web repo root
+#     ./scripts/sync-curriculum.sh                  # sync from ~/euphoriaweb-current
+#     ./scripts/sync-curriculum.sh /path/to/web     # sync from an explicit web repo
+#     ./scripts/sync-curriculum.sh --check          # verify parity without writing
+#     ./scripts/sync-curriculum.sh --check /path/to/web
 #
 #   The script is IDEMPOTENT — re-running it always produces the same tree.
 #
@@ -45,12 +47,33 @@
 
 set -eu
 
+CHECK_ONLY=0
+if [ "${1:-}" = "--check" ]; then
+  CHECK_ONLY=1
+  shift
+fi
+
 WEB_ROOT="${1:-$HOME/euphoriaweb-current}"
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 NATIVE_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 
 SRC="$WEB_ROOT/src/features/pathway"
-DEST="$NATIVE_ROOT/src/lib/curriculum"
+LIVE_DEST="$NATIVE_ROOT/src/lib/curriculum"
+TEMP_DEST=""
+BUILD_DIR=""
+
+cleanup() {
+  [ -z "$BUILD_DIR" ] || rm -rf "$BUILD_DIR"
+  [ -z "$TEMP_DEST" ] || rm -rf "$TEMP_DEST"
+}
+trap cleanup EXIT INT TERM
+
+if [ "$CHECK_ONLY" -eq 1 ]; then
+  TEMP_DEST=$(mktemp -d)
+  DEST="$TEMP_DEST"
+else
+  DEST="$LIVE_DEST"
+fi
 
 fail() {
   echo ""
@@ -91,7 +114,10 @@ course_count=$(ls -1 "$SRC/courses"/*.ts 2>/dev/null | wc -l | tr -d ' ')
 
 echo "curriculum sync"
 echo "  source of truth : $SRC"
-echo "  destination     : $DEST"
+echo "  destination     : $LIVE_DEST"
+if [ "$CHECK_ONLY" -eq 1 ]; then
+  echo "  mode            : parity check (no writes)"
+fi
 echo ""
 
 # --- 2. wipe generated artifacts, then copy fresh (idempotent) ---------------
@@ -229,7 +255,6 @@ PATCH_EOF
 # --- 5/6. evaluate the real data: generate STEP_TYPES + smoke check ----------
 
 BUILD_DIR=$(mktemp -d)
-trap 'rm -rf "$BUILD_DIR"' EXIT INT TERM
 
 DEST="$DEST" NATIVE_ROOT="$NATIVE_ROOT" BUILD_DIR="$BUILD_DIR" node <<'GEN_EOF'
 const fs = require('fs');
@@ -393,5 +418,23 @@ TOTAL=$(cat "$DEST/explorableTypes.ts" "$DEST/types.ts" "$DEST/helpers.ts" \
             "$DEST"/courses/*.ts | wc -l | tr -d ' ')
 echo ""
 echo "  TOTAL LINES SYNCED: $TOTAL"
-echo "  done. entry point: src/lib/curriculum/index.ts"
+
+if [ "$CHECK_ONLY" -eq 1 ]; then
+  changed=0
+  for f in explorableTypes.ts types.ts helpers.ts courseIndex.ts stepTypes.generated.ts; do
+    if ! diff -u "$LIVE_DEST/$f" "$DEST/$f"; then
+      changed=1
+    fi
+  done
+  if ! diff -ru "$LIVE_DEST/courses" "$DEST/courses"; then
+    changed=1
+  fi
+  if [ "$changed" -ne 0 ]; then
+    fail "Native curriculum is out of sync with $SRC.
+  Run: ./scripts/sync-curriculum.sh '$WEB_ROOT'"
+  fi
+  echo "  parity check   : PASS (native generated files match web source exactly)"
+else
+  echo "  done. entry point: src/lib/curriculum/index.ts"
+fi
 echo ""
