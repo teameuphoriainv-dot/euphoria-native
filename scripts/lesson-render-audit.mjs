@@ -13,7 +13,8 @@
 // screen — in a paid app, mid-lesson.
 //
 // Sampling a few lessons cannot find that. This runs the ACTUAL normaliseStep()
-// over all 5,341 steps, so the answer is exhaustive rather than indicative.
+// over every lesson returned by the same canonical course loaders the app uses, so the answer is
+// exhaustive rather than indicative.
 //
 // It imports the TypeScript directly: every import in lesson-steps.ts is
 // `import type`, so Node 24's type stripping erases the lot and the module is
@@ -21,13 +22,12 @@
 // reimplementation would drift from the thing it is checking, which is the
 // failure mode this whole audit keeps running into.
 // ============================================================================
-import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const COURSES = join(ROOT, 'src/lib/curriculum/courses');
 const { normalizeStep, expandSteps, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { COURSES, loadCourseLessons } = await import(pathToFileURL(join(ROOT, 'src/lib/curriculum/courseIndex.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
 
@@ -112,7 +112,7 @@ function isThin(n) {
     // 3 calculator steps read as thin -- a `calc` has no `blocks`, so it fell to the branch
     // below and `[].every()` is vacuously true. Sixth time this checker has under-read a shape
     // it checks; the shape list is the thing to keep in step with lesson-steps.ts's Normalized.
-    case 'reveal': case 'match': case 'order': case 'line': case 'multi': case 'build': case 'calc': {
+    case 'reveal': case 'match': case 'order': case 'line': case 'multi': case 'build': case 'calc': case 'tree': {
       const spec = n.spec ?? {};
       const arrays = Object.values(spec).filter(Array.isArray);
       // a spec-driven interactive is thin only if it has nothing to interact with
@@ -126,7 +126,6 @@ function isThin(n) {
   }
 }
 
-const files = readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort();
 let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0, rawDecisions = 0;
 const unrenderable = [], unlabelled = [];
 const visualKinds = new Map();
@@ -134,9 +133,10 @@ const byType = new Map();
 const thinByType = new Map();
 const thinExamples = [];
 
-for (const f of files) {
-  const mod = await import(pathToFileURL(join(COURSES, f)).href);
-  const list = mod.default ?? [];
+for (const course of COURSES) {
+  // Audit the same resolved and filtered lesson list the app receives. Importing course modules
+  // directly audits retired steps and unresolved reading-level maps that never reach the UI.
+  const list = await loadCourseLessons(course.id);
   for (const lesson of list) {
     lessons += 1;
     // audit what the app ACTUALLY renders, which is the expanded list
@@ -153,7 +153,7 @@ for (const f of files) {
       } catch (err) {
         thin += 1;
         thinByType.set(step.type, (thinByType.get(step.type) ?? 0) + 1);
-        thinExamples.push(`THREW  ${f} L${lesson.num} ${step.type}: ${err.message}`);
+        thinExamples.push(`THREW  ${course.id} L${lesson.num} ${step.type}: ${err.message}`);
         continue;
       }
       if (n.kind === 'todo') todo += 1;
@@ -163,12 +163,12 @@ for (const f of files) {
         if (v?.type) {
           visualsInData += 1;
           if (!visualIsRenderable(v)) {
-            unrenderable.push(`${f.replace('.ts', '')} L${lesson.num} ${step.type}.${k} type=${v.type}`);
+            unrenderable.push(`${course.id} L${lesson.num} ${step.type}.${k} type=${v.type}`);
           } else if (chartLabel(v).length < 4) {
             // A chart carries its meaning in length, width, wedges and colour. If it cannot produce
             // a sentence, a VoiceOver user gets a silent card -- the same silence this whole unit
             // was built to remove, just moved to a different audience.
-            unlabelled.push(`${f.replace('.ts', '')} L${lesson.num} ${step.type}.${k} type=${v.type}`);
+            unlabelled.push(`${course.id} L${lesson.num} ${step.type}.${k} type=${v.type}`);
           }
         }
       }
@@ -182,14 +182,14 @@ for (const f of files) {
         thin += 1;
         thinByType.set(step.type, (thinByType.get(step.type) ?? 0) + 1);
         if (thinExamples.length < 4000) {
-          thinExamples.push(`${f.replace('.ts', '')} L${lesson.num} step "${(step.title ?? '').slice(0, 46)}" (${step.type})`);
+          thinExamples.push(`${course.id} L${lesson.num} step "${(step.title ?? '').slice(0, 46)}" (${step.type})`);
         }
       }
     }
   }
 }
 
-console.log(`\ncourses ${files.length}   lessons ${lessons}   steps ${steps}   distinct types ${byType.size}`);
+console.log(`\ncourses ${COURSES.length}   lessons ${lessons}   steps ${steps}   distinct types ${byType.size}`);
 console.log(`fell through to the 'todo' default: ${todo} step(s)`);
 console.log(`THIN (reach the screen with no readable body and no interaction): ${thin}`);
 console.log(`AnimatedVisuals in the data: ${visualsInData}   reaching the screen: ${visualBlocks}   all labelled for VoiceOver: ${unlabelled.length === 0 ? 'yes' : 'NO'}`);

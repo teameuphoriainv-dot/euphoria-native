@@ -17,12 +17,13 @@
 #     ./scripts/sync-curriculum.sh /path/to/web     # sync from an explicit web repo
 #     ./scripts/sync-curriculum.sh --check          # verify parity without writing
 #     ./scripts/sync-curriculum.sh --check /path/to/web
+#     ./scripts/sync-curriculum.sh --ref origin/master [--check] [/path/to/web]
 #
 #   The script is IDEMPOTENT — re-running it always produces the same tree.
 #
 #   What it does:
 #     1. Validates the web repo exists and has every file we need.
-#     2. Copies types.ts, helpers.ts, courseIndex.ts, courses/*.ts and the
+#     2. Copies types.ts, helpers.ts, readingLevel.ts, courseIndex.ts, courses/*.ts and the
 #        explorables types module that types.ts depends on.
 #     3. Rewrites import paths for native's flatter layout.
 #     4. Strips the React dependency out of the explorables types so the
@@ -35,6 +36,7 @@
 #   Files this script OWNS (deleted + rewritten every run):
 #     src/lib/curriculum/types.ts
 #     src/lib/curriculum/helpers.ts
+#     src/lib/curriculum/readingLevel.ts
 #     src/lib/curriculum/courseIndex.ts
 #     src/lib/curriculum/explorableTypes.ts
 #     src/lib/curriculum/stepTypes.generated.ts
@@ -48,25 +50,64 @@
 set -eu
 
 CHECK_ONLY=0
-if [ "${1:-}" = "--check" ]; then
-  CHECK_ONLY=1
-  shift
-fi
+WEB_REF=""
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --check)
+      CHECK_ONLY=1
+      shift
+      ;;
+    --ref)
+      [ "$#" -ge 2 ] || {
+        echo "ERROR: --ref requires a git ref" >&2
+        exit 1
+      }
+      WEB_REF="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "ERROR: unknown option: $1" >&2
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 WEB_ROOT="${1:-$HOME/euphoriaweb-current}"
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 NATIVE_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 
-SRC="$WEB_ROOT/src/features/pathway"
 LIVE_DEST="$NATIVE_ROOT/src/lib/curriculum"
 TEMP_DEST=""
 BUILD_DIR=""
+SOURCE_SNAPSHOT=""
 
 cleanup() {
   [ -z "$BUILD_DIR" ] || rm -rf "$BUILD_DIR"
   [ -z "$TEMP_DEST" ] || rm -rf "$TEMP_DEST"
+  [ -z "$SOURCE_SNAPSHOT" ] || rm -rf "$SOURCE_SNAPSHOT"
 }
 trap cleanup EXIT INT TERM
+
+if [ -n "$WEB_REF" ]; then
+  git -C "$WEB_ROOT" rev-parse --verify "$WEB_REF^{commit}" >/dev/null 2>&1 || {
+    echo "ERROR: website git ref does not exist: $WEB_REF" >&2
+    exit 1
+  }
+  SOURCE_SNAPSHOT=$(mktemp -d)
+  git -C "$WEB_ROOT" archive "$WEB_REF" src/features/pathway | tar -x -C "$SOURCE_SNAPSHOT"
+  SRC="$SOURCE_SNAPSHOT/src/features/pathway"
+  SOURCE_LABEL="$WEB_ROOT@$WEB_REF"
+else
+  SRC="$WEB_ROOT/src/features/pathway"
+  SOURCE_LABEL="$SRC"
+fi
 
 if [ "$CHECK_ONLY" -eq 1 ]; then
   TEMP_DEST=$(mktemp -d)
@@ -101,6 +142,7 @@ fi
 for required in \
   "$SRC/types.ts" \
   "$SRC/helpers.ts" \
+  "$SRC/readingLevel.ts" \
   "$SRC/courseIndex.ts" \
   "$SRC/components/explorables/types.ts"
 do
@@ -113,7 +155,7 @@ course_count=$(ls -1 "$SRC/courses"/*.ts 2>/dev/null | wc -l | tr -d ' ')
 [ "$course_count" -gt 0 ] || fail "No .ts course files found in $SRC/courses"
 
 echo "curriculum sync"
-echo "  source of truth : $SRC"
+echo "  source of truth : $SOURCE_LABEL"
 echo "  destination     : $LIVE_DEST"
 if [ "$CHECK_ONLY" -eq 1 ]; then
   echo "  mode            : parity check (no writes)"
@@ -123,12 +165,13 @@ echo ""
 # --- 2. wipe generated artifacts, then copy fresh (idempotent) ---------------
 
 rm -rf "$DEST/courses"
-rm -f "$DEST/types.ts" "$DEST/helpers.ts" "$DEST/courseIndex.ts" \
+rm -f "$DEST/types.ts" "$DEST/helpers.ts" "$DEST/readingLevel.ts" "$DEST/courseIndex.ts" \
       "$DEST/explorableTypes.ts" "$DEST/stepTypes.generated.ts"
 mkdir -p "$DEST/courses"
 
 cp "$SRC/types.ts"                          "$DEST/types.ts"
 cp "$SRC/helpers.ts"                        "$DEST/helpers.ts"
+cp "$SRC/readingLevel.ts"                   "$DEST/readingLevel.ts"
 cp "$SRC/courseIndex.ts"                    "$DEST/courseIndex.ts"
 cp "$SRC/components/explorables/types.ts"   "$DEST/explorableTypes.ts"
 cp "$SRC"/courses/*.ts                      "$DEST/courses/"
@@ -219,7 +262,17 @@ patch('types.ts', (s) => {
   return s.replace(re, '$1value?: string;');
 });
 
-patch('helpers.ts', (s) => s);
+patch('helpers.ts', (s) => {
+  const readingImport = "import type { Leveled } from './readingLevel';\n";
+  const marker = '\n// Re-export so course files can import the visual type from a single module.';
+  if (!s.includes(readingImport) || !s.includes(marker)) {
+    throw new Error('helpers.ts: reading-level import shape changed — update sync-curriculum.sh.');
+  }
+  // Type-only import order has no runtime effect, but keeping imports together avoids adding a
+  // generated lint warning every time the canonical website curriculum is synced.
+  return s.replace(readingImport, '').replace(marker, `\n${readingImport}${marker}`);
+});
+patch('readingLevel.ts', (s) => s);
 patch('courseIndex.ts', (s) => s);
 
 // PATCH: annotate each course's `lessons` array as PathwayLesson[].
@@ -236,7 +289,20 @@ for (const f of fs.readdirSync(path.join(DEST, 'courses'))) {
   if (!f.endsWith('.ts')) continue;
   patch(path.join('courses', f), (s, rel) => {
     const importRe = /^import type \{ AnimatedVisual \} from '\.\.\/helpers';$/m;
+    const pathwayImportRe = /^import type \{ PathwayLesson \} from '\.\.\/types';$/m;
     const declRe = /^const lessons = \[$/m;
+    const typedDeclRe = /^const lessons: PathwayLesson\[\] = \[$/m;
+
+    // Some website refs have already adopted this safety annotation. Preserve
+    // it rather than adding a duplicate import or treating the ref as invalid.
+    if (typedDeclRe.test(s)) {
+      if (!pathwayImportRe.test(s)) {
+        throw new Error(`${rel}: PathwayLesson[] annotation has no PathwayLesson import.`);
+      }
+      annotated++;
+      return s;
+    }
+
     if (!importRe.test(s) || !declRe.test(s)) {
       throw new Error(
         `${rel}: expected \`import type { AnimatedVisual } from '../helpers';\` and ` +
@@ -245,7 +311,7 @@ for (const f of fs.readdirSync(path.join(DEST, 'courses'))) {
     }
     annotated++;
     return s
-      .replace(importRe, "$&\nimport type { PathwayLesson } from '../types';")
+      .replace(importRe, pathwayImportRe.test(s) ? '$&' : "$&\nimport type { PathwayLesson } from '../types';")
       .replace(declRe, 'const lessons: PathwayLesson[] = [');
   });
 }
@@ -405,7 +471,7 @@ GEN_EOF
 
 echo ""
 echo "  copied:"
-for f in explorableTypes.ts types.ts helpers.ts courseIndex.ts; do
+for f in explorableTypes.ts types.ts helpers.ts readingLevel.ts courseIndex.ts; do
   printf '    %8s  %s\n' "$(wc -l < "$DEST/$f" | tr -d ' ')" "src/lib/curriculum/$f"
 done
 for f in "$DEST"/courses/*.ts; do
@@ -413,7 +479,7 @@ for f in "$DEST"/courses/*.ts; do
 done
 printf '    %8s  %s\n' "$(wc -l < "$DEST/stepTypes.generated.ts" | tr -d ' ')" "src/lib/curriculum/stepTypes.generated.ts  (generated)"
 
-TOTAL=$(cat "$DEST/explorableTypes.ts" "$DEST/types.ts" "$DEST/helpers.ts" \
+TOTAL=$(cat "$DEST/explorableTypes.ts" "$DEST/types.ts" "$DEST/helpers.ts" "$DEST/readingLevel.ts" \
             "$DEST/courseIndex.ts" "$DEST/stepTypes.generated.ts" \
             "$DEST"/courses/*.ts | wc -l | tr -d ' ')
 echo ""
@@ -421,7 +487,7 @@ echo "  TOTAL LINES SYNCED: $TOTAL"
 
 if [ "$CHECK_ONLY" -eq 1 ]; then
   changed=0
-  for f in explorableTypes.ts types.ts helpers.ts courseIndex.ts stepTypes.generated.ts; do
+  for f in explorableTypes.ts types.ts helpers.ts readingLevel.ts courseIndex.ts stepTypes.generated.ts; do
     if ! diff -u "$LIVE_DEST/$f" "$DEST/$f"; then
       changed=1
     fi
@@ -430,8 +496,13 @@ if [ "$CHECK_ONLY" -eq 1 ]; then
     changed=1
   fi
   if [ "$changed" -ne 0 ]; then
-    fail "Native curriculum is out of sync with $SRC.
-  Run: ./scripts/sync-curriculum.sh '$WEB_ROOT'"
+    if [ -n "$WEB_REF" ]; then
+      fix_command="./scripts/sync-curriculum.sh --ref '$WEB_REF' '$WEB_ROOT'"
+    else
+      fix_command="./scripts/sync-curriculum.sh '$WEB_ROOT'"
+    fi
+    fail "Native curriculum is out of sync with $SOURCE_LABEL.
+  Run: $fix_command"
   fi
   echo "  parity check   : PASS (native generated files match web source exactly)"
 else

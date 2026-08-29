@@ -7,7 +7,7 @@
 import { L, c, tr, fb, ds, q, tf, m, sl, sc, bi, pc, vi, cq,
   hookOpener, stakesCard, teachingSlide, microCheck, interactiveGraph,
   caseStudy, misconceptions, keyTermsCards, simulationFinale, summaryCards, whatsNext,
-  explorable
+  explorable, calculator, decisionTree
 } from '../helpers';
 import type { AnimatedVisual } from '../helpers';
 import type { PathwayLesson } from '../types';
@@ -18,33 +18,70 @@ import type { PathwayLesson } from '../types';
 
 // ─── LESSON 1 (Introduction to Investing) ───
 const IF1_HOOK: AnimatedVisual = { type: 'line', title: 'S&P 500: $1,000 Invested in 1990', points: [{ label: '1990', value: '$1,000' }, { label: '2000', value: '$5,300' }, { label: '2010', value: '$9,200' }, { label: '2024', value: '$23,000' }], trend: 'up', footer: '23x growth with zero stock-picking', sentiment: 'positive' };
-const IF1_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Savings Account at 1%', items: [{ label: 'Start', value: 100, displayValue: '$10,000' }, { label: 'Year 5', value: 105, displayValue: '$10,510' }, { label: 'Year 10', value: 110, displayValue: '$11,050' }], footer: 'Inflation erodes real purchasing power', sentiment: 'negative' };
-const IF1_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Index Fund at 10%', items: [{ label: 'Start', value: 100, displayValue: '$10,000' }, { label: 'Year 5', value: 161, displayValue: '$16,105' }, { label: 'Year 10', value: 259, displayValue: '$25,937' }], footer: 'Money compounds, outpacing inflation', sentiment: 'positive' };
+const IF1_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Savings Account at 1%', value: '$11,050', detail: '$10,000 after ten years, while $13,000 is needed to break even on inflation', footer: 'About $2,000 of buying power quietly lost', sentiment: 'negative', sprite: 'inflation' };
+const IF1_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Index Fund at 10%', value: '$25,937', detail: 'Same $10,000, same ten years, no stock picked and nothing timed', footer: 'The only decision was to stop holding cash', sentiment: 'positive', sprite: 'chart-up' };
 const IF1_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Four Asset Classes', items: [{ label: 'Stocks', value: 'Ownership, high growth', color: '#A451E6' }, { label: 'Bonds', value: 'Loans, steady income', color: '#3B82F6' }, { label: 'Real Estate', value: 'Property, income + growth', color: '#F59E0B' }, { label: 'Cash', value: 'Low risk, low return', color: '#10B981' }], footer: 'Every investment fits one of these categories', sentiment: 'positive' };
 
 // ─── LESSON 2 (Risk vs. Reward) ───
-const IF2_HOOK: AnimatedVisual = { type: 'metric', title: 'S&P 500 Resilience', value: '27 / 27', detail: 'Bear markets survived and recovered since 1928', footer: 'Higher risk has meant higher long-term reward', sentiment: 'positive' };
-const IF2_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Single Stock in a Crash', items: [{ label: 'Before', value: 100, displayValue: '$50,000' }, { label: 'Crash', value: 20, displayValue: '−80%' }, { label: 'After', value: 20, displayValue: '$10,000' }], footer: 'Concentration risk destroys wealth fast', sentiment: 'negative' };
-const IF2_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Diversified 60/40 in 2008', items: [{ label: 'Before', value: 100, displayValue: '$100,000' }, { label: 'Crash', value: 80, displayValue: '−20%' }, { label: '2 yrs later', value: 100, displayValue: 'Recovered' }], footer: 'Diversification turns disaster into a setback', sentiment: 'positive' };
-const IF2_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Time Horizon Crushes Risk', rows: [{ label: 'Odds stocks lose money over 1 year', value: '~26%', percent: 26 }, { label: 'Odds stocks lose money over 10 years', value: '~6%', percent: 6 }, { label: 'Odds stocks lose money over 20 years', value: '0%', percent: 0 }], footer: 'Time transforms volatility into reward', sentiment: 'positive' };
+const IF2_HOOK: AnimatedVisual = { type: 'metric', title: 'S&P 500 Resilience', value: '27 / 27', detail: 'Bear markets survived and recovered since 1928', footer: 'Higher risk has meant higher long-term reward', sentiment: 'positive', sprite: 'bull' };
+const IF2_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Single Stock in a Crash', items: [
+  { label: 'Before', value: 100, displayValue: '$50,000', sprite: 'stock-ticker', explain: 'One company, one bet. On the way up this feels like conviction rather than risk.' },
+  { label: 'Crash', value: 20, displayValue: '−80%', sprite: 'chart-down', explain: 'A single company can fall this far on its own news. The wider market almost never does.' },
+  { label: 'After', value: 20, displayValue: '$10,000', sprite: 'piggy-crack', explain: 'To get back to $50,000 from here the stock must rise 400%, not 80%. That asymmetry is why big losses matter more than big gains.' },
+], footer: 'Concentration risk destroys wealth fast', sentiment: 'negative' };
+const IF2_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Diversified 60/40 in 2008', items: [
+  { label: 'Before', value: 100, displayValue: '$100,000', sprite: 'pie-slice', explain: 'Hundreds of companies plus bonds. No single name can decide your outcome.' },
+  { label: 'Crash', value: 80, displayValue: '−20%', sprite: 'chart-down', explain: 'The worst crash since the Depression, and this portfolio lost a fifth. The single stock lost four fifths in an ordinary bad year.' },
+  { label: '2 yrs later', value: 100, displayValue: 'Recovered', sprite: 'chart-up', explain: 'A 20% fall only needs a 25% rise to undo. That is why staying diversified is what makes staying invested survivable.' },
+], footer: 'Diversification turns disaster into a setback', sentiment: 'positive' };
+const IF2_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Time Horizon Crushes Risk', rows: [
+  { label: 'Odds stocks lose money over 1 year', value: '~26%', percent: 26, explain: 'Roughly one year in four ends lower than it started. Over a single year, stocks genuinely are a gamble.' },
+  { label: 'Odds stocks lose money over 10 years', value: '~6%', percent: 6, explain: 'Same asset, same volatility, one quarter of the risk. Nothing changed except how long you were willing to wait.' },
+  { label: 'Odds stocks lose money over 20 years', value: '0%', percent: 0, explain: 'Not one 20-year stretch in the historical record has lost money. The bar is empty, and that is the actual reading.' },
+], footer: 'Time transforms volatility into reward', sentiment: 'positive' };
 
 // ─── LESSON 3 (The Magic of Compound Interest) ───
-const IF3_HOOK: AnimatedVisual = { type: 'line', title: '$10,000 at 10% Over 40 Years', points: [{ label: 'Year 0', value: '$10K' }, { label: 'Year 10', value: '$26K' }, { label: 'Year 20', value: '$67K' }, { label: 'Year 30', value: '$174K' }, { label: 'Year 40', value: '$452K' }], trend: 'up', footer: 'Most growth happens in the final decades', sentiment: 'positive' };
-const IF3_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Starting at Age 32', value: '~$850,000', detail: '$400/mo, $158,400 contributed by age 65', footer: 'Missed 10 crucial years of compounding', sentiment: 'negative' };
-const IF3_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Starting at Age 22', value: '~$2,500,000', detail: '$400/mo, $206,400 contributed by age 65', footer: 'One extra decade adds $1.65M', sentiment: 'positive' };
-const IF3_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'Compounding $10,000 at 10%', items: [{ label: 'Yr 0', value: 6, displayValue: '$10K' }, { label: 'Yr 10', value: 15, displayValue: '$26K' }, { label: 'Yr 20', value: 39, displayValue: '$67K' }, { label: 'Yr 30', value: 100, displayValue: '$174K' }], footer: 'Rule of 72: at 10%, money doubles every ~7.2 years', sentiment: 'positive' };
+const IF3_HOOK: AnimatedVisual = { type: 'line', title: '$10,000 at 10% Over 40 Years', points: [
+  { label: 'Year 0', value: '$10K', explain: 'One deposit, then nothing else is ever added. Every number after this is the same $10,000 working.' },
+  { label: 'Year 10', value: '$26K', explain: 'It has more than doubled and the line still looks almost flat. This is the stretch that convinces people compounding is overrated.' },
+  { label: 'Year 20', value: '$67K', explain: 'The second decade added $41K where the first added $16K. Same rate, bigger base.' },
+  { label: 'Year 30', value: '$174K', explain: 'This decade alone added more than the first two combined. The curve is now visibly bending upward.' },
+  { label: 'Year 40', value: '$452K', explain: 'The final decade added $278K, more than the previous thirty years put together. That is why leaving it alone is the whole strategy.' },
+], trend: 'up', footer: 'Most growth happens in the final decades', sentiment: 'positive' };
+const IF3_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Starting at Age 32', value: '~$850,000', detail: '$400/mo, $158,400 contributed by age 65', footer: 'Missed 10 crucial years of compounding', sentiment: 'negative', sprite: 'hourglass' };
+const IF3_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Starting at Age 22', value: '~$2,500,000', detail: '$400/mo, $206,400 contributed by age 65', footer: 'One extra decade adds $1.65M', sentiment: 'positive', sprite: 'seedling' };
+const IF3_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'Compounding $10,000 at 10%', items: [
+  { label: 'Yr 0', value: 6, displayValue: '$10K', sprite: 'coin', explain: 'The starting bar is almost invisible next to the last one. Same money, just earlier in its life.' },
+  { label: 'Yr 10', value: 15, displayValue: '$26K', sprite: 'seedling', explain: 'One doubling and a bit. At 10% the rule of 72 says every 7.2 years the balance doubles.' },
+  { label: 'Yr 20', value: 39, displayValue: '$67K', sprite: 'tree', explain: 'Two and a half doublings in. Notice the gap to the next bar is bigger than this whole bar was at year 10.' },
+  { label: 'Yr 30', value: 100, displayValue: '$174K', sprite: 'chart-up', explain: 'Seventeen times the original deposit, with nothing added. Every dollar of it came from leaving the previous dollars alone.' },
+], footer: 'Rule of 72: at 10%, money doubles every ~7.2 years', sentiment: 'positive' };
 
 // ─── LESSON 4 (Stocks vs. Bonds) ───
-const IF4_HOOK: AnimatedVisual = { type: 'bars', title: '2008: Stocks vs. Bonds', items: [{ label: 'S&P 500', value: 100, displayValue: '−38.5%' }, { label: 'Treasury Bonds', value: 67, displayValue: '+25.9%' }], footer: 'The two asset classes can move in opposite directions', sentiment: 'negative' };
-const IF4_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: '100% Stocks in 2008', value: '$61,500', detail: 'A $100,000 portfolio fell to $61,500 by March 2009', footer: 'Many investors panic-sold at the bottom', sentiment: 'negative' };
-const IF4_STAKES_WITH: AnimatedVisual = { type: 'metric', title: '60/40 Portfolio in 2008', value: '$76,000', detail: 'A $100,000 portfolio fell only to $76,000', footer: 'Bonds cushioned the blow, recovered a year earlier', sentiment: 'positive' };
-const IF4_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Stocks vs. Bonds (1926-2023)', rows: [{ label: 'Stocks, ownership, equity', value: '10.3%/yr' }, { label: 'Bonds, loans, fixed income', value: '5.1%/yr' }], footer: 'Higher stock return is compensation for higher risk', sentiment: 'positive' };
+const IF4_HOOK: AnimatedVisual = { type: 'comparison', title: '2008: Stocks vs. Bonds', rows: [
+  { label: 'S&P 500', value: '−38.5%', percent: 38.5, explain: 'The worst year for stocks since 1931. Owners are paid last, and in 2008 there was very little left over.' },
+  { label: 'Treasury Bonds', value: '+25.9%', percent: 25.9, explain: 'The same twelve months, up 26%. Frightened money ran toward the thing that pays first, which pushed bond prices up.' },
+], footer: 'The two asset classes can move in opposite directions', sentiment: 'negative' };
+const IF4_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: '100% Stocks in 2008', value: '$61,500', detail: 'A $100,000 portfolio fell to $61,500 by March 2009', footer: 'Many investors panic-sold at the bottom', sentiment: 'negative', sprite: 'chart-down' };
+const IF4_STAKES_WITH: AnimatedVisual = { type: 'metric', title: '60/40 Portfolio in 2008', value: '$76,000', detail: 'A $100,000 portfolio fell only to $76,000', footer: 'Bonds cushioned the blow, recovered a year earlier', sentiment: 'positive', sprite: 'scales' };
+const IF4_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'Stocks vs. Bonds (1926-2023)', items: [
+  { label: 'Stocks, ownership', value: 103, displayValue: '10.3%/yr', sprite: 'bull', explain: 'Twice the return of bonds, and the bar is twice as long because that is honestly the ratio. You are paid this for sitting through the drops.' },
+  { label: 'Bonds, lending', value: 51, displayValue: '5.1%/yr', sprite: 'shield', explain: 'Half the return, and roughly a third of the swing. Lenders get paid first, so they are paid less for it.' },
+], footer: 'Higher stock return is compensation for higher risk', sentiment: 'positive' };
 
 // ─── LESSON 5 (Diversification) ───
-const IF5_HOOK: AnimatedVisual = { type: 'bars', title: '2022: Meta vs. S&P 500', items: [{ label: 'Meta', value: 100, displayValue: '−64%' }, { label: 'S&P 500', value: 28, displayValue: '−18%' }], footer: 'Diversification separates setback from catastrophe', sentiment: 'negative' };
-const IF5_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: '100% in Meta (2022)', items: [{ label: 'Start', value: 100, displayValue: '$100,000' }, { label: 'Nov 2022', value: 36, displayValue: '$36,000' }], footer: 'A $64,000 loss from a single stock', sentiment: 'negative' };
-const IF5_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Diversified S&P 500 (2022)', items: [{ label: 'Start', value: 100, displayValue: '$100,000' }, { label: 'Low', value: 82, displayValue: '$82,000' }], footer: 'Only an $18,000 dip, recovered within months', sentiment: 'positive' };
-const IF5_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Four Dimensions of Diversification', items: [{ label: 'Asset Class', value: 'Stocks, bonds, real estate, cash', color: '#A451E6' }, { label: 'Sector', value: 'Tech, healthcare, energy, finance', color: '#3B82F6' }, { label: 'Geography', value: 'US, international, emerging', color: '#F59E0B' }, { label: 'Time', value: 'Invest regularly via DCA', color: '#10B981' }], footer: 'Low correlation smooths total returns', sentiment: 'positive' };
+const IF5_HOOK: AnimatedVisual = { type: 'bars', title: '2022: Meta vs. S&P 500', items: [
+  { label: 'Meta', value: 100, displayValue: '−64%', sprite: 'stock-ticker', explain: 'One company, one bad year. Nothing was fraudulent and nothing collapsed. It simply had a rough twelve months.' },
+  { label: 'S&P 500', value: 28, displayValue: '−18%', sprite: 'pie-slice', explain: 'Meta is inside this index. Owning all 500 turned a 64% hit into an 18% one, because the other 499 were having different years.' },
+], footer: 'Diversification separates setback from catastrophe', sentiment: 'negative' };
+const IF5_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: '100% in Meta (2022)', value: '$36,000', detail: '$100,000 at the start of the year, from one company having one bad year', footer: 'A $64,000 loss from a single stock', sentiment: 'negative', sprite: 'piggy-crack' };
+const IF5_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Diversified S&P 500 (2022)', value: '$82,000', detail: 'The same $100,000, spread across 500 companies including Meta', footer: 'Only an $18,000 dip, recovered within months', sentiment: 'positive', sprite: 'shield' };
+const IF5_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Four Dimensions of Diversification', items: [
+  { label: 'Asset Class', value: 'Stocks, bonds, real estate, cash', sprite: 'scales', explain: 'The own-or-lend split from lesson 1, plus property and cash. This is the dimension that mattered most in 2008.' },
+  { label: 'Sector', value: 'Tech, healthcare, energy, finance', sprite: 'factory', explain: 'In 2022 tech fell 30% while energy rose 55%. Holding only one sector is a concentrated bet wearing a diversified costume.' },
+  { label: 'Geography', value: 'US, international, emerging', sprite: 'network', explain: 'Whole countries have flat decades. Japan\u2019s market took over 30 years to regain its 1989 high.' },
+  { label: 'Time', value: 'Invest regularly via DCA', sprite: 'calendar', explain: 'The dimension people forget. Buying on a schedule spreads you across prices, so you never bet everything on one day being cheap.' },
+], footer: 'Low correlation smooths total returns', sentiment: 'positive' };
 
 // ─── LESSON 6 (ETFs & Index Funds) ───
 const IF6_HOOK: AnimatedVisual = { type: 'metric', title: 'The Index Fund Verdict', value: '92%', detail: 'Of active stock pickers fail to beat the index over 15 years', footer: 'Index funds now hold over $11 trillion', sentiment: 'positive' };
@@ -62,7 +99,28 @@ const IF7_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'How a Mutual Fund Wo
 const IF8_HOOK: AnimatedVisual = { type: 'comparison', title: 'Average Investor vs. The Market', rows: [{ label: 'Average investor (emotional timing)', value: '3.6%/yr' }, { label: 'S&P 500 index', value: '10%/yr' }], footer: 'DCA removes the emotional paralysis that hurts returns', sentiment: 'negative' };
 const IF8_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Trying to Time the Market', value: '3.6%/yr', detail: 'Panic-buy at the top, sell at a loss', footer: 'Emotional timing costs ~6% per year vs. the index', sentiment: 'negative' };
 const IF8_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'DCA $500/Month for 20 Years', value: '~$294,000', detail: '$120,000 contributed, automated regardless of headlines', footer: 'Zero timing decisions required', sentiment: 'positive' };
-const IF8_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'DCA: $200/Month, 4 Months', items: [{ label: '$40 → 5 sh', value: 50, displayValue: '5 shares' }, { label: '$20 → 10 sh', value: 100, displayValue: '10 shares' }, { label: '$25 → 8 sh', value: 80, displayValue: '8 shares' }, { label: '$50 → 4 sh', value: 40, displayValue: '4 shares' }], footer: '$800 invested, 27 shares, avg cost $29.63 vs avg price $33.75', sentiment: 'positive' };
+/**
+ * A pictograph rather than bars, because here the UNIT is the whole lesson: one
+ * mark is one share, so "the cheaper the month, the more marks you collect" is
+ * something the learner counts instead of something the caption asserts. Bars
+ * showed the same numbers as lengths, which is a magnitude the reader has to
+ * translate back into shares.
+ */
+const IF8_DIAGRAM: AnimatedVisual = {
+  type: 'pictograph',
+  title: 'Same $200 a month, four different prices',
+  sprite: 'certificate',
+  unitValue: 1,
+  unitLabel: '1 share',
+  rows: [
+    { label: 'Month 1, $40 a share', value: 5, displayValue: '5 shares' },
+    { label: 'Month 2, $20 a share', value: 10, displayValue: '10 shares' },
+    { label: 'Month 3, $25 a share', value: 8, displayValue: '8 shares' },
+    { label: 'Month 4, $50 a share', value: 4, displayValue: '4 shares' },
+  ],
+  footer: '$800 invested, 27 shares, avg cost $29.63 vs avg price $33.75',
+  sentiment: 'positive',
+};
 
 // ─── LESSON 24 (Paper Trading: Build Your Portfolio) ───
 const IF24_HOOK: AnimatedVisual = { type: 'flow', title: 'Your 30-Day Paper Trading Plan', nodes: [{ label: 'Open a simulator account', value: '$100,000 virtual cash' }, { label: 'Build a diversified portfolio', value: 'Real ticker symbols, 110-minus-age rule' }, { label: 'Track every trade for 30 days', value: 'Document reasoning and emotions' }], footer: 'Apply everything from Lessons 1-23, risk-free', sentiment: 'positive' };
@@ -77,328 +135,357 @@ const IF25_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Reflection + 
 const IF25_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Performance Review Framework', items: [{ label: 'Returns vs. Benchmark', value: 'Compare to SPY, not to grade', color: '#3B82F6' }, { label: 'Process Score', value: 'Did you follow the plan?', color: '#A451E6' }, { label: 'Behavioral Scorecard', value: 'Resisted impulses?', color: '#F59E0B' }, { label: 'Journal Analysis', value: 'Count urges to deviate', color: '#10B981' }], footer: 'A perfect process beats a lucky outcome', sentiment: 'positive' };
 
 const lessons: PathwayLesson[] = [
+  // ═══════════════════════════════════════════════════════════════
+  // LESSON 1, INTRODUCTION TO INVESTING
+  //
+  // Ten steps, nine of which the learner acts on. The arc is one idea
+  // carried the whole way: money left alone shrinks, owning things is how
+  // you outrun that, time does most of the work, and volatility is the
+  // price of admission. Every figure below is a real one.
+  // ═══════════════════════════════════════════════════════════════
   L(1,'Introduction to Investing',30,[
-    // ═══════════════════════════════════════════
-    // PHASE 1, HOOK (Steps 1-3)
-    // ═══════════════════════════════════════════
 
-    // Step 1, Explorable Opener (interact before reading anything)
-    explorable(
-      'inflationEroder',
-      '$100, a drawer, and 30 years',
-      'Grandma\'s $100 birthday bill buys 8 movie tickets today. She says keep it somewhere safe. The drawer feels safe.',
-      'Nobody touched the bill. It still says $100. But 3% inflation for 30 years ate 5 of your 8 tickets. That melt is the entire reason investing exists. Not to get rich. To not get robbed slowly.',
-      {
-        billAmount: 100, inflation: 3, years: 10, itemName: 'movie tickets', itemPrice: 12,
-        predict: {
-          question: 'In 30 years, how many of those 8 tickets can the bill still buy?',
-          options: ['All 8, cash keeps its value sitting still', '7', '5', '3']
-        }
-      },
-      {
-        question: 'The drawer didn\'t lose a dollar. What did it lose?',
-        options: ['Nothing, the $100 is intact', 'Interest it could have earned', 'Over half its buying power', 'FDIC protection'],
-        correct: 2,
-        explanationCorrect: '5 of 8 tickets, gone without the bill moving. Prices climbed about 3% a year and the bill just sat there. Any account that grows slower than prices is the same drawer with paperwork.',
-        explanationWrong: 'The bill is intact. That\'s the trap. Prices climbed 3% a year for 30 years around it, so the same $100 buys 3 tickets instead of 8. Losing buying power while the number holds still is inflation\'s whole move.'
-      }
-    ),
-
-    // Step 2, Real-World Opener
+    // 1. The only step that is purely read. It exists to make the rest matter.
     hookOpener(
-      'Introduction to Investing',
-      '$1,000 invested in the S&P 500 in 1990 would be worth $23,000 today, without ever picking a single stock.',
-      'The 34 years did the work, not the stock picking. That same math is open to anyone with $50 and the patience to leave it alone.',
-      'S&P 500 growth from $1,000 to $23,000 (1990-2024)',
-      IF1_HOOK
+      'The safest place for your money is not safe',
+      'Put $100 in a drawer in 1995 and it is still $100 today. It just buys about 40 dollars worth of what it used to. Nobody stole it. Inflation averaged roughly 2.5% a year and quietly took two thirds of it.',
+      'By the end of this lesson you will know what investing actually is, why time matters more than picking well, and what you are really being paid for when you take risk.',
+      'What one hundred dollars still buys after thirty years in a drawer',
+      { type: 'bars', title: 'What $100 from 1995 buys today', items: [
+        { label: 'Kept as cash', value: 40, displayValue: '$40', sprite: 'inflation',
+          explain: 'The bill still says $100. Nobody took anything. Prices simply went up around it for thirty years, and it lost the race.' },
+        { label: 'Earning 3% a year', value: 97, displayValue: '$97', sprite: 'coin',
+          explain: 'Almost exactly break-even. Three percent roughly matched inflation, so this money survived without ever getting ahead.' },
+        { label: 'Earning 8% a year', value: 414, displayValue: '$414', sprite: 'tree',
+          explain: 'Four times what you started with, in real buying power. Same $100, same thirty years. The only thing that changed is where it sat.' },
+      ], footer: 'Same $100. The only difference is where it sat.', sentiment: 'positive' }
     ),
 
-    // Step 3, Stakes Card
+    // 2. What is actually at stake, before any teaching happens.
+    //    IF1_STAKES_WITHOUT / IF1_STAKES_WITH were written for this lesson and
+    //    then never wired to anything. They are the right two visuals; they were
+    //    just sitting unused at the top of the file.
     stakesCard(
-      { label: 'Savings account at 1% interest', detail: '$10,000 becomes $11,050 in 10 years. Inflation eats most of it. Your money actually loses purchasing power.' },
-      { label: 'Index fund at 10% average return', detail: '$10,000 becomes $25,937 in 10 years. That is $14,887 more than the savings account earns, and none of it came out of your paycheck.' },
+      { label: 'If you leave it in the account', detail: 'A savings account paying 1% turns $10,000 into $11,050 over ten years. Inflation over the same decade needs about $13,000 just to break even, so the safe choice quietly loses about $2,000 of what the money could buy.' },
+      { label: 'If you put it to work', detail: 'The same $10,000 in a broad index fund at roughly 10% a year becomes about $25,937. You did not pick a single stock and you did not time anything. You just stopped holding cash.' },
       { withoutVisual: IF1_STAKES_WITHOUT, withVisual: IF1_STAKES_WITH }
     ),
 
-    // ═══════════════════════════════════════════
-    // PHASE 2, TEACH (Steps 4-10)
-    // ═══════════════════════════════════════════
-
-    // Step 4, First Teaching Slide (Core Concept)
-    teachingSlide(
-      'THE BASICS',
-      'What Is Investing?',
-      [
-        'Investing means buying assets, things that can grow in value or generate income over time. When you invest, you put your money to work instead of letting it sit idle in a bank account.',
-        'Four buckets: stocks, bonds, real estate, cash. Everything you can invest in fits one of them.',
-        'The key difference between saving and investing is growth. A savings account might pay 1% interest, but inflation averages 3% per year. That means savers actually lose purchasing power over time. Investors aim to beat inflation and grow real wealth.'
-      ],
-      [
-        { term: 'Asset', definition: 'Anything you own that has financial value and can potentially generate returns.', example: 'A share of Apple stock, a rental property, or a U.S. Treasury bond are all assets.' },
-        { term: 'Return', definition: 'The profit or loss on an investment, usually expressed as a percentage of the amount invested.', example: 'If you invest $1,000 and it grows to $1,100, your return is 10%.' },
-        { term: 'Inflation', definition: 'The rate at which the general level of prices rises, eroding the purchasing power of money over time.', example: 'At 3% inflation, something that costs $100 today will cost $103 next year.' },
-        { term: 'Portfolio', definition: 'The collection of all investments you own, across all asset classes.', example: 'A portfolio might contain 60% stocks, 30% bonds, and 10% cash.' }
-      ],
-      'Flow diagram showing money moving from a bank account (1% return) vs. an investment account (8% return), with inflation (3%) shown as a barrier in the middle.',
-      { company: 'Vanguard', metric: 'Total Stock Market Index Fund (VTSAX)', outcome: 'averaged 10.4% annual return since 1992', explanation: 'A single index fund holding the entire U.S. stock market has turned $10,000 into over $200,000 in 30 years, with zero stock-picking required.' },
-      IF1_DIAGRAM
-    ),
-
-    // Step 5, Embedded Micro-Check (Application-based)
-    microCheck(
-      'Maya, 19, lifeguards summers in Sacramento. Her $4,850 sits in a savings account at 1%. Inflation runs 3.2% this year. What actually happened to her money by December?',
-      ['It grew, $48.50 of interest is $48.50 of gain', 'The balance rose; the buying power fell', 'It broke even, interest offsets inflation', 'Compound interest doubled its real value over the year'],
-      1,
-      'Her statement reads $4,898. It buys about $107 less than the $4,850 did in January. The number went up. The groceries it covers went down.',
-      'The statement says $4,898, which feels like a win. But prices rose 3.2% while the balance rose 1%, so Maya can buy about $107 less than a year ago. Balance up, wealth down.'
-    ),
-
-    // Step 6, Second Teaching Slide (Interactive Graph)
-    interactiveGraph(
-      'HOW IT WORKS',
-      'The Power of Compound Growth',
-      'exponential',
-      'Watch how your money grows when you invest. Adjust the return rate and time period to see the exponential effect of compounding.',
-      [
-        'There are two ways money can grow. Simple interest only grows on your original amount: $$\\text{Simple: } A = P \\times (1 + r \\times t)$$ But compound interest grows on your original amount plus all previous returns, returns generating their own returns: $$\\text{Compound: } A = P \\times (1 + r)^t$$ That exponent (^t) is what makes compounding so powerful.',
-        'The difference between 1% (savings) and 8% (investing) seems small. At 1%, $1,000 becomes $1,348 in 30 years. At 8%, plug it into the formula: $1{,}000 \\times (1.08)^{30} = \\$10{,}063$. $1,348 versus $10,063, from the same $1,000. The exponent did that.',
-        'This is why starting early matters so much. An investor who starts at 25 with $5,000 per year at 10% will have $2.4 million by 65. Starting at 35, just 10 years later, yields only $900,000. That decade costs over $1.5 million.'
-      ],
-      [
-        { term: 'Compound Interest', definition: 'Earning returns on your returns, not just on your original investment. Formula: A = P × (1 + r)^t', example: '$1,000 at 10%: Year 1 = $1,100, Year 2 = $1,210, Year 3 = $1,331, each year grows faster.' },
-        { term: 'Simple Interest', definition: 'Earning returns only on your original investment, not on past returns. Formula: A = P × (1 + r × t)', example: '$1,000 at 10% simple: Year 1 = $1,100, Year 2 = $1,200, Year 3 = $1,300, same $100 each year.' },
-        { term: 'P (Principal)', definition: 'The original amount of money you invest before any returns are added.', example: 'If you invest $5,000, your principal P = $5,000.' },
-        { term: 'r (Rate)', definition: 'The annual interest rate or return rate, expressed as a decimal (8% = 0.08).', example: 'The S&P 500 has averaged about r = 0.10 (10%) annually over the past century.' }
-      ],
-      [
-        'At 8% annual return, your money doubles approximately every 9 years (the Rule of 72).',
-        'After 30 years, over 90% of your wealth comes from compound returns, not from your original contributions.',
-        'Starting 10 years earlier can more than double your final amount, even investing the same amount per year.'
-      ],
-      [
-        { label: 'Annual Return', min: 1, max: 15, default: 8, unit: '%' },
-        { label: 'Time Period', min: 5, max: 40, default: 20, unit: ' years' }
-      ],
-      { company: 'Warren Buffett', metric: 'Net worth timeline', outcome: '$95B of his $100B+ net worth came after age 60', explanation: 'Buffett started investing at age 11. His wealth exploded in later decades because compound growth is exponential, the longer it runs, the more dramatic the results.' }
-    ),
-
-    // Step 7, Explorable: drive the compound formula yourself
+    // 3. Feel the erosion rather than be told about it.
     explorable(
-      'compoundGrowthLab',
-      'Three levers. One is unfair.',
-      '$1,000 down, $50 a month, 8% a year. You get to upgrade exactly one lever.',
-      'Ten extra years: +$75,100. Doubling the deposit: +$47,600. The hotter return: +$22,700. Time wins because every old gain keeps earning new gains, and years are the one lever you can only pull now.',
+      'inflationEroder',
+      'Watch the drawer empty',
+      'Set the years and the inflation rate, then watch what your cash can still buy. Guess before you drag.',
+      'Cash is not neutral. Holding it is a decision to lose a few percent a year, quietly, forever.',
       {
-        startingAmount: 1000, annualReturn: 8, years: 25, monthlyContribution: 50,
+        billAmount: 100, inflation: 3, years: 30, itemName: 'movie tickets', itemPrice: 12,
         predict: {
-          question: 'Which upgrade adds the most by the end: return to 10%, deposits to $100/mo, or 10 extra years?',
-          options: ['Bumping the return to 10%', 'Doubling the deposit to $100/mo', 'Adding 10 more years']
-        }
+          question: 'That $100 buys 8 tickets today. After 30 years at 3% inflation, how many?',
+          options: ['All 8, cash holds its value', '7 tickets', '5 tickets', '3 tickets'],
+        },
       },
       {
-        question: 'Sofia, 18, invests $50/month. Her brother waits until 28, then puts in $100/month, double her rate. Both earn 8%. Who has more at 60?',
+        question: 'Why does the same $100 buy less each year?',
         options: [
-          'Her brother, twice the money in wins',
-          'They land within a few thousand of each other',
-          'Sofia, ten early years beat doubled deposits'
+          'Banks quietly deduct a holding fee from savings',
+          'Prices rise while the number on the bill stays fixed',
+          'Money physically wears out and loses value',
+          'The government reissues currency at a lower rate',
         ],
-        correct: 2,
-        explanationCorrect: 'Sofia: ~$206,000 on ~$25,000 in. Her brother: ~$177,000 on ~$38,000 in. She paid $13,000 less and finished $29,000 ahead. Same lever you just pulled.',
-        explanationWrong: 'Sofia ends near $206,000; her brother near $177,000, and she put in $13,000 less. Time is the one lever nobody can buy back.'
+        correct: 1,
+        explanationCorrect: 'Exactly. The bill never changes. Everything it buys gets more expensive, so its purchasing power falls.',
+        explanationWrong: 'The $100 bill is still $100. What changes is the price of everything else, so the same note buys less each year.',
       }
     ),
 
-    // Step 8, Third Teaching Slide (Case Study)
-    caseStudy(
-      'Amazon: From $18 to $3,000+',
+    // 3. The single teaching moment. One idea: there are two ways to be paid.
+    teachingSlide(
+      'The idea',
+      'Investing is buying a claim on something that earns',
       [
-        { date: 'May 1997', event: 'Amazon IPOs at $18 per share', context: 'Jeff Bezos takes Amazon public. The company sells books online and has never turned a profit. Most Wall Street analysts are skeptical.' },
-        { date: '2001', event: 'Stock crashes to $6 during Dotcom bust', context: 'Amazon loses 90% of its value. Headlines declare e-commerce dead. Investors who panic-sell lock in the loss at the bottom.' },
-        { date: '2009', event: 'Stock recovers to $85, launches AWS', context: 'Amazon Web Services becomes a cash machine. Patient investors who held through the crash are now up 370% from the IPO.' },
-        { date: '2024', event: 'Stock exceeds $3,000 (split-adjusted equivalent)', context: 'A $1,000 investment at the IPO is worth over $166,000. Getting there required sitting through a 94% drawdown without selling.' }
+        'To invest is to trade money now for a claim on money later. You can own, or you can lend. Owning means buying a piece of a business, so you get a share of what it earns.',
+      'A stock is that claim: when Apple sells a phone, part of the profit is yours. Owners get paid last, so they take the risk. A bond is a loan: lenders get paid first and earn only the promised interest.',
       ],
-      'A $1,000 stake at the IPO rode through two crashes, one of them 94%, and came out at $166,000. The picking wasn\'t the hard part. The holding was.'
+      [
+        { term: 'Share', definition: 'A unit of ownership in a company, entitling the holder to a portion of its profits and assets.', example: 'One Apple share is roughly a 15-billionth of the company.' },
+        { term: 'Bond', definition: 'A loan to a company or government that pays fixed interest and returns the principal on a set date.', example: 'A 10-year Treasury bond pays interest twice a year, then repays the face value.' },
+        { term: 'Return', definition: 'What an investment pays you, as a percentage of what you put in.', example: 'Turning $100 into $108 over a year is an 8% return.' },
+      ],
+      'Two paths from your money to a return: ownership, which is unlimited and last in line, and lending, which is capped and first in line',
+      // The card renders `explanation`, not `outcome`, so writing only an
+      // outcome here dropped the payoff line: the slide showed the IPO price
+      // and nothing about why it mattered.
+      {
+        company: 'Amazon',
+        metric: 'IPO May 1997 at $18 a share',
+        outcome: 'Owners shared in every dollar Amazon earned afterwards. Anyone who lent Amazon money instead got their interest and nothing more.',
+        explanation: 'Owners shared in every dollar Amazon earned afterwards. Anyone who lent Amazon money instead got their interest and nothing more.',
+      },
+      // These are two alternatives, not four sequential stages. Drawn as a flow
+      // it read top to bottom as "own a share, THEN lend it", which is the
+      // opposite of the point the slide is making.
+      {
+        type: 'comparison',
+        title: 'Two ways to put money to work',
+        rows: [
+          { label: 'Own a share', value: 'Paid last, upside uncapped',
+            explain: 'You get whatever is left after everyone else is paid, which some years is nothing. In exchange, nobody caps how good that leftover can get.' },
+          { label: 'Lend it', value: 'Paid first, upside fixed',
+            explain: 'You get paid before any owner does, even if the company is struggling. In exchange, you get exactly the promised interest and never a cent more.' },
+        ],
+        footer: 'Every investment you will ever meet is a version of one of these two.',
+        sentiment: 'positive',
+      },
+      {
+        hint: 'Tap each one. Notice they are opposites, not steps',
+        recap: 'There is no third option hiding somewhere. Every fund, every account, every product you will ever be sold is built out of owning things, lending things, or a mix of the two. Once you can ask which one you are doing, most of investing stops being mysterious.',
+      }
     ),
 
-    // Step 9, Fourth Teaching Slide (Misconceptions)
-    misconceptions(
-      'COMMON MISTAKES',
-      'What most people get wrong about investing',
+    // 4. Check the distinction immediately, while it is fresh.
+    microCheck(
+      'You buy a government bond. What have you actually done?',
       [
-        {
-          myth: 'You need thousands of dollars to start investing.',
-          truth: 'You can start with as little as $1. Most brokerages now offer fractional shares and zero-commission trading.',
-          explanation: 'This misconception persists from an era when brokerages charged $50 per trade and required minimum balances. Apps like Fidelity, Schwab, and Robinhood eliminated those barriers entirely.'
+        'Bought a small ownership stake in the government',
+        'Lent money in exchange for fixed interest payments',
+        'Purchased a claim on future tax revenue growth',
+        'Acquired a share of the country economic output',
+      ],
+      1,
+      'Right. A bond is a loan. You are promised interest and your money back, and that promise is the whole of your upside.',
+      'A bond is lending, not owning. You are promised interest and the return of your principal, which is also the most you can make.'
+    ),
+
+    // 6. The three words the rest of the course is built on. Banded, because a
+    //    14-year-old and an adult need the same idea at different widths.
+    keyTermsCards([
+      { term: 'Share', definition: {
+        middle: 'A small piece of a company that you own. If the company does well, your piece is worth more.',
+        high: 'A unit of ownership in a company, giving you a claim on a slice of its profits and assets.',
+        adult: 'A unit of equity ownership in a company, entitling the holder to a proportional claim on its earnings and assets.',
+      }, example: 'One Apple share is roughly a 15-billionth of the whole company.', sentence: 'Owning a share means you get paid last, and nobody puts a ceiling on how much that can be.' },
+      { term: 'Bond', definition: {
+        middle: 'A loan you give to a company or a government. They pay you interest, then give the money back.',
+        high: 'A loan to a company or government that pays fixed interest and returns your money on a set date.',
+        adult: 'A debt instrument under which the issuer owes the holder periodic interest and repayment of principal at maturity.',
+      }, example: 'A 10-year Treasury bond pays interest twice a year, then repays the face value.', sentence: 'A bond pays you before any owner gets anything, and the promised interest is the most you will ever make.' },
+      { term: 'Return', definition: {
+        middle: 'How much money an investment made you, written as a percent of what you put in.',
+        high: 'What an investment pays you over a period, expressed as a percentage of the amount invested.',
+        adult: 'The gain or loss on an investment over a period, expressed as a percentage of the capital invested.',
+      }, example: 'Turning $100 into $108 over a year is an 8% return.', sentence: 'Return is the number that lets you compare a savings account and an index fund in the same breath.' },
+    ]),
+
+    // 7. First recall, while the vocabulary is still warm.
+    fb(
+      'Buying a share makes you an owner, so you are paid ___ and your upside has no ceiling.',
+      ['first', 'last', 'monthly', 'in bonds'],
+      1
+    ),
+
+    // 8. The core payoff: let them discover which lever actually matters.
+    explorable(
+      'compoundGrowthLab',
+      'Three levers. One is not like the others',
+      'You have three ways to end up with more: a better return, a bigger monthly deposit, or more years. Predict which wins, then try all three.',
+      'Time is the lever almost nobody pulls hard enough, because it is the only one that compounds on itself.',
+      {
+        startingAmount: 1000, annualReturn: 8, years: 25, monthlyContribution: 50,
+        predict: {
+          question: 'Which single change adds the most by the end?',
+          options: ['Raise the return from 8% to 10%', 'Double the deposit to $100 a month', 'Add 10 more years'],
         },
-        {
-          myth: 'Investing is basically gambling, you\'ll probably lose everything.',
-          truth: 'A diversified portfolio held for 20+ years has never lost money in U.S. market history. The S&P 500 has returned ~10% annually on average since 1926.',
-          explanation: 'Individual stocks can go to zero, but a diversified index fund spreads your money across hundreds of companies. Even including crashes (1929, 2008, 2020), long-term investors came out ahead in every rolling 20-year window on record.'
-        },
-        {
-          myth: 'You need to watch the market every day and pick the right stocks.',
-          truth: '80% of professional fund managers fail to beat a simple index fund over 15 years. Passive investing outperforms active stock-picking for most people.',
-          explanation: 'The data is overwhelming: buying and holding an index fund beats most professional strategies. Time and consistency matter far more than stock-picking skill.'
-        }
+      },
+      {
+        question: 'Why does adding years beat improving the return here?',
+        options: [
+          'Longer periods have historically had higher average returns',
+          'Each year compounds on every year before it, so growth accelerates',
+          'Fees fall the longer an account is held open',
+          'Markets are less volatile over longer holding periods',
+        ],
+        correct: 1,
+        explanationCorrect: 'Yes. Growth is applied to a balance that already includes past growth, so the curve steepens the longer you leave it.',
+        explanationWrong: 'The return rate is not what changes. Each year earns on a balance that already contains every prior year of growth, so late years add far more than early ones.',
+      }
+    ),
+
+    // 6. Hands on the arithmetic, so the rule sticks.
+    calculator(
+      'The rule of 72',
+      'Years to double = 72 / annual return (%)',
+      [
+        { label: 'At 8% a year, money doubles in how many years?', answer: 9, tolerance: 0.5 },
+        { label: 'At 3% in a savings account, how many years?', answer: 24, tolerance: 1 },
+        { label: 'At 12%, how many years?', answer: 6, tolerance: 0.5 },
       ]
     ),
 
-    // Step 10, Key Terms Reference Cards
-    keyTermsCards([
-      { term: 'Asset', definition: 'Anything you own that has financial value. In investing, assets include stocks, bonds, real estate, and cash equivalents.', example: 'Owning 10 shares of Apple stock means you hold $1,700+ in stock assets.', sentence: 'She diversified her assets across stocks, bonds, and real estate to reduce her overall portfolio risk.' },
-      { term: 'Return', definition: 'The profit or loss on an investment over a specific period, expressed as a percentage of the original investment.', example: 'If you invest $5,000 and it grows to $5,500 in a year, your annual return is 10%.', sentence: 'The fund delivered a 12% return last year, outperforming its benchmark by 2 percentage points.' },
-      { term: 'Inflation', definition: 'The rate at which prices rise across the economy, reducing the purchasing power of each dollar you hold.', example: 'At 3% inflation, a $30 meal this year will cost $30.90 next year.', sentence: 'With inflation running at 4%, her savings account\'s 1% interest rate meant she was actually losing 3% in real purchasing power.' },
-      { term: 'Portfolio', definition: 'The total collection of all your investments. A portfolio can contain any mix of stocks, bonds, real estate, and cash.', example: 'A common starter portfolio: 80% stocks (via an S&P 500 ETF) and 20% bonds.', sentence: 'He rebalanced his portfolio quarterly to maintain his target allocation of 70% stocks and 30% bonds.' },
-      { term: 'Liquidity', definition: 'How quickly and easily you can convert an investment into cash without significantly affecting its price.', example: 'Stocks are highly liquid, you can sell in seconds. Real estate is illiquid, selling a house takes months.', sentence: 'She kept 3 months of expenses in a high-yield savings account for liquidity, while investing the rest for long-term growth.' },
-      { term: 'Diversification', definition: 'Spreading your investments across different asset classes, industries, and regions to reduce the impact of any single loss.', example: 'Instead of buying one stock, an S&P 500 ETF gives you exposure to 500 companies at once.', sentence: 'Diversification is the only free lunch in investing, it reduces risk without necessarily reducing expected returns.' }
+    // 10. The numbers worth carrying out of the lesson, stat side up.
+    tr('What the last century actually paid', [
+      ['Average S&P 500 return since 1957', 'About 10.7% a year, including every crash in that span.', { stat: '10.7%', sprite: 'chart-up' }],
+      ['Years for money to double at 8%', 'About 9, from the rule of 72 you just used.', { stat: '9 years', sprite: 'hourglass' }],
+      ['Bear markets since 1928', '27, and the index recovered from all 27 of them.', { stat: '27 / 27', sprite: 'bear' }],
+      ['Chance stocks lost money over any 20-year stretch', 'Zero, historically. Time is what turns the swings into a return.', { stat: '0%', sprite: 'vault' }],
+      ['Cash left in a drawer since 1995', 'Still $100 on paper, worth about $40 in what it buys.', { stat: '-60%', sprite: 'inflation' }],
     ]),
 
-    // ═══════════════════════════════════════════
-    // PHASE 3, PRACTICE (Steps 11-16)
-    // ═══════════════════════════════════════════
-
-    // Step 11, Fill in the Blank
-    fb('Investing is putting money to work so it grows faster than ___.',['inflation','deflation','savings','interest'],0),
-
-    // Step 12, Multiple Choice (Scenario-based)
-    q('Three summers later Maya has $10,400 in checking at 0.01%. Inflation averages 3.2%. If she leaves it there five years, what happens?',
-      ['It holds its value, FDIC insurance protects every dollar she deposited','It grows in real terms, because even small interest compounds in her favor over five years','It keeps pace with prices','It loses about 15% of its buying power'],
-      3,
-      'Five years at that gap costs her about 15% of buying power. The $10,400 spends like $8,885. Same drawer from step one, just with a debit card attached.'
+    // 11. Risk is felt, not asserted.
+    explorable(
+      'portfolioMixer',
+      'The price of that return',
+      'Slide the mix between stocks and bonds. Watch what happens to the ending value, and to how rough the ride gets.',
+      'Higher expected return and bigger swings are the same setting. You cannot buy one without the other.',
+      {
+        startingAmount: 10000, years: 20,
+        predict: {
+          question: 'Moving from all bonds to all stocks, what happens to the worst single year?',
+          options: ['It gets noticeably worse', 'It stays about the same', 'It improves as returns rise'],
+        },
+      },
+      {
+        question: 'What is a long-term investor actually paid for?',
+        options: [
+          'Predicting which companies will beat expectations',
+          'Sitting through declines without selling out',
+          'Trading often enough to catch short-term moves',
+          'Choosing the moments to enter and exit markets',
+        ],
+        correct: 1,
+        explanationCorrect: 'That is the deal. The extra return on stocks is compensation for tolerating drops that lenders never have to face.',
+        explanationWrong: 'The premium is paid for enduring volatility, not for skill at forecasting. Investors who sell during declines give that premium back.',
+      }
     ),
 
-    // Step 13, Drag and Drop: Order the steps of how compound growth works
-    ds('Put these steps in order: How does $1,000 grow through compound interest?',[
-      'You invest $1,000 at an 8% annual return',
-      'After Year 1, you earn $80 in returns → balance is $1,080',
-      'In Year 2, you earn 8% on $1,080 (not just $1,000)',
-      'Your returns start generating their own returns',
-      'After 10 years, over half your balance is from compounded returns',
-      'After 30 years, 90%+ of your wealth comes from compound growth'
+    // 12. A short practice run. Six quick reps across everything taught, so the
+    //     mastery challenge is a check rather than a first attempt.
+    q(
+      'You have $10,000 you will not touch for twenty years. Which choice is the risky one?',
+      [
+        'A broad index fund, because it can fall 30% in a bad year',
+        'A savings account, because inflation is guaranteed to erode it',
+        'Neither is risky over twenty years',
+        'Both carry exactly the same risk',
+      ],
+      1,
+      'Over twenty years the roles flip. The index fund swings hard year to year but has never lost money over a stretch that long. The savings account never swings, and loses purchasing power every single year with certainty.'
+    ),
+
+    ds('Order these from paid first to paid last if a company runs into trouble:', [
+      'Bondholders, who lent the company money',
+      'Preferred shareholders',
+      'Ordinary shareholders, who own the company',
     ]),
 
-    // Step 14, Scenario Simulation (Interactive Diagram replacement)
-    sc('You have $5,000 to invest for retirement in 30 years. You\'re choosing between three approaches. Which strategy will likely produce the best long-term result?',[
-      {label:'Keep it all in a savings account at 1.5%, safe and guaranteed',outcome:'After 30 years: $7,832. The "safe" option locked in the loss: at 3% inflation, that balance is about $3,230 of today\'s buying power.',correct:false},
-      {label:'Invest in a diversified stock index fund averaging 10%, accept short-term volatility',outcome:'After 30 years: $87,247. Even accounting for inflation, this is worth about $35,900 in today\'s dollars. Time in the market smoothed out the volatility.',correct:true},
-      {label:'Wait for a market crash to invest, buy low',outcome:'Waiting for a crash costs more gains than it saves. Across a century of rolling 10-year periods, investing the money right away beat waiting for a dip about 75% of the time. The dip usually shows up with the market already higher than today.',correct:false}
-    ]),
-
-    // Step 15, True/False Rapid Set
     tf([
-      {s:'Saving alone is enough to build long-term wealth if you save enough',a:false},
-      {s:'The stock market has always recovered from crashes, eventually',a:true},
-      {s:'You need to be an expert to start investing successfully',a:false},
-      {s:'Starting to invest at 25 vs 35 can mean 2-3x more money at retirement',a:true},
-      {s:'A diversified portfolio of stocks has lost money over every 20-year period in history',a:false}
+      { s: 'A bond pays you a fixed interest rate no matter how well the company does.', a: true },
+      { s: 'Holding cash is the one choice that carries no risk at all.', a: false },
+      { s: 'Most of the growth in a long investment arrives in the final years.', a: true },
+      { s: 'You are paid the extra return on stocks for picking the right companies.', a: false },
     ]),
 
-    // Step 16, Match Pairs
-    m('Match the Asset to Its Profile',[
-      ['Stocks','Highest potential return, highest volatility, ownership in companies'],
-      ['Bonds','Steady income, lower risk, loans to governments or corporations'],
-      ['Real Estate','Rental income and appreciation, requires more capital to enter'],
-      ['Cash','Safest, lowest return, savings accounts and money market funds']
-    ]),
-
-    // ═══════════════════════════════════════════
-    // PHASE 4, APPLY (Steps 17-18)
-    // ═══════════════════════════════════════════
-
-    // Step 17, Applied Scenario Question
-    q('Marcos, 22, just started as a dental tech in Fresno with $3,120 saved. He says: "I\'ll invest once I\'ve saved $50,000. Three grand is a rounding error." What do you tell him?',
-      [
-        'Start now, the decade matters more than the deposit',
-        'He is right, amounts under $50,000 grow too slowly to be worth the paperwork',
-        'Put the $3,120 in bonds until he has enough to handle stock risk',
-        'Hold cash and wait for the next crash to buy in cheap'
-      ],
-      0,
-      '$3,120 invested at 22 is about $188,000 at 65 (10% average). The same money starting at 32 reaches about $72,500. The decade he plans to spend "getting ready" costs that one deposit $115,000. Brokerages take $1 minimums now; waiting is the only real cost.'
+    sl(
+      'At 8% a year, roughly how many years does it take for money to double?',
+      2, 20, 9, 'years',
+      'The rule of 72: divide 72 by the return. 72 / 8 = 9 years. At 3% it is 24 years, which is why a savings account never quite catches up.'
     ),
 
-    // Step 18, Simulation Finale
+    sc(
+      'The market drops 30% in your third year of investing. Your $200 monthly transfer is due on Friday.',
+      [
+        { label: 'Pause the transfer until things settle down', outcome: 'You skip the cheapest shares you will ever be offered. Nobody rings a bell at the bottom, so "settled down" almost always means "more expensive again".', correct: false },
+        { label: 'Send the $200 exactly as planned', outcome: 'Your $200 now buys far more shares than it did last month. This is the whole mechanism by which patient money gets ahead.', correct: true },
+        { label: 'Sell what you hold to stop the losses growing', outcome: 'The paper loss becomes a real one, and you now need a second correct decision about when to come back. Most people get that one wrong too.', correct: false },
+      ]
+    ),
+
+    // 13. A decision with consequences, in the moment that actually tests people.
+    decisionTree(
+      'It is March 2009. You invested $10,000 in an index fund two years ago. Your statement shows $5,100. Every headline says this time is different.',
+      [
+        {
+          prompt: 'What do you do?',
+          options: [
+            { label: 'Sell now and wait for things to calm down', next: 1, feedback: 'You locked in the loss. The S&P 500 bottomed that same month and more than doubled over the next five years, without you.', correct: false },
+            { label: 'Hold, and keep the monthly contribution going', next: 1, feedback: 'You bought your remaining shares at the cheapest prices in a decade. This is the single decision that separates outcomes over a lifetime.', correct: true },
+            { label: 'Move it all into a savings account until it recovers', next: 1, feedback: 'A savings account paid under 1%. You swapped a temporary paper loss for a permanent one, and had to guess when to return.', correct: false },
+          ],
+        },
+        {
+          prompt: 'A friend asks how you knew it would recover. What is the honest answer?',
+          options: [
+            { label: 'I did not know. I owned businesses that kept operating', next: 2, feedback: 'The honest one. Nobody knew the date. Owning productive assets pays off over decades, not on a schedule you pick.', correct: true },
+            { label: 'The charts clearly showed the bottom was in', next: 2, feedback: 'Nothing showed that at the time. Bottoms are only obvious afterwards, which is why timing them is not a strategy.', correct: false },
+            { label: 'Everyone knew the government would step in', next: 2, feedback: 'Plenty of people expected exactly that and still sold. Confidence about the news is not the same as staying invested.', correct: false },
+          ],
+        },
+      ]
+    ),
+
+    // 9. Put every idea from the lesson into one run of decisions.
     simulationFinale(
-      'You Inherit $10,000',
-      'A relative has left you $10,000. The stock market just dropped 25% in the past month. Headlines are panicking. You need to make a series of decisions about what to do with this money.',
+      'Your first $5,000',
+      'You are 25. You have $5,000 you will not need for at least twenty years, and $200 a month you can add. Three decisions decide most of the outcome.',
       [
         {
-          prompt: 'Decision 1: The market just crashed 25%. What do you do with the $10,000?',
+          prompt: 'Where does the $5,000 go?',
           options: [
-            { label: 'Invest all $10,000 immediately in a diversified index fund', consequence: 'Buying a 25% dip has beaten waiting in almost every 10-year window on record. You bought the whole index on sale, and the discount was real.', score: 3 },
-            { label: 'Invest $5,000 now and $5,000 over the next 6 months', consequence: 'Half in now, half over six months. You give up a little if the market climbs from here, but you never bet everything on the single worst day. The money is working either way.', score: 2 },
-            { label: 'Keep it all in savings and wait for the market to recover', consequence: 'The market\'s best days tend to land right after its worst. Parked in savings, you sleep through them, and the crash you dodged becomes the rally you watch from the sidelines.', score: 0 }
-          ]
+            { label: 'A savings account paying about 3%', consequence: 'Safe and legible. Over twenty years it roughly doubles, and inflation eats most of that gain.', score: 1 },
+            { label: 'A broad index fund of many companies', consequence: 'You own a slice of hundreds of businesses. Volatile year to year, and historically the strongest twenty-year outcome.', score: 3 },
+            { label: 'One company you believe in', consequence: 'Possibly the best outcome, possibly zero. A single company can fail entirely in a way the whole market has not.', score: 2 },
+          ],
         },
         {
-          prompt: 'Decision 2: Two months later, your investment has dropped another 10%. A coworker says "get out before you lose everything." What do you do?',
+          prompt: 'What do you do with the $200 a month?',
           options: [
-            { label: 'Sell everything, cut your losses', consequence: 'You sold at the bottom and turned a paper loss into a permanent one. The shares you dumped are the same ones you would want back a year later, only they cost more by then.', score: 0 },
-            { label: 'Hold steady, do nothing', consequence: 'You did nothing, which across a 10-year stretch is the hard move that pays. A 10% drop is a number on a screen until you sell. You didn\'t.', score: 2 },
-            { label: 'Buy more, stocks are even cheaper now', consequence: 'Buying while everyone else panicked pulled your average cost down. The shares cost less than they did a month ago, and you own more of them for the same money.', score: 3 }
-          ]
+            { label: 'Hold it as cash and invest after a dip', consequence: 'You have to be right twice, on the way out and the way back. Most of the cash sits idle while prices drift up.', score: 1 },
+            { label: 'Add it on the same day every month, regardless', consequence: 'You buy more shares when prices are low and fewer when high, and you never have to guess.', score: 3 },
+            { label: 'Add it only in months the news feels calm', consequence: 'Calm months tend to be expensive months. You systematically buy at the least useful times.', score: 1 },
+          ],
         },
         {
-          prompt: 'Decision 3: One year later, markets have recovered and your portfolio is up 15% from where you started. A friend says a hot stock could double your money. What do you do?',
+          prompt: 'Year three arrives and the market falls 30%.',
           options: [
-            { label: 'Move everything into the hot stock tip', consequence: 'One stock with all your money means one bad quarter can take the whole balance. The double is the story you hear; the wipeout is the other half of the same bet.', score: 0 },
-            { label: 'Stay diversified and keep investing regularly', consequence: 'You kept the money spread across hundreds of companies instead of one tip, so no single stock can sink you. Boring on purpose. The spreadsheet wins the decade.', score: 3 },
-            { label: 'Take profits and move to cash, you\'re up, lock it in', consequence: 'Cash feels like locking in the win, but 3% inflation gnaws the gains while they sit. You\'re back in the step-one drawer, just with a bigger number on it.', score: 1 }
-          ]
+            { label: 'Stop contributing until it recovers', consequence: 'You skip the cheapest shares you will ever be offered, which is the opposite of the plan you wrote.', score: 1 },
+            { label: 'Keep contributing on the same schedule', consequence: 'Your monthly $200 now buys far more shares. Declines are the mechanism by which patient money gets ahead.', score: 3 },
+            { label: 'Sell to stop the losses getting worse', consequence: 'The paper loss becomes real, and you now need a second correct decision about when to return.', score: 0 },
+          ],
         },
-        {
-          prompt: 'Decision 4: Five years have passed. Your portfolio has doubled. You\'re considering your strategy going forward. What do you do?',
-          options: [
-            { label: 'Increase contributions and maintain your diversified strategy', consequence: 'Every dollar you add now compounds across the whole runway ahead. More contributions on a doubled base is the fastest version of the math you\'ve pulled all lesson.', score: 3 },
-            { label: 'Stop contributing, you\'ve made enough', consequence: 'The balance keeps compounding, but you just shut off the fuel line. A portfolio grows without fresh money; it grows a lot more with it.', score: 1 },
-            { label: 'Move everything to bonds, protect your gains', consequence: 'Going all-bonds guards a balance you won\'t touch for decades and trades away most of the growth those decades would buy. The timeline didn\'t change. Only the fear did.', score: 1 }
-          ]
-        }
       ],
-      'Investing immediately, holding through the crash, staying diversified, and continuing to invest regularly, scoring 12/12.',
-      'The right moves felt wrong every time: buying into a crash, sitting still through panic, staying boring after a win. Sell in Decision 2 and you salvage $9,000 into cash; hold instead, and that same $10,000 doubles to $20,000.'
+      'Broad ownership, funded on a schedule, held through the drop. That combination has beaten nearly every cleverer plan over twenty-year stretches.',
+      'You are not paid for being smart about markets. You are paid for owning productive things and not interrupting them.'
     ),
 
-    // ═══════════════════════════════════════════
-    // PHASE 5, CONSOLIDATE (Steps 19-20)
-    // ═══════════════════════════════════════════
-
-    // Step 19, Summary Cards
+    // 10. Consolidate. Short, and only what was actually taught.
     summaryCards('Introduction to Investing', [
-      { takeaway: 'Investing beats saving', detail: 'Saving at 1% loses to inflation. Investing at 8-10% average return is the only reliable way to build real wealth over time.' },
-      { takeaway: 'Four asset classes', detail: 'Stocks (highest return, highest risk), Bonds (steady income, lower risk), Real Estate (appreciation + income), and Cash (safest, lowest return). Every portfolio combines these.' },
-      { takeaway: 'Time is the unfair lever', detail: 'Compound growth is exponential. Starting a decade earlier can mean 2-3x more at retirement. Sofia\'s ten early years beat her brother\'s doubled deposits.' }
+      { takeaway: 'Cash is a decision, not a default', detail: 'Holding cash loses a few percent of purchasing power every year. Doing nothing is itself a position.' },
+      { takeaway: 'You can own or you can lend', detail: 'Shares are ownership, paid last with unlimited upside. Bonds are lending, paid first with a fixed ceiling.' },
+      { takeaway: 'Time does most of the work', detail: 'Growth compounds on growth. Ten extra years usually beats a better return or a bigger deposit.' },
+      { takeaway: 'Volatility is the fee', detail: 'The extra return on stocks is what you are paid for sitting through declines. Selling during one is how you pay the fee without collecting.' },
     ]),
 
-    // Step 20, What's Next
-    whatsNext(
-      'Introduction to Investing',
-      'Risk vs. Reward',
-      'You\'ll learn the fundamental relationship between risk and return, why accepting short-term volatility is the price of long-term wealth, and how to measure and manage risk like a pro.',
-      25
-    )
   ],[
-    // ═══════════════════════════════════════════
-    // CHALLENGE ROUND, 5 Questions
-    // ═══════════════════════════════════════════
-    cq('A friend has $10,000 in a savings account earning 0.5% interest while inflation runs at 3.5%. After 10 years, approximately how much purchasing power have they lost?',
-      ['None, the bank balance keeps growing, so they cannot have lost anything','About $3,000 in real purchasing power','About $500, since the small interest payments mostly cancel out inflation','Nothing, the interest earned actually outpaced inflation and grew their wealth'],
-      1,'The gap between 0.5% interest and 3.5% inflation runs about 3% a year, roughly $3,000 of buying power across the decade. Compounded precisely: the balance reads $10,511, but it spends like about $7,450 did at the start.'),
-    cq('Why has the S&P 500 historically returned ~10% per year despite multiple crashes, wars, and recessions?',
-      ['The federal government legally guarantees a baseline return on listed U.S. stocks','Stocks simply go up every single year, which is why the long-run average is positive','Companies grow earnings over time, and prices follow earnings','Inflation lifts all prices, so stock returns are mostly inflation in disguise'],
-      2,'Stock prices ultimately reflect corporate earnings. Over decades, companies grow revenues through innovation, expansion, and productivity gains. Inflation explains ~3% of the 10%; the other 7% is real growth. Short-term crashes are noise.'),
-    cq('Which combination correctly matches ALL four asset classes to their risk profiles?',
-      ['Stocks=highest risk/return, Bonds=moderate risk/return, Real Estate=illiquid/moderate return, Cash=lowest risk/return','Stocks=low risk, Bonds=high risk, Real Estate=no risk, Cash=medium risk, since property never falls','All four asset classes carry roughly equal risk once you hold them long enough, because volatility washes out and long-run returns converge','Bonds=highest risk because issuers can default, Stocks=lower risk because companies rarely fail outright'],
-      0,'Stocks offer the highest potential return with the highest volatility. Bonds provide steady income with lower risk. Real estate offers appreciation but is illiquid, you cannot sell a house in a day. Cash is safest but barely keeps pace with inflation.'),
-    cq('An investor puts $5,000 per year into an index fund starting at age 25, earning 10% average annual return. Another starts the same strategy at age 35. By age 65, approximately how much more does the early starter have?',
-      ['About $100,000 more','About $500,000 more','About $1,500,000 more','About the same amount'],
-      2,'Starting at 25: ~$2.4 million. Starting at 35: ~$900,000. That 10-year head start generates over $1.5 million in additional wealth, from the same $5,000 a year.'),
-    cq('During the 2008 financial crisis, the S&P 500 dropped 57%. An investor who sold at the bottom in March 2009 and waited to "feel safe" before reinvesting in 2013 missed approximately what percentage of the recovery gains?',
-      ['About 10%','About 25%','About 80%','About 140%'],
-      3,'From the March 2009 bottom to early 2013, the S&P 500 gained approximately 140%. Investors who sold at the bottom and waited for confidence to return missed the entire recovery, turning a temporary paper loss into a permanent real loss.')
+    cq('Inflation averages about 3% a year. What happens to $100 left in a drawer for 30 years?',
+      ['It is still worth $100 in real terms', 'It buys roughly 40 dollars worth of goods', 'It buys roughly 90 dollars worth of goods', 'It loses value only if rates are high'],
+      1,
+      'At 3% a year, prices roughly two and a half times over 30 years. The bill is unchanged at $100, so it buys about $41 of what it once did.'),
+    cq('What is the difference between owning a share and holding a bond?',
+      ['Shares must be repaid by the company, which makes them safer', 'Owners are paid last but keep the upside, lenders paid first', 'Bonds reliably out-earn shares over any long holding period', 'Shares pay a fixed interest rate and bonds pay a variable one'],
+      1,
+      'Ownership is a residual claim: you get what is left after everyone else is paid, which is why the upside is unlimited and the risk is higher. Lending is a fixed claim with priority.'),
+    cq('Using the rule of 72, roughly how long does money take to double at 6% a year?',
+      ['Six years', 'Twelve years', 'Eighteen years', 'Twenty-four years'],
+      1,
+      '72 divided by 6 is 12. The rule is an approximation, but it is close enough to do in your head and it makes the cost of a low rate obvious.'),
+    cq('Why does starting ten years earlier usually beat earning a slightly higher return?',
+      ['Early years are when markets have historically performed best', 'Growth compounds on prior growth, so late years add the most', 'Fees are lower on accounts that have been open for longer', 'Younger investors are permitted to hold riskier assets'],
+      1,
+      'Compounding applies growth to a balance that already includes prior growth. The final years of a long run add far more in absolute terms than the first ones, so extending the run is powerful.'),
+    cq('A broad index fund falls 30%. For a long-term investor, what has actually changed?',
+      ['The businesses are now permanently worth less', 'The price fell and future shares got cheaper to buy', 'The fund has failed and should be exited', 'Expected long-run returns have fallen with the price'],
+      1,
+      'A price drop is not the same as a permanent loss unless you sell. For someone still contributing, the same monthly amount now buys more of the same businesses.'),
   ]),
-
-  // ═══════════════════════════════════════════════════════════════
   // LESSON 2, RISK VS. REWARD
   // ═══════════════════════════════════════════════════════════════
   L(2,'Risk vs. Reward',30,[
@@ -419,7 +506,7 @@ const lessons: PathwayLesson[] = [
         { date: '2003 to 2006', event: 'Slow recovery as Amazon builds AWS and Prime', context: 'Most dotcom companies are already dead. Amazon pivots toward cloud computing and subscriptions. The stock grinds back to $40 to $50.' },
         { date: '2020 to 2021', event: 'Stock surpasses $3,000, a 545x return from the bottom', context: 'An investor who held through the 94% crash watched $5.51 shares become worth more than $3,000. A $1,000 stake bought at the bottom turned into $545,000.' }
       ],
-      'Amazon teaches the most uncomfortable lesson in investing. The biggest returns came from holding through the deepest drawdown. Selling during the 94% crash felt safe, but it locked in the loss and forfeited a 54,500% recovery. Risk and reward are not opposites. They are the same thing measured at different moments.'
+      'Amazon shows the hard part of investing. The biggest gains came from holding through the worst drop. Selling during the 94% crash felt safe, but it locked in the loss and gave up a 54,500% recovery.'
     ),
 
     stakesCard(
@@ -429,12 +516,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FUNDAMENTALS',
+      'The fundamentals',
       'Understanding the Risk-Return Tradeoff',
       [
-        'In Lesson 1, you learned that investing means putting your money to work in assets that grow over time. But not all investments grow equally, and the reason comes down to one fundamental tradeoff. Every investment sits somewhere on a risk-return spectrum. At one end, savings accounts offer near-zero risk but returns so low they lose to inflation. At the other end, individual stocks can deliver 20%+ annual returns but can also lose 50% or more in a single year.',
-        'Risk in investing is measured by volatility, how much an investment\'s value swings up and down. The S&P 500 has averaged 10% annual returns since 1926, but in any given year it might return +30% or -30%. The key insight: higher volatility is the price you pay for higher long-term returns.',
-        'The most important concept in risk management is your time horizon. Over any single year, stocks lose money about 26% of the time. Over any 10-year period, that drops to 6%. Over any 20-year period in U.S. history, stocks have never lost money. Time transforms risk into reward.'
+        'Savings accounts risk almost nothing but lose to inflation. Stocks can return 20%+ yearly, or fall 50%. Risk means volatility, how much value swings: the S&P 500 averaged 10% a year since 1926, but years swing +30% or -30%.',
+      'Your time horizon, how long you stay invested, matters most. In any single year, stocks lose money about 26% of the time. Over any 10-year period, 6%. Over any 20-year period in U.S. history, stocks have never lost money.'
       ],
       [
         { term: 'Volatility', definition: 'A statistical measure of how much an investment\'s price fluctuates over time. Higher volatility = wider price swings.', example: 'Bitcoin has ~80% annual volatility vs ~15% for the S&P 500, meaning its price swings 5x more wildly.' },
@@ -443,8 +529,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Drawdown', definition: 'The peak-to-trough decline in the value of an investment during a specific period.', example: 'The S&P 500\'s maximum drawdown during 2008 was -57%, it took until 2013 to fully recover.' }
       ],
       'Horizontal risk-return spectrum with five asset classes plotted as labeled dots from left (safe, low return) to right (risky, high return): Savings, Bonds, Real Estate, Index Funds, Individual Stocks.',
-      { company: 'Vanguard Research', metric: 'Risk vs. return by asset class (1926-2023)', outcome: 'Stocks returned 10.3% annually vs 5.1% for bonds and 3.3% for cash', explanation: 'The equity risk premium, the extra return stocks earn over bonds, has averaged about 5% per year over nearly a century. This premium is the compensation investors receive for accepting short-term volatility.' },
-      IF2_DIAGRAM),
+      undefined,
+      IF2_DIAGRAM,
+      {
+        hint: 'Tap each row. The asset never changes, only the wait',
+        recap: 'This is the most useful table in the course, because it says risk is not a property of the stock. It is a property of how long you are willing to hold it. Same S&P 500 in all three rows: a coin flip over a year, a near certainty over twenty.',
+      }),
 
     microCheck(
       'An investor holds $50,000 in a single tech stock. The stock drops 75% during a sector crash. Meanwhile, a diversified index fund dropped only 30% in the same period. What was the primary difference?',
@@ -455,7 +545,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'RISK IN ACTION',
+      'Risk in action',
       'Conservative vs. Aggressive: 30-Year Comparison',
       'comparison',
       'Watch how two portfolios, one conservative (40% stocks / 60% bonds) and one aggressive (90% stocks / 10% bonds), perform over 30 years including crashes and recoveries.',
@@ -477,11 +567,11 @@ const lessons: PathwayLesson[] = [
         { label: 'Stock Allocation', min: 10, max: 100, default: 60, unit: '%' },
         { label: 'Time Period', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'Dalbar Research', metric: 'Average investor return vs S&P 500 (1994-2023)', outcome: 'Average investor earned 3.7% vs S&P 500\'s 9.9%', explanation: 'The gap is entirely behavioral, investors buy high during euphoria and sell low during panic. The market itself returned 9.9%, but the average investor earned only 3.7% because they couldn\'t handle the volatility.' }
+      undefined
     ),
 
     misconceptions(
-      'RISK MYTHS',
+      'Risk myths',
       'What most people get wrong about investment risk',
       [
         {
@@ -521,10 +611,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Risk and Reward Facts',[
-      ['What percentage of calendar years has the S&P 500 been positive?','About 74%, the market goes up roughly three out of every four years. But the 26% of down years create the volatility that most investors fear.'],
-      ['What\'s the longest the market has taken to recover from a crash?','About 5.5 years (2007-2013). Even after the worst crash since the Great Depression, patient investors fully recovered and then went on to triple their money.'],
-      ['How much would you have lost by missing the 10 best days in 20 years?','Over half your total return. The best days often come right after the worst days, selling during crashes means missing the recovery.'],
-      ['What\'s the average length of a bear market vs a bull market?','Bear markets average 9.6 months. Bull markets average 2.7 years. Markets spend roughly 3x more time going up than going down.']
+      ['What percentage of calendar years has the S&P 500 been positive?','About 74%, the market goes up roughly three out of every four years. But the 26% of down years create the volatility that most investors fear.', { stat: '74%', sprite: 'dice' }],
+      ['What\'s the longest the market has taken to recover from a crash?','About 5.5 years (2007-2013). Even after the worst crash since the Great Depression, patient investors fully recovered and then went on to triple their money.', { stat: '5.5 years', sprite: 'hourglass' }],
+      ['How much would you have lost by missing the 10 best days in 20 years?','Over half your total return. The best days often come right after the worst days, selling during crashes means missing the recovery.', { stat: 'Half', sprite: 'crowd' }],
+      ['What\'s the average length of a bear market vs a bull market?','Bear markets average 9.6 months. Bull markets average 2.7 years. Markets spend roughly 3x more time going up than going down.', { stat: '3x longer', sprite: 'chart-up' }]
     ]),
 
     ds('Order these investments from lowest risk to highest risk:',[
@@ -663,18 +753,18 @@ const lessons: PathwayLesson[] = [
 
     // Clear the myths first, so the math that follows lands clean.
     misconceptions(
-      'COMPOUNDING MYTHS',
+      'Compounding myths',
       'What most people get wrong about compound interest',
       [
         {
           myth: 'You need a lot of money to benefit from compound interest.',
           truth: '$100/month at 10% for 40 years becomes $632,000. The amount matters far less than the time. Starting with $100 at age 22 beats starting with $1,000 at age 35.',
-          explanation: 'Einstein supposedly called compound interest the eighth wonder of the world. Whether he said it or not, the math is undeniable. $100/month for 40 years is only $48,000 of your own money, yet it grows to $632,000, a 13x multiplier.'
+          explanation: 'Einstein may never have said it, but calling compound interest the eighth wonder fits. $100 a month for 40 years is $48,000 of your money, and it grows to $632,000. That is 13x.'
         },
         {
           myth: 'It is too late to start if you are already 30, 40, or 50.',
           truth: 'It is never too late, but every year you wait makes it harder. Starting at 40 with $500/month still produces $380,000 by 65.',
-          explanation: 'Earlier is always better, but the second-best time to start is today. Even investing from 40 to 65 builds substantial wealth. The real mistake is deciding it is too late and therefore never starting at all.'
+          explanation: 'Starting earlier is better, but the second best time is today. Investing from age 40 to 65 still builds serious wealth. The real mistake is deciding it is too late and never starting.'
         },
         {
           myth: 'Compound interest only works in savings accounts.',
@@ -686,12 +776,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE CORE CONCEPT',
+      'The core concept',
       'How Compound Interest Works',
       [
-        'You now know what investing is (Lesson 1) and that higher returns require accepting higher risk (Lesson 2). But there\'s a force that makes the risk worth it, and it\'s the single most powerful concept in all of finance. Compound interest is earning interest on your interest. In year one, you earn returns on your original investment (the principal). In year two, you earn returns on your principal plus last year\'s returns. Each year, the base grows larger, and your returns accelerate.',
-        'This creates an exponential curve, growth that starts slowly but then rockets upward. At 10% annual return, $10,000 becomes $10,000 in year 0, $11,000 in year 1, $12,100 in year 2, then $13,310... $25,937 in year 10... $67,275 in year 20... $174,494 in year 30. Notice how the growth in the last decade dwarfs the growth in the first decade.',
-        'The Rule of 72 gives you a quick estimate: divide 72 by your annual return rate to find how many years it takes to double your money. At 8%, money doubles every 9 years. At 10%, every 7.2 years. At 12%, every 6 years. Each doubling builds on the previous one, creating the snowball effect.'
+        'Compound interest means earning returns on your returns. At 10% yearly, $10,000 stays $10,000 in year 0, then $11,000 in year 1, $12,100 in year 2, $13,310, $25,937 in year 10, $67,275 in year 20, $174,494 in year 30.',
+      'That is exponential growth: slow at first, then steep. The Rule of 72 estimates doubling time, divide 72 by your return. At 8% money doubles every 9 years, at 10% every 7.2 years, at 12% every 6 years.'
       ],
       [
         { term: 'Compound Interest', definition: 'Interest calculated on both the initial principal and the accumulated interest from previous periods.', example: '$1,000 at 10%: Year 1 = $1,100, Year 2 = $1,210, Year 3 = $1,331. Each year earns more than the last.' },
@@ -700,8 +789,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Exponential Growth', definition: 'Growth that accelerates over time because each period\'s growth builds on the previous period\'s accumulated total.', example: 'Compound interest creates exponential growth, $10,000 grows faster in year 30 than in year 1 because the base is much larger.' }
       ],
       'SVG snowball rolling downhill, growing larger at each stage: a small snowball labeled "$10K" at the top, medium labeled "$25K" at the middle, and a massive snowball labeled "$175K" at the bottom, with curved arrow showing acceleration.',
-      { company: 'Warren Buffett', metric: 'Net worth timeline', outcome: '97% of his $100B+ came after age 65', explanation: 'Buffett started investing at age 11. By 30 he had $1 million. By 50, $67 million. By 65, $3 billion. By 90, $100+ billion. Each decade generated more than all previous decades combined, that\'s the exponential power of compounding.' },
-      IF3_DIAGRAM),
+      undefined,
+      IF3_DIAGRAM,
+      {
+        hint: 'Tap each bar. Watch the gaps get bigger, not the rate',
+        recap: 'Nobody changed the return. It is 10% in every single bar. The only thing that grew is what the 10% was being applied to, which is why the last decade of any investment does more work than the first two put together. Waiting is not passive here, it is the mechanism.',
+      }),
 
     microCheck(
       'You invest $10,000 at 10% annual compound return. After 7 years, your money has doubled to $20,000. If you hold for another 7 years (14 years total), approximately how much will you have?',
@@ -712,7 +805,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'BUILD YOUR WEALTH',
+      'Build your wealth',
       'The Compound Growth Calculator',
       'exponential',
       'Adjust the starting amount, monthly contribution, and annual return to see how your wealth grows exponentially over time. Watch how small changes create massive differences over decades.',
@@ -735,7 +828,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly Contribution', min: 0, max: 2000, default: 400, unit: '$' },
         { label: 'Annual Return', min: 1, max: 15, default: 10, unit: '%' }
       ],
-      { company: 'Fidelity', metric: 'Study of best-performing accounts', outcome: 'The best-performing accounts belonged to people who forgot they had them', explanation: 'Fidelity\'s internal review found that accounts left untouched for decades performed best, because the owners never panic-sold, never tried to time the market, and let compound interest work uninterrupted.' }
+      undefined
     ),
 
     caseStudy(
@@ -744,9 +837,9 @@ const lessons: PathwayLesson[] = [
         { date: '1940s', event: 'Ronald Read grows up in rural Vermont, first in his family to finish high school', context: 'Read has no financial education, no wealthy connections, and no high-paying career ahead. He works as a gas station attendant and later as a janitor at JCPenney.' },
         { date: '1950s-1960s', event: 'Read begins buying blue-chip stocks and reinvesting dividends', context: 'Living extremely frugally, Read invests small amounts consistently. He buys stocks in companies he understands, AT&T, Bank of America, CVS, Procter & Gamble, and never sells.' },
         { date: '1970s-2000s', event: 'Read holds through every crash, 1973, 1987, 2000, 2008', context: 'While others panic-sell, Read simply holds. His dividends get reinvested automatically, buying more shares at lower prices during every crash. His portfolio compounds quietly for decades.' },
-        { date: '2014', event: 'Read dies at 92. His estate reveals $8 million in stocks', context: 'The janitor who lived so modestly he used safety pins to hold his coat together had accumulated $8 million. He donated $6 million to his local library and hospital. Compound interest turned small, consistent investments into extraordinary wealth over 60+ years.' }
+        { date: '2014', event: 'Read dies at 92. His estate reveals $8 million in stocks', context: 'He held his coat together with safety pins and had $8 million. He gave $6 million to his local library and hospital. Small investments grew over 60+ years.' }
       ],
-      'Ronald Read proves that wealth doesn\'t require a high income, market timing, or financial genius. It requires three things: start early, invest consistently, and never interrupt compound interest. Read invested small amounts in boring blue-chip stocks for 60+ years and let compounding do the rest. Time is the great equalizer, it can make a janitor richer than most doctors and lawyers.'
+      'Ronald Read proves wealth does not need a big income, perfect timing, or genius. Start early, invest steadily, never stop. He held blue-chip stocks, big stable companies, for 60+ years. Time can make a janitor richer than most doctors.'
     ),
 
     keyTermsCards([
@@ -754,7 +847,7 @@ const lessons: PathwayLesson[] = [
       { term: 'Rule of 72', definition: 'A quick formula to estimate how many years it takes to double your money: divide 72 by the annual return rate.', example: 'At 8% return: 72 ÷ 8 = 9 years to double. At 12%: 72 ÷ 12 = 6 years to double.', sentence: 'Using the Rule of 72, he calculated that his 10% return would double his money in about 7.2 years.' },
       { term: 'Exponential Growth', definition: 'Growth that accelerates over time because each period\'s growth is calculated on a larger base than the period before.', example: '$10,000 grows by $1,000 in year 1 at 10%, but by $17,000 in year 30, because the base has grown from $10K to $170K.', sentence: 'The exponential growth curve of her portfolio showed that the last decade of compounding generated more wealth than the first three decades combined.' },
       { term: 'Time Value of Money', definition: 'The concept that money available now is worth more than the same amount in the future because it can be invested and earn compound returns.', example: '$10,000 today at 10% becomes $174,494 in 30 years. Therefore, $10,000 today is "worth" $174,494 in future value.', sentence: 'Understanding the time value of money convinced him to start investing immediately rather than waiting for a "better time."' },
-      { term: 'Dollar-Cost Averaging', definition: 'Investing a fixed amount at regular intervals regardless of market price, automatically buying more shares when prices are low and fewer when high.', example: '$400/month into an index fund: you buy 10 shares at $40, then 13.3 shares when it drops to $30, then 8 shares when it rises to $50.', sentence: 'Dollar-cost averaging removed the stress of market timing, she simply invested $500 every month and let compounding do the work.' },
+      { term: 'Dollar-Cost Averaging', definition: 'Investing a fixed amount at regular intervals regardless of market price, automatically buying more shares when prices are low and fewer when high.', example: '$400 a month into an index fund buys 10 shares at $40, 13.3 shares when it drops to $30, and 8 shares at $50.', sentence: 'Dollar-cost averaging removed the stress of market timing, she simply invested $500 every month and let compounding do the work.' },
       { term: 'Future Value', definition: 'The value of a current investment at a specified date in the future, assuming a specific rate of compound growth.', example: 'The future value of $10,000 at 10% annual return after 20 years is $67,275.', sentence: 'He used a future value calculator to see that his $200/month investment would be worth $1.5 million in 40 years.' }
     ]),
 
@@ -768,10 +861,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Compound Interest Mind-Blowers',[
-      ['How much of your retirement wealth comes from compound returns vs your contributions after 40 years?','Over 93%. If you invest $400/month for 40 years at 10%, you contribute $192,000. Your final balance: ~$2.5 million. 93% of your wealth was created by compound returns, not your own money.'],
-      ['How much more does a 22-year-old accumulate vs a 32-year-old by age 65?','About 2.5-3x more with the same monthly investment. That single decade of extra compounding creates over $1.5 million in additional wealth.'],
-      ['If you put $10,000 in an S&P 500 index fund at birth, how much would it be worth at age 50?','About $1.17 million at 10% average annual return, from a single $10,000 investment. That\'s the power of 50 years of compounding.'],
-      ['A penny doubled every day for 30 days equals how much?','$10.7 million. It starts tiny, day 10 is just $5.12. But by day 20 it\'s $5,242. Day 30: $10,737,418. This illustrates how exponential growth accelerates dramatically in later periods.']
+      ['How much of your retirement wealth comes from compound returns vs your contributions after 40 years?','Over 93%. If you invest $400/month for 40 years at 10%, you contribute $192,000. Your final balance: ~$2.5 million. 93% of your wealth was created by compound returns, not your own money.', { stat: '93%', sprite: 'tree' }],
+      ['How much more does a 22-year-old accumulate vs a 32-year-old by age 65?','About 2.5-3x more with the same monthly investment. That single decade of extra compounding creates over $1.5 million in additional wealth.', { stat: '2.5-3x', sprite: 'hourglass' }],
+      ['If you put $10,000 in an S&P 500 index fund at birth, how much would it be worth at age 50?','About $1.17 million at 10% average annual return, from a single $10,000 investment. That\'s the power of 50 years of compounding.', { stat: '$1.17M', sprite: 'seedling' }],
+      ['A penny doubled every day for 30 days equals how much?','$10.7 million. It starts tiny, day 10 is just $5.12. But by day 20 it\'s $5,242. Day 30: $10,737,418. This illustrates how exponential growth accelerates dramatically in later periods.', { stat: '$10.7M', sprite: 'coin' }]
     ]),
 
     ds('Order these scenarios from LEAST to MOST total wealth at age 65:',[
@@ -909,7 +1002,7 @@ const lessons: PathwayLesson[] = [
 
     // See the divergence before naming it: play with the chart, then learn the why.
     interactiveGraph(
-      'DIVERGENCE IN ACTION',
+      'Divergence in action',
       'Stocks vs. Bonds: 20-Year Performance',
       'comparison',
       'Watch how stocks and bonds perform over 20 years. Toggle the recession overlay to see how they diverge during downturns. When stocks crash, bonds often rally.',
@@ -931,17 +1024,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Stock Allocation', min: 0, max: 100, default: 60, unit: '%' },
         { label: 'Time Period', min: 5, max: 30, default: 20, unit: ' years' }
       ],
-      { company: 'Ray Dalio / Bridgewater', metric: 'All Weather Portfolio performance', outcome: 'Positive returns in 86% of calendar years since 1984', explanation: 'Ray Dalio\'s All Weather Portfolio mixes stocks, bonds, gold, and commodities so the portfolio holds up in any economic environment. Combining assets that react differently to economic change smooths returns without giving up long-term growth.' }
+      undefined
     ),
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FUNDAMENTALS',
+      'The fundamentals',
       'Stocks = Ownership, Bonds = Loans',
       [
-        'You\'ve learned that compound interest turns small amounts into fortunes (Lesson 3) and that risk and return are connected (Lesson 2). Now it\'s time to meet the two most important asset classes you\'ll invest in. A stock represents partial ownership in a company. When you buy stock, you become a shareholder, you own a tiny piece of the company\'s assets, earnings, and future growth. Your return comes from the stock price rising (capital appreciation) and dividends (cash payments from profits). Stocks have unlimited upside but can also lose all their value if the company fails.',
-        'A bond is a loan you make to a company or government. They promise to pay you a fixed interest rate (the coupon) on a regular schedule and return your original investment (face value) at maturity. Bonds are a contractual obligation, the borrower must pay you back. This makes bonds more predictable but limits your upside to the interest rate.',
-        'The fundamental difference: stocks give you ownership (equity) with unlimited potential but no guarantees. Bonds give you a contractual claim (debt) with limited upside but predictable income. This is why stocks are called "equity" and bonds are called "fixed income."'
+        'A stock is partial ownership in a company: you own a tiny piece of its assets and earnings. You gain from the price rising, called capital appreciation, and dividends, cash paid from profits. Stocks can also lose all value.',
+      'A bond is a loan to a company or government. They must pay a fixed rate, the coupon, and return your money at maturity. Predictable but limited: stocks are equity, bonds are fixed income.'
       ],
       [
         { term: 'Equity', definition: 'Ownership stake in a company. Stocks represent equity, you own a share of the company\'s value.', example: 'Buying 100 shares of Apple at $150 means you own $15,000 of equity in a $2.8 trillion company.' },
@@ -950,8 +1042,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Dividend', definition: 'A cash payment made by a company to its shareholders, typically from profits.', example: 'Apple pays a quarterly dividend of $0.24 per share, about $960 per year for someone holding 1,000 shares.' }
       ],
       'Two-column comparison: left side shows a stock certificate with key attributes (ownership, variable returns, higher risk, no maturity date); right side shows a bond certificate with key attributes (loan, fixed returns, lower risk, maturity date).',
-      { company: 'Vanguard', metric: 'Total returns 1926-2023', outcome: 'Stocks averaged 10.3% annually vs 5.1% for bonds', explanation: 'Over nearly a century, stocks have returned about twice as much as bonds annually. But stocks also had years of -40% or more, while bonds rarely lost more than a few percent. The higher return is compensation for the higher risk.' },
-      IF4_DIAGRAM),
+      undefined,
+      IF4_DIAGRAM,
+      {
+        hint: 'Tap each one. The gap between them is the whole trade',
+        recap: 'Lesson 1 said you can own or you can lend. This is the price list for that choice. Stocks pay about twice as much because owners absorb the bad years first, and bonds pay about half as much because lenders are protected from them. Neither one is the smart pick; the mix is the decision.',
+      }),
 
     microCheck(
       'A company issues a 10-year bond with a 5% coupon and $1,000 face value. An investor buys it. One year later, the company\'s stock price has tripled. How does this affect the bond?',
@@ -968,19 +1064,19 @@ const lessons: PathwayLesson[] = [
         { date: 'March 2008', event: 'Bear Stearns collapses. S&P drops to 1,316 (-16%)', context: 'The first major bank failure. Treasury bond yields plummet as investors flee to safety. 10-year Treasury yields drop from 4.6% to 3.5%, meaning bond prices are surging.' },
         { date: 'September 2008', event: 'Lehman Brothers bankrupt. S&P crashes to 1,106 (-29%)', context: 'The financial system nearly collapses. Treasury bonds become the ultimate safe haven, yields crash to 2.2% as prices spike. Government bonds gain ~15% while stocks lose 29%.' },
         { date: 'March 2009', event: 'S&P hits bottom at 677 (-57% from peak). Bonds up 25%', context: 'Stocks have lost 57%. Many investors sell in panic. But Treasury bonds have gained 25%+ since the crisis began. A 60/40 portfolio lost "only" 22%, painful but survivable.' },
-        { date: 'March 2013', event: 'S&P recovers to pre-crisis highs. 60/40 already recovered in 2011', context: 'The all-stock portfolio takes 5.5 years to recover. The 60/40 portfolio recovered in 3.5 years, because the bond gains during the crash cushioned losses and provided capital to rebalance into cheap stocks.' }
+        { date: 'March 2013', event: 'S&P recovers to pre-crisis highs. 60/40 already recovered in 2011', context: 'All-stock took 5.5 years to recover. The 60/40 mix took 3.5 years. Bond gains softened the fall and gave cash to buy cheap stocks.' }
       ],
-      'The 2008 crisis is the greatest advertisement for owning bonds alongside stocks. While stocks lost 57%, bonds gained 25%. A 60/40 portfolio lost only 22% and recovered nearly two years faster than an all-stock portfolio. Bonds didn\'t just reduce losses, they provided the stability investors needed to avoid panic-selling at the bottom.'
+      'In 2008, stocks fell 57% while bonds rose 25%. A 60/40 portfolio lost just 22% and recovered nearly two years sooner. Bonds also steadied nerves, so investors were less likely to panic-sell at the bottom.'
     ),
 
     misconceptions(
-      'STOCKS & BONDS MYTHS',
+      'Stocks & bonds myths',
       'What most people get wrong about these two asset classes',
       [
         {
           myth: 'Bonds are boring and not worth owning.',
           truth: 'Bonds are the shock absorbers of your portfolio. During the 2008 crash, Treasury bonds gained 25% while stocks lost 57%. Owning bonds is what keeps investors from panic-selling stocks during crashes.',
-          explanation: 'Bonds aren\'t meant to generate excitement, they\'re meant to provide stability. A 60/40 portfolio captures 80% of stock returns with only 60% of the volatility. That reduced volatility keeps investors invested during crashes, which is worth far more than the return difference.'
+          explanation: 'Bonds bring stability, not excitement. A 60/40 portfolio captures 80% of stock returns with only 60% of the volatility, or price swings. Smaller swings keep investors in through crashes, which beats the return gap.'
         },
         {
           myth: 'You should be 100% in stocks if you\'re young.',
@@ -990,7 +1086,7 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'When stocks crash, everything crashes.',
           truth: 'High-quality government bonds typically rally during stock crashes, they move in the opposite direction. This negative correlation is the entire reason diversification works.',
-          explanation: 'During the COVID crash (March 2020), the S&P 500 fell 34% in 33 days. Long-term Treasury bonds gained 20% in the same period. When investors panic-sell stocks, they buy bonds, driving bond prices up. This is the flight to safety.'
+          explanation: 'In the March 2020 COVID crash, the S&P 500 fell 34% in 33 days. Long-term Treasury bonds rose 20%. Investors fleeing stocks buy bonds, pushing bond prices up. That is the flight to safety.'
         }
       ]
     ),
@@ -1014,10 +1110,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Stocks vs. Bonds Facts',[
-      ['What\'s the historical average annual return of stocks vs bonds?','Stocks: ~10.3% per year since 1926. Bonds: ~5.1% per year. Stocks return roughly twice as much, but with 3-4x the volatility.'],
-      ['How do bonds react when interest rates rise?','Bond prices fall when rates rise. A 1% rate increase causes a 10-year bond to lose about 8% of its value. This is called interest rate risk.'],
-      ['What is the worst annual loss for U.S. Treasury bonds?','About -13% in 2022 when the Fed raised rates aggressively. Compare to stocks\' worst: -43% in 1931. Bonds\' downside is much more limited.'],
-      ['Why does a 60/40 portfolio work so well?','Stocks and bonds often move in opposite directions during crises. When one falls, the other rises. This negative correlation smooths your total portfolio returns.']
+      ['What\'s the historical average annual return of stocks vs bonds?','Stocks: ~10.3% per year since 1926. Bonds: ~5.1% per year. Stocks return roughly twice as much, but with 3-4x the volatility.', { stat: '10.3% vs 5.1%', sprite: 'scales' }],
+      ['How do bonds react when interest rates rise?','Bond prices fall when rates rise. A 1% rate increase causes a 10-year bond to lose about 8% of its value. This is called interest rate risk.', { stat: '-8%', sprite: 'chart-down' }],
+      ['What is the worst annual loss for U.S. Treasury bonds?','About -13% in 2022 when the Fed raised rates aggressively. Compare to stocks\' worst: -43% in 1931. Bonds\' downside is much more limited.', { stat: '-13%', sprite: 'shield' }],
+      ['Why does a 60/40 portfolio work so well?','Stocks and bonds often move in opposite directions during crises. When one falls, the other rises. This negative correlation smooths your total portfolio returns.', { stat: '60 / 40', sprite: 'pie-slice' }]
     ]),
 
     ds('Order these from LOWEST average annual return to HIGHEST:',[
@@ -1155,12 +1251,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE PRINCIPLE',
+      'The principle',
       'Don\'t Put All Your Eggs in One Basket',
       [
-        'You know stocks offer growth and bonds offer stability (Lesson 4). But holding just one stock or one bond is dangerous, you need a strategy for combining them. Diversification means spreading your investments across different assets, sectors, and geographies to reduce the impact of any single failure. The core principle: when one investment falls, others should hold steady or rise, cushioning your overall portfolio.',
-        'There are four dimensions of diversification. Asset class diversification means holding stocks, bonds, real estate, and cash. Sector diversification means spreading stock holdings across technology, healthcare, energy, finance, and other industries. Geographic diversification means investing in U.S., international, and emerging markets. Time diversification means investing regularly over time through dollar-cost averaging.',
-        'The mathematical reason diversification works is correlation. Two investments are positively correlated if they move in the same direction and negatively correlated if they move in opposite directions. A diversified portfolio combines assets with low or negative correlation, so when one falls, others rise or hold steady, smoothing your total returns.'
+        'Diversification means spreading your money across different assets, sectors, and countries so one failure cannot sink you. Four dimensions: asset class (stocks, bonds, real estate, cash), sector (technology, healthcare, energy, finance), geography (U.S., international, emerging markets), and time.',
+      'Time diversification means investing regularly, called dollar-cost averaging. It works because of correlation: positively correlated assets move together, negatively correlated ones move opposite. Mix low or negative correlation assets, so when one falls, others hold steady and smooth your returns.'
       ],
       [
         { term: 'Correlation', definition: 'A measure of how two investments move relative to each other, ranging from +1 (move perfectly together) to -1 (move perfectly opposite).', example: 'U.S. tech stocks have ~0.85 correlation with each other but only ~0.3 correlation with Treasury bonds.' },
@@ -1169,13 +1264,17 @@ const lessons: PathwayLesson[] = [
         { term: 'Concentration Risk', definition: 'The danger of having too much of your portfolio in a single stock, sector, or asset class.', example: 'Enron employees who held company stock in their 401(k) lost both their job and retirement savings when the company collapsed.' }
       ],
       'Two-by-two correlation matrix showing four asset classes: U.S. Stocks, Intl Stocks, Bonds, and Real Estate with color coding from dark red (high correlation) to dark green (negative correlation).',
-      { company: 'Harry Markowitz', metric: 'Modern Portfolio Theory (Nobel Prize 1990)', outcome: 'Proved mathematically that diversification is the "only free lunch in finance"', explanation: 'Markowitz demonstrated that by combining assets with different correlation patterns, investors can reduce portfolio risk without reducing expected returns. This was revolutionary, getting something for nothing is impossible everywhere in finance except through diversification.' },
-      IF5_DIAGRAM),
+      undefined,
+      IF5_DIAGRAM,
+      {
+        hint: 'Tap each dimension. Most people only ever use the first',
+        recap: 'Diversification is the one thing in finance that genuinely gives you something for nothing: less risk without giving up expected return. Harry Markowitz won a Nobel Prize for proving it. And it is free, which is why it is the strangest thing in the world that anyone skips it.',
+      }),
 
     // Lock in the vocabulary up front: the rest of the lesson leans on these five terms.
     keyTermsCards([
       { term: 'Diversification', definition: 'The strategy of spreading investments across different assets, sectors, and geographies to reduce the impact of any single investment\'s failure on the overall portfolio.', example: 'Instead of buying one stock, buying an S&P 500 ETF gives instant diversification across 500 companies in 11 sectors.', sentence: 'Diversification is often called the only free lunch in finance, it reduces risk without reducing expected returns.' },
-      { term: 'Correlation', definition: 'A statistical measure of how two investments move relative to each other. +1 means they move together, 0 means no relationship, -1 means they move in opposite directions.', example: 'U.S. stocks and Treasury bonds have historically had near-zero or negative correlation, making them ideal diversification partners.', sentence: 'By selecting assets with low correlation, she built a portfolio where gains in one area offset losses in another.' },
+      { term: 'Correlation', definition: 'Correlation shows how two investments move together. +1 means they rise and fall as one, 0 means no link, -1 means opposite directions.', example: 'U.S. stocks and Treasury bonds have historically had near-zero or negative correlation, making them ideal diversification partners.', sentence: 'By selecting assets with low correlation, she built a portfolio where gains in one area offset losses in another.' },
       { term: 'Unsystematic Risk', definition: 'Risk that is specific to a single company or sector and can be eliminated through diversification.', example: 'Meta losing 64% in 2022 on its metaverse bet was unsystematic risk, it did not touch healthcare or energy stocks.', sentence: 'Owning a broad index fund eliminates unsystematic risk by spreading exposure across hundreds of companies.' },
       { term: 'Systematic Risk', definition: 'Market-wide risk that affects all investments and cannot be diversified away, such as recessions, inflation, or interest rate changes.', example: 'The 2020 COVID crash hit every sector at once, that is systematic risk no amount of diversification could avoid.', sentence: 'While diversification eliminates company-specific risk, systematic risk from recessions affects the entire market.' },
       { term: 'Concentration Risk', definition: 'The elevated danger of holding too large a position in a single stock, sector, or asset class.', example: 'Enron employees who held 60%+ of their 401(k) in company stock lost their retirement savings when the company collapsed.', sentence: 'He reduced his concentration risk by selling half of his company stock and reinvesting in a diversified index fund.' },
@@ -1191,7 +1290,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'BUILD YOUR MIX',
+      'Build your mix',
       'Portfolio Diversification Simulator',
       'pie',
       'Adjust the allocation sliders to build a diversified portfolio. Watch how the risk score and projected volatility change as you add more asset classes and adjust their weights.',
@@ -1215,28 +1314,28 @@ const lessons: PathwayLesson[] = [
         { label: 'Bonds', min: 0, max: 60, default: 20, unit: '%' },
         { label: 'Real Estate (REITs)', min: 0, max: 30, default: 10, unit: '%' }
       ],
-      { company: 'Enron', metric: 'Employee 401(k) loss (2001)', outcome: 'Employees lost $2 billion in retirement savings', explanation: 'Enron employees were encouraged to hold company stock in their 401(k)s. When Enron collapsed, they lost both their jobs and retirement savings simultaneously. This is the ultimate cautionary tale about concentration risk, never put your career earnings and investments in the same basket.' }
+      undefined
     ),
 
     caseStudy(
       'Long-Term Capital Management: The $4.6 Billion Lesson in Concentration',
       [
-        { date: '1994', event: 'LTCM launches with two Nobel Prize-winning economists and Wall Street legends', context: 'The fund uses sophisticated mathematical models to identify tiny price discrepancies across global bond markets. They leverage these bets enormously, $4.72 billion in capital supports $129 billion in positions (27:1 leverage).' },
-        { date: '1995-1997', event: 'LTCM returns 21%, 43%, and 41%, the best track record on Wall Street', context: 'The fund is considered infallible. Its models are based on the idea that markets are rational and extreme events are nearly impossible. They concentrate heavily in specific types of bond arbitrage.' },
+        { date: '1994', event: 'LTCM launches with two Nobel Prize-winning economists and Wall Street legends', context: 'The fund uses math models to spot tiny price gaps in global bond markets. It borrows hugely: $4.72 billion in capital backs $129 billion in bets (27:1 leverage).' },
+        { date: '1995-1997', event: 'LTCM returns 21%, 43%, and 41%, the best track record on Wall Street', context: 'Everyone thinks the fund cannot lose. Its models assume markets stay rational and that extreme events almost never happen. Nearly all its money sits in one narrow bond strategy.' },
         { date: 'August 1998', event: 'Russia defaults on its debt. Global markets panic. LTCM\'s concentrated bets collapse', context: 'LTCM\'s models never predicted a Russian default. Their positions all lose money simultaneously, the correlations they assumed would hold broke down. The fund loses $4.6 billion in weeks.' },
         { date: 'September 1998', event: 'Federal Reserve organizes a $3.6 billion bailout to prevent LTCM from crashing the global financial system', context: 'LTCM was so large and so interconnected that its failure threatened to bring down major banks worldwide. Two Nobel laureates proved that even the smartest people can\'t outsmart diversification.' }
       ],
-      'LTCM\'s collapse proves that no model, no strategy, and no team of geniuses can substitute for diversification. Their concentrated, highly leveraged bets in a single strategy worked brilliantly, until they didn\'t. When their assumptions about correlations broke down, they lost everything in weeks. The lesson: diversification isn\'t just about owning different stocks, it\'s about avoiding concentration in any single strategy, asset class, or assumption about how markets work.'
+      'LTCM\'s collapse shows no model or genius team can replace diversification. Their borrowed bets on one strategy worked until markets all moved together, then they lost everything in weeks. Spread risk across strategies and assets, not just stocks.'
     ),
 
     misconceptions(
-      'DIVERSIFICATION MYTHS',
+      'Diversification myths',
       'What most people get wrong about portfolio diversification',
       [
         {
           myth: 'Owning 30 stocks means you\'re diversified.',
           truth: '30 stocks in the same sector (e.g., all tech) provides almost no diversification benefit. True diversification requires spreading across different sectors, asset classes, and geographies.',
-          explanation: 'During the 2022 tech selloff, Meta fell 64%, Netflix fell 51%, and most tech stocks dropped 30-50%. Owning 30 tech stocks would have meant losing ~40%. A diversified portfolio with energy, healthcare, and utilities would have been much more resilient.'
+          explanation: 'In the 2022 tech selloff, Meta fell 64%, Netflix fell 51%, and most tech stocks lost 30-50%. Owning 30 tech stocks meant losing about 40%. Adding energy, healthcare, and utilities would have cushioned that.'
         },
         {
           myth: 'Diversification means you\'ll never lose money.',
@@ -1261,10 +1360,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Diversification Mind-Openers',[
-      ['How many stocks do you need to eliminate most company-specific risk?','About 30, spread across different sectors. Beyond 30, each additional stock provides negligible additional diversification benefit. An index fund with 500 stocks is essentially fully diversified.'],
-      ['What happened to Enron employees who held company stock in their 401(k)?','They lost $2 billion collectively. When Enron collapsed, they lost both their income (job) and retirement savings simultaneously. This is why you never concentrate investments in your employer\'s stock.'],
-      ['What is the "only free lunch" in finance?','Diversification. Nobel laureate Harry Markowitz proved mathematically that combining uncorrelated assets reduces portfolio risk without reducing expected returns. You get lower risk for free.'],
-      ['During 2022, Meta fell 64% while energy stocks gained 55%. What does this teach us?','Different sectors perform differently in the same market environment. A diversified portfolio that held both tech and energy would have had its tech losses partially offset by energy gains.']
+      ['How many stocks do you need to eliminate most company-specific risk?','About 30, spread across different sectors. Beyond 30, each additional stock provides negligible additional diversification benefit. An index fund with 500 stocks is essentially fully diversified.', { stat: '~30 stocks', sprite: 'pie-slice' }],
+      ['What happened to Enron employees who held company stock in their 401(k)?','They lost $2 billion collectively. When Enron collapsed, they lost both their income (job) and retirement savings simultaneously. This is why you never concentrate investments in your employer\'s stock.', { stat: '$2B lost', sprite: 'piggy-crack' }],
+      ['What is the "only free lunch" in finance?','Diversification. Nobel laureate Harry Markowitz proved mathematically that combining uncorrelated assets reduces portfolio risk without reducing expected returns. You get lower risk for free.', { stat: 'Free lunch', sprite: 'gift' }],
+      ['During 2022, Meta fell 64% while energy stocks gained 55%. What does this teach us?','Different sectors perform differently in the same market environment. A diversified portfolio that held both tech and energy would have had its tech losses partially offset by energy gains.', { stat: '-64% vs +55%', sprite: 'factory' }]
     ]),
 
     ds('Order these portfolios from LEAST diversified to MOST diversified:',[
@@ -1402,7 +1501,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'What Are ETFs and Index Funds?',
       [
         'Diversification is powerful (Lesson 5), but buying hundreds of individual stocks would be impractical and expensive. ETFs and index funds solve this problem elegantly. An ETF (Exchange-Traded Fund) is a basket of securities, stocks, bonds, or other assets, bundled into a single investment that trades on a stock exchange like a regular stock. When you buy one share of the Vanguard S&P 500 ETF (VOO), you instantly own a tiny piece of all 500 companies in the S&P 500. ETFs trade throughout the day at market prices, just like stocks.',
@@ -1416,7 +1515,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Passive Investing', definition: 'An investment strategy that tracks a market index rather than trying to outperform it through stock picking or market timing.', example: 'Warren Buffett bet $1 million that a simple S&P 500 index fund would beat a basket of hedge funds over 10 years, and won.' }
       ],
       'Diagram showing how an index ETF works: investor buys ETF shares → ETF holds all stocks in the index → index tracks the market',
-      { company: 'Warren Buffett', metric: '$1 million bet (2008-2017)', outcome: 'S&P 500 index fund returned 125.8% vs hedge funds\' 36%', explanation: 'Buffett bet that a zero-skill Vanguard S&P 500 index fund would beat five hand-picked hedge funds managed by some of Wall Street\'s brightest minds. After 10 years, the index fund crushed them: 125.8% vs 36%. Fees and overconfidence destroyed the professionals\' returns.' },
+      undefined,
       IF6_DIAGRAM),
 
     microCheck(
@@ -1428,7 +1527,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE FEE IMPACT',
+      'The fee impact',
       'How Expense Ratios Compound Over Time',
       'comparison',
       'Watch how a small difference in expense ratios creates a massive wealth gap over decades. Adjust the fee rate and time period to see the compounding effect of fees.',
@@ -1451,48 +1550,48 @@ const lessons: PathwayLesson[] = [
         { label: 'Expense Ratio', min: 0, max: 2, default: 1, unit: '%' },
         { label: 'Time Period', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'Morningstar Research', metric: 'Fee quintile vs performance (2010-2020)', outcome: 'Cheapest quintile of funds outperformed the most expensive quintile in every asset class', explanation: 'Morningstar found that the single best predictor of future fund performance was not past returns, star ratings, or manager tenure, it was low fees. The cheapest 20% of funds consistently outperformed the most expensive 20% across stocks, bonds, and balanced funds.' }
+      undefined
     ),
 
     caseStudy(
       'Jack Bogle: The Man Who Gave Investing to the People',
       [
-        { date: '1974', event: 'Jack Bogle founds Vanguard with a radical idea: a fund owned by its investors', context: 'After being fired from Wellington Management, Bogle creates Vanguard as a mutual company, meaning the fund company is owned by the funds\' shareholders, not outside investors. This structure eliminates the profit motive that drives high fees at other fund companies.' },
-        { date: 'August 1976', event: 'Bogle launches the First Index Investment Trust, the world\'s first index fund for individual investors', context: 'Wall Street mocks it as "Bogle\'s folly" and "un-American." The initial offering raises only $11 million of its $150 million target, a massive flop. Competitors run ads calling it "a sure path to mediocrity." Bogle persists, saying: "Don\'t look for the needle in the haystack. Just buy the haystack."' },
-        { date: '1990s', event: 'Index funds gain traction as data proves active managers consistently underperform', context: 'Academic research by Burton Malkiel ("A Random Walk Down Wall Street") and growing SPIVA data showing 80%+ active manager failure rates validate Bogle\'s thesis. Money begins flowing from active to passive funds. Vanguard grows to manage hundreds of billions.' },
-        { date: '2019-2024', event: 'Index funds surpass active funds in total assets for the first time, Bogle\'s vision vindicated', context: 'In 2019, passive U.S. equity funds held more assets than active funds for the first time in history. By 2024, Vanguard manages over $8 trillion. The "folly" that raised $11 million became the dominant investment paradigm. Bogle passed away in 2019, having saved investors an estimated $1 trillion in fees over his lifetime.' }
+        { date: '1974', event: 'Jack Bogle founds Vanguard with a radical idea: a fund owned by its investors', context: 'Fired from Wellington Management, Bogle builds Vanguard as a mutual company: the funds\' shareholders own it, not outside investors. No profit motive, so no push for high fees.' },
+        { date: 'August 1976', event: 'Bogle launches the First Index Investment Trust, the world\'s first index fund for individual investors', context: 'Wall Street calls it "Bogle\'s folly" and "un-American." It raises $11 million of a $150 million goal. Rivals\' ads: "a sure path to mediocrity." Bogle: "Just buy the haystack."' },
+        { date: '1990s', event: 'Index funds gain traction as data proves active managers consistently underperform', context: 'Malkiel\'s "A Random Walk Down Wall Street" and SPIVA data (80%+ of active managers trail the index) back Bogle. Money leaves active funds. Vanguard grows to hundreds of billions.' },
+        { date: '2019-2024', event: 'Index funds surpass active funds in total assets for the first time, Bogle\'s vision vindicated', context: '2019: U.S. index funds pass active funds. 2024: Vanguard runs over $8 trillion. The $11 million flop won. Bogle died in 2019, saving investors about $1 trillion in fees.' }
       ],
-      'Jack Bogle\'s story is one of the greatest in financial history. He was mocked, ridiculed, and dismissed for decades, yet his simple idea (buy every stock, charge almost nothing) proved more powerful than Wall Street\'s brightest minds. The lesson: simplicity, low costs, and patience beat complexity, high fees, and expertise. Bogle didn\'t just create a product, he democratized wealth building for millions of ordinary people.'
+      'Bogle was mocked for decades, but his simple idea (buy every stock, charge almost nothing) beat Wall Street\'s smartest minds. Low costs and patience beat complexity and high fees. He opened wealth building to ordinary people.'
     ),
 
     misconceptions(
-      'ETF & INDEX FUND MYTHS',
+      'ETF & index fund myths',
       'What most people get wrong about passive investing',
       [
         {
           myth: 'Index funds just give you "average" returns, you should aim higher.',
           truth: 'The index earns the market return BEFORE fees. After fees, index funds beat 92% of professional stock pickers over 15 years. "Average" beats "above average" almost every time because of fees.',
-          explanation: 'Think about it: the market return is the average of all investors\' returns (before fees). Once you subtract fees, the average active investor MUST underperform the index. It\'s not that indexing is mediocre, it\'s that fees make active investing even more mediocre.'
+          explanation: 'The market return is the average of all investors\' returns before fees. Subtract fees and the average active investor must fall behind the index. Indexing is not mediocre; fees drag active investing down.'
         },
         {
           myth: 'ETFs are risky because they trade like stocks.',
           truth: 'The risk of an ETF depends entirely on what it holds, not how it trades. An S&P 500 ETF holds 500 blue-chip stocks, it\'s one of the safest equity investments. A single stock is far riskier than an ETF holding hundreds of stocks.',
-          explanation: 'ETF trading flexibility is actually an advantage. You can buy or sell at any point during the day at known prices. Mutual funds only execute at end-of-day NAV. The intraday trading feature is optional, long-term investors simply buy and hold.'
+          explanation: 'Trading flexibility is an advantage. ETFs trade all day at prices you can see; mutual funds trade once, at the closing price (NAV, or net asset value). Long-term investors just buy and hold.'
         },
         {
           myth: 'You need to research and compare dozens of ETFs to find the best one.',
           truth: 'For most investors, a single total stock market ETF (VTI) or S&P 500 ETF (VOO) is all you need for U.S. equity exposure. Add an international ETF (VXUS) and a bond ETF (BND) and you have a complete portfolio.',
-          explanation: 'Analysis paralysis kills more portfolios than bad ETF selection. VTI, VOO, VXUS, and BND from Vanguard (or their equivalents from Fidelity or Schwab) are all excellent and nearly identical. Pick one, start investing, and stop researching. The best ETF is the one you actually buy.'
+          explanation: 'Overthinking costs more than a wrong pick. VTI, VOO, VXUS and BND from Vanguard, or their Fidelity and Schwab twins, are nearly identical and all fine. The best ETF is the one you buy.'
         }
       ]
     ),
 
     keyTermsCards([
       { term: 'ETF (Exchange-Traded Fund)', definition: 'A basket of securities packaged into a single fund that trades on a stock exchange throughout the day, offering instant diversification in one purchase.', example: 'VOO holds all 500 S&P 500 companies. Buying 1 share (~$500) gives you ownership in Apple, Microsoft, Amazon, and 497 other companies simultaneously.', sentence: 'Instead of buying individual stocks, she invested $5,000 in a single ETF that gave her exposure to the entire U.S. stock market for a 0.03% annual fee.' },
-      { term: 'Index Fund', definition: 'Any fund that passively tracks a market index by holding the same securities in the same proportions as the benchmark, rather than relying on active stock picking.', example: 'VTI tracks the CRSP US Total Market Index, approximately 4,000 U.S. stocks. It charges 0.03% and has beaten 92% of actively managed large-cap funds over 15 years.', sentence: 'Warren Buffett has repeatedly told investors that a low-cost S&P 500 index fund is the single best investment for most people.' },
+      { term: 'Index Fund', definition: 'A fund that copies a market index by holding the same stocks in the same proportions, instead of picking stocks.', example: 'VTI tracks the CRSP US Total Market Index, about 4,000 stocks. It costs 0.03% and beat 92% of active large-cap funds over 15 years.', sentence: 'Warren Buffett has repeatedly told investors that a low-cost S&P 500 index fund is the single best investment for most people.' },
       { term: 'Expense Ratio', definition: 'The annual fee charged by a fund as a percentage of assets under management, deducted automatically from returns. The most important number when comparing funds.', example: 'VOO charges 0.03% ($3/year per $10,000). American Funds Growth Fund charges 0.64% ($64/year per $10,000). Over 30 years, this gap costs tens of thousands.', sentence: 'He always checked the expense ratio first when evaluating funds, knowing it was the single best predictor of long-term performance.' },
       { term: 'S&P 500', definition: 'An index of the 500 largest publicly traded U.S. companies by market capitalization, widely considered the benchmark for the overall U.S. stock market.', example: 'The S&P 500 includes Apple, Microsoft, Amazon, Nvidia, Google, Meta, and 494 other companies. It has averaged ~10% annual returns since 1926.', sentence: 'Her entire equity allocation was a single S&P 500 index fund, instant diversification across America\'s 500 largest companies for $3/year in fees.' },
-      { term: 'Passive Investing', definition: 'An investment approach that seeks to match market returns by tracking an index, rather than trying to beat the market through stock selection or market timing.', example: 'Buying VTI and holding it for 30 years is passive investing, zero stock picking, zero market timing, and it beats 92% of active managers.', sentence: 'After reading that 92% of active managers underperform, she switched her entire portfolio to passive index funds and never looked back.' },
+      { term: 'Passive Investing', definition: 'An approach that aims to match the market by tracking an index, not to beat it by picking stocks or timing trades.', example: 'Buying VTI and holding it for 30 years is passive investing, zero stock picking, zero market timing, and it beats 92% of active managers.', sentence: 'After reading that 92% of active managers underperform, she switched her entire portfolio to passive index funds and never looked back.' },
       { term: 'Total Stock Market Fund', definition: 'An index fund that tracks the entire U.S. stock market, approximately 4,000 companies of all sizes, providing the broadest possible domestic equity diversification.', example: 'VTI (Vanguard Total Stock Market ETF) holds ~4,000 stocks from mega-caps like Apple to small-caps, all for 0.03% per year.', sentence: 'For maximum diversification with minimal effort, he chose a total stock market fund that captured the return of every publicly traded U.S. company.' }
     ]),
 
@@ -1516,7 +1615,7 @@ const lessons: PathwayLesson[] = [
     ds('Put these in order of lowest to highest expense ratio:',[
       'Fidelity ZERO Total Market (FZROX), 0.00%',
       'Vanguard S&P 500 ETF (VOO), 0.03%',
-      'SPDR S&P 500 ETF (SPY), 0.09%',
+      'Spdr S&P 500 ETF (spy), 0.09%',
       'Average actively managed equity fund, 0.68%',
       'Hedge fund (2 and 20 model), ~2.0% + 20% of profits'
     ]),
@@ -1643,12 +1742,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'What Is a Mutual Fund?',
       [
-        'In Lesson 6, you learned about ETFs and index funds, the low-cost building blocks of a portfolio. Mutual funds are their older sibling, with some key differences. A mutual fund pools money from thousands of investors to buy a diversified portfolio of stocks, bonds, or other securities. When you buy shares, you own a slice of everything the fund holds. If the fund owns 500 stocks, you effectively own a piece of all 500.',
-        'Mutual funds are managed by professional portfolio managers at companies like Fidelity, Vanguard, and BlackRock. These managers decide which securities to buy and sell based on the fund\'s stated objective. An equity growth fund buys growth stocks. A bond income fund buys bonds. A balanced fund mixes both.',
-        'Unlike ETFs, mutual funds are priced once per day after the market closes, this is called Net Asset Value (NAV). NAV = (Total Assets - Total Liabilities) / Shares Outstanding. If the fund holds $1 billion in securities and has 50 million shares, the NAV is $20 per share. Every buy or sell order executes at that day\'s closing NAV.'
+        'A mutual fund pools money from many investors to buy stocks and bonds. You own a slice of everything it holds: if it holds 500 stocks, you own part of all 500. Managers at Fidelity, Vanguard, BlackRock pick them.',
+      'Unlike ETFs, mutual funds price once daily after the close, at net asset value (NAV): assets minus liabilities, divided by shares outstanding. $1 billion in securities and 50 million shares gives NAV of $20. Orders fill at that price.'
       ],
       [
         { term: 'Mutual Fund', definition: 'A pooled investment vehicle where investors\' money is combined and professionally managed to buy a diversified portfolio of securities.', example: 'The Vanguard 500 Index Fund (VFIAX) pools investor money to buy all 500 stocks in the S&P 500 index.' },
@@ -1657,7 +1755,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Load Fee', definition: 'A one-time sales commission charged when buying (front-end) or selling (back-end) mutual fund shares.', example: 'A 5% front-end load on $10,000 means $500 goes to the broker before your money starts working.' }
       ],
       'Flow diagram: investors pool money → fund manager directs it to diversified holdings → NAV calculated daily',
-      { company: 'Vanguard', metric: 'VFIAX (500 Index Fund)', outcome: 'holds $824B+ assets at 0.04% expense ratio', explanation: 'VFIAX tracks the S&P 500 and charges just $4/year per $10,000 invested. It gives individual investors access to 500 companies for nearly free.' },
+      undefined,
       IF7_DIAGRAM),
 
     microCheck(
@@ -1669,7 +1767,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'FEES MATTER',
+      'Fees matter',
       'The Hidden Cost of Expense Ratios Over Time',
       'comparison',
       'See how even small fee differences compound into massive gaps over decades. Adjust the expense ratio to see the impact on a $10,000 investment.',
@@ -1692,7 +1790,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Expense Ratio', min: 0, max: 2, default: 1, unit: '%' },
         { label: 'Time Period', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'SPIVA Scorecard (S&P Dow Jones)', metric: 'Active vs Passive (2008-2023)', outcome: '92.2% of large-cap active funds underperformed the S&P 500 over 15 years', explanation: 'Despite charging 10-50x higher fees, the vast majority of stock pickers fail to beat a simple index fund. They need to beat the market by enough to cover their costs, and almost none do consistently.' }
+      undefined
     ),
 
     caseStudy(
@@ -1701,19 +1799,19 @@ const lessons: PathwayLesson[] = [
         { date: '1977', event: 'Peter Lynch takes over Fidelity Magellan Fund with $18 million in assets', context: 'Lynch, a 33-year-old analyst, begins with a simple philosophy: "Invest in what you know." He visits hundreds of companies per year and holds 1,400+ stocks at peak.' },
         { date: '1977-1990', event: 'Fund returns 29.2% annually, assets grow to $14 billion', context: 'Lynch buys stocks in companies he encounters daily, Dunkin\' Donuts, Taco Bell, La Quinta motels. He survives the 1987 Black Monday crash by holding steady while others panic.' },
         { date: '1990', event: 'Lynch retires with the best mutual fund track record in history', context: '$1,000 invested when Lynch started became $28,000 when he retired. Yet the average Magellan investor earned only ~7% per year.' },
-        { date: '1990-2024', event: 'Post-Lynch Magellan underperforms the S&P 500 index', context: 'After Lynch left, Magellan reverted to average. The fund\'s subsequent managers failed to replicate his results. The S&P 500 index fund quietly outperformed, proving Lynch was the exception, not the rule.' }
+        { date: '1990-2024', event: 'Post-Lynch Magellan underperforms the S&P 500 index', context: 'After Lynch left, Magellan turned average. The next managers could not match him. An S&P 500 index fund beat them. Lynch was the exception, not the rule.' }
       ],
-      'Lynch\'s record proves two things: (1) exceptional active management exists but is extraordinarily rare, and (2) even with the best fund ever, investor behavior destroyed most returns. The average Magellan investor earned only 7% while the fund returned 29.2%, they bought after hot streaks and sold after dips. The fund was perfect; the investors were human.'
+      'Great active managers exist, but they are rare. Behavior matters more. The average Magellan investor earned 7% while the fund returned 29.2%. They bought after hot streaks and sold after dips. Timing cost them.'
     ),
 
     misconceptions(
-      'MUTUAL FUND MYTHS',
+      'Mutual fund myths',
       'What most people get wrong about mutual funds',
       [
         {
           myth: 'Actively managed funds are worth higher fees because professionals pick better stocks.',
           truth: 'Over 15 years, 92% of active large-cap funds underperform a simple index fund. Higher fees make outperformance harder, not easier.',
-          explanation: 'If the market returns 10% and your fund charges 1%, your manager must earn 11% just to match the index. A few managers like Lynch beat the market, but identifying them in advance is nearly impossible.'
+          explanation: 'If the market returns 10% and your fund charges 1%, the manager must earn 11% just to tie the index. A few, like Lynch, do. Picking them ahead of time is nearly impossible.'
         },
         {
           myth: 'A higher NAV means a fund is more expensive or overvalued.',
@@ -1733,7 +1831,7 @@ const lessons: PathwayLesson[] = [
       { term: 'NAV (Net Asset Value)', definition: 'A mutual fund\'s per-share price, calculated once daily at market close: (Total Assets - Liabilities) / Shares Outstanding.', example: 'A fund with $1 billion in assets, $5 million in liabilities, and 40 million shares has a NAV of $24.875.', sentence: 'Unlike stocks that fluctuate all day, her mutual fund\'s NAV updated once at 4:00 PM when the market closed.' },
       { term: 'Load Fee', definition: 'A one-time sales commission when buying (front-end load) or selling (back-end load) mutual fund shares. No-load funds charge zero.', example: 'A 5.75% front-end load on $10,000 sends $575 to the broker, only $9,425 gets invested.', sentence: 'She only bought no-load funds, ensuring every dollar she invested went to work immediately.' },
       { term: 'Target-Date Fund', definition: 'A mutual fund that automatically adjusts from stocks to bonds as you approach a target retirement year.', example: 'Vanguard Target Retirement 2060 starts ~90% stocks and gradually shifts to ~30% stocks by 2060.', sentence: 'For her 401(k), she chose a target-date 2055 fund, total autopilot investing that adjusts as she ages.' },
-      { term: 'Active vs Passive', definition: 'Active funds hire managers to pick stocks (higher fees). Passive funds track an index (lower fees). Data shows passive wins for most investors over 15+ years.', example: 'Fidelity Magellan (active, 0.52%) vs Fidelity 500 Index (passive, 0.015%), the index has outperformed since Lynch retired.', sentence: 'After learning 92% of active managers underperform, he switched his entire portfolio to low-cost passive index funds.' },
+      { term: 'Active vs Passive', definition: 'Active funds pay managers to pick stocks. Fees are higher. Passive funds copy an index. Fees are lower. Over 15+ years, passive usually wins.', example: 'Fidelity Magellan (active, 0.52%) vs Fidelity 500 Index (passive, 0.015%), the index has outperformed since Lynch retired.', sentence: 'After learning 92% of active managers underperform, he switched his entire portfolio to low-cost passive index funds.' },
       { term: 'Equity Fund', definition: 'A mutual fund that invests primarily in stocks. Subcategories: large-cap, mid-cap, small-cap, growth, value, international.', example: 'A large-cap growth fund invests in big companies like Apple and Microsoft expected to grow earnings faster than average.', sentence: 'He split his equity allocation between a domestic large-cap fund and an international fund for geographic diversification.' }
     ]),
 
@@ -1891,21 +1989,20 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'What Is Dollar Cost Averaging?',
       [
-        'You now have the tools: index funds and ETFs (Lesson 6), mutual funds (Lesson 7), and the power of diversification (Lesson 5). But WHEN should you invest? The answer might surprise you, the best strategy is to invest consistently regardless of timing. Dollar cost averaging (DCA) means investing a fixed dollar amount on a regular schedule, regardless of whether the market is up, down, or sideways. Instead of trying to find the perfect moment to invest a lump sum, you spread your purchases across time.',
-        'The math behind DCA is powerful and counterintuitive. When prices are high, your fixed amount buys fewer shares. When prices drop, the same amount buys more shares. Over time, this naturally lowers your average cost per share below the average price of the asset. You automatically buy more when things are cheap.',
-        'Most people already use DCA without realizing it, every 401(k) contribution from a paycheck is dollar cost averaging. The strategy works because it transforms investing from a series of stressful timing decisions into a single automated habit. The biggest enemy of your portfolio is not a bear market, it is your own emotional reactions to one.'
+        'Dollar cost averaging (DCA) means investing a fixed dollar amount on a regular schedule, no matter what the market is doing. You stop hunting for the perfect moment and spread your purchases across time instead.',
+      'When prices are high, your fixed amount buys fewer shares. When prices drop, it buys more. That lowers your average cost per share. Every 401(k) paycheck contribution is DCA, turning stressful timing decisions into one automatic habit.'
       ],
       [
-        { term: 'Dollar Cost Averaging (DCA)', definition: 'An investment strategy where you invest a fixed dollar amount at regular intervals, regardless of the current price of the asset.', example: 'Investing $500 on the 1st of every month into an S&P 500 index fund, whether the market is at an all-time high or in a crash.' },
-        { term: 'Average Cost Basis', definition: 'The weighted average price you paid per share across all your purchases. DCA tends to produce a lower average cost basis than the simple average price.', example: 'If you buy 10 shares at $50 and 20 shares at $25, your average cost is $33.33, not $37.50 (the average price).' },
+        { term: 'Dollar Cost Averaging (DCA)', definition: 'An investment strategy where you invest a fixed dollar amount at regular intervals, regardless of the current price of the asset.', example: 'Putting $500 into an S&P 500 index fund on the 1st of every month, in booms and crashes alike.' },
+        { term: 'Average Cost Basis', definition: 'The average price you paid per share across all your buys. Dollar cost averaging usually pushes it below the simple average price.', example: 'If you buy 10 shares at $50 and 20 shares at $25, your average cost is $33.33, not $37.50 (the average price).' },
         { term: 'Lump-Sum Investing', definition: 'Investing a large amount of money all at once, as opposed to spreading it out over time.', example: 'Receiving a $50,000 inheritance and investing all of it immediately into a diversified portfolio.' },
         { term: 'Market Timing', definition: 'Attempting to predict market highs and lows to buy low and sell high. Research consistently shows this strategy fails for the vast majority of investors.', example: 'Waiting to invest your savings because you read a headline predicting a recession, then watching the market climb 20% while your cash earns 1%.' }
       ],
       'Diagram showing 4 months of DCA: $200 invested each month at prices of $40, $20, $25, and $50, resulting in 5, 10, 8, and 4 shares respectively. Total: $800 invested, 27 shares owned, average cost $29.63 vs average price $33.75.',
-      { company: 'Fidelity Investments', metric: 'Study of 401(k) millionaires', outcome: 'The vast majority built wealth through consistent bi-weekly contributions (DCA), not lump-sum investing or stock picking.', explanation: 'Fidelity analyzed its accounts with $1M+ balances and found the common thread was not investment genius, it was consistent, automated contributions over decades. These investors used DCA, often without even knowing the term.' },
+      undefined,
       IF8_DIAGRAM),
 
     // Step 4, Embedded Micro-Check
@@ -1919,7 +2016,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE MATH',
+      'The math',
       'DCA Over Time: Watch Your Wealth Grow',
       'comparison',
       'See how consistent monthly investing builds wealth over time. Adjust the monthly contribution and time horizon to see the power of DCA combined with compound growth.',
@@ -1943,46 +2040,46 @@ const lessons: PathwayLesson[] = [
         { label: 'Time Horizon', min: 5, max: 40, default: 20, unit: ' years' },
         { label: 'Annual Return', min: 4, max: 12, default: 10, unit: '%' }
       ],
-      { company: 'Vanguard', metric: '2012 Lump Sum vs. DCA Study', outcome: 'Lump sum beat DCA 68% of the time across U.S., U.K., and Australian markets from 1926-2011', explanation: 'Vanguard analyzed rolling 12-month periods and found that investing immediately outperformed DCA two-thirds of the time because markets trend upward. However, they noted DCA is a reasonable strategy for risk-averse investors, and the underperformance averaged only 2.3%, a small price for the psychological comfort that keeps people invested.' }
+      undefined
     ),
 
     // Step 6, Case Study
     caseStudy(
       'DCA Through the 2008-2009 Financial Crisis',
       [
-        { date: 'October 2007', event: 'S&P 500 peaks at 1,565. Markets are euphoric.', context: 'Two investors each plan to invest $500/month. Investor A uses DCA and sets up automatic investments. Investor B decides to wait for a better entry point because "the market feels overheated."' },
-        { date: 'September 2008', event: 'Lehman Brothers collapses. Markets plunge.', context: 'Investor A\'s DCA has been buying through the decline, $500/month automatically. Their portfolio is down 30%, but they\'ve been buying cheaper and cheaper shares. Investor B is terrified and still sitting in cash, convinced the market will fall further.' },
-        { date: 'March 2009', event: 'S&P 500 hits bottom at 666, a 57% crash from peak.', context: 'Investor A has been buying the entire way down. Their $500/month has been purchasing 2-3x more shares at these depressed prices. Investor B is paralyzed by fear. Headlines scream about financial apocalypse. They cannot bring themselves to invest.' },
-        { date: 'March 2010', event: 'S&P 500 recovers to 1,166, up 75% from the bottom.', context: 'Investor A\'s portfolio has recovered faster than the market because they bought so many shares during the crash. Their DCA produced an average cost well below $1,166. Investor B finally starts investing, but missed buying during the cheapest prices in a generation.' },
-        { date: 'October 2012', event: 'Five years later: S&P 500 fully recovers to 1,565.', context: 'Investor A invested $30,000 over 5 years ($500/month x 60 months) and their portfolio is worth roughly $44,000, a 47% gain. Investor B invested $18,000 (started 2 years late), and their portfolio is worth about $21,500, a 19% gain. DCA through the crash was the difference.' }
+        { date: 'October 2007', event: 'S&P 500 peaks at 1,565. Markets are euphoric.', context: 'Two investors each plan to invest $500 a month. Investor A sets up automatic buys. Investor B waits for a better price, saying the market feels overheated.' },
+        { date: 'September 2008', event: 'Lehman Brothers collapses. Markets plunge.', context: 'Investor A keeps buying $500 a month through the fall. The portfolio is down 30%, but the shares get cheaper. Investor B is scared and still in cash.' },
+        { date: 'March 2009', event: 'S&P 500 hits bottom at 666, a 57% crash from peak.', context: 'Investor A bought all the way down. That $500 now buys 2-3x more shares at these low prices. Investor B, frozen by scary headlines, still cannot invest.' },
+        { date: 'March 2010', event: 'S&P 500 recovers to 1,166, up 75% from the bottom.', context: 'Investor A recovers faster than the market, holding so many crash-priced shares, with an average cost well under $1,166. Investor B starts now, missing a generation\'s cheapest prices.' },
+        { date: 'October 2012', event: 'Five years later: S&P 500 fully recovers to 1,565.', context: 'A invested $30,000 over 5 years ($500 x 60 months) and holds about $44,000, up 47%. B started 2 years late, invested $18,000, holds about $21,500, up 19%.' }
       ],
-      'The 2008-2009 crash is the ultimate DCA success story. Investors who maintained automatic contributions through the worst financial crisis since the Great Depression were rewarded enormously. The shares they bought at fire-sale prices in late 2008 and early 2009 became the most profitable investments of their lives. The lesson: market crashes are DCA\'s best friend. Every share you buy at the bottom is a share that doubles or triples during the recovery.'
+      'The 2008-2009 crash is dollar cost averaging\'s best story. Investors who kept their automatic buys going got shares at fire-sale prices in late 2008 and early 2009. Those cheap shares powered the recovery.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'COMMON MYTHS',
+      'Common myths',
       'What most people get wrong about DCA',
       [
         {
           myth: 'DCA always beats lump-sum investing.',
           truth: 'Vanguard\'s research shows lump-sum investing wins about 68% of the time because markets generally trend upward. Money invested sooner has more time to compound.',
-          explanation: 'DCA\'s real advantage is not mathematical superiority, it is psychological. Most people with a lump sum who try to time their entry end up not investing at all. A strategy that gets you 95% of the optimal return but that you actually follow beats a perfect strategy you abandon during the first downturn.'
+          explanation: 'The edge is psychological, not mathematical. Most people waiting for the perfect moment never invest. A plan you stick with that captures 95% of the best return beats a perfect plan you quit.'
         },
         {
           myth: 'You should stop DCA contributions when the market crashes.',
           truth: 'Market crashes are when DCA provides the most benefit. Your fixed amount buys significantly more shares at lower prices, dramatically lowering your average cost.',
-          explanation: 'Investors who stopped their 401(k) contributions during the 2008-2009 crash missed buying shares at 50-60% discounts. Those shares purchased during the crash generated returns of 300-400% over the following decade. Stopping DCA during downturns is the single most expensive mistake you can make.'
+          explanation: 'Investors who stopped their 401(k) contributions in the 2008-2009 crash skipped shares selling at 50-60% off. Those shares returned 300-400% over the next decade. Pausing during a downturn is the costliest mistake.'
         },
         {
           myth: 'DCA eliminates all investment risk.',
           truth: 'DCA reduces timing risk and emotional risk, but it does not eliminate market risk. If the overall market declines for a very long period, a DCA investor will still lose money.',
-          explanation: 'DCA is a strategy for when to invest, not what to invest in. A bad investment is still bad whether you buy it all at once or spread it out. DCA works best when paired with diversified, low-cost index funds that track broad market indices.'
+          explanation: 'Dollar cost averaging is about when you invest, not what. A bad investment stays bad whether you buy it all at once or spread it out. Pair it with low-cost index funds.'
         },
         {
           myth: 'You need a lot of money to start DCA.',
           truth: 'You can start DCA with as little as $1 per week. Fractional shares let you invest any amount into any stock or ETF regardless of its share price.',
-          explanation: 'Fidelity, Schwab, and most modern brokerages offer fractional shares with zero commissions. Someone investing $25/week ($100/month) from age 20 to 65 at 10% average return would accumulate roughly $1,050,000. The amount matters less than the consistency.'
+          explanation: 'Fidelity, Schwab, and most brokers offer fractional shares with no commissions. Investing $25 a week ($100 a month) from age 20 to 65 at 10% average return reaches about $1,050,000. Consistency beats size.'
         }
       ]
     ),
@@ -1990,11 +2087,11 @@ const lessons: PathwayLesson[] = [
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
       { term: 'Dollar Cost Averaging (DCA)', definition: 'An investment strategy where you invest a fixed dollar amount at regular, predetermined intervals, weekly, bi-weekly, or monthly, regardless of the current share price.', example: 'Setting up an automatic $500/month transfer from your checking account into a Vanguard S&P 500 index fund on the 1st of every month.', sentence: 'She used dollar cost averaging to invest $400 per month into her Roth IRA, which removed the stress of deciding when to buy.' },
-      { term: 'Average Cost Basis', definition: 'The weighted average price you paid per share across all your purchases. With DCA, your cost basis is typically lower than the arithmetic average of the share prices during your investment period.', example: 'You buy 10 shares at $100 and 20 shares at $50. Your average cost is $66.67/share, not $75 (the average price), because you bought more shares at the lower price.', sentence: 'After DCA-ing through the market dip, his average cost basis dropped to $85 per share even though the stock had traded between $70 and $120.' },
-      { term: 'Lump-Sum Investing', definition: 'Investing a large amount of money all at once rather than spreading purchases over time. Historically outperforms DCA about 68% of the time but carries higher timing risk.', example: 'Receiving a $50,000 bonus and investing the entire amount into a total stock market index fund the same week.', sentence: 'Although lump-sum investing statistically wins more often, the Vanguard study noted the average outperformance was only about 2.3%, a small edge compared to DCA\'s psychological benefits.' },
-      { term: 'Market Timing', definition: 'The strategy of trying to predict when markets will rise or fall in order to buy low and sell high. Research overwhelmingly shows this strategy fails for the vast majority of investors.', example: 'Waiting to invest your savings because you read a headline predicting a recession, then watching the market climb 20% while your cash earns 1%.', sentence: 'Peter Lynch said "Far more money has been lost by investors preparing for corrections than has been lost in corrections themselves", the ultimate argument against market timing.' },
+      { term: 'Average Cost Basis', definition: 'The average price you paid per share overall. With dollar cost averaging, it usually lands below the plain average of those prices.', example: 'Buy 10 shares at $100 and 20 at $50. Your average cost is $66.67, not $75, because more shares came at the lower price.', sentence: 'After DCA-ing through the market dip, his average cost basis dropped to $85 per share even though the stock had traded between $70 and $120.' },
+      { term: 'Lump-Sum Investing', definition: 'Investing a large amount all at once instead of spreading it out. Historically it wins about 68% of the time, with more timing risk.', example: 'Receiving a $50,000 bonus and investing the entire amount into a total stock market index fund the same week.', sentence: 'Although lump-sum investing statistically wins more often, the Vanguard study noted the average outperformance was only about 2.3%, a small edge compared to DCA\'s psychological benefits.' },
+      { term: 'Market Timing', definition: 'Trying to guess when prices will rise or fall so you can buy low and sell high. Research shows almost nobody succeeds.', example: 'Waiting to invest your savings because you read a headline predicting a recession, then watching the market climb 20% while your cash earns 1%.', sentence: 'Peter Lynch said "Far more money has been lost by investors preparing for corrections than has been lost in corrections themselves", the ultimate argument against market timing.' },
       { term: 'Automation', definition: 'Setting up recurring, automatic investment purchases so that DCA happens without any manual action or emotional decision-making.', example: 'Configuring your brokerage to automatically invest $250 every Friday into VTI (Vanguard Total Stock Market ETF) from your linked checking account.', sentence: 'Automating her DCA contributions was the single most impactful financial decision she made, it removed emotion from investing entirely.' },
-      { term: 'Volatility', definition: 'The degree to which an investment\'s price fluctuates over time. Higher volatility means larger price swings. DCA actually benefits from volatility because it allows you to buy more shares during dips.', example: 'A stock bouncing between $80 and $120 has higher volatility than one that stays between $95 and $105. A DCA investor benefits from the volatility by buying more shares near $80.', sentence: 'While most investors fear volatility, DCA investors quietly benefit from it, every dip means more shares purchased at lower prices.' }
+      { term: 'Volatility', definition: 'How much a price swings over time. Big swings mean high volatility. Dollar cost averaging likes it, since dips buy you more shares.', example: 'A stock swinging between $80 and $120 moves more than one sitting between $95 and $105. Steady buying gets you extra shares near $80.', sentence: 'While most investors fear volatility, DCA investors quietly benefit from it, every dip means more shares purchased at lower prices.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -2190,12 +2287,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'PORTFOLIO CONSTRUCTION',
+      'Portfolio construction',
       'Asset Allocation: The Decision That Matters Most',
       [
-        'You\'ve learned about stocks and bonds (Lesson 4), diversification (Lesson 5), index funds (Lesson 6), and dollar-cost averaging (Lesson 8). Now comes the decision that ties it all together. Asset allocation is how you divide your money among different asset classes, primarily stocks, bonds, and cash. It\'s the single most important decision you\'ll make as an investor. A landmark 1986 study (Brinson, Hood, and Beebower) found that asset allocation explains over 90% of the variation in portfolio returns over time. Individual stock selection and market timing together account for less than 10%.',
-        'The simplest and most effective portfolio for most people is the 3-fund portfolio, popularized by John Bogle (founder of Vanguard) and the Bogleheads community. It consists of just three index funds: a U.S. total stock market fund, an international stock fund, and a U.S. bond fund. This combination gives you exposure to over 15,000 stocks and thousands of bonds worldwide.',
-        'Your stock-to-bond ratio is the primary lever controlling your portfolio\'s risk and return. More stocks means higher expected returns but bigger short-term swings. More bonds means lower returns but smoother ride. A common rule of thumb: subtract your age from 110 (or 120 for more aggressive investors) to get your stock allocation percentage. A 20-year-old might hold 90-100% stocks; a 60-year-old might hold 50-60%.'
+        'Lessons 4, 5, 6 and 8 lead here. Asset allocation is how you split money among stocks, bonds and cash. A 1986 study (Brinson, Hood, Beebower) found it explains over 90% of return variation; picking and timing under 10%.',
+      'John Bogle, Vanguard\'s founder, popularized the 3-fund portfolio: three index funds, U.S. stocks, international stocks, U.S. bonds, over 15,000 stocks. Subtract your age from 110, or 120 if bolder, for your stock percentage: age 20, 90-100%; age 60, 50-60%.'
       ],
       [
         { term: 'Asset Allocation', definition: 'The strategy of dividing your portfolio among different asset categories like stocks, bonds, and cash to balance risk and reward.', example: 'A 25-year-old might use 80% stocks and 20% bonds. A 55-year-old might use 55% stocks and 45% bonds.' },
@@ -2204,7 +2300,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk Tolerance', definition: 'Your ability and willingness to endure declines in the value of your investments without panic-selling.', example: 'If a 30% portfolio drop would cause you to sell everything, you have low risk tolerance and need more bonds.' }
       ],
       'Three-layer diagram showing the 3-fund portfolio structure: US Total Stock Market (largest slice), International Stocks (medium slice), and US Bonds (smallest slice), with arrows showing how they connect to provide global diversification.',
-      { company: 'Vanguard / Bogleheads', metric: '3-fund portfolio performance (1992-2024)', outcome: 'Averaged ~8.5% annually with lower volatility than stocks alone', explanation: 'The Bogleheads 3-fund portfolio delivered roughly 85% of pure stock returns with significantly less volatility. International diversification and bonds smoothed the ride while sacrificing very little long-term growth.' },
+      undefined,
       { type: 'flow', title: '3-FUND Portfolio structure', nodes: [{ label: 'US Total Stock Market, 60%', value: 'VTSAX / VTI, ~4,000 US companies' }, { label: 'International Stocks, 30%', value: 'VTIAX / VXUS, ~8,000 non-US companies' }, { label: 'US Bond Market, 10%', value: 'VBTLX / BND, ~10,000 bonds' }], footer: '3 funds. 22,000+ securities. Total global diversification.', sentiment: 'positive' }
     ),
 
@@ -2219,7 +2315,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ALLOCATION IN ACTION',
+      'Allocation in action',
       'How Your Stock/Bond Mix Affects Returns and Risk',
       'comparison',
       'See how different stock-to-bond ratios have performed historically. Adjust the stock allocation to see the tradeoff between higher returns and bigger drawdowns.',
@@ -2242,7 +2338,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Stock Allocation', min: 0, max: 100, default: 80, unit: '%' },
         { label: 'Investment Horizon', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'Vanguard Target Retirement Funds', metric: 'Glide path from age 25 to 65', outcome: 'Automatically shifts from 90% stocks to 50% stocks as you age', explanation: 'Target-date funds automate the age-based allocation shift. Vanguard\'s Target Retirement 2065 (for ~25-year-olds) holds 90% stocks today and will gradually shift to 50% stocks by 2065. It\'s the ultimate "set it and forget it" approach.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -2254,12 +2350,12 @@ const lessons: PathwayLesson[] = [
         { date: '2000-2003', event: 'Dot-com crash wipes out tech-heavy portfolios', context: 'Yale\'s diversified endowment lost only 0.9% while the S&P 500 fell 38%. Broad diversification across uncorrelated assets protected the portfolio when US stocks collapsed.' },
         { date: '2021', event: 'Swensen passes away; Yale endowment has grown to $31.2 billion', context: 'Under Swensen\'s 36-year tenure, Yale averaged 13.7% annual returns. For individual investors, his core lesson was simple: diversify broadly, keep costs low, rebalance regularly, and stay disciplined.' }
       ],
-      'Swensen proved that asset allocation is the primary driver of returns. While individuals can\'t access Yale\'s hedge funds, the core principle applies to everyone: a diversified, low-cost 3-fund portfolio with disciplined rebalancing beats most complex strategies. Swensen himself recommended index funds for individual investors. The takeaway? You don\'t need a Yale-sized endowment to use Yale-level strategy.'
+      'Swensen showed that how you split money across asset types drives returns. You cannot buy Yale\'s hedge funds, but a cheap 3-fund mix, rebalanced regularly, beats most complex plans. He told individuals to use index funds.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'PORTFOLIO MYTHS',
+      'Portfolio myths',
       'What most people get wrong about building a portfolio',
       [
         {
@@ -2481,12 +2577,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'ACCOUNT TYPES',
+      'Account types',
       'The Five Investment Accounts You Need to Know',
       [
-        'You know what to invest in (index funds, Lesson 6), how to allocate (Lesson 9), and when to buy (DCA, Lesson 8). Now you need to know WHERE to invest, the right account type can add hundreds of thousands to your lifetime wealth through tax savings alone. A 401(k) is an employer-sponsored retirement account. You contribute pre-tax dollars (reducing your taxable income today), and the money grows tax-deferred until withdrawal in retirement. The 2024 contribution limit is $23,000/year. The massive advantage: many employers match your contributions, typically 50-100% of the first 3-6% of your salary. An employer match is a guaranteed 50-100% instant return. Not taking the full match is literally declining free money.',
-        'An IRA (Individual Retirement Account) comes in two flavors. A Traditional IRA works like a 401(k), tax-deductible contributions now, taxed at withdrawal. A Roth IRA flips this: you contribute after-tax money, but all growth and withdrawals in retirement are 100% tax-free. The 2024 IRA limit is $7,000/year. The Roth is generally better for young investors because your tax rate is likely lowest now and decades of tax-free growth is extraordinarily powerful.',
-        'A taxable brokerage account has no tax advantages but also no restrictions, no contribution limits, no withdrawal penalties, no age requirements. An HSA (Health Savings Account) is the most tax-advantaged account in existence: contributions are tax-deductible, growth is tax-free, AND withdrawals for medical expenses are tax-free, a triple tax benefit. A 529 plan offers tax-free growth for education expenses. The optimal strategy is to fund these accounts in the right order.'
+        'A 401(k) is a workplace retirement account: you contribute pre-tax dollars in 2024 up to $23,000/year, and it grows untaxed until retirement. Many employers match 50-100% of the first 3-6% of your salary, free money.',
+      'An IRA, an individual retirement account, allows $7,000/year in 2024: Traditional is taxed at withdrawal, Roth is 100% tax-free. Brokerage accounts have no limits. An HSA, a health savings account, is triple tax-free. A 529 plan grows tax-free for education.'
       ],
       [
         { term: '401(k)', definition: 'An employer-sponsored retirement plan with pre-tax contributions, tax-deferred growth, and employer matching. 2024 limit: $23,000/year.', example: 'If you earn $60,000 and contribute 5%, that\'s $3,000/year. With a 100% employer match, you have $6,000 invested, an instant 100% return.' },
@@ -2495,7 +2590,7 @@ const lessons: PathwayLesson[] = [
         { term: 'HSA', definition: 'A Health Savings Account available with high-deductible health plans. Triple tax advantage: deductible contributions, tax-free growth, tax-free medical withdrawals.', example: '2024 HSA limit: $4,150 individual. After age 65, you can withdraw for any purpose (taxed as income) or for medical expenses (tax-free).' }
       ],
       'Comparison table showing five account types side by side: 401(k), Traditional IRA, Roth IRA, HSA, and Taxable Brokerage, with columns for tax treatment, limits, penalties, and best use case.',
-      { company: 'Fidelity Investments', metric: 'Average 401(k) balance for consistent savers (15+ years)', outcome: '$464,200 average balance', explanation: 'Fidelity\'s data shows that employees who consistently contributed to their 401(k) for 15+ years had an average balance of $464,200. The top savers who always maxed their employer match had even more. Consistency and taking the match are the two most powerful wealth-building habits.' },
+      undefined,
       { type: 'comparison', title: 'Account types comparison', rows: [{ label: 'Roth IRA', value: '401(k)' }, { label: 'Trad IRA', value: '401(k)' }, { label: 'HSA', value: '401(k)' }, { label: 'Taxable', value: '401(k)' }, { label: '$23K limit', value: '$7K limit' }, { label: '$4.15K limit', value: '$23K limit' }, { label: 'Flexible', value: '$23K limit' }], footer: 'Always capture free money first, then maximize tax-free growth', sentiment: 'positive' }
     ),
 
@@ -2508,7 +2603,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'TAX-FREE POWER',
+      'Tax-free power',
       'Roth IRA vs. Taxable Account: 40-Year Growth',
       'comparison',
       'Watch how tax-free compounding in a Roth IRA creates dramatically more wealth than a taxable account over time. Adjust the annual contribution and return rate.',
@@ -2531,7 +2626,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Contribution', min: 1000, max: 23000, default: 7000, unit: '$' },
         { label: 'Annual Return', min: 4, max: 12, default: 10, unit: '%' }
       ],
-      { company: 'Vanguard Research', metric: 'Impact of tax-advantaged accounts over 40 years', outcome: 'Tax-advantaged investors accumulated 25-40% more wealth', explanation: 'Vanguard\'s research shows that investors who properly utilized 401(k)s, IRAs, and HSAs accumulated 25-40% more wealth over their careers than those who invested primarily in taxable accounts, even with identical savings rates and investment choices. The tax code rewards those who use it.' }
+      undefined
     ),
 
     caseStudy(
@@ -2546,7 +2641,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'ACCOUNT MYTHS',
+      'Account myths',
       'What most people get wrong about investment accounts',
       [
         {
@@ -2735,7 +2830,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'CHART BASICS',
+      'Chart basics',
       'How to Read Candlestick Charts',
       [
         'A candlestick chart shows four pieces of data for each time period: the Open, High, Low, and Close (OHLC). The "body" of the candle represents the range between open and close. The thin lines above and below, called wicks or shadows, show the high and low prices reached during that period.',
@@ -2749,7 +2844,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Volume', definition: 'The number of shares or contracts traded in a given time period. High volume confirms the significance of a price move.', example: 'Tesla\'s breakout above $250 on 3x average volume confirmed that the move was backed by real institutional buying, not just noise.' }
       ],
       'Annotated candlestick diagram showing body, wicks, open, close, high, low labels with support and resistance lines',
-      { company: 'Tesla', metric: 'Stock chart January 2023', outcome: 'bounced off $100 support level four times before rallying 130% to $230', explanation: 'Traders who recognized the $100 support level and bought near it captured a massive move. The repeated bounces showed strong institutional buying at that price, a classic support-level entry signal.' },
+      undefined,
       { type: 'comparison', title: 'Anatomy of a candlestick', rows: [{ label: 'Close (higher) $108', value: 'Open $108' }, { label: 'Open (lower) $100', value: 'Close $100' }], footer: 'BULLISH (green)', sentiment: 'positive' }
     ),
 
@@ -2764,7 +2859,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'MOVING AVERAGES',
+      'Moving averages',
       'How Moving Averages Reveal Trends',
       'comparison',
       'A moving average smooths out daily noise to reveal the true trend. Watch how the 50-day and 200-day moving averages interact to signal trend changes.',
@@ -2787,7 +2882,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Short MA Period', min: 10, max: 100, default: 50, unit: ' days' },
         { label: 'Long MA Period', min: 100, max: 400, default: 200, unit: ' days' }
       ],
-      { company: 'S&P 500', metric: 'Golden Cross signal March 2023', outcome: 'preceded a 25% rally over the following 12 months', explanation: 'When the 50-day MA crossed above the 200-day MA in March 2023, it signaled the end of the 2022 bear market. Investors who followed this signal captured the entire 2023 rally, one of the strongest recovery years in market history.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -2804,7 +2899,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'CHART MYTHS',
+      'Chart myths',
       'What most people get wrong about reading stock charts',
       [
         {
@@ -3024,12 +3119,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'ORDER TYPES',
+      'Order types',
       'The Three Orders Every Investor Must Know',
       [
-        'A market order tells your broker: "Buy or sell this stock right now at whatever the current price is." It guarantees execution but not price. For heavily traded stocks like Apple (70 million shares per day), market orders fill almost instantly at the displayed price. But for thinly traded stocks, you might get a price very different from what you expected, this is called slippage.',
-        'A limit order tells your broker: "Buy this stock only at $X or lower" (or "sell only at $X or higher"). It guarantees your price but not execution. If the stock never reaches your limit price, the order won\'t fill. Limit orders give you control and eliminate slippage, they\'re what professionals use for almost every trade.',
-        'A stop-loss order is your emergency exit. You set a price below your purchase price, and if the stock falls to that level, it automatically sells. For example, buying at $100 with a stop-loss at $90 means your maximum loss is 10%. Stop-losses remove emotion from selling decisions, the order executes automatically when your loss threshold is hit, protecting you from catastrophic drawdowns.'
+        'A market order buys or sells now, at whatever price is showing. Apple trades 70 million shares a day, so it fills instantly. Thinly traded stocks can fill far from the price you expected, called slippage.',
+      'A limit order sets your worst acceptable price: buy at $X or lower. It may never fill. A stop-loss sells automatically if the price falls: buy at $100, stop at $90, maximum loss 10%.'
       ],
       [
         { term: 'Market Order', definition: 'An order to buy or sell immediately at the best available price. Guarantees execution but not price.', example: 'You place a market order for Tesla at $250. It fills at $250.35 because the price moved in the milliseconds between your click and execution.' },
@@ -3038,7 +3132,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Bid-Ask Spread', definition: 'The difference between the highest price a buyer will pay (bid) and the lowest price a seller will accept (ask).', example: 'Apple: Bid $175.10, Ask $175.12. The $0.02 spread is your cost of doing business, the tighter the spread, the cheaper it is to trade.' }
       ],
       'Three-panel diagram comparing market, limit, and stop-loss order execution with price arrows',
-      { company: 'Accenture (ACN)', metric: 'Stock price during 2010 Flash Crash', outcome: 'dropped from $40 to $0.01 in seconds due to cascading market orders', explanation: 'When liquidity vanished in the Flash Crash, market orders had no bids to fill against. Accenture shares briefly traded for a penny because market orders execute at ANY available price. Traders with limit orders were protected, their orders only filled at prices they specified.' },
+      undefined,
       { type: 'comparison', title: 'Three order types compared', rows: [{ label: '"Buy NOW"', value: '"Buy at $X or less"' }, { label: '"Sell if it hits $X"', value: '"Buy at $X or less"' }], footer: 'matters most', sentiment: 'positive' }
     ),
 
@@ -3053,7 +3147,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE HIDDEN COST',
+      'The hidden cost',
       'How Bid-Ask Spread and Slippage Eat Your Returns',
       'comparison',
       'The bid-ask spread is a hidden transaction cost on every trade. See how spreads and slippage compound over many trades to significantly impact your returns.',
@@ -3076,7 +3170,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Bid-Ask Spread', min: 1, max: 100, default: 10, unit: ' cents' },
         { label: 'Trades Per Year', min: 10, max: 500, default: 100, unit: '' }
       ],
-      { company: 'Berkshire Hathaway (BRK.A)', metric: 'Bid-ask spread on Class A shares', outcome: 'spread can exceed $50 on a $600,000+ stock', explanation: 'BRK.A trades so few shares daily (2,000-3,000) that the bid-ask spread is enormous. A market order could easily slip $100-$200. This is why Buffett created the Class B shares (BRK.B) at 1/1500th the price, to give investors a liquid, tradeable version with tight spreads.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3093,7 +3187,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'ORDER MYTHS',
+      'Order myths',
       'What most people get wrong about buying and selling stocks',
       [
         {
@@ -3313,12 +3407,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'DIVIDEND BASICS',
+      'Dividend basics',
       'How Companies Pay You to Own Their Stock',
       [
-        'A dividend is a cash payment a company makes to its shareholders, typically every quarter. When a company earns a profit, the board of directors decides how to split it: reinvest in the business (growth), pay down debt, buy back shares, or distribute cash to shareholders as dividends. Mature, profitable companies like Coca-Cola, Johnson & Johnson, and Procter & Gamble return billions to shareholders every year.',
-        'Dividend yield tells you the annual return from dividends alone. It\'s calculated as: Annual Dividend per Share / Stock Price. A stock at $100 paying $3.00 per year in dividends has a 3% yield. The payout ratio shows what percentage of earnings go to dividends, a 50% payout ratio means half of every dollar earned goes to shareholders. Payout ratios above 80% can be a warning sign that the dividend is unsustainable.',
-        'The ex-dividend date is the cutoff: you must own the stock before this date to receive the next dividend payment. On the ex-dividend date, the stock price typically drops by the dividend amount. Qualified dividends (stocks held 60+ days) are taxed at the lower capital gains rate (0-20%). Ordinary dividends are taxed as regular income, a significant difference for high earners.'
+        'A dividend is cash a company pays shareholders, usually quarterly. Coca-Cola, Johnson & Johnson, and Procter & Gamble pay billions yearly. Own the stock before the ex-dividend date, the cutoff, or you miss the payout.',
+      'Dividend yield is annual dividend divided by price: $3.00 on a $100 stock is 3%. Payout ratio is earnings paid out; 50% is half, above 80% risks a cut. Hold 60+ days for the lower 0-20% tax rate.'
       ],
       [
         { term: 'Dividend Yield', definition: 'The annual dividend payment divided by the stock price, expressed as a percentage. Measures how much income a stock pays relative to its price.', example: 'Coca-Cola pays $1.84 per share annually and trades at $60, its dividend yield is 3.07%, meaning you earn $3.07 in dividends for every $100 invested.' },
@@ -3327,8 +3420,8 @@ const lessons: PathwayLesson[] = [
         { term: 'DRIP', definition: 'Dividend Reinvestment Plan, automatically uses dividend payments to buy more shares of the same stock, compounding your position over time.', example: 'With DRIP enabled on a $100 stock paying $3/year, your $3 dividend automatically buys 0.03 more shares, which then earn their own dividends.' }
       ],
       'Flow diagram showing company earnings splitting into retained earnings and dividend payments to shareholders, with DRIP reinvestment loop',
-      { company: 'Coca-Cola', metric: 'Dividend track record', outcome: 'has increased its dividend every year for 62 consecutive years', explanation: 'Coca-Cola is a "Dividend King", a company that has raised its dividend for 50+ years straight. An investor who bought $10,000 in 1963 and reinvested dividends would have over $2.5 million today. The stock itself rose 60x, but with DRIP, the total return was 250x.' },
-      { type: 'bars', title: 'Dividend aristocrats, 25+ years of increases', items: [{ label: 'Yield: 3.1%', value: 100, displayValue: '62 years' }, { label: 'Yield: 3.0%', value: 100, displayValue: '62 years' }, { label: 'Yield: 2.5%', value: 100, displayValue: '68 years' }, { label: 'Yield: 5.5%', value: 100, displayValue: '66 years' }, { label: 'Yield: 5.0%', value: 100, displayValue: '29 years' }], footer: 'Dividend Kings: 50+ years, only ~50 companies in all of U.S. history', sentiment: 'positive' }
+      undefined,
+      { type: 'flow', title: 'Where a company profit can go', nodes: [{ label: 'Company earns a profit' }, { label: 'Reinvest in the business' }, { label: 'Pay a dividend', value: 'Usually quarterly' }, { label: 'Reinvest the dividend', value: 'DRIP buys more shares' }], footer: 'Coca-Cola has raised its dividend every year for 62 consecutive years.' }
     ),
 
     // Step 4, Micro-Check
@@ -3342,7 +3435,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE DRIP EFFECT',
+      'The DRIP effect',
       'How Dividend Reinvestment Creates Exponential Wealth',
       'exponential',
       'Watch how reinvesting dividends transforms modest returns into extraordinary long-term wealth. Adjust the yield and time to see the DRIP compounding effect.',
@@ -3365,7 +3458,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Dividend Yield', min: 1, max: 8, default: 3, unit: '%' },
         { label: 'Years Invested', min: 5, max: 40, default: 25, unit: ' years' }
       ],
-      { company: 'Johnson & Johnson', metric: '$10,000 invested in 1980 with DRIP', outcome: 'grew to over $1.2 million by 2024, dividends contributed 85% of total returns', explanation: 'J&J has increased its dividend for 62 consecutive years. An investor who bought $10,000 in 1980 at a 3% yield and reinvested every dividend now earns more in annual dividends than their entire original investment. That\'s the power of yield on cost: their effective yield on the original $10,000 exceeds 100%.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3382,7 +3475,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'DIVIDEND MYTHS',
+      'Dividend myths',
       'What most people get wrong about dividend investing',
       [
         {
@@ -3602,12 +3695,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'TWO PHILOSOPHIES',
+      'Two philosophies',
       'Growth vs Value: The Fundamental Divide',
       [
-        'Growth investing means buying companies with rapidly increasing revenue and earnings, even if their stock looks "expensive" by traditional measures. Growth investors pay a premium for future potential. Think Nvidia, Amazon, and Tesla, their P/E ratios look absurd by value standards, but their revenue is growing 30-50% per year. The bet: these companies will grow into their valuations and beyond.',
-        'Value investing means buying companies whose stock price is below their intrinsic worth, stocks that the market has overlooked, unfairly punished, or left behind. Value investors use metrics like P/E ratio, price-to-book, and free cash flow yield to find "bargains." Think Berkshire Hathaway, banks during COVID, or energy stocks in 2020. The bet: the market will eventually recognize the true value.',
-        'The P/E ratio (Price-to-Earnings) is the most fundamental tool for comparing growth and value. Growth stocks typically have P/Es of 30-100+ because investors pay a premium for fast earnings growth. Value stocks typically trade at P/Es of 5-15, which looks cheap but may reflect slower growth or market concerns. The PEG ratio (P/E divided by earnings growth rate) normalizes this: a PEG of 1.0 means you\'re paying fairly for the growth rate.'
+        'Growth investing buys fast growing companies even at high prices: Nvidia, Amazon and Tesla grow revenue 30-50% yearly. Value investing buys stocks priced below their true worth, like Berkshire Hathaway, banks during COVID, or energy stocks in 2020.',
+      'The P/E ratio, price divided by earnings, compares them. Growth stocks trade at 30-100+, value stocks at 5-15. The PEG ratio, P/E divided by growth rate, adjusts for that: 1.0 means you pay fairly.'
       ],
       [
         { term: 'P/E Ratio', definition: 'Price per share divided by earnings per share. Measures how much investors pay for each dollar of earnings. Higher P/E = more expensive relative to current profits.', example: 'Nvidia at $800/share earning $12/share = P/E of 67. Berkshire Hathaway at $420,000/share earning $35,000/share = P/E of 12. Growth investors think Nvidia is worth it; value investors prefer Berkshire.' },
@@ -3616,7 +3708,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Value Stock', definition: 'A stock trading below its estimated intrinsic value based on fundamentals like earnings, assets, or cash flow, the market is underpricing it.', example: 'During COVID, airline stocks traded at 60% discounts to their pre-pandemic earnings. Value investors who bought Delta at $20 saw it recover to $45 within two years.' }
       ],
       'Two-column comparison of growth vs value stock characteristics with P/E ratio scale',
-      { company: 'Amazon vs Berkshire Hathaway', metric: 'Investment style comparison 2000-2024', outcome: 'Amazon (growth): +20,000% return. Berkshire (value): +900% return. But Berkshire never dropped more than 51% while Amazon fell 93% in 2001.', explanation: 'Amazon was the ultimate growth stock, astronomical returns but stomach-churning volatility. Berkshire was the value play, lower total return but far smoother ride. Your risk tolerance and time horizon determine which style suits you. Most smart investors own both.' },
+      undefined,
       { type: 'comparison', title: 'Growth vs value, key differences', rows: [{ label: 'P/E: 30-100+', value: 'P/E: 5-15' }, { label: 'Revenue: +20%/yr', value: 'Revenue: 0-10%/yr' }], footer: 'Bet on the FUTURE', sentiment: 'positive' }
     ),
 
@@ -3631,7 +3723,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE ROTATION',
+      'The rotation',
       'Growth vs Value Performance Cycles',
       'comparison',
       'Growth and value stocks trade leadership in cycles that can last years or even decades. Understanding the rotation helps you avoid buying at the top of one style\'s run.',
@@ -3654,7 +3746,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Growth Allocation', min: 0, max: 100, default: 50, unit: '%' },
         { label: 'Investment Horizon', min: 5, max: 40, default: 20, unit: ' years' }
       ],
-      { company: 'FAANG stocks (Facebook, Apple, Amazon, Netflix, Google)', metric: 'Performance 2010-2020 vs 2022', outcome: 'gained 1,500%+ from 2010-2020, then collectively lost $4 trillion in 2022 when rates rose', explanation: 'FAANG stocks were the ultimate growth trade. Near-zero interest rates and booming digital adoption created a perfect environment. When rates surged in 2022, the math changed overnight: future earnings were worth less at higher discount rates, and all five stocks crashed 30-70%. Value stocks like Exxon and Berkshire hit all-time highs the same year.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3671,7 +3763,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'STYLE MYTHS',
+      'Style myths',
       'What most people get wrong about growth and value investing',
       [
         {
@@ -3891,7 +3983,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'GLOBAL MARKETS',
+      'Global markets',
       'Why the World Is Your Investment Opportunity',
       [
         'Home bias is the tendency for investors to overweight their own country\'s stocks. Americans put 80% of their money in U.S. stocks, even though the U.S. represents only 60% of global market cap. This seems safe, but it\'s actually a concentrated bet that the U.S. will outperform the rest of the world, every year, forever. History shows that\'s not guaranteed: Japan outperformed the U.S. for the entire 1970s and 1980s, and international stocks beat U.S. stocks from 2000-2009.',
@@ -3905,7 +3997,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Currency Risk', definition: 'The risk that changes in exchange rates reduce the value of your international investments when converted back to your home currency.', example: 'You invest in a European stock that gains 10% in euros, but the euro falls 8% against the dollar. Your actual return in dollars is only about 2%.' }
       ],
       'World map divided into three investment zones: developed markets, emerging markets, and frontier markets with GDP growth rates',
-      { company: 'Vanguard FTSE All-World ex-US ETF (VEU)', metric: 'International diversification impact 2000-2009', outcome: 'returned 31% vs. 9% for the S&P 500, international investors earned 3.4x more', explanation: 'The 2000s were called America\'s "lost decade." U.S. stocks barely moved while international markets surged. Investors with 30-40% international exposure had dramatically better returns. The lesson: the world\'s best-performing stock market rotates, you can\'t predict which country wins, so you own them all.' },
+      undefined,
       { type: 'comparison', title: 'Market categories & characteristics', rows: [{ label: 'GDP growth: 1-3%', value: 'GDP growth: 4-8%' }, { label: 'GDP growth: 5-10%', value: 'GDP growth: 1-3%' }, { label: '~85% of world', value: '~12% of world' }, { label: '~3% of world', value: '~85% of world' }], footer: 'Higher growth potential → Higher risk and volatility', sentiment: 'positive' }
     ),
 
@@ -3920,7 +4012,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'GLOBAL ROTATION',
+      'Global rotation',
       'Which Country Wins Changes Every Decade',
       'timeline',
       'No single country\'s stock market wins every decade. See how global leadership rotates and why diversification across regions captures growth from every cycle.',
@@ -3943,7 +4035,7 @@ const lessons: PathwayLesson[] = [
         { label: 'International Allocation', min: 0, max: 60, default: 30, unit: '%' },
         { label: 'Emerging Market Tilt', min: 0, max: 30, default: 10, unit: '%' }
       ],
-      { company: 'Japan\'s Nikkei 225', metric: 'From world leader to 30-year bear market', outcome: 'peaked at 38,957 in December 1989, didn\'t recover until February 2024', explanation: 'Japan was the "must-own" market of the 1980s, like the U.S. is today. At its peak, the Tokyo real estate under the Emperor\'s Palace was worth more than all of California. Then came a 34-year bear market. Any investor who was 100% Japan saw their portfolio stagnate for a generation. This is the single best argument for global diversification.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3960,7 +4052,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'GLOBAL INVESTING MYTHS',
+      'Global investing myths',
       'What most people get wrong about international stocks',
       [
         {
@@ -4169,7 +4261,7 @@ const lessons: PathwayLesson[] = [
       { label: 'Panic selling during downturns', detail: 'Average investor who sold during the 2008 crash and waited until 2013 to re-enter lost 65% of the recovery. Emotional reactions to cycles destroy wealth.' },
       { label: 'Understanding and riding the cycle', detail: 'Investors who stayed invested through every bear market since 1926 earned 10.5% average annual returns. Recognizing cycles as normal prevents costly mistakes.' },
       {
-        withoutVisual: { type: 'metric', title: 'Panic seller', value: 'SOLD HERE', detail: 'Missed recovery', footer: '-65% of potential gains', sentiment: 'negative' },
+        withoutVisual: { type: 'metric', title: 'Panic seller', value: 'Sold here', detail: 'Missed recovery', footer: '-65% of potential gains', sentiment: 'negative' },
         withVisual: { type: 'line', title: 'Cycle-aware investor', points: [{ label: 'Held through dip', value: '10.5% avg annual return' }, { label: '+339%', value: '+339%' }], trend: 'up', footer: '10.5% avg annual return', sentiment: 'positive' }
       }
     ),
@@ -4180,12 +4272,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE CYCLE',
+      'The cycle',
       'How Market Cycles Work',
       [
-        'Every economy moves through four predictable phases: expansion (growth, rising employment, consumer confidence), peak (maximum output, overheating indicators), contraction (slowing growth, rising unemployment, falling profits), and trough (the bottom, where recovery begins). This cycle has repeated for over 200 years of recorded market history.',
-        'Bull markets occur during expansion phases when stock prices rise 20%+ from recent lows. Bear markets occur during contractions when prices fall 20%+ from recent highs. Here\'s the critical insight: since 1926, there have been 27 bear markets, and every single one was followed by a bull market that more than recovered the losses.',
-        'Mean reversion is the powerful force that drives these cycles. When markets overshoot to the upside (irrational exuberance), they eventually correct. When they crash too far (panic selling), they bounce back. Prices always gravitate back toward long-term average valuations, usually an S&P 500 P/E ratio of about 15-17x earnings.'
+        'Economies cycle through four phases: expansion, peak, contraction, and trough, the bottom where recovery begins. That pattern has repeated for over 200 years. Mean reversion, the pull back to average, holds S&P 500 valuations near 15-17x earnings.',
+      'A bull market is a rise of 20%+ from recent lows; a bear market is a fall of 20%+ from recent highs. Since 1926 all 27 bear markets were followed by bulls that recovered the losses.'
       ],
       [
         { term: 'Bull Market', definition: 'A market that has risen 20% or more from a recent low, characterized by optimism, rising prices, and economic expansion.', example: 'The bull market from March 2009 to February 2020 lasted nearly 11 years and saw the S&P 500 gain over 400%.' },
@@ -4194,7 +4285,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Sector Rotation', definition: 'The pattern of money flowing between different market sectors as the economic cycle shifts between expansion, peak, contraction, and trough.', example: 'During early expansion, technology and consumer discretionary stocks outperform. During contraction, utilities and healthcare (defensive sectors) hold up better.' }
       ],
       'Four-phase business cycle diagram showing expansion, peak, contraction, and trough with sector rotation labels at each phase',
-      { company: 'S&P 500', metric: '2020 COVID crash and recovery', outcome: 'recovered 100% of losses in just 5 months', explanation: 'The fastest bear market in history (34% drop in 23 days) was followed by one of the fastest recoveries. Investors who panic-sold in March 2020 missed the recovery that brought markets to new all-time highs by August 2020.' },
+      undefined,
       { type: 'line', title: 'The four phases of a market cycle', points: [{ label: 'Trough', value: '70' }, { label: 'Expansion', value: '105' }, { label: 'Peak', value: '130' }, { label: 'Contraction', value: '92' }, { label: 'Trough', value: '75' }], trend: 'up', footer: 'Defensive sectors lead', sentiment: 'positive' }
     ),
 
@@ -4209,7 +4300,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'BY THE NUMBERS',
+      'By the numbers',
       'Bull vs. Bear Market Duration & Returns',
       'comparison',
       'Compare the average duration and returns of bull and bear markets since 1926. Notice how bulls dominate bears in both length and magnitude.',
@@ -4232,7 +4323,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Investment Horizon', min: 1, max: 40, default: 20, unit: ' years' },
         { label: 'Bear Markets Experienced', min: 0, max: 10, default: 4, unit: '' }
       ],
-      { company: 'Fidelity', metric: 'Study of best and worst trading days', outcome: 'Missing the 10 best days from 1980-2022 cut total returns from 2,246% to just 952%', explanation: 'The best trading days usually occur during or immediately after bear markets. Investors who sell during downturns and wait on the sidelines almost always miss these critical recovery days, permanently damaging their long-term returns.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -4249,7 +4340,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'MARKET MYTHS',
+      'Market myths',
       'What most people get wrong about market cycles',
       [
         {
@@ -4472,9 +4563,8 @@ const lessons: PathwayLesson[] = [
       'OPTIONS 101',
       'What Are Options Contracts?',
       [
-        'An option is a contract that gives you the right (but not the obligation) to buy or sell a stock at a specific price before a specific date. Think of it like a reservation: you pay a small fee (the premium) for the right to act, but you don\'t have to. There are two types: calls (right to buy) and puts (right to sell).',
-        'Every option contract has four key components: the underlying stock (what you\'re betting on), the strike price (the price at which you can buy or sell), the expiration date (when the contract expires), and the premium (what you pay for the contract). One contract controls 100 shares, so a $5 premium actually costs $500.',
-        'Options have two types of value. Intrinsic value is the real, tangible value, how much the option would be worth if exercised right now. Time value is the extra amount you pay for the possibility that the option becomes more valuable before expiration. As expiration approaches, time value decays to zero, this is called theta decay, and it\'s why 90% of options expire worthless.'
+        'An option is a contract giving you the right, not the obligation, to buy or sell a stock at a set strike price before an expiration date. Calls are the right to buy, puts the right to sell.',
+      'The premium is what you pay. One contract covers 100 shares: a $5 premium costs $500. Intrinsic value is what the option is worth if exercised now; time value decays to zero by expiration, theta decay, so 90% expire worthless.'
       ],
       [
         { term: 'Call Option', definition: 'A contract giving the buyer the right to purchase 100 shares of a stock at the strike price before the expiration date.', example: 'Buying a $150 call on Apple means you can purchase 100 shares at $150 each anytime before expiration, even if the stock is at $200.' },
@@ -4483,7 +4573,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Premium', definition: 'The price paid by the buyer to the seller for an options contract, composed of intrinsic value plus time value.', example: 'If a Tesla $250 call costs $12 per share, the total premium is $1,200 (since one contract = 100 shares).' }
       ],
       'Diagram showing call and put option payoff structures with strike price, premium, breakeven, and profit/loss zones clearly labeled',
-      { company: 'Tesla', metric: 'Most traded options in 2023', outcome: 'Tesla options averaged 2.5 million contracts traded daily', explanation: 'Tesla\'s high volatility makes its options premiums expensive, but also creates opportunities. A $250 Tesla call might cost $12 ($1,200 per contract). If Tesla rises to $300, that call is worth $50 ($5,000), a 317% return. But if Tesla stays below $250, you lose the entire $1,200.' },
+      undefined,
       { type: 'comparison', title: 'Call vs put, option mechanics', rows: [{ label: 'Premium: $5', value: 'Premium: $4' }, { label: 'Breakeven: $105', value: 'Breakeven: $96' }, { label: 'Profit if stock > $105', value: 'Profit if stock < $96' }, { label: 'Max loss = $500 (premium)', value: 'Max loss = $400 (premium)' }], footer: 'Max gain = unlimited', sentiment: 'positive' }
     ),
 
@@ -4498,7 +4588,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'OPTIONS VALUE',
+      'Options value',
       'How Time Decay Eats Options Value',
       'timeline',
       'Watch how an option\'s time value decays as expiration approaches. Adjust the days to expiration and volatility to see the impact on premium.',
@@ -4521,7 +4611,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Days to Expiration', min: 1, max: 365, default: 90, unit: ' days' },
         { label: 'Implied Volatility', min: 10, max: 100, default: 30, unit: '%' }
       ],
-      { company: 'JPMorgan Equity Premium Income ETF (JEPI)', metric: 'Covered call strategy fund', outcome: 'generated 7-9% annual dividend yield from option premium income', explanation: 'JEPI sells covered call options on S&P 500 stocks and distributes the premium income as monthly dividends. This real-world fund demonstrates how options selling (collecting time decay) can be a consistent income strategy.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -4538,7 +4628,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'OPTIONS MYTHS',
+      'Options myths',
       'What most people get wrong about options',
       [
         {
@@ -4758,12 +4848,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'TAX BASICS',
+      'Tax basics',
       'Capital Gains: The Tax on Your Investment Profits',
       [
-        'When you sell an investment for more than you paid, the profit is a capital gain, and the IRS wants its cut. But the rate you pay depends entirely on how long you held the investment. Short-term capital gains (held less than 1 year) are taxed at your ordinary income rate, up to 37%. Long-term capital gains (held 1 year or more) are taxed at preferential rates: 0%, 15%, or 20% depending on your income.',
-        'The difference is massive. If you earn $100,000 and sell a stock for a $10,000 profit after 11 months, you owe $2,200 in federal taxes (22% bracket). Wait just one more month and hold for 12 months, and you owe only $1,500 (15% long-term rate). That one month of patience saves $700, on a single trade. Now multiply that across a lifetime of investing.',
-        'Qualified dividends also receive preferential long-term capital gains rates (0%, 15%, or 20%), while ordinary dividends are taxed at your regular income rate. This is why tax-efficient investors favor stocks that pay qualified dividends and hold positions for over a year whenever possible. Every dollar saved in taxes is a dollar that compounds in your portfolio.'
+        'A capital gain is profit from selling an investment above what you paid. Held under 1 year, it is taxed as ordinary income, up to 37%. Held 1 year or longer: 0%, 15%, or 20%.',
+      'Earn $100,000 and sell a stock at a $10,000 profit after 11 months: you owe $2,200, your 22% rate. Wait to 12 months and owe $1,500, saving $700. Qualified dividends get these lower rates; ordinary dividends do not.'
       ],
       [
         { term: 'Short-Term Capital Gain', definition: 'Profit from selling an investment held for less than one year, taxed at your ordinary income tax rate (up to 37% federal).', example: 'Buying Tesla at $200 in March and selling at $250 in August creates a $50 short-term gain taxed at your regular income rate.' },
@@ -4772,7 +4861,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Wash Sale Rule', definition: 'An IRS rule that disallows a tax loss deduction if you repurchase a "substantially identical" security within 30 days before or after the sale.', example: 'Selling Vanguard S&P 500 ETF (VOO) at a loss and immediately buying Schwab S&P 500 ETF (SWPPX) is allowed, they\'re similar but not identical. Buying VOO back within 30 days triggers a wash sale.' }
       ],
       'Comparison chart showing short-term vs long-term capital gains tax rates across income brackets with the savings highlighted',
-      { company: 'Wealthfront', metric: 'Tax-loss harvesting service', outcome: 'generated an average of 1.8% additional after-tax return for clients annually', explanation: 'Wealthfront\'s automated tax-loss harvesting service continuously monitors portfolios for harvesting opportunities. By systematically capturing losses and reinvesting in similar funds, clients keep more of their returns. On a $500,000 portfolio, that\'s $9,000 per year in tax savings.' },
+      undefined,
       { type: 'comparison', title: 'Short-term vs long-term capital gains rates', rows: [{ label: 'Short-term $0-$11K', value: '10%' }, { label: 'Short-term $11K-$44K', value: '12%' }, { label: 'Short-term $44K-$95K', value: '22%' }, { label: 'Short-term $95K-$183K', value: '24%' }, { label: 'Long-term $0-$44K', value: '0%' }, { label: 'Long-term $44K-$492K', value: '15%' }, { label: 'Long-term $492K+', value: '20%' }], footer: 'Max savings: 17 percentage points', sentiment: 'positive' }
     ),
 
@@ -4787,7 +4876,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'HARVESTING POWER',
+      'Harvesting power',
       'The Compounding Impact of Tax-Loss Harvesting',
       'exponential',
       'See how tax-loss harvesting compounds over time. Small annual tax savings reinvested year after year create dramatic wealth differences over decades.',
@@ -4810,7 +4899,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Starting Portfolio', min: 50000, max: 2000000, default: 500000, unit: '$' },
         { label: 'Tax Alpha (Annual Savings)', min: 0.1, max: 2.0, default: 1.0, unit: '%' }
       ],
-      { company: 'Betterment', metric: 'Tax-coordinated portfolio feature', outcome: 'reported average tax savings of 0.48% annually from asset location alone', explanation: 'Betterment automatically places bonds and REITs in tax-advantaged accounts (IRA, 401k) and stock index funds in taxable accounts. This simple reallocation, without changing the overall portfolio, saves clients nearly half a percent per year in taxes.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -4827,7 +4916,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'TAX MYTHS',
+      'Tax myths',
       'What most people get wrong about investment taxes',
       [
         {
@@ -5050,9 +5139,8 @@ const lessons: PathwayLesson[] = [
       'YOUR BRAIN vs YOUR PORTFOLIO',
       'The Psychology That Destroys Returns',
       [
-        'You\'ve built up a toolkit of strategies, diversification, index funds, DCA, portfolio allocation. But the biggest threat to your wealth isn\'t the market, it\'s your own brain. (You\'ll experience this firsthand in the paper trading project at the end of this course.) Loss aversion is the most powerful bias in investing. Nobel Prize winner Daniel Kahneman proved that people feel the pain of a loss roughly 2x more intensely than the pleasure of an equal gain. A $1,000 loss feels as bad as a $2,000 gain feels good. This causes investors to sell during downturns (to stop the pain) and hold losing stocks too long (avoiding the pain of realizing the loss), the exact opposite of rational behavior.',
-        'Herd mentality and FOMO (Fear Of Missing Out) drive bubbles and crashes. When everyone around you is making money in crypto/meme stocks/tech, the social pressure to join is almost irresistible. When everyone is panic-selling, the fear of being the "last one holding" is overwhelming. This herding behavior is why investors consistently buy high (during euphoria) and sell low (during panic).',
-        'Anchoring bias causes you to fixate on irrelevant reference points. If you bought a stock at $100 and it drops to $60, you anchor to your purchase price and "wait to get back to even", even if the company\'s fundamentals have permanently deteriorated. Recency bias compounds this: investors overweight recent events (a 3-month crash) and underweight long-term trends (a century of 10% returns).'
+        'Loss aversion means a loss hurts more than an equal gain pleases. Nobel Prize winner Daniel Kahneman found the pain is roughly 2x stronger: a $1,000 loss feels as bad as a $2,000 gain feels good.',
+      'Herd mentality and FOMO, fear of missing out, make you buy high and sell low. Anchoring traps you waiting to break even on a $100 stock worth $60. Recency bias overweights a 3-month crash against a century of 10% returns.'
       ],
       [
         { term: 'Loss Aversion', definition: 'The psychological tendency to feel the pain of losses approximately twice as intensely as the pleasure of equivalent gains, causing irrational selling behavior during market downturns.', example: 'An investor sells their stocks during a 20% market decline (locking in losses) even though they have a 30-year time horizon and history shows markets always recover.' },
@@ -5061,7 +5149,7 @@ const lessons: PathwayLesson[] = [
         { term: 'FOMO', definition: 'Fear Of Missing Out, the anxiety that others are profiting from an opportunity you\'re not participating in, driving impulsive investment decisions without proper analysis.', example: 'Buying Bitcoin at $60,000 because your coworker bragged about doubling his money, then watching it crash to $16,000, the textbook FOMO cycle.' }
       ],
       'Decision flowchart showing how cognitive biases lead to poor investment timing: fear leads to selling at bottoms while greed leads to buying at tops',
-      { company: 'DALBAR Inc.', metric: '30-Year Quantitative Analysis of Investor Behavior', outcome: 'average equity investor earned 3.6% vs 10.6% S&P 500 return', explanation: 'DALBAR\'s annual study consistently shows that investors underperform the very funds they invest in by 5-7% annually. The cause isn\'t bad fund selection, it\'s behavioral: buying after prices rise (greed/FOMO) and selling after prices fall (fear/loss aversion). The behavior gap is the most expensive cost in investing.' },
+      undefined,
       { type: 'comparison', title: 'The behavioral bias cycle', rows: [{ label: '10.6% avg return', value: '3.6% avg return' }], footer: '3.6% avg return', sentiment: 'positive' }
     ),
 
@@ -5076,7 +5164,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE BEHAVIOR GAP',
+      'The behavior gap',
       'How Emotional Decisions Destroy Wealth Over Time',
       'comparison',
       'Compare the wealth trajectory of a disciplined investor vs. an emotional investor who makes common behavioral mistakes over various time horizons.',
@@ -5099,7 +5187,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Behavior Gap (%/year)', min: 0, max: 10, default: 7, unit: '%' },
         { label: 'Investment Horizon', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'Vanguard', metric: 'Advisor Alpha Study', outcome: 'found that behavioral coaching adds approximately 1.5% annually to investor returns', explanation: 'Vanguard\'s research shows the single most valuable thing a financial advisor does is not stock-picking or market timing, it\'s preventing clients from making behavioral mistakes. Talking investors out of panic-selling during the 2020 crash and keeping them invested through the recovery was worth years of advisory fees.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -5116,7 +5204,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'BEHAVIORAL MYTHS',
+      'Behavioral myths',
       'What most people believe about their own investing psychology',
       [
         {
@@ -5336,12 +5424,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'FEE ANATOMY',
+      'Fee anatomy',
       'The Five Types of Investment Fees',
       [
-        'Expense ratios are the most important fee to understand. This annual percentage is charged on your total investment, every single year, regardless of performance. The average actively managed mutual fund charges 0.66%, while Vanguard\'s S&P 500 index fund (VOO) charges just 0.03%. On $100,000, that\'s $660/year vs $30/year, and the index fund actually outperforms 92% of active funds over 15 years.',
-        'Advisory fees add another layer. Financial advisors typically charge 0.5-1.5% annually on assets under management. A 1% advisory fee on a $500,000 portfolio is $5,000 per year, forever. Some advisors justify this with financial planning, tax strategy, and behavioral coaching. Others provide little beyond what a target-date fund and an annual checkup would accomplish. Always ask: "What specifically am I getting for this percentage?"',
-        'Hidden fees are the most insidious. 12b-1 fees (marketing costs passed to investors, up to 0.25-1.0%), trading costs within funds (not included in the expense ratio), sales loads (front-end up to 5.75% or back-end), and bid-ask spreads all silently erode returns. A fund with a 0.80% expense ratio, 0.50% 12b-1 fee, and 0.30% hidden trading costs actually costs 1.60% annually, double what the headline number suggests.'
+        'Expense ratio, the yearly percentage charged on your whole investment: active funds average 0.66%, Vanguard\'s S&P 500 fund (VOO) charges 0.03%. On $100,000 that\'s $660 versus $30 a year. VOO beats 92% of active funds over 15 years.',
+      'Advisors charge 0.5-1.5% yearly on your assets; 1% on $500,000 is $5,000. Hidden costs add more: 12b-1 marketing fees of 0.25-1.0%, sales charges up to 5.75%. A 0.80% fund plus 0.50% and 0.30% costs 1.60%, double its headline number.'
       ],
       [
         { term: 'Expense Ratio', definition: 'The annual percentage of your investment assets charged by a fund to cover management, administration, and operating costs. Deducted automatically from fund returns.', example: 'A 0.03% expense ratio on $100,000 costs $30/year. A 1.0% expense ratio costs $1,000/year. Same investment, 33x more cost.' },
@@ -5350,7 +5437,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Advisory Fee', definition: 'The annual percentage charged by a financial advisor on your total managed assets, typically 0.5-1.5% per year. This is in addition to the underlying fund expense ratios.', example: 'A 1% advisory fee + 0.50% fund expenses = 1.50% total annual drag. On $500,000, that\'s $7,500 per year in total fees.' }
       ],
       'Fee types comparison table showing expense ratios, advisory fees, loads, 12b-1 fees, and hidden costs with their typical ranges',
-      { company: 'Vanguard', metric: 'Asset-weighted average expense ratio', outcome: '0.08% vs industry average of 0.44%', explanation: 'Vanguard pioneered low-cost investing and is owned by its fund shareholders (no outside profit motive). Their average expense ratio of 0.08% vs the industry average of 0.44% means a Vanguard investor with $500,000 saves approximately $1,800 per year in fees, which compounds into over $180,000 in extra wealth over 30 years.' },
+      undefined,
       { type: 'comparison', title: 'Five types of investment fees', rows: [{ label: 'Expense', value: '12b-1' }, { label: 'Advisory', value: '12b-1' }, { label: 'Sales', value: '12b-1' }, { label: 'Hidden', value: '12b-1' }, { label: '0.03%', value: '0.5%' }, { label: '0-5.75%', value: '0.03%' }, { label: '0.25%', value: '0.03%' }, { label: '0.1%', value: '0.03%' }], footer: 'Vanguard index fund: 0.03% total cost vs industry avg 0.44%+', sentiment: 'positive' }
     ),
 
@@ -5365,7 +5452,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FEE IMPACT',
+      'Fee impact',
       'How Fees Compound Against You Over Time',
       'comparison',
       'Adjust the fee percentage and investment horizon to see how dramatically fees erode your wealth. Small fee differences create enormous wealth gaps over decades.',
@@ -5388,7 +5475,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Fee', min: 0.03, max: 2.5, default: 1.0, unit: '%' },
         { label: 'Starting Amount', min: 10000, max: 1000000, default: 100000, unit: '$' }
       ],
-      { company: 'S&P Dow Jones SPIVA Scorecard', metric: '15-year active vs passive performance data', outcome: '92.19% of large-cap fund managers failed to beat the S&P 500 over 15 years', explanation: 'The SPIVA Scorecard is the definitive study of active vs. passive investing. After fees, over 92% of professional stock pickers failed to beat a simple index fund over 15 years. This means that not only are investors paying higher fees for active management, they\'re paying for worse performance. The fee premium buys nothing but underperformance.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -5405,7 +5492,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'FEE MYTHS',
+      'Fee myths',
       'What most people believe about investment fees',
       [
         {
@@ -5617,12 +5704,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'What Is Portfolio Rebalancing?',
       [
-        'Rebalancing is the process of realigning your portfolio back to its target allocation by selling assets that have grown beyond their target weight and buying assets that have fallen below their target weight. If you set a target of 60% stocks and 40% bonds, and stocks surge so your portfolio becomes 75/25, rebalancing means selling some stocks and buying bonds to restore the 60/40 split.',
-        'Why does rebalancing work? It forces you to systematically sell high and buy low, the exact opposite of what emotions tell you to do. When stocks are soaring, rebalancing says "trim them." When bonds are beaten down, rebalancing says "buy more." This counter-emotional discipline is exactly what separates successful long-term investors from reactive ones.',
-        'Without rebalancing, your portfolio\'s risk profile slowly changes. A 60/40 portfolio can drift to 80/20 after a strong bull market, meaning you\'re taking 33% more stock risk than you planned for. When the inevitable correction hits, that extra exposure turns paper gains into real losses. The 2022 bear market was a painful lesson: unbalanced portfolios lost 25% vs 16% for disciplined rebalancers.'
+        'Rebalancing means resetting your portfolio to its target mix: you sell what has grown too big and buy what has shrunk. Set a target of 60% stocks and 40% bonds, drift to 75/25, then sell stocks and buy bonds.',
+      'It forces you to sell high and buy low, which feels wrong but works. Skip it and a 60/40 portfolio can drift to 80/20, meaning 33% more stock risk. In the 2022 bear market, unbalanced portfolios lost 25% versus 16%.'
       ],
       [
         { term: 'Rebalancing', definition: 'The process of restoring a portfolio to its target asset allocation by selling overweight assets and buying underweight assets.', example: 'Your 60/40 portfolio drifted to 70/30 after stocks rallied. You sell 10% of stocks and buy bonds to restore 60/40.' },
@@ -5630,8 +5716,8 @@ const lessons: PathwayLesson[] = [
         { term: 'Portfolio Drift', definition: 'The gradual shift in allocation percentages that occurs naturally as different assets produce different returns over time.', example: 'A 60/40 portfolio can drift to 80/20 after a multi-year bull market in stocks, dramatically increasing risk beyond your plan.' }
       ],
       'Diagram showing the rebalancing cycle: Set Target → Monitor Drift → Trigger Rebalance → Sell Winners → Buy Laggards → Restore Target',
-      { company: 'Vanguard Research', metric: 'Rebalancing premium study (1926-2023)', outcome: 'Annual rebalancing added ~0.35% per year with measurably lower portfolio volatility', explanation: 'Vanguard found that a simple annual rebalancing of a 60/40 portfolio added approximately 0.35% per year in risk-adjusted returns compared to a never-rebalanced portfolio. Over 30 years, that 0.35% compounds to a meaningful wealth difference, and the rebalanced portfolio experienced lower maximum drawdowns during every bear market.' },
-      { type: 'metric', title: 'The rebalancing cycle', value: 'SET TARGET', detail: 'MONITOR | DRIFT CHECK | BUY LOW | SELL HIGH', footer: 'REBALANCE', sentiment: 'positive' }
+      undefined,
+      { type: 'metric', title: 'The rebalancing cycle', value: 'Set target', detail: 'Monitor | drift check | buy low | sell high', footer: 'REBALANCE', sentiment: 'positive' }
     ),
 
     microCheck(
@@ -5666,7 +5752,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Rebalancing Frequency', min: 1, max: 12, default: 12, unit: ' months' },
         { label: 'Drift Threshold', min: 1, max: 15, default: 5, unit: '%' }
       ],
-      { company: 'Vanguard / Gobind Daryanani Study', metric: 'Optimal rebalancing frequency and thresholds (1926-2009)', outcome: 'Annual or semi-annual rebalancing with 5% thresholds maximized risk-adjusted returns', explanation: 'Research by Vanguard and financial planner Gobind Daryanani independently found that the optimal approach combines time and threshold triggers: check at least annually, and rebalance only if drift exceeds 5%. Checking more often than monthly or using thresholds tighter than 3% increased transaction costs without meaningful return improvement.' }
+      undefined
     ),
 
     caseStudy(
@@ -5682,7 +5768,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'REBALANCING MYTHS',
+      'Rebalancing myths',
       'What most people get wrong about rebalancing',
       [
         {
@@ -5858,13 +5944,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'FUNDAMENTAL ANALYSIS',
+      'Fundamental analysis',
       'How to Evaluate a Stock: The Four Pillars',
       [
-        'Revenue growth is the foundation. A great company grows its top line consistently. Look for revenue growth of 10%+ annually for growth companies, or stable revenue for dividend-paying blue chips. Revenue is harder to manipulate than earnings, making it the most reliable starting point. Check if growth is organic (from selling more products) or acquired (from buying other companies), organic growth is more sustainable.',
-        'Earnings and profitability tell you if growth is translating into real profit. Net income, earnings per share (EPS), and profit margins reveal operational efficiency. A company growing revenue 20% but with shrinking margins may be spending unsustainably. Look for expanding or stable margins alongside revenue growth, that\'s the sign of a healthy, scalable business.',
-        'Competitive moat is Warren Buffett\'s term for a sustainable competitive advantage that protects a company from competitors. Moats include brand power (Apple, Nike), network effects (Visa, Meta), switching costs (Microsoft, Adobe), cost advantages (Costco, Walmart), and patents (pharmaceutical companies). A company without a moat will see its profits competed away over time.',
-        'Management quality matters enormously. Look for executives with skin in the game (significant stock ownership), a track record of smart capital allocation (share buybacks at low prices, not high), honest communication with shareholders (acknowledging mistakes, not just celebrating wins), and insider buying patterns. CEOs who buy stock with their own money are a positive signal.'
+        'Revenue growth is the base: aim for 10%+ a year in growth companies. Then check earnings per share (EPS) and profit margins, the profit kept per sale. Revenue up 20% with shrinking margins means spending is unsustainable.',
+      'A moat, Warren Buffett\'s term for a lasting advantage, protects profits: brands (Apple, Nike), network effects (Visa, Meta), switching costs (Microsoft, Adobe), cost advantages (Costco, Walmart), patents. Also check managers who own stock and buy it.'
       ],
       [
         { term: 'Revenue Growth', definition: 'The rate at which a company\'s total sales are increasing over time, typically measured year-over-year.', example: 'Apple grew revenue from $274B in 2020 to $383B in 2023, a 40% increase over 3 years, driven by Services growth.' },
@@ -5872,7 +5956,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Earnings Per Share (EPS)', definition: 'A company\'s net profit divided by the number of outstanding shares, showing how much profit each share represents.', example: 'If a company earns $10 billion with 1 billion shares outstanding, EPS is $10. Higher EPS over time means the company is more profitable per share.' }
       ],
       'Four pillars diagram: Revenue Growth → Profitability → Competitive Moat → Management Quality, with each pillar supporting a "Strong Business" roof',
-      { company: 'Apple Inc.', metric: 'Four Pillar Analysis', outcome: 'Revenue: $383B (2023), Gross Margin: 45%, Net Margin: 25%, ROE: 171%', explanation: 'Apple exemplifies all four pillars: consistent revenue growth driven by Services (now $85B/year), industry-leading profit margins (45% gross, 25% net), a massive competitive moat (ecosystem lock-in, brand loyalty, 2B+ active devices), and Tim Cook\'s disciplined capital allocation ($600B+ in buybacks). This is what a high-quality stock looks like.' },
+      undefined,
       { type: 'grid', title: 'The four pillars of stock analysis', items: [{ label: 'REVENUE', value: 'Top-line growth 10%+ YoY', color: '#10B981' }, { label: 'EARNINGS', value: 'Margins & profitability EPS growth', color: '#A451E6' }, { label: 'MOAT', value: 'Competitive advantage Durability', color: '#F59E0B' }, { label: 'MGMT', value: 'Skin in the game Track record', color: '#B862ED' }], footer: 'One weak pillar can bring down the entire investment thesis', sentiment: 'positive' }
     ),
 
@@ -5885,7 +5969,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'KEY FINANCIAL RATIOS',
+      'Key financial ratios',
       'The 5 Ratios Every Investor Should Know',
       'comparison',
       'Compare key financial ratios across different types of companies to understand what "good" looks like for each metric.',
@@ -5911,7 +5995,7 @@ const lessons: PathwayLesson[] = [
         { label: 'P/E Ratio', min: 5, max: 60, default: 16, unit: 'x' },
         { label: 'Growth Rate', min: 0, max: 40, default: 10, unit: '%' }
       ],
-      { company: 'Enron vs. Peers (2000)', metric: 'Red flag ratios before collapse', outcome: 'Enron: D/E 1.7x, FCF negative 3 years straight, ROE inflated by off-book entities', explanation: 'Enron\'s ratios told the real story even while Wall Street sang its praises. The company had negative free cash flow for three consecutive years (earnings were accounting fiction), debt-to-equity of 1.7x (much higher including hidden off-book entities), and ROE was artificially inflated by excluding hundreds of billions in liabilities from the balance sheet. Investors who checked the ratios avoided the disaster.' }
+      undefined
     ),
 
     caseStudy(
@@ -5927,7 +6011,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'INVESTMENT RESEARCH MYTHS',
+      'Investment research myths',
       'What most people get wrong about analyzing stocks',
       [
         {
@@ -6089,7 +6173,7 @@ const lessons: PathwayLesson[] = [
       'Since 1926, the S&P 500 has been positive in 73% of calendar years, averaging about 10% annually. But here\'s the mind-blowing part: over any rolling 20-year period, it has NEVER produced a negative return. Not during the Great Depression. Not during World War II. Not during the 2008 financial crisis. Time is the ultimate investing cheat code.',
       'By the end of this lesson, you\'ll understand why holding period is the most powerful variable in investing, how missing just 10 days can cut your returns in half, how $300/month can make you a millionaire, and why time in the market always beats timing the market.',
       'A range chart showing how holding period shrinks the range of outcomes, from -43% to +54% for 1 year, down to +6.4% to +17.9% for 20 years, with NEVER negative highlighted',
-      { type: 'bars', title: 'S&P 500 Return ranges by holding period', items: [{ label: '0% return line', value: 100, displayValue: '-43%' }, { label: '0% return line', value: 100, displayValue: '-3%' }, { label: '0% return line', value: 100, displayValue: '-1%' }, { label: '0% return line', value: 100, displayValue: '+54%' }, { label: '0% return line', value: 100, displayValue: '+28%' }, { label: '0% return line', value: 100, displayValue: '+20%' }], footer: '0% return line', sentiment: 'positive' }
+      { type: 'comparison', title: 'What a longer holding period does to the range', rows: [{ label: 'Held 1 year', value: '-43% to +54%' }, { label: 'Held 5 years', value: '-3% to +28%' }, { label: 'Held 10 years', value: '-1% to +20%' }, { label: 'Held 20 years', value: '+6.4% to +17.9%' }], footer: 'No 20-year period has ever finished negative.', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Trying to time the market, jumping in and out', detail: 'J.P. Morgan research shows that missing just the 10 best days in the S&P 500 over 20 years (2003-2022) cut a $10,000 investment from $61,685 to $28,260, a 54% reduction. Most of the best days occur within days of the worst days, so selling after a crash means you almost certainly miss the recovery.' },
@@ -6102,12 +6186,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE DATA',
+      'The data',
       'Long-Term Returns: What History Tells Us',
       [
-        'Everything you\'ve learned across 22 lessons, compound interest, diversification, low fees, behavioral discipline, rests on one question: does long-term investing actually work? The data is overwhelming. Since 1926, the S&P 500 has delivered an average annual return of approximately 10% (about 7% after inflation). It has been positive in roughly 73% of calendar years, nearly 3 out of every 4 years are gains. This consistency across almost a century of wars, pandemics, recessions, and financial crises is remarkable evidence that the stock market rewards patient investors.',
-        'What\'s truly powerful is how holding period shrinks the range of outcomes. For any single year, S&P 500 returns have ranged from -43% (1931) to +54% (1933), wildly unpredictable. Over any 5-year rolling period, the range narrows to roughly -3% to +28% annualized. Over any 10-year period, it narrows further: roughly -1% to +20%. And over any 20-year rolling period since 1926, the S&P 500 has NEVER delivered a negative annualized return. The worst 20-year stretch returned +6.4% annually.',
-        'Here\'s why: stocks represent ownership in real businesses that generate real profits, invent new products, and grow with the economy. Short-term prices are driven by fear and greed, but long-term prices are driven by earnings. And over 20+ years, aggregate corporate earnings always grow, because innovation, productivity, and population growth compound relentlessly. Time doesn\'t just reduce risk, it virtually eliminates the risk of loss for diversified investors.'
+        'All 22 lessons lead here. Since 1926 the S&P 500, an index of 500 large US companies, returned about 10% a year, 7% after inflation, and rose in 73% of years, nearly 3 out of 4.',
+      'Time shrinks the range. Single years swung from -43% (1931) to +54% (1933). 5-year periods ranged -3% to +28%, 10-year periods -1% to +20%. No 20-year period since 1926 lost money. The worst gained +6.4% a year, as profits grow.'
       ],
       [
         { term: 'Rolling Period Returns', definition: 'Annualized returns measured across every possible holding period of a given length, showing the full range of investor experiences.', example: 'Every possible 20-year holding period since 1926 (1926-1945, 1927-1946, etc.) has produced positive S&P 500 returns. The worst: +6.4% annually.' },
@@ -6115,7 +6198,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Mean Reversion', definition: 'The tendency for investment returns to move toward their long-term average over time, extreme returns in either direction tend to be followed by more normal periods.', example: 'After the 2008 crash (-37%), the S&P 500 returned +26% in 2009 and +15% in 2010. Extreme losses set up above-average recoveries.' }
       ],
       'A narrowing funnel diagram showing how holding period compresses the range of possible outcomes, converging toward positive returns',
-      { company: 'S&P 500 Historical Data', metric: 'Rolling 20-year returns (1926-2024)', outcome: 'The worst 20-year annualized return was +6.4%; the best was +17.9%', explanation: 'Across nearly 100 years of data, including the Great Depression, World War II, the 1970s stagflation, the dot-com crash, the 2008 financial crisis, and COVID-19, there has never been a 20-year period where a diversified U.S. stock investor lost money. Time is the most reliable risk reducer in investing.' },
+      undefined,
       { type: 'comparison', title: 'Time compresses the range of outcomes', rows: [{ label: '5 years', value: '1 year' }, { label: '10 years', value: '1 year' }, { label: '20 years', value: '1 year' }], footer: '1 year', sentiment: 'positive' }
     ),
 
@@ -6128,7 +6211,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE COST OF MISSING DAYS',
+      'The cost of missing days',
       'Why Market Timing Destroys Wealth',
       'comparison',
       'See how missing just a few of the best trading days over 20 years dramatically reduces your returns. The best days cluster right after the worst days, so selling after a crash means missing the recovery.',
@@ -6152,7 +6235,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Best Days Missed', min: 0, max: 30, default: 10, unit: ' days' },
         { label: 'Investment Period', min: 10, max: 30, default: 20, unit: ' years' }
       ],
-      { company: 'J.P. Morgan Asset Management', metric: 'Guide to the Markets (2003-2022)', outcome: 'Fully invested: $61,685 vs Missing 10 best days: $28,260 (from $10K)', explanation: 'J.P. Morgan\'s research is updated annually and consistently shows the same pattern: missing even a handful of the market\'s best days devastates long-term returns. The fully invested investor earned 9.5% annualized while the investor who missed 10 best days earned only 5.3%. This 4.2% annual gap compounds to a $33,000+ difference on just $10,000.' }
+      undefined
     ),
 
     caseStudy(
@@ -6168,7 +6251,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'LONG-TERM INVESTING MYTHS',
+      'Long-term investing myths',
       'What most people get wrong about holding for the long run',
       [
         {
@@ -6340,12 +6423,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE PRACTICE FIELD',
+      'The practice field',
       'What Is Paper Trading and Why It Matters',
       [
-        'Paper trading means buying and selling investments with virtual money in a simulated market that mirrors real-world prices. Your "trades" execute at real market prices, your portfolio fluctuates with actual market movements, but you risk nothing. It\'s the flight simulator of investing, you learn to fly before the stakes are real. Everything you learned in Lessons 1-23 about compound interest, diversification, index funds, and behavioral discipline gets tested here.',
-        'Here\'s your setup: Go to Investopedia\'s Stock Simulator (free, no credit card). Create an account and you\'ll receive $100,000 in virtual cash. Your mission over the next 30 days: build a complete portfolio applying the principles from Lessons 1-23, asset allocation (Lesson 5), index funds (Lesson 6), diversification (Lesson 5), dollar-cost averaging (Lesson 8), and behavioral discipline (Lesson 19). Track your decisions and emotions daily.',
-        'The rules of your paper trading challenge: (1) Start with $100,000 virtual cash. (2) Build a diversified portfolio using real ticker symbols. (3) Follow the 110-minus-age allocation rule from Lesson 9. (4) Document every trade with a written reason. (5) Check your portfolio only once per week, not daily. (6) Keep an investment journal noting your emotions and impulses. (7) After 30 days, compare your portfolio performance to the S&P 500 (SPY).'
+        'Paper trading means buying and selling with virtual money at real market prices, so you risk nothing. Investopedia\'s Stock Simulator is free and gives you $100,000 in virtual cash. Your mission: build a portfolio over 30 days.',
+      'Apply Lessons 1-23: asset allocation (Lesson 5), index funds (Lesson 6), dollar-cost averaging (Lesson 8), the 110-minus-age rule (Lesson 9), discipline (Lesson 19). Use real tickers, log every trade and your emotions, check weekly, compare to the S&P 500 (SPY).'
       ],
       [
         { term: 'Paper Trading', definition: 'Simulated investing with virtual money using real market prices. Allows practice with zero financial risk while experiencing realistic market conditions.', example: 'Using Investopedia\'s simulator, you place a "buy" order for 100 shares of VTI at the real market price. Your virtual portfolio now tracks VTI\'s actual performance.' },
@@ -6353,7 +6435,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Investment Journal', definition: 'A written log of every investment decision, the reasoning behind it, and your emotional state at the time. The most powerful tool for improving as an investor.', example: 'Entry: "Bought VTI at $245. Reason: core U.S. stock market position per my allocation plan. Emotion: slightly nervous but trusting the data."' }
       ],
       'Step-by-step setup guide for paper trading: sign up, fund virtual account, build portfolio, track results',
-      { company: 'Investopedia Stock Simulator', metric: 'Paper trading platform used by 2M+ students', outcome: 'Free platform with $100,000 virtual cash, real-time pricing, and portfolio tracking, the most popular paper trading tool for beginners', explanation: 'Investopedia\'s simulator uses real market data so your paper trades mirror what would happen with real money. You can trade stocks, ETFs, and options. The platform also shows your performance compared to the S&P 500 benchmark, making it easy to evaluate your strategy.' },
+      undefined,
       IF24_DIAGRAM
     ),
 
@@ -6366,7 +6448,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'PORTFOLIO BUILDER',
+      'Portfolio builder',
       'Designing Your Paper Trading Portfolio',
       'pie',
       'Build your ideal paper trading portfolio allocation. Adjust the sliders to see how different allocations affect expected returns and risk, then use these exact percentages when you set up your paper trading account.',
@@ -6389,7 +6471,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Your Age', min: 14, max: 30, default: 18, unit: ' years' },
         { label: 'U.S. vs International Split', min: 50, max: 80, default: 60, unit: '% U.S.' }
       ],
-      { company: 'John Bogle / Vanguard', metric: 'Three-fund portfolio philosophy', outcome: 'Bogle proved that a simple three-fund portfolio at 0.03-0.07% fees outperforms 92% of professional fund managers over 15+ years', explanation: 'John Bogle founded Vanguard and created the first index fund in 1976. His philosophy, buy the entire market through low-cost index funds and hold forever, has been validated by decades of data. The three-fund portfolio is his legacy, used by millions of investors who follow the Boglehead philosophy.' }
+      undefined
     ),
 
     caseStudy(
@@ -6404,7 +6486,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'PAPER TRADING MYTHS',
+      'Paper trading myths',
       'What most people get wrong about paper trading',
       [
         {
@@ -6577,12 +6659,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE REVIEW',
+      'The review',
       'Evaluating Your Paper Trading Performance',
       [
-        'Performance measurement isn\'t about whether you made money, markets go up and down randomly in any 30-day period. Instead, evaluate your PROCESS: Did you stick to your allocation? Did you rebalance when drift exceeded 5%? Did you resist impulse trades? Did you document every decision? A perfect process with a negative return is infinitely better than a profitable accident, because the process repeats and the luck doesn\'t.',
-        'Compare your return to the S&P 500 (SPY) benchmark, not to grade yourself, but to understand your allocation decisions. If you held 92% stocks and SPY returned 3% but your portfolio returned 2.5%, the difference likely comes from your international allocation (VXUS) or bond allocation (BND) performing differently. This is expected, diversification means some parts lag while others lead. Over 10+ years, the diversified portfolio wins.',
-        'The most valuable data is in your investment journal. Count how many times you felt the urge to deviate from your plan. Note what triggered those urges (market drops, friend\'s advice, news headlines). This gap, between impulse and action, is where behavioral discipline lives. If you successfully overrode your impulses even once during paper trading, you\'ve proven you can do it with real money.'
+        'Judge your process, not your profit: any 30 days of returns is mostly luck. Did you hold your allocation, rebalance when drift passed 5%, skip impulse trades, and write down each decision? Good process repeats. Luck does not.',
+      'Compare your return to the S&P 500 benchmark (SPY) to understand your choices. Holding 92% stocks, SPY up 3% and you up 2.5%? International (VXUS) or bonds (BND) lagged. That is diversification working over 10+ years.'
       ],
       [
         { term: 'Process vs Outcome', definition: 'Evaluating investment decisions based on the quality of the decision-making process, not just whether the result was profitable. Good processes produce good outcomes over time; lucky outcomes from bad processes don\'t repeat.', example: 'Holding your diversified portfolio through a 5% drop = great process (even though the outcome was negative). Selling and buying crypto that doubled = bad process (the outcome was lucky, not repeatable).' },
@@ -6590,7 +6671,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Behavioral Scorecard', definition: 'A self-assessment measuring how well you followed your investment plan, separate from portfolio returns. Did you hold your allocation? Resist impulses? Document decisions?', example: 'Behavioral scorecard: Followed allocation? Yes. Resisted 2 impulse urges? Yes. Checked weekly? Yes. Documented all trades? Yes. Score: 4/4. Portfolio return: -1.2% (irrelevant, process was perfect).' }
       ],
       'Performance review framework: returns vs benchmark, process score, behavioral scorecard, journal analysis',
-      { company: 'Ray Dalio / Bridgewater Associates', metric: 'Decision-making review process', outcome: 'Bridgewater\'s systematic decision reviews helped generate $52 billion in profits, the most of any hedge fund in history', explanation: 'Dalio credits Bridgewater\'s success not to market predictions but to systematic review of every decision. When a trade loses money, the team asks: "Was the process good?" This separates outcome quality from process quality, the same framework you should apply to your paper trading results.' },
+      undefined,
       IF25_DIAGRAM
     ),
 
@@ -6603,7 +6684,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'YOUR TRANSITION PLAN',
+      'Your transition plan',
       'From Paper Trading to Real Money',
       'timeline',
       'Map out your transition from paper trading to real investing. See how starting with small amounts and gradually increasing builds confidence while your money starts compounding immediately.',
@@ -6626,7 +6707,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly Contribution', min: 25, max: 500, default: 100, unit: '$/month' },
         { label: 'Starting Amount', min: 0, max: 5000, default: 500, unit: '$' }
       ],
-      { company: 'Vanguard Research', metric: 'Lump sum vs dollar-cost averaging (2012)', outcome: 'Investing immediately outperformed spreading investments over 12 months approximately 68% of the time across U.S., U.K., and Australian markets', explanation: 'Vanguard studied 1,021 rolling 12-month periods across three countries. Lump-sum investing won about two-thirds of the time because markets generally trend upward. The takeaway: don\'t wait. If you have money to invest, invest it now.' }
+      undefined
     ),
 
     caseStudy(
@@ -6641,7 +6722,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'TRANSITION MYTHS',
+      'Transition myths',
       'What most people get wrong about moving from paper trading to real money',
       [
         {

@@ -1,8 +1,8 @@
 /**
  * Curriculum step → renderable shape.
  *
- * `lesson.tsx` used to hardcode one demo lesson. The real data has 24 step types across 5,341
- * steps, but they collapse into a handful of render kinds: prose, a single-choice question, or a
+ * `lesson.tsx` used to hardcode one demo lesson. The canonical website data has many authored step
+ * types, but they collapse into a handful of render kinds: prose, a single-choice question, or a
  * spec for an interactive component we already ship. This module is that collapse, kept PURE so it
  * can be checked without a simulator (see scripts/check-lesson-steps.mjs).
  *
@@ -16,6 +16,7 @@ import type { NumberLineSpec } from '@/components/number-line';
 import type { OrderSpec } from '@/components/order-steps';
 import type { RevealSpec } from '@/components/tap-reveal';
 import type { CalcSpec } from '@/components/calc-blanks';
+import type { DecisionTreeSpec } from '@/components/decision-tree';
 import type { TileSpec } from '@/components/tile-builder';
 
 export type ProseBlock =
@@ -25,7 +26,7 @@ export type ProseBlock =
   | { b: 'pair'; leftLabel: string; left: string; rightLabel: string; right: string }
   | { b: 'event'; when: string; what: string; detail?: string }
   /**
-   * A chart the curriculum authored. 1,309 of these existed in the data and NONE of them reached
+   * A chart the curriculum authored. These existed in the data and NONE of them reached
    * the screen before this block type: `AnimatedVisual` appeared only in the data layer, in zero
    * components. The same lesson on the web showed the chart; the app showed the prose around it.
    */
@@ -52,6 +53,7 @@ export type Normalized =
   | { kind: 'multi'; spec: MultiSpec }
   | { kind: 'build'; spec: TileSpec }
   | { kind: 'calc'; spec: CalcSpec }
+  | { kind: 'tree'; spec: DecisionTreeSpec }
   | { kind: 'todo'; type: string; title: string; blocks: ProseBlock[] };
 
 const p = (text: string): ProseBlock => ({ b: 'p', text });
@@ -65,12 +67,11 @@ const terms = (xs?: { term: string; definition: string; example?: string }[]): P
  * PURE module rather than in the component so that scripts/lesson-render-audit.mjs can import it
  * under plain Node -- the component pulls in React Native and cannot be loaded there.
  *
- * `AnimatedVisual` also declares `pixel` and `pictograph`. Neither occurs in the corpus today and
- * neither is implemented, so they are deliberately ABSENT here: that makes an unrenderable kind a
- * loud, countable event instead of a card that quietly disappears.
+ * `pixel` remains absent because it has no authored occurrence in the canonical corpus. Pictograph
+ * is present because its repeated marks encode magnitude in two website lessons.
  */
 export const RENDERABLE_VISUAL_KINDS = new Set([
-  'bars', 'comparison', 'stack', 'pie', 'grid', 'flow', 'line', 'metric',
+  'bars', 'comparison', 'stack', 'pie', 'grid', 'flow', 'line', 'metric', 'pictograph',
 ]);
 
 /**
@@ -95,8 +96,10 @@ export function visualIsRenderable(v?: AnimatedVisual): boolean {
     : a.type === 'stack' || a.type === 'pie' ? a.segments
     : a.type === 'flow' ? a.nodes
     : a.type === 'line' ? a.points
+    : a.type === 'pictograph' ? a.rows
     : null;
   if (rows === null) return typeof a.value === 'string' && a.value.length > 0;  // metric
+  if (a.type === 'pictograph' && (!(a.unitValue > 0) || typeof a.sprite !== 'string')) return false;
   return Array.isArray(rows) && rows.length > 0;
 }
 
@@ -150,6 +153,10 @@ export function chartLabel(v?: AnimatedVisual): string {
     case 'line':
       parts.push(a.trend === 'down' ? 'Downward over the period' : 'Upward over the period',
                  (a.points ?? []).map((pt: any) => pair(pt.label, pt.value)).filter(Boolean).join(', '));
+      break;
+    case 'pictograph':
+      parts.push(`Each mark represents ${txt(a.unitLabel)}`,
+                 (a.rows ?? []).map((r: any) => pair(r.label, r.displayValue ?? String(r.value ?? ''))).filter(Boolean).join(', '));
       break;
     default:
       return '';
@@ -258,6 +265,8 @@ export function normalizeStep(step: LessonStep): Normalized {
         },
       };
     }
+    case 'decisionTree':
+      return { kind: 'tree', spec: { scenario: s.scenario, decisions: s.decisions ?? [] } };
 
     // ─── prose ────────────────────────────────────────────────────────────────
     case 'concept':
@@ -525,5 +534,5 @@ export function expandSteps(steps: LessonStep[]): LessonStep[] {
 
 /** Steps that gate Continue until solved. Prose never blocks; interactives always do. */
 export function gates(n: Normalized): boolean {
-  return n.kind === 'reveal' || n.kind === 'match' || n.kind === 'order' || n.kind === 'line' || n.kind === 'multi' || n.kind === 'build' || n.kind === 'calc';
+  return n.kind === 'reveal' || n.kind === 'match' || n.kind === 'order' || n.kind === 'line' || n.kind === 'multi' || n.kind === 'build' || n.kind === 'calc' || n.kind === 'tree';
 }

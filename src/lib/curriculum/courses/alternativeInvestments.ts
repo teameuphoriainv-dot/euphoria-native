@@ -130,12 +130,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'What Are Alternative Investments?',
       [
-        'Alternative investments are any assets outside the traditional trio of stocks, bonds, and cash. The global alternatives market exceeded $13 trillion in assets under management by 2023, up from $4 trillion in 2010. This explosive growth reflects institutional investors\' insatiable appetite for diversification and higher returns.',
-        'There are six major categories of alternatives: real estate (REITs, rental properties, commercial), private equity (buyouts, growth capital), hedge funds (long/short, macro, event-driven), commodities (gold, oil, agriculture), cryptocurrency (Bitcoin, Ethereum, DeFi), and collectibles (art, wine, classic cars). Each offers unique risk-return profiles and correlation patterns.',
-        'The key advantage of alternatives is low correlation to public markets. When stocks crash, many alternatives hold their value or even appreciate. Gold rose 25% during the 2008 crisis while the S&P 500 fell 57%. Private equity and real estate often move on different cycles than public equities, providing genuine portfolio diversification, not just more of the same risk.'
+        'Alternative investments are assets outside the traditional trio of stocks, bonds, and cash. The global alternatives market passed $13 trillion in assets under management by 2023, up from $4 trillion in 2010.',
+      'Six categories: real estate, private equity, hedge funds, commodities, cryptocurrency, and collectibles. Their appeal is low correlation, meaning they often move separately from shares. Gold rose 25% in the 2008 crisis while the S&P 500 fell 57%.'
       ],
       [
         { term: 'Alternative Investment', definition: 'Any asset class outside traditional stocks, bonds, and cash, including real estate, private equity, hedge funds, commodities, crypto, and collectibles.', example: 'A private equity fund buying and improving a chain of hospitals, then selling at a profit 5-7 years later.' },
@@ -144,7 +143,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Accredited Investor', definition: 'An individual with $200K+ annual income or $1M+ net worth (excluding primary residence). Many alternative investments require this status due to SEC regulations.', example: 'Most hedge funds and private equity funds only accept accredited investors because the SEC considers these investments too risky for average retail investors.' }
       ],
       'Six-branch radial diagram with "Alternative Investments $13T+" at the center. Branches: Real Estate ($3.8T), Private Equity ($4.7T), Hedge Funds ($3.8T), Commodities ($0.4T), Crypto ($1.7T), Collectibles ($0.2T). Each branch color-coded.',
-      { company: 'Preqin Research', metric: 'Global alternatives AUM growth', outcome: 'Alternatives grew from $4T in 2010 to $13T+ in 2023, a 225% increase', explanation: 'Institutional investors worldwide have tripled their alternatives allocation in just 13 years. Pension funds, endowments, and sovereign wealth funds now routinely allocate 30-60% to alternatives, seeking diversification and higher returns than traditional stock-bond portfolios can deliver.' },
+      undefined,
       { type: 'flow', title: 'Global Alternative Investments, $13T+ AUM', nodes: [{ label: 'Private Equity', value: '$4.7T' }, { label: 'Real Estate', value: '$3.8T' }, { label: 'Hedge Funds', value: '$3.8T' }], footer: '$4T (2010) → $13T+ (2023)', sentiment: 'positive' }
     ),
 
@@ -159,7 +158,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'INSTITUTIONAL ALLOCATION',
+      'Institutional allocation',
       'How the World\'s Smartest Money Allocates',
       'pie',
       'Compare how different institutional investors allocate between traditional and alternative investments. Notice how the best-performing endowments hold the most alternatives.',
@@ -181,7 +180,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Alternatives Allocation', min: 0, max: 90, default: 60, unit: '%' },
         { label: 'Investment Horizon', min: 5, max: 40, default: 20, unit: ' years' }
       ],
-      { company: 'Yale Investments Office', metric: '36-year endowment performance (1985-2021)', outcome: '13.7% annual return vs 9.5% for a 60/40 portfolio', explanation: 'David Swensen\'s willingness to accept illiquidity, invest in private markets, and maintain conviction through multiple crises generated an extra 4.2% annually. Over 36 years, that compounded into a massive performance gap, $41.4B vs an estimated $12B from a traditional 60/40.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -199,7 +198,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'ALTERNATIVES MYTHS',
+      'Alternatives myths',
       'What most people get wrong about alternative investments',
       [
         {
@@ -421,12 +420,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 4, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FUNDAMENTALS',
+      'The fundamentals',
       'How Real Estate Generates Returns',
       [
-        'Real estate generates returns through two primary mechanisms: income (rent) and appreciation (price increases). A rental property might generate 6-8% cash-on-cash return from rent while simultaneously appreciating 3-5% annually. When combined with leverage (mortgages), total returns historically range from 10-12%, comparable to stocks but with more predictable cash flows.',
-        'The four ways to invest in real estate are: (1) Direct ownership, buying rental properties yourself. (2) REITs (Real Estate Investment Trusts), publicly traded companies owning portfolios of properties. (3) Real estate crowdfunding, pooling money with other investors on platforms like Fundrise or CrowdStreet. (4) Real estate funds, private equity funds like Blackstone that buy and manage large commercial portfolios.',
-        'What makes real estate unique among investments is leverage. A $200K property purchased with $40K down (20%) and a $160K mortgage means a 5% appreciation adds $10K to your equity, a 25% return on your $40K investment. This leverage effect is why real estate has built more millionaires than any other asset class. But leverage cuts both ways: a 20% price decline wipes out 100% of your equity.'
+        'Real estate pays two ways: rent, and appreciation, meaning rising prices. Rent yields 6-8%, appreciation 3-5%, and 10-12% total with a mortgage. Four routes: rentals, REITs (listed property companies), Fundrise, CrowdStreet, or funds like Blackstone.',
+      'Leverage is the edge: a $200K property with $40K down (20%) and a $160K mortgage. A 5% price rise adds $10K, a 25% return on your $40K. But a 20% drop wipes out 100% of your equity.'
       ],
       [
         { term: 'Cap Rate', definition: 'Capitalization rate = Net Operating Income / Property Value. Measures the annual return assuming all-cash purchase (no leverage). Higher cap rates suggest higher risk/return.', example: 'A property generating $50K NOI valued at $500K has a 10% cap rate. Class A apartments in NYC might have 4% cap rates; rural multifamily might have 10%.' },
@@ -435,7 +433,7 @@ const lessons: PathwayLesson[] = [
         { term: 'REIT', definition: 'Real Estate Investment Trust, a company that owns, operates, or finances income-producing real estate. Must distribute 90%+ of taxable income as dividends. Trades on stock exchanges.', example: 'Prologis (PLD) is the largest REIT, owning 1.2 billion sq ft of logistics warehouses globally, with a ~3% dividend yield.' }
       ],
       'Flow diagram: Property Value ($500K) → Gross Rent ($72K) minus Expenses ($24K) = NOI ($48K). Then: NOI ($48K) ÷ Property Value ($500K) = 9.6% Cap Rate. Below: After mortgage payment ($30K), Cash Flow = $18K on $100K investment = 18% cash-on-cash return.',
-      { company: 'NAREIT (National Association of REITs)', metric: 'REIT total returns 1972-2023', outcome: 'REITs returned 11.4% annually, outperforming the S&P 500\'s 10.3%', explanation: 'Over 50+ years, REITs have slightly outperformed stocks while providing higher dividend yields (3-5% vs 1.5%). The combination of contractual rental income, real asset backing, and inflation pass-through (rents increase with inflation) makes real estate a powerful portfolio component.' },
+      undefined,
       { type: 'flow', title: 'Real Estate Return Breakdown', nodes: [{ label: 'Gross Rent: $72K', value: 'minus Expenses: $24K' }, { label: 'NOI: $48,000', value: 'Cap Rate: 9.6%' }, { label: 'Mortgage: -$30K/yr', value: 'on $400K loan at 6.5%' }, { label: 'Cash Flow: $18K', value: '18% Cash-on-Cash Return' }], footer: 'on $100K invested', sentiment: 'positive' }
     ),
 
@@ -450,7 +448,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'LEVERAGE IN ACTION',
+      'Leverage in action',
       'How Leverage Amplifies Real Estate Returns',
       'comparison',
       'See how different down payment amounts affect your total return on a rental property. Leverage magnifies both gains and losses, watch what happens in appreciation and depreciation scenarios.',
@@ -473,12 +471,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Appreciation', min: -10, max: 15, default: 5, unit: '%' },
         { label: 'Rental Yield', min: 3, max: 10, default: 6, unit: '%' }
       ],
-      { company: 'Blackstone Real Estate', metric: 'Portfolio returns since 2008 acquisitions', outcome: 'Properties bought at 40-60 cents on the dollar have appreciated 2-3x', explanation: 'Blackstone deployed $26B buying distressed real estate during 2008-2012 at fire-sale prices. By using moderate leverage (50-65%) and improving properties through professional management, they generated 15-20% annualized returns. The lesson: leverage combined with buying during distress is the most powerful wealth-creation strategy in real estate.' }
+      undefined
     ),
 
     // Step 6, Misconceptions
     misconceptions(
-      'REAL ESTATE MYTHS',
+      'Real estate myths',
       'What most people get wrong about real estate investing',
       [
         {
@@ -694,12 +692,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE TECHNOLOGY',
+      'The technology',
       'How Blockchain & Cryptocurrency Actually Work',
       [
-        'A blockchain is a decentralized, immutable digital ledger maintained by thousands of computers worldwide. Every transaction is verified by the network through consensus mechanisms, no bank, government, or company controls it. Bitcoin\'s blockchain has processed over $10 trillion in transactions since 2009 without a single successful hack of the core protocol. Think of it as a Google Doc that everyone can read, but nobody can edit past entries.',
-        'Bitcoin (BTC) is digital gold, a store of value with a hard cap of 21 million coins. Its scarcity is mathematically enforced by code, not by trust in a government. Ethereum (ETH) is a programmable blockchain, a decentralized computer that runs smart contracts (self-executing agreements). While Bitcoin stores value, Ethereum powers an entire ecosystem: DeFi (decentralized lending/trading), NFTs, DAOs, and more. Together they represent ~65% of the total crypto market cap.',
-        'The crypto ecosystem has four layers: (1) Layer 1 blockchains, Bitcoin, Ethereum, Solana, the base infrastructure. (2) DeFi protocols, Aave, Uniswap, Lido, decentralized financial services replacing banks. (3) Stablecoins, USDC, USDT, tokens pegged to $1 enabling crypto-to-fiat bridging. (4) Applications, NFTs, gaming, tokenized real-world assets. Total crypto market cap exceeded $2.5 trillion in 2024, roughly the GDP of France.'
+        'A blockchain is a shared record kept by thousands of computers, not a bank. Bitcoin\'s has handled over $10 trillion since 2009, unhacked. Past entries cannot be edited.',
+      'Bitcoin (BTC) caps at 21 million coins. Ethereum (ETH) runs smart contracts, code that executes itself. Together ~65% of crypto. Others: Solana, Aave, Uniswap, Lido, stablecoins USDC, USDT, pegged to $1. Crypto topped $2.5 trillion in 2024, like France\'s GDP.'
       ],
       [
         { term: 'Blockchain', definition: 'A decentralized, append-only digital ledger where transactions are verified by a network of computers using consensus mechanisms. Once recorded, data cannot be altered or deleted.', example: 'Bitcoin\'s blockchain records every BTC transaction since January 2009 across 15,000+ nodes worldwide, making it nearly impossible to forge or reverse a transaction.' },
@@ -708,7 +705,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Market Cap (Crypto)', definition: 'The total value of a cryptocurrency = current price multiplied by circulating supply. Used to compare the relative size of different crypto assets.', example: 'Bitcoin at $70K with 19.5M coins in circulation has a ~$1.37 trillion market cap, roughly equal to the entire GDP of Australia.' }
       ],
       'Layered pyramid diagram: Base layer "Layer 1 Blockchains" (Bitcoin, Ethereum, Solana) in purple. Middle layer "DeFi & Infrastructure" (Aave, Uniswap, Chainlink) in green. Top layer "Applications" (NFTs, Gaming, RWA Tokens) in amber. Side annotation: Total market cap $2.5T+.',
-      { company: 'Bitcoin Network', metric: 'Network security and uptime since launch', outcome: '99.99% uptime since 2009, zero successful protocol hacks, $10T+ in cumulative transactions', explanation: 'Bitcoin has been running continuously for 15+ years, surviving government bans, exchange collapses, and $1 trillion+ in market cap. The network is secured by more computing power than the top 500 supercomputers combined. This unprecedented reliability is why institutional investors like BlackRock, Fidelity, and Goldman Sachs now offer Bitcoin products.' },
+      undefined,
       { type: 'grid', title: 'The Crypto Ecosystem, Four Layers', items: [{ label: 'Layer 1 Blockchains', value: 'Bitcoin, Ethereum, Solana', color: '#A451E6' }, { label: 'DeFi Protocols', value: 'Aave, Uniswap, $50B+ locked', color: '#10B981' }, { label: 'Stablecoins', value: 'USDC, USDT, pegged to $1', color: '#3B82F6' }, { label: 'Applications', value: 'NFTs, gaming, tokenized assets', color: '#F59E0B' }], footer: 'The whole stack topped $2.5T in 2024, near the GDP of France', sentiment: 'positive' }
     ),
   
@@ -723,7 +720,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CRYPTO VOLATILITY',
+      'Crypto volatility',
       'Understanding Bitcoin\'s Boom-Bust Cycles',
       'timeline',
       'Explore Bitcoin\'s four major market cycles. Each cycle follows a pattern: accumulation, parabolic rise, blow-off top, and 70-80% crash. Understanding this pattern is crucial for surviving, and profiting from, crypto volatility.',
@@ -745,7 +742,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly DCA Amount', min: 50, max: 1000, default: 200, unit: '$' },
         { label: 'Investment Period', min: 1, max: 10, default: 5, unit: ' years' }
       ],
-      { company: 'BlackRock iShares Bitcoin Trust (IBIT)', metric: 'Fastest ETF to reach $50B in assets', outcome: 'IBIT attracted $50B+ within its first year, the fastest-growing ETF in history', explanation: 'BlackRock, the world\'s largest asset manager with $10T in AUM, launching a Bitcoin ETF was a watershed moment. It signaled that institutional finance has accepted Bitcoin as a legitimate asset class. IBIT\'s record-breaking inflows prove that demand exists from pension funds, wealth managers, and retail investors who wanted Bitcoin exposure through familiar, regulated vehicles.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -763,7 +760,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'CRYPTO MYTHS',
+      'Crypto myths',
       'What most people get wrong about cryptocurrency',
       [
         {
@@ -972,12 +969,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'How Commodity Markets Work',
       [
-        'Commodities are raw materials that power civilization: energy (oil, natural gas, uranium), metals (gold, silver, copper), agriculture (wheat, corn, soybeans), and livestock (cattle, hogs). Unlike stocks, commodities have no earnings or dividends, their value comes from real-world supply and demand. When droughts destroy wheat harvests, prices soar. When OPEC cuts oil production, gas prices spike. Commodities are the most tangible investments on earth.',
-        'Most commodity investing happens through futures contracts, agreements to buy or sell a specific quantity of a commodity at a set price on a future date. A crude oil futures contract might represent 1,000 barrels of WTI crude to be delivered in December. Futures exist because producers (farmers, oil companies) need price certainty, and speculators are willing to take the other side for potential profit. This is the oldest financial market, dating back to 1848 at the Chicago Board of Trade.',
-        'For individual investors, the easiest access points are: (1) Commodity ETFs, GLD (gold), USO (oil), DBA (agriculture), which track commodity prices through futures. (2) Commodity producer stocks, ExxonMobil (oil), Barrick Gold (gold mining), Archer-Daniels-Midland (agriculture). (3) Futures contracts directly, for experienced traders only, as they involve leverage and can result in losses exceeding your initial investment. A gold ETF like GLD holds physical gold bars in HSBC\'s London vaults, giving you real gold exposure without storage hassles.'
+        'Commodities are raw materials like oil and wheat, priced by supply and demand: when OPEC cuts output, prices spike. Futures, deals to buy later at a set price, cover things like 1,000 barrels of WTI crude for December.',
+      'Easiest access: commodity ETFs, funds that track prices, such as GLD, USO and DBA. Or producer stocks: ExxonMobil, Barrick Gold, Archer-Daniels-Midland. GLD holds gold bars in HSBC\'s vaults. Futures date to 1848 at the Chicago Board of Trade.'
       ],
       [
         { term: 'Futures Contract', definition: 'A standardized agreement to buy or sell a specific quantity of a commodity at a predetermined price on a specific future date. Traded on regulated exchanges like CME Group.', example: 'One WTI crude oil futures contract = 1,000 barrels. If you buy at $75/barrel and oil rises to $80, you profit $5,000 (1,000 x $5). If it falls to $70, you lose $5,000.' },
@@ -986,7 +982,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Spot Price', definition: 'The current market price for immediate delivery of a commodity. The "right now" price, as opposed to futures prices for delivery at a later date.', example: 'The spot price of gold on March 1, 2024 was $2,050 per troy ounce, this is what you\'d pay for physical gold delivered today.' }
       ],
       'Flow diagram: "Commodity Markets" at top splits into four sectors, Energy (oil barrel icon, $2.5T annual), Metals (gold bar icon, $600B), Agriculture (wheat icon, $1.2T), Livestock (cow icon, $300B). Below: "How to Access" with three paths: Futures Contracts (direct, leveraged), Commodity ETFs (GLD, USO), Producer Stocks (XOM, GOLD).',
-      { company: 'CME Group (Chicago Mercantile Exchange)', metric: 'World\'s largest derivatives exchange', outcome: 'CME trades 6.5 billion contracts annually worth over $1 quadrillion in notional value', explanation: 'CME Group is where the world trades commodities, interest rates, and currencies. Founded in 1848, it processes $1 quadrillion+ in annual notional value. Every barrel of oil, bushel of wheat, and ounce of gold that trades through futures flows through exchanges like CME. This infrastructure enables price discovery and risk management for the entire global economy.' },
+      undefined,
       { type: 'grid', title: 'The Four Commodity Sectors', items: [{ label: 'Energy', value: 'Oil, natural gas, uranium', color: '#EF4444' }, { label: 'Metals', value: 'Gold, silver, copper', color: '#F59E0B' }, { label: 'Agriculture', value: 'Wheat, corn, soybeans', color: '#10B981' }, { label: 'Livestock', value: 'Cattle, hogs', color: '#AE66ED' }], footer: 'Reach them through futures, commodity ETFs, or producer stocks', sentiment: 'positive' }
     ),
   
@@ -1001,7 +997,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'GOLD AS SAFE HAVEN',
+      'Gold as safe haven',
       'Gold Performance During Every Major Crisis',
       'comparison',
       'Compare gold\'s performance against the S&P 500 during major market crises. Notice how gold consistently rises or holds value when stocks crash, the definition of a safe haven asset.',
@@ -1023,12 +1019,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Gold Allocation', min: 0, max: 25, default: 7, unit: '%' },
         { label: 'Crisis Severity (S&P 500 Drop)', min: -10, max: -60, default: -35, unit: '%' }
       ],
-      { company: 'SPDR Gold Shares (GLD)', metric: 'The world\'s largest gold ETF', outcome: 'GLD holds 860+ tonnes of physical gold (~$55B) in HSBC London vaults', explanation: 'GLD democratized gold investing when it launched in 2004. Instead of buying physical bars, storing them in a safe, and insuring them, investors can buy GLD shares for ~$190 each. Each share represents approximately 1/10th of an ounce of real gold sitting in HSBC\'s London vault. GLD made gold accessible to any investor with a brokerage account.' }
+      undefined
     ),
   
     // Step 6, Misconceptions (this lesson tackles myths before the case study)
     misconceptions(
-      'COMMODITY MYTHS',
+      'Commodity myths',
       'What most people get wrong about commodity investing',
       [
         {
@@ -1250,7 +1246,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Misconceptions (clear the myths before teaching the mechanics)
     misconceptions(
-      'PRIVATE EQUITY MYTHS',
+      'Private equity myths',
       'What most people get wrong about PE and VC',
       [
         {
@@ -1273,12 +1269,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 4, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE PRIVATE MARKETS',
+      'The private markets',
       'How Private Equity & Venture Capital Create Value',
       [
-        'Private equity (PE) and venture capital (VC) are two distinct strategies for investing in private companies. PE buyout firms like Blackstone, KKR, and Apollo acquire mature companies using leverage (typically 50-70% debt), improve operations, grow revenue, cut costs, and sell them 4-7 years later at a higher valuation. Think of it as flipping houses, but with entire companies worth billions. The global PE industry manages $4.7 trillion and has delivered 13.5% median returns over 20 years.',
-        'Venture capital is the opposite approach, VC firms like Sequoia Capital, a16z (Andreessen Horowitz), and Accel invest in early-stage startups with explosive growth potential. The math is different: most VC investments fail (60-70% return nothing), but the winners are so massive that they more than compensate. Sequoia\'s $60M in Airbnb returned $4.8B. A16z\'s $250K in Instagram became $78M. Peter Thiel\'s $500K in Facebook became $1 billion. VC is a power-law game, one investment can return the entire fund.',
-        'Both PE and VC share a critical feature: the J-curve. Fund returns typically go negative in years 1-3 (management fees, deal costs, early write-downs), break even around year 4-5, and then hockey-stick upward in years 5-10 as portfolio companies mature and exit through IPOs or acquisitions. This J-curve is why PE/VC require 7-10 year lockup periods, investors who demand early liquidity will sell at the bottom of the curve. The illiquidity premium (2-5% above public markets) exists precisely because most investors can\'t tolerate this pattern.'
+        'Private equity firms, Blackstone, KKR, Apollo, buy companies with 50-70% debt, improve them, sell 4-7 years later. They manage $4.7 trillion, 13.5% median returns over 20 years. Venture capital firms, Sequoia, a16z (Andreessen Horowitz), Accel, fund startups; 60-70% return nothing.',
+      'Sequoia\'s $60M in Airbnb returned $4.8B; a16z\'s $250K in Instagram, $78M; Peter Thiel\'s $500K in Facebook, $1 billion. Funds dip in years 1-3, break even at 4-5, soar 5-10, so cash locks up 7-10 years, earning a 2-5% premium.'
       ],
       [
         { term: 'Leveraged Buyout (LBO)', definition: 'A PE acquisition strategy using significant debt (50-70% of purchase price) to buy a company. The acquired company\'s cash flows service the debt. Amplifies returns if the company improves, amplifies losses if it doesn\'t.', example: 'KKR\'s $25 billion buyout of RJR Nabisco in 1989 used $20B in debt and $5B in equity. The deal, immortalized in "Barbarians at the Gate", defined modern private equity.' },
@@ -1287,7 +1282,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Power Law', definition: 'In venture capital, the phenomenon where a tiny percentage of investments generate the vast majority of returns. The top 1% of startups create more value than the other 99% combined.', example: 'In a typical VC fund of 30 investments: 20 will fail, 5 will break even, 4 will return 2-5x, and 1 will return 50-100x, that one investment returns the entire fund.' }
       ],
       'J-curve diagram: X-axis shows years 1-10. Y-axis shows returns from -20% to +200%. Line dips to -15% in year 2 (fees/costs), crosses zero at year 5, then curves sharply upward to +150% by year 10 as exits accelerate. Key events labeled: "Capital calls" (year 1-3), "Breakeven" (year 5), "Exits & distributions" (years 6-10).',
-      { company: 'Blackstone Group', metric: 'World\'s largest alternative asset manager', outcome: 'Blackstone manages $1 trillion+ across PE, real estate, credit, and hedge funds', explanation: 'Founded in 1985 by Stephen Schwarzman and Peter Peterson with $400,000, Blackstone grew into a $1 trillion+ asset management empire. Their PE funds have delivered 16%+ net returns over 30 years. Blackstone\'s success demonstrates the power of scale in private markets, larger firms get better deal flow, can hire more operational experts, and negotiate better financing terms.' },
+      undefined,
       { type: 'line', title: 'The Private Equity J-Curve, Fund Return by Year', points: [{ label: 'Year 1', value: '-8%' }, { label: 'Year 3', value: '-15%' }, { label: 'Year 5', value: '0%' }, { label: 'Year 7', value: '+60%' }, { label: 'Year 10', value: '+150%' }], trend: 'up', footer: 'Fees drag returns down early, then exits drive the hockey stick', sentiment: 'positive' }
     ),
   
@@ -1302,7 +1297,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'PE PERFORMANCE DISPERSION',
+      'PE performance dispersion',
       'Why Manager Selection Is Everything in Private Markets',
       'comparison',
       'Compare the returns of top-quartile, median, and bottom-quartile PE funds against the S&P 500. The massive dispersion between top and bottom managers reveals why access and selection matter more in private markets than in any other asset class.',
@@ -1324,7 +1319,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Fund Quartile (1=top, 4=bottom)', min: 1, max: 4, default: 1, unit: '' },
         { label: 'Commitment Period', min: 5, max: 15, default: 10, unit: ' years' }
       ],
-      { company: 'Sequoia Capital', metric: 'Track record of unicorn investments', outcome: 'Sequoia has backed companies worth over $3.3 trillion in combined value, including Apple, Google, Airbnb, WhatsApp, and Stripe', explanation: 'Sequoia Capital, founded in 1972 by Don Valentine, has arguably the greatest track record in venture capital history. Their early investments in Apple ($150K becoming billions), Google ($12.5M becoming $5B+), and Airbnb ($60M becoming $4.8B) demonstrate the power-law dynamics of VC. Sequoia\'s success comes from a combination of brand (best startups want Sequoia as investors), deep networks, and a pattern-matching ability refined over 50+ years.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1512,7 +1507,7 @@ const lessons: PathwayLesson[] = [
       'Renaissance Technologies\' Medallion Fund returned 66% annually before fees (39% after fees) for over 30 years, turning $1 invested in 1988 into over $42,000 by 2020. It is widely considered the greatest investment fund in history. Meanwhile, Bridgewater Associates became the world\'s largest hedge fund ($150B AUM) by pioneering risk parity and the "All Weather" portfolio.',
       'By the end of this lesson, you\'ll understand what hedge funds actually do, the major strategies (long/short, global macro, quant/systematic, event-driven), how "2 and 20" fees work and whether they\'re justified, and why most hedge funds underperform while a few generate legendary returns.',
       'Bar chart comparing 30-year annualized returns: Medallion Fund (66% gross / 39% net), Bridgewater Pure Alpha (12%), Top-quartile HF (10.5%), HFRI Index (7.2%), S&P 500 (10.3%). Medallion towering above all others.',
-      { type: 'bars', title: 'Hedge Fund Performance, The Extreme Dispersion', items: [{ label: 'Medallion', value: 100, displayValue: 'Medallion' }, { label: 'Medallion', value: 59, displayValue: 'Medallion' }, { label: 'Bridgewater', value: 23, displayValue: 'Bridgewater' }, { label: 'HF Index', value: 15, displayValue: 'HF Index' }, { label: 'S&P 500', value: 19, displayValue: 'S&P 500' }], footer: 'Source: Bloomberg, HFRI 1990-2023', sentiment: 'positive' }
+      { type: 'bars', title: '30-year annualized returns', items: [{ label: 'Medallion (gross)', value: 66, displayValue: '66%' }, { label: 'Medallion (net)', value: 39, displayValue: '39%' }, { label: 'Bridgewater Pure Alpha', value: 12, displayValue: '12%' }, { label: 'Top-quartile hedge fund', value: 10.5, displayValue: '10.5%' }, { label: 'S&P 500', value: 10.3, displayValue: '10.3%' }, { label: 'HFRI index', value: 7.2, displayValue: '7.2%' }], footer: 'One fund towers over the industry. The index does not beat the S&P.', sentiment: 'positive' }
     ),
   
     // Step 2, Stakes Card
@@ -1528,12 +1523,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE STRATEGIES',
+      'The strategies',
       'How Hedge Funds Actually Make Money',
       [
-        'A hedge fund is a pooled investment vehicle that uses advanced strategies, leverage, shorting, derivatives, arbitrage, to generate returns regardless of market direction. Unlike mutual funds, hedge funds can bet on prices falling (short selling), use borrowed money (leverage), and employ complex financial instruments. The term "hedge" comes from hedging risk, the original idea was to profit whether markets go up or down. The global hedge fund industry manages approximately $4.5 trillion in assets.',
-        'There are four major hedge fund strategy categories: (1) Long/Short Equity, buying undervalued stocks and shorting overvalued ones. The most common strategy (~30% of funds). (2) Global Macro, trading currencies, interest rates, and commodities based on macroeconomic views. George Soros made $1B in a day shorting the British pound. (3) Quantitative/Systematic, using algorithms, AI, and statistical models to find market inefficiencies. Renaissance Technologies\' Medallion Fund is the undisputed champion. (4) Event-Driven, profiting from corporate events like mergers, bankruptcies, and restructurings.',
-        'The fee structure that defines hedge funds is "2 and 20", a 2% annual management fee on total assets plus 20% of any profits (performance fee). On a $1B fund earning 15% gross returns ($150M), the manager keeps $20M in management fees + $26M in performance fees (20% of $150M - $20M) = $46M. This is why hedge fund managers are among the richest people on earth. The debate: are these fees justified? For the top 10% of funds, arguably yes. For the average fund that underperforms the S&P 500, absolutely not.'
+        'Hedge funds pool money, using borrowing and bets on falling prices to profit in any market, managing $4.5 trillion. Strategies: long/short equity (30%), global macro (Soros shorted the British pound, gaining $1B), quant (Renaissance Technologies\' Medallion Fund), event-driven.',
+      'Fees are "2 and 20": 2% of assets plus 20% of profits. A $1B fund up 15% earns $150M, the manager keeps $20M plus $26M, or $46M. Fair for the top 10%, not for funds trailing the S&P 500.'
       ],
       [
         { term: 'Short Selling', definition: 'Borrowing shares and selling them, hoping to buy them back at a lower price. Profits when prices fall. Risk is theoretically unlimited since prices can rise infinitely.', example: 'A hedge fund shorts Tesla at $400. If Tesla falls to $200, they profit $200/share. But if Tesla rises to $800, they lose $400/share. This asymmetric risk is why shorting is considered the most dangerous strategy in finance.' },
@@ -1542,7 +1536,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk Parity', definition: 'An allocation strategy that equalizes risk contributions from each asset class rather than dollar amounts. Pioneered by Bridgewater\'s Ray Dalio. Uses leverage on lower-volatility assets (bonds) to balance risk with higher-volatility assets (stocks).', example: 'Instead of 60% stocks / 40% bonds (where stocks provide 90% of the risk), risk parity might be 25% stocks / 55% bonds (levered) / 10% commodities / 10% gold, each contributing ~25% of total portfolio risk.' }
       ],
       'Four-quadrant diagram showing hedge fund strategies: Top-left "Long/Short Equity" (30% of funds, buys longs and shorts), Top-right "Global Macro" (15% of funds, currencies/rates/commodities), Bottom-left "Quantitative" (25% of funds, algorithms/AI/models), Bottom-right "Event-Driven" (15% of funds, mergers/bankruptcies/restructurings). Center: Total HF AUM $4.5T.',
-      { company: 'Renaissance Technologies', metric: 'Medallion Fund 30-year track record', outcome: '66% average annual return before fees (39% after) from 1988-2020, the greatest investment track record in history', explanation: 'Jim Simons, a former NSA codebreaker and mathematician, founded Renaissance Technologies in 1982. The Medallion Fund uses quantitative models analyzing vast datasets to identify market patterns invisible to human traders. It employs no traditional financial analysts, only mathematicians, physicists, and computer scientists. The fund has been closed to outside investors since 1993, running only the partners\' own money. Simons personally earned over $25 billion from Medallion\'s returns.' },
+      undefined,
       { type: 'comparison', title: 'Four Major Hedge Fund Strategies', rows: [{ label: '~30% of all hedge funds', value: '~15% of all hedge funds' }, { label: 'Target: 8-15% with lower vol', value: 'Soros: $1B in one day' }, { label: '~25% of all hedge funds', value: '~15% of all hedge funds' }, { label: 'Medallion: 66% annual', value: 'Target: 10-18% returns' }], footer: 'Global Hedge Fund AUM: ~$4.5 Trillion', sentiment: 'positive' }
     ),
   
@@ -1557,7 +1551,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FEE IMPACT ANALYSIS',
+      'Fee impact analysis',
       'How "2 and 20" Fees Destroy Returns',
       'comparison',
       'Compare the long-term impact of hedge fund fees versus index fund fees on a $1 million investment. The compounding effect of high fees over decades reveals why most hedge fund investors would be better off with a simple index fund.',
@@ -1579,7 +1573,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Gross Annual Return', min: 5, max: 25, default: 10, unit: '%' },
         { label: 'Investment Period', min: 5, max: 30, default: 20, unit: ' years' }
       ],
-      { company: 'Bridgewater Associates', metric: 'World\'s largest hedge fund', outcome: '$150B AUM under Ray Dalio\'s leadership, Pure Alpha fund averaged 12% net returns since 1991', explanation: 'Ray Dalio built Bridgewater from his apartment in 1975 into the world\'s largest hedge fund. His key insights: (1) Economic machine, all economies follow predictable cycles driven by credit, productivity, and debt. (2) Risk parity, allocating by risk contribution rather than dollar amount creates more balanced portfolios. (3) Radical transparency, Bridgewater\'s culture of open disagreement (captured in Dalio\'s "Principles") produces better investment decisions. His "All Weather" portfolio concept has become one of the most influential investment frameworks ever created.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1597,7 +1591,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'HEDGE FUND MYTHS',
+      'Hedge fund myths',
       'What most people get wrong about hedge funds',
       [
         {
@@ -1805,12 +1799,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Collectibles & Art as Investments',
       [
-        'Collectibles are tangible, often unique items whose value comes from scarcity, cultural significance, condition, and demand. The global collectibles market exceeds $400 billion, spanning fine art ($65B annual sales), wine ($5B traded annually), trading cards ($13B market), classic cars ($30B+ market), watches ($20B+ market), and sneakers ($6B+ resale market). These are not just hobbies, they are legitimate asset classes with real return histories.',
-        'Fine art leads the category. The Artprice100 index, tracking the 100 most-traded artists at auction, has returned approximately 8.9% annually over two decades. The key advantage: art has a correlation of just 0.04 with the S&P 500, meaning art prices move almost completely independently of the stock market. During the 2008 financial crisis, blue-chip art fell only about 19% while the S&P 500 plummeted 57%.',
-        'The collectibles market has exploded thanks to three forces: fractional ownership platforms (Masterworks, Rally, Otis) that let you buy shares of a Banksy for $20, blockchain authentication eliminating forgery risk, and Gen Z turning sneakers, trading cards, and digital art into investable assets. The $69.3M Beeple NFT sale in 2021 proved digital collectibles have arrived as a serious asset class, though the NFT market has since experienced a dramatic 95%+ collapse, teaching painful lessons about hype cycles.'
+        'Collectibles are rare physical items people invest in. The market tops $400 billion: art ($65B), wine ($5B), cards ($13B), cars ($30B+), watches ($20B+), sneakers ($6B+). Artprice100, an index of 100 top-selling artists, returned about 8.9% yearly over two decades.',
+      'Correlation measures how closely two things move together. Art scores 0.04 versus the S&P 500. In 2008 art fell 19%, stocks fell 57%. Masterworks, Rally, Otis sell $20 Banksy shares. Gen Z drove Beeple\'s $69.3M 2021 NFT, later down 95%+.'
       ],
       [
         { term: 'Provenance', definition: 'The documented history of ownership for an artwork or collectible, tracing back to its creation. Complete provenance significantly increases value and protects against fraud.', example: 'A Picasso painting with an unbroken chain of ownership from the artist to current owner is worth far more than one with gaps in its provenance.' },
@@ -1819,7 +1812,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Blue-Chip Art', definition: 'Works by established, widely recognized artists whose auction prices are consistently high and relatively stable. The top tier includes Picasso, Warhol, Basquiat, Monet, and Banksy.', example: 'Andy Warhol\'s works have appreciated an average of 9.1% annually over 30 years. His "Shot Sage Blue Marilyn" sold for $195 million in 2022.' }
       ],
       'Pyramid diagram showing collectibles market tiers: Top tier ($1M+), blue-chip art, rare wines, museum-grade collectibles; Mid tier ($10K-$1M), emerging artists, vintage watches, graded sports cards; Entry tier ($20-$10K), fractional shares, trending sneakers, Pokemon cards, prints. Each tier shows estimated market size and typical returns.',
-      { company: 'Masterworks', metric: 'Blue-chip art returns via fractional ownership', outcome: 'Masterworks reported a net annualized return of 17.8% across exited offerings (2019-2023)', explanation: 'Masterworks buys paintings by blue-chip artists (Banksy, Basquiat, Warhol), files SEC offerings to sell shares, then exits by selling the physical painting at auction. Their realized exits averaged 17.8% net annualized returns, though this includes selection bias, unsold paintings may underperform.' },
+      undefined,
       { type: 'bars', title: 'Collectibles Market, $400B+ and Growing', items: [{ label: 'Fine Art', value: 100, displayValue: '$65B/yr' }, { label: 'Trading Cards', value: 20, displayValue: '$13B' }, { label: 'Classic Cars', value: 46, displayValue: '$30B+' }], footer: 'Alternative assets with unique return profiles', sentiment: 'positive' }
     ),
   
@@ -1834,7 +1827,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'PERFORMANCE COMPARISON',
+      'Performance comparison',
       'Collectibles vs Traditional Assets (20-Year Returns)',
       'comparison',
       'Compare the annual returns and volatility of various collectible categories against traditional investments like the S&P 500 and bonds. Notice the low correlation, collectibles can zig when stocks zag.',
@@ -1857,7 +1850,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Art Allocation', min: 0, max: 20, default: 5, unit: '%' },
         { label: 'Holding Period', min: 1, max: 30, default: 10, unit: ' years' }
       ],
-      { company: 'HAGI (Historic Automobile Group)', metric: '20-year classic car returns', outcome: 'The HAGI Top Index returned 11.2% annually over 20 years, outperforming the S&P 500', explanation: 'Classic cars, particularly Ferrari, Porsche, and Aston Martin models from the 1950s-1970s, have appreciated dramatically. A 1962 Ferrari 250 GTO that sold for $12,000 new is now worth $48+ million. The key: extreme scarcity (only 36 250 GTOs were made), cultural cachet, and wealthy collectors competing for a fixed supply.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1874,7 +1867,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'COLLECTIBLES MYTHS',
+      'Collectibles myths',
       'What most people get wrong about art and collectibles investing',
       [
         {
@@ -2082,7 +2075,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Infrastructure, The Backbone of the Economy',
       [
         'Infrastructure investing means owning the essential physical systems that society depends on: toll roads, airports, railroads, power plants, water treatment facilities, cell towers, data centers, and pipelines. These assets generate revenue through long-term contracts, regulated rates, or usage fees. Brookfield Asset Management, the world\'s largest infrastructure investor, manages over $900 billion in real assets across 30+ countries.',
@@ -2096,7 +2089,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Infrastructure REIT', definition: 'A publicly traded company that owns and operates infrastructure assets while distributing 90%+ of income as dividends. Combines infrastructure exposure with stock market liquidity.', example: 'American Tower (AMT) is an infrastructure REIT owning 220,000+ cell towers. It yields ~3% with 15%+ annual total returns over the past decade.' }
       ],
       'Flow diagram: Government/Users pay fees/tolls -> Infrastructure Owner (roads, towers, utilities) -> Revenue splits into Maintenance CapEx (20-30%) and Investor Returns (70-80%). Inflation arrows show prices rising, pushing revenue higher automatically.',
-      { company: 'Brookfield Asset Management', metric: 'Infrastructure portfolio performance', outcome: 'Brookfield Infrastructure Partners delivered 15% annualized total returns since its 2008 IPO', explanation: 'Brookfield owns toll roads in Brazil, data centers in India, cell towers in Europe, and utilities in Australia. Its global diversification and focus on essential services with inflation-linked revenues has generated 15% annualized returns, outperforming the S&P 500 by 3-4% annually while being significantly less volatile during downturns.' },
+      undefined,
       { type: 'flow', title: 'Infrastructure Revenue Flow, Built-In Inflation Hedge', nodes: [{ label: 'Investor Returns 70-80%', value: 'Investor Returns 70-80%' }, { label: 'Maintenance 20-30%', value: 'Maintenance 20-30%' }], footer: 'Investor Returns 70-80%', sentiment: 'positive' }
     ),
   
@@ -2111,7 +2104,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FARMLAND PERFORMANCE',
+      'Farmland performance',
       'Farmland, America\'s Quiet Wealth Machine',
       'comparison',
       'Farmland has been one of the best-performing asset classes in American history, yet most investors have zero exposure. Compare farmland returns to traditional assets across economic environments.',
@@ -2134,7 +2127,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Farmland Allocation', min: 0, max: 25, default: 10, unit: '%' },
         { label: 'Inflation Rate', min: 1, max: 10, default: 3, unit: '%' }
       ],
-      { company: 'TIAA/Nuveen', metric: 'Institutional farmland returns', outcome: 'Nuveen Natural Capital manages $14B+ in farmland, achieving ~11% annualized returns over 15 years', explanation: 'TIAA\'s farmland division (now Nuveen Natural Capital) has been one of the world\'s largest institutional farmland investors for over 15 years. Their strategy of acquiring prime cropland across the U.S., Brazil, and Australia has delivered ~11% annualized returns with minimal drawdowns, validating the institutional thesis that farmland is a superior risk-adjusted asset.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2152,7 +2145,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'INFRASTRUCTURE & FARMLAND MYTHS',
+      'Infrastructure & farmland myths',
       'What most people get wrong about real asset investing',
       [
         {
@@ -2361,12 +2354,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Asset Allocation, The Most Important Investment Decision',
       [
-        'The 1986 Brinson, Hood, and Beebower study, the most cited research in investment history, proved that 91.5% of portfolio return variation comes from asset allocation decisions, not from individual security selection or market timing. In other words, deciding HOW MUCH to put in stocks vs bonds vs alternatives matters far more than WHICH specific stocks or funds you pick. This is why institutional investors spend months on allocation frameworks.',
-        'Modern portfolio theory (MPT), developed by Harry Markowitz (who won the Nobel Prize for it), shows that combining uncorrelated assets creates an "efficient frontier", the set of portfolios offering maximum return for each level of risk. Adding alternatives to a stock-bond portfolio pushes the efficient frontier upward and to the left: higher returns at lower risk. A 70/30 stock/bond portfolio with 20% alternatives has historically outperformed an 80/20 stock/bond portfolio with LOWER volatility.',
-        'The five key allocation principles for alternatives are: (1) Size based on liquidity needs, never allocate to illiquid alternatives money you might need within 5 years. (2) Diversify across alternative categories, don\'t put all your alternative allocation into crypto or a single REIT. (3) Consider correlation, add alternatives that are least correlated with your existing holdings. (4) Rebalance systematically, when alternatives outperform, trim back to target; when they underperform, buy more. (5) Adjust with age, younger investors can accept more illiquidity; older investors need more liquid alternatives.'
+        'The 1986 Brinson, Hood, and Beebower study found that 91.5% of the variation in portfolio returns comes from asset allocation, meaning how much you put in stocks versus bonds versus alternatives. Which specific stocks you pick matters far less.',
+      'Modern portfolio theory, Harry Markowitz\'s Nobel Prize winning work, shows that mixing assets that move differently raises return per unit of risk. A 70/30 stock/bond portfolio with 20% alternatives has beaten an 80/20 stock/bond portfolio with lower volatility.'
       ],
       [
         { term: 'Asset Allocation', definition: 'The strategic division of a portfolio across different asset classes (stocks, bonds, alternatives, cash). The Brinson study proved it drives 91.5% of portfolio performance variation.', example: 'Yale\'s allocation: 23.5% VC, 17.5% PE, 14.5% real estate, 9.5% resources, 7.5% hedge funds, 4.5% foreign equity, 3.5% domestic equity, 7% bonds/cash.' },
@@ -2375,7 +2367,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Rebalancing', definition: 'Periodically adjusting portfolio allocations back to target percentages by selling overweight positions and buying underweight ones. Systematically buys low and sells high.', example: 'Target: 20% alternatives. After crypto surges, alternatives become 28%. You sell crypto to bring it back to 20%, locking in gains and reinvesting in underperforming assets.' }
       ],
       'Efficient frontier chart: X-axis = Risk (standard deviation), Y-axis = Expected Return. Two curves: (1) Traditional stocks-bonds frontier lower, (2) With alternatives frontier shifted up-left. An arrow labeled "+Alternatives = Higher Return, Lower Risk" connects them. Key portfolios plotted as dots.',
-      { company: 'Bridgewater Associates (Ray Dalio)', metric: 'All-Weather Portfolio performance', outcome: 'Dalio\'s risk parity "All-Weather" strategy delivered 7.5% annual returns with only 4 negative years in 30 years', explanation: 'Ray Dalio designed the All-Weather portfolio to perform in any economic environment by balancing risk across asset classes including stocks, bonds, commodities, gold, and inflation-linked securities. By equalizing risk contribution rather than dollar allocation, the portfolio achieved equity-like returns with dramatically lower drawdowns, never losing more than 4% in a single year.' },
+      undefined,
       { type: 'line', title: 'Efficient Frontier, Adding Alternatives', points: [{ label: '+Alts', value: '60/40' }, { label: 'Risk Parity', value: '50/25/25' }, { label: 'Risk Parity', value: '50/25/25' }], trend: 'up', footer: 'Risk (Standard Deviation) -->', sentiment: 'positive' }
     ),
   
@@ -2390,7 +2382,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ALLOCATION FRAMEWORKS',
+      'Allocation frameworks',
       'Three Proven Allocation Approaches',
       'comparison',
       'Compare the historical performance of three allocation frameworks: Traditional 60/40, the Endowment Model, and Risk Parity. Each represents a different philosophy for integrating alternatives.',
@@ -2413,7 +2405,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Alternatives Allocation', min: 0, max: 50, default: 20, unit: '%' },
         { label: 'Risk Tolerance (1-10)', min: 1, max: 10, default: 6, unit: '' }
       ],
-      { company: 'Yale Endowment', metric: '10-year performance (2013-2023) with heavy alternative allocation', outcome: 'Yale earned 11.3% annually vs 9.7% for a 60/40 benchmark, outperforming by 1.6% per year', explanation: 'Yale\'s endowment model with 80%+ alternatives continued to outperform traditional portfolios. The 1.6% annual outperformance compounded over 10 years means Yale earned ~$10 billion more than a 60/40 strategy would have produced on the same capital. This persistent edge comes from the illiquidity premium and diversification benefits of alternatives.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2431,7 +2423,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'ALLOCATION MYTHS',
+      'Allocation myths',
       'What most people get wrong about portfolio allocation',
       [
         {
@@ -2640,12 +2632,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'CAPSTONE REVIEW',
+      'Capstone review',
       'The Complete Alternative Investment Framework',
       [
-        'Across 9 lessons, you\'ve built a comprehensive understanding of alternative investments spanning eight major categories. Real estate ($3.8T) provides tangible assets with rental income and leverage. Private equity ($4.7T) offers the highest returns through company transformation. Hedge funds ($3.8T) use complex strategies for all-weather returns. Commodities ($0.4T) provide inflation protection with zero correlation to stocks.',
-        'Cryptocurrency ($1.7T) offers asymmetric upside with extreme volatility. Collectibles/art ($0.2T) are the ultimate portfolio diversifier with a 0.04 stock correlation. Infrastructure ($2T+) generates essential-service income with inflation-linked contracts. Farmland ($3.2T in the U.S. alone) delivers the dual return of crop income plus land appreciation with remarkable consistency.',
-        'The framework that ties everything together has five pillars: (1) Allocation is king, 91.5% of returns (Brinson). (2) Correlation is the secret weapon, add alternatives that move independently of stocks. (3) Liquidity must match your timeline, illiquid assets earn premiums but require patience. (4) Rebalancing is free alpha, systematically buy low, sell high. (5) Real assets hedge inflation, infrastructure, farmland, and commodities protect purchasing power. Master these five pillars and you\'ll invest more intelligently than most professionals.'
+        'Alternatives are investments outside stocks and bonds. Eight categories, from 9 lessons: real estate $3.8T, private equity $4.7T, hedge funds $3.8T, commodities $0.4T, crypto $1.7T, art $0.2T, infrastructure $2T+, U.S. farmland $3.2T. Art\'s stock correlation is 0.04.',
+      'Five pillars: allocation drives 91.5% of returns (Brinson). Correlation matters: pick assets that move independently of stocks. Match liquidity, how fast you can sell, to your timeline. Rebalance regularly, buying low and selling high. Real assets hedge inflation.'
       ],
       [
         { term: 'Illiquidity Premium', definition: 'Extra return (2-4% annually) earned for accepting investments that can\'t be easily sold. Applies to private equity, venture capital, direct real estate, and farmland.', example: 'Private equity\'s 3%+ annual outperformance vs public stocks is largely illiquidity premium, compensation for 7-10 year capital lockups.' },
@@ -2654,7 +2645,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Modified Endowment Model', definition: 'An individual investor adaptation of Yale\'s approach using liquid alternatives: 50% stocks, 15% bonds, 35% alternatives (REITs, infrastructure REITs, farmland REITs, commodity ETFs, gold, crypto).', example: 'A 30-year-old can implement this with 6 ETFs: VTI (stocks), BND (bonds), VNQ (REITs), PAVE (infrastructure), GLD (gold), BITO (crypto), institutional-grade diversification for retail costs.' }
       ],
       'Comprehensive framework diagram showing the Five Pillars connected to all 8 alternative categories. Each category shows its key metric (return, correlation, liquidity). Arrows show how the pillars connect to portfolio construction decisions.',
-      { company: 'Yale, Brookfield, Dalio, Gates, Combined', metric: 'Decades of alternative investment leadership', outcome: 'Yale: $41.4B from $1B. Brookfield: $900B empire. Dalio: All-Weather never lost more than 4%. Gates: 269,000 acres of farmland.', explanation: 'Each represents mastery of different alternative pillars: Yale mastered allocation and illiquidity premium. Brookfield mastered infrastructure\'s essential-service monopoly. Dalio mastered risk parity and correlation. Gates mastered farmland\'s dual-return and inflation protection. Together, they demonstrate that alternatives, when approached with discipline and knowledge, are the foundation of sophisticated wealth building.' },
+      undefined,
       { type: 'grid', title: 'The Five Pillars of Alternative Investing', items: [{ label: '1. Allocation', value: '91.5% of returns', color: '#ae66ed' }, { label: '2. Correlation', value: '0.03 to 0.65', color: '#10b981' }, { label: '3. Liquidity', value: 'Match timeline', color: '#3b82f6' }, { label: '4. Rebalance', value: '+0.5-1%/yr', color: '#f59e0b' }, { label: '5. Inflation', value: 'Real assets', color: '#ef4444' }], footer: 'Yale: $1B to $41.4B in 36 years using this framework', sentiment: 'positive' }
     ),
   
@@ -2669,7 +2660,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CAPSTONE COMPARISON',
+      'Capstone comparison',
       'Build Your Ideal Portfolio, See the Impact',
       'comparison',
       'Compare four portfolio strategies across key metrics: total return, maximum drawdown, Sharpe ratio, and inflation protection. Use this to understand the tradeoffs in portfolio design.',
@@ -2693,7 +2684,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Stock Allocation', min: 10, max: 80, default: 50, unit: '%' },
         { label: 'Alternative Allocation', min: 0, max: 60, default: 35, unit: '%' }
       ],
-      { company: 'Multi-Strategy Comparison', metric: '40-year simulated portfolio outcomes', outcome: 'Modified Endowment: $100K becomes $2.7M. 60/40: $100K becomes $1.6M. Risk Parity: $100K becomes $1.2M.', explanation: 'Over 40 years, the Modified Endowment\'s 10% annual return turns $100K into ~$2.7M. The 60/40 at 8.5% produces ~$1.6M. That 1.5% annual difference creates a $1.1 million gap on the same starting capital, entirely attributable to the decision to include alternatives. Even Risk Parity at ~8% produces competitive total returns with a dramatically smoother ride.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2711,7 +2702,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'CAPSTONE MYTHS, FINAL REVIEW',
+      'Capstone myths, final review',
       'The most dangerous misconceptions across all alternative categories',
       [
         {
@@ -2920,12 +2911,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'How REITs Work, The 90% Rule',
       [
-        'A Real Estate Investment Trust (REIT) is a company that owns, operates, or finances income-producing real estate. Congress created REITs in 1960 to give everyday investors access to large-scale commercial real estate, previously reserved for the wealthy. Today, the U.S. REIT market exceeds $1.3 trillion in equity market capitalization across 200+ publicly traded REITs.',
-        'The defining feature of REITs is the 90% distribution rule: REITs must distribute at least 90% of their taxable income to shareholders as dividends. In exchange, REITs pay no corporate income tax on distributed earnings. This structure creates a powerful income stream, the average REIT yields 3.5-5%, roughly double the S&P 500\'s 1.5% dividend yield.',
-        'REITs are divided into three main types: Equity REITs (own and operate properties, 95% of the market), Mortgage REITs (finance real estate through mortgages, higher yield but higher risk), and Hybrid REITs (combine both). Within equity REITs, there are 13 major sectors: residential, office, retail, industrial, healthcare, data centers, cell towers, self-storage, timber, infrastructure, specialty, diversified, and lodging/resorts.'
+        'A REIT, or real estate investment trust, is a company that owns or finances income-producing property. Congress created REITs in 1960. Today the U.S. market tops $1.3 trillion across 200+ publicly traded REITs.',
+      'The 90% rule: REITs must pay 90% of taxable income as dividends, so no corporate tax. Yields average 3.5-5%, double the S&P 500\'s 1.5%. Equity REITs, 95% of the market, span 13 sectors; mortgage REITs lend, hybrids do both.'
       ],
       [
         { term: 'REIT (Real Estate Investment Trust)', definition: 'A company owning income-producing real estate that must distribute 90%+ of taxable income as dividends. Trades on stock exchanges like a regular stock, providing liquid access to real estate.', example: 'Vanguard Real Estate ETF (VNQ) holds 160+ REITs across all sectors, yielding ~3.8% annually.' },
@@ -2934,7 +2924,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Cap Rate', definition: 'Net Operating Income (NOI) divided by property value. The real estate equivalent of earnings yield. Higher cap rates mean higher income relative to price, but often signal higher risk.', example: 'A $10M property generating $700K NOI has a 7% cap rate. Premium markets like Manhattan have 3-4% cap rates; secondary markets may offer 7-9%.' }
       ],
       'Three-tier diagram: Top: "REIT Structure" showing investors pooling capital. Middle: "REIT Company" managing properties. Bottom: "Properties" generating rental income. Arrows show rent flowing up and dividends flowing back to investors. Side note: "90% of income must be distributed."',
-      { company: 'Prologis (PLD)', metric: 'Industrial REIT dominance, logistics warehouses', outcome: 'Prologis owns 1.2 billion sq ft of logistics space across 19 countries, powering Amazon, FedEx, and global e-commerce', explanation: 'Prologis is the world\'s largest REIT by market cap (~$120B). They own the warehouses behind e-commerce, every Amazon package you receive likely passed through a Prologis facility. The e-commerce boom drove 1,800% returns over 20 years, proving that REITs tied to structural economic trends can massively outperform.' },
+      undefined,
       { type: 'metric', title: 'REIT Structure, The 90% Distribution Rule', value: 'Must distribute 90%+ of income', detail: 'Investors (You) | Capital | REIT Company (No Corp Tax) | Office REITs | Industrial REITs | Data Cent', footer: '$1.3 Trillion U.S. REIT Market, 200+ Public REITs', sentiment: 'positive' }
     ),
 
@@ -2949,7 +2939,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'REIT SECTOR COMPARISON',
+      'REIT sector comparison',
       'REIT Sectors, Yields, Returns, and Risk',
       'comparison',
       'Compare different REIT sectors across dividend yield, total return, and volatility. Notice how specialty REITs like data centers and cell towers have dramatically outperformed traditional sectors.',
@@ -2972,12 +2962,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Dividend Yield Target', min: 2, max: 12, default: 4, unit: '%' },
         { label: 'Risk Tolerance (1-10)', min: 1, max: 10, default: 5, unit: '' }
       ],
-      { company: 'Equinix (EQIX)', metric: 'Data center REIT 20-year performance', outcome: 'Equinix grew from a single data center to 260+ facilities across 71 metros in 33 countries, returning 1,500%+', explanation: 'Equinix exemplifies how REITs can capture secular trends. Cloud computing, streaming, AI, and digital transformation require massive data center infrastructure. Equinix provides the physical locations where the internet lives, Amazon Web Services, Microsoft Azure, and Google Cloud all lease Equinix space. The digital economy\'s exponential growth drives relentless demand for their facilities.' }
+      undefined
     ),
 
     // Step 6, Misconceptions
     misconceptions(
-      'REIT MYTHS',
+      'REIT myths',
       'What most people get wrong about REITs',
       [
         {
@@ -3000,19 +2990,18 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Second Teaching Slide
     teachingSlide(
-      'ADVANCED CONCEPTS',
+      'Advanced concepts',
       'Evaluating REITs, FFO, NAV, and Sector Selection',
       [
-        'REIT valuation requires specialized metrics. Price-to-FFO (P/FFO) is the REIT equivalent of P/E ratio. The average REIT trades at 15-18x FFO. Data center REITs command 25-30x FFO premiums because of superior growth. Office REITs trade at discounted 8-10x FFO reflecting structural decline from remote work.',
-        'Net Asset Value (NAV) analysis estimates the liquidation value of a REIT\'s properties. When a REIT trades below NAV, you\'re buying real estate at a discount to replacement cost. During the 2020 COVID crash, many hotel and retail REITs traded at 40-60% discounts to NAV, creating generational buying opportunities for informed investors.',
-        'Sector selection is the most critical REIT decision. The spread between the best and worst REIT sectors over any 10-year period exceeds 500%. Investors who concentrated in data centers and cell towers outperformed those in office and retail by 5-10x. The key is identifying sectors with structural tailwinds: cloud computing (data centers), 5G buildout (cell towers), e-commerce (industrial), and aging demographics (healthcare).'
+        'Price to FFO, funds from operations, replaces the P/E ratio here. REITs average 15-18x FFO; data centers fetch 25-30x for growth, offices just 8-10x after remote work. Net asset value, NAV, estimates what the properties would sell for.',
+      'In the 2020 COVID crash, hotel and retail REITs traded 40-60% below NAV. Sector picking matters most: the 10-year spread tops 500%. Data centers and cell towers beat office and retail by 5-10x. Favor tailwinds like 5G and e-commerce.'
       ],
       [
         { term: 'Price-to-FFO (P/FFO)', definition: 'The REIT equivalent of P/E ratio. Share price divided by FFO per share. Lower P/FFO suggests better value, but high-growth sectors command premium P/FFO ratios.', example: 'Equinix at 30x FFO reflects its data center growth premium. A retail REIT at 8x FFO reflects the structural decline of brick-and-mortar shopping.' },
         { term: 'Same-Store NOI Growth', definition: 'Growth in Net Operating Income from properties owned for at least a year. Measures organic growth from rent increases and occupancy improvement, excluding acquisitions.', example: 'Prologis reported 10% same-store NOI growth in 2022, existing warehouses generated 10% more income through rent hikes alone.' }
       ],
       'Quadrant chart: X-axis = Growth (low to high), Y-axis = Yield (low to high). Quadrants: Top-left (High Yield, Low Growth) = mREITs, retail. Top-right (High Yield, High Growth) = Healthcare REITs. Bottom-right (Low Yield, High Growth) = Data centers, cell towers. Bottom-left (Low Yield, Low Growth) = Office REITs.',
-      { company: 'Public Storage (PSA)', metric: 'Self-storage REIT, 40-year track record', outcome: 'Public Storage delivered 15.5% annualized returns from 1980-2023, outperforming the S&P 500', explanation: 'Self-storage benefits from a recession-resistant business model: people need storage during both booms (buying more stuff) and busts (downsizing homes). With 2,900+ facilities and 60%+ operating margins, Public Storage generates enormous cash flow distributed as dividends. Sticky tenants rarely move their stuff, creating predictable revenue.' },
+      undefined,
       AI11_TEACH2
     ),
 
@@ -3205,12 +3194,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'What Is Distressed Debt and Why Does It Exist?',
       [
-        'Distressed debt refers to bonds and loans of companies trading at significant discounts to face value, typically below 70 cents on the dollar, because the issuing company faces financial difficulties, potential bankruptcy, or restructuring. The U.S. distressed debt market fluctuates between $50 billion during healthy economies and $500+ billion during recessions, creating cyclical waves of opportunity.',
-        'Distressed debt opportunities arise because of forced selling. When a company\'s credit rating drops below investment grade, many institutional investors (pension funds, insurance companies, mutual funds) are required by their mandates to sell. This forced selling pushes prices far below what the underlying assets and cash flows justify, creating opportunities for specialized distressed investors who can hold through the restructuring process.',
-        'The bankruptcy process itself creates value. Chapter 11 bankruptcy in the U.S. allows companies to restructure debt, reject unfavorable contracts, reduce costs, and emerge as stronger entities. Debt holders often receive new equity in the restructured company. If you bought bonds at 40 cents and receive equity worth 80 cents after restructuring, that\'s a 100% return, even though the company technically "failed." This is the distressed debt playbook.'
+        'Distressed debt means bonds and loans of troubled companies trading far below face value, often under 70 cents on the dollar. Forced selling causes it: many funds must sell once ratings fall below investment grade, the safe tier.',
+      'The U.S. market ranges from $50 billion in calm years to $500+ billion in recessions. Chapter 11 bankruptcy, a court restructuring, lets firms swap debt for equity: pay 40 cents, receive 80 cents, a 100% return.'
       ],
       [
         { term: 'Distressed Debt', definition: 'Bonds or loans trading below 70 cents on the dollar (or yielding 1,000+ basis points above Treasuries) due to the issuer\'s financial distress.', example: 'Hertz bonds fell to 40 cents on the dollar when the company filed for Chapter 11 in May 2020.' },
@@ -3219,7 +3207,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Fulcrum Security', definition: 'The most senior class of debt that will NOT be fully repaid in a restructuring. This security typically converts to equity ownership in the reorganized company, making it the most influential position.', example: 'If a company has $500M in assets, $300M in senior debt, and $400M in junior debt, the junior debt is the fulcrum. Senior gets paid in full; junior receives equity for the remaining $200M value.' }
       ],
       'Waterfall diagram showing capital structure: Senior Secured (highest priority, 60-80% recovery), Senior Unsecured (middle, 40-50% recovery), Subordinated (lower, 20-30% recovery), Equity (last, often wiped out). Arrow showing where value "breaks", the fulcrum security.',
-      { company: 'Oaktree Capital (Howard Marks)', metric: '30+ years of distressed debt investing', outcome: 'Oaktree has earned 15-20% annualized returns across multiple credit cycles by systematically buying distressed corporate debt', explanation: 'Howard Marks built Oaktree into a $170+ billion asset manager by following one principle: buy good companies with bad balance sheets at deep discounts. His insight, "the riskiest thing in the world is believing there\'s no risk", drives Oaktree to buy when others panic. Their track record proves that patient, analytical investing in distressed situations produces equity-like returns with debt-level seniority in the capital structure.' },
+      undefined,
       AI12_TEACH1
     ),
 
@@ -3234,7 +3222,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'DISTRESSED DEBT CYCLES',
+      'Distressed debt cycles',
       'Recovery Rates by Seniority and Economic Cycle',
       'comparison',
       'Compare recovery rates across different debt seniority levels and economic conditions. Understanding where you sit in the capital structure determines your risk and return.',
@@ -3257,7 +3245,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Purchase Price (cents/$)', min: 10, max: 80, default: 40, unit: '¢' },
         { label: 'Recovery Rate (%)', min: 20, max: 100, default: 60, unit: '%' }
       ],
-      { company: 'Hertz Global Holdings', metric: 'Bankruptcy and recovery (2020-2022)', outcome: 'Hertz bondholders who bought at 40 cents received full 100-cent recovery, a 150% return', explanation: 'Hertz filed Chapter 11 in May 2020 as COVID devastated rental car demand. Bonds crashed to 40 cents. But Hertz\'s fleet of 500,000+ vehicles was worth far more than its debt. Used car prices surged during recovery, dramatically increasing fleet value. Hertz emerged from bankruptcy in July 2021, and bondholders received full recovery plus interest. Those who bought at the distressed low earned 150%+ in under two years.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3275,19 +3263,18 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Second Teaching Slide
     teachingSlide(
-      'ADVANCED CONCEPTS',
+      'Advanced concepts',
       'Analyzing Distressed Opportunities, The Recovery Framework',
       [
-        'Successful distressed investing requires answering three questions: (1) Is the business viable? A company with strong brands, essential products, or valuable assets can survive restructuring, a company with an obsolete business model cannot. Hertz (viable, people need rental cars) vs. Blockbuster (not viable, streaming replaced physical rental). (2) Where do you sit in the capital structure? Senior secured debt at 40 cents has dramatically different risk than subordinated debt at 40 cents.',
-        '(3) What is the likely recovery? Recovery analysis estimates the reorganized company\'s enterprise value and allocates it down the capital structure waterfall. If enterprise value is $1B, senior debt is $600M, and junior debt is $800M, senior gets paid in full (100 cents), junior receives the remaining $400M (50 cents). This "waterfall analysis" is the core analytical tool of distressed investors.',
-        'Timing matters enormously in distressed investing. The best returns come from buying during the "maximum pessimism" phase, when forced sellers are liquidating and headlines are most negative. Howard Marks\' framework: when everyone is fearful and selling, that\'s precisely when prices are most disconnected from intrinsic value. The distressed debt cycle typically plays out over 18-36 months from distress to resolution.'
+        'Two questions first. Is the business viable? Hertz was, people still rent cars. Blockbuster was not, streaming replaced rentals. Then, where do you rank? Senior secured debt at 40 cents beats subordinated debt at 40 cents.',
+      'Third, what recovery? A waterfall pays senior claims first: with $1B of value, $600M senior debt gets 100 cents, and $800M junior debt shares $400M, 50 cents. Howard Marks: buy at maximum pessimism, 18-36 months to resolution.'
       ],
       [
         { term: 'Waterfall Analysis', definition: 'A model that distributes a company\'s estimated value through the capital structure in order of priority: secured debt first, then unsecured, then subordinated, then equity. Reveals expected recovery for each class.', example: 'Company valued at $800M. $500M secured debt (100% recovery). $600M unsecured debt (receives remaining $300M = 50% recovery). Equity: $0.' },
         { term: 'Dry Powder', definition: 'Uninvested capital held in reserve specifically for deployment during market dislocations or distressed opportunities. The ability to buy when others must sell.', example: 'Oaktree raised $6B in "dry powder" before the 2008 crisis, allowing them to deploy aggressively when bonds crashed to 20-40 cents.' }
       ],
       'Flowchart: "Company in Distress" → Decision tree: "Viable Business?" (Yes → Chapter 11 Restructure → Recovery; No → Chapter 7 Liquidation → Low Recovery). Side panel showing seniority waterfall.',
-      { company: 'General Motors (2009 Bankruptcy)', metric: 'Largest industrial bankruptcy in U.S. history', outcome: 'GM bondholders received 10% recovery initially but equity in the restructured company eventually recovered significantly as "new GM" thrived', explanation: 'GM\'s 2009 bankruptcy showed both the opportunity and risk of distressed investing. Unsecured bondholders initially received only 10 cents, but they also received equity in the restructured company. Government intervention and a strong auto recovery meant that total recovery exceeded original estimates. Distressed investors who understood GM\'s asset values and market position earned strong returns despite the initial low recovery rate.' },
+      undefined,
       AI12_TEACH2
     ),
 
@@ -3474,12 +3461,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'DeFi, Finance Without Intermediaries',
       [
-        'Decentralized Finance (DeFi) uses blockchain smart contracts to recreate traditional financial services, lending, borrowing, trading, insurance, without banks or brokers as intermediaries. Instead of a bank deciding your loan rate, an algorithm sets rates based on supply and demand. Instead of a stock exchange matching trades, an Automated Market Maker (AMM) uses mathematical formulas and liquidity pools. Total Value Locked (TVL) in DeFi protocols exceeded $100 billion by 2024.',
-        'The three pillars of DeFi are: (1) Lending/Borrowing protocols (Aave, Compound), deposit crypto to earn interest or borrow against your holdings at algorithmically-determined rates. Aave has facilitated $100B+ in loans. (2) Decentralized Exchanges (Uniswap, Curve), trade tokens peer-to-peer without a centralized order book. Uniswap processes $1B+/day in trading volume. (3) Yield aggregators (Yearn Finance), automatically move your capital between protocols to maximize returns.',
-        'Tokenization extends DeFi\'s reach to real-world assets (RWAs). By representing ownership of physical assets, real estate, bonds, art, commodities, as blockchain tokens, tokenization enables fractional ownership, 24/7 trading, and global access. BlackRock launched a tokenized Treasury fund (BUIDL) in 2024. JPMorgan\'s Onyx platform processes $1B+/day in tokenized assets. The World Economic Forum projects $16 trillion in tokenized assets by 2030.'
+        'DeFi, decentralized finance, replaces banks with blockchain code. Lending apps Aave and Compound pay interest; Aave has lent $100B+. Exchanges Uniswap and Curve swap tokens, Uniswap doing $1B+/day. Yearn Finance chases better rates. Deposits topped $100 billion by 2024.',
+      'Tokenization turns assets, property, bonds, art, into blockchain tokens, so you can own a slice and trade 24/7. BlackRock launched tokenized Treasury fund BUIDL in 2024. JPMorgan\'s Onyx moves $1B+/day. The World Economic Forum expects $16 trillion by 2030.'
       ],
       [
         { term: 'Smart Contract', definition: 'Self-executing code on a blockchain that automatically enforces agreement terms without intermediaries. Once deployed, it runs exactly as programmed, no human can alter it.', example: 'A lending smart contract automatically liquidates collateral if its value drops below the required ratio, no bank officer needed to make the decision.' },
@@ -3488,7 +3474,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Liquidity Pool', definition: 'A smart contract holding paired tokens that enables decentralized trading. Liquidity providers deposit tokens and earn trading fees. Replaces traditional order books.', example: 'A Uniswap ETH/USDC pool holds $500M in assets. Traders swap between ETH and USDC, paying 0.3% fees that go to liquidity providers.' }
       ],
       'Three-layer architecture diagram: Layer 1 = Blockchain (Ethereum, Solana). Layer 2 = DeFi Protocols (Aave, Uniswap, Compound). Layer 3 = User Applications (wallets, aggregators). Arrows showing asset flows between layers.',
-      { company: 'BlackRock BUIDL Fund', metric: 'First tokenized U.S. Treasury fund from the world\'s largest asset manager', outcome: 'BlackRock\'s BUIDL fund tokenized U.S. Treasuries on Ethereum, attracting $500M+ within months of launch in 2024', explanation: 'When BlackRock, the world\'s largest asset manager with $10 trillion in AUM, launches a tokenized fund on Ethereum, it signals institutional validation of the entire tokenization thesis. BUIDL allows institutional investors to hold U.S. Treasury exposure as blockchain tokens, enabling 24/7 transfers, instant settlement, and programmable compliance. This is the bridge between traditional finance and DeFi.' },
+      undefined,
       { type: 'flow', title: 'DeFi Architecture, Three Layers', nodes: [{ label: 'Layer 3: Applications', value: 'Aave (Lending), Uniswap (DEX), RWA Tokens' }, { label: 'Layer 2: Protocols', value: 'Smart contracts, AMMs, Oracles' }, { label: 'Layer 1: Blockchain', value: 'Ethereum, Solana, Base' }], footer: '$100B+ TVL | $16T projected tokenized assets by 2030', sentiment: 'positive' }
     ),
 
@@ -3526,7 +3512,7 @@ const lessons: PathwayLesson[] = [
         { label: 'DeFi Allocation (%)', min: 0, max: 20, default: 5, unit: '%' },
         { label: 'Risk Tolerance (1-10)', min: 1, max: 10, default: 6, unit: '' }
       ],
-      { company: 'Aave Protocol', metric: 'Decentralized lending pioneer', outcome: 'Aave has facilitated $100B+ in loans with $10B+ TVL, operating continuously for 4+ years without major exploits', explanation: 'Aave demonstrates that DeFi can be reliable at scale. The protocol algorithmically sets interest rates based on supply/demand, automatically liquidates under-collateralized loans, and operates 24/7 without human intervention. Its "flash loan" innovation, borrowing millions for a single transaction, is impossible in traditional finance. Aave\'s resilience through multiple market crashes has made it the gold standard for DeFi lending.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3544,19 +3530,18 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Second Teaching Slide
     teachingSlide(
-      'RISK MANAGEMENT',
+      'Risk management',
       'DeFi Risks, Smart Contract Vulnerabilities and Protocol Failures',
       [
-        'Smart contract risk is DeFi\'s Achilles heel. Once deployed, smart contracts are immutable, if the code has a bug, it can be exploited. The Ronin Bridge hack ($620M), Wormhole exploit ($320M), and Cream Finance attack ($130M) show that even well-funded projects can have catastrophic vulnerabilities. Before depositing into any DeFi protocol, check: Has it been audited by reputable firms (Trail of Bits, OpenZeppelin)? How long has it been live without exploits? What\'s the TVL (more = more battle-tested)?',
-        'Impermanent loss is a hidden risk in liquidity provision. When you deposit two tokens into a Uniswap pool and one token\'s price changes significantly, you end up with fewer of the appreciating token than if you\'d simply held. On volatile pairs, impermanent loss can exceed the trading fees earned. Stablecoin pairs (USDC/USDT) minimize this risk since both tokens maintain ~$1 parity.',
-        'Regulatory risk is the elephant in the room. The SEC has taken enforcement actions against DeFi protocols, and global regulators are developing frameworks for decentralized finance. Tokenized securities may need to comply with existing securities laws. The regulatory landscape is evolving rapidly, what\'s legal today may face restrictions tomorrow. Always understand the legal status of protocols and tokens in your jurisdiction.'
+        'Smart contract code cannot be changed once live, so bugs get exploited. Hacks hit Ronin Bridge ($620M), Wormhole ($320M) and Cream Finance ($130M). Check that a protocol was audited by firms like Trail of Bits or OpenZeppelin.',
+      'Impermanent loss: put two tokens in a Uniswap pool, one price jumps, and you end up with less than holding. Stablecoin pairs like USDC/USDT stay near $1, limiting it. Rules can shift: the SEC has taken action against protocols.'
       ],
       [
         { term: 'Smart Contract Audit', definition: 'A security review of smart contract code by specialized firms to identify vulnerabilities before deployment. Top auditors include Trail of Bits, OpenZeppelin, and Consensys Diligence.', example: 'Aave has been audited 10+ times by multiple firms, which is why it\'s processed $100B+ in loans without a major exploit.' },
         { term: 'Impermanent Loss', definition: 'The loss experienced by liquidity providers when the price ratio of deposited tokens changes. Called "impermanent" because it reverses if prices return to original levels.', example: 'Depositing ETH/USDC when ETH is $2,000. If ETH rises to $4,000, you have less ETH than if you\'d held, the pool automatically rebalanced, selling your appreciating ETH.' }
       ],
       'Risk pyramid: Top (highest risk) = unaudited protocols, yield farming on new tokens. Middle = audited DeFi protocols, liquidity provision. Bottom (lowest risk) = tokenized Treasuries, stablecoin lending on battle-tested protocols.',
-      { company: 'Ronin Bridge Hack (2022)', metric: 'Largest DeFi exploit: $620 million stolen', outcome: 'North Korean hackers exploited the Ronin bridge connecting Axie Infinity to Ethereum, stealing $620M in crypto', explanation: 'The Ronin hack exposed the dangers of bridge protocols, smart contracts connecting different blockchains. The bridge had only 9 validators, and hackers compromised 5 of them to authorize fraudulent withdrawals. This single exploit accounted for more losses than many entire sectors experience in a year. Lesson: bridges and new protocols carry disproportionate risk. Stick with battle-tested Layer 1 protocols.' },
+      undefined,
       AI13_TEACH2
     ),
 
@@ -3743,12 +3728,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'How Carbon Credits Work',
       [
-        'A carbon credit represents one metric ton of CO2 equivalent either prevented from being emitted or removed from the atmosphere. There are two distinct markets: compliance markets (government-mandated, like the EU ETS where companies must hold credits for every ton they emit) and voluntary markets (where companies and individuals buy credits to offset their carbon footprint). The compliance market is vastly larger at $900B+ vs the voluntary market at $2B+, but both are growing rapidly.',
-        'Carbon credit pricing depends on supply and demand dynamics shaped by government policy. In the EU ETS, credits traded near $100/ton in 2023, up from $5/ton in 2017. This 20x increase happened because the EU tightened the emissions cap, reducing supply while demand from industry remained constant. Voluntary credits range from $5-$50/ton for nature-based offsets (reforestation) to $200-$600/ton for engineered carbon removal (direct air capture).',
-        'For investors, carbon credits offer a unique combination: low correlation to traditional assets, strong policy-driven tailwinds, and inflation-hedging properties. As governments worldwide commit to net-zero targets by 2050, demand for carbon credits will structurally increase while supply is deliberately constrained. This supply-demand imbalance is what makes carbon one of the most compelling alternative investment themes of the next decade.'
+        'A carbon credit equals one metric ton of CO2 equivalent either prevented or removed from the air. Compliance markets are government-mandated, like the EU ETS. Voluntary markets are optional. Compliance is $900B+, voluntary $2B+, both growing fast.',
+      'Policy sets prices. EU ETS credits hit near $100/ton in 2023, up from $5/ton in 2017, a 20x rise as the EU cut supply. Nature-based offsets run $5-$50/ton, engineered removal $200-$600/ton. Net-zero targets by 2050 mean rising demand, constrained supply.'
       ],
       [
         { term: 'Carbon Credit', definition: 'A tradable certificate representing one metric ton of CO2 equivalent either avoided or removed from the atmosphere. Creates financial incentive to reduce emissions.', example: 'A wind farm generates carbon credits because its clean energy displaces fossil fuel electricity, preventing CO2 emissions. Each credit can be sold to a polluting company.' },
@@ -3757,7 +3741,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Additionality', definition: 'The principle that a carbon offset project must create emission reductions that would not have occurred without the carbon credit funding. The gold standard for credit quality.', example: 'A reforestation project on land that would have remained barren demonstrates additionality. A forest that was already protected does not, those trees would have existed anyway.' }
       ],
       'Flowchart: Government sets emissions cap → Companies receive/buy allowances → Polluters who exceed cap must buy credits → Clean companies sell surplus credits → Market price reflects supply/demand → Price rises as cap tightens',
-      { company: 'EU Emissions Trading System', metric: 'Carbon price trajectory 2017-2023', outcome: 'EU carbon credit prices rose from $5/ton in 2017 to nearly $100/ton in 2023, a 20x increase in 6 years', explanation: 'The EU systematically tightened its emissions cap through the Market Stability Reserve mechanism, reducing the supply of carbon allowances. With industrial demand remaining constant but supply shrinking, prices followed basic economics upward. This policy-driven price mechanism is what makes carbon a unique investment: governments are deliberately engineering supply scarcity to incentivize decarbonization.' },
+      undefined,
       { type: 'flow', title: 'Carbon Markets, Compliance vs Voluntary', nodes: [{ label: '1 Credit = 1 Metric Ton CO2 Avoided or Removed', value: 'Price range: $5/ton (forestry) → $600/ton (direct air capture)' }, { label: 'Projected market: $2.4T by 2027 | Net-zero policies driving demand', value: 'Projected market: $2.4T by 2027 | Net-zero policies driving demand' }], footer: 'Projected market: $2.4T by 2027 | Net-zero policies driving demand', sentiment: 'positive' }
     ),
 
@@ -3772,7 +3756,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CARBON PRICING',
+      'Carbon pricing',
       'Global Carbon Credit Price Trajectories',
       'line',
       'Track how carbon credit prices have evolved across major markets and project where they\'re heading based on government net-zero commitments.',
@@ -3795,24 +3779,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Carbon Price ($/ton)', min: 10, max: 200, default: 80, unit: '$' },
         { label: 'Years to Net-Zero', min: 5, max: 30, default: 15, unit: ' years' }
       ],
-      { company: 'Microsoft Carbon Initiative', metric: 'Corporate carbon removal leadership', outcome: 'Microsoft committed to being carbon-negative by 2030 and removing all historical emissions by 2050, spending $200M+ on credits', explanation: 'Microsoft\'s approach is the gold standard for corporate carbon strategy: they don\'t just buy cheap avoidance credits, they invest in high-quality permanent carbon removal including direct air capture ($600/ton), biochar, and enhanced weathering. This drives innovation and creates the market infrastructure for carbon removal technology to scale and costs to decline, similar to how early solar panel purchases drove the cost curve down 90%.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'INVESTMENT STRATEGIES',
+      'Investment strategies',
       'How to Invest in Carbon Markets',
       [
-        'Direct carbon credit investing involves buying and holding carbon allowances, most commonly EU Allowances (EUAs) through futures contracts on the ICE exchange. Carbon ETFs like KraneShares Global Carbon Strategy (KRBN) provide retail access, tracking major compliance carbon markets. KRBN returned over 100% from 2020 to 2022 as EU carbon prices surged. The advantage of compliance credits: government-guaranteed demand creates a structural price floor.',
-        'Voluntary market investing requires more sophistication. Investors can purchase verified credits from registries like Verra or Gold Standard at current prices, betting that future demand from corporate net-zero commitments will drive prices higher. The key risk: credit quality varies enormously. Nature-based credits (reforestation) face permanence risks (forests can burn) while engineered removal (direct air capture) is expensive but permanent. The market is also evolving rapidly with new integrity standards.',
-        'Indirect carbon exposure comes through companies positioned to benefit from rising carbon prices. Renewable energy producers (NextEra Energy, Vestas), carbon capture technology companies (Climeworks, Carbon Engineering), and companies providing environmental market infrastructure (Xpansiv, CBL Markets) all benefit from the transition. A barbell approach, direct carbon credits for the commodity exposure plus equities for the technology upside, provides comprehensive environmental market coverage.'
+        'You can buy carbon allowances directly, mostly EU Allowances (EUAs) via ICE futures. ETFs like KraneShares Global Carbon Strategy (KRBN) offer easier access, and KRBN returned over 100% from 2020 to 2022. Compliance credits carry government-guaranteed demand.',
+      'Voluntary credits from registries like Verra or Gold Standard vary in quality: forests can burn, while direct air capture is permanent but costly. For indirect exposure, look at NextEra Energy, Vestas, Climeworks, Carbon Engineering, Xpansiv and CBL Markets.'
       ],
       [
         { term: 'EU Allowance (EUA)', definition: 'The tradable unit in the EU Emissions Trading System. One EUA permits emission of one metric ton of CO2. Trades on the ICE exchange like a commodity future.', example: 'EUA prices rose from $5 in 2017 to ~$100 in 2023, making them one of the best-performing alternative assets of the decade.' },
         { term: 'Carbon ETF', definition: 'Exchange-traded fund tracking carbon credit prices in compliance markets. Provides retail investor access to carbon markets without trading futures directly.', example: 'KRBN (KraneShares Global Carbon Strategy) tracks EU, California, and RGGI carbon markets, returning over 100% from its 2020 launch to the 2022 peak.' }
       ],
       'Three-tier investment pyramid: Base = Carbon ETFs (KRBN, retail-accessible). Middle = Direct EUA futures (institutional, ICE exchange). Top = Voluntary credits and carbon removal equity (highest risk/reward).',
-      { company: 'KraneShares KRBN ETF', metric: 'First broad carbon credit ETF for retail investors', outcome: 'KRBN provided 100%+ returns from 2020-2022 by tracking EU and global carbon compliance markets', explanation: 'KRBN democratized carbon investing. Before its 2020 launch, retail investors had no easy way to gain carbon credit exposure, it required institutional futures trading accounts. KRBN tracks a basket of global compliance carbon credits, weighted toward the EU ETS. The fund\'s early performance demonstrated that carbon credits can serve as both a return-generating asset and a portfolio diversifier with low correlation to equities.' },
+      undefined,
       AI14_TEACH2
     ),
 
@@ -4008,12 +3991,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'How Music Royalties Generate Income',
       [
-        'Every time a song plays on Spotify, Apple Music, radio, TV, in a store, or at a concert, multiple royalty payments are triggered. There are four main royalty types: mechanical royalties (paid for reproducing the song, streaming, CDs, downloads), performance royalties (paid for public performance, radio, TV, live venues), synchronization royalties (paid for using music in visual media, films, commercials, video games), and print royalties (paid for sheet music). A single song can generate income from dozens of sources simultaneously.',
-        'The streaming revolution transformed music royalties from a declining to a growing asset class. Global recorded music revenue hit $28.6 billion in 2023, with streaming accounting for 67%, up from just 9% in 2014. Spotify alone has 220+ million paid subscribers, each generating ~$0.003-$0.005 per stream per song. For popular catalogs, this adds up to millions annually. The key: streaming subscribers are projected to reach 1 billion globally by 2030, creating predictable, growing cash flows.',
-        'Institutional investors pay 15-25x annual royalties for premium catalogs. Bob Dylan\'s catalog generated ~$15-20M annually, and Universal paid $300M, roughly 15-20x earnings. These multiples reflect the predictable, growing nature of streaming income. Music royalties are essentially annuities: once a song becomes a "standard" or classic, it generates income indefinitely. "Bohemian Rhapsody" still earns millions 50 years after its release. This perpetual cash flow, combined with low correlation to economic cycles, makes music IP uniquely attractive.'
+        'A song earns four royalties: mechanical (copies, streams on Spotify, Apple Music), performance (radio, TV, live), sync (film, ads) and print (sheet music). Streaming was 67% of $28.6 billion recorded music revenue in 2023, up from 9% in 2014.',
+      'Spotify has 220+ million paid subscribers at $0.003-$0.005 per stream, and 1 billion are projected by 2030. Universal paid $300M for Bob Dylan\'s catalog earning ~$15-20M yearly, 15-20x; catalogs fetch 15-25x. Bohemian Rhapsody still pays 50 years on.'
       ],
       [
         { term: 'Mechanical Royalty', definition: 'Payment to songwriters/publishers for reproducing their music, triggered every time a song is streamed, downloaded, or pressed to physical media. The largest royalty category in the streaming era.', example: 'Each Spotify stream generates $0.003-$0.005 in mechanical royalties split between the master recording owner and the songwriter/publisher.' },
@@ -4022,7 +4004,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Music Catalog', definition: 'The collection of rights to a body of songs, including both master recordings and publishing rights. Catalogs are valued as multiples of annual royalty income.', example: 'Hipgnosis Songs Fund owns catalogs of 65,000+ songs and paid $2B+ for rights to music by Shakira, Journey, Blondie, and Red Hot Chili Peppers.' }
       ],
       'Revenue flow diagram: Song Created → Four royalty streams (Mechanical, Performance, Sync, Print) → Multiple collection sources (Streaming, Radio, TV, Live, Film) → Rights Holder receives income',
-      { company: 'Hipgnosis Songs Fund', metric: 'Largest dedicated music royalty investment vehicle', outcome: 'Hipgnosis deployed $2B+ to acquire 65,000+ songs from artists including Shakira, Journey, and Blondie, generating 8-10% annual yields', explanation: 'Hipgnosis pioneered music royalties as an institutional asset class. Founder Merck Mercuriadis recognized that iconic songs generate predictable, inflation-resistant cash flows with no correlation to stock markets. Every time "Don\'t Stop Believin\'" plays on Spotify, in a movie, or at a sports event, Hipgnosis collects royalties. With streaming revenue growing 10-15% annually, these catalogs are appreciating assets, unlike bonds with fixed coupons.' },
+      undefined,
       { type: 'flow', title: 'Music Royalty Revenue Streams', nodes: [{ label: 'Song Created', value: '' }, { label: 'Global Music Revenue: $28.6B (2023) | Streaming: 67% and growing', value: 'Global Music Revenue: $28.6B (2023) | Streaming: 67% and growing' }, { label: 'Catalog Multiples: 15-25x annual royalties | Yields: 8-12% annually', value: 'Catalog Multiples: 15-25x annual royalties | Yields: 8-12% annually' }], footer: 'Catalog Multiples: 15-25x annual royalties | Yields: 8-12% annually', sentiment: 'positive' }
     ),
 
@@ -4037,7 +4019,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ROYALTY ECONOMICS',
+      'Royalty economics',
       'The Music Streaming Revenue Revolution',
       'line',
       'Track how streaming transformed music from a declining industry into a growing one, and understand why investors pay premium multiples for music royalties.',
@@ -4060,24 +4042,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Catalog Multiple', min: 8, max: 30, default: 18, unit: 'x earnings' },
         { label: 'Streaming Growth Rate', min: 5, max: 20, default: 12, unit: '% annual' }
       ],
-      { company: 'Journey, "Don\'t Stop Believin\'"', metric: 'Perpetual royalty income from a 1981 hit', outcome: 'The song earns ~$500,000 annually on Spotify alone, 42+ years after release, demonstrating the perpetual nature of iconic music royalties', explanation: 'This single song illustrates why investors pay premium multiples. Released in 1981, it gained renewed cultural relevance through TV shows (The Sopranos, Glee), sports events, and streaming playlists. Spotify streams alone generate half a million dollars annually, plus performance royalties from radio, sync fees from media licensing, and live performance royalties. The song has earned far more in its 40s than in its first decade, proving that great music is a perpetually appreciating asset.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'BEYOND MUSIC',
+      'Beyond music',
       'Intellectual Property as a Broad Asset Class',
       [
-        'Music is just one category of investable intellectual property. The broader IP investment landscape includes: patents ($180B+ market, companies like Qualcomm earn $6B+ annually in patent licensing fees), pharmaceutical royalties (investors buy rights to drug revenue streams, Royalty Pharma manages $20B+ in biopharmaceutical royalties), trademarks and brand licensing (Disney earns $5B+ annually from licensing its characters), and digital IP (NFTs, digital content rights, software licensing revenue).',
-        'Pharmaceutical royalties are particularly compelling. Royalty Pharma (RPRX, publicly traded) acquires royalty interests in FDA-approved drugs. They purchased royalties on key HIV medications, cancer treatments, and rare disease drugs. Annual yields are 8-12% with predictable cash flows because drug prescriptions are highly stable. The risk: patent expiration (typically 20 years) allows generic competition, reducing royalty income. This is a known, calculable risk, unlike the unpredictable risks of equities.',
-        'The common thread across all IP investing: you\'re buying a right to cash flows generated by human creativity and innovation. These cash flows often have low correlation to economic cycles (people still take medicine in recessions, still stream music), inflation-resistant characteristics (royalty rates adjust upward), and long duration (copyrights last 70+ years after the creator\'s death, patents 20 years). These properties make IP an ideal alternative allocation for income-seeking investors.'
+        'Intellectual property, or IP, investing means buying rights to cash from ideas. Patents are a $180B+ market: Qualcomm earns $6B+ a year licensing them. Royalty Pharma holds $20B+ in drug royalties. Disney earns $5B+ licensing characters.',
+      'Royalty Pharma (RPRX) buys royalties on FDA-approved drugs, yielding 8-12% because prescriptions are steady. The risk: patents expire after 20 years, letting cheap generic copies compete. Copyrights last 70+ years after the creator dies.'
       ],
       [
         { term: 'Royalty Stream', definition: 'A contractual right to receive a percentage of revenue generated by an asset, music, drug, patent, or trademark. Provides passive income without operational involvement.', example: 'Royalty Pharma holds a 2.5% royalty on Imbruvica (cancer drug), receiving $400M+ annually from Johnson & Johnson\'s sales without any operational costs.' },
         { term: 'Patent Licensing', definition: 'The practice of charging fees for others to use a patented technology. Can generate billions for companies with essential patents in widely-used technologies.', example: 'Qualcomm earns $6B+ annually by licensing its wireless communication patents to every smartphone manufacturer worldwide.' }
       ],
       'Pyramid of IP assets: Base (most accessible) = Music royalties via platforms ($500+ min). Middle = Pharmaceutical royalties via RPRX ($50+/share). Top = Direct patent portfolios (institutional only).',
-      { company: 'Royalty Pharma', metric: 'Largest acquirer of biopharmaceutical royalties', outcome: 'Royalty Pharma manages $20B+ in pharmaceutical royalty assets and is publicly traded (RPRX), making drug royalty income accessible to all investors', explanation: 'Royalty Pharma solved the access problem for pharmaceutical IP investing. They identify FDA-approved drugs with strong sales trajectories, acquire royalty rights from academic institutions and drug developers, and collect predictable income streams. Investors buy RPRX shares and gain exposure to royalties on 35+ approved drugs. It\'s essentially a portfolio of pharmaceutical cash flow rights, the drug industry equivalent of owning a music catalog.' },
+      undefined,
       AI15_TEACH2
     ),
 
@@ -4272,12 +4253,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'How SPACs Work, The Blank Check Structure',
       [
-        'A SPAC (Special Purpose Acquisition Company) is a shell company that raises money through an IPO with one purpose: to acquire a private company within a set timeframe (usually 18-24 months). SPACs are called "blank check companies" because investors hand over their money without knowing what company will be acquired. The SPAC IPOs at $10/share, the money sits in a trust, and the sponsor team searches for a target. If no acquisition is completed within the deadline, the trust is dissolved and investors get their $10 back.',
-        'The SPAC structure has inherent conflicts. Sponsors receive a "promote", typically 20% of the SPAC\'s shares for a nominal investment (often just $25,000). This means if a SPAC raises $500M from public investors, sponsors receive shares worth $100M for essentially free. This creates a massive incentive to complete ANY deal, even a bad one, because sponsors\' shares become worthless if no acquisition happens. The 20% dilution comes directly from public investors\' pockets.',
-        'The 2020-2021 SPAC boom was fueled by low interest rates, excess market liquidity, celebrity involvement, and retail investor enthusiasm. SPACs became a "backdoor IPO" for companies that couldn\'t pass traditional IPO scrutiny, including companies with no revenue, unrealistic projections, and unproven business models. When the bubble burst in 2022, reality hit: over 60% of de-SPACed companies traded below $5, and hundreds of SPACs were forced to liquidate without completing deals. The total investor losses exceeded $100 billion.'
+        'A SPAC, special purpose acquisition company, sells shares at $10 and hunts a private company to buy within 18-24 months. If no deal happens, you get $10 back. It is a blank check: the target is unknown.',
+      'Sponsors buy 20% of shares for about $25,000: on a $500M SPAC that is $100M, so they push any deal. After the 2020-2021 boom, 2022 left over 60% of merged companies below $5 and $100 billion lost.'
       ],
       [
         { term: 'SPAC (Special Purpose Acquisition Company)', definition: 'A shell company that raises money through an IPO solely to acquire a private company. Also called a "blank check company" because the target is unknown at IPO time.', example: 'Churchill Capital Corp IV (CCIV) was a SPAC that merged with Lucid Motors, briefly reaching $65/share before falling below $3, a 95% decline.' },
@@ -4286,7 +4266,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Trust Redemption', definition: 'The right of SPAC investors to redeem their shares at the ~$10 trust value before a merger closes, regardless of the current market price. This provides downside protection pre-merger.', example: 'When a SPAC announces a merger with a questionable target, shareholders can redeem at $10.10/share (trust value + interest) rather than participate in the merger.' }
       ],
       'SPAC lifecycle diagram: 1) SPAC IPO at $10/share → 2) Money held in trust → 3) Sponsor searches for target → 4) Target announced → 5) Shareholder vote & redemption → 6) De-SPAC merger → 7) Trades as public company',
-      { company: 'The SPAC Bubble of 2021', metric: '600+ SPACs raised $160 billion in a single year', outcome: 'Over 60% of de-SPACed companies traded below $5 by 2023, and total investor losses exceeded $100 billion', explanation: 'The SPAC boom embodied classic bubble dynamics: easy money, celebrity promotion, fear of missing out, and suspended disbelief. Sponsors profited regardless because their 20% promote was nearly free. Investment banks earned billions in fees. But retail investors bore the losses when companies that couldn\'t survive traditional IPO scrutiny predictably underperformed as public companies. The lesson: when the structure rewards deal-making over deal quality, investors lose.' },
+      undefined,
       { type: 'flow', title: 'SPAC Lifecycle, Follow the Money', nodes: [{ label: 'Sponsor: 20% free shares ($25K in)', value: 'Incentive: complete ANY deal' }, { label: 'Public Investor: $10/share trust', value: 'Redeemable at $10 before merger' }], footer: '2021 peak: $160B raised → 2023: 60%+ de-SPACs below $5', sentiment: 'positive' }
     ),
 
@@ -4301,7 +4281,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'SPAC PERFORMANCE',
+      'SPAC performance',
       'The SPAC Boom and Bust in Numbers',
       'bar',
       'Analyze the SPAC lifecycle from IPO euphoria to post-merger reality, and understand why structural conflicts led to massive investor losses.',
@@ -4324,24 +4304,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Sponsor Dilution (%)', min: 0, max: 30, default: 20, unit: '%' },
         { label: 'Post-Merger Decline (%)', min: 0, max: 80, default: 50, unit: '%' }
       ],
-      { company: 'Nikola Corporation (NKLA)', metric: 'The poster child of SPAC excess', outcome: 'Nikola went public via SPAC at an $11.5B valuation with no revenue and no working product, the stock fell from $65 to under $1', explanation: 'Nikola exemplifies everything wrong with the SPAC boom. The company claimed to have revolutionary hydrogen truck technology. Its SPAC merger valued it at $11.5 billion with zero revenue. The stock surged to $65 on retail euphoria. Then: the founder was charged with fraud for faking a truck demonstration (it was rolling downhill, not driving). The stock eventually fell below $1. No traditional IPO underwriter would have taken Nikola public, the SPAC structure bypassed all the safeguards that protect investors.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'INVESTOR STRATEGY',
+      'Investor strategy',
       'How to Evaluate SPACs and Avoid the Traps',
       [
-        'The SPAC arbitrage strategy exploits the trust redemption floor. Pre-merger SPACs trade near $10 (the trust value). If a SPAC announces a compelling merger, shares can surge well above $10. If the merger is unappealing, you redeem at $10.10+ (trust value plus interest). This creates an asymmetric risk-reward: limited downside (~$10 floor) with potentially significant upside on positive announcements. Sophisticated investors and hedge funds used this strategy to generate consistent returns during the SPAC boom.',
-        'Post-merger evaluation requires traditional due diligence. Ask: Does the company have real revenue? Are the projections reasonable? What is the valuation relative to comparable public companies? Why did the company choose a SPAC over a traditional IPO (often because they couldn\'t survive the scrutiny)? What is the sponsor\'s track record? How much insider selling occurs after lockup expiration? Most importantly: would this company be viable as a public company regardless of how it went public?',
-        'Lessons from the SPAC bust apply to all alternative investments. Structural conflicts (sponsor promotes) misalign incentives. Celebrity endorsements substitute for analysis. Hype cycles create artificial urgency. Projections replace proven fundamentals. The 2021 SPAC bubble and bust is a case study in how market euphoria, structural conflicts, and suspension of disbelief combine to destroy wealth on a massive scale. Understanding these patterns protects you in any market environment.'
+        'Before a merger, a SPAC trades near $10 because the cash sits in trust. A good deal sends shares above $10. A bad one lets you redeem, meaning hand shares back, for $10.10+. So downside stays near $10.',
+      'After a merger, judge it like any stock: real revenue, believable forecasts, fair valuation, sponsor record, insider selling. Ask why the company avoided a normal listing. The 2021 SPAC bubble shows what hype, conflicts and celebrity endorsements cost.'
       ],
       [
         { term: 'Trust Floor', definition: 'The minimum value at which pre-merger SPAC shares can be redeemed, approximately $10 plus accrued interest. This creates downside protection for investors who buy near trust value.', example: 'Buying a pre-merger SPAC at $10.05 with a $10.15 trust value means your maximum loss is $0.10/share, while upside is theoretically unlimited if a popular merger is announced.' },
         { term: 'Warrant', definition: 'An attached right to buy additional SPAC shares at $11.50 after the merger. Warrants trade separately and can be highly volatile, they become worthless if the SPAC liquidates.', example: 'CCIV warrants surged from $2 to $25 on the Lucid Motors merger announcement, then fell to $0.50 as Lucid\'s stock declined from $55 to $3.' }
       ],
       'Decision tree: Pre-merger SPAC near $10 → Is merger announced? → Yes: Evaluate target company fundamentals → Good target: Hold/buy more → Bad target: Redeem at $10. No merger: Wait or redeem.',
-      { company: 'DraftKings (DKNG)', metric: 'One of the few successful SPAC stories', outcome: 'DraftKings went public via SPAC merger with Diamond Eagle Acquisition Corp in 2020, growing into a $15B+ sports betting company', explanation: 'DraftKings worked because it was a real company with real revenue, a large addressable market (legal sports betting expansion), and experienced management. It used the SPAC structure for speed-to-market during the COVID sports betting boom. Unlike most SPACs, DraftKings had the fundamentals to sustain public company status. This exception proves the rule: SPACs can work when the underlying company would succeed regardless of how it went public.' },
+      undefined,
       AI16_TEACH2
     ),
 
@@ -4537,12 +4516,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Why Emerging Markets Offer Unique Alternative Opportunities',
       [
-        'Emerging markets represent 85% of the world\'s population, 60% of global GDP growth, and approximately 40% of global GDP, yet receive less than 20% of global alternative investment capital. This capital gap creates a structural opportunity: less competition means better deal terms, lower entry valuations, and higher potential returns. In the U.S., a mid-market private equity deal might trade at 10-12x EBITDA. In India or Brazil, comparable companies trade at 5-8x, a 30-50% valuation discount for similar-quality businesses.',
-        'Three structural megatrends drive EM alternative returns: demographics (India and Africa have median ages of 28 and 19 respectively, vs 38 in the U.S., creating decades of workforce and consumer growth), digitalization (emerging markets are leapfrogging legacy systems, M-Pesa processes $300B+ annually in Africa where most people never had bank accounts), and infrastructure (Asia alone needs $26 trillion in infrastructure investment through 2030, creating enormous opportunity for private capital).',
-        'The risks are real and require specific expertise. Currency risk can erase returns, the Brazilian real depreciated 50% against the dollar from 2014-2020. Political and regulatory risk varies dramatically by country (India\'s stable democracy vs volatile African governments). Liquidity is significantly more constrained, exiting investments can take 2-3x longer than in developed markets. Corruption, weak legal systems, and capital controls add complexity. Success in EM alternatives requires local partners, deep regional expertise, and careful risk management.'
+        'Emerging markets hold 85% of people, 60% of global GDP growth, roughly 40% of GDP, but under 20% of alternative capital. U.S. private equity deals cost 10-12x EBITDA, a profit measure, versus 5-8x in India or Brazil: a 30-50% discount.',
+      'Drivers: median ages 28 in India, 19 in Africa, versus 38 in the U.S.; M-Pesa, phone money, moves $300B+ a year; Asia needs $26 trillion of infrastructure by 2030. Risks: Brazil\'s real fell 50% in 2014-2020, exits take 2-3x longer.'
       ],
       [
         { term: 'Emerging Market Premium', definition: 'The additional return investors earn for bearing EM-specific risks (currency, political, liquidity). Typically 3-5% above comparable developed market investments.', example: 'Indian PE returns averaged 18-22% vs 12-15% for U.S. PE, the premium compensates for currency, regulatory, and liquidity risk.' },
@@ -4551,7 +4529,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Capital Gap', definition: 'The difference between capital needed for development and capital available. In emerging markets, this gap creates opportunities for alternative investors who can fill the void that local financial systems cannot.', example: 'Asia needs $26T in infrastructure by 2030. Government budgets cover roughly half, the remaining $13T represents an opportunity for private infrastructure investors.' }
       ],
       'Comparison chart: Developed markets (crowded, 10-12x entry multiples, 10-12% PE returns) vs Emerging markets (less competition, 5-8x entry multiples, 15-22% PE returns, but with currency/political risk)',
-      { company: 'India Private Equity Market', metric: 'From $2B to $70B+ in annual PE/VC deal value over 15 years', outcome: 'India\'s PE market became the world\'s fastest-growing major alternative investment market, driven by 1.4B population, rising middle class, and tech innovation', explanation: 'India exemplifies the EM alternatives thesis. A massive, growing population (1.4B) with rising disposable income creates consumer demand. A world-class tech workforce generates innovation (100+ unicorn startups). Lower entry valuations (5-8x EBITDA vs 10-12x in the U.S.) provide better economics. Firms like Warburg Pincus, KKR, and Blackstone have earned 20%+ returns in Indian PE, significantly above their developed market portfolios.' },
+      undefined,
       { type: 'flow', title: 'Emerging vs Developed Market PE Valuations', nodes: [{ label: 'EM Premium: 3-5% additional return for currency, political, and liquidity risk', value: 'EM Premium: 3-5% additional return for currency, political, and liquidity risk' }, { label: '85% world population | 60% GDP growth | 40% global GDP | <20% alt capital', value: '85% world population | 60% GDP growth | 40% global GDP | <20% alt capital' }], footer: '85% world population | 60% GDP growth | 40% global GDP | <20% alt capital', sentiment: 'positive' }
     ),
 
@@ -4566,7 +4544,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'EM ALTERNATIVES',
+      'EM alternatives',
       'Capital Flows into Emerging Market Alternative Assets',
       'bar',
       'Track how institutional capital is flowing into emerging market alternatives across regions and asset classes.',
@@ -4589,24 +4567,23 @@ const lessons: PathwayLesson[] = [
         { label: 'EM Allocation (%)', min: 0, max: 40, default: 15, unit: '%' },
         { label: 'Currency Hedge Cost', min: 1, max: 8, default: 3, unit: '% annual' }
       ],
-      { company: 'M-Pesa (Kenya)', metric: 'Mobile money revolution processing $300B+ annually', outcome: 'M-Pesa demonstrated that emerging markets can leapfrog developed market infrastructure, creating entirely new financial ecosystems from scratch', explanation: 'In 2007, Kenya had minimal banking infrastructure, fewer than 20% of adults had bank accounts. M-Pesa launched as a mobile money platform, allowing phone-to-phone payments with no bank account needed. By 2024, it processes $300B+ annually across 50+ million users in multiple African countries. This digital leapfrogging pattern, skipping legacy infrastructure, creates investment opportunities that don\'t exist in developed markets. Investors in M-Pesa\'s parent Safaricom earned 10x+ returns.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'RISK MANAGEMENT',
+      'Risk management',
       'Navigating EM Alternative Risks, Currency, Political, and Liquidity',
       [
-        'Currency risk is the most quantifiable EM threat. The Brazilian real lost 50% against the dollar from 2014-2020, wiping out a decade of farmland gains for unhedged USD investors. The Turkish lira lost 80% from 2018-2023. Currency hedging costs 2-5% annually in most EMs, significantly reducing returns. Strategies include: investing in export-oriented businesses (revenues in USD), using natural hedges (dollar-denominated debt), or accepting currency risk with a longer time horizon (over 10+ years, currency moves tend to mean-revert).',
-        'Political and regulatory risk requires deep local knowledge. India\'s surprise demonetization in 2016 disrupted cash-heavy businesses. China\'s tech crackdown in 2021 wiped $1 trillion from Chinese tech valuations. Egypt\'s sudden currency devaluation in 2022 halved the pound\'s value overnight. Mitigation strategies: diversify across multiple EM countries, partner with established local operators, focus on sectors with government support (infrastructure, agriculture), and avoid countries with histories of capital controls or asset seizure.',
-        'Liquidity risk is more severe than in developed markets. Exiting a PE investment in India might take 5-7 years vs 3-5 in the U.S. Secondary market options are limited. IPO markets can freeze during crises. Mitigation: invest only capital with genuinely long time horizons (10+ years), diversify across vintage years to smooth exit timing, and maintain sufficient developed-market liquidity to avoid forced selling. The liquidity premium in EM, typically 3-5% above DM alternatives, compensates for this constraint.'
+        'Currency risk: Brazil\'s real lost 50% against the dollar in 2014-2020, the Turkish lira 80% in 2018-2023. Hedging, insuring against currency moves, costs 2-5% a year. Alternatives: earn dollars from exports, or hold for 10+ years.',
+      'Politics bites: India\'s 2016 cash ban, China\'s 2021 tech crackdown wiping $1 trillion, Egypt\'s 2022 currency cut. Exits in India take 5-7 years versus 3-5 in the U.S., so invest only 10+ year money. The reward: 3-5% extra return.'
       ],
       [
         { term: 'Currency Hedge', definition: 'A financial instrument (forward contract or option) that protects against currency depreciation. Costs 2-5% annually in most emerging markets, reducing but not eliminating currency risk.', example: 'An investor earning 18% in Indian rupees hedges at 3% cost, netting 15% in USD terms. Without the hedge, a 10% rupee depreciation would reduce the return to 8%.' },
         { term: 'Capital Controls', definition: 'Government restrictions on moving money in or out of a country. Can trap investment capital or prevent profit repatriation. A critical risk factor in some EMs.', example: 'China\'s capital controls limit foreign investors\' ability to move profits out of the country, requiring specific channels (QDII, Stock Connect) for cross-border capital flows.' }
       ],
       'Risk matrix: Countries rated on two axes, Political Stability (high to low) and Market Accessibility (easy to difficult). Quadrants: India (moderate stability, moderate access), Brazil (moderate, moderate), Vietnam (moderate, improving), Nigeria (low stability, difficult access)',
-      { company: 'Brazil Farmland Investment', metric: 'Land values tripled 2010-2020 but currency risk impacted USD returns', outcome: 'Brazilian farmland returned 15-20% annually in reais but only 5-10% in USD after currency depreciation, illustrating the critical importance of currency risk management in EM alternatives', explanation: 'Brazil\'s farmland is among the world\'s best alternative investments in local currency, tripling in value as agricultural exports boomed. But the real depreciated ~50% against the dollar from 2014-2020, erasing much of the gain for USD investors. This illustrates EM investing\'s central challenge: spectacular local returns can be undermined by currency weakness. Solutions: invest in export-oriented agriculture (revenues in USD), hedge strategically, or accept currency risk with a 15+ year horizon.' },
+      undefined,
       AI17_TEACH2
     ),
 
@@ -4802,12 +4779,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Fund of Funds vs Multi-Strategy, Two Approaches to Diversification',
       [
-        'A fund of funds (FoF) invests in multiple underlying hedge funds, PE funds, or VC funds rather than directly in securities. The FoF manager selects, monitors, and rebalances across 20-100+ underlying funds. This provides instant diversification across strategies, managers, and geographies. The cost: a double fee layer, you pay the FoF manager (typically 1% management + 10% performance) ON TOP of each underlying fund\'s fees (2% + 20%). Total effective fees can reach 3-4% management + 20-30% of profits.',
-        'Multi-strategy funds like Citadel, Millennium, and Balyasny operate multiple investment strategies under one roof. Rather than investing in external managers, they hire teams that run equity long/short, credit, macro, quantitative, and event-driven strategies simultaneously. The advantage: no double fee layer, rapid capital reallocation between strategies, shared risk management infrastructure, and typically lower total costs than FoF. Citadel\'s 38% return in 2022 demonstrated the power of this approach.',
-        'The critical question: does the diversification benefit justify the cost? For a $10M investor who can\'t access individual top-tier funds ($5-25M minimums each), a FoF providing exposure to 30+ managers at a $500K minimum offers genuine value despite the extra fees. For a $100M+ investor who can invest directly with managers, the FoF fee layer destroys value, they\'re better off building a direct portfolio. Multi-strategy funds offer a middle ground: institutional-quality diversification at the cost of single-firm concentration risk.'
+        'A fund of funds (FoF) spreads your money across 20-100+ other funds instead of buying shares itself. You pay twice: the FoF\'s 1% plus 10%, on top of each fund\'s 2% plus 20%. Total: 3-4% plus 20-30% of profits.',
+      'Multi-strategy firms, Citadel, Millennium and Balyasny, run many strategies in house, so no double fees. Citadel returned 38% in 2022. A $10M investor priced out of $5-25M minimums can reach 30+ managers via a $500K FoF; $100M+ investors go direct.'
       ],
       [
         { term: 'Fund of Funds (FoF)', definition: 'An investment vehicle that invests in multiple underlying funds rather than directly in securities. Provides diversified manager access through a single allocation, but charges an additional fee layer.', example: 'Grosvenor Capital manages $30B+ through fund of funds investing across 100+ underlying hedge fund and PE managers, with a $500K minimum.' },
@@ -4816,7 +4792,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Manager Selection Alpha', definition: 'The excess return generated by a fund of funds manager\'s ability to select top-performing underlying funds. Must exceed the additional fee layer to justify the FoF structure.', example: 'A FoF that consistently selects top-quartile managers adds 2-3% annually through selection alpha, potentially justifying its 1% + 10% fee layer.' }
       ],
       'Comparison chart: Fund of Funds (30+ managers, double fee layer, $500K min, broad diversification) vs Multi-Strategy (one firm, single fee, $5M+ min, internal diversification) vs Direct Investment (DIY, no extra fees, $50M+ needed, requires deep expertise)',
-      { company: 'Citadel (Multi-Strategy)', metric: 'The gold standard of multi-strategy investing', outcome: 'Citadel returned 38% in 2022 managing $60B+ across 20+ strategies, demonstrating that multi-strategy can generate exceptional risk-adjusted returns', explanation: 'Citadel\'s 2022 performance illustrates multi-strategy\'s power. While equity long/short suffered in the bear market, Citadel\'s commodity strategies, fixed income trading, credit strategies, and quantitative models all contributed positively. The firm\'s ability to rapidly reallocate capital from underperforming to outperforming strategies, something a fund of funds cannot do in real-time, generated outsized returns during a year when most investors lost money.' },
+      undefined,
       { type: 'flow', title: 'Fee Impact: Direct vs FoF vs Multi-Strategy', nodes: [{ label: 'Double fee layer costs FoF investors 2-3% annually vs direct investment', value: 'Double fee layer costs FoF investors 2-3% annually vs direct investment' }, { label: 'FoF justified when: investor too small for direct access OR needs broad diversification quickly', value: 'FoF justified when: investor too small for direct access OR needs broad diversification quickly' }], footer: 'FoF justified when: investor too small for direct access OR needs broad diversification quickly', sentiment: 'positive' }
     ),
 
@@ -4831,7 +4807,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FEE ANALYSIS',
+      'Fee analysis',
       'The True Cost of Double Fee Layers Over Time',
       'line',
       'Model how double fee layers compound over time to dramatically reduce investor wealth versus direct alternative investment.',
@@ -4854,24 +4830,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Gross Annual Return (%)', min: 5, max: 20, default: 12, unit: '%' },
         { label: 'Investment Horizon', min: 5, max: 30, default: 15, unit: ' years' }
       ],
-      { company: 'Grosvenor Capital Management', metric: 'One of the world\'s largest fund of funds with $30B+ AUM', outcome: 'Grosvenor provides access to 100+ underlying managers across hedge funds, PE, and real assets, democratizing institutional-grade alternative investing', explanation: 'Grosvenor represents the FoF value proposition at its best. For a $1M minimum, investors access a diversified portfolio of 100+ managers that would require $200M+ to replicate directly. Their manager selection team evaluates thousands of funds annually, conducts deep due diligence, and dynamically reallocates across strategies. The question: does their selection alpha (picking better managers than average) exceed their fee layer? For some investors, the access alone justifies the cost.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'EVALUATION FRAMEWORK',
+      'Evaluation framework',
       'When Fund of Funds and Multi-Strategy Add (or Destroy) Value',
       [
-        'FoF adds value when: (1) The investor\'s capital is below direct fund minimums, a $1M investor can\'t build a diversified alternative portfolio directly. (2) The investor lacks the expertise or resources to evaluate individual managers, FoF managers conduct deep due diligence as their core competency. (3) The FoF demonstrates consistent manager selection alpha exceeding its fee layer, the best FoFs identify top-quartile managers before they\'re fully allocated.',
-        'FoF destroys value when: (1) The investor has sufficient capital for direct access, paying an extra 1-3% annually for access you don\'t need. (2) The FoF lacks meaningful selection alpha, many FoFs invest in the same well-known managers, providing diversification but not differentiated access. (3) The FoF structure adds complexity without proportionate return, layered LPs, slow capital calls, and extended reporting timelines can reduce the practical value of the investment.',
-        'Multi-strategy\'s value proposition is different: it\'s about real-time capital allocation and risk management rather than access. Citadel can shift billions from an underperforming equity strategy to a thriving commodity strategy within days, something impossible for a FoF with quarterly redemption windows on underlying funds. The trade-off: single-firm concentration risk. A multi-strategy firm\'s operational, compliance, or talent failures affect all strategies simultaneously. Solution: allocate to 2-3 multi-strategy firms rather than one.'
+        'A fund of funds earns its fee when you are too small for direct access: a $1M investor cannot spread money across top funds alone, and picking good managers takes expertise you may lack.',
+      'It destroys value when you already have enough capital to invest directly: 1-3% extra each year for access you do not need. Multi-strategy funds sell speed instead: Citadel can shift billions between strategies in days. Spread across 2-3 firms.'
       ],
       [
         { term: 'Selection Alpha', definition: 'The excess return generated by a FoF manager\'s ability to identify and access top-performing funds before they become widely known or fully subscribed.', example: 'A FoF that identified emerging managers who later became top-decile performers added 2-3% annual selection alpha, more than justifying their fee layer.' },
         { term: 'Capital Allocation Efficiency', definition: 'The speed and flexibility with which a multi-strategy fund can move capital between strategies based on opportunity and risk assessment. A key advantage over fund of funds.', example: 'Citadel reallocated $5B from equity strategies to commodity trading in weeks during 2022, capturing the commodity boom while protecting against equity losses.' }
       ],
       'Decision matrix: Investor size (small/large) × Investment expertise (low/high) → Recommended approach: Small/Low = FoF, Small/High = FoF or multi-strat, Large/Low = Multi-strategy, Large/High = Direct investment',
-      { company: 'Millennium Management', metric: 'Leading multi-strategy platform with $55B+ AUM', outcome: 'Millennium operates 300+ investment teams across equity, credit, fixed income, and quantitative strategies, earning consistent 10-15% net returns with remarkably low volatility', explanation: 'Millennium\'s "platform model" exemplifies multi-strategy\'s evolution. Each of 300+ portfolio manager teams operates semi-independently with strict risk limits. If a team underperforms, Millennium can reallocate capital or replace the team, something impossible in a fund of funds. The platform\'s centralized risk management ensures no single team can create outsized losses. The result: consistent returns with drawdowns typically limited to 2-5%, compared to 15-30% for concentrated hedge funds.' },
+      undefined,
       AI18_TEACH2
     ),
 
@@ -5067,12 +5042,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'The Five Pillars of Alternative Investment Due Diligence',
       [
-        'Pillar 1: Manager Assessment. Evaluate the investment team\'s track record, experience, and process. Key questions: How long has the team worked together? What is the manager\'s verifiable track record (not just a pitch deck)? Is the investment process systematic and repeatable, or dependent on one person\'s "gut feel"? Has the team navigated multiple market cycles? Red flag: managers who cannot clearly articulate their edge or whose track record doesn\'t survive basic statistical scrutiny.',
-        'Pillar 2: Operational Verification. This is where Madoff victims failed. Key checks: Is there an independent third-party custodian holding the assets? (Madoff was his own custodian.) Is the NAV calculated by an independent administrator? Are financial statements audited by a reputable firm? Is there clear separation between portfolio management and back-office operations? A 2023 study found that operational failures cause more investor losses in alternatives than poor investment decisions.',
-        'Pillar 3: Fee Analysis. Calculate total costs including management fees, performance fees, fund expenses, transaction costs, and hidden charges. Key questions: Is there a hurdle rate (minimum return before performance fees apply)? Is there a high-water mark (prevents paying performance fees twice on the same gains)? Does the manager invest their own capital alongside investors (alignment of interest)? Total fees in alternatives commonly range from 3-7% annually, understanding exactly what you\'re paying is essential.'
+        'Pillar 1, manager assessment: check the team\'s verifiable track record, not a pitch deck. Pillar 2, operational verification: an independent custodian holds the assets, unlike Madoff. A 2023 study found operational failures cost investors more than bad picks.',
+      'Pillar 3, fee analysis: add up every cost, and ask for a hurdle rate, a minimum return before performance fees start. Total fees in alternatives commonly run 3-7% a year, so know exactly what you pay.'
       ],
       [
         { term: 'Operational Due Diligence (ODD)', definition: 'The investigation of a fund\'s non-investment infrastructure: custodian, administrator, auditor, compliance, technology, and business continuity. ODD failures have caused more investor losses than poor investment decisions.', example: 'Madoff\'s fund had no independent custodian, he claimed to hold all assets himself. Any proper ODD would have flagged this as a disqualifying red flag.' },
@@ -5081,7 +5055,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Sharpe Ratio', definition: 'A measure of risk-adjusted return, the excess return per unit of volatility. Higher is better. A Sharpe above 1.0 is good; above 2.0 is exceptional; above 3.0 sustained is suspicious (may indicate fraud or smoothing).', example: 'Madoff reported a Sharpe ratio above 3.0 for years, statistically nearly impossible and one of the key red flags Harry Markopolos identified.' }
       ],
       'Flowchart: Initial Screen → Manager Assessment (pass/fail) → Operational Verification (pass/fail) → Fee Analysis (acceptable/excessive) → Risk Measurement → Red Flag Check → INVEST or REJECT',
-      { company: 'Bernie Madoff\'s Ponzi Scheme', metric: '$65 billion fraud lasting 17 years, the largest in history', outcome: 'Madoff fabricated returns, operated without an independent custodian, and used a tiny unknown audit firm, all detectable through basic due diligence', explanation: 'Every pillar of due diligence would have caught Madoff: (1) Manager: returns were too consistent, no legitimate strategy produces 10-12% every year with zero down months. (2) Operational: no independent custodian, a 3-person audit firm for a $65B fund, and trade confirmations that didn\'t match market data. (3) Fees: below-market fees designed to avoid scrutiny. (4) Risk: a Sharpe ratio above 3.0 is statistically near-impossible. Harry Markopolos identified the fraud in 2000-8 years before the collapse, using exactly these analyses.' },
+      undefined,
       { type: 'flow', title: 'Madoff Red Flags, All Detectable by DD', nodes: [{ label: 'No independent custodian', value: 'No independent custodian' }, { label: '3-person audit firm for $65B', value: '3-person audit firm for $65B' }, { label: 'Sharpe ratio >3.0 (impossible)', value: 'Sharpe ratio >3.0 (impossible)' }, { label: 'Trades didn\'t match market data', value: 'Trades didn\'t match market data' }, { label: 'Harry Markopolos identified the fraud in 2000-8 years early', value: 'Used quantitative analysis + operational verification = basic DD' }, { label: 'Lesson: Every major fraud was detectable, DD failures are always human failures', value: 'Lesson: Every major fraud was detectable, DD failures are always human failures' }], footer: 'Lesson: Every major fraud was detectable, DD failures are always human failures', sentiment: 'positive' }
     ),
 
@@ -5096,7 +5070,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'DD FRAMEWORK',
+      'DD framework',
       'The Due Diligence Process, From Initial Screen to Commitment',
       'funnel',
       'Follow the institutional due diligence process that screens hundreds of alternatives to find the few worthy of capital.',
@@ -5119,24 +5093,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Sharpe Ratio', min: 0, max: 5, default: 1.5, unit: '' },
         { label: 'Max Drawdown (%)', min: 5, max: 60, default: 20, unit: '%' }
       ],
-      { company: 'Harry Markopolos vs Madoff', metric: 'One analyst detected a $65B fraud using basic quantitative analysis', outcome: 'Markopolos submitted detailed fraud evidence to the SEC in 2000, 2001, 2005, and 2007, the SEC ignored it each time until Madoff confessed in 2008', explanation: 'Markopolos\'s analysis was straightforward: he replicated Madoff\'s claimed strategy and showed it couldn\'t generate the reported returns. He verified that Madoff\'s reported option trades exceeded the total volume of the options exchange. He demonstrated that the return pattern was statistically impossible. Any institutional investor conducting proper due diligence would have reached the same conclusions. The lesson: due diligence works, but only if you actually do it.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED ANALYSIS',
+      'Advanced analysis',
       'Quantitative Due Diligence, The Numbers That Reveal the Truth',
       [
-        'Risk-adjusted return analysis separates genuine skill from leveraged luck. The Sharpe ratio measures return per unit of risk, above 1.0 is good, above 2.0 is exceptional, above 3.0 sustained is virtually impossible and suggests fraud or return smoothing. The Sortino ratio focuses on downside risk only, more appropriate for alternatives with asymmetric return profiles. The maximum drawdown reveals the worst-case scenario, a manager claiming 15% annual returns with a -50% max drawdown has a fundamentally different risk profile than one with -15% max drawdown.',
-        'Return pattern analysis detects manipulation. Legitimate returns have "normal" statistical properties: some losing months, occasional large drawdowns, correlation to at least some market factors, and varying month-to-month returns. Red flags: too many consecutive winning months (Madoff), returns that cluster suspiciously around a mean (smoothing), abnormally low correlation to any known factor (the strategy must make money from somewhere), and returns that spike at quarter-end (potential window dressing).',
-        'Fee drag analysis quantifies the total cost of an investment over its expected holding period. Calculate: management fee + expected performance fee + fund expenses + transaction costs + estimated FoF layer if applicable. A fund charging 2% + 20% with a 10% expected gross return costs 4% annually in fees, leaving only 6% net. Add a FoF layer and net drops to 4%. Compare this to the benchmark: does the net return justify the fees and illiquidity? If a hedge fund nets 6% after fees, why not just buy an index fund earning 10%?'
+        'Sharpe ratio, return per unit of risk, is good above 1.0, exceptional above 2.0; above 3.0 suggests fraud. Max drawdown is the worst fall: 15% returns with -50% drawdown is riskier than -15%. Sortino counts downside risk only.',
+      'Red flags: too many winning months in a row, as with Madoff. Fee drag: a fund charging 2% plus 20% on a 10% gross return costs 4% yearly, leaving 6% net. Why not an index fund earning 10%?'
       ],
       [
         { term: 'Return Smoothing', definition: 'The practice of understating volatility by reporting artificially stable returns. Can indicate valuation manipulation or outright fraud. Detected through statistical tests like serial correlation analysis.', example: 'Madoff\'s returns showed near-zero serial correlation and minimal variance, statistically consistent with fabricated rather than market-generated returns.' },
         { term: 'Maximum Drawdown', definition: 'The largest peak-to-trough decline in a fund\'s history. Reveals the worst-case scenario investors have experienced. Critical for assessing whether you can tolerate the downside.', example: 'A hedge fund with 15% annual returns sounds great until you learn its maximum drawdown was -55%. Could you hold through a -55% decline without panic selling?' }
       ],
       'Checklist comparison: Legitimate fund (independent custodian ✓, Big 4 auditor ✓, Sharpe 1.2 ✓, manager co-investment ✓) vs Suspicious fund (self-custody ✗, unknown auditor ✗, Sharpe 3.5 ✗, no co-investment ✗)',
-      { company: 'FTX Collapse (2022)', metric: '$32 billion in customer assets, no independent custodian, commingled funds, no audit', outcome: 'Sam Bankman-Fried used customer deposits to fund Alameda Research losses. No independent custodian, no proper audit, no separation of funds.', explanation: 'FTX failed every operational DD test: no independent custodian (customer assets were commingled with Alameda), no reputable auditor (used an obscure firm in Metaverse), no clear compliance infrastructure, and no separation between exchange operations and proprietary trading. Any institutional DD process would have rejected FTX, yet some sophisticated investors failed to check these basics. The lesson: operational DD is the same whether it\'s a hedge fund or a crypto exchange.' },
+      undefined,
       AI19_TEACH2
     ),
 
@@ -5326,12 +5299,11 @@ const lessons: PathwayLesson[] = [
     // PHASE 2, TEACH (Steps 3-8)
     // ═══════════════════════════════════════════
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Understanding Liquidity in Alternative Investments',
       [
-        'Alternative investments exist on a liquidity spectrum. Most liquid: publicly traded REITs and commodity ETFs (sell instantly). Semi-liquid: hedge funds with quarterly redemption (30-90 day notice, potential gates). Illiquid: private equity (7-10 year lockup, no redemption rights), venture capital (8-12 year lockup), and direct real estate (months to sell). The illiquidity premium, the extra return earned for accepting reduced access, ranges from 1-2% for semi-liquid to 3-5% for fully illiquid investments.',
-        'Lock-up periods, gates, and redemption terms define your access to capital. A lock-up period prevents any redemption for a set time (1-3 years for hedge funds, 7-10 years for PE). A redemption gate limits withdrawals to a percentage of fund AUM per period (e.g., BREIT\'s 5% monthly cap). Notice periods require 30-90 days advance warning before redemption. Side pockets hold illiquid positions separately, preventing their sale from harming remaining investors. Understanding these terms BEFORE investing is essential.',
-        'The critical principle: never invest illiquid capital you might need. The 2008 crisis proved this brutally: investors who needed cash faced hedge fund gates, PE capital calls, and frozen real estate markets simultaneously. The solution: tiered liquidity management. Tier 1 (0-12 months needs): cash, public markets, instantly accessible. Tier 2 (1-5 year horizon): semi-liquid hedge funds, interval funds, quarterly access. Tier 3 (5+ year horizon): PE, VC, direct real estate, 7-12 year lockups. Only Tier 3 capital should be in truly illiquid alternatives.'
+        'Alternatives sit on a liquidity spectrum. Public REITs and commodity ETFs sell instantly. Hedge funds need 30-90 days notice, plus lock-ups, periods when you cannot withdraw, of 1-3 years. Private equity runs 7-10 years, venture capital 8-12.',
+      'The extra return for illiquidity is 1-2% semi-liquid, 3-5% fully illiquid. Gates cap withdrawals: BREIT allows 5% monthly. After 2008, match money to time: 0-12 months cash, 1-5 years semi-liquid, 5+ years illiquid with 7-12 year lock-ups.'
       ],
       [
         { term: 'Illiquidity Premium', definition: 'The additional return investors earn for accepting reduced ability to sell an investment. Ranges from 1-2% for semi-liquid to 3-5% for fully illiquid alternatives, above comparable liquid investments.', example: 'Private equity returns 3-5% above public equities partly because investors commit capital for 7-10 years, the illiquidity premium compensates for this lockup.' },
@@ -5340,7 +5312,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Capital Call', definition: 'In PE and VC, the fund\'s request for investors to deliver committed capital. Calls arrive on the fund\'s schedule, not yours, often during market downturns when your other assets have declined.', example: 'An investor commits $10M to a PE fund. Over 3-4 years, the fund makes capital calls in $1-3M increments. During the 2008 crisis, calls arrived just as investors\' stock portfolios crashed 40%.' }
       ],
       'Liquidity spectrum: Instant (public REITs, ETFs) → Daily (liquid alt funds) → Monthly (interval funds) → Quarterly (hedge funds) → Annual (some HFs) → 7-10 year (PE/VC) → 10+ year (direct RE)',
-      { company: 'Blackstone BREIT', metric: 'Non-traded REIT that hit its 5% monthly redemption gate in 2022', outcome: 'When investor redemption requests exceeded 5% of AUM monthly, Blackstone could only fulfill a fraction, trapping billions in investor capital', explanation: 'BREIT illustrates the fundamental liquidity mismatch in alternatives. The fund holds illiquid real estate (buildings can\'t be sold quickly) but offers monthly redemption to investors. When macro uncertainty triggered a wave of redemption requests, the 5% gate kicked in. Investors who wanted their money in January 2023 might not receive it until mid-2024. The lesson: understand the liquidity terms before investing. A "monthly redemption" fund with a 5% gate is not truly liquid, it\'s semi-liquid with conditional access.' },
+      undefined,
       { type: 'flow', title: 'Liquidity Spectrum, Alternatives', nodes: [{ label: 'Illiquidity Premium: 1-2% (semi-liquid) → 3-5% (fully illiquid)', value: 'Extra return compensates for reduced access to capital' }, { label: 'Liquidity risk materializes during crises, exactly when you need cash', value: '2008 gates, 2019 Woodford, 2022 BREIT, always during market stress' }], footer: '2008 gates, 2019 Woodford, 2022 BREIT, always during market stress', sentiment: 'positive' }
     ),
     microCheck(
@@ -5351,7 +5323,7 @@ const lessons: PathwayLesson[] = [
       'Not quite. A 5% monthly gate fundamentally changes the liquidity profile. In normal times, monthly redemption works fine (few investors exit simultaneously). During stress, when many investors want out, the 5% cap means only 1 in 4 or 1 in 5 gets out each month. Your "monthly" redemption becomes a 4-5 month wait. The disconnect between marketed liquidity ("monthly") and actual liquidity ("monthly with conditions") is the core risk investors must understand.'
     ),
     interactiveGraph(
-      'LIQUIDITY MANAGEMENT',
+      'Liquidity management',
       'Structuring a Tiered Liquidity Portfolio',
       'bar',
       'Model how to structure a portfolio that captures the illiquidity premium while maintaining access to capital when needed.',
@@ -5374,22 +5346,21 @@ const lessons: PathwayLesson[] = [
         { label: 'Illiquid Allocation (%)', min: 0, max: 50, default: 20, unit: '%' },
         { label: 'Time Horizon (years)', min: 3, max: 30, default: 10, unit: ' years' }
       ],
-      { company: 'Woodford Equity Income Fund', metric: 'A $10B fund that suspended all redemptions in 2019, trapping investors for years', outcome: 'Manager Neil Woodford invested a "liquid" fund in illiquid positions, when redemptions surged, the fund couldn\'t sell its holdings fast enough and froze completely', explanation: 'Woodford is the most dramatic liquidity mismatch in recent history. The fund was marketed as a daily-dealing equity fund but gradually shifted 20%+ into illiquid, unquoted private companies. When performance declined and investors redeemed, the fund couldn\'t sell its illiquid holdings. Rather than fire-sale private positions at massive discounts, it suspended all redemptions. Investors waited years to get partial capital back. Lesson: always verify that a fund\'s underlying asset liquidity matches its redemption terms.' }
+      undefined
     ),
     teachingSlide(
-      'STRATEGIC APPLICATION',
+      'Strategic application',
       'Managing Liquidity Risk Across Market Cycles',
       [
-        'Liquidity risk is procyclical, it worsens precisely when you need liquidity most. During 2008: hedge fund gates trapped $100B+, PE capital calls arrived as stocks crashed 40%, real estate was unsellable, and credit markets froze. Every "illiquid" investment became MORE illiquid during the crisis. Your liquidity plan must account for this: don\'t calculate liquidity needs based on normal times, stress-test for crisis conditions when everything becomes illiquid simultaneously.',
-        'Capital call management is critical for PE and VC investors. A $10M PE commitment typically gets called over 3-4 years in irregular increments. You must maintain sufficient liquid reserves to meet calls without selling other assets at distressed prices. The 2008 "denominator effect" trapped many institutions: as their liquid portfolios crashed, their PE allocation became an outsized percentage, and capital calls still arrived. Rule of thumb: maintain liquid reserves equal to 25-30% of total uncalled PE/VC commitments.',
-        'Secondary markets provide a safety valve for illiquid positions. PE secondary market volume exceeded $100 billion in 2023, investors can sell their fund positions to specialized secondary buyers. The discount to NAV ranges from 5-15% in normal markets to 20-40% during stress. This isn\'t ideal (you lose 5-40% of value), but it\'s better than no exit at all. Planning secondary market access before you need it, establishing relationships with secondary buyers, is a form of liquidity insurance.'
+        'Liquidity risk gets worse exactly when you need cash. In 2008, hedge fund gates trapped $100B+, stocks crashed 40%, and property would not sell. Plan for crisis conditions, not normal ones.',
+      'A $10M private equity commitment gets called over 3-4 years, so keep liquid reserves worth 25-30% of uncalled commitments. Secondary sales hit $100 billion in 2023: discounts run 5-15% normally, 20-40% in stress. Losing 5-40% still beats no exit.'
       ],
       [
         { term: 'Denominator Effect', definition: 'When liquid portfolio losses increase the percentage allocation to illiquid alternatives, making the investor overweight illiquid assets precisely during a crisis. A dangerous structural phenomenon.', example: 'A pension with 20% in PE and 80% in stocks. If stocks fall 40%, PE is now 31% of the portfolio, overweight and still demanding capital calls.' },
         { term: 'PE Secondary Market', definition: 'A market where investors sell existing PE/VC fund positions to specialized buyers at a discount to NAV. Provides liquidity for otherwise locked-up capital.', example: 'Harvard endowment sold $1.5B in PE secondaries in 2020 to generate liquidity, accepting a ~15% discount to NAV.' }
       ],
       'Stress test scenario: Normal times (liquid 60% / semi-liquid 25% / illiquid 15%) → Crisis times (liquid drops to 36%, semi-liquid gated, illiquid demands capital calls) → Portfolio illiquid percentage jumps to 40%+',
-      { company: '2008 Financial Crisis Liquidity Freeze', metric: 'Hundreds of hedge funds gated, PE capital calls demanded during 40% market crash', outcome: 'Investors who were overweight illiquid alternatives faced simultaneous gates, capital calls, and frozen real estate, unable to access capital when they needed it most', explanation: 'The 2008 crisis was the ultimate stress test for alternative portfolio liquidity. Every illiquidity risk materialized simultaneously: hedge funds gated (can\'t exit), PE funds called capital (must invest more), real estate froze (can\'t sell), and credit markets seized. Investors who had properly tiered their liquidity, maintaining adequate Tier 1 reserves, survived. Those who were overweight illiquid alternatives faced impossible choices: sell liquid assets at crisis lows to meet PE calls, or default on commitments.' },
+      undefined,
       AI20_TEACH2
     ),
     microCheck(
@@ -5545,12 +5516,11 @@ const lessons: PathwayLesson[] = [
     // PHASE 2, TEACH (Steps 3-8)
     // ═══════════════════════════════════════════
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'How Alternative Investments Are Taxed',
       [
-        'Most alternative funds are structured as limited partnerships (LPs), which are "pass-through" entities for tax purposes. This means the fund itself doesn\'t pay taxes, instead, all income, gains, losses, and deductions flow through to individual investors on a Schedule K-1. This creates complexity: you receive a K-1 (often late, delaying tax filing), and the income character flows through, short-term gains are taxed at ordinary income rates (up to 37%), long-term gains at capital gains rates (20% + 3.8% NIIT), and some income may be classified as "unrelated business taxable income" that affects tax-exempt investors.',
-        'Carried interest, the 20% performance fee hedge fund and PE managers receive, is controversially taxed at long-term capital gains rates (23.8%) rather than ordinary income rates (37%). This means a PE manager earning $50M in carried interest pays ~$12M in taxes instead of ~$18.5M. This "carried interest loophole" benefits managers but is irrelevant for most investors. What matters for investors: the income character of your allocable share determines your tax bill.',
-        'Tax-efficient alternative investing involves four strategies: (1) Asset location, place tax-inefficient alternatives (high-turnover hedge funds) in tax-advantaged accounts (IRA, 401k) and tax-efficient ones (long-term PE, real estate with depreciation) in taxable accounts. (2) Holding period management, ensuring gains are held 12+ months for long-term capital gains rates. (3) Tax-loss harvesting, using losses from some alternatives to offset gains from others. (4) Entity structure optimization, some structures (offshore feeders for tax-exempt investors) avoid UBTI issues.'
+        'Most alternative funds are limited partnerships: the fund pays no tax. Income flows to you on a Schedule K-1, a partner\'s tax form. Short-term gains are taxed up to 37%, long-term gains at 20% plus a 3.8% investment income tax.',
+      'Carried interest, the 20% performance fee managers earn, is taxed at 23.8%, not 37%. A manager with $50M pays about $12M instead of $18.5M. Keep gains 12+ months, and hold high-turnover funds inside an IRA or 401k.'
       ],
       [
         { term: 'K-1 (Schedule K-1)', definition: 'Tax form issued by partnerships reporting each investor\'s share of income, deductions, credits, and gains. The primary tax document for alternative fund investors, often arriving late and adding filing complexity.', example: 'A hedge fund LP receives a K-1 showing $50K in short-term gains, $30K in long-term gains, $5K in dividends, and $10K in expenses, each taxed at different rates.' },
@@ -5559,7 +5529,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Phantom Income', definition: 'Taxable income allocated to an investor on a K-1 that doesn\'t correspond to actual cash received. Creates a tax bill without cash to pay it.', example: 'A PE fund reinvests profits rather than distributing them. The investor owes taxes on $200K of allocated gains but received $0 in cash, requiring other funds to pay the tax bill.' }
       ],
       'Decision matrix: Taxable account → long-term PE, real estate (depreciation shields income), opportunity zone funds. Tax-advantaged account → high-turnover hedge funds, short-term trading strategies. Avoid in IRA: leveraged strategies generating UBTI.',
-      { company: 'Alternative Tax Impact', metric: 'Tax drag of 3-7% on gross returns is often larger than management fees', outcome: 'A 15% gross return can net 8-12% after tax depending on structure, a 3-7% spread that dwarfs most fee negotiations', explanation: 'Most investors negotiate intensely over a 0.25-0.50% fee reduction but ignore tax structuring that impacts returns by 2-4x more. The same 15% gross return can net 12% (tax-efficient: long-term gains in taxable, tax-loss harvesting) or 8% (tax-inefficient: short-term gains, UBTI, no harvesting). The 4% difference over 20 years on $1M: $661K, more than most investors earn from fee negotiation over a lifetime. Tax-aware structuring is the highest-ROI optimization in alternatives.' },
+      undefined,
       { type: 'flow', title: 'Tax Rates by Income Type, Alternative Investments', nodes: [{ label: 'Tax Planning Impact: 1-3% annual after-tax return improvement', value: 'Over 20 years on $1M: $200K-$660K in additional wealth from tax efficiency alone' }, { label: 'Asset Location: tax-inefficient alts in IRA, tax-efficient in taxable', value: 'Avoid UBTI-generating strategies in tax-exempt accounts' }], footer: 'Avoid UBTI-generating strategies in tax-exempt accounts', sentiment: 'positive' }
     ),
     microCheck(
@@ -5570,7 +5540,7 @@ const lessons: PathwayLesson[] = [
       'Not quite. UBTI is a specific tax issue for tax-exempt accounts (IRAs, pensions, endowments). When a fund inside a tax-exempt account earns income through leverage or operating businesses, that income becomes "unrelated business taxable income", subject to taxes despite being in a tax-exempt wrapper. The IRA must file Form 990-T and pay taxes, partially negating the tax-exempt advantage. This is why asset location matters: leveraged strategies belong in taxable accounts, not IRAs.'
     ),
     interactiveGraph(
-      'TAX EFFICIENCY',
+      'Tax efficiency',
       'The Compounding Impact of Tax-Efficient Alternative Structuring',
       'line',
       'Model how tax-efficient structuring compounds into dramatically different wealth outcomes over long holding periods.',
@@ -5593,22 +5563,21 @@ const lessons: PathwayLesson[] = [
         { label: 'Gross Return (%)', min: 5, max: 20, default: 12, unit: '%' },
         { label: 'Tax Rate (%)', min: 15, max: 40, default: 25, unit: '%' }
       ],
-      { company: 'Tax-Efficient Alternative Portfolio', metric: 'Proper asset location adds 1-2% annually, more than most fee negotiations', outcome: 'Over 20 years, 1.5% annual tax efficiency improvement on $1M compounds into $400K+ additional wealth', explanation: 'The math is clear: a 1.5% annual improvement from tax-efficient structuring (asset location, holding period management, harvesting) on a $1M portfolio over 20 years generates $400K+ in additional wealth. Most investors spend hours negotiating 0.25% fee reductions ($50K impact over 20 years) while ignoring tax structuring worth 3-8x more. Tax planning is the highest-ROI activity in alternative investing, but requires specialized expertise that most general financial advisors lack.' }
+      undefined
     ),
     teachingSlide(
-      'PRACTICAL STRATEGIES',
+      'Practical strategies',
       'Tax Optimization Techniques for Alternative Investors',
       [
-        'Holding period management converts expensive short-term gains (37%) to cheaper long-term gains (23.8%), a 13.2 percentage point saving. For hedge funds: choose strategies that hold positions 12+ months. For PE: the 3-5 year holding period naturally generates long-term gains. For real estate: hold period plus depreciation recapture rules favor longer holds. Every month a gain is held past 12 months saves 13.2% on that gain.',
-        'Tax-loss harvesting in alternatives requires planning because of K-1 timing. Losses from underperforming funds offset gains from winners. In a diversified alternative portfolio, some positions will always be underwater, harvesting those losses while maintaining market exposure (replacing with a similar-but-not-identical fund) generates tax savings without changing the portfolio\'s risk profile. Annual harvesting can add 0.5-1% to after-tax returns.',
-        'Opportunity Zone funds offer unique tax benefits for alternative investors. Investing capital gains into qualified Opportunity Zone funds (real estate or businesses in designated areas) defers the original gain, reduces it by 10% if held 5+ years, and ELIMINATES tax on NEW gains if held 10+ years. On a 15% annual return over 10 years, the tax savings can be 4-5% annualized. These funds combine alternative real estate exposure with powerful tax incentives, one of the few remaining legal tax "havens" in the U.S. tax code.'
+        'Holding 12+ months turns 37% short-term gains into 23.8% long-term gains, saving 13.2 percentage points, so every held gain saves 13.2%. Private equity\'s 3-5 year holds do this automatically. Harvesting losses from weak funds adds 0.5-1% yearly.',
+      'Opportunity Zone funds back designated areas. Putting gains there delays tax, cuts the original gain 10% after 5+ years, and erases tax on new gains after 10+ years: on a 15% return over 10 years, roughly 4-5% saved yearly.'
       ],
       [
         { term: 'Opportunity Zone Fund', definition: 'A fund investing in economically distressed areas that offers tax deferral on invested capital gains, reduction of the original gain, and elimination of tax on new gains if held 10+ years.', example: 'Investing $1M of capital gains into an OZ fund: the original gain is deferred, and if the OZ investment triples to $3M over 10 years, the $2M new gain is completely tax-free.' },
         { term: 'Depreciation', definition: 'A non-cash tax deduction for real estate and business assets that reduces taxable income without reducing actual cash flow. One of the most powerful tax benefits in alternative investing.', example: 'A $10M building is depreciated over 27.5 years, generating $364K annually in tax deductions, reducing taxable income while the building may actually appreciate in value.' }
       ],
       'Asset location guide: Taxable accounts → long-term PE, real estate (depreciation), Opportunity Zone funds. Tax-advantaged accounts → high-turnover hedge funds, short-term strategies. Avoid in IRA → leveraged PE/VC generating UBTI.',
-      { company: 'Opportunity Zone Funds', metric: 'Tax-free growth on new gains if held 10+ years', outcome: 'OZ funds combine alternative real estate/business investing with the most powerful remaining tax incentive in the U.S. tax code', explanation: 'Opportunity Zone legislation created a remarkable incentive: invest capital gains in qualifying areas, and NEW appreciation over 10+ years is completely tax-free. For alternative investors, this means a real estate development in a qualified zone earning 15% annually generates ALL growth tax-free after 10 years. On a $1M investment growing to $4M, the $3M gain owes zero federal tax. No other legal structure offers this benefit. The trade-off: investments must be in designated (often less-developed) areas, requiring careful due diligence on the underlying real estate or business quality.' },
+      undefined,
       AI21_TEACH2
     ),
     microCheck(
@@ -5760,12 +5729,11 @@ const lessons: PathwayLesson[] = [
     // PHASE 2, TEACH (Steps 3-8)
     // ═══════════════════════════════════════════
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'What Is Alternative Data and Why Does It Matter?',
       [
-        'Alternative data is any dataset used for investment analysis that doesn\'t come from traditional sources (financial statements, SEC filings, analyst reports). The six major categories: (1) Geospatial, satellite imagery of parking lots, construction sites, oil storage tanks. (2) Consumer transaction, credit card spending patterns, point-of-sale data. (3) Web and app data, website traffic, app downloads, product reviews. (4) Social and sentiment, Twitter/Reddit mentions, news sentiment scores. (5) Human capital, job postings, employee reviews, LinkedIn activity. (6) Patent and IP, patent filings, regulatory submissions, clinical trial data.',
-        'The value of alternative data lies in its timeliness and exclusivity. Traditional earnings reports arrive quarterly, 6-12 weeks after the period ends. Credit card data shows spending patterns in near real-time. Satellite imagery reveals physical activity (parking lot fills, crop yields, construction progress) before any financial report. Web traffic spikes predict subscriber growth weeks before announcements. This temporal advantage, knowing something before the market, is the foundation of alpha generation in modern alternatives.',
-        'The alternative data market is democratizing. What cost $1M+ annually a decade ago is increasingly available through Bloomberg Terminal ($25K/year), Quandl (now Nasdaq Data Link, from $500/month), SimilarWeb (website traffic), Glassdoor (employee sentiment), Google Trends (search interest), and free satellite imagery (Sentinel-2, Planet Labs trials). While institutional investors still have advantages in processing speed and data depth, individual investors can access meaningful alternative data for $100-500/month, a fraction of historical costs.'
+        'Alternative data is investment information from outside financial statements and SEC filings. Six types: satellite images, credit card spending, web and app data, Twitter/Reddit and LinkedIn signals, job postings, patent filings.',
+      'Timing is the edge: earnings arrive 6-12 weeks late, satellite and card data arrive now. Costs fell from $1M+ yearly: Bloomberg Terminal $25K/year, Quandl (now Nasdaq Data Link) $500/month, SimilarWeb, Glassdoor, Google Trends, Sentinel-2, Planet Labs, $100-500/month.'
       ],
       [
         { term: 'Alternative Data', definition: 'Any dataset used for investment decisions that doesn\'t come from traditional financial sources. Includes satellite imagery, credit card data, web traffic, social sentiment, and more.', example: 'Hedge funds analyzing Chipotle credit card transaction data estimated same-store sales growth 3 weeks before the earnings announcement, correctly predicting the beat.' },
@@ -5774,7 +5742,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Web Scraping', definition: 'Automatically extracting data from websites, product prices, availability, reviews, job postings, and app download counts. A core technique in alternative data collection.', example: 'Scraping Amazon product listings daily revealed that a new product from a public company had 50,000 5-star reviews in its first month, predicting a revenue beat.' }
       ],
       'Data value chain: Raw Alternative Data → Processing & Cleaning → Signal Extraction → Investment Thesis → Portfolio Decision → Alpha Generation',
-      { company: 'Orbital Insight', metric: 'Satellite imagery analytics processing 500M+ parking spaces', outcome: 'Orbital Insight\'s analysis of retail parking lot fills accurately predicted same-store sales 2-3 weeks before official earnings announcements', explanation: 'Orbital Insight demonstrated that physical world observation via satellite can predict financial outcomes. Their system processes images of 500M+ parking spaces across 250K+ locations daily. When Walmart parking lots fill 8% more than average in October, Q4 earnings likely beat expectations. This data is available to anyone with satellite access, but processing it at scale requires AI/ML capabilities. The insight: in a world of digital transactions and physical commerce, observing the physical world provides an informational edge that financial statements can\'t match.' },
+      undefined,
       { type: 'metric', title: 'Alternative Data Categories, $7B+ Market', value: 'Geospatial', detail: 'Satellite, GPS, drones | Parking lots, crops, oil | Consumer | Credit card, POS data | Real-time spe', footer: 'Institutional: $1M+/year | Retail accessible: $100-500/month (Google Trends, SimilarWeb, Glassdoor)', sentiment: 'positive' }
     ),
     microCheck(
@@ -5785,7 +5753,7 @@ const lessons: PathwayLesson[] = [
       'Not quite. The primary value of satellite parking lot data is the timing advantage, observing consumer behavior weeks before the financial data is reported. Traditional investors wait for earnings announcements. Satellite-equipped investors observe the parking lots filling (or emptying) in real-time, predicting the results before they\'re reported. This temporal edge is the fundamental value proposition of alternative data across all categories.'
     ),
     interactiveGraph(
-      'ALT DATA APPLICATIONS',
+      'Alt data applications',
       'How Alternative Data Predicts Financial Outcomes',
       'bar',
       'Explore real examples of alternative data predicting company performance before traditional financial data reveals the same information.',
@@ -5808,22 +5776,21 @@ const lessons: PathwayLesson[] = [
         { label: 'Alt Data Budget ($/month)', min: 0, max: 5000, default: 500, unit: '$' },
         { label: 'Signal Accuracy (%)', min: 50, max: 90, default: 65, unit: '%' }
       ],
-      { company: 'Two Sigma / Renaissance Technologies', metric: 'Quantitative hedge funds built on alternative data processing', outcome: 'Renaissance\'s Medallion Fund returned 66% annually (before fees) for 30+ years using quantitative analysis of alternative data signals', explanation: 'Renaissance Technologies demonstrated that systematically processing diverse data sources, including alternative data, can generate extraordinary returns. Their Medallion Fund is the most successful in history: 66% annually before fees for three decades. While their specific signals are secret, the approach combines vast alternative data processing with statistical modeling. The lesson: alternative data is only as valuable as the analytical framework processing it. Raw data doesn\'t generate returns, insights derived from data do.' }
+      undefined
     ),
     teachingSlide(
-      'PRACTICAL ACCESS',
+      'Practical access',
       'Alternative Data Tools for Every Investor Level',
       [
-        'Free alternative data tools available to everyone: Google Trends (search interest indicating consumer demand), Glassdoor (employee reviews predicting company culture and retention), LinkedIn (job posting patterns signaling growth or contraction), Reddit/Twitter (real-time consumer sentiment), SEC EDGAR (13-F filings showing institutional holdings), and Google Earth/Sentinel-2 (free satellite imagery for visual verification). These tools provide meaningful analytical edges at zero cost.',
-        'Mid-tier tools ($100-$500/month): SimilarWeb (website traffic analytics), App Annie/data.ai (app download and usage data), Quandl/Nasdaq Data Link (structured alternative datasets), PatSnap (patent analytics), and Crunchbase (startup funding and growth data). These provide more detailed, structured data than free tools and can meaningfully improve due diligence on alternative investments, evaluating a PE target\'s digital presence, verifying a startup\'s growth claims, or tracking competitive dynamics.',
-        'Ethical and legal boundaries are critical. Material Non-Public Information (MNPI) is illegal to trade on, if the data source involves corporate insiders or confidential information, it\'s off-limits. Web scraping must respect Terms of Service. Consumer data must be anonymized and aggregated. The key test: is this data derived from publicly observable behavior (legal) or from confidential sources (potentially illegal)? Satellite imagery of public parking lots is legal; a corporate insider sharing sales data is not. The SEC has brought cases against firms that crossed these lines.'
+        'Free tools: Google Trends, Glassdoor, LinkedIn job postings, Reddit/Twitter sentiment, SEC EDGAR 13-F filings showing what institutions own, and Google Earth or Sentinel-2 satellite images. For $100-$500/month: SimilarWeb, App Annie/data.ai, Quandl/Nasdaq Data Link, PatSnap, Crunchbase.',
+      'Trading on material non-public information (MNPI), meaning confidential company facts, is illegal. Respect Terms of Service when scraping, and anonymize data. Photographing a public parking lot is fine; an insider leaking sales figures is not. The SEC prosecutes.'
       ],
       [
         { term: 'Material Non-Public Information (MNPI)', definition: 'Confidential information that could affect a security\'s price if made public. Trading on MNPI is illegal insider trading regardless of the data source.', example: 'Knowing from an insider that a company will miss earnings is MNPI. Observing from satellite imagery that their parking lots are empty is public information, legally distinct.' },
         { term: 'Data Alpha Decay', definition: 'The phenomenon where an alternative data signal loses predictive power as more investors access the same data. First-movers extract the most value; latecomers find the signal priced in.', example: 'When only 5 hedge funds used satellite parking lot data, the signal was highly predictive. Now that 500+ funds use it, the signal is partially priced into stock prices before earnings.' }
       ],
       'Accessibility pyramid: Base (free) = Google Trends, Glassdoor, Reddit, EDGAR. Middle ($100-500/mo) = SimilarWeb, data.ai, Quandl. Top ($10K+/mo) = Second Measure, Orbital Insight, proprietary datasets.',
-      { company: 'Google Trends', metric: 'Free alternative data tool used by institutional and retail investors alike', outcome: 'Google Trends search volume for "file for bankruptcy" spiked 3 months before the 2008 crisis deepened, and "buy Bitcoin" peaked at the exact top of the 2017 crypto bubble', explanation: 'Google Trends is the most accessible alternative data tool, completely free and available to everyone. Search interest serves as a proxy for consumer demand, fear, and sentiment. When searches for a company\'s product spike, sales may follow. When searches for "layoffs" or "recession" surge, economic stress is increasing. The tool\'s value lies in real-time sentiment measurement, Google processes 8.5 billion searches daily, making it the world\'s largest real-time survey of human interest and intent.' },
+      undefined,
       AI22_TEACH2
     ),
     microCheck(
@@ -5984,12 +5951,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'The LP/GP Relationship, The Core of Alternative Fund Structure',
       [
-        'Every alternative investment fund is built on the Limited Partnership (LP) structure. The General Partner (GP) manages the fund, making investment decisions, executing deals, and managing portfolio companies. The Limited Partners (LPs) provide capital and receive returns, but have no management control. This separation of management and capital is the foundation of all private fund structures. The GP has unlimited liability for the fund\'s obligations; LPs\' liability is limited to their committed capital.',
-        'The Limited Partnership Agreement (LPA) is the constitution of the fund. It governs everything: capital commitment and call schedule, management fees (typically 1.5-2% of committed capital), carried interest (typically 20% of profits above a hurdle rate), distribution waterfall (the order in which profits flow to LPs and the GP), GP removal provisions, key-person clauses, and investment restrictions. Most LPAs are 100-200 pages of dense legal language, yet they determine the economics of the entire investment.',
-        'Fund formation follows a predictable lifecycle: (1) The GP creates the fund entity (typically a Delaware LP). (2) Marketing period, the GP raises capital from institutional LPs over 12-18 months. (3) Investment period (years 1-5), the GP deploys capital via capital calls as deals are sourced. (4) Harvesting period (years 5-10), portfolio companies are sold and proceeds distributed. (5) Fund wind-down, final distributions and dissolution. Understanding this lifecycle is critical because your capital is illiquid for the entire 7-12 year journey.'
+        'A limited partnership, LP, is the base. The general partner, GP, manages the fund and carries unlimited liability. Limited partners give capital and get returns, with no control, and they risk only their committed capital.',
+      'The rulebook, the limited partnership agreement, runs 100-200 pages: fees 1.5-2%, carried interest 20% of profits, payout order. Delaware funds raise for 12-18 months, invest years 1-5, sell years 5-10. Your money is locked 7-12 years.'
       ],
       [
         { term: 'General Partner (GP)', definition: 'The managing entity of a fund that makes investment decisions, executes deals, and has unlimited liability. Typically receives management fees and carried interest as compensation.', example: 'Blackstone Group acts as GP for its PE funds, sourcing deals, managing portfolio companies, and earning 2% management fee plus 20% carry.' },
@@ -5998,7 +5964,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Capital Call', definition: 'A notice from the GP requiring LPs to fund a portion of their committed capital, typically with 10-15 business days\' notice. Failure to meet a capital call can result in forfeiture of existing investment.', example: 'An LP committed $10M to a PE fund. In Year 2, the GP makes a capital call for 15% ($1.5M) to fund a new acquisition. The LP must wire the money within 10 days.' }
       ],
       'Fund lifecycle timeline: Year 0 fundraise, Years 1-5 investment period (capital calls), Years 5-10 harvest period (distributions), Year 10-12 wind-down and final distributions',
-      { company: 'Blackstone Real Estate Partners IX', metric: 'Raised $30.4 billion, largest real estate fund ever', outcome: 'The fund used a complex structure: Delaware LP main fund, Cayman feeder for offshore investors, Luxembourg vehicle for European LPs, and a UBTI-blocking entity for tax-exempt investors', explanation: 'This multi-vehicle structure wasn\'t complexity for its own sake, each entity served a specific investor type. US taxable investors used the domestic LP (pass-through K-1 treatment). Tax-exempt investors used the UBTI-blocker (avoiding leveraged income tax issues in IRAs/pensions). European LPs used the Luxembourg vehicle (tax treaty benefits). Offshore investors used the Cayman feeder (no US tax filing). The same underlying investments, but the structure determined each LP\'s tax treatment, reporting obligations, and regulatory compliance.' },
+      undefined,
       { type: 'flow', title: 'Fund Lifecycle, Capital Calls & Distributions', nodes: [{ label: 'LPA governs all terms: fees, carry, waterfall, GP removal, investment restrictions', value: 'LPA governs all terms: fees, carry, waterfall, GP removal, investment restrictions' }, { label: 'Capital is ILLIQUID for 7-12 years, failure to meet capital calls = forfeiture', value: 'Capital is ILLIQUID for 7-12 years, failure to meet capital calls = forfeiture' }], footer: 'Capital is ILLIQUID for 7-12 years, failure to meet capital calls = forfeiture', sentiment: 'positive' }
     ),
 
@@ -6013,7 +5979,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FUND ECONOMICS',
+      'Fund economics',
       'Distribution Waterfall, How Profits Flow from GP to LPs',
       'bar',
       'Understand how the distribution waterfall determines the order in which profits are split between LPs and the GP, and why the waterfall structure dramatically affects net returns.',
@@ -6036,24 +6002,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Fund Return (%)', min: 5, max: 30, default: 15, unit: '%' },
         { label: 'Carry Rate (%)', min: 10, max: 30, default: 20, unit: '%' }
       ],
-      { company: 'Waterfall Comparison', metric: 'European vs American waterfall impact on LP net returns', outcome: 'On a fund with 3 winners and 2 losers, the American waterfall pays the GP 1-3% more carry than the European, costing LPs significantly', explanation: 'Consider a fund with 5 deals: 3 return 3x ($300M profit each) and 2 lose 50% ($50M loss each). European waterfall: total profit = $800M, carry on $800M = $160M. American waterfall: carry on each winner separately = $180M (losses don\'t offset winning deals\' carry). The LP pays $20M more carry in the American structure, a meaningful difference. This is why institutional LPs strongly prefer European waterfalls and specifically negotiate for them in the LPA.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED STRUCTURES',
+      'Advanced structures',
       'Feeder Funds, Co-Investments & Special Purpose Vehicles',
       [
-        'Feeder funds solve the problem of diverse investor bases. A single main fund may need separate entry points for different investor types: a domestic feeder (Delaware LP) for US taxable investors receiving K-1s, an offshore feeder (Cayman Islands) for non-US investors avoiding US tax filing, and a UBTI-blocker (offshore corporation) for US tax-exempt investors (pensions, endowments) to avoid UBTI from leveraged investments. All feeders invest into the same master fund, receiving identical investment performance but different tax treatment.',
-        'Co-investment vehicles allow LPs to invest alongside the fund in specific deals, typically at reduced or zero fees. When a GP identifies a deal too large for the fund alone, it offers co-investment to select LPs. This is enormously valuable: co-investors access the same deal at 0-1% fees (vs 2/20 in the fund). Large LPs negotiate co-investment rights in their side letters. The trend toward co-investment has accelerated, direct and co-investment now represents over $200 billion in annual deal volume, up from $30 billion a decade ago.',
-        'Special Purpose Vehicles (SPVs) and continuation funds represent the newest structural innovations. SPVs are single-deal entities allowing investors to access one specific transaction. Continuation vehicles allow GPs to transfer assets from a maturing fund into a new vehicle, extending holding periods for assets that need more time. These structures offer flexibility but introduce potential conflicts of interest: the GP has incentives to move assets to new vehicles (earning fresh fees) even when liquidation would better serve LPs. Structural due diligence requires evaluating these conflicts carefully.'
+        'Feeder funds are separate doors into one master fund: a Delaware LP for US taxable investors filing K-1s, a Cayman Islands feeder for non-US investors, and a blocker company shielding pensions and endowments from UBTI tax.',
+      'Co-investment lets LPs join one deal at 0-1% fees, not the fund\'s 2/20. That market now tops $200 billion a year, up from $30 billion a decade ago. Single deal SPVs and continuation funds add flexibility, and fee conflicts.'
       ],
       [
         { term: 'Feeder Fund', definition: 'A separate legal entity that pools capital from a specific type of investor and invests into a master fund. Used to accommodate different tax, regulatory, and reporting requirements for diverse LP bases.', example: 'A Cayman Islands feeder fund pools non-US investor capital and invests into the US master fund, investors receive identical returns but avoid US tax filing obligations.' },
         { term: 'Co-Investment', definition: 'A direct investment alongside a fund in a specific deal, typically at reduced or zero management fees and carry. Offered to select LPs, usually those committing the largest amounts.', example: 'A PE fund acquires a $2B company. The fund invests $1B, and three large LPs co-invest $300M each at zero carry, accessing the same deal at dramatically lower cost.' }
       ],
       'Master-feeder structure diagram: Domestic LP, Offshore Feeder, UBTI Blocker all flowing into Master Fund, which invests in portfolio companies',
-      { company: 'Co-Investment Boom', metric: 'Direct and co-investment deal volume exceeded $200B annually', outcome: 'Co-investment now represents over 25% of total PE deal volume, up from under 10% a decade ago', explanation: 'The co-investment trend reflects LP sophistication. Large institutional investors realized they were paying 2/20 for access to deals they could co-invest in at 0/0. A $100M co-investment at zero fees saves $2M+ annually in management fees and $4M+ in carry on a typical deal, compared to investing the same amount through the fund. The trade-off: co-investors must evaluate deals quickly (often 2-4 weeks), build internal investment teams, and accept concentration risk in individual deals versus fund diversification.' },
+      undefined,
       AI23_TEACH2
     ),
 
@@ -6206,12 +6171,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'The Regulatory Architecture of Alternative Investments',
       [
-        'Alternative investments operate under exemptions from standard securities regulations. The Investment Company Act of 1940 would require hedge funds and PE funds to register as investment companies (like mutual funds), subjecting them to strict leverage limits, diversification requirements, and daily liquidity provisions. Two critical exemptions allow alternatives to avoid this: Section 3(c)(1) limits funds to 100 "accredited investors," and Section 3(c)(7) allows unlimited "qualified purchasers" (individuals with $5M+ in investments). These exemptions are why alternatives remain accessible only to wealthy investors.',
-        'The Dodd-Frank Act of 2010, passed in response to the 2008 financial crisis and Madoff scandal, was the most significant regulatory change for alternatives in 70 years. Key provisions: investment advisers managing $150M+ must register with the SEC, registered advisers must file Form ADV (disclosing business practices, conflicts, and disciplinary history) and Form PF (reporting portfolio positions and leverage for systemic risk monitoring), and the Volcker Rule prohibited banks from proprietary trading and limited bank investment in hedge funds and PE.',
-        'The accredited investor standard is the primary gateway to alternative investments. Current requirements: $200K individual income ($300K joint) for two consecutive years OR $1M net worth excluding primary residence OR certain professional certifications (Series 7, 65, 82). In 2020, the SEC expanded the definition to include "knowledgeable employees" of funds and holders of professional certifications. Qualified purchasers, required for 3(c)(7) funds, must have $5M+ in investments. These thresholds haven\'t kept pace with inflation: $1M in 1982 (when the standard was set) equals $3.2M today, meaning far more people now qualify.'
+        'Private funds escape the Investment Company Act of 1940 through exemptions: 3(c)(1) caps them at 100 accredited investors, 3(c)(7) allows unlimited qualified purchasers with $5M+ invested. Dodd-Frank, from 2010 after the 2008 crash, was the biggest shift in 70 years.',
+      'It now makes advisers with $150M+ register, filing Form ADV and Form PF. Accredited investors need $200K income ($300K joint) over two years, $1M net worth, or Series 7, 65, 82 certifications. 2020 widened this; 1982\'s $1M equals $3.2M today.'
       ],
       [
         { term: 'Accredited Investor', definition: 'An individual meeting SEC financial thresholds: $200K+ income ($300K joint) for two years, or $1M+ net worth excluding primary residence, or certain professional certifications. Required to invest in most alternative funds.', example: 'A software engineer earning $250K annually for three consecutive years qualifies as accredited, enabling access to PE funds, hedge funds, and private placements.' },
@@ -6220,7 +6184,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Regulation D (506(b) and 506(c))', definition: 'SEC exemptions allowing private fund offerings without full registration. 506(b) allows up to 35 non-accredited investors but prohibits general solicitation. 506(c) permits general solicitation but ALL investors must be verified accredited investors.', example: 'A new hedge fund raises capital under Rule 506(c), allowing them to advertise to a broad audience, but requiring each investor to provide documentation (tax returns, brokerage statements) proving accredited status.' }
       ],
       'Regulatory timeline: 1933 Securities Act, 1940 Investment Company Act (3(c)(1)/(7) exemptions), 1982 Reg D accredited investor rules, 2010 Dodd-Frank Act, 2020 expanded accredited investor definition',
-      { company: 'SEC Enforcement', metric: 'Madoff fraud exposed $65 billion in fictitious assets', outcome: 'Led to Dodd-Frank requiring all advisers with $150M+ to register with the SEC, the largest regulatory shift for alternatives in 70 years', explanation: 'Before Dodd-Frank, hedge fund advisers could manage billions without any SEC registration, reporting, or oversight. Madoff exploited this gap for decades. Post-Dodd-Frank, registered advisers must: file Form ADV (publicly disclosing conflicts and disciplinary history), file Form PF (reporting positions for systemic risk monitoring), maintain compliance programs with a Chief Compliance Officer, submit to SEC examination. These requirements don\'t prevent all fraud, but they create transparency that makes large-scale fraud significantly harder to sustain.' },
+      undefined,
       { type: 'flow', title: 'Accredited Investor Requirements', nodes: [{ label: 'Qualified Purchaser (3(c)(7) funds): $5M+ in investments', value: 'Higher bar than accredited, required for funds accepting unlimited investors' }, { label: '$1M threshold set in 1982 = $3.2M today, far more people now qualify', value: '$1M threshold set in 1982 = $3.2M today, far more people now qualify' }], footer: '2020 expansion: professional certifications (Series 7, 65, 82) now qualify regardless of wealth', sentiment: 'positive' }
     ),
 
@@ -6235,7 +6199,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'REGULATORY LANDSCAPE',
+      'Regulatory landscape',
       'The Growth of Alternative Investment Regulation Post-2008',
       'bar',
       'Examine how regulatory requirements have expanded since the 2008 financial crisis, and how compliance costs have reshaped the alternative investment industry.',
@@ -6258,24 +6222,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Fund AUM ($M)', min: 100, max: 5000, default: 500, unit: '$M' },
         { label: 'Compliance Cost (%)', min: 0.1, max: 1.5, default: 0.5, unit: '%' }
       ],
-      { company: 'Industry Consolidation', metric: 'Compliance costs drove smaller fund closures post-Dodd-Frank', outcome: 'The number of hedge funds with under $100M AUM declined 25% between 2010-2023 while mega-funds ($10B+) grew their market share from 20% to 35%', explanation: 'Regulatory compliance creates economies of scale. A $10B fund spending $3M on compliance pays 0.03% of AUM. A $100M fund spending $1M pays 1% of AUM, 33x more expensive as a percentage. This structural disadvantage has driven consolidation: smaller funds either grow, merge, or close. For investors, this means the opportunity set in alternatives is increasingly concentrated among large managers, potentially reducing strategy diversity and increasing correlation among alternative funds.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'INVESTOR PROTECTION',
+      'Investor protection',
       'How Regulation Protects Alternative Investors, And Its Limits',
       [
-        'SEC registration and Form ADV create transparency that enables investor due diligence. Form ADV Part 1 discloses: AUM, number of clients, types of advisory services, and regulatory/disciplinary history. Form ADV Part 2 (the "brochure") describes: fee structures, conflicts of interest, investment strategies, risk factors, and the manager\'s code of ethics. Both parts are publicly searchable on the SEC\'s IAPD (Investment Adviser Public Disclosure) database. Every alternative fund investor should search the manager\'s Form ADV before investing, it\'s free and takes five minutes.',
-        'Despite improvements, regulation has significant limitations. The SEC examines only 10-15% of registered advisers annually, meaning most funds go years between examinations. Self-reported Form ADV information is rarely independently verified. Performance advertising rules (the "Marketing Rule" updated in 2022) allow hypothetical and backtested performance with disclosures, creating opportunities for misleading presentations. Private fund advisers can still charge any fees they choose (unlike mutual funds with fee transparency requirements). The regulatory framework catches obvious fraud but may miss more subtle conflicts of interest or performance manipulation.',
-        'The SEC\'s 2023 Private Fund Advisers Rule (partially struck down by courts) attempted to impose stronger protections: mandatory quarterly performance reporting, prohibition of certain preferential side letter terms, required annual audits, and restrictions on passing compliance costs to investors. While the full rule faced legal challenges, the trend is clear, regulators are moving toward greater transparency and investor protection in alternatives. Investors should anticipate increasing disclosure requirements and standardization of fund terms over the next decade.'
+        'Form ADV Part 1 lists assets, clients and disciplinary history. Part 2 covers fees, conflicts, strategies and risks. Both are free on the SEC\'s public IAPD database, so search any manager before investing, it takes five minutes.',
+      'But the SEC examines only 10-15% of advisers yearly, rarely verifies filings, and its 2022 Marketing Rule permits backtested results, performance simulated on past data. The 2023 Private Fund Advisers Rule, partly struck down, still signals more disclosure ahead.'
       ],
       [
         { term: 'IAPD (Investment Adviser Public Disclosure)', definition: 'The SEC\'s free online database where anyone can search registered investment advisers\' Form ADV filings, including business practices, conflicts of interest, and disciplinary history.', example: 'Before investing $1M in a hedge fund, an investor searches the manager on IAPD and discovers two prior SEC enforcement actions for misleading performance advertising, a critical red flag that would have been invisible without the regulatory disclosure.' },
         { term: 'Marketing Rule (Rule 206(4)-1)', definition: 'Updated SEC rule governing investment adviser advertising and performance presentation. Allows hypothetical and backtested performance but requires specific disclosures about methodology, assumptions, and limitations.', example: 'A hedge fund advertises a "backtested 25% annual return", but the Marketing Rule requires disclosure that backtested results were calculated after the fact and may not reflect actual trading decisions, costs, or market impact.' }
       ],
       'Due diligence checklist: (1) Search Form ADV on SEC IAPD, (2) Verify fund registration, (3) Check disciplinary history, (4) Review compliance infrastructure, (5) Confirm auditor independence, (6) Evaluate conflicts of interest',
-      { company: 'SEC Examination Statistics', metric: 'Only 10-15% of registered advisers examined annually', outcome: 'Most funds go 5-7 years between SEC examinations, self-reported compliance is the norm between visits', explanation: 'The SEC\'s examination resources are stretched thin. With over 15,000 registered investment advisers and limited staff, comprehensive oversight is impossible. This means investor due diligence must fill the gap. Best practices: (1) Search Form ADV and check for disciplinary actions before investing. (2) Verify the fund uses an independent auditor (Big Four or recognized alternative audit firm). (3) Confirm assets are held at an independent custodian (not the manager). (4) Ask for the compliance manual and CCO credentials. These basic steps would have identified Madoff as a fraud, he used a tiny, unknown auditor and self-custodied assets.' },
+      undefined,
       AI24_TEACH2
     ),
 
@@ -6428,20 +6391,19 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE INTEGRATION FRAMEWORK',
+      'The integration framework',
       'Connecting Structure, Regulation, Tax & Data',
       [
-        'Professional alternative investment evaluation follows a four-layer framework applied to every potential allocation. Layer 1, Regulatory Verification: search Form ADV on SEC IAPD, verify registration status, check disciplinary history, confirm independent audit and custody. This takes 30 minutes and eliminates fraudulent and non-compliant managers before any economic analysis begins. Layer 2, Structural Analysis: evaluate the LPA for waterfall type (European vs American), fee levels (management fee + carry), GP co-investment (skin in the game), key-person provisions, and capital call terms. Negotiate side letters for improved economics.',
-        'Layer 3, Tax Optimization: select the correct fund vehicle for your tax status (domestic LP for taxable, UBTI-blocker for tax-exempt, offshore for non-US). Determine asset location (which account type, taxable vs IRA). Model after-tax returns using the fund\'s expected income character (short-term vs long-term gains, dividends, UBTI). A fund with 15% gross returns that generates 100% short-term gains nets ~9.5% after tax; the same 15% in long-term gains nets ~11.5%. That 2% difference compounds to hundreds of thousands over a decade.',
-        'Layer 4, Alternative Data Verification: triangulate the GP\'s claims using independent data sources. Verify revenue growth claims with web traffic (SimilarWeb), credit card data, and hiring trends (LinkedIn). Check portfolio company health with Glassdoor employee sentiment. Monitor physical operations with satellite imagery. Alternative data doesn\'t replace fundamental analysis, it provides independent verification that catches exaggerations, undisclosed problems, and occasionally confirms genuine outperformance. The four layers together create a comprehensive evaluation that identifies both risks and opportunities invisible to any single analytical approach.'
+        'Four checks before investing. One: verify the manager on Form ADV, the SEC IAPD filing, 30 minutes of work. Two: read the fund contract for fees and profit split order, European or American waterfall.',
+      'Three: choose vehicles and accounts that lower tax. A 15% gross return as 100% short-term gains nets 9.5%; as long-term gains, 15% nets 11.5%, a 2% gap that compounds. Four: verify claims with SimilarWeb traffic, LinkedIn hiring, Glassdoor reviews.'
       ],
       [
         { term: 'Integrated Due Diligence', definition: 'A comprehensive evaluation framework combining regulatory verification, structural analysis, tax optimization, and alternative data verification to assess alternative investments across all dimensions simultaneously.', example: 'Before committing $50M to a PE fund, the family office runs all four layers: verifies SEC registration (clean), analyzes the LPA (European waterfall, 3% GP co-invest), selects UBTI-blocker vehicle (tax-exempt investor), and triangulates GP growth claims with SimilarWeb and LinkedIn data.' },
         { term: 'Net-of-Everything Return', definition: 'The actual return received after accounting for management fees, carried interest, fund expenses, tax drag, and structural costs. The only metric that matters for comparing alternative investments.', example: 'A hedge fund reports 18% gross returns. After 2% management fee, 20% carry on profits above 8% hurdle, 0.5% fund expenses, and 25% effective tax rate: the net-of-everything return is approximately 9.8%, barely half the headline number.' }
       ],
       'Four-layer evaluation framework: (1) Regulatory → (2) Structural → (3) Tax → (4) Data Verification, each feeding into the investment decision',
-      { company: 'ADIA (Abu Dhabi Investment Authority)', metric: '$900B sovereign wealth fund with 45% alternatives allocation', outcome: 'ADIA deploys the full four-layer framework across 40+ jurisdictions, managing LP/GP relationships with 200+ fund managers while optimizing tax treatment through multiple treaty networks', explanation: 'ADIA represents the pinnacle of institutional alternative investing. Its 45% alternatives allocation ($405B) spans PE, real estate, infrastructure, hedge funds, private credit, and natural resources across every major market. Managing this requires: (1) Regulatory compliance in 40+ jurisdictions simultaneously. (2) Structural negotiation on 200+ LPAs with customized side letters. (3) Tax optimization leveraging UAE treaty networks. (4) A dedicated alternative data team verifying GP claims. The sophistication required at this scale demonstrates why integrated due diligence is not optional, it\'s the difference between the 12-15% net returns ADIA achieves and the 8-10% that less rigorous investors accept.' },
-      { type: 'flow', title: 'Four-Layer Evaluation Framework', nodes: [{ label: 'INTEGRATED INVESTMENT DECISION', value: '' }, { label: 'Integrated analysis adds 3-6%+ to net returns vs siloed evaluation', value: 'Integrated analysis adds 3-6%+ to net returns vs siloed evaluation' }], footer: 'Integrated analysis adds 3-6%+ to net returns vs siloed evaluation', sentiment: 'positive' }
+      undefined,
+      { type: 'flow', title: 'Four-Layer Evaluation Framework', nodes: [{ label: 'Integrated investment decision', value: '' }, { label: 'Integrated analysis adds 3-6%+ to net returns vs siloed evaluation', value: 'Integrated analysis adds 3-6%+ to net returns vs siloed evaluation' }], footer: 'Integrated analysis adds 3-6%+ to net returns vs siloed evaluation', sentiment: 'positive' }
     ),
 
     // Step 4, Micro-Check
@@ -6455,7 +6417,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CAPSTONE INTEGRATION',
+      'Capstone integration',
       'Net-of-Everything Returns, How Each Layer Impacts Your Bottom Line',
       'bar',
       'Model how each analytical layer (structure, regulation, tax, data) compounds to affect your actual returns from alternative investments.',
@@ -6478,24 +6440,23 @@ const lessons: PathwayLesson[] = [
         { label: 'Gross Return (%)', min: 8, max: 25, default: 18, unit: '%' },
         { label: 'Management Fee (%)', min: 1, max: 3, default: 2, unit: '%' }
       ],
-      { company: 'Net-of-Everything Analysis', metric: '18% gross → 10.6% net (optimized) vs 8.8% net (unoptimized)', outcome: 'The 1.8% annual gap between optimized and unoptimized compounds to $3.7M difference over 20 years on a $10M investment', explanation: 'The math is stark: 10.6% vs 8.8% net on $10M over 20 years. Optimized: $7.5M in total returns. Unoptimized: $5.4M. Difference: $2.1M. And this only accounts for tax optimization, adding structural improvements (waterfall, co-invest, side letters) and better selection via alt data could double the advantage. The lesson: alternative investment success is determined not just by the GP\'s investment skill, but by the LP\'s optimization across structure, regulation, tax, and data. The best LP is an active, informed, and demanding partner, not a passive capital provider.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'MASTERY APPLICATION',
+      'Mastery application',
       'Building a Complete Alternative Investment Portfolio',
       [
-        'Portfolio-level alternative allocation requires integrating asset class selection with structural, regulatory, and tax considerations simultaneously. A well-constructed alternatives portfolio typically spans 4-6 sub-asset classes: core private equity (25-35% of alternatives allocation), real estate (15-25%), hedge funds (15-25%), infrastructure/real assets (10-15%), private credit (10-15%), and venture capital (5-10%). Each sub-asset class serves a different portfolio function: PE for return enhancement, real estate for inflation protection and income, hedge funds for downside protection, infrastructure for stable cash flows, private credit for yield, and VC for outlier return potential.',
-        'Vintage year diversification prevents concentration risk. Instead of committing the entire PE allocation to one fund, spread commitments across 3-4 vintage years to avoid over-exposure to a single market cycle. A 2007 vintage PE fund (buying at peak prices before the crisis) would dramatically underperform a 2009 vintage (buying distressed assets at crisis lows). By committing steadily across vintages, you average out market timing risk, the alternative investment equivalent of dollar-cost averaging in public markets.',
-        'Liquidity management is the operational challenge that distinguishes alternative portfolio management from traditional investing. With 7-12 year lockups, unpredictable capital calls, and limited secondary market liquidity, alternative portfolios require careful cash flow modeling. Best practice: maintain 5-10% of total portfolio in liquid reserves to meet capital calls, model expected call timing across all fund commitments, stagger fund commitments so distributions from mature funds cover calls from newer funds, and maintain a credit facility for unexpected timing mismatches. The institutional standard is to model cash flows quarterly for a 5-year rolling window.'
+        'Spread alternatives across 4-6 types: private equity 25-35%, real estate 15-25%, hedge funds 15-25%, infrastructure 10-15%, private credit 10-15%, venture capital 5-10%. Each does a different job: growth, inflation protection, downside protection, steady cash, yield, big winners.',
+      'Split commitments across 3-4 start years: a 2007 fund bought at peak prices, a 2009 fund bought cheap. Lockups run 7-12 years. Keep 5-10% in cash for capital calls, money the fund demands, and model them quarterly over 5 years.'
       ],
       [
         { term: 'Vintage Year Diversification', definition: 'Spreading alternative investment commitments across multiple years to avoid concentration in a single market cycle. The alternative investment equivalent of dollar-cost averaging.', example: 'Instead of committing $100M to PE in 2024 alone, commit $25M each in 2023, 2024, 2025, and 2026, ensuring exposure to multiple entry points and market conditions.' },
         { term: 'J-Curve Effect', definition: 'The pattern of negative returns in the early years of a PE/VC fund (when fees are charged on committed capital but investments haven\'t appreciated) followed by positive returns in later years as exits occur.', example: 'A PE fund shows -5% returns in Years 1-2 (management fees on uncommitted capital), breaks even by Year 4, and generates 15%+ returns in Years 5-8 as portfolio companies are sold.' }
       ],
       'Portfolio allocation model: PE 30%, Real Estate 20%, Hedge Funds 20%, Infrastructure 12%, Private Credit 10%, VC 8%, with vintage year diversification across 4-year commitment cycles',
-      { company: 'Endowment Best Practices', metric: 'Top-quartile endowments maintain 40-60% alternatives with 4-year vintage diversification', outcome: 'Consistent commitment pacing across vintage years reduces return volatility by 30-40% compared to concentrated vintage year exposure', explanation: 'Vintage diversification is one of the most powerful risk management tools in alternative investing, yet many investors ignore it. A concentrated 2007 vintage PE portfolio would have returned ~5% net IRR (buying at peak). A concentrated 2009 vintage would have returned ~25% net IRR (buying distressed). By spreading across 2007-2010, the blended return would be ~15%, smoother, more predictable, and still excellent. The discipline of committing capital annually (regardless of market sentiment) is the institutional equivalent of dollar-cost averaging, and equally effective.' },
+      undefined,
       AI25_TEACH2
     ),
 

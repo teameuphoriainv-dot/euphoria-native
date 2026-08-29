@@ -62,7 +62,7 @@ const lessons: PathwayLesson[] = [
       'In 1975, Kodak invented the digital camera, then buried it to protect film sales. By 2012, Kodak was bankrupt. Meanwhile, a company that started selling books online used strategic thinking to become a $2 trillion empire. Strategy isn\'t about having the best product, it\'s about making the best decisions.',
       'By the end of this lesson, you\'ll understand what business strategy is, learn Porter\'s Five Forces framework, and see why strategic positioning determines whether companies thrive or die.',
       'Two companies in the same era making opposite strategic bets, and the market value each one ended with',
-      { type: 'bars', title: 'Same Decade, Opposite Strategies', items: [{ label: 'Kodak (2012)', value: 1, displayValue: 'Bankrupt' }, { label: 'Amazon (2024)', value: 100, displayValue: '$2T+' }], footer: 'Kodak protected its past. Amazon built its future.', sentiment: 'positive' }
+      { type: 'comparison', title: 'Same decade, opposite strategies', rows: [{ label: 'Kodak invented the digital camera, then buried it', value: 'Bankrupt by 2012' }, { label: 'Amazon kept reinventing itself', value: '$2 trillion+' }], footer: 'Kodak protected its past. Amazon built its future.', sentiment: 'negative' }
     ),
     stakesCard(
       { label: 'No strategic vision', detail: 'Kodak had 145,000 employees, invented the digital camera, and held dominant market share, but refused to cannibalize film revenue. By 2012, the $30 billion company was bankrupt. Competitors who embraced digital captured the entire market.' },
@@ -72,12 +72,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'Porter\'s Five Forces: Understanding Competitive Dynamics',
       [
-        'Business strategy is the set of decisions that determine how a company will compete, create value, and sustain its advantage over time. Michael Porter of Harvard Business School developed the most influential framework for analyzing strategy: the Five Forces model. It explains why some industries are highly profitable (software, luxury goods) while others are brutally competitive (airlines, restaurants).',
-        'The Five Forces are: (1) Threat of New Entrants, how easy is it for newcomers to enter? High barriers (patents, capital requirements, network effects) protect existing players. (2) Bargaining Power of Suppliers, can suppliers raise prices? If you depend on one supplier, they have power. (3) Bargaining Power of Buyers, can customers push prices down? If switching costs are low, buyer power is high.',
-        'The remaining forces: (4) Threat of Substitutes, can customers switch to a different type of product? (Streaming replaced DVDs.) (5) Intensity of Rivalry, how fiercely do existing competitors compete? More rivals with similar products means price wars and compressed margins. A company\'s strategic goal is to position itself where these forces are weakest, or to reshape the forces in its favor.'
+        'Business strategy is how a company decides to compete and stay ahead. Michael Porter of Harvard Business School built the Five Forces model to explain why software and luxury goods earn big profits while airlines and restaurants struggle.',
+      'The forces: new entrants, blocked by patents, capital or network effects; supplier power; buyer power, high when switching is easy; substitutes, like streaming replacing DVDs; and rivalry, which sparks price wars. Strong companies sit where these forces are weakest.'
       ],
       [
         { term: 'Competitive Advantage', definition: 'A condition that allows a company to produce goods or services better or more cheaply than rivals, leading to superior profits.', example: 'Apple\'s ecosystem (iPhone + Mac + Watch + Services) creates a competitive advantage through switching costs, once you\'re in, leaving is painful.' },
@@ -86,7 +85,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Switching Costs', definition: 'The cost (monetary, time, effort) a customer incurs when changing from one product to another.', example: 'Moving from iPhone to Android means losing iMessage, repurchasing apps, and learning a new interface, high switching costs that lock customers in.' }
       ],
       'Porter\'s Five Forces diagram: Industry Rivalry at the center with four forces pushing inward, New Entrants from above, Buyers from right, Substitutes from below, Suppliers from left',
-      { company: 'Google', metric: 'Search market share (2004-2024)', outcome: 'Maintained 90%+ global search share for 20 years despite Microsoft, Yahoo, and others spending billions to compete', explanation: 'Google\'s moat is a data network effect: more searches → better algorithms → better results → even more searches. Each new user makes the product better for everyone else. This self-reinforcing cycle makes the moat wider over time, not narrower.' },
+      undefined,
       { type: 'grid', title: 'Industry', items: [{ label: 'New Entrants', value: 'Threat of entry' }, { label: 'Buyers', value: 'Bargaining power' }, { label: 'Suppliers', value: 'Bargaining power' }, { label: 'Substitutes', value: 'Threat of alternatives' }], footer: 'Porter\'s Five Forces Framework', sentiment: 'positive' }
     ),
     microCheck(
@@ -97,7 +96,7 @@ const lessons: PathwayLesson[] = [
       'Netflix was a substitute, a fundamentally different way to deliver the same value (watching movies). Substitutes don\'t just compete within your industry; they make your entire business model obsolete. Streaming eliminated every advantage Blockbuster had.'
     ),
     interactiveGraph(
-      'COMPETITIVE MOATS',
+      'Competitive moats',
       'Why Some Companies Dominate for Decades',
       'comparison',
       'Compare the profit margins and market dominance of companies with strong vs. weak competitive moats. Adjust the moat strength to see how it affects long-term profitability.',
@@ -119,7 +118,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Moat Strength', min: 0, max: 10, default: 7, unit: '/10' },
         { label: 'Years of Competition', min: 5, max: 30, default: 15, unit: ' yrs' }
       ],
-      { company: 'Visa', metric: 'Network effect moat', outcome: '4+ billion cards, 80+ million merchants, the network grows stronger with every new participant', explanation: 'Visa doesn\'t lend money or take credit risk. It processes transactions between banks, earning ~0.15% on each. But its network of cardholders and merchants is so vast that building a competing network would cost billions and take decades. The network effect is the strongest moat type because it gets stronger automatically.' }
+      undefined
     ),
     caseStudy(
       'Netflix vs. Blockbuster: The Strategy Execution Gap',
@@ -132,7 +131,7 @@ const lessons: PathwayLesson[] = [
       'Netflix didn\'t win because it had better movies. It won because Reed Hastings understood that strategy is about where the market is GOING, not where it IS. Blockbuster optimized for the present; Netflix built for the future. The lesson: the biggest strategic risk isn\'t making the wrong move, it\'s refusing to move at all.'
     ),
     misconceptions(
-      'STRATEGY MYTHS',
+      'Strategy myths',
       'What most people get wrong about business strategy',
       [
         {
@@ -295,12 +294,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'BUSINESS MODEL TYPES',
+      'Business model types',
       'How Companies Actually Make Money',
       [
-        'A business model describes how a company creates, delivers, and captures value. The Business Model Canvas, developed by Alexander Osterwalder, maps nine building blocks: Customer Segments, Value Proposition, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, and Cost Structure. The most important insight: different business models have radically different economics.',
-        'The major revenue model types: (1) Subscription/SaaS, recurring payments for ongoing access (Netflix $15/mo, Salesforce, Adobe). Valued highest because revenue is predictable and compounds. (2) Marketplace/Platform, take a percentage of transactions between buyers and sellers (Airbnb 14%, Uber 25%, eBay). Highly scalable with network effects. (3) Freemium, free basic product, paid premium features (Spotify, Dropbox, LinkedIn). Converts 2-5% of free users to paid.',
-        '(4) Advertising, free product monetized by selling user attention (Google, Facebook, TikTok). Scales incredibly but depends on user growth. (5) E-commerce/Retail, buy goods and sell at a markup (Amazon, Walmart). Lower margins but massive volumes. (6) Licensing, sell the right to use intellectual property (Qualcomm patents, Disney characters). High margins, pure profit once IP is created.'
+        'A business model is how a company makes and keeps money. Alexander Osterwalder\'s Business Model Canvas maps nine blocks, from customers to costs. Subscriptions charge repeat fees: Netflix $15/mo, Salesforce, Adobe. Predictable, so investors pay most for them.',
+      'Marketplaces take a cut of each sale: Airbnb 14%, Uber 25%, eBay. Freemium gives a free tier, 2-5% upgrade: Spotify, Dropbox, LinkedIn. Ads sell attention: Google, Facebook, TikTok. Retail marks goods up: Amazon, Walmart. Licensing rents ideas: Qualcomm, Disney.'
       ],
       [
         { term: 'Unit Economics', definition: 'The revenue and costs associated with a single unit of a business, whether that\'s one customer, one transaction, or one product sold.', example: 'Uber\'s unit economics: average ride revenue $15, driver payout $10, Uber keeps $5, operating costs per ride $4.50. Profit per ride: $0.50.' },
@@ -309,11 +307,11 @@ const lessons: PathwayLesson[] = [
         { term: 'Recurring Revenue', definition: 'Revenue that repeats predictably, subscriptions, memberships, or contracts. Valued much higher than one-time sales.', example: 'Microsoft\'s shift to Office 365 subscriptions created $60B+ in annual recurring revenue, up from $15B in one-time license sales.' }
       ],
       'Business Model Canvas showing nine building blocks arranged in a structured layout, with Value Proposition at the center connecting to all other elements',
-      { company: 'Adobe', metric: 'Business model transformation (2012-2024)', outcome: 'Revenue grew from $4B (one-time) to $19.4B (subscription). Market cap: $20B → $250B+.', explanation: 'Adobe\'s switch from $999 one-time Photoshop licenses to $20.99/month Creative Cloud subscriptions was the most successful business model transformation in software history. Subscription revenue is worth 5-8x more per dollar than one-time revenue because it\'s predictable, recurring, and compounds.' },
+      undefined,
       { type: 'grid', title: 'Business Model Canvas', items: [{ label: 'Key Partners', value: 'Who helps you deliver?' }, { label: 'Key Activities', value: 'What must you do well?' }, { label: 'Value Proposition', value: 'What problem do you solve?' }, { label: 'Customer Relationships', value: 'How do you keep customers?' }, { label: 'Key Resources', value: 'What assets do you need?' }, { label: 'Customer Segments', value: 'Who exactly do you serve?' }, { label: 'Cost Structure', value: 'Where does the money go?' }, { label: 'Revenue Streams', value: 'How do you make money?' }], footer: 'Alexander Osterwalder\'s Business Model Canvas', sentiment: 'positive' }
     ),
     interactiveGraph(
-      'REVENUE QUALITY',
+      'Revenue quality',
       'Why Subscription Revenue Commands Premium Valuations',
       'comparison',
       'Compare the valuation multiples of different business model types. Adjust recurring revenue percentage to see how it affects company valuation.',
@@ -335,7 +333,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Recurring Revenue %', min: 0, max: 100, default: 70, unit: '%' },
         { label: 'Revenue Growth Rate', min: 0, max: 60, default: 25, unit: '%' }
       ],
-      { company: 'Salesforce', metric: 'Subscription revenue power', outcome: '$34.8B ARR (2024), 95%+ recurring, 18% annual growth, $240B+ market cap', explanation: 'Salesforce pioneered SaaS. Every dollar of its revenue recurs annually with 95%+ retention. This predictability commands a 7x revenue multiple. A traditional enterprise software company with the same revenue but one-time sales would be valued at $70-100B, less than half.' }
+      undefined
     ),
     microCheck(
       'Company A sells software for $1,000 one-time. Company B sells the same software for $30/month. After 3 years with 10,000 customers each, which company has generated more total revenue?',
@@ -355,7 +353,7 @@ const lessons: PathwayLesson[] = [
       'MoviePass is the ultimate cautionary tale for startups: growth without positive unit economics is just burning money faster. The LTV:CAC ratio was negative, customers cost more to serve than they ever paid. No pivot, partnership, or data strategy can overcome the fundamental math of losing $15+ per customer per month. Rule #1 of business models: unit economics must work.'
     ),
     misconceptions(
-      'BUSINESS MODEL MYTHS',
+      'Business model myths',
       'What people get wrong about how companies make money',
       [
         {
@@ -518,12 +516,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FRAMEWORKS',
+      'The frameworks',
       'SWOT, Blue Ocean & Competitive Positioning',
       [
-        'Competitive analysis starts with SWOT, Strengths, Weaknesses, Opportunities, and Threats. Strengths and Weaknesses are internal (your team, technology, brand, capital). Opportunities and Threats are external (market trends, regulations, competitors, substitutes). SWOT gives you a snapshot, but the real power comes from what you do with it. Netflix\'s SWOT in 2007: Strength (DVD logistics), Weakness (no streaming tech), Opportunity (broadband adoption), Threat (cable companies). They leaned into the opportunity and built streaming despite having no advantage there, a bold strategic pivot that paid off spectacularly.',
-        'Blue Ocean Strategy, developed by W. Chan Kim and Renee Mauborgne, argues that the best strategy is making competition irrelevant. A "Red Ocean" is an existing market where rivals fight for share (bloody waters). A "Blue Ocean" is a new market space with no competition. The key tool is value innovation, simultaneously pursuing differentiation AND low cost. Cirque du Soleil eliminated costly elements (animals, star performers, three rings) while adding new value (artistic themes, sophisticated music, theatrical storytelling). The result: 5-10x higher prices than traditional circuses with lower operating costs.',
-        'Positioning maps plot competitors on two dimensions to reveal gaps. A competitive benchmarking exercise compares your product to rivals on key attributes (price, quality, speed, features). This reveals where you can differentiate. Two timing strategies emerge: first-mover advantage (capturing market share before competitors arrive, like Amazon in e-commerce) versus fast-follower advantage (learning from pioneers\' mistakes and entering with a better product, like Google entering search after AltaVista, Lycos, and Yahoo). Neither is universally superior, it depends on the market\'s switching costs and network effects.'
+        'SWOT means strengths, weaknesses, opportunities, threats. Netflix in 2007: strong DVD logistics, no streaming, broadband rising, cable rivals. It built streaming anyway. Blue Ocean strategy, from W. Chan Kim and Renee Mauborgne, creates new markets instead of fighting rivals.',
+      'Cirque du Soleil cut animals, stars and three rings, added artistry, and charged 5-10x more. Positioning maps plot rivals to find gaps. Amazon moved first in e-commerce; Google followed AltaVista, Lycos and Yahoo, and won.'
       ],
       [
         { term: 'SWOT Analysis', definition: 'A strategic framework evaluating Strengths, Weaknesses (internal), Opportunities, and Threats (external) to guide decision-making.', example: 'Tesla\'s SWOT: Strength (brand, technology), Weakness (production scaling), Opportunity (EV adoption), Threat (legacy automakers entering EVs).' },
@@ -532,7 +529,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Differentiation Strategy', definition: 'Competing by offering unique value that customers will pay a premium for, rather than competing on price alone.', example: 'Apple charges $1,000+ for iPhones in a market where $200 phones exist. Their differentiation (ecosystem, design, brand) justifies 5x the price.' }
       ],
       'SWOT matrix showing internal factors (Strengths, Weaknesses) on top and external factors (Opportunities, Threats) on bottom, with arrows connecting to strategic actions',
-      { company: 'Nintendo Wii', metric: 'Blue Ocean Strategy in gaming (2006-2012)', outcome: 'Sold 101 million units, outselling Xbox 360 (84M) and PS3 (87M) combined at launch, despite being technically inferior', explanation: 'While Sony and Microsoft spent billions competing for hardcore gamers (Red Ocean), Nintendo created a Blue Ocean by targeting non-gamers: families, seniors, and casual players. The Wii was cheaper to build ($250 vs $400-600), used innovative motion controls, and expanded the total gaming market by 40%. Value innovation: inferior specs, superior experience for a new audience.' },
+      undefined,
       { type: 'grid', title: 'SWOT Analysis Framework', items: [{ label: 'Strengths', value: 'Internal advantages: brand, tech, talent, capital' }, { label: 'Weaknesses', value: 'Internal gaps: debt, skill shortages, weak processes' }, { label: 'Opportunities', value: 'External openings: market trends, new tech, unmet needs' }, { label: 'Threats', value: 'External dangers: competitors, regulation, disruption' }], footer: 'Strengths and weaknesses are internal; opportunities and threats are external', sentiment: 'positive' }
     ),
     microCheck(
@@ -543,7 +540,7 @@ const lessons: PathwayLesson[] = [
       'This is value innovation, the core of Blue Ocean Strategy. It\'s not about choosing between differentiation and low cost. It\'s about doing BOTH simultaneously. Cirque eliminated expensive, low-value elements and added cheap, high-value elements, creating a category with no competitors.'
     ),
     interactiveGraph(
-      'POSITIONING STRATEGY',
+      'Positioning strategy',
       'First-Mover vs. Fast-Follower: Who Really Wins?',
       'comparison',
       'Compare the success rates and market outcomes of first-movers versus fast-followers across major tech categories. Adjust the switching cost level to see how it changes the dynamics.',
@@ -567,10 +564,10 @@ const lessons: PathwayLesson[] = [
         { label: 'Switching Cost Level', min: 0, max: 10, default: 6, unit: '/10' },
         { label: 'Market Maturity', min: 1, max: 10, default: 4, unit: '/10' }
       ],
-      { company: 'Google', metric: 'Fast-follower dominance in search', outcome: 'Entered 4 years after AltaVista, now commands 91% global search market share', explanation: 'Google wasn\'t first to search, AltaVista launched in 1995, Google in 1998. But Google studied the weaknesses (cluttered portals, poor relevance, slow speeds) and built PageRank, a fundamentally better algorithm. Once Google achieved superior results, network effects kicked in (more users = more data = better results), and switching costs became high (Gmail, Chrome, Android all tied to Google). Classic fast-follower strategy: let others prove the market, then win with better execution.' }
+      undefined
     ),
     misconceptions(
-      'POSITIONING MYTHS',
+      'Positioning myths',
       'What most people get wrong about competitive strategy',
       [
         {
@@ -752,12 +749,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FUNDING LADDER',
+      'The funding ladder',
       'From Bootstrapping to IPO: How Startups Raise Capital',
       [
-        'Every startup faces the same fundamental challenge: you need money to build a product, but you need a product to make money. The funding journey has distinct stages, each with different investors, expectations, and stakes. Stage 0: Bootstrapping, using personal savings, credit cards, or revenue to fund the business. Mailchimp bootstrapped for 20 years with zero outside funding before selling for $12 billion. Stage 1: Friends & Family / Angel investors, typically $25K-$500K from individuals who bet on the founder. Stage 2: Seed round, $500K-$5M from angel groups or early-stage VC firms to prove the concept works (product-market fit).',
-        'Stage 3: Series A ($5M-$20M), the first major institutional round. VCs invest when you\'ve proven product-market fit and need to scale. Series B ($15M-$50M) focuses on scaling sales and operations. Series C+ ($50M-$200M+) funds market expansion, acquisitions, or pre-IPO growth. Each round involves selling equity (ownership) in your company. A term sheet outlines the deal: valuation, investment amount, investor rights, and control provisions. Pre-money valuation is what your company is worth BEFORE investment. Post-money = pre-money + investment. If your pre-money is $8M and you raise $2M, post-money is $10M, the investor owns 20%.',
-        'Dilution is the reduction in a founder\'s ownership percentage with each funding round. If you start with 100% and sell 20% at seed, 20% at Series A, and 15% at Series B, you\'re left with roughly 54% (0.80 × 0.80 × 0.85). Two critical instruments to understand: Convertible Notes are loans that convert to equity at a future round, usually with a discount (typically 20%) and a valuation cap. SAFEs (Simple Agreement for Future Equity), created by Y Combinator, work similarly but aren\'t debt, they\'re simpler and founder-friendlier. Both delay the hardest negotiation (valuation) until a priced round when there\'s more data.'
+        'Bootstrapping means self funding: Mailchimp did it 20 years, then sold for $12 billion. Angels give $25K-$500K, seed $500K-$5M, Series A $5M-$20M, Series B $15M-$50M, Series C+ $50M-$200M+. Raise $2M on $8M pre money valuation: $10M post, investor owns 20%.',
+      'Dilution shrinks your stake: from 100%, selling 20%, 20%, then 15% leaves roughly 54% (0.80 × 0.80 × 0.85). Convertible notes and Y Combinator\'s SAFEs delay valuation talk, converting to equity later, often at a 20% discount.'
       ],
       [
         { term: 'Pre-Money Valuation', definition: 'What a company is worth BEFORE receiving new investment. Used to calculate how much equity investors receive.', example: 'If your startup has a $10M pre-money valuation and raises $2M, post-money is $12M. The investor owns $2M/$12M = 16.7% of the company.' },
@@ -766,7 +762,7 @@ const lessons: PathwayLesson[] = [
         { term: 'SAFE (Simple Agreement for Future Equity)', definition: 'An investment instrument created by Y Combinator where investors give money now in exchange for equity later, at a discount or valuation cap, when a priced round occurs.', example: 'An investor gives you $500K via a SAFE with a $5M cap. When you raise a Series A at $10M, their SAFE converts at the $5M cap, getting 2x the shares per dollar vs. Series A investors.' }
       ],
       'Startup funding ladder showing progression from bootstrapping through Angel/Seed, Series A, B, C to IPO, with typical raise amounts and investor types at each stage',
-      { company: 'Airbnb', metric: 'Funding journey from credit card debt to $100B IPO', outcome: 'Raised $6.4 billion across 16 rounds over 12 years. IPO at $47/share in Dec 2020, briefly reaching $100B+ market cap', explanation: 'Airbnb\'s founders maxed out credit cards ($20K+ in debt) to stay alive in 2008. Y Combinator invested $20K for 6% equity. Sequoia led the seed round at $2.5M. Each subsequent round, A ($7.2M), B ($112M), C ($200M), proved out the business at higher valuations. The $20K from Y Combinator was worth $4.8 billion at IPO, a 240,000x return. Fundraising is a staircase: each round proves you deserve the next.' },
+      undefined,
       { type: 'bars', title: 'The Startup Funding Ladder (typical raise)', items: [{ label: 'Seed', value: 5, displayValue: '$0.5M-$5M' }, { label: 'Series A', value: 20, displayValue: '$5M-$20M' }, { label: 'Series B', value: 50, displayValue: '$15M-$50M' }, { label: 'Series C', value: 100, displayValue: '$50M-$200M+' }], footer: 'Each round is larger, and each one must be earned with traction', sentiment: 'positive' }
     ),
     microCheck(
@@ -777,7 +773,7 @@ const lessons: PathwayLesson[] = [
       'Post-money valuation = Pre-money ($8M) + Investment ($2M) = $10M. The investor\'s ownership = Investment ÷ Post-money = $2M ÷ $10M = 20%. They paid $2M for one-fifth of a $10M company.'
     ),
     interactiveGraph(
-      'DILUTION MATH',
+      'Dilution math',
       'How Founder Ownership Changes Through Funding Rounds',
       'timeline',
       'Track how a founder\'s ownership percentage decreases through multiple funding rounds. Adjust the equity sold at each round to see the compounding effect of dilution.',
@@ -802,7 +798,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Series A Equity Sold', min: 10, max: 30, default: 20, unit: '%' },
         { label: 'Series B Equity Sold', min: 5, max: 25, default: 15, unit: '%' }
       ],
-      { company: 'Facebook/Meta', metric: 'Mark Zuckerberg\'s dilution through funding rounds', outcome: 'Zuckerberg retained 28% ownership at IPO, worth $19 billion on day one, now ~$120 billion', explanation: 'Zuckerberg started at 100%. After multiple rounds: Eduardo Saverin got 30% (later diluted), Peter Thiel got 10.2% for $500K (Series Seed), Accel Partners got 15% for $12.7M (Series A). Through subsequent rounds and share buybacks, Zuckerberg ended at 28%, but with super-voting shares giving him 57% voting control. He owned a smaller slice but controlled a $500B+ pie. The lesson: dilution matters less than the size and control of what you still own.' }
+      undefined
     ),
     caseStudy(
       'Airbnb: From $20K Credit Card Debt to $100B IPO',
@@ -823,7 +819,7 @@ const lessons: PathwayLesson[] = [
       { term: 'Convertible Note', definition: 'A short-term loan that converts to equity at the next priced round, typically at a 15-25% discount and with a valuation cap, rewarding early investors for higher risk.', example: 'An angel lends $200K via a convertible note with a $5M cap and 20% discount. At Series A priced at $10M, the note converts at the $5M cap, giving the angel shares as if the company were worth half the Series A price.', sentence: 'We used convertible notes for our pre-seed because we didn\'t want to set a valuation before proving product-market fit.' }
     ]),
     misconceptions(
-      'FUNDRAISING MYTHS',
+      'Fundraising myths',
       'What founders and aspiring entrepreneurs get wrong about raising money',
       [
         {
@@ -987,7 +983,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE LAUNCH PLAYBOOK',
+      'The launch playbook',
       'Product-Market Fit, Channels & Pricing Strategies',
       [
         'Go-to-market (GTM) strategy is the plan for how you\'ll reach customers and generate revenue. But before GTM, you need product-market fit (PMF), the point where customers desperately want what you\'re building. Marc Andreessen calls PMF "the only thing that matters." The signal: customers are pulling the product from you, not you pushing it to them. Sean Ellis\'s PMF test: if 40%+ of users say they\'d be "very disappointed" without your product, you have PMF. Slack hit 40% on day one of beta. If you lack PMF, no GTM strategy will save you, you\'re just efficiently selling something nobody wants.',
@@ -1001,7 +997,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Customer Segmentation', definition: 'Dividing a market into distinct groups of customers with similar needs, behaviors, or willingness to pay, then tailoring GTM strategy for each.', example: 'Slack\'s segments: individual users (free), small teams ($7.25/user/month), businesses ($12.50/user/month), and enterprise (custom pricing). Each segment has a different GTM approach.' }
       ],
       'GTM strategy funnel showing awareness → acquisition → activation → retention → revenue → referral, with product-led growth vs. sales-led growth paths',
-      { company: 'Slack', metric: 'Product-led growth metrics (2014-2019)', outcome: '0 to 12M+ daily active users with $0 spent on traditional enterprise sales for the first 3 years', explanation: 'Slack\'s GTM was pure product-led growth. The free tier let anyone start using Slack with zero friction. Users invited teammates, teams invited departments, departments converted to paid plans. By the time Slack added an enterprise sales team, most Fortune 500 companies were already using it organically. The product was the sales force. CAC was 90% lower than enterprise competitors who relied on $200K+/year sales reps.' },
+      undefined,
       { type: 'comparison', title: 'Go-to-Market Strategy Framework', rows: [{ label: '1. Product-Market Fit', value: 'Do customers actually pull the product?' }, { label: '2. Customer Segments', value: 'Who pays, and what do they value?' }, { label: '3. Channels', value: 'Direct, product-led, or partnerships' }, { label: '4. Pricing', value: 'Penetration, skimming, freemium, or value-based' }, { label: '5. Launch and Iterate', value: 'Track CAC, activation, and revenue retention' }], footer: 'Prove fit first, then layer on segments, channels, and pricing', sentiment: 'positive' }
     ),
     microCheck(
@@ -1022,7 +1018,7 @@ const lessons: PathwayLesson[] = [
       'Dollar Shave Club\'s success wasn\'t about making better razors, the blades were average. It was about a superior GTM strategy: identify massive consumer pain (overpriced razors), choose the right channel (direct-to-consumer, bypassing retail), nail the pricing (penetration at $1/month), and launch with a message that spread virally. The lesson: in crowded markets, how you go to market matters more than what you sell.'
     ),
     interactiveGraph(
-      'PRICING STRATEGY',
+      'Pricing strategy',
       'How Pricing Determines Market Position and Revenue',
       'comparison',
       'Compare the revenue trajectories of different pricing strategies. Adjust the initial price and conversion rate to see how each approach affects long-term growth.',
@@ -1045,10 +1041,10 @@ const lessons: PathwayLesson[] = [
         { label: 'Initial Price Point', min: 0, max: 100, default: 0, unit: ' $/mo' },
         { label: 'Free-to-Paid Conversion', min: 1, max: 10, default: 4, unit: '%' }
       ],
-      { company: 'Dollar Shave Club', metric: 'GTM disruption of the razor industry', outcome: '$4,500 launch video → 12,000 orders in 48 hours → 8% US market share → $1B Unilever acquisition in 5 years', explanation: 'Dollar Shave Club\'s GTM was a masterclass in every element: Product-market fit (men hated overpriced razors), distribution channel (direct-to-consumer, bypassing retail), pricing (penetration at $1/month vs. Gillette\'s $6/blade), and launch tactic (viral video that communicated the entire value proposition in 90 seconds). They proved you don\'t need billions to disrupt a market, you need a better GTM strategy.' }
+      undefined
     ),
     misconceptions(
-      'GTM MYTHS',
+      'GTM myths',
       'What founders get wrong about launching products',
       [
         {
@@ -1220,12 +1216,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'SCALING FUNDAMENTALS',
+      'Scaling fundamentals',
       'When to Scale, How to Scale, and When Not To',
       [
-        'Scaling is not the same as growing. Growing means getting bigger. Scaling means getting bigger while getting more efficient, revenue grows faster than costs. A restaurant that opens a second location doubles costs AND doubles revenue: that\'s growth. A SaaS company that adds 1,000 customers with the same server infrastructure and support team: that\'s scaling. The key signal that you\'re ready to scale is product-market fit with proven unit economics. Marc Andreessen says PMF is "the only thing that matters" for a startup. The signals: organic word-of-mouth growth, high retention (>80% annually), increasing usage per customer, and a healthy LTV:CAC ratio (>3:1). Without these, scaling just amplifies a broken model.',
-        'Growth levers are the mechanisms that drive scalable expansion. The five primary levers: (1) Viral/network effects, each new user brings more users (Instagram, TikTok, Slack). (2) Content/SEO, create content that attracts customers for free indefinitely (HubSpot, Canva templates). (3) Paid acquisition, buy customers through ads, but only when LTV:CAC is proven (Facebook ads, Google AdWords). (4) Sales, build a repeatable sales process where each rep generates predictable revenue (Salesforce). (5) Partnerships, leverage others\' distribution (Shopify app ecosystem, Stripe integrations). The best scaling companies use multiple levers simultaneously.',
-        'Operational scaling is where most companies fail. You can\'t just scale customers, you must scale systems, hiring, and culture simultaneously. Systems: manual processes that work for 100 customers break at 10,000. You need automation, infrastructure, and data systems that handle 100x volume. Hiring: every scaling company faces the "hiring dilemma", you need senior talent to scale, but senior talent is expensive and hard to attract before you\'ve scaled. Culture: the informal communication and values that work with 10 people shatter at 200. Companies like Netflix (Culture Deck), Amazon (Leadership Principles), and Stripe (written communication culture) codified their cultures early to survive scaling. The critical question: when should you scale vs. optimize? Reid Hoffman\'s "Blitzscaling" argues that in winner-take-all markets with network effects, speed matters more than efficiency. But in most markets, optimizing unit economics first and scaling second is the safer, more sustainable path.'
+        'Growing means getting bigger. Scaling means revenue grows faster than costs: adding 1,000 customers without new servers. Marc Andreessen says product-market fit, proven demand, matters most: 80% yearly retention, and lifetime value over 3:1 versus acquisition cost.',
+      'Levers: network effects (Instagram, TikTok, Slack), content (HubSpot, Canva), ads (Facebook, Google AdWords), sales (Salesforce), partnerships (Shopify, Stripe). Systems for 100 customers break at 10,000; plan 100x. Culture for 10 people shatters at 200: Netflix and Amazon wrote rules.'
       ],
       [
         { term: 'Network Effects', definition: 'When each new user makes the product more valuable for all existing users, creating a self-reinforcing growth loop that accelerates scaling.', example: 'Every new Uber driver makes the platform faster and cheaper for riders. Every new rider makes driving more profitable. This two-sided network effect drove Uber from 0 to 93 million monthly riders.' },
@@ -1234,7 +1229,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Product-Market Fit Signals', definition: 'Measurable indicators that customers genuinely need your product: organic growth, high retention, NPS >50, 40%+ "very disappointed" on Sean Ellis test, and improving unit economics.', example: 'Stripe\'s PMF signal: developers were switching from PayPal to Stripe unprompted because integrating payments went from 2 weeks of code to 7 lines. The product sold itself through developer word-of-mouth.' }
       ],
       'Scaling framework diagram showing PMF foundation, unit economics layer, growth levers, and operational scaling components stacked in sequence',
-      { company: 'Stripe', metric: 'Developer-first scaling strategy (2011-2024)', outcome: 'From 7 lines of code to processing $1T+ annually, serving millions of businesses, valued at $65 billion', explanation: 'Patrick and John Collison (ages 19 and 21) built Stripe because accepting payments online required 2 weeks of bank integrations and complex code. Their first product: 7 lines of code to process a payment. PMF was immediate, developers switched from PayPal organically. Stripe scaled by expanding the product (Billing, Atlas, Radar, Treasury) rather than scaling marketing. Each new product attracted new customer segments while deepening existing relationships. NRR exceeded 120%, customers spent more each year without being asked. That\'s scaling: growing revenue faster than costs by making the product more valuable.' },
+      undefined,
       { type: 'comparison', title: 'The Scaling Pyramid', rows: [{ label: 'Product-Market Fit', value: '← Start here' }, { label: 'Unit Economics (LTV:CAC 3:1+)', value: 'Scale only after the foundation is solid' }, { label: 'Growth Levers', value: '← Then here' }, { label: 'Scale Ops', value: '← Last' }], footer: 'Scale only after the foundation is solid', sentiment: 'positive' }
     ),
     microCheck(
@@ -1245,7 +1240,7 @@ const lessons: PathwayLesson[] = [
       'Pets.com lost money on every sale ($1 revenue, $1.27 cost). Scaling meant losing money faster, 10x the customers = 10x the losses. The rule: never scale a business model where each additional customer costs more than they generate. Unit economics first, scale second.'
     ),
     interactiveGraph(
-      'NETWORK EFFECTS',
+      'Network effects',
       'How Network Effects Create Winner-Take-All Markets',
       'exponential',
       'Visualize how network effects compound as more users join a platform. Adjust the network effect strength to see the impact on value creation and competitive defensibility.',
@@ -1269,7 +1264,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Network Effect Strength', min: 0, max: 10, default: 7, unit: '/10' },
         { label: 'User Base Size', min: 1000, max: 1000000, default: 100000, unit: ' users' }
       ],
-      { company: 'Uber', metric: 'Two-sided network effects during scaling', outcome: 'From 0 to 93 million monthly active riders across 72 countries, processing 7.6 billion trips in 2023', explanation: 'Uber\'s scaling was powered by a two-sided network effect: more drivers → shorter wait times → more riders → higher driver earnings → more drivers. Each city followed the same pattern: subsidize drivers first (guarantee minimum earnings), attract a critical mass of riders through low prices, then gradually reduce subsidies as the network becomes self-sustaining. Uber burned $20B+ reaching global scale, but the bet was correct, once dominant in a city, network effects make the position extremely defensible. Lyft\'s 28% U.S. share (vs. Uber\'s 72%) demonstrates the winner-take-most dynamic.' }
+      undefined
     ),
     caseStudy(
       'Uber\'s Scaling Journey: Blitzscaling, Subsidies, and the Path to Profitability',
@@ -1282,7 +1277,7 @@ const lessons: PathwayLesson[] = [
       'Uber\'s journey embodies the central tension of scaling: when do you prioritize growth over efficiency? Blitzscaling works when (1) the market is winner-take-all due to network effects, (2) you have access to sufficient capital, and (3) speed of market capture matters more than short-term profitability. But most businesses aren\'t Uber, most markets aren\'t winner-take-all, and burning cash without network effects is just burning cash. The lesson: blitzscale only when network effects justify the burn. Otherwise, scale after proving unit economics.'
     ),
     misconceptions(
-      'SCALING MYTHS',
+      'Scaling myths',
       'What most people get wrong about growing a business',
       [
         {
@@ -1454,12 +1449,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE M&A PROCESS',
+      'The M&A process',
       'How Companies Buy Other Companies, and Why Most Deals Fail',
       [
-        'Mergers and acquisitions (M&A) is the process of combining two companies into one. A merger is when two companies of similar size combine (equals joining forces), while an acquisition is when a larger company buys a smaller one. The M&A process has five critical stages: (1) Target Identification, finding companies that fill strategic gaps, (2) Due Diligence, exhaustively investigating the target\'s finances, customers, legal risks, culture, and technology, (3) Valuation, determining what the target is actually worth using DCF, comparable company analysis, and precedent transactions.',
-        'The next stages are: (4) Negotiation & Structure, agreeing on price, payment method (cash, stock, or mixed), and deal terms, and (5) Post-Merger Integration (PMI), combining operations, cultures, systems, and teams. Most M&A failures happen at stage 5. McKinsey found that 70% of mergers fail to achieve projected synergies, and the #1 reason is culture clash. When AOL merged with Time Warner, the internet cowboys and old-media executives literally refused to eat in the same cafeteria. Integration planning must begin before the deal closes, not after.',
-        'There are two types of synergies that justify M&A premiums: cost synergies (eliminating duplicate functions, two HR departments become one, shared warehouses, consolidated technology) and revenue synergies (cross-selling products, entering new markets, combining IP). Cost synergies are more reliable because they\'re under management\'s control. Revenue synergies depend on customers behaving as predicted, which they often don\'t. Hostile takeovers occur when the target\'s board rejects the offer, and the acquirer goes directly to shareholders. Divestitures are the opposite, selling off a division that no longer fits the strategy.'
+        'Mergers and acquisitions, or M&A, combine two companies: a merger joins equals, an acquisition is a bigger firm buying a smaller one. Five stages: (1) find a target, (2) check its books, (3) price it, (4) negotiate, (5) integrate.',
+      'McKinsey found 70% of mergers miss promised gains, and the #1 cause is culture clash: after AOL merged with Time Warner, staff refused to share a cafeteria. Synergies, combined gains, are safer as cost cuts than as new sales.'
       ],
       [
         { term: 'Due Diligence', definition: 'The comprehensive investigation of a target company before acquisition, examining financial statements, contracts, legal liabilities, customer concentration, technology, and culture.', example: 'When Microsoft acquired Activision for $69B, due diligence took 18+ months including regulatory review across the US, EU, and UK, the longest gaming deal investigation in history.' },
@@ -1468,7 +1462,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Divestiture', definition: 'The sale of a business unit, subsidiary, or asset, the opposite of an acquisition. Used when a division no longer fits the corporate strategy.', example: 'eBay divested PayPal in 2015, spinning it off as a separate public company. PayPal\'s market cap quickly exceeded eBay\'s, proving the parts were worth more than the whole.' }
       ],
       'M&A process flow diagram showing five stages from Target Identification through Due Diligence, Valuation, Negotiation, to Post-Merger Integration, with failure rates noted at each stage',
-      { company: 'Microsoft', metric: 'Activision Blizzard acquisition ($69B, 2023)', outcome: 'Largest gaming acquisition in history, gave Microsoft Call of Duty, World of Warcraft, Candy Crush, and 10,000+ employees', explanation: 'Microsoft\'s strategy: build Game Pass into the "Netflix of gaming." Activision\'s 400M+ monthly active users and iconic franchises make Game Pass\'s value proposition nearly irresistible. The deal faced 18 months of regulatory scrutiny across three continents before approval.' },
+      undefined,
       { type: 'bars', title: 'Target', items: [{ label: 'Target', value: 39, displayValue: 'Target' }, { label: 'Due', value: 39, displayValue: 'Due' }, { label: 'The M&A Process, Post-Merger Integration is where most deals fail', value: 39, displayValue: 'Valuation' }, { label: 'Negotiate', value: 39, displayValue: 'Negotiate' }, { label: 'PMI', value: 46, displayValue: 'PMI' }], footer: '5 Stages of M&A', sentiment: 'positive' }
     ),
     microCheck(
@@ -1479,7 +1473,7 @@ const lessons: PathwayLesson[] = [
       'While the dot-com bust didn\'t help, the primary failure was cultural incompatibility and integration breakdown. AOL\'s fast-moving startup culture clashed with Time Warner\'s traditional corporate hierarchy. The lesson: culture eats M&A strategy for breakfast.'
     ),
     interactiveGraph(
-      'M&A VALUE CREATION',
+      'M&A value creation',
       'Why Most Deals Destroy Value, and the Exceptions That Transform Industries',
       'comparison',
       'Compare the shareholder returns of successful vs. failed M&A strategies over time. Adjust the synergy realization rate to see how integration success drives outcomes.',
@@ -1502,7 +1496,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Synergy Realization Rate', min: 0, max: 100, default: 50, unit: '%' },
         { label: 'Integration Timeline', min: 1, max: 5, default: 2, unit: ' years' }
       ],
-      { company: 'Google/YouTube', metric: 'Acquisition ROI (2006-2024)', outcome: '$1.65B purchase price → $30B+ annual revenue, making it one of the most successful acquisitions in tech history', explanation: 'Google acquired YouTube when it had 100 million daily video views and zero revenue. Google\'s ad technology, infrastructure, and capital transformed YouTube into the world\'s second-largest search engine. The deal was initially criticized as overpaying, it\'s now worth 100x+ what Google paid.' }
+      undefined
     ),
     caseStudy(
       'Disney\'s Acquisition Masterclass: Building a Content Empire',
@@ -1687,12 +1681,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'DISRUPTION THEORY',
+      'Disruption theory',
       'Christensen\'s Framework: Why Great Companies Fail',
       [
-        'Harvard professor Clayton Christensen\'s Disruption Theory, published in "The Innovator\'s Dilemma" (1997), is one of the most influential business ideas of the past 50 years. The core insight: disruption doesn\'t come from competitors making better products. It comes from outsiders making simpler, cheaper, or more convenient products that initially seem inferior. Established companies rationally ignore these threats because their best customers don\'t want them. But the disruptors improve over time until they capture the entire market.',
-        'There are two types of innovation: sustaining innovation improves existing products for existing customers (a faster processor, a better camera, a thinner laptop), while disruptive innovation creates new markets or dramatically simplifies existing ones. Sustaining innovation is where incumbents excel, they have the resources, relationships, and expertise. Disruptive innovation is where startups win, because incumbents can\'t justify investing in low-margin, small-market products that their current customers don\'t want.',
-        'The S-curve model visualizes technology lifecycles. Every technology follows an S-curve: slow initial progress, rapid improvement, then diminishing returns at the top. Disruption happens when a new S-curve emerges that eventually surpasses the old one. Kodak\'s film was at the top of its S-curve (nearly perfect image quality) when digital photography started at the bottom of a new S-curve (grainy, low-resolution). By the time digital quality matched film, Kodak couldn\'t catch up. The Innovator\'s Dilemma: doing everything "right", listening to customers, investing in current products, is exactly what makes companies vulnerable to disruption.'
+        'Harvard professor Clayton Christensen\'s disruption theory, from his 1997 book "The Innovator\'s Dilemma", is one of the biggest business ideas of the past 50 years. Outsiders win with simpler, cheaper products that first look worse.',
+      'Sustaining innovation improves products for current customers, and big firms win there. Disruptive innovation starts crude, then improves fast: digital photos were grainy while Kodak film looked perfect, so listening only to customers left Kodak stranded.'
       ],
       [
         { term: 'Disruptive Innovation', definition: 'An innovation that creates a new market by being simpler, cheaper, or more convenient, initially inferior to incumbents but improving until it captures the mainstream market.', example: 'Netflix\'s early streaming was low quality with limited selection, far worse than Blockbuster\'s 9,000-store experience. But streaming improved while physical rental couldn\'t. By 2010, Blockbuster was bankrupt.' },
@@ -1701,7 +1694,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Sustaining Innovation', definition: 'Improvements to existing products that serve existing customers better, better performance, more features, higher quality. Incumbents excel at this type.', example: 'Intel releasing faster processors each year is sustaining innovation, improving an existing product for existing customers. ARM chips powering smartphones was disruptive innovation that eventually threatened Intel\'s core market.' }
       ],
       'S-curve diagram showing incumbent technology plateauing while disruptive technology starts lower but rises to surpass it, with the crossover point labeled as the disruption moment',
-      { company: 'Kodak', metric: 'Film vs. digital camera market (1975-2012)', outcome: 'Kodak went from $16B peak revenue and 145,000 employees to bankruptcy, despite inventing the digital camera 37 years before going bankrupt', explanation: 'Kodak\'s film business generated $8B/year in high-margin revenue. Digital cameras in 1975 produced 0.01 megapixel images, laughably inferior to film. Every rational analysis said: invest in film. But digital was on a new S-curve. By the time digital quality matched film (~2005), Kodak had lost a 30-year head start.' },
+      undefined,
       { type: 'grid', title: 'Success', items: [{ label: 'Success', value: 'Profitable product' }, { label: 'Focus', value: 'Serve best customers' }, { label: 'Ignore', value: 'Dismiss disruptors' }, { label: 'Disrupted', value: 'Too late to adapt' }], footer: 'The cycle that destroys market leaders', sentiment: 'positive' }
     ),
     microCheck(
@@ -1712,7 +1705,7 @@ const lessons: PathwayLesson[] = [
       'The Innovator\'s Dilemma in action: Nokia and Microsoft evaluated the iPhone against phone metrics (battery, keyboard, durability) where it was inferior. They missed that the iPhone was redefining the product category entirely, from "phone" to "pocket computer." Disruptors don\'t win by being better at the old game; they change the game.'
     ),
     interactiveGraph(
-      'DISRUPTION DYNAMICS',
+      'Disruption dynamics',
       'How S-Curves Predict Which Technologies Will Win',
       'timeline',
       'Visualize how disruptive technologies follow S-curves that eventually surpass incumbent technologies. Adjust the disruption speed to see how quickly crossover occurs.',
@@ -1736,7 +1729,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Disruption Speed', min: 1, max: 10, default: 5, unit: '/10' },
         { label: 'Incumbent Response Time', min: 1, max: 15, default: 5, unit: ' years' }
       ],
-      { company: 'Apple', metric: 'Self-disruption strategy (2001-2024)', outcome: 'iPod → iPhone → iPad → Apple Watch → Services. Each product cannibalized the previous one, growing Apple from $5B to $380B+ annual revenue.', explanation: 'Steve Jobs famously said: "If we don\'t cannibalize ourselves, someone else will." The iPhone killed the iPod ($8B/year revenue). The iPad cut into Mac sales. AirPods disrupted Beats headphones. Each self-disruption opened a market 5-25x larger than what it replaced. This is the antidote to the Innovator\'s Dilemma: be willing to destroy your own profitable products.' }
+      undefined
     ),
     caseStudy(
       'Apple\'s Innovation Strategy: From iPod to Ecosystem Empire',
@@ -1749,7 +1742,7 @@ const lessons: PathwayLesson[] = [
       'Apple\'s innovation strategy embodies the antidote to the Innovator\'s Dilemma: self-disruption. When you\'re willing to cannibalize your own $8B/year product because you see a bigger opportunity, you\'ll never be caught flat-footed by disruption. The lesson isn\'t just about technology, it\'s about courage. Kodak, Nokia, and Blackberry all saw the future coming. Only Apple was willing to sacrifice the present to own it.'
     ),
     misconceptions(
-      'INNOVATION MYTHS',
+      'Innovation myths',
       'What most people get wrong about disruption and innovation',
       [
         {
@@ -1921,12 +1914,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'ORG DESIGN',
+      'Org design',
       'How Organizational Structure Determines Strategic Execution',
       [
-        'Organizational structure is the invisible architecture that determines how information flows, decisions get made, and work gets done. The four primary structures are: (1) Functional, organized by department (engineering, marketing, finance, sales). Best for efficiency and specialization. Risk: silos where departments don\'t communicate. (2) Divisional, organized by product, market, or geography (Apple has separate divisions for iPhone, Mac, Services). Best for large, diversified companies. Risk: duplicate functions across divisions.',
-        '(3) Matrix, employees report to both a functional manager and a project/product manager simultaneously. Best for complex organizations needing both expertise and cross-functional collaboration. Risk: confusion over authority, "two bosses" problem, slower decision-making. (4) Flat, minimal hierarchy, broad spans of control, empowered individual contributors. Best for small, innovative teams. Risk: chaos without clear accountability at scale. Valve, the gaming company behind Steam, has a famously flat structure where employees choose their own projects.',
-        'The key insight: structure follows strategy. Alfred Chandler\'s landmark research at MIT showed that companies must redesign their organization to execute a new strategy. When Satya Nadella took over Microsoft in 2014, the company was organized into competing divisions (Windows, Office, Xbox) that refused to collaborate. Nadella restructured around "cloud-first, mobile-first," breaking down silos and reorganizing teams around customer scenarios instead of products. Microsoft\'s market cap grew from $300B to $3T+ under Nadella, and organizational redesign was the foundation of that transformation.'
+        'Structure decides how work gets done. Functional groups staff by department, which risks silos. Divisional splits by product: Apple runs iPhone, Mac and Services. Matrix means two managers. Flat means little hierarchy, like Valve, the company behind Steam.',
+      'Structure follows strategy: Alfred Chandler\'s MIT research showed that. In 2014, Satya Nadella found Microsoft\'s Windows, Office and Xbox divisions refusing to work together. He reorganized around customers. Market cap grew from $300B to $3T+.'
       ],
       [
         { term: 'Organizational Structure', definition: 'The formal system of task and reporting relationships that determines how employees are organized, how information flows, and how decisions get made.', example: 'Amazon uses a hybrid structure: divisional (separate businesses like AWS, retail, devices) with functional expertise within each division, plus Bezos\'s "two-pizza teams" that operate like autonomous startups.' },
@@ -1935,7 +1927,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Founder Mode vs Manager Mode', definition: 'Founder mode: deep involvement in product details, unconventional decisions, high personal risk tolerance. Manager mode: process-driven, risk-averse, focused on optimization over innovation.', example: 'Elon Musk at Tesla and SpaceX operates in founder mode, making engineering decisions, sleeping at the factory, pushing impossible timelines. Tim Cook at Apple operates in manager mode, optimizing supply chains, processes, and margins.' }
       ],
       'Comparison diagram of four organizational structures: Functional (by department), Divisional (by product), Matrix (dual reporting), and Flat (minimal hierarchy)',
-      { company: 'Microsoft', metric: 'Organizational transformation under Satya Nadella (2014-2024)', outcome: 'Market cap grew from $300B to $3T+, the largest value creation by a single CEO in corporate history', explanation: 'Nadella\'s first act was reorganizing Microsoft from competing product divisions (Windows vs. Office vs. Xbox) into a collaborative cloud-first culture. He killed the "stack ranking" performance system that pitted employees against each other, promoted a "growth mindset" culture, and reorganized around customer needs rather than internal products. The organizational change enabled the strategic change.' },
+      undefined,
       { type: 'grid', title: 'Functional', items: [{ label: 'Functional', value: 'By department, Eng | Mktg | Sales, Efficient, siloed' }, { label: 'Divisional', value: 'By product/market, iPhone | Mac | Svc, Focused, duplicated' }, { label: 'Matrix', value: 'Dual reporting, Func + Project mgr, Flexible, confusing' }, { label: 'Flat', value: 'Minimal hierarchy, Self-directed teams, Agile, chaotic' }, { label: 'Structure Follows Strategy', value: 'The right structure depends on your strategy, not a universal best practice' }], footer: 'Alfred Chandler, MIT (1962): Companies must redesign organization to execute new strategy', sentiment: 'positive' }
     ),
     microCheck(
@@ -1946,7 +1938,7 @@ const lessons: PathwayLesson[] = [
       'Chandler\'s principle: "Structure follows strategy." Microsoft\'s old structure (competing divisions) was designed for a world where Windows was the center. Nadella\'s new strategy (cloud-first) required a collaborative structure where Azure, Office 365, and LinkedIn worked together. Without the organizational change, the strategic change was impossible.'
     ),
     interactiveGraph(
-      'CULTURE AS STRATEGY',
+      'Culture as strategy',
       'Why Company Culture Drives Performance More Than Talent',
       'comparison',
       'Compare the performance outcomes of companies with strong, intentional cultures vs. those with weak or toxic cultures. Adjust the psychological safety level to see its impact on team innovation.',
@@ -1970,7 +1962,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Psychological Safety', min: 0, max: 10, default: 7, unit: '/10' },
         { label: 'Talent Density', min: 0, max: 10, default: 6, unit: '/10' }
       ],
-      { company: 'Netflix', metric: 'Culture-driven performance (2009-2024)', outcome: '$34B revenue, 260M+ subscribers, $1.3M revenue per employee (5x industry average)', explanation: 'Netflix\'s culture, radical transparency, top-of-market pay, freedom with responsibility, and the keeper test, creates extraordinary talent density. Every employee is exceptional, which means every team produces exceptional work. The result: Netflix consistently outinnovates competitors with 10x the headcount. Culture IS the strategy.' }
+      undefined
     ),
     caseStudy(
       'Netflix\'s Culture Deck: How Radical Transparency Built a $300B Company',
@@ -1983,7 +1975,7 @@ const lessons: PathwayLesson[] = [
       'Netflix\'s culture deck isn\'t just a document, it\'s a strategic weapon. By explicitly defining who belongs (exceptional performers who embrace transparency) and who doesn\'t (anyone a manager wouldn\'t fight to keep), Netflix created a self-selecting talent ecosystem. High performers want to work alongside other high performers. The keeper test ensures mediocrity never accumulates. The result is a company that consistently outmaneuvers competitors with 10x the headcount because every person on every team is genuinely excellent.'
     ),
     misconceptions(
-      'LEADERSHIP MYTHS',
+      'Leadership myths',
       'What most people get wrong about leadership and organizational design',
       [
         {
@@ -2155,12 +2147,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE COMPLETE STRATEGIC PLAN',
+      'The complete strategic plan',
       'Building Strategy from Vision to Execution',
       [
-        'A complete strategic plan integrates everything we\'ve covered in this course into a coherent framework. It starts with Mission (why you exist) and Vision (where you\'re going), then moves through analysis (SWOT, Porter\'s Five Forces, competitive landscape), strategy formulation (business model, competitive positioning, growth plan), and execution planning (OKRs, resource allocation, organizational design, milestones). Amazon\'s 1997 shareholder letter is the gold standard: it defined a mission ("be Earth\'s most customer-centric company"), a strategy (long-term market leadership over short-term profits), and an execution philosophy ("it\'s always Day 1").',
-        'The Business Model Canvas (Osterwalder) provides the strategic plan\'s core structure: who are your customers, what value do you deliver, how do you reach them, what\'s your revenue model, what resources and partnerships do you need, and what\'s your cost structure. Porter\'s Five Forces tells you which industries to enter and how to compete. SWOT analysis (Strengths, Weaknesses, Opportunities, Threats) maps your internal capabilities against external conditions. Competitive positioning (Blue Ocean Strategy, differentiation vs. cost leadership) determines where you compete.',
-        'OKRs (Objectives and Key Results) translate strategy into measurable execution. Pioneered by Andy Grove at Intel and popularized by Google, OKRs work like this: Objectives are ambitious, qualitative goals ("Become the #1 cloud platform"). Key Results are specific, measurable outcomes ("Achieve $100B ARR by 2025," "Reach 95% customer satisfaction"). Each team\'s OKRs cascade from the company OKRs, ensuring alignment from CEO to individual contributor. Strategic pivots, fundamental changes in strategy based on new information, are when OKRs become critical: they let you redirect the entire company quickly while maintaining accountability.'
+        'A strategic plan runs mission and vision, then analysis, then execution. Analyze with SWOT, strengths, weaknesses, opportunities and threats, and Porter\'s Five Forces. Amazon\'s 1997 letter set a customer-centric mission and an execution rule: it\'s always Day 1.',
+      'OKRs, objectives and key results, turn strategy into measurable work. Andy Grove created them at Intel and Google spread them. Objective: become the #1 cloud platform. Key results: $100B ARR, yearly recurring revenue, by 2025, and 95% customer satisfaction.'
       ],
       [
         { term: 'OKRs', definition: 'Objectives and Key Results, a goal-setting framework where ambitious Objectives (qualitative) are paired with measurable Key Results (quantitative). Used by Google, Intel, and many top companies.', example: 'Google\'s early OKR: Objective, "Build the best search engine." Key Results, "Reach 100M daily searches" and "Achieve <200ms response time." Clear, measurable, ambitious.' },
@@ -2169,7 +2160,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Business Model Canvas', definition: 'Alexander Osterwalder\'s strategic framework mapping nine building blocks: Customer Segments, Value Proposition, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, and Cost Structure.', example: 'Airbnb\'s canvas: Customer Segments (travelers + hosts), Value Proposition (unique stays, earn income), Revenue Stream (14% service fee per booking), Key Resource (platform + trust system).' }
       ],
       'Complete strategic planning framework showing the flow from Mission/Vision through Analysis (SWOT, Five Forces), Strategy (Business Model, Positioning), to Execution (OKRs, Roadmap)',
-      { company: 'Amazon', metric: '27-year strategic execution (1997-2024)', outcome: 'From online bookstore to $2T+ empire spanning e-commerce, cloud computing, entertainment, logistics, healthcare, and AI', explanation: 'Amazon\'s success isn\'t one brilliant idea, it\'s 27 years of disciplined strategic planning. Each business builds on the others (flywheel): retail drives logistics, logistics enables third-party sellers, sellers drive selection, AWS started as internal infrastructure. Bezos\'s "Day 1" philosophy means the strategy is never finished, it\'s perpetually evolving within a consistent long-term framework.' },
+      undefined,
       { type: 'grid', title: 'Mission', items: [{ label: 'Mission', value: '& Vision, Why & Where' }, { label: 'Analysis', value: 'SWOT + 5 Forces, Where to compete' }, { label: 'Strategy', value: 'Model + Position, How to win' }, { label: 'Execute', value: 'OKRs + Roadmap, Make it happen' }], footer: 'Strategy is never finished, it\\\'s a living document that evolves with the market', sentiment: 'positive' }
     ),
     microCheck(
@@ -2180,7 +2171,7 @@ const lessons: PathwayLesson[] = [
       'Amazon\'s strategy was to trade short-term profits for long-term competitive moats. The $2T+ market cap proves this worked, but only because the strategy was disciplined, consistent, and focused on building infrastructure advantages (warehouses, AWS, logistics, Prime) that compound over time.'
     ),
     interactiveGraph(
-      'STRATEGIC EVOLUTION',
+      'Strategic evolution',
       'How Great Companies Evolve Their Strategy Over Decades',
       'timeline',
       'Trace how Amazon\'s strategy evolved through four major phases, from bookstore to global empire, with each phase building on the previous one.',
@@ -2204,7 +2195,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Strategic Planning Horizon', min: 1, max: 25, default: 10, unit: ' years' },
         { label: 'Reinvestment Rate', min: 0, max: 100, default: 70, unit: '%' }
       ],
-      { company: 'Amazon', metric: '27-year strategic execution', outcome: '$0 → $2T+ market cap, $574B revenue, #2 global employer (1.5M+ people), dominant in e-commerce, cloud, logistics, advertising, and entertainment', explanation: 'Amazon proves that the best strategy isn\'t a single brilliant idea, it\'s decades of disciplined execution against a consistent long-term vision. Bezos\'s "Day 1" philosophy means the strategy constantly evolves (books → everything → cloud → AI) while the core principles (customer obsession, long-term thinking, willingness to be misunderstood) remain unchanged. Strategy is a living system, not a static document.' }
+      undefined
     ),
     caseStudy(
       'Amazon\'s 27-Year Strategic Evolution: From Bookstore to Everything',
@@ -2217,7 +2208,7 @@ const lessons: PathwayLesson[] = [
       'Amazon\'s story proves that the best strategic plans aren\'t rigid 5-year documents, they\'re evolving frameworks guided by unchanging principles. Bezos\'s principles (customer obsession, long-term thinking, infrastructure-first, "Day 1" mentality) have remained constant for 27 years. But the strategy has evolved dramatically: books → everything → cloud → AI. The lesson for any strategist: define your core principles clearly and hold them permanently, but be willing to change everything else, business model, market, products, organizational structure, as the world changes around you.'
     ),
     misconceptions(
-      'STRATEGIC PLANNING MYTHS',
+      'Strategic planning myths',
       'What most people get wrong about building and executing strategy',
       [
         {
@@ -2391,12 +2382,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FUNNEL',
+      'The funnel',
       'Customer Acquisition: From Awareness to Conversion',
       [
-        'Customer acquisition follows a funnel: Awareness → Interest → Consideration → Conversion. At each stage, prospects drop off. A typical funnel: 100,000 people see an ad (awareness), 5,000 click (interest, 5% CTR), 500 sign up for a trial (consideration, 10% of clicks), 50 become paying customers (conversion, 10% of trials). That\'s a 0.05% end-to-end conversion rate, industry standard for many digital products.',
-        'The key acquisition channels: (1) Paid ads (Google, Meta, TikTok), fastest but most expensive, costs rise as you scale. (2) Content/SEO, slow to build but compounds over time, "free" traffic once established. (3) Referral/viral, cheapest acquisition, but requires a product worth sharing. (4) Sales teams, highest CAC but necessary for enterprise deals ($50K+ contracts). (5) Partnerships, leverage someone else\'s audience to reach yours.',
-        'The most important acquisition metric is CAC Payback Period, how many months until a customer\'s revenue covers their acquisition cost. SaaS companies target 12-18 months. If payback exceeds 18 months, you\'re financing customer growth with debt or equity. If payback is under 6 months, you should invest more aggressively, you\'re leaving growth on the table.'
+        'Acquisition is a funnel: 100,000 people see an ad, 5,000 click (5%), 500 start trials (10% of clicks), 50 pay (10% of trials). That is 0.05% end to end, standard for digital products.',
+      'Channels: paid ads (Google, Meta, TikTok), fast but costly; content and SEO, slow but compounding; referrals; sales teams for $50K+ deals; partnerships. Watch CAC payback, months until revenue covers acquisition cost: target 12-18, under 6 means invest more.'
       ],
       [
         { term: 'CAC (Customer Acquisition Cost)', definition: 'Total sales and marketing spend divided by the number of new customers acquired in that period.', example: 'If Spotify spends $100M on marketing in Q1 and gains 10M new subscribers, CAC = $10/customer.' },
@@ -2405,7 +2395,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Viral Coefficient', definition: 'The average number of new users each existing user brings in. Above 1.0 means organic viral growth; below 1.0 means you need paid acquisition to grow.', example: 'Early Hotmail\'s "Get your free email" signature had a viral coefficient of 1.5, each user brought in 1.5 more users, driving exponential organic growth.' }
       ],
       'Customer acquisition funnel with conversion rates at each stage and dollar values showing cost per customer at the bottom',
-      { company: 'Dropbox', metric: 'Referral program impact', outcome: 'Referrals drove 35% of all signups, growing users from 100K to 4M in 15 months with near-zero CAC on referred customers', explanation: 'Dropbox\'s referral program (give 500MB, get 500MB) was brilliant because it aligned incentives: users wanted more storage, and each referral brought a pre-qualified user who already understood the product. The viral coefficient exceeded 1.0, meaning organic growth outpaced paid acquisition.' }
+      undefined,
+      { type: 'flow', title: 'A typical acquisition funnel', nodes: [
+        { label: 'Saw the ad', value: '100,000' },
+        { label: 'Clicked', value: '5,000' },
+        { label: 'Started a trial', value: '500' },
+        { label: 'Became a paying customer', value: '50' },
+      ], footer: '0.05% end to end, which is industry standard for many digital products.' },
     ),
     microCheck(
       'Blue Apron spent $460 to acquire each customer but those customers averaged only $210 in lifetime value. What does this tell us about their business?',
@@ -2415,7 +2411,7 @@ const lessons: PathwayLesson[] = [
       'LTV:CAC of 0.46:1 is catastrophically below the 3:1 healthy threshold. Each customer cost $460 to acquire but only generated $210 in lifetime revenue. The 72% annual churn was the root cause, customers left before they became profitable. No amount of acquisition spend can fix a retention problem.'
     ),
     interactiveGraph(
-      'RETENTION ECONOMICS',
+      'Retention economics',
       'Why a 5% Retention Improvement Boosts Profits 25-95%',
       'exponential',
       'See how small retention improvements create massive profit gains through compounding customer lifetime value. Adjust the churn rate to see the exponential impact on LTV.',
@@ -2437,15 +2433,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly Churn Rate', min: 1, max: 15, default: 5, unit: '%' },
         { label: 'Monthly Revenue/Customer', min: 10, max: 100, default: 30, unit: '$' }
       ],
-      { company: 'Amazon Prime', metric: 'Retention as competitive weapon', outcome: 'Prime members spend $1,400/year vs. $600 for non-members. 93% of year-1 members renew; 98% of year-2 members renew.', explanation: 'Prime is the greatest retention program in business history. Free shipping creates a switching cost (why buy elsewhere?). Prime Video adds entertainment value. Prime Day creates annual engagement spikes. Each benefit reinforces the others, making cancellation feel like losing a dozen services at once.' }
+      undefined
     ),
     teachingSlide(
-      'RETENTION STRATEGIES',
+      'Retention strategies',
       'Building Customer Loyalty That Compounds',
       [
-        'The best retention strategies create habit loops, automatic behaviors that bring customers back without conscious decision-making. Nir Eyal\'s Hook Model describes four stages: (1) Trigger, external (notification, email) or internal (boredom, FOMO) cue that initiates action. (2) Action, the simplest behavior in anticipation of reward (opening an app, making a purchase). (3) Variable Reward, unpredictable positive outcomes that create dopamine spikes (social validation, new content, personalized deals). (4) Investment, user puts something in (data, preferences, social connections) that makes the product better and harder to leave.',
-        'Loyalty programs are the most visible retention tool. Starbucks Stars, airline miles, and Amazon Prime all create psychological switching costs, accumulated value that would be lost if the customer leaves. The most effective loyalty programs use three levers: (1) Status tiers, Gold, Platinum, Diamond create aspiration and exclusivity. (2) Experiential rewards, unique experiences money can\'t buy (early access, exclusive events). (3) Personalization, rewards tailored to individual behavior, not one-size-fits-all.',
-        'Customer success is the B2B equivalent of retention. SaaS companies invest heavily in Customer Success Managers (CSMs) who proactively ensure customers achieve their goals. The math is compelling: it costs 5-25x more to acquire a new enterprise customer than to retain an existing one. Net Revenue Retention (NRR), revenue from existing customers including expansions minus churn, above 120% means the company grows even without acquiring a single new customer. Top SaaS companies like Snowflake (158% NRR) and Twilio (131% NRR) grow primarily through existing customer expansion.'
+        'Nir Eyal\'s Hook Model builds habits in four stages: trigger, action, variable reward, investment. Loyalty programs like Starbucks Stars, airline miles and Amazon Prime use three levers: status tiers, exclusive experiences, personalized rewards.',
+      'Keeping a customer costs 5-25x less than winning a new one. Net revenue retention, revenue from existing customers after churn and upgrades, above 120% means growth without new sales: Snowflake 158%, Twilio 131%.'
       ],
       [
         { term: 'Net Revenue Retention (NRR)', definition: 'Revenue from existing customers this period compared to the same cohort last period, including upsells and minus churn. Above 100% means existing customers spend more each year.', example: 'Snowflake\'s NRR of 158% means last year\'s customers spend 58% more this year, the company grows substantially even without new customers.' },
@@ -2554,7 +2549,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PRICING APPROACHES',
+      'Pricing approaches',
       'Cost-Based vs. Value-Based vs. Competition-Based Pricing',
       [
         'There are three fundamental pricing approaches: (1) Cost-plus pricing, calculate costs, add a markup (e.g., cost $10, markup 50%, price $15). Simple but ignores customer willingness-to-pay. A pharmaceutical company that spends $1B developing a cancer drug that extends life by 5 years would price it at $1.1B under cost-plus, obviously wrong. (2) Competition-based pricing, match or undercut competitors. Easy but commoditizes your product and starts price wars. If everyone prices the same, the only differentiator becomes price, destroying margins.',
@@ -2579,7 +2574,7 @@ const lessons: PathwayLesson[] = [
       'A 1% price increase adds revenue with zero incremental cost, it flows directly to profit. A 1% volume increase requires producing and delivering more units, so only the gross margin (not the full revenue) becomes profit. That\'s why price has 3x the profit impact of volume.'
     ),
     interactiveGraph(
-      'PSYCHOLOGICAL PRICING',
+      'Psychological pricing',
       'The Invisible Forces That Shape Buying Decisions',
       'comparison',
       'Explore how anchoring, charm pricing, and decoy effects influence customer willingness to pay. Adjust the reference price to see how anchoring shifts perceived value.',
@@ -2601,12 +2596,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Anchor Price', min: 50, max: 500, default: 200, unit: '$' },
         { label: 'Target Price', min: 20, max: 300, default: 100, unit: '$' }
       ],
-      { company: 'The Economist', metric: 'Decoy pricing experiment', outcome: 'Adding a "useless" print-only option at $125 (same as print+digital) shifted 52% of buyers from $59 digital to $125 combo', explanation: 'Dan Ariely\'s famous experiment proved the decoy effect: print-only at $125 made print+digital at $125 feel like free digital access. Without the decoy, 68% chose $59 digital. With it, 84% chose $125 print+digital. Revenue per customer nearly doubled from one "irrational" pricing option.' }
+      undefined
     ),
 
     // PHASE 3, APPLY
     misconceptions(
-      'PRICING MYTHS',
+      'Pricing myths',
       'What most people get wrong about pricing',
       [
         {
@@ -2702,12 +2697,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'BRAND EQUITY',
+      'Brand equity',
       'How Brands Create Value Beyond the Product',
       [
-        'Brand equity is the commercial value derived from consumer perception rather than the product itself. Kevin Lane Keller\'s Brand Equity Model (CBBE) identifies four levels: (1) Identity, brand awareness ("I know Nike exists"). (2) Meaning, brand associations ("Nike = athletic performance, Just Do It, Michael Jordan"). (3) Response, judgments and feelings ("Nike products are high quality; wearing Nike makes me feel confident"). (4) Resonance, deep loyalty and community ("I\'m a Nike person; I identify with the brand\'s values").',
-        'Brand creates pricing power through three mechanisms: (1) Perceived quality premium, consumers assume branded products are better even when blind tests show no difference (Coke vs. Pepsi). Bayer aspirin outsells generic aspirin 10:1 despite being chemically identical. (2) Emotional connection, brands that trigger emotions (nostalgia, aspiration, belonging) create irrational loyalty. Harley-Davidson owners tattoo the logo on their bodies, that\'s brand resonance no competitor can buy. (3) Risk reduction, in uncertain purchases, brands reduce perceived risk. You\'ll choose Marriott over an unknown hotel not because it\'s better, but because it\'s predictable.',
-        'Brand positioning is the specific space a brand occupies in the consumer\'s mind relative to competitors. Volvo owns "safety." BMW owns "driving performance." Tesla owns "innovation." A brand can only own one idea. When brands try to stand for everything, they stand for nothing. The most valuable brands are those with a clear, narrow, defensible position that competitors cannot credibly claim.'
+        'Brand equity is value that comes from what buyers believe, not the product itself. Kevin Lane Keller\'s CBBE model has four levels: knowing Nike exists, linking it to Just Do It and Michael Jordan, judging it, then staying loyal.',
+      'Brands charge more three ways: perceived quality (Bayer aspirin outsells identical generics 10:1; blind tests split Coke and Pepsi), emotion (Harley-Davidson tattoos), and lower risk (Marriott is predictable). Positioning is owning one idea: Volvo safety, BMW performance, Tesla innovation.'
       ],
       [
         { term: 'Brand Equity', definition: 'The commercial value that comes from consumer perception of a brand, beyond the functional value of the product itself.', example: 'Coca-Cola\'s physical assets are worth ~$25B. Its brand is valued at $97B. The brand is worth nearly 4x the physical business.' },
@@ -2716,7 +2710,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Brand Premium', definition: 'The additional price consumers willingly pay for a branded product over a functionally equivalent unbranded alternative.', example: 'Bayer aspirin sells for 5x the price of generic aspirin. Same chemical (acetylsalicylic acid), but the Bayer brand commands a 400% premium.' }
       ],
       'Keller\'s Brand Equity Pyramid showing four levels from Identity at the base to Resonance at the top',
-      { company: 'Nike', metric: 'Brand ROI', outcome: '$4B annual marketing spend generates $5.1B net income, with brand valued at $30B+, every $1 of brand investment creates $7.50+ in brand asset value', explanation: 'Nike doesn\'t sell shoes, it sells identity. "Just Do It" transcends athletics to mean personal empowerment. Michael Jordan\'s partnership (Air Jordan generates $5B+/year for Nike) proved that aspirational branding creates pricing power that no product feature can match. A $30 shoe sells for $200 because of the swoosh.' },
+      undefined,
       BS13_DIAGRAM
     ),
     microCheck(
@@ -2727,7 +2721,7 @@ const lessons: PathwayLesson[] = [
       'Brand creates neurological value. Coca-Cola\'s brand activates the brain\'s emotional and memory centers, making the experience of drinking Coke genuinely more pleasurable than blind-tasting it. Brand equity isn\'t just marketing fluff, it produces measurable changes in how the brain processes the product.'
     ),
     interactiveGraph(
-      'BRAND VALUE',
+      'Brand value',
       'Why Brand Premium Compounds Over Time',
       'exponential',
       'See how brand investment compounds into pricing power over time. Adjust brand awareness and brand loyalty to see the exponential impact on margin premium.',
@@ -2840,12 +2834,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'SUPPLY CHAIN MODELS',
+      'Supply chain models',
       'Lean vs. Agile: Choosing the Right Supply Chain Strategy',
       [
-        'Toyota\'s Just-in-Time (JIT) system revolutionized manufacturing by producing only what is needed, when it is needed, in the amount needed. This eliminates waste (called "muda" in Japanese): excess inventory, overproduction, waiting, unnecessary transport, over-processing, defects, and unused talent. JIT reduced Toyota\'s inventory costs by 75% and made it the most profitable automaker globally. The lean supply chain is optimized for efficiency, minimum inventory, maximum throughput.',
-        'But lean has a vulnerability: zero buffer. The 2021 chip shortage exposed the fragility of JIT across the entire auto industry. Agile supply chains sacrifice some efficiency for resilience, maintaining safety stock, dual-sourcing critical components, and building flexibility to respond to demand fluctuations. Fashion retailer Zara uses an agile supply chain: it designs, manufactures, and ships new clothing in 2-3 weeks (vs. 6-9 months industry average), allowing it to respond to trends in near real-time.',
-        'The bullwhip effect is a critical supply chain phenomenon: small fluctuations in consumer demand get amplified at each stage upstream. A 5% increase in retail sales might cause a 40% spike in factory orders as each link overreacts. This creates inventory gluts, then shortages, then more gluts. P&G discovered this with Pampers diapers, consumer demand was steady, but warehouse orders fluctuated wildly. Solutions: sharing real-time demand data across the chain (Walmart\'s Retail Link), vendor-managed inventory, and demand forecasting AI.'
+        'Toyota\'s just-in-time (JIT) system builds only what is needed, when needed, cutting waste, called muda in Japanese. That cut inventory costs 75% but left zero buffer: the 2021 chip shortage halted production.',
+      'Agile chains hold safety stock: Zara ships designs in 2-3 weeks, not 6-9 months. The bullwhip effect amplifies demand upstream: a 5% retail rise spikes factory orders 40%, as P&G saw with Pampers. Fix: share data, like Walmart\'s Retail Link.'
       ],
       [
         { term: 'Just-in-Time (JIT)', definition: 'A lean production strategy that produces goods only as they are needed, minimizing inventory costs and waste. Pioneered by Toyota.', example: 'Toyota keeps only 2-4 hours of inventory on its production lines. Parts arrive exactly when needed, cutting warehouse costs by 75%.' },
@@ -2854,7 +2847,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Dual Sourcing', definition: 'Using two or more suppliers for critical components to reduce single-point-of-failure risk, even if it costs slightly more.', example: 'After the 2011 earthquake, Toyota required dual sourcing for all critical components, accepting 3-5% higher costs for supply chain resilience.' }
       ],
       'Lean vs Agile supply chain comparison showing tradeoffs between efficiency and resilience',
-      { company: 'Zara (Inditex)', metric: 'Agile supply chain advantage', outcome: '2-3 week design-to-store cycle vs. 6-9 month industry average. Zara produces 65% of products in-season vs. 20% for H&M.', explanation: 'Zara\'s agile supply chain is its competitive weapon. By manufacturing close to markets (60% in Spain/Portugal/Morocco) and using small batch production, Zara can respond to trends in weeks, not months. If a style sells out, they produce more. If it doesn\'t, they stop. This reduces unsold inventory (markdowns) by 50% vs. competitors.' },
+      undefined,
       BS14_DIAGRAM
     ),
     microCheck(
@@ -2865,7 +2858,7 @@ const lessons: PathwayLesson[] = [
       'JIT means zero buffer stock. When the source of a critical component is disrupted, the entire chain collapses immediately. The chip shortage proved that lean efficiency and supply chain resilience are often in tension, and that resilience must be built in for critical components.'
     ),
     interactiveGraph(
-      'SUPPLY CHAIN ECONOMICS',
+      'Supply chain economics',
       'The Cost of Resilience vs. The Cost of Disruption',
       'comparison',
       'Compare the cost of maintaining safety stock and dual sourcing vs. the potential cost of supply chain disruption. Adjust disruption probability to see where the tradeoff tips.',
@@ -2970,12 +2963,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'TRANSFORMATION FRAMEWORK',
+      'Transformation framework',
       'Why 70% of Digital Transformations Fail, and How to Succeed',
       [
-        'McKinsey research shows that 70% of digital transformations fail. The #1 reason isn\'t technology, it\'s culture and change management. Companies buy new technology but don\'t change how people work, decide, or measure success. GE hired 28,000 software developers but never integrated them into its industrial culture. The developers built products that GE\'s core business didn\'t understand or use. Technology without cultural change is expensive decoration.',
-        'Successful digital transformation follows a framework: (1) Start with the customer problem, not the technology. Domino\'s didn\'t say "let\'s build an app", they said "ordering pizza is too hard and delivery is too slow." Technology was the solution, not the starting point. (2) Transform incrementally, not all at once. Domino\'s added online ordering first, then mobile, then GPS tracking, then voice ordering, then autonomous delivery. Each step built on the last. (3) Measure outcomes, not activities. GE measured "digital revenue" instead of "customer problems solved." Domino\'s measured "time from order to delivery" and "customer reorder rate."',
-        'Digital transformation creates competitive moats through data network effects: the more a digitized company operates, the more data it collects, the better its AI models become, the better the customer experience, the more customers it attracts. John Deere\'s tractors collect soil, weather, and crop data from millions of acres. That data trains AI models that predict optimal planting times, fertilizer amounts, and harvest schedules, increasing yields 10-15%. Each farmer\'s data makes the system better for all farmers. Competitors can build similar sensors, but they can\'t replicate millions of acres of historical field data.'
+        'McKinsey finds 70% of digital transformations fail, mostly from culture, not technology. GE hired 28,000 software developers but never wove them into its industrial business, so they built products nobody there used.',
+      'What works: start with the customer problem. Domino\'s fixed slow ordering step by step, from online to mobile to GPS tracking, and measured delivery time. John Deere\'s field data lifts crop yields 10-15%.'
       ],
       [
         { term: 'Digital Transformation', definition: 'The integration of digital technology into all areas of a business, fundamentally changing how it operates and delivers value, not just digitizing existing processes.', example: 'Domino\'s didn\'t just put its menu online, it reimagined the entire ordering experience with zero-click ordering, GPS tracking, and AI-driven inventory management.' },
@@ -2983,7 +2975,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Data Network Effect', definition: 'When more usage generates more data, which improves AI/ML models, which improves the product, which attracts more users, a self-reinforcing digital moat.', example: 'Tesla\'s Autopilot improves with every mile driven. 5+ billion miles of fleet data make Tesla\'s self-driving AI better than competitors with less data, and the gap widens over time.' }
       ],
       'Digital transformation success framework showing Customer Problem → Technology Solution → Incremental Deployment → Data Flywheel',
-      { company: 'Domino\'s Pizza', metric: 'Digital transformation ROI', outcome: 'Stock price $3 (2008) → $540 (2024). 75% of orders now digital. Revenue tripled from $5.5B to $17.5B.', explanation: 'Domino\'s succeeded because it started with customer problems (ordering was hard, delivery was slow, quality was bad), used technology as the solution (mobile ordering, GPS tracking, AI inventory), and measured outcomes (order-to-delivery time, reorder rates). It transformed incrementally over 15 years, not all at once. The result: a pizza company with better tech than most tech companies.' },
+      undefined,
       BS15_DIAGRAM
     ),
     microCheck(
@@ -2994,7 +2986,7 @@ const lessons: PathwayLesson[] = [
       'The #1 reason 70% of digital transformations fail is culture, not technology. GE bought technology without changing how people work. Domino\'s changed the culture first (customer obsession, data-driven decisions) and used technology as the enabler. Start with the problem, not the tool.'
     ),
     interactiveGraph(
-      'DIGITAL MATURITY',
+      'Digital maturity',
       'The Stages of Digital Transformation',
       'timeline',
       'Explore the five stages of digital maturity and see how companies progress from digitizing paper to AI-driven autonomous operations.',
@@ -3102,9 +3094,8 @@ const lessons: PathwayLesson[] = [
       'A/B TESTING',
       'The Gold Standard for Data-Driven Decisions',
       [
-        'A/B testing (also called controlled experiments or split testing) is the scientific method applied to business decisions. You show Version A to one group of users and Version B to another, then measure which performs better on a specific metric. Google famously tested 41 shades of blue for link colors and found the winning shade generated $200 million in additional annual revenue. That\'s the power of testing what seems trivial.',
-        'The critical concept is statistical significance, the probability that the observed difference between A and B is real, not random chance. A standard threshold is 95% confidence (p-value < 0.05). If your A/B test shows a 3% conversion improvement with 95% confidence, there\'s only a 5% chance the result is due to random variation. Sample size matters: testing on 100 users gives noisy data. Testing on 10,000 gives reliable data. Too many companies make decisions on small-sample tests without statistical significance, essentially guessing with extra steps.',
-        'Common A/B testing pitfalls: (1) Peeking, checking results before the test reaches statistical significance and stopping early when you see a result you like. This dramatically increases false positive rates. (2) Multiple comparisons, testing 20 metrics simultaneously guarantees at least one will show "significance" by chance. Correct by adjusting for multiple comparisons (Bonferroni correction). (3) Survivorship bias, analyzing only the data you have while ignoring the data you don\'t. A study of successful companies tells you nothing about success if you don\'t also study failures. (4) Correlation vs. causation, ice cream sales and drowning deaths both rise in summer. Ice cream doesn\'t cause drowning, temperature causes both.'
+        'A/B testing means showing version A to one group and version B to another, then measuring which wins. Google tested 41 shades of blue for link colors; the winner added $200 million a year.',
+      'Statistical significance is the chance a result is real, not luck: a 3% gain at 95% confidence (p-value below 0.05) leaves 5% doubt. 100 users is noisy, 10,000 reliable. Testing 20 metrics guarantees a fluke.'
       ],
       [
         { term: 'A/B Test', definition: 'A controlled experiment comparing two versions (A and B) of a variable to determine which performs better on a defined metric.', example: 'Google tested 41 shades of blue for ad links. The winning shade increased clicks enough to generate $200M in additional annual revenue.' },
@@ -3124,7 +3115,7 @@ const lessons: PathwayLesson[] = [
       'At massive scale, tiny improvements compound into enormous value. Google doesn\'t guess, it tests everything with statistical rigor. A/B testing removes opinion and ego from decisions, replacing them with evidence. The shade of blue that "looked best" to designers was NOT the one that performed best with users.'
     ),
     interactiveGraph(
-      'DATA ANALYTICS',
+      'Data analytics',
       'Key Metrics and KPIs for Business Decision-Making',
       'comparison',
       'Explore the most important business metrics across different functions and see how leading indicators predict outcomes before lagging indicators confirm them.',
@@ -3240,12 +3231,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PARTNERSHIP TYPES',
+      'Partnership types',
       'From Joint Ventures to Strategic Investments',
       [
-        'Strategic partnerships come in multiple forms, each with different risk/reward profiles: (1) Distribution partnerships, one company provides access to the other\'s customer base (Apple + Goldman Sachs for Apple Card; Spotify + Starbucks for in-store music). Low investment, fast execution, but limited depth. (2) Technology partnerships, sharing or licensing technology (Microsoft + OpenAI; Google + Samsung for Android). Deeper integration, shared R&D costs, but risk of dependency.',
-        '(3) Joint ventures (JVs), creating a new entity co-owned by both partners (Hulu was originally a JV between Disney, Comcast, and Fox). Shared risk and investment, clear governance, but slower decision-making. (4) Strategic investments, one company buys an equity stake in another (Google\'s $300M investment in Anthropic; SoftBank\'s Vision Fund investments). Financial alignment plus strategic access, but limited operational control. (5) Ecosystem partnerships, building a platform that third parties build on (Apple App Store, Salesforce AppExchange). The platform captures value from an entire ecosystem of partners.',
-        'The key evaluation framework for partnerships is the 3C model: (1) Complementarity, do the partners bring different, non-overlapping strengths? Microsoft (cloud, enterprise, distribution) + OpenAI (AI models, research) is high complementarity. Two cloud companies partnering is low complementarity. (2) Compatibility, are the cultures, values, and strategic priorities aligned? A fast-moving startup and a bureaucratic corporation often clash. (3) Commitment, is the partnership important enough that both sides will invest resources and senior attention? Partnerships that are "nice to have" for one side always fail.'
+        'Partnership types: distribution (Apple with Goldman Sachs on Apple Card, Spotify with Starbucks), technology (Microsoft with OpenAI, Google with Samsung on Android), joint ventures, a new co-owned company (Hulu, by Disney, Comcast and Fox).',
+      'Strategic investments buy equity, a share of ownership: Google\'s $300M in Anthropic, SoftBank\'s Vision Fund. Ecosystems let others build on your platform: Apple App Store, Salesforce AppExchange. Judge deals by 3C: different strengths, matching cultures, real commitment.'
       ],
       [
         { term: 'Strategic Alliance', definition: 'A formal agreement between companies to pursue shared objectives while remaining independent. Less integrated than M&A but more committed than a vendor relationship.', example: 'Starbucks + Spotify: baristas curate playlists, Starbucks Rewards members get Spotify access. Neither company merged or acquired the other, but both benefit.' },
@@ -3265,7 +3255,7 @@ const lessons: PathwayLesson[] = [
       'Yahoo violated the cardinal rule: never partner away your core value proposition. Search WAS Yahoo\'s core, by outsourcing it to Google, Yahoo gave its users a reason to leave. The lesson: partner on complementary capabilities (things you don\'t do), never on core capabilities (things you must do).'
     ),
     interactiveGraph(
-      'PARTNERSHIP VALUE',
+      'Partnership value',
       'When Partnerships Create vs. Destroy Value',
       'comparison',
       'Explore the factors that determine whether a partnership creates or destroys value. Adjust complementarity and commitment to see the impact on partnership outcomes.',
@@ -3370,12 +3360,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'CRISIS FRAMEWORK',
+      'Crisis framework',
       'The 48-Hour Rule and Crisis Communication Principles',
       [
-        'Crisis management research consistently shows that the first 48 hours determine the outcome. The 3T Framework: (1) Tell it all, release all known information, even if incomplete. Drip-feeding bad news extends the crisis cycle. J&J told everything immediately; Boeing dripped information for months. (2) Tell it fast, delays create information vacuums that rumors, speculation, and media narratives fill. If you don\'t define the story in 48 hours, others will define it for you. (3) Tell the truth, never lie, minimize, or deflect blame. Volkswagen initially denied its diesel emissions cheating, and when the truth emerged, the cover-up doubled the damage.',
-        'Crisis types require different responses: (1) Operational crises (product failure, data breach, supply chain breakdown), fix the problem, communicate clearly, compensate affected parties. (2) Reputational crises (executive scandal, social media backlash, ethical failure), acknowledge, apologize if warranted, demonstrate changed behavior. (3) Financial crises (liquidity crunch, market crash, fraud), stabilize operations, communicate with stakeholders, develop recovery plan. (4) External crises (pandemic, natural disaster, regulatory change), protect people first, ensure business continuity, adapt strategy.',
-        'Business continuity planning (BCP) prepares for crises before they happen. Key components: (1) Risk assessment, identify the most likely and most damaging potential crises. (2) Response teams, pre-designated crisis leadership with clear roles and decision authority. (3) Communication plans, pre-drafted templates for key stakeholders (customers, employees, media, investors). (4) Recovery procedures, step-by-step restoration of normal operations. (5) Regular testing, tabletop exercises and simulations. Companies with tested BCPs recover 3-5x faster than those without.'
+        'The first 48 hours decide the outcome. Use the 3T rule: tell it all, tell it fast, tell the truth. J&J shared everything at once. Boeing drip fed news for months. Volkswagen denied cheating, and the cover-up doubled the damage.',
+      'Match your response to the crisis: operational, reputational, financial or external. In external crises, protect people first. A business continuity plan (BCP), a written plan made before trouble, names risks, teams and steps. Tested plans recover 3-5x faster.'
       ],
       [
         { term: 'Crisis Communication', definition: 'The strategic dissemination of information during a crisis to protect reputation, maintain trust, and guide stakeholder behavior. The 3T rule: Tell it all, Tell it fast, Tell the truth.', example: 'J&J\'s CEO went on national TV within 48 hours of the Tylenol poisoning, fully disclosed all information, and announced a complete product recall before regulators required it.' },
@@ -3394,7 +3383,7 @@ const lessons: PathwayLesson[] = [
       'The 3T Framework shows exactly where Boeing failed: (1) Didn\'t Tell It All, hid known MCAS issues from pilots and regulators. (2) Didn\'t Tell It Fast, resisted grounding after the first crash, then the second crash happened. (3) Didn\'t Tell the Truth, blamed pilots instead of accepting design flaws. Each delay and deflection compounded the crisis.'
     ),
     interactiveGraph(
-      'CRISIS RECOVERY',
+      'Crisis recovery',
       'How Response Speed and Transparency Determine Recovery',
       'comparison',
       'See how crisis response characteristics (speed, transparency, accountability) predict recovery outcomes. Adjust response quality to see the impact on stock price recovery.',
@@ -3499,12 +3488,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'MARKET ENTRY',
+      'Market entry',
       'Strategies for Going Global',
       [
-        'There are five primary market entry strategies, each with different risk/reward profiles: (1) Exporting, selling products from the home country to foreign markets. Lowest risk but limited control and high shipping costs. (2) Licensing/Franchising, granting a local partner the right to use your brand/IP (McDonald\'s franchises 93% of restaurants globally). Low investment but limited control over quality and brand experience. (3) Joint Ventures, partnering with a local company that provides market knowledge, distribution, and regulatory expertise (Starbucks entered China via JV with local partners). Shared risk and local expertise but shared profits and potential conflicts.',
-        '(4) Wholly-owned subsidiaries, establishing your own operations in the foreign market (Apple stores worldwide). Full control but highest investment and risk. Tesla built its own Gigafactory in Shanghai for full control over production quality. (5) Acquisition, buying an existing local company (Walmart acquiring Flipkart in India for $16B). Instant market presence but integration challenges and cultural mismatch risk.',
-        'The CAGE Distance Framework (Pankaj Ghemawat) evaluates market attractiveness across four dimensions: Cultural distance (language, values, norms, Walmart\'s German failure), Administrative distance (legal systems, regulations, trade barriers, pharma companies face different FDA-equivalent approvals), Geographic distance (physical distance, time zones, climate, affects logistics and supply chain costs), Economic distance (income levels, consumer purchasing power, Netflix\'s $2 India tier vs. $15 US tier). Markets with low CAGE distance are easier to enter. The US and UK have low CAGE distance; the US and China have high CAGE distance across all four dimensions.'
+        'Five entry routes: exporting; licensing or franchising (McDonald\'s franchises 93% of restaurants); joint ventures, meaning shared ownership with a local firm (Starbucks in China); wholly owned subsidiaries (Apple stores, Tesla\'s Shanghai Gigafactory); acquisition (Walmart bought Flipkart in India, $16B).',
+      'Pankaj Ghemawat\'s CAGE framework rates market distance on four gaps: cultural (Walmart failed in Germany), administrative (FDA rules), geographic and economic (Netflix charges $2 in India, $15 in the US). US and UK: low distance. US and China: high.'
       ],
       [
         { term: 'CAGE Distance Framework', definition: 'A framework for assessing the difficulty of entering a foreign market across four dimensions: Cultural, Administrative, Geographic, and Economic distance.', example: 'US-to-UK expansion has low CAGE distance (similar culture, language, legal system, income). US-to-India has high distance across all four dimensions.' },
@@ -3523,7 +3511,7 @@ const lessons: PathwayLesson[] = [
       'The CAGE Cultural distance between the US and Germany is significant in retail: Germans value efficiency and privacy (door greeters are intrusive), self-reliance (bag your own groceries), and professional dignity (morning cheers are embarrassing). Walmart treated Germany like another US state, and lost $1B learning that culture matters.'
     ),
     interactiveGraph(
-      'GLOBAL MARKETS',
+      'Global markets',
       'Localization vs. Standardization: Finding the Right Balance',
       'comparison',
       'See how the balance between localization and standardization affects global expansion success. Adjust localization level to see the tradeoff between local relevance and operational efficiency.',
@@ -3628,12 +3616,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PLATFORM ECONOMICS',
+      'Platform economics',
       'Network Effects, Chicken-and-Egg, and Winner-Take-Most',
       [
-        'Platform businesses differ fundamentally from traditional "pipeline" businesses. Pipeline: create value internally (manufacture, design, write content), then deliver it to customers in a linear flow. Platform: create the infrastructure that enables external participants to create and exchange value with each other. The platform captures a percentage of each transaction. Key economic difference: pipeline businesses have linear scaling (more output requires proportionally more resources). Platforms have exponential scaling (each new participant adds value for ALL existing participants with near-zero marginal cost).',
-        'The chicken-and-egg problem is the central challenge for platform startups: users won\'t join without participants on the other side, and participants won\'t join without users. Uber needed riders to attract drivers and drivers to attract riders, both sides empty. Solutions: (1) Seed one side (Uber initially hired drivers as employees until enough riders joined). (2) Start in a niche market (Airbnb started with events like SXSW where hotel supply was scarce). (3) Subsidize one side (PayPal gave $10 to each new user to bootstrap the payment network). (4) Create standalone value on one side (OpenTable let restaurants manage reservations for free, then added the diner-facing platform once restaurants were enrolled).',
-        'Platform markets tend toward winner-take-most dynamics because of cross-side network effects: more users attract more participants, which attracts more users, a self-reinforcing cycle that concentrates market share. Google Search: 91% share. App Store + Play Store: 99%. Facebook/Instagram: 75%+ of social ad spend. This creates enormous barriers to entry: even a better product struggles to attract users when the incumbent platform has a massive network advantage. The few exceptions: platforms that differentiate on community (Reddit vs Facebook), use case (LinkedIn vs Instagram), or technology paradigm shift (TikTok\'s algorithm vs Instagram\'s social graph).'
+        'Platforms don\'t build the product, they connect two sides and take a cut. Chicken and egg: Uber needed riders and drivers. Fixes: seed one side, start niche (Airbnb, SXSW), pay users ($10, PayPal), or offer free tools first (OpenTable).',
+      'Each new user attracts more of the other side, so one winner takes most: Google Search 91%, App Store plus Play Store 99%, Facebook/Instagram 75%+ of social ad spend. Rivals only win by being different: Reddit, LinkedIn, TikTok.'
       ],
       [
         { term: 'Platform Business', definition: 'A business model that creates value by enabling direct interactions between two or more participant groups, capturing a percentage of the value exchanged.', example: 'Airbnb connects hosts with travelers and takes 14% of each booking. Airbnb owns no property but facilitates $80B+ in bookings annually.' },
@@ -3653,7 +3640,7 @@ const lessons: PathwayLesson[] = [
       'Platform scaling is the key: Airbnb adds a host for $0 incremental cost. Marriott adds a hotel for $50-500M. At 7 million listings, Airbnb\'s capital efficiency is incomparably better. The platform model captures value from assets it doesn\'t own, the economics are fundamentally different from pipeline businesses.'
     ),
     interactiveGraph(
-      'NETWORK EFFECTS',
+      'Network effects',
       'How Platform Markets Become Winner-Take-Most',
       'exponential',
       'See how cross-side network effects create self-reinforcing growth that leads to market concentration. Adjust initial network size to see the tipping point where network effects accelerate exponentially.',
@@ -3759,12 +3746,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BUSINESS CASE',
+      'The business case',
       'ESG, Stakeholder Capitalism, and the Profit of Purpose',
       [
-        'ESG (Environmental, Social, Governance) is a framework for evaluating companies beyond financial performance. Environmental: carbon emissions, resource usage, waste, pollution. Social: employee treatment, diversity, supply chain labor practices, community impact. Governance: board diversity, executive compensation, transparency, ethics. $40+ trillion, one-third of all global assets, is now managed using ESG criteria. This isn\'t charity; it\'s risk management. Companies with poor ESG scores face higher capital costs, regulatory fines, and reputational damage.',
-        'The stakeholder capitalism debate: Milton Friedman argued (1970) that a company\'s only responsibility is maximizing shareholder value. The Business Roundtable (2019) reversed this, declaring companies should serve ALL stakeholders: customers, employees, suppliers, communities, AND shareholders. The evidence supports stakeholder capitalism: a Harvard study found that companies scoring high on ESG outperformed low-ESG companies by 4.8% annually over 20 years. Why? Better ESG = better risk management, stronger brand, lower employee turnover, and more innovation.',
-        'Sustainability creates competitive advantage through multiple channels: (1) Brand premium, consumers pay 10-40% more for sustainable products (Nielsen data). (2) Talent attraction, 70% of millennials would take a pay cut to work at a sustainable company (Cone Communications). (3) Risk reduction, companies with strong environmental practices face 60% fewer regulatory fines and lawsuits. (4) Innovation, sustainability constraints force creative solutions (Tesla\'s electric vehicles, beyond Meat\'s plant-based protein). (5) Cost reduction, energy efficiency and waste reduction directly improve margins (Unilever\'s Sustainable Living brands grew 69% faster than the rest of the portfolio).'
+        'ESG means environmental, social and governance: rating a company beyond profit. $40+ trillion, one-third of global assets, follows it. Milton Friedman said (1970) only shareholders matter; the Business Roundtable disagreed in 2019, backing all stakeholders.',
+      'Harvard: high-ESG firms beat low-ESG by 4.8% yearly over 20 years. Nielsen: shoppers pay 10-40% more. Cone Communications: 70% of millennials take pay cuts. Regulatory fines drop 60%. Tesla and Beyond Meat innovated; Unilever\'s green brands grew 69% faster.'
       ],
       [
         { term: 'ESG', definition: 'Environmental, Social, and Governance, a framework for evaluating corporate behavior beyond financial metrics. Used by investors managing $40T+ in assets.', example: 'Tesla scores high on Environmental (EVs) but has faced Social criticism (factory conditions). ESG is multidimensional, excellence in one area doesn\'t compensate for failures in others.' },
@@ -3783,7 +3769,7 @@ const lessons: PathwayLesson[] = [
       'Authenticity is the key. Consumers can distinguish genuine purpose from marketing spin. Patagonia has decades of environmental action backing its messaging: 1% for the Planet, repair programs, recycled materials, and ultimately giving away the entire company. When a brand\'s actions match its words over decades, "Don\'t Buy This Jacket" becomes the ultimate trust signal.'
     ),
     interactiveGraph(
-      'ESG PERFORMANCE',
+      'ESG performance',
       'Do Sustainable Companies Outperform?',
       'comparison',
       'Compare the financial performance of high-ESG vs low-ESG companies across multiple metrics. Adjust the time horizon to see how the performance gap widens over longer periods.',
@@ -3878,7 +3864,7 @@ const lessons: PathwayLesson[] = [
       'Netflix\'s culture doc, "Freedom and Responsibility", has been viewed 20 million times and Silicon Valley calls it "the most important document to come out of the Valley." Netflix pays top-of-market salaries, has no vacation policy (unlimited PTO), and fires adequately performing employees ("we\'re a team, not a family"). This radical talent strategy helped Netflix grow from a DVD service to a $300 billion company. The right people, with the right culture, in the right structure, beat every other strategy.',
       'By the end of this lesson, you\'ll understand employer branding, compensation strategy, culture architecture, and why talent strategy is the one strategy that makes all other strategies work.',
       'Talent strategy ROI showing how top performers produce 4-10x the output of average performers',
-      { type: 'bars', title: 'Top Performer Impact: The 10x Multiplier', items: [{ label: '1x output', value: 104 }, { label: '1x output', value: 21 }, { label: '4x output', value: 104, displayValue: 'Top 10%' }, { label: '4x output', value: 64, displayValue: 'Top 10%' }, { label: '10x output', value: 104, displayValue: 'Top 1%' }, { label: '10x output', value: 96, displayValue: 'Top 1%' }, { label: 'Netflix', value: 57, displayValue: 'Netflix' }], footer: 'McKinsey: Top performers produce 4-10x the output of average performers', sentiment: 'positive' }
+      { type: 'bars', title: 'What a top performer is worth', items: [{ label: 'Average performer', value: 1, displayValue: '1x output' }, { label: 'Top 10%', value: 4, displayValue: '4x output' }, { label: 'Top 1%', value: 10, displayValue: '10x output' }], footer: 'McKinsey: top performers produce 4 to 10x the output of an average performer.', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Talent as cost center', detail: 'Yahoo in 2012 banned remote work, imposed rigid processes, and treated employees as interchangeable. Top engineers left for Google, Facebook, and startups that offered creative freedom. Yahoo\'s talent exodus directly caused product stagnation, no top engineers wanted to build Yahoo products. By 2017, Yahoo was sold to Verizon for $4.5B, a fraction of its $125B peak value.' },
@@ -3888,12 +3874,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'TALENT STRATEGY',
+      'Talent strategy',
       'Building Organizations That Attract, Develop, and Retain the Best',
       [
-        'McKinsey\'s research shows that top performers produce 4x the output of average performers in operational roles and 10x in creative/technical roles. This means talent strategy isn\'t about filling seats, it\'s about building a density of exceptional people. Netflix\'s core philosophy: "One outstanding employee is worth more than ten adequate ones." They pay top-of-market compensation (often 2x industry average) because the productivity multiple of an A-player far exceeds the salary premium.',
-        'Employer branding is how companies attract talent. The most powerful employer brands create a cycle: great culture → great products → media attention → talent applies → better hires → even greater culture. Google\'s employer brand (innovation, freedom, impact) generates 3 million applications annually. This talent funnel gives Google first pick of the world\'s best engineers, data scientists, and product managers, a competitive advantage that compounds every year.',
-        'Culture is the operating system of a company. Netflix\'s culture doc defines explicit values: freedom with responsibility, high performance standards, candid feedback, and "keeper test" (managers ask: "Would I fight to keep this person? If not, give them a generous severance."). Importantly, culture is what you DO, not what you SAY. If you claim to value innovation but punish failure, your real culture is risk-averse regardless of what the poster on the wall says. The best cultures align stated values, reward systems, and daily behavior.'
+        'McKinsey found top performers produce 4x the output of average workers in operational roles, 10x in creative or technical ones. Netflix pays top of market, often 2x the industry average, because one great hire beats ten adequate ones.',
+      'A strong employer brand, the reputation that draws applicants, compounds: Google gets 3 million applications a year, so it picks first. Culture is what you do, not what a poster says: reward what you claim to value.'
       ],
       [
         { term: 'Employer Brand', definition: 'A company\'s reputation as a place to work, the talent equivalent of consumer brand. Strong employer brands attract more, better applicants at lower cost.', example: 'Google receives 3M applications/year. Its employer brand (innovation, freedom, perks) is so strong that it spends less per hire than companies with weaker brands that must aggressively recruit.' },
@@ -3913,7 +3898,7 @@ const lessons: PathwayLesson[] = [
       'The math: a $300K engineer producing $1.2M in value is a better investment than a $150K engineer producing $300K in value. The A-player costs 2x but delivers 4x. Netflix optimizes for total value creation per employee, not cost minimization per employee. This counterintuitive approach is why Netflix has $300K+ revenue per employee.'
     ),
     interactiveGraph(
-      'TALENT ECONOMICS',
+      'Talent economics',
       'The ROI of Investing in Top Talent',
       'comparison',
       'Compare the total cost and output of high-performance vs. average teams. Adjust talent density to see how the proportion of top performers affects team output.',
@@ -4019,12 +4004,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PRODUCT PORTFOLIO',
+      'Product portfolio',
       'The BCG Matrix, Product-Market Fit, and the Art of Saying No',
       [
-        'The BCG Matrix (Boston Consulting Group) classifies products into four quadrants based on market growth rate and relative market share. Stars: high growth + high share, invest aggressively (iPhone in 2010). Cash Cows: low growth + high share, harvest profits to fund Stars (Google Search, Microsoft Office). Question Marks: high growth + low share, bet selectively or kill (Google Stadia, Amazon Fire Phone). Dogs: low growth + low share, divest or shutdown (iPod after iPhone). The matrix forces portfolio-level thinking: no company can invest equally in everything.',
-        'Product-Market Fit (PMF) is the moment when a product satisfies strong market demand. Marc Andreessen describes it as "being in a good market with a product that can satisfy that market." Before PMF, everything is a struggle, low retention, slow growth, lukewarm feedback. After PMF, growth pulls the product forward, customers refer others, retention is high, and demand exceeds capacity. Measuring PMF: Sean Ellis\'s test asks users "How would you feel if you could no longer use this product?" If 40%+ say "very disappointed," you have PMF.',
-        'The kill-or-scale decision is the hardest in product strategy. The sunk cost fallacy, "we\'ve already invested $100M", keeps companies pouring resources into failing products. The correct framework: ignore sunk costs, evaluate only future expected value. Google killed Stadia after investing $300M+ because the future ROI was negative regardless of past investment. The discipline to kill products is rare, most companies over-invest in losers and under-invest in winners. Apple\'s radical focus (10 products, each world-class) proves that portfolio pruning creates more value than portfolio expansion.'
+        'The BCG matrix (Boston Consulting Group) sorts products by market growth and share. Stars grow fast: iPhone in 2010. Cash cows fund them: Google Search, Microsoft Office. Question marks: Google Stadia, Amazon Fire Phone. Dogs: iPod after iPhone.',
+      'Product market fit means strong demand. Sean Ellis\'s test: fit exists when 40% would be very disappointed to lose the product. Ignore sunk costs, even $100M spent. Google killed Stadia after $300M+. Apple keeps 10 products.'
       ],
       [
         { term: 'BCG Matrix', definition: 'A 2x2 framework classifying products by market growth rate and relative market share into Stars, Cash Cows, Question Marks, and Dogs, guiding investment, harvesting, and divestment decisions.', example: 'Amazon\'s portfolio: AWS is a Star (high growth, dominant share), Amazon Prime is a Cash Cow (steady revenue, high retention), Amazon Fire Phone was a Dog (killed after $170M write-off).' },
@@ -4044,7 +4028,7 @@ const lessons: PathwayLesson[] = [
       'The math of focus: 10,000 engineers across 350 products = ~29 engineers per product. 10,000 engineers across 10 products = 1,000 engineers per product. The quality difference between 29 engineers and 1,000 engineers on a single product is exponential, not linear. Focus doesn\'t just improve products, it transforms them from adequate to extraordinary.'
     ),
     interactiveGraph(
-      'FEATURE PRIORITIZATION',
+      'Feature prioritization',
       'RICE Framework: Scoring Features for Maximum Impact',
       'comparison',
       'Adjust the RICE parameters (Reach, Impact, Confidence, Effort) to see how different features score and which should be prioritized in your product roadmap.',
@@ -4069,12 +4053,11 @@ const lessons: PathwayLesson[] = [
 
     // Additional teaching
     teachingSlide(
-      'KILL OR SCALE',
+      'Kill or scale',
       'The Discipline of Product Portfolio Decisions',
       [
-        'The kill decision is the most value-creating decision in product management, yet most leaders avoid it. Every product that should be killed but isn\'t consumes engineering resources, management attention, and brand equity that could go to winners. Jeff Bezos calls this "one-way door vs. two-way door" decisions: launching a product is a two-way door (reversible), but continuing to invest in a losing product is a one-way door (opportunity cost compounds). Google\'s Stadia consumed 1,000+ engineers for years, engineers who could have been building YouTube, Cloud, or AI products.',
-        'The scale decision requires equally rigorous analysis. Premature scaling is the #1 cause of startup death (Startup Genome Project). Signs a product is ready to scale: 40%+ "very disappointed" on Sean Ellis\'s PMF survey, organic growth exceeding paid growth, expanding unit economics (LTV/CAC improving), and high retention (month-6 retention above 25% for consumer, 80%+ for SaaS). Signs it\'s NOT ready: growth is primarily paid, retention is declining, unit economics are worsening, or NPS is below 30.',
-        'Portfolio rebalancing should happen quarterly. Apple reviews every product line\'s contribution to the ecosystem. Amazon uses "working backwards", starting from the customer and asking if the product uniquely serves a need no other Amazon product addresses. If two products cannibalize each other, kill the weaker one. If a product\'s growth has flatlined, harvest it as a cash cow and redirect investment to stars. The best product leaders spend as much time deciding what to kill as what to build.'
+        'Killing a losing product frees people for winners: Google\'s Stadia used 1,000+ engineers who could have built YouTube, Cloud or AI. Jeff Bezos calls launching reversible. Apple and Amazon review every product quarterly and cut the weaker one.',
+      'Scaling too early is the #1 startup killer (Startup Genome Project). Ready to scale: 40% very disappointed, month-6 retention above 25% for consumer, 80%+ for SaaS. Not ready: retention falling, or NPS, customer loyalty score, below 30.'
       ],
       [
         { term: 'Premature Scaling', definition: 'Investing heavily in growth (hiring, marketing, infrastructure) before achieving Product-Market Fit, the #1 cause of startup failure according to the Startup Genome Project.', example: 'Webvan raised $375M and built massive warehouse infrastructure before proving grocery delivery demand. They scaled logistics before achieving PMF and burned through cash, leading to bankruptcy.' },
@@ -4163,7 +4146,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'CAPITAL ALLOCATION',
+      'Capital allocation',
       'How Great CEOs Use Money as a Competitive Weapon',
       [
         'Capital allocation is the CEO\'s most important job, deciding where to deploy the company\'s cash. The five options: (1) Reinvest in the business (R&D, capacity, marketing), (2) Acquisitions (buy companies), (3) Pay dividends (return cash to shareholders), (4) Buy back shares (reduce share count, increase EPS), (5) Pay down debt (reduce leverage). Each option has different risk/return profiles, and the best CEOs are essentially chief capital allocators. Warren Buffett: "CEOs who recognize this develop the allocation skill, and those who don\'t rarely recognize their deficiency."',
@@ -4188,7 +4171,7 @@ const lessons: PathwayLesson[] = [
       'Buybacks work best when shares are undervalued. If Apple\'s intrinsic value is $200/share and it buys back at $150/share, it\'s buying $1 of value for $0.75. But buybacks at overvalued prices destroy value: buying $0.75 of value for $1. Apple\'s buyback program succeeded because the company was consistently generating more cash than it needed for operations and its shares were reasonably priced relative to earnings power.'
     ),
     interactiveGraph(
-      'FINANCIAL LEVERAGE',
+      'Financial leverage',
       'How Debt Amplifies Returns (and Risk)',
       'exponential',
       'Adjust the leverage ratio and return on capital to see how debt magnifies equity returns, in both directions. Observe how the same leverage that creates 40% returns in good times can destroy a company in bad times.',
@@ -4213,7 +4196,7 @@ const lessons: PathwayLesson[] = [
 
     // Additional teaching
     teachingSlide(
-      'WALL STREET METRICS',
+      'Wall Street metrics',
       'What Investors Actually Care About',
       [
         'Wall Street evaluates companies on a hierarchy of financial metrics, and understanding this hierarchy is essential for business leaders. Revenue growth shows market demand. Gross margin shows pricing power and cost efficiency. Operating margin shows business model quality. Free cash flow (FCF) shows actual cash generated after all expenses and capital investments. ROIC shows how efficiently capital is deployed. EPS growth shows per-share value creation. The best companies excel at all levels: high revenue growth + expanding margins + strong FCF + high ROIC = compounding machine.',
@@ -4302,7 +4285,7 @@ const lessons: PathwayLesson[] = [
       'In 2007, Nokia had 50% global smartphone market share, $110 billion in revenue, and 130,000 employees. Seven years later, it sold its phone division to Microsoft for $7.2 billion, a 95% destruction of shareholder value. In the same period, Apple went from 0% smartphone market share to capturing 92% of global smartphone PROFITS. Two companies, same industry, opposite outcomes, entirely determined by strategic choices. This capstone synthesizes every strategic framework you\'ve learned into a unified lens for understanding why some companies endure while others perish.',
       'By the end of this capstone, you\'ll demonstrate mastery of competitive strategy, product management, financial engineering, organizational design, and strategic synthesis, applying all 24 lessons to analyze complex business scenarios that test every dimension of strategic thinking.',
       'Strategic synthesis diagram showing how all strategy frameworks interconnect to create durable competitive advantage',
-      { type: 'flow', title: 'Strategic Synthesis: The Complete Framework', nodes: [{ label: 'DURABLE ADVANTAGE', value: '' }, { label: 'Competitive Strategy', value: '' }, { label: 'Product Portfolio', value: '' }, { label: 'Financial Engineering', value: '' }, { label: 'Org Design', value: '' }, { label: 'Innovation & Scale', value: '' }], footer: 'Nokia: 50% share → sold for $7.2B. Apple: 0% share → $3T. Strategy is everything.' }
+      { type: 'flow', title: 'Strategic Synthesis: The Complete Framework', nodes: [{ label: 'Durable advantage', value: '' }, { label: 'Competitive Strategy', value: '' }, { label: 'Product Portfolio', value: '' }, { label: 'Financial Engineering', value: '' }, { label: 'Org Design', value: '' }, { label: 'Innovation & Scale', value: '' }], footer: 'Nokia: 50% share → sold for $7.2B. Apple: 0% share → $3T. Strategy is everything.' }
     ),
     stakesCard(
       { label: 'Fragmented strategy', detail: 'Nokia in 2007 dominated mobile phones with 50% global market share and $110B revenue. But Nokia failed at every strategic dimension simultaneously: competitive strategy (dismissed iPhone as a niche product), product portfolio (hundreds of mediocre phones instead of focused excellence), innovation (clung to Symbian OS when touchscreens disrupted), organizational design (bureaucratic silos killed cross-functional collaboration), and financial strategy (massive R&D spend with zero breakthrough products). By 2014, Nokia\'s phone division sold for $7.2B, a 95% destruction of value. Strategy must be holistic.' },
@@ -4312,12 +4295,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'STRATEGIC SYNTHESIS',
+      'Strategic synthesis',
       'How the Greatest Companies Integrate All Strategy Dimensions',
       [
-        'Durable competitive advantage emerges from the integration of multiple strategic dimensions, not excellence in any single one. Amazon\'s dominance comes from: competitive strategy (cost leadership through scale), product portfolio (e-commerce + AWS + Prime, each reinforcing the others), financial engineering (negative cash conversion cycle funds growth), organizational design (two-pizza teams + leadership principles), innovation (Day 1 mentality + working backwards), and talent strategy (high bar hiring + ownership culture). No single dimension explains Amazon, the synergy between all dimensions creates a flywheel that no competitor can replicate.',
-        'The Strategy Stack framework evaluates companies across five integrated layers: (1) Mission & Vision (why the company exists), (2) Competitive Positioning (how it wins, cost leadership, differentiation, or focus), (3) Business Model (how it captures value, revenue model, unit economics, flywheel mechanics), (4) Operational Excellence (how it executes, organizational structure, talent density, culture), (5) Capital Strategy (how it deploys financial resources, ROIC optimization, capital allocation, shareholder returns). Weakness in any layer creates strategic vulnerability. Nokia\'s technology was good (layer 3-4), but its competitive positioning (layer 2) and innovation response (layer 1) failed.',
-        'Strategic inflection points, moments when the fundamentals of an industry change, are the ultimate test of integrated strategy. Andy Grove (Intel) coined the term: "A strategic inflection point is when the balance of forces shifts from the old structure, from the old ways of doing business and the old ways of competing, to the new." The smartphone revolution was a strategic inflection point. Apple recognized it and responded with an integrated strategy. Nokia recognized it too late and responded with fragmented, uncoordinated initiatives. The companies that survive inflection points are those with integrated strategies that can pivot all dimensions simultaneously.'
+        'Amazon wins by combining dimensions, not mastering one: scale for low cost, e commerce plus AWS plus Prime, cheap cash flow, two-pizza teams, Day 1 innovation, high hiring bars. Together they form a flywheel rivals cannot copy.',
+      'The Strategy Stack rates five layers: mission, positioning, business model, operations, capital. Weakness anywhere hurts. At inflection points, moments when an industry changes, Intel\'s Andy Grove named them. Apple pivoted every layer to smartphones, Nokia reacted late.'
       ],
       [
         { term: 'Strategy Stack', definition: 'A five-layer framework for evaluating strategic coherence: Mission → Competitive Position → Business Model → Operational Excellence → Capital Strategy. Weakness in any layer creates vulnerability.', example: 'Tesla\'s Strategy Stack: Mission (accelerate sustainable energy) → Position (differentiation through technology) → Model (direct sales + energy ecosystem) → Operations (vertical integration + AI-driven manufacturing) → Capital (aggressive reinvestment, $50B+ raised). Each layer reinforces the others.' },
@@ -4337,7 +4319,7 @@ const lessons: PathwayLesson[] = [
       'Nokia\'s failure illustrates a critical principle: excellence in one strategic dimension cannot compensate for failure in others. Nokia\'s hardware engineering was world-class, but its software strategy (Symbian), competitive response (denial then panic), and organizational structure (bureaucratic silos) all failed simultaneously. Strategy is a system, not a collection of independent decisions.'
     ),
     interactiveGraph(
-      'STRATEGY INTEGRATION',
+      'Strategy integration',
       'The Compounding Power of Integrated Strategy',
       'exponential',
       'Adjust the number of strategic dimensions where a company excels to see how integrated strategy creates exponential rather than linear competitive advantage. Each additional dimension amplifies all the others.',
@@ -4362,12 +4344,11 @@ const lessons: PathwayLesson[] = [
 
     // Additional teaching
     teachingSlide(
-      'ENDURING GREATNESS',
+      'Enduring greatness',
       'What Separates Companies That Last Decades from Those That Don\'t',
       [
-        'Jim Collins\'s research in "Built to Last" and "Good to Great" identified core principles of enduring companies: (1) Preserve the core / stimulate progress, keep core values constant while continuously innovating methods. (2) Level 5 Leadership, leaders who combine personal humility with professional will. (3) The Hedgehog Concept, focus on the intersection of what you\'re passionate about, what you can be best in the world at, and what drives your economic engine. (4) The Flywheel, build momentum through consistent actions that compound over time. (5) Clock building, not time telling, build enduring systems, not one-time hits.',
-        'The most dangerous strategic failure is complacency during success. Every company that dominates today was once a disruptor that defeated an incumbent. Microsoft dominated PCs but almost missed mobile and cloud. Intel dominated CPUs but missed mobile chips (ARM). IBM dominated mainframes but missed PCs. The pattern: success breeds organizational rigidity, internal politics, and resistance to change. Clayton Christensen\'s Innovator\'s Dilemma: successful companies fail precisely because they listen to existing customers and optimize existing products, which is exactly the wrong response when disruptive innovation changes the game.',
-        'Building an enduring company requires what Amazon calls "Day 1" thinking: maintain startup urgency regardless of size. Bezos\'s principles: (1) True customer obsession (not competitor obsession), (2) Resist proxies, when process becomes the thing, not the outcome, bureaucracy has won, (3) Embrace external trends, fight them and you\'re fighting the future, (4) High-velocity decision making, most decisions are reversible, so move fast. Day 2, when a company becomes slow, bureaucratic, and optimizes for process over outcomes, "is stasis. Followed by irrelevance. Followed by excruciating, painful decline. Followed by death."'
+        'Jim Collins studied enduring firms in "Built to Last" and "Good to Great": keep core values fixed while methods change, hire Level 5 leaders who mix humility with will, focus where passion, skill and profit meet, build momentum.',
+      'Success breeds complacency: Microsoft nearly missed mobile, Intel missed ARM chips, IBM missed PCs. Clayton Christensen\'s Innovator\'s Dilemma explains why. Amazon fights this with Day 1 thinking, Bezos\'s rule to stay urgent. Day 2 means decline.'
       ],
       [
         { term: 'Innovator\'s Dilemma', definition: 'Clayton Christensen\'s theory that successful companies fail because they rationally focus on existing customers and proven markets, which blinds them to disruptive innovations that start in small, unprofitable markets but eventually take over.', example: 'Kodak invented the digital camera in 1975 but shelved it because film was so profitable. By the time digital cameras reached Kodak\'s customers, it was too late. Rational optimization of the existing business prevented Kodak from embracing the disruption it created.' },

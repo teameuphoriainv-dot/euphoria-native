@@ -107,12 +107,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE FOUNDATION',
+      'The foundation',
       'Economics: The Study of Scarcity and Choice',
       [
-        'Economics is the study of how individuals, businesses, and governments allocate limited resources to satisfy unlimited wants. This is the fundamental economic problem: scarcity. There will never be enough time, money, labor, or raw materials to give everyone everything they want. Every society, from the poorest to the wealthiest, must answer three questions: What to produce? How to produce it? Who gets what\'s produced?',
-        'Economics splits into two branches. Microeconomics studies individual decisions: why Apple prices the iPhone at $999, why nurses earn less than software engineers, why you chose one college over another. Macroeconomics studies economy-wide phenomena: why inflation rose to 9.1% in June 2022 (the highest in 40 years), why unemployment spiked to 14.7% during COVID, and how the Federal Reserve\'s interest rate decisions affect your mortgage.',
-        'The most powerful concept in economics is opportunity cost, the value of the next best alternative you give up when making a choice. When a country spends $800 billion on defense (U.S., 2024), the opportunity cost is the healthcare, education, or infrastructure that money could have funded. When you spend 4 years in college, the opportunity cost includes ~$120,000 in wages you could have earned. Every choice has a hidden price tag.'
+        'Economics studies how limited resources meet unlimited wants. Microeconomics covers single choices, like Apple pricing the iPhone at $999. Macroeconomics covers the whole economy: 9.1% inflation in June 2022, a 40 year high, 14.7% unemployment, and Federal Reserve rates.',
+      'Opportunity cost is the value of the next best thing you give up. The U.S. spent $800 billion on defense in 2024, so healthcare or schools lost out. 4 years of college costs about $120,000 in lost wages.'
       ],
       [
         { term: 'Scarcity', definition: 'The fundamental economic problem: unlimited human wants vs. limited resources. Forces every person, business, and government to make choices.', example: 'A city has $50 million in its budget but $200 million in proposed projects. It must choose, that\'s scarcity.' },
@@ -121,7 +120,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Macroeconomics', definition: 'The study of economy-wide phenomena, GDP, inflation, unemployment, monetary policy, and economic growth.', example: 'Why did inflation hit 9.1% in 2022? Why did 22 million people lose their jobs in April 2020? These are macro questions.' }
       ],
       'Two-branch tree: trunk labeled "Economics" splits into "Microeconomics" (individual decisions, markets, prices) and "Macroeconomics" (GDP, inflation, unemployment, policy). Root system labeled "Scarcity, the fundamental problem."',
-      { company: 'World Bank', metric: 'Global economic literacy study (2023)', outcome: 'Countries with higher economic literacy have 25% higher GDP per capita on average', explanation: 'The World Bank\'s research shows that populations who understand basic economics, scarcity, trade-offs, supply and demand, make better collective decisions, support more effective policies, and generate more productive economies. Economic literacy isn\'t just personal, it\'s a national competitive advantage.' },
+      undefined,
       GE1_DIAGRAM
     ),
 
@@ -134,7 +133,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE TRADE-OFFS',
+      'The trade-offs',
       'The Production Possibilities Frontier',
       'comparison',
       'See how scarcity forces trade-offs between any two goods or goals. Adjust resource allocation to see how producing more of one thing means less of another.',
@@ -157,46 +156,46 @@ const lessons: PathwayLesson[] = [
         { label: 'Healthcare Allocation', min: 0, max: 100, default: 50, unit: '%' },
         { label: 'Technology Level', min: 1, max: 10, default: 5, unit: '' }
       ],
-      { company: 'Bureau of Economic Analysis', metric: 'U.S. GDP growth (1960-2023)', outcome: 'Real GDP grew from $2.8 trillion to $25.5 trillion, a 9x expansion in 63 years', explanation: 'This growth came from three sources: more workers (population growth), more capital (factories, technology), and higher productivity (better education, innovation). Each represents the PPF expanding outward, the economy producing more with better resources.' }
+      undefined
     ),
 
     caseStudy(
       'The Marshall Plan: How Economics Rebuilt Europe',
       [
         { date: '1945', event: 'World War II ends, Europe\'s economy is devastated', context: 'Factories destroyed, infrastructure ruined, millions displaced. Europe\'s PPF had collapsed inward. Germany\'s GDP fell 70%. France and Britain were bankrupt. The economic question: how to allocate scarce resources to rebuild.' },
-        { date: '1948', event: 'The U.S. launches the Marshall Plan: $13.3 billion in aid ($170 billion in today\'s dollars)', context: 'Rather than punishing defeated nations (the approach after WWI that caused WWII), the U.S. invested in rebuilding. The economic logic: prosperous trading partners benefit everyone. This was opportunity cost in action, the U.S. chose European recovery over domestic spending.' },
+        { date: '1948', event: 'The U.S. launches the Marshall Plan: $13.3 billion in aid ($170 billion in today\'s dollars)', context: 'After WWI, winners punished losers and WWII followed. This time the U.S. rebuilt them. Rich trading partners help everyone. The trade-off: less money spent at home.' },
         { date: '1948-1952', event: 'European industrial output rises 35% above pre-war levels', context: 'The investment in capital (factories, roads) and human capital (education, training) shifted Europe\'s PPF outward dramatically. Trade between the U.S. and Europe surged, benefiting both sides.' },
-        { date: 'Long-term', event: 'Europe becomes the U.S.\'s largest trading partner, generating trillions in mutual prosperity', context: 'The Marshall Plan\'s $13.3 billion investment generated hundreds of trillions in economic activity over the following decades. It demonstrated a core economic principle: investment in productive capacity creates returns far exceeding the initial cost.' }
+        { date: 'Long-term', event: 'Europe becomes the U.S.\'s largest trading partner, generating trillions in mutual prosperity', context: '$13.3 billion from the Marshall Plan set off hundreds of trillions in economic activity over decades. Spending that builds capacity pays back far more than it costs.' }
       ],
-      'The Marshall Plan is history\'s greatest example of economic thinking applied to policy. Instead of viewing aid as a cost, the U.S. treated it as an investment, and the returns were extraordinary. This illustrates a fundamental economic truth: expanding productive capacity (moving the PPF outward) creates wealth for everyone, while hoarding resources or punishing trading partners makes everyone poorer.'
+      'The U.S. treated aid as an investment, not a cost, and the payoff was huge. Growing what a country can produce, its PPF or production possibilities frontier, makes everyone richer. Punishing partners makes everyone poorer.'
     ),
 
     misconceptions(
-      'ECONOMICS MYTHS',
+      'Economics myths',
       'What most people get wrong about economics',
       [
         {
           myth: 'Economics is only about money and the stock market.',
           truth: 'Economics studies ALL resource allocation decisions, time, attention, labor, natural resources, and yes, money. Choosing between Netflix and studying, between work and leisure, between college and career, these are all economic decisions.',
-          explanation: 'The economic way of thinking applies to everything: why there\'s traffic at rush hour (scarce road space), why concert tickets sell out (scarce supply), why you can\'t have everything you want (scarce time and money). Once you see the world through the lens of scarcity and trade-offs, you can\'t unsee it.'
+          explanation: 'Economics explains daily life. Rush hour traffic is scarce road space. Sold out concerts are scarce tickets. You can\'t have everything because time and money are scarce. Once you notice, you can\'t unsee it.'
         },
         {
           myth: 'The economy is "zero-sum", for someone to win, someone must lose.',
           truth: 'Most economic activity is positive-sum, both parties benefit from voluntary exchange. When you buy a coffee, you value the coffee more than the $5, and the shop values the $5 more than the coffee. Both parties are better off. This is the foundation of all trade.',
-          explanation: 'If trade were zero-sum, it wouldn\'t happen. The fact that billions of transactions occur daily proves both sides benefit. Global trade has lifted billions out of poverty precisely because it\'s positive-sum, China\'s rise didn\'t make America poorer, it made both countries\' consumers richer through lower prices and more choices.'
+          explanation: 'If trade only helped one side, nobody would do it. Trades happen daily because both sides gain. Trade lifted billions out of poverty. China\'s rise gave American shoppers lower prices and more choice.'
         },
         {
           myth: 'Good economics means growing GDP at any cost.',
           truth: 'GDP measures production but not wellbeing. A country could grow GDP by clear-cutting forests, working people 80 hours/week, or ignoring pollution. Economists increasingly focus on GDP per capita, inequality metrics, and sustainability alongside raw growth.',
-          explanation: 'The small country of Bhutan measures "Gross National Happiness" alongside GDP. Many economists argue we need broader measures: median income (not just average), environmental sustainability, health outcomes, and leisure time. Growth matters, but what kind of growth matters more.'
+          explanation: 'Bhutan tracks Gross National Happiness alongside GDP, a country\'s total output. Many economists want broader measures: median income, health, the environment, and free time. Growth matters, but the kind matters more.'
         }
       ]
     ),
 
     keyTermsCards([
       { term: 'Scarcity', definition: 'The fundamental economic problem: unlimited wants vs. limited resources. Every person, business, and government faces it.', example: 'You have $50,000 and want a car ($30K), vacation ($5K), investments ($15K), and new furniture ($8K). Total wants: $58K. Budget: $50K. You must choose.', sentence: 'Scarcity isn\'t about poverty, even billionaires face scarcity of time, attention, and trust. It\'s the universal condition that makes economics necessary.' },
-      { term: 'Opportunity Cost', definition: 'The value of the best alternative forgone when making a choice, the hidden price tag on every decision.', example: 'Going to a 2-hour movie: explicit cost = $15 ticket. Opportunity cost = $30 you could have earned working, or the 2 hours of studying that might have raised your grade.', sentence: 'Opportunity cost is the most useful concept in economics because it forces you to consider what you\'re really giving up, not just what you\'re spending.' },
-      { term: 'Supply and Demand', definition: 'The two forces that determine prices in a market. Supply: how much producers offer. Demand: how much consumers want. Where they meet = the market price.', example: 'Only 100 Taylor Swift concert tickets exist (supply), but 10,000 fans want them (demand). Result: very high prices.', sentence: 'Supply and demand explains everything from why beachfront property costs more than rural land to why a plumber earns more on Christmas Day.' },
+      { term: 'Opportunity Cost', definition: 'The value of the best alternative forgone when making a choice, the hidden price tag on every decision.', example: 'A 2-hour movie costs a $15 ticket, plus the $30 you could have earned working or 2 hours of studying.', sentence: 'Opportunity cost is the most useful concept in economics because it forces you to consider what you\'re really giving up, not just what you\'re spending.' },
+      { term: 'Supply and Demand', definition: 'Supply is how much sellers offer. Demand is how much buyers want. Where they meet sets the market price.', example: 'Only 100 Taylor Swift concert tickets exist (supply), but 10,000 fans want them (demand). Result: very high prices.', sentence: 'Supply and demand explains everything from why beachfront property costs more than rural land to why a plumber earns more on Christmas Day.' },
       { term: 'Incentives', definition: 'Rewards or penalties that motivate behavior. The foundation of all economic analysis: people respond to incentives.', example: 'A $7,500 tax credit for electric vehicles incentivized 1.2 million EV purchases in the U.S. in 2023, a 50% increase over 2022.', sentence: 'Change the incentives, change the behavior. This principle explains why policies succeed or fail, and why unintended consequences are everywhere in economics.' },
       { term: 'Trade-off', definition: 'The sacrifice of one thing in order to get another. Every resource allocation involves a trade-off because of scarcity.', example: 'A government spending $100B more on defense means $100B less for education, healthcare, or infrastructure. There\'s no free allocation.', sentence: 'Understanding trade-offs prevents the dangerous illusion that policies are "free", everything has a cost, even if it\'s invisible.' },
       { term: 'GDP (Gross Domestic Product)', definition: 'The total market value of all final goods and services produced within a country in a specific period. The primary measure of economic output.', example: 'U.S. GDP in 2023: ~$27 trillion. China: ~$17.9 trillion. Japan: ~$4.2 trillion.', sentence: 'GDP is the economic scoreboard, it tells you how much a country produces, though not how well that production is distributed or whether it\'s sustainable.' }
@@ -355,20 +354,19 @@ const lessons: PathwayLesson[] = [
       'The Day Oil Went Negative: April 20, 2020',
       [
         { date: 'January 2020', event: 'Oil trades at $63/barrel, normal market conditions', context: 'Global demand: ~100 million barrels/day. Supply roughly matched. Prices were stable.' },
-        { date: 'March 2020', event: 'COVID lockdowns crash oil demand by 30% almost overnight', context: 'With people stuck at home, driving dropped 50%, flights dropped 90%, and factories closed worldwide. Demand for oil collapsed from 100M to 70M barrels/day in weeks, the fastest demand destruction in history.' },
-        { date: 'April 20, 2020', event: 'Oil prices go NEGATIVE: -$37.63/barrel', context: 'With demand in freefall and storage facilities completely full, producers literally couldn\'t give oil away. They had to PAY buyers to take it. Storage tankers filled up. The supply-demand imbalance was so extreme it produced a price never seen before: below zero.' },
-        { date: '2021-2022', event: 'Oil rebounds to $130/barrel, a $168 swing from the bottom', context: 'As lockdowns ended, demand surged back. But supply couldn\'t recover as fast, wells had been shut, workers laid off, investment cut. Supply lagged demand, and prices overshot to $130/barrel. The full cycle, crash, negative, surge, was a textbook supply-demand demonstration.' }
+        { date: 'March 2020', event: 'COVID lockdowns crash oil demand by 30% almost overnight', context: 'People stayed home. Driving fell 50%, flights 90%, factories closed. Oil demand crashed from 100M to 70M barrels a day in weeks, the fastest drop ever.' },
+        { date: 'April 20, 2020', event: 'Oil prices go NEGATIVE: -$37.63/barrel', context: 'Storage tanks were full and nobody wanted oil. Sellers had to pay buyers to take it. The price fell below zero, something never seen before.' },
+        { date: '2021-2022', event: 'Oil rebounds to $130/barrel, a $168 swing from the bottom', context: 'Lockdowns ended and demand jumped back, but supply lagged because wells were shut and workers laid off. Prices overshot to $130/barrel. One full cycle.' }
       ],
-      'We are opening with this story for a reason. The negative oil price was the most dramatic supply-demand event in modern economic history. It proved that prices are set ONLY by the intersection of supply and demand, not by the "intrinsic value" of the commodity. When demand collapses and supply can\'t adjust, even the world\'s most essential commodity can become worthless. Keep this case in mind as the model unfolds.'
+      'Negative oil prices proved a simple rule: price comes from where supply meets demand, not from how useful a thing is. When demand collapses and supply cannot adjust, even oil can be worth less than nothing.'
     ),
 
     teachingSlide(
-      'THE MODEL',
+      'The model',
       'How Supply and Demand Set Every Price',
       [
-        'Supply and demand is the most fundamental model in economics. Demand is the relationship between price and how much consumers want to buy, as price rises, quantity demanded falls (the law of demand). Supply is the relationship between price and how much producers offer, as price rises, quantity supplied increases (the law of supply). Where these two curves cross is equilibrium, the natural market price.',
-        'When demand exceeds supply, prices rise until enough buyers drop out or enough producers enter. When supply exceeds demand, prices fall until enough producers exit or buyers return. This self-correcting mechanism is the "invisible hand" Adam Smith described in 1776. The 2021 used car market is a perfect example: COVID reduced new car production (supply fell) while stimulus checks increased buying power (demand rose). Result: prices surged 45% in 12 months.',
-        'Shifts vs. movements matter. A change in price causes movement ALONG the curves (higher price → less demanded, more supplied). A change in other factors SHIFTS the entire curve: income changes shift demand, technology changes shift supply, population growth shifts demand, input cost changes shift supply. Understanding shifts lets you predict whether prices will rise or fall before they actually move.'
+        'Demand links price to how much buyers want: when price rises, they buy less. Supply links price to how much producers make: when price rises, they make more. Where the two meet is equilibrium, the market price.',
+      'Adam Smith called this self correcting pull the invisible hand in 1776. In 2021, COVID cut car production while stimulus checks lifted buying power, so used car prices rose 45% in 12 months.'
       ],
       [
         { term: 'Law of Demand', definition: 'As price increases, quantity demanded decreases (all else equal). Consumers buy less when things cost more.', example: 'When gas hit $5/gallon in 2022, Americans drove 3.4% fewer miles (FHWA data). When it dropped to $3, driving increased.' },
@@ -377,7 +375,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Price Elasticity', definition: 'How sensitive demand is to price changes. Elastic: demand changes a lot (luxury goods). Inelastic: demand barely changes (necessities).', example: 'Insulin demand is extremely inelastic, diabetics need it regardless of price. Netflix demand is elastic, cancel if price rises.' }
       ],
       'Supply curve sloping upward (more supply at higher prices), demand curve sloping downward (less demand at higher prices), crossing at equilibrium point. Arrows showing surplus above equilibrium and shortage below.',
-      { company: 'Bureau of Labor Statistics', metric: 'Used car price index (2020-2022)', outcome: 'Used car prices rose 45% in 12 months, the largest increase in recorded history', explanation: 'COVID created the perfect supply-demand storm. Semiconductor shortages cut new car production by 3.4 million units (supply crash). Stimulus checks and low interest rates increased buying power (demand surge). The result: the law of supply and demand produced the most dramatic price spike in automotive history.' },
+      undefined,
       GE2_DIAGRAM
     ),
 
@@ -390,7 +388,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE SHIFTS',
+      'The shifts',
       'What Moves Supply and Demand?',
       'comparison',
       'See how different events shift supply and demand curves, changing equilibrium prices. Toggle events to watch the market respond.',
@@ -413,17 +411,17 @@ const lessons: PathwayLesson[] = [
         { label: 'Demand Change', min: -50, max: 50, default: 0, unit: '%' },
         { label: 'Supply Change', min: -50, max: 50, default: 0, unit: '%' }
       ],
-      { company: 'U.S. Energy Information Administration', metric: 'U.S. oil production (2008-2023)', outcome: 'Production tripled from 5 million to 13 million barrels/day thanks to fracking technology', explanation: 'Fracking was a supply-side revolution. New technology made previously inaccessible oil economically viable, shifting the U.S. oil supply curve dramatically right. The result: the U.S. went from importing 60% of its oil to becoming a net exporter. Prices fell, and global geopolitics shifted, all from a supply curve movement.' }
+      undefined
     ),
 
     misconceptions(
-      'SUPPLY & DEMAND MYTHS',
+      'Supply & demand myths',
       'What most people get wrong about markets',
       [
         {
           myth: 'Companies set prices however they want, it\'s just corporate greed.',
           truth: 'In competitive markets, companies that set prices too high lose customers to competitors. Prices are constrained by competition and demand elasticity. Even monopolies can\'t charge infinite prices, at some point, consumers find alternatives or go without.',
-          explanation: 'When gas prices spiked in 2022, many blamed "corporate greed." But oil company profit margins (8-10%) were similar to prior years. Prices rose because supply dropped (Russia sanctions + underinvestment) and demand surged (post-COVID recovery). Blaming "greed" misses the actual supply-demand dynamics, and therefore misses the actual solutions.'
+          explanation: 'Gas prices spiked in 2022 and many blamed greed. But oil profit margins, 8-10%, matched earlier years. Supply fell (Russia sanctions, weak investment) while demand surged after COVID. That misses the real fix.'
         },
         {
           myth: 'If we just remove middlemen, prices would drop dramatically.',
@@ -433,7 +431,7 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'Price controls (rent control, price caps) solve affordability problems.',
           truth: 'Price controls treat the symptom (high prices) but worsen the disease (shortage). A 2019 Stanford study found San Francisco\'s rent control reduced rental housing supply by 15%. Price ceilings below equilibrium always create shortages. Price floors above equilibrium always create surpluses.',
-          explanation: 'When New York City capped rent increases, landlords reduced maintenance, converted to condos, and stopped building new rental units. The result: even fewer affordable apartments. The cure for high prices is more supply, not price caps. Supply and demand is a law, policies that ignore it always produce unintended consequences.'
+          explanation: 'When New York City capped rent increases, landlords cut maintenance, turned buildings into condos, and stopped building rentals. The result: fewer affordable apartments. More supply fixes high prices. Caps do not.'
         }
       ]
     ),
@@ -602,26 +600,25 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE INSTITUTION',
+      'The institution',
       'What Is the Federal Reserve?',
       [
-        'The Federal Reserve (the "Fed") is the central bank of the United States, created by the Federal Reserve Act of 1913 after a series of devastating bank panics. It\'s not a single building, it\'s a system of 12 regional Federal Reserve Banks (New York, Chicago, San Francisco, etc.) overseen by the Board of Governors in Washington, D.C. The Chair of the Fed (currently Jerome Powell, appointed 2018) is often called the most powerful economic official in the world.',
-        'The Fed has a dual mandate from Congress: (1) maximum employment, keep as many Americans working as possible, and (2) stable prices, keep inflation low and predictable, targeting 2% per year. These two goals often conflict. Fighting inflation (raising rates) slows the economy and can increase unemployment. Fighting unemployment (lowering rates) can overheat the economy and fuel inflation. The Fed constantly balances this tension.',
-        'The Fed\'s most important body is the Federal Open Market Committee (FOMC), which meets 8 times per year to set the federal funds rate, the interest rate banks charge each other for overnight loans. This single rate ripples through the entire economy: it influences mortgage rates, car loan rates, credit card rates, savings rates, corporate borrowing costs, and stock valuations. When the FOMC speaks, global markets listen.'
+        'The Federal Reserve, or Fed, is the central bank of the United States, created in 1913. It is a system of 12 regional banks plus a Board of Governors. Jerome Powell has chaired it since 2018.',
+      'Congress gave the Fed two goals: maximum employment and stable prices, or 2% inflation. They clash: rate hikes cool inflation but cost jobs. Its rate setting committee, the FOMC, meets 8 times yearly, steering mortgage and credit card rates.'
       ],
       [
         { term: 'Federal Reserve', definition: 'The central bank of the United States, responsible for monetary policy, banking supervision, and financial stability. Created in 1913.', example: 'The Fed raised rates 11 times in 2022-2023, from 0-0.25% to 5.25-5.50%, to combat the highest inflation in 40 years.' },
         { term: 'Dual Mandate', definition: 'The Fed\'s two congressionally assigned goals: maximum employment and stable prices (2% inflation target).', example: 'In 2022, inflation was 9.1% (way above 2%) while unemployment was 3.6% (very low). The Fed prioritized fighting inflation by raising rates aggressively.' },
-        { term: 'FOMC', definition: 'Federal Open Market Committee, the 12-member body that sets the federal funds rate 8 times per year. Includes 7 Board governors and 5 regional bank presidents.', example: 'Every FOMC meeting moves markets. In June 2022, the FOMC raised rates by 0.75%, the largest single hike since 1994.' },
-        { term: 'Federal Funds Rate', definition: 'The interest rate banks charge each other for overnight loans. The Fed\'s primary policy tool that influences all other interest rates in the economy.', example: 'When the fed funds rate went from 0% to 5.5%, the average 30-year mortgage rate rose from 3.0% to 7.8%, adding $900/month to a $300K home payment.' }
+        { term: 'FOMC', definition: 'The Federal Open Market Committee sets the federal funds rate 8 times a year. Its 12 members: 7 board governors, 5 regional bank presidents.', example: 'Every FOMC meeting moves markets. In June 2022, the FOMC raised rates by 0.75%, the largest single hike since 1994.' },
+        { term: 'Federal Funds Rate', definition: 'The interest rate banks charge each other for overnight loans. The Fed\'s primary policy tool that influences all other interest rates in the economy.', example: 'The fed funds rate went from 0% to 5.5%. 30-year mortgages rose from 3.0% to 7.8%, adding $900 a month on a $300K home.' }
       ],
       'Organizational diagram showing the Fed structure: Board of Governors at the top, 12 regional Federal Reserve Banks below, the FOMC in the center, and arrows flowing down to interest rates, banks, and the broader economy',
-      { company: 'Federal Reserve', metric: 'Rate decisions and their market impact (2022-2023)', outcome: 'Fastest rate-hiking cycle in 40 years: 0% to 5.5% in 16 months across 11 rate increases', explanation: 'The Fed saw inflation surge to 9.1% (June 2022), its highest since 1981. With unemployment at a historically low 3.6%, the Fed could focus entirely on its price stability mandate. It raised rates at the fastest pace since the Volcker era, including four consecutive 0.75% hikes, the most aggressive tightening in modern Fed history.' },
+      undefined,
       { type: 'comparison', title: 'Board of Governors', rows: [{ label: 'FOMC (12 members)', value: 'Federal Funds Rate' }], sentiment: 'positive' }
     ),
 
     interactiveGraph(
-      'THE TOOLS',
+      'The tools',
       'How the Fed Controls the Economy',
       'timeline',
       'See how the Fed\'s three main tools affect the economy. The federal funds rate is the primary lever, but open market operations and reserve requirements also play critical roles.',
@@ -645,7 +642,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Fed Funds Rate', min: 0, max: 8, default: 5.5, unit: '%' },
         { label: 'Monthly Bond Purchases', min: -95, max: 120, default: 0, unit: '$B' }
       ],
-      { company: 'Federal Reserve Board', metric: 'Balance sheet size (2008-2024)', outcome: 'Fed balance sheet expanded from $900 billion to $8.9 trillion through QE programs', explanation: 'Three rounds of QE (2008-2014) and COVID QE (2020-2022) grew the Fed\'s balance sheet nearly 10x. Each round injected hundreds of billions into the financial system, pushing interest rates down and boosting asset prices. This unprecedented monetary expansion fueled the longest bull market in history (2009-2020) but also contributed to the inflation spike in 2022.' }
+      undefined
     ),
 
     microCheck(
@@ -659,33 +656,33 @@ const lessons: PathwayLesson[] = [
     caseStudy(
       'The Fed\'s 2022-2023 Rate Hiking Cycle: Fighting Inflation',
       [
-        { date: 'March 2020', event: 'Fed slashes rates to 0-0.25% and launches massive QE ($120B/month in bond purchases)', context: 'COVID crashed the economy. GDP fell 31.4% annualized in Q2 2020. The Fed deployed every tool available: zero interest rates plus $120 billion per month in bond buying to prevent a depression. Combined with $5+ trillion in government stimulus, this created a flood of money.' },
-        { date: 'June 2021', event: 'Inflation reaches 5.4%, the Fed calls it "transitory"', context: 'Inflation was rising but the Fed believed it was temporary, caused by supply chain disruptions and pandemic reopening. Fed Chair Powell used the word "transitory" repeatedly. Critics argued the Fed was behind the curve.' },
-        { date: 'June 2022', event: 'Inflation hits 9.1%, 40-year high. Fed raises rates by 0.75% (largest hike since 1994)', context: 'Inflation proved not transitory. The Fed pivoted hard, raising rates by 0.75%, three times the normal 0.25% increment. The S&P 500 entered a bear market, falling 20%. Mortgage rates surged past 5%. The Fed admitted it had waited too long to act.' },
-        { date: 'July 2023', event: 'Fed raises to 5.25-5.50%, the highest level since 2001. Inflation drops to 3.2%', context: 'After 11 consecutive rate hikes totaling 525 basis points in 16 months, inflation was falling without a recession. Unemployment remained below 4%. The labor market stayed remarkably resilient despite the fastest tightening cycle in 40 years.' },
-        { date: 'September 2024', event: 'Fed begins cutting rates, first cut of 0.50% after inflation falls toward 2.5%', context: 'With inflation retreating toward the 2% target and the labor market showing signs of softening, the Fed pivoted to rate cuts. The "soft landing", reducing inflation without causing a recession, appeared within reach, defying many economists\' predictions.' }
+        { date: 'March 2020', event: 'Fed slashes rates to 0-0.25% and launches massive QE ($120B/month in bond purchases)', context: 'COVID crashed the economy: GDP fell 31.4% in Q2 2020. The Fed cut rates to zero and bought $120 billion in bonds monthly. Stimulus added $5+ trillion more.' },
+        { date: 'June 2021', event: 'Inflation reaches 5.4%, the Fed calls it "transitory"', context: 'Prices were rising, but the Fed called it temporary: supply chain snarls plus reopening demand. Chair Powell kept calling it transitory. Critics said the Fed was too slow.' },
+        { date: 'June 2022', event: 'Inflation hits 9.1%, 40-year high. Fed raises rates by 0.75% (largest hike since 1994)', context: 'Inflation was not temporary. The Fed hiked 0.75%, triple its usual 0.25%. The S&P 500 fell 20%, a bear market. Mortgage rates topped 5%. It had waited too long.' },
+        { date: 'July 2023', event: 'Fed raises to 5.25-5.50%, the highest level since 2001. Inflation drops to 3.2%', context: 'After 11 straight hikes totaling 525 basis points in 16 months, inflation was falling with no recession. Unemployment stayed under 4% through the fastest tightening in 40 years.' },
+        { date: 'September 2024', event: 'Fed begins cutting rates, first cut of 0.50% after inflation falls toward 2.5%', context: 'With inflation nearing the 2% target and hiring cooling, the Fed started cutting rates. A soft landing, lower inflation without a recession, looked possible after all.' }
       ],
-      'The 2022-2023 rate cycle was the most dramatic monetary policy event since Paul Volcker\'s rate hikes in 1980-1982. It demonstrated the Fed\'s immense power: one institution\'s decisions affected mortgage payments, savings rates, stock prices, and borrowing costs for 330 million Americans. The lesson: the Fed will tolerate economic pain to fight inflation, and understanding its playbook lets you prepare for rate changes before they hit your wallet.'
+      'The 2022-2023 hiking cycle was the biggest since Paul Volcker\'s in 1980-1982. One institution moved mortgage payments, savings rates, stock prices, borrowing costs for 330 million Americans. It will accept pain to beat inflation, so learn its playbook.'
     ),
 
     misconceptions(
-      'FED MYTHS DEBUNKED',
+      'Fed myths debunked',
       'What most people get wrong about the Federal Reserve',
       [
         {
           myth: 'The Fed "prints money" directly, causing inflation on purpose.',
           truth: 'The Fed doesn\'t print physical currency (that\'s the Treasury). It influences the money supply by buying/selling bonds and setting interest rates. QE creates bank reserves, not cash in people\'s pockets. Inflation results from complex interactions between monetary policy, fiscal policy, supply chains, and demand, not a single lever.',
-          explanation: 'During COVID, the real drivers of inflation were: $5+ trillion in government stimulus (fiscal policy, not the Fed), supply chain breakdowns (ships stuck at ports), and a massive demand surge as the economy reopened. The Fed\'s QE contributed by keeping financial conditions loose, but it wasn\'t "money printing" in the way people imagine.'
+          explanation: 'During COVID, inflation came from $5+ trillion in government stimulus, broken supply chains, and a demand surge at reopening. The Fed\'s bond buying kept money cheap, but it was not printing cash.'
         },
         {
           myth: 'The Fed works for the President and follows political orders.',
           truth: 'The Fed is an independent institution by design. The Chair is appointed by the President but serves a 4-year term and cannot be fired for policy disagreements. Fed governors serve 14-year terms specifically to insulate them from political pressure.',
-          explanation: 'President Trump publicly pressured Fed Chair Powell to lower rates in 2018-2019, calling him an "enemy." Powell refused and maintained the Fed\'s independent judgment. This independence is crucial, countries where central banks follow political orders (Turkey, Argentina) have experienced devastating inflation, with Turkey hitting 85% in 2022.'
+          explanation: 'Trump pressured Chair Powell to cut rates in 2018-2019 and called him an enemy. Powell refused. Independence matters: where central banks take political orders, inflation runs wild. Turkey hit 85% in 2022; Argentina too.'
         },
         {
           myth: 'Raising interest rates is always bad for the economy.',
           truth: 'Rate hikes cool overheating economies and prevent runaway inflation. The alternative, letting inflation spiral, is far worse. Controlled rate increases keep prices stable, protect savings, and maintain confidence in the currency. Rate hikes also benefit savers, who earn more on deposits.',
-          explanation: 'When the Fed raised rates in 2022-2023, high-yield savings accounts went from paying 0.01% to over 5%. Retirees and savers earned meaningful returns for the first time in 15 years. Meanwhile, inflation fell from 9.1% to ~3% without causing a recession. Rate hikes can be painful short-term but essential for long-term economic stability.'
+          explanation: 'In 2022-2023 the Fed raised rates, high-yield savings went from 0.01% to over 5%. Savers earned money for the first time in 15 years. Inflation fell from 9.1% to about 3% with no recession.'
         }
       ]
     ),
@@ -843,12 +840,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FORMULA',
+      'The formula',
       'GDP = C + I + G + (X - M)',
       [
-        'Gross Domestic Product (GDP) is the total monetary value of all finished goods and services produced within a country\'s borders in a specific time period (usually one year or one quarter). It\'s the single most important number in economics, the scoreboard for an entire economy. U.S. GDP in 2023 was approximately $27.4 trillion, making it the world\'s largest economy.',
-        'The GDP formula has four components: C (Consumer Spending) is the largest at about 68% of U.S. GDP, everything households buy from groceries to healthcare to Netflix subscriptions. I (Business Investment) at about 18% includes factories, equipment, software, and housing construction. G (Government Spending) at about 17% covers federal, state, and local spending on goods and services (not transfer payments like Social Security). (X-M) is Net Exports, exports minus imports, which has been negative for the U.S. since the 1970s (we import more than we export).',
-        'GDP only counts final goods to avoid double counting. When a farmer sells wheat to a baker for $2 and the baker sells bread for $5, GDP counts $5 (the final product), not $7. It also only counts production within borders, a Toyota factory in Kentucky adds to U.S. GDP, not Japan\'s. And it only counts new production, selling a used car doesn\'t count because it was already counted when first produced.'
+        'Gross domestic product, GDP, is the value of finished goods and services made in a country. U.S. GDP hit $27.4 trillion in 2023. C, consumer spending like Netflix, is 68%; I, business investment, 18%; G, government spending, 17%.',
+      'Net exports, X - M, is exports minus imports, negative since the 1970s. GDP counts only final goods: $2 wheat sold as $5 bread counts as $5, not $7. Toyota\'s plant in Kentucky counts for the U.S., not Japan.'
       ],
       [
         { term: 'GDP (Gross Domestic Product)', definition: 'The total market value of all final goods and services produced within a country\'s borders in a given period. The primary measure of economic output.', example: 'U.S. GDP was ~$27.4 trillion in 2023. China\'s was ~$17.9 trillion. Together, these two economies produce about 43% of global GDP.' },
@@ -857,20 +853,20 @@ const lessons: PathwayLesson[] = [
         { term: 'Net Exports (X-M)', definition: 'Exports minus imports. Positive = trade surplus (exports > imports). Negative = trade deficit (imports > exports).', example: 'The U.S. had a trade deficit of ~$773 billion in 2023: it imported $773B more in goods and services than it exported.' }
       ],
       'Pie chart showing GDP components: Consumer Spending 68%, Business Investment 18%, Government Spending 17%, Net Exports -3%',
-      { company: 'Bureau of Economic Analysis', metric: 'U.S. GDP composition (2023)', outcome: 'Consumer spending drove 68% of the $27.4 trillion U.S. economy', explanation: 'The American economy is fundamentally consumer-driven. When consumer confidence drops and spending slows, as it did during COVID when GDP fell 31.4% annualized in Q2 2020, the entire economy contracts. This is why consumer confidence surveys and retail sales data are closely watched leading indicators.' },
+      undefined,
       { type: 'stack', title: 'U.S. GDP Components (2023): $27.4 Trillion', total: '$27.4T', segments: [{ label: 'Consumer Spending (C)', value: '~$18.6T', percent: 68, color: '#A451E6' }, { label: 'Business Investment (I)', value: '~$4.9T', percent: 18, color: '#B862ED' }, { label: 'Government Spending (G)', value: '~$4.7T', percent: 17, color: '#10B981' }, { label: 'Net Exports drag (X-M)', value: '-$773B', percent: -3, color: '#EF4444' }], footer: 'GDP = C + I + G + (X-M). Net exports subtract because the U.S. imports more than it sells abroad.', sentiment: 'positive' }
     ),
 
     caseStudy(
       'China\'s GDP Explosion: $1.2 Trillion to $17.9 Trillion',
       [
-        { date: '1978', event: 'Deng Xiaoping launches economic reforms, opening China to foreign investment and market forces', context: 'China\'s GDP was about $150 billion, smaller than the Netherlands. The economy was centrally planned, agricultural, and largely closed to the world. Per capita income was ~$155/year, one of the poorest countries in the world.' },
-        { date: '2000', event: 'China\'s GDP reaches $1.2 trillion, rapid industrialization underway', context: 'After two decades of reform, China had become the "world\'s factory." Foreign direct investment poured in, attracted by cheap labor and a massive workforce. Manufacturing exports surged. GDP grew an average of 10% per year through the 1990s.' },
-        { date: '2001', event: 'China joins the World Trade Organization (WTO), supercharging export growth', context: 'WTO membership gave China access to global markets at lower tariff rates. Chinese exports tripled from $266 billion (2001) to $1.2 trillion (2007). Hundreds of millions of workers moved from farms to factories, fueling the greatest industrialization in human history.' },
-        { date: '2010', event: 'China overtakes Japan to become the world\'s second-largest economy at $6.1 trillion', context: 'In just 30 years, China went from smaller than the Netherlands to larger than every economy except the United States. Infrastructure investment was massive: China built more high-speed rail than the rest of the world combined.' },
-        { date: '2023', event: 'China\'s GDP reaches $17.9 trillion, but growth is slowing to 5.2%', context: 'China\'s GDP grew 15x in 23 years. But challenges are mounting: a real estate crisis (Evergrande\'s collapse), declining population, youth unemployment of 21%, and rising debt. GDP per capita ($12,700) still significantly trails developed nations. The "middle-income trap" looms, whether China can transition from manufacturing to innovation-driven growth.' }
+        { date: '1978', event: 'Deng Xiaoping launches economic reforms, opening China to foreign investment and market forces', context: 'China\'s GDP was about $150 billion, less than the Netherlands. The economy was planned, farm based, and closed. Income per person was $155 a year, among the world\'s poorest.' },
+        { date: '2000', event: 'China\'s GDP reaches $1.2 trillion, rapid industrialization underway', context: 'After 20 years of reform, China was the world\'s factory. Cheap labor and a huge workforce drew foreign money. Exports surged. GDP grew 10% a year in the 1990s.' },
+        { date: '2001', event: 'China joins the World Trade Organization (WTO), supercharging export growth', context: 'WTO membership cut tariffs, the taxes countries charge on imports. Exports tripled from $266 billion in 2001 to $1.2 trillion in 2007. Hundreds of millions left farms for factories.' },
+        { date: '2010', event: 'China overtakes Japan to become the world\'s second-largest economy at $6.1 trillion', context: 'In 30 years China went from smaller than the Netherlands to second only to the United States. It built more high speed rail than everyone else combined.' },
+        { date: '2023', event: 'China\'s GDP reaches $17.9 trillion, but growth is slowing to 5.2%', context: 'GDP grew 15 times in 23 years. Now trouble: Evergrande\'s property collapse, a shrinking population, 21% youth unemployment, rising debt. GDP per person, $12,700, still trails rich nations.' }
       ],
-      'China\'s rise is the most dramatic GDP story in economic history, growing from $150 billion to $17.9 trillion in 45 years, lifting over 800 million people out of extreme poverty (World Bank). But GDP alone doesn\'t tell the full story: China\'s per capita GDP ($12,700) remains far below the U.S. ($80,000), inequality has widened dramatically, and environmental costs have been enormous. GDP measures output, not well-being, understanding its limitations is as important as understanding its formula.'
+      'China grew from $150 billion to $17.9 trillion in 45 years, lifting over 800 million people from poverty (World Bank). But per person, $12,700 against the U.S. $80,000. Inequality widened and pollution soared. GDP counts output, not well-being.'
     ),
 
     microCheck(
@@ -882,7 +878,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'NOMINAL VS. REAL',
+      'Nominal vs. real',
       'Seeing Through Inflation\'s Illusion',
       'comparison',
       'Compare nominal GDP (includes inflation) with real GDP (inflation-adjusted) to see how inflation distorts the picture of economic growth.',
@@ -906,27 +902,27 @@ const lessons: PathwayLesson[] = [
         { label: 'Inflation Rate', min: 0, max: 15, default: 3, unit: '%' },
         { label: 'Nominal GDP Growth', min: -5, max: 15, default: 5, unit: '%' }
       ],
-      { company: 'World Bank', metric: 'GDP per capita rankings (2023)', outcome: 'Luxembourg leads the world at ~$128,000 per capita; India ranks 140th at ~$2,600 despite having the 5th largest total GDP', explanation: 'Total GDP tells you the size of the economy. GDP per capita tells you how well the average person lives. India\'s economy is massive ($3.7T), but divided among 1.4 billion people, each person\'s share is tiny. Luxembourg\'s economy is small ($84B) but with only 660,000 people, each person\'s share is enormous. Always use per capita for comparing living standards.' }
+      undefined
     ),
 
     misconceptions(
-      'GDP MYTHS BUSTED',
+      'GDP myths busted',
       'What GDP doesn\'t tell you',
       [
         {
           myth: 'A country with higher GDP is always a better place to live.',
           truth: 'GDP measures total output, not quality of life. The U.S. has the highest GDP ($27.4T) but ranks 15th in the UN Human Development Index. Countries with lower GDP but better healthcare, education, and equality (Norway, Denmark, Australia) often rank higher in quality of life.',
-          explanation: 'GDP doesn\'t capture income distribution (the U.S. has extreme inequality), healthcare access (65 million Americans struggled with medical bills in 2023), environmental quality, mental health, or leisure time. Saudi Arabia has high GDP per capita but limited social freedoms. Bhutan famously measures "Gross National Happiness" instead of GDP.'
+          explanation: 'GDP skips who gets the money, health care (65 million Americans struggled with medical bills in 2023), clean air, and free time. Saudi Arabia is rich but not free. Bhutan measures Gross National Happiness.'
         },
         {
           myth: 'GDP counts everything that matters economically.',
           truth: 'GDP ignores unpaid work (childcare, housework, volunteering valued at $10.9 trillion/year in the U.S. according to the Bureau of Economic Analysis satellite accounts), the informal economy, environmental degradation, and natural resource depletion. An oil spill actually increases GDP (cleanup spending) even though it destroys value.',
-          explanation: 'If a parent stays home to raise children, GDP doesn\'t count their work. If they hire a nanny, it does. A hurricane destroys $50 billion in property, GDP counts the rebuilding as economic activity. These absurdities show that GDP measures market transactions, not genuine economic well-being.'
+          explanation: 'Raise your kids and GDP counts nothing. Hire a nanny and it counts. A hurricane wrecks $50 billion of property, and GDP counts the rebuilding as growth. GDP tracks money changing hands, not well-being.'
         },
         {
           myth: 'GDP growth always means everyone is better off.',
           truth: 'GDP growth can be concentrated among the wealthy while median incomes stagnate. From 1979-2023, U.S. GDP grew roughly 250%, but median household income grew only about 67% after adjusting for inflation. The top 1% captured a disproportionate share of growth.',
-          explanation: 'If a country\'s GDP grows 5% but all the gains go to the top 10%, the average citizen is no better off. This is why economists increasingly look at median income growth, inequality measures (Gini coefficient), and poverty rates alongside GDP. Growth matters, but distribution matters too.'
+          explanation: 'If GDP grows 5% but the top 10% take all the gains, the typical person gets nothing. Economists watch median income, poverty rates, and the Gini coefficient, a score for how unequal incomes are.'
         }
       ]
     ),
@@ -934,8 +930,8 @@ const lessons: PathwayLesson[] = [
     keyTermsCards([
       { term: 'GDP (Gross Domestic Product)', definition: 'The total market value of all final goods and services produced within a country\'s borders in a given period.', example: 'U.S. GDP in 2023: ~$27.4 trillion. This makes the U.S. the world\'s largest economy, producing about 25% of global output.', sentence: 'GDP is the most-watched economic indicator in the world, when it shrinks for two consecutive quarters, economists declare a recession.' },
       { term: 'Real vs. Nominal GDP', definition: 'Nominal GDP uses current prices (includes inflation). Real GDP uses constant base-year prices (strips out inflation). Real GDP reveals actual production changes.', example: 'If nominal GDP grows 5% but inflation is 3%, real GDP growth is approximately 2%. Only 2% of the growth represents actual increases in output.', sentence: 'Always use real GDP when comparing across years, nominal GDP makes the past look smaller and the present look bigger simply because prices rise over time.' },
-      { term: 'GDP Per Capita', definition: 'GDP divided by total population. The best single indicator of average living standards and economic well-being.', example: 'Luxembourg: ~$128,000 per capita (tiny population, high output). India: ~$2,600 per capita (massive population, moderate total output). The per capita number reveals the living standard gap.', sentence: 'GDP per capita explains why Swiss citizens live better than Chinese citizens even though China\'s total economy is 20x larger than Switzerland\'s.' },
-      { term: 'Recession', definition: 'Commonly defined as two consecutive quarters of declining real GDP. Characterized by rising unemployment, falling consumer spending, and business contraction.', example: 'The COVID recession (Feb-April 2020) was the shortest but sharpest on record: GDP fell 31.4% annualized in Q2 2020, and 22 million jobs were lost in 4 weeks.', sentence: 'Recognizing recession signals early lets you prepare, reduce debt, increase savings, and avoid panic-selling investments.' },
+      { term: 'GDP Per Capita', definition: 'GDP divided by total population. The best single indicator of average living standards and economic well-being.', example: 'Luxembourg: about $128,000 per person, tiny population and high output. India: about $2,600 per person, huge population. Very different living standards.', sentence: 'GDP per capita explains why Swiss citizens live better than Chinese citizens even though China\'s total economy is 20x larger than Switzerland\'s.' },
+      { term: 'Recession', definition: 'Commonly defined as two consecutive quarters of declining real GDP. Characterized by rising unemployment, falling consumer spending, and business contraction.', example: 'COVID recession, February to April 2020: the shortest and sharpest ever. GDP fell 31.4% annualized in Q2. 22 million jobs vanished in 4 weeks.', sentence: 'Recognizing recession signals early lets you prepare, reduce debt, increase savings, and avoid panic-selling investments.' },
       { term: 'Net Exports (X-M)', definition: 'Exports minus imports. A trade surplus (positive) means a country exports more than it imports. A trade deficit (negative) means it imports more.', example: 'The U.S. ran a trade deficit of ~$773 billion in 2023, it imported $773B more in goods and services than it sold abroad.', sentence: 'A trade deficit isn\'t necessarily bad, it can mean consumers have strong purchasing power to buy foreign goods, but persistent deficits can indicate competitiveness challenges.' }
     ]),
 
@@ -1078,12 +1074,11 @@ const lessons: PathwayLesson[] = [
     ),
   
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'What Is Inflation and How Is It Measured?',
       [
-        'Inflation is a sustained increase in the general price level of goods and services over time. When inflation is 4%, a basket of goods that costs $100 today will cost $104 next year. It isn\'t about one price going up, it\'s about the average price of everything rising. The key insight: inflation doesn\'t mean you\'re poorer automatically, but it means your money buys less unless your income rises to match.',
-        'The Consumer Price Index (CPI) is how the U.S. Bureau of Labor Statistics measures inflation. Every month, they track prices on a "basket" of ~80,000 items across 8 categories: housing (33% weight), transportation (17%), food (14%), medical care (9%), education, apparel, recreation, and other. The CPI compares this month\'s basket cost to a base period. If the basket cost $260 last year and $270 now, inflation is about 3.8%. Core CPI strips out volatile food and energy prices to reveal the underlying trend.',
-        'Central banks worldwide target 2% inflation, not 0%. Why? A little inflation is the economy\'s lubricant. It gives businesses room to adjust wages, encourages spending (why sit on cash if it loses value?), and gives central banks room to cut rates during recessions. At 0% or below, you get deflation, and as Japan\'s "Lost Decades" proved, deflation can be far more destructive than moderate inflation.'
+        'Inflation is a rise in average prices: at 4%, $100 of goods costs $104 next year. The U.S. Bureau of Labor Statistics\' Consumer Price Index (CPI) tracks ~80,000 items in 8 groups: housing 33%, transport 17%, food 14%, medical 9%.',
+      'If that basket cost $260 last year and $270 now, inflation is about 3.8%. Core CPI drops volatile food and energy prices. Central banks target 2% inflation, not 0%: deflation, falling prices, damaged Japan during its Lost Decades.'
       ],
       [
         { term: 'Consumer Price Index (CPI)', definition: 'A measure of the average change in prices paid by consumers for a basket of ~80,000 goods and services. The primary U.S. inflation gauge.', example: 'CPI rose 9.1% year-over-year in June 2022, meaning the average American\'s cost of living jumped $3,500-$5,000 that year.' },
@@ -1092,7 +1087,7 @@ const lessons: PathwayLesson[] = [
         { term: '2% Inflation Target', definition: 'The rate most central banks aim for, high enough to lubricate the economy, low enough to preserve purchasing power.', example: 'At 2% inflation, prices double every 36 years. At 10%, they double every 7 years. The difference is enormous over a lifetime.' }
       ],
       'Diagram showing a shopping cart with CPI basket categories: Housing (33%), Transportation (17%), Food (14%), Medical (9%), and Others. Arrows showing how CPI is calculated by comparing basket costs month-over-month.',
-      { company: 'Bureau of Labor Statistics', metric: 'CPI June 2022', outcome: 'Inflation hit 9.1%, the highest since November 1981', explanation: 'A perfect storm: COVID stimulus flooded the economy with $5 trillion, supply chains broke down, energy prices spiked from the Russia-Ukraine war, and housing costs surged. The result was the worst inflation in 40 years, forcing the Fed into the most aggressive rate-hiking cycle since the 1980s.' },
+      undefined,
       { type: 'grid', title: 'What the CPI Basket Tracks (Category Weights)', items: [{ label: 'Housing 33%', value: 'Rent, utilities, furnishings', color: '#A451E6' }, { label: 'Transport 17%', value: 'Gas, vehicles, insurance', color: '#B862ED' }, { label: 'Food 14%', value: 'Groceries and dining out', color: '#10B981' }, { label: 'Medical 9%', value: 'Doctors, drugs, insurance', color: '#F59E0B' }, { label: 'Other 27%', value: 'Apparel, education, recreation', color: '#94A3B8' }], footer: 'Housing alone drives a third of the inflation number', sentiment: 'positive' }
     ),
   
@@ -1105,7 +1100,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     interactiveGraph(
-      'THE EXTREMES',
+      'The extremes',
       'Hyperinflation vs. Deflation: Two Deadly Extremes',
       'comparison',
       'Compare the devastating effects of hyperinflation and deflation on economies. Both destroy wealth, but in opposite ways.',
@@ -1129,27 +1124,27 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Inflation Rate', min: -2, max: 50, default: 2, unit: '%' },
         { label: 'Years', min: 1, max: 40, default: 10, unit: '' }
       ],
-      { company: 'Bank of Japan', metric: '30-year inflation average (1991-2020)', outcome: 'Near-zero inflation for three decades, the longest deflationary period in modern history', explanation: 'Japan\'s asset bubble burst in 1991. Despite interest rates at 0% and massive government spending, deflation persisted. Consumers hoarded cash, businesses refused to invest, and banks sat on bad loans. Japan\'s GDP barely grew while the U.S. economy tripled. The lesson: deflation is extremely difficult to escape once expectations set in.' }
+      undefined
     ),
   
     misconceptions(
-      'INFLATION MYTHS',
+      'Inflation myths',
       'What most people get wrong about rising prices',
       [
         {
           myth: 'Inflation is always bad, any price increase hurts everyone.',
           truth: 'Moderate inflation (2-3%) is actually healthy. It encourages spending over hoarding, gives employers flexibility to adjust real wages without cuts, and gives central banks room to stimulate during recessions. The real danger is unexpected or extreme inflation.',
-          explanation: 'Borrowers actually benefit from moderate inflation, you repay loans with "cheaper" dollars. If you borrowed $300K for a mortgage at 3% and inflation runs at 4%, you\'re repaying with dollars worth less than when you borrowed. The U.S. government, the world\'s largest borrower, benefits similarly. The losers are savers and people on fixed incomes.'
+          explanation: 'Moderate inflation helps borrowers. Borrow $300K at 3% while prices rise 4%, and you repay with dollars that buy less. The U.S. government, the biggest borrower, gains. Savers and people on fixed incomes lose.'
         },
         {
           myth: 'Deflation (falling prices) would be great, everything gets cheaper!',
           truth: 'Deflation is one of the most dangerous economic conditions. When prices fall, consumers delay purchases, businesses lose revenue, layoffs increase, spending drops further, and the economy spirals downward. Japan lost three decades to deflation.',
-          explanation: 'Think about it: if you knew your dream car would be 10% cheaper next year, would you buy it now? Multiply that by millions of consumers and businesses all waiting, and you get economic paralysis. Japan\'s deflation created a "liquidity trap" where even 0% interest rates couldn\'t motivate borrowing or spending.'
+          explanation: 'If your dream car will cost 10% less next year, why buy now? When millions wait, spending stalls. Japan\'s deflation made a liquidity trap: even 0% interest rates could not restart borrowing or spending.'
         },
         {
           myth: 'Printing money always causes inflation immediately.',
           truth: 'Money printing causes inflation only when it outpaces the economy\'s productive capacity. After 2008, the Fed created $3.5 trillion through QE, and inflation stayed below 2% for a decade because the money went to banks, not consumers, and the economy had excess capacity.',
-          explanation: 'The key difference between 2008 (QE without inflation) and 2020 (stimulus with inflation): in 2008, money went to banks who didn\'t lend it out. In 2020, money went directly to consumers via stimulus checks, $5 trillion into an economy with broken supply chains. The spending hit immediately while production couldn\'t keep up.'
+          explanation: 'In 2008, money went to banks, which did not lend it. In 2020, $5 trillion went straight to households while supply chains were broken. People spent right away, but production could not keep up.'
         }
       ]
     ),
@@ -1158,12 +1153,12 @@ const lessons: PathwayLesson[] = [
       'The 2022 U.S. Inflation Crisis: How 9.1% Happened',
       [
         { date: 'March 2020', event: 'COVID-19 pandemic shuts down the global economy', context: 'Factories close, supply chains break, 22 million Americans lose jobs in weeks. The government responds with emergency stimulus: $2.2 trillion CARES Act, enhanced unemployment ($600/week extra), and $1,200 stimulus checks.' },
-        { date: '2020-2021', event: 'U.S. government injects ~$5 trillion in total stimulus into the economy', context: 'Three rounds of stimulus checks, PPP loans, enhanced unemployment, child tax credits. The money supply (M2) surged 40% in two years, the most rapid expansion since WWII. Meanwhile, supply chains remained broken: ships waited weeks at ports, chip shortages halted car production, and China\'s zero-COVID policy disrupted manufacturing.' },
-        { date: 'Feb 2022', event: 'Russia invades Ukraine, energy and food prices spike globally', context: 'Russia supplies 10% of global oil and 40% of Europe\'s natural gas. Ukraine exports 10% of global wheat. War disrupted both, sending gas to $5/gallon and food prices soaring. This was the final ingredient in the inflation cocktail: too much money chasing too few goods, with an energy shock on top.' },
-        { date: 'June 2022', event: 'CPI hits 9.1%, the highest reading since November 1981', context: 'Eggs up 70%. Gas up 60%. Rent up 6.5%. Used cars up 45%. The average American household spent $5,200 more in 2022 than 2021 for the same standard of living. The Fed responded with the most aggressive rate-hiking campaign in decades: 0% to 5.5% in 16 months.' },
-        { date: '2023-2024', event: 'Inflation gradually cools to ~3% as Fed\'s rate hikes take effect', context: 'Higher interest rates slowed borrowing and spending. Supply chains recovered. Gas prices fell. But core inflation proved sticky, housing and services kept rising. The Fed held rates at 5.25-5.50% for over a year, engineering a "soft landing" where inflation fell without a recession.' }
+        { date: '2020-2021', event: 'U.S. government injects ~$5 trillion in total stimulus into the economy', context: 'Three stimulus checks, PPP loans, jobless benefits, child tax credits. Money supply grew 40% in two years, the fastest since WWII. Ships idled at ports, chip shortages halted carmakers.' },
+        { date: 'Feb 2022', event: 'Russia invades Ukraine, energy and food prices spike globally', context: 'Russia supplies 10% of world oil and 40% of Europe\'s natural gas. Ukraine grows 10% of world wheat. War cut both, pushing gas to $5/gallon and food prices up.' },
+        { date: 'June 2022', event: 'CPI hits 9.1%, the highest reading since November 1981', context: 'Eggs up 70%, gas 60%, rent 6.5%, used cars 45%. Same goods cost households $5,200 more in 2022 than 2021. Fed rates jumped 0% to 5.5% in 16 months.' },
+        { date: '2023-2024', event: 'Inflation gradually cools to ~3% as Fed\'s rate hikes take effect', context: 'Higher rates slowed spending. Supply chains healed, gas fell, but housing and services kept rising. Fed held rates at 5.25-5.50% for over a year. Inflation fell without a recession.' }
       ],
-      'The 2022 inflation crisis was a textbook case of too much money chasing too few goods, amplified by supply shocks. It taught a generation that inflation isn\'t abstract, it\'s the price of eggs doubling, your rent jumping, and your paycheck buying less. The episode proved that massive government spending without corresponding production creates inflation, and that once inflation takes hold, it takes years of painful rate hikes to bring it back down.'
+      '2022 inflation was too much money chasing too few goods, plus supply shocks. Inflation stopped being abstract: pricier eggs, higher rent, a smaller paycheck. Spending without production raises prices, and bringing inflation down takes years of painful rate hikes.'
     ),
 
     keyTermsCards([
@@ -1321,12 +1316,11 @@ const lessons: PathwayLesson[] = [
     ),
   
     teachingSlide(
-      'THE FOUNDATION',
+      'The foundation',
       'Comparative Advantage: Why Countries Trade',
       [
-        'Why does the U.S. import coffee from Colombia instead of growing it domestically? It COULD grow coffee in heated greenhouses, but at 10x the cost. The answer is comparative advantage, the most important concept in international trade. A country has a comparative advantage in producing a good when it can produce it at a lower opportunity cost than other countries. Even if one country is better at making EVERYTHING, trade still benefits both sides.',
-        'Here\'s the key insight: trade isn\'t about absolute ability, it\'s about relative efficiency. If the U.S. is 5x more productive than Vietnam at making computers but only 1.5x more productive at making textiles, the U.S. should focus on computers and import textiles. Why? Every hour the U.S. spends making textiles is an hour NOT spent making computers where its advantage is greatest. Vietnam benefits too: it gets cheaper computers than it could make itself.',
-        'David Ricardo proved this in 1817 and it remains the foundation of trade theory. Global trade has grown from $2 trillion in 1970 to $32 trillion in 2023. The result: billions lifted from poverty. China\'s integration into global trade reduced its poverty rate from 88% (1981) to under 1% (2020), the greatest poverty reduction in human history. Bangladesh\'s garment exports (comparative advantage in low-cost labor) grew from nearly zero in 1980 to $42 billion in 2023, transforming the nation.'
+        'Comparative advantage means making what costs you least in output given up. The U.S. could grow coffee at 10x Colombia\'s cost, so it imports. It beats Vietnam 5x at computers, 1.5x at textiles: build computers, import textiles.',
+      'David Ricardo proved this in 1817. Global trade: $2 trillion in 1970, $32 trillion in 2023. China\'s poverty fell from 88% (1981) to under 1% (2020). Bangladesh garment exports grew from near zero in 1980 to $42 billion in 2023.'
       ],
       [
         { term: 'Comparative Advantage', definition: 'A country\'s ability to produce a good at a lower opportunity cost than another country. The basis for mutually beneficial trade.', example: 'Colombia grows coffee cheaply (warm climate, low labor costs). The U.S. designs software (skilled workforce, tech ecosystem). Both trade and both benefit.' },
@@ -1335,7 +1329,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tariff', definition: 'A tax on imported goods, paid by the importing country\'s consumers and businesses. Raises prices domestically to protect local industries.', example: 'The U.S. placed 25% tariffs on $250 billion of Chinese goods in 2018. U.S. consumers paid an estimated $80 billion more for those goods.' }
       ],
       'Diagram showing two countries trading: Country A specializes in technology (high skill, high capital), Country B specializes in agriculture (favorable climate, lower labor costs). Arrows show tech flowing one way, food flowing the other, with both countries ending up with more total goods than if they tried to produce everything themselves.',
-      { company: 'Apple Inc.', metric: 'iPhone manufacturing cost analysis', outcome: 'An iPhone made entirely in the U.S. would cost an estimated $12,000-$30,000 instead of $999', explanation: 'Apple leverages comparative advantage across 43 countries: Taiwanese chip fabrication (TSMC\'s $20B fabs), Japanese display technology (Sony/Sharp), Congolese cobalt mining, Chinese assembly (Foxconn\'s 300,000-worker factories). Each country contributes what it does best, making the final product affordable. This is comparative advantage in action.' },
+      undefined,
       { type: 'comparison', title: 'Comparative Advantage in Action', rows: [{ label: 'Country A: U.S.', value: 'Advantage: Technology, Finance' }, { label: 'Country B: Vietnam', value: 'Advantage: Low-cost Labor' }, { label: 'Result: Both Countries Are Richer', value: 'Global trade: $2T (1970) → $32T (2023)' }], sentiment: 'positive' }
     ),
   
@@ -1348,7 +1342,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     interactiveGraph(
-      'TRADE IN NUMBERS',
+      'Trade in numbers',
       'The Growth of Global Trade and Its Impact',
       'timeline',
       'Explore how global trade grew from $2 trillion to $32 trillion and transformed the world economy, lifting billions from poverty.',
@@ -1373,39 +1367,39 @@ const lessons: PathwayLesson[] = [
         { label: 'Tariff Rate', min: 0, max: 50, default: 10, unit: '%' },
         { label: 'Trade Volume ($T)', min: 1, max: 50, default: 32, unit: '$T' }
       ],
-      { company: 'TSMC (Taiwan Semiconductor)', metric: 'Global chip market share', outcome: 'TSMC manufactures 90% of the world\'s most advanced chips, a single point of failure for the entire global economy', explanation: 'A single company in Taiwan makes the chips inside every iPhone, every AI server, every advanced car, and most military systems. If a Chinese invasion or earthquake disrupted TSMC, the global economy would lose an estimated $1 trillion. This concentration of critical manufacturing is why the CHIPS Act passed with bipartisan support, some things are too important for pure comparative advantage.' }
+      undefined
     ),
   
     caseStudy(
       'The U.S.-China Trade War: Tariffs, Tensions, and Consequences',
       [
-        { date: 'Jan 2018', event: 'U.S. imposes 30% tariffs on imported solar panels and washing machines', context: 'The opening salvo. The Trump administration argued that Chinese subsidies and intellectual property theft gave Chinese manufacturers an unfair advantage. China had grown from 4% of global manufacturing (1990) to 28% (2018), the fastest industrial rise in history.' },
-        { date: 'Jul-Sep 2018', event: 'U.S. places 25% tariffs on $250 billion of Chinese goods; China retaliates', context: 'Tariffs hit electronics, machinery, and consumer goods. China retaliated with tariffs on $110 billion of U.S. goods, targeting agriculture: soybean exports to China dropped 75% overnight. Iowa farmers lost their biggest customer.' },
-        { date: '2019', event: 'Trade war escalates, tariffs cover ~$550 billion in goods between both countries', context: 'The Federal Reserve estimated the trade war reduced U.S. GDP by 0.3% and cost 300,000 jobs. American companies paid the tariffs (not China), and many passed costs to consumers. The washing machine tariff raised washer prices by 12%, about $86 per machine.' },
-        { date: 'Jan 2020', event: '"Phase One" deal signed, China agrees to buy $200B more U.S. goods', context: 'China purchased only 58% of what it promised by the end of 2021. Meanwhile, the trade deficit with China barely changed. Imports simply shifted: Vietnam\'s exports to the U.S. surged 65%, and Mexico became the #1 U.S. trading partner in 2023, supply chains rerouted around the tariffs.' },
-        { date: '2022-2024', event: 'U.S. pivots to targeted tech restrictions: CHIPS Act, AI chip export bans', context: 'Rather than broad tariffs, the U.S. shifted to strategic "decoupling" in critical tech. Export bans prevented Nvidia from selling advanced AI chips to China. The CHIPS Act invested $52B to build domestic semiconductor fabs. This targeted approach proved more effective than blanket tariffs at addressing national security concerns.' }
+        { date: 'Jan 2018', event: 'U.S. imposes 30% tariffs on imported solar panels and washing machines', context: 'The Trump administration said Chinese subsidies and copied technology gave China\'s factories an unfair edge. China made 4% of world goods in 1990, 28% by 2018.' },
+        { date: 'Jul-Sep 2018', event: 'U.S. places 25% tariffs on $250 billion of Chinese goods; China retaliates', context: 'Tariffs hit electronics, machinery, and consumer goods. China taxed $110 billion of U.S. goods back, hitting farms: soybean exports fell 75%. Iowa farmers lost their biggest buyer.' },
+        { date: '2019', event: 'Trade war escalates, tariffs cover ~$550 billion in goods between both countries', context: 'The Federal Reserve estimated the tariffs cost 0.3% of U.S. output and 300,000 jobs. U.S. firms paid them, not China, and charged more. Washers rose 12%, about $86.' },
+        { date: 'Jan 2020', event: '"Phase One" deal signed, China agrees to buy $200B more U.S. goods', context: 'China bought only 58% of its promise by late 2021. The trade gap barely moved. Imports shifted: Vietnam\'s exports rose 65%, and Mexico became the top U.S. partner in 2023.' },
+        { date: '2022-2024', event: 'U.S. pivots to targeted tech restrictions: CHIPS Act, AI chip export bans', context: 'The U.S. switched to targeted tech limits: Nvidia could not sell top AI chips to China. The CHIPS Act put $52B into U.S. chip plants. This beat blanket tariffs.' }
       ],
-      'The trade war taught three lessons: (1) Tariffs are paid by domestic consumers, not foreign countries, American families paid an extra $625/year. (2) Broad tariffs don\'t reduce trade deficits; they reroute supply chains. (3) Targeted, strategic trade policies (like the CHIPS Act and tech export controls) are more effective than blanket protectionism. Trade wars have no winners, only varying degrees of losers.'
+      'Tariffs are paid at home, not abroad: U.S. families paid $625 a year extra. Broad tariffs do not shrink trade gaps; they move supply chains. Targeted tools like the CHIPS Act work better. Trade wars have no winners.'
     ),
   
     misconceptions(
-      'TRADE MYTHS',
+      'Trade myths',
       'What most people get wrong about international trade',
       [
         {
           myth: 'A trade deficit means a country is "losing" at trade.',
           truth: 'A trade deficit simply means a country imports more than it exports. The U.S. has run trade deficits since 1976, during which time it became the richest country in world history. Trade deficits are offset by capital inflows: foreigners invest heavily in U.S. stocks, bonds, and real estate.',
-          explanation: 'The U.S. runs a trade deficit because Americans are wealthy and consume a lot. It also means foreigners WANT to invest in the U.S. economy. Japan and Germany have large surpluses, but their economic growth has been slower than the U.S. for decades. A deficit isn\'t inherently good or bad, context matters.'
+          explanation: 'A trade deficit means buying more than you sell. Americans run one because they are rich and spend. It also brings foreign investment. Japan and Germany run surpluses but grow slower. Context matters.'
         },
         {
           myth: 'Tariffs protect American jobs without any downsides.',
           truth: 'Tariffs protect SOME jobs in specific industries but raise prices for ALL consumers and can destroy MORE jobs downstream. Steel tariffs protected ~8,700 steel jobs but cost ~75,000 jobs in steel-USING industries (car makers, construction, appliance manufacturers) who faced higher input costs.',
-          explanation: 'The washing machine tariff (2018) saved ~1,800 manufacturing jobs. But washer prices rose 12% ($86/machine) for 120 million U.S. households. Total cost to consumers: ~$815,000 per job saved. Tariffs are an invisible tax that transfers money from consumers to a small group of protected producers.'
+          explanation: 'The 2018 washing machine tariff saved about 1,800 factory jobs. But washer prices rose 12%, or $86, for 120 million U.S. households. About $815,000 per job saved. Tariffs are a hidden tax on shoppers.'
         },
         {
           myth: 'Free trade is only good for rich countries, poor countries get exploited.',
           truth: 'Free trade has been the greatest force for poverty reduction in history. Global extreme poverty fell from 42% (1981) to 8.5% (2024), driven largely by developing nations joining global trade. China, Vietnam, Bangladesh, and India all dramatically reduced poverty through trade integration.',
-          explanation: 'Bangladesh\'s garment industry (comparative advantage in low-cost labor) grew from near-zero to $42 billion in exports, lifting tens of millions out of poverty and doubling female workforce participation. Vietnam\'s poverty rate dropped from 58% (1993) to 5% (2020) after trade liberalization. Imperfect? Yes. Better than the alternative? Overwhelmingly.'
+          explanation: 'Bangladesh\'s clothing exports grew from nothing to $42 billion, pulling tens of millions out of poverty. Vietnam\'s poverty rate fell from 58% in 1993 to 5% in 2020 after opening trade. Imperfect, but better.'
         }
       ]
     ),
@@ -1565,21 +1559,20 @@ const lessons: PathwayLesson[] = [
     ),
   
     teachingSlide(
-      'THE MECHANICS',
+      'The mechanics',
       'Government Budgets: Revenue, Spending, Deficits, and Debt',
       [
-        'Fiscal policy is the government\'s use of spending and taxation to influence the economy. The U.S. federal government collected $4.4 trillion in revenue in 2023 (mostly income taxes: 49%, payroll taxes: 36%, corporate taxes: 10%) and spent $6.1 trillion. The $1.7 trillion difference is the deficit, the annual shortfall. The national debt ($34 trillion) is the ACCUMULATION of all past deficits. Think of it this way: the deficit is this year\'s overspending; the debt is the total credit card balance from decades of overspending.',
-        'John Maynard Keynes revolutionized economics in the 1930s by arguing that during recessions, the government SHOULD run deficits. His logic: when consumers and businesses stop spending (like during COVID), someone must step in or the economy spirals into depression. The government borrows and spends to fill the gap, this is Keynesian stimulus. The fiscal multiplier measures the bang per buck: if the government spends $1 and it generates $1.50 in economic activity, the multiplier is 1.5x. Infrastructure spending has a multiplier of 1.5-2.0x. Tax cuts for high earners have a multiplier of only 0.3-0.6x.',
-        'But deficit spending has costs. When the government borrows heavily, it competes with businesses for available capital, potentially driving up interest rates, this is "crowding out." The U.S. now pays over $1 trillion per year in interest on the national debt, more than the entire defense budget. At some point, interest payments consume so much of the budget that there\'s less money for everything else. The question isn\'t whether to ever run deficits, it\'s when deficits are smart (recessions) vs. reckless (booms).'
+        'Fiscal policy is government spending and taxing. In 2023 the U.S. collected $4.4 trillion (income 49%, payroll 36%, corporate 10%) and spent $6.1 trillion. The $1.7 trillion gap is the deficit; past deficits total $34 trillion of debt.',
+      'In the 1930s John Maynard Keynes urged deficits during slumps like COVID. Multiplier means output per dollar: $1 giving $1.50 is 1.5x, infrastructure 1.5-2.0x, high-earner tax cuts 0.3-0.6x. Borrowing lifts rates, and debt interest tops $1 trillion, above defense.'
       ],
       [
         { term: 'Fiscal Policy', definition: 'Government use of spending and taxation to influence economic conditions, growth, employment, inflation.', example: 'The $2.2T CARES Act (spending increase) and 2017 Tax Cuts and Jobs Act ($1.5T tax cut) are both fiscal policy tools with different approaches.' },
         { term: 'Budget Deficit', definition: 'When government spending exceeds revenue in a single year. The U.S. deficit was $1.7 trillion in 2023.', example: 'Revenue: $4.4T. Spending: $6.1T. Deficit: $1.7T. The government borrowed $1.7T to cover the gap.' },
         { term: 'National Debt', definition: 'The total accumulation of all past deficits, what the government owes. U.S. debt: $34 trillion (123% of GDP).', example: 'If the deficit is your annual credit card overspending, the national debt is your total outstanding balance. The U.S. has been accumulating debt since 1835.' },
-        { term: 'Fiscal Multiplier', definition: 'The amount of economic activity generated per $1 of government spending. Varies by type: infrastructure (1.5-2.0x), transfer payments (0.8-1.5x), tax cuts for wealthy (0.3-0.6x).', example: '$1 billion in highway construction generates ~$1.5-2B in economic activity through worker wages, supplier payments, and increased commerce. $1B in tax cuts for top earners generates only $300-600M.' }
+        { term: 'Fiscal Multiplier', definition: 'The amount of economic activity generated per $1 of government spending. Varies by type: infrastructure (1.5-2.0x), transfer payments (0.8-1.5x), tax cuts for wealthy (0.3-0.6x).', example: '$1 billion of highway building creates about $1.5-2B in activity: wages, supplier payments, more spending. $1B in tax cuts for top earners creates $300-600M.' }
       ],
       'Flow diagram: Government Revenue (taxes) flows in, Government Spending (programs) flows out. When spending > revenue = deficit. All accumulated deficits = national debt. Shows feedback loops to employment, inflation, and economic growth.',
-      { company: 'U.S. Treasury', metric: 'CARES Act impact analysis (2020)', outcome: 'The $2.2T CARES Act prevented an estimated 12 million additional job losses and shortened the recession from a projected 2+ years to just 2 months', explanation: 'Without the CARES Act, unemployment could have hit 25% (matching the Great Depression). The $1,200 stimulus checks, PPP loans, and enhanced unemployment kept millions of families and businesses afloat. GDP, which collapsed 31% in Q2 2020, rebounded 33% in Q3, the fastest recovery in history. The trade-off: it added $2.2T to the national debt and contributed to the 2022 inflation surge.' },
+      undefined,
       { type: 'comparison', title: 'How the Federal Budget Works (2023)', rows: [{ label: 'Revenue: $4.4T', value: 'Income Tax: 49%' }, { label: 'Spending: $6.1T', value: 'Social Security: 21%' }, { label: 'Deficit: -$1.7 Trillion', value: 'Borrowed to cover the gap' }], sentiment: 'positive' }
     ),
   
@@ -1592,7 +1585,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     interactiveGraph(
-      'DEBT IN PERSPECTIVE',
+      'Debt in perspective',
       'U.S. National Debt: $34 Trillion and Counting',
       'exponential',
       'Explore how the national debt has grown exponentially and what it means for the economy.',
@@ -1617,39 +1610,39 @@ const lessons: PathwayLesson[] = [
         { label: 'Deficit (% of GDP)', min: 0, max: 15, default: 6, unit: '%' },
         { label: 'Interest Rate', min: 1, max: 10, default: 5, unit: '%' }
       ],
-      { company: 'Congressional Budget Office (CBO)', metric: '10-year fiscal outlook (2024-2034)', outcome: 'Debt projected to reach $50+ trillion by 2034 with interest costs consuming 20-25% of the budget', explanation: 'The CBO\'s projections assume current policies continue: Social Security and Medicare costs rise as boomers retire, defense spending stays elevated, and tax cuts aren\'t offset by spending cuts. The tipping point isn\'t a specific debt level, it\'s when interest payments crowd out investment in the things that make the economy grow (education, infrastructure, R&D).' }
+      undefined
     ),
   
     caseStudy(
       'Stimulus vs. Austerity: The U.S. (2020) and Greece (2010)',
       [
-        { date: 'March 2020', event: 'COVID crashes the U.S. economy: GDP drops 31% annualized in Q2', context: '22 million Americans lose their jobs in 4 weeks, the fastest economic collapse in U.S. history. Congress passes the $2.2 trillion CARES Act in 11 days, the largest stimulus in history. It includes $1,200 checks to individuals, $659B in PPP loans to small businesses, $600/week extra unemployment, and $150B for hospitals.' },
-        { date: 'Q3 2020', event: 'U.S. GDP rebounds 33%, the recession lasts only 2 months', context: 'The Keynesian stimulus worked exactly as textbooks predicted. Government spending filled the gap left by collapsed private spending. Unemployment dropped from 14.7% (April) to 6.7% (December). The trade-off: the deficit hit $3.1 trillion (15% of GDP) and the spending contributed to 2022\'s inflation surge. Was it worth it? Most economists say yes, the alternative was a multi-year depression.' },
-        { date: '2010-2015', event: 'Greece faces debt crisis, EU and IMF demand severe austerity in exchange for bailout', context: 'Greece\'s debt hit 180% of GDP after years of overspending and tax evasion. The EU/IMF bailout came with conditions: slash government spending by 30%, cut pensions 40%, lay off 25% of public workers, raise taxes on everything. This was the opposite of Keynesian stimulus, contractionary fiscal policy during a recession.' },
-        { date: '2010-2017', event: 'Greek austerity devastates the economy: GDP falls 25%, unemployment hits 28%', context: 'Cutting spending during a recession creates a doom loop: less government spending → more layoffs → less consumer spending → less tax revenue → bigger deficit → more cuts required. Greece\'s GDP fell 25%, worse than the U.S. Great Depression. Youth unemployment hit 58%. Suicides rose 35%. The "cure" was worse than the disease.' },
-        { date: 'The contrast', event: 'U.S. stimulus led to fast recovery; Greek austerity led to economic devastation', context: 'The U.S. recovered in months; Greece lost a decade. The lesson: during severe recessions, governments should spend (Keynesian stimulus) even if it means higher deficits. Austerity during a downturn is like bleeding a sick patient, the medieval "cure" that makes things worse. But, and this is crucial, stimulus during booms (like continued deficit spending during 2021\'s recovery) can fuel inflation, as the U.S. learned.' }
+        { date: 'March 2020', event: 'COVID crashes the U.S. economy: GDP drops 31% annualized in Q2', context: '22 million lost jobs in 4 weeks. In 11 days Congress passed the $2.2 trillion CARES Act: $1,200 checks, $659B in PPP loans, $600/week extra unemployment, $150B for hospitals.' },
+        { date: 'Q3 2020', event: 'U.S. GDP rebounds 33%, the recession lasts only 2 months', context: 'Government spending filled the gap. Unemployment fell from 14.7% in April to 6.7% in December. The cost: a $3.1 trillion deficit, 15% of GDP, and part of 2022\'s inflation.' },
+        { date: '2010-2015', event: 'Greece faces debt crisis, EU and IMF demand severe austerity in exchange for bailout', context: 'Greece\'s debt hit 180% of GDP. The EU and IMF bailout demanded 30% less spending, 40% smaller pensions, 25% of public workers cut, and higher taxes: austerity, not stimulus.' },
+        { date: '2010-2017', event: 'Greek austerity devastates the economy: GDP falls 25%, unemployment hits 28%', context: 'Cutting in a recession feeds a doom loop: less spending, more layoffs, less tax revenue, deeper cuts. Greek GDP fell 25%, youth unemployment hit 58%, suicides rose 35%.' },
+        { date: 'The contrast', event: 'U.S. stimulus led to fast recovery; Greek austerity led to economic devastation', context: 'The U.S. recovered in months; Greece lost a decade. In deep recessions, governments should spend even if deficits grow. But stimulus during a boom, like 2021\'s recovery, feeds inflation.' }
       ],
-      'The U.S.-Greece comparison is the most powerful real-world test of Keynesian economics. Stimulus during a recession (U.S. 2020) produced a rapid recovery. Austerity during a recession (Greece 2010) produced a depression. The lesson isn\'t that deficits don\'t matter, it\'s that TIMING matters. Deficit spending during recessions is medicine; deficit spending during booms is poison. Knowing the difference is the core of fiscal policy.'
+      'Stimulus in a recession (U.S. 2020) brought fast recovery. Austerity in a recession (Greece 2010) brought depression. Deficits still matter, but timing matters more: deficit spending is medicine in a slump and poison in a boom.'
     ),
   
     misconceptions(
-      'FISCAL POLICY MYTHS',
+      'Fiscal policy myths',
       'What most people get wrong about government budgets',
       [
         {
           myth: 'The government budget works like a household budget, you can\'t spend more than you earn.',
           truth: 'Governments are fundamentally different from households. They can print money (through the central bank), they never retire (so they can roll over debt indefinitely), they can tax to generate revenue, and their spending creates economic activity that generates tax revenue. A household can\'t stimulate its own income by spending more. A government can.',
-          explanation: 'When you spend $1,000, it\'s gone. When the government spends $1,000 on infrastructure, workers earn wages, buy goods, pay taxes, and those businesses pay their workers, the fiscal multiplier. The U.S. has run deficits in all but 4 years since 1970, yet the economy grew from $5T to $27T. Governments are not households.'
+          explanation: 'Spend $1,000 and it\'s gone. Government $1,000 pays workers who spend and pay taxes: the fiscal multiplier. Since 1970 the U.S. ran deficits in all but 4 years, yet grew from $5T to $27T.'
         },
         {
           myth: '$34 trillion in debt means the U.S. is "broke" or about to collapse.',
           truth: 'Debt sustainability depends on debt-to-GDP ratio, interest rates, and growth rate, not the raw number. Japan has 263% debt-to-GDP and functions fine (because rates are low and debt is domestically held). The U.S. at 123% is concerning but manageable as long as the economy keeps growing faster than interest costs.',
-          explanation: 'The U.S. dollar is the world\'s reserve currency, meaning global demand for U.S. debt is enormous. The U.S. has never defaulted and its bonds are the world\'s "safe asset." The real risk isn\'t a sudden crisis, it\'s a slow squeeze where interest payments ($1T+/year) crowd out productive spending. That\'s why the trajectory matters more than the current level.'
+          explanation: 'The dollar is the world\'s reserve currency, so demand for U.S. debt is huge. The U.S. has never missed a payment. The real risk is slow: interest over $1T a year crowds out spending.'
         },
         {
           myth: 'Cutting government spending always helps the economy.',
           truth: 'During recessions, cutting spending (austerity) makes things worse, it removes money from an already struggling economy. Greece cut spending 30% during its recession and GDP fell 25%. Austerity works when the economy is overheating, not when it\'s collapsing.',
-          explanation: 'Fiscal policy should be counter-cyclical: spend during downturns (stimulus), save during upturns (surplus). The problem is political: politicians love spending during good times too. The U.S. has run deficits during economic booms (2018-2019 tax cuts during a strong economy), which is the opposite of what economics recommends. Discipline during good times makes stimulus possible during bad times.'
+          explanation: 'Fiscal policy should be counter-cyclical: spend in downturns, save in booms. Politicians overspend in booms too. The U.S. cut taxes in 2018-2019 with the economy strong. Saving in booms pays for stimulus in slumps.'
         }
       ]
     ),
@@ -1808,12 +1801,11 @@ const lessons: PathwayLesson[] = [
     ),
   
     teachingSlide(
-      'THE GLOBAL MONEY MARKET',
+      'The global money market',
       'How Currency Markets Work',
       [
-        'The foreign exchange market (forex or FX) is the largest financial market on Earth, trading $7.5 trillion daily (BIS 2022 survey). Unlike the stock market, forex operates 24 hours a day, 5.5 days a week, across London, New York, Tokyo, and Sydney. The U.S. dollar dominates, it\'s on one side of 88% of all trades. This is why the dollar\'s movements affect every economy on the planet.',
-        'Exchange rates are expressed as pairs: EUR/USD = 1.08 means 1 euro buys $1.08. When this number rises to 1.15, the euro has strengthened (it buys more dollars) and the dollar has weakened. There are two main systems: floating exchange rates (USD, EUR, GBP, JPY) where supply and demand set the price, and fixed/pegged rates (Hong Kong dollar pegged to USD, Saudi riyal pegged to USD) where central banks maintain a target rate by buying or selling their currency.',
-        'A strong dollar makes imports cheaper for Americans (European vacations cost less, imported cars are cheaper) but hurts U.S. exporters because American goods become more expensive abroad. When the DXY (Dollar Index) rose 27% from 2021-2022, U.S. multinationals like Microsoft and Coca-Cola reported billions in lost overseas revenue. Meanwhile, emerging markets with dollar-denominated debt faced crushing repayment costs, Turkey\'s lira lost 44% of its value in 2021 alone.'
+        'Forex, the market where currencies are traded, handles $7.5 trillion daily (BIS 2022 survey) and runs 24 hours a day, 5.5 days a week. The dollar is on one side of 88% of trades.',
+      'EUR/USD 1.08 means one euro buys $1.08; at 1.15 the euro is stronger. When the DXY dollar index rose 27% in 2021-2022, Microsoft and Coca-Cola lost overseas revenue, and Turkey\'s lira fell 44% in 2021.'
       ],
       [
         { term: 'Exchange Rate', definition: 'The price of one currency expressed in terms of another. Determined by supply and demand in floating systems, or by government policy in fixed systems.', example: 'USD/JPY = 150 means $1 buys 150 Japanese yen. In 2012 it was 80, the yen has lost nearly half its dollar value.' },
@@ -1822,7 +1814,7 @@ const lessons: PathwayLesson[] = [
         { term: 'DXY (Dollar Index)', definition: 'A weighted index measuring the USD against a basket of 6 major currencies (EUR 57.6%, JPY 13.6%, GBP 11.9%, CAD 9.1%, SEK 4.2%, CHF 3.6%).', example: 'DXY hit 114 in September 2022, a 20-year high, making the dollar the strongest currency in the world.' }
       ],
       'Diagram showing currency pair mechanics: EUR/USD exchange with arrows showing how a rising rate means EUR strengthens and USD weakens, with import/export effects on both sides',
-      { company: 'Bank for International Settlements', metric: 'Triennial FX Survey (2022)', outcome: 'Global daily FX turnover reached $7.5 trillion, up 14% from 2019, with the USD involved in 88% of trades', explanation: 'The BIS survey confirms the dollar\'s dominance as the world\'s reserve currency. This gives the U.S. enormous power, sanctions work because global trade runs through dollars. But it also means U.S. monetary policy (Fed rate hikes) sends shockwaves through every economy on Earth.' },
+      undefined,
       { type: 'comparison', title: 'Exchange Rate Mechanics', rows: [{ label: 'EUR', value: '1 EUR = $1.08' }, { label: 'USD', value: '$1 = 0.93 EUR' }], footer: '"fair value" of currencies', sentiment: 'positive' }
     ),
   
@@ -1835,7 +1827,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     interactiveGraph(
-      'CURRENCY VALUATIONS',
+      'Currency valuations',
       'Purchasing Power Parity & the Big Mac Index',
       'comparison',
       'Compare what currencies "should" be worth based on purchasing power versus their actual market exchange rates.',
@@ -1859,7 +1851,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Interest Rate Differential', min: 0, max: 15, default: 5, unit: '%' },
         { label: 'Currency Overvaluation', min: -50, max: 50, default: 0, unit: '%' }
       ],
-      { company: 'The Economist', metric: 'Big Mac Index (January 2024)', outcome: 'Swiss franc 36% overvalued vs USD, Indian rupee 56% undervalued, Chinese yuan 42% undervalued', explanation: 'The Big Mac Index isn\'t perfect, it ignores taxes, labor costs, and local input prices, but it\'s a surprisingly useful rough guide. Currencies that the index flags as severely overvalued tend to weaken over the next 5-10 years, and vice versa. It democratized a PhD-level concept into something anyone can understand.' }
+      undefined
     ),
   
     caseStudy(
@@ -1874,7 +1866,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     misconceptions(
-      'FOREX MYTHS',
+      'Forex myths',
       'What people get wrong about currencies and exchange rates',
       [
         {
@@ -1908,7 +1900,7 @@ const lessons: PathwayLesson[] = [
     fb('The forex market trades ___ every single day, making it the largest financial market on Earth.',['$500 billion','$2 trillion','$7.5 trillion','$50 trillion'],2),
   
     q('The Japanese yen weakened from 110/USD to 150/USD between 2021-2023. Who benefits most from this?',
-      ['Japanese consumers buying imported goods, because a weaker yen lowers the price of the oil, food, and electronics Japan brings in','Japanese exporters like Toyota selling cars abroad, but only the exporters, since a weaker yen helps no one else in the economy','American tourists visiting Japan, but only the tourists, because a weaker yen does nothing for Japanese companies that sell overseas','Both Japanese exporters and American tourists visiting Japan'],
+      ['Japanese consumers buying imported goods','Japanese exporters like Toyota, and no one else','American tourists visiting Japan, and no one else','Both Japanese exporters and American tourists visiting Japan'],
       3,
       'A weaker yen means Japanese goods are cheaper in dollar terms (boosting Toyota\'s exports) AND American tourists get more yen per dollar (making Japan a bargain vacation). Japanese consumers lose because imported goods (oil, food, electronics) become 27% more expensive. Currency movements always create winners and losers.'
     ),
@@ -2049,12 +2041,11 @@ const lessons: PathwayLesson[] = [
     ),
   
     teachingSlide(
-      'THE DEVELOPMENT LADDER',
+      'The development ladder',
       'How Nations Transform From Poor to Prosperous',
       [
-        'Economic development follows a roughly predictable pattern. Stage 1 is agriculture-based (subsistence farming, low productivity, <$1,000 GDP per capita). Stage 2 is early industrialization, factories, textiles, assembly (think Bangladesh, Vietnam today). Stage 3 is advanced manufacturing and services (China, Mexico, Thailand). Stage 4 is innovation-driven (U.S., Japan, South Korea, Germany). Each stage requires different institutions, policies, and human capital.',
-        'South Korea is the poster child for development. In 1960, its GDP per capita was $158, poorer than Ghana. Through massive investment in education (spending 4-5% of GDP on schooling), export-oriented industrialization (Samsung, Hyundai, LG), and strong institutions, it reached $35,000 by 2024, a 220x increase. South Korea went from the world\'s 60th poorest country to the 12th richest in a single lifetime. The recipe: invest in people (human capital), build for export (global competition forces efficiency), and develop strong property rights and rule of law.',
-        'But development isn\'t guaranteed. The "middle-income trap" catches many countries: they grow from low to middle income through cheap labor and manufacturing, then stall because they can\'t transition to innovation and services. Argentina has been a middle-income country for over 100 years. Brazil has been "the country of the future" since the 1950s. Malaysia, Thailand, and Mexico all face this trap. Breaking through requires investing in R&D, universities, intellectual property, and entrepreneurship, exactly what South Korea and Taiwan did but Brazil and Argentina didn\'t.'
+        'Growth runs through four stages: farming, early factories, advanced manufacturing, innovation. Stage 1 means under $1,000 GDP per capita, output per person. Many countries stall midway: Argentina has been middle income over 100 years, Brazil since the 1950s.',
+      'South Korea earned $158 per person in 1960. It spent 4-5% of GDP on schools and built exporters Samsung, Hyundai and LG, hitting $35,000 by 2024, 220x more, from 60th poorest to 12th richest.'
       ],
       [
         { term: 'Foreign Direct Investment (FDI)', definition: 'When a company invests directly in facilities, equipment, or operations in another country. Unlike portfolio investment (buying stocks), FDI creates real productive capacity.', example: 'When Toyota builds a factory in Vietnam ($400M), that\'s FDI. It creates jobs, transfers technology, and builds local capacity. Vietnam attracted $36.6 billion in FDI in 2023.' },
@@ -2063,7 +2054,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Human Development Index (HDI)', definition: 'A UN measure combining life expectancy, education, and income per capita. Captures development beyond just GDP.', example: 'Norway ranks #1 (HDI 0.961). The U.S. is #20 (0.921). Despite high GDP, U.S. lower life expectancy and education access pull it down. Qatar has high GDP but only ranks #42 in HDI.' }
       ],
       'Staircase diagram showing 4 development stages: Agriculture -> Early Industry -> Advanced Manufacturing -> Innovation Economy, with examples of countries at each stage and arrows showing successful transitions (South Korea) vs countries stuck at middle stages (Brazil)',
-      { company: 'World Bank', metric: 'China\'s poverty reduction (1980-2024)', outcome: 'Over 800 million people lifted out of extreme poverty, from 88% poverty rate to <1%', explanation: 'China\'s transformation is the most significant economic event in modern history. It combined massive investment in infrastructure (highways, rail, ports), export-oriented manufacturing (becoming the "world\'s factory"), education (university enrollment grew 10x from 1998-2020), and strategic state investment in key industries. The result: GDP per capita went from $307 to $12,700 in 44 years.' },
+      undefined,
       { type: 'comparison', title: 'The Development Ladder', rows: [{ label: 'Stage 1', value: 'Agriculture' }, { label: 'Stage 2', value: 'Early Industry' }, { label: 'Stage 3', value: 'Advanced Mfg' }, { label: 'Stage 4', value: 'Innovation' }], sentiment: 'positive' }
     ),
   
@@ -2076,7 +2067,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     interactiveGraph(
-      'THE TRAPS & DIVIDENDS',
+      'The traps & dividends',
       'What Helps and Hurts Economic Development',
       'comparison',
       'Compare how different factors accelerate or hinder a nation\'s economic development path.',
@@ -2100,7 +2091,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Education Spending (% GDP)', min: 1, max: 8, default: 4, unit: '%' },
         { label: 'Institutional Quality', min: 1, max: 10, default: 5, unit: '' }
       ],
-      { company: 'IMF', metric: 'Emerging Market Growth vs. Advanced Economies (2000-2024)', outcome: 'Emerging markets grew ~5% annually vs. ~2% for advanced economies, but with much higher volatility and risk', explanation: 'Emerging markets offer higher growth potential because they\'re starting from a lower base (the catch-up effect). But they also carry higher risks: currency crises, political instability, corruption, and weaker institutions. Smart investors diversify into emerging markets for growth while understanding the unique risks.' }
+      undefined
     ),
   
     caseStudy(
@@ -2115,7 +2106,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     misconceptions(
-      'DEVELOPMENT MYTHS',
+      'Development myths',
       'What people get wrong about economic development',
       [
         {
@@ -2298,12 +2289,11 @@ const lessons: PathwayLesson[] = [
     ),
   
     teachingSlide(
-      'THE BIG PICTURE',
+      'The big picture',
       'How the Global Economy Works as One System',
       [
-        'Think of the global economy as a machine with interlocking gears. When one gear moves, it turns others. The Federal Reserve raises interest rates (monetary policy) -> the dollar strengthens (currencies) -> U.S. exports become expensive (trade) -> emerging market debt in dollars becomes crushing (development) -> global demand falls (GDP) -> commodity prices drop (supply & demand) -> oil-exporting countries face budget crises (fiscal policy) -> their currencies collapse (currencies again). Every concept connects to every other concept. This is why economics is a SYSTEM, not a collection of isolated topics.',
-        'The 2008 Global Financial Crisis illustrates this perfectly. It started with supply and demand: cheap credit (the Fed kept rates at 1% from 2003-2004) created excess demand for housing. Banks bundled risky mortgages into complex securities (financial innovation without regulation). When housing prices fell 33%, those securities became worthless. Banks collapsed (Lehman Brothers, Bear Stearns). Credit froze globally, even in countries with zero exposure to U.S. housing. World trade fell 12% in 2009. Global GDP contracted for the first time since WWII. Unemployment hit 10% in the U.S. and higher across Europe.',
-        'The policy response used every tool in the economic toolkit simultaneously. Monetary policy: the Fed cut rates to 0% and launched Quantitative Easing ($4.5 trillion in bond purchases). Fiscal policy: the U.S. passed an $831 billion stimulus (ARRA). International coordination: G20 leaders coordinated responses across 20 nations. Currency effects: the dollar initially strengthened (safe haven) then weakened as QE expanded money supply. Trade: protectionist pressures surged but the WTO prevented a 1930s-style trade war. The crisis proved that in a globalized world, economic shocks in one country transmit instantly to all others, and only coordinated responses work.'
+        'The Federal Reserve, America\'s central bank, held rates at 1% in 2003-2004. Cheap credit inflated housing. In 2008 prices fell 33%, Lehman Brothers and Bear Stearns collapsed, world trade fell 12% in 2009, and US unemployment hit 10%.',
+      'The fix used every tool: the Fed cut rates to 0%, bought $4.5 trillion in bonds (quantitative easing), and Congress passed $831 billion (ARRA). The G20\'s 20 nations coordinated; the WTO stopped a 1930s-style trade war. Only coordination works.'
       ],
       [
         { term: 'Systemic Risk', definition: 'The risk that the failure of one institution or market triggers a cascade of failures throughout the entire financial system, a domino effect.', example: 'Lehman Brothers\' bankruptcy in 2008 froze global credit markets because banks worldwide held Lehman\'s securities. One failure threatened the entire global financial system.' },
@@ -2312,8 +2302,8 @@ const lessons: PathwayLesson[] = [
         { term: 'Economic Cycle', definition: 'The recurring pattern of expansion (growth), peak, contraction (recession), and trough. Understanding where you are in the cycle is essential for investment, career, and policy decisions.', example: 'The U.S. has experienced 12 recessions since 1945, lasting an average of 10 months. Expansions last an average of 5 years. The 2009-2020 expansion was the longest in history (128 months).' }
       ],
       'Circular flow diagram showing how monetary policy, fiscal policy, trade, currencies, supply/demand, GDP, inflation, and development all connect through feedback loops, with the 2008 crisis as a case study of cascade failure',
-      { company: 'Federal Reserve + U.S. Government', metric: '2008 Crisis Response', outcome: 'Combined monetary ($4.5T QE + 0% rates) and fiscal ($831B stimulus) response prevented a second Great Depression, U.S. GDP recovered to pre-crisis levels by 2011', explanation: 'The 2008 response demonstrated systems thinking in action. The Fed used monetary policy (rates, QE), Congress used fiscal policy (stimulus), regulators reformed banking (Dodd-Frank), and the G20 coordinated globally. Each tool addressed a different part of the problem. Without any single piece, the response would have been insufficient.' },
-      { type: 'bars', title: '2008 Crisis: How Everything Connected', items: [{ label: 'Fed: 0% + QE', value: 21 }, { label: 'Stimulus: $831B', value: 21, displayValue: 'Stimulus: $831B' }, { label: 'G20 Coord.', value: 21 }, { label: 'Dodd-Frank', value: 21 }, { label: 'Rates to 0%', value: 18 }, { label: 'Growth resumes', value: 18 }, { label: 'Jobs return (6yr)', value: 18 }, { label: 'Cheap Credit', value: 18 }, { label: 'Housing Bubble', value: 18, displayValue: 'Stimulus: $831B' }, { label: 'G20 Coord.', value: 18 }], footer: 'Global coordinated response prevented a second Great Depression', sentiment: 'positive' }
+      undefined,
+      { type: 'flow', title: 'How 2008 cascaded, and how policy answered', nodes: [{ label: 'Cheap credit', value: 'Fed at 1%, 2003-2004' }, { label: 'Housing bubble' }, { label: 'Home prices fall 33%' }, { label: 'Banks collapse', value: 'Lehman, Bear Stearns' }, { label: 'Fed cuts to 0% and starts QE', value: '$4.5T' }, { label: 'Fiscal stimulus', value: '$831B' }, { label: 'G20 coordinates across 20 nations' }], footer: 'GDP was back to pre-crisis levels by 2011.' }
     ),
   
     microCheck(
@@ -2325,7 +2315,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     interactiveGraph(
-      'GLOBAL CYCLES',
+      'Global cycles',
       'Economic Cycles and Interconnected Risks',
       'timeline',
       'See how global economic cycles connect across decades, boom leads to bust, policy response plants seeds of the next crisis.',
@@ -2349,7 +2339,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Global Integration Level', min: 0, max: 100, default: 70, unit: '%' },
         { label: 'Policy Response Aggressiveness', min: 1, max: 10, default: 7, unit: '' }
       ],
-      { company: 'U.S. Government', metric: 'COVID fiscal response (2020-2021)', outcome: '$5 trillion in total spending (25% of GDP), the largest peacetime fiscal expansion in history', explanation: 'The U.S. COVID response included direct payments ($1,200 + $600 + $1,400 per person), expanded unemployment ($600/week extra), PPP loans ($800B for businesses), and the American Rescue Plan ($1.9T). This prevented a depression but contributed to 9.1% inflation by June 2022, demonstrating the trade-off between short-term rescue and long-term price stability.' }
+      undefined
     ),
   
     caseStudy(
@@ -2364,7 +2354,7 @@ const lessons: PathwayLesson[] = [
     ),
   
     misconceptions(
-      'GLOBAL ECONOMICS MYTHS',
+      'Global economics myths',
       'What people get wrong about how the world economy works',
       [
         {
@@ -2549,12 +2539,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'How Labor Markets Work: Supply, Demand & Wages',
       [
-        'Labor markets function like any other market, through supply and demand. The demand for labor comes from employers who need workers to produce goods and services. The supply of labor comes from workers offering their time and skills. Where labor supply meets labor demand, you get the equilibrium wage, the market price for a particular type of work.',
-        'Wages vary enormously because skills are not equal. A software engineer at Google earns $250K+ because the supply of people with elite coding skills is small relative to massive tech demand. A cashier earns $30K because the supply of people who can perform that role is large relative to demand. The economic term is "marginal revenue product", workers are paid roughly what they contribute to the company\'s revenue.',
-        'Three types of unemployment exist: (1) Frictional, people between jobs (a developer who quit to find a better role), which is healthy and normal; (2) Structural, skills mismatch (coal miners in a green energy economy), which requires retraining; (3) Cyclical, caused by recessions (COVID layoffs), which monetary and fiscal policy can address. The U.S. "natural rate of unemployment" is around 4%, meaning some unemployment is always expected.'
+        'Wages come from supply and demand: employers demand workers, workers supply skills. Where they meet sets the wage. A Google software engineer earns $250K+ because elite coders are rare; a cashier earns $30K because that supply is large.',
+      'Three kinds of unemployment: frictional, between jobs, which is normal; structural, a skills mismatch like coal miners in a green economy, needing retraining; cyclical, caused by recessions like COVID layoffs. The U.S. natural rate sits near 4%.'
       ],
       [
         { term: 'Labor Demand', definition: 'The quantity of workers employers want to hire at various wage levels. Higher wages = fewer workers demanded (all else equal).', example: 'When minimum wage rose from $7.25 to $15 in some states, some fast-food chains accelerated adoption of self-ordering kiosks, substituting capital for labor.' },
@@ -2576,7 +2565,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'WAGE DYNAMICS',
+      'Wage dynamics',
       'What Determines Your Paycheck?',
       'comparison',
       'Compare wages across occupations and see how supply-demand dynamics create enormous pay differences in the labor market.',
@@ -2599,16 +2588,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Skill Supply', min: 10, max: 100, default: 50, unit: 'K workers' },
         { label: 'Industry Demand', min: 10, max: 100, default: 50, unit: 'K openings' }
       ],
-      { company: 'Bureau of Labor Statistics', metric: 'Occupational wage data (2024)', outcome: 'AI/ML engineers: $180K median. Nurses: $85K. Retail workers: $32K. Wages perfectly track supply-demand balance.', explanation: 'The BLS data shows that wages across 800+ occupations correlate strongly with the ratio of job openings to qualified workers. When openings exceed supply, wages rise. When supply exceeds openings, wages stagnate. This is supply and demand applied to the labor market.' }
+      undefined
     ),
 
     teachingSlide(
-      'THE FUTURE OF WORK',
+      'The future of work',
       'Gig Economy, Remote Work & Automation',
       [
-        'The labor market is undergoing its biggest transformation since the Industrial Revolution. Three forces are reshaping work simultaneously: (1) The gig economy, 59 million Americans (36% of the workforce) did freelance work in 2023, up from 53 million in 2018. Platforms like Uber, DoorDash, and Upwork created a new labor market where workers are independent contractors, not employees.',
-        'Remote work exploded during COVID and permanently changed labor geography. In 2019, 6% of workers were remote. By 2024, 28% work remotely at least part-time. This has massive economic implications: workers in low-cost cities can earn high-cost-city wages, compressing geographic wage differences. A developer in Tulsa earning San Francisco wages has 3x the purchasing power.',
-        'AI automation is the most disruptive force. McKinsey estimates that by 2030, 30% of hours currently worked in the U.S. could be automated. But automation doesn\'t just destroy jobs, it transforms them. ATMs didn\'t eliminate bank tellers (their number actually grew); instead, tellers shifted from cash handling to relationship management. The key economic insight: automation eliminates tasks, not entire jobs, and creates new roles that didn\'t previously exist.'
+        'Gig work: 59 million Americans, 36% of the workforce, freelanced in 2023, up from 53 million in 2018, on Uber, DoorDash and Upwork, where workers are self-employed contractors. Remote work rose from 6% in 2019 to 28% by 2024.',
+      'A developer in Tulsa on San Francisco pay gets 3x the purchasing power. McKinsey estimates 30% of U.S. work hours could be automated by 2030. Yet ATMs grew teller jobs: automation removes tasks, not whole jobs.'
       ],
       [
         { term: 'Gig Economy', definition: 'A labor market characterized by short-term, flexible, independent contractor work facilitated by digital platforms.', example: 'Uber has 5 million drivers globally. None are employees. This model offers flexibility but lacks benefits, job security, and labor protections.' },
@@ -2632,7 +2620,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'LABOR MARKET MYTHS',
+      'Labor market myths',
       'What most people get wrong about jobs and wages',
       [
         {
@@ -2748,12 +2736,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'MEASURING THE GAP',
+      'Measuring the gap',
       'Income vs. Wealth Inequality',
       [
-        'Income inequality and wealth inequality are different beasts. Income is what you earn each year (salary, dividends, capital gains). Wealth is what you own minus what you owe (assets − liabilities). In the U.S., the top 10% earn 50% of all income, but they own 70% of all wealth. Wealth inequality is always more extreme than income inequality because wealth compounds over time through investment returns.',
-        'Economists measure inequality using the Gini coefficient, a number from 0 (perfect equality) to 1 (one person has everything). The U.S. Gini coefficient is 0.49, the highest among developed nations. Compare: Denmark 0.28, Germany 0.32, UK 0.35. The U.S. has become significantly more unequal since 1980: the top 1% income share doubled from 10% to 20%, while median wages grew only 17% (inflation-adjusted) in 43 years.',
-        'The causes of rising inequality are debated, but economists point to several factors: (1) Technology, computers reward high-skill workers and replace middle-skill jobs, hollowing out the middle class; (2) Globalization, offshoring reduced wages for blue-collar workers while benefiting corporate profits; (3) Declining unions, union membership fell from 35% in 1955 to 10% in 2024, reducing worker bargaining power; (4) Tax policy, top marginal tax rates fell from 91% in 1960 to 37% today; (5) Education, the skill premium has tripled, amplifying wage gaps.'
+        'Income is yearly earnings. Wealth is what you own minus debts. America\'s top 10% earn 50% of income but own 70% of wealth. Gini scores run 0, total equality, to 1: U.S. 0.49, Denmark 0.28, Germany 0.32, UK 0.35.',
+      'Since 1980 the top 1% share doubled, 10% to 20%. Median wages rose 17% in 43 years. Causes: technology, globalization, unions 35% in 1955 to 10% in 2024, top tax rates 91% in 1960 to 37%, tripled skill premiums.'
       ],
       [
         { term: 'Gini Coefficient', definition: 'A measure of inequality from 0 (perfect equality) to 1 (maximum inequality). Calculated from the Lorenz curve showing cumulative income/wealth distribution.', example: 'U.S. Gini: 0.49 (high inequality). Denmark: 0.28 (low). South Africa: 0.63 (extreme). The higher the number, the more unequal the society.' },
@@ -2775,7 +2762,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE TREND',
+      'The trend',
       'How Inequality Has Changed Over Time',
       'timeline',
       'Track the rise of inequality in the U.S. from the 1950s "Great Compression" through today\'s Gilded Age 2.0.',
@@ -2801,12 +2788,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE POLICY DEBATE',
+      'The policy debate',
       'What Can (and Can\'t) Be Done About Inequality',
       [
-        'Progressive taxation is the most direct tool. The U.S. currently has a top marginal income tax rate of 37% and a capital gains tax rate of 20%. During the Great Compression, the top rate was 91%. Economists debate the optimal rate: too low and inequality widens; too high and capital flight, tax avoidance, and reduced investment can slow growth. Most economists suggest 45-60% as the revenue-maximizing top rate.',
-        'Education is the most effective long-term equalizer. Countries with the strongest education systems (Scandinavia, South Korea, Japan) have the lowest inequality. Nobel laureate James Heckman shows that $1 in early childhood education generates $7-12 in long-term returns, primarily for disadvantaged children. The skill premium drives inequality, so equalizing skills through education narrows the gap at its source.',
-        'Transfer programs (Social Security, Medicare, SNAP, EITC) significantly reduce inequality. Before transfers, the bottom 20% of Americans earn $16K on average. After transfers, their effective income rises to $31K. The Earned Income Tax Credit alone lifts 5.6 million people out of poverty annually. But transfers have trade-offs: they cost money (requiring taxes) and some argue they can reduce work incentives at the margins.'
+        'Tax rates now: 37% on income, 20% on capital gains, versus 91% in the Great Compression. Economists favor 45-60%. Education is the best long-term fix: Scandinavia, South Korea, Japan lead. James Heckman found $1 spent early returns $7-12.',
+      'Transfers such as Social Security, Medicare, SNAP and the Earned Income Tax Credit, EITC, cut inequality: the bottom 20% average $16K, or $31K after transfers. The EITC lifts 5.6 million from poverty yearly. Transfers cost taxes.'
       ],
       [
         { term: 'Progressive Taxation', definition: 'A tax system where higher earners pay a higher percentage. The U.S. federal income tax has brackets from 10% to 37%.', example: 'Someone earning $50K pays ~12% effective rate. Someone earning $500K pays ~32%. Someone earning $5M may pay ~25% due to capital gains loopholes.' },
@@ -2911,12 +2897,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BIG THREE',
+      'The big three',
       'GDP, Unemployment & Inflation, The Economy\'s Vital Signs',
       [
-        'GDP (Gross Domestic Product) measures total economic output. It\'s reported quarterly and is the single most important number in economics. When GDP grows, the economy is expanding, businesses hire, wages rise, and tax revenue increases. When GDP contracts for two consecutive quarters, that\'s technically a recession. U.S. GDP in 2024: ~$28.3 trillion, growing at roughly 2.5% annually.',
-        'The unemployment rate measures the percentage of the labor force actively seeking work. The Bureau of Labor Statistics publishes it monthly (first Friday). But the headline rate (U-3) misses people who\'ve stopped looking (discouraged workers) and part-timers who want full-time work. The broader U-6 rate includes these, and it\'s typically 3-4 percentage points higher. In 2024, U-3 was 3.7% but U-6 was 7.1%.',
-        'Inflation is measured primarily by the Consumer Price Index (CPI), tracking prices of a "basket" of ~80,000 goods and services. The Fed watches "core CPI" which excludes volatile food and energy prices. The Personal Consumption Expenditures (PCE) index is the Fed\'s preferred gauge because it adjusts for consumer substitution. When inflation hit 9.1% (CPI) in June 2022, core PCE was 5.1%, still alarming but more measured. Understanding which inflation metric matters is crucial for interpreting the economy.'
+        'GDP, gross domestic product, is a country\'s total output: $28.3 trillion in 2024, growing 2.5%. Two shrinking quarters means recession. The headline jobless rate, U-3, was 3.7%; U-6 adds discouraged and part-time workers, 3 to 4 points higher, 7.1%.',
+      'Inflation: the Consumer Price Index, CPI, tracks about 80,000 goods and services. Core CPI drops volatile food and energy. The Fed prefers PCE, personal consumption expenditures. In June 2022, CPI hit 9.1% while core PCE was 5.1%.'
       ],
       [
         { term: 'GDP', definition: 'Total market value of all final goods and services produced in a country per year. The broadest measure of economic health.', example: 'U.S. GDP: $28.3T (2024). Growth of 2.5% means the economy produced $700 billion more than the previous year.' },
@@ -2938,7 +2923,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'LEADING INDICATORS',
+      'Leading indicators',
       'Predicting Recessions Before They Happen',
       'timeline',
       'Explore how leading, coincident, and lagging indicators tell you where the economy is heading, where it is now, and where it\'s been.',
@@ -2964,12 +2949,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE YIELD CURVE',
+      'The yield curve',
       'The Most Powerful Recession Predictor',
       [
-        'The yield curve plots interest rates on government bonds from shortest maturity (1 month) to longest (30 years). Normally, it slopes upward, you earn more interest for lending money for longer periods (because of inflation risk and time preference). A normal yield curve signals economic confidence: investors expect growth and moderate inflation in the future.',
-        'An inverted yield curve occurs when short-term rates exceed long-term rates. This means investors expect the economy to weaken, they\'re willing to lock in lower long-term rates because they believe the Fed will cut rates to fight a recession. The 2-year/10-year Treasury spread is the most watched: it inverted before every U.S. recession since 1955, with a lead time of 6-24 months and only one false positive (1966).',
-        'The yield curve inverted in July 2022 and stayed inverted for a record-breaking 793 days. By comparison, the inversion before the 2008 crisis lasted about 15 months. Economists debated whether "this time is different", the labor market remained strong and consumer spending stayed resilient. The yield curve\'s track record makes it the single most reliable recession indicator, but it doesn\'t tell you exactly when or how severe the downturn will be.'
+        'A yield curve plots interest rates on government bonds from 1 month to 30 years. Normally it slopes up: longer loans pay more. When it inverts, short-term rates top long-term ones, investors expect the Federal Reserve to cut rates.',
+      'The 2-year/10-year Treasury spread inverted before every US recession since 1955, 6 to 24 months ahead, with one false alarm in 1966. It inverted in July 2022 for a record 793 days; before 2008, about 15 months.'
       ],
       [
         { term: 'Yield Curve', definition: 'A graph of interest rates across different bond maturities (1 month to 30 years). Shape reveals market expectations about future economic conditions.', example: 'Normal: 2-year yield = 3%, 10-year = 4.5% (upward slope = confidence). Inverted: 2-year = 5%, 10-year = 4% (downward slope = recession fear).' },
@@ -3083,12 +3067,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BIG FIVE',
+      'The big five',
       'How the World\'s Major Central Banks Differ',
       [
-        'The European Central Bank (ECB) manages monetary policy for the 20 eurozone countries, the world\'s second-largest currency area. Unlike the Fed\'s dual mandate, the ECB has a single mandate: price stability (targeting 2% inflation). This makes the ECB more hawkish on inflation but slower to support employment. The ECB faces a unique challenge: setting one interest rate for 20 different economies. What\'s right for Germany (strong) may be wrong for Greece (struggling).',
-        'The Bank of Japan (BoJ) has fought deflation for 30 years, the opposite of most central banks\' problems. Japan\'s "Lost Decades" (1990-2020) saw near-zero growth and falling prices. The BoJ pioneered extreme monetary policy: zero interest rates (1999), quantitative easing (2001), and negative interest rates (2016). In 2023, the BoJ was the only major central bank still keeping rates negative while every other central bank was hiking aggressively.',
-        'The People\'s Bank of China (PBoC) operates fundamentally differently from Western central banks. It\'s not independent, it follows directives from the Chinese Communist Party. It manages a partially controlled exchange rate, sets lending quotas, and uses tools Western central banks don\'t: reserve requirement ratios and "window guidance" (telling banks how much to lend). China\'s approach prioritizes economic growth targets over inflation control, reflecting a different economic philosophy.'
+        'The European Central Bank (ECB) targets only 2% inflation, unlike the Fed, which also targets jobs. One rate covers 20 countries sharing the euro: right for strong Germany, wrong for struggling Greece.',
+      'The Bank of Japan (BoJ) fought falling prices for 30 years (1990-2020): zero rates (1999), bond buying (2001), negative rates (2016), still negative in 2023. The People\'s Bank of China (PBoC) obeys the Chinese Communist Party, chasing growth.'
       ],
       [
         { term: 'ECB', definition: 'European Central Bank, manages monetary policy for 20 eurozone nations. Single mandate: price stability. Sets rates for the world\'s second-largest currency.', example: 'The ECB raised rates from -0.5% to 4.5% in 2022-2023, its fastest tightening ever, but had to balance German inflation concerns against Italian debt sustainability.' },
@@ -3110,7 +3093,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'POLICY DIVERGENCE',
+      'Policy divergence',
       'When Central Banks Disagree: Global Capital Flows',
       'comparison',
       'See how interest rate differentials between major central banks drive currency movements and global capital flows.',
@@ -3136,12 +3119,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'UNCONVENTIONAL POLICY',
+      'Unconventional policy',
       'QE, Negative Rates & Yield Curve Control',
       [
-        'When conventional rate cuts reach 0%, central banks turn to unconventional tools. Quantitative Easing (QE), buying government bonds and other assets with newly created money, was pioneered by the BoJ in 2001 and adopted by the Fed in 2008. The Fed\'s balance sheet went from $900 billion (2008) to $9 trillion (2022) through QE. The ECB, BoE, and BoJ all implemented QE programs, collectively creating over $25 trillion in new central bank money.',
-        'Negative interest rates, charging banks for deposits rather than paying them, were adopted by the ECB (2014), BoJ (2016), and several European central banks. The idea: penalize banks for hoarding cash, forcing them to lend. The results were mixed: lending increased modestly, but negative rates squeezed bank profits and confused consumers who couldn\'t understand why they might be charged for saving.',
-        'The BoJ invented Yield Curve Control (YCC) in 2016, explicitly targeting the 10-year government bond yield at ~0%. The BoJ would buy unlimited bonds to keep the yield at its target. This worked for years but created massive distortions: the BoJ owned over 50% of all Japanese government bonds by 2023. When the BoJ finally adjusted YCC in 2024, Japanese bond markets experienced violent volatility, demonstrating the danger of central bank market manipulation becoming unsustainable.'
+        'Quantitative easing (QE) means buying bonds with new money when rates hit 0%. The BoJ began in 2001, the Fed in 2008, whose balance sheet grew from $900 billion to $9 trillion (2022). ECB and BoE joined: over $25 trillion.',
+      'Negative rates charge banks to hold cash: ECB (2014), BoJ (2016). Lending barely rose; profits fell. Japan\'s yield curve control (2016) held 10-year yields near 0%. By 2023 it owned over 50% of them; changing course in 2024 shook markets.'
       ],
       [
         { term: 'Quantitative Easing (QE)', definition: 'A central bank buying government bonds and other assets with newly created money to inject liquidity and lower long-term interest rates.', example: 'The Fed bought $4.5 trillion in bonds during 2008-2014 QE, and another $4.8 trillion during COVID QE (2020-2022), expanding its balance sheet to $9 trillion.' },
@@ -3257,12 +3239,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE ECONOMICS',
+      'The economics',
       'What Tariffs Actually Do, Who Pays and Who Benefits',
       [
-        'A tariff is a tax on imported goods. Here\'s the crucial economic fact that most people get wrong: tariffs are paid by the IMPORTING country\'s consumers, not by the exporting country. When the U.S. imposed a 25% tariff on Chinese steel, American companies importing that steel paid 25% more, and they passed that cost to consumers. A Federal Reserve study found that U.S. tariffs on China cost the average American household $831 per year in higher prices.',
-        'Tariffs create winners and losers within the imposing country. Winners: domestic producers who compete with imports, U.S. steel companies gained 0.4% market share and raised prices after tariffs. Losers: (1) domestic consumers who pay higher prices, (2) domestic companies that USE the tariffed goods as inputs, U.S. automakers paid $900 more per car for steel, and (3) export industries that face retaliation, China\'s tariffs on U.S. soybeans cost American farmers $27 billion.',
-        'Economic theory is unambiguous: free trade maximizes total welfare because it allows countries to specialize in what they produce most efficiently (comparative advantage). But tariffs can be justified in three cases: (1) national security (ensuring domestic production of critical goods like semiconductors), (2) infant industry protection (temporarily protecting new domestic industries), and (3) retaliation against unfair trade practices (subsidized foreign competitors). The debate is always about where these exceptions apply, and politicians tend to stretch them far beyond what economics supports.'
+        'Tariffs are taxes on imported goods, paid by the importing country\'s buyers, not the exporter. A 25% U.S. tariff on Chinese steel made American importers pay 25% more. A Federal Reserve study found an $831 yearly cost per household.',
+      'Winners: U.S. steel makers gained 0.4% market share. Losers: carmakers paid $900 more per car, and China\'s retaliation on soybeans cost American farmers $27 billion. Free trade usually wins, but security, new industries and retaliation are real exceptions.'
       ],
       [
         { term: 'Tariff', definition: 'A tax on imported goods paid by the importer. Raises the price of foreign goods, making domestic alternatives more competitive but costing consumers more.', example: 'A 25% tariff on $100 Chinese electronics means the U.S. importer pays $125. The consumer pays more. China receives the same $100.' },
@@ -3284,7 +3265,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'TRADE WAR IMPACT',
+      'Trade war impact',
       'Winners and Losers from U.S.-China Tariffs',
       'comparison',
       'See how tariffs create winners and losers across different sectors of the economy, with net effects that are almost always negative.',
@@ -3310,12 +3291,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'HISTORY REPEATS',
+      'History repeats',
       'The Smoot-Hawley Lesson & Modern Parallels',
       [
-        'The most destructive tariff in history was the Smoot-Hawley Tariff Act of 1930, which raised tariffs on 20,000+ imported goods to record levels. The intention was to protect American farmers and manufacturers during the early Depression. The result: 25 countries retaliated with their own tariffs. Global trade collapsed by 65% from 1929-1934. Unemployment soared from 8% to 25%. Most economists believe Smoot-Hawley turned a bad recession into the Great Depression.',
-        'After WWII, the lesson of Smoot-Hawley led to the creation of GATT (1947) and later the WTO (1995), institutions designed to gradually reduce tariffs worldwide. Global average tariffs fell from 22% (1947) to 3% (2017). This 70-year trade liberalization period coincided with the greatest increase in global prosperity in human history: global GDP grew 10x, extreme poverty fell from 60% to under 10%, and billions of people entered the middle class.',
-        'The 2018-present trade war reversed decades of liberalization. U.S. average tariffs on Chinese goods went from 3% to 19%. But the modern trade war is fundamentally different from Smoot-Hawley: it\'s strategic, targeting technology and national security (semiconductors, AI) rather than consumer goods. The question isn\'t free trade vs. protectionism, it\'s where to draw the line between economic efficiency and national security in an era of great-power competition.'
+        'The Smoot-Hawley Tariff Act of 1930 taxed 20,000+ imported goods. 25 countries retaliated, world trade fell 65% from 1929-1934, and unemployment rose from 8% to 25%. Most economists blame it for deepening the Great Depression.',
+      'GATT (1947) and the WTO (1995) cut tariffs from 22% to 3% by 2017. Global GDP grew 10x over 70 years, extreme poverty fell from 60% to under 10%. Since 2018, U.S. tariffs on China rose from 3% to 19%.'
       ],
       [
         { term: 'Smoot-Hawley Tariff', definition: 'The 1930 U.S. tariff act that raised tariffs on 20,000+ goods, triggering global retaliation that collapsed trade by 65% and deepened the Great Depression.', example: 'Before Smoot-Hawley: U.S. unemployment 8%. After retaliation collapsed trade: unemployment 25%. The tariff turned a recession into a catastrophe.' },
@@ -3422,12 +3402,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE WEAPONS',
+      'The weapons',
       'How Economic Sanctions Work',
       [
-        'Economic sanctions are restrictions on trade, finance, or economic activity imposed on a country to change its behavior. They range from targeted measures (freezing individual leaders\' assets) to comprehensive embargoes (blocking nearly all trade, as with North Korea). The U.S. is the world\'s most prolific sanctioner, it currently maintains sanctions against over 30 countries, including Russia, Iran, China (partial), North Korea, Cuba, Venezuela, Syria, and Myanmar.',
-        'The most powerful sanctions leverage the dollar system. Because ~60% of global reserves and ~40% of international transactions are in dollars, the U.S. can effectively cut any entity off from the global financial system by denying access to dollar clearing. SWIFT (the messaging system connecting 11,000+ banks) is the nervous system of global finance. Being cut from SWIFT is a "financial nuclear weapon", it means a country\'s banks can\'t send or receive international payments.',
-        'Russia sanctions (2022) deployed every tool simultaneously: $300 billion in central bank reserves frozen, major banks cut from SWIFT, export controls on technology, oil price cap at $60/barrel, thousands of individuals sanctioned, and major companies barred from operating in Russia. The combined effect was unprecedented, but Russia\'s GDP fell only 2.1% (not the 15%+ some predicted) because Russia redirected trade to China and India, used alternative payment systems, and benefited from high energy prices.'
+        'Economic sanctions are trade and financial limits used to change a country\'s behavior. The U.S. sanctions over 30 countries: Russia, Iran, China, North Korea, Cuba, Venezuela, Syria, Myanmar. Roughly 60% of reserves and 40% of transactions use dollars.',
+      'In 2022, Russia lost $300 billion in reserves, was cut from SWIFT, the payment network linking 11,000+ banks, and faced a $60/barrel oil cap. GDP fell just 2.1%, not 15%+, thanks to China and India.'
       ],
       [
         { term: 'SWIFT', definition: 'Society for Worldwide Interbank Financial Telecommunication, the messaging system connecting 11,000+ banks in 200 countries. Controls the plumbing of global finance.', example: 'When 7 Russian banks were cut from SWIFT in 2022, they couldn\'t send or receive international payments, freezing billions in transactions overnight.' },
@@ -3449,7 +3428,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'DOLLAR DOMINANCE',
+      'Dollar dominance',
       'Why U.S. Sanctions Are the Most Powerful on Earth',
       'pie',
       'The dollar\'s dominance in global reserves, trade, and finance gives the U.S. unmatched sanctions power, but also creates incentives for rivals to build alternatives.',
@@ -3475,12 +3454,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE CONSEQUENCES',
+      'The consequences',
       'De-dollarization and the Future of Financial Power',
       [
-        'The weaponization of the dollar system has triggered the most significant challenge to dollar hegemony since WWII. After seeing Russia\'s reserves frozen, central banks worldwide are reconsidering dollar dependence. Central bank gold purchases hit a 55-year high in 2022-2023, gold can\'t be frozen or sanctioned. China reduced its Treasury holdings from $1.3 trillion to $770 billion and is aggressively promoting yuan settlement for energy trade.',
-        'BRICS nations (Brazil, Russia, India, China, South Africa, now expanded to include Saudi Arabia, UAE, Egypt, Ethiopia, and Iran) represent 46% of the world\'s population and 36% of GDP. They are actively building alternatives to the dollar system: yuan-denominated oil contracts, bilateral currency swap agreements, and cross-border payment systems. If Saudi Arabia accepts yuan for oil (breaking the 50-year petrodollar arrangement), it would mark a historic shift.',
-        'The realistic assessment: the dollar isn\'t about to be replaced. No alternative offers the same combination of deep capital markets, rule of law, and network effects. But the dollar\'s share of reserves has declined from 72% (2000) to 58% (2024), a slow but steady erosion. De-dollarization isn\'t a revolution; it\'s a gradual diversification that will reduce U.S. sanction power over decades, not overnight.'
+        'After Russia\'s reserves were frozen, central banks bought gold at a 55-year high in 2022-2023. China cut its holdings of U.S. government debt from $1.3 trillion to $770 billion and promotes yuan oil payments.',
+      'BRICS nations hold 46% of world population and 36% of GDP. If Saudi Arabia takes yuan for oil, the 50-year petrodollar deal breaks. Yet the dollar\'s reserve share only slipped from 72% in 2000 to 58% in 2024.'
       ],
       [
         { term: 'BRICS', definition: 'Originally Brazil, Russia, India, China, South Africa, now expanded to include Saudi Arabia, UAE, Egypt, Ethiopia, and Iran. Represents 46% of world population and is building alternatives to the dollar system.', example: 'BRICS nations are developing mutual payment systems that bypass SWIFT and the dollar, reducing vulnerability to U.S. sanctions.' },
@@ -3578,12 +3556,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE PHYSICAL ECONOMY',
+      'The physical economy',
       'Oil, Gold, Food & Critical Minerals',
       [
-        'Crude oil is the world\'s most important commodity, the lifeblood of the global economy. The world consumes ~100 million barrels per day ($8 billion worth at $80/barrel). Oil prices affect everything: transportation, plastics, fertilizers, heating, and manufacturing. OPEC+ (13 OPEC members plus Russia and allies) controls ~40% of global production and uses supply management to influence prices. When OPEC cuts production, prices rise. When they flood the market, prices crash.',
-        'Gold is the world\'s oldest store of value and the ultimate "safe haven" asset. When geopolitical crises hit, investors flee to gold. Gold hit an all-time high of $2,400+/oz in 2024, driven by central bank buying (record amounts since 2022), inflation hedging, and de-dollarization. Unlike currencies, gold can\'t be printed, inflated, or frozen by sanctions, which is exactly why central banks are accumulating it.',
-        'Critical minerals, lithium, cobalt, nickel, rare earths, and copper, are "the new oil." The energy transition requires massive quantities: one EV battery needs ~10 kg of lithium, 30 kg of nickel, and 14 kg of cobalt. Global lithium demand is projected to grow 40x by 2040. China dominates processing: 60% of lithium, 70% of cobalt, and 90% of rare earths are refined in China. This concentration creates a strategic vulnerability that rivals OPEC\'s grip on oil.'
+        'Oil powers the economy: about 100 million barrels daily, $8 billion at $80/barrel. OPEC+ (13 OPEC members plus Russia and allies) pumps ~40%. Gold, a safe store of value, hit $2,400+/oz in 2024 on record central bank buying since 2022.',
+      'Critical minerals are the new oil. One electric car battery needs ~10 kg lithium, 30 kg nickel, 14 kg cobalt. Lithium demand could grow 40x by 2040. China refines 60% of lithium, 70% of cobalt, 90% of rare earths.'
       ],
       [
         { term: 'OPEC+', definition: 'Organization of Petroleum Exporting Countries plus allies (including Russia). Controls ~40% of global oil production and manages output to influence prices.', example: 'In 2023, Saudi Arabia cut production by 1 million barrels/day, pushing oil from $70 to $90/barrel, demonstrating OPEC+ market power.' },
@@ -3605,7 +3582,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'CRITICAL MINERALS',
+      'Critical minerals',
       'The New Geopolitical Battleground',
       'comparison',
       'Explore how critical mineral demand for the energy transition is creating new resource dependencies and geopolitical tensions.',
@@ -3631,12 +3608,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE RESOURCE CURSE',
+      'The resource curse',
       'Why Resource Wealth Often Creates Poverty',
       [
-        'One of economics\' greatest paradoxes: countries rich in natural resources often perform worse than resource-poor countries. This "resource curse" (also called the "paradox of plenty") affects dozens of nations. Nigeria earned $800 billion from oil since 1960, yet 40% of its people live in extreme poverty. Venezuela has the world\'s largest oil reserves but experienced economic collapse. Meanwhile, resource-poor Japan, South Korea, and Singapore became wealthy through human capital and manufacturing.',
-        'The resource curse operates through several mechanisms: (1) Dutch Disease, resource exports strengthen the currency, making all other exports uncompetitive (named after Netherlands\' experience with natural gas in the 1960s); (2) Rent-seeking, oil wealth creates incentives for corruption rather than productive economic activity; (3) Institutional decay, governments funded by resource revenue don\'t need to tax citizens, reducing accountability; (4) Volatility, commodity price swings create boom-bust cycles that destabilize planning.',
-        'Escaping the resource curse IS possible. Norway created the Government Pension Fund (world\'s largest sovereign wealth fund, $1.5 trillion), investing oil revenue abroad rather than spending it domestically, avoiding Dutch Disease. Botswana used diamond revenue to invest in education and governance, becoming Africa\'s longest-running democracy. Chile uses a counter-cyclical copper fund, saving during high-price periods and spending during low-price periods. The lesson: resource wealth is a blessing only with strong institutions.'
+        'The resource curse: countries rich in resources often struggle. Nigeria earned $800 billion from oil since 1960, yet 40% of its people live in extreme poverty. Venezuela holds the biggest reserves but collapsed. Resource-poor Japan, South Korea and Singapore thrived.',
+      'Why? Resource exports lift the currency, hurting other industries: that is Dutch Disease, named after Netherlands gas in the 1960s. Corruption and price swings add damage. Norway invested oil money abroad in a $1.5 trillion fund; Botswana and Chile saved.'
       ],
       [
         { term: 'Resource Curse', definition: 'The paradox that resource-rich countries often have slower growth, more corruption, and weaker institutions than resource-poor countries.', example: 'Resource-rich Venezuela GDP per capita fell 75% from 2013-2023. Resource-poor South Korea grew from $158 GDP per capita (1960) to $35,000+ today.' },
@@ -3745,12 +3721,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE MARKET FAILURE',
+      'The market failure',
       'Externalities: Why Markets Can\'t Solve Climate Change Alone',
       [
-        'Climate change is the world\'s largest market failure. The core problem is an externality, a cost imposed on third parties not involved in the transaction. When a factory burns coal, the CO2 emissions impose costs (extreme weather, sea level rise, health effects) on everyone, but those costs aren\'t in the price of coal. The result: markets produce too much pollution because the full cost isn\'t priced in.',
-        'Nobel laureate William Nordhaus estimated the "social cost of carbon" at $50-100 per ton of CO2, the damage each ton causes through climate impacts. Yet most carbon emissions are free. This means every fossil fuel transaction is implicitly subsidized, consumers don\'t pay the true cost. The IMF calculates that global fossil fuel subsidies (including unpriced externalities) total $7 trillion per year, 7% of global GDP.',
-        'The economic solution is straightforward: price the externality. A carbon tax makes emitters pay the social cost of their pollution, correcting the market failure. The EU Emissions Trading System, carbon taxes in Canada, and cap-and-trade systems in California all attempt this. 3,500+ economists, including 28 Nobel laureates and 4 former Fed chairs, signed a statement endorsing carbon pricing as the most efficient climate policy.'
+        'An externality is a cost pushed onto others. Burning coal harms everyone, but that cost is not in the price, so markets overproduce pollution. William Nordhaus put the social cost of carbon at $50-100 per ton of CO2.',
+      'The IMF counts $7 trillion in fossil fuel subsidies, 7% of global GDP. A carbon tax makes polluters pay, like the EU Emissions Trading System, Canada, and California. 3,500+ economists, 28 Nobel laureates and 4 former Fed chairs agree.'
       ],
       [
         { term: 'Externality', definition: 'A cost or benefit that affects parties not involved in a transaction. Pollution is a negative externality, the cost falls on society, not the polluter.', example: 'A coal plant generates electricity for its customers but imposes health costs ($74 billion/year in the U.S.) on everyone who breathes the air, an unpriced externality.' },
@@ -3772,7 +3747,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE TRANSITION',
+      'The transition',
       'Clean Energy Economics: Costs, Investment & Opportunity',
       'exponential',
       'Track the dramatic decline of renewable energy costs and the exponential growth of clean energy investment.',
@@ -3798,12 +3773,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE DEBATE',
+      'The debate',
       'Carbon Pricing, Green Growth & Just Transition',
       [
-        'Carbon pricing is the economist\'s preferred tool because it\'s efficient, it lets the market find the cheapest way to cut emissions. A $50/ton carbon tax adds ~$0.50/gallon to gasoline and ~$25/MWh to coal power, making renewables more competitive automatically. Revenue can be returned to citizens (Canada model) or invested in clean energy (EU model). Economists support carbon pricing because it corrects the externality without requiring government to pick technologies.',
-        'The "just transition" addresses the distributional challenge. Fossil fuel workers (1.7 million in the U.S.) and communities dependent on coal, oil, and gas face job losses. Without support, the transition creates concentrated suffering even as it generates broad benefits. The economic solution: use carbon tax revenue to fund retraining programs, community investment, and transitional income support for displaced workers. Ignoring these communities breeds political opposition that blocks climate policy entirely.',
-        'The intergenerational economics are stark. Climate action costs money today but prevents far larger costs for future generations. The Stern Review calculated that spending 1-2% of GDP now on climate action prevents losses of 5-20% of GDP in the future, a 5-10x return. But politically, asking today\'s voters to bear costs for tomorrow\'s benefits is enormously difficult. The discount rate debate, how much we value future welfare versus present consumption, is the most consequential economic question of the century.'
+        'A $50/ton carbon tax adds about $0.50/gallon to gasoline and $25/MWh to coal power, so renewables win on price. Canada returns the revenue to citizens, the EU invests it in clean energy.',
+      'A just transition means helping workers hurt by the shift: carbon tax revenue can retrain the 1.7 million U.S. fossil fuel workers. The Stern Review found spending 1-2% of GDP now avoids losses of 5-20% later, a 5-10x return.'
       ],
       [
         { term: 'Carbon Pricing', definition: 'Any policy that puts a price on CO2 emissions, either through a carbon tax or cap-and-trade system. Makes polluters pay, correcting the market failure.', example: 'The EU Emissions Trading System prices carbon at €65-90/ton, covering 40% of EU emissions. Companies must buy permits to pollute.' },
@@ -3908,12 +3882,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE NEW RULES',
+      'The new rules',
       'Network Effects, Zero Marginal Cost & Winner-Take-All',
       [
-        'Platform economics operates under fundamentally different rules than traditional economics. The key concept is network effects: a product becomes more valuable as more people use it. A phone is useless if you\'re the only one with one. With 1 million users, it\'s useful. With 5 billion, it\'s essential. Network effects create exponential value growth and explain why digital platforms become natural monopolies, once a network reaches critical mass, it\'s nearly impossible for competitors to displace it.',
-        'Zero marginal cost is the second revolutionary feature. In traditional economics, producing one more unit costs money (materials, labor). In the digital economy, the marginal cost of one more user is nearly zero. Google serving one more search, Netflix streaming one more show, Instagram hosting one more photo, the additional cost is essentially zero. This means platforms can scale to billions of users with minimal incremental cost, creating profit margins impossible in the physical economy.',
-        'Together, network effects and zero marginal cost create winner-take-all dynamics. Google has 92% of search. Facebook has 3 billion users. Amazon has 37% of U.S. e-commerce. These aren\'t just big companies, they\'re natural monopolies created by economic forces. Once Google has the most searches, it has the best data to improve results, attracting more searches (a positive feedback loop). Competing against a network effect monopoly is like trying to build a better phone network, you need everyone to switch simultaneously.'
+        'Network effects mean a product gets more valuable as more people use it. One phone alone is useless. With 1 million users it is useful. With 5 billion, essential. Zero marginal cost means one extra user costs almost nothing.',
+      'Another Google search, Netflix show, or Instagram photo costs nearly zero. Winners take all: Google has 92% of search, Facebook has 3 billion users, Amazon has 37% of U.S. e-commerce. More users mean better data, so more users follow.'
       ],
       [
         { term: 'Network Effect', definition: 'A phenomenon where a product becomes more valuable as more people use it. Creates exponential value growth and tends toward monopoly.', example: 'Facebook with 10 users: worthless. With 3 billion: the most valuable social graph on earth. Each new user makes the network more valuable for all existing users.' },
@@ -3935,7 +3908,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'DATA ECONOMY',
+      'Data economy',
       'How Data Creates Value in Platform Markets',
       'exponential',
       'See how data accumulation creates exponential advantages for platform companies, making their competitive moats deeper over time.',
@@ -3964,9 +3937,8 @@ const lessons: PathwayLesson[] = [
       'REGULATION',
       'The Big Tech Antitrust Debate',
       [
-        'Traditional antitrust focused on consumer harm through high prices. But Big Tech poses a new challenge: many platforms are FREE. Google search, Facebook, Instagram, YouTube, consumers don\'t pay directly. This makes it hard to apply traditional antitrust frameworks. If the product is free, where\'s the consumer harm? The new argument: harm through reduced privacy, reduced competition, reduced innovation, and excessive market power.',
-        'The U.S. is pursuing major antitrust cases. The DOJ sued Google (2023) for maintaining its search monopoly through default agreements (paying Apple $20 billion/year to be the default search engine). The FTC sued Meta for acquiring potential competitors (Instagram for $1 billion, WhatsApp for $19 billion). The argument: these companies didn\'t just win, they bought competitors to prevent competition.',
-        'The EU has been more aggressive. The Digital Markets Act (2023) designates large platforms as "gatekeepers" and requires interoperability, prohibits self-preferencing, and mandates data portability. Fines can reach 10% of global revenue. The economic question is genuinely hard: breaking up platforms could reduce the network effects that make them valuable. The challenge is regulating monopoly power without destroying the consumer benefits these platforms provide.'
+        'Antitrust law, which limits monopoly power, once targeted high prices. But Google search, Facebook, Instagram and YouTube are free. The claimed harm is lost privacy, competition and innovation. The DOJ and FTC, US regulators, sued Google (2023) and Meta.',
+      'Google pays Apple $20 billion/year to be the default search engine; Meta bought Instagram for $1 billion and WhatsApp for $19 billion. The EU\'s Digital Markets Act (2023) fines gatekeepers, the largest platforms, up to 10% of global revenue.'
       ],
       [
         { term: 'Antitrust', definition: 'Laws preventing monopolistic behavior and promoting competition. Originally designed for industrial-age monopolies, now being adapted for digital platforms.', example: 'The DOJ broke up Standard Oil (1911) and AT&T (1984). Now it\'s suing Google and Apple for digital monopoly practices.' },
@@ -4064,12 +4036,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'Deficits, Debt & Why the Numbers Matter (Differently Than You Think)',
       [
-        'A deficit is the annual gap between government spending and revenue. The U.S. government spent $6.1 trillion but collected $4.4 trillion in 2023, a deficit of $1.7 trillion. The national debt is the ACCUMULATED total of all past deficits: $34 trillion and growing. Think of deficits as the annual flow of water into a bathtub; debt is the total water in the tub.',
-        'The raw debt number ($34 trillion) is almost meaningless without context. What matters is debt-to-GDP ratio, the debt relative to the economy\'s ability to service it. U.S. debt-to-GDP: 123% (2024). Japan: 264%. Italy: 140%. Germany: 64%. Japan has the highest debt-to-GDP in the developed world yet borrows at ultra-low rates because investors trust its economy. The ratio tells you whether debt is sustainable, not the raw number.',
-        'Government debt is fundamentally different from household debt. Households must repay in full or go bankrupt. Governments can: (1) grow the economy faster than debt accumulates (the U.S. approach after WWII, debt-to-GDP fell from 106% to 31% through growth, not repayment), (2) inflate the debt away (inflation reduces the real value of fixed-rate debt), (3) refinance perpetually (governments don\'t die, so they can roll over debt forever). This doesn\'t mean debt is irrelevant, but comparing it to a credit card bill is a misleading analogy.'
+        'A deficit is the yearly gap between spending and revenue. In 2023 the U.S. spent $6.1 trillion and collected $4.4 trillion, a deficit of $1.7 trillion. Debt is all past deficits added up: $34 trillion.',
+      'Context matters: debt-to-GDP compares debt to the economy\'s size. U.S. 123% (2024), Japan 264%, Italy 140%, Germany 64%. Japan still borrows cheaply. After WWII, U.S. debt-to-GDP fell from 106% to 31% through growth, not repayment.'
       ],
       [
         { term: 'Budget Deficit', definition: 'The annual gap between government spending and tax revenue. The U.S. ran a $1.7 trillion deficit in 2023, it spent $1.7T more than it collected.', example: 'In 2020, the U.S. deficit hit $3.1 trillion, the largest in history, due to $5 trillion in COVID response spending.' },
@@ -4117,12 +4088,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE GREAT DEBATE',
+      'The great debate',
       'Austerity vs. Stimulus vs. Modern Monetary Theory',
       [
-        'The economic debate over debt features three camps. (1) Fiscal hawks argue deficits are inherently dangerous and advocate austerity, cutting spending and raising taxes to balance budgets. Their evidence: Greece\'s debt crisis (2010), where 180% debt-to-GDP led to bailouts and devastating austerity. The risk of ignoring debt: becoming the next Greece.',
-        '(2) Keynesian stimulus advocates argue that deficits during recessions are essential, cutting spending during a downturn makes it worse (as Greece proved). The evidence: U.S. COVID stimulus ($5T) prevented a depression, and the post-WWII era proved that deficit-funded investment (GI Bill, highways) generates long-term growth that reduces debt ratios. The key: deficits should be counter-cyclical (spend during recessions, save during booms).',
-        '(3) Modern Monetary Theory (MMT) argues that countries issuing their own currency (U.S., Japan, UK) can never default because they can always create more money. The constraint isn\'t debt but inflation, governments should spend until inflation becomes a problem, then tax to reduce demand. MMT influenced COVID-era spending but remains controversial: most mainstream economists argue it underestimates inflation risk. The 9.1% inflation of 2022, following massive government spending, gave critics ammunition.'
+        'Fiscal hawks say deficits are dangerous and want austerity: less spending, higher taxes. Their evidence is Greece in 2010, where 180% debt-to-GDP brought bailouts. Keynesians say cutting during a recession makes it worse; U.S. COVID stimulus ($5T) prevented a depression.',
+      'Modern Monetary Theory says a country printing its own currency cannot default, so spend until inflation bites, then tax. Critics point to 9.1% inflation in 2022, after heavy spending, as proof the inflation risk is underrated.'
       ],
       [
         { term: 'Austerity', definition: 'Reducing government spending and/or raising taxes to reduce budget deficits. Can reduce debt but often slows growth and causes social pain.', example: 'Greece\'s austerity (2010-2015): government spending cut 30%, pensions slashed, GDP fell 25%, unemployment hit 27%. The debt ratio actually INCREASED because GDP shrank faster than debt.' },
@@ -4231,12 +4201,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE PATTERN',
+      'The pattern',
       'The Anatomy of Every Bubble in History',
       [
-        'Every bubble in history, tulip mania (1637), South Sea bubble (1720), railroad mania (1840s), 1929 stock crash, dot-com bubble (2000), and 2008 housing, follows the same pattern identified by economist Hyman Minsky. The Minsky Cycle: (1) Displacement, a new technology or policy creates genuine opportunity (internet, mortgage innovation). (2) Boom, early investors profit, attracting attention. (3) Euphoria, everyone piles in, prices detach from fundamentals, leverage increases. (4) Profit-taking, smart money exits. (5) Panic, prices crash as everyone sells simultaneously.',
-        'The key mechanism is leverage, borrowing to invest. During the 2008 housing bubble, banks lent 100% of home values (zero down payment) to borrowers who couldn\'t afford the payments. This leverage amplified both the boom (more buying power) and the bust (forced selling when prices fell). When prices dropped just 20%, homeowners with 100% leverage were underwater, they owed more than the house was worth. 10 million foreclosures followed.',
-        'The most dangerous phrase in finance: "this time is different." In 1999, tech stocks were "a new paradigm" where profits didn\'t matter. In 2006, housing "never goes down nationally." In 2021, meme stocks and crypto were "democratizing finance." Every time, the justification for ignoring traditional valuation metrics turned out to be wrong. Economist Carmen Reinhart titled her definitive study of financial crises "This Time Is Different", because it never is.'
+        'Every bubble repeats: tulips 1637, South Sea 1720, railroads 1840s, 1929 crash, dot-com 2000, housing 2008. Hyman Minsky\'s cycle: opportunity, boom, euphoria, panic. Each time people say this time is different: 1999 tech, 2006 housing, 2021 meme stocks.',
+      'Leverage means borrowing to invest. In 2008, banks lent 100% of home values, so a 20% drop left owners owing more than the house was worth. 10 million foreclosures followed.'
       ],
       [
         { term: 'Minsky Moment', definition: 'The point when a bubble collapses, when investors who bought on borrowed money can\'t make payments, triggering forced selling, price crashes, and financial contagion.', example: 'September 2008 was the Minsky Moment for housing: Lehman Brothers collapsed, triggering a global financial cascade that froze credit markets worldwide.' },
@@ -4284,12 +4253,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'RECOGNIZING BUBBLES',
+      'Recognizing bubbles',
       'Warning Signs You Can Spot Before It\'s Too Late',
       [
-        'Five reliable bubble warning signs: (1) Parabolic price increases, when an asset rises faster than its fundamental value can justify (Bitcoin: $1K to $65K in 4 years). (2) Leverage explosion, when borrowing to invest surges (margin debt, zero-down mortgages, crypto leverage). (3) Narrative dominance, when "this time is different" justifications replace financial analysis. (4) Widespread amateur participation, when your Uber driver gives stock tips (historically, mass retail participation marks peaks). (5) Declining quality, when standards drop (no-doc loans, SPACs, meme stocks).',
-        'Not every rapid price increase is a bubble. Amazon rose from $1 to $3,500 and it wasn\'t a bubble, it was justified by growing revenue and profits. The difference between a bubble and legitimate growth: fundamentals. If prices rise because revenue, profits, and cash flow are growing, it\'s growth. If prices rise because of speculation, leverage, and "greater fool" theory (buying only because someone else will pay more), it\'s a bubble.',
-        'The hardest part of bubble awareness is timing. Economist John Maynard Keynes warned: "Markets can remain irrational longer than you can remain solvent." Being early to identify a bubble and selling too soon can be costly, the dot-com bubble lasted 5 years, and those who called it early in 1996 missed massive gains. The practical approach: don\'t try to time the top, but reduce leverage, diversify, and maintain cash reserves when warning signs appear.'
+        'Bubble warning signs: parabolic prices (Bitcoin: $1K to $65K in 4 years), a leverage surge (borrowing to invest), this time is different stories, amateurs everywhere (your Uber driver gives stock tips), and falling standards.',
+      'Not every rise is a bubble. Amazon went from $1 to $3,500 on real revenue, not speculation. Timing is hard. The dot-com bubble lasted 5 years, so calling it in 1996 cost gains. Cut leverage, diversify, hold cash.'
       ],
       [
         { term: 'Greater Fool Theory', definition: 'Buying an overpriced asset because you believe someone else (a "greater fool") will buy it from you at an even higher price. The basis of all speculative bubbles.', example: 'In 2021, a JPEG (Beeple NFT) sold for $69 million. The buyer wasn\'t investing in art, they were betting someone would pay even more. Many NFTs have since lost 90%+ of value.' },
@@ -4394,7 +4362,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BIASES',
+      'The biases',
       'How Your Brain Systematically Tricks You',
       [
         'Loss aversion is the most powerful bias: losing $100 hurts about twice as much as gaining $100 feels good. This asymmetry drives irrational behavior: investors hold losing stocks too long (hoping to avoid "realizing" the loss) and sell winners too quickly (locking in gains before they disappear). During the 2008 crash, loss aversion drove panic selling at the bottom, the worst possible time to sell. Kahneman and Tversky\'s prospect theory, which identified loss aversion, won the Nobel Prize in Economics.',
@@ -4421,7 +4389,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'NUDGE ECONOMICS',
+      'Nudge economics',
       'How Behavioral Insights Improve Policy',
       'comparison',
       'Compare the effectiveness of traditional economic incentives vs. behavioral nudges across retirement savings, energy conservation, and health decisions.',
@@ -4447,12 +4415,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'IN THE REAL WORLD',
+      'In the real world',
       'Behavioral Economics in Markets, Policy & Your Life',
       [
-        'Financial markets are a playground of behavioral biases. The disposition effect (holding losers, selling winners) costs average investors 1-2% annually. Herding behavior causes bubbles and crashes as people follow the crowd rather than their own analysis. Overconfidence leads day traders to believe they can beat the market, 80% of them lose money. The $500 billion investment advisory industry exists largely to counteract behavioral biases.',
-        'Governments worldwide now have "behavioral insights teams." The UK\'s Behavioural Insights Team (the "Nudge Unit," established 2010) saved the government £500 million in its first 5 years. The Obama administration created a Social and Behavioral Sciences Team. Over 200 governments and organizations worldwide now use behavioral economics to improve policy, from tax compliance to vaccination to energy conservation.',
-        'For your personal finances, understanding behavioral economics is worth tens of thousands of dollars. Auto-enroll yourself in savings (beat present bias). Set investment rules in advance (beat loss aversion, "I will not sell during a 20% decline"). Negotiate salary by anchoring high (beat anchoring). Question every default, your phone plan, insurance, subscriptions (beat default bias). The most expensive biases are the ones you don\'t know you have.'
+        'Biases cost money. Holding losers and selling winners costs investors 1-2% a year. Herding creates bubbles. Overconfidence pushes day traders to try beating the market, and 80% lose money. A $500 billion advisory industry exists to counter this.',
+      'Governments use this too. The UK\'s Behavioural Insights Team, started 2010, saved £500 million in 5 years. Over 200 bodies now apply it. For yourself: auto-enrol in savings, and set rules early, like never selling during a 20% decline.'
       ],
       [
         { term: 'Disposition Effect', definition: 'The tendency to sell winning investments too early and hold losing investments too long, driven by loss aversion and the desire to avoid "realizing" a loss.', example: 'An investor holds a stock that dropped 40% for years ("it\'ll come back") while selling one that rose 20% immediately ("lock in the gain"). This costs 1-2% annual return.' },
@@ -4557,12 +4524,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'WHAT IS MONEY?',
+      'What is money?',
       'Why Paper Has Value and Bitcoin Might Too',
       [
-        'Money serves three functions: (1) medium of exchange (you trade it for goods), (2) store of value (it holds purchasing power over time), and (3) unit of account (prices are denominated in it). For most of history, money was physical, shells, gold, silver coins. The U.S. abandoned the gold standard in 1971, and since then, the dollar has been "fiat money", valuable because the government says so and because everyone agrees to accept it. There\'s nothing backing it except trust and law.',
-        'Cryptocurrencies challenge this model. Bitcoin, launched in 2009, is a decentralized digital currency, no government issues it, no bank processes it, and its supply is mathematically capped at 21 million coins. Transactions are verified by a global network of computers (the blockchain) rather than by banks. Bitcoin\'s value proposition: it\'s censorship-resistant (no government can freeze your account), inflation-resistant (fixed supply), and borderless (send money anywhere in minutes). Its weakness: extreme volatility ($69K in 2021, $16K in 2022, $73K in 2024), energy consumption (0.5% of global electricity), and limited use as actual currency.',
-        'Stablecoins bridge the gap, they\'re cryptocurrencies pegged to the dollar (USDT, USDC). Their market cap exceeds $150 billion. They\'re used for international remittances, decentralized finance (DeFi), and as a dollar substitute in countries with unstable currencies. But they carry risk: TerraUSD, a $40 billion stablecoin, collapsed to zero in May 2022, wiping out investors. Stablecoins without proper reserves are ticking time bombs.'
+        'Money does three jobs: paying for things, storing value, and setting prices. The U.S. left the gold standard in 1971, so dollars are fiat money: valuable only because government and people trust them.',
+      'Bitcoin (2009): digital money, no issuer, capped at 21 million coins, volatile ($69K 2021, $16K 2022, $73K 2024), using 0.5% of world electricity. Stablecoins (USDT, USDC) track the dollar, worth $150 billion. TerraUSD, $40 billion, hit zero in May 2022.'
       ],
       [
         { term: 'Fiat Money', definition: 'Currency that has value because a government declares it legal tender and people trust it, not because it\'s backed by a physical commodity like gold.', example: 'The U.S. dollar has been fiat since 1971 when Nixon ended gold convertibility. Its value comes from U.S. economic power, military might, and global trust.' },
@@ -4584,7 +4550,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE CBDC REVOLUTION',
+      'The CBDC revolution',
       'Why Governments Are Building Digital Currencies',
       'comparison',
       'Compare the features, risks, and adoption timelines of cash, cryptocurrency, and CBDCs across privacy, control, efficiency, and monetary policy dimensions.',
@@ -4607,16 +4573,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Privacy Level', min: 0, max: 10, default: 5, unit: '' },
         { label: 'Adoption Rate', min: 0, max: 100, default: 30, unit: '%' }
       ],
-      { company: 'Bank for International Settlements', metric: 'Global CBDC survey (2024)', outcome: '130 central banks are actively researching or piloting CBDCs, up from 35 in 2020', explanation: 'The acceleration is driven by three forces: China\'s digital yuan threatening dollar hegemony, the decline of physical cash in developed nations, and the recognition that private stablecoins ($150B+ market) are creating a parallel monetary system outside government control. CBDCs are governments\' response to losing control of money.' }
+      undefined
     ),
 
     teachingSlide(
-      'THE FUTURE',
+      'The future',
       'What Money Looks Like in 2035',
       [
-        'The dollar\'s dominance is being challenged for the first time since World War II. The U.S. dollar accounts for 59% of global reserves (down from 71% in 2000) and 88% of international trade is settled in dollars. But China\'s digital yuan enables direct bilateral trade settlement, BRICS nations are exploring alternative payment systems, and weaponizing SWIFT sanctions (Russia 2022) has incentivized countries to build dollar alternatives. The dollar won\'t collapse, but its monopoly is eroding.',
-        'The crypto ecosystem will bifurcate: Bitcoin will likely survive as "digital gold", a store of value rather than a daily currency, while most of the 20,000+ altcoins will go to zero. Stablecoins backed by real reserves (USDC, regulated options) will grow as payment infrastructure. DeFi (decentralized finance) will find niches in lending, insurance, and cross-border payments, but won\'t replace traditional banking for most people.',
-        'By 2035, the monetary landscape will likely feature: (1) CBDCs as the primary form of money in most countries, (2) physical cash reduced to under 5% of transactions, (3) Bitcoin established as a speculative store of value, (4) regulated stablecoins as a bridge between crypto and traditional finance, and (5) new geopolitical monetary blocs, a dollar zone, a yuan zone, and possibly a euro zone. The biggest question isn\'t technological, it\'s political: will digital money empower citizens through financial inclusion, or enable surveillance through transaction tracking?'
+        'The dollar holds 59% of global reserves, down from 71% in 2000, and settles 88% of world trade. Its monopoly faces the first challenge since World War II: China\'s digital yuan, BRICS payment plans, SWIFT sanctions on Russia in 2022.',
+      'By 2035: CBDCs (central bank digital money) dominant, cash under 5% of payments, Bitcoin as digital gold, most 20,000+ altcoins worthless, regulated stablecoins like USDC bridging, and rival dollar, yuan and euro zones. The question is political: inclusion or surveillance?'
       ],
       [
         { term: 'Dollar Hegemony', definition: 'The U.S. dollar\'s dominant role as the world\'s reserve currency, medium of international trade, and safe haven asset. Gives the U.S. enormous economic and geopolitical power.', example: 'When the U.S. froze Russia\'s $300 billion in dollar reserves after the 2022 Ukraine invasion, it demonstrated the dollar\'s power, and motivated other nations to seek alternatives.' },
@@ -4732,12 +4697,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'WHY NATIONS FAIL',
+      'Why nations fail',
       'Institutions, Not Resources, Determine Wealth',
       [
-        'The single most important finding in development economics: institutions determine prosperity, not natural resources. South Korea and Ghana had nearly identical GDP per capita in 1960 ($155 vs. $183). By 2024, South Korea\'s was $35,000-15 times Ghana\'s $2,300. Both countries had similar populations and resource endowments. The difference: South Korea built inclusive institutions (rule of law, property rights, competitive markets, investment in education) while Ghana experienced decades of extractive governance (corruption, coups, cronyism).',
-        'The "resource curse" is the most counterintuitive finding: countries with abundant natural resources are often POORER than those without. The Democratic Republic of Congo sits on $24 trillion in mineral wealth, yet GDP per capita is $580. Nigeria has earned $600 billion in oil revenue since 1960, yet 63% of Nigerians live in poverty. Why? Resource wealth incentivizes corruption (elites fight to control rents rather than build productive economies), creates "Dutch disease" (the booming resource sector drives up the currency, making all other exports uncompetitive), and removes the incentive to invest in human capital.',
-        'Poverty traps keep the poorest countries stuck. A malnourished child can\'t learn effectively. Without education, they can\'t get a productive job. Without productive workers, the economy can\'t generate tax revenue. Without tax revenue, the government can\'t fund schools. This vicious cycle, where poverty causes the conditions that perpetuate poverty, is why 70% of people in extreme poverty live in sub-Saharan Africa and South Asia. Breaking the trap requires targeted interventions at specific points in the cycle.'
+        'Institutions, a country\'s rules and courts, matter more than resources. South Korea and Ghana earned alike in 1960: $155 versus $183. Korea built rule of law and schools; Ghana got corruption. By 2024 Korea had $35,000, 15 times Ghana\'s $2,300.',
+      'Resource wealth invites corruption: Congo\'s $24 trillion in minerals yields $580 per person. Nigeria\'s $600 billion of oil since 1960 leaves 63% poor. Poverty traps, poverty breeding poverty, hold 70% of the extreme poor in sub-Saharan Africa and South Asia.'
       ],
       [
         { term: 'Inclusive Institutions', definition: 'Political and economic institutions that distribute power broadly, enforce property rights, provide public services, and allow competitive markets. The foundation of prosperity.', example: 'South Korea built world-class education, property rights, rule of law, and competitive markets, transforming from one of the poorest nations to one of the richest in 60 years.' },
@@ -4759,7 +4723,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'WHAT WORKS',
+      'What works',
       'Evidence-Based Approaches to Reducing Poverty',
       'comparison',
       'Compare the effectiveness of different poverty reduction strategies, from foreign aid to microfinance to cash transfers, using data from randomized controlled trials.',
@@ -4782,16 +4746,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Intervention Type', min: 1, max: 5, default: 3, unit: '' },
         { label: 'Years of Follow-Up', min: 1, max: 20, default: 5, unit: 'yrs' }
       ],
-      { company: 'GiveDirectly', metric: 'Cash transfer RCT in Kenya (2016-2020)', outcome: '$1,000 transfers to poor families increased earnings 38% and assets 58% after four years', explanation: 'The study shattered the paternalistic assumption that poor people waste cash. Recipients invested in businesses, livestock, and children\'s education. They knew better than aid agencies what they needed. This evidence has shifted billions in aid toward cash transfer programs.' }
+      undefined
     ),
 
     teachingSlide(
-      'DEVELOPMENT SUCCESS STORIES',
+      'Development success stories',
       'Nations That Escaped Poverty, And How',
       [
-        'China\'s economic miracle: 800 million people lifted out of extreme poverty in 40 years, the largest poverty reduction in human history. In 1980, 88% of Chinese lived in extreme poverty. By 2024, less than 1%. The formula: (1) agricultural reform (family farming replaced collectivization, boosting food output 50%), (2) Special Economic Zones that attracted foreign investment, (3) massive investment in infrastructure and education, and (4) export-led industrialization. China\'s GDP per capita went from $195 (1980) to $12,700 (2024), a 65x increase.',
-        'Botswana\'s diamond miracle proves the resource curse isn\'t inevitable. Botswana discovered diamonds in 1967, shortly after independence. Instead of enriching elites, the government created transparent management of diamond revenues, invested in education and infrastructure, and maintained one of Africa\'s strongest democracies. Result: GDP per capita rose from $70 in 1960 to $7,700 in 2024. Botswana was the world\'s fastest-growing economy for 30 consecutive years. The contrast with diamond-rich Sierra Leone (which experienced civil war over "blood diamonds") proves that institutions, not resources, determine outcomes.',
-        'Rwanda\'s post-genocide transformation may be the most remarkable. After the 1994 genocide killed 800,000 people, Rwanda had a GDP per capita of $125. Through investment in education (net enrollment rose from 74% to 98%), technology (Kigali is now called "Africa\'s Silicon Valley"), healthcare (universal coverage achieved), and anti-corruption measures, GDP per capita reached $960 by 2024. Extreme poverty fell from 78% to 38%. Rwanda proves that even the most devastated nations can transform through institutional reform and human capital investment.'
+        'China lifted 800 million people out of extreme poverty in 40 years: 88% were extremely poor in 1980, under 1% by 2024. Family farming raised food output 50%, plus export zones and schools. Income per person: $195 to $12,700, 65x.',
+      'Botswana used 1967 diamond money well: $70 per person in 1960, $7,700 in 2024, world\'s fastest growth for 30 years. Rwanda, after its 1994 genocide killed 800,000, went from $125 to $960, schooling 74% to 98%, poverty 78% to 38%.'
       ],
       [
         { term: 'Export-Led Growth', definition: 'A development strategy focused on producing goods for international markets, using trade to drive economic growth. Requires competitive industries, infrastructure, and trade agreements.', example: 'South Korea, China, and Vietnam all used export-led industrialization to transform from agricultural poverty to manufacturing prosperity within 1-2 generations.' },
@@ -4804,7 +4767,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 3, APPLY
     misconceptions(
-      'DEVELOPMENT MYTHS',
+      'Development myths',
       'What most people get wrong about global poverty',
       [
         {
@@ -4920,12 +4883,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE SYNTHESIS',
+      'The synthesis',
       'How Professional Economists Analyze Complex Problems',
       [
-        'Real-world economic problems never involve just one concept. The 2022-2024 global inflation surge required understanding: supply and demand (supply chain disruptions), monetary policy (Fed rate hikes), fiscal policy (COVID stimulus), trade (Russia-Ukraine disrupting grain and energy markets), behavioral economics (inflation expectations becoming self-fulfilling), exchange rates (strong dollar crushing developing nations), and development (food price spikes pushing millions back into poverty). A competent economist must hold all these frameworks simultaneously.',
-        'The analytical framework professional economists use: (1) Identify the shock, what changed? (supply disruption, policy shift, financial crisis). (2) Trace the transmission channels, how does the shock propagate through markets, institutions, and countries? (3) Identify feedback loops, does the response amplify or dampen the original shock? (4) Assess distributional effects, who wins and who loses? (5) Evaluate policy options, what tools are available and what are the trade-offs? (6) Consider behavioral factors, how will real (irrational) humans actually respond?',
-        'The hallmark of economic sophistication is understanding trade-offs, not finding perfect solutions. Every policy has costs and benefits, winners and losers, intended and unintended consequences. Raising interest rates fights inflation but increases unemployment. Tariffs protect domestic workers but raise consumer prices. Aid helps recipients but can create dependency. Foreign investment brings capital but can extract resources. The economist\'s job isn\'t to find solutions without trade-offs, it\'s to identify which trade-offs are worth making.'
+        'The 2022-2024 inflation surge, meaning prices rising across the economy, mixed many forces: supply chain breaks, Fed rate hikes, COVID stimulus, the Russia-Ukraine war hitting grain and energy, a strong dollar hurting poorer countries, and self-fulfilling expectations.',
+      'Economists work in steps: name the shock, trace how it spreads, spot feedback loops, ask who wins and loses, then weigh the policy options. Every option costs something. Higher interest rates fight inflation but raise unemployment.'
       ],
       [
         { term: 'Systems Thinking', definition: 'Analyzing how interconnected economic components interact, create feedback loops, and produce emergent outcomes that can\'t be understood by examining individual parts alone.', example: 'The 2008 crisis required understanding housing markets, bank leverage, derivatives, monetary policy, contagion, and behavioral panic simultaneously, no single framework was sufficient.' },
@@ -4952,7 +4914,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'INTEGRATED ANALYSIS',
+      'Integrated analysis',
       'Multi-Framework Economic Scenario Modeling',
       'comparison',
       'Apply multiple economic frameworks to a complex scenario and see how different analytical lenses reveal different aspects of the same problem.',
@@ -4975,16 +4937,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Institutional Quality', min: 1, max: 10, default: 5, unit: '' },
         { label: 'Sovereign Wealth Fund Size', min: 0, max: 100, default: 30, unit: '%' }
       ],
-      { company: 'Norway Government Pension Fund', metric: 'Resource revenue management (1990-2024)', outcome: 'Saved $1.6 trillion from oil revenue, largest sovereign wealth fund on earth', explanation: 'Norway chose to save, not spend, its oil windfall. The Government Pension Fund invests globally, returning profits to the national budget under strict fiscal rules (max 3% withdrawal per year). This avoided Dutch disease, created intergenerational wealth, and proves that institutions determine whether resources are a blessing or a curse.' }
+      undefined
     ),
 
     teachingSlide(
-      'THE ECONOMIST\'S TOOLKIT',
+      'The economist\'s toolkit',
       'Principles That Govern Every Economic Decision',
       [
-        'After 25 lessons, here are the seven principles that professional economists use to analyze any situation: (1) Scarcity forces trade-offs, there are no free lunches, every choice has an opportunity cost. (2) Incentives drive behavior, change the incentives, change the outcome. (3) Markets are powerful but imperfect, supply and demand allocate resources efficiently most of the time, but market failures (externalities, monopolies, asymmetric information) require intervention. (4) Institutions matter most, property rights, rule of law, and governance quality explain more prosperity variation than any other factor.',
-        '(5) Policy has unintended consequences, rent control reduces housing supply, tariffs raise consumer prices, well-intentioned aid can create dependency. Always think second-order effects. (6) Humans are predictably irrational, loss aversion, present bias, anchoring, and default bias systematically distort decisions. Good policy accounts for real human psychology, not textbook rationality. (7) Data beats ideology, RCTs, empirical evidence, and historical analysis should guide policy decisions, not political narratives or ideological commitments.',
-        'The meta-lesson of economics: complexity is irreducible, but frameworks help. The world economy involves 8 billion people making trillions of decisions daily, connected through trade, finance, technology, and institutions. No model captures everything. But the frameworks you\'ve learned, supply and demand, monetary policy, trade theory, development economics, behavioral insights, give you the analytical tools to understand most of what matters. Economic literacy isn\'t about memorizing facts. It\'s about developing a way of thinking that applies to every problem you\'ll ever face.'
+        'After 25 lessons, seven principles remain: scarcity forces trade-offs, incentives drive behavior, markets work well but sometimes fail, institutions like property rights matter most, policies have unintended consequences, humans are predictably irrational, and data beats ideology.',
+      'Concrete example: rent control, a legal cap on rents, shrinks housing supply. So always ask what happens next. No model captures 8 billion people making daily choices, but these frameworks give you a way of thinking.'
       ],
       [
         { term: 'Market Failure', definition: 'Situations where free markets fail to allocate resources efficiently, externalities, public goods, monopolies, and information asymmetries. The economic justification for government intervention.', example: 'Climate change is the ultimate market failure: carbon emissions impose costs on everyone, but no individual or company pays the full cost. A carbon tax internalizes this externality.' },

@@ -136,12 +136,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'The Five Pillars of Wealth Management',
       [
-        'Wealth management is not just investing, it\'s a comprehensive framework with five pillars: Earn, Save, Invest, Protect, and Transfer. Most people focus only on earning and maybe saving. The wealthy focus on all five, and the last three are where the real advantage lies.',
-        'Pillar 1: Earn, maximize your income through career growth, side businesses, and skill development. Pillar 2: Save, maintain a 20-30% savings rate by automating and controlling lifestyle inflation. Pillar 3: Invest, deploy savings into tax-advantaged accounts and diversified portfolios to beat inflation and compound wealth.',
-        'Pillar 4: Protect, shield your assets through insurance, trusts, LLCs, and legal structures. A single lawsuit or medical emergency can destroy unprotected wealth. Pillar 5: Transfer, estate planning ensures your wealth passes efficiently to the next generation. Without it, the IRS takes up to 40% federal estate tax on amounts above $13.61 million (2024).'
+        'Wealth management has five pillars: earn, save, invest, protect, transfer. Earn means growing income through career, side businesses and skills. Save means keeping a 20-30% savings rate. Invest means putting savings into tax advantaged, diversified accounts that beat inflation.',
+      'Protect means shielding assets with insurance and legal structures, because one lawsuit can wipe them out. Transfer means estate planning, deciding who inherits your wealth. Without it, the IRS takes up to 40% federal estate tax above $13.61 million (2024).'
       ],
       [
         { term: 'Wealth Management', definition: 'A holistic approach combining financial planning, investment management, tax optimization, estate planning, and asset protection.', example: 'A wealth manager coordinates your 401(k), Roth IRA, insurance, trust, and estate plan into one unified strategy.' },
@@ -150,7 +149,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Estate Tax', definition: 'A federal tax on the transfer of wealth at death. In 2024, estates over $13.61 million face a 40% tax rate.', example: 'A $20 million estate would owe approximately $2.56 million in federal estate taxes without planning.' }
       ],
       'Five-pillar diagram: five columns labeled Earn, Save, Invest, Protect, Transfer, each supporting a roof labeled "Generational Wealth." The foundation is labeled "Financial Literacy."',
-      { company: 'Rockefeller Family', metric: 'Wealth preservation across 7 generations', outcome: 'Family office manages $11B+ since 1882', explanation: 'The Rockefellers established one of America\'s first family offices. Through trusts, philanthropy, and disciplined governance, they\'ve preserved wealth across 7 generations, defying the "shirtsleeves to shirtsleeves in three generations" curse.' },
+      undefined,
       {
           type: 'grid',
           title: 'Generational wealth',
@@ -177,7 +176,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE WEALTH PARADOX',
+      'The wealth paradox',
       'Offense vs. Defense: The Wealth Preservation Gap',
       'comparison',
       'Compare wealth trajectories of families with and without comprehensive wealth management. Adjust the starting wealth and annual return to see how protection and tax optimization compound over decades.',
@@ -200,7 +199,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Return', min: 4, max: 15, default: 8, unit: '%' },
         { label: 'Tax Savings Rate', min: 0, max: 20, default: 12, unit: '%' }
       ],
-      { company: 'Williams Group', metric: 'Multi-generational wealth study', outcome: '90% of family wealth lost by 3rd generation', explanation: 'The Williams Group studied 3,250 wealthy families and found the primary cause of wealth loss wasn\'t bad investments, it was lack of communication, trust, and preparation of heirs. Only 3% of failures were due to poor financial planning; 60% were due to lack of family communication and trust.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -217,7 +216,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'WEALTH MYTHS',
+      'Wealth myths',
       'Dangerous beliefs that destroy generational wealth',
       [
         {
@@ -461,12 +460,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE TAX-ADVANTAGED TOOLKIT',
+      'The tax-advantaged toolkit',
       'Understanding Every Account Type',
       [
-        '401(k): Your employer-sponsored retirement account. Contributions are pre-tax (reducing taxable income), grow tax-deferred, and are taxed as income upon withdrawal. 2024 limit: $23,000/year ($30,500 if 50+). Employer matches are free money, always contribute enough to get the full match.',
-        'Traditional IRA vs Roth IRA: Traditional, tax deduction now, pay taxes later on withdrawals. Roth, no deduction now, but ALL growth and withdrawals are tax-FREE forever. Roth is generally better for younger investors who expect to be in a higher tax bracket later. 2024 limit: $7,000/year ($8,000 if 50+).',
-        'HSA (Health Savings Account): The only account with a TRIPLE tax advantage, contributions are tax-deductible, growth is tax-free, and withdrawals for medical expenses are tax-free. After age 65, withdrawals for any purpose are penalty-free (taxed as income, like a 401k). 2024 limit: $4,150 individual / $8,300 family. 529 Plan: Tax-free growth for education expenses. No federal deduction, but 34 states offer state tax deductions.'
+        'A 401(k) is a workplace retirement account: contributions are pre-tax, withdrawals taxed. 2024 limit $23,000, $30,500 if 50+. Take the full employer match. An IRA you open yourself: traditional cuts tax now, Roth grows tax-free. Limit $7,000, $8,000 if 50+.',
+      'An HSA (health savings account) is triple tax-free: deductible contributions, tax-free growth, tax-free medical withdrawals. After 65, other withdrawals are penalty-free but taxed. 2024 limits: $4,150 individual, $8,300 family. 529 plans grow tax-free for education; 34 states add a deduction.'
       ],
       [
         { term: '401(k)', definition: 'An employer-sponsored retirement plan where contributions reduce your current taxable income and investments grow tax-deferred until withdrawal.', example: 'Contributing $23,000 to your 401(k) at a 32% tax rate saves you $7,360 in taxes this year while the money grows tax-deferred for decades.' },
@@ -475,7 +473,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tax-Loss Harvesting', definition: 'Selling investments at a loss to offset capital gains, reducing your tax bill. You can offset up to $3,000 in ordinary income per year with excess losses.', example: 'You sell a stock for a $10,000 loss. This offsets $10,000 in gains from another sale, saving you $1,500-$2,380 in taxes.' }
       ],
       'Comparison table of all tax-advantaged accounts: 401(k), Traditional IRA, Roth IRA, HSA, 529, showing contribution limits, tax treatment, and best use case for each.',
-      { company: 'Fidelity Investments', metric: 'Number of 401(k) millionaires', outcome: '485,000 accounts with $1M+ (Q3 2024)', explanation: 'Fidelity reports record numbers of 401(k) millionaires, people who built seven-figure retirement accounts through consistent contributions and employer matches. The average 401(k) millionaire contributed for 26 years. These are regular workers, not high earners, they just used tax-advantaged accounts consistently.' },
+      undefined,
       {
           type: 'grid',
           title: 'Tax-Advantaged Account Comparison',
@@ -502,7 +500,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE TAX ADVANTAGE',
+      'The tax advantage',
       'Tax-Free vs. Taxable: The Compounding Difference',
       'comparison',
       'Compare how $6,500/year grows in a Roth IRA (tax-free) versus a taxable account over decades. Adjust the return rate and tax bracket to see how tax drag destroys wealth.',
@@ -525,12 +523,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Return', min: 4, max: 15, default: 10, unit: '%' },
         { label: 'Tax Bracket', min: 10, max: 37, default: 24, unit: '%' }
       ],
-      { company: 'Peter Thiel', metric: 'Roth IRA balance', outcome: '$5 billion+, the largest Roth IRA in history', explanation: 'In 1999, Thiel purchased 1.7 million PayPal founder shares at $0.001/share ($1,700 total) inside his Roth IRA. PayPal was acquired by eBay, then the shares converted to Palantir, Facebook, and other investments. The account grew to over $5 billion, all legally tax-free. While this strategy required founder-level access, it demonstrates the extraordinary power of tax-free compounding.' }
+      undefined
     ),
 
     // Step 6, Misconceptions
     misconceptions(
-      'TAX MYTHS',
+      'Tax myths',
       'Common beliefs that cost investors thousands every year',
       [
         {
@@ -791,12 +789,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE CORE FRAMEWORK',
+      'The core framework',
       'The 4% Rule & Safe Withdrawal Rates',
       [
-        'The 4% rule is the cornerstone of retirement planning. Developed by financial planner William Bengen in 1994 using 75 years of market data, it states: you can withdraw 4% of your portfolio in year one of retirement, then adjust that amount for inflation each year, and your money should last at least 30 years.',
-        'Here\'s the math: if you have $1 million saved, you withdraw $40,000 in year one. If inflation is 3%, you withdraw $41,200 in year two, regardless of what the market does. Bengen tested this against every 30-year period from 1926 to 1994, including the Great Depression, and the 4% rate never failed.',
-        'The inverse of the 4% rule is the "25x rule", you need 25 times your annual spending saved to retire. If you spend $60,000/year, you need $1.5 million. If you spend $100,000/year, you need $2.5 million. This gives you a concrete retirement number to target instead of vague guessing.'
+        'The 4% rule: withdraw 4% of your savings in retirement year one, then raise it with inflation. William Bengen built it in 1994 from 75 years of data, testing every 30 year window from 1926 to 1994. It never failed.',
+      'With $1 million, you take $40,000 in year one, then $41,200 if inflation is 3%. Flip it: the 25x rule. Save 25 times your yearly spending. Spend $60,000, need $1.5 million. Spend $100,000, need $2.5 million.'
       ],
       [
         { term: '4% Rule', definition: 'A guideline stating you can safely withdraw 4% of your retirement portfolio in year one, adjusting for inflation annually, with a high probability of the money lasting 30+ years.', example: 'A $2 million portfolio supports $80,000/year in withdrawals. Adjusting for 3% inflation: $82,400 in year 2, $84,872 in year 3.' },
@@ -804,7 +801,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Safe Withdrawal Rate (SWR)', definition: 'The maximum percentage you can withdraw from your portfolio annually with minimal risk of running out of money over a given retirement period.', example: 'A 4% SWR survived every historical 30-year period. Some researchers now suggest 3.5% for extra safety given low bond yields.' }
       ],
       'Diagram showing a $1M portfolio with a 4% faucet draining $40K/year while the remaining $960K continues to grow at 7-10%, refilling the "tank" faster than it drains.',
-      { company: 'The Trinity Study', metric: '4% withdrawal success rate', outcome: '95% success rate over 30-year periods with 50/50 stock/bond portfolio', explanation: 'Researchers at Trinity University tested withdrawal rates from 1926-1995. A 4% withdrawal with annual inflation adjustments succeeded in 95% of all 30-year periods with a 50/50 stock/bond portfolio. A 3% withdrawal rate succeeded 100% of the time.' },
+      undefined,
       {
           type: 'flow',
           title: 'The 4% Rule in Action',
@@ -840,7 +837,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 6, Interactive Graph
     interactiveGraph(
-      'SEQUENCE RISK',
+      'Sequence risk',
       'Sequence of Returns Risk: Why WHEN Matters as Much as WHAT',
       'comparison',
       'Compare two retirees with identical average returns but different sequences, one gets bad returns early, the other gets them late. Adjust starting portfolio and withdrawal rate to see the dramatic impact.',
@@ -863,12 +860,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Withdrawal', min: 20000, max: 200000, default: 40000, unit: '$' },
         { label: 'Year of Market Crash', min: 1, max: 20, default: 1, unit: 'yr' }
       ],
-      { company: '2000-2002 Retirees', metric: 'Dot-com crash + 4% withdrawals', outcome: 'Many ran out of money 5-8 years early vs historical projections', explanation: 'People who retired in January 2000 with $1M and withdrew 4% ($40K) faced the dot-com crash (-49% over 3 years) immediately. By 2003, their portfolio was worth only $450K despite the 4% rule. Those who retired just 3 years later in 2003 saw the bull market first and never had portfolio issues.' }
+      undefined
     ),
   
     // Step 7, Misconceptions
     misconceptions(
-      'RETIREMENT MYTHS',
+      'Retirement myths',
       'Beliefs that can cost you hundreds of thousands in retirement',
       [
         {
@@ -1110,12 +1107,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE FOUNDATION',
+      'The foundation',
       'Wills, Trusts & the Probate Problem',
       [
-        'A will is the most basic estate planning document, it says who gets your stuff when you die. But here\'s the catch: wills must go through probate, a court-supervised process that is slow (6-18 months), expensive (3-7% of the estate in fees), and completely public. Anyone can look up exactly what you owned and who inherited it.',
-        'A revocable living trust solves every problem with a will. You transfer assets into the trust during your lifetime, and the trust "owns" them. You remain the trustee (in full control). When you die, the successor trustee you named distributes assets immediately, no court, no probate, no public record, no delay. The trust also covers incapacity: if you can\'t manage your finances, your successor trustee steps in seamlessly.',
-        'An irrevocable trust is the advanced-level tool. Once you place assets in an irrevocable trust, you give up control, but those assets are no longer part of your taxable estate, they\'re protected from lawsuits and creditors, and they pass to beneficiaries estate-tax-free. Wealthy families use irrevocable trusts to transfer millions (or billions) without paying the 40% federal estate tax.'
+        'A will says who gets your things when you die, but it must go through probate, a public court process taking 6-18 months and 3-7% of the estate in fees. Anyone can look up what you owned.',
+      'A revocable living trust holds your assets while you stay in control, then your successor trustee distributes them at once, no probate. An irrevocable trust means giving up control, but assets escape lawsuits and the 40% federal estate tax.'
       ],
       [
         { term: 'Probate', definition: 'The court-supervised process of validating a will and distributing assets after death. It is public, slow, and expensive.', example: 'Prince\'s estate went through probate for 6 years. Even smaller estates typically take 6-18 months and cost 3-7% in legal and court fees.' },
@@ -1124,13 +1120,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Power of Attorney', definition: 'A legal document giving someone authority to make financial and/or medical decisions on your behalf if you become incapacitated.', example: 'A durable financial power of attorney lets your spouse pay bills and manage investments if you\'re in a coma, without a court appointing a guardian.' }
       ],
       'Flowchart: "Death" branches into two paths, "With Will" leads to Probate Court (6-18 months, 3-7% fees, public record) then distribution. "With Trust" bypasses probate entirely and goes straight to immediate, private distribution.',
-      { company: 'The Walton Family (Walmart)', metric: 'Used GRATs (Grantor Retained Annuity Trusts) to transfer wealth', outcome: 'Transferred $30+ billion to heirs while minimizing estate taxes', explanation: 'The Waltons created a series of irrevocable trusts that held Walmart shares. As the shares appreciated enormously, the growth passed to their children estate-tax-free. This is why the Walton family holds over $200 billion in wealth across multiple generations with minimal tax leakage.' },
+      undefined,
       {
           type: 'comparison',
           title: 'Will vs. Trust: Two Paths After Death',
           rows: [
-            { label: 'WITH WILL ONLY', value: 'Probate Court: 6-18 months | 3-7% fees | 100% public record | Heirs wait & pay' },
-            { label: 'WITH TRUST', value: 'Instant transfer | Private | $0 fees | Days | Heirs receive immediately' }
+            { label: 'With will only', value: 'Probate Court: 6-18 months | 3-7% fees | 100% public record | Heirs wait & pay' },
+            { label: 'With trust', value: 'Instant transfer | Private | $0 fees | Days | Heirs receive immediately' }
           ],
           footer: 'A trust bypasses probate entirely',
           sentiment: 'positive'
@@ -1148,7 +1144,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE TAX MATH',
+      'The tax math',
       'Estate Tax Impact: Planned vs. Unplanned Estates',
       'comparison',
       'Compare the total amount passed to heirs with and without estate tax planning. Adjust estate size and see how irrevocable trusts, charitable giving, and life insurance can dramatically change the outcome.',
@@ -1172,7 +1168,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Growth Rate', min: 3, max: 15, default: 8, unit: '%' },
         { label: 'Years Until Transfer', min: 5, max: 40, default: 20, unit: 'yrs' }
       ],
-      { company: 'Prince (musician)', metric: 'Estate value at death vs. amount received by heirs', outcome: '$300M estate lost $127M+ to fees and taxes, 42% of total value', explanation: 'Prince had no will, no trust, no estate plan whatsoever. His estate entered probate in April 2016 and wasn\'t resolved until 2022. Over $45 million went to lawyers, and the IRS initially valued the estate at $163.2 million for tax purposes (disputed by the estate). A $3,000 revocable trust would have avoided virtually all of this.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1198,7 +1194,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'ESTATE PLANNING MYTHS',
+      'Estate planning myths',
       'Dangerous assumptions that cost families millions',
       [
         {
@@ -1432,12 +1428,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'Insurance as Offense and Defense for Your Wealth',
       [
-        'Most people think of insurance as just a bill they pay to protect against bad luck. In wealth management, insurance is a strategic tool that serves two purposes: defense (protecting existing wealth from catastrophic loss) and offense (creating and transferring wealth tax-efficiently). The wealthiest families in America use both functions.',
-        'Defense: Umbrella liability insurance protects your net worth from lawsuits for $150-$400/year per $1 million in coverage. Long-term care insurance prevents a nursing home stay ($108,000/year average) from devouring your retirement savings. Disability insurance protects your most valuable asset, your ability to earn income. These defensive tools cost pennies compared to what they protect.',
-        'Offense: Life insurance inside an Irrevocable Life Insurance Trust (ILIT) creates an immediate, tax-free estate for your heirs outside of your taxable estate. A $50,000/year premium on a $5 million policy means your heirs receive $5 million completely income-tax-free and estate-tax-free. Some wealthy families use cash-value life insurance for tax-deferred growth and tax-free loans against the policy, though this strategy is complex and often oversold.'
+        'Insurance plays defense and offense. Defense guards wealth you already have. Umbrella liability insurance, which covers lawsuits beyond your other policies, costs $150-$400/year per $1 million. Long-term care insurance stops a nursing home, averaging $108,000/year, from draining retirement savings.',
+      'Offense builds wealth. Life insurance held in an Irrevocable Life Insurance Trust (ILIT), a trust you cannot change, sits outside your taxable estate. A $50,000/year premium on a $5 million policy gives heirs $5 million, income-tax-free and estate-tax-free.'
       ],
       [
         { term: 'Umbrella Insurance', definition: 'A liability policy that provides additional coverage above the limits of your auto, home, and other policies. Typically costs $150-$400/year per $1M in coverage.', example: 'Your auto policy covers $500K, but a car accident causes $1.8M in damages. Your $2M umbrella policy covers the remaining $1.3M, protecting your personal assets.' },
@@ -1446,7 +1441,7 @@ const lessons: PathwayLesson[] = [
         { term: 'ILIT (Irrevocable Life Insurance Trust)', definition: 'A trust that owns a life insurance policy on your behalf, removing the death benefit from your taxable estate.', example: 'Without an ILIT, a $5M life insurance policy is included in your estate, potentially adding $2M in estate taxes. With an ILIT, the $5M goes to heirs 100% tax-free.' }
       ],
       'Two-column diagram: Left column "DEFENSE" lists umbrella, disability, long-term care, and health insurance. Right column "OFFENSE" lists ILIT, key person insurance, and cash value strategies. Both columns feed into a central box labeled "Wealth Protection & Growth."',
-      { company: 'Buy Term & Invest the Difference', metric: '$40/mo term vs $800/mo whole life, investing the $760 difference', outcome: 'The "invest the difference" strategy produces $1.5M-$2.5M more wealth over 30 years', explanation: 'A 30-year-old paying $800/month for whole life could instead buy a $1M term policy for $40/month and invest the $760 difference in an index fund. Over 30 years at 10%: the invested difference grows to approximately $1.58 million, far exceeding the whole life cash value of roughly $300K-$400K. Plus they had the same $1M death benefit the entire time.' },
+      undefined,
       {
           type: 'grid',
           title: 'Insurance: Defense & Offense',
@@ -1489,7 +1484,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 6, Interactive Graph
     interactiveGraph(
-      'TERM VS. WHOLE LIFE',
+      'Term vs. whole life',
       'Buy Term & Invest the Difference: The Math',
       'comparison',
       'Compare the total wealth outcome of whole life insurance vs buying cheaper term insurance and investing the premium difference. Adjust age, premium, and return rate.',
@@ -1513,7 +1508,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly Whole Life Premium', min: 400, max: 2000, default: 800, unit: '$' },
         { label: 'Investment Return', min: 5, max: 12, default: 10, unit: '%' }
       ],
-      { company: 'Suze Orman & Dave Ramsey', metric: 'Both advocate "buy term and invest the difference"', outcome: 'The strategy outperforms whole life by $1M+ over 30 years for most people', explanation: 'Financial educators Suze Orman and Dave Ramsey both strongly recommend term life over whole life for the vast majority of people. Ramsey famously says: "Whole life insurance is one of the worst financial products available." The math consistently shows that disciplined investors build far more wealth with term + investing than with whole life cash value.' }
+      undefined
     ),
   
     // Step 7, Key Terms
@@ -1527,7 +1522,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'INSURANCE MYTHS',
+      'Insurance myths',
       'Beliefs that leave your wealth dangerously exposed',
       [
         {
@@ -1760,12 +1755,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE TOOLS',
+      'The tools',
       'Donor-Advised Funds, Charitable Trusts & the Giving Pledge',
       [
-        'A Donor-Advised Fund (DAF) is like a charitable investment account. You contribute cash, stock, or other assets, get an immediate tax deduction, and then recommend grants to charities over time. The assets grow tax-free inside the fund. You can contribute $50,000 in a high-income year for the big deduction, then distribute grants over the next 10 years. Fidelity Charitable, Schwab Charitable, and Vanguard Charitable are the largest DAF providers, with minimums as low as $0-$5,000.',
-        'A Charitable Remainder Trust (CRT) is more advanced. You place appreciated assets in the trust and receive an income stream (5-50% of the trust value annually) for life or a set number of years. At the end, the remaining assets go to charity. Benefits: you avoid capital gains tax on the appreciated assets, get a partial income tax deduction, receive income for life, and the charity gets what\'s left. It\'s a win-win-win.',
-        'The Giving Pledge, started by Warren Buffett and Bill Gates in 2010, asks billionaires to commit to donating at least half their wealth to charity during their lifetime or in their will. Over 240 individuals and families have signed, committing over $600 billion to philanthropy. Buffett himself has donated over $55 billion, primarily in Berkshire Hathaway stock to the Bill & Melinda Gates Foundation.'
+        'A donor-advised fund (DAF) holds your charity money: put in $50,000, deduct now, grant over 10 years. Fidelity Charitable, Schwab Charitable, Vanguard Charitable set $0-$5,000 minimums. A charitable remainder trust (CRT) pays you 5-50% a year; charity keeps the rest.',
+      'The Giving Pledge (Warren Buffett and Bill Gates, 2010) asks billionaires to give away half their wealth. Over 240 signers promised over $600 billion. Buffett gave over $55 billion in Berkshire Hathaway stock to the Bill & Melinda Gates Foundation.'
       ],
       [
         { term: 'Donor-Advised Fund (DAF)', definition: 'A charitable investment account where you contribute assets, receive an immediate tax deduction, and recommend grants to charities over time. Assets grow tax-free in the fund.', example: 'You contribute $30,000 in appreciated stock to a Fidelity Charitable DAF. You get a $30,000 tax deduction today, avoid capital gains, and distribute $3,000/year to charities over the next 10 years while the rest grows.' },
@@ -1774,7 +1768,7 @@ const lessons: PathwayLesson[] = [
         { term: 'The Giving Pledge', definition: 'A commitment by the world\'s wealthiest individuals to donate at least half their wealth to charitable causes, started by Warren Buffett and Bill Gates in 2010.', example: 'Over 240 billionaires have signed, including Mark Zuckerberg, MacKenzie Scott, and Elon Musk, committing over $600 billion to philanthropy.' }
       ],
       'Three-tier diagram: Bottom tier "Basic" shows cash donations and standard deductions. Middle tier "Intermediate" shows DAFs and appreciated stock donations. Top tier "Advanced" shows CRTs, CLTs, and private foundations. Each tier shows increasing tax efficiency and impact.',
-      { company: 'Bill & Melinda Gates Foundation', metric: 'Largest private foundation in the world', outcome: 'Over $77 billion in grants since inception, saving an estimated 122 million lives', explanation: 'The Gates Foundation has donated over $77 billion, primarily funded by Bill Gates and Warren Buffett. Their strategic philanthropy focuses on global health, education, and poverty. Gates has said he plans to give away virtually all his wealth (~$130 billion), and the tax-efficient structure of the foundation means every donated dollar goes further than it would through regular giving.' },
+      undefined,
       {
           type: 'comparison',
           title: 'Charitable Giving Toolkit',
@@ -1799,7 +1793,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE TAX MATH',
+      'The tax math',
       'Cash vs. Stock Donation: True After-Tax Cost of Giving',
       'comparison',
       'Compare the true after-tax cost of donating cash versus appreciated stock. Adjust your income tax bracket, stock appreciation, and donation amount to see the dramatic difference.',
@@ -1823,7 +1817,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Stock Cost Basis', min: 0, max: 100, default: 20, unit: '%' },
         { label: 'Tax Bracket', min: 12, max: 37, default: 32, unit: '%' }
       ],
-      { company: 'Warren Buffett', metric: '$55+ billion donated, the largest individual philanthropic contribution in history', outcome: 'Donated primarily in Berkshire Hathaway stock, avoiding billions in capital gains taxes', explanation: 'Buffett bought Berkshire stock for pennies and it appreciated to hundreds of thousands per share. By donating shares directly, he avoided approximately $15+ billion in capital gains taxes while getting deductions worth billions more. The Gates Foundation received the full value of each share. This is the ultimate example of strategic philanthropy, maximum impact, maximum tax efficiency.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1840,7 +1834,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'PHILANTHROPY MYTHS',
+      'Philanthropy myths',
       'Misunderstandings that reduce giving impact',
       [
         {
@@ -2080,12 +2074,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE BLUEPRINT',
+      'The blueprint',
       'Building a Multi-Generational Wealth Framework',
       [
-        'Multi-generational wealth requires four structural pillars: (1) Legal Architecture, the trusts, LLCs, and entities that hold and protect assets across generations. (2) Family Governance, the decision-making framework including family councils, constitutions, and meeting cadences that keep everyone aligned.',
-        '(3) Heir Development, systematic financial education that starts young. The Rockefellers gave children allowances tied to chores at age 6, required budgeting logs at age 10, and introduced investing concepts at age 14. By adulthood, heirs understood the family\'s wealth philosophy deeply. (4) Philanthropic Mission, families that give together stay together. A shared charitable mission creates purpose beyond consumption and unites generations around values.',
-        'The most enduring family fortunes, Waltons ($260B), Mars ($160B), Koch ($130B), Rockefellers ($11B over 7 generations), all share these four pillars. Families that skip any pillar are statistically likely to lose their wealth. The Williams Group found that the #1 cause of generational wealth failure is not bad investing but lack of family communication, trust, and shared purpose.'
+        'Four pillars hold family wealth together. One: legal architecture, the trusts and LLCs that hold assets. Two: family governance, the councils and meetings that keep everyone aligned. Three: heir development, financial education starting young.',
+      'The Rockefellers tied allowances to chores at 6, required budget logs at 10, taught investing at 14. Four: philanthropic mission. The Waltons ($260B), Mars ($160B), Koch ($130B) and Rockefellers ($11B over 7 generations) use all four.'
       ],
       [
         { term: 'Dynasty Trust', definition: 'A trust designed to last multiple generations (sometimes perpetually), avoiding estate taxes at each generational transfer by keeping assets within the trust structure.', example: 'The Walton family uses Walton Enterprises LLC fed by a series of trusts. Assets inside these trusts have grown tax-free across generations, avoiding billions in estate taxes.' },
@@ -2094,14 +2087,14 @@ const lessons: PathwayLesson[] = [
         { term: 'Heir Development', definition: 'A systematic program to educate the next generation about wealth stewardship, financial literacy, and family values before they inherit.', example: 'The Rothschild family rotates young family members through different business divisions for 3-5 years before they can hold leadership positions.' }
       ],
       'Four-pillar framework: Legal Architecture, Family Governance, Heir Development, and Philanthropic Mission, supporting a roof labeled "Multi-Generational Wealth."',
-      { company: 'Walton Family (Walmart)', metric: 'Wealth across 3 generations', outcome: '$260B+ preserved and grown since 1992', explanation: 'Sam Walton died in 1992 with a fortune of about $8 billion. Through Walton Enterprises LLC, carefully structured trusts, and a disciplined family governance model, his heirs have grown that to over $260 billion. The Waltons donate over $600 million per year through the Walton Family Foundation, creating a shared philanthropic mission.' },
+      undefined,
       {
           type: 'grid',
           title: 'Multi-generational wealth',
           items: [
             { label: 'LEGAL', value: 'Trusts | LLCs | Entities', color: '#10B981' },
             { label: 'GOVERNANCE', value: 'Council | Constitution | Meetings', color: '#3b82f6' },
-            { label: 'HEIR DEV', value: 'Education | Allowances | Mentoring', color: '#F59E0B' },
+            { label: 'Heir dev', value: 'Education | Allowances | Mentoring', color: '#F59E0B' },
             { label: 'PHILANTHROPY', value: 'Foundation | Mission | Values', color: '#EF4444' }
           ],
           footer: 'FOUNDATION: Family Communication & Trust',
@@ -2120,7 +2113,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE GENERATIONAL GAP',
+      'The generational gap',
       'Structured vs. Unstructured Wealth Transfer Across Generations',
       'comparison',
       'Compare how $10 million grows across three generations with and without proper multi-generational planning. Adjust the initial wealth, growth rate, and estate tax impact to see the dramatic difference.',
@@ -2144,7 +2137,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Growth Rate', min: 4, max: 12, default: 7, unit: '%' },
         { label: 'Estate Tax Rate', min: 0, max: 40, default: 40, unit: '%' }
       ],
-      { company: 'Rockefeller Family', metric: '7-generation wealth preservation', outcome: '$11B+ maintained since the 1870s', explanation: 'The Rockefellers pioneered the family office model in 1882. Their governance includes a family council, annual family retreats, heir mentorship programs, and the Rockefeller Brothers Fund for philanthropy. The result: 7 generations later, over 200 descendants still benefit from structured wealth that has outlasted most nations\' governments.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2161,7 +2154,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'GENERATIONAL WEALTH MYTHS',
+      'Generational wealth myths',
       'Beliefs that prevent families from building lasting legacies',
       [
         {
@@ -2403,7 +2396,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE TAX PLAYBOOK',
+      'The tax playbook',
       'Five Advanced Tax Strategies the Wealthy Use',
       [
         'Strategy 1: Tax-Loss Harvesting, sell investments at a loss to offset capital gains. You can offset unlimited gains and deduct up to $3,000/year against ordinary income. Unused losses carry forward indefinitely. Wealthfront and Betterment automate this, saving clients an estimated 1-2% in annual returns. Key rule: the wash-sale rule prevents buying back the same security within 30 days.',
@@ -2417,7 +2410,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Donor-Advised Fund (DAF)', definition: 'A charitable investment account where you get an immediate tax deduction for contributions but can distribute grants to charities over time.', example: 'In a high-income year, you contribute $100K of appreciated stock to a DAF. You get a $100K deduction (saving $37K in taxes), avoid capital gains tax on the stock, and distribute grants to your favorite charities over the next decade.' }
       ],
       'Five-strategy framework: Tax-Loss Harvesting, Roth Conversions, Opportunity Zones, Charitable Strategies, and Income Timing, each with annual savings estimates.',
-      { company: 'Wealthfront', metric: 'Automated tax-loss harvesting results', outcome: 'Clients save 1.8% per year on average through daily automated harvesting', explanation: 'Wealthfront pioneered automated tax-loss harvesting for retail investors. Their system monitors portfolios daily and swaps losing positions for correlated alternatives (e.g., selling Vanguard S&P 500 ETF at a loss and buying Schwab S&P 500 ETF). Over 10 years, this 1.8% annual tax alpha compounds into 15-20% more total wealth.' },
+      undefined,
       {
           type: 'grid',
           title: 'The 5 Tax Optimization Strategies',
@@ -2445,7 +2438,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE TAX ALPHA',
+      'The tax alpha',
       'How Tax-Loss Harvesting Compounds Over Time',
       'exponential',
       'Compare portfolio growth with and without systematic tax-loss harvesting. Adjust your starting portfolio, annual return, and the harvesting benefit to see how tax savings compound over decades.',
@@ -2469,7 +2462,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Return', min: 4, max: 12, default: 8, unit: '%' },
         { label: 'Tax Alpha (Harvesting Benefit)', min: 0, max: 3, default: 1.8, unit: '%' }
       ],
-      { company: 'Betterment', metric: 'Tax-coordinated portfolio study', outcome: 'Clients using tax-loss harvesting + asset location gained 0.48-1.55% annually', explanation: 'Betterment\'s study of 130,000 accounts found that combining tax-loss harvesting with asset location (placing tax-inefficient assets in tax-advantaged accounts) added 0.48-1.55% in annual after-tax returns depending on the tax bracket. For a high earner with $1M invested, that\'s $15,500/year in tax savings, compounding to $600K+ over 25 years.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2486,7 +2479,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'TAX OPTIMIZATION MYTHS',
+      'Tax optimization myths',
       'Misunderstandings that cost you thousands every year',
       [
         {
@@ -2728,12 +2721,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE ADVISOR LANDSCAPE',
+      'The advisor landscape',
       'Understanding Who\'s Actually on Your Side',
       [
-        'The most critical distinction in financial advice: Fiduciary vs. Suitability Standard. A fiduciary is legally required to act in your best interest at all times. They must disclose conflicts of interest and cannot put their own compensation ahead of your needs. A suitability standard only requires that a recommendation be "suitable", not necessarily the best option. A broker can recommend a fund that pays them a 5% commission over an identical fund with no commission, as long as both are "suitable."',
-        'Fee structures reveal incentives: Fee-Only advisors charge a flat fee or percentage of assets (typically 0.25-1% of AUM) and accept no commissions. Fee-Based advisors charge fees AND earn commissions, a dangerous hybrid with hidden conflicts. Commission-Only advisors earn money from the products they sell, creating an inherent conflict. The difference between 0.25% and 2% fees on a $500K portfolio over 30 years is $2.6 million, this is the single most impactful financial decision many people make.',
-        'Credentials matter: CFP (Certified Financial Planner) is the gold standard, requires 6,000 hours of experience, rigorous exams, and ongoing ethics requirements. CFA (Chartered Financial Analyst) is the investment analysis gold standard. CPA (Certified Public Accountant) is essential for tax planning. Beware titles like "financial consultant" or "wealth specialist", these require zero credentials or licensing and are often used by commission-driven salespeople.'
+        'A fiduciary must legally act in your best interest and disclose conflicts. A suitability standard only requires advice to be "suitable", so a broker can pick a fund paying them a 5% commission over an identical no commission fund.',
+      'Fee-only advisers charge 0.25-1% of assets, no commissions. Fee-based add commissions. On a $500K portfolio over 30 years, 0.25% versus 2% is $2.6 million. A CFP needs 6,000 hours of experience. Titles like "wealth specialist" need none.'
       ],
       [
         { term: 'Fiduciary', definition: 'A person or entity legally obligated to act in your best interest at all times, putting your needs ahead of their own compensation and disclosing all conflicts of interest.', example: 'A fiduciary advisor who discovers a lower-cost fund identical to one they recommended must tell you about it and switch, even if it reduces their compensation.' },
@@ -2742,7 +2734,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Advisor\'s Alpha', definition: 'The value a good financial advisor adds beyond investment returns, through tax optimization, behavioral coaching, rebalancing, and comprehensive planning. Vanguard estimates this at approximately 3% per year.', example: 'During the 2020 COVID crash, clients with advisors were far less likely to panic-sell. Those who stayed invested saw their portfolios recover within months. Behavioral coaching alone can add 1-2% per year.' }
       ],
       'Comparison matrix of advisor types: Fee-Only Fiduciary, Fee-Based, Commission-Only, showing compensation structure, legal standard, and typical cost.',
-      { company: 'Vanguard', metric: 'Advisor\'s Alpha research study', outcome: 'Good advisors add approximately 3% per year in net returns', explanation: 'Vanguard\'s research identifies specific sources of advisor value: behavioral coaching (1.5%), asset location/tax efficiency (0.75%), rebalancing (0.35%), spending strategy (0.35%), and total return investing (0.05%). The largest component, 1.5%, comes simply from preventing clients from making emotional decisions during market volatility.' },
+      undefined,
       {
         type: 'grid',
         title: 'Advisor Types Compared',
@@ -2769,7 +2761,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE FEE EFFECT',
+      'The fee effect',
       'How Advisor Fees Compound Into Millions in Differences',
       'comparison',
       'Compare the long-term impact of different advisor fee levels on your portfolio. Adjust starting amount, return rate, and fee levels to see how seemingly small fee differences create enormous wealth gaps.',
@@ -2793,7 +2785,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Return', min: 4, max: 12, default: 8, unit: '%' },
         { label: 'Annual Fee Level', min: 0, max: 3, default: 1, unit: '%' }
       ],
-      { company: 'S&P Dow Jones (SPIVA)', metric: 'Active vs. passive fund performance', outcome: '92% of large-cap funds underperformed the S&P 500 over 15 years', explanation: 'The SPIVA scorecard is the definitive study of active vs. passive management. Over 15 years ending 2023, 92% of large-cap active fund managers failed to beat a simple S&P 500 index fund. Yet active funds charge 10-50x more in fees. This means most investors are paying dramatically more for worse results, a wealth transfer from clients to fund managers.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2810,7 +2802,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'FINANCIAL ADVISOR MYTHS',
+      'Financial advisor myths',
       'Dangerous beliefs about professional financial advice',
       [
         {
@@ -3044,12 +3036,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE INTEGRATED FRAMEWORK',
+      'The integrated framework',
       'Connecting Every Wealth Management Discipline',
       [
-        'Wealth management is not a collection of separate topics, it\'s an integrated system where every decision affects every other decision. Tax strategy affects investment selection. Insurance coverage affects estate planning. Advisor selection affects fees, which affect compounding, which affects retirement timing. The masters of wealth management see these connections; everyone else sees silos.',
-        'Consider how the five pillars interconnect: Your EARNING strategy (career, business) determines your tax bracket, which determines optimal account selection (401k vs Roth). Your SAVING rate funds your investment accounts. Your INVESTING approach determines your asset location strategy (which accounts hold which investments for tax efficiency). Your PROTECTION strategy (trusts, insurance) determines your estate plan design. And your TRANSFER plan determines how you structure everything else, because the end goal shapes every current decision.',
-        'The wealthiest families in history, Waltons, Rockefellers, Gates, Mars, don\'t have separate people doing separate things. They have integrated teams (family offices) where the tax strategist talks to the investment manager, who coordinates with the estate attorney, who aligns with the insurance advisor. Every decision is made in context of the whole plan. This capstone tests your ability to think the same way.'
+        'Wealth management is one system, not separate topics. Your earning strategy sets your tax bracket, which shapes account choice: 401k or Roth. Your saving rate funds investing. Your investing shapes asset location, which accounts hold which investments for tax reasons.',
+      'Protection through trusts and insurance shapes your estate plan, and your transfer plan shapes everything else. The Waltons, Rockefellers, Gates and Mars use family offices: integrated teams where tax, investment, estate and insurance experts coordinate. This capstone tests that thinking.'
       ],
       [
         { term: 'Asset Location', definition: 'The strategy of placing investments in the most tax-efficient account type. Tax-inefficient assets (bonds, REITs) go in tax-advantaged accounts; tax-efficient assets (index funds, stocks) go in taxable accounts.', example: 'Placing a bond fund (taxed at 37% ordinary rates) in your 401(k) vs. your taxable account saves thousands per year. An S&P 500 index fund (long-term capital gains at 15-20%) is more tax-efficient in a taxable account.' },
@@ -3058,7 +3049,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Financial Independence', definition: 'The point at which your investment income and passive income cover all living expenses, making paid work optional. Typically requires 25x annual expenses invested (the 4% rule).', example: 'A family spending $100K/year needs $2.5 million invested to be financially independent. With tax optimization saving $20K/year, they need only $2 million, reaching independence 5-8 years sooner.' }
       ],
       'Central hub-and-spoke diagram showing "Integrated Wealth Strategy" in the center, with spokes connecting to: Investments, Tax, Estate, Insurance, Retirement, Protection, Transfer, and Advisors.',
-      { company: 'Gates Family Office (Cascade Investment)', metric: 'Integrated wealth management across $130B+', outcome: 'Diversified from Microsoft into farmland, hotels, energy, and philanthropy', explanation: 'Bill Gates\' family office, Cascade Investment, demonstrates integrated wealth management at scale. They\'ve diversified $130B+ across public equities, private companies, 242,000 acres of farmland, Four Seasons Hotels, and the Gates Foundation ($75B in assets). Every decision, investment, tax, philanthropic, is coordinated through a single integrated team. This is wealth management mastery in action.' },
+      undefined,
       WM10_TEACH1
     ),
   
@@ -3073,7 +3064,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE INTEGRATION EFFECT',
+      'The integration effect',
       'Fragmented vs. Integrated Wealth Management Over Time',
       'comparison',
       'Compare the wealth trajectory of a family using fragmented financial advice versus a fully integrated wealth management approach. See how coordination synergies compound over decades.',
@@ -3097,7 +3088,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Base Return', min: 4, max: 12, default: 8, unit: '%' },
         { label: 'Integration Alpha', min: 0, max: 4, default: 2, unit: '%' }
       ],
-      { company: 'Morningstar', metric: 'Gamma study on integrated financial planning', outcome: 'Integrated planning adds 1.82% per year in "Gamma", the financial planning equivalent of Alpha', explanation: 'Morningstar\'s landmark study quantified the value of integrated financial planning decisions (they called it "Gamma"). Sources: dynamic withdrawal strategy (0.70%), tax-efficient asset allocation (0.48%), annuity allocation (0.28%), asset location (0.22%), and liability-relative optimization (0.14%). These are pure planning gains, not investment returns, available to anyone with a comprehensive financial plan.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -3114,7 +3105,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'WEALTH MANAGEMENT CAPSTONE MYTHS',
+      'Wealth management capstone myths',
       'Final misconceptions to eliminate before you graduate',
       [
         {
@@ -3352,12 +3343,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'Asset Location: The Tax-Efficient Placement Strategy',
       [
-        'Asset allocation asks "what do I own?" Asset location asks "where do I hold it?" Both matter enormously, but most investors only think about allocation. The three account types, taxable, tax-deferred (Traditional 401k/IRA), and tax-free (Roth), each have different tax treatment, making certain investments far more efficient in certain accounts.',
-        'The core rule: place tax-inefficient assets in tax-advantaged accounts. Bonds generate interest taxed as ordinary income (up to 37%). REITs distribute dividends taxed at ordinary rates. Actively managed funds generate short-term capital gains (taxed at 37%). These belong in your 401(k) or Traditional IRA where they grow tax-deferred.',
-        'Tax-efficient assets, broad index funds, ETFs, growth stocks with unrealized gains, belong in taxable accounts where they benefit from lower long-term capital gains rates (0-20%) and the step-up in basis at death. Your highest-growth assets belong in Roth accounts where all future gains are permanently tax-free. A $100K growth stock that becomes $1M in a Roth generates $0 in taxes, ever.'
+        'Asset allocation asks what you own. Asset location asks which account holds it. Put tax-inefficient assets, bonds, REITs and active funds taxed as ordinary income up to 37%, inside a 401(k) or Traditional IRA, where growth is tax deferred.',
+      'Tax-efficient assets, index funds and ETFs, fit taxable accounts, where long-term gains are taxed at 0-20%. Put your fastest growers in a Roth, an account whose gains are never taxed: $100K that becomes $1M costs $0 in tax, ever.'
       ],
       [
         { term: 'Asset Location', definition: 'The strategy of placing specific investments in the most tax-efficient account type to minimize total lifetime taxes.', example: 'Placing a bond fund yielding 5% in a 401(k) instead of a taxable account saves $1,850/year on $100K at the 37% bracket.' },
@@ -3366,7 +3356,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Step-Up in Basis', definition: 'At death, the cost basis of assets in taxable accounts resets to current market value, permanently erasing all unrealized capital gains.', example: 'Stock bought for $10K, worth $500K at death: heirs inherit at $500K basis. The $490K gain is never taxed, a powerful reason to hold appreciated stocks in taxable accounts.' }
       ],
       'Three-column diagram showing Taxable, Tax-Deferred, and Tax-Free account types with optimal asset placements in each',
-      { company: 'Vanguard Research', metric: 'Asset location alpha study', outcome: '0.75% annual after-tax return improvement', explanation: 'Vanguard\'s research on Advisor\'s Alpha identified asset location as one of the key sources of advisor value. By systematically placing bonds in tax-deferred and growth in Roth, investors capture 0.75% more per year without changing their overall allocation, pure tax efficiency.' },
+      undefined,
       {
           type: 'grid',
           title: 'Optimal Asset Location Framework',
@@ -3391,7 +3381,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'TAX DRAG COMPARISON',
+      'Tax drag comparison',
       'How Asset Location Compounds Over Decades',
       'comparison',
       'Compare the after-tax wealth of optimally located portfolios versus randomly placed ones. Adjust portfolio size and time horizon to see how the tax-efficiency gap grows exponentially.',
@@ -3415,17 +3405,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Time Horizon', min: 5, max: 40, default: 30, unit: 'years' },
         { label: 'Tax Drag (suboptimal)', min: 0.5, max: 2.5, default: 1.2, unit: '%' }
       ],
-      { company: 'Morningstar', metric: 'Tax-cost ratio analysis', outcome: 'Top-quintile tax-efficient funds retained 0.8% more annually', explanation: 'Morningstar\'s tax-cost ratio measures how much of a fund\'s return is lost to taxes. Their research shows the most tax-efficient funds retain an extra 0.8% per year versus tax-inefficient peers, a gap that compounds into hundreds of thousands over an investing lifetime.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED STRATEGIES',
+      'Advanced strategies',
       'Tax-Loss Harvesting & Tax-Efficient Withdrawals',
       [
-        'Tax-loss harvesting (TLH) is the practice of selling investments at a loss to offset capital gains elsewhere in your portfolio. If you have $20K in realized gains and $15K in unrealized losses, harvesting those losses reduces your taxable gains to $5K, saving $3,000 at the 20% capital gains rate. You can also deduct up to $3,000 in net losses against ordinary income annually.',
-        'The wash sale rule prevents you from buying a "substantially identical" security within 30 days of selling at a loss. But you can immediately buy a similar (not identical) fund. Sell Vanguard Total Stock Market Index, buy Schwab Total Stock Market Index, you maintain market exposure while banking the tax loss. Robo-advisors like Betterment and Wealthfront automate this daily.',
-        'Tax-efficient withdrawal sequencing in retirement is equally critical. The general order: (1) Required Minimum Distributions first (you must take these). (2) Taxable accounts next (preserving tax-advantaged growth). (3) Tax-deferred accounts (401k/IRA) filling lower brackets. (4) Roth accounts last, let these compound tax-free as long as possible. Strategic Roth conversions during low-income years can dramatically reduce lifetime taxes.'
+        'Tax-loss harvesting means selling losers to offset gains. With $20K of gains and $15K of losses, taxable gains drop to $5K, saving $3,000 at the 20% rate. Deduct up to $3,000 of net losses yearly.',
+      'The wash sale rule blocks rebuying the same security within 30 days: sell Vanguard, buy Schwab. Betterment and Wealthfront automate this. Withdraw in order: (1) required minimum distributions, (2) taxable, (3) 401k/IRA, (4) Roth.'
       ],
       [
         { term: 'Tax-Loss Harvesting', definition: 'Selling investments at a loss to offset capital gains and reduce taxes, then reinvesting in similar (not identical) securities to maintain market exposure.', example: 'Selling a fund down $15K, offsetting $15K in gains elsewhere, saving $3,000 in taxes. Immediately buying a similar index fund maintains your portfolio allocation.' },
@@ -3433,7 +3422,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Withdrawal Sequencing', definition: 'The order in which you draw from different account types in retirement to minimize total lifetime taxes.', example: 'Drawing from taxable accounts first, then tax-deferred, then Roth last, allows the Roth to compound tax-free for decades longer.' }
       ],
       'Flowchart showing withdrawal sequencing: RMDs first, then taxable, then tax-deferred, then Roth last',
-      { company: 'Wealthfront', metric: 'Tax-loss harvesting impact', outcome: 'Average 1.8% annual tax alpha for clients', explanation: 'Wealthfront reported that their automated daily tax-loss harvesting generated an average of 1.8% per year in tax alpha for clients. On a $500K portfolio, that equates to $9,000/year in tax savings reinvested into the portfolio, compounding into significant additional wealth over decades.' },
+      undefined,
       WM11_TEACH2
     ),
 
@@ -3653,12 +3642,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE SYSTEM',
+      'The system',
       'How Social Security Benefits Are Calculated',
       [
-        'Social Security uses your highest 35 years of earnings (adjusted for inflation) to calculate your Average Indexed Monthly Earnings (AIME). It then applies a progressive formula: 90% of the first $1,115, plus 32% of earnings between $1,115 and $6,721, plus 15% of earnings above $6,721 (2024 bend points). This creates your Primary Insurance Amount (PIA), the benefit at Full Retirement Age (FRA).',
-        'Full Retirement Age is 67 for those born in 1960 or later. Claiming early at 62 permanently reduces benefits by 30%. Each year you delay past FRA earns an 8% "delayed retirement credit", the best guaranteed return in finance. At 70, credits stop, so there\'s no benefit to waiting past 70.',
-        'For married couples, spousal benefits add a layer of strategy. A lower-earning spouse can claim up to 50% of the higher earner\'s PIA. Survivor benefits allow the surviving spouse to receive 100% of the deceased spouse\'s benefit (including delayed credits). This means a higher-earning spouse delaying to 70 isn\'t just maximizing their own benefit, it\'s also maximizing the survivor benefit for their partner.'
+        'Social Security averages your highest 35 earning years, adjusted for inflation. The 2024 formula pays 90% of the first $1,115, 32% up to $6,721, then 15% above $6,721. That is your PIA, the benefit at full retirement age.',
+      'Full retirement age is 67 if born in 1960 or later. Claiming at 62 cuts benefits 30% for life. Waiting adds 8% a year until 70. A spouse can claim 50% of the higher earner\'s PIA, a survivor 100%.'
       ],
       [
         { term: 'Primary Insurance Amount (PIA)', definition: 'Your Social Security benefit amount at Full Retirement Age, calculated from your highest 35 years of inflation-adjusted earnings.', example: 'Someone with an AIME of $6,000/month would have a PIA of approximately $2,575, their monthly benefit at age 67.' },
@@ -3667,7 +3655,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Survivor Benefit', definition: 'The Social Security benefit available to a surviving spouse, equal to 100% of the deceased spouse\'s benefit (including any delayed retirement credits).', example: 'If the higher earner delays to 70 and gets $3,720/month, the surviving spouse would receive $3,720/month after the higher earner\'s death, making delay especially valuable for couples.' }
       ],
       'Flowchart showing the Social Security calculation from 35 years of earnings through AIME to PIA, with early/late claiming adjustments',
-      { company: 'Stanford Center on Longevity', metric: 'Optimal claiming study', outcome: 'Only 4% of retirees claim at the mathematically optimal time', explanation: 'Stanford researchers found that 96% of retirees claim Social Security suboptimally, costing an average of $68,000-$111,000 in lifetime benefits. The primary cause is behavioral, the desire for immediate income and fear that Social Security "won\'t be there" overrides the math that overwhelmingly favors delay for most people.' },
+      undefined,
       WM12_TEACH1
     ),
 
@@ -3682,7 +3670,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CLAIMING AGE COMPARISON',
+      'Claiming age comparison',
       'Cumulative Social Security Income by Claiming Age',
       'comparison',
       'Compare the total cumulative Social Security income from claiming at ages 62, 67, and 70. Adjust your benefit amount and life expectancy to find the optimal claiming age for your situation.',
@@ -3705,7 +3693,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly PIA (at FRA)', min: 1000, max: 4000, default: 2500, unit: '$' },
         { label: 'Life Expectancy', min: 75, max: 100, default: 87, unit: 'years' }
       ],
-      { company: 'Social Security Administration', metric: 'Average claiming age data', outcome: 'Most common claiming age is still 62', explanation: 'Despite the overwhelming mathematical advantage of delaying, the most common claiming age remains 62. Behavioral factors, loss aversion ("I might die early"), present bias ("I want the money now"), and distrust ("the system might run out"), cause most Americans to leave $68K-$111K on the table.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
@@ -3713,9 +3701,8 @@ const lessons: PathwayLesson[] = [
       'MEDICARE & BENEFITS',
       'Medicare Enrollment, IRMAA, and Government Benefit Programs',
       [
-        'Medicare eligibility begins at 65, regardless of when you claim Social Security. The Initial Enrollment Period (IEP) runs from 3 months before your 65th birthday through 3 months after. Missing this window triggers a 10% Part B premium penalty for each 12-month period you could have enrolled but didn\'t, and this penalty lasts for life.',
-        'High-income retirees face Income-Related Monthly Adjustment Amounts (IRMAA). If your Modified Adjusted Gross Income exceeds $103,000 (single) or $206,000 (married filing jointly) in 2024, your Part B and Part D premiums increase significantly. IRMAA uses income from 2 years prior, so a large Roth conversion or capital gain in 2024 increases your 2026 Medicare premiums. Strategic income management in the 2 years before 65 is critical.',
-        'Additional government benefits to integrate into wealth planning: Health Savings Accounts (HSAs) offer a triple tax advantage (deductible, tax-free growth, tax-free withdrawals for medical expenses). Social Security Disability Insurance (SSDI) provides income if you become disabled before retirement age. Supplemental Security Income (SSI) and Medicaid provide safety nets for low-income/asset individuals. Understanding the full ecosystem of government benefits is essential for comprehensive planning.'
+        'Medicare starts at 65. You can sign up from 3 months before your 65th birthday to 3 months after. Miss that window and your Part B premium rises 10% for every 12-month period you skipped, for life.',
+      'Higher earners pay a Medicare surcharge called IRMAA. Income above $103,000 single or $206,000 married in 2024 raises your 2026 premiums, since IRMAA looks back 2 years. Health savings accounts and disability benefits fill other gaps.'
       ],
       [
         { term: 'IRMAA', definition: 'Income-Related Monthly Adjustment Amount, Medicare premium surcharges for high-income beneficiaries. Based on Modified AGI from 2 years prior.', example: 'A couple with $250K MAGI pays an extra $230/month in Part B IRMAA surcharges (each), costing $5,520/year above standard premiums.' },
@@ -3931,12 +3918,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE TRIPLE TAX ADVANTAGE',
+      'The triple tax advantage',
       'Why the HSA Is the Most Powerful Account in the Tax Code',
       [
-        'The Health Savings Account is the only account in the US tax code with three tax advantages: (1) Contributions are tax-deductible (or pre-tax via payroll), reducing your taxable income. (2) Growth is completely tax-free, dividends, interest, and capital gains are never taxed. (3) Withdrawals for qualified medical expenses are tax-free at any age. No other account, not the Roth IRA, not the 401(k), offers all three.',
-        'The maximum contribution for 2024 is $4,150 for individuals and $8,300 for families, with an extra $1,000 catch-up for those 55+. To open an HSA, you must be enrolled in a High-Deductible Health Plan (HDHP): minimum deductible of $1,600 individual/$3,200 family in 2024. The key insight most people miss: there is NO deadline to reimburse yourself. You can pay medical bills out of pocket today, save the receipts, and reimburse yourself tax-free from the HSA years or decades later.',
-        'The stealth Roth strategy: after age 65, HSA withdrawals for non-medical expenses are taxed as ordinary income (like a Traditional IRA) but with NO penalty. This means the HSA functions as a Traditional IRA backup, but with the added option of completely tax-free medical withdrawals. If you have medical expenses (and at 65+ you will, Medicare premiums alone qualify), it beats the Roth IRA because contributions were also tax-deductible.'
+        'A health savings account, or HSA, is the only account with three tax breaks: pre-tax money in, tax-free growth, tax-free medical withdrawals. No Roth IRA or 401(k) matches. After 65, non-medical withdrawals are taxed like a Traditional IRA, penalty-free.',
+      'In 2024 you can add $4,150 alone or $8,300 per family, plus $1,000 at 55+, if you hold a high-deductible health plan: at least $1,600 individual or $3,200 family. Save receipts and reimburse yourself decades later.'
       ],
       [
         { term: 'Triple Tax Advantage', definition: 'The unique HSA benefit of tax-deductible contributions, tax-free growth, and tax-free withdrawals for qualified medical expenses, the only account with all three advantages.', example: 'Contributing $8,300 pre-tax saves $3,071 in taxes (37% bracket). Invested at 8% for 30 years, it grows to $30,840, all withdrawable tax-free for medical expenses. Total tax savings: over $14,000 per year\'s contribution.' },
@@ -3945,7 +3931,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Receipt Shoebox Strategy', definition: 'The practice of paying current medical expenses out of pocket, saving receipts, and reimbursing yourself from the HSA years or decades later, allowing the HSA to grow tax-free longer.', example: 'You pay $5,000 in medical bills out of pocket at age 35. At age 65, you reimburse yourself $5,000 tax-free from the HSA. Meanwhile, that $5,000 grew tax-free for 30 years inside the HSA.' }
       ],
       'Comparison diagram showing HSA triple tax advantage vs. Roth (2 advantages) vs. Traditional IRA (1 advantage)',
-      { company: 'Devenir Research', metric: 'HSA investment data', outcome: 'Only 9% of HSA holders invest their funds', explanation: 'Devenir\'s annual HSA survey found that 91% of HSA holders keep their funds in cash, earning near-zero returns. The 9% who invest their HSA funds have average balances of $15,000+ vs. $2,500 for cash-only holders. Over a 35-year career, the difference between investing and not investing an HSA is the difference between $1.1M and $290K.' },
+      undefined,
       WM13_TEACH1
     ),
 
@@ -3960,7 +3946,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'HSA WEALTH BUILDING',
+      'HSA wealth building',
       'The Power of Investing Your HSA Over Decades',
       'exponential',
       'See how an invested HSA grows exponentially over time versus spending it annually. Adjust contribution levels and return rates to project your HSA\'s value at retirement.',
@@ -3984,17 +3970,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Years of Contributions', min: 5, max: 40, default: 30, unit: 'years' },
         { label: 'Annual Return', min: 4, max: 12, default: 8, unit: '%' }
       ],
-      { company: 'Fidelity Investments', metric: 'Healthcare cost in retirement study', outcome: 'Average 65-year-old couple needs $315,000', explanation: 'Fidelity\'s annual Retiree Health Care Cost Estimate found that a 65-year-old couple retiring in 2023 needs approximately $315,000 to cover healthcare expenses in retirement. This includes Medicare premiums, supplemental insurance, prescription drugs, dental, and vision, but excludes long-term care. An invested HSA is the most tax-efficient way to fund this liability.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED HSA STRATEGIES',
+      'Advanced HSA strategies',
       'Long-Term Care, Medicare Integration & Estate Planning',
       [
-        'Long-term care is the largest unfunded healthcare risk. The average cost of a private nursing home room is $108,405/year (Genworth 2023). Medicare does NOT cover custodial long-term care. HSAs can pay for qualified long-term care insurance premiums (age-based limits: $5,880 for 61-70, $7,350 for 71+ in 2024), making the HSA a funding vehicle for this critical risk.',
-        'Medicare integration: at 65, your HSA can pay Medicare Part B premiums ($174.70/month), Part D premiums, Medicare Advantage premiums, and deductibles/copays, all tax-free. You cannot contribute to an HSA once enrolled in Medicare, so the strategy shifts from accumulation to distribution. If you delayed Medicare enrollment, you could continue HSA contributions, but coordinating with Social Security (which automatically triggers Medicare Part A at 65) requires careful planning.',
-        'Estate planning dimension: HSA assets pass to a surviving spouse who can continue using them as an HSA (tax-free for medical expenses). If passed to a non-spouse beneficiary, the entire balance becomes taxable income in the year of death. This means married couples should prioritize spending the HSA on medical expenses during their lifetimes and leave other (potentially more tax-efficient) assets to non-spouse heirs.'
+        'A private nursing home room averages $108,405 a year (Genworth 2023) and Medicare skips this custodial care. An HSA can pay long-term care insurance premiums, up to $5,880 for ages 61-70 and $7,350 for 71+ in 2024.',
+      'At 65, your HSA pays Medicare premiums tax-free, including Part B at $174.70 a month, but you can no longer contribute. A surviving spouse keeps the HSA; any other heir owes income tax on the whole balance.'
       ],
       [
         { term: 'Long-Term Care', definition: 'Assistance with daily living activities (bathing, dressing, eating) that Medicare does not cover. The average nursing home stay costs $108K+/year.', example: 'A 3-year nursing home stay costs $325K+. Without insurance or savings, this can devastate a retirement plan. HSA funds used for long-term care insurance premiums are tax-free.' },
@@ -4208,12 +4193,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE REAL ESTATE ADVANTAGE',
+      'The real estate advantage',
       'Four Pillars: Appreciation, Income, Tax Benefits & Leverage',
       [
-        'Real estate builds wealth through four simultaneous channels: (1) Appreciation, US residential real estate has averaged 3-5% annual appreciation nationally, with some markets significantly higher. (2) Rental Income, well-selected properties generate 5-10% cash-on-cash returns. (3) Tax Benefits, depreciation, mortgage interest deductions, and 1031 exchanges create powerful tax shelters. (4) Leverage, a 20% down payment gives 5x leverage, meaning 3% property appreciation equals 15% return on invested equity.',
-        'Depreciation is real estate\'s secret tax weapon. The IRS allows you to deduct the cost of residential rental property over 27.5 years and commercial property over 39 years, even while the property is appreciating. A $500K rental property (excluding land at $100K) gives you $14,545/year in depreciation deductions. If the property generates $14,545 or less in net income, you owe ZERO taxes on the rental income thanks to depreciation.',
-        'The leverage multiplier is what makes real estate unique among asset classes. You can\'t buy stocks with 80% borrowed money, but you can buy property with 20% down. If you put $100K down on a $500K property and it appreciates 5%: the property gains $25K but your equity increases by $25K on a $100K investment, a 25% return. Leverage amplifies both gains and losses, which is why location selection and cash flow analysis are critical.'
+        'Real estate pays four ways: prices rise 3-5% yearly, rent returns 5-10% cash on cash, taxes drop via depreciation and 1031 exchanges, and leverage: 20% down is 5x, so 3% growth equals 15%.',
+      'Depreciation, a yearly write-off, runs 27.5 years on homes, 39 on commercial: a $500K rental minus $100K land shelters $14,545 of income. You cannot borrow 80% for stocks, but $100K down on $500K gaining 5% returns $25K, 25%.'
       ],
       [
         { term: 'Cash-on-Cash Return', definition: 'Annual pre-tax cash flow divided by total cash invested. Measures the actual return on your invested capital.', example: 'A rental property generating $12,000/year in net cash flow on a $150,000 down payment/renovation investment has an 8% cash-on-cash return.' },
@@ -4222,7 +4206,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Opportunity Zone', definition: 'Designated low-income census tracts where investments receive special tax treatment: capital gains invested in opportunity zone funds are deferred, and gains on the new investment held 10+ years are completely tax-free.', example: 'Invest $500K in capital gains into an opportunity zone fund. After 10 years, all appreciation on the new investment is tax-free, potentially saving $100K+ in capital gains taxes.' }
       ],
       'Four-pillar diagram showing appreciation, income, tax benefits, and leverage supporting a "Real Estate Wealth" roof',
-      { company: 'Blackstone Real Estate', metric: 'Largest commercial RE owner globally', outcome: '$300B+ in real estate AUM', explanation: 'Blackstone has assembled the world\'s largest real estate portfolio ($300B+) using institutional-grade versions of the same strategies available to individual investors: leverage, depreciation, value-add renovations, and 1031-like tax structures. Their success demonstrates that real estate\'s wealth-building mechanics work at every scale.' },
+      undefined,
       WM14_TEACH1
     ),
 
@@ -4237,7 +4221,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'LEVERAGE MULTIPLIER',
+      'Leverage multiplier',
       'How Real Estate Leverage Amplifies Wealth Building',
       'comparison',
       'Compare the wealth-building trajectory of leveraged real estate versus unleveraged stock market investing. Adjust down payment percentage, appreciation rate, and rental yield to see the leverage effect.',
@@ -4261,17 +4245,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Appreciation', min: 1, max: 8, default: 5, unit: '%' },
         { label: 'Net Rental Yield', min: 2, max: 10, default: 6, unit: '%' }
       ],
-      { company: 'National Association of Realtors', metric: 'Investment property returns', outcome: 'Average annual return of 10.6% for rental properties (cash-on-cash)', explanation: 'NAR data shows that rental properties have averaged 10.6% annual cash-on-cash returns when accounting for appreciation, rental income, and mortgage paydown. When depreciation tax benefits are included, the after-tax return often exceeds 15%, making well-selected rental properties one of the highest-returning mainstream investments available.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'TAX STRATEGIES',
+      'Tax strategies',
       '1031 Exchanges, Depreciation & Opportunity Zones',
       [
-        'The 1031 exchange is the most powerful tax deferral tool in real estate. When you sell an investment property at a gain, instead of paying capital gains tax (up to 23.8%), you can reinvest the proceeds into a like-kind property within 180 days and defer ALL taxes. The key rules: 45 days to identify replacement properties, 180 days to close, must use a qualified intermediary, and the replacement must be equal or greater value. You can chain 1031 exchanges indefinitely, deferring taxes across your entire investing career.',
-        'Cost segregation studies accelerate depreciation for maximum tax benefit. Standard residential depreciation is 27.5 years, but a cost segregation study identifies components (appliances, carpeting, landscaping) that can be depreciated over 5-15 years instead. A $1M property might get $200K-$300K in accelerated depreciation in year one. Combined with bonus depreciation, investors can create massive first-year deductions that offset income from other sources.',
-        'Opportunity zones offer the ultimate tax play for capital gains. Invest any capital gain into a qualified opportunity zone fund within 180 days. The original gain is deferred until 2026 or when you sell. If held for 10+ years, ALL appreciation on the opportunity zone investment is permanently tax-free. On a $500K gain invested at 8% for 15 years, the tax-free appreciation would be approximately $1.08M, a benefit of over $250K in saved capital gains taxes.'
+        'A 1031 exchange lets you sell and reinvest, deferring capital gains tax up to 23.8%: identify in 45 days, close in 180. Cost segregation speeds depreciation from 27.5 years to 5-15, giving a $1M property $200K-$300K in first-year deductions.',
+      'Opportunity zone funds: invest a capital gain within 180 days, defer tax until 2026, and after 10+ years all growth is tax-free. A $500K gain at 8% for 15 years gains about $1.08M, saving over $250K.'
       ],
       [
         { term: '1031 Exchange', definition: 'A tax-deferred exchange of like-kind investment properties. All capital gains taxes are deferred when proceeds are reinvested into a new property within 180 days using a qualified intermediary.', example: 'Sell a duplex for $600K ($200K gain). Instead of paying $47.6K in taxes, 1031 into a fourplex. The entire $600K stays invested. Repeat indefinitely.' },
@@ -4464,12 +4447,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'ENTITY SELECTION',
+      'Entity selection',
       'Choosing the Right Business Structure for Tax Optimization',
       [
-        'Entity selection is the foundation of business wealth strategy. The four common structures: Sole Proprietorship (simple but no protection, 15.3% SE tax on ALL profit), LLC (asset protection, flexible taxation), S-Corporation (avoids SE tax on distributions), and C-Corporation (21% flat tax rate, but double taxation on distributions). Most businesses earning $80K+ in profit benefit from S-Corp election.',
-        'The S-Corp strategy saves significant taxes through salary/distribution splitting. As a sole proprietor, all $200K in profit is subject to 15.3% self-employment tax ($30,600). As an S-Corp, you pay yourself a "reasonable salary" of $100K (subject to payroll taxes) and take the remaining $100K as a distribution (NOT subject to SE tax). Savings: approximately $15,300/year. Over a 20-year career, that\'s $306K saved, and that\'s before investing the savings.',
-        'Business owners also access retirement plans with dramatically higher limits. A Solo 401(k) allows up to $69,000/year ($76,500 if 50+) in tax-deferred contributions, compared to $23,000 for employees. A Defined Benefit Pension Plan can shelter $200K-$300K+/year for high-income owners nearing retirement. Combined with an HSA ($8,300), business owners can shelter $77,300-$300K+ annually from taxes.'
+        'A sole proprietor pays 15.3% self-employment tax on all $200K profit: $30,600. An S-Corp, best above $80K profit, splits it into $100K salary and $100K distribution: $15,300 saved yearly, $306K over 20 years. C-Corps pay 21%, taxed twice.',
+      'Owners also get bigger retirement limits. A Solo 401(k) allows $69,000 yearly, $76,500 if 50+, versus $23,000 for employees. A defined benefit pension shelters $200K-$300K+; add a health savings account ($8,300) for $77,300-$300K+.'
       ],
       [
         { term: 'S-Corporation Election', definition: 'A tax election allowing an LLC or corporation to pass income to shareholders without entity-level tax, while enabling salary/distribution splitting to reduce self-employment taxes.', example: 'An LLC earning $200K elects S-Corp status. Owner pays $100K salary (payroll taxed) + $100K distribution (no SE tax) = $15,300/year saved versus sole proprietorship.' },
@@ -4478,7 +4460,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Qualified Small Business Stock (QSBS)', definition: 'Section 1202 of the tax code that excludes up to $10M in capital gains from taxation on the sale of qualifying small business C-Corp stock held for 5+ years.', example: 'A founder with $5M in QSBS gains pays $0 in federal capital gains tax, saving $1.19M versus the standard 23.8% rate. This is one of the largest tax breaks in the entire code.' }
       ],
       'Decision tree for entity selection based on income level, number of owners, and primary tax goals',
-      { company: 'Walmart (Walton Family)', metric: 'Family business wealth preservation', outcome: '$260B+ across 3 generations', explanation: 'Sam Walton structured Walmart with sophisticated entity planning from the early days. Family limited partnerships, trusts, and strategic estate planning transformed a single store into a $260B family dynasty. The Walton family\'s entity structure saved an estimated $20B+ in estate and gift taxes, demonstrating that business structure decisions early on can compound into billions in preserved wealth.' },
+      undefined,
       WM15_TEACH1
     ),
 
@@ -4493,7 +4475,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'S-CORP TAX SAVINGS',
+      'S-Corp tax savings',
       'Sole Proprietorship vs. S-Corp: Lifetime Tax Savings',
       'comparison',
       'Compare the cumulative tax savings of S-Corp election versus sole proprietorship. Adjust business income and salary ratio to see how the savings compound over time.',
@@ -4517,17 +4499,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Salary Percentage', min: 30, max: 70, default: 50, unit: '%' },
         { label: 'Years of Operation', min: 5, max: 35, default: 20, unit: 'years' }
       ],
-      { company: 'SBA (Small Business Administration)', metric: 'Business exit planning data', outcome: '75% of businesses sell below expected value without planning', explanation: 'The SBA reports that 75% of business owners who sell without advance planning receive significantly less than they expected. Conversely, owners who begin exit planning 5+ years before sale achieve valuations 50-100% higher than unplanned exits. The difference often amounts to millions of dollars in a business owner\'s largest asset.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'EXIT PLANNING',
+      'Exit planning',
       'Maximizing Business Value & Tax-Efficient Exit Strategies',
       [
-        'Your business is likely your single largest asset, yet most owners spend more time planning vacations than planning their exit. A business earning $1M/year in profit might sell for 3x earnings ($3M) with no preparation or 6-8x earnings ($6-8M) with 5 years of exit planning. The difference: building systems that don\'t depend on you, diversifying the client base, creating recurring revenue, and documenting processes.',
-        'Tax-efficient exit strategies vary dramatically: Asset sale (buyer pays more, seller pays ordinary income on some proceeds), Stock sale (seller pays capital gains rates on everything, buyer gets less favorable tax treatment), ESOP (Employee Stock Ownership Plan, seller can defer 100% of capital gains by reinvesting in US securities), and Installment sale (spread the gain over multiple years to stay in lower tax brackets). QSBS (Section 1202) can exclude up to $10M in gains on C-Corp stock held 5+ years.',
-        'Succession planning for family businesses adds estate planning considerations. Techniques include: gifting shares over time (using annual $18,000 exclusion and lifetime $13.61M exemption), Grantor Retained Annuity Trusts (GRATs) to transfer appreciation tax-free, family limited partnerships to apply valuation discounts (20-40% for lack of control and marketability), and Intentionally Defective Grantor Trusts (IDGTs) that freeze estate value while allowing growth outside the estate.'
+        'A business earning $1M/year in profit might sell for 3x earnings, $3M, unprepared, or 6-8x, $6-8M, after 5 years of exit planning. Build systems that run without you, spread the client base, add recurring revenue, document processes.',
+      'An ESOP, selling to employees, defers 100% of gains. QSBS (Section 1202) excludes $10M on C-Corp stock held 5+ years. Gift shares yearly using the $18,000 exclusion and $13.61M lifetime exemption, with 20-40% valuation discounts.'
       ],
       [
         { term: 'Business Valuation Multiple', definition: 'The ratio of sale price to annual earnings (usually EBITDA). Higher multiples indicate more valuable, scalable businesses.', example: 'A business with $1M EBITDA selling at 5x multiple = $5M valuation. Improving systems and reducing owner dependence could increase the multiple to 7x = $7M, a $2M increase from the same earnings.' },
@@ -4742,12 +4723,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'ASSET DIVISION',
+      'Asset division',
       'Understanding Community Property vs. Equitable Distribution',
       [
-        'The US has two systems for dividing marital assets: Community Property (9 states: AZ, CA, ID, LA, NV, NM, TX, WA, WI) splits all marital assets 50/50 regardless of who earned them. Equitable Distribution (41 states + DC) divides assets "fairly" based on factors like income, marriage length, contributions, and future needs, "fair" doesn\'t always mean "equal."',
-        'The critical mistake most people make: treating all assets as equal in face value. A $500K house and a $500K 401(k) are NOT equal. The 401(k) will be taxed at ordinary income rates when withdrawn (potentially losing $185K at the 37% bracket). The house has no embedded tax liability (up to $250K in capital gains exclusion for a single filer). After-tax, the house is worth $500K while the 401(k) is worth only $315K. This "tax blindness" costs divorcing spouses tens of thousands.',
-        'Separate property (owned before marriage, inherited, or gifted) is generally not divided, but commingling can convert separate property to marital property. If you deposit an inheritance into a joint account or use separate funds to improve marital property, you may lose the separate property protection. Keeping separate property in separate accounts with clear documentation is essential.'
+        'Community property (9 states: AZ, CA, ID, LA, NV, NM, TX, WA, WI) splits marital assets 50/50. Equitable distribution (41 states + DC) divides them fairly, not always equally. Assets owned before marriage stay separate unless mixed into joint accounts.',
+      'A $500K house and a $500K 401(k) are not equal: the 401(k) is taxed on withdrawal, losing $185K at the 37% bracket, leaving $315K. The house keeps $500K, with a $250K capital gains exclusion.'
       ],
       [
         { term: 'Community Property', definition: 'A legal system (9 states) where all assets acquired during marriage are owned 50/50 by both spouses regardless of who earned them. Divided equally in divorce.', example: 'In California, a spouse who earned $0 during a 20-year marriage is entitled to exactly 50% of all assets accumulated during the marriage, including retirement accounts, stock options, and business equity.' },
@@ -4756,7 +4736,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Commingling', definition: 'Mixing separate property (pre-marital or inherited assets) with marital property, potentially converting it to divisible marital property.', example: 'Depositing a $200K inheritance into a joint checking account used for household expenses may convert it to marital property, making it divisible in divorce.' }
       ],
       'Side-by-side comparison of a $500K house vs. $500K 401(k) showing after-tax values: $500K vs. $315K',
-      { company: 'Bezos Divorce', metric: 'Largest property settlement', outcome: 'MacKenzie Scott received $38B in Amazon stock', explanation: 'The Bezos divorce (2019) split $149B in wealth. Washington state\'s community property law entitled MacKenzie to 50%, but she accepted 25% ($38B in Amazon stock). Despite receiving "only" 25%, the transfer was tax-free (property settlements between spouses in divorce are non-taxable), and the stock subsequently grew to over $60B, demonstrating why liquid, growth assets are often preferable in divorce settlements.' },
+      undefined,
       WM16_TEACH1
     ),
 
@@ -4771,7 +4751,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'HIDDEN TAX IMPACT',
+      'Hidden tax impact',
       'After-Tax Value of Different Asset Types in Divorce',
       'comparison',
       'Compare the true after-tax value of common assets divided in divorce. Adjust your marginal tax rate to see how dramatically the after-tax values differ from face values.',
@@ -4801,9 +4781,8 @@ const lessons: PathwayLesson[] = [
       'QDROs & RETIREMENT',
       'Splitting Retirement Accounts Properly in Divorce',
       [
-        'A Qualified Domestic Relations Order (QDRO) is the legal mechanism for splitting retirement accounts in divorce. Without a QDRO, transferring 401(k) or pension funds between spouses triggers a taxable distribution plus a 10% early withdrawal penalty. With a proper QDRO, the transfer is tax-free and penalty-free. The receiving spouse can roll the funds into their own IRA.',
-        'QDRO special rule for 401(k)s: if you receive 401(k) funds via QDRO and are under 59.5, you can withdraw some or all of the QDRO amount without the 10% early withdrawal penalty (though income tax still applies). This is unique to QDROs, early IRA withdrawals still incur the 10% penalty. This makes the 401(k) QDRO a potential source of immediate cash for divorcing spouses under 59.5 who need liquidity.',
-        'IRAs don\'t use QDROs. Instead, IRA transfers in divorce are done via a "transfer incident to divorce" as specified in the divorce decree or separation agreement. The transfer must go directly from one IRA to another, if the funds pass through the divorcing spouse\'s hands, it becomes a taxable distribution. Pensions are divided via QDRO and may be split as a shared payment (each spouse receives a portion of each pension check) or a separate interest (the receiving spouse gets their own pension account).'
+        'A qualified domestic relations order (QDRO), the court order that splits a retirement account, makes the transfer tax free and penalty free. Without one, moving 401(k) or pension money triggers tax plus a 10% early withdrawal penalty.',
+      'Under 59.5, you can withdraw QDRO money from a 401(k) with no 10% penalty, though income tax applies. IRAs use a transfer incident to divorce instead: the money must move directly between IRAs, or it is taxed.'
       ],
       [
         { term: 'QDRO', definition: 'A court order that allows retirement plan assets to be divided between divorcing spouses without triggering taxes or penalties. Required for 401(k)s, 403(b)s, and pension plans.', example: 'A QDRO splits a $800K 401(k): $400K stays with the participant, $400K is rolled into the ex-spouse\'s new IRA, zero taxes, zero penalties on the transfer.' },
@@ -5016,12 +4995,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE BEHAVIOR GAP',
+      'The behavior gap',
       'Why Your Brain Is Wired to Destroy Wealth',
       [
-        'Human brains evolved for survival on the savanna, not for investing. Loss aversion (losses feel 2x as painful as equivalent gains feel good) causes panic selling in downturns. Recency bias (overweighting recent events) makes you chase last year\'s hot sector. Overconfidence (believing you\'re above average) leads to excessive trading. These aren\'t character flaws, they\'re hardwired cognitive shortcuts that served our ancestors well but sabotage investors.',
-        'The evidence is damning: DALBAR\'s 30-year study shows investors consistently underperform their own funds by 3-4% annually because of poorly-timed buying and selling. During the 2020 COVID crash (S&P 500 down 34% in 23 days), investors pulled $326 billion from equity funds, the market fully recovered within 5 months. Those who sold at the bottom and waited to "feel safe" before reinvesting lost 20-40% of the recovery.',
-        'The Dunning-Kruger effect compounds the problem: the less financial knowledge someone has, the more confident they are in their investment decisions. Studies show that active traders (high confidence, frequent trading) underperform passive index fund holders by 6.5% per year (Barber & Odean, UC Davis). The most successful investors aren\'t the smartest, they\'re the most disciplined. Warren Buffett\'s edge isn\'t IQ; it\'s emotional temperament.'
+        'Loss aversion means losses hurt about 2x as much as equal gains feel good, so people panic sell. DALBAR\'s 30-year study: investors trail their own funds by 3-4% yearly. In 2020, the S&P 500 fell 34% in 23 days.',
+      'Investors pulled $326 billion from equity funds, then the market recovered within 5 months, and late returners missed 20-40% of it. Barber and Odean (UC Davis): active traders lag index fund holders by 6.5% a year. Discipline beats brains.'
       ],
       [
         { term: 'Loss Aversion', definition: 'The cognitive bias where losses are felt approximately twice as intensely as equivalent gains. A $10,000 loss feels as painful as a $20,000 gain feels good.', example: 'During a 30% market decline, loss aversion causes investors to sell at the bottom, crystallizing a temporary paper loss into a permanent real loss. The market eventually recovers, but the investor who sold doesn\'t participate.' },
@@ -5030,7 +5008,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Overconfidence Bias', definition: 'The belief that your investment knowledge and skill exceed your actual ability. Leads to excessive trading, under-diversification, and ignoring professional advice.', example: 'Active traders at Charles Schwab traded 70% more than average investors but earned 6.5% less per year, overconfidence in stock-picking ability destroyed returns through transaction costs and poor timing.' }
       ],
       'Brain diagram showing cognitive biases mapped to investment mistakes: amygdala (panic selling) vs. prefrontal cortex (rational planning)',
-      { company: 'DALBAR Inc.', metric: '30-year Quantitative Analysis of Investor Behavior', outcome: 'Average investor earned 7.13% vs. 10.65% S&P 500', explanation: 'DALBAR has tracked investor behavior for over 30 years. Their consistent finding: investors earn significantly less than the funds they invest in because of emotional buying and selling. The gap has persisted across all market environments, confirming that behavior, not market conditions, is the primary determinant of investor outcomes.' },
+      undefined,
       WM17_TEACH1
     ),
 
@@ -5045,7 +5023,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE COST OF PANIC',
+      'The cost of panic',
       'Missing the Best Days: The Price of Market Timing',
       'comparison',
       'See what happens when you miss the best market days by trying to time the market. The best days often occur during the worst periods, selling in a crash means missing the recovery.',
@@ -5068,17 +5046,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Initial Investment', min: 10000, max: 1000000, default: 100000, unit: '$' },
         { label: 'Best Days Missed', min: 0, max: 30, default: 10, unit: 'days' }
       ],
-      { company: 'J.P. Morgan Asset Management', metric: 'Impact of missing best market days', outcome: 'Missing 10 best days over 20 years cuts returns by 54%', explanation: 'J.P. Morgan\'s annual Guide to the Markets shows that missing even a tiny number of the best trading days devastates long-term returns. Since the best days cluster around the worst days, investors who sell during crashes inevitably miss the recovery, permanently locking in losses and missing the gains that make long-term investing profitable.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'BEHAVIORAL DEFENSES',
+      'Behavioral defenses',
       'Systems That Protect Your Wealth from Your Brain',
       [
-        'Since you can\'t eliminate cognitive biases, you must build systems that prevent them from affecting your portfolio. Defense 1: Investment Policy Statement (IPS), a written document specifying your target allocation, rebalancing rules, and specific scenarios with predetermined actions. When the market crashes 30%, the IPS says "rebalance by buying equities to restore target allocation." No emotion, no decision-making, just follow the plan.',
-        'Defense 2: Automation. Set up automatic contributions ($X/month regardless of market conditions). Use automatic rebalancing (many platforms offer this). Auto-invest dividends. Remove the human from as many decisions as possible. Studies show that 401(k) participants with automatic enrollment and auto-escalation end up with 50% more retirement savings than those who must opt in and adjust manually.',
-        'Defense 3: Behavioral coach (financial advisor). Vanguard values behavioral coaching at 1.5% per year, the single largest component of Advisor Alpha (3% total). An advisor\'s greatest value isn\'t stock-picking, it\'s the phone call during a market crash that says "don\'t sell." During COVID, investors with advisors were 7x less likely to sell at the bottom than those without advisors. Sometimes the best investment return comes from the advisor who talks you out of making a terrible decision.'
+        'Write an investment policy statement, a document naming your target mix and rebalancing rules. If the market crashes 30%, it says buy equities back to target. Automate too: auto-enrolled 401(k) savers end up with 50% more.',
+      'Vanguard values behavioral coaching, an advisor talking you out of selling, at 1.5% a year, the biggest piece of its 3% Advisor Alpha total. During COVID, advised investors were 7x less likely to sell at the bottom.'
       ],
       [
         { term: 'Investment Policy Statement (IPS)', definition: 'A written document detailing your investment objectives, asset allocation targets, rebalancing rules, and predetermined responses to market events. Removes emotion from decision-making.', example: 'Your IPS states: "If equities drop below 55% of portfolio (target: 60%), rebalance by buying equities within 30 days." During a crash, you follow the IPS, buying low instead of selling low.' },
@@ -5092,7 +5069,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'BEHAVIORAL INVESTING MYTHS',
+      'Behavioral investing myths',
       'The mental traps that quietly destroy long-term returns',
       [
         {myth:'I\'ll sell now and buy back when things "feel safe"',truth:'By the time the market "feels safe," it has already recovered 30-50% from the bottom, you sell at the low and buy at the recovery.',explanation:'7 of the 10 best market days occur within 2 weeks of the worst days. Stepping out to "wait for safety" almost guarantees you miss the rebound that drives most long-term returns.'},
@@ -5293,12 +5270,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE ALTERNATIVES UNIVERSE',
+      'The alternatives universe',
       'Private Equity, Venture Capital, Hedge Funds & Real Assets',
       [
-        'Alternative investments fall into four major categories: (1) Private Equity, buying, improving, and selling private companies. Top-quartile PE funds have averaged 15-20%+ net returns, outperforming public equities by 3-5% annually. The "illiquidity premium" compensates investors for locking up capital for 7-10+ years. (2) Venture Capital, funding early-stage startups. Returns are highly skewed: 65% of VC investments lose money, but the winners (Google, Amazon, Facebook) generate 10-100x returns that more than compensate.',
-        '(3) Hedge Funds, pooled funds using strategies unavailable to mutual funds: short selling, leverage, derivatives, arbitrage. Performance varies wildly, the top 25% of hedge funds add significant value, but the average hedge fund has underperformed the S&P 500 since 2009. Warren Buffett won a famous $1M bet that the S&P 500 would outperform a portfolio of hedge funds over 10 years. (4) Real Assets, real estate, infrastructure, farmland, timber, commodities. These provide inflation protection, stable income, and low correlation to stocks and bonds.',
-        'Access requirements: most alternatives require "accredited investor" status ($200K+ income or $1M+ net worth excluding primary residence) or "qualified purchaser" status ($5M+ in investments). Minimum investments typically range from $100K to $5M+. However, democratization is occurring: interval funds, BDCs (Business Development Companies), and platforms like Fundrise offer alternative exposure starting at $500-$10K. REITs provide real estate alternatives in public markets.'
+        'Four types: private equity buys private companies, 15-20%+ returns, 3-5% above stocks, money locked 7-10+ years. Venture capital: 65% of startups lose money; Google, Amazon, Facebook returned 10-100x. Real assets: property, farmland, commodities. Hedge funds use leverage.',
+      'Top 25% of hedge funds add value, but average ones trail the S&P 500 since 2009; Warren Buffett won his $1M 10-year bet. Access needs $200K income, $1M net worth, or $5M investments; minimums $100K to $5M, Fundrise from $500-$10K.'
       ],
       [
         { term: 'Private Equity (PE)', definition: 'Investment funds that buy, restructure, and sell private companies over 5-10 year holding periods. Returns come from operational improvements, financial engineering, and multiple expansion.', example: 'KKR buys a $500M company, improves operations, grows revenue, and sells it for $1.5B in 7 years, a 3x return or approximately 17% annual IRR for investors.' },
@@ -5307,7 +5283,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Illiquidity Premium', definition: 'The additional return earned by investors who commit capital for long periods (7-10+ years) without the ability to withdraw. Compensates for lack of liquidity.', example: 'Private equity\'s historical 3-5% annual outperformance over public equities is largely attributed to the illiquidity premium, investors are paid extra for accepting locked-up capital.' }
       ],
       'Four-quadrant diagram showing alternative categories: PE (high return, illiquid), VC (highest potential, highest risk), Hedge Funds (varied strategies), Real Assets (inflation protection, income)',
-      { company: 'Yale Endowment (David Swensen)', metric: '20-year endowment performance', outcome: '13.7% average annual return with 77% alternatives', explanation: 'David Swensen, Yale\'s Chief Investment Officer from 1985-2021, revolutionized institutional investing by allocating heavily to alternatives. His "Yale Model" of 77% alternatives produced 13.7% annual returns, outperforming a 60/40 portfolio by approximately 5% per year. Over 20 years, this added approximately $20B to Yale\'s endowment. His approach proved that alternatives, properly selected, can significantly enhance institutional portfolios.' },
+      undefined,
       WM18_TEACH1
     ),
 
@@ -5322,7 +5298,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ALTERNATIVES IMPACT',
+      'Alternatives impact',
       'Portfolio Performance: Traditional vs. Alternative-Enhanced',
       'comparison',
       'Compare the long-term performance of a traditional 60/40 portfolio versus one enhanced with a strategic allocation to alternatives. See how the illiquidity premium and diversification benefit compound over time.',
@@ -5346,17 +5322,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Alternatives Allocation', min: 0, max: 40, default: 20, unit: '%' },
         { label: 'Alternative Premium', min: 0, max: 5, default: 3, unit: '%' }
       ],
-      { company: 'Buffett vs. Protege Partners', metric: '$1M hedge fund bet (2008-2017)', outcome: 'S&P 500 index fund crushed a portfolio of hedge funds', explanation: 'Warren Buffett bet $1M that a simple S&P 500 index fund would outperform a carefully selected portfolio of hedge funds over 10 years. Result: S&P 500 returned 125.8% total; the hedge fund portfolio returned 36%. Buffett\'s point: for most investors, low-cost index funds beat expensive alternatives. Alternatives can add value, but only with top-tier manager access and proper portfolio construction.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'PRACTICAL ACCESS',
+      'Practical access',
       'How Individual Investors Can Access Alternatives',
       [
-        'The democratization of alternatives has opened access beyond the ultra-wealthy. Publicly traded options: REITs (real estate), BDCs (private lending), MLPs (energy infrastructure), and listed private equity firms provide alternative exposure with full liquidity and no minimums. These are the simplest entry point. However, public alternative vehicles may not capture the full illiquidity premium.',
-        'Semi-liquid options: Interval funds offer quarterly liquidity windows with 5-25% redemption limits. They invest in private credit, real estate, and PE co-investments. Minimum investments range from $2,500 to $25,000. Platforms like Fundrise (real estate, $500 min), Yieldstreet (multi-asset, $2,500 min), and AngelList (venture, accredited investors) have made alternatives accessible to a broader audience.',
-        'Traditional access for accredited/qualified investors: PE fund-of-funds diversify across 20+ managers for $100K-$500K minimums. Direct PE fund commitments require $250K-$5M+. Family offices often create custom alternative allocations. Key principle: never put more than 5-10% of your portfolio in any single alternative investment, and keep total alternatives at 10-30% of your portfolio for appropriate diversification.'
+        'Public options trade freely with no minimums: REITs (real estate), BDCs (private lending), MLPs (energy pipelines). Interval funds allow quarterly withdrawals, capped at 5-25%, with minimums $2,500 to $25,000. Fundrise starts at $500, Yieldstreet at $2,500, AngelList takes accredited investors.',
+      'Fund-of-funds spread money across 20+ managers for $100K-$500K; direct private equity funds need $250K-$5M+. Cap any single alternative at 5-10% of your portfolio, and all alternatives at 10-30%.'
       ],
       [
         { term: 'REIT (Real Estate Investment Trust)', definition: 'A publicly traded company that owns income-producing real estate. REITs must distribute 90% of taxable income to shareholders and trade on stock exchanges like regular stocks.', example: 'Vanguard Real Estate ETF (VNQ) provides exposure to 160+ REITs with a 0.12% expense ratio and ~3.5% dividend yield, instant real estate diversification with full liquidity.' },
@@ -5548,12 +5523,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'REPORTING REQUIREMENTS',
+      'Reporting requirements',
       'FATCA, FBAR & International Tax Compliance',
       [
-        'FBAR (FinCEN Form 114): Required if the aggregate value of ALL foreign financial accounts exceeds $10,000 at any point during the year. Due April 15 (auto-extension to October 15). Must report bank accounts, investment accounts, pension accounts, and any account with financial interest or signature authority. Penalties: $10,000+ per violation (non-willful), up to $100,000 or 50% of account balance (willful), plus criminal prosecution.',
-        'FATCA (Form 8938): Required for US taxpayers with foreign financial assets exceeding $50,000 at year-end ($200,000 for married filing jointly living abroad). Attached to your tax return. Reports similar information to FBAR but with additional detail. Penalties: $10,000 for failure to file, plus $10,000 for each 30 days of non-filing after IRS notice (up to $50,000). Both FBAR and Form 8938 may be required, they are separate filings with different thresholds and different filing locations.',
-        'On the other side, 113 countries have signed FATCA intergovernmental agreements, requiring their banks to report American account holders directly to the IRS. This means the IRS already knows about your foreign accounts, non-reporting is not a matter of "if they find out" but "when." If you have unreported foreign accounts, the IRS Streamlined Filing Compliance Procedures offer a path to come into compliance with reduced or eliminated penalties.'
+        'File an FBAR, FinCEN Form 114, if all your foreign accounts together top $10,000 any day that year. Due April 15, extended to October 15. Penalties start at $10,000, reaching $100,000 or 50% of the balance.',
+      'Form 8938, the FATCA form, is separate: file it with your return if foreign assets top $50,000 ($200,000 for couples abroad). Penalty: $10,000, plus $10,000 per 30 days, up to $50,000. 113 countries report you to the IRS.'
       ],
       [
         { term: 'FBAR (FinCEN 114)', definition: 'Report of Foreign Bank and Financial Accounts, required when aggregate foreign account values exceed $10,000 at any point during the year. Filed with FinCEN, not with your tax return.', example: 'You have a UK bank account ($8,000) and a German investment account ($3,000). Combined peak value of $11,000 exceeds $10,000, triggering FBAR filing, even though neither account individually exceeds $10,000.' },
@@ -5562,7 +5536,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tax Treaty', definition: 'A bilateral agreement between two countries that determines which country has taxing rights on specific types of income, often reducing withholding rates and preventing double taxation.', example: 'The US-UK tax treaty reduces UK withholding on dividends from 20% to 15% for US investors, and allows UK pension contributions to be tax-deferred for US tax purposes.' }
       ],
       'Flowchart showing international reporting requirements: FBAR ($10K+), FATCA Form 8938 ($50K+), Foreign Tax Credit Form 1116, Treaty Benefits',
-      { company: 'FATCA Implementation', metric: 'Global compliance network', outcome: '113 countries reporting US account holders to IRS', explanation: 'Since FATCA\'s implementation in 2014, 113 countries have signed intergovernmental agreements requiring their financial institutions to report American account holders to the IRS. This global reporting network means the IRS has unprecedented visibility into Americans\' foreign financial activities. Voluntary compliance is not just ethical, it\'s the only rational approach given that the IRS already has the information.' },
+      undefined,
       WM19_TEACH1
     ),
 
@@ -5577,7 +5551,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CURRENCY IMPACT',
+      'Currency impact',
       'How Currency Fluctuations Affect International Wealth',
       'timeline',
       'See how currency movements impact the dollar value of international investments. A profitable investment in local currency can become a loss in dollar terms, or a modest gain can become exceptional.',
@@ -5605,12 +5579,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'FOREIGN TAX CREDITS',
+      'Foreign tax credits',
       'Eliminating Double Taxation on International Income',
       [
-        'The Foreign Tax Credit (FTC) is the primary mechanism for eliminating double taxation. If you pay $10,000 in UK income tax, you claim a $10,000 credit on your US return, reducing your US tax bill dollar-for-dollar. This ensures you pay the HIGHER of the two countries\' tax rates, not both. Credits are generally more valuable than deductions (which only reduce taxable income, not taxes owed).',
-        'Tax treaties between the US and 60+ countries can further optimize international taxation. Treaties often reduce withholding tax rates (e.g., US-UK treaty reduces dividend withholding from 30% to 15%), clarify which country has primary taxing rights on specific income types, and may exempt certain income altogether. The Foreign Earned Income Exclusion (FEIE) allows US citizens living abroad to exclude up to $126,500 (2024) in earned income from US taxation if they meet the physical presence or bona fide residence test.',
-        'International retirement accounts present unique challenges. Some foreign pension plans are recognized by US tax treaties (UK pensions, for example), allowing tax-deferred treatment similar to US IRAs. Others are not recognized, potentially triggering immediate US taxation on contributions and growth. PFICs (Passive Foreign Investment Companies), including many foreign mutual funds, face punitive US taxation. US investors abroad should generally use US-based investments to avoid PFIC issues.'
+        'The foreign tax credit cancels double taxation: pay $10,000 in UK tax, cut your US tax bill by $10,000. You pay the higher of the two rates, not both. Foreign mutual funds (PFICs) are taxed punitively. Use US funds.',
+      'Tax treaties with 60+ countries help too: the US-UK treaty cuts the tax withheld on dividends from 30% to 15%. Living abroad, you may exclude up to $126,500 (2024) of earned income from US tax.'
       ],
       [
         { term: 'Foreign Tax Credit (FTC)', definition: 'A dollar-for-dollar credit on your US tax return for income taxes paid to foreign governments. Eliminates double taxation by reducing US taxes owed.', example: 'Pay $20K in French income tax, claim $20K FTC on US return. Net effect: you pay the higher rate between France and the US, not both.' },
@@ -5791,12 +5764,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE CONCENTRATION PROBLEM',
+      'The concentration problem',
       'Why Single-Stock Positions Destroy Wealth',
       [
-        'Hendrik Bessembinder\'s landmark study of 26,000 stocks from 1926-2016 revealed a shocking finding: just 4% of stocks accounted for ALL of the stock market\'s wealth creation. The other 96% collectively matched Treasury bills. This means holding any individual stock has a 96% chance of underperforming a simple index fund over its lifetime. Concentration is not just risky, it\'s mathematically likely to underperform.',
-        'The correlation between job income and stock performance creates a "double jeopardy" for employees with concentrated company stock positions. When Enron collapsed: employees lost their jobs (income = $0), their 401(k)s (90%+ in Enron stock), and their stock options (worthless), simultaneously. The same event that destroyed their income also destroyed their savings. This is the opposite of diversification, it\'s a concentrated bet on a single outcome.',
-        'The psychological barriers to diversifying are powerful: endowment effect (you overvalue what you own), familiarity bias (your company "feels" safer because you know it), and anchoring (you anchor to the stock\'s peak price and refuse to sell below it). These biases explain why employees held Enron stock all the way to zero, and why many tech employees in 2000 watched 80-90% of their paper wealth evaporate without selling.'
+        'Hendrik Bessembinder studied 26,000 stocks from 1926-2016. Just 4% created all the market\'s wealth; the other 96% matched Treasury bills. So a single stock has a 96% chance of trailing an index fund, which owns the whole market.',
+      'When Enron collapsed, workers lost their jobs, income $0, their 401(k) retirement savings, 90%+ in Enron stock, and their options. One event wiped out pay and savings together. In 2000, tech staff watched 80-90% of paper wealth vanish.'
       ],
       [
         { term: 'Concentrated Stock Position', definition: 'Holding more than 10-15% of your net worth in a single stock. Creates uncompensated risk, the market doesn\'t reward you for taking concentration risk.', example: 'A tech executive with $3M in company stock and $2M in other assets has 60% concentration. If the stock drops 50%, net worth falls from $5M to $3.5M (30% decline) from a single position.' },
@@ -5805,7 +5777,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Protective Collar', definition: 'An options strategy combining a protective put (downside protection) and a covered call (upside cap). Limits both losses and gains on a concentrated stock position.', example: 'You own $1M of stock at $100/share. You buy a $90 put (protection below $90) and sell a $115 call (cap gains above $115). Your range is $90-$115 regardless of stock movement, downside protected at a cost of capped upside.' }
       ],
       'Risk diagram showing concentrated vs diversified portfolios through a market downturn and recovery',
-      { company: 'Enron Corporation', metric: 'Employee wealth destruction', outcome: '$1.2B in employee 401(k) losses when stock went from $90 to $0', explanation: 'Enron employees had over 60% of their 401(k) assets in Enron stock. When the stock went from $90 to $0.26 in 2001, employees lost $1.2 billion in retirement savings, while simultaneously losing their jobs. This is the ultimate cautionary tale of concentration risk: the same event that destroyed their income also destroyed their savings. No single stock is "safe" enough to justify concentration.' },
+      undefined,
       WM20_TEACH1
     ),
 
@@ -5820,7 +5792,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'DIVERSIFICATION IMPACT',
+      'Diversification impact',
       'Concentrated vs. Diversified Portfolio Through Market Stress',
       'comparison',
       'Compare how a concentrated single-stock position performs versus a diversified portfolio during normal markets and market stress events.',
@@ -5848,12 +5820,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'DIVERSIFICATION STRATEGIES',
+      'Diversification strategies',
       '10b5-1 Plans, Exchange Funds, Collars & Charitable Giving',
       [
-        'Strategy 1: 10b5-1 Systematic Selling, Corporate insiders set up a pre-arranged plan to sell shares on a schedule. This provides legal safe harbor from insider trading accusations and removes emotional timing decisions. Plans must be adopted in good faith when you don\'t possess material non-public information. Recent SEC rules require a 90-day cooling-off period before the first trade. Ideal for gradual concentration reduction over 2-5 years.',
-        'Strategy 2: Exchange Funds, For positions with large unrealized gains where selling triggers huge taxes. You contribute your concentrated stock to a pool with other concentrated holders. Each participant receives shares in a diversified fund of all contributed stocks. No capital gains are triggered (Section 1031-like treatment). Requirements: accredited investor, minimum $500K-$1M, 7-year lockup. This converts a concentrated position into diversification without a tax event.',
-        'Strategy 3: Charitable solutions, Donate appreciated stock directly to a Donor-Advised Fund (DAF). You receive a full fair-market-value tax deduction AND avoid capital gains tax on the appreciation. If your $1M stock has a $200K cost basis, donating saves $190K+ in taxes versus selling and donating cash. Strategy 4: Protective collars, Buy a put option below the current price (downside protection) and sell a call option above the current price (caps upside). This creates a price range for your stock position, limiting both losses and gains.'
+        'A 10b5-1 plan, a pre-set selling schedule, shields insiders legally and starts after a 90-day cooling off, spread over 2-5 years. Exchange funds pool your shares with other holders, untaxed under Section 1031 style rules. Minimum $500K-$1M, 7-year lockup.',
+      'Donate appreciated stock to a donor advised fund, a charity account: full deduction, no capital gains tax. On $1M stock with a $200K basis, that saves $190K+. Collars buy a put and sell a call, capping losses and gains.'
       ],
       [
         { term: '10b5-1 Plan', definition: 'A pre-arranged, systematic trading plan for corporate insiders to sell stock on a predetermined schedule. Provides legal safe harbor and removes emotional decision-making.', example: 'A VP sets up a 10b5-1 to sell $100K in stock each month for 24 months. Sales execute automatically, gradually reducing concentration from 40% to 15% of net worth.' },
@@ -6071,12 +6042,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE TRANSFER TOOLKIT',
+      'The transfer toolkit',
       'GRATs, IDGTs, FLPs & Dynasty Trusts',
       [
-        'A Grantor Retained Annuity Trust (GRAT) is the single most powerful wealth transfer tool. You transfer assets into an irrevocable trust and receive annuity payments back over 2-10 years. If the assets grow faster than the IRS "hurdle rate" (Section 7520 rate, ~5% in 2024), the excess growth passes to heirs gift-tax-free. The Waltons used "zeroed-out" GRATs (annuity = full value + hurdle rate) to transfer $100B+ at zero gift tax. If assets underperform the hurdle rate, nothing transfers, you simply try again. This "heads I win, tails I break even" asymmetry makes GRATs nearly risk-free for the grantor.',
-        'An Intentionally Defective Grantor Trust (IDGT) is "defective" on purpose: you (the grantor) pay income taxes on trust earnings, but the trust assets are excluded from your estate. You "sell" appreciated assets to the IDGT in exchange for a promissory note at the Applicable Federal Rate (AFR, ~4-5%). All growth above the AFR passes to heirs tax-free. Because you pay the trust\'s income taxes, the trust grows faster (tax-free compounding), essentially making an additional tax-free gift each year.',
-        'Family Limited Partnerships (FLPs) let you transfer business or investment assets at a 25-40% valuation discount. You hold a 1% general partner interest (control) and gift 99% limited partner interests to heirs. Because limited partners lack control and marketability, the IRS accepts discounted valuations. A $10M portfolio in an FLP might be valued at $6-7.5M for gift tax purposes, saving $1.4-1.6M in gift/estate taxes. Dynasty trusts extend these benefits across unlimited generations, avoiding estate tax at each generational transfer.'
+        'A GRAT, or grantor retained annuity trust, pays you an annuity over 2-10 years. Growth above the IRS Section 7520 hurdle rate, about 5% in 2024, goes to heirs gift tax free. The Waltons moved $100B+ this way.',
+      'An intentionally defective grantor trust buys assets for notes at the applicable federal rate, 4-5%. Growth above it passes tax free. A family limited partnership discounts gifts 25-40%: keep 1%, gift 99%, valuing $10M at $6-7.5M, saving $1.4-1.6M.'
       ],
       [
         { term: 'GRAT (Grantor Retained Annuity Trust)', definition: 'An irrevocable trust where the grantor receives annuity payments for a set term. Growth above the IRS Section 7520 hurdle rate passes to beneficiaries gift-tax-free. "Zeroed-out" GRATs have zero gift tax cost.', example: 'You fund a 2-year GRAT with $10M in stock. The 7520 rate is 5%. If stocks return 15%, the $2M excess growth ($10M x 10% excess x 2 years) passes to heirs tax-free. If stocks return 3%, nothing transfers, no penalty, try again.' },
@@ -6085,7 +6055,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Dynasty Trust', definition: 'A trust designed to last for multiple generations (or perpetually in some states), avoiding estate tax at each generational transfer. Combined with generation-skipping transfer (GST) tax exemption, assets can compound tax-free indefinitely.', example: 'A $10M dynasty trust growing at 7% becomes $76M after 30 years, $579M after 60 years, all passing to grandchildren and beyond without any additional estate or gift tax at each generation.' }
       ],
       'Decision tree: choosing between GRAT, IDGT, FLP, and dynasty trust based on asset type, size, and transfer goals',
-      { company: 'Walton Family (Walmart)', metric: 'GRAT wealth transfers', outcome: '$100B+ transferred to heirs at near-zero gift tax', explanation: 'Sam Walton\'s heirs used a series of GRATs to transfer Walmart stock as it appreciated. Each GRAT was "zeroed out", the annuity payments equaled the initial contribution plus the 7520 hurdle rate. All excess appreciation (and Walmart stock appreciated enormously) passed to heirs gift-tax-free. This strategy, repeated over decades, transferred over $100 billion in family wealth while paying virtually no gift or estate tax.' },
+      undefined,
       {
           type: 'grid',
           title: 'Wealth Transfer Toolkit',
@@ -6111,7 +6081,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'GRAT WEALTH TRANSFER',
+      'GRAT wealth transfer',
       'How Much Passes Tax-Free Based on Returns vs. Hurdle Rate',
       'comparison',
       'Adjust the GRAT size, investment return, and IRS hurdle rate to see how much wealth transfers to heirs tax-free. Higher returns relative to the hurdle rate mean larger tax-free transfers.',
@@ -6135,17 +6105,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Investment Return', min: 2, max: 20, default: 12, unit: '%' },
         { label: 'IRS Hurdle Rate (7520)', min: 1, max: 8, default: 5, unit: '%' }
       ],
-      { company: 'Walton Family', metric: 'Rolling GRAT strategy', outcome: '$100B+ transferred at near-zero gift tax over 30+ years', explanation: 'The Waltons funded GRATs with Walmart stock, which consistently outperformed the 7520 hurdle rate. Each 2-year GRAT captured the excess appreciation tax-free. Annuity payments from maturing GRATs funded new GRATs in a continuous rolling strategy. Over 30+ years, this transferred the vast majority of the family\'s Walmart holdings to the next generation without triggering gift or estate tax, legally.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED TRANSFER STRATEGIES',
+      'Advanced transfer strategies',
       'Charitable Lead Trusts, Installment Sales & Generation-Skipping',
       [
-        'A Charitable Lead Annuity Trust (CLAT) is the mirror image of a GRAT: the charity receives annuity payments for a set term, and the remainder passes to heirs. If assets outperform the 7520 hurdle rate, the excess passes to heirs at a reduced gift tax cost (or tax-free with a "zeroed-out" CLAT). CLATs provide a charitable deduction today while transferring future appreciation to family. Ideal for philanthropic families who want both charitable impact and wealth transfer.',
-        'Installment sales to IDGTs combine two powerful tools. You sell appreciated assets to an IDGT for a promissory note at the Applicable Federal Rate (AFR ~4-5%). All growth above the AFR accrues to the trust (and ultimately heirs) estate-tax-free. Because the trust is a "grantor trust" for income tax, the sale doesn\'t trigger capital gains (you\'re "selling to yourself"). You receive note payments as income, gradually moving wealth out of your estate while maintaining cash flow.',
-        'The Generation-Skipping Transfer (GST) tax is a 40% tax on transfers that "skip" a generation (e.g., grandparent to grandchild). But each person has a $13.61M GST exemption (2024). Allocating GST exemption to a dynasty trust means the trust assets, and all future growth, are exempt from estate tax at EVERY subsequent generation. A $13.61M dynasty trust growing at 7% becomes $104M after 30 years, $789M after 60 years, all GST-exempt and estate-tax-free forever.'
+        'A charitable lead annuity trust reverses the GRAT: charity gets the annuity, heirs the rest above the 7520 rate. Or sell assets to a grantor trust for a note at the applicable federal rate, 4-5%, with no capital gains.',
+      'The generation-skipping transfer tax takes 40% on gifts that skip a generation, but $13.61M is exempt in 2024. Put that in a dynasty trust, one lasting many generations, growing 7%: $104M after 30 years, $789M after 60.'
       ],
       [
         { term: 'CLAT (Charitable Lead Annuity Trust)', definition: 'An irrevocable trust that pays annuities to a charity for a term, then distributes the remainder to non-charitable beneficiaries (heirs). Growth above the 7520 rate passes to heirs at reduced or zero gift tax.', example: 'A 20-year CLAT funded with $10M pays $700K/year to charity ($14M total). If assets grow at 8%, approximately $8M passes to heirs at the end, with a near-zero gift tax because the charitable payments "zeroed out" the gift value.' },
@@ -6360,12 +6329,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'ESG INTEGRATION',
+      'ESG integration',
       'Environmental, Social & Governance Investing',
       [
-        'ESG investing is NOT charity, it\'s risk management and alpha generation using non-financial data. Environmental factors include carbon emissions, waste management, and resource efficiency. Social factors cover labor practices, supply chain conditions, diversity, and community impact. Governance includes board independence, executive compensation, audit quality, and shareholder rights. A meta-analysis of 2,200+ studies (Friede et al., 2015) found a positive ESG-financial performance correlation in 90% of studies reviewed.',
-        'There are five approaches to values-based investing, ranging from passive to active. (1) Negative screening: exclude industries like tobacco, weapons, or fossil fuels. (2) Positive screening: overweight companies with top ESG scores. (3) ESG integration: incorporate ESG data alongside financial analysis in every investment decision. (4) Thematic investing: target specific themes like clean energy, water scarcity, or gender equality. (5) Impact investing: invest in companies or funds specifically designed to generate measurable social or environmental outcomes alongside financial returns.',
-        'The "ESG performance penalty" myth is busted by data. MSCI ESG Leaders Index has matched or outperformed MSCI World over 5, 10, and 15-year periods. Companies in the top ESG quartile show 25% lower earnings volatility, 20% lower cost of capital, and 3x lower bankruptcy rates (Bank of America, 2020). ESG is not a constraint on returns, it\'s a signal that identifies companies with better risk management, stronger governance, and more sustainable business models.'
+        'ESG rates companies on environment, society and governance. A review of 2,200+ studies (Friede et al., 2015) found ESG linked to better financial results in 90% of cases. Approaches range from excluding industries to funding measurable impact.',
+      'MSCI ESG Leaders Index has matched or beaten MSCI World over 5, 10 and 15 years. The top ESG quarter of firms show 25% lower earnings swings, 20% lower cost of capital, 3x fewer bankruptcies (Bank of America, 2020).'
       ],
       [
         { term: 'ESG Integration', definition: 'Systematically incorporating Environmental, Social, and Governance data into financial analysis and investment decisions, not as a screen but as additional analytical factors alongside traditional metrics.', example: 'An analyst evaluating two oil companies finds Company A has $5B in potential carbon liabilities while Company B has invested $2B in transition energy. ESG integration adjusts the valuation model to reflect these material risks.' },
@@ -6374,7 +6342,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Greenwashing', definition: 'The practice of making misleading claims about the environmental or social benefits of a product, service, or investment. A major risk in ESG investing that requires due diligence.', example: 'A fund marketed as "sustainable" holds significant positions in oil companies, justifying it because the companies have "transition plans." Without rigorous standards, almost any portfolio can claim to be ESG-aligned.' }
       ],
       'Pyramid of values-based investing approaches: from negative screening (base) to impact investing (top), with increasing intentionality and measurement',
-      { company: 'BlackRock', metric: 'ESG-integrated fund flows', outcome: '$150B in ESG net inflows in a single year', explanation: 'BlackRock, the world\'s largest asset manager ($10T+ AUM), has fully integrated ESG analysis across its investment platform. CEO Larry Fink\'s annual letters have pushed companies toward sustainability disclosure. The $150B in ESG inflows demonstrates that institutional investors view ESG not as a constraint but as a source of long-term value creation and risk reduction.' },
+      undefined,
       {
           type: 'grid',
           title: 'Values-Based Investing Spectrum',
@@ -6401,7 +6369,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ESG PERFORMANCE',
+      'ESG performance',
       'ESG Leaders vs. Traditional Benchmark Over Time',
       'comparison',
       'Compare the performance of ESG-integrated portfolios versus traditional benchmarks. Adjust the time horizon and ESG premium to see how values-aligned investing compounds over time.',
@@ -6425,17 +6393,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Time Horizon', min: 5, max: 30, default: 15, unit: 'years' },
         { label: 'ESG Alpha Premium', min: 0, max: 3, default: 1, unit: '%' }
       ],
-      { company: 'MSCI', metric: 'ESG Leaders vs World Index', outcome: 'ESG Leaders matched/outperformed over 15-year periods', explanation: 'MSCI\'s ESG Leaders Index selects the top-rated ESG companies within each sector, maintaining sector neutrality. Over 15 years, it has delivered comparable or slightly higher returns with lower volatility, demonstrating that values-based constraints don\'t require performance sacrifice when implemented systematically.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'BUILDING YOUR VALUES PORTFOLIO',
+      'Building your values portfolio',
       'Thematic Investing, Impact Measurement & Avoiding Greenwashing',
       [
-        'Thematic impact investing targets specific global challenges: clean energy ($500B+ market), water scarcity, sustainable agriculture, affordable housing, healthcare access, education technology, and financial inclusion. Unlike broad ESG screening, thematic investing concentrates on companies providing solutions to specific problems. The Clean Energy ETF (ICLN) returned 140% from 2020-2021 as the energy transition accelerated, demonstrating that themes aligned with structural megatrends can deliver exceptional returns.',
-        'Impact measurement is what distinguishes true impact investing from marketing. The Impact Management Project (IMP) framework measures five dimensions: What (the outcome), Who (the stakeholders affected), How Much (scale, depth, duration), Contribution (would the impact have happened anyway?), and Risk (what could undermine the impact?). Without rigorous measurement, "impact investing" becomes greenwashing. Demand IRIS+ metrics (the GIIN\'s standardized impact measurement system) from any fund claiming impact.',
-        'Greenwashing is the industry\'s biggest threat. The SEC fined BNY Mellon $1.5M in 2022 for misleading ESG claims. DWS (Deutsche Bank\'s asset manager) faced criminal investigation for overstating its ESG credentials. To avoid greenwashing: (1) Verify ESG methodology, ask for the specific scoring criteria. (2) Check holdings, does the "sustainable" fund actually hold sustainable companies? (3) Look for third-party verification (GRESB for real estate, B Corp for companies). (4) Demand impact reports with quantitative metrics, not just marketing narratives.'
+        'Thematic funds back solutions to one problem, like clean energy, a $500B+ market. The Clean Energy ETF (ICLN) returned 140% from 2020-2021. Real impact needs measurement: the Impact Management Project (IMP) framework, and IRIS+ metrics from the GIIN.',
+      'Greenwashing means claiming green credentials you lack. The SEC fined BNY Mellon $1.5M in 2022; DWS, owned by Deutsche Bank, faced investigation. Check holdings and outside verification: GRESB for property, B Corp for companies.'
       ],
       [
         { term: 'Thematic Investing', definition: 'Investing in companies providing solutions to specific global challenges, clean energy, water scarcity, healthcare access, etc. More concentrated than broad ESG, targeting structural megatrends.', example: 'A clean energy thematic portfolio holds solar manufacturers, wind turbine companies, battery makers, and grid infrastructure firms. As the $150T energy transition unfolds over decades, these companies capture secular growth.' },
@@ -6606,7 +6573,7 @@ const lessons: PathwayLesson[] = [
           rows: [
             { label: 'Total Annual Expenses', value: '~$100K' },
             { label: 'Social Security', value: '~$40K' },
-            { label: 'INCOME GAP', value: '~$60K/year' },
+            { label: 'Income gap', value: '~$60K/year' },
             { label: 'Gap filled by', value: 'Portfolio withdrawals, pensions, annuities' },
             { label: 'Over 30 years', value: '$1.8M+ needed (with inflation)' }
           ],
@@ -6654,9 +6621,8 @@ const lessons: PathwayLesson[] = [
       'THE 4% RULE & BEYOND',
       'Withdrawal Strategies for Sustainable Retirement Income',
       [
-        'The 4% Rule (William Bengen, 1994) states: withdraw 4% of your portfolio in year one of retirement, then adjust for inflation each year. Based on historical data (1926-1992), this provided a 95% success rate over 30-year retirements with a 50/50 stock/bond portfolio. On a $1M portfolio, that\'s $40,000/year increasing with inflation. However, the 4% rule has limitations: it assumes a fixed 30-year horizon, ignores taxes, doesn\'t account for variable spending, and was calibrated to historical returns that may not repeat.',
-        'The Bucket Strategy divides your portfolio into three time-based segments. Bucket 1 (Cash, 1-2 years of expenses): covers immediate needs, never forced to sell investments in a downturn. Bucket 2 (Bonds/Fixed Income, 3-7 years): provides income as Bucket 1 depletes, replenished during good markets. Bucket 3 (Growth/Stocks, 8+ years): maximum growth for long-term needs, with time to recover from any downturn. The bucket approach manages "sequence of returns risk", the danger that poor returns early in retirement permanently deplete the portfolio.',
-        'Dynamic withdrawal strategies outperform the rigid 4% rule. The Guardrails Method (Guyton-Klinger): start at 5% withdrawal rate but adjust: if your withdrawal rate rises above 6% (poor markets), cut spending 10%. If it drops below 4% (strong markets), give yourself a 10% raise. This dynamic approach increases the safe initial withdrawal rate from 4% to 5.2%+ because it reduces withdrawals during bad markets and increases them during good markets.'
+        'The 4% rule (William Bengen, 1994): withdraw 4% year one, then adjust for inflation. Data from 1926-1992 gave a 95% success rate over 30 years with a 50/50 stock and bond mix. On $1M, that\'s $40,000.',
+      'Buckets by time: 1-2 years cash, 3-7 years bonds, 8+ years stocks, so a slump never forces a sale. Guyton-Klinger guardrails: start at 5%, cut spending 10% above 6%, raise it 10% below 4%, reaching 5.2%+.'
       ],
       [
         { term: '4% Rule', definition: 'Withdraw 4% of portfolio in year 1 of retirement, then adjust for inflation annually. Historically provided a 95% success rate over 30 years. Based on Bengen\'s 1994 research using 1926-1992 data.', example: '$1M portfolio: Year 1 withdrawal = $40,000. Year 2 (3% inflation): $41,200. Year 3: $42,436. The portfolio must grow enough to sustain these increasing withdrawals for 30 years.' },
@@ -6665,7 +6631,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Guardrails Method', definition: 'A dynamic withdrawal strategy that adjusts spending based on portfolio performance. Cut 10% if withdrawal rate exceeds upper guardrail; increase 10% if below lower guardrail. Allows higher initial withdrawal rate (~5.2%) than the static 4% rule.', example: 'Start withdrawing 5% ($50K from $1M). If portfolio drops to $769K, your withdrawal rate hits 6.5% (above 6% guardrail), cut to $45K. If portfolio rises to $1.25M, your rate drops to 4% (at lower guardrail), increase to $55K.' }
       ],
       'Three-bucket diagram showing cash, bonds, and growth allocations with flow arrows showing how money moves between buckets over time',
-      { company: 'Fidelity Investments', metric: 'Retirement healthcare cost study', outcome: 'Average couple needs $315,000 for healthcare in retirement', explanation: 'Fidelity\'s annual estimate of retirement healthcare costs found that a 65-year-old couple in 2023 will need $315,000 to cover healthcare expenses (Medicare premiums, deductibles, co-pays, dental, vision, and hearing) over their retirement. This single expense equals 31.5% of a $1M portfolio, underscoring why sustainable withdrawal strategies are critical.' },
+      undefined,
       {
           type: 'flow',
           title: 'The Bucket Strategy',
@@ -6689,7 +6655,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'WITHDRAWAL SUSTAINABILITY',
+      'Withdrawal sustainability',
       'How Long Does Your Portfolio Last at Different Withdrawal Rates?',
       'comparison',
       'Adjust your portfolio size, withdrawal rate, and investment returns to see how long your money lasts. Compare the 4% rule, 5% withdrawal, and 6% withdrawal.',
@@ -6713,17 +6679,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Withdrawal Rate', min: 2, max: 8, default: 4, unit: '%' },
         { label: 'Annual Return', min: 3, max: 12, default: 7, unit: '%' }
       ],
-      { company: 'William Bengen', metric: 'Safe withdrawal rate research', outcome: '4% rule with 95% historical success rate over 30 years', explanation: 'Bengen\'s landmark 1994 paper analyzed every rolling 30-year period from 1926-1992 and found that 4% was the highest withdrawal rate that never ran out of money. The research launched the entire field of sustainable withdrawal rate research and remains the baseline for retirement income planning 30 years later.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED INCOME STRATEGIES',
+      'Advanced income strategies',
       'Annuities, Social Security Optimization & Tax-Efficient Withdrawal Sequencing',
       [
-        'Single Premium Immediate Annuities (SPIAs) convert a lump sum into guaranteed lifetime income. Using 25-30% of your portfolio to buy a SPIA creates a "personal pension" that covers essential expenses regardless of market conditions. Combined with Social Security, this guaranteed income floor means your remaining portfolio only needs to cover discretionary spending, dramatically reducing sequence of returns risk. The trade-off: annuity payments are fixed (not inflation-adjusted unless you pay for a COLA rider) and the principal is irrecoverable.',
-        'Tax-efficient withdrawal sequencing can add 2-5 years to portfolio life. The general order: (1) Withdraw from taxable accounts first (capital gains rates are lower than income tax rates). (2) Withdraw from tax-deferred accounts (traditional IRA/401k) next, paying income tax. (3) Withdraw from Roth accounts last (tax-free, and growth continues tax-free). Exception: in low-income years, do Roth conversions from traditional accounts to fill lower tax brackets, reducing future RMDs and creating more tax-free income in later years.',
-        'Required Minimum Distributions (RMDs) begin at age 73 (SECURE 2.0 Act). RMDs force withdrawals from tax-deferred accounts whether you need the money or not, potentially pushing you into higher tax brackets. Strategy: convert $50K-$100K per year from traditional IRA to Roth between retirement and age 73, filling the 22-24% brackets. This reduces future RMDs, creates tax-free Roth income, and can save $100K-$300K in lifetime taxes.'
+        'A SPIA, or single premium immediate annuity, turns a lump sum into guaranteed lifetime income. Use 25-30% of your portfolio for essentials. Withdrawing from taxable accounts first, traditional IRA or 401k next, Roth last adds 2-5 years.',
+      'Required minimum distributions, forced withdrawals from tax-deferred accounts, start at 73 under the SECURE 2.0 Act. Converting $50K-$100K yearly to Roth before then fills the 22-24% brackets and can save $100K-$300K in lifetime taxes.'
       ],
       [
         { term: 'SPIA (Single Premium Immediate Annuity)', definition: 'An insurance contract where you pay a lump sum and receive guaranteed monthly income for life. Creates a "personal pension." Cannot be outlived but principal is irrecoverable.', example: 'A 65-year-old man pays $300K for a SPIA and receives $1,750/month ($21,000/year) for life, a 7% payout rate. If he lives to 90, he receives $525K total on a $300K investment.' },
@@ -6939,12 +6904,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE ROBO-ADVISOR REVOLUTION',
+      'The robo-advisor revolution',
       'Automated Investing, Tax-Loss Harvesting & Portfolio Optimization',
       [
-        'Robo-advisors use algorithms to build, rebalance, and optimize portfolios based on your risk tolerance and goals. The core value proposition: professional-grade portfolio management at 80% lower cost. Betterment, Wealthfront, Schwab Intelligent Portfolios, and Vanguard Digital Advisor manage hundreds of billions using Modern Portfolio Theory (MPT) to construct diversified portfolios of low-cost index funds. The process: complete a risk questionnaire, algorithms determine your optimal asset allocation, invest automatically, rebalance continuously, and harvest tax losses daily.',
-        'Automated tax-loss harvesting (TLH) is the robo-advisor\'s "killer feature." The algorithm scans your portfolio daily for positions with unrealized losses. It sells the losing position, immediately purchases a similar (but not identical) investment to maintain market exposure, and books the tax loss. These losses offset capital gains and up to $3,000/year in ordinary income. Wealthfront reports TLH adds 1.5-2.0% annually for most clients. On a $500K portfolio, that\'s $7,500-$10,000/year in tax savings, far exceeding the 0.25% ($1,250) management fee.',
-        'Direct indexing is the next evolution. Instead of buying an S&P 500 index fund, the robo-advisor buys all 500 stocks individually. This enables tax-loss harvesting at the individual stock level (instead of fund level), generating 2-3x more tax losses. It also allows for ESG customization, excluding specific companies or sectors without leaving the broad market. Wealthfront, Betterment, and Parametric offer direct indexing for accounts above $100K-$500K. This technology democratizes a strategy previously available only to ultra-high-net-worth families paying $1M+ minimums.'
+        'Robo-advisors, apps that pick and rebalance your investments by algorithm, cost 80% less: Betterment, Wealthfront, Schwab Intelligent Portfolios, Vanguard Digital Advisor. Tax-loss harvesting sells a losing holding to book a loss, offsetting gains and $3,000/year of income.',
+      'Wealthfront reports 1.5-2.0% a year: $7,500-$10,000 on $500K, above the 0.25% ($1,250) fee. Direct indexing buys all 500 S&P 500 stocks instead, finding 2-3x more losses. Parametric serves accounts above $100K-$500K, once $1M+ only.'
       ],
       [
         { term: 'Robo-Advisor', definition: 'An automated investment platform that uses algorithms to build, rebalance, and manage diversified portfolios based on your risk profile and goals. Typical fee: 0.25% annually (vs. 1% for human advisors).', example: 'You deposit $100K into Betterment, answer risk questions, and the algorithm invests in a diversified portfolio of 12-15 low-cost ETFs. It rebalances automatically when allocations drift and harvests tax losses daily, all for $250/year.' },
@@ -6953,7 +6917,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Wash Sale Rule', definition: 'IRS rule prohibiting claiming a tax loss if you purchase a "substantially identical" security within 30 days before or after the sale. Robo-advisors navigate this by swapping between similar but not identical securities.', example: 'Selling Vanguard Total Stock (VTI) at a loss and buying iShares Core S&P Total (ITOT) within 30 days is allowed, different funds tracking slightly different indexes. Selling VTI and buying VTI back within 30 days triggers the wash sale rule, disallowing the loss.' }
       ],
       'Comparison dashboard: traditional advisor (1% fee, quarterly rebalancing, annual TLH) vs. robo-advisor (0.25% fee, daily rebalancing, daily TLH)',
-      { company: 'Wealthfront', metric: 'Tax-loss harvesting performance', outcome: 'Reports 1.5-2.0% annual TLH benefit for most clients', explanation: 'Wealthfront\'s automated TLH algorithm scans portfolios every day for tax-loss harvesting opportunities. By monitoring individual positions continuously and executing swaps instantly, the algorithm captures losses that would be impossible to identify manually. Wealthfront reports that TLH adds 1.5-2.0% annually for most clients, meaning the 0.25% fee is paid for 6-8x over by tax savings alone.' },
+      undefined,
       {
           type: 'comparison',
           title: 'Traditional Advisor vs. Robo-Advisor',
@@ -6980,7 +6944,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FEE IMPACT CALCULATOR',
+      'Fee impact calculator',
       'How Advisory Fees Compound Over Your Investment Lifetime',
       'comparison',
       'Compare the long-term impact of different advisory fee levels on your portfolio. Adjust the initial investment, contribution, and time horizon to see how the fee difference compounds.',
@@ -7004,17 +6968,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Monthly Contribution', min: 0, max: 5000, default: 1000, unit: '$' },
         { label: 'Investment Horizon', min: 5, max: 40, default: 30, unit: 'years' }
       ],
-      { company: 'Betterment', metric: 'Fee comparison analysis', outcome: '0.25% fee vs. 1% traditional = $340K+ savings over 30 years', explanation: 'Betterment was the first major robo-advisor (launched 2010). By charging 0.25% instead of the traditional 1%, and automating rebalancing and tax-loss harvesting, it proved that technology could deliver professional-grade portfolio management at a fraction of the cost. The $340K+ in 30-year fee savings represents the democratization of wealth management, making professional investing accessible to everyone, not just the wealthy.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'AI, BLOCKCHAIN & THE FUTURE',
+      'AI, blockchain & the future',
       'Next-Generation Wealth Management Technology',
       [
-        'AI-powered financial planning uses machine learning to create personalized financial plans that adapt in real-time. AI can analyze thousands of variables simultaneously: income projections, spending patterns, tax scenarios, market conditions, insurance needs, estate planning options. Tools like Wealthfront\'s "Self-Driving Money" automatically allocate paychecks to the optimal combination of bills, savings, investments, and debt payment. AI planning doesn\'t replace human judgment for complex emotional decisions, but it eliminates the tedious optimization that humans do poorly.',
-        'Blockchain technology is creating new asset classes and reducing friction in wealth management. Tokenized real estate allows fractional ownership of properties for as little as $100 (previously $50K+ minimums). Smart contracts automate estate transfers, trust distributions, and insurance payouts without intermediaries. Decentralized finance (DeFi) protocols offer lending, borrowing, and yield generation outside traditional banking. However, regulation is still evolving, security risks remain significant, and many crypto/DeFi products have proven fraudulent or unsustainable.',
-        'The future wealth management stack is hybrid: robo-advisors handle portfolio construction, rebalancing, and TLH (algorithmic efficiency). AI handles financial planning, tax optimization, and scenario analysis (computational power). Blockchain enables new asset classes and reduces intermediary costs (decentralization). Human advisors handle behavioral coaching, complex estate/tax planning, and life transitions (emotional intelligence). The winners will be investors who leverage all four, not those who choose one over the others.'
+        'AI planning tools read thousands of variables at once: income, spending, taxes, insurance. Wealthfront\'s Self-Driving Money splits your paycheck automatically between bills, savings, investments and debt. It handles tedious optimization, not emotional calls.',
+      'Blockchain, a shared digital ledger, lets you own a slice of a property for $100 instead of $50K+ minimums. Decentralized finance (DeFi) lends outside banks, but rules and security are shaky. Winners combine robo-advisors, AI, blockchain and human advisors.'
       ],
       [
         { term: 'AI Financial Planning', definition: 'Machine learning algorithms that create and dynamically adjust financial plans by analyzing thousands of variables simultaneously, income, spending, taxes, markets, insurance, and estate planning.', example: 'An AI planner analyzes your spending patterns, income trajectory, and tax situation to recommend: increase 401(k) by 2%, open a backdoor Roth, refinance mortgage, and shift $50K from savings to a taxable investment account, all optimized simultaneously.' },
@@ -7232,19 +7195,18 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'INTEGRATION IS EVERYTHING',
+      'Integration is everything',
       'How the Five Pillars Work Together as One System',
       [
-        'The difference between good financial management and great wealth management is integration. Good: you have a 401(k), some index funds, life insurance, and a will. Great: your 401(k) contributions are calibrated to your tax bracket, your index funds are in a robo-advisor with daily TLH, your life insurance is owned by an ILIT (excludes from taxable estate), and your will is part of a comprehensive estate plan with dynasty trusts and GRATs, all coordinated to work together.',
-        'Consider a single financial decision, selling $500K in appreciated stock. Fragmented approach: sell, pay $95K in capital gains tax, keep the proceeds. Integrated approach: donate $200K to a DAF (avoid $38K in gains tax + get $74K deduction = $112K total benefit). Sell $150K over 3 years via 10b5-1 plan (spread gains across brackets, saving $8K). Transfer $150K to GRAT (excess growth passes to heirs tax-free). Same $500K, dramatically different outcomes, the integrated approach saves $120K+ while achieving charitable giving and estate planning goals.',
-        'The integrated wealth management checklist: (1) EARN: maximize income through career development, negotiate compensation packages (equity, deferred comp). (2) SAVE: automate 20%+ savings rate, max all tax-advantaged accounts (401k, backdoor Roth, HSA, 529). (3) INVEST: robo-advisor with direct indexing for TLH, diversified across assets and geographies, ESG-integrated. (4) PROTECT: umbrella insurance, LLCs for real estate, ILIT for life insurance, comprehensive liability coverage. (5) TRANSFER: GRATs for appreciating assets, FLPs with discounts, dynasty trust with GST exemption, annually updated estate plan.'
+        'Selling $500K of appreciated stock, fragmented: pay $95K in capital gains tax. Integrated: donate $200K to a donor advised fund, avoiding $38K of tax plus a $74K deduction, worth $112K.',
+      'Sell $150K over 3 years via a 10b5-1 plan, saving $8K, and move $150K into a GRAT so growth passes to heirs. Same $500K, $120K+ saved. Also save 20%+, using 401(k) and 529 accounts.'
       ],
       [
         { term: 'Integrated Wealth Management', definition: 'A holistic approach where every financial decision considers its impact across all five pillars, earning, saving, investing, protecting, and transferring. Each action is optimized not in isolation but as part of a unified system.', example: 'An integrated plan coordinates: Roth conversions during low-income years (save pillar + invest pillar), FLP discounts on transferred assets (protect pillar + transfer pillar), and ILIT-owned life insurance (protect pillar + transfer pillar). Each decision reinforces the others.' },
         { term: 'Financial Planning Integration', definition: 'The practice of connecting all financial strategies, tax, investment, estate, insurance, and income, so that each reinforces the others. The opposite of siloed planning where each area is managed independently.', example: 'Tax planning informs investment decisions (TLH, Roth conversions). Estate planning informs asset protection (trusts shield from creditors AND reduce estate taxes). Insurance planning informs estate planning (ILIT-owned life insurance provides estate liquidity tax-free).' }
       ],
       'System diagram showing all five pillars connected by bidirectional arrows, with "Integration" at the center, every decision flows through all pillars',
-      { company: 'Rockefeller Family Office', metric: 'Multi-generational integrated wealth management', outcome: 'Preserved $11B+ across 7 generations since 1882', explanation: 'The Rockefeller family office is the gold standard of integrated wealth management. Every decision, investment, tax, estate, philanthropic, governance, is coordinated across all family members and entities. The family office employs 250+ professionals managing trusts, foundations, investments, and family governance as one unified system. This integration is the primary reason the Rockefeller wealth has survived 7 generations, defying the 90% failure rate.' },
+      undefined,
       WM25_TEACH1
     ),
 
@@ -7283,17 +7245,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Base Return', min: 4, max: 12, default: 7, unit: '%' },
         { label: 'Integration Premium', min: 0, max: 5, default: 3, unit: '%' }
       ],
-      { company: 'Vanguard', metric: 'Advisor\'s Alpha research', outcome: 'Comprehensive planning adds approximately 3% annually', explanation: 'Vanguard\'s landmark research quantified what good financial planning is worth: approximately 3% per year. The components: behavioral coaching (1.5%), asset location/tax optimization (0.75%), rebalancing (0.35%), spending strategy (0.4%). Critically, most of this value comes not from investment selection but from the "boring" elements, tax management, disciplined rebalancing, and preventing emotional mistakes.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'YOUR WEALTH MANAGEMENT BLUEPRINT',
+      'Your wealth management blueprint',
       'The Complete Action Plan Across All Five Pillars',
       [
-        'EARN & SAVE (Lessons 1-10): Maximize income through career development and negotiation. Negotiate total compensation (base + equity + benefits + deferred comp). Automate a 20-30% savings rate. Max every tax-advantaged account: 401(k) ($23,000 + $7,500 catch-up), backdoor Roth IRA ($7,000), HSA ($4,150/$8,300 family), 529 plans. Use technology to automate bill pay, savings transfers, and investment contributions. Eliminate high-interest debt. Build 6-12 months emergency fund.',
-        'INVEST & PROTECT (Lessons 11-20): Use a robo-advisor with direct indexing for core portfolio (daily TLH, automated rebalancing, 0.25% fees). Diversify across US stocks, international stocks, bonds, real estate, and alternatives. Integrate ESG analysis. Hold real estate in LLCs. Own umbrella insurance ($2-5M). Have life insurance in an ILIT (excludes from estate). Disability insurance covering 60-70% of income. Review all insurance and structures annually.',
-        'TRANSFER & INTEGRATE (Lessons 21-25): Establish a comprehensive estate plan: revocable living trust (avoids probate), pour-over will, durable power of attorney, healthcare directive. For high-net-worth: GRATs for appreciating assets, FLPs for real estate/business (25-40% discounts), dynasty trust with GST exemption. Update beneficiary designations annually. Hold family meetings to communicate wealth values and prepare heirs. Review and update the entire plan annually with your integrated advisory team (robo-advisor + fee-only planner + estate attorney + CPA).'
+        'Lessons 1-10, earn and save: negotiate pay, automate a 20-30% savings rate, max a 401(k) at $23,000 plus $7,500 catch-up, backdoor Roth IRA $7,000, HSA $4,150 or $8,300 family, 529 plans, and a 6-12 month emergency fund.',
+      'Lessons 11-20, invest and protect: a robo-advisor at 0.25% fees, real estate in LLCs, $2-5M umbrella insurance, disability cover for 60-70% of income. Lessons 21-25, transfer: living trust, GRATs, FLPs at 25-40% discounts, dynasty trust.'
       ],
       [
         { term: 'Wealth Management Blueprint', definition: 'A comprehensive, documented plan integrating all five pillars, earning, saving, investing, protecting, and transferring, with specific actions, timelines, responsible parties, and review schedules for each element.', example: 'A complete blueprint includes: income optimization strategy, automated savings plan, investment policy statement, insurance schedule, asset protection structures, estate plan documents, beneficiary review calendar, annual integration review, and family governance protocol.' },

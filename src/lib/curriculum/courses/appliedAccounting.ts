@@ -88,12 +88,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FOUNDATION',
+      'The foundation',
       'Double-Entry Bookkeeping: Every Transaction Has Two Sides',
       [
-        'Double-entry bookkeeping is the single most important invention in the history of commerce. Before Luca Pacioli formalized it in his 1494 work "Summa de Arithmetica, Geometria, Proportioni et Proportionalita," merchants relied on single-entry systems, basically lists of money coming in and out. These were error-prone and easy to manipulate. Double-entry changed everything by requiring that every transaction be recorded in at least two accounts, and that total debits always equal total credits.',
-        'The accounting equation, Assets = Liabilities + Equity, is the DNA of every financial statement. Assets are what a company owns (cash, equipment, inventory, receivables). Liabilities are what it owes (loans, accounts payable, bonds). Equity is the residual, what\'s left for owners after all debts are paid. This equation MUST always balance. If assets go up by $10,000, then liabilities, equity, or another asset must also change by $10,000.',
-        'Debits and credits are the language of this system. A debit (Dr.) is a left-side entry; a credit (Cr.) is a right-side entry. For assets and expenses, debits increase the balance and credits decrease it. For liabilities, equity, and revenue, the opposite: credits increase and debits decrease. A T-account is a visual tool shaped like the letter T, account name on top, debits on the left, credits on the right. The balance is the difference between total debits and total credits.'
+        'Luca Pacioli formalized double-entry bookkeeping in 1494. Every transaction is recorded in at least two accounts, and total debits must equal total credits. Earlier single-entry systems, simple lists of money in and out, were error prone.',
+      'The accounting equation, Assets = Liabilities + Equity, must always balance: what you own, what you owe, what owners keep. If assets rise by $10,000, another account changes by $10,000. Debits (Dr.) increase assets; credits (Cr.) increase liabilities.'
       ],
       [
         { term: 'Double-Entry Bookkeeping', definition: 'An accounting system where every transaction is recorded in at least two accounts, one debited and one credited, ensuring the books always balance.', example: 'Buying a $5,000 computer with cash: Debit Equipment +$5,000 (asset increases), Credit Cash -$5,000 (another asset decreases). Total debits = total credits.' },
@@ -102,7 +101,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Debit (Dr.) & Credit (Cr.)', definition: 'Debits are left-side entries that increase assets/expenses and decrease liabilities/equity/revenue. Credits are right-side entries that do the opposite.', example: 'Recording a $1,000 sale on credit: Debit Accounts Receivable +$1,000 (asset increases), Credit Revenue +$1,000 (revenue increases). Two accounts, same amount, books stay balanced.' }
       ],
       'Double-entry flow diagram showing a transaction splitting into debit and credit entries, with account types and their normal balances displayed below',
-      { company: 'Enron', metric: 'Off-balance-sheet debt hidden (1997-2001)', outcome: '$38 billion in debt concealed through 3,000+ SPE entities; stock went from $90 to $0.26', explanation: 'Enron created thousands of Special Purpose Entities (SPEs), shell companies that appeared independent but were secretly controlled by Enron. They transferred billions in debt to these SPEs, removing it from Enron\'s balance sheet. The accounting equation still balanced on paper, but the "assets" were fictitious and the "liabilities" were hidden. When the truth emerged, the largest bankruptcy in U.S. history (at the time) destroyed $74 billion in shareholder value and led directly to the Sarbanes-Oxley Act of 2002.' },
+      undefined,
       { type: 'flow', title: "Double-Entry Bookkeeping: Every Transaction Has Two Sides", nodes: [{ label: "TRANSACTION: Buy $5,000 equipment with cash", color: "#fbbf24" }, { label: "DEBIT: Equipment +$5,000 (Asset increases)", color: "#10b981" }, { label: "CREDIT: Cash -$5,000 (Asset decreases)", color: "#ef4444" }, { label: "Debits ($5,000) = Credits ($5,000) ✓", color: "#bb83f1" }], footer: "Luca Pacioli, 1494, \"Summa de Arithmetica\"", sentiment: 'positive' }
     ),
     microCheck(
@@ -113,7 +112,7 @@ const lessons: PathwayLesson[] = [
       'The truck adds $20,000 to assets, but you also used $5,000 cash (reducing assets), so net asset change is +$15,000. The $15,000 loan increases liabilities by $15,000. Equity doesn\'t change. Assets (+$15,000) = Liabilities (+$15,000) + Equity ($0). Always balanced.'
     ),
     interactiveGraph(
-      'ACCOUNTING EQUATION IN ACTION',
+      'Accounting equation in action',
       'Watch the Balance Sheet React to Every Transaction',
       'comparison',
       'Adjust transactions to see how the accounting equation rebalances in real time. Every debit must have an equal credit, the books never lie (unless someone makes them).',
@@ -135,7 +134,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Cash Transaction', min: -50000, max: 50000, default: 10000, unit: '$' },
         { label: 'Debt Level', min: 0, max: 100000, default: 30000, unit: '$' }
       ],
-      { company: 'WorldCom', metric: 'Fraudulent journal entries (2001-2002)', outcome: '$11 billion in fraudulent accounting entries, expenses capitalized as assets to inflate profits. CEO Bernie Ebbers sentenced to 25 years.', explanation: 'WorldCom committed one of history\'s largest accounting frauds by making improper journal entries: they recorded normal operating expenses (line costs) as capital expenditures (assets). This inflated profits by $11 billion. The fraud was discovered by an internal auditor, Cynthia Cooper, who noticed the suspicious entries. Her work showed that understanding basic journal entries, debits and credits, is the first line of defense against fraud.' }
+      undefined
     ),
     caseStudy(
       'Enron: The $74 Billion Accounting Fraud',
@@ -148,7 +147,7 @@ const lessons: PathwayLesson[] = [
       'Enron\'s failure wasn\'t because accounting rules were inadequate, it was because executives deliberately violated them. The accounting equation always tells the truth if the inputs are honest. Enron\'s lesson: when you see a company whose profits can\'t be traced to real cash flows, whose financial statements require dozens of footnotes to explain, and whose CFO has personal financial interests in off-balance-sheet entities, run. These red flags applied in 2001 and they apply today.'
     ),
     misconceptions(
-      'ACCOUNTING MYTHS',
+      'Accounting myths',
       'What most people get wrong about accounting fundamentals',
       [
         {
@@ -312,12 +311,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE FOUR PILLARS',
+      'The four pillars',
       'Financial Ratios: Diagnosing a Company Like a Doctor',
       [
-        'Financial ratios transform raw numbers into actionable intelligence. A company reporting $10 billion in revenue tells you almost nothing, but knowing it earns 26% net margins (Apple) vs. 2.4% (Walmart) tells you everything about their business models. Benjamin Graham, the father of value investing and Warren Buffett\'s teacher, pioneered ratio analysis in his 1934 book "Security Analysis." His framework of comparing ratios across companies and over time remains the foundation of modern financial analysis.',
-        'The Four Pillars: (1) LIQUIDITY ratios measure short-term survival, can the company pay its bills? The Current Ratio (Current Assets / Current Liabilities) should generally exceed 1.5. The Quick Ratio strips out inventory for a stricter test: (Current Assets - Inventory) / Current Liabilities. Below 1.0 is a warning. (2) PROFITABILITY ratios measure earning power: ROE (Net Income / Equity) shows returns to shareholders, ROA (Net Income / Total Assets) shows how efficiently assets generate profit, and Net Margin (Net Income / Revenue) shows how much of each dollar of sales becomes profit.',
-        '(3) LEVERAGE ratios measure debt risk: Debt-to-Equity (Total Debt / Equity) shows financial risk, Hertz at 10.6x was extreme. Interest Coverage (EBIT / Interest Expense) shows whether earnings cover debt payments, below 1.5x is distress territory. (4) EFFICIENCY ratios measure operational performance: Asset Turnover (Revenue / Total Assets) shows how hard assets work, Walmart at 2.5x means each $1 of assets generates $2.50 in revenue. Inventory Turnover (COGS / Average Inventory) shows how fast products sell, higher is better for most businesses.'
+        'Revenue of $10 billion tells you little. Net margin, the share of sales left as profit, tells you plenty: Apple 26%, Walmart 2.4%. Benjamin Graham started this ratio analysis in 1934. ROE compares profit with shareholders\' money.',
+      'Liquidity: current ratio, assets over bills due soon, should top 1.5. The stricter quick ratio below 1.0 warns. Leverage: Hertz owed 10.6x its equity. Interest coverage under 1.5x signals distress. Efficiency: Walmart\'s 2.5x asset turnover turns $1 into $2.50.'
       ],
       [
         { term: 'Current Ratio', definition: 'Current Assets divided by Current Liabilities. Measures a company\'s ability to pay short-term obligations. A ratio above 1.5 is generally healthy; below 1.0 signals potential liquidity problems.', example: 'Amazon current ratio: 1.05, relatively tight but manageable because Amazon collects from customers immediately while paying suppliers on 60-90 day terms (negative cash conversion cycle).' },
@@ -326,7 +324,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Asset Turnover', definition: 'Revenue divided by Total Assets. Measures how efficiently a company uses its assets to generate sales. Higher turnover means more productive asset utilization.', example: 'Walmart asset turnover: 2.50x, each dollar of assets generates $2.50 in revenue (high-volume, low-margin model). Apple: 1.09x, lower turnover but vastly higher margins.' }
       ],
       'Four-quadrant diagram showing the four pillars of ratio analysis: Liquidity (can you pay bills?), Profitability (how well do you earn?), Leverage (how much debt risk?), and Efficiency (how well do you use assets?)',
-      { company: 'Hertz', metric: 'Financial ratios 2 years before bankruptcy (2018)', outcome: 'D/E: 10.6x, interest coverage: 1.2x, current ratio: 0.75, all ratios screamed distress', explanation: 'Hertz\'s 2018 ratios told the entire story of the 2020 bankruptcy. D/E of 10.6x meant the company was leveraged to the extreme, any revenue disruption would be fatal. Interest coverage of 1.2x meant almost all earnings went to debt service, leaving no cushion. Current ratio of 0.75 meant current liabilities exceeded current assets. Short sellers who analyzed these ratios in 2018 profited enormously when Hertz collapsed two years later.' },
+      undefined,
       { type: 'grid', title: "The Four Pillars of Financial Ratio Analysis", items: [{ label: "LIQUIDITY", value: "Can you pay your bills? Current Ratio, Quick Ratio", color: "#60a5fa" }, { label: "PROFITABILITY", value: "How well do you earn? ROE, ROA, Net Margin", color: "#10b981" }, { label: "LEVERAGE", value: "How much debt risk? D/E, Interest Coverage", color: "#ef4444" }, { label: "EFFICIENCY", value: "How well do you use assets? Asset Turnover, Inventory Turnover", color: "#fbbf24" }], footer: "Ratios reveal what raw numbers hide: the QUALITY of a company's finances", sentiment: 'positive' }
     ),
     microCheck(
@@ -337,7 +335,7 @@ const lessons: PathwayLesson[] = [
       'A current ratio below 1.0 means current liabilities exceed current assets, the company already can\'t pay its short-term bills. A ratio of 2.3 provides substantial buffer. During the 2008 financial crisis and COVID-19, companies with strong liquidity ratios survived while highly leveraged companies (like Hertz) collapsed.'
     ),
     interactiveGraph(
-      'RATIO ANALYSIS LAB',
+      'Ratio analysis lab',
       'Compare Apple, Amazon, and Walmart Through Ratios',
       'comparison',
       'Adjust financial metrics to see how ratios change and what they reveal about different business models. See why the same industry can produce radically different financial profiles.',
@@ -360,7 +358,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Net Margin', min: 1, max: 40, default: 15, unit: '%' },
         { label: 'Debt-to-Equity', min: 0, max: 12, default: 2, unit: 'x' }
       ],
-      { company: 'Apple vs. Walmart', metric: 'Same industry, different ratio profiles', outcome: 'Apple: 26% margin, 1.09x turnover. Walmart: 2.4% margin, 2.5x turnover. Both among the world\'s most valuable companies.', explanation: 'This comparison demonstrates the core insight of ratio analysis: there is no single "good" set of ratios. Apple succeeds through premium margins; Walmart through operational efficiency and volume. The key is consistency with strategy, Apple with low margins would be failing, and Walmart with 26% margins would have no customers. Ratios must be interpreted in context of the business model.' }
+      undefined
     ),
     caseStudy(
       'Hertz Bankruptcy: The Ratios Told the Story 2 Years Early',
@@ -373,7 +371,7 @@ const lessons: PathwayLesson[] = [
       'Hertz\'s bankruptcy was not a COVID surprise, it was a leverage catastrophe that COVID merely triggered. The ratios told the story years in advance: unsustainable debt, barely sufficient interest coverage, negative operating cash flow despite reported profits, and deteriorating asset efficiency. Every ratio was screaming "distress" by 2018. The lesson for investors: ratios don\'t just describe the present, they predict the future. A company with D/E above 5x and interest coverage below 1.5x is not investing; it\'s gambling.'
     ),
     misconceptions(
-      'RATIO ANALYSIS MYTHS',
+      'Ratio analysis myths',
       'What most people get wrong about financial ratios',
       [
         {
@@ -548,12 +546,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE INCOME STATEMENT STRUCTURE',
+      'The income statement structure',
       'Revenue to Net Income: Every Line Tells a Story',
       [
-        'The income statement (also called the Profit & Loss statement, or P&L) answers one question: how much money did the company make or lose over a period? Unlike the balance sheet (a snapshot), the income statement covers a span of time, a quarter or a year. It starts with revenue at the top and works down through various expenses to arrive at net income at the bottom. This is why net income is called "the bottom line."',
-        'Revenue (or "top line") is the total amount earned from selling goods or services before any costs are deducted. Under GAAP\'s ASC 606 standard, revenue is recognized when a performance obligation is satisfied, meaning you\'ve delivered what you promised. Cost of Goods Sold (COGS) represents the direct costs of producing what was sold: raw materials, factory labor, and manufacturing overhead. Revenue minus COGS equals Gross Profit, and Gross Profit divided by Revenue is the Gross Margin, arguably the most important profitability metric because it reveals how efficiently a company produces its products.',
-        'Below gross profit, Operating Expenses (OpEx) include selling, general & administrative costs (SG&A), research & development (R&D), depreciation, and amortization. Gross Profit minus OpEx gives Operating Income (also called EBIT, Earnings Before Interest and Taxes). This is the profit from core business operations. Below operating income, you subtract interest expense and taxes to arrive at Net Income. EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization) adds back non-cash charges to approximate operating cash generation, but beware of companies that abuse EBITDA to hide real costs, like WeWork\'s infamous "Community Adjusted EBITDA."'
+        'The income statement, or profit and loss statement, covers a quarter or a year. ASC 606 counts revenue when you deliver. Revenue minus cost of goods sold, direct production costs, is gross profit; over revenue, that\'s gross margin.',
+      'Subtract operating expenses like R&D from gross profit for operating income, also called EBIT. Take out interest and taxes: that\'s net income, the bottom line. EBITDA adds back non-cash charges, but WeWork abused it with "Community Adjusted EBITDA."'
       ],
       [
         { term: 'Revenue (Top Line)', definition: 'The total income earned from selling goods or services during a period, before any costs are deducted. Under ASC 606, recognized when the performance obligation is satisfied.', example: 'Apple\'s Q4 2022 revenue of $117.2B includes $65.8B from iPhone sales, $11.5B from Mac, $9.7B from iPad, $9.7B from Wearables, and $20.8B from Services.' },
@@ -562,7 +559,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Net Income (Bottom Line)', definition: 'Revenue minus all expenses (COGS, OpEx, interest, taxes). The final profit or loss for the period. Flows into Retained Earnings on the balance sheet.', example: 'Apple\'s Q4 2022 net income of $30B on $117.2B revenue = 25.6% net margin. Amazon\'s $0.3B on $149.2B = 0.2% margin. Same planet, completely different profitability profiles.' }
       ],
       'An income statement flow diagram showing Revenue at the top, subtracting COGS to reach Gross Profit, subtracting OpEx to reach Operating Income, then subtracting interest and taxes to reach Net Income',
-      { company: 'Apple', metric: 'Gross Margin consistency (2015-2024)', outcome: 'Maintained 38-44% gross margin for a decade while revenue grew from $233B to $383B', explanation: 'Apple\'s consistent gross margin despite massive revenue growth demonstrates pricing power, the ability to maintain or increase prices without losing customers. This is Warren Buffett\'s primary indicator of a competitive moat. Companies with eroding gross margins are typically losing pricing power to competitors, while Apple has actually increased margins by shifting toward high-margin Services revenue (gross margin ~72%).' },
+      undefined,
       { type: 'flow', title: "Income Statement: From Revenue to Net Income", nodes: [{ label: "REVENUE, Total sales of goods and services", color: "#10b981" }, { label: "- Cost of Goods Sold (COGS)", color: "#ef4444" }, { label: "GROSS PROFIT, Gross Margin = GP / Revenue", color: "#10b981" }, { label: "- Operating Expenses (SG&A, R&D)", color: "#F59E0B" }, { label: "OPERATING INCOME (EBIT), Profit from core operations", color: "#bb83f1" }, { label: "NET INCOME, \"The Bottom Line\"", color: "#A451E6" }], footer: "Margins reveal the truth that revenue alone cannot", sentiment: 'positive' }
     ),
     microCheck(
@@ -573,7 +570,7 @@ const lessons: PathwayLesson[] = [
       'Gross Profit = Revenue - COGS = $80M - $48M = $32M. Gross Margin = $32M / $80M = 40% (not 60%). Operating Income = Gross Profit - OpEx = $32M - $20M = $12M. Remember: gross margin measures production efficiency, operating margin measures overall business efficiency.'
     ),
     interactiveGraph(
-      'MARGIN ANALYSIS',
+      'Margin analysis',
       'How Different Business Models Create Different Margin Profiles',
       'comparison',
       'Explore how revenue, COGS, and operating expenses interact to produce different margin profiles across industries. A high-revenue company with thin margins can be less profitable than a smaller company with fat margins.',
@@ -596,10 +593,10 @@ const lessons: PathwayLesson[] = [
         { label: 'COGS as % of Revenue', min: 10, max: 90, default: 55, unit: '%' },
         { label: 'OpEx ($M)', min: 5, max: 200, default: 25, unit: '$M' }
       ],
-      { company: 'Tesla', metric: 'Gross margin trajectory (2018-2024)', outcome: 'Gross margins climbed from 19% to 26% (2022) as production scaled, then fell to 18% (2024) due to price cuts', explanation: 'Tesla\'s margin story illustrates the income statement in action. As production scaled at Gigafactories, unit costs (COGS) fell, gross margin expanded. But in 2023-2024, Tesla slashed vehicle prices by 20-30% to compete with Chinese EVs. Revenue per car dropped while COGS per car was relatively fixed, compressing gross margins dramatically. The income statement captured this strategic shift in real-time, analysts watching gross margin trends saw the pricing pressure months before it affected net income.' }
+      undefined
     ),
     misconceptions(
-      'INCOME STATEMENT MYTHS',
+      'Income statement myths',
       'What most people get wrong about profitability',
       [
         {
@@ -763,7 +760,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 1B, CLEAR THE MYTHS FIRST
     misconceptions(
-      'BALANCE SHEET MYTHS',
+      'Balance sheet myths',
       'Common misunderstandings about financial position',
       [
         {
@@ -786,12 +783,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE BALANCE SHEET',
+      'The balance sheet',
       'A Snapshot of Everything a Company Owns and Owes',
       [
-        'The balance sheet is a financial photograph taken at a specific moment, typically the last day of a quarter or fiscal year. Unlike the income statement (which covers a period), the balance sheet shows the company\'s exact financial position at one point in time. It answers three questions: What does the company own? (Assets) What does it owe? (Liabilities) What\'s left for shareholders? (Equity). And it always obeys the fundamental equation: Assets = Liabilities + Equity.',
-        'Assets are divided into Current (convertible to cash within 12 months) and Non-Current (long-term). Current assets include cash, accounts receivable, inventory, and short-term investments. Non-current assets include property, plant & equipment (PP&E), intangible assets (patents, goodwill), and long-term investments. The order matters: assets are listed by liquidity, from most liquid (cash) to least liquid (goodwill). This ordering reveals how quickly a company can access its resources.',
-        'Liabilities follow the same current/non-current split. Current liabilities (due within 12 months) include accounts payable, short-term debt, accrued expenses, and the current portion of long-term debt. Non-current liabilities include long-term debt, pension obligations, and deferred tax liabilities. Shareholders\' equity is the residual: common stock (par value), additional paid-in capital (what investors paid above par), retained earnings (accumulated profits not distributed as dividends), and treasury stock (shares the company has repurchased). Working capital, current assets minus current liabilities, is the single most important short-term health metric.'
+        'The balance sheet is a financial photo of one moment, usually the last day of a quarter or fiscal year. It shows what a company owns (assets), owes (liabilities), and what is left for shareholders (equity).',
+      'Assets = Liabilities + Equity, always. Current items, like cash or bills due, convert or come due within 12 months; others are long term. Working capital, current assets minus current liabilities, is the key short-term health check.'
       ],
       [
         { term: 'Current Assets', definition: 'Assets expected to be converted to cash or consumed within 12 months. Listed in order of liquidity: cash, short-term investments, accounts receivable, inventory, prepaid expenses.', example: 'Apple\'s current assets (Sep 2023): Cash $29.9B, Short-term investments $31.6B, Accounts Receivable $29.5B, Inventory $6.3B, Other $14.7B = Total $112B.' },
@@ -800,7 +796,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Goodwill', definition: 'An intangible asset that appears when a company acquires another for more than the fair value of its net identifiable assets. It represents the premium paid for brand, customer relationships, and synergies. Subject to annual impairment testing.', example: 'Microsoft paid $69B for Activision Blizzard, whose net assets were worth ~$30B. The ~$39B difference appears as goodwill on Microsoft\'s balance sheet, representing the value of franchises like Call of Duty and World of Warcraft.' }
       ],
       'A balance sheet structure showing current and non-current assets on the left, current and non-current liabilities plus equity on the right, with arrows showing the liquidity ordering',
-      { company: 'Silicon Valley Bank', metric: 'Held-to-maturity bond losses (2022-2023)', outcome: '$15.1B in unrealized losses on $91B bond portfolio; bank collapsed in 48 hours when depositors discovered the hidden losses', explanation: 'SVB bought $91B in long-term bonds when rates were near 0%. When the Fed raised rates to 5.25%, bond prices plummeted (bond prices move inversely to rates). By classifying bonds as "held-to-maturity" (HTM), SVB avoided reporting the $15.1B in unrealized losses on its income statement or balance sheet. But the losses were real, disclosed only in footnotes. When depositors (mostly tech startups) calculated that these losses would nearly wipe out SVB\'s $16B equity, they panicked and withdrew $42B in one day. Lesson: always read the footnotes.' },
+      undefined,
       { type: 'grid', title: "Balance Sheet Structure: Assets = Liabilities + Equity", items: [{ label: "Current Assets (< 1 year)", value: "Cash, Investments, Receivables, Inventory", color: "#10b981" }, { label: "Non-Current Assets (> 1 year)", value: "PP&E, Intangibles, Goodwill, LT Investments", color: "#10b981" }, { label: "Current Liabilities", value: "Accounts Payable, Short-term Debt, Deferred Revenue", color: "#ef4444" }, { label: "Non-Current Liabilities", value: "Long-term Debt, Pension Obligations, Deferred Tax", color: "#ef4444" }, { label: "Shareholders' Equity", value: "Common Stock, APIC, Retained Earnings, Treasury Stock", color: "#bb83f1" }], footer: "The balance sheet always balances, if it doesn't, something is wrong", sentiment: 'positive' }
     ),
     microCheck(
@@ -811,7 +807,7 @@ const lessons: PathwayLesson[] = [
       'Stated equity = Assets - Liabilities = $209B - $195B = ~$16B (with rounding). But $15.1B in unrealized losses on the bond portfolio were hidden by HTM classification. True equity = $16B - $15.1B = ~$0.9B. The bank that appeared to have $16B in equity actually had less than $1B, a 0.4% cushion on $209B in assets.'
     ),
     interactiveGraph(
-      'BALANCE SHEET DYNAMICS',
+      'Balance sheet dynamics',
       'How Leverage and Liquidity Determine Survival',
       'comparison',
       'Explore how different balance sheet structures affect a company\'s resilience to financial shocks. A company with thin equity and illiquid assets is always one bad quarter from collapse.',
@@ -834,7 +830,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Equity as % of Assets', min: 2, max: 50, default: 10, unit: '%' },
         { label: 'Asset Value Decline', min: 0, max: 30, default: 5, unit: '%' }
       ],
-      { company: 'Lehman Brothers', metric: 'Leverage ratio leading up to September 2008 collapse', outcome: 'Leverage reached 30.7:1 in Q1 2008; a 3.3% decline in asset values would wipe out all equity, and mortgage assets fell far more than that', explanation: 'Lehman\'s balance sheet was a ticking bomb. $639B in assets against $613B in liabilities left just $26B equity (4.1% cushion). Much of the asset base was illiquid mortgage-backed securities whose true value was plummeting. CEO Dick Fuld used "Repo 105" accounting tricks to temporarily remove $50B in assets before reporting dates, making leverage look lower. When the real asset values were revealed, equity was already gone. The balance sheet told the truth, management just hid it.' }
+      undefined
     ),
     caseStudy(
       'Silicon Valley Bank: The 48-Hour Collapse',
@@ -999,12 +995,10 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE CASH FLOW STATEMENT',
+      'The cash flow statement',
       'The Three Cash Flow Activities: Operating, Investing, Financing',
       [
-        'The cash flow statement bridges the gap between the income statement (accrual-based profit) and reality (actual cash). A company can show profit while running out of cash, or show losses while building a cash fortress. This statement has three sections: Operating Activities (cash from running the business), Investing Activities (cash spent on or received from long-term assets), and Financing Activities (cash from or returned to investors and lenders). Together, they explain every dollar that entered or left the company during the period.',
-        'Cash Flow from Operations (CFO) starts with net income and adjusts for non-cash items. Depreciation is added back (it reduced income but no cash left the building). Stock-based compensation is added back. Changes in working capital are adjusted: if accounts receivable increased, cash was NOT collected for those sales, so it\'s subtracted. If accounts payable increased, the company has cash it hasn\'t paid out yet, so it\'s added. CFO is the lifeblood, a company with consistently positive CFO can survive almost anything.',
-        'Cash Flow from Investing (CFI) covers capital expenditures (CapEx), acquisitions, and investment purchases/sales. It\'s usually negative for growing companies, they\'re spending cash to build future capacity. Cash Flow from Financing (CFF) covers debt issuance and repayment, stock issuance and buybacks, and dividend payments. Free Cash Flow (FCF) = Operating Cash Flow minus CapEx, it represents the cash available to pay dividends, repay debt, or invest in growth. FCF is what Warren Buffett calls "owner earnings", the cash that actually belongs to shareholders.'
+        'The cash flow statement tracks real cash, not accounting profit. A company can look profitable and still run out of cash. Three sections: operating (running the business), investing (long-term assets), and financing (investors and lenders).'
       ],
       [
         { term: 'Cash Flow from Operations (CFO)', definition: 'Cash generated from the company\'s core business activities. Starts with net income and adjusts for non-cash items (depreciation, stock comp) and working capital changes. The most important section of the cash flow statement.', example: 'Amazon 2022: -$2.7B net income but $46.8B CFO. The difference: $41.9B depreciation added back, $19.6B stock comp added back, offset by working capital changes. CFO reveals the real cash-generating power hidden by accrual accounting.' },
@@ -1013,11 +1007,11 @@ const lessons: PathwayLesson[] = [
         { term: 'Working Capital Changes', definition: 'Adjustments in CFO for changes in current assets and liabilities. Increasing receivables = cash not yet collected (subtracted). Increasing payables = cash not yet paid (added). These adjustments reconcile accrual profits to actual cash.', example: 'If a company books $10M in sales but only collects $7M cash, the $3M increase in receivables is subtracted from net income in CFO. The income statement says $10M revenue; the cash flow statement says only $7M was actually collected.' }
       ],
       'Cash flow statement structure showing Operating (net income + adjustments), Investing (CapEx + acquisitions), and Financing (debt + equity) sections flowing to net cash change',
-      { company: 'Amazon', metric: 'Operating Cash Flow growth (2002-2022)', outcome: 'CFO grew from $130M to $46.8B while reporting minimal net income for most of that period', explanation: 'Amazon\'s cash flow story is the ultimate case study in why the cash flow statement matters more than the income statement. While reporting negligible net income, Amazon generated massive operating cash flow because: (1) Depreciation on warehouses and servers was a huge non-cash expense, (2) Deferred revenue from Prime memberships provided upfront cash, (3) Negative working capital meant customers funded operations. Bezos optimized for free cash flow per share, not earnings per share, and shareholders who understood the cash flow statement earned 100x+ returns.' },
-      { type: 'flow', title: "From Net Income to Free Cash Flow", nodes: [{ label: "NET INCOME", color: "#bb83f1" }, { label: "NON-CASH ADJUSTMENTS", color: "#10b981" }, { label: "WORKING CAPITAL CHANGES", color: "#fbbf24" }, { label: "OPERATING CASH FLOW (CFO)", color: "#10b981" }, { label: "- CAPITAL EXPENDITURES", color: "#ef4444" }, { label: "FREE CASH FLOW (FCF)", color: "#A451E6" }, { label: "Amazon 2022", color: "#fbbf24" }, { label: "Starting point (accrual basis)" }, { label: "+ Add back" }, { label: "+ Depreciation & Amortization" }, { label: "+ Stock-Based Compensation" }], footer: "\"Profit is an opinion. Cash flow is a fact.\", Alfred Rappaport", sentiment: 'positive' }
+      undefined,
+      { type: 'flow', title: "From Net Income to Free Cash Flow", nodes: [{ label: "Net income", color: "#bb83f1" }, { label: "Non-cash adjustments", color: "#10b981" }, { label: "Working capital changes", color: "#fbbf24" }, { label: "Operating cash flow (CFO)", color: "#10b981" }, { label: "- Capital expenditures", color: "#ef4444" }, { label: "Free cash flow (FCF)", color: "#A451E6" }, { label: "Amazon 2022", color: "#fbbf24" }, { label: "Starting point (accrual basis)" }, { label: "+ Add back" }, { label: "+ Depreciation & Amortization" }, { label: "+ Stock-Based Compensation" }], footer: "\"Profit is an opinion. Cash flow is a fact.\", Alfred Rappaport", sentiment: 'positive' }
     ),
     interactiveGraph(
-      'CASH FLOW PATTERNS',
+      'Cash flow patterns',
       'What Different Cash Flow Profiles Tell You About a Company',
       'comparison',
       'Explore how the combination of positive/negative operating, investing, and financing cash flows reveals the stage and strategy of a company.',
@@ -1040,7 +1034,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Depreciation ($M)', min: 0, max: 100, default: 20, unit: '$M' },
         { label: 'CapEx ($M)', min: 0, max: 150, default: 30, unit: '$M' }
       ],
-      { company: 'Enron', metric: 'Net Income vs. Operating Cash Flow divergence (1998-2001)', outcome: 'Net income grew from $703M to $979M while operating cash flow was negative in 3 of 4 years, the definitive fraud signal', explanation: 'Enron\'s income statement showed growing profits every year. But the cash flow statement told the truth: the company was hemorrhaging cash. Operating cash flow was negative because the "revenue" was largely fictional, generated through mark-to-market accounting on long-term energy contracts and round-tripping through SPEs. Short seller Jim Chanos identified this profit-cash divergence as the key red flag. The lesson is permanent: when profits rise but cash flow falls, the profits are probably not real.' }
+      undefined
     ),
     caseStudy(
       'Amazon: The Free Cash Flow Paradox',
@@ -1053,7 +1047,7 @@ const lessons: PathwayLesson[] = [
       'Amazon is the ultimate lesson in why the cash flow statement matters more than the income statement. For two decades, analysts who focused on net income thought Amazon was barely profitable. Analysts who focused on cash flow saw one of the greatest business models ever built. Bezos optimized for cash flow, not profit, and created $1.8 trillion in shareholder value. The rule: when the income statement and cash flow statement disagree, believe the cash flow statement.'
     ),
     misconceptions(
-      'CASH FLOW MYTHS',
+      'Cash flow myths',
       'What most people get wrong about cash flow',
       [
         {
@@ -1207,7 +1201,7 @@ const lessons: PathwayLesson[] = [
       'In 2009, Cynthia Cooper, an internal auditor at WorldCom, noticed something strange in the journal entries. Billions of dollars in routine line costs (operating expenses) were being recorded as capital expenditures (assets). This single misclassification, moving expenses from the income statement to the balance sheet, inflated profits by $11 billion and turned America\'s second-largest telecom into the biggest accounting fraud of its era. Cooper traced the fraudulent journal entries back to CFO Scott Sullivan, who was recording hundreds of improper entries each quarter. Her understanding of how journal entries work, debits, credits, expense vs. asset classification, saved investors billions and earned her recognition as one of TIME\'s Persons of the Year in 2002.',
       'By the end of this lesson, you\'ll master the complete accounting cycle: analyzing transactions, recording journal entries, posting to T-accounts and the general ledger, preparing trial balances, making adjusting entries, and understanding how these records flow into the three financial statements. You\'ll learn how proper entries prevent fraud and how improper entries enable it.',
       'A flowchart showing the accounting cycle from business transaction through journal entry, T-account posting, trial balance, adjusting entries, and financial statement preparation',
-      { type: 'flow', title: "The Accounting Cycle: From Transaction to Financial Statements", nodes: [{ label: "1. TRANSACTION, Business event occurs", color: "#fbbf24" }, { label: "2. JOURNAL ENTRY, Dr. & Cr. recorded", color: "#A451E6" }, { label: "3. LEDGER POST, Posted to T-accounts", color: "#10b981" }, { label: "4. TRIAL BALANCE, Verify Debits = Credits", color: "#60a5fa" }, { label: "5. ADJUSTMENTS, Accruals, deferrals, depreciation", color: "#ef4444" }, { label: "6. FINANCIAL STATEMENTS", color: "#bb83f1" }], footer: "Dr. Cash $10,000, Cr. Sales Revenue $10,000", sentiment: 'positive' }
+      { type: 'flow', title: "The Accounting Cycle: From Transaction to Financial Statements", nodes: [{ label: "1. TRANSACTION, Business event occurs", color: "#fbbf24" }, { label: "2. JOURNAL ENTRY, Dr. & Cr. recorded", color: "#A451E6" }, { label: "3. LEDGER POST, Posted to T-accounts", color: "#10b981" }, { label: "4. TRIAL BALANCE, Verify Debits = Credits", color: "#60a5fa" }, { label: "5. ADJUSTMENTS, Accruals, deferrals, depreciation", color: "#ef4444" }, { label: "6. Financial statements", color: "#bb83f1" }], footer: "Dr. Cash $10,000, Cr. Sales Revenue $10,000", sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Improper journal entries', detail: 'WorldCom\'s CFO Scott Sullivan directed accountants to record $11 billion in operating expenses (line costs for network access) as capital expenditures. This single journal entry manipulation, debiting an asset account instead of an expense account, moved costs from the income statement to the balance sheet. Result: expenses disappeared, profits inflated by $11B, and the stock soared on fraudulent earnings. When internal auditor Cynthia Cooper traced the improper entries, she discovered the largest accounting fraud in U.S. history at that time (2002). Sullivan was sentenced to 5 years; CEO Bernie Ebbers got 25 years.' },
@@ -1217,12 +1211,11 @@ const lessons: PathwayLesson[] = [
   
     // PHASE 2, TEACH
     teachingSlide(
-      'THE ACCOUNTING CYCLE',
+      'The accounting cycle',
       'From Business Transaction to Financial Statement: Every Step Matters',
       [
-        'The accounting cycle is the systematic process of recording, classifying, and summarizing financial transactions. It begins when a business event occurs (a sale, a purchase, paying wages) and ends when the financial statements are prepared. Every number on every financial statement traces back to journal entries, the atomic units of accounting. Understanding this cycle is essential because it reveals exactly how transactions flow into the income statement, balance sheet, and cash flow statement.',
-        'Step 1: Analyze the transaction. Determine which accounts are affected and whether they increase or decrease. Step 2: Record the journal entry. Every entry has a date, accounts involved, amounts, and a brief description. Debits are listed first (flush left), credits are indented. Total debits must equal total credits. Step 3: Post to the general ledger. Each journal entry is transferred to the affected T-accounts in the general ledger. Step 4: Prepare a trial balance. List all accounts with their debit or credit balances. Total debits must equal total credits, if not, there\'s an error somewhere.',
-        'Step 5: Record adjusting entries. At period-end, adjustments are made for accrued revenues (earned but not yet billed), accrued expenses (incurred but not yet paid), deferred revenues (collected but not yet earned), prepaid expenses (paid but not yet used), and depreciation. These adjustments ensure the financial statements reflect economic reality under the accrual basis. Step 6: Prepare financial statements. The adjusted trial balance feeds directly into the income statement (revenue and expense accounts), balance sheet (asset, liability, and equity accounts), and provides the starting point for the cash flow statement.'
+        'The accounting cycle turns business events, like a sale or paying wages, into financial statements. Step 1: analyze the transaction. Step 2: record the journal entry, where debits must equal credits. Step 3: post it to the general ledger.',
+      'Step 4: prepare a trial balance, a list of account balances that must match. Step 5: record adjusting entries for amounts earned, incurred, or used but not yet recorded. Step 6: prepare the financial statements.'
       ],
       [
         { term: 'Journal Entry', definition: 'The formal record of a business transaction in the accounting system. Contains: date, account names, debit amounts, credit amounts, and a description. Debits are listed first; credits are indented. Total debits must equal total credits.', example: 'Recording a $5,000 credit sale: Date: Mar 28 | Dr. Accounts Receivable $5,000 | Cr. Sales Revenue $5,000 | (Sold product on 30-day credit terms)' },
@@ -1231,7 +1224,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Trial Balance', definition: 'A list of all general ledger accounts with their debit or credit balances at a specific date. If total debits equal total credits, the books are "in balance." A balanced trial balance doesn\'t guarantee accuracy (errors can offset), but an unbalanced one guarantees a mistake.', example: 'Trial Balance: Cash $50,000 (Dr.), AR $20,000 (Dr.), Equipment $30,000 (Dr.) = $100,000 debits. AP $15,000 (Cr.), Loan $25,000 (Cr.), Revenue $40,000 (Cr.), Equity $20,000 (Cr.) = $100,000 credits. Balanced.' }
       ],
       'The accounting cycle flow: Transaction → Analyze → Journal Entry → Post to Ledger → Trial Balance → Adjusting Entries → Adjusted Trial Balance → Financial Statements → Closing Entries',
-      { company: 'WorldCom', metric: 'Fraudulent journal entries (2001-2002)', outcome: '$11B in line costs (operating expenses) improperly recorded as capital expenditures (assets), inflating profits by $11B', explanation: 'WorldCom\'s fraud was executed through journal entries. The correct entry for $11B in line costs would be: Dr. Line Cost Expense $11B, Cr. Cash/Payable $11B. This would reduce operating income by $11B. Instead, Sullivan\'s team recorded: Dr. PP&E (Asset) $11B, Cr. Cash/Payable $11B. By debiting an asset account instead of an expense account, the costs never hit the income statement, they sat on the balance sheet as "property," to be depreciated slowly over years. The income statement showed $11B more profit than reality. Cynthia Cooper caught it by examining capital expenditure accounts and noticing billions in entries with no supporting documentation.' },
+      undefined,
       { type: 'comparison', title: "Journal Entry Anatomy & The WorldCom Fraud", rows: [{ label: "CORRECT: Dr. Line Cost Expense", value: "$100M, reduces profits immediately" }, { label: "CORRECT: Cr. Cash/Payable", value: "$100M, cash outflow recorded" }, { label: "FRAUD: Dr. PP&E (Asset)", value: "$100M, cost hidden on balance sheet" }, { label: "FRAUD: Cr. Cash/Payable", value: "$100M, same cash, profits inflated $11B" }], footer: "Cynthia Cooper traced improper entries → uncovered $11B fraud", sentiment: 'negative' }
     ),
     microCheck(
@@ -1242,7 +1235,7 @@ const lessons: PathwayLesson[] = [
       'When an expense is debited, it reduces operating income on the income statement. When an asset is debited, it increases assets on the balance sheet and has NO immediate impact on the income statement. WorldCom exploited this difference: by classifying operating expenses as capital assets, they removed $11B in costs from the income statement, making the company appear $11B more profitable than it actually was.'
     ),
     interactiveGraph(
-      'JOURNAL ENTRY MECHANICS',
+      'Journal entry mechanics',
       'How Different Transactions Flow Through the Accounting System',
       'timeline',
       'See how common business transactions are recorded as journal entries and how they affect the accounting equation and financial statements.',
@@ -1261,7 +1254,7 @@ const lessons: PathwayLesson[] = [
         'Closing entries connect the income statement to the balance sheet: Net Income (IS) flows into Retained Earnings (BS) through the closing entry Dr. Revenue, Cr. Expenses, net to Retained Earnings.'
       ],
       [],
-      { company: 'Satyam Computer Services', metric: 'Fictitious cash balances created through fraudulent entries (2003-2009)', outcome: 'Chairman Ramalinga Raju fabricated $1.5B in cash and created 13,000 fake employees through journal entries over 6 years', explanation: 'Satyam\'s fraud was pure journal entry manipulation. Raju recorded fictitious sales (Dr. AR, Cr. Revenue) to inflate revenue, then created fictitious bank statements showing the cash was collected. He also created 13,000 fake employee records with corresponding payroll journal entries, siphoning the wages to personal accounts. The entire fraud was executed through journal entries, no real transactions, just fabricated debits and credits. When Raju confessed in 2009, he described his company\'s financial statements as "cooked up." The lesson: journal entries are powerful because they create reality in the accounting system, which makes them the primary tool of both legitimate accounting and fraud.' }
+      undefined
     ),
     caseStudy(
       'Cynthia Cooper: The Auditor Who Caught the $11 Billion Fraud',
@@ -1274,7 +1267,7 @@ const lessons: PathwayLesson[] = [
       'Cynthia Cooper\'s story proves that understanding journal entries is not abstract bookkeeping, it\'s the foundation of financial integrity. Every number on every financial statement traces back to a journal entry. If the entry is wrong (whether by error or fraud), the financial statement is wrong. Cooper didn\'t need complex analytics or AI, she needed to understand that a debit to PP&E without supporting documentation meant something was being hidden. The lesson: always trace the journal entries. They are the DNA of financial statements.'
     ),
     misconceptions(
-      'JOURNAL ENTRY MYTHS',
+      'Journal entry myths',
       'Common misunderstandings about recording transactions',
       [
         {
@@ -1437,12 +1430,11 @@ const lessons: PathwayLesson[] = [
   
     // PHASE 2, TEACH
     teachingSlide(
-      'COST FOUNDATIONS',
+      'Cost foundations',
       'Fixed Costs, Variable Costs, and the Contribution Margin',
       [
-        'Every cost a business incurs falls into one of two categories: fixed or variable. Fixed costs remain constant regardless of production volume, rent, salaries, insurance, loan payments, and depreciation don\'t change whether you make 1 unit or 1 million. Variable costs change directly with production volume, raw materials, direct labor, packaging, shipping, and sales commissions increase with every additional unit produced. Understanding this distinction is the foundation of all cost accounting.',
-        'The contribution margin is perhaps the most important number in managerial accounting. It equals the selling price minus variable cost per unit. This is the amount each unit "contributes" toward covering fixed costs and eventually generating profit. If you sell a product for $100 and the variable cost is $60, the contribution margin is $40. The contribution margin ratio is $40/$100 = 40%. This means 40 cents of every revenue dollar goes toward covering fixed costs and profit.',
-        'The break-even point is where total revenue exactly equals total costs, zero profit, zero loss. The formula is elegantly simple: Break-Even Units = Fixed Costs / Contribution Margin Per Unit. If fixed costs are $200,000 and contribution margin is $40/unit, break-even is 5,000 units. Sell one more unit beyond 5,000 and you\'re profitable. Sell one fewer and you\'re losing money. This single calculation has determined the fate of countless businesses from startups to Fortune 500 companies.'
+        'Fixed costs stay the same whether you make 1 unit or 1 million: rent, salaries. Variable costs rise per unit: materials, shipping. Contribution margin is price minus variable cost: sell at $100, variable cost $60, margin $40.',
+      'Margin ratio is $40/$100 = 40%, so 40 cents of each revenue dollar covers fixed costs, then profit. Break-even units = fixed costs / margin: $200,000 / $40 = 5,000. Startups and Fortune 500 firms live by this.'
       ],
       [
         { term: 'Fixed Costs', definition: 'Costs that remain constant regardless of production volume. They must be paid even if the company produces nothing.', example: 'Tesla\'s factory lease, executive salaries, and equipment depreciation total roughly $200M/year whether they build 0 or 100,000 cars.' },
@@ -1451,7 +1443,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Break-Even Point', definition: 'The volume of sales at which total revenue equals total costs (zero profit). Calculated as Fixed Costs divided by Contribution Margin per Unit.', example: 'Tesla break-even: $200,000,000 / $15,000 per car = 13,333 cars. Sell 13,334 and you\'re profitable. Sell 13,332 and you\'re losing money.' }
       ],
       'A cost structure diagram showing fixed costs as a flat horizontal bar at the bottom, variable costs stacking up proportionally with volume, and the contribution margin highlighted as the gap between price and variable cost per unit',
-      { company: 'Tesla', metric: 'Break-even production volume (2013)', outcome: 'Needed 13,333 Model S units to break even; sold 22,477 in 2013 for first quarterly profit', explanation: 'Tesla\'s early survival depended entirely on understanding its cost structure. The Model S had an estimated $80,000 variable cost per unit against a $95,000 average selling price, yielding a $15,000 contribution margin. With approximately $200 million in annual fixed costs (factory, R&D, corporate overhead), Tesla needed to produce and sell at least 13,333 cars per year. In 2013, they exceeded this by 68%, proving the business model was viable. This break-even analysis guided every production and pricing decision Musk made during Tesla\'s most precarious years.' },
+      undefined,
       { type: 'stack', title: "Cost Structure Breakdown", segments: [{ label: "Variable Cost", value: "$80,000", percent: 84, color: "#ef4444" }, { label: "Contribution Margin", value: "$15,000", percent: 16, color: "#b862ed" }], footer: "Break-Even = $200M / $15K per unit = 13,333 units", sentiment: 'positive' }
     ),
     microCheck(
@@ -1462,7 +1454,7 @@ const lessons: PathwayLesson[] = [
       'The contribution margin per latte is selling price ($5.00) minus variable cost ($1.50) = $3.50. Each latte contributes $3.50 toward covering the $10,000 monthly fixed costs. Break-even = $10,000 / $3.50 = 2,857 lattes per month.'
     ),
     interactiveGraph(
-      'COST-VOLUME-PROFIT DYNAMICS',
+      'Cost-volume-profit dynamics',
       'How Price Changes Ripple Through Break-Even',
       'comparison',
       'Adjust the selling price and variable cost to see how the break-even point shifts. Small changes in contribution margin can dramatically move the break-even threshold.',
@@ -1485,7 +1477,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Variable Cost', min: 40, max: 120, default: 80, unit: '$K' },
         { label: 'Fixed Costs', min: 50, max: 500, default: 200, unit: '$M' }
       ],
-      { company: 'Amazon', metric: 'Years operating below break-even (1994-2003)', outcome: '9 consecutive years of losses totaling $3 billion before achieving sustained profitability', explanation: 'Jeff Bezos understood break-even better than anyone, and deliberately chose to operate below it. Amazon kept prices low and invested heavily in infrastructure (high fixed costs), accepting losses to build market share and operating leverage. By 2003, the volume was sufficient that each incremental sale had an enormous contribution margin. Today, Amazon Web Services alone has an estimated 60%+ operating margin. Bezos traded short-term break-even for long-term dominance, a strategy that only works if you deeply understand your cost structure.' }
+      undefined
     ),
     caseStudy(
       'MoviePass: The Business Model That Could Never Break Even',
@@ -1498,7 +1490,7 @@ const lessons: PathwayLesson[] = [
       'MoviePass is the ultimate cautionary tale about ignoring cost accounting. If your variable cost exceeds your price, you have a negative contribution margin, and every sale makes you poorer. No amount of subscriber growth, data monetization, or "disruption" can overcome negative unit economics. Before launching any product, calculate the contribution margin. If it\'s negative, either raise the price, lower the variable cost, or don\'t launch. There is no other option.'
     ),
     misconceptions(
-      'COST ACCOUNTING MYTHS',
+      'Cost accounting myths',
       'What most people get wrong about costs and break-even',
       [
         {
@@ -1662,12 +1654,11 @@ const lessons: PathwayLesson[] = [
   
     // PHASE 2, TEACH
     teachingSlide(
-      'THE AUDIT PROCESS',
+      'The audit process',
       'How Auditors Verify Financial Statements',
       [
-        'An audit is an independent examination of a company\'s financial statements to determine whether they fairly represent the company\'s financial position in accordance with GAAP (Generally Accepted Accounting Principles) or IFRS (International Financial Reporting Standards). External auditors are hired by the company but report to the audit committee of the board of directors, NOT to management. This independence is critical: the auditor\'s loyalty must be to the truth, not to the people who sign the checks.',
-        'The audit process follows a structured methodology. First, auditors assess risk, identifying areas where material misstatement is most likely (revenue recognition, complex estimates, related-party transactions). Then they test internal controls, the systems the company uses to prevent and detect errors and fraud. Next, they perform substantive testing: examining individual transactions, confirming balances with third parties (banks, customers, suppliers), and analyzing the reasonableness of estimates. Finally, they issue an audit opinion.',
-        'There are four types of audit opinions. An unqualified (clean) opinion means the financial statements are fairly presented, this is what every company wants. A qualified opinion means the statements are mostly fair except for a specific issue. An adverse opinion means the statements are materially misstated and should NOT be relied upon. A disclaimer of opinion means the auditor couldn\'t gather enough evidence to form any opinion at all. An adverse opinion or disclaimer is a five-alarm fire for investors.'
+        'An audit is an independent check of a company\'s financial statements against GAAP (Generally Accepted Accounting Principles) or IFRS (International Financial Reporting Standards). The company pays the external auditor, but the auditor reports to the board\'s audit committee, not management.',
+      'Auditors assess risk, test internal controls (the systems that catch errors and fraud), examine transactions, and confirm balances with banks and customers. Then they issue an opinion: unqualified (clean) is good, qualified flags one issue, adverse or disclaimer means run.'
       ],
       [
         { term: 'External Audit', definition: 'An independent examination of financial statements by a qualified accounting firm to verify they fairly represent the company\'s financial position under GAAP or IFRS.', example: 'Apple is audited annually by Ernst & Young (EY). EY\'s team spends thousands of hours examining Apple\'s $394 billion in revenue and $352 billion in assets to issue their opinion.' },
@@ -1676,7 +1667,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Materiality', definition: 'The threshold above which a misstatement could influence an investor\'s decision. Auditors focus on material items, they don\'t verify every $50 receipt.', example: 'For a company with $10B revenue, a $500,000 misstatement might be immaterial (0.005%). A $50 million misstatement (0.5%) would likely be material and require correction.' }
       ],
       'A flowchart showing the audit process: risk assessment, internal controls testing, substantive testing, and opinion issuance, with the four types of audit opinions displayed',
-      { company: 'Wirecard AG', metric: 'Missing cash balances that auditors failed to verify (2019)', outcome: '$2.1 billion in cash that didn\'t exist; stock fell 98% in days; CEO arrested', explanation: 'Wirecard, a German payments company, claimed to hold $2.1 billion in cash in Philippine bank accounts. EY, Wirecard\'s auditor, relied on bank confirmations that turned out to be forged. They failed to independently verify the cash actually existed, a basic audit procedure. When KPMG was brought in for a special audit, they found the $2.1 billion simply didn\'t exist. Wirecard\'s stock plummeted from $130 to $2, CEO Markus Braun was arrested, and COO Jan Marsalek fled (still missing). It was the largest accounting fraud in German history and raised serious questions about EY\'s audit quality.' },
+      undefined,
       { type: 'flow', title: "The Audit Process", nodes: [{ label: "Risk Assessment, Identify high-risk areas", color: "#ef4444" }, { label: "Internal Controls Testing", color: "#fbbf24" }, { label: "Substantive Testing, Examine transactions", color: "#60a5fa" }, { label: "Audit Opinion", color: "#10b981" }], footer: "Auditors are the immune system of capitalism", sentiment: 'positive' }
     ),
     microCheck(
@@ -1687,7 +1678,7 @@ const lessons: PathwayLesson[] = [
       'A qualified opinion means "fairly presented except for...", it\'s between a clean opinion and an adverse opinion. The auditor found a specific issue that doesn\'t make the whole set of statements unreliable, but investors should pay close attention to what the qualification is about.'
     ),
     interactiveGraph(
-      'AUDIT QUALITY METRICS',
+      'Audit quality metrics',
       'The Impact of SOX on Corporate Accounting Quality',
       'timeline',
       'Track how accounting restatements, fraud cases, and audit quality metrics changed before and after the Sarbanes-Oxley Act of 2002.',
@@ -1710,7 +1701,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Year', min: 1998, max: 2025, default: 2002, unit: '' },
         { label: 'Company Size ($B Revenue)', min: 1, max: 500, default: 50, unit: '$B' }
       ],
-      { company: 'WorldCom', metric: 'Fraudulent journal entries discovered by internal auditor (2002)', outcome: '$11 billion in accounting fraud, largest in U.S. history at the time; CEO sentenced to 25 years', explanation: 'WorldCom\'s fraud was discovered not by external auditors Arthur Andersen (yes, the same firm), but by internal auditor Cynthia Cooper and her small team. They worked nights and weekends, secretly examining journal entries, and found that $3.8 billion in ordinary expenses had been improperly capitalized as assets. The total fraud eventually reached $11 billion. Cooper became a Time magazine Person of the Year. Her story demonstrates why internal audit functions, independent from management, are essential. SOX Section 301 now requires companies to have audit committees composed entirely of independent directors, with direct oversight of both internal and external auditors.' }
+      undefined
     ),
     caseStudy(
       'Arthur Andersen: The Audit Firm That Audited Itself to Death',
@@ -1723,7 +1714,7 @@ const lessons: PathwayLesson[] = [
       'Arthur Andersen\'s destruction teaches three permanent lessons about auditing. First, independence is not optional, when audit fees create dependence on a single client, objectivity dies. Second, the audit profession cannot self-regulate, external oversight (PCAOB) is essential. Third, reputation is an audit firm\'s only real asset. Andersen\'s founder built it on integrity; his successors destroyed it for fees. The entire firm, 85,000 innocent employees, paid for the failures of a few partners who prioritized revenue over truth.'
     ),
     misconceptions(
-      'AUDITING MYTHS',
+      'Auditing myths',
       'What most people get wrong about audits and controls',
       [
         {
@@ -1887,12 +1878,11 @@ const lessons: PathwayLesson[] = [
   
     // PHASE 2, TEACH
     teachingSlide(
-      'FORENSIC TECHNIQUES',
+      'Forensic techniques',
       'The Fraud Triangle, Benford\'s Law, and Red Flag Analysis',
       [
-        'The Fraud Triangle, developed by criminologist Donald Cressey, explains why people commit fraud. Three elements must be present: PRESSURE (financial need, debt, lifestyle, performance targets), OPPORTUNITY (weak controls, lack of oversight, ability to conceal), and RATIONALIZATION ("I\'m just borrowing it," "I deserve it," "everyone does it"). Remove any one element and fraud becomes much less likely. This is why strong internal controls (reducing opportunity) are so effective, even people under financial pressure can\'t commit fraud if the opportunity doesn\'t exist.',
-        'Benford\'s Law is one of the most powerful fraud detection tools. It states that in naturally occurring datasets, the leading digit "1" appears about 30.1% of the time, "2" appears 17.6%, "3" appears 12.5%, and so on, with "9" appearing only 4.6% of the time. This counterintuitive distribution applies to financial data: revenue figures, expense reports, transaction amounts, population data, and stock prices all follow Benford\'s Law. When a forensic accountant analyzes a dataset and finds that leading digits are uniformly distributed (each appearing about 11%), it strongly suggests the numbers were fabricated by humans who instinctively expect equal distribution.',
-        'Red flag analysis looks for financial statement patterns that indicate fraud. The most reliable red flags: (1) Revenue growing much faster than cash from operations, profits that can\'t be converted to cash are likely fictitious. (2) Accounts receivable growing faster than revenue, suggests fake sales or channel stuffing. (3) Unusual related-party transactions, money flowing to entities controlled by insiders. (4) Frequent accounting policy changes, switching methods to hide deterioration. (5) Aggressive revenue recognition, booking future revenue today. Every major accounting fraud in history exhibited multiple red flags that were visible in the financial statements years before collapse.'
+        'The Fraud Triangle, from criminologist Donald Cressey, says fraud needs three things: pressure (debt, targets), opportunity (weak controls, no oversight) and rationalization ("I\'m just borrowing it"). Remove one and fraud gets much harder.',
+      'Benford\'s Law says real data starts with "1" about 30.1% of the time, "2" 17.6%, "3" 12.5%, down to "9" at 4.6%. Digits spread evenly, near 11% each, suggest made-up numbers.'
       ],
       [
         { term: 'Fraud Triangle', definition: 'A framework explaining why fraud occurs. Three elements: Pressure (financial need or incentive), Opportunity (ability to commit and conceal fraud due to weak controls), and Rationalization (self-justification).', example: 'Tyco CEO Dennis Kozlowski: Pressure (lavish lifestyle), Opportunity (dominated the board, weak oversight), Rationalization ("I built this company, I deserve this"). He stole $400M+ from shareholders.' },
@@ -1901,7 +1891,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Forensic Accounting', definition: 'The specialty of investigating financial records to detect fraud, quantify damages, and provide evidence for legal proceedings. Combines accounting, auditing, and investigative skills.', example: 'Harry Markopolos spent 9 years as a forensic analyst proving Madoff\'s returns were impossible. He showed the options strategy Madoff claimed couldn\'t generate the reported returns using basic math.' }
       ],
       'The Fraud Triangle with real case examples at each vertex, connected to a Benford\'s Law digit distribution chart and a red flag checklist showing warning signs from major fraud cases',
-      { company: 'Satyam Computer Services', metric: 'Fabricated cash balances and revenues (2002-2009)', outcome: '$1 billion fraud, 95% of cash balances were fictitious; founder sentenced to 7 years', explanation: 'Satyam\'s founder, Ramalinga Raju, confessed in 2009 that he had been fabricating revenues and cash balances for years. The company reported $1.04 billion in cash that simply didn\'t exist, 95% of the stated balance was fictitious. Raju had created over 7,000 fake invoices from non-existent customers. A Benford\'s Law analysis of Satyam\'s invoice amounts would have revealed anomalies years earlier, the fabricated numbers didn\'t follow the natural digit distribution. The fraud also showed classic red flags: high profit margins that exceeded industry norms, accounts receivable growing faster than revenue, and no dividend payments despite supposedly holding $1 billion in cash.' },
+      undefined,
       { type: 'flow', title: "Fraud Detection Toolkit", nodes: [{ label: "The Fraud Triangle" }, { label: "PRESSURE", color: "#ef4444" }, { label: "OPPORT.", color: "#fbbf24" }, { label: "RATIONAL.", color: "#B862ED" }, { label: "Key Red Flags" }, { label: "Benford's Law: Expected vs Fabricated Data" }, { label: "Revenue > Cash Flow growth" }, { label: "Receivables > Revenue growth" }, { label: "Related-party transactions" }, { label: "Frequent policy changes" }], sentiment: 'positive' }
     ),
     microCheck(
@@ -1912,7 +1902,7 @@ const lessons: PathwayLesson[] = [
       'Revenue growing while cash flow declines means reported profits aren\'t converting to real money. This creates the perfect fraud environment: management faces PRESSURE to maintain growth expectations and has the OPPORTUNITY to book non-cash revenue. The Fraud Triangle is nearly complete, this is exactly the pattern seen at Enron, WorldCom, and Satyam before their frauds were discovered.'
     ),
     interactiveGraph(
-      'FORENSIC RATIO ANALYSIS',
+      'Forensic ratio analysis',
       'The Financial Statement Patterns That Predict Fraud',
       'comparison',
       'Compare key ratios between healthy companies and companies that turned out to be committing fraud. The divergence patterns are remarkably consistent across decades of fraud cases.',
@@ -1935,7 +1925,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Revenue Growth (%)', min: 0, max: 100, default: 25, unit: '%' },
         { label: 'DSO Change (days)', min: -30, max: 90, default: 15, unit: ' days' }
       ],
-      { company: 'Tyco International', metric: 'Unauthorized executive compensation (1997-2002)', outcome: 'CEO Dennis Kozlowski stole $400M+ through unauthorized bonuses and fraudulent stock sales; sentenced to 8-25 years', explanation: 'Tyco\'s fraud was a textbook Fraud Triangle case. PRESSURE: Kozlowski lived an extraordinarily lavish lifestyle ($6,000 shower curtain, $2M birthday party in Sardinia, $30M NYC apartment). OPPORTUNITY: He dominated Tyco\'s board, which provided minimal oversight. RATIONALIZATION: He reportedly told associates he "built the company" and deserved the rewards. Forensic analysis showed unauthorized related-party loans totaling $170M, undisclosed bonuses of $81M, and fraudulent stock sales of $430M. The fraud was eventually detected through a New York State tax investigation, not by Tyco\'s auditors.' }
+      undefined
     ),
     caseStudy(
       'Harry Markopolos vs. Bernie Madoff: The 9-Year Warning',
@@ -1948,7 +1938,7 @@ const lessons: PathwayLesson[] = [
       'The Madoff case teaches that forensic accounting tools work, but only if someone acts on the findings. Markopolos used basic forensic techniques: statistical analysis (returns too consistent to be real), capacity analysis (the options market was too small), structural analysis (no independent custodian, tiny auditor), and behavioral analysis (Madoff refused to let investors visit his trading floor). Every one of these red flags was detectable with publicly available information. The lesson: trust the math, verify independently, and never assume a prestigious name guarantees legitimacy. Madoff was a former NASDAQ chairman. Reputation is not a substitute for due diligence.'
     ),
     misconceptions(
-      'FRAUD DETECTION MYTHS',
+      'Fraud detection myths',
       'What most people get wrong about catching financial fraud',
       [
         {
@@ -2112,12 +2102,11 @@ const lessons: PathwayLesson[] = [
   
     // PHASE 2, TEACH
     teachingSlide(
-      'CAPSTONE INTEGRATION',
+      'Capstone integration',
       'Connecting Every Framework Into a Unified Analysis',
       [
-        'The most dangerous trap in accounting is treating each concept in isolation. A company might pass a ratio analysis (good current ratio, decent margins) while simultaneously failing a forensic analysis (revenue-cash flow divergence, Benford\'s violations). Or it might have strong internal controls but a cost structure that mathematically guarantees failure. The true accounting professional integrates all frameworks simultaneously, and this integration is what separates analysts who predicted Enron\'s collapse from those who kept buying the stock.',
-        'An integrated analysis framework starts with the accounting equation (A = L + E) and builds upward: financial statements emerge from the accounting system, ratios diagnose the statements, cost analysis reveals the underlying economics, auditing verifies the numbers, and forensic techniques detect manipulation. Think of it as layers of defense: each layer catches what the others miss. A company might have a great current ratio (layer 2) but terrible cost structure (layer 3) and fraudulent revenue (layer 5). Only integrated analysis sees the full picture.',
-        'The capstone test of accounting mastery is the ability to examine a real company and simultaneously answer: (1) Are the books balanced and properly maintained? (Double-entry) (2) What story do the ratios tell? (Ratio analysis) (3) Is the business model economically viable? (Cost accounting) (4) Are the controls adequate to prevent fraud? (Auditing) (5) Are there any signs the numbers are fabricated? (Forensic) Any single "yes" answer to questions 3-5 being negative should trigger deeper investigation. The best analysts develop a sixth sense for when something is "off", a skill built on mastery of all five frameworks.'
+        'Do not judge a company on one framework alone. Strong ratios can hide a broken cost structure or faked revenue. Layer the checks: statements, ratios, cost analysis, auditing, then forensic tests. Each layer catches what the others miss.',
+      'Test any real company with five questions: are the books balanced, what do the ratios say, is the business model viable, are controls strong enough to stop fraud, and do the numbers look fabricated? Any red flag means dig deeper.'
       ],
       [
         { term: 'Integrated Analysis', definition: 'The practice of simultaneously applying multiple accounting frameworks (double-entry, ratios, cost analysis, auditing, forensics) to evaluate a company. More powerful than any single framework alone.', example: 'Analyzing Enron through any single lens might miss the fraud. But integrated analysis reveals: ratio deterioration (DSO rising), cost anomalies (trading margins too consistent), audit failures (Arthur Andersen conflicted), and forensic red flags (revenue-cash flow divergence). Together: unmistakable fraud.' },
@@ -2126,8 +2115,8 @@ const lessons: PathwayLesson[] = [
         { term: 'Accounting Integrity', definition: 'The commitment to reporting financial information honestly, conservatively, and in accordance with the substance (not just the letter) of accounting standards. The foundation of all financial trust.', example: 'Berkshire Hathaway: Buffett voluntarily reports economic results that sometimes look worse than GAAP requires, because he believes investors deserve conservative estimates. This integrity is why Berkshire has never faced a serious accounting scandal in 60+ years.' }
       ],
       'A multi-layered framework showing how double-entry bookkeeping feeds into financial statements, which generate ratios, which are stress-tested by cost analysis, verified by auditors, and scrutinized by forensic accountants, each layer building on and reinforcing the others',
-      { company: 'Lehman Brothers', metric: 'Repo 105 transactions hiding leverage (2007-2008)', outcome: '$600 billion bankruptcy, largest in U.S. history; triggered the 2008 global financial crisis', explanation: 'Lehman Brothers used "Repo 105" transactions to temporarily move $50 billion off its balance sheet at the end of each reporting quarter. This made the firm\'s leverage ratio appear to be around 12:1 when it was actually closer to 30:1. An integrated analysis would have caught this: (1) Double-entry: the repurchase agreements didn\'t match economic substance, assets reappeared days after reporting. (2) Ratios: leverage ratios fluctuated dramatically between quarter-end and mid-quarter. (3) Cost analysis: the cost of funding these transactions was economically irrational if they were genuine sales. (4) Audit: EY signed off despite knowledge of Repo 105. (5) Forensic: cash flows didn\'t support reported asset levels. Every framework independently signaled something was wrong. Together, the picture was undeniable.' },
-      { type: 'flow', title: "Integrated Analysis: Five Layers of Defense", nodes: [{ label: "Layer 1: Double-Entry Bookkeeping", color: "#10b981" }, { label: "Layer 2: Financial Ratio Analysis", color: "#60a5fa" }, { label: "Layer 3: Cost Accounting", color: "#fbbf24" }, { label: "Layer 4: Auditing & Controls", color: "#ef4444" }, { label: "Layer 5: Forensic Analysis", color: "#B862ED" }, { label: "INTEGRATED VERDICT" }, { label: "Are debits = credits? Does A = L + E? Are transactions properly recorded?" }, { label: "Liquidity, profitability, leverage, efficiency, what story do the ratios tell?" }, { label: "Is the business model viable? What are the break-even dynamics?" }, { label: "Are controls adequate? Is the audit opinion reliable? Any SOX concerns?" }], footer: "Fraud Triangle? Benford's violations? Red flags? Revenue-cash flow gap?", sentiment: 'positive' }
+      undefined,
+      { type: 'flow', title: "Integrated Analysis: Five Layers of Defense", nodes: [{ label: "Layer 1: Double-Entry Bookkeeping", color: "#10b981" }, { label: "Layer 2: Financial Ratio Analysis", color: "#60a5fa" }, { label: "Layer 3: Cost Accounting", color: "#fbbf24" }, { label: "Layer 4: Auditing & Controls", color: "#ef4444" }, { label: "Layer 5: Forensic Analysis", color: "#B862ED" }, { label: "Integrated verdict" }, { label: "Are debits = credits? Does A = L + E? Are transactions properly recorded?" }, { label: "Liquidity, profitability, leverage, efficiency, what story do the ratios tell?" }, { label: "Is the business model viable? What are the break-even dynamics?" }, { label: "Are controls adequate? Is the audit opinion reliable? Any SOX concerns?" }], footer: "Fraud Triangle? Benford's violations? Red flags? Revenue-cash flow gap?", sentiment: 'positive' }
     ),
     microCheck(
       'Lehman Brothers used "Repo 105" to temporarily move $50 billion off its balance sheet at quarter-end. Which accounting framework would have been MOST useful in detecting this trick?',
@@ -2137,7 +2126,7 @@ const lessons: PathwayLesson[] = [
       'Repo 105 was designed to fool observers using any single framework. Quarter-end ratios looked fine. But integrated analysis reveals: assets temporarily disappear and reappear (double-entry), leverage fluctuates unreasonably (ratios), and cash patterns are inconsistent (forensic). Each layer catches what the others miss.'
     ),
     interactiveGraph(
-      'THE COMPLETE PICTURE',
+      'The complete picture',
       'Comparing Accounting Health Across Real Companies',
       'comparison',
       'Compare how different companies perform across all five accounting analysis layers. Companies with consistent strength across all layers tend to be excellent long-term investments. Companies with weakness in even one layer carry significant risk.',
@@ -2161,7 +2150,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Ratio Health', min: 0, max: 100, default: 75, unit: '%' },
         { label: 'Cost Viability', min: 0, max: 100, default: 70, unit: '%' }
       ],
-      { company: 'Berkshire Hathaway', metric: 'Consistent integrated accounting excellence (1965-present)', outcome: '$900B+ market cap built on accounting integrity; 20.1% annual return over 58 years', explanation: 'Berkshire Hathaway is the ultimate case study in integrated accounting mastery. (1) Double-entry: Buffett personally reviews major accounting decisions and explains them in his annual letter. (2) Ratios: consistently strong ROE, conservative leverage, abundant liquidity. (3) Cost accounting: insurance operations managed with actuarial precision; each subsidiary must earn its cost of capital. (4) Auditing: Deloitte has audited Berkshire for decades; clean opinions every year. (5) Forensic: no red flags, cash flow consistently supports reported earnings. The result: 58 years of 20.1% compounded returns, the most successful investment record in history, built on a foundation of accounting integrity and transparent financial reporting.' }
+      undefined
     ),
     caseStudy(
       'Lehman Brothers: When Every Accounting Layer Failed Simultaneously',
@@ -2174,7 +2163,7 @@ const lessons: PathwayLesson[] = [
       'Lehman Brothers is the definitive example of why integrated accounting analysis matters. Each individual framework showed warning signs, but the financial system treated them in isolation: ratio analysts saw "acceptable" leverage at quarter-end, cost analysts didn\'t apply break-even thinking to investment banks, auditors followed technical rules without questioning substance, and forensic tools weren\'t systematically applied to systemically important institutions. The lesson: when all five layers are analyzed together, fragile institutions are identifiable years before collapse. The cost of integrated analysis is tiny compared to the $600 billion cost of failure. Accounting is not just about recording transactions, it\'s the immune system of the financial world. When it works, capital flows to productive uses. When it fails, the consequences are global.'
     ),
     misconceptions(
-      'CAPSTONE ACCOUNTING MYTHS',
+      'Capstone accounting myths',
       'Final misconceptions to overcome before mastery',
       [
         {
@@ -2344,12 +2333,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'ACCRUAL VS. CASH',
+      'Accrual vs. cash',
       'Two Ways to Count: Accrual Accounting vs. Cash Accounting',
       [
-        'The fundamental question in accounting is: WHEN should you record a transaction? Cash basis accounting is simple, record revenue when cash arrives, record expenses when cash leaves. But this creates distortions. A construction company building a $10 million project over 2 years would show $0 revenue in Year 1 and $10 million in Year 2 (when paid). That doesn\'t reflect economic reality.',
-        'Accrual accounting solves this by recording transactions when they are EARNED or INCURRED, regardless of when cash changes hands. Revenue is recognized when the performance obligation is satisfied, when goods are delivered or services rendered. Expenses are matched to the revenue they help generate (the matching principle). GAAP requires accrual accounting for all public companies.',
-        'The gap between accrual recognition and cash collection creates important balance sheet accounts. Accounts Receivable represents revenue earned but not yet collected. Deferred Revenue (also called Unearned Revenue) represents cash collected but not yet earned, like annual software subscriptions where the service hasn\'t been fully delivered. These timing differences are where fraud often hides.'
+        'Cash accounting records revenue when cash arrives. That distorts things: a builder finishing a $10 million project over 2 years shows $0 revenue in Year 1 and $10 million in Year 2.',
+      'Accrual accounting records revenue when earned and expenses when incurred, matched to that revenue: the matching principle. GAAP requires it for public companies. Accounts receivable is revenue earned but not yet collected; deferred revenue is cash collected before delivery.'
       ],
       [
         { term: 'Accrual Accounting', definition: 'An accounting method that records revenue when earned and expenses when incurred, regardless of when cash changes hands. Required by GAAP for public companies.', example: 'A law firm completes $50,000 in legal work in December but won\'t be paid until January. Under accrual accounting, the $50,000 revenue is recorded in December when the work was performed.' },
@@ -2369,7 +2357,7 @@ const lessons: PathwayLesson[] = [
       'The full $120,000 was collected, but only 1/12th of the service has been provided. Accrual accounting recognizes $10,000 in January, with $110,000 sitting as Deferred Revenue, a liability representing services still owed.'
     ),
     interactiveGraph(
-      'REVENUE TIMING',
+      'Revenue timing',
       'See How Recognition Timing Changes the Financial Picture',
       'timeline',
       'Adjust the timing of revenue recognition to see how the same $1 million deal looks completely different depending on when it\'s recorded.',
@@ -2391,15 +2379,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Contract Value', min: 100000, max: 2000000, default: 1000000, unit: '$' },
         { label: 'Recognition Period (months)', min: 1, max: 36, default: 12, unit: ' mo' }
       ],
-      { company: 'Under Armour', metric: 'Channel-stuffed revenue (2015-2019)', outcome: '$408M in pulled-forward revenue; SEC charges; stock fell 70% from peak', explanation: 'Under Armour pressured retailers to accept early shipments at quarter-end, recording the revenue immediately. Secret side agreements allowed retailers to return unsold inventory. This violated ASC 606 because the performance obligation (delivering goods the customer actually wanted) was not satisfied. The revenue was an illusion, borrowed from future quarters.' }
+      undefined
     ),
     teachingSlide(
-      'THE FIVE-STEP MODEL',
+      'The five-step model',
       'ASC 606: The Universal Revenue Recognition Framework',
       [
-        'Step 1: Identify the contract, An agreement between two or more parties creating enforceable rights and obligations. Must have commercial substance, approval, identifiable rights, payment terms, and probable collection. Step 2: Identify performance obligations, Distinct goods or services promised. A smartphone bundled with a warranty and cloud storage has THREE separate performance obligations.',
-        'Step 3: Determine the transaction price, The amount expected in exchange for goods/services. Includes variable consideration (discounts, rebates, returns), the time value of money (if payment extends beyond 12 months), and non-cash consideration. Step 4: Allocate the transaction price, Distribute the total price to each performance obligation based on relative standalone selling prices.',
-        'Step 5: Recognize revenue when (or as) each performance obligation is satisfied, Either "at a point in time" (control transfers in a single moment, like delivering a product) or "over time" (control transfers gradually, like a consulting engagement). The method chosen must reflect the pattern of benefit transfer to the customer. This is where judgment, and manipulation, enters.'
+        'ASC 606 has five steps. Step 1: identify the contract, an enforceable agreement with approval, payment terms and probable collection. Step 2: identify performance obligations, distinct promises. A smartphone with a warranty and cloud storage has three.',
+      'Step 3: set the transaction price, including discounts, rebates, returns and interest beyond 12 months. Step 4: split it across the obligations. Step 5: recognize revenue at a point in time, like a delivery, or over time, like consulting.'
       ],
       [
         { term: 'Performance Obligation', definition: 'A promise in a contract to transfer a distinct good or service to the customer. Each obligation is accounted for separately under ASC 606.', example: 'Apple sells an iPhone with AppleCare+ and iCloud storage: three separate performance obligations, each recognized on its own schedule.' },
@@ -2420,7 +2407,7 @@ const lessons: PathwayLesson[] = [
       'Luckin Coffee shows that revenue recognition fraud can be both sophisticated and crude. The company didn\'t just recognize revenue aggressively, it fabricated transactions entirely. The defense against this is always the same: compare reported revenue to cash flow. Luckin\'s operating cash flow was deeply negative despite reported profitability. When revenue grows but cash doesn\'t follow, something is fundamentally wrong.'
     ),
     misconceptions(
-      'REVENUE RECOGNITION MYTHS',
+      'Revenue recognition myths',
       'Common misunderstandings about when revenue counts',
       [
         {
@@ -2581,12 +2568,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE THREE METHODS',
+      'The three methods',
       'FIFO, LIFO, and Weighted Average: Same Goods, Different Numbers',
       [
-        'Imagine you run a hardware store and buy hammers at different prices over time: 100 hammers at $8 in January, 100 at $10 in March, 100 at $12 in June. You sell 150 hammers in Q3. Which 150 did you sell? Physically, it doesn\'t matter, a hammer is a hammer. But ACCOUNTING-wise, the method you choose determines your Cost of Goods Sold (COGS) and therefore your profit.',
-        'FIFO (First-In, First-Out) assumes the oldest inventory is sold first. Your 150 hammers sold: 100 @ $8 + 50 @ $10 = $1,300 COGS. Revenue if sold at $15 each: $2,250. Gross profit: $950. LIFO (Last-In, First-Out) assumes the newest inventory is sold first: 100 @ $12 + 50 @ $10 = $1,700 COGS. Same $2,250 revenue. Gross profit: $550. Same hammers, same sales, $400 difference in profit!',
-        'Weighted Average uses the average cost of all available inventory: (100×$8 + 100×$10 + 100×$12) / 300 = $10 average. 150 sold × $10 = $1,500 COGS. Gross profit: $750. During inflation (rising prices), FIFO produces the highest profit (old cheap costs as COGS), LIFO produces the lowest (new expensive costs as COGS), and weighted average falls in between. This is why method selection is strategic, not just technical.'
+        'Buy 100 hammers at $8 (January), 100 at $10 (March), 100 at $12 (June). Sell 150 in Q3 at $15 each: revenue $2,250. Cost of goods sold (COGS) is what those 150 cost, and the method decides it.',
+      'FIFO uses oldest costs: 100 @ $8 + 50 @ $10 = $1,300, profit $950. LIFO uses newest: 100 @ $12 + 50 @ $10 = $1,700, profit $550, $400 less. Weighted average: 300 hammers at $10, $1,500, profit $750.'
       ],
       [
         { term: 'FIFO (First-In, First-Out)', definition: 'Inventory method assuming the oldest items are sold first. Results in COGS reflecting older, usually lower costs, and ending inventory reflecting newer, higher costs.', example: 'A bakery using FIFO sells Monday\'s bread before Tuesday\'s. COGS reflects Monday\'s ingredient costs. Ending inventory is valued at Tuesday\'s (higher) prices.' },
@@ -2606,7 +2592,7 @@ const lessons: PathwayLesson[] = [
       'During inflation, FIFO sends old cheap costs to COGS (lower COGS = higher profit). LIFO sends new expensive costs to COGS (higher COGS = lower profit). Weighted average falls between them.'
     ),
     interactiveGraph(
-      'INVENTORY METHOD IMPACT',
+      'Inventory method impact',
       'Watch How Method Choice Swings Profit by Thousands',
       'comparison',
       'Adjust purchase prices and quantities to see how FIFO, LIFO, and weighted average produce dramatically different profits from the same inventory.',
@@ -2628,15 +2614,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Unit Price Batch 1', min: 5, max: 20, default: 8, unit: '$' },
         { label: 'Unit Price Batch 2', min: 10, max: 30, default: 15, unit: '$' }
       ],
-      { company: 'Walmart', metric: 'LIFO tax savings (cumulative)', outcome: '$2.4B+ in cumulative tax deferrals; hundreds of millions in annual cash preservation', explanation: 'Walmart\'s strategic LIFO election shows how inventory method choice is a CEO-level decision, not just an accounting technicality. By reporting higher COGS and lower profits, Walmart pays less income tax and retains more cash for reinvestment. The trade-off (lower reported EPS) is acceptable because investors know Walmart\'s true profitability, the LIFO reserve in the footnotes lets analysts convert to FIFO if desired.' }
+      undefined
     ),
     teachingSlide(
-      'INVENTORY FRAUD & DETECTION',
+      'Inventory fraud & detection',
       'How Companies Manipulate Inventory, And How to Catch Them',
       [
-        'Inventory fraud is the second most common type of financial statement fraud (after revenue recognition). Overvaluing inventory inflates assets on the balance sheet AND understates COGS on the income statement, double-boosting earnings. Toshiba overstated inventory by $1.2 billion by failing to recognize obsolescence. Phar-Mor (a discount retailer) inflated inventory by $500 million through "bucket brigades", moving phantom inventory between stores ahead of auditors.',
-        'Detection methods: (1) Compare inventory growth to revenue growth, if inventory grows faster than sales, the company is either building up strategically or hiding write-downs. (2) Watch the inventory turnover ratio, declining turnover means goods are sitting longer, suggesting overvaluation or obsolescence. (3) Compare gross margins to peers, unusually high margins may indicate understated COGS through inventory inflation.',
-        'The lower-of-cost-or-market (LCM) rule is the auditor\'s tool: if market prices have fallen below book cost, inventory MUST be written down. Companies that delay write-downs are overstating assets and profits. Peloton waited months to write down excess inventory, allowing its balance sheet to misrepresent reality. Conservative companies write down aggressively and early.'
+        'Inventory fraud is the second most common financial statement fraud. Overstating inventory inflates assets and hides costs, double-boosting earnings. Toshiba overstated inventory by $1.2 billion. Phar-Mor, a discount retailer, inflated inventory by $500 million by moving phantom stock between stores.',
+      'To spot it: inventory growing faster than sales, turnover falling because goods sit longer, or margins far above rivals. The lower-of-cost-or-market (LCM) rule forces write-downs when market prices fall below cost. Peloton waited months, so its balance sheet misled investors.'
       ],
       [
         { term: 'Inventory Fraud', definition: 'Intentionally overstating inventory values on the balance sheet. Inflates assets and understates COGS, creating fictitious profits. The second most common financial statement fraud.', example: 'Toshiba overstated inventory by $1.2B over 7 years by ignoring obsolescence. When discovered, the CEO and six senior executives resigned.' },
@@ -2657,7 +2642,7 @@ const lessons: PathwayLesson[] = [
       'Toshiba demonstrates that inventory fraud thrives in cultures of unquestioned authority. The "challenge" system made questioning accounting decisions career suicide. The lesson: when management exerts extreme pressure on earnings targets, inventory is often the first place corners are cut. Auditors must verify physical inventory counts, test LCM compliance, and investigate any divisions consistently meeting targets with suspicious inventory patterns.'
     ),
     misconceptions(
-      'INVENTORY ACCOUNTING MYTHS',
+      'Inventory accounting myths',
       'Clearing up common misunderstandings about inventory methods',
       [
         {
@@ -2816,7 +2801,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE THREE METHODS',
+      'The three methods',
       'Straight-Line, Declining Balance, and Units-of-Production',
       [
         'Straight-Line Depreciation is the simplest: (Cost - Salvage Value) / Useful Life = Annual Expense. A $120M plane with $20M salvage and 25-year life: ($120M - $20M) / 25 = $4M per year. Equal expense every year, smooth impact on profits. Used by most companies for financial reporting because it\'s simple and predictable.',
@@ -2841,7 +2826,7 @@ const lessons: PathwayLesson[] = [
       'Straight-line depreciation formula: ($200,000 cost - $20,000 salvage value) / 10-year useful life = $18,000 per year. The salvage value is excluded because the asset is expected to retain that value.'
     ),
     interactiveGraph(
-      'DEPRECIATION IMPACT',
+      'Depreciation impact',
       'See How Method Choice Affects Profits Over Time',
       'timeline',
       'Adjust asset cost, salvage value, and useful life to compare how straight-line, DDB, and units-of-production affect annual depreciation expense and cumulative book value.',
@@ -2863,15 +2848,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Asset Cost', min: 50000, max: 500000, default: 200000, unit: '$' },
         { label: 'Useful Life (years)', min: 3, max: 30, default: 10, unit: ' yrs' }
       ],
-      { company: 'Amazon', metric: 'Server useful life extension (2022)', outcome: '$3.9B annual depreciation reduction; material operating income boost with zero operational change', explanation: 'Amazon extended its server useful lives from 3 to 5 years, arguing that improved hardware reliability justified the change. The $3.9B depreciation reduction flowed directly to operating income. Critics argued the timing was convenient, it boosted profits during a challenging year. Defenders noted the change was disclosed transparently and reflected genuine hardware improvements. This case illustrates how a single depreciation estimate can swing billions in reported earnings.' }
+      undefined
     ),
     teachingSlide(
-      'DEPRECIATION FRAUD & MANIPULATION',
+      'Depreciation fraud & manipulation',
       'When Estimates Become Weapons',
       [
-        'Depreciation involves three estimates: useful life, salvage value, and method. Each can be manipulated. Extending useful life reduces annual expense (Amazon: $3.9B impact). Increasing salvage value has the same effect (Hertz: $700M overstatement). Choosing straight-line over accelerated defers the same impact. All three are "estimate changes" that don\'t require restatement, making depreciation manipulation harder to detect than outright fraud.',
-        'WorldCom\'s $11 billion fraud was fundamentally a depreciation scheme: by capitalizing operating expenses as assets, WorldCom created assets that were then depreciated over 5-10 years instead of being expensed immediately. A $100M quarterly line cost became a $100M asset depreciated at $10M/year, boosting quarterly profits by $90M. Multiply across dozens of quarters and thousands of expense items: $11 billion in fraud.',
-        'Detection: Watch for (1) Depreciation expense declining as a percentage of gross fixed assets, this suggests useful life extensions or salvage value increases. (2) Depreciable lives significantly longer than industry peers, if competitors depreciate servers over 3 years and you depreciate over 7, your profits are artificially inflated. (3) Salvage values higher than peer averages, especially for depreciating assets like vehicles (Hertz) or technology.'
+        'Three estimates can be bent: useful life, salvage value, method. A longer life cuts yearly expense (Amazon: $3.9B). Higher salvage does the same (Hertz: $700M). Estimate changes need no restatement, so this hides well.',
+      'WorldCom\'s $11 billion fraud booked $100M of expenses as assets, depreciated over 5-10 years. At $10M yearly, quarterly profit jumped $90M. Watch for falling depreciation rates, or 7-year server lives when rivals use 3.'
       ],
       [
         { term: 'Capitalization vs. Expensing', definition: 'Capitalizing records a cost as an asset (depreciated over years). Expensing records it immediately on the income statement. Improper capitalization inflates current profits by spreading costs over future periods.', example: 'WorldCom capitalized $11B in line costs (should have been operating expenses). Instead of reducing profits immediately, the costs became "assets" depreciated over years, inflating profits by billions annually.' },
@@ -2892,7 +2876,7 @@ const lessons: PathwayLesson[] = [
       'Hertz demonstrates that depreciation manipulation has real consequences. By inflating residual values, Hertz created phantom profits, cars looked more valuable on paper than they were in reality. When sold, the actual proceeds fell short by hundreds of millions. The lesson applies to any asset-heavy business: if depreciation estimates are aggressive, eventual reality creates a painful reckoning. Conservative depreciation (like Apple\'s 3-year device lives) prevents these surprises.'
     ),
     misconceptions(
-      'DEPRECIATION MYTHS',
+      'Depreciation myths',
       'What most people get wrong about depreciation',
       [
         {
@@ -3054,9 +3038,8 @@ const lessons: PathwayLesson[] = [
       'RECEIVABLES & COLLECTION',
       'Accounts Receivable: The Revenue You Haven\'t Collected Yet',
       [
-        'Accounts Receivable (AR) represents money customers owe you for goods or services already delivered. When you sell $100,000 of products on 30-day credit terms, you debit Accounts Receivable $100,000 and credit Revenue $100,000. The revenue is recognized immediately (accrual accounting), but cash won\'t arrive for 30 days. AR is a current asset on the balance sheet, but it\'s only as valuable as the customers\' ability and willingness to pay.',
-        'Days Sales Outstanding (DSO) measures collection efficiency: (Accounts Receivable / Revenue) × Days in Period. A DSO of 45 means it takes 45 days on average to collect payment. Rising DSO is a critical red flag, it means either customers are paying slower (credit quality deteriorating) or the company is booking revenue from customers who may never pay (potential fraud). Under Armour\'s DSO doubled from 45 to 90 days during its channel stuffing period.',
-        'Bad debt estimation is where judgment (and manipulation) enters. Companies estimate what percentage of receivables will never be collected, the Allowance for Doubtful Accounts. Methods include: percentage of sales (fixed % of revenue), aging method (higher percentages for older receivables), and specific identification (evaluating individual large accounts). Understating the allowance inflates assets and income; overstating it creates "cookie jar" reserves for future earnings smoothing.'
+        'Accounts receivable (AR) is money customers owe you for goods already delivered. Sell $100,000 on 30-day credit and you record the revenue now, but cash arrives in 30 days. AR is only worth what customers actually pay.',
+      'Days sales outstanding (DSO), or (Accounts Receivable / Revenue) × Days in Period, shows collection speed. Rising DSO signals slow payers or fake sales: Under Armour\'s DSO doubled from 45 to 90 days during channel stuffing.'
       ],
       [
         { term: 'Days Sales Outstanding (DSO)', definition: 'Measures average days to collect receivables: (AR / Revenue) × Days. Lower is better. Rising DSO signals collection problems or aggressive revenue recognition.', example: 'Company with $30M AR and $120M annual revenue: DSO = ($30M / $120M) × 365 = 91 days. If industry average is 45 days, this company is either extending very generous terms or booking dubious revenue.' },
@@ -3076,7 +3059,7 @@ const lessons: PathwayLesson[] = [
       'DSO = (Accounts Receivable / Annual Revenue) × 365 = ($50M / $200M) × 365 = 91.25 days. If terms are Net 30, a 91-day DSO suggests many customers are paying very late, or receivables include uncollectible amounts.'
     ),
     interactiveGraph(
-      'CASH CONVERSION CYCLE',
+      'Cash conversion cycle',
       'Optimize Working Capital: The Balance of AR, AP, and Inventory',
       'comparison',
       'Adjust inventory days, receivable days, and payable days to see how the cash conversion cycle changes, and how much working capital the business needs.',
@@ -3098,15 +3081,14 @@ const lessons: PathwayLesson[] = [
         { label: 'DSO (Collection Days)', min: 10, max: 120, default: 45, unit: ' days' },
         { label: 'DPO (Payment Days)', min: 10, max: 120, default: 60, unit: ' days' }
       ],
-      { company: 'Apple', metric: 'Cash Conversion Cycle', outcome: 'Negative CCC (~-35 to -50 days); suppliers fund Apple\'s operations; $60B+ in accounts payable as free financing', explanation: 'Apple\'s negative cash conversion cycle is one of the most powerful working capital positions in corporate history. By collecting from customers immediately, turning inventory in ~8 days, and paying suppliers in 60+ days, Apple generates cash from the operating cycle before spending it. This means growth requires LESS working capital, not more, the opposite of most businesses. Tim Cook\'s supply chain expertise made this possible.' }
+      undefined
     ),
     teachingSlide(
-      'RECEIVABLES FRAUD',
+      'Receivables fraud',
       'How Fake Receivables Inflate Revenue, And How to Catch Them',
       [
-        'Receivables fraud is directly linked to revenue fraud: you can\'t book fake revenue without creating a fake receivable (or collecting fake cash). The most common schemes: (1) Fictitious customers, Satyam created fake invoices for non-existent clients, generating $1B in phantom receivables. (2) Channel stuffing, shipping unrequested goods creates real receivables from real customers, but the goods come back. (3) Bill-and-hold, "selling" goods that remain in the seller\'s warehouse.',
-        'Detection is systematic: DSO trending above industry peers is the first signal. The aging schedule is the second: if the 90+ day bucket is growing disproportionately, receivables are becoming uncollectible (or were never real). Third: compare AR growth to revenue growth. If AR grows materially faster, cash isn\'t following revenue, the classic Enron pattern. Fourth: the allowance for doubtful accounts should increase proportionally with AR; if it doesn\'t, management is under-reserving.',
-        'HP\'s $8.8 billion Autonomy write-down is the definitive receivables fraud case. Autonomy inflated revenue through channel stuffing, round-tripping sales through intermediaries, and accelerating multi-year deals into current-quarter recognition. HP\'s due diligence failed to catch $700M in receivable manipulation. The lesson: in any acquisition, scrutinize DSO, aging, and cash conversion before trusting reported revenue.'
+        'Fake revenue needs a fake receivable. Common tricks: invented customers, like Satyam\'s $1B in phantom receivables; channel stuffing, shipping goods nobody ordered; and bill-and-hold, selling goods that never leave your warehouse.',
+      ' Four checks: DSO above peers, a swelling 90+ day aging bucket, AR growing faster than revenue, and a doubtful-accounts allowance that ignores AR growth. HP\'s $8.8 billion Autonomy write-down hid $700M of receivable manipulation.'
       ],
       [
         { term: 'Fictitious Receivables', definition: 'Invoices recorded for customers or transactions that don\'t exist. Creates phantom assets and revenue. The most blatant form of accounting fraud.', example: 'Satyam\'s chairman personally created fake bank statements and customer invoices, fabricating $1B in receivables from companies that had no business relationship with Satyam.' },
@@ -3127,7 +3109,7 @@ const lessons: PathwayLesson[] = [
       'Satyam proves that even "audited" receivables can be completely fabricated when auditors fail to perform basic confirmation procedures. The fix is simple: independently verify. Send confirmation letters to major customers. Reconcile bank statements directly with banks. Compare DSO to industry peers. If Satyam\'s 100+ day DSO had been questioned against an industry average of 60 days, the fraud might have been caught years earlier.'
     ),
     misconceptions(
-      'RECEIVABLES & PAYABLES MYTHS',
+      'Receivables & payables myths',
       'Common misunderstandings about working capital management',
       [
         {
@@ -3287,12 +3269,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PAYROLL MECHANICS',
+      'Payroll mechanics',
       'The True Cost of Employment: Beyond the Paycheck',
       [
-        'When a company pays an employee $100,000 in salary, the true cost to the employer is $130,000-$180,000. The hidden costs: employer portion of FICA taxes (Social Security 6.2% + Medicare 1.45% = 7.65%), federal and state unemployment insurance (FUTA/SUTA: 0.6-6%), workers\' compensation insurance (0.5-5% depending on industry), health insurance ($6,000-$24,000/year for employer share), retirement contributions (3-12% of salary for 401k match or pension).',
-        'Payroll accrual is critical for accurate financial reporting. Employees earn wages daily, but payday is typically biweekly or monthly. At period-end, the company must accrue unpaid wages, debit Salary Expense, credit Salaries Payable. A company with 10,000 employees earning an average of $200/day has $2 million in daily salary accrual. Missing this accrual understates both expenses and liabilities.',
-        'The journal entries: On payday, the employer debits Salary Expense (gross pay), credits Employee Tax Withholdings Payable (federal/state income tax, employee FICA), credits Benefits Payable (employee health premiums), and credits Cash (net pay). Separately, the employer records its own matching obligations: debit Payroll Tax Expense, credit Employer Tax Payable (employer FICA, FUTA/SUTA). Two sets of entries for every payroll cycle.'
+        'Pay someone $100,000 in salary and the true cost is $130,000-$180,000. The extras: employer FICA payroll tax 7.65% (Social Security 6.2%, Medicare 1.45%), unemployment FUTA/SUTA 0.6-6%, workers\' comp 0.5-5%, health insurance $6,000-$24,000/year, and a 401k retirement match of 3-12%.',
+      'Wages are earned daily but paid biweekly, so at period end you accrue: debit Salary Expense, credit Salaries Payable. 10,000 workers at $200/day accrue $2 million daily. Payday entries also record withholdings, benefits and the employer\'s matching taxes.'
       ],
       [
         { term: 'FICA Taxes', definition: 'Federal Insurance Contributions Act, Social Security (6.2% up to wage base) and Medicare (1.45%, no cap). Both employee AND employer pay, so total FICA is 15.3% of wages, split 50/50.', example: 'Employee earning $100K: Employee pays $7,650 FICA, employer also pays $7,650 FICA. Total government receives: $15,300. The employer portion is an additional cost beyond salary.' },
@@ -3311,7 +3292,7 @@ const lessons: PathwayLesson[] = [
       'The true employer cost includes: $80K salary + $6,120 FICA taxes + $15K health insurance + $4K 401K match = $105,120. That\'s a 31.4% premium over the base salary.'
     ),
     interactiveGraph(
-      'STOCK-BASED COMPENSATION',
+      'Stock-based compensation',
       'The Non-Cash Expense That Tech Companies Love to Exclude',
       'comparison',
       'Adjust SBC levels to see how tech companies\' "adjusted" earnings differ from GAAP earnings, and why excluding SBC from profitability metrics is controversial.',
@@ -3333,15 +3314,14 @@ const lessons: PathwayLesson[] = [
         { label: 'SBC as % of Revenue', min: 1, max: 30, default: 10, unit: '%' },
         { label: 'Total Revenue ($M)', min: 100, max: 50000, default: 5000, unit: '$M' }
       ],
-      { company: 'Meta (Facebook)', metric: 'Stock-based compensation (2022)', outcome: '$11.5B SBC; GAAP net income $23.2B vs. "adjusted" $34.7B, SBC exclusion inflated reported profitability by 50%', explanation: 'Meta\'s case illustrates the SBC debate. $11.5B is a real cost: employees receive valuable equity, existing shareholders are diluted. But no cash left Meta\'s bank account. Should investors evaluate Meta on $23.2B (GAAP) or $34.7B (adjusted)? The answer depends on whether you view SBC as a real operating cost (it compensates employees, who would otherwise demand higher cash pay) or a non-cash distortion. Buffett argues it\'s unequivocally real. Many tech executives disagree.' }
+      undefined
     ),
     teachingSlide(
-      'PENSIONS: THE HIDDEN LIABILITY',
+      'Pensions: the hidden liability',
       'Defined Benefit vs. Defined Contribution, and the $3.5 Trillion Problem',
       [
-        'Defined Contribution plans (like 401(k)s) are simple: the employer contributes a fixed amount per period, and the employee bears the investment risk. If the stock market crashes, the employee\'s retirement shrinks, the company\'s obligation doesn\'t change. Accounting is straightforward: Debit Pension Expense, Credit Cash for each contribution.',
-        'Defined Benefit plans are the opposite: the employer promises a specific retirement payment (e.g., "60% of final salary for life"). The employer bears ALL investment risk. If the pension fund\'s investments underperform, the company must make up the difference. This creates massive, uncertain liabilities. GE\'s pension obligation: $77 billion. Boeing: $62 billion. AT&T: $48 billion. Total unfunded corporate pension liabilities in the US: over $3.5 trillion.',
-        'The accounting complexity is enormous. Companies must estimate: (1) how long employees will live after retirement, (2) what their final salary will be, (3) what investment returns the pension fund will earn (the "discount rate"), and (4) healthcare cost inflation. Each assumption changes the liability by billions. A 0.5% change in the discount rate can swing a pension liability by 5-10%. GE\'s pension shortfall grew from manageable to catastrophic partly because its return assumptions were too optimistic for too long.'
+        'A defined contribution plan, like a 401(k), pays a fixed employer amount and you take the investment risk: debit Pension Expense, credit Cash. A defined benefit plan promises a payout, say 60% of final salary for life.',
+      'The employer carries the risk, guessing lifespans, salaries, returns and healthcare costs. A 0.5% change in the discount rate, the assumed return, swings liabilities 5-10%. GE owes $77 billion, Boeing $62 billion, AT&T $48 billion, US total: $3.5 trillion.'
       ],
       [
         { term: 'Defined Benefit Plan', definition: 'A pension plan promising a specified retirement benefit (e.g., percentage of final salary). The employer bears investment risk and must fund any shortfall. Creates massive, uncertain long-term liabilities.', example: 'GE promised employees 60% of final salary in retirement. With 200,000+ retirees living longer than expected and investment returns below assumptions, the obligation grew to $77B, $15B underfunded.' },
@@ -3363,7 +3343,7 @@ const lessons: PathwayLesson[] = [
       'GE demonstrates that pension obligations can grow from manageable to existential. Optimistic assumptions mask reality until cash contributions are required. The shift from defined benefit to defined contribution across corporate America reflects hard lessons: open-ended promises to employees create open-ended liabilities that can consume a company. Detroit\'s bankruptcy ($3.5B unfunded pensions) shows this applies to cities too. The accounting lesson: always scrutinize pension discount rates and return assumptions, they are the most consequential estimates in the financial statements.'
     ),
     misconceptions(
-      'PAYROLL & COMPENSATION MYTHS',
+      'Payroll & compensation myths',
       'Common misunderstandings about employee cost accounting',
       [
         {
@@ -3524,12 +3504,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'BOOK VS. TAX',
+      'Book vs. tax',
       'Two Sets of Books: Why GAAP Income and Taxable Income Differ',
       [
-        'Every US corporation effectively keeps two sets of books: one for investors (GAAP/book accounting) and one for the IRS (tax accounting). The same transaction can be recorded differently under each set of rules. Depreciation is the classic example: GAAP uses straight-line over the asset\'s useful life; tax uses MACRS accelerated depreciation over a shorter recovery period. Same asset, same purchase price, but very different annual expense amounts.',
-        'Temporary differences reverse over time, the total expense is identical, just the timing differs. The company eventually pays the same total tax; it just defers some to later years. This creates a Deferred Tax Liability (DTL): taxes the company WILL owe in the future when the timing difference reverses. It\'s like an interest-free loan from the government. With $200M in accelerated tax depreciation today, the company saves cash now and pays later.',
-        'Permanent differences NEVER reverse. Municipal bond interest is tax-exempt permanently, it\'s book income but never taxable income. Fines and penalties are GAAP expenses but never tax-deductible. These create a permanent gap between the book tax rate and the effective tax rate. Understanding which differences are temporary (they\'ll reverse) vs. permanent (they won\'t) is critical for forecasting future tax payments.'
+        'US companies keep two sets of books: GAAP for investors, tax rules for the IRS. Depreciation, spreading an asset\'s cost over years, is even under GAAP but faster under tax law (MACRS). Same asset, different yearly expense.',
+      'Temporary differences reverse later: total tax is unchanged, only timing shifts. $200M of accelerated tax depreciation creates a deferred tax liability, tax owed later. Permanent differences never reverse: municipal bond interest stays untaxed, fines stay non-deductible.'
       ],
       [
         { term: 'Deferred Tax Liability (DTL)', definition: 'Taxes that will be owed in the future when temporary differences reverse. Created when taxable income is currently LOWER than book income. Appears as a long-term liability on the balance sheet.', example: 'A company uses MACRS (5-year) for tax and straight-line (10-year) for books. In early years, tax depreciation exceeds book depreciation, creating lower taxable income and a DTL. The DTL reverses in later years when book depreciation exceeds tax depreciation.' },
@@ -3549,7 +3528,7 @@ const lessons: PathwayLesson[] = [
       'DTL = Temporary Difference × Tax Rate = ($500M - $400M) × 21% = $100M × 21% = $21M. This $21M is an interest-free loan from the government, the company saves $21M now and pays it in future years when the depreciation timing reverses.'
     ),
     interactiveGraph(
-      'EFFECTIVE TAX RATE',
+      'Effective tax rate',
       'Why Companies Pay Less Than 21%, Deconstructing the Tax Rate',
       'pie',
       'Adjust tax credits, international income, and deductions to see how the effective tax rate drops from the statutory 21%, sometimes to zero.',
@@ -3571,15 +3550,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Pre-Tax Income ($B)', min: 1, max: 50, default: 10, unit: '$B' },
         { label: 'R&D Credits ($M)', min: 0, max: 2000, default: 500, unit: '$M' }
       ],
-      { company: 'Amazon', metric: 'Federal income tax paid (2018)', outcome: '$0 on $11.2B in pre-tax profit; effective rate of 0% through legal tax strategies', explanation: 'Amazon\'s $0 tax bill combined: (1) Accelerated depreciation on $63B+ in assets, creating massive DTLs, (2) R&D tax credits from innovation spending, (3) Stock-based compensation deductions (SBC creates a tax deduction when employees exercise options, different from book SBC expense), (4) NOL carryforwards from years of operating losses. Each strategy is individually legal; together, they eliminated the entire $2.3B tax bill ($11.2B × 21%). Amazon has since paid increasing taxes as carryforwards were exhausted.' }
+      undefined
     ),
     teachingSlide(
-      'INTERNATIONAL TAX',
+      'International tax',
       'Transfer Pricing, Tax Havens, and the Global Minimum Tax',
       [
-        'Multinational companies can shift profits to low-tax jurisdictions through transfer pricing, the price charged between subsidiaries for goods, services, or intellectual property. Apple created a structure where its Irish subsidiary charged royalties to other Apple entities worldwide. Since Ireland\'s effective corporate rate was under 2%, most of Apple\'s international profits were taxed at that rate instead of the US 35% (at the time).',
-        'The OECD\'s Base Erosion and Profit Shifting (BEPS) framework and the Global Minimum Tax (Pillar Two) aim to close these gaps. Starting in 2024, participating countries impose a 15% minimum tax on large multinationals. If a company\'s effective rate in any jurisdiction falls below 15%, the home country can collect the difference. This significantly reduces the benefit of tax haven structures.',
-        'Transfer pricing disputes are among the largest tax cases: Coca-Cola faces a $3.4B IRS assessment, Facebook settled a $9B dispute for undisclosed terms, and the EU ordered Apple to repay $14.3B to Ireland. The scale of these disputes shows how consequential international tax planning is, and how thin the line between aggressive optimization and illegal evasion can be.'
+        'Transfer pricing is what one subsidiary charges another. Apple\'s Irish unit collected royalties worldwide, so profits were taxed at Ireland\'s rate under 2%, not the US 35% then. From 2024, the OECD\'s global minimum tax, Pillar Two, sets 15%.',
+      'If a company\'s rate in a country falls below 15%, its home country collects the difference. Disputes are huge: Coca-Cola faces a $3.4B IRS assessment, Facebook settled $9B, and the EU ordered Apple to repay Ireland $14.3B.'
       ],
       [
         { term: 'Transfer Pricing', definition: 'The price one subsidiary charges another for goods, services, or IP. Used legitimately for internal accounting but can be manipulated to shift profits to low-tax jurisdictions.', example: 'Apple\'s Irish subsidiary licenses IP to Apple entities worldwide. By charging high royalty rates, profits flow to Ireland (low tax) instead of the US (higher tax). The EU found this arrangement constituted illegal state aid.' },
@@ -3600,7 +3578,7 @@ const lessons: PathwayLesson[] = [
       'Apple\'s tax story shows that tax strategy operates at the intersection of accounting, law, politics, and ethics. The structures were legal under existing rules but accumulated $252B that couldn\'t be efficiently used domestically. The TCJA changed the incentive structure, and Apple adapted. The EU case added complexity. The lesson for investors: always analyze a company\'s effective tax rate relative to statutory rates, understand WHY it differs, and assess the sustainability of the strategies involved.'
     ),
     misconceptions(
-      'TAX ACCOUNTING MYTHS',
+      'Tax accounting myths',
       'Common misunderstandings about corporate taxation',
       [
         {
@@ -3760,12 +3738,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'THE MASTER BUDGET',
+      'The master budget',
       'Building the Financial Roadmap: From Sales Forecast to Pro Forma Statements',
       [
-        'The master budget is the comprehensive financial plan that coordinates all company activities. It starts with the sales budget (units and revenue expected), which drives everything downstream: the production budget (how many units to manufacture), direct materials purchases, direct labor hours, manufacturing overhead allocation, and selling/administrative expenses. All feed into budgeted financial statements, the pro forma income statement, balance sheet, and cash flow statement.',
-        'The cash budget is the most critical operational component. Revenue doesn\'t equal cash: a company billing $10M in December may not collect until February. The cash budget maps inflows (collections on receivables) against outflows (payroll, rent, materials, loan payments) week by week. Companies with strong revenue can still go bankrupt if cash timing is mismanaged, this is called a "cash flow crisis" and it kills more small businesses than unprofitability.',
-        'Budget types matter: A static budget is fixed at the beginning of the period and doesn\'t adjust for actual activity levels. A flexible budget adjusts budgeted costs based on actual volume, critical for fair performance evaluation. If a factory budgeted $1M for materials at 10,000 units but produced 12,000 units, the static budget shows a $200K unfavorable variance, but the flexible budget recognizes $1.2M should have been spent and the real efficiency picture may be different.'
+        'The master budget is one plan: sales drives production, materials, labor, overhead and expenses. The cash budget tracks timing. A company billing $10M in December may not collect until February, and profitable firms fail when cash runs out.',
+      'A static budget is fixed in advance. A flexible budget adjusts to actual volume. Budget $1M of materials for 10,000 units, then make 12,000: the static budget flags a $200K overspend, but flexible expects $1.2M.'
       ],
       [
         { term: 'Master Budget', definition: 'The comprehensive financial plan integrating all departmental budgets into pro forma financial statements. Starts with the sales forecast and cascades through production, purchasing, labor, overhead, and administrative budgets.', example: 'Amazon\'s annual budget process involves thousands of teams submitting operating plans that roll up into a company-wide master budget spanning $500B+ in anticipated revenue and expenses.' },
@@ -3784,7 +3761,7 @@ const lessons: PathwayLesson[] = [
       'Flexible budget = budgeted cost per unit x actual units. $400K / 8K = $50/unit. At 10K units: $500K. Actual $520K - Flexible $500K = $20K unfavorable efficiency variance.'
     ),
     interactiveGraph(
-      'VARIANCE ANALYSIS',
+      'Variance analysis',
       'Decomposing Budget Differences Into Actionable Root Causes',
       'comparison',
       'Adjust price and volume to see how variances decompose, understanding whether a budget miss was caused by price changes, volume changes, or efficiency problems changes the management response completely.',
@@ -3806,15 +3783,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Budgeted Price ($/unit)', min: 5, max: 50, default: 20, unit: '$' },
         { label: 'Actual Volume (units)', min: 500, max: 5000, default: 2000, unit: 'units' }
       ],
-      { company: 'Walmart', metric: 'Variance tracking on $400B+ in COGS', outcome: 'Walmart\'s procurement team monitors price variances across millions of SKU-supplier combinations. A 0.1% unfavorable price variance on $400B = $400M in extra cost, more than many companies earn in total profit.', explanation: 'At Walmart\'s scale, variance analysis isn\'t a quarterly exercise, it\'s a real-time control system. Automated alerts flag unfavorable price variances above threshold, triggering renegotiation or supplier switching. This discipline is how Walmart maintains 24% gross margins on $600B+ revenue.' }
+      undefined
     ),
     teachingSlide(
-      'ADVANCED VARIANCE TECHNIQUES',
+      'Advanced variance techniques',
       'Sales Mix Variance, Overhead Variances, and Management by Exception',
       [
-        'Sales mix variance captures the profit impact when actual product mix differs from budget. A company selling both a $100 premium product (40% margin) and a $50 basic product (20% margin) may hit revenue targets but miss profit targets if the mix shifts toward the basic product. Mix variance = (Actual Mix % - Budget Mix %) x Actual Total Units x Budgeted Contribution Margin per unit.',
-        'Overhead variances decompose into spending variance (did we spend more or less on overhead than expected at actual activity?) and volume variance (did we produce more or fewer units than the level used to set the overhead rate?). The overhead volume variance arises because fixed overhead is allocated based on expected production, if actual production differs, fixed costs are over- or under-applied.',
-        'Management by exception means managers focus only on significant variances, not every line item. A 0.5% variance on office supplies doesn\'t need investigation. A 15% variance on direct materials does. Companies set materiality thresholds: investigate variances above $50K or 5%, whichever is larger. This focuses management attention on the variances that actually matter to profitability.'
+        'Sales mix variance, the profit effect of selling a different product blend than planned: a $100 premium item earns 40% margin, a $50 basic item only 20%, so hitting revenue can still miss profit.',
+      'Overhead variance splits into spending, cost versus plan, and volume, output versus plan. Manage by exception: ignore a 0.5% variance on supplies, investigate a 15% materials variance, and any gap above $50K or 5%.'
       ],
       [
         { term: 'Sales Mix Variance', definition: 'The profit impact of selling a different proportion of products than budgeted. Favorable when the mix shifts toward higher-margin products; unfavorable when it shifts toward lower-margin products.', example: 'Apple budgets 30% Pro models (high margin) and 70% standard iPhones. If actual mix is 25% Pro / 75% standard, the mix variance is unfavorable, same unit volume but lower blended margin.' },
@@ -3942,7 +3918,7 @@ const lessons: PathwayLesson[] = [
       'Alphabet (Google\'s parent) owns over 200 subsidiaries across 50+ countries. When you read Alphabet\'s 10-K, you see ONE set of financial statements, but behind them are hundreds of separate legal entities whose books must be combined, intercompany transactions eliminated, and minority interests accounted for. In 2001, Enron used 3,000+ Special Purpose Entities (SPEs) to hide $38 billion in debt OFF the consolidated balance sheet, the accounting trick that enabled the largest corporate fraud in history. And when Berkshire Hathaway consolidates its 60+ subsidiaries, Warren Buffett must decide whether each entity is controlled (consolidated), significantly influenced (equity method), or merely invested in (fair value), each treatment dramatically changes the reported financials.',
       'By the end of this lesson, you\'ll understand the consolidation process, intercompany elimination entries, minority (non-controlling) interests, the equity method vs. full consolidation, and how companies use (and abuse) off-balance-sheet structures.',
       'A corporate tree showing a parent company with majority-owned subsidiaries consolidated, minority stakes on equity method, and off-balance-sheet SPEs',
-      { type: 'flow', title: "Consolidation: One Set of Books for a Corporate Empire", nodes: [{ label: "PARENT CO.", color: "#B862ED" }, { label: "Sub A (100%)", color: "#10b981" }, { label: "Sub B (80%)", color: "#10b981" }, { label: "Affiliate (30%)", color: "#F59E0B" }, { label: "Full Consolidation" }, { label: "Consolidate + NCI 20%" }, { label: "Equity Method" }, { label: "Intercompany sales, loans, and dividends ELIMINATED on consolidation" }], footer: "Equity Method", sentiment: 'positive' }
+      { type: 'flow', title: "Consolidation: One Set of Books for a Corporate Empire", nodes: [{ label: "Parent Co.", color: "#B862ED" }, { label: "Sub A (100%)", color: "#10b981" }, { label: "Sub B (80%)", color: "#10b981" }, { label: "Affiliate (30%)", color: "#F59E0B" }, { label: "Full Consolidation" }, { label: "Consolidate + NCI 20%" }, { label: "Equity Method" }, { label: "Intercompany sales, loans, and dividends ELIMINATED on consolidation" }], footer: "Equity Method", sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Consolidation failures', detail: 'Enron used 3,000+ SPEs kept off the consolidated balance sheet to hide $38B in debt and inflate profits. Investors saw clean financials while the actual enterprise was drowning in hidden leverage. When the SPEs were forced onto the balance sheet, Enron collapsed within weeks, the largest bankruptcy in US history at the time.' },
@@ -3952,7 +3928,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'CONSOLIDATION BASICS',
+      'Consolidation basics',
       'Combining Financial Statements: When Control Means Combination',
       [
         'Consolidation is the process of combining a parent company\'s financial statements with those of its subsidiaries into one unified report. The key principle: if the parent controls the subsidiary (typically >50% ownership), the subsidiary\'s assets, liabilities, revenues, and expenses are added line-by-line to the parent\'s statements. The parent\'s investment account and the subsidiary\'s equity are eliminated to avoid double-counting.',
@@ -3976,7 +3952,7 @@ const lessons: PathwayLesson[] = [
       'Intercompany elimination removes the $5M internal sale. Consolidated revenue: ($50M - $5M) + $20M = $65M. Only external sales count in consolidation.'
     ),
     interactiveGraph(
-      'EQUITY METHOD & NCI',
+      'Equity method & NCI',
       'Significant Influence vs. Control: Different Ownership, Different Accounting',
       'comparison',
       'Adjust ownership percentages to see how the accounting treatment changes, full consolidation at >50%, equity method at 20-50%, and fair value below 20%.',
@@ -3998,15 +3974,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Ownership Percentage', min: 5, max: 100, default: 50, unit: '%' },
         { label: 'Subsidiary Revenue ($B)', min: 1, max: 50, default: 10, unit: '$B' }
       ],
-      { company: 'Alphabet (Google)', metric: 'Consolidation of 200+ entities', outcome: 'Alphabet consolidates Google, YouTube, Waymo, Verily, and many more. Each subsidiary\'s revenue, costs, and assets flow line-by-line into Alphabet\'s financial statements, with intercompany transactions eliminated.', explanation: 'Alphabet\'s "Other Bets" segment is essentially separate businesses (Waymo, Verily, Wing) consolidated under one roof. They report billions in losses, which investors can see clearly thanks to segment reporting. Without consolidation, these losses could be hidden in equity method entries.' }
+      undefined
     ),
     teachingSlide(
       'OFF-BALANCE-SHEET & SPEs',
       'The Dark Side of Consolidation: Enron\'s Lessons and Modern Risks',
       [
-        'Off-balance-sheet arrangements allow companies to keep certain assets and liabilities out of their consolidated financial statements. Operating leases (before ASC 842), securitized receivables, and Special Purpose Entities (SPEs) have all been used to make balance sheets appear cleaner than reality. The concept is not inherently fraudulent, securitization serves legitimate economic purposes, but the potential for abuse is enormous.',
-        'Enron created over 3,000 SPEs, many with names like "Raptor" and "LJM." These entities held Enron\'s poorest assets and worst debts, but were structured with just enough "independent" equity (often only 3%) to avoid consolidation under the rules of the time. Enron\'s CFO, Andrew Fastow, personally managed some SPEs and profited from them, a massive conflict of interest. The result: Enron\'s balance sheet showed far less debt and far more profit than reality.',
-        'Post-Enron reforms: FIN 46R (now ASC 810) requires consolidation of Variable Interest Entities (VIEs), entities where the company bears the majority of risks and rewards, regardless of ownership percentage. This closed the Enron loophole but created complexity: companies must analyze each VIE relationship to determine whether consolidation is required. Modern examples: banks must consolidate certain securitization trusts; tech companies must consolidate VIEs in China (where direct ownership is restricted).'
+        'Off balance sheet means keeping assets and debts out of the consolidated accounts. Operating leases before ASC 842, securitized receivables and Special Purpose Entities, separate companies set up for one job, were used this way.',
+      'Enron created over 3,000 SPEs with names like Raptor and LJM, holding its worst assets and debts. Just 3% outside equity kept them unconsolidated. CFO Andrew Fastow ran some himself. FIN 46R, now ASC 810, closed that loophole.'
       ],
       [
         { term: 'Special Purpose Entity (SPE)', definition: 'A separate legal entity created for a specific purpose, often to isolate financial risk or hold specific assets. Can be used legitimately (securitization) or abusively (hiding debt from consolidated statements).', example: 'A bank creates an SPE to hold $1B in mortgages, selling securities backed by those mortgages. If structured properly, the SPE is off the bank\'s balance sheet. If the bank retains risk, the SPE must be consolidated.' },
@@ -4139,12 +4114,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PRINCIPLES VS. RULES',
+      'Principles vs. rules',
       'IFRS: Principles-Based Flexibility vs. GAAP: Rules-Based Specificity',
       [
-        'The most fundamental difference between IFRS and US GAAP is philosophical. IFRS is principles-based: it establishes broad principles and requires management to use judgment in applying them. US GAAP is rules-based: it provides detailed, specific rules for almost every situation. IFRS has roughly 2,500 pages of standards; US GAAP has over 25,000 pages.',
-        'The principles vs. rules debate has real consequences. Under IFRS, "substance over form" means accountants must evaluate the economic reality of a transaction, even if its legal form suggests different treatment. Under US GAAP, detailed rules provide certainty but can create "bright-line" gaming, companies structure transactions to technically comply with rules while violating their intent (Enron\'s SPEs exploited specific GAAP rules).',
-        'Convergence efforts by the IASB (IFRS) and FASB (GAAP) have aligned major standards: revenue recognition (IFRS 15 / ASC 606), leases (IFRS 16 / ASC 842), and expected credit losses (IFRS 9 / ASC 326) are now substantially similar. But significant differences remain in inventory valuation, R&D capitalization, impairment models, and financial instrument classification.'
+        'IFRS is principles based: it sets broad rules and trusts judgment. US GAAP is rules based, with detailed instructions for nearly everything. IFRS runs about 2,500 pages, US GAAP over 25,000. Enron gamed GAAP\'s exact rules.',
+      'The IASB and FASB, the two standard setters, aligned big topics: revenue (IFRS 15 / ASC 606), leases (IFRS 16 / ASC 842), credit losses (IFRS 9 / ASC 326). Inventory and R&D rules still differ.'
       ],
       [
         { term: 'IFRS (International Financial Reporting Standards)', definition: 'The global accounting framework issued by the IASB, used by 140+ countries. Principles-based, emphasizing substance over form and requiring management judgment in application.', example: 'A European company deciding whether a complex arrangement is a lease applies IFRS 16 principles: does the contract convey the right to control an identified asset? Management uses judgment rather than following a specific checklist.' },
@@ -4163,7 +4137,7 @@ const lessons: PathwayLesson[] = [
       'IFRS allows capitalizing development costs (post-feasibility), reducing current expense and creating an intangible asset. US GAAP expenses all R&D immediately. The IFRS company shows higher profit and higher assets for identical spending.'
     ),
     interactiveGraph(
-      'KEY DIFFERENCES',
+      'Key differences',
       'Where IFRS and GAAP Diverge: Inventory, Impairment, and Presentation',
       'comparison',
       'Compare financial metrics under IFRS vs. GAAP to see how the same economic reality produces different reported numbers.',
@@ -4185,15 +4159,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Inflation Rate (%)', min: 0, max: 15, default: 3, unit: '%' },
         { label: 'Inventory Value ($M)', min: 100, max: 5000, default: 1000, unit: '$M' }
       ],
-      { company: 'Caterpillar', metric: 'LIFO Reserve: $2.5B', outcome: 'Caterpillar uses LIFO under US GAAP, reporting $2.5B less inventory and $2.5B more COGS (cumulatively) compared to what FIFO would show. This reduces taxable income, saving hundreds of millions in taxes, a benefit its IFRS-reporting competitors like Komatsu cannot access.', explanation: 'When comparing Caterpillar (GAAP/LIFO) to Komatsu (IFRS/weighted-average), analysts must add back Caterpillar\'s LIFO reserve to make inventory and COGS comparable. Without this adjustment, Caterpillar appears to have lower margins, but the difference is accounting method, not operational performance.' }
+      undefined
     ),
     teachingSlide(
       'CONVERGENCE & FUTURE',
       'Where the Standards Agree, Where They Differ, and What\'s Next',
       [
-        'Major convergence successes: Revenue recognition (ASC 606 / IFRS 15) uses the same 5-step model globally. Lease accounting (ASC 842 / IFRS 16) brings most leases on-balance-sheet under both frameworks (though IFRS 16 uses a single model while ASC 842 retains operating vs. finance lease distinction). Expected credit losses (ASC 326 / IFRS 9) both use forward-looking impairment models.',
-        'Persistent differences: LIFO (allowed in GAAP, banned in IFRS), development cost capitalization (required in IFRS, banned in GAAP except software), impairment reversal (allowed in IFRS, banned in GAAP), revaluation of fixed assets (optional in IFRS, banned in GAAP), and extraordinary items classification. These differences are deeply embedded in each framework\'s philosophy.',
-        'The practical impact for global investors: when comparing a US and European company, analysts must adjust for these differences. A $5B difference in reported assets between two identical companies, one on IFRS, one on GAAP, can arise solely from R&D capitalization, asset revaluation, and LIFO differences. Without adjustment, cross-border valuation multiples (P/E, EV/EBITDA) are misleading.'
+        'Both frameworks now match on revenue (ASC 606 / IFRS 15) with the same 5-step model, leases (ASC 842 / IFRS 16) on the balance sheet, and expected credit losses (ASC 326 / IFRS 9).',
+      'Differences remain: LIFO, an inventory method, is banned under IFRS; IFRS also allows asset revaluation and R&D capitalization. Two identical firms can report a $5B asset gap, so adjust P/E and EV/EBITDA before comparing.'
       ],
       [
         { term: 'ASC 606 / IFRS 15', definition: 'The converged revenue recognition standard. Both use a 5-step model: identify contract, identify performance obligations, determine transaction price, allocate price, recognize revenue when obligations are satisfied. The most successful convergence achievement.', example: 'A US software company and a European software company both recognize SaaS revenue over the subscription period under the same 5-step model, making cross-border revenue comparisons relatively straightforward.' },
@@ -4316,7 +4289,7 @@ const lessons: PathwayLesson[] = [
       'The US federal government spends over $6 trillion annually, more than the GDP of every country except China. Harvard\'s endowment ($50.7B) is larger than the GDP of 100+ countries. The American Red Cross collected $2.7B in donations after Hurricane Katrina, but congressional investigations revealed millions were misspent or unaccounted for. When the Pentagon failed its fifth consecutive audit in 2022, unable to account for $3.5 trillion in assets, it highlighted the unique challenge of government accounting: accountability without a profit motive. Nonprofit and government accounting isn\'t a simplified version of corporate accounting, it\'s an entirely different framework built around stewardship, fund restrictions, and public trust.',
       'By the end of this lesson, you\'ll understand fund accounting, the distinction between restricted and unrestricted net assets, government-wide vs. fund financial statements (GASB standards), nonprofit financial reporting (FASB ASC 958), and the unique accountability frameworks that govern trillions in public and charitable spending.',
       'A fund accounting diagram showing restricted, temporarily restricted, and unrestricted funds flowing into mission-specific programs',
-      { type: 'flow', title: "Fund Accounting: Money With Strings Attached", nodes: [{ label: "WITH DONOR", color: "#ef4444" }, { label: "RESTRICTIONS", color: "#ef4444" }, { label: "WITHOUT DONOR", color: "#F59E0B" }, { label: "RESTRICTIONS", color: "#F59E0B" }, { label: "ENDOWMENT", color: "#10b981" }, { label: "(PERMANENT)", color: "#10b981" }, { label: "No Profit Motive → Accountability = Primary Objective", color: "#B862ED" }, { label: "$10M for scholarships" }, { label: "Must be used as directed" }, { label: "$5M general donations" }, { label: "Board decides allocation" }], footer: "Government accountability requires entirely different frameworks than corporate GAAP", sentiment: 'positive' }
+      { type: 'flow', title: "Fund Accounting: Money With Strings Attached", nodes: [{ label: "With donor", color: "#ef4444" }, { label: "RESTRICTIONS", color: "#ef4444" }, { label: "Without donor", color: "#F59E0B" }, { label: "RESTRICTIONS", color: "#F59E0B" }, { label: "ENDOWMENT", color: "#10b981" }, { label: "(PERMANENT)", color: "#10b981" }, { label: "No Profit Motive → Accountability = Primary Objective", color: "#B862ED" }, { label: "$10M for scholarships" }, { label: "Must be used as directed" }, { label: "$5M general donations" }, { label: "Board decides allocation" }], footer: "Government accountability requires entirely different frameworks than corporate GAAP", sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Accountability failures', detail: 'The American Red Cross misspent millions after Hurricane Katrina, damaging donor trust. The Pentagon cannot pass a basic audit despite spending $800B+ annually. United Way\'s CEO was convicted of stealing $1.2M in donor funds. Without profit as a performance metric, accountability depends entirely on proper fund accounting and oversight.' },
@@ -4326,7 +4299,7 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'FUND ACCOUNTING',
+      'Fund accounting',
       'When Money Comes With Strings: Restricted vs. Unrestricted Resources',
       [
         'Fund accounting is the foundation of nonprofit and government financial reporting. Unlike corporate accounting (one set of books tracking profit), fund accounting segregates resources into separate "funds" based on donor restrictions or legal requirements. Each fund is a self-balancing set of accounts, assets, liabilities, and fund balance, that must be tracked independently.',
@@ -4350,7 +4323,7 @@ const lessons: PathwayLesson[] = [
       'Donor specified purpose = restricted. The $1M is reported in "net assets with donor restrictions" until the library is built, at which point the restriction is released.'
     ),
     interactiveGraph(
-      'GOVERNMENT ACCOUNTING',
+      'Government accounting',
       'GASB Standards: Accountability for Trillions in Public Funds',
       'comparison',
       'Compare government-wide (accrual-based, full picture) vs. fund-level (modified accrual, compliance focus) financial statements to see how the same government looks different under each lens.',
@@ -4373,10 +4346,10 @@ const lessons: PathwayLesson[] = [
         { label: 'Government Revenue ($B)', min: 1, max: 100, default: 10, unit: '$B' },
         { label: 'Tax Collection Rate (%)', min: 70, max: 100, default: 95, unit: '%' }
       ],
-      { company: 'City of Detroit', metric: 'Municipal bankruptcy (2013)', outcome: 'Detroit\'s financial statements obscured $3.5B in unfunded pension and retiree healthcare obligations. When the true liability was revealed, the city couldn\'t meet obligations and filed Chapter 9, the largest US municipal bankruptcy.', explanation: 'Detroit illustrates why government accounting matters: pension obligations were reported in footnotes but not prominently on the balance sheet under the standards of the time. GASB 67/68 (2015) now requires pension liabilities on the government-wide balance sheet, a direct response to cases like Detroit.' }
+      undefined
     ),
     teachingSlide(
-      'NONPROFIT FINANCIAL ANALYSIS',
+      'Nonprofit financial analysis',
       'Evaluating Organizations Without a Bottom Line',
       [
         'Nonprofit financial analysis replaces profitability metrics with accountability metrics. The program expense ratio (program expenses / total expenses) measures mission efficiency, top nonprofits exceed 85%. The fundraising efficiency ratio (fundraising expense / total contributions) measures cost-effectiveness of donor acquisition, top performers spend less than $0.10 per dollar raised. The working capital ratio (current assets / current liabilities) ensures the organization can meet near-term obligations.',
@@ -4505,7 +4478,7 @@ const lessons: PathwayLesson[] = [
       'In 2013, Apple decided to manufacture the Mac Pro in Austin, Texas instead of China, a "make" decision that cost $1,000+ more per unit because specialized screws, machining, and supply chains weren\'t available domestically. Boeing\'s decision to outsource 787 Dreamliner components to 50+ suppliers across 10 countries saved $5B in upfront costs but caused $28B in delays and quality problems. Netflix\'s 2007 decision to invest $40M in streaming (when DVD rental was generating $1.2B in revenue) seemed irrational by traditional cost analysis, but the relevant cost was the future obsolescence of DVDs, not their current profitability. Managerial accounting provides the framework for these decisions: cost-volume-profit analysis, relevant cost identification, and make-or-buy analysis that determines whether companies thrive or die.',
       'By the end of this lesson, you\'ll understand CVP analysis and break-even calculations, contribution margin, relevant vs. sunk costs in decision making, make-or-buy decisions, special order pricing, and how internal accounting information drives the operational decisions that external financial statements never show.',
       'A break-even chart showing fixed costs, variable costs, total revenue, and the break-even point where profit begins',
-      { type: 'flow', title: "Break-Even Analysis: Where Revenue Meets Total Cost", nodes: [{ label: "Break-Even", color: "#F59E0B" }, { label: "Units Sold →" }, { label: "Fixed Costs" }, { label: "Total Cost" }, { label: "Revenue" }], footer: "PROFIT ZONE", sentiment: 'positive' }
+      { type: 'flow', title: "Break-Even Analysis: Where Revenue Meets Total Cost", nodes: [{ label: "Break-Even", color: "#F59E0B" }, { label: "Units Sold →" }, { label: "Fixed Costs" }, { label: "Total Cost" }, { label: "Revenue" }], footer: "Profit zone", sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Decision-making failures', detail: 'Boeing outsourced 787 components to save $5B upfront, ignoring the relevant costs of coordination, quality control, and integration across 50+ suppliers. The result: $28B in delays, massive quality issues, and a program that may never recover its total investment. The sunk cost fallacy kept Boeing invested in the outsourcing strategy long after problems were apparent.' },
@@ -4515,12 +4488,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'CVP ANALYSIS',
+      'CVP analysis',
       'Cost-Volume-Profit: The Foundation of Every Business Decision',
       [
-        'Cost-Volume-Profit (CVP) analysis examines how changes in costs, volume, and price affect profit. The central concept is contribution margin: Selling Price per Unit - Variable Cost per Unit. Each unit sold "contributes" this amount toward covering fixed costs. Once fixed costs are covered (break-even point), every additional unit\'s contribution margin flows directly to profit.',
-        'Break-even point = Fixed Costs / Contribution Margin per Unit. A company with $1M in fixed costs and $50 contribution margin per unit breaks even at 20,000 units. Below 20,000 units: loss. Above 20,000: profit. The contribution margin ratio (CM per unit / Price) shows what percentage of each revenue dollar contributes to covering fixed costs and generating profit.',
-        'Operating leverage measures how sensitive profit is to changes in sales volume. Companies with high fixed costs and low variable costs have high operating leverage, a small revenue increase creates a large profit increase, but a small revenue decrease creates a large profit decrease. Airlines have enormous operating leverage: once a plane is scheduled, most costs (crew, fuel, aircraft lease) are fixed. Filling one extra seat at $200 contributes nearly $200 to profit. But an empty plane loses millions.'
+        'Cost-volume-profit analysis, called CVP, shows how costs, volume and price change profit. Contribution margin is price minus variable cost per unit. Break-even is fixed costs divided by contribution margin: $1M of fixed costs and $50 margin means 20,000 units.',
+      'Below 20,000 units you lose money. Above 20,000, profit. High fixed costs mean high operating leverage: small sales swings move profit a lot. Airlines are extreme, one extra seat at $200 adds nearly $200 to profit.'
       ],
       [
         { term: 'Contribution Margin', definition: 'Selling price per unit minus variable cost per unit. The amount each unit "contributes" toward covering fixed costs and generating profit. The most important number in managerial accounting.', example: 'A coffee shop sells lattes for $5.00. Variable costs (milk, cup, syrup, labor per cup): $1.50. Contribution margin: $3.50. Each latte contributes $3.50 toward covering rent, equipment, and salaries.' },
@@ -4539,7 +4511,7 @@ const lessons: PathwayLesson[] = [
       'Break-even = Fixed Costs / Contribution Margin per Unit = $200,000 / ($80 - $30) = $200,000 / $50 = 4,000 units.'
     ),
     interactiveGraph(
-      'RELEVANT COSTS',
+      'Relevant costs',
       'The Only Costs That Matter: Relevant vs. Sunk in Decision Making',
       'comparison',
       'Toggle between different decision scenarios to see which costs are relevant and which are sunk, the most common and costly error in business decision-making.',
@@ -4562,15 +4534,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Variable Cost per Unit ($)', min: 5, max: 50, default: 20, unit: '$' },
         { label: 'Units Produced', min: 1000, max: 50000, default: 10000, unit: 'units' }
       ],
-      { company: 'Apple', metric: 'M-series chip make-or-buy decision', outcome: 'Apple invested $10B+ in designing custom chips instead of buying from Intel. Relevant costs: $10B R&D vs. $20B+ annual Intel purchases. Sunk costs: all prior Intel-related development (irrelevant). Result: M-series chips provide 2-3x better performance/watt, and Apple saves billions annually while gaining supply chain independence.', explanation: 'Apple\'s analysis considered only forward-looking costs: the annual R&D investment vs. the annual Intel purchase price, plus the qualitative benefit of chip design control. Past investments in the Intel ecosystem were sunk and correctly excluded from the decision.' }
+      undefined
     ),
     teachingSlide(
-      'MAKE-OR-BUY & SPECIAL ORDERS',
+      'Make-or-buy & special orders',
       'Decision Frameworks That Drive Operational Strategy',
       [
-        'Make-or-buy analysis compares relevant internal costs (variable manufacturing cost + any avoidable fixed costs + opportunity costs) against the external purchase price. If internal variable cost is $30/unit, avoidable fixed cost is $5/unit, and an outside supplier offers $32/unit, the internal cost ($35) exceeds the external price ($32), BUY. But if the freed capacity has no alternative use (opportunity cost = $0) and the $5 fixed cost is unavoidable, the relevant internal cost is just $30, MAKE.',
-        'Special order pricing applies when a company receives a one-time order at below normal selling price. The relevant question: does the special order price exceed the INCREMENTAL cost? If normal price is $100, variable cost is $60, and a customer offers $70 for a 5,000-unit one-time order, the order contributes $10/unit x 5,000 = $50,000 to profit, IF the company has spare capacity. If accepting the order means turning away regular customers, the opportunity cost (lost contribution margin on regular sales) must be included.',
-        'Segment discontinuation analysis asks: should we shut down a division or product line? The relevant costs are the avoidable costs (costs that disappear if the segment closes). Common mistake: allocating corporate overhead to a segment and concluding it\'s unprofitable. If corporate overhead doesn\'t decrease when the segment closes, it\'s irrelevant. Many "unprofitable" segments actually contribute positive margin above their avoidable costs, closing them would make the company LESS profitable.'
+        'Make or buy: compare your cost with a supplier\'s price. Variable $30 plus avoidable fixed $5 is $35, above a $32 quote, so buy. If that $5 stays and spare capacity is worth $0, internal cost is $30: make.',
+      'Special order: take it if price beats extra cost. Normal price $100, variable cost $60, a one-time 5,000-unit order at $70 adds $10 each, $50,000 total, if you have spare capacity. Closing a division only helps if its costs disappear.'
       ],
       [
         { term: 'Make-or-Buy Decision', definition: 'Comparing the relevant costs of internal production against external purchase price. Relevant internal costs: variable manufacturing costs, avoidable fixed costs, and opportunity costs of capacity. Irrelevant: allocated overhead that doesn\'t change.', example: 'A car manufacturer considers outsourcing brake assemblies. Internal variable cost: $45/unit. Supplier price: $50/unit. Even though the supplier is more expensive, if internal capacity could be used for a product contributing $15/unit, the opportunity cost makes outsourcing cheaper ($50 vs. $45 + $15 = $60).' },
@@ -4702,12 +4673,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'DUPONT DECOMPOSITION',
+      'DuPont decomposition',
       'Breaking ROE Into Profit Margin, Efficiency, and Leverage',
       [
-        'DuPont analysis decomposes Return on Equity into three drivers: ROE = Net Profit Margin x Asset Turnover x Equity Multiplier. This reveals HOW a company generates its return. A 20% ROE could come from high margins (luxury brand), high asset turnover (retailer), high leverage (bank), or any combination. The source of ROE determines its quality and sustainability.',
-        'Net Profit Margin (Net Income / Revenue) measures pricing power and cost control. Asset Turnover (Revenue / Total Assets) measures how efficiently assets generate sales. Equity Multiplier (Total Assets / Shareholders\' Equity) measures financial leverage, how much debt amplifies returns. A company with 5% margin, 1x turnover, and 4x leverage earns 20% ROE, but 75% of its assets are debt-funded. Any earnings decline is magnified by the leverage.',
-        'The 5-factor extended DuPont model further decomposes into: Tax Burden (NI/EBT) x Interest Burden (EBT/EBIT) x Operating Margin (EBIT/Revenue) x Asset Turnover x Leverage. This reveals whether ROE changes come from tax strategy, debt costs, operational performance, asset efficiency, or capital structure changes. It\'s the most powerful single analytical tool in equity research.'
+        'DuPont analysis splits Return on Equity, profit as a share of owner money, into three parts: profit margin x asset turnover x equity multiplier, which measures leverage from debt. A 20% ROE can come from any mix.',
+      'Example: 5% margin, 1x turnover and 4x leverage give 20% ROE, but 75% of assets are debt funded, so leverage magnifies any earnings fall. The 5-factor version adds tax burden, interest burden and operating margin.'
       ],
       [
         { term: 'DuPont Analysis', definition: 'Decomposition of ROE into Profit Margin x Asset Turnover x Equity Multiplier. Reveals the sources and sustainability of returns. Named after the DuPont Corporation, which developed the framework in the 1920s.', example: 'Walmart: 2.5% margin x 2.5x turnover x 3.0x leverage = ~19% ROE. The low margin is offset by high turnover (selling massive volume on thin margins) and moderate leverage.' },
@@ -4725,7 +4695,7 @@ const lessons: PathwayLesson[] = [
       'ROE quality depends on source. Margin-driven ROE is sustainable and resilient. Leverage-driven ROE is fragile. DuPont analysis reveals the difference that a single ROE number hides.'
     ),
     interactiveGraph(
-      'QUALITY OF EARNINGS',
+      'Quality of earnings',
       'Cash Flow Forensics: When Reported Earnings Lie',
       'comparison',
       'Compare accrual earnings to cash flow to identify quality-of-earnings red flags, the divergences that signal potential manipulation.',
@@ -4747,15 +4717,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Net Income ($M)', min: 10, max: 500, default: 100, unit: '$M' },
         { label: 'Operating Cash Flow ($M)', min: -100, max: 600, default: 120, unit: '$M' }
       ],
-      { company: 'Enron', metric: 'Earnings vs. Cash Flow Divergence', outcome: 'Enron reported $979M net income in 2000 while operating cash flow was negative. The accrual ratio was among the worst in the S&P 500. This divergence, profits without cash, was the clearest signal that earnings were manufactured through accounting manipulation rather than genuine business activity.', explanation: 'A business that consistently generates profits without cash flow is either: (1) Growing extremely fast (requiring working capital investment), (2) Making large non-cash charges (depreciation/amortization exceeding capex), or (3) Manufacturing earnings through accrual manipulation. Context determines which, but Enron\'s case was clearly #3.' }
+      undefined
     ),
     teachingSlide(
-      'RED FLAGS & BENEISH M-SCORE',
+      'Red flags & Beneish M-Score',
       'Detecting Manipulation Before It Becomes Headline News',
       [
-        'The Beneish M-Score uses 8 financial ratios to calculate the probability that a company is manipulating earnings. The key inputs: Days Sales in Receivables Index (rapidly growing receivables), Gross Margin Index (declining margins), Asset Quality Index (growing intangible assets), Sales Growth Index (unsustainable growth), Depreciation Index (declining depreciation rates), SG&A Index, Leverage Index, and Total Accruals to Assets. An M-Score above -1.78 suggests likely manipulation.',
-        'Real-world red flags that experienced analysts watch: (1) Auditor changes, especially when a Big Four firm is replaced by a smaller firm. (2) CFO departures without clear succession. (3) Recurring "one-time" charges that appear every quarter. (4) Growing gap between operating cash flow and net income. (5) Revenue recognition policy changes. (6) Related party transactions with entities controlled by management. (7) Excessive CEO pay disconnected from company performance.',
-        'The most powerful single red flag: when management aggressively promotes non-GAAP metrics that exclude recurring costs. If "adjusted EBITDA" is prominently featured while GAAP net loss is buried in the footnotes, the company is telling you what it wants you to see rather than what the audited numbers show. WeWork\'s "Community Adjusted EBITDA", excluding rent AND SBC, was the most famous example before its implosion.'
+        'The Beneish M-Score uses 8 financial ratios to score the chance a company is faking earnings. Above -1.78 means likely manipulation. Red flags: a Big Four auditor swapped for a smaller firm, CFO exits, repeated one-time charges.',
+      'The biggest warning: management pushing non-GAAP numbers, figures that ignore real costs, while the audited GAAP loss hides in footnotes. WeWork\'s Community Adjusted EBITDA excluded rent and SBC, share based pay, before its collapse.'
       ],
       [
         { term: 'Beneish M-Score', definition: 'A mathematical model using 8 financial ratios to detect earnings manipulation. Score above -1.78 indicates high probability of manipulation. Has detected or flagged many major frauds before public disclosure.', example: 'Enron\'s M-Score exceeded the -1.78 threshold in the years before its collapse. WorldCom, Tyco, and HealthSouth also showed elevated M-Scores. Academic research shows 76% accuracy in identifying manipulators.' },
@@ -4878,7 +4847,7 @@ const lessons: PathwayLesson[] = [
       'SAP, the world\'s largest ERP provider, processes 77% of global transaction revenue, $46 trillion flows through SAP systems annually. When Hershey\'s botched its $112M SAP implementation in 1999, the company couldn\'t process Halloween orders, losing $150M in sales during its most critical quarter. Target\'s 2013 data breach exposed 40 million credit card numbers through a vulnerability in its accounting and POS systems, costing $292M in breach-related expenses. And when Maersk, the world\'s largest shipping company, was hit by the NotPetya cyberattack in 2017, its entire accounting infrastructure was destroyed, the company operated for 10 days using paper records while rebuilding 45,000 PCs and 4,000 servers. Accounting Information Systems are the digital nervous system of modern business, and when they fail, everything fails.',
       'By the end of this lesson, you\'ll understand ERP systems and their role in financial reporting, database architecture for accounting data, internal controls in IT systems (SOX compliance), the emerging role of AI and blockchain in accounting, and the cybersecurity imperative for protecting financial data.',
       'A system architecture diagram showing how ERP connects GL, AP, AR, payroll, and inventory into one integrated financial reporting system',
-      { type: 'flow', title: "ERP: The Digital Backbone of Modern Accounting", nodes: [{ label: "ERP SYSTEM", color: "#B862ED" }, { label: "General Ledger", color: "#10b981" }, { label: "Accounts Pay", color: "#F59E0B" }, { label: "Accounts Rec", color: "#3B82F6" }, { label: "Payroll", color: "#ef4444" }, { label: "Inventory", color: "#94A3B8" }, { label: "(SAP, Oracle, NetSuite)" }, { label: "One transaction → automatically updates all affected modules" }, { label: "Hershey: $112M SAP failure → $150M in lost Halloween sales" }], footer: "Maersk: NotPetya destroyed all systems → 10 days on paper records", sentiment: 'positive' }
+      { type: 'flow', title: "ERP: The Digital Backbone of Modern Accounting", nodes: [{ label: "ERP system", color: "#B862ED" }, { label: "General Ledger", color: "#10b981" }, { label: "Accounts Pay", color: "#F59E0B" }, { label: "Accounts Rec", color: "#3B82F6" }, { label: "Payroll", color: "#ef4444" }, { label: "Inventory", color: "#94A3B8" }, { label: "(SAP, Oracle, NetSuite)" }, { label: "One transaction → automatically updates all affected modules" }, { label: "Hershey: $112M SAP failure → $150M in lost Halloween sales" }], footer: "Maersk: NotPetya destroyed all systems → 10 days on paper records", sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'AIS failures', detail: 'Hershey\'s botched $112M SAP implementation crashed during peak season, losing $150M in sales. Nike\'s failed i2 supply chain system caused $100M in inventory misallocation. The UK\'s National Health Service lost $12.7 billion on an abandoned IT system. When accounting systems fail, the financial damage exceeds the system cost by orders of magnitude.' },
@@ -4888,12 +4857,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'ERP SYSTEMS',
+      'ERP systems',
       'Enterprise Resource Planning: The Single Source of Financial Truth',
       [
-        'An Enterprise Resource Planning (ERP) system integrates all business processes, accounting, procurement, inventory, HR, manufacturing, sales, into one unified database. Before ERP, companies ran separate systems for each function: the accounting system didn\'t talk to inventory, which didn\'t talk to sales. Reconciling data across systems was manual, error-prone, and slow. ERP eliminates this by ensuring a single source of truth.',
-        'In an ERP, when a customer order is processed: inventory is automatically reduced, a sales journal entry is posted to the General Ledger, accounts receivable is updated, the warehouse receives a picking instruction, and revenue is recognized per ASC 606 rules, all from ONE transaction entry. SAP (used by 77% of transaction revenue globally), Oracle ERP, and NetSuite (for mid-market) are the dominant platforms. Implementation costs range from $500K for small businesses to $500M+ for global enterprises.',
-        'The chart of accounts is the backbone of any AIS. It\'s the master list of all general ledger accounts organized by category: assets (1000-1999), liabilities (2000-2999), equity (3000-3999), revenue (4000-4999), and expenses (5000-9999). A well-designed chart of accounts enables accurate reporting, tax compliance, and management decision-making. A poorly designed one creates data quality issues that compound over years.'
+        'An ERP, enterprise resource planning system, puts accounting, inventory, sales and HR in one database. One customer order updates inventory, the general ledger, receivables, the warehouse and revenue under ASC 606 rules.',
+      'SAP handles 77% of transaction revenue globally; Oracle ERP and NetSuite compete. Setup costs $500K to $500M+. The chart of accounts numbers every account: assets 1000-1999, liabilities 2000-2999, equity 3000-3999, revenue 4000-4999, expenses 5000-9999.'
       ],
       [
         { term: 'ERP (Enterprise Resource Planning)', definition: 'An integrated software system that manages all business processes in a unified database. Ensures every transaction automatically updates all affected modules (GL, AP, AR, inventory, etc.) in real-time. The foundation of modern financial reporting.', example: 'When Amazon sells a product: ERP debits COGS and credits inventory, debits AR and credits revenue, updates warehouse management, and triggers revenue recognition rules, all from one transaction.' },
@@ -4912,7 +4880,7 @@ const lessons: PathwayLesson[] = [
       'The lesson: ERP implementation risk management is as important as the system itself. Phase rollouts, off-peak timing, and parallel testing are non-negotiable best practices. Hershey violated all three.'
     ),
     interactiveGraph(
-      'IT CONTROLS & SOX',
+      'It controls & SOX',
       'Internal Controls in the Digital Age: Preventing and Detecting Fraud',
       'comparison',
       'Explore how IT general controls and application controls work together to prevent unauthorized transactions, ensure data integrity, and satisfy SOX compliance requirements.',
@@ -4935,15 +4903,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Number of Users', min: 100, max: 10000, default: 1000, unit: 'users' },
         { label: 'SoD Conflicts (%)', min: 0, max: 30, default: 5, unit: '%' }
       ],
-      { company: 'Target', metric: '2013 Data Breach: 40M cards exposed', outcome: 'Attackers accessed Target\'s financial and POS systems through an HVAC vendor\'s compromised network credentials. The breach exposed 40M credit card numbers and 70M customer records. Total cost: $292M in breach expenses plus incalculable brand damage.', explanation: 'Target\'s breach illustrated that accounting and payment systems are prime cyberattack targets. The entry point, a third-party vendor with network access, highlighted the importance of vendor access controls and network segmentation as critical IT general controls.' }
+      undefined
     ),
     teachingSlide(
-      'EMERGING TECH IN ACCOUNTING',
+      'Emerging tech in accounting',
       'AI, Blockchain, RPA, and the Future of Financial Systems',
       [
-        'Robotic Process Automation (RPA) automates repetitive accounting tasks: invoice processing, bank reconciliation, intercompany eliminations, and report generation. Deloitte estimates RPA can reduce accounting process costs by 25-50%. A bot can process 1,000 invoices in minutes vs. hours for a human, with zero data entry errors. Major firms use RPA platforms like UiPath, Automation Anywhere, and Blue Prism.',
-        'AI and machine learning are transforming audit and fraud detection. Traditional audits test 1-5% of transactions through sampling. AI can analyze 100% of transactions, identifying anomalies that statistical sampling misses. Pattern recognition algorithms detect unusual journal entries (round amounts, posted at unusual times, by unusual users), fraudulent expense reports, and revenue recognition anomalies. KPMG, EY, PwC, and Deloitte all have AI-powered audit tools in production.',
-        'Blockchain offers a potential revolution in accounting: an immutable, distributed ledger where every transaction is permanently recorded and verified by network consensus. Triple-entry accounting adds a third entry on the blockchain that both parties and auditors can verify independently. While still early, blockchain could eventually eliminate the need for reconciliation between counterparties and provide real-time, continuous auditing. The challenge: scalability, energy consumption, and integration with existing ERP systems.'
+        'Robotic process automation, RPA, uses software bots for repeat tasks like invoices and bank reconciliation. Deloitte estimates RPA cuts accounting process costs by 25-50%. A bot processes 1,000 invoices in minutes. Tools: UiPath, Automation Anywhere, Blue Prism.',
+      'Traditional audits sample 1-5% of transactions; AI can scan 100%, flagging odd journal entries. KPMG, EY, PwC and Deloitte use such tools. Blockchain adds a shared, permanent ledger, so triple-entry accounting lets both parties verify independently.'
       ],
       [
         { term: 'RPA (Robotic Process Automation)', definition: 'Software robots that automate repetitive, rules-based accounting tasks like invoice processing, reconciliation, and report generation. Reduces cost by 25-50% and errors by 90%+. Does not require system changes, bots interact with existing interfaces.', example: 'An RPA bot receives 500 vendor invoices daily, matches them to POs and receiving reports (3-way match), flags exceptions for human review, and posts approved invoices to AP. Processing time: minutes vs. a full-time employee\'s day.' },
@@ -5067,7 +5034,7 @@ const lessons: PathwayLesson[] = [
       'Arthur Andersen, one of the "Big Five" accounting firms with 85,000 employees and a century-old reputation, was destroyed in months after shredding Enron audit documents. The firm\'s conviction was later overturned, but it didn\'t matter: the damage was done. 85,000 people lost their jobs because partners chose to protect a client over their professional duty. When Wirecard\'s CFO was arrested and its COO fled after $2.1 billion in cash was revealed as fictitious, EY, the auditor, faced existential questions about why it had issued clean opinions for years. And when WorldCom\'s internal auditor Cynthia Cooper discovered the $3.8 billion fraud, she faced threats, intimidation, and retaliation, but persisted because she understood that professional ethics aren\'t optional when they\'re inconvenient. They\'re MOST important when they\'re inconvenient.',
       'By the end of this lesson, you\'ll understand the AICPA Code of Professional Conduct, auditor independence requirements, the ethical frameworks that guide professional judgment, whistleblower protections (SOX Section 301, Dodd-Frank), and the real-world moral dilemmas that accountants face when pressured to compromise integrity.',
       'A balance scale showing professional duty and ethical standards on one side against client pressure, career risk, and financial incentives on the other',
-      { type: 'flow', title: "The Ethical Balance: Duty vs. Pressure", nodes: [{ label: "PROFESSIONAL DUTY", color: "#10b981" }, { label: "CLIENT PRESSURE", color: "#ef4444" }, { label: "Arthur Andersen: 85,000 jobs lost", color: "#F59E0B" }, { label: "Public interest" }, { label: "Independence" }, { label: "Integrity & objectivity" }, { label: "Audit fees at risk" }], footer: "Chose client over duty → destroyed a century-old firm", sentiment: 'positive' }
+      { type: 'flow', title: "The Ethical Balance: Duty vs. Pressure", nodes: [{ label: "Professional duty", color: "#10b981" }, { label: "Client pressure", color: "#ef4444" }, { label: "Arthur Andersen: 85,000 jobs lost", color: "#F59E0B" }, { label: "Public interest" }, { label: "Independence" }, { label: "Integrity & objectivity" }, { label: "Audit fees at risk" }], footer: "Chose client over duty → destroyed a century-old firm", sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Ethics failures', detail: 'Arthur Andersen: shredded Enron documents, destroying the firm and 85,000 jobs. EY: issued clean Wirecard opinions while $2.1B in cash didn\'t exist. KPMG South Africa: partners jailed for corruption and audit failures at Gupta-linked companies. When auditors compromise independence, the entire financial system\'s credibility erodes.' },
@@ -5077,12 +5044,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'PROFESSIONAL STANDARDS',
+      'Professional standards',
       'The AICPA Code and the Principles That Govern the Profession',
       [
-        'The AICPA Code of Professional Conduct establishes six principles: (1) Responsibilities, act in the public interest, not just client interest. (2) The Public Interest, honor public trust by prioritizing investors, creditors, and the public over management. (3) Integrity, be honest and straightforward. (4) Objectivity and Independence, avoid conflicts of interest and maintain mental independence from audit clients. (5) Due Care, maintain competence and diligence. (6) Scope and Nature of Services, avoid services that compromise independence.',
-        'Independence is the cornerstone. Two dimensions: independence in fact (mental objectivity, you actually ARE unbiased) and independence in appearance (a reasonable observer would believe you\'re unbiased). An auditor might be mentally objective while owning $1,000 in client stock, but the appearance of independence is compromised. Both dimensions must be satisfied. SOX strengthened independence by prohibiting auditors from providing consulting services to audit clients (which is what Arthur Andersen did for Enron).',
-        'The audit committee, a subset of the board comprising only independent directors, is the mechanism for protecting auditor independence. The audit committee hires, fires, and pays the external auditor (not management). Auditors report to the audit committee, not to the CFO. This structural independence ensures that management cannot threaten the auditor\'s engagement to pressure favorable treatment. SOX Section 301 mandates that audit committees of public companies include procedures for receiving whistleblower complaints.'
+        'The AICPA Code of Professional Conduct sets six principles: (1) responsibilities, (2) the public interest, (3) integrity, (4) objectivity and independence, (5) due care, (6) scope and nature of services. Public trust comes before management\'s wishes.',
+      'Independence means being unbiased and looking unbiased: owning $1,000 of client stock breaks the look. SOX, the audit reform law, banned auditor consulting, what Arthur Andersen did for Enron. Its Section 301 lets audit committees, not CFOs, hire auditors.'
       ],
       [
         { term: 'Independence', definition: 'The foundation of audit credibility. Independence in fact means mental objectivity. Independence in appearance means a reasonable observer would see no conflict. Both are required. Compromised independence destroys audit credibility and can destroy firms.', example: 'Arthur Andersen earned $25M in audit fees and $27M in consulting fees from Enron. The consulting revenue created financial dependence on the client, compromising independence in both fact and appearance. SOX now prohibits this dual relationship.' },
@@ -5101,7 +5067,7 @@ const lessons: PathwayLesson[] = [
       'Auditors report to the audit committee, not to management. When management pressures the auditor, escalation to the committee is the proper response. SOX created this independence mechanism specifically to prevent management from intimidating auditors.'
     ),
     interactiveGraph(
-      'WHISTLEBLOWER PROTECTIONS',
+      'Whistleblower protections',
       'Speaking Up When Everyone Wants You Quiet',
       'timeline',
       'Explore the evolution of whistleblower protections from SOX to Dodd-Frank, and see how financial incentives and legal protections have transformed the landscape for those who report fraud.',
@@ -5123,15 +5089,14 @@ const lessons: PathwayLesson[] = [
         { label: 'Fraud Amount ($M)', min: 10, max: 5000, default: 500, unit: '$M' },
         { label: 'Whistleblower Award (%)', min: 10, max: 30, default: 20, unit: '%' }
       ],
-      { company: 'SEC Whistleblower Program', metric: '$2B+ in awards since 2011', outcome: 'The largest single award exceeded $279M. Average awards range from $1-50M for significant fraud reports. The program receives 12,000+ tips annually and has transformed fraud detection from reliance on auditors to proactive insider reporting.', explanation: 'Before Dodd-Frank, whistleblowers faced enormous personal risk with minimal financial upside. The 10-30% bounty program changed the calculus: qualified insiders with knowledge of major fraud now have a strong financial incentive to report, supplementing the ethical obligation. The result: unprecedented tip volume and major enforcement actions.' }
+      undefined
     ),
     teachingSlide(
-      'ETHICAL DILEMMAS IN PRACTICE',
+      'Ethical dilemmas in practice',
       'When Theory Meets Reality: The Gray Areas That Define Careers',
       [
-        'Ethical dilemmas in accounting rarely present as obvious choices between right and wrong. More commonly, they involve gray areas: an estimate that is aggressive but not unreasonable, a related party transaction that is properly disclosed but might mislead unsophisticated investors, or a client who threatens to fire the audit firm over a disagreement about a judgment call. The ethical accountant must navigate these gray areas using professional judgment informed by the Code of Conduct.',
-        'Earnings management, the use of accounting judgment to meet analyst expectations, exists on a spectrum from legitimate to fraudulent. Timing a sale to close in Q4 rather than Q1 to meet annual targets: aggressive but legal. Booking revenue for undelivered products: fraud. The line between "managing earnings" and "manipulating earnings" is the line between using legitimate judgment within GAAP and distorting the financial picture beyond what the facts support.',
-        'The pressure to compromise is real and structural. Audit partners are evaluated partly on client retention. CFOs are evaluated on meeting earnings targets. Junior auditors depend on senior partners for career advancement. These structural incentives can create environments where compromising "just a little" on one estimate, then another, then another, eventually produces financial statements that materially misstate reality. The ethical obligation is to resist this incremental drift, to maintain what the AICPA calls "professional skepticism" even when it\'s career-damaging.'
+        'Most dilemmas are gray, not right versus wrong: an estimate that is aggressive but defensible, or a client threatening to fire you over a judgment call. You use professional judgment guided by the Code of Conduct.',
+      'Earnings management, using accounting judgment to hit targets, runs from legal to fraud. Closing a sale in Q4 not Q1: legal. Booking revenue for undelivered products: fraud. Career pressure invites small compromises, so keep what the AICPA calls professional skepticism.'
       ],
       [
         { term: 'Professional Skepticism', definition: 'A questioning mind and critical assessment of audit evidence. Not assuming management is dishonest, but not assuming honesty either. Requiring evidence rather than accepting representations. The mindset that prevents auditors from being deceived.', example: 'Management says: "This $500M receivable is fully collectible." Professional skepticism requires: Verify independently. Check the customer\'s payment history. Analyze the aging schedule. Assess industry conditions. Don\'t just accept the CFO\'s assurance.' },
@@ -5257,12 +5222,11 @@ const lessons: PathwayLesson[] = [
 
     // PHASE 2, TEACH
     teachingSlide(
-      'INTEGRATED ANALYSIS',
+      'Integrated analysis',
       'Bringing It All Together: The Multi-Domain Analytical Framework',
       [
-        'Professional accounting analysis is never single-dimensional. A complete company evaluation integrates: (1) Financial Statement Analysis, DuPont decomposition, quality of earnings, cash flow forensics. (2) Consolidation understanding, what\'s included, what\'s excluded, NCI impacts. (3) Tax analysis, effective rate drivers, deferred tax positions, sustainability. (4) Budgeting context, how actuals compare to plan, what variances reveal. (5) System assessment, is the AIS reliable, are controls adequate? (6) Ethical evaluation, is management trustworthy, are related parties disclosed?',
-        'The most dangerous analytical error is examining one dimension in isolation. A company with excellent DuPont metrics but poor earnings quality is a trap. A company with conservative accounting but massive off-balance-sheet obligations (remember Enron\'s SPEs) is a trap. A company with strong financials but an undisclosed related party web (remember the $8M vendor owned by the CEO\'s brother-in-law) is a trap. Multi-domain synthesis is what separates analysts from the crowd.',
-        'Cross-border analysis adds another layer: IFRS vs. GAAP differences can create billion-dollar gaps in reported metrics. R&D capitalization inflates IFRS earnings. LIFO understates US inventory values. Asset revaluation makes IFRS balance sheets reflect current values while GAAP shows historical cost. A global analyst who doesn\'t adjust for these differences is comparing apples to oranges and drawing invalid conclusions.'
+        'Real analysis checks six things at once: financial statements, consolidation (what a parent company includes or leaves out), tax, budget versus actual, the accounting system and controls, and ethics.',
+      'Looking at one alone is the trap. Enron hid debt in SPEs. One firm\'s financials looked strong while an $8M vendor was owned by the CEO\'s brother-in-law. Also adjust for IFRS versus GAAP: IFRS capitalises R&D, LIFO understates US inventory.'
       ],
       [
         { term: 'Multi-Domain Analysis', definition: 'Evaluating a company across all accounting dimensions simultaneously: financial statements, consolidation, tax, budgets, systems, and ethics. Identifies risks that single-dimension analysis misses. The standard for professional-grade work.', example: 'Enron passed single-dimension tests: strong revenue growth, positive net income, investment-grade credit. Multi-domain analysis revealed: negative operating cash flow (quality), 3,000 unconsolidated SPEs (consolidation), aggressive tax shelters (tax), and auditor conflicts (ethics). Any one flag was dismissible; together they screamed fraud.' },
@@ -5280,7 +5244,7 @@ const lessons: PathwayLesson[] = [
       'Three consecutive years of negative operating cash flow with positive net income is virtually diagnostic of earnings manipulation in a mature company. Receivables growing 2x revenue compounds the concern. DuPont + accrual ratio + Beneish M-Score would reveal the full picture.'
     ),
     interactiveGraph(
-      'CAPSTONE ANALYSIS',
+      'Capstone analysis',
       'Comprehensive Company Evaluation: All Tools Applied',
       'comparison',
       'Apply the complete analytical toolkit, DuPont, cash flow forensics, cross-border adjustments, and ethical red flags, to evaluate a complex multi-national company.',
@@ -5302,15 +5266,14 @@ const lessons: PathwayLesson[] = [
         { label: 'ROE (%)', min: 5, max: 40, default: 18, unit: '%' },
         { label: 'Cash Flow / Net Income (%)', min: -50, max: 200, default: 110, unit: '%' }
       ],
-      { company: 'Berkshire Hathaway', metric: 'Multi-domain analysis excellence', outcome: 'Buffett evaluates every investment across all dimensions: DuPont (margin-driven ROE preferred), cash flow (must exceed earnings), consolidation (understands every subsidiary), tax (optimizes but doesn\'t over-aggress), systems (invests in insurance float management technology), and ethics (refuses to invest in companies with questionable management).', explanation: 'Berkshire\'s $900B+ market cap was built on multi-domain analytical rigor applied consistently for 60+ years. Every lesson in this course reflects a domain Buffett masters. The capstone tests whether you can apply this synthesis to complex, ambiguous situations, the same skill that built the greatest investment track record in history.' }
+      undefined
     ),
     teachingSlide(
-      'THE PROFESSIONAL ACCOUNTANT',
+      'The professional accountant',
       'Synthesis, Judgment, and the Responsibility That Comes With Knowledge',
       [
-        'The applied accounting journey spans from the fundamental equation (A = L + E) through the most sophisticated analytical techniques in the profession. You now understand double-entry mechanics, financial statement preparation, ratio analysis, audit procedures, fraud detection, revenue recognition, inventory valuation, depreciation, payroll, tax strategy, budgeting, consolidation, IFRS vs. GAAP, nonprofit accounting, managerial decisions, financial forensics, information systems, and professional ethics.',
-        'But knowledge without judgment is incomplete. Every company presents a unique combination of financial characteristics, industry dynamics, management quality, and ethical climate. No formula can replace the professional judgment required to weigh multiple analytical dimensions and reach a sound conclusion. The best professionals maintain both rigor (systematic, thorough analysis) and humility (recognition that any analysis can be wrong and should be continuously updated with new information).',
-        'The capstone challenge ahead asks you to apply this synthesis to realistic multi-domain problems. There are no trick questions, only the ambiguity and complexity that define real-world accounting. Trust the frameworks you\'ve learned, apply them systematically, and maintain the professional skepticism that protects the investing public and preserves the integrity of financial markets.'
+        'You have covered the whole path, from A = L + E through fraud detection, tax, consolidation, IFRS versus GAAP, forensics and ethics.',
+      ' Knowledge still needs judgment. Every company mixes different financials, industry pressures and management quality, so weigh the evidence, stay skeptical, and update your view when new facts arrive.'
       ],
       [
         { term: 'Professional Judgment', definition: 'The ability to weigh multiple analytical inputs, recognize ambiguity, and reach a sound conclusion using frameworks informed by knowledge and experience. The core competency that distinguishes professionals from technicians.', example: 'Two analysts look at the same company: one sees "20% ROE, buy." The other decomposes via DuPont, checks cash flow quality, evaluates consolidation, assesses tax sustainability, and concludes "20% ROE driven by leverage with declining earnings quality, avoid." Same data, different judgment.' },
@@ -5348,9 +5311,9 @@ const lessons: PathwayLesson[] = [
       ['Ethics Evaluation', 'Governance risk, management integrity and related party concerns']
     ]),
     pc('Multi-Domain Risk Assessment', [
-      { prompt: 'Company ROE: 24%. DuPont: 4% margin x 1.5x turnover x 4.0x leverage. How much of the ROE comes from leverage?', options: ['25%', '66.7%, without leverage (if multiplier were 1.0x): 4% x 1.5 = 6% ROE. With 4x leverage: 24%. Leverage contributes 18 of 24 percentage points = 75% of ROE', '50%', '75%'], correct: 3 },
-      { prompt: 'Same company: Net income $200M but operating cash flow only $60M. Accrual ratio with $2B assets?', options: ['3%', '5%', '7%, ($200M - $60M) / $2B = 7%. Elevated positive ratio = earnings quality concern', '10%'], correct: 2 },
-      { prompt: 'The company also has $500M in unconsolidated VIEs and the CFO left without explanation. How many of 6 risk dimensions are flagged?', options: ['2', '3', '4, leverage risk (DuPont), earnings quality risk (accrual ratio), hidden liability risk (VIEs), governance risk (CFO departure). That is 4 of 6.', '5'], correct: 2 }
+      { prompt: 'Company ROE: 24%. DuPont: 4% margin x 1.5x turnover x 4.0x leverage. How much of the ROE comes from leverage?', options: ['25%', '66.7%', '50%', '75%'], correct: 3, explanation: 'Without leverage (a 1.0x multiplier) the ROE would be 4% x 1.5 = 6%. With 4x leverage it is 24%. Leverage contributes 18 of those 24 percentage points, so 75% of the ROE.' },
+      { prompt: 'Same company: Net income $200M but operating cash flow only $60M. Accrual ratio with $2B assets?', options: ['3%', '5%', '7%', '10%'], correct: 2, explanation: '($200M - $60M) / $2B = 7%. An elevated positive accrual ratio means reported earnings are running well ahead of the cash actually collected, which is an earnings-quality concern.' },
+      { prompt: 'The company also has $500M in unconsolidated VIEs and the CFO left without explanation. How many of 6 risk dimensions are flagged?', options: ['2', '3', '4', '5'], correct: 2, explanation: 'Four of the six fire: leverage risk from the DuPont breakdown, earnings-quality risk from the accrual ratio, hidden-liability risk from the unconsolidated VIEs, and governance risk from the unexplained CFO departure.' }
     ]),
 
     // PHASE 4, APPLY

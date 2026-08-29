@@ -113,12 +113,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE BIG IDEA',
+      'The big idea',
       'What Is Quantitative Finance?',
       [
-        'You already know the basics of investing, buying stocks, diversification, long-term growth. Quantitative finance takes that a step further: instead of picking investments based on gut feeling or reading news, you use math and data to find patterns the human eye can\'t see. Think of it like upgrading from a compass to GPS.',
-        'Here\'s a simple example. Say you notice that a stock tends to rise on Mondays and fall on Fridays. A traditional investor might shrug, but a quant would test that pattern across thousands of stocks over 20 years to see if it\'s statistically real, how often it works, and how much money it could make. That\'s quantitative finance: using numbers to turn observations into strategies.',
-        'Today, over 80% of all stock trades in the U.S. are made by computer programs, algorithms built by quants. These programs can analyze thousands of stocks in milliseconds, remove emotional bias, and find tiny opportunities that add up to huge returns over time. The transition from human traders shouting on exchange floors to algorithm-driven markets happened in just 25 years.'
+        'Quantitative finance means using math and data to spot market patterns, not gut feeling. Say a stock tends to rise on Mondays and fall on Fridays. A quant, a trader who uses math, tests that over 20 years.',
+      'Today, over 80% of U.S. stock trades come from computer programs built by quants. They scan thousands of stocks in milliseconds and remove emotion. Markets went from shouting floor traders to these algorithms in just 25 years.'
       ],
       [
         { term: 'Quantitative Finance', definition: 'Using math, statistics, and computers to analyze financial markets and make investment decisions, replacing guesswork with data-driven strategies.', example: 'Instead of picking stocks because they "feel right," a quant might analyze 20 years of price data to find a statistically proven pattern, then let a computer trade on it automatically.' },
@@ -127,7 +126,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Data-Driven', definition: 'Making decisions based on measurable evidence and statistical analysis rather than opinions, hunches, or emotions.', example: 'Instead of saying "I think tech stocks will go up," a data-driven approach would be: "Tech stocks have risen in 72% of quarters when interest rates fell, and rates are falling now."' }
       ],
       'Timeline showing: 1990s human traders → 2000s early algorithms → 2010s algorithms dominate → 2020s AI-powered trading',
-      { company: 'Renaissance Technologies', metric: 'Medallion Fund annual returns (1988-2024)', outcome: '66% gross annual returns for 30+ years, the best track record in investing history', explanation: 'Jim Simons, a math professor, founded Renaissance in 1982. Instead of hiring Wall Street traders, he hired mathematicians and scientists who found hidden patterns in market data. The result? $100 billion+ in total profits, more than Warren Buffett generated over the same period.' },
+      undefined,
       {
         type: 'flow',
         title: 'How Trading Evolved',
@@ -153,7 +152,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE TAKEOVER',
+      'The takeover',
       'How Algorithms Replaced Human Traders',
       'timeline',
       'Move the slider to explore how computer algorithms gradually took over stock trading. In 1990, almost every trade was made by a human. Today, over 80% are made by machines.',
@@ -176,7 +175,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Focus Year', min: 1990, max: 2024, default: 2005, unit: '' },
         { label: 'Algo Adoption', min: 1, max: 10, default: 7, unit: '/10' }
       ],
-      { company: 'Two Sigma', metric: 'Assets under management', outcome: 'Grew from $0 to $60+ billion in 20 years using data-driven strategies', explanation: 'Two Sigma treats investing as a technology problem. They hire more engineers and data scientists than traditional finance professionals, building computer systems that find patterns in massive datasets to make investment decisions.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -193,7 +192,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'QUANT FINANCE MYTHS',
+      'Quant finance myths',
       'What most people get wrong about quantitative finance',
       [
         {
@@ -430,7 +429,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Probability & Expected Value',
       [
         'Probability measures the likelihood of an event occurring, expressed as a number between 0 (impossible) and 1 (certain). In finance, nothing is certain, every investment decision involves probabilities. A stock might have a 70% probability of rising 15% and a 30% probability of falling 10%. Understanding these probabilities is the foundation of every quantitative decision.',
@@ -444,7 +443,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Law of Large Numbers', definition: 'The mathematical principle that as you repeat a random experiment more times, the average result converges toward the expected value.', example: 'A casino might lose money at one roulette table in an hour, but across 100 tables over a year, its actual returns converge almost exactly to the mathematical edge.' }
       ],
       'Diagram showing expected value calculation: a decision tree branching into outcomes with probabilities, then collapsing to a single EV number. Casino roulette (-5.3% EV) vs diversified stock portfolio (+7-10% EV).',
-      { company: 'Las Vegas Casinos', metric: 'House edge on roulette', outcome: 'The house edge of 5.26% guarantees casinos $5.26 profit per $100 wagered, billions annually', explanation: 'Casinos are the perfect demonstration of expected value. They don\'t win every spin, but with a 5.26% edge repeated millions of times, the law of large numbers makes their annual profit virtually certain. Ed Thorp realized the same math applies to financial markets.' },
+      undefined,
       QA2_TEACH1
     ),
 
@@ -459,7 +458,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'RISK-ADJUSTED RETURNS',
+      'Risk-adjusted returns',
       'Sharpe Ratio: Measuring Return Per Unit of Risk',
       'comparison',
       'Compare two investments: one with high returns and high volatility vs one with moderate returns and low volatility. Adjust the parameters to see how the Sharpe ratio reveals which is truly better.',
@@ -484,12 +483,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Fund B Return', min: 5, max: 30, default: 12, unit: '%' },
         { label: 'Fund B Volatility', min: 3, max: 30, default: 8, unit: '%' }
       ],
-      { company: 'Ed Thorp / Princeton-Newport Partners', metric: 'Risk-adjusted returns (1969-1988)', outcome: '19.8% annual returns with only 3 losing months in 20 years, Sharpe ratio above 2.0', explanation: 'Thorp applied probability theory and the Kelly criterion to convert options in the 1970s-80s, earning consistent returns with minimal drawdowns. His approach proved that mathematical rigor could produce better risk-adjusted returns than virtually any traditional investment strategy.' }
+      undefined
     ),
 
     // Step 6, Misconceptions (placed before the case study so myths are cleared first)
     misconceptions(
-      'PROBABILITY MYTHS',
+      'Probability myths',
       'What most people get wrong about probability in investing',
       [
         {
@@ -746,12 +745,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide
     teachingSlide(
-      'PATTERNS IN TIME',
+      'Patterns in time',
       'What Is Time Series Analysis?',
       [
-        'A time series is a sequence of data points measured at successive points in time, stock prices each day, GDP each quarter, or interest rates each month. Time series analysis is the mathematical toolkit for understanding the patterns hidden within these sequences: trends, cycles, seasonality, and random fluctuations. In quantitative finance, nearly all data is time series data.',
-        'The critical insight is that financial time series are NOT random walks. While the Efficient Market Hypothesis suggests prices follow a random walk (each move independent of the last), empirical data shows otherwise. Returns exhibit autocorrelation (today\'s return predicts tomorrow\'s), volatility clustering (big moves follow big moves), and mean reversion (extreme values tend to revert to the average). These patterns are small but exploitable at scale.',
-        'Stationarity is the foundation concept: a stationary time series has constant statistical properties (mean, variance) over time. Raw stock prices are non-stationary, they trend upward over decades. But daily returns are approximately stationary, their mean and variance are relatively stable. Converting non-stationary data to stationary data (via differencing, log returns, or detrending) is the essential first step in nearly every quant model.'
+        'A time series is data recorded over time: stock prices each day, GDP each quarter. Time series analysis hunts for patterns in it: trends, cycles, seasonality, and noise. Most finance data is time series data.',
+      'Prices are not purely random: returns show autocorrelation, so today\'s move hints at tomorrow\'s. Raw prices trend upward, but daily returns are roughly stationary, meaning steady average and spread. Converting prices to returns starts most quant models.'
       ],
       [
         { term: 'Time Series', definition: 'A sequence of data points indexed in time order. In finance, this includes daily stock prices, monthly economic indicators, or tick-by-tick trade data spanning milliseconds.', example: 'Apple\'s daily closing price from 2000 to 2025 is a time series of roughly 6,300 data points, each representing one trading day.' },
@@ -760,7 +758,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Volatility Clustering', definition: 'The empirical observation that large price changes tend to follow large price changes, and small changes follow small changes, volatility is autocorrelated even when returns are not.', example: 'After a day where the S&P 500 moves 3%, the next several days are likely to see moves of 1-3% as well. This is why the 2008 crash wasn\'t a single day, it was months of elevated volatility.' }
       ],
       'Time series decomposition diagram: raw price series broken into trend component + seasonal component + cyclical component + residual noise. Arrows showing each component extracted.',
-      { company: 'AQR Capital Management', metric: 'Momentum strategy returns (1927-2024)', outcome: 'Momentum (buying recent winners, selling losers) has delivered 6-8% annual alpha across nearly a century of data', explanation: 'Cliff Asness, AQR\'s founder, wrote his PhD dissertation at the University of Chicago proving that momentum, a time series autocorrelation phenomenon, generates consistent excess returns. AQR manages $140B+ largely based on time series signals like momentum, mean reversion, and trend following.' },
+      undefined,
       {
         type: 'flow',
         title: 'Time Series Decomposition',
@@ -786,7 +784,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'MOVING AVERAGES',
+      'Moving averages',
       'Simple & Exponential Moving Averages',
       'financialChart',
       'Compare how different moving average windows smooth out noise in price data. Shorter windows react faster but are noisier; longer windows are smoother but lag behind real changes.',
@@ -809,7 +807,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Short MA Period', min: 5, max: 50, default: 20, unit: ' days' },
         { label: 'Long MA Period', min: 20, max: 200, default: 50, unit: ' days' }
       ],
-      { company: 'Man Group / AHL', metric: 'Trend-following returns since 1987', outcome: 'AHL\'s systematic trend-following strategy has delivered 10%+ annualized returns over 35 years using moving average-based signals', explanation: 'Man AHL is one of the world\'s largest systematic trend-following firms. Their core strategy uses moving average crossovers and breakout signals across 500+ markets, currencies, commodities, bonds, equities, generating returns largely uncorrelated with traditional stock/bond portfolios.' },
+      undefined,
       'sma-vs-ema'
     ),
   
@@ -837,7 +835,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 8, Misconceptions
     misconceptions(
-      'TIME SERIES MYTHS',
+      'Time series myths',
       'What most people get wrong about analyzing financial data over time',
       [
         {
@@ -1076,12 +1074,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE FRONTIER',
+      'The frontier',
       'Modern Portfolio Theory & The Efficient Frontier',
       [
-        'Harry Markowitz\'s breakthrough was formalizing diversification mathematically. Before 1952, investors knew diversification was good, but they couldn\'t quantify how good or determine the optimal mix. Markowitz showed that a portfolio\'s risk depends not just on individual asset risks, but on the correlations between all pairs of assets. Two risky assets can create a less risky portfolio if their returns are negatively correlated.',
-        'The efficient frontier is a curve showing the set of optimal portfolios, those offering the highest expected return for each level of risk. Every portfolio ON the frontier is optimal: you cannot increase return without increasing risk, or decrease risk without decreasing return. Portfolios below the frontier are suboptimal, they take unnecessary risk for their return level. The math involves solving a quadratic optimization: $$\\min_{w} \\sigma_p^2 = \\sum_i \\sum_j w_i w_j \\sigma_{ij} \\quad \\text{s.t.} \\quad \\sum_i w_i E[R_i] = R_{target}$$',
-        'The key input is the covariance matrix, a table showing how every asset\'s returns move relative to every other asset. For a portfolio of 500 stocks, the covariance matrix has 500 × 500 = 250,000 entries. Estimating this matrix accurately is the central challenge of portfolio optimization. Small errors in covariance estimates can produce wildly different "optimal" portfolios, which is why practitioners use techniques like shrinkage estimators and factor models to stabilize the matrix.'
+        'Before 1952, investors knew diversification helped but could not measure it. Harry Markowitz showed portfolio risk depends on correlation, how assets move together. Two risky assets can form a safer portfolio if their returns move in opposite directions.',
+      'The efficient frontier is the curve of best portfolios: highest return for each level of risk. Building it needs a covariance matrix, a table of how assets move together. For 500 stocks: 500 × 500 = 250,000 entries.'
       ],
       [
         { term: 'Modern Portfolio Theory (MPT)', definition: 'The mathematical framework developed by Harry Markowitz in 1952 showing that an optimal portfolio maximizes expected return for a given level of risk by combining assets based on their expected returns, variances, and covariances.', example: 'A 60/40 stock/bond portfolio has historically delivered about 80% of stock returns with only 60% of the volatility, the "free lunch" of diversification.' },
@@ -1090,7 +1087,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Correlation', definition: 'A standardized measure of how two assets move together, ranging from -1 (perfect opposite movement) to +1 (perfect co-movement). 0 means no linear relationship.', example: 'Stocks and bonds have historically had a correlation around -0.2 to +0.3, meaning they often move in opposite directions, making the 60/40 portfolio an effective diversifier.' }
       ],
       'A scatter plot of many random portfolios in risk-return space, with the efficient frontier curve highlighted at the upper boundary. Individual assets plotted as labeled points below the frontier.',
-      { company: 'Bridgewater Associates', metric: 'All Weather Fund performance (1996-2024)', outcome: 'The All Weather portfolio has delivered ~7.5% annualized returns with significantly lower drawdowns than stocks alone', explanation: 'Ray Dalio\'s All Weather Fund is built directly on Markowitz principles, combining uncorrelated asset classes (stocks, bonds, commodities, TIPS) to create a portfolio near the efficient frontier. By risk-weighting allocations so each asset class contributes equally to total portfolio risk, the fund achieves attractive returns with dramatically reduced crash risk.' },
+      undefined,
       QA4_TEACH1
     ),
   
@@ -1105,7 +1102,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CORRELATION IMPACT',
+      'Correlation impact',
       'How Correlation Affects Portfolio Risk',
       'heatmap',
       'Adjust the correlation between two assets to see how it changes the efficient frontier. At correlation = +1, there\'s no diversification benefit. At correlation = -1, you can theoretically eliminate all risk.',
@@ -1128,7 +1125,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Correlation', min: -100, max: 100, default: 30, unit: '% (÷100)' },
         { label: 'Weight in Asset A', min: 0, max: 100, default: 50, unit: '%' }
       ],
-      { company: 'Yale Endowment (David Swensen)', metric: 'Returns from diversified allocation (1985-2024)', outcome: 'The Yale Model generated 13%+ annualized returns by combining uncorrelated alternative asset classes', explanation: 'David Swensen revolutionized institutional investing by applying Markowitz principles at scale. By allocating Yale\'s endowment across stocks, bonds, real estate, private equity, venture capital, and timber, assets with low correlations, he achieved equity-like returns with lower risk. The "Yale Model" is now followed by virtually every major university endowment.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1155,7 +1152,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'PORTFOLIO OPTIMIZATION MYTHS',
+      'Portfolio optimization myths',
       'What most people get wrong about building optimal portfolios',
       [
         {
@@ -1385,12 +1382,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE EQUATION',
+      'The equation',
       'Understanding Options & Black-Scholes',
       [
-        'An option is a contract giving you the right (but not the obligation) to buy or sell an asset at a specific price (the strike price) before a specific date (the expiration). A call option gives the right to buy; a put option gives the right to sell. If Apple stock is at $180 and you buy a $200 call option expiring in 3 months, you profit if Apple rises above $200 before expiration, and your maximum loss is the premium you paid for the option.',
-        'The Black-Scholes model determines the fair price of a European call option: $$C = S_0 N(d_1) - K e^{-rT} N(d_2)$$ where $d_1 = \\frac{\\ln(S_0/K) + (r + \\sigma^2/2)T}{\\sigma\\sqrt{T}}$ and $d_2 = d_1 - \\sigma\\sqrt{T}$. It uses five inputs: stock price $S$, strike price $K$, time $T$, risk-free rate $r$, and volatility $\\sigma$. The genius is that four inputs are directly observable; only volatility must be estimated. The formula was derived from the insight that you can create a "risk-free" portfolio by continuously adjusting a mix of the option and the underlying stock, a process called delta hedging.',
-        'The most important input, and the most debated, is volatility (σ). Implied volatility is the volatility the market is pricing into an option. If the Black-Scholes price using 20% volatility equals the market price, the implied volatility is 20%. The VIX, the "fear index", is calculated from implied volatilities of S&P 500 options and measures the market\'s expected future volatility. When the VIX spikes, it means option prices are surging because traders expect large future price swings.'
+        'An option is the right, not the duty, to buy (a call) or sell (a put) at a strike price before expiry. Apple at $180: a $200 call expiring in 3 months profits above $200, risking only the premium.',
+      'Black-Scholes prices a call from five inputs: stock price, strike, time, risk-free rate, volatility σ. Only σ is estimated. If 20% volatility matches the market price, implied volatility is 20%. The VIX tracks that across S&P 500 options.'
       ],
       [
         { term: 'Option', definition: 'A derivative contract giving the holder the right, but not the obligation, to buy (call) or sell (put) an underlying asset at a specified strike price before or at expiration.', example: 'You buy a $150 call option on Apple expiring in June for $5. If Apple rises to $170, you profit $15 ($170-$150-$5). If Apple stays below $150, you lose only the $5 premium.' },
@@ -1399,7 +1395,7 @@ const lessons: PathwayLesson[] = [
         { term: 'The Greeks', definition: 'Partial derivatives of the option price with respect to each input: Delta (stock price), Gamma (rate of delta change), Theta (time decay), Vega (volatility), Rho (interest rates).', example: 'A Delta of 0.60 means the option price moves $0.60 for every $1 move in the stock. Theta of -0.05 means the option loses $0.05 per day from time decay.' }
       ],
       'Diagram showing the five Black-Scholes inputs flowing into the formula, with the option price as output. Below, a sensitivity chart showing how the option price changes as each input changes.',
-      { company: 'Chicago Board Options Exchange (CBOE)', metric: 'Options market growth since Black-Scholes (1973)', outcome: 'The options market grew from nearly zero to $600+ trillion in notional value, making derivatives the largest financial market in the world', explanation: 'Before Black-Scholes, the options market was tiny because no one could agree on fair prices. The formula gave both buyers and sellers a mathematical basis for pricing. The CBOE opened in 1973, the same year Black-Scholes was published, and within a decade, traders were carrying printouts of Black-Scholes tables onto the trading floor. Today, options on stocks, indices, currencies, and commodities trade in the trillions daily.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Call Option Payoff (Strike $100)',
@@ -1426,7 +1422,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE GREEKS',
+      'The Greeks',
       'How Option Prices Change: Delta, Theta, and Vega',
       'comparison',
       'Explore how the three most important Greeks, Delta (price sensitivity), Theta (time decay), and Vega (volatility sensitivity), change as the underlying stock price moves relative to the strike price.',
@@ -1450,12 +1446,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Stock Price', min: 50, max: 150, default: 100, unit: '$' },
         { label: 'Days to Expiry', min: 1, max: 365, default: 30, unit: ' days' }
       ],
-      { company: 'Citadel Securities', metric: 'Option market making revenue', outcome: 'Citadel Securities earns $5-7 billion annually as the largest U.S. options market maker, pricing millions of options per day using Black-Scholes-derived models', explanation: 'Citadel Securities handles roughly 40% of all U.S. retail equity options volume. Their systems price options using extensions of Black-Scholes hundreds of thousands of times per second, managing Greeks across millions of positions simultaneously. When they identify a mispriced option, even by a fraction of a cent, they trade instantly. This scale makes precision in Black-Scholes inputs (especially implied volatility) worth billions.' }
+      undefined
     ),
   
     // Step 6, Misconceptions
     misconceptions(
-      'OPTIONS & BLACK-SCHOLES MYTHS',
+      'Options & Black-Scholes myths',
       'What most people get wrong about derivatives pricing',
       [
         {
@@ -1707,7 +1703,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide
     teachingSlide(
-      'RANDOM POWER',
+      'Random power',
       'What Are Monte Carlo Methods?',
       [
         'Monte Carlo methods use repeated random sampling to solve mathematical problems that are too complex for analytical (closed-form) solutions. The core idea is beautifully simple: if you can simulate a process randomly, run the simulation thousands or millions of times, and average the results, you get an accurate answer. It\'s named after the Monte Carlo Casino in Monaco, a nod to the role of randomness.',
@@ -1721,7 +1717,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Convergence', definition: 'The property that as the number of Monte Carlo simulations increases, the estimated value approaches the true value. Accuracy improves proportionally to the square root of the number of simulations.', example: '100 simulations might estimate an option price at $10 ± $2. 10,000 simulations narrow it to $10 ± $0.20. 1,000,000 simulations give $10 ± $0.02. Each 100x increase in simulations improves accuracy by 10x.' }
       ],
       'Flowchart: Start → Generate random numbers → Simulate price path → Calculate payoff → Repeat N times → Average all payoffs → Option price. Arrow showing convergence as N increases.',
-      { company: 'JPMorgan Chase', metric: 'Daily Value-at-Risk (VaR) calculations', outcome: 'JPMorgan runs millions of Monte Carlo simulations nightly to calculate potential losses across their $3.4 trillion balance sheet', explanation: 'JPMorgan invented the modern Value-at-Risk (VaR) framework in the 1990s, using Monte Carlo simulation to answer: "What\'s the most we could lose in a day with 99% confidence?" Their RiskMetrics system simulates thousands of possible market scenarios, computing P&L for every position under each scenario. This Monte Carlo-based risk management has become the global banking standard, required by regulators worldwide.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Monte Carlo Convergence',
@@ -1747,7 +1743,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'SIMULATION IN ACTION',
+      'Simulation in action',
       'Value at Risk (VaR): Quantifying Portfolio Risk',
       'distribution',
       'See how Monte Carlo simulation generates a distribution of possible portfolio returns. The VaR (Value at Risk) is the loss at the tail of this distribution, the worst-case scenario at a chosen confidence level.',
@@ -1770,7 +1766,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Confidence Level', min: 90, max: 99, default: 99, unit: '%' },
         { label: 'Number of Simulations', min: 100, max: 100000, default: 10000, unit: '' }
       ],
-      { company: 'JPMorgan Chase', metric: '2012 "London Whale" VaR failure', outcome: 'JPMorgan\'s CIO unit manipulated its Monte Carlo VaR model to hide a $150 billion derivatives position, ultimately losing $6.2 billion when the trades went wrong', explanation: 'The London Whale incident proved that Monte Carlo VaR is only as reliable as the inputs and model design. JPMorgan\'s Chief Investment Office changed their VaR model midway through 2012, reducing the reported VaR by half. In reality, the concentrated credit derivatives position was far riskier than the new model showed. When the position collapsed, losses exceeded the "old" VaR model\'s predictions.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -1787,7 +1783,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'MONTE CARLO MYTHS',
+      'Monte Carlo myths',
       'What most people get wrong about simulation methods',
       [
         {
@@ -2029,12 +2025,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'Factor Models: The DNA of Returns',
       [
-        'A factor model explains an asset\'s returns as a combination of exposure to common risk factors plus a residual component. The Capital Asset Pricing Model (CAPM), the simplest factor model, says every stock\'s return equals the risk-free rate plus the stock\'s beta times the market return, plus an error term. But CAPM\'s single factor misses a lot.',
-        'Eugene Fama and Kenneth French expanded this to three factors in 1993: market risk, size (small stocks outperform large), and value (cheap stocks outperform expensive). Mark Carhart added a fourth factor, momentum, in 1997. Today, quant funds use models with hundreds of factors: quality, low volatility, liquidity, earnings surprise, short interest, ESG scores, and more.',
-        'Alpha is the return left over after accounting for all factor exposures. If a fund returns 15% but its factor model predicts 12% based on its risk exposures, the alpha is 3%. True alpha represents genuine skill, and it\'s incredibly rare. AQR\'s Cliff Asness famously showed that most hedge fund "alpha" disappears once you account for known factors. DE Shaw and Two Sigma spend billions on data and compute to find the tiny alpha signals that remain.'
+        'A factor model explains returns as exposure to common risk factors plus a leftover piece. The simplest is CAPM: return equals the risk-free rate plus beta times the market return, plus an error. One factor misses a lot.',
+      'Fama and French added size and value in 1993. Carhart added momentum in 1997. Alpha is what\'s left after factors: a 15% return with a 12% factor prediction means 3% alpha. Most hedge fund alpha vanishes once factors are counted.'
       ],
       [
         { term: 'Factor Model', definition: 'A mathematical model that explains an asset\'s returns as the sum of exposures to common risk factors (like market, size, value, momentum) plus an idiosyncratic residual.', example: 'R = Rf + β₁(Market) + β₂(Size) + β₃(Value) + β₄(Momentum) + α. Each beta measures the portfolio\'s sensitivity to that factor.' },
@@ -2043,7 +2038,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Factor Loading', definition: 'The coefficient (beta) measuring how much exposure a portfolio has to a given factor. Higher loadings mean more sensitivity to that factor\'s returns.', example: 'A small-cap value portfolio might have a size loading of +0.8 and a value loading of +0.6, meaning it\'s heavily tilted toward both factors.' }
       ],
       'Multi-factor regression diagram showing portfolio returns decomposed into market, size, value, momentum, and alpha components with coefficient weights',
-      { company: 'AQR Capital Management', metric: 'Factor-based strategy AUM', outcome: 'Grew to $140 billion by systematically harvesting factor premiums', explanation: 'Cliff Asness co-founded AQR in 1998 after his PhD at the University of Chicago under Eugene Fama. AQR proved that most hedge fund returns were factor exposures, not alpha. They democratized factor investing, offering low-cost systematic strategies that captured value, momentum, and quality premiums, previously available only to elite quant shops.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Multi-Factor Decomposition',
@@ -2070,7 +2065,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FACTOR ZOO',
+      'Factor zoo',
       'The Major Risk Factors That Drive Returns',
       'multiline',
       'Explore the historical premiums of major risk factors. Adjust the time period to see how factor returns vary across market regimes, value dominated the 2000s, momentum crushed it in the 2010s.',
@@ -2093,7 +2088,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Start Year', min: 1990, max: 2020, default: 1993, unit: '' },
         { label: 'End Year', min: 2000, max: 2026, default: 2026, unit: '' }
       ],
-      { company: 'DE Shaw', metric: 'Multi-factor alpha generation', outcome: 'Consistently generated 10-15% net returns through factor-based quant strategies', explanation: 'Founded by David Shaw (former Columbia CS professor), DE Shaw pioneered computational finance in the 1990s. Their models combine hundreds of factors, from traditional financial metrics to alternative data, to isolate alpha. Jeff Bezos worked at DE Shaw before founding Amazon, impressed by the firm\'s data-driven approach.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2332,12 +2327,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide (Core Concept)
     teachingSlide(
-      'THE STRATEGY',
+      'The strategy',
       'Statistical Arbitrage: Profiting from Relative Mispricings',
       [
-        'Statistical arbitrage (stat arb) is a market-neutral trading strategy that exploits temporary mispricings between related financial instruments. The core idea: if two stocks historically move together (say, Coca-Cola and PepsiCo), and one temporarily diverges from the other, you bet on convergence, short the one that\'s relatively expensive and long the one that\'s relatively cheap.',
-        'The mathematical foundation is cointegration, a statistical property where two time series maintain a long-run equilibrium even though each individually wanders randomly. Individually, KO and PEP stock prices are random walks. But the spread between them (KO price minus PEP price, adjusted for their ratio) tends to revert to a mean. When the spread widens beyond historical norms, that\'s your trading signal.',
-        'Modern stat arb goes far beyond simple pairs. Quant funds like DE Shaw and Two Sigma trade thousands of securities simultaneously using factor-based statistical models. They might be long 2,000 stocks and short 2,000 stocks at any given time, with the portfolio constructed to be neutral to the market, sectors, and all major risk factors. Profits come purely from the alpha signal, the relative mispricings their models detect. Holding periods range from minutes to weeks, and each position is tiny relative to the total portfolio.'
+        'Statistical arbitrage, or stat arb, bets that related prices snap back together. Coca-Cola (KO) and PepsiCo (PEP) usually move together. If the gap between them widens past normal, short the pricey one, buy the cheap one.',
+      'Cointegration means two prices drift randomly but their gap keeps returning to an average. Quant funds like DE Shaw and Two Sigma scale this up: long 2,000 stocks, short 2,000 stocks, holding minutes to weeks.'
       ],
       [
         { term: 'Statistical Arbitrage', definition: 'A market-neutral strategy that identifies temporary mispricings between related securities and profits from their convergence, using statistical models to manage thousands of simultaneous positions.', example: 'DE Shaw runs stat arb strategies with 4,000+ simultaneous positions, each tiny, collectively generating stable returns regardless of market direction.' },
@@ -2346,7 +2340,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Pairs Trading', definition: 'The simplest form of stat arb: identifying two correlated securities, monitoring their price spread, and trading the divergence.', example: 'Long Ford / Short GM when their spread widens beyond 2 standard deviations, a classic pairs trade that hedge funds have used since the 1980s.' }
       ],
       'Diagram showing two cointegrated price series, their spread oscillating around a mean, with buy/sell signals at ±2 standard deviations',
-      { company: 'DE Shaw', metric: 'Stat arb returns since founding', outcome: 'Generated consistent 10-15% net returns through stat arb and market-neutral strategies', explanation: 'David Shaw pioneered computational stat arb in the late 1980s. His key innovation was scaling pairs trading to thousands of simultaneous positions using automated systems. By holding thousands of small, uncorrelated bets, DE Shaw diversified away idiosyncratic risk while harvesting the statistical edge from mean-reversion signals. The firm now manages over $60 billion.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Mean-Reverting Spread Signals',
@@ -2373,7 +2367,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'SPREAD DYNAMICS',
+      'Spread dynamics',
       'How Mean Reversion Creates Profit Opportunities',
       'comparison',
       'Explore how the spread between two cointegrated stocks creates trading signals. Adjust the standard deviation threshold to see how tighter triggers create more trades but smaller profits per trade.',
@@ -2396,7 +2390,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Entry Threshold (σ)', min: 1, max: 4, default: 2, unit: 'σ' },
         { label: 'Half-life (days)', min: 1, max: 60, default: 10, unit: 'days' }
       ],
-      { company: 'Two Sigma', metric: 'Market-neutral stat arb performance', outcome: 'Two Sigma\'s $60B+ AUM is heavily driven by stat arb and market-neutral strategies', explanation: 'Two Sigma processes petabytes of data daily to find mean-reversion signals across thousands of instruments. Their approach extends classical pairs trading to cross-asset stat arb, trading mispricings between stocks, bonds, currencies, and derivatives simultaneously. Their technology infrastructure rivals that of major tech companies.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2636,12 +2630,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide (Core Concept)
     teachingSlide(
-      'THE ARCHITECTURE',
+      'The architecture',
       'Inside an Algorithmic Trading System',
       [
-        'An algorithmic trading system has five critical components. First, the Market Data Handler ingests real-time price data from exchanges, every bid, ask, trade, and order book change, often millions of messages per second. This data feeds into the Signal Engine, where alpha models and trading strategies make decisions: which securities to trade, in what direction, and how aggressively.',
-        'The Risk Engine acts as the system\'s immune system, performing pre-trade checks in microseconds: Does this order exceed position limits? Does it create excessive concentration? Will it breach regulatory constraints? If any check fails, the order is blocked before reaching the market. After risk approval, the Order Management System (OMS) routes orders to exchanges, choosing optimal venues and timing.',
-        'The Execution Engine is where the rubber meets the road. Algorithms like VWAP (Volume Weighted Average Price), TWAP (Time Weighted Average Price), and Implementation Shortfall break large orders into hundreds of smaller "child" orders, spreading them across time and venues to minimize market impact. Citadel Securities and Jane Street have spent billions building execution infrastructure that shaves microseconds off each trade, because in the world of high-frequency trading, microseconds equal millions of dollars.'
+        'Five parts. The Market Data Handler takes in prices, millions of messages per second. The Signal Engine picks trades. The Risk Engine blocks orders that break limits, in microseconds. The Order Management System (OMS) routes the rest to exchanges.',
+      'The Execution Engine splits big orders into hundreds of small child orders, across time and venues. VWAP, TWAP and Implementation Shortfall are the algorithms that do this. Citadel Securities and Jane Street spent billions. Microseconds mean millions of dollars.'
       ],
       [
         { term: 'Order Management System (OMS)', definition: 'The central nervous system of a trading operation, manages the lifecycle of every order from creation through execution, routing, and settlement.', example: 'Jane Street\'s OMS tracks millions of live orders across 200+ venues globally, ensuring every order is properly routed, filled, and reconciled in real-time.' },
@@ -2650,7 +2643,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Latency', definition: 'The time delay between receiving market data and sending an order to the exchange, measured in microseconds for competitive algo trading firms.', example: 'Citadel Securities has achieved single-digit microsecond latency through FPGA hardware, kernel-bypass networking, and co-located servers literally inside exchange buildings.' }
       ],
       'Pipeline architecture: Data Feed Handler → Signal Generator → Risk Checks → Execution Algorithms → Smart Order Router → Exchange',
-      { company: 'Citadel Securities', metric: 'Market making execution quality', outcome: 'Handles ~25% of all U.S. equity trading volume, saving clients $4B+ annually in execution costs', explanation: 'Citadel Securities (separate from Citadel hedge fund) is the world\'s largest market maker. Their algorithmic systems quote prices on thousands of securities simultaneously, adjusting billions of quotes per day. Their execution algorithms are so efficient that retail brokers like Robinhood route orders to Citadel because they consistently provide better prices than exchanges.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Execution Algos, $100M Order Cost',
@@ -2676,7 +2669,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'SPEED IS MONEY',
+      'Speed is money',
       'The Latency Arms Race in Algorithmic Trading',
       'timeline',
       'Explore how trading latency has decreased by 10,000x over two decades and how each improvement translates to real dollar advantages.',
@@ -2699,17 +2692,17 @@ const lessons: PathwayLesson[] = [
       [
         { label: 'Year', min: 2000, max: 2026, default: 2000, unit: '' }
       ],
-      { company: 'Jane Street', metric: 'Daily trading volume', outcome: '$21+ billion traded daily across global markets using proprietary algorithmic systems', explanation: 'Jane Street, founded in 2000, is one of the world\'s largest quantitative trading firms. They are the dominant ETF market maker globally, providing liquidity across thousands of instruments. Their edge comes from a unique combination of mathematical sophistication (many hires come from competitive math olympiads) and engineering excellence. They use OCaml, an unusual but powerful functional programming language, for their core trading infrastructure.' }
+      undefined
     ),
   
     // Step 6, Case Study
     caseStudy(
       'The Flash Crash of May 6, 2010: When Algorithms Went Haywire',
       [
-        { date: '2:30 PM ET', event: 'A large mutual fund initiates a $4.1 billion sell program using an aggressive execution algorithm', context: 'Waddell & Reed uses an algorithm to sell 75,000 E-Mini S&P 500 futures contracts. The algorithm is programmed to execute based on volume only, it doesn\'t consider price at all. In a nervous market already down 4% on Greek debt fears, this volume-only algorithm begins dumping contracts as fast as the market can absorb them.' },
-        { date: '2:42 PM ET', event: 'The Dow Jones drops 600 points in 5 minutes as algorithmic feedback loops take hold', context: 'The aggressive selling triggers HFT market makers to withdraw liquidity (they detect "toxic flow" and step aside). With no buyers, prices freefall. Other algorithms, seeing the crash, trigger their own sell signals. A feedback loop develops: selling begets more selling, liquidity evaporates, and prices disconnect from reality.' },
-        { date: '2:47 PM ET', event: 'The Dow is down 1,000 points, stocks like Accenture trade at $0.01, Apple at $100,000', context: 'With liquidity completely gone, some stocks trade at absurd prices. Accenture drops from $40 to $0.01 in seconds. Procter & Gamble drops 37%. Meanwhile, some stocks trade at $100,000 due to "stub quotes", placeholder prices that were never meant to be real. The market has completely broken.' },
-        { date: '2:47-3:00 PM ET', event: 'Circuit breakers and manual intervention halt trading; markets recover within 20 minutes', context: 'The CME halts E-Mini trading for 5 seconds, breaking the feedback loop. When trading resumes, prices begin recovering immediately. Within 20 minutes, the Dow has recovered most of the 1,000-point drop. Post-analysis reveals 20,000 trades executed at "clearly erroneous" prices were later cancelled.' }
+        { date: '2:30 PM et', event: 'A large mutual fund initiates a $4.1 billion sell program using an aggressive execution algorithm', context: 'Waddell & Reed uses an algorithm to sell 75,000 E-Mini S&P 500 futures contracts. The algorithm is programmed to execute based on volume only, it doesn\'t consider price at all. In a nervous market already down 4% on Greek debt fears, this volume-only algorithm begins dumping contracts as fast as the market can absorb them.' },
+        { date: '2:42 PM et', event: 'The Dow Jones drops 600 points in 5 minutes as algorithmic feedback loops take hold', context: 'The aggressive selling triggers HFT market makers to withdraw liquidity (they detect "toxic flow" and step aside). With no buyers, prices freefall. Other algorithms, seeing the crash, trigger their own sell signals. A feedback loop develops: selling begets more selling, liquidity evaporates, and prices disconnect from reality.' },
+        { date: '2:47 PM et', event: 'The Dow is down 1,000 points, stocks like Accenture trade at $0.01, Apple at $100,000', context: 'With liquidity completely gone, some stocks trade at absurd prices. Accenture drops from $40 to $0.01 in seconds. Procter & Gamble drops 37%. Meanwhile, some stocks trade at $100,000 due to "stub quotes", placeholder prices that were never meant to be real. The market has completely broken.' },
+        { date: '2:47-3:00 PM et', event: 'Circuit breakers and manual intervention halt trading; markets recover within 20 minutes', context: 'The CME halts E-Mini trading for 5 seconds, breaking the feedback loop. When trading resumes, prices begin recovering immediately. Within 20 minutes, the Dow has recovered most of the 1,000-point drop. Post-analysis reveals 20,000 trades executed at "clearly erroneous" prices were later cancelled.' }
       ],
       'The Flash Crash exposed critical vulnerabilities in algorithmic trading systems: volume-only execution ignoring price, HFT liquidity that vanishes in stress, and feedback loops between algorithms. It led to circuit breakers, market-wide kill switches, and the SEC\'s requirement that all algorithms have pre-trade risk controls.'
     ),
@@ -2943,12 +2936,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FULL PICTURE',
+      'The full picture',
       'Building a Complete Quantitative Trading Strategy',
       [
-        'A production quant strategy has seven stages. Stage 1: Signal Research, mine data for predictive patterns using statistics and machine learning. Is there a relationship between earnings surprise and future returns? Does order flow imbalance predict short-term price moves? You need a clear economic hypothesis for WHY the signal should work. Stage 2: Factor Model Construction, decompose your signal\'s returns into factor exposures. Is your "alpha" actually just momentum in disguise? Only proceed if the signal shows genuine alpha after factor adjustment.',
-        'Stage 3: Strategy Design, translate the signal into tradeable rules. For stat arb: define entry/exit thresholds, position sizing, and universe selection. Stage 4: Backtesting, test the strategy on historical data with realistic assumptions about transaction costs, slippage, and market impact. The biggest pitfall is overfitting, a backtest that looks too good probably IS too good. Use walk-forward analysis and out-of-sample testing to validate.',
-        'Stage 5: Risk Management, define position limits, drawdown triggers, sector/factor exposure limits, and kill switches. Stage 6: Execution Design, choose appropriate algorithms (VWAP, IS, etc.) and infrastructure (co-location vs cloud). Stage 7: Live Deployment, start with a fraction of target capital, monitor performance against backtest expectations, and scale up only when live results match. The firms that master all seven stages, Renaissance, Two Sigma, Citadel, DE Shaw, are the ones that survive and thrive for decades.'
+        'A quant strategy has seven stages. 1: signal research, find patterns that predict returns. 2: factor models, check your edge is not just momentum. 3: design entry and exit rules. 4: backtest on past data with realistic trading costs.',
+      '5: risk management, set loss limits. 6: execution, pick trading algorithms like VWAP. 7: go live small, scale only if results match. A backtest that looks too good usually is. Renaissance, Two Sigma, Citadel and DE Shaw last.'
       ],
       [
         { term: 'Walk-Forward Analysis', definition: 'A backtesting methodology where you train the model on a historical window, test on the next period, then roll forward, simulating how the strategy would perform in real-time.', example: 'Train on 2010-2015, test on 2016. Then train on 2011-2016, test on 2017. Continue rolling forward. This prevents look-ahead bias and tests the strategy\'s robustness across different market regimes.' },
@@ -2957,19 +2949,20 @@ const lessons: PathwayLesson[] = [
         { term: 'Maximum Drawdown', definition: 'The largest peak-to-trough decline in portfolio value, measures the worst-case loss an investor would experience.', example: 'A fund that grew from $100M to $150M then fell to $120M has a max drawdown of -20% ($150M to $120M). Institutional investors often reject funds with max drawdowns exceeding 15-20%.' }
       ],
       'Seven-stage pipeline from Signal Research through Live Deployment, with validation gates between each stage',
-      { company: 'Two Sigma', metric: 'End-to-end quant pipeline', outcome: '$60+ billion AUM with consistent performance through the full quant pipeline', explanation: 'Two Sigma exemplifies the complete quant approach. They employ 1,700+ people, including 300+ PhD researchers. Their pipeline: massive data ingestion (petabytes daily), machine learning signal research, rigorous factor model decomposition, sophisticated stat arb construction, enterprise-grade risk management, and optimized algorithmic execution. Every stage is world-class, and the integration between stages is where the real edge lives.' },
+      undefined,
       {
-        type: 'bars',
-        title: 'Strategy Validation Funnel',
-        items: [
-          { label: 'Hypotheses tested', value: 1000, displayValue: '1,000' },
-          { label: 'Pass stat tests', value: 200, displayValue: '200' },
-          { label: 'Survive factor adj.', value: 50, displayValue: '50' },
-          { label: 'Pass walk-forward', value: 10, displayValue: '10' },
-          { label: 'Go live', value: 3, displayValue: '3' },
+        // A funnel, not a bar chart: 3 survivors out of 1,000 renders as an
+        // invisible sliver against the first bar. Flow shows the drop honestly.
+        type: 'flow',
+        title: 'Strategy validation funnel',
+        nodes: [
+          { label: 'Hypotheses tested', value: '1,000' },
+          { label: 'Pass statistical tests', value: '200' },
+          { label: 'Survive factor adjustment', value: '50' },
+          { label: 'Pass walk-forward', value: '10' },
+          { label: 'Go live', value: '3' },
         ],
-        footer: '99.7% of ideas die in the funnel, this rigor is the edge.',
-        sentiment: 'positive',
+        footer: '99.7% of ideas die in the funnel. That rigor is the edge.',
       }
     ),
   
@@ -2984,7 +2977,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE VALIDATION FUNNEL',
+      'The validation funnel',
       'From 1,000 Ideas to 3 Live Strategies',
       'comparison',
       'Explore how the world\'s top quant funds ruthlessly filter signal ideas through a multi-stage validation process. Adjust parameters to see how each filter eliminates false positives.',
@@ -3007,7 +3000,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Signals Tested', min: 100, max: 10000, default: 1000, unit: '' },
         { label: 'Significance Level', min: 1, max: 10, default: 5, unit: '%' }
       ],
-      { company: 'Renaissance Technologies', metric: 'Signal validation rigor', outcome: 'Medallion Fund: 66% gross annual returns for 30+ years through extreme research discipline', explanation: 'Renaissance\'s validation process is the most rigorous in finance. They employ ~300 researchers, mathematicians, physicists, computational biologists, and cryptographers, who generate thousands of signal hypotheses. Each signal must pass automated statistical filters, survive factor decomposition, demonstrate out-of-sample persistence, and prove capacity at scale. This ruthless filtration is why only a handful of signals make it into the live portfolio, but those that do have genuine, persistent alpha.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -3241,12 +3234,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE RANDOM WALK',
+      'The random walk',
       'Brownian Motion & Geometric Brownian Motion',
       [
-        'Brownian motion (also called a Wiener process) is a continuous-time random process where the value drifts randomly with independent, normally distributed increments. Formally, W(t) satisfies: W(0) = 0, increments W(t) - W(s) are normally distributed with mean 0 and variance (t - s), and non-overlapping increments are independent. It is the mathematical foundation of continuous-time finance.',
-        'Stock prices cannot follow simple Brownian motion because prices would go negative. Instead, we use Geometric Brownian Motion (GBM): $$dS = \\mu S \\, dt + \\sigma S \\, dW$$ where $S$ is the stock price, $\\mu$ is the drift (expected return), $\\sigma$ is volatility, and $dW$ is the Brownian motion increment. The multiplicative structure ensures prices stay positive and returns are log-normally distributed, matching real market behavior reasonably well.',
-        'The key parameters are drift $\\mu$ (directional tendency) and volatility $\\sigma$ (randomness magnitude). A stock with $\\mu = 8\\%$ and $\\sigma = 20\\%$ has an expected return of 8% per year but will fluctuate wildly around that trend. The signal-to-noise ratio $\\mu / \\sigma$ determines how "noisy" the price path is, this is closely related to the Sharpe ratio.'
+        'Brownian motion, a random path also called a Wiener process, starts at $W(0) = 0$. Each increment is normally distributed with mean 0 and variance $(t - s)$, and separate increments are independent.',
+      'Stock prices use geometric Brownian motion: $dS = \\mu S dt + \\sigma S dW$, which keeps prices positive. A stock with drift (average return) $\\mu = 8\\%$ and volatility (swing size) $\\sigma = 20\\%$ gains 8% yearly.'
       ],
       [
         { term: 'Brownian Motion', definition: 'A continuous-time stochastic process with independent, normally distributed increments. The mathematical model of pure randomness in continuous time.', example: 'The position of a pollen grain in water follows Brownian motion, Robert Brown observed this in 1827, and Einstein explained it mathematically in 1905.' },
@@ -3255,7 +3247,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Volatility (σ)', definition: 'The magnitude of random fluctuations in the stochastic process. Higher σ means wider price swings and more uncertainty.', example: 'Tesla with σ ≈ 55% has three times the randomness of Coca-Cola with σ ≈ 18%. Tesla\'s price paths spread out much faster.' }
       ],
       'GBM equation with arrows pointing to each component: drift term μS dt (deterministic trend) and diffusion term σS dW (random fluctuations)',
-      { company: 'Louis Bachelier / Einstein', metric: 'Origins of Brownian motion in finance', outcome: 'Bachelier used Brownian motion to model stock prices in 1900, five years before Einstein\'s famous paper on physical Brownian motion', explanation: 'Louis Bachelier\'s 1900 PhD thesis "Théorie de la spéculation" was the first mathematical model of stock prices. He used arithmetic Brownian motion, which allowed negative prices. It took 73 years for Black, Scholes, and Merton to fix this with geometric Brownian motion, launching the modern derivatives industry.' },
+      undefined,
       QA11_TEACH1
     ),
 
@@ -3295,17 +3287,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Volatility σ (%)', min: 5, max: 60, default: 25, unit: '%' },
         { label: 'Time horizon (years)', min: 1, max: 30, default: 10, unit: 'yr' }
       ],
-      { company: 'Kiyosi Itô', metric: 'Impact of Itô calculus on finance', outcome: 'Itô\'s 1944 paper created the mathematical framework that made the entire $600 trillion derivatives market possible', explanation: 'Kiyosi Itô developed his stochastic calculus in the 1940s for pure mathematics. Three decades later, Black, Scholes, and Merton realized it was the perfect tool for pricing options. Without Itô\'s lemma, there is no Black-Scholes formula, no modern derivatives market, and no quantitative finance as we know it.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'STOCHASTIC DIFFERENTIAL EQUATIONS',
+      'Stochastic differential equations',
       'SDEs: The Language of Quantitative Finance',
       [
-        'A stochastic differential equation (SDE) describes how a random quantity evolves over time. The general form is: $$dX = a(X,t) \\, dt + b(X,t) \\, dW$$ where $a(X,t)$ is the drift function and $b(X,t)$ is the diffusion function. GBM is the special case where $a = \\mu S$ and $b = \\sigma S$. Different choices of $a$ and $b$ create different models for different financial quantities.',
-        'SDEs are solved using Itô\'s lemma and related techniques. Some have closed-form solutions (GBM, Ornstein-Uhlenbeck), while others require numerical methods like Euler-Maruyama discretization. The Ornstein-Uhlenbeck process: $$dX = \\theta(\\mu - X) \\, dt + \\sigma \\, dW$$ models mean-reverting quantities like interest rates and volatility, the price is pulled back toward $\\mu$ with strength $\\theta$.',
-        'The most important SDE applications in finance: GBM for stock prices, Vasicek for interest rates ($dr = \\theta(\\mu - r) dt + \\sigma \\, dW$), Cox-Ingersoll-Ross for strictly positive rates ($dr = \\theta(\\mu - r) dt + \\sigma\\sqrt{r} \\, dW$), and the Heston model for stochastic volatility ($dv = \\kappa(\\theta - v) dt + \\xi\\sqrt{v} \\, dW_v$). Each SDE captures different market dynamics, and choosing the right one is a critical modeling decision.'
+        'A stochastic differential equation (SDE) tracks a random quantity over time: $dX = a(X,t) dt + b(X,t) dW$. $a$ is drift, the average pull, $b$ is diffusion, the randomness. GBM sets $a = \\mu S$, $b = \\sigma S$.',
+      'Solve SDEs with Itô\'s lemma or Euler-Maruyama steps. Ornstein-Uhlenbeck, $dX = \\theta(\\mu - X) dt + \\sigma dW$, pulls $X$ back toward $\\mu$ at strength $\\theta$: Vasicek models rates, Cox-Ingersoll-Ross keeps them positive, Heston models volatility.'
       ],
       [
         { term: 'Stochastic Differential Equation', definition: 'An equation describing the evolution of a random variable: dX = a(X,t)dt + b(X,t)dW. The drift a controls the trend; the diffusion b controls randomness.', example: 'GBM: dS = μS dt + σS dW. Vasicek: dr = θ(μ-r)dt + σdW. Heston: dv = κ(θ-v)dt + ξ√v dW.' },
@@ -3313,7 +3304,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Euler-Maruyama Method', definition: 'A numerical method for simulating SDEs: X(t+Δt) = X(t) + a(X,t)Δt + b(X,t)√Δt × Z, where Z is a standard normal random variable.', example: 'To simulate GBM with daily steps: S(t+1) = S(t) + μS(t)(1/252) + σS(t)√(1/252) × Z, generating one price path.' }
       ],
       'Three SDE types side by side: GBM (trending upward with noise), OU process (oscillating around mean), CIR process (mean-reverting but strictly positive)',
-      { company: 'Vasicek / CIR Models', metric: 'Interest rate modeling accuracy', outcome: 'The Vasicek (1977) and CIR (1985) models remain the foundation of interest rate derivatives pricing, powering a $500+ trillion market', explanation: 'Vasicek used the OU process for interest rates, enabling closed-form bond prices. CIR improved it by ensuring rates stay positive. These SDE-based models are still taught, used, and extended by every fixed-income quant desk in the world.' },
+      undefined,
       QA11_TEACH2
     ),
 
@@ -3331,7 +3322,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'STOCHASTIC CALCULUS MYTHS',
+      'Stochastic calculus myths',
       'Common misunderstandings about stochastic calculus in finance',
       [
         {
@@ -3570,12 +3561,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'VOLATILITY CLUSTERING',
+      'Volatility clustering',
       'Why Volatility Is Not Constant',
       [
-        'The most important empirical fact about financial volatility is clustering: large price changes tend to be followed by large price changes, and small changes by small changes. This was first documented by Mandelbrot in 1963 and has been confirmed in virtually every financial market. Today\'s volatility is the single best predictor of tomorrow\'s volatility.',
-        'Volatility clustering violates the GBM assumption of constant σ. In reality, σ varies dramatically over time: the VIX (S&P 500 implied volatility) has ranged from 9 to 80. During the 2008 crisis, realized volatility exceeded 80% annualized, four times the long-run average. Markets alternate between calm regimes (low vol) and crisis regimes (high vol).',
-        'Three key stylized facts about volatility: (1) Clustering, high vol begets high vol. (2) Mean reversion, extreme vol always returns to normal. (3) Leverage effect, negative returns increase volatility more than positive returns of the same magnitude. Understanding and modeling these facts is essential for accurate option pricing and risk management.'
+        'Volatility clusters: big price moves tend to follow big moves, and small follow small. Mandelbrot documented this in 1963. Today\'s volatility is the best predictor of tomorrow\'s, so the constant sigma in GBM, geometric Brownian motion, is wrong.',
+      'The VIX, implied volatility on the S&P 500, has ranged from 9 to 80; in 2008 realized volatility passed 80% annualized, four times its average. Volatility clusters, mean reverts, and rises more after negative returns: the leverage effect.'
       ],
       [
         { term: 'Volatility Clustering', definition: 'The empirical tendency of large price changes to be followed by large price changes, creating periods of high and low volatility. It implies volatility is autocorrelated.', example: 'After the March 2020 COVID crash, volatility remained elevated for months. Daily moves of 3-5% were common for weeks, even as markets recovered.' },
@@ -3584,7 +3574,7 @@ const lessons: PathwayLesson[] = [
         { term: 'VIX Index', definition: 'The CBOE Volatility Index, measuring the market\'s expectation of 30-day S&P 500 volatility implied by option prices. Often called the "fear gauge."', example: 'VIX below 15 = calm markets. VIX 20-30 = moderate concern. VIX above 40 = crisis. VIX hit 80 in October 2008 and 82 in March 2020.' }
       ],
       'Time series of S&P 500 daily returns showing clear volatility clustering: quiet periods alternating with turbulent periods',
-      { company: 'Credit Suisse / XIV ETN', metric: 'Volmageddon losses', outcome: 'The XIV inverse volatility ETN lost 96% of its value in a single day on Feb 5, 2018, destroying $2 billion in investor wealth', explanation: 'XIV was designed to profit from short volatility, selling insurance against market turbulence. When the VIX spiked 116% in one day, XIV\'s losses exceeded its entire asset base. Investors who treated volatility as a stable, low-risk asset learned that volatility itself is the most volatile variable in finance.' },
+      undefined,
       QA12_TEACH1
     ),
 
@@ -3599,7 +3589,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE GARCH FRAMEWORK',
+      'The GARCH framework',
       'GARCH(1,1): Modeling Time-Varying Volatility',
       'distribution',
       'Explore how GARCH parameters α (shock sensitivity) and β (persistence) shape volatility dynamics. See how different calibrations capture different market regimes.',
@@ -3624,17 +3614,16 @@ const lessons: PathwayLesson[] = [
         { label: 'β (persistence)', min: 50, max: 98, default: 90, unit: '%' },
         { label: 'ω (base variance ×10⁶)', min: 1, max: 10, default: 2, unit: '' }
       ],
-      { company: 'Robert Engle / Nobel Prize 2003', metric: 'ARCH/GARCH impact on finance', outcome: 'Engle won the Nobel Prize for developing ARCH models, the first rigorous framework for time-varying volatility, now used by every risk management system globally', explanation: 'Before ARCH/GARCH, risk models assumed constant volatility. Engle showed that volatility is predictable and modelable. His ARCH framework (extended to GARCH by Bollerslev) became the industry standard for VaR, option pricing, and portfolio risk. Every major bank uses GARCH-family models daily.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'IMPLIED VS REALIZED',
+      'Implied vs realized',
       'The Volatility Smile and Surface',
       [
-        'Implied volatility (IV) is the volatility parameter that, when plugged into the Black-Scholes formula, produces the observed market price of an option. If Black-Scholes were perfectly correct (constant σ), all options on the same stock would have the same implied volatility. They don\'t, and the pattern of variation is called the volatility smile or skew.',
-        'The volatility smile shows that out-of-the-money puts have higher implied volatility than at-the-money options. This means the market prices crash protection at a premium, traders know that real-world distributions have fatter left tails than GBM predicts. The smile steepened dramatically after the 1987 crash, when traders learned that extreme downside events occur far more often than the log-normal distribution suggests.',
-        'The full volatility surface maps implied volatility across both strike price (moneyness) and time to expiration. This 3D surface is the most important object on a derivatives desk, it contains the market\'s consensus view of future volatility dynamics. Traders who can model and predict movements in the vol surface have a significant edge in options markets.'
+        'Implied volatility is the sigma that makes the Black-Scholes formula match an option\'s market price. If Black-Scholes were right, every option on a stock would share one implied volatility. They don\'t; the pattern is called the volatility smile.',
+      'Out of the money puts, bets on big drops, carry higher implied volatility: crash protection costs extra. The smile steepened after the 1987 crash. The full 3D surface maps implied volatility across strike price and time to expiry.'
       ],
       [
         { term: 'Implied Volatility', definition: 'The volatility value that equates the Black-Scholes theoretical price with the observed market price. It represents the market\'s expectation of future volatility.', example: 'If a call option trades at $5.50 and Black-Scholes with σ=25% gives $5.50, then the implied volatility is 25%, regardless of the stock\'s historical (realized) volatility.' },
@@ -3642,13 +3631,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Volatility Surface', definition: 'The 3D mapping of implied volatility across all strike prices and expirations. It is the complete market consensus on future volatility dynamics.', example: 'A vol surface might show 20% IV for 1-month ATM options, 18% for 6-month ATM options, 30% for 1-month deep OTM puts, and 25% for 6-month deep OTM puts.' }
       ],
       'Volatility smile curve showing IV on Y-axis vs moneyness on X-axis, with higher IV for OTM puts and OTM calls vs ATM options',
-      { company: 'Post-1987 Crash', metric: 'Volatility skew emergence', outcome: 'Before the 1987 crash, the volatility smile was nearly flat. After Black Monday (S&P -20.5% in one day), the skew became steep and permanent, OTM puts now permanently trade at elevated IV', explanation: 'The 1987 crash was a defining moment for volatility modeling. Before it, traders priced options assuming constant volatility. After a "25+ sigma event" occurred, the market permanently adjusted: OTM puts now trade at a significant premium, creating the volatility skew that persists to this day. The skew is the market\'s scar from Black Monday.' },
+      undefined,
       QA12_TEACH2
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'VOLATILITY MYTHS',
+      'Volatility myths',
       'Common misunderstandings about volatility modeling',
       [
         {
@@ -3888,12 +3877,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'BOND PRICING FUNDAMENTALS',
+      'Bond pricing fundamentals',
       'How Bonds Are Priced and Yield Curves Work',
       [
-        'A bond\'s price is the present value of all future cash flows: $$P = \\sum_{t=1}^{n} \\frac{C}{(1+y)^t} + \\frac{F}{(1+y)^n}$$ where $C$ is the coupon payment, $F$ is the face value, $y$ is the yield (discount rate), and $n$ is the number of periods. When yields rise, the discount factors increase and the bond price falls. When yields fall, prices rise. This inverse relationship is the central fact of fixed income.',
-        'The yield curve plots yields against maturity for government bonds. A normal curve slopes upward (longer maturities demand higher yields to compensate for duration risk). An inverted curve (short rates above long rates) has predicted every U.S. recession since 1970. The curve\'s shape encodes market expectations about future rates, inflation, and economic growth.',
-        'Zero-coupon bond pricing is simplest: $P = F/(1+y)^n$. A zero-coupon bond paying $100 in 10 years at 5% yield costs $\\$100/(1.05)^{10} = \\$61.39$ today. The spot rate curve (zero-coupon yields at each maturity) is the fundamental building block: any coupon bond can be decomposed into a portfolio of zero-coupon bonds and priced using the spot curve.'
+        'A bond\'s price is the present value of its future cash flows: $$P = \\sum_{t=1}^{n} \\frac{C}{(1+y)^t} + \\frac{F}{(1+y)^n}$$ where $C$ is the coupon, $F$ the face value, $y$ the yield, $n$ the periods. When yields rise, prices fall.',
+      'The yield curve plots yields against maturity. It normally slopes up. Inverted curves, short rates above long rates, preceded every U.S. recession since 1970. Zero-coupon bonds pay no coupon: $100 in 10 years at 5% costs $\\$100/(1.05)^{10} = \\$61.39$.'
       ],
       [
         { term: 'Yield to Maturity (YTM)', definition: 'The single discount rate that equates a bond\'s price with the present value of all its future cash flows. It is the bond\'s internal rate of return if held to maturity.', example: 'A 10-year bond with 4% coupon trading at $92 has a YTM of approximately 5%, the rate that discounts its cash flows back to $92.' },
@@ -3902,7 +3890,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Present Value', definition: 'The current worth of future cash flows, discounted at an appropriate rate. Bond price = sum of present values of all coupons plus present value of face value at maturity.', example: 'A $100 payment in 3 years at 5% discount rate has PV = $100/(1.05)^3 = $86.38.' }
       ],
       'Bond pricing diagram showing coupon payments as arrows along a timeline, each discounted back to present value, summing to the bond price',
-      { company: 'U.S. Treasury Market 2022', metric: 'Bond crash severity', outcome: 'The 30-year Treasury lost 39% in 2022 as the Fed raised rates from 0% to 4.5%, the worst bond market performance in 250 years of recorded data', explanation: 'When the Fed began its fastest rate hiking cycle in 40 years, long-duration Treasuries were devastated. A 30-year bond with duration ~20 years lost roughly 20% per 1% rate increase. With rates rising ~4.5%, the math predicted catastrophic losses, and delivered exactly that. Duration analysis would have warned any investor.' },
+      undefined,
       QA13_TEACH1
     ),
 
@@ -3942,17 +3930,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Yield Change (bps)', min: -300, max: 300, default: 100, unit: 'bps' },
         { label: 'Convexity', min: 10, max: 300, default: 80, unit: '' }
       ],
-      { company: 'UK Gilt Crisis, September 2022', metric: 'Pension fund leverage collapse', outcome: 'UK 30-year gilt yields spiked 1.5% in 3 days, triggering a doom loop of margin calls and forced selling among pension funds using leveraged Liability-Driven Investment strategies', explanation: 'UK pension funds used leveraged interest rate swaps to match long-duration liabilities. When gilt yields spiked after the Truss government\'s fiscal plan, margin calls forced mass selling, which pushed yields higher, causing more margin calls. The Bank of England had to intervene with emergency bond purchases to prevent systemic collapse.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'YIELD CURVE ANALYTICS',
+      'Yield curve analytics',
       'Reading the Yield Curve & Spread Analysis',
       [
-        'The yield curve encodes enormous information. A steepening curve (long rates rising faster than short rates) signals expectations of economic growth and future rate hikes. A flattening curve signals slowing growth. An inverted curve (short rates above long rates) has preceded every U.S. recession since 1970 with a lead time of 6-18 months, making it one of the most reliable economic indicators in existence.',
-        'Credit spreads, the yield difference between corporate bonds and Treasuries, measure the market\'s assessment of default risk. Investment-grade spreads typically range from 0.8-2.0%. High-yield spreads range from 3-8% in normal times but can blow out to 10-20% during crises (2008: HY spreads hit 22%). Spread compression signals complacency; widening signals fear.',
-        'The term premium is the extra yield investors demand for holding longer-duration bonds versus rolling short-term bonds. In theory, this premium compensates for duration risk. When the term premium is negative (as it was 2020-2022), it signals that investors are paying a premium for long-bond safety, often a sign of extreme risk aversion or central bank distortion.'
+        'A steepening curve, long rates rising faster than short rates, signals growth. Flattening signals slowdown. Inversion, short rates above long rates, has preceded every U.S. recession since 1970 by 6-18 months.',
+      'Credit spreads, the yield gap between corporate bonds and Treasuries, measure default risk: 0.8-2.0% investment grade, 3-8% high yield, 10-20% in crises (2008: 22%). The term premium, extra yield for holding long bonds, turned negative in 2020-2022, signaling caution.'
       ],
       [
         { term: 'Credit Spread', definition: 'The yield difference between a corporate bond and a Treasury of the same maturity. It compensates for default risk, liquidity risk, and credit migration risk.', example: 'A BBB-rated corporate bond yielding 5.5% vs a 10-year Treasury at 4.0% has a credit spread of 1.5% (150 basis points).' },
@@ -3960,7 +3947,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Yield Curve Inversion', definition: 'When short-term yields exceed long-term yields, signaling that the market expects future rate cuts (typically due to recession). Has predicted every US recession since 1970.', example: 'In 2022-2023, the 2-year yield exceeded the 10-year yield by over 100bps, the deepest inversion since 1981, signaling significant recession risk.' }
       ],
       'Credit spread comparison: IG spreads (tight) vs HY spreads (wide) vs distressed spreads (very wide), shown as horizontal bars',
-      { company: 'Yield Curve Inversion Track Record', metric: 'Recession prediction accuracy', outcome: 'The 2s10s yield curve inversion has successfully predicted all 8 U.S. recessions since 1970 with only 1 false positive, a better track record than any economic model', explanation: 'When the 2-year Treasury yield exceeds the 10-year yield, the market is signaling that it expects the Fed will need to cut rates in the future, typically because a recession forces their hand. This simple signal has outperformed complex econometric models for 50+ years.' },
+      undefined,
       QA13_TEACH2
     ),
 
@@ -3978,7 +3965,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'FIXED INCOME MYTHS',
+      'Fixed income myths',
       'Dangerous misunderstandings about bonds and fixed income',
       [
         {
@@ -4214,12 +4201,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'PATH DEPENDENCE',
+      'Path dependence',
       'Barrier Options: Knock-In and Knock-Out',
       [
-        'A barrier option is a vanilla option that either activates (knock-in) or terminates (knock-out) if the underlying price hits a predetermined barrier level. A down-and-out call becomes worthless if the stock drops below the barrier, even if it later recovers above the strike. This path dependence means two stocks ending at the same price can produce completely different payoffs depending on the path taken.',
-        'There are eight basic barrier types: up-and-in/out calls and puts, down-and-in/out calls and puts. The most common is the down-and-out call: it behaves like a regular call unless the stock drops below the barrier, at which point it ceases to exist. Because the knock-out feature can eliminate the option, barrier options are always cheaper than vanilla equivalents, the discount reflects the probability of hitting the barrier.',
-        'Barrier options are hugely popular in structured products because they\'re cheaper than vanilla options while still providing directional exposure. In FX markets, over 50% of option volume involves barriers. However, pricing and hedging barriers is much harder than vanilla: near the barrier, delta and gamma can spike to extreme values, making dynamic hedging treacherous. This "barrier gamma" has caused significant trading losses.'
+        'A barrier option is a normal option that switches on (knock-in) or dies (knock-out) if the price touches a set barrier level. A down-and-out call is worthless once the stock falls below the barrier, even if it recovers.',
+      'There are eight types: up and down, in and out, calls and puts. Knock-out risk makes barriers cheaper than vanilla options. Over 50% of FX option volume involves barriers, but delta and gamma spike near the barrier, making hedging treacherous.'
       ],
       [
         { term: 'Barrier Option', definition: 'An option that activates (knock-in) or deactivates (knock-out) when the underlying price touches a barrier level. Its payoff depends on the entire price path, not just the final price.', example: 'A down-and-out call with strike $100 and barrier $80: if the stock never goes below $80, it pays max(S-100, 0) at expiry. If the stock touches $80 at any point, the option dies, even if the stock later rallies to $150.' },
@@ -4228,7 +4214,7 @@ const lessons: PathwayLesson[] = [
         { term: 'In-Out Parity', definition: 'A fundamental relationship: knock-in option + knock-out option = vanilla option (same strike, same barrier). This allows pricing one from the other.', example: 'If a vanilla call costs $10 and the down-and-out call costs $7, then the down-and-in call must cost $3 (10 - 7 = 3).' }
       ],
       'Barrier option diagram showing a stock price path that hits the barrier, causing knock-out, vs a path that stays above the barrier and receives the full payoff',
-      { company: 'FX Barrier Options Market', metric: 'Market dominance', outcome: 'Over 50% of FX option volume involves barrier options, they are the dominant option type in the $6.6 trillion/day foreign exchange market', explanation: 'Barrier options are cheaper than vanilla options because the knock-out risk reduces their value. Corporate treasurers and institutional hedgers prefer them because they can hedge currency exposure at lower premiums. The tradeoff: if the barrier is breached, protection vanishes at the worst possible time.' },
+      undefined,
       QA14_TEACH1
     ),
 
@@ -4268,17 +4254,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Strike ($)', min: 85, max: 115, default: 100, unit: '$' },
         { label: 'Volatility (%)', min: 10, max: 50, default: 25, unit: '%' }
       ],
-      { company: 'Commodity Hedging with Asian Options', metric: 'Corporate treasury usage', outcome: 'Airlines use Asian options to hedge jet fuel costs, the averaging feature matches their monthly purchase pattern far better than vanilla options, reducing hedging costs by 25%+', explanation: 'An airline buys fuel every month, so its exposure is to the AVERAGE price over the year, not the spot price on any single day. Asian options match this exposure perfectly, costing less than vanilla options because the averaging reduces effective volatility. Southwest Airlines\' famous hedging program used this approach to lock in fuel costs below competitors for years.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'PRICING EXOTICS',
+      'Pricing exotics',
       'Monte Carlo and Numerical Methods for Path-Dependent Derivatives',
       [
-        'Most exotic options cannot be priced with closed-form formulas like Black-Scholes. Path-dependent payoffs require simulating the entire price path, not just the terminal price. Monte Carlo simulation generates thousands of random price paths, computes the payoff for each, and averages them (discounted) to get the option price. It is the most versatile pricing tool in quantitative finance.',
-        'Finite difference methods solve the pricing PDE numerically on a grid. For barrier options, the grid must include the barrier as a node; for American options, an early exercise boundary must be computed. Finite differences are faster than Monte Carlo for low-dimensional problems (1-2 underlyings) but scale poorly to higher dimensions.',
-        'The key challenge in exotic pricing is model risk: the price is highly sensitive to model assumptions. A barrier option near its barrier has extreme gamma and is very sensitive to the assumed volatility dynamics. Using GBM vs local volatility vs stochastic volatility can produce significantly different prices for the same exotic. This model risk, not market risk, is often the dominant source of P&L uncertainty on exotic derivatives desks.'
+        'Path-dependent payoffs need the whole price path, not just the final price, so Black-Scholes formulas fail. Monte Carlo simulation generates thousands of random paths, prices each payoff, then averages and discounts them. It is the most versatile pricing tool available.',
+      'Finite difference methods solve the pricing equation on a grid: fast for 1-2 underlyings, poor in higher dimensions. The bigger danger is model risk: GBM, local volatility and stochastic volatility can price the same exotic very differently.'
       ],
       [
         { term: 'Monte Carlo Simulation', definition: 'A numerical method that prices derivatives by simulating many random price paths, computing the payoff for each, and averaging the discounted results.', example: 'To price an Asian option: simulate 100,000 stock price paths, compute the average price for each path, calculate max(avg - K, 0) for each, then average all payoffs and discount.' },
@@ -4286,7 +4271,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Finite Difference Method', definition: 'A numerical technique that solves the pricing PDE by discretizing time and price on a grid. Efficient for 1-2 dimensional problems.', example: 'A 1000×500 grid (time × price) solves the Black-Scholes PDE for a barrier option in milliseconds, automatically handling the boundary condition at the barrier.' }
       ],
       'Comparison diagram: Monte Carlo (many simulated paths converging to a price) vs finite differences (grid with PDE solved at each node)',
-      { company: 'Société Générale, 2008', metric: 'Exotic derivatives losses', outcome: 'Jerome Kerviel\'s unauthorized trading in exotic equity derivatives cost Société Générale €4.9 billion, the largest rogue trading loss in history at the time', explanation: 'Kerviel exploited gaps in the bank\'s risk management for exotic derivatives. The positions were path-dependent and difficult to monitor in real-time. The unwinding of his massive positions during the January 2008 market downturn amplified losses far beyond what static models predicted. This highlighted the critical importance of proper exotic risk management.' },
+      undefined,
       QA14_TEACH2
     ),
 
@@ -4304,7 +4289,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'EXOTIC OPTIONS MYTHS',
+      'Exotic options myths',
       'Common misunderstandings about exotic derivatives',
       [
         {
@@ -4542,12 +4527,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'CREDIT DEFAULT SWAPS',
+      'Credit default swaps',
       'How CDS Work: The Insurance Contract of Finance',
       [
-        'A credit default swap (CDS) is essentially insurance against a borrower\'s default. The protection buyer pays periodic premiums (the CDS spread, quoted in basis points per year) to the protection seller. If the reference entity defaults, the seller pays the buyer the loss: typically face value minus recovery value. A CDS spread of 200 bps means the buyer pays 2% of notional value per year for default insurance.',
-        'CDS pricing relies on two key inputs: the hazard rate (probability of default per unit time) and the recovery rate (fraction of face value recovered after default, typically assumed 40% for senior unsecured bonds). The CDS spread is set so the present value of premium payments equals the expected present value of default payments. The formula: CDS spread ≈ hazard rate × (1 - recovery rate).',
-        'CDS spreads are the market\'s real-time assessment of credit risk. When Lehman Brothers\' CDS spread widened from 150 bps to 700 bps in September 2008, it signaled the market believed Lehman was in serious danger, days before the actual bankruptcy. CDS markets often lead rating agency downgrades by months, making them the fastest and most informative credit risk indicator.'
+        'A credit default swap, or CDS, insures against a borrower defaulting. The buyer pays a yearly premium, the CDS spread: 200 basis points means 2% of the insured amount. At default, the seller pays face value minus recovery value.',
+      'Pricing uses the hazard rate, the yearly default chance, and the recovery rate, usually 40%: spread is hazard rate times 1 minus recovery rate. Lehman Brothers\' spread jumped from 150 bps to 700 bps in September 2008.'
       ],
       [
         { term: 'Credit Default Swap', definition: 'A derivative contract where the protection buyer pays periodic premiums and the protection seller pays the loss if the reference entity defaults. Functionally, it is default insurance.', example: 'You own $10M of Ford bonds and buy CDS at 150 bps. You pay $150,000/year in premiums. If Ford defaults and bonds recover $4M, the CDS seller pays you $6M (the loss).' },
@@ -4556,7 +4540,7 @@ const lessons: PathwayLesson[] = [
         { term: 'CDS Spread', definition: 'The annual premium paid by the protection buyer, quoted in basis points. It reflects the market\'s assessment of the reference entity\'s credit risk.', example: 'CDS spread of 500 bps on a $10M notional means the buyer pays $500,000/year for default protection. High spreads = high perceived default risk.' }
       ],
       'CDS cash flow diagram: protection buyer pays periodic premiums (regular arrows) to seller; if default occurs, seller pays loss amount (one large arrow)',
-      { company: 'AIG Financial Products', metric: 'CDS exposure and bailout', outcome: 'AIG sold $440 billion in CDS protection and collected billions in premiums, then required a $182 billion government bailout when the underlying credits defaulted', explanation: 'AIG sold CDS on super-senior CDO tranches, believing AAA-rated tranches would never default. They collected premiums without posting adequate collateral. When subprime defaults cascaded through CDO structures, AIG owed tens of billions it couldn\'t pay. The government bailout was necessary because AIG\'s counterparties (every major bank) would have faced catastrophic losses if AIG failed.' },
+      undefined,
       {
         type: 'comparison',
         title: 'CDS Cash Flows',
@@ -4583,7 +4567,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CDO TRANCHING',
+      'CDO tranching',
       'Collateralized Debt Obligations: Slicing Risk',
       'pie',
       'Explore how CDO tranching redistributes credit risk. Adjust the portfolio default rate to see how losses flow through the equity, mezzanine, and senior tranches.',
@@ -4608,17 +4592,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Default Correlation', min: 0, max: 100, default: 30, unit: '%' },
         { label: 'Recovery Rate (%)', min: 0, max: 80, default: 40, unit: '%' }
       ],
-      { company: 'CDO Market, 2008 Crisis', metric: 'AAA tranche failure rate', outcome: '28% of CDO tranches originally rated AAA were ultimately downgraded to junk, proving that the Gaussian copula correlation model catastrophically failed under stress', explanation: 'The Gaussian copula assumed default correlations were stable and moderate. Under systemic stress, correlations spiked to near 1.0: when one subprime mortgage defaulted, thousands of similar mortgages defaulted simultaneously. This was precisely the tail scenario the model assumed was nearly impossible. The lesson: tail correlations in credit are far higher than normal-market correlations suggest.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'PRICING FRAMEWORK',
+      'Pricing framework',
       'CDS Valuation and Credit Curve Construction',
       [
-        'CDS pricing equates the present value of premium payments (the premium leg) with the expected present value of the default payment (the protection leg). Premium leg: the buyer pays the CDS spread times notional, accruing over time, weighted by the survival probability at each payment date. Protection leg: the expected payment at default, which is (1 - recovery) × notional × probability of default at each time, discounted to present.',
-        'The credit curve, a term structure of hazard rates or CDS spreads at different maturities (1Y, 3Y, 5Y, 7Y, 10Y), is the fundamental object in credit derivatives pricing. Just as the yield curve prices bonds, the credit curve prices all credit-sensitive instruments. The shape matters: an inverted credit curve (short-term CDS more expensive than long-term) signals imminent default risk, the market expects the company might not survive the near term.',
-        'Credit Value Adjustment (CVA) extends CDS concepts to all derivatives: it adjusts the price of any derivative to account for the counterparty\'s default risk. If your swap counterparty might default, the swap is worth less than the default-free value. CVA has become a critical calculation post-2008, with banks employing large CVA desks that use CDS-based hazard rates to price counterparty risk across all derivatives portfolios.'
+        'A CDS price balances two legs: premiums paid over time, weighted by the chance the borrower survives, against the expected payout at default, which is 1 minus recovery times notional, the insured amount, discounted to today.',
+      'The credit curve gives spreads at 1Y, 3Y, 5Y, 7Y and 10Y. Inverted, meaning short term costs more, it warns of default soon. Since 2008, credit value adjustment, CVA, discounts derivatives for counterparty default risk.'
       ],
       [
         { term: 'Premium Leg', definition: 'The stream of periodic payments from the CDS buyer to seller. Its present value depends on the survival probability curve and discount factors.', example: 'A 5-year CDS at 200 bps on $10M: the premium leg PV = Σ 200bps × $10M × survival_prob(t) × discount(t) × Δt for each payment period.' },
@@ -4626,7 +4609,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Credit Value Adjustment (CVA)', definition: 'The adjustment to a derivative\'s price that accounts for counterparty default risk. CVA = Expected loss from counterparty default over the derivative\'s life.', example: 'A $5M interest rate swap with a BB-rated counterparty has CVA of $150K, meaning the swap is worth $4.85M after accounting for the probability that the counterparty defaults before maturity.' }
       ],
       'Credit curve diagram showing CDS spreads at different maturities: normal upward-sloping vs inverted (signaling imminent default)',
-      { company: 'Lehman Brothers, September 2008', metric: 'CDS market signals', outcome: 'Lehman\'s CDS spread widened from 150 bps to 700 bps in the week before bankruptcy, the CDS market signaled distress months before the actual default', explanation: 'Lehman\'s 5-year CDS was trading at 700 bps (7% annual) with an inverted credit curve (1-year CDS even more expensive). This meant the market was pricing in imminent default. Rating agencies still rated Lehman A2 the week before bankruptcy. The CDS market was right; the rating agencies were catastrophically wrong.' },
+      undefined,
       QA15_TEACH2
     ),
 
@@ -4644,7 +4627,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'CREDIT DERIVATIVES MYTHS',
+      'Credit derivatives myths',
       'Common misunderstandings about CDS and credit derivatives',
       [
         {
@@ -4875,12 +4858,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'SHORT-RATE MODELS',
+      'Short-rate models',
       'Vasicek, CIR, and Hull-White',
       [
-        'Short-rate models describe the evolution of the instantaneous short-term interest rate r(t) using a stochastic differential equation. The Vasicek model (1977): dr = θ(μ - r) dt + σ dW, is the simplest mean-reverting rate model. The rate is pulled toward the long-run mean μ with speed θ, with volatility σ. It gives closed-form bond prices: P(t,T) = exp(A(t,T) - B(t,T)r(t)). The major limitation: Vasicek allows negative rates.',
-        'The Cox-Ingersoll-Ross (CIR) model (1985): dr = θ(μ - r) dt + σ√r dW, prevents negative rates by making the diffusion proportional to √r. When r approaches zero, the random component shrinks, preventing negative values (when 2θμ ≥ σ², the Feller condition). CIR also gives closed-form bond prices but with a more complex formula. It became the standard for modeling rates that must stay positive.',
-        'The Hull-White model (1990): dr = (θ(t) - ar) dt + σ dW, extends Vasicek with a time-dependent drift θ(t) that can be calibrated to exactly fit today\'s yield curve. This is crucial for pricing: if your model doesn\'t match today\'s observed bond prices, it will misprice all derivatives from the start. Hull-White is the most widely used short-rate model in practice because of this exact yield curve fitting combined with analytical tractability.'
+        'Vasicek (1977), dr = θ(μ - r) dt + σ dW, pulls the short rate, today\'s instant rate, toward mean μ at speed θ, volatility σ. It gives closed form bond prices, but allows negative rates.',
+      'CIR (1985), dr = θ(μ - r) dt + σ√r dW, keeps rates positive: noise shrinks near zero if 2θμ ≥ σ², Feller\'s condition. Hull-White (1990), dr = (θ(t) - ar) dt + σ dW, fits today\'s yield curve exactly.'
       ],
       [
         { term: 'Vasicek Model', definition: 'dr = θ(μ-r)dt + σdW. Mean-reverting short-rate model with constant parameters. Gives closed-form bond prices but allows negative rates.', example: 'With θ=0.5, μ=5%, σ=1%: if the rate is at 7%, the drift is 0.5×(5%-7%) = -1%/year, pulling the rate back toward 5%. Bond prices are exponential-affine in r.' },
@@ -4889,7 +4871,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Affine Term Structure', definition: 'A class of models where bond prices have the form P(t,T) = exp(A(t,T) - B(t,T)r(t)). Vasicek, CIR, and Hull-White all have affine structure, enabling fast bond pricing.', example: 'With affine structure, you can price a bond instantly by computing A and B functions and plugging in the current short rate, no simulation needed.' }
       ],
       'Three rate paths: Vasicek (can go negative), CIR (bounces off zero), Hull-White (matches initial yield curve exactly)',
-      { company: 'Orange County, 1994', metric: 'Interest rate model failure', outcome: 'Orange County lost $1.7 billion by leveraging a $7.5 billion portfolio with interest rate bets, assuming rates would stay low, the worst municipal loss in US history', explanation: 'Orange County treasurer Robert Citron used extreme leverage (300% of portfolio value) to bet that short rates would stay low. When the Fed raised rates 2.5% in 1994, the leveraged positions collapsed. Citron had no rate model, he was simply betting on direction. A basic Vasicek or Hull-White model would have shown the enormous rate risk in his positions.' },
+      undefined,
       QA16_TEACH1
     ),
 
@@ -4904,7 +4886,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FORWARD-RATE FRAMEWORKS',
+      'Forward-rate frameworks',
       'HJM and the LIBOR Market Model',
       'timeline',
       'Explore how forward-rate models directly model the evolution of the entire yield curve, not just the short rate.',
@@ -4929,17 +4911,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Rate Volatility (%)', min: 0, max: 3, default: 1, unit: '%' },
         { label: 'Long-Run Rate (%)', min: 1, max: 8, default: 4, unit: '%' }
       ],
-      { company: 'LIBOR to SOFR Transition', metric: 'Scale of model migration', outcome: 'The 2021-2023 transition from LIBOR to SOFR required repricing $350+ trillion in derivatives, the largest model migration in financial history', explanation: 'LIBOR underpinned the global rate derivatives market. When manipulation scandals forced the transition to SOFR, every interest rate model had to be recalibrated. LMM became SOFR Market Model. SABR parameters were re-estimated. The transition proved that interest rate models aren\'t just academic, they\'re the infrastructure of global finance.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'MODEL CALIBRATION',
+      'Model calibration',
       'Fitting Models to Market Data',
       [
-        'Calibration is the process of choosing model parameters so the model reproduces observed market prices. For Hull-White: θ(t) is calibrated to the yield curve, and a (mean reversion) and σ (volatility) are calibrated to swaption prices. For SABR: α, β, ρ, and ν are calibrated to the swaption volatility smile at each expiry-tenor pair.',
-        'The calibration process typically involves minimizing the sum of squared differences between model prices and market prices: min_params Σ(P_model - P_market)². This is a non-linear optimization problem that can have multiple local minima. Robustness of calibration (do similar market data produce similar parameters?) is as important as quality of fit (how small are the pricing errors?).',
-        'Model selection involves fundamental tradeoffs: simpler models (Vasicek, Hull-White) have fewer parameters and faster calibration but may not capture volatility smiles. Complex models (SABR, stochastic vol LMM) fit the smile but have more parameters and slower pricing. The practitioner\'s art is choosing the simplest model that captures the features relevant to the product being priced.'
+        'Calibration means picking parameters so a model matches market prices. Hull-White: θ(t) fits the yield curve, while a (mean reversion) and σ (volatility) fit swaption prices. SABR: α, β, ρ and ν fit the volatility smile at each expiry-tenor pair.',
+      'You minimize min_params Σ(P_model - P_market)², a nonlinear problem with many local minima. Robust parameters matter as much as small errors. Vasicek and Hull-White calibrate fast but miss smiles; SABR and stochastic vol LMM fit smiles more slowly.'
       ],
       [
         { term: 'Calibration', definition: 'The process of determining model parameters by matching model prices to observed market prices. The model is "fitted" to current market data.', example: 'Calibrating Hull-White to 10 swaptions might yield a=0.03 and σ=0.8%. These parameters are then used to price exotic rate products consistently with the observed swaption market.' },
@@ -4947,7 +4928,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Cap/Floor', definition: 'A series of interest rate options (caplets/floorlets) that pay when the rate exceeds the cap strike or falls below the floor strike. Used for calibrating rate volatility.', example: 'A 5-year cap at 5% pays the holder whenever 3-month LIBOR exceeds 5% at each quarterly reset. It protects borrowers against rate increases.' }
       ],
       'Calibration diagram: market swaption prices as targets, optimization finding model parameters that minimize pricing errors',
-      { company: 'Interest Rate Swap Market', metric: 'Market size and model dependence', outcome: 'The interest rate swap market exceeds $400 trillion in notional, every swap is valued and risk-managed using calibrated rate models, making model accuracy a systemic concern', explanation: 'A 1 basis point pricing error on $400 trillion of swaps represents $40 billion in aggregate mispricing. This is why banks invest heavily in rate model infrastructure: incorrect calibration doesn\'t just lose money on one trade, it systematically misprices an entire portfolio. The largest fixed income desks employ dozens of quants focused solely on rate model calibration.' },
+      undefined,
       QA16_TEACH2
     ),
 
@@ -5189,12 +5170,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'FEATURE ENGINEERING',
+      'Feature engineering',
       'Turning Raw Data Into Predictive Signals',
       [
-        'Feature engineering is the most important step in financial ML, often more valuable than model selection. Features are the input variables your model uses to make predictions. In finance, raw data (prices, volumes, fundamentals) must be transformed into informative features: momentum (12-month return), volatility (30-day realized vol), value (price-to-book ratio), quality (ROE stability), sentiment (NLP on earnings calls).',
-        'Alternative data has become a major edge source. Satellite imagery of parking lots predicts retail sales. Credit card transaction data reveals consumer spending trends. Ship tracking data forecasts commodity flows. NLP on SEC filings, earnings transcripts, and social media provides sentiment signals. The firms with the best alternative data pipelines (Two Sigma, WorldQuant, Citadel) have a significant advantage.',
-        'Feature quality matters more than model complexity. A simple linear model with great features outperforms a deep neural network with bad features. The key feature properties: (1) Predictive power, does it correlate with future returns? (2) Stability, is the relationship consistent over time? (3) Uniqueness, does it add information beyond existing features? (4) Economic intuition, can you explain WHY it should predict returns? Features without economic rationale often represent overfit noise.'
+        'Feature engineering turns raw data into model inputs, and it matters more than picking a model. Prices and volumes become features like momentum (12-month return), volatility (30-day realized vol), value (price-to-book), quality (ROE stability), and sentiment from earnings calls.',
+      'Alternative data adds edge: satellite images of parking lots predict retail sales, card transactions show spending, ship tracking forecasts commodity flows. Two Sigma, WorldQuant and Citadel lead here. Good features beat complex models, but only with economic reasoning behind them.'
       ],
       [
         { term: 'Feature Engineering', definition: 'The process of transforming raw data into informative input variables for ML models. In finance, this includes computing technical indicators, fundamental ratios, sentiment scores, and alternative data signals.', example: 'Turning raw price data into features: 12-month momentum, 30-day volatility, RSI, volume-weighted price deviation, earnings surprise score, NLP sentiment on recent news.' },
@@ -5203,7 +5183,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Look-Ahead Bias', definition: 'Using information that was not available at the time of the prediction, a fatal error that makes backtests unrealistically optimistic.', example: 'Using the full annual revenue to predict January stock returns is look-ahead bias, the annual revenue wasn\'t known in January. Always use point-in-time data.' }
       ],
       'Feature engineering pipeline: raw data sources feeding into feature computations, then feature selection/importance ranking, then ML model input',
-      { company: 'Two Sigma / WorldQuant', metric: 'Alternative data usage', outcome: 'Two Sigma processes petabytes of alternative data daily, satellite imagery, social media, transaction data, generating thousands of alpha signals that human analysts could never detect', explanation: 'Two Sigma employs over 1,600 people, the majority in data science and ML engineering. Their edge isn\'t a single brilliant model, it\'s the systematic construction of thousands of features from alternative data sources, combined with rigorous validation that separates genuine signals from noise. The alpha from any single feature is tiny; the portfolio effect of thousands of small edges is substantial.' },
+      undefined,
       QA17_TEACH1
     ),
 
@@ -5218,7 +5198,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ML MODELS FOR TRADING',
+      'ML models for trading',
       'From Gradient Boosting to Neural Networks',
       'multiline',
       'Compare how different ML architectures perform on financial prediction tasks. Adjust the data quality and model complexity to see the overfitting tradeoff.',
@@ -5243,17 +5223,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Training Data (years)', min: 1, max: 30, default: 10, unit: 'yr' },
         { label: 'Number of Features', min: 5, max: 500, default: 50, unit: '' }
       ],
-      { company: 'Jane Street / Kaggle', metric: 'ML competition results', outcome: 'In the 2024 Jane Street market prediction Kaggle competition ($100K prize), the winning solutions used gradient boosting (LightGBM) ensembles, not deep learning', explanation: 'Despite the hype around neural networks, gradient boosting remains the dominant method in financial prediction competitions. The winning teams used LightGBM with careful feature engineering, time-series cross-validation, and ensemble averaging. Deep learning solutions ranked lower because financial data\'s low signal-to-noise ratio heavily penalizes the overfitting that complex neural networks are prone to.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'THE OVERFITTING CHALLENGE',
+      'The overfitting challenge',
       'Why 90% of ML Trading Strategies Fail',
       [
-        'Overfitting is the central challenge of financial ML. A model that memorizes historical patterns (noise) rather than learning generalizable relationships will fail catastrophically in live trading. The signal-to-noise ratio in financial data is extremely low, daily stock returns have R² < 0.01 against any known predictor. This means 99%+ of price variation is noise, and an overfit model captures the noise perfectly while missing the tiny real signal.',
-        'Walk-forward validation is the gold standard for financial ML evaluation. Instead of random train/test splits (which leak future information), you train on data up to time T, test on T to T+1, then walk forward. This simulates real-time prediction and reveals whether the model generalizes across time. Many strategies that look brilliant in random cross-validation fail completely in walk-forward testing.',
-        'Regularization techniques prevent overfitting: L1/L2 penalties shrink model parameters, dropout randomly removes neural network connections during training, early stopping halts training when validation error starts increasing, and limiting model complexity (fewer trees, shallower depth) reduces the capacity to memorize noise. The most important regularization in finance is feature selection, using fewer, more interpretable features with economic rationale.'
+        'Overfitting means the model memorizes past noise instead of real patterns. Financial signal is tiny: daily stock returns have R² < 0.01 against any known predictor, so 99%+ of price movement is noise a model can happily memorize.',
+      ' Walk-forward validation is the fix: train on data up to time T, test on T to T+1, then step forward. That mimics live trading. Regularization helps too: L1/L2 penalties, dropout, early stopping, simpler models, and fewer features with economic rationale.'
       ],
       [
         { term: 'Overfitting', definition: 'When a model learns patterns specific to the training data (noise) rather than generalizable relationships. The model performs well in-sample but poorly out-of-sample.', example: 'A neural network achieves 70% accuracy predicting next-day returns in backtesting but only 50.1% in live trading, it memorized historical noise patterns that don\'t recur.' },
@@ -5261,7 +5240,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Regularization', definition: 'Techniques that prevent overfitting by constraining model complexity: L1/L2 penalties, dropout, early stopping, feature selection, and parameter limits.', example: 'L1 regularization (Lasso) sets many feature coefficients to exactly zero, automatically selecting the most important features and discarding noise.' }
       ],
       'Overfitting diagram: two curves, training error decreasing monotonically, validation error first decreasing then increasing as complexity grows. The sweet spot is where validation error is minimized.',
-      { company: 'Marcos Lopez de Prado Research', metric: 'Backtest overfitting probability', outcome: 'Research by de Prado showed that if you try 100 strategy variations and pick the best backtest, there\'s a 45% probability the selected strategy is actually overfit, even with "proper" validation', explanation: 'Multiple testing is the hidden killer of financial ML. Every time you try a different model, feature, or parameter and keep the best backtest result, you\'re implicitly overfitting to the backtest period. With 100 trials, roughly half your "best" strategies are just lucky noise. The solution: strict walk-forward testing with no peeking, and Bonferroni/BH corrections for multiple testing.' },
+      undefined,
       QA17_TEACH2
     ),
 
@@ -5279,7 +5258,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'ML TRADING MYTHS',
+      'ML trading myths',
       'Common misunderstandings about machine learning in quantitative finance',
       [
         {
@@ -5512,7 +5491,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE ORDER BOOK',
+      'The order book',
       'How Prices Form in Electronic Markets',
       [
         'The limit order book (LOB) is the fundamental data structure of modern markets. It lists all outstanding buy orders (bids) and sell orders (asks) at every price level. The best bid is the highest price someone is willing to pay; the best ask is the lowest price someone is willing to sell. The difference, the bid-ask spread, is the market\'s transaction cost and the market maker\'s potential profit.',
@@ -5526,7 +5505,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Latency', definition: 'The time delay between sending an order and receiving confirmation. HFT firms minimize latency to microseconds using co-location, specialized hardware, and fiber/microwave networks.', example: 'A standard retail order takes 50-100 milliseconds. An HFT firm co-located at the exchange completes the round trip in 10-50 microseconds, 1,000× faster.' }
       ],
       'Order book visualization: price on Y-axis, volume on X-axis. Bids (green) stacked below, asks (red) stacked above. Bid-ask spread in the middle.',
-      { company: 'Virtu Financial', metric: 'Market making consistency', outcome: 'Virtu Financial reported only 1 losing day out of 1,238 trading days (2009-2014), a win rate of 99.9% through high-frequency market making', explanation: 'Virtu\'s near-perfect record illustrates the power of market making at scale. By providing liquidity (posting bid and ask quotes) across thousands of securities and earning the bid-ask spread millions of times per day, the law of large numbers produces incredibly consistent profits. The risk on any single trade is tiny; the aggregate across millions of trades is virtually risk-free.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Limit Order Book Snapshot',
@@ -5553,7 +5532,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'HFT STRATEGIES',
+      'HFT strategies',
       'Market Making, Latency Arbitrage, and Statistical Arbitrage',
       'comparison',
       'Explore the economics of high-frequency trading strategies. Adjust spread width and trade frequency to see how small edges compound into large profits.',
@@ -5578,12 +5557,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Trades per Day', min: 10000, max: 5000000, default: 1000000, unit: '' },
         { label: 'Adverse Selection Rate (%)', min: 0, max: 30, default: 10, unit: '%' }
       ],
-      { company: 'Jump Trading / Citadel Securities', metric: 'Infrastructure investment', outcome: 'HFT firms have spent over $1 billion on microwave tower networks between Chicago and New Jersey, reducing transmission time from 13ms (fiber) to 8ms (microwave), because 5 milliseconds is worth billions', explanation: 'The speed arms race in HFT is extraordinary. Jump Trading built a microwave tower network that transmits market data 40% faster than fiber optic cables. The investment of $100M+ for a 5-millisecond advantage seems absurd until you calculate that latency arbitrage opportunities worth pennies per share, executed millions of times per day, aggregate to billions per year. In HFT, time literally is money.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'MARKET MICROSTRUCTURE THEORY',
+      'Market microstructure theory',
       'Information, Adverse Selection, and Price Discovery',
       [
         'The Kyle model (1985) formalized how informed trading moves prices. An informed trader (who knows the true value) trades alongside uninformed noise traders. The market maker observes order flow but can\'t distinguish informed from uninformed orders. Kyle showed that the informed trader optimizes by trading gradually, hiding in the noise. The permanent price impact is proportional to the informed trader\'s signal, this is the foundation of market impact modeling.',
@@ -5596,7 +5575,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Price Discovery', definition: 'The process by which markets incorporate new information into prices. Measured by information shares across venues and the speed of price adjustment to news.', example: 'After an earnings announcement, the stock price adjusts to the new information within seconds. HFT market makers update quotes in microseconds; slower participants take minutes.' }
       ],
       'Kyle model diagram: informed trader + noise traders → market maker observes aggregate order flow → sets price = prior + λ × order flow imbalance',
-      { company: 'The Flash Crash, May 6, 2010', metric: 'Market microstructure failure', outcome: 'The Dow fell 1,000 points in 5 minutes and recovered in 20 minutes, triggered by a $4.1B sell order from Waddell & Reed that exhausted HFT liquidity', explanation: 'Waddell & Reed executed a $4.1B S&P 500 E-mini futures sell order using an algorithm that sold based on volume, not price. As the algorithm sold, HFT market makers absorbed the orders but then rapidly exited as they detected the persistent selling pressure. The withdrawal of HFT liquidity caused order book depth to evaporate, allowing prices to cascade downward. The recovery occurred when HFT firms re-entered after recognizing extreme dislocations.' },
+      undefined,
       QA18_TEACH2
     ),
 
@@ -5614,7 +5593,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'HFT MYTHS',
+      'HFT myths',
       'Common misunderstandings about high-frequency trading',
       [
         {
@@ -5845,12 +5824,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE SEVEN DEADLY SINS',
+      'The seven deadly sins',
       'Common Backtesting Pitfalls That Destroy Strategies',
       [
-        'Sin 1: Look-ahead bias, using information not available at decision time. Example: using a company\'s full-year revenue to make January predictions. Sin 2: Survivorship bias, only testing on stocks that still exist today, ignoring delisted failures. The S&P 500 of 2000 included Enron, WorldCom, and Bear Stearns. If you backtest on today\'s S&P, you\'ve excluded the worst outcomes. Sin 3: Data snooping, testing many strategies and picking the best backtest result (multiple testing problem).',
-        'Sin 4: Unrealistic fills, assuming you can trade at the closing price, or ignoring that your order would move the market. Sin 5: Ignoring transaction costs, a strategy that trades daily with 0.1% expected alpha but 0.15% transaction costs per trade loses money. Sin 6: Ignoring market impact, a strategy that works for $1M but fails at $100M because the trades move the market. Sin 7: Non-stationarity, assuming the future will look like the past. Market regimes change, correlations break, and alpha decays.',
-        'The deflated Sharpe ratio (Bailey and Lopez de Prado) adjusts the backtest Sharpe ratio for the number of strategies tested. If you test 100 strategies and pick the one with Sharpe 2.0, the deflated Sharpe might be only 0.5, because with 100 trials, a Sharpe of 2.0 can arise by chance. This single correction eliminates the majority of "profitable" backtested strategies and is arguably the most important statistical tool for quant researchers.'
+        'Seven traps: using data you would not have had yet; testing only S&P 500 firms alive today, which drops 2000\'s Enron, WorldCom and Bear Stearns; trying many strategies, then keeping the luckiest.',
+      'Also dream fill prices, costs (0.1% edge, 0.15% fees), size ($1M works, $100M moves the market), and change. Deflated Sharpe (Bailey and Lopez de Prado) trims a 2.0 return-per-risk score from 100 tries to 0.5.'
       ],
       [
         { term: 'Look-Ahead Bias', definition: 'Using information in backtesting that would not have been available at the time of the trading decision. It makes backtests unrealistically optimistic.', example: 'Using the final quarterly earnings number to trade on the day before the announcement. The number wasn\'t known yet, this inflates backtest returns.' },
@@ -5859,7 +5837,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Deflated Sharpe Ratio', definition: 'An adjustment to the backtest Sharpe ratio that accounts for the number of strategies tested. It prevents multiple testing bias from inflating performance claims.', example: 'You test 200 strategies and the best has Sharpe 1.8. The deflated Sharpe (accounting for 200 trials) is 0.4, the "alpha" was mostly selection bias, not genuine skill.' }
       ],
       'Seven deadly sins of backtesting listed as warning signs, with each inflating the gap between backtest and reality',
-      { company: 'Academic Finance Research', metric: 'Strategy replication failure', outcome: 'A study testing 400 published trading strategies found fewer than 10% replicated profitably out-of-sample, the vast majority were artifacts of data mining and backtesting errors', explanation: 'The "replication crisis" in quantitative finance mirrors that in psychology and medicine. Researchers have strong incentives to find positive results (publication bias), and the flexibility of financial backtesting (choice of time period, data, parameters, transaction costs) makes it easy to find apparent alpha that doesn\'t actually exist.' },
+      undefined,
       QA19_TEACH1
     ),
 
@@ -5874,7 +5852,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'WALK-FORWARD ANALYSIS',
+      'Walk-forward analysis',
       'The Gold Standard for Strategy Validation',
       'timeline',
       'Visualize how walk-forward analysis works: expanding training windows with sequential out-of-sample test periods that simulate real-time decision making.',
@@ -5899,17 +5877,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Test Period (months)', min: 3, max: 24, default: 12, unit: 'mo' },
         { label: 'Purge Gap (days)', min: 0, max: 30, default: 5, unit: 'days' }
       ],
-      { company: 'Marcos Lopez de Prado', metric: 'False discovery rate in finance', outcome: 'Lopez de Prado\'s research shows that without proper correction, 80%+ of backtested "discoveries" are false positives, strategies that appear profitable only due to overfitting or data mining', explanation: 'The combination of low signal-to-noise in financial data, multiple testing from trying many strategies, and flexible backtest methodology creates a perfect storm for false discoveries. His deflated Sharpe ratio and combinatorial purged cross-validation methods are now standard tools at top quant funds for separating genuine alpha from statistical illusions.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ROBUSTNESS TESTING',
+      'Robustness testing',
       'Stress Tests, Sensitivity Analysis, and Out-of-Sample Validation',
       [
-        'A robust strategy performs consistently across different time periods, market regimes, parameter choices, and execution assumptions. Sensitivity analysis varies each input: What happens if transaction costs are 2× higher? What if the holding period is 3 days instead of 5? What if we start 6 months later? A fragile strategy collapses under small perturbations; a robust one degrades gracefully.',
-        'Regime analysis tests the strategy across different market environments: bull markets, bear markets, high volatility, low volatility, rising rates, falling rates. A strategy that makes money only in bull markets isn\'t really a strategy, it\'s a disguised market beta. True alpha should be present (or at least not catastrophic) across multiple regimes. LTCM\'s strategy worked brilliantly for 5 years but blew up in a regime it had never encountered.',
-        'Paper trading (live simulation without real money) is the ultimate out-of-sample test. Run the strategy on real-time data for 3-6 months, executing virtual trades at actual market prices. This reveals execution issues, latency problems, and real-time performance that backtests can\'t capture. If paper trading performance is significantly worse than backtesting, something is wrong, data snooping, look-ahead bias, or unrealistic fill assumptions.'
+        'Robust means results survive small changes. Ask what happens if costs are 2× higher, if you hold 3 days instead of 5, or if you start 6 months later. Fragile strategies collapse. Robust ones just fade.',
+      'Test across bull and bear markets too: a bull-only strategy is just market beta, ordinary market movement. LTCM worked for 5 years, then blew up. Finally, paper trade, meaning fake trades at live prices, for 3 to 6 months.'
       ],
       [
         { term: 'Sensitivity Analysis', definition: 'Systematically varying strategy inputs (parameters, costs, timing) to test robustness. A robust strategy degrades gracefully; a fragile one collapses under perturbation.', example: 'A momentum strategy with 12-month lookback is tested with 9, 10, 11, 13, 14, 15-month lookbacks. If performance is similar across all, the strategy is robust. If only 12 months works, it\'s likely overfit to that specific parameter.' },
@@ -5917,13 +5894,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Paper Trading', definition: 'Running a strategy on live market data with simulated (not real) trades. The ultimate out-of-sample test that reveals execution issues and real-time performance.', example: 'After backtesting shows 15% annual returns, paper trade for 6 months. If paper trading shows 11%, the 4% gap is due to execution realities. If it shows -2%, the backtest was compromised.' }
       ],
       'Robustness testing framework: sensitivity tornado chart showing how performance changes with each input variation',
-      { company: 'LTCM, Robustness Failure', metric: 'Strategy fragility under regime change', outcome: 'LTCM\'s strategy was back-tested and profitable for years but had never been tested against the regime of Russian sovereign default + global flight to quality. The "once in a billion years" event destroyed $4.6B', explanation: 'LTCM\'s models assumed mean-reverting spreads and moderate correlations. They back-tested brilliantly across available history. But the 1998 Russian crisis created a regime unlike anything in the backtest window: all correlations went to 1, all spreads widened simultaneously, and leverage amplified losses catastrophically. Their backtest was robust, but only to historical regimes.' },
+      undefined,
       QA19_TEACH2
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'BACKTESTING MYTHS',
+      'Backtesting myths',
       'Dangerous misunderstandings about strategy validation',
       [
         {
@@ -6170,12 +6147,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'COST DECOMPOSITION',
+      'Cost decomposition',
       'Anatomy of Transaction Costs',
       [
-        'Transaction costs decompose into four categories: explicit costs (commissions, exchange fees, taxes, typically 1-5 bps), spread costs (half the bid-ask spread paid on each trade, 1-20 bps depending on liquidity), market impact (the price movement caused by your own trading, 10-200 bps for large orders), and opportunity cost (the cost of NOT trading, prices moving away while you wait for better execution).',
-        'The Almgren-Chriss framework (2000) formalized optimal execution as a tradeoff between market impact and timing risk. Trading faster incurs more impact cost (you hit the order book harder) but less timing risk (the price has less time to move against you). Trading slower reduces impact but increases timing risk. The optimal trajectory minimizes the sum: Total Cost = Impact Cost + Risk Penalty. The solution is typically a curved execution schedule, trading faster at the start and slowing down.',
-        'Implementation shortfall (IS), introduced by Perold (1988), measures the total cost of implementing an investment decision: IS = Paper Return - Actual Return. If your model says "buy at $100" and your average execution price is $100.50, the IS is 50 bps. IS decomposes into delay cost (price drift before trading begins), market impact (price movement from your trading), and opportunity cost (unexecuted portion if you couldn\'t complete the trade). IS is the gold standard for execution quality measurement.'
+        'Trading costs have four parts: explicit fees like commissions, 1-5 bps (a bps is one hundredth of a percent); spread cost, 1-20 bps; market impact from your own trading, 10-200 bps; and opportunity cost while you wait.',
+      'Almgren and Chriss (2000) showed the tradeoff: trade fast and you push the price, trade slow and prices may drift away. Perold (1988) named the gap implementation shortfall: buy signal at $100, fill at $100.50, 50 bps.'
       ],
       [
         { term: 'Implementation Shortfall', definition: 'The difference between the theoretical paper portfolio return and the actual portfolio return after all execution costs. The comprehensive measure of total trading cost.', example: 'Model signals buy at $100 at 9:30 AM. Trading begins at 10:00 AM (price now $100.10-10 bps delay cost). Average fill is $100.35 (25 bps impact). Total IS = 35 bps.' },
@@ -6184,7 +6160,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Market Impact', definition: 'The price change caused by your own trading activity. Decomposes into temporary impact (order book displacement, reverts) and permanent impact (information revealed by trading, persists).', example: 'Buying 100K shares in a stock trading 500K/day: temporary impact might be 15 bps (price reverts after you stop), permanent impact 10 bps (market learns about demand). Total impact: 25 bps.' }
       ],
       'Cost decomposition waterfall: Gross Alpha → minus commissions → minus spread → minus impact → minus opportunity cost → Net Alpha',
-      { company: 'Dimensional Fund Advisors', metric: 'Execution cost savings', outcome: 'DFA\'s patient trading approach saves an estimated 50-100 bps annually on their small-cap strategies by using limit orders and providing liquidity rather than demanding it', explanation: 'DFA recognized that for patient, long-horizon investors, the cost of demanding immediate execution far exceeds the cost of waiting. By posting limit orders and acting as a liquidity provider (earning the spread rather than paying it), DFA systematically reduces execution costs. Their insight: for a fund with a 5-year horizon, paying 50 bps of impact today for immediate execution is irrational when you can save that cost by waiting hours or days.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Almgren-Chriss, Speed vs Cost',
@@ -6210,7 +6186,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'EXECUTION ALGORITHMS',
+      'Execution algorithms',
       'VWAP vs TWAP vs Implementation Shortfall Algorithms',
       'comparison',
       'Compare execution algorithms across different urgency levels and order sizes. Adjust parameters to see how the optimal algorithm choice changes.',
@@ -6235,17 +6211,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Urgency (1=patient, 10=urgent)', min: 1, max: 10, default: 5, unit: '' },
         { label: 'Volatility (annual %)', min: 10, max: 80, default: 25, unit: '%' }
       ],
-      { company: 'ITG (now Virtu)', metric: 'VWAP algorithm performance', outcome: 'ITG\'s VWAP algorithms consistently achieved execution within 2-5 bps of the VWAP benchmark across thousands of institutional orders', explanation: 'ITG (acquired by Virtu in 2019) pioneered institutional execution algorithms. Their VWAP algorithms used real-time volume forecasting, anti-gaming logic (to detect predatory algorithms), and adaptive participation rates to achieve near-benchmark execution. The key insight: VWAP execution is a prediction problem, you must forecast the day\'s volume distribution in real-time and adjust execution accordingly.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED EXECUTION',
+      'Advanced execution',
       'Market Impact Models and Optimal Scheduling',
       [
-        'Market impact has two components: temporary impact and permanent impact. Temporary impact is the transient price displacement from consuming liquidity, it reverts after you stop trading. Permanent impact reflects the information your trading reveals, it persists because the market has learned about new demand or supply. The square-root law of market impact states: Impact ≈ σ × √(Q/V), where σ is volatility, Q is order size, and V is daily volume. Impact grows with the square root of order size, trading 4× more doubles the impact.',
-        'The Almgren-Chriss optimal trajectory balances urgency and patience. For risk-neutral traders: the optimal schedule is linear (trade evenly). For risk-averse traders: front-load execution (trade more early to reduce exposure to unfavorable price drift). The risk aversion parameter λ controls the shape: higher λ means more aggressive front-loading. In practice, most institutional IS algorithms use moderate risk aversion, producing a concave execution curve.',
-        'Dark pools and alternative venues play a critical role in execution. Dark pools (non-displayed venues) allow large orders to execute without revealing information. Midpoint crossing (executing at the midpoint of the NBBO) saves half the spread. However, dark pools have adverse selection risk: if you\'re consistently getting filled in the dark pool, it may mean informed traders are avoiding it and you\'re providing liquidity to toxic flow. Smart order routers balance dark and lit venue execution.'
+        'Impact has two parts: a temporary price move that reverts, and a permanent one that sticks. The square-root law: Impact ≈ σ × √(Q/V), with σ volatility, Q order size, V daily volume. Trading 4× more doubles impact.',
+      'Almgren-Chriss scheduling: risk-neutral traders trade evenly, risk-averse traders trade more early, and λ sets how aggressive. Dark pools hide orders and save half the spread at the NBBO midpoint, the best public quote, but you may face informed traders.'
       ],
       [
         { term: 'Square-Root Law', definition: 'The empirical relationship that market impact scales with the square root of order size relative to volume: Impact ≈ σ × √(Q/V). Doubling order size increases impact by ~41%, not 100%.', example: 'Trading 1% of daily volume causes ~10 bps impact. Trading 4% causes ~20 bps (2× impact for 4× size). Trading 16% causes ~40 bps. The square-root relationship is remarkably consistent across markets.' },
@@ -6253,7 +6228,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Temporary vs Permanent Impact', definition: 'Temporary impact is the transient price displacement that reverts after trading stops. Permanent impact is the lasting price change reflecting information revealed by trading.', example: 'Buying 50K shares pushes the price up 30 bps during execution (temporary + permanent). After you stop, the price settles back 15 bps, the remaining 15 bps is permanent impact (the market learned about buying demand).' }
       ],
       'Square-root impact model: chart showing impact (bps) vs order size (% ADV), with the characteristic concave square-root curve',
-      { company: 'AQR Capital Management', metric: 'Transaction cost analysis', outcome: 'AQR estimates that implementation shortfall reduces their factor strategy returns by 30-60 bps annually, equivalent to 10-20% of gross alpha, and has invested heavily in execution optimization', explanation: 'AQR manages $140B+ in factor-based strategies. Even small improvements in execution compound enormously at scale. Their research shows that the square-root impact law means portfolios should be less concentrated (smaller positions = lower per-stock impact) and factor exposures should be expressed through more liquid instruments when possible. Execution optimization is not an afterthought, it\'s central to strategy design.' },
+      undefined,
       {
         type: 'bars',
         title: 'Square-Root Impact Law (impact bps vs % ADV)',
@@ -6282,7 +6257,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'EXECUTION MYTHS',
+      'Execution myths',
       'Common misunderstandings about transaction costs and execution',
       [
         {
@@ -6514,7 +6489,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE BIG IDEA',
+      'The big idea',
       'Risk-Neutral Pricing and the Change of Measure',
       [
         'The fundamental problem of derivative pricing: a call option\'s value depends on the expected future stock price, which depends on the stock\'s expected return μ, which depends on investor risk preferences. Different investors have different risk preferences, so they\'d assign different values to the same option. This seems to make objective pricing impossible.',
@@ -6528,7 +6503,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Martingale', definition: 'A stochastic process whose expected future value, given all current information, equals its current value. Under Q, discounted asset prices are martingales, they have no predictable drift.', example: 'The discounted stock price S_t × e^(-rt) is a martingale under Q: E^Q[S_T × e^(-rT) | S_t] = S_t × e^(-rt). This "no-drift" property makes expectations easy to compute.' }
       ],
       'Diagram: P-world (stocks drift at μ, hard to price) → Girsanov transform → Q-world (stocks drift at r, easy to price)',
-      { company: 'The Black-Scholes Revolution', metric: 'Options market growth', outcome: 'After the Black-Scholes formula was published in 1973, the CBOE options market grew from $1 million daily volume to over $1 billion within a decade, because risk-neutral pricing gave every participant the same fair price', explanation: 'Before Black-Scholes, options were priced by negotiation and gut feeling. Different dealers quoted different prices. The risk-neutral framework provided a single, mathematically justified price that all participants could agree on. This standardization enabled the explosion of the derivatives market from a niche product to a $640 trillion global market. The key: risk-neutral pricing eliminated the need for subjective risk preferences.' },
+      undefined,
       {
         type: 'flow',
         title: 'The Measure Change, P → Q',
@@ -6554,7 +6529,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'MEASURE THEORY IN ACTION',
+      'Measure theory in action',
       'How Q-Measure Probabilities Differ from Real-World P Probabilities',
       'distribution',
       'Compare real-world (P) and risk-neutral (Q) probabilities for stock price outcomes. See how the Q measure shifts probability mass to account for the equity risk premium.',
@@ -6578,7 +6553,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Expected Return μ (%)', min: 5, max: 20, default: 10, unit: '%' },
         { label: 'Volatility σ (%)', min: 10, max: 50, default: 20, unit: '%' }
       ],
-      { company: 'Long-Term Capital Management (LTCM)', metric: 'Risk-neutral pricing in practice', outcome: 'LTCM used risk-neutral pricing to identify relative value trades in fixed income markets, generating 40%+ annual returns before their 1998 collapse demonstrated that model assumptions (complete markets, continuous hedging) can fail catastrophically', explanation: 'LTCM\'s Nobel Prize-winning principals (including Scholes and Merton) used risk-neutral pricing models to identify bonds that were "mispriced" relative to each other. The models worked brilliantly in normal markets. But in the 1998 crisis, liquidity evaporated and hedges failed, violating the continuous-trading assumption underlying risk-neutral pricing. The lesson: risk-neutral pricing is exact in theory but depends on the ability to hedge in practice.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
@@ -6596,7 +6571,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Complete Market', definition: 'A market where every contingent claim can be perfectly replicated by trading existing assets. In a complete market, the risk-neutral measure Q is unique and every derivative has one unambiguous price.', example: 'The Black-Scholes model is complete: any option payoff can be replicated by dynamic trading in the stock and bond. Adding stochastic volatility makes the market incomplete, you need vol derivatives to complete it.' }
       ],
       'Volatility smile: implied vol (Y-axis) vs strike price (X-axis), showing the characteristic U-shape with higher vols for OTM options',
-      { company: 'Options Market Evolution', metric: 'Volatility smile emergence', outcome: 'Before the 1987 crash, the volatility smile was nearly flat (markets priced options as if returns were lognormal). After the crash, the smile became permanently skewed, OTM put implied vols are now 5-15% higher than ATM, reflecting the market\'s updated Q-measure belief in crash risk', explanation: 'The 1987 crash (22% drop in one day, a 20+ standard deviation event under lognormal assumptions) permanently changed the market\'s risk-neutral distribution. Before 1987, Q was approximately lognormal. After 1987, Q assigns much higher probability to extreme downward moves. The persistent volatility skew is the market\'s memory of the crash, embedded in Q-measure probabilities.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Volatility Smile (post-1987)',
@@ -6846,9 +6821,8 @@ const lessons: PathwayLesson[] = [
       'SKLAR\'S THEOREM',
       'The Mathematical Foundation of Copulas',
       [
-        'Sklar\'s Theorem (1959) states that any multivariate joint distribution F(x₁, x₂ ..., xₙ) can be decomposed into its marginal distributions F₁(x₁), F₂(x₂) ..., Fₙ(xₙ) and a copula function C that captures all dependency: F(x₁...,xₙ) = C(F₁(x₁)...,Fₙ(xₙ)). If the marginals are continuous, C is unique. This decomposition is extraordinarily powerful: you can model individual asset behavior (marginals) separately from how they move together (copula).',
-        'The Gaussian copula uses the multivariate normal distribution\'s dependency structure with a correlation matrix Σ. It\'s simple, intuitive (parameterized by familiar correlations), and was the default choice on Wall Street. But it has a critical flaw: it implies zero tail dependency. As individual variables approach extreme values, the Gaussian copula treats them as increasingly independent. In financial terms: the Gaussian copula assumes that just because two banks have defaulted, a third bank is no more likely to default. This is catastrophically wrong.',
-        'Alternative copulas fix this flaw. The Student\'s t-copula introduces symmetric tail dependency, extreme events in either direction are correlated, with the degree controlled by the degrees-of-freedom parameter ν (lower ν = stronger tail dependency). The Clayton copula captures lower-tail dependency (crashes are correlated but booms are independent), often the right choice for credit risk. The Gumbel copula captures upper-tail dependency. Choosing the right copula family is not a mathematical nicety, it\'s the difference between correctly pricing risk and missing the catastrophe that destroys your portfolio.'
+        'Sklar\'s theorem (1959) says any joint distribution splits into two parts: the marginals, meaning each asset\'s own behavior, and a copula, the function holding all the dependency. So you model each separately.',
+      'Wall Street\'s default was the Gaussian copula, which has zero tail dependency: it assumes two banks defaulting makes a third no likelier to fail. Student\'s t, Clayton and Gumbel copulas link extreme events instead.'
       ],
       [
         { term: 'Copula', definition: 'A multivariate distribution function on [0,1]ⁿ that captures the dependency structure between random variables, separate from their marginal distributions. It is the mathematical "glue" connecting marginals into a joint distribution.', example: 'Two stocks each follow a lognormal distribution (marginals). The copula determines: when stock A crashes, does stock B also crash? Gaussian copula says "not particularly." Clayton copula says "very likely."' },
@@ -6857,7 +6831,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Sklar\'s Theorem', definition: 'The fundamental theorem of copulas: every multivariate CDF can be written as F(x₁...,xₙ) = C(F₁(x₁)...,Fₙ(xₙ)) where C is the copula and Fᵢ are marginal CDFs. If marginals are continuous, C is unique.', example: 'To model the joint distribution of oil and gas prices: first model each price\'s marginal (perhaps GBM), then choose a copula (perhaps Clayton for crash dependency), and combine them via Sklar\'s theorem.' }
       ],
       'Scatter plots showing joint draws from Gaussian vs t vs Clayton copulas, highlighting tail clustering differences',
-      { company: 'AIG and CDO Pricing', metric: 'Gaussian copula adoption', outcome: 'AIG sold $500 billion in credit default swaps on CDO tranches priced using the Gaussian copula. When correlated defaults occurred in 2008, losses exceeded model predictions by 10-50x, requiring a $182 billion government bailout', explanation: 'The Gaussian copula told AIG (and the entire market) that senior CDO tranches had essentially zero default risk, because the model assumed no tail dependency. When defaults began clustering (housing crisis), the copula\'s prediction of "uncorrelated defaults" proved catastrophically wrong. Defaults that were "supposed" to be independent turned out to be highly correlated. Senior tranches rated AAA lost 50-100% of value.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Tail Dependence: Gaussian vs t-Copula',
@@ -6882,7 +6856,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'COPULA FAMILIES',
+      'Copula families',
       'Comparing Dependency Structures Across Copula Types',
       'heatmap',
       'Explore how different copula families model dependency. Adjust correlation and tail parameters to see how joint extreme events change dramatically with copula choice.',
@@ -6906,17 +6880,16 @@ const lessons: PathwayLesson[] = [
         { label: 't-Copula ν (degrees freedom)', min: 2, max: 30, default: 5, unit: '' },
         { label: 'Clayton θ', min: 0, max: 10, default: 2, unit: '' }
       ],
-      { company: 'JPMorgan / David Li', metric: 'Gaussian copula impact', outcome: 'Li\'s 2000 paper enabled the entire structured credit market, CDOs, CDO-squareds, synthetic CDOs, by providing a tractable pricing framework. The model was correct for normal markets but catastrophically wrong for crises', explanation: 'Before Li\'s paper, there was no standard way to price portfolio credit risk. The Gaussian copula provided one: map default times to normal variables, correlate them, and compute tranche losses. It was elegant, tractable, and wrong in the tails. The irony: Li himself warned that the model had limitations. But Wall Street\'s hunger for a simple, standardized pricing tool meant the warnings were ignored. The same model that enabled $62T in derivatives also ensured the losses would be correlated.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'THE CDO CATASTROPHE',
+      'The CDO catastrophe',
       'How Copula Misuse Caused the 2008 Crisis',
       [
-        'Collateralized Debt Obligations (CDOs) pool thousands of mortgages and slice them into tranches: equity (first-loss, high yield), mezzanine (middle risk), and senior (last-loss, low yield, AAA-rated). The key pricing question: what\'s the probability that losses reach the senior tranche? This requires modeling correlated defaults, exactly what copulas do.',
-        'The Gaussian copula was adopted industry-wide because it was simple and gave reassuring answers. With "reasonable" correlation parameters (ρ = 0.2-0.3), it predicted that the probability of losses reaching the senior tranche was essentially zero, supporting the AAA rating. But the Gaussian copula\'s zero tail dependence meant it assumed defaults were nearly independent in extreme scenarios. It answered: "even if 10% of mortgages default, the remaining 90% are fine." In reality, when housing prices collapsed, defaults cascaded, they were NOT independent.',
-        'The t-copula or Clayton copula with realistic tail dependency would have shown dramatically different results. With lower tail dependence λ = 0.3 (moderate crash correlation), the probability of senior tranche losses might be 5-15% instead of 0.01%. This would have made senior tranches unratable at AAA, CDOs uneconomical, and the entire structured credit bubble impossible. The lesson: the choice of dependency model is not an academic exercise, it determines whether risk is correctly priced or catastrophically underestimated.'
+        'A CDO, or collateralized debt obligation, pools mortgages and slices them into tranches ranked by who takes losses first. The Gaussian copula, with correlations ρ = 0.2-0.3, said the safest AAA tranche was near untouchable.',
+      'Its logic: even if 10% of mortgages default, the other 90% are fine. They were not. A Clayton copula with tail dependence λ = 0.3 gives senior losses of 5-15%, not 0.01%.'
       ],
       [
         { term: 'CDO', definition: 'Collateralized Debt Obligation, a structured product that pools credit assets (mortgages, bonds, loans) and issues tranches with different seniority. Senior tranches are protected by subordination but exposed to correlated defaults.', example: 'A CDO pools 1,000 mortgages. The equity tranche absorbs the first 3% of losses, mezzanine absorbs 3-10%, and senior absorbs 10%+. If defaults exceed 10%, even senior (AAA) tranches lose money.' },
@@ -6924,7 +6897,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Base Correlation', definition: 'A mapping that assigns a different Gaussian copula correlation to each detachment point, effectively using a different model for each tranche. A practical patch for the Gaussian copula\'s deficiency.', example: 'Instead of one ρ for the whole CDO, base correlation uses ρ = 10% for 0-3% tranche, ρ = 25% for 0-7%, ρ = 40% for 0-15%. Each "base" tranche gets its own correlation, improving fit.' }
       ],
       'CDO tranche loss probabilities: Gaussian copula (near zero for senior) vs t-copula (material for senior)',
-      { company: 'The 2008 Financial Crisis', metric: 'Gaussian copula losses', outcome: 'Over $2 trillion in losses on structured credit products that were priced using Gaussian copula models, with AAA-rated tranches losing 50-100% of value, events the model said were virtually impossible', explanation: 'The Gaussian copula told investors, rating agencies, and regulators that senior CDO tranches were virtually risk-free. With ρ = 0.3 Gaussian copula, the probability of 15%+ portfolio losses was < 0.01%. The reality: housing defaults were tail-dependent (Clayton-like behavior), and 15%+ losses occurred in most subprime CDOs. The model understated senior tranche risk by 100-1000×. This mispricing enabled the leverage that amplified the crisis.' },
+      undefined,
       {
         type: 'comparison',
         title: 'CDO Tranche Loss Probability, Copula Choice',
@@ -6954,7 +6927,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'COPULA MYTHS',
+      'Copula myths',
       'Common misunderstandings about dependency and copulas',
       [
         {
@@ -7187,9 +7160,8 @@ const lessons: PathwayLesson[] = [
       'BAYES\' THEOREM',
       'The Foundation of Bayesian Finance',
       [
-        'Bayes\' Theorem: P(θ|data) = P(data|θ) × P(θ) / P(data). In words: Posterior ∝ Likelihood × Prior. The prior P(θ) encodes what you believe about a parameter BEFORE seeing data. The likelihood P(data|θ) measures how well the data fits each possible parameter value. The posterior P(θ|data) is your updated belief, the optimal combination of prior knowledge and observed evidence.',
-        'In finance, Bayesian methods solve a fundamental problem: parameter uncertainty. A frequentist estimates that a stock\'s expected return is 8.2%, a single number. A Bayesian says: "the expected return follows a distribution centered around 7.5% with standard deviation 2.1%." This uncertainty quantification is critical for portfolio optimization, where treating estimated returns as exact leads to extreme, unstable portfolio weights (the "Markowitz curse").',
-        'The Black-Litterman model (1990) is the most famous Bayesian application in finance. It starts with the "market equilibrium" prior (implied returns from market cap weights), then updates with the investor\'s views (expressed as uncertain beliefs), producing a posterior expected return vector. The result: stable, well-diversified portfolios that blend market wisdom with the investor\'s insights. Black-Litterman solved the Markowitz instability problem by treating returns as uncertain, the Bayesian approach.'
+        'Bayes\' theorem updates beliefs with evidence: P(θ|data) = P(data|θ) × P(θ) / P(data). Your prior is what you believed before the data. The likelihood shows how well data fits. The posterior is your updated belief.',
+      'A frequentist, who reports one number, says a stock\'s expected return is 8.2%. A Bayesian reports a range: centered on 7.5%, standard deviation 2.1%. Black-Litterman (1990) used that uncertainty to fix Markowitz\'s unstable weights.'
       ],
       [
         { term: 'Prior Distribution', definition: 'The probability distribution over parameter values BEFORE observing data. It encodes existing knowledge, economic theory, or historical information. In finance, priors regularize estimates and prevent overfitting.', example: 'Prior for equity risk premium: N(5%, 2%). This says "before seeing data, we believe the equity premium is around 5% with substantial uncertainty." If data shows 8%, the posterior will be between 5% and 8%, weighted by relative precision.' },
@@ -7198,7 +7170,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Black-Litterman Model', definition: 'A Bayesian portfolio optimization framework that starts with market-implied equilibrium returns (prior) and updates with investor views (likelihood) to produce stable posterior return estimates for portfolio construction.', example: 'Market implies US equities return 7%. You believe tech will outperform by 2% (with uncertainty). Black-Litterman blends these: posterior US equity return might be 7.8%, tilted toward your view but anchored by the market equilibrium.' }
       ],
       'Bayesian updating animation: wide prior → data arrives → narrower posterior → more data → very narrow posterior',
-      { company: 'Goldman Sachs / Black-Litterman', metric: 'Portfolio stability improvement', outcome: 'The Black-Litterman model reduced portfolio turnover by 60-80% compared to mean-variance optimization while achieving comparable risk-adjusted returns, solving the "Markowitz curse" of unstable, extreme weights', explanation: 'Traditional Markowitz optimization produces extreme portfolio weights because it treats estimated returns as exact. A 0.1% change in estimated return can flip a weight from +50% to -20%. Black-Litterman\'s Bayesian approach treats returns as uncertain distributions, producing weights that are stable, diversified, and intuitive. It\'s now the standard approach for institutional portfolio construction at Goldman, BlackRock, and most large asset managers.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Bayesian Updating, Posterior Width vs Data',
@@ -7224,7 +7196,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'BAYESIAN PORTFOLIO OPTIMIZATION',
+      'Bayesian portfolio optimization',
       'Black-Litterman: Combining Market Equilibrium with Investor Views',
       'distribution',
       'See how Bayesian updating blends the market equilibrium prior with investor views. Adjust the confidence in your views to see how posterior returns and portfolio weights change.',
@@ -7248,17 +7220,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Risk Aversion (δ)', min: 1, max: 5, default: 2.5, unit: '' },
         { label: 'Number of Views', min: 0, max: 5, default: 2, unit: '' }
       ],
-      { company: 'BlackRock', metric: 'Bayesian asset allocation', outcome: 'BlackRock\'s Aladdin platform uses Bayesian methods for risk and return estimation across $21 trillion in assets, with Black-Litterman as a core component of portfolio construction', explanation: 'BlackRock manages or provides risk analytics for $21T in assets. Their Aladdin system uses Bayesian methods for: return forecasting (combining multiple signal sources as views), risk estimation (blending sample and structured covariance estimates), and portfolio construction (Black-Litterman). The Bayesian framework enables them to formally combine quantitative models, analyst views, and market signals into coherent portfolio decisions, at a scale that makes parameter uncertainty critically important.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'ADVANCED BAYESIAN METHODS',
+      'Advanced Bayesian methods',
       'Regime Detection, Shrinkage, and Model Uncertainty',
       [
-        'Bayesian regime-switching models detect changes in market dynamics. A Hidden Markov Model (HMM) with Bayesian estimation identifies latent states (e.g., "bull" and "bear" regimes) with different return distributions. The posterior probability of being in each regime updates daily. When the posterior shifts from 90% bull to 60% bear, the model signals a regime change. This is far more sophisticated than simple moving average signals, it provides a probabilistic assessment of the current market state.',
-        'Bayesian shrinkage addresses the fundamental problem of noisy financial estimates. The Ledoit-Wolf shrinkage estimator for covariance matrices is fundamentally Bayesian: it "shrinks" the noisy sample covariance toward a structured target (like a single-factor model), with the optimal shrinkage intensity determined by a Bayesian criterion. Similarly, the James-Stein estimator (which dominates the sample mean in dimensions ≥ 3) is the frequentist version of Bayesian shrinkage toward a prior mean.',
-        'Bayesian Model Averaging (BMA) addresses the deepest uncertainty: which model is correct? Instead of selecting one model and ignoring others, BMA computes the posterior probability of each model and averages predictions across models, weighted by posterior probability. For return forecasting, this means combining predictions from a momentum model (posterior weight 30%), a value model (weight 40%), and a mean-reversion model (weight 30%), producing forecasts that are robust to model misspecification.'
+        'A Hidden Markov Model (HMM) estimates hidden market states, like bull and bear, and updates the odds daily. When the posterior shifts from 90% bull to 60% bear, it flags a regime change.',
+      'Shrinkage pulls noisy estimates toward a simple target: see Ledoit-Wolf for covariance and James-Stein for means (dimensions ≥ 3). Bayesian Model Averaging blends models by probability: momentum 30%, value 40%, mean-reversion 30%.'
       ],
       [
         { term: 'Bayesian Regime-Switching', definition: 'A model that identifies latent market states (regimes) with different return distributions, using Bayesian inference to compute posterior probabilities of being in each regime at each time point.', example: 'A 2-regime model: Bull (μ=12%, σ=15%) and Bear (μ=-5%, σ=30%). Today\'s posterior: P(Bull) = 0.72, P(Bear) = 0.28. As volatility spikes, the posterior shifts toward Bear, signaling regime change.' },
@@ -7266,7 +7237,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Bayesian Model Averaging', definition: 'Combining predictions from multiple models weighted by their posterior model probabilities. Addresses model uncertainty by averaging over the "model space" rather than selecting a single model.', example: 'Three return models: CAPM (posterior P = 0.2), Fama-French (P = 0.5), momentum-enhanced (P = 0.3). BMA forecast = 0.2 × CAPM_forecast + 0.5 × FF_forecast + 0.3 × Mom_forecast.' }
       ],
       'Regime-switching posterior: probability of bull vs bear regime over time, with regime transitions highlighted',
-      { company: 'Two Sigma', metric: 'Bayesian signal combination', outcome: 'Two Sigma uses Bayesian methods to combine hundreds of alpha signals into a unified forecast, with posterior model weights adapting to which signals are currently working, contributing to their $60B+ AUM and consistent performance', explanation: 'Two Sigma\'s approach treats each alpha signal as a "view" with uncertainty. Bayesian updating determines how much weight to give each signal based on its recent performance (likelihood) and historical reliability (prior). When a signal stops working, its posterior weight decreases. When a new signal emerges, it starts with a skeptical prior and gains weight only as evidence accumulates. This Bayesian signal combination is more robust than fixed-weight ensembles because it adapts to non-stationarity.' },
+      undefined,
       '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">Bayesian Regime Detection</text><line x1="50" y1="170" x2="370" y2="170" stroke="#334155" stroke-width="1"/><text x="210" y="190" text-anchor="middle" fill="#94A3B8" font-size="9">Time</text><text x="35" y="55" text-anchor="end" fill="#94A3B8" font-size="8">100%</text><text x="35" y="120" text-anchor="end" fill="#94A3B8" font-size="8">50%</text><text x="35" y="170" text-anchor="end" fill="#94A3B8" font-size="8">0%</text><text x="18" y="110" text-anchor="middle" fill="#94A3B8" font-size="7" transform="rotate(-90,18,110)">P(Bull)</text><rect x="50" y="40" width="100" height="130" fill="#10B981" opacity="0.08" rx="0"/><rect x="150" y="40" width="60" height="130" fill="#EF4444" opacity="0.08" rx="0"/><rect x="210" y="40" width="120" height="130" fill="#10B981" opacity="0.08" rx="0"/><rect x="330" y="40" width="40" height="130" fill="#EF4444" opacity="0.08" rx="0"/><path d="M50,50 L80,48 L110,52 L130,55 L150,70 L165,130 L180,145 L195,120 L210,75 L240,55 L270,50 L300,48 L330,60 L350,120 L370,150" fill="none" stroke="#B862ED" stroke-width="2.5"/><line x1="50" y1="105" x2="370" y2="105" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3,3"/><text x="375" y="108" fill="#F59E0B" font-size="7">50%</text><text x="100" y="38" text-anchor="middle" fill="#10B981" font-size="8">Bull</text><text x="175" y="38" text-anchor="middle" fill="#EF4444" font-size="8">Bear</text><text x="270" y="38" text-anchor="middle" fill="#10B981" font-size="8">Bull</text><text x="350" y="38" text-anchor="middle" fill="#EF4444" font-size="8">Bear</text></svg>'
     ),
 
@@ -7284,7 +7255,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'BAYESIAN FINANCE MYTHS',
+      'Bayesian finance myths',
       'Common misunderstandings about Bayesian methods in finance',
       [
         {
@@ -7490,12 +7461,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'QUANTUM FUNDAMENTALS',
+      'Quantum fundamentals',
       'Qubits, Superposition, and Quantum Advantage',
       [
-        'Classical computers use bits (0 or 1). Quantum computers use qubits, which can be in a superposition of 0 AND 1 simultaneously. When you have N qubits, they can represent 2^N states simultaneously, 50 qubits can represent 2^50 ≈ 10^15 states at once. This exponential state space is the source of quantum computing\'s potential power. Entanglement connects qubits so measuring one instantly determines the state of others, enabling coordinated quantum operations across the full state space.',
-        'For finance, three quantum algorithms matter most. (1) Quantum Amplitude Estimation (QAE): provides a quadratic speedup over classical Monte Carlo, achieving the same accuracy with √N quantum samples instead of N classical samples. For derivative pricing that takes 1,000,000 classical iterations, QAE needs only ~1,000 quantum iterations. (2) Quantum Approximate Optimization Algorithm (QAOA): solves combinatorial optimization problems (portfolio selection with integer constraints, transaction costs) that are NP-hard classically. (3) Quantum Machine Learning (QML): processes exponentially larger feature spaces for pattern recognition in financial data.',
-        'The current reality: we are in the NISQ (Noisy Intermediate-Scale Quantum) era. Today\'s quantum computers have 50-1,000 physical qubits with significant error rates. Useful financial applications require error-corrected logical qubits, which need ~1,000 physical qubits per logical qubit. True quantum advantage for finance likely arrives 2028-2035. But the firms investing now (Goldman, JPMorgan, Citadel, Two Sigma) will have a 5-10 year head start when the hardware matures. Quantum readiness is a competitive imperative.'
+        'Normal computers use bits, which are 0 or 1. Quantum computers use qubits, which can be 0 and 1 at once. With 50 qubits, that is 2^50 ≈ 10^15 states at the same time.',
+      'Three uses in finance: QAE prices derivatives in ~1,000 steps instead of 1,000,000. QAOA picks portfolios. QML spots patterns. Today\'s machines have 50-1,000 noisy qubits, so real payoff arrives 2028-2035. Goldman, JPMorgan, Citadel and Two Sigma are already building.'
       ],
       [
         { term: 'Qubit', definition: 'The quantum analog of a classical bit. A qubit can exist in a superposition of |0⟩ and |1⟩ states simultaneously: |ψ⟩ = α|0⟩ + β|1⟩ where |α|² + |β|² = 1. This superposition enables quantum parallelism.', example: '3 classical bits represent ONE of 8 states (000, 001 ..., 111). 3 qubits in superposition represent ALL 8 states simultaneously, enabling parallel evaluation of all possibilities.' },
@@ -7504,7 +7474,7 @@ const lessons: PathwayLesson[] = [
         { term: 'NISQ', definition: 'Noisy Intermediate-Scale Quantum, the current era of quantum computing with 50-1,000 physical qubits that have significant error rates. Useful for proof-of-concept but not yet for production financial applications.', example: 'IBM\'s Heron processor has 133 qubits. For a useful quantum Monte Carlo, we likely need 5,000-10,000 error-corrected logical qubits. At ~1,000 physical qubits per logical qubit, that\'s 5-10 million physical qubits, expected around 2033-2035.' }
       ],
       'Comparison: classical bit (0 or 1) vs qubit (superposition of 0 and 1, represented on the Bloch sphere)',
-      { company: 'Goldman Sachs / IBM', metric: 'Quantum derivatives pricing', outcome: 'Goldman and IBM demonstrated quantum Monte Carlo pricing of derivatives with quadratic speedup on a 127-qubit processor, achieving proof-of-concept for the most computationally intensive task in quant finance', explanation: 'Goldman Sachs partnered with IBM to implement quantum amplitude estimation for derivatives pricing. Their research showed that for path-dependent options (barriers, Asians, autocallables), quantum Monte Carlo could achieve the same precision as classical MC with quadratically fewer iterations. While current hardware is too noisy for production use, the algorithm works, the bottleneck is hardware maturity. Goldman estimates quantum advantage for derivatives pricing by 2028-2030.' },
+      undefined,
       '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">Classical vs Quantum Monte Carlo</text><rect x="30" y="40" width="160" height="130" fill="#1E293B" rx="6"/><text x="110" y="60" text-anchor="middle" fill="#EF4444" font-size="10" font-weight="bold">Classical MC</text><text x="110" y="80" text-anchor="middle" fill="#94A3B8" font-size="9">Error ∝ 1/√N</text><text x="110" y="100" text-anchor="middle" fill="#94A3B8" font-size="9">0.1% precision needs</text><text x="110" y="115" text-anchor="middle" fill="#EF4444" font-size="11" font-weight="bold">1,000,000 paths</text><text x="110" y="135" text-anchor="middle" fill="#94A3B8" font-size="9">Time: hours</text><text x="110" y="155" text-anchor="middle" fill="#94A3B8" font-size="8">Supercomputer required</text><rect x="210" y="40" width="160" height="130" fill="#1E293B" rx="6"/><text x="290" y="60" text-anchor="middle" fill="#10B981" font-size="10" font-weight="bold">Quantum MC (QAE)</text><text x="290" y="80" text-anchor="middle" fill="#94A3B8" font-size="9">Error ∝ 1/N</text><text x="290" y="100" text-anchor="middle" fill="#94A3B8" font-size="9">0.1% precision needs</text><text x="290" y="115" text-anchor="middle" fill="#10B981" font-size="11" font-weight="bold">~1,000 iterations</text><text x="290" y="135" text-anchor="middle" fill="#94A3B8" font-size="9">Time: seconds</text><text x="290" y="155" text-anchor="middle" fill="#94A3B8" font-size="8">Quantum computer</text><text x="200" y="190" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Quadratic speedup: √N improvement</text></svg>'
     ),
 
@@ -7519,7 +7489,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE FUTURE OF QUANT',
+      'The future of quant',
       'Emerging Technologies Reshaping Quantitative Finance',
       'timeline',
       'Explore the technological forces reshaping quantitative finance over the next decade. Adjust the timeline to see key milestones and their expected impact on quant strategies.',
@@ -7543,17 +7513,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Year', min: 2024, max: 2035, default: 2028, unit: '' },
         { label: 'Quantum Qubits (thousands)', min: 1, max: 100, default: 10, unit: 'K' }
       ],
-      { company: 'JPMorgan Quantum Research', metric: 'Quantum portfolio optimization', outcome: 'JPMorgan\'s quantum team demonstrated that QAOA on near-term quantum hardware can solve portfolio optimization with cardinality constraints, problems that are NP-hard for classical computers, with quality approaching classical exact solvers', explanation: 'JPMorgan published research showing QAOA solving the "select K stocks from N candidates to maximize risk-adjusted return" problem, NP-hard with integer constraints. On simulated quantum hardware, QAOA found solutions within 95% of the classical optimum for N = 50 stocks. As hardware scales, this approach extends to N = 500-5,000, where classical solvers struggle. The potential: real-time portfolio rebalancing with constraints that currently require overnight batch processing.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
     teachingSlide(
-      'AI, ML & THE NEXT DECADE',
+      'AI, ML & the next decade',
       'How Machine Learning Is Transforming Quant Strategies',
       [
-        'Deep learning has moved from image recognition to alpha generation. Recurrent neural networks (LSTMs, Transformers) capture complex temporal patterns in price, volume, and order flow data that linear models miss. Graph Neural Networks model the interconnected structure of financial markets, how a shock to one stock propagates through supply chains, sectors, and factor exposures. The challenge: deep learning requires massive data, is prone to overfitting in financial contexts, and produces "black box" predictions that are difficult to interpret.',
-        'Reinforcement Learning (RL) is revolutionizing execution and portfolio management. Instead of pre-programming rules, RL agents learn optimal strategies through interaction with market simulators. For execution: RL agents learn when to trade aggressively (alpha decaying, market favorable) and when to be patient (high impact, low urgency). For portfolio management: RL agents learn to balance return, risk, and constraints dynamically. The breakthrough: RL naturally handles non-stationary environments because it continuously learns from recent experience.',
-        'The convergence of quantum computing, AI, and alternative data will define the next decade of quant finance. Quantum ML could process exponentially larger feature spaces from alternative data. LLMs combined with domain expertise could generate novel trading hypotheses at scale. Quantum-enhanced optimization could construct portfolios with thousands of constraints in real time. The quant firms of 2035 will look as different from today\'s firms as today\'s firms look from the floor traders of 1990.'
+        'Deep learning now hunts for profit, not just cat photos. Neural networks like LSTMs and Transformers find patterns in price and order data that simple models miss. The catch: they need huge data, overfit easily, and cannot explain themselves.',
+      ' Reinforcement learning agents learn by trial in market simulators: trade fast when the edge is fading, wait when trading would move the price. By 2035, quant firms will differ from today as much as today differs from 1990 floor traders.'
       ],
       [
         { term: 'Transformer Models', definition: 'Deep learning architecture using self-attention mechanisms to capture long-range dependencies in sequential data. Originally developed for NLP, now applied to financial time series and cross-asset prediction.', example: 'A Transformer trained on 10 years of order book data captures the complex dependency between order flow patterns at different time scales, microsecond tick patterns, intraday seasonality, and multi-day momentum, simultaneously.' },
@@ -7561,7 +7530,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Graph Neural Networks', definition: 'Neural networks that operate on graph-structured data, capturing relationships between entities. In finance, nodes are assets and edges are correlations, supply chains, or sector memberships.', example: 'A GNN models the supply chain: a semiconductor shortage → chip stocks decline → auto manufacturers face production cuts → auto stock prices fall. The GNN learns these propagation patterns and predicts downstream effects before they appear in prices.' }
       ],
       'Convergence diagram: Quantum Computing + AI/ML + Alternative Data → Next-generation quant finance',
-      { company: 'Citadel / Two Sigma / DE Shaw', metric: 'AI/ML investment', outcome: 'The top quant firms collectively spend over $5 billion annually on technology, data science, and AI/ML research, more than most tech companies, because marginal improvements in prediction and execution translate directly to billions in alpha', explanation: 'Citadel employs 1,000+ engineers and data scientists. Two Sigma treats investing as a technology problem. DE Shaw was using ML for trading before deep learning existed. These firms understand that the future of alpha generation is computational: the firm that processes more data, builds better models, and executes more efficiently wins. AI/ML is not a supplement to quant strategies, it IS the strategy for the next generation of quantitative finance.' },
+      undefined,
       '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">The Convergence: AI + Quantum + Alt Data</text><circle cx="120" cy="100" r="50" fill="#B862ED" opacity="0.15" stroke="#B862ED" stroke-width="1.5"/><text x="120" y="95" text-anchor="middle" fill="#B862ED" font-size="10" font-weight="bold">Quantum</text><text x="120" y="110" text-anchor="middle" fill="#94A3B8" font-size="8">Compute</text><circle cx="280" cy="100" r="50" fill="#10B981" opacity="0.15" stroke="#10B981" stroke-width="1.5"/><text x="280" y="95" text-anchor="middle" fill="#10B981" font-size="10" font-weight="bold">AI / ML</text><text x="280" y="110" text-anchor="middle" fill="#94A3B8" font-size="8">Intelligence</text><circle cx="200" cy="45" r="50" fill="#F59E0B" opacity="0.15" stroke="#F59E0B" stroke-width="1.5"/><text x="200" y="40" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Alt Data</text><text x="200" y="55" text-anchor="middle" fill="#94A3B8" font-size="8">Information</text><circle cx="200" cy="85" r="20" fill="#EF4444" opacity="0.2"/><text x="200" y="88" text-anchor="middle" fill="#EF4444" font-size="8" font-weight="bold">Alpha</text><text x="200" y="180" text-anchor="middle" fill="#94A3B8" font-size="9">The firms mastering this convergence will define quant finance for the next generation</text></svg>'
     ),
 
@@ -7771,19 +7740,18 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide
     teachingSlide(
-      'THE INTEGRATED VIEW',
+      'The integrated view',
       'How All Quant Frameworks Connect',
       [
-        'Stochastic calculus provides the language: Brownian motion, Ito\'s lemma, and stochastic differential equations describe how asset prices evolve. This language leads directly to risk-neutral pricing (changing the probability measure via Girsanov\'s theorem), which leads to derivatives pricing (Black-Scholes, Monte Carlo under Q), which leads to hedging (delta, gamma, vega), which leads to execution (implementing hedges efficiently via VWAP/IS algorithms while managing transaction costs).',
-        'Dependency modeling connects everything to risk: copulas determine whether hedges work in crises (tail dependency means your portfolio protection fails exactly when you need it most), Bayesian methods manage the uncertainty in every parameter (expected returns, volatilities, correlations, and even copula parameters themselves), and regime-switching models detect when the entire framework shifts from "normal" to "crisis" dynamics.',
-        'The technology layer amplifies everything: machine learning identifies nonlinear patterns in data that parametric models miss, alternative data provides information advantages that create alpha, and quantum computing will eventually solve the computational bottlenecks that limit Monte Carlo pricing, portfolio optimization, and risk simulation. But the mathematical foundation, probability, stochastic calculus, measure theory, optimization, remains the essential core that gives all technology its purpose and direction.'
+        'Stochastic calculus, the math of random price movement, describes how prices evolve. That leads to risk neutral pricing, then derivatives pricing like Black-Scholes, then hedging with delta, gamma and vega, then execution algorithms like VWAP.',
+      'Copulas, tools that model how assets move together, show whether hedges survive a crisis. Bayesian methods handle parameter uncertainty, and regime switching models flag crisis dynamics. Machine learning, alternative data and quantum computing add power, but mathematics stays core.'
       ],
       [
         { term: 'Model Risk', definition: 'The risk that a model\'s assumptions are wrong, leading to incorrect prices, risk estimates, or portfolio decisions. The deepest risk in quant finance, it caused LTCM\'s collapse, the CDO crisis, and countless trading losses.', example: 'Using a Gaussian copula (zero tail dependency) to price CDOs was model risk made manifest. The model\'s assumption was wrong in exactly the scenario that mattered most, correlated defaults in a crisis. $2 trillion in losses resulted.' },
         { term: 'Quant Integration', definition: 'The ability to see how different quantitative frameworks connect and interact. Pricing depends on dynamics (stochastic calculus), dynamics depend on calibration (Bayesian estimation), calibration depends on data quality (alternative data), and implementation depends on execution (algorithms and costs).', example: 'Pricing an exotic derivative requires: stochastic calculus (model), risk-neutral pricing (framework), Monte Carlo or quantum MC (computation), vol surface calibration (Bayesian estimation), and delta-hedging implementation (execution algorithms). No step works without the others.' }
       ],
       'Integration map: Stochastic Calculus → Risk-Neutral Pricing → Derivatives/Hedging → Execution → Portfolio (with Copulas, Bayesian Methods, and Technology supporting each stage)',
-      { company: 'The Complete Quant Firm', metric: 'Integration advantage', outcome: 'Firms that integrate all quantitative disciplines, pricing, risk, execution, and technology, outperform specialist firms by 2-5% annually because they eliminate the friction between departments and optimize the entire investment process holistically', explanation: 'The most successful quant firms (Renaissance, Two Sigma, Citadel) don\'t have separate "pricing" and "execution" and "risk" teams working in silos. They integrate everything: the pricing model informs the execution algorithm, which accounts for transaction costs that affect portfolio construction, which drives risk management, which feeds back into model calibration. This integration requires quants who understand the FULL stack, which is exactly what this curriculum has built.' },
+      undefined,
       '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">The Quantitative Finance Stack</text><rect x="30" y="40" width="340" height="28" fill="#B862ED" opacity="0.2" rx="4" stroke="#B862ED" stroke-width="1"/><text x="200" y="58" text-anchor="middle" fill="#B862ED" font-size="10">Stochastic Calculus & Measure Theory</text><rect x="30" y="75" width="340" height="28" fill="#10B981" opacity="0.2" rx="4" stroke="#10B981" stroke-width="1"/><text x="200" y="93" text-anchor="middle" fill="#10B981" font-size="10">Risk-Neutral Pricing & Derivatives</text><rect x="30" y="110" width="340" height="28" fill="#F59E0B" opacity="0.2" rx="4" stroke="#F59E0B" stroke-width="1"/><text x="200" y="128" text-anchor="middle" fill="#F59E0B" font-size="10">Portfolio Construction, Copulas & Bayesian Methods</text><rect x="30" y="145" width="340" height="28" fill="#EF4444" opacity="0.2" rx="4" stroke="#EF4444" stroke-width="1"/><text x="200" y="163" text-anchor="middle" fill="#EF4444" font-size="10">Execution Algorithms & Transaction Costs</text><text x="200" y="190" text-anchor="middle" fill="#94A3B8" font-size="9">Each layer depends on and connects to all others, integrated mastery is the goal</text></svg>'
     ),
 
@@ -7822,7 +7790,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Execution Cost (bps)', min: 10, max: 200, default: 60, unit: 'bps' },
         { label: 'Risk Budget (VaR %)', min: 1, max: 20, default: 5, unit: '%' }
       ],
-      { company: 'Renaissance Technologies', metric: 'Full-stack integration', outcome: 'Medallion\'s 66% annual gross returns (39% net after fees) for 30+ years demonstrate what full integration of quant disciplines achieves, signal generation, portfolio construction, execution, and risk management all optimized as a unified system', explanation: 'Renaissance doesn\'t have the best pricing model OR the best execution OR the best risk management. They have the best INTEGRATED system: signals from hundreds of data sources, combined using Bayesian methods, constructed into portfolios using proprietary optimization, executed with minimal market impact, and risk-managed with models that adapt to changing regimes. Each component is excellent, but the integration makes the whole greater than the sum of parts.' }
+      undefined
     ),
 
     // Step 6, Second Teaching Slide
@@ -7830,9 +7798,8 @@ const lessons: PathwayLesson[] = [
       'CAREER & MASTERY',
       'Your Path Forward in Quantitative Finance',
       [
-        'The quantitative finance career path: quant researcher (signal discovery, model development, requires deep math and statistics), quant developer (implementing models in production systems, requires programming and system design), portfolio manager (translating signals into portfolios, requires integration of all quant disciplines), and risk manager (monitoring and controlling all forms of risk, requires breadth across pricing, dependency, and regime models).',
-        'The skills this curriculum has built map directly to industry roles. Stochastic calculus and risk-neutral pricing → derivatives quant. Factor models and portfolio optimization → systematic equity quant. Execution algorithms → trading/execution quant. Bayesian methods and ML → quantitative researcher. Copulas and risk → credit quant or risk manager. The common thread: mathematical reasoning applied to financial problems.',
-        'The quant industry continues to evolve. The quants of the 2000s were physicists with trading models. The quants of the 2010s were data scientists with ML. The quants of the 2020s-2030s will combine deep mathematical foundations with AI fluency and quantum readiness. This curriculum has given you the mathematical foundation; the AI and quantum layers will build on it. Continue learning, stay curious, and remember: the most dangerous moment in quantitative finance is when you think you understand everything.'
+        'Quant roles split four ways: researcher finds signals, developer builds production systems, portfolio manager turns signals into portfolios, risk manager watches risk across pricing, dependency and regime models. The riskiest moment is when you think you understand everything.',
+      'Skills map to roles: stochastic calculus to derivatives, factor models to equity, execution to trading. Quants were physicists in the 2000s, data scientists in the 2010s, and blend mathematics with AI in the 2020s-2030s.'
       ],
       [
         { term: 'Derivatives Quant', definition: 'A quantitative analyst specializing in pricing and hedging derivatives. Requires mastery of stochastic calculus, risk-neutral pricing, Monte Carlo methods, and vol surface modeling.', example: 'A derivatives quant at Goldman Sachs prices exotic interest rate options using multi-factor HJM models, calibrates to the vol surface using local-stochastic vol models, and designs optimal hedging strategies that account for transaction costs.' },
@@ -7840,7 +7807,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk Quant', definition: 'A quantitative analyst specializing in measuring and managing all forms of financial risk. Requires breadth across pricing, dependency modeling, stress testing, and regulatory frameworks.', example: 'A risk quant at JPMorgan builds credit portfolio models using t-copulas for tail dependency, implements Bayesian regime-switching for dynamic VaR, and designs stress scenarios based on historical crises and hypothetical catastrophes.' }
       ],
       'Career paths: the quant toolkit maps to specific roles, with integration being the path to portfolio management',
-      { company: 'The Quant Industry', metric: 'Career outcomes', outcome: 'Quantitative analysts earn average compensation of $200-500K at mid-career, with top performers at hedge funds earning $1-10M+. The field is growing at 15%+ annually as AI, quantum, and alternative data expand the quant toolkit', explanation: 'The demand for quantitative skills in finance has never been higher. Every major bank, hedge fund, and asset manager is hiring quants. The skills transfer across roles: a derivatives quant who understands ML can move to systematic trading. A risk quant who understands Bayesian methods can move to portfolio management. The mathematical foundation is the career\'s most durable asset, technologies change, but the math endures.' },
+      undefined,
       '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">Your Quantitative Finance Journey</text><rect x="30" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#B862ED" stroke-width="1.5"/><text x="70" y="60" text-anchor="middle" fill="#B862ED" font-size="9" font-weight="bold">Foundation</text><text x="70" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Math, Stats, Prob</text><line x1="110" y1="65" x2="140" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><rect x="140" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#10B981" stroke-width="1.5"/><text x="180" y="60" text-anchor="middle" fill="#10B981" font-size="9" font-weight="bold">Core Quant</text><text x="180" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Pricing, Risk, ML</text><line x1="220" y1="65" x2="250" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><rect x="250" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#F59E0B" stroke-width="1.5"/><text x="290" y="60" text-anchor="middle" fill="#F59E0B" font-size="9" font-weight="bold">Integration</text><text x="290" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Full stack mastery</text><line x1="330" y1="65" x2="350" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><defs><marker id="arr25" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#F59E0B"/></marker></defs><rect x="350" y="35" width="35" height="60" fill="#EF4444" opacity="0.2" rx="4" stroke="#EF4444" stroke-width="1.5"/><text x="367" y="60" text-anchor="middle" fill="#EF4444" font-size="8" font-weight="bold">PM</text><text x="367" y="75" text-anchor="middle" fill="#94A3B8" font-size="6">Leader</text><text x="70" y="120" text-anchor="middle" fill="#B862ED" font-size="8">Lessons 1-10</text><text x="180" y="120" text-anchor="middle" fill="#10B981" font-size="8">Lessons 11-19</text><text x="290" y="120" text-anchor="middle" fill="#F59E0B" font-size="8">Lessons 20-24</text><text x="367" y="120" text-anchor="middle" fill="#EF4444" font-size="8">L25</text><text x="200" y="150" text-anchor="middle" fill="#94A3B8" font-size="9">You\'ve completed the journey from foundation to integration</text><text x="200" y="170" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Next: Risk Management, applying everything to protect capital</text></svg>'
     ),
 
@@ -7858,7 +7825,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Misconceptions
     misconceptions(
-      'QUANT CAREER MYTHS',
+      'Quant career myths',
       'Common misunderstandings about quantitative finance careers and practice',
       [
         {

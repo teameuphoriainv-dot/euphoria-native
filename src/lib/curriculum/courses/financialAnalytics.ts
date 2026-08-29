@@ -47,7 +47,7 @@ const FA15_DIAGRAM: AnimatedVisual = { type: 'flow' as const, title: 'The A/B Te
 
 const FA15_DIAGRAM2: AnimatedVisual = { type: 'grid' as const, title: 'Experimentation Maturity Model', items: [{ label: 'Level 1', value: 'No testing (HiPPO decisions)', color: '#EF4444' }, { label: 'Level 2', value: 'Ad hoc testing', color: '#F59E0B' }, { label: 'Level 3', value: 'Systematic testing platform', color: '#3B82F6' }, { label: 'Level 4', value: 'Experimentation culture', color: '#10B981' }], footer: 'Level 4 firms compound small wins', sentiment: 'positive' as const };
 
-const FA16_DIAGRAM: AnimatedVisual = { type: 'flow' as const, title: 'Anatomy of a SQL Query', nodes: [{ label: 'SELECT', value: 'Which columns', color: '#A451E6' }, { label: 'FROM / JOIN', value: 'Which tables', color: '#3B82F6' }, { label: 'WHERE', value: 'Which rows', color: '#F59E0B' }, { label: 'GROUP BY', value: 'Aggregation', color: '#10B981' }], footer: 'The language every analyst must know', sentiment: 'positive' as const };
+const FA16_DIAGRAM: AnimatedVisual = { type: 'flow' as const, title: 'Anatomy of a SQL Query', nodes: [{ label: 'SELECT', value: 'Which columns', color: '#A451E6' }, { label: 'FROM / JOIN', value: 'Which tables', color: '#3B82F6' }, { label: 'WHERE', value: 'Which rows', color: '#F59E0B' }, { label: 'Group by', value: 'Aggregation', color: '#10B981' }], footer: 'The language every analyst must know', sentiment: 'positive' as const };
 
 const FA16_DIAGRAM2: AnimatedVisual = { type: 'grid' as const, title: 'Real-World Financial SQL', items: [{ label: 'P&L Query', value: 'Positions joined to prices', color: '#10B981' }, { label: 'Regulatory', value: '200+ lines, 10+ joins', color: '#F59E0B' }, { label: 'Fraud Detection', value: 'Flag unusual patterns', color: '#EF4444' }], footer: 'Run on every trading desk daily', sentiment: 'positive' as const };
 
@@ -118,12 +118,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'What Is Financial Analytics?',
       [
-        'Financial analytics is the practice of using data, statistical methods, and computational tools to analyze financial information and make better decisions. It transforms raw numbers, stock prices, revenue figures, economic indicators, into actionable insights. Every major financial institution in the world now relies on analytics as its core decision-making framework.',
-        'The field encompasses three levels: descriptive analytics (what happened, historical returns, volatility), predictive analytics (what might happen, forecasting models, regression analysis), and prescriptive analytics (what should we do, portfolio optimization, risk management). Each level builds on the previous one and requires increasingly sophisticated tools.',
-        'The tools of financial analytics range from accessible to advanced. Excel remains the most widely used tool in finance, over 750 million people use it, and every investment bank runs critical models in spreadsheets. Python has emerged as the language of modern quantitative finance, used by JPMorgan, Goldman Sachs, and hedge funds. SQL manages the massive databases underlying all financial systems, and Bloomberg terminals provide real-time data to 325,000+ professionals worldwide.'
+        'Financial analytics uses data and computing tools to turn raw numbers, stock prices, revenue, economic indicators, into decisions. It has three levels: descriptive (what happened), predictive (what might happen), and prescriptive (what to do).',
+      'Tools range from simple to advanced. Excel is used by over 750 million people and runs bank models. Python powers quant work at JPMorgan and Goldman Sachs. SQL handles databases. Bloomberg terminals serve 325,000+ professionals.'
       ],
       [
         { term: 'Financial Analytics', definition: 'The practice of using data, statistics, and computational tools to analyze financial information and support decision-making.', example: 'A portfolio manager using Python to calculate the Sharpe ratio (return per unit of risk) of 500 potential investments to find the optimal risk-adjusted return.' },
@@ -132,7 +131,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Predictive Analytics', definition: 'Using historical patterns and statistical models to forecast future financial outcomes and probabilities.', example: 'A DCF model that predicts Apple\'s stock is worth $185 based on projected future cash flows discounted to present value.' }
       ],
       'Flow diagram showing the financial analytics pipeline: Data Collection → Cleaning → Analysis → Modeling → Decision-Making, with tools (Bloomberg, Excel, Python, SQL) shown at each stage',
-      { company: 'JPMorgan Chase', metric: 'Annual technology spending', outcome: '$12 billion per year, employing 50,000+ technologists, more than most tech companies', explanation: 'JPMorgan\'s CEO Jamie Dimon has stated that the bank is fundamentally a technology company. Their AI and analytics teams use machine learning for fraud detection ($150M+ saved annually), credit risk assessment, algorithmic trading, and customer analytics. The era of "banker\'s intuition" is over.' },
+      undefined,
       FA1_DIAGRAM
     ),
 
@@ -147,7 +146,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ANALYTICS IN ACTION',
+      'Analytics in action',
       'The Moneyball Revolution: Data vs. Dollars',
       'comparison',
       'See how the Oakland A\'s used financial analytics to compete with teams spending 3x their budget. Adjust the analytics adoption rate to see the impact on wins per dollar.',
@@ -169,7 +168,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Analytics Adoption', min: 0, max: 100, default: 75, unit: '%' },
         { label: 'Budget (Millions)', min: 30, max: 200, default: 41, unit: '$M' }
       ],
-      { company: 'Oakland Athletics', metric: 'Cost per win (2002 season)', outcome: '$398K per win vs. Yankees\' $1.22M per win, same record at 1/3 the cost', explanation: 'Billy Beane proved that data analytics could overcome massive budget disadvantages. The A\'s identified market inefficiencies in player valuation using regression analysis and won as many games as teams spending 3x more. This principle is identical to quantitative investing: use data to find mispricings the market hasn\'t corrected.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -186,7 +185,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'ANALYTICS MYTHS',
+      'Analytics myths',
       'What most people get wrong about financial analytics',
       [
         {
@@ -395,12 +394,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FUNDAMENTALS',
+      'The fundamentals',
       'Central Tendency: Mean, Median, and Mode',
       [
-        'Central tendency describes where the "center" of a dataset lies. In finance, the three measures of central tendency, mean, median, and mode, each tell a different story about investment returns, and choosing the wrong one can lead to dangerously misleading conclusions.',
-        'The mean (average) is the most commonly used measure: add all values and divide by the count. The S&P 500\'s mean annual return since 1926 is approximately 10.3%. But the mean is highly sensitive to outliers, a single year returning +50% or -40% dramatically pulls the average. For this reason, financial professionals often prefer the median, which gives the middle value when data is sorted. The median S&P 500 annual return is approximately 13%, higher than the mean because extreme negative years pull the mean down.',
-        'The mode (most frequent value) is less common in continuous financial data but crucial for understanding market behavior. The mode of S&P 500 returns clusters around +15% to +20%, markets are actually positive and strongly positive more often than people think. The key insight: mean, median, and mode tell different stories. Using only the mean can understate how often stocks deliver strong positive returns (mode) while overstating the "typical" return because crashes drag down the average.'
+        'Central tendency means the centre of a dataset. The mean, or average, adds all values and divides by the count. The S&P 500\'s mean annual return since 1926 is about 10.3%, but one year at +50% or -40% drags it.',
+      'The median, the middle value once sorted, is about 13%, higher because crash years pull the mean down. The mode, the most common value, clusters around +15% to +20%. So the mean can hide how often stocks do well.'
       ],
       [
         { term: 'Mean', definition: 'The arithmetic average of a dataset: sum of all values divided by the number of values. Sensitive to extreme outliers.', example: 'S&P 500 mean annual return: ~10.3% (1926-2024). This includes years of +40% and years of -40%, which pull the mean away from the typical experience.' },
@@ -409,7 +407,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Skewness', definition: 'A measure of asymmetry in a distribution. Negative skewness means a longer left tail (more extreme losses than gains).', example: 'Stock returns have slight negative skewness, crashes tend to be sharper and faster than rallies. The 2020 COVID crash lost 34% in 23 trading days.' }
       ],
       'Two-panel diagram comparing measures of central tendency (mean, median, mode) with measures of dispersion (standard deviation, variance, range), with S&P 500 data examples',
-      { company: 'S&P Dow Jones Indices', metric: 'Annual return statistics (1926-2024)', outcome: 'Mean: 10.3%, Median: 13%, Mode: ~17%. The difference reveals important market behavior.', explanation: 'The gap between mean (10.3%) and median (13%) tells you that extreme down years are pulling the average lower than the typical experience. Most individual years deliver returns above the mean. Understanding this statistical nuance helps investors maintain perspective during crashes, bad years are less frequent but more severe than good years.' },
+      undefined,
       FA2_DIAGRAM
     ),
 
@@ -424,7 +422,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'VOLATILITY IN ACTION',
+      'Volatility in action',
       'Standard Deviation: Measuring Financial Risk',
       'comparison',
       'Adjust the standard deviation to see how it affects the range of possible investment outcomes. Compare low-volatility bonds to high-volatility stocks.',
@@ -446,7 +444,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Standard Deviation', min: 5, max: 80, default: 15, unit: '%' },
         { label: 'Expected Return', min: 0, max: 20, default: 10, unit: '%' }
       ],
-      { company: 'Harry Markowitz', metric: 'Modern Portfolio Theory (Nobel Prize 1990)', outcome: 'Proved mathematically that combining assets with different correlations reduces portfolio risk without reducing expected return', explanation: 'Markowitz showed that portfolio risk depends not on the risk of individual assets but on how they move relative to each other (correlation). Two risky assets that move in opposite directions can create a less risky portfolio. This insight, that diversification is a "free lunch", is the mathematical foundation of every portfolio in the world.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -463,7 +461,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'STATISTICS MYTHS',
+      'Statistics myths',
       'What most people get wrong about financial statistics',
       [
         {
@@ -688,12 +686,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 4, Core Teaching Slide
     teachingSlide(
-      'PROBABILITY FOUNDATIONS',
+      'Probability foundations',
       'Probability Distributions in Finance',
       [
-        'Every financial asset generates a stream of returns that form a probability distribution, a map of all possible outcomes and their likelihoods. The normal (Gaussian) distribution is the most commonly assumed shape: symmetric, bell-curved, with 68% of outcomes within one standard deviation of the mean. For decades, Wall Street built its most important models, Black-Scholes options pricing, Value at Risk, portfolio optimization, on the assumption that returns are normally distributed. It was elegant, mathematically tractable, and dangerously incomplete.',
-        'Financial returns actually follow log-normal and fat-tailed distributions. Log-normal distributions are asymmetric: a stock can rise 200% but can only fall 100% (to zero). Fat-tailed distributions (also called leptokurtic) have more probability mass in the extremes than normal curves predict. The S&P 500 has experienced 20+ daily moves exceeding 3 standard deviations since 1950, the normal distribution predicts roughly 1 such event every 350 years. This discrepancy between model and reality is why understanding distribution shapes is literally a billion-dollar skill.',
-        'Expected value, the probability-weighted average of all outcomes, is the core decision tool. A bet with a 90% chance of winning $10 and a 10% chance of losing $100 has an expected value of -$1 (0.9 x $10 - 0.1 x $100). Despite winning most of the time, you lose money on average. Insurance companies, casinos, and hedge funds all make decisions based on expected value, not on the most likely individual outcome. Mastering this distinction separates professionals from amateurs in finance.'
+        'Fat tails mean extremes beat the normal bell curve, where 68% sits within one standard deviation. Stocks rise 200%, fall 100% maximum. Since 1950 the S&P 500 had 20+ 3 standard deviation days; the curve predicts 1 per 350 years.',
+      'Expected value weights each outcome by its odds. A bet paying $10 with 90% chance, losing $100 with 10% chance, is worth -$1: 0.9 x $10 minus 0.1 x $100. You win often, but lose on average.'
       ],
       [
         { term: 'Normal Distribution', definition: 'A symmetric bell curve where 68% of outcomes fall within 1 SD, 95% within 2 SD, and 99.7% within 3 SD of the mean.', example: 'Models assuming normal returns calculate that a daily S&P 500 drop of 7%+ should happen once every 300,000 years. It has happened 8 times since 1950.' },
@@ -702,7 +699,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Log-Normal Distribution', definition: 'An asymmetric distribution where the log of the variable is normally distributed. Stock prices follow this because they can\'t go below zero.', example: 'Amazon stock can rise from $100 to $1,000 (+900%) but can only fall to $0 (-100%). This asymmetry makes returns log-normally distributed.' }
       ],
       'Comparison chart showing normal distribution overlaid with actual S&P 500 return distribution, highlighting fat tails where extreme events cluster',
-      { company: 'Nassim Taleb / Empirica Capital', metric: 'Black Monday 1987 returns', outcome: 'Made $500 million by purchasing deep out-of-the-money put options that standard models priced as nearly worthless', explanation: 'Taleb recognized that Black-Scholes option pricing assumed normal distributions, making tail-risk protection absurdly cheap. He bought options that would pay off only in extreme crashes. His peers mocked the strategy as money-burning, until October 19, 1987, when the market fell 22.6% in a single day and his "worthless" options became worth hundreds of millions.' },
+      undefined,
       { type: 'comparison' as const, title: 'Probability Distributions Compared', rows: [{ label: 'Normal', value: 'Standard bell curve' }, { label: 'Fat-Tailed', value: 'More extreme outcomes than predicted' }], footer: 'EV = Sum(P x O)', sentiment: 'positive' as const }
     ),
 
@@ -717,7 +714,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'RISK METRICS IN ACTION',
+      'Risk metrics in action',
       'Value at Risk and Sharpe Ratio',
       'comparison',
       'Explore how VaR and Sharpe ratio quantify risk differently. Adjust portfolio volatility to see how risk metrics change.',
@@ -741,12 +738,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Portfolio Volatility', min: 5, max: 50, default: 15, unit: '%' },
         { label: 'Expected Return', min: 2, max: 25, default: 10, unit: '%' }
       ],
-      { company: 'JPMorgan RiskMetrics', metric: 'Value at Risk adoption', outcome: 'VaR became the global banking standard after JPMorgan published the methodology freely in 1994, but the 2008 crisis exposed its limitations', explanation: 'JPMorgan CEO Dennis Weatherstone famously demanded a single number at 4:15 PM daily telling him the bank\'s total risk. The result was the "4:15 report", the world\'s first institutional VaR framework. It revolutionized risk management but created false confidence: banks used VaR to justify holding enormous positions because the models said losses were "contained." The 2008 crisis proved that VaR\'s blind spot, ignoring what happens beyond the threshold, can be catastrophic.' }
+      undefined
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'PROBABILITY MYTHS',
+      'Probability myths',
       'What most people get wrong about probability in finance',
       [
         {
@@ -968,7 +965,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Misconceptions (clear the traps before teaching)
     misconceptions(
-      'REGRESSION MYTHS',
+      'Regression myths',
       'What most people get wrong about regression in finance',
       [
         {
@@ -991,12 +988,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 4, Core Teaching Slide
     teachingSlide(
-      'REGRESSION FUNDAMENTALS',
+      'Regression fundamentals',
       'Linear Regression: The Engine of Financial Analysis',
       [
-        'Linear regression finds the line of best fit through a scatter plot of data points, expressing the relationship between two variables as Y = a + bX. In finance, the most important regression is the one that calculates beta: Stock Return = Alpha + Beta x Market Return. The slope (beta) tells you how sensitive the stock is to market movements. A beta of 1.5 means the stock moves 1.5% for every 1% move in the market. Tesla\'s beta of approximately 2.0 means it amplifies market moves by 2x, great in bull markets, devastating in bear markets.',
-        'R-squared measures the percentage of a stock\'s movement explained by the regression model. An R-squared of 0.70 means 70% of the stock\'s price changes can be explained by market movements; the remaining 30% is company-specific risk. The S&P 500 index has an R-squared of 1.0 against itself (by definition). Large-cap stocks like Apple typically have R-squared values of 0.3-0.5 against the market, while small biotechs might have R-squared below 0.1, meaning market movements explain almost none of their price changes.',
-        'The most dangerous pitfall in regression is confusing correlation with causation. Ice cream sales and drowning deaths are highly correlated, but ice cream doesn\'t cause drowning (both increase in summer). In finance, this trap is everywhere: a study found that the stock market correlated 0.99 with butter production in Bangladesh from 1983-1993. Obviously, Bangladeshi butter doesn\'t drive the S&P 500. Spurious correlations are abundant, and regression alone cannot prove causation, it can only quantify the statistical relationship between variables.'
+        'Linear regression fits a best fit line: Y = a + bX. The slope, beta, measures sensitivity to the market. Beta 1.5 means the stock moves 1.5% per 1% market move. Tesla\'s 2.0 amplifies market moves by 2x.',
+      'R-squared shows how much of a stock\'s move the market explains: 0.70 means 70%, 30% is company risk. S&P 500: 1.0. Apple: 0.3-0.5. Biotechs: under 0.1. Correlation is not causation: the market matched Bangladeshi butter 0.99 in 1983-1993.'
       ],
       [
         { term: 'Linear Regression', definition: 'A statistical method that finds the best-fit line through data points, expressing Y = a + bX. In finance, it quantifies the relationship between a stock\'s returns and market returns.', example: 'Regressing Tesla\'s monthly returns against the S&P 500 yields: Tesla Return = 0.5% + 2.0 x Market Return. The slope (2.0) is Tesla\'s beta.' },
@@ -1005,7 +1001,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Correlation vs. Causation', definition: 'Correlation measures the strength of a linear relationship between two variables (-1 to +1). Causation means one variable directly influences the other. Correlation does NOT imply causation.', example: 'From 1999-2009, the S&P 500 correlated 0.99 with butter production in Bangladesh. No causal link exists, this is a spurious correlation.' }
       ],
       'Scatter plot with regression line showing stock returns (Y) vs market returns (X), with slope labeled as beta and annotations for R-squared',
-      { company: 'William Sharpe / CAPM', metric: 'Capital Asset Pricing Model beta calculations', outcome: 'Sharpe\'s regression-based CAPM framework won the 1990 Nobel Prize and now manages $30+ trillion in indexed and factor-based strategies', explanation: 'Sharpe showed that a stock\'s expected return should equal the risk-free rate plus beta times the market risk premium: E(R) = Rf + Beta x (Rm - Rf). This elegant formula, derived from regression analysis, means you can calculate the "fair" return for any stock based on its systematic risk (beta). Stocks with higher betas should earn higher returns to compensate for higher risk. This single insight created the index fund industry and modern portfolio management.' },
+      undefined,
       { type: 'comparison' as const, title: 'Regression: Finding Beta', rows: [{ label: 'Market Return (X)', value: 'Independent variable' }, { label: 'Stock Return (Y)', value: 'Dependent variable' }, { label: 'Slope', value: 'Beta coefficient' }, { label: 'R-squared', value: '% explained' }], footer: 'Slope = Beta', sentiment: 'positive' as const }
     ),
 
@@ -1020,7 +1016,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'REGRESSION IN PRACTICE',
+      'Regression in practice',
       'Time Series Analysis & Moving Averages',
       'timeline',
       'Explore how moving averages smooth noisy financial data and reveal trends. Adjust the window to see how different timeframes change the signal.',
@@ -1044,7 +1040,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Moving Average Window', min: 10, max: 200, default: 50, unit: ' days' },
         { label: 'Beta Estimation Period', min: 12, max: 120, default: 60, unit: ' months' }
       ],
-      { company: 'Eugene Fama & Kenneth French', metric: 'Three-Factor Model (1992)', outcome: 'Proved that CAPM beta alone is insufficient, adding size and value factors dramatically improved return explanation and earned Fama the 2013 Nobel Prize', explanation: 'Fama and French ran thousands of regressions and discovered that two additional factors, firm size (small caps outperform large caps) and book-to-market ratio (value stocks outperform growth stocks), explained returns far better than beta alone. Their model: R = Rf + Beta1(Market) + Beta2(SMB) + Beta3(HML). This sparked the multi-trillion dollar factor investing industry (smart beta ETFs, factor tilts) that continues to reshape portfolio management.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -1260,7 +1256,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Interactive Graph (explore before the formal teaching)
     interactiveGraph(
-      'SENSITIVITY ANALYSIS',
+      'Sensitivity analysis',
       'How Assumptions Drive Valuation',
       'comparison',
       'Adjust key model assumptions to see how they affect company valuation. Small changes in growth rate or discount rate can swing valuations by billions.',
@@ -1284,17 +1280,16 @@ const lessons: PathwayLesson[] = [
         { label: 'Revenue Growth Rate', min: 0, max: 40, default: 15, unit: '%' },
         { label: 'Discount Rate (WACC)', min: 6, max: 16, default: 10, unit: '%' }
       ],
-      { company: 'Enron', metric: 'Financial model manipulation', outcome: 'Used deliberately complex and opaque financial models to hide $74 billion in debt across 3,000+ special purpose entities, leading to the largest bankruptcy in U.S. history at the time', explanation: 'Enron\'s CFO Andrew Fastow created over 3,000 special purpose entities (SPEs) that held debt off Enron\'s balance sheet. The financial models were intentionally designed to be impenetrable, even Arthur Andersen (their auditor) couldn\'t trace all the connections. When the truth emerged in 2001, $74 billion in hidden debt was revealed, the stock fell from $90 to $0.26, 20,000 employees lost their jobs, and Arthur Andersen, one of the Big Five accounting firms, was destroyed. Model transparency isn\'t optional; it\'s an ethical imperative.' }
+      undefined
     ),
 
     // Step 4, Core Teaching Slide
     teachingSlide(
-      'THREE-STATEMENT MODELS',
+      'Three-statement models',
       'The Architecture of Financial Models',
       [
-        'A three-statement financial model integrates the income statement, balance sheet, and cash flow statement into a single, interconnected framework. The income statement feeds net income into the balance sheet\'s retained earnings. The balance sheet\'s changes in assets and liabilities flow into the cash flow statement. And the cash flow statement\'s ending cash balance links back to the balance sheet. This circular linkage means any change in one assumption, revenue growth, tax rate, capital expenditure, cascades through all three statements automatically. This is why Wall Street analysts build integrated models: changing one number reveals its full financial impact.',
-        'Assumptions and drivers are the heart of any financial model. Revenue growth rate, gross margin, operating expenses as a percentage of revenue, capital expenditures, working capital requirements, debt levels, and tax rates, these 7-10 key assumptions determine 90% of a model\'s output. The quality of a financial model is entirely determined by the quality of its assumptions. JPMorgan\'s London Whale disaster stemmed partly from a model that used incorrect formulas to calculate risk, the Excel model divided by a sum instead of an average, making positions appear half as risky as they actually were. A single formula error, amplified through the model, contributed to $6.2 billion in losses.',
-        'Sensitivity analysis and scenario modeling are the tools that separate good models from dangerous ones. Sensitivity analysis changes one assumption at a time to see its impact on the output: "If revenue growth drops from 15% to 10%, how does the valuation change?" Scenario modeling changes multiple assumptions simultaneously: "In a recession, revenue drops 20%, margins compress 5%, and debt costs rise 2%, what happens?" The best models include base, bull, and bear scenarios. Enron\'s models showed only best-case scenarios and hid liabilities in off-balance-sheet entities, creating a $74 billion illusion that fooled investors, auditors, and regulators for years.'
+        'A three-statement model links the income statement, balance sheet, and cash flow statement, so one change flows through all three. Roughly 7-10 assumptions drive 90% of the output. JPMorgan\'s London Whale formula error helped cause $6.2 billion in losses.',
+      'Sensitivity analysis changes one assumption: revenue growth from 15% to 10%. Scenario modeling changes several at once: revenue down 20%, margins down 5%, debt costs up 2%. Enron showed only best cases, a $74 billion illusion.'
       ],
       [
         { term: 'Three-Statement Model', definition: 'An integrated financial model linking the income statement, balance sheet, and cash flow statement. Changes in one statement automatically flow through to the others.', example: 'If you increase revenue by 10% in the income statement, net income rises, retained earnings on the balance sheet increase, and operating cash flow on the cash flow statement improves, all automatically.' },
@@ -1303,7 +1298,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Scenario Analysis', definition: 'Modeling multiple assumptions changing simultaneously to represent different futures: base case (most likely), bull case (optimistic), and bear case (pessimistic).', example: 'Bear scenario for a bank: GDP -3%, defaults +5%, interest rates -2%, loan losses double. All assumptions change together to model a realistic recession impact.' }
       ],
       'Three financial statements connected by arrows showing how net income flows from the income statement to the balance sheet, and how balance sheet changes feed the cash flow statement',
-      { company: 'JPMorgan / London Whale', metric: 'Risk model error impact', outcome: 'A copy-paste Excel formula error contributed to $6.2 billion in trading losses, the largest single trading loss in banking history', explanation: 'In 2012, JPMorgan trader Bruno Iksil (the "London Whale") built up massive positions in credit derivatives. The risk model used to monitor these positions contained a formula error: it divided by the sum of two numbers instead of their average, effectively halving the reported risk. Combined with overly optimistic assumptions about market liquidity, the flawed model gave false confidence that the positions were safe. When credit markets moved against JPMorgan, losses spiraled to $6.2 billion. The lesson: model errors compound, and every formula must be independently verified.' },
+      undefined,
       { type: 'flow' as const, title: 'Three-Statement Model Architecture', nodes: [{ label: 'Income Stmt', value: 'Net Income flows down', color: '#B862ED' }, { label: 'Balance Sheet', value: 'A = L + E', color: '#F59E0B' }, { label: 'Cash Flow', value: 'O + I + F', color: '#10B981' }], footer: 'Circular linkage: all three connected', sentiment: 'positive' as const }
     ),
 
@@ -1330,7 +1325,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'FINANCIAL MODELING MYTHS',
+      'Financial modeling myths',
       'What most people get wrong about building financial models',
       [
         {
@@ -1551,12 +1546,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Core Teaching Slide
     teachingSlide(
-      'DCF FOUNDATIONS',
+      'DCF foundations',
       'Discounted Cash Flow: The Gold Standard of Valuation',
       [
-        'The time value of money is the foundation of all finance: $1 today is worth more than $1 tomorrow because today\'s dollar can be invested to earn a return. If you can earn 10% annually, $1 today becomes $1.10 in one year. Working backwards: $1 to be received in one year is worth only $0.91 today ($1 / 1.10). This "discounting" is the core of DCF: take all future cash flows, discount each one back to today\'s value, and sum them up. That sum is the intrinsic value of the business. Warren Buffett has said this is "the only correct way to value a business" because it is grounded in cash, not accounting profits, not market sentiment, not momentum, just the actual cash a business will generate.',
-        'The discount rate used in DCF is typically the Weighted Average Cost of Capital (WACC), a blend of the cost of equity (what shareholders require) and the cost of debt (the interest rate on borrowings), weighted by the proportion of each in the capital structure. WACC = (E/V) x Re + (D/V) x Rd x (1-Tax). The cost of equity is usually calculated using CAPM: Re = Rf + Beta x (Rm - Rf). A higher WACC means future cash flows are worth less today, making the company appear less valuable. This is why interest rates have such a dramatic impact on stock valuations: when rates rise, WACC rises, and the present value of future cash flows shrinks.',
-        'Terminal value is the most important and most debated component of DCF. Since we can\'t project cash flows forever, we project explicitly for 5-10 years and then estimate a "terminal value" representing all cash flows beyond that point. The most common method is the perpetuity growth model: TV = Final Year FCF x (1 + g) / (WACC - g), where g is the long-term growth rate (typically 2-3%, similar to inflation). Terminal value typically represents 60-80% of total DCF value, meaning most of a company\'s worth comes from the far future. This is both DCF\'s greatest insight and its greatest vulnerability: small changes in the terminal growth rate or WACC can swing valuations by 30-50%.'
+        'Discounting means pulling future money back to today\'s value. If you earn 10% yearly, $1 today becomes $1.10 in a year, so $1 due in a year is worth $0.91 now ($1 / 1.10).',
+      'Discount at WACC, the blended cost of equity and debt: (E/V) x Re + (D/V) x Rd x (1-Tax). Project 5-10 years, then add terminal value growing 2-3%. That is 60-80% of value, so small changes swing results 30-50%.'
       ],
       [
         { term: 'Time Value of Money', definition: 'The principle that money today is worth more than the same amount in the future because it can be invested to earn returns. The foundation of all discounting and DCF analysis.', example: '$100 today invested at 10% = $110 in 1 year. Conversely, $110 to be received in 1 year is worth only $100 today at a 10% discount rate.' },
@@ -1565,7 +1559,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Free Cash Flow (FCF)', definition: 'Operating cash flow minus capital expenditures. The cash available to all capital providers (debt and equity) after maintaining and investing in the business. The input to DCF.', example: 'Microsoft: $60B operating cash flow - $25B capex = $35B FCF. This is the cash Microsoft can use to pay dividends, buy back stock, reduce debt, or make acquisitions.' }
       ],
       'Waterfall chart showing present value of each year\'s projected free cash flow declining over time, with terminal value as the largest single component',
-      { company: 'Warren Buffett / Berkshire Hathaway', metric: 'See\'s Candies acquisition (1972)', outcome: 'Bought for $25 million based on DCF analysis; generated over $2 billion in cumulative free cash flow over 50 years, an 80x return on invested capital', explanation: 'See\'s Candies had modest revenue ($30M) but extraordinary pricing power (80%+ gross margins) and minimal capital requirements. Buffett\'s DCF showed that the company would generate $4-5 million in annual free cash flow initially, growing steadily. At a 12% discount rate, the present value far exceeded the $25M purchase price. Over 50 years, See\'s generated over $2 billion in free cash flow that Buffett redeployed into other investments. He called it "the ideal business", and DCF identified it when others overlooked it.' },
+      undefined,
       { type: 'grid' as const, title: 'DCF Formula Components', items: [{ label: 'Present Value', value: 'PV = FCF / (1+WACC)^n', color: '#10B981' }, { label: 'Discount Rate', value: 'WACC = (E/V)Re+(D/V)Rd(1-T)', color: '#B862ED' }, { label: 'Terminal Value (60-80%)', value: 'TV = FCF(1+g) / (WACC - g)', color: '#F59E0B' }], footer: 'The only correct way to value a business', sentiment: 'positive' as const }
     ),
 
@@ -1580,7 +1574,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'DCF IN PRACTICE',
+      'DCF in practice',
       'How Discount Rate and Growth Drive Valuation',
       'exponential',
       'Adjust the discount rate and growth rate to see their dramatic impact on company valuation. Notice how small changes create enormous valuation swings.',
@@ -1605,7 +1599,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Terminal Growth Rate', min: 0, max: 5, default: 2.5, unit: '%' },
         { label: 'Year 1 Free Cash Flow', min: 1, max: 20, default: 5, unit: '$B' }
       ],
-      { company: 'Warren Buffett / Coca-Cola', metric: 'The most famous DCF in history (1988)', outcome: 'DCF valued Coca-Cola at ~$15B when market cap was $10B. Buffett invested $1B and the stock rose over 1,000% in the following decade', explanation: 'Buffett\'s Coca-Cola DCF used conservative but well-grounded assumptions: 15% earnings growth (driven by international expansion into China, India, Eastern Europe), 5% terminal growth (brand longevity), and a 9% discount rate (long-term Treasury rate). The DCF showed the stock was undervalued by ~50%. Buffett\'s edge wasn\'t mathematical, any analyst could run the same DCF. His edge was in the assumptions: deep understanding of Coca-Cola\'s competitive moat, pricing power, and global growth runway allowed him to model cash flows with confidence that others lacked.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -1622,7 +1616,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'DCF MYTHS',
+      'DCF myths',
       'What most people get wrong about DCF valuation',
       [
         {
@@ -1841,12 +1835,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE METHOD',
+      'The method',
       'What Is Monte Carlo Simulation?',
       [
-        'Monte Carlo simulation is a computational technique that uses repeated random sampling to model the probability of different outcomes in a process that is inherently uncertain. Named after the famous Monaco casino, the method was developed by Stanislaw Ulam and John von Neumann during the Manhattan Project in the 1940s to simulate neutron diffusion in nuclear reactions. They realized that instead of solving impossibly complex equations analytically, they could run thousands of random trials and observe the distribution of results.',
-        'In finance, Monte Carlo works by sampling returns from a probability distribution, typically calibrated to historical data. For example, if the S&P 500 has historically returned an average of 10% with a standard deviation of 15%, the simulation randomly draws annual returns from that distribution thousands of times. Each run produces a different sequence of returns, creating a unique portfolio path. After 10,000 runs, you have 10,000 possible futures, and can calculate the probability of any specific outcome.',
-        'The power of Monte Carlo lies in capturing what single-point forecasts miss: sequence risk, tail events, and compounding uncertainty. A portfolio averaging 7% over 30 years sounds safe, but the order of returns matters enormously. Getting -30% in year 1 of retirement (when you\'re withdrawing funds) is catastrophically different from getting -30% in year 28. Monte Carlo reveals these hidden dangers by simulating every possible sequence, not just the average.'
+        'Monte Carlo simulation runs thousands of random trials to map possible outcomes. Ulam and von Neumann invented it in the 1940s. If the S&P 500 averages 10% returns with 15% standard deviation, typical swing size, you get 10,000 possible futures.',
+      'Order matters. A portfolio averaging 7% over 30 years looks safe, but a -30% loss in year 1 of retirement, when you are withdrawing money, hurts far more than -30% in year 28.'
       ],
       [
         { term: 'Monte Carlo Simulation', definition: 'A computational method that uses repeated random sampling to model the probability of different outcomes in uncertain processes.', example: 'Running 10,000 simulated 30-year retirement portfolios to determine there\'s a 92% chance your savings last through age 95.' },
@@ -1855,7 +1848,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Sequence Risk', definition: 'The danger that the order of investment returns, not just the average, can dramatically affect portfolio outcomes, especially during withdrawals.', example: 'Two retirees both average 7% over 30 years, but one who gets -30% in year 1 runs out of money 8 years earlier than one who gets -30% in year 28.' }
       ],
       'Flow diagram showing Monte Carlo process: Define Distribution → Generate Random Samples → Run Simulation → Aggregate Results → Calculate Confidence Intervals',
-      { company: 'Vanguard', metric: 'Retirement planning methodology', outcome: 'Vanguard\'s retirement income calculator runs 10,000 Monte Carlo simulations for every client, replacing the old "assume 7% every year" approach', explanation: 'Vanguard\'s Monte Carlo tool considers variable returns, inflation, withdrawal timing, and market volatility to give clients a success probability. A "95% success rate" means that in 9,500 out of 10,000 simulated futures, the client\'s money lasted through their target age. This is now the industry standard for retirement planning.' },
+      undefined,
       { type: 'flow' as const, title: 'Monte Carlo Simulation Process', nodes: [{ label: 'Define', value: 'Distribution (Mean, SD, shape)', color: '#B862ED' }, { label: 'Sample', value: 'Random draws (10,000+ trials)', color: '#F59E0B' }, { label: 'Simulate', value: 'Run each path (30-year journeys)', color: '#10B981' }, { label: 'Analyze', value: 'Confidence % and percentile bands', color: '#60a5fa' }], footer: '95% success = 9,500 of 10,000 paths sustain retirement', sentiment: 'positive' as const }
     ),
 
@@ -1870,7 +1863,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'SIMULATION IN ACTION',
+      'Simulation in action',
       'Visualizing 10,000 Retirement Futures',
       'exponential',
       'Fan chart showing Monte Carlo simulation paths for a $1M retirement portfolio over 30 years with 4% annual withdrawal',
@@ -1894,7 +1887,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Initial Portfolio ($K)', min: 500, max: 3000, default: 1000, unit: '$K' },
         { label: 'Annual Withdrawal Rate (%)', min: 2, max: 8, default: 4, unit: '%' }
       ],
-      { company: 'Fidelity Investments', metric: 'Retirement planning tool usage', outcome: 'Over 30 million retirement accounts use Fidelity\'s Monte Carlo-based planning tools', explanation: 'Fidelity\'s Retirement Score tool runs Monte Carlo simulations for every user, showing a success probability and recommending adjustments. When users see their success rate drop below 80%, they\'re more likely to increase savings or reduce planned spending, proving that visualizing uncertainty changes behavior more effectively than simple projections.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -1911,7 +1904,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'MONTE CARLO MYTHS',
+      'Monte Carlo myths',
       'What most people get wrong about simulation',
       [
         {
@@ -2130,12 +2123,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE ESSENTIALS',
+      'The essentials',
       'Financial Chart Types and When to Use Them',
       [
-        'Financial visualization has evolved far beyond basic line and bar charts. The candlestick chart, invented by Japanese rice trader Munehisa Homma in the 1700s, remains the most widely used chart in trading. Each candle shows four data points (open, high, low, close) and whether the price rose or fell, encoding an enormous amount of information in a compact visual. Green (or white) candles mean the price closed higher than it opened; red (or black) candles mean it closed lower. Professional traders can read candlestick patterns like a language.',
-        'Heatmaps use color intensity to show magnitude across a matrix, perfect for correlation tables, sector performance, and risk exposure. A portfolio manager scanning a 20-asset correlation heatmap can instantly spot which assets move together (high correlation = red) and which provide diversification (low correlation = green). Treemaps use nested rectangles sized by value, ideal for showing portfolio composition where a quick glance reveals that technology is 42% of your allocation versus 8% for energy. Scatter plots reveal relationships between variables, like plotting P/E ratio against subsequent 5-year returns to test if cheap stocks outperform.',
-        'The most dangerous chart is a misleading one. Common tricks include truncating the Y-axis (making a 2% change look like a 50% move), cherry-picking time periods (showing only bull markets), using dual Y-axes to imply false correlations, and omitting context (showing nominal returns without inflation adjustment). Edward Tufte\'s "lie factor" measures how much a chart distorts the underlying data, and financial media regularly produces charts with lie factors above 5x. A financially literate person must be able to both create and critique visualizations.'
+        'Candlesticks, invented by rice trader Munehisa Homma in the 1700s, show four prices: open, high, low, close. Green closed above the open, red below. Heatmaps shade a 20-asset correlation grid red where assets move together, green where they diverge.',
+      'Treemaps size holdings: technology 42%, energy 8%. Scatter plots test if cheap stocks win, plotting P/E, price over earnings, against 5-year returns. A chopped Y-axis makes 2% look like 50%. Edward Tufte\'s lie factor measures distortion, often above 5x.'
       ],
       [
         { term: 'Candlestick Chart', definition: 'A chart where each period is represented by a "candle" showing open, high, low, and close prices, with color indicating direction. Invented in 1700s Japan.', example: 'A daily AAPL candlestick shows: open $185, high $190, low $183, close $188 as a green candle with the body from 185-188 and wicks extending to 183 and 190.' },
@@ -2144,7 +2136,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Lie Factor', definition: 'Edward Tufte\'s measure of chart distortion: the ratio of the visual effect size to the actual data effect size. A lie factor of 1.0 means no distortion; above 1.05 indicates misleading visualization.', example: 'A chart showing a Y-axis from 98 to 102 for data ranging from 99 to 101, making a 2% change appear as a dramatic 50% visual swing, has a lie factor of approximately 25.' }
       ],
       'Grid showing 6 financial chart types: candlestick, heatmap, treemap, scatter plot, line chart, and area chart with use cases labeled for each',
-      { company: 'Bloomberg LP', metric: 'Terminal revenue and user base', outcome: '325,000 terminal subscriptions at $24,000/year each, generating approximately $12 billion in annual revenue', explanation: 'Bloomberg Terminal became the dominant platform in finance primarily through superior data visualization. Before Bloomberg, financial data came in dense text printouts and basic tables. Michael Bloomberg\'s insight was that presenting the same data through intuitive charts, color-coded screens, and real-time dashboards would make traders and analysts dramatically more productive. The terminal costs $24,000/year per user because the visualization creates enough value to justify the price.' },
+      undefined,
       { type: 'grid' as const, title: 'Financial Chart Types', items: [{ label: 'Candlestick', value: 'Price action (OHLC)', color: '#10B981' }, { label: 'Heatmap', value: 'Correlations & exposure', color: '#F59E0B' }, { label: 'Treemap', value: 'Portfolio allocation', color: '#B862ED' }], footer: 'Maximize data-ink ratio, minimize chart junk', sentiment: 'positive' as const }
     ),
 
@@ -2159,7 +2151,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'VISUAL STORYTELLING',
+      'Visual storytelling',
       'How Chart Design Changes Perception',
       'comparison',
       'Side-by-side comparison of the same financial data presented honestly versus misleadingly through chart design choices',
@@ -2183,7 +2175,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Y-Axis Start', min: 0, max: 95, default: 0, unit: '%' },
         { label: 'Time Period (Years)', min: 1, max: 30, default: 10, unit: 'yr' }
       ],
-      { company: 'Robinhood', metric: 'Impact of visualization design on user behavior', outcome: 'Robinhood\'s gamified interface (confetti, swipe-to-trade) contributed to a 40% increase in trading frequency among users vs. traditional brokerages', explanation: 'Robinhood\'s visualization design choices, bright colors, celebratory animations, simplified charts, were optimized to encourage trading activity rather than informed investing. Studies showed their users traded 40% more frequently than users of traditional platforms and were more likely to buy speculative stocks. This demonstrates that visualization design isn\'t neutral, it shapes financial behavior.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -2200,7 +2192,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'VISUALIZATION MYTHS',
+      'Visualization myths',
       'What most people get wrong about financial charts',
       [
         {
@@ -2419,12 +2411,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FUNDAMENTALS',
+      'The fundamentals',
       'How Machine Learning Works in Finance',
       [
-        'Machine learning is a subset of artificial intelligence where algorithms learn patterns from data without being explicitly programmed. In finance, ML falls into two main categories. Supervised learning trains on labeled historical data: you give the algorithm thousands of loans labeled "defaulted" or "repaid" and it learns to predict which new applicants will default. This powers credit scoring (FICO uses ML), fraud detection (Visa\'s AI blocks $25 billion in fraud annually), and price prediction (regression models for asset returns).',
-        'Unsupervised learning finds hidden patterns in unlabeled data. Clustering algorithms group similar stocks based on return patterns, revealing that two companies in different sectors actually move together. Anomaly detection identifies unusual trading patterns that might indicate fraud or market manipulation. Natural Language Processing (NLP) is a breakthrough application: algorithms that read and understand text. JPMorgan\'s COiN platform analyzes 12,000 commercial loan agreements in seconds, work that previously required 360,000 human hours per year.',
-        'The critical distinction between supervised and unsupervised learning matters for financial applications. Supervised learning (classification and regression) excels when you have clear historical outcomes to train on: loan defaults, fraudulent transactions, past stock returns. Unsupervised learning excels when you\'re exploring data without a specific target: finding market regimes, identifying unusual correlations, or clustering investor behavior. The most sophisticated firms, Renaissance Technologies, Two Sigma, Citadel, combine both approaches with massive datasets that include satellite imagery, shipping data, weather patterns, and social media sentiment.'
+        'Machine learning means algorithms learn patterns from data instead of being programmed. Supervised learning trains on labeled history: thousands of loans marked defaulted or repaid. That powers credit scoring at FICO and fraud detection, where Visa blocks $25 billion yearly.',
+      'Unsupervised learning finds hidden patterns in unlabeled data: clustering similar stocks, spotting odd trades. Natural language processing reads text: JPMorgan\'s COiN scans 12,000 loan agreements in seconds, once 360,000 hours yearly. Renaissance Technologies, Two Sigma and Citadel use both.'
       ],
       [
         { term: 'Supervised Learning', definition: 'ML where the algorithm trains on labeled data (inputs paired with known outcomes) to learn a mapping function that can predict outcomes for new, unseen inputs.', example: 'Training a credit scoring model on 1 million historical loans labeled "default" or "repaid", the algorithm learns which borrower characteristics predict default and applies this to new applicants.' },
@@ -2433,7 +2424,7 @@ const lessons: PathwayLesson[] = [
         { term: 'NLP (Natural Language Processing)', definition: 'ML algorithms that understand and analyze human language, enabling automated reading of financial documents, news, earnings calls, and social media for investment signals.', example: 'JPMorgan\'s COiN platform uses NLP to analyze 12,000 commercial loan agreements in seconds, extracting key terms and risk factors, work that previously required 360,000 human hours annually.' }
       ],
       'Diagram showing supervised learning (labeled data → model → prediction) versus unsupervised learning (unlabeled data → model → patterns/clusters), with financial applications labeled for each',
-      { company: 'JPMorgan Chase', metric: 'AI/ML deployment scale', outcome: 'Over 300 ML use cases in production, including COiN (12,000 loan documents analyzed per second) and LOXM (algorithmic trading that saved $150M in year one)', explanation: 'JPMorgan employs 1,500+ data scientists and has deployed ML across virtually every business line. COiN (Contract Intelligence) uses NLP to parse commercial loan agreements, extracting 150 attributes per document in seconds. LOXM uses reinforcement learning to execute trades optimally, learning from billions of historical transactions to minimize market impact. The bank spends $12B/year on technology, more than most tech companies.' },
+      undefined,
       { type: 'comparison' as const, title: 'Supervised vs. Unsupervised Learning', rows: [{ label: 'Supervised Learning', value: 'Labeled data to Predictions (credit scoring, fraud, price prediction)' }, { label: 'Unsupervised Learning', value: 'Unlabeled data to Patterns (clustering, anomaly detection, NLP)' }], footer: 'Visa: blocks $25B fraud/year | JPMorgan COiN: 12K docs/sec', sentiment: 'positive' as const }
     ),
 
@@ -2448,7 +2439,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'ML APPLICATIONS',
+      'ML applications',
       'The Machine Learning Revolution in Finance',
       'timeline',
       'Timeline showing the adoption of machine learning across financial services from the 1980s to the 2020s',
@@ -2472,7 +2463,7 @@ const lessons: PathwayLesson[] = [
         { label: 'ML Adoption Rate (%)', min: 0, max: 100, default: 65, unit: '%' },
         { label: 'Data Points Analyzed (M)', min: 1, max: 1000, default: 100, unit: 'M' }
       ],
-      { company: 'Renaissance Technologies', metric: 'Medallion Fund performance (1988-2018)', outcome: '66% average annual return before fees, the greatest trading track record in history, generating over $100 billion in total profits', explanation: 'Jim Simons, a former NSA codebreaker and mathematics professor, founded Renaissance in 1982. The Medallion Fund employs physicists, mathematicians, and computer scientists, not traditional finance professionals. Their ML models process petabytes of data including prices, weather patterns, satellite imagery, and news sentiment. The fund has been closed to outside investors since 1993 because it generates so much alpha that adding more capital would dilute returns.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -2489,7 +2480,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'ML IN FINANCE MYTHS',
+      'ML in finance myths',
       'What most people get wrong about machine learning in finance',
       [
         {
@@ -2708,12 +2699,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE COMPLETE WORKFLOW',
+      'The complete workflow',
       'Building an End-to-End Financial Analysis',
       [
-        'A complete financial analysis workflow integrates every tool you\'ve learned into a systematic process. Step 1: Data Collection and Statistical Foundation, gather historical financials, market data, and economic indicators, then calculate descriptive statistics (mean growth rates, return volatility, correlation matrices) to understand the baseline. This is where you apply everything from Lessons 1-3: means, standard deviations, probability distributions, and regression analysis to quantify what has happened and identify key drivers.',
-        'Step 2: Modeling and Simulation, build a DCF model to estimate intrinsic value, then use regression to identify which variables most strongly predict the company\'s performance (revenue growth, market conditions, competitive dynamics). Layer Monte Carlo simulation on top to stress-test assumptions: instead of one "expected" valuation, you generate 10,000 possible values with a confidence interval. This transforms a point estimate ("the stock is worth $85") into a probability statement ("there\'s a 75% chance the stock is worth $65-$120, with a median of $85").',
-        'Step 3: ML Enhancement and Visualization, apply NLP sentiment analysis to earnings calls and news for qualitative signals, use clustering to identify comparable companies, and aggregate everything into a clear dashboard that tells a compelling story. The best analysts at Morgan Stanley, Goldman Sachs, and JPMorgan don\'t just crunch numbers, they synthesize quantitative and qualitative data into a narrative that decision-makers can act on. The visualization layer transforms a 50-page spreadsheet into a one-page dashboard where the investment thesis is immediately clear.'
+        'Gather financials, then apply statistics from lessons 1-3 and a DCF model, a discounted cash flow estimate of value. Monte Carlo simulation reruns it 10,000 times: not one value of $85, but a 75% chance of $65-$120, median $85.',
+      'Then add machine learning: sentiment analysis scores the tone of earnings calls, and clustering groups comparable companies. Analysts at Morgan Stanley, Goldman Sachs and JPMorgan turn a 50-page spreadsheet into a one-page dashboard with a clear story.'
       ],
       [
         { term: 'Integrated Analysis', definition: 'A financial analysis approach that combines multiple analytical tools (statistics, modeling, simulation, ML, visualization) into a unified workflow where each tool\'s output feeds into the next.', example: 'A Morgan Stanley analyst combining DCF valuation ($85 fair value), Monte Carlo simulation (75% probability of $65-$120 range), regression (growth driven by cloud revenue), and NLP (positive earnings call sentiment) into a single investment recommendation.' },
@@ -2722,7 +2712,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk-Adjusted Return', definition: 'Investment return measured relative to the risk taken, commonly expressed as the Sharpe ratio (excess return divided by standard deviation). Higher risk-adjusted returns indicate more efficient use of risk.', example: 'A portfolio returning 12% with 8% standard deviation (Sharpe: 1.5) is superior to one returning 15% with 20% standard deviation (Sharpe: 0.75), the first generates more return per unit of risk.' }
       ],
       'Three-stage workflow diagram: Stage 1 (Data + Statistics) → Stage 2 (Modeling + Monte Carlo) → Stage 3 (ML + Visualization), with real company examples at each stage',
-      { company: 'Morgan Stanley', metric: 'Junior analyst investment thesis result', outcome: 'An analyst combined DCF + Monte Carlo + regression + NLP to identify an undervalued mid-cap tech company that returned 400% in 3 years', explanation: 'The analyst\'s integrated approach revealed what single-tool analysis missed. The DCF alone showed modest undervaluation. But regression showed accelerating cloud revenue growth, Monte Carlo showed 75% probability of significant upside with limited downside, and NLP of earnings calls detected increasing management confidence. Each tool alone told part of the story, together they built a compelling thesis that no single method could have produced.' },
+      undefined,
       { type: 'flow' as const, title: 'Complete Financial Analytics Workflow', nodes: [{ label: 'Stage 1: Foundation', value: 'Collect data, descriptive statistics, regression', color: '#F59E0B' }, { label: 'Stage 2: Model', value: 'DCF valuation, Monte Carlo, sensitivity analysis', color: '#10B981' }, { label: 'Stage 3: Insight', value: 'ML/NLP signals, dashboard visualization', color: '#B862ED' }], footer: 'Point estimate to probability range to actionable recommendation', sentiment: 'positive' as const }
     ),
 
@@ -2737,7 +2727,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CAREER PATHS',
+      'Career paths',
       'Financial Analytics Career Landscape',
       'comparison',
       'Comparison of financial analytics career paths showing roles, required skills, compensation, and growth outlook',
@@ -2761,7 +2751,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Years of Experience', min: 0, max: 20, default: 3, unit: 'yr' },
         { label: 'Technical Skill Level', min: 1, max: 10, default: 6, unit: '/10' }
       ],
-      { company: 'Citadel', metric: 'Quant compensation and performance', outcome: 'Citadel\'s quantitative strategies generated $16 billion in 2022 profits, the most profitable year for any hedge fund in history, paying its founder Ken Griffin $4.1 billion personally', explanation: 'Citadel employs hundreds of PhDs in mathematics, physics, and computer science who build ML-driven trading systems. Starting compensation for quant researchers exceeds $200K, with senior quants earning millions. The firm\'s success demonstrates that financial analytics skills, statistics, modeling, ML, and programming, are among the most valuable and highest-compensated skills in the modern economy.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -2778,7 +2768,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'CAPSTONE MYTHS',
+      'Capstone myths',
       'What most people get wrong about financial analytics careers and workflows',
       [
         {
@@ -2991,9 +2981,8 @@ const lessons: PathwayLesson[] = [
       'FOUNDATIONS',
       'What Makes Time Series Data Special?',
       [
-        'Time series data is fundamentally different from cross-sectional data because the order of observations matters. A stock\'s price today is not independent of yesterday\'s price, they are connected through autocorrelation. This sequential dependence is the core property that time series analysis exploits. In financial markets, today\'s closing price is typically the single best predictor of tomorrow\'s opening price, but the deviations from this prediction contain exploitable patterns.',
-        'Stationarity is the most important concept in time series analysis. A stationary time series has constant statistical properties (mean, variance) over time. Raw stock prices are almost never stationary, they trend upward or downward. But stock returns (the percentage change from day to day) are approximately stationary, which is why quant analysts work with returns rather than raw prices. Applying a model designed for stationary data to non-stationary data produces spurious results, one of the most common and costly errors in quantitative finance.',
-        'Decomposition breaks a time series into three components: trend (the long-term direction), seasonality (repeating patterns at fixed intervals), and residual noise (random fluctuations). The S&P 500 has a long-term upward trend of approximately 10% per year. Retail stocks show strong seasonality around Q4 holiday shopping. After removing trend and seasonality, the residual noise is what quant models analyze for exploitable patterns, because trends and seasonality are already priced in by the market.'
+        'Order matters in time series data. Today\'s stock price depends on yesterday\'s, a link called autocorrelation. Stationarity means the average and spread stay steady over time. Prices trend, so they are not stationary, but daily percentage returns roughly are.',
+      'Quants model returns, not raw prices, because using stationary models on trending data gives false results. Decomposition splits a series into trend, seasonality and noise. The S&P 500 trends up about 10% per year. Retail stocks peak in Q4.'
       ],
       [
         { term: 'Autocorrelation', definition: 'The correlation of a time series with a lagged version of itself. Measures how today\'s value relates to yesterday\'s, last week\'s, or last month\'s value.', example: 'Stock volatility has strong autocorrelation: a volatile day is likely followed by another volatile day. This is called volatility clustering and is modeled by GARCH models used at every major bank.' },
@@ -3002,7 +2991,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Seasonality', definition: 'Regular, predictable patterns that repeat at fixed time intervals, daily, weekly, monthly, quarterly, or annually.', example: 'Retail stocks consistently outperform in November-December (holiday shopping). This "Santa Claus rally" is so well-documented that it\'s partially priced in, but seasonal strategies still generate small alpha.' }
       ],
       'Decomposition diagram showing a raw time series being split into trend, seasonal, and residual components',
-      { company: 'Two Sigma', metric: 'Time-series model sophistication', outcome: 'Manages $60 billion using models that explicitly capture autocorrelation, regime changes, and non-linear time-series dynamics across 10,000+ instruments', explanation: 'Two Sigma processes petabytes of time-series data, prices, volumes, order flow, economic indicators, satellite imagery, weather, and their models capture the sequential dependencies that simpler approaches miss. A price move that looks random in isolation may be predictable when conditioned on the recent sequence of moves, volatility regime, and cross-asset correlations.' },
+      undefined,
       FA11_DIAGRAM
     ),
 
@@ -3015,7 +3004,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'AUTOCORRELATION IN MARKETS',
+      'Autocorrelation in markets',
       'Volatility Clustering: Why Bad Days Come in Bunches',
       'timeline',
       'Explore how financial volatility clusters over time. High-volatility periods tend to persist, and low-volatility periods tend to persist, this autocorrelation in volatility is one of the most reliable patterns in finance.',
@@ -3037,7 +3026,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Volatility Persistence', min: 0, max: 100, default: 85, unit: '%' },
         { label: 'Mean Reversion Speed', min: 1, max: 50, default: 15, unit: 'days' }
       ],
-      { company: 'Citadel', metric: 'Volatility trading profits', outcome: 'Generated $16 billion in profit in 2022, the most profitable year for any hedge fund in history, partly by trading volatility patterns during extreme market turbulence', explanation: 'Citadel\'s models explicitly capture volatility clustering and mean reversion. During 2022\'s extreme market swings (inflation shocks, rate hikes, war), their time-series models detected exploitable patterns in how volatility evolved. By correctly modeling the sequential dependence of volatility, not treating each day as independent, they generated unprecedented profits.' }
+      undefined
     ),
 
     caseStudy(
@@ -3052,7 +3041,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'TIME SERIES MYTHS',
+      'Time series myths',
       'What most people get wrong about sequential financial data',
       [
         {
@@ -3219,12 +3208,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'ALTERNATIVE DATA',
+      'Alternative data',
       'Beyond Financial Statements: The New Data Frontier',
       [
-        'Alternative data refers to any non-traditional data source used to inform investment decisions. Traditional data, earnings reports, SEC filings, analyst estimates, is available to everyone simultaneously. Alternative data gives investors an information edge by revealing real-world activity before it shows up in financial statements. Satellite imagery of parking lots can predict retail earnings. Credit card transaction data reveals consumer spending trends in real-time. Web traffic and app downloads signal product adoption weeks before quarterly reports.',
-        'The alternative data market has exploded from under $1 billion in 2016 to over $7 billion today, growing 40% annually. The largest consumers are hedge funds: Point72 spends $100M/year, Citadel employs 200+ data scientists, and Two Sigma processes more data per day than many tech companies. Categories include geolocation data (foot traffic, shipping), transaction data (credit cards, point-of-sale), web data (scraping, app usage), sensor data (satellites, IoT), and text data (news, social media, SEC filings). Each source provides a different angle on economic activity.',
-        'Sentiment analysis uses NLP (Natural Language Processing) to quantify the emotional tone of text, positive, negative, neutral, at scale. Applied to finance, sentiment analysis processes millions of news articles, social media posts, earnings call transcripts, and analyst reports to generate numerical sentiment scores. Research shows that aggregate Twitter sentiment has a small but statistically significant correlation with next-day stock market returns. Earnings call sentiment, particularly the tone of answers during the Q&A section, has been shown to predict earnings surprises and future stock performance better than the financial numbers alone.'
+        'Alternative data means non-traditional data used to pick stocks: satellite photos of store parking lots predict retail earnings early. The market grew from under $1 billion in 2016 to over $7 billion today, rising 40% annually.',
+      'Hedge funds buy most of it: Point72 spends $100M/year, Citadel employs 200+ data scientists, Two Sigma processes vast daily volumes. Sentiment analysis uses language software to score text tone, positive or negative; earnings call tone can predict profit surprises.'
       ],
       [
         { term: 'Alternative Data', definition: 'Non-traditional data sources, satellite imagery, credit card transactions, web traffic, social media, GPS data, used to gain investment insights before they appear in financial statements.', example: 'A hedge fund analyzed satellite images of Tesla factory parking lots to estimate production volumes 3 weeks before Tesla\'s quarterly delivery report, accurately predicting a 15% beat versus analyst estimates.' },
@@ -3233,7 +3221,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Alpha Decay', definition: 'The gradual loss of an investment strategy\'s excess return (alpha) as more market participants discover and exploit the same signal, making it less profitable over time.', example: 'The January Effect (small stocks outperforming in January) generated 5%+ alpha in the 1980s but has largely disappeared as funds began front-running the pattern in December.' }
       ],
       'Dashboard showing multiple alternative data streams, satellite, social media, credit card, web traffic, converging into a unified investment signal',
-      { company: 'Point72 (Steve Cohen)', metric: 'Alternative data spending', outcome: 'Spends $100 million annually on alternative data, employing 150+ data scientists to process satellite imagery, credit card data, and NLP at scale', explanation: 'Point72\'s data science team processes satellite imagery from 300+ retail locations, anonymized credit card transactions from millions of consumers, and NLP analysis of every earnings call and SEC filing. This multi-source approach gives them a 2-4 week information advantage over traditional analysts who wait for quarterly reports. The $100M annual investment generates alpha that more than justifies the cost across their $28 billion portfolio.' },
+      undefined,
       FA12_DIAGRAM
     ),
 
@@ -3246,7 +3234,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'SENTIMENT SIGNALS',
+      'Sentiment signals',
       'How Twitter Sentiment Predicts Market Moves',
       'comparison',
       'Explore the relationship between aggregate social media sentiment and next-day stock market performance. Adjust the sentiment threshold to see how extreme readings predict larger moves.',
@@ -3268,7 +3256,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Sentiment Threshold', min: -100, max: 100, default: -50, unit: 'score' },
         { label: 'Signal-to-Noise Filter', min: 0, max: 100, default: 40, unit: '%' }
       ],
-      { company: 'Citadel', metric: 'NLP-driven trading', outcome: 'Employs 200+ data scientists processing millions of text documents daily using NLP, contributing to $16 billion in profits in 2022', explanation: 'Citadel\'s NLP systems analyze every SEC filing, earnings call transcript, news article, and significant social media post in real-time. Their models detect sentiment shifts, topic changes, and linguistic patterns that correlate with future stock moves. The speed advantage is measured in milliseconds, their systems process and trade on an earnings call transcript before human analysts finish reading the first paragraph.' }
+      undefined
     ),
 
     caseStudy(
@@ -3283,7 +3271,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'ALTERNATIVE DATA MYTHS',
+      'Alternative data myths',
       'What most people get wrong about sentiment and alternative data',
       [
         {
@@ -3443,7 +3431,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE FICO MODEL',
+      'The FICO model',
       'How Credit Scores Actually Work',
       [
         'The FICO score model uses 5 input categories with fixed weights to generate a score from 300 to 850. Payment History (35%) is the most important factor, whether you\'ve paid bills on time. A single 30-day late payment can drop a score by 60-110 points. Amounts Owed / Credit Utilization (30%) measures how much of your available credit you\'re using. Using more than 30% of your credit limit signals financial stress and lowers your score. These two factors alone account for 65% of your score.',
@@ -3457,7 +3445,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Default Rate', definition: 'The percentage of borrowers who fail to make required payments (typically 90+ days delinquent). The primary outcome variable that credit scoring models predict.', example: 'Borrowers with FICO scores below 580 have a ~28% default rate. Scores of 740+ have a ~2% default rate. This 14x difference in risk justifies the interest rate differences between score ranges.' }
       ],
       'FICO score gauge with the five component factors shown as weighted segments, with score ranges color-coded from poor (red) to exceptional (green)',
-      { company: 'Fair Isaac Corporation (FICO)', metric: 'Market reach and impact', outcome: 'FICO scores are used in 90% of U.S. lending decisions, affecting 200+ million Americans. The difference between score ranges can mean $100,000+ in lifetime interest costs.', explanation: 'FICO\'s model, built on logistic regression of millions of loan outcomes, achieves a concordance rate (ability to correctly rank borrowers by risk) of 80%+. The model\'s simplicity, just 5 factors, is a feature, not a limitation. It makes the scoring process transparent, auditable, and regulatorily compliant. Despite being developed in 1989, the basic FICO model still outperforms many more complex alternatives because its factors capture the fundamental drivers of credit risk.' },
+      undefined,
       FA13_DIAGRAM
     ),
 
@@ -3470,7 +3458,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'SCORE IMPACT',
+      'Score impact',
       'How FICO Score Affects Your Mortgage Cost',
       'comparison',
       'Adjust the FICO score to see how it affects mortgage interest rates and total lifetime cost. Small score improvements can save tens of thousands of dollars.',
@@ -3492,7 +3480,7 @@ const lessons: PathwayLesson[] = [
         { label: 'FICO Score', min: 300, max: 850, default: 700, unit: 'pts' },
         { label: 'Loan Amount', min: 100000, max: 800000, default: 400000, unit: '$' }
       ],
-      { company: 'U.S. Mortgage Market', metric: 'Interest cost spread by FICO score', outcome: 'A 620 vs. 760 FICO score on a $400K 30-year mortgage = $150,000+ in additional interest, equivalent to 3-4 years of median household income', explanation: 'This dramatic cost difference arises because even small changes in default probability, compounded over 30 years of interest, produce enormous dollar differences. The credit scoring model\'s ability to differentiate risk levels enables this pricing, without it, all borrowers would pay the same rate, and the credit market would be smaller and less efficient.' }
+      undefined
     ),
 
     caseStudy(
@@ -3507,7 +3495,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'CREDIT SCORING MYTHS',
+      'Credit scoring myths',
       'What most people get wrong about how credit scores work',
       [
         {
@@ -3666,12 +3654,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'RETURN DECOMPOSITION',
+      'Return decomposition',
       'Where Do Your Returns Actually Come From?',
       [
-        'Performance attribution breaks a portfolio\'s total return into its component sources. The most fundamental decomposition separates alpha (return from skill, stock picking, timing, unique insights) from beta (return from market exposure, simply being invested). A portfolio that returns 14% when the market returns 10% has 4% alpha, but only if the portfolio had the same risk as the market. If the portfolio had 1.4x market risk (beta of 1.4), the expected return was 14%, meaning the manager added zero alpha despite beating the market.',
-        'The Brinson-Fachler attribution model, used by virtually every institutional investor, decomposes active returns into three effects: allocation effect (did the manager overweight the right sectors?), selection effect (did the manager pick the best stocks within each sector?), and interaction effect (the combined impact of both). For example, overweighting technology in 2023 was a positive allocation decision; within tech, picking NVIDIA over Intel was a positive selection decision. This framework tells investors exactly where value was added or destroyed.',
-        'Factor attribution goes deeper, decomposing returns into exposure to known risk factors: market (beta), size (small vs. large cap), value (cheap vs. expensive), momentum (recent winners vs. losers), quality (profitable vs. unprofitable), and volatility (low vs. high). Research by Fama and French showed that most "alpha" from active managers is actually compensation for factor tilts. A fund that overweights small-cap value stocks isn\'t generating alpha, it\'s taking on factor risk. True alpha is the return left over after accounting for all known factor exposures, and it is extraordinarily rare.'
+        'Attribution splits return into sources. Alpha is return from skill, beta is return from market exposure. Earning 14% when the market returns 10% looks like 4% alpha, but at 1.4x market risk (beta 1.4), 14% was expected: zero alpha.',
+      'Brinson-Fachler attribution asks three things: allocation (right sectors?), selection (right stocks?), and interaction. Overweighting technology in 2023, then picking NVIDIA over Intel, scored on both. Fama and French showed most alpha is really pay for factor tilts.'
       ],
       [
         { term: 'Alpha', definition: 'The excess return of a portfolio above what would be expected given its risk exposure (beta and factor loadings). Represents genuine investment skill.', example: 'If a fund returns 15% with a beta of 1.0 when the market returns 10%, the alpha is 5%. But if the beta is 1.5, the expected return was 15% (1.5 x 10%), so alpha is actually 0%.' },
@@ -3680,20 +3667,20 @@ const lessons: PathwayLesson[] = [
         { term: 'Sharpe Ratio', definition: 'Risk-adjusted return measure: (Portfolio Return - Risk-Free Rate) / Portfolio Standard Deviation. Higher is better, it measures return per unit of risk.', example: 'Fund A returns 15% with 20% volatility: Sharpe = (15-5)/20 = 0.50. Fund B returns 10% with 8% volatility: Sharpe = (10-5)/8 = 0.63. Fund B is better on a risk-adjusted basis despite lower absolute returns.' }
       ],
       'Attribution chart decomposing total return into market beta, sector allocation, security selection, and factor exposures',
-      { company: 'Bridgewater Associates', metric: 'Pure Alpha fund performance', outcome: 'After stripping out beta through attribution analysis, their Pure Alpha fund has generated 11.4% annualized returns since 1991, proving genuine skill exists after factor adjustment', explanation: 'Ray Dalio\'s key insight was that most hedge fund returns are disguised beta. By rigorously attributing every return source, Bridgewater separated their true alpha from market exposure and packaged them into distinct products: Pure Alpha (skill only) and All Weather (beta/risk parity). This attribution-driven approach built the world\'s largest hedge fund with $150+ billion AUM.' },
+      undefined,
       FA14_DIAGRAM
     ),
 
     microCheck(
       'A fund returned 20% last year with a beta of 1.5. The market returned 12% and the risk-free rate was 4%. What is the fund\'s alpha using the CAPM framework?',
-      ['20%, the full return is alpha','8%, the return above the market','2%, the return above what beta exposure predicted (expected return = 4% + 1.5 x (12%-4%) = 16%, so alpha = 20% - 16% = 4%)... wait, let me recalculate','4%, expected return was 4% + 1.5 x (12%-4%) = 16%, so alpha = 20% - 16% = 4%'],
+      ['20%, the full return is alpha','8%, the return above the market','16%, the return CAPM predicted for that beta','4%, expected return was 4% + 1.5 x (12%-4%) = 16%, so alpha = 20% - 16% = 4%'],
       3,
       'Correct! Using CAPM: Expected Return = Risk-Free Rate + Beta x (Market Return - Risk-Free Rate) = 4% + 1.5 x 8% = 16%. The fund returned 20%, so alpha = 20% - 16% = 4%. Without attribution, you might think the manager generated 8% above the market, but 4% of that was simply compensation for taking 1.5x market risk.',
       'Using CAPM: Expected Return = 4% + 1.5 x (12% - 4%) = 4% + 12% = 16%. The fund returned 20%, so alpha = 20% - 16% = 4%. The other 16% was expected given the fund\'s beta. Attribution separates the 4% of genuine skill from the 16% of risk compensation.'
     ),
 
     interactiveGraph(
-      'ATTRIBUTION ENGINE',
+      'Attribution engine',
       'Decomposing Returns: Alpha vs. Beta vs. Factors',
       'comparison',
       'Adjust the portfolio\'s beta and factor exposures to see how attribution changes. Notice how most "alpha" disappears when you properly account for risk factors.',
@@ -3715,16 +3702,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Portfolio Beta', min: 50, max: 200, default: 120, unit: '%' },
         { label: 'Factor Exposure', min: 0, max: 100, default: 60, unit: '%' }
       ],
-      { company: 'Renaissance Technologies', metric: 'Medallion Fund Sharpe Ratio', outcome: 'Estimated Sharpe ratio of 3.0+ over 30 years, the highest sustained risk-adjusted return in investment history', explanation: 'After proper attribution, the Medallion Fund\'s returns cannot be explained by any known factor model, suggesting genuine, unprecedented alpha. Most funds\' "alpha" disappears under factor analysis; Medallion\'s persists, which is why it\'s considered the greatest investment vehicle ever created.' }
+      undefined
     ),
 
     teachingSlide(
       'BENCHMARKING',
       'Choosing the Right Yardstick for Performance',
       [
-        'A benchmark is the reference portfolio against which performance is measured. Choosing the wrong benchmark makes attribution meaningless. A U.S. large-cap fund benchmarked against emerging markets will show massive "alpha" in good years and massive "underperformance" in bad years, neither reflecting actual skill. The benchmark must match the fund\'s investable universe, risk profile, and strategy. The S&P 500 is appropriate for U.S. large-cap funds; the Russell 2000 for small-cap; the MSCI EAFE for international developed markets.',
-        'Custom benchmarks are increasingly common for complex strategies. A long-short equity fund can\'t be benchmarked against the S&P 500 because it has net exposure well below 100%. A multi-asset fund needs a blended benchmark (e.g., 60% equity / 40% bonds). Factor-based benchmarks use Fama-French factors to create a "passive replication" of the fund\'s factor exposures, isolating true alpha from factor tilts. The choice of benchmark is one of the most consequential decisions in portfolio analytics, it determines whether a manager appears skilled or unskilled.',
-        'Survivorship bias dramatically distorts performance statistics. When studying mutual fund performance, if you only look at funds that exist today, you miss all the funds that closed due to poor performance. Studies show survivorship bias inflates average fund returns by 1-2% per year. Similarly, backtest bias, testing a strategy on historical data it was designed to fit, creates the illusion of alpha. Proper attribution requires clean data, appropriate benchmarks, and rigorous statistical testing to separate genuine skill from statistical artifacts.'
+        'A benchmark is the reference portfolio you measure against. It must match the fund\'s universe and risk: S&P 500 for U.S. large-cap, Russell 2000 for small-cap, MSCI EAFE for international developed. Emerging markets would be a meaningless yardstick.',
+      'Complex funds need custom benchmarks: a blend of 60% equity and 40% bonds, or Fama-French factor benchmarks, since a long-short fund holds well below 100% net exposure. Survivorship bias, ignoring closed funds, inflates average returns by 1-2% per year.'
       ],
       [
         { term: 'Benchmark', definition: 'A reference portfolio or index used to evaluate a fund\'s performance. Must match the fund\'s investable universe and risk characteristics.', example: 'Comparing a small-cap value fund to the S&P 500 (large-cap blend) would make the fund look brilliant in value rallies and terrible in growth rallies, neither reflecting the manager\'s skill.' },
@@ -3733,7 +3719,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tracking Error', definition: 'Standard deviation of the difference between portfolio and benchmark returns, measuring how much active risk the manager takes.', example: 'An index fund has 0.1% tracking error. A concentrated stock-picker has 8% tracking error. Higher tracking error means more deviation from the benchmark, more active bets for better or worse.' }
       ],
       'Comparison showing the same portfolio measured against different benchmarks, demonstrating how benchmark choice affects attribution results',
-      { company: 'Vanguard Group', metric: 'Impact of benchmark-aware investing', outcome: 'Vanguard manages $8.1 trillion, over 80% in index funds, because rigorous attribution analysis showed most active managers fail to beat their benchmarks after fees', explanation: 'Jack Bogle founded Vanguard on the attribution insight that most "alpha" is actually factor exposure plus noise. By offering low-cost index funds that deliver pure beta at minimal cost, Vanguard has saved investors an estimated $200 billion+ in fees. Attribution analysis is the intellectual foundation of the passive investing revolution.' },
+      undefined,
       FA14_DIAGRAM2
     ),
 
@@ -3824,9 +3810,8 @@ const lessons: PathwayLesson[] = [
       'EXPERIMENTATION',
       'A/B Testing: The Scientific Method for Financial Decisions',
       [
-        'An A/B test (randomized controlled experiment) randomly assigns customers to two groups: a control group (A) that sees the existing product/experience and a treatment group (B) that sees a variation. By comparing outcomes between groups, you can measure the causal effect of the change, not just correlation, but true causation. This is the same logic behind clinical drug trials, applied to financial products. The key requirement is randomization: if groups aren\'t randomly assigned, differences in outcomes might be caused by differences in the groups, not the treatment.',
-        'In finance, A/B tests optimize credit card offers (which benefits drive the most applications?), loan pricing (what interest rate maximizes profit while maintaining volume?), fraud detection algorithms (does Model B catch more fraud with fewer false positives?), and customer interfaces (does showing savings projections increase 401k contributions?). Wealthfront runs hundreds of experiments on their investment platform, testing everything from portfolio rebalancing triggers to tax-loss harvesting thresholds. Each test generates incremental improvements that compound into significant competitive advantages.',
-        'Statistical significance is what separates a real finding from noise. A p-value below 0.05 means there\'s less than a 5% chance the observed difference occurred by random chance. But p-values require sufficient sample size, testing a new feature on 100 customers won\'t produce reliable results, while testing on 50,000 will. Power analysis determines the required sample size before running the test. Capital One\'s massive customer base (100 million+ accounts) is a strategic asset because it enables experiments to reach significance quickly, allowing faster iteration cycles than smaller competitors.'
+        'An A/B test splits customers at random: group A sees the current product, group B sees a change. Random assignment proves cause, not just correlation. Wealthfront tests things like tax-loss harvesting thresholds and 401k savings projections.',
+      'Statistical significance separates real results from luck: a p-value under 0.05 means under a 5% chance the difference was random. Testing on 100 customers is unreliable; 50,000 works. Capital One\'s 100 million+ accounts reach significance fast.'
       ],
       [
         { term: 'A/B Test', definition: 'A randomized controlled experiment comparing two variants (A = control, B = treatment) to measure the causal effect of a change. The gold standard for establishing causation in business decisions.', example: 'Capital One randomly shows 50,000 customers a 2% cash back offer (A) and 50,000 customers a $200 sign-up bonus (B). After 30 days, the sign-up bonus variant shows 47% higher conversion, a statistically significant result with p < 0.001.' },
@@ -3835,7 +3820,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Power Analysis', definition: 'A statistical calculation performed before an experiment to determine the minimum sample size needed to detect a meaningful effect with confidence.', example: 'To detect a 0.5% improvement in mortgage application completion rate with 95% confidence, power analysis shows you need 15,000 customers per group, meaning the test needs 30,000 total participants.' }
       ],
       'Split-screen A/B test diagram showing random assignment to control and treatment groups with statistical significance calculation',
-      { company: 'Capital One', metric: 'Experimentation volume', outcome: '80,000+ experiments per year across products, pricing, marketing, and operations, more than most tech companies', explanation: 'Rich Fairbank founded Capital One on the principle that every decision should be tested, not assumed. Their "test and learn" culture treats each product decision as a hypothesis to be validated with data. This approach identified that sign-up bonuses outperform ongoing rewards for acquisition, that personalized APR offers increase acceptance rates by 30%, and that specific fraud model configurations reduce losses by $200M annually. Experimentation is their competitive moat.' },
+      undefined,
       FA15_DIAGRAM
     ),
 
@@ -3848,7 +3833,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'EXPERIMENT DESIGN',
+      'Experiment design',
       'Sample Size, Effect Size, and Statistical Power',
       'comparison',
       'Adjust the sample size and minimum detectable effect to see how they affect statistical power. Notice how detecting small improvements requires dramatically larger sample sizes.',
@@ -3870,16 +3855,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Sample Size (per group)', min: 100, max: 100000, default: 10000, unit: 'users' },
         { label: 'Min. Detectable Effect', min: 1, max: 50, default: 5, unit: '%' }
       ],
-      { company: 'Wealthfront', metric: 'Platform optimization through experimentation', outcome: 'Continuous A/B testing of tax-loss harvesting thresholds, rebalancing triggers, and UI elements has helped grow AUM to $50B+ while minimizing tax drag for clients', explanation: 'Wealthfront treats every product parameter as testable. They A/B test tax-loss harvesting frequency (daily vs. weekly), rebalancing thresholds (1% vs. 5% drift), and even the way portfolio performance is displayed. Each test yields small improvements that compound: a 0.3% annual tax savings from optimized harvesting x $50B AUM = $150M in additional client value per year.' }
+      undefined
     ),
 
     teachingSlide(
-      'BEYOND A/B',
+      'Beyond A/B',
       'Advanced Experimentation in Financial Services',
       [
-        'Multi-armed bandit (MAB) algorithms improve on traditional A/B tests by dynamically allocating more traffic to better-performing variants during the experiment. In a traditional A/B test, each variant gets 50% of traffic until the test ends, even if one variant is clearly winning. MAB algorithms shift traffic toward the winner as evidence accumulates, reducing the "cost" of experimentation (fewer customers exposed to the worse variant). Companies like Stitch Fix use MAB for pricing optimization, adjusting prices in real-time based on conversion data.',
-        'Causal inference methods extend experimentation to situations where randomization is impossible. Regression discontinuity (comparing customers just above and just below a credit score threshold), difference-in-differences (comparing outcomes before and after a policy change between affected and unaffected groups), and instrumental variables allow financial analysts to estimate causal effects from observational data. These techniques are especially valuable in regulatory contexts where randomized experiments may be impractical or unethical.',
-        'The experimentation maturity model for financial firms has four levels: (1) No testing, decisions by HiPPO (still common at traditional banks), (2) Ad hoc testing, occasional experiments without infrastructure, (3) Systematic testing, dedicated experimentation platform with statistical rigor, and (4) Experimentation culture, like Capital One, where every decision starts with "how would we test this?" Firms at Level 4 consistently outperform because they accumulate thousands of small validated improvements that compound into large competitive advantages over years.'
+        'Multi-armed bandit (MAB) algorithms send more traffic to the better variant while the test runs, instead of holding each at 50%. Fewer customers see the worse option. Stitch Fix uses MAB to adjust prices in real time.',
+      'When randomizing is impossible, methods like regression discontinuity estimate causal effects from data. Four maturity levels: (1) no testing, decisions by HiPPO, the highest paid person\'s opinion, (2) ad hoc tests, (3) systematic testing, (4) experimentation culture, like Capital One.'
       ],
       [
         { term: 'Multi-Armed Bandit', definition: 'An experimentation algorithm that dynamically allocates more traffic to better-performing variants, balancing exploration (testing) with exploitation (using what works).', example: 'Instead of a fixed 50/50 A/B split, a MAB algorithm testing 3 credit card offers starts at 33% each and gradually shifts to 60% for the best performer as evidence accumulates, reducing lost revenue from inferior variants.' },
@@ -3888,7 +3872,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Experimentation Platform', definition: 'The infrastructure (software, statistical tools, randomization engine) that enables systematic A/B testing at scale. Required for Level 3+ experimentation maturity.', example: 'Capital One\'s experimentation platform manages 80,000+ concurrent tests, handles randomization across 100M+ accounts, and automatically calculates significance, enabling any team to launch experiments without custom statistical analysis.' }
       ],
       'Maturity model diagram showing progression from HiPPO-driven decisions to full experimentation culture',
-      { company: 'Netflix', metric: 'Experimentation impact on financial performance', outcome: 'Netflix runs 250+ A/B tests simultaneously on their platform, and their experimentation-driven approach to content investment helped build a $260B market cap company', explanation: 'While primarily a tech company, Netflix\'s experimentation principles apply directly to finance. They test everything from thumbnail images to pricing tiers to content recommendations. Their data shows that A/B testing UI improvements alone has reduced churn by an estimated 1-2%, worth billions in retained subscriptions. Financial firms adopting similar experimentation rigor see comparable improvements in customer retention and product optimization.' },
+      undefined,
       FA15_DIAGRAM2
     ),
 
@@ -3964,7 +3948,7 @@ const lessons: PathwayLesson[] = [
       'Every single financial transaction in the world, every stock trade, credit card swipe, and wire transfer, is stored in a database queried with SQL. Goldman Sachs processes 1 billion data points per day across their trading systems, and every analyst, trader, and risk manager uses SQL to access this data. SQL is the universal language of financial data, and no analytics career in finance starts without it.',
       'By the end of this lesson, you\'ll understand how SQL works, the key query patterns used in financial analytics (aggregation, joins, window functions), and how institutions like JPMorgan use database queries to power everything from real-time risk dashboards to regulatory reporting.',
       'SQL query editor showing a financial database query joining trade data with market prices to calculate portfolio P&L',
-      { type: 'flow' as const, title: 'SQL in Financial Analytics', nodes: [{ label: 'SELECT' }, { label: 't.symbol, SUM(t.quantity * p.price)' }, { label: 'AS' }, { label: 'market_value,' }, { label: 'FROM' }, { label: 'trades t JOIN prices p ON t.symbol = p.symbol' }, { label: 'WHERE' }, { label: 't.trade_date = CURRENT_DATE' }, { label: 'GROUP BY' }, { label: 't.symbol ORDER BY market_value DESC;' }, { label: 'SYMBOL' }, { label: 'MARKET_VALUE' }, { label: '% PORTFOLIO' }, { label: 'AAPL' }, { label: '$24,500,000' }, { label: '12.3%' }, { label: 'MSFT' }, { label: '$21,200,000' }, { label: '10.6%' }, { label: 'NVDA' }, { label: '$18,800,000' }, { label: '9.4%' }], footer: 'Goldman Sachs: 1 billion data points per day queried via SQL', sentiment: 'positive' as const }
+      { type: 'flow' as const, title: 'SQL in Financial Analytics', nodes: [{ label: 'SELECT' }, { label: 't.symbol, SUM(t.quantity * p.price)' }, { label: 'AS' }, { label: 'market_value,' }, { label: 'FROM' }, { label: 'trades t JOIN prices p ON t.symbol = p.symbol' }, { label: 'WHERE' }, { label: 't.trade_date = CURRENT_DATE' }, { label: 'Group by' }, { label: 't.symbol ORDER BY market_value DESC;' }, { label: 'SYMBOL' }, { label: 'MARKET_VALUE' }, { label: '% PORTFOLIO' }, { label: 'AAPL' }, { label: '$24,500,000' }, { label: '12.3%' }, { label: 'MSFT' }, { label: '$21,200,000' }, { label: '10.6%' }, { label: 'NVDA' }, { label: '$18,800,000' }, { label: '9.4%' }], footer: 'Goldman Sachs: 1 billion data points per day queried via SQL', sentiment: 'positive' as const }
     ),
 
     stakesCard(
@@ -3976,12 +3960,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'SQL FUNDAMENTALS',
+      'SQL fundamentals',
       'The Language Every Financial Analyst Must Know',
       [
-        'SQL (Structured Query Language) is the standard language for interacting with relational databases, the systems that store virtually all structured financial data. A SQL query retrieves, filters, and transforms data from tables. The basic structure is: SELECT (which columns) FROM (which table) WHERE (which rows) GROUP BY (aggregation categories) ORDER BY (sort order). For example, "SELECT symbol, SUM(quantity) FROM trades WHERE trade_date = \'2024-01-15\' GROUP BY symbol" returns the total shares traded for each stock on a given day.',
-        'JOIN operations connect data across multiple tables, the most powerful feature for financial analytics. A trade table might contain transaction details (symbol, quantity, price, date) while a separate table holds company information (sector, market cap, country). A JOIN combines them: "SELECT t.symbol, c.sector, SUM(t.quantity * t.price) FROM trades t JOIN companies c ON t.symbol = c.symbol GROUP BY c.sector" calculates total trade volume by sector. Financial databases typically have dozens of related tables, and complex analytics queries may join 5-10 tables in a single query.',
-        'Window functions are the advanced SQL feature that transforms financial analytics. Unlike GROUP BY (which collapses rows), window functions perform calculations across related rows while preserving individual row detail. Running totals, moving averages, rankings, and period-over-period comparisons become single-query operations. For example, "SELECT date, price, AVG(price) OVER (ORDER BY date ROWS 20 PRECEDING) as moving_avg_20" calculates a 20-day moving average for a stock. Goldman Sachs, Morgan Stanley, and every major hedge fund use window functions daily for time-series analysis, P&L attribution, and risk calculations.'
+        'SQL, Structured Query Language, pulls data from databases. SELECT chooses columns, FROM the table, WHERE the rows, GROUP BY categories, ORDER BY sorting. Daily totals per stock: SELECT symbol, SUM(quantity) FROM trades WHERE trade_date = \'2024-01-15\' GROUP BY symbol.',
+      'JOIN links tables, like trades to company sectors, and big queries join 5-10 tables. Window functions do maths across rows without collapsing them, giving running totals or a 20-day moving average. Goldman Sachs and Morgan Stanley use them daily.'
       ],
       [
         { term: 'SQL (Structured Query Language)', definition: 'The standard language for querying relational databases. Used by virtually every financial institution to store, retrieve, and analyze structured data including trades, positions, prices, and customer information.', example: '"SELECT symbol, AVG(close_price) FROM daily_prices WHERE date BETWEEN \'2024-01-01\' AND \'2024-12-31\' GROUP BY symbol HAVING AVG(close_price) > 100" returns all stocks with average price above $100 in 2024.' },
@@ -3990,7 +3973,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Aggregation (GROUP BY)', definition: 'SQL operation that groups rows with matching values and applies aggregate functions (SUM, AVG, COUNT, MAX, MIN) to each group.', example: '"SELECT sector, COUNT(*) as num_trades, SUM(volume) as total_volume FROM trades GROUP BY sector" shows trade count and total volume by sector, a standard daily report for trading desk managers.' }
       ],
       'SQL query architecture showing how SELECT, FROM, JOIN, WHERE, GROUP BY, and window functions work together in financial data analysis',
-      { company: 'Goldman Sachs', metric: 'Data processing scale', outcome: 'Processes 1 billion+ data points daily across trading systems, with every analyst and trader using SQL to access real-time market data, positions, and risk metrics', explanation: 'Goldman\'s internal data platform (Marquee/SecDB) stores decades of trade history, market data, and risk calculations in relational databases. Analysts write SQL queries to extract P&L reports, risk exposures, and client analytics. The average Goldman analyst runs 20-50 SQL queries per day. SQL proficiency is tested in every analyst interview because it\'s the most-used technical skill on the trading floor.' },
+      undefined,
       FA16_DIAGRAM
     ),
 
@@ -4003,7 +3986,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'SQL IN ACTION',
+      'SQL in action',
       'Query Patterns That Power Wall Street',
       'comparison',
       'Explore different SQL query patterns and see how they\'re used in financial analytics, from simple aggregations to complex window functions for time-series analysis.',
@@ -4025,16 +4008,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Table Size (rows)', min: 1000, max: 1000000000, default: 10000000, unit: 'rows' },
         { label: 'Query Complexity', min: 1, max: 10, default: 5, unit: 'joins' }
       ],
-      { company: 'JPMorgan Chase', metric: 'Real-time risk SQL infrastructure', outcome: 'Queries 300+ million positions every 15 minutes to calculate firm-wide Value-at-Risk, with SQL at the core of their $12B/year technology investment', explanation: 'JPMorgan\'s risk systems run continuous SQL queries across every trading desk, calculating exposure by asset class, geography, and counterparty. The firm\'s Chief Risk Officer sees a real-time dashboard, powered by optimized SQL queries, showing total firm risk updated every 15 minutes. This infrastructure prevented several potential losses during the March 2020 COVID crash by flagging concentrated positions before they became critical.' }
+      undefined
     ),
 
     teachingSlide(
-      'FINANCIAL SQL',
+      'Financial SQL',
       'Real-World Query Patterns for Financial Analysts',
       [
-        'Portfolio P&L calculation is the most common financial SQL task. The basic pattern joins positions with current and historical prices to calculate profit/loss: current market value minus cost basis for each position, aggregated by sector, strategy, or portfolio manager. Adding a time dimension with window functions enables daily P&L tracking, cumulative returns, and drawdown analysis. Every trading desk at every bank runs some version of this query every morning before markets open.',
-        'Regulatory reporting queries are some of the most complex in finance. Basel III capital requirements, for example, require calculating risk-weighted assets across the entire bank, joining trade data with risk models, counterparty information, and regulatory classification rules in queries that can span 200+ lines and 10+ table joins. Getting these queries wrong has real consequences: incorrect regulatory reports can result in hundreds of millions in fines. Banks employ dedicated SQL engineers whose sole job is maintaining and validating regulatory queries.',
-        'Fraud detection SQL identifies suspicious patterns in transaction data. Common patterns include: transactions exceeding a threshold, rapid sequential transactions from different locations, and deviation from a customer\'s historical spending pattern. "SELECT customer_id, COUNT(*) as txn_count FROM transactions WHERE txn_date = CURRENT_DATE GROUP BY customer_id HAVING COUNT(*) > 50" flags customers with unusually high transaction counts. JPMorgan\'s fraud detection system, powered by SQL queries feeding into ML models, saves $150 million+ annually by catching fraudulent transactions in real-time.'
+        'Portfolio P&L means profit and loss: join positions to prices, then subtract cost from market value. Regulatory reports are harder. Basel III risk queries can span 200+ lines and 10+ table joins. Errors cost hundreds of millions in fines.',
+      'Fraud queries flag odd patterns, like customers with over 50 transactions in one day: HAVING COUNT(*) > 50. JPMorgan\'s fraud system, built on SQL and machine learning, saves $150 million+ a year in real time.'
       ],
       [
         { term: 'P&L Query', definition: 'A SQL query that calculates profit and loss by joining position data with market prices and cost basis information. The most fundamental financial SQL pattern.', example: '"SELECT symbol, SUM(quantity * current_price) - SUM(quantity * avg_cost) AS unrealized_pnl FROM positions JOIN prices USING (symbol) GROUP BY symbol" calculates unrealized P&L for each holding.' },
@@ -4043,7 +4025,7 @@ const lessons: PathwayLesson[] = [
         { term: 'ETL (Extract, Transform, Load)', definition: 'The process of extracting data from source systems, transforming it (cleaning, aggregating, joining), and loading it into analytical databases. SQL is the primary language for the Transform step.', example: 'A bank\'s ETL pipeline extracts raw trade data from 50 systems nightly, uses SQL to clean, deduplicate, and aggregate it, then loads the results into a data warehouse for morning analytics.' }
       ],
       'Three-panel view showing SQL queries for portfolio P&L, regulatory reporting, and fraud detection with sample results',
-      { company: 'Two Sigma', metric: 'Data infrastructure', outcome: 'Processes petabytes of financial data using SQL-based data pipelines, powering quantitative strategies that manage $60 billion in assets', explanation: 'Two Sigma\'s data platform ingests market data, alternative data, and proprietary signals into a massive data warehouse queried by hundreds of quantitative researchers daily. Their SQL infrastructure supports everything from backtesting trading strategies (querying decades of historical data) to real-time signal generation (sub-second queries on streaming data). The firm\'s competitive advantage is as much about data infrastructure as it is about algorithms.' },
+      undefined,
       FA16_DIAGRAM2
     ),
 
@@ -4131,12 +4113,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'PYTHON ECOSYSTEM',
+      'Python ecosystem',
       'The Libraries That Power Quantitative Finance',
       [
-        'pandas is the most important Python library for financial analysis. It provides the DataFrame, a table-like structure that makes data manipulation intuitive. Loading a CSV of stock prices, calculating returns, filtering by date, and grouping by sector each take one line of code. Key operations include: df.pct_change() for return calculation, df.rolling(20).mean() for moving averages, df.groupby(\'sector\').sum() for aggregation, and df.merge() for joins. What takes 30 minutes in Excel takes 30 seconds in pandas, and scales to any data size.',
-        'NumPy provides the mathematical engine underlying all scientific Python. For finance, its key contributions are vectorized operations (performing calculations on entire arrays at once, 100x faster than Python loops), linear algebra (portfolio optimization via matrix operations), and random number generation (Monte Carlo simulation). A portfolio variance calculation that requires nested loops in other languages is a single line in NumPy: portfolio_var = weights.T @ cov_matrix @ weights. This mathematical elegance is why physicists and mathematicians at quant funds adopted Python over Java and C++.',
-        'scikit-learn brings production-grade machine learning to every analyst. Classification models (logistic regression, random forests, gradient boosting) power credit scoring and fraud detection. Regression models predict asset prices and economic indicators. Clustering algorithms identify market regimes and customer segments. The library\'s consistent API, fit(), predict(), score(), means switching between model types requires changing one line of code. Citadel\'s data science team uses scikit-learn for rapid prototyping before deploying production models, and Goldman\'s machine learning platform is built on Python\'s ML ecosystem.'
+        'pandas is a Python library that holds data in tables called DataFrames. One line loads prices, computes returns, or takes a 20 day average: df.rolling(20).mean(). Work that takes 30 minutes in Excel takes 30 seconds.',
+      'NumPy runs calculations on whole arrays at once, 100x faster than loops: portfolio_var = weights.T @ cov_matrix @ weights. scikit-learn adds machine learning for credit scoring and price prediction, used at Citadel and Goldman.'
       ],
       [
         { term: 'pandas', definition: 'Python library providing the DataFrame data structure for tabular data manipulation. The most-used library in financial analytics, enabling data loading, cleaning, transformation, and analysis in concise, readable code.', example: 'df[\'returns\'] = df[\'close\'].pct_change() calculates daily returns for an entire stock price history in one line. df.rolling(252).std() * np.sqrt(252) calculates annualized rolling volatility.' },
@@ -4145,7 +4126,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Vectorized Operations', definition: 'Performing calculations on entire arrays/columns simultaneously rather than looping through elements. NumPy vectorization is typically 100x faster than Python for-loops.', example: 'Instead of looping through 10 million price records to calculate returns, returns = prices[1:] / prices[:-1] - 1 computes all 10 million returns in 0.1 seconds.' }
       ],
       'Python ecosystem diagram showing pandas, NumPy, scikit-learn, and matplotlib working together in a financial analytics pipeline',
-      { company: 'Two Sigma', metric: 'Python in quantitative research', outcome: '1,800+ employees use Python to manage $60 billion across quantitative strategies, processing petabytes of data through Python-based analytics pipelines', explanation: 'Two Sigma treats Python as their primary research and production language. Their data scientists use pandas for data manipulation, NumPy for mathematical modeling, scikit-learn for ML, and custom Python libraries for backtesting and execution. The firm contributes to open-source Python projects because their competitive advantage depends on a strong Python ecosystem, a $60 billion vote of confidence in the language.' },
+      undefined,
       FA17_DIAGRAM
     ),
 
@@ -4158,7 +4139,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'PYTHON VS. ALTERNATIVES',
+      'Python vs. alternatives',
       'Why Python Won the Finance Language War',
       'comparison',
       'Compare Python\'s strengths against other languages used in finance. Adjust the priority weights to see which language best fits different financial roles.',
@@ -4180,16 +4161,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Data Size (GB)', min: 1, max: 1000, default: 10, unit: 'GB' },
         { label: 'Speed Priority', min: 0, max: 100, default: 50, unit: '%' }
       ],
-      { company: 'Citadel', metric: 'Python in quantitative trading', outcome: 'Citadel\'s 200+ data scientists use Python for research, model development, and signal generation, contributing to $16 billion in profits in 2022', explanation: 'Citadel\'s research workflow is Python-centric: pandas for data manipulation, scikit-learn and TensorFlow for modeling, matplotlib/Plotly for visualization, and custom Python frameworks for backtesting. Research notebooks are version-controlled and peer-reviewed. The speed to insight, from hypothesis to tested model, is measured in hours with Python, vs. days or weeks with legacy tools.' }
+      undefined
     ),
 
     teachingSlide(
-      'PRACTICAL PYTHON',
+      'Practical Python',
       'Building Financial Models in Python',
       [
-        'A complete portfolio analysis in Python follows a standard workflow: (1) Load data using pandas (pd.read_csv or API calls), (2) Calculate returns (df.pct_change()), (3) Compute risk metrics (standard deviation, VaR, Sharpe ratio using NumPy), (4) Optimize allocation (scipy.optimize with portfolio variance minimization), and (5) Visualize results (matplotlib or plotly). This entire workflow, from raw data to optimized portfolio, can be written in under 50 lines of Python code. The equivalent in Excel would require multiple linked spreadsheets with complex VBA macros.',
-        'Backtesting, testing a trading strategy on historical data, is a core use case for Python in finance. Libraries like backtrader and zipline provide frameworks for defining strategies, simulating execution, and calculating performance metrics. A simple moving average crossover strategy can be backtested across 20 years of daily data for 500 stocks in minutes. The results include total return, Sharpe ratio, maximum drawdown, and transaction costs. This kind of comprehensive backtesting is practically impossible in Excel but straightforward in Python.',
-        'Risk management in Python leverages NumPy\'s matrix operations for portfolio-level calculations. Value-at-Risk (VaR) can be calculated via historical simulation (np.percentile), parametric method (using the covariance matrix), or Monte Carlo simulation (np.random.multivariate_normal). A risk manager at JPMorgan might calculate VaR for a 10,000-position portfolio using Monte Carlo with 100,000 scenarios, a computation that takes seconds in NumPy but would be infeasible in Excel. Python has made institutional-grade risk analytics accessible to any analyst willing to learn.'
+        'A portfolio analysis in Python follows five steps: load data with pandas, compute returns, measure risk, optimize weights with scipy.optimize, then plot results. That fits in under 50 lines of code.',
+      'Backtesting, testing a strategy on past data, covers 20 years of daily prices for 500 stocks in minutes. A JPMorgan risk manager runs 100,000 scenarios on a 10,000 position portfolio in seconds, giving value at risk.'
       ],
       [
         { term: 'Backtesting', definition: 'Testing a trading strategy on historical data to evaluate how it would have performed. Python libraries like backtrader simulate trade execution, account for transaction costs, and calculate comprehensive performance metrics.', example: 'A mean reversion strategy backtested in Python across 10 years of S&P 500 data shows a 12% annual return, 0.8 Sharpe ratio, and 15% maximum drawdown, providing confidence (or not) before deploying real capital.' },
@@ -4198,7 +4178,7 @@ const lessons: PathwayLesson[] = [
         { term: 'DataFrame', definition: 'pandas\' core data structure, a two-dimensional labeled data table similar to a spreadsheet or SQL table, but with powerful built-in methods for financial analysis.', example: 'df = pd.read_csv(\'spy_prices.csv\'); df[\'return\'] = df[\'close\'].pct_change(); df[\'vol_20d\'] = df[\'return\'].rolling(20).std() * np.sqrt(252), three lines to load data, calculate returns, and compute rolling volatility.' }
       ],
       'Python workflow diagram showing data loading, return calculation, risk metrics, portfolio optimization, and visualization steps',
-      { company: 'AQR Capital Management', metric: 'Python-based factor investing', outcome: 'AQR manages $100B+ using Python-built factor models that systematically exploit value, momentum, and quality premiums across global markets', explanation: 'AQR\'s entire research and portfolio management pipeline runs on Python. Their factor models, identifying stocks that are cheap (value), trending (momentum), and profitable (quality), are built, backtested, and monitored in Python. The firm\'s research papers, which have shaped modern factor investing theory, are backed by Python-based empirical analysis that any researcher can replicate.' },
+      undefined,
       FA17_DIAGRAM2
     ),
 
@@ -4286,12 +4266,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'DASHBOARD DESIGN',
+      'Dashboard design',
       'Principles of Effective Financial Dashboards',
       [
-        'Effective financial dashboards follow the "inverted pyramid" principle: the most critical information (portfolio value, daily P&L, risk limits) appears at the top as large KPI cards, supporting detail occupies the middle (charts, sector breakdowns), and granular data lives at the bottom (individual position tables). A portfolio manager should be able to assess overall portfolio health in 3 seconds by glancing at the top KPIs. Edward Tufte\'s principle of "data-ink ratio" applies: every pixel should convey information; remove all decorative elements that don\'t help decision-making.',
-        'Interactivity transforms dashboards from static reports into analytical tools. Drill-down capability (click on a sector to see individual positions), time range selection (toggle between 1-day, 1-month, YTD views), and filtering (show only positions above a risk threshold) enable self-service analytics. Tableau and Power BI excel at creating interactive dashboards without coding. Python\'s Plotly and Dash libraries enable custom interactive visualizations for firms that need more flexibility. The Bloomberg Terminal\'s command-line interface is the ultimate interactive dashboard, 325,000 professionals use keyboard commands to navigate thousands of data views instantly.',
-        'Automated reporting pipelines connect data sources to dashboards without human intervention. The architecture follows ETL: Extract data from trading systems and market feeds, Transform it via SQL/Python calculations (returns, risk metrics, attribution), and Load it into the dashboard platform. Scheduling tools (cron, Airflow, Prefect) trigger pipeline runs at specified intervals, typically daily before market open and every 15 minutes during trading hours. The goal is zero-touch reporting: once built, the dashboard maintains itself indefinitely, requiring human attention only when anomalies are detected.'
+        'Put the biggest facts on top: portfolio value, daily profit and loss, risk limits. Charts sit below, position tables last. Health should be clear in 3 seconds. Edward Tufte\'s data-ink ratio: every pixel must inform, so cut decoration.',
+      'Click a sector to see its positions, or switch 1-day, 1-month and YTD views. Tableau, Power BI, Plotly and Dash allow this; Bloomberg Terminal serves 325,000 professionals. Automated pipelines refresh data every 15 minutes using cron, Airflow or Prefect.'
       ],
       [
         { term: 'KPI Card', definition: 'A prominent dashboard element displaying a single key performance indicator (portfolio value, daily P&L, VaR) as a large number, often with color-coding and trend indicators.', example: 'A green KPI card showing "+$3.2M Daily P&L" with an up arrow and "vs. -$1.1M yesterday" gives a portfolio manager immediate performance context in under 1 second.' },
@@ -4300,7 +4279,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Bloomberg Terminal', definition: 'The gold standard financial dashboard, a $24,000/year platform providing real-time market data, analytics, news, and communication to 325,000 financial professionals worldwide. Generates $12 billion in annual revenue.', example: 'A trader types "SPX <Index> HP" to see S&P 500 historical prices, "PORT" to view their portfolio analytics, or "FLDS" to search from 40,000+ data fields, all updated in real-time.' }
       ],
       'Inverted pyramid dashboard layout showing KPI cards at top, charts in middle, and detail tables at bottom',
-      { company: 'BlackRock (Aladdin)', metric: 'Automated risk monitoring scale', outcome: 'Aladdin monitors $9.4 trillion in assets with dashboards updating every 15 seconds, calculating 200+ risk scenarios continuously without human intervention', explanation: 'BlackRock\'s Aladdin platform is the largest automated financial dashboard system in the world. It processes 200+ million calculations per week, monitoring risk across every asset class for both BlackRock and 200+ institutional clients who license the platform. When the March 2020 COVID crash hit, Aladdin\'s automated risk alerts triggered within seconds, enabling portfolio managers to act while others were still trying to pull up their Excel models.' },
+      undefined,
       FA18_DIAGRAM
     ),
 
@@ -4313,7 +4292,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'REPORTING EVOLUTION',
+      'Reporting evolution',
       'From Excel Emails to Real-Time Dashboards',
       'comparison',
       'Compare the cost, accuracy, and timeliness of different reporting approaches, from manual Excel compilation to fully automated real-time dashboards.',
@@ -4335,16 +4314,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Reports to Automate', min: 1, max: 500, default: 50, unit: 'reports' },
         { label: 'Analyst Hourly Cost', min: 50, max: 500, default: 200, unit: '$' }
       ],
-      { company: 'Goldman Sachs (Marquee)', metric: 'Client reporting automation', outcome: 'Marquee platform automates 80% of client analytics and reporting, transforming analysts from report generators into strategic advisors', explanation: 'Goldman\'s Marquee platform replaced thousands of manual client reports with interactive dashboards that clients access directly. Institutional clients can see their portfolio analytics, trade execution quality, and market exposure in real-time. This automation freed Goldman\'s analyst workforce to focus on client advisory and idea generation, the high-value work that generates revenue, instead of formatting Excel charts.' }
+      undefined
     ),
 
     teachingSlide(
-      'BUILDING DASHBOARDS',
+      'Building dashboards',
       'Tools and Architecture for Financial Reporting',
       [
-        'Tableau and Power BI are the two dominant dashboard platforms in finance. Tableau excels at complex visualizations and data exploration, popular at hedge funds and asset managers who need flexible, custom analytics. Power BI integrates tightly with Microsoft\'s ecosystem (Excel, Azure, SQL Server), popular at banks and corporates already invested in Microsoft. Both connect to SQL databases, flat files, and APIs, and both support scheduled data refresh for automated reporting. The choice often depends on existing infrastructure rather than technical capability.',
-        'Python-based dashboarding (Plotly Dash, Streamlit, Panel) offers maximum flexibility for firms with development resources. Unlike Tableau/Power BI, Python dashboards can embed custom calculations, machine learning models, and complex data transformations directly in the visualization layer. A Dash application can pull live market data, calculate real-time risk metrics, display interactive charts, and send alerts, all in one Python application. Two Sigma and Citadel use custom Python dashboards because their analytics are too complex for standard BI tools.',
-        'Data architecture determines dashboard performance. The key decision is between live queries (dashboard queries the database on each refresh, always current but potentially slow) and pre-computed aggregates (ETL pipeline pre-calculates metrics and stores results, fast but slightly stale). Most financial dashboards use a hybrid: KPI cards use pre-computed aggregates (fast loading), while drill-down views use live queries (always current). Caching strategies, materialized views, and in-memory databases (Redis, Apache Druid) optimize the trade-off between freshness and speed.'
+        'Tableau and Power BI are the two dominant platforms. Tableau suits flexible analytics at hedge funds. Power BI fits firms using Microsoft Excel, Azure and SQL Server. Both connect to SQL databases, files and APIs, and refresh automatically.',
+      'Python tools, Plotly Dash, Streamlit and Panel, embed custom calculations in the chart itself; Two Sigma and Citadel build their own. Most dashboards mix pre-computed numbers for speed with live queries for freshness, helped by Redis or Apache Druid.'
       ],
       [
         { term: 'Tableau', definition: 'A leading business intelligence and visualization platform. Connects to databases, creates interactive dashboards, and supports scheduled data refresh. Used by 80% of Fortune 500 companies.', example: 'A Tableau dashboard at Fidelity shows portfolio performance, sector allocation, and risk metrics for each client portfolio, with drill-down to individual positions and time-range filtering, all updated hourly via automated data refresh.' },
@@ -4353,7 +4331,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Materialized View', definition: 'A pre-computed database table that stores the results of a complex query, refreshed on a schedule. Enables fast dashboard loading by avoiding expensive real-time calculations.', example: 'A materialized view pre-calculates daily portfolio P&L by sector every 15 minutes. The dashboard reads from this view in 0.1 seconds, rather than running the complex join-and-aggregate query (which takes 30 seconds) on each page load.' }
       ],
       'Architecture diagram showing data flow from source systems through ETL to dashboard platforms with caching layers',
-      { company: 'Bloomberg', metric: 'Terminal revenue and market dominance', outcome: '$12 billion annual revenue from 325,000 terminal subscribers, each paying $24,000/year for the most comprehensive real-time financial dashboard ever built', explanation: 'Bloomberg Terminal demonstrates the ultimate value of financial dashboards. 325,000 professionals pay $24,000/year because the platform provides instant access to real-time market data, analytics, news, messaging, and trade execution in a single interface. The terminal\'s 40,000+ data fields, keyboard-driven navigation, and deep analytical tools make it indispensable. No other product in finance commands such loyalty or pricing power, proof that well-built dashboards create enormous value.' },
+      undefined,
       FA18_DIAGRAM2
     ),
 
@@ -4429,7 +4407,7 @@ const lessons: PathwayLesson[] = [
       'Credit card fraud costs the global economy $32 billion annually, yet banks catch 99.7% of fraudulent transactions in real-time, analyzing each swipe in under 100 milliseconds using machine learning anomaly detection. JPMorgan\'s fraud detection system saves $150 million per year, and Visa\'s AI processes 65,000 transactions per second, flagging suspicious patterns that human reviewers could never spot at that speed.',
       'By the end of this lesson, you\'ll understand how anomaly detection algorithms work, how financial institutions use ML to catch fraud and market manipulation, and why the balance between catching fraud and avoiding false positives is one of the hardest optimization problems in finance.',
       'Real-time fraud detection system showing transaction analysis with anomaly scores and alert triggers',
-      { type: 'flow' as const, title: 'Real-Time Fraud Detection', nodes: [{ label: 'Incoming Transactions (65,000/sec)' }, { label: 'OK' }, { label: 'OK' }, { label: '!' }, { label: 'OK' }, { label: 'OK' }, { label: '?' }, { label: 'OK' }, { label: 'OK' }, { label: 'ANOMALY DETECTED' }, { label: '$4,200 purchase in Lagos' }, { label: 'Card used in NYC 30 min ago' }, { label: 'Anomaly Score: 0.97' }, { label: 'ML Model Features' }, { label: 'Geographic velocity: FAIL' }, { label: 'Amount pattern: UNUSUAL' }, { label: 'Merchant category: HIGH RISK' }, { label: '99.7% caught' }, { label: '$32B fraud/year' }], footer: 'Visa AI: 65,000 transactions per second analyzed', sentiment: 'positive' as const }
+      { type: 'flow' as const, title: 'Real-Time Fraud Detection', nodes: [{ label: 'Incoming Transactions (65,000/sec)' }, { label: 'OK' }, { label: 'OK' }, { label: '!' }, { label: 'OK' }, { label: 'OK' }, { label: '?' }, { label: 'OK' }, { label: 'OK' }, { label: 'Anomaly detected' }, { label: '$4,200 purchase in Lagos' }, { label: 'Card used in NYC 30 min ago' }, { label: 'Anomaly Score: 0.97' }, { label: 'ML Model Features' }, { label: 'Geographic velocity: FAIL' }, { label: 'Amount pattern: UNUSUAL' }, { label: 'Merchant category: HIGH RISK' }, { label: '99.7% caught' }, { label: '$32B fraud/year' }], footer: 'Visa AI: 65,000 transactions per second analyzed', sentiment: 'positive' as const }
     ),
 
     stakesCard(
@@ -4441,12 +4419,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'ANOMALY DETECTION',
+      'Anomaly detection',
       'How Machines Spot What Humans Can\'t See',
       [
-        'Anomaly detection identifies data points that deviate significantly from expected patterns. In finance, anomalies signal fraud, insider trading, market manipulation, or system errors. Statistical approaches include z-score detection (flagging values more than 3 standard deviations from the mean), Isolation Forest (an algorithm that isolates anomalies by randomly partitioning data, anomalies require fewer partitions to isolate), and autoencoders (neural networks trained on normal data that produce high reconstruction error when encountering anomalies). Each approach has trade-offs between sensitivity, speed, and interpretability.',
-        'The precision-recall trade-off is the central challenge. Precision measures what fraction of flagged transactions are actually fraudulent (too low = too many false positives, annoying legitimate customers). Recall measures what fraction of actual fraud is caught (too low = fraud slips through). You can\'t maximize both simultaneously, catching more fraud (higher recall) inevitably flags more legitimate transactions (lower precision). Banks optimize this trade-off based on the cost of each error: missing a $10,000 fraud costs $10,000; blocking a $10,000 legitimate transaction costs the merchant revenue and customer goodwill. The optimal threshold varies by transaction type, customer segment, and risk appetite.',
-        'Feature engineering, creating the right input variables for the model, is where domain expertise meets machine learning. Key fraud detection features include: geographic velocity (time between transactions in different cities vs. travel time), spending pattern deviation (z-score of transaction amount relative to customer history), merchant risk score (based on historical fraud rates at the merchant category), time-of-day patterns (transactions at unusual hours), and behavioral biometrics (typing speed, mouse movements for online transactions). Visa\'s AI evaluates 500+ features per transaction in under 100 milliseconds, a feat that requires both sophisticated ML engineering and deep financial domain knowledge.'
+        'Anomaly detection finds data that breaks the normal pattern. Z-scores flag values over 3 standard deviations from average. Isolation forests and autoencoders learn normal behavior. Visa\'s AI checks 500+ clues, called features, per transaction in under 100 milliseconds.',
+      'Recall is the share of fraud caught; precision is the share of alerts that are real. Catching more fraud flags more good payments. Missing a $10,000 fraud costs $10,000; blocking a $10,000 real purchase costs the merchant sales.'
       ],
       [
         { term: 'Anomaly Detection', definition: 'Statistical and ML techniques for identifying data points that deviate significantly from expected patterns. In finance, used for fraud detection, insider trading surveillance, and market manipulation monitoring.', example: 'A credit card transaction for $4,200 in Lagos when the cardholder made a purchase in New York 30 minutes ago has a geographic velocity anomaly score of 0.97 (out of 1.0), almost certainly fraudulent.' },
@@ -4455,7 +4432,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Isolation Forest', definition: 'An anomaly detection algorithm that isolates outliers by randomly partitioning data. Anomalies are easier to isolate (require fewer splits) because they are rare and different from normal points.', example: 'Applied to trading data, Isolation Forest identifies trades with unusual combinations of size, timing, and price impact, flagging potential insider trading that simple threshold rules would miss.' }
       ],
       'Fraud detection pipeline showing feature extraction, ML scoring, threshold decision, and alert generation in under 100ms',
-      { company: 'Visa', metric: 'AI fraud detection at scale', outcome: 'Processes 65,000 transactions per second through ML models evaluating 500+ features per transaction in <100ms, preventing $25+ billion in fraud annually', explanation: 'Visa\'s Advanced Authorization system uses deep learning models trained on billions of historical transactions. The system evaluates each transaction against the cardholder\'s behavioral profile, geographic patterns, merchant risk, and hundreds of derived features. The ML model scores each transaction from 0 (definitely legitimate) to 1 (definitely fraudulent), and transactions above the threshold are declined in real-time. The system processes more data per second than most tech companies handle in a day.' },
+      undefined,
       FA19_DIAGRAM
     ),
 
@@ -4490,16 +4467,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Detection Threshold', min: 0, max: 100, default: 70, unit: '%' },
         { label: 'False Positive Tolerance', min: 0, max: 50, default: 5, unit: '%' }
       ],
-      { company: 'JPMorgan Chase', metric: 'Fraud detection savings', outcome: '$150 million saved annually through ML-powered fraud detection that analyzes every transaction in real-time with 99.7% accuracy', explanation: 'JPMorgan\'s fraud system processes millions of transactions daily through a multi-layer ML pipeline. The system evolved from simple rules (catching 60% of fraud) to gradient-boosted trees (catching 95%) to deep learning ensembles (catching 99.7%). Each generation reduced both fraud losses and false positive rates simultaneously, a win-win made possible by better models and richer feature engineering.' }
+      undefined
     ),
 
     teachingSlide(
-      'BEYOND FRAUD',
+      'Beyond fraud',
       'Anomaly Detection for Market Surveillance & Compliance',
       [
-        'Securities regulators use anomaly detection to catch insider trading and market manipulation. The SEC\'s Market Abuse Unit monitors billions of trades for suspicious patterns: unusual trading volume before corporate announcements (potential insider trading), wash trades (buying and selling to yourself to create artificial volume), spoofing (placing orders you intend to cancel to manipulate prices), and layering (building a deceptive order book). ML models trained on historical enforcement cases identify patterns that human surveillance teams can\'t detect across the volume of modern market activity.',
-        'Anti-money laundering (AML) compliance requires anomaly detection at massive scale. Banks must monitor all customer transactions for suspicious patterns: structuring (breaking large transactions into amounts just below reporting thresholds), rapid movement of funds through multiple accounts, transactions inconsistent with the customer\'s profile, and transfers to high-risk jurisdictions. Major banks spend $25+ billion per year on compliance, and AML fines have exceeded $50 billion since 2008. ML-based AML systems reduce false positives by 50-70% compared to rule-based systems while catching more genuine suspicious activity.',
-        'Model risk, the risk that the anomaly detection model itself is wrong, is a critical concern. A fraud model that systematically misses a specific fraud pattern creates a vulnerability. A model biased against certain demographics creates legal and ethical problems. Banks are required by regulators (OCC SR 11-7) to validate all models, test for bias, monitor performance continuously, and maintain human oversight. The principle: ML should augment human judgment, not replace it. Every flagged transaction that leads to account suspension is ultimately reviewed by a human investigator who can exercise judgment that algorithms cannot.'
+        'The SEC hunts market abuse: heavy trading just before news (insider trading), spoofing, which means placing orders you plan to cancel to move prices, and wash trades, buying from yourself to fake volume. Models learn from past cases.',
+      'Anti-money laundering, spotting dirty money moving through banks, is costly: banks spend $25+ billion a year on compliance, and fines top $50 billion since 2008. Machine learning cuts false alarms 50-70%. Regulators (OCC SR 11-7) still require human review.'
       ],
       [
         { term: 'Insider Trading Detection', definition: 'Using anomaly detection to identify suspicious trading patterns before corporate announcements, unusual volume, timing, or profits that suggest access to material non-public information.', example: 'The SEC\'s system detected unusual options buying in Target stock 3 days before an acquisition announcement. The trading pattern had a 0.01% probability of occurring randomly, leading to an investigation and enforcement action.' },
@@ -4508,7 +4484,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Model Risk Management', definition: 'The discipline of validating, monitoring, and governing ML models to ensure they perform as expected and don\'t create unintended risks. Required by banking regulators under OCC SR 11-7.', example: 'A bank\'s model risk team discovers that their fraud detection model has a 40% higher false positive rate for customers under 25, flagging young customers\' legitimate transactions disproportionately. The model is retrained with age-debiased features.' }
       ],
       'Three-panel view showing anomaly detection applied to fraud, insider trading, and AML surveillance with different ML approaches',
-      { company: 'SEC (Securities and Exchange Commission)', metric: 'Market surveillance technology', outcome: 'The SEC\'s MIDAS system processes billions of trades daily using anomaly detection to identify potential insider trading, market manipulation, and regulatory violations across all U.S. markets', explanation: 'The SEC\'s Market Information Data Analytics System (MIDAS) ingests every order and trade across all U.S. exchanges, billions of events per day. ML models trained on historical enforcement cases identify patterns of insider trading (unusual pre-announcement activity), spoofing (high cancel-to-execute ratios), and market manipulation (coordinated trading across accounts). The system has significantly increased the speed and accuracy of investigations, with referrals from automated surveillance contributing to over $4 billion in enforcement actions annually.' },
+      undefined,
       FA19_DIAGRAM2
     ),
 
@@ -4596,7 +4572,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'STREAMING ARCHITECTURE',
+      'Streaming architecture',
       'How Financial Data Flows in Real-Time',
       [
         'Event-driven architecture treats every piece of financial data as an event: a trade execution, a price update, a news headline, an order placement. These events flow through a message broker (like Apache Kafka) that acts as a central highway, distributing events to all systems that need them. Kafka handles 10+ million messages per second with sub-millisecond latency, making it the backbone of real-time finance at LinkedIn (which created it), Goldman Sachs, Morgan Stanley, and virtually every major financial firm. The key innovation: producers (market data feeds, trading systems) publish events without knowing who consumes them, and consumers (risk systems, dashboards, analytics) subscribe to the events they need.',
@@ -4610,7 +4586,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Stream Processing', definition: 'Continuous computation on data as it flows through the system, producing results in real-time rather than waiting for batch collection. Engines include Apache Flink, Spark Streaming, and KSQL.', example: 'A stream processor calculates 1-minute VWAP (volume-weighted average price) for every stock continuously as trades arrive, providing real-time benchmarks for execution quality analysis.' }
       ],
       'Architecture diagram showing event producers, Kafka message broker, stream processors, and consuming systems with latency labels',
-      { company: 'Citadel Securities', metric: 'Real-time trading infrastructure', outcome: 'Processes 28% of all U.S. equity volume, executing trades in 30 microseconds across 10+ billion daily messages', explanation: 'Citadel Securities\' market-making operation demonstrates extreme real-time processing. Their systems ingest every quote and trade from every U.S. exchange, run pricing models, make trading decisions, and execute orders, all within 30 microseconds. This requires custom hardware (FPGA chips), colocated servers (physically adjacent to exchange matching engines), and streaming software optimized for nanosecond-level efficiency. The infrastructure investment enables Citadel to profit from tiny price discrepancies across millions of trades per day.' },
+      undefined,
       FA20_DIAGRAM
     ),
 
@@ -4623,7 +4599,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'LATENCY SPECTRUM',
+      'Latency spectrum',
       'Matching Architecture to Financial Latency Requirements',
       'comparison',
       'Explore different latency requirements across financial applications and see which architectures and technologies are appropriate for each.',
@@ -4645,11 +4621,11 @@ const lessons: PathwayLesson[] = [
         { label: 'Target Latency', min: 1, max: 1000000, default: 1000, unit: 'ms' },
         { label: 'Message Volume', min: 1000, max: 10000000, default: 100000, unit: 'msg/s' }
       ],
-      { company: 'NYSE (New York Stock Exchange)', metric: 'Exchange matching engine', outcome: 'Processes 3 billion messages daily with average latency of 25 microseconds for order matching, the world\'s largest single venue for equities trading', explanation: 'The NYSE\'s matching engine is one of the most demanding real-time systems in the world. Every order, cancellation, and trade must be processed in deterministic order with guaranteed delivery. A single microsecond of additional latency could cost market makers millions. The exchange\'s infrastructure uses custom networking hardware, kernel-bypass software, and redundant systems that can failover in milliseconds. This infrastructure enables $25+ trillion in annual trading volume.' }
+      undefined
     ),
 
     teachingSlide(
-      'REAL-TIME APPLICATIONS',
+      'Real-time applications',
       'Streaming Analytics in Practice',
       [
         'Real-time risk aggregation is the most critical streaming application in institutional finance. After the 2008 crisis, regulators demanded that banks calculate risk in near-real-time rather than overnight. JPMorgan\'s Chief Investment Office (the "London Whale" unit) accumulated $100 billion in positions that weren\'t visible to firm-wide risk until days later, the lag enabled the $6.2 billion loss. Today, JPMorgan\'s streaming risk system aggregates exposure from every trading desk every 15 seconds, ensuring no position can grow unchecked. The system processes every trade, market move, and risk factor change as a stream event.',
@@ -4663,7 +4639,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Complex Event Processing (CEP)', definition: 'A stream processing technique that detects patterns across multiple events in real-time. Used for surveillance, risk monitoring, and trading signal generation.', example: 'A CEP rule detects when a trader places a large order, cancels it within 100ms, and then trades in the opposite direction, a potential spoofing pattern. The system generates a compliance alert within seconds.' }
       ],
       'Three-panel diagram showing real-time risk aggregation, algorithmic trading signal generation, and compliance monitoring as streaming applications',
-      { company: 'Two Sigma', metric: 'Real-time quantitative infrastructure', outcome: 'Processes real-time market data from 100+ global exchanges, feeding streaming analytics pipelines that manage $60 billion across quantitative strategies', explanation: 'Two Sigma\'s competitive advantage is as much infrastructure as algorithms. Their streaming platform ingests data from every major exchange worldwide, normalizes it into a unified format, and feeds it to thousands of quantitative models running simultaneously. Each model receives data, calculates signals, and generates trade orders through a streaming pipeline optimized for end-to-end latency. The firm invests hundreds of millions annually in this infrastructure because faster data processing directly translates to better trading execution.' },
+      undefined,
       FA20_DIAGRAM2
     ),
 
@@ -4751,12 +4727,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'NLP FUNDAMENTALS',
+      'NLP fundamentals',
       'How Machines Read Financial Text',
       [
-        'NLP converts unstructured text into structured, quantifiable data through several key techniques. Tokenization breaks text into individual words or subwords. Sentiment analysis assigns numerical scores (-1 to +1) measuring emotional tone. Named entity recognition (NER) identifies companies, people, amounts, and dates in text. Topic modeling discovers the main themes across large document collections. In finance, these techniques transform a 100-page 10-K filing into a set of numerical features: overall sentiment score, risk factor count, mentions of specific topics (litigation, supply chain, competition), and changes from the prior filing.',
-        'The Loughran-McDonald financial sentiment dictionary was a breakthrough because general-purpose sentiment tools performed poorly on financial text. Words like "liability," "tax," and "capital" are negative in everyday language but neutral in finance. Loughran and McDonald created a finance-specific word list that correctly classifies financial language, becoming the standard for academic and industry financial NLP. Research using their dictionary showed that negative tone in 10-K filings predicts lower future stock returns, higher volatility, and worse earnings surprises, statistically significant signals that persist even after controlling for other factors.',
-        'Transformer models (BERT, GPT, FinBERT) have revolutionized financial NLP by understanding context rather than just counting words. The sentence "the company\'s strong growth offset higher costs" is positive despite containing "higher costs", transformers understand this because they process the entire sentence\'s context. FinBERT, a BERT model fine-tuned on financial text, achieves 90%+ accuracy on financial sentiment classification, dramatically outperforming dictionary-based approaches. Large language models like GPT-4 can now summarize earnings calls, extract key financial metrics from 10-K filings, and generate analyst reports, tasks that required years of human training.'
+        'NLP turns text into numbers. It splits text into words, scores emotional tone from -1 to +1, spots names of companies, people, amounts and dates, and finds themes. A 100-page 10-K filing becomes a few numbers: sentiment, risk count, topics.',
+      'The Loughran-McDonald dictionary is a finance word list. Words like liability, tax and capital sound negative in daily life but are neutral in finance. Newer models like FinBERT read full sentences and hit 90%+ accuracy on financial sentiment.'
       ],
       [
         { term: 'Sentiment Analysis', definition: 'NLP technique quantifying the emotional tone of text on a numerical scale. In finance, applied to earnings calls, SEC filings, news, and social media to generate trading signals.', example: 'FinBERT analyzes a CEO\'s earnings call statement: "We are cautiously optimistic about growth despite macroeconomic headwinds" and assigns a sentiment score of +0.15 (slightly positive), capturing the nuance of mixed language.' },
@@ -4765,7 +4740,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Loughran-McDonald Dictionary', definition: 'A finance-specific sentiment word list that correctly classifies financial terms (e.g., "liability" is neutral in finance, not negative). The standard lexicon for academic and industry financial sentiment analysis.', example: 'Using a general dictionary, an SEC filing full of terms like "tax," "liability," and "obligations" would score as very negative. The Loughran-McDonald dictionary correctly treats these as neutral financial terminology, improving signal quality.' }
       ],
       'NLP processing pipeline showing tokenization, sentiment scoring, entity extraction, and signal generation from financial text',
-      { company: 'JPMorgan (COIN Platform)', metric: 'NLP for document processing', outcome: 'COIN reviews commercial loan agreements in seconds, replacing 360,000 hours of annual lawyer review time while reducing errors', explanation: 'JPMorgan\'s COIN (Contract Intelligence) uses NLP to parse complex legal documents, extract key terms (interest rates, covenants, maturities), and flag anomalies. What took lawyers 360,000 hours annually now happens in seconds with fewer errors. The system processes 12,000+ commercial credit agreements per year, demonstrating NLP\'s ability to handle even the most complex financial text. This application alone saves JPMorgan an estimated $50+ million annually in legal costs.' },
+      undefined,
       FA21_DIAGRAM
     ),
 
@@ -4778,7 +4753,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'NLP SIGNALS',
+      'NLP signals',
       'How Earnings Call Sentiment Predicts Stock Returns',
       'comparison',
       'Explore the relationship between NLP-derived sentiment from earnings calls and subsequent stock performance. Adjust the sentiment threshold to see how extreme readings predict larger moves.',
@@ -4800,16 +4775,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Sentiment Score', min: -100, max: 100, default: -30, unit: 'score' },
         { label: 'Hedging Language Change', min: -50, max: 200, default: 40, unit: '%' }
       ],
-      { company: 'Two Sigma', metric: 'NLP-driven investment signals', outcome: 'NLP pipeline processes 10,000+ news articles, every SEC filing, and all earnings call transcripts daily, feeding quantitative models that manage $60 billion', explanation: 'Two Sigma\'s NLP infrastructure is one of the most sophisticated in finance. Their systems parse every piece of publicly available text about every publicly traded company, extracting hundreds of text-derived features: sentiment changes, topic shifts, management confidence levels, risk factor additions, and guidance language. These NLP features are integrated with traditional quantitative signals (price, volume, fundamentals) to generate trading signals. The NLP contribution to overall alpha is estimated at 15-25% of total signal value.' }
+      undefined
     ),
 
     teachingSlide(
-      'ADVANCED NLP',
+      'Advanced NLP',
       'Transformer Models and the Future of Financial Text Analysis',
       [
-        'BERT (Bidirectional Encoder Representations from Transformers) understands text context by reading both forward and backward simultaneously. FinBERT, fine-tuned on 50,000+ financial sentences, achieves 90%+ accuracy on financial sentiment, 15-20% better than dictionary-based approaches. The key advantage: FinBERT understands that "despite rising costs, revenue growth accelerated" is positive, while a dictionary approach might flag "rising costs" as negative without understanding the full context.',
-        'Large Language Models (GPT-4, Claude) have expanded NLP capabilities beyond classification to generation. These models can summarize 100-page 10-K filings into 2-page briefings, answer specific questions about financial documents ("What new risk factors were added this quarter?"), compare language changes across sequential filings, and draft analyst reports from structured data. Bloomberg\'s BloombergGPT, trained on 40+ years of financial data, demonstrates that domain-specific LLMs outperform general models on financial tasks by 20-30%. The implication: junior analyst tasks involving text processing are being automated at an accelerating rate.',
-        'The limits of financial NLP are real and important. Models can\'t detect intentional deception, a CEO who deliberately uses positive language to mislead investors won\'t trigger negative sentiment. NLP works on the assumption that language reflects reality; when it doesn\'t (fraud, manipulation), the models fail. Additionally, LLMs can "hallucinate", generating plausible-sounding but incorrect financial analysis. Any NLP-generated output used for investment decisions must be validated against factual data. The role of NLP in finance is to augment human analysis at scale, not to replace the judgment and verification that financial decisions require.'
+        'FinBERT is a language model trained on 50,000+ financial sentences. It reaches 90%+ accuracy on financial sentiment, 15-20% better than word lists, because it reads context: "despite rising costs, revenue growth accelerated" is positive, not negative.',
+      'Large language models like GPT-4 summarise 100-page 10-K filings into 2-page briefings. Bloomberg\'s BloombergGPT, trained on 40+ years of data, beats general models by 20-30%. But models miss deliberate lies and can invent facts, so check outputs.'
       ],
       [
         { term: 'BERT', definition: 'Bidirectional Encoder Representations from Transformers, a neural network architecture that understands text context by processing words in relation to all other words in the sentence simultaneously.', example: 'BERT understands that "Apple" refers to a company in "Apple reported record revenue" but a fruit in "She ate an apple", context-dependent understanding that dictionary approaches can\'t achieve.' },
@@ -4818,7 +4792,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Transfer Learning', definition: 'Fine-tuning a pre-trained model on domain-specific data. FinBERT starts with general language understanding from BERT and refines it on financial text, achieving domain expertise without training from scratch.', example: 'Training a sentiment model from scratch on financial text requires millions of labeled examples. Fine-tuning BERT into FinBERT requires only 50,000 examples because the model already understands language structure, only the financial domain knowledge needs to be added.' }
       ],
       'Progression from dictionary-based to BERT-based to LLM-based financial NLP, showing accuracy improvements at each stage',
-      { company: 'Bloomberg', metric: 'BloombergGPT and financial NLP', outcome: 'BloombergGPT, trained on 40+ years of financial data, outperforms general LLMs on financial tasks by 20-30%, demonstrating that domain-specific training is essential for financial NLP', explanation: 'Bloomberg\'s investment in BloombergGPT reflects their belief that financial NLP requires domain expertise. The model was trained on decades of news articles, financial filings, analyst reports, and Bloomberg\'s proprietary data. On tasks like sentiment classification, named entity recognition, and financial question answering, BloombergGPT significantly outperforms GPT-3.5 and other general models. This validates the principle that financial language is sufficiently specialized to justify domain-specific models.' },
+      undefined,
       FA21_DIAGRAM2
     ),
 
@@ -4906,12 +4880,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'MODEL BUILDING',
+      'Model building',
       'From Features to Predictions in Financial Markets',
       [
-        'Feature engineering is the most important step in financial prediction. Raw data (prices, volumes) must be transformed into predictive features: momentum (past returns over various lookback periods), mean reversion signals (deviation from moving averages), volatility metrics (realized vs. implied), fundamental ratios (P/E, P/B, earnings growth), and cross-sectional rankings (stock\'s value rank within its sector). The quality and creativity of features determines 80% of model performance. Renaissance Technologies reportedly uses thousands of unique features derived from price, volume, fundamental, alternative, and satellite data.',
-        'Model selection in finance favors interpretable, regularized approaches. Gradient-boosted trees (XGBoost, LightGBM) dominate competitive finance ML because they handle non-linear relationships, missing data, and feature interactions while remaining interpretable enough for risk management. Linear models with regularization (LASSO, Ridge) are used when interpretability is paramount, regulators often require the ability to explain why a model made a specific prediction. Neural networks are gaining traction for high-frequency signals and image-based alternative data but remain controversial for fundamental prediction due to their "black box" nature and tendency to overfit.',
-        'Walk-forward validation is the correct testing methodology for financial predictions. Standard cross-validation randomly splits data into train/test, but in finance, this creates "look-ahead bias" because the model sees future data during training. Walk-forward validation respects time: train on 2015-2019, test on 2020; train on 2015-2020, test on 2021; and so on. Each test period uses only data available at that time. This is how Renaissance, Two Sigma, and AQR validate their models, and why their live performance matches their backtests while overfitted models collapse.'
+        'Features are clues built from raw data: past returns, distance from averages, volatility, P/E and P/B ratios. Feature quality drives 80% of model performance. Renaissance Technologies reportedly uses thousands of features.',
+      'Gradient-boosted trees (XGBoost, LightGBM) handle non-linear data; regularized linear models (LASSO, Ridge) are simpler to explain to regulators. Validate walk-forward, training only on past data: train 2015-2019, test 2020; train 2015-2020, test 2021, like Renaissance, Two Sigma and AQR.'
       ],
       [
         { term: 'Feature Engineering', definition: 'The process of creating predictive input variables from raw data. In finance: calculating momentum, volatility, fundamental ratios, and cross-sectional rankings that serve as model inputs.', example: '12-month momentum (past 12-month return, skipping the most recent month) is one of the strongest and most persistent financial features. Stocks with high 12-month momentum outperform by 5-7% annually, a signal discovered by Jegadeesh and Titman in 1993 that still works today.' },
@@ -4920,7 +4893,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Ensemble Method', definition: 'Combining predictions from multiple models to produce a more accurate and robust final prediction. Reduces the risk of any single model\'s weaknesses dominating the prediction.', example: 'Renaissance combines predictions from thousands of individual signal models, each barely better than random (51-52%), into an ensemble that achieves extraordinary consistency. The diversity of signals is key: errors from individual models cancel out when combined.' }
       ],
       'Walk-forward validation diagram showing training and testing windows sliding through time, with out-of-sample performance tracking',
-      { company: 'Renaissance Technologies', metric: 'Predictive model performance', outcome: 'Medallion Fund: 66% average annual return from 1988-2018, generated entirely by predictive models combining thousands of individually weak signals into a robust ensemble', explanation: 'Renaissance\'s approach embodies every predictive modeling best practice: extensive feature engineering (thousands of features from diverse data sources), rigorous walk-forward validation (every signal tested out-of-sample), ensemble combination (thousands of weak signals combined), and continuous monitoring (models that degrade are retired and replaced). The fund\'s 200+ PhDs in math, physics, and computer science approach financial prediction as a scientific discipline, not an art. The result: $28+ billion in cumulative profits, the most successful application of predictive modeling in financial history.' },
+      undefined,
       FA22_DIAGRAM
     ),
 
@@ -4955,16 +4928,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Model Complexity', min: 1, max: 100, default: 40, unit: 'params' },
         { label: 'Training Data (Years)', min: 1, max: 30, default: 10, unit: 'years' }
       ],
-      { company: 'AQR Capital Management', metric: 'Factor-based prediction', outcome: 'AQR manages $100B+ using predictive factor models that have generated alpha across 7 decades of data and 20+ countries, proving that well-validated signals persist', explanation: 'AQR\'s approach to predictive modeling emphasizes economic rationale over statistical fitting. Their core signals, value (cheap stocks outperform), momentum (recent winners continue), quality (profitable companies outperform), are backed by both statistical evidence and economic theory. This dual requirement prevents overfitting: a signal must both work historically AND have a logical explanation for why it should persist. Models built on coincidence (Super Bowl predictor) fail this test; models built on human behavior (momentum from underreaction) pass it.' }
+      undefined
     ),
 
     teachingSlide(
-      'MODEL DEPLOYMENT',
+      'Model deployment',
       'From Prediction to Profit: Making Models Work in Practice',
       [
-        'Transaction costs are the silent killer of predictive models. A model that generates 3% annual alpha before costs might produce -1% after trading costs if it requires frequent rebalancing. Cost components include: bid-ask spread (0.01-0.5% per trade depending on liquidity), market impact (large orders move prices against you), brokerage fees, and slippage (execution price differs from model price). A model is only valuable if its alpha exceeds its implementation costs. Renaissance\'s models account for transaction costs at the signal level, they won\'t trade a signal unless the expected profit exceeds the cost with a sufficient margin.',
-        'Position sizing determines how much capital to allocate to each prediction. The Kelly Criterion (bet_size = edge / odds) maximizes long-term growth but is aggressive, most practitioners use "half-Kelly" for safety. Alternatively, risk-parity sizing allocates capital inversely proportional to each position\'s volatility, ensuring no single position dominates portfolio risk. Even a perfect prediction model will lose money with poor position sizing, a classic failure mode for individual quantitative traders who bet too large on single predictions.',
-        'Model monitoring and decay management are ongoing requirements. Financial models degrade over time as the market adapts: a successful momentum signal attracts more capital, reducing its profitability (alpha decay). Two Sigma monitors every model\'s performance in real-time, comparing actual results to expected ranges. Models that consistently underperform their expectations are investigated and potentially retired. New models are continuously developed and validated to replace decaying ones. This "model lifecycle management", development, validation, deployment, monitoring, retirement, is the operational infrastructure that sustains quantitative investing over decades.'
+        'Trading costs can kill a model. A strategy earning 3% a year before costs can return -1% after them. The bid-ask spread, the gap between buy and sell prices, runs 0.01-0.5% per trade.',
+      'Renaissance skips a signal unless profit beats cost. Position size matters too: the Kelly Criterion, a formula for how much to bet, maximizes growth, but most use half-Kelly for safety. Two Sigma monitors models live and retires decaying ones.'
       ],
       [
         { term: 'Transaction Costs', definition: 'The total cost of implementing a trade: bid-ask spread, market impact, brokerage fees, and slippage. Models must generate alpha that exceeds these costs to be profitable.', example: 'A model predicting 0.5% daily stock movement generates 0.5% gross alpha per trade. But bid-ask spread (0.05%) + market impact (0.1%) + slippage (0.05%) = 0.2% cost, leaving only 0.3% net alpha. High-frequency models are even more cost-sensitive.' },
@@ -4973,7 +4945,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Model Lifecycle Management', definition: 'The operational process of developing, validating, deploying, monitoring, and retiring predictive models. Essential for sustaining quantitative performance over time.', example: 'Two Sigma has hundreds of models in production. Each is monitored daily for performance degradation. When a model\'s rolling Sharpe ratio drops below 0.3 for 6 months, it\'s flagged for investigation. Retired models are replaced by newly validated models from the development pipeline.' }
       ],
       'Model lifecycle diagram showing development, validation, deployment, monitoring, and retirement stages',
-      { company: 'D.E. Shaw', metric: 'Systematic prediction at scale', outcome: 'D.E. Shaw manages $60+ billion using predictive models across equities, fixed income, FX, and commodities, demonstrating that validated prediction works across all asset classes', explanation: 'D.E. Shaw\'s approach emphasizes model robustness across asset classes and market regimes. Their models are validated not just on U.S. equities but across global markets and multiple decades. This breadth of validation reduces the risk of overfitting to any single market or time period. The firm\'s sustained performance over 30+ years demonstrates that rigorous model lifecycle management, continuous development, validation, deployment, monitoring, and retirement, is the key to long-term quantitative success.' },
+      undefined,
       FA22_DIAGRAM2
     ),
 
@@ -5061,12 +5033,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'RISK MEASUREMENT',
+      'Risk measurement',
       'Value at Risk and Its Dangerous Limitations',
       [
-        'Value at Risk (VaR) is the most widely used risk metric in finance. It answers: "What is the maximum loss we expect over a given time period with a given confidence level?" For example, a 1-day 95% VaR of $10 million means there is a 95% probability that the portfolio will not lose more than $10 million in a single day. Banks use VaR to set capital requirements, trading limits, and risk budgets. The three main VaR calculation methods are: historical simulation (use actual past returns), parametric VaR (assume normal distribution), and Monte Carlo VaR (simulate thousands of random scenarios). Each has trade-offs between simplicity, accuracy, and computational cost.',
-        'VaR has a critical flaw: it tells you nothing about what happens in the worst 5% (or 1%) of scenarios. A 95% VaR of $10 million could mean the worst-case loss is $11 million or $500 million, VaR cannot distinguish between the two. This is why Expected Shortfall (ES), also called Conditional VaR (CVaR), was developed. ES measures the average loss in the tail, the expected loss given that VaR is breached. If the 95% VaR is $10M and the 95% ES is $25M, it means that when things go bad (worst 5%), the average loss is $25M. The Basel III regulatory framework moved from VaR to ES precisely because VaR\'s blindness to tail severity led to catastrophic underestimation of crisis losses.',
-        'Correlation breakdown during crises is the most dangerous risk modeling failure. In normal markets, different asset classes have low correlations, stocks and bonds move somewhat independently. During crises, correlations spike toward 1.0: everything falls together. Risk models that assume normal-period correlations dramatically underestimate portfolio losses during crises because the diversification they rely on evaporates precisely when it is needed most. This is called "wrong-way risk", correlations increase exactly when high correlations are most dangerous. LTCM\'s models assumed stable correlations and lost $4.6 billion when correlations spiked during the 1998 Russian crisis.'
+        'Value at Risk, or VaR, is the worst loss expected at a set confidence. A 1-day 95% VaR of $10 million ignores the worst 5%, or 1%: the real loss could be $11 million or $500 million.',
+      'Expected Shortfall averages the losses in that tail: a $10M VaR might pair with a $25M ES. Basel III switched to it. In crises correlations jump toward 1.0, so everything falls together, costing LTCM $4.6 billion in 1998.'
       ],
       [
         { term: 'Value at Risk (VaR)', definition: 'The maximum expected loss over a specific time period at a given confidence level. A 1-day 99% VaR of $5M means there is a 99% probability the portfolio will not lose more than $5M in one day.', example: 'JPMorgan\'s RiskMetrics system, launched in 1994, popularized VaR as the standard risk metric. However, JPMorgan\'s own "London Whale" incident in 2012 showed VaR\'s limitations: the trading desk changed its VaR model to reduce reported risk while actual risk increased.' },
@@ -5075,7 +5046,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Stress Testing', definition: 'Evaluating portfolio performance under hypothetical extreme scenarios (severe recession, market crash, liquidity crisis) rather than relying only on historical statistical distributions.', example: 'The Fed\'s annual CCAR stress test simulates a severe recession: GDP falls 8%, unemployment hits 10%, stocks drop 55%, housing declines 30%. Banks must prove they remain solvent and can continue lending under these conditions.' }
       ],
       'VaR distribution diagram showing the tail beyond the confidence level and expected shortfall region',
-      { company: 'JPMorgan Chase', metric: 'London Whale VaR model change', outcome: 'In 2012, JPMorgan\'s Chief Investment Office changed its VaR model, cutting reported risk in half while actual risk was increasing. The resulting $6.2 billion loss demonstrated that VaR is only as good as the model behind it, and that model governance is as important as the math.', explanation: 'The London Whale incident is a masterclass in risk model failure. Traders in JPMorgan\'s CIO division accumulated massive positions in credit default swaps. When the existing VaR model flagged the positions as risky, the team switched to a new model that showed lower VaR, not because risk had decreased, but because the new model\'s assumptions were more favorable. Internal risk oversight failed to catch the model change. The lesson: risk models require independent validation, and changing a model to produce better numbers is the most dangerous form of risk management failure.' },
+      undefined,
       FA23_DIAGRAM
     ),
 
@@ -5088,7 +5059,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'STRESS TESTING',
+      'Stress testing',
       'How Stress Tests Reveal Hidden Risk',
       'comparison',
       'Compare a portfolio\'s risk under normal conditions (VaR-based) vs. stress-test scenarios. See how correlation spikes during crises multiply losses beyond VaR predictions.',
@@ -5110,16 +5081,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Market Decline', min: 5, max: 70, default: 30, unit: '%' },
         { label: 'Correlation Spike', min: 20, max: 100, default: 50, unit: '%' }
       ],
-      { company: 'Federal Reserve', metric: 'Post-2008 stress testing regime', outcome: 'Since implementing mandatory stress tests in 2009, no major U.S. bank has failed or required a bailout. Banks hold $800+ billion more capital than pre-crisis levels, and the banking system weathered the COVID-19 shock without systemic stress.', explanation: 'The Fed\'s stress testing regime represents the most successful application of risk analytics in financial history. By forcing banks to model severe scenarios and prove capital adequacy, the program corrected the fundamental flaw in pre-2008 risk management: reliance on VaR-based measures that assumed normal market conditions would persist. The annual CCAR exercise costs banks billions in compliance and constrains their leverage, but the alternative (the $17 trillion household wealth destruction of 2008) proved that the cost of inadequate stress testing is orders of magnitude higher.' }
+      undefined
     ),
 
     teachingSlide(
-      'ADVANCED RISK MODELING',
+      'Advanced risk modeling',
       'Beyond VaR: Modern Risk Analytics Frameworks',
       [
-        'Copula models attempt to capture the dependence structure between assets beyond simple correlation. The Gaussian copula, famously used to price collateralized debt obligations (CDOs), assumed that default correlations between mortgages were stable and moderate. When housing prices declined nationally, an event the model assigned near-zero probability, correlated defaults destroyed CDO tranches rated AAA, causing $500+ billion in losses. The lesson: copula models are powerful tools for modeling dependence, but the choice of copula family and the calibration of tail dependence parameters are critical. The Gaussian copula underestimates tail dependence; the Student-t copula and Clayton copula better capture the tendency for assets to crash together.',
-        'Liquidity risk is the often-overlooked dimension of risk analytics. A portfolio may have low market risk (the assets are stable) but high liquidity risk (the assets cannot be sold quickly without significant price impact). In 2008, many "safe" assets became illiquid overnight: asset-backed commercial paper, auction-rate securities, and mortgage-backed securities all experienced liquidity evaporation. Modern risk frameworks integrate liquidity-adjusted VaR (LVaR), which adds the cost of liquidating positions under stress to the standard market risk measure. A position with $10M market risk but 3-day liquidation time in stressed markets has an LVaR significantly higher than $10M.',
-        'Model risk, the risk that your risk model itself is wrong, is increasingly recognized as a first-order concern. The OCC\'s SR 11-7 guidance requires banks to maintain independent model validation, ongoing monitoring, and a model risk inventory. Every risk model must be validated by a team independent of the developers, tested against outcomes, and subjected to sensitivity analysis. The London Whale incident at JPMorgan demonstrated that inadequate model governance can cause billions in losses even at the most sophisticated institutions. Today, major banks employ hundreds of model validators and maintain inventories of 2,000+ models, each requiring annual revalidation.'
+        'Copulas model how assets move together. The Gaussian copula priced CDOs, bundles of mortgage debt, but missed that mortgages default at once, so AAA tranches lost $500+ billion. In 2008, safe-looking assets also became impossible to sell.',
+      'Liquidity-adjusted VaR adds the cost of selling fast: a $10M position needing 3 days to sell is riskier than $10M suggests. The OCC\'s SR 11-7 rules demand independent model checks, as JPMorgan\'s London Whale showed. Banks track 2,000+ models.'
       ],
       [
         { term: 'Gaussian Copula', definition: 'A mathematical model for describing the dependence structure between random variables using a multivariate normal distribution. Infamously used to price CDOs with underestimated tail dependence.', example: 'David Li\'s 2000 paper introducing the Gaussian copula for credit derivatives was called "the formula that killed Wall Street." It allowed easy pricing of CDO tranches but dramatically underestimated the probability of widespread simultaneous defaults, exactly what happened in 2008.' },
@@ -5128,7 +5098,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tail Dependence', definition: 'The tendency for extreme events to occur simultaneously across assets. High tail dependence means that when one asset crashes, others are likely to crash too, critical for crisis risk estimation.', example: 'U.S. and European bank stocks have moderate normal-period correlation (0.5) but very high tail dependence (0.85+). In a crisis, they crash together far more than their average correlation suggests, a property the Gaussian copula fails to capture.' }
       ],
       'Model risk governance diagram showing independent validation, ongoing monitoring, and model inventory management',
-      { company: 'AIG Financial Products', metric: 'Gaussian copula model failure', outcome: 'AIG sold $441 billion in credit default swaps on CDOs using Gaussian copula models that showed negligible risk. When correlated defaults materialized, AIG faced $85 billion in losses and required a government bailout to prevent systemic collapse.', explanation: 'AIG\'s models assumed mortgage defaults were largely independent events, the Gaussian copula assigned near-zero probability to widespread simultaneous defaults. When housing prices declined 30%+ nationally, defaults became highly correlated: entire neighborhoods, cities, and states defaulted together. The models showed AAA-rated CDO tranches had 0.01% default probability; actual defaults reached 30-60%. AIG\'s catastrophic mispricing, driven by a risk model that was elegant but wrong, remains the largest model risk failure in financial history and the primary motivation for modern model risk governance.' },
+      undefined,
       FA23_DIAGRAM2
     ),
 
@@ -5143,7 +5113,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'RISK ANALYTICS MYTHS',
+      'Risk analytics myths',
       'What most people get wrong about risk management',
       [
         { myth: 'VaR tells you the maximum possible loss', truth: 'VaR tells you the loss threshold at a given confidence level. Actual losses in the tail can be 2-10x larger than VaR. Expected Shortfall captures the average tail loss, providing a more complete picture of extreme risk.', explanation: 'During the 2008 crisis, many banks\' actual losses exceeded their 99% VaR by 5-10x. VaR says "we are 99% confident losses won\'t exceed $X", but the 1% tail can be catastrophic.' },
@@ -5237,12 +5207,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'BIG DATA TECHNOLOGIES',
+      'Big data technologies',
       'The Data Stack Powering Modern Finance',
       [
-        'Apache Kafka has become the central nervous system of modern financial data infrastructure. Kafka is a distributed event streaming platform that ingests, stores, and distributes real-time data feeds. At Goldman Sachs, Kafka processes billions of messages per day, market data, trade executions, risk calculations, and client orders, all flowing through a unified event backbone. Kafka\'s key properties for finance: it guarantees message ordering within partitions (critical for trade sequencing), provides exactly-once delivery semantics (no duplicate transactions), and can replay historical streams for backtesting and audit. LinkedIn created Kafka to handle 7 trillion messages per day; financial institutions adopted it because no other technology can handle the volume, velocity, and reliability requirements of modern markets.',
-        'Apache Spark revolutionized batch and streaming analytics for finance. Spark\'s in-memory processing is 100x faster than Hadoop MapReduce for many workloads, enabling computations that previously took hours to complete in minutes. JPMorgan uses Spark to run Monte Carlo simulations across millions of derivative contracts overnight, a computation that would take weeks on traditional systems. Spark\'s ML library (MLlib) enables distributed machine learning training on datasets too large for a single machine. A credit scoring model trained on 500 million loan records, impossible on a laptop, runs in under an hour on a Spark cluster. The combination of Spark for batch processing and Kafka for streaming creates a "lambda architecture" that provides both real-time and historical analytics.',
-        'Data lakes built on cloud object storage (S3, Azure Blob, GCS) have replaced traditional data warehouses for many financial analytics workloads. A data lake stores data in its raw format, market data, SEC filings, satellite images, social media feeds, IoT sensor data, without requiring upfront schema design. This "schema-on-read" approach is critical for alternative data, which comes in unpredictable formats. Hedge fund Citadel stores petabytes of alternative data in data lakes, running Spark and Python analytics against the raw data to discover novel investment signals. The economics are compelling: storing 1 petabyte in S3 costs approximately $23,000 per month versus $500,000+ per month for equivalent enterprise storage, a 95% cost reduction that enables firms to keep years of granular data that was previously deleted due to storage costs.'
+        'Apache Kafka, software that streams live data, moves billions of messages daily at Goldman Sachs; LinkedIn built it for 7 trillion. Apache Spark, which crunches data in memory, is 100x faster than Hadoop MapReduce.',
+      'JPMorgan runs Spark simulations overnight; credit models train on 500 million loan records. Citadel stores raw, unsorted files in cloud data lakes: 1 petabyte in S3 costs about $23,000 monthly versus $500,000+, a 95% saving.'
       ],
       [
         { term: 'Apache Kafka', definition: 'A distributed event streaming platform for high-throughput, fault-tolerant, real-time data pipelines. The backbone of modern financial data infrastructure, processing billions of events per day at major banks.', example: 'Goldman Sachs uses Kafka as its central data backbone, streaming market data, trade executions, and risk calculations across the firm. Kafka\'s guarantee of message ordering ensures trades are processed in sequence, a critical requirement for financial accuracy.' },
@@ -5251,7 +5220,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Lambda Architecture', definition: 'A data processing architecture combining batch processing (Spark) for comprehensive historical analytics and stream processing (Kafka + Flink) for real-time analytics, providing both speed and completeness.', example: 'A fraud detection system uses Kafka streaming to flag suspicious transactions in real-time (milliseconds) while Spark batch processing runs comprehensive pattern analysis overnight to improve the real-time model\'s accuracy.' }
       ],
       'Big data technology stack showing Kafka ingestion, Spark processing, and data lake storage layers',
-      { company: 'Capital One', metric: 'Full cloud migration to AWS', outcome: 'Capital One closed all 8 of its data centers by 2020, becoming the first major U.S. bank to operate entirely on AWS. Result: 40% compute cost reduction, deployment time from 6 months to 2 weeks, and the ability to provision 50,000 servers overnight for risk calculations.', explanation: 'Capital One\'s cloud-first strategy was driven by economics and agility. On-premise infrastructure required massive capital expenditure for peak capacity that sat idle 90% of the time. Cloud elasticity means paying only for compute used, spinning up 50,000 servers for overnight risk calculations and shutting them down by morning costs a fraction of maintaining equivalent on-premise capacity year-round. The 40% cost savings were redirected to innovation: machine learning fraud detection, real-time credit decisioning, and personalized financial products that would have been impossible on legacy infrastructure.' },
+      undefined,
       FA24_DIAGRAM
     ),
 
@@ -5264,7 +5233,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'CLOUD COMPUTING',
+      'Cloud computing',
       'The Economics of Cloud vs. On-Premise for Finance',
       'comparison',
       'Compare the total cost of ownership for cloud-native vs. on-premise infrastructure. Notice how cloud elasticity dramatically reduces cost for variable workloads like overnight risk calculations.',
@@ -5286,16 +5255,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Peak Compute Need', min: 100, max: 50000, default: 10000, unit: 'servers' },
         { label: 'Utilization Rate', min: 5, max: 100, default: 20, unit: '%' }
       ],
-      { company: 'NASDAQ', metric: 'Cloud-powered market infrastructure', outcome: 'NASDAQ migrated its market surveillance and analytics platform to AWS, processing 30+ billion market messages daily with sub-millisecond latency. The cloud infrastructure enables NASDAQ to monitor all U.S. equity markets in real-time for manipulation, spoofing, and insider trading.', explanation: 'NASDAQ\'s cloud migration demonstrates that even the most performance-critical financial workloads can run in the cloud. Their market surveillance system analyzes every trade and quote across all U.S. exchanges in real-time, looking for patterns that indicate market manipulation. On-premise, this required dedicated hardware that was expensive to maintain and upgrade. On AWS, NASDAQ can elastically scale to handle volume spikes (like March 2020, when trading volumes tripled) without pre-provisioning for peak capacity. The cloud also enables rapid deployment of new surveillance algorithms, critical for keeping pace with evolving manipulation tactics.' }
+      undefined
     ),
 
     teachingSlide(
-      'ALTERNATIVE DATA & BIG DATA ANALYTICS',
+      'Alternative data & big data analytics',
       'Turning Non-Traditional Data into Investment Alpha',
       [
-        'Alternative data, information beyond traditional financial statements and market data, has become a $7+ billion industry in finance. Categories include: geolocation data (foot traffic to retailers from mobile phone GPS), satellite imagery (counting cars in Walmart parking lots, monitoring oil tank fill levels), credit card transactions (real-time consumer spending by merchant), web scraping (product prices, job postings, app downloads), social media sentiment (Twitter, Reddit, StockTwits), and IoT sensor data (shipping container movements, manufacturing output). Point72, Citadel, and Two Sigma collectively spend hundreds of millions per year acquiring and processing alternative data. The edge: alternative data reveals economic reality weeks or months before it appears in official reports.',
-        'Processing alternative data at scale requires big data infrastructure. A single satellite imagery provider delivers terabytes of images daily, each image must be processed with computer vision models to extract usable signals (count vehicles, measure crop health, detect construction activity). Credit card transaction data from providers like Second Measure or Earnest Research arrives as billions of individual transactions that must be aggregated, normalized, and matched to publicly traded companies. The computational cost is enormous: training a computer vision model on satellite imagery requires hundreds of GPU-hours. Only cloud infrastructure makes this economically viable, spinning up a cluster of 100 GPUs for 10 hours costs approximately $10,000 on AWS, while purchasing equivalent hardware would cost $1 million+.',
-        'The alternative data alpha lifecycle follows a predictable pattern: a novel dataset initially provides significant alpha (few users, novel signal), but as adoption increases, the signal degrades (crowding). Satellite imagery of retailer parking lots provided 2-3% alpha in 2015 when few funds used it; by 2023, dozens of funds analyze the same images and the alpha has declined to 0.5-1%. The implication: big data analytics in finance is an arms race where firms must continuously discover new data sources and analytical techniques. Point72 employs 100+ data scientists whose sole job is evaluating and integrating new alternative data sources, they review 200+ datasets per year and adopt only 10-15. The sustainable competitive advantage is not any single dataset but the infrastructure and talent to continuously evaluate, integrate, and extract alpha from novel data.'
+        'Alternative data means information outside financial reports: satellite photos of Walmart parking lots, card spending from Second Measure and Earnest Research, plus Twitter, Reddit and StockTwits chatter. Point72, Citadel and Two Sigma spend heavily on this $7+ billion market.',
+      'Renting 100 GPUs for 10 hours costs $10,000 on AWS; buying costs $1 million+. Parking lot data returned 2-3% extra in 2015, 0.5-1% by 2023, so Point72\'s 100+ scientists screen 200+ datasets yearly, adopting 10-15.'
       ],
       [
         { term: 'Alternative Data', definition: 'Non-traditional data sources used for investment analysis, including satellite imagery, geolocation data, credit card transactions, web scraping, social media, and IoT sensor data. A $7+ billion industry.', example: 'A hedge fund uses satellite imagery to count cars in Walmart parking lots weekly. When counts decline before earnings, the fund shorts Walmart stock, gaining information advantage weeks before the quarterly earnings report reveals declining foot traffic.' },
@@ -5304,7 +5272,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Computer Vision for Finance', definition: 'Applying deep learning image recognition to extract financial signals from visual data like satellite imagery, security camera feeds, and aerial photographs.', example: 'Orbital Insight uses computer vision to analyze satellite imagery of oil storage tanks worldwide, estimating global crude oil inventory changes before official EIA reports, providing a 2-3 day information advantage to energy trading firms.' }
       ],
       'Alternative data pipeline showing satellite imagery, computer vision processing, signal extraction, and trading integration',
-      { company: 'Point72 Asset Management', metric: 'Alternative data evaluation at scale', outcome: 'Point72 employs 100+ data scientists who evaluate 200+ alternative datasets per year, integrating 10-15 into the investment process. The firm\'s Cubist systematic division uses big data infrastructure to process petabytes of alternative data across thousands of equities simultaneously.', explanation: 'Point72\'s approach to alternative data embodies the industrial-scale big data analytics that defines modern quantitative investing. Each new dataset goes through a rigorous evaluation: data quality assessment, signal-to-noise analysis, backtest with walk-forward validation, alpha decay estimation, and cost-benefit analysis. Only datasets that survive all five stages are integrated into production. The firm\'s cloud infrastructure enables this evaluation at scale, a dataset evaluation that would take 6 months on legacy systems completes in 2 weeks on cloud clusters. The competitive advantage is not any single dataset but the ability to evaluate and integrate new data faster than competitors.' },
+      undefined,
       FA24_DIAGRAM2
     ),
 
@@ -5392,12 +5360,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'SYSTEM DESIGN',
+      'System design',
       'Architecting an End-to-End Financial Analytics Platform',
       [
-        'An integrated financial analytics system consists of five layers. The Data Ingestion Layer uses Kafka and API connectors to collect real-time market data, alternative data feeds, financial statements, news, and social media into a unified stream. The Storage Layer uses a data lake (S3/Azure Blob) for raw data and a data warehouse (Snowflake/Redshift) for structured analytical data. The Processing Layer uses Spark for batch analytics and Flink/Kafka Streams for real-time processing. The Analytics Layer runs statistical models (regression, time series), ML models (prediction, classification, anomaly detection), and NLP models (sentiment, entity extraction) against the processed data. The Presentation Layer delivers dashboards, alerts, and API endpoints that surface insights to portfolio managers, risk officers, and traders.',
-        'Cross-model integration is where the capstone value emerges. Consider an investment analyst evaluating a company: time series analysis reveals the stock has been trending below its 50-day moving average (bearish); NLP sentiment analysis of the latest earnings call shows CEO hesitation and hedging language (negative); credit scoring models show the company\'s debt covenants are approaching violation thresholds (risky); and alternative data (foot traffic, web traffic) shows declining customer engagement. Each signal alone is modest, but the integrated view reveals a company in genuine trouble, providing conviction that any single model would lack. This is exactly how Goldman\'s SecDB works: integrating pricing, risk, sentiment, and fundamental data into a unified view that reveals patterns invisible to siloed analysis.',
-        'Model governance and monitoring are the operational backbone of a production analytics system. Every model in production requires: version control (Git for code, MLflow for model artifacts), automated retraining pipelines that trigger when performance degrades, A/B testing frameworks that validate new models against incumbents before deployment, monitoring dashboards tracking prediction accuracy, data drift, and model latency, and an audit trail recording every model decision for regulatory compliance. The firms that sustain analytical advantages over decades, Renaissance, Two Sigma, Goldman Sachs, invest as much in operations as in model development. A brilliant model that degrades unnoticed is worse than a mediocre model with robust monitoring, because the degraded model\'s errors compound silently until they cause significant losses.'
+        'Five layers: ingestion (Kafka, APIs), storage (a data lake on S3/Azure Blob plus a warehouse on Snowflake/Redshift), processing (Spark for batch, Flink/Kafka Streams for live), analytics (statistics, machine learning, and NLP, which reads text), and presentation (dashboards, alerts, APIs).',
+      'Weak signals stack: a stock below its 50-day moving average (its average price over 50 days), hedging on the earnings call, covenants near breach. Goldman\'s SecDB does this. Version models in Git and MLflow, like Renaissance, Two Sigma, Goldman Sachs.'
       ],
       [
         { term: 'Analytics Platform Architecture', definition: 'A five-layer system design: ingestion (Kafka), storage (data lake + warehouse), processing (Spark + streaming), analytics (ML/NLP/statistical models), and presentation (dashboards + APIs). The standard architecture for modern financial analytics.', example: 'Goldman Sachs\'s SecDB platform integrates all five layers across every trading desk, providing firm-wide pricing, risk, and P&L analytics on a unified platform that covers $1 trillion+ in assets.' },
@@ -5406,7 +5373,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Data Drift', definition: 'The phenomenon where the statistical properties of the data a model receives in production differ from the data it was trained on, causing model accuracy to degrade over time.', example: 'A credit scoring model trained on 2015-2019 data experienced severe data drift during COVID-19: unemployment spiked, forbearance programs distorted payment patterns, and government stimulus altered spending behavior. Models not retrained on 2020+ data produced increasingly inaccurate credit scores.' }
       ],
       'End-to-end analytics platform architecture showing data flow from ingestion through processing, analytics, and presentation layers',
-      { company: 'Goldman Sachs (SecDB)', metric: 'Integrated analytics platform', outcome: 'SecDB processes $1 trillion+ in daily transaction data across every asset class, providing real-time pricing, risk, P&L, and analytics on a unified platform. SecDB is widely considered the most sophisticated analytics platform in finance and a key reason Goldman consistently ranks among the most profitable trading firms.', explanation: 'SecDB embodies the principle that integrated analytics are exponentially more valuable than siloed analytics. Every trade, every position, every risk metric across the entire firm flows through SecDB. When a market shock occurs, SecDB instantly shows the impact across all desks, all positions, and all risk dimensions. This firm-wide view enabled Goldman to identify and reduce mortgage exposure in 2006, while competitors with siloed systems didn\'t see the aggregate picture until the crisis was upon them. SecDB took decades and billions of dollars to build; it represents the gold standard for financial analytics platform architecture.' },
+      undefined,
       FA25_DIAGRAM
     ),
 
@@ -5419,7 +5386,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'CAPSTONE PROJECT',
+      'Capstone project',
       'Design an Integrated Financial Analytics System',
       'comparison',
       'Explore how different analytical components contribute to a unified investment analysis system. See how integration multiplies the value of individual analytics capabilities.',
@@ -5441,16 +5408,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Number of Data Sources', min: 1, max: 50, default: 15, unit: 'sources' },
         { label: 'Model Integration Level', min: 0, max: 100, default: 60, unit: '%' }
       ],
-      { company: 'Bridgewater Associates', metric: 'Systematic integrated analytics', outcome: 'Bridgewater\'s "Pure Alpha" fund uses an integrated analytics system combining macroeconomic modeling, cross-asset factor analysis, NLP news analysis, and risk management to manage $150+ billion. The system integrates hundreds of economic indicators, market signals, and alternative data sources into unified investment decisions.', explanation: 'Bridgewater represents the ultimate application of integrated financial analytics. Every investment decision flows through their systematic process: macroeconomic models predict growth, inflation, and policy changes; factor models identify relative value across 100+ markets; NLP systems monitor central bank communications and news for policy shifts; and risk models ensure portfolio construction aligns with target risk budgets. The integration of these components, each validated independently but combined systematically, has produced 30+ years of returns with lower correlation to traditional markets. Bridgewater\'s success demonstrates that the most valuable financial analytics are not any single brilliant model but the disciplined integration of many good models into a coherent system.' }
+      undefined
     ),
 
     teachingSlide(
-      'CAPSTONE SYNTHESIS',
+      'Capstone synthesis',
       'Bringing It All Together: Lessons from 25 Lessons',
       [
-        'The arc of financial analytics follows a clear progression: Lessons 1-10 built the foundation, descriptive statistics, probability, regression, financial modeling, DCF analysis, Monte Carlo simulation, data visualization, machine learning, and a capstone integrating these fundamentals. You learned that data-driven decisions outperform intuition, that statistical rigor prevents costly errors, and that machine learning can find patterns humans miss. These fundamentals are the bedrock on which every advanced technique rests.',
-        'Lessons 11-22 advanced into specialized domains, time series analysis, sentiment analysis, credit scoring, portfolio analytics, A/B testing, SQL and Python for finance, automated reporting, anomaly detection, real-time processing, NLP, and predictive modeling. Each lesson added a powerful tool to your analytical toolkit, and each built on the foundations from the first ten. You learned that NLP extracts signal from the 80% of financial data that is unstructured text, that predictive models require walk-forward validation to avoid overfitting, and that real-time processing enables decisions that batch analytics cannot.',
-        'Lessons 23-25 brought it to the highest level, risk analytics and stress testing (the models that determine whether the financial system survives crises), big data and cloud computing (the infrastructure that makes modern analytics possible), and this capstone (the integration that makes the whole greater than the sum of its parts). The overarching lesson of the entire course: financial analytics is not about any single technique, it is about the disciplined integration of multiple techniques, rigorously validated, continuously monitored, and deployed on infrastructure that scales. The firms that master this, Renaissance, Goldman Sachs, Two Sigma, Bridgewater, don\'t just outperform; they define the frontier of what is possible in finance.'
+        'Lessons 1-10 built the basics: statistics, probability, regression, financial modeling, DCF valuation, Monte Carlo simulation, visualization and machine learning. Lessons 11-22 added specialist tools, including NLP, which pulls signal from the 80% of financial data that is unstructured text.',
+      'Lessons 23-25 covered risk analytics, stress testing, big data, cloud computing and this capstone. The lesson: results come from integrating techniques, validating them, monitoring them on infrastructure that scales. Renaissance, Goldman Sachs, Two Sigma and Bridgewater do exactly that.'
       ],
       [
         { term: 'Full-Stack Financial Analyst', definition: 'A professional who understands the complete analytics pipeline: data engineering (collection, storage, processing), statistical modeling (regression, time series), machine learning (prediction, classification), NLP (text analysis), risk management (VaR, stress testing), and infrastructure (cloud, big data).', example: 'A full-stack analyst at Two Sigma can design a Kafka data pipeline, build a predictive model in Python, validate it with walk-forward testing, deploy it on cloud infrastructure, monitor its performance, and explain the results to portfolio managers, covering every stage from raw data to investment decision.' },
@@ -5459,7 +5425,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Analytical Rigor', definition: 'The discipline of validating every model, testing every assumption, monitoring every deployment, and questioning every result. The single most important habit that separates successful from failed analytics.', example: 'Renaissance validates every signal through walk-forward testing, multiple testing correction, economic rationale review, paper trading, and continuous live monitoring. 95% of backtested strategies fail this gauntlet. The 5% that pass generate billions in profits, because rigorous validation ensures only genuine signals survive.' }
       ],
       'Course progression diagram showing the journey from descriptive statistics through advanced analytics to integrated capstone mastery',
-      { company: 'Renaissance Technologies', metric: 'The pinnacle of integrated financial analytics', outcome: 'The Medallion Fund\'s 66% average annual return over 30+ years, $28+ billion in cumulative profits, represents the most successful application of integrated financial analytics in history. Every technique covered in this course, statistics, ML, NLP, risk management, big data, is employed at scale by Renaissance\'s 200+ PhDs.', explanation: 'Renaissance is the ultimate case study in financial analytics because their success embodies every principle from this course: rigorous statistical foundations (Lessons 1-5), advanced modeling techniques (Lessons 6-10), specialized analytical tools (Lessons 11-18), cutting-edge detection and processing (Lessons 19-22), and industrial-scale risk management and infrastructure (Lessons 23-25). Their competitive advantage is not any single technique but the integrated application of all techniques with uncompromising analytical rigor. The Medallion Fund proves that financial analytics, done comprehensively and rigorously, can create extraordinary value.' },
+      undefined,
       FA25_DIAGRAM2
     ),
 
@@ -5474,7 +5440,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'INTEGRATED ANALYTICS MYTHS',
+      'Integrated analytics myths',
       'What most people get wrong about building analytics platforms',
       [
         { myth: 'More complex models always produce better results', truth: 'In finance, simpler models with robust validation often outperform complex models that overfit. AQR\'s factor models use relatively simple signals (value, momentum, quality) that have worked for 7+ decades. The complexity should be in the validation and integration, not necessarily in the individual models.', explanation: 'Overfitting is the single most common failure mode in quantitative finance. A model that perfectly fits historical data but fails on new data is worse than a simple heuristic.' },

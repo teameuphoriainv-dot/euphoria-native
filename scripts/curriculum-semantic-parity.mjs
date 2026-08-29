@@ -11,17 +11,41 @@
  * Run with Node's TypeScript resolver hook:
  *   node --import ./scripts/ts-resolve-hooks.mjs scripts/curriculum-semantic-parity.mjs
  *   node --import ./scripts/ts-resolve-hooks.mjs scripts/curriculum-semantic-parity.mjs /path/to/web
+ *   node --import ./scripts/ts-resolve-hooks.mjs scripts/curriculum-semantic-parity.mjs --ref origin/master
  */
 import { deepStrictEqual } from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const nativeRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const webRoot = resolve(process.argv[2] ?? join(homedir(), 'euphoriaweb-current'));
-const webIndexPath = join(webRoot, 'src/features/pathway/courseIndex.ts');
+const args = process.argv.slice(2);
+let webRef = '';
+if (args[0] === '--ref') {
+  if (!args[1]) throw new Error('--ref requires a git ref');
+  webRef = args.splice(0, 2)[1];
+}
+
+const webRoot = resolve(args[0] ?? join(homedir(), 'euphoriaweb-current'));
+let sourceRoot = webRoot;
+
+if (webRef) {
+  const sourceSnapshot = mkdtempSync(join(tmpdir(), 'euphoria-web-curriculum-'));
+  process.once('exit', () => rmSync(sourceSnapshot, { recursive: true, force: true }));
+  const archive = execFileSync('git', ['-C', webRoot, 'archive', webRef, 'src/features/pathway'], {
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  execFileSync('tar', ['-x', '-C', sourceSnapshot], {
+    input: archive,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  sourceRoot = sourceSnapshot;
+}
+
+const webIndexPath = join(sourceRoot, 'src/features/pathway/courseIndex.ts');
 const nativeIndexPath = join(nativeRoot, 'src/lib/curriculum/courseIndex.ts');
 
 if (!existsSync(webIndexPath)) {
@@ -48,6 +72,7 @@ let stepTotal = 0;
 let challengeTotal = 0;
 
 console.log('\nCurriculum semantic parity\n');
+console.log(`  source: ${webRoot}${webRef ? `@${webRef}` : ' (working tree)'}\n`);
 
 for (const course of web.COURSES) {
   const [webLessons, nativeLessons] = await Promise.all([

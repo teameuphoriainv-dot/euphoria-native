@@ -36,7 +36,9 @@ for (const slug of posts) {
 
 // --- course id -> module file, straight out of the loader switch -------------
 const files = Object.fromEntries(
-  [...read("src/lib/curriculum/courseIndex.ts").matchAll(/case '([a-z-]+)':\s*\n\s*return \(await import\('\.\/courses\/(\w+)'\)\)/g)]
+  // The canonical website loader wraps the dynamic import with reading-level and retired-step
+  // transforms. Match the import inside each case instead of requiring a bare return expression.
+  [...read("src/lib/curriculum/courseIndex.ts").matchAll(/case '([a-z-]+)':[^]*?import\('\.\/courses\/(\w+)'\)/g)]
     .map((m) => [m[1], m[2]]),
 );
 

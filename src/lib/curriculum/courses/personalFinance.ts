@@ -16,96 +16,158 @@ import type { PathwayLesson } from '../types';
 // ═══════════════════════════════════════════════════════════════
 
 // ─── LESSON 1 (Why Personal Finance Matters) ───
-const PF1_HOOK: AnimatedVisual = { type: 'metric', title: 'Living Paycheck to Paycheck', value: '58%', detail: 'of Americans, including 30% earning over $100K/year', footer: 'CNBC/Momentive 2023 survey', sentiment: 'negative' };
+// Hook uses `calendar`, not `wallet`: the wallet sprite draws bills sticking out,
+// so on a statistic about people who have run out before payday the art
+// contradicted the number. Paycheck to paycheck is about the pay CYCLE, which is
+// what the calendar says. See the `avoid` note on wallet in lib/pixel/catalogue.
+const PF1_HOOK: AnimatedVisual = { type: 'metric', title: 'Living Paycheck to Paycheck', value: '58%', detail: 'of Americans, including 30% earning over $100K/year', footer: 'CNBC/Momentive 2023 survey', sentiment: 'negative', sprite: 'calendar' };
 const PF1_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Without Financial Literacy', items: [
-  { label: 'Average total debt', value: 100, displayValue: '$104,215' },
-  { label: 'Retirement savings', value: 62, displayValue: '<$65,000' },
-  { label: 'Cannot cover $1K emergency', value: 56, displayValue: '56%' },
+  { label: 'Average total debt', value: 100, displayValue: '$104,215', sprite: 'chart-down' },
+  { label: 'Retirement savings', value: 62, displayValue: '<$65,000', sprite: 'piggy-bank' },
+  { label: 'Cannot cover $1K emergency', value: 56, displayValue: '56%', sprite: 'bolt' },
 ], footer: 'The average American is one expense away from crisis', sentiment: 'negative' };
-const PF1_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'With Financial Literacy', value: '+75%', detail: 'more wealth accumulated over a lifetime, retire ~5 years earlier', footer: 'TIAA Institute 2023 study', sentiment: 'positive' };
+const PF1_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'With Financial Literacy', value: '+75%', detail: 'more wealth accumulated over a lifetime, retire ~5 years earlier', footer: 'TIAA Institute 2023 study', sentiment: 'positive', sprite: 'chart-up' };
 const PF1_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Four Pillars of Personal Finance', items: [
-  { label: 'Earn', value: 'Income & salary', color: '#10B981' },
-  { label: 'Spend', value: 'Budgeting wisely', color: '#A451E6' },
-  { label: 'Save', value: 'Emergency fund', color: '#3B82F6' },
-  { label: 'Invest', value: 'Build wealth', color: '#F59E0B' },
+  { label: 'Earn', value: 'Income & salary', color: '#10B981', sprite: 'coin',
+    explain: 'Everything starts here. Earning is the money coming in, and the one lever most people never pull is negotiating it, because a raise compounds for the rest of your career.' },
+  { label: 'Spend', value: 'Budgeting wisely', color: '#A451E6', sprite: 'wallet',
+    explain: 'Spending is where most of your money actually goes. You do not need to track every coffee, you need to know which three or four categories eat the majority of your paycheck.' },
+  { label: 'Save', value: 'Emergency fund', color: '#3B82F6', sprite: 'piggy-bank',
+    explain: 'Saving is the buffer between you and a bad month. Before you invest a dollar, this is what stops an unexpected bill from turning into credit card debt.' },
+  { label: 'Invest', value: 'Build wealth', color: '#F59E0B', sprite: 'chart-up',
+    explain: 'Investing is putting money to work so it earns on its own. It is the only pillar where time does the heavy lifting, which is why starting early beats starting big.' },
 ], footer: 'Four pillars supporting financial security', sentiment: 'positive' };
 
 // ─── LESSON 2 (Budgeting Basics) ───
-const PF2_HOOK: AnimatedVisual = { type: 'metric', title: 'Consistent Budgeters', value: '80%', detail: 'more likely to be debt-free, and 50% less financial stress', footer: 'Debt.com 2023 Budgeting Survey', sentiment: 'positive' };
-const PF2_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Without a Budget', value: '$7,400', detail: 'overspent per year unknowingly, $115,000 lost over 10 years at 8%', footer: 'Bureau of Labor Statistics', sentiment: 'negative' };
+// Sprites picked from lib/pixel/catalogue: `chain-break` means a debt actually
+// cleared, `receipt` is money leaving without being tracked, and the three bars
+// take the object each one is about. Bar width still carries every magnitude,
+// so the art cannot make the chart say anything the numbers do not.
+const PF2_HOOK: AnimatedVisual = { type: 'metric', title: 'Consistent Budgeters', value: '80%', detail: 'more likely to be debt-free, and 50% less financial stress', footer: 'Debt.com 2023 Budgeting Survey', sentiment: 'positive', sprite: 'chain-break' };
+const PF2_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Without a Budget', value: '$7,400', detail: 'overspent per year unknowingly, $115,000 lost over 10 years at 8%', footer: 'Bureau of Labor Statistics', sentiment: 'negative', sprite: 'receipt' };
 const PF2_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'With a Budget', items: [
-  { label: 'More income saved', value: 100, displayValue: '+20%' },
-  { label: 'Less credit card debt', value: 70, displayValue: '-30%' },
-  { label: 'Feel "in control"', value: 90, displayValue: '2x' },
+  { label: 'More income saved', value: 100, displayValue: '+20%', sprite: 'piggy-bank' },
+  { label: 'Less credit card debt', value: 70, displayValue: '-30%', sprite: 'credit-card' },
+  { label: 'Feel "in control"', value: 90, displayValue: '2x', sprite: 'compass' },
 ], footer: 'Budgeters build wealth and reduce stress', sentiment: 'positive' };
+// Every slice answers when tapped, the same way lesson 1's Four Pillars do.
+// The rule is only useful once a learner can tell which slice a given dollar
+// belongs to, and that judgement is exactly what the explanations teach.
 const PF2_DIAGRAM: AnimatedVisual = { type: 'pie', title: 'The 50/30/20 Rule', segments: [
-  { label: 'Needs', percent: 50, color: '#A451E6' },
-  { label: 'Wants', percent: 30, color: '#F59E0B' },
-  { label: 'Savings & Debt', percent: 20, color: '#10B981' },
+  { label: 'Needs', percent: 50, color: '#A451E6',
+    explain: 'The things that go wrong if you stop paying them. Rent, food, power, insurance, getting to work, and the minimum on any debt. If half your pay is already gone here, that is normal in an expensive city.' },
+  { label: 'Wants', percent: 30, color: '#F59E0B',
+    explain: 'Everything that makes life better but would not break it. Eating out, streaming, the gym, new clothes. This is the slice you can actually move, which makes it the one worth watching.' },
+  { label: 'Savings & Debt', percent: 20, color: '#10B981',
+    explain: 'Money you send forward instead of spending: an emergency fund first, then investing, plus anything you pay off above the minimum. Move this one first on payday or it never happens.' },
 ], centerLabel: 'After-tax income', footer: 'Housing, food, utilities vs. lifestyle vs. wealth building', sentiment: 'positive' };
 
 // ─── LESSON 3 (Tracking Your Spending) ───
+// Lesson 3 is about money leaving without being noticed, so the art is about
+// leaks: a cart for impulse buying, a calendar for the subscriptions that renew
+// whether or not you use them, a crack for what unnoticed spending does, and a
+// receipt for the act of finally looking.
 const PF3_HOOK: AnimatedVisual = { type: 'bars', title: 'The Hidden Spending Leak', items: [
-  { label: 'Impulse purchases', value: 100, displayValue: '$5,400/yr' },
-  { label: 'Subscriptions', value: 49, displayValue: '$2,628/yr' },
+  { label: 'Impulse purchases', value: 100, displayValue: '$5,400/yr', sprite: 'cart' },
+  { label: 'Subscriptions', value: 49, displayValue: '$2,628/yr', sprite: 'calendar' },
 ], footer: '42% still pay for forgotten subscriptions', sentiment: 'negative' };
-const PF3_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Without Tracking', value: '$6,500', detail: 'vanishing annually, most underestimate spending by 20-40%', footer: 'Journal of Marketing Research', sentiment: 'negative' };
-const PF3_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'With Tracking', value: '$600-$800', detail: 'per month redirected to wealth, $115,000+ over 10 years invested', footer: 'Financial Health Network', sentiment: 'positive' };
+const PF3_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Without Tracking', value: '$6,500', detail: 'vanishing annually, most underestimate spending by 20-40%', footer: 'Journal of Marketing Research', sentiment: 'negative', sprite: 'crack' };
+const PF3_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'With Tracking', value: '$600-$800', detail: 'per month redirected to wealth, $115,000+ over 10 years invested', footer: 'Financial Health Network', sentiment: 'positive', sprite: 'receipt' };
 const PF3_DIAGRAM: AnimatedVisual = { type: 'line', title: 'The Latte Factor: $6/Day Coffee', points: [
-  { label: 'Per year', value: '$2,190' },
-  { label: '10 years', value: '$117K' },
-  { label: '20 years', value: '$375K' },
-  { label: '30 years', value: '$940K' },
+  { label: 'Per year', value: '$2,190',
+    explain: 'Six dollars a day, every day. Nobody decides to spend $2,190 on coffee. They decide $6, three hundred and sixty five times.' },
+  { label: '10 years', value: '$117K',
+    explain: 'You spent $21,900 of actual coffee money. The other $95,000 is what those dollars would have earned if they had been invested instead.' },
+  { label: '20 years', value: '$375K',
+    explain: 'Ten more years roughly tripled it. Nothing about the habit changed, only how long the earlier money had to grow.' },
+  { label: '30 years', value: '$940K',
+    explain: 'Look at how steep the last stretch is. Most of that came from growth on growth, which is why starting early beats saving harder later.' },
 ], trend: 'up', footer: 'Small daily habits compound at 8% over time', sentiment: 'negative' };
 
 // ─── LESSON 4 (Building an Emergency Fund) ───
+// Lesson 4 is the buffer under you, so the art is fragility against safety:
+// a crack and a bolt for how easily it goes wrong, a credit card for what
+// people reach for instead, and a safety net for what should have been there.
 const PF4_HOOK: AnimatedVisual = { type: 'bars', title: 'American Emergency Fragility', items: [
-  { label: "Can't cover $1,000", value: 100, displayValue: '56%' },
-  { label: "Can't cover $400", value: 66, displayValue: '37%' },
+  { label: "Can't cover $1,000", value: 100, displayValue: '56%', sprite: 'crack' },
+  { label: "Can't cover $400", value: 66, displayValue: '37%', sprite: 'bolt' },
 ], footer: 'Bankrate 2024 & Federal Reserve SHED', sentiment: 'negative' };
-const PF4_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Without an Emergency Fund', value: '$1,560', detail: 'true cost of a $1,000 car repair on a 22% APR credit card', footer: '5+ years to pay off', sentiment: 'negative' };
-const PF4_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'With an Emergency Fund', value: '$0', detail: 'interest paid, $560 saved, rebuilt in 2-3 months', footer: 'Pew: 2.5x less likely to miss a bill', sentiment: 'positive' };
-const PF4_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'Emergency Fund Milestones', nodes: [
-  { label: '$500 starter', value: 'Small surprises', color: '#EF4444' },
-  { label: '$1,000 buffer', value: 'Most emergencies', color: '#F59E0B' },
-  { label: '3 months', value: 'Job loss cushion', color: '#3B82F6' },
-  { label: '6 months', value: 'Fully funded', color: '#10B981' },
-], footer: 'Build the safety net step by step', sentiment: 'positive' };
+const PF4_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Without an Emergency Fund', value: '$1,560', detail: 'true cost of a $1,000 car repair on a 22% APR credit card', footer: '5+ years to pay off', sentiment: 'negative', sprite: 'credit-card' };
+const PF4_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'With an Emergency Fund', value: '$0', detail: 'interest paid, $560 saved, rebuilt in 2-3 months', footer: 'Pew: 2.5x less likely to miss a bill', sentiment: 'positive', sprite: 'safety-net' };
+// Was a 'flow' of four equal boxes, which drew a $500 starter and a fully funded
+// 6-month fund at the same visual weight despite a 30x gap. A pictograph makes
+// the milestone spacing literal: one coin is one month of essentials, so "six
+// months" is six coins and a $1,000 buffer is visibly less than half of one.
+// Dollar figures are the lesson's own $2,500/month example, stated in the
+// teaching slide directly above this diagram.
+const PF4_DIAGRAM: AnimatedVisual = { type: 'pictograph', title: 'Emergency fund milestones, to scale', sprite: 'coin', unitValue: 2500, unitLabel: 'one month of essentials ($2,500)', rows: [
+  { label: '$500 starter, small surprises', value: 500, displayValue: '$500',
+    explain: 'Not even a fifth of one coin. It covers a phone screen or a small car repair, and that is already better than reaching for a credit card.' },
+  { label: '$1,000 buffer, most emergencies', value: 1000, displayValue: '$1,000',
+    explain: 'Under half a month. This handles the flat tire and the emergency room copay, which is most of what actually goes wrong.' },
+  { label: '3 months, job loss cushion', value: 7500, displayValue: '$7,500',
+    explain: 'Three whole coins. This is the first row that buys you time instead of covering a bill: three months to find work without panicking.' },
+  { label: '6 months, fully funded', value: 15000, displayValue: '$15,000',
+    explain: 'Six coins. Count the gap between this row and the $1,000 one. That distance is exactly why the target is months of expenses, not a round number.' },
+], footer: 'A $1,000 buffer covers a car repair, not a lost job. That gap is the whole point of the 3 to 6 month target.', sentiment: 'positive' };
 
 // ─── LESSON 5 (Understanding Credit Scores) ───
-const PF5_HOOK: AnimatedVisual = { type: 'metric', title: 'Credit Score Impact on a $350K Mortgage', value: '$65,880', detail: 'extra interest on a 620 vs. 760 score, same house', footer: 'LendingTree analysis', sentiment: 'negative' };
-const PF5_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Poor Credit (580)', value: '$2,447/mo', detail: '7.5% mortgage rate, apartments denied, 40-80% higher insurance', footer: '$250,000+ lifetime cost of bad credit', sentiment: 'negative' };
-const PF5_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Excellent Credit (760+)', value: '$2,140/mo', detail: '6.2% mortgage rate, $110,520 saved over 30 years', footer: 'Best rates, full financial access', sentiment: 'positive' };
+// Lesson 5 is a number that decides what doors open, so the art is the doors:
+// a house for the mortgage the score prices, a bill for what bad credit costs
+// every month, and a key for the access good credit buys.
+const PF5_HOOK: AnimatedVisual = { type: 'metric', title: 'Credit Score Impact on a $350K Mortgage', value: '$65,880', detail: 'extra interest on a 620 vs. 760 score, same house', footer: 'LendingTree analysis', sentiment: 'negative', sprite: 'house' };
+const PF5_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Poor Credit (580)', value: '$2,447/mo', detail: '7.5% mortgage rate, apartments denied, 40-80% higher insurance', footer: '$250,000+ lifetime cost of bad credit', sentiment: 'negative', sprite: 'bill' };
+const PF5_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Excellent Credit (760+)', value: '$2,140/mo', detail: '6.2% mortgage rate, $110,520 saved over 30 years', footer: 'Best rates, full financial access', sentiment: 'positive', sprite: 'key' };
+// Every slice answers, the way lesson 2's 50/30/20 pie does. Knowing that two
+// factors decide two thirds of the score is the entire practical takeaway, and
+// a static chart makes all five look equally worth worrying about.
 const PF5_DIAGRAM: AnimatedVisual = { type: 'pie', title: 'The 5 FICO Score Factors', segments: [
-  { label: 'Payment History', percent: 35, color: '#A451E6' },
-  { label: 'Credit Utilization', percent: 30, color: '#3B82F6' },
-  { label: 'Length of History', percent: 15, color: '#10B981' },
-  { label: 'Credit Mix', percent: 10, color: '#F59E0B' },
-  { label: 'New Credit', percent: 10, color: '#EF4444' },
+  { label: 'Payment History', percent: 35, color: '#A451E6',
+    explain: 'Did you pay on time. The largest slice by a distance, and the only one you control completely: one payment 30 days late can cost 100 points and stays on the report for seven years.' },
+  { label: 'Credit Utilization', percent: 30, color: '#3B82F6',
+    explain: 'How much of your available credit you are using. Under 30% is the usual advice and under 10% is better. This one updates monthly, so it is the fastest slice to fix.' },
+  { label: 'Length of History', percent: 15, color: '#10B981',
+    explain: 'How long your accounts have been open. Nothing but time moves it, which is the real argument for never closing your oldest card.' },
+  { label: 'Credit Mix', percent: 10, color: '#F59E0B',
+    explain: 'Whether you have handled different kinds of borrowing, like a card and a car loan. Worth knowing about, never worth taking on debt for.' },
+  { label: 'New Credit', percent: 10, color: '#EF4444',
+    explain: 'How many accounts you have opened recently. Several applications in a short window reads as needing money urgently, so space them out.' },
 ], centerLabel: '300-850', footer: 'Payment history and utilization drive 65% of your score', sentiment: 'positive' };
 
 // ─── LESSON 6 (Managing Debt Wisely) ───
-const PF6_HOOK: AnimatedVisual = { type: 'metric', title: 'Average U.S. Household Debt', value: '$104,215', detail: 'Credit card debt averages $7,951 at 20.72% APR', footer: 'Federal Reserve 2023', sentiment: 'negative' };
-const PF6_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Minimum Payments Only', value: '$11,945', detail: 'total cost of a $7,951 balance, $3,994 in pure interest, 5+ years', footer: '50% more than the original debt', sentiment: 'negative' };
-const PF6_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Strategic Debt Elimination', value: '$9,240', detail: 'total cost with $500/month payments, gone in 19 months', footer: '$2,705 saved → $18,500 invested over 25 years', sentiment: 'positive' };
+// Lesson 6 is debt: what is owed, how it compounds against you, and getting out.
+const PF6_HOOK: AnimatedVisual = { type: 'metric', title: 'Average U.S. Household Debt', value: '$104,215', detail: 'Credit card debt averages $7,951 at 20.72% APR', footer: 'Federal Reserve 2023', sentiment: 'negative', sprite: 'bill' };
+const PF6_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Minimum Payments Only', value: '$11,945', detail: 'total cost of a $7,951 balance, $3,994 in pure interest, 5+ years', footer: '50% more than the original debt', sentiment: 'negative', sprite: 'hourglass' };
+const PF6_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Strategic Debt Elimination', value: '$9,240', detail: 'total cost with $500/month payments, gone in 19 months', footer: '$2,705 saved → $18,500 invested over 25 years', sentiment: 'positive', sprite: 'chain-break' };
+// The bars are the APR itself, so the payday-loan row genuinely dwarfs the
+// others. That gap IS the lesson, and drawing it to scale says it faster than
+// the sentence does.
 const PF6_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Good Debt vs. Bad Debt', rows: [
-  { label: 'Mortgage', value: '~6% APR, appreciating asset' },
-  { label: 'Student Loan', value: '~5% APR, higher earning power' },
-  { label: 'Credit Card', value: '22% APR, consumption' },
-  { label: 'Payday Loan', value: '400% APR, debt trap' },
+  { label: 'Mortgage', value: '~6% APR, appreciating asset', percent: 6,
+    explain: 'You borrow to buy something that tends to gain value. The house can be worth more later, so the 6% is buying you an asset, not just costing you.' },
+  { label: 'Student Loan', value: '~5% APR, higher earning power', percent: 5,
+    explain: 'This one buys a skill. If the degree raises what you earn by more than 5% a year, the loan paid for itself.' },
+  { label: 'Credit Card', value: '22% APR, consumption', percent: 22,
+    explain: 'Nothing is left over afterward. The dinner is eaten, the shirt is worn, and you are still paying 22% on it. That is why this bar is four times the mortgage.' },
+  { label: 'Payday Loan', value: '400% APR, debt trap', percent: 400,
+    explain: 'Look at the bar. It is so much longer than the others that they almost vanish. At 400%, a $300 loan can cost $1,200 to clear. This is the one to never touch.' },
 ], footer: 'Interest rate vs. potential return is the key test', sentiment: 'negative' };
 
 // ─── LESSON 7 (Taxes 101) ───
 const PF7_HOOK: AnimatedVisual = { type: 'flow', title: 'How Tax Brackets Stack ($50K income)', nodes: [
-  { label: 'First $11,600', value: '10% bracket', color: '#10B981' },
-  { label: '$11,601-$47,150', value: '12% bracket', color: '#3B82F6' },
-  { label: 'Above $47,150', value: '22% bracket', color: '#F59E0B' },
+  { label: 'First $11,600', value: '10% bracket', color: '#10B981',
+    explain: 'Every single person pays 10% on their first $11,600. A billionaire pays the exact same 10% on theirs. This part never changes.' },
+  { label: '$11,601-$47,150', value: '12% bracket', color: '#3B82F6',
+    explain: 'Only the money above $11,600 gets taxed at 12%. The first chunk stays at 10%. The brackets stack, they do not replace each other.' },
+  { label: 'Above $47,150', value: '22% bracket', color: '#F59E0B',
+    explain: 'On $50,000, just $2,850 lands here. That is the only money taxed at 22%, which is why a raise can never leave you with less.' },
 ], footer: 'Only income IN each bracket is taxed at that rate', sentiment: 'positive' };
-const PF7_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Tax-Illiterate', value: '$5,000+', detail: 'in raises turned down over 5 years from the bracket myth', footer: 'Plus $2,000+ in unclaimed credits', sentiment: 'negative' };
-const PF7_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Tax-Literate', value: '$50K-$200K', detail: 'saved over a career, claim every credit, never refuse income', footer: 'Marginal brackets understood', sentiment: 'positive' };
+// Lesson 7 is tax: the form, the myth about brackets, and what the myth costs.
+const PF7_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Tax-Illiterate', value: '$5,000+', detail: 'in raises turned down over 5 years from the bracket myth', footer: 'Plus $2,000+ in unclaimed credits', sentiment: 'negative', sprite: 'question' };
+const PF7_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Tax-Literate', value: '$50K-$200K', detail: 'saved over a career, claim every credit, never refuse income', footer: 'Marginal brackets understood', sentiment: 'positive', sprite: 'tax-form' };
 const PF7_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'Marginal vs. Effective Rate ($50K income)', items: [
-  { label: 'Marginal (top bracket)', value: 100, displayValue: '22%' },
-  { label: 'Effective (actual paid)', value: 55, displayValue: '~12%' },
+  { label: 'Marginal (top bracket)', value: 100, displayValue: '22%', sprite: 'scale-tip' },
+  { label: 'Effective (actual paid)', value: 55, displayValue: '~12%', sprite: 'scales' },
 ], footer: 'Your effective rate is always far below your bracket', sentiment: 'positive' };
 
 const lessons: PathwayLesson[] = [
@@ -117,16 +179,32 @@ const lessons: PathwayLesson[] = [
     // Step 1, Hook Opener
     hookOpener(
       'Why Personal Finance Matters',
-      'According to a 2023 CNBC/Momentive survey, 58% of Americans live paycheck to paycheck, including 30% of those earning over $100,000 per year.',
-      'By the end of this lesson, you\'ll understand what personal finance actually is, why financial literacy is the #1 life skill nobody teaches in school, and the real cost of ignoring your money.',
+      {
+        middle: 'Almost 6 out of 10 people in the US run out of money before their next payday. Even people who make a lot.',
+        high: '58% of Americans live paycheck to paycheck, and so do 30% of people earning over $100,000 a year (CNBC/Momentive, 2023).',
+        adult: 'According to a 2023 CNBC/Momentive survey, 58% of Americans live paycheck to paycheck, including 30% of those earning over $100,000 per year.',
+      },
+      {
+        middle: 'By the end of this lesson you will know what money management is, why nobody teaches it, and what it costs you to skip it.',
+        high: 'By the end of this lesson you will know what personal finance is, why it is the life skill school skips, and what ignoring it actually costs.',
+        adult: 'By the end of this lesson, you\'ll understand what personal finance actually is, why financial literacy is the #1 life skill nobody teaches in school, and the real cost of ignoring your money.',
+      },
       'Split screen: one person stressed over bills vs. another confidently reviewing a financial dashboard showing growing net worth',
       PF1_HOOK
     ),
 
     // Step 2, Stakes Card
     stakesCard(
-      { label: 'Without financial literacy', detail: 'The average American carries $104,215 in total debt (Experian 2023), retires with less than $65,000 saved (Federal Reserve SCF), and 56% cannot cover a $1,000 emergency expense (Bankrate 2024).' },
-      { label: 'With financial literacy', detail: 'Financially literate individuals accumulate 75% more wealth over their lifetimes according to a 2023 TIAA Institute study. They carry less debt, save more, and retire an average of 5 years earlier.' },
+      { label: 'Without financial literacy', detail: {
+        middle: 'The average person owes about $104,000. Most retire with less than $65,000 saved. More than half cannot pay a surprise $1,000 bill.',
+        high: 'The average American owes $104,215, retires with under $65,000 saved, and 56% cannot cover a surprise $1,000 bill.',
+        adult: 'The average American carries $104,215 in total debt (Experian 2023), retires with less than $65,000 saved (Federal Reserve SCF), and 56% cannot cover a $1,000 emergency expense (Bankrate 2024).',
+      } },
+      { label: 'With financial literacy', detail: {
+        middle: 'People who learn this end up with about 75% more money, owe less, and stop working about 5 years sooner.',
+        high: 'People who learn this build about 75% more wealth over a lifetime, carry less debt, and retire around 5 years earlier.',
+        adult: 'Financially literate individuals accumulate 75% more wealth over their lifetimes according to a 2023 TIAA Institute study. They carry less debt, save more, and retire an average of 5 years earlier.',
+      } },
       { withoutVisual: PF1_STAKES_WITHOUT, withVisual: PF1_STAKES_WITH }
     ),
 
@@ -136,12 +214,19 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE FOUNDATION',
+      'The foundation',
       'What Is Personal Finance?',
       [
-        'Personal finance is the management of your money across four pillars: earning, spending, saving, and investing. It encompasses every financial decision you make, from choosing a bank account to negotiating your salary, from building an emergency fund to planning for retirement. According to the Council for Economic Education, only 25 states require a personal finance course for high school graduation as of 2024, leaving millions of young adults financially unprepared.',
-        'The consequences of financial illiteracy are staggering. The Financial Industry Regulatory Authority (FINRA) found in their 2021 National Financial Capability Study that Americans who scored low on financial literacy tests were 5 times more likely to be unable to cover a month of expenses and 3 times more likely to be burdened by debt. Meanwhile, the Consumer Financial Protection Bureau (CFPB) estimates that Americans lose over $12 billion annually to avoidable financial fees and predatory products.',
-        'The good news? Financial literacy is a learnable skill, not something you\'re born with. A landmark study published in the Journal of Financial Economics (Lusardi & Mitchell, 2023) found that individuals who received just 10 hours of financial education made measurably better decisions about saving, borrowing, and investing for the rest of their lives. Personal finance is the one subject that affects every single day of your adult life, and you\'re about to master it.'
+        {
+          middle: 'Personal finance is just how you handle your money. There are four parts: getting it, spending it, saving it, and growing it. Only 25 states make you learn this before you graduate.',
+          high: 'Personal finance means managing your money: earning it, spending it, saving it, investing it. Only 25 states required it to graduate in 2024, and about 10 hours of teaching improves the decisions people make for the rest of their lives.',
+          adult: 'Personal finance means managing money: earning, spending, saving, investing. The Council for Economic Education found only 25 states required it for 2024 graduation. Lusardi and Mitchell, 2023, Journal of Financial Economics: 10 hours of teaching improved lifelong decisions.',
+        },
+        {
+          middle: 'People who never learn it are 5 times more likely to miss a month of bills. Americans lose $12 billion a year to fees they did not have to pay.',
+          high: 'People who score lowest on financial knowledge are 5 times likelier to miss a month of expenses and 3 times likelier to be buried in debt. Americans lose $12 billion a year to fees they could have avoided.',
+          adult: 'Regulator FINRA\'s 2021 National Financial Capability Study found low scorers were 5 times likelier to miss a month of expenses, 3 times likelier to be debt burdened. The CFPB says Americans lose $12 billion yearly to avoidable fees.',
+        }
       ],
       [
         { term: 'Personal Finance', definition: 'The management of an individual\'s money, including earning, budgeting, saving, investing, and protecting wealth.', example: 'Deciding how much of your paycheck to save vs. spend is a personal finance decision.' },
@@ -149,8 +234,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Paycheck to Paycheck', definition: 'A financial state where a person spends all their income on expenses with no savings buffer between pay periods.', example: 'If losing one paycheck means you can\'t pay rent, you\'re living paycheck to paycheck.' }
       ],
       'Diagram showing four pillars (Earn, Spend, Save, Invest) supporting a roof labeled "Financial Security," with arrows showing how money flows between each pillar.',
-      { company: 'TIAA Institute', metric: 'P-Fin Index annual survey of 3,000+ adults', outcome: 'Only 50% of Americans can answer basic financial literacy questions correctly', explanation: 'The TIAA Institute\'s Personal Finance Index consistently shows that half of American adults lack fundamental financial knowledge, yet those who score in the top quartile accumulate significantly more wealth and report higher financial well-being.' },
-      PF1_DIAGRAM
+      undefined,
+      PF1_DIAGRAM,
+      {
+        hint: 'Click any of these and I will explain it',
+        recap: 'That is the whole subject: earn, spend, save, invest. Every lesson after this one is a detail inside one of those four, so if a topic ever feels unrelated, ask which pillar it belongs to.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -164,30 +253,70 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE IMPACT',
+      'The impact',
       'The Wealth Gap Between Financially Literate and Illiterate',
       'comparison',
       'See how financial literacy impacts wealth accumulation over a career. Adjust income level and years to see the compounding effect of good financial decisions.',
       [
-        'Research from the Global Financial Literacy Excellence Center (GFLEC) at George Washington University shows that financially literate individuals accumulate 75% more wealth over their lifetimes. The gap isn\'t primarily about income, it\'s about decisions. A financially literate person earning $50,000 often builds more wealth than a financially illiterate person earning $100,000.',
-        'The Bureau of Labor Statistics reports that the median American earns approximately $2.7 million over their working lifetime (ages 25-65). The difference between saving/investing 15% of that vs. 3% is enormous: $405,000 invested at 8% average return over 40 years grows to over $2.8 million, while $81,000 at the same rate grows to only $560,000. The gap is $2.2 million, from the same income.',
-        'Perhaps most striking: the Federal Reserve\'s Survey of Consumer Finances shows that the top 10% of earners hold 69% of all wealth, but education and financial behavior explain more of the gap than income alone. Households that follow basic financial principles, budgeting, emergency savings, avoiding high-interest debt, and consistent investing, end up wealthier regardless of starting income.'
+        {
+          middle: 'People who understand money end up with about 75% more of it. That gap is not about how much they earn. Someone making $50,000 who knows this often ends up with more than someone making $100,000 who does not.',
+          high: 'People who understand money build about 75% more wealth over a lifetime. The gap is not mostly about income: someone earning $50,000 who makes good decisions often ends up ahead of someone earning $100,000 who does not.',
+          adult: 'Research from the Global Financial Literacy Excellence Center (GFLEC) at George Washington University shows that financially literate individuals accumulate 75% more wealth over their lifetimes. The gap isn\'t primarily about income, it\'s about decisions. A financially literate person earning $50,000 often builds more wealth than a financially illiterate person earning $100,000.',
+        },
+        {
+          middle: 'A typical person earns about $2.7 million in their whole life. Save 15% of it and you end up with about $2.8 million. Save 3% and you end up with about $560,000. Same paycheck, $2.2 million apart.',
+          high: 'The typical American earns about $2.7 million between 25 and 65. Saving 15% of that grows to over $2.8 million at an 8% return; saving 3% grows to about $560,000. Same income, a $2.2 million difference.',
+          adult: 'The Bureau of Labor Statistics reports that the median American earns approximately $2.7 million over their working lifetime (ages 25-65). The difference between saving/investing 15% of that vs. 3% is enormous: $405,000 invested at 8% average return over 40 years grows to over $2.8 million, while $81,000 at the same rate grows to only $560,000. The gap is $2.2 million, from the same income.',
+        },
+        {
+          middle: 'Here is the part that surprises people. Families who do four simple things end up richer no matter what they started with: keep a budget, keep savings for emergencies, stay away from high-interest debt, and invest a bit every month.',
+          high: 'Here is the striking part. Households that stick to four basics end up wealthier regardless of where they started: budgeting, emergency savings, avoiding high-interest debt, and investing consistently.',
+          adult: 'Perhaps most striking: the Federal Reserve\'s Survey of Consumer Finances shows that the top 10% of earners hold 69% of all wealth, but education and financial behavior explain more of the gap than income alone. Households that follow basic financial principles, budgeting, emergency savings, avoiding high-interest debt, and consistent investing, end up wealthier regardless of starting income.',
+        }
       ],
       [
         { term: 'Net Worth', definition: 'Total assets minus total liabilities, the true measure of your financial position.', example: 'If you have $50,000 in savings/investments and $30,000 in student loans, your net worth is $20,000.' },
         { term: 'Wealth Gap', definition: 'The difference in accumulated assets between groups, in this case, between financially literate and illiterate populations.', example: 'Two people earning $60K can end up with vastly different net worths by age 65 based solely on financial decisions.' }
       ],
       [
-        'Financially literate adults accumulate 75% more wealth over their lifetimes (GFLEC/TIAA 2023).',
-        'The median American earns ~$2.7 million in their career, how much you keep is the real game.',
-        '56% of Americans can\'t cover a $1,000 emergency (Bankrate 2024), showing widespread financial fragility.',
-        'Just 10 hours of financial education measurably improves lifetime financial outcomes (Lusardi & Mitchell).'
+        {
+          middle: 'People who understand money end up with about 75% more of it.',
+          high: 'Adults who understand money build about 75% more wealth over a lifetime.',
+          adult: 'Financially literate adults accumulate 75% more wealth over their lifetimes (GFLEC/TIAA 2023).',
+        },
+        {
+          middle: 'A typical person earns about $2.7 million in their life. How much you keep is what counts.',
+          high: 'The typical American earns about $2.7 million in a career. How much you keep is the real game.',
+          adult: 'The median American earns ~$2.7 million in their career, how much you keep is the real game.',
+        },
+        {
+          middle: 'More than half of people cannot pay a surprise $1,000 bill.',
+          high: '56% of Americans cannot cover a surprise $1,000 bill, which is how fragile most budgets are.',
+          adult: '56% of Americans can\'t cover a $1,000 emergency (Bankrate 2024), showing widespread financial fragility.',
+        },
+        {
+          middle: 'About 10 hours of learning this changes the decisions you make for life.',
+          high: 'Around 10 hours of financial education measurably improves the decisions people make for life.',
+          adult: 'Just 10 hours of financial education measurably improves lifetime financial outcomes (Lusardi & Mitchell).',
+        }
       ],
       [
         { label: 'Annual Income', min: 30000, max: 150000, default: 50000, unit: '$' },
         { label: 'Working Years', min: 10, max: 45, default: 40, unit: ' years' }
       ],
-      { company: 'Federal Reserve', metric: 'Survey of Consumer Finances (2022)', outcome: 'Median net worth for Americans under 35 is just $39,000, but the top 25% have over $150,000', explanation: 'The Fed\'s triennial survey reveals that young adults who start managing money early build dramatically more wealth. The difference between median and top quartile isn\'t income, it\'s financial behavior.' }
+      undefined,
+      undefined,
+      // Both lines earn the same 8% return, so the ONLY difference on screen is
+      // the share of income saved. That is the lesson's actual claim, and it is
+      // the 15% vs 3% figure its own paragraphs cite.
+      {
+        kind: 'savingsRate',
+        incomeSlider: 0,
+        yearsSlider: 1,
+        rateA: 0.15, labelA: 'Saving 15%',
+        rateB: 0.03, labelB: 'Saving 3%',
+        annualReturn: 0.08,
+      }
     ),
 
     // Step 6, Case Study
@@ -195,23 +324,23 @@ const lessons: PathwayLesson[] = [
       'The True Cost of Financial Illiteracy: A Tale of Two Graduates',
       [
         { date: 'Age 22', event: 'Both graduate college with $30,000 in student loans and land $50,000/year jobs', context: 'Alex took a personal finance course in college. Jordan didn\'t. Both start at the same place financially, same debt, same income, same city.' },
-        { date: 'Age 23', event: 'Alex builds a $1,000 emergency fund; Jordan finances a new car at 7% APR', context: 'Alex follows the financial literacy playbook: emergency fund first, then attack debt. Jordan has no buffer and adds $25,000 in auto debt. Monthly payments: Alex saves $200/month. Jordan pays $490/month on the car.' },
-        { date: 'Age 25', event: 'Alex starts investing $300/month in a total market index fund', context: 'With the emergency fund built and student loans on a steady payoff plan, Alex begins investing. Jordan is still juggling minimum payments on student loans and car debt, with $0 invested.' },
-        { date: 'Age 35', event: 'Alex has $65,000 invested and is debt-free; Jordan still carries $18,000 in debt', context: 'Alex\'s $300/month at 10% average return has grown to ~$65,000. Jordan paid over $8,000 in car loan interest and still has lingering credit card debt from emergencies with no savings buffer.' },
+        { date: 'Age 23', event: 'Alex builds a $1,000 emergency fund; Jordan finances a new car at 7% APR', context: 'Alex builds an emergency fund, then attacks debt, saving $200 a month. Jordan has no buffer, adds $25,000 in car debt, and pays $490 a month.' },
+        { date: 'Age 25', event: 'Alex starts investing $300/month in a total market index fund', context: 'With savings set and loans on a steady payoff plan, Alex starts investing. Jordan still makes minimum payments on student loans and car debt, with $0 invested.' },
+        { date: 'Age 35', event: 'Alex has $65,000 invested and is debt-free; Jordan still carries $18,000 in debt', context: 'Alex\'s $300 a month at a 10% average return is now near $65,000. Jordan paid over $8,000 in car loan interest, still owes on credit cards, and saved nothing.' },
         { date: 'Age 45', event: 'Alex\'s portfolio crosses $250,000; Jordan finally starts investing', context: 'Compound growth accelerated Alex\'s wealth. Jordan, now debt-free at 45, starts investing, but has a 20-year head start to overcome.' }
       ],
-      'This case study mirrors real patterns documented by the Federal Reserve: the single biggest predictor of wealth at retirement isn\'t income, it\'s when you started making smart financial decisions. Alex\'s advantage wasn\'t a higher salary; it was financial literacy. Starting 20 years earlier and avoiding costly debt mistakes created a gap that Jordan may never close. The lesson: every year you delay learning personal finance costs you exponentially.'
+      'Federal Reserve data shows retirement wealth depends less on income than on when you start making smart money decisions. Alex\'s edge was knowledge, not salary. Starting 20 years earlier opened a gap Jordan may never close.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'MYTHS ABOUT MONEY',
+      'Myths about money',
       'Dangerous beliefs that keep people broke',
       [
         {
           myth: 'Personal finance is only for rich people, I don\'t make enough for it to matter.',
           truth: 'Personal finance matters MORE when you have less. The CFPB reports that low-income households lose a higher percentage of their income to fees, high-interest debt, and predatory products precisely because of financial illiteracy.',
-          explanation: 'Studies from the Federal Reserve show that financial literacy has the greatest impact on wealth building for low and middle-income earners. When every dollar counts, knowing how to manage money is the difference between breaking the cycle and staying stuck.'
+          explanation: 'Federal Reserve studies show financial literacy helps low and middle income earners the most. When every dollar counts, knowing how to manage money is the difference between getting ahead and staying stuck.'
         },
         {
           myth: 'Making more money will solve all my financial problems.',
@@ -221,19 +350,43 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'I\'m too young to worry about money, I\'ll figure it out later.',
           truth: 'Starting at 22 instead of 32 can mean the difference between $1.4 million and $560,000 at retirement, even investing the same amount. Every decade you delay costs you roughly half your potential wealth.',
-          explanation: 'Compound growth makes time your most powerful asset. The Federal Reserve\'s data shows that households where the primary earner started saving before age 25 had 3x the net worth at retirement compared to those who started after 35.'
+          explanation: 'Compound growth, where earnings earn more, makes time your biggest asset. Federal Reserve data shows savers who started before age 25 had 3x the retirement net worth of those who started after 35.'
         }
       ]
     ),
 
     // Step 8, Key Terms Cards
     keyTermsCards([
-      { term: 'Personal Finance', definition: 'The holistic management of your money: earning, spending, saving, investing, and protecting your financial future.', example: 'Creating a budget, building an emergency fund, and starting a retirement account are all personal finance activities.', sentence: 'Understanding personal finance gives you control over your money instead of letting your money control you.' },
-      { term: 'Financial Literacy', definition: 'The knowledge and skills needed to make informed, effective financial decisions. Includes understanding budgeting, credit, debt, investing, and taxes.', example: 'Knowing that paying only the minimum on a credit card means you\'ll pay 3-5x the original purchase price is financial literacy.', sentence: 'Countries with higher financial literacy rates have lower rates of personal bankruptcy and household debt distress.' },
-      { term: 'Net Worth', definition: 'Your total assets (what you own) minus your total liabilities (what you owe). The single best measure of financial health.', example: 'If you have $15,000 in savings and investments but owe $25,000 in student loans, your net worth is -$10,000.', sentence: 'Tracking your net worth monthly is the most powerful motivator for building wealth, you can see your progress in real numbers.' },
-      { term: 'Paycheck to Paycheck', definition: 'A financial state where all income goes to expenses each pay period, leaving no savings buffer for emergencies or future goals.', example: '58% of Americans live paycheck to paycheck, meaning one missed paycheck could mean missed rent or bills.', sentence: 'Breaking the paycheck-to-paycheck cycle starts with tracking your spending and building even a small emergency fund.' },
-      { term: 'Compound Growth', definition: 'The process where investment returns generate their own returns, creating exponential growth over time.', example: '$10,000 invested at 10% annual return becomes $67,275 in 20 years, $57,275 of that is pure compound growth.', sentence: 'Albert Einstein reportedly called compound growth the eighth wonder of the world, those who understand it earn it, those who don\'t pay it.' },
-      { term: 'Emergency Fund', definition: 'Cash reserves set aside specifically for unexpected expenses like medical bills, car repairs, or job loss, typically 3-6 months of essential expenses.', example: 'If your monthly expenses are $2,500, a full emergency fund would be $7,500-$15,000 in a high-yield savings account.', sentence: 'Without an emergency fund, every unexpected expense becomes a debt crisis, this is why it\'s the first thing to build.' }
+      { term: 'Personal Finance', definition: {
+        middle: 'How you handle your money: getting it, spending it, saving it, growing it, and keeping it safe.',
+        high: 'How you handle your money: earning, spending, saving, investing, and protecting it.',
+        adult: 'The holistic management of your money: earning, spending, saving, investing, and protecting your financial future.',
+      }, example: 'Creating a budget, building an emergency fund, and starting a retirement account are all personal finance activities.', sentence: 'Understanding personal finance gives you control over your money instead of letting your money control you.' },
+      { term: 'Financial Literacy', definition: {
+        middle: 'Knowing enough about money to make good calls with it. Budgets, credit, debt, investing, taxes.',
+        high: 'The knowledge and skills to make good money decisions: budgeting, credit, debt, investing and taxes.',
+        adult: 'The knowledge and skills needed to make informed, effective financial decisions. Includes understanding budgeting, credit, debt, investing, and taxes.',
+      }, example: 'Knowing that paying only the minimum on a credit card means you\'ll pay 3-5x the original purchase price is financial literacy.', sentence: 'Countries with higher financial literacy rates have lower rates of personal bankruptcy and household debt distress.' },
+      { term: 'Net Worth', definition: {
+        middle: 'What you own minus what you owe. One number that tells you how you are really doing.',
+        high: 'Everything you own minus everything you owe. The single best measure of where you stand.',
+        adult: 'Your total assets (what you own) minus your total liabilities (what you owe). The single best measure of financial health.',
+      }, example: 'If you have $15,000 in savings and investments but owe $25,000 in student loans, your net worth is -$10,000.', sentence: 'Tracking your net worth monthly is the most powerful motivator for building wealth, you can see your progress in real numbers.' },
+      { term: 'Paycheck to Paycheck', definition: {
+        middle: 'Every dollar you make is gone before the next payday, so nothing is left over.',
+        high: 'All your income goes to expenses each pay period, leaving nothing set aside.',
+        adult: 'A financial state where all income goes to expenses each pay period, leaving no savings buffer for emergencies or future goals.',
+      }, example: '58% of Americans live paycheck to paycheck, meaning one missed paycheck could mean missed rent or bills.', sentence: 'Breaking the paycheck-to-paycheck cycle starts with tracking your spending and building even a small emergency fund.' },
+      { term: 'Compound Growth', definition: {
+        middle: 'Your money earns money. Then that money earns money too. It snowballs.',
+        high: 'Returns that earn their own returns, so growth speeds up the longer you leave it.',
+        adult: 'The process where investment returns generate their own returns, creating exponential growth over time.',
+      }, example: '$10,000 invested at 10% annual return becomes $67,275 in 20 years, $57,275 of that is pure compound growth.', sentence: 'Albert Einstein reportedly called compound growth the eighth wonder of the world, those who understand it earn it, those who don\'t pay it.' },
+      { term: 'Emergency Fund', definition: {
+        middle: 'Money you keep for surprises. A car repair, a hospital bill, losing a job.',
+        high: 'Cash set aside for the unexpected: medical bills, car repairs, losing your job. Usually 3 to 6 months of costs.',
+        adult: 'Cash reserves set aside specifically for unexpected expenses like medical bills, car repairs, or job loss, typically 3-6 months of essential expenses.',
+      }, example: 'If your monthly expenses are $2,500, a full emergency fund would be $7,500-$15,000 in a high-yield savings account.', sentence: 'Without an emergency fund, every unexpected expense becomes a debt crisis, this is why it\'s the first thing to build.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -247,15 +400,21 @@ const lessons: PathwayLesson[] = [
     q('The TIAA Institute found that financially literate individuals accumulate how much more wealth over their lifetimes?',
       ['25% more','50% more','75% more','200% more'],
       2,
-      'The TIAA Institute and GFLEC research consistently shows that financial literacy leads to approximately 75% more accumulated wealth over a lifetime, the gap comes from better decisions around saving, investing, debt management, and fee avoidance.'
+      {
+          middle: 'People who learn this end up with about 75% more money. It comes from better calls on saving, investing, debt, and dodging fees.',
+          high: 'Understanding money leads to about 75% more wealth over a lifetime. The gap comes from better decisions on saving, investing, debt and avoiding fees.',
+          adult: 'The TIAA Institute and GFLEC research consistently shows that financial literacy leads to approximately 75% more accumulated wealth over a lifetime, the gap comes from better decisions around saving, investing, debt management, and fee avoidance.',
+        }
     ),
 
     // Step 11, Tap to Reveal
+    // Each card leads with its figure. `stat` is authored rather than parsed out
+    // of the answer, and the answer text no longer repeats the number.
     tr('Personal Finance by the Numbers',[
-      ['What % of Americans live paycheck to paycheck?','58%, including 30% of those earning over $100,000/year (CNBC/Momentive 2023).'],
-      ['How much does the average American carry in total debt?','$104,215 according to Experian\'s 2023 Consumer Debt Study.'],
-      ['How many states require personal finance for graduation?','Only 25 states as of 2024, leaving half the country without mandatory financial education (CEE).'],
-      ['What is the median retirement savings for Americans 55-64?','Just $134,000, far short of the $1M+ most financial planners recommend (Federal Reserve SCF 2022).']
+      ['What % of Americans live paycheck to paycheck?','Including 30% of those earning over $100,000 a year. (CNBC/Momentive 2023)', { stat: '58%', sprite: 'wallet' }],
+      ['How much does the average American carry in total debt?','Total debt per household, across cards, cars, students loans and mortgages. (Experian 2023)', { stat: '$104,215', sprite: 'chart-down' }],
+      ['How many states require personal finance for graduation?','Half the country still graduates with no mandatory financial education. (CEE 2024)', { stat: '25 of 50', sprite: 'book' }],
+      ['What is the median retirement savings for Americans 55-64?','Far short of the $1M+ most planners recommend, with under a decade left to work. (Federal Reserve SCF 2022)', { stat: '$134,000', sprite: 'piggy-bank' }]
     ]),
 
     // Step 12, Drag Sort
@@ -275,7 +434,8 @@ const lessons: PathwayLesson[] = [
     ]),
 
     // Step 14, Slider
-    sl('What percentage of your lifetime earnings is determined by financial behavior (not income level)?',10,90,70,'%'),
+    sl('What percentage of your lifetime earnings is determined by financial behavior (not income level)?',10,90,70,'%',
+      'There is no single exact figure here, but the direction is well established. The Federal Reserve\'s Survey of Consumer Finances finds that budgeting, keeping an emergency fund, avoiding high interest debt and investing consistently predict wealth better than income does. You will see it directly two steps from now: Taylor earns $55,000 and spends $53,000, Jamie earns $35,000 and spends $28,000, and after ten years Jamie is roughly three times ahead.'),
 
     // Step 15, True/False
     tf([
@@ -286,67 +446,9 @@ const lessons: PathwayLesson[] = [
       {s:'Only 25 states require personal finance education for high school graduation',a:true}
     ]),
 
-    // Step 16, Match
-    m('Personal Finance Key Concepts',[
-      ['Net Worth','Assets minus liabilities, the true measure of financial health'],
-      ['Financial Literacy','The knowledge and skills to make effective money decisions'],
-      ['Paycheck to Paycheck','Spending all income each period with no savings buffer'],
-      ['Compound Growth','Returns generating their own returns over time'],
-      ['Emergency Fund','Cash reserves for unexpected expenses (3-6 months)']
-    ]),
-
     // ═══════════════════════════════════════════
     // PHASE 4, APPLY (Steps 17-18)
     // ═══════════════════════════════════════════
-
-    // Step 17, Applied Scenario Quiz
-    q('Taylor earns $55,000/year and spends $53,000/year. Jamie earns $35,000/year and spends $28,000/year. After 10 years of investing their surplus at 8% average return, who is better off financially?',
-      ['Taylor, because a $55,000 salary always builds more wealth than a $35,000 salary over time','Jamie, because they save a higher percentage and more dollars annually','They are about equal, since Jamie\'s lower income cancels out the higher savings rate','Neither, because $7,000 a year is too small an amount to ever matter much'],
-      1,
-      'Jamie saves $7,000/year vs. Taylor\'s $2,000/year. After 10 years at 8% return: Jamie has ~$109,000 while Taylor has ~$31,000. This perfectly illustrates the core personal finance principle: it\'s not about how much you make, it\'s about how much you keep and invest. Financial behavior beats income.'
-    ),
-
-    // Step 18, Simulation Finale
-    simulationFinale(
-      'Your First Year After Graduation',
-      'You just graduated college with $30,000 in student loans (5.5% interest) and landed a job paying $48,000/year ($3,400/month take-home). You have $500 in your checking account. Make 4 key financial decisions for your first year.',
-      [
-        {
-          prompt: 'Month 1: Your first paycheck arrives. How do you handle your money?',
-          options: [
-            { label: 'Create a budget, set up auto-transfer of $200/month to savings', consequence: 'You start building an emergency fund immediately. By month 6 you have $1,200 saved, enough to handle most common emergencies without going into credit card debt.', score: 3 },
-            { label: 'Pay rent and bills, spend the rest freely', consequence: 'Without a budget, you spend 95% of your income. By month 6 you have $0 saved and rely on credit cards for any unexpected expense.', score: 0 },
-            { label: 'Put everything extra toward student loans aggressively', consequence: 'Aggressive debt payoff is admirable, but with $0 in emergency savings, the first car repair or medical bill goes on a credit card at 22% APR.', score: 1 }
-          ]
-        },
-        {
-          prompt: 'Month 3: Your car needs a $600 repair. How do you pay for it?',
-          options: [
-            { label: 'Use your emergency fund, that\'s exactly what it\'s for', consequence: 'You pay cash, avoid interest charges, and rebuild the fund over the next few months. This is the emergency fund working as designed.', score: 3 },
-            { label: 'Put it on a credit card and pay minimums', consequence: 'At 22% APR, that $600 repair could cost you $800+ if you only pay minimums. You\'ve now started a debt cycle.', score: 0 },
-            { label: 'Borrow from a family member', consequence: 'This works once but isn\'t a sustainable strategy. It also doesn\'t build your financial independence.', score: 1 }
-          ]
-        },
-        {
-          prompt: 'Month 6: A coworker invites you to share a luxury apartment at $1,800/month (53% of your take-home). Your current place is $1,000/month.',
-          options: [
-            { label: 'Stay at $1,000/month, keep housing under 30% of take-home', consequence: 'Smart move. The $800/month difference means $9,600/year for debt payoff and investing. Housing is the #1 budget lever.', score: 3 },
-            { label: 'Move into the luxury apartment, you deserve it after college', consequence: 'At 53% of take-home for housing, you have almost nothing left for savings, debt payoff, or investing. This is the #1 mistake new grads make.', score: 0 },
-            { label: 'Negotiate to $1,400/month split and move in', consequence: 'Better than $1,800, but still 41% of take-home on housing. You\'re stretching your budget thin.', score: 1 }
-          ]
-        },
-        {
-          prompt: 'Month 12: You\'ve saved $2,000 in emergency fund and gotten a $3,000 raise. What next?',
-          options: [
-            { label: 'Increase student loan payments and start contributing to your 401(k) up to employer match', consequence: 'Optimal move. The employer match is free money (often 50-100% return), and accelerating student loan payoff saves thousands in interest. You\'re building wealth on two fronts.', score: 3 },
-            { label: 'Upgrade your lifestyle, new car, better clothes, more dining out', consequence: 'Classic lifestyle inflation. The raise disappears into spending and you\'re no better off financially than before.', score: 0 },
-            { label: 'Put it all into a brokerage account to start investing', consequence: 'Investing is good, but skipping the 401(k) match means leaving free money on the table, and you still have 5.5% student loan interest working against you.', score: 1 }
-          ]
-        }
-      ],
-      'By budgeting from day one, maintaining an emergency fund, keeping housing costs reasonable, and strategically tackling debt while capturing your 401(k) match, you\'ve set yourself up to be debt-free within 5 years and on track for a $1M+ retirement portfolio. You\'re already ahead of 70% of Americans your age.',
-      'Personal finance is a sequence: budget first, emergency fund second, high-interest debt third, then invest. Every step protects the next. Skip a step and the whole system is fragile.'
-    ),
 
     // ═══════════════════════════════════════════
     // PHASE 5, CONSOLIDATE (Steps 19-20)
@@ -385,16 +487,32 @@ const lessons: PathwayLesson[] = [
     // Step 1, Hook Opener
     hookOpener(
       'Budgeting Basics',
-      'A 2023 Debt.com survey found that people who budget consistently are 80% more likely to be debt-free and report 50% less financial stress than non-budgeters.',
-      'By the end of this lesson, you\'ll master three proven budgeting methods, the 50/30/20 rule, zero-based budgeting, and the envelope method, and know exactly which one fits your life.',
+      {
+        middle: 'People who keep a budget are 80% more likely to owe nothing, and they worry about money about half as much.',
+        high: 'People who budget consistently are 80% more likely to be debt free, and they report half the financial stress of people who do not.',
+        adult: 'A 2023 Debt.com survey found that people who budget consistently are 80% more likely to be debt-free and report 50% less financial stress than non-budgeters.',
+      },
+      {
+        middle: 'By the end you will know three ways to plan your money, and which one actually fits you.',
+        high: 'By the end you will know three budgeting methods that work, the 50/30/20 rule, zero-based budgeting and the envelope method, and which one fits your life.',
+        adult: 'By the end of this lesson, you\'ll master three proven budgeting methods, the 50/30/20 rule, zero-based budgeting, and the envelope method, and know exactly which one fits your life.',
+      },
       'Side-by-side monthly budget dashboard: left shows chaotic spending with red warnings, right shows organized budget with green progress bars and savings growing',
       PF2_HOOK
     ),
 
     // Step 2, Stakes Card
     stakesCard(
-      { label: 'Without a budget', detail: 'The average American overspends by $7,400/year without realizing it (Bureau of Labor Statistics Consumer Expenditure Survey). Over 10 years at 8% return, that\'s $115,000 in lost wealth, enough for a house down payment.' },
-      { label: 'With a budget', detail: 'Budgeters save 20% more income on average, carry 30% less credit card debt, and are twice as likely to feel "in control" of their finances (Debt.com 2023 Budgeting Survey).' },
+      { label: 'Without a budget', detail: {
+        middle: 'The average person spends about $7,400 a year without noticing. Over ten years that is around $115,000 you never got to keep. A house deposit.',
+        high: 'The average American overspends by about $7,400 a year without realising it. Invested instead, that is roughly $115,000 over ten years, enough for a house deposit.',
+        adult: 'The average American overspends by $7,400/year without realizing it (Bureau of Labor Statistics Consumer Expenditure Survey). Over 10 years at 8% return, that\'s $115,000 in lost wealth, enough for a house down payment.',
+      } },
+      { label: 'With a budget', detail: {
+        middle: 'People who budget save about 20% more, owe about 30% less on cards, and are twice as likely to feel in control.',
+        high: 'Budgeters save about 20% more of their income, carry 30% less credit card debt, and are twice as likely to feel in control of their money.',
+        adult: 'Budgeters save 20% more income on average, carry 30% less credit card debt, and are twice as likely to feel "in control" of their finances (Debt.com 2023 Budgeting Survey).',
+      } },
       { withoutVisual: PF2_STAKES_WITHOUT, withVisual: PF2_STAKES_WITH }
     ),
 
@@ -404,12 +522,19 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'The 50/30/20 Rule',
       [
-        'The 50/30/20 rule, popularized by Senator Elizabeth Warren in her 2005 book "All Your Worth," divides your after-tax income into three categories: 50% for needs, 30% for wants, and 20% for savings and debt repayment. Needs include housing, groceries, utilities, insurance, minimum debt payments, and transportation to work. Wants cover everything else that improves your quality of life but isn\'t essential, dining out, streaming services, hobbies, and vacations.',
-        'The beauty of the 50/30/20 rule is its simplicity. According to a 2022 J.P. Morgan Chase Institute analysis of 6 million checking accounts, the average American actually spends 65% on needs, 25% on wants, and only 10% on savings. That 10-percentage-point savings gap versus the recommended 20% costs the average household $6,000-$10,000 per year in lost wealth-building potential. Even moving from 10% to 15% savings can add hundreds of thousands to your retirement.',
-        'This rule works as a starting point, not a rigid constraint. If you live in a high-cost city like San Francisco or New York, your needs might consume 60% of income, so you\'d adjust wants to 20% and keep savings at 20%. The U.S. Bureau of Labor Statistics reports that housing alone averages 33% of income nationally but exceeds 40% in major metros. The principle remains: prioritize savings as a fixed category, not whatever\'s left over.'
+        {
+          middle: 'The 50/30/20 rule splits your pay three ways. Half goes to things you have to pay for, like rent and food. Three tenths goes to things you just want. The last fifth goes to savings. In expensive cities the first slice takes more, so the other two shrink.',
+          high: 'The 50/30/20 rule splits your after-tax pay: 50% to needs like rent, 30% to wants like eating out, 20% to savings. In an expensive city needs can reach 60%, which leaves 20% and 20% for the rest.',
+          adult: 'The 50/30/20 rule, from Elizabeth Warren\'s 2005 book All Your Worth, splits after-tax pay: 50% needs like rent, 30% wants like dining out, 20% savings. In San Francisco or New York, needs hit 60%, leaving 20% wants and 20% savings.',
+        },
+        {
+          middle: 'Most people are not close to it. Looking at 6 million real accounts, the average is 65% needs, 25% wants, and only 10% saved. Saving a tenth instead of a fifth costs you around $6,000 to $10,000 every year.',
+          high: 'Most people are not close. Across 6 million accounts the real split is 65% needs, 25% wants, 10% savings. Saving 10% rather than 20% costs $6,000 to $10,000 a year, and even 15% closes most of that gap.',
+          adult: '2022 J.P. Morgan Chase Institute data on 6 million accounts: 65% needs, 25% wants, 10% savings. Saving 10% rather than 20% costs $6,000-$10,000 yearly; even 15% helps. U.S. Bureau of Labor Statistics: housing averages 33% nationally, over 40% in metros.',
+        }
       ],
       [
         { term: '50/30/20 Rule', definition: 'A budgeting framework that allocates 50% of after-tax income to needs, 30% to wants, and 20% to savings and debt repayment.', example: 'On $4,000/month take-home: $2,000 needs, $1,200 wants, $800 savings.' },
@@ -417,8 +542,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Wants', definition: 'Non-essential spending that improves quality of life but isn\'t required for survival.', example: 'Netflix ($15), gym membership ($40), dining out ($200), new clothes ($100).' }
       ],
       'Pie chart showing 50/30/20 split with specific examples in each category. Needs section lists housing, groceries, insurance. Wants lists dining, entertainment, shopping. Savings lists emergency fund, retirement, debt payoff.',
-      { company: 'J.P. Morgan Chase Institute', metric: 'Analysis of 6 million checking accounts', outcome: 'Average Americans spend 65% needs, 25% wants, only 10% savings', explanation: 'The gap between the recommended 20% savings rate and the actual 10% rate costs the average American household $6,000-$10,000 per year in lost wealth-building potential.' },
-      PF2_DIAGRAM
+      undefined,
+      PF2_DIAGRAM,
+      {
+        hint: 'Every dollar lands in one of these three',
+        recap: 'Those three slices are the whole rule. You will almost never hit 50/30/20 exactly, and that is fine: the point is knowing which slice a dollar belongs to before you spend it.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -432,7 +561,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'METHODS COMPARED',
+      'Methods compared',
       'Three Budgeting Methods Head-to-Head',
       'comparison',
       'Compare the three most popular budgeting methods and see how each one allocates your income differently. Adjust your monthly income to see real dollar amounts.',
@@ -454,24 +583,24 @@ const lessons: PathwayLesson[] = [
       [
         { label: 'Monthly Take-Home', min: 2000, max: 10000, default: 4000, unit: '$' }
       ],
-      { company: 'YNAB (You Need A Budget)', metric: 'User data from 2+ million budgeters', outcome: 'Average new user pays off $600 in debt and saves $1,000 in first 2 months', explanation: 'Zero-based budgeting works because it eliminates "mystery spending", the money that disappears when you don\'t give every dollar a specific job.' }
+      undefined
     ),
 
     // Step 6, Case Study
     caseStudy(
       'How YNAB Transformed 2 Million Budgets',
       [
-        { date: '2004', event: 'Jesse Mecham creates YNAB as a simple spreadsheet for his college budget', context: 'Mecham and his wife were newlyweds in college, living on very little income. He built a spreadsheet based on zero-based budgeting principles, every dollar gets assigned a job before it\'s spent.' },
-        { date: '2012', event: 'YNAB launches as a software product, attracting 100,000 users', context: 'Users report dramatic results: average debt payoff of $600 and $1,000 saved in the first 60 days. The key insight: most people don\'t have an income problem, they have an awareness problem.' },
-        { date: '2021', event: 'YNAB surpasses 2 million users and publishes outcomes data', context: 'Analysis of user data shows: new users save $600 more per month after 9 months. Users who stick with the method for 2+ years report a complete transformation in their relationship with money.' },
-        { date: '2024', event: 'YNAB users have collectively budgeted over $80 billion', context: 'The company\'s data proves that the budgeting method matters less than the habit of budgeting itself. Users who budget consistently for 6+ months rarely go back to not budgeting, the clarity is too valuable.' }
+        { date: '2004', event: 'Jesse Mecham creates YNAB as a simple spreadsheet for his college budget', context: 'Mecham and his wife were newlyweds in college with little money. He built a spreadsheet using zero-based budgeting: every dollar gets a job before you spend it.' },
+        { date: '2012', event: 'YNAB launches as a software product, attracting 100,000 users', context: 'Users report big results: $600 of debt paid off and $1,000 saved on average in the first 60 days. Most people lack awareness, not income.' },
+        { date: '2021', event: 'YNAB surpasses 2 million users and publishes outcomes data', context: 'User data shows new users save $600 more per month after 9 months. People who stick with it for 2+ years say their whole relationship with money changes.' },
+        { date: '2024', event: 'YNAB users have collectively budgeted over $80 billion', context: 'Company data shows the method matters less than the habit. Users who budget consistently for 6+ months rarely stop; the clarity is worth too much.' }
       ],
-      'YNAB\'s story proves that budgeting works not because it restricts spending, but because it creates awareness. Most Americans have no idea where 20-30% of their income goes each month. The simple act of assigning every dollar a purpose before spending it eliminates waste, reduces financial stress, and accelerates wealth building. You don\'t need a fancy app, you need the habit of intentionality.'
+      'YNAB builds awareness instead of limiting spending. Most Americans cannot say where 20-30% of their income goes. Giving every dollar a job before you spend cuts waste and stress. The habit beats the app.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'BUDGET MYTHS',
+      'Budget myths',
       'Why most people give up on budgeting (and why they shouldn\'t)',
       [
         {
@@ -494,12 +623,36 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Key Terms Cards
     keyTermsCards([
-      { term: '50/30/20 Rule', definition: 'A budgeting framework splitting after-tax income into 50% needs, 30% wants, and 20% savings/debt repayment. Popularized by Elizabeth Warren.', example: 'On $5,000/month take-home: $2,500 needs, $1,500 wants, $1,000 savings.', sentence: 'The 50/30/20 rule is the easiest budgeting framework to start with because it only has three categories to track.' },
-      { term: 'Zero-Based Budget', definition: 'A budgeting method where every dollar is assigned a purpose so that income minus all allocations equals exactly zero. No dollar is left "unbudgeted."', example: '$4,500 income assigned: $1,500 rent, $400 groceries, $200 utilities, $150 insurance, $500 wants, $750 savings, $500 debt, $500 other = $0.', sentence: 'Zero-based budgeting forces you to make a conscious decision about every dollar, eliminating the "mystery spending" that plagues most people.' },
-      { term: 'Envelope Method', definition: 'A cash-based budgeting system where fixed amounts are allocated to spending categories. When the cash is gone, spending stops until next month.', example: 'Putting $300 cash in a "dining out" envelope for the month, when it\'s empty, you cook at home.', sentence: 'Studies show envelope method users spend 12-18% less because the physical act of handing over cash triggers a pain response that cards don\'t.' },
-      { term: 'Fixed Expenses', definition: 'Recurring costs that remain roughly the same each month, rent, insurance premiums, loan payments, subscriptions.', example: 'Rent ($1,200), car payment ($350), phone plan ($85), Netflix ($15) are fixed expenses totaling $1,650.', sentence: 'Start your budget with fixed expenses because they\'re predictable, then allocate remaining income to variable spending and savings.' },
-      { term: 'Variable Expenses', definition: 'Costs that fluctuate month to month, groceries, gas, dining out, entertainment, clothing.', example: 'Your grocery spending might be $350 one month and $450 the next depending on meals planned.', sentence: 'Variable expenses are where most budget "leaks" occur, tracking them closely for 30 days often reveals $200-$500 in easy savings.' },
-      { term: 'Pay Yourself First', definition: 'The practice of automatically transferring money to savings and investments before spending on anything else, treating savings like a bill.', example: 'Setting up a $500 auto-transfer to your savings account on payday, then living on what remains.', sentence: 'Paying yourself first ensures savings happen consistently, if you wait to save "whatever\'s left," there\'s usually nothing left.' }
+      { term: '50/30/20 Rule', definition: {
+        middle: 'Split your pay three ways: half for things you must pay, three tenths for things you want, a fifth for savings.',
+        high: 'A budget that splits your after-tax pay into 50% needs, 30% wants and 20% savings or debt.',
+        adult: 'A budgeting framework splitting after-tax income into 50% needs, 30% wants, and 20% savings/debt repayment. Popularized by Elizabeth Warren.',
+      }, example: 'On $5,000/month take-home: $2,500 needs, $1,500 wants, $1,000 savings.', sentence: 'The 50/30/20 rule is the easiest budgeting framework to start with because it only has three categories to track.' },
+      { term: 'Zero-Based Budget', definition: {
+        middle: 'Give every single dollar a job until none are left sitting around unassigned.',
+        high: 'Every dollar gets a job, so income minus everything you assigned comes to exactly zero.',
+        adult: 'A budgeting method where every dollar is assigned a purpose so that income minus all allocations equals exactly zero. No dollar is left unbudgeted.',
+      }, example: '$4,500 income assigned: $1,500 rent, $400 groceries, $200 utilities, $150 insurance, $500 wants, $750 savings, $500 debt, $500 other = $0.', sentence: 'Zero-based budgeting forces you to make a conscious decision about every dollar, eliminating the "mystery spending" that plagues most people.' },
+      { term: 'Envelope Method', definition: {
+        middle: 'Put a set amount of cash aside for each thing. When that cash runs out, you stop.',
+        high: 'Set cash aside per category. When an envelope is empty, that spending stops until next month.',
+        adult: 'A cash-based budgeting system where fixed amounts are allocated to spending categories. When the cash is gone, spending stops until next month.',
+      }, example: 'Putting $300 cash in a "dining out" envelope for the month, when it\'s empty, you cook at home.', sentence: 'Studies show envelope method users spend 12-18% less because the physical act of handing over cash triggers a pain response that cards don\'t.' },
+      { term: 'Fixed Expenses', definition: {
+        middle: 'Bills that cost about the same every month. Rent, insurance, your phone plan.',
+        high: 'Costs that stay about the same each month: rent, insurance, loan payments, subscriptions.',
+        adult: 'Recurring costs that remain roughly the same each month, rent, insurance premiums, loan payments, subscriptions.',
+      }, example: 'Rent ($1,200), car payment ($350), phone plan ($85), Netflix ($15) are fixed expenses totaling $1,650.', sentence: 'Start your budget with fixed expenses because they\'re predictable, then allocate remaining income to variable spending and savings.' },
+      { term: 'Variable Expenses', definition: {
+        middle: 'Costs that change every month. Food, gas, going out, clothes.',
+        high: 'Costs that move month to month: groceries, gas, eating out, entertainment, clothes.',
+        adult: 'Costs that fluctuate month to month, groceries, gas, dining out, entertainment, clothing.',
+      }, example: 'Your grocery spending might be $350 one month and $450 the next depending on meals planned.', sentence: 'Variable expenses are where most budget "leaks" occur, tracking them closely for 30 days often reveals $200-$500 in easy savings.' },
+      { term: 'Pay Yourself First', definition: {
+        middle: 'Move money to savings the day you get paid, before you spend on anything else.',
+        high: 'Move money to savings automatically on payday, before anything else, so saving is a bill you pay yourself.',
+        adult: 'The practice of automatically transferring money to savings and investments before spending on anything else, treating savings like a bill.',
+      }, example: 'Setting up a $500 auto-transfer to your savings account on payday, then living on what remains.', sentence: 'Paying yourself first ensures savings happen consistently, if you wait to save "whatever\'s left," there\'s usually nothing left.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -517,11 +670,14 @@ const lessons: PathwayLesson[] = [
     ),
 
     // Step 11, Tap to Reveal
+    // Stat first, same as lesson 1: the figure is the hero and the question
+    // drops to a label. `stat` is authored rather than parsed out of the answer,
+    // and the answer no longer repeats the number.
     tr('Budgeting Facts',[
-      ['How much do YNAB users save in their first 2 months?','$1,000 on average, plus $600 in debt paid off, simply by giving every dollar a job.'],
-      ['How much less do cash/envelope users spend?','12-18% less than card users, because physically handing over cash triggers a "pain of paying" response in the brain.'],
-      ['What % of income does the average American actually save?','Only 10%, half the recommended 20%. That gap costs $6,000-$10,000/year in lost wealth building.'],
-      ['How many attempts does it take to find a budget that sticks?','3-4 attempts on average. Users who make it past 90 days have a 90%+ retention rate.']
+      ['Saved by budgeters in their first two months','Plus another $600 of debt paid off, just from giving every dollar a job.', { stat: '$1,000', sprite: 'stack-cash' }],
+      ['Less spent when people pay in cash','Handing over notes hurts in a way that tapping a card does not, so the spending slows down on its own.', { stat: '12-18%', sprite: 'wallet' }],
+      ['Of their income the average American actually saves','Half the 20% target. That gap costs $6,000 to $10,000 a year in wealth never built.', { stat: '10%', sprite: 'piggy-bank' }],
+      ['Attempts before a budget finally sticks','Almost nobody gets it on the first try. Past 90 days, more than 9 in 10 people keep going.', { stat: '3-4', sprite: 'ladder' }]
     ]),
 
     // Step 12, Drag Sort
@@ -551,15 +707,6 @@ const lessons: PathwayLesson[] = [
       {s:'The envelope method only works with physical cash, not digital tools',a:false},
       {s:'People who budget are 80% more likely to be debt-free (Debt.com 2023)',a:true},
       {s:'A budget should never be changed once created',a:false}
-    ]),
-
-    // Step 16, Match
-    m('Budgeting Methods',[
-      ['50/30/20 Rule','Needs 50%, Wants 30%, Savings 20% of after-tax income'],
-      ['Zero-Based Budget','Every dollar assigned a job until income minus allocations = $0'],
-      ['Envelope Method','Fixed cash amounts per category, when it\'s gone, it\'s gone'],
-      ['Pay Yourself First','Auto-transfer savings on payday before any other spending'],
-      ['Anti-Budget','Save a fixed %, then spend the rest however you want']
     ]),
 
     // ═══════════════════════════════════════════
@@ -652,7 +799,11 @@ const lessons: PathwayLesson[] = [
     // Step 1, Hook Opener
     hookOpener(
       'Tracking Your Spending',
-      'A Slickdeals survey found that the average American spends $5,400/year on impulse purchases, and a 2023 C+R Research study found the average person pays $219/month ($2,628/year) on subscriptions, with 42% still paying for forgotten ones.',
+      {
+        middle: 'The average person spends $5,400 a year on stuff they did not plan to buy, and another $2,628 on subscriptions. Four in ten are still paying for ones they forgot about.',
+        high: 'The average American spends $5,400 a year on impulse buys and $219 a month on subscriptions. 42% are still paying for ones they forgot they had.',
+        adult: 'A Slickdeals survey found that the average American spends $5,400/year on impulse purchases, and a 2023 C+R Research study found the average person pays $219/month ($2,628/year) on subscriptions, with 42% still paying for forgotten ones.',
+      },
       'By the end of this lesson, you\'ll know exactly how to track every dollar, understand the latte factor and subscription creep, and discover $200-$500 in monthly savings hiding in your current spending.',
       'Magnifying glass hovering over a bank statement revealing hidden spending: forgotten subscriptions highlighted in red, daily micro-purchases tallied into a surprisingly large annual total',
       PF3_HOOK
@@ -671,12 +822,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE INVISIBLE LEAK',
+      'The invisible leak',
       'The Latte Factor and Micro-Spending',
       [
-        'The "latte factor," coined by author David Bach in "The Automatic Millionaire," refers to the small daily expenses that seem insignificant but compound into staggering annual costs. A $6 daily coffee habit costs $2,190/year. Add a $12 lunch out ($4,380/year), a $3 afternoon snack ($1,095/year), and assorted small purchases, you\'re looking at $7,000-$10,000/year in micro-spending. According to Acorns\' 2023 Money Matters Report, Americans aged 18-34 spend an average of $2,008/year on coffee alone.',
-        'The point isn\'t that you should never buy coffee, it\'s that you should make these decisions consciously, not on autopilot. Behavioral economists at Duke University found that 45% of our daily actions are habitual, not deliberate (Habits in Everyday Life study). Applied to spending, this means nearly half of your purchases happen without conscious thought. Tracking disrupts this autopilot by forcing awareness, and awareness alone changes behavior. A 2022 study in the Journal of Consumer Psychology found that simply logging expenses for 14 days reduced spending by 16% with no other intervention.',
-        'The real power of the latte factor isn\'t about coffee, it\'s about opportunity cost. That $7,500/year in micro-spending, if invested at 8% average return, would grow to $117,000 in 10 years, $375,000 in 20 years, and over $940,000 in 30 years. You\'re not just spending $6 on coffee, you\'re spending $6 that could have become $62 in 30 years. This perspective shift is what tracking enables: you see the true long-term cost of every small habit.'
+        'Latte factor: small daily buys add up. $6 coffee is $2,190 a year, $12 lunch $4,380, $3 snacks $1,095, about $7,000-$10,000 total. Acorns\' 2023 report says ages 18-34 spend $2,008 on coffee. Habit, not choice, drives 45% of daily actions.',
+      'Logging expenses 14 days cut spending 16% in a 2022 study. Invested at 8%, $7,500 yearly grows to $117,000 in 10 years, $375,000 in 20, over $940,000 in 30. That $6 becomes $62.'
       ],
       [
         { term: 'Latte Factor', definition: 'Small daily expenses that seem negligible individually but accumulate into thousands of dollars annually when repeated.', example: '$6 coffee × 365 days = $2,190/year. Over 30 years invested at 8%, that\'s $274,000.' },
@@ -684,8 +834,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Lifestyle Creep', definition: 'The gradual increase in spending that occurs as income rises, often consuming raises and bonuses before they can be saved.', example: 'Getting a $5,000 raise and immediately upgrading your car, apartment, and dining habits by $5,000/year.' }
       ],
       'Calculator visualization showing: $6/day coffee = $2,190/year = $274,000 over 30 years at 8% compound return. Arrow pointing from a coffee cup to a growing investment chart.',
-      { company: 'Acorns', metric: '2023 Money Matters Report surveying 3,000 Americans', outcome: 'Americans aged 18-34 spend an average of $2,008/year on coffee alone', explanation: 'Acorns\' research reveals that young adults\' coffee spending alone could fund a significant portion of a Roth IRA contribution ($6,500/year max). The issue isn\'t coffee, it\'s unconscious habitual spending.' },
-      PF3_DIAGRAM
+      undefined,
+      PF3_DIAGRAM,
+      {
+        hint: 'Watch where the line ends up',
+        recap: 'That is one habit, one price, thirty years. Nothing here says give up coffee: it says a small repeated cost is a large number wearing a disguise, and you cannot decide about it until you have seen it written down.',
+      }
     ),
 
     // Step 4, Case Study (L3 opens with a story before the first check to vary the rhythm)
@@ -696,9 +850,9 @@ const lessons: PathwayLesson[] = [
         { date: 'Day 10', event: 'Realizes she\'s already spent $180 on food delivery apps alone', context: 'At this pace, food delivery would cost $540/month, $6,480/year. She had budgeted $200/month for dining out. The tracking reveals a spending category she wasn\'t even considering.' },
         { date: 'Day 20', event: 'Finds 6 active subscriptions she\'d forgotten about totaling $67/month', context: 'A meditation app ($14.99), a cloud storage upgrade ($9.99), two streaming services ($27.98), a language app ($7.99), and a fitness app ($6.99). That\'s $804/year in forgotten charges.' },
         { date: 'Day 30', event: 'Total "invisible spending" discovered: $512/month ($6,144/year)', context: 'Food delivery ($540), forgotten subscriptions ($67), impulse Amazon purchases ($185), and convenience store runs ($120). She had estimated $300/month, the real number was 70% higher.' },
-        { date: '6 Months Later', event: 'She has $3,000 in savings and is on track to invest $5,000 this year', context: 'She didn\'t eliminate all non-essential spending, she just made it conscious. She cut food delivery to $200/month, canceled 4 subscriptions, set an Amazon "24-hour rule," and carries a water bottle to skip convenience stores.' }
+        { date: '6 Months Later', event: 'She has $3,000 in savings and is on track to invest $5,000 this year', context: 'She made spending deliberate, not zero: delivery cut to $200 a month, 4 subscriptions canceled, a 24 hour wait before buying on Amazon, and a refillable water bottle.' }
       ],
-      'This case mirrors research from the Financial Health Network: the average person who tracks spending for 30 days discovers 15-20% of their income going to purchases they don\'t remember or value. The fix isn\'t extreme frugality, it\'s awareness. By making spending conscious rather than automatic, she redirected over $6,000/year to savings and investing without feeling deprived. The 30-day tracking challenge is the single highest-impact financial exercise you can do.'
+      'Financial Health Network research finds that people who track spending for 30 days spot 15-20% of income going to purchases they don\'t value. Awareness beats deprivation. She redirected over $6,000 a year to savings and investing.'
     ),
 
     // Step 5, Micro Check
@@ -712,7 +866,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'SUBSCRIPTION CREEP',
+      'Subscription creep',
       'The Hidden Cost of Recurring Charges',
       'pie',
       'See how subscriptions silently consume your budget. Adjust the number of active subscriptions to see the annual and decade-long impact.',
@@ -735,12 +889,12 @@ const lessons: PathwayLesson[] = [
         { label: 'Number of Subscriptions', min: 1, max: 20, default: 8, unit: '' },
         { label: 'Avg Cost per Subscription', min: 5, max: 50, default: 15, unit: '$' }
       ],
-      { company: 'Rocket Money', metric: 'Analysis of millions of user transactions', outcome: 'Average user saves $740/year from subscription cancellations alone', explanation: 'Rocket Money\'s data proves that most people are paying for services they don\'t use. A simple audit, checking every recurring charge, produces immediate, painless savings.' }
+      undefined
     ),
 
     // Step 6, Misconceptions
     misconceptions(
-      'TRACKING MYTHS',
+      'Tracking myths',
       'Why people resist tracking, and why the resistance is wrong',
       [
         {
@@ -766,7 +920,7 @@ const lessons: PathwayLesson[] = [
       { term: 'Latte Factor', definition: 'Small daily expenses that individually seem trivial but accumulate into thousands annually. Named by David Bach to illustrate how habitual micro-spending drains wealth.', example: '$6 coffee + $3 snack = $9/day = $3,285/year = $517,000 over 30 years at 8% return.', sentence: 'Calculating your personal latte factor is often a wake-up call, most people discover $200-$500/month in habitual spending they didn\'t realize they had.' },
       { term: 'Subscription Creep', definition: 'The gradual, often unconscious accumulation of recurring charges that collectively consume a significant portion of monthly income.', example: 'Starting with Netflix and Spotify, then adding Disney+, Hulu, a gym, cloud storage, news apps... suddenly $200+/month.', sentence: 'Subscription creep is insidious because each addition seems small, the $15 here and $10 there that adds up to $219/month for the average American.' },
       { term: 'Impulse Spending', definition: 'Unplanned purchases made on emotion rather than intention. Often triggered by sales, convenience, or boredom.', example: 'Buying a $40 item on Amazon because it had a "lightning deal" badge, even though you didn\'t need it.', sentence: 'The Slickdeals survey found Americans average $5,400/year in impulse spending, implementing a 24-hour rule before purchases cuts this dramatically.' },
-      { term: '24-Hour Rule', definition: 'A spending strategy where you wait 24 hours before making any non-essential purchase over a set threshold (typically $25-$50).', example: 'Seeing a $75 jacket on sale, adding it to your cart, then waiting 24 hours. Studies show 70%+ of items are abandoned after the cooling period.', sentence: 'The 24-hour rule leverages the fact that most impulse purchases are driven by temporary emotion, waiting just one day eliminates the urge in most cases.' },
+      { term: '24-Hour Rule', definition: 'A spending strategy where you wait 24 hours before making any non-essential purchase over a set threshold (typically $25-$50).', example: 'You spot a $75 jacket on sale, add it to your cart, and wait 24 hours. Studies show over 70% never get bought.', sentence: 'The 24-hour rule leverages the fact that most impulse purchases are driven by temporary emotion, waiting just one day eliminates the urge in most cases.' },
       { term: 'Expense Categorization', definition: 'Sorting every transaction into categories (housing, food, transport, entertainment, etc.) to reveal spending patterns and identify areas for optimization.', example: 'Discovering that "food" is really three categories: groceries ($350), dining out ($280), and food delivery ($220), totaling $850/month.', sentence: 'Breaking broad categories into specific subcategories often reveals that one subcategory (like food delivery) is consuming far more than expected.' },
       { term: 'Spending Awareness Effect', definition: 'The documented phenomenon where simply tracking and observing spending, with no other intervention, reduces unnecessary spending by 15-20%.', example: 'A 2022 Journal of Consumer Psychology study found 14 days of expense logging reduced spending by 16% with no budgeting rules imposed.', sentence: 'The spending awareness effect proves that visibility alone changes behavior, you don\'t need willpower, you need information.' }
     ]),
@@ -786,11 +940,14 @@ const lessons: PathwayLesson[] = [
     ),
 
     // Step 11, Tap to Reveal
+    // Stat first: these cards are entirely about figures, and the figure
+    // was buried in the answer prose. Sprites picked by meaning from the
+    // catalogue, not repeated from the lesson's other visuals.
     tr('Tracking Your Spending, Key Stats',[
-      ['How much do Americans spend on impulse purchases annually?','$5,400/year according to a Slickdeals survey, that\'s $450/month in unplanned spending.'],
-      ['What percentage of people still pay for forgotten subscriptions?','42%, and the average forgotten subscription costs $512/year before being caught (Kearney 2023).'],
-      ['How much does the average Rocket Money user save from subscription audits?','$740/year, simply by identifying and canceling unused recurring charges.'],
-      ['By how much do people typically underestimate their spending?','20-40% according to the Journal of Marketing Research, your brain is terrible at tracking small purchases.']
+      ['Spent a year on things nobody planned to buy','About $450 a month, on purchases decided in the moment rather than in advance.', { stat: '$5,400', sprite: 'cart' }],
+      ['Still paying for a subscription they forgot','It renews whether or not anyone opens it, which is exactly what makes it easy to miss.', { stat: '42%', sprite: 'calendar' }],
+      ['Saved by one person auditing their subscriptions','Found and cancelled in a single sitting. This is the cheapest money you will ever find.', { stat: '$740', sprite: 'receipt' }],
+      ['How badly people underestimate their own spending','Ask someone what they spend and they will be off by this much, every time, in the same direction.', { stat: '20-40%', sprite: 'question' }]
     ]),
 
     // Step 12, Drag Sort
@@ -921,7 +1078,11 @@ const lessons: PathwayLesson[] = [
     // Step 1, Hook Opener
     hookOpener(
       'Building an Emergency Fund',
-      'Bankrate\'s 2024 Emergency Savings Report found that 56% of Americans cannot cover a $1,000 unexpected expense from savings, and the Federal Reserve reports that 37% of adults couldn\'t cover a $400 emergency without borrowing or selling something.',
+      {
+        middle: 'More than half of people cannot pay a surprise $1,000 bill from savings. Almost four in ten cannot even cover $400 without borrowing or selling something.',
+        high: '56% of Americans cannot cover a surprise $1,000 expense from savings, and 37% could not cover $400 without borrowing or selling something.',
+        adult: 'Bankrate\'s 2024 Emergency Savings Report found that 56% of Americans cannot cover a $1,000 unexpected expense from savings, and the Federal Reserve reports that 37% of adults couldn\'t cover a $400 emergency without borrowing or selling something.',
+      },
       'By the end of this lesson, you\'ll know exactly how much to save, where to keep it, how high-yield savings accounts earn 50x more interest than traditional banks, and the step-by-step plan to build your fund.',
       'Visual of a financial safety net catching falling emergency expenses: car repair ($800), ER visit ($1,200), job loss (3 months), with a progress bar showing emergency fund growing from $0 to fully funded',
       PF4_HOOK
@@ -940,12 +1101,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE SAFETY NET',
+      'The safety net',
       'Why You Need an Emergency Fund',
       [
-        'An emergency fund is cash set aside exclusively for unexpected expenses, not planned purchases, not vacations, not investments. Financial emergencies are inevitable: the Bureau of Labor Statistics reports that the average American experiences 2-3 significant unexpected expenses per year, with a median cost of $1,500-$2,500 each. Without a cash buffer, each emergency forces a choice between debt, depleted savings, or unpaid bills.',
-        'The standard recommendation from the CFPB, most certified financial planners, and organizations like the Financial Health Network is 3-6 months of essential expenses. Essential expenses include rent/mortgage, utilities, groceries, insurance, transportation, and minimum debt payments, NOT your full income. If your monthly essentials are $2,500, your target emergency fund is $7,500-$15,000. Single-income households, freelancers, and those in volatile industries should aim for 6 months; dual-income households with stable jobs can start at 3 months.',
-        'The data on Americans\' emergency preparedness is alarming. The Federal Reserve\'s 2023 Survey of Household Economics and Decisionmaking found that 37% of adults couldn\'t cover a $400 emergency expense without borrowing. Bankrate\'s 2024 report raised the bar: 56% can\'t cover $1,000. LendingClub\'s research shows that 66% of people who fell into debt were triggered by an unexpected expense. An emergency fund isn\'t just nice to have, it\'s the difference between a minor inconvenience and a financial crisis.'
+        'An emergency fund is cash saved only for surprise costs. The Bureau of Labor Statistics counts 2-3 unexpected expenses a year, median $1,500-$2,500. Aim for 3-6 months of essentials: rent, utilities, food. $2,500 monthly means $7,500-$15,000.',
+      'The Federal Reserve\'s 2023 survey found 37% of adults could not cover a $400 emergency without borrowing. Bankrate\'s 2024 report: 56% cannot cover $1,000. LendingClub found 66% who fell into debt were triggered by an unexpected expense.'
       ],
       [
         { term: 'Emergency Fund', definition: 'Cash reserves set aside exclusively for unexpected, essential expenses, typically 3-6 months of necessary living costs.', example: 'If your essential monthly expenses are $3,000, a full emergency fund is $9,000-$18,000.' },
@@ -953,8 +1113,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Liquidity', definition: 'How quickly you can access money without penalties or losing value. Emergency funds must be highly liquid.', example: 'A savings account is highly liquid (instant access). A CD has early withdrawal penalties. Real estate is illiquid (months to sell).' }
       ],
       'Staircase diagram showing emergency fund milestones: Step 1: $500 starter fund → Step 2: $1,000 buffer → Step 3: 1 month expenses → Step 4: 3 months → Step 5: 6 months fully funded. Each step shows what emergencies it can handle.',
-      { company: 'Federal Reserve', metric: '2023 Survey of Household Economics and Decisionmaking (SHED)', outcome: '37% of adults could not cover a $400 emergency without borrowing or selling something', explanation: 'The Fed\'s annual SHED survey is the gold standard for measuring American financial fragility. The 37% figure, representing roughly 95 million adults, has barely improved in a decade of tracking.' },
-      PF4_DIAGRAM
+      undefined,
+      PF4_DIAGRAM,
+      {
+        hint: 'One coin is one month of your life',
+        recap: 'Notice how short the first two bars are. A $1,000 buffer covers a car repair, not a lost job, and that gap is the whole reason the target is three to six months rather than a round number that sounds safe.',
+      }
     ),
 
     // Step 4, Key Terms Cards (L4 front-loads vocabulary so the practice steps land harder)
@@ -978,7 +1142,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'WHERE TO KEEP IT',
+      'Where to keep it',
       'High-Yield Savings vs. Traditional Banks',
       'comparison',
       'See the dramatic difference between keeping your emergency fund in a traditional bank vs. a high-yield savings account. Adjust the fund size to see real dollar differences.',
@@ -1002,7 +1166,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Emergency Fund Size', min: 1000, max: 30000, default: 10000, unit: '$' },
         { label: 'HYSA Interest Rate', min: 3, max: 6, default: 4.5, unit: '%' }
       ],
-      { company: 'Ally Bank', metric: 'Online Savings Account', outcome: 'Pays 4.20% APY with no minimum balance, no monthly fees, FDIC insured', explanation: 'Ally Bank is one of the largest online-only banks in the U.S. Their HYSA pays roughly 400x more than the national savings average of 0.01%. On a $15,000 emergency fund, that\'s $630/year vs. $1.50/year at a traditional bank.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -1010,23 +1174,23 @@ const lessons: PathwayLesson[] = [
       'How a $1,000 Fund Prevented a $5,000 Debt Spiral',
       [
         { date: 'January', event: 'Recent grad builds a $1,000 starter emergency fund over 4 months', context: 'Earning $42,000/year with $25,000 in student loans, he sets up a $250/month auto-transfer to a Marcus HYSA earning 4.40% APY. In 4 months, he has $1,008 (including $8 in interest).' },
-        { date: 'May', event: 'Car transmission fails, repair quote: $950', context: 'Without the emergency fund, this goes on a credit card at 22% APR. At minimum payments ($25/month), it would take 5 years and cost $1,450 total. Instead, he pays $950 cash from his HYSA.' },
+        { date: 'May', event: 'Car transmission fails, repair quote: $950', context: 'With no fund, this goes on a credit card at 22% APR. Paying $25 a month takes 5 years and costs $1,450. He instead pays $950 cash from savings.' },
         { date: 'June-September', event: 'Rebuilds the fund to $1,000 and increases target to 3 months ($6,000)', context: 'Having experienced how the fund prevented debt, he increases his auto-transfer to $350/month. By September, the fund is back to $1,000 and growing.' },
-        { date: 'December', event: 'Gets laid off, emergency fund now at $2,400', context: 'While $2,400 isn\'t a full 3-month fund, it covers 1 month of essential expenses and buys time to find a new job without going into debt. He finds a new position in 3 weeks.' },
-        { date: 'One Year Later', event: 'Emergency fund fully funded at $6,500, debt-free on credit cards', context: 'At his new higher salary ($48,000), he completes the 3-month fund. Coworkers who didn\'t have emergency funds and faced similar situations averaged $4,800 in new credit card debt over the same period.' }
+        { date: 'December', event: 'Gets laid off, emergency fund now at $2,400', context: '$2,400 is not a full 3-month fund, but it covers 1 month of essentials and buys time to job hunt debt free. He lands a job in 3 weeks.' },
+        { date: 'One Year Later', event: 'Emergency fund fully funded at $6,500, debt-free on credit cards', context: 'On his new $48,000 salary he finishes the 3-month fund. Coworkers without funds who hit similar trouble averaged $4,800 in new credit card debt.' }
       ],
-      'This case illustrates the "financial domino effect." Without an emergency fund, a single $950 car repair can cascade into $5,000+ in high-interest debt, stress, and years of payments. The $1,000 starter fund, achievable in 2-4 months on most incomes, breaks this cycle. As the CFPB reports, the first $500-$1,000 in emergency savings has the single largest impact on financial stability of any dollar amount.'
+      'One $950 car repair with no cushion can snowball into over $5,000 of high interest debt. A $1,000 starter fund, doable in 2-4 months, breaks that chain. The CFPB says the first $500 to $1,000 matters most.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'EMERGENCY FUND MYTHS',
+      'Emergency fund myths',
       'Common excuses for not building a safety net',
       [
         {
           myth: 'I can\'t afford to save for an emergency fund, I\'m already stretched thin.',
           truth: 'Start with $25/month, that\'s $300/year. The CFPB found that even $250-$500 in emergency savings dramatically reduces the probability of missing bill payments or taking on high-interest debt.',
-          explanation: 'The "I can\'t afford to save" mindset is exactly backwards. You can\'t afford NOT to save. Without any buffer, a $400 emergency goes on a credit card at 22% APR, costing far more than the original expense. Start tiny and build.'
+          explanation: 'You cannot afford not to save. With no buffer, a $400 emergency goes on a credit card at 22% APR, the yearly interest rate, and costs far more. Start tiny and build.'
         },
         {
           myth: 'I have a credit card for emergencies, that\'s basically the same thing.',
@@ -1036,7 +1200,7 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'I should invest my emergency fund for better returns.',
           truth: 'Stocks dropped 34% in March 2020, 38% in 2008, and 49% during the 2000-2002 crash, exactly when people also lose jobs and face emergencies. Your emergency fund needs to be there when markets crash.',
-          explanation: 'Emergencies and market downturns are correlated, recessions cause both. If your emergency fund is in stocks and the market crashes 40% while you also lose your job, your $10,000 fund is now $6,000 when you need it most. Keep emergencies in a HYSA.'
+          explanation: 'Recessions cause layoffs and market crashes together. If your fund sits in stocks and the market drops 40% when you lose your job, $10,000 becomes $6,000. Keep it in a high yield savings account.'
         }
       ]
     ),
@@ -1056,11 +1220,14 @@ const lessons: PathwayLesson[] = [
     ),
 
     // Step 11, Tap to Reveal
+    // Stat first: these cards are entirely about figures, and the figure
+    // was buried in the answer prose. Sprites picked by meaning from the
+    // catalogue, not repeated from the lesson's other visuals.
     tr('Emergency Fund Facts',[
-      ['What % of Americans can\'t cover a $1,000 emergency?','56% according to Bankrate\'s 2024 Emergency Savings Report. Over half the country is one expense away from debt.'],
-      ['What % can\'t cover even $400?','37% according to the Federal Reserve\'s 2023 SHED survey, representing roughly 95 million adults.'],
-      ['How much more do HYSAs pay vs. traditional banks?','50-100x more. Traditional: 0.01-0.06% APY. HYSAs: 4.00-5.00% APY. On $10K, that\'s $500 vs. $6 per year.'],
-      ['What triggers most Americans\' debt?','66% of people who fell into debt cite an unexpected expense as the trigger (LendingClub 2023).']
+      ['Cannot cover a surprise $1,000 bill from savings','More than half the country is one car repair away from borrowing.', { stat: '56%', sprite: 'crack' }],
+      ['Cannot cover even $400 without borrowing','Roughly 95 million adults. Not a small or unusual group.', { stat: '37%', sprite: 'bolt' }],
+      ['More interest a high-yield account pays','Ordinary savings pay close to nothing. Same money, same access, same protection, one form to fill in.', { stat: '50-100x', sprite: 'stack-cash' }],
+      ['Of people in debt say one surprise started it','Not overspending. One expense they could not absorb.', { stat: '66%', sprite: 'chain-break' }]
     ]),
 
     // Step 12, Drag Sort
@@ -1190,7 +1357,11 @@ const lessons: PathwayLesson[] = [
     // Step 1, Hook Opener
     hookOpener(
       'Understanding Credit Scores',
-      'According to LendingTree, the difference between a 620 and a 760 credit score on a $350,000 30-year mortgage is $183/month, that\'s $65,880 more in interest over the life of the loan for the exact same house.',
+      {
+        middle: 'Two people buy the same house. The one with the worse credit score pays about $183 more every month, which adds up to $65,880 extra over thirty years. Same house.',
+        high: 'On the same $350,000 house, a 620 credit score costs $183 a month more than a 760 does. Over thirty years that is $65,880 in extra interest for the identical home.',
+        adult: 'According to LendingTree, the difference between a 620 and a 760 credit score on a $350,000 30-year mortgage is $183/month, that\'s $65,880 more in interest over the life of the loan for the exact same house.',
+      },
       'By the end of this lesson, you\'ll understand exactly how the FICO scoring model works, the 5 factors that determine your score, what counts as good vs. bad credit, and how your score impacts everything from mortgage rates to apartment applications.',
       'Credit score gauge moving from red (300) through yellow (580) to green (740+), with real-world impacts listed at each level: denied for apartments, high interest rates, approved with best terms',
       PF5_HOOK
@@ -1209,12 +1380,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE SCORE',
+      'The score',
       'How FICO Scores Work',
       [
-        'Your FICO score is a three-digit number between 300 and 850 that represents your creditworthiness, how likely you are to repay borrowed money. Created by the Fair Isaac Corporation in 1989, FICO scores are used in 90% of U.S. lending decisions according to FICO itself. There are also VantageScores (created by the three credit bureaus), but FICO remains the dominant model used by mortgage lenders, auto lenders, and credit card companies.',
-        'FICO scores are calculated from data in your credit reports, which are maintained by three bureaus: Equifax, Experian, and TransUnion. Each bureau may have slightly different data, which is why your score can vary by 10-30 points across bureaus. The score ranges: 300-579 is Poor, 580-669 is Fair, 670-739 is Good, 740-799 is Very Good, and 800-850 is Exceptional. According to Experian\'s 2023 Consumer Credit Review, the average American FICO score reached a record high of 715, in the "Good" range.',
-        'Understanding your credit score matters because it affects far more than just loan approvals. Landlords check credit for apartment applications, 90% of landlords screen tenants\' credit (TransUnion). Auto and homeowners insurance companies use credit-based insurance scores in most states, with the Consumer Federation of America finding that poor credit can increase car insurance by 40-80%. And according to a 2023 Society for Human Resource Management survey, 16% of employers check credit reports during the hiring process, particularly for financial and management roles.'
+        'A FICO score rates how likely you repay, 300 to 850: 300-579 poor, 580-669 fair, 670-739 good, 740-799 very good, 800-850 exceptional. Fair Isaac Corporation, 1989. Bureaus Equifax, Experian, TransUnion differ, so scores vary 10-30 points. VantageScore rivals it.',
+      '90% of U.S. lending uses FICO; the 2023 average hit 715 (Experian). Also: 90% of landlords screen credit, poor credit can raise car insurance 40-80% (Consumer Federation of America), and 16% of employers check it (Society for Human Resource Management).'
       ],
       [
         { term: 'FICO Score', definition: 'A credit score model ranging from 300-850, created by Fair Isaac Corporation, used in 90% of U.S. lending decisions to evaluate creditworthiness.', example: 'A 750 FICO score would qualify you for the best mortgage rates and credit card offers.' },
@@ -1222,13 +1392,17 @@ const lessons: PathwayLesson[] = [
         { term: 'Credit Report', definition: 'A detailed record of your credit history including all accounts, payment history, balances, and public records like bankruptcies.', example: 'You can get free credit reports from all three bureaus weekly at AnnualCreditReport.com (authorized by federal law).' }
       ],
       'Horizontal bar chart showing FICO score ranges with color coding: 300-579 Poor (red), 580-669 Fair (orange), 670-739 Good (yellow), 740-799 Very Good (light green), 800-850 Exceptional (green). Average American score marker at 715.',
-      { company: 'Experian', metric: '2023 Consumer Credit Review', outcome: 'Average American FICO score reached a record 715', explanation: 'Experian\'s annual study tracks credit trends across the U.S. While the average score has improved, significant disparities remain: Gen Z averages 680, Millennials 690, Gen X 709, and Boomers 745, highlighting that credit building takes time.' },
-      PF5_DIAGRAM
+      undefined,
+      PF5_DIAGRAM,
+      {
+        hint: 'Two slices decide two thirds of it',
+        recap: 'Pay on time, keep the balance low, and you have handled 65% of your score. The other three matter, but not enough to lose sleep over. This is the number that decides what your future borrowing costs, which is why it follows the fund that keeps you from needing to borrow at all.',
+      }
     ),
 
     // Step 4, Misconceptions (L5 tackles myths early, before the first check)
     misconceptions(
-      'CREDIT SCORE MYTHS',
+      'Credit score myths',
       'Dangerous myths that hurt your score',
       [
         {
@@ -1239,12 +1413,12 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'You need to carry a balance on your credit card to build credit.',
           truth: 'This is completely false and costs Americans billions in unnecessary interest annually. You build credit by using your card and paying the FULL statement balance every month. Carrying a balance only costs you interest, it provides zero credit score benefit.',
-          explanation: 'FICO scores care about utilization at statement close, not whether you carry a balance month to month. Use your card, let the statement generate, then pay it in full. You build credit AND pay $0 in interest.'
+          explanation: 'FICO scores count what you owe when the statement closes, not whether you carry a balance. Use the card, then pay the statement in full. You build credit and pay $0 interest.'
         },
         {
           myth: 'Closing old credit cards helps your credit score.',
           truth: 'Closing old cards typically HURTS your score in two ways: (1) It reduces your total credit limit, increasing utilization ratio, and (2) it can lower your average account age. Keep old cards open, even if unused.',
-          explanation: 'If you have a $5,000 card you don\'t use and close it, your total available credit drops. If you owe $2,000 on other cards with $10,000 total limits, closing the $5,000 card raises your utilization from 13% to 20% instantly. Keep old cards open with a small automatic charge (like a streaming service) to keep them active.'
+          explanation: 'If you owe $2,000 and your other cards add up to $10,000, closing an unused $5,000 card pushes utilization from 13% to 20%. Keep old cards open with a small recurring charge.'
         }
       ]
     ),
@@ -1285,20 +1459,20 @@ const lessons: PathwayLesson[] = [
         { label: 'Credit Utilization %', min: 0, max: 100, default: 25, unit: '%' },
         { label: 'Years of Credit History', min: 0, max: 30, default: 5, unit: ' years' }
       ],
-      { company: 'FICO', metric: 'Score factor analysis', outcome: 'Consumers with scores above 800 average 5.7% credit utilization and 11.6-year account history', explanation: 'FICO\'s research into their highest-scoring consumers reveals that the two keys to an exceptional score are (1) never missing a payment and (2) keeping credit utilization very low. Time and consistency do the rest.' }
+      undefined
     ),
 
     // Step 6, Case Study
     caseStudy(
       'How One Late Payment Cost $65,000',
       [
-        { date: 'Year 1', event: 'Sarah has a 760 FICO score, "Very Good" range', context: 'She\'s built good credit over 6 years: always pays on time, keeps utilization at 15%, has a mix of a credit card and student loans. She qualifies for the best rates on everything.' },
-        { date: 'Year 2', event: 'Misses one credit card payment by 35 days, score drops to 680', context: 'She was traveling and forgot to set up autopay on a new card. A single 30-day late payment drops her score 80 points, from "Very Good" to barely "Good." The late payment will stay on her report for 7 years.' },
-        { date: 'Year 3', event: 'Applies for a $350,000 mortgage at her new 695 score', context: 'Her score has partially recovered but isn\'t back to 760. The lender offers 7.1% instead of the 6.2% she would have qualified for at 760. Monthly payment: $2,355 vs. $2,140. That\'s $215/month more.' },
-        { date: '30-Year Total', event: 'The late payment costs $77,400 over the life of the mortgage', context: '$215/month × 360 months = $77,400 in additional interest payments, all because of one missed credit card payment that was 5 days past the 30-day mark. Had she set up autopay, this would never have happened.' },
+        { date: 'Year 1', event: 'Sarah has a 760 FICO score, "Very Good" range', context: '6 years of steady credit: always pays on time, uses just 15% of her limit, one credit card plus student loans. She qualifies for the best rates.' },
+        { date: 'Year 2', event: 'Misses one credit card payment by 35 days, score drops to 680', context: 'She forgot autopay on a new card. One payment 30 days late costs 80 points, from Very Good to barely Good, and stays on her report 7 years.' },
+        { date: 'Year 3', event: 'Applies for a $350,000 mortgage at her new 695 score', context: 'Her score recovered some, but not to 760. The lender offers 7.1% instead of 6.2%. Her payment is $2,355 rather than $2,140, or $215 more each month.' },
+        { date: '30-Year Total', event: 'The late payment costs $77,400 over the life of the mortgage', context: '$215 a month across 360 months is $77,400 in extra interest, all from one card payment 5 days past the 30-day mark. Autopay would have prevented it.' },
         { date: 'Year 4+', event: 'Sarah rebuilds: perfect payments, reduces utilization to 8%, score returns to 750 in 2 years', context: 'She sets up autopay on every account, sets phone reminders, and keeps utilization under 10%. The late payment\'s impact fades but doesn\'t disappear from her report until Year 9.' }
       ],
-      'This case study demonstrates why payment history is worth 35% of your FICO score. A single late payment, even just 5 days past the 30-day mark, can cost tens of thousands of dollars in higher interest rates over your lifetime. The #1 credit score rule: set up autopay for at least the minimum payment on every single account. It\'s free insurance against the most expensive mistake in personal finance.'
+      'Payment history is 35% of your FICO score. One late payment, just 5 days past the 30-day mark, can cost tens of thousands in extra interest. Set autopay for at least the minimum on every account.'
     ),
 
     // Step 7, Key Terms Cards
@@ -1326,11 +1500,14 @@ const lessons: PathwayLesson[] = [
     ),
 
     // Step 11, Tap to Reveal
+    // Stat first: these cards are entirely about figures, and the figure
+    // was buried in the answer prose. Sprites picked by meaning from the
+    // catalogue, not repeated from the lesson's other visuals.
     tr('Credit Score Facts',[
-      ['What is the average American FICO score?','715 as of 2023, a record high, but Gen Z averages 680 while Boomers average 745 (Experian).'],
-      ['How much can one late payment drop your score?','60-110 points, and it stays on your report for 7 years. Always set up autopay.'],
-      ['What utilization do 800+ scorers maintain?','Only 5.7% on average. If your limit is $10,000, that means carrying no more than $570 at statement close.'],
-      ['What % of consumers have an error on their credit report?','20%, 1 in 5, according to the FTC. Check your reports annually at AnnualCreditReport.com.']
+      ['The average American credit score','A record high, though it splits hard by age: younger adults sit well below it, simply because the clock has run less time.', { stat: '715', sprite: 'chart-up' }],
+      ['Points one late payment can cost you','And it stays on your report for seven years. An automatic minimum payment prevents nearly all of this.', { stat: '60-110', sprite: 'chart-down' }],
+      ['Of their limit the highest scorers actually use','On a $10,000 limit that is under $600. Low use, not no use, is what the score rewards.', { stat: '5.7%', sprite: 'credit-card' }],
+      ['Of credit reports carry an error','One in five. They are free to check and the errors are yours to dispute.', { stat: '20%', sprite: 'question' }]
     ]),
 
     // Step 12, Drag Sort
@@ -1471,12 +1648,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'Good Debt vs. Bad Debt',
       [
-        'Not all debt is created equal. "Good debt" finances assets that appreciate or generate income, a mortgage on a home that gains value, student loans for a degree that increases earning power, or a business loan that produces revenue. The key test: does this debt help you earn more money or build an asset worth more than the debt itself?',
-        '"Bad debt" finances consumption, things that depreciate or produce no return. Credit card debt at 20%+ APR for restaurant meals, a 7-year auto loan on a depreciating car, and payday loans at 400% APR are classic bad debt. The Consumer Financial Protection Bureau (CFPB) reports that the average payday loan borrower pays $520 in fees to borrow $375, a trap costing low-income Americans $9 billion annually.',
-        'The critical metric is the interest rate relative to potential returns. A student loan at 5% for a degree that increases earning by $20,000/year is good debt. A credit card at 22% for a vacation is terrible debt. When the interest rate on debt exceeds what you could earn investing, paying it off IS the best investment.'
+        'Good debt buys assets that gain value or earn income: a mortgage, a student loan, a business loan. Bad debt buys things that lose value: credit cards at 20%+ APR, or yearly interest rate, and 7-year auto loans.',
+      'Payday loans hit 400% APR. The Consumer Financial Protection Bureau (CFPB) says the average borrower pays $520 in fees to borrow $375, costing Americans $9 billion yearly. A 5% student loan raising pay $20,000/year beats a 22% card.'
       ],
       [
         { term: 'Good Debt', definition: 'Borrowing that finances appreciating assets or income-generating opportunities where the expected return exceeds the cost of interest.', example: 'A 30-year mortgage at 6% on a home appreciating 4-5%/year. A student loan at 5% for a degree increasing income by $25K/year.' },
@@ -1485,8 +1661,12 @@ const lessons: PathwayLesson[] = [
         { term: 'APR', definition: 'Annual Percentage Rate, the true yearly cost of borrowing including interest and fees.', example: 'Credit card: 22% APR. Student loan: 5%. Mortgage: 6%. Payday loan: 400%.' }
       ],
       'Two-column comparison: Left "Good Debt" with mortgage (6%), student loan (5%), business loan (7%) pointing to appreciating assets. Right "Bad Debt" with credit card (22%), payday loan (400%) pointing to declining value.',
-      { company: 'Federal Reserve Bank of New York', metric: 'Household Debt Report (2024)', outcome: 'Total U.S. household debt hit $17.69 trillion, credit card balances at an all-time high of $1.13 trillion', explanation: 'The $1.13T in credit card debt at 20%+ APR generates roughly $200 billion/year in interest payments from American families to banks. Mortgage debt ($12.25T) is backed by appreciating homes. Credit card debt is backed by nothing.' },
-      PF6_DIAGRAM
+      undefined,
+      PF6_DIAGRAM,
+      {
+        hint: 'Tap each row. The bar length is the interest rate itself',
+        recap: 'The test is never "is debt bad". It is whether the thing you bought grows faster than the interest eats. A house at 6% can win. A dinner at 22% never does, and a payday loan at 400% is not really a loan, it is a trap with paperwork.',
+      }
     ),
 
     microCheck(
@@ -1498,7 +1678,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE METHODS',
+      'The methods',
       'Snowball vs. Avalanche: Debt Payoff Comparison',
       'comparison',
       'Compare the two most popular debt elimination strategies. See which saves more money and which builds more momentum.',
@@ -1522,7 +1702,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Average APR', min: 5, max: 25, default: 15, unit: '%' },
         { label: 'Monthly Payment', min: 300, max: 3000, default: 800, unit: '$' }
       ],
-      { company: 'Harvard Business Review', metric: 'Analysis of 6,000 debt payoff accounts', outcome: 'Snowball method users completed payoff 15% faster despite paying more total interest', explanation: 'Paying off a $500 card in one month creates proof the strategy works, motivating continued effort. The best method is the one you finish.' }
+      undefined
     ),
 
     caseStudy(
@@ -1533,17 +1713,17 @@ const lessons: PathwayLesson[] = [
         { date: 'December Year 3', event: 'Balance is $3,850. You\'ve paid $3,100 total, reduced debt by only $1,150', context: 'Three years in, $1,950 (63%) of payments were interest. The bank earned nearly $2,000 from your $5,000 purchase.' },
         { date: 'September Year 9', event: 'Finally paid off. Total paid: $11,680', context: '9 years and $6,680 in interest, more than the original debt. If you invested $100/month for 9 years at 8% instead, you\'d have $15,600.' }
       ],
-      'The minimum payment trap is banking\'s most profitable product. Minimums are set just low enough to keep you paying interest for years. The fix: always pay more than the minimum. Even doubling the minimum cuts payoff time by 60% and saves thousands.'
+      'Card minimums are set low on purpose so you keep paying interest for years. Always pay more than the minimum. Doubling it cuts payoff time by 60% and saves thousands.'
     ),
 
     misconceptions(
-      'DEBT MYTHS',
+      'Debt myths',
       'What most people get wrong about debt',
       [
         {
           myth: 'All debt is bad, you should never borrow money.',
           truth: 'A mortgage at 6% on a home appreciating 4-5%/year builds net worth. Student loans for a degree adding $25K+/year in income are investments. The question isn\'t whether to borrow, it\'s whether the return exceeds the cost.',
-          explanation: 'Blanket anti-debt advice prevents people from buying homes (the #1 wealth builder), funding education, and starting businesses. Below 6-7% APR for an appreciating asset = likely good debt. Above 10% APR for consumption = bad debt.'
+          explanation: '"Never borrow" advice blocks homes (the top wealth builder), school, and businesses. Debt under 6-7% APR (yearly interest) for something that gains value is usually fine. Over 10% for spending is not.'
         },
         {
           myth: 'You should pay off your mortgage as fast as possible.',
@@ -1577,10 +1757,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Debt Facts You Should Know',[
-      ['Average American credit card debt?','$7,951 at 20.72% APR, the highest rate in Federal Reserve recorded history (2024).'],
-      ['How long to pay $5,000 with minimums at 20% APR?','About 9 years, costing $11,680, $6,680 in interest alone.'],
-      ['What is the payday loan industry\'s effective APR?','~400%. The CFPB reports borrowers pay $520 in fees to borrow $375.'],
-      ['What % of consolidators re-accumulate the same debt?','Over 50% within 3 years (CFPB), because consolidation doesn\'t fix spending habits.']
+      ['Average American credit card debt?','$7,951 at 20.72% APR, the highest rate in Federal Reserve recorded history (2024).', { stat: '$7,951', sprite: 'credit-card' }],
+      ['How long to pay $5,000 with minimums at 20% APR?','About 9 years, costing $11,680, $6,680 in interest alone.', { stat: '9 years', sprite: 'hourglass' }],
+      ['What is the payday loan industry\'s effective APR?','~400%. The CFPB reports borrowers pay $520 in fees to borrow $375.', { stat: '400%', sprite: 'crack' }],
+      ['What % of consolidators re-accumulate the same debt?','Over 50% within 3 years (CFPB), because consolidation doesn\'t fix spending habits.', { stat: '1 in 2', sprite: 'arrow-split' }]
     ]),
 
     ds('Optimal debt payoff order:',[
@@ -1717,12 +1897,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE SYSTEM',
+      'The system',
       'How Tax Brackets Actually Work',
       [
-        'The U.S. uses a progressive, marginal tax system. In 2024: first $11,600 taxed at 10%, $11,601-$47,150 at 12%, $47,151-$100,525 at 22%. Each bracket only applies to income within that range, NOT your entire income.',
-        'If you earn $50,000: 10% on $11,600 ($1,160) + 12% on $35,550 ($4,266) + 22% on $2,850 ($627) = $6,053 total. Effective rate: 12.1%, NOT 22%. Turning down a raise to "stay in a lower bracket" never makes sense, only income above the threshold is taxed higher.',
-        'Before tax is calculated, subtract the standard deduction ($14,600 for singles in 2024). So $50,000 income = $35,400 taxable. Actual tax: ~$4,000, effective rate 8%. Understanding this saves thousands every year.'
+        'Brackets are marginal: each rate applies only to income inside its range, not all your income. In 2024: 10% on the first $11,600, 12% on $11,601-$47,150, 22% on $47,151-$100,525.',
+      'Earn $50,000: 10% on $11,600 ($1,160), 12% on $35,550 ($4,266), 22% on $2,850 ($627) = $6,053, a 12.1% effective rate, not 22%. After the $14,600 standard deduction, taxable income is $35,400, tax about $4,000, effective rate 8%.'
       ],
       [
         { term: 'Marginal Tax Rate', definition: 'Rate on your last dollar of income, your bracket. NOT what you pay on all income.', example: '$50,000 earner: marginal rate 22%, effective rate ~12%.' },
@@ -1731,8 +1910,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Tax Credit', definition: 'Dollar-for-dollar reduction in your tax bill. A $1,000 credit saves $1,000, more valuable than a deduction.', example: 'The AOTC is worth up to $2,500/year for college students.' }
       ],
       'Staircase: income flows through brackets like water. Each pool taxed at its own rate. Only income IN each bracket gets that rate.',
-      { company: 'IRS', metric: 'Tax Statistics (2022)', outcome: 'Median effective federal rate was 13.6%, far below the 22% marginal rate most workers fall into', explanation: 'The gap between marginal and effective rates is the standard deduction and progressive brackets. More income always means more take-home pay.' },
-      PF7_DIAGRAM
+      undefined,
+      PF7_DIAGRAM,
+      {
+        hint: 'Tap each bracket and watch what actually gets taxed',
+        recap: 'This is the one that costs people real money. A raise moves only the new dollars into the higher bracket, never the old ones, so turning down a raise to stay in a lower bracket always leaves you poorer. There is no income where earning more takes home less.',
+      }
     ),
 
     microCheck(
@@ -1744,7 +1927,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE MATH',
+      'The math',
       'Marginal vs. Effective Tax Rates',
       'comparison',
       'See how your effective rate is always much lower than your bracket. Adjust income to see the real burden.',
@@ -1766,7 +1949,7 @@ const lessons: PathwayLesson[] = [
       [
         { label: 'Annual Income', min: 20000, max: 200000, default: 55000, unit: '$' }
       ],
-      { company: 'Credit Karma', metric: 'Tax Literacy Survey (2023)', outcome: '45% believe a raise can lower take-home pay, mathematically impossible', explanation: 'This causes millions to turn down raises and promotions. A $47,000 earner getting $5,000 pays 22% only on the $5,000, taking home $3,900 more. Never lose money from earning more.' }
+      undefined
     ),
 
     caseStudy(
@@ -1781,7 +1964,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'TAX MYTHS',
+      'Tax myths',
       'What most people get wrong about taxes',
       [
         {
@@ -1821,10 +2004,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Tax Facts for Young Adults',[
-      ['Standard deduction for singles (2024)?','$14,600, first $14,600 of income is tax-free.'],
-      ['AOTC worth?','Up to $2,500/year × 4 years = $10,000. 40% refundable.'],
-      ['% of Americans who believe raises lower take-home?','45% (Credit Karma). Mathematically impossible.'],
-      ['How much should 1099 workers set aside for taxes?','25-30%. Covers income tax + 15.3% self-employment tax.']
+      ['Standard deduction for singles (2024)?','$14,600, first $14,600 of income is tax-free.', { stat: '$14,600', sprite: 'tax-form' }],
+      ['AOTC worth?','Up to $2,500/year × 4 years = $10,000. 40% refundable.', { stat: '$10,000', sprite: 'graduation-cap' }],
+      ['% of Americans who believe raises lower take-home?','45% (Credit Karma). Mathematically impossible.', { stat: '45%', sprite: 'question' }],
+      ['How much should 1099 workers set aside for taxes?','25-30%. Covers income tax + 15.3% self-employment tax.', { stat: '25-30%', sprite: 'calculator' }]
     ]),
 
     ds('Tax concepts by impact (largest to smallest):',[
@@ -1952,10 +2135,14 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand how insurance works, which types you need, and how to avoid paying too much while staying properly protected.',
       'Shield icon protecting a family from falling cost symbols',
       { type: 'grid', title: 'Protected', items: [
-        { label: 'Medical bill', value: '$87K', color: '#EF4444' },
-        { label: 'Car accident', value: '$15K', color: '#EF4444' },
-        { label: 'Apartment fire', value: '$40K', color: '#EF4444' },
-        { label: 'Stolen laptop', value: '$3K', color: '#EF4444' },
+        { label: 'Medical bill', value: '$87K', sprite: 'first-aid',
+          explain: 'One hospital stay. Most people do not have $87,000, which is why medical bills are behind two thirds of personal bankruptcies.' },
+        { label: 'Car accident', value: '$15K', sprite: 'car',
+          explain: 'Not even a serious one. Repairs plus the other driver\u2019s car adds up fast, and you are liable whether or not you can pay.' },
+        { label: 'Apartment fire', value: '$40K', sprite: 'flame',
+          explain: 'Your landlord insures the building, not your things. Everything you own inside it is yours to replace unless you have renters insurance.' },
+        { label: 'Stolen laptop', value: '$3K', sprite: 'lock',
+          explain: 'The small one, and still a month of pay for a lot of people. Renters insurance usually covers it for about $15 a month.' },
       ], footer: 'Insurance shields you from catastrophic costs', sentiment: 'positive' }
     ),
     stakesCard(
@@ -1973,11 +2160,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'CORE CONCEPTS', 'How Insurance Actually Works',
+      'Core concepts', 'How Insurance Actually Works',
       [
-        'Insurance is a contract: you pay a premium (monthly fee) to an insurance company, and they agree to cover large losses. Think of it as transferring risk, you trade a small, predictable cost for protection against a huge, unpredictable one.',
-        'The key formula: Premium × 12 months = annual cost. If your deductible (what you pay before insurance kicks in) is $500 and the premium is $150/month, you pay $1,800/year + up to $500 per incident. Without insurance, that same incident could cost $50,000+.',
-        'Insurance companies pool risk across millions of people. Not everyone has a car accident or house fire in the same year, so premiums from many people pay for claims by a few. This is called risk pooling.'
+        'Insurance transfers risk: you pay a premium, a monthly fee, and the insurer covers losses. Premium × 12 = annual cost, $150/month is $1,800/year. A deductible, what you pay first, is $500 per incident. Uninsured, that could cost $50,000+.',
+      'Insurers pool risk across millions of people: not everyone crashes a car or has a house fire in the same year, so premiums from many pay claims for a few. That is risk pooling.'
       ],
       [
         { term: 'Premium', definition: 'The monthly or annual payment you make to keep your insurance active.', example: '$150/month for health insurance through an employer plan.' },
@@ -1986,12 +2172,19 @@ const lessons: PathwayLesson[] = [
         { term: 'Out-of-Pocket Maximum', definition: 'The most you\'ll pay in a year, after this, insurance covers 100%.', example: 'With a $6,000 OOP max, even a $200,000 hospital stay costs you at most $6,000.' }
       ],
       'Diagram showing premium flowing into risk pool and claims flowing out',
-      { company: 'ACA Marketplace', metric: '2024 Average Premium', outcome: '$477/month unsubsidized, but 90% of enrollees get subsidies averaging $536/month, making net cost near $0 for many', explanation: 'Government subsidies make health insurance far more affordable than sticker price suggests. Always check your eligibility.' },
+      undefined,
       { type: 'flow', title: 'How Insurance Transfers Risk', nodes: [
-        { label: 'YOU', value: '$150/mo premium' },
-        { label: 'INSURER', value: 'Risk Pool' },
-        { label: 'DISASTER', value: '$87,000 bill' },
-      ], footer: 'You pay: $500 deductible | Insurer pays: $86,500', sentiment: 'positive' }
+        { label: 'You pay a premium', value: '$150/mo', sprite: 'wallet',
+          explain: 'A small amount, every month, whether or not anything goes wrong. That is the price of not carrying the risk yourself.' },
+        { label: 'It joins the risk pool', value: 'Millions of people', sprite: 'shield',
+          explain: 'Your $150 sits with everyone else\u2019s. In any given year most people have no disaster, so the many quietly cover the few who do.' },
+        { label: 'Disaster hits, the pool pays', value: '$87,000 bill', sprite: 'safety-net',
+          explain: 'You pay your $500 deductible. The pool covers the other $86,500. You just traded a bill you could never pay for one you can.' },
+      ], footer: 'You pay: $500 deductible | Insurer pays: $86,500', sentiment: 'positive' },
+      {
+        hint: 'Tap each stage to follow your $150',
+        recap: 'Your emergency fund from lesson 4 handles the flat tire and the lost paycheck. It was never going to handle $87,000. That is the split: the fund absorbs what is likely, insurance absorbs what would end you.',
+      }
     ),
     microCheck(
       'Your health insurance has a $1,000 deductible and $6,000 out-of-pocket maximum. You have a $50,000 surgery. What\'s the MOST you\'ll pay?',
@@ -2001,7 +2194,7 @@ const lessons: PathwayLesson[] = [
       'The out-of-pocket maximum is your ceiling. Even a $500,000 bill costs you at most $6,000. That\'s the entire point of insurance.'
     ),
     interactiveGraph(
-      'TYPES OF INSURANCE', 'The 4 Insurance Types You Need',
+      'Types of insurance', 'The 4 Insurance Types You Need',
       'comparison',
       'Different life stages require different insurance coverage. Here are the essentials.',
       [
@@ -2031,8 +2224,8 @@ const lessons: PathwayLesson[] = [
       [
         { date: 'September 2023', event: 'Maya, 23, skips health insurance', context: 'She\'s healthy, just started a new job, and the $200/month premium feels expensive. She decides to go uninsured and pocket the savings.' },
         { date: 'November 2023', event: 'Appendicitis strikes at 2 AM', context: 'Maya wakes up in severe pain. The ER visit, CT scan, surgery, and 2-night hospital stay generate $87,000 in bills. She has zero coverage.' },
-        { date: 'December 2023', event: 'The bills arrive', context: 'She negotiates the hospital down to $52,000 (a 40% reduction, always negotiate). But $52,000 on a $45,000 salary is still devastating. She sets up a payment plan: $800/month for 5+ years.' },
-        { date: 'January 2024', event: 'Maya enrolls in insurance', context: 'She discovers ACA marketplace subsidies make her premium just $50/month. With insurance, the same surgery would have cost her $2,000 (deductible + copay). She saved $200/month for 2 months and lost $50,000.' }
+        { date: 'December 2023', event: 'The bills arrive', context: 'She talks the hospital down to $52,000, a 40% cut. Always ask. But on a $45,000 salary, $800 a month for 5+ years still hurts.' },
+        { date: 'January 2024', event: 'Maya enrolls in insurance', context: 'Government ACA subsidies would have made her insurance $50 a month. Insured, that surgery costs $2,000. She saved $200 a month for 2 months and lost $50,000.' }
       ],
       'Two months of "saved" premiums ($400) cost Maya $52,000. Insurance isn\'t an expense, it\'s a catastrophic risk transfer. The math is never in your favor when you self-insure against events that cost 10-100x your annual savings.'
     ),
@@ -2057,10 +2250,10 @@ const lessons: PathwayLesson[] = [
       ['Whole life insurance at $300/month', 'Renters insurance at $15-30/month', 'Umbrella insurance at $200/month', 'Long-term care insurance'],
       1, 'Renters insurance protects everything you own for less than the cost of a streaming subscription. It\'s the highest-ROI insurance for young adults.'),
     tr('Insurance Decision Framework', [
-      ['Can you afford to replace it?', 'Don\'t insure it (skip the $5 phone screen warranty)'],
-      ['Would it devastate your finances?', 'Insure it (health, auto, renters)'],
-      ['Does someone depend on your income?', 'Get term life insurance'],
-      ['Are you eligible for an HSA?', 'Use HDHP + HSA for triple tax advantage']
+      ['Can you afford to replace it?', 'Don\'t insure it (skip the $5 phone screen warranty)', { stat: 'Skip it', sprite: 'phone' }],
+      ['Would it devastate your finances?', 'Insure it (health, auto, renters)', { stat: 'Insure it', sprite: 'shield' }],
+      ['Does someone depend on your income?', 'Get term life insurance', { stat: 'Term life', sprite: 'safety-net' }],
+      ['Are you eligible for an HSA?', 'Use HDHP + HSA for triple tax advantage', { stat: 'HSA', sprite: 'first-aid' }]
     ]),
     ds('Insurance setup checklist for young adults:', ['Enroll in health insurance (employer or ACA marketplace)', 'Get auto insurance (100/300/100 liability minimum)', 'Add renters insurance ($15-30/month)', 'Set deductibles to match your emergency fund', 'Skip life insurance unless you have dependents']),
     bi('Build Your Insurance Portfolio', 'Select the right insurance type for each scenario:', [
@@ -2147,9 +2340,11 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll know exactly where to park your money, how to automate your savings, and how to earn 50x more interest with zero extra risk.',
       'Comparison chart showing traditional vs high-yield savings growth',
       { type: 'comparison', title: '$10,000 in Savings: Where You Bank Matters', rows: [
-        { label: 'Big Bank (0.01% APY)', value: '$1/year' },
-        { label: 'Online HYSA (5.00% APY)', value: '$500/year' },
-      ], footer: '500x difference \,  same FDIC protection. Both insured up to $250,000 per depositor', sentiment: 'positive' }
+        { label: 'Big Bank (0.01% APY)', value: '$1/year', percent: 1,
+          explain: 'One dollar. For leaving ten thousand with them for a whole year. The bar is so short you can barely see it, and that is accurate.' },
+        { label: 'Online HYSA (5.00% APY)', value: '$500/year', percent: 500,
+          explain: 'Same $10,000, same government insurance, same you. The only thing that changed is which bank is holding it.' },
+      ], footer: '500x difference, same FDIC protection. Both insured up to $250,000 per depositor', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without Smart Banking', detail: 'Your money earns $1/year on $10,000 at a big bank (0.01% APY). Inflation at 3% means you lose $299 in purchasing power annually. Your savings literally shrink every year.' },
@@ -2168,11 +2363,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'BANKING BASICS', 'Where to Keep Your Money',
+      'Banking basics', 'Where to Keep Your Money',
       [
-        'Not all bank accounts are created equal. Checking accounts are for daily spending, they earn 0% but give you a debit card and easy access. Savings accounts hold your reserves, and the interest rate matters enormously.',
-        'High-Yield Savings Accounts (HYSAs) at online banks pay 4-5% APY because they have lower overhead (no branches). Traditional banks pay 0.01-0.05%. Both are FDIC insured up to $250,000. There is literally zero additional risk for 500x more interest.',
-        'The FDIC (Federal Deposit Insurance Corporation) guarantees your deposits up to $250,000 per depositor, per bank. If the bank fails, you get every penny back. This is a government guarantee, it has never failed since 1933.'
+        'Checking accounts are for daily spending. They pay 0% interest but give you a debit card. Savings accounts hold money you are not spending, and there the interest rate matters a lot.',
+      'High-yield savings accounts at online banks pay 4-5% APY, yearly interest. Traditional banks pay 0.01-0.05%. Both are FDIC insured to $250,000, a government guarantee since 1933, so 500x more interest carries zero extra risk.'
       ],
       [
         { term: 'APY (Annual Percentage Yield)', definition: 'The real rate of return on your savings, including compound interest.', example: '5% APY on $10,000 = $500 earned in one year.' },
@@ -2181,13 +2375,21 @@ const lessons: PathwayLesson[] = [
         { term: 'Liquidity', definition: 'How quickly you can access your money without penalty.', example: 'Savings accounts: instant. CDs: penalty for early withdrawal. Investments: 1-3 days to sell.' }
       ],
       'Spectrum of savings options from most to least liquid',
-      { company: 'Ally Bank', metric: 'HYSA since 2009', outcome: 'One of the first online-only banks, now holding $196B+ in assets with 4.00-5.00% APY and no minimums', explanation: 'Online banks proved that you don\'t need branches to be safe. Ally has the same FDIC insurance as Chase or Bank of America.' },
+      undefined,
       { type: 'grid', title: 'Where to Park Your Money', items: [
-        { label: 'Checking', value: '0% APY \,  Daily use', color: '#A451E6' },
-        { label: 'HYSA', value: '4-5% APY \,  Emergency fund', color: '#B862ED' },
-        { label: 'CD', value: '4-5.5% APY \,  6-12 months', color: '#3B82F6' },
-        { label: 'I-Bonds', value: 'Inflation rate \,  1+ year lock', color: '#10B981' },
-      ], footer: '1-2 months expenses in checking \u2192 3-6 months in HYSA \u2192 extra in CDs/I-Bonds', sentiment: 'positive' }
+        { label: 'Checking', value: '0% APY, daily use', sprite: 'wallet',
+          explain: 'Rent, groceries, the card in your pocket. It earns nothing, and that is fine: this is money you need to be able to touch today.' },
+        { label: 'HYSA', value: '4-5% APY, emergency fund', sprite: 'piggy-bank',
+          explain: 'The right home for the emergency fund from lesson 4. It still comes out in a day or two, and it earns while it waits.' },
+        { label: 'CD', value: '4-5.5% APY, 6-12 months', sprite: 'lock',
+          explain: 'You promise not to touch it for a set time, and get a slightly better rate for the promise. Break it early and you pay a penalty.' },
+        { label: 'I-Bonds', value: 'Inflation rate, 1+ year lock', sprite: 'inflation',
+          explain: 'These track inflation, so their job is keeping your money worth the same rather than growing it. Locked for at least a year.' },
+      ], footer: '1-2 months expenses in checking \u2192 3-6 months in HYSA \u2192 extra in CDs/I-Bonds', sentiment: 'positive' },
+      {
+        hint: 'Tap each one. The difference is how fast you can reach it',
+        recap: 'Nothing here is about picking a winner. It is about matching the money to how soon you need it. Rent money stays in checking. The emergency fund you built in lesson 4 belongs in the HYSA, where it earns something while it sits and waits.',
+      }
     ),
     microCheck(
       'Your friend says online banks are risky because they don\'t have physical branches. What\'s the truth?',
@@ -2197,7 +2399,7 @@ const lessons: PathwayLesson[] = [
       'FDIC insurance doesn\'t care about branches. It covers deposits up to $250,000 per depositor per bank, online or traditional. Your money is equally safe.'
     ),
     interactiveGraph(
-      'SAVINGS BUCKETS', 'The Savings Bucket System',
+      'Savings buckets', 'The Savings Bucket System',
       'pie',
       'Organize your savings into purpose-driven buckets for clarity and discipline.',
       [
@@ -2253,10 +2455,10 @@ const lessons: PathwayLesson[] = [
       ['They take on riskier loans, so the higher rate is really payment for added danger', 'They have lower overhead, no physical branches to maintain', 'They carry less FDIC coverage, and the higher rate compensates you for that gap', 'They are newer companies offering temporary teaser rates that will soon disappear'],
       1, 'No branches = no rent, no tellers, no utilities. Online banks pass those savings to you as higher interest rates. Same FDIC protection.'),
     tr('Smart Banking Playbook', [
-      ['Checking Account', '1-2 months of expenses for daily spending'],
-      ['HYSA', 'Emergency fund (3-6 months) + short-term goals'],
-      ['CD Ladder', 'Money you won\'t need for 6-12+ months for higher yield'],
-      ['I-Bonds', 'Up to $10K/year, inflation-protected, 1-year lock minimum']
+      ['Checking Account', '1-2 months of expenses for daily spending', { stat: '1-2 months', sprite: 'wallet' }],
+      ['HYSA', 'Emergency fund (3-6 months) + short-term goals', { stat: '3-6 months', sprite: 'piggy-bank' }],
+      ['CD Ladder', 'Money you won\'t need for 6-12+ months for higher yield', { stat: '6-12 months', sprite: 'lock' }],
+      ['I-Bonds', 'Up to $10K/year, inflation-protected, 1-year lock minimum', { stat: '$10K/year', sprite: 'inflation' }]
     ]),
     ds('Set up your banking system today:', ['Open a HYSA (takes 10 minutes online)', 'Set up auto-transfer from checking to HYSA on payday', 'Start with whatever you can: $25, $50, $100/month', 'Create separate savings buckets for each goal', 'Increase auto-transfer by $25 every 3 months']),
     bi('Design Your Savings System', 'Place each dollar amount in the right account type:', [
@@ -2348,7 +2550,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Age 50', value: '$500K' },
         { label: 'Age 70', value: '$4M' },
         { label: 'Age 92', value: '$8M' },
-      ], trend: 'up', footer: 'Salary never exceeded $30K \,  patience and consistency created millions', sentiment: 'positive' }
+      ], trend: 'up', footer: 'Salary never exceeded $30K, patience and consistency created millions', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without a Wealth Plan', detail: '64% of Americans live paycheck to paycheck. The median retirement savings for 55-64 year olds is just $134,000, enough for about 3-5 years. Most people never build real wealth because they never had a plan.' },
@@ -2359,7 +2561,7 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE ORDER OF OPERATIONS', 'The Wealth-Building Waterfall',
+      'The order of operations', 'The Wealth-Building Waterfall',
       [
         'Building wealth has a specific order, like a video game, you can\'t skip levels. Step 1: Build a $1,000 starter emergency fund. Step 2: Get your employer 401(k) match (it\'s free money, 50-100% instant return). Step 3: Pay off high-interest debt (anything above 7% APR).',
         'Step 4: Expand emergency fund to 3-6 months of expenses in a HYSA. Step 5: Max out Roth IRA ($7,000/year, tax-free growth forever). Step 6: Max out 401(k) ($23,500/year in 2025). Step 7: Invest in taxable brokerage (index funds, no contribution limits).',
@@ -2372,16 +2574,27 @@ const lessons: PathwayLesson[] = [
         { term: 'FI Number', definition: 'The portfolio size that generates enough passive income to cover your expenses forever.', example: '$40K annual expenses × 25 = $1M FI number.' }
       ],
       'Waterfall diagram showing wealth-building steps in order',
-      { company: 'Fidelity Study (2023)', metric: '401(k) Millionaires', outcome: '485,000 Fidelity 401(k) accounts have balances over $1M, average contribution period: 26 years, average savings rate: 17.5%', explanation: 'These aren\'t executives and tech CEOs. They\'re teachers, nurses, and engineers who consistently saved 15-20% for decades. The system works.' },
+      undefined,
       { type: 'flow', title: 'Wealth-Building Order of Operations', nodes: [
-        { label: '1. $1K starter emergency fund', value: 'Foundation' },
-        { label: '2. Get 401(k) employer match', value: 'FREE 50-100% return' },
-        { label: '3. Pay off high-interest debt', value: '7%+ APR' },
-        { label: '4. 3-6 month emergency fund', value: 'In HYSA' },
-        { label: '5. Max Roth IRA', value: '$7,000/year' },
-        { label: '6. Max 401(k)', value: '$23,500/year' },
-        { label: '7. Taxable brokerage', value: 'Index funds' },
-      ], footer: 'Follow the waterfall in order \,  each step multiplies the next', sentiment: 'positive' }
+        { label: '1. $1K starter emergency fund', value: 'Foundation', sprite: 'safety-net',
+          explain: 'Lesson 4\u2019s fund, small version. Without it the first flat tire goes on a credit card and you start over at step three.' },
+        { label: '2. Get the 401(k) employer match', value: 'Free 50-100% return', sprite: 'handshake',
+          explain: 'Your employer hands you money for saving. Nothing else on this list returns 50% instantly, which is why it outranks paying off debt.' },
+        { label: '3. Pay off high-interest debt', value: '7%+ APR', sprite: 'chain-break',
+          explain: 'The 22% card from lesson 6. Clearing it is a guaranteed 22% return, and no investment can promise you that.' },
+        { label: '4. 3-6 month emergency fund', value: 'In a HYSA', sprite: 'piggy-bank',
+          explain: 'Now fill it properly, in the high-yield account from lesson 9. This is what keeps a lost job from undoing steps 5 through 7.' },
+        { label: '5. Max the Roth IRA', value: '$7,000/year', sprite: 'seedling',
+          explain: 'You pay tax on it now, then it grows and comes out completely untaxed later. Best deal available to most young earners.' },
+        { label: '6. Max the 401(k)', value: '$23,500/year', sprite: 'tree',
+          explain: 'Back to the workplace account, this time past the match. It lowers the income you get taxed on this year.' },
+        { label: '7. Taxable brokerage', value: 'Index funds', sprite: 'chart-up',
+          explain: 'No limits and no special tax break, but no rules about when you can take it out either. This is where the overflow goes.' },
+      ], footer: 'Follow the waterfall in order, each step multiplies the next', sentiment: 'positive' },
+      {
+        hint: 'Tap each step. Every one of them came from an earlier lesson',
+        recap: 'Read the list again and notice what it is: the budget from lesson 2, the fund from lesson 4, the debt from lesson 6, the account from lesson 9, stacked in the order that makes each one pay for the next. That order is the whole of personal finance, and you now know it.',
+      }
     ),
     microCheck(
       'Your employer matches 50% of 401(k) contributions up to 6% of salary. You earn $50,000. What\'s the minimum you should contribute?',
@@ -2391,7 +2604,7 @@ const lessons: PathwayLesson[] = [
       'Always contribute at least enough to get the full employer match. It\'s an instant 50-100% return, the best guaranteed return in finance.'
     ),
     interactiveGraph(
-      'SAVINGS RATE POWER', 'Why Savings Rate Beats Investment Returns',
+      'Savings rate power', 'Why Savings Rate Beats Investment Returns',
       'comparison',
       'Most people obsess over investment returns. But savings rate has a much bigger impact on wealth.',
       [
@@ -2418,11 +2631,11 @@ const lessons: PathwayLesson[] = [
     caseStudy(
       'Ronald Read: The $8 Million Janitor',
       [
-        { date: '1921-1960s', event: 'Humble beginnings', context: 'Ronald Read grew up on a farm in Vermont, hitchhiked to high school, served in WWII, and worked as a gas station attendant and janitor at JCPenney. He never earned more than $30,000/year.' },
+        { date: '1921-1960s', event: 'Humble beginnings', context: 'Ronald Read farmed in Vermont, hitchhiked to school, served in WWII, then pumped gas and cleaned JCPenney floors. He never earned over $30,000 a year.' },
         { date: '1960s-2000s', event: 'Quiet, consistent investing', context: 'Read invested small amounts in blue-chip dividend stocks, AT&T, Bank of America, CVS, Deere, GE, GM, Johnson & Johnson. He bought and held. He never traded. He reinvested every dividend.' },
-        { date: 'Decades of patience', event: 'The power of time + consistency', context: 'Read drove a used car, wore flannel shirts, and lived well below his means. Friends described him as frugal but never cheap. He read the Wall Street Journal daily at the local library, a free financial education.' },
-        { date: 'June 2014', event: 'Ronald Read dies at age 92', context: 'His estate shocked everyone: $8 million. He left $1.2M to the local library and $4.8M to a hospital. A janitor outperformed 99% of professional fund managers, not through brilliance, but through patience.' },
-        { date: 'Legacy', event: 'Lessons for everyone', context: 'Read\'s wealth came from 3 principles: (1) spend less than you earn, (2) invest consistently in quality companies, (3) never sell. He proved that building wealth is about behavior, not income.' }
+        { date: 'Decades of patience', event: 'The power of time + consistency', context: 'He drove a used car and spent less than he earned. Friends called him frugal, not cheap. He read the Wall Street Journal free at the library daily.' },
+        { date: 'June 2014', event: 'Ronald Read dies at age 92', context: 'His estate was $8 million. He left $1.2M to the library and $4.8M to a hospital. A janitor beat 99% of professional fund managers through patience, not brilliance.' },
+        { date: 'Legacy', event: 'Lessons for everyone', context: 'His wealth came from 3 rules: spend less than you earn, keep buying strong companies, never sell. Wealth is about behavior, not income.' }
       ],
       'Ronald Read had no financial advantages, no inheritance, no high salary, no special knowledge. He had patience, consistency, and a very long time horizon. If a janitor can build $8M, the only question for you is: will you start?'
     ),
@@ -2453,13 +2666,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Your employer matches 100% up to 5% of salary ($50K). Annual free money:', options: ['$500', '$1,500', '$2,500', '$5,000'], correct: 2 }
     ]),
     tr('The Wealth-Building Playbook', [
-      ['Step 1', '$1K emergency fund → stop the bleeding'],
-      ['Step 2', '401(k) to employer match → collect free money'],
-      ['Step 3', 'Kill high-interest debt → stop the 22% leak'],
-      ['Step 4', '3-6 month emergency fund in HYSA → build your safety net'],
-      ['Step 5', 'Roth IRA ($7K/yr) → tax-free growth forever'],
-      ['Step 6', 'Max 401(k) ($23.5K/yr) → tax-deferred growth'],
-      ['Step 7', 'Taxable brokerage → unlimited investing']
+      ['Step 1', '$1K emergency fund → stop the bleeding', { stat: '$1K', sprite: 'safety-net' }],
+      ['Step 2', '401(k) to employer match → collect free money', { stat: 'Free money', sprite: 'handshake' }],
+      ['Step 3', 'Kill high-interest debt → stop the 22% leak', { stat: '22% leak', sprite: 'chain-break' }],
+      ['Step 4', '3-6 month emergency fund in HYSA → build your safety net', { stat: '3-6 months', sprite: 'piggy-bank' }],
+      ['Step 5', 'Roth IRA ($7K/yr) → tax-free growth forever', { stat: '$7K/yr', sprite: 'seedling' }],
+      ['Step 6', 'Max 401(k) ($23.5K/yr) → tax-deferred growth', { stat: '$23.5K/yr', sprite: 'tree' }],
+      ['Step 7', 'Taxable brokerage → unlimited investing', { stat: 'Unlimited', sprite: 'chart-up' }]
     ]),
     ds('Your first-year wealth-building checklist:', ['Open employer 401(k) and contribute to full match', 'Build $1,000 starter emergency fund in HYSA', 'List all debts by interest rate, attack highest first', 'Open Roth IRA (Fidelity, Vanguard, or Schwab, all free)', 'Set savings rate target: 10% minimum, 20% goal', 'Automate every transfer, remove willpower from the equation', 'Save 50% of every future raise to accelerate wealth']),
     bi('Build Your Financial Order of Operations', 'Put these wealth-building steps in the correct order:', [
@@ -2561,20 +2774,22 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll know exactly how to research your market value, frame a compelling negotiation, handle counter-offers, and build a strategy for raises that compounds your income over decades.',
       'Side-by-side career earnings graph: negotiator vs non-negotiator diverging over 30 years',
       { type: 'comparison', title: '$1M Cost of NOT Negotiating', rows: [
-        { label: 'Negotiator (cumulative earnings)', value: '$3.2M' },
-        { label: 'Non-negotiator (cumulative earnings)', value: '$2.2M' },
+        { label: 'Negotiator (cumulative earnings)', value: '$3.2M', percent: 320,
+          explain: 'Same job, same person, same 45 years. The only difference is that this one asked, and kept asking at every job change.' },
+        { label: 'Non-negotiator (cumulative earnings)', value: '$2.2M', percent: 220,
+          explain: 'A million dollars, lost to a conversation that never happened. Not to bad luck or bad work, just to never asking.' },
       ], footer: 'One negotiation compounds across every future raise', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without negotiation skills', detail: 'Workers who never negotiate earn $1M less over a career. They accept the first offer 60% of the time, leaving an average of $5,000-$10,000 on the table per job change.' },
       { label: 'With negotiation skills', detail: 'Negotiators earn 7-8% more at each job change. That $5K bump at age 25 grows to $600K+ by retirement through compounding raises, bonuses, and 401(k) matches.' },
       {
-        withoutVisual: { type: 'metric', title: 'Never Negotiated', value: '-$1,000,000', detail: 'Career earnings lost, Accepted first offer every time', footer: '55% of workers never negotiate', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Skilled Negotiator', value: '+$1,000,000', detail: 'Extra career earnings, 7-8% more at each job change', footer: 'Compounds with every future raise', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Never Negotiated', value: '-$1,000,000', detail: 'Career earnings lost, Accepted first offer every time', footer: '55% of workers never negotiate', sentiment: 'negative', sprite: 'wage-gap' },
+        withVisual: { type: 'metric', title: 'Skilled Negotiator', value: '+$1,000,000', detail: 'Extra career earnings, 7-8% more at each job change', footer: 'Compounds with every future raise', sentiment: 'positive', sprite: 'paycheck' }
       }
     ),
     teachingSlide(
-      'THE EARNING EQUATION', 'Why Negotiation Is Your Highest-ROI Skill',
+      'The earning equation', 'Why Negotiation Is Your Highest-ROI Skill',
       [
         'Salary negotiation is the single highest-return activity in personal finance. A 15-minute conversation that earns you $5,000 more per year is worth $333 per minute, and that number compounds. Every future raise, bonus, and 401(k) match is calculated as a percentage of your base salary. A higher base means higher everything, forever.',
         'Research is the foundation of successful negotiation. Before any conversation, you need three numbers: your market rate (Glassdoor, Levels.fyi, BLS data), your BATNA (Best Alternative To a Negotiated Agreement, your next-best option), and your walk-away number. According to PayScale, 75% of people who ask for a raise receive one, yet most never ask.',
@@ -2586,13 +2801,21 @@ const lessons: PathwayLesson[] = [
         { term: 'Total Compensation', definition: 'The complete value package: base salary + bonuses + equity + benefits + retirement matching.', example: 'A $90K base with $10K bonus, $15K equity, and 5% 401(k) match = ~$120K total comp.' }
       ],
       'Flowchart showing negotiation preparation: Research → Know your number → Practice → Negotiate → Follow up',
-      { company: 'PayScale (2023)', metric: 'Survey of 160,000+ workers', outcome: '75% of people who ask for a raise receive one, but only 37% of workers have ever asked', explanation: 'The biggest barrier to higher pay isn\'t the employer saying no, it\'s the employee never asking. Three out of four people who negotiate get more money.' },
+      undefined,
       { type: 'flow', title: 'The Negotiation Prep Sequence', nodes: [
-        { label: 'Research', value: 'Glassdoor, Levels.fyi, BLS', color: '#3B82F6' },
-        { label: 'Set your number', value: 'Target + walk-away', color: '#A451E6' },
-        { label: 'Practice the pitch', value: 'Value, not need', color: '#F59E0B' },
-        { label: 'Counter with data', value: '7-8% more on average', color: '#10B981' },
-      ], footer: 'Preparation, not aggression, wins the raise', sentiment: 'positive' }
+        { label: 'Research', value: 'Glassdoor, Levels.fyi, BLS', color: '#3B82F6', sprite: 'bar-chart',
+          explain: 'Before you can ask for a number you have to know one. Free sites publish what this exact role pays in your exact city.' },
+        { label: 'Set your number', value: 'Target + walk-away', color: '#A451E6', sprite: 'target',
+          explain: 'Two numbers, decided in advance: what you want, and the point where you politely stop. Deciding this in the room is how people fold.' },
+        { label: 'Practice the pitch', value: 'Value, not need', color: '#F59E0B', sprite: 'chat',
+          explain: 'Say it out loud until it stops feeling rude. And make it about what you bring, never about your rent, which is not their problem.' },
+        { label: 'Counter with data', value: '7-8% more on average', color: '#10B981', sprite: 'handshake',
+          explain: 'Now the ask is just a fact plus a request. That is the whole trick, and it pays about 7-8% more per job change.' },
+      ], footer: 'Preparation, not aggression, wins the raise', sentiment: 'positive' },
+      {
+        hint: 'Tap each step. None of them happen in the room',
+        recap: 'Every step here is done before anyone says a number. That is why this works for people who hate confrontation: by the time you are asked, the hard part is already finished, and you are just reading out what you found.',
+      }
     ),
     microCheck(
       'You receive a job offer at $65,000. Market data shows the role pays $68K-$78K. What\'s your best first move?',
@@ -2602,7 +2825,7 @@ const lessons: PathwayLesson[] = [
       'Always counter with data. An enthusiastic, research-backed counter shows professionalism and typically lands you 5-10% more than the initial offer.'
     ),
     interactiveGraph(
-      'COMPOUNDING INCOME', 'How One Negotiation Echoes Across Your Career',
+      'Compounding income', 'How One Negotiation Echoes Across Your Career',
       'comparison',
       'A single $5,000 negotiation win doesn\'t just give you $5K, it compounds through every raise, bonus, and match for decades.',
       [
@@ -2664,13 +2887,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'The best time to negotiate salary is:', options: ['After 5 years of experience', 'When you get a new job offer', 'Before accepting any offer, your first salary sets the baseline', 'Only when switching companies'], correct: 2 }
     ]),
     tr('The Salary Negotiation Playbook', [
-      ['Step 1', 'Research market rate (Glassdoor, Levels.fyi, BLS)'],
-      ['Step 2', 'Know your BATNA, your walkaway alternative'],
-      ['Step 3', 'Quantify your value, projects, revenue, impact'],
-      ['Step 4', 'Practice your pitch out loud 3+ times'],
-      ['Step 5', 'Lead with enthusiasm, then present data'],
-      ['Step 6', 'Give a specific number, not a range'],
-      ['Step 7', 'Get the final offer in writing']
+      ['Step 1', 'Research market rate (Glassdoor, Levels.fyi, BLS)', { stat: 'Market rate', sprite: 'bar-chart' }],
+      ['Step 2', 'Know your BATNA, your walkaway alternative', { stat: 'BATNA', sprite: 'compass' }],
+      ['Step 3', 'Quantify your value, projects, revenue, impact', { stat: 'Your value', sprite: 'certificate' }],
+      ['Step 4', 'Practice your pitch out loud 3+ times', { stat: 'Out loud', sprite: 'chat' }],
+      ['Step 5', 'Lead with enthusiasm, then present data', { stat: 'Enthusiasm', sprite: 'star' }],
+      ['Step 6', 'Give a specific number, not a range', { stat: 'One number', sprite: 'target' }],
+      ['Step 7', 'Get the final offer in writing', { stat: 'In writing', sprite: 'check-badge' }]
     ]),
     ds('Prepare for your next negotiation:', ['Research 3 salary sources for your role and location', 'Document your top 5 accomplishments with metrics', 'Identify your BATNA (competing offer, freelance rate, etc.)', 'Write a 2-sentence pitch: enthusiasm + data-backed ask', 'Practice with a friend or record yourself']),
     bi('Negotiation Strategy Check', 'Choose the best approach for each scenario:', [
@@ -2764,24 +2987,25 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand the cognitive biases that hijack your wallet, recognize the psychological tricks retailers use, and build a spending system that aligns with your actual values.',
       'Brain split in half: emotional side with shopping bags vs rational side with a calculator',
       { type: 'comparison', title: 'Your Brain on Spending', rows: [
-        { label: 'Emotional: Buy now!', value: 'You deserve it! Limited time!' },
-        { label: 'Rational: Do I need this?', value: 'What\'s the real cost? Does this match my goals?' },
+        { label: 'Emotional: Buy now!', value: 'You deserve it! Limited time!',
+          explain: 'This half is fast, loud, and easy to reach. Every countdown timer and "only 3 left" tag is written directly to it.' },
+        { label: 'Rational: Do I need this?', value: 'What\'s the real cost? Does this match my goals?',
+          explain: 'This half is slower, and it needs a moment to switch on. That is the entire reason a 24-hour rule works.' },
       ], footer: 'Retailers target the left. You need to activate the right.', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without spending awareness', detail: 'The average American spends $18,000/year on non-essential purchases they later regret (Ladder/OnePoll 2023). Impulse purchases account for $5,400/year. Retailers use 50+ psychological tricks to trigger emotional buying.' },
       { label: 'With spending psychology knowledge', detail: 'Understanding your triggers cuts impulse spending by 40-60%. A 24-hour rule alone saves the average person $2,000/year. Values-aligned spending increases happiness while reducing total spending.' },
       {
-        withoutVisual: { type: 'metric', title: 'Impulse Spender', value: '$18,000', detail: 'Annual regretted purchases, $5,400/yr on impulse buys', footer: 'Emotional brain wins every time', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Mindful Spender', value: '40-60%', detail: 'Impulse spending reduced, $2K+/yr saved with 24-hour rule', footer: 'Spends more on joy, less on regret', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Impulse Spender', value: '$18,000', detail: 'Annual regretted purchases, $5,400/yr on impulse buys', footer: 'Emotional brain wins every time', sentiment: 'negative', sprite: 'cart' },
+        withVisual: { type: 'metric', title: 'Mindful Spender', value: '40-60%', detail: 'Impulse spending reduced, $2K+/yr saved with 24-hour rule', footer: 'Spends more on joy, less on regret', sentiment: 'positive', sprite: 'lightbulb' }
       }
     ),
     teachingSlide(
-      'BEHAVIORAL ECONOMICS', 'The Hidden Forces Behind Every Purchase',
+      'Behavioral economics', 'The Hidden Forces Behind Every Purchase',
       [
-        'Your brain has two spending systems. System 1 is fast, emotional, and automatic, it\'s the part that sees "70% OFF!" and reaches for the wallet. System 2 is slow, rational, and deliberate, it\'s the part that calculates whether you actually need another pair of shoes. Retailers spend billions designing stores, websites, and ads to activate System 1 and bypass System 2.',
-        'The most powerful bias is loss aversion, we feel losses 2x more intensely than equivalent gains. Retailers weaponize this: "Only 3 left!" "Sale ends tonight!" "Don\'t miss out!" These create artificial urgency that triggers fear of missing out. The anchoring effect is equally potent: showing a $200 original price next to a $99 "sale" price makes $99 feel like a bargain, even if the item was never worth $200.',
-        'The solution isn\'t willpower, it\'s systems. The 24-hour rule (wait 24 hours before any purchase over $50) eliminates 70% of impulse buys. The 10-10-10 rule (will this matter in 10 minutes, 10 months, 10 years?) filters purchases through time. Unsubscribing from marketing emails reduces spending by 20%. These systems work because they activate System 2 before System 1 can spend.'
+        'System 1 is the fast, emotional brain that grabs "70% OFF!" deals. System 2 is slow and logical. Losses hurt 2x more than gains, so "only 3 left" works. Anchoring: a $200 tag beside $99 makes $99 look cheap.',
+      'Use systems, not willpower. Wait 24 hours before buying anything over $50, which stops 70% of impulse buys. Ask if it matters in 10 minutes, 10 months, 10 years. Unsubscribing from marketing emails cuts spending 20%.'
       ],
       [
         { term: 'Loss Aversion', definition: 'The tendency to feel losses 2x more strongly than equivalent gains, making us act irrationally to avoid perceived losses.', example: '"Sale ends tonight!" triggers loss aversion, you feel you\'re losing a deal even if you don\'t need the item.' },
@@ -2789,12 +3013,19 @@ const lessons: PathwayLesson[] = [
         { term: 'Hedonic Adaptation', definition: 'The tendency to quickly return to a baseline happiness level after purchases, requiring ever-bigger purchases for the same satisfaction.', example: 'A new car feels amazing for 3 weeks, then becomes "just your car." The thrill fades but the payments don\'t.' }
       ],
       'Diagram showing how retailers exploit cognitive biases at each stage of the purchase funnel',
-      { company: 'Ladder/OnePoll (2023)', metric: 'Survey of 2,000 Americans on spending habits', outcome: 'Average American spends $18,000/year on non-essential purchases they later regret, $5,400 specifically on impulse buys', explanation: 'That $18K invested at 8% for 30 years = $2.04M. The gap between what we spend impulsively and what we could build is staggering.' },
+      undefined,
       { type: 'bars', title: 'Spending Filters: How Many Impulse Buys Survive', items: [
-        { label: 'No filter (autopilot)', value: 100, displayValue: '100%' },
-        { label: 'After the 24-hour rule', value: 30, displayValue: '~30%' },
-        { label: 'After the 10-10-10 test', value: 18, displayValue: '~18%' },
-      ], footer: 'A short pause activates the rational brain before the wallet opens', sentiment: 'positive' }
+        { label: 'No filter (autopilot)', value: 100, displayValue: '100%', sprite: 'funnel',
+          explain: 'Every want becomes a purchase. Saved card details and one-tap checkout exist to keep this bar exactly this long.' },
+        { label: 'After the 24-hour rule', value: 30, displayValue: '~30%', sprite: 'stopwatch',
+          explain: 'Sleep on it and seven in ten wants quietly evaporate. You did not resist them, you just outlasted them.' },
+        { label: 'After the 10-10-10 test', value: 18, displayValue: '~18%', sprite: 'scales',
+          explain: 'Ask how you will feel in 10 minutes, 10 months, 10 years. What is left after that is usually worth buying.' },
+      ], footer: 'A short pause activates the rational brain before the wallet opens', sentiment: 'positive' },
+      {
+        hint: 'Tap each filter and watch how many purchases survive it',
+        recap: 'Look at how much of that first bar disappears to a single night of sleep. You are not being asked to have more willpower, you are being asked to add a delay, and the delay does the work for you.',
+      }
     ),
     microCheck(
       'A store shows a jacket "originally $250, now $89!" You didn\'t plan to buy a jacket. What cognitive bias is at work?',
@@ -2804,7 +3035,7 @@ const lessons: PathwayLesson[] = [
       'Whenever you see a "was/now" price, ignore the original price entirely. Ask: "Would I pay $89 for this if there were no sale?" That\'s the real decision.'
     ),
     interactiveGraph(
-      'THE COST OF IMPULSE', 'What Your Impulse Spending Could Become',
+      'The cost of impulse', 'What Your Impulse Spending Could Become',
       'comparison',
       'Every dollar spent impulsively has an opportunity cost: the wealth it could have generated if invested instead.',
       [
@@ -2831,10 +3062,10 @@ const lessons: PathwayLesson[] = [
     caseStudy(
       'The $250,000 Amazon Cart: How Small Purchases Add Up',
       [
-        { date: 'Year 1', event: 'The one-click habit begins', context: 'Sarah starts using Amazon Prime in college. Free shipping removes the friction of buying. She averages $200/month in small purchases, $12 phone case, $35 impulse gadget, $15 on-sale items she "might use."' },
+        { date: 'Year 1', event: 'The one-click habit begins', context: 'In college Sarah gets Amazon Prime. Free shipping makes buying feel easy. She spends $200 a month on extras: $12 phone case, $35 gadget, $15 sale items.' },
         { date: 'Years 2-5', event: 'The spending escalates', context: 'Post-college with a real income, spending rises to $400/month. She barely notices, autopay and one-click buying remove all spending friction. Annual Amazon spend: $4,800.' },
         { date: 'Year 5', event: 'The audit shock', context: 'Sarah downloads her Amazon order history. Total spending: $21,600 over 5 years. She identifies $14,000+ of items she barely used, products with great reviews that seemed essential at midnight.' },
-        { date: 'Year 5+', event: 'The system change', context: 'Sarah implements a 48-hour cart rule (add to cart, buy only if still wanted after 48 hours) and a $100/month Amazon budget. She also unsubscribes from deal emails. Her spending drops 70% to $120/month.' },
+        { date: 'Year 5+', event: 'The system change', context: 'Sarah adds a 48-hour rule: wait two days before buying. She caps Amazon at $100 a month and unsubscribes from deal emails. Monthly spending drops 70% to $120.' },
         { date: 'The math', event: 'Redirecting $280/month', context: 'The $280/month saved ($3,360/year) invested at 8% = $381,000 over 30 years. Sarah didn\'t earn more money, she redirected money from regret purchases to wealth.' }
       ],
       'Sarah\'s story is the average American\'s story. The solution wasn\'t earning more, it was creating systems that activate rational thinking before emotional spending.'
@@ -2866,11 +3097,11 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Hedonic adaptation means:', options: ['Prices always go up', 'The happiness from purchases fades quickly, requiring ever-bigger buys', 'Savings accounts adapt to inflation', 'Your spending adapts to your income'], correct: 1 }
     ]),
     tr('Anti-Impulse Spending System', [
-      ['24-Hour Rule', 'Wait 24 hours before any unplanned purchase over $50'],
-      ['10-10-10 Rule', 'Will this matter in 10 minutes, 10 months, 10 years?'],
-      ['Unsubscribe', 'Remove all marketing emails, reduces spending 20%'],
-      ['Cart Abandonment', 'Add to cart, revisit in 48 hours'],
-      ['Fun Money Budget', '$X/month for guilt-free spending, planned, not impulsive']
+      ['24-Hour Rule', 'Wait 24 hours before any unplanned purchase over $50', { stat: '24 hours', sprite: 'stopwatch' }],
+      ['10-10-10 Rule', 'Will this matter in 10 minutes, 10 months, 10 years?', { stat: '10-10-10', sprite: 'anchor' }],
+      ['Unsubscribe', 'Remove all marketing emails, reduces spending 20%', { stat: '-20%', sprite: 'newspaper' }],
+      ['Cart Abandonment', 'Add to cart, revisit in 48 hours', { stat: '48 hours', sprite: 'cart' }],
+      ['Fun Money Budget', '$X/month for guilt-free spending, planned, not impulsive', { stat: 'Planned fun', sprite: 'gift' }]
     ]),
     ds('Build your anti-impulse system today:', ['Enable the 24-hour rule for all purchases over $50', 'Unsubscribe from every retail marketing email', 'Delete shopping apps from your phone', 'Set a monthly "fun money" budget you can spend guilt-free', 'Track every purchase for 30 days to find your triggers']),
     bi('Identify the Bias', 'Which cognitive bias is being exploited?', [
@@ -2964,25 +3195,27 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand federal vs private loans, repayment strategies, forgiveness programs, and how to make smart education financing decisions that don\'t cripple your financial future.',
       'Scale balancing a diploma against a mountain of debt',
       { type: 'bars', title: '$1.77 Trillion Student Debt Crisis', items: [
-        { label: 'Student Loans', value: 100, displayValue: '$1.77T' },
-        { label: 'Auto Loans', value: 90, displayValue: '$1.6T' },
-        { label: 'Credit Cards', value: 62, displayValue: '$1.1T' },
-      ], footer: 'Average grad debt: $29,400 \,  Smart financing decisions BEFORE borrowing save tens of thousands', sentiment: 'negative' }
+        { label: 'Student Loans', value: 100, displayValue: '$1.77T', sprite: 'graduation-cap',
+          explain: 'Bigger than what the whole country owes on cars, and bigger than every credit card balance combined.' },
+        { label: 'Auto Loans', value: 90, displayValue: '$1.6T', sprite: 'car',
+          explain: 'Every car payment in America, added up. Student debt still beats it, and a degree cannot be repossessed and resold.' },
+        { label: 'Credit Cards', value: 62, displayValue: '$1.1T', sprite: 'credit-card',
+          explain: 'The 22% debt from lesson 6, nationwide. Student loans are two thirds larger, though usually at a far kinder rate.' },
+      ], footer: 'Average grad debt: $29,400, Smart financing decisions BEFORE borrowing save tens of thousands', sentiment: 'negative' }
     ),
     stakesCard(
       { label: 'Without education financing knowledge', detail: 'The average borrower takes 20 years to repay student loans. Many don\'t know about income-driven repayment, forgiveness programs, or the difference between subsidized and unsubsidized loans, costing them $10K-$50K in unnecessary interest.' },
       { label: 'With education financing knowledge', detail: 'Strategic borrowers choose subsidized loans first, apply for every grant and scholarship, use income-driven repayment when needed, and pursue forgiveness programs. Smart decisions save $20K-$100K over a loan\'s lifetime.' },
       {
-        withoutVisual: { type: 'metric', title: 'Uninformed Borrower', value: '$10-50K', detail: 'Extra interest paid, 20-year repayment average', footer: 'Missed forgiveness programs', sentiment: 'negative' },
+        withoutVisual: { type: 'metric', title: 'Uninformed Borrower', value: '$10-50K', detail: 'Extra interest paid, 20-year repayment average', footer: 'Missed forgiveness programs', sentiment: 'negative', sprite: 'bill' },
         withVisual: { type: 'metric', title: 'Strategic Borrower', value: '$20-100K', detail: 'Interest saved, Subsidized first, scholarships maximized', footer: 'Forgiveness programs utilized', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'STUDENT LOAN FUNDAMENTALS', 'Federal vs Private & Smart Borrowing Strategy',
+      'Student loan fundamentals', 'Federal vs Private & Smart Borrowing Strategy',
       [
-        'Federal student loans come in two critical flavors. Subsidized loans (for undergrads with financial need): the government pays interest while you\'re in school and during grace periods, this is FREE money. Unsubsidized loans: interest accrues from day one. A $10,000 unsubsidized loan at 5.5% accumulates $2,200 in interest during 4 years of school before you make a single payment. Always exhaust subsidized loans first.',
-        'Private student loans should be your absolute last resort. They typically have higher interest rates (5-13%), no income-driven repayment options, no forgiveness programs, and fewer protections if you lose your job. Federal loans offer income-driven plans that cap payments at 5-10% of discretionary income and forgive remaining balances after 20-25 years. Public Service Loan Forgiveness (PSLF) forgives balances after just 10 years for qualifying public service workers.',
-        'The smartest approach: minimize borrowing entirely. Apply for FAFSA (Free Application for Federal Student Aid), $3 billion in federal grants goes unclaimed annually because students don\'t apply. Apply for every scholarship (local, school-specific, national). Work part-time during school. Choose a school with strong ROI. The best student loan is the one you never take out.'
+        'Subsidized federal loans, for undergrads with need, have the government pay interest while you study. Unsubsidized ones charge interest from day one: a $10,000 loan at 5.5% adds $2,200 over 4 years of school. Take subsidized first.',
+      'Private loans charge 5-13% with no forgiveness. Federal income-driven plans cap payments at 5-10% of income and forgive balances after 20-25 years, 10 years in public service. File the free FAFSA aid form: $3 billion in grants goes unclaimed yearly.'
       ],
       [
         { term: 'Subsidized Loan', definition: 'Federal loan where the government pays interest while you\'re enrolled at least half-time, during grace period, and during deferment.', example: 'A $5,500 subsidized loan costs $0 in interest during 4 years of school. An unsubsidized loan at 5.5% would cost $1,210 in interest before you even graduate.' },
@@ -2990,13 +3223,21 @@ const lessons: PathwayLesson[] = [
         { term: 'PSLF', definition: 'Public Service Loan Forgiveness, remaining federal loan balance forgiven after 120 qualifying payments while working full-time for a qualifying employer.', example: 'A teacher with $60K in loans making IDR payments for 10 years may have $30K+ forgiven tax-free under PSLF.' }
       ],
       'Decision tree showing: FAFSA → Grants → Scholarships → Subsidized Federal → Unsubsidized Federal → Private (last resort)',
-      { company: 'NerdWallet / Federal Student Aid (2024)', metric: '$1.77 trillion total student debt across 45M borrowers', outcome: '$3 billion in federal Pell Grants goes unclaimed annually because students don\'t fill out the FAFSA', explanation: 'The FAFSA takes ~30 minutes and unlocks grants, subsidized loans, and work-study. Not filing costs the average eligible student $4,000-$7,000/year in free money.' },
+      undefined,
       { type: 'flow', title: 'Borrowing Order: Cheapest Money First', nodes: [
-        { label: 'Grants & scholarships', value: 'Free, never repaid', color: '#10B981' },
-        { label: 'Subsidized federal', value: '~5.5%, no interest in school', color: '#3B82F6' },
-        { label: 'Unsubsidized federal', value: '~5.5%, interest from day one', color: '#F59E0B' },
-        { label: 'Private loans', value: '5-13%, last resort', color: '#EF4444' },
-      ], footer: 'Exhaust each tier before moving to the next', sentiment: 'positive' }
+        { label: 'Grants & scholarships', value: 'Free, never repaid', color: '#10B981', sprite: 'gift',
+          explain: 'Money you never pay back. Take every dollar of this before you sign anything, and keep applying after year one.' },
+        { label: 'Subsidized federal', value: '~5.5%, no interest in school', color: '#3B82F6', sprite: 'shield',
+          explain: 'The government covers the interest while you study, so the balance sits still until you graduate. Always take this before the next one.' },
+        { label: 'Unsubsidized federal', value: '~5.5%, interest from day one', color: '#F59E0B', sprite: 'clock',
+          explain: 'Same rate, but the meter starts immediately. Four years of quiet interest is why graduates owe more than they borrowed.' },
+        { label: 'Private loans', value: '5-13%, last resort', color: '#EF4444', sprite: 'crack',
+          explain: 'No income-driven plans, no forgiveness, and the rate can be double. Only after every tier above is genuinely empty.' },
+      ], footer: 'Exhaust each tier before moving to the next', sentiment: 'positive' },
+      {
+        hint: 'Tap each tier. They are in price order for a reason',
+        recap: 'This is lesson 6 again, applied before you borrow rather than after. Same test: what does this money cost, and what does it buy. The difference is that here you still get to choose, and choosing in order is worth tens of thousands.',
+      }
     ),
     microCheck(
       'You qualify for both a $5,500 subsidized and a $5,500 unsubsidized federal loan. Which should you take first?',
@@ -3006,7 +3247,7 @@ const lessons: PathwayLesson[] = [
       'Subsidized = government covers interest in school. Unsubsidized = interest accrues from day one. This distinction can save you thousands.'
     ),
     interactiveGraph(
-      'LOAN PAYOFF STRATEGIES', 'Standard vs Income-Driven vs Aggressive Payoff',
+      'Loan payoff strategies', 'Standard vs Income-Driven vs Aggressive Payoff',
       'comparison',
       'How you repay your loans matters as much as how much you borrow. The right strategy depends on your income, career path, and goals.',
       [
@@ -3068,13 +3309,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Adding $100/month extra to a $30K loan at 5.5% saves approximately:', options: ['$500', '$1,000', '$2,000+', '$5,000'], correct: 2 }
     ]),
     tr('Student Loan Decision Flowchart', [
-      ['Step 1', 'File FAFSA, 30 minutes unlocks grants + loans'],
-      ['Step 2', 'Accept all grants and scholarships (free money)'],
-      ['Step 3', 'Take subsidized federal loans first'],
-      ['Step 4', 'Unsubsidized federal loans if needed'],
-      ['Step 5', 'Private loans only as absolute last resort'],
-      ['Step 6', 'Choose repayment plan based on career path'],
-      ['Step 7', 'Enroll in PSLF if in public service']
+      ['Step 1', 'File FAFSA, 30 minutes unlocks grants + loans', { stat: '30 minutes', sprite: 'tax-form' }],
+      ['Step 2', 'Accept all grants and scholarships (free money)', { stat: 'Free money', sprite: 'gift' }],
+      ['Step 3', 'Take subsidized federal loans first', { stat: 'Subsidized', sprite: 'shield' }],
+      ['Step 4', 'Unsubsidized federal loans if needed', { stat: 'Unsubsidized', sprite: 'clock' }],
+      ['Step 5', 'Private loans only as absolute last resort', { stat: 'Last resort', sprite: 'crack' }],
+      ['Step 6', 'Choose repayment plan based on career path', { stat: 'Match career', sprite: 'compass' }],
+      ['Step 7', 'Enroll in PSLF if in public service', { stat: 'PSLF', sprite: 'certificate' }]
     ]),
     ds('Student loan action items:', ['File FAFSA every year, even if you think you won\'t qualify', 'Search for 5 scholarships this month (local and national)', 'Know your loan types: log into studentaid.gov to check', 'Calculate your loan-to-expected-income ratio', 'Research repayment plans if currently in repayment']),
     bi('Loan Strategy Check', 'Choose the optimal strategy:', [
@@ -3144,9 +3385,9 @@ const lessons: PathwayLesson[] = [
     cq('What\'s the key advantage of subsidized vs unsubsidized federal loans?',
       ['Subsidized loans have lower credit score requirements than unsubsidized loans', 'Government pays interest while you\'re enrolled in school', 'Subsidized loans let you borrow a much higher total amount each year', 'Subsidized loans never have to be repaid at all once you graduate'],
       1, 'Subsidized loans = government pays interest during school, grace period, and deferment. This saves $1,000+ per $5K borrowed over a 4-year degree.'),
-    cq('What makes a subsidized federal loan cheaper than an unsubsidized one?',
-      ['It carries a lower stated interest rate', 'The government pays the interest while you are enrolled at least half-time', 'It is forgiven automatically once you graduate', 'It does not appear on your credit report'],
-      1, 'On a subsidized loan the government covers interest during enrolment, the grace period and deferment, so $5,500 subsidized costs $0 in interest across four years. The same amount unsubsidized at 5.5% accrues about $1,210 before you graduate.'),
+    cq('How much in federal grants goes unclaimed annually?',
+      ['$500 million', '$1 billion', '$3 billion', '$10 billion'],
+      2, '$3 billion in Pell Grants goes unclaimed because students don\'t file the FAFSA. It takes 30 minutes and could be worth $4,000-$7,000/year in free aid.'),
     cq('PSLF requires how many qualifying payments for forgiveness?',
       ['60 payments (5 years)', '120 payments (10 years)', '240 payments (20 years)', '300 payments (25 years)'],
       1, 'PSLF requires 120 qualifying monthly payments (10 years) while working full-time for a qualifying public service employer. Forgiveness is tax-free.'),
@@ -3166,29 +3407,33 @@ const lessons: PathwayLesson[] = [
       'Renting vs. Buying a Home',
       'The National Association of Realtors says the median U.S. home price hit $389,800 in 2024. Meanwhile, hidden homeownership costs (maintenance, taxes, insurance) average $18,000/year, costs renters never see.',
       'By the end of this lesson, you\'ll understand the true cost of buying vs renting, the 5% rule for comparing options, when renting is financially smarter, and how to make the biggest purchase of your life with confidence.',
-      'House with visible vs hidden costs \,  price tag on top, iceberg of hidden costs below',
+      'House with visible vs hidden costs, price tag on top, iceberg of hidden costs below',
       { type: 'stack', title: 'The Iceberg of Homeownership Costs', segments: [
-        { label: 'Purchase Price', value: '$389,800', percent: 40, color: '#10B981' },
-        { label: 'Property Tax', value: '$4,800/yr', percent: 15, color: '#3B82F6' },
-        { label: 'Maintenance', value: '$7,800/yr', percent: 20, color: '#B862ED' },
-        { label: 'Insurance', value: '$2,400/yr', percent: 10, color: '#EF4444' },
-        { label: 'Interest', value: '$250K+ over 30yr', percent: 15, color: '#F59E0B' },
+        { label: 'Purchase Price', value: '$389,800', percent: 40, color: '#10B981',
+          explain: 'The only band most people look at, and it is well under half the bar. Everything to the right of it is the part nobody quotes.' },
+        { label: 'Property Tax', value: '$4,800/yr', percent: 15, color: '#3B82F6',
+          explain: 'Owed every year you own it, forever. It does not end when the mortgage does, and it rises as the home gains value.' },
+        { label: 'Maintenance', value: '$7,800/yr', percent: 20, color: '#B862ED',
+          explain: 'Roofs, water heaters, the tree that falls. Bigger than the tax band, and the one renters simply never pay.' },
+        { label: 'Insurance', value: '$2,400/yr', percent: 10, color: '#EF4444',
+          explain: 'Lesson 8, now compulsory: no lender hands over $400,000 on a building nobody insured.' },
+        { label: 'Interest', value: '$250K+ over 30yr', percent: 15, color: '#F59E0B',
+          explain: 'Over thirty years you can hand the bank most of a second house. Lesson 6 called this rate versus return, and here it is at full scale.' },
       ], footer: 'Hidden costs often exceed the mortgage payment itself', sentiment: 'negative' }
     ),
     stakesCard(
       { label: 'Without rent vs buy analysis', detail: 'Many buyers underestimate true costs by 40-50%. A $2,000 mortgage actually costs $3,500/month when you add taxes, insurance, maintenance, and opportunity cost. 1 in 5 first-time buyers reports feeling "house poor."' },
       { label: 'With rent vs buy analysis', detail: 'Using the 5% rule and total cost analysis, you can make data-driven housing decisions. Sometimes renting + investing the difference builds more wealth than buying. The right choice depends on YOUR numbers, not slogans.' },
       {
-        withoutVisual: { type: 'metric', title: 'House Poor', value: '40-50%', detail: 'Hidden costs underestimated, $2K mortgage → $3.5K true cost', footer: '1 in 5 buyers feel house poor', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Informed Decision', value: 'Data-Driven', detail: 'Uses 5% rule + total cost, Compares rent vs all-in buy cost', footer: 'Right choice = right numbers', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'House Poor', value: '40-50%', detail: 'Hidden costs underestimated, $2K mortgage → $3.5K true cost', footer: '1 in 5 buyers feel house poor', sentiment: 'negative', sprite: 'house' },
+        withVisual: { type: 'metric', title: 'Informed Decision', value: 'Data-Driven', detail: 'Uses 5% rule + total cost, Compares rent vs all-in buy cost', footer: 'Right choice = right numbers', sentiment: 'positive', sprite: 'calculator' }
       }
     ),
     teachingSlide(
       'THE 5% RULE', 'A Framework for Rent vs Buy Decisions',
       [
-        'The 5% rule gives you a quick comparison: multiply the home\'s value by 5% and divide by 12 to get your monthly "break-even" rent. If you can rent a comparable home for less than this number, renting is likely cheaper. Example: a $400,000 home × 5% = $20,000/year ÷ 12 = $1,667/month. If comparable rent is under $1,667, renting wins financially.',
-        'Where does 5% come from? It\'s the annual unrecoverable cost of owning: ~1% property tax + ~1% maintenance + ~3% cost of capital (mortgage interest or opportunity cost of the down payment). These are costs that build zero equity. A $400K home has ~$20K/year in unrecoverable costs before you build any equity. Many first-time buyers only compare the mortgage payment to rent, ignoring $1,000+/month in hidden costs.',
-        'Buying makes financial sense when: (1) you\'ll stay 5+ years (closing costs need time to amortize), (2) all-in monthly cost is comparable to rent, (3) you have a 20% down payment to avoid PMI, (4) total housing cost is under 28% of gross income, and (5) you have an emergency fund that can cover 6 months of housing costs. Buying is also an emotional decision, stability, customization, pride of ownership, and that has real value too.'
+        'The 5% rule: multiply a home\'s value by 5%, then divide by 12. That gives break-even rent, the rent where owning costs the same. A $400,000 home: $20,000 yearly, $1,667 monthly. Rent cheaper, renting wins.',
+      'Why 5%? Costs you never recover: 1% tax, 1% upkeep, 3% capital. A $400K home burns $20K/year, $1,000+/month hidden. Buy if you stay 5+ years, pay 20% down, keep housing under 28% of income, save 6 months.'
       ],
       [
         { term: 'The 5% Rule', definition: 'Home value × 5% ÷ 12 = monthly break-even rent. Below this, renting may be cheaper.', example: '$400K home × 5% = $20K/year ÷ 12 = $1,667/month break-even.' },
@@ -3196,13 +3441,21 @@ const lessons: PathwayLesson[] = [
         { term: 'PMI', definition: 'Private Mortgage Insurance, required when your down payment is less than 20%, adding 0.5-1.5% of the loan annually.', example: 'On a $320K mortgage, PMI at 1% = $3,200/year ($267/month) until you reach 20% equity.' }
       ],
       'Split comparison: monthly rent costs vs the 7 categories of homeownership costs',
-      { company: 'Harvard Joint Center for Housing Studies (2024)', metric: 'Annual America\'s Rental Housing report', outcome: 'In 45 of the 50 largest metro areas, the monthly cost of owning a median-priced home exceeds the cost of renting an equivalent property when all costs are included', explanation: 'When you include property tax, maintenance, insurance, mortgage interest, and opportunity cost, renting is cheaper than buying in most markets as of 2024. This doesn\'t mean "never buy", it means run the numbers for YOUR situation.' },
+      undefined,
       { type: 'comparison', title: 'True Monthly Cost of a $400K Home', rows: [
-        { label: 'Mortgage payment (6.5%, 30-yr)', value: '$1,920/mo' },
-        { label: 'Property tax (~1%)', value: '$400/mo' },
-        { label: 'Maintenance (~2%)', value: '$667/mo' },
-        { label: 'Insurance', value: '$200/mo' },
-      ], footer: 'Most buyers compare only the $1,920 mortgage, missing $1,267 in hidden costs', sentiment: 'negative' }
+        { label: 'Mortgage payment (6.5%, 30-yr)', value: '$1,920/mo', percent: 1920,
+          explain: 'The number in the listing, and the only one most people compare against rent. It is barely 60% of the real bill.' },
+        { label: 'Property tax (~1%)', value: '$400/mo', percent: 400,
+          explain: 'Roughly 1% of the home each year, split monthly. Your landlord pays this today and you never see the line item.' },
+        { label: 'Maintenance (~2%)', value: '$667/mo', percent: 667,
+          explain: 'Budget about 2% a year. Some months are zero and then one month is a $9,000 roof, which is why it is averaged.' },
+        { label: 'Insurance', value: '$200/mo', percent: 200,
+          explain: 'Add these last three bars together: $1,267 a month that never appeared in the mortgage quote.' },
+      ], footer: 'Most buyers compare only the $1,920 mortgage, missing $1,267 in hidden costs', sentiment: 'negative' },
+      {
+        hint: 'Tap each row. Only the first one appears in a listing',
+        recap: 'Buying is not automatically smarter than renting, and renting is not throwing money away. It is $3,187 against whatever rent costs where you live. Run your own numbers and the slogans stop mattering.',
+      }
     ),
     microCheck(
       'A home costs $350,000. Using the 5% rule, what\'s the monthly break-even rent?',
@@ -3212,7 +3465,7 @@ const lessons: PathwayLesson[] = [
       'The 5% rule accounts for property tax (~1%), maintenance (~1%), and cost of capital (~3%). These are unrecoverable costs that build zero equity.'
     ),
     interactiveGraph(
-      'RENT VS BUY MATH', 'The True Cost of Homeownership Over Time',
+      'Rent vs buy math', 'The True Cost of Homeownership Over Time',
       'comparison',
       'Most people compare mortgage payment vs rent. The real comparison includes ALL costs, and the results often surprise people.',
       [
@@ -3274,13 +3527,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Minimum years to stay in a home to justify buying (due to closing costs)?', options: ['1 year', '3 years', '5 years', '10 years'], correct: 2 }
     ]),
     tr('Rent vs Buy Decision Checklist', [
-      ['5% Rule', 'Is comparable rent below home value × 5% ÷ 12?'],
-      ['Time Horizon', 'Will you stay 5+ years? If not, likely rent.'],
-      ['Down Payment', '20% avoids PMI. Less = higher monthly cost.'],
-      ['28% Rule', 'Total housing cost under 28% of gross income?'],
-      ['Emergency Fund', '6 months of housing costs saved?'],
-      ['Opportunity Cost', 'What would your down payment earn invested?'],
-      ['Life Flexibility', 'Need to relocate for career? Rent = flexibility.']
+      ['5% Rule', 'Is comparable rent below home value × 5% ÷ 12?', { stat: '5% rule', sprite: 'calculator' }],
+      ['Time Horizon', 'Will you stay 5+ years? If not, likely rent.', { stat: '5+ years', sprite: 'calendar' }],
+      ['Down Payment', '20% avoids PMI. Less = higher monthly cost.', { stat: '20% down', sprite: 'stack-cash' }],
+      ['28% Rule', 'Total housing cost under 28% of gross income?', { stat: 'Under 28%', sprite: 'scales' }],
+      ['Emergency Fund', '6 months of housing costs saved?', { stat: '6 months', sprite: 'safety-net' }],
+      ['Opportunity Cost', 'What would your down payment earn invested?', { stat: 'Opportunity', sprite: 'chart-up' }],
+      ['Life Flexibility', 'Need to relocate for career? Rent = flexibility.', { stat: 'Flexibility', sprite: 'globe' }]
     ]),
     ds('Before making a housing decision:', ['Calculate 5% rule for your target home price', 'Add up ALL ownership costs: mortgage + tax + insurance + maintenance + HOA', 'Compare total ownership cost to comparable rent', 'Calculate opportunity cost of your down payment invested', 'Ensure housing stays under 28% of gross income']),
     bi('Housing Decisions', 'Choose the financially optimal approach:', [
@@ -3374,27 +3627,31 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand stocks, bonds, and index funds, why passive investing beats active management 90% of the time, and how to start investing with as little as $1.',
       'Simple growth chart showing $200/month becoming $1M over decades',
       { type: 'line', title: '$200/Month \u2192 $1,020,000', points: [
-        { label: 'Start', value: '$0' },
-        { label: 'Year 10', value: '$41K' },
-        { label: 'Year 20', value: '$153K' },
-        { label: 'Year 30', value: '$453K' },
-        { label: 'Year 43', value: '$1.02M' },
+        { label: 'Start', value: '$0',
+          explain: 'Day one, with nothing. Every line on this chart began exactly here, which is the only genuinely encouraging thing about it.' },
+        { label: 'Year 10', value: '$41K',
+          explain: 'You put in $24,000 and have $41,000. Real, but not yet dramatic. This is the stretch where most people quit.' },
+        { label: 'Year 20', value: '$153K',
+          explain: 'Contributions doubled, the balance nearly quadrupled. The growth is now earning more per year than you are adding.' },
+        { label: 'Year 30', value: '$453K',
+          explain: 'Notice the line is steepening on its own. Nothing changed about the $200; the earlier money simply had longer to work.' },
+        { label: 'Year 43', value: '$1.02M',
+          explain: 'Only $103,000 of this was ever yours to deposit. The other $917,000 is time doing the work, which is the whole lesson.' },
       ], trend: 'up', footer: '90% of the $1M comes from compound growth, not contributions', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without investing', detail: 'Cash loses 3-4% of purchasing power to inflation annually. $10,000 under a mattress for 30 years has the buying power of ~$4,000. The average non-investor retires with $65,000, enough for 2-3 years.' },
       { label: 'With index investing', detail: '$200/month in an S&P 500 index fund from 22 to 65 = $1,020,000. Only $103K is contributions, $917K is compound growth. Index funds beat 90% of professional managers over 15+ years.' },
       {
-        withoutVisual: { type: 'metric', title: 'Cash Only \,  No Investing', value: '~$4,000', detail: '$10K buying power after 30yr \,  Inflation destroys 3-4%/year', footer: '45% of Americans don\'t invest', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Index Fund Investor', value: '$1,020,000', detail: '$200/month for 43 years \,  90% from compound growth', footer: 'Beats 90% of professionals', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Cash Only, No Investing', value: '~$4,000', detail: '$10K buying power after 30yr, Inflation destroys 3-4%/year', footer: '45% of Americans don\'t invest', sentiment: 'negative', sprite: 'inflation' },
+        withVisual: { type: 'metric', title: 'Index Fund Investor', value: '$1,020,000', detail: '$200/month for 43 years, 90% from compound growth', footer: 'Beats 90% of professionals', sentiment: 'positive', sprite: 'seedling' }
       }
     ),
     teachingSlide(
-      'INVESTING FUNDAMENTALS', 'Stocks, Bonds, and the Index Fund Revolution',
+      'Investing fundamentals', 'Stocks, Bonds, and the Index Fund Revolution',
       [
-        'Stocks represent ownership in a company. When you buy a share of Apple, you own a tiny fraction of Apple\'s business, profits, and growth. Historically, U.S. stocks return 10-11% annually. The risk: in any given year, stocks can drop 30-40% (2008: -37%, 2020: -34%). But here\'s the key, the stock market has recovered from every crash in history and gone on to new highs. Time in the market beats timing the market.',
-        'Bonds are loans you make to governments or companies. They pay regular interest and return your principal at maturity. They\'re less volatile (typical returns: 4-6%) but lower growth. A 60% stock / 40% bond portfolio reduces volatility while capturing most of stocks\' growth. Young investors (20s-30s) can handle more stock exposure (80-90%) since they have decades to recover from downturns.',
-        'Index funds changed everything. Instead of trying to pick winning stocks (which 90% of professionals fail to do over 15 years, SPIVA Scorecard), an S&P 500 index fund buys ALL 500 of the largest U.S. companies for one tiny fee (0.03% expense ratio). Warren Buffett bet $1 million that an S&P 500 index fund would beat hedge fund managers over 10 years, and won. His advice for 99% of people: "Consistently buy an S&P 500 low-cost index fund."'
+        'Stocks are ownership: buy Apple shares, own part of Apple. History says 10-11% a year, with 30-40% crashes (2008: -37%, 2020: -34%). Bonds are loans paying 4-6%. Mix 60% stocks, 40% bonds; in your 20s-30s, 80-90% stocks.',
+      'Index funds skip stock picking: an S&P 500 fund owns 500 U.S. firms for a 0.03% fee. 90% of pros lose to it over 15 years (SPIVA). Buffett won a $1 million 10 year bet; he urges it for 99%.'
       ],
       [
         { term: 'Index Fund', definition: 'A fund that owns all stocks in a market index (like the S&P 500) for ultra-low fees, providing instant diversification.', example: 'VOO (Vanguard S&P 500) owns all 500 largest U.S. companies for a 0.03% fee, that\'s $3/year per $10,000 invested.' },
@@ -3402,11 +3659,17 @@ const lessons: PathwayLesson[] = [
         { term: 'Diversification', definition: 'Spreading investments across many assets to reduce the impact of any single one failing.', example: 'Owning 500 stocks via an index fund means one company\'s failure barely affects your portfolio.' }
       ],
       'Comparison chart: Active fund fees (1%) vs Index fund fees (0.03%) and their 30-year impact',
-      { company: 'S&P Dow Jones (SPIVA Scorecard 2023)', metric: '15-year performance of actively managed funds vs their index benchmarks', outcome: '92% of large-cap fund managers underperformed the S&P 500 over 15 years', explanation: 'After fees, 92% of professional stock pickers lose to a simple index fund. This is why Warren Buffett recommends index funds for virtually everyone.' },
+      undefined,
       { type: 'comparison', title: 'Index Fund vs Active Fund: $10K Over 30 Years', rows: [
-        { label: 'Index fund (0.03% fee)', value: '$173,000', percent: 100 },
-        { label: 'Active fund (1.00% fee)', value: '$132,000', percent: 76 },
-      ], footer: 'A 0.97% fee gap quietly erases $41,000, 24% of your final wealth', sentiment: 'negative' }
+        { label: 'Index fund (0.03% fee)', value: '$173,000', percent: 100,
+          explain: 'Three cents per hundred dollars a year. It buys the whole market and then does almost nothing, on purpose.' },
+        { label: 'Active fund (1.00% fee)', value: '$132,000', percent: 76,
+          explain: 'One percent sounds harmless. Over thirty years it quietly takes $41,000, and 92% of these funds still lose to the boring one.' },
+      ], footer: 'A 0.97% fee gap quietly erases $41,000, 24% of your final wealth', sentiment: 'negative' },
+      {
+        hint: 'Tap each fund. The only difference between them is the fee',
+        recap: 'This is step 7 of lesson 10, and it is almost anticlimactic: buy the whole market, pay almost nothing to do it, and leave it alone. The fee is the one variable you fully control, so it is the one worth caring about.',
+      }
     ),
     microCheck(
       'Over 15 years, what percentage of professional fund managers underperform the S&P 500 index?',
@@ -3416,7 +3679,7 @@ const lessons: PathwayLesson[] = [
       'If 92% of full-time professionals can\'t beat the index, your best strategy is to own the index, at 0.03% fees, not 1%+.'
     ),
     interactiveGraph(
-      'THE FEE DRAG', 'How 1% in Fees Costs You Hundreds of Thousands',
+      'The fee drag', 'How 1% in Fees Costs You Hundreds of Thousands',
       'comparison',
       'The difference between a 0.03% index fund and a 1% actively managed fund seems tiny, but over decades, it\'s enormous.',
       [
@@ -3478,12 +3741,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Over any 20-year period, the S&P 500 has:', options: ['Lost money 30% of the time', 'Lost money 10% of the time', 'Never lost money', 'Always returned exactly 10%'], correct: 2 }
     ]),
     tr('Your Investing Starter Kit', [
-      ['Step 1', 'Open a brokerage account (Fidelity, Schwab, or Vanguard, all free)'],
-      ['Step 2', 'Buy a total market or S&P 500 index fund (VOO, VTI, FXAIX)'],
-      ['Step 3', 'Set up automatic monthly investments (dollar-cost averaging)'],
-      ['Step 4', 'Choose your allocation: 90/10 stocks/bonds (young) to 60/40 (near retirement)'],
-      ['Step 5', 'Never check daily, review quarterly at most'],
-      ['Step 6', 'Never sell during a crash, stay the course']
+      ['Step 1', 'Open a brokerage account (Fidelity, Schwab, or Vanguard, all free)', { stat: 'Free account', sprite: 'bank' }],
+      ['Step 2', 'Buy a total market or S&P 500 index fund (VOO, VTI, FXAIX)', { stat: 'Index fund', sprite: 'pie-slice' }],
+      ['Step 3', 'Set up automatic monthly investments (dollar-cost averaging)', { stat: 'Automatic', sprite: 'stopwatch' }],
+      ['Step 4', 'Choose your allocation: 90/10 stocks/bonds (young) to 60/40 (near retirement)', { stat: '90/10', sprite: 'scales' }],
+      ['Step 5', 'Never check daily, review quarterly at most', { stat: 'Quarterly', sprite: 'calendar' }],
+      ['Step 6', 'Never sell during a crash, stay the course', { stat: 'Hold', sprite: 'vault' }]
     ]),
     ds('Start investing this week:', ['Open a free brokerage account (10 minutes)', 'Set up $50-200/month auto-invest in an S&P 500 index fund', 'Check the expense ratio, should be under 0.1%', 'Set calendar reminder: review allocation once per year', 'Delete stock-trading apps, they encourage bad behavior']),
     bi('Investment Decisions', 'Choose the optimal approach:', [
@@ -3580,22 +3843,21 @@ const lessons: PathwayLesson[] = [
         { label: 'Tax-free (Roth)', value: '$3.05M' },
         { label: 'After-tax (taxable)', value: '$2.13M' },
         { label: 'Total contributed', value: '$280K' },
-      ], footer: '$920,000+ saved in taxes \,  same contributions, different account type', sentiment: 'positive' }
+      ], footer: '$920,000+ saved in taxes, same contributions, different account type', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without tax-advantaged accounts', detail: 'Investing in a taxable brokerage means paying taxes on dividends annually and capital gains when you sell. On $3M in growth, you could owe $450K-$700K in taxes. That\'s 5-10 years of retirement income, gone to the IRS.' },
       { label: 'With tax-advantaged accounts', detail: 'Roth IRA: $3.05M grows completely tax-free. 401(k): contributions reduce current taxes by $5,000-8,000/year. HSA: triple tax advantage. Using all three strategically saves $500K-$1M+ in lifetime taxes.' },
       {
-        withoutVisual: { type: 'metric', title: 'Taxable Account Only', value: '$450-700K', detail: 'Taxes on $3M growth \,  Annual dividend taxes + capital gains', footer: '5-10 years of retirement \,  taxed away', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Tax-Advantaged Accounts', value: '$500K-1M+', detail: 'Lifetime tax savings \,  Roth + 401(k) + HSA strategy', footer: 'Every dollar of growth = your dollar', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Taxable Account Only', value: '$450-700K', detail: 'Taxes on $3M growth, Annual dividend taxes + capital gains', footer: '5-10 years of retirement, taxed away', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Tax-Advantaged Accounts', value: '$500K-1M+', detail: 'Lifetime tax savings, Roth + 401(k) + HSA strategy', footer: 'Every dollar of growth = your dollar', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'THE BIG THREE', '401(k), Roth IRA, and the Tax Strategy That Changes Everything',
+      'The big three', '401(k), Roth IRA, and the Tax Strategy That Changes Everything',
       [
-        '401(k): Your employer-sponsored retirement account. 2025 contribution limit: $23,500/year. Contributions are pre-tax, a $23,500 contribution on a $75K salary saves ~$5,640 in taxes THIS YEAR (24% bracket). Money grows tax-deferred. You pay taxes when you withdraw in retirement (ideally at a lower tax bracket). The key advantage: employer matching. A 100% match on 5% of salary = FREE $3,750/year on a $75K salary.',
-        'Roth IRA: The ultimate wealth-building account. 2025 contribution limit: $7,000/year. Contributions are after-tax (no deduction today), BUT all growth and withdrawals are completely tax-free forever. $7,000/year from 25 to 65 at 10.7% = $3.05M, and you owe $0 in taxes. Income limits: $150-165K (single), $236-246K (married) for full contribution. Even if you can only afford $100/month, the Roth IRA should be your #1 priority after the 401(k) match.',
-        'HSA (Health Savings Account): The only triple-tax-advantaged account. Contributions are tax-deductible, growth is tax-free, AND withdrawals for medical expenses are tax-free. 2025 limits: $4,300 (individual), $8,550 (family). The stealth strategy: pay medical expenses out-of-pocket, let the HSA invest and grow tax-free for decades, then reimburse yourself tax-free in retirement. After 65, you can withdraw for any purpose (just pay income tax, like a 401(k)).'
+        '401(k), an employer retirement plan: 2025 limit $23,500 pre-tax, saving ~$5,640 on a $75K salary at 24%. A 100% match on 5% adds $3,750 free. Tax comes at withdrawal. Health savings account: $4,300 individual, $8,550 family, medical withdrawals tax-free.',
+      'Roth IRA: $7,000 in 2025, taxed now, growth and withdrawals are tax-free forever. $7,000 yearly from 25 to 65 at 10.7% reaches $3.05M, taxed $0. Limits: $150-165K single, $236-246K married. Even $100/month makes it priority #1 after the match.'
       ],
       [
         { term: '401(k)', definition: 'Employer-sponsored retirement account with pre-tax contributions, tax-deferred growth, and employer matching.', example: '$23,500/year max contribution. 100% match on 5% of $75K salary = $3,750 FREE per year.' },
@@ -3603,7 +3865,7 @@ const lessons: PathwayLesson[] = [
         { term: 'HSA', definition: 'Triple-tax-advantaged account: deductible contributions, tax-free growth, and tax-free withdrawals for medical expenses.', example: '$4,300/year invested for 30 years at 8% = $489K, tax-free for medical expenses or any purpose after 65.' }
       ],
       'Comparison table: 401(k) vs Roth IRA vs HSA, contribution limits, tax treatment, withdrawal rules',
-      { company: 'Fidelity (2024)', metric: 'Analysis of 45 million retirement accounts', outcome: '485,000 accounts reached $1M+ balance. Average savings rate: 17.5%. Average time: 26 years. Most common occupations: teachers, engineers, nurses.', explanation: 'These aren\'t Wall Street traders. They\'re ordinary workers who consistently maxed tax-advantaged accounts for 20-30 years. The system works for anyone with patience.' },
+      undefined,
       { type: 'grid', title: 'The Big Three Retirement Accounts (2025 limits)', items: [
         { label: '401(k)', value: '$23,500/yr, pre-tax, employer match', color: '#3B82F6' },
         { label: 'Roth IRA', value: '$7,000/yr, tax-free growth forever', color: '#10B981' },
@@ -3618,7 +3880,7 @@ const lessons: PathwayLesson[] = [
       'The 401(k) match is the highest guaranteed return in finance. Always contribute enough to get the full match before anything else.'
     ),
     interactiveGraph(
-      'ROTH VS TRADITIONAL', 'Pay Taxes Now or Later? The Million-Dollar Decision',
+      'Roth vs traditional', 'Pay Taxes Now or Later? The Million-Dollar Decision',
       'comparison',
       'Traditional 401(k)/IRA: tax break today, pay taxes in retirement. Roth: no tax break today, tax-free forever. Which is better?',
       [
@@ -3790,16 +4052,15 @@ const lessons: PathwayLesson[] = [
       { label: 'Without multiple income streams', detail: 'Relying on a single income source means one layoff can devastate your finances. 40% of single-income households can\'t cover a $400 emergency. Income growth is limited to annual raises (avg 3-4%).' },
       { label: 'With multiple income streams', detail: 'Side hustle income ($891/month avg) invested at 8% for 20 years = $525K. Multiple streams provide security, accelerate debt payoff, and fast-track financial independence. Millionaires avg 7 streams.' },
       {
-        withoutVisual: { type: 'metric', title: 'Single Income Source', value: '1 Stream', detail: 'One layoff away from crisis \,  Income growth: 3-4%/year', footer: '40% can\'t cover $400 emergency', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Multiple Income Streams', value: '$891/mo', detail: 'Side hustle avg extra income \,  Invested for 20yrs = $525K+', footer: 'Security + accelerated wealth', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Single Income Source', value: '1 Stream', detail: 'One layoff away from crisis, Income growth: 3-4%/year', footer: '40% can\'t cover $400 emergency', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Multiple Income Streams', value: '$891/mo', detail: 'Side hustle avg extra income, Invested for 20yrs = $525K+', footer: 'Security + accelerated wealth', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'INCOME DIVERSIFICATION', 'Active, Passive, and Portfolio Income',
+      'Income diversification', 'Active, Passive, and Portfolio Income',
       [
-        'Active income is money you earn by trading time for dollars: your job, freelancing, consulting, gig work. It\'s the fastest way to generate additional income but it doesn\'t scale, there are only 24 hours in a day. The key is to choose side hustles with high hourly rates: freelance writing ($50-150/hr), web development ($75-200/hr), tutoring ($40-100/hr), or consulting in your expertise ($100-300/hr).',
-        'Passive income requires upfront work but generates recurring revenue: rental properties, digital products (courses, ebooks, templates), dividend stocks, royalties, and affiliate marketing. True passive income is rare, most "passive" income requires 100-500 hours of creation and ongoing maintenance. But once built, a digital product earning $500/month while you sleep is worth $180K over 30 years invested at 8%.',
-        'Portfolio income comes from investments: dividends, interest, and capital gains. A $500K portfolio yielding 3% generates $15K/year with zero active work. This is where active and passive income should flow: into investments that generate portfolio income. The wealth-building flywheel: active income → invest → passive income → invest more → portfolio income → financial independence.'
+        'Active income trades time for money: freelance writing ($50-150/hr), web development ($75-200/hr), tutoring ($40-100/hr), consulting ($100-300/hr). It cannot scale, you only have 24 hours in a day.',
+      'Passive income needs 100-500 hours upfront, then pays repeatedly: a digital product earning $500/month is worth $180K over 30 years invested at 8%. Portfolio income comes from investments: $500K yielding 3% pays $15K/year.'
       ],
       [
         { term: 'Active Income', definition: 'Money earned by directly trading time for dollars through work.', example: 'Your salary, freelance projects, consulting hours, gig economy work.' },
@@ -3807,7 +4068,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Effective Hourly Rate', definition: 'Total earnings from a side hustle divided by ALL hours invested (including setup, marketing, admin).', example: 'Earning $2,000/month from a side hustle that takes 25 hours/month = $80/hour effective rate.' }
       ],
       'Flywheel diagram: Active Income → Invest → Passive Income → Invest More → Financial Independence',
-      { company: 'Bankrate (2024)', metric: 'Side Hustle Survey of 2,400+ adults', outcome: '39% of Americans have a side hustle, earning an average of $891/month. 44% say it\'s a financial necessity, not a choice.', explanation: 'The side hustle economy isn\'t just a trend, it\'s a financial strategy. $891/month invested at 8% for 20 years = $525K. That\'s a house. That\'s a retirement fund. That\'s financial freedom.' },
+      undefined,
       { type: 'flow', title: 'The Wealth-Building Income Flywheel', nodes: [
         { label: 'Active income', value: 'Trade time for dollars', color: '#3B82F6' },
         { label: 'Invest the surplus', value: 'Index funds', color: '#A451E6' },
@@ -3823,7 +4084,7 @@ const lessons: PathwayLesson[] = [
       'Calculate your effective hourly rate for any side hustle. Include ALL time (work, setup, commute, admin). If it\'s below your main job rate, find a higher-value hustle.'
     ),
     interactiveGraph(
-      'SIDE HUSTLE COMPOUND EFFECT', 'What $891/Month in Side Hustle Income Becomes',
+      'Side hustle compound effect', 'What $891/Month in Side Hustle Income Becomes',
       'comparison',
       'Side hustle income isn\'t just extra spending money, invested strategically, it\'s a wealth-building accelerator.',
       [
@@ -3995,12 +4256,12 @@ const lessons: PathwayLesson[] = [
       { label: 'Without life event planning', detail: '40% report being financially unprepared for major events. Average credit card debt spikes $8,000+ around weddings and new babies. Unplanned career transitions deplete 73% of emergency funds (Federal Reserve 2023).' },
       { label: 'With life event planning', detail: 'Creating sinking funds for known expenses, maintaining 6-month emergency funds, and adjusting insurance coverage turns crises into milestones. Planned families save 40% more for retirement than unplanned ones.' },
       {
-        withoutVisual: { type: 'metric', title: 'Financially Unprepared', value: '+$8,000', detail: 'Debt spike per life event \,  40% unprepared for major events', footer: 'Emergency funds depleted', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financially Prepared', value: '$0 Debt', detail: 'Sinking funds for every event \,  Events funded in advance', footer: '40% more saved for retirement', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Financially Unprepared', value: '+$8,000', detail: 'Debt spike per life event, 40% unprepared for major events', footer: 'Emergency funds depleted', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Financially Prepared', value: '$0 Debt', detail: 'Sinking funds for every event, Events funded in advance', footer: '40% more saved for retirement', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'LIFE EVENT PLANNING', 'Marriage, Children, Career Changes & Emergency Preparedness',
+      'Life event planning', 'Marriage, Children, Career Changes & Emergency Preparedness',
       [
         'Marriage and weddings: The average wedding costs $35,000, but the average should not be YOUR budget. Set a wedding budget based on what you can pay cash for. A $10K wedding and a $35K wedding produce the same marriage. More importantly, discuss finances BEFORE marriage: debt disclosure, spending styles, joint vs separate accounts, and financial goals. A 2024 Ramsey Solutions study found that couples who discuss money before marriage are 40% less likely to divorce over finances.',
         'Children: The USDA estimates $310,605 to raise a child to 18 (2024 dollars), that\'s $17,256/year or $1,438/month. Start a 529 college savings plan at birth: $200/month at 7% for 18 years = $86,000, covering 70%+ of state university costs. Adjust your emergency fund upward (6 months → 8-12 months with dependents). Update life insurance to 10-12x your income. These preparation steps prevent one of life\'s greatest joys from becoming a financial burden.',
@@ -4012,7 +4273,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Financial Stress Test', definition: 'Evaluating whether your finances can survive a major disruption (job loss, medical emergency, recession).', example: 'Can you cover 6 months of expenses if income drops 50%? If not, build more cushion before major life changes.' }
       ],
       'Sinking fund diagram: monthly contributions flowing into specific goal buckets for life events',
-      { company: 'USDA / Brookings Institution (2024)', metric: 'Cost of raising a child born in 2024 through age 17', outcome: '$310,605 total ($17,256/year) covering housing, food, childcare, healthcare, transportation, clothing, and education', explanation: 'This isn\'t meant to scare you, it\'s meant to prepare you. $1,438/month sounds daunting, but much of it replaces existing spending (food, housing). The key is planning for the incremental costs: childcare ($1,000+/month), healthcare, and education savings.' },
+      undefined,
       { type: 'grid', title: 'Money Moves Before a Major Life Event', items: [
         { label: 'Expand emergency fund', value: '6 months to 8-12 months', color: '#3B82F6' },
         { label: 'Open a 529 plan', value: '$200/mo to ~$86K by age 18', color: '#10B981' },
@@ -4028,7 +4289,7 @@ const lessons: PathwayLesson[] = [
       'Financial preparation for parenthood: expand emergency fund → get life insurance → start 529 plan → budget for childcare → review health insurance coverage.'
     ),
     interactiveGraph(
-      '529 PLAN POWER', 'How Early Savings Transforms College Funding',
+      '529 Plan power', 'How Early Savings Transforms College Funding',
       'comparison',
       'Starting a 529 plan at birth vs waiting until the child is 10 produces dramatically different results, thanks to compound growth.',
       [
@@ -4200,16 +4461,15 @@ const lessons: PathwayLesson[] = [
       { label: 'Without financial security measures', detail: '1 in 3 Americans becomes an identity theft victim. Average financial loss: $1,551. Average time to resolve: 200+ hours. Victims report lasting credit damage, emotional distress, and difficulty getting loans for years.' },
       { label: 'With financial security measures', detail: 'A credit freeze blocks 90%+ of new-account fraud (free, takes 10 minutes). Strong unique passwords + 2FA prevent 99% of account takeovers. Proactive protection takes 1 hour to set up and lasts a lifetime.' },
       {
-        withoutVisual: { type: 'metric', title: 'Unprotected', value: '$1,551', detail: 'Avg identity theft loss \,  200+ hours to resolve', footer: '1 in 3 Americans affected', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Protected', value: '1 Hour', detail: 'Setup time for full protection \,  Credit freeze blocks 90%+ fraud', footer: '2FA prevents 99% of hacks', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Unprotected', value: '$1,551', detail: 'Avg identity theft loss, 200+ hours to resolve', footer: '1 in 3 Americans affected', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Protected', value: '1 Hour', detail: 'Setup time for full protection, Credit freeze blocks 90%+ fraud', footer: '2FA prevents 99% of hacks', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'DIGITAL DEFENSE', 'Credit Freezes, Passwords, and Fraud Prevention',
+      'Digital defense', 'Credit Freezes, Passwords, and Fraud Prevention',
       [
-        'The #1 protection: freeze your credit at all three bureaus (Equifax, Experian, TransUnion). It\'s free, takes 10 minutes, and prevents anyone from opening new accounts in your name. When YOU need credit (applying for a loan or card), temporarily "thaw" for that specific lender. A freeze blocks 90%+ of new-account identity theft. There is zero downside.',
-        'Password security: 81% of data breaches involve weak or reused passwords (Verizon DBIR 2023). Use a password manager (Bitwarden, 1Password) to generate and store unique 16+ character passwords for every account. Enable two-factor authentication (2FA) on every financial account, this alone prevents 99% of account takeovers. Use an authenticator app (not SMS, which can be SIM-swapped).',
-        'Recognize the red flags: No legitimate company will call/text/email asking for your password, SSN, or to "verify your account" via a link. Phishing emails that create urgency ("Your account will be closed in 24 hours!") are scams. If unsure, contact the company directly using the number on their website, never the number in the suspicious message. Check statements weekly for unauthorized charges. Set up transaction alerts on all financial accounts.'
+        'Freeze your credit at all three bureaus, Equifax, Experian, TransUnion. It is free, takes 10 minutes, and blocks 90%+ of new-account theft. Thaw it when you apply for credit. This is the #1 protection.',
+      '81% of breaches involve reused passwords (Verizon DBIR 2023). Use Bitwarden or 1Password, 16+ characters, plus two-factor codes, a second login step from an app, not SMS: that blocks 99% of takeovers. Scam texts fake urgency: "closing in 24 hours".'
       ],
       [
         { term: 'Credit Freeze', definition: 'A free lock on your credit file that prevents new accounts from being opened in your name without your explicit thaw.', example: 'Freeze at Equifax, Experian, TransUnion. When you apply for a mortgage, temporarily thaw for that one lender, then re-freeze.' },
@@ -4217,7 +4477,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Phishing', definition: 'Fake emails, texts, or calls that impersonate legitimate companies to trick you into revealing passwords, account numbers, or personal information.', example: '"Your Amazon account has been locked, click here to verify." The link leads to a fake site that steals your credentials.' }
       ],
       'Security checklist: freeze credit → password manager → 2FA → transaction alerts → weekly statement review',
-      { company: 'FTC (2024)', metric: 'Consumer Sentinel Network annual report', outcome: '5.4 million fraud reports in 2023, $10.3 billion in losses. Top categories: impersonation scams, online shopping fraud, investment fraud.', explanation: 'Fraud is an industry. Criminals use sophisticated techniques to exploit human psychology (urgency, fear, authority). The best defense is prevention: freeze credit, use unique passwords with 2FA, and never respond to urgent financial requests.' },
+      undefined,
       { type: 'grid', title: 'Your Digital Defense Checklist', items: [
         { label: 'Freeze credit, all 3 bureaus', value: 'Blocks 90%+ of new-account fraud', color: '#10B981' },
         { label: 'Password manager', value: 'Unique 16+ character logins', color: '#3B82F6' },
@@ -4233,7 +4493,7 @@ const lessons: PathwayLesson[] = [
       'Freeze your credit at Equifax, Experian, and TransUnion today. It\'s free, prevents new-account fraud, and you can temporarily thaw whenever YOU need to apply for credit.'
     ),
     interactiveGraph(
-      'FRAUD TRENDS', 'Where the $10.3 Billion in Losses Comes From',
+      'Fraud trends', 'Where the $10.3 Billion in Losses Comes From',
       'comparison',
       'Understanding how fraud happens helps you protect against it. Here are the top methods criminals use.',
       [
@@ -4404,16 +4664,15 @@ const lessons: PathwayLesson[] = [
       { label: 'Without inflation awareness', detail: '$100,000 in cash loses $59,000 in purchasing power over 30 years at 3% inflation. The median American keeps 20%+ of savings in cash or low-interest checking, losing thousands annually to inflation.' },
       { label: 'With inflation awareness', detail: 'Investing in stocks (10.7% avg return) outpaces inflation by 7%+. I-Bonds match inflation exactly. TIPS protect bonds. Even a HYSA at 5% beats 3% inflation. Knowledge turns a losing battle into a winning strategy.' },
       {
-        withoutVisual: { type: 'metric', title: 'Cash Holder', value: '-$59,000', detail: '$100K loses to inflation \,  Over 30 years at 3% inflation', footer: 'Cash = guaranteed loss of value', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Inflation-Aware Investor', value: '$2,120,000', detail: '$100K invested at 10.7% \,  Outpaces inflation by 7%+/year', footer: 'Investing is the inflation antidote', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Cash Holder', value: '-$59,000', detail: '$100K loses to inflation, Over 30 years at 3% inflation', footer: 'Cash = guaranteed loss of value', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Inflation-Aware Investor', value: '$2,120,000', detail: '$100K invested at 10.7%, Outpaces inflation by 7%+/year', footer: 'Investing is the inflation antidote', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'THE INFLATION MACHINE', 'What It Is, Why It Happens, and What You Can Do',
+      'The inflation machine', 'What It Is, Why It Happens, and What You Can Do',
       [
-        'Inflation is the sustained increase in the general price level of goods and services over time. At 3% inflation, prices double roughly every 24 years (Rule of 72: 72 ÷ 3 = 24 years). This means a 22-year-old today needs their income and investments to DOUBLE just to maintain the same lifestyle by age 46. Inflation isn\'t a bug, it\'s a feature of modern economies that encourages spending and investment over hoarding cash.',
-        'Causes of inflation: (1) Demand-pull: too much money chasing too few goods (post-COVID stimulus spending). (2) Cost-push: supply disruptions increasing production costs (energy prices, supply chain issues). (3) Monetary: central banks increasing money supply. The Federal Reserve targets 2% annual inflation, but actual rates fluctuate. 2022 saw 9.1% CPI inflation, the highest in 40 years, eroding cash savings at 3x the normal rate.',
-        'Inflation hedges, investments that outpace rising prices: Stocks (10.7% avg return vs 3% inflation = 7%+ real return). Real estate (appreciation + rental income). I-Bonds (match CPI exactly, up to $10K/year). TIPS (Treasury Inflation-Protected Securities, principal adjusts with CPI). Even a 5% HYSA beats 3% inflation by 2%. The WORST position: holding excessive cash in a 0.01% checking account, losing 3%+ annually to inflation.'
+        'Inflation is rising prices. At 3%, prices double in 24 years (Rule of 72: 72/3=24), so a 22-year-old needs double income by 46. The Federal Reserve targets 2%, but 2022 hit 9.1%, a 40-year high, eroding cash 3x faster.',
+      'Inflation hedges, investments that outpace prices: stocks return 10.7% versus 3% inflation, a 7%+ real gain. Real estate helps. I-Bonds match CPI, $10K/year; TIPS adjust too. A 5% savings account beats 3% by 2%. Worst: 0.01% checking, losing 3%+.'
       ],
       [
         { term: 'Inflation', definition: 'The sustained increase in general price levels, reducing the purchasing power of money over time.', example: 'At 3% inflation, $100 today buys the same as $74 in 10 years and $41 in 30 years.' },
@@ -4421,7 +4680,7 @@ const lessons: PathwayLesson[] = [
         { term: 'CPI', definition: 'Consumer Price Index, the Bureau of Labor Statistics\' measure of price changes in a basket of consumer goods and services.', example: 'CPI rose 9.1% in June 2022, meaning average prices increased 9.1% year-over-year, the highest since 1981.' }
       ],
       'Chart showing prices of common items (milk, gas, college, healthcare) from 1990 to 2024',
-      { company: 'Bureau of Labor Statistics (2024)', metric: 'CPI historical data, 1913-2024', outcome: 'The average annual inflation rate since 1913 is 3.2%. A dollar in 1913 has the purchasing power of $0.03 today. Prices have increased 33x in 111 years.', explanation: 'Inflation is relentless and permanent. $100 in 1913 = $3,300 in 2024 prices. The only defense is investing in assets that grow faster than prices, which stocks, real estate, and inflation-protected bonds have consistently done.' },
+      undefined,
       { type: 'line', title: 'Purchasing Power of $100 at 3% Inflation', points: [
         { label: 'Today', value: '$100' },
         { label: '10 years', value: '$74' },
@@ -4437,7 +4696,7 @@ const lessons: PathwayLesson[] = [
       'The Rule of 72 works for both growth and erosion: 72 ÷ rate = years to double (or halve). At 3% inflation, your cash\'s purchasing power halves every 24 years.'
     ),
     interactiveGraph(
-      'CASH VS INVESTING', 'The Inflation Race: Which Assets Win?',
+      'Cash vs investing', 'The Inflation Race: Which Assets Win?',
       'comparison',
       'Every asset class has a different relationship with inflation. Some win, some lose, and one is a guaranteed loser.',
       [
@@ -4609,7 +4868,7 @@ const lessons: PathwayLesson[] = [
         withoutVisual: { type: 'comparison', title: 'No Estate Plan', rows: [
           { label: 'Probate cost', value: '$3K-$15K+' },
           { label: 'Time', value: '1-3 Years' },
-        ], footer: 'State decides \,  not you', sentiment: 'negative' },
+        ], footer: 'State decides, not you', sentiment: 'negative' },
         withVisual: { type: 'comparison', title: 'Estate Plan in Place', rows: [
           { label: 'Basic will cost', value: '$200-$500' },
           { label: 'Time', value: '1-2 Hours' },
@@ -4617,11 +4876,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE ESSENTIAL DOCUMENTS', 'Will, Trust, Beneficiaries, and Powers of Attorney',
+      'The essential documents', 'Will, Trust, Beneficiaries, and Powers of Attorney',
       [
-        'A will is a legal document specifying how your assets are distributed after death and who becomes guardian of minor children. Without one, state intestacy laws apply, which typically give everything to your spouse, then children, then parents. This sounds reasonable until it doesn\'t: unmarried partners get nothing, favorite charities get nothing, and a judge picks your children\'s guardian. A basic will costs $200-500 (online or with an attorney) and takes 1-2 hours.',
-        'Beneficiary designations on retirement accounts (401(k), IRA), life insurance, and bank accounts override your will. If your 401(k) beneficiary is an ex-spouse but your will says "everything to my current partner," the ex gets the 401(k). Review beneficiaries annually and after every major life event. Transfer-on-death (TOD) designations on brokerage accounts and payable-on-death (POD) on bank accounts bypass probate entirely, your heirs get the money immediately.',
-        'Two critical documents everyone needs: (1) Healthcare power of attorney / living will: designates who makes medical decisions if you can\'t (not just for old people, accidents happen at any age). (2) Financial power of attorney: authorizes someone to manage your finances if you\'re incapacitated. Without these, your family may need a court order to pay your bills or make medical decisions. These documents take 30 minutes and cost $50-200.'
+        'A will is a legal document saying who gets your assets and who raises your children. Without one, state law decides: unmarried partners get nothing and a judge picks the guardian. A basic will costs $200-500 and takes 1-2 hours.',
+      'Beneficiary names on a 401(k), IRA or life insurance override your will: an ex-spouse listed there still gets the money. Also set up healthcare and financial powers of attorney, 30 minutes and $50-200, so someone can act if you cannot.'
       ],
       [
         { term: 'Will', definition: 'Legal document directing how your assets are distributed after death and naming a guardian for minor children.', example: 'A will stating "50% to spouse, 25% each to two children, guardian: sister" ensures your exact wishes are followed.' },
@@ -4629,7 +4887,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Probate', definition: 'The legal process of validating a will and distributing assets through the court system, often taking 1-3 years.', example: 'Without a will or trust, your estate goes through probate: public, slow (1-3 years), and expensive ($3K-$15K+ in fees).' }
       ],
       'Checklist: The 5 essential estate planning documents everyone needs',
-      { company: 'Gallup (2024)', metric: 'Annual survey on will ownership', outcome: '68% of Americans don\'t have a will. Among adults under 30, the figure is 81%. Only 32% of Americans have estate planning documents in place.', explanation: 'Most people assume estate planning is for the wealthy or elderly. In reality, anyone with a bank account, retirement savings, or people they care about needs basic estate documents. A $300 will prevents $15K+ in probate costs and family conflict.' },
+      undefined,
       { type: 'grid', title: 'The 5 Estate Documents Everyone Needs', items: [
         { label: 'Will', value: 'Directs assets, names guardians', color: '#3B82F6' },
         { label: 'Updated beneficiaries', value: 'Overrides the will', color: '#10B981' },
@@ -4646,7 +4904,7 @@ const lessons: PathwayLesson[] = [
       'Beneficiary designations are the most overlooked part of estate planning. Review them annually and after marriage, divorce, births, and deaths.'
     ),
     interactiveGraph(
-      'PROBATE VS PLANNING', 'The Cost of Dying Without a Plan',
+      'Probate vs planning', 'The Cost of Dying Without a Plan',
       'comparison',
       'The financial and emotional cost of dying without estate planning documents far exceeds the cost of creating them.',
       [
@@ -4780,9 +5038,9 @@ const lessons: PathwayLesson[] = [
     ]),
     whatsNext('Estate Planning Basics', 'Charitable Giving & Tax Benefits', 'Your estate plan protects your legacy. Now learn how to make a difference while you\'re alive, and get tax benefits for doing it. Discover the smart strategies that let you give more, save more, and leave a bigger impact.', 10)
   ], [
-    cq('If you die without a will, who decides what happens to your assets and your minor children?',
-      ['Your closest living relative, automatically', 'Your state\'s intestacy laws, and a court for guardianship', 'The federal government', 'Whoever is named on your bank accounts'],
-      1, 'Intestacy law controls distribution and a court decides guardianship of minor children. Gallup 2024 puts 68% of Americans in exactly that position.'),
+    cq('What percentage of Americans lack a will?',
+      ['25%', '45%', '68%', '90%'],
+      2, 'Gallup 2024: 68% of Americans don\'t have a will. Without one, your state\'s intestacy laws, not your wishes, determine who gets your assets and who raises your children.'),
     cq('Your 401(k) beneficiary is your ex-spouse. Your will says "everything to my partner." Who gets the 401(k)?',
       ['Your partner', 'Your ex-spouse, beneficiary designations override wills', '50/50 split', 'The government'],
       1, 'Beneficiary designations on retirement accounts, life insurance, and TOD/POD accounts ALWAYS override the will. The named beneficiary gets the money directly.'),
@@ -4815,16 +5073,15 @@ const lessons: PathwayLesson[] = [
       { label: 'Without tax-smart giving', detail: 'Most donors give cash, missing out on 20-30% extra tax savings. They don\'t itemize (only 10% do after 2017 tax reform), losing the deduction entirely. Uninformed donors also give to low-efficiency charities where 50%+ goes to overhead.' },
       { label: 'With tax-smart giving', detail: 'Donating appreciated stock avoids capital gains tax. Bunching donations with a donor-advised fund triggers itemization in alternating years. Using Charity Navigator ensures 85%+ goes to the mission. Smart giving = more impact, less tax.' },
       {
-        withoutVisual: { type: 'metric', title: 'Basic Giving', value: '20-30%', detail: 'Tax savings left on table \,  Cash donations, no strategy', footer: '90% don\'t itemize \,  no deduction', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Smart Giving', value: '$1K-5K+/yr', detail: 'Extra savings from strategy \,  Appreciated stock + DAF + bunching', footer: 'More impact per dollar given', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Basic Giving', value: '20-30%', detail: 'Tax savings left on table, Cash donations, no strategy', footer: '90% don\'t itemize, no deduction', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Smart Giving', value: '$1K-5K+/yr', detail: 'Extra savings from strategy, Appreciated stock + DAF + bunching', footer: 'More impact per dollar given', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'TAX-SMART GENEROSITY', 'Strategies That Multiply Your Giving Impact',
+      'Tax-smart generosity', 'Strategies That Multiply Your Giving Impact',
       [
-        'Strategy #1, Donate appreciated stock instead of cash. If you bought stock for $3K and it\'s now worth $10K, donating the stock gives the charity $10K, you get a $10K deduction, AND you avoid $1,050 in capital gains tax (15% on $7K gain). Donating cash? You get the $10K deduction but still owe capital gains when you eventually sell. Net benefit of stock donation: $1,050 extra tax savings.',
-        'Strategy #2, Donor-Advised Fund (DAF). Think of it as a "charitable savings account." You contribute a lump sum (getting the tax deduction NOW), then grant to charities over time. This enables "bunching", donating 2-3 years of gifts at once to exceed the standard deduction ($14,600 single, $29,200 married in 2024), then taking the standard deduction in other years. Example: instead of $5K/year (below standard deduction = no tax benefit), donate $15K every 3 years to a DAF (itemize that year = $3,600 tax savings at 24%).',
-        'Strategy #3, Evaluate charities for maximum impact. Use Charity Navigator, GiveWell, or GuideStar to check: what percentage goes to the mission vs overhead? Top charities spend 85%+ on programs. Some spend under 50%. A $1,000 donation to an efficient charity has 2x the impact of the same donation to an inefficient one. Your giving deserves the same diligence as your investing.'
+        'Donate appreciated stock, not cash: stock bought for $3K, now $10K, gives a $10K deduction and skips $1,050 capital gains tax, 15% on the $7K gain. A donor-advised fund lets you deduct now, give later, bunching 2-3 years of gifts.',
+      'Bunching $15K every 3 years, not $5K yearly, clears 2024\'s standard deduction ($14,600 single, $29,200 married), saving $3,600 at 24%. Check Charity Navigator, GiveWell or GuideStar: the best spend 85%+ on programs, some under 50%, so $1,000 goes 2x further.'
       ],
       [
         { term: 'Donor-Advised Fund (DAF)', definition: 'A charitable investment account where you get an immediate tax deduction for contributions, then recommend grants to charities over time.', example: 'Contribute $15K to DAF (get $15K deduction), then grant $5K/year to your favorite charities over 3 years.' },
@@ -4832,7 +5089,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Bunching', definition: 'Combining multiple years of donations into one year to exceed the standard deduction and itemize.', example: 'Instead of $5K/year × 3 years (no deduction), donate $15K in year 1 (itemize = $3,600 savings), standard deduction years 2-3.' }
       ],
       'Decision tree: Cash vs stock donation vs DAF for different giving levels',
-      { company: 'Giving USA (2024)', metric: 'Annual report on American philanthropy', outcome: 'Americans gave $557 billion in 2023. Individuals gave 67% of all charitable donations. Average household giving: ~$2,500/year.', explanation: 'Americans are generous, but most give cash without considering tax optimization. Switching from cash to appreciated stock and using a DAF can increase effective giving by 20-40% at no extra cost to you.' },
+      undefined,
       { type: 'comparison', title: 'Giving $10K: Cash vs Appreciated Stock', rows: [
         { label: 'Donate cash', value: '$10K deduction, still owe $1,050 gains tax' },
         { label: 'Donate appreciated stock', value: '$10K deduction, $0 capital gains tax' },
@@ -4846,7 +5103,7 @@ const lessons: PathwayLesson[] = [
       'When donating appreciated assets held over 1 year, donate the asset directly, not cash. You avoid capital gains AND get a full fair market value deduction.'
     ),
     interactiveGraph(
-      'BUNCHING STRATEGY', 'How a DAF Turns Zero Deduction into Thousands in Savings',
+      'Bunching strategy', 'How a DAF Turns Zero Deduction into Thousands in Savings',
       'comparison',
       'After the 2017 tax reform doubled the standard deduction, only 10% of taxpayers itemize. A donor-advised fund can help you join them, and save thousands.',
       [
@@ -5017,16 +5274,15 @@ const lessons: PathwayLesson[] = [
       { label: 'Without FI planning', detail: 'The average American retires at 62 with $134K saved, enough for 3-5 years. 40% of retirees rely on Social Security as their primary income ($1,907/month avg). Many work until they physically can\'t.' },
       { label: 'With FI planning', detail: 'A 25% savings rate reaches FI in ~28 years. 50% savings rate: ~14 years. Some FIRE adherents retire in their 30s. Even if you don\'t retire early, reaching FI means work is a CHOICE, the ultimate financial freedom.' },
       {
-        withoutVisual: { type: 'metric', title: 'Average Retirement', value: '$134,000', detail: 'Median retirement savings \,  Lasts 3-5 years', footer: 'Work until you can\'t', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financial Independence', value: '$1,000,000', detail: 'FI number at $40K/yr expenses \,  Work becomes optional', footer: '50% savings rate \u2192 FI in ~14 yrs', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Average Retirement', value: '$134,000', detail: 'Median retirement savings, Lasts 3-5 years', footer: 'Work until you can\'t', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Financial Independence', value: '$1,000,000', detail: 'FI number at $40K/yr expenses, Work becomes optional', footer: '50% savings rate \u2192 FI in ~14 yrs', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'THE FI FORMULA', 'Annual Expenses × 25 = Your Freedom Number',
+      'The FI formula', 'Annual Expenses × 25 = Your Freedom Number',
       [
-        'The math of financial independence is elegantly simple. The 4% rule (from the Trinity Study): you can safely withdraw 4% of your portfolio annually without running out of money over a 30-year retirement. Flip it: annual expenses ÷ 4% = required portfolio. Or simply: annual expenses × 25 = FI number. Spend $40K/year? You need $1M. Spend $60K? $1.5M. Spend $80K? $2M.',
-        'The variable that matters most isn\'t income, it\'s savings rate. A 10% savings rate → FI in ~40 years. 20% → ~28 years. 30% → ~22 years. 50% → ~14 years. 70% → ~8 years. The relationship is exponential because a higher savings rate simultaneously reduces your expenses (lowering your FI number) AND increases your investing (getting you there faster). This is why someone earning $50K saving 50% reaches FI FASTER than someone earning $150K saving 10%.',
-        'FIRE comes in flavors: Lean FIRE ($25-40K/year spending, ~$625K-$1M needed, minimalist lifestyle). Fat FIRE ($80-120K/year, $2-3M, comfortable luxury). Coast FIRE (you\'ve invested enough that compound growth will reach your number by traditional retirement, you can "coast" working a low-stress job). Barista FIRE (semi-retired, working part-time for health insurance and spending money while investments grow). Choose the flavor that matches YOUR life values.'
+        'The 4% rule (Trinity Study): withdraw 4% yearly over 30 years. So expenses × 25 = your number: $40K, $1M; $60K, $1.5M; $80K, $2M. Savings rate sets speed: 10%, ~40 years; 20%, ~28; 30%, ~22; 50%, ~14; 70%, ~8.',
+      'Saving 50% of $50K beats saving 10% of $150K. FIRE, financial independence retire early, has flavors: Lean FIRE, $25-40K/year, $625K-$1M. Fat FIRE, $80-120K, $2-3M. Coast FIRE, growth alone reaches your number. Barista FIRE, part-time work while investments grow.'
       ],
       [
         { term: '4% Rule', definition: 'You can withdraw 4% of your portfolio annually with a 95%+ chance of not running out over 30 years (Trinity Study).', example: '$1M portfolio × 4% = $40,000/year in sustainable withdrawals.' },
@@ -5034,7 +5290,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Savings Rate', definition: 'Percentage of income saved and invested. The #1 variable determining time to FI.', example: '50% savings rate on any income → FI in ~14 years. 20% → ~28 years.' }
       ],
       'Graph showing savings rate vs years to FI, exponential curve',
-      { company: 'Trinity Study (Updated 2023)', metric: 'Portfolio survival rates over 30-year retirement periods', outcome: 'A 4% withdrawal rate with a 75/25 stock/bond portfolio has a 95-96% success rate over all 30-year periods since 1926', explanation: 'The 4% rule has survived the Great Depression, WWII, stagflation, dot-com crash, 2008 financial crisis, and COVID. It\'s the most researched and validated concept in retirement planning.' },
+      undefined,
       { type: 'comparison', title: 'Savings Rate vs Years to Financial Independence', rows: [
         { label: '10% savings rate', value: '~40 years', percent: 100 },
         { label: '20% savings rate', value: '~28 years', percent: 70 },
@@ -5050,7 +5306,7 @@ const lessons: PathwayLesson[] = [
       'FI number = annual expenses × 25. The lower your expenses, the lower your FI number, and the faster you reach it. This is why spending reduction is doubly powerful.'
     ),
     interactiveGraph(
-      'SAVINGS RATE & TIME TO FI', 'The Most Important Chart in Personal Finance',
+      'Savings rate & time to FI', 'The Most Important Chart in Personal Finance',
       'comparison',
       'Your savings rate determines how quickly you reach financial independence. Income level matters far less than most people think.',
       [
@@ -5222,16 +5478,15 @@ const lessons: PathwayLesson[] = [
       { label: 'Without financial education', detail: 'Only 50% of adults can answer basic financial literacy questions (TIAA Institute). Financially illiterate adults carry 3x more debt and are 5x more likely to face financial hardship. The cycle repeats generation after generation.' },
       { label: 'With early financial education', detail: 'Children who receive financial education accumulate 75% more wealth over their lifetimes (TIAA study). Kids who practice saving develop stronger self-regulation. Financial literacy is the gift that compounds across generations.' },
       {
-        withoutVisual: { type: 'metric', title: 'No Financial Education', value: '50%', detail: 'Adults who can\'t pass basic test \,  3x more debt, 5x more hardship', footer: 'Cycle repeats each generation', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financially Educated Kids', value: '+75%', detail: 'More wealth accumulated as adults \,  Stronger self-regulation & habits', footer: 'Generational wealth cycle begins', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'No Financial Education', value: '50%', detail: 'Adults who can\'t pass basic test, 3x more debt, 5x more hardship', footer: 'Cycle repeats each generation', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Financially Educated Kids', value: '+75%', detail: 'More wealth accumulated as adults, Stronger self-regulation & habits', footer: 'Generational wealth cycle begins', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'AGE-APPROPRIATE MONEY LESSONS', 'Building Financial Literacy From Age 3 to 18',
+      'Age-appropriate money lessons', 'Building Financial Literacy From Age 3 to 18',
       [
-        'Ages 3-5: Start with "wants vs needs." At the store: "We NEED milk. You WANT a toy. We buy needs first, and sometimes we save for wants." Introduce coins and bills physically, digital money is invisible to young kids. Give them three clear jars: SPEND, SAVE, GIVE. Any money they receive gets split between jars. The visual reinforcement is powerful.',
-        'Ages 6-12: Introduce earning (allowance tied to responsibilities), goal-setting (saving for a specific toy or experience), and basic math of money. At age 8+, open a custodial savings account and let them watch money grow. At age 10+, explain compound interest with real examples: "If you save $1 today and it grows 10% per year, in 50 years you\'ll have $117, from just $1!" Let them make small spending mistakes, a regretted $10 purchase at age 9 prevents a regretted $10,000 purchase at age 25.',
-        'Ages 13-18: Real-world application. Open a custodial Roth IRA (any earned income qualifies). Teach budgeting with their own money. Explain credit scores before they get their first card. Show them your family budget (age-appropriate details). Let them invest small amounts in an index fund and watch it grow. By 18, they should understand: budgeting, saving, investing, credit, debt, taxes, and compound growth. This 15-year curriculum creates a financial adult, not just a legal one.'
+        'Ages 3 to 5: teach wants versus needs, then use three jars: spend, save, give. Ages 6 to 12: pay allowance for chores, open a custodial account at 8, and explain compound interest, growth on past growth, at 10.',
+      '$1 growing 10% a year becomes $117 in 50 years. A regretted $10 buy at 9 prevents a $10,000 one at 25. Ages 13 to 18: budgeting, credit, investing. By 18 this 15 year plan makes a financial adult.'
       ],
       [
         { term: 'Custodial Account', definition: 'An investment or savings account opened by an adult for a minor, managed by the adult until the child reaches 18-21.', example: 'Open a custodial Roth IRA for your 15-year-old who earns $2K/summer mowing lawns. That $2K at 10% for 50 years = $235K. Tax-free.' },
@@ -5239,7 +5494,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Allowance', definition: 'Regular money given to children, either unconditional (for being part of the family) or tied to responsibilities/chores.', example: '$5/week tied to making bed, clearing dishes, and homework completion. Extra earning opportunities for bigger tasks.' }
       ],
       'Age-by-age roadmap showing which financial concepts to introduce at each stage',
-      { company: 'University of Cambridge (2013, updated)', metric: 'Longitudinal study of children\'s financial behavior development', outcome: 'Financial habits and attitudes are largely formed by age 7. By this age, children can understand delayed gratification, planning, and the concept of exchange.', explanation: 'This means parents need to start financial education EARLY, not in high school. The habits formed between ages 3-7 set the foundation for lifelong financial behavior.' },
+      undefined,
       { type: 'flow', title: 'The Age-by-Age Money Curriculum', nodes: [
         { label: 'Ages 3-5', value: 'Wants vs needs, 3 jars', color: '#EF4444' },
         { label: 'Ages 6-12', value: 'Earning, goals, compound interest', color: '#F59E0B' },
@@ -5255,7 +5510,7 @@ const lessons: PathwayLesson[] = [
       'Financial education is most impactful before age 7. The earlier you start, the deeper the habits form. Even simple conversations at the grocery store build financial foundations.'
     ),
     interactiveGraph(
-      'THE POWER OF STARTING YOUNG', 'Why a Custodial Roth IRA Is the Greatest Gift',
+      'The power of starting young', 'Why a Custodial Roth IRA Is the Greatest Gift',
       'comparison',
       'Opening a custodial Roth IRA for a teenager with earned income creates a decades-long compounding machine.',
       [
@@ -5422,18 +5677,18 @@ const lessons: PathwayLesson[] = [
         { label: 'Investing', value: 'Index funds, Roth, 401k', color: '#3B82F6' },
         { label: 'Protecting', value: 'Insurance, security, estate', color: '#EF4444' },
         { label: 'Growing', value: 'FI, giving, teaching', color: '#10B981' },
-      ], footer: '24 Lessons \u2192 1 Financially Literate Life \,  You now know more about money than 90% of American adults', sentiment: 'positive' }
+      ], footer: '24 Lessons \u2192 1 Financially Literate Life, You now know more about money than 90% of American adults', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without financial mastery', detail: 'The average American: $104K in debt, $134K retirement savings at 65, 58% live paycheck to paycheck, $1M+ lost to poor financial decisions. Financial illiteracy costs the average person $1,500/year in fees and losses alone.' },
       { label: 'With financial mastery', detail: 'You\'ve learned to: negotiate (+$1M career earnings), budget (save $5K+/year), invest (index funds beat 92% of pros), protect (credit freeze, estate plan), plan for independence (FI = expenses × 25), and break the cycle by teaching others.' },
       {
-        withoutVisual: { type: 'metric', title: 'Average American', value: '$1M+', detail: 'Lifetime cost of illiteracy \,  58% paycheck to paycheck', footer: '$134K retirement savings at 65', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financially Literate YOU', value: '$2M+', detail: 'Lifetime advantage \,  FI achievable in 14-28 years', footer: 'Knowledge that compounds forever', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Average American', value: '$1M+', detail: 'Lifetime cost of illiteracy, 58% paycheck to paycheck', footer: '$134K retirement savings at 65', sentiment: 'negative' },
+        withVisual: { type: 'metric', title: 'Financially Literate YOU', value: '$2M+', detail: 'Lifetime advantage, FI achievable in 14-28 years', footer: 'Knowledge that compounds forever', sentiment: 'positive' }
       }
     ),
     teachingSlide(
-      'THE COMPLETE FRAMEWORK', 'Every Personal Finance Concept in One System',
+      'The complete framework', 'Every Personal Finance Concept in One System',
       [
         'The wealth-building order of operations integrates everything: (1) Budget using 50/30/20 to find savings capacity. (2) Build $1K starter emergency fund. (3) Get 401(k) employer match (free 50-100% return). (4) Pay off high-interest debt (avalanche method). (5) Expand emergency fund to 3-6 months in HYSA. (6) Max Roth IRA ($7K/year, tax-free forever). (7) Max HSA if available (triple tax advantage). (8) Max 401(k) ($23.5K/year). (9) Taxable brokerage (index funds).',
         'The protection layer runs parallel: Freeze credit at all 3 bureaus. Password manager + 2FA on financial accounts. Term life insurance (10-12x income) if anyone depends on you. Estate documents: will, healthcare POA, financial POA, updated beneficiaries. Insurance: health, renters/homeowners, auto, umbrella for high net worth.',
@@ -5445,7 +5700,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tax Optimization', definition: 'Using legal tax-advantaged accounts and strategies to minimize lifetime tax burden.', example: 'Roth IRA (tax-free growth), 401(k) (tax-deferred), HSA (triple tax), appreciated stock donation (avoid capital gains).' }
       ],
       'The complete personal finance system: earn → budget → save → insure → invest → protect → grow → teach',
-      { company: 'TIAA Institute / Global Financial Literacy Excellence Center', metric: 'Personal Finance Index: 28-question assessment of American financial literacy', outcome: 'Only 50% of Americans can correctly answer basic financial literacy questions. Those scoring in the top quartile accumulate 75% more wealth.', explanation: 'You\'ve completed 24 lessons covering every topic in the P-Fin Index and beyond. You now have knowledge that puts you in the top 10% of financially literate Americans. The only step left is applying it.' },
+      undefined,
       { type: 'flow', title: 'The Wealth-Building Order of Operations', nodes: [
         { label: 'Budget & emergency fund', value: '50/30/20, then $1K buffer', color: '#EF4444' },
         { label: 'Match & kill bad debt', value: '401(k) match, avalanche method', color: '#F59E0B' },
@@ -5461,7 +5716,7 @@ const lessons: PathwayLesson[] = [
       'The wealth-building order of operations is the single most important framework in personal finance. Follow it in order, and compound growth handles the rest.'
     ),
     interactiveGraph(
-      'YOUR FINANCIAL JOURNEY', 'From First Paycheck to Financial Independence',
+      'Your financial journey', 'From First Paycheck to Financial Independence',
       'comparison',
       'Let\'s trace the complete financial journey of someone who applies every lesson from this course.',
       [

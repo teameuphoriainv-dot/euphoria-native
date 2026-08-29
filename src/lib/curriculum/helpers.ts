@@ -13,12 +13,34 @@ import type {
   SimulationFinaleStep, SummaryCardsStep, WhatsNextStep,
   TimelineStep, SortingStep, BudgetBuilderStep, DecisionTreeStep,
   MatchingPairsStep, CalculatorStep, ScenarioSimStep,
-  ChallengeQuestion, PathwayLesson, LessonStep, AnimatedVisual,
+  ChallengeQuestion, PathwayLesson, LessonStep, AnimatedVisual, TapRevealCardMeta,
   ExplorableStepData,
 } from './types';
 
+import type { Leveled } from './readingLevel';
+
 // Re-export so course files can import the visual type from a single module.
 export type { AnimatedVisual } from './types';
+
+/**
+ * The authoring type for any learner-facing string.
+ *
+ * Authors may write one string, or one per reading level. Both are valid, and
+ * the vast majority of the corpus is plain strings.
+ *
+ * The step INTERFACES stay `string` on purpose: loadCourseLessons collapses
+ * every band before a lesson reaches a renderer, so by the time anything reads
+ * these fields they are plain text. Widening the runtime types instead would
+ * force every renderer, the Studio and the mobile app to learn about bands for
+ * a value they can never actually receive.
+ */
+export type Authored = Leveled<string>;
+
+/** Authoring value -> the resolved shape the step interfaces declare. */
+const txt = (v: Authored): string => v as string;
+const txts = (v: Authored[]): string[] => v as string[];
+/** Same idea for a record of authored strings, e.g. a term or a summary card. */
+const obj = <T,>(v: unknown): T => v as T;
 
 export const explorable = (
   widget: string, title: string, prompt: string, insight: string,
@@ -29,13 +51,13 @@ export const explorable = (
 });
 
 export const c = (emoji: string, title: string, body: string): ConceptStep => ({ type: 'concept', emoji, title, body });
-export const tr = (title: string, cards: [string, string][]): TapRevealStep => ({ type: 'tapReveal', title, cards });
+export const tr = (title: string, cards: [string, string, TapRevealCardMeta?][]): TapRevealStep => ({ type: 'tapReveal', title, cards });
 export const fb = (sentence: string, options: string[], correct: number): FillBlankStep => ({ type: 'fillBlank', sentence, options, correct });
 export const ds = (prompt: string, items: string[]): DragSortStep => ({ type: 'dragSort', prompt, items });
-export const q = (question: string, options: string[], correct: number, explanation: string): QuizStep => ({ type: 'quiz', question, options, correct, explanation });
+export const q = (question: Authored, options: string[], correct: number, explanation: Authored): QuizStep => ({ type: 'quiz', question: txt(question), options, correct, explanation: txt(explanation) });
 export const tf = (statements: { s: string; a: boolean }[]): TrueFalseStep => ({ type: 'trueFalse', statements });
 export const m = (title: string, pairs: [string, string][]): MatchStep => ({ type: 'match', title, pairs });
-export const sl = (question: string, min: number, max: number, correct: number, unit: string): SliderStep => ({ type: 'slider', question, min, max, correct, unit });
+export const sl = (question: string, min: number, max: number, correct: number, unit: string, explanation?: string): SliderStep => ({ type: 'slider', question, min, max, correct, unit, ...(explanation ? { explanation } : {}) });
 export const sc = (situation: string, choices: { label: string; outcome: string; correct: boolean }[]): ScenarioStep => ({ type: 'scenario', situation, choices });
 export const bi = (title: string, instruction: string, slots: { label: string; options: string[]; correct: number }[]): BuildItStep => ({ type: 'buildIt', title, instruction, slots });
 export const pc = (title: string, calcSteps: ProgressiveCalcStep['calcSteps']): ProgressiveCalcStep => ({ type: 'progressiveCalc', title, calcSteps });
@@ -44,49 +66,58 @@ export const cq = (question: string, options: string[], correct: number, explana
 export const L = (num: number, title: string, xp: number, steps: LessonStep[], challenge: ChallengeQuestion[]): PathwayLesson => ({ num, title, xp, steps, challenge });
 
 // ─── New Template Helpers ───
-export const hookOpener = (title: string, fact: string, outcome: string, visualDescription: string, chartSvgOrVisual?: string | AnimatedVisual): HookOpenerStep => ({
-  type: 'hookOpener', title, fact, outcome, visualDescription,
+export const hookOpener = (title: string, fact: Authored, outcome: Authored, visualDescription: string, chartSvgOrVisual?: string | AnimatedVisual): HookOpenerStep => ({
+  type: 'hookOpener', title, fact: txt(fact), outcome: txt(outcome), visualDescription,
   ...(typeof chartSvgOrVisual === 'string' ? { chartSvg: chartSvgOrVisual } : chartSvgOrVisual ? { visual: chartSvgOrVisual } : {})
 });
 
 export const stakesCard = (
-  without: { label: string; detail: string },
-  with_: { label: string; detail: string },
+  without: { label: string; detail: Authored },
+  with_: { label: string; detail: Authored },
   opts?: { withoutSvg?: string; withSvg?: string; withoutLabel?: string; withLabel?: string; withoutVisual?: AnimatedVisual; withVisual?: AnimatedVisual }
 ): StakesCardStep => ({
-  type: 'stakesCard', without, with: with_, ...opts
+  type: 'stakesCard',
+  without: { ...without, detail: txt(without.detail) },
+  with: { ...with_, detail: txt(with_.detail) },
+  ...opts
 });
 
 export const teachingSlide = (
   sectionLabel: string, title: string,
-  paragraphs: string[],
-  highlightedTerms: { term: string; definition: string; example: string }[],
+  paragraphs: Authored[],
+  highlightedTerms: { term: string; definition: Authored; example: Authored }[],
   diagramDescription: string,
   realExample?: { company: string; metric: string; outcome: string; explanation: string },
-  diagramSvgOrVisual?: string | AnimatedVisual
+  diagramSvgOrVisual?: string | AnimatedVisual,
+  atlas?: { hint?: string; recap?: string }
 ): TeachingSlideStep => ({
-  type: 'teachingSlide', sectionLabel, title, paragraphs, highlightedTerms, diagramDescription, realExample,
-  ...(typeof diagramSvgOrVisual === 'string' ? { diagramSvg: diagramSvgOrVisual } : diagramSvgOrVisual ? { diagramVisual: diagramSvgOrVisual } : {})
+  type: 'teachingSlide', sectionLabel, title, paragraphs: txts(paragraphs), highlightedTerms: obj(highlightedTerms), diagramDescription, realExample,
+  ...(typeof diagramSvgOrVisual === 'string' ? { diagramSvg: diagramSvgOrVisual } : diagramSvgOrVisual ? { diagramVisual: diagramSvgOrVisual } : {}),
+  ...(atlas ? { atlas } : {})
 });
 
 export const microCheck = (
-  question: string, options: string[], correct: number,
-  explanationCorrect: string, explanationWrong: string
+  question: Authored, options: string[], correct: number,
+  explanationCorrect: Authored, explanationWrong: Authored
 ): MicroCheckStep => ({
-  type: 'microCheck', question, options, correct, explanationCorrect, explanationWrong
+  type: 'microCheck', question: txt(question), options, correct,
+  explanationCorrect: txt(explanationCorrect), explanationWrong: txt(explanationWrong),
 });
 
 export const interactiveGraph = (
   sectionLabel: string, title: string,
   graphType: string,
-  description: string, paragraphs: string[],
-  highlightedTerms: { term: string; definition: string; example: string }[],
-  insights: string[],
+  description: string, paragraphs: Authored[],
+  highlightedTerms: { term: string; definition: Authored; example: Authored }[],
+  insights: Authored[],
   sliders?: { label: string; min: number; max: number; default: number; unit: string }[],
   realExample?: { company: string; metric: string; outcome: string; explanation: string },
-  chartPreset?: 'sma-crossover' | 'sma-vs-ema' | 'volatility-cluster' | 'mean-reversion' | 'candlestick-basic' | 'trend-following'
+  chartPreset?: 'sma-crossover' | 'sma-vs-ema' | 'volatility-cluster' | 'mean-reversion' | 'candlestick-basic' | 'trend-following',
+  comparisonModel?: InteractiveGraphStep['comparisonModel']
 ): InteractiveGraphStep => ({
-  type: 'interactiveGraph', sectionLabel, title, graphType, description, paragraphs, highlightedTerms, insights, sliders, realExample, ...(chartPreset && { chartPreset })
+  type: 'interactiveGraph', sectionLabel, title, graphType, description,
+  paragraphs: txts(paragraphs), highlightedTerms: obj(highlightedTerms), insights: txts(insights), sliders, realExample,
+  ...(chartPreset && { chartPreset }), ...(comparisonModel && { comparisonModel })
 });
 
 export const caseStudy = (
@@ -105,9 +136,9 @@ export const misconceptions = (
 });
 
 export const keyTermsCards = (
-  terms: { term: string; definition: string; example: string; sentence: string }[]
+  terms: { term: string; definition: Authored; example: Authored; sentence: Authored }[]
 ): KeyTermsCardsStep => ({
-  type: 'keyTermsCards', terms
+  type: 'keyTermsCards', terms: obj(terms),
 });
 
 export const simulationFinale = (
@@ -120,9 +151,9 @@ export const simulationFinale = (
 
 export const summaryCards = (
   lessonTitle: string,
-  cards: { takeaway: string; detail: string }[]
+  cards: { takeaway: Authored; detail: Authored }[]
 ): SummaryCardsStep => ({
-  type: 'summaryCards', lessonTitle, cards
+  type: 'summaryCards', lessonTitle, cards: obj(cards),
 });
 
 export const whatsNext = (

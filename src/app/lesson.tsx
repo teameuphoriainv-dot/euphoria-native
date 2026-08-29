@@ -2,7 +2,7 @@
  * Lesson viewer — intro → the lesson's REAL steps → celebration → streak.
  *
  * This screen used to render one hardcoded demo lesson ("Foundations · Lesson 9 · What is a
- * stock?") no matter which node you tapped, while 5,341 authored steps sat unused in
+ * stock?") no matter which node you tapped, while the authored website curriculum sat unused in
  * src/lib/curriculum. It now loads the lesson named by the `course`/`num` params that learn.tsx
  * has always passed, and renders each step through normalizeStep() (see lib/lesson-steps.ts),
  * which maps the 24 authored step types onto the interactive components we already ship.
@@ -34,6 +34,7 @@ import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TileBuilder } from '@/components/tile-builder';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
+import { DecisionTree } from '@/components/decision-tree';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { PixelSpriteView, coin as coinSprite, flame as flameSprite, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
@@ -547,6 +548,7 @@ export default function Lesson() {
             {norm.kind === 'multi' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MultiSelect spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
             {norm.kind === 'build' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TileBuilder spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
             {norm.kind === 'calc' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled"><CalcBlanks spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
+            {norm.kind === 'tree' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><DecisionTree spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
 
             {norm.kind === 'choice' && (
               /* SCROLLS. An authored question can run 380pt on its own and each option another
@@ -771,7 +773,7 @@ const FOOTER_CLEARANCE = 170;
 
 /** Step kinds that render their OWN validate control. The footer must not stack a second CTA on
  *  top of these — see `ownsItsCta`. */
-const OWN_CTA_STEPS = new Set(['multi', 'line']);
+const OWN_CTA_STEPS = new Set(['multi', 'line', 'tree']);
 
 /** Fixed-width digits, so a heart or hint count does not shift the header as it drops. */
 const NUM_L = { fontVariant: ['tabular-nums' as const] };

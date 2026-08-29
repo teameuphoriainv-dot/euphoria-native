@@ -6,7 +6,7 @@
 // reading the schema. A type in types.ts that never appears in the data will
 // NOT be listed here.
 //
-// 24 distinct types across 5341 steps in 300 lessons.
+// 20 distinct types across 4050 steps in 300 lessons.
 // ============================================================================
 
 /** Every step type present in the curriculum, most frequent first. */
@@ -16,61 +16,53 @@ export const STEP_TYPES = [
   'microCheck',
   'hookOpener',
   'stakesCard',
-  'summaryCards',
-  'whatsNext',
   'interactiveGraph',
   'fillBlank',
   'scenario',
   'trueFalse',
-  'match',
   'tapReveal',
-  'simulationFinale',
   'dragSort',
+  'match',
   'slider',
-  'caseStudy',
-  'misconceptions',
   'keyTermsCards',
   'progressiveCalc',
   'buildIt',
   'calculator',
   'explorable',
   'concept',
+  'decisionTree',
 ] as const;
 
 export type StepType = (typeof STEP_TYPES)[number];
 
 /** Occurrence count per step type across all 12 courses. */
 export const STEP_TYPE_COUNTS: Record<StepType, number> = {
-  'quiz': 443,
+  'quiz': 441,
   'teachingSlide': 432,
   'microCheck': 312,
   'hookOpener': 300,
   'stakesCard': 300,
-  'summaryCards': 300,
-  'whatsNext': 295,
-  'interactiveGraph': 290,
+  'interactiveGraph': 289,
   'fillBlank': 281,
   'scenario': 273,
   'trueFalse': 273,
-  'match': 267,
-  'tapReveal': 247,
-  'simulationFinale': 241,
+  'tapReveal': 248,
   'dragSort': 231,
-  'slider': 198,
-  'caseStudy': 196,
-  'misconceptions': 195,
+  'match': 201,
+  'slider': 199,
   'keyTermsCards': 186,
   'progressiveCalc': 44,
   'buildIt': 29,
-  'calculator': 3,
-  'explorable': 3,
+  'calculator': 4,
+  'explorable': 4,
   'concept': 2,
+  'decisionTree': 1,
 };
 
 /** Totals for the whole synced curriculum. */
 export const CURRICULUM_STATS = {
   courses: 12,
   lessons: 300,
-  steps: 5341,
-  distinctStepTypes: 24,
+  steps: 4050,
+  distinctStepTypes: 20,
 } as const;

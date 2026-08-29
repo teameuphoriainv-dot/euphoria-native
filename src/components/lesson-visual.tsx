@@ -1,19 +1,16 @@
 /**
  * Renders an `AnimatedVisual` — the charts the curriculum authors alongside its prose.
  *
- * WHY THIS EXISTS. There are 1,309 AnimatedVisual objects in the corpus and, until this file, the
- * app read NONE of them: `AnimatedVisual` appeared only in the data layer, in zero components and
- * zero screens. Every one of them rendered as nothing on device, while the same lesson on the web
- * showed the chart. Measured by loading all 12 courses and walking every step:
+ * WHY THIS EXISTS. The canonical curriculum carries AnimatedVisual objects throughout its hooks,
+ * teaching slides and stakes cards. Until this component, the app read none of them:
+ * `AnimatedVisual` appeared only in the data layer, in zero components and zero screens. Every one
+ * rendered as nothing on device while the same lesson on the web showed the chart. The exhaustive
+ * counts now live in `scripts/lesson-render-audit.mjs`, where they are checked against the exact
+ * runtime course loaders instead of being copied into a comment that can drift.
  *
- *   teachingSlide.diagramVisual  415     flow        395     line    84
- *   hookOpener.visual            298     metric      273     stack   25
- *   stakesCard.withVisual        298     comparison  268     pie     10
- *   stakesCard.withoutVisual     298     grid        144     bars   110
- *
- * EIGHT kinds, not the ten the type allows: `pixel` and `pictograph` are declared but occur zero
- * times, so they are not implemented and are not stubbed either — an empty case that renders
- * nothing is exactly the defect this file exists to remove.
+ * The canonical website corpus currently uses nine kinds. `pictograph` is an isotype chart whose
+ * repeated pixel marks are the magnitude, so it must be rendered rather than flattened to prose.
+ * `pixel` remains unused in the canonical lesson corpus.
  *
  * Every kind is plain data — labels, numbers, percents and authored hex colours — so seven of the
  * eight are laid out with ordinary views. Only `pie` needs SVG, and it uses stroke-dash arithmetic
@@ -29,6 +26,7 @@
  * with the trend the author DID state, and nothing is invented. Plotting it properly needs a
  * numeric field in the data, which is a web-repo change.
  */
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -38,12 +36,15 @@ import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { AnimatedVisual } from '@/lib/curriculum';
 import { chartLabel } from '@/lib/lesson-steps';
+import { getSprite, PixelSpriteView } from '@/lib/pixel';
+import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 type Sentiment = 'positive' | 'negative' | undefined;
 
 export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
   const theme = useTheme();
   const v = visual as AnimatedVisual & Record<string, any>;
+  const [openPictographRow, setOpenPictographRow] = useState<number | null>(null);
   const sentiment: Sentiment = v.sentiment;
   const accent = sentiment === 'negative' ? theme.destructive : sentiment === 'positive' ? theme.success : theme.iconLilac;
 
@@ -221,6 +222,76 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
         );
       }
 
+      case 'pictograph': {
+        const sprite = getSprite(v.sprite);
+        const rows: any[] = v.rows ?? [];
+        if (!sprite || !(v.unitValue > 0)) return null;
+        const markSize = 18;
+        const maxMarks = 60;
+
+        return (
+          <View style={{ gap: Spacing.three }}>
+            <View style={styles.unitKey} accessible accessibilityRole="text" accessibilityLabel={`Each mark represents ${String(v.unitLabel)}`}>
+              <PixelSpriteView sprite={sprite} size={markSize} />
+              <ThemedText type="small" themeColor="mutedForeground">= {v.unitLabel}</ThemedText>
+            </View>
+            {rows.map((row, index) => {
+              const rawValue = Number.isFinite(row.value) ? Math.max(0, row.value) : 0;
+              const count = rawValue / v.unitValue;
+              const full = Math.floor(count);
+              const fraction = count - full;
+              const drawn = Math.min(full, maxMarks);
+              const hidden = full - drawn;
+              const opened = openPictographRow === index;
+              const header = (
+                <View style={[styles.rowBetween, row.explain ? styles.pictographHeader : null]}>
+                  <ThemedText type="small" themeColor="mutedForeground" style={{ flex: 1 }}>{row.label}</ThemedText>
+                  <ThemedText type="smallBold">{row.displayValue ?? String(row.value)}</ThemedText>
+                </View>
+              );
+
+              return (
+                <View key={`${String(index)}-${String(row.label)}`} style={{ gap: 6 }}>
+                  {row.explain ? (
+                    <SpringPressable
+                      haptic={false}
+                      onPress={() => setOpenPictographRow(opened ? null : index)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${String(row.label)}. ${String(row.displayValue ?? row.value)}.`}
+                      accessibilityHint="Shows the explanation for this row."
+                      accessibilityState={{ expanded: opened }}>
+                      {header}
+                    </SpringPressable>
+                  ) : header}
+                  <View
+                    style={styles.marks}
+                    accessible={false}
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants">
+                    {Array.from({ length: drawn }, (_, mark) => (
+                      <PixelSpriteView key={mark} sprite={sprite} size={markSize} />
+                    ))}
+                    {hidden === 0 && fraction > 0.02 ? (
+                      <View style={{ width: markSize * fraction, height: markSize, overflow: 'hidden' }}>
+                        <PixelSpriteView sprite={sprite} size={markSize} />
+                      </View>
+                    ) : null}
+                    {hidden > 0 ? (
+                      <ThemedText type="small" themeColor="mutedForeground">+{hidden} more</ThemedText>
+                    ) : null}
+                  </View>
+                  {opened && row.explain ? (
+                    <View style={[styles.explain, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '3D' }]}>
+                      <ThemedText type="small" themeColor="textSecondary">{row.explain}</ThemedText>
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
+        );
+      }
+
       default:
         // Defence in depth only. The REAL gate is upstream: `vis()` in lib/lesson-steps.ts asks
         // visualIsRenderable() before it ever emits a visual block, so an unrenderable kind or an
@@ -240,12 +311,14 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
    * order — a title, a label, a number, another label — with nothing saying what is being compared.
    * `image` is the role because that is what this is: a graphic with a description.
    */
+  const pictographInteractive = v.type === 'pictograph' && (v.rows ?? []).some((row: any) => row.explain);
+
   return (
     <Card
       style={{ gap: Spacing.two }}
-      accessible
-      accessibilityRole="image"
-      accessibilityLabel={chartLabel(v)}
+      accessible={!pictographInteractive}
+      accessibilityRole={pictographInteractive ? undefined : 'image'}
+      accessibilityLabel={pictographInteractive ? undefined : chartLabel(v)}
     >
       {v.title ? <ThemedText type="smallBold">{v.title}</ThemedText> : null}
       {body}
@@ -265,4 +338,8 @@ const styles = StyleSheet.create({
   gridCell: { flexGrow: 1, minWidth: '30%', gap: 2, padding: Spacing.two, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
   flowNode: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, padding: Spacing.two, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
   connector: { width: 2, height: 10, marginLeft: Spacing.three, borderRadius: 1 },
+  unitKey: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  pictographHeader: { minHeight: 44, paddingVertical: Spacing.one },
+  marks: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 3 },
+  explain: { padding: Spacing.two, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
 });

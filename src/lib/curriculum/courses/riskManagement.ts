@@ -149,12 +149,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FOUNDATIONS',
+      'The foundations',
       'Understanding Financial Risk',
       [
-        'Financial risk is the possibility that an investment\'s actual return will differ from its expected return, including the chance of losing some or all of your original investment. Risk isn\'t just about losing money; it\'s about uncertainty. Even positive surprises are a form of risk because they indicate unpredictability.',
-        'There are four primary categories of financial risk. Market risk is the danger of losses due to changes in market prices, stocks dropping, interest rates rising, or currencies fluctuating. Credit risk is the possibility that a borrower will fail to repay a debt. Operational risk covers losses from failed internal processes, people, or systems. Liquidity risk is the danger that you can\'t sell an asset quickly without a significant price discount.',
-        'The key insight is that risk can never be eliminated, only measured, managed, and transferred. Every financial decision involves a risk-return tradeoff. The goal of risk management is not to avoid risk entirely (that would mean zero returns), but to ensure you\'re being adequately compensated for the risks you take and that no single risk can destroy you.'
+        'Financial risk is the chance an investment returns something different from what you expected, including losing your money. You cannot remove risk, only measure and manage it, so make sure the return pays you for it.',
+      'Four main types: market risk, losses when prices move; credit risk, a borrower not repaying; operational risk, failures in processes, people or systems; liquidity risk, not selling an asset fast without a big price cut.'
       ],
       [
         { term: 'Market Risk', definition: 'The risk of losses due to movements in market prices including stock prices, interest rates, exchange rates, and commodity prices.', example: 'When the S&P 500 fell 34% in March 2020 due to COVID-19, every stock investor experienced market risk.' },
@@ -163,7 +162,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Liquidity Risk', definition: 'The risk that an asset cannot be sold quickly enough at a fair price to prevent or minimize a loss.', example: 'During the 2008 crisis, mortgage-backed securities became virtually impossible to sell, their liquidity evaporated overnight.' }
       ],
       'Four-quadrant diagram: top-left Market Risk (stock chart icon), top-right Credit Risk (handshake breaking), bottom-left Operational Risk (gear with warning), bottom-right Liquidity Risk (hourglass with dollar sign). Arrows connect all four showing interdependence.',
-      { company: 'JPMorgan', metric: 'Creation of Value at Risk (VaR)', outcome: 'VaR became the global standard after JPMorgan published the methodology in 1994', explanation: 'JPMorgan\'s RiskMetrics system was revolutionary, for the first time, a single number could express the maximum expected loss over a given time period at a given confidence level. Chairman Dennis Weatherstone demanded a "4:15 report" every day showing the firm\'s total risk.' },
+      undefined,
       { type: 'grid', title: 'The Four Types of Financial Risk', items: [{ label: 'Market risk', value: 'Prices, rates, currencies move', color: '#ef4444' }, { label: 'Credit risk', value: 'A borrower fails to repay', color: '#ae66ed' }, { label: 'Operational risk', value: 'Systems, people, processes fail', color: '#f59e0b' }, { label: 'Liquidity risk', value: 'You cannot sell at a fair price', color: '#3b82f6' }], footer: 'Every financial loss traces back to one of these four.', sentiment: 'positive' }
     ),
 
@@ -178,7 +177,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph (VaR Concept)
     interactiveGraph(
-      'MEASURING RISK',
+      'Measuring risk',
       'Value at Risk (VaR), The Risk Industry\'s Standard Measure',
       'comparison',
       'Value at Risk answers one question: "What is the maximum I can expect to lose over a given time period at a given confidence level?" Adjust the parameters to see how VaR changes.',
@@ -203,41 +202,41 @@ const lessons: PathwayLesson[] = [
         { label: 'Confidence Level', min: 90, max: 99, default: 95, unit: '%' },
         { label: 'Daily Volatility', min: 1, max: 10, default: 2, unit: '%' }
       ],
-      { company: 'JPMorgan', metric: '4:15 Report, daily VaR', outcome: 'Became the global standard after RiskMetrics was published freely in 1994', explanation: 'JPMorgan made the unprecedented decision to publish the RiskMetrics methodology for free, allowing the entire industry to adopt VaR. This standardized risk measurement across global finance and made JPMorgan the center of risk management thought leadership.' }
+      undefined
     ),
 
     // Step 6, Case Study (Barings Bank)
     caseStudy(
       'Barings Bank: How One Trader Destroyed a 233-Year-Old Bank',
       [
-        { date: '1762', event: 'Barings Bank founded in London', context: 'Barings became one of the most prestigious banks in the world. It financed the Louisiana Purchase for the U.S. government in 1803 and served the British royal family. It was known as "the sixth great power" in Europe.' },
-        { date: '1992', event: 'Nick Leeson posted to Barings Singapore office', context: 'Leeson, 25 years old, was appointed head of a new futures trading operation on the Singapore International Monetary Exchange (SIMEX). Critically, he was also placed in charge of back-office settlements, the very department meant to audit his trades.' },
-        { date: '1992-1994', event: 'Leeson hides losses in secret "88888" error account', context: 'When trades went wrong, Leeson hid losses in an unauthorized account numbered 88888 (8 is considered lucky in Chinese culture). Management in London never questioned why profits looked so good. By end of 1994, hidden losses exceeded £200 million.' },
-        { date: 'January 17, 1995', event: 'Kobe earthquake devastates the Nikkei', context: 'The Great Hanshin earthquake kills 6,400 people and sends the Nikkei index plunging. Leeson had massive long positions on the Nikkei. Instead of cutting losses, he doubled down, buying more futures to try to prop up the market.' },
-        { date: 'February 23, 1995', event: 'Leeson flees Singapore, losses reach £827 million', context: 'With total losses exceeding the bank\'s entire capital reserves (£540 million), Leeson fled. He left a note saying "I\'m sorry." Barings was declared insolvent on February 26, 1995, and was purchased by ING for £1.' }
+        { date: '1762', event: 'Barings Bank founded in London', context: 'Barings became a top global bank. It financed the 1803 Louisiana Purchase for the U.S. government and served the British royal family. Europe called it the sixth great power.' },
+        { date: '1992', event: 'Nick Leeson posted to Barings Singapore office', context: 'Leeson, 25, was made head of a futures desk on the Singapore International Monetary Exchange (SIMEX). He also ran back office settlements, the team meant to check his trades.' },
+        { date: '1992-1994', event: 'Leeson hides losses in secret "88888" error account', context: 'When trades lost money, Leeson hid them in secret account 88888, a lucky number in China. London never questioned the profits. By late 1994, hidden losses passed £200 million.' },
+        { date: 'January 17, 1995', event: 'Kobe earthquake devastates the Nikkei', context: 'The Great Hanshin earthquake killed 6,400 people and sent the Nikkei index down. Leeson had huge bets that the Nikkei would rise. He doubled down, buying more futures.' },
+        { date: 'February 23, 1995', event: 'Leeson flees Singapore, losses reach £827 million', context: 'Losses passed the bank\'s capital of £540 million. Leeson fled, leaving a note saying "I\'m sorry." Barings went insolvent on February 26, 1995, and ING bought it for £1.' }
       ],
-      'Barings Bank is the textbook case of operational risk failure. Every control that should have existed was absent: separation of duties, position limits, independent auditing, and management oversight. Leeson exploited every gap. The lesson isn\'t that markets are dangerous, it\'s that unchecked risk, no matter how small it starts, can destroy anything. After Barings, regulators worldwide mandated strict separation between trading and settlement operations.'
+      'Barings is a textbook operational risk failure, meaning the bank\'s own controls broke. Nobody split duties, capped positions, or audited. Leeson used every gap. Unchecked risk, however small, can destroy anything. Regulators then forced trading and settlement apart.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'RISK MYTHS',
+      'Risk myths',
       'What most people get wrong about financial risk',
       [
         {
           myth: 'Risk means you\'ll lose money.',
           truth: 'Risk means uncertainty, your actual returns may be higher OR lower than expected. In finance, risk is measured as volatility, not guaranteed loss.',
-          explanation: 'The S&P 500 has "high risk" (15-20% annual volatility) but has returned 10% annually since 1926. Risk is the price of admission to higher returns, not a guarantee of loss. Understanding this reframe is fundamental to sound investing.'
+          explanation: 'The S&P 500 swings a lot, 15 to 20% a year, yet it has returned 10% a year since 1926. Risk is the price you pay for higher returns, not a promise of loss.'
         },
         {
           myth: 'Diversification eliminates risk.',
           truth: 'Diversification eliminates unsystematic (company-specific) risk but cannot eliminate systematic (market-wide) risk. Even a perfectly diversified portfolio will lose money in a crash.',
-          explanation: 'In 2008, nearly every asset class fell simultaneously. Diversification reduced losses compared to concentrated positions, but a broad index fund still lost 50%+. Systematic risk, the risk inherent in the entire market, cannot be diversified away.'
+          explanation: 'In 2008 almost every asset fell at once. Spreading your money out helped, but a broad index fund still lost over 50%. Systematic risk, the risk in the whole market, cannot be diversified away.'
         },
         {
           myth: 'VaR tells you the worst-case scenario.',
           truth: 'VaR only tells you the maximum expected loss at a given confidence level. It says nothing about how bad things could get beyond that threshold.',
-          explanation: 'A 95% VaR of $10M means there\'s a 5% chance of losing MORE than $10M, but that loss could be $11M or $500M. This blind spot is why Expected Shortfall (CVaR) was developed and why VaR alone failed spectacularly in 2008.'
+          explanation: 'A 95% value at risk (VaR) of $10M means a 5% chance of losing more than $10M. Maybe $11M, maybe $500M. VaR ignores that tail, so Expected Shortfall (CVaR) exists. VaR failed in 2008.'
         }
       ]
     ),
@@ -430,12 +429,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (VaR Methods)
     teachingSlide(
-      'THE THREE METHODS',
+      'The three methods',
       'How to Calculate Value at Risk',
       [
-        'There are three primary methods for calculating VaR, each with distinct strengths and weaknesses. Historical VaR uses actual past returns to estimate future risk. You collect historical daily returns (typically 1-5 years), sort them from worst to best, and find the loss at your confidence level. For 95% VaR with 1,000 days of data, you find the 50th worst day. It\'s simple and makes no assumptions about how returns are distributed.',
-        'Parametric (Variance-Covariance) VaR assumes returns follow a normal distribution. You calculate the portfolio\'s mean return and standard deviation, then use z-scores to find the loss threshold. For 95% confidence: VaR = Portfolio Value x z-score (1.645) x Daily Volatility. It\'s fast and elegant, but its assumption of normality is its fatal flaw. Real market returns have "fat tails", extreme events happen far more often than a normal distribution predicts.',
-        'Monte Carlo VaR uses computer simulations to generate thousands (or millions) of possible future scenarios based on statistical models. Each simulation produces a different portfolio outcome. VaR is then extracted from the distribution of simulated outcomes. Monte Carlo is the most flexible and powerful method, it can handle non-normal distributions, complex portfolios, and path-dependent instruments like options. Its downside is computational cost and the "garbage in, garbage out" problem, bad model assumptions produce bad simulations.'
+        'Three methods calculate VaR, your likely worst loss. Historical VaR sorts 1 to 5 years of past daily returns. With 1,000 days at 95% confidence, VaR is the 50th worst day, and it assumes no particular distribution.',
+      'Parametric VaR assumes a normal bell curve: VaR = Portfolio Value x z-score (1.645) x Daily Volatility, at 95%. Real markets have fat tails, so extremes hit harder. Monte Carlo simulates thousands or millions of scenarios: flexible but costly.'
       ],
       [
         { term: 'Historical VaR', definition: 'A VaR calculation method that uses actual historical returns to estimate future risk, making no assumptions about the distribution of returns.', example: 'Using 500 days of data at 95% confidence: sort all daily returns, find the 25th worst day. That loss is your VaR.' },
@@ -444,7 +442,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Fat Tails', definition: 'A property of real market returns where extreme events (crashes, spikes) occur far more frequently than predicted by a normal distribution.', example: 'The 2008 crash included daily moves of 7-10 standard deviations, events that a normal distribution says should occur once every billion years.' }
       ],
       'Three-column comparison: Historical (bar chart of actual returns), Parametric (smooth bell curve with VaR cutoff), Monte Carlo (scatter plot of 10,000+ simulated outcomes). Each method points to the same VaR threshold but captures different information.',
-      { company: 'Goldman Sachs', metric: 'VaR performance during 2008', outcome: 'Experienced 25-standard-deviation moves on multiple days', explanation: 'Goldman\'s parametric VaR models assumed normal distributions. In reality, the 2008 crisis produced moves so extreme they should theoretically occur once every 100,000 years, yet they happened multiple times in a single month. This proved that fat tails make parametric VaR dangerously optimistic.' },
+      undefined,
       { type: 'comparison', title: 'How Often a 7-Sigma Day Should Happen vs. Does', rows: [{ label: 'Normal-curve prediction', value: 'Once every 3 billion years' }, { label: 'What 2008 actually delivered', value: 'Several days in one month' }, { label: 'Why parametric VaR failed', value: 'Real returns have fat tails' }], footer: 'The bell curve hides the exact events that destroy firms.', sentiment: 'negative' }
     ),
 
@@ -484,28 +482,28 @@ const lessons: PathwayLesson[] = [
         { label: 'Interest Rate Shock', min: 1, max: 10, default: 3, unit: '%' },
         { label: 'Unemployment Rate', min: 4, max: 15, default: 10, unit: '%' }
       ],
-      { company: 'AIG', metric: 'Credit default swap exposure', outcome: '$500 billion in CDS with zero stress testing led to $182 billion bailout', explanation: 'AIG\'s Financial Products division sold insurance against bond defaults (CDS) on a massive scale without ever testing what would happen if defaults rose significantly. When housing prices collapsed and defaults cascaded, AIG\'s losses exceeded $100 billion. The company would have failed, taking the global financial system with it, without government intervention.' }
+      undefined
     ),
 
     // Step 6, Misconceptions (myths first, then the case that proves them)
     misconceptions(
-      'MARKET RISK MYTHS',
+      'Market risk myths',
       'Dangerous misconceptions about measuring and managing risk',
       [
         {
           myth: 'If a risk model says a scenario is unlikely, you don\'t need to prepare for it.',
           truth: 'Low probability events with catastrophic consequences are the most important risks to manage. AIG\'s models said housing couldn\'t decline nationally, they were catastrophically wrong.',
-          explanation: 'Nassim Taleb calls these "Black Swan" events, rare occurrences with massive impact that models consistently underestimate. The 2008 crisis, COVID-19, and 9/11 were all deemed "extremely unlikely" by conventional models. The correct approach is stress testing for scenarios regardless of their estimated probability.'
+          explanation: 'Nassim Taleb calls these Black Swan events: rare, huge in impact, and always underrated by models. Models called the 2008 crisis, COVID-19 and 9/11 almost impossible. Stress test for them anyway.'
         },
         {
           myth: 'Historical data tells you everything you need to know about future risk.',
           truth: 'Historical data only captures risks that have already occurred. The most dangerous risks are often unprecedented, scenarios that have never happened before.',
-          explanation: 'Before 2008, no model included a nationwide U.S. housing decline because it had never happened. Before 2020, no model included a global pandemic shutdown. Relying solely on historical data is like driving by only looking in the rearview mirror.'
+          explanation: 'Before 2008, no model included a nationwide U.S. housing crash, because none had ever happened. Before 2020, none included a global pandemic shutdown. Using only past data is like driving by mirror alone.'
         },
         {
           myth: 'More sophisticated models mean better risk management.',
           truth: 'Complex models can create a dangerous illusion of precision. AIG and Lehman Brothers had PhD-level quant teams with the most sophisticated models in finance, and they failed spectacularly.',
-          explanation: 'The "model risk" paradox: as models become more complex, they become harder to understand, validate, and question. Simpler models with conservative assumptions often outperform complex ones because they\'re transparent enough to challenge. Warren Buffett\'s risk management is famously simple: "Don\'t risk what you have and need for what you don\'t have and don\'t need."'
+          explanation: 'Complex models are hard to check or question. Simple, cautious ones work better because you can challenge them. Warren Buffett\'s rule: never risk what you have and need for what you do not need.'
         }
       ]
     ),
@@ -514,13 +512,13 @@ const lessons: PathwayLesson[] = [
     caseStudy(
       'AIG: The $182 Billion Risk Management Failure',
       [
-        { date: '1998-2005', event: 'AIG Financial Products sells $500B in credit default swaps', context: 'AIG\'s London-based Financial Products unit, led by Joseph Cassano, sold credit default swaps (CDS), essentially insurance contracts guaranteeing payment if mortgage-backed bonds defaulted. AIG collected billions in premiums and Cassano infamously said: "It is hard for us to even see a scenario within any kind of realm of reason that would see us losing $1 in any of those transactions."' },
-        { date: '2005-2006', event: 'Housing prices peak; AIG\'s risk models show "zero risk"', context: 'AIG\'s internal models showed the probability of a nationwide housing decline as essentially zero, because it had never happened in recorded history. They used historical data that only went back to the 1970s. No stress test was run for a scenario where housing prices fell 20-30% nationally.' },
-        { date: '2007', event: 'Housing market cracks, AIG forced to post collateral', context: 'As mortgage defaults began rising, AIG was required to post collateral (cash guarantees) to its CDS counterparties. The more housing fell, the more collateral was demanded. AIG\'s cash reserves drained rapidly. Internal emails showed executives were "panicked" but still believed the models would hold.' },
-        { date: 'September 16, 2008', event: 'Federal Reserve provides $85 billion emergency loan to AIG', context: 'With Lehman Brothers bankrupt the day before, the government decided AIG was "too big to fail." AIG had counterparty relationships with virtually every major bank in the world. Its failure would have triggered cascading defaults across the entire global financial system. Total government support eventually reached $182 billion.' },
-        { date: '2008-2012', event: 'Aftermath: AIG repays government, regulations overhauled', context: 'AIG ultimately repaid the government with interest ($22.7 billion profit for taxpayers). But the episode led to Dodd-Frank, mandatory stress testing, central clearing of derivatives, and the end of the era when financial institutions could take massive risks without adequate measurement or reserves.' }
+        { date: '1998-2005', event: 'AIG Financial Products sells $500B in credit default swaps', context: 'AIG\'s Financial Products unit, led by Joseph Cassano, sold credit default swaps (CDS): insurance that pays if mortgage bonds default. AIG collected billions. Cassano could not imagine losing $1.' },
+        { date: '2005-2006', event: 'Housing prices peak; AIG\'s risk models show "zero risk"', context: 'AIG\'s models put the odds of a nationwide housing drop near zero, using data going back only to the 1970s. Nobody tested what a 20-30% national fall would do.' },
+        { date: '2007', event: 'Housing market cracks, AIG forced to post collateral', context: 'As mortgage defaults rose, AIG had to post collateral (cash guarantees) to the banks it insured. Falling prices drained its cash. Emails show panicked executives still trusting the models.' },
+        { date: 'September 16, 2008', event: 'Federal Reserve provides $85 billion emergency loan to AIG', context: 'Lehman Brothers went bankrupt the day before. AIG owed almost every major bank, so its collapse would spread worldwide. Officials called it too big to fail. Rescue: $182 billion.' },
+        { date: '2008-2012', event: 'Aftermath: AIG repays government, regulations overhauled', context: 'AIG repaid the government with interest, a $22.7 billion profit for taxpayers. It brought Dodd-Frank, required stress tests, and central clearing of derivatives. Big risks now need measurement and reserves.' }
       ],
-      'AIG\'s failure teaches the most important lesson in risk management: the absence of a loss is not evidence of the absence of risk. AIG collected premiums for years on risks it never measured, modeled, or stress tested. When the scenario they called "impossible" occurred, the losses exceeded $100 billion. This is why stress testing, including scenarios that have never happened before, is the cornerstone of modern risk management. The question is never "has this happened?" but "could this happen?"'
+      'No loss yet does not mean no risk. AIG collected premiums for years on risks it never measured. When the impossible happened, losses passed $100 billion. Test scenarios never seen before. Ask could this happen, not has it happened.'
     ),
 
     // Step 8, Key Terms Reference Cards
@@ -529,7 +527,7 @@ const lessons: PathwayLesson[] = [
       { term: 'Historical VaR', definition: 'A VaR calculation method that uses actual past returns, sorted from worst to best, to estimate the loss threshold at a given confidence level.', example: 'Using 1,000 days of data at 95% confidence: sort all daily returns and find the 50th worst day. That loss is your Historical VaR.', sentence: 'The firm switched from parametric to historical VaR after discovering that fat tails in their portfolio made the normal distribution assumption too optimistic.' },
       { term: 'Monte Carlo Simulation', definition: 'A computational technique that generates thousands or millions of random scenarios based on statistical models to estimate the probability distribution of outcomes.', example: 'Running 100,000 simulated paths of a portfolio over the next month, then examining the worst 5% of outcomes to determine VaR.', sentence: 'Monte Carlo simulation is the gold standard for pricing complex derivatives and calculating VaR for portfolios with options and non-linear instruments.' },
       { term: 'Stress Test', definition: 'An analysis that evaluates how a financial institution or portfolio would perform under extreme but plausible adverse scenarios, typically mandated by regulators.', example: 'The Fed\'s CCAR stress test includes scenarios with 10%+ unemployment, 50%+ stock declines, and 25%+ housing price drops.', sentence: 'After 2008, the Dodd-Frank Act required annual stress tests for banks with over $50 billion in assets, transforming risk management from optional to mandatory.' },
-      { term: 'Credit Default Swap (CDS)', definition: 'A financial derivative that acts as insurance against the default of a borrower. The buyer pays premiums; the seller pays out if the underlying borrower defaults.', example: 'AIG sold $500 billion in CDS protection on mortgage-backed securities. When defaults cascaded, AIG owed far more than it could pay.', sentence: 'CDS were at the center of the 2008 crisis, a $60 trillion unregulated market where counterparty risk was invisible until it was too late.' },
+      { term: 'Credit Default Swap (CDS)', definition: 'A contract that works like insurance on a loan. The buyer pays regular fees; the seller pays out if the borrower fails to repay.', example: 'AIG sold $500 billion in CDS protection on mortgage-backed securities. When defaults cascaded, AIG owed far more than it could pay.', sentence: 'CDS were at the center of the 2008 crisis, a $60 trillion unregulated market where counterparty risk was invisible until it was too late.' },
       { term: 'Fat Tails', definition: 'A characteristic of real return distributions where extreme events (large gains or losses) occur far more frequently than predicted by a normal (Gaussian) distribution.', example: 'Under normal distribution, a 7-standard-deviation daily move should happen once every 3 billion years. In reality, it happens roughly once per decade.', sentence: 'Fat tails explain why VaR models based on normal distributions consistently underestimate the probability and severity of financial crises.' }
     ]),
 
@@ -711,9 +709,8 @@ const lessons: PathwayLesson[] = [
       'CALCULATING VaR',
       'The Math Behind Value at Risk',
       [
-        'Let\'s calculate VaR step by step. Suppose you have a $10 million portfolio with a daily standard deviation (volatility) of 1.5%. For parametric VaR at 95% confidence, the formula is: VaR = Portfolio Value x Z-score x Daily Volatility. The z-score for 95% is 1.645. So VaR = $10,000,000 x 1.645 x 0.015 = $246,750. This means on 95% of trading days, you won\'t lose more than $246,750.',
-        'For 99% confidence, the z-score jumps to 2.326: VaR = $10,000,000 x 2.326 x 0.015 = $348,900. Notice how moving from 95% to 99% confidence increases VaR by 41%, you\'re capturing more of the tail. Basel III requires banks to use 99% confidence with a 10-day holding period. To convert 1-day VaR to 10-day: multiply by the square root of 10 (~3.162). So 10-day 99% VaR = $348,900 x 3.162 = $1,103,024.',
-        'The square-root-of-time rule assumes returns are independent across days, a dangerous assumption during crises when losses tend to cluster. In the 2008 crisis, losses persisted for weeks, meaning the actual 10-day risk was far higher than the square-root-of-time rule predicted. This is called volatility clustering, and it\'s why Basel III introduced the Stressed VaR requirement, calculating VaR using data from the worst 12-month period, not just recent calm markets.'
+        'Parametric VaR = value x z-score x daily volatility (typical daily swing). For a $10 million portfolio at 1.5% volatility, 95% confidence, z-score 1.645: $10,000,000 x 1.645 x 0.015 = $246,750. At 99%, z-score 2.326 gives $348,900, 41% more.',
+      'Basel III requires 99% over 10 days: multiply by the square root of 10, about 3.162, giving $1,103,024. That assumes days are independent. In 2008 losses clustered for weeks, so Stressed VaR uses the worst 12-month period.'
       ],
       [
         { term: 'Z-score', definition: 'The number of standard deviations from the mean corresponding to a given confidence level. For 95%: 1.645. For 99%: 2.326.', example: 'At 95% confidence with $100M portfolio and 2% daily vol: VaR = $100M x 1.645 x 0.02 = $3.29M.' },
@@ -722,13 +719,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Volatility Clustering', definition: 'The tendency for high-volatility days to be followed by more high-volatility days, and low-volatility days by low-volatility days.', example: 'After Lehman collapsed in September 2008, markets experienced extreme volatility for weeks, not the random, independent daily moves that VaR models assume.' }
       ],
       'Step-by-step VaR calculation diagram: Portfolio value ($10M) flows through volatility (1.5%) and z-score (1.645 or 2.326) to produce 95% VaR ($246,750) and 99% VaR ($348,900). Arrow shows time-scaling to 10-day horizon.',
-      { company: 'JPMorgan', metric: 'London Whale VaR manipulation', outcome: 'Changing the VaR model halved reported risk, hiding $6.2B in growing losses', explanation: 'The London Whale incident proved that VaR is only as trustworthy as the people running it. JPMorgan\'s CIO unit switched to a new VaR model that showed lower risk numbers. When regulators forced them back to the original model, reported VaR jumped from $67M to $129M overnight. The lesson: model governance is as important as the model itself.' },
+      undefined,
       { type: 'flow', title: 'Parametric VaR: $10M Portfolio at 95%', nodes: [{ label: 'Portfolio value', value: '$10,000,000', color: '#3B82F6' }, { label: 'Z-score (95%)', value: '1.645', color: '#A451E6' }, { label: 'Daily volatility', value: '1.5%', color: '#F59E0B' }, { label: '1-day 95% VaR', value: '$246,750', color: '#10B981' }], footer: 'Multiply the three inputs to get the daily VaR.', sentiment: 'positive' }
     ),
   
     // Step 4, Interactive Graph (Basel III & Regulatory VaR)
     interactiveGraph(
-      'REGULATORY FRAMEWORK',
+      'Regulatory framework',
       'Basel III and the Capital Requirement Revolution',
       'comparison',
       'Basel III transformed how banks calculate and hold capital against risk. Explore how VaR parameters affect the capital a bank must hold.',
@@ -753,7 +750,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Multiplication Factor', min: 3, max: 4, default: 3, unit: 'x' },
         { label: 'Stressed VaR Ratio', min: 1, max: 5, default: 2, unit: 'x normal' }
       ],
-      { company: 'Deutsche Bank', metric: 'Capital shortfall under Basel III', outcome: 'Forced to raise billions and shrink its trading operations dramatically', explanation: 'Deutsche Bank\'s massive derivatives book required enormous capital under Basel III rules. The bank was forced to raise over $20 billion in capital, cut thousands of jobs, and exit entire business lines. Basel III effectively penalized banks for excessive risk-taking by making it too expensive in capital terms.' }
+      undefined
     ),
 
     // Step 5, Embedded Micro-Check (apply the formula after seeing the regulatory picture)
@@ -769,13 +766,13 @@ const lessons: PathwayLesson[] = [
     caseStudy(
       'The London Whale: How JPMorgan Lost $6.2 Billion',
       [
-        { date: 'Early 2011', event: 'JPMorgan CIO begins building synthetic credit position', context: 'JPMorgan\'s Chief Investment Office (CIO) in London, originally tasked with hedging the bank\'s overall risk, started taking large speculative positions in credit default swap indices. Trader Bruno Iksil built positions so large they moved markets.' },
-        { date: 'January 2012', event: 'CIO switches to a new, more favorable VaR model', context: 'The CIO unit quietly adopted a new VaR calculation methodology that reduced reported risk by approximately 50%. Under the old model, their positions would have breached risk limits. The new model made everything look safe. An internal email later revealed: "the model was changed to mask the risk."' },
-        { date: 'April 2012', event: 'Media reports on "London Whale" moving markets', context: 'Bloomberg and the Wall Street Journal reported that a JPMorgan trader in London was making bets so large they were distorting credit markets. Hedge funds began trading against Iksil. CEO Jamie Dimon initially dismissed concerns as "a tempest in a teapot."' },
-        { date: 'May 2012', event: 'JPMorgan discloses $2 billion loss, restores original VaR model', context: 'When JPMorgan reverted to the original VaR model, reported risk doubled overnight, from $67 million to $129 million. The true extent of losses began emerging. Dimon called it "egregious, self-inflicted" and "the stupidest thing we ever did."' },
-        { date: 'July 2012', event: 'Total losses reach $6.2 billion; investigations launched', context: 'Final losses hit $6.2 billion, three times the initial disclosure. The SEC, FBI, and CFTC launched investigations. Two CIO traders were criminally charged. JPMorgan paid over $1 billion in regulatory fines. The incident became the definitive case study in VaR model manipulation.' }
+        { date: 'Early 2011', event: 'JPMorgan CIO begins building synthetic credit position', context: 'JPMorgan\'s Chief Investment Office in London was meant to cut risk. Instead it made huge bets on credit default swaps, insurance-like contracts. Trader Bruno Iksil\'s bets moved markets.' },
+        { date: 'January 2012', event: 'CIO switches to a new, more favorable VaR model', context: 'A new risk model cut the unit\'s reported risk by about 50%. The old model would have broken limits. An internal email admitted the change was made to mask risk.' },
+        { date: 'April 2012', event: 'Media reports on "London Whale" moving markets', context: 'Bloomberg and the Wall Street Journal reported that a London trader was distorting credit markets. Hedge funds bet against Iksil. Jamie Dimon called it a tempest in a teapot.' },
+        { date: 'May 2012', event: 'JPMorgan discloses $2 billion loss, restores original VaR model', context: 'Back on the old model, reported risk doubled overnight, from $67 million to $129 million. Dimon called it egregious, self-inflicted, and the stupidest thing we ever did.' },
+        { date: 'July 2012', event: 'Total losses reach $6.2 billion; investigations launched', context: 'Losses reached $6.2 billion, three times the first disclosure. The SEC, FBI, and CFTC investigated. Two traders were charged. JPMorgan paid over $1 billion in fines.' }
       ],
-      'The London Whale proves that VaR is only as honest as the people who control the model. Changing a risk model to hide growing danger is the financial equivalent of disconnecting the smoke detector because it keeps beeping. JPMorgan, the very bank that invented VaR, nearly suffered a catastrophic loss because its own unit gamed the system. Model governance, independent validation, and regulatory oversight are essential because the incentive to show lower risk is always present.'
+      'VaR is only as honest as whoever controls the model. Changing the model to hide danger is like unplugging a beeping smoke alarm. JPMorgan invented VaR and still got gamed by its own unit. Independent review matters.'
     ),
   
     // Step 7, Misconceptions
@@ -786,29 +783,29 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'A lower VaR number means less risk.',
           truth: 'A lower VaR might mean lower risk, or it might mean the model is wrong, the assumptions are flawed, or someone has manipulated the calculation. The London Whale\'s VaR was halved by changing the model, not by reducing actual risk.',
-          explanation: 'JPMorgan\'s CIO unit cut their reported VaR from $129M to $67M simply by switching models. The actual risk didn\'t change at all, only the number on the report. This is why independent model validation and back-testing (comparing VaR predictions to actual losses) are critical controls.'
+          explanation: 'JPMorgan\'s unit cut reported VaR from $129M to $67M just by switching models. The real risk never changed, only the number. Independent checks and back-testing, comparing forecasts to actual losses, catch this.'
         },
         {
           myth: 'VaR at 99% confidence captures virtually all risk.',
           truth: '99% confidence still means losses will exceed VaR about 2.5 trading days per year. And VaR says nothing about how severe those exceedances will be, they could be 2x or 50x the VaR number.',
-          explanation: 'During the 2008 crisis, some banks experienced losses 10-20x their daily VaR. The 99th percentile sounds safe, but the 1% tail contains the events that actually destroy firms. This is precisely why Basel III is transitioning to Expected Shortfall.'
+          explanation: 'In 2008, some banks lost 10-20x their daily VaR. The 99th percentile sounds safe, but that last 1% kills firms. Basel III is moving to Expected Shortfall, the average loss in the tail.'
         },
         {
           myth: 'You can simply scale 1-day VaR to any time horizon using the square root of time.',
           truth: 'The square-root-of-time rule assumes returns are independent across days. During crises, losses cluster, bad days are followed by more bad days (volatility clustering). Actual 10-day losses during crises are often 2-3x what the scaling rule predicts.',
-          explanation: 'In September-October 2008, the S&P 500 experienced consecutive weeks of extreme losses. The square-root-of-time rule assumed each day was independent, but panic, margin calls, and forced selling created cascading losses that compounded far faster than the rule predicted.'
+          explanation: 'In September and October 2008, the S&P 500 fell hard week after week. The square-root-of-time rule assumes each day is independent. Panic, margin calls, and forced selling made losses feed on each other.'
         }
       ]
     ),
   
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Parametric VaR Formula', definition: 'VaR = Portfolio Value x Z-score x Daily Volatility. Uses the assumption of normally distributed returns to calculate the maximum expected loss at a given confidence level.', example: 'For $10M portfolio, 2% daily vol, 95% confidence: VaR = $10M x 1.645 x 0.02 = $329,000.', sentence: 'The bank calculates parametric VaR daily using the formula, then compares the result against position limits set by the risk committee.' },
+      { term: 'Parametric VaR Formula', definition: 'VaR = Portfolio Value x Z-score x Daily Volatility. It assumes bell-curve returns and gives the worst expected loss at a given confidence level.', example: 'For $10M portfolio, 2% daily vol, 95% confidence: VaR = $10M x 1.645 x 0.02 = $329,000.', sentence: 'The bank calculates parametric VaR daily using the formula, then compares the result against position limits set by the risk committee.' },
       { term: 'Basel III Capital Requirements', definition: 'International banking regulations requiring banks to hold minimum capital ratios, calculated using VaR and Stressed VaR with a multiplication factor of 3-4x.', example: 'A bank with $200M average VaR and a 3x multiplier must hold at least $600M in capital against market risk.', sentence: 'Basel III forced banks to more than triple their capital buffers, making the financial system significantly more resilient than it was in 2008.' },
       { term: 'Expected Shortfall (ES/CVaR)', definition: 'The average loss in the worst X% of scenarios, captures tail severity that VaR misses. Replacing VaR as the primary regulatory measure under FRTB.', example: 'If 97.5% ES is $50M, it means when losses exceed the VaR threshold, they average $50M, far worse than the VaR boundary alone suggests.', sentence: 'Expected Shortfall became the preferred regulatory risk measure because, unlike VaR, it captures how catastrophic losses can be in the tail of the distribution.' },
-      { term: 'Back-testing', definition: 'The process of comparing VaR predictions to actual portfolio outcomes to validate model accuracy. If actual losses exceed VaR more often than expected, the model is failing.', example: 'A 99% VaR should be exceeded about 2.5 times per year. If a bank exceeds VaR 10 times, the model is broken and the regulatory multiplication factor increases.', sentence: 'After back-testing revealed the CIO\'s new VaR model drastically underestimated risk, JPMorgan was forced to revert to the original methodology.' },
+      { term: 'Back-testing', definition: 'Comparing VaR forecasts to what actually happened. If real losses exceed VaR more often than expected, the model is failing.', example: 'A 99% VaR should be exceeded about 2.5 times a year. 10 breaches means the model is broken and the regulatory multiplier rises.', sentence: 'After back-testing revealed the CIO\'s new VaR model drastically underestimated risk, JPMorgan was forced to revert to the original methodology.' },
       { term: 'Model Risk', definition: 'The risk of financial loss due to errors, inappropriate assumptions, or misuse of quantitative models used for risk measurement and decision-making.', example: 'The London Whale lost $6.2 billion partly because JPMorgan\'s CIO switched to a VaR model that understated true risk by 50%.', sentence: 'Model risk is often called the "meta-risk", the risk that your tools for measuring risk are themselves flawed or manipulated.' },
-      { term: 'Stressed VaR', definition: 'VaR calculated using market data from the most stressed 12-month period in recent history, required by Basel III to prevent the underestimation of risk during calm markets.', example: 'A bank might use 2008-2009 crisis data for Stressed VaR, even when calculating risk in 2024 during calm conditions.', sentence: 'Stressed VaR ensures that regulatory capital reflects crisis-level risk, preventing banks from becoming complacent during prolonged periods of market calm.' }
+      { term: 'Stressed VaR', definition: 'VaR calculated with market data from the worst 12-month stretch in recent history. Basel III requires it so calm markets do not understate risk.', example: 'A bank might use 2008-2009 crisis data for Stressed VaR, even when calculating risk in 2024 during calm conditions.', sentence: 'Stressed VaR ensures that regulatory capital reflects crisis-level risk, preventing banks from becoming complacent during prolonged periods of market calm.' }
     ]),
   
     // ═══════════════════════════════════════════
@@ -973,7 +970,7 @@ const lessons: PathwayLesson[] = [
       'When Lehman Brothers filed for bankruptcy on September 15, 2008, it triggered the largest credit default event in history, $600 billion in obligations went unpaid. Firms that had trusted Lehman as a counterparty lost everything overnight. The global credit market froze for weeks, and the world came within hours of a complete financial system collapse.',
       'By the end of this lesson, you\'ll understand how credit risk is measured, how credit ratings work (and fail), what probability of default means, and why Lehman\'s collapse created a domino effect that nearly destroyed the global economy.',
       'Credit rating scale from AAA to D with default probability percentages increasing exponentially as ratings decline',
-      { type: 'bars', title: '1-Year Default Probability by Credit Rating', items: [{ label: 'AAA', value: 1, displayValue: '0.01%' }, { label: 'A', value: 5, displayValue: '0.05%' }, { label: 'BBB', value: 18, displayValue: '0.18%' }, { label: 'BB', value: 100, displayValue: '1.0%' }, { label: 'CCC', value: 1620, displayValue: '16.2%' }], footer: 'Default risk does not rise gently. It explodes below investment grade.', sentiment: 'negative' }
+      { type: 'comparison', title: '1-year default probability by credit rating', rows: [{ label: 'AAA', value: '0.01%' }, { label: 'A', value: '0.05%' }, { label: 'BBB', value: '0.18%' }, { label: 'BB', value: '1.0%' }, { label: 'CCC', value: '16.2%' }], footer: 'Default risk does not rise gently. It explodes below investment grade.', sentiment: 'negative' }
     ),
   
     // Step 2, Stakes Card
@@ -989,12 +986,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Credit Risk Fundamentals)
     teachingSlide(
-      'CREDIT RISK FUNDAMENTALS',
+      'Credit risk fundamentals',
       'Measuring the Probability of Default',
       [
-        'Credit risk is the risk that a borrower or counterparty fails to meet their financial obligations. It\'s measured through three key components: Probability of Default (PD), the likelihood that a borrower will default within a given time period; Loss Given Default (LGD), the percentage of exposure that will be lost if default occurs; and Exposure at Default (EAD), the total amount owed at the time of default. Expected Loss = PD x LGD x EAD.',
-        'Credit ratings are the most widely used tool for assessing PD. Rating agencies like Moody\'s, S&P, and Fitch assign grades from AAA (highest quality, lowest default risk) to D (already in default). Investment grade ratings (BBB/Baa and above) signal relatively safe borrowers, while "junk" or "high yield" ratings (BB/Ba and below) indicate significantly higher default probability. A single notch downgrade can cost billions in higher borrowing costs.',
-        'Credit spreads provide a real-time, market-based measure of credit risk. The credit spread is the difference in yield between a corporate bond and a risk-free government bond of the same maturity. If a 10-year Treasury yields 4% and a BBB corporate bond yields 6%, the 200-basis-point spread represents the market\'s price for credit risk. Widening spreads signal increasing default concern; tightening spreads signal improving confidence. Before Lehman\'s collapse, credit spreads on financials widened dramatically, the market saw the danger before the rating agencies did.'
+        'Credit risk is the chance a borrower fails to pay. Expected Loss = PD x LGD x EAD: default probability, loss given default, exposure at default. Moody\'s, S&P and Fitch grade borrowers AAA, safest, to D, in default.',
+      'BBB/Baa and above is investment grade, safer. BB/Ba and below is junk, riskier. If a 10-year Treasury yields 4% and a BBB bond yields 6%, that 200-basis-point credit spread prices default risk. Spreads widened before Lehman collapsed.'
       ],
       [
         { term: 'Probability of Default (PD)', definition: 'The statistical likelihood that a borrower will fail to meet debt obligations within a specified time period, typically one year.', example: 'A BBB-rated corporate bond has a historical 1-year PD of approximately 0.18%, meaning roughly 1 in 550 BBB-rated borrowers defaults each year.' },
@@ -1003,7 +999,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Exposure at Default (EAD)', definition: 'The total amount a lender is owed at the moment a borrower defaults, including drawn loans, committed credit lines, and accrued interest.', example: 'A bank with a $10M credit line where the borrower has drawn $7M and accrued $200K in interest has an EAD of $7.2M.' }
       ],
       'Flow diagram: Credit Rating (AAA to D) feeds into Probability of Default, which combines with Loss Given Default and Exposure at Default to produce Expected Loss. Credit Spread shown as a market-based parallel measure.',
-      { company: 'Lehman Brothers', metric: 'Credit rating vs. market signal', outcome: 'Rated A by agencies while credit spreads priced in near-certain default', explanation: 'In the months before Lehman\'s bankruptcy, credit default swap spreads on Lehman debt soared to over 700 basis points, the market was screaming that default was likely. Yet rating agencies maintained an A rating until days before the end. This disconnect proved that credit ratings lag reality while market spreads lead it.' },
+      undefined,
       { type: 'flow', title: 'Expected Credit Loss: $50M Loan to a BBB Borrower', nodes: [{ label: 'Probability of Default', value: '0.18%', color: '#A451E6' }, { label: 'Loss Given Default', value: '60%', color: '#F59E0B' }, { label: 'Exposure at Default', value: '$50,000,000', color: '#3B82F6' }, { label: 'Expected annual loss', value: '$54,000', color: '#10B981' }], footer: 'Multiply all three to size the loss a lender should plan for.', sentiment: 'positive' }
     ),
   
@@ -1018,7 +1014,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph (Credit Rating System)
     interactiveGraph(
-      'THE RATING SYSTEM',
+      'The rating system',
       'Credit Ratings, Spreads, and the 2008 Failure',
       'comparison',
       'Credit rating agencies rate borrowers from AAA to D. Explore how ratings relate to default probability and how they catastrophically failed during the 2008 crisis.',
@@ -1043,51 +1039,51 @@ const lessons: PathwayLesson[] = [
         { label: 'Credit Spread (bp)', min: 20, max: 1000, default: 200, unit: 'bp' },
         { label: 'Recovery Rate', min: 10, max: 80, default: 40, unit: '%' }
       ],
-      { company: 'Lehman Brothers', metric: 'A-rated to bankrupt in 6 months', outcome: 'Largest bankruptcy in U.S. history, $639 billion in assets, $600B in obligations unpaid', explanation: 'Lehman held an A credit rating until September 10, 2008, five days before filing for bankruptcy. Moody\'s and S&P downgraded Lehman only when default was already inevitable. Meanwhile, CDS markets had been pricing in severe distress for months. The lesson: credit ratings are lagging indicators, not leading ones.' }
+      undefined
     ),
   
     // Step 6, Case Study (Lehman Brothers)
     caseStudy(
       'Lehman Brothers: The $600 Billion Default That Changed Everything',
       [
-        { date: '2003-2006', event: 'Lehman massively expands mortgage business', context: 'Under CEO Dick Fuld, Lehman Brothers aggressively grew its mortgage origination and securitization business. The firm acquired multiple mortgage lenders and held increasingly large positions in mortgage-backed securities on its own balance sheet. By 2007, Lehman had $85 billion in mortgage-related assets, more than 4x its equity capital.' },
-        { date: 'Mid-2007', event: 'Subprime mortgage defaults begin rising', context: 'The first signs of trouble emerged as subprime borrowers defaulted at increasing rates. Lehman\'s stock fell from $86 to $60, but management insisted the exposure was "well-managed." Credit rating agencies maintained their A rating. Internal risk managers who raised concerns were sidelined.' },
-        { date: 'March 2008', event: 'Bear Stearns collapses, acquired by JPMorgan for $10/share', context: 'Bear Stearns, the fifth-largest U.S. investment bank, ran out of cash in days as counterparties pulled funding. The Fed arranged JPMorgan\'s acquisition to prevent a disorderly collapse. Lehman\'s CDS spreads widened sharply as markets asked: "Is Lehman next?"' },
-        { date: 'September 10, 2008', event: 'Lehman reports $3.9 billion quarterly loss; stock collapses 45%', context: 'Lehman disclosed massive losses on mortgage holdings. The firm attempted to find a buyer or government support. Bank of America chose Merrill Lynch instead. Barclays showed interest but the British government blocked the deal. No other buyer emerged.' },
-        { date: 'September 15, 2008', event: 'Lehman Brothers files for bankruptcy, $639 billion in assets', context: 'The largest bankruptcy filing in U.S. history. Global credit markets froze overnight. The TED spread (a measure of banking system stress) spiked from 100bp to 450bp. Money market funds "broke the buck." The Dow Jones fell 504 points. The Federal Reserve and Treasury scrambled to prevent a complete financial system collapse.' }
+        { date: '2003-2006', event: 'Lehman massively expands mortgage business', context: 'Under CEO Dick Fuld, Lehman Brothers bought mortgage lenders and piled up home loan bonds. By 2007 it held $85 billion of them, more than 4x its equity.' },
+        { date: 'Mid-2007', event: 'Subprime mortgage defaults begin rising', context: 'Borrowers with weak credit missed payments. Lehman stock fell from $86 to $60. Bosses called the risk well managed. Agencies kept their A rating. Staff who objected were sidelined.' },
+        { date: 'March 2008', event: 'Bear Stearns collapses, acquired by JPMorgan for $10/share', context: 'Bear Stearns, the fifth largest U.S. investment bank, ran out of cash in days. The Fed had JPMorgan buy it. Cost to insure Lehman debt jumped. Was Lehman next?' },
+        { date: 'September 10, 2008', event: 'Lehman reports $3.9 billion quarterly loss; stock collapses 45%', context: 'Lehman revealed huge mortgage losses and looked for a rescuer. Bank of America chose Merrill Lynch instead. Barclays was interested, but the British government blocked it. No buyer emerged.' },
+        { date: 'September 15, 2008', event: 'Lehman Brothers files for bankruptcy, $639 billion in assets', context: 'Biggest U.S. bankruptcy ever. Credit froze. The TED spread, a bank stress gauge, jumped from 100bp to 450bp. Dow Jones fell 504 points. The Federal Reserve and Treasury scrambled.' }
       ],
-      'Lehman Brothers\' collapse was the defining credit risk event of a generation. It proved three critical lessons: (1) Credit concentration kills, Lehman\'s mortgage exposure was 4x equity, leaving zero margin for error. (2) Credit ratings are lagging indicators, agencies maintained an A rating until days before bankruptcy while markets screamed danger. (3) Counterparty risk is contagious, Lehman\'s default triggered losses at every firm that had lent to, traded with, or insured Lehman. Credit risk is never just about one borrower; it\'s about the web of connections across the entire system.'
+      'Concentration kills: Lehman\'s mortgage bet was 4x equity, no room for error. Ratings lag: agencies held an A until days before bankruptcy. Default spreads: every lender and trading partner lost. Credit risk is a web, not one borrower.'
     ),
   
     // Step 7, Key Terms Reference Cards (vocabulary anchored before the myths)
     keyTermsCards([
-      { term: 'Probability of Default (PD)', definition: 'The statistical likelihood that a borrower will fail to meet debt obligations within a given time period. Expressed as a percentage, typically over a 1-year horizon.', example: 'BBB-rated companies have a historical 1-year PD of ~0.18%. CCC-rated companies: ~16.2%. The difference is nearly 100x.', sentence: 'The bank\'s credit model estimated the borrower\'s PD at 2.5%, triggering enhanced monitoring and a potential loan review.' },
+      { term: 'Probability of Default (PD)', definition: 'The chance a borrower misses debt payments within a set period. It is written as a percentage, usually over one year.', example: 'BBB-rated companies have a historical 1-year PD of ~0.18%. CCC-rated companies: ~16.2%. The difference is nearly 100x.', sentence: 'The bank\'s credit model estimated the borrower\'s PD at 2.5%, triggering enhanced monitoring and a potential loan review.' },
       { term: 'Loss Given Default (LGD)', definition: 'The percentage of total exposure lost when a default occurs, after accounting for any recovery through collateral, asset sales, or restructuring.', example: 'When Lehman Brothers defaulted, unsecured bondholders recovered only 9 cents on the dollar, an LGD of 91%.', sentence: 'Secured loans backed by real estate typically have LGD of 20-30%, while unsecured credit card debt has LGD of 80-90%.' },
       { term: 'Credit Spread', definition: 'The yield difference between a corporate bond and a risk-free government bond of the same maturity, representing the market\'s real-time pricing of credit risk.', example: 'Lehman\'s credit spread widened from 150bp to 700bp in 2008, signaling severe distress months before rating agencies downgraded the firm.', sentence: 'When credit spreads tighten, it signals improving market confidence; when they widen, it signals growing fear of defaults.' },
-      { term: 'Counterparty Risk', definition: 'The risk that the other party in a financial transaction will default on their obligations, creating losses for you even though you made no bad investment yourself.', example: 'When Lehman defaulted, every bank that had traded derivatives with Lehman faced counterparty risk, their Lehman-linked contracts were suddenly worthless.', sentence: 'AIG\'s collapse exposed the danger of concentrated counterparty risk, thousands of firms had bought CDS protection from a single seller that couldn\'t pay.' },
+      { term: 'Counterparty Risk', definition: 'The chance that the other side of a deal fails to pay. You lose money even though your own investment choice was fine.', example: 'When Lehman defaulted, every bank that had traded derivatives with Lehman faced counterparty risk, their Lehman-linked contracts were suddenly worthless.', sentence: 'AIG\'s collapse exposed the danger of concentrated counterparty risk, thousands of firms had bought CDS protection from a single seller that couldn\'t pay.' },
       { term: 'Credit Rating', definition: 'An assessment by a rating agency (Moody\'s, S&P, Fitch) of a borrower\'s creditworthiness, expressed as a letter grade from AAA (highest) to D (default).', example: 'The difference between a BBB rating (lowest investment grade) and BB (highest junk) can mean billions in additional borrowing costs for large companies.', sentence: 'When Ford was downgraded from investment grade to junk in 2005, its borrowing costs jumped by over 200 basis points, adding hundreds of millions in annual interest expense.' },
       { term: 'Recovery Rate', definition: 'The percentage of a defaulted loan or bond that creditors ultimately recover through collateral, liquidation, or restructuring. Recovery Rate = 1 - LGD.', example: 'Senior secured bank loans historically recover 70-80% of value after default, while junior unsecured bonds recover only 20-30%.', sentence: 'Lehman Brothers\' unsecured bondholders recovered only 9%, one of the lowest recovery rates in history for a major financial institution.' }
     ]),
 
     // Step 8, Misconceptions
     misconceptions(
-      'CREDIT RISK MYTHS',
+      'Credit risk myths',
       'Dangerous misconceptions about credit risk and default',
       [
         {
           myth: 'A high credit rating means a company is safe.',
           truth: 'A credit rating is an opinion based on backward-looking analysis. Enron was rated investment grade four days before filing for bankruptcy. Lehman was rated A five days before the largest bankruptcy in history.',
-          explanation: 'Ratings assess the likelihood of default based on current financial statements and historical patterns. They are slow to react to rapid deterioration and inherently conflicted, agencies are paid by the companies they rate. Market-based measures like CDS spreads react in real time and often signal trouble months before a downgrade.'
+          explanation: 'Ratings judge default odds from past data, so they react slowly. Agencies also get paid by the companies they rate. CDS spreads, the price of default insurance, move first, often months before a downgrade.'
         },
         {
           myth: 'Diversification across many borrowers eliminates credit risk.',
           truth: 'Diversification reduces idiosyncratic (individual borrower) risk but cannot eliminate systematic credit risk, the risk that economic conditions cause widespread defaults simultaneously.',
-          explanation: 'During the 2008 crisis, default rates rose across virtually every sector and geography. A bank with 10,000 well-diversified mortgage loans still suffered massive losses because the entire housing market declined nationally. Systematic credit risk, driven by recession, unemployment, or financial contagion, cannot be diversified away.'
+          explanation: 'In the 2008 crisis, defaults rose almost everywhere. A bank with 10,000 well spread mortgages still lost badly because home prices fell nationwide. Slumps hit every borrower, so that risk cannot be spread away.'
         },
         {
           myth: 'Credit default swaps (CDS) reduce credit risk in the system.',
           truth: 'CDS transfer credit risk from one party to another but do not eliminate it from the system. If the CDS seller cannot pay (as happened with AIG), the risk simply moves to a new, unexpected location.',
-          explanation: 'AIG sold $500 billion in CDS, making buyers feel "protected" against defaults. But when defaults actually occurred, AIG couldn\'t pay, transferring the problem back to the CDS buyers while adding AIG\'s own counterparty risk. CDS didn\'t reduce total system risk; they made it more complex and opaque.'
+          explanation: 'AIG sold $500 billion of CDS, insurance against default, so buyers felt safe. When defaults came, AIG could not pay. The problem bounced back to buyers, plus AIG\'s own risk. Total risk never shrank.'
         }
       ]
     ),
@@ -1271,21 +1267,20 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Operational Risk)
     teachingSlide(
-      'OPERATIONAL RISK',
+      'Operational risk',
       'When the Danger Comes From Inside',
       [
-        'Operational risk is the risk of loss from inadequate or failed internal processes, people, systems, or external events. Unlike market or credit risk, operational risk originates inside the firm, it\'s about what can go wrong with your own operations. The Basel Committee categorizes operational risk into seven types: internal fraud, external fraud, employment practices, clients/products/services, damage to physical assets, business disruption and system failures, and execution/delivery/process management.',
-        'The most devastating operational risk events share a common pattern: a single point of failure combined with absent or overridden controls. Knight Capital failed because untested code was deployed to production with no kill switch. Barings collapsed because one person controlled both trading and auditing. Societe Generale lost $7.2 billion when trader Jerome Kerviel bypassed multiple security systems. In each case, the controls that should have prevented catastrophe either didn\'t exist or were easily circumvented.',
-        'Modern operational risk management uses the "Three Lines of Defense" model. The first line is business operations, the traders, developers, and managers who identify and manage risk daily. The second line is risk management and compliance, independent teams that set standards, monitor adherence, and challenge the first line. The third line is internal audit, providing independent assurance that the first two lines are working. When any line fails, operational disasters follow.'
+        'Operational risk is the chance of losing money from failed internal processes, people, systems, or outside events. It starts inside the firm. The Basel Committee sorts it into seven types, from fraud to system failures.',
+      'Knight Capital, Barings, and Societe Generale, which lost $7.2 billion to trader Jerome Kerviel, all had one weak point and no working controls. Defense has three lines: daily business, independent risk teams, and internal audit.'
       ],
       [
         { term: 'Operational Risk', definition: 'The risk of loss from inadequate or failed internal processes, people, systems, or external events. Includes fraud, system failures, process breakdowns, and human error.', example: 'Knight Capital\'s $440M loss from untested software, Barings\' collapse from Nick Leeson\'s fraud, Societe Generale\'s $7.2B loss from trader Kerviel bypassing controls.' },
-        { term: 'Three Lines of Defense', definition: 'A governance framework: (1) Business units own and manage risk, (2) Risk management/compliance provides oversight, (3) Internal audit provides independent assurance.', example: 'At a well-run bank, a trader proposes a new strategy (1st line), risk management validates it against limits (2nd line), and internal audit reviews the process quarterly (3rd line).' },
+        { term: 'Three Lines of Defense', definition: 'A governance framework: (1) Business units own and manage risk, (2) Risk management/compliance provides oversight, (3) Internal audit provides independent assurance.', example: 'A trader proposes a strategy (1st line), risk management checks it against limits (2nd line), and audit reviews the process quarterly (3rd line).' },
         { term: 'Key Person Risk', definition: 'The operational risk that critical knowledge, access, or authority is concentrated in a single individual, creating a single point of failure.', example: 'Barings collapsed because Nick Leeson alone controlled trading and settlements in Singapore. No one else understood his positions or could have caught the fraud.' },
-        { term: 'Business Continuity Planning (BCP)', definition: 'Planning and preparation to ensure critical business functions can continue during and after a disaster or disruption.', example: 'After 9/11 destroyed offices near the World Trade Center, financial firms that had off-site backups and disaster recovery plans resumed operations within days. Those without BCP took weeks or never recovered.' }
+        { term: 'Business Continuity Planning (BCP)', definition: 'Planning and preparation to ensure critical business functions can continue during and after a disaster or disruption.', example: 'After 9/11 destroyed offices near the World Trade Center, firms with off-site backups reopened in days. Those without took weeks or never returned.' }
       ],
       'Three Lines of Defense diagram: First line (green) = business operations and risk ownership. Second line (amber) = risk management and compliance oversight. Third line (red) = internal audit providing independent assurance. Arrows show reporting lines to senior management and the board.',
-      { company: 'Knight Capital', metric: '$440 million lost in 45 minutes', outcome: 'Firm effectively bankrupt; acquired by Getco at 70% discount within days', explanation: 'Knight Capital\'s failure was a textbook operational risk event. A software deployment went wrong because: (1) old test code was left active on one server, (2) there was no automated deployment verification, (3) there was no kill switch to halt trading if anomalies were detected, and (4) it took 45 minutes to identify the problem. The firm had been profitable for years, but one operational failure destroyed it overnight.' },
+      undefined,
       { type: 'flow', title: 'The Three Lines of Defense', nodes: [{ label: 'First line', value: 'Business units own the risk', color: '#10B981' }, { label: 'Second line', value: 'Risk and compliance set limits', color: '#F59E0B' }, { label: 'Third line', value: 'Internal audit verifies both', color: '#EF4444' }], footer: 'When any one line goes quiet, operational disasters follow.', sentiment: 'positive' }
     ),
   
@@ -1300,7 +1295,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph (Liquidity Risk)
     interactiveGraph(
-      'LIQUIDITY RISK',
+      'Liquidity risk',
       'When You Can\'t Sell, or When Everyone Sells at Once',
       'timeline',
       'Liquidity risk comes in two forms: market liquidity risk (you can\'t sell an asset without a major price impact) and funding liquidity risk (you can\'t meet your cash obligations). Explore how liquidity crises unfold.',
@@ -1325,28 +1320,28 @@ const lessons: PathwayLesson[] = [
         { label: 'Liquid Asset Ratio', min: 5, max: 40, default: 15, unit: '%' },
         { label: 'Unrealized Bond Losses', min: 0, max: 30, default: 10, unit: '%' }
       ],
-      { company: 'Silicon Valley Bank', metric: '$42 billion withdrawn in 10 hours', outcome: 'Seized by FDIC within 48 hours, 2nd largest bank failure in U.S. history', explanation: 'SVB\'s failure combined every form of liquidity risk. It held long-duration bonds that lost value when rates rose (market liquidity risk on assets). 94% of its deposits were uninsured, making them flight-prone (funding liquidity risk). And the concentrated tech depositor base was connected through social media, enabling the fastest coordinated bank run ever. The lesson: in the age of Twitter and mobile banking, a bank run can happen in hours, not days.' }
+      undefined
     ),
   
     // Step 6, Misconceptions (clear the myths before walking the SVB timeline)
     misconceptions(
-      'OPERATIONAL & LIQUIDITY MYTHS',
+      'Operational & liquidity myths',
       'Fatal misconceptions about operational and liquidity risk',
       [
         {
           myth: 'Operational risk is just about technology failures.',
           truth: 'Technology is one component, but operational risk also includes fraud, human error, process failures, legal risk, and external events. Barings collapsed from fraud (people risk), not technology.',
-          explanation: 'The Basel Committee defines seven categories of operational risk. While technology failures are dramatic (Knight Capital), fraud causes the largest cumulative losses. Societe Generale lost $7.2 billion to a single rogue trader. Wells Fargo\'s fake accounts scandal cost $3+ billion in fines. Operational risk is fundamentally about people and processes, not just systems.'
+          explanation: 'Basel lists seven operational risk types. Knight Capital\'s tech crash was loud, but people cause bigger losses: Societe Generale lost $7.2 billion to one rogue trader; Wells Fargo paid $3+ billion for fake accounts.'
         },
         {
           myth: 'A bank with good assets can\'t have a liquidity crisis.',
           truth: 'Liquidity crises can destroy firms that are technically solvent. SVB\'s assets (Treasury bonds) were among the safest in the world, but they couldn\'t be sold quickly without massive losses. Solvency and liquidity are different dimensions.',
-          explanation: 'SVB held U.S. government bonds, the "safest" assets on earth. But because rising rates had reduced their market value by $17 billion, selling them would crystallize real losses. A firm can be solvent (assets > liabilities) but still fail if it can\'t convert those assets to cash fast enough to meet withdrawal demands. Bear Stearns was arguably solvent the week it failed.'
+          explanation: 'SVB\'s bonds were safe US government debt. Rising rates cut their value $17 billion; selling made those losses real. A bank can be rich on paper and still die without cash. Bear Stearns did.'
         },
         {
           myth: 'Bank runs are a thing of the past, deposit insurance prevents them.',
           truth: 'FDIC insurance covers $250K per depositor. Institutions and wealthy depositors with balances above that limit will still run. SVB\'s deposits were 94% uninsured, deposit insurance offered almost no protection.',
-          explanation: 'SVB\'s average deposit was millions of dollars (tech companies keeping operating cash). FDIC insurance was irrelevant for nearly all of them. The digital age makes runs faster and more coordinated than ever, depositors can withdraw millions with a phone tap and coordinate via group chats. Modern bank runs don\'t have lines around the block; they have server overloads.'
+          explanation: 'SVB\'s average deposit was millions of dollars, so FDIC insurance barely mattered. Depositors now move millions with a phone tap and coordinate in group chats. Modern runs have no lines outside, just crashing servers.'
         }
       ]
     ),
@@ -1355,22 +1350,22 @@ const lessons: PathwayLesson[] = [
     caseStudy(
       'Silicon Valley Bank: The First Twitter-Fueled Bank Run',
       [
-        { date: '2020-2021', event: 'SVB deposits surge from $60B to $190B during tech boom', context: 'The pandemic-era tech boom and zero interest rates drove massive venture capital funding. Startups deposited billions at SVB. The bank invested these deposits in long-term Treasury bonds and mortgage-backed securities, locking in low yields of 1.5-2% on average.' },
-        { date: '2022', event: 'Federal Reserve raises interest rates aggressively', context: 'The Fed raised rates from near-zero to 4.5% to fight inflation, the fastest rate hiking cycle in 40 years. SVB\'s bond portfolio, purchased at low rates, lost $17 billion in market value. As long as SVB didn\'t sell, these were "unrealized losses" on paper. But the math was devastating.' },
-        { date: 'March 8, 2023', event: 'SVB announces $1.8B loss on bond sales and plans to raise $2.25B', context: 'Facing deposit outflows from cash-burning startups, SVB was forced to sell bonds at a $1.8 billion loss to meet withdrawals. It simultaneously announced a stock sale to raise capital. Venture capitalists Peter Thiel (Founders Fund) and others told portfolio companies to pull their deposits immediately.' },
-        { date: 'March 9, 2023', event: '$42 billion withdrawn in 10 hours, the fastest bank run in history', context: 'News spread instantly on Twitter and group chats. Tech founders, VCs, and startup CFOs triggered withdrawals via mobile banking apps. By end of day, $42 billion, 25% of total deposits, had been requested. SVB\'s stock crashed 60%. There were no lines around the block; the run happened on phones.' },
-        { date: 'March 10, 2023', event: 'FDIC seizes SVB, 2nd largest bank failure in U.S. history', context: 'California regulators closed SVB and appointed the FDIC as receiver. The federal government ultimately guaranteed all deposits (including uninsured ones) to prevent contagion. Signature Bank and First Republic Bank also failed in the weeks following, as the crisis of confidence spread.' }
+        { date: '2020-2021', event: 'SVB deposits surge from $60B to $190B during tech boom', context: 'Zero rates and the tech boom flooded startups with venture money. They parked billions at SVB, which bought long-term Treasury bonds and mortgage securities yielding just 1.5-2%.' },
+        { date: '2022', event: 'Federal Reserve raises interest rates aggressively', context: 'The Fed hiked rates from near zero to 4.5%, the fastest in 40 years. SVB\'s low-rate bonds lost $17 billion in value. Only on paper, unless it sold.' },
+        { date: 'March 8, 2023', event: 'SVB announces $1.8B loss on bond sales and plans to raise $2.25B', context: 'Cash-burning startups pulled deposits, so SVB sold bonds at a $1.8 billion loss and announced a stock sale. Peter Thiel\'s Founders Fund and others told startups to get out.' },
+        { date: 'March 9, 2023', event: '$42 billion withdrawn in 10 hours, the fastest bank run in history', context: 'News spread on Twitter and group chats. Founders and investors withdrew by phone. By day\'s end $42 billion, 25% of deposits, had been requested, and the stock fell 60%.' },
+        { date: 'March 10, 2023', event: 'FDIC seizes SVB, 2nd largest bank failure in U.S. history', context: 'California regulators shut SVB and handed it to the FDIC. Washington guaranteed every deposit, insured or not, to stop the panic. Signature Bank and First Republic Bank failed within weeks.' }
       ],
-      'SVB\'s failure is the defining case study for liquidity risk in the social media age. Three factors combined catastrophically: (1) Duration mismatch, borrowing short (deposits) and investing long (bonds) exposed SVB to interest rate risk. (2) Depositor concentration, 94% of deposits were uninsured and held by a tight-knit tech community that communicated instantly. (3) Social media amplification, fear spread at the speed of Twitter, turning what might have been a gradual outflow into a 10-hour stampede. The lesson: in the digital age, bank runs happen at internet speed, and a firm can go from healthy to seized in 48 hours.'
+      'Three failures: SVB borrowed short (deposits) and lent long (bonds); 94% of deposits were uninsured, held by a tight tech crowd; on Twitter, fear turned a slow drain into a 10-hour stampede. Healthy to seized in 48 hours.'
     ),
   
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
       { term: 'Operational Risk', definition: 'The risk of loss from inadequate or failed internal processes, people, systems, or external events, covering everything from technology glitches to fraud to natural disasters.', example: 'Knight Capital\'s untested software deployment lost $440M in 45 minutes. Barings\' lack of separation of duties enabled £827M in hidden losses.', sentence: 'Basel II requires banks to hold capital against operational risk, calculated using either the basic indicator approach (15% of gross income) or more sophisticated internal models.' },
-      { term: 'Liquidity Coverage Ratio (LCR)', definition: 'A Basel III requirement that banks hold enough high-quality liquid assets (HQLA) to cover net cash outflows over a 30-day stress scenario. Minimum ratio: 100%.', example: 'A bank with $50B in potential 30-day outflows must hold at least $50B in HQLA (cash, government bonds). SVB\'s LCR compliance was questionable given its bond portfolio losses.', sentence: 'The Liquidity Coverage Ratio was introduced after 2008 to ensure banks could survive a month-long funding stress without government assistance.' },
-      { term: 'Bank Run', definition: 'A rapid, mass withdrawal of deposits driven by fear that a bank will become insolvent. The withdrawals themselves can cause the insolvency they fear, creating a self-fulfilling prophecy.', example: 'SVB experienced $42 billion in withdrawal requests in 10 hours, 25% of total deposits, the fastest bank run in recorded history.', sentence: 'The classic bank run is depicted in "It\'s a Wonderful Life," but SVB showed that modern bank runs happen digitally, coordinated through social media, at speeds the pre-internet world never imagined.' },
-      { term: 'Duration Mismatch', definition: 'The risk created when a firm\'s assets have a much longer time to maturity than its liabilities, making it vulnerable to interest rate changes and sudden liability withdrawals.', example: 'SVB held bonds with 5-10 year maturities funded by deposits that could be withdrawn instantly. When rates rose, the bonds lost value but the deposits could leave at any time.', sentence: 'SVB\'s duration mismatch was extreme: $91 billion in held-to-maturity bonds against deposits that were 94% uninsured and could flee with a phone tap.' },
-      { term: 'Kill Switch', definition: 'An automated mechanism that halts trading or system operations when predefined anomaly thresholds are breached, preventing cascading losses from runaway processes.', example: 'If Knight Capital had a kill switch that halted trading after $5M in unexpected losses (instead of waiting 45 minutes to lose $440M), the firm would have survived.', sentence: 'After the Knight Capital disaster, regulators and exchanges implemented market-wide circuit breakers and required all automated trading firms to have kill switches.' },
+      { term: 'Liquidity Coverage Ratio (LCR)', definition: 'A Basel III requirement that banks hold enough high-quality liquid assets (HQLA) to cover net cash outflows over a 30-day stress scenario. Minimum ratio: 100%.', example: 'A bank facing $50B of 30-day outflows must hold $50B in HQLA: cash and government bonds. SVB\'s LCR looked shaky given its bond losses.', sentence: 'The Liquidity Coverage Ratio was introduced after 2008 to ensure banks could survive a month-long funding stress without government assistance.' },
+      { term: 'Bank Run', definition: 'A fast, mass withdrawal of deposits by customers who fear the bank will fail. The withdrawals can cause the failure they fear.', example: 'SVB experienced $42 billion in withdrawal requests in 10 hours, 25% of total deposits, the fastest bank run in recorded history.', sentence: 'The classic bank run is depicted in "It\'s a Wonderful Life," but SVB showed that modern bank runs happen digitally, coordinated through social media, at speeds the pre-internet world never imagined.' },
+      { term: 'Duration Mismatch', definition: 'Holding assets that mature long after the deposits funding them, which leaves a firm exposed to rate moves and sudden withdrawals.', example: 'SVB held 5-10 year bonds funded by deposits that could vanish instantly. Rates rose, the bonds lost value, but the deposits could leave anytime.', sentence: 'SVB\'s duration mismatch was extreme: $91 billion in held-to-maturity bonds against deposits that were 94% uninsured and could flee with a phone tap.' },
+      { term: 'Kill Switch', definition: 'An automated mechanism that halts trading or system operations when predefined anomaly thresholds are breached, preventing cascading losses from runaway processes.', example: 'If Knight Capital had a kill switch stopping trades after $5M of losses, it would have survived instead of losing $440M in 45 minutes.', sentence: 'After the Knight Capital disaster, regulators and exchanges implemented market-wide circuit breakers and required all automated trading firms to have kill switches.' },
       { term: 'Contagion Risk', definition: 'The risk that a crisis at one institution spreads to others through direct financial connections, shared depositor/investor base, or loss of confidence across the sector.', example: 'After SVB failed, Signature Bank and First Republic Bank also collapsed as depositors feared similar vulnerabilities at other regional banks.', sentence: 'Contagion risk is why regulators guaranteed all SVB deposits, to prevent the panic from spreading to every mid-sized bank in America.' }
     ]),
   
@@ -1552,22 +1547,21 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, First Teaching Slide (Options Fundamentals)
     teachingSlide(
-      'OPTIONS FUNDAMENTALS',
+      'Options fundamentals',
       'Calls, Puts, and the Power of Asymmetric Protection',
       [
-        'An option gives you the right, but not the obligation, to buy or sell an asset at a predetermined price (strike price) before a specific date (expiration). A call option gives the right to buy; a put option gives the right to sell. The price you pay for this right is called the premium. This creates asymmetric risk: your maximum loss is limited to the premium paid, but your potential gain can be enormous.',
-        'For risk management, the most important concept is the protective put. If you own a stock at $100 and buy a put with a $90 strike for $3, your maximum loss is $13 ($10 to the strike + $3 premium). If the stock crashes to $50, your put lets you sell at $90, saving $37. The put acts like insurance: you pay a premium for protection against catastrophe. This is exactly how portfolio managers protect against market crashes.',
-        'Options are priced using the Black-Scholes model, the formula that earned Myron Scholes his Nobel Prize. The key inputs are: current stock price, strike price, time to expiration, risk-free rate, and implied volatility. The most important variable is volatility, when fear increases, option premiums spike (because protection becomes more valuable). The VIX measures implied volatility of S&P 500 options and is called the "fear gauge." During COVID (March 2020), the VIX hit 82, meaning options premiums were at extreme levels because everyone wanted protection simultaneously.'
+        'An option is the right, not the duty, to trade at a set strike price. A call buys, a put sells. Own stock at $100, buy a $90 put for $3: max loss $13, the $10 gap plus premium.',
+      'If it crashes to $50, you sell at $90, saving $37. A put is insurance. Black-Scholes, Myron Scholes\' Nobel formula, prices options; fear lifts premiums. The VIX, S&P 500 fear gauge, hit 82 in the COVID crash, March 2020.'
       ],
       [
-        { term: 'Put Option', definition: 'A contract giving the holder the right (not obligation) to sell an asset at a specified strike price before expiration. Used as insurance against price declines.', example: 'Buying a put on Apple with a $170 strike for $5 lets you sell Apple shares at $170 even if the stock crashes to $100, limiting your loss.' },
-        { term: 'Call Option', definition: 'A contract giving the holder the right (not obligation) to buy an asset at a specified strike price before expiration. Used to profit from price increases or generate income.', example: 'Buying a call on Tesla with a $250 strike for $10 lets you profit from any move above $260 (strike + premium) with only $10 at risk.' },
-        { term: 'Premium', definition: 'The price paid to purchase an option. For the buyer, the premium is the maximum possible loss. For the seller, it is the maximum possible gain.', example: 'During calm markets, a 5% out-of-the-money S&P 500 put might cost 1-2% of portfolio value. During panics, the same put can cost 8-15%.' },
+        { term: 'Put Option', definition: 'The right, not the duty, to sell an asset at a set strike price before a deadline. Insurance against price drops.', example: 'A put on Apple with a $170 strike costs $5. You can still sell at $170 even if the stock falls to $100.' },
+        { term: 'Call Option', definition: 'The right, not the duty, to buy an asset at a set strike price before a deadline. Profit if prices rise, or earn income.', example: 'A call on Tesla with a $250 strike costs $10. You profit above $260, the strike plus premium, and risk only $10.' },
+        { term: 'Premium', definition: 'What you pay to buy an option. It is the buyer\'s maximum loss and the seller\'s maximum gain.', example: 'During calm markets, a 5% out-of-the-money S&P 500 put might cost 1-2% of portfolio value. During panics, the same put can cost 8-15%.' },
         { term: 'Implied Volatility', definition: 'The market\'s forecast of future price volatility, extracted from current option prices. Higher implied volatility means more expensive options.', example: 'When VIX jumps from 15 to 80 (as in March 2020), option premiums roughly quintuple, making it extremely expensive to buy protection during a crisis.' }
       ],
       'Options payoff diagram: X-axis is stock price at expiration, Y-axis is profit/loss. Long call shows unlimited upside above strike minus premium, maximum loss equals premium. Long put shows increasing profit as stock falls below strike minus premium, maximum loss equals premium.',
-      { company: 'Long-Term Capital Management', metric: 'Nobel Prize economists, $4.6B loss', outcome: 'Fund nearly collapsed the global financial system; 14-bank bailout organized by the Fed', explanation: 'LTCM\'s strategies were theoretically "market-neutral", for every long position, they had an offsetting short. But their models assumed historical correlations would hold. When the Russian default triggered global panic, every "uncorrelated" position moved against them simultaneously. At 25x leverage, even small moves were devastating. The lesson: hedging based on historical correlations fails exactly when you need it most, during crises when correlations spike to 1.0.' },
-      { type: 'comparison', title: 'Put Option Payoff Diagram', rows: [{ label: 'Stock Price', value: '+$' }, { label: '-$', value: '$0' }, { label: 'Strike: $90', value: 'PUT PROFIT' }, { label: 'Stock falls below strike', value: 'Max loss = premium ($3)' }, { label: 'Stock at $100. Buy $90 put for $3.', value: 'If stock drops to $50: Sell at $90. Profit = $90 - $50 - $3 = $37' }, { label: 'If stock rises to $120: Put expires worthless. Loss = $3 premium', value: 'See detail' }], sentiment: 'positive' }
+      undefined,
+      { type: 'comparison', title: 'Put Option Payoff Diagram', rows: [{ label: 'Stock Price', value: '+$' }, { label: '-$', value: '$0' }, { label: 'Strike: $90', value: 'Put profit' }, { label: 'Stock falls below strike', value: 'Max loss = premium ($3)' }, { label: 'Stock at $100. Buy $90 put for $3.', value: 'If stock drops to $50: Sell at $90. Profit = $90 - $50 - $3 = $37' }, { label: 'If stock rises to $120: Put expires worthless. Loss = $3 premium', value: 'See detail' }], sentiment: 'positive' }
     ),
   
     // Step 4, Embedded Micro-Check
@@ -1581,7 +1575,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph (Hedging Strategies)
     interactiveGraph(
-      'HEDGING STRATEGIES',
+      'Hedging strategies',
       'Protective Puts, Covered Calls, and Collars',
       'comparison',
       'The three core hedging strategies use options to reshape your risk profile. Explore how each strategy trades upside for downside protection.',
@@ -1606,53 +1600,53 @@ const lessons: PathwayLesson[] = [
         { label: 'Put Strike ($)', min: 70, max: 100, default: 90, unit: '$' },
         { label: 'Call Strike ($)', min: 100, max: 150, default: 110, unit: '$' }
       ],
-      { company: 'Goldman Sachs', metric: 'Hedging strategy during 2007-2008', outcome: 'Profited $3.7 billion in 2007 while competitors lost billions, largely due to put hedges and collars on mortgage exposure', explanation: 'Goldman\'s risk team convinced management to hedge mortgage exposure aggressively in late 2006. They bought puts and CDS protection on mortgage-backed securities. When the market crashed, these hedges generated billions in gains that offset portfolio losses. Goldman was one of the only major banks to profit during the crisis, proving that disciplined hedging works.' }
+      undefined
     ),
   
     // Step 6, Case Study (LTCM)
     caseStudy(
       'LTCM: When Nobel Prize Hedging Met Reality',
       [
-        { date: '1994', event: 'LTCM founded by John Meriwether with Nobel laureates Scholes and Merton', context: 'Meriwether, the legendary Salomon Brothers trader, recruited Myron Scholes and Robert Merton, who would win the 1997 Nobel Prize for their options pricing work. The fund\'s strategy: identify small price discrepancies in bonds and derivatives, then leverage heavily to turn small profits into large returns. Initial capital: $1.3 billion.' },
-        { date: '1994-1997', event: 'LTCM generates spectacular returns, 21%, 43%, 41%, 17% annually', context: 'The fund\'s strategies worked brilliantly. LTCM\'s models identified mispricings across global bond markets and used leverage (eventually reaching 25:1) to amplify returns. By 1998, the fund managed $4.7 billion in capital but controlled over $125 billion in assets and had derivatives positions with notional value exceeding $1.25 trillion.' },
-        { date: 'August 17, 1998', event: 'Russia defaults on its government debt', context: 'Russia\'s surprise debt default triggered a global "flight to quality." Investors worldwide simultaneously sold risky assets and bought U.S. Treasuries. LTCM\'s models assumed these assets would be uncorrelated, that a loss on one position would be offset by a gain on another. Instead, every position moved against them simultaneously as correlations spiked to 1.0.' },
-        { date: 'August-September 1998', event: 'LTCM loses $4.6 billion, 92% of its capital in 4 months', context: 'At 25:1 leverage, a 4% decline in portfolio value wipes out the entire fund. LTCM\'s "hedged" positions lost far more than models predicted because the hedges themselves failed, the assets meant to offset losses also declined. The fund was losing $100-500 million per day. Banks that had lent to LTCM began demanding their money back, accelerating the death spiral.' },
-        { date: 'September 23, 1998', event: 'Federal Reserve organizes $3.6 billion bailout by 14 banks', context: 'The Fed convened the leaders of 14 major banks at its New York headquarters. LTCM\'s $1.25 trillion in derivatives positions were so intertwined with the global financial system that its disorderly failure could have triggered a chain reaction. The banks injected $3.6 billion to keep LTCM alive while unwinding positions over months. It was a preview of the "too big to fail" problems that would explode in 2008.' }
+        { date: '1994', event: 'LTCM founded by John Meriwether with Nobel laureates Scholes and Merton', context: 'Meriwether, a Salomon Brothers trader, hired Myron Scholes and Robert Merton, 1997 Nobel winners for options pricing. Their plan: find tiny bond mispricings, borrow heavily. Started with $1.3 billion.' },
+        { date: '1994-1997', event: 'LTCM generates spectacular returns, 21%, 43%, 41%, 17% annually', context: 'The models found mispriced bonds, and leverage up to 25:1 magnified the gains. By 1998: $4.7 billion in capital, over $125 billion in assets, $1.25 trillion in derivatives.' },
+        { date: 'August 17, 1998', event: 'Russia defaults on its government debt', context: 'Russia defaulted on its debt without warning. Investors dumped risky assets and bought U.S. Treasuries. LTCM assumed its positions moved independently. Instead everything moved together, a correlation of 1.0.' },
+        { date: 'August-September 1998', event: 'LTCM loses $4.6 billion, 92% of its capital in 4 months', context: 'At 25:1 leverage, a 4% drop wipes out the fund. Hedges meant to offset losses fell too. LTCM lost $100-500 million a day, and lenders demanded their money back.' },
+        { date: 'September 23, 1998', event: 'Federal Reserve organizes $3.6 billion bailout by 14 banks', context: 'The Fed gathered 14 major banks. LTCM\'s $1.25 trillion in derivatives tied it to everyone, so a collapse could spread. Banks put in $3.6 billion, a preview of 2008.' }
       ],
-      'LTCM is the ultimate cautionary tale for hedging and options strategies. Three lessons are permanent: (1) Historical correlations break during crises, when you most need your hedges to work, correlations spike to 1.0 and "uncorrelated" positions move together. (2) Leverage transforms manageable losses into existential ones, LTCM\'s positions would have been fine at 2:1 leverage but were catastrophic at 25:1. (3) Liquidity evaporates when you need it most, LTCM couldn\'t unwind positions because every other fund with similar strategies was trying to sell simultaneously. Scholes and Merton\'s math was correct in theory. Their fatal error was assuming markets always behave as models predict.'
+      'In a crisis everything falls together, correlation 1.0, so hedges fail. Leverage makes losses fatal: fine at 2:1, deadly at 25:1. Liquidity vanishes when everyone sells at once. Scholes and Merton had the math right, not the assumptions.'
     ),
   
     // Step 7, Misconceptions
     misconceptions(
-      'HEDGING & OPTIONS MYTHS',
+      'Hedging & options myths',
       'Critical misconceptions about hedging that cost billions',
       [
         {
           myth: 'Hedging eliminates risk.',
           truth: 'Hedging transforms risk, it reduces one type of risk while potentially introducing others. A protective put eliminates downside risk beyond the strike, but costs premium and reduces returns. More importantly, the hedge itself carries counterparty risk (will the option seller pay?), model risk (are your hedge ratios correct?), and basis risk (does the hedge actually move as expected?).',
-          explanation: 'AIG sold CDS "hedging" for others, but AIG itself was unhedged. When asked to pay, it couldn\'t. LTCM\'s hedges failed because correlations broke. Every hedge has embedded assumptions, when those assumptions fail, the hedge can make things worse, not better.'
+          explanation: 'AIG sold credit default swaps, insurance on loans, but bought none itself. When the bills came, it could not pay. LTCM\'s hedges failed when correlations broke. Every hedge rests on assumptions that can break.'
         },
         {
           myth: 'If your hedging model uses Nobel Prize-winning math, it can\'t be wrong.',
           truth: 'LTCM was run by the Nobel laureates who literally invented options pricing theory. The math was perfect in normal conditions. But models assume certain market behaviors (normal distributions, stable correlations, continuous trading) that break down during crises.',
-          explanation: 'Every financial model is a simplification of reality. The Black-Scholes model assumes continuous trading, log-normal returns, and constant volatility, none of which hold during a crisis. In September 2008, many options couldn\'t be exercised because counterparties had failed. The math was right; the assumptions about reality were wrong.'
+          explanation: 'Black-Scholes assumes nonstop trading, smooth returns, and steady volatility. A crisis breaks all three. In September 2008 many options were useless because the other side had gone bust. Right math, wrong assumptions.'
         },
         {
           myth: 'You should hedge when markets get scary.',
           truth: 'The worst time to buy hedges is during a panic, premiums are at their highest. The VIX (fear gauge) jumping from 15 to 80 means put options cost 5-8x more. The best time to hedge is during calm markets when protection is cheap and nobody thinks they need it.',
-          explanation: 'Goldman Sachs hedged its mortgage exposure in 2006, when the market was calm and hedges were cheap. By mid-2007, the same hedges cost 5-10x more. By 2008, they were nearly unpurchasable at any price. The insurance paradox: protection is cheapest when it feels least necessary and most expensive when it feels most urgent.'
+          explanation: 'Goldman Sachs hedged its mortgage risk in 2006, while it was still cheap. By mid-2007 the same hedges cost 5-10x more. By 2008 they were unbuyable. Protection is cheapest when it feels least needed.'
         }
       ]
     ),
   
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Protective Put', definition: 'A risk management strategy where an investor buys a put option on an asset they already own, creating a floor on potential losses at the put\'s strike price minus the premium paid.', example: 'Own $1M in S&P 500 ETF. Buy puts with a 10% out-of-the-money strike for 2% ($20K). Maximum loss is now 12% ($120K) instead of potentially 50%+ in a crash.', sentence: 'Portfolio managers routinely buy protective puts before earnings season or economic announcements to limit downside risk on concentrated positions.' },
-      { term: 'Collar Strategy', definition: 'Simultaneously buying a protective put and selling a covered call on the same asset, creating a price range where the investor is protected below the put strike and capped above the call strike.', example: 'Stock at $100: buy $90 put ($3), sell $110 call ($3). Net cost: $0. Returns locked between -10% and +10%.', sentence: 'Goldman Sachs used collar strategies on its mortgage exposure in 2006-2007, which proved critical to its survival and profitability during the 2008 crisis.' },
-      { term: 'Leverage', definition: 'Using borrowed capital to amplify both potential gains and potential losses. A leverage ratio of 25:1 means a 4% loss in portfolio value wipes out all equity.', example: 'LTCM operated at 25:1 leverage with $4.7B in capital controlling $125B in assets. When the portfolio lost 4%, the fund\'s entire capital was gone.', sentence: 'After LTCM\'s collapse, regulators and investors became far more attentive to hedge fund leverage, though lessons were forgotten again before the 2008 crisis.' },
-      { term: 'Correlation Risk', definition: 'The risk that assets assumed to be uncorrelated begin moving together, especially during crises. When correlations spike to 1.0, diversification and hedging strategies based on historical correlations fail simultaneously.', example: 'LTCM\'s strategies assumed bonds from different countries were uncorrelated. During the 1998 Russian crisis, all risky assets fell together as investors fled to safety, every hedge failed at once.', sentence: 'Correlation risk is the "silent killer" of hedge funds, strategies that work beautifully in normal markets can fail catastrophically when correlations spike during crises.' },
-      { term: 'Black-Scholes Model', definition: 'The Nobel Prize-winning mathematical formula for pricing options, based on current asset price, strike price, time to expiration, risk-free rate, and volatility.', example: 'Myron Scholes and Robert Merton won the 1997 Nobel Prize for this model. Ironically, their fund LTCM collapsed the next year when the model\'s assumptions failed during a crisis.', sentence: 'The Black-Scholes model remains the foundation of options pricing, but traders adjust it with "volatility skew" and "smile" corrections to account for the fat tails and regime changes it doesn\'t capture.' },
-      { term: 'VIX (Fear Gauge)', definition: 'The CBOE Volatility Index, measuring expected 30-day volatility of the S&P 500 derived from options prices. A high VIX means expensive options and high fear; a low VIX means cheap options and complacency.', example: 'VIX at 12-15 = calm markets, cheap hedges. VIX at 30+ = elevated fear. VIX at 80+ (March 2020) = extreme panic, hedges cost 5-8x normal prices.', sentence: 'Savvy portfolio managers buy protective puts when the VIX is below 15, locking in cheap insurance before the storm that eventually comes.' }
+      { term: 'Protective Put', definition: 'You own an asset and buy a put on it. Your loss now has a floor: the strike price minus the premium.', example: 'Own $1M of an S&P 500 ETF. Buy puts 10% below the price for 2%, or $20K. Worst loss becomes 12% ($120K), not 50%+.', sentence: 'Portfolio managers routinely buy protective puts before earnings season or economic announcements to limit downside risk on concentrated positions.' },
+      { term: 'Collar Strategy', definition: 'Buy a put and sell a call on the same asset. Losses stop below the put strike; gains stop above the call strike.', example: 'Stock at $100: buy $90 put ($3), sell $110 call ($3). Net cost: $0. Returns locked between -10% and +10%.', sentence: 'Goldman Sachs used collar strategies on its mortgage exposure in 2006-2007, which proved critical to its survival and profitability during the 2008 crisis.' },
+      { term: 'Leverage', definition: 'Borrowed money that magnifies gains and losses alike. At 25:1 leverage, a 4% loss in value wipes out all your own money.', example: 'LTCM operated at 25:1 leverage with $4.7B in capital controlling $125B in assets. When the portfolio lost 4%, the fund\'s entire capital was gone.', sentence: 'After LTCM\'s collapse, regulators and investors became far more attentive to hedge fund leverage, though lessons were forgotten again before the 2008 crisis.' },
+      { term: 'Correlation Risk', definition: 'The risk that assets you thought move separately fall together in a crisis. Correlation hits 1.0 and diversification and hedges fail at once.', example: 'LTCM assumed bonds from different countries moved separately. In the 1998 Russian crisis every risky asset fell at once and every hedge failed.', sentence: 'Correlation risk is the "silent killer" of hedge funds, strategies that work beautifully in normal markets can fail catastrophically when correlations spike during crises.' },
+      { term: 'Black-Scholes Model', definition: 'The Nobel Prize-winning mathematical formula for pricing options, based on current asset price, strike price, time to expiration, risk-free rate, and volatility.', example: 'Myron Scholes and Robert Merton won the 1997 Nobel Prize for this model. A year later their fund LTCM collapsed when its assumptions broke.', sentence: 'The Black-Scholes model remains the foundation of options pricing, but traders adjust it with "volatility skew" and "smile" corrections to account for the fat tails and regime changes it doesn\'t capture.' },
+      { term: 'VIX (Fear Gauge)', definition: 'The CBOE Volatility Index. Built from options prices, it shows expected swings in the S&P 500 over 30 days. High VIX, high fear.', example: 'VIX at 12-15 means calm and cheap hedges. 30+ means fear. 80+, seen in March 2020, means panic, with hedges at 5-8x normal cost.', sentence: 'Savvy portfolio managers buy protective puts when the VIX is below 15, locking in cheap insurance before the storm that eventually comes.' }
     ]),
   
     // ═══════════════════════════════════════════
@@ -1831,21 +1825,20 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FUNDAMENTALS',
+      'The fundamentals',
       'How Interest Rates Move Bond Prices',
       [
-        'The most important relationship in fixed income is deceptively simple: when interest rates go up, bond prices go down, and vice versa. This inverse relationship exists because bonds pay fixed coupons. If you hold a bond paying 2% and new bonds start paying 5%, nobody wants your 2% bond at full price anymore, its market value drops until its effective yield matches the new 5% rate.',
-        'Duration is the key metric that measures a bond\'s sensitivity to interest rate changes. Technically, it\'s the weighted average time until you receive all the bond\'s cash flows (coupons + principal). Practically, it tells you the approximate percentage price change for a 1% move in interest rates. A bond with a duration of 7 years will lose approximately 7% of its value if rates rise by 1%. SVB held bonds with durations of 6-8 years when rates rose 5%, the math was devastating.',
-        'Convexity is duration\'s partner, it captures the curvature in the price-yield relationship that duration alone misses. Duration assumes price changes are linear (a straight line), but the actual relationship is curved. For large rate moves, duration alone underestimates price increases when rates fall and overestimates price decreases when rates rise. Positive convexity is desirable because it means your bond gains more than expected when rates drop and loses less than expected when rates rise.'
+        'When interest rates rise, bond prices fall. Bonds pay fixed coupons, so if you hold a bond paying 2% and new bonds pay 5%, yours only sells at a discount, until its yield matches 5%.',
+      'Duration, a bond\'s sensitivity to rates, predicts the hit: 7 year duration means about 7% lost if rates rise 1%. SVB held 6-8 year durations when rates rose 5%. Convexity, the curve duration misses, means real losses run smaller.'
       ],
       [
-        { term: 'Duration', definition: 'A measure of a bond\'s price sensitivity to interest rate changes, expressed in years. It represents the approximate percentage change in bond price for a 1% change in yield.', example: 'A bond with duration of 5 years will lose approximately 5% if interest rates rise by 1%. SVB\'s portfolio had durations of 6-8 years.' },
+        { term: 'Duration', definition: 'A bond\'s price sensitivity to interest rates, measured in years. If rates move 1%, the price moves about that many percent.', example: 'A bond with duration of 5 years will lose approximately 5% if interest rates rise by 1%. SVB\'s portfolio had durations of 6-8 years.' },
         { term: 'Convexity', definition: 'A measure of the curvature of the price-yield relationship. It captures the non-linear price changes that duration alone misses, especially for large interest rate moves.', example: 'Two bonds with identical duration of 5 years but different convexity will perform differently if rates move by 3%, higher convexity means smaller losses.' },
-        { term: 'Yield to Maturity (YTM)', definition: 'The total return anticipated on a bond if held until maturity, expressed as an annual rate. It accounts for coupon payments, current price, par value, and time remaining.', example: 'A bond purchased at $950 with $1,000 face value paying 4% coupons with 5 years to maturity has a YTM of approximately 5.1%.' },
+        { term: 'Yield to Maturity (YTM)', definition: 'The yearly return if you hold a bond to maturity. It counts coupons, current price, the payout at the end, and time left.', example: 'A bond purchased at $950 with $1,000 face value paying 4% coupons with 5 years to maturity has a YTM of approximately 5.1%.' },
         { term: 'Interest Rate Risk', definition: 'The risk that changes in interest rates will reduce the market value of fixed income securities. Longer-duration bonds carry more interest rate risk.', example: 'When the Fed raised rates by 5 percentage points in 2022-2023, long-duration Treasury bonds lost over 30% of their market value.' }
       ],
       'A dual-axis chart showing the inverse bond price/yield curve on the left, and a duration sensitivity bar chart on the right comparing 2-year, 5-year, 10-year, and 30-year Treasury bonds. Arrows show SVB\'s position concentrated in the high-duration zone.',
-      { company: 'Silicon Valley Bank', metric: '$91B bond portfolio with 6+ year duration', outcome: 'Lost $15B+ when rates rose 5%, triggering FDIC seizure in March 2023', explanation: 'SVB concentrated depositor funds in long-duration bonds when rates were near zero, essentially betting that rates would stay low forever. When the Fed began its fastest rate hiking cycle in 40 years, SVB\'s unrealized losses exceeded its total equity. The bank had no interest rate hedges, not a single swap or option to protect against rising rates.' },
+      undefined,
       { type: 'grid', title: 'Duration Sensitivity: Price Change per 1% Rate Increase', items: [{ label: '-2%', color: '#0f172a' }, { label: '2-Year', color: '#b862ed' }, { label: '-5%', color: '#10b981' }, { label: '5-Year', color: '#94a3b8' }, { label: '-7%', color: '#f59e0b' }, { label: '10-Year', color: '#ef4444' }, { label: '-18%', color: '#ef4444' }, { label: '30-Year', color: '#3b82f6' }], sentiment: 'positive' }
     ),
   
@@ -1860,7 +1853,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'DURATION IN ACTION',
+      'Duration in action',
       'How Duration Amplifies Interest Rate Moves',
       'comparison',
       'See how bonds with different durations respond to the same interest rate change. Longer duration means more sensitivity, both up and down.',
@@ -1884,36 +1877,36 @@ const lessons: PathwayLesson[] = [
         { label: 'Rate Change (%)', min: -3, max: 5, default: 2, unit: '%' },
         { label: 'Portfolio Value ($M)', min: 10, max: 500, default: 100, unit: 'M' }
       ],
-      { company: 'Silicon Valley Bank', metric: 'Duration of 6-8 years, zero hedges', outcome: 'Collapsed in 48 hours in March 2023, second-largest U.S. bank failure ever', explanation: 'SVB bought long-duration bonds yielding 1.5-2% when rates were near zero. When the Fed raised rates to 5%, those bonds lost 20-30%+ of their value. SVB\'s unrealized losses ($17B) exceeded its total equity ($16B). When depositors withdrew $42B in a single day, SVB had to sell bonds at massive realized losses, making the situation irreversible.' }
+      undefined
     ),
   
     // Step 6, Case Study
     caseStudy(
       'Silicon Valley Bank: A Duration Catastrophe',
       [
-        { date: '2020-2021', event: 'SVB deposits surge from $61B to $189B during tech boom', context: 'Tech startups flush with venture capital funding deposited massive amounts at SVB. The bank needed to invest this cash somewhere and chose long-term bonds and MBS yielding 1.5-2%, locking in low rates for years.' },
-        { date: '2021', event: 'SVB invests $91B in long-duration bonds and MBS', context: 'SVB\'s bond portfolio had an average duration of 6+ years. The bank purchased these securities with no interest rate hedges, no swaps, no caps, no options. CFO later testified they removed existing hedges to boost short-term earnings.' },
-        { date: 'March 2022 - Feb 2023', event: 'Fed raises rates from 0% to 4.75%, fastest pace in 40 years', context: 'Each rate hike caused SVB\'s bond portfolio to lose more market value. By late 2022, unrealized losses exceeded $15 billion. SVB\'s total equity was only $16 billion. The bank was technically insolvent but didn\'t have to realize the losses as long as it didn\'t sell.' },
-        { date: 'March 8, 2023', event: 'SVB announces $1.8B loss on forced bond sale, seeks capital raise', context: 'Facing deposit outflows, SVB was forced to sell $21 billion in bonds at a $1.8 billion loss. The announcement triggered panic. Venture capitalists told portfolio companies to pull deposits immediately. Peter Thiel\'s Founders Fund withdrew all funds.' },
-        { date: 'March 9-10, 2023', event: '$42 billion withdrawn in 24 hours, FDIC seizes SVB', context: 'The fastest bank run in history. Depositors withdrew $42 billion in a single day via mobile banking. By Friday morning March 10, SVB was seized by regulators. It was the second-largest bank failure in U.S. history after Washington Mutual in 2008.' }
+        { date: '2020-2021', event: 'SVB deposits surge from $61B to $189B during tech boom', context: 'Startups flush with venture capital piled cash into SVB. The bank bought long-term bonds and mortgage securities yielding 1.5-2%, locking in low rates for years.' },
+        { date: '2021', event: 'SVB invests $91B in long-duration bonds and MBS', context: 'SVB\'s bonds had an average duration over 6 years and no hedges: no swaps, caps, or options. The CFO later testified they dropped existing hedges to boost earnings.' },
+        { date: 'March 2022 - Feb 2023', event: 'Fed raises rates from 0% to 4.75%, fastest pace in 40 years', context: 'Every rate hike cut the value of SVB\'s bonds. By late 2022 paper losses topped $15 billion, against equity of $16 billion. Losses only counted if the bank sold.' },
+        { date: 'March 8, 2023', event: 'SVB announces $1.8B loss on forced bond sale, seeks capital raise', context: 'Deposits drained. SVB sold $21 billion of bonds at a $1.8 billion loss. Panic followed. Venture capitalists told startups to pull money, and Peter Thiel\'s Founders Fund withdrew everything.' },
+        { date: 'March 9-10, 2023', event: '$42 billion withdrawn in 24 hours, FDIC seizes SVB', context: 'Fastest bank run ever: $42 billion pulled in one day by phone. Regulators seized SVB on Friday March 10, the second-biggest U.S. bank failure after Washington Mutual in 2008.' }
       ],
-      'SVB\'s collapse is the definitive modern case study in duration risk. The bank made a one-way bet that interest rates would stay low, concentrated its portfolio in long-duration assets with zero hedging, and was destroyed when rates normalized. The lesson is not that bonds are dangerous, it\'s that unhedged duration exposure is a ticking time bomb. Every bank, pension fund, and portfolio manager must actively measure and manage duration risk.'
+      'SVB bet that rates would stay low, loaded up on long-duration bonds, and hedged nothing. Rising rates killed it. Bonds are not the danger; unhedged duration is. Every bank, fund, and investor should measure and manage it.'
     ),
   
     // Step 7, Misconceptions
     misconceptions(
-      'BOND RISK MYTHS',
+      'Bond risk myths',
       'What most people get wrong about fixed income risk',
       [
         {
           myth: 'Bonds are safe investments.',
           truth: 'Bonds carry interest rate risk, credit risk, inflation risk, and reinvestment risk. Long-duration bonds can lose 30%+ of their value in a rising rate environment, as millions of investors discovered in 2022.',
-          explanation: 'The iShares 20+ Year Treasury ETF lost 39% from 2020 to 2023. Even "safe" U.S. Treasuries can inflict enormous losses if you buy at the wrong duration and rates move against you. SVB\'s portfolio was 100% government-backed bonds, and it still destroyed the bank.'
+          explanation: 'iShares 20+ Year Treasury ETF lost 39% from 2020 to 2023. Even safe U.S. Treasuries can hurt if you buy long duration and rates rise. SVB held 100% government-backed bonds and still failed.'
         },
         {
           myth: 'If you hold a bond to maturity, you can\'t lose money.',
           truth: 'Holding to maturity eliminates market price risk, but you still face opportunity cost (locked into low rates while the market offers higher yields), inflation risk (your real purchasing power erodes), and, for banks like SVB, liquidity risk if you need to sell before maturity.',
-          explanation: 'SVB planned to hold its bonds to maturity. The problem was that depositors wanted their money NOW. When $42 billion in withdrawals hit in one day, SVB was forced to sell bonds at massive losses. The "hold to maturity" plan only works if you never need the cash.'
+          explanation: 'SVB planned to hold its bonds to maturity. Depositors wanted cash now. When $42 billion left in one day, SVB sold at huge losses. That plan only works if you never need the money.'
         },
         {
           myth: 'Short-duration bonds are always better than long-duration bonds.',
@@ -1925,12 +1918,12 @@ const lessons: PathwayLesson[] = [
   
     // Step 8, Key Terms Cards
     keyTermsCards([
-      { term: 'Duration', definition: 'The weighted average time to receive a bond\'s cash flows, used as a measure of price sensitivity to interest rate changes. A duration of N years means approximately N% price change per 1% rate change.', example: 'SVB held bonds with 6-8 year duration. When rates rose 5%, prices fell 30-40%, wiping out the bank\'s equity.', sentence: 'The portfolio manager reduced duration from 7 years to 3 years by swapping long-term bonds for short-term Treasuries, cutting interest rate risk by more than half.' },
-      { term: 'Convexity', definition: 'The rate of change of duration as yields change. It measures the curvature in the bond price-yield relationship, providing a more accurate price estimate for large rate moves.', example: 'A bond with high convexity gains 12% when rates drop 2% but only loses 10% when rates rise 2%, the curvature works in the holder\'s favor.', sentence: 'After analyzing the portfolio\'s convexity, the risk team determined that actual losses from a 3% rate shock would be slightly less than duration alone predicted.' },
-      { term: 'Yield Curve', definition: 'A graph plotting the yields of bonds with equal credit quality but different maturities. A normal curve slopes upward (longer maturities = higher yields). An inverted curve signals potential recession.', example: 'The U.S. yield curve inverted in 2022 (2-year yields exceeded 10-year yields), correctly predicting the banking stress of 2023.', sentence: 'The inverted yield curve meant SVB was earning less on its long-term bonds than depositors could get from short-term alternatives, accelerating deposit outflows.' },
-      { term: 'Interest Rate Swap', definition: 'A derivative contract where two parties exchange interest rate payments, typically swapping fixed-rate payments for floating-rate payments. Used to hedge duration risk without selling bonds.', example: 'JPMorgan uses over $2 trillion in interest rate swaps to manage the duration of its bond portfolio, which is why it profited during the 2022-2023 rate hikes.', sentence: 'By entering a pay-fixed, receive-floating interest rate swap, the bank effectively shortened its portfolio duration by 3 years without selling a single bond.' },
-      { term: 'Unrealized Loss', definition: 'A loss that exists on paper because an asset\'s current market value is below its purchase price, but has not been realized through an actual sale.', example: 'SVB had $17 billion in unrealized losses on its bond portfolio, more than its total equity of $16 billion, but wasn\'t required to report them under held-to-maturity accounting.', sentence: 'The bank\'s unrealized losses didn\'t appear on its income statement thanks to held-to-maturity accounting, masking the true deterioration of its financial position.' },
-      { term: 'Bank Run', definition: 'A situation where many depositors simultaneously withdraw their funds from a bank, fearing it may become insolvent. Modern digital bank runs happen in hours rather than days.', example: 'SVB experienced the fastest bank run in history: $42 billion withdrawn in a single day via mobile banking on March 9, 2023.', sentence: 'Social media and mobile banking transformed bank runs from multi-day events into hours-long crises, as SVB depositors organized withdrawals via group chats and Twitter.' }
+      { term: 'Duration', definition: 'The average time to receive a bond\'s payments, weighted by size. N years of duration means about N% price change per 1% rate move.', example: 'SVB held bonds with 6-8 year duration. When rates rose 5%, prices fell 30-40%, wiping out the bank\'s equity.', sentence: 'The portfolio manager reduced duration from 7 years to 3 years by swapping long-term bonds for short-term Treasuries, cutting interest rate risk by more than half.' },
+      { term: 'Convexity', definition: 'How fast duration changes as yields move. It captures the curve in the price-yield line, giving better price estimates for big rate moves.', example: 'A bond with high convexity gains 12% when rates fall 2% but loses only 10% when rates rise 2%. The curve favors the holder.', sentence: 'After analyzing the portfolio\'s convexity, the risk team determined that actual losses from a 3% rate shock would be slightly less than duration alone predicted.' },
+      { term: 'Yield Curve', definition: 'A graph of yields on same-quality bonds with different maturities. It usually slopes up, so longer bonds pay more. A downward slope hints at recession.', example: 'The U.S. yield curve inverted in 2022 (2-year yields exceeded 10-year yields), correctly predicting the banking stress of 2023.', sentence: 'The inverted yield curve meant SVB was earning less on its long-term bonds than depositors could get from short-term alternatives, accelerating deposit outflows.' },
+      { term: 'Interest Rate Swap', definition: 'A derivative contract where two parties exchange interest rate payments, typically swapping fixed-rate payments for floating-rate payments. Used to hedge duration risk without selling bonds.', example: 'JPMorgan uses over $2 trillion in interest rate swaps to manage its bond duration, so it profited during the 2022-2023 rate hikes.', sentence: 'By entering a pay-fixed, receive-floating interest rate swap, the bank effectively shortened its portfolio duration by 3 years without selling a single bond.' },
+      { term: 'Unrealized Loss', definition: 'A loss that exists only on paper: the asset is worth less than you paid, but you have not sold it yet.', example: 'SVB had $17 billion of paper losses on its bonds, more than its $16 billion equity, but held-to-maturity accounting let it skip reporting.', sentence: 'The bank\'s unrealized losses didn\'t appear on its income statement thanks to held-to-maturity accounting, masking the true deterioration of its financial position.' },
+      { term: 'Bank Run', definition: 'Many depositors pull their money out at once, fearing the bank will fail. Online banking makes modern runs happen in hours, not days.', example: 'SVB experienced the fastest bank run in history: $42 billion withdrawn in a single day via mobile banking on March 9, 2023.', sentence: 'Social media and mobile banking transformed bank runs from multi-day events into hours-long crises, as SVB depositors organized withdrawals via group chats and Twitter.' }
     ]),
   
     // ═══════════════════════════════════════════
@@ -2109,21 +2102,20 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'What Is Enterprise Risk Management?',
       [
-        'Enterprise Risk Management (ERM) is a holistic approach to identifying, assessing, managing, and monitoring ALL risks across an entire organization, not just financial risks. Traditional risk management treats each risk type in isolation: the credit team handles credit risk, the trading desk manages market risk, IT handles cyber risk. ERM breaks down these silos and asks: "What is our total risk picture, and how do these risks interact?"',
-        'The COSO ERM framework (updated in 2017) defines five components: Governance & Culture (setting the risk appetite and tone from the top), Strategy & Objective-Setting (aligning risk with business goals), Performance (identifying and prioritizing risks), Review & Revision (monitoring and adapting), and Information, Communication & Reporting (ensuring risk data flows to decision-makers). The Three Lines of Defense model structures responsibility: business units own risks (1st line), risk management and compliance oversee them (2nd line), and internal audit provides independent assurance (3rd line).',
-        'The key insight of ERM is that risks don\'t exist in isolation, they correlate and cascade. When a pandemic hits (strategic risk), supply chains break (operational risk), revenues fall (financial risk), and employees leave (HR risk). A company managing each risk separately will miss these cascading effects. ERM creates a "risk map" showing how risks interconnect, enabling the organization to prepare for scenarios where multiple risks materialize simultaneously, exactly like 2008, COVID-19, or the 2023 banking crisis.'
+        'Enterprise Risk Management (ERM) means handling all risks across a whole company, not just financial ones. It breaks silos. The COSO ERM framework, updated in 2017, sets five components: governance and culture, strategy, performance, review, and reporting.',
+      'Three Lines of Defense splits duties: business units own risks (1st), risk and compliance oversee (2nd), internal audit assures (3rd). Risks cascade: a pandemic breaks supply chains, cuts revenue, drains staff. Recall 2008, COVID-19 and the 2023 banking crisis.'
       ],
       [
         { term: 'Enterprise Risk Management (ERM)', definition: 'A comprehensive, organization-wide approach to identifying, assessing, managing, and monitoring all categories of risk in an integrated framework, aligned with the organization\'s strategy and objectives.', example: 'Toyota\'s ERM framework identified single-source supplier dependencies before the 2011 tsunami, enabling faster recovery than competitors.' },
-        { term: 'Three Lines of Defense', definition: 'A governance model: 1st line (business units own and manage risk), 2nd line (risk management and compliance provide oversight and frameworks), 3rd line (internal audit provides independent assurance that the first two lines are working).', example: 'In JPMorgan\'s London Whale incident, the 2nd line (risk oversight) failed to catch the CIO\'s positions because it operated under separate risk models.' },
-        { term: 'Risk Appetite', definition: 'The total amount and type of risk an organization is willing to accept in pursuit of its strategic objectives. It sets boundaries for acceptable risk-taking behavior.', example: 'A conservative pension fund might set risk appetite at max 5% annual loss probability, while a hedge fund might accept 20%.' },
+        { term: 'Three Lines of Defense', definition: 'Three layers: business teams manage risk (1st), risk and compliance set rules and check them (2nd), internal audit reviews both independently (3rd).', example: 'In JPMorgan\'s London Whale incident, the 2nd line (risk oversight) failed to catch the CIO\'s positions because it operated under separate risk models.' },
+        { term: 'Risk Appetite', definition: 'How much risk, and what kinds, a company will take to reach its goals. It marks the limit for acceptable risk taking.', example: 'A conservative pension fund might set risk appetite at max 5% annual loss probability, while a hedge fund might accept 20%.' },
         { term: 'COSO Framework', definition: 'The Committee of Sponsoring Organizations framework is the most widely used ERM standard globally, providing principles and guidance for designing and implementing enterprise risk management.', example: 'COSO\'s 2017 update emphasized integrating ERM with strategy and performance, not treating it as a compliance exercise.' }
       ],
       'A pyramid diagram: Board & C-Suite at top (set risk appetite), middle layer shows the Three Lines of Defense flowing left to right, bottom layer shows all risk categories (market, credit, operational, strategic, reputational, cyber, compliance) feeding into a central ERM dashboard. Arrows show upward risk reporting and downward risk limits.',
-      { company: 'JPMorgan Chase', metric: 'London Whale, $6.2B loss in "hedging" division', outcome: 'Exposed gaps in JPMorgan\'s ERM despite being considered the best risk manager on Wall Street', explanation: 'The London Whale losses revealed that even JPMorgan, creator of VaR and gold standard in risk management, had dangerous silos. The Chief Investment Office used different VaR models, had different risk limits, and operated with less oversight than trading desks. JPMorgan\'s CEO Jamie Dimon called it "a tempest in a teapot" initially; six weeks later, losses hit $6.2 billion.' },
+      undefined,
       { type: 'grid', title: 'Three Lines of Defense Model', items: [{ label: 'Board / C-Suite', color: '#0f172a' }, { label: 'Sets Risk Appetite', color: '#b862ed' }, { label: '1st Line', color: '#a451e6' }, { label: 'Business owns risk', color: '#94a3b8' }, { label: 'Traders, managers', color: '#10b981' }, { label: '2nd Line', color: '#f59e0b' }, { label: 'Risk oversight', color: '#ef4444' }, { label: 'CRO, compliance', color: '#1e293b' }], sentiment: 'positive' }
     ),
   
@@ -2138,7 +2130,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'RISK INTERCONNECTIONS',
+      'Risk interconnections',
       'How Risks Cascade Across an Enterprise',
       'timeline',
       'Risk events rarely occur in isolation. See how a single trigger can cascade across risk categories, amplifying total losses far beyond what siloed risk models predict.',
@@ -2159,25 +2151,25 @@ const lessons: PathwayLesson[] = [
         'Toyota\'s ERM-driven supply chain diversification saved an estimated $1.2 billion in lost production after the 2011 tsunami.'
       ],
       [],
-      { company: 'Credit Suisse', metric: 'Multiple ERM failures across a decade', outcome: 'Collapsed and was acquired by UBS in March 2023 for $3.2 billion (from a $96B peak)', explanation: 'Credit Suisse is the poster child for failed ERM. The bank suffered a cascade of failures: Archegos Capital ($5.5B loss, 2021), Greensill Capital scandal ($10B in frozen funds, 2021), Mozambique "tuna bond" fraud ($850M fine), and a culture of weak risk controls. Each failure was a different risk type, but all shared the same root cause: broken ERM governance, weak risk culture, and leadership that repeatedly ignored warnings.' }
+      undefined
     ),
   
     // Step 6, Case Study
     caseStudy(
       'Credit Suisse: Death by a Thousand Risk Failures',
       [
-        { date: '2014', event: 'Credit Suisse pleads guilty to helping Americans evade taxes, $2.6B fine', context: 'The bank\'s compliance risk management failed to prevent systematic tax evasion assistance. This was the first warning sign that Credit Suisse\'s risk culture was fundamentally broken, but leadership made no structural changes to ERM.' },
+        { date: '2014', event: 'Credit Suisse pleads guilty to helping Americans evade taxes, $2.6B fine', context: 'Credit Suisse\'s compliance controls did not stop staff from helping clients dodge taxes. It was the first sign its risk culture was broken. Leaders changed nothing.' },
         { date: '2020', event: 'Wirecard fraud, Credit Suisse continued lending after red flags', context: 'Despite public reports questioning Wirecard\'s accounting, Credit Suisse maintained its financial relationship. ERM should have flagged the elevated counterparty risk. When Wirecard collapsed, Credit Suisse took significant losses.' },
-        { date: 'March 2021', event: 'Archegos Capital collapse, Credit Suisse loses $5.5 billion', context: 'Archegos (Bill Hwang\'s family office) used total return swaps to build concentrated positions. When positions collapsed, Credit Suisse was slowest to sell among prime brokers, Goldman Sachs and Morgan Stanley acted days earlier, limiting their losses. Credit Suisse\'s 2nd line of defense failed to enforce counterparty limits.' },
-        { date: 'March 2021', event: 'Greensill Capital collapse, $10B in funds frozen', context: 'Simultaneously with Archegos, Credit Suisse\'s supply chain finance funds linked to Greensill Capital were frozen. Two massive risk failures in the same month exposed the absence of any enterprise-wide risk aggregation that would have shown total exposure.' },
-        { date: 'March 2023', event: 'UBS acquires Credit Suisse for $3.2B in emergency rescue', context: 'After years of accumulated risk failures, a confidence crisis triggered by the SVB collapse spread to Credit Suisse. CDS spreads spiked, deposits fled, and the Swiss government orchestrated a weekend emergency merger with UBS at a 60% discount. 167 years of banking history ended.' }
+        { date: 'March 2021', event: 'Archegos Capital collapse, Credit Suisse loses $5.5 billion', context: 'Archegos, Bill Hwang\'s family office, built huge borrowed positions. When they fell, Goldman Sachs and Morgan Stanley sold days before Credit Suisse. Its 2nd line never enforced limits.' },
+        { date: 'March 2021', event: 'Greensill Capital collapse, $10B in funds frozen', context: 'In the same month, Credit Suisse froze its funds tied to Greensill Capital. Two blowups at once showed nobody added up the bank\'s total exposure.' },
+        { date: 'March 2023', event: 'UBS acquires Credit Suisse for $3.2B in emergency rescue', context: 'Then SVB collapsed and fear hit Credit Suisse. Default insurance costs spiked, deposits fled, and Switzerland forced a weekend sale to UBS at a 60% discount. 167 years ended.' }
       ],
-      'Credit Suisse is the definitive case study in what happens when ERM fails systematically. Every individual failure, tax evasion, Archegos, Greensill, repeated compliance violations, could have been survived in isolation. But the absence of a functional ERM framework meant that risks accumulated unchecked across the organization. No one saw the full picture. No one connected the dots. The lesson: ERM isn\'t about preventing any single risk event, it\'s about ensuring that accumulated risks never exceed the organization\'s capacity to absorb them.'
+      'Credit Suisse could have survived tax evasion, Archegos, Greensill or repeated compliance breaches alone. Nobody added them up. Risk management is not about stopping one bad event. It keeps total losses inside what the firm can absorb.'
     ),
   
     // Step 7, Misconceptions
     misconceptions(
-      'ERM MYTHS',
+      'ERM myths',
       'What most people get wrong about Enterprise Risk Management',
       [
         {
@@ -2188,12 +2180,12 @@ const lessons: PathwayLesson[] = [
         {
           myth: 'If each department manages its own risks well, the organization is safe.',
           truth: 'Siloed risk management misses risk correlations and cascading effects. The London Whale losses occurred in a well-managed division, the failure was in enterprise-level integration.',
-          explanation: 'JPMorgan\'s CIO had its own risk models and limits. By division-level standards, everything looked fine. But enterprise-wide, the CIO\'s positions created massive concentrations that no single-division view could detect. ERM\'s value is in the aggregated view.'
+          explanation: 'JPMorgan\'s CIO, its chief investment office, had its own risk limits and looked fine by them. Bank wide, its positions were dangerously concentrated. Only the combined view shows that.'
         },
         {
           myth: 'ERM is only for banks and financial institutions.',
           truth: 'Every organization faces interconnected risks. Tech companies face cyber + reputational + regulatory risk cascades. Manufacturers face supply chain + financial + safety risk cascades. ERM applies universally.',
-          explanation: 'Boeing\'s 737 MAX crisis cascaded from operational risk (software failure) to safety risk (346 deaths) to regulatory risk (worldwide grounding) to financial risk ($20B+ in costs) to reputational risk (brand damage). A strong ERM framework might have caught the safety shortcuts before they became fatal.'
+          explanation: 'Boeing\'s 737 MAX began as a software fault, then became a safety disaster with 346 deaths, a worldwide grounding, over $20B in costs, and brand damage. Risk never stays in one box.'
         }
       ]
     ),
@@ -2201,11 +2193,11 @@ const lessons: PathwayLesson[] = [
     // Step 8, Key Terms Cards
     keyTermsCards([
       { term: 'Enterprise Risk Management (ERM)', definition: 'A holistic, organization-wide framework for identifying, assessing, managing, and monitoring all types of risk in an integrated manner, aligned with strategic objectives and risk appetite.', example: 'Toyota\'s ERM mapped supply chain dependencies and pre-arranged backup suppliers, enabling recovery 6 months faster than competitors after the 2011 tsunami.', sentence: 'After the London Whale losses, JPMorgan overhauled its ERM framework to ensure all business units, including the CIO, reported under unified risk models and limits.' },
-      { term: 'Three Lines of Defense', definition: 'The standard governance model for risk management: business units own and manage risk (1st), risk management and compliance provide oversight (2nd), internal audit provides independent verification (3rd).', example: 'At Credit Suisse, all three lines failed: traders took excessive risk (1st line), risk oversight didn\'t enforce limits (2nd line), and internal audit didn\'t catch the pattern of repeated failures (3rd line).', sentence: 'The board mandated that all three lines of defense must sign off before the firm could enter any new market or product category.' },
-      { term: 'Risk Appetite Statement', definition: 'A formal declaration of the types and amounts of risk an organization is willing to accept in pursuit of its objectives, expressed in qualitative and quantitative terms.', example: 'A pension fund\'s risk appetite statement might specify: max 10% allocation to alternatives, max 5% single-issuer concentration, and VaR not to exceed 2% of AUM.', sentence: 'The bank\'s risk appetite statement was updated after the crisis to include explicit limits on counterparty concentration, which would have prevented the Archegos losses.' },
-      { term: 'Risk Culture', definition: 'The shared values, beliefs, knowledge, and understanding about risk that shape risk-related decisions at all levels of an organization. A strong risk culture means employees at every level consider risk in their decisions.', example: 'Credit Suisse\'s weak risk culture meant warnings about Archegos counterparty risk were ignored. Goldman Sachs\'s stronger risk culture led them to exit Archegos positions days earlier, saving billions.', sentence: 'The CRO implemented mandatory risk training for all employees, from interns to the CEO, to build a risk culture where everyone felt empowered to raise concerns.' },
-      { term: 'Key Risk Indicator (KRI)', definition: 'A metric used to provide an early warning of increasing risk exposure in a particular area. KRIs are monitored regularly to detect emerging risks before they crystallize into losses.', example: 'A rising VaR reading, increasing employee turnover in a critical department, or growing customer complaint volumes are all KRIs that signal emerging problems.', sentence: 'The ERM dashboard displayed 15 key risk indicators in real-time, with automatic alerts when any KRI breached its yellow (warning) or red (action required) threshold.' },
-      { term: 'Risk Heat Map', definition: 'A visual tool that plots identified risks on a grid with probability on one axis and potential impact on the other, enabling organizations to prioritize risks that are both likely and impactful.', example: 'After mapping 50 risks, the board focused on the 8 risks in the "high probability, high impact" quadrant, including cyber attack and supply chain disruption.', sentence: 'The quarterly risk heat map showed "pandemic disruption" moving from the low-probability zone to medium-probability in late 2019, but the firm took no action until COVID-19 hit.' }
+      { term: 'Three Lines of Defense', definition: 'The usual setup: business teams own the risk (1st), risk and compliance oversee them (2nd), internal audit checks both independently (3rd).', example: 'At Credit Suisse all three failed: traders took wild risks (1st), oversight let limits slide (2nd), audit missed the repeat pattern (3rd).', sentence: 'The board mandated that all three lines of defense must sign off before the firm could enter any new market or product category.' },
+      { term: 'Risk Appetite Statement', definition: 'A written record of the kinds and amounts of risk a company will accept to reach its goals, in words and numbers.', example: 'A pension fund\'s risk appetite statement might specify: max 10% allocation to alternatives, max 5% single-issuer concentration, and VaR not to exceed 2% of AUM.', sentence: 'The bank\'s risk appetite statement was updated after the crisis to include explicit limits on counterparty concentration, which would have prevented the Archegos losses.' },
+      { term: 'Risk Culture', definition: 'The shared habits and beliefs about risk inside a company. Strong risk culture means people at every level weigh risk before deciding.', example: 'Credit Suisse ignored warnings about Archegos. Goldman Sachs, with a stronger risk culture, sold out days earlier and saved billions.', sentence: 'The CRO implemented mandatory risk training for all employees, from interns to the CEO, to build a risk culture where everyone felt empowered to raise concerns.' },
+      { term: 'Key Risk Indicator (KRI)', definition: 'A key risk indicator, or KRI: a number tracked regularly that warns risk is building in one area before losses happen.', example: 'A rising VaR reading, increasing employee turnover in a critical department, or growing customer complaint volumes are all KRIs that signal emerging problems.', sentence: 'The ERM dashboard displayed 15 key risk indicators in real-time, with automatic alerts when any KRI breached its yellow (warning) or red (action required) threshold.' },
+      { term: 'Risk Heat Map', definition: 'A grid plotting each risk by how likely it is and how much damage it would cause. The worst ones get attention first.', example: 'After mapping 50 risks, the board focused on the 8 risks in the "high probability, high impact" quadrant, including cyber attack and supply chain disruption.', sentence: 'The quarterly risk heat map showed "pandemic disruption" moving from the low-probability zone to medium-probability in late 2019, but the firm took no action until COVID-19 hit.' }
     ]),
   
     // ═══════════════════════════════════════════
@@ -2383,12 +2375,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide
     teachingSlide(
-      'THE RULES',
+      'The rules',
       'Basel III: The Post-Crisis Regulatory Framework',
       [
-        'Basel III, finalized in 2010 and phased in through 2028, is the global regulatory response to the 2008 financial crisis. It dramatically increased the amount and quality of capital banks must hold as a buffer against losses. The centerpiece is the Common Equity Tier 1 (CET1) ratio, the ratio of a bank\'s highest-quality capital (common stock and retained earnings) to its risk-weighted assets. Basel III raised the minimum CET1 from 2% (under Basel II) to 4.5%, plus a 2.5% conservation buffer, totaling 7%. Systemically important banks must hold even more, JPMorgan\'s actual CET1 ratio is typically around 13%.',
-        'Basel III also introduced two critical liquidity rules. The Liquidity Coverage Ratio (LCR) requires banks to hold enough high-quality liquid assets (like Treasury bonds) to survive 30 days of severe stress without external funding. The Net Stable Funding Ratio (NSFR) ensures banks don\'t rely too heavily on short-term wholesale funding that can vanish during a crisis, exactly what happened to Bear Stearns and Northern Rock. Additionally, a new leverage ratio of at least 3% acts as a backstop, preventing banks from gaming risk-weighted models.',
-        'In the United States, the Dodd-Frank Act (2010) complemented Basel III with additional protections. The Volcker Rule prohibits banks from proprietary trading (betting with depositor money). Dodd-Frank also mandated annual stress testing through the Comprehensive Capital Analysis and Review (CCAR), where the Fed tests whether banks can survive severe scenarios like 10% unemployment, a 50% stock market crash, and a 25% housing decline, simultaneously. Banks that fail CCAR can be barred from paying dividends or buying back stock.'
+        'Basel III, agreed in 2010, phased in by 2028, answers the 2008 crisis. Core equity capital (CET1), the safest kind, rose from 2% of risky assets under Basel II to 4.5%, plus a 2.5% buffer: 7%. JPMorgan holds roughly 13%.',
+      'Banks must hold enough easily sold assets for 30 days of stress and stable funding, unlike Bear Stearns and Northern Rock, plus 3% leverage. Dodd-Frank (2010) bans betting with deposits, tests banks against 10% unemployment, 50% crashes, 25% housing falls.'
       ],
       [
         { term: 'Common Equity Tier 1 (CET1)', definition: 'The highest-quality form of bank capital, common stock and retained earnings. The CET1 ratio is a bank\'s CET1 capital divided by its risk-weighted assets. Basel III requires a minimum of 4.5% plus a 2.5% conservation buffer.', example: 'JPMorgan maintains a CET1 ratio around 13%, nearly double the Basel III minimum, providing a massive buffer against losses.' },
@@ -2397,7 +2388,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Stress Testing (CCAR)', definition: 'An annual Federal Reserve exercise where major U.S. banks must demonstrate they can maintain adequate capital through a severely adverse economic scenario with rising unemployment, falling asset prices, and economic contraction.', example: 'In the 2023 CCAR, the severely adverse scenario included 10% unemployment, a 40% stock market decline, and a 38% drop in housing prices. All 23 tested banks passed.' }
       ],
       'Layered capital requirement diagram: CET1 4.5% base, plus 2.5% conservation buffer, plus 0-2.5% countercyclical buffer, plus 1-3.5% G-SIB surcharge for systemically important banks. Shows total requirements ranging from 7% for small banks to potentially 15%+ for the largest global banks.',
-      { company: 'Lehman Brothers', metric: '31:1 leverage ratio, only 3.2% capital', outcome: 'Filed the largest bankruptcy in history on September 15, 2008, with $639 billion in assets and $619 billion in debt', explanation: 'Lehman Brothers epitomized everything Basel III was designed to prevent. With 31:1 leverage, a mere 3.2% decline in asset values wiped out all equity. There were no meaningful liquidity requirements, no stress tests, and no restrictions on proprietary trading. Lehman\'s failure triggered a global panic that froze credit markets worldwide and nearly collapsed the financial system.' },
+      undefined,
       { type: 'grid', title: 'Basel III Capital Stack', items: [{ label: 'CET1 Minimum: 4.5%', color: '#0f172a' }, { label: 'Conservation Buffer: 2.5%', color: '#b862ed' }, { label: 'Countercyclical: 0-2.5%', color: '#10b981' }, { label: 'G-SIB Surcharge: 1-3.5%', color: '#f59e0b' }, { label: '7%', color: '#ef4444' }, { label: 'min', color: '#94a3b8' }, { label: '~15%+', color: '#ef4444' }, { label: 'for', color: '#3b82f6' }], sentiment: 'positive' }
     ),
   
@@ -2412,7 +2403,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'CAPITAL BUFFERS',
+      'Capital buffers',
       'How Basel III Capital Requirements Protect the System',
       'comparison',
       'Compare pre-2008 capital levels with post-Basel III requirements. See how different capital ratios translate to loss-absorption capacity.',
@@ -2437,7 +2428,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Asset Decline (%)', min: 1, max: 30, default: 10, unit: '%' },
         { label: 'Bank Total Assets ($B)', min: 50, max: 3000, default: 500, unit: 'B' }
       ],
-      { company: 'U.S. Banking System', metric: 'CET1 ratios pre vs. post Basel III', outcome: 'Banks entered COVID-19 with ~$1.1 trillion in aggregate capital, no major bank failures during the pandemic', explanation: 'The COVID-19 market crash of March 2020 was one of the fastest in history, the S&P 500 fell 34% in 23 trading days. Yet no major bank failed. Banks had 2-3x the capital they held in 2008. The Fed stress tests had prepared them for exactly these scenarios. Basel III\'s capital buffers worked as designed: banks absorbed losses, continued lending, and helped stabilize markets.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2456,7 +2447,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'REGULATION MYTHS',
+      'Regulation myths',
       'What most people get wrong about banking regulation',
       [
         {
@@ -2663,12 +2654,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 3, Teaching Slide (Comprehensive Review)
     teachingSlide(
-      'THE COMPLETE TOOLKIT',
+      'The complete toolkit',
       'Integrating Everything: The CRO\'s Framework',
       [
-        'A Chief Risk Officer\'s job is to integrate every risk concept into a coherent framework that protects the firm while enabling profitable risk-taking. This means combining quantitative tools (VaR, stress testing, duration analysis), organizational frameworks (ERM, Three Lines of Defense), and regulatory compliance (Basel III, Dodd-Frank) into a system where nothing falls through the cracks. The CRO must see the whole picture, because every major failure happened when someone saw only part of it.',
-        'The quantitative foundation includes: VaR for daily risk monitoring (knowing your normal-condition risk), stress testing for extreme scenarios (knowing your crisis-condition risk), duration analysis for interest rate sensitivity (knowing how rate changes affect your portfolio), and Expected Shortfall for tail risk (knowing how bad the worst days can actually get). These tools are complementary, not substitutes, each captures something the others miss. VaR missed the 2008 crisis; stress testing catches it. Duration missed SVB\'s liquidity crisis; LCR addresses it.',
-        'The organizational framework ensures quantitative insights translate into action. ERM creates the enterprise-wide view. The Three Lines of Defense structures accountability. Risk appetite defines boundaries. Risk culture determines whether people actually follow the rules when profits tempt them to break them. Goldman Sachs and Credit Suisse had similar quantitative tools, the difference was culture. Goldman acted on Archegos warnings; Credit Suisse didn\'t. The best risk models in the world are useless if the organization ignores them.'
+        'A chief risk officer blends tools: VaR, or value at risk, for normal days, stress testing for crises, duration for rate moves, Expected Shortfall for the worst days. VaR missed 2008; SVB needed LCR, the liquidity rule.',
+      'Structure turns numbers into action: ERM, or enterprise risk management, for the firm-wide view, Three Lines of Defense for accountability, Basel III and Dodd-Frank rules, and culture. Goldman Sachs acted on Archegos warnings; Credit Suisse did not.'
       ],
       [
         { term: 'CRO (Chief Risk Officer)', definition: 'The senior executive responsible for identifying, measuring, managing, and monitoring all risks across the organization. Reports to the CEO and Board. Must balance risk protection with enabling profitable business activities.', example: 'After the London Whale, JPMorgan elevated the CRO role with direct board access and authority to override business unit risk decisions. The CRO\'s independence is critical to effectiveness.' },
@@ -2676,7 +2666,17 @@ const lessons: PathwayLesson[] = [
         { term: 'Integrated Risk Framework', definition: 'A comprehensive approach that combines quantitative tools (VaR, stress tests, duration), organizational structures (ERM, Three Lines of Defense), and regulatory compliance into a unified risk management system.', example: 'JPMorgan\'s integrated risk framework monitors market risk (VaR), credit risk (counterparty exposure), operational risk (incident tracking), and liquidity risk (LCR) on a single dashboard, updated in real-time.' }
       ],
       'A comprehensive CRO dashboard showing: quantitative metrics (VaR gauge, duration bar, CET1 ratio, LCR ratio), organizational elements (Three Lines of Defense status, risk appetite utilization), and regulatory compliance (CCAR status, Basel III metrics). All elements connected to a central "Enterprise Risk View" that aggregates into a single risk score.',
-      { company: 'Goldman Sachs vs. Credit Suisse, Archegos, March 2021', metric: 'Same client, same risk, radically different outcomes', outcome: 'Goldman lost $10M, Credit Suisse lost $5.5B from the same Archegos collapse', explanation: 'Both firms had exposure to Archegos Capital. Goldman\'s risk culture prioritized early action, when margin calls weren\'t met, Goldman immediately began liquidating. Credit Suisse hesitated, hoping positions would recover. By the time Credit Suisse acted, they were last to sell and absorbed the largest losses. The difference wasn\'t tools or models, it was culture and speed of execution. This is why the CRO\'s most important job isn\'t building models but building a culture where risk signals are acted upon immediately.' }
+      undefined,
+      { type: 'grid', title: 'What sits on a CRO dashboard', items: [
+        { label: 'VaR', value: 'Normal-day risk' },
+        { label: 'Stress tests', value: 'Crisis risk' },
+        { label: 'Duration', value: 'Rate sensitivity' },
+        { label: 'CET1 ratio', value: 'Loss absorption' },
+        { label: 'LCR', value: 'Liquidity survival' },
+        { label: 'Three Lines of Defense', value: 'Who owns what' },
+        { label: 'Risk appetite', value: 'The board-set ceiling' },
+        { label: 'CCAR and Basel III', value: 'The regulatory floor' },
+      ], footer: 'Same Archegos exposure: Goldman lost $10M, Credit Suisse lost $5.5B.', sentiment: 'positive' },
     ),
   
     // Step 4, Micro-Check
@@ -2690,7 +2690,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE COMPLETE PICTURE',
+      'The complete picture',
       'How Risk Metrics Work Together: A Multi-Dimensional View',
       'comparison',
       'No single metric captures all risk. See how VaR, stress testing, duration, and capital ratios each reveal different aspects of a portfolio\'s risk profile.',
@@ -2710,7 +2710,7 @@ const lessons: PathwayLesson[] = [
         'The CCAR stress test projects losses across all risk types simultaneously, the closest thing to a comprehensive risk assessment that exists.'
       ],
       [],
-      { company: 'Long-Term Capital Management (LTCM)', metric: 'Combined failure of VaR models + extreme leverage (25:1)', outcome: 'Lost $4.6 billion in 1998, nearly caused a systemic crisis', explanation: 'LTCM had two Nobel Prize winners and the most sophisticated VaR models on Wall Street. But their models assumed historical correlations would hold during a crisis (they didn\'t), and they operated at 25:1 leverage. When Russia defaulted in August 1998, every "uncorrelated" position moved against LTCM simultaneously. VaR said they were safe; reality said otherwise. The Fed coordinated a $3.6B private bailout to prevent systemic contagion. LTCM proves that models without humility are weapons of financial destruction.' }
+      undefined
     ),
   
     // Step 6, Case Study
@@ -2730,7 +2730,7 @@ const lessons: PathwayLesson[] = [
   
     // Step 7, Misconceptions
     misconceptions(
-      'CAPSTONE MYTHS',
+      'Capstone myths',
       'Final misconceptions to put to rest',
       [
         {
@@ -2931,12 +2931,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE FAT TAILS',
+      'The fat tails',
       'Why Normal Distributions Fail in Finance',
       [
-        'Most risk models assume asset returns follow a normal (Gaussian) distribution, the classic bell curve. Under this assumption, extreme events are vanishingly rare: a 5-sigma move should happen once every 14,000 years. But in real financial markets, extreme moves happen far more frequently. The 1987 crash was a 20+ sigma event under normal assumptions. The 2008 crisis produced multiple "once in 10,000 years" days. Goldman Sachs experienced "25-sigma events" in August 2007. These aren\'t anomalies, they\'re evidence that financial returns have "fat tails."',
-        'Fat-tailed distributions (like the Cauchy or Student\'s t-distribution) assign much higher probability to extreme events than the normal distribution. In a normal distribution, events beyond 4 standard deviations are essentially impossible (0.006% probability). In a fat-tailed distribution, they happen regularly. This matters enormously for risk management because VaR models built on normal distributions systematically underestimate the frequency and severity of extreme losses. A 99% VaR based on normal assumptions might capture 99% of normal days but miss the catastrophic ones entirely.',
-        'Nassim Taleb\'s "Black Swan" framework formalizes this insight. A Black Swan has three properties: it\'s an outlier (nothing in the past convincingly points to its possibility), it carries extreme impact, and human nature makes us construct explanations after the fact that make it seem predictable. The 2008 crisis, COVID-19, and 9/11 are all Black Swans. Risk management that ignores fat tails is like car insurance that covers fender benders but excludes total losses, it protects against the events that don\'t matter and fails against the ones that do.'
+        'Bell curve (normal) models say a 5-sigma move comes once every 14,000 years. Reality differs: the 1987 crash was 20+ sigma, 2008 gave several days rated once in 10,000 years, and Goldman Sachs saw 25-sigma events in August 2007.',
+      'Returns have fat tails: extremes happen far more often than bell curves predict, which call moves beyond 4 standard deviations 0.006% likely. So 99% VaR (value at risk) misses catastrophes. Taleb calls these Black Swans: COVID-19, 9/11.'
       ],
       [
         { term: 'Fat Tails (Leptokurtosis)', definition: 'A statistical property where a distribution has heavier tails than a normal distribution, meaning extreme events occur more frequently than predicted by Gaussian models.', example: 'The S&P 500 has experienced daily moves of 5%+ over 100 times since 1950. Under a normal distribution, this should have happened fewer than 3 times.' },
@@ -2945,7 +2944,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Kurtosis', definition: 'A statistical measure of the "tailedness" of a distribution. Higher kurtosis means fatter tails and more frequent extreme events. Financial returns typically have excess kurtosis of 3-50x.', example: 'The S&P 500\'s daily return distribution has kurtosis around 25, versus 3 for a normal distribution, meaning extreme events are roughly 8x more common than normal models predict.' }
       ],
       'Side-by-side comparison: Normal distribution (thin tails, extreme events nearly impossible) versus fat-tailed distribution (heavy tails, extreme events happen regularly). Highlighted zone beyond VaR threshold showing where Black Swans live.',
-      { company: 'Universa Investments', metric: '4,144% return in March 2020', outcome: 'Tail-risk hedging strategy turned a global catastrophe into the most profitable month in hedge fund history', explanation: 'Universa\'s strategy is simple in concept: spend small premiums during calm periods buying far out-of-the-money put options (extreme downside insurance). In 99% of months, these options expire worthless, a small, predictable cost. But when a Black Swan hits, the payoff is enormous. In March 2020, when the S&P 500 fell 34%, Universa\'s puts generated returns of over 4,000%. The strategy explicitly rejects normal-distribution assumptions and bets that fat tails are real.' },
+      undefined,
       { type: 'comparison', title: '+4,144%', rows: [{ label: 'Sigma Events: Model vs Reality', value: '3σ Normal' }, { label: '1 in 370', value: '5σ Normal' }, { label: '1 in 3.5M', value: 'Oct 1987' }, { label: '20σ: 1 in 10^88', value: 'Yet it happened.' }, { label: 'Markets have fat tails.', value: 'Normal distributions lie.' }, { label: 'Universa: March 2020', value: 'Profiting from fat tails' }], sentiment: 'positive' }
     ),
 
@@ -2958,7 +2957,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'TAIL RISK MEASUREMENT',
+      'Tail risk measurement',
       'VaR vs Expected Shortfall: What Happens Beyond the Threshold',
       'comparison',
       'Compare how VaR and Expected Shortfall (CVaR) measure risk differently. VaR tells you the threshold; ES tells you how bad it gets beyond.',
@@ -2982,7 +2981,7 @@ const lessons: PathwayLesson[] = [
         { label: 'VaR Confidence Level (%)', min: 90, max: 99, default: 99, unit: '%' },
         { label: 'Tail Severity Multiplier', min: 1, max: 10, default: 3, unit: 'x' }
       ],
-      { company: 'Goldman Sachs', metric: '"25-sigma events" in August 2007', outcome: 'Goldman\'s CFO told the Financial Times their models showed events happening that should occur once every 100,000 years, several days in a row', explanation: 'The fact that Goldman described these as "25-sigma events" reveals the core problem: their models were based on normal distributions. Under a fat-tailed model, these events were extreme but not "impossible." The mismatch between the model and reality is exactly what Taleb warned about, and why Expected Shortfall and fat-tailed models are now replacing VaR-based approaches.' }
+      undefined
     ),
 
     caseStudy(
@@ -2998,7 +2997,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'TAIL RISK MYTHS',
+      'Tail risk myths',
       'What most people get wrong about extreme events',
       [
         {
@@ -3167,12 +3166,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE COUNTERPARTY PROBLEM',
+      'The counterparty problem',
       'When Your Hedge Disappears: Understanding Counterparty Risk',
       [
-        'Counterparty credit risk is the risk that the entity on the other side of a financial contract will default before fulfilling its obligations. Unlike market risk (where you lose money because prices move against you), counterparty risk means you lose money because your counterparty ceases to exist. This is uniquely dangerous because it can turn a perfectly hedged position into an unhedged one at the worst possible moment, exactly what happened to firms hedged with Lehman Brothers in 2008.',
-        'Credit Value Adjustment (CVA) is the price of counterparty risk. It adjusts the value of a derivative position downward to reflect the probability that the counterparty might default. CVA depends on three factors: the probability of default (PD), the loss given default (LGD), and the expected exposure at the time of default (EE). Before 2008, many banks barely calculated CVA, they assumed counterparties like Lehman and Bear Stearns were "too big to fail." After 2008, CVA became one of the largest risk charges in banking.',
-        'Collateral management is the primary defense against counterparty risk. Under a Credit Support Annex (CSA), counterparties exchange collateral (usually cash or government bonds) based on the mark-to-market value of their positions. If I owe you $10 million on a swap, I post $10 million in collateral. If I default, you keep the collateral. Central clearing through CCPs takes this further: both parties post initial margin (upfront collateral) and variation margin (daily mark-to-market adjustments), and the CCP maintains a default waterfall to absorb losses if a member fails.'
+        'Counterparty credit risk is the chance the other side of your contract defaults, so your hedge vanishes. Before 2008, banks assumed Lehman Brothers and Bear Stearns were too big to fail. Credit value adjustment, CVA, prices that risk.',
+      'Collateral is the main defense. Under a credit support annex, each side posts cash or bonds against what it owes: owe $10 million on a swap, post $10 million. Clearing houses, CCPs, also collect daily margin.'
       ],
       [
         { term: 'Counterparty Credit Risk', definition: 'The risk that the other party to a financial contract will default before the contract matures, leaving you with an unhedged position and potential losses.', example: 'When Lehman defaulted, firms that had bought CDS protection from Lehman lost their hedge, they were exposed to the very credit risk they thought they had eliminated.' },
@@ -3181,7 +3179,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Netting Agreement', definition: 'A legal agreement that allows counterparties to offset positive and negative exposures against each other, reducing the total amount at risk. Converts gross exposure to net exposure.', example: 'If Bank A owes Bank B $100M on one swap and Bank B owes Bank A $80M on another, netting reduces the exposure from $180M gross to $20M net.' }
       ],
       'Diagram showing bilateral derivatives (pre-2008: Bank A ↔ Bank B direct, no collateral, no central oversight) versus centrally cleared derivatives (post-2008: Bank A ↔ CCP ↔ Bank B, with margin flows and default waterfall).',
-      { company: 'Lehman Brothers', metric: '930,000 outstanding derivatives contracts at bankruptcy', outcome: 'Counterparty losses cascaded through the global financial system, freezing credit markets for weeks', explanation: 'Lehman\'s bankruptcy was the ultimate counterparty risk event. With 930,000 derivatives contracts and over 8,000 counterparties, its default created a web of uncertainty: nobody knew who was exposed, by how much, or whether their hedges were still valid. This uncertainty, not just the direct losses, is what froze global credit markets. The lesson led directly to mandatory central clearing under Dodd-Frank.' },
+      undefined,
       { type: 'flow', title: 'Process Flow', nodes: [{ label: 'Before 2008: Bilateral', color: '#0f172a' }, { label: 'After 2008: Central Clearing', color: '#ef4444' }, { label: 'A', color: '#10b981' }, { label: 'B', color: '#b862ed' }, { label: 'C' }, { label: 'D' }, { label: 'CCP' }, { label: 'A' }], sentiment: 'positive' }
     ),
 
@@ -3194,7 +3192,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'COLLATERAL MECHANICS',
+      'Collateral mechanics',
       'How Central Clearing and Margin Requirements Protect the System',
       'comparison',
       'See how central counterparties and margin requirements reduce counterparty risk compared to bilateral trading.',
@@ -3219,7 +3217,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Netting Ratio (%)', min: 50, max: 99, default: 95, unit: '%' },
         { label: 'Initial Margin Rate (%)', min: 1, max: 15, default: 5, unit: '%' }
       ],
-      { company: 'LCH (London Clearing House)', metric: 'Managed Lehman\'s $9 trillion swap portfolio closeout', outcome: 'No non-defaulting clearing member lost money, the CCP\'s margin and default waterfall absorbed all losses', explanation: 'LCH\'s handling of Lehman\'s default is the gold standard for central clearing success. Despite the largest bankruptcy in history, LCH closed out Lehman\'s massive swap portfolio in an orderly fashion using only Lehman\'s own posted margin and default fund contribution. This proved that central clearing works, and is the strongest argument for mandatory clearing of standardized derivatives.' }
+      undefined
     ),
 
     caseStudy(
@@ -3235,7 +3233,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'COUNTERPARTY MYTHS',
+      'Counterparty myths',
       'What people get wrong about counterparty risk',
       [
         {
@@ -3404,12 +3402,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE THREE EXPOSURES',
+      'The three exposures',
       'Transaction, Translation, and Economic Currency Risk',
       [
-        'Currency risk exists whenever a business or investor has cash flows, assets, or competitive dynamics denominated in a foreign currency. There are three distinct types. Transaction exposure is the most straightforward: it\'s the risk that exchange rates will change between when a deal is agreed and when payment is made. If a U.S. company agrees to buy €10 million in parts from a German supplier payable in 90 days, and the euro strengthens 5% in that period, the cost jumps from $11 million to $11.55 million. Forward contracts are the primary hedge.',
-        'Translation exposure (also called accounting exposure) arises when a multinational consolidates its foreign subsidiaries\' financial statements into the parent\'s reporting currency. If Toyota\'s U.S. subsidiary earns $5 billion in profit, the yen value of that profit changes with USD/JPY. When the yen weakened 32% in 2022, Toyota\'s dollar profits translated into far more yen, boosting reported earnings by ¥2.8 trillion. Translation exposure affects reported earnings but not necessarily cash flows, which is why some companies don\'t hedge it.',
-        'Economic exposure (also called operating or competitive exposure) is the most complex and hardest to hedge. It\'s the long-term impact of currency movements on a company\'s competitive position and future cash flows. If the Japanese yen weakens persistently, Japanese automakers become more competitive globally because their costs (in yen) decline relative to competitors\' costs. This affects market share, pricing power, and long-term profitability in ways that can\'t be fully captured by financial hedges. The primary defense is operational: diversifying manufacturing across currency zones.'
+        'Transaction risk is a rate change between agreeing a deal and paying; forwards hedge it. A U.S. firm owes €10 million in 90 days. A 5% stronger euro lifts the cost from $11 million to $11.55 million.',
+      'Translation risk means foreign profits change value when converted. Toyota\'s $5 billion U.S. profit moves with USD/JPY: the yen\'s 32% fall in 2022 added ¥2.8 trillion. Economic risk, lasting competitive shifts, is met by spreading factories worldwide.'
       ],
       [
         { term: 'Transaction Exposure', definition: 'The risk that exchange rates change between when a foreign-currency-denominated transaction is agreed and when it settles, affecting the home-currency value of the cash flow.', example: 'A U.S. importer agrees to pay ¥1 billion in 90 days. At ¥130/$, this costs $7.69M. If the yen strengthens to ¥120/$, the cost rises to $8.33M, a $640K loss from FX alone.' },
@@ -3418,7 +3415,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Natural Hedge', definition: 'Structuring business operations so that foreign currency revenues are offset by foreign currency costs in the same currency, reducing net exposure without financial instruments.', example: 'BMW builds cars in the U.S. (dollar costs) and sells them in the U.S. (dollar revenues), creating a natural hedge, currency movements affect both sides equally.' }
       ],
       'Three-column diagram: Transaction Exposure (invoice in foreign currency, hedge with forwards), Translation Exposure (foreign subsidiary balance sheet, hedge with cross-currency swaps), Economic Exposure (competitive dynamics, hedge with operational diversification).',
-      { company: 'Airbus', metric: '70-80% of expected USD revenues hedged 2-3 years forward', outcome: 'Stable euro profit margins regardless of EUR/USD volatility', explanation: 'Airbus sells aircraft priced in USD but manufactures primarily in Europe (EUR costs). Without hedging, a 10% EUR/USD appreciation would devastate margins. By hedging 70-80% of expected dollar revenues with forwards and options up to 3 years out, Airbus locks in exchange rates, enabling confident pricing and stable earnings. Their hedging book typically exceeds $100 billion in notional value.' },
+      undefined,
       { type: 'grid', title: 'Overview', items: [{ label: 'FX Hedging Tools', color: '#0f172a' }, { label: 'Forwards', color: '#b862ed' }, { label: 'Lock in rate', color: '#10b981' }, { label: 'No upfront cost', color: '#94a3b8' }, { label: 'Obligation', color: '#f59e0b' }, { label: 'Options', color: '#ef4444' }, { label: 'Floor with upside', color: '#ef4444' }, { label: 'Premium cost', color: '#3b82f6' }], sentiment: 'positive' }
     ),
 
@@ -3431,7 +3428,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'FX HEDGING STRATEGIES',
+      'FX hedging strategies',
       'Comparing Forward Contracts, Options, and Natural Hedging',
       'comparison',
       'See how different hedging strategies protect against currency risk with different cost-benefit tradeoffs.',
@@ -3456,7 +3453,7 @@ const lessons: PathwayLesson[] = [
         { label: 'FX Move (%)', min: -20, max: 20, default: -10, unit: '%' },
         { label: 'Hedge Ratio (%)', min: 0, max: 100, default: 75, unit: '%' }
       ],
-      { company: 'Toyota', metric: '¥2.8 trillion ($20B) FX profit impact in 2022', outcome: 'The weak yen boosted Toyota\'s reported profits dramatically, but the gain was mostly translational, not operational', explanation: 'Toyota\'s 2022 experience illustrates the difference between translation and economic exposure. The weak yen made overseas profits look larger when converted to yen (translation gain), but didn\'t change Toyota\'s actual competitiveness or cash generation in foreign markets. Toyota partially hedges its translation exposure but accepts some variability, focusing its hedging program on transaction exposure (known cash flows) and natural hedging (manufacturing in major sales markets).' }
+      undefined
     ),
 
     caseStudy(
@@ -3472,7 +3469,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'FX RISK MYTHS',
+      'FX risk myths',
       'What people get wrong about currency risk',
       [
         {
@@ -3641,12 +3638,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'RATE RISK MECHANICS',
+      'Rate risk mechanics',
       'How Interest Rate Changes Create Winners and Losers',
       [
-        'Interest rate risk is the risk that changes in interest rates will affect the value of assets, liabilities, and cash flows. When rates rise, bond prices fall (inverse relationship). The longer the duration, the larger the price drop: a bond with 10-year duration loses approximately 10% of its value for every 1% rate increase. SVB\'s portfolio had average duration around 6 years; when rates rose 3%, the math was devastating: ~18% loss on $91 billion = $16-17 billion in unrealized losses.',
-        'The yield curve, the relationship between interest rates and maturity, creates additional complexity. A "normal" yield curve slopes upward (longer maturities earn higher rates), incentivizing institutions to borrow short and lend long. This maturity transformation is how banks make money, but it creates duration mismatch: short-term liabilities (deposits) and long-term assets (mortgages, bonds). When the yield curve inverts (short rates exceed long rates), this business model breaks, banks earn less on assets than they pay on liabilities.',
-        'Interest rate swaps are the primary hedging tool. In a "pay fixed, receive floating" swap, a bank effectively converts its long-duration bond portfolio into a short-duration one: it keeps the bonds but enters a swap where it pays a fixed rate and receives a floating rate that rises with the market. When rates rise, the swap gains offset the bond losses. SVB had ZERO swaps on its $91 billion bond portfolio, the most basic interest rate hedge was completely absent. JPMorgan, by contrast, actively managed its swap book, adjusting duration exposure as the rate environment evolved.'
+        'Rising rates push bond prices down. Duration measures sensitivity: a 10-year duration bond loses about 10% per 1% rate rise. SVB\'s bonds averaged 6 years, so a 3% rise meant 18% loss on $91 billion, or $16-17 billion.',
+      'Banks borrow short and lend long, creating a mismatch. An interest rate swap hedges it: you pay a fixed rate and receive a floating one. Swap gains then offset bond losses. SVB had zero swaps. JPMorgan managed its book.'
       ],
       [
         { term: 'Duration', definition: 'A measure of a bond\'s sensitivity to interest rate changes, expressed in years. A duration of 5 means the bond\'s price drops approximately 5% for every 1% increase in rates.', example: 'SVB\'s bond portfolio had ~6-year duration. When rates rose 3%, the portfolio lost approximately 18% of its value, $16-17 billion on $91 billion in holdings.' },
@@ -3655,7 +3651,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Maturity Transformation', definition: 'The core function of banking: borrowing short-term (deposits) and lending long-term (mortgages). Profitable when the yield curve is positive but creates interest rate risk from the duration mismatch.', example: 'SVB took deposits (instant withdrawal) and invested in 10-30 year bonds, extreme maturity transformation that collapsed when depositors demanded their money and the bonds had lost $17B.' }
       ],
       'Duration ladder showing how different portfolio durations react to a 3% rate increase: 2-year duration loses 6%, 5-year loses 15%, 10-year loses 30%. SVB\'s 6-year duration loss highlighted at ~18%.',
-      { company: 'Silicon Valley Bank', metric: '$91B in long-duration bonds, ZERO interest rate hedges', outcome: 'Seized by FDIC on March 10, 2023, the second-largest bank failure in U.S. history', explanation: 'SVB is the single clearest case study of unmanaged interest rate risk. The bank invested $91 billion in long-duration bonds and MBS when rates were near zero, without a single interest rate swap or hedge. When the Fed raised rates from 0% to 5%, the portfolio lost $17 billion. When depositors ran (accelerated by social media), SVB had to sell bonds at realized losses. The bank went from "well-capitalized" to seized in 48 hours. Every concept in this lesson, duration, yield curve, swaps, could have saved SVB.' },
+      undefined,
       { type: 'bars', title: 'How a 3% Rate Rise Hits Bond Portfolios by Duration', items: [{ label: '2yr duration', value: 6, displayValue: '-6%' }, { label: '5yr duration', value: 15, displayValue: '-15%' }, { label: 'SVB ~6yr', value: 18, displayValue: '-18%' }, { label: '10yr duration', value: 30, displayValue: '-30%' }], footer: 'Longer duration, larger loss. SVB carried 6-year duration with no hedge.', sentiment: 'negative' }
     ),
 
@@ -3668,7 +3664,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'HEDGING WITH SWAPS',
+      'Hedging with swaps',
       'Interest Rate Swaps: How Banks Manage Duration',
       'comparison',
       'See how interest rate swaps transform a bank\'s rate exposure. Adjust rates to compare hedged vs. unhedged positions.',
@@ -3693,7 +3689,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Duration (years)', min: 1, max: 15, default: 6, unit: 'yr' },
         { label: 'Rate Change (%)', min: -3, max: 5, default: 3, unit: '%' }
       ],
-      { company: 'JPMorgan vs SVB, 2022-2023', metric: 'Active duration management vs. zero hedging', outcome: 'JPMorgan gained $20B in NII; SVB lost $17B and was seized', explanation: 'The contrast could not be starker. JPMorgan\'s ALM team actively managed duration with swaps, adjusting weekly as the rate environment evolved. SVB\'s CRO position was vacant for 8 months during the critical rate-rising period, and the bank had zero interest rate swaps. Both held long-duration assets. One actively managed the risk; the other didn\'t manage it at all. The outcome was determined entirely by risk management.' }
+      undefined
     ),
 
     caseStudy(
@@ -3709,7 +3705,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'RATE RISK MYTHS',
+      'Rate risk myths',
       'What people get wrong about interest rate risk',
       [
         {
@@ -3878,12 +3874,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE RISK TRANSFER PRINCIPLE',
+      'The risk transfer principle',
       'How Insurance Makes the Economy Possible',
       [
-        'Insurance works through one fundamental principle: pooling many independent risks makes aggregate losses predictable. If one house has a 0.1% chance of burning down each year, the outcome for that homeowner is binary and catastrophic. But if an insurer covers 1 million homes, approximately 1,000 will burn each year with statistical predictability. The insurer charges each homeowner a premium slightly above the expected loss, creating a pool that pays claims from the predictable aggregate while generating profit from the margin. This is the Law of Large Numbers in action.',
-        'The reinsurance chain extends this principle globally. A local insurer covering Florida hurricanes faces concentrated risk, one major hurricane could generate claims exceeding its capital. So it buys reinsurance: paying a reinsurer (like Munich Re, Swiss Re, or Berkshire Hathaway) to cover losses above a certain threshold. The reinsurer diversifies globally, Florida hurricanes, Japanese earthquakes, European floods, so no single event threatens its solvency. For the most extreme events, reinsurers issue catastrophe bonds (cat bonds) that transfer risk to capital market investors willing to accept natural disaster risk in exchange for high yields.',
-        'The key tension in insurance is moral hazard: the tendency for insured parties to take more risk because they\'re protected from consequences. If your car is fully insured, you might drive less carefully. If banks believe the government will bail them out, they take more risk (exactly what happened before 2008). The insurance industry manages moral hazard through deductibles (you bear the first loss), copays (you share ongoing costs), exclusions (certain behaviors aren\'t covered), and premium adjustments (riskier behavior costs more). These mechanisms ensure that risk transfer doesn\'t become risk encouragement.'
+        'Insurance pools risk. One house has a 0.1% chance of burning yearly, an unpredictable gamble. Across 1 million homes, about 1,000 burn each year: the law of large numbers. Premiums slightly above expected loss pay claims and profit.',
+      'Insurers buy reinsurance, cover for insurers, from Munich Re, Swiss Re or Berkshire Hathaway, passing extreme risks to investors as catastrophe bonds. Deductibles, paying the first loss, limit moral hazard: the carelessness cover encourages, as banks showed before 2008.'
       ],
       [
         { term: 'Law of Large Numbers', definition: 'The statistical principle that as the number of independent, identically distributed risks increases, the average outcome converges to the expected value. This makes aggregate losses predictable even when individual outcomes are uncertain.', example: 'One coin flip is unpredictable. One million coin flips will produce approximately 500,000 heads with high certainty. Insurance applies this principle to make catastrophic individual risks manageable at scale.' },
@@ -3892,7 +3887,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Moral Hazard', definition: 'The tendency for entities to take on more risk when they know they are protected from the consequences of that risk. A fundamental challenge in all forms of insurance and risk transfer.', example: 'The 2008 bailouts created moral hazard: banks that believed they were "too big to fail" had less incentive to manage risk carefully, knowing taxpayers would absorb catastrophic losses.' }
       ],
       'Layered risk transfer diagram: policyholder premium flows to primary insurer (retains first loss), excess flows to reinsurer (covers layer above retention), extreme excess flows to cat bonds (capital markets absorb tail risk). Each layer has its own pricing and risk-bearing capacity.',
-      { company: 'Berkshire Hathaway', metric: 'Warren Buffett built a $900B+ company largely on insurance float', outcome: 'Berkshire\'s insurance subsidiaries collect premiums today and pay claims later, the "float" is invested profitably in the interim', explanation: 'Berkshire Hathaway\'s genius is recognizing that insurance is fundamentally an investment business. Premiums collected today create a "float", money held until claims are paid. If underwriting is disciplined (premiums exceed claims), the float is essentially free capital to invest. Berkshire\'s insurance float exceeds $160 billion, invested by Buffett in stocks, bonds, and businesses. This model makes Berkshire the world\'s most valuable insurance-based company.' },
+      undefined,
       { type: 'grid', title: '$164B', items: [{ label: 'Berkshire Hathaway: Insurance as Investment', color: '#0f172a' }, { label: 'Insurance Float', color: '#b862ed' }, { label: 'Premiums collected, claims not yet paid', color: '#10b981' }, { label: 'Float Invested In', color: '#94a3b8' }, { label: 'Apple, Coca-Cola, railroads', color: '#f59e0b' }, { label: 'businesses, bonds', color: '#ec4899' }, { label: '= $900B+ company value', color: '#ef4444' }, { label: 'Buffett\\\'s Insight', color: '#3b82f6' }], sentiment: 'positive' }
     ),
 
@@ -3905,7 +3900,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'RISK TRANSFER ECONOMICS',
+      'Risk transfer economics',
       'How the Insurance Chain Transfers and Prices Risk',
       'comparison',
       'See how risk flows from policyholders through insurers, reinsurers, and cat bonds. Each layer prices and absorbs a different portion of the risk.',
@@ -3930,7 +3925,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Loss Probability (%)', min: 0.01, max: 5, default: 0.5, unit: '%' },
         { label: 'Average Loss ($K)', min: 10, max: 500, default: 200, unit: 'K' }
       ],
-      { company: 'Hurricane Andrew (1992)', metric: '11 insurers went bankrupt from a single hurricane', outcome: 'Led to the creation of the modern cat bond market and restructured global reinsurance', explanation: 'Before Andrew, many Florida insurers relied on minimal reinsurance, believing a major hurricane was unlikely. When Andrew hit as a Category 5, insured losses reached $27 billion (in 2005 dollars). Eleven insurers failed outright, and the industry realized that traditional reinsurance capacity was insufficient for mega-catastrophes. This directly led to the development of catastrophe bonds, allowing insurance risk to access the vastly larger capital markets.' }
+      undefined
     ),
 
     caseStudy(
@@ -3946,7 +3941,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'INSURANCE MYTHS',
+      'Insurance myths',
       'What people get wrong about risk transfer',
       [
         {
@@ -4105,7 +4100,7 @@ const lessons: PathwayLesson[] = [
       'In June 2017, the NotPetya cyberattack, attributed to Russian military hackers targeting Ukraine, spread globally in hours, destroying data at Maersk (the world\'s largest shipping company), Merck, FedEx, and hundreds of other firms. Total damage: over $10 billion. Maersk lost access to all 49,000 of its computers simultaneously. The entire global shipping network was paralyzed. NotPetya wasn\'t just a cyber incident, it was the most destructive cyberattack in history, and it demonstrated that cyber risk is now a tier-one financial and operational threat.',
       'By the end of this lesson, you\'ll understand the major categories of cyber risk, the economics of ransomware, the challenges of cyber insurance pricing, and how organizations build resilience against threats that evolve faster than any defense.',
       'Cyber risk landscape showing attack vectors, financial impacts, and the growth of cyber insurance premiums',
-      { type: 'bars', title: 'Cyber Risk: The Fastest-Growing Threat', items: [{ label: 'Ransomware', value: 20, displayValue: '$20B+ annual' }, { label: 'damage (2023)', value: 445, displayValue: '$4.45M avg' }, { label: 'Data Breach', value: 122023, displayValue: '$12B+ premiums (2023)' }, { label: 'cost per breach', value: 82023, displayValue: '$8 trillion (2023)' }, { label: 'Supply Chain', value: 100, displayValue: '100%' }, { label: 'SolarWinds: 18K', value: 120, displayValue: '120%' }], sentiment: 'positive' }
+      { type: 'comparison', title: 'NotPetya, June 2017', rows: [{ label: 'Total global damage', value: '$10B+' }, { label: 'Maersk computers destroyed', value: '49,000' }, { label: 'Maersk losses', value: '$300M+' }, { label: 'Days to restore operations', value: '10' }], footer: 'One attack, spread in hours, paralyzed global shipping.', sentiment: 'negative' }
     ),
 
     stakesCard(
@@ -4115,12 +4110,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE CYBER THREAT LANDSCAPE',
+      'The cyber threat landscape',
       'Understanding the Major Categories of Cyber Risk',
       [
-        'Cyber risk has become the fastest-growing category of operational risk, with global cybercrime costs estimated at $8 trillion in 2023, larger than the GDP of every country except the U.S. and China. The threat landscape includes four major categories. Ransomware attacks encrypt an organization\'s data and demand payment for the decryption key. The average ransom payment exceeded $1.5 million in 2023, with total ransomware damages exceeding $20 billion annually. The Colonial Pipeline attack (2021) shut down the largest fuel pipeline in the U.S. for 6 days, causing fuel shortages across the East Coast.',
-        'Data breaches expose sensitive information, customer data, financial records, trade secrets. The average cost of a data breach reached $4.45 million in 2023 (IBM), with healthcare breaches averaging $10.9 million. Supply chain attacks compromise trusted software vendors to infiltrate thousands of downstream targets. The SolarWinds attack (2020) compromised updates to a widely-used IT management tool, giving Russian hackers access to 18,000 organizations including the U.S. Treasury, Department of Homeland Security, and major corporations. Because targets trusted SolarWinds, they installed the compromised update themselves.',
-        'State-sponsored attacks represent the most sophisticated and destructive category. NotPetya (2017) was created by Russia\'s GRU military intelligence to target Ukraine but spread globally, causing $10 billion+ in damage. These attacks often target critical infrastructure: power grids, financial systems, shipping networks. For financial institutions, the interconnection between cyber risk and financial stability is the nightmare scenario, a cyberattack that takes down a major bank\'s payment systems or a clearinghouse could create systemic financial disruption far exceeding any traditional financial crisis.'
+        'Cybercrime cost $8 trillion in 2023, behind only U.S. and China GDP. Ransomware, malicious software locking data until you pay, averaged $1.5 million per ransom and $20 billion yearly. Colonial Pipeline (2021) shut 6 days, causing East Coast fuel shortages.',
+      'Data breaches leak private records, averaging $4.45 million in 2023 (IBM), healthcare $10.9 million. SolarWinds (2020) gave Russian hackers access to 18,000 organizations, including the U.S. Treasury. NotPetya (2017), from Russia\'s GRU, targeted Ukraine but caused $10 billion+ globally.'
       ],
       [
         { term: 'Ransomware', definition: 'Malware that encrypts an organization\'s data and demands payment (usually in cryptocurrency) for the decryption key. Modern variants also steal data before encrypting, threatening to publish it (double extortion).', example: 'Colonial Pipeline paid $4.4 million in Bitcoin ransom in 2021 after a ransomware attack shut down the largest U.S. fuel pipeline for 6 days, causing panic buying and fuel shortages.' },
@@ -4129,7 +4123,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Cyber Insurance', definition: 'Insurance covering losses from cyber incidents including data breaches, ransomware, business interruption, and liability. The market has grown to $12B+ in premiums but faces fundamental pricing challenges.', example: 'After NotPetya, Merck filed a $1.4 billion cyber insurance claim. Insurers disputed it, arguing NotPetya was an "act of war" (excluded from most policies). The resulting legal battle reshaped cyber insurance exclusions.' }
       ],
       'Matrix of cyber threats: rows = attack type (ransomware, data breach, supply chain, state-sponsored), columns = impact (financial, operational, reputational, systemic). Each cell rates the severity.',
-      { company: 'Maersk', metric: '49,000 computers destroyed by NotPetya in hours', outcome: '$300M+ in losses, 10 days to restore operations, global shipping disrupted', explanation: 'Maersk had no network segmentation (one infected computer could reach all 49,000), no offline backups, and no incident response plan. When NotPetya hit, it spread across the entire global network in minutes. The only reason Maersk recovered at all was that its Ghana office had been disconnected due to a power outage, one surviving domain controller in Accra became the seed for rebuilding the entire IT infrastructure. This single lucky break saved the company.' }
+      undefined,
+      { type: 'grid', title: 'The cyber threat landscape', items: [
+        { label: 'Ransomware', value: '$20B a year in damages' },
+        { label: 'Data breach', value: 'Regulatory and reputational' },
+        { label: 'Supply chain', value: 'One vendor, many victims' },
+        { label: 'State-sponsored', value: 'NotPetya cost Maersk $300M' },
+      ], footer: 'Global cybercrime cost an estimated $8 trillion in 2023.', sentiment: 'negative' },
     ),
 
     microCheck(
@@ -4141,7 +4141,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'CYBER ECONOMICS',
+      'Cyber economics',
       'The Business Model of Cybercrime and Cyber Defense',
       'exponential',
       'See how cybercrime costs have grown exponentially and how organizations allocate cybersecurity budgets.',
@@ -4165,7 +4165,7 @@ const lessons: PathwayLesson[] = [
         { label: 'IT Budget ($M)', min: 1, max: 1000, default: 100, unit: 'M' },
         { label: 'Cybersecurity Allocation (%)', min: 2, max: 20, default: 10, unit: '%' }
       ],
-      { company: 'Colonial Pipeline', metric: '$4.4M ransom paid, 6-day shutdown of largest U.S. fuel pipeline', outcome: 'Fuel shortages across the U.S. East Coast, gas station panic buying, emergency government response', explanation: 'A single compromised password (likely from a dark web leak) gave the DarkSide ransomware group access to Colonial Pipeline\'s billing systems. Colonial shut down the pipeline as a precaution, creating the worst fuel supply disruption since the 1970s oil crisis. The $4.4M ransom was paid within hours, but the FBI recovered $2.3M through blockchain analysis. The attack demonstrated that cyber risk is now critical infrastructure risk.' }
+      undefined
     ),
 
     caseStudy(
@@ -4181,7 +4181,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'CYBER RISK MYTHS',
+      'Cyber risk myths',
       'What people get wrong about cybersecurity',
       [
         {
@@ -4350,12 +4350,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE CLIMATE RISK FRAMEWORK',
+      'The climate risk framework',
       'Physical Risk, Transition Risk, and the $20 Trillion Threat',
       [
-        'Climate risk manifests in two primary forms. Physical risk is the direct impact of climate change on assets and operations: increased flooding, more severe hurricanes, wildfires, sea level rise, and extreme heat. PG&E\'s bankruptcy illustrates acute physical risk, specific climate-amplified events causing immediate damage. But chronic physical risk is equally important: agricultural land becoming less productive, coastal real estate losing value, and infrastructure degrading faster due to extreme weather. The Bank of England estimates physical risk alone could destroy $2-4 trillion in financial assets.',
-        'Transition risk arises from the economic shift away from fossil fuels. As the world moves toward net-zero emissions, fossil fuel reserves become "stranded assets", coal, oil, and gas that can never be profitably extracted if carbon limits are enforced. The Carbon Tracker Initiative estimates $1-4 trillion in fossil fuel assets could be written off. But transition risk extends beyond energy: carbon pricing makes emission-intensive manufacturing more expensive, regulations force costly facility upgrades, and consumer preferences shift toward sustainable products. Companies that fail to adapt face declining revenues, stranded capital, and eventual obsolescence.',
-        'ESG (Environmental, Social, Governance) risk factors have become central to investment analysis. Environmental factors include carbon emissions, resource depletion, and pollution. Social factors include labor practices, diversity, and community impact. Governance factors include board independence, executive compensation, and corporate ethics. With $35+ trillion in ESG-integrated assets under management, these factors now directly affect capital allocation, cost of capital, and company valuations. Companies with strong ESG profiles tend to have lower cost of capital, more stable earnings, and better long-term returns, risk management and sustainability are increasingly aligned.'
+        'Physical risk is climate damage to assets: floods, wildfires, heat. PG&E\'s bankruptcy is one case. The Bank of England estimates it could destroy $2-4 trillion in financial assets. Transition risk is the cost of shifting away from fossil fuels.',
+      'Stranded assets are fuel reserves that can never be burned profitably: Carbon Tracker Initiative estimates $1-4 trillion. ESG stands for environmental, social and governance; with $35+ trillion invested that way, it moves valuations.'
       ],
       [
         { term: 'Physical Risk', definition: 'The financial risk from direct climate impacts: floods, fires, storms, sea level rise, and extreme temperatures. Can be acute (specific events) or chronic (gradual degradation). Affects asset values, insurance costs, and operational continuity.', example: 'PG&E\'s $30 billion wildfire liability and bankruptcy, climate change increased wildfire severity while the utility failed to upgrade infrastructure.' },
@@ -4364,7 +4363,12 @@ const lessons: PathwayLesson[] = [
         { term: 'ESG (Environmental, Social, Governance)', definition: 'A framework for evaluating a company\'s non-financial risks and sustainability practices. Used by investors to assess long-term risk and value creation beyond traditional financial metrics.', example: 'Over $35 trillion in assets are now managed using ESG integration, meaning climate, social, and governance factors directly affect investment decisions and capital allocation.' }
       ],
       'Two-column comparison: Physical risk (floods, fires, hurricanes, sea rise, infrastructure damage) vs Transition risk (carbon pricing, stranded assets, regulatory changes, technology disruption, demand shifts). Both connected to financial impacts: asset write-downs, insurance costs, credit losses, revenue decline.',
-      { company: 'Orsted', metric: 'Transformed from coal-intensive to world\'s largest offshore wind company', outcome: 'Market value grew from $10B to $60B+ by selling fossil assets and investing in wind', explanation: 'Orsted proves that transition risk can be turned into transition opportunity. By proactively divesting fossil fuel assets before they became stranded and investing in renewable energy, the company transformed its risk profile from climate-exposed to climate-aligned. The market rewarded this with a 6x valuation increase. Risk management and value creation converged.' }
+      undefined,
+      { type: 'comparison', title: 'Two ways climate reaches the balance sheet', rows: [
+        { label: 'Physical: floods, fires, sea rise', value: '$2-4T at risk' },
+        { label: 'Transition: stranded fossil assets', value: '$1-4T written off' },
+        { label: 'ESG-integrated assets under management', value: '$35T+' },
+      ], footer: 'Orsted sold its fossil assets and grew from $10B to $60B+.', sentiment: 'negative' },
     ),
 
     microCheck(
@@ -4376,7 +4380,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'STRANDED ASSETS',
+      'Stranded assets',
       'How the Net-Zero Transition Creates Trillions in Financial Risk',
       'timeline',
       'See how carbon pricing and climate policy create stranded assets as fossil fuel reserves become economically unviable.',
@@ -4400,7 +4404,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Fossil Fuel Portfolio ($B)', min: 1, max: 500, default: 100, unit: 'B' },
         { label: 'Years to Net-Zero Target', min: 5, max: 30, default: 25, unit: 'yr' }
       ],
-      { company: 'Peabody Energy', metric: 'World\'s largest private coal company → bankruptcy in 2016', outcome: 'Stock fell from $72 to $0 as stranded asset dynamics destroyed the coal industry', explanation: 'Peabody Energy\'s trajectory is a preview of what could happen to oil and gas companies if transition accelerates. At peak valuation, Peabody\'s reserves were worth billions. But cheap natural gas, renewable energy growth, and emissions regulations made coal uncompetitive. The reserves became stranded, still in the ground but economically worthless. Oil companies face the same fundamental risk on a longer timeline.' }
+      undefined
     ),
 
     caseStudy(
@@ -4416,7 +4420,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'CLIMATE RISK MYTHS',
+      'Climate risk myths',
       'What people get wrong about climate and ESG risk',
       [
         {
@@ -4585,12 +4589,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE THREE SOURCES OF MODEL FAILURE',
+      'The three sources of model failure',
       'Why Models Fail: Specification, Data, and Misuse',
       [
-        'Model risk arises from three sources. Specification error means the model\'s mathematical structure is wrong, it makes incorrect assumptions about how the world works. LTCM\'s models assumed stable correlations between assets; in reality, correlations spike to near 1.0 during crises when everything falls together. The Gaussian copula model used to price CDOs before 2008 assumed mortgage defaults were largely independent; in reality, they were heavily correlated because the entire housing market was a bubble. The model\'s math was elegant; its assumptions about reality were fatally wrong.',
-        'Data error means the model is trained on data that doesn\'t represent future reality. Mortgage default models before 2008 were calibrated on data from 2000-2006, a period of rising home prices and low defaults. The models had never seen nationwide housing price declines because that hadn\'t happened in the training data. When home prices fell nationally for the first time since the 1930s, the models had no framework for the outcome. Survivorship bias (training only on surviving entities, ignoring those that failed) is another common data error that makes models systematically optimistic.',
-        'Misuse error means using a model outside its intended scope or ignoring its stated limitations. VaR was designed to measure normal-condition risk at a specific confidence level. It was never intended to measure maximum loss or tail risk. Yet banks and traders routinely treated VaR as a maximum-loss estimate, creating false confidence in safety. When CEOs said "our VaR is $20 million" as if it meant they couldn\'t lose more than $20 million, they were misusing the model, and the results were catastrophic. All models have limitations; the danger is when users ignore them.'
+        'Specification error means wrong assumptions. LTCM assumed assets rarely fall together, but in a crisis correlation, how closely they move together, spikes near 1.0. Models pricing CDOs, bundles of mortgages, before 2008 assumed defaults were independent. They were not.',
+      'Data error means stale training data: models fitted to 2000-2006 never saw nationwide price falls, unseen since the 1930s. Misuse error means ignoring limits: calling VaR, a normal-day risk estimate, a $20 million cap makes $20 million feel safe.'
       ],
       [
         { term: 'Model Risk', definition: 'The risk of financial loss or poor decisions resulting from the use of incorrect or misapplied models. Arises from specification errors, data limitations, or misuse of model outputs.', example: 'VaR models based on normal distributions showed safe risk levels at every bank that failed in 2008. The models were wrong, and the consequences were catastrophic.' },
@@ -4599,7 +4602,12 @@ const lessons: PathwayLesson[] = [
         { term: 'SR 11-7', definition: 'Federal Reserve supervisory guidance on model risk management, issued in 2011. Requires banks to maintain comprehensive model inventories, independent validation, ongoing monitoring, and board-level reporting of model risk.', example: 'Under SR 11-7, JPMorgan maintains a model inventory of 3,000+ models, each validated independently and monitored for performance degradation.' }
       ],
       'Three-column failure analysis: Column 1 (Specification), LTCM correlations, CDO copula model. Column 2 (Data), 2008 mortgage models trained on boom data only. Column 3 (Misuse), VaR treated as maximum loss.',
-      { company: 'The Gaussian Copula Model', metric: 'Used to price $trillions in CDOs before 2008', outcome: 'When mortgage correlations spiked, the model\'s assumption of independence collapsed, and CDOs rated AAA lost 80%+ of value', explanation: 'Financial engineer David X. Li developed the Gaussian copula function to model the correlation between mortgage defaults. It became the industry standard for pricing CDOs, enabling the $5+ trillion market. But the model assumed that historical correlations would hold during stress. When the entire U.S. housing market declined simultaneously (violating the independence assumption), the model produced prices that were catastrophically wrong. AAA-rated CDOs lost 80%+ of their value. The "most beautiful model in finance" became the most destructive.' }
+      undefined,
+      { type: 'grid', title: 'Three ways a model fails', items: [
+        { label: 'Specification', value: 'LTCM assumed stable correlations' },
+        { label: 'Data', value: 'Trained only on the boom years' },
+        { label: 'Misuse', value: 'VaR read as a maximum loss' },
+      ], footer: 'AAA-rated CDOs priced by Gaussian copula lost more than 80% of their value.', sentiment: 'negative' },
     ),
 
     microCheck(
@@ -4611,7 +4619,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'MODEL VALIDATION',
+      'Model validation',
       'How Independent Validation Catches Model Failures',
       'comparison',
       'See how validation techniques test whether models accurately reflect reality and identify potential failures before they cause losses.',
@@ -4636,7 +4644,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Backtesting Days', min: 100, max: 500, default: 250, unit: 'days' },
         { label: 'Actual Exceedances', min: 0, max: 20, default: 3, unit: '' }
       ],
-      { company: 'JPMorgan, London Whale (2012)', metric: 'CIO unit used a VaR model that was manipulated to show lower risk', outcome: '$6.2 billion loss when the true risk was revealed', explanation: 'The London Whale incident was a model risk failure compounded by governance failure. JPMorgan\'s Chief Investment Office changed its VaR model in January 2012 in a way that halved reported risk. The change wasn\'t independently validated. When the true risk was revealed months later, losses had reached $6.2 billion. Post-Whale, JPMorgan unified VaR models across all divisions, expanded the validation team, and gave it authority to challenge any model change. The lesson: model changes must be validated independently, especially when they conveniently show lower risk.' }
+      undefined
     ),
 
     caseStudy(
@@ -4652,7 +4660,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'MODEL RISK MYTHS',
+      'Model risk myths',
       'What people get wrong about financial models',
       [
         {
@@ -4821,7 +4829,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THINKING ABOUT THE FUTURE',
+      'Thinking about the future',
       'Scenario Analysis, Reverse Stress Testing, and War Gaming',
       [
         'Scenario analysis is the systematic process of developing plausible future states and assessing their impact on an organization. Unlike forecasting (which predicts the most likely outcome), scenario analysis explores a range of outcomes, including those that seem unlikely but would be highly impactful. The Federal Reserve\'s CCAR stress test is a form of scenario analysis: it defines a "severely adverse" scenario (10% unemployment, 40% stock decline, 38% housing drop) and tests whether banks survive. But CCAR is one scenario; the best risk managers test dozens.',
@@ -4835,7 +4843,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Pre-Mortem Analysis', definition: 'A technique where participants imagine a project has already failed and then work backward to identify what could have caused the failure. Overcomes optimism bias by making failure the starting point.', example: 'Before launching a new trading strategy, the risk team conducts a pre-mortem: "It\'s one year from now and this strategy has lost $500 million. What went wrong?" The resulting list of failure modes becomes the risk monitoring framework.' }
       ],
       'Three-panel process: (1) Scenario design, identify plausible futures with different drivers, (2) Impact assessment, quantify financial, operational, and strategic effects, (3) Response planning, develop pre-planned actions for each scenario.',
-      { company: 'Federal Reserve, CCAR Stress Testing', metric: 'Annual test of 23 largest U.S. banks against severely adverse scenarios', outcome: 'Banks survived COVID-19 crash without failures, stress testing had prepared them', explanation: 'The Fed\'s CCAR scenario analysis forces banks to prove survival under extreme conditions: 10% unemployment, 40%+ stock decline, 38% housing drop. Banks that fail can\'t pay dividends or buy back stock, a powerful incentive. When COVID-19 actually produced scenarios similar to CCAR\'s severely adverse path, banks were prepared because they had already planned for it. Scenario analysis turned a potential crisis into a managed stress event.' }
+      undefined,
+      { type: 'flow', title: 'How scenario work runs', nodes: [
+        { label: 'Design the scenario', value: 'Plausible futures' },
+        { label: 'Assess the impact', value: 'Financial and operational' },
+        { label: 'Plan the response', value: 'Actions decided in advance' },
+      ], footer: 'CCAR severely adverse: 10% unemployment, 40% stock decline, 38% housing drop.' },
     ),
 
     microCheck(
@@ -4847,7 +4860,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'SCENARIO FRAMEWORKS',
+      'Scenario frameworks',
       'Building Comprehensive Scenario Analysis for Risk Management',
       'comparison',
       'See how different scenario frameworks complement each other to create a comprehensive view of potential risks.',
@@ -4887,7 +4900,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'SCENARIO ANALYSIS MYTHS',
+      'Scenario analysis myths',
       'What people get wrong about scenario planning',
       [
         {
@@ -5056,7 +5069,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'DISSECTING PORTFOLIO RISK',
+      'Dissecting portfolio risk',
       'Factor Decomposition, Marginal Contribution, and Concentration Analysis',
       [
         'Portfolio risk decomposition breaks total portfolio risk into its component sources. The most common framework uses factor models: total risk = systematic risk (from exposure to common factors like market, sector, style, and macro) + idiosyncratic risk (from individual security-specific events). A well-diversified portfolio should have minimal idiosyncratic risk, if your portfolio\'s risk is dominated by a single stock\'s earnings surprise, you\'re not diversified, you\'re concentrated.',
@@ -5070,7 +5083,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Herfindahl-Hirschman Index (HHI)', definition: 'A measure of concentration calculated as the sum of squared weights. Ranges from near 0 (perfectly diversified) to 10,000 (single holding). Used for both capital and risk concentration.', example: 'An equally-weighted 50-stock portfolio: HHI = 200 (diversified). A portfolio with 50% in one stock: HHI ≈ 2,600 (concentrated).' }
       ],
       'Stacked bar chart decomposing total portfolio risk: bottom layer = market factor, next = sector factors, then style factors, top = idiosyncratic. Adjacent pie chart shows marginal risk contribution of top 10 positions.',
-      { company: 'Bridgewater Associates', metric: 'Risk Parity (All Weather), equal risk allocation across economic environments', outcome: 'Consistent returns across decades: positive in 2008, 2020, and most market regimes', explanation: 'Bridgewater\'s All Weather fund decomposes risk by economic regime rather than asset class. Instead of 60/40 stocks/bonds (where 90%+ of risk comes from equities), it allocates equal risk to growth-up, growth-down, inflation-up, and inflation-down environments. This factor-based risk decomposition creates genuine diversification, no single environment can dominate outcomes.' },
+      undefined,
       { type: 'bars', title: 'Data Breakdown', items: [{ label: 'Risk Decomposition: 60/40 vs Risk Parity', value: 90, displayValue: '90%' }, { label: 'Traditional 60/40', value: 40, displayValue: '40%' }, { label: 'Equity Risk', value: 60, displayValue: '60%' }, { label: 'Bond 10%', value: 80, displayValue: '80%' }, { label: 'Risk Parity', value: 100, displayValue: '100%' }, { label: 'Growth Up 25%', value: 120, displayValue: '120%' }], sentiment: 'positive' }
     ),
 
@@ -5083,7 +5096,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'RISK ATTRIBUTION',
+      'Risk attribution',
       'Decomposing Portfolio Risk Into Factor and Idiosyncratic Components',
       'comparison',
       'Adjust portfolio composition to see how factor exposures and risk concentration change. Notice how adding correlated assets increases concentration even when adding more positions.',
@@ -5108,16 +5121,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Top Position Weight (%)', min: 1, max: 50, default: 10, unit: '%' },
         { label: 'Average Correlation', min: 0, max: 100, default: 40, unit: '%' }
       ],
-      { company: 'Bridgewater Associates', metric: 'All Weather risk decomposition: 25% risk to each economic regime', outcome: 'Consistent positive returns across 2008, 2020, and most market environments', explanation: 'By decomposing risk into economic regime factors rather than asset classes, Bridgewater achieved genuine diversification. A 60/40 portfolio has 90%+ equity risk; All Weather has equal risk across four regimes. When equities crashed 50% in 2008, the growth-down and inflation-down allocations offset losses.' }
+      undefined
     ),
 
     teachingSlide(
-      'APPLYING DECOMPOSITION',
+      'Applying decomposition',
       'From Analysis to Action: Using Risk Decomposition in Practice',
       [
-        'Risk decomposition is only valuable if it drives action. The three primary applications are: (1) Risk monitoring, tracking whether factor exposures and concentrations are within limits. The London Whale\'s position grew from acceptable to catastrophic over months; daily risk decomposition would have flagged the drift. (2) Portfolio construction, building portfolios where risk is intentionally distributed across desired factors. (3) Performance attribution, understanding whether returns came from intended factor bets or unintended exposures.',
-        'Concentration limits are the first line of defense. Best practice includes limits on: single-name concentration (no position contributes >X% of total risk), sector concentration (no sector contributes >Y% of total risk), factor concentration (no single factor contributes >Z% of total risk), and correlation concentration (monitoring when diversified positions become correlated during stress). SVB had 55% of assets in long-duration bonds, a concentration that risk decomposition would have immediately flagged as a dominant interest rate bet.',
-        'The ultimate goal is risk transparency, ensuring that every stakeholder, from portfolio managers to the board, understands exactly where risk is concentrated and why. When the London Whale losses emerged, JPMorgan\'s CEO Jamie Dimon initially dismissed them as a "tempest in a teapot", because even the CEO didn\'t understand the portfolio\'s true risk concentration. Risk decomposition prevents this by making risk visible, measurable, and attributable.'
+        'Risk decomposition only helps if it drives action: monitor exposures against limits, build portfolios that spread risk across chosen factors, and check where returns came from. Daily checks would have caught the London Whale drift.',
+      'Set limits so no single name, sector or factor contributes more than X%, Y% or Z% of risk. SVB held 55% of assets in long-duration bonds. JPMorgan\'s Jamie Dimon called the losses a tempest in a teapot.'
       ],
       [
         { term: 'Risk Transparency', definition: 'The ability of all stakeholders to understand the sources, magnitude, and concentration of risk in a portfolio. Requires clear risk decomposition reports accessible to portfolio managers, CROs, and boards.', example: 'After the London Whale, JPMorgan rebuilt its CIO risk reporting to show daily risk decomposition by factor, position, and concentration metrics, ensuring the CEO could never again be surprised by hidden concentrations.' },
@@ -5125,7 +5137,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk Drift', definition: 'The gradual change in a portfolio\'s risk profile over time as positions grow, correlations shift, and market conditions evolve. Requires continuous monitoring to detect.', example: 'The London Whale\'s CDX position started at an acceptable size but grew over months. Without daily risk decomposition monitoring, the drift from acceptable to catastrophic went undetected.' }
       ],
       'Dashboard showing real-time risk decomposition: factor exposure bars, concentration heatmap, marginal risk contribution table, and drift alerts.',
-      { company: 'JPMorgan (Post-London Whale)', metric: 'Complete rebuild of CIO risk decomposition and reporting', outcome: 'Daily factor decomposition, position-level risk contribution, and concentration alerts now standard', explanation: 'After losing $6.2 billion due to hidden risk concentration, JPMorgan invested heavily in risk decomposition infrastructure. The CIO now receives daily reports showing exactly which positions contribute the most risk, which factors dominate, and where concentration breaches risk limits. The London Whale could not happen again because the concentration would be visible daily.' },
+      undefined,
       RM20_TEACH2
     ),
 
@@ -5252,7 +5264,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'WHEN ONE FAILURE BECOMES EVERYONE\'S',
+      'When one failure becomes everyone\'s',
       'Systemic Risk, Contagion Channels, and Too Big to Fail',
       [
         'Systemic risk is the risk that the failure of one financial institution or market triggers a cascade of failures across the entire system. Unlike idiosyncratic risk (which can be diversified away), systemic risk affects everyone simultaneously. It arises from three sources: interconnectedness (institutions are linked through lending, derivatives, and payment systems), correlation (institutions hold similar assets that all decline together), and procyclicality (risk-taking increases in booms and contracts in busts, amplifying both directions).',
@@ -5266,7 +5278,13 @@ const lessons: PathwayLesson[] = [
         { term: 'G-SIB (Global Systemically Important Bank)', definition: 'A bank designated by the Financial Stability Board as posing systemic risk to the global financial system. G-SIBs face additional capital surcharges ranging from 1% to 3.5% of risk-weighted assets.', example: 'JPMorgan, as the largest G-SIB, faces a 4.5% surcharge, meaning it must hold billions more in capital than a comparable non-systemic bank.' }
       ],
       'Network diagram showing contagion channels: direct (bilateral lending lines), information (dotted lines to similar institutions), fire sale (downward price arrows), funding (frozen interbank lines).',
-      { company: 'Global Financial System, 2008 Crisis', metric: 'Lehman failure → $10+ trillion in global losses within 18 months', outcome: 'Worst financial crisis since the Great Depression; transformed financial regulation', explanation: 'Lehman\'s $600 billion bankruptcy exposed the fragility of an interconnected financial system. AIG\'s $182B bailout, the $3 trillion money market freeze, and the complete shutdown of interbank lending demonstrated that systemic risk was far larger than any single institution\'s risk. The crisis cost the global economy an estimated $10+ trillion in lost output.' }
+      undefined,
+      { type: 'grid', title: 'How one failure spreads', items: [
+        { label: 'Direct exposure', value: 'A lent B $10B' },
+        { label: 'Funding freeze', value: 'LIBOR-OIS spiked to 365bps' },
+        { label: 'Fire sales', value: 'Forced selling drags prices down' },
+        { label: 'Information contagion', value: 'Doubt spreads to lookalikes' },
+      ], footer: 'Lehman failed and more than $10T in global value went with it inside 18 months.', sentiment: 'negative' },
     ),
 
     microCheck(
@@ -5278,7 +5296,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'CONTAGION DYNAMICS',
+      'Contagion dynamics',
       'How Financial Shocks Cascade Through the System',
       'comparison',
       'See how a single bank failure spreads through different contagion channels and how systemic buffers can contain the cascade.',
@@ -5303,11 +5321,11 @@ const lessons: PathwayLesson[] = [
         { label: 'Capital Buffer (%)', min: 2, max: 20, default: 8, unit: '%' },
         { label: 'Number of G-SIBs', min: 5, max: 40, default: 30, unit: '' }
       ],
-      { company: 'Financial Stability Board', metric: '30 G-SIBs with $700B+ in additional capital requirements', outcome: 'SVB/Credit Suisse 2023 failures contained without systemic collapse', explanation: 'The G-SIB framework forces the most systemically important banks to hold capital surcharges of 1-3.5%. This creates buffers that absorb losses before they cascade to counterparties. When Credit Suisse failed in 2023, its resolution was orderly (UBS acquisition) rather than chaotic (Lehman-style), demonstrating that post-2008 frameworks work.' }
+      undefined
     ),
 
     teachingSlide(
-      'CONTAINING SYSTEMIC RISK',
+      'Containing systemic risk',
       'Macroprudential Regulation and Systemic Risk Frameworks',
       [
         'Macroprudential regulation focuses on the stability of the financial system as a whole, not just individual institutions. Before 2008, regulation was "microprudential", each bank was supervised individually. But a system of individually safe banks can still be collectively fragile if they\'re all exposed to the same risks, interconnected through derivatives, and engage in procyclical behavior. Macroprudential tools address system-level risk that microprudential oversight misses.',
@@ -5320,12 +5338,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Resolution Framework', definition: 'A legal and regulatory structure for winding down a failed bank in an orderly manner, without taxpayer bailouts and without systemic contagion.', example: 'Credit Suisse\'s 2023 resolution through UBS acquisition was orderly: AT1 bondholders absorbed losses, operations continued, and counterparties were protected. Contrast with Lehman\'s chaotic bankruptcy.' }
       ],
       'Timeline comparing 2008 (Lehman → systemic collapse → bailouts → recession) vs 2023 (SVB/CS → contained failures → orderly resolution → system intact).',
-      { company: '2023 Banking Stress, The System Held', metric: 'SVB + Signature + First Republic + Credit Suisse failed within weeks', outcome: 'No systemic collapse, post-2008 reforms absorbed the shocks', explanation: 'In 2008, one major bank failure (Lehman) triggered global systemic collapse. In 2023, four bank failures including a G-SIB (Credit Suisse) were resolved without systemic contagion. The difference: higher capital, central clearing, living wills, and resolution frameworks built after 2008. The system was tested and it held.' },
+      undefined,
       RM21_TEACH2
     ),
 
     misconceptions(
-      'SYSTEMIC RISK MYTHS',
+      'Systemic risk myths',
       'What people get wrong about financial contagion',
       [
         {
@@ -5461,12 +5479,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE PSYCHOLOGY OF RISK',
+      'The psychology of risk',
       'Cognitive Biases That Destroy Risk Management',
       [
-        'Overconfidence bias is the most dangerous bias in risk management. People systematically overestimate their ability to predict outcomes and underestimate uncertainty. Studies show that when people say they are "99% confident" in a prediction, they are wrong 40% of the time. In finance, overconfidence leads to excessive leverage (LTCM), inadequate hedging (SVB), and dismissal of tail risks. LTCM\'s team had the highest IQs on Wall Street, and their overconfidence in their models\' accuracy led them to use 25:1 leverage on positions that models said were virtually riskless.',
-        'Anchoring bias causes people to rely too heavily on the first piece of information they receive. In the housing bubble, market participants were "anchored" to decades of rising home prices, making a nationwide decline seem impossible. Loss aversion, the tendency to feel losses twice as intensely as equivalent gains, causes risk managers to hold losing positions too long (hoping they\'ll recover) rather than cutting losses early. Nick Leeson doubled down on his losing Barings Bank positions because the pain of realizing the loss was psychologically unbearable.',
-        'Groupthink is the organizational amplifier of individual biases. When a team is composed of like-minded people, dissent is discouraged, and the group converges on overconfident consensus. Enron\'s board, filled with distinguished members, unanimously approved increasingly risky strategies because no one challenged the narrative. The antidote is structured dissent: appointing devil\'s advocates, requiring pre-mortem analyses, recording dissenting opinions, and creating cultures where challenging the boss is rewarded, not punished.'
+        'Overconfidence, overrating your own predictions, is the biggest risk. People who say they are 99% confident are wrong 40% of the time. LTCM\'s brilliant team used 25:1 leverage; SVB skipped hedging.',
+      'Anchoring means trusting the first fact you hear: rising house prices seemed permanent. Loss aversion, feeling losses twice as hard as gains, kept Nick Leeson doubling down at Barings Bank. Groupthink silenced dissent at Enron; use devil\'s advocates.'
       ],
       [
         { term: 'Overconfidence Bias', definition: 'The systematic tendency to overestimate the accuracy of one\'s knowledge and predictions. In risk management, leads to excessive leverage, inadequate hedging, and dismissal of tail risks.', example: 'LTCM\'s team used 25:1 leverage because their models showed their positions were "virtually riskless." They were 99% confident, and 100% wrong when Russia defaulted.' },
@@ -5475,7 +5492,15 @@ const lessons: PathwayLesson[] = [
         { term: 'Groupthink', definition: 'A phenomenon where a group prioritizes consensus over critical analysis, suppressing dissent and alternative viewpoints. Amplifies individual biases into organizational failures.', example: 'Enron\'s board unanimously approved aggressive accounting and risky strategies. No director challenged the narrative because the pressure for consensus was overwhelming.' }
       ],
       'Four-quadrant behavioral bias map: Individual biases (overconfidence, anchoring, loss aversion) in the top half; organizational amplifiers (groupthink, authority bias, sunk cost) in the bottom half, with arrows showing how individual biases scale into organizational failures.',
-      { company: 'LTCM, The Nobel Prize Disaster', metric: 'Two Nobel laureates, 25:1 leverage, $4.6B loss in 4 months', outcome: 'Near-systemic collapse requiring Fed-coordinated bailout', explanation: 'LTCM is the ultimate case study in behavioral risk. Overconfidence: "Our models are right because we have Nobel Prize winners." Groupthink: nobody questioned the laureates. Anchoring: past returns confirmed the models\' accuracy. Illusion of control: 25:1 leverage assumed they could manage any scenario. Every behavioral bias aligned to create catastrophe.' }
+      undefined,
+      { type: 'grid', title: 'Biases that scale from person to firm', items: [
+        { label: 'Overconfidence', value: 'Says 99% sure, wrong 40% of the time' },
+        { label: 'Anchoring', value: 'The first number sticks' },
+        { label: 'Loss aversion', value: 'Losers held far too long' },
+        { label: 'Groupthink', value: 'Dissent goes quiet' },
+        { label: 'Authority bias', value: 'Nobody questions the star' },
+        { label: 'Sunk cost', value: 'Doubling down to be proven right' },
+      ], footer: 'LTCM: the highest IQs on Wall Street, 25:1 leverage, $4.6B gone in four months.', sentiment: 'negative' },
     ),
 
     microCheck(
@@ -5487,7 +5512,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'BIAS IN ACTION',
+      'Bias in action',
       'How Cognitive Biases Compound Into Catastrophic Risk Decisions',
       'comparison',
       'See how multiple biases interact and compound to escalate risk-taking beyond rational levels.',
@@ -5512,16 +5537,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Authority Concentration (1-10)', min: 1, max: 10, default: 7, unit: '' },
         { label: 'Dissent Encouragement (1-10)', min: 1, max: 10, default: 3, unit: '' }
       ],
-      { company: 'Bridgewater Associates', metric: 'Radical Transparency & Idea Meritocracy', outcome: 'Navigated every major crisis since 1975 with $150B+ AUM', explanation: 'Bridgewater\'s culture is explicitly designed to counteract behavioral biases. Radical transparency (recorded meetings, public disagreement) fights groupthink. The idea meritocracy (weight opinions by track record, not title) fights authority bias. Systematic devil\'s advocacy fights confirmation bias. The result: consistently strong risk-adjusted returns across 50 years.' }
+      undefined
     ),
 
     teachingSlide(
-      'ORGANIZATIONAL DYNAMICS',
+      'Organizational dynamics',
       'How Institutions Amplify Behavioral Risk',
       [
-        'Individual biases become organizational disasters through three amplifiers. First, incentive misalignment: when traders and executives are rewarded for short-term gains but face limited consequences for long-term losses, the rational individual response is excessive risk-taking. Before 2008, bank traders earned massive bonuses in good years but didn\'t return them after losses, "heads I win, tails the taxpayer loses." Clawback provisions and deferred compensation (paying bonuses over 3-5 years) partially address this by aligning individual incentives with long-term outcomes.',
-        'Second, information asymmetry within organizations: the people closest to the risk (traders, front-line staff) often understand it best, but the people making decisions (executives, boards) are furthest from it. Nick Leeson was both trader and auditor, the person with information and the person who should check it. The London Whale\'s risk was understood by some within JPMorgan, but the information didn\'t reach Jamie Dimon until it was a $6.2 billion problem. Effective risk governance requires information flows that bypass hierarchies, anonymous reporting, skip-level meetings, and independent risk officers with board access.',
-        'Third, organizational culture determines whether dissent is rewarded or punished. At Enron, the culture celebrated aggressive risk-taking and punished caution, creating a "rank and yank" system where the bottom 15% of performers were fired annually. This Darwinian culture amplified every individual bias: overconfidence was rewarded, caution was fired, and dissent was career suicide. In contrast, organizations like Bridgewater and the aviation industry have built cultures where raising concerns is mandatory, reporting near-misses is rewarded, and challenging authority is expected.'
+        'Bad incentives come first. Before 2008, traders kept bonuses from good years but repaid nothing after losses. Clawbacks and deferred pay, spreading bonuses over 3-5 years, tie rewards to long-term results.',
+      'Second, information stalls: Nick Leeson traded and audited himself, and JPMorgan\'s Jamie Dimon heard nothing until losses hit $6.2 billion. Third, culture: Enron fired its bottom 15% yearly, punishing caution. Bridgewater rewards raising concerns.'
       ],
       [
         { term: 'Moral Hazard', definition: 'When one party takes excessive risks because another party bears the consequences. In banking, the implicit government guarantee creates moral hazard, banks take risks knowing taxpayers will absorb catastrophic losses.', example: 'Before 2008, banks earned profits from risky trading but knew governments would bail them out if losses threatened the system. This asymmetry encouraged excessive risk-taking.' },
@@ -5529,7 +5553,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Devil\'s Advocate', definition: 'A formally assigned role whose job is to challenge prevailing assumptions and present counterarguments, specifically to combat groupthink and confirmation bias.', example: 'JPMorgan now assigns devil\'s advocates in major trading decisions. Their job is to present the strongest case for why a trade is wrong, even if everyone believes it\'s right.' }
       ],
       'Organizational risk culture spectrum: left end "Silence Culture" (Enron, Barings) where dissent is punished → middle "Compliance Culture" (most banks) where rules are followed but not questioned → right end "Challenge Culture" (Bridgewater, aviation) where dissent is mandatory.',
-      { company: 'Enron, Culture as Risk Amplifier', metric: '"Rank and yank" culture firing bottom 15% annually', outcome: '$74 billion bankruptcy, largest in U.S. history at the time', explanation: 'Enron\'s culture systematically amplified every behavioral bias. Risk-taking was rewarded; caution was fired. Aggressive accounting was celebrated; questioning it was career suicide. Groupthink was total: the board, auditors (Arthur Andersen), and analysts all reinforced the same narrative. The culture didn\'t just fail to catch fraud, it actively produced it.' },
+      undefined,
       RM22_TEACH2
     ),
 
@@ -5656,7 +5680,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE MATH OF RISK',
+      'The math of risk',
       'Monte Carlo Simulation, Copula Models, and Extreme Value Theory',
       [
         'Monte Carlo simulation is the workhorse of quantitative risk modeling. Instead of calculating a single expected outcome, Monte Carlo generates thousands (or millions) of simulated scenarios by randomly sampling from probability distributions. Each simulation produces a possible future; the collection of all simulations gives a full probability distribution of outcomes. For a portfolio with 1,000 positions and complex correlations, Monte Carlo can simulate 100,000 possible market environments and calculate VaR from the resulting distribution. Its power: it can handle non-linear instruments (options), complex correlations, and any distribution shape.',
@@ -5670,7 +5694,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Fat Tails', definition: 'The property of a probability distribution where extreme events are more likely than the normal distribution predicts. Financial returns exhibit fat tails, crashes and booms occur far more often than "bell curve" statistics suggest.', example: 'The 1987 crash (22.6% in one day) was a "25-sigma event" under normal distribution, supposedly impossible. Fat-tailed models estimate such events as rare but plausible.' }
       ],
       'Three panels: Left, Monte Carlo scatter plot of 10,000 simulated portfolio returns. Center, Gaussian copula correlation structure showing the fatal assumption of independent tails. Right, Fat-tailed vs normal distribution comparison highlighting extreme event probabilities.',
-      { company: 'Renaissance Technologies', metric: 'Medallion Fund: 66% average annual return (before fees) since 1988', outcome: 'The greatest track record in investment history, powered by quantitative models', explanation: 'Renaissance proves that quantitative models CAN work spectacularly when used with discipline. The key differences from LTCM: Renaissance treats models as hypotheses (not truth), uses thousands of small positions (not a few large leveraged bets), and constantly revalidates models against new data. Model discipline, not just model sophistication, is what separates Renaissance from every other quant firm.' }
+      undefined,
+      { type: 'grid', title: 'Three tools for the tails', items: [
+        { label: 'Monte Carlo', value: '100,000 simulated markets' },
+        { label: 'Copula models', value: 'Exactly where 2008 broke' },
+        { label: 'Extreme value theory', value: 'Fits the tail, not the middle' },
+      ], footer: 'A normal distribution says 2008 should happen once every 3.5 million years.', sentiment: 'positive' },
     ),
 
     microCheck(
@@ -5682,7 +5711,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'MODEL COMPARISON',
+      'Model comparison',
       'Normal Distribution vs Fat-Tailed Models vs Extreme Value Theory',
       'comparison',
       'Compare how different models estimate the probability of extreme market events. Notice how the normal distribution drastically underestimates tail events.',
@@ -5707,11 +5736,11 @@ const lessons: PathwayLesson[] = [
         { label: 'Tail Thickness (degrees of freedom)', min: 3, max: 30, default: 5, unit: '' },
         { label: 'Confidence Level (%)', min: 90, max: 99, default: 95, unit: '%' }
       ],
-      { company: 'Goldman Sachs, 2008 "25-Sigma" Events', metric: 'Models predicted the 2008 crisis should happen once per 100,000 years', outcome: 'The normal distribution failed to capture the reality of financial fat tails', explanation: 'Goldman\'s David Viniar famously said they were seeing "25-standard-deviation moves, several days in a row" in August 2007. Under a normal distribution, a single 25-sigma event should occur once every 3 × 10^135 years. The fact that they occurred multiple times in a week proves that financial returns are not normally distributed, fat tails are real, and models that ignore them are dangerous.' }
+      undefined
     ),
 
     teachingSlide(
-      'MODEL GOVERNANCE',
+      'Model governance',
       'Building and Validating Quantitative Risk Models Responsibly',
       [
         'Model governance determines whether quantitative models are tools for insight or weapons for self-deception. The framework has four pillars: development (build the model with clear assumptions, documented limitations, and known failure modes), validation (independent testing of the model by people who didn\'t build it), monitoring (ongoing comparison of model predictions vs actual outcomes), and review (periodic reassessment of whether the model still applies to current market conditions).',
@@ -5724,12 +5753,12 @@ const lessons: PathwayLesson[] = [
         { term: 'Model Risk', definition: 'The risk that a model is wrong, misused, or applied beyond its validated scope. Recognized by regulators as a distinct risk category requiring dedicated governance.', example: 'The London Whale\'s VaR model was changed to show lower risk, a model risk event where the model was manipulated rather than wrong. Model risk includes both honest errors and intentional manipulation.' }
       ],
       'Four-stage model governance lifecycle: (1) Development with documented assumptions, (2) Independent validation with backtesting, (3) Ongoing monitoring with breach alerts, (4) Periodic review with regime-change assessment.',
-      { company: 'Basel Committee', metric: 'Transition from VaR to Expected Shortfall in Basel III', outcome: 'Regulatory capital now based on ES, addressing VaR\'s tail blindness', explanation: 'The Basel Committee\'s decision to replace VaR with Expected Shortfall was a model governance milestone. VaR\'s documented limitation, blindness to tail severity, had been known since the 1990s but ignored for regulatory convenience. After 2008 proved that tail severity matters enormously, regulators acknowledged the limitation and adopted a more appropriate model. This is model governance at the regulatory level: recognizing when a model\'s limitations exceed its utility.' },
+      undefined,
       RM23_TEACH2
     ),
 
     misconceptions(
-      'QUANTITATIVE MODELING MYTHS',
+      'Quantitative modeling myths',
       'What people get wrong about risk models',
       [
         {
@@ -5850,7 +5879,7 @@ const lessons: PathwayLesson[] = [
       'In the months before Silicon Valley Bank collapsed, the bank operated without a Chief Risk Officer for eight months. The board\'s risk committee met infrequently. Interest rate risk reports were generated but not acted upon. The information existed, the governance to act on it did not. SVB\'s failure was not a failure of risk measurement; it was a failure of risk governance. The difference between firms that survive crises and those that don\'t is rarely the sophistication of their risk models, it\'s the effectiveness of the governance structures that turn risk information into risk action.',
       'By the end of this lesson, you\'ll understand the three lines of defense model, the role of the Chief Risk Officer and board risk committee, regulatory governance expectations, and how to build governance structures that translate risk insights into protective action.',
       'Three lines of defense governance structure with board oversight and regulatory interaction',
-      { type: 'grid', title: 'Risk Governance: Three Lines of Defense', items: [{ label: 'BOARD OF DIRECTORS / RISK COMMITTEE', color: '#0f172a' }, { label: '1st Line', color: '#b862ed' }, { label: 'Business Units', color: '#10b981' }, { label: 'Own &amp; manage risk', color: '#94a3b8' }, { label: 'Day-to-day decisions', color: '#f59e0b' }, { label: '2nd Line', color: '#ef4444' }, { label: 'Risk Management', color: '#ef4444' }, { label: 'CRO &amp; Compliance', color: '#3b82f6' }], sentiment: 'positive' }
+      { type: 'grid', title: 'Risk Governance: Three Lines of Defense', items: [{ label: 'Board of directors / risk committee', color: '#0f172a' }, { label: '1st Line', color: '#b862ed' }, { label: 'Business Units', color: '#10b981' }, { label: 'Own &amp; manage risk', color: '#94a3b8' }, { label: 'Day-to-day decisions', color: '#f59e0b' }, { label: '2nd Line', color: '#ef4444' }, { label: 'Risk Management', color: '#ef4444' }, { label: 'CRO &amp; Compliance', color: '#3b82f6' }], sentiment: 'positive' }
     ),
 
     stakesCard(
@@ -5860,12 +5889,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE ARCHITECTURE OF RISK GOVERNANCE',
+      'The architecture of risk governance',
       'Three Lines of Defense, CRO Independence, and Board Oversight',
       [
-        'The Three Lines of Defense model is the global standard for risk governance. The first line is business units: traders, lending officers, and portfolio managers who take risk as part of their daily work. They own and manage risk at the point of origin. The second line is the risk management function: the CRO, risk analysts, and compliance officers who monitor, measure, and challenge the first line\'s risk-taking. They provide independent oversight and set the risk framework. The third line is internal audit: fully independent assurance that both the first and second lines are functioning as designed. Internal audit doesn\'t manage risk, it verifies that risk management works.',
-        'The Chief Risk Officer (CRO) is the linchpin of the governance framework. An effective CRO must have: independence (reporting to the board risk committee, not just the CEO, to prevent being overruled by business interests), authority (the power to veto risk decisions that exceed limits, regardless of profitability), access (unrestricted access to all risk information and direct communication with the board), and stature (sufficient seniority to challenge the CEO and business heads without career risk). SVB\'s CRO vacancy meant none of these existed during the most critical period in the bank\'s history.',
-        'Board risk committee oversight is the ultimate governance check. Effective risk committees have: independent directors with financial expertise, regular meetings (monthly, not quarterly), direct access to the CRO (without management filtering), clear risk appetite statements that define what risks the firm will and won\'t accept, and the authority to challenge management. The board sets the risk appetite; the CRO ensures adherence; business units operate within it; internal audit verifies the system. When any link breaks, as at SVB, the entire governance chain fails.'
+        'Three lines of defense splits the work. First line: business units, such as traders, who take risk. Second line: the chief risk officer (CRO) and risk staff, who challenge them. Third line: internal audit, which checks both.',
+      'The board risk committee sets risk appetite, the limits the firm accepts. An effective CRO needs independence, authority to veto, access to information, and seniority to challenge the CEO. SVB had no CRO when it mattered most.'
       ],
       [
         { term: 'Three Lines of Defense', definition: 'The global standard risk governance model: first line (business units own risk), second line (risk management monitors and challenges), third line (internal audit provides independent assurance).', example: 'A trader (1st line) wants to increase a position. The risk manager (2nd line) verifies it\'s within limits. Internal audit (3rd line) periodically verifies that risk limits are being enforced correctly.' },
@@ -5874,7 +5902,13 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk Culture', definition: 'The norms, attitudes, and behaviors related to risk awareness, risk-taking, and risk management throughout an organization. Determines whether governance frameworks function in practice or exist only on paper.', example: 'SVB had risk policies on paper but a culture that didn\'t prioritize them, the CRO role was vacant for 8 months without urgency. Governance documents mean nothing without a culture that enforces them.' }
       ],
       'Three concentric circles: inner circle = risk appetite (board-defined), middle circle = risk limits (CRO-enforced), outer circle = actual risk-taking (business units). Arrows show escalation when outer exceeds middle.',
-      { company: 'SVB, Governance Failure', metric: 'No CRO for 8 months during fastest rate hiking in 40 years', outcome: '$212 billion bank collapsed in 48 hours', explanation: 'SVB had risk reports showing $17 billion in unrealized losses. It had models calculating interest rate sensitivity. What it didn\'t have was governance: a CRO to escalate warnings, a board committee meeting frequently enough to act, or a risk culture that treated duration risk as existential. SVB proves that governance is the critical link between risk information and risk action.' }
+      undefined,
+      { type: 'flow', title: 'Who sets the ceiling', nodes: [
+        { label: 'Board sets risk appetite' },
+        { label: 'CRO turns it into limits' },
+        { label: 'Business units take the risk' },
+        { label: 'A breach escalates back up' },
+      ], footer: 'SVB ran without a CRO for eight months and collapsed in 48 hours.' },
     ),
 
     microCheck(
@@ -5886,7 +5920,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'GOVERNANCE EFFECTIVENESS',
+      'Governance effectiveness',
       'How Governance Structures Determine Risk Outcomes',
       'comparison',
       'Compare the governance structures of institutions that survived crises versus those that failed. Notice how governance quality correlates more strongly with outcomes than model sophistication.',
@@ -5911,16 +5945,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Board Engagement (1-10)', min: 1, max: 10, default: 5, unit: '' },
         { label: 'Risk Culture (1-10)', min: 1, max: 10, default: 5, unit: '' }
       ],
-      { company: 'JPMorgan, Post-London Whale Governance Rebuild', metric: 'Complete governance overhaul after $6.2B loss', outcome: 'JPMorgan navigated every crisis since, acquiring First Republic in 2023', explanation: 'After the London Whale exposed governance failures (CIO risk reporting was inadequate, model changes went unvalidated), JPMorgan rebuilt its entire risk governance architecture. Daily risk decomposition reports to the CRO and board, independent model validation, automated escalation for limit breaches, and a CRO with direct board access. The result: the bank that once lost $6.2B from poor governance now has the strongest governance framework on Wall Street.' }
+      undefined
     ),
 
     teachingSlide(
-      'GOVERNANCE IN PRACTICE',
+      'Governance in practice',
       'Building Effective Risk Governance from Board to Front Line',
       [
-        'Effective risk governance requires alignment from board to front line. The board sets the risk appetite ("we accept these risks up to these levels"). The CRO translates appetite into limits ("these are the specific numbers each desk must stay within"). Business units operate within limits ("here is what I can and cannot do"). Internal audit verifies the chain ("the limits are being followed and the CRO is effective"). When any link breaks, governance fails. SVB\'s break: no CRO → no limit enforcement → no board escalation → catastrophe.',
-        'Personal accountability is the enforcement mechanism of governance. The UK\'s Senior Managers Regime (SMR) holds individual executives personally liable for risk failures in their areas. If a CRO fails to escalate known risks, they face personal penalties, not just the institution. This transforms risk governance from a compliance exercise into a personal responsibility. Before SMR, executives could claim ignorance; after SMR, they are accountable for knowing. Similar regimes exist in Hong Kong, Australia, and Singapore.',
-        'Risk culture is the invisible infrastructure of governance. The best governance documents are useless if the culture doesn\'t support them. A healthy risk culture has four attributes: transparency (bad news travels fast), accountability (people own their risk decisions), challenge (dissent is welcomed, not punished), and learning (failures are analyzed, not buried). JPMorgan\'s post-London Whale culture explicitly rewards risk flagging. Enron\'s culture explicitly punished it. The policies were different; the cultures determined the outcomes.'
+        'Governance is a chain: the board sets risk appetite, the CRO turns it into limits, business units work inside them, internal audit checks. SVB broke the chain: no CRO, no limit enforcement, no board escalation.',
+      'The UK\'s Senior Managers Regime (SMR) makes named executives personally liable for risk failures; Hong Kong, Australia and Singapore have similar rules. Culture decides the rest: JPMorgan rewards flagging risk after the London Whale, Enron punished it.'
       ],
       [
         { term: 'Senior Managers Regime (SMR)', definition: 'A regulatory framework that assigns personal accountability to senior executives for risk management in their areas of responsibility. Individuals can face personal penalties for governance failures.', example: 'Under the UK SMR, a CRO who fails to escalate known material risks to the board can face personal fines and prohibition from holding senior financial roles.' },
@@ -5928,7 +5961,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tone from the Top', definition: 'The message that senior leadership sends about the importance of risk management through their actions, not just their words. The most powerful determinant of risk culture.', example: 'When Jamie Dimon publicly held himself accountable for the London Whale loss and restructured governance, it signaled to the entire organization that risk management failures would not be tolerated.' }
       ],
       'Governance effectiveness matrix: rows = governance elements (CRO authority, board engagement, risk culture, three lines, risk appetite), columns = institution examples (JPMorgan=strong, SVB=weak), cells show specific strengths and weaknesses.',
-      { company: 'UK Senior Managers Regime', metric: 'Personal accountability for risk failures', outcome: 'Measurable improvement in governance quality at UK financial institutions', explanation: 'The SMR transformed risk governance in the UK by making it personal. When executives face individual consequences for governance failures, they invest more in understanding and managing risk. The regime has been credited with improving risk culture, escalation speed, and board engagement across UK banking, demonstrating that accountability is the most powerful governance tool.' },
+      undefined,
       RM24_TEACH2
     ),
 
@@ -6045,7 +6078,7 @@ const lessons: PathwayLesson[] = [
       'You\'ve studied 24 lessons spanning every dimension of risk management, from VaR and hedging to systemic risk, behavioral biases, quantitative modeling, and governance. Now it\'s time to integrate everything. In this capstone, you\'ll face a comprehensive crisis scenario that tests your ability to decompose portfolio risk, assess systemic contagion, overcome behavioral biases, apply quantitative tools, and implement governance frameworks, all simultaneously, just as real risk managers must during actual crises.',
       'By the end of this capstone, you\'ll demonstrate mastery of integrated risk management, combining quantitative analysis, qualitative judgment, organizational governance, and crisis response into a coherent framework that protects a firm from catastrophic loss.',
       'Integrated risk management framework showing all domains connected: portfolio risk, systemic risk, behavioral risk, quantitative models, and governance',
-      { type: 'flow', title: 'Risk Management: Integrated Capstone', nodes: [{ label: 'INTEGRATED', color: '#0f172a' }, { label: 'RISK MGMT', color: '#b862ed' }, { label: 'Portfolio', color: '#10b981' }, { label: 'Risk', color: '#ef4444' }, { label: 'Systemic', color: '#f59e0b' }, { label: 'Risk', color: '#94a3b8' }, { label: 'Behavioral' }, { label: 'Risk' }], sentiment: 'positive' }
+      { type: 'flow', title: 'Risk Management: Integrated Capstone', nodes: [{ label: 'INTEGRATED', color: '#0f172a' }, { label: 'Risk mgmt', color: '#b862ed' }, { label: 'Portfolio', color: '#10b981' }, { label: 'Risk', color: '#ef4444' }, { label: 'Systemic', color: '#f59e0b' }, { label: 'Risk', color: '#94a3b8' }, { label: 'Behavioral' }, { label: 'Risk' }], sentiment: 'positive' }
     ),
 
     stakesCard(
@@ -6055,12 +6088,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE INTEGRATED FRAMEWORK',
+      'The integrated framework',
       'Combining All Dimensions of Risk Management',
       [
-        'Integrated risk management recognizes that risk dimensions are not independent, they interact, compound, and amplify each other. Portfolio risk concentration (London Whale) becomes systemic risk when the position is large enough to move markets. Behavioral biases (LTCM\'s overconfidence) amplify quantitative model failures (correlation assumptions). Governance weakness (SVB\'s absent CRO) prevents correction of any other risk type. A framework that addresses only one dimension while ignoring others is like a ship with one watertight compartment, it won\'t save you when the whole hull is breached.',
-        'The integration framework has five pillars: (1) Portfolio risk decomposition, understand what\'s driving your risk and where it\'s concentrated. (2) Systemic risk awareness, assess how your risks connect to the broader financial system and identify contagion channels. (3) Behavioral risk mitigation, build structures that counteract overconfidence, groupthink, and incentive misalignment. (4) Quantitative rigor with humility, use the best models available while respecting their limitations and maintaining validation discipline. (5) Governance architecture, ensure that risk information flows to decision-makers and triggers action.',
-        'The capstone test: can you respond to a crisis that simultaneously stresses all five dimensions? In 2008, firms needed to: decompose portfolio exposures to understand their actual risk (portfolio), assess counterparty and funding stability as the system seized (systemic), resist the urge to either panic-sell or anchor to "this will recover" (behavioral), interpret model outputs that were clearly failing (quantitative), and make governance-level decisions under extreme time pressure (governance). The firms that integrated all five survived. Those that excelled in some but failed in others did not.'
+        'Risk types interact. A concentrated position, like the London Whale trade, grew big enough to move the whole market. Overconfidence at the hedge fund LTCM hid broken model assumptions. SVB had no chief risk officer, so nothing got fixed.',
+      'So cover five pillars: break your portfolio down, watch links to the wider system, curb bias, use models with humility, and route risk information to decision makers. In 2008, firms that did all five survived. Others did not.'
       ],
       [
         { term: 'Integrated Risk Management', definition: 'A holistic approach that combines portfolio, systemic, behavioral, quantitative, and governance dimensions into a unified framework, recognizing that risk types interact and compound.', example: 'The 2008 crisis required simultaneous management of market risk (falling prices), credit risk (defaults), liquidity risk (funding freeze), operational risk (system overload), and strategic risk (business model viability), all within a governance framework under extreme time pressure.' },
@@ -6068,7 +6100,14 @@ const lessons: PathwayLesson[] = [
         { term: 'Crisis Decision Framework', definition: 'A pre-planned structure for making risk decisions under extreme time pressure and uncertainty. Includes predefined triggers, escalation procedures, and decision authorities that activate automatically.', example: 'JPMorgan\'s crisis framework: VaR breach → automatic CRO notification (1 hour) → board risk committee convened (24 hours) → remediation plan required (72 hours). No human decision needed to trigger escalation.' }
       ],
       'Five interconnected pillars forming a pentagon: Portfolio Risk, Systemic Risk, Behavioral Risk, Quantitative Models, Governance. Arrows show interactions between all pairs. Center label: "Integrated Risk Management."',
-      { company: 'Paulson & Co., $15 Billion Profit in 2008', metric: 'Integrated risk management across all dimensions during the crisis', outcome: 'Greatest single-year trading profit in history', explanation: 'John Paulson\'s $15B profit in 2008 required integration across all five dimensions. Portfolio: decomposed mortgage market risk and identified the CDO vulnerability. Behavioral: questioned the consensus that housing prices never fall nationally. Quantitative: analyzed the Gaussian copula\'s assumptions and found the flaw. Systemic: understood that a housing decline would cascade through the entire financial system. Governance: built a firm structure where contrarian analysis was supported, not suppressed.' }
+      undefined,
+      { type: 'grid', title: 'The five pillars', items: [
+        { label: 'Portfolio risk', value: 'What is actually driving your risk' },
+        { label: 'Systemic risk', value: 'How you connect to everyone else' },
+        { label: 'Behavioral risk', value: 'Structures that counteract bias' },
+        { label: 'Quantitative rigor', value: 'Best models, held with humility' },
+        { label: 'Governance', value: 'Independence and escalation' },
+      ], footer: 'Paulson combined all five in 2008 for a $15B year.', sentiment: 'positive' },
     ),
 
     microCheck(
@@ -6080,7 +6119,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'INTEGRATED RISK ASSESSMENT',
+      'Integrated risk assessment',
       'Stress Testing Across All Five Risk Dimensions Simultaneously',
       'comparison',
       'See how a comprehensive stress scenario impacts all five risk dimensions and how integrated versus fragmented responses produce different outcomes.',
@@ -6105,16 +6144,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Governance Strength (1-10)', min: 1, max: 10, default: 5, unit: '' },
         { label: 'Behavioral Discipline (1-10)', min: 1, max: 10, default: 5, unit: '' }
       ],
-      { company: 'Goldman Sachs, Surviving 2008 Through Integration', metric: 'Daily risk meetings integrating trading, risk, and management perspectives', outcome: 'Profitable through the worst crisis in 75 years', explanation: 'Goldman\'s survival was not due to any single risk management advantage but to integration. Daily firmwide risk meetings brought together trading (portfolio), risk management (quantitative), and senior leadership (governance). This integrated forum could assess behavioral biases (are we anchoring?), systemic risks (who are our counterparties?), and model limitations (is VaR still meaningful?) simultaneously.' }
+      undefined
     ),
 
     teachingSlide(
-      'CAPSTONE SYNTHESIS',
+      'Capstone synthesis',
       'The Complete Risk Manager: Lessons from 25 Lessons',
       [
-        'The complete risk manager integrates five capabilities. First, MEASUREMENT: you must be able to quantify risk using VaR, Expected Shortfall, Monte Carlo, stress tests, and factor decomposition. But measurement without context is just numbers, you need the other four capabilities to make measurement meaningful. Second, SYSTEMIC AWARENESS: understanding how your risks connect to the broader system, how contagion spreads, and when your portfolio risk becomes everyone\'s problem. The London Whale\'s position was so large it moved the credit index market, an individual risk that became systemic.',
-        'Third, BEHAVIORAL DISCIPLINE: recognizing overconfidence, anchoring, groupthink, and loss aversion in yourself and your organization, and building structures (devil\'s advocates, pre-mortems, radical transparency) to counteract them. LTCM\'s Nobel laureates prove that intelligence without behavioral discipline is a liability. Fourth, MODEL HUMILITY: using the best available quantitative tools while remembering they are simplifications. The Gaussian copula was elegant and catastrophic. Every model has failure modes; the best risk managers know what those are.',
-        'Fifth, GOVERNANCE EXECUTION: building the organizational architecture that converts risk information into protective action. SVB had the risk data; it lacked the governance to act. JPMorgan has both. The complete risk manager doesn\'t just measure risk, they build the systems, cultures, and structures that ensure risk measurement leads to risk management. This is the integration that separates surviving firms from casualties: not excellence in one dimension, but competence across all five, linked by governance that forces action.'
+        'A complete risk manager does five things. First, measure: VaR, Expected Shortfall, Monte Carlo, stress tests, factor decomposition. Second, spot systemic links: the London Whale position was large enough to move the credit index market.',
+      'Third, behavioral discipline: LTCM\'s Nobel laureates show brains without it are a liability. Fourth, model humility: the Gaussian copula, a correlation model, was elegant and catastrophic. Fifth, governance: SVB had the risk data but never acted; JPMorgan acts.'
       ],
       [
         { term: 'Risk Management Maturity', definition: 'A framework assessing how advanced an organization\'s risk management is across all five dimensions. Ranges from "reactive" (responding to losses after they occur) to "integrated" (proactive management across all dimensions simultaneously).', example: 'Level 1: No formal risk management. Level 2: Basic measurement. Level 3: Active management. Level 4: Enterprise-wide integration. Level 5: Adaptive and predictive with all dimensions integrated and continuously improving.' },
@@ -6122,7 +6160,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Risk-Adjusted Performance', definition: 'Measuring returns relative to the risks taken to achieve them. Ensures that high returns from excessive risk-taking are not confused with skilled management.', example: 'A fund earning 20% with 30% volatility (Sharpe 0.67) is less impressive than one earning 15% with 10% volatility (Sharpe 1.5). Risk-adjusted metrics prevent overconfidence from headline returns.' }
       ],
       'Five-point star diagram: each point represents a dimension (Portfolio, Systemic, Behavioral, Quantitative, Governance). Filled area shows the firm\'s capability across all dimensions. A firm with one weak dimension has a "dent" in the star, and crises exploit the weakest point.',
-      { company: 'Complete Risk Management Across 25 Lessons', metric: 'Integration of all dimensions produces resilience', outcome: 'Firms that integrate survive; firms that excel in only one dimension fail', explanation: 'The 25 lessons of this course demonstrate one consistent truth: risk management failure is never about one thing. It\'s about the interaction of portfolio decisions, systemic dynamics, human psychology, model assumptions, and governance structures. The firms that survive are not the ones with the best models, they\'re the ones that integrate measurement, awareness, discipline, humility, and governance into a coherent whole.' },
+      undefined,
       RM25_TEACH2
     ),
 

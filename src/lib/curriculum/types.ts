@@ -26,16 +26,45 @@ export type CanvasBlock =
   | { kind: 'visual'; visual: AnimatedVisual }
   | { kind: 'image'; svg: string; alt?: string };
 export interface CanvasStep { type: 'canvas'; title?: string; blocks: CanvasBlock[]; }
-export interface TapRevealStep { type: 'tapReveal'; title: string; cards: [string, string][]; }
-export interface FillBlankStep { type: 'fillBlank'; sentence: string; options: string[]; correct: number; }
+/**
+ * Optional per-card presentation, appended as a THIRD tuple entry so all 247
+ * existing two-entry cards keep parsing unchanged.
+ *
+ * `stat` exists because the hero figure cannot be derived from the answer prose.
+ * Measured across all 1,105 tap-reveal answers in the corpus, a leading-figure
+ * regex found one in 15.7% of them and mangled several of those ("About 5.5
+ * years" -> "5.5", "27 bear markets" -> "27"). A card leads with its number only
+ * when an author supplies it; otherwise it renders the answer as prose.
+ */
+export interface TapRevealCardMeta { stat?: string; sprite?: string }
+export interface TapRevealStep { type: 'tapReveal'; title: string; cards: [string, string, TapRevealCardMeta?][]; }
+/**
+ * `explanation` is optional so existing content keeps working, but without it a
+ * wrong answer only ever says "The correct answer is X", which names the answer
+ * and teaches nothing. 280 fillBlanks shipped that way.
+ */
+export interface FillBlankStep { type: 'fillBlank'; sentence: string; options: string[]; correct: number; explanation?: string; }
 export interface DragSortStep { type: 'dragSort'; prompt: string; items: string[]; }
-export interface QuizStep { type: 'quiz'; question: string; options: string[]; correct: number; explanation: string; }
-export interface TrueFalseStep { type: 'trueFalse'; statements: { s: string; a: boolean }[]; }
+/**
+ * `optionFeedback` is indexed against `options` AS AUTHORED. The renderer
+ * shuffles options, so it must map back through the shuffle before reading this
+ * or it will explain the wrong trap.
+ */
+export interface QuizStep { type: 'quiz'; question: string; options: string[]; correct: number; explanation: string; optionFeedback?: string[]; }
+/** 1,355 statements had no field to explain WHY a statement is true or false. */
+export interface TrueFalseStep { type: 'trueFalse'; statements: { s: string; a: boolean; explanation?: string }[]; }
 export interface MatchStep { type: 'match'; title: string; pairs: [string, string][]; }
-export interface SliderStep { type: 'slider'; question: string; min: number; max: number; correct: number; unit: string; }
+/** The reveal showed the number alone; `explanation` is where the why goes. */
+export interface SliderStep { type: 'slider'; question: string; min: number; max: number; correct: number; unit: string; explanation?: string; }
 export interface ScenarioStep { type: 'scenario'; situation: string; choices: { label: string; outcome: string; correct: boolean }[]; }
-export interface BuildItStep { type: 'buildIt'; title: string; instruction: string; slots: { label: string; options: string[]; correct: number }[]; }
-export type CalcQuizStep = { prompt: string; options: string[]; correct: number };
+export interface BuildItStep { type: 'buildIt'; title: string; instruction: string; slots: { label: string; options: string[]; correct: number }[]; explanation?: string; }
+/**
+ * `explanation` is where the working-out belongs. Without it, authors folded
+ * solutions into the option strings, which both gave the answer away and made
+ * the correct option the conspicuously long one. Optional, so every existing
+ * calc step keeps its current answer-and-advance behaviour untouched.
+ */
+export type CalcQuizStep = { prompt: string; options: string[]; correct: number; explanation?: string };
 export type CalcWalkthroughStep = { label: string; formula: string; result: string };
 export interface ProgressiveCalcStep { type: 'progressiveCalc'; title: string; calcSteps: (CalcQuizStep | CalcWalkthroughStep)[]; }
 export interface VisualInteractiveStep { type: 'visualInteractive'; description: string; question: string; options: string[]; correct: number; }
@@ -73,6 +102,14 @@ export interface TeachingSlideStep {
   diagramSvg?: string;
   diagramVisual?: AnimatedVisual;
   realExample?: { company: string; metric: string; outcome: string; explanation: string };
+  /**
+   * Atlas's two beats on this slide, both optional and both authored.
+   * `hint` overrides the generic pointer bubble beside the diagram; `recap` is
+   * the send-off he gives when Continue is pressed, and with no recap authored
+   * Continue simply advances as before. Neither is ever generated: a confident
+   * sentence nobody wrote is worse than no sentence.
+   */
+  atlas?: { hint?: string; recap?: string };
 }
 
 export interface MicroCheckStep {
@@ -98,6 +135,33 @@ export interface InteractiveGraphStep {
   sliders?: { label: string; min: number; max: number; default: number; unit: string }[];
   realExample?: { company: string; metric: string; outcome: string; explanation: string };
   chartPreset?: 'sma-crossover' | 'sma-vs-ema' | 'volatility-cluster' | 'mean-reversion' | 'candlestick-basic' | 'trend-following';
+  /**
+   * How a `comparison` graph should actually compute its two lines.
+   *
+   * Without this the renderer assumes slider 0 is a stock allocation percent and
+   * seeds both lines from a hardcoded $10,000. Any lesson whose slider 0 is not
+   * a percentage silently gets a chart that ignores it: personal-finance L1
+   * feeds it an Annual Income in dollars, which clamps to 100% for every value
+   * from $30,000 to $150,000, so dragging that slider moved nothing and the
+   * legend read "Your allocation" on a lesson about financial literacy.
+   *
+   * Declaring the model makes the graph say what the lesson means. Omit it and
+   * the legacy allocation behaviour is unchanged for the other graphs.
+   */
+  comparisonModel?: {
+    kind: 'savingsRate';
+    /** Slider index holding annual income. */
+    incomeSlider: number;
+    /** Slider index holding the number of years. */
+    yearsSlider: number;
+    /** Share of income saved on each line, as a fraction. */
+    rateA: number;
+    rateB: number;
+    labelA: string;
+    labelB: string;
+    /** Average annual return applied to both, so only behaviour differs. */
+    annualReturn: number;
+  };
 }
 
 export interface CaseStudyStep {
@@ -191,15 +255,36 @@ export interface ScenarioSimStep {
 }
 
 // ─── Animated Visual Config (replaces inline SVG strings) ───
+/**
+ * `sprite` on metric / bars items / grid items is an OPTIONAL illustration slot
+ * holding an id from src/lib/pixel. It decorates, it never encodes magnitude, so
+ * adding one cannot make a chart lie. Quantity still lives in the geometry (bar
+ * width, the metric's own number) or in a `pictograph`, where the mark count IS
+ * the value. Unknown ids render nothing rather than throwing.
+ */
 export type AnimatedVisual =
-  | { type: 'bars'; title: string; items: { label: string; value: number; displayValue?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'pie'; title: string; segments: { label: string; percent: number; color: string }[]; centerLabel?: string; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'metric'; title: string; value: string; detail?: string; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'flow'; title: string; nodes: { label: string; value?: string; color?: string }[]; footer?: string; sentiment?: 'positive' | 'negative' }
-  | { type: 'comparison'; title: string; rows: { label: string; value: string; percent?: number }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'stack'; title: string; total?: string; segments: { label: string; value?: string; percent: number; color: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'grid'; title: string; items: { label: string; value?: string; color?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'line'; title: string; points: { label: string; value: string }[]; trend: 'up' | 'down'; footer?: string; sentiment: 'positive' | 'negative' };
+  | { type: 'bars'; title: string; items: { label: string; value: number; displayValue?: string; sprite?: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'pie'; title: string; segments: { label: string; percent: number; color: string; explain?: string }[]; centerLabel?: string; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'metric'; title: string; value: string; detail?: string; footer?: string; sentiment: 'positive' | 'negative'; sprite?: string }
+  | { type: 'flow'; title: string; nodes: { label: string; value?: string; color?: string; sprite?: string; explain?: string }[]; footer?: string; sentiment?: 'positive' | 'negative' }
+  | { type: 'comparison'; title: string; rows: { label: string; value: string; percent?: number; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'stack'; title: string; total?: string; segments: { label: string; value?: string; percent: number; color: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
+  /**
+   * `explain` turns a grid cell into something the learner can press: Atlas
+   * answers with that sentence. Authored, never generated, so a cell only
+   * becomes interactive when somebody wrote the explanation for it. A grid with
+   * no explanations anywhere renders exactly as it always did.
+   */
+  | { type: 'grid'; title: string; items: { label: string; value?: string; color?: string; sprite?: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'line'; title: string; points: { label: string; value: string; explain?: string }[]; trend: 'up' | 'down'; footer?: string; sentiment: 'positive' | 'negative' }
+  /** A single pixel sprite as a lesson illustration. `sprite` is an id from src/lib/pixel. */
+  | { type: 'pixel'; title: string; sprite: string; caption?: string; footer?: string; sentiment: 'positive' | 'negative' }
+  /**
+   * Isotype/pictograph chart: quantity drawn as repeated sprites, one sprite per
+   * `unitValue`. Honest by construction because the mark count IS the magnitude,
+   * and the unit key is required rather than optional.
+   */
+  | { type: 'pictograph'; title: string; sprite: string; unitValue: number; unitLabel: string; rows: { label: string; value: number; displayValue?: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' };
 
 export type LessonStep =
   | ConceptStep | TapRevealStep | FillBlankStep | DragSortStep

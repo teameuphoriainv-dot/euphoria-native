@@ -5,6 +5,7 @@
 // ============================================================================
 
 import type { CourseMeta, PathwayLesson, TierLevel } from './types';
+import { activeReadingLevel, resolveReadingLevel, type ReadingLevel } from './readingLevel';
 
 export const COURSES: CourseMeta[] = [
   { id: 'investing-fundamentals', title: 'Investing Fundamentals', description: 'Start your investing journey with stocks, bonds, ETFs, and portfolio building.', tier: 'easy', color: 'emerald', icon: 'stocks', totalLessons: 25 },
@@ -29,33 +30,110 @@ export function getCourseById(id: string): CourseMeta | undefined {
   return COURSES.find(c => c.id === id);
 }
 
-export async function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
+/**
+ * Step types retired from the product.
+ *
+ * `simulationFinale` joined the list because the multi-decision finale asked
+ * for more sustained attention than anything else in a lesson and landed right
+ * where the learner is finishing.
+ *
+ * `summaryCards` and `whatsNext` went the same way. A recap carousel and a
+ * "you're building momentum" card sat between the last exercise and the actual
+ * ending, so a lesson finished three times: once in a summary, once in a
+ * teaser, and once in the screen that means it. The mastery challenge and the
+ * completion cinematic are the ending now.
+ *
+ * Filtered at load rather than deleted from the course files: these two types
+ * account for 389 authored steps across the 300-lesson corpus, and the writing
+ * in them is fine, it is the format that was cut. Removing the entry from this
+ * set brings every one of them back, and nothing else in the app needs to know.
+ *
+ * Applied here because this is the single choke point every consumer goes
+ * through, so the lesson viewer, the dev preview's step counter and saved
+ * progress all agree on how long a lesson is.
+ */
+const RETIRED_STEP_TYPES = new Set(['caseStudy', 'misconceptions', 'simulationFinale', 'summaryCards', 'whatsNext']);
+
+/**
+ * Drop a match step that is really just the vocabulary again.
+ *
+ * A `match` pairing terms with their definitions, in a lesson whose vocabulary
+ * conversation already taught those exact terms, asks the learner to do the
+ * same job twice with the same nouns. Measured across the corpus, 63 of the 177
+ * lessons carrying both steps had 60% or more of their match pairs already in
+ * the vocabulary list.
+ *
+ * Handled as a rule rather than by editing 63 lessons by hand: the judgement is
+ * the same every time, so encoding it once means it cannot be applied
+ * inconsistently, and it leaves every authored step in place. A match step that
+ * pairs genuinely different things, a method against its outcome, a year
+ * against an event, is untouched.
+ */
+const DUPLICATE_THRESHOLD = 0.6;
+
+const withoutDuplicateMatch = (lessons: PathwayLesson[]): PathwayLesson[] =>
+  lessons.map((l) => {
+    const match = l.steps.find((s) => s.type === 'match');
+    const vocab = l.steps.find((s) => s.type === 'keyTermsCards');
+    if (!match || !vocab) return l;
+
+    const terms = new Set(vocab.terms.map((t) => String(t.term).toLowerCase().trim()));
+    const lefts = match.pairs.map((p) => String(p[0]).toLowerCase().trim());
+    if (!lefts.length) return l;
+
+    const overlap = lefts.filter((x) => terms.has(x)).length / lefts.length;
+    if (overlap < DUPLICATE_THRESHOLD) return l;
+    return { ...l, steps: l.steps.filter((s) => s !== match) };
+  });
+
+const withoutRetiredSteps = (lessons: PathwayLesson[]): PathwayLesson[] =>
+  lessons.map((l) => {
+    const steps = l.steps.filter((s) => !RETIRED_STEP_TYPES.has(s.type));
+    return steps.length === l.steps.length ? l : { ...l, steps };
+  });
+
+/**
+ * Collapse age-banded copy to one reading level.
+ *
+ * Applied here, beside the retired-step filter, for the same reason: it is the
+ * one door every consumer walks through. Doing it at load means the renderers,
+ * the validator and the Studio all keep seeing ordinary strings and none of
+ * them had to learn what a reading level is.
+ */
+const atLevel = (lessons: PathwayLesson[], level: ReadingLevel): PathwayLesson[] =>
+  resolveReadingLevel(lessons, level);
+
+export async function loadCourseLessons(
+  courseId: string,
+  /** Defaults to the learner's own setting; pass one to force a band. */
+  level: ReadingLevel = activeReadingLevel(),
+): Promise<PathwayLesson[]> {
   try {
     switch (courseId) {
       case 'investing-fundamentals':
-        return (await import('./courses/investingFundamentals')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/investingFundamentals')).default)), level);
       case 'personal-finance':
-        return (await import('./courses/personalFinance')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/personalFinance')).default)), level);
       case 'global-economics':
-        return (await import('./courses/globalEconomics')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/globalEconomics')).default)), level);
       case 'corporate-finance':
-        return (await import('./courses/corporateFinance')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/corporateFinance')).default)), level);
       case 'business-strategy':
-        return (await import('./courses/businessStrategy')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/businessStrategy')).default)), level);
       case 'financial-analytics':
-        return (await import('./courses/financialAnalytics')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/financialAnalytics')).default)), level);
       case 'behavioral-finance':
-        return (await import('./courses/behavioralFinance')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/behavioralFinance')).default)), level);
       case 'applied-accounting':
-        return (await import('./courses/appliedAccounting')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/appliedAccounting')).default)), level);
       case 'quantitative-analysis':
-        return (await import('./courses/quantitativeAnalysis')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/quantitativeAnalysis')).default)), level);
       case 'risk-management':
-        return (await import('./courses/riskManagement')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/riskManagement')).default)), level);
       case 'alternative-investments':
-        return (await import('./courses/alternativeInvestments')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/alternativeInvestments')).default)), level);
       case 'wealth-management':
-        return (await import('./courses/wealthManagement')).default;
+        return atLevel(withoutDuplicateMatch(withoutRetiredSteps((await import('./courses/wealthManagement')).default)), level);
       default:
         console.warn(`Unknown course: ${courseId}`);
         return [];

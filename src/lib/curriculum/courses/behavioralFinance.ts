@@ -126,12 +126,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'System 1 vs. System 2: The Battle Inside Your Brain',
       [
-        'Nobel laureate Daniel Kahneman identified two thinking systems in his landmark 2011 book "Thinking, Fast and Slow." System 1 is fast, automatic, and emotional, it evolved to keep us alive on the savanna. System 2 is slow, deliberate, and analytical, it handles complex calculations and long-term planning. The problem: System 1 dominates most of our financial decisions.',
-        'Evolutionary psychology wired us for survival, not investing. Our ancestors who fled at the first sign of danger survived. Those who lingered to analyze the evidence became lunch. This "fight or flight" response is why a 10% market drop triggers a panic response in your amygdala, the same brain region that reacts to physical threats. Your brain literally cannot distinguish between a bear market and an actual bear.',
-        'Loss aversion, discovered by Kahneman and Tversky in their groundbreaking 1979 Prospect Theory paper, shows that losses feel approximately 2.5x more painful than equivalent gains feel good. Losing $1,000 creates the same emotional intensity as gaining $2,500. This asymmetry explains why investors sell winners too early (to lock in the pleasure) and hold losers too long (to avoid the pain of realizing a loss).'
+        'Daniel Kahneman\'s 2011 book "Thinking, Fast and Slow" names two systems. System 1 is fast and emotional. System 2 is slow and analytical. System 1 rules most money choices, so 10% drops alarm your amygdala, the brain\'s threat sensor.',
+      'Loss aversion: Kahneman and Tversky\'s 1979 Prospect Theory paper found losses hurt about 2.5x more than equal gains feel good. Losing $1,000 stings as much as gaining $2,500 pleases, so investors sell winners too early and hold losers too long.'
       ],
       [
         { term: 'System 1 Thinking', definition: 'Fast, automatic, intuitive thinking that operates with little effort or conscious control. It relies on heuristics and emotions.', example: 'Seeing a stock crash 20% and immediately wanting to sell, that\'s System 1 reacting to perceived danger.' },
@@ -140,7 +139,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Prospect Theory', definition: 'Kahneman & Tversky\'s Nobel Prize-winning theory showing that people evaluate gains and losses relative to a reference point, not in absolute terms.', example: 'A stock at $50 that was once $100 feels like a loss, even if you bought it at $30 and are up 67%.' }
       ],
       'Split brain diagram: left hemisphere labeled "System 2" with calculator and chart icons, right hemisphere labeled "System 1" with lightning bolt and alarm icons. An arrow shows System 1 overpowering System 2 during market stress.',
-      { company: 'DALBAR Inc.', metric: 'Quantitative Analysis of Investor Behavior (1993-2023)', outcome: 'Average equity investor earned 5.04% vs S&P 500\'s 9.65%', explanation: 'The 4.61% annual gap is almost entirely behavioral. Investors buy after stocks have risen (greed/System 1) and sell after they\'ve fallen (fear/System 1). This pattern of buying high and selling low has cost the average investor over half their potential returns for three decades.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Two Systems, One Brain',
@@ -165,7 +164,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Second Teaching Slide (Interactive Graph)
     interactiveGraph(
-      'THE DALBAR GAP',
+      'The DALBAR gap',
       'Why Your Brain Costs You Money',
       'comparison',
       'Watch the gap between market returns and average investor returns compound over decades. Adjust the behavioral penalty to see how even small decision errors devastate long-term wealth.',
@@ -188,7 +187,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Behavioral Penalty', min: 0, max: 6, default: 4, unit: '%' },
         { label: 'Time Period', min: 10, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'Vanguard', metric: 'Advisor\'s Alpha study', outcome: 'Behavioral coaching adds up to 1.5% in annual returns', explanation: 'Vanguard found that the single most valuable thing a financial advisor does is behavioral coaching, preventing clients from panic-selling during crashes and performance-chasing during booms. This alone adds ~1.5% annually, more than any stock-picking or market-timing strategy.' }
+      undefined
     ),
 
     // Step 6, Third Teaching Slide (Case Study)
@@ -196,32 +195,32 @@ const lessons: PathwayLesson[] = [
       'The 2020 COVID Crash: A Behavioral Finance Masterclass',
       [
         { date: 'February 19, 2020', event: 'S&P 500 hits all-time high of 3,386', context: 'Markets are euphoric. Unemployment is at 3.5%, a 50-year low. COVID-19 is a distant news story from China. Investor sentiment is at extreme optimism, classic System 1 complacency.' },
-        { date: 'March 23, 2020', event: 'S&P 500 crashes to 2,237, a 34% decline in 33 days', context: 'The fastest bear market in history. Lockdowns begin. Headlines scream "economic Armageddon." System 1 triggers mass panic. Investors pull $326 billion from equity mutual funds in March alone, the largest outflow ever recorded.' },
-        { date: 'April, August 2020', event: 'Market recovers 52% from the bottom, fastest recovery in history', context: 'While the economy is still locked down, the market surges. Investors who sold in March are paralyzed, System 1 now says "it\'s too high to buy back in." Many wait for another crash that never comes.' },
-        { date: 'August 18, 2020', event: 'S&P 500 surpasses pre-crash high, full recovery in 5 months', context: 'Investors who held through the panic are whole. Those who panic-sold in March and waited for clarity missed a 70%+ recovery. The entire round trip, crash and recovery, took 148 days. Behavioral errors turned a temporary event into permanent losses for millions.' }
+        { date: 'March 23, 2020', event: 'S&P 500 crashes to 2,237, a 34% decline in 33 days', context: 'The fastest bear market ever. Lockdowns start. Headlines scream economic Armageddon. Fear takes over and investors pull $326 billion from stock funds in March, the biggest outflow ever.' },
+        { date: 'April, August 2020', event: 'Market recovers 52% from the bottom, fastest recovery in history', context: 'Economy still shut, market surges. People who sold in March freeze: it feels too high to buy back. They wait for a second crash that never comes.' },
+        { date: 'August 18, 2020', event: 'S&P 500 surpasses pre-crash high, full recovery in 5 months', context: 'Investors who held ended up whole. Those who sold in March and waited missed a 70%+ recovery. The round trip took 148 days. Panic made a temporary loss permanent.' }
       ],
-      'The 2020 COVID crash is a textbook behavioral finance event. System 1 screamed "sell" as the market plummeted, and loss aversion made the 34% drop feel catastrophic. But System 2 analysis showed that every major crash in history recovered. Investors who panic-sold on March 23 and waited until "things calmed down" missed a 70%+ recovery. The lesson: the most expensive four words in investing are "this time is different." Your brain\'s survival instincts are the biggest threat to your portfolio.'
+      'The 2020 COVID crash: a 34% drop felt like the end, because losses hurt more than gains feel good. Those who sold on March 23 missed a 70%+ recovery. The costliest words in investing: this time is different.'
     ),
 
     // Step 7, Fourth Teaching Slide (Misconceptions)
     misconceptions(
-      'BEHAVIORAL MYTHS',
+      'Behavioral myths',
       'What most people get wrong about investing psychology',
       [
         {
           myth: 'Smart people don\'t fall for cognitive biases.',
           truth: 'Intelligence provides zero immunity to behavioral biases. Studies show highly educated investors, including professional fund managers, are just as susceptible to loss aversion and overconfidence. In fact, smarter investors may be more vulnerable to overconfidence bias.',
-          explanation: 'Kahneman himself admits he still falls for biases he\'s spent decades studying. The biases are hardwired into human cognition, System 1 operates automatically regardless of IQ. The advantage isn\'t avoiding biases, it\'s building systems that prevent biases from affecting your decisions.'
+          explanation: 'Kahneman still falls for the biases he spent decades studying. They are wired in, and being smart does not switch them off. The fix is rules that keep bias out of your decisions.'
         },
         {
           myth: 'Following your gut instinct is a valid investment strategy.',
           truth: 'Gut instinct (System 1) evolved for savanna survival, not financial markets. Intuition works in domains with immediate, clear feedback, like catching a ball. Investing has delayed, noisy feedback, the worst environment for intuitive decision-making.',
-          explanation: 'Research by Gerd Gigerenzer and others shows that intuition works in "kind" learning environments with repeated patterns and fast feedback. Financial markets are "wicked" environments where patterns are complex, feedback is delayed by years, and randomness mimics skill. System 1 is perfectly calibrated for the wrong domain.'
+          explanation: 'Gerd Gigerenzer found gut instinct works where patterns repeat and feedback is fast. Markets are the opposite: messy patterns, feedback that takes years, luck that looks like skill. Instinct fits the wrong game.'
         },
         {
           myth: 'You can train yourself to be completely rational about money.',
           truth: 'You can\'t eliminate biases, but you can build systems that bypass them. Automating investments, using dollar-cost averaging, and writing an investment policy statement removes emotion from the equation.',
-          explanation: 'The goal isn\'t becoming a perfectly rational investor, that\'s impossible. The goal is "choice architecture", designing your financial environment so you don\'t need to override System 1 in the moment. Automate contributions, set rebalancing rules in advance, and delete brokerage apps from your phone during crashes.'
+          explanation: 'Nobody is perfectly rational. Set up your money so you never have to fight the urge in the moment: automate your investing, write rebalancing rules in advance, and delete trading apps during a crash.'
         }
       ]
     ),
@@ -230,10 +229,10 @@ const lessons: PathwayLesson[] = [
     keyTermsCards([
       { term: 'System 1 Thinking', definition: 'Fast, automatic, intuitive thinking driven by emotion and heuristics. It evolved for physical survival but frequently misfires in financial decisions.', example: 'Seeing a 20% portfolio drop and immediately wanting to sell, the amygdala triggers the same response as a physical threat.', sentence: 'System 1 thinking caused millions of investors to panic-sell during the 2020 COVID crash, locking in losses just days before the fastest market recovery in history.' },
       { term: 'System 2 Thinking', definition: 'Slow, deliberate, analytical thinking that requires conscious effort and mental energy. It excels at complex analysis but is easily overridden by System 1 under stress.', example: 'Pulling up historical data showing that every bear market has recovered, then deciding to hold, that\'s System 2 working.', sentence: 'Her System 2 analysis of historical recovery times convinced her to stay invested during the 35% crash, ultimately saving her hundreds of thousands of dollars.' },
-      { term: 'Loss Aversion', definition: 'The cognitive bias where the pain of losing is approximately 2.5x stronger than the pleasure of an equivalent gain. Discovered by Kahneman & Tversky in 1979.', example: 'Losing $1,000 creates the same emotional intensity as gaining $2,500, which is why investors sell at bottoms (to stop the pain) and hold losers (to avoid realizing pain).', sentence: 'Loss aversion explains the DALBAR gap: investors underperform the market because the pain of losses drives them to sell low, while the fear of future losses prevents them from buying low.' },
-      { term: 'Prospect Theory', definition: 'Kahneman & Tversky\'s Nobel Prize-winning 1979 theory showing that people evaluate outcomes relative to a reference point, are loss-averse, and weight probabilities non-linearly.', example: 'A stock bought at $100 that drops to $70 feels like a devastating loss, even if its fair value is $90 and it\'s still a good investment.', sentence: 'Prospect Theory explains why investors anchor to their purchase price: a stock at $80 that was purchased at $100 feels like a loss, even if the company\'s fundamentals justify a $120 valuation.' },
+      { term: 'Loss Aversion', definition: 'Losing hurts about 2.5 times more than winning the same amount feels good. Kahneman and Tversky showed this in 1979.', example: 'Losing $1,000 stings as much as gaining $2,500 feels good. That is why people sell at the bottom and hold onto losers.', sentence: 'Loss aversion explains the DALBAR gap: investors underperform the market because the pain of losses drives them to sell low, while the fear of future losses prevents them from buying low.' },
+      { term: 'Prospect Theory', definition: 'Kahneman & Tversky\'s Nobel Prize-winning 1979 theory showing that people evaluate outcomes relative to a reference point, are loss-averse, and weight probabilities non-linearly.', example: 'A stock bought at $100 that falls to $70 feels like a disaster, even if it is worth $90 and still a good buy.', sentence: 'Prospect Theory explains why investors anchor to their purchase price: a stock at $80 that was purchased at $100 feels like a loss, even if the company\'s fundamentals justify a $120 valuation.' },
       { term: 'DALBAR Gap', definition: 'The persistent 4-5% annual difference between market returns and average investor returns, caused entirely by behavioral errors such as panic selling and performance chasing.', example: 'The S&P 500 returned 9.65% annually (1993-2023) while the average investor earned 5.04%, a behavioral cost of 4.61% per year.', sentence: 'The DALBAR gap demonstrates that the average investor\'s worst enemy is not the market, but their own psychology, costing them over half their potential wealth over a lifetime.' },
-      { term: 'Amygdala Hijack', definition: 'When the brain\'s fear center (amygdala) overrides the prefrontal cortex during perceived threats, triggering fight-or-flight responses that bypass rational analysis.', example: 'Watching your portfolio drop 30% triggers the same brain region that activates when you see a predator, your hands shake, heart races, and you feel compelled to act immediately.', sentence: 'The amygdala hijack during the 2008 crash caused $83 billion in mutual fund outflows in October alone, as investors\' survival instincts overpowered their long-term investment plans.' }
+      { term: 'Amygdala Hijack', definition: 'When the brain\'s fear center (amygdala) overrides the prefrontal cortex during perceived threats, triggering fight-or-flight responses that bypass rational analysis.', example: 'Watching your portfolio fall 30% hits the same brain area as spotting a predator. Hands shake, heart races, you feel forced to act.', sentence: 'The amygdala hijack during the 2008 crash caused $83 billion in mutual fund outflows in October alone, as investors\' survival instincts overpowered their long-term investment plans.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -461,12 +460,11 @@ const lessons: PathwayLesson[] = [
 
     // First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE SIX WEALTH DESTROYERS',
+      'The six wealth destroyers',
       'Cognitive Biases Every Investor Must Know',
       [
-        'Confirmation bias is the tendency to seek, interpret, and remember information that confirms your existing beliefs while ignoring contradictory evidence. In investing, this means a Bitcoin bull only reads bullish analysis, dismisses bearish warnings, and surrounds themselves with other bulls. During the Dot-com bubble, investors dismissed every rational valuation warning because their social circles and media diet reinforced the "new economy" narrative.',
-        'Anchoring bias occurs when you fixate on a specific number, usually the first piece of information you encountered, and judge everything relative to it. Bitcoin buyers who saw $69,000 in November 2021 anchored to that price, viewing $30,000 as "cheap" even though it could still be overvalued. Anchoring to all-time highs is one of the most dangerous biases because it creates the illusion of a bargain. The correct anchor is intrinsic value, not past price.',
-        'Recency bias, overconfidence, herd mentality, and the sunk cost fallacy complete the deadly six. Recency bias makes you assume recent trends will continue forever. Overconfidence makes you believe you\'re smarter than the market, 74% of fund managers think they\'re above-average stock pickers, which is statistically impossible. Herd mentality drives bubbles as people buy because everyone else is buying. And the sunk cost fallacy keeps you holding losers because you "can\'t sell at a loss", even when the money is already gone.'
+        'Confirmation bias means seeking only information that fits your belief: in the Dot-com bubble, investors ignored valuation warnings. Anchoring bias means judging by the first number you saw, so Bitcoin\'s $69,000 peak in November 2021 made $30,000 look cheap.',
+      'Recency bias assumes recent trends last forever. Overconfidence: 74% of fund managers think they pick stocks better than average. Herd mentality means buying because others buy. Sunk cost fallacy keeps you holding losers to avoid selling at a loss.'
       ],
       [
         { term: 'Confirmation Bias', definition: 'The tendency to search for, interpret, and recall information that confirms pre-existing beliefs while ignoring contradictory evidence.', example: 'A Tesla bull only follows pro-Tesla accounts, dismisses negative earnings reports, and interprets every piece of news as bullish.' },
@@ -475,7 +473,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Herd Mentality', definition: 'The tendency to follow the actions of a larger group, especially under uncertainty, regardless of whether those actions are rational.', example: 'GameStop rose from $20 to $483 in January 2021 as millions of Reddit users bought simultaneously, most having done zero fundamental analysis.' }
       ],
       'Grid of six bias icons: Confirmation (magnifying glass with checkmark), Anchoring (ship anchor with dollar sign), Recency (clock with upward arrow), Overconfidence (trophy with inflated head), Herd (group of sheep), Sunk Cost (money in drain).',
-      { company: 'Morningstar', metric: 'Mind the Gap study (2023)', outcome: 'Investor returns trailed fund returns by 1.7% annually over 10 years', explanation: 'Even within the same fund, investors earned less than the fund itself returned, because they bought after good performance (recency bias) and sold after bad performance (loss aversion). The biases operate even when investors have access to excellent investment vehicles.' },
+      undefined,
       {
         type: 'comparison',
         title: 'The Six Wealth-Destroying Biases',
@@ -503,7 +501,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Second Teaching Slide (Interactive Graph)
     interactiveGraph(
-      'BIAS IN ACTION',
+      'Bias in action',
       'How Cognitive Biases Fueled the Dot-Com Bubble',
       'timeline',
       'Watch how each of the six cognitive biases amplified during the Dot-com bubble. Toggle each bias to see how it contributed to the mania and crash.',
@@ -525,40 +523,40 @@ const lessons: PathwayLesson[] = [
         { label: 'Bubble Year', min: 1995, max: 2002, default: 2000, unit: '' },
         { label: 'Bias Intensity', min: 1, max: 10, default: 8, unit: '/10' }
       ],
-      { company: 'Cisco Systems', metric: 'Stock price March 2000 vs today', outcome: 'Peaked at $80 in 2000, still hasn\'t recovered 25 years later', explanation: 'Cisco was one of the "safest" tech stocks during the Dot-com bubble. Even today, adjusted for inflation, Cisco stock hasn\'t recovered its March 2000 peak. Investors who anchored to $80 and held for "recovery" have waited 25 years and counting. This illustrates why anchoring and sunk cost fallacy can permanently destroy wealth.' }
+      undefined
     ),
 
     // Step 6, Third Teaching Slide (Case Study)
     caseStudy(
       'GameStop 2021: Every Bias in One Trade',
       [
-        { date: 'January 11, 2021', event: 'GameStop trades at $20, a struggling brick-and-mortar retailer', context: 'GameStop\'s fundamentals are deteriorating: declining revenue, shifting to digital gaming, closing stores. Several hedge funds hold large short positions, betting the stock will fall further. The stock is priced near its fundamental value.' },
-        { date: 'January 22, 2021', event: 'Reddit\'s WallStreetBets community drives price to $65', context: 'Herd mentality ignites. Millions of retail investors pile in. Confirmation bias takes hold, the subreddit becomes an echo chamber where only bullish posts get upvoted. "Diamond hands" culture makes selling socially unacceptable.' },
-        { date: 'January 28, 2021', event: 'Stock peaks at $483, a 2,300% gain in 17 days', context: 'Overconfidence peaks: ordinary investors believe they\'ve outsmarted Wall Street. Anchoring sets in immediately, $483 becomes the reference price. Recency bias convinces newcomers that the parabolic rise will continue. Some investors take out loans to buy at $400+.' },
-        { date: 'February 19, 2021', event: 'Stock crashes to $40, a 92% decline from peak', context: 'The sunk cost fallacy keeps many holding. Investors who bought at $300+ refuse to sell at $40 because "they\'ve already lost so much." Confirmation bias has them reading Reddit posts about a "second squeeze." Some average down, compounding their losses. Many first-time investors lose their entire investment.' }
+        { date: 'January 11, 2021', event: 'GameStop trades at $20, a struggling brick-and-mortar retailer', context: 'GameStop is shrinking: sales down, gaming going digital, stores closing. Hedge funds hold big short bets that the stock falls further. The price fits the business\'s real value.' },
+        { date: 'January 22, 2021', event: 'Reddit\'s WallStreetBets community drives price to $65', context: 'Millions of small investors pile in, following the herd. The subreddit becomes an echo chamber where only bullish posts rise. Diamond hands culture makes selling shameful.' },
+        { date: 'January 28, 2021', event: 'Stock peaks at $483, a 2,300% gain in 17 days', context: 'Overconfidence peaks. Ordinary investors think they beat Wall Street. $483 becomes the price everyone anchors to. Newcomers assume the rise continues. Some borrow to buy above $400.' },
+        { date: 'February 19, 2021', event: 'Stock crashes to $40, a 92% decline from peak', context: 'Sunk cost traps holders. Buyers at $300+ will not sell at $40 after losing so much. Reddit promises a second squeeze. Some buy more. First-timers lose everything.' }
       ],
-      'GameStop perfectly illustrates how all six biases can operate simultaneously. Herd mentality drove the initial frenzy. Confirmation bias turned social media into an echo chamber. Anchoring to $483 made $200 seem "cheap." Overconfidence made retail traders believe they could beat hedge funds. Recency bias convinced late buyers the trend would continue forever. And the sunk cost fallacy trapped investors in massive losses they refused to realize. The result: a small number of early buyers made fortunes while millions of late arrivals lost billions collectively.'
+      'Six biases at once. The herd started it, Reddit confirmed it, anchoring to $483 made $200 look cheap, overconfidence and recency bias sold the dream, sunk cost trapped the rest. A few got rich, millions lost billions.'
     ),
 
     // Step 7, Fourth Teaching Slide (Misconceptions)
     misconceptions(
-      'BIAS MYTHS',
+      'Bias myths',
       'What most people get wrong about cognitive biases',
       [
         {
           myth: 'Being aware of biases means you won\'t fall for them.',
           truth: 'Awareness is necessary but insufficient. Studies show that even when people are told about specific biases, their behavior barely changes in the moment. You need pre-commitment strategies and systems, not just knowledge.',
-          explanation: 'Knowing that confirmation bias exists doesn\'t stop you from gravitating toward information that confirms your beliefs. The fix is structural: actively seek disconfirming evidence, create a "devil\'s advocate" checklist for every investment, and set position sizes before doing any research.'
+          explanation: 'Knowing about confirmation bias does not stop it. The fix is structural: seek evidence you are wrong, keep a checklist arguing the other side, and set position size before researching.'
         },
         {
           myth: 'Contrarians who go against the herd are always right.',
           truth: 'Being contrarian just to be different is its own bias (reactance). The herd is right most of the time, markets trend upward over decades. Contrarianism only works at extremes of sentiment and must be backed by fundamental analysis.',
-          explanation: 'Going against the crowd during the Dot-com bubble at 5,000 was brilliant. Going against the crowd during a normal bull market is just leaving money on the table. The skill isn\'t being contrarian, it\'s identifying when the crowd has reached an irrational extreme.'
+          explanation: 'Going against the crowd during the Dot-com bubble at 5,000 was brilliant. Going against a normal rising market just costs you gains. The skill is spotting when the crowd turns irrational.'
         },
         {
           myth: 'The sunk cost fallacy means you should always sell losing investments.',
           truth: 'The sunk cost fallacy means you should evaluate every investment based on its future prospects, not past performance. Sometimes holding a loser IS the right call, if the fundamentals support recovery. The error is holding only because you "can\'t accept the loss."',
-          explanation: 'Amazon fell 94% from 1999 to 2001. Holding was the right call because the business was growing. Pets.com also fell 94%, but holding was wrong because the business was failing. The question is always "what are the future prospects?" not "how much have I already lost?"'
+          explanation: 'Amazon fell 94% from 1999 to 2001. Holding was right: the business kept growing. Pets.com fell 94% too. Holding was wrong: that business was dying. Ask what comes next, not what you lost.'
         }
       ]
     ),
@@ -570,7 +568,7 @@ const lessons: PathwayLesson[] = [
       { term: 'Recency Bias', definition: 'The tendency to overweight recent events and extrapolate current trends far into the future, ignoring long-term historical patterns.', example: 'After three years of 25%+ crypto returns, investors assumed those returns would continue, right before a 75% crash.', sentence: 'Recency bias caused him to allocate 90% of his portfolio to tech stocks after the sector\'s 5-year bull run, just months before the 2022 correction.' },
       { term: 'Overconfidence Bias', definition: 'Systematically overestimating one\'s own knowledge, abilities, and the precision of one\'s predictions. Most investors believe they are above average.', example: 'A study found that 93% of American drivers consider themselves "above average", and a similar percentage of investors believe they can beat the market.', sentence: 'His overconfidence led him to concentrate his entire portfolio in three stocks he was "certain" about, two of which lost more than 60% within a year.' },
       { term: 'Herd Mentality', definition: 'The tendency to follow the crowd, especially under uncertainty, assuming that if many people are doing something, it must be correct.', example: 'GameStop rose 2,300% in January 2021 as millions of Reddit users bought simultaneously, most having never analyzed the company\'s financial statements.', sentence: 'Herd mentality drove the housing bubble as millions of people bought homes they couldn\'t afford, reasoning that "everyone is doing it, so it must be a good investment."' },
-      { term: 'Sunk Cost Fallacy', definition: 'The error of factoring irrecoverable past costs into decisions about the future, leading to irrational persistence with losing investments.', example: 'Holding a stock down 80% because "I can\'t sell at a loss", the money is gone whether you hold or sell. The only question is: "what are the future prospects?"', sentence: 'The sunk cost fallacy kept her holding a failing stock for three more years after the company\'s competitive advantage had clearly eroded, turning a 50% loss into a 95% loss.' }
+      { term: 'Sunk Cost Fallacy', definition: 'The error of factoring irrecoverable past costs into decisions about the future, leading to irrational persistence with losing investments.', example: 'Holding a stock down 80% because you cannot sell at a loss. The money is gone either way. Ask only what happens next.', sentence: 'The sunk cost fallacy kept her holding a failing stock for three more years after the company\'s competitive advantage had clearly eroded, turning a 50% loss into a 95% loss.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -793,21 +791,20 @@ const lessons: PathwayLesson[] = [
 
     // First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE EMOTION CYCLE',
+      'The emotion cycle',
       'The 13-Stage Investor Emotion Cycle',
       [
-        'Every market cycle follows a predictable emotional arc that has repeated throughout financial history. The cycle begins with optimism ("things are improving"), builds through excitement ("I\'m making money!"), and peaks at euphoria ("I can\'t lose, this time is different!"). Euphoria is the point of maximum financial risk because prices are highest, fundamentals are most stretched, and investor positioning is most aggressive. Warren Buffett\'s famous rule, "be fearful when others are greedy", targets this exact phase.',
-        'After the peak, the descent begins: anxiety ("this is just a pullback"), denial ("I\'ll hold, it\'ll come back"), fear ("what if it doesn\'t recover?"), desperation ("I\'m losing everything"), panic ("get me out at any price!"), and finally capitulation ("I sold everything, I never want to invest again"). Capitulation is the point of maximum financial opportunity because prices are lowest, everyone who was going to sell has already sold, and the only direction left is up. The CNN Fear & Greed Index hitting 2 on March 16, 2020 was textbook capitulation.',
-        'The recovery phase moves through depression ("I should never have invested"), hope ("maybe markets can recover"), and relief ("my portfolio is back to breakeven"), before returning to optimism and starting the cycle again. Understanding this cycle doesn\'t prevent you from feeling the emotions, it prevents you from acting on them. The most profitable investors in history, Buffett, Templeton, Marks, all built their fortunes by buying during the capitulation phase when everyone else was selling.'
+        'Emotions follow a cycle: optimism, excitement, euphoria. Euphoria is the point of maximum risk, since prices are highest. Then comes anxiety, denial, fear, desperation, panic and capitulation, meaning you sell everything and swear off investing.',
+      'Capitulation is maximum opportunity: prices are lowest and the sellers have sold. The CNN Fear & Greed Index hit 2 on March 16, 2020. Recovery brings depression, hope, relief, then optimism again. Buffett, Templeton and Marks bought then.'
       ],
       [
-        { term: 'Euphoria', definition: 'The peak emotional state where investors believe prices can only go up. Characterized by phrases like "this time is different" and extreme risk-taking.', example: 'In December 2017, Bitcoin hit $20,000 and people were quitting their jobs to day-trade crypto. Dentists and taxi drivers were giving stock tips. Peak euphoria preceded a 84% crash.' },
-        { term: 'Capitulation', definition: 'The emotional state where investors surrender and sell at any price to end the psychological pain. Marks the bottom of the emotion cycle and the point of maximum opportunity.', example: 'March 2020: investors pulled $326 billion from equity funds, the largest outflow ever. Those who bought that week earned 75%+ in 12 months.' },
-        { term: 'Contrarian Indicator', definition: 'A sentiment measure that signals opportunity by showing extreme crowd behavior. When the majority is euphoric, it signals caution; when the majority panics, it signals opportunity.', example: 'The CNN Fear & Greed Index at 2 (extreme fear) on March 16, 2020 was the most profitable buy signal of the decade.' },
-        { term: 'Fear & Greed Index', definition: 'CNN\'s composite sentiment indicator combining 7 market signals (momentum, volatility, put/call ratios, junk bond demand, etc.) on a 0-100 scale. Extreme fear (0-25) often signals buying opportunities.', example: 'The index hit 2 on March 16, 2020 (extreme fear) and rose to 92 by November 2021 (extreme greed), mapping perfectly to the emotion cycle.' }
+        { term: 'Euphoria', definition: 'The peak emotional state where investors believe prices can only go up. Characterized by phrases like "this time is different" and extreme risk-taking.', example: 'In December 2017, Bitcoin hit $20,000. People quit jobs to day trade. Taxi drivers gave stock tips. Then it crashed 84%.' },
+        { term: 'Capitulation', definition: 'Investors give up and sell at any price to stop the pain. It marks the cycle\'s bottom and the best chance to buy.', example: 'March 2020: investors pulled $326 billion from equity funds, the largest outflow ever. Those who bought that week earned 75%+ in 12 months.' },
+        { term: 'Contrarian Indicator', definition: 'A gauge of crowd mood. When most people are euphoric, be careful. When most people panic, look for bargains.', example: 'The CNN Fear & Greed Index at 2 (extreme fear) on March 16, 2020 was the most profitable buy signal of the decade.' },
+        { term: 'Fear & Greed Index', definition: 'CNN\'s mood gauge blends 7 market signals into a 0 to 100 score. Extreme fear, 0 to 25, often signals a buying chance.', example: 'The index hit 2 on March 16, 2020 (extreme fear) and rose to 92 by November 2021 (extreme greed), mapping perfectly to the emotion cycle.' }
       ],
       'Circular diagram showing all 13 emotional stages arranged clockwise: optimism → excitement → euphoria (peak risk) → anxiety → denial → fear → desperation → panic → capitulation (peak opportunity) → depression → hope → relief → back to optimism',
-      { company: 'CNN Business', metric: 'Fear & Greed Index historical extremes', outcome: 'Extreme fear readings (below 10) have preceded positive 12-month returns 100% of the time since the index was created', explanation: 'The Fear & Greed Index combines seven market indicators: stock price momentum, stock price strength, stock price breadth, put/call ratio, market volatility (VIX), junk bond demand, and safe-haven demand. When all seven simultaneously signal extreme fear, it means every measurable form of investor sentiment has capitulated. Historically, this clustering of fear signals has been the single most reliable buy indicator available to individual investors.' },
+      undefined,
       {
         type: 'comparison',
         title: 'The Investor Emotion Cycle',
@@ -832,7 +829,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Second Teaching Slide (Interactive Graph)
     interactiveGraph(
-      'EMOTIONS VS. RETURNS',
+      'Emotions vs. returns',
       'How Emotional Triggers Destroy Wealth',
       'timeline',
       'Track how investor sentiment correlates inversely with future returns. When fear is highest, forward returns are best, and vice versa.',
@@ -857,54 +854,54 @@ const lessons: PathwayLesson[] = [
         { label: 'VIX Level', min: 10, max: 90, default: 40, unit: '' },
         { label: 'Holding Period', min: 1, max: 36, default: 12, unit: ' months' }
       ],
-      { company: 'Berkshire Hathaway', metric: 'Investment activity during 2008 crisis', outcome: 'Buffett invested $15.6 billion when the Fear & Greed Index was in extreme fear, generating billions in profits', explanation: 'While the world was in capitulation during October 2008, Buffett wrote a New York Times op-ed titled "Buy American. I Am." He invested $5 billion in Goldman Sachs, $3 billion in GE, and billions more in other distressed companies. His Goldman deal alone returned $3.7 billion in profit. Buffett didn\'t feel less fear than other investors, he simply recognized that maximum fear equals maximum opportunity and had built the discipline and cash reserves to act on it.' }
+      undefined
     ),
 
     // Step 6, Third Teaching Slide (Case Study)
     caseStudy(
       'The Dot-Com Bubble Emotional Cycle: 1995-2003',
       [
-        { date: '1995-1997', event: 'Optimism & Excitement: Netscape IPO doubles on day one. Internet stocks start climbing.', context: 'The emotion cycle begins. Early internet adopters feel validated. "The internet will change everything" is optimism transitioning to excitement. Investors begin shifting from bonds to tech stocks. NASDAQ rises from 1,000 to 1,500.' },
-        { date: '1998-1999', event: 'Euphoria: Day traders quit jobs. Pets.com, Webvan, and eToys go public with zero profits. NASDAQ doubles in 12 months.', context: 'Peak euphoria. Cab drivers and hairdressers give stock tips. CNBC ratings triple. Companies add ".com" to their names and stock prices jump 50%. A Super Bowl ad costs $2.2 million and 14 dot-coms buy one. The phrase "this time is different" enters common usage. Euphoria is indistinguishable from insanity.' },
-        { date: 'March 10, 2000', event: 'NASDAQ peaks at 5,048.62. Cisco is briefly the most valuable company in the world at $555 billion.', context: 'The exact peak of euphoria. Cisco trades at 196x earnings. The total market cap of internet stocks exceeds $2.9 trillion. Every sentiment indicator is at extreme greed. No one is afraid. This is the moment of maximum financial risk, exactly when most investors were buying most aggressively.' },
-        { date: 'March, December 2000', event: 'Anxiety → Denial → Fear: NASDAQ drops 39%. "It\'s just a correction" transitions to "something is wrong."', context: 'The descent through three emotional stages in 9 months. During anxiety, investors add to positions ("buying the dip"). During denial, they hold ("it\'ll come back"). During fear, they freeze, unable to sell but unable to buy more. $1.7 trillion in market value vanishes.' },
-        { date: '2001, October 2002', event: 'Desperation → Panic → Capitulation: NASDAQ crashes to 1,114, down 78% from the peak. $5 trillion destroyed.', context: 'Capitulation phase. Pets.com is bankrupt. Webvan burns through $830 million and closes. 48% of dot-com companies cease operations. Investors swear off stocks entirely. AAII bearish sentiment exceeds 55%. The emotion cycle has reached its nadir, and the buying opportunity of a generation.' },
-        { date: '2003-2006', event: 'Depression → Hope → Relief: Markets slowly recover. NASDAQ begins climbing from 1,114.', context: 'The recovery phase. Investors who capitulated miss a 50%+ rebound from the October 2002 lows. Those who bought at capitulation, when every headline screamed "the death of equities", saw their investments double and triple. The cycle begins again.' }
+        { date: '1995-1997', event: 'Optimism & Excitement: Netscape IPO doubles on day one. Internet stocks start climbing.', context: 'The cycle starts. Early internet fans feel proven right. Optimism turns into excitement. Money moves from bonds into tech stocks. The NASDAQ climbs from 1,000 to 1,500.' },
+        { date: '1998-1999', event: 'Euphoria: Day traders quit jobs. Pets.com, Webvan, and eToys go public with zero profits. NASDAQ doubles in 12 months.', context: 'Peak euphoria. Strangers hand out stock tips. CNBC ratings triple. Firms add .com to their names and jump 50%. 14 dot-coms buy Super Bowl ads at $2.2 million each.' },
+        { date: 'March 10, 2000', event: 'NASDAQ peaks at 5,048.62. Cisco is briefly the most valuable company in the world at $555 billion.', context: 'The exact top. Cisco trades at 196 times earnings. Internet stocks are worth $2.9 trillion. Sentiment shows extreme greed. Risk is highest right when everyone is buying hardest.' },
+        { date: 'March, December 2000', event: 'Anxiety → Denial → Fear: NASDAQ drops 39%. "It\'s just a correction" transitions to "something is wrong."', context: 'Three stages in 9 months. In anxiety, investors buy the dip. In denial, they hold and wait. In fear, they freeze. $1.7 trillion in value disappears.' },
+        { date: '2001, October 2002', event: 'Desperation → Panic → Capitulation: NASDAQ crashes to 1,114, down 78% from the peak. $5 trillion destroyed.', context: 'Capitulation. Pets.com is bankrupt. Webvan burns $830 million and shuts. 48% of dot-coms die. In the AAII survey, over 55% turn bearish. The bottom is a rare buying chance.' },
+        { date: '2003-2006', event: 'Depression → Hope → Relief: Markets slowly recover. NASDAQ begins climbing from 1,114.', context: 'Recovery. Those who gave up miss a rebound over 50% from the October 2002 low. Those who bought when headlines screamed doom doubled their money. The cycle restarts.' }
       ],
-      'The dot-com bubble is the most complete emotional cycle in modern market history. Every single phase, from the optimism of Netscape\'s 1995 IPO through the euphoria of the 1999 mania to the capitulation of 2002, played out exactly as the 13-stage model predicts. The investors who lost the most were those who bought during euphoria (late 1999) and sold during capitulation (late 2002). The investors who profited most were those who recognized euphoria as a sell signal and capitulation as a buy signal. The emotion cycle hasn\'t changed in 400 years, from Dutch tulips to dot-com stocks to crypto, because human psychology hasn\'t changed.'
+      'The dot-com bubble ran all 13 stages: Netscape\'s 1995 IPO, the 1999 mania, the 2002 bottom. Buying in late 1999 and selling in late 2002 hurt most. Euphoria means sell, capitulation means buy. Nothing has changed in 400 years.'
     ),
 
     // Step 7, Fourth Teaching Slide (Misconceptions)
     misconceptions(
-      'EMOTION CYCLE MYTHS',
+      'Emotion cycle myths',
       'What most people get wrong about market emotions',
       [
         {
           myth: 'Professional investors don\'t experience the emotion cycle.',
           truth: 'Professionals feel the same emotions as retail investors, their brains have the same amygdala, the same nucleus accumbens, and the same cortisol responses. The difference is that professionals build systems, rules, and accountability structures that prevent emotions from driving decisions.',
-          explanation: 'During the 2008 crisis, many professional fund managers panic-sold alongside retail investors. A study by Dalbar showed that even professional equity fund managers underperformed their benchmarks by an average of 1.5% annually due to behavioral errors. The emotion cycle affects everyone, the question is whether you have a system to override it.'
+          explanation: 'Pros panic too. In the 2008 crisis, fund managers sold with the crowd. Dalbar found they trailed their benchmarks by 1.5% a year from behavior errors. The fix is a system, not willpower.'
         },
         {
           myth: 'You should wait for "clarity" before investing during a crisis.',
           truth: 'By the time things are "clear," the recovery is already 30-50% underway. Clarity is just another name for the relief phase, long after capitulation has passed. The best buying opportunities feel terrible in the moment.',
-          explanation: 'Investors who waited for "clarity" after the March 2020 crash missed the fastest recovery in history. By the time COVID vaccines were confirmed (November 2020) and the economy reopened (spring 2021), the S&P 500 had already recovered 65%+ from the bottom. Waiting for clarity is waiting for confirmation that the opportunity has passed.'
+          explanation: 'Waiting for clarity after the March 2020 crash meant missing the fastest recovery ever. By November 2020 and spring 2021, the S&P 500 had already gained over 65%. Clarity comes too late.'
         },
         {
           myth: 'Extreme fear always means the market will drop further.',
           truth: 'Extreme fear readings have been the single most reliable buy signal in market history. The CNN Fear & Greed Index below 10 has preceded positive 12-month returns 100% of the time. Fear does not predict further decline, it predicts the decline is nearly over.',
-          explanation: 'Extreme fear is not a forecast of future events, it is a measurement of current positioning. When the Fear & Greed Index hits single digits, it means everyone who was going to sell has already sold. There are no more sellers left. The only direction is up. This is why capitulation marks bottoms: it is the exhaustion of selling pressure, not a prediction of more selling.'
+          explanation: 'Extreme fear is not a forecast. It measures what people have already done. When the Fear and Greed Index hits single digits, everyone who wanted to sell has sold, so capitulation marks bottoms.'
         }
       ]
     ),
 
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Investor Emotion Cycle', definition: 'The predictable 13-stage emotional arc that repeats every market cycle: optimism → excitement → euphoria → anxiety → denial → fear → desperation → panic → capitulation → depression → hope → relief → optimism.', example: 'The dot-com bubble followed all 13 stages from 1995 (optimism) to 2003 (relief), a complete 8-year cycle.', sentence: 'Understanding the investor emotion cycle allowed Buffett to deploy $15.6 billion during the 2008 capitulation phase, generating billions in profit while others sold at the worst possible moment.' },
-      { term: 'Euphoria (Maximum Risk)', definition: 'The peak of the emotion cycle where investors believe prices can only go up, risk is ignored, and speculative excess reaches its maximum. Historically marks the top of market cycles.', example: 'Bitcoin at $69,000 in November 2021: celebrity endorsements, Super Bowl ads, and "this time is different" narratives, textbook euphoria preceding a 75% crash.', sentence: 'The NASDAQ\'s euphoria phase peaked in March 2000 at 5,048, a level it would not see again for 15 years, while investors poured money in at the worst possible moment.' },
-      { term: 'Capitulation (Maximum Opportunity)', definition: 'The emotional bottom where investors surrender, sell at any price, and abandon markets entirely. Marks the exhaustion of selling pressure and the point of maximum opportunity.', example: 'March 2020: $326 billion pulled from equity funds in a single month, the largest outflow ever recorded, marking the bottom within days.', sentence: 'Sir John Templeton built his fortune by buying during capitulation: he purchased shares in every stock trading below $1 on the NYSE during the panic of 1939, turning a $10,000 investment into $40,000 within four years.' },
-      { term: 'Fear & Greed Index', definition: 'CNN\'s composite sentiment indicator (0-100) combining seven market signals: momentum, strength, breadth, put/call ratio, VIX, junk bond demand, and safe-haven demand. Extreme fear (0-25) signals opportunity; extreme greed (75-100) signals risk.', example: 'The index hit 2 on March 16, 2020 (buy signal) and 92 in November 2021 (sell signal), perfectly mapping the emotion cycle.', sentence: 'Every time the Fear & Greed Index has dropped below 10, the S&P 500 produced positive returns over the following 12 months, making extreme fear the most reliable buy signal available to individual investors.' },
+      { term: 'Investor Emotion Cycle', definition: 'The 13 stages markets repeat: optimism, excitement, euphoria, anxiety, denial, fear, desperation, panic, capitulation, depression, hope, relief, optimism.', example: 'The dot-com bubble followed all 13 stages from 1995 (optimism) to 2003 (relief), a complete 8-year cycle.', sentence: 'Understanding the investor emotion cycle allowed Buffett to deploy $15.6 billion during the 2008 capitulation phase, generating billions in profit while others sold at the worst possible moment.' },
+      { term: 'Euphoria (Maximum Risk)', definition: 'The top of the cycle. Investors think prices can only rise, ignore risk, and bet wildly. It usually marks the market peak.', example: 'Bitcoin at $69,000 in November 2021: celebrity endorsements, Super Bowl ads, and "this time is different" narratives, textbook euphoria preceding a 75% crash.', sentence: 'The NASDAQ\'s euphoria phase peaked in March 2000 at 5,048, a level it would not see again for 15 years, while investors poured money in at the worst possible moment.' },
+      { term: 'Capitulation (Maximum Opportunity)', definition: 'The emotional bottom. Investors give up and sell at any price. Selling pressure runs out, so this is the best chance to buy.', example: 'March 2020: $326 billion pulled from equity funds in a single month, the largest outflow ever recorded, marking the bottom within days.', sentence: 'Sir John Templeton built his fortune by buying during capitulation: he purchased shares in every stock trading below $1 on the NYSE during the panic of 1939, turning a $10,000 investment into $40,000 within four years.' },
+      { term: 'Fear & Greed Index', definition: 'CNN\'s mood score, built from seven signals like the VIX. Readings of 0 to 25 mean opportunity, 75 to 100 mean risk.', example: 'The index hit 2 on March 16, 2020 (buy signal) and 92 in November 2021 (sell signal), perfectly mapping the emotion cycle.', sentence: 'Every time the Fear & Greed Index has dropped below 10, the S&P 500 produced positive returns over the following 12 months, making extreme fear the most reliable buy signal available to individual investors.' },
       { term: 'VIX (CBOE Volatility Index)', definition: 'The "fear gauge" of the stock market, measuring expected 30-day volatility implied by S&P 500 option prices. Normal: 12-20. Elevated: 20-30. Fear: 30-50. Panic: 50+.', example: 'The VIX hit its all-time high of 82.69 on March 16, 2020. Buying on VIX spikes above 40 has produced average 12-month returns of 25%+.', sentence: 'When the VIX surged to 82.69 during COVID capitulation, seasoned contrarian investors recognized it as the loudest buy signal the market had ever produced.' },
-      { term: 'Contrarian Investing', definition: 'An investment strategy that deliberately goes against prevailing market sentiment, buying when others are fearful and selling when others are greedy. Based on the principle that extreme crowd behavior creates mispricing.', example: 'Warren Buffett\'s 2008 New York Times op-ed "Buy American. I Am." was published during maximum fear, he invested $15.6 billion while others fled.', sentence: 'Contrarian investing requires emotional discipline: buying during capitulation feels terrifying and selling during euphoria feels foolish, but it has been the most profitable strategy across centuries of market history.' }
+      { term: 'Contrarian Investing', definition: 'Going against the crowd. Buy when others are scared, sell when others are greedy. Extreme moods push prices away from fair value.', example: 'Warren Buffett\'s 2008 New York Times op-ed "Buy American. I Am." was published during maximum fear, he invested $15.6 billion while others fled.', sentence: 'Contrarian investing requires emotional discipline: buying during capitulation feels terrifying and selling during euphoria feels foolish, but it has been the most profitable strategy across centuries of market history.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -1134,21 +1131,20 @@ const lessons: PathwayLesson[] = [
 
     // First Teaching Slide (Core Concept)
     teachingSlide(
-      'HERD PSYCHOLOGY',
+      'Herd psychology',
       'Why Humans Follow the Crowd',
       [
-        'Herd behavior is not irrational, it\'s deeply rational from an evolutionary perspective. For millions of years, following the group was a survival strategy: if everyone runs, there\'s probably a predator. The cost of ignoring the herd and being wrong (death) far exceeded the cost of following the herd and being wrong (wasted energy). Solomon Asch\'s 1951 conformity experiments proved this instinct persists even when the "danger" is just a wrong answer about line lengths. When seven confederates gave an obviously wrong answer, 75% of participants conformed at least once, and 32% conformed on the majority of trials.',
-        'In financial markets, herd behavior manifests as information cascades, situations where people ignore their private information and instead copy others. Economist Sushil Bikhchandani showed that cascades start when early actors\' decisions become "information" for later actors. If the first three people buy a stock, the fourth person reasons: "They probably know something I don\'t." Each subsequent buyer reinforces the cascade, even though no one may have any real information. This is how stocks like GameStop went from $20 to $483 in 15 trading days, not because the company was worth more, but because each buyer\'s decision became social proof for the next.',
-        'The critical distinction is between the "wisdom of crowds" and the "madness of crowds." Wisdom of crowds works when individuals make independent judgments, as described by James Surowiecki. A crowd of 1,000 guessing the weight of an ox independently will average close to the correct answer. But when crowd members influence each other, social media, CNBC, Reddit, independence is destroyed and the crowd becomes a mob. The wisdom of crowds requires diversity of opinion, independence of judgment, decentralization, and aggregation. Remove any one condition, and wisdom becomes madness.'
+        'Copying the group once kept humans alive. In Solomon Asch\'s 1951 experiments, seven actors gave an obviously wrong answer about line lengths, and 75% of people agreed at least once, 32% on most trials.',
+      'An information cascade is people ignoring their own view to copy earlier buyers. GameStop ran from $20 to $483 in 15 trading days. Crowds of 1,000 guess an ox\'s weight well only when Reddit and CNBC aren\'t linking them.'
       ],
       [
-        { term: 'Asch Conformity', definition: 'The psychological phenomenon where individuals conform to a group\'s incorrect judgment even when the correct answer is obvious. Demonstrated in Solomon Asch\'s 1951 line experiment.', example: '75% of participants gave a wrong answer about line lengths when confederates unanimously chose wrong. In markets, this explains why investors buy overpriced stocks when "everyone else is buying."' },
-        { term: 'Information Cascade', definition: 'A situation where individuals abandon their private information and instead mimic others\' actions, creating a self-reinforcing chain of imitation that can rapidly inflate or deflate asset prices.', example: 'GameStop went from $20 to $483 in 15 trading days as each buyer\'s purchase became "social proof" for the next. No one had private information, they had momentum and mimicry.' },
-        { term: 'Social Proof', definition: 'The psychological principle where people assume an action is correct because others are doing it. In investing, social proof drives performance chasing, bubble participation, and fraud tolerance.', example: 'Bernie Madoff\'s clients stayed invested despite impossible consistency because "everyone else trusted him", including banks, hedge funds, and Nobel laureates.' },
-        { term: 'Wisdom of Crowds', definition: 'The phenomenon where aggregated independent judgments outperform individual experts. Requires four conditions: diversity, independence, decentralization, and aggregation. Fails when independence is compromised.', example: 'Surowiecki showed that the average of 787 people guessing an ox\'s weight was off by just 1 pound. But social media destroys the independence condition, turning wisdom into mania.' }
+        { term: 'Asch Conformity', definition: 'The psychological phenomenon where individuals conform to a group\'s incorrect judgment even when the correct answer is obvious. Demonstrated in Solomon Asch\'s 1951 line experiment.', example: 'In one test, 75% of people gave a wrong answer about line lengths after everyone else did. Investors buy overpriced stocks the same way.' },
+        { term: 'Information Cascade', definition: 'People ignore what they know and copy what others do. Each copycat encourages the next, so prices can swing up or down fast.', example: 'GameStop rose from $20 to $483 in 15 trading days. Each buyer became proof for the next. No inside information, just copying.' },
+        { term: 'Social Proof', definition: 'People assume something is right because others are doing it. In investing, this pushes them to chase hot stocks, join bubbles, and ignore fraud.', example: 'Bernie Madoff\'s clients stayed invested despite impossible consistency because "everyone else trusted him", including banks, hedge funds, and Nobel laureates.' },
+        { term: 'Wisdom of Crowds', definition: 'The phenomenon where aggregated independent judgments outperform individual experts. Requires four conditions: diversity, independence, decentralization, and aggregation. Fails when independence is compromised.', example: 'Surowiecki found the average guess of 787 people about an ox\'s weight missed by 1 pound. Social media kills that independence and breeds mania.' }
       ],
       'Asch experiment diagram on the left showing confederates and subject. On the right, an information cascade diagram: arrows from person 1 to person 2 to person 3, each decision influencing the next, creating a snowball effect.',
-      { company: 'GameStop Corp.', metric: 'Stock price January 2021', outcome: 'Rose from $20 to $483 in 15 trading days driven by Reddit social proof, then crashed 92% within weeks', explanation: 'GameStop is the textbook modern information cascade. WallStreetBets users posted gains, creating social proof. Each buyer\'s decision validated the next buyer\'s decision. No one had fundamental information, GameStop was a struggling video game retailer. The entire move was herd behavior amplified by social media, creating the most dramatic information cascade in retail investing history. Most late buyers, those who joined because "everyone else was doing it", lost 70-90% of their investment.' },
+      undefined,
       {
         type: 'grid',
         title: 'Information Cascade → Bubble',
@@ -1176,7 +1172,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Second Teaching Slide (Interactive Graph)
     interactiveGraph(
-      'HERD METRICS',
+      'Herd metrics',
       'Measuring Herd Behavior in Markets',
       'comparison',
       'Compare how social proof metrics correlate with asset bubbles. Higher social proof intensity leads to larger disconnects between price and fundamental value.',
@@ -1200,52 +1196,52 @@ const lessons: PathwayLesson[] = [
         { label: 'Social Media Mentions', min: 100, max: 100000, default: 10000, unit: '' },
         { label: 'Price Premium vs Fundamentals', min: 0, max: 500, default: 100, unit: '%' }
       ],
-      { company: 'Bernie Madoff Investment Securities', metric: 'Assets under management & fraud duration', outcome: '$65 billion Ponzi scheme sustained for 17 years by social proof, the largest financial fraud in history', explanation: 'Madoff\'s genius was social proof engineering. He created an air of exclusivity by "rejecting" potential clients, making existing clients feel privileged. He recruited through country clubs, charities, and religious communities, social networks where trust is highest. When banks like HSBC and JPMorgan invested, their credibility validated Madoff for everyone else. Harry Markopolos proved the fraud mathematically to the SEC four separate times, but was dismissed because "everyone trusted Madoff." The lesson: social proof can override even mathematical certainty.' }
+      undefined
     ),
 
     // Step 6, Third Teaching Slide (Case Study)
     caseStudy(
       'Bernie Madoff\'s $65 Billion Ponzi Scheme: Social Proof in Action',
       [
-        { date: '1960s, 1990s', event: 'Madoff builds legitimate market-making business, becoming NASDAQ chairman. His reputation becomes impeccable.', context: 'The foundation of the Ponzi scheme is social proof infrastructure. Madoff\'s legitimate business success creates the credibility that sustains the fraud. Being NASDAQ chairman is the ultimate authority signal, the equivalent of Asch\'s confederates wearing lab coats.' },
-        { date: '1990s, 2000s', event: 'Madoff recruits through exclusive social networks: Palm Beach Country Club, Jewish charitable organizations, and feeder funds. He rejects many applicants to create scarcity.', context: 'Classic social proof amplification. By turning people away, Madoff made existing investors feel special and new investors desperate to join. Each investor became an unpaid marketer. "You have to know someone to get in" is the most powerful social proof statement possible.' },
-        { date: '2000-2007', event: 'Harry Markopolos mathematically proves Madoff is a fraud and submits evidence to the SEC four times. He is ignored each time.', context: 'This is the most damning evidence of social proof\'s power. A qualified analyst presented mathematical proof, it was impossible to generate Madoff\'s reported returns through his stated strategy. But the SEC couldn\'t reconcile mathematical evidence with the social proof of "every major bank and charity trusts him." Social proof literally defeated mathematics.' },
-        { date: 'December 11, 2008', event: 'Madoff confesses to his sons. The $65 billion fraud, the largest in history, is revealed. 37,000 victims across 136 countries.', context: 'The information cascade reverses instantly. The same social proof that sustained the fraud now amplifies the collapse. Every client who was a social proof source becomes a victim. The scheme survived 17 years not because it was clever, it was actually crude, but because social proof is the most powerful force in human decision-making.' }
+        { date: '1960s, 1990s', event: 'Madoff builds legitimate market-making business, becoming NASDAQ chairman. His reputation becomes impeccable.', context: 'Madoff\'s real business built the trust that hid the fraud. Chairing NASDAQ, the stock exchange, made him look unquestionable, like Asch\'s actors in lab coats.' },
+        { date: '1990s, 2000s', event: 'Madoff recruits through exclusive social networks: Palm Beach Country Club, Jewish charitable organizations, and feeder funds. He rejects many applicants to create scarcity.', context: 'By turning people away, Madoff made current investors feel chosen and new ones desperate. Each became a free promoter. Nothing pulls harder than needing an introduction.' },
+        { date: '2000-2007', event: 'Harry Markopolos mathematically proves Madoff is a fraud and submits evidence to the SEC four times. He is ignored each time.', context: 'An analyst proved the math: Madoff\'s strategy could not produce his returns. The SEC ignored it because banks and charities all trusted him. Social proof beat arithmetic.' },
+        { date: 'December 11, 2008', event: 'Madoff confesses to his sons. The $65 billion fraud, the largest in history, is revealed. 37,000 victims across 136 countries.', context: 'It reversed instantly. The trust that fed the fraud sped the collapse, and every client became a victim. The scheme lasted 17 years on social proof alone.' }
       ],
-      'Madoff\'s Ponzi scheme is not primarily a story about financial fraud, it\'s a story about social proof. The fraud was mathematically obvious: Markopolos proved it in hours. It survived for 17 years because social proof is more powerful than mathematical proof. When banks, charities, Nobel laureates, and the NASDAQ chairman himself validate something, questioning it feels impossible. The lesson for every investor: the strength of social consensus has zero correlation with the truth of the underlying claim. The more unanimous the crowd, the more important it is to verify independently.'
+      'Madoff is a story about social proof, not clever fraud. Markopolos cracked the math in hours. It survived 17 years because banks, charities, and NASDAQ\'s chairman vouched for it. The bigger the crowd, the harder you should check.'
     ),
 
     // Step 7, Fourth Teaching Slide (Misconceptions)
     misconceptions(
-      'HERD BEHAVIOR MYTHS',
+      'Herd behavior myths',
       'What most people get wrong about following the crowd',
       [
         {
           myth: 'Following the crowd is always wrong, contrarians always win.',
           truth: 'The crowd is right most of the time, trends persist, markets generally rise, and consensus estimates are often close to reality. The crowd becomes dangerous only at extremes, when emotions replace analysis. Blindly opposing the crowd is just as irrational as blindly following it.',
-          explanation: 'The S&P 500 rises in roughly 75% of calendar years. Betting against the market every year is a losing strategy. Contrarian investing works at extremes, when sentiment indicators hit extreme fear or extreme greed. The rest of the time, the crowd is a reasonable guide. The skill is recognizing when normal consensus has tipped into emotional cascade.'
+          explanation: 'The S&P 500 rises in about 75% of years, so betting against it every year loses. Betting against the crowd pays only at extremes of fear or greed. Usually the crowd is a fair guide.'
         },
         {
           myth: 'Social media makes crowds smarter because more information is available.',
           truth: 'Social media destroys the key condition for crowd wisdom: independence of judgment. When everyone reads the same Reddit thread, watches the same TikTok analysis, and copies the same trades, the crowd loses its diversity and becomes a single amplified opinion.',
-          explanation: 'James Surowiecki\'s "wisdom of crowds" requires four conditions: diversity, independence, decentralization, and aggregation. Social media preserves decentralization and aggregation but destroys diversity and independence. When WallStreetBets grew to 9.8 million members all reading the same posts, it was not a wise crowd, it was 9.8 million people acting as one, creating the largest information cascade in retail investing history.'
+          explanation: 'Wise crowds need four things, Surowiecki said: diversity, independence, spread-out members, and pooled answers. Social media keeps the last two and kills the first two. WallStreetBets hit 9.8 million members reading the same posts.'
         },
         {
           myth: 'Ponzi schemes are easy to spot if you\'re financially educated.',
           truth: 'Madoff\'s victims included HSBC, Banco Santander, JPMorgan Chase, and countless Ph.D.-level professionals. Social proof bypasses financial education because it exploits trust networks, not analytical gaps. The more sophisticated the victim list, the more social proof it generates.',
-          explanation: 'Harry Markopolos, the analyst who proved the fraud, had an MBA and was a Chartered Financial Analyst. But most of Madoff\'s victims had equivalent qualifications. The difference wasn\'t education, it was independence. Markopolos analyzed the numbers in isolation. Everyone else analyzed the social proof: "HSBC is invested, so it must be legitimate." Education is necessary but not sufficient; independent verification is the only defense.'
+          explanation: 'Markopolos had an MBA and a Chartered Financial Analyst charter, like many victims. The difference was independence. He checked the numbers; everyone else checked the crowd, trusting HSBC\'s money. Only checking yourself protects you.'
         }
       ]
     ),
 
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Herd Behavior', definition: 'The tendency of individuals to mimic the actions of a larger group, even when those actions contradict their own private information or analysis. Driven by evolutionary survival instincts and social proof.', example: 'During the 2021 SPAC mania, investors poured $160B into blank-check companies because "everyone else was doing it," ignoring that SPACs have historically underperformed.', sentence: 'Herd behavior drove GameStop from $20 to $483 in 15 trading days as each buyer\'s purchase validated the next, creating the most dramatic retail information cascade in market history.' },
+      { term: 'Herd Behavior', definition: 'Copying what a big group does, even when your own information says otherwise. It comes from survival instinct and from trusting the crowd.', example: 'During the 2021 SPAC mania, investors poured $160B into blank-check companies because "everyone else was doing it," ignoring that SPACs have historically underperformed.', sentence: 'Herd behavior drove GameStop from $20 to $483 in 15 trading days as each buyer\'s purchase validated the next, creating the most dramatic retail information cascade in market history.' },
       { term: 'Information Cascade', definition: 'A chain reaction where individuals abandon their private information and mimic others, each person\'s action reinforcing the next. Creates rapid, self-fulfilling bubbles and crashes.', example: 'WallStreetBets users posting GameStop gains triggered an information cascade: each screenshot of profits convinced more people to buy, regardless of fundamentals.', sentence: 'The SPAC bubble was a textbook information cascade: each successful SPAC IPO validated the model for the next sponsor, creating $160 billion in blank-check companies before the cascade reversed and destroyed 75% of that value.' },
-      { term: 'Asch Conformity Effect', definition: 'The psychological phenomenon where individuals conform to a group\'s clearly incorrect judgment. In Asch\'s 1951 experiment, 75% of participants gave wrong answers when confederates unanimously chose wrong.', example: 'When all your colleagues are buying Bitcoin at $60,000 and you feel pressure to join despite your analysis saying it\'s overvalued, that is the Asch effect.', sentence: 'The Asch conformity effect explains why intelligent investors bought dot-com stocks at 200x earnings: when every peer, analyst, and media outlet says "buy," the social pressure to conform overwhelms independent judgment.' },
-      { term: 'Wisdom of Crowds', definition: 'The principle that aggregated independent judgments of a diverse crowd outperform individual experts. Requires four conditions: diversity, independence, decentralization, and aggregation. Fails when independence is compromised.', example: 'Prediction markets like Polymarket often outperform individual forecasters because they aggregate thousands of independent bets.', sentence: 'The wisdom of crowds correctly prices most assets most of the time, but when social media destroys the independence condition, the same crowd that wisely prices blue chips can maniacally bid a meme stock to 100x its fundamental value.' },
-      { term: 'Ponzi Scheme', definition: 'A fraudulent investment scheme that pays returns to existing investors using new investors\' capital, sustained by social proof rather than actual profits. Named after Charles Ponzi\'s 1920 postal stamp scheme.', example: 'Madoff reported consistent 10-12% annual returns for 17 years. Real investments show volatility, impossibly consistent returns are the mathematical fingerprint of fraud.', sentence: 'Bernie Madoff sustained the largest Ponzi scheme in history, $65 billion across 37,000 victims in 136 countries, for 17 years because social proof from banks, charities, and the NASDAQ chairmanship made independent verification feel unnecessary.' },
-      { term: 'FOMO (Fear of Missing Out)', definition: 'The anxiety that others are experiencing profitable opportunities that you are missing. Drives late-cycle buying during bubbles and is the emotional fuel of information cascades.', example: 'During January 2021, WallStreetBets grew from 1.8M to 9.8M members in two weeks, 8 million people experiencing FOMO simultaneously, each driven by screenshots of others\' gains.', sentence: 'FOMO is the emotional engine of information cascades: each visible gain creates FOMO in observers, who then buy, creating more visible gains, creating more FOMO, until the cascade collapses.' }
+      { term: 'Asch Conformity Effect', definition: 'People agree with a group that is plainly wrong. In Asch\'s 1951 experiment, 75% gave wrong answers after actors all chose wrong.', example: 'Every colleague is buying Bitcoin at $60,000 and you feel pushed to join, even though your own math says it is too expensive.', sentence: 'The Asch conformity effect explains why intelligent investors bought dot-com stocks at 200x earnings: when every peer, analyst, and media outlet says "buy," the social pressure to conform overwhelms independent judgment.' },
+      { term: 'Wisdom of Crowds', definition: 'Pooled guesses from many independent, varied people beat experts. It needs four things: variety, independence, spread-out members, and pooling. Break independence and it fails.', example: 'Prediction markets like Polymarket often outperform individual forecasters because they aggregate thousands of independent bets.', sentence: 'The wisdom of crowds correctly prices most assets most of the time, but when social media destroys the independence condition, the same crowd that wisely prices blue chips can maniacally bid a meme stock to 100x its fundamental value.' },
+      { term: 'Ponzi Scheme', definition: 'A fake investment that pays old investors with new investors\' money, kept alive by trust, not profits. Named for Charles Ponzi\'s 1920 stamp scheme.', example: 'Madoff reported consistent 10-12% annual returns for 17 years. Real investments show volatility, impossibly consistent returns are the mathematical fingerprint of fraud.', sentence: 'Bernie Madoff sustained the largest Ponzi scheme in history, $65 billion across 37,000 victims in 136 countries, for 17 years because social proof from banks, charities, and the NASDAQ chairmanship made independent verification feel unnecessary.' },
+      { term: 'FOMO (Fear of Missing Out)', definition: 'The anxiety that others are experiencing profitable opportunities that you are missing. Drives late-cycle buying during bubbles and is the emotional fuel of information cascades.', example: 'In January 2021, WallStreetBets grew from 1.8 million to 9.8 million members in two weeks, 8 million people chasing screenshots of others\' gains.', sentence: 'FOMO is the emotional engine of information cascades: each visible gain creates FOMO in observers, who then buy, creating more visible gains, creating more FOMO, until the cascade collapses.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -1465,21 +1461,20 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'OVERCONFIDENCE BIAS',
+      'Overconfidence bias',
       'The Most Dangerous Bias in Finance',
       [
-        'Overconfidence bias is the systematic tendency to overestimate one\'s knowledge, abilities, and the precision of one\'s predictions. It manifests in three forms: overestimation (thinking you\'re better than you are), overplacement (thinking you\'re better than others), and overprecision (being too certain about your predictions). A famous study asked 300 fund managers if they were above-average: 74% said yes, a mathematical impossibility since only 50% can be above average. In investing, overconfidence leads to excessive trading, insufficient diversification, and concentrated bets.',
-        'The Dunning-Kruger effect, discovered by psychologists David Dunning and Justin Kruger in 1999, reveals a cruel irony: the least competent people are the most overconfident. Beginners lack the expertise to recognize their own incompetence, they don\'t know what they don\'t know. In investing, this means novice traders who get lucky on their first few trades become maximally overconfident at precisely the moment they have the least skill. They mistake luck for ability and increase their risk exposure just as they should be most cautious. The effect also predicts that genuine experts tend to be less confident, they know enough to understand how much they don\'t know.',
-        'The illusion of control is the false belief that you can influence outcomes that are actually determined by chance or complex systems. Terrance Odean\'s landmark UC Berkeley study of 66,465 household brokerage accounts (1991-1996) found that the most active traders, those who believed their frequent trades added value, earned 6.5% less annually than the least active traders. The active traders weren\'t just paying more in commissions; they were making worse decisions. Every trade is an implicit bet that you know something the market doesn\'t. Over 90% of active fund managers, who trade for a living with teams of analysts, fail to beat a simple index fund over 15 years. If professionals can\'t do it, overconfident amateurs certainly can\'t.'
+        'Overconfidence means overrating your knowledge and predictions. Asked if they beat average, 74% of 300 fund managers said yes, though only 50% can. David Dunning and Justin Kruger showed in 1999 that beginners are the most sure.',
+      'Illusion of control means thinking you steer random outcomes. Terrance Odean studied 66,465 accounts from 1991 to 1996: the busiest traders earned 6.5% less yearly. Over 90% of active managers lose to index funds over 15 years.'
       ],
       [
         { term: 'Overconfidence Bias', definition: 'The systematic tendency to overestimate one\'s knowledge, abilities, and prediction accuracy. Manifests as overestimation, overplacement, and overprecision.', example: '74% of fund managers believe they are above average, mathematically impossible. This overconfidence drives excess trading that costs investors 6.5% annually.' },
-        { term: 'Dunning-Kruger Effect', definition: 'The cognitive bias where people with low ability at a task overestimate their ability, while experts underestimate theirs. Beginners lack the competence to recognize their incompetence.', example: 'A novice trader makes 3 profitable trades and concludes "I\'m a natural." An experienced trader with decades of data says "I might be slightly above average, but I\'m not sure."' },
-        { term: 'Illusion of Control', definition: 'The false belief that one can influence or control outcomes that are actually random or determined by factors beyond one\'s influence. Leads to excessive trading and risk-taking.', example: 'A trader who picks stocks believes her selections outperform, but a dart-throwing chimpanzee matched Wall Street analysts in a famous Wall Street Journal contest.' },
-        { term: 'Hot Hand Fallacy', definition: 'The mistaken belief that a person who has experienced success has a greater chance of further success in subsequent attempts. Confuses random streaks with skill.', example: 'A fund manager beats the market 3 years in a row. Investors pour money in, expecting year 4. But studies show past fund performance does not predict future performance, hot streaks are usually random.' }
+        { term: 'Dunning-Kruger Effect', definition: 'Beginners overrate their skill because they cannot see what they are missing. Experts, who know how much they do not know, underrate themselves.', example: 'A new trader wins 3 trades and decides they are gifted. A veteran with decades of data says they might be slightly above average.' },
+        { term: 'Illusion of Control', definition: 'Believing you can control results that are random or beyond your reach. It leads to trading too much and taking bigger risks.', example: 'A trader who picks stocks believes her selections outperform, but a dart-throwing chimpanzee matched Wall Street analysts in a famous Wall Street Journal contest.' },
+        { term: 'Hot Hand Fallacy', definition: 'The mistaken belief that a person who has experienced success has a greater chance of further success in subsequent attempts. Confuses random streaks with skill.', example: 'A fund manager beats the market 3 years straight, so investors pile in for year 4. Studies show hot streaks are usually luck.' }
       ],
       'Dunning-Kruger effect chart: confidence (y-axis) vs. competence (x-axis). Peak of "Mt. Stupid" at low competence, Valley of Despair in middle, Slope of Enlightenment leading to moderate confidence at high competence.',
-      { company: 'Odean/Barber UC Berkeley Study', metric: 'Brokerage account returns vs. trading frequency (66,465 accounts, 1991-1996)', outcome: 'Most active quintile of traders earned 11.4% vs. 18.5% for the least active, a 6.5% annual gap', explanation: 'Odean and Barber analyzed 66,465 household accounts and ranked them by trading frequency. The least active traders (who barely traded) earned 18.5% annually, close to the market return. The most active traders earned just 11.4%. The gap was not just commissions: active traders made systematically worse decisions because overconfidence led them to trade on noise they mistook for information. Each trade was an implicit claim: "I know something the entire market doesn\'t." The data proves they almost never did.' },
+      undefined,
       {
         type: 'line',
         title: 'Confidence vs. Competence: The Dunning-Kruger Curve',
@@ -1506,7 +1501,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Second Teaching Slide (Interactive Graph)
     interactiveGraph(
-      'THE COST OF OVERCONFIDENCE',
+      'The cost of overconfidence',
       'Active Trading vs. Passive Investing',
       'comparison',
       'Explore how trading frequency and overconfidence erode returns. Adjust trading frequency to see the compounding cost of overconfidence over time.',
@@ -1531,52 +1526,52 @@ const lessons: PathwayLesson[] = [
         { label: 'Overconfidence Penalty', min: 0, max: 8, default: 4, unit: '%' },
         { label: 'Investment Period', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'S&P Dow Jones Indices', metric: 'SPIVA U.S. Scorecard (2008-2023)', outcome: '92% of large-cap active managers underperformed the S&P 500 over 15 years; 95% over 20 years', explanation: 'The SPIVA Scorecard is the most comprehensive study of active management performance ever conducted, covering thousands of funds across all categories. The results are unambiguous: the vast majority of professional active managers, with all their resources, experience, and information advantages, cannot beat a simple, low-cost index fund. If 92% of professionals fail, what chance does an overconfident amateur with a Robinhood account have? The data strongly supports passive, low-cost index investing over active stock picking.' }
+      undefined
     ),
 
     // Step 6, Third Teaching Slide (Case Study)
     caseStudy(
       'Bill Hwang & Archegos Capital: Overconfidence Turns $10B into $0',
       [
-        { date: '2012', event: 'Bill Hwang\'s Tiger Asia Management pleads guilty to insider trading. Hwang pays $44 million in fines and is banned from the securities industry in Hong Kong.', context: 'A major red flag that overconfidence ignores. Most investors would exit the industry after a criminal conviction. Hwang\'s overconfidence convinces him he\'s smarter than the regulators and the market. He restructures his fund as a "family office" (Archegos Capital) to avoid SEC reporting requirements.' },
-        { date: '2013-2020', event: 'Archegos grows from ~$200 million to $10 billion through concentrated, leveraged bets. Hwang uses total return swaps to build massive positions without disclosing them.', context: 'Textbook overconfidence escalation. Each winning trade reinforces Hwang\'s belief in his own ability (hot hand fallacy). He concentrates his portfolio in just 8-10 stocks, the opposite of diversification. He uses 5x to 8x leverage through total return swaps, financial derivatives that let him control $50-80 billion in stocks while only posting $10 billion in collateral. Illusion of control at maximum.' },
-        { date: 'March 22-24, 2021', event: 'ViacomCBS announces a $3 billion stock offering. Archegos\'s concentrated ViacomCBS position drops. Banks issue margin calls.', context: 'The trigger event that overconfidence never plans for. Hwang\'s concentrated, leveraged position had no margin of safety. A routine stock offering, not even a crisis, was enough to start the cascade. When you believe you can\'t be wrong, you don\'t plan for being wrong.' },
-        { date: 'March 26-29, 2021', event: 'Banks liquidate Archegos positions in a fire sale. $10 billion in equity is wiped out in 48 hours. Banks lose $10+ billion: Credit Suisse ($5.5B), Nomura ($2.9B), Morgan Stanley ($1B+).', context: 'The fastest wealth destruction from overconfidence in financial history. Hwang\'s $10 billion, built over 8 years, evaporated in 2 days. His 5x leverage meant a 20% decline wiped out 100% of equity. Banks that enabled his leverage suffered billions in losses. Credit Suisse\'s Archegos losses contributed to the bank\'s eventual collapse and sale to UBS.' }
+        { date: '2012', event: 'Bill Hwang\'s Tiger Asia Management pleads guilty to insider trading. Hwang pays $44 million in fines and is banned from the securities industry in Hong Kong.', context: 'Most investors quit after a criminal conviction. Hwang, sure of being smarter than regulators, turned the fund into a family office, Archegos Capital, dodging SEC reporting rules.' },
+        { date: '2013-2020', event: 'Archegos grows from ~$200 million to $10 billion through concentrated, leveraged bets. Hwang uses total return swaps to build massive positions without disclosing them.', context: 'Winning fed the belief in skill. Only 8-10 stocks, and swaps, borrowed bets, gave 5x to 8x leverage: $50-80 billion of stock on $10 billion of collateral.' },
+        { date: 'March 22-24, 2021', event: 'ViacomCBS announces a $3 billion stock offering. Archegos\'s concentrated ViacomCBS position drops. Banks issue margin calls.', context: 'The position was concentrated and heavily borrowed, with no cushion. A routine stock sale, not a crisis, started the collapse. Certainty leaves no backup plan.' },
+        { date: 'March 26-29, 2021', event: 'Banks liquidate Archegos positions in a fire sale. $10 billion in equity is wiped out in 48 hours. Banks lose $10+ billion: Credit Suisse ($5.5B), Nomura ($2.9B), Morgan Stanley ($1B+).', context: '$10 billion built over 8 years vanished in 2 days. At 5x leverage, a 20% drop erased 100% of equity. Banks lost billions; Credit Suisse later sold to UBS.' }
       ],
-      'Bill Hwang\'s story is a masterclass in overconfidence. Every element is present: prior conviction dismissed as a fluke (overestimation), belief that he was smarter than other investors (overplacement), certainty about concentrated positions (overprecision), escalating leverage after winning streaks (hot hand fallacy), using swaps to avoid disclosure (illusion of control), and zero contingency planning (planning fallacy). The result: $10 billion to $0 in 48 hours, $10+ billion in bank losses, and criminal fraud charges. Overconfidence is not just an academic concept, it is the single most common factor in catastrophic financial failures.'
+      'Hwang shows every form of overconfidence: a conviction shrugged off, huge certainty about a few bets, more leverage after each win, no backup plan. Result: $10 billion to $0 in 48 hours, $10+ billion in bank losses, fraud charges.'
     ),
 
     // Step 7, Fourth Teaching Slide (Misconceptions)
     misconceptions(
-      'OVERCONFIDENCE MYTHS',
+      'Overconfidence myths',
       'What most people get wrong about confidence and investing',
       [
         {
           myth: 'Confidence is an advantage in investing, you need conviction to succeed.',
           truth: 'Confidence without evidence is overconfidence. The best investors, Buffett, Dalio, Marks, are characterized by intellectual humility, not bravado. Buffett\'s first rule is "never lose money." Dalio built Bridgewater\'s entire culture around "radical transparency" because he knows his first instinct is often wrong.',
-          explanation: 'Studies show an inverse relationship between trader confidence and returns. The most confident traders trade most frequently and earn the least. The most successful long-term investors are those who trade infrequently, admit uncertainty, and build large margins of safety, all hallmarks of low overconfidence, not high confidence.'
+          explanation: 'Studies find the most confident traders trade the most and earn the least. The best long-term investors trade rarely, admit they might be wrong, and leave a wide cushion for error.'
         },
         {
           myth: 'Past performance proves investing skill, if I beat the market last year, I have an edge.',
           truth: 'One year of outperformance is statistically meaningless. It takes 20+ years of data to distinguish skill from luck with any confidence. The SPIVA Scorecard shows that top-performing funds in one 5-year period are no more likely to be top performers in the next 5-year period than random chance would predict.',
-          explanation: 'If you flip a coin 10 times and get 7 heads, you wouldn\'t conclude the coin is biased. But if your stock portfolio beats the market for one year, you immediately conclude you have skill. One year of investing provides far less statistical evidence than 10 coin flips. Mutual fund performance persistence studies consistently show that past performance does not predict future performance. This is why "past performance is not indicative of future results" is legally required on every fund prospectus.'
+          explanation: '7 heads in 10 coin flips does not mean the coin is rigged. Yet one winning year feels like proof of skill, though it proves less. Past performance does not predict future results.'
         },
         {
           myth: 'More information leads to better investment decisions.',
           truth: 'More information increases confidence but not accuracy. Studies by Paul Slovic showed that as people receive more information about a prediction task, their confidence rises steadily while their accuracy stays flat. Information creates the illusion of knowledge, one of the most dangerous forms of overconfidence.',
-          explanation: 'Slovic gave horse racing handicappers 5, 10, 20, and 40 pieces of information per horse. Their accuracy stayed constant at ~17%, but their confidence rose from 17% to 34%. Double the confidence, zero improvement in accuracy. In investing, having a Bloomberg terminal, reading 50 analyst reports, and watching CNBC all day makes you feel more informed, but it doesn\'t make your predictions more accurate. It just makes you more overconfidently wrong.'
+          explanation: 'Slovic gave racing handicappers 5, 10, 20, then 40 facts per horse. Accuracy stayed near 17%; confidence rose from 17% to 34%. A Bloomberg terminal, 50 analyst reports, CNBC: more confidence, no more accuracy.'
         }
       ]
     ),
 
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Overconfidence Bias', definition: 'The systematic tendency to overestimate one\'s knowledge, abilities, and prediction precision. The most consistently identified bias in financial decision-making, driving excessive trading, poor diversification, and catastrophic leverage.', example: '74% of fund managers believe they\'re above average. Odean\'s study of 66,465 accounts showed the most overconfident (most active) traders earned 6.5% less per year.', sentence: 'Overconfidence bias led Bill Hwang to concentrate $50 billion in just 8 stocks using 5x leverage, the exact opposite of sound risk management, converting $10 billion to zero in 48 hours.' },
-      { term: 'Dunning-Kruger Effect', definition: 'The cognitive bias where low-ability individuals overestimate their competence because they lack the expertise to recognize their deficits, while high-ability individuals underestimate theirs.', example: 'A beginner trader who profits on 5 trades concludes "I\'m naturally talented." A veteran with 30 years of experience says "markets are humbling, I try to be less wrong."', sentence: 'The Dunning-Kruger effect explains why novice traders with early lucky streaks are the most likely to blow up their accounts, they are at peak confidence precisely when they should be at peak caution.' },
-      { term: 'Hot Hand Fallacy', definition: 'The mistaken belief that a person who has experienced success has an increased probability of further success. Confuses random streaks with genuine skill, leading to escalating risk after wins.', example: 'A fund manager beats the market 3 years straight and investors pour in money. SPIVA data shows no persistence, top performers in one period are random in the next.', sentence: 'The hot hand fallacy drove Archegos Capital\'s Bill Hwang to continuously increase his leverage after each winning year, building a $50 billion position that collapsed entirely when his luck ran out.' },
-      { term: 'Hindsight Bias', definition: 'The tendency to believe, after learning an outcome, that one "knew it all along." Distorts memory to create a false sense of predictive ability, fueling overconfidence.', example: 'After the 2020 crash, everyone "knew COVID would crash markets." In January 2020, the same analysts were uniformly bullish. Hindsight rewrote their memories.', sentence: 'Hindsight bias is overconfidence\'s enabler: by convincing you that past events were predictable, it creates the false belief that future events are equally predictable, leading to concentrated bets and insufficient hedging.' },
-      { term: 'Illusion of Control', definition: 'The false belief that one can influence outcomes that are determined by factors beyond one\'s control. In investing, manifests as excessive trading, stock picking, and market timing.', example: 'A day trader who clicks "buy" and "sell" 30 times a day feels she is controlling outcomes. Odean proved she\'d earn more by doing nothing.', sentence: 'The illusion of control drives the $4 trillion active management industry, even though 92% of active managers underperform a passive index fund that does literally nothing over 15 years.' },
-      { term: 'SPIVA Scorecard', definition: 'S&P\'s biannual report measuring what percentage of active fund managers outperform their benchmark index. Consistently shows 90%+ underperformance over 15+ year periods across all fund categories.', example: 'Over 15 years ending 2023: 92% of U.S. large-cap, 95% of mid-cap, and 97% of small-cap active managers underperformed their benchmark indices.', sentence: 'The SPIVA Scorecard is the definitive evidence against overconfidence in active management: if 92% of professionals with Bloomberg terminals, analyst teams, and decades of experience can\'t beat an index fund, what chance does a confident amateur with Robinhood have?' }
+      { term: 'Overconfidence Bias', definition: 'Overrating your knowledge, your skill, and how precise your predictions are. The most common bias in money decisions, driving heavy trading and reckless borrowing.', example: '74% of fund managers believe they\'re above average. Odean\'s study of 66,465 accounts showed the most overconfident (most active) traders earned 6.5% less per year.', sentence: 'Overconfidence bias led Bill Hwang to concentrate $50 billion in just 8 stocks using 5x leverage, the exact opposite of sound risk management, converting $10 billion to zero in 48 hours.' },
+      { term: 'Dunning-Kruger Effect', definition: 'The cognitive bias where low-ability individuals overestimate their competence because they lack the expertise to recognize their deficits, while high-ability individuals underestimate theirs.', example: 'A beginner wins 5 trades and decides they are gifted. A veteran of 30 years says markets humble you; aim to be less wrong.', sentence: 'The Dunning-Kruger effect explains why novice traders with early lucky streaks are the most likely to blow up their accounts, they are at peak confidence precisely when they should be at peak caution.' },
+      { term: 'Hot Hand Fallacy', definition: 'Believing a run of wins makes the next win more likely. It mistakes luck for skill, so people bet bigger after winning.', example: 'A manager beats the market 3 years straight and money floods in. SPIVA data shows no staying power; today\'s winners are random tomorrow.', sentence: 'The hot hand fallacy drove Archegos Capital\'s Bill Hwang to continuously increase his leverage after each winning year, building a $50 billion position that collapsed entirely when his luck ran out.' },
+      { term: 'Hindsight Bias', definition: 'Once you know how something turned out, it feels like you saw it coming. Memory rewrites itself, so you trust your predictions too much.', example: 'After the 2020 crash, everyone "knew COVID would crash markets." In January 2020, the same analysts were uniformly bullish. Hindsight rewrote their memories.', sentence: 'Hindsight bias is overconfidence\'s enabler: by convincing you that past events were predictable, it creates the false belief that future events are equally predictable, leading to concentrated bets and insufficient hedging.' },
+      { term: 'Illusion of Control', definition: 'Thinking you can steer results that luck and outside forces decide. In investing it shows as constant trading, stock picking, and market timing.', example: 'A day trader who clicks "buy" and "sell" 30 times a day feels she is controlling outcomes. Odean proved she\'d earn more by doing nothing.', sentence: 'The illusion of control drives the $4 trillion active management industry, even though 92% of active managers underperform a passive index fund that does literally nothing over 15 years.' },
+      { term: 'SPIVA Scorecard', definition: 'The S&P report, published twice a year, tracks how many active fund managers beat their index. Over 15+ years, 90%+ fall short.', example: 'Over 15 years ending 2023: 92% of U.S. large-cap, 95% of mid-cap, and 97% of small-cap active managers underperformed their benchmark indices.', sentence: 'The SPIVA Scorecard is the definitive evidence against overconfidence in active management: if 92% of professionals with Bloomberg terminals, analyst teams, and decades of experience can\'t beat an index fund, what chance does a confident amateur with Robinhood have?' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -1797,7 +1792,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'MENTAL ACCOUNTING',
+      'Mental accounting',
       'Thaler\'s Nobel Prize-Winning Theory of Mental Buckets',
       [
         'Richard Thaler\'s mental accounting theory, which helped earn him the 2017 Nobel Prize in Economics, describes how people categorize and evaluate financial transactions using a set of cognitive operations that violate basic economic principles. In standard economics, money is "fungible", a dollar is a dollar regardless of its source, destination, or label. But Thaler proved that humans mentally assign money to different accounts (rent, food, entertainment, savings) and treat each account as if it has a different value. This explains why people will drive across town to save $10 on a $15 calculator but not on a $500 jacket, the $10 "feels" bigger relative to the smaller purchase.',
@@ -1806,12 +1801,12 @@ const lessons: PathwayLesson[] = [
       ],
       [
         { term: 'Mental Accounting', definition: 'The cognitive process of categorizing money into separate mental "accounts" based on source, intended use, or emotional significance, violating the economic principle of fungibility.', example: 'A $500 bonus gets spent on entertainment, but a $500 paycheck goes to bills. Same $500, different mental account, completely different behavior.' },
-        { term: 'Framing Effect', definition: 'The cognitive bias where people react differently to identical information depending on how it is presented. Positive frames ("saves 200") are preferred over negative frames ("kills 400") even when the outcomes are mathematically identical.', example: 'A mutual fund that "returned 8%" sounds better than one that "underperformed its benchmark by 2%", even if both describe the same fund in the same year.' },
-        { term: 'Sunk Cost Fallacy', definition: 'The irrational tendency to continue investing time, money, or effort into something because of previously invested resources that cannot be recovered, rather than evaluating future costs and benefits alone.', example: 'Holding a stock that dropped from $100 to $50 because "I can\'t sell at a loss", the $50 loss exists whether you sell or hold. Only future prospects matter.' },
-        { term: 'Fungibility', definition: 'The economic principle that money is interchangeable, a dollar earned, found, or refunded has identical value and should be treated identically. Mental accounting violates fungibility by assigning different values based on source or label.', example: 'A $100 bill found on the street, a $100 tax refund, and $100 from overtime all have identical purchasing power, but most people treat them very differently.' }
+        { term: 'Framing Effect', definition: 'People react differently to the same facts depending on how they are worded. "Saves 200" beats "kills 400" though both mean the same.', example: 'A fund that "returned 8%" sounds better than one that "trailed its benchmark by 2%". Same fund, same year.' },
+        { term: 'Sunk Cost Fallacy', definition: 'Sticking with something because of money or time you already spent and cannot get back, instead of judging only what happens next.', example: 'Holding a stock that fell from $100 to $50 because "I can\'t sell at a loss". That $50 loss is real either way.' },
+        { term: 'Fungibility', definition: 'Money is fungible, meaning interchangeable. A dollar earned, found, or refunded is worth the same and should be treated the same.', example: '$100 found on the street, a $100 tax refund, and $100 from overtime buy the same things. Most people spend them differently.' }
       ],
       'Flow diagram: $1,000 enters from different sources (paycheck, bonus, refund, gift) → mental accounting assigns different labels → different spending/saving behavior for identical amounts',
-      { company: 'Richard Thaler', metric: 'Nobel Prize in Economics (2017)', outcome: 'Thaler\'s mental accounting research revolutionized economics by proving that humans systematically violate rational economic assumptions, treating identical money differently based on psychological categories', explanation: 'Before Thaler, economics assumed people were rational utility maximizers. Thaler\'s decades of research proved that mental accounting, framing effects, and status quo bias cause systematic deviations from rational behavior. His work led directly to practical applications: the "Save More Tomorrow" program (which uses framing and default bias to increase retirement savings) has helped millions of workers save more by exploiting the same biases that usually work against them.' },
+      undefined,
       {
         type: 'grid',
         title: 'Mental Accounting: Same Money, Different Treatment',
@@ -1840,7 +1835,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Second Teaching Slide (Interactive Graph)
     interactiveGraph(
-      'BEHAVIORAL WEALTH LEAKS',
+      'Behavioral wealth leaks',
       'How Mental Accounting Silently Destroys Wealth',
       'comparison',
       'See how mental accounting biases compound over time. Adjust the annual cost of each bias to visualize the cumulative wealth leak.',
@@ -1866,52 +1861,52 @@ const lessons: PathwayLesson[] = [
         { label: 'Status Quo Bias Cost', min: 0, max: 5, default: 2, unit: '%' },
         { label: 'Time Period', min: 5, max: 40, default: 30, unit: ' years' }
       ],
-      { company: 'Richard Thaler & Shlomo Benartzi', metric: 'Save More Tomorrow (SMarT) program adoption', outcome: 'Increased retirement saving from 3.5% to 13.6% of salary by using default bias and framing effects to work FOR employees instead of against them', explanation: 'Thaler and Benartzi\'s SMarT program is the most successful application of behavioral economics in history. By making automatic escalating contributions the default (people had to opt out, not opt in), they harnessed status quo bias and default bias for good. Participants committed to saving more from future raises, framing the increase as "keeping a portion of your raise" rather than "reducing your current pay." The result: savings rates nearly quadrupled. The same biases that drain wealth can build it, if you design the system correctly.' }
+      undefined
     ),
 
     // Step 6, Third Teaching Slide (Case Study)
     caseStudy(
       'How Casinos Exploit Mental Accounting: The House Money Effect',
       [
-        { date: 'Step 1: The Exchange', event: 'You exchange $500 cash for casino chips. The physical transformation from cash to chips is deliberate mental accounting manipulation.', context: 'Casinos know that chips feel less like "real money" than cash. This is mental accounting at its most literal: the same $500 in a different physical form triggers different spending behavior. Research shows people gamble 40% more with chips than with equivalent cash. The "pain of paying", a key mental accounting concept, is dramatically reduced when payment doesn\'t feel like real money.' },
-        { date: 'Step 2: Early Wins', event: 'You win $300 at blackjack. Your chip stack is now $800. The $300 profit immediately enters a different mental account: "house money."', context: 'The house money effect activates instantly. Your brain categorizes the $800 into two mental accounts: "$500 of my money" and "$300 of house money." Despite both being equally your money, you earned the $300 through your gambling decisions, the $300 feels less valuable because it\'s "winnings." This asymmetric valuation is Thaler\'s mental accounting in pure form.' },
-        { date: 'Step 3: Escalation', event: 'Feeling flush with "house money," you increase your bets from $25 to $100 per hand. You would never bet $100 per hand with your "own" money.', context: 'The house money effect drives risk escalation. Because the $300 feels like "free money," you take risks with it that you\'d never take with your original $500. But the $300 is real money with real purchasing power, losing it is just as costly as losing $300 from your paycheck. Casinos design every element of the experience to exploit this mental accounting separation.' },
-        { date: 'Step 4: The Loss', event: 'A losing streak wipes out your $300 in winnings plus $200 of your original stake. You leave with $300 of your original $500.', context: 'Mental accounting\'s final trick: you don\'t feel like you lost $200. You feel like you "played for free and only lost the house\'s money." But you walked in with $500 and left with $300, you lost $200 of real money. The mental accounting categories ("house money" vs "my money") created an illusion that made a $200 loss feel like breaking even. This is how casinos extract billions annually.' }
+        { date: 'Step 1: The Exchange', event: 'You exchange $500 cash for casino chips. The physical transformation from cash to chips is deliberate mental accounting manipulation.', context: 'Chips do not feel like real money. The same $500 in plastic changes how you spend: people gamble 40% more with chips than cash. Paying stops hurting.' },
+        { date: 'Step 2: Early Wins', event: 'You win $300 at blackjack. Your chip stack is now $800. The $300 profit immediately enters a different mental account: "house money."', context: 'Your brain splits the $800 into two accounts: $500 of my money and $300 of house money. Both are yours, but the winnings feel worth less.' },
+        { date: 'Step 3: Escalation', event: 'Feeling flush with "house money," you increase your bets from $25 to $100 per hand. You would never bet $100 per hand with your "own" money.', context: 'Because the $300 feels free, you risk it in ways you never would with your own $500. But losing it costs as much as losing $300 of pay.' },
+        { date: 'Step 4: The Loss', event: 'A losing streak wipes out your $300 in winnings plus $200 of your original stake. You leave with $300 of your original $500.', context: 'You walked in with $500 and left with $300. That is a real $200 loss, but calling it house money makes it feel like breaking even.' }
       ],
-      'The casino industry is a $261 billion-per-year masterclass in exploiting mental accounting. Chips reduce the pain of paying. Early wins create "house money" mental accounts. The house money effect drives risk escalation. And mental accounting categories disguise real losses. The exact same dynamics operate in investing: paper gains feel like "house money," leading to excessive risk. Crypto profits feel like "free money," leading to reckless reinvestment. Tax refunds feel like "bonus money," leading to spending rather than saving. Every dollar you earn, find, win, or receive has identical value, treating them differently is the mental accounting trap.'
+      'Casinos earn $261 billion a year this way. Chips dull the pain of paying, early wins become house money, and labels hide real losses. Same in investing: paper gains, crypto profits, and tax refunds feel free. They aren\'t.'
     ),
 
     // Step 7, Fourth Teaching Slide (Misconceptions)
     misconceptions(
-      'MENTAL ACCOUNTING MYTHS',
+      'Mental accounting myths',
       'What most people get wrong about mental categories and money',
       [
         {
           myth: 'Keeping separate mental accounts is a good budgeting strategy.',
           truth: 'Mental accounts are useful for budgeting discipline but become dangerous when they prevent optimal allocation. Keeping $5,000 in a "vacation fund" earning 0.5% while carrying $5,000 in credit card debt at 24% is mental accounting destroying wealth. The vacation fund and the credit card debt are not separate, they are net negative $5,000.',
-          explanation: 'Mental accounting for budgeting (like the envelope system) can be helpful for spending discipline. But the danger is when mental categories prevent money from flowing to its highest-value use. Paying off 24% debt with 0.5% savings is a guaranteed 23.5% return, but mental accounting says "I can\'t touch my vacation fund." The rational approach: collapse all accounts into a single optimization, where does the next dollar create the most value?'
+          explanation: 'Envelope budgeting builds discipline, but labels trap money. Paying off 24% debt with savings earning 0.5% is a guaranteed 23.5% gain, yet the vacation fund feels untouchable. Put each dollar where it helps most.'
         },
         {
           myth: 'Paper losses aren\'t real losses, you haven\'t lost until you sell.',
           truth: 'This is the sunk cost fallacy disguised as wisdom. A stock at $50 that you bought at $100 is worth $50 right now, period. Whether you sell or hold, you have $50 worth of stock. The "loss" exists in reality regardless of what your brokerage statement says. The only question that matters: is this stock the best use of $50 today?',
-          explanation: '"You haven\'t lost until you sell" is the most expensive myth in investing. It keeps investors holding losing positions for years while the money could be deployed in better opportunities. The tax loss harvesting benefit of selling losers actually makes selling even more rational, you get a tax deduction while redeploying capital. Mental accounting\'s desire to avoid "closing the account at a loss" costs investors billions annually.'
+          explanation: '"You haven\'t lost until you sell" is the costliest myth in investing. It keeps people holding losers while the money could work elsewhere. Selling a loser also cuts your taxes, called tax loss harvesting.'
         },
         {
           myth: 'Gains from investments are "bonus money" that can be spent more freely.',
           truth: 'Investment gains have identical value to earned income. A $10,000 gain from stocks has the same purchasing power as $10,000 from your salary. Treating gains as "house money" leads to excessive risk-taking, reckless spending of profits, and failure to protect accumulated wealth.',
-          explanation: 'The house money effect makes investors treat unrealized gains as "play money", taking risks they would never take with their original capital. But $10,000 in gains took the same time and market risk to accumulate as $10,000 in salary. Losing it hurts your net worth identically. Casinos and crypto markets thrive on this bias: the more you\'re up, the more recklessly you play, until the gains, and often the principal, are gone.'
+          explanation: 'Paper gains, meaning gains you have not sold, feel like play money. But $10,000 of gains took the same time and risk as $10,000 of salary. Losing it shrinks your net worth the same.'
         }
       ]
     ),
 
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Mental Accounting', definition: 'The cognitive process of categorizing money into separate mental "accounts" based on source, purpose, or emotional significance, treating identical dollars differently based on arbitrary labels.', example: 'A $500 tax refund goes to entertainment while a $500 paycheck goes to bills. The dollars are identical, but mental accounting assigns different values based on the label.', sentence: 'Mental accounting causes Americans to keep $42 billion in low-interest savings accounts while simultaneously carrying high-interest credit card debt, because the "savings" and "debt" mental accounts feel separate when they are mathematically interchangeable.' },
-      { term: 'Framing Effect', definition: 'The cognitive bias where identical information presented in different ways leads to different decisions. Positive frames are preferred over mathematically equivalent negative frames.', example: 'Kahneman showed "saves 200 out of 600" (72% chose it) vs. "400 will die out of 600" (only 22% chose it), same outcome, different decisions based on framing.', sentence: 'The framing effect explains why "your portfolio is up 15% this year" and "your portfolio underperformed the benchmark by 5%" create completely different emotional responses, even when describing the same portfolio in the same year.' },
-      { term: 'Sunk Cost Fallacy', definition: 'The irrational tendency to continue investing in something because of past unrecoverable costs, rather than evaluating purely on future prospects. The mental accounting system resists "closing accounts at a loss."', example: 'Holding a stock that dropped from $100 to $50 because "I can\'t sell at a loss", the $50 decline already happened, and holding won\'t bring it back if the company is in trouble.', sentence: 'The sunk cost fallacy keeps investors trapped in losing positions for years: rather than selling a $50 stock that was bought at $100 and redeploying the capital, they hold and hope, letting mental accounting override rational analysis.' },
-      { term: 'House Money Effect', definition: 'The tendency to take greater risks with money perceived as "winnings" or "gains," as if those dollars are less valuable than the original investment. Named after casino gambling behavior.', example: 'A crypto investor who is up 200% takes huge risks with the gains because they feel like "free money." When the gains evaporate, the pain is real, those were real dollars.', sentence: 'The house money effect is why casino gambling, crypto speculation, and meme stock trading follow the same pattern: early winners treat gains as "play money," escalate risk, and eventually give back the gains plus more.' },
-      { term: 'Endowment Effect', definition: 'The cognitive bias where people overvalue things they already own, demanding more to sell than they would pay to buy the same item. Creates resistance to selling, rebalancing, and change.', example: 'Thaler\'s coffee mug experiment: sellers demanded $7.12 while buyers offered $2.87 for the same mug, simply because ownership inflated perceived value.', sentence: 'The endowment effect explains why investors resist selling a stock they own even when they wouldn\'t buy it at the current price, ownership creates an irrational value premium that keeps capital trapped in suboptimal positions.' },
-      { term: 'Status Quo Bias / Default Bias', definition: 'The preference for the current state of affairs (status quo) or the pre-selected option (default). One of the most costly biases in personal finance, preventing people from switching to better alternatives.', example: 'Millions keep savings at 0.01% when 5% options exist. Thaler\'s Save More Tomorrow harnessed default bias positively by making escalating contributions the default, enrollment jumped from 49% to 80%.', sentence: 'Status quo bias costs Americans billions annually: workers default to the 3% 401(k) contribution rate instead of the 15% that retirement calculators recommend, simply because 3% was the pre-set option they never changed.' }
+      { term: 'Mental Accounting', definition: 'The cognitive process of categorizing money into separate mental "accounts" based on source, purpose, or emotional significance, treating identical dollars differently based on arbitrary labels.', example: 'A $500 tax refund goes to fun while a $500 paycheck goes to bills. Same dollars, different labels, different spending.', sentence: 'Mental accounting causes Americans to keep $42 billion in low-interest savings accounts while simultaneously carrying high-interest credit card debt, because the "savings" and "debt" mental accounts feel separate when they are mathematically interchangeable.' },
+      { term: 'Framing Effect', definition: 'The cognitive bias where identical information presented in different ways leads to different decisions. Positive frames are preferred over mathematically equivalent negative frames.', example: 'Kahneman found 72% chose "saves 200 of 600" but only 22% chose "400 of 600 will die". Same outcome, different wording.', sentence: 'The framing effect explains why "your portfolio is up 15% this year" and "your portfolio underperformed the benchmark by 5%" create completely different emotional responses, even when describing the same portfolio in the same year.' },
+      { term: 'Sunk Cost Fallacy', definition: 'Sticking with a losing choice because of money already spent, instead of judging what happens next. The mind hates closing accounts at a loss.', example: 'Holding a stock that fell from $100 to $50 because "I can\'t sell at a loss". The drop happened. Holding will not undo it.', sentence: 'The sunk cost fallacy keeps investors trapped in losing positions for years: rather than selling a $50 stock that was bought at $100 and redeploying the capital, they hold and hope, letting mental accounting override rational analysis.' },
+      { term: 'House Money Effect', definition: 'Taking bigger risks with money you see as winnings, as if those dollars matter less than the money you started with. Named after gambling.', example: 'A crypto investor up 200% bets wildly with the gains because they feel free. When the gains vanish, the loss is real money.', sentence: 'The house money effect is why casino gambling, crypto speculation, and meme stock trading follow the same pattern: early winners treat gains as "play money," escalate risk, and eventually give back the gains plus more.' },
+      { term: 'Endowment Effect', definition: 'Owning something makes you value it more. You want more to sell it than you would pay to buy it, so you resist selling.', example: 'Thaler\'s coffee mug experiment: sellers demanded $7.12 while buyers offered $2.87 for the same mug, simply because ownership inflated perceived value.', sentence: 'The endowment effect explains why investors resist selling a stock they own even when they wouldn\'t buy it at the current price, ownership creates an irrational value premium that keeps capital trapped in suboptimal positions.' },
+      { term: 'Status Quo Bias / Default Bias', definition: 'Preferring to leave things as they are, or accept whatever option is preset. It keeps people stuck in worse accounts and plans.', example: 'Millions leave savings at 0.01% when 5% exists. Thaler\'s Save More Tomorrow made rising contributions the default, and enrollment jumped from 49% to 80%.', sentence: 'Status quo bias costs Americans billions annually: workers default to the 3% 401(k) contribution rate instead of the 15% that retirement calculators recommend, simply because 3% was the pre-set option they never changed.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -2136,7 +2131,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE FRAMEWORK',
+      'The framework',
       'Prospect Theory: The S-Shaped Value Function',
       [
         'In 1979, Daniel Kahneman and Amos Tversky published "Prospect Theory: An Analysis of Decision Under Risk," fundamentally overturning the economic assumption that humans are rational utility maximizers. Their key insight was that people don\'t evaluate outcomes in absolute terms, they evaluate them relative to a reference point (usually the status quo). Gaining $100 when you have $1,000 feels different from gaining $100 when you have $10,000, even though the absolute gain is identical. This reference dependence is the foundation of all Prospect Theory predictions.',
@@ -2145,12 +2140,12 @@ const lessons: PathwayLesson[] = [
       ],
       [
         { term: 'Value Function', definition: 'The S-shaped curve showing how people subjectively evaluate gains and losses relative to a reference point, concave for gains, convex and steeper for losses.', example: 'Winning $500 feels good, but losing $500 feels 2.5x worse. The value function captures this asymmetry mathematically.' },
-        { term: 'Loss Aversion', definition: 'The finding that losses are felt approximately 2.5 times more intensely than equivalent gains, causing people to reject mathematically favorable bets.', example: 'Most people reject a coin flip where they win $100 on heads and lose $100 on tails, even though the expected value is zero, because the pain of losing $100 exceeds the pleasure of gaining $100.' },
-        { term: 'Reference Point', definition: 'The baseline against which gains and losses are evaluated, usually the status quo, purchase price, or an expectation. Changes in reference point change how identical outcomes are perceived.', example: 'A stock at $80 feels like a gain if you bought at $60 but a loss if you bought at $100, the same $80 is experienced completely differently depending on the reference point.' },
-        { term: 'Probability Weighting', definition: 'The systematic distortion of how people perceive probabilities, overweighting small probabilities and underweighting large ones compared to their objective values.', example: 'People treat a 1% chance of winning $10,000 as far more significant than 1% warrants (buying lottery tickets) while treating a 90% chance of a good outcome as less certain than it actually is.' }
+        { term: 'Loss Aversion', definition: 'The finding that losses are felt approximately 2.5 times more intensely than equivalent gains, causing people to reject mathematically favorable bets.', example: 'Most people refuse a coin flip: win $100 on heads, lose $100 on tails. Losing $100 hurts more than winning $100 feels good.' },
+        { term: 'Reference Point', definition: 'The starting point you compare outcomes to: today\'s situation, what you paid, or what you expected. Move it and the same result feels different.', example: 'A stock at $80 feels like a gain if you paid $60 and a loss if you paid $100. Same $80, different reference point.' },
+        { term: 'Probability Weighting', definition: 'The systematic distortion of how people perceive probabilities, overweighting small probabilities and underweighting large ones compared to their objective values.', example: 'A 1% chance of winning $10,000 feels much bigger than 1%, hence lottery tickets. A 90% chance feels less sure than it is.' }
       ],
       'S-shaped value function with reference point at origin. Gains curve is concave and flatter; losses curve is convex and steeper (2.5x). Probability weighting function shows overweighting of small probabilities and underweighting of large ones.',
-      { company: 'Kahneman & Tversky', metric: '1979 Prospect Theory paper citations', outcome: '90,000+ citations, the most cited paper in behavioral economics, forming the basis of Kahneman\'s 2002 Nobel Prize in Economics', explanation: 'Prospect Theory replaced Expected Utility Theory as the dominant framework for understanding decisions under risk. It explained dozens of market anomalies: the equity premium puzzle (why stocks must offer such high returns to compensate for loss aversion), the disposition effect (selling winners too early, holding losers too long), and why insurance and gambling can coexist in the same person.' },
+      undefined,
       {
         type: 'comparison',
         title: 'The S-Shaped Value Function',
@@ -2175,7 +2170,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'LOSS AVERSION IN ACTION',
+      'Loss aversion in action',
       'How Loss Aversion Shapes Investment Decisions',
       'comparison',
       'Bar chart comparing subjective value of gains versus losses at different dollar amounts, showing the 2.5x asymmetry',
@@ -2199,52 +2194,52 @@ const lessons: PathwayLesson[] = [
         { label: 'Loss Aversion Multiplier', min: 1, max: 4, default: 2.5, unit: 'x' },
         { label: 'Portfolio Check Frequency (days)', min: 1, max: 365, default: 1, unit: 'days' }
       ],
-      { company: 'Terrance Odean Research', metric: '10,000 brokerage accounts analyzed (1987-1993)', outcome: 'Investors were 50% more likely to sell winners than losers, and the stocks they sold outperformed the stocks they held by 3.4% annually', explanation: 'Odean\'s landmark study proved the disposition effect empirically. The winners that investors sold continued to outperform, while the losers they held continued to underperform. Loss aversion literally caused investors to do the opposite of what would maximize returns, selling their best stocks and holding their worst.' }
+      undefined
     ),
 
     // Step 6, Case Study
     caseStudy(
       'How Insurance Companies and Casinos Both Profit from Prospect Theory',
       [
-        { date: '1979', event: 'Kahneman and Tversky publish Prospect Theory, explaining why the same person buys insurance AND lottery tickets', context: 'Traditional economics couldn\'t explain how a "rational" person could be simultaneously risk-averse (buying insurance against unlikely disasters) and risk-seeking (buying lottery tickets with negative expected value). Prospect Theory resolved this paradox: probability weighting causes people to overweight small probabilities in both directions, overweighting the small chance of disaster (buying insurance) AND the small chance of a jackpot (buying lottery tickets).' },
-        { date: '1990s', event: 'Insurance companies systematically exploit loss aversion in product design and pricing', context: 'Insurers discovered that loss aversion makes people willing to pay far more than the actuarial value of coverage. Extended warranties, with profit margins of 50-70% for retailers, exploit the pain of imagining a broken product. The probability of needing the warranty is low, but probability weighting makes it feel significant. Apple makes an estimated $2-3 billion annually from AppleCare, with claims rates well below the premium charged.' },
-        { date: '2000s', event: 'Casino design evolves to exploit every aspect of Prospect Theory', context: 'Casinos use chips (abstracting the reference point from real money), near-misses on slot machines (exploiting probability weighting, a near-miss feels like "almost winning" rather than "losing"), and frequent small wins with occasional large losses (the reverse of the value function shape that would deter play). The house edge is 2-15% depending on the game, but Prospect Theory distortions keep players engaged.' },
-        { date: '2010-2024', event: 'Fintech and trading apps apply Prospect Theory insights, some ethically, others manipulatively', context: 'Robinhood\'s confetti animations when placing trades exploit the gain side of the value function. Cryptocurrency exchanges show portfolio value in dollars gained (not percentage) to maximize the subjective pleasure of gains. Conversely, ethical robo-advisors like Wealthfront minimize loss aversion by discouraging frequent portfolio checking, applying Benartzi and Thaler\'s insight that less frequent monitoring reduces the subjective experience of losses.' }
+        { date: '1979', event: 'Kahneman and Tversky publish Prospect Theory, explaining why the same person buys insurance AND lottery tickets', context: 'Old economics could not explain buying insurance and lottery tickets at once. Prospect Theory did: we overweight small odds both ways, disaster and jackpot alike.' },
+        { date: '1990s', event: 'Insurance companies systematically exploit loss aversion in product design and pricing', context: 'Loss aversion makes people overpay for coverage. Extended warranties earn retailers 50-70% margins. Apple makes an estimated $2-3 billion a year from AppleCare, with few claims.' },
+        { date: '2000s', event: 'Casino design evolves to exploit every aspect of Prospect Theory', context: 'Casinos use chips so bets stop feeling like money, near misses on slots that feel like almost winning, and frequent small wins. The house edge is 2-15%.' },
+        { date: '2010-2024', event: 'Fintech and trading apps apply Prospect Theory insights, some ethically, others manipulatively', context: 'Robinhood\'s confetti rewards trades. Crypto apps show gains in dollars, not percent, so they feel bigger. Wealthfront discourages frequent checking, following Benartzi and Thaler: less checking, less felt loss.' }
       ],
-      'Prospect Theory explains the paradox of human risk behavior: we simultaneously overpay for insurance (overweighting small disaster probabilities) and buy lottery tickets (overweighting small jackpot probabilities). Insurance companies and casinos are both in the business of exploiting probability weighting, insurers profit from our fear, casinos profit from our hope. Understanding this framework reveals that these industries aren\'t selling products, they\'re selling distorted probabilities to loss-averse brains.'
+      'We overpay for insurance and buy lottery tickets for the same reason: we overweight small odds. Insurers sell to our fear, casinos to our hope. Both are selling distorted probabilities to brains that hate losing.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'PROSPECT THEORY MYTHS',
+      'Prospect theory myths',
       'What most people get wrong about decision-making under risk',
       [
         {
           myth: 'Loss aversion means people are always risk-averse.',
           truth: 'Loss aversion makes people risk-averse for gains but risk-SEEKING for losses (the reflection effect). When facing a sure loss, people gamble to avoid it, which is why investors hold losing stocks hoping for recovery instead of cutting their losses rationally.',
-          explanation: 'The reflection effect is counterintuitive: the same person who takes a sure $500 gain instead of a coin flip for $1,000 will choose a coin flip for losing $1,000 over a sure $500 loss. In the loss domain, people become gamblers, the opposite of risk-averse.'
+          explanation: 'The same person who takes a sure $500 gain over a coin flip for $1,000 will flip that coin rather than accept a sure $500 loss. Losses turn people into gamblers.'
         },
         {
           myth: 'The endowment effect means people are good at valuing what they own.',
           truth: 'The endowment effect means people OVERVALUE what they own simply because they own it. In Kahneman\'s famous mug experiment, owners demanded roughly twice the price that buyers were willing to pay for identical mugs. Ownership shifts the reference point, making the act of giving something up feel like a loss.',
-          explanation: 'The endowment effect has massive investment implications. Investors overvalue stocks they already own (because selling feels like a loss) and demand a premium to part with positions, even when the rational analysis says to sell. This is a direct consequence of loss aversion applied to ownership.'
+          explanation: 'Owning changes value. Investors prize the stocks they already hold, because selling feels like a loss, and hold on even when the numbers say sell. That is loss aversion applied to ownership.'
         },
         {
           myth: 'Prospect Theory only applies to naive or uneducated investors.',
           truth: 'Professional fund managers, traders, and even Kahneman himself are subject to Prospect Theory biases. Kahneman famously said he still falls for the biases he discovered. Studies show professional traders exhibit the disposition effect, and institutional investors display loss aversion in portfolio rebalancing decisions.',
-          explanation: 'Knowledge of biases doesn\'t eliminate them, it can only help you build systems to counteract them. This is why systematic investment frameworks, pre-commitment strategies, and automated rebalancing exist: they bypass the hardwired Prospect Theory distortions that affect everyone.'
+          explanation: 'Knowing about a bias does not switch it off. You need systems: fixed rules, decisions made in advance, automatic rebalancing. They work around distortions everyone has.'
         }
       ]
     ),
 
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Prospect Theory', definition: 'Kahneman and Tversky\'s 1979 framework showing that people evaluate outcomes relative to a reference point, are loss-averse (losses hurt 2.5x more than gains), and distort probabilities, overweighting small and underweighting large ones.', example: 'A person rejects a 50/50 bet to win $150 or lose $100 because the subjective pain of losing $100 (~250 units) exceeds the subjective pleasure of winning $150 (~150 units).', sentence: 'Prospect Theory explains why the average investor underperforms, loss aversion causes panic selling in downturns while probability weighting causes excessive risk-taking on speculative bets.' },
-      { term: 'Value Function', definition: 'The S-shaped curve that maps objective gains and losses to subjective value, concave for gains (diminishing sensitivity), convex for losses (also diminishing sensitivity), and steeper for losses than gains (loss aversion).', example: 'The jump from $0 to $1,000 in gains feels larger than the jump from $9,000 to $10,000, both are $1,000, but diminishing sensitivity means the first $1,000 has more subjective impact.', sentence: 'The value function\'s asymmetric shape, 2.5x steeper for losses, is the mathematical representation of why losing money feels so much worse than gaining the same amount feels good.' },
-      { term: 'Reference Point', definition: 'The baseline against which all outcomes are judged as gains or losses. Usually the status quo or purchase price, but can shift based on expectations, framing, or recent experience.', example: 'An employee expecting a $10,000 bonus who receives $8,000 feels a loss of $2,000, even though they gained $8,000 in absolute terms, because the reference point was the expectation.', sentence: 'Shifting the reference point through framing can transform the same objective outcome from a perceived gain to a perceived loss, dramatically changing how people respond.' },
-      { term: 'Endowment Effect', definition: 'The tendency to overvalue things simply because you own them, driven by loss aversion, giving something up feels like a loss, so owners demand more to sell than buyers would pay to acquire.', example: 'In Kahneman\'s mug experiment, randomly assigned owners demanded ~$7 to sell their mug, while buyers offered only ~$3 for the identical mug. Ownership doubled the perceived value.', sentence: 'The endowment effect causes investors to hold stocks they would never buy at current prices, the pain of selling (a loss of ownership) exceeds the rational case for redeploying capital.' },
-      { term: 'Certainty Effect', definition: 'The Prospect Theory finding that people give disproportionate weight to outcomes that are certain compared to outcomes that are merely probable, making the jump from 99% to 100% feel far larger than from 50% to 51%.', example: 'People pay enormous premiums for "guaranteed" returns (100% probability) versus "almost certain" returns (95% probability), even when the actuarial difference doesn\'t justify the cost.', sentence: 'The certainty effect is why investors flock to guaranteed CDs paying 4% rather than diversified stock portfolios with 95% probability of earning 8%+, the value of certainty is psychologically inflated.' },
-      { term: 'Reflection Effect', definition: 'The systematic reversal of risk preferences above and below the reference point: people are risk-averse for gains (preferring sure things) but risk-seeking for losses (preferring gambles over sure losses).', example: 'Given a choice between a sure $750 or a 75% chance of $1,000, most choose $750 (risk-averse). But given a sure loss of $750 or a 75% chance of losing $1,000, most gamble (risk-seeking).', sentence: 'The reflection effect explains the disposition effect perfectly: investors take profits early (risk-averse for gains) while holding losers and hoping for recovery (risk-seeking for losses).' }
+      { term: 'Prospect Theory', definition: 'Kahneman and Tversky, 1979: we judge outcomes against a reference point, feel losses 2.5x more than gains, overweight small odds, and underweight large ones.', example: 'Someone rejects a 50/50 bet to win $150 or lose $100: losing feels like about 250 units of pain, winning only about 150.', sentence: 'Prospect Theory explains why the average investor underperforms, loss aversion causes panic selling in downturns while probability weighting causes excessive risk-taking on speculative bets.' },
+      { term: 'Value Function', definition: 'The S-shaped curve from real gains and losses to felt value. It flattens as amounts grow and is steeper on the loss side.', example: 'Going from $0 to $1,000 feels bigger than going from $9,000 to $10,000. Both are $1,000, but each extra dollar feels smaller.', sentence: 'The value function\'s asymmetric shape, 2.5x steeper for losses, is the mathematical representation of why losing money feels so much worse than gaining the same amount feels good.' },
+      { term: 'Reference Point', definition: 'The line that makes an outcome a gain or a loss. Often your starting point or purchase price, though expectations and framing shift it.', example: 'An employee expecting a $10,000 bonus who gets $8,000 feels a $2,000 loss, even though $8,000 came in. The expectation was the reference point.', sentence: 'Shifting the reference point through framing can transform the same objective outcome from a perceived gain to a perceived loss, dramatically changing how people respond.' },
+      { term: 'Endowment Effect', definition: 'Owning something makes you value it more. Giving it up feels like a loss, so owners ask for more than buyers will pay.', example: 'In Kahneman\'s mug study, random owners wanted about $7 to sell; buyers offered about $3 for the same mug. Owning doubled the value.', sentence: 'The endowment effect causes investors to hold stocks they would never buy at current prices, the pain of selling (a loss of ownership) exceeds the rational case for redeploying capital.' },
+      { term: 'Certainty Effect', definition: 'We give extra weight to sure things. Going from 99% to 100% feels like a bigger jump than going from 50% to 51%.', example: 'People pay enormous premiums for "guaranteed" returns (100% probability) versus "almost certain" returns (95% probability), even when the actuarial difference doesn\'t justify the cost.', sentence: 'The certainty effect is why investors flock to guaranteed CDs paying 4% rather than diversified stock portfolios with 95% probability of earning 8%+, the value of certainty is psychologically inflated.' },
+      { term: 'Reflection Effect', definition: 'Risk preference flips around the reference point. For gains people play it safe; for losses they gamble rather than accept a certain loss.', example: 'Most pick a sure $750 over a 75% shot at $1,000. Flip both to losses and most gamble rather than lose $750 for sure.', sentence: 'The reflection effect explains the disposition effect perfectly: investors take profits early (risk-averse for gains) while holding losers and hoping for recovery (risk-seeking for losses).' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -2398,7 +2393,7 @@ const lessons: PathwayLesson[] = [
       ['The person is simply irrational and there is no systematic explanation. Some people just make inconsistent money choices, and behavioral theory cannot really predict or account for these kinds of contradictions.','Probability weighting: people overweight small probabilities in both directions, the 5% chance of laptop failure feels much larger than 5% (triggering insurance purchase), and the 1-in-14-million lottery chance feels much larger than zero (triggering ticket purchase). Both behaviors are predicted by the same probability weighting function.','The two purchases come from completely separate mental systems, the warranty from the careful planning side of the brain and the lottery ticket from the impulsive emotional side, so they have nothing in common.','The warranty is the rational purchase and the lottery ticket is the irrational one. Buying protection makes mathematical sense while chasing a jackpot does not, so the behavior is half smart and half foolish.'],
       1,'This is one of Prospect Theory\'s most elegant explanations. The probability weighting function overweights small probabilities: a 5% failure risk is psychologically inflated to feel like maybe 20%, making insurance feel necessary. Similarly, a 1-in-14-million lottery probability is inflated from effectively zero to "there\'s a real chance." The same mathematical function, the probability weighting curve, predicts both behaviors simultaneously, resolving a paradox that Traditional Expected Utility Theory could never explain.'),
     cq('A company offers employees two bonus structures. Option A: "You get a $5,000 bonus." Option B: "Your department was allocated $8,000 per person, but due to budget adjustments, your bonus is $5,000." According to Prospect Theory, how will employees react differently?',
-      ['Both groups react identically, because at the end of the day each employee walks away with exactly $5,000 in their bank account, and the wording around the bonus does not change the actual money received.','Option A feels like a $5,000 gain (reference point = $0), while Option B feels like a $3,000 loss (reference point = $8,000). Employees receiving Option B will be significantly less satisfied despite getting the same $5,000, because the $3,000 "loss" from the $8,000 reference point is felt 2.5x more intensely than the $5,000 gain from zero.','Option B employees will actually be happier, because learning the department had $8,000 per person allocated signals the company values them, and that recognition outweighs the smaller final payout.','Neither group will care about the framing at all, because employees focus only on the take-home number and quickly forget any background detail about budgets or how the bonus was originally described.'],
+      ['Both groups react identically, since each employee walks away with exactly $5,000 and the wording does not change the money received.','Option A feels like a $5,000 gain (reference point = $0), while Option B feels like a $3,000 loss (reference point = $8,000). Employees receiving Option B will be significantly less satisfied despite getting the same $5,000, because the $3,000 "loss" from the $8,000 reference point is felt 2.5x more intensely than the $5,000 gain from zero.','Option B employees will actually be happier, because learning the department had $8,000 per person allocated signals the company values them, and that recognition outweighs the smaller final payout.','Neither group will care about the framing at all, because employees focus only on the take-home number and quickly forget any background detail about budgets or how the bonus was originally described.'],
       1,'Reference dependence is the key mechanism. In Option A, the reference point is $0 (no bonus), so $5,000 is experienced as a pure gain. In Option B, the reference point shifts to $8,000 (the "allocated" amount), so $5,000 is experienced as a $3,000 loss from expectations. Due to loss aversion, this $3,000 "loss" creates ~7,500 units of negative value that overwhelms the positive feelings about the $5,000. Same money, different reference point, dramatically different satisfaction. This is why managing expectations is crucial in compensation.'),
     cq('Benartzi and Thaler\'s "myopic loss aversion" theory explains the equity premium puzzle. What is the key insight?',
       ['The insight is simply that stocks are riskier than bonds, so they have to return more to compensate investors for that extra risk. The equity premium is just the standard reward for bearing higher volatility.','If investors check portfolios daily, they experience losses about 46% of the time, and each loss is felt 2.5x more intensely than each gain. This makes stocks feel much worse than their long-term returns justify. If investors checked annually instead, they\'d see losses only 27% of the time, dramatically reducing the subjective pain and the premium they demand to hold equities.','The insight is that bonds are secretly more dangerous than stocks once inflation is accounted for, so the equity premium actually reflects investors being underpaid rather than overpaid for holding equities.','The insight is that the equity premium is really just a statistical error in the historical data, and once the numbers are measured correctly the puzzle of stocks beating bonds simply disappears.'],
@@ -2466,21 +2461,20 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE SCIENCE',
+      'The science',
       'Nudge Theory: Making Good Choices Easy',
       [
-        'Richard Thaler and Cass Sunstein\'s 2008 book "Nudge: Improving Decisions About Health, Wealth, and Happiness" introduced a revolutionary idea: you can dramatically improve people\'s decisions by changing how choices are presented, without restricting any options. A nudge is any aspect of the choice architecture that alters people\'s behavior in a predictable way without forbidding any options or significantly changing their economic incentives. Putting fruit at eye level in a cafeteria is a nudge; banning junk food is not.',
-        'The philosophical foundation is "libertarian paternalism", seemingly contradictory terms that Thaler and Sunstein deliberately combined. "Libertarian" because all options remain available and people can always opt out. "Paternalism" because the choice architect deliberately designs the environment to guide people toward better decisions. The key insight: there is no neutral design. Someone must decide what the default option is, what order choices appear in, and how information is framed. Since design is inevitable, it should be designed to help.',
-        'The power of defaults is the most robust finding in nudge research. Defaults exploit status quo bias and loss aversion, changing from the current state feels like a loss, so people stick with whatever is pre-selected. When organ donation is opt-in (like the US), participation rates average 15-20%. When it\'s opt-out (like Austria), participation exceeds 99%. Same freedom, same choice, same options, but a 5x difference in outcomes. Applied to finance, auto-enrollment in retirement plans is the single most effective savings intervention ever discovered.'
+        'Richard Thaler and Cass Sunstein\'s 2008 book "Nudge" showed a simple idea: change how choices are presented, and behavior improves. A nudge guides you without banning anything, like putting fruit at eye level in a cafeteria.',
+      'Defaults are the strongest nudge: people keep whatever is pre-selected. Opt-in organ donation, where you must sign up, averages 15-20% in the US. Opt-out Austria exceeds 99%, a 5x gap. In finance, auto-enrollment into retirement plans works best.'
       ],
       [
-        { term: 'Nudge', definition: 'Any aspect of the choice architecture that alters people\'s behavior in a predictable way without forbidding options or significantly changing economic incentives. The intervention must be easy and cheap to avoid.', example: 'Auto-enrolling employees in 401(k) plans at 3% contribution rate, they can opt out anytime, but the default does the heavy lifting, boosting participation from 49% to 90%.' },
-        { term: 'Choice Architecture', definition: 'The design of environments in which people make decisions, including defaults, ordering of options, framing of information, and feedback mechanisms. There is no "neutral" architecture; every design nudges.', example: 'A retirement plan that lists funds from lowest to highest fee (rather than alphabetically) nudges employees toward lower-cost options without removing any choices.' },
-        { term: 'Libertarian Paternalism', definition: 'The philosophy that choice architects should guide people toward better decisions (paternalism) while preserving complete freedom to choose otherwise (libertarian). No options are removed; just the default is changed.', example: 'Auto-enrollment in pensions is paternalistic (the designer chose "save" as the default) but libertarian (any employee can opt out with one click or phone call).' },
-        { term: 'Default Effect', definition: 'The robust finding that people disproportionately stick with pre-selected options due to inertia, status quo bias, and perceived endorsement. Defaults are the most powerful nudge tool.', example: 'When Germany changed organ donation from opt-in to opt-out, consent rates rose from 12% to 99.98%. The identical choice, presented with different defaults, produced completely opposite population-level behavior.' }
+        { term: 'Nudge', definition: 'A small change to how choices are presented that shifts behavior in a predictable way. No option is banned, and opting out stays easy.', example: 'Workers are signed up for a 401(k) retirement plan at 3% automatically. They can quit anytime, but participation jumped from 49% to 90%.' },
+        { term: 'Choice Architecture', definition: 'How a decision is set up: defaults, the order of options, how facts are worded, and feedback. No setup is neutral; every design nudges.', example: 'A retirement plan that lists funds from lowest to highest fee (rather than alphabetically) nudges employees toward lower-cost options without removing any choices.' },
+        { term: 'Libertarian Paternalism', definition: 'Guide people toward better choices, but keep every other option open. Nothing is removed. Only the default changes.', example: 'Auto-enrollment in pensions is paternalistic (the designer chose "save" as the default) but libertarian (any employee can opt out with one click or phone call).' },
+        { term: 'Default Effect', definition: 'People usually stick with whatever is already selected. Inertia, comfort with the status quo, and reading the default as advice keep them there.', example: 'Germany switched organ donation from opt-in to opt-out. Consent rose from 12% to 99.98%. Same choice, different default, opposite result.' }
       ],
       'Flow diagram: Choice Architecture Design → Default Selection → Framing of Options → Feedback Loop → Outcome. Shows how each design decision nudges behavior.',
-      { company: 'UK Behavioural Insights Team (Nudge Unit)', metric: 'Impact of pension auto-enrollment (2012-2024)', outcome: 'Pension participation jumped from 61% to 92%, adding £17 billion in total UK pension savings', explanation: 'The UK government created the world\'s first "Nudge Unit" in 2010, directly applying Thaler and Sunstein\'s research. Their flagship intervention was auto-enrolling all eligible workers into workplace pensions. The opt-out rate was only 8-10%, proving that inertia works both ways, it kept people out of pensions before, and now it keeps them in. The same principle is now used by 20+ governments worldwide.' },
+      undefined,
       {
         type: 'bars',
         title: 'Default Effect: Opt-In vs Opt-Out Participation',
@@ -2506,7 +2500,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'NUDGES AT SCALE',
+      'Nudges at scale',
       'The Power of Defaults Across Countries and Contexts',
       'comparison',
       'Comparison chart showing opt-in versus opt-out participation rates across pensions, organ donation, and green energy programs in multiple countries',
@@ -2530,40 +2524,40 @@ const lessons: PathwayLesson[] = [
         { label: 'Default Contribution Rate (%)', min: 1, max: 15, default: 3, unit: '%' },
         { label: 'Annual Escalation Rate (%)', min: 0, max: 3, default: 1, unit: '%' }
       ],
-      { company: 'Vanguard', metric: '401(k) auto-enrollment impact across client firms', outcome: 'Auto-enrolled plans consistently achieve 85-93% participation vs. 40-60% for opt-in plans, with 90%+ of auto-enrolled employees maintaining or increasing their contribution rate over time', explanation: 'Vanguard\'s annual "How America Saves" report provides the largest dataset on auto-enrollment effects. The data consistently shows that auto-enrollment nearly doubles participation, and the feared "backlash" (mass opt-outs) never materialized. The default contribution rate has become the key design variable, Vanguard now recommends 6% as the default (up from 3%) because research shows people anchor to whatever the default is.' }
+      undefined
     ),
 
     // Step 6, Case Study
     caseStudy(
       'Save More Tomorrow (SMarT), How Thaler\'s Nudge Increased US Savings by 300%',
       [
-        { date: '1996', event: 'Richard Thaler and Shlomo Benartzi design the Save More Tomorrow (SMarT) program', context: 'Thaler observed that employees wanted to save more but never followed through, present bias (preferring immediate gratification) and loss aversion (seeing take-home pay decrease) created a powerful barrier. His insight: commit people to save more in the FUTURE (bypassing present bias) and tie increases to pay raises (so take-home pay never decreases, bypassing loss aversion). The employee would never experience a "loss."' },
-        { date: '1998', event: 'First SMarT implementation at a mid-size manufacturing company', context: 'Workers were offered the SMarT plan: their 401(k) contribution would automatically increase by 3 percentage points with each annual raise. The starting rate was 3.5%. Of those offered, 78% enrolled. After four raises, the average contribution rate had risen from 3.5% to 13.6%, a 289% increase. Only 2% of participants opted out during the four-year period.' },
-        { date: '2006', event: 'The Pension Protection Act makes auto-enrollment and auto-escalation standard in US retirement plans', context: 'Inspired directly by SMarT\'s success, Congress passed legislation encouraging employers to adopt auto-enrollment and auto-escalation as safe harbors, meaning companies wouldn\'t face legal liability for auto-enrolling employees. This was government policy directly shaped by behavioral economics. By 2024, over 60% of large US employers use auto-enrollment with escalation features.' },
-        { date: '2017', event: 'Thaler wins the Nobel Prize in Economics, with SMarT cited as a key contribution', context: 'The Nobel Committee specifically cited Thaler\'s work on nudge theory and Save More Tomorrow as demonstrating how behavioral economics can improve policy. The SMarT program has been adopted by thousands of companies and is estimated to have increased US retirement savings by hundreds of billions of dollars. Thaler famously said in his acceptance speech: "The single most important lesson from behavioral economics is that people need help."' }
+        { date: '1996', event: 'Richard Thaler and Shlomo Benartzi design the Save More Tomorrow (SMarT) program', context: 'Thaler saw workers who wanted to save but never did. People favor now over later, and smaller pay feels like a loss. His fix: commit future raises to saving.' },
+        { date: '1998', event: 'First SMarT implementation at a mid-size manufacturing company', context: 'SMarT raised 401(k) contributions by 3 points at each raise. Starting rate 3.5%. 78% joined. After four raises the average hit 13.6%, up 289%. Only 2% quit.' },
+        { date: '2006', event: 'The Pension Protection Act makes auto-enrollment and auto-escalation standard in US retirement plans', context: 'Inspired by SMarT, Congress passed a law making auto-enrollment and auto-escalation safe harbors, so employers face no liability. By 2024, over 60% of large US employers use both.' },
+        { date: '2017', event: 'Thaler wins the Nobel Prize in Economics, with SMarT cited as a key contribution', context: 'The Nobel Committee cited Thaler\'s nudge theory and Save More Tomorrow. Thousands of companies use it, adding hundreds of billions to US retirement savings. He said people need help.' }
       ],
-      'Save More Tomorrow is the perfect nudge: it uses loss aversion (no decrease in take-home pay), present bias (commitment to future action), status quo bias (auto-escalation is the default), and anchoring (starting at a low rate reduces resistance). The result, a 289% increase in savings rates, was achieved without removing a single option, without mandating anything, and with a 98% retention rate. It proves that understanding behavioral biases isn\'t just academic, it can be engineered into systems that transform millions of lives. Thaler\'s Nobel Prize was, in a sense, awarded for the insight that choice architecture IS policy.'
+      'Save More Tomorrow stacks four biases: no pay cut, a future promise, a sticky default, and a low starting rate. Savings rose 289%, 98% stayed, and no option was removed. Choice architecture is policy.'
     ),
 
     // Step 7, Misconceptions
     misconceptions(
-      'NUDGE THEORY MYTHS',
+      'Nudge theory myths',
       'What most people get wrong about choice architecture',
       [
         {
           myth: 'Nudges are manipulative because they trick people into decisions.',
           truth: 'Nudges are transparent and preserve complete freedom of choice. Auto-enrollment doesn\'t hide anything, employees are told they\'re enrolled and can opt out with one action. The nudge simply changes the starting point. Manipulation, by contrast, involves deception or coercion. A nudge says: "You\'re enrolled, here\'s how to leave." Manipulation says: "You can\'t leave" or hides the enrollment entirely.',
-          explanation: 'Thaler and Sunstein argue that there is NO neutral choice architecture. Someone must decide whether the default is opt-in or opt-out. Since a default must exist, designing it to help people achieve their own stated goals (saving for retirement) is not manipulation, it\'s responsible design.'
+          explanation: 'No setup is neutral. Someone must decide whether the default is opt-in or opt-out. Since a default must exist, building it around people\'s own goals, like saving for retirement, is responsible design, not manipulation.'
         },
         {
           myth: 'If people really wanted to save, they would without nudges.',
           truth: 'Present bias, loss aversion, complexity, and procrastination are real cognitive barriers that prevent people from acting on their own intentions. Surveys consistently show that 60-70% of non-savers say they "plan to start saving soon." The gap between intention and action is the entire problem that nudges solve. People genuinely want to save, they just can\'t overcome the behavioral barriers without help.',
-          explanation: 'Thaler\'s SMarT study proved this empirically: 78% of workers joined a program to automatically increase savings, proving they wanted to save more. But before SMarT, they hadn\'t taken action despite having the same desire. The nudge didn\'t change what people wanted, it removed the barriers between wanting and doing.'
+          explanation: 'SMarT proved it: 78% of workers joined a plan that raised their savings automatically. They already wanted to save more, but had not acted. The nudge removed the barrier between wanting and doing.'
         },
         {
           myth: 'Nudges only work for simple decisions like retirement enrollment.',
           truth: 'Nudges have been applied successfully to complex financial decisions including mortgage choice (simplifying comparison tables), credit card payments (showing how long minimum payments take to repay), investment allocation (offering target-date funds as the default), and debt repayment strategies (defaulting to highest-interest-first). The UK Nudge Unit has implemented over 750 nudge interventions across healthcare, education, tax compliance, and finance.',
-          explanation: 'Any decision with a default option, framing choice, or information presentation can be nudged. The CARD Act of 2009 required credit card statements to show "If you only make the minimum payment, it will take you X years and cost you $Y to pay off this balance." This simple information nudge increased the percentage of people paying more than the minimum by 10%.'
+          explanation: 'Any choice with a default or framing can be nudged. The 2009 CARD Act made card statements show the years and dollars a minimum payment costs. Paying more than the minimum rose 10%.'
         }
       ]
     ),
@@ -2571,11 +2565,11 @@ const lessons: PathwayLesson[] = [
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
       { term: 'Nudge', definition: 'Any aspect of the choice architecture that predictably alters behavior without forbidding options or significantly changing economic incentives. Must be easy and cheap to avoid.', example: 'Auto-enrolling employees in 401(k) plans at 3% contribution rate boosted participation from 49% to 90%, with opt-out available via one phone call.', sentence: 'The cafeteria nudge of placing healthy food at eye level increased healthy eating by 25%, no foods were removed, prices didn\'t change, and students could still choose anything they wanted.' },
-      { term: 'Choice Architecture', definition: 'The design of the environment in which people make decisions, including defaults, option ordering, information framing, and feedback. There is no "neutral" architecture, every design nudges behavior in some direction.', example: 'Listing mutual funds by expense ratio (lowest first) rather than alphabetically nudges investors toward lower-cost options without restricting choice.', sentence: 'As the choice architect for the company\'s 401(k) plan, she redesigned the enrollment form to make the best options more visible and the default contribution rate higher.' },
-      { term: 'Default Effect', definition: 'The powerful finding that people disproportionately stick with pre-selected options due to inertia, status quo bias, loss aversion (changing feels like a loss), and perceived endorsement (the default must be the recommended option).', example: 'Germany\'s organ donation rate is 12% (opt-in default) while Austria\'s is 99.98% (opt-out default), same choice, opposite defaults, dramatically different outcomes.', sentence: 'By changing the default investment option from a money market fund to a target-date fund, the plan increased equity participation from 22% to 78% among new hires.' },
-      { term: 'Save More Tomorrow (SMarT)', definition: 'Thaler and Benartzi\'s nudge program that auto-escalates retirement contributions with each pay raise, using loss aversion (no decrease in take-home pay), present bias (future commitment), and inertia (auto-escalation is default).', example: 'At the first SMarT implementation, average savings rates rose from 3.5% to 13.6% over four pay raises, a 289% increase, with only 2% of participants opting out.', sentence: 'The company adopted Save More Tomorrow, automatically increasing each employee\'s 401(k) contribution by 1% with every annual raise until reaching 15%, transforming retirement readiness.' },
-      { term: 'Libertarian Paternalism', definition: 'The philosophy underlying nudge theory: guide people toward better decisions (paternalism) while preserving complete freedom to choose otherwise (libertarian). All options remain available; only the architecture changes.', example: 'Auto-enrollment is paternalistic (the designer chose "save" as the default) but libertarian (employees can opt out at any time with zero penalty).', sentence: 'The policy team embraced libertarian paternalism, restructuring the default investment options to favor diversified funds while ensuring every employee could still select any fund in the lineup.' },
-      { term: 'Anchoring in Negotiations', definition: 'The cognitive bias where the first number mentioned in a negotiation disproportionately influences the final outcome, creating a psychological reference point that all subsequent offers adjust from (usually insufficiently).', example: 'Real estate listing prices anchor buyer expectations, a house listed at $500K receives offers averaging $475K, while the same house listed at $450K receives offers averaging $430K. The listing price, not the house\'s value, determines the negotiation range.', sentence: 'The experienced negotiator always made the first offer, knowing that the anchoring effect would pull the entire negotiation toward her starting position regardless of the other party\'s research.' }
+      { term: 'Choice Architecture', definition: 'How a decision is laid out: what is preselected, the order of options, the wording, and feedback. Nothing is neutral; every layout pushes behavior.', example: 'Listing mutual funds by expense ratio (lowest first) rather than alphabetically nudges investors toward lower-cost options without restricting choice.', sentence: 'As the choice architect for the company\'s 401(k) plan, she redesigned the enrollment form to make the best options more visible and the default contribution rate higher.' },
+      { term: 'Default Effect', definition: 'People stay with the preselected option. Switching feels like a loss, inaction is easy, and the default looks like the recommended pick.', example: 'Germany\'s organ donation rate is 12% (opt-in default) while Austria\'s is 99.98% (opt-out default), same choice, opposite defaults, dramatically different outcomes.', sentence: 'By changing the default investment option from a money market fund to a target-date fund, the plan increased equity participation from 22% to 78% among new hires.' },
+      { term: 'Save More Tomorrow (SMarT)', definition: 'Thaler and Benartzi\'s plan: retirement contributions rise automatically at each pay raise, so take-home pay never drops and staying in is the default.', example: 'In the first SMarT rollout, average savings rose from 3.5% to 13.6% over four raises, a 289% jump, with only 2% dropping out.', sentence: 'The company adopted Save More Tomorrow, automatically increasing each employee\'s 401(k) contribution by 1% with every annual raise until reaching 15%, transforming retirement readiness.' },
+      { term: 'Libertarian Paternalism', definition: 'Nudge theory\'s core idea: steer people toward better decisions while every option stays open. The setup changes, the menu does not.', example: 'Auto-enrollment is paternalistic (the designer chose "save" as the default) but libertarian (employees can opt out at any time with zero penalty).', sentence: 'The policy team embraced libertarian paternalism, restructuring the default investment options to favor diversified funds while ensuring every employee could still select any fund in the lineup.' },
+      { term: 'Anchoring in Negotiations', definition: 'In a negotiation, the first number named sets a reference point; later offers drift from it, usually not far enough.', example: 'A house listed at $500K draws offers near $475K. Listed at $450K, it draws offers near $430K. The listing price sets the range.', sentence: 'The experienced negotiator always made the first offer, knowing that the anchoring effect would pull the entire negotiation toward her starting position regardless of the other party\'s research.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -2796,7 +2790,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE SYSTEM',
+      'The system',
       'Pre-Commitment Strategies & Investment Policy Statements',
       [
         'Odysseus knew the Sirens\' song would drive him mad, so he tied himself to the mast BEFORE he heard it. This is the oldest pre-commitment strategy in literature, and the foundation of rational investing. A pre-commitment is a decision made during calm, rational conditions that constrains your future behavior during emotional conditions. The Investment Policy Statement (IPS) is the investor\'s version of Odysseus\'s ropes: a written document specifying your investment objectives, risk tolerance, asset allocation, rebalancing rules, and specific conditions under which you will (and will not) make changes.',
@@ -2810,7 +2804,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Cooling-Off Period', definition: 'A mandatory waiting period between deciding to make a trade and executing it, designed to allow System 2 rational analysis to override System 1 emotional impulses.', example: 'Guy Spier refuses to make investment decisions during market hours and imposes a 24-hour cooling-off period on all buy and sell decisions, ensuring no trade is driven by intraday emotions.' }
       ],
       'Blueprint showing the five components of a rational investment framework: IPS at the center, connected to Pre-Decision Checklist, Decision Journal, Cooling-Off Period, and Accountability Partner',
-      { company: 'Mohnish Pabrai / Pabrai Investment Funds', metric: 'Checklist-based investment process', outcome: 'Pabrai\'s checklist-driven approach has generated 15%+ annualized returns over 20 years, significantly outperforming the S&P 500', explanation: 'After studying Warren Buffett and Charlie Munger, Pabrai developed a 70+ point investment checklist that must be completed before every buy decision. The checklist includes explicit bias checks: "Am I falling for confirmation bias? Is my thesis based on anchoring to an old narrative? Am I overconfident in my forecasts?" By converting implicit judgment into explicit process, the checklist catches errors that gut instinct misses.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Pre-Commitment: Rational Rules Written Before the Storm',
@@ -2835,7 +2829,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'FRAMEWORK COMPONENTS',
+      'Framework components',
       'The Decision Journal: Measuring Decision Quality Over Time',
       'timeline',
       'Timeline chart showing how decision journal entries track decision quality independent of outcomes, with cumulative behavioral improvement over 12 months',
@@ -2859,7 +2853,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Decisions Per Month', min: 1, max: 20, default: 4, unit: 'decisions' },
         { label: 'Cooling-Off Period (hours)', min: 0, max: 72, default: 24, unit: 'hours' }
       ],
-      { company: 'Bridgewater Associates', metric: 'Systematic decision framework', outcome: 'Ray Dalio\'s Bridgewater uses decision journals (called "baseball cards") for every employee and investment decision, contributing to its position as the world\'s largest hedge fund ($150B+ AUM)', explanation: 'Every Bridgewater employee has a "baseball card" tracking their decision accuracy across hundreds of decisions. Investment decisions require written pre-mortems, explicit probability estimates, and post-decision reviews. This systematic approach to decision quality, rather than outcome tracking, has helped Bridgewater maintain consistent returns across market cycles.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -2876,7 +2870,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'RATIONAL FRAMEWORK MYTHS',
+      'Rational framework myths',
       'What most people get wrong about systematic investing',
       [
         {
@@ -3091,7 +3085,7 @@ const lessons: PathwayLesson[] = [
           { label: 'Prospect Theory', value: 'Loss aversion 2.5x' },
           { label: 'Nudge Theory', value: 'Choice architecture' },
           { label: 'Rational Framework', value: 'IPS + Checklists' },
-          { label: 'BEHAVIORAL MASTERY', value: 'Build systems, not willpower | 9 lessons → 1 integrated framework' }
+          { label: 'Behavioral mastery', value: 'Build systems, not willpower | 9 lessons → 1 integrated framework' }
         ],
         footer: '9 lessons → 1 integrated framework',
       
@@ -3129,12 +3123,11 @@ const lessons: PathwayLesson[] = [
 
     // Step 3, First Teaching Slide (Core Concept)
     teachingSlide(
-      'THE INTEGRATION',
+      'The integration',
       'Building Your Personal Bias Profile',
       [
-        'A behavioral audit is a systematic assessment of your own susceptibility to specific cognitive biases, based on your personality, experience, and decision-making history. Not all investors are equally vulnerable to all biases. Overconfident traders are most susceptible to overtrading and concentrated positions. Loss-averse investors suffer most from the disposition effect and panic selling. Social conformists are most vulnerable to herd mentality and FOMO. Your first step in the capstone is identifying YOUR specific bias profile, because the countermeasures must be personalized to be effective.',
-        'Ray Dalio built Bridgewater Associates into the world\'s largest hedge fund ($150B+ AUM) by institutionalizing systematic bias reduction. His principles include: (1) Radical transparency, all meetings are recorded and all decisions are documented, creating a complete decision journal at the organizational level. (2) Idea meritocracy, the best argument wins, regardless of hierarchy, countering authority bias and groupthink. (3) Believability-weighted voting, decisions are weighted by each person\'s track record on similar decisions, using data to override overconfidence. These aren\'t just corporate values, they\'re a systematic bias reduction architecture.',
-        'Your behavioral investment plan combines all course frameworks: System 1/System 2 awareness to recognize when fast thinking is overriding analysis. Specific bias countermeasures from your personal bias profile. Emotional cycle recognition to identify where you are in the euphoria-despair spectrum. Social dynamics protocols to resist herd pressure. Prospect Theory calibration to override loss aversion and probability weighting. Nudge-designed defaults that make good choices automatic. And the complete rational framework: IPS, checklist, journal, circuit breakers, and accountability partner. This integrated plan IS behavioral finance.'
+        'A behavioral audit means checking which biases hit you hardest. Overconfident traders overtrade. Loss averse investors panic sell. Social conformists follow the herd. Find your profile first, because fixes only work when they are personal.',
+      'Ray Dalio ran Bridgewater Associates, the largest hedge fund ($150B+ AUM), on recorded meetings, best argument wins, and votes weighted by track record. Copy that: write a policy, checklist, journal, circuit breakers, and an accountability partner.'
       ],
       [
         { term: 'Behavioral Audit', definition: 'A systematic self-assessment of your personal susceptibility to specific cognitive biases, based on personality traits, past decision patterns, and risk tolerance, used to create targeted countermeasures rather than generic advice.', example: 'An audit revealing that you\'re highly susceptible to confirmation bias (you naturally seek confirming information) but relatively resistant to herd mentality (you\'re a natural contrarian) would produce very different countermeasures than the reverse profile.' },
@@ -3143,7 +3136,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Behavioral Investment Plan', definition: 'A comprehensive personal plan integrating all behavioral finance frameworks: bias profile, emotional cycle protocols, social dynamics defenses, Prospect Theory awareness, nudge defaults, and the complete rational framework (IPS, checklist, journal, circuit breakers, accountability partner).', example: 'A complete plan stating: "I\'m highly loss-averse (bias profile), so my IPS includes a 72-hour circuit breaker during market declines >5%, my portfolio defaults to automated DCA, and my accountability partner is instructed to challenge any sell decision made within a week of a market decline."' }
       ],
       'Integrative diagram: Personal Bias Profile at center, connected to six framework modules (Dual Systems, Cognitive Biases, Emotional Cycles, Social Dynamics, Prospect Theory, Nudge Theory) feeding into the Rational Framework output',
-      { company: 'Bridgewater Associates', metric: '$150B+ AUM, 58% annualized return in flagship Pure Alpha fund (1991-2023)', outcome: 'Built the world\'s largest hedge fund on systematic bias reduction rather than individual brilliance', explanation: 'Dalio\'s system is the institutional version of the personal rational framework: radical transparency (decision journal), idea meritocracy (accountability partner at scale), believability-weighted voting (checklist investing based on track records), and systematic principles (IPS). Bridgewater proves that bias reduction architecture works not just for individuals but for organizations managing $150B+.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Bridgewater: Systematic Bias Reduction at Scale',
@@ -3168,7 +3161,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 5, Interactive Graph
     interactiveGraph(
-      'THE FULL PICTURE',
+      'The full picture',
       'The Behavioral Finance Performance Gap Over a Career',
       'comparison',
       'Comparison chart showing the cumulative impact of behavioral errors over a 40-year investing career: $100K invested at 5% (behavioral investor) vs 10% (systematic investor)',
@@ -3192,7 +3185,7 @@ const lessons: PathwayLesson[] = [
         { label: 'Annual Behavioral Drag (%)', min: 0, max: 8, default: 4.6, unit: '%' },
         { label: 'Investment Horizon (years)', min: 10, max: 50, default: 40, unit: 'years' }
       ],
-      { company: 'Vanguard', metric: 'Advisor\'s Alpha, value of behavioral coaching', outcome: 'Vanguard estimates behavioral coaching adds approximately 1.5-2% in net annual returns by preventing clients from making emotional trading decisions', explanation: 'Vanguard\'s "Advisor\'s Alpha" research found that the single most valuable thing a financial advisor does is NOT picking stocks or optimizing taxes, it\'s preventing behavioral errors. Of the estimated 3% total value advisors add, approximately half (1.5%) comes from "behavioral coaching": talking clients out of panic selling, preventing performance chasing, and maintaining disciplined rebalancing. This proves that behavioral architecture is the highest-ROI investment intervention available.' }
+      undefined
     ),
 
     // Step 6, Case Study
@@ -3209,7 +3202,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 7, Misconceptions
     misconceptions(
-      'BEHAVIORAL FINANCE CAPSTONE MYTHS',
+      'Behavioral finance capstone myths',
       'The final misconceptions to clear before mastery',
       [
         {
@@ -3447,12 +3440,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'How Arbitrary Numbers Hijack Your Brain',
       [
-        'Anchoring bias is the cognitive tendency to rely too heavily on the first piece of information encountered (the "anchor") when making decisions. Discovered by Amos Tversky and Daniel Kahneman in 1974, anchoring operates even when the anchor is completely irrelevant. In their famous roulette wheel experiment, a random number between 10 and 65 shifted estimates of African UN membership by 80%. The anchor didn\'t need to be meaningful, it just needed to be first.',
-        'In investing, anchoring manifests in devastating ways. The most common anchor is your purchase price. If you buy a stock at $100 and it drops to $70, anchoring makes $100 the reference point. You hold waiting for "recovery" to $100, even if the fundamentals now justify only $60. The purchase price is irrelevant to the stock\'s future value, but your brain treats it as the "correct" price. This same bias makes stocks that have fallen from $200 to $50 seem "cheap," even when $50 might be overvalued.',
-        'Anchoring is weaponized across finance. Real estate agents set high listing prices because studies show buyers anchor to asking price regardless of actual value. Retailers mark items "Was $200, Now $79" because the $200 anchor makes $79 feel like a steal, even if the item was never worth $200. Wall Street analysts set price targets that anchor subsequent analysis by every investor who reads them. Understanding anchoring is the first step to immunizing yourself against one of the most pervasive manipulation tools in commerce.'
+        'Anchoring bias means your first number sticks: Tversky and Kahneman showed in 1974 that a random roulette number between 10 and 65 shifted people\'s estimates of African UN membership by 80%.',
+      'Buy at $100, watch it fall to $70, and you wait for $100 even if the stock is now worth $60. A fall from $200 to $50 looks cheap; retailers use it too: was $200, now $79.'
       ],
       [
         { term: 'Anchoring Bias', definition: 'The cognitive tendency to rely too heavily on the first piece of information encountered when making subsequent judgments or decisions.', example: 'Seeing a stock\'s 52-week high of $150 makes the current price of $80 feel cheap, even if intrinsic value is $60.' },
@@ -3461,7 +3453,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Price Anchoring', definition: 'A marketing and sales strategy that deliberately sets a high initial price to make subsequent prices feel reasonable by comparison.', example: 'A $999 "original price" crossed out next to a $399 "sale price" makes $399 feel like a bargain, even if the item\'s true value is $250.' }
       ],
       'Diagram showing an anchor (heavy weight) attached to a chain pulling an estimate toward it, with arrows showing insufficient adjustment away from the anchor point.',
-      { company: 'Dan Ariely\'s MIT Experiment', metric: 'Social Security number as anchor for auction bids', outcome: 'Students with high last two SS digits bid 60-120% more for identical items than those with low digits', explanation: 'Ariely asked MIT students to write down the last two digits of their Social Security numbers, then bid on wine, chocolates, and electronics. Students whose SS digits were 80-99 bid $56 for cordless keyboards vs. $16 by those with digits 00-19. A completely irrelevant number, their SS digits, shifted willingness to pay by 250%. This proves anchoring operates below conscious awareness and affects real purchasing decisions.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Ariely\\\'s SS Number Anchoring Experiment',
@@ -3484,7 +3476,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'ANCHORING IN MARKETS',
+      'Anchoring in markets',
       'How Reference Points Distort Valuation',
       'comparison',
       'Explore how different anchor points shift perceived value of identical assets. Adjust the anchor to see how it warps your "fair value" estimate.',
@@ -3508,16 +3500,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Anchoring Strength', min: 0, max: 100, default: 60, unit: '%' },
         { label: 'True Fundamental Value', min: 20, max: 200, default: 70, unit: '$' }
       ],
-      { company: 'McKinsey & Company', metric: 'Analyst price target accuracy study (2000-2020)', outcome: 'Analyst 12-month price targets were accurate less than 30% of the time, consistently anchored to current prices', explanation: 'McKinsey found that analyst price targets reflect anchoring to the current stock price more than independent fundamental analysis. When stocks rise, targets ratchet up. When stocks fall, targets ratchet down. The targets lag rather than lead, because analysts start with the current price (anchor) and adjust insufficiently. This means investors who rely on analyst targets are essentially anchoring to anchored estimates, a double layer of bias.' }
+      undefined
     ),
 
     teachingSlide(
-      'ADVANCED ANCHORING',
+      'Advanced anchoring',
       'Anchoring in Negotiations, Real Estate, and Retail',
       [
-        'Anchoring is the most exploited cognitive bias in commerce. In salary negotiations, the first number mentioned becomes the anchor. Research by Galinsky and Mussweiler (2001) showed that making the first offer in a negotiation consistently leads to better outcomes because the initial number anchors the entire discussion. If you ask for $120,000, the negotiation revolves around $120,000. If you wait and the employer offers $85,000, you\'re now anchored at $85,000.',
-        'Real estate exploits anchoring systematically. Listing prices are set high to anchor buyers. Northcraft and Neale (1987) gave real estate agents identical property information but different listing prices. Agents given a high listing price appraised the property 10-15% higher than agents given a low listing price, despite having identical factual data. Even professional appraisers, who should rely on comparable sales, were influenced by the arbitrary listing price anchor.',
-        'Retail anchoring is everywhere: "Compare at $299, Our Price $149" creates a $299 anchor that makes $149 feel like a bargain. "Limit 12 per customer" anchors buyers to buy more (people who see "Limit 12" buy an average of 7, vs. 3.5 without the limit). Even menu engineering uses anchoring: placing a $65 steak at the top of the menu makes a $32 pasta feel reasonable. Understanding these tactics is essential to becoming a rational consumer and investor.'
+        'Ask for $120,000 in a salary talk and the whole discussion circles $120,000; let the employer open at $85,000 and you are stuck near $85,000. Galinsky and Mussweiler (2001) found first offers win.',
+      'Northcraft and Neale (1987) found a high listing price pushed agent valuations 10-15% higher. Retail: compare at $299, our price $149. Limit 12 per customer lifts buying from 3.5 to 7; a $65 steak makes $32 pasta look fine.'
       ],
       [
         { term: 'First-Offer Advantage', definition: 'The negotiation principle that whoever makes the first offer sets the anchor, gaining a systematic advantage because all subsequent counteroffers insufficiently adjust from that anchor.', example: 'Asking $120K salary anchors the negotiation there. Waiting for the employer to offer $85K anchors you $35K lower, even if both parties had the same fair value in mind.' },
@@ -3540,7 +3531,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'ANCHORING MYTHS',
+      'Anchoring myths',
       'What most people get wrong about anchoring bias',
       [
         {
@@ -3740,12 +3731,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'Why Past Spending Should Never Drive Future Decisions',
       [
-        'The sunk cost fallacy is the tendency to continue an endeavor because of previously invested resources (time, money, effort) that cannot be recovered, regardless of whether the future benefits justify continued investment. Economists define sunk costs as costs that have already been incurred and cannot be recovered, they are gone regardless of what you do next. The rational approach is to base every decision solely on future costs and benefits, ignoring past expenditures entirely.',
-        'In investing, the sunk cost fallacy is devastating. An investor who bought a stock at $100 and watches it fall to $60 often refuses to sell because "I\'ve already lost $40 per share, I can\'t realize that loss." But the $40 is already gone. The only question is: "Is $60 the best use of this capital going forward?" If the stock is likely to fall further or if better opportunities exist, holding is irrational, you\'re sacrificing future returns to avoid acknowledging a past mistake. The sunk cost fallacy transforms temporary paper losses into permanent wealth destruction.',
-        'The psychological mechanism behind sunk costs involves loss aversion and cognitive dissonance. Selling a losing investment forces you to admit you were wrong, which triggers loss aversion pain. Holding preserves the fiction that the loss is "temporary" and you\'ll eventually be proven right. This is why sunk cost bias intensifies as losses grow: the bigger the loss, the more psychologically painful the admission, and the stronger the motivation to hold. Paradoxically, the investments most likely to be held irrationally are the worst performers, exactly the ones that should be sold.'
+        'A sunk cost is money, time or effort already spent that you cannot get back. The sunk cost fallacy is carrying on with something just because you already paid, instead of judging future costs and benefits.',
+      'You buy a stock at $100 and it falls to $60. The $40 loss is gone either way. Ask only whether $60 is the best use of that money now. Holding to avoid admitting a mistake costs you more.'
       ],
       [
         { term: 'Sunk Cost', definition: 'A cost that has already been incurred and cannot be recovered, regardless of future actions. In economic theory, sunk costs should be ignored in all forward-looking decisions.', example: 'The $40 per share you\'ve already lost on a stock is a sunk cost, it\'s gone whether you sell or hold. Only the future trajectory of the stock should influence your decision.' },
@@ -3754,7 +3744,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Prospective Decision Making', definition: 'The rational approach of basing decisions solely on expected future costs and benefits, ignoring past expenditures that cannot be recovered.', example: 'Asking "Would I buy this stock today at this price?" instead of "How much have I already lost?" converts every hold decision into a forward-looking buy decision.' }
       ],
       'Decision tree showing two paths from a losing position: (1) Sunk cost path that spirals downward with increasing losses, (2) Prospective path that exits early and reallocates capital to growing opportunities.',
-      { company: 'British-French Concorde Programme', metric: 'Total development cost vs. commercial viability (1962-2003)', outcome: 'Spent $2.8 billion despite knowing by 1969 the project was commercially unviable, 75% of costs incurred AFTER the project was known to be a failure', explanation: 'The Concorde is the textbook case of sunk cost escalation. By 1969, it was clear that the plane would never be commercially profitable, airlines weren\'t ordering enough units. But the British and French governments continued funding for 34 more years because "we\'ve invested too much to stop." Each year\'s spending became a new sunk cost that justified the next year\'s spending. The result: $2.1 billion wasted after the project was known to be a failure. In investing, this is exactly what happens when you hold a deteriorating stock "because you\'ve already lost too much to sell."' },
+      undefined,
       {
         type: 'grid',
         title: 'Sunk Cost Decision Framework',
@@ -3778,7 +3768,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE SUNK COST TRAP',
+      'The sunk cost trap',
       'How Past Losses Compound Future Losses',
       'exponential',
       'Explore how the sunk cost fallacy turns small losses into catastrophic ones. Adjust the initial loss and the number of "double-down" decisions to see the escalation.',
@@ -3802,16 +3792,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Loss Per Period', min: 5, max: 30, default: 15, unit: '%' },
         { label: 'Holding Periods', min: 1, max: 20, default: 8, unit: '' }
       ],
-      { company: 'Hal Arkes & Catherine Blumer (1985)', metric: 'Theater ticket sunk cost experiment', outcome: 'Full-price ticket holders attended 50% more shows of a terrible play than discount holders', explanation: 'This study elegantly isolates the sunk cost effect. All participants saw the same terrible play. The only difference was the price paid. Those who paid full price ($15) felt compelled to attend more often to "get their money\'s worth." The rational action, skip a bad play regardless of ticket cost, was overridden by the desire to justify past spending. This is exactly what happens when investors hold terrible stocks because "I paid a lot for them."' }
+      undefined
     ),
 
     teachingSlide(
-      'SUNK COSTS IN PRACTICE',
+      'Sunk costs in practice',
       'How Sunk Costs Trap Investors, Businesses, and Governments',
       [
-        'In portfolio management, the sunk cost fallacy manifests as an unwillingness to sell losing positions. Terrance Odean\'s research found that investors hold losing stocks approximately twice as long as winning stocks. The driving force isn\'t rational analysis, it\'s the psychological pain of converting a "paper loss" into a "realized loss." Selling forces acknowledgment that the initial investment decision was wrong. Holding preserves the comforting fiction that the loss is temporary.',
-        'Corporate sunk cost disasters are common. Nokia spent $8 billion acquiring Navteq for mapping technology in 2007, then continued investing in the failing platform for years rather than switching to Google Maps. Quibi raised $1.75 billion for short-form video content, launched to terrible reviews, and continued spending for months rather than cutting losses because the $1.75 billion investment made stopping feel wasteful. In each case, the rational decision, stop and reallocate, was blocked by the weight of past spending.',
-        'The antidote to sunk cost bias is the "clean slate" test: imagine you have no current position and no history with this investment. Would you buy it today at today\'s price? If no, your continued holding is driven by sunk costs, not by forward-looking analysis. This simple question converts every hold decision into a buy decision, stripping away the historical baggage that distorts judgment. Institutional investors use systematic portfolio reviews that evaluate every position as if it were a new purchase candidate.'
+        'Terrance Odean found investors hold losing stocks about twice as long as winners. Selling turns a paper loss, one that exists only on screen, into a real one, so people hold on and hope.',
+      'Nokia spent $8 billion on Navteq in 2007 and clung to it over Google Maps. Quibi burned $1.75 billion on a failed app. Use the clean slate test: would you buy this today at today\'s price? If not, sell.'
       ],
       [
         { term: 'Clean Slate Test', definition: 'The decision-making tool of imagining you have no existing position and asking "Would I buy this today at this price?" If the answer is no, the current holding is driven by sunk cost bias rather than rational forward-looking analysis.', example: 'You hold a stock down 40%. The clean slate test: "If I had cash, would I buy this stock today?" If no, sell, your holding is driven by past losses, not future opportunity.' },
@@ -3834,7 +3823,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'SUNK COST MYTHS',
+      'Sunk cost myths',
       'What most people get wrong about past investments',
       [
         {
@@ -4025,12 +4014,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'The Psychology of Anticipated Regret',
       [
-        'Regret aversion is the tendency to avoid making decisions because of the fear of experiencing regret if the outcome is bad. Unlike loss aversion (which fears actual losses), regret aversion fears the FEELING of having made a wrong choice. Research by Zeelenberg and Pieters (2007) showed that anticipated regret is one of the most powerful predictors of decision avoidance, people would rather make no decision (and accept a guaranteed suboptimal outcome) than make an active decision that might turn out wrong.',
-        'The asymmetry of regret is crucial: people feel MORE regret for bad outcomes from actions (commission) than from inactions (omission), even when inaction produces worse outcomes. An investor who buys a stock that drops 20% feels intense regret. But an investor who fails to invest for 10 years, losing hundreds of thousands to inflation and foregone returns, feels almost no regret, because they never made an active decision to lose money. This omission bias means the most expensive decision (doing nothing) feels the safest.',
-        'Analysis paralysis is regret aversion\'s most common symptom. Faced with investment choices, the regret-averse investor researches endlessly, seeking certainty that doesn\'t exist in financial markets. Barry Schwartz\'s "Paradox of Choice" research showed that more options increase anxiety and decrease satisfaction. In investing, the thousands of available stocks, funds, ETFs, and strategies create a choice overload that triggers decision paralysis. The result: money sits in cash earning below inflation while the investor waits for "perfect information", which never arrives in an uncertain world.'
+        'Regret aversion means avoiding a choice because you fear feeling wrong later. Zeelenberg and Pieters (2007) found it strongly predicts decision avoidance. Odd part: people regret bad actions more than bad inaction, so doing nothing feels safe.',
+      'Buy a stock that drops 20% and the regret stings. Skip investing for 10 years, losing hundreds of thousands to inflation, and you barely notice. Barry Schwartz showed more options breed anxiety, so money sits in cash.'
       ],
       [
         { term: 'Regret Aversion', definition: 'The tendency to avoid decisions due to fear of experiencing regret if the outcome is negative. Leads to inaction, delayed investing, and suboptimal choices designed to minimize potential regret rather than maximize expected value.', example: 'Keeping $500,000 in a savings account for 10 years because "what if the market crashes right after I invest?" The guaranteed loss to inflation is invisible; the potential investment loss is vivid and regret-inducing.' },
@@ -4039,7 +4027,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Paradox of Choice', definition: 'Barry Schwartz\'s finding that too many options increase anxiety, decrease satisfaction, and often prevent decisions entirely. More choice ≠ better outcomes when choice overload triggers paralysis.', example: 'Iyengar\'s jam study: 24 jam varieties → 3% purchase rate. 6 varieties → 30% purchase rate. Fewer options led to 10x more decisions.' }
       ],
       'Diagram showing regret aversion feedback loop: fear of wrong decision → analysis paralysis → no decision → guaranteed suboptimal outcome → rationalized as "being careful" → fear of wrong decision.',
-      { company: 'Vanguard', metric: 'Study on 401(k) participation and investment options (2015)', outcome: 'Every additional 10 investment options in a 401(k) plan reduced participation by 2%. Plans with the most options had the lowest enrollment rates.', explanation: 'Vanguard found that choice overload directly caused financial paralysis. Employees facing 50+ fund options were significantly less likely to enroll in their 401(k) than those facing 10 options, even though not enrolling meant forfeiting employer matching (free money). Regret aversion from "picking the wrong fund" was so powerful that it overrode the rational decision to accept free money. This is analysis paralysis costing real wealth.' },
+      undefined,
       {
         type: 'metric',
         title: 'The Regret Aversion Cycle',
@@ -4058,7 +4046,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE COST OF WAITING',
+      'The cost of waiting',
       'Time in Market vs. Timing the Market',
       'comparison',
       'Explore how delayed investing, driven by regret aversion, compounds into enormous lifetime wealth destruction. Adjust the delay to see the cost of paralysis.',
@@ -4082,16 +4070,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Years Delayed', min: 0, max: 15, default: 3, unit: ' years' },
         { label: 'Market Return', min: 6, max: 12, default: 10, unit: '%' }
       ],
-      { company: 'Charles Schwab', metric: 'Annual $2,000 investment study (2001-2020)', outcome: 'Immediate investing outperformed staying in cash by $91,033 (205%). Even worst-case timing beat cash by $76,733 (173%).', explanation: 'This study demolishes the regret-averse argument of "waiting for a better entry point." Over 20 years, even perfectly bad timing (buying at every annual peak) generated $121,171 vs. $44,438 for cash. The $76,733 gap between bad timing and cash proves that the cost of inaction far exceeds the cost of imperfect action. Time in the market beats timing the market, and the regret-averse investor waiting in cash pays the highest price of all.' }
+      undefined
     ),
 
     teachingSlide(
-      'OVERCOMING PARALYSIS',
+      'Overcoming paralysis',
       'Decision Frameworks That Defeat Regret Aversion',
       [
-        'The first antidote to regret aversion is pre-commitment: making investment decisions in advance, before emotions are engaged. An Investment Policy Statement (IPS) that specifies "invest $X on the 1st of every month regardless of market conditions" eliminates the decision point entirely. You can\'t be paralyzed by a choice that\'s already been made. Dollar-cost averaging (DCA) is the pre-commitment strategy that has moved trillions of dollars from paralyzed savings accounts into productive investments.',
-        'The second antidote is reframing regret. Instead of asking "Will I regret this if the market drops?" ask "Will I regret NOT doing this if the market rises 50% over 5 years?" The anticipated regret of action (buying before a drop) is vivid but temporary. The anticipated regret of inaction (missing years of compound growth) is abstract but devastating. Making the inaction cost VIVID, calculating the actual dollar cost of waiting, counteracts the omission bias that makes doing nothing feel safe.',
-        'The third antidote is satisficing over maximizing. Herbert Simon distinguished between "maximizers" (who seek the best possible option) and "satisficers" (who seek an option that meets their criteria). In investing, maximizers research endlessly seeking the "best" fund, while satisficers pick any low-cost index fund that meets basic criteria and start investing immediately. Schwartz\'s research shows satisficers are happier with their decisions AND achieve better outcomes, because they act while maximizers are still analyzing.'
+        'Beat regret with pre-commitment: decide before emotions hit. An investment policy statement, a written plan, says invest $X on the 1st of every month whatever markets do. Dollar-cost averaging, investing fixed amounts on schedule, removes the decision.',
+      'Also reframe: ask whether you would regret missing a 50% rise over 5 years. And satisfice, a term from Herbert Simon: pick a good enough low-cost index fund now instead of hunting forever for the best one.'
       ],
       [
         { term: 'Pre-Commitment', definition: 'Making binding decisions in advance to remove the decision point from the moment of emotional influence. Includes automated investing, IPS rules, and dollar-cost averaging schedules.', example: 'Setting up automatic $1,000/month transfers to an index fund. The decision is made once, execution happens automatically, bypassing regret aversion every subsequent month.' },
@@ -4114,7 +4101,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'REGRET AVERSION MYTHS',
+      'Regret aversion myths',
       'What most people get wrong about decision-making under uncertainty',
       [
         {
@@ -4305,12 +4292,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'Why We Stick With What We Have, Even When It Hurts',
       [
-        'Status quo bias is the preference for the current state of affairs, where any change from the baseline is perceived as a loss. Samuelson and Zeckhauser (1988) demonstrated this in landmark experiments: when people were randomly assigned an investment portfolio and later given the option to switch to a better one, the majority stayed with their original allocation. The "switch" was objectively better, same risk, higher returns, but changing felt like a loss of the familiar.',
-        'The mechanism behind status quo bias combines loss aversion and the endowment effect. Switching away from the current option means "losing" it, which loss aversion makes feel 2.5x worse than the potential gain from the new option. You don\'t just compare the options objectively, you overweight the loss of what you have. This is why employees leave 401(k) money in default options for decades, why investors stay with expensive advisors they\'ve "always used," and why portfolio allocations remain frozen long after circumstances change.',
-        'Thaler and Benartzi\'s "Save More Tomorrow" program proved that inertia can be harnessed for good. Instead of asking employees to save more NOW (which triggers loss aversion, less take-home pay), they asked employees to commit to saving more from FUTURE raises. Participation: 78%. Average savings rate went from 3.5% to 13.6% over four pay increases. The program didn\'t fight inertia, it redirected it. By making escalation the default, inertia worked FOR employees instead of against them.'
+        'Status quo bias means preferring things as they are. Samuelson and Zeckhauser (1988) offered people a better portfolio, same risk, higher returns. Most kept the original. Loss aversion makes losing what you hold feel 2.5x worse than gaining.',
+      'That inertia leaves 401(k) money in default funds for decades. Thaler and Benartzi flipped it: employees pledged to save more from future raises. 78% joined, and saving rose from 3.5% to 13.6% over four pay increases.'
       ],
       [
         { term: 'Status Quo Bias', definition: 'The preference for the current state of affairs over change, even when the change would be beneficial. Driven by loss aversion, the endowment effect, and the cognitive effort required to evaluate alternatives.', example: 'Samuelson & Zeckhauser found that people randomly assigned a portfolio preferred to keep it, even when shown a better alternative. The current state FEELS right simply because it\'s current.' },
@@ -4318,7 +4304,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Save More Tomorrow', definition: 'Thaler and Benartzi\'s program that harnesses inertia by pre-committing employees to increase savings from future raises. Participation: 78%. Savings rate tripled from 3.5% to 13.6% because escalation was the default.', example: 'Instead of asking "Save 6% of your current salary" (painful now), asking "Save an extra 2% from your next raise" (painless future). Inertia keeps the escalation going automatically.' }
       ],
       'Diagram showing two inertia paths: (1) Accidental inertia, default into money market fund, stays there for 30 years. (2) Designed inertia, default into target-date fund with auto-escalation, grows for 30 years.',
-      { company: 'Thaler & Benartzi', metric: 'Save More Tomorrow program (2004)', outcome: 'Savings rate tripled from 3.5% to 13.6% by making contribution escalation the default. 78% of employees participated.', explanation: 'Save More Tomorrow is the most successful application of status quo bias in finance. Rather than fighting inertia (asking people to save more now), it harnessed inertia (making future escalation automatic). Once enrolled, inertia kept employees on the escalation path, they had to actively opt OUT of saving more. This single intervention has added billions to American retirement savings.' },
+      undefined,
       {
         type: 'grid',
         title: 'Save More Tomorrow: Harnessing Inertia',
@@ -4342,7 +4328,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'THE DEFAULT EFFECT',
+      'The default effect',
       'How Default Choices Shape Financial Outcomes',
       'comparison',
       'Explore how default 401(k) settings compound into enormous wealth differences over a career. Adjust the default contribution rate and fund type to see the impact.',
@@ -4366,16 +4352,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Default Fund Return', min: 0, max: 12, default: 1, unit: '%' },
         { label: 'Career Length', min: 10, max: 45, default: 40, unit: ' years' }
       ],
-      { company: 'Madrian & Shea (2001)', metric: '401(k) auto-enrollment study', outcome: 'Participation jumped from 49% to 86% with auto-enrollment. 76% of employees never changed default settings even years later.', explanation: 'This landmark study proved that defaults are destiny in 401(k) plans. The 76% who never changed settings weren\'t making active decisions to stay, they were experiencing pure inertia. Whether the default was a money market fund (bad) or a target-date fund (good), inertia kept them there. This is why the CHOICE of default is arguably the most important financial decision a company makes for its employees.' }
+      undefined
     ),
 
     teachingSlide(
-      'DESIGNING BETTER DEFAULTS',
+      'Designing better defaults',
       'How to Make Inertia Your Greatest Wealth-Building Ally',
       [
-        'The individual investor\'s application of status quo bias is straightforward: design your financial system so that the DEFAULT action is the OPTIMAL action. Every setting should be configured so that doing nothing, the inertia outcome, builds wealth. Automatic investment contributions on payday. Automatic rebalancing quarterly. Automatic dividend reinvestment. Automatic contribution escalation. When the lazy choice is the smart choice, inertia becomes your most powerful ally.',
-        'An annual "default audit" prevents status quo bias from trapping you in outdated settings. Once a year, review every financial default: 401(k) contribution rate (should you escalate?), fund selection (are you in the right target-date fund?), advisor fees (are you paying 1%+ for services you could get for 0.03%?), bank savings rate (are you earning competitive interest?), insurance coverage (does it still match your needs?). This audit overcomes inertia by scheduling the review, making the review itself an automatic default.',
-        'Status quo bias applies beyond investing. The same inertia that keeps you in a bad 401(k) fund keeps you with an expensive cell phone plan, an overpriced insurance policy, and a low-interest savings account. Research by the UK\'s Financial Conduct Authority found that consumers who switched bank accounts, energy providers, or insurance saved an average of 15-30% on annual costs. The "loyalty penalty", paying more because you don\'t switch, is status quo bias taxing every area of your financial life.'
+        'Set your defaults so doing nothing builds wealth: automatic contributions on payday, automatic rebalancing each quarter, automatic dividend reinvestment, automatic contribution increases. When the lazy choice is the smart choice, inertia works for you.',
+      'Once a year, audit every default: your 401(k) contribution rate, funds, bank interest, insurance, and advisor fees. Paying 1% where 0.03% buys the same thing is a loyalty penalty. UK regulators found switchers saved 15-30% a year.'
       ],
       [
         { term: 'Default Audit', definition: 'An annual review of all financial default settings to ensure they remain optimal. Overcomes status quo bias by scheduling active evaluation of settings that inertia would otherwise freeze in place.', example: 'Discovering that your 401(k) is still at 3% contribution in a money market fund 5 years after enrollment, then switching to 10% in a target-date fund. The audit catches what inertia preserves.' },
@@ -4398,7 +4383,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'STATUS QUO BIAS MYTHS',
+      'Status quo bias myths',
       'What most people get wrong about inertia and defaults',
       [
         {
@@ -4596,12 +4581,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'Why Your Brain Writes Fiction About Random Data',
       [
-        'The narrative fallacy, coined by Nassim Nicholas Taleb in "The Black Swan," is our tendency to construct stories and causal explanations for events that are actually random or driven by complex, unknowable factors. The human brain evolved to detect patterns and construct cause-and-effect narratives, this was essential for survival (rustling grass → predator → run). But in financial markets, where randomness dominates short-term movements, this pattern-seeking creates false stories that feel true but are pure fiction.',
-        'Financial media is a narrative factory. Every market day, CNBC, Bloomberg, and the Wall Street Journal provide definitive explanations for market movements: "Stocks rose on optimism about trade talks." "Markets fell on concerns about inflation." But these narratives are constructed AFTER the price movement to satisfy audiences\' need for explanation. If the market had moved the opposite direction, the same reporters would have provided an equally compelling opposite narrative. A study of market commentary found that contradictory explanations were given for identical-magnitude moves on different days.',
-        'The narrative fallacy is particularly dangerous because stories are psychologically compelling in ways that data is not. Kahneman\'s research shows that people rate the probability of a detailed, story-rich scenario as MORE likely than a simple, general one, even when the detailed scenario is mathematically less probable. A stock with a "revolutionary AI technology" narrative FEELS like a better investment than a stock described as "diversified industrial company with 6% earnings growth", even though the latter may be objectively superior.'
+        'Narrative fallacy, named by Nassim Nicholas Taleb in "The Black Swan," is your habit of inventing stories to explain events that are actually random. Pattern-spotting kept humans alive, but short-term market moves are mostly noise.',
+      'Media builds these stories after prices move: "Stocks rose on optimism about trade talks." Kahneman found detailed stories feel more likely than simple ones. A "revolutionary AI technology" stock feels better than a "diversified industrial company with 6% earnings growth".'
       ],
       [
         { term: 'Narrative Fallacy', definition: 'The tendency to construct stories and causal explanations for events that are random or too complex for simple narratives. Named by Nassim Taleb, our brains turn noise into signal through compelling but false stories.', example: 'After a 3% market drop, CNBC says "stocks fell on trade war fears." But if stocks had risen 3%, they\'d say "stocks climbed as investors shrugged off trade tensions." The narrative is retrofitted to the outcome.' },
@@ -4610,7 +4594,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Conjunction Fallacy', definition: 'Kahneman & Tversky\'s finding that people judge a detailed, story-rich scenario as MORE probable than a simple one, even when the detailed version is a strict subset (mathematically less likely).', example: '"A stock that uses AI to revolutionize healthcare and is led by a former Google engineer" feels more likely to succeed than "a profitable healthcare company", but the detailed version is mathematically less probable.' }
       ],
       'Side-by-side comparison: left shows a financial news narrative with causal arrows and a compelling story; right shows the actual data, random walk with no clear pattern. The story was imposed on the noise.',
-      { company: 'Robert Shiller, Yale University', metric: 'Narrative Economics research (Nobel Prize 2013)', outcome: 'Market bubbles are driven by viral narratives, not fundamental analysis, stories spread like epidemics and move asset prices far from intrinsic value', explanation: 'Shiller\'s research proved that economic events are driven by narratives that spread virally through populations. The dot-com bubble was fueled by the "new economy" narrative. The housing bubble was fueled by the "real estate never declines" narrative. Bitcoin\'s rise was fueled by the "digital gold" narrative. In each case, the compelling story, not fundamental analysis, drove prices to extreme valuations. Understanding narrative economics is understanding that markets price stories, not just cash flows.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Narrative vs. Reality in Markets',
@@ -4632,7 +4616,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'NARRATIVE BUBBLES',
+      'Narrative bubbles',
       'How Stories Inflate and Deflate Asset Prices',
       'timeline',
       'Explore how viral narratives drive market bubbles and crashes. See the divergence between narrative-driven prices and fundamental value over time.',
@@ -4656,16 +4640,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Fundamental Value', min: 20, max: 200, default: 50, unit: '$' },
         { label: 'Bubble Duration', min: 1, max: 10, default: 5, unit: ' years' }
       ],
-      { company: 'Lakonishok, Shleifer & Vishny', metric: 'Value vs. Glamour stock returns (1968-1990)', outcome: 'Boring "value" stocks outperformed exciting "glamour/story" stocks by 10-11% annually over 5-year periods', explanation: 'This landmark study proved that stocks with the best narratives, high growth, exciting technology, media attention, systematically underperformed stocks with boring stories, low growth, unglamorous industries, no media attention. The reason: compelling narratives inflate expectations and prices, reducing future returns. Boring companies with no narrative often trade below intrinsic value, producing superior returns. The narrative premium is real, and investors pay it by overpaying for good stories.' }
+      undefined
     ),
 
     teachingSlide(
-      'NARRATIVE DEFENSE',
+      'Narrative defense',
       'How to Invest on Data, Not Stories',
       [
-        'The first defense against narrative fallacy is separating the story from the data. For every investment, write two analyses: (1) The Narrative, the compelling story about why this stock will succeed (visionary CEO, revolutionary technology, massive market). (2) The Data, earnings, revenue growth, margins, valuation multiples, debt levels, cash flow. If the data doesn\'t support the narrative\'s implied valuation, the narrative is priced as a fantasy. Story stocks with no earnings are narrative bets, not investments.',
-        'The second defense is the "newspaper test": imagine reading tomorrow\'s newspaper headline about your investment. If the story is "Company X misses revenue estimates by 5%," would you still hold? Narrative investors panic because the story changed. Data investors shrug because a 5% revenue miss on a deeply undervalued company doesn\'t change the fundamental thesis. The newspaper test reveals whether your conviction is based on narrative (fragile) or data (durable).',
-        'The third defense is contrarian narrative analysis. When a narrative becomes universal, "AI will transform everything," "crypto is the future," "real estate never falls", it means the story is fully priced into the asset. Universal bullish narratives signal overvaluation. Universal bearish narratives signal undervaluation. The profitable position is almost always opposite the consensus narrative. This doesn\'t mean being contrarian for its own sake, it means recognizing that narratives drive prices away from fundamentals, creating opportunities for data-driven investors.'
+        'Split the story from the data. Write the narrative: visionary CEO, revolutionary technology, massive market. Then write the data: earnings, revenue growth, margins, valuation multiples, debt, cash flow. If the data cannot justify the price, you are buying a fantasy.',
+      'Apply the newspaper test: if "Company X misses revenue estimates by 5%" appears tomorrow, would you hold? Also watch universal stories, "AI will transform everything," "crypto is the future." When everyone believes, the story is already in the price.'
       ],
       [
         { term: 'Narrative vs. Data Analysis', definition: 'The practice of separately evaluating the story (qualitative narrative) and the numbers (quantitative data) for any investment, then checking whether the data supports the narrative\'s implied valuation.', example: 'Narrative: "This company will disrupt a $500B market." Data: $12M revenue, -$200M annual losses, 18 months of cash. The data doesn\'t support the disruption narrative at a $50B valuation.' },
@@ -4688,7 +4671,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'NARRATIVE FALLACY MYTHS',
+      'Narrative fallacy myths',
       'What most people get wrong about stories and investing',
       [
         {
@@ -4879,12 +4862,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'How Media Exposure Controls Your Investment Menu',
       [
-        'Attention bias is the tendency to make decisions based on information that is most salient, readily available, or attention-grabbing, rather than information that is most relevant. In investing, this means you overwhelmingly buy stocks you\'ve heard of. Barber and Odean\'s 2008 study "All That Glitters" found that individual investors are systematic net buyers of attention-grabbing stocks: those appearing in the news, those with abnormally high trading volume, and those with extreme single-day returns (positive or negative).',
-        'The mechanism is asymmetric: attention bias affects BUYING more than selling. When buying, investors face thousands of options and use attention as a filter, considering only stocks they\'ve noticed. When selling, they only consider stocks they already own, a much smaller set that doesn\'t require attention filtering. This asymmetry means your buying decisions are systematically biased toward whatever has been in the news recently, not toward whatever is most undervalued.',
-        'The economic consequence is predictable: attention-driven purchases underperform. When many investors simultaneously buy the same attention-grabbing stock, they push the price above fundamental value, creating short-term overvaluation. Barber and Odean found that attention-driven purchases underperformed by 1-2% over the following year as prices reverted to fundamental value. Meanwhile, stocks nobody is watching, small companies, boring industries, no news coverage, are often undervalued precisely because no attention-driven buying has inflated their prices.'
+        'Attention bias means choosing what grabs your notice, not what fits best. Barber and Odean\'s 2008 study "All That Glitters" found investors are net buyers of stocks in the news, with unusual trading volume, or with extreme daily returns.',
+      'The bias hits buying, not selling: when selling you only look at stocks you own. Attention driven purchases underperformed by 1-2% over the next year. Ignored stocks stay cheap because no crowd inflated their prices.'
       ],
       [
         { term: 'Attention Bias', definition: 'The tendency to overweight salient, recent, or attention-grabbing information in decisions while underweighting less visible but potentially more relevant information.', example: 'Buying Tesla because it\'s in the news daily, while ignoring a water utility company trading at 8x earnings that nobody has heard of.' },
@@ -4893,7 +4875,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Neglected Stock Effect', definition: 'The documented tendency for stocks with low analyst coverage and media attention to outperform stocks with high coverage, because neglect creates undervaluation while attention creates overvaluation.', example: 'Small-cap stocks with zero analyst coverage have historically outperformed large-caps with 30+ analysts by 2-5% annually, the "neglected firm effect."' }
       ],
       'Funnel diagram: 6,000+ stocks at top → media filter removes 95% → attention bias leaves only 50-100 stocks you\'ve heard of → your "investment universe" is a tiny, overpriced subset of the actual market.',
-      { company: 'Barber & Odean', metric: '"All That Glitters" study, individual investor attention-driven purchases', outcome: 'Attention-grabbing stocks purchased by individuals underperformed by 1-2% in the following year; net buying strongly correlated with news coverage, extreme volume, and extreme returns', explanation: 'This study tracked millions of individual investor trades and found a clear pattern: retail investors are net buyers of stocks that grab their attention through news coverage, unusual volume, or dramatic price moves. These attention purchases systematically underperform because many investors simultaneously buying the same salient stocks pushes prices above fair value. The subsequent reversion to fundamentals produces the 1-2% underperformance.' },
+      undefined,
       {
         type: 'flow',
         title: 'The Attention Funnel',
@@ -4916,7 +4898,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'ATTENTION ECONOMICS',
+      'Attention economics',
       'Media Coverage vs. Investment Returns',
       'comparison',
       'Explore the relationship between media attention and subsequent stock returns. See how attention-grabbing stocks underperform while neglected stocks outperform.',
@@ -4940,16 +4922,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Attention Premium', min: 0, max: 10, default: 3, unit: '%' },
         { label: 'Holding Period', min: 1, max: 10, default: 3, unit: ' years' }
       ],
-      { company: 'GameStop / WallStreetBets', metric: 'Reddit-driven attention cascade (January 2021)', outcome: 'Stock rose from $20 to $483 (+2,315%) on attention cascade, then collapsed to $40 within weeks, most retail buyers who entered after viral attention lost money', explanation: 'GameStop is the most extreme attention cascade in market history. The viral Reddit narrative drove millions of retail investors to simultaneously buy a single stock. Early participants who bought at $20 profited. But the vast majority entered after the stock went viral ($200+) and lost 70-90% of their investment when attention faded. This is attention bias at maximum scale: buying BECAUSE something is getting attention, rather than because it\'s undervalued.' }
+      undefined
     ),
 
     teachingSlide(
-      'BUILDING ATTENTION-RESISTANT PORTFOLIOS',
+      'Building attention-resistant portfolios',
       'How to Find Opportunities Where the Crowd Isn\'t Looking',
       [
-        'The first principle of attention-resistant investing is recognizing that your "investment universe" is a tiny, media-selected subset of the actual market. There are over 6,000 publicly traded stocks in the US alone. You can probably name 100-200 of them, the ones that dominate media coverage. The other 5,800+ stocks are invisible to you, which means they\'re also invisible to most other retail investors. This is where value lives: in the stocks that no attention-driven buying has inflated.',
-        'Quantitative screening reverses the attention funnel. Instead of starting with "stocks I\'ve heard of" and evaluating them, start with "all stocks" and filter by fundamental criteria: P/E below 15, free cash flow yield above 6%, debt-to-equity below 0.5, revenue growth above 5%. This process surfaces opportunities that are invisible to headline-driven investors. The companies that pass these screens are often small, boring, and ignored, which is exactly why they\'re undervalued.',
-        'Media consumption should be deliberately limited and structured. Studies show that investors who consume more financial news trade more frequently and earn lower returns. The news doesn\'t inform you, it triggers attention bias, recency bias, and emotional reactions that drive poor decisions. Replace daily news consumption with quarterly fundamental reviews of your holdings. The less attention you pay to what everyone else is watching, the more attention you can pay to what actually matters: fundamentals.'
+        'The US has over 6,000 listed stocks. You can probably name 100-200, the ones the media covers. The other 5,800+ are invisible to you and to most retail investors, so no hype has inflated their prices.',
+      'Screen instead: start with every stock and filter by numbers. Try P/E, price divided by profit, below 15, free cash flow yield above 6%, debt-to-equity below 0.5, revenue growth above 5%. News readers trade more and earn less.'
       ],
       [
         { term: 'Quantitative Screening', definition: 'The process of filtering stocks using fundamental financial criteria (P/E, cash flow, margins, growth) rather than media coverage or narrative appeal. Surfaces opportunities in the ignored corners of the market.', example: 'Screening for P/E < 12, FCF yield > 7%, and debt/equity < 0.5 reveals 50 companies you\'ve never heard of, and that\'s the point. They\'re undervalued because attention hasn\'t found them.' },
@@ -4972,7 +4953,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'ATTENTION BIAS MYTHS',
+      'Attention bias myths',
       'What most people get wrong about media and investing',
       [
         {
@@ -5171,12 +5152,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'Why You Sell Your Best Stocks Too Soon',
       [
-        'The disposition effect, named by Shefrin and Statman (1985) and empirically proven by Odean (1998), is the tendency to sell assets that have increased in value ("winners") while holding assets that have decreased ("losers"). Odean analyzed 10,000 discount brokerage accounts and found investors were 50% more likely to sell a winning position than a losing one. The winners they sold went on to outperform the losers they held by 3.4% over the next 12 months.',
-        'The psychological mechanism is prospect theory\'s value function. Gains feel good, but the pleasure of each additional dollar of gain diminishes (diminishing marginal utility of gains). At +15%, selling feels like "locking in" a sure thing, the bird in the hand. Meanwhile, losses create pain, but the prospect theory value function is convex for losses, meaning you become risk-seeking to avoid realizing a loss. Holding a loser at -30% feels better than selling because "it might come back," and the incremental pain of falling from -30% to -40% is less than the pain of the first -10%.',
-        'The disposition effect has a devastating tax consequence too. By selling winners and holding losers, investors realize capital gains taxes early and defer capital losses. Rational tax management would do the opposite: harvest tax losses (sell losers to offset gains) and defer tax gains (hold winners to compound). The disposition effect creates a double penalty: worse pre-tax returns AND higher tax bills.'
+        'Named by Shefrin and Statman (1985), the disposition effect means selling winners, stocks that gained, and holding losers. Odean (1998) studied 10,000 brokerage accounts: people were 50% likelier to sell a winner.',
+      'Those winners beat the losers by 3.4% over 12 months. Up 15%, you lock in. Down 30%, you hold and hope, because sliding to 40% hurts less than the first 10%. Tax bills also arrive sooner.'
       ],
       [
         { term: 'Disposition Effect', definition: 'The tendency to sell winning investments too early and hold losing investments too long. Named by Shefrin & Statman (1985), empirically proven by Odean (1998).', example: 'Selling a stock up 15% to "lock in gains" while holding a stock down 40% because "it might come back." The winner sold outperforms the loser held by 3.4% over the next year.' },
@@ -5185,7 +5165,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Tax-Loss Harvesting', definition: 'The rational strategy of selling losing positions to realize capital losses that offset capital gains, reducing tax liability. The exact opposite of what the disposition effect causes investors to do.', example: 'Selling a stock down 20% to capture the tax loss, while holding a winner to defer the capital gains tax. Disposition-effect investors do the reverse, paying MORE taxes.' }
       ],
       'S-shaped prospect theory value function showing concavity in gains (diminishing pleasure) and convexity in losses (diminishing pain), with a steeper slope for losses than gains.',
-      { company: 'Odean (1998)', metric: 'Analysis of 10,000 individual brokerage accounts, proportion of gains vs. losses realized', outcome: 'Proportion of gains realized (PGR) was 14.8% vs. proportion of losses realized (PLR) of 9.8%. Winners sold outperformed losers held by 3.4% over the next year.', explanation: 'Odean\'s study is the most cited empirical evidence for the disposition effect. The 50% gap between PGR and PLR proves that investors systematically sell winners and hold losers, and the 3.4% subsequent return gap proves this behavior is costly. Investors are literally selling their best stocks and keeping their worst ones.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Disposition Effect: What Odean Found in 10,000 Accounts',
@@ -5208,7 +5188,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'DISPOSITION ECONOMICS',
+      'Disposition economics',
       'The Cost of Selling Winners Early',
       'comparison',
       'Explore how the disposition effect compounds over time. See the gap between selling winners at small gains versus letting them run.',
@@ -5232,16 +5212,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Loser Hold Tolerance', min: -80, max: -5, default: -40, unit: '%' },
         { label: 'Years Investing', min: 1, max: 30, default: 10, unit: ' years' }
       ],
-      { company: 'Bessembinder (2018)', metric: 'Lifetime returns of 26,000 US stocks (1926-2016)', outcome: 'Just 86 stocks (0.33%) accounted for 50% of total stock market wealth creation; 4% of stocks accounted for ALL net gains above T-bills', explanation: 'This finding makes the disposition effect catastrophic. If only 4% of stocks drive all market returns, selling these winners early, as the disposition effect compels, eliminates the only stocks that matter for long-term wealth. Every time you sell a winner at +15%, you risk cutting off a stock that would have returned 1,000%+.' }
+      undefined
     ),
 
     teachingSlide(
-      'OVERCOMING THE DISPOSITION EFFECT',
+      'Overcoming the disposition effect',
       'Rules That Force You to Let Winners Run',
       [
-        'The most effective counter to the disposition effect is pre-commitment: establishing selling rules BEFORE emotions get involved. Write down specific sell criteria for every position at purchase time. Examples: "Sell if revenue growth drops below 5% for two consecutive quarters," "Sell if the P/E exceeds 40," or "Sell if the original thesis is invalidated." Notice that NONE of these criteria reference your purchase price, because your purchase price is irrelevant to the stock\'s future.',
-        'Trailing stops can mechanize discipline. A 25% trailing stop means the stock is sold only if it drops 25% from its highest point. This lets winners run indefinitely while providing downside protection. If a stock rises from $50 to $200, the trailing stop at $150 still gives you a 200% gain. Without a trailing stop, the disposition effect would have caused you to sell at $60 for a 20% gain, missing the other 233%.',
-        'Mental accounting reframes help too. Instead of tracking gains and losses relative to purchase price, evaluate each position as if you were buying it today. Ask: "If I didn\'t own this stock and had the cash instead, would I buy it at today\'s price?" If the answer is no for a winner, the disposition effect isn\'t the reason to hold, but you should also apply this test to losers. Often, you wouldn\'t buy the loser at today\'s price either, which means you should sell it regardless of the loss.'
+        'Decide sell rules before you buy: sell if revenue growth falls below 5% for two quarters, or if the P/E, price divided by earnings, tops 40. Ask: would you buy this today? Purchase price is irrelevant.',
+      'A 25% trailing stop sells only if the stock falls 25% from its high. Rise from $50 to $200 and the stop at $150 still locks a 200% gain, versus selling at $60 for 20% and missing 233%.'
       ],
       [
         { term: 'Pre-Commitment', definition: 'Establishing specific sell criteria at the time of purchase, before emotions are engaged. Written rules override emotional impulses when the disposition effect strikes.', example: 'At purchase: "I will sell if quarterly revenue growth drops below 5% OR if P/E exceeds 35." This removes purchase price from the sell decision entirely.' },
@@ -5264,7 +5243,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     misconceptions(
-      'DISPOSITION EFFECT MYTHS',
+      'Disposition effect myths',
       'What most people get wrong about selling stocks',
       [
         {
@@ -5446,12 +5425,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     teachingSlide(
-      'THE BASICS',
+      'The basics',
       'Two Sides of the Same Coin: Expecting Reversal vs. Expecting Continuation',
       [
-        'The gambler\'s fallacy is the belief that after a streak of one outcome, the opposite outcome becomes more likely. After 26 blacks in roulette, gamblers bet on red, even though each spin is independent with identical probability. In investing, this manifests as selling after consecutive up days ("a correction is overdue"), buying after consecutive down days ("it has to bounce"), or avoiding a stock that has risen 5 years straight ("it can\'t keep going"). The error: random events have no memory.',
-        'The hot hand bias (or hot hand fallacy) is the mirror image: the belief that a streak of success indicates a pattern that will continue. A fund manager beats the market 3 years running, so investors pour money in, even though research by Carhart (1997) shows that top-quartile mutual funds have less than a 25% chance of repeating in the following year. The persistence of mutual fund performance is almost entirely explained by fees and expenses, not skill. Yet investors chase 3-year track records as if they predict future returns.',
-        'What makes these biases so insidious is that they\'re BOTH errors of pattern recognition applied to random data. The gambler\'s fallacy sees randomness and expects reversal. The hot hand bias sees randomness and expects continuation. Both stem from the same cognitive root: the human brain evolved to detect patterns for survival, so it finds patterns even in purely random sequences. Gilovich, Vallone, and Tversky (1985) demonstrated this with basketball shooting, fans perceived "hot streaks" that statistical analysis showed were consistent with random variation.'
+        'The gambler\'s fallacy is believing a streak makes the opposite outcome likelier. After 26 blacks in roulette, gamblers bet red. Investors avoid a stock up 5 years straight. Random spins have no memory.',
+      'Hot hand bias expects streaks to continue: a manager beats the market 3 years running, so money floods in. Carhart (1997) found the best funds repeat under 25%. Gilovich, Vallone and Tversky (1985) showed basketball streaks were random.'
       ],
       [
         { term: 'Gambler\'s Fallacy', definition: 'The mistaken belief that past outcomes of independent random events affect future probabilities. After a streak of one outcome, the opposite is perceived as "due." Named after the Monte Carlo Casino incident of 1913.', example: 'After 5 consecutive down days in the market, believing "it has to bounce tomorrow", when in reality, each day\'s return is largely independent of previous days.' },
@@ -5460,7 +5438,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Regression to the Mean', definition: 'The statistical tendency for extreme outcomes to be followed by more average outcomes, NOT because of any corrective force, but because extreme results typically involve both skill/fundamentals AND luck, and the luck component doesn\'t persist.', example: 'A fund returning 40% in year 1 likely had skill + luck. In year 2, skill persists but luck is random, so the return regresses toward the mean. This isn\'t the "market correcting", it\'s luck randomizing.' }
       ],
       'Diagram showing two investors looking at the same 5-day winning streak: Gambler\'s Fallacy investor says "sell, reversal is due!" while Hot Hand investor says "buy more, the streak will continue!" Both are wrong because the streak is random.',
-      { company: 'Carhart (1997)', metric: 'Persistence of mutual fund performance, do top funds stay on top?', outcome: 'Top-quartile funds had less than 25% chance of being in top quartile the following year, essentially random. Performance persistence was entirely explained by fees (low-fee funds appeared to "persist" because their fee drag was consistently lower).', explanation: 'Carhart\'s study destroyed the hot hand narrative in mutual fund investing. The 3-year track records that marketing departments tout are mostly noise, a combination of market exposure (beta), style factors, and luck. The only persistent factor was expenses: funds with low fees consistently outperformed funds with high fees. Chasing past performance is chasing noise.' },
+      undefined,
       {
         type: 'comparison',
         title: 'Same Streak, Two Biases',
@@ -5483,7 +5461,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     interactiveGraph(
-      'RANDOMNESS VS. PATTERNS',
+      'Randomness vs. patterns',
       'Can You Tell Skill from Luck?',
       'comparison',
       'Explore how difficult it is to distinguish genuine skill from random variation. See why 3-year track records are nearly meaningless for predicting future fund performance.',
@@ -5507,16 +5485,15 @@ const lessons: PathwayLesson[] = [
         { label: 'Years of Data', min: 1, max: 20, default: 3, unit: ' years' },
         { label: 'Luck Volatility', min: 5, max: 30, default: 15, unit: '%' }
       ],
-      { company: 'S&P Persistence Scorecard (2023)', metric: 'Do top-performing funds stay on top?', outcome: 'Of funds in the top quartile in year 1, only 22% remained in the top quartile in year 2. After 5 years, only 1.1% of initial top-quartile funds were still in the top quartile.', explanation: 'The S&P Persistence Scorecard provides annual proof that mutual fund performance doesn\'t persist. If performance were skill-based, you\'d expect 50%+ persistence. At 22% one-year and 1.1% five-year, the data shows performance is mostly random. Yet investors pour billions into "hot" funds every year, driven by the hot hand bias.' }
+      undefined
     ),
 
     teachingSlide(
-      'PRACTICAL FRAMEWORK',
+      'Practical framework',
       'Distinguishing Real Patterns from Random Noise',
       [
-        'Not all patterns are random, the challenge is distinguishing genuine signals from noise. Three criteria help: (1) Economic mechanism, is there a logical reason for the pattern? Stock momentum works because news diffuses gradually and investors under-react. A roulette streak has no mechanism because spins are physically independent. (2) Sample size, do you have enough data? A 3-year fund track record is noise. A 20-year track record might contain signal. (3) Out-of-sample validation, does the pattern persist in different time periods, markets, and conditions? Momentum has been found in every market studied. Hot fund managers rarely persist.',
-        'The base rate framework prevents both biases simultaneously. Before reacting to a streak, ask: "What is the base rate of this outcome?" The base rate of a top-quartile fund repeating is ~22%, barely better than random. The base rate of an up day following 5 up days is approximately the same as the base rate of any up day (~53%). The base rate of stock momentum persisting over 12 months is genuinely elevated (~55-60%). Using base rates replaces gut-feel pattern recognition with statistical reality.',
-        'For investment decisions, the practical rule is: ignore streaks shorter than 12 months at the stock level and shorter than 10 years at the manager level. Short-term price streaks are dominated by noise and independent of future returns (making both gambler\'s fallacy and hot hand bias errors). Long-term manager track records may contain genuine skill signal, but even then, Vanguard research shows that selecting funds by low fees outperforms selecting funds by past returns in every time period studied.'
+        'Real patterns need a reason. Momentum, where rising stocks keep rising, has one: news spreads slowly. Roulette spins do not. 3 years of fund returns is noise, 20 years may hold signal. For managers, ignore records under 10 years.',
+      'Base rates, the normal odds, help: the best funds repeat about 22%, an up day after 5 up days stays near 53%, and momentum over 12 months runs 55 to 60%. Vanguard found low fees beat past returns.'
       ],
       [
         { term: 'Base Rate', definition: 'The prior probability of an event occurring without any additional information. Using base rates prevents both the gambler\'s fallacy (overweighting streaks as reversal signals) and hot hand bias (overweighting streaks as continuation signals).', example: 'Base rate of top-quartile fund repeating: ~22%. Base rate of up day after 5 up days: ~53% (same as any day). Knowing the base rate stops you from over-interpreting streaks.' },
@@ -5682,11 +5659,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE SCIENCE', 'Why Ownership Changes Value',
+      'The science', 'Why Ownership Changes Value',
       [
-        'The endowment effect was first documented by Richard Thaler in 1980: people demand significantly more to give up an object they own than they would pay to acquire it. Kahneman, Knetsch, and Thaler confirmed this in controlled experiments, the WTA/WTP ratio is consistently 2-3x across cultures and contexts.',
-        'The root cause is loss aversion from Prospect Theory. Selling a stock you own is coded as a LOSS (giving something up), while buying is coded as a potential GAIN. Since losses hurt 2-2.5x more than equivalent gains feel good, selling requires a price premium to compensate for the pain of loss.',
-        'For investors, this creates a systematic bias: you hold losers too long (selling would "realize" the loss), demand unrealistic prices to sell winners, and build portfolios based on what you happen to already own rather than what offers the best risk-adjusted return today.'
+        'Richard Thaler documented the endowment effect in 1980: people want much more to sell something they own than they would pay to buy it. In experiments by Kahneman, Knetsch, and Thaler, the ask-to-pay ratio is 2-3x.',
+      'The cause is loss aversion: losses hurt 2-2.5x more than equal gains feel good. Selling feels like a loss, so you hold losers too long, demand silly prices for winners, and own what you happen to have.'
       ],
       [
         { term: 'Endowment Effect', definition: 'The tendency to overvalue things you own relative to things you don\'t, typically by 2-3x.', example: 'Demanding $50 to sell a stock you wouldn\'t pay more than $20 to buy today.' },
@@ -5694,7 +5670,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Status Quo Bias', definition: 'The preference for the current state of affairs, making any change feel like a loss.', example: 'Keeping a poor-performing fund because switching feels risky even when better options exist.' }
       ],
       'Diagram showing how ownership shifts the reference point, making selling feel like a loss',
-      { company: 'Vanguard Study (2019)', metric: 'Portfolio Turnover', outcome: 'Investors who used the "would I buy this today?" test had 15% higher risk-adjusted returns over 10 years', explanation: 'By separating ownership from valuation, these investors avoided the endowment trap and maintained more rational portfolios.' },
+      undefined,
       BF19_TEACH1
     ),
     microCheck(
@@ -5705,7 +5681,7 @@ const lessons: PathwayLesson[] = [
       'Your purchase price is a sunk cost. If you wouldn\'t buy the stock today at $60, the only reason you\'re holding is the endowment effect. Sell and deploy that $60 into your best current opportunity.'
     ),
     interactiveGraph(
-      'OWNERSHIP BIAS', 'The Portfolio Drag of the Endowment Effect',
+      'Ownership bias', 'The Portfolio Drag of the Endowment Effect',
       'comparison',
       'The endowment effect doesn\'t just affect individual decisions, it compounds across your entire portfolio over time.',
       [
@@ -5731,9 +5707,8 @@ const lessons: PathwayLesson[] = [
     teachingSlide(
       'DEBIASING', 'Breaking the Ownership Spell',
       [
-        'The most powerful debiasing tool is the "clean slate" test: imagine you woke up with cash instead of your current portfolio. Which stocks would you buy today? Any stock NOT on that list is being held due to endowment effect, not rational analysis.',
-        'Systematic rebalancing also helps. By setting rules (rebalance quarterly, trim positions above 10% weight, review all positions annually), you create forced decision points that override the natural tendency to hold everything.',
-        'Tax-loss harvesting can actually work WITH loss aversion: selling losers for tax benefits reframes the "loss" of selling as a "gain" of tax savings, making the endowment effect easier to overcome.'
+        'Try the clean slate test: imagine you woke up holding cash instead of your portfolio, the set of stocks you own. Which would you buy today? Anything not on that list is held out of habit, not analysis.',
+      ' Rules force decisions: rebalance quarterly, trim positions above 10% weight, review everything yearly. Tax-loss harvesting, selling losers to cut your tax bill, also reframes the loss of selling as a gain.'
       ],
       [
         { term: 'Clean Slate Test', definition: 'Imagining your portfolio as cash and deciding what you\'d buy today, reveals endowment-driven holdings.', example: 'If you own 15 stocks but would only buy 8 of them today, 7 are endowment holdings.' },
@@ -5845,11 +5820,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE AMPLIFIERS', 'How Social Media Supercharges Every Bias',
+      'The amplifiers', 'How Social Media Supercharges Every Bias',
       [
-        'Social media doesn\'t create new biases, it amplifies existing ones at unprecedented speed and scale. Confirmation bias: algorithms show you content that confirms your existing views, creating echo chambers. Herd behavior: you see thousands of people buying, creating social proof pressure. FOMO: real-time gain screenshots make missing out feel unbearable.',
-        'The engagement-maximizing algorithm is the key mechanism. Platforms optimize for clicks, shares, and time-on-app, not accuracy. Extreme predictions, loss porn, and euphoric gain screenshots generate maximum engagement. The most viral financial content is systematically the most dangerous.',
-        'Information cascades now happen in hours instead of weeks. In traditional markets, a thesis spreads through analyst reports, news articles, and word of mouth over weeks. On social media, a single post can reach 10 million people overnight, creating massive buying pressure before anyone has verified the underlying thesis.'
+        'Social media amplifies old biases at high speed. Confirmation bias, seeing only what agrees with you, grows in echo chambers. Herd behavior kicks in when thousands buy at once. FOMO, fear of missing out, spikes when gains fill your feed.',
+      'Algorithms chase clicks and time-on-app, not accuracy, so extreme predictions spread furthest. A single post can reach 10 million people overnight, creating buying pressure in hours, before anyone verifies the thesis.'
       ],
       [
         { term: 'Echo Chamber', definition: 'An environment where you\'re only exposed to opinions that confirm your existing beliefs, reinforced by algorithmic content selection.', example: 'A crypto Twitter feed that only shows bullish takes, bearish voices are unfollowed or suppressed by the algorithm.' },
@@ -5868,7 +5842,7 @@ const lessons: PathwayLesson[] = [
       'Engagement-optimized ≠ accuracy-optimized. The incentive structure of social media platforms guarantees that the most visible financial content is also the most sensational and least reliable.'
     ),
     interactiveGraph(
-      'VIRAL FINANCE', 'The Anatomy of a Meme Stock Cycle',
+      'Viral finance', 'The Anatomy of a Meme Stock Cycle',
       'timeline',
       'Every meme stock follows the same behavioral pattern, amplified by social media.',
       [
@@ -5890,15 +5864,22 @@ const lessons: PathwayLesson[] = [
     teachingSlide(
       'DEFENSE', 'Investing Rationally in the Social Media Age',
       [
-        'Rule 1: Never buy within 48 hours of seeing a viral stock post. The 48-hour cooling period lets the emotional response fade and allows time for independent research. If the opportunity is still compelling after two days of analysis, it might be real. If urgency was the main appeal, it was FOMO.',
-        'Rule 2: Treat social media as idea generation, not analysis. A Reddit post can surface an interesting thesis, but it should trigger research, not a trade. Read the 10-K. Check the balance sheet. Verify the claims. The post is a starting point, not a conclusion.',
-        'Rule 3: Curate your information environment. Follow verified analysts, academic researchers, and long-term investors, not hype accounts. Mute "rocket emoji" culture. If your feed is mostly gain/loss screenshots, your environment is engineered to trigger FOMO and panic.'
+        'Rule 1: never buy within 48 hours of seeing a viral stock post. Emotion fades and research happens. If only urgency made it appealing, that was FOMO. Rule 2: treat social media as ideas, not analysis.',
+      'A Reddit post should trigger research, not a trade: read the 10-K, the company\'s annual report, and check the balance sheet. Rule 3: curate your feed. Follow verified analysts and long-term investors, not hype accounts posting gain screenshots.'
       ],
       [
         { term: '48-Hour Rule', definition: 'Wait 48 hours before acting on any social media stock tip, let emotions fade and research replace impulse.', example: 'Seeing a viral SPAC post, waiting 48 hours, then realizing the company has no revenue eliminates the FOMO-driven purchase.' },
         { term: 'Survivorship Bias', definition: 'Seeing only the winners and not the far more numerous losers, creating a distorted picture of likely outcomes.', example: 'Reddit shows 10 gain screenshots for every 1,000 users who lost money, you never see the losses.' }
       ],
-      'Decision tree showing social media investment filtering: See post → Wait 48h → Independent research → Verify claims → Only then consider a position'
+      'Decision tree showing social media investment filtering: See post → Wait 48h → Independent research → Verify claims → Only then consider a position',
+      undefined,
+      { type: 'flow', title: 'The 48-hour filter', nodes: [
+        { label: 'See a viral post' },
+        { label: 'Wait 48 hours', value: 'Let the emotion fade' },
+        { label: 'Read the 10-K yourself' },
+        { label: 'Verify every claim' },
+        { label: 'Only then size a position' },
+      ], footer: 'Social media is idea generation, never analysis.' },
     ),
     misconceptions(
       'Social Media Investing Myths', 'These beliefs cost retail investors billions',
@@ -5993,11 +5974,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE THEORY', 'From Markowitz to Shefrin & Statman',
+      'The theory', 'From Markowitz to Shefrin & Statman',
       [
-        'Modern Portfolio Theory (MPT) says investors should optimize a single mean-variance efficient portfolio. But Shefrin and Statman (2000) observed that real investors don\'t do this, they build layered portfolios resembling a pyramid, with different risk levels for different mental accounts.',
-        'Behavioral Portfolio Theory identifies three key departures from MPT: (1) Mental accounting, investors treat money differently based on its source or purpose. (2) Aspirational layers, a small allocation to high-risk "lottery ticket" investments satisfies the need for upside without destroying the core. (3) Safety-first, downside protection is weighted far more heavily than upside potential.',
-        'The crucial insight: a BPT portfolio might be "suboptimal" by MPT standards but performs better in practice because investors actually follow through with it. The best portfolio is the one you stick with, and BPT portfolios are designed to match how humans actually think and feel about money.'
+        'Modern Portfolio Theory (MPT) says to hold one portfolio balancing risk and return. Shefrin and Statman (2000) found real investors instead build a pyramid: separate layers, each with its own risk level and purpose.',
+      'Behavioral Portfolio Theory adds three layers: mental accounting, where each pot of money has a job; a small aspirational slice for lottery style bets; and safety first, protecting the downside. The best portfolio is the one you stick with.'
       ],
       [
         { term: 'Mental Accounting', definition: 'Treating money differently based on its source, purpose, or mental label, violating the economic principle that money is fungible.', example: 'Keeping emergency savings in a low-yield account while carrying credit card debt, the "emergency" label prevents rational optimization.' },
@@ -6016,7 +5996,7 @@ const lessons: PathwayLesson[] = [
       'MPT is mathematically optimal but psychologically fragile. BPT is mathematically suboptimal but psychologically robust. Since investor behavior matters more than mathematical optimization, BPT portfolios produce better real-world outcomes.'
     ),
     interactiveGraph(
-      'PORTFOLIO LAYERS', 'Building a BPT Portfolio',
+      'Portfolio layers', 'Building a BPT Portfolio',
       'pie',
       'A typical BPT portfolio has four mental layers, each serving a different psychological need.',
       [
@@ -6040,11 +6020,10 @@ const lessons: PathwayLesson[] = [
       ]
     ),
     teachingSlide(
-      'PRACTICAL APPLICATION', 'Designing Your Behavioral Portfolio',
+      'Practical application', 'Designing Your Behavioral Portfolio',
       [
-        'Step 1: Define your mental accounts. What are you investing for? Emergency fund, retirement, home down payment, "fun money." Each goal maps to a different risk layer. Matching investments to goals creates psychological comfort and reduces the urge to interfere.',
-        'Step 2: Size the aspirational layer carefully. Too small (0%) and you\'ll take excessive risk in your core. Too large (20%+) and speculation threatens your financial security. The sweet spot for most investors is 5-10%, enough to scratch the itch without endangering the plan.',
-        'Step 3: Use automation to enforce discipline. Set up automatic contributions to each layer. Automation removes the decision points where behavioral biases attack. You can\'t FOMO-buy a meme stock with your safety layer if it\'s in a separate account with automatic deposits.'
+        'Step 1: name your mental accounts, the separate pots you invest for: emergency fund, retirement, a home down payment, fun money. Each goal gets its own risk layer, which makes you less likely to interfere.',
+      'Step 2: size the aspirational layer at 5-10%. At 0% you take too much risk in the core; at 20%+ speculation threatens you. Step 3: automate contributions, so you cannot buy a meme stock with safety money.'
       ],
       [
         { term: 'Goal-Based Investing', definition: 'Matching specific investments to specific financial goals rather than managing one unified portfolio.', example: 'Emergency fund → HYSA, retirement → index funds, vacation → short-term bond fund.' },
@@ -6140,11 +6119,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE TOOLKIT', 'Five Proven Debiasing Techniques',
+      'The toolkit', 'Five Proven Debiasing Techniques',
       [
-        'Technique 1: Pre-Commitment. Set rules BEFORE you need them. "I will not sell during any single-day drop greater than 5%." "I will rebalance quarterly regardless of market conditions." Pre-commitment works because you\'re rational when calm, lock in that rationality for when emotions take over.',
-        'Technique 2: Decision Journal. Before every trade, write: (1) What am I buying/selling? (2) Why? (3) What would prove me wrong? (4) What\'s my exit plan? Review monthly. The journal creates accountability and reveals patterns in your mistakes that are invisible in real-time.',
-        'Technique 3: Adversarial Thinking. Before buying, spend 10 minutes building the strongest possible case AGAINST the investment. If you can\'t construct a compelling bear case, you don\'t understand the investment well enough. This combats confirmation bias directly.'
+        'Technique 1, pre-commitment: set rules before you need them. "I will not sell during any single-day drop greater than 5%." "I will rebalance quarterly regardless of market conditions." You are rational when calm, so lock that in.',
+      'Technique 2, a decision journal: before every trade, write what you are buying or selling, why, what would prove you wrong, and your exit plan. Technique 3, adversarial thinking: spend 10 minutes arguing against the investment.'
       ],
       [
         { term: 'Pre-Commitment', definition: 'Setting rules during calm, rational moments that bind your behavior during emotional, irrational moments.', example: '"If my portfolio drops 20%, I will buy more, not sell", written and signed before any crash occurs.' },
@@ -6163,7 +6141,7 @@ const lessons: PathwayLesson[] = [
       'Willpower is a finite resource that depletes under stress. Pre-commitment removes willpower from the equation: the decision is already made. You\'re just following instructions from your past rational self.'
     ),
     interactiveGraph(
-      'CHECKLIST POWER', 'The Investment Checklist Protocol',
+      'Checklist power', 'The Investment Checklist Protocol',
       'comparison',
       'Atul Gawande showed that checklists reduced surgical deaths by 47%. Applied to investing, checklists reduce behavioral errors by 50-70%.',
       [
@@ -6182,11 +6160,10 @@ const lessons: PathwayLesson[] = [
       ]
     ),
     teachingSlide(
-      'ADVANCED TOOLS', 'Reference Class Forecasting & Outcome Tracking',
+      'Advanced tools', 'Reference Class Forecasting & Outcome Tracking',
       [
-        'Technique 4: Reference Class Forecasting. Instead of asking "Will THIS stock beat the market?" ask "What percentage of stocks in this category beat the market historically?" If 80% of speculative small-caps underperform over 5 years, you need extraordinary evidence to believe yours is in the 20%.',
-        'Technique 5: Outcome Tracking with Base Rates. Track your predictions vs. outcomes. Most investors think they\'re right 70% of the time but are actually right 45-55%. By measuring your actual hit rate, you develop appropriate confidence and size positions accordingly.',
-        'The meta-skill: knowing which debiasing technique to apply when. Anchoring → use multiple independent valuation methods. FOMO → use the 48-hour rule. Endowment → use the clean slate test. Confirmation → use adversarial thinking. Having the right tool for each bias is the ultimate behavioral finance skill.'
+        'Technique 4, reference class forecasting: ask what percentage of similar stocks beat the market historically. If 80% of speculative small-caps underperform over 5 years, you need strong evidence yours sits in the 20%.',
+      ' Technique 5, outcome tracking: compare your predictions to results. Most investors think they are right 70% of the time but are right 45-55%. Match the tool to the bias: FOMO, the 48-hour rule; confirmation, adversarial thinking.'
       ],
       [
         { term: 'Reference Class Forecasting', definition: 'Estimating the probability of an outcome by looking at the historical success rate of similar situations.', example: 'Before investing in a pre-revenue biotech: "What % of pre-revenue biotechs generate positive returns over 5 years?" Answer: ~15%.' },
@@ -6284,11 +6261,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'EVERYDAY ANCHORING', 'How Stores, Restaurants & Negotiations Use Your Biases',
+      'Everyday anchoring', 'How Stores, Restaurants & Negotiations Use Your Biases',
       [
-        'Retail pricing is anchoring warfare. The "original price" of $999 crossed out above the "sale price" of $499 creates an anchor that makes $499 feel like a bargain, even if the product was never worth $999. J.C. Penney tried eliminating fake sales in 2012 and lost 25% of revenue, customers prefer the illusion of a deal.',
-        'Restaurant menus use anchoring too. A $95 steak at the top of the menu makes the $35 salmon feel reasonable. Without the anchor, you\'d compare $35 to your grocery budget. Wine lists use the same trick: a $200 bottle makes $60 seem affordable.',
-        'Salary negotiations are anchoring battles. The first number mentioned becomes the anchor. Research shows that whoever states a number first gains a 15-20% advantage in the final outcome. If a job posting says "$60K-$80K," the anchor is $60K, most candidates negotiate within that frame rather than establishing a new one.'
+        'Anchoring means the first price you see sets what feels normal. A crossed out $999 makes $499 feel like a bargain. J.C. Penney scrapped fake sales in 2012 and lost 25% of revenue.',
+      'Menus use it too: a $95 steak makes $35 salmon look fair, and a $200 wine makes $60 seem cheap. In pay talks, naming the first number gives a 15-20% edge, so a $60K-$80K posting anchors you at $60K.'
       ],
       [
         { term: 'Anchor Pricing', definition: 'Setting a high reference price to make the actual price feel like a bargain by comparison.', example: '"Was $999, now $499!", the $999 anchor makes $499 feel like a 50% savings even if the product is worth $300.' },
@@ -6307,7 +6283,7 @@ const lessons: PathwayLesson[] = [
       'This is one of the most dramatic demonstrations of anchoring in business history. CEO Ron Johnson (from Apple) assumed customers wanted honest pricing. They didn\'t, they wanted the psychological satisfaction of a "deal."'
     ),
     interactiveGraph(
-      'DEFAULTS RULE', 'The Hidden Power of Default Settings',
+      'Defaults rule', 'The Hidden Power of Default Settings',
       'comparison',
       'Default options are the most powerful nudge in behavioral economics, far more powerful than education or incentives.',
       [
@@ -6327,11 +6303,10 @@ const lessons: PathwayLesson[] = [
       ]
     ),
     teachingSlide(
-      'FRAMING YOUR LIFE', 'How Framing Effects Shape Health, Career & Relationships',
+      'Framing your life', 'How Framing Effects Shape Health, Career & Relationships',
       [
-        'Medical decisions are profoundly affected by framing. "This surgery has a 90% survival rate" vs "This surgery has a 10% mortality rate", identical information, but patients choose surgery 80% of the time with the first frame and only 50% with the second. Doctors are equally affected.',
-        'Career decisions fall prey to sunk cost fallacy. "I\'ve spent 4 years in law school, I can\'t switch now" keeps people in careers they hate. The rational question is "Would I choose this career today knowing what I know?", your past investment is irrelevant to the future decision.',
-        'Relationship and lifestyle decisions use loss aversion. People stay in bad situations (jobs, relationships, cities) because leaving feels like a "loss", even when the status quo is objectively worse than the alternative. The endowment effect applies to life decisions, not just stock portfolios.'
+        'Framing means the same fact sounds different depending on wording. Told a surgery has a 90% survival rate, 80% of patients agree. Told it has a 10% mortality rate, only 50% agree. Doctors react the same way.',
+      'Sunk cost fallacy is letting past spending decide your future: 4 years of law school traps people. Loss aversion, feeling losses harder than gains, keeps them in bad jobs or relationships. Ask instead: would you choose this today?'
       ],
       [
         { term: 'Framing Effect', definition: 'The way information is presented (framed) dramatically changes the decision, even when the underlying facts are identical.', example: '"90% survival rate" and "10% mortality rate" produce completely different surgical decisions, same data, different frame.' },
@@ -6429,11 +6404,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE ANOMALIES', 'Patterns That Shouldn\'t Exist',
+      'The anomalies', 'Patterns That Shouldn\'t Exist',
       [
-        'Momentum Effect: Stocks that have risen over the past 6-12 months continue to outperform for 3-12 more months. Jegadeesh and Titman (1993) documented 8-12% annual returns. Behavioral explanation: investors underreact to new information, causing prices to adjust slowly. Confirmation bias means good news about rising stocks is embraced while bad news is discounted.',
-        'Value Premium: Cheap stocks (low P/E, P/B) outperform expensive stocks by 4-5% annually over long periods. Fama and French (1992) documented this across decades. Behavioral explanation: investors overreact to recent bad news (creating cheap stocks) and overvalue recent good news (creating expensive stocks). Mean reversion corrects these overreactions.',
-        'Post-Earnings Announcement Drift (PEAD): Stocks that beat earnings expectations continue to rise for 60-90 days after the announcement. Bernard and Thomas (1989) documented 2-4% drift. Behavioral explanation: anchoring to prior expectations causes investors to underweight new earnings information, requiring weeks for full price adjustment.'
+        'Momentum: stocks up over the past 6-12 months keep winning for 3-12 more, 8-12% yearly (Jegadeesh and Titman, 1993). Value: cheap stocks with low price ratios (P/E, P/B) beat pricey ones by 4-5% (Fama and French, 1992).',
+      'Post-earnings announcement drift: stocks that beat earnings forecasts keep rising 2-4% for 60-90 days (Bernard and Thomas, 1989). All three come from slow reactions: investors anchor to old views, underreact to news, and overreact to bad news.'
       ],
       [
         { term: 'Market Anomaly', definition: 'A persistent pattern of returns that contradicts the Efficient Market Hypothesis, prices should already reflect all information.', example: 'The January effect shouldn\'t exist if markets are efficient, yet small caps have outperformed in January for 100 years.' },
@@ -6452,7 +6426,7 @@ const lessons: PathwayLesson[] = [
       'If markets were perfectly efficient, new information would be instantly and fully incorporated into prices. Behavioral biases (anchoring, confirmation bias, conservatism) cause prices to adjust gradually, creating momentum profits.'
     ),
     interactiveGraph(
-      'ANOMALY PERSISTENCE', 'Do Anomalies Survive After Discovery?',
+      'Anomaly persistence', 'Do Anomalies Survive After Discovery?',
       'timeline',
       'The critical question: once an anomaly is published and widely known, does it disappear? The evidence is mixed.',
       [
@@ -6471,11 +6445,10 @@ const lessons: PathwayLesson[] = [
       ]
     ),
     teachingSlide(
-      'PRACTICAL IMPLICATIONS', 'How to Use Anomaly Knowledge',
+      'Practical implications', 'How to Use Anomaly Knowledge',
       [
-        'Factor tilting: instead of trying to time anomalies, permanently tilt your portfolio toward well-documented factors. A portfolio with slight overweight to value and momentum has outperformed pure market-cap weighting by 1-3% annually over 30+ years with minimal extra risk.',
-        'Factor investing through ETFs makes this accessible. Value ETFs (VTV, VLUE), momentum ETFs (MTUM), and multi-factor ETFs (LRGF) provide systematic exposure to behavioral anomalies without requiring active trading. The "anomaly" becomes a portfolio construction choice.',
-        'The meta-lesson: market anomalies exist because human psychology is systematic, predictable, and persistent. Loss aversion doesn\'t change because a paper documents it. Anchoring doesn\'t disappear because you read about it. Behavioral anomalies will persist as long as humans make investment decisions, which means factor premiums are likely durable, even if they compress over time.'
+        'Factor tilting means permanently leaning your portfolio toward proven traits like value and momentum instead of timing them. A slight tilt has beaten plain market-cap weighting by 1-3% a year over 30+ years, with little extra risk.',
+      'ETFs, funds you buy like a stock, make this easy: value funds VTV and VLUE, momentum fund MTUM, multi-factor fund LRGF. These patterns last because human psychology does: loss aversion and anchoring do not vanish once a study names them.'
       ],
       [
         { term: 'Factor Tilting', definition: 'Permanently overweighting portfolio exposure to specific return factors (value, momentum, quality) rather than timing them.', example: 'Allocating 30% to value ETFs and 10% to momentum ETFs tilts toward behavioral anomalies without market timing.' },
@@ -6572,11 +6545,10 @@ const lessons: PathwayLesson[] = [
       }
     ),
     teachingSlide(
-      'THE UNIFIED FRAMEWORK', 'Integrating 24 Lessons Into One System',
+      'The unified framework', 'Integrating 24 Lessons Into One System',
       [
-        'Layer 1, Bias Recognition: The 15+ biases you\'ve studied fall into three categories. Cognitive biases (anchoring, confirmation, availability) distort how you PROCESS information. Emotional biases (loss aversion, endowment, regret) distort how you FEEL about decisions. Social biases (herd behavior, social proof, FOMO) distort how you respond to OTHERS.',
-        'Layer 2, Market Impact: These biases don\'t cancel out, they create systematic, predictable market anomalies. Underreaction biases (anchoring, conservatism) create momentum. Overreaction biases (representativeness, availability) create the value premium. Social biases (herding, FOMO) create bubbles and crashes.',
-        'Layer 3, The Debiasing System: Pre-commitment rules override emotional biases in real-time. Decision journals catch cognitive biases through accountability. Adversarial thinking combats confirmation bias. BPT portfolio structure channels behavioral tendencies productively. Factor tilting captures anomaly premiums passively.'
+        'Layer 1, bias recognition: the 15+ biases you have studied split three ways. Cognitive ones like anchoring warp how you process information. Emotional ones like loss aversion warp how you feel. Social ones like herding warp how you follow others.',
+      'Layer 2, market impact: underreaction creates momentum, overreaction creates the value premium, herding creates bubbles and crashes. Layer 3, debiasing: pre-commitment rules, decision journals, adversarial thinking, BPT portfolios that stack goals in layers, and factor tilting.'
       ],
       [
         { term: 'Behavioral Alpha', definition: 'Excess returns generated not by picking better investments but by making fewer behavioral errors than other investors.', example: 'Vanguard estimates behavioral coaching adds 1.5%/year. Factor tilting adds 1-3%/year. Combined: 2.5-4.5% annual behavioral alpha.' },
@@ -6594,7 +6566,7 @@ const lessons: PathwayLesson[] = [
       'The insight: you don\'t need to be smarter or have better information. You just need to make fewer mistakes. The behavioral finance framework converts psychology knowledge into a systematic edge.'
     ),
     interactiveGraph(
-      'LIFETIME IMPACT', 'The Compounding Value of Behavioral Alpha',
+      'Lifetime impact', 'The Compounding Value of Behavioral Alpha',
       'exponential',
       'Small behavioral improvements compound into massive wealth differences over an investing lifetime.',
       [
@@ -6618,11 +6590,10 @@ const lessons: PathwayLesson[] = [
       ]
     ),
     teachingSlide(
-      'YOUR BEHAVIORAL FINANCE PLAYBOOK', 'The System You\'ll Use for Life',
+      'Your behavioral finance playbook', 'The System You\'ll Use for Life',
       [
-        'Before ANY investment decision: (1) Run the 5-point checklist (thesis, valuation, bear case, position size, exit plan). (2) Write it in your decision journal. (3) Check base rates, what % of similar investments succeed? (4) Apply the 48-hour rule for social media-sourced ideas. (5) Ask: "Am I reacting to information or emotion?"',
-        'Portfolio construction: (1) Build a BPT layered portfolio (safety → income → growth → aspirational). (2) Size the aspirational layer at 5-10% to contain speculation. (3) Tilt toward value and momentum factors for passive anomaly capture. (4) Automate contributions and rebalancing to remove decision points.',
-        'Ongoing maintenance: (1) Review your decision journal monthly, look for patterns in your mistakes. (2) Run the clean slate test quarterly, would you buy each holding today? (3) Audit your information environment, unfollow hype sources. (4) Revisit your pre-commitment rules annually. (5) Remember: the goal isn\'t to eliminate biases (impossible), it\'s to build systems that intercept them.'
+        'Before any investment, run the 5-point checklist: thesis, valuation, bear case, position size, exit plan. Journal it, check base rates (how often similar bets succeed), wait 48 hours on social media ideas, and ask: information or emotion?',
+      'Layer your portfolio: safety, income, growth, aspirational. Cap aspirational at 5% to 10%, tilt toward value and momentum, automate contributions. Quarterly, ask if you would buy each holding today. You cannot delete biases, only build systems that catch them.'
       ],
       [
         { term: 'Behavioral Finance System', definition: 'An integrated framework of bias recognition, debiasing protocols, BPT construction, and factor tilting that generates behavioral alpha.', example: 'Checklist + journal + pre-commitment + BPT portfolio + factor tilts = 1.5-3% annual behavioral alpha.' }

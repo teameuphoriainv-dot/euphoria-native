@@ -1,7 +1,7 @@
 /**
  * Renders the text side of a curriculum step. `teachingSlide`, `hookOpener`, `caseStudy`,
- * `misconceptions`, `summaryCards`, `stakesCard` and friends are ~40% of all 5,341 steps, and they
- * all reduce to the same handful of blocks (see lib/lesson-steps.ts).
+ * `misconceptions`, `summaryCards`, `stakesCard` and friends all reduce to the same handful of
+ * blocks (see lib/lesson-steps.ts).
  */
 import { ScrollView, StyleSheet, View } from 'react-native';
 
