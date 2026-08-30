@@ -17,6 +17,7 @@
 // a directive plus a named security rather than on the word "buy".
 // ============================================================================
 
+import { readFileSync } from 'node:fs';
 import { isAdvice } from '../src/lib/server/advice.ts';
 
 const BLOCK = [
@@ -108,8 +109,6 @@ for (const t of ALLOW) {
  * fine. Nothing short of reading usageMetadata reveals it, and it costs ~17x per message on the one
  * feature with a real per-message cost.
  */
-import { readFileSync } from 'node:fs';
-
 // Comments stripped first — the same trap privacy-claim-pin hit. chat+api.ts NAMES `thinkingLevel`
 // in the comment explaining why it is insufficient, so a naive scan fails on the prose warning
 // against the thing it is checking for.

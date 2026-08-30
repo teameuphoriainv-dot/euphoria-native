@@ -23,7 +23,7 @@ import assert from 'node:assert/strict';
 
 import { readFileSync } from 'node:fs';
 
-import { BILLING_RETRY_GRACE_DAYS, ENTITLEMENT_ID as ID, proStateFrom, withinRetryGrace } from '../src/lib/billing-retry.ts';
+import { ENTITLEMENT_ID as ID, proStateFrom, withinRetryGrace } from '../src/lib/billing-retry.ts';
 
 const DAY = 86_400_000;
 

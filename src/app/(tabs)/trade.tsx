@@ -185,7 +185,6 @@ export default function Trade() {
     // Mount-only by design: `load` closes over nothing that changes, and the AppState listener is
     // what keeps it current. Re-running on holdings changes would spend the limit re-fetching a
     // market-wide snapshot to price one new row it already contains.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   /*
    * EVERY STOCK YOU DO NOT ALREADY HAVE, in table order. No ranking, no scoring, no curation — which

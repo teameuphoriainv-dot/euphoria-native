@@ -1,8 +1,8 @@
 import { EUPHORIA_PIXEL_PALETTE, PIXEL_PALETTE_LIGHT, TRANSPARENT } from "./palette";
+import type { CompiledSprite, PixelRect, PixelSprite } from "./types";
 
 /** Which background a sprite is being drawn on. Chooses the palette; see palette.ts. */
 export type PixelCanvas = "dark" | "light";
-import type { CompiledSprite, PixelRect, PixelSprite } from "./types";
 
 /**
  * Compiles ASCII sprite rows into a minimal set of rectangles.

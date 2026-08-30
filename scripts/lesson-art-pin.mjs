@@ -12,7 +12,7 @@
  * recreate exactly that.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 
 const src = readFileSync('src/components/lesson-art.tsx', 'utf8');
 
@@ -59,7 +59,6 @@ assert.deepEqual(
  * Without this the failure is silent and gradual: add a 41st lesson to a course and exactly one
  * row somewhere in the middle of that path starts sharing a picture with another.
  */
-import { readdirSync } from 'node:fs';
 const COURSES = 'src/lib/curriculum/courses';
 let longest = 0;
 let longestFile = '';

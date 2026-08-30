@@ -21,7 +21,7 @@
  */
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { RetryNotice } from '@/components/retry-notice';
 import { SkeletonRows } from '@/components/skeleton';

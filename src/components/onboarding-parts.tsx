@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
-import Animated, { useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { Atlas, type AtlasExpression } from '@/components/atlas';
@@ -381,7 +381,6 @@ export function OptionCard({
   compact?: boolean;
 }) {
   const theme = useTheme();
-  const reduced = useReducedMotion();
   /*
    * NO SCALE POP ON SELECT. This used to run
    *   withSequence(withSpring(1.035, Spring.bouncy), withSpring(1, Spring.smooth))

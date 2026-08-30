@@ -28,6 +28,8 @@
 // certainly non-erasable syntax (an enum, a namespace) added to that module.
 // ============================================================================
 
+import { applyBuy, applySell, applyGrant, avgCostOf as avgOf, gainPct as gainOf, clearStaticPricing } from '../src/lib/cost-basis.ts';
+
 let failures = 0;
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
 function check(label, actual, expected) {
@@ -38,8 +40,6 @@ function check(label, actual, expected) {
 }
 
 // ── the rule, imported from the app ─────────────────────────────────────────
-import { applyBuy, applySell, applyGrant, avgCostOf as avgOf, gainPct as gainOf, clearStaticPricing } from '../src/lib/cost-basis.ts';
-
 const mk = () => ({ positions: {}, costBasis: {}, cash: 10000 });
 
 // Thin wrappers: cash is the store's business, the BASIS RULE is the imported one.

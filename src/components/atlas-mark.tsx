@@ -56,7 +56,7 @@ export const RING_CENTRES = [
 ] as const;
 
 /** Per-ring animated transforms, supplied by the caller. `undefined` renders the mark at rest. */
-export type RingProps = Array<Record<string, unknown>> | undefined;
+export type RingProps = Record<string, unknown>[] | undefined;
 
 function Ring({ i, animated }: { i: number; animated?: Record<string, unknown> }) {
   const { cx, cy } = RING_CENTRES[i];

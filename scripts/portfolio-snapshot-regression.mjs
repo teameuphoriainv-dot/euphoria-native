@@ -23,11 +23,10 @@
  * Run: node scripts/portfolio-snapshot-regression.mjs
  */
 import assert from 'node:assert/strict';
+import { valueOf } from '../src/lib/portfolio-value.ts';
 
 const PRICES = { NVDA: 1184.0, TSLA: 244.0, MSFT: 445.55 };
 const priceOf = (s) => PRICES[s] ?? 0;
-
-import { valueOf } from '../src/lib/portfolio-value.ts';
 
 /*
  * IMPORTS the real formula. This file used to define `equityOf`, `portfolioValue` and

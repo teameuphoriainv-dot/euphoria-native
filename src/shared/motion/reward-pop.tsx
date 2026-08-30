@@ -3,12 +3,11 @@
  * spring (Brilliant/Duolingo). Reduced-motion → instant.
  */
 import type { ReactNode } from 'react';
-import { Ease } from '@/shared/motion/tokens';
 import { useEffect } from 'react';
 import type { ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 
-import { Spring } from './tokens';
+import { Ease, Spring } from './tokens';
 
 export function RewardPop({ children, delay = 0, style }: { children: ReactNode; delay?: number; style?: ViewStyle }) {
   const scale = useSharedValue(0.6);

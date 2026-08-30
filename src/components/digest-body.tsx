@@ -13,7 +13,6 @@ import { SvgXml } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
-import type { DigestCategory } from '@/lib/digest-content';
 import { heroTint, tintedHero } from '@/lib/hero-tint';
 import { useTheme } from '@/hooks/use-theme';
 

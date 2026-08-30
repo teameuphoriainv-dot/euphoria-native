@@ -17,7 +17,7 @@
  */
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, runOnJS } from 'react-native-reanimated';
