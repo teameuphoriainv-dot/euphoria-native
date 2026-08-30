@@ -1,0 +1,9 @@
+steps:
+  - tool: restart-app
+    args:
+      bundleId: com.euphoriainv.euphoria
+  - wait: 1500
+  - tool: open-url
+    args:
+      url: "euphorianative://stock/AAPL"
+  - wait: 4500

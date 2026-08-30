@@ -5,6 +5,7 @@
  */
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { Atlas } from '@/components/atlas';
 import { LessonVisual } from '@/components/lesson-visual';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
@@ -15,7 +16,17 @@ import type { ProseBlock } from '@/lib/lesson-steps';
 /** footer padding (24) + button (56) + breathing room — keeps the last line clear of the CTA */
 const CTA_CLEARANCE = 104;
 
-export function LessonProse({ label, title, blocks }: { label?: string; title: string; blocks: ProseBlock[] }) {
+export function LessonProse({
+  label,
+  title,
+  blocks,
+  atlasHint,
+}: {
+  label?: string;
+  title: string;
+  blocks: ProseBlock[];
+  atlasHint?: string;
+}) {
   const theme = useTheme();
   return (
     // the CTA is a sibling pinned below this view, so the last paragraph needs its height as
@@ -78,6 +89,14 @@ export function LessonProse({ label, title, blocks }: { label?: string; title: s
             </View>
           );
         })}
+        {atlasHint ? (
+          <View style={styles.atlasHint}>
+            <Atlas size={44} expression="watching" interactive={false} />
+            <Card style={[styles.atlasHintBubble, { borderColor: theme.primary + '3D' }]}>
+              <ThemedText type="small" themeColor="textSecondary">{atlasHint}</ThemedText>
+            </Card>
+          </View>
+        ) : null}
       </View>
     </ScrollView>
   );
@@ -89,4 +108,6 @@ const styles = StyleSheet.create({
   pairCell: { flex: 1, borderWidth: 1, borderRadius: Radius.lg },
   eventRow: { flexDirection: 'row', gap: Spacing.two + 4, alignItems: 'flex-start' },
   when: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, minWidth: 58, alignItems: 'center' },
+  atlasHint: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
+  atlasHintBubble: { flex: 1, borderWidth: StyleSheet.hairlineWidth },
 });

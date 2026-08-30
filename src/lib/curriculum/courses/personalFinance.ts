@@ -3840,17 +3840,17 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll master 401(k)s, Roth IRAs, Traditional IRAs, and HSAs, the tax-advantaged accounts that can save you hundreds of thousands in taxes and add millions to your retirement.',
       'Side by side: taxable vs tax-free growth showing dramatic difference over 40 years',
       { type: 'comparison', title: 'Tax-Free vs Taxable: The Roth IRA Advantage', rows: [
-        { label: 'Tax-free (Roth)', value: '$3.05M' },
-        { label: 'After-tax (taxable)', value: '$2.13M' },
-        { label: 'Total contributed', value: '$280K' },
+        { label: 'Tax-free (Roth)', value: '$3.05M', explain: 'This is $7,000 a year from age 25 to 65 growing at 10.7% inside a Roth. You put in $280,000 of your own money and the IRS never takes a cent of the other $2.77 million.' },
+        { label: 'After-tax (taxable)', value: '$2.13M', explain: 'Same money, same market, ordinary brokerage account. Tax on dividends every single year plus tax on the gains at the end shaves off $920,000. Nothing about your investing changed, only the account it sat in.' },
+        { label: 'Total contributed', value: '$280K', explain: 'Look how short this row is next to the other two. Less than a tenth of the Roth total actually came out of your paycheck. The rest is growth, and in a Roth it is growth you never split with anyone.' },
       ], footer: '$920,000+ saved in taxes, same contributions, different account type', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without tax-advantaged accounts', detail: 'Investing in a taxable brokerage means paying taxes on dividends annually and capital gains when you sell. On $3M in growth, you could owe $450K-$700K in taxes. That\'s 5-10 years of retirement income, gone to the IRS.' },
       { label: 'With tax-advantaged accounts', detail: 'Roth IRA: $3.05M grows completely tax-free. 401(k): contributions reduce current taxes by $5,000-8,000/year. HSA: triple tax advantage. Using all three strategically saves $500K-$1M+ in lifetime taxes.' },
       {
-        withoutVisual: { type: 'metric', title: 'Taxable Account Only', value: '$450-700K', detail: 'Taxes on $3M growth, Annual dividend taxes + capital gains', footer: '5-10 years of retirement, taxed away', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Tax-Advantaged Accounts', value: '$500K-1M+', detail: 'Lifetime tax savings, Roth + 401(k) + HSA strategy', footer: 'Every dollar of growth = your dollar', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Taxable Account Only', value: '$450-700K', detail: 'Taxes on $3M growth, Annual dividend taxes + capital gains', footer: '5-10 years of retirement, taxed away', sentiment: 'negative', sprite: 'tax-form' },
+        withVisual: { type: 'metric', title: 'Tax-Advantaged Accounts', value: '$500K-1M+', detail: 'Lifetime tax savings, Roth + 401(k) + HSA strategy', footer: 'Every dollar of growth = your dollar', sentiment: 'positive', sprite: 'vault' }
       }
     ),
     teachingSlide(
@@ -3867,10 +3867,14 @@ const lessons: PathwayLesson[] = [
       'Comparison table: 401(k) vs Roth IRA vs HSA, contribution limits, tax treatment, withdrawal rules',
       undefined,
       { type: 'grid', title: 'The Big Three Retirement Accounts (2025 limits)', items: [
-        { label: '401(k)', value: '$23,500/yr, pre-tax, employer match', color: '#3B82F6' },
-        { label: 'Roth IRA', value: '$7,000/yr, tax-free growth forever', color: '#10B981' },
-        { label: 'HSA', value: '$4,300/yr, triple tax advantage', color: '#A451E6' },
-      ], footer: 'Match first, then Roth, then HSA, then max the 401(k)', sentiment: 'positive' }
+        { label: '401(k)', value: '$23,500/yr, pre-tax, employer match', color: '#3B82F6', sprite: 'briefcase', explain: 'The biggest limit here by more than three times, and the money goes in before tax. Putting in $23,500 on a $75,000 salary cuts this year\'s tax bill by roughly $5,640. The catch is that the tax is delayed, not cancelled: you pay it when you withdraw.' },
+        { label: 'Roth IRA', value: '$7,000/yr, tax-free growth forever', color: '#10B981', sprite: 'tree', explain: 'Only $7,000, less than a third of the 401(k) limit, and still the one worth filling first after the match. You pay tax on the $7,000 now while your bracket is low, and the $3.05 million it becomes is never taxed again.' },
+        { label: 'HSA', value: '$4,300/yr, triple tax advantage', color: '#A451E6', sprite: 'first-aid', explain: 'The smallest number on this grid and the strongest deal in the entire tax code. It is the only account that skips tax three separate times: going in, while it grows, and coming back out for medical costs.' },
+      ], footer: 'Match first, then Roth, then HSA, then max the 401(k)', sentiment: 'positive' },
+      {
+        hint: 'Press any of the three accounts and I will tell you what its limit actually buys you.',
+        recap: 'The three limits are not a ranking. The order is take the employer match first because it is a 100% return on day one, then fill the Roth while your bracket is low, then the HSA. Lesson 15 taught you what to buy, this lesson is about which account you buy it inside, and the wrapper is worth as much as the fund.',
+      }
     ),
     microCheck(
       'You earn $70K. Your employer matches 100% of 401(k) contributions up to 5%. What\'s the MINIMUM you should contribute?',
@@ -3942,12 +3946,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Which account has triple tax advantages?', options: ['401(k)', 'Roth IRA', 'Taxable brokerage', 'HSA'], correct: 3 }
     ]),
     tr('Retirement Account Priority Order', [
-      ['Priority 1', '401(k) up to employer match, 50-100% FREE return'],
-      ['Priority 2', 'Max Roth IRA ($7,000/year), tax-free growth forever'],
-      ['Priority 3', 'HSA if available ($4,300/year), triple tax advantage'],
-      ['Priority 4', 'Max 401(k) ($23,500/year), tax-deferred growth'],
-      ['Priority 5', 'Taxable brokerage, no tax advantages but no limits'],
-      ['Priority 6', 'Mega backdoor Roth if employer allows, advanced strategy']
+      ['Priority 1', '401(k) up to employer match, 50-100% FREE return', { stat: '100% return', sprite: 'handshake' }],
+      ['Priority 2', 'Max Roth IRA ($7,000/year), tax-free growth forever', { stat: '$7,000/yr', sprite: 'gem' }],
+      ['Priority 3', 'HSA if available ($4,300/year), triple tax advantage', { stat: '3 tax breaks', sprite: 'star' }],
+      ['Priority 4', 'Max 401(k) ($23,500/year), tax-deferred growth', { stat: '$23,500/yr', sprite: 'ladder' }],
+      ['Priority 5', 'Taxable brokerage, no tax advantages but no limits', { stat: 'No limits', sprite: 'stock-ticker' }],
+      ['Priority 6', 'Mega backdoor Roth if employer allows, advanced strategy', { stat: 'Rare perk', sprite: 'key' }]
     ]),
     ds('Retirement account action items:', ['Confirm your 401(k) contribution gets the full employer match', 'Open a Roth IRA (Fidelity, Vanguard, or Schwab, takes 10 minutes)', 'Set up auto-contribution to Roth IRA ($583/month = $7K/year)', 'Check if your health plan qualifies for HSA contributions', 'Review your tax bracket to optimize Roth vs Traditional split']),
     bi('Retirement Account Strategy', 'Choose the optimal approach:', [
@@ -4041,19 +4045,19 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand active vs passive income, how to evaluate side hustle ROI, the tax implications of extra income, and how to build multiple income streams that accelerate your financial independence.',
       'Funnel showing multiple income streams flowing into a wealth bucket',
       { type: 'flow', title: 'Millionaires Average 7 Income Streams', nodes: [
-        { label: 'Salary', value: 'Active income' },
-        { label: 'Side Hustle', value: '$891/mo avg' },
-        { label: 'Investments', value: 'Portfolio income' },
-        { label: 'Rental Income', value: 'Passive income' },
-        { label: 'Digital Products', value: 'Scalable income' },
+        { label: 'Salary', value: 'Active income', sprite: 'paycheck', explain: 'The one stream almost everyone has, and the one your landlord quietly assumes will never stop.' },
+        { label: 'Side Hustle', value: '$891/mo avg', sprite: 'briefcase', explain: '$891 a month is the average, not the ceiling. It is also the only box on this row you could start growing this week.' },
+        { label: 'Investments', value: 'Portfolio income', sprite: 'chart-up', explain: 'This box pays you for money you already earned once. It is where the first two boxes start working instead of you.' },
+        { label: 'Rental Income', value: 'Passive income', sprite: 'house', explain: 'Rent shows up whether or not you went to work that day. That independence from your hours is the whole point.' },
+        { label: 'Digital Products', value: 'Scalable income', sprite: 'globe', explain: 'One template pack can sell to 10 people or 10,000 and your effort does not change. That is what scalable actually means.' },
       ], footer: '$891/month invested at 8% for 20 years = $525,000+', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without multiple income streams', detail: 'Relying on a single income source means one layoff can devastate your finances. 40% of single-income households can\'t cover a $400 emergency. Income growth is limited to annual raises (avg 3-4%).' },
       { label: 'With multiple income streams', detail: 'Side hustle income ($891/month avg) invested at 8% for 20 years = $525K. Multiple streams provide security, accelerate debt payoff, and fast-track financial independence. Millionaires avg 7 streams.' },
       {
-        withoutVisual: { type: 'metric', title: 'Single Income Source', value: '1 Stream', detail: 'One layoff away from crisis, Income growth: 3-4%/year', footer: '40% can\'t cover $400 emergency', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Multiple Income Streams', value: '$891/mo', detail: 'Side hustle avg extra income, Invested for 20yrs = $525K+', footer: 'Security + accelerated wealth', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Single Income Source', value: '1 Stream', detail: 'One layoff away from crisis, Income growth: 3-4%/year', footer: '40% can\'t cover $400 emergency', sentiment: 'negative', sprite: 'crack' },
+        withVisual: { type: 'metric', title: 'Multiple Income Streams', value: '$891/mo', detail: 'Side hustle avg extra income, Invested for 20yrs = $525K+', footer: 'Security + accelerated wealth', sentiment: 'positive', sprite: 'stack-cash' }
       }
     ),
     teachingSlide(
@@ -4070,11 +4074,15 @@ const lessons: PathwayLesson[] = [
       'Flywheel diagram: Active Income → Invest → Passive Income → Invest More → Financial Independence',
       undefined,
       { type: 'flow', title: 'The Wealth-Building Income Flywheel', nodes: [
-        { label: 'Active income', value: 'Trade time for dollars', color: '#3B82F6' },
-        { label: 'Invest the surplus', value: 'Index funds', color: '#A451E6' },
-        { label: 'Passive income', value: 'Products, rentals', color: '#F59E0B' },
-        { label: 'Portfolio income', value: 'Dividends, gains', color: '#10B981' },
-      ], footer: 'Each income type funds the next until work is optional', sentiment: 'positive' }
+        { label: 'Active income', value: 'Trade time for dollars', color: '#3B82F6', sprite: 'clock', explain: 'This is the only box with a hard ceiling built in. At $75 an hour you can realistically bill 10 hours a week beside a job, so it stops near $3,000 a month no matter how much you want more.' },
+        { label: 'Invest the surplus', value: 'Index funds', color: '#A451E6', sprite: 'seedling', explain: 'This arrow is the whole trick. The average $891 a month is $10,692 of stuff if you spend it, or about $525,000 in 20 years if it lands in index funds instead.' },
+        { label: 'Passive income', value: 'Products, rentals', color: '#F59E0B', sprite: 'factory', explain: 'Notice this box has no arrow back to your hours. A $199 template pack costs 100 hours once, then sells at 3am. Even $500 a month from it becomes roughly $180,000 over 30 years.' },
+        { label: 'Portfolio income', value: 'Dividends, gains', color: '#10B981', sprite: 'dividend', explain: 'The last box pays you for owning, not for working. $500,000 yielding 3% sends you $15,000 a year while you sleep, which is why the loop ends with work becoming optional.' },
+      ], footer: 'Each income type funds the next until work is optional', sentiment: 'positive' },
+      {
+        hint: 'Press each box of the flywheel. I will tell you which ones are capped by your hours and which ones keep paying after you stop.',
+        recap: 'The flywheel only spins if the money stops at box two. A second income does not make you wealthy, investing it does: $891 a month spent is $10,692 a year of stuff, the same $891 invested at 8% is about $525,000 in 20 years. Lesson 12 called this hedonic adaptation, where the thrill of an upgrade fades in weeks while the payments stay, so decide where the money goes before the first one lands. You live on the salary, and the side hustle only ever buys index funds.',
+      }
     ),
     microCheck(
       'You can earn $50/hour freelancing or $15/hour driving rideshare. With 10 hours/week available, what maximizes your side hustle ROI?',
@@ -4146,13 +4154,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Best use of side hustle income for wealth building:', options: ['Lifestyle upgrades', 'Max Roth IRA → then invest the rest', 'Save it in a checking account', 'Pay for vacations'], correct: 1 }
     ]),
     tr('Side Hustle Launch Playbook', [
-      ['Step 1', 'Identify your highest-value skill (what would people pay you for?)'],
-      ['Step 2', 'Start on a platform (Upwork, Fiverr, Toptal, your network)'],
-      ['Step 3', 'Price based on value, not time, raise rates every 3 months'],
-      ['Step 4', 'Track all income and expenses for Schedule C'],
-      ['Step 5', 'Set aside 25-30% for taxes (quarterly estimated payments)'],
-      ['Step 6', 'Invest 100% of side hustle income, live on your salary'],
-      ['Step 7', 'Build passive income: courses, templates, digital products']
+      ['Step 1', 'Identify your highest-value skill (what would people pay you for?)', { stat: 'Best skill', sprite: 'magnifier' }],
+      ['Step 2', 'Start on a platform (Upwork, Fiverr, Toptal, your network)', { stat: 'Start today', sprite: 'handshake' }],
+      ['Step 3', 'Price based on value, not time, raise rates every 3 months', { stat: 'Raise rates', sprite: 'price-tag' }],
+      ['Step 4', 'Track all income and expenses for Schedule C', { stat: 'Schedule C', sprite: 'receipt' }],
+      ['Step 5', 'Set aside 25-30% for taxes (quarterly estimated payments)', { stat: '25-30% aside', sprite: 'tax-form' }],
+      ['Step 6', 'Invest 100% of side hustle income, live on your salary', { stat: 'Invest 100%', sprite: 'piggy-bank' }],
+      ['Step 7', 'Build passive income: courses, templates, digital products', { stat: '$500/mo', sprite: 'book' }]
     ]),
     ds('Launch your side hustle:', ['List your top 3 marketable skills', 'Research rates for those skills on Upwork/Fiverr', 'Create a profile on one freelance platform today', 'Set aside a separate bank account for side hustle income (taxes!)', 'Calculate: if you invested your target side hustle income, what would it become in 20 years?']),
     bi('Side Hustle Strategy', 'Choose the optimal approach:', [
@@ -4246,18 +4254,18 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll know how to financially plan for marriage, children, career changes, and emergencies, turning life\'s biggest moments from financial crises into manageable milestones.',
       'Timeline of life events with cost bubbles: wedding, house, baby, college',
       { type: 'grid', title: 'The Cost of Life\'s Biggest Moments', items: [
-        { label: 'Wedding', value: '$35K', color: '#B862ED' },
-        { label: 'House', value: '$80K down', color: '#10B981' },
-        { label: 'Baby', value: '$310K', color: '#F59E0B' },
-        { label: 'College', value: '$120K+', color: '#EF4444' },
+        { label: 'Wedding', value: '$35K', color: '#B862ED', sprite: 'gift', explain: 'Thirty five thousand dollars for one day. That is a full year of state university tuition, spent between lunch and midnight.' },
+        { label: 'House', value: '$80K down', color: '#10B981', sprite: 'house', explain: 'This is the down payment alone, not the house. It is 20% of a $400,000 home, and it has to be sitting in cash before anyone hands you keys.' },
+        { label: 'Baby', value: '$310K', color: '#F59E0B', sprite: 'hourglass', explain: 'Nobody writes a $310,000 check. Spread across 18 years it is $1,438 every month for 216 months in a row, which is the part people actually feel.' },
+        { label: 'College', value: '$120K+', color: '#EF4444', sprite: 'bill', explain: 'The $120,000 does not trickle in. It lands in four big pieces starting the year your kid turns 18, so if you start saving the year before, you are asking yourself for $10,000 a month.' },
       ], footer: 'Planned = manageable milestones. Unplanned = financial crises.', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without life event planning', detail: '40% report being financially unprepared for major events. Average credit card debt spikes $8,000+ around weddings and new babies. Unplanned career transitions deplete 73% of emergency funds (Federal Reserve 2023).' },
       { label: 'With life event planning', detail: 'Creating sinking funds for known expenses, maintaining 6-month emergency funds, and adjusting insurance coverage turns crises into milestones. Planned families save 40% more for retirement than unplanned ones.' },
       {
-        withoutVisual: { type: 'metric', title: 'Financially Unprepared', value: '+$8,000', detail: 'Debt spike per life event, 40% unprepared for major events', footer: 'Emergency funds depleted', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financially Prepared', value: '$0 Debt', detail: 'Sinking funds for every event, Events funded in advance', footer: '40% more saved for retirement', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Financially Unprepared', value: '+$8,000', detail: 'Debt spike per life event, 40% unprepared for major events', footer: 'Emergency funds depleted', sentiment: 'negative', sprite: 'credit-card' },
+        withVisual: { type: 'metric', title: 'Financially Prepared', value: '$0 Debt', detail: 'Sinking funds for every event, Events funded in advance', footer: '40% more saved for retirement', sentiment: 'positive', sprite: 'safety-net' }
       }
     ),
     teachingSlide(
@@ -4275,11 +4283,15 @@ const lessons: PathwayLesson[] = [
       'Sinking fund diagram: monthly contributions flowing into specific goal buckets for life events',
       undefined,
       { type: 'grid', title: 'Money Moves Before a Major Life Event', items: [
-        { label: 'Expand emergency fund', value: '6 months to 8-12 months', color: '#3B82F6' },
-        { label: 'Open a 529 plan', value: '$200/mo to ~$86K by age 18', color: '#10B981' },
-        { label: 'Update life insurance', value: '10-12x your income', color: '#A451E6' },
-        { label: 'Build sinking funds', value: 'Childcare, deductibles', color: '#F59E0B' },
-      ], footer: 'Preparation turns a life event into a plan, not a crisis', sentiment: 'positive' }
+        { label: 'Expand emergency fund', value: '6 months to 8-12 months', color: '#3B82F6', sprite: 'shield', explain: 'Six months was enough when only you depended on you. With a dependent you cannot rush a job hunt, so the cushion stretches. On $4,000 of monthly expenses that is going from $24,000 saved to as much as $48,000.' },
+        { label: 'Open a 529 plan', value: '$200/mo to ~$86K by age 18', color: '#10B981', sprite: 'graduation-cap', explain: 'Only $43,200 of that $86,000 ever leaves your bank account. The other half was never your money to begin with, it is 18 years of growth doing the work while you slept.' },
+        { label: 'Update life insurance', value: '10-12x your income', color: '#A451E6', sprite: 'umbrella', explain: 'Ten to twelve times income sounds absurd until you flip it around: it is the number of years your family keeps eating normally without you. On a $60,000 salary that is $600,000 of term coverage for roughly $25 a month at age 30.' },
+        { label: 'Build sinking funds', value: 'Childcare, deductibles', color: '#F59E0B', sprite: 'piggy-bank', explain: 'Childcare and deductibles are not surprises, you already know they are coming. Putting $300 a month aside on purpose means the bill shows up and nothing else in your plan has to move.' },
+      ], footer: 'Preparation turns a life event into a plan, not a crisis', sentiment: 'positive' },
+      {
+        hint: 'Tap each of the four moves. Every one has a number attached, and every number is far smaller than the life event it is protecting you from.',
+        recap: 'A life event only becomes a crisis when the bill and the plan show up on the same day. Every move on this card is the same trick you learned in lesson 4 with the emergency fund: decide the amount before you need it, not while you are panicking. Marriage, a baby, a house, a layoff, none of these are unpredictable. They are just expensive and scheduled.',
+      }
     ),
     microCheck(
       'You\'re planning to have a baby in 2 years. What\'s your most important financial preparation?',
@@ -4351,12 +4363,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'With a child, your emergency fund should grow from 6 months to:', options: ['6 months (no change)', '8-12 months', '24 months', '36 months'], correct: 1 }
     ]),
     tr('Life Event Financial Checklist', [
-      ['Marriage', 'Discuss finances before wedding, budget for cash wedding, combine insurance review'],
-      ['Baby', 'Expand emergency fund, start 529, get life insurance, budget for childcare'],
-      ['Career Change', 'Save 6-12 months expenses, maintain health insurance, plan for income gap'],
-      ['Home Purchase', '20% down, 28% income rule, 6-month housing emergency fund'],
-      ['Job Loss', 'File unemployment immediately, cut to essentials, don\'t touch retirement'],
-      ['Medical Emergency', 'Use HSA, negotiate bills, ask about payment plans and financial assistance']
+      ['Marriage', 'Discuss finances before wedding, budget for cash wedding, combine insurance review', { stat: '$35K average', sprite: 'handshake' }],
+      ['Baby', 'Expand emergency fund, start 529, get life insurance, budget for childcare', { stat: '$1,438/month', sprite: 'seedling' }],
+      ['Career Change', 'Save 6-12 months expenses, maintain health insurance, plan for income gap', { stat: '6-12 months', sprite: 'briefcase' }],
+      ['Home Purchase', '20% down, 28% income rule, 6-month housing emergency fund', { stat: '20% down', sprite: 'key' }],
+      ['Job Loss', 'File unemployment immediately, cut to essentials, don\'t touch retirement', { stat: 'File day one', sprite: 'parachute' }],
+      ['Medical Emergency', 'Use HSA, negotiate bills, ask about payment plans and financial assistance', { stat: 'HSA first', sprite: 'first-aid' }]
     ]),
     ds('Prepare for your next life milestone:', ['Create sinking funds for your top 3 known upcoming expenses', 'If you have dependents: get term life insurance (10-12x income)', 'Start a 529 plan for current or future children', 'Run a financial stress test: can you cover 6 months at 50% income?', 'Have a "money talk" with your partner about goals, debt, and spending']),
     bi('Life Event Planning', 'Choose the financially wise approach:', [
@@ -4450,19 +4462,19 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll know how to freeze your credit, protect your accounts, recognize scams, and respond immediately if your identity is stolen, protecting everything you\'ve built.',
       'Shield protecting financial icons from threat arrows',
       { type: 'grid', title: '$10.3 Billion Lost to Fraud in 2023', items: [
-        { label: 'Phishing', value: 'Threat', color: '#EF4444' },
-        { label: 'Data Breach', value: 'Threat', color: '#EF4444' },
-        { label: 'Card Skim', value: 'Threat', color: '#EF4444' },
-        { label: 'Scams', value: 'Threat', color: '#EF4444' },
-        { label: 'Hacking', value: 'Threat', color: '#EF4444' },
+        { label: 'Phishing', value: 'Threat', color: '#EF4444', sprite: 'chat', explain: 'One fake text is all it takes. The link looks like your bank, the page looks like your bank, and the password you type goes straight to a stranger.' },
+        { label: 'Data Breach', value: 'Threat', color: '#EF4444', sprite: 'crack', explain: 'You did nothing wrong in this one. A company you shopped at got cracked open, and your email and password ended up in a file criminals pass around.' },
+        { label: 'Card Skim', value: 'Threat', color: '#EF4444', sprite: 'credit-card', explain: 'A thin reader glued over the real card slot copies your stripe in under a second. You drive away with your card and they drive away with a copy of it.' },
+        { label: 'Scams', value: 'Threat', color: '#EF4444', sprite: 'phone', explain: 'A caller with a badge number and a deadline is not urgent, he is reading a script. People aged 20 to 29 report losing money to these more often than people over 70.' },
+        { label: 'Hacking', value: 'Threat', color: '#EF4444', sprite: 'bolt', explain: 'Most break-ins are not clever code. They are your old password, leaked from some forgotten site, typed into your bank by someone who bought the list.' },
       ], footer: 'A credit freeze + strong passwords block 90%+ of identity theft', sentiment: 'negative' }
     ),
     stakesCard(
       { label: 'Without financial security measures', detail: '1 in 3 Americans becomes an identity theft victim. Average financial loss: $1,551. Average time to resolve: 200+ hours. Victims report lasting credit damage, emotional distress, and difficulty getting loans for years.' },
       { label: 'With financial security measures', detail: 'A credit freeze blocks 90%+ of new-account fraud (free, takes 10 minutes). Strong unique passwords + 2FA prevent 99% of account takeovers. Proactive protection takes 1 hour to set up and lasts a lifetime.' },
       {
-        withoutVisual: { type: 'metric', title: 'Unprotected', value: '$1,551', detail: 'Avg identity theft loss, 200+ hours to resolve', footer: '1 in 3 Americans affected', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Protected', value: '1 Hour', detail: 'Setup time for full protection, Credit freeze blocks 90%+ fraud', footer: '2FA prevents 99% of hacks', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Unprotected', value: '$1,551', detail: 'Avg identity theft loss, 200+ hours to resolve', footer: '1 in 3 Americans affected', sentiment: 'negative', sprite: 'hourglass' },
+        withVisual: { type: 'metric', title: 'Protected', value: '1 Hour', detail: 'Setup time for full protection, Credit freeze blocks 90%+ fraud', footer: '2FA prevents 99% of hacks', sentiment: 'positive', sprite: 'shield' }
       }
     ),
     teachingSlide(
@@ -4478,12 +4490,16 @@ const lessons: PathwayLesson[] = [
       ],
       'Security checklist: freeze credit → password manager → 2FA → transaction alerts → weekly statement review',
       undefined,
-      { type: 'grid', title: 'Your Digital Defense Checklist', items: [
-        { label: 'Freeze credit, all 3 bureaus', value: 'Blocks 90%+ of new-account fraud', color: '#10B981' },
-        { label: 'Password manager', value: 'Unique 16+ character logins', color: '#3B82F6' },
-        { label: 'Two-factor authentication', value: 'Stops 99% of takeovers', color: '#A451E6' },
-        { label: 'Weekly statement review', value: 'Catch charges fast', color: '#F59E0B' },
-      ], footer: 'Four free habits block the vast majority of identity theft', sentiment: 'positive' }
+      { type: 'flow', title: 'Your Digital Defense Checklist', nodes: [
+        { label: 'Freeze credit, all 3 bureaus', value: 'Blocks 90%+ of new-account fraud', color: '#10B981', sprite: 'vault', explain: 'Read that number again: 90%+. Nine out of ten thieves fail at the very first step, because no card can be opened in your name if the file will not open. It costs nothing and takes 10 minutes.' },
+        { label: 'Password manager', value: 'Unique 16+ character logins', color: '#3B82F6', sprite: 'key', explain: '16 characters is not just a longer password, it is a number so big that guessing machines quit. And 81% of breaches trace back to one password used in two places.' },
+        { label: 'Two-factor authentication', value: 'Stops 99% of takeovers', color: '#A451E6', sprite: 'lock', explain: '99% means that out of 100 stolen passwords, 99 of them get the thief exactly nowhere. The 6-digit code lives on your phone, so it was never in the database they stole.' },
+        { label: 'Weekly statement review', value: 'Catch charges fast', color: '#F59E0B', sprite: 'magnifier', explain: 'Speed is the whole value here. On a debit card, report the theft within 2 days and you owe at most $50, wait past 60 days and the law protects nothing. Jamie in the case study did not look for 10 days and never got $3,000 back.' },
+      ], footer: 'Four free habits block the vast majority of identity theft', sentiment: 'positive' },
+      {
+        hint: 'Press each of the four defenses to see how much of the danger it actually takes off the table.',
+        recap: 'If you do one thing from this lesson, freeze your credit. In lesson 5 you learned that your credit file is the record lenders read before they decide anything about you. A freeze means that file will not open for anyone, including a thief holding your Social Security number. Ten free minutes protects the score you spend years building.',
+      }
     ),
     microCheck(
       'What single action prevents 90%+ of new-account identity theft?',
@@ -4555,12 +4571,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Average time identity theft victims spend resolving the damage:', options: ['5 hours', '50 hours', '100 hours', '200+ hours'], correct: 3 }
     ]),
     tr('1-Hour Financial Security Setup', [
-      ['Minutes 1-10', 'Freeze credit at Equifax, Experian, TransUnion (free)'],
-      ['Minutes 11-25', 'Set up password manager, change bank/financial passwords to unique 16+ chars'],
-      ['Minutes 26-35', 'Enable 2FA on all financial accounts (authenticator app, not SMS)'],
-      ['Minutes 36-45', 'Set up transaction alerts on all bank and credit card accounts'],
-      ['Minutes 46-55', 'Review credit reports for unauthorized accounts (annualcreditreport.com)'],
-      ['Minutes 56-60', 'Opt out of pre-approved credit offers (optoutprescreen.com)']
+      ['Minutes 1-10', 'Freeze credit at Equifax, Experian, TransUnion (free)', { stat: 'Free, 10 min', sprite: 'safety-net' }],
+      ['Minutes 11-25', 'Set up password manager, change bank/financial passwords to unique 16+ chars', { stat: '16+ chars', sprite: 'briefcase' }],
+      ['Minutes 26-35', 'Enable 2FA on all financial accounts (authenticator app, not SMS)', { stat: 'Blocks 99%', sprite: 'umbrella' }],
+      ['Minutes 36-45', 'Set up transaction alerts on all bank and credit card accounts', { stat: 'Real-time', sprite: 'stopwatch' }],
+      ['Minutes 46-55', 'Review credit reports for unauthorized accounts (annualcreditreport.com)', { stat: 'Free reports', sprite: 'certificate' }],
+      ['Minutes 56-60', 'Opt out of pre-approved credit offers (optoutprescreen.com)', { stat: '5 years off', sprite: 'bill' }]
     ]),
     ds('Protect your finances today:', ['Freeze your credit at all 3 bureaus (Equifax, Experian, TransUnion)', 'Install a password manager and update all financial passwords', 'Enable 2FA on every financial account (use authenticator app)', 'Set up transaction alerts on all bank and credit card accounts', 'Check your credit report at annualcreditreport.com']),
     bi('Spot the Scam', 'Identify the red flag in each scenario:', [
@@ -4654,18 +4670,18 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand what causes inflation, how it erodes your money, why cash is a losing investment, and how to position your finances to outpace rising prices.',
       'Shrinking dollar bill showing reduced purchasing power over decades',
       { type: 'line', title: 'Your Dollar\'s Shrinking Power', points: [
-        { label: 'Today', value: '$1.00' },
-        { label: '10 years', value: '$0.74' },
-        { label: '20 years', value: '$0.55' },
-        { label: '30 years', value: '$0.41' },
+        { label: 'Today', value: '$1.00', explain: 'A dollar is worth a dollar exactly once, and that is right now. This is the last point on the line where the number and the buying power agree.' },
+        { label: '10 years', value: '$0.74', explain: 'Same dollar bill, 26 cents less food. Nobody stole it and no fee was charged. Prices moved and the bill did not.' },
+        { label: '20 years', value: '$0.55', explain: 'Twenty years in, the dollar does about half the work it used to. Money you tucked away in 2006 and left as cash is already sitting at this point.' },
+        { label: '30 years', value: '$0.41', explain: 'Hold a dollar from age 25 to age 55 and 59 cents of it are gone. That is the price of doing nothing with it.' },
       ], trend: 'down', footer: 'Cash is a guaranteed losing investment against inflation', sentiment: 'negative' }
     ),
     stakesCard(
       { label: 'Without inflation awareness', detail: '$100,000 in cash loses $59,000 in purchasing power over 30 years at 3% inflation. The median American keeps 20%+ of savings in cash or low-interest checking, losing thousands annually to inflation.' },
       { label: 'With inflation awareness', detail: 'Investing in stocks (10.7% avg return) outpaces inflation by 7%+. I-Bonds match inflation exactly. TIPS protect bonds. Even a HYSA at 5% beats 3% inflation. Knowledge turns a losing battle into a winning strategy.' },
       {
-        withoutVisual: { type: 'metric', title: 'Cash Holder', value: '-$59,000', detail: '$100K loses to inflation, Over 30 years at 3% inflation', footer: 'Cash = guaranteed loss of value', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Inflation-Aware Investor', value: '$2,120,000', detail: '$100K invested at 10.7%, Outpaces inflation by 7%+/year', footer: 'Investing is the inflation antidote', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Cash Holder', value: '-$59,000', detail: '$100K loses to inflation, Over 30 years at 3% inflation', footer: 'Cash = guaranteed loss of value', sentiment: 'negative', sprite: 'inflation' },
+        withVisual: { type: 'metric', title: 'Inflation-Aware Investor', value: '$2,120,000', detail: '$100K invested at 10.7%, Outpaces inflation by 7%+/year', footer: 'Investing is the inflation antidote', sentiment: 'positive', sprite: 'chart-up' }
       }
     ),
     teachingSlide(
@@ -4682,11 +4698,15 @@ const lessons: PathwayLesson[] = [
       'Chart showing prices of common items (milk, gas, college, healthcare) from 1990 to 2024',
       undefined,
       { type: 'line', title: 'Purchasing Power of $100 at 3% Inflation', points: [
-        { label: 'Today', value: '$100' },
-        { label: '10 years', value: '$74' },
-        { label: '20 years', value: '$55' },
-        { label: '30 years', value: '$41' },
-      ], trend: 'down', footer: 'Cash held idle loses more than half its value in 30 years', sentiment: 'negative' }
+        { label: 'Today', value: '$100', explain: 'Start here. This is the only point on the line where the balance on your statement and what it actually buys are the same thing.' },
+        { label: '10 years', value: '$74', explain: 'Ten years of 3% and a quarter of it is gone. The account still reads $100. The cart it fills is a $74 cart.' },
+        { label: '20 years', value: '$55', explain: 'By year 20 the line has dropped past halfway. Your $100 buys less than a $55 bill buys today, and you never made a single withdrawal.' },
+        { label: '30 years', value: '$41', explain: 'One full working career. $59 of every $100 held in cash has evaporated, and 3% is the ordinary case, not the disaster case.' },
+      ], trend: 'down', footer: 'Cash held idle loses more than half its value in 30 years', sentiment: 'negative' },
+      {
+        hint: 'Press each point on the falling line. Every one tells you what your $100 can still buy after that many years of 3% inflation.',
+        recap: 'The one thing to keep: money that sits still shrinks, and nothing on your bank statement warns you. $100 today buys $41 worth of goods in 30 years while the balance never changes. That is the real reason lesson 9 pushed you out of a 0.01% checking account and into a HYSA, and why lesson 15 treated investing as the default for money you will not touch for years. From now on, judge an account by its rate minus inflation, not by its rate.',
+      }
     ),
     microCheck(
       'At 3% inflation, how many years until prices double (Rule of 72)?',
@@ -4758,12 +4778,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Rule of 72: at 6% return, investments double every:', options: ['6 years', '12 years', '18 years', '24 years'], correct: 1 }
     ]),
     tr('Inflation Defense Strategy', [
-      ['Emergency Fund', 'HYSA (5%), beats 3% inflation short-term'],
-      ['Short-Term (1-3 yrs)', 'HYSA or I-Bonds, preserve purchasing power'],
-      ['Medium-Term (3-7 yrs)', 'Bond fund + some stock allocation'],
-      ['Long-Term (7+ yrs)', 'Stock index funds (10.7% avg), beat inflation by 7%+'],
-      ['Protection', 'I-Bonds ($10K/year max), match inflation exactly'],
-      ['Income', 'Negotiate raises above inflation rate (3%+)']
+      ['Emergency Fund', 'HYSA (5%), beats 3% inflation short-term', { stat: '5% vs 3%', sprite: 'safety-net' }],
+      ['Short-Term (1-3 yrs)', 'HYSA or I-Bonds, preserve purchasing power', { stat: '1-3 years', sprite: 'piggy-bank' }],
+      ['Medium-Term (3-7 yrs)', 'Bond fund + some stock allocation', { stat: '3-7 years', sprite: 'scales' }],
+      ['Long-Term (7+ yrs)', 'Stock index funds (10.7% avg), beat inflation by 7%+', { stat: '10.7% avg', sprite: 'tree' }],
+      ['Protection', 'I-Bonds ($10K/year max), match inflation exactly', { stat: '$10K/year', sprite: 'shield' }],
+      ['Income', 'Negotiate raises above inflation rate (3%+)', { stat: 'Ask 5%+', sprite: 'paycheck' }]
     ]),
     ds('Protect your money from inflation:', ['Move excess cash from checking (0.01%) to HYSA (5%)', 'Invest long-term money in stock index funds (7%+ real return)', 'Consider buying I-Bonds for inflation-matched savings ($10K/year limit)', 'Negotiate raises above the inflation rate annually', 'Check that your retirement contributions increase each year']),
     bi('Inflation Decision Making', 'Choose the inflation-smart approach:', [
@@ -4857,8 +4877,8 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand wills, trusts, beneficiary designations, powers of attorney, and why estate planning isn\'t just for the wealthy, it\'s essential for everyone with people they love.',
       'Flow chart: Your wishes vs state\'s default rules when there\'s no will',
       { type: 'comparison', title: '68% of Americans Have No Will', rows: [
-        { label: 'With a Will: YOU decide who gets your assets', value: 'YOUR wishes honored' },
-        { label: 'Without a Will: STATE decides who gets assets', value: 'Family disputes, delays, legal fees' },
+        { label: 'With a Will: YOU decide who gets your assets', value: 'YOUR wishes honored', explain: 'A will is basically you writing down the answers in advance. Whoever you name is who inherits, and the court just follows the paper instead of guessing.' },
+        { label: 'Without a Will: STATE decides who gets assets', value: 'Family disputes, delays, legal fees', explain: 'Skip the paperwork and your state hands you a default will you never read. Its rules often send everything to blood relatives, so a partner you lived with for ten years can end up with nothing.' },
       ], footer: 'A basic will costs $200-$500 and takes 1-2 hours to create', sentiment: 'negative' }
     ),
     stakesCard(
@@ -4866,12 +4886,12 @@ const lessons: PathwayLesson[] = [
       { label: 'With estate planning', detail: 'A basic will costs $200-500 and takes 1-2 hours. Beneficiary designations on retirement accounts bypass probate entirely. A living trust avoids probate and provides privacy. Your wishes are clear, legal, and protected.' },
       {
         withoutVisual: { type: 'comparison', title: 'No Estate Plan', rows: [
-          { label: 'Probate cost', value: '$3K-$15K+' },
-          { label: 'Time', value: '1-3 Years' },
+          { label: 'Probate cost', value: '$3K-$15K+', explain: 'That is money taken off the top before anyone inherits a cent. On a modest estate, $15,000 in court and lawyer fees can be a bigger bite than any tax your family will ever pay.' },
+          { label: 'Time', value: '1-3 Years', explain: 'Three years is the part people underestimate. The accounts sit frozen the whole time, so the mortgage and the funeral bill get paid out of your family\'s own pocket while they wait.' },
         ], footer: 'State decides, not you', sentiment: 'negative' },
         withVisual: { type: 'comparison', title: 'Estate Plan in Place', rows: [
-          { label: 'Basic will cost', value: '$200-$500' },
-          { label: 'Time', value: '1-2 Hours' },
+          { label: 'Basic will cost', value: '$200-$500', explain: 'Compare that to the $3,000 to $15,000 above. Spending $500 once to avoid a five figure bill is one of the best returns in this entire course.' },
+          { label: 'Time', value: '1-2 Hours', explain: 'Two hours on one afternoon replaces up to three years of waiting. Almost nothing else in personal finance trades that little effort for that much.' },
         ], footer: 'Your wishes, protected', sentiment: 'positive' }
       }
     ),
@@ -4889,12 +4909,16 @@ const lessons: PathwayLesson[] = [
       'Checklist: The 5 essential estate planning documents everyone needs',
       undefined,
       { type: 'grid', title: 'The 5 Estate Documents Everyone Needs', items: [
-        { label: 'Will', value: 'Directs assets, names guardians', color: '#3B82F6' },
-        { label: 'Updated beneficiaries', value: 'Overrides the will', color: '#10B981' },
-        { label: 'Healthcare POA', value: 'Medical decisions if incapacitated', color: '#A451E6' },
-        { label: 'Financial POA', value: 'Bill-paying authority', color: '#F59E0B' },
-        { label: 'TOD / POD designations', value: 'Skip probate entirely', color: '#EF4444' },
-      ], footer: 'A few hundred dollars of paperwork prevents years of probate', sentiment: 'positive' }
+        { label: 'Will', value: 'Directs assets, names guardians', color: '#3B82F6', sprite: 'certificate', explain: 'The guardian line matters more than the money line. If both parents die without naming someone, a judge who has never met your family picks who raises your kids.' },
+        { label: 'Updated beneficiaries', value: 'Overrides the will', color: '#10B981', sprite: 'scale-tip', explain: 'This is the one that surprises everyone. A 401(k) form you filled out at 22 beats a will you signed at 45, so a forgotten ex-partner on that form still collects the account.' },
+        { label: 'Healthcare POA', value: 'Medical decisions if incapacitated', color: '#A451E6', sprite: 'first-aid', explain: 'This is the one document that matters before you die. At 18 your parents lose the automatic right to hear your medical information, so without this form a hospital can refuse to talk to them.' },
+        { label: 'Financial POA', value: 'Bill-paying authority', color: '#F59E0B', sprite: 'bill', explain: 'Being in a coma does not pause your rent. Without this form nobody can legally touch your accounts to pay it, and your family needs a court order just to keep the lights on.' },
+        { label: 'TOD / POD designations', value: 'Skip probate entirely', color: '#EF4444', sprite: 'arrow-split', explain: 'This one is free. You fill out a bank form naming who gets the account, and that money routes around probate completely instead of sitting frozen for years.' },
+      ], footer: 'A few hundred dollars of paperwork prevents years of probate', sentiment: 'positive' },
+      {
+        hint: 'Press each of the five documents. Two of them cost nothing at all, and one of them is the reason a will can lose.',
+        recap: 'Estate planning is not about being rich, it is about leaving instructions. The trap is thinking the will is in charge: the beneficiary form on your 401(k) or IRA quietly outranks it, so the account you opened back in lesson 10 goes to whoever you typed on that form years ago. Fixing it costs nothing and takes ten minutes.',
+      }
     ),
     microCheck(
       'Your 401(k) beneficiary is your ex-spouse from 5 years ago. Your will says "everything to my current partner." Who gets the 401(k)?',
@@ -4966,12 +4990,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Beneficiary designations on a 401(k):', options: ['Don\'t matter if you have a will', 'Override the will, the named beneficiary gets the account', 'Only apply after probate', 'Are set permanently'], correct: 1 }
     ]),
     tr('Estate Planning Starter Kit', [
-      ['Document 1', 'Will, asset distribution + guardian for minor children ($200-500)'],
-      ['Document 2', 'Healthcare Power of Attorney + Living Will ($50-200)'],
-      ['Document 3', 'Financial Power of Attorney ($50-200)'],
-      ['Action 1', 'Review and update ALL beneficiary designations'],
-      ['Action 2', 'Consider a living trust if estate is $100K+ ($1K-3K)'],
-      ['Annual', 'Review all documents after major life events']
+      ['Document 1', 'Will, asset distribution + guardian for minor children ($200-500)', { stat: '$200 to $500', sprite: 'safety-net' }],
+      ['Document 2', 'Healthcare Power of Attorney + Living Will ($50-200)', { stat: '$50 to $200', sprite: 'umbrella' }],
+      ['Document 3', 'Financial Power of Attorney ($50-200)', { stat: 'Under $200', sprite: 'key' }],
+      ['Action 1', 'Review and update ALL beneficiary designations', { stat: 'Free, 30 min', sprite: 'magnifier' }],
+      ['Action 2', 'Consider a living trust if estate is $100K+ ($1K-3K)', { stat: '$1K to $3K', sprite: 'vault' }],
+      ['Annual', 'Review all documents after major life events', { stat: 'Once a year', sprite: 'calendar' }]
     ]),
     ds('Start your estate plan today:', ['Create or update your will (online tools: $200-500, or attorney)', 'Review beneficiary designations on ALL financial accounts (401k, IRA, insurance, bank)', 'Set up healthcare power of attorney / living will', 'Set up financial power of attorney', 'Tell your trusted person where to find these documents']),
     bi('Estate Planning Decisions', 'Choose the right approach:', [
@@ -5065,16 +5089,16 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll understand tax-smart giving strategies, donor-advised funds, how to evaluate charities, and how to maximize both your impact and your tax benefits.',
       'Heart icon split into giving impact and tax savings',
       { type: 'comparison', title: 'Smart Giving: More Impact, More Tax Savings', rows: [
-        { label: 'Donate $10K Cash', value: 'Tax saved: $2,400' },
-        { label: 'Donate $10K Stock', value: 'Tax saved: $3,900 (+$1,500 cap gains avoided)' },
+        { label: 'Donate $10K Cash', value: 'Tax saved: $2,400', explain: 'You write a $10,000 check and the tax code hands $2,400 of it back. That is real money, but it is the smallest version of this move.' },
+        { label: 'Donate $10K Stock', value: 'Tax saved: $3,900 (+$1,500 cap gains avoided)', explain: 'Same $10,000, same charity, and now you keep $3,900. The extra $1,500 appears because you never sold the shares, so the gains tax never got triggered.' },
       ], footer: 'Same $10K donation. 62% more tax savings. Charity gets the same amount.', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without tax-smart giving', detail: 'Most donors give cash, missing out on 20-30% extra tax savings. They don\'t itemize (only 10% do after 2017 tax reform), losing the deduction entirely. Uninformed donors also give to low-efficiency charities where 50%+ goes to overhead.' },
       { label: 'With tax-smart giving', detail: 'Donating appreciated stock avoids capital gains tax. Bunching donations with a donor-advised fund triggers itemization in alternating years. Using Charity Navigator ensures 85%+ goes to the mission. Smart giving = more impact, less tax.' },
       {
-        withoutVisual: { type: 'metric', title: 'Basic Giving', value: '20-30%', detail: 'Tax savings left on table, Cash donations, no strategy', footer: '90% don\'t itemize, no deduction', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Smart Giving', value: '$1K-5K+/yr', detail: 'Extra savings from strategy, Appreciated stock + DAF + bunching', footer: 'More impact per dollar given', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Basic Giving', value: '20-30%', detail: 'Tax savings left on table, Cash donations, no strategy', footer: '90% don\'t itemize, no deduction', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'Smart Giving', value: '$1K-5K+/yr', detail: 'Extra savings from strategy, Appreciated stock + DAF + bunching', footer: 'More impact per dollar given', sentiment: 'positive', sprite: 'gift' }
       }
     ),
     teachingSlide(
@@ -5091,9 +5115,13 @@ const lessons: PathwayLesson[] = [
       'Decision tree: Cash vs stock donation vs DAF for different giving levels',
       undefined,
       { type: 'comparison', title: 'Giving $10K: Cash vs Appreciated Stock', rows: [
-        { label: 'Donate cash', value: '$10K deduction, still owe $1,050 gains tax' },
-        { label: 'Donate appreciated stock', value: '$10K deduction, $0 capital gains tax' },
-      ], footer: 'Giving stock you bought low keeps an extra $1,050 working for the cause', sentiment: 'positive' }
+        { label: 'Donate cash', value: '$10K deduction, still owe $1,050 gains tax', explain: 'Notice the stock is still sitting in your account after you give. The $1,050 is not cancelled, it is postponed, and the day you sell it arrives.' },
+        { label: 'Donate appreciated stock', value: '$10K deduction, $0 capital gains tax', explain: 'Hand over the shares themselves and the $1,050 never exists at all. The charity sells them tax free, so the full $10,000 reaches the mission and none of it goes to the IRS.' },
+      ], footer: 'Giving stock you bought low keeps an extra $1,050 working for the cause', sentiment: 'positive' },
+      {
+        hint: 'Press each row. The charity receives $10,000 either way, so watch what happens to the $1,050 sitting underneath.',
+        recap: 'That is the whole lesson in one number: the charity gets the same $10,000, so the only real question is whether you also pay the $1,050. Back in Taxes 101 you learned the code is a set of rules you can plan around, and this is one of those rules pointed at something you already wanted to do. Give the shares, not the cash.',
+      }
     ),
     microCheck(
       'You own stock bought for $2K, now worth $8K. You want to give $8K to charity. What\'s the most tax-efficient method?',
@@ -5165,12 +5193,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Top-rated charities spend what % on their mission?', options: ['50%+', '65%+', '75%+', '85%+'], correct: 3 }
     ]),
     tr('Tax-Smart Giving Playbook', [
-      ['Step 1', 'Give appreciated stock (held 1+ year) instead of cash'],
-      ['Step 2', 'Use a DAF if giving $3K+/year, bunch for deduction'],
-      ['Step 3', 'Check charity efficiency on CharityNavigator/GiveWell'],
-      ['Step 4', 'Keep receipts for all donations over $250'],
-      ['Step 5', 'Consider QCD from IRA after age 70½ ($105K max)'],
-      ['Step 6', 'Align giving with values, scheduled, not impulsive']
+      ['Step 1', 'Give appreciated stock (held 1+ year) instead of cash', { stat: 'Saves $1,050', sprite: 'stock-ticker' }],
+      ['Step 2', 'Use a DAF if giving $3K+/year, bunch for deduction', { stat: '$3K+ a year', sprite: 'vault' }],
+      ['Step 3', 'Check charity efficiency on CharityNavigator/GiveWell', { stat: '85% program', sprite: 'magnifier' }],
+      ['Step 4', 'Keep receipts for all donations over $250', { stat: 'Over $250', sprite: 'receipt' }],
+      ['Step 5', 'Consider QCD from IRA after age 70½ ($105K max)', { stat: 'Age 70 plus', sprite: 'hourglass' }],
+      ['Step 6', 'Align giving with values, scheduled, not impulsive', { stat: 'Set a date', sprite: 'compass' }]
     ]),
     ds('Optimize your charitable giving:', ['Identify your top 3 charities and check their efficiency ratings', 'If you own appreciated stock and want to give, donate the stock directly', 'Open a DAF if you give $3K+/year (Fidelity, Schwab, Vanguard, all free)', 'Calculate: would bunching 2-3 years of gifts push you above the standard deduction?', 'Set a giving budget: % of income allocated to causes you care about']),
     bi('Smart Giving Decisions', 'Choose the most tax-efficient approach:', [
@@ -5264,18 +5292,18 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll master the FI formula, understand the 4% rule, learn different FIRE strategies (lean, fat, coast, barista), and build a personalized roadmap to financial independence.',
       'Timeline showing the path from first paycheck to work-optional life',
       { type: 'line', title: 'The FIRE Path: Work Becomes Optional', points: [
-        { label: 'Start', value: '$0 saved' },
-        { label: 'Year 5', value: '$150K' },
-        { label: 'Year 10', value: '$450K' },
-        { label: 'FI!', value: '$1M+' },
+        { label: 'Start', value: '$0 saved', explain: 'Everyone on this chart started at zero, including the people who finished in 14 years. The first $1,000 is the slowest part of the whole climb because nothing is growing yet.' },
+        { label: 'Year 5', value: '$150K', explain: 'Almost all of this $150K is money you personally deposited. Five years in, growth is still a small passenger, not the driver.' },
+        { label: 'Year 10', value: '$450K', explain: 'The second five years added $300K, double what the first five added. You did not start saving twice as hard. Returns started earning returns.' },
+        { label: 'FI!', value: '$1M+', explain: '$1M is not a random trophy number. At $40K of yearly spending times 25, it is the exact pile where withdrawing 4% covers your whole life without you working.' },
       ], trend: 'up', footer: '50% savings rate \u2192 FI in ~14 years at any income. Annual expenses \u00d7 25 = your FI number', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without FI planning', detail: 'The average American retires at 62 with $134K saved, enough for 3-5 years. 40% of retirees rely on Social Security as their primary income ($1,907/month avg). Many work until they physically can\'t.' },
       { label: 'With FI planning', detail: 'A 25% savings rate reaches FI in ~28 years. 50% savings rate: ~14 years. Some FIRE adherents retire in their 30s. Even if you don\'t retire early, reaching FI means work is a CHOICE, the ultimate financial freedom.' },
       {
-        withoutVisual: { type: 'metric', title: 'Average Retirement', value: '$134,000', detail: 'Median retirement savings, Lasts 3-5 years', footer: 'Work until you can\'t', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financial Independence', value: '$1,000,000', detail: 'FI number at $40K/yr expenses, Work becomes optional', footer: '50% savings rate \u2192 FI in ~14 yrs', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Average Retirement', value: '$134,000', detail: 'Median retirement savings, Lasts 3-5 years', footer: 'Work until you can\'t', sentiment: 'negative', sprite: 'hourglass' },
+        withVisual: { type: 'metric', title: 'Financial Independence', value: '$1,000,000', detail: 'FI number at $40K/yr expenses, Work becomes optional', footer: '50% savings rate \u2192 FI in ~14 yrs', sentiment: 'positive', sprite: 'key' }
       }
     ),
     teachingSlide(
@@ -5291,12 +5319,16 @@ const lessons: PathwayLesson[] = [
       ],
       'Graph showing savings rate vs years to FI, exponential curve',
       undefined,
-      { type: 'comparison', title: 'Savings Rate vs Years to Financial Independence', rows: [
-        { label: '10% savings rate', value: '~40 years', percent: 100 },
-        { label: '20% savings rate', value: '~28 years', percent: 70 },
-        { label: '30% savings rate', value: '~22 years', percent: 55 },
-        { label: '50% savings rate', value: '~14 years', percent: 35 },
-      ], footer: 'Saving rate, not income, decides how soon work becomes optional', sentiment: 'positive' }
+      { type: 'bars', title: 'Savings Rate vs Years to Financial Independence', items: [
+        { label: '10% savings rate', value: 100, displayValue: '~40 years', explain: 'This is the longest bar for a reason. Saving one dollar in ten means nine years of work buy you roughly one year of freedom, so 40 years is the standard career, retire at 65 path.' },
+        { label: '20% savings rate', value: 70, displayValue: '~28 years', explain: 'Doubling the rate from 10% to 20% does not halve the wait. It cuts 12 years off, not 20. Still, 12 years of your life back for saving one extra dollar in ten is the biggest single trade on this chart.' },
+        { label: '30% savings rate', value: 55, displayValue: '~22 years', explain: 'The next 10 points only buy back 6 years, half what the previous 10 points bought. The early increases are worth the most, which is why going from 10% to 20% beats going from 20% to 30%.' },
+        { label: '50% savings rate', value: 35, displayValue: '~14 years', explain: 'At half your paycheck saved, every year of work funds a year of not working. The bar is about a third as long as the 10% bar, and your income never entered the calculation once.' },
+      ], footer: 'Saving rate, not income, decides how soon work becomes optional', sentiment: 'positive' },
+      {
+        hint: 'Press each savings rate on the chart and watch the years drop. The bars do not shrink evenly, and the gap between the first two is the part that surprises people.',
+        recap: 'Here is the one thing to keep: your FI number is just your yearly spending times 25, so the budget you built back in lesson 2 is not a chore, it is the thing that sets your retirement date. Cut $1,000 of annual spending and you do two things at once, you lower the target by $25,000 and you invest $1,000 more every year. That double effect is why someone saving 50% of $80K reaches freedom decades before someone saving 10% of $200K.',
+      }
     ),
     microCheck(
       'Your annual expenses are $50,000. What\'s your FI number?',
@@ -5368,13 +5400,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'Which FIRE type requires the smallest portfolio?', options: ['Fat FIRE', 'Lean FIRE', 'Coast FIRE', 'Barista FIRE'], correct: 1 }
     ]),
     tr('Your FIRE Roadmap', [
-      ['Step 1', 'Calculate FI number: annual expenses × 25'],
-      ['Step 2', 'Determine current savings rate, aim for 25%+ minimum'],
-      ['Step 3', 'Optimize expenses: cut what you don\'t value, keep what you do'],
-      ['Step 4', 'Max tax-advantaged accounts (401k match → Roth IRA → HSA)'],
-      ['Step 5', 'Increase income (negotiate, side hustle, career growth)'],
-      ['Step 6', 'Invest 100% of extra income in index funds'],
-      ['Step 7', 'Track progress quarterly, celebrate milestones']
+      ['Step 1', 'Calculate FI number: annual expenses × 25', { stat: '$40K → $1M', sprite: 'calculator' }],
+      ['Step 2', 'Determine current savings rate, aim for 25%+ minimum', { stat: '25% floor', sprite: 'pie-slice' }],
+      ['Step 3', 'Optimize expenses: cut what you don\'t value, keep what you do', { stat: '$1 cut = $25', sprite: 'receipt' }],
+      ['Step 4', 'Max tax-advantaged accounts (401k match → Roth IRA → HSA)', { stat: '401k → IRA', sprite: 'vault' }],
+      ['Step 5', 'Increase income (negotiate, side hustle, career growth)', { stat: '+$500/mo', sprite: 'paycheck' }],
+      ['Step 6', 'Invest 100% of extra income in index funds', { stat: '8% a year', sprite: 'chart-up' }],
+      ['Step 7', 'Track progress quarterly, celebrate milestones', { stat: '4 checks/yr', sprite: 'target' }]
     ]),
     ds('Start your FI journey:', ['Calculate your FI number (annual expenses × 25)', 'Calculate your current savings rate (savings ÷ gross income)', 'Identify your biggest expense category, can you optimize it?', 'Choose your FIRE flavor: lean, fat, coast, or barista', 'Set a milestone: "I\'ll reach $100K invested by [date]"']),
     bi('FIRE Strategy', 'Choose the approach that makes sense:', [
@@ -5468,18 +5500,18 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll have age-appropriate strategies for teaching kids about earning, saving, spending, and investing, creating the foundation for generational financial literacy.',
       'Parent and child with a piggy bank, chart showing financial habits forming by age 7',
       { type: 'grid', title: 'Money Habits Form by Age 7', items: [
-        { label: 'Ages 3-5', value: 'Wants vs Needs, Coins & Bills', color: '#B862ED' },
-        { label: 'Ages 6-10', value: 'Earning & Saving, Goal Setting', color: '#10B981' },
-        { label: 'Ages 11-14', value: 'Budgeting, Compound Interest', color: '#F59E0B' },
-        { label: 'Ages 15-18', value: 'Investing, Credit & Taxes', color: '#EF4444' },
+        { label: 'Ages 3-5', value: 'Wants vs Needs, Coins & Bills', color: '#B862ED', sprite: 'coin', explain: 'By age 7 the habits are mostly set, so this row is not too early, it is the actual window. A three year old can already tell that milk is a need and candy is a want.' },
+        { label: 'Ages 6-10', value: 'Earning & Saving, Goal Setting', color: '#10B981', sprite: 'target', explain: 'These are the earning years. A child who puts away $5 a week for ten weeks to buy a $50 toy has just practiced the exact skill most adults are still fighting with.' },
+        { label: 'Ages 11-14', value: 'Budgeting, Compound Interest', color: '#F59E0B', sprite: 'calculator', explain: 'Compound interest at 11 sounds advanced until you show the number. $1,000 at 10 percent for 50 years is $117,000, and that lands a lot harder at 12 than it does at 30.' },
+        { label: 'Ages 15-18', value: 'Investing, Credit & Taxes', color: '#EF4444', sprite: 'tax-form', explain: 'This is the row schools mostly skip. Only 25 states require any personal finance to graduate, so if credit and taxes do not get covered at home by 18, usually nobody covers them.' },
       ], footer: 'A financially literate child accumulates 75% more wealth as an adult', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without financial education', detail: 'Only 50% of adults can answer basic financial literacy questions (TIAA Institute). Financially illiterate adults carry 3x more debt and are 5x more likely to face financial hardship. The cycle repeats generation after generation.' },
       { label: 'With early financial education', detail: 'Children who receive financial education accumulate 75% more wealth over their lifetimes (TIAA study). Kids who practice saving develop stronger self-regulation. Financial literacy is the gift that compounds across generations.' },
       {
-        withoutVisual: { type: 'metric', title: 'No Financial Education', value: '50%', detail: 'Adults who can\'t pass basic test, 3x more debt, 5x more hardship', footer: 'Cycle repeats each generation', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financially Educated Kids', value: '+75%', detail: 'More wealth accumulated as adults, Stronger self-regulation & habits', footer: 'Generational wealth cycle begins', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'No Financial Education', value: '50%', detail: 'Adults who can\'t pass basic test, 3x more debt, 5x more hardship', footer: 'Cycle repeats each generation', sentiment: 'negative', sprite: 'chart-down' },
+        withVisual: { type: 'metric', title: 'Financially Educated Kids', value: '+75%', detail: 'More wealth accumulated as adults, Stronger self-regulation & habits', footer: 'Generational wealth cycle begins', sentiment: 'positive', sprite: 'chart-up' }
       }
     ),
     teachingSlide(
@@ -5496,11 +5528,15 @@ const lessons: PathwayLesson[] = [
       'Age-by-age roadmap showing which financial concepts to introduce at each stage',
       undefined,
       { type: 'flow', title: 'The Age-by-Age Money Curriculum', nodes: [
-        { label: 'Ages 3-5', value: 'Wants vs needs, 3 jars', color: '#EF4444' },
-        { label: 'Ages 6-12', value: 'Earning, goals, compound interest', color: '#F59E0B' },
-        { label: 'Ages 13-18', value: 'Budgeting, credit, custodial Roth IRA', color: '#3B82F6' },
-        { label: 'Age 18', value: 'A financial adult, not just a legal one', color: '#10B981' },
-      ], footer: 'A 15-year curriculum, started at the grocery store', sentiment: 'positive' }
+        { label: 'Ages 3-5', value: 'Wants vs needs, 3 jars', color: '#EF4444', sprite: 'piggy-bank', explain: 'Three jars is the entire lesson at this age. A $10 allowance splits into $5 spend, $3 save, $2 give, so a four year old watches money get divided on purpose instead of vanishing by accident.' },
+        { label: 'Ages 6-12', value: 'Earning, goals, compound interest', color: '#F59E0B', sprite: 'seedling', explain: 'This is where compound interest stops being a word. Show a 10 year old that $1 left alone at 10 percent turns into $117 over 50 years, and the number does the convincing for you.' },
+        { label: 'Ages 13-18', value: 'Budgeting, credit, custodial Roth IRA', color: '#3B82F6', sprite: 'credit-card', explain: 'Now the accounts are real. A teenager with a summer job and $3,000 in a custodial Roth IRA is holding about $437,000 at 65, tax free, out of one summer of mowing lawns.' },
+        { label: 'Age 18', value: 'A financial adult, not just a legal one', color: '#10B981', sprite: 'graduation-cap', explain: 'Most people hit 18 with the legal right to borrow and no idea what borrowing costs. This one arrives having already budgeted, saved, and watched an account grow for 15 years.' },
+      ], footer: 'A 15-year curriculum, started at the grocery store', sentiment: 'positive' },
+      {
+        hint: 'Tap each stage of the curriculum. It runs from age 3 to age 18, and each stop tells you what to teach then and why it only lands at that age.',
+        recap: 'Hold on to this one thing: money habits are set by about age 7, so the teaching has to start years before anyone feels ready for it. Every earlier lesson feeds this. The three jars are lesson 2 budgeting shrunk down to a $10 allowance. The savings goal at 7 is lesson 4. The growth that turns one $3,000 summer into $437,000 is lesson 10. The credit talk at 16 is lesson 5. You are not handing a child money, you are handing them 15 years of practice.',
+      }
     ),
     microCheck(
       'According to the University of Cambridge, by what age are money habits largely formed?',
@@ -5572,12 +5608,12 @@ const lessons: PathwayLesson[] = [
       { prompt: 'The Spend/Save/Give system is appropriate starting at age:', options: ['3-5', '8-10', '13-15', '18+'], correct: 0 }
     ]),
     tr('Age-by-Age Money Education', [
-      ['Ages 3-5', 'Wants vs needs, coins & bills, spend/save/give jars'],
-      ['Ages 6-8', 'Allowance + responsibilities, saving for goals, basic earning'],
-      ['Ages 9-12', 'Compound interest, custodial savings account, price comparison shopping'],
-      ['Ages 13-15', 'Budgeting, first job, custodial Roth IRA, investing basics'],
-      ['Ages 16-18', 'Credit scores, taxes, real budgeting, full investing education'],
-      ['Ongoing', 'Model good behavior: kids learn more from watching than listening']
+      ['Ages 3-5', 'Wants vs needs, coins & bills, spend/save/give jars', { stat: '3 jars at 3', sprite: 'pie-slice' }],
+      ['Ages 6-8', 'Allowance + responsibilities, saving for goals, basic earning', { stat: '$5/wk earned', sprite: 'paycheck' }],
+      ['Ages 9-12', 'Compound interest, custodial savings account, price comparison shopping', { stat: '$1 to $117', sprite: 'tree' }],
+      ['Ages 13-15', 'Budgeting, first job, custodial Roth IRA, investing basics', { stat: '$3K to $437K', sprite: 'briefcase' }],
+      ['Ages 16-18', 'Credit scores, taxes, real budgeting, full investing education', { stat: 'Credit at 16', sprite: 'receipt' }],
+      ['Ongoing', 'Model good behavior: kids learn more from watching than listening', { stat: 'They watch', sprite: 'compass' }]
     ]),
     ds('Start teaching kids about money:', ['Set up 3 clear jars (Spend/Save/Give) for children under 10', 'Start age-appropriate allowance tied to responsibilities', 'Open a custodial savings account and show them the balance growing', 'For working teens: open a custodial Roth IRA (this is the biggest gift)', 'Have weekly 5-minute money conversations, make it normal, not taboo']),
     bi('Age-Appropriate Lessons', 'Choose the right approach for each age:', [
@@ -5671,20 +5707,20 @@ const lessons: PathwayLesson[] = [
       'By the end of this lesson, you\'ll demonstrate mastery of personal finance by navigating a complete financial life, from first paycheck to financial independence, making optimal decisions at every stage.',
       'Graduation cap over a financial dashboard showing all key metrics mastered',
       { type: 'grid', title: 'Personal Finance Mastery', items: [
-        { label: 'Earning', value: 'Negotiate, side hustle', color: '#10B981' },
-        { label: 'Budgeting', value: '50/30/20, psychology', color: '#B862ED' },
-        { label: 'Saving', value: 'Emergency fund, HYSA', color: '#F59E0B' },
-        { label: 'Investing', value: 'Index funds, Roth, 401k', color: '#3B82F6' },
-        { label: 'Protecting', value: 'Insurance, security, estate', color: '#EF4444' },
-        { label: 'Growing', value: 'FI, giving, teaching', color: '#10B981' },
+        { label: 'Earning', value: 'Negotiate, side hustle', color: '#10B981', sprite: 'paycheck', explain: 'A $5K bump at 22 rides along inside every future raise, bonus, and 401(k) match, which is how lesson 11 got to $600K by retirement from one conversation.' },
+        { label: 'Budgeting', value: '50/30/20, psychology', color: '#B862ED', sprite: 'calculator', explain: 'Lesson 2 gave you the split and lesson 12 explained why you break it. The plan is the easy half, the psychology is the hard half.' },
+        { label: 'Saving', value: 'Emergency fund, HYSA', color: '#F59E0B', sprite: 'piggy-bank', explain: 'Lessons 4 and 9 stacked: three to six months of expenses, parked where it pays 4 to 5% instead of the 0.01% a big bank gives you.' },
+        { label: 'Investing', value: 'Index funds, Roth, 401k', color: '#3B82F6', sprite: 'chart-up', explain: 'Two different things share this box. Index funds are what you buy, and the Roth and 401(k) are the wrappers that keep tax off what they earn. Lesson 15 is where the 92% number came from.' },
+        { label: 'Protecting', value: 'Insurance, security, estate', color: '#EF4444', sprite: 'shield', explain: 'The only category here that adds nothing to your net worth and still matters. Credit freeze, 2FA, and a will cost about an hour total, and they are what keep one bad month from erasing 20 good years.' },
+        { label: 'Growing', value: 'FI, giving, teaching', color: '#10B981', sprite: 'tree', explain: 'Growing is not just a bigger number. FI is annual expenses times 25, and after that the course points outward. Lesson 24 explains why: 70% of wealthy families lose the money by the second generation, because nobody taught the next one.' },
       ], footer: '24 Lessons \u2192 1 Financially Literate Life, You now know more about money than 90% of American adults', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Without financial mastery', detail: 'The average American: $104K in debt, $134K retirement savings at 65, 58% live paycheck to paycheck, $1M+ lost to poor financial decisions. Financial illiteracy costs the average person $1,500/year in fees and losses alone.' },
       { label: 'With financial mastery', detail: 'You\'ve learned to: negotiate (+$1M career earnings), budget (save $5K+/year), invest (index funds beat 92% of pros), protect (credit freeze, estate plan), plan for independence (FI = expenses × 25), and break the cycle by teaching others.' },
       {
-        withoutVisual: { type: 'metric', title: 'Average American', value: '$1M+', detail: 'Lifetime cost of illiteracy, 58% paycheck to paycheck', footer: '$134K retirement savings at 65', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Financially Literate YOU', value: '$2M+', detail: 'Lifetime advantage, FI achievable in 14-28 years', footer: 'Knowledge that compounds forever', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Average American', value: '$1M+', detail: 'Lifetime cost of illiteracy, 58% paycheck to paycheck', footer: '$134K retirement savings at 65', sentiment: 'negative', sprite: 'chart-down' },
+        withVisual: { type: 'metric', title: 'Financially Literate YOU', value: '$2M+', detail: 'Lifetime advantage, FI achievable in 14-28 years', footer: 'Knowledge that compounds forever', sentiment: 'positive', sprite: 'rocket' }
       }
     ),
     teachingSlide(
@@ -5702,11 +5738,15 @@ const lessons: PathwayLesson[] = [
       'The complete personal finance system: earn → budget → save → insure → invest → protect → grow → teach',
       undefined,
       { type: 'flow', title: 'The Wealth-Building Order of Operations', nodes: [
-        { label: 'Budget & emergency fund', value: '50/30/20, then $1K buffer', color: '#EF4444' },
-        { label: 'Match & kill bad debt', value: '401(k) match, avalanche method', color: '#F59E0B' },
-        { label: 'Max tax-advantaged', value: 'Roth IRA, HSA, full 401(k)', color: '#3B82F6' },
-        { label: 'Grow & protect', value: 'Brokerage, insurance, estate plan', color: '#10B981' },
-      ], footer: 'Each step multiplies the next, skip none', sentiment: 'positive' }
+        { label: 'Budget & emergency fund', value: '50/30/20, then $1K buffer', color: '#EF4444', sprite: 'safety-net', explain: 'Notice this box is first, not the investing one. A $1K buffer is small, but it is the thing that stops a flat tire from turning into credit card debt at 22%. Every step after this one only holds if this one exists.' },
+        { label: 'Match & kill bad debt', value: '401(k) match, avalanche method', color: '#F59E0B', sprite: 'chain-break', explain: 'These two share a box because they are the same math. A 100% match is a 100% return the day you make it, and a 22% credit card is a guaranteed 22% loss. Nothing else in the whole diagram pays anywhere near those numbers.' },
+        { label: 'Max tax-advantaged', value: 'Roth IRA, HSA, full 401(k)', color: '#3B82F6', sprite: 'vault', explain: 'This is the step most people skip straight past. $7,000 a year into a Roth grows for 40 years and the IRS never touches the gains. The same $7,000 in a taxable account gets taxed on dividends and every sale along the way.' },
+        { label: 'Grow & protect', value: 'Brokerage, insurance, estate plan', color: '#10B981', sprite: 'umbrella', explain: 'It says grow AND protect for a reason: this box is two jobs at once. The brokerage is where money goes only after every tax-advantaged account is full, and the insurance and estate plan are what stop one lawsuit or one death from unwinding boxes one through three.' },
+      ], footer: 'Each step multiplies the next, skip none', sentiment: 'positive' },
+      {
+        hint: 'Press each box in the order of operations. I will tell you why it sits in that exact spot and what it costs you to jump over it.',
+        recap: 'If you keep one thing from 25 lessons, keep the order. Lesson 4 said buffer first, lesson 6 said kill the 22% card before chasing a 10.7% return, lesson 10 said let time do the work. The order is not a preference, it is ranked by what each dollar earns: a 100% match beats a 22% payoff, which beats tax-free growth, which beats a plain brokerage. You do not need a bigger income to run it. You need to run it in order, starting this year.',
+      }
     ),
     microCheck(
       'What is the correct order for deploying money in the wealth-building system?',
@@ -5778,13 +5818,13 @@ const lessons: PathwayLesson[] = [
       { prompt: 'FI number for $60K annual expenses:', options: ['$600K', '$1M', '$1.5M', '$2M'], correct: 2 }
     ]),
     tr('Your Complete Financial Playbook', [
-      ['Foundation', 'Budget (50/30/20) → Emergency fund → Freeze credit → Insurance'],
-      ['Wealth Engine', '401(k) match → Roth IRA → HSA → Max 401(k) → Taxable brokerage'],
-      ['Acceleration', 'Negotiate salary → Side hustle → Save 50% of raises → Index funds only'],
-      ['Protection', 'Life insurance → Estate plan → Updated beneficiaries → 2FA everywhere'],
-      ['Optimization', 'Roth in low bracket → Traditional in high bracket → DAF for giving → 529 for kids'],
-      ['Freedom', 'FI number = expenses × 25 → 4% rule → Work becomes optional'],
-      ['Legacy', 'Teach kids (age 3+) → Custodial Roth → Break the illiteracy cycle']
+      ['Foundation', 'Budget (50/30/20) → Emergency fund → Freeze credit → Insurance', { stat: '$1K buffer', sprite: 'house' }],
+      ['Wealth Engine', '401(k) match → Roth IRA → HSA → Max 401(k) → Taxable brokerage', { stat: 'Match first', sprite: 'factory' }],
+      ['Acceleration', 'Negotiate salary → Side hustle → Save 50% of raises → Index funds only', { stat: '75% who ask', sprite: 'bolt' }],
+      ['Protection', 'Life insurance → Estate plan → Updated beneficiaries → 2FA everywhere', { stat: '10x income', sprite: 'lock' }],
+      ['Optimization', 'Roth in low bracket → Traditional in high bracket → DAF for giving → 529 for kids', { stat: 'Roth if low', sprite: 'tax-form' }],
+      ['Freedom', 'FI number = expenses × 25 → 4% rule → Work becomes optional', { stat: '25x expenses', sprite: 'key' }],
+      ['Legacy', 'Teach kids (age 3+) → Custodial Roth → Break the illiteracy cycle', { stat: 'Start at 3', sprite: 'seedling' }]
     ]),
     ds('Your immediate action items:', ['Calculate your FI number (annual expenses × 25), write it down', 'Verify: are you getting your full employer 401(k) match?', 'Open or fund a Roth IRA ($50/month is enough to start)', 'Freeze credit at all 3 bureaus (10 minutes, free)', 'Share one lesson from this course with someone you care about']),
     bi('Capstone Decisions', 'Apply your complete knowledge:', [

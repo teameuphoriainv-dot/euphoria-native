@@ -14,10 +14,14 @@ import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTimin
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { getSprite, PixelSpriteView } from '@/lib/pixel';
 import { Duration, Ease } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-export type RevealSpec = { title: string; cards: { term: string; def: string }[] };
+export type RevealSpec = {
+  title: string;
+  cards: { term: string; def: string; stat?: string; sprite?: string }[];
+};
 
 /**
  * The two faces of one card, CROSS-FADED IN PLACE.
@@ -50,10 +54,23 @@ export type RevealSpec = { title: string; cards: { term: string; def: string }[]
  * A 3D rotateY flip was considered and REJECTED by the owner. It is also unsupported by the
  * evidence: the reference apps cross-fade and translate, they do not rotate cards.
  */
-function RevealFaces({ term, def, revealed }: { term: string; def: string; revealed: boolean }) {
+function RevealFaces({
+  term,
+  def,
+  stat,
+  sprite: spriteId,
+  revealed,
+}: {
+  term: string;
+  def: string;
+  stat?: string;
+  sprite?: string;
+  revealed: boolean;
+}) {
   const theme = useTheme();
   const reduced = useReducedMotion();
   const t = useSharedValue(revealed ? 1 : 0);
+  const sprite = spriteId ? getSprite(spriteId) : undefined;
 
   useEffect(() => {
     // Reduced motion still needs the STATE CHANGE — it is the answer, not decoration. Only the
@@ -84,11 +101,30 @@ function RevealFaces({ term, def, revealed }: { term: string; def: string; revea
       <Animated.View
         style={[
           styles.card, backStyle, revealed ? null : StyleSheet.absoluteFill,
-          { borderColor: theme.primary, backgroundColor: theme.primary + '12' },
+          styles.back,
+          { borderColor: theme.iconGold + '4D', backgroundColor: theme.primary + '12' },
         ]}
         pointerEvents="none">
-        <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{term}</ThemedText>
-        <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4, lineHeight: 18 }}>{def}</ThemedText>
+        {sprite ? (
+          <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            <PixelSpriteView sprite={sprite} size={36} />
+          </View>
+        ) : null}
+        {stat ? (
+          <ThemedText
+            type="display"
+            maxFontSizeMultiplier={1.6}
+            style={[styles.stat, { color: theme.iconGold }]}>
+            {stat}
+          </ThemedText>
+        ) : null}
+        <ThemedText type="smallBold" themeColor="mutedForeground" style={styles.term}>{term}</ThemedText>
+        <ThemedText
+          type={stat ? 'small' : 'body'}
+          themeColor="textSecondary"
+          style={[styles.definition, stat ? null : styles.definitionWithoutStat]}>
+          {def}
+        </ThemedText>
       </Animated.View>
       <Animated.View
         pointerEvents="none"
@@ -121,12 +157,12 @@ export function TapReveal({ spec, onSolvedChange }: { spec: RevealSpec; onSolved
   return (
     <View>
       <ThemedText type="title" style={{ marginBottom: Spacing.two }}>{spec.title}</ThemedText>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: Spacing.four }}>Tap each card to reveal what it means.</ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: Spacing.four }}>Tap each card to reveal the answer</ThemedText>
 
       <View style={styles.grid}>
         {spec.cards.map((c, i) => (
           <SpringPressable
-            key={c.term}
+            key={`${i}-${c.term}`}
             onPress={() => flip(i)}
             style={styles.cardWrap}
             haptic={false}
@@ -135,7 +171,7 @@ export function TapReveal({ spec, onSolvedChange }: { spec: RevealSpec; onSolved
             // cards, not toggles, and the whole point is whether the definition is showing.
             accessibilityLabel={revealed[i] ? `${c.term}. ${c.def}` : `${c.term}. Not revealed yet.`}
             accessibilityHint={revealed[i] ? undefined : 'Activate to reveal the definition.'}>
-            <RevealFaces term={c.term} def={c.def} revealed={revealed[i]} />
+            <RevealFaces term={c.term} def={c.def} stat={c.stat} sprite={c.sprite} revealed={revealed[i]} />
           </SpringPressable>
         ))}
       </View>
@@ -145,8 +181,16 @@ export function TapReveal({ spec, onSolvedChange }: { spec: RevealSpec; onSolved
 
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two + 4 },
-  cardWrap: { width: '47.5%', flexGrow: 1 },
+  // The canonical web lesson uses one column on phones. Rich rewritten definitions and their
+  // headline stats need the full iPhone measure; squeezing them into two 175pt columns produces
+  // 10+ line cards and destroys the intended hierarchy.
+  cardWrap: { width: '100%' },
   /* The two stacked faces of one card. flex:1 lets it take the row height the grid offers. */
   faces: { flex: 1 },
   card: { minHeight: 118, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three },
+  back: { alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
+  stat: { fontSize: FontSize.displaySm, lineHeight: 42, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  term: { textAlign: 'center' },
+  definition: { lineHeight: 19, textAlign: 'center' },
+  definitionWithoutStat: { lineHeight: 22 },
 });

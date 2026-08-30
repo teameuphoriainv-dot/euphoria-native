@@ -1,0 +1,5 @@
+steps:
+  - tool: restart-app
+    args:
+      bundleId: com.euphoriainv.euphoria
+  - wait: 3500

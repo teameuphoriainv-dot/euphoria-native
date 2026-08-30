@@ -15,49 +15,49 @@ import type { PathwayLesson } from '../types';
 // ANIMATED VISUALS FOR BEHAVIORAL FINANCE TEACHING SLIDES
 // ═══════════════════════════════════════════════════════════════
 
-const BF11_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Where Anchoring Strikes', rows: [{ label: 'Negotiations', value: 'First offer becomes the anchor' }, { label: 'Real Estate', value: 'Listing price shifts appraisals 10-15%' }, { label: 'Retail', value: '"Was $200, Now $79" anchors value' }], footer: 'The first number you see distorts every judgment', sentiment: 'positive' };
+const BF11_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Where Anchoring Strikes', rows: [{ label: 'Negotiations', value: 'First offer becomes the anchor', explain: 'Galinsky and Mussweiler found the side that speaks first sets the range. Open at $120,000 and the whole meeting happens near $120,000. Let them open at $85,000 and you spend the meeting climbing, and almost nobody climbs the full $35,000.' }, { label: 'Real Estate', value: 'Listing price shifts appraisals 10-15%', explain: 'Northcraft and Neale gave appraisers the same house and different listing sheets. Trained professionals came back 10 to 15% apart. On a $400,000 house that is $40,000 of expert judgment bought by one number printed on a page.' }, { label: 'Retail', value: '"Was $200, Now $79" anchors value', explain: 'Nobody ever paid the $200. It is printed there so $79 feels like $121 handed back to you. J.C. Penney deleted those crossed-out numbers in 2012 and lost $4.3 billion in revenue without changing a single real price.' }], footer: 'The first number you see distorts every judgment', sentiment: 'positive' };
 
-const BF12_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Sunk Costs Trap Everyone', rows: [{ label: 'Investors', value: 'Hold losers 2x longer than winners' }, { label: 'Nokia', value: '$8B Navteq bet, escalated to $10B+' }, { label: 'Quibi', value: '$1.75B spent, shut down in 6 months' }], footer: 'The clean slate test: would I buy this today?', sentiment: 'positive' };
+const BF12_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Sunk Costs Trap Everyone', rows: [{ label: 'Investors', value: 'Hold losers 2x longer than winners', explain: 'Two times is the whole bias in one number. If losers and winners were judged the same way, the two holding times would match. They do not, and the only thing separating them is which one stings to sell.' }, { label: 'Nokia', value: '$8B Navteq bet, escalated to $10B+', explain: 'The extra $2 billion arrived after Google Maps had already won, so it bought no new advantage. What it bought was permission to keep not admitting the first $8 billion was gone.' }, { label: 'Quibi', value: '$1.75B spent, shut down in 6 months', explain: 'That is roughly $290 million a month. Quibi is the rare company that quit fast, and quitting fast is the only reason the number stopped at $1.75 billion instead of climbing like Nokia\'s did.' }], footer: 'The clean slate test: would I buy this today?', sentiment: 'positive' };
 
-const BF13_TEACH2: AnimatedVisual = { type: 'grid', title: 'Three Defeats for Regret Aversion', items: [{ label: 'Pre-Commitment', value: 'Removes the decision point', color: '#A451E6' }, { label: 'Reframing', value: 'Makes inaction cost vivid', color: '#3B82F6' }, { label: 'Satisficing', value: 'Cuts choice overload', color: '#10B981' }], footer: 'Imperfect action beats perfect inaction', sentiment: 'positive' };
+const BF13_TEACH2: AnimatedVisual = { type: 'grid', title: 'Three Defeats for Regret Aversion', items: [{ label: 'Pre-Commitment', value: 'Removes the decision point', color: '#A451E6', sprite: 'lock', explain: 'You cannot freeze at a decision that no longer exists. A standing order for $1,000 on the 1st gets decided once, and the next 359 months just execute without asking how you feel about the market.' }, { label: 'Reframing', value: 'Makes inaction cost vivid', color: '#3B82F6', sprite: 'lightbulb', explain: 'Swap the question from \'what if I buy and it drops 20 percent\' to \'what if I sit out a 50 percent run\'. Sarah\'s sit-out cost $2.2 million, and no crash in those 35 years was anywhere near that expensive.' }, { label: 'Satisficing', value: 'Cuts choice overload', color: '#10B981', sprite: 'funnel', explain: 'Six months comparing Vanguard against Fidelity while the market climbs 8 percent costs more than picking the slightly worse fund on day one. Write your minimum, take the first fund that clears it, stop reading.' }], footer: 'Imperfect action beats perfect inaction', sentiment: 'positive', sprite: 'compass' };
 
-const BF14_TEACH2: AnimatedVisual = { type: 'bars', title: 'Annual Loyalty Penalty (Default Audit)', items: [{ label: 'Advisor fees', value: 100, displayValue: '0.95% drag' }, { label: 'Bank rate', value: 60, displayValue: '15-30% saved' }, { label: 'Insurance', value: 45, displayValue: '15-30% saved' }], footer: 'Switching saves 15-30%, design defaults deliberately', sentiment: 'positive' };
+const BF14_TEACH2: AnimatedVisual = { type: 'bars', title: 'Annual Loyalty Penalty (Default Audit)', items: [{ label: 'Advisor fees', value: 100, displayValue: '0.95% drag', sprite: 'briefcase', explain: 'This bar is full height because 0.95% is charged on everything you own, not on anything the advisor actually does that year. On a 500,000 dollar pot that is 4,750 dollars, deducted automatically, from a choice you made once a decade ago.' }, { label: 'Bank rate', value: 60, displayValue: '15-30% saved', sprite: 'bank', explain: 'Second tallest, and the cheapest one to fix. Moving 20,000 dollars of emergency cash from a 0.3% account to a 4.5% one is about 20 minutes of typing and roughly 840 dollars a year, which is 42 dollars a minute for your time.' }, { label: 'Insurance', value: 45, displayValue: '15-30% saved', sprite: 'umbrella', explain: 'Smallest bar, sneakiest habit: insurance renews itself, so every year you skip getting quotes you are quietly re-buying it. That 15 to 30% is not a one off saving, it repeats for as long as you never look.' }], footer: 'Switching saves 15-30%, design defaults deliberately', sentiment: 'positive', sprite: 'receipt' };
 
-const BF15_TEACH2: AnimatedVisual = { type: 'grid', title: 'Narrative Defense Framework', items: [{ label: 'Story vs Data', value: 'Write both, compare', color: '#A451E6' }, { label: 'Newspaper Test', value: 'Would you still hold?', color: '#3B82F6' }, { label: 'Contrarian', value: 'Universal narrative = priced in', color: '#10B981' }], footer: 'Invest on data, not stories', sentiment: 'positive' };
+const BF15_TEACH2: AnimatedVisual = { type: 'grid', title: 'Narrative Defense Framework', items: [{ label: 'Story vs Data', value: 'Write both, compare', color: '#A451E6', sprite: 'scales', explain: 'Put the two lists side by side on one page. Whatever the data list cannot justify about today\'s price is the exact amount the story is charging you.' }, { label: 'Newspaper Test', value: 'Would you still hold?', color: '#3B82F6', sprite: 'newspaper', explain: 'Imagine one ordinary bad headline tomorrow, say revenue misses by 5 percent. If that alone would make you sell, you were holding the story, not the company.' }, { label: 'Contrarian', value: 'Universal narrative = priced in', color: '#10B981', sprite: 'crowd', explain: 'If everyone you know can repeat the story, the buying it caused already happened. A universal narrative is not an edge you found, it is just today\'s quote explained back to you.' }], footer: 'Invest on data, not stories', sentiment: 'positive', sprite: 'shield' };
 
-const BF16_TEACH2: AnimatedVisual = { type: 'flow', title: 'Inverted Attention Funnel', nodes: [{ label: '6,000+ stocks', value: 'Start with the whole market' }, { label: 'Quantitative screen', value: 'P/E, FCF yield, debt filters' }, { label: '50 ignored opportunities', value: 'Undervalued by neglect' }], footer: 'Look where the crowd is not', sentiment: 'positive' };
+const BF16_TEACH2: AnimatedVisual = { type: 'flow', title: 'Inverted Attention Funnel', nodes: [{ label: '6,000+ stocks', value: 'Start with the whole market', sprite: 'bar-chart', explain: 'The same 6,000 as the funnel that failed you. Nothing has been cut before you look, so the starting pool is identical: only the filter changes.' }, { label: 'Quantitative screen', value: 'P/E, FCF yield, debt filters', sprite: 'magnifier', explain: 'P/E under 15, free cash flow yield over 6%, debt to equity under 0.5. A company reports those numbers whether or not a single reporter shows up.' }, { label: '50 ignored opportunities', value: 'Undervalued by neglect', sprite: 'gem', explain: 'About 50 names survive, roughly the same count you already recognize, so the reading is no heavier. Same size menu, chosen by profit instead of by coverage.' }], footer: 'Look where the crowd is not', sentiment: 'positive', sprite: 'compass' };
 
-const BF17_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Rules That Let Winners Run', rows: [{ label: 'Pre-set sell criteria', value: 'No reference to purchase price' }, { label: '25% trailing stop', value: '$50 → $200 locks in 200%' }, { label: 'Clean slate test', value: 'Would I buy this today?' }], footer: 'Sell on thesis, never on purchase price', sentiment: 'positive' };
+const BF17_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Rules That Let Winners Run', rows: [{ label: 'Pre-set sell criteria', value: 'No reference to purchase price', explain: 'Write the sell rule on the day you buy, while you feel nothing about the position. If your purchase price appears nowhere in that rule, the 14.8 against 9.8 pull has nothing to grab onto later.' }, { label: '25% trailing stop', value: '$50 → $200 locks in 200%', explain: 'The stop climbs with the price instead of sitting at your cost. By the time the stock hits $200 the stop sits at $150, so you bank 200 percent. Selling at $60 for a tidy 20 percent would have handed away the other 233 percent.' }, { label: 'Clean slate test', value: 'Would I buy this today?', explain: 'Try it on a position you are up 80 percent on. If you would still buy it at the price today, then selling is a reaction to your own cost, not to anything the company did.' }], footer: 'Sell on thesis, never on purchase price', sentiment: 'positive' };
 
-const BF18_TEACH2: AnimatedVisual = { type: 'grid', title: 'Real Pattern vs Random Noise', items: [{ label: 'Economic mechanism', value: 'Is there a logical reason?', color: '#A451E6' }, { label: 'Sample size', value: 'Enough data to trust?', color: '#3B82F6' }, { label: 'Out-of-sample', value: 'Persists in other periods?', color: '#10B981' }], footer: 'All three yes = possibly real; any no = noise', sentiment: 'positive' };
+const BF18_TEACH2: AnimatedVisual = { type: 'grid', title: 'Real Pattern vs Random Noise', items: [{ label: 'Economic mechanism', value: 'Is there a logical reason?', color: '#A451E6', sprite: 'lightbulb', explain: 'Momentum passes this test: news spreads slowly, so a stock that jumped on good news keeps drifting up for a reason you can name. A roulette wheel has no mechanism at all, which is why 26 blacks said nothing about spin 27.' }, { label: 'Sample size', value: 'Enough data to trust?', color: '#3B82F6', sprite: 'bar-chart', explain: 'Three years of returns puts a top-decile manager at about a 55% chance of real skill, barely better than a coin flip. Confirming 2% alpha takes roughly 16 years, so nearly every track record you get shown is too short to carry a signal.' }, { label: 'Out-of-sample', value: 'Persists in other periods?', color: '#10B981', sprite: 'calendar', explain: 'This is the test the Bill Miller streak failed. Those 15 winning years ran through one stretch where value and financial stocks led, and when those factors flipped in 2008 the fund lost 55%.' }], footer: 'All three yes = possibly real; any no = noise', sentiment: 'positive', sprite: 'magnifier' };
 
-const BF19_TEACH1: AnimatedVisual = { type: 'bars', title: 'WTA/WTP Ratio: The Endowment Effect', items: [{ label: 'Willingness to Accept', value: 100, displayValue: '$7.12' }, { label: 'Willingness to Pay', value: 40, displayValue: '$2.87' }], footer: 'Ownership inflates value by 2-3x', sentiment: 'negative' };
+const BF19_TEACH1: AnimatedVisual = { type: 'bars', title: 'WTA/WTP Ratio: The Endowment Effect', items: [{ label: 'Willingness to Accept', value: 100, displayValue: '$7.12', sprite: 'gem', explain: 'This is what people demanded before they would hand the mug back. Nobody appraised it for them: they held it for a few minutes and the price in their head climbed to $7.12.' }, { label: 'Willingness to Pay', value: 40, displayValue: '$2.87', sprite: 'coin', explain: 'Same mug, same room, same afternoon. The people who were never handed one would go to $2.87, so simply holding the thing added $4.25 of value that exists nowhere but in the owner\'s head.' }], footer: 'Ownership inflates value by 2-3x', sentiment: 'negative', sprite: 'scale-tip' };
 
-const BF19_TEACH2: AnimatedVisual = { type: 'grid', title: 'Breaking the Ownership Spell', items: [{ label: 'Clean Slate Test', value: 'Would I buy each holding today?', color: '#A451E6' }, { label: 'Systematic Rebalancing', value: 'Forced decision points', color: '#3B82F6' }, { label: 'Tax-Loss Harvesting', value: 'Reframes loss as tax gain', color: '#10B981' }], footer: 'Separate ownership from valuation', sentiment: 'positive' };
+const BF19_TEACH2: AnimatedVisual = { type: 'grid', title: 'Breaking the Ownership Spell', items: [{ label: 'Clean Slate Test', value: 'Would I buy each holding today?', color: '#A451E6', sprite: 'magnifier', explain: 'Run it one holding at a time, not on the portfolio as a whole. If you own 15 stocks and only 8 survive the question, the other 7 are in there because you already own them, which is not a reason.' }, { label: 'Systematic Rebalancing', value: 'Forced decision points', color: '#3B82F6', sprite: 'calendar', explain: 'The date decides, not your mood. A rule that says review in April and trim anything past 10 percent removes the moment where you get to say later, and later is where the endowment effect does all of its work.' }, { label: 'Tax-Loss Harvesting', value: 'Reframes loss as tax gain', color: '#10B981', sprite: 'tax-form', explain: 'Sell a position that is down $5,000 and at a 25 percent rate you get $1,250 back. The trade you kept putting off now arrives labelled as money collected instead of failure admitted, and that relabelling is the whole trick.' }], footer: 'Separate ownership from valuation', sentiment: 'positive', sprite: 'chain-break' };
 
-const BF20_TEACH1: AnimatedVisual = { type: 'grid', title: 'How Social Media Amplifies Bias', items: [{ label: 'Echo Chamber', value: 'Algorithm confirms your views', color: '#EF4444' }, { label: 'FOMO', value: 'Gain screenshots feel unbearable', color: '#F59E0B' }, { label: 'Information Cascade', value: '10M viewers overnight', color: '#A451E6' }], footer: 'Engagement-optimized, not accuracy-optimized', sentiment: 'negative' };
+const BF20_TEACH1: AnimatedVisual = { type: 'grid', title: 'How Social Media Amplifies Bias', items: [{ label: 'Echo Chamber', value: 'Algorithm confirms your views', color: '#EF4444', sprite: 'network', explain: 'The feed is not neutral. It measures which posts you slow down on and sends more of those, so an opinion you half held on Monday can look like settled consensus by Friday.' }, { label: 'FOMO', value: 'Gain screenshots feel unbearable', color: '#F59E0B', sprite: 'magnet', explain: 'A screenshot is one person\'s best day, cropped. You end up comparing your entire account against somebody else\'s single luckiest trade, and of course you feel behind.' }, { label: 'Information Cascade', value: '10M viewers overnight', color: '#A451E6', sprite: 'globe', explain: 'Ten million viewers overnight is faster than anybody can read a 10-K. The buying pressure lands hours before a single person has checked whether the claim is even true.' }], footer: 'Engagement-optimized, not accuracy-optimized', sentiment: 'negative', sprite: 'newspaper' };
 
 const BF20_TEACH2: AnimatedVisual = { type: 'flow', title: 'The Meme Stock Cycle', nodes: [{ label: 'Discovery', value: 'Small group, real thesis', color: '#10B981' }, { label: 'Viral Spread', value: 'FOMO, price detaches', color: '#F59E0B' }, { label: 'Peak Euphoria', value: 'Most money enters here', color: '#EF4444' }, { label: 'Collapse', value: 'Late buyers lose 50-90%', color: '#EF4444' }], footer: 'Most buyers enter at peak euphoria', sentiment: 'negative' };
 
 const BF21_TEACH1: AnimatedVisual = { type: 'stack', title: 'MPT vs Behavioral Portfolio Theory', segments: [{ label: 'Mental Accounting', value: 'Money treated by purpose', percent: 34, color: '#A451E6' }, { label: 'Aspirational Layer', value: 'Small lottery allocation', percent: 33, color: '#F59E0B' }, { label: 'Safety-First', value: 'Downside weighted heavily', percent: 33, color: '#10B981' }], footer: 'The best portfolio is the one you stick with', sentiment: 'positive' };
 
-const BF21_TEACH2: AnimatedVisual = { type: 'flow', title: 'Designing Your Behavioral Portfolio', nodes: [{ label: 'Define Mental Accounts', value: 'Map goals to risk layers' }, { label: 'Size Aspirational Layer', value: '5-10% sweet spot' }, { label: 'Automate Contributions', value: 'Removes decision points' }], footer: 'Automation enforces discipline', sentiment: 'positive' };
+const BF21_TEACH2: AnimatedVisual = { type: 'flow', title: 'Designing Your Behavioral Portfolio', nodes: [{ label: 'Define Mental Accounts', value: 'Map goals to risk layers', sprite: 'arrow-split', explain: 'Naming the pot is the whole trick. The same 500 dollars behaves differently once one pile is labeled down payment and another is labeled fun money, because you will not raid a pot that already has a job.' }, { label: 'Size Aspirational Layer', value: '5-10% sweet spot', sprite: 'pie-slice', explain: 'Notice the floor is 5 percent, not zero. At zero the gambling urge does not disappear, it leaks into the core and you start calling risky bets long-term investing. Past 20 percent, one bad month takes your safety layer with it.' }, { label: 'Automate Contributions', value: 'Removes decision points', sprite: 'calendar', explain: 'This step removes the decision, not the temptation. If the transfer fires on the first of the month before you ever see the balance, there is no moment where safety money is one tap away from a meme stock.' }], footer: 'Automation enforces discipline', sentiment: 'positive', sprite: 'target' };
 
-const BF22_TEACH1: AnimatedVisual = { type: 'grid', title: 'Three Proven Debiasing Techniques', items: [{ label: 'Pre-Commitment', value: 'Set rules before you need them', color: '#A451E6' }, { label: 'Decision Journal', value: 'Write rationale and exit plan', color: '#3B82F6' }, { label: 'Adversarial Thinking', value: 'Build the bear case first', color: '#10B981' }], footer: 'Lock in rationality for when emotions take over', sentiment: 'positive' };
+const BF22_TEACH1: AnimatedVisual = { type: 'grid', title: 'Three Proven Debiasing Techniques', items: [{ label: 'Pre-Commitment', value: 'Set rules before you need them', color: '#A451E6', sprite: 'lock', explain: 'The rule has to be written in a calm week, because that is the only week your thinking brain is in charge. \'I do not sell on a single 5% down day\' costs you nothing to write and saves you everything to have.' }, { label: 'Decision Journal', value: 'Write rationale and exit plan', color: '#3B82F6', sprite: 'book', explain: 'The line that carries the weight is \'what would prove me wrong\'. Leave it out and every outcome reads as proof you were right, so the journal has to be written before the trade, not after it.' }, { label: 'Adversarial Thinking', value: 'Build the bear case first', color: '#10B981', sprite: 'bear', explain: 'Ten minutes is the entire price. That short bear case catches roughly 40% of the trades you were about to make on a good story instead of on evidence.' }], footer: 'Lock in rationality for when emotions take over', sentiment: 'positive', sprite: 'check-badge' };
 
-const BF22_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Advanced Debiasing Tools', rows: [{ label: 'Reference Class Forecasting', value: '% of similar investments that succeed' }, { label: 'Outcome Tracking', value: 'Actual hit rate is 45-55%, not 70%' }, { label: 'Right Tool per Bias', value: 'Anchoring, FOMO, endowment each differ' }], footer: 'Match the technique to the bias', sentiment: 'positive' };
+const BF22_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Advanced Debiasing Tools', rows: [{ label: 'Reference Class Forecasting', value: '% of similar investments that succeed', explain: 'Your pick feels one of a kind, but it sits in a pile of near identical ones with a known record. If 15 of every 100 pre-revenue biotechs pay off, your story has to outweigh 85 failures, not just sound convincing.' }, { label: 'Outcome Tracking', value: 'Actual hit rate is 45-55%, not 70%', explain: 'That 20 point gap is not bad luck, it is memory quietly editing. You keep the calls you got right and lose the rest, so a written log is the only thing that can hand you your real number.' }, { label: 'Right Tool per Bias', value: 'Anchoring, FOMO, endowment each differ', explain: 'There is no one fix. Anchoring needs a second valuation done a different way, FOMO needs a 48 hour delay, and the endowment effect needs the clean slate test: would you buy this today, at this price, if you did not already own it?' }], footer: 'Match the technique to the bias', sentiment: 'positive' };
 
-const BF23_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Everyday Anchoring Tactics', rows: [{ label: 'Retail', value: '"Was $999, Now $499" fake anchor' }, { label: 'Restaurant Menus', value: '$95 steak makes $35 salmon cheap' }, { label: 'Negotiations', value: 'First number = 15-20% advantage' }], footer: 'The first number sets the frame', sentiment: 'negative' };
+const BF23_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Everyday Anchoring Tactics', rows: [{ label: 'Retail', value: '"Was $999, Now $499" fake anchor', explain: 'The $999 was never a real price, it exists to be crossed out. J.C. Penney deleted it and charged genuinely less, and revenue fell 25 percent, because shoppers were buying the $500 discount, not the item.' }, { label: 'Restaurant Menus', value: '$95 steak makes $35 salmon cheap', explain: 'Nobody is meant to order the $95 steak. It is on the menu so that $35 for a piece of fish reads as sensible, when on its own that $35 would have made you stop and think.' }, { label: 'Negotiations', value: 'First number = 15-20% advantage', explain: 'On an $80K job, 15 to 20 percent is $12,000 to $16,000 a year, decided by who says a number first. Lesson 11 showed anchors moving the price of a stock, this is the same trick moving your pay.' }], footer: 'The first number sets the frame', sentiment: 'negative' };
 
-const BF23_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Framing Effects Across Life', rows: [{ label: 'Medical', value: '90% survival vs 10% mortality' }, { label: 'Career', value: 'Sunk cost keeps you in bad jobs' }, { label: 'Lifestyle', value: 'Loss aversion freezes life decisions' }], footer: 'Reframing changes the optimal choice', sentiment: 'positive' };
+const BF23_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Framing Effects Across Life', rows: [{ label: 'Medical', value: '90% survival vs 10% mortality', explain: 'Same surgery, same odds, two sentences. 80 percent of patients agree to the survival version and 50 percent agree to the mortality version, so 30 people in every 100 change their answer on wording alone.' }, { label: 'Career', value: 'Sunk cost keeps you in bad jobs', explain: 'Those four years of law school are gone whether you stay or leave, so they belong in neither column of today\'s decision. Lesson 12 called this sunk cost in a losing stock, here it is holding a person in a job.' }, { label: 'Lifestyle', value: 'Loss aversion freezes life decisions', explain: 'Loss aversion, from lesson 19, makes a possible loss feel roughly twice as heavy as a gain of the same size, so doing nothing always feels like the safe option. Staying put is a choice too, it just never feels like one.' }], footer: 'Reframing changes the optimal choice', sentiment: 'positive' };
 
-const BF24_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Market Anomalies & Their Behavioral Roots', rows: [{ label: 'Momentum', value: '8-12%/yr, underreaction to news', percent: 80 }, { label: 'Value Premium', value: '4-5%/yr, overreaction to bad news', percent: 45 }, { label: 'PEAD', value: '2-4% drift, anchoring to old data', percent: 25 }], footer: 'Patterns that contradict efficient markets', sentiment: 'positive' };
+const BF24_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Market Anomalies & Their Behavioral Roots', rows: [{ label: 'Momentum', value: '8-12%/yr, underreaction to news', percent: 80, explain: 'Momentum pays the most because the mistake behind it is the slowest to correct. It takes people 3 to 12 months to finish believing good news they have already read.' }, { label: 'Value Premium', value: '4-5%/yr, overreaction to bad news', percent: 45, explain: 'Value pays about half of momentum and it comes from the opposite error. Momentum is people moving too slowly on good news, value is people slamming the brakes too hard on bad news.' }, { label: 'PEAD', value: '2-4% drift, anchoring to old data', percent: 25, explain: 'The smallest drift is the cleanest proof. The earnings beat is public on day one, yet the price keeps creeping for 60 to 90 days because investors are still stuck on the old estimate.' }], footer: 'Patterns that contradict efficient markets', sentiment: 'positive' };
 
-const BF24_TEACH2: AnimatedVisual = { type: 'grid', title: 'Using Anomaly Knowledge', items: [{ label: 'Factor Tilting', value: 'Permanent value + momentum tilt', color: '#A451E6' }, { label: 'Smart Beta ETFs', value: 'VTV, MTUM, LRGF exposure', color: '#3B82F6' }, { label: 'Durable Premiums', value: 'Biases persist despite awareness', color: '#10B981' }], footer: '1-3% annual outperformance, low extra risk', sentiment: 'positive' };
+const BF24_TEACH2: AnimatedVisual = { type: 'grid', title: 'Using Anomaly Knowledge', items: [{ label: 'Factor Tilting', value: 'Permanent value + momentum tilt', color: '#A451E6', sprite: 'scale-tip', explain: 'Permanent is the important word. You set the tilt once and never decide when to switch it on, which is how the extra 1 to 3 percent a year showed up over 30 years without a single timing call.' }, { label: 'Smart Beta ETFs', value: 'VTV, MTUM, LRGF exposure', color: '#3B82F6', sprite: 'stock-ticker', explain: 'VTV, MTUM and LRGF are three tickers you can buy in an ordinary brokerage account. Patterns that took researchers decades to document now cost you one trade to hold.' }, { label: 'Durable Premiums', value: 'Biases persist despite awareness', color: '#10B981', sprite: 'anchor', explain: 'This row is the reason the other two are worth anything. Most published patterns get traded flat within a few years, but you cannot publish anchoring and loss aversion out of a human brain.' }], footer: '1-3% annual outperformance, low extra risk', sentiment: 'positive', sprite: 'target' };
 
-const BF25_TEACH1: AnimatedVisual = { type: 'flow', title: 'The Unified Behavioral Framework', nodes: [{ label: 'Bias Recognition', value: 'Cognitive, emotional, social' }, { label: 'Market Impact', value: 'Momentum, value, bubbles' }, { label: 'Debiasing System', value: 'Rules, journals, BPT, factors' }, { label: 'Behavioral Alpha', value: '2.5-4.5% annual edge' }], footer: 'Integrating 24 lessons into one system', sentiment: 'positive' };
+const BF25_TEACH1: AnimatedVisual = { type: 'flow', title: 'The Unified Behavioral Framework', nodes: [{ label: 'Bias Recognition', value: 'Cognitive, emotional, social', sprite: 'magnifier', explain: 'Three doors, three different keys. A thinking error gets fixed by a checklist, a feeling error by a waiting rule, a following error by asking whether you would place this trade if nobody else were placing it.' }, { label: 'Market Impact', value: 'Momentum, value, bubbles', sprite: 'crowd', explain: 'Your biases do not stay inside your head. In lesson 4 a chain of six buyers ran a price from $20 to $483 while the business did not change at all, and only the first one of them had checked anything.' }, { label: 'Debiasing System', value: 'Rules, journals, BPT, factors', sprite: 'shield', explain: 'This is the only box on the row you control. Knowing about a bias cuts your errors by 10 to 15 percent, writing the protocol down cuts them by 50 to 70, so the pen is worth about four times the knowledge.' }, { label: 'Behavioral Alpha', value: '2.5-4.5% annual edge', sprite: 'gem', explain: 'This number beats the 1.5 to 3 on the opening card because it stacks two sources: about 1.5 from coaching yourself out of panic, another 1 to 3 from factor tilts. Every point of it comes from subtracting mistakes, none from adding better picks.' }], footer: 'Integrating 24 lessons into one system', sentiment: 'positive', sprite: 'compass' };
 
-const BF25_TEACH2: AnimatedVisual = { type: 'flow', title: 'Your Behavioral Finance Playbook', nodes: [{ label: 'Before Any Decision', value: '5-point checklist + journal' }, { label: 'Portfolio Construction', value: 'BPT layers + factor tilts' }, { label: 'Ongoing Maintenance', value: 'Monthly review, clean slate test' }], footer: 'Build systems that intercept biases', sentiment: 'positive' };
+const BF25_TEACH2: AnimatedVisual = { type: 'flow', title: 'Your Behavioral Finance Playbook', nodes: [{ label: 'Before Any Decision', value: '5-point checklist + journal', sprite: 'check-badge', explain: 'Thesis, valuation, bear case, position size, exit plan. A stock you found on your phone this morning usually fails one of the five inside ten seconds, which makes this the cheapest ten seconds in the course.' }, { label: 'Portfolio Construction', value: 'BPT layers + factor tilts', sprite: 'ladder', explain: 'The aspirational layer is capped at 5 to 10 percent for a reason: it gives the gambling urge a legal address, so the other 90 to 95 percent never has to argue with it. Lesson 21 built these layers.' }, { label: 'Ongoing Maintenance', value: 'Monthly review, clean slate test', sprite: 'calendar', explain: 'The clean slate test is one question, four times a year: would I buy this today at today\'s price? If the answer is no and you are holding only because of what you paid, that is the disposition effect from lesson 17 dressed up as patience.' }], footer: 'Build systems that intercept biases', sentiment: 'positive', sprite: 'book' };
 
 const lessons: PathwayLesson[] = [
   // ═══════════════════════════════════════════════════════════════
@@ -78,12 +78,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Annual Return Over 30 Years (1993-2023)',
         items: [
-          { label: 'S&P 500 index', value: 100, displayValue: '9.65%' },
-          { label: 'Average equity investor', value: 52, displayValue: '5.04%' }
+          { label: 'S&P 500 index', value: 100, displayValue: '9.65%', sprite: 'chart-up', explain: 'Full bar, 9.65% a year, and nobody had to pick a single stock to earn it. This is what the index paid anyone who bought it in 1993 and then did nothing at all for thirty years.' },
+          { label: 'Average equity investor', value: 52, displayValue: '5.04%', sprite: 'piggy-crack', explain: 'This bar is 52% of the one above it, so the typical investor kept barely half of a return that was already sitting there. The missing 4.61% a year was not taken by the market, it was handed back by decisions.' }
         ],
         footer: 'A 4.61% gap, almost entirely behavioral (DALBAR)',
 
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'scale-tip'}
     ),
 
     // Step 2, Stakes Card
@@ -98,7 +98,7 @@ const lessons: PathwayLesson[] = [
           { label: 'Year 0', value: '100000' },
           { label: 'Year 10', value: '163000' },
           { label: 'Year 20', value: '265000' },
-          { label: 'Year 30', value: '432000' }
+          { label: 'Year 30', value: '432000', explain: 'Thirty years of gut calls turn $100,000 into $432,000. No single year here looks like a catastrophe, and that is the trap: 5% a year is simply what survives after each panic sale.' }
         ],
         trend: 'up',
         footer: '$100K grows to $432K after 30 years',
@@ -111,7 +111,7 @@ const lessons: PathwayLesson[] = [
           { label: 'Year 0', value: '100000' },
           { label: 'Year 10', value: '259000' },
           { label: 'Year 20', value: '673000' },
-          { label: 'Year 30', value: '1745000' }
+          { label: 'Year 30', value: '1745000', explain: '$1,745,000 against the gut investor\'s $432,000. Both people started with the same $100,000 and owned the same market, so every dollar of that $1.3 million difference was paid for by behavior.' }
         ],
         trend: 'up',
         footer: '$100K grows to $1.74M after 30 years',
@@ -144,13 +144,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Two Systems, One Brain',
         rows: [
-          { label: 'System 1', value: 'Fast, automatic, emotional, evolved for survival' },
-          { label: 'System 2', value: 'Slow, deliberate, analytical, handles long-term planning' },
-          { label: 'Under market stress', value: 'System 1 hijacks the decision before System 2 reacts' }
+          { label: 'System 1', value: 'Fast, automatic, emotional, evolved for survival', explain: 'This is the system that kept your ancestors alive by reacting in under a second. It is still the one holding your phone when the market falls 15% in two weeks, and it has never once read a chart.' },
+          { label: 'System 2', value: 'Slow, deliberate, analytical, handles long-term planning', explain: 'System 2 is the part that can check that every bear market so far has recovered. It is slow, it burns real energy, and it is the first thing to go quiet when your heart rate climbs.' },
+          { label: 'Under market stress', value: 'System 1 hijacks the decision before System 2 reacts', explain: 'This row is where the 4.61% gap is born. System 2 is not wrong, it is late: the sell order is already placed by the time the analysis starts.' }
         ],
         footer: 'The brain cannot tell a bear market from an actual bear',
 
-      sentiment: 'negative'}
+      sentiment: 'negative'},
+      {
+        hint: 'Press each of the three rows. The first two describe your brain, the third one is the row that costs you money.',
+        recap: 'The 4.61% gap in the opening chart is not a stock picking gap, it is a reaction gap. System 1 was built to save you inside one second, and it charges you about half of a thirty year return for using it on a thirty year decision.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check (Application-based)
@@ -251,10 +255,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Loss Aversion & System 1 Facts',[
-      ['What percentage of their potential returns do average investors lose to behavioral errors?','According to DALBAR, about 48%, the average investor earned 5.04% vs the market\'s 9.65% over 30 years. Behavioral errors cost more than fees, taxes, and bad stock picks combined.'],
-      ['How quickly did the market recover from the fastest bear market in history (COVID 2020)?','Just 148 days, from the February 19 peak to the August 18 recovery. Investors who panic-sold missed a 70%+ rebound in roughly 5 months.'],
-      ['Why does your brain react to portfolio losses the same way it reacts to physical threats?','The amygdala doesn\'t distinguish between financial danger and physical danger. A 30% portfolio drop triggers the same cortisol spike and fight-or-flight response as encountering a predator. This response evolved over millions of years, your prefrontal cortex is only about 100,000 years old.'],
-      ['What did Kahneman say about his own susceptibility to biases?','He admitted: "My intuitive thinking is just as prone to overconfidence, extreme predictions, and the planning fallacy as it was before I made a study of these issues." Awareness helps, but it doesn\'t eliminate biases.']
+      ['What percentage of their potential returns do average investors lose to behavioral errors?','According to DALBAR, about 48%, the average investor earned 5.04% vs the market\'s 9.65% over 30 years. Behavioral errors cost more than fees, taxes, and bad stock picks combined.', { stat: '48% of returns', sprite: 'bill' }],
+      ['How quickly did the market recover from the fastest bear market in history (COVID 2020)?','Just 148 days, from the February 19 peak to the August 18 recovery. Investors who panic-sold missed a 70%+ rebound in roughly 5 months.', { stat: '148 days', sprite: 'stopwatch' }],
+      ['Why does your brain react to portfolio losses the same way it reacts to physical threats?','The amygdala doesn\'t distinguish between financial danger and physical danger. A 30% portfolio drop triggers the same cortisol spike and fight-or-flight response as encountering a predator. This response evolved over millions of years, your prefrontal cortex is only about 100,000 years old.', { stat: '100,000 vs millions', sprite: 'bear' }],
+      ['What did Kahneman say about his own susceptibility to biases?','He admitted: "My intuitive thinking is just as prone to overconfidence, extreme predictions, and the planning fallacy as it was before I made a study of these issues." Awareness helps, but it doesn\'t eliminate biases.', { stat: 'Zero immunity', sprite: 'book' }]
     ]),
 
     // Step 12, Drag and Drop: Order the behavioral cascade
@@ -401,10 +405,10 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'NASDAQ Composite (1995-2002)',
         points: [
-          { label: '1995', value: '1000' },
-          { label: '1998', value: '2000' },
-          { label: 'Mar 2000 peak', value: '5048' },
-          { label: 'Oct 2002 trough', value: '1114' }
+          { label: '1995', value: '1000', explain: 'Start here and hold this number, because every later figure is a multiple of it. The NASDAQ at 1,000 in 1995 was a normal index priced on normal earnings, and nothing in the six years that followed made those companies ten times better.' },
+          { label: '1998', value: '2000', explain: 'Doubling in three years is already a strong decade of returns paid out early. This is the point where people stopped calling it a good market and started calling it a new economy.' },
+          { label: 'Mar 2000 peak', value: '5048', explain: 'The index added 3,048 points in about two years, more than it had gained in its entire history before then. At this peak 107 NASDAQ companies carried a price-to-earnings ratio above 1,000, against a normal 15 to 20.' },
+          { label: 'Oct 2002 trough', value: '1114', explain: '1,114 sits barely above the 1995 starting point, so two and a half years of falling gave back almost seven years of gains. Anyone who bought at 5,048 waited until 2015 just to get their money back, fifteen years of nothing.' }
         ],
         trend: 'down',
         footer: '$5 trillion in market value destroyed in two years',
@@ -421,37 +425,37 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Bias-Blind Investor',
         items: [
-          { label: 'Confirmation', value: 'Reads only bullish takes', color: '#EF4444' },
-          { label: 'Anchoring', value: 'Fixated on the old high', color: '#F59E0B' },
-          { label: 'Recency', value: 'Assumes the trend lasts', color: '#EF4444' },
-          { label: 'Overconfidence', value: 'Bets big, sure he is right', color: '#F59E0B' }
+          { label: 'Confirmation', value: 'Reads only bullish takes', color: '#EF4444', sprite: 'newspaper', explain: 'Reading only bulls does not make him informed, it makes him certain. Every article he finishes raises his confidence without adding one fact that could have changed his mind.' },
+          { label: 'Anchoring', value: 'Fixated on the old high', color: '#F59E0B', sprite: 'anchor', explain: 'The old high is just a price a crowd once paid on one day. He treats it as the real worth, so a fall of more than half reads to him as a discount instead of a warning.' },
+          { label: 'Recency', value: 'Assumes the trend lasts', color: '#EF4444', sprite: 'clock', explain: 'He is forecasting off the shortest possible sample. Three good years feel like a law of nature right up to the fourth one, and the fourth is usually where the price gets taken back.' },
+          { label: 'Overconfidence', value: 'Bets big, sure he is right', color: '#F59E0B', sprite: 'trophy', explain: 'Certainty is doing his position sizing for him. When he is right he makes a lot, and when he is wrong the exact same big bet is what takes the whole account down with it.' }
         ],
         footer: 'Four blind spots stacked on top of each other',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'crack'
       },
         withVisual: {
         type: 'grid',
         title: 'Bias-Aware Investor',
         items: [
-          { label: 'Seeks the bear case', value: 'Hunts for disconfirming evidence', color: '#10B981' },
-          { label: 'Anchors to value', value: 'Ignores past peak prices', color: '#3B82F6' },
-          { label: 'Questions consensus', value: 'Distrusts the loud narrative', color: '#10B981' },
-          { label: 'Sizes by uncertainty', value: 'Bets small when unsure', color: '#3B82F6' }
+          { label: 'Seeks the bear case', value: 'Hunts for disconfirming evidence', color: '#10B981', sprite: 'magnifier', explain: 'She goes looking for the argument that breaks her own idea. If the strongest case against it still fails, she owns something real. If it holds up, she found out for the price of an afternoon instead of a portfolio.' },
+          { label: 'Anchors to value', value: 'Ignores past peak prices', color: '#3B82F6', explain: 'She never asks how far it fell, only what it is worth. Bitcoin at $30,000 is neither cheap nor expensive until you have a number that came from somewhere other than the old $69,000 peak.' },
+          { label: 'Questions consensus', value: 'Distrusts the loud narrative', color: '#10B981', sprite: 'question', explain: 'A story everybody already repeats is a story already paid for. By 1999, when taxi drivers were handing out tech tips, the upside was inside the price and only the risk was still on the table.' },
+          { label: 'Sizes by uncertainty', value: 'Bets small when unsure', color: '#3B82F6', sprite: 'calculator', explain: 'Position size is where she puts her doubt in writing. Unsure means small, so being wrong costs her a slice of the portfolio rather than the portfolio.' }
         ],
         footer: 'A rational framework that catches each trap',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'shield'
       }
       }
     ),
 
     // Step 3, Quick Primer (tap to reveal the six biases before the deep teach)
     tr('Meet the Six Wealth Destroyers',[
-      ['Confirmation bias','You hunt for news that agrees with you and quietly skip the rest. A Tesla bull reads only Tesla bulls.'],
-      ['Anchoring bias','The first number sticks. Bitcoin at $69K makes $30K feel cheap, even if fair value is far lower.'],
-      ['Recency bias','You assume the last three years repeat forever, so you pile into whatever just ran up.'],
-      ['Overconfidence','You bet bigger because you are "sure." 74% of fund managers think they are above average.'],
-      ['Herd mentality','You buy because everyone is buying. GameStop went $20 to $483 on that alone.'],
-      ['Sunk cost fallacy','You hold a broken stock because of money already lost. The loss is gone either way.']
+      ['Confirmation bias','You hunt for news that agrees with you and quietly skip the rest. A Tesla bull reads only Tesla bulls.', { stat: 'Only agrees', sprite: 'newspaper' }],
+      ['Anchoring bias','The first number sticks. Bitcoin at $69K makes $30K feel cheap, even if fair value is far lower.', { stat: 'First number', sprite: 'anchor' }],
+      ['Recency bias','You assume the last three years repeat forever, so you pile into whatever just ran up.', { stat: 'Last 3 years', sprite: 'clock' }],
+      ['Overconfidence','You bet bigger because you are "sure." 74% of fund managers think they are above average.', { stat: '74% vs 10%', sprite: 'trophy' }],
+      ['Herd mentality','You buy because everyone is buying. GameStop went $20 to $483 on that alone.', { stat: 'Everyone else', sprite: 'crowd' }],
+      ['Sunk cost fallacy','You hold a broken stock because of money already lost. The loss is gone either way.', { stat: 'Already spent', sprite: 'chain-break' }]
     ]),
 
     // ═══════════════════════════════════════════
@@ -478,16 +482,20 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'The Six Wealth-Destroying Biases',
         rows: [
-          { label: 'Confirmation', value: 'Seek only the information that agrees with you' },
-          { label: 'Anchoring', value: 'Fixate on the first number you saw' },
-          { label: 'Recency', value: 'Assume the recent trend lasts forever' },
-          { label: 'Overconfidence', value: 'Believe you know more than the market' },
-          { label: 'Herd', value: 'Buy because everyone else is buying' },
-          { label: 'Sunk Cost', value: 'Refuse to sell because of money already lost' }
+          { label: 'Confirmation', value: 'Seek only the information that agrees with you', explain: 'The Dot-com crowd did not lack information, they filtered it. Buffett said tech valuations were insane and got mocked for not understanding technology, so the one warning that turned out to be right was the exact one they threw away.' },
+          { label: 'Anchoring', value: 'Fixate on the first number you saw', explain: 'Bitcoin touched $69,000, and after that every lower price felt like a sale. Buyers at $50K, $40K and $30K all thought they were getting a discount, and it kept going to $16,000. Half off an anchor is not the same as cheap.' },
+          { label: 'Recency', value: 'Assume the recent trend lasts forever', explain: 'Three straight years of 30 percent gains rewired what people counted as normal. Nobody was pricing the year 2000 off a century of market history, they were pricing it off last month.' },
+          { label: 'Overconfidence', value: 'Believe you know more than the market', explain: '74 percent of fund managers say they beat the market, and over 15 years more than 90 percent lose to a plain index fund. Compare those two numbers and roughly two thirds of that group is wrong about itself, professionally.' },
+          { label: 'Herd', value: 'Buy because everyone else is buying', explain: 'GameStop went from $20 to $483 in 17 days, a 2,300 percent move, and almost none of those buyers had opened a financial statement. The reason to buy was that other people were buying, which is not a reason.' },
+          { label: 'Sunk Cost', value: 'Refuse to sell because of money already lost', explain: 'A stock down 80 percent feels impossible to sell because the loss seems to become real at the click. It was already real. The only live question is where your next dollar does the most work, and the answer never depends on what you paid.' }
         ],
         footer: 'These six explain most of investor underperformance',
 
-      sentiment: 'negative'}
+      sentiment: 'negative'},
+      {
+        hint: 'Each row names a move you make with real money, not a mood. Look for the two you already made this year, they are usually anchoring and recency.',
+        recap: 'These are not six separate flaws, they are one machine running in order: the herd starts the buying, confirmation feeds it, anchoring and recency set the price, overconfidence sizes the bet, and sunk cost keeps you in it while it falls. Lesson 1 measured the damage as a 4.61 percent gap per year between the S&P 500 and the average investor holding it. This lesson names the six moves that open the gap, and a bias you can name is one your slow brain gets a chance to catch.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check (Application-based)
@@ -587,10 +595,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Cognitive Biases in Market History',[
-      ['How did confirmation bias fuel the Dot-com bubble?','Investors consumed only "new economy" narratives and dismissed warnings from value investors like Warren Buffett, who was mocked for "not understanding technology." Buffett was vindicated when the NASDAQ fell 78%.'],
-      ['What real-world example best illustrates anchoring bias?','Bitcoin\'s journey from $69K to $16K. Investors anchored to the all-time high, making every price below it feel like a discount, even as the asset fell 77%. Many who "bought the dip" at $50K, $40K, and $30K suffered further losses.'],
-      ['How did herd mentality manifest in the GameStop frenzy?','Over 100,000 new brokerage accounts were opened in a single week. People who had never invested bought GameStop solely because their social media feed was filled with others doing the same. The WallStreetBets subreddit grew from 2M to 10M members in 2 weeks.'],
-      ['What is the most expensive example of overconfidence in market history?','Long-Term Capital Management (LTCM) in 1998. A hedge fund run by two Nobel Prize-winning economists used 25:1 leverage because they were "certain" their models were correct. They lost $4.6 billion in four months and nearly collapsed the global financial system.']
+      ['How did confirmation bias fuel the Dot-com bubble?','Investors consumed only "new economy" narratives and dismissed warnings from value investors like Warren Buffett, who was mocked for "not understanding technology." Buffett was vindicated when the NASDAQ fell 78%.', { stat: '78% fall, 15 years to break even', sprite: 'chart-down' }],
+      ['What real-world example best illustrates anchoring bias?','Bitcoin\'s journey from $69K to $16K. Investors anchored to the all-time high, making every price below it feel like a discount, even as the asset fell 77%. Many who "bought the dip" at $50K, $40K, and $30K suffered further losses.', { stat: '3 dips bought, all above the bottom', sprite: 'price-tag' }],
+      ['How did herd mentality manifest in the GameStop frenzy?','Over 100,000 new brokerage accounts were opened in a single week. People who had never invested bought GameStop solely because their social media feed was filled with others doing the same. The WallStreetBets subreddit grew from 2M to 10M members in 2 weeks.', { stat: '8 million joined in 14 days', sprite: 'crowd' }],
+      ['What is the most expensive example of overconfidence in market history?','Long-Term Capital Management (LTCM) in 1998. A hedge fund run by two Nobel Prize-winning economists used 25:1 leverage because they were "certain" their models were correct. They lost $4.6 billion in four months and nearly collapsed the global financial system.', { stat: '2 Nobel prizes, $4.6B, 4 months', sprite: 'bank-run' }]
     ]),
 
     // Step 12, Drag and Drop: Match bias to example
@@ -738,9 +746,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Fear & Greed Index: March 16, 2020',
         rows: [
-          { label: 'Index score that day', value: '2 out of 100, extreme fear', percent: 2 },
-          { label: 'What buyers saw', value: 'Headlines screaming economic collapse' },
-          { label: 'Return over the next 12 months', value: 'Up more than 75%', percent: 100 }
+          { label: 'Index score that day', value: '2 out of 100, extreme fear', percent: 2, explain: 'Two out of a hundred. The scale bottoms out at zero, so that Monday sat almost exactly on the floor of the most fear anyone had ever measured. There was barely anybody left who still wanted to own stocks.' },
+          { label: 'What buyers saw', value: 'Headlines screaming economic collapse', explain: 'The people buying that day were reading the same collapse headlines as the people selling. Same information, opposite action, so what separated them was not knowledge. It was nerve.' },
+          { label: 'Return over the next 12 months', value: 'Up more than 75%', percent: 100, explain: 'The 2 and the 75% are the same fact told twice. The price was that low precisely because the mood was that bad, so the worst reading on the gauge bought you the best year.' }
         ],
         footer: 'Maximum fear marked the moment of maximum opportunity',
 
@@ -756,8 +764,8 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'Emotional Investor',
         points: [
-          { label: 'Buy here', value: '25' },
-          { label: 'Sell here', value: '50' }
+          { label: 'Buy here', value: '25', explain: 'He enters only once the run has lasted long enough to feel safe. That means he is buying because it already went up, so he is paying for gains other people collected.' },
+          { label: 'Sell here', value: '50', explain: 'He exits at the point where holding hurts. Nothing about the investment changed between these two dots, only how it felt to own, so his whole holding period was chosen by his mood.' }
         ],
         trend: 'down',
         footer: 'Buy high, sell low',
@@ -767,8 +775,8 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'Contrarian Investor',
         points: [
-          { label: 'Sell/trim', value: '25' },
-          { label: 'Buy here', value: '50' }
+          { label: 'Sell/trim', value: '25', explain: 'She trims while the mood is still good, which is the only moment selling is easy, because there is a queue of buyers who feel certain.' },
+          { label: 'Buy here', value: '50', explain: 'She is buying the shares he is unloading. Panic selling is what creates the supply, so the same crowd that trapped him is the crowd that hands her the position.' }
         ],
         trend: 'up',
         footer: 'Buy low, sell high',
@@ -809,13 +817,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'The Investor Emotion Cycle',
         rows: [
-          { label: 'Euphoria, the peak', value: '"This time is different", prices and risk are highest' },
-          { label: 'Capitulation, the bottom', value: '"I will never invest again", selling pressure is exhausted' },
-          { label: 'Recovery: depression to hope to relief', value: 'Confidence slowly rebuilds, the cycle restarts' }
+          { label: 'Euphoria, the peak', value: '"This time is different", prices and risk are highest', explain: 'Price and risk peak on the same day, which is the whole trap. In March 2000 the NASDAQ hit 5,048 and Cisco traded at 196 times earnings, so stocks were most expensive at the exact moment they felt safest.' },
+          { label: 'Capitulation, the bottom', value: '"I will never invest again", selling pressure is exhausted', explain: 'That sentence marks a bottom because whoever says it has already sold. In March 2020 investors pulled $326 billion out of equity funds, and once that money is out there is nobody left to sell and push the price lower.' },
+          { label: 'Recovery: depression to hope to relief', value: 'Confidence slowly rebuilds, the cycle restarts', explain: 'This is the quiet row and the expensive one. Recovery begins during depression, so by the time news turns clearly good the S&P had already gained more than 65%. Waiting to feel comfortable costs you the cheap part.' }
         ],
         footer: 'Euphoria is maximum risk, capitulation is maximum opportunity',
 
-      sentiment: 'negative'}
+      sentiment: 'negative'},
+      {
+        hint: 'Press any of the three stages to hear what the crowd is doing there, and why the mood at each turn points the opposite way from the opportunity.',
+        recap: 'The cycle is not a story about other people. In lesson 1 you saw the average investor earn 5.04% a year while the index earned 9.65%, and this is where that 4.61 point gap gets made: buying near euphoria, selling near capitulation, a couple of times a decade. So use your own comfort as the gauge, because the safest feeling shows up at the top and the worst feeling shows up at the bottom.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check (Application-based)
@@ -920,12 +932,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Emotional Cycle Facts',[
-      ['What happened to investors who bought when the Fear & Greed Index hit 2 in March 2020?','They earned 75%+ returns in 12 months. The S&P 500 bottomed within days of the extreme fear reading and staged the fastest recovery in market history, proving that maximum fear equals maximum opportunity.'],
-      ['How long did the dot-com emotional cycle last from start to finish?','Approximately 8 years, from the optimism of Netscape\'s 1995 IPO through euphoria in 1999-2000, capitulation in 2001-2002, and relief by 2003. The cycle always plays out; only the duration varies.'],
-      ['Why does Warren Buffett say "be fearful when others are greedy and greedy when others are fearful"?','Because extreme crowd emotions create mispricing. During euphoria, assets are overpriced because everyone is buying. During capitulation, assets are underpriced because everyone is selling. Going against the crowd exploits these mispricings.'],
-      ['What physiological changes occur in your brain during market panic?','The amygdala triggers cortisol release, increasing heart rate and narrowing focus to immediate threats. The nucleus accumbens deactivates, reducing risk appetite. Prefrontal cortex function is suppressed, degrading rational analysis. Your brain literally shifts into survival mode.'],
-      ['What is the VIX and why is it called the "fear gauge"?','The CBOE Volatility Index measures expected 30-day market volatility from S&P 500 options prices. It spikes during panic because investors rush to buy put options (insurance against losses), driving up implied volatility. VIX above 40 has preceded positive 12-month returns 95% of the time.'],
-      ['How did Sir John Templeton use the emotion cycle to build his fortune?','In 1939, during the capitulation of World War II panic, Templeton bought 100 shares of every stock trading below $1 on the NYSE, 104 companies total, for about $10,400. Within four years, his investment was worth over $40,000. He later said: "The time of maximum pessimism is the best time to buy."']
+      ['What happened to investors who bought when the Fear & Greed Index hit 2 in March 2020?','They earned 75%+ returns in 12 months. The S&P 500 bottomed within days of the extreme fear reading and staged the fastest recovery in market history, proving that maximum fear equals maximum opportunity.', { stat: '2 out of 100, then up 75%', sprite: 'chart-up' }],
+      ['How long did the dot-com emotional cycle last from start to finish?','Approximately 8 years, from the optimism of Netscape\'s 1995 IPO through euphoria in 1999-2000, capitulation in 2001-2002, and relief by 2003. The cycle always plays out; only the duration varies.', { stat: '8 years for all 13 stages', sprite: 'hourglass' }],
+      ['Why does Warren Buffett say "be fearful when others are greedy and greedy when others are fearful"?','Because extreme crowd emotions create mispricing. During euphoria, assets are overpriced because everyone is buying. During capitulation, assets are underpriced because everyone is selling. Going against the crowd exploits these mispricings.', { stat: 'The crowd sets the price, not the value', sprite: 'crowd' }],
+      ['What physiological changes occur in your brain during market panic?','The amygdala triggers cortisol release, increasing heart rate and narrowing focus to immediate threats. The nucleus accumbens deactivates, reducing risk appetite. Prefrontal cortex function is suppressed, degrading rational analysis. Your brain literally shifts into survival mode.', { stat: 'Cortisol up, judgment down', sprite: 'bolt' }],
+      ['What is the VIX and why is it called the "fear gauge"?','The CBOE Volatility Index measures expected 30-day market volatility from S&P 500 options prices. It spikes during panic because investors rush to buy put options (insurance against losses), driving up implied volatility. VIX above 40 has preceded positive 12-month returns 95% of the time.', { stat: 'Above 40, positive 95% of the time', sprite: 'stock-ticker' }],
+      ['How did Sir John Templeton use the emotion cycle to build his fortune?','In 1939, during the capitulation of World War II panic, Templeton bought 100 shares of every stock trading below $1 on the NYSE, 104 companies total, for about $10,400. Within four years, his investment was worth over $40,000. He later said: "The time of maximum pessimism is the best time to buy."', { stat: '$10,400 into $40,000 in 4 years', sprite: 'cart' }]
     ]),
 
     // Step 12, Drag and Drop: Order the emotion cycle
@@ -1080,14 +1092,14 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Asch Conformity Experiment',
         items: [
-          { label: 'Alone, no group', value: '99% answer correctly', color: '#10B981' },
-          { label: 'Group all wrong', value: '75% conform at least once', color: '#EF4444' },
-          { label: 'Conform on most trials', value: '32% of participants', color: '#F59E0B' },
-          { label: 'One dissenter added', value: 'Conformity drops about 80%', color: '#10B981' }
+          { label: 'Alone, no group', value: '99% answer correctly', color: '#10B981', sprite: 'check-badge' },
+          { label: 'Group all wrong', value: '75% conform at least once', color: '#EF4444', sprite: 'magnet' },
+          { label: 'Conform on most trials', value: '32% of participants', color: '#F59E0B', sprite: 'scale-tip' },
+          { label: 'One dissenter added', value: 'Conformity drops about 80%', color: '#10B981', sprite: 'chain-break' }
         ],
         footer: 'The line task was easy, the wrong answer was obvious',
 
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'crowd'}
     ),
 
     // Step 2, Stakes Card
@@ -1099,25 +1111,25 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Following the Herd',
         items: [
-          { label: 'GameStop at $347', value: 'Bought because Reddit said so', color: '#EF4444' },
-          { label: 'SPACs', value: 'Bought because a coworker tripled his money', color: '#EF4444' },
-          { label: 'Madoff\'s fund', value: 'Trusted because the "smart money" was in', color: '#EF4444' },
-          { label: 'Outcome', value: 'GameStop fell 88%, SPACs fell 70%', color: '#EF4444' }
+          { label: 'GameStop at $347', value: 'Bought because Reddit said so', color: '#EF4444', sprite: 'phone' },
+          { label: 'SPACs', value: 'Bought because a coworker tripled his money', color: '#EF4444', sprite: 'rocket' },
+          { label: 'Madoff\'s fund', value: 'Trusted because the "smart money" was in', color: '#EF4444', sprite: 'briefcase' },
+          { label: 'Outcome', value: 'GameStop fell 88%, SPACs fell 70%', color: '#EF4444', sprite: 'chart-down' }
         ],
         footer: 'Social proof walked the herd straight off a cliff',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'bank-run'
       },
         withVisual: {
         type: 'grid',
         title: 'Independent Thinker',
         items: [
-          { label: 'GameStop frenzy', value: 'Seen as a textbook information cascade', color: '#10B981' },
-          { label: 'SPAC mania', value: 'Recognized as proof detached from fundamentals', color: '#3B82F6' },
-          { label: 'Madoff returns', value: 'Questioned for being impossibly smooth', color: '#10B981' },
-          { label: 'Outcome', value: 'Avoids the loss, profits when herds reverse', color: '#10B981' }
+          { label: 'GameStop frenzy', value: 'Seen as a textbook information cascade', color: '#10B981', sprite: 'book' },
+          { label: 'SPAC mania', value: 'Recognized as proof detached from fundamentals', color: '#3B82F6', sprite: 'scales' },
+          { label: 'Madoff returns', value: 'Questioned for being impossibly smooth', color: '#10B981', sprite: 'question' },
+          { label: 'Outcome', value: 'Avoids the loss, profits when herds reverse', color: '#10B981', sprite: 'shield' }
         ],
         footer: 'Verify first, then decide whether to follow',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'magnifier'
       }
       }
     ),
@@ -1149,16 +1161,20 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Information Cascade → Bubble',
         items: [
-          { label: 'Buy', color: '#B862ED' },
-          { label: 'Buy', color: '#B862ED' },
-          { label: 'BUY!', color: '#A451E6' },
-          { label: 'BUY!!', color: '#EF4444' },
-          { label: 'FOMO', color: '#EF4444' },
-          { label: 'Bubble', color: '#EF4444' }
+          { label: 'Buy', color: '#B862ED', sprite: 'seedling', explain: 'Buyer one actually read about the company. Nobody is watching yet, so this is the only purchase in the whole chain that carries real information.' },
+          { label: 'Buy', color: '#B862ED', sprite: 'chat', explain: 'Buyer two saw buyer one and copied. From this point on, every purchase is evidence about other people, not evidence about the business.' },
+          { label: 'BUY!', color: '#A451E6', sprite: 'newspaper', explain: 'The capital letter is the tell. The story has moved from the company to the crowd, and the people arriving now are checking screenshots instead of filings.' },
+          { label: 'BUY!!', color: '#EF4444', sprite: 'bolt', explain: 'GameStop covered this stretch in about 15 trading days, $20 to $483, with no new company news. Nothing changed except how many people were watching.' },
+          { label: 'FOMO', color: '#EF4444', sprite: 'flame', explain: 'Here the reason flips. People stop buying because it is cheap and start buying because it went up, which means the price is now its own argument.' },
+          { label: 'Bubble', color: '#EF4444', sprite: 'crack', explain: 'Five of these six buyers were copying, so the price is made of other people\'s buying and holds only while they keep buying. GameStop fell 88%, to $40.' }
         ],
         footer: 'Each buyer\\\'s decision becomes "proof" for the next → cascade',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'network'},
+      {
+        hint: 'Press each link in the chain, from the first quiet Buy through to the Bubble, and check who that buyer is actually copying at that point.',
+        recap: 'Six buyers, and only the first one knew anything about the company. The other five were reading each other, which is why the price could run from $20 to $483 while the business stayed exactly the same. Lesson 3 drew the euphoria and panic curve as one investor\'s mood swinging on its own. This lesson shows who really builds that curve: a chain of people where nobody after the first person checked. So the test before you follow is one question. Would you make this exact trade if nobody else were making it?',
+      }
     ),
 
     // Step 4, Embedded Micro-Check (Application-based)
@@ -1260,12 +1276,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Herd Behavior Key Insights',[
-      ['How many times did Harry Markopolos prove Madoff was a fraud to the SEC?','Four times, in 2000, 2001, 2005, and 2007. Each time he was ignored because the social proof of Madoff\'s reputation and client list outweighed mathematical evidence. Social proof literally defeated math at the highest levels of financial regulation.'],
-      ['How fast did WallStreetBets grow during the GameStop frenzy?','From 1.8 million to 9.8 million members in two weeks, a 444% increase. This was the fastest-growing information cascade engine in financial history, as each new member\'s gain screenshots attracted more members.'],
-      ['What are the four conditions for the "wisdom of crowds" to work?','Diversity, independence, decentralization, and aggregation (per James Surowiecki). Remove any one, especially independence, and wisdom becomes madness. Social media systematically destroys independence.'],
-      ['How much money did SPAC investors ultimately lose?','The De-SPAC index fell 75% from its peak, and the average SPAC lost 60%+ of its value. The $160+ billion invested during the 2020-2021 mania represented one of the largest herd-driven wealth destructions since the dot-com crash.'],
-      ['What was Madoff\'s key social proof innovation?','Exclusivity. By rejecting potential investors, Madoff created artificial scarcity that made existing clients feel privileged and new clients desperate to join. Each "rejected" prospect became a more eager marketer. Turning people away is the most powerful social proof technique known.'],
-      ['In the Asch experiment, what reduced conformity by 80%?','Adding just one dissenter. When even a single confederate gave the correct answer, conformity dropped dramatically. In markets, a single credible contrarian voice can break an information cascade, which is why independent analysis is the most important investor skill.']
+      ['How many times did Harry Markopolos prove Madoff was a fraud to the SEC?','Four times, in 2000, 2001, 2005, and 2007. Each time he was ignored because the social proof of Madoff\'s reputation and client list outweighed mathematical evidence. Social proof literally defeated math at the highest levels of financial regulation.', { stat: '4 warnings, 0 acted on', sprite: 'calculator' }],
+      ['How fast did WallStreetBets grow during the GameStop frenzy?','From 1.8 million to 9.8 million members in two weeks, a 444% increase. This was the fastest-growing information cascade engine in financial history, as each new member\'s gain screenshots attracted more members.', { stat: '1.8M to 9.8M in 14 days', sprite: 'chart-up' }],
+      ['What are the four conditions for the "wisdom of crowds" to work?','Diversity, independence, decentralization, and aggregation (per James Surowiecki). Remove any one, especially independence, and wisdom becomes madness. Social media systematically destroys independence.', { stat: '4 conditions, 1 is fragile', sprite: 'compass' }],
+      ['How much money did SPAC investors ultimately lose?','The De-SPAC index fell 75% from its peak, and the average SPAC lost 60%+ of its value. The $160+ billion invested during the 2020-2021 mania represented one of the largest herd-driven wealth destructions since the dot-com crash.', { stat: 'De-SPAC index down 75%', sprite: 'bear' }],
+      ['What was Madoff\'s key social proof innovation?','Exclusivity. By rejecting potential investors, Madoff created artificial scarcity that made existing clients feel privileged and new clients desperate to join. Each "rejected" prospect became a more eager marketer. Turning people away is the most powerful social proof technique known.', { stat: '$65B fraud, grown by rejection', sprite: 'key' }],
+      ['In the Asch experiment, what reduced conformity by 80%?','Adding just one dissenter. When even a single confederate gave the correct answer, conformity dropped dramatically. In markets, a single credible contrarian voice can break an information cascade, which is why independent analysis is the most important investor skill.', { stat: '1 dissenter cuts it 80%', sprite: 'lightbulb' }]
     ]),
 
     // Step 12, Drag and Drop
@@ -1420,12 +1436,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Annual Return by Trading Frequency (Odean Study)',
         items: [
-          { label: 'Least active traders', value: 100, displayValue: '18.5%' },
-          { label: 'Most active traders', value: 62, displayValue: '11.4%' }
+          { label: 'Least active traders', value: 100, displayValue: '18.5%', sprite: 'hourglass', explain: '18.5% a year from accounts that mostly sat still. Nobody in this group was researching harder than anyone else, they just left their picks alone and let the years do the work.' },
+          { label: 'Most active traders', value: 62, displayValue: '11.4%', sprite: 'flame', explain: '11.4% is not a crash, it is the same market and the same six years. Set against 18.5%, the busiest traders kept only about 62 cents of every dollar the quiet accounts earned, and they worked far harder for it.' }
         ],
         footer: 'A 6.5% gap from overtrading, 66,465 accounts studied',
 
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'chart-down'}
     ),
 
     // Step 2, Stakes Card
@@ -1439,15 +1455,15 @@ const lessons: PathwayLesson[] = [
         value: '-6.5%/year',
         detail: '250 trades a year, 5x leverage',
         footer: 'Trades away the market return',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'piggy-crack'
       },
         withVisual: {
         type: 'comparison',
         title: 'Humble Investor',
         rows: [
-          { label: 'Trading activity', value: 'About 4 trades a year' },
-          { label: 'Leverage', value: 'None, no borrowed money at risk' },
-          { label: 'Result', value: 'Captures roughly the full market return' }
+          { label: 'Trading activity', value: 'About 4 trades a year', explain: 'Four trades a year is about one a quarter, against the 250 on the other card. Every trade you do not make is a commission and a spread you never pay.' },
+          { label: 'Leverage', value: 'None, no borrowed money at risk', explain: 'With no borrowed money the worst case is a bad year, not a zero. Archegos ran 5x to 8x leverage, which turned a 12% drop into a total loss, so this row is the difference between a setback and an ending.' },
+          { label: 'Result', value: 'Captures roughly the full market return', explain: 'Capturing the plain market return sounds unambitious until you check who else manages it: over 15 years it beats more than 90% of paid professionals.' }
         ],
         footer: 'Less action, more wealth',
         sentiment: 'positive'
@@ -1479,15 +1495,19 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'Confidence vs. Competence: The Dunning-Kruger Curve',
         points: [
-          { label: 'Novice (Mt. Stupid)', value: '95' },
-          { label: 'Some experience', value: '35' },
-          { label: 'Valley of Despair', value: '25' },
-          { label: 'Genuine expert', value: '60' }
+          { label: 'Novice (Mt. Stupid)', value: '95', explain: '95 is the highest confidence anywhere on this curve, and it sits at the far left where competence is near zero. The person most certain they have figured out the market is the one who has seen the fewest ways it can go wrong.' },
+          { label: 'Some experience', value: '35', explain: 'Confidence falls from 95 to 35 while actual skill is rising. That drop is what learning feels like from the inside: each new thing you learn shows you three more you did not know.' },
+          { label: 'Valley of Despair', value: '25', explain: '25 is the low point of the whole curve, and it is also the safest place on it. Nobody sitting at 25 puts 5x leverage on a hunch.' },
+          { label: 'Genuine expert', value: '60', explain: 'The expert lands at 60, a full 35 points below the beginner, with decades of evidence behind that number. Real skill never gives back the certainty you started with, it just makes your mistakes smaller and cheaper.' }
         ],
         trend: 'down',
         footer: 'Beginners feel most certain, experts stay humble',
 
-      sentiment: 'negative'}
+      sentiment: 'negative'},
+      {
+        hint: 'Press each point along the curve. Watch what happens to the confidence number between the novice at 95 and the expert at 60.',
+        recap: 'The expert sits at 60, below the beginner at 95, so confidence measures how little you have seen, not how much you know. Lesson 4 warned you about following the crowd. This is the mirror image: trusting yourself so completely that you trade 250 times a year and end up keeping 62 cents of every dollar the quiet accounts earned.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check (Application-based)
@@ -1590,12 +1610,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Overconfidence & Control Facts',[
-      ['What did Paul Slovic\'s information study reveal about more data and better decisions?','Giving horse racing handicappers 5, 10, 20, and 40 pieces of data per horse increased their confidence from 17% to 34%, but their accuracy stayed flat at 17%. More information creates illusion of knowledge, not actual knowledge. This applies directly to investors with Bloomberg terminals and 24/7 news.'],
-      ['How quickly did Bill Hwang lose $10 billion at Archegos Capital?','48 hours. On March 26-29, 2021, Archegos\'s concentrated, leveraged positions were liquidated in a fire sale. The $10 billion fortune, built over 8 years, evaporated in 2 days. Banks lost an additional $10+ billion. Credit Suisse\'s $5.5 billion Archegos loss contributed to the bank\'s eventual collapse.'],
-      ['What does the SPIVA Scorecard consistently show about active management?','Over 15 years, 92% of large-cap active managers underperform the S&P 500. Over 20 years, ~95% underperform. There is zero performance persistence, top managers in one period are random in the next. This is the most comprehensive evidence that overconfidence in stock-picking is systematically costly.'],
-      ['How does the disposition effect connect to overconfidence?','Overconfident traders sell winners too early (to "prove" they were right) and hold losers too long (to avoid admitting they were wrong). Odean found investors were 50% more likely to sell a winner than a loser, the exact opposite of what maximizes returns.'],
-      ['Why did Odean find that active traders\' sells outperformed their buys by 3.3%?','Because each trade is an implicit claim of superior knowledge. Active traders sell stocks they think will decline and buy stocks they think will rise. The 3.3% gap proves their predictions were systematically wrong, they would have literally made more money doing the opposite of every trade.'],
-      ['What level of leverage did Archegos use through total return swaps?','5x to 8x leverage, allowing Hwang to control $50-80 billion in stocks with just $10 billion in equity. This meant a 12-20% decline in his portfolio would wipe out 100% of his capital. Overconfidence made him believe a 12% decline couldn\'t happen. It happened in one day.']
+      ['What did Paul Slovic\'s information study reveal about more data and better decisions?','Giving horse racing handicappers 5, 10, 20, and 40 pieces of data per horse increased their confidence from 17% to 34%, but their accuracy stayed flat at 17%. More information creates illusion of knowledge, not actual knowledge. This applies directly to investors with Bloomberg terminals and 24/7 news.', { stat: '8x the data, 0 gain in accuracy', sprite: 'newspaper' }],
+      ['How quickly did Bill Hwang lose $10 billion at Archegos Capital?','48 hours. On March 26-29, 2021, Archegos\'s concentrated, leveraged positions were liquidated in a fire sale. The $10 billion fortune, built over 8 years, evaporated in 2 days. Banks lost an additional $10+ billion. Credit Suisse\'s $5.5 billion Archegos loss contributed to the bank\'s eventual collapse.', { stat: '$10 billion gone in 48 hours', sprite: 'stopwatch' }],
+      ['What does the SPIVA Scorecard consistently show about active management?','Over 15 years, 92% of large-cap active managers underperform the S&P 500. Over 20 years, ~95% underperform. There is zero performance persistence, top managers in one period are random in the next. This is the most comprehensive evidence that overconfidence in stock-picking is systematically costly.', { stat: '92% underperform over 15 years', sprite: 'bar-chart' }],
+      ['How does the disposition effect connect to overconfidence?','Overconfident traders sell winners too early (to "prove" they were right) and hold losers too long (to avoid admitting they were wrong). Odean found investors were 50% more likely to sell a winner than a loser, the exact opposite of what maximizes returns.', { stat: '50% more likely to sell a winner', sprite: 'scale-tip' }],
+      ['Why did Odean find that active traders\' sells outperformed their buys by 3.3%?','Because each trade is an implicit claim of superior knowledge. Active traders sell stocks they think will decline and buy stocks they think will rise. The 3.3% gap proves their predictions were systematically wrong, they would have literally made more money doing the opposite of every trade.', { stat: 'Sells beat buys by 3.3%', sprite: 'arrow-split' }],
+      ['What level of leverage did Archegos use through total return swaps?','5x to 8x leverage, allowing Hwang to control $50-80 billion in stocks with just $10 billion in equity. This meant a 12-20% decline in his portfolio would wipe out 100% of his capital. Overconfidence made him believe a 12% decline couldn\'t happen. It happened in one day.', { stat: '5x to 8x leverage on $10B', sprite: 'crack' }]
     ]),
 
     // Step 12, Drag and Drop
@@ -1750,9 +1770,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Same $1,000, Different Behavior',
         rows: [
-          { label: 'Tax Refund', value: '"Free money!" | Spent freely | New TV, vacation, shopping | → $0 saved' },
-          { label: 'Overtime Pay', value: '"Hard-earned" | Saved carefully | Emergency fund, retirement | → $1,000 saved' },
-          { label: 'SAME $1,000', value: 'Different mental label → different behavior | Richard Thaler, Nobel Prize 2017' }
+          { label: 'Tax Refund', value: '"Free money!" | Spent freely | New TV, vacation, shopping | → $0 saved', explain: 'Zero saved out of a full $1,000, and the excuse is that it never felt like income. It was income: it was your own paycheck, held back all year and handed back late.' },
+          { label: 'Overtime Pay', value: '"Hard-earned" | Saved carefully | Emergency fund, retirement | → $1,000 saved', explain: 'The whole $1,000 survives on this row. The only thing added was the memory of the extra hours, and that memory is worth exactly a thousand dollars.' },
+          { label: 'SAME $1,000', value: 'Different mental label → different behavior | Richard Thaler, Nobel Prize 2017', explain: 'Both rows buy the same things at the same prices. So the entire gap between $0 saved and $1,000 saved is made of the label sitting at the front of the row.' }
         ],
         footer: 'Richard Thaler, Nobel Prize 2017',
       
@@ -1768,12 +1788,12 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Mental Accounting Victim',
         items: [
-          { label: 'Spending $', color: '#EF4444' },
-          { label: 'Saving $', color: '#10B981' },
-          { label: 'Fun $', color: '#F59E0B' }
+          { label: 'Spending $', color: '#EF4444', sprite: 'cart', explain: 'The bucket you refill without thinking about it. Anything that lands in here gets used up, which is why a windfall dropped in this bucket disappears in weeks.' },
+          { label: 'Saving $', color: '#10B981', sprite: 'piggy-bank', explain: 'This bucket is guarded by a story, not by a rule. Nothing physically stops you pulling money out of it, only how you labeled it on the way in.' },
+          { label: 'Fun $', color: '#F59E0B', sprite: 'controller', explain: 'The third bucket is where surprise money lands by default, and it is the one bucket most people never set an actual number for.' }
         ],
         footer: 'Arbitrary categories leak wealth',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'piggy-crack'
       },
         withVisual: {
         type: 'metric',
@@ -1781,7 +1801,7 @@ const lessons: PathwayLesson[] = [
         value: '$1 = $1',
         detail: 'All dollars are equal',
         footer: 'Optimal allocation everywhere',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'scales'
       }
       }
     ),
@@ -1811,17 +1831,21 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Mental Accounting: Same Money, Different Treatment',
         items: [
-          { label: '$1,000', color: '#F59E0B' },
-          { label: 'Tax Refund', color: '#EF4444' },
-          { label: 'Spent on luxury', color: '#EF4444' },
-          { label: 'Bonus', color: '#B862ED' },
-          { label: 'Mixed use', color: '#B862ED' },
-          { label: 'Overtime Pay', color: '#10B981' },
-          { label: 'Saved carefully', color: '#10B981' }
+          { label: '$1,000', color: '#F59E0B', sprite: 'stack-cash', explain: 'Start here: one amount, one set of prices. Nothing that happens further down changes what this $1,000 can buy, only what you allow yourself to do with it.' },
+          { label: 'Tax Refund', color: '#EF4444', sprite: 'tax-form', explain: 'A refund is the least surprising $1,000 you will ever receive, because it is money you already earned and overpaid. It is still the branch that empties fastest.' },
+          { label: 'Spent on luxury', color: '#EF4444', sprite: 'gem', explain: 'This branch ends at $0 kept. The full thousand leaves, and a year later the only thing to point at is a TV worth a fraction of what it cost.' },
+          { label: 'Bonus', color: '#B862ED', sprite: 'gift', explain: 'A bonus sits in the middle because it feels half earned and half lucky, so people split it down the middle too. Half of $1,000 is still $500 kept by accident.' },
+          { label: 'Mixed use', color: '#B862ED', sprite: 'pie-slice', explain: 'Splitting is what happens when the label is fuzzy. Notice the split was not decided by your goals, it was decided by where the money came from.' },
+          { label: 'Overtime Pay', color: '#10B981', sprite: 'paycheck', explain: 'Same $1,000, except you can name the hours it cost you. That is the only difference between this branch and the refund branch above it.' },
+          { label: 'Saved carefully', color: '#10B981', sprite: 'vault', explain: 'This branch keeps all $1,000. The money never changed between the three sources, your story about it did, and here that story is worth a thousand dollars.' }
         ],
         footer: 'Rational: all three are identical in value and should be treated equally',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'arrow-split'},
+      {
+        hint: 'Press each box to follow one $1,000 down its branch and see how much of it is still there at the end.',
+        recap: 'A thousand dollars buys the same things whether it arrives as a refund, a bonus or overtime, yet the label alone decides whether $0 or the full $1,000 survives. Lesson 2 showed biases that distort what you believe about a stock. Mental accounting is stranger: it distorts what you believe about money you already own and can count.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check (Application-based)
@@ -1925,12 +1949,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Mental Accounting Insights',[
-      ['How do casinos use mental accounting to extract more money from gamblers?','Casinos use chips (reducing pain of paying), early wins (creating house money accounts), escalating bet sizes (house money effect), and free drinks/perks (making gambling feel like "entertainment" not "spending"). Every design element exploits a different mental accounting vulnerability.'],
-      ['What is Thaler\'s "Save More Tomorrow" program and how does it work?','SMarT makes escalating retirement contributions the default, requires opt-out rather than opt-in, and commits increases to future raises (not current pay). By using default bias, status quo bias, and loss aversion framing, participation jumped from 49% to 80% and savings rates nearly quadrupled from 3.5% to 13.6%.'],
-      ['Why is "you haven\'t lost until you sell" the most expensive myth in investing?','Because it keeps capital trapped in losing positions. A stock at $50 bought at $100 is worth $50 regardless of whether you sell. Holding prevents redeploying that $50 to better opportunities and forfeits the tax loss harvesting benefit of realizing the loss. The sunk cost fallacy, disguised as patience, costs investors billions annually.'],
-      ['What did Thaler\'s coffee mug experiment reveal about ownership and value?','Owners demanded $7.12 to sell a mug while buyers would pay only $2.87, a 2.5x gap for identical mugs. The endowment effect means ownership alone inflates perceived value by 150%. In investing, this makes people overvalue stocks they hold and resist selling, even when they wouldn\'t buy the same stock at the current price.'],
-      ['How much do Americans lose annually due to status quo bias in banking?','According to Bankrate analysis, Americans lose an estimated $42 billion annually by keeping money in low-interest accounts (0.01-0.5%) when higher-yield alternatives (4-5%) are readily available. Status quo bias makes switching feel like "too much effort" for a difference that compounds to thousands over a lifetime.'],
-      ['What is the "pain of paying" and how does it affect financial decisions?','Research shows that paying activates the same brain regions as physical pain. Cash payments create more pain than credit cards, which create more pain than mobile payments. Each layer of abstraction between you and your money reduces the pain of paying, and increases spending. This is why casinos use chips and why digital payment adoption increases consumer spending.']
+      ['How do casinos use mental accounting to extract more money from gamblers?','Casinos use chips (reducing pain of paying), early wins (creating house money accounts), escalating bet sizes (house money effect), and free drinks/perks (making gambling feel like "entertainment" not "spending"). Every design element exploits a different mental accounting vulnerability.', { stat: '4 hooks, one table', sprite: 'dice' }],
+      ['What is Thaler\'s "Save More Tomorrow" program and how does it work?','SMarT makes escalating retirement contributions the default, requires opt-out rather than opt-in, and commits increases to future raises (not current pay). By using default bias, status quo bias, and loss aversion framing, participation jumped from 49% to 80% and savings rates nearly quadrupled from 3.5% to 13.6%.', { stat: '3.5% to 13.6% saved', sprite: 'ladder' }],
+      ['Why is "you haven\'t lost until you sell" the most expensive myth in investing?','Because it keeps capital trapped in losing positions. A stock at $50 bought at $100 is worth $50 regardless of whether you sell. Holding prevents redeploying that $50 to better opportunities and forfeits the tax loss harvesting benefit of realizing the loss. The sunk cost fallacy, disguised as patience, costs investors billions annually.', { stat: '$50 is $50 either way', sprite: 'lock' }],
+      ['What did Thaler\'s coffee mug experiment reveal about ownership and value?','Owners demanded $7.12 to sell a mug while buyers would pay only $2.87, a 2.5x gap for identical mugs. The endowment effect means ownership alone inflates perceived value by 150%. In investing, this makes people overvalue stocks they hold and resist selling, even when they wouldn\'t buy the same stock at the current price.', { stat: '$7.12 asked, $2.87 offered', sprite: 'price-tag' }],
+      ['How much do Americans lose annually due to status quo bias in banking?','According to Bankrate analysis, Americans lose an estimated $42 billion annually by keeping money in low-interest accounts (0.01-0.5%) when higher-yield alternatives (4-5%) are readily available. Status quo bias makes switching feel like "too much effort" for a difference that compounds to thousands over a lifetime.', { stat: '$42B lost to inertia', sprite: 'bank' }],
+      ['What is the "pain of paying" and how does it affect financial decisions?','Research shows that paying activates the same brain regions as physical pain. Cash payments create more pain than credit cards, which create more pain than mobile payments. Each layer of abstraction between you and your money reduces the pain of paying, and increases spending. This is why casinos use chips and why digital payment adoption increases consumer spending.', { stat: 'Cash hurts, tapping does not', sprite: 'credit-card' }]
     ]),
 
     // Step 12, Drag and Drop
@@ -2085,9 +2109,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'How the Brain Scores a $100 Swing',
         rows: [
-          { label: 'Gain of $100', value: 'Feels like +100 units of value', percent: 40 },
-          { label: 'Loss of $100', value: 'Feels like -250 units of pain', percent: 100 },
-          { label: 'Break-even point to accept a coin flip', value: 'Win $250 to risk $100' }
+          { label: 'Gain of $100', value: 'Feels like +100 units of value', percent: 40, explain: 'Treat 100 units as the ruler: one dollar gained, one unit of good feeling. Every other row on this card gets measured against that, so the surprise is not in this row, it is in the one below.' },
+          { label: 'Loss of $100', value: 'Feels like -250 units of pain', percent: 100, explain: 'The same hundred dollars leaves your account, but the brain logs 250 units of pain. Those extra 150 units are invented, and they are what keeps people holding a stock that is already broken.' },
+          { label: 'Break-even point to accept a coin flip', value: 'Win $250 to risk $100', explain: 'This is the toll your brain charges for a fair coin flip. Not $101 of upside, $250. A bet has to be two and a half times in your favor before it merely feels level.' }
         ],
         footer: 'Losses hurt about 2.5x more than equal gains feel good',
 
@@ -2103,9 +2127,9 @@ const lessons: PathwayLesson[] = [
         title: 'Prospect Theory Blind',
         points: [
           { label: 'Year 0', value: '100000' },
-          { label: 'Year 10', value: '128000' },
+          { label: 'Year 10', value: '128000', explain: 'Ten years of investing turned $100,000 into $128,000, up 28%. That is close to what a plain savings account does, and it is what a 3 to 5% behavioral drag looks like after only one decade.' },
           { label: 'Year 20', value: '164000' },
-          { label: 'Year 30', value: '210000' }
+          { label: 'Year 30', value: '210000', explain: 'Thirty years and the money has barely doubled. Three to five percent a year sounds like a rounding error, but it is charged again every single year, which is how $100,000 ends up stuck here.' }
         ],
         trend: 'up',
         footer: '$100K grows to about $210K, 3-5% annual drag',
@@ -2117,7 +2141,7 @@ const lessons: PathwayLesson[] = [
           { label: 'Year 0', value: '100000' },
           { label: 'Year 10', value: '259000' },
           { label: 'Year 20', value: '673000' },
-          { label: 'Year 30', value: '1745000' }
+          { label: 'Year 30', value: '1745000', explain: '$1,745,000 sits next to the $210,000 on the other chart. Same market, same 30 years, same starting $100,000. The only difference is a set of rules that stopped loss aversion from placing the trades.' }
         ],
         trend: 'up',
         footer: '$100K grows to about $1.75M at full market returns',
@@ -2150,13 +2174,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'The S-Shaped Value Function',
         rows: [
-          { label: 'Reference point', value: 'The status quo, where gains and losses are measured from' },
-          { label: 'Gains side: concave', value: 'First $100 of profit thrills you, the tenth $100 barely registers' },
-          { label: 'Losses side: convex and 2.5x steeper', value: 'First $100 lost stings hard, the curve drops fast' }
+          { label: 'Reference point', value: 'The status quo, where gains and losses are measured from', explain: 'Zero on this curve is not zero dollars, it is wherever you happen to be standing. Move it from today\'s price to what you paid, and the identical holding flips from gain to loss without a single trade.' },
+          { label: 'Gains side: concave', value: 'First $100 of profit thrills you, the tenth $100 barely registers', explain: 'Concave means the curve flattens as it climbs. Your first $100 of profit buys most of the happiness on offer, and by the tenth $100 you are handing over the same money for almost none of it.' },
+          { label: 'Losses side: convex and 2.5x steeper', value: 'First $100 lost stings hard, the curve drops fast', explain: 'Steeper by 2.5 times means the loss arm falls two and a half units for every one unit the gain arm rises. That single ratio is the whole reason a fair 50/50 bet reads as a bad idea.' }
         ],
         footer: 'The kink at the reference point is loss aversion made visible',
 
-      sentiment: 'negative'}
+      sentiment: 'negative'},
+      {
+        hint: 'Press any of the three parts of this curve, the reference point in the middle, the flat gains arm, or the steep losses arm, and I will tell you what that shape does to a real decision.',
+        recap: 'One number carries this lesson: 2.5. A loss registers two and a half times harder than an equal gain, so a fair coin flip feels like a trap and a falling stock feels unsellable. Lesson 6 showed you that how a choice is worded changes the answer. This is the machinery underneath it: wording moves the reference point, and the reference point is the exact spot where the curve turns steep.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check
@@ -2258,12 +2286,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Prospect Theory Key Facts',[
-      ['What is the loss aversion ratio?','Approximately 2.5:1, losses feel 2.5 times more painful than equivalent gains feel good. A $100 loss creates the same emotional intensity as a $250 gain.'],
-      ['What is the disposition effect?','Investors sell winners 50% more frequently than losers (Odean, 1998). This costs the average investor 3.4% per year because the sold winners outperform the held losers.'],
-      ['What paradox does probability weighting explain?','Why the same person buys insurance (overweighting small disaster probabilities) and lottery tickets (overweighting small jackpot probabilities). Both behaviors are irrational under Expected Utility Theory but perfectly predicted by Prospect Theory.'],
-      ['What is the endowment effect?','People overvalue what they own by ~2x simply because they own it. In Kahneman\'s mug experiment, owners demanded ~$7 while buyers offered ~$3 for identical mugs.'],
-      ['What did Prospect Theory mean for Kahneman\'s career?','It won him the 2002 Nobel Prize in Economics, making him one of the few psychologists ever to receive the economics Nobel. Tversky had died in 1996 and Nobel Prizes are not awarded posthumously.'],
-      ['How does the certainty effect affect investing?','People pay irrational premiums for "guaranteed" returns. A jump from 95% to 100% probability feels enormous, while 50% to 55% feels trivial, even though both are 5-percentage-point changes.']
+      ['What is the loss aversion ratio?','Approximately 2.5:1, losses feel 2.5 times more painful than equivalent gains feel good. A $100 loss creates the same emotional intensity as a $250 gain.', { stat: '2.5 to 1', sprite: 'scale-tip' }],
+      ['What is the disposition effect?','Investors sell winners 50% more frequently than losers (Odean, 1998). This costs the average investor 3.4% per year because the sold winners outperform the held losers.', { stat: '3.4% a year', sprite: 'chart-down' }],
+      ['What paradox does probability weighting explain?','Why the same person buys insurance (overweighting small disaster probabilities) and lottery tickets (overweighting small jackpot probabilities). Both behaviors are irrational under Expected Utility Theory but perfectly predicted by Prospect Theory.', { stat: '1 in 292 million', sprite: 'dice' }],
+      ['What is the endowment effect?','People overvalue what they own by ~2x simply because they own it. In Kahneman\'s mug experiment, owners demanded ~$7 while buyers offered ~$3 for identical mugs.', { stat: '$7 asked, $3 offered', sprite: 'key' }],
+      ['What did Prospect Theory mean for Kahneman\'s career?','It won him the 2002 Nobel Prize in Economics, making him one of the few psychologists ever to receive the economics Nobel. Tversky had died in 1996 and Nobel Prizes are not awarded posthumously.', { stat: '2002 Nobel', sprite: 'trophy' }],
+      ['How does the certainty effect affect investing?','People pay irrational premiums for "guaranteed" returns. A jump from 95% to 100% probability feels enormous, while 50% to 55% feels trivial, even though both are 5-percentage-point changes.', { stat: '95% to 100%', sprite: 'shield' }]
     ]),
 
     // Step 12, Drag and Sort
@@ -2418,16 +2446,16 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Auto-Enrollment Impact on Pension Participation',
         items: [
-          { label: '50%', value: 67, displayValue: '61%' },
-          { label: '50% 2', value: 100, displayValue: '61%' },
-          { label: '50% 3', value: 56, displayValue: '61%' },
-          { label: '50% 4', value: 98, displayValue: '61%' },
-          { label: '50% 5', value: 33, displayValue: '61%' },
-          { label: '50% 6', value: 91, displayValue: '61%' }
+          { label: '50%', value: 67, displayValue: '61%', sprite: 'hourglass' },
+          { label: '50% 2', value: 100, displayValue: '61%', sprite: 'check-badge' },
+          { label: '50% 3', value: 56, displayValue: '61%', sprite: 'question' },
+          { label: '50% 4', value: 98, displayValue: '61%', sprite: 'piggy-bank' },
+          { label: '50% 5', value: 33, displayValue: '61%', sprite: 'chart-down' },
+          { label: '50% 6', value: 91, displayValue: '61%', sprite: 'stack-cash' }
         ],
         footer: 'Opt-Out (After)',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'chart-up'}
     ),
 
     // Step 2, Stakes Card
@@ -2479,14 +2507,18 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Default Effect: Opt-In vs Opt-Out Participation',
         items: [
-          { label: 'US pensions (opt-in)', value: 49, displayValue: '49%' },
-          { label: 'US pensions (opt-out)', value: 91, displayValue: '91%' },
-          { label: 'Organ donation (opt-in)', value: 15, displayValue: '15%' },
-          { label: 'Organ donation (opt-out)', value: 99, displayValue: '99%' }
+          { label: 'US pensions (opt-in)', value: 49, displayValue: '49%', sprite: 'briefcase', explain: 'Fewer than half sign up, and that is with free employer match money sitting on the table. Nothing is stopping the other 51, they just never get around to the form.' },
+          { label: 'US pensions (opt-out)', value: 91, displayValue: '91%', sprite: 'paycheck', explain: 'Same workers, same plan, same one phone call to leave. Pre-ticking the box moved 42 out of every 100 eligible people into saving, which no pay raise or reminder email has ever come close to matching.' },
+          { label: 'Organ donation (opt-in)', value: 15, displayValue: '15%', sprite: 'first-aid', explain: 'Ask people in these countries and most say they approve of donating. Only 15 in 100 have actually registered, so the missing 85 are lost to paperwork, not to disagreement.' },
+          { label: 'Organ donation (opt-out)', value: 99, displayValue: '99%', sprite: 'magnet', explain: '99 against 15 is a gap of more than six times, and the two groups hold roughly the same private opinions. One line of wording on a form is doing all of that work.' }
         ],
         footer: 'No options removed, only the default changed',
 
-      sentiment: 'positive'}
+      sentiment: 'positive', sprite: 'arrow-split'},
+      {
+        hint: 'Press each of the four bars. Two of them are the exact same choice with the box already ticked for you, and I will tell you what that ticked box was worth.',
+        recap: 'Read the bars in pairs: 49 to 91 for pensions, 15 to 99 for organ donation. Nobody was persuaded, nothing was banned, only the pre-selected option flipped. Lesson 7 showed that giving something up hurts about twice as much as gaining the same thing, and a default quietly turns leaving into the losing move, so almost nobody leaves. That means whoever writes the form is making the decision for most people, so whenever you meet a pre-ticked box, ask who chose it and what they get from your staying.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check
@@ -2588,12 +2620,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Nudge Theory Key Facts',[
-      ['Who coined the term "nudge" in behavioral economics?','Richard Thaler and Cass Sunstein in their 2008 book "Nudge: Improving Decisions About Health, Wealth, and Happiness." Thaler later won the 2017 Nobel Prize in Economics.'],
-      ['What is the UK Nudge Unit?','The Behavioural Insights Team, created in 2010 as the world\'s first government nudge unit. It has run 750+ interventions, with its flagship pension auto-enrollment adding £17 billion in UK savings.'],
-      ['How much did SMarT increase savings rates?','From 3.5% to 13.6% over four pay raises, a 289% increase. Only 2% of participants opted out during the entire period, proving the power of defaults combined with loss aversion bypass.'],
-      ['What is the opt-out rate for auto-enrolled pensions?','Typically 8-15%. The feared mass opt-out never materialized. In the UK, only 8-10% of auto-enrolled workers opted out, meaning 90%+ stayed in the plan through pure inertia.'],
-      ['How does anchoring affect salary negotiations?','The first number mentioned influences the final outcome by 40-50%. Whoever makes the first offer sets the anchor that all subsequent counteroffers adjust from, usually insufficiently.'],
-      ['What law did SMarT inspire?','The Pension Protection Act of 2006, which made auto-enrollment and auto-escalation safe harbors for US employers. By 2024, over 60% of large US employers use these features.']
+      ['Who coined the term "nudge" in behavioral economics?','Richard Thaler and Cass Sunstein in their 2008 book "Nudge: Improving Decisions About Health, Wealth, and Happiness." Thaler later won the 2017 Nobel Prize in Economics.', { stat: 'One 2008 book, one 2017 Nobel', sprite: 'book' }],
+      ['What is the UK Nudge Unit?','The Behavioural Insights Team, created in 2010 as the world\'s first government nudge unit. It has run 750+ interventions, with its flagship pension auto-enrollment adding £17 billion in UK savings.', { stat: 'One small team, 750+ real world trials', sprite: 'globe' }],
+      ['How much did SMarT increase savings rates?','From 3.5% to 13.6% over four pay raises, a 289% increase. Only 2% of participants opted out during the entire period, proving the power of defaults combined with loss aversion bypass.', { stat: '3.5% to 13.6% across four raises', sprite: 'ladder' }],
+      ['What is the opt-out rate for auto-enrolled pensions?','Typically 8-15%. The feared mass opt-out never materialized. In the UK, only 8-10% of auto-enrolled workers opted out, meaning 90%+ stayed in the plan through pure inertia.', { stat: '8 to 15% leave, the rest never move', sprite: 'key' }],
+      ['How does anchoring affect salary negotiations?','The first number mentioned influences the final outcome by 40-50%. Whoever makes the first offer sets the anchor that all subsequent counteroffers adjust from, usually insufficiently.', { stat: 'The first number drags the deal 40 to 50%', sprite: 'anchor' }],
+      ['What law did SMarT inspire?','The Pension Protection Act of 2006, which made auto-enrollment and auto-escalation safe harbors for US employers. By 2024, over 60% of large US employers use these features.', { stat: 'One 2006 law, 60% of big employers by 2024', sprite: 'certificate' }]
     ]),
 
     // Step 12, Drag and Sort
@@ -2748,11 +2780,11 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Five Parts of a Rational Investment System',
         rows: [
-          { label: 'Investment Policy Statement', value: 'Your written rules, signed before the storm' },
-          { label: 'Pre-decision checklist', value: 'Forces System 2 to engage before every trade' },
-          { label: 'Decision journal', value: 'Separates decision quality from lucky outcomes' },
-          { label: 'Bias circuit breakers', value: 'Auto-pause trades during extreme fear or greed' },
-          { label: 'Accountability partner', value: 'A person who challenges your blind spots' }
+          { label: 'Investment Policy Statement', value: 'Your written rules, signed before the storm', explain: 'You write this on a boring Tuesday when nothing is moving, and it only has a job on the single worst day of the year. That gap between when it is written and when it is used is the whole point of it.' },
+          { label: 'Pre-decision checklist', value: 'Forces System 2 to engage before every trade', explain: 'System 2 is the slow, effortful thinking from lesson 1, and it does not switch on by itself when money is moving. A checklist is a physical switch that turns it on before the order goes through.' },
+          { label: 'Decision journal', value: 'Separates decision quality from lucky outcomes', explain: 'The entry is written before you know the result, so hindsight cannot quietly rewrite it. That is what turns it into evidence about your process instead of a story about your wins.' },
+          { label: 'Bias circuit breakers', value: 'Auto-pause trades during extreme fear or greed', explain: 'Notice it pauses greed as well as fear. Almost everyone builds the fear brake and forgets the greed one, and the greed side is exactly where the buy at the top happens.' },
+          { label: 'Accountability partner', value: 'A person who challenges your blind spots', explain: 'The load-bearing word is challenges. Someone who agrees with you adds nothing here, because a blind spot feels exactly like clear vision from the inside.' }
         ],
         footer: 'Architecture replaces willpower',
 
@@ -2767,8 +2799,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Knowledge Without System',
         rows: [
-          { label: 'Knows the biases', value: 'Can name loss aversion, herd mentality, anchoring' },
-          { label: 'Behavior in a crash', value: 'Amygdala still overrides the plan' }
+          { label: 'Knows the biases', value: 'Can name loss aversion, herd mentality, anchoring', explain: 'Naming a bias and resisting it are two separate skills. Kahneman spent 45 years studying this material and still says he falls for it, so the list of names is not the defense.' },
+          { label: 'Behavior in a crash', value: 'Amygdala still overrides the plan', explain: 'The fear response fires before the reasoning part of your brain has even loaded the facts. Your knowledge arrives a few seconds late, which is after the sell button has been pressed.' }
         ],
         footer: 'About 3.4% lost to behavioral drag each year',
         sentiment: 'negative'
@@ -2776,8 +2808,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Systematic Framework',
         rows: [
-          { label: 'Written rules', value: 'IPS and circuit breakers override instinct' },
-          { label: 'Behavior in a crash', value: 'Checklist catches the error before the trade' }
+          { label: 'Written rules', value: 'IPS and circuit breakers override instinct', explain: 'The rules do the overriding, not you. You spent the willpower once, on the calm day you wrote them, so the crash costs you no extra self control at all.' },
+          { label: 'Behavior in a crash', value: 'Checklist catches the error before the trade', explain: 'Before the trade is the only place a save is possible. Once the sell executes, the loss is real money and understanding what went wrong buys none of it back.' }
         ],
         footer: 'Captures the full market return',
         sentiment: 'positive'
@@ -2809,13 +2841,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Pre-Commitment: Rational Rules Written Before the Storm',
         rows: [
-          { label: 'Without Pre-Commitment', value: 'Market crashes 20% | → Amygdala fires: SELL! | → Panic sell at bottom: −20% locked in' },
-          { label: 'With Pre-Commitment', value: 'Market crashes 20% | → IPS says: No trades for 48 hours | → Checklist: Rebalance per plan → +3% alpha' },
-          { label: 'Gawande: Checklists cut surgical deaths by 47%', value: 'Applied to investing: systematic process eliminates 2-3% annual behavioral drag | Pabrai: 70-point checklist → 15%+ annualized returns over 20 years' }
+          { label: 'Without Pre-Commitment', value: 'Market crashes 20% | → Amygdala fires: SELL! | → Panic sell at bottom: −20% locked in', explain: 'Follow the arrows: the 20% drop is still only a number on a screen until the third box. Selling at the bottom is the step that converts a temporary 20% into a permanent one.' },
+          { label: 'With Pre-Commitment', value: 'Market crashes 20% | → IPS says: No trades for 48 hours | → Checklist: Rebalance per plan → +3% alpha', explain: 'Same 20% crash, opposite ending, and nothing here needed courage. A 48 hour wait plus a rule saying buy back to target turned the identical fall into 3% ahead.' },
+          { label: 'Gawande: Checklists cut surgical deaths by 47%', value: 'Applied to investing: systematic process eliminates 2-3% annual behavioral drag | Pabrai: 70-point checklist → 15%+ annualized returns over 20 years', explain: 'Those surgeons already knew every item on the list, and ticking the boxes anyway cut deaths 47%. The gain lives in the process, not the knowledge, and in investing that process is worth 2 to 3% a year.' }
         ],
         footer: 'Pabrai: 70-point checklist → 15%+ annualized returns over 20 years',
       
-      sentiment: 'negative'}
+      sentiment: 'negative'},
+      {
+        hint: 'Press each row. The top two are the same 20% crash run twice, once with no rules written down and once with them.',
+        recap: 'Every lesson up to here named a bias. This is the one that changes what you actually do on the bad day, because the rules are written while you are calm and simply execute while you are not. Lesson 8 showed how choice architecture nudges other people into better defaults, and the move now is to be your own architect: a 48 hour rule and a drift trigger turn a 20% crash from a panic into a rebalance.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check
@@ -2917,12 +2953,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Rational Framework Key Facts',[
-      ['What is the "Odysseus contract" in investing?','A pre-commitment strategy written during rational conditions that constrains behavior during emotional ones, like Odysseus tying himself to the mast before hearing the Sirens. The IPS is the investor\'s Odysseus contract.'],
-      ['How many items are in Mohnish Pabrai\'s investment checklist?','70+ items covering financial analysis, competitive position, management quality, valuation, AND explicit bias checks. The checklist has been refined over 20+ years.'],
-      ['What is "resulting" and why is it dangerous?','Judging decisions by their outcomes rather than their process quality. A lucky bad decision gets reinforced while an unlucky good decision gets abandoned, converging on the worst possible decision framework over time.'],
-      ['What is Charlie Munger\'s "inversion" technique?','Instead of asking "how do I succeed?", ask "how would I guarantee failure, and then avoid those things." Munger: "All I want to know is where I\'m going to die, so I\'ll never go there."'],
-      ['How does automated investing relate to pre-commitment?','Automated dollar-cost averaging is the ultimate pre-commitment, it removes the human decision point entirely. No bias can affect a decision that is never made by a human.'],
-      ['What role does an accountability partner serve?','They challenge your reasoning, identify biases you can\'t see yourself, and enforce your IPS rules when emotions tempt you to break them. Munger served this role for Buffett for 60+ years.']
+      ['What is the "Odysseus contract" in investing?','A pre-commitment strategy written during rational conditions that constrains behavior during emotional ones, like Odysseus tying himself to the mast before hearing the Sirens. The IPS is the investor\'s Odysseus contract.', { stat: '1 signature binds every later panic', sprite: 'lock' }],
+      ['How many items are in Mohnish Pabrai\'s investment checklist?','70+ items covering financial analysis, competitive position, management quality, valuation, AND explicit bias checks. The checklist has been refined over 20+ years.', { stat: '70 questions before 1 purchase', sprite: 'check-badge' }],
+      ['What is "resulting" and why is it dangerous?','Judging decisions by their outcomes rather than their process quality. A lucky bad decision gets reinforced while an unlucky good decision gets abandoned, converging on the worst possible decision framework over time.', { stat: '1 lucky win teaches the wrong lesson', sprite: 'dice' }],
+      ['What is Charlie Munger\'s "inversion" technique?','Instead of asking "how do I succeed?", ask "how would I guarantee failure, and then avoid those things." Munger: "All I want to know is where I\'m going to die, so I\'ll never go there."', { stat: '1 question, asked backwards', sprite: 'compass' }],
+      ['How does automated investing relate to pre-commitment?','Automated dollar-cost averaging is the ultimate pre-commitment, it removes the human decision point entirely. No bias can affect a decision that is never made by a human.', { stat: '100% bias free for the automated slice', sprite: 'calendar' }],
+      ['What role does an accountability partner serve?','They challenge your reasoning, identify biases you can\'t see yourself, and enforce your IPS rules when emotions tempt you to break them. Munger served this role for Buffett for 60+ years.', { stat: '60+ years of one partner', sprite: 'handshake' }]
     ]),
 
     // Step 12, Drag and Sort
@@ -3100,8 +3136,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Isolated Knowledge',
         rows: [
-          { label: 'Biases learned', value: '15+ biases as separate facts' },
-          { label: 'In a real crash', value: 'Four biases fire at once and overwhelm you' }
+          { label: 'Biases learned', value: '15+ biases as separate facts', explain: 'Fifteen separate facts is fifteen things to recall while your hands are shaking. Nobody retrieves a list under that kind of pressure, which is why memorizing biases is not a defence.' },
+          { label: 'In a real crash', value: 'Four biases fire at once and overwhelm you', explain: 'Loss aversion, herd mentality, recency bias and confirmation bias do not queue up politely. All four hit in the same afternoon, and each one makes the next one feel more reasonable.' }
         ],
         footer: 'Knowing the pieces is not knowing the game',
         sentiment: 'negative'
@@ -3109,8 +3145,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Integrated System',
         rows: [
-          { label: 'Core framework', value: 'IPS, checklist, and decision journal working together' },
-          { label: 'In a real crash', value: 'Circuit breakers and nudge defaults hold the line' }
+          { label: 'Core framework', value: 'IPS, checklist, and decision journal working together', explain: 'Three documents, all written on a calm Tuesday. None of them require you to be brave later, and that is exactly why they hold when the calm is gone.' },
+          { label: 'In a real crash', value: 'Circuit breakers and nudge defaults hold the line', explain: 'A 72 hour rule never asks how you feel. It just refuses to place the order, and by hour 73 most of the panic has spent itself on its own.' }
         ],
         footer: 'One system closes the DALBAR gap',
         sentiment: 'positive'
@@ -3141,13 +3177,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Bridgewater: Systematic Bias Reduction at Scale',
         rows: [
-          { label: 'Radical transparency', value: 'Every meeting recorded, every decision documented' },
-          { label: 'Idea meritocracy', value: 'The best argument wins regardless of job title' },
-          { label: 'Believability weighting', value: 'Votes count by each person\'s track record' }
+          { label: 'Radical transparency', value: 'Every meeting recorded, every decision documented', explain: 'Recording every meeting is not about trust, it is about memory. Your account of why you bought something quietly edits itself the moment you learn how it turned out, and a tape does not let it.' },
+          { label: 'Idea meritocracy', value: 'The best argument wins regardless of job title', explain: 'Job title is the loudest anchor in any room. Strip it out and a 25 year old analyst with better evidence can beat the founder, which is the only way the strongest argument actually reaches the decision.' },
+          { label: 'Believability weighting', value: 'Votes count by each person\'s track record', explain: 'Someone wrong on 8 of their last 10 macro calls gets their vote shrunk on the eleventh, no matter how certain they sound. That is the fix for overconfidence: confidence stops buying influence, accuracy buys it.' }
         ],
         footer: 'The personal version: IPS, checklist, journal, circuit breakers, partner',
 
-      sentiment: 'positive'}
+      sentiment: 'positive'},
+      {
+        hint: 'Press each of Dalio\'s three rules to see which bias it was built to block.',
+        recap: 'Bridgewater does not run on smarter people, it runs on rules written down before the pressure arrives. Lesson 9 handed you the five pieces: policy, checklist, journal, circuit breakers, partner. This lesson is the reason they exist. The 4.6% DALBAR gap does not close because you can define loss aversion, it closes because a rule fires whether or not you remember anything.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check
@@ -3249,12 +3289,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Behavioral Finance Capstone Review',[
-      ['What is the DALBAR gap and its lifetime cost?','4.6% annual underperformance (5% vs. 10%). Over 40 years, $100K becomes $702K instead of $3.8M, a $3.1M lifetime cost from behavioral errors alone.'],
-      ['How did Bridgewater become the world\'s largest hedge fund?','Systematic bias reduction: radical transparency (decision journal at scale), idea meritocracy (accountability partner at scale), believability-weighted voting (overconfidence correction), and codified principles (institutional IPS). $150B+ AUM, $58B+ cumulative profits.'],
-      ['What are the five components of the rational investment framework?','Investment Policy Statement, pre-decision checklist, decision journal, bias circuit breakers, and accountability partner. Together they make rational decisions the default, replacing willpower with architecture.'],
-      ['Why does Kahneman say he still falls for biases after 45 years?','Biases are hardwired, evolved over millions of years. Knowledge doesn\'t override perception (like optical illusions). Only SYSTEMS, pre-commitments, checklists, automation, accountability, can consistently override biases because they bypass the flawed perception entirely.'],
-      ['What is behavioral alpha and how much is it worth?','The excess return from avoiding behavioral errors: estimated 2-4% annually. Vanguard\'s Advisor\'s Alpha research shows behavioral coaching alone adds 1.5-2% per year, more than stock selection, fee optimization, or tax management.'],
-      ['What is the single most important insight from this entire course?','Systems beat willpower. Knowledge of biases is necessary but insufficient. The goal is building architecture, IPS, checklists, journals, circuit breakers, automation, accountability, that makes good decisions automatic, even when emotions are at their most intense.']
+      ['What is the DALBAR gap and its lifetime cost?','4.6% annual underperformance (5% vs. 10%). Over 40 years, $100K becomes $702K instead of $3.8M, a $3.1M lifetime cost from behavioral errors alone.', { stat: '$3.1M gone, same $100K', sprite: 'chart-down' }],
+      ['How did Bridgewater become the world\'s largest hedge fund?','Systematic bias reduction: radical transparency (decision journal at scale), idea meritocracy (accountability partner at scale), believability-weighted voting (overconfidence correction), and codified principles (institutional IPS). $150B+ AUM, $58B+ cumulative profits.', { stat: '$58B from a process', sprite: 'bank' }],
+      ['What are the five components of the rational investment framework?','Investment Policy Statement, pre-decision checklist, decision journal, bias circuit breakers, and accountability partner. Together they make rational decisions the default, replacing willpower with architecture.', { stat: '5 parts, 0 willpower', sprite: 'shield' }],
+      ['Why does Kahneman say he still falls for biases after 45 years?','Biases are hardwired, evolved over millions of years. Knowledge doesn\'t override perception (like optical illusions). Only SYSTEMS, pre-commitments, checklists, automation, accountability, can consistently override biases because they bypass the flawed perception entirely.', { stat: '45 years, it still catches him', sprite: 'magnifier' }],
+      ['What is behavioral alpha and how much is it worth?','The excess return from avoiding behavioral errors: estimated 2-4% annually. Vanguard\'s Advisor\'s Alpha research shows behavioral coaching alone adds 1.5-2% per year, more than stock selection, fee optimization, or tax management.', { stat: '1.5 to 2% for sitting still', sprite: 'chart-up' }],
+      ['What is the single most important insight from this entire course?','Systems beat willpower. Knowledge of biases is necessary but insufficient. The goal is building architecture, IPS, checklists, journals, circuit breakers, automation, accountability, that makes good decisions automatic, even when emotions are at their most intense.', { stat: 'Architecture, not effort', sprite: 'compass' }]
     ]),
 
     // Step 12, Drag and Sort
@@ -3404,12 +3444,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Anchoring Effect: Random Number → Estimate Shift',
         items: [
-          { label: '60%', value: 68, displayValue: '25%' },
-          { label: '60% 2', value: 100, displayValue: '25%' }
+          { label: '60%', value: 68, displayValue: '25%', sprite: 'dice', explain: 'This is the group that watched the wheel stop on 10. Their average guess for African nations in the UN came out at 25%, and every one of them had just seen the wheel spun in front of them.' },
+          { label: '60% 2', value: 100, displayValue: '25%', sprite: 'magnet', explain: 'Same question, same lecture hall, but this group watched the wheel stop on 65 instead of 10. Everyone saw it spun and everyone knew the number was rigged luck, and it still pulled their estimates up with it.' }
         ],
         footer: 'Source: Kahneman & Tversky (1974)',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'anchor'}
     ),
 
     stakesCard(
@@ -3420,8 +3460,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Anchored Investor',
         rows: [
-          { label: 'Reference point', value: 'The $100 purchase price' },
-          { label: 'Decision at $70', value: 'Holds and waits for $100, even if fair value is $60' }
+          { label: 'Reference point', value: 'The $100 purchase price', explain: 'The $100 is only what you happened to pay on one particular Tuesday. The company never agreed to it and no buyer anywhere owes it back to you.' },
+          { label: 'Decision at $70', value: 'Holds and waits for $100, even if fair value is $60', explain: 'Waiting for $100 on a business worth $60 means asking the market for a 67% gain the fundamentals cannot supply. That is not holding a stock, that is holding a receipt.' }
         ],
         footer: 'The anchor traps capital in losers',
         sentiment: 'negative'
@@ -3430,8 +3470,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Anchor-Aware Investor',
         rows: [
-          { label: 'Reference point', value: 'Intrinsic value, not the purchase price' },
-          { label: 'Decision at $70', value: 'Sells if fundamentals say $60, redeploys the cash' }
+          { label: 'Reference point', value: 'Intrinsic value, not the purchase price', explain: 'Intrinsic value moves when earnings and cash flows move. Your purchase price never moves again for the rest of your life, which is exactly why it is useless for a decision you are making today.' },
+          { label: 'Decision at $70', value: 'Sells if fundamentals say $60, redeploys the cash', explain: 'Selling at $70 something genuinely worth $60 is a $10 win, even though the account screen shows a $30 loss. The $30 disappeared before you sat down to decide anything.' }
         ],
         footer: 'Decisions follow the fundamentals',
         sentiment: 'positive'
@@ -3458,9 +3498,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Ariely\\\'s SS Number Anchoring Experiment',
         rows: [
-          { label: 'Low SS Digits (00-19)', value: 'Avg Bid: $16' },
-          { label: 'High SS Digits (80-99)', value: 'Avg Bid: $56' },
-          { label: '250% difference from irrelevant anchor', value: 'Small | 3.5x larger | Same products, same students, only the anchor differed' }
+          { label: 'Low SS Digits (00-19)', value: 'Avg Bid: $16', explain: 'These students wrote the last two digits of their own social security number at the top of the page, then bid on wine and chocolate. Digits under 20, and the average bid landed at $16.' },
+          { label: 'High SS Digits (80-99)', value: 'Avg Bid: $56', explain: 'Identical wine, identical chocolate, identical lecture hall. The only difference was two digits assigned to them at birth, and the bids came in $40 higher.' },
+          { label: '250% difference from irrelevant anchor', value: 'Small | 3.5x larger | Same products, same students, only the anchor differed', explain: 'Nobody in that hall believed their own social security digits meant anything, and the digits moved their money anyway. If an anchor everybody knows is meaningless can do this, a price a seller picks on purpose does far more.' }
         ],
         footer: 'Same products, same students, only the anchor differed',
       
@@ -3516,7 +3556,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Infographic showing three domains of anchoring: negotiations (first offer), real estate (listing price), and retail (strikethrough pricing), with arrows showing how each anchor shifts the final price upward.',
       undefined,
-      BF11_TEACH2
+      BF11_TEACH2,
+      {
+        hint: 'Press each of the three rows. Every one is a place where somebody else gets to say the first number out loud, and I will tell you what that number costs you there.',
+        recap: 'A number does not have to be true to move you, it only has to arrive first. A rigged 65 on a wheel moved strangers by 20 points, and a listing sheet moved trained appraisers by 10 to 15%. Lesson 2 named anchoring as one of the six wealth destroyers, but here is what separates it from the rest of that list: knowing about it does not switch it off, because the anchor loads your memory before you start thinking. So the defense is not willpower, it is order. Write your own number down before you look at theirs.',
+      }
     ),
 
     caseStudy(
@@ -3567,11 +3611,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Anchoring in Finance',[
-      ['How did the Northcraft & Neale study prove that even experts are anchored?','Professional real estate appraisers were given identical property information but different listing prices. High listing prices produced appraisals 10-15% higher than low listing prices. Experts with decades of experience were just as influenced by the arbitrary anchor as novice students.'],
-      ['What happened when J.C. Penney removed anchor pricing in 2012?','Revenue dropped from $17.3B to $13B, a $4.3B collapse, because customers lost the "original price" anchor that made sale prices feel like bargains. The actual prices were identical, but removing the anchor removed the perception of value.'],
-      ['How does the 52-week high anchor affect merger premiums?','Baker, Pan, and Wurgler found that acquirers anchor to the target\'s 52-week high. Stocks near their 52-week high receive lower premiums because the high is perceived as the maximum fair price. This anchor reduces takeover premiums by 10-15%.'],
-      ['Why do "Limit 12 per customer" signs increase purchases?','The number 12 serves as an anchor for quantity. Shoppers exposed to "Limit 12" bought an average of 7 items vs. 3.5 without the sign. The arbitrary limit number anchored their purchase quantity upward.'],
-      ['How do round numbers create anchoring effects in stock markets?','Stocks cluster just below round numbers ($99.90) because $100 serves as a psychological anchor/resistance level. Traders anchor to round numbers for buy/sell decisions, creating measurable price patterns around $10, $50, $100, etc.']
+      ['How did the Northcraft & Neale study prove that even experts are anchored?','Professional real estate appraisers were given identical property information but different listing prices. High listing prices produced appraisals 10-15% higher than low listing prices. Experts with decades of experience were just as influenced by the arbitrary anchor as novice students.', { stat: '10-15% apart', sprite: 'house' }],
+      ['What happened when J.C. Penney removed anchor pricing in 2012?','Revenue dropped from $17.3B to $13B, a $4.3B collapse, because customers lost the "original price" anchor that made sale prices feel like bargains. The actual prices were identical, but removing the anchor removed the perception of value.', { stat: '$4.3B lost', sprite: 'price-tag' }],
+      ['How does the 52-week high anchor affect merger premiums?','Baker, Pan, and Wurgler found that acquirers anchor to the target\'s 52-week high. Stocks near their 52-week high receive lower premiums because the high is perceived as the maximum fair price. This anchor reduces takeover premiums by 10-15%.', { stat: 'Premiums 10-15% lower', sprite: 'handshake' }],
+      ['Why do "Limit 12 per customer" signs increase purchases?','The number 12 serves as an anchor for quantity. Shoppers exposed to "Limit 12" bought an average of 7 items vs. 3.5 without the sign. The arbitrary limit number anchored their purchase quantity upward.', { stat: '3.5 to 7 items', sprite: 'cart' }],
+      ['How do round numbers create anchoring effects in stock markets?','Stocks cluster just below round numbers ($99.90) because $100 serves as a psychological anchor/resistance level. Traders anchor to round numbers for buy/sell decisions, creating measurable price patterns around $10, $50, $100, etc.', { stat: '$99.90, not $100', sprite: 'stock-ticker' }]
     ]),
 
     ds('Put these anchoring defense strategies in optimal order:',[
@@ -3693,14 +3737,14 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'The Concorde Fallacy: Escalating Commitment',
         items: [
-          { label: '1962', value: 'Project launched', color: '#3B82F6' },
-          { label: '1969', value: 'Known to be unviable', color: '#F59E0B' },
-          { label: '1976', value: 'First flight, still losing money', color: '#EF4444' },
-          { label: '2003', value: 'Retired after $2.8B spent', color: '#EF4444' }
+          { label: '1962', value: 'Project launched', color: '#3B82F6', sprite: 'rocket', explain: 'Starting was defensible. In 1962 nobody had built a supersonic airliner, so nobody could say for certain it would not sell. This is the one decision on the timeline that was not a mistake.' },
+          { label: '1969', value: 'Known to be unviable', color: '#F59E0B', sprite: 'magnifier', explain: 'This is the year that matters. Seven years in, the cost and demand numbers already said it would never pay for itself. Every pound spent after 1969 was a fresh choice, not a leftover mistake.' },
+          { label: '1976', value: 'First flight, still losing money', color: '#EF4444', sprite: 'chart-down', explain: 'Fourteen years after launch the first paying passengers boarded, and the plane still lost money on every seat. The engineering worked. The business never did, and 1969 had already said so.' },
+          { label: '2003', value: 'Retired after $2.8B spent', color: '#EF4444', sprite: 'hourglass', explain: 'Count from 1969, not 1962. Thirty four of the 41 years came after the answer was known, and roughly $2.1 billion of the $2.8 billion went out the door during them, which is the 75% in the footer.' }
         ],
         footer: '75% of the cost was spent after the project was known to fail',
 
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'plane'}
     ),
 
     stakesCard(
@@ -3711,8 +3755,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Sunk Cost Trap',
         rows: [
-          { label: 'The question asked', value: '"How much have I already lost?"' },
-          { label: 'The result', value: 'Holds a failing position, loss compounds' }
+          { label: 'The question asked', value: '"How much have I already lost?"', explain: 'Notice the direction. Nothing in this question is about what the stock does next, only about what already happened to you, and the past is the one part you cannot change.' },
+          { label: 'The result', value: 'Holds a failing position, loss compounds', explain: 'Holding does not undo anything. It leaves the money parked in the exact thing you just admitted looks bad, which is how a 40% loss becomes a 70% one.' }
         ],
         footer: 'Past spending dictates the next move',
         sentiment: 'negative'
@@ -3721,8 +3765,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Forward-Looking',
         rows: [
-          { label: 'The question asked', value: '"Would I buy this today at this price?"' },
-          { label: 'The result', value: 'Sells, redeploys capital to a better use' }
+          { label: 'The question asked', value: '"Would I buy this today at this price?"', explain: 'Same stock, same day, one word changed: today. You cannot answer this one with your purchase price, because your purchase price is not on the screen anymore.' },
+          { label: 'The result', value: 'Sells, redeploys capital to a better use', explain: 'Selling does not create the loss, it only moves the money. The loss arrived the day the price fell, and it is sitting on your statement whether or not you press the button.' }
         ],
         footer: 'Future expected value drives the decision',
         sentiment: 'positive'
@@ -3749,14 +3793,14 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Sunk Cost Decision Framework',
         items: [
-          { label: 'Losing position', value: 'A stock down 40% from your cost', color: '#B862ED' },
-          { label: 'Wrong question', value: '"How much have I lost already?"', color: '#EF4444' },
-          { label: 'Right question', value: '"Would I buy it today with fresh money?"', color: '#3B82F6' },
-          { label: 'Rational outcome', value: 'Sell unless future value justifies holding', color: '#10B981' }
+          { label: 'Losing position', value: 'A stock down 40% from your cost', color: '#B862ED', sprite: 'crack', explain: 'Down 40% means the $10,000 you put in is now $6,000. That missing $4,000 is gone in every branch of every choice ahead of you, so it should not appear in the decision at all.' },
+          { label: 'Wrong question', value: '"How much have I lost already?"', color: '#EF4444', sprite: 'receipt', explain: 'This question has no answer that changes anything. Whatever number you land on, the stock does tomorrow exactly what it was already going to do.' },
+          { label: 'Right question', value: '"Would I buy it today with fresh money?"', color: '#3B82F6', sprite: 'price-tag', explain: 'Fresh money is the trick that breaks the spell. You already hold $6,000 of this stock, so choosing to hold is identical to spending $6,000 on it at today\'s price of $60.' },
+          { label: 'Rational outcome', value: 'Sell unless future value justifies holding', color: '#10B981', sprite: 'scales', explain: 'Selling here is the default, not a punishment for being wrong. Holding has to clear the same bar any brand new stock would have to clear to earn that $6,000.' }
         ],
         footer: 'Ignore the past, price only the future',
 
-      sentiment: 'positive'}
+      sentiment: 'positive', sprite: 'compass'}
     ),
 
     microCheck(
@@ -3808,7 +3852,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Comparison diagram: left side shows capital trapped in losing positions with declining trajectory; right side shows capital reallocated to growing opportunities with upward trajectories. Arrow shows the "clean slate test" enabling the transition.',
       undefined,
-      BF12_TEACH2
+      BF12_TEACH2,
+      {
+        hint: 'Press each of the three rows. One is a crowd of ordinary people with a few thousand dollars, two are companies with billions on the table, and the same single sentence in the footer explains all three.',
+        recap: 'Money you already spent is a fact, not a reason. A stock down 40% is just $6,000 of yours sitting inside something you now believe is bad, and the only question that changes your future is whether you would put $6,000 there today. Lesson 7 showed that a loss hurts about two and a half times as much as an equal gain feels good, and that pain is exactly what makes holding feel safer than selling. It is not safer. It only delays a sentence that was written the day the price fell.',
+      }
     ),
 
     caseStudy(
@@ -3859,10 +3907,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Sunk Cost Failures',[
-      ['Why did Nokia continue investing in Navteq mapping technology after the iPhone revolution?','The $8.1 billion acquisition price was a massive sunk cost that made abandonment psychologically impossible. Nokia leadership argued "we\'ve invested too much to quit", classic escalation of commitment. Each additional year of investment raised the sunk cost threshold higher, making the write-off more painful.'],
-      ['What did Hal Arkes discover about theater ticket prices and attendance?','People who paid $15 for tickets to a bad play attended more shows than those who paid $8 or got free tickets. The sunk cost of the ticket price drove irrational attendance, even though the play was equally terrible regardless of what you paid.'],
-      ['How do pharmaceutical companies fall victim to sunk costs in drug development?','Companies continue failing Phase III drug trials 60% longer when prior Phase I/II investments were large. The billions already spent on development create momentum that makes stopping psychologically impossible, even when data clearly shows the drug won\'t work.'],
-      ['What is the opportunity cost of the sunk cost fallacy?','Capital trapped in losing positions by sunk cost bias could be earning returns elsewhere. If $10,000 is stuck in a declining stock instead of a 10% index fund, the opportunity cost is $1,000/year in foregone returns. Over decades, these opportunity costs compound to massive wealth destruction.']
+      ['Why did Nokia continue investing in Navteq mapping technology after the iPhone revolution?','The $8.1 billion acquisition price was a massive sunk cost that made abandonment psychologically impossible. Nokia leadership argued "we\'ve invested too much to quit", classic escalation of commitment. Each additional year of investment raised the sunk cost threshold higher, making the write-off more painful.', { stat: '$8.1B to $10B+', sprite: 'phone' }],
+      ['What did Hal Arkes discover about theater ticket prices and attendance?','People who paid $15 for tickets to a bad play attended more shows than those who paid $8 or got free tickets. The sunk cost of the ticket price drove irrational attendance, even though the play was equally terrible regardless of what you paid.', { stat: '$15 beat free', sprite: 'bill' }],
+      ['How do pharmaceutical companies fall victim to sunk costs in drug development?','Companies continue failing Phase III drug trials 60% longer when prior Phase I/II investments were large. The billions already spent on development create momentum that makes stopping psychologically impossible, even when data clearly shows the drug won\'t work.', { stat: '60% longer', sprite: 'first-aid' }],
+      ['What is the opportunity cost of the sunk cost fallacy?','Capital trapped in losing positions by sunk cost bias could be earning returns elsewhere. If $10,000 is stuck in a declining stock instead of a 10% index fund, the opportunity cost is $1,000/year in foregone returns. Over decades, these opportunity costs compound to massive wealth destruction.', { stat: '$1,000 a year', sprite: 'chart-up' }]
     ]),
 
     ds('Put these steps of the sunk cost escape process in order:',[
@@ -3984,12 +4032,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'The Paradox of Choice (Iyengar & Lepper)',
         items: [
-          { label: '30%', value: 11, displayValue: '3%' },
-          { label: '30% 2', value: 100, displayValue: '3%' }
+          { label: '30%', value: 11, displayValue: '3%', sprite: 'question', explain: 'Twenty four jars on the table and only 3 shoppers in 100 walked away with jam. Nobody stopped them from buying, they just could not finish comparing, so they bought nothing.' },
+          { label: '30% 2', value: 100, displayValue: '3%', sprite: 'check-badge', explain: 'Cut the table down to six jars and 30 in 100 bought. Same jam, same shoppers, ten times as many decisions, purely because there was less to weigh against.' }
         ],
         footer: 'Source: Iyengar & Lepper, Columbia (2000)',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'arrow-split'}
     ),
 
     stakesCard(
@@ -4001,14 +4049,14 @@ const lessons: PathwayLesson[] = [
         title: 'Regret-Averse Investor',
         value: '$243K (inflation-eroded)',
         detail: '$200K in savings @ 1% | "What if I lose money?"',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'inflation'
       },
         withVisual: {
         type: 'metric',
         title: 'Decisive Investor',
         value: '$1.35M',
         detail: '$200K invested @ 10% | Accepts imperfect decisions',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'chart-up'
       }
       }
     ),
@@ -4034,7 +4082,7 @@ const lessons: PathwayLesson[] = [
         value: 'Break the cycle: imperfect action beats perfect inaction',
         footer: 'Suboptimal Outcome',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'chain-break'}
     ),
 
     microCheck(
@@ -4086,7 +4134,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Three-column framework: (1) Pre-Commitment removes the decision point, (2) Reframing makes inaction costs vivid, (3) Satisficing reduces choice overload to simple criteria.',
       undefined,
-      BF13_TEACH2
+      BF13_TEACH2,
+      {
+        hint: 'Press each of the three defeats. They hit the paralysis at different moments: one before the decision arrives, one while you are staring at it, one by shrinking the menu you are staring at.',
+        recap: 'Regret aversion never actually loses you money, it just stops you making any, which is exactly why it hides. Sarah spent 35 years never being wrong and it cost her $2.2 million. Lesson 8 used choice architecture to nudge other people into better defaults. Here you aim it at yourself: a standing monthly order is a decision your frightened self does not get to reopen.',
+      }
     ),
 
     caseStudy(
@@ -4137,10 +4189,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Regret Aversion Facts',[
-      ['What did Schwab\'s study reveal about the cost of waiting vs. bad timing?','Even investing at the annual peak every year for 20 years ($121K) outperformed holding cash ($44K) by 173%. The cost of inaction ($91K gap from immediate investing to cash) was 5.7x greater than the benefit of perfect timing ($16K gap from perfect timing to immediate investing).'],
-      ['How did Vanguard\'s 401(k) study connect choice overload to financial paralysis?','Every additional 10 fund options reduced enrollment by 2%. Plans with 50+ options had significantly lower participation, employees forfeited free employer matching because they couldn\'t decide which fund to pick.'],
-      ['What is the "paradox of choice" and how does it apply to investing?','Barry Schwartz found that more choices increase anxiety and decrease satisfaction. Iyengar\'s jam study: 24 options → 3% purchase rate vs. 6 options → 30%. In investing, thousands of available funds create choice overload that triggers decision paralysis.'],
-      ['Why is omission bias so dangerous for long-term investors?','Omission bias makes inaction feel costless, you never "see" the $2.2M you didn\'t earn by not investing. But action-based losses are vivid and painful. This asymmetry means investors systematically underweight the cost of doing nothing, which is often the most expensive decision.']
+      ['What did Schwab\'s study reveal about the cost of waiting vs. bad timing?','Even investing at the annual peak every year for 20 years ($121K) outperformed holding cash ($44K) by 173%. The cost of inaction ($91K gap from immediate investing to cash) was 5.7x greater than the benefit of perfect timing ($16K gap from perfect timing to immediate investing).', { stat: '5.7x worse', sprite: 'stopwatch' }],
+      ['How did Vanguard\'s 401(k) study connect choice overload to financial paralysis?','Every additional 10 fund options reduced enrollment by 2%. Plans with 50+ options had significantly lower participation, employees forfeited free employer matching because they couldn\'t decide which fund to pick.', { stat: '2% per 10 funds', sprite: 'gift' }],
+      ['What is the "paradox of choice" and how does it apply to investing?','Barry Schwartz found that more choices increase anxiety and decrease satisfaction. Iyengar\'s jam study: 24 options → 3% purchase rate vs. 6 options → 30%. In investing, thousands of available funds create choice overload that triggers decision paralysis.', { stat: '3% vs 30%', sprite: 'cart' }],
+      ['Why is omission bias so dangerous for long-term investors?','Omission bias makes inaction feel costless, you never "see" the $2.2M you didn\'t earn by not investing. But action-based losses are vivid and painful. This asymmetry means investors systematically underweight the cost of doing nothing, which is often the most expensive decision.', { stat: '$2.2M unseen', sprite: 'hourglass' }]
     ]),
 
     ds('Put these steps for overcoming regret aversion in order:',[
@@ -4262,12 +4314,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Default Power: Opt-In vs. Opt-Out Pension',
         items: [
-          { label: '100%', value: 65, displayValue: '62%' },
-          { label: '100% 2', value: 100, displayValue: '62%' }
+          { label: '100%', value: 65, displayValue: '62%', sprite: 'hourglass' },
+          { label: '100% 2', value: 100, displayValue: '62%', sprite: 'magnet' }
         ],
         footer: 'Source: Swedish Premium Pension Authority',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'check-badge'}
     ),
 
     stakesCard(
@@ -4279,14 +4331,14 @@ const lessons: PathwayLesson[] = [
         title: 'Default Inertia',
         value: '-$300K over career',
         detail: '401(k) in money market | 1.5% fee advisor',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'piggy-crack'
       },
         withVisual: {
         type: 'metric',
         title: 'Designed Defaults',
         value: '+$300K over career',
         detail: 'Auto-enrolled in index fund | 0.03% expense ratio',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'chart-up'
       }
       }
     ),
@@ -4309,14 +4361,14 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Save More Tomorrow: Harnessing Inertia',
         items: [
-          { label: '3.5%', color: '#10B981' },
-          { label: '5.5%', color: '#10B981' },
-          { label: '9.4%', color: '#10B981' },
-          { label: '13.6%', color: '#10B981' }
+          { label: '3.5%', color: '#10B981', sprite: 'seedling', explain: 'Where every employee started. On a 50,000 dollar salary that is about 146 dollars a month, and without the program almost all of them would still be sitting on this number today.' },
+          { label: '5.5%', color: '#10B981', sprite: 'paycheck', explain: 'After the first raise, up 2 points. Take-home pay still went up that month, because the raise was bigger than the extra saving, so nobody had to feel poorer to get here.' },
+          { label: '9.4%', color: '#10B981', sprite: 'tree', explain: 'Partway through the escalation the rate has nearly tripled, and not one employee ever agreed to give up money that was already in their pocket.' },
+          { label: '13.6%', color: '#10B981', sprite: 'stack-cash', explain: 'By the last of the four pay raises the saving rate is 3.9 times the starting one. None of these jumps needed a fresh decision, because after the first signature, doing nothing was what kept the escalation running.' }
         ],
         footer: 'Inertia keeps escalation going automatically',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'ladder'}
     ),
 
     microCheck(
@@ -4368,7 +4420,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Checklist infographic showing the annual default audit: 401(k) rate, fund selection, advisor fees, bank rates, insurance, subscriptions, with estimated savings from switching each.',
       undefined,
-      BF14_TEACH2
+      BF14_TEACH2,
+      {
+        hint: 'Press each of the three bars to see what that default quietly charges you every year for doing nothing.',
+        recap: 'Inertia is not neutral. It has a direction, and if you did not choose it, somebody else did. Lesson 8 showed you choice architecture from the outside, as something designers do to other people. This is the same lever turned around on yourself: set the contribution, the fund and the account once, and the doing-nothing that currently costs 0.95% a year starts paying you instead.',
+      }
     ),
 
     caseStudy(
@@ -4419,10 +4475,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Status Quo Bias Facts',[
-      ['How did Sweden\'s pension default change affect participation?','Switching from opt-in to opt-out increased pension participation from 62% to 97%, a 35-point swing from changing a single default. Nothing else changed: same plan, same employees, same contribution levels.'],
-      ['What percentage of auto-enrolled 401(k) participants never change their default settings?','76% according to Madrian & Shea. Three-quarters of auto-enrolled employees stay at the default contribution rate and in the default fund for years. This means the choice of default determines the financial trajectory of the majority of participants.'],
-      ['How does the "loyalty penalty" affect financial consumers?','UK Financial Conduct Authority research found that consumers who switch banks, insurance, or energy providers save 15-30% on annual costs. Long-term customers systematically overpay due to status quo bias, the familiar provider feels safe even when cheaper alternatives exist.'],
-      ['What made Save More Tomorrow so successful?','It didn\'t fight inertia, it redirected it. By pre-committing employees to save more from FUTURE raises, the initial decision was painless (no immediate income reduction). Then inertia kept the escalation going automatically. 78% participated; savings tripled from 3.5% to 13.6%.']
+      ['How did Sweden\'s pension default change affect participation?','Switching from opt-in to opt-out increased pension participation from 62% to 97%, a 35-point swing from changing a single default. Nothing else changed: same plan, same employees, same contribution levels.', { stat: '62% to 97%', sprite: 'globe' }],
+      ['What percentage of auto-enrolled 401(k) participants never change their default settings?','76% according to Madrian & Shea. Three-quarters of auto-enrolled employees stay at the default contribution rate and in the default fund for years. This means the choice of default determines the financial trajectory of the majority of participants.', { stat: '76% never move', sprite: 'lock' }],
+      ['How does the "loyalty penalty" affect financial consumers?','UK Financial Conduct Authority research found that consumers who switch banks, insurance, or energy providers save 15-30% on annual costs. Long-term customers systematically overpay due to status quo bias, the familiar provider feels safe even when cheaper alternatives exist.', { stat: '15-30% overpaid', sprite: 'chain-break' }],
+      ['What made Save More Tomorrow so successful?','It didn\'t fight inertia, it redirected it. By pre-committing employees to save more from FUTURE raises, the initial decision was painless (no immediate income reduction). Then inertia kept the escalation going automatically. 78% participated; savings tripled from 3.5% to 13.6%.', { stat: '3.5% to 13.6%', sprite: 'calendar' }]
     ]),
 
     ds('Put these steps for a personal "default audit" in optimal order:',[
@@ -4544,9 +4600,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Same Move, Different Story',
         rows: [
-          { label: 'Monday: S&P -2%', value: '"Markets tumble on | recession fears as Fed | signals rate concerns"' },
-          { label: 'Friday: S&P -2%', value: '"Stocks slide as strong | jobs data raises rate | hike expectations"' },
-          { label: 'Same 2% drop', value: 'Opposite "explanations" | The narrative is created AFTER the move | to satisfy your brain\\\'s need for a story | Hindsight narrative construction ≠ causal explanation' }
+          { label: 'Monday: S&P -2%', value: '"Markets tumble on | recession fears as Fed | signals rate concerns"', explain: 'Read the cause it hands you: the Fed is nervous, so stocks fell 2 percent. Hold on to that, because Friday blames the opposite thing for the exact same number.' },
+          { label: 'Friday: S&P -2%', value: '"Stocks slide as strong | jobs data raises rate | hike expectations"', explain: 'Strong jobs data is good news about the economy, and it still got blamed for an identical 2 percent drop. Same number, opposite cause, both written after the close.' },
+          { label: 'Same 2% drop', value: 'Opposite "explanations" | The narrative is created AFTER the move | to satisfy your brain\\\'s need for a story | Hindsight narrative construction ≠ causal explanation', explain: 'The move was the same size both days, so at most one of these explanations can be true and probably neither is. The writer saw minus 2 percent first and went shopping for a reason second.' }
         ],
         footer: 'Hindsight narrative construction ≠ causal explanation',
       
@@ -4561,8 +4617,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Narrative Investor',
         rows: [
-          { label: 'Decision basis', value: 'A compelling story about the company' },
-          { label: 'Timing', value: 'Buys when the narrative is loudest, at the peak' }
+          { label: 'Decision basis', value: 'A compelling story about the company', explain: 'Notice what is missing here: no price, no earnings, not a single number. A story has no ceiling on what you would pay for it, and that is exactly the problem.' },
+          { label: 'Timing', value: 'Buys when the narrative is loudest, at the peak', explain: 'The story is loudest when the most people already believe it, and believers have already bought. Loudest is the moment there is the least buying left to push the price any higher.' }
         ],
         footer: 'Story-driven means buy high, sell low',
         sentiment: 'negative'
@@ -4571,8 +4627,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Data-Driven Investor',
         rows: [
-          { label: 'Decision basis', value: 'Cash flows, earnings, margins, valuation' },
-          { label: 'Timing', value: 'Buys when fundamentals are cheap, story or not' }
+          { label: 'Decision basis', value: 'Cash flows, earnings, margins, valuation', explain: 'Four things you can check against a filing anybody can download. If the story changes overnight, those four numbers do not, which is why they still stand when the headline flips.' },
+          { label: 'Timing', value: 'Buys when fundamentals are cheap, story or not', explain: 'Cheap almost always shows up when the story is boring or embarrassing. This rule hands you the exact companies the narrative investor is refusing to touch that week.' }
         ],
         footer: 'Numbers drive long-run returns',
         sentiment: 'positive'
@@ -4599,8 +4655,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Narrative vs. Reality in Markets',
         rows: [
-          { label: 'The Narrative', value: '"Visionary CEO" | "Disruptive technology" | "Massive market opportunity" | "This changes everything" | Story drives price up 300%' },
-          { label: 'The Data', value: 'Revenue: $12M | Losses: -$200M/year | P/S ratio: 500x | Cash burn: 18 months | Fundamentals suggest 80% overvalued | When narrative and data diverge, data wins, eventually' }
+          { label: 'The Narrative', value: '"Visionary CEO" | "Disruptive technology" | "Massive market opportunity" | "This changes everything" | Story drives price up 300%', explain: 'Four phrases, zero numbers, and they carried the price up 300 percent. That 300 percent is what the story alone was worth to buyers who never opened a filing.' },
+          { label: 'The Data', value: 'Revenue: $12M | Losses: -$200M/year | P/S ratio: 500x | Cash burn: 18 months | Fundamentals suggest 80% overvalued | When narrative and data diverge, data wins, eventually', explain: 'Do the division: 500 times sales on 12 million of revenue means the price already assumes revenue grows dozens of times over, while 18 months of cash says the company may not last long enough to try.' }
         ],
         footer: 'When narrative and data diverge, data wins, eventually',
       
@@ -4656,7 +4712,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Three-column defense framework: (1) Separate story from data, (2) Apply the newspaper test for narrative fragility, (3) Use contrarian narrative analysis to find mispricing.',
       undefined,
-      BF15_TEACH2
+      BF15_TEACH2,
+      {
+        hint: 'Press each of the three defenses to see what it makes you check before you buy.',
+        recap: 'All three defenses do one job: they force a number into a conversation that is running on adjectives. WeWork\'s story survived nine years, and a single filing showing 1.6 billion of losses ended it in weeks. The third defense is the herd from lesson 4 wearing a costume: once everyone can recite the story, everyone has already bought, so the story is the price and not the opportunity.',
+      }
     ),
 
     caseStudy(
@@ -4707,10 +4767,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Narrative Fallacy in Finance',[
-      ['How did WeWork\'s narrative inflate its valuation to $47 billion?','A simple office-subletting business was wrapped in "technology platform" and "elevate consciousness" narratives. The word "community" appeared 150 times in the S-1. Masayoshi Son invested after a 12-minute pitch, the narrative bypassed due diligence. When the S-1 revealed the data ($1.6B losses on $1.8B revenue), the narrative collapsed and so did the valuation.'],
-      ['What did Shiller\'s Narrative Economics research reveal about market bubbles?','Every major bubble in history was powered by a viral narrative: "new economy" (dot-com), "real estate never falls" (housing), "digital gold" (Bitcoin). These stories spread like epidemics, driving prices far beyond fundamental value. The bubble pops when the narrative loses credibility.'],
-      ['Why do "glamour stocks" underperform "value stocks" by 10-11% annually?','Glamour stocks have the best narratives, exciting technology, media attention, rapid growth. This attracts buyers, inflating prices above fundamental value. Value stocks have boring narratives, unglamorous industries, no media attention. This depresses prices below fundamental value. The narrative premium on glamour stocks reduces future returns; the narrative discount on value stocks increases them.'],
-      ['How does financial media contribute to the narrative fallacy?','Media constructs post-hoc explanations for every market movement: "stocks fell on inflation fears" or "markets rallied on earnings optimism." These explanations are created AFTER the move and would be different if the market had moved the opposite direction. Consuming these narratives creates false understanding and drives emotional trading.']
+      ['How did WeWork\'s narrative inflate its valuation to $47 billion?','A simple office-subletting business was wrapped in "technology platform" and "elevate consciousness" narratives. The word "community" appeared 150 times in the S-1. Masayoshi Son invested after a 12-minute pitch, the narrative bypassed due diligence. When the S-1 revealed the data ($1.6B losses on $1.8B revenue), the narrative collapsed and so did the valuation.', { stat: '$47B to $8B', sprite: 'crack' }],
+      ['What did Shiller\'s Narrative Economics research reveal about market bubbles?','Every major bubble in history was powered by a viral narrative: "new economy" (dot-com), "real estate never falls" (housing), "digital gold" (Bitcoin). These stories spread like epidemics, driving prices far beyond fundamental value. The bubble pops when the narrative loses credibility.', { stat: 'Every bubble', sprite: 'newspaper' }],
+      ['Why do "glamour stocks" underperform "value stocks" by 10-11% annually?','Glamour stocks have the best narratives, exciting technology, media attention, rapid growth. This attracts buyers, inflating prices above fundamental value. Value stocks have boring narratives, unglamorous industries, no media attention. This depresses prices below fundamental value. The narrative premium on glamour stocks reduces future returns; the narrative discount on value stocks increases them.', { stat: 'Best story loses', sprite: 'star' }],
+      ['How does financial media contribute to the narrative fallacy?','Media constructs post-hoc explanations for every market movement: "stocks fell on inflation fears" or "markets rallied on earnings optimism." These explanations are created AFTER the move and would be different if the market had moved the opposite direction. Consuming these narratives creates false understanding and drives emotional trading.', { stat: 'Reason after', sprite: 'chat' }]
     ]),
 
     ds('Put these steps for narrative-resistant investing in order:',[
@@ -4832,12 +4892,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Attention Bias: Media Stocks vs. Ignored Stocks',
         items: [
-          { label: 'In The News', value: 53, displayValue: '-1.2%' },
-          { label: 'In The News 2', value: 100, displayValue: '-1.2%' }
+          { label: 'In The News', value: 53, displayValue: '-1.2%', sprite: 'stock-ticker' },
+          { label: 'In The News 2', value: 100, displayValue: '-1.2%', sprite: 'chart-down' }
         ],
         footer: 'Source: Barber & Odean (2008)',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'magnet'}
     ),
 
     stakesCard(
@@ -4849,14 +4909,14 @@ const lessons: PathwayLesson[] = [
         title: 'Attention-Driven',
         value: '-1.2%/yr underperformance',
         detail: 'Buys CNBC headlines | Buys Reddit trending',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'phone'
       },
         withVisual: {
         type: 'metric',
         title: 'Systematic Screener',
         value: '+3.1%/yr outperformance',
         detail: 'Quantitative filters | Finds ignored stocks',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'calculator'
       }
       }
     ),
@@ -4880,12 +4940,12 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'The Attention Funnel',
         nodes: [
-          { label: '6,000+ listed stocks', value: 'The full investable market', color: '#3B82F6' },
-          { label: 'Media filter', value: 'News covers maybe 5% of them', color: '#F59E0B' },
-          { label: '50-100 stocks you know', value: 'Your real investment menu', color: '#EF4444' },
-          { label: 'Attention premium', value: 'Crowded names underperform 1-2%/yr', color: '#EF4444' }
+          { label: '6,000+ listed stocks', value: 'The full investable market', color: '#3B82F6', sprite: 'factory', explain: 'Every one of these 6,000 is a real company you are allowed to buy today. Nothing blocks you from owning number 5,999 except that you have never heard its name.' },
+          { label: 'Media filter', value: 'News covers maybe 5% of them', color: '#F59E0B', sprite: 'newspaper', explain: '5% of 6,000 is about 300 companies. Every headline you will ever read is drawn from that same small pool, so 5,700 businesses never even get considered.' },
+          { label: '50-100 stocks you know', value: 'Your real investment menu', color: '#EF4444', sprite: 'star', explain: 'You are not picking from 6,000. You are picking from roughly 1 in 80 of them, and a stranger in a newsroom decided which 1.' },
+          { label: 'Attention premium', value: 'Crowded names underperform 1-2%/yr', color: '#EF4444', sprite: 'price-tag', explain: 'That 1 to 2% is not the company doing badly. It is the extra you paid because thousands of people bought the same name on the same day you saw it.' }
         ],
-        footer: '99% of opportunities filtered out by attention'
+        footer: '99% of opportunities filtered out by attention', sprite: 'funnel'
       }
     ),
 
@@ -4938,7 +4998,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Inverted funnel: start with 6,000+ stocks, apply quantitative criteria, filter to 50 ignored opportunities, then evaluate fundamentals. The opposite of the attention funnel.',
       undefined,
-      BF16_TEACH2
+      BF16_TEACH2,
+      {
+        hint: 'Press each of the three stages. The part worth noticing is that this funnel starts with the exact same 6,000 stocks as the one that handed you headlines.',
+        recap: 'Both funnels start at 6,000 and end near 50. The only thing that changes is who does the cutting: a newsroom, or a screen you wrote yourself. Attention-picked names have cost 1 to 2% a year while ignored ones paid 2 to 5% more, and that gap is a price difference, not a company difference. Lesson 15 showed how a good story bends your judgment. Attention decides which stories ever reach you.',
+      }
     ),
 
     caseStudy(
@@ -4989,10 +5053,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Attention Bias Research',[
-      ['What did Barber & Odean\'s "All That Glitters" study find about attention-driven purchases?','Individual investors are systematic net buyers of stocks that grab attention through news coverage, extreme volume, or extreme returns. These attention-driven purchases underperform by 1-2% over the following year because simultaneous buying by many attention-driven investors pushes prices above fundamental value.'],
-      ['How does the "neglected firm effect" create value?','Stocks with zero or minimal analyst coverage and media attention are systematically undervalued because no attention-driven buying has inflated their prices. This neglect creates a return premium of 2-5% annually. The value is in stocks nobody is watching.'],
-      ['What happened to most retail investors who bought GameStop after it went viral?','The vast majority entered at $200+ (after peak media attention) and lost 60-90% when the price collapsed to $40. The attention cascade that drove the price from $20 to $483 reversed when attention faded, leaving late-arriving attention-driven buyers with massive losses.'],
-      ['Why does consuming more financial news lead to LOWER investment returns?','News consumption triggers attention bias (buy what you see), recency bias (overweight recent events), and emotional reactions (panic on fear, buy on excitement). These biases drive more frequent trading, which Odean proved costs 6.5% annually. Less news → less trading → better returns.']
+      ['What did Barber & Odean\'s "All That Glitters" study find about attention-driven purchases?','Individual investors are systematic net buyers of stocks that grab attention through news coverage, extreme volume, or extreme returns. These attention-driven purchases underperform by 1-2% over the following year because simultaneous buying by many attention-driven investors pushes prices above fundamental value.', { stat: '1-2% worse, one year later', sprite: 'book' }],
+      ['How does the "neglected firm effect" create value?','Stocks with zero or minimal analyst coverage and media attention are systematically undervalued because no attention-driven buying has inflated their prices. This neglect creates a return premium of 2-5% annually. The value is in stocks nobody is watching.', { stat: '0 analysts beats 30', sprite: 'seedling' }],
+      ['What happened to most retail investors who bought GameStop after it went viral?','The vast majority entered at $200+ (after peak media attention) and lost 60-90% when the price collapsed to $40. The attention cascade that drove the price from $20 to $483 reversed when attention faded, leaving late-arriving attention-driven buyers with massive losses.', { stat: '$483 down to $40', sprite: 'rocket' }],
+      ['Why does consuming more financial news lead to LOWER investment returns?','News consumption triggers attention bias (buy what you see), recency bias (overweight recent events), and emotional reactions (panic on fear, buy on excitement). These biases drive more frequent trading, which Odean proved costs 6.5% annually. Less news → less trading → better returns.', { stat: '6.5% a year lost to trading', sprite: 'chat' }]
     ]),
 
     ds('Put these attention-resistant investing steps in order:',[
@@ -5114,12 +5178,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Disposition Effect: Selling Probability',
         items: [
-          { label: 'Winners', value: 100, displayValue: '14.8%' },
-          { label: 'Winners 2', value: 65, displayValue: '14.8%' }
+          { label: 'Winners', value: 100, displayValue: '14.8%', sprite: 'chart-up', explain: 'This tall bar is the 14.8 percent. Out of every 100 winning positions people were sitting on, about 15 got sold. Selling a gain feels like collecting a prize, so the bar runs full height.' },
+          { label: 'Winners 2', value: 65, displayValue: '14.8%', sprite: 'chart-down', explain: 'The shorter bar is the losing positions, and at 65 percent of the first bar\'s height it stands for the 9.8 percent of losers sold. Same people, same months, and the losers got sold about two thirds as often as the winners.' }
         ],
         footer: 'Source: Odean (1998), 10,000 brokerage accounts',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'scale-tip'}
     ),
 
     stakesCard(
@@ -5170,9 +5234,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Disposition Effect: What Odean Found in 10,000 Accounts',
         rows: [
-          { label: 'Proportion of gains realized (winners sold)', value: '14.8%', percent: 100 },
-          { label: 'Proportion of losses realized (losers sold)', value: '9.8%', percent: 66 },
-          { label: 'Return gap, sold winners vs held losers', value: '3.4% over the next 12 months' }
+          { label: 'Proportion of gains realized (winners sold)', value: '14.8%', percent: 100, explain: 'Nobody was asked what they did. Odean counted 10,000 real accounts, and roughly 15 of every 100 winners on hand were sold off in the period.' },
+          { label: 'Proportion of losses realized (losers sold)', value: '9.8%', percent: 66, explain: 'Put 14.8 over 9.8 and you get about 1.5. That is where the famous number comes from: a winner was 50 percent likelier to be sold than a loser, in the same accounts, in the same week.' },
+          { label: 'Return gap, sold winners vs held losers', value: '3.4% over the next 12 months', explain: 'The stocks people sold went on to beat the stocks people kept by 3.4 percent over the next year. So the trade was wrong twice: the better company left the portfolio, and the worse one stayed and charged 3.4 percent for the privilege.' }
         ],
         footer: 'Investors sell their best stocks and keep their worst',
 
@@ -5228,7 +5292,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Decision tree: "Should I sell?" → "Is my original thesis still valid?" → If YES: hold regardless of gain size. If NO: sell regardless of loss size. Purchase price appears nowhere in the tree.',
       undefined,
-      BF17_TEACH2
+      BF17_TEACH2,
+      {
+        hint: 'Press each of the three rules. Every one of them is built to do the same job: keep the price you paid out of the decision to sell.',
+        recap: 'The disposition effect is the prospect theory curve from lesson 7 showing up in a brokerage statement. The curve flattens on the way up, so a gain feels finished and you cash it. It flattens on the way down, so another 10 percent of loss feels survivable and you wait. Odean measured what that does: 14.8 percent of winners sold against 9.8 percent of losers, and the winners you let go beat the losers you kept by 3.4 percent. The fix is not more willpower in the moment, it is a sell rule written before you own the stock, with your purchase price left out of it.',
+      }
     ),
 
     caseStudy(
@@ -5273,10 +5341,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Disposition Effect Research',[
-      ['What is the disposition effect\'s core finding?','Investors are 50% more likely to sell winners than losers (Odean 1998). The proportion of gains realized (PGR) is 14.8% vs. proportion of losses realized (PLR) of 9.8%. Winners sold go on to outperform losers held by 3.4% over the following year.'],
-      ['Why does prospect theory explain the disposition effect?','The value function is concave for gains (diminishing pleasure, urge to "lock in") and convex for losses (diminishing pain, willingness to "wait it out"). Combined with loss aversion (losses hurt 2.5x more), this creates a systematic pattern of selling winners early and holding losers long.'],
-      ['How does the disposition effect interact with taxes?','It creates a double penalty: investors realize capital gains early (paying taxes sooner) while deferring capital losses (missing tax-loss harvesting opportunities). Rational tax management does the exact opposite, harvest losses and defer gains.'],
-      ['What is the best counter to the disposition effect?','Pre-commitment: write sell rules at purchase time based on fundamentals (revenue growth thresholds, valuation limits, thesis invalidation), never based on gain/loss percentage. Your purchase price should appear nowhere in your sell decision.']
+      ['What is the disposition effect\'s core finding?','Investors are 50% more likely to sell winners than losers (Odean 1998). The proportion of gains realized (PGR) is 14.8% vs. proportion of losses realized (PLR) of 9.8%. Winners sold go on to outperform losers held by 3.4% over the following year.', { stat: '50% more likely', sprite: 'scale-tip' }],
+      ['Why does prospect theory explain the disposition effect?','The value function is concave for gains (diminishing pleasure, urge to "lock in") and convex for losses (diminishing pain, willingness to "wait it out"). Combined with loss aversion (losses hurt 2.5x more), this creates a systematic pattern of selling winners early and holding losers long.', { stat: 'Curve flips', sprite: 'arrow-split' }],
+      ['How does the disposition effect interact with taxes?','It creates a double penalty: investors realize capital gains early (paying taxes sooner) while deferring capital losses (missing tax-loss harvesting opportunities). Rational tax management does the exact opposite, harvest losses and defer gains.', { stat: 'Taxed twice', sprite: 'tax-form' }],
+      ['What is the best counter to the disposition effect?','Pre-commitment: write sell rules at purchase time based on fundamentals (revenue growth thresholds, valuation limits, thesis invalidation), never based on gain/loss percentage. Your purchase price should appear nowhere in your sell decision.', { stat: 'Rules first', sprite: 'lock' }]
     ]),
 
     ds('Order these disposition-effect countermeasures from first to last:',[
@@ -5384,9 +5452,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Monte Carlo Fallacy, August 18, 1913',
         rows: [
-          { label: '26 blacks in a row', value: 'Gamblers bet millions on red, sure it was "due"' },
-          { label: 'Odds of black on spin 27', value: 'Still 48.6%, the wheel has no memory' },
-          { label: 'What actually drove the losses', value: 'A pattern read into pure randomness' }
+          { label: '26 blacks in a row', value: 'Gamblers bet millions on red, sure it was "due"', explain: 'A run of 26 blacks comes up about once in 137 million tries, so it genuinely was astonishing. The mistake was treating a rare thing that had already happened as a wheel that now owed the room red.' },
+          { label: 'Odds of black on spin 27', value: 'Still 48.6%, the wheel has no memory', explain: '48.6% is the exact number it was before the streak began: one green zero sits on the Monte Carlo wheel alongside 18 reds and 18 blacks, and 18 out of 37 is 48.6%. Twenty six spins moved the odds for spin 27 by zero.' },
+          { label: 'What actually drove the losses', value: 'A pattern read into pure randomness', explain: 'The millions did not vanish to bad luck on one spin. They went to a rule the gamblers invented that night: bet bigger every spin, because red felt more overdue than it had a minute earlier.' }
         ],
         footer: 'Each spin is independent, no streak changes the next one',
 
@@ -5443,9 +5511,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Same Streak, Two Biases',
         rows: [
-          { label: 'Gambler\\\'s Fallacy', value: '"Correction is due!" | Action: SELL' },
-          { label: 'Hot Hand Bias', value: '"Streak will continue!" | Action: BUY MORE' },
-          { label: 'Reality: Tomorrow is ~independent', value: 'Action: Evaluate fundamentals, ignore the streak | Both biases see patterns in randomness' }
+          { label: 'Gambler\\\'s Fallacy', value: '"Correction is due!" | Action: SELL', explain: 'Selling here is a trade placed on the streak alone. After five up days the chance of a sixth is still about 53%, the same as any other day, so this is a bet on a snapback that the numbers never promised.' },
+          { label: 'Hot Hand Bias', value: '"Streak will continue!" | Action: BUY MORE', explain: 'Buying more here walks into the Carhart result: fewer than 25% of top-quartile funds stay top-quartile the next year. A three year hot record is closer to a coin flip than to a signal you can pay for.' },
+          { label: 'Reality: Tomorrow is ~independent', value: 'Action: Evaluate fundamentals, ignore the streak | Both biases see patterns in randomness', explain: 'Look at what just happened: one streak, two confident investors, opposite trades. When the same input can justify buying and selling, it is not information, it is noise wearing a story.' }
         ],
         footer: 'Both biases see patterns in randomness',
       
@@ -5501,7 +5569,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Decision tree: "Is this a real pattern?" → Check: (1) Economic mechanism? (2) Sufficient sample size? (3) Out-of-sample validation? → If all three YES: possibly real. If any NO: likely noise.',
       undefined,
-      BF18_TEACH2
+      BF18_TEACH2,
+      {
+        hint: 'Press each of the three tests. They are what momentum survives and a roulette streak does not.',
+        recap: 'The streak in both boxes is identical, only the story you hang on it changes, and that story is what you end up trading. System 1, from lesson 1, is built to find patterns fast, so it hands you a reversal or a continuation before you have checked anything. Make a run earn its place first: name the mechanism, count the years, and see whether it holds in a period it did not come from.',
+      }
     ),
 
     caseStudy(
@@ -5629,12 +5701,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Endowment Effect: Same Mug, Different Values',
         items: [
-          { label: 'Selling Price', value: 100, displayValue: '$7.12' },
-          { label: 'Selling Price 2', value: 54, displayValue: '$7.12' }
+          { label: 'Selling Price', value: 100, displayValue: '$7.12', sprite: 'magnet' },
+          { label: 'Selling Price 2', value: 54, displayValue: '$7.12', sprite: 'wallet' }
         ],
         footer: 'Buying Price',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'price-tag'}
     ),
     stakesCard(
       { label: 'Endowment-Trapped Investor', detail: 'Holds losing stocks because "I already own it", demanding a higher price to sell than they\'d ever pay to buy. Portfolio becomes a museum of past decisions rather than a rational allocation of capital.' },
@@ -5646,7 +5718,7 @@ const lessons: PathwayLesson[] = [
         value: '2.5x Gap',
         detail: 'Sell price: $50 | Buy price: $20',
         footer: 'Owns losers, sells winners',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'lock'
       },
         withVisual: {
         type: 'metric',
@@ -5654,7 +5726,7 @@ const lessons: PathwayLesson[] = [
         value: '1:1 Ratio',
         detail: 'Sell price: $30 | Buy price: $30',
         footer: 'Rational portfolio allocation',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'scales'
       }
       }
     ),
@@ -5716,7 +5788,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Flowchart showing the clean slate test decision process',
       undefined,
-      BF19_TEACH2
+      BF19_TEACH2,
+      {
+        hint: 'Press each of the three cures to see how it takes the sell decision out of your hands, since your hands are the problem.',
+        recap: 'The number to hold on to is 2.5x, and notice what changed to produce it: not the mug, only who was holding it. That is prospect theory from lesson 7 in different clothes, your reference point quietly moved to include whatever you own, so letting go registers as a loss rather than a swap. This is why the clean slate test works. It asks what a share of this is worth today, a question your purchase price has no part in answering.',
+      }
     ),
     caseStudy(
       'The Kodak Catastrophe: Endowment Effect at Corporate Scale',
@@ -5788,14 +5864,14 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'WallStreetBets: Viral Finance Explosion',
         items: [
-          { label: 'Members before', value: '1.8 million', color: '#3B82F6' },
-          { label: 'Members one week later', value: '9.8 million', color: '#F59E0B' },
-          { label: 'GameStop surge', value: 'Up 1,600%', color: '#EF4444' },
-          { label: 'Average user', value: 'Lost $1,400', color: '#EF4444' }
+          { label: 'Members before', value: '1.8 million', color: '#3B82F6', sprite: 'chat', explain: '1.8 million people were already in that forum before any of this went viral. Hold that number, because everything that follows is people who arrived because of a post, not because of research.' },
+          { label: 'Members one week later', value: '9.8 million', color: '#F59E0B', sprite: 'flame', explain: 'Eight million new members in seven days means more than four of every five people in the room had been there under a week when the price peaked.' },
+          { label: 'GameStop surge', value: 'Up 1,600%', color: '#EF4444', sprite: 'rocket', explain: 'The price went up seventeen times over with no new stores, no new products and no new earnings. The only thing that actually changed was how many people were talking about it.' },
+          { label: 'Average user', value: 'Lost $1,400', color: '#EF4444', sprite: 'piggy-crack', explain: 'Read those two rows together: the stock rose 1,600% and the typical member still finished down $1,400, because most of them bought after the run rather than before it.' }
         ],
         footer: 'The top 1% made millions, most members did not',
 
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'stock-ticker'}
     ),
     stakesCard(
       { label: 'Social Media-Driven Investor', detail: 'Gets stock ideas from TikTok, buys based on Reddit hype, panic-sells on Twitter crashes. Every bias we\'ve studied is amplified 100x by algorithmic feeds designed to maximize engagement, not returns.' },
@@ -5807,7 +5883,7 @@ const lessons: PathwayLesson[] = [
         value: '-$1,400',
         detail: 'Trades on hype | Average WSB user loss',
         footer: 'FOMO → Buy High → Panic Sell',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'chart-down'
       },
         withVisual: {
         type: 'metric',
@@ -5815,7 +5891,7 @@ const lessons: PathwayLesson[] = [
         value: '+12%/yr',
         detail: 'Validates independently | Systematic, evidence-based',
         footer: 'Research → Rules → Results',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'shield'
       }
       }
     ),
@@ -5874,12 +5950,16 @@ const lessons: PathwayLesson[] = [
       'Decision tree showing social media investment filtering: See post → Wait 48h → Independent research → Verify claims → Only then consider a position',
       undefined,
       { type: 'flow', title: 'The 48-hour filter', nodes: [
-        { label: 'See a viral post' },
-        { label: 'Wait 48 hours', value: 'Let the emotion fade' },
-        { label: 'Read the 10-K yourself' },
-        { label: 'Verify every claim' },
-        { label: 'Only then size a position' },
-      ], footer: 'Social media is idea generation, never analysis.' },
+        { label: 'See a viral post', sprite: 'phone', explain: 'This is the only free step in the chain. Seeing the post costs you nothing, so the post is not the problem. The cost starts the moment you let it become an order.' },
+        { label: 'Wait 48 hours', value: 'Let the emotion fade', sprite: 'hourglass', explain: '48 hours is picked to outlast the feeling, not the opportunity. If a company is worth owning for years, two days barely moves the price, and if two days kills the appeal, the appeal was urgency.' },
+        { label: 'Read the 10-K yourself', sprite: 'book', explain: 'The 10-K is the version executives sign under legal penalty for lying. The viral post carries no penalty at all if it turns out to be wrong, which is why one costs more to write than the other.' },
+        { label: 'Verify every claim', sprite: 'check-badge', explain: 'Take the three loudest numbers in the post and find each one in an actual filing. Most viral theses lose at least one of the three right here, and one missing number is enough to stop.' },
+        { label: 'Only then size a position', sprite: 'scales', explain: 'Size comes last on purpose. By this point the question is how much, not whether, so the excitement never gets a say in the dollar amount.' },
+      ], footer: 'Social media is idea generation, never analysis.', sprite: 'funnel' },
+      {
+        hint: 'Press each step of the filter. The order is the whole trick: waiting comes before reading, and sizing comes dead last.',
+        recap: 'The 48 hours are not for research, they are for the feeling to stop making the decision, which is why the wait sits before the reading and not after it. In lesson 4 the herd was the people standing around you. Here the same herd is delivered to your pocket by a system that gets paid when you keep scrolling, so social proof reaches you first and fastest. Put the filing between the post and the order, and social proof never gets to be your last input.',
+      },
     ),
     misconceptions(
       'Social Media Investing Myths', 'These beliefs cost retail investors billions',
@@ -5891,11 +5971,11 @@ const lessons: PathwayLesson[] = [
     ),
     fb('The most effective defense against social media FOMO is the ___-hour rule.', ['4', '24', '48', '72'], 2),
     tr('Social Media Bias Amplifiers', [
-      ['Confirmation Bias', 'Algorithms show you only views that match your existing beliefs'],
-      ['Herd Behavior', 'Seeing thousands buying creates irresistible social proof pressure'],
-      ['FOMO', 'Real-time gain screenshots make missing out feel unbearable'],
-      ['Survivorship Bias', 'Only winners post, the 99% who lost stay silent'],
-      ['Attention Cascade', 'Viral posts → buying → price up → more posts → more buying']
+      ['Confirmation Bias', 'Algorithms show you only views that match your existing beliefs', { stat: '1 lingering scroll = 1 vote for more of the same', sprite: 'lock' }],
+      ['Herd Behavior', 'Seeing thousands buying creates irresistible social proof pressure', { stat: '8 million new members in 7 days', sprite: 'crowd' }],
+      ['FOMO', 'Real-time gain screenshots make missing out feel unbearable', { stat: '1,600% is the number the screenshots showed', sprite: 'bolt' }],
+      ['Survivorship Bias', 'Only winners post, the 99% who lost stay silent', { stat: '10 gain posts for every 1,000 who lost', sprite: 'trophy' }],
+      ['Attention Cascade', 'Viral posts → buying → price up → more posts → more buying', { stat: '10 million viewers overnight', sprite: 'bank-run' }]
     ]),
     sc('You see a viral TikTok about a stock that\'s up 200% in a week. Your friend just bought some and is excited. What do you do?', [
       { label: 'Buy immediately, I don\'t want to miss the next GameStop', outcome: 'Classic FOMO. A stock up 200% in a week is likely in Phase 3 (peak euphoria). The overwhelming majority of buyers at this stage lose money. The social proof from your friend is herd behavior, not analysis.', correct: false },
@@ -5939,12 +6019,12 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Behavioral Portfolio Theory: Mental Layers',
         nodes: [
-          { label: 'Safety (Bonds, Cash)', color: '#10B981' },
-          { label: 'Income (Dividends)', color: '#3B82F6' },
-          { label: 'Growth (Stocks)', color: '#B862ED' },
-          { label: 'Aspirational (Lottery)', color: '#F59E0B' }
+          { label: 'Safety (Bonds, Cash)', color: '#10B981', sprite: 'shield', explain: 'This bottom layer runs 30 to 40 percent of the money, and its job is not return. It is there so that when the market drops 30 percent you already know rent and groceries are covered, and you do not sell the rest at the bottom.' },
+          { label: 'Income (Dividends)', color: '#3B82F6', sprite: 'dividend', explain: '20 to 30 percent sits here for cash that arrives on a schedule. A dividend is worth the same as selling an identical slice of stock, but it feels like getting paid instead of shrinking, so people leave the rest of the pile alone.' },
+          { label: 'Growth (Stocks)', color: '#B862ED', sprite: 'chart-up', explain: '25 to 35 percent, and this is the only layer where the textbook math really runs the show. The layers above and below it exist mostly to stop you from touching this one for 20 years.' },
+          { label: 'Aspirational (Lottery)', color: '#F59E0B', sprite: 'dice', explain: 'The smallest layer on the pyramid, 5 to 10 percent, is the one doing the most behavioral work. It gives the urge to swing for the fences somewhere legal to go, which is why the other 90 percent gets to stay boring.' }
         ],
-        footer: 'Real investors build layered portfolios, not efficient frontiers'
+        footer: 'Real investors build layered portfolios, not efficient frontiers', sprite: 'ladder'
       }
     ),
     stakesCard(
@@ -6031,7 +6111,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Flowchart: Goals → Mental Accounts → Risk Layers → Automation → Behavioral Discipline',
       undefined,
-      BF21_TEACH2
+      BF21_TEACH2,
+      {
+        hint: 'Press each of the three steps in order. The first one names the pots, the second decides how big the risky slice is allowed to get, and the third takes the monthly decision out of your hands entirely.',
+        recap: 'The number to hold onto is 5 to 10 percent. That tiny aspirational slice is what buys discipline in the other 90 percent, because the urge to gamble goes somewhere whether you plan for it or not. Lesson 6 treated mental accounting as a bug in your thinking. Behavioral Portfolio Theory keeps the bug and gives every pot a job instead, and that is why people stay in these portfolios through a crash while the mathematically perfect one gets abandoned.',
+      }
     ),
     fb('The aspirational layer in a BPT portfolio should be ___ of the total portfolio.', ['0%', '5-10%', '25-30%', '50%+'], 1),
     q('Harry Markowitz allocated his own retirement 50/50 stocks/bonds. Why is this significant?',
@@ -6088,9 +6172,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Debiasing Impact: Before vs After Protocols',
         rows: [
-          { label: 'Decision errors without protocols', value: 'Baseline rate, about 23%', percent: 100 },
-          { label: 'Decision errors with checklists and journals', value: 'Cut to about 8%', percent: 35 },
-          { label: 'Gawande surgical checklist benchmark', value: '47% fewer deaths' }
+          { label: 'Decision errors without protocols', value: 'Baseline rate, about 23%', percent: 100, explain: 'About one decision in four goes wrong, and this is the rate for people who can already name anchoring, FOMO and the disposition effect. Knowing where the trap is does not move your feet around it.' },
+          { label: 'Decision errors with checklists and journals', value: 'Cut to about 8%', percent: 35, explain: 'Same investor, same brain, same biases. A written checklist is the only thing that changed, and roughly two of every three errors stopped happening.' },
+          { label: 'Gawande surgical checklist benchmark', value: '47% fewer deaths', explain: 'Nobody learned a new operation for that 47%. Surgeons simply stopped skipping steps they already knew, which is exactly what a pre-trade checklist does for a buy you are excited about.' }
         ],
         footer: 'You cannot delete biases, but you can intercept them',
 
@@ -6106,7 +6190,7 @@ const lessons: PathwayLesson[] = [
         value: '23% Error Rate',
         detail: 'Knows biases exist',
         footer: 'Still falls for them',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'crack'
       },
         withVisual: {
         type: 'metric',
@@ -6114,7 +6198,7 @@ const lessons: PathwayLesson[] = [
         value: '8% Error Rate',
         detail: 'Systematic protocols',
         footer: 'Biases intercepted',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'shield'
       }
       }
     ),
@@ -6171,7 +6255,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Matrix mapping each cognitive bias to its specific debiasing technique',
       undefined,
-      BF22_TEACH2
+      BF22_TEACH2,
+      {
+        hint: 'Press each of the three advanced tools to see the number it is built to fight, including the hit rate you believe you have next to the one you actually have.',
+        recap: 'The whole lesson is one swap: knowing about a bias leaves you making errors 23% of the time, and a written rule takes the same person to 8%. Lesson 5 showed you how sure of your own calls you feel, and outcome tracking is the only tool that will ever hand you the real number, which lands nearer 45 to 55%.',
+      }
     ),
     ds('Order these debiasing steps for a new investment decision:', [
       'State your thesis in one sentence',
@@ -6188,11 +6276,11 @@ const lessons: PathwayLesson[] = [
       { label: 'Ignore it and hope for the best', outcome: 'Passive hope isn\'t a strategy. The correct response is active adherence to pre-set rules, which might include rebalancing into the dip.', correct: false }
     ]),
     tr('The Debiasing Toolkit', [
-      ['Pre-Commitment', 'Set rules when calm; follow them when emotional'],
-      ['Decision Journal', 'Write thesis, bear case, exit plan before every trade'],
-      ['Adversarial Thinking', '10 minutes building the strongest case against your position'],
-      ['Reference Class Forecasting', 'Check base rates before assuming you\'re the exception'],
-      ['Outcome Tracking', 'Measure your actual hit rate vs. perceived hit rate']
+      ['Pre-Commitment', 'Set rules when calm; follow them when emotional', { stat: '23% error rate falls to 8%', sprite: 'safety-net' }],
+      ['Decision Journal', 'Write thesis, bear case, exit plan before every trade', { stat: 'Worth 1 to 3% a year in returns', sprite: 'magnifier' }],
+      ['Adversarial Thinking', '10 minutes building the strongest case against your position', { stat: '10 minutes catches 40% of story trades', sprite: 'scales' }],
+      ['Reference Class Forecasting', 'Check base rates before assuming you\'re the exception', { stat: 'Only 15% of pre-revenue biotechs pay off', sprite: 'bar-chart' }],
+      ['Outcome Tracking', 'Measure your actual hit rate vs. perceived hit rate', { stat: 'Feels like 70%, logs say 45 to 55%', sprite: 'target' }]
     ]),
     summaryCards('Debiasing Techniques & Cognitive Tools', [
       { takeaway: 'Knowledge without process is useless, build systematic protocols', detail: 'Checklists reduce investing errors by 50-70%. A pre-trade checklist, decision journal, and pre-commitment rules convert behavioral knowledge into behavioral change.' },
@@ -6231,12 +6319,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Default Effect: Pension Enrollment',
         items: [
-          { label: 'Opt-In', value: 60, displayValue: '49%' },
-          { label: 'Opt-In 2', value: 100, displayValue: '49%' }
+          { label: 'Opt-In', value: 60, displayValue: '49%', sprite: 'tax-form', explain: 'Opt-in put a form between workers and free employer money, and about half of them never crossed it. Those 51 people in every 100 did not refuse the pension, they just never got round to the paperwork.' },
+          { label: 'Opt-In 2', value: 100, displayValue: '49%', sprite: 'piggy-bank', explain: 'Same plan, same employer match, same workers. The only edit was making enrolment the thing you have to cancel rather than the thing you have to request, and the bar nearly doubled.' }
         ],
         footer: 'Same plan, same benefits, only the default changed',
       
-      sentiment: 'negative'}
+      sentiment: 'negative', sprite: 'check-badge'}
     ),
     stakesCard(
       { label: 'Behaviorally Unaware', detail: 'Falls for pricing anchors at stores, chooses poorly framed health options, sticks with bad default subscriptions, and makes career decisions based on sunk cost fallacy. Loses thousands annually to behavioral blind spots in everyday life.' },
@@ -6248,7 +6336,7 @@ const lessons: PathwayLesson[] = [
         value: '-$3,400/yr',
         detail: 'Falls for every nudge',
         footer: 'Hidden behavioral costs',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'piggy-crack'
       },
         withVisual: {
         type: 'metric',
@@ -6256,7 +6344,7 @@ const lessons: PathwayLesson[] = [
         value: '+$3,400/yr',
         detail: 'Sees through nudges',
         footer: 'Better decisions everywhere',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'magnifier'
       }
       }
     ),
@@ -6314,7 +6402,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Decision matrix showing how reframing changes the optimal choice in health, career, and financial decisions',
       undefined,
-      BF23_TEACH2
+      BF23_TEACH2,
+      {
+        hint: 'Press any of the three rows, medical, career or lifestyle, and I will show you what the wording is quietly doing to the decision underneath it.',
+        recap: 'In all three rows the facts stayed exactly the same and only the sentence changed, and people changed their answer anyway: 30 patients in every 100 flipped between 90 percent survival and 10 percent mortality. That is the framing you met in lesson 6 and the loss aversion from lesson 19, now aimed at your surgery, your job and your next big move. Before any decision that matters, write the same choice out the opposite way round and check that you still pick the same side.',
+      }
     ),
     misconceptions(
       'Behavioral Economics Everyday Myths', 'Common misunderstandings about how biases affect daily life',
@@ -6372,10 +6464,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Market Anomalies: Annual Alpha',
         rows: [
-          { label: 'Momentum effect', value: '8-12% per year', percent: 100 },
-          { label: 'Value premium', value: '4-5% per year', percent: 45 },
-          { label: 'January effect (small caps)', value: '3-5% per year', percent: 40 },
-          { label: 'Low volatility anomaly', value: '2-3% per year', percent: 25 }
+          { label: 'Momentum effect', value: '8-12% per year', percent: 100, explain: 'Eight to twelve percent a year, and the only research required is a list of what already went up. No annual reports, no forecasts, just last year\'s winners held a while longer.' },
+          { label: 'Value premium', value: '4-5% per year', percent: 45, explain: 'Four to five points looks small next to the row above it, but it is the most stubborn number on the chart. Buying the cheap unloved stocks has paid this since 1926 and it is still positive.' },
+          { label: 'January effect (small caps)', value: '3-5% per year', percent: 40, explain: 'Three to five percent, and every bit of it lands inside one month out of twelve. The other eleven months contribute nothing, because the whole edge is the hangover from December tax selling.' },
+          { label: 'Low volatility anomaly', value: '2-3% per year', percent: 25, explain: 'The smallest number is the strangest one. The boring low swing stocks beat the exciting ones by 2 to 3 points, which is the textbook rule that more risk pays more running backwards.' }
         ],
         footer: 'Patterns efficient market theory says should not exist',
 
@@ -6391,7 +6483,7 @@ const lessons: PathwayLesson[] = [
         value: 'Ignores patterns',
         detail: 'Anomalies don\'t exist',
         footer: 'Misses factor premiums',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'book'
       },
         withVisual: {
         type: 'metric',
@@ -6399,7 +6491,7 @@ const lessons: PathwayLesson[] = [
         value: 'Tilts to factors',
         detail: 'Understands root causes',
         footer: 'Captures behavioral alpha',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'compass'
       }
       }
     ),
@@ -6456,7 +6548,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Portfolio comparison: market-cap weighted vs factor-tilted over 30 years',
       undefined,
-      BF24_TEACH2
+      BF24_TEACH2,
+      {
+        hint: 'Press each of the three boxes. They run left to right from the one decision you make, to the tickers that make it, to the reason it keeps paying after everyone knows about it.',
+        recap: 'Every number in this lesson is somebody else\'s slow brain, priced. PEAD says it plainest: the earnings beat is public on day one and the stock still drifts for 60 to 90 days because investors are welded to the old estimate, the anchoring you met in lesson 11. That is also why a value and momentum tilt survives being published. The paper changed what you know, it did not change what everyone else feels.',
+      }
     ),
     fb('The momentum effect was first documented by ___ in 1993.', ['Fama and French', 'Kahneman and Tversky', 'Jegadeesh and Titman', 'Warren Buffett'], 2),
     m('Anomalies & Their Behavioral Explanations', [
@@ -6513,10 +6609,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Behavioral Finance: The Complete Framework',
         rows: [
-          { label: 'Bias recognition', value: 'Cognitive, emotional, and social biases mapped' },
-          { label: 'Market impact', value: 'Momentum, value, and bubbles explained' },
-          { label: 'Debiasing system', value: 'Rules, journals, BPT layers, factor tilts' },
-          { label: 'Behavioral alpha', value: '1.5-3% extra return per year' }
+          { label: 'Bias recognition', value: 'Cognitive, emotional, and social biases mapped', explain: 'Three buckets, not one long list of flaws. Anchoring is a thinking error, loss aversion is a feeling error, herding is a following error, and the bucket you put it in decides which tool you reach for.' },
+          { label: 'Market impact', value: 'Momentum, value, and bubbles explained', explain: 'These are your own errors with a price tag on them. Enough people reacting too slowly makes momentum, enough reacting too hard makes the value premium, and enough copying each other makes a bubble. Lesson 24 was that argument in full.' },
+          { label: 'Debiasing system', value: 'Rules, journals, BPT layers, factor tilts', explain: 'Notice that not one of these four asks you to be calm. That is the whole design. A 48 hour rule works the same on the worst morning of the year as it does on a quiet Tuesday.' },
+          { label: 'Behavioral alpha', value: '1.5-3% extra return per year', explain: '1.5 to 3 points is more than the average professional manager clears after fees, and it comes out of a hole lesson 1 already measured: 4.61 points a year between the index and the people who owned it.' }
         ],
         footer: 'Twenty-four lessons synthesized into one system',
 
@@ -6532,7 +6628,7 @@ const lessons: PathwayLesson[] = [
         value: '-3 to -5%/yr',
         detail: 'Intuition-based decisions',
         footer: 'Behavioral drag on returns',
-        sentiment: 'negative'
+        sentiment: 'negative', sprite: 'piggy-crack'
       },
         withVisual: {
         type: 'metric',
@@ -6540,7 +6636,7 @@ const lessons: PathwayLesson[] = [
         value: '+1.5 to +3%/yr',
         detail: 'System-based decisions',
         footer: 'Behavioral alpha',
-        sentiment: 'positive'
+        sentiment: 'positive', sprite: 'chart-up'
       }
       }
     ),
@@ -6600,7 +6696,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Complete behavioral finance system diagram: input filtering → decision protocols → portfolio structure → ongoing maintenance → behavioral alpha',
       undefined,
-      BF25_TEACH2
+      BF25_TEACH2,
+      {
+        hint: 'Press each of the three boxes. They run in order across a lifetime: one thing you do before you buy, one thing you do to how the money sits, one thing you do every quarter after.',
+        recap: 'Read the three boxes as a clock rather than a list: ten seconds before you buy, one afternoon setting the layers, one question every quarter forever. Lesson 1 measured the hole this fills, 4.61 points a year between the index and the people holding it, and not one of those points is closed by knowing more. You will never delete a bias, so the whole course comes down to this: write the rule while you are calm, and let it fire while you are not.',
+      }
     ),
     simulationFinale(
       'The Complete Behavioral Finance Test', 'You\'ve completed 24 lessons of behavioral finance training. Now face a comprehensive scenario that tests every skill you\'ve learned.',

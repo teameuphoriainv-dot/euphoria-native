@@ -115,7 +115,7 @@ export const Colors = {
   light: {
     text: 'hsl(240 10% 10%)',
     textSecondary: 'hsl(240 4% 40%)',
-    mutedForeground: 'hsl(240 4% 46%)',
+    mutedForeground: '#71717A',
     background: '#FAFAFA',
     backgroundElement: 'hsl(240 5% 95%)',
     backgroundSelected: 'hsl(240 5% 90%)',

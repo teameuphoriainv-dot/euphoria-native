@@ -84,21 +84,21 @@ const IF5_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Four Dimensions of D
 ], footer: 'Low correlation smooths total returns', sentiment: 'positive' };
 
 // ─── LESSON 6 (ETFs & Index Funds) ───
-const IF6_HOOK: AnimatedVisual = { type: 'metric', title: 'The Index Fund Verdict', value: '92%', detail: 'Of active stock pickers fail to beat the index over 15 years', footer: 'Index funds now hold over $11 trillion', sentiment: 'positive' };
-const IF6_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Active Fund at 1% Fees', value: '$132,677', detail: '$10,000 at 9% net over 30 years', footer: '92% chance it underperforms the index', sentiment: 'negative' };
-const IF6_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Index ETF at 0.03% Fees', value: '$174,494', detail: '$10,000 at ~10% net over 30 years', footer: 'You keep $41,817 more', sentiment: 'positive' };
-const IF6_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'How an Index ETF Works', nodes: [{ label: 'Investor buys ETF shares', value: 'One share = instant diversification' }, { label: 'ETF holds every stock in the index', value: 'e.g. all 500 S&P 500 companies' }, { label: 'Index tracks the market', value: 'No human stock-picking' }], footer: 'Low fees are the best predictor of performance', sentiment: 'positive' };
+const IF6_HOOK: AnimatedVisual = { type: 'metric', title: 'The Index Fund Verdict', value: '92%', detail: 'Of active stock pickers fail to beat the index over 15 years', footer: 'Index funds now hold over $11 trillion', sentiment: 'positive', sprite: 'scales' };
+const IF6_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Active Fund at 1% Fees', value: '$132,677', detail: '$10,000 at 9% net over 30 years', footer: '92% chance it underperforms the index', sentiment: 'negative', sprite: 'chart-down' };
+const IF6_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Index ETF at 0.03% Fees', value: '$174,494', detail: '$10,000 at ~10% net over 30 years', footer: 'You keep $41,817 more', sentiment: 'positive', sprite: 'chart-up' };
+const IF6_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'How an Index ETF Works', nodes: [{ label: 'Investor buys ETF shares', value: 'One share = instant diversification', sprite: 'cart', explain: 'One share, and you own a sliver of all 500 companies at once. Lesson 5 said to spread your money so no single company can sink you. This is that entire idea bought in a single click.' }, { label: 'ETF holds every stock in the index', value: 'e.g. all 500 S&P 500 companies', sprite: 'stock-ticker', explain: 'The fund really does hold all 500, in the same weights the index uses. Nobody sits in a room deciding Apple deserves your money and some smaller company does not. The list decides.' }, { label: 'Index tracks the market', value: 'No human stock-picking', sprite: 'compass', explain: 'There is no manager to pay and no hunch to second guess. A rule buys the list, and that is the whole reason the fee can be 0.03% instead of 1%: $3 a year per $10,000 instead of $100.' }], footer: 'Low fees are the best predictor of performance', sentiment: 'positive' };
 
 // ─── LESSON 7 (Mutual Funds & Fund Types) ───
-const IF7_HOOK: AnimatedVisual = { type: 'metric', title: 'U.S. Mutual Fund Assets', value: '$23 Trillion', detail: 'More than the GDP of every country except the U.S. and China', footer: 'Pooled investing at massive scale', sentiment: 'positive' };
-const IF7_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Picking Individual Stocks', value: '5 Stocks', detail: 'Concentration risk, one bad report tanks 20% of your portfolio', footer: '92% of stock pickers underperform over 15 years', sentiment: 'negative' };
-const IF7_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Diversified Mutual Fund', value: '100-3,000+ Securities', detail: 'Money pooled with thousands of investors, professionally managed', footer: 'Instant diversification for as little as 0.03%/yr', sentiment: 'positive' };
-const IF7_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'How a Mutual Fund Works', nodes: [{ label: 'Investors pool their money', value: 'Thousands of investors combine cash' }, { label: 'Manager directs the holdings', value: 'Buys a diversified portfolio' }, { label: 'NAV calculated daily', value: '(Assets − Liabilities) / Shares' }], footer: 'VFIAX: $824B+ assets at a 0.04% expense ratio', sentiment: 'positive' };
+const IF7_HOOK: AnimatedVisual = { type: 'metric', title: 'U.S. Mutual Fund Assets', value: '$23 Trillion', detail: 'More than the GDP of every country except the U.S. and China', footer: 'Pooled investing at massive scale', sentiment: 'positive', sprite: 'vault' };
+const IF7_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Picking Individual Stocks', value: '5 Stocks', detail: 'Concentration risk, one bad report tanks 20% of your portfolio', footer: '92% of stock pickers underperform over 15 years', sentiment: 'negative', sprite: 'crack' };
+const IF7_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Diversified Mutual Fund', value: '100-3,000+ Securities', detail: 'Money pooled with thousands of investors, professionally managed', footer: 'Instant diversification for as little as 0.03%/yr', sentiment: 'positive', sprite: 'network' };
+const IF7_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'How a Mutual Fund Works', nodes: [{ label: 'Investors pool their money', value: 'Thousands of investors combine cash', sprite: 'stack-cash', explain: 'On its own, $500 buys you about one share of one big company. Dropped into the pool with a few hundred thousand other people, that same $500 buys a sliver of every company the fund holds.' }, { label: 'Manager directs the holdings', value: 'Buys a diversified portfolio', sprite: 'briefcase', explain: 'One person or one algorithm decides what the whole pool owns, and nobody in the pool gets a vote. That is what the expense ratio is actually paying for.' }, { label: 'NAV calculated daily', value: '(Assets − Liabilities) / Shares', sprite: 'calculator', explain: 'Put $1 billion of holdings over 50 million shares and every share is worth $20 that day. It does not matter whether you clicked buy at 9:31 in the morning or 3:59 in the afternoon: you pay the same $20.' }], footer: 'VFIAX: $824B+ assets at a 0.04% expense ratio', sentiment: 'positive' };
 
 // ─── LESSON 8 (Dollar Cost Averaging) ───
 const IF8_HOOK: AnimatedVisual = { type: 'comparison', title: 'Average Investor vs. The Market', rows: [{ label: 'Average investor (emotional timing)', value: '3.6%/yr' }, { label: 'S&P 500 index', value: '10%/yr' }], footer: 'DCA removes the emotional paralysis that hurts returns', sentiment: 'negative' };
-const IF8_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Trying to Time the Market', value: '3.6%/yr', detail: 'Panic-buy at the top, sell at a loss', footer: 'Emotional timing costs ~6% per year vs. the index', sentiment: 'negative' };
-const IF8_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'DCA $500/Month for 20 Years', value: '~$294,000', detail: '$120,000 contributed, automated regardless of headlines', footer: 'Zero timing decisions required', sentiment: 'positive' };
+const IF8_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Trying to Time the Market', value: '3.6%/yr', detail: 'Panic-buy at the top, sell at a loss', footer: 'Emotional timing costs ~6% per year vs. the index', sentiment: 'negative', sprite: 'stopwatch' };
+const IF8_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'DCA $500/Month for 20 Years', value: '~$294,000', detail: '$120,000 contributed, automated regardless of headlines', footer: 'Zero timing decisions required', sentiment: 'positive', sprite: 'calendar' };
 /**
  * A pictograph rather than bars, because here the UNIT is the whole lesson: one
  * mark is one share, so "the cheaper the month, the more marks you collect" is
@@ -113,26 +113,26 @@ const IF8_DIAGRAM: AnimatedVisual = {
   unitValue: 1,
   unitLabel: '1 share',
   rows: [
-    { label: 'Month 1, $40 a share', value: 5, displayValue: '5 shares' },
-    { label: 'Month 2, $20 a share', value: 10, displayValue: '10 shares' },
-    { label: 'Month 3, $25 a share', value: 8, displayValue: '8 shares' },
-    { label: 'Month 4, $50 a share', value: 4, displayValue: '4 shares' },
+    { label: 'Month 1, $40 a share', value: 5, displayValue: '5 shares', explain: 'At $40 your $200 stretches to only 5 marks. Nothing went wrong this month, this is simply what a high price buys. Notice you never chose 5, the price chose it for you.' },
+    { label: 'Month 2, $20 a share', value: 10, displayValue: '10 shares', explain: 'The price got cut in half and your row doubled to 10 shares. You sent the exact same $200 and made no decision at all. The month that felt scariest handed you the biggest pile of shares.' },
+    { label: 'Month 3, $25 a share', value: 8, displayValue: '8 shares', explain: 'Eight shares at $25. Count across: months 2 and 3 give you 18 of your 27 shares, so two thirds of everything you own came from the two cheapest months.' },
+    { label: 'Month 4, $50 a share', value: 4, displayValue: '4 shares', explain: 'Fifty dollars is your worst deal of the four, and the row shows it with just 4 marks. Because you own so few expensive shares, they barely lift your average. That is how you end up paying $29.63 when the average price was $33.75.' },
   ],
   footer: '$800 invested, 27 shares, avg cost $29.63 vs avg price $33.75',
   sentiment: 'positive',
 };
 
 // ─── LESSON 24 (Paper Trading: Build Your Portfolio) ───
-const IF24_HOOK: AnimatedVisual = { type: 'flow', title: 'Your 30-Day Paper Trading Plan', nodes: [{ label: 'Open a simulator account', value: '$100,000 virtual cash' }, { label: 'Build a diversified portfolio', value: 'Real ticker symbols, 110-minus-age rule' }, { label: 'Track every trade for 30 days', value: 'Document reasoning and emotions' }], footer: 'Apply everything from Lessons 1-23, risk-free', sentiment: 'positive' };
-const IF24_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Skipping Practice', value: '3x', detail: 'More likely to panic-sell during a first downturn', footer: 'Theory feels very different from practice', sentiment: 'negative' };
-const IF24_STAKES_WITH: AnimatedVisual = { type: 'metric', title: '30 Days of Paper Trading', value: 'Zero Risk', detail: 'Practice trades, emotions, and discipline before real money', footer: 'Bridges the gap between knowledge and action', sentiment: 'positive' };
-const IF24_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'Paper Trading Setup', nodes: [{ label: 'Sign up for a stock simulator', value: 'Free, no credit card' }, { label: 'Fund the virtual account', value: '$100,000 in virtual cash' }, { label: 'Build your portfolio', value: 'Diversified, real tickers' }, { label: 'Track results vs. SPY', value: 'Review weekly for 30 days' }], footer: 'The flight simulator of investing', sentiment: 'positive' };
+const IF24_HOOK: AnimatedVisual = { type: 'flow', title: 'Your 30-Day Paper Trading Plan', nodes: [{ label: 'Open a simulator account', value: '$100,000 virtual cash', sprite: 'key' }, { label: 'Build a diversified portfolio', value: 'Real ticker symbols, 110-minus-age rule', sprite: 'pie-slice' }, { label: 'Track every trade for 30 days', value: 'Document reasoning and emotions', sprite: 'book' }], footer: 'Apply everything from Lessons 1-23, risk-free', sentiment: 'positive' };
+const IF24_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Skipping Practice', value: '3x', detail: 'More likely to panic-sell during a first downturn', footer: 'Theory feels very different from practice', sentiment: 'negative', sprite: 'crack' };
+const IF24_STAKES_WITH: AnimatedVisual = { type: 'metric', title: '30 Days of Paper Trading', value: 'Zero Risk', detail: 'Practice trades, emotions, and discipline before real money', footer: 'Bridges the gap between knowledge and action', sentiment: 'positive', sprite: 'safety-net' };
+const IF24_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'Paper Trading Setup', nodes: [{ label: 'Sign up for a stock simulator', value: 'Free, no credit card', sprite: 'phone', explain: 'No credit card is the whole safety design: the account has no way to reach a real bank, so the worst thing a terrible trade can cost you here is a number on a screen and a lesson.' }, { label: 'Fund the virtual account', value: '$100,000 in virtual cash', sprite: 'stack-cash', explain: 'That $100,000 is bigger than what you will really start with, and on purpose. A routine 2 percent dip shows up as 2,000 dollars in red. Feeling that sting on fake money is the point.' }, { label: 'Build your portfolio', value: 'Diversified, real tickers', sprite: 'stock-ticker', explain: 'Real tickers matter because the simulator prices VTI, VXUS and BND off the live market. Your pretend portfolio moves the exact amount a real one would have, to the cent.' }, { label: 'Track results vs. SPY', value: 'Review weekly for 30 days', sprite: 'scales', explain: 'Weekly means 4 check-ins across the 30 days instead of 30, so you are judging your plan and not the daily noise. Beating SPY is not the goal, knowing the size of the gap is.' }], footer: 'The flight simulator of investing', sentiment: 'positive' };
 
 // ─── LESSON 25 (Paper Trading: Evaluate & Graduate) ───
-const IF25_HOOK: AnimatedVisual = { type: 'flow', title: 'From Student to Investor', nodes: [{ label: 'Evaluate your performance', value: 'Process over outcome' }, { label: 'Write your Investment Policy Statement', value: 'A contract with your future self' }, { label: 'Create a real-money transition plan', value: 'Graduate with confidence' }], footer: 'Review is what separates amateurs from professionals', sentiment: 'positive' };
-const IF25_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'No Review or Reflection', value: '−6.4%/yr', detail: 'Behavioral errors repeat without review (Dalbar)', footer: 'Practice without listening teaches nothing', sentiment: 'negative' };
-const IF25_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Reflection + Written IPS', value: '+1.5%/yr', detail: 'Behavioral discipline adds value (Vanguard estimate)', footer: 'Your journal reveals your personal patterns', sentiment: 'positive' };
-const IF25_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Performance Review Framework', items: [{ label: 'Returns vs. Benchmark', value: 'Compare to SPY, not to grade', color: '#3B82F6' }, { label: 'Process Score', value: 'Did you follow the plan?', color: '#A451E6' }, { label: 'Behavioral Scorecard', value: 'Resisted impulses?', color: '#F59E0B' }, { label: 'Journal Analysis', value: 'Count urges to deviate', color: '#10B981' }], footer: 'A perfect process beats a lucky outcome', sentiment: 'positive' };
+const IF25_HOOK: AnimatedVisual = { type: 'flow', title: 'From Student to Investor', nodes: [{ label: 'Evaluate your performance', value: 'Process over outcome', sprite: 'bar-chart' }, { label: 'Write your Investment Policy Statement', value: 'A contract with your future self', sprite: 'certificate' }, { label: 'Create a real-money transition plan', value: 'Graduate with confidence', sprite: 'compass' }], footer: 'Review is what separates amateurs from professionals', sentiment: 'positive' };
+const IF25_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'No Review or Reflection', value: '−6.4%/yr', detail: 'Behavioral errors repeat without review (Dalbar)', footer: 'Practice without listening teaches nothing', sentiment: 'negative', sprite: 'chart-down' };
+const IF25_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Reflection + Written IPS', value: '+1.5%/yr', detail: 'Behavioral discipline adds value (Vanguard estimate)', footer: 'Your journal reveals your personal patterns', sentiment: 'positive', sprite: 'chart-up' };
+const IF25_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Performance Review Framework', items: [{ label: 'Returns vs. Benchmark', value: 'Compare to SPY, not to grade', color: '#3B82F6', sprite: 'stock-ticker', explain: 'SPY did 3.0 percent, you did 2.4 percent. That 0.6 point gap is not a bad grade, it is VXUS at 1.5 percent and BND at 0.8 percent moving at their own speed. Over 30 days the gap is noise. Over 30 years it is the reason one bad country cannot take half your money.' }, { label: 'Process Score', value: 'Did you follow the plan?', color: '#A451E6', sprite: 'check-badge', explain: 'Four yes or no questions: held the allocation, rebalanced once drift passed 5 percent, skipped impulse trades, wrote every decision down. Score 4 out of 4 in a month you finished down 1.2 percent and you still had a perfect month, because all four things you actually controlled went right.' }, { label: 'Behavioral Scorecard', value: 'Resisted impulses?', color: '#F59E0B', sprite: 'shield', explain: 'Count the times you wanted to sell and did not. Two urges resisted in 30 days is two rehearsals with fake money. The gap between what funds earn and what the people holding them earn is 6.4 percent a year, and almost all of it is the urges nobody resisted.' }, { label: 'Journal Analysis', value: 'Count urges to deviate', color: '#10B981', sprite: 'book', explain: 'Read the journal for the dates, not the tickers. If four of your five anxious entries land in the same week the market fell 6 percent, your trigger is not stocks, it is red numbers on a screen. The fix is checking weekly instead of daily, and it costs you nothing.' }], footer: 'A perfect process beats a lucky outcome', sentiment: 'positive' };
 
 const lessons: PathwayLesson[] = [
   // ═══════════════════════════════════════════════════════════════
@@ -1516,7 +1516,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Diagram showing how an index ETF works: investor buys ETF shares → ETF holds all stocks in the index → index tracks the market',
       undefined,
-      IF6_DIAGRAM),
+      IF6_DIAGRAM,
+      {
+        hint: 'Press each stage of the flow to follow one dollar from your click through to the 500 companies it ends up owning.',
+        recap: 'The point of this lesson is the fee. Lesson 5 told you diversification was worth having, and an index ETF hands you 500 companies for 0.03%, about $3 a year per $10,000. A manager charging 1% takes $100 for the same job, and over 15 years loses to the index 92% of the time.',
+      }),
 
     microCheck(
       'Fund A charges a 1.0% expense ratio. Fund B charges 0.03%. Both earn 10% gross return. On a $10,000 investment over 30 years, approximately how much more does the low-cost fund produce?',
@@ -1605,11 +1609,11 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('ETF Quick Reference',[
-      ['VOO / SPY','S&P 500 ETFs, track 500 largest U.S. companies. VOO charges 0.03%, SPY charges 0.09%. The most popular equity ETFs in the world.'],
-      ['VTI / ITOT','Total U.S. Stock Market ETFs, hold ~4,000 U.S. companies of all sizes. Broader than S&P 500. VTI charges 0.03%.'],
-      ['VXUS / IXUS','International Stock ETFs, hold thousands of companies outside the U.S. across developed and emerging markets. Geographic diversification.'],
-      ['BND / AGG','Total Bond Market ETFs, hold thousands of U.S. investment-grade bonds. Provide stability and income to balance stock volatility.'],
-      ['QQQ','NASDAQ-100 ETF, tracks the 100 largest non-financial NASDAQ companies. Tech-heavy: Apple, Microsoft, Google, Amazon, Nvidia. Higher growth, higher volatility.']
+      ['VOO / SPY','S&P 500 ETFs, track 500 largest U.S. companies. VOO charges 0.03%, SPY charges 0.09%. The most popular equity ETFs in the world.', { stat: '$3 a year per $10,000', sprite: 'star' }],
+      ['VTI / ITOT','Total U.S. Stock Market ETFs, hold ~4,000 U.S. companies of all sizes. Broader than S&P 500. VTI charges 0.03%.', { stat: '~4,000 companies', sprite: 'pie-slice' }],
+      ['VXUS / IXUS','International Stock ETFs, hold thousands of companies outside the U.S. across developed and emerging markets. Geographic diversification.', { stat: '~8,500 companies', sprite: 'globe' }],
+      ['BND / AGG','Total Bond Market ETFs, hold thousands of U.S. investment-grade bonds. Provide stability and income to balance stock volatility.', { stat: '10,000+ bonds', sprite: 'shield' }],
+      ['QQQ','NASDAQ-100 ETF, tracks the 100 largest non-financial NASDAQ companies. Tech-heavy: Apple, Microsoft, Google, Amazon, Nvidia. Higher growth, higher volatility.', { stat: '0.20% fee', sprite: 'rocket' }]
     ]),
 
     ds('Put these in order of lowest to highest expense ratio:',[
@@ -1756,7 +1760,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Flow diagram: investors pool money → fund manager directs it to diversified holdings → NAV calculated daily',
       undefined,
-      IF7_DIAGRAM),
+      IF7_DIAGRAM,
+      {
+        hint: 'Press each step. It follows one $500 deposit out of your bank account, into hundreds of companies, and back out as a single price at 4:00 PM.',
+        recap: 'Lesson 3 showed compounding growing your money. A fund fee compounds the exact same way, just against you: $10,000 at 8% for 30 years ends at $99,514 in a 0.04% fund and only $76,123 in a 1.0% fund. Same market, same 30 years, $23,392 gone. The manager is not what decides your result, the fee is.',
+      }),
 
     microCheck(
       'A mutual fund holds $500 million in total assets, has $2 million in liabilities, and 25 million shares outstanding. What is the fund\'s NAV?',
@@ -1845,12 +1853,12 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Mutual Fund Types at a Glance',[
-      ['Equity (Stock) Funds','Invest primarily in stocks. Subcategories: large-cap, mid-cap, small-cap, growth, value. Highest return potential, highest volatility.'],
-      ['Bond Funds','Invest in government or corporate bonds. Lower returns but more stable. Good for income and portfolio stability.'],
-      ['Balanced Funds','Hold a mix of stocks and bonds, typically 60/40. Moderate growth with less volatility.'],
-      ['Money Market Funds','Invest in short-term, high-quality debt. Extremely low risk, returns near the federal funds rate. Used for parking cash.'],
-      ['Target-Date Funds','Automatically shift from aggressive (stocks) to conservative (bonds) as you approach retirement. Pick the year closest to when you\'ll retire.'],
-      ['Index Funds','Passively track a market index. Lowest fees. Example: VFIAX tracks the S&P 500 at 0.04%.']
+      ['Equity (Stock) Funds','Invest primarily in stocks. Subcategories: large-cap, mid-cap, small-cap, growth, value. Highest return potential, highest volatility.', { stat: '~10% / yr', sprite: 'chart-up' }],
+      ['Bond Funds','Invest in government or corporate bonds. Lower returns but more stable. Good for income and portfolio stability.', { stat: '~5% / yr', sprite: 'certificate' }],
+      ['Balanced Funds','Hold a mix of stocks and bonds, typically 60/40. Moderate growth with less volatility.', { stat: '60 / 40', sprite: 'scales' }],
+      ['Money Market Funds','Invest in short-term, high-quality debt. Extremely low risk, returns near the federal funds rate. Used for parking cash.', { stat: '~4.5%', sprite: 'piggy-bank' }],
+      ['Target-Date Funds','Automatically shift from aggressive (stocks) to conservative (bonds) as you approach retirement. Pick the year closest to when you\'ll retire.', { stat: '90% to 30%', sprite: 'hourglass' }],
+      ['Index Funds','Passively track a market index. Lowest fees. Example: VFIAX tracks the S&P 500 at 0.04%.', { stat: '0.04%', sprite: 'target' }]
     ]),
 
     ds('Order these fund types from highest expected long-term return to lowest:',[
@@ -2003,7 +2011,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Diagram showing 4 months of DCA: $200 invested each month at prices of $40, $20, $25, and $50, resulting in 5, 10, 8, and 4 shares respectively. Total: $800 invested, 27 shares owned, average cost $29.63 vs average price $33.75.',
       undefined,
-      IF8_DIAGRAM),
+      IF8_DIAGRAM,
+      {
+        hint: 'Press any month in the chart and I will tell you what that price did to your share count.',
+        recap: 'Here is the line to keep: you paid $29.63 a share while the average price was $33.75, and you did it without predicting a single thing. The cheap months quietly bought you extra shares. Lesson 3 showed that compounding needs time in the market, and dollar cost averaging is how you buy that time without ever having to be right about a headline.',
+      }),
 
     // Step 4, Embedded Micro-Check
     microCheck(
@@ -2110,10 +2122,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('DCA Facts That Change How You Think About Investing', [
-      ['What did the 2012 Vanguard study find about DCA vs. lump sum?', 'Lump sum beat DCA about 68% of the time across U.S., U.K., and Australian markets. But the average DCA underperformance was only 2.3%, a small cost for removing emotional timing risk.'],
-      ['How much would $500/month grow to in 30 years at 10% return?', 'Approximately $1,130,000, from only $180,000 in total contributions. Over 84% of your final wealth comes from compound growth on your DCA investments, not from the contributions themselves.'],
-      ['Why is DCA actually better during crashes?', 'Your fixed monthly amount buys significantly more shares at depressed prices. Those cheap shares generate enormous returns during the recovery. The shares bought at the 2009 bottom have returned over 600%.'],
-      ['What is the biggest advantage of automating DCA?', 'It removes you from the equation. Humans are hard-wired to feel losses 2x as intensely as gains (loss aversion). Automation prevents your brain from sabotaging your investment plan during downturns.']
+      ['What did the 2012 Vanguard study find about DCA vs. lump sum?', 'Lump sum beat DCA about 68% of the time across U.S., U.K., and Australian markets. But the average DCA underperformance was only 2.3%, a small cost for removing emotional timing risk.', { stat: '68%', sprite: 'scales' }],
+      ['How much would $500/month grow to in 30 years at 10% return?', 'Approximately $1,130,000, from only $180,000 in total contributions. Over 84% of your final wealth comes from compound growth on your DCA investments, not from the contributions themselves.', { stat: '$1.13M', sprite: 'tree' }],
+      ['Why is DCA actually better during crashes?', 'Your fixed monthly amount buys significantly more shares at depressed prices. Those cheap shares generate enormous returns during the recovery. The shares bought at the 2009 bottom have returned over 600%.', { stat: '600%', sprite: 'cart' }],
+      ['What is the biggest advantage of automating DCA?', 'It removes you from the equation. Humans are hard-wired to feel losses 2x as intensely as gains (loss aversion). Automation prevents your brain from sabotaging your investment plan during downturns.', { stat: '2x', sprite: 'bolt' }]
     ]),
 
     // Step 12, Drag Sort
@@ -2268,7 +2280,7 @@ const lessons: PathwayLesson[] = [
       'A landmark 1986 study by Brinson, Hood, and Beebower found that asset allocation, not stock picking or market timing, explains over 90% of the variation in portfolio returns over time.',
       'By the end of this lesson, you\'ll know how to build a simple 3-fund portfolio, choose the right stock-to-bond ratio for your age, and understand when and why to rebalance.',
       'Pie chart showing a 3-fund portfolio: 60% US stocks, 30% international stocks, 10% bonds',
-      { type: 'pie', title: 'Sample 3-FUND portfolio', segments: [{ label: 'US Stocks', percent: 60, color: '#A451E6' }, { label: 'Int\'l Stocks', percent: 30, color: '#B862ED' }, { label: 'Bonds', percent: 10, color: '#10B981' }], footer: 'Allocation drives ~90% of return variation', sentiment: 'positive' }
+      { type: 'pie', title: 'Sample 3-FUND portfolio', segments: [{ label: 'US Stocks', percent: 60, color: '#A451E6', explain: 'Sixty cents of every dollar go into one fund holding about 4,000 American companies. Nobody picked them. You own the winners and the losers together, and historically the winners have been more than enough.' }, { label: 'Int\'l Stocks', percent: 30, color: '#B862ED', explain: 'Nearly a third of the money sits outside the US. That sounds like a lot until you notice the US is only about 60% of the world\'s stock market value, so this slice is still smaller than the rest of the planet actually is.' }, { label: 'Bonds', percent: 10, color: '#10B981', explain: 'Only a tenth of the money, and that is deliberate. This slice is not here to grow. It is the part you can sell without taking a loss when stocks are down and everything else has gone on sale.' }], footer: 'Allocation drives ~90% of return variation', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -2276,8 +2288,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Random stock picking with no plan', detail: 'Without a structured allocation, investors chase trends and panic during downturns. Studies show the average individual investor earned only 3.6% annually over 30 years, less than inflation-adjusted bond returns, due to emotional buy-high, sell-low behavior.' },
       { label: 'Structured 3-fund portfolio with a plan', detail: 'A simple 3-fund portfolio (US stocks, international stocks, bonds) returned approximately 8-9% annually over the last 30 years with minimal effort. You set it, rebalance once or twice a year, and let compounding do the work.' },
       {
-        withoutVisual: { type: 'bars', title: 'Random stock picking', items: [{ label: 'Stock A', value: 100, displayValue: 'Erratic' }, { label: 'Stock B', value: 64, displayValue: 'Volatile' }, { label: 'Stock C', value: 45, displayValue: 'Falling' }, { label: 'Stock D', value: 82, displayValue: 'Unpredictable' }], footer: 'Emotional decisions destroy returns', sentiment: 'negative' },
-        withVisual: { type: 'pie', title: '3-FUND Portfolio', segments: [{ label: 'US Stocks', percent: 60, color: '#A451E6' }, { label: 'Int\'l Stocks', percent: 30, color: '#B862ED' }, { label: 'Bonds', percent: 10, color: '#10B981' }], footer: 'Disciplined allocation beats stock picking', sentiment: 'positive' }
+        withoutVisual: { type: 'bars', title: 'Random stock picking', items: [{ label: 'Stock A', value: 100, displayValue: 'Erratic', sprite: 'dice', explain: 'The tallest bar, and it is tallest only because this one happened to run this year. Nothing about that tells you what it does next year, which is what makes this a guess instead of a plan.' }, { label: 'Stock B', value: 64, displayValue: 'Volatile', sprite: 'bolt', explain: 'About two thirds the height of A today, and the two could swap places by next quarter. Choosing between them is a coin flip with extra research stapled to it.' }, { label: 'Stock C', value: 45, displayValue: 'Falling', sprite: 'chart-down', explain: 'Less than half of A. This is the one people sell at the bottom, and that reflex is a big part of why the average investor earned only 3.6% a year over 30 years.' }, { label: 'Stock D', value: 82, displayValue: 'Unpredictable', sprite: 'question', explain: 'Four bars, four unrelated stories, no rule joining them. Compare that with the pie beside it, where one decision sets all three numbers and you can repeat that decision every single year.' }], footer: 'Emotional decisions destroy returns', sentiment: 'negative' },
+        withVisual: { type: 'pie', title: '3-FUND Portfolio', segments: [{ label: 'US Stocks', percent: 60, color: '#A451E6', explain: 'The same 60% you saw on the opening screen. Nothing about it changes when the market panics, and that steadiness is most of the gap between this portfolio and the 3.6% a year the average investor earned.' }, { label: 'Int\'l Stocks', percent: 30, color: '#B862ED', explain: 'This is the slice people drop because US stocks have been hot. From 2000 to 2009 the S&P 500 returned roughly nothing across the whole decade, and this slice is why that decade did not have to be a wasted one.' }, { label: 'Bonds', percent: 10, color: '#10B981', explain: 'Ten percent barely slows your growth, and in 2008 it was the one thing here that went up while stocks fell 37%. That is what you sell to buy stocks cheap.' }], footer: 'Disciplined allocation beats stock picking', sentiment: 'positive' }
       }
     ),
 
@@ -2301,7 +2313,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Three-layer diagram showing the 3-fund portfolio structure: US Total Stock Market (largest slice), International Stocks (medium slice), and US Bonds (smallest slice), with arrows showing how they connect to provide global diversification.',
       undefined,
-      { type: 'flow', title: '3-FUND Portfolio structure', nodes: [{ label: 'US Total Stock Market, 60%', value: 'VTSAX / VTI, ~4,000 US companies' }, { label: 'International Stocks, 30%', value: 'VTIAX / VXUS, ~8,000 non-US companies' }, { label: 'US Bond Market, 10%', value: 'VBTLX / BND, ~10,000 bonds' }], footer: '3 funds. 22,000+ securities. Total global diversification.', sentiment: 'positive' }
+      { type: 'flow', title: '3-FUND Portfolio structure', nodes: [{ label: 'US Total Stock Market, 60%', value: 'VTSAX / VTI, ~4,000 US companies', sprite: 'stock-ticker', explain: 'One purchase, and you own the biggest names in America down to firms you have never heard of. Nobody decided which of them deserve your money, and if any single one goes to zero you barely notice.' }, { label: 'International Stocks, 30%', value: 'VTIAX / VXUS, ~8,000 non-US companies', sprite: 'globe', explain: 'Lesson 5 told you not to bet everything on one company. This node is that same rule one level up: do not bet everything on one country either, and a single purchase covers every developed and emerging market outside the US.' }, { label: 'US Bond Market, 10%', value: 'VBTLX / BND, ~10,000 bonds', sprite: 'shield', explain: 'Loans rather than ownership, which is the split you learned in lesson 4. In 2008 stocks fell 37% while these gained 5.2%, so this is the slice you spend when everything else is marked down.' }], footer: '3 funds. 22,000+ securities. Total global diversification.', sentiment: 'positive' },
+      {
+        hint: 'Press each of the three funds. Every one of them tells you how many companies or loans that single purchase actually hands you.',
+        recap: 'Lesson 5 taught you not to put everything into one company. This lesson does the same thing one level up: three funds, over 22,000 securities, and the split between them, not the names inside them, explains more than 90% of how your result turns out.',
+      }
     ),
 
     // Step 4, Embedded Micro-Check
@@ -2407,10 +2423,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Portfolio Building Facts',[
-      ['What percentage of return variation does asset allocation explain?','Over 90%, according to the landmark Brinson, Hood, and Beebower study. Stock picking and market timing explain less than 10% combined.'],
-      ['What is the "110 minus age" rule?','Subtract your age from 110 to get your stock allocation. A 20-year-old: 90% stocks. A 50-year-old: 60% stocks. More aggressive investors use 120 minus age.'],
-      ['How often should you rebalance your portfolio?','Once or twice per year, or when your allocation drifts more than 5% from your target. Vanguard research shows annual rebalancing works as well as monthly.'],
-      ['Why include international stocks?','The US represents only about 60% of global stock market value. International stocks provide diversification, sometimes US stocks underperform for a decade while international stocks lead.']
+      ['What percentage of return variation does asset allocation explain?','Over 90%, according to the landmark Brinson, Hood, and Beebower study. Stock picking and market timing explain less than 10% combined.', { stat: 'Over 90%', sprite: 'pie-slice' }],
+      ['What is the "110 minus age" rule?','Subtract your age from 110 to get your stock allocation. A 20-year-old: 90% stocks. A 50-year-old: 60% stocks. More aggressive investors use 120 minus age.', { stat: '110 minus age', sprite: 'clock' }],
+      ['How often should you rebalance your portfolio?','Once or twice per year, or when your allocation drifts more than 5% from your target. Vanguard research shows annual rebalancing works as well as monthly.', { stat: '1 to 2 times a year', sprite: 'scales' }],
+      ['Why include international stocks?','The US represents only about 60% of global stock market value. International stocks provide diversification, sometimes US stocks underperform for a decade while international stocks lead.', { stat: 'US is 60% of world', sprite: 'network' }]
     ]),
 
     // Step 12, Drag Sort
@@ -2564,14 +2580,14 @@ const lessons: PathwayLesson[] = [
       'An investor who maxes their employer 401(k) match from age 22 to 65 earns an estimated $400,000+ in free employer money alone, before counting any investment returns on that match.',
       'By the end of this lesson, you\'ll know every major investment account type, their tax advantages, contribution limits, and the optimal order to fund them, turning the tax code into your wealth-building weapon.',
       'Tax savings comparison: taxable vs. tax-advantaged growth over 40 years',
-      { type: 'line', title: 'Tax-advantaged vs taxable growth', points: [{ label: 'Roth IRA', value: '$1.2M' }, { label: 'Taxable', value: '$760K' }], trend: 'up', footer: 'Age 22', sentiment: 'positive' }
+      { type: 'line', title: 'Tax-advantaged vs taxable growth', points: [{ label: 'Roth IRA', value: '$1.2M', explain: 'Same $500 a month, same 10% return, same 40 years. The only thing that changed between this point and the next one is which account the money sat in.' }, { label: 'Taxable', value: '$760K', explain: '$440,000 less, and none of it came from picking worse investments. Tax paid every single year is money that never got the chance to compound.' }], trend: 'up', footer: 'Age 22', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Investing in a taxable brokerage only', detail: 'Every year you pay taxes on dividends, interest, and capital gains. At a 22% tax rate, $500/month invested at 10% for 40 years grows to ~$760,000 after taxes. You lose nearly $440,000 to the IRS over your lifetime, money that could have been compounding for you.' },
       { label: 'Using the right tax-advantaged accounts', detail: 'A Roth IRA lets your money grow 100% tax-free. A 401(k) with employer match gives you free money on top. Combined, $500/month at 10% for 40 years grows to ~$1.2 million, $440,000 more than the taxable account, plus any employer match on top.' },
       {
-        withoutVisual: { type: 'metric', title: 'Taxable account', value: 'Your returns: $500K', detail: 'Taxes: $190K | Keep | You keep: $760K', footer: 'IRS takes a cut every year', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Tax-advantaged', value: 'Your returns: $500K', detail: 'You keep: ALL of it | You keep: $1.2M', footer: 'Tax-free compounding', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Taxable account', value: 'Your returns: $500K', detail: 'Taxes: $190K | Keep | You keep: $760K', footer: 'IRS takes a cut every year', sentiment: 'negative', sprite: 'tax-form' },
+        withVisual: { type: 'metric', title: 'Tax-advantaged', value: 'Your returns: $500K', detail: 'You keep: ALL of it | You keep: $1.2M', footer: 'Tax-free compounding', sentiment: 'positive', sprite: 'shield' }
       }
     ),
 
@@ -2591,7 +2607,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Comparison table showing five account types side by side: 401(k), Traditional IRA, Roth IRA, HSA, and Taxable Brokerage, with columns for tax treatment, limits, penalties, and best use case.',
       undefined,
-      { type: 'comparison', title: 'Account types comparison', rows: [{ label: 'Roth IRA', value: '401(k)' }, { label: 'Trad IRA', value: '401(k)' }, { label: 'HSA', value: '401(k)' }, { label: 'Taxable', value: '401(k)' }, { label: '$23K limit', value: '$7K limit' }, { label: '$4.15K limit', value: '$23K limit' }, { label: 'Flexible', value: '$23K limit' }], footer: 'Always capture free money first, then maximize tax-free growth', sentiment: 'positive' }
+      { type: 'comparison', title: 'Account types comparison', rows: [{ label: 'Roth IRA', value: '401(k)', explain: 'You pay the tax on the way in and then never again. Your tax rate on a first job is about as low as it will ever get, which is exactly when paying early is cheapest.' }, { label: 'Trad IRA', value: '401(k)', explain: 'The mirror image of the Roth: skip the tax now, pay it at withdrawal. Putting in $7,000 cuts this year\'s taxable income by $7,000, worth about $1,540 at the 22% bracket.' }, { label: 'HSA', value: '401(k)', explain: 'The only account in the country that is untaxed at all three points: going in, growing, and coming out for medical bills. Nothing else gets all three.' }, { label: 'Taxable', value: '401(k)', explain: 'No limit, no lock, no tax break. This is where money goes after the sheltered accounts are full, or when you need to reach it before age 59½.' }, { label: '$23K limit', value: '$7K limit', explain: 'The workplace account holds more than three times what an IRA does. If you only ever fund one of them, that gap decides how much of your money is protected from tax at all.' }, { label: '$4.15K limit', value: '$23K limit', explain: '$4,150 is the smallest cap on the board, and it buys the best terms on the board. A small bucket with no tax at any stage still beats a big bucket that gets skimmed.' }, { label: 'Flexible', value: '$23K limit', explain: 'Flexibility is what you are buying when you give up the tax break. A sheltered dollar costs you access until 59½, and an unsheltered dollar costs you tax every year it grows.' }], footer: 'Always capture free money first, then maximize tax-free growth', sentiment: 'positive' },
+      {
+        hint: 'Press any row of the table. Each one tells you what that account charges you in tax and what it locks up in exchange.',
+        recap: 'Choose the account before you choose the fund. Lesson 3 showed that compounding does almost all of its work in the last stretch, and a taxable account shaves a slice off every year before that stretch arrives, which is how the same $500 a month lands at $760K instead of $1.2M. Then take the full employer match first, because a 100% match on your money beats any return you will ever pick.',
+      }
     ),
 
     microCheck(
@@ -2681,10 +2701,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Account Quick Facts',[
-      ['When can you withdraw from a 401(k) penalty-free?','After age 59½ (or 55 if you leave your employer). Early withdrawals face a 10% penalty plus income taxes. Exceptions: hardship, loans, Roth 401(k) contributions.'],
-      ['Can you withdraw Roth IRA contributions early?','Yes! Roth IRA contributions (not earnings) can be withdrawn anytime, penalty-free. This makes the Roth a flexible emergency backup, but try not to touch it.'],
-      ['What happens to your 401(k) if you leave your job?','You can roll it into an IRA (usually best), leave it with your old employer, move it to your new employer\'s plan, or cash it out (worst option, 10% penalty + taxes).'],
-      ['What is a backdoor Roth IRA?','High earners above the Roth income limit ($161K single, 2024) can contribute to a Traditional IRA and then convert to Roth. This legal workaround lets anyone access Roth benefits.']
+      ['When can you withdraw from a 401(k) penalty-free?','After age 59½ (or 55 if you leave your employer). Early withdrawals face a 10% penalty plus income taxes. Exceptions: hardship, loans, Roth 401(k) contributions.', { stat: '10% penalty', sprite: 'lock' }],
+      ['Can you withdraw Roth IRA contributions early?','Yes! Roth IRA contributions (not earnings) can be withdrawn anytime, penalty-free. This makes the Roth a flexible emergency backup, but try not to touch it.', { stat: '$0 penalty', sprite: 'safety-net' }],
+      ['What happens to your 401(k) if you leave your job?','You can roll it into an IRA (usually best), leave it with your old employer, move it to your new employer\'s plan, or cash it out (worst option, 10% penalty + taxes).', { stat: '4 choices', sprite: 'briefcase' }],
+      ['What is a backdoor Roth IRA?','High earners above the Roth income limit ($161K single, 2024) can contribute to a Traditional IRA and then convert to Roth. This legal workaround lets anyone access Roth benefits.', { stat: '$161K cutoff', sprite: 'key' }]
     ]),
 
     ds('Put these accounts in the optimal funding order (most important first):',[
@@ -2811,7 +2831,7 @@ const lessons: PathwayLesson[] = [
       'Japanese rice traders invented candlestick charts in the 1700s, the same patterns still predict price movements today.',
       'By the end of this lesson, you\'ll know how to read candlestick charts, spot support and resistance levels, interpret volume, and recognize the moving average patterns that professional traders use every day.',
       'Candlestick chart showing a classic bullish reversal pattern with support line',
-      { type: 'line', title: 'Candlestick chart, bullish reversal', points: [{ label: 'Downtrend', value: '$158' }, { label: 'Support', value: '$142' }, { label: 'Recovery', value: '$161' }], trend: 'up', footer: 'Price bounced off the $142 support level and turned back up', sentiment: 'positive' }
+      { type: 'line', title: 'Candlestick chart, bullish reversal', points: [{ label: 'Downtrend', value: '$158', explain: '$158 is where the slide began, and nothing on the chart at that moment says where it stops. That is the exact discomfort chart reading tries to answer: not what the price is, but where it has stopped falling before.' }, { label: 'Support', value: '$142', explain: 'The fall stopped at $142, and it had stopped near there before. That is what makes it support rather than a random low: real buy orders sit clustered at that price, so the same buyers show up again.' }, { label: 'Recovery', value: '$161', explain: '$161 is higher than the $158 the slide started from. The bounce did not just undo the drop, it carried 13% above the $142 low and cleared the old level on the way.' }], trend: 'up', footer: 'Price bounced off the $142 support level and turned back up', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -2819,8 +2839,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Trading blind without chart literacy', detail: 'You buy a stock at its 52-week high, right at a resistance level. It drops 30% within weeks. You panic-sell at the bottom, near the support line you never saw.' },
       { label: 'Reading charts before you trade', detail: 'You spot the stock approaching strong support after a pullback. You buy near $142 support and ride the bounce to $180 resistance, a 27% gain in weeks.' },
       {
-        withoutVisual: { type: 'line', title: 'Buying blind', points: [{ label: 'Bought the spike', value: '$180' }, { label: 'Panic sets in', value: '$150' }, { label: 'Sold at the low', value: '$128' }], trend: 'down', footer: 'Buying the top and selling the bottom locks in a 29% loss', sentiment: 'negative' },
-        withVisual: { type: 'line', title: 'Reading the chart', points: [{ label: 'Waited', value: '$180' }, { label: 'Bought at support', value: '$142' }, { label: 'Held the bounce', value: '$168' }], trend: 'up', footer: 'Support told you where buyers had shown up before', sentiment: 'positive' }
+        withoutVisual: { type: 'line', title: 'Buying blind', points: [{ label: 'Bought the spike', value: '$180', explain: '$180 is the highest price anywhere on this chart, which is exactly why it felt safe. Everyone who bought lower is sitting in profit, and they are happy to sell into your buy.' }, { label: 'Panic sets in', value: '$150', explain: 'Down $30 a share, and this is where the price gets checked every ten minutes. Nothing about $150 is a real level, it is just the number that hurt enough to make a decision.' }, { label: 'Sold at the low', value: '$128', explain: '$128 was the bottom. Selling here turns a paper drop into a real 29% loss, and it happened right where buyers were about to step back in.' }], trend: 'down', footer: 'Buying the top and selling the bottom locks in a 29% loss', sentiment: 'negative' },
+        withVisual: { type: 'line', title: 'Reading the chart', points: [{ label: 'Waited', value: '$180', explain: 'Same $180 spike, and this time nothing happened. Sitting out a price you cannot explain is a real decision, not a missed one.' }, { label: 'Bought at support', value: '$142', explain: '$142 is not a guess at a bargain. The chart already showed price stopping there, so this is buying where buyers have already shown up once.' }, { label: 'Held the bounce', value: '$168', explain: '$142 to $168 is an 18% gain on the same stock that cost the other person 29%. The company did not change between the two stories, only the price you paid.' }], trend: 'up', footer: 'Support told you where buyers had shown up before', sentiment: 'positive' }
       }
     ),
 
@@ -2845,7 +2865,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Annotated candlestick diagram showing body, wicks, open, close, high, low labels with support and resistance lines',
       undefined,
-      { type: 'comparison', title: 'Anatomy of a candlestick', rows: [{ label: 'Close (higher) $108', value: 'Open $108' }, { label: 'Open (lower) $100', value: 'Close $100' }], footer: 'BULLISH (green)', sentiment: 'positive' }
+      { type: 'comparison', title: 'Anatomy of a candlestick', rows: [{ label: 'Close (higher) $108', value: 'Open $108', explain: 'Read the left column first. The candle started the day at $100 and finished at $108, so the body grew upward and the top number is the close. Buyers ended the session $8 per share ahead of where it began.' }, { label: 'Open (lower) $100', value: 'Close $100', explain: 'Now the right column. Exactly the same two prices, $100 and $108, but here $108 is the open and $100 is the close, so the same $8 got given back. The prices alone tell you nothing, the order of open and close is what makes it green or red.' }], footer: 'BULLISH (green)', sentiment: 'positive' },
+      {
+        hint: 'Press either side of the candle. Both use the same two prices, $100 and $108, and I will show you why swapping which one is the open flips green to red.',
+        recap: 'A candlestick is four numbers wearing a color: open, high, low and close. Green means it closed above where it opened, red means below, and that is the whole message. Lesson 3 showed that compounding does its work over years, so use a chart to pick your moment, never to pick what you own.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -2946,12 +2970,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Stock Chart Essentials',[
-      ['What do long wicks on a candlestick indicate?','Price was rejected at the extremes, long upper wicks show sellers pushed price back down; long lower wicks show buyers stepped in and pushed price back up.'],
-      ['What is a "Death Cross"?','When the 50-day moving average crosses below the 200-day moving average, a bearish signal. It warned of the 2008, 2020, and 2022 bear markets.'],
-      ['Why does volume matter for breakouts?','A breakout above resistance on 3x average volume is far more likely to hold than one on low volume. Volume is "conviction", it shows real money backing the move.'],
-      ['What happens when support "breaks"?','Old support often becomes new resistance. If a stock falls below $100 support, that same $100 level may now act as a ceiling on rallies.'],
-      ['What is the 200-day moving average used for?','It defines the long-term trend. Stocks above the 200 MA are in uptrends; stocks below it are in downtrends. Institutions use it as a key decision threshold.'],
-      ['What does a "doji" candlestick mean?','A doji has virtually no body, open and close are nearly equal. It signals indecision between buyers and sellers and often appears at trend turning points.']
+      ['What do long wicks on a candlestick indicate?','Price was rejected at the extremes, long upper wicks show sellers pushed price back down; long lower wicks show buyers stepped in and pushed price back up.', { stat: 'Wicks = rejection', sprite: 'shield' }],
+      ['What is a "Death Cross"?','When the 50-day moving average crosses below the 200-day moving average, a bearish signal. It warned of the 2008, 2020, and 2022 bear markets.', { stat: '3 bear markets', sprite: 'bear' }],
+      ['Why does volume matter for breakouts?','A breakout above resistance on 3x average volume is far more likely to hold than one on low volume. Volume is "conviction", it shows real money backing the move.', { stat: '3x volume', sprite: 'crowd' }],
+      ['What happens when support "breaks"?','Old support often becomes new resistance. If a stock falls below $100 support, that same $100 level may now act as a ceiling on rallies.', { stat: '$100 flips', sprite: 'crack' }],
+      ['What is the 200-day moving average used for?','It defines the long-term trend. Stocks above the 200 MA are in uptrends; stocks below it are in downtrends. Institutions use it as a key decision threshold.', { stat: '200 days', sprite: 'compass' }],
+      ['What does a "doji" candlestick mean?','A doji has virtually no body, open and close are nearly equal. It signals indecision between buyers and sellers and often appears at trend turning points.', { stat: 'Body near 0', sprite: 'scales' }]
     ]),
 
     // Step 12, Drag Sort
@@ -3100,7 +3124,7 @@ const lessons: PathwayLesson[] = [
       'During the 2010 Flash Crash, some stocks traded for $0.01 because market orders executed without price limits.',
       'By the end of this lesson, you\'ll understand the three main order types, market, limit, and stop-loss, plus the hidden mechanics of bid-ask spreads and slippage that can quietly eat your profits.',
       'Order book visualization showing bid and ask prices stacking during the Flash Crash',
-      { type: 'line', title: '2010 flash crash, order book collapse', points: [{ label: 'Before', value: '$38.00' }, { label: 'Bids vanish', value: '$1.00' }, { label: 'Filled at', value: '$0.01' }], trend: 'down', footer: 'Marketorders filled at $0.01 when all bids disappeared', sentiment: 'negative' }
+      { type: 'line', title: '2010 flash crash, order book collapse', points: [{ label: 'Before', value: '$38.00', explain: 'Accenture opened that morning near $38 a share. An ordinary price on what looked like an ordinary trading day, which is the point: nothing here warned anyone.' }, { label: 'Bids vanish', value: '$1.00', explain: 'Within minutes every serious buyer pulled their offer. The best price anyone was still willing to pay fell to $1, and below that the book was nearly empty.' }, { label: 'Filled at', value: '$0.01', explain: 'A market order says fill me at any price, so it took the only bid left standing: one cent. A $38 share sold for less than a stick of gum, and the seller agreed to it without knowing.' }], trend: 'down', footer: 'Marketorders filled at $0.01 when all bids disappeared', sentiment: 'negative' }
     ),
 
     // Step 2, Stakes Card
@@ -3108,8 +3132,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Using market orders blindly', detail: 'You place a market order for a thinly-traded stock at $50. Slippage fills you at $52.30, an instant 4.6% loss. Over a year of frequent trading, slippage costs you thousands.' },
       { label: 'Choosing the right order type', detail: 'You set a limit order at $50.10 with a stop-loss at $47. You get filled at your price, your downside is capped, and you saved hundreds in slippage costs over the year.' },
       {
-        withoutVisual: { type: 'metric', title: 'Market order slippage', value: 'Want: $50', detail: '→ | Got: $52.30 | -4.6% instant loss', footer: '$2,300 lost on $50K of annual trades', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Limit order precision', value: 'Limit: $50.10', detail: '→ | Got: $50.10 | Exact price. Zero slippage.', footer: '$2,300 saved annually vs market orders', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Market order slippage', value: 'Want: $50', detail: '→ | Got: $52.30 | -4.6% instant loss', footer: '$2,300 lost on $50K of annual trades', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'Limit order precision', value: 'Limit: $50.10', detail: '→ | Got: $50.10 | Exact price. Zero slippage.', footer: '$2,300 saved annually vs market orders', sentiment: 'positive', sprite: 'target' }
       }
     ),
 
@@ -3133,7 +3157,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Three-panel diagram comparing market, limit, and stop-loss order execution with price arrows',
       undefined,
-      { type: 'comparison', title: 'Three order types compared', rows: [{ label: '"Buy NOW"', value: '"Buy at $X or less"' }, { label: '"Sell if it hits $X"', value: '"Buy at $X or less"' }], footer: 'matters most', sentiment: 'positive' }
+      { type: 'comparison', title: 'Three order types compared', rows: [{ label: '"Buy NOW"', value: '"Buy at $X or less"', explain: 'Same goal, two very different promises. A market order guarantees you get in but never says what you pay. A limit order guarantees what you pay but never promises you get in at all.' }, { label: '"Sell if it hits $X"', value: '"Buy at $X or less"', explain: 'A stop-loss is a trigger, not a price guarantee. Set it at $90 and it fires when the stock touches $90, then turns into a market order. If bad news drops the stock to $75 overnight, $75 is what you get.' }], footer: 'matters most', sentiment: 'positive' },
+      {
+        hint: 'Press each row to see what you are actually telling your broker when you pick that order type.',
+        recap: 'Every order is a sentence with one word left blank. A market order leaves the price blank and accepts whatever the market hands you, which is how $38 shares sold for a penny. A limit order writes the price in and accepts that it may never fill. Lesson 11 taught you to read a chart and decide the price you want. This is the order type that actually asks for it.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -3234,12 +3262,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Order Type Deep Dive',[
-      ['What is a "stop-limit" order?','A hybrid: it triggers like a stop-loss at one price, but then becomes a limit order at another price. Example: Stop at $90, Limit at $88, triggers at $90 but won\'t sell below $88.'],
-      ['What is "payment for order flow" (PFOF)?','How commission-free brokers make money. They route your orders to market makers like Citadel, who pay the broker for the privilege and profit from the spread. You get slightly worse prices.'],
-      ['What is a "fill or kill" order?','An order that must be executed in its entirety immediately or cancelled completely. Used for large institutional orders that can\'t be partially filled without moving the price.'],
-      ['What is the "best execution" rule?','SEC regulation requiring brokers to execute trades at the best available price. Despite this, market orders can still slip because prices move between order submission and execution.'],
-      ['Why do spreads widen during market opens and closes?','Uncertainty is highest when new information floods in. Market makers widen spreads to protect themselves from losses during these volatile periods.'],
-      ['What is a "trailing stop" order?','A stop-loss that moves up with the stock price. If you set a 10% trailing stop, the stop price rises as the stock rises but never falls, automatically locking in gains while limiting downside.']
+      ['What is a "stop-limit" order?','A hybrid: it triggers like a stop-loss at one price, but then becomes a limit order at another price. Example: Stop at $90, Limit at $88, triggers at $90 but won\'t sell below $88.', { stat: 'Stop $90, limit $88', sprite: 'arrow-split' }],
+      ['What is "payment for order flow" (PFOF)?','How commission-free brokers make money. They route your orders to market makers like Citadel, who pay the broker for the privilege and profit from the spread. You get slightly worse prices.', { stat: 'Fractions of a cent per share', sprite: 'handshake' }],
+      ['What is a "fill or kill" order?','An order that must be executed in its entirety immediately or cancelled completely. Used for large institutional orders that can\'t be partially filled without moving the price.', { stat: 'All 500 shares or none', sprite: 'bolt' }],
+      ['What is the "best execution" rule?','SEC regulation requiring brokers to execute trades at the best available price. Despite this, market orders can still slip because prices move between order submission and execution.', { stat: 'Best price, not your price', sprite: 'check-badge' }],
+      ['Why do spreads widen during market opens and closes?','Uncertainty is highest when new information floods in. Market makers widen spreads to protect themselves from losses during these volatile periods.', { stat: 'Widest spreads of the day', sprite: 'clock' }],
+      ['What is a "trailing stop" order?','A stop-loss that moves up with the stock price. If you set a 10% trailing stop, the stop price rises as the stock rises but never falls, automatically locking in gains while limiting downside.', { stat: 'Always 10% below the peak', sprite: 'ladder' }]
     ]),
 
     // Step 12, Drag Sort
@@ -3388,7 +3416,7 @@ const lessons: PathwayLesson[] = [
       'If you invested $10,000 in Johnson & Johnson in 1980 and reinvested all dividends, you\'d have over $1.2 million today, dividends contributed 85% of total returns.',
       'By the end of this lesson, you\'ll understand how dividends work, why reinvesting them creates extraordinary wealth, and how to evaluate dividend stocks like a professional income investor.',
       'Compound growth chart of J&J showing dividend reinvestment vs price-only returns since 1980',
-      { type: 'line', title: 'J&J: $10K Invested in 1980, dividends reinvested', points: [{ label: 'With DRIP', value: '$1.2M' }, { label: 'Price only', value: '$180K' }, { label: '$10K', value: '$10K' }], trend: 'up', footer: 'Dividends accounted for 85% of total returns', sentiment: 'positive' }
+      { type: 'line', title: 'J&J: $10K Invested in 1980, dividends reinvested', points: [{ label: 'With DRIP', value: '$1.2M', explain: 'That top point started as the exact same $10,000 as the bottom one. The only difference is that every dividend check bought more J&J shares instead of being spent.' }, { label: 'Price only', value: '$180K', explain: '$180K looks like a win until you look up. Taking the dividends as cash instead of reinvesting them cost about $1 million, and you never felt it leave.' }, { label: '$10K', value: '$10K', explain: 'This is the entire investment. One deposit in 1980, nothing added after. Everything stacked above it was built by the company mailing out cash and that cash buying more stock.' }], trend: 'up', footer: 'Dividends accounted for 85% of total returns', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -3396,8 +3424,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Ignoring dividends and chasing only price gains', detail: 'You invest $10K in a stock that grows 7% per year (price only) for 30 years. Final value: $76,123. You missed the quiet engine that drives most long-term returns.' },
       { label: 'Reinvesting dividends with a DRIP', detail: 'Same $10K in a stock growing 7% in price + 3% dividend yield, all dividends reinvested for 30 years. Final value: $174,494. DRIPs turned your dividend into 2.3x more wealth.' },
       {
-        withoutVisual: { type: 'metric', title: 'Price only, no DRIP', value: '$10K', detail: 'Start | → | $76K | 30 yrs', footer: 'Dividends spent, not reinvested', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'DRIP Reinvestment', value: '$10K', detail: 'Start | → | $174K | 30 yrs', footer: '+2.3x more from reinvesting dividends', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Price only, no DRIP', value: '$10K', detail: 'Start | → | $76K | 30 yrs', footer: 'Dividends spent, not reinvested', sentiment: 'negative', sprite: 'wallet' },
+        withVisual: { type: 'metric', title: 'DRIP Reinvestment', value: '$10K', detail: 'Start | → | $174K | 30 yrs', footer: '+2.3x more from reinvesting dividends', sentiment: 'positive', sprite: 'tree' }
       }
     ),
 
@@ -3421,7 +3449,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Flow diagram showing company earnings splitting into retained earnings and dividend payments to shareholders, with DRIP reinvestment loop',
       undefined,
-      { type: 'flow', title: 'Where a company profit can go', nodes: [{ label: 'Company earns a profit' }, { label: 'Reinvest in the business' }, { label: 'Pay a dividend', value: 'Usually quarterly' }, { label: 'Reinvest the dividend', value: 'DRIP buys more shares' }], footer: 'Coca-Cola has raised its dividend every year for 62 consecutive years.' }
+      { type: 'flow', title: 'Where a company profit can go', nodes: [{ label: 'Company earns a profit', sprite: 'factory', explain: 'Everything starts here. A dividend is not free money the company invents, it is a slice of profit that already exists in the bank.' }, { label: 'Reinvest in the business', sprite: 'seedling', explain: 'Path one: keep the cash and build new stores, factories or servers. You get nothing in your account today, and the bet is that each share becomes worth more later.' }, { label: 'Pay a dividend', value: 'Usually quarterly', sprite: 'dividend', explain: 'Path two: send the cash out to owners, normally four times a year. It shows up whether the stock rose or fell that quarter, which is why people call it the quiet part of the return.' }, { label: 'Reinvest the dividend', value: 'DRIP buys more shares', sprite: 'chart-up', explain: 'This is the arrow that turns the line into a loop. The cash buys shares, and next quarter those shares pay their own dividend, which buys more shares again.' }], footer: 'Coca-Cola has raised its dividend every year for 62 consecutive years.' },
+      {
+        hint: 'Press each box to follow the profit from the company to your account. The last one is where the path bends back and starts over.',
+        recap: 'A dividend is a company handing you part of its actual profit in cash. The number that decides your outcome is not the yield, it is what you do with that cash. Reinvest it and the compounding from lesson 3 starts running on the dividends too, which is how one $10,000 deposit in 1980 turned into $1.2 million instead of $180,000.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -3522,12 +3554,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Dividend Investing Insights',[
-      ['What is a "Dividend King"?','A company that has increased its dividend for 50+ consecutive years. Only about 50 companies in all of U.S. history qualify, an incredibly elite group including Coca-Cola, P&G, and 3M.'],
-      ['How are qualified dividends taxed?','At the long-term capital gains rate: 0% if your income is under ~$44K, 15% for most people, 20% for top earners. Much lower than ordinary income tax rates of 22-37%.'],
-      ['What is the "dividend capture" strategy?','Buying just before the ex-dividend date and selling right after to collect the dividend. It rarely works because the stock drops by roughly the dividend amount on the ex-date.'],
-      ['What is "dividend coverage"?','Earnings per share divided by dividend per share. A coverage ratio of 2.0 means the company earns twice what it pays, very safe. Below 1.0 means it\'s paying more than it earns.'],
-      ['Why do some great companies like Amazon pay no dividends?','They believe they can generate higher returns by reinvesting profits into growth (new warehouses, AWS servers, etc.) than shareholders could earn on their own. It\'s a capital allocation choice.'],
-      ['What is the "dividend irrelevance theory"?','Proposed by economists Modigliani and Miller, in a perfect market, dividends don\'t matter because you can create your own "dividend" by selling shares. In practice, taxes, behavioral factors, and signaling make dividends very relevant.']
+      ['What is a "Dividend King"?','A company that has increased its dividend for 50+ consecutive years. Only about 50 companies in all of U.S. history qualify, an incredibly elite group including Coca-Cola, P&G, and 3M.', { stat: '50+ straight years', sprite: 'trophy' }],
+      ['How are qualified dividends taxed?','At the long-term capital gains rate: 0% if your income is under ~$44K, 15% for most people, 20% for top earners. Much lower than ordinary income tax rates of 22-37%.', { stat: '0% to 20%', sprite: 'tax-form' }],
+      ['What is the "dividend capture" strategy?','Buying just before the ex-dividend date and selling right after to collect the dividend. It rarely works because the stock drops by roughly the dividend amount on the ex-date.', { stat: 'Net gain near $0', sprite: 'stopwatch' }],
+      ['What is "dividend coverage"?','Earnings per share divided by dividend per share. A coverage ratio of 2.0 means the company earns twice what it pays, very safe. Below 1.0 means it\'s paying more than it earns.', { stat: '2.0 is safe, 1.0 is not', sprite: 'scales' }],
+      ['Why do some great companies like Amazon pay no dividends?','They believe they can generate higher returns by reinvesting profits into growth (new warehouses, AWS servers, etc.) than shareholders could earn on their own. It\'s a capital allocation choice.', { stat: '$0 paid out', sprite: 'rocket' }],
+      ['What is the "dividend irrelevance theory"?','Proposed by economists Modigliani and Miller, in a perfect market, dividends don\'t matter because you can create your own "dividend" by selling shares. In practice, taxes, behavioral factors, and signaling make dividends very relevant.', { stat: 'True only on paper', sprite: 'book' }]
     ]),
 
     // Step 12, Drag Sort
@@ -3676,7 +3708,7 @@ const lessons: PathwayLesson[] = [
       'From 2010-2020, growth stocks (like FAANG) crushed value by 300%. From 2000-2010, value outperformed growth by 100%. The pendulum always swings.',
       'By the end of this lesson, you\'ll understand the two dominant investing philosophies, growth and value, how to identify each, and why smart investors use both depending on the market cycle.',
       'Growth vs value performance cycle chart showing alternating decades of outperformance',
-      { type: 'bars', title: 'Growth vs value: the pendulum', items: [{ label: '2000-10', value: 59, displayValue: 'Value' }, { label: 'Value', value: 100, displayValue: 'Growth' }, { label: '2022', value: 41, displayValue: 'Value' }, { label: '2023-24', value: 71, displayValue: 'Growth' }, { label: 'Next?', value: 18, displayValue: '???' }], footer: 'Neither style wins forever, the cycle always rotates', sentiment: 'positive' }
+      { type: 'bars', title: 'Growth vs value: the pendulum', items: [{ label: '2000-10', value: 59, displayValue: 'Value', sprite: 'magnifier', explain: 'Value led for a full decade, and this bar is only a little over half the height of the growth run beside it. Leadership rotates, but the turns are not the same size.' }, { label: 'Value', value: 100, displayValue: 'Growth', sprite: 'rocket', explain: 'The tallest bar on the chart. Growth ran for about eleven straight years, long enough that anyone who started investing in 2012 had never once seen value win.' }, { label: '2022', value: 41, displayValue: 'Value', sprite: 'bear', explain: 'One single year. Rates went from near zero to over 4%, and growth stocks fell 29% while value fell about 7%. A decade of leadership flipped in twelve months.' }, { label: '2023-24', value: 71, displayValue: 'Growth', sprite: 'bull', explain: 'Growth is back on top two years later. Anyone who dumped all their growth at the end of 2022 to chase value missed this bar completely.' }, { label: 'Next?', value: 18, displayValue: '???', sprite: 'question', explain: 'Short on purpose, because nobody knows. Every bar to the left looks obvious now and looked just as unknowable while it was happening.' }], footer: 'Neither style wins forever, the cycle always rotates', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -3709,7 +3741,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Two-column comparison of growth vs value stock characteristics with P/E ratio scale',
       undefined,
-      { type: 'comparison', title: 'Growth vs value, key differences', rows: [{ label: 'P/E: 30-100+', value: 'P/E: 5-15' }, { label: 'Revenue: +20%/yr', value: 'Revenue: 0-10%/yr' }], footer: 'Bet on the FUTURE', sentiment: 'positive' }
+      { type: 'comparison', title: 'Growth vs value, key differences', rows: [{ label: 'P/E: 30-100+', value: 'P/E: 5-15', explain: 'Read both sides at once. At a P/E of 60 you hand over $60 for every $1 of yearly profit. At 10 you hand over $10. Same dollar of profit, six times the price.' }, { label: 'Revenue: +20%/yr', value: 'Revenue: 0-10%/yr', explain: 'This gap is what that price gap is buying. Sales growing 20% a year double in under four years. Sales growing 5% take fourteen. Whether that is worth 60 times earnings is the entire argument.' }], footer: 'Bet on the FUTURE', sentiment: 'positive' },
+      {
+        hint: 'Tap each row. The left side is growth, the right side is value, and the two numbers are the whole argument.',
+        recap: 'The price tag is not the argument, the pair is. Paying 60 times earnings is only reckless if the growth never shows up, and paying 10 times is only safe if the business does not shrink. Nobody can tell you in advance which one is right, which is why lesson 5 pushed you to spread the bet. Owning both styles diversifies you across the answer, not just across companies.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -3810,12 +3846,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Growth vs Value Deep Dive',[
-      ['Who is the most famous value investor?','Warren Buffett, who built $100B+ in wealth buying undervalued companies. His mentor Benjamin Graham wrote "The Intelligent Investor", the bible of value investing.'],
-      ['What was the most famous growth trade of the 2020s?','Nvidia: from $15 to $900+ in 5 years, driven by AI demand. Its P/E hit 60+ but earnings grew 400% in 2024 alone, justifying the premium.'],
-      ['What is a "value trap"?','A stock that looks cheap by P/E but stays cheap (or gets cheaper) because the business is fundamentally deteriorating. Example: Kodak was "cheap" for years while digital photography destroyed it.'],
-      ['What is the "growth at any price" mistake?','Paying P/E ratios of 100+ for companies whose growth eventually slows. When growth decelerates, the P/E compresses, and the stock can fall 50-80% even if the company is still profitable.'],
-      ['Which style tends to outperform during recessions?','Value stocks, particularly defensive sectors like consumer staples, healthcare, and utilities. Their steady earnings and dividends provide stability when growth stocks collapse.'],
-      ['What is "GARP" investing?','Growth At a Reasonable Price, a hybrid approach seeking growth stocks with fair valuations (PEG near 1.0). Peter Lynch popularized this at Fidelity, where he averaged 29% annual returns for 13 years.']
+      ['Who is the most famous value investor?','Warren Buffett, who built $100B+ in wealth buying undervalued companies. His mentor Benjamin Graham wrote "The Intelligent Investor", the bible of value investing.', { stat: '$100B+', sprite: 'book' }],
+      ['What was the most famous growth trade of the 2020s?','Nvidia: from $15 to $900+ in 5 years, driven by AI demand. Its P/E hit 60+ but earnings grew 400% in 2024 alone, justifying the premium.', { stat: '60x', sprite: 'chart-up' }],
+      ['What is a "value trap"?','A stock that looks cheap by P/E but stays cheap (or gets cheaper) because the business is fundamentally deteriorating. Example: Kodak was "cheap" for years while digital photography destroyed it.', { stat: 'Bankrupt', sprite: 'crack' }],
+      ['What is the "growth at any price" mistake?','Paying P/E ratios of 100+ for companies whose growth eventually slows. When growth decelerates, the P/E compresses, and the stock can fall 50-80% even if the company is still profitable.', { stat: '−80%', sprite: 'chart-down' }],
+      ['Which style tends to outperform during recessions?','Value stocks, particularly defensive sectors like consumer staples, healthcare, and utilities. Their steady earnings and dividends provide stability when growth stocks collapse.', { stat: 'Defensive', sprite: 'shield' }],
+      ['What is "GARP" investing?','Growth At a Reasonable Price, a hybrid approach seeking growth stocks with fair valuations (PEG near 1.0). Peter Lynch popularized this at Fidelity, where he averaged 29% annual returns for 13 years.', { stat: '29% a year', sprite: 'target' }]
     ]),
 
     // Step 12, Drag Sort
@@ -3964,7 +4000,7 @@ const lessons: PathwayLesson[] = [
       'U.S. stocks are only 60% of world market cap. Japanese stocks beat U.S. stocks for the entire 1970s and 1980s. International diversification is essential.',
       'By the end of this lesson, you\'ll understand why investing only in your home country is one of the biggest mistakes investors make, and how to access global markets through ADRs, international ETFs, and emerging market funds.',
       'World market capitalization pie chart showing U.S. as 60% with the rest distributed globally',
-      { type: 'pie', title: 'Global market cap, $110 trillion', segments: [{ label: 'United States', percent: 60, color: '#3B82F6' }, { label: 'Japan', percent: 6, color: '#10B981' }, { label: 'UK', percent: 4, color: '#F59E0B' }, { label: 'China', percent: 3, color: '#EF4444' }, { label: 'Canada', percent: 3, color: '#A451E6' }, { label: 'France', percent: 3, color: '#94A3B8' }, { label: 'Rest of World', percent: 21, color: '#64748B' }], centerLabel: '$110T', footer: 'Investing only in U.S. ignores 40% of the world opportunity', sentiment: 'positive' }
+      { type: 'pie', title: 'Global market cap, $110 trillion', segments: [{ label: 'United States', percent: 60, color: '#3B82F6', explain: 'Six of every ten dollars of stock value on Earth sit inside one country. That is why a U.S.-only portfolio feels normal, and it is still a bet on one place.' }, { label: 'Japan', percent: 6, color: '#10B981', explain: 'Japan is 6% now. In 1989 it was 45%, a bigger slice than the U.S. had. The Nikkei then took 34 years to climb back to its 1989 high.' }, { label: 'UK', percent: 4, color: '#F59E0B', explain: 'The UK is 4%, about one fifteenth of the U.S. slice, and it still holds some of the oldest listed companies alive.' }, { label: 'China', percent: 3, color: '#EF4444', explain: 'China is the second largest economy on Earth yet only 3% of this pie, because much of it is state owned and never sold to outside investors.' }, { label: 'Canada', percent: 3, color: '#A451E6', explain: 'Canada matches China at 3% with about 3% of China\'s population. This chart measures listed company value, not how big a country is.' }, { label: 'France', percent: 3, color: '#94A3B8', explain: 'That 3% holds LVMH, Hermes and TotalEnergies, brands you touch most weeks and almost certainly do not own a share of.' }, { label: 'Rest of World', percent: 21, color: '#64748B', explain: 'Everything else adds to a fifth of world market value. Skip it and you skip more than Japan, the UK, China, Canada and France combined.' }], centerLabel: '$110T', footer: 'Investing only in U.S. ignores 40% of the world opportunity', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -3972,8 +4008,8 @@ const lessons: PathwayLesson[] = [
       { label: '100% U.S. stocks, home country bias', detail: 'From 2000-2009, U.S. stocks returned only 9% for the entire decade. International stocks returned 31%. Home bias cost American investors 22 percentage points over 10 years.' },
       { label: 'Globally diversified portfolio', detail: 'By holding U.S., developed international, and emerging market stocks, you captured growth from every region. When U.S. lagged in the 2000s, Japan, Europe, and emerging markets carried your portfolio.' },
       {
-        withoutVisual: { type: 'metric', title: '100% U.S. Only', value: 'USA 100%', detail: '2000-2009: +9% total | Missed global growth', footer: 'Entire decade nearly lost', sentiment: 'negative' },
-        withVisual: { type: 'bars', title: 'Global allocation', items: [{ label: 'US', value: 60, displayValue: '60%' }, { label: 'Developed Mkts', value: 25, displayValue: '25%' }, { label: 'Emerging Mkts', value: 15, displayValue: '15%' }], footer: '+29% vs. U.S.-only investor', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: '100% U.S. Only', value: 'USA 100%', detail: '2000-2009: +9% total | Missed global growth', footer: 'Entire decade nearly lost', sentiment: 'negative', sprite: 'house' },
+        withVisual: { type: 'bars', title: 'Global allocation', items: [{ label: 'US', value: 60, displayValue: '60%', sprite: 'stock-ticker', explain: 'The U.S. bar is still the biggest, and that is on purpose. Going global does not mean abandoning home, it means home stops being the whole thing.' }, { label: 'Developed Mkts', value: 25, displayValue: '25%', sprite: 'bank', explain: 'A quarter goes to Japan, Germany, the UK and 18 more mature economies. These are slow, boring companies, and boring is exactly what you want when the U.S. stalls for a decade.' }, { label: 'Emerging Mkts', value: 15, displayValue: '15%', sprite: 'seedling', explain: 'Only 15% sits in the fastest growing economies. That is deliberate: emerging markets fell more than 50% in 2008, so a small slice captures the growth without wrecking the portfolio.' }], footer: '+29% vs. U.S.-only investor', sentiment: 'positive' }
       }
     ),
 
@@ -3998,7 +4034,11 @@ const lessons: PathwayLesson[] = [
       ],
       'World map divided into three investment zones: developed markets, emerging markets, and frontier markets with GDP growth rates',
       undefined,
-      { type: 'comparison', title: 'Market categories & characteristics', rows: [{ label: 'GDP growth: 1-3%', value: 'GDP growth: 4-8%' }, { label: 'GDP growth: 5-10%', value: 'GDP growth: 1-3%' }, { label: '~85% of world', value: '~12% of world' }, { label: '~3% of world', value: '~85% of world' }], footer: 'Higher growth potential → Higher risk and volatility', sentiment: 'positive' }
+      { type: 'comparison', title: 'Market categories & characteristics', rows: [{ label: 'GDP growth: 1-3%', value: 'GDP growth: 4-8%', explain: 'Developed economies add 1 to 3% a year. Emerging ones add 4 to 8%. Over a decade that gap is the difference between an economy growing a third and one that doubles.' }, { label: 'GDP growth: 5-10%', value: 'GDP growth: 1-3%', explain: 'Frontier markets grow fastest of all, 5 to 10% a year, roughly triple the developed pace. The catch is that a government there can change the rules on foreign owners overnight.' }, { label: '~85% of world', value: '~12% of world', explain: 'Developed markets hold about 85% of world market value, emerging markets about 12%. The fastest growers own the smallest pile of money.' }, { label: '~3% of world', value: '~85% of world', explain: 'Frontier is 3% of world market value against 85% for developed. That corner is so small that one large fund buying in can move prices by itself.' }], footer: 'Higher growth potential → Higher risk and volatility', sentiment: 'positive' },
+      {
+        hint: 'Press each row. Every pair sets one market category against how fast it grows and how much of the world it actually owns.',
+        recap: 'Lesson 5 told you not to put everything into one company. This is the same rule one level up: do not put everything into one country. The U.S. is 60% of world market value today, and Japan was 45% in 1989 before its market spent 34 years getting back to that high. Holding developed and emerging markets alongside the U.S. means you never have to guess which one leads next.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -4099,12 +4139,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('International Investing Essentials',[
-      ['What percentage of global market cap is outside the U.S.?','Approximately 40%. This means investing only in U.S. stocks ignores 4 out of every 10 dollars of global market value, including some of the world\'s most innovative companies.'],
-      ['What is the MSCI EAFE index?','The benchmark for developed international markets: Europe, Australasia, and the Far East. It covers 21 countries and ~800 companies, excluding the U.S. and Canada.'],
-      ['Why are emerging markets riskier but potentially more rewarding?','EM countries have faster GDP growth (4-8% vs. 1-3% for developed), younger demographics, and expanding consumer classes. But they also have political instability, weaker regulations, and higher currency volatility.'],
-      ['What is a "currency-hedged" ETF?','An international ETF that uses derivatives to neutralize the impact of exchange rate changes. You get the foreign stock returns without the currency risk, useful when you expect the dollar to strengthen.'],
-      ['Can you name the world\'s largest non-U.S. company by market cap?','TSMC (Taiwan Semiconductor), the company that makes chips for Apple, Nvidia, and AMD. It\'s essential to global technology but many U.S.-only investors don\'t own it directly.'],
-      ['What is the "J-curve" in emerging market investing?','The tendency for EM investments to underperform initially (as you endure volatility and currency swings) before dramatically outperforming over 10+ year horizons. The short-term pain leads to long-term gain.']
+      ['What percentage of global market cap is outside the U.S.?','Approximately 40%. This means investing only in U.S. stocks ignores 4 out of every 10 dollars of global market value, including some of the world\'s most innovative companies.', { stat: '40%', sprite: 'globe' }],
+      ['What is the MSCI EAFE index?','The benchmark for developed international markets: Europe, Australasia, and the Far East. It covers 21 countries and ~800 companies, excluding the U.S. and Canada.', { stat: '21 countries', sprite: 'compass' }],
+      ['Why are emerging markets riskier but potentially more rewarding?','EM countries have faster GDP growth (4-8% vs. 1-3% for developed), younger demographics, and expanding consumer classes. But they also have political instability, weaker regulations, and higher currency volatility.', { stat: '4-8% vs 1-3%', sprite: 'rocket' }],
+      ['What is a "currency-hedged" ETF?','An international ETF that uses derivatives to neutralize the impact of exchange rate changes. You get the foreign stock returns without the currency risk, useful when you expect the dollar to strengthen.', { stat: 'Zero FX', sprite: 'shield' }],
+      ['Can you name the world\'s largest non-U.S. company by market cap?','TSMC (Taiwan Semiconductor), the company that makes chips for Apple, Nvidia, and AMD. It\'s essential to global technology but many U.S.-only investors don\'t own it directly.', { stat: '#1 non-U.S.', sprite: 'factory' }],
+      ['What is the "J-curve" in emerging market investing?','The tendency for EM investments to underperform initially (as you endure volatility and currency swings) before dramatically outperforming over 10+ year horizons. The short-term pain leads to long-term gain.', { stat: '10+ years', sprite: 'hourglass' }]
     ]),
 
     // Step 12, Drag Sort
@@ -4253,7 +4293,7 @@ const lessons: PathwayLesson[] = [
       'Since 1926, the average bear market lasted 9.6 months and lost 36%. The average bull market lasted 6.6 years and gained 339%. Yet investors panic at every downturn.',
       'By the end of this lesson, you\'ll understand how market cycles work, why they\'re predictable patterns (not random chaos), and how smart investors use them to build wealth instead of losing sleep.',
       'Business cycle wave diagram showing expansion, peak, contraction, and trough phases with bull and bear market duration comparison bars',
-      { type: 'comparison', title: 'Market cycles, bull vs bear since 1926', rows: [{ label: 'Bear: 9.6 mo', value: 'Bull: 6.6 yrs / +339%' }, { label: 'Bears are short. Bulls dominate.', value: 'Bull: 6.6 yrs / +339%' }], footer: 'Bull: 6.6 yrs / +339%', sentiment: 'positive' }
+      { type: 'comparison', title: 'Market cycles, bull vs bear since 1926', rows: [{ label: 'Bear: 9.6 mo', value: 'Bull: 6.6 yrs / +339%', explain: '9.6 months against 6.6 years. The bear is about one eighth as long as the bull that follows it, so the frightening part of the cycle is also the short part.' }, { label: 'Bears are short. Bulls dominate.', value: 'Bull: 6.6 yrs / +339%', explain: 'The average bear takes 36% and the average bull gives back 339%. Digging out of a 36% hole needs a 56% gain, and the bull hands over roughly six times that.' }], footer: 'Bull: 6.6 yrs / +339%', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -4261,8 +4301,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Panic selling during downturns', detail: 'Average investor who sold during the 2008 crash and waited until 2013 to re-enter lost 65% of the recovery. Emotional reactions to cycles destroy wealth.' },
       { label: 'Understanding and riding the cycle', detail: 'Investors who stayed invested through every bear market since 1926 earned 10.5% average annual returns. Recognizing cycles as normal prevents costly mistakes.' },
       {
-        withoutVisual: { type: 'metric', title: 'Panic seller', value: 'Sold here', detail: 'Missed recovery', footer: '-65% of potential gains', sentiment: 'negative' },
-        withVisual: { type: 'line', title: 'Cycle-aware investor', points: [{ label: 'Held through dip', value: '10.5% avg annual return' }, { label: '+339%', value: '+339%' }], trend: 'up', footer: '10.5% avg annual return', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Panic seller', value: 'Sold here', detail: 'Missed recovery', footer: '-65% of potential gains', sentiment: 'negative', sprite: 'bear' },
+        withVisual: { type: 'line', title: 'Cycle-aware investor', points: [{ label: 'Held through dip', value: '10.5% avg annual return', explain: '10.5% a year is what you earned for sitting through every crash since 1926. It is not payment for being clever, it is payment for not selling.' }, { label: '+339%', value: '+339%', explain: 'You only collect the average bull gain if you already own the shares on the day it starts, and nobody rings a bell at the bottom to tell you.' }], trend: 'up', footer: '10.5% avg annual return', sentiment: 'positive' }
       }
     ),
 
@@ -4286,7 +4326,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Four-phase business cycle diagram showing expansion, peak, contraction, and trough with sector rotation labels at each phase',
       undefined,
-      { type: 'line', title: 'The four phases of a market cycle', points: [{ label: 'Trough', value: '70' }, { label: 'Expansion', value: '105' }, { label: 'Peak', value: '130' }, { label: 'Contraction', value: '92' }, { label: 'Trough', value: '75' }], trend: 'up', footer: 'Defensive sectors lead', sentiment: 'positive' }
+      { type: 'line', title: 'The four phases of a market cycle', points: [{ label: 'Trough', value: '70', explain: '70 is the low point, and it is where the headlines are worst and the shares are cheapest at the same moment. Those two things always arrive together, which is what makes buying here so hard.' }, { label: 'Expansion', value: '105', explain: '70 up to 105 is a 50% gain, and most of it happens while people are still calling the recovery fake. This phase is the long one, averaging 6.6 years.' }, { label: 'Peak', value: '130', explain: '130 feels like the safest number on the whole chart because everyone you know is making money. That mood is the condition that makes the next number lower.' }, { label: 'Contraction', value: '92', explain: '130 down to 92 is a 29% drop, which is a real bear market. Now look where it lands: 92 is still well above the 70 the cycle began at.' }, { label: 'Trough', value: '75', explain: 'The new bottom is 75, not 70. Every full cycle so far has ended above the one before it, so the slope of the line matters more than the dips carved into it.' }], trend: 'up', footer: 'Defensive sectors lead', sentiment: 'positive' },
+      {
+        hint: 'Press each point on the wave, trough to peak and back down, to hear what that number actually feels like to live through.',
+        recap: 'Keep one figure from this lesson: 27 for 27. Every bear market since 1926 has been followed by a full recovery. Lesson 2 showed stocks losing money in about one year in four but in none of the 20-year stretches, and this wave is that fact drawn up close. The second trough sitting at 75 instead of 70 is the entire reason waiting pays.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -4387,12 +4431,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Market Cycle Facts',[
-      ['How many bear markets have occurred since 1926?','27 bear markets, and every single one was followed by a full bull market recovery.'],
-      ['What percentage of calendar years has the market been positive?','About 73%. The market goes up in roughly 3 out of every 4 years.'],
-      ['What leading indicator has predicted every recession since 1955?','The inverted yield curve, when short-term Treasury rates exceed long-term rates.'],
-      ['What was the fastest bear market in history?','The COVID crash of March 2020: a 34% drop in just 23 trading days.'],
-      ['How much of the time are investors in a bull market?','Roughly 80% of the time. Bear markets are brief interruptions, not the norm.'],
-      ['What happens if you miss the 10 best trading days over 20 years?','Your total returns get cut by more than half. Those best days usually occur right after the worst days.']
+      ['How many bear markets have occurred since 1926?','27 bear markets, and every single one was followed by a full bull market recovery.', { stat: '27 for 27', sprite: 'check-badge' }],
+      ['What percentage of calendar years has the market been positive?','About 73%. The market goes up in roughly 3 out of every 4 years.', { stat: '73%', sprite: 'calendar' }],
+      ['What leading indicator has predicted every recession since 1955?','The inverted yield curve, when short-term Treasury rates exceed long-term rates.', { stat: '1955', sprite: 'scale-tip' }],
+      ['What was the fastest bear market in history?','The COVID crash of March 2020: a 34% drop in just 23 trading days.', { stat: '23 days', sprite: 'stopwatch' }],
+      ['How much of the time are investors in a bull market?','Roughly 80% of the time. Bear markets are brief interruptions, not the norm.', { stat: '80%', sprite: 'bull' }],
+      ['What happens if you miss the 10 best trading days over 20 years?','Your total returns get cut by more than half. Those best days usually occur right after the worst days.', { stat: '10 days', sprite: 'chart-down' }]
     ]),
 
     // Step 12, Drag Sort
@@ -4541,7 +4585,7 @@ const lessons: PathwayLesson[] = [
       'Options trading volume hit 11 billion contracts in 2023, triple the volume from 2019. Yet 90% of options expire worthless.',
       'By the end of this lesson, you\'ll understand how options work, the difference between calls and puts, and how they can be used strategically for income and protection, not just speculation.',
       'Call option payoff diagram showing breakeven point and profit/loss zones',
-      { type: 'metric', title: 'Call option payoff diagram', value: '$0', detail: 'Profit / Loss | Strike: $100 | Breakeven: $105 | Max Loss = Premium ($5) | Unlimited Profit | 90% ex', footer: 'Stock Price at Expiration', sentiment: 'positive' }
+      { type: 'metric', title: 'Call option payoff diagram', value: '$0', detail: 'Profit / Loss | Strike: $100 | Breakeven: $105 | Max Loss = Premium ($5) | Unlimited Profit | 90% ex', footer: 'Stock Price at Expiration', sentiment: 'positive', sprite: 'scale-tip' }
     ),
 
     // Step 2, Stakes Card
@@ -4549,8 +4593,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Trading options without understanding them', detail: 'A Robinhood user lost $730,000 on options trades he didn\'t understand in 2020. 90% of options expire worthless. Uninformed options trading is the fastest way to destroy wealth.' },
       { label: 'Using options strategically with knowledge', detail: 'Covered calls can generate 5-12% additional annual income on stocks you already own. Protective puts act as insurance against crashes. Options are powerful when used correctly.' },
       {
-        withoutVisual: { type: 'metric', title: 'Uninformed trading', value: '90% expire worthless', detail: '', footer: '-$730K actual case', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Strategic options use', value: '+5-12% annual income', detail: '', footer: 'Income + Protection', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Uninformed trading', value: '90% expire worthless', detail: '', footer: '-$730K actual case', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'Strategic options use', value: '+5-12% annual income', detail: '', footer: 'Income + Protection', sentiment: 'positive', sprite: 'paycheck' }
       }
     ),
 
@@ -4574,7 +4618,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Diagram showing call and put option payoff structures with strike price, premium, breakeven, and profit/loss zones clearly labeled',
       undefined,
-      { type: 'comparison', title: 'Call vs put, option mechanics', rows: [{ label: 'Premium: $5', value: 'Premium: $4' }, { label: 'Breakeven: $105', value: 'Breakeven: $96' }, { label: 'Profit if stock > $105', value: 'Profit if stock < $96' }, { label: 'Max loss = $500 (premium)', value: 'Max loss = $400 (premium)' }], footer: 'Max gain = unlimited', sentiment: 'positive' }
+      { type: 'comparison', title: 'Call vs put, option mechanics', rows: [{ label: 'Premium: $5', value: 'Premium: $4', explain: 'Those prices are per share, and one contract is always 100 shares, so the call actually costs you $500 and the put $400 the moment you click buy. That money is gone before the stock has moved a single cent.' }, { label: 'Breakeven: $105', value: 'Breakeven: $96', explain: 'Both contracts sit on a $100 strike, yet neither one breaks even at $100. Between $96 and $105 there is a nine dollar dead band where the call buyer and the put buyer are both losing money at the same time.' }, { label: 'Profit if stock > $105', value: 'Profit if stock < $96', explain: 'Read that carefully: the stock can rise from $100 to $104 and the call buyer still loses. Being right about the direction is not enough, you have to be right by more than the premium you handed over.' }, { label: 'Max loss = $500 (premium)', value: 'Max loss = $400 (premium)', explain: 'The $500 is a hard floor, no margin call can take more than that. The catch is that 90% of options expire worthless, so for most buyers the maximum loss is not the rare bad case, it is the normal outcome.' }], footer: 'Max gain = unlimited', sentiment: 'positive' },
+      {
+        hint: 'Press each row to see what the call side and the put side cost on day one, and how far the stock has to move before either one pays you anything.',
+        recap: 'Everything up to now had time working for you: lesson 2 showed that no 20 year holding period in the record has ever lost money. An option flips that. It carries an expiry date, its time value drains to zero on that date, and 90% of them finish worthless. Owning a share means you can be right eventually. Owning an option means you have to be right by Friday.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -4675,12 +4723,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Options Knowledge Check',[
-      ['How many shares does one standard options contract control?','100 shares. A $5 premium per share means the actual contract cost is $500.'],
-      ['What percentage of options expire worthless?','About 90%. This is why options sellers (who collect premium) have a statistical advantage over buyers.'],
-      ['What is the breakeven for a call option?','Strike price + premium. For a $100 strike call with $5 premium, breakeven is $105.'],
-      ['What is theta decay?','The daily erosion of an option\'s time value, which accelerates dramatically in the final 30 days before expiration.'],
-      ['What is a covered call strategy?','Selling call options on stocks you already own to collect premium income, one of the most conservative options strategies.'],
-      ['What happened during the GameStop options mania?','A gamma squeeze amplified by retail call buying pushed the stock up 2,300%, then most latecomers lost everything when it crashed back.']
+      ['How many shares does one standard options contract control?','100 shares. A $5 premium per share means the actual contract cost is $500.', { stat: '1 contract = 100 shares', sprite: 'price-tag' }],
+      ['What percentage of options expire worthless?','About 90%. This is why options sellers (who collect premium) have a statistical advantage over buyers.', { stat: '9 out of 10 pay nothing', sprite: 'dice' }],
+      ['What is the breakeven for a call option?','Strike price + premium. For a $100 strike call with $5 premium, breakeven is $105.', { stat: '$100 strike + $5 = $105', sprite: 'calculator' }],
+      ['What is theta decay?','The daily erosion of an option\'s time value, which accelerates dramatically in the final 30 days before expiration.', { stat: 'Fastest in the final 30 days', sprite: 'hourglass' }],
+      ['What is a covered call strategy?','Selling call options on stocks you already own to collect premium income, one of the most conservative options strategies.', { stat: '5% to 12% extra per year', sprite: 'coin' }],
+      ['What happened during the GameStop options mania?','A gamma squeeze amplified by retail call buying pushed the stock up 2,300%, then most latecomers lost everything when it crashed back.', { stat: '$20 to $483, then to $40', sprite: 'crowd' }]
     ]),
 
     // Step 12, Drag Sort
@@ -4829,7 +4877,7 @@ const lessons: PathwayLesson[] = [
       'Tax-loss harvesting can add 0.5-1.5% annually to after-tax returns. Over 30 years on $500,000, that\'s $250,000-$750,000 in extra wealth.',
       'By the end of this lesson, you\'ll understand capital gains taxes, tax-loss harvesting, asset location strategy, and the accounts that can save you hundreds of thousands in taxes over your investing lifetime.',
       'Tax bracket comparison showing short-term vs long-term capital gains rates with the savings highlighted',
-      { type: 'comparison', title: 'The tax-loss harvesting advantage', rows: [{ label: '$4.3M', value: '$5.0M' }, { label: '~$1.5M paid in taxes', value: '~$800K in taxes saved' }], footer: '0.5-1.5% additional annual after-tax return', sentiment: 'positive' }
+      { type: 'comparison', title: 'The tax-loss harvesting advantage', rows: [{ label: '$4.3M', value: '$5.0M', explain: 'Same investments, same market, same 30 years. The $700,000 gap between these two numbers was never earned in the market, it was kept out of the tax bill.' }, { label: '~$1.5M paid in taxes', value: '~$800K in taxes saved', explain: 'Look at the scale: the taxes here are larger than most people\'s whole portfolio. Cutting the bill by $800K did not require picking a single better stock.' }], footer: '0.5-1.5% additional annual after-tax return', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -4837,8 +4885,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Ignoring tax efficiency', detail: 'Short-term capital gains are taxed at up to 37%. Placing bonds in taxable accounts wastes tax-advantaged space. The average investor loses 1-2% annually to unnecessary taxes, compounding into hundreds of thousands lost.' },
       { label: 'Strategic tax-efficient investing', detail: 'Long-term capital gains rates are 0-20% (much lower). Tax-loss harvesting offsets gains. Proper asset location saves thousands annually. Over 30 years, tax efficiency can add $250K-$750K to your wealth.' },
       {
-        withoutVisual: { type: 'metric', title: 'Tax-unaware investor', value: 'Short-term rate: up to 37%', detail: 'No harvesting strategy | Wrong asset location', footer: '-1 to -2% annual drag', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Tax-smart investor', value: 'Long-term rate: 0-20%', detail: 'Active tax-loss harvesting | Optimized asset location', footer: '+0.5 to +1.5% annual boost', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Tax-unaware investor', value: 'Short-term rate: up to 37%', detail: 'No harvesting strategy | Wrong asset location', footer: '-1 to -2% annual drag', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'Tax-smart investor', value: 'Long-term rate: 0-20%', detail: 'Active tax-loss harvesting | Optimized asset location', footer: '+0.5 to +1.5% annual boost', sentiment: 'positive', sprite: 'shield' }
       }
     ),
 
@@ -4862,7 +4910,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Comparison chart showing short-term vs long-term capital gains tax rates across income brackets with the savings highlighted',
       undefined,
-      { type: 'comparison', title: 'Short-term vs long-term capital gains rates', rows: [{ label: 'Short-term $0-$11K', value: '10%' }, { label: 'Short-term $11K-$44K', value: '12%' }, { label: 'Short-term $44K-$95K', value: '22%' }, { label: 'Short-term $95K-$183K', value: '24%' }, { label: 'Long-term $0-$44K', value: '0%' }, { label: 'Long-term $44K-$492K', value: '15%' }, { label: 'Long-term $492K+', value: '20%' }], footer: 'Max savings: 17 percentage points', sentiment: 'positive' }
+      { type: 'bars', title: 'Short-term vs long-term capital gains rates', items: [{ label: 'Short-term $0-$11K', value: 10, displayValue: '10%', explain: 'Even the smallest bracket is not free. A $2,000 profit sold at eleven months costs $200 here, while the same profit held one month longer is taxed at 0 percent. Two hundred dollars for a calendar page.' }, { label: 'Short-term $11K-$44K', value: 12, displayValue: '12%', explain: 'Everyone in this row pays 0 percent on long-term gains. So the entire 12 percent is voluntary: it is the price of selling before the one year mark, and nothing else.' }, { label: 'Short-term $44K-$95K', value: 22, displayValue: '22%', explain: 'This is where a first full-time salary lands. An $8,000 gain sold at eleven months costs $1,760, the same gain at twelve months costs $1,200 at the 15 percent long-term rate. That is $560 for waiting.' }, { label: 'Short-term $95K-$183K', value: 24, displayValue: '24%', explain: '24 percent short term against 15 percent long term is a nine point spread. On a $20,000 gain this single row is worth $1,800, more than most people pay in fund fees across an entire decade.' }, { label: 'Long-term $0-$44K', value: 0, displayValue: '0%', explain: 'Zero is not a rounding error. If your total income sits under $44K, a gain held past one year is federally untaxed, which is why a student selling a winner should check the purchase date before the price.' }, { label: 'Long-term $44K-$492K', value: 15, displayValue: '15%', explain: 'One rate stretches across nearly half a million dollars of income, so almost every ordinary investor sits here. The real comparison is never 0 against 20, it is 15 against the 22 or 24 percent you already pay on wages.' }, { label: 'Long-term $492K+', value: 20, displayValue: '20%', explain: 'The highest long-term rate in the country, 20 percent, is still lower than the 24 percent an ordinary earner pays on short-term gains. Patience is taxed less than income at every rung of this ladder.' }], footer: 'Max savings: 17 percentage points', sentiment: 'positive' },
+      {
+        hint: 'Press any row to see what that rate actually costs on a real sale.',
+        recap: 'One year is the whole lesson. The same profit taxed at 24 percent instead of 15 percent hands over nine cents of every dollar of gain for nothing, and you are the one who picks the sell date. Lesson 6 showed a fee gap of about one percent compounding into six figures over a career, and unlike a fee, this leak costs you nothing to close: you only have to wait.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -4963,12 +5015,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Tax-Efficient Investing Facts',[
-      ['What is the maximum long-term capital gains rate?','20% for the highest earners, compared to 37% for short-term gains. This 17 percentage point gap is why holding period matters enormously.'],
-      ['How much loss can you deduct against ordinary income each year?','$3,000 per year, with unlimited carry-forward. If you harvest $20,000 in losses, you can use $3,000 this year and carry the remaining $17,000 forward.'],
-      ['What is Peter Thiel\'s Roth IRA worth?','Over $5 billion, grown from a $2,000 initial investment. All tax-free. An extreme example of Roth IRA power.'],
-      ['What is the wash sale waiting period?','30 days before or after the sale. You can immediately buy a similar (but not substantially identical) fund to maintain exposure.'],
-      ['How much can tax-loss harvesting add annually?','0.5-1.5% in additional after-tax returns according to studies by Wealthfront and Vanguard.'],
-      ['Where should you hold bonds for maximum tax efficiency?','In tax-advantaged accounts (IRA, 401k) because bond interest is taxed at ordinary income rates up to 37%.']
+      ['What is the maximum long-term capital gains rate?','20% for the highest earners, compared to 37% for short-term gains. This 17 percentage point gap is why holding period matters enormously.', { stat: '17 point gap', sprite: 'hourglass' }],
+      ['How much loss can you deduct against ordinary income each year?','$3,000 per year, with unlimited carry-forward. If you harvest $20,000 in losses, you can use $3,000 this year and carry the remaining $17,000 forward.', { stat: '$3,000 a year', sprite: 'receipt' }],
+      ['What is Peter Thiel\'s Roth IRA worth?','Over $5 billion, grown from a $2,000 initial investment. All tax-free. An extreme example of Roth IRA power.', { stat: '$2,000 became $5B', sprite: 'rocket' }],
+      ['What is the wash sale waiting period?','30 days before or after the sale. You can immediately buy a similar (but not substantially identical) fund to maintain exposure.', { stat: '30 days either side', sprite: 'calendar' }],
+      ['How much can tax-loss harvesting add annually?','0.5-1.5% in additional after-tax returns according to studies by Wealthfront and Vanguard.', { stat: '0.5 to 1.5% a year', sprite: 'chart-down' }],
+      ['Where should you hold bonds for maximum tax efficiency?','In tax-advantaged accounts (IRA, 401k) because bond interest is taxed at ordinary income rates up to 37%.', { stat: 'taxed up to 37%', sprite: 'vault' }]
     ]),
 
     // Step 12, Drag Sort
@@ -5117,7 +5169,7 @@ const lessons: PathwayLesson[] = [
       'DALBAR research shows the average equity investor earned 3.6% annually while the S&P 500 returned 10.6%, behavioral mistakes cost investors 65% of potential returns.',
       'By the end of this lesson, you\'ll identify the psychological traps that destroy investment returns, loss aversion, herd mentality, FOMO, anchoring, and more, and learn proven strategies to overcome them.',
       'DALBAR performance gap visualization showing average investor return vs S&P 500 return with the behavioral gap highlighted',
-      { type: 'comparison', title: 'The behavior gap, your biggest enemy', rows: [{ label: '3.6%', value: '10.6%' }, { label: 'Average Investor', value: 'S&P 500 Index' }, { label: '$100K → $288K', value: '$100K → $2.05M' }], footer: 'Behavioral mistakes cost $1.76M on $100K over 30 years', sentiment: 'positive' }
+      { type: 'comparison', title: 'The behavior gap, your biggest enemy', rows: [{ label: '3.6%', value: '10.6%', explain: 'The market paid out 10.6 and the average investor kept 3.6, so nearly seven points a year got left on the table. No fund manager charged a fee for that gap. It was paid in buy and sell decisions.' }, { label: 'Average Investor', value: 'S&P 500 Index', explain: 'The right column is not a rival fund you failed to pick. It is the exact same index the average investor already owned, so the whole gap is about when they got in and when they got out.' }, { label: '$100K → $288K', value: '$100K → $2.05M', explain: 'Seven points a year sounds small until you run it for 30 years. Same $100,000 on both sides, and the disciplined column ends with about seven times more money.' }], footer: 'Behavioral mistakes cost $1.76M on $100K over 30 years', sentiment: 'positive' }
     ),
 
     // Step 2, Stakes Card
@@ -5125,8 +5177,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Investing with unmanaged emotions', detail: 'The average investor earns 3.6% while the market returns 10.6%. On $100,000, that gap costs $1.76 million over 30 years. Emotions are the single most expensive investing cost.' },
       { label: 'Recognizing and overcoming behavioral biases', detail: 'Investors who follow systematic rules, automatic investing, rebalancing, and ignoring noise, capture close to full market returns. Beating your own psychology is worth more than any stock pick.' },
       {
-        withoutVisual: { type: 'metric', title: 'Emotional investor', value: 'Buys high, sells low', detail: '', footer: '$100K → $288K (30 yrs)', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Disciplined investor', value: 'Stays the course', detail: '', footer: '$100K → $2.05M (30 yrs)', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Emotional investor', value: 'Buys high, sells low', detail: '', footer: '$100K → $288K (30 yrs)', sentiment: 'negative', sprite: 'crowd' },
+        withVisual: { type: 'metric', title: 'Disciplined investor', value: 'Stays the course', detail: '', footer: '$100K → $2.05M (30 yrs)', sentiment: 'positive', sprite: 'compass' }
       }
     ),
 
@@ -5150,7 +5202,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Decision flowchart showing how cognitive biases lead to poor investment timing: fear leads to selling at bottoms while greed leads to buying at tops',
       undefined,
-      { type: 'comparison', title: 'The behavioral bias cycle', rows: [{ label: '10.6% avg return', value: '3.6% avg return' }], footer: '3.6% avg return', sentiment: 'positive' }
+      { type: 'flow', title: 'The behavioral bias cycle', nodes: [{ label: '10.6% avg return', value: '3.6% avg return', explain: 'Read it left to right and the number drops by about two thirds. Nothing about the market changed between those two figures, the same index produced both. The seven points went missing inside the panic sells and the FOMO buys of the person holding it.' }], footer: '3.6% avg return', sentiment: 'positive' },
+      {
+        hint: 'Press the row. Both returns came from the same index, so ask where the missing seven points went.',
+        recap: 'The market never paid two different returns. It paid 10.6 to everyone who simply held, and the average investor turned that into 3.6 by selling in the frightening months and buying back in the exciting ones. That is exactly why lesson 8 pushed dollar cost averaging: a fixed schedule buys on the days your gut is screaming at you not to. Your biggest competitor here is not a hedge fund, it is you at 2am staring at a red chart.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -5251,12 +5307,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Behavioral Finance Insights',[
-      ['How much more painful is a loss compared to an equal gain?','About 2x more painful according to Daniel Kahneman\'s research. This is why a 20% drop feels devastating while a 20% gain feels merely "nice."'],
-      ['What did Fidelity find about their best-performing accounts?','They belonged to investors who forgot they had accounts or had died. Zero intervention = best returns.'],
-      ['How much does overconfident trading cost the average active trader?','About 1% per year. Barber and Odean found the most active traders earned 6.5% vs 7.5% for buy-and-hold investors.'],
-      ['What percentage of fund managers believe they\'re above average?','74%, a mathematical impossibility that perfectly illustrates the overconfidence bias across the investment industry.'],
-      ['How does the FOMO cycle typically end?','Retail investors pile in at peak euphoria, prices crash, they panic-sell at the bottom, then watch the recovery from the sidelines.'],
-      ['What is the single best defense against behavioral biases?','Systematic, automated investing rules, automatic contributions, predetermined rebalancing, and written investment policies that remove emotion from decisions.']
+      ['How much more painful is a loss compared to an equal gain?','About 2x more painful according to Daniel Kahneman\'s research. This is why a 20% drop feels devastating while a 20% gain feels merely "nice."', { stat: '2x', sprite: 'scale-tip' }],
+      ['What did Fidelity find about their best-performing accounts?','They belonged to investors who forgot they had accounts or had died. Zero intervention = best returns.', { stat: '0 trades', sprite: 'vault' }],
+      ['How much does overconfident trading cost the average active trader?','About 1% per year. Barber and Odean found the most active traders earned 6.5% vs 7.5% for buy-and-hold investors.', { stat: '-1% a year', sprite: 'stock-ticker' }],
+      ['What percentage of fund managers believe they\'re above average?','74%, a mathematical impossibility that perfectly illustrates the overconfidence bias across the investment industry.', { stat: '74%', sprite: 'briefcase' }],
+      ['How does the FOMO cycle typically end?','Retail investors pile in at peak euphoria, prices crash, they panic-sell at the bottom, then watch the recovery from the sidelines.', { stat: 'Peak, then panic', sprite: 'flame' }],
+      ['What is the single best defense against behavioral biases?','Systematic, automated investing rules, automatic contributions, predetermined rebalancing, and written investment policies that remove emotion from decisions.', { stat: '0 decisions', sprite: 'calendar' }]
     ]),
 
     // Step 12, Drag Sort
@@ -5413,8 +5469,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Ignoring fees ("1% doesn\'t sound like much")', detail: 'The average actively managed fund charges 0.66%. Over 30 years on $500,000, that\'s $440,000+ in fees and lost compounding. Most people never calculate the true cost because it\'s hidden.' },
       { label: 'Understanding and minimizing fees', detail: 'Index funds charge as little as 0.03%. Over 30 years on $500,000, that\'s just $19,500 in fees. Switching from 0.66% to 0.03% saves $420,000+ in lifetime wealth.' },
       {
-        withoutVisual: { type: 'metric', title: 'High-fee funds (0.66%)', value: '$500K invested, 30 years', detail: '-$440K | in fees + lost compounding', footer: 'You paid your fund manager a house', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Low-fee index (0.03%)', value: '$500K invested, 30 years', detail: '-$19.5K | in total fees over 30 years', footer: '$420K+ more in your pocket', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'High-fee funds (0.66%)', value: '$500K invested, 30 years', detail: '-$440K | in fees + lost compounding', footer: 'You paid your fund manager a house', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'Low-fee index (0.03%)', value: '$500K invested, 30 years', detail: '-$19.5K | in total fees over 30 years', footer: '$420K+ more in your pocket', sentiment: 'positive', sprite: 'vault' }
       }
     ),
 
@@ -5438,7 +5494,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Fee types comparison table showing expense ratios, advisory fees, loads, 12b-1 fees, and hidden costs with their typical ranges',
       undefined,
-      { type: 'comparison', title: 'Five types of investment fees', rows: [{ label: 'Expense', value: '12b-1' }, { label: 'Advisory', value: '12b-1' }, { label: 'Sales', value: '12b-1' }, { label: 'Hidden', value: '12b-1' }, { label: '0.03%', value: '0.5%' }, { label: '0-5.75%', value: '0.03%' }, { label: '0.25%', value: '0.03%' }, { label: '0.1%', value: '0.03%' }], footer: 'Vanguard index fund: 0.03% total cost vs industry avg 0.44%+', sentiment: 'positive' }
+      { type: 'grid', title: 'Five types of investment fees', items: [{ label: 'Expense', value: '12b-1', explain: 'The expense ratio is the one fee that gets taken every single year, up market or down, and the 12b-1 marketing charge is already hiding inside it. On $100,000 the 0.66% industry average is $660 a year, removed before you ever see a return.' }, { label: 'Advisory', value: '12b-1', explain: 'An advisory fee stacks on top of everything the fund already charges. A 1% advisor plus a 0.80% fund plus a 0.25% marketing fee is 2.05%, so the market has to hand you 2.05% before you are even back to where you started.' }, { label: 'Sales', value: '12b-1', explain: 'A sales load is charged once and a 12b-1 is charged forever, yet the one-time charge still stings harder at the start. A 5.75% load on $10,000 puts only $9,425 to work, so you begin the race 5.75% behind.' }, { label: 'Hidden', value: '12b-1', explain: 'Hidden costs are the trading the fund does inside itself, and they never appear on the fee page next to the 12b-1. A fund can advertise 0.80% and truly cost 1.10%, so the number you were shown was never the number you paid.' }, { label: '0.03%', value: '0.5%', explain: '0.03% is $30 a year on $100,000 and 0.5% is $500. Same 500 companies, same market, same result, and one of them charges you almost 17 times more for the identical basket.' }, { label: '0-5.75%', value: '0.03%', explain: 'The load starts at zero because plenty of funds simply do not charge one. At the top of the range you hand over 5.75% before a cent is invested, which is 191 years of a 0.03% fee paid in a single morning.' }, { label: '0.25%', value: '0.03%', explain: '0.25% is the standard 12b-1 marketing fee, and on its own it is more than eight times the entire cost of an index fund. You are paying $250 per $100,000 so the fund can buy adverts aimed at people like you.' }, { label: '0.1%', value: '0.03%', explain: 'Even 0.1% looks like a rounding error next to 0.03%, but it is more than triple. On $500,000 growing at 8% for 30 years that 0.07% gap is worth about $95,000, which is this whole lesson in miniature.' }], footer: 'Vanguard index fund: 0.03% total cost vs industry avg 0.44%+', sentiment: 'positive' },
+      {
+        hint: 'Press each row of the fee table to see what that percentage actually pulls out of your account in dollars.',
+        recap: 'Fees are the only part of your return you get to control, and they compound exactly the way lesson 3 said your money does, just pointed the other way. A 1% fee on $100,000 does not cost $30,000 over 30 years, it costs about $208,000, because every dollar taken also stops earning. Lesson 6 already handed you the fix: the same 500 companies for 0.03%.',
+      }
     ),
 
     // Step 4, Micro Check
@@ -5539,12 +5599,12 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap Reveal
     tr('Fee Facts Every Investor Needs to Know',[
-      ['What percentage of large-cap fund managers beat the S&P 500 over 15 years?','Only about 8%. The other 92% charged higher fees AND delivered worse returns than a simple index fund.'],
-      ['What is a typical hedge fund fee structure?','2 and 20: a 2% annual management fee plus 20% of all profits. Warren Buffett\'s bet proved this costs investors massively.'],
-      ['What did Morningstar find is the best predictor of fund performance?','Expense ratio, and the relationship is inverse. Lower-fee funds consistently outperform higher-fee funds in every category.'],
-      ['How much did Warren Buffett\'s index fund beat hedge funds by over 10 years?','Almost 90 percentage points: 125.8% for the index fund vs 36% for the hedge fund portfolio.'],
-      ['What is the fiduciary standard?','A legal requirement that the advisor must act in YOUR best interest, not their own. Always ask: "Are you a fiduciary?"'],
-      ['What is the difference between 0.03% and 1% fees on $500K over 30 years?','Approximately $700,000+ in lost wealth. The "small" 0.97% difference compounds into a staggering gap over decades.']
+      ['What percentage of large-cap fund managers beat the S&P 500 over 15 years?','Only about 8%. The other 92% charged higher fees AND delivered worse returns than a simple index fund.', { stat: '8%', sprite: 'chart-down' }],
+      ['What is a typical hedge fund fee structure?','2 and 20: a 2% annual management fee plus 20% of all profits. Warren Buffett\'s bet proved this costs investors massively.', { stat: '2 + 20%', sprite: 'briefcase' }],
+      ['What did Morningstar find is the best predictor of fund performance?','Expense ratio, and the relationship is inverse. Lower-fee funds consistently outperform higher-fee funds in every category.', { stat: 'Inverse', sprite: 'scale-tip' }],
+      ['How much did Warren Buffett\'s index fund beat hedge funds by over 10 years?','Almost 90 percentage points: 125.8% for the index fund vs 36% for the hedge fund portfolio.', { stat: '+89.8 pts', sprite: 'trophy' }],
+      ['What is the fiduciary standard?','A legal requirement that the advisor must act in YOUR best interest, not their own. Always ask: "Are you a fiduciary?"', { stat: '1 question', sprite: 'handshake' }],
+      ['What is the difference between 0.03% and 1% fees on $500K over 30 years?','Approximately $700,000+ in lost wealth. The "small" 0.97% difference compounds into a staggering gap over decades.', { stat: '$700K', sprite: 'stack-cash' }]
     ]),
 
     // Step 12, Drag Sort
@@ -5691,14 +5751,14 @@ const lessons: PathwayLesson[] = [
       'A Vanguard study found that disciplined annual rebalancing adds approximately 0.35% to annual returns while reducing portfolio risk. That might sound small, but over 30 years on a $500,000 portfolio, it\'s worth over $200,000 in extra wealth.',
       'By the end of this lesson, you\'ll understand what rebalancing is, why it works as a systematic buy-low-sell-high strategy, the difference between calendar and threshold rebalancing, and how to rebalance tax-efficiently to keep more of your gains.',
       'A bar chart showing a 60/40 portfolio drifting to 80/20 over time, then snapping back after rebalancing, with return and risk comparison',
-      { type: 'bars', title: 'Portfolio drift without rebalancing', items: [{ label: '40%', value: 75, displayValue: '60%' }, { label: '■ Stocks', value: 50, displayValue: '40%' }, { label: '30%', value: 88, displayValue: '70%' }, { label: 'Drift increases risk, rebalan', value: 38, displayValue: '30%' }, { label: '20%', value: 100, displayValue: '80%' }, { label: '■ Bonds', value: 25, displayValue: '20%' }], footer: '■ Stocks', sentiment: 'positive' }
+      { type: 'bars', title: 'Portfolio drift without rebalancing', items: [{ label: '40%', value: 75, displayValue: '60%', sprite: 'stock-ticker', explain: 'Sixty cents of every dollar in stocks, forty in bonds. This split is the only thing on the whole chart you actually chose. Everything to the right of it happened to you while you were not looking.' }, { label: '■ Stocks', value: 50, displayValue: '40%', sprite: 'shield', explain: 'The 40% sitting on the other side is not there to make you money. It is there to decide how bad your worst year is allowed to be, which is why letting it shrink quietly changes the deal.' }, { label: '30%', value: 88, displayValue: '70%', sprite: 'bull', explain: 'Stocks went from 60% to 70% and you never bought a single extra share. A winning asset gets bigger every year it wins, so a good run raises your risk all by itself.' }, { label: 'Drift increases risk, rebalan', value: 38, displayValue: '30%', sprite: 'hourglass', explain: 'Bonds slid from 40% to 30% without you selling one. Their share shrank only because the other side grew, so the cushion thinned out while you did nothing wrong.' }, { label: '20%', value: 100, displayValue: '80%', sprite: 'flame', explain: 'At 80% stocks and 20% bonds you are two thirds of the way from 60/40 to owning nothing but stocks. That is a different portfolio from the one you signed up for, and nobody approved the switch.' }, { label: '■ Bonds', value: 25, displayValue: '20%', sprite: 'safety-net', explain: 'Half the cushion you started with. In 2022 that missing half was the whole gap between losing 16% and losing 25%, which is $9,000 on every $100,000 you had in.' }], footer: '■ Stocks', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Never rebalancing, letting drift take over', detail: 'A 60/40 portfolio that drifted to 80/20 stocks/bonds by late 2021 lost approximately 25% in 2022\'s bear market. The extra stock exposure meant $25,000 in losses on every $100,000 invested. Without rebalancing, your portfolio slowly becomes a concentrated bet on whatever\'s been winning, right before it stops winning.' },
       { label: 'Rebalancing annually back to your 60/40 target', detail: 'A 60/40 portfolio that was rebalanced annually lost only about 16% in 2022, saving roughly $9,000 per $100,000 invested. Rebalancing systematically trims winners and buys laggards. Vanguard research shows this discipline adds ~0.35% annually with lower volatility over full market cycles.' },
       {
-        withoutVisual: { type: 'metric', title: 'No rebalancing', value: '2022 loss: -25%', detail: '60/40 drifts to 80/20 | $25K lost per $100K | Higher risk, no plan', footer: 'Drift = unintended concentration', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Annual rebalancing', value: '2022 loss: -16%', detail: 'Maintained 60/40 target | Saved $9K per $100K | +0.35%/yr from Vanguard', footer: 'Systematic buy low, sell high', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'No rebalancing', value: '2022 loss: -25%', detail: '60/40 drifts to 80/20 | $25K lost per $100K | Higher risk, no plan', footer: 'Drift = unintended concentration', sentiment: 'negative', sprite: 'chart-down' },
+        withVisual: { type: 'metric', title: 'Annual rebalancing', value: '2022 loss: -16%', detail: 'Maintained 60/40 target | Saved $9K per $100K | +0.35%/yr from Vanguard', footer: 'Systematic buy low, sell high', sentiment: 'positive', sprite: 'scales' }
       }
     ),
 
@@ -5717,7 +5777,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Diagram showing the rebalancing cycle: Set Target → Monitor Drift → Trigger Rebalance → Sell Winners → Buy Laggards → Restore Target',
       undefined,
-      { type: 'metric', title: 'The rebalancing cycle', value: 'Set target', detail: 'Monitor | drift check | buy low | sell high', footer: 'REBALANCE', sentiment: 'positive' }
+      { type: 'metric', title: 'The rebalancing cycle', value: 'Set target', detail: 'Monitor | drift check | buy low | sell high', footer: 'REBALANCE', sentiment: 'positive' },
+      {
+        hint: 'Press the cycle card and follow it once around: set the target, check the drift, trim the winner, buy the laggard. It is the same four moves every year, forever.',
+        recap: 'Rebalancing is not a trick for squeezing out more return, it is how you keep the risk you actually picked. Lesson 2 had you match your stock share to your time horizon, and drift quietly cancels that choice: 60/40 becomes 80/20 with nobody signing off. Selling a slice of whatever won and buying whatever lagged is the only version of buy low, sell high that never asks you to guess what happens next.',
+      }
     ),
 
     microCheck(
@@ -5812,10 +5876,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Rebalancing Methods Explained',[
-      ['Calendar Rebalancing','You rebalance on a fixed schedule (annually, semi-annually, or quarterly) regardless of drift. Simple, disciplined, and captures 95%+ of rebalancing benefits.'],
-      ['Threshold Rebalancing','You only rebalance when any asset drifts beyond a set band (usually 5% from target). More responsive to big market moves, but requires regular monitoring.'],
-      ['Hybrid Approach','Check on a fixed schedule (e.g., quarterly), but only rebalance if drift exceeds a threshold (e.g., 5%). Combines the best of both strategies.'],
-      ['Contribution-Based Rebalancing','Direct new investment contributions to underweight asset classes instead of selling overweight ones. Most tax-efficient approach, no selling means no taxable gains.']
+      ['Calendar Rebalancing','You rebalance on a fixed schedule (annually, semi-annually, or quarterly) regardless of drift. Simple, disciplined, and captures 95%+ of rebalancing benefits.', { stat: '95%+', sprite: 'calendar' }],
+      ['Threshold Rebalancing','You only rebalance when any asset drifts beyond a set band (usually 5% from target). More responsive to big market moves, but requires regular monitoring.', { stat: '5% band', sprite: 'bolt' }],
+      ['Hybrid Approach','Check on a fixed schedule (e.g., quarterly), but only rebalance if drift exceeds a threshold (e.g., 5%). Combines the best of both strategies.', { stat: 'Check 4x, act rarely', sprite: 'funnel' }],
+      ['Contribution-Based Rebalancing','Direct new investment contributions to underweight asset classes instead of selling overweight ones. Most tax-efficient approach, no selling means no taxable gains.', { stat: '$0 in gains', sprite: 'paycheck' }]
     ]),
 
     ds('Order these rebalancing steps from first to last:',[
@@ -5931,14 +5995,14 @@ const lessons: PathwayLesson[] = [
       'When Enron collapsed in 2001, it wiped out $74 billion in shareholder value. But investors who read the footnotes in Enron\'s 10-K annual report saw red flags years before the bankruptcy. The difference between winning and losing in investing often comes down to doing your homework.',
       'By the end of this lesson, you\'ll know how to evaluate a stock using fundamental analysis, understand key financial ratios like P/E and ROE, read an annual report (10-K), and critically assess analyst ratings, so you can make informed decisions instead of gambling on hype.',
       'A chart showing Enron\'s stock price collapse from $90 to $0.26, with footnote red flags annotated along the timeline',
-      { type: 'line', title: 'Enron: the cost of skipping due diligence', points: [{ label: 'Aug 2000 peak', value: '$90' }, { label: 'Oct 2001', value: '$20' }, { label: 'Nov 2001', value: '$0.26' }], trend: 'down', footer: 'Off-book debt and CFO conflicts were disclosed in the filings all along', sentiment: 'negative' }
+      { type: 'line', title: 'Enron: the cost of skipping due diligence', points: [{ label: 'Aug 2000 peak', value: '$90', explain: 'At $90 Enron traded at 70 times earnings while the S&P 500 sat near 25. You were paying 70 years of current profit for a company whose free cash flow had already been negative for three straight years.' }, { label: 'Oct 2001', value: '$20', explain: 'This is the month Enron admitted a $618 million loss and a $1.2 billion cut to shareholder equity. The announcement was news, but the off-book debt behind it had been sitting in the filing footnotes for years.' }, { label: 'Nov 2001', value: '$0.26', explain: 'From $90 to 26 cents means $10,000 turned into about $29. No holding period and no patience fixes that, because the company itself stopped existing. This is exactly the single-company wipeout lesson 5 told you to spread out.' }], trend: 'down', footer: 'Off-book debt and CFO conflicts were disclosed in the filings all along', sentiment: 'negative' }
     ),
     stakesCard(
       { label: 'Investing without research, trusting hype and tips', detail: 'Enron employees and retail investors who trusted the company\'s reputation without reading financials lost everything, 401(k)s, life savings, retirement plans. The stock went from $90.75 to $0.26. Thousands of investors who skipped due diligence lost their life savings in a single stock collapse.' },
       { label: 'Doing proper due diligence before investing', detail: 'Jim Chanos, a short seller, read Enron\'s 10-K and spotted unsustainable accounting practices, off-balance-sheet debt, related-party transactions, and cash flows that didn\'t match reported earnings. He shorted the stock in November 2000, more than a year before the collapse, and made hundreds of millions while others lost everything.' },
       {
-        withoutVisual: { type: 'metric', title: 'Skipped due diligence', value: '$90 → $0.26 per share', detail: '"Everyone says Enron is great" | $74B in wealth destroyed | Total loss: -99.7%', footer: 'Hype is not a strategy', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Proper due diligence', value: 'Read the 10-K, spotted red flags', detail: 'Avoided Enron entirely | Jim Chanos shorted, profited | Research = protection', footer: 'Footnotes told the whole story', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Skipped due diligence', value: '$90 → $0.26 per share', detail: '"Everyone says Enron is great" | $74B in wealth destroyed | Total loss: -99.7%', footer: 'Hype is not a strategy', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'Proper due diligence', value: 'Read the 10-K, spotted red flags', detail: 'Avoided Enron entirely | Jim Chanos shorted, profited | Research = protection', footer: 'Footnotes told the whole story', sentiment: 'positive', sprite: 'magnifier' }
       }
     ),
 
@@ -5957,7 +6021,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Four pillars diagram: Revenue Growth → Profitability → Competitive Moat → Management Quality, with each pillar supporting a "Strong Business" roof',
       undefined,
-      { type: 'grid', title: 'The four pillars of stock analysis', items: [{ label: 'REVENUE', value: 'Top-line growth 10%+ YoY', color: '#10B981' }, { label: 'EARNINGS', value: 'Margins & profitability EPS growth', color: '#A451E6' }, { label: 'MOAT', value: 'Competitive advantage Durability', color: '#F59E0B' }, { label: 'MGMT', value: 'Skin in the game Track record', color: '#B862ED' }], footer: 'One weak pillar can bring down the entire investment thesis', sentiment: 'positive' }
+      { type: 'grid', title: 'The four pillars of stock analysis', items: [{ label: 'REVENUE', value: 'Top-line growth 10%+ YoY', color: '#10B981', sprite: 'chart-up', explain: '10% a year is the bar because that roughly doubles sales in seven years. A company growing 3% is not a growth story, it is just keeping pace with the economy, and you are usually still paying a growth price for it.' }, { label: 'EARNINGS', value: 'Margins & profitability EPS growth', color: '#A451E6', sprite: 'coin', explain: 'Revenue is what people paid the company. Earnings are what it kept. If sales climb 20% while margins fall from 20% to 8%, every new dollar of revenue is costing more to win than the last one, and the company is buying growth rather than earning it.' }, { label: 'MOAT', value: 'Competitive advantage Durability', color: '#F59E0B', sprite: 'shield', explain: 'This pillar decides whether the other three last. A company with no moat can post the same revenue and margins for a year or two, then watch rivals copy it and compete those profits away. Ask what stops a well funded competitor from running this same business next year.' }, { label: 'MGMT', value: 'Skin in the game Track record', color: '#B862ED', sprite: 'briefcase', explain: 'Check whether executives own shares they bought with their own money, not just shares handed to them. Enron\'s did the opposite: they sold personal stock through 2001 while telling staff to keep buying it inside their 401(k)s.' }], footer: 'One weak pillar can bring down the entire investment thesis', sentiment: 'positive' },
+      {
+        hint: 'Press each of the four pillars and I will tell you what actually breaks when that one is the weak one.',
+        recap: 'The pillar people skip is the fourth. Enron passed the first one loudly: sales went from $13 billion to $101 billion in five years, and 16 of 17 analysts still called it a buy at 70 times earnings. The filings said something else, that free cash flow had been negative for three years and the CFO sat on both sides of the company\'s own deals. Lesson 14 said even a great story is a bad investment at the wrong price, and 70 times earnings was the price. Due diligence is the part where you open the 10-K and check whether those earnings are real.',
+      }
     ),
 
     microCheck(
@@ -6055,10 +6123,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Key Financial Ratios Quick Reference',[
-      ['P/E Ratio','Stock Price / EPS. S&P 500 average: ~16x. Compare to industry peers and growth rate. A P/E of 30+ needs strong growth to justify. Below 10x could be undervalued or troubled.'],
-      ['P/S Ratio (Price-to-Sales)','Market Cap / Total Revenue. Useful for unprofitable companies where P/E doesn\'t work. S&P 500 average: ~2.5x. Below 1x may indicate undervaluation.'],
-      ['Debt-to-Equity','Total Debt / Shareholder Equity. Below 1.0 is conservative. Above 2.0 is highly leveraged. Rising D/E over time is a warning sign regardless of current level.'],
-      ['ROE (Return on Equity)','Net Income / Shareholder Equity. Above 15% is strong. Consistently high ROE signals competitive moat. Watch for artificial inflation through heavy buybacks or debt.']
+      ['P/E Ratio','Stock Price / EPS. S&P 500 average: ~16x. Compare to industry peers and growth rate. A P/E of 30+ needs strong growth to justify. Below 10x could be undervalued or troubled.', { stat: '~16x', sprite: 'price-tag' }],
+      ['P/S Ratio (Price-to-Sales)','Market Cap / Total Revenue. Useful for unprofitable companies where P/E doesn\'t work. S&P 500 average: ~2.5x. Below 1x may indicate undervaluation.', { stat: '~2.5x', sprite: 'receipt' }],
+      ['Debt-to-Equity','Total Debt / Shareholder Equity. Below 1.0 is conservative. Above 2.0 is highly leveraged. Rising D/E over time is a warning sign regardless of current level.', { stat: 'Under 1.0', sprite: 'scale-tip' }],
+      ['ROE (Return on Equity)','Net Income / Shareholder Equity. Above 15% is strong. Consistently high ROE signals competitive moat. Watch for artificial inflation through heavy buybacks or debt.', { stat: 'Above 15%', sprite: 'bolt' }]
     ]),
 
     ds('Order the steps of proper stock due diligence from first to last:',[
@@ -6173,14 +6241,14 @@ const lessons: PathwayLesson[] = [
       'Since 1926, the S&P 500 has been positive in 73% of calendar years, averaging about 10% annually. But here\'s the mind-blowing part: over any rolling 20-year period, it has NEVER produced a negative return. Not during the Great Depression. Not during World War II. Not during the 2008 financial crisis. Time is the ultimate investing cheat code.',
       'By the end of this lesson, you\'ll understand why holding period is the most powerful variable in investing, how missing just 10 days can cut your returns in half, how $300/month can make you a millionaire, and why time in the market always beats timing the market.',
       'A range chart showing how holding period shrinks the range of outcomes, from -43% to +54% for 1 year, down to +6.4% to +17.9% for 20 years, with NEVER negative highlighted',
-      { type: 'comparison', title: 'What a longer holding period does to the range', rows: [{ label: 'Held 1 year', value: '-43% to +54%' }, { label: 'Held 5 years', value: '-3% to +28%' }, { label: 'Held 10 years', value: '-1% to +20%' }, { label: 'Held 20 years', value: '+6.4% to +17.9%' }], footer: 'No 20-year period has ever finished negative.', sentiment: 'positive' }
+      { type: 'comparison', title: 'What a longer holding period does to the range', rows: [{ label: 'Held 1 year', value: '-43% to +54%', explain: 'Best year to worst year is a 97 point gap, and nothing you can see on the day you buy tells you which end of it you are getting.' }, { label: 'Held 5 years', value: '-3% to +28%', explain: 'Four extra years move the worst case from losing 43% a year to losing 3% a year. The downside did not shrink a little, it nearly disappeared.' }, { label: 'Held 10 years', value: '-1% to +20%', explain: 'Twenty one points wide instead of 97. Same market, same crashes, same companies. The only thing that changed is how long the money was left alone.' }, { label: 'Held 20 years', value: '+6.4% to +17.9%', explain: 'Both ends sit above zero, so there is no bad half of this row to land in. The worst twenty years anybody has ever picked still paid 6.4% a year.' }], footer: 'No 20-year period has ever finished negative.', sentiment: 'positive' }
     ),
     stakesCard(
       { label: 'Trying to time the market, jumping in and out', detail: 'J.P. Morgan research shows that missing just the 10 best days in the S&P 500 over 20 years (2003-2022) cut a $10,000 investment from $61,685 to $28,260, a 54% reduction. Most of the best days occur within days of the worst days, so selling after a crash means you almost certainly miss the recovery.' },
       { label: 'Staying invested through everything, time in the market', detail: '$10,000 invested in the S&P 500 in January 2003 and held through all the chaos, the 2008 crash, COVID, 2022 bear market, grew to $61,685 by December 2022. That\'s a 517% return with zero effort. A $300/month investment from age 22 at 10% average returns grows to $1.9 million by age 65.' },
       {
-        withoutVisual: { type: 'metric', title: 'Market timing', value: '$10K → $28,260', detail: 'Missed 10 best days in 20 years | Lost 54% of potential gains | 5.3% annualized', footer: 'Best days cluster after worst days', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'Stay invested', value: '$10K → $61,685', detail: 'Held through every crash | 517% total return | 9.5% annualized', footer: 'Zero timing, zero effort', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'Market timing', value: '$10K → $28,260', detail: 'Missed 10 best days in 20 years | Lost 54% of potential gains | 5.3% annualized', footer: 'Best days cluster after worst days', sentiment: 'negative', sprite: 'stopwatch' },
+        withVisual: { type: 'metric', title: 'Stay invested', value: '$10K → $61,685', detail: 'Held through every crash | 517% total return | 9.5% annualized', footer: 'Zero timing, zero effort', sentiment: 'positive', sprite: 'tree' }
       }
     ),
 
@@ -6199,7 +6267,11 @@ const lessons: PathwayLesson[] = [
       ],
       'A narrowing funnel diagram showing how holding period compresses the range of possible outcomes, converging toward positive returns',
       undefined,
-      { type: 'comparison', title: 'Time compresses the range of outcomes', rows: [{ label: '5 years', value: '1 year' }, { label: '10 years', value: '1 year' }, { label: '20 years', value: '1 year' }], footer: '1 year', sentiment: 'positive' }
+      { type: 'comparison', title: 'Time compresses the range of outcomes', rows: [{ label: '5 years', value: '1 year', explain: 'Read the row as a race between two ranges. The one year range runs from -43% to +54%. Hold for five years instead and the worst anyone has ever done is -3% a year, so the losing side of the range shrank by 40 points.' }, { label: '10 years', value: '1 year', explain: 'The one year range is 97 points wide. The ten year range is 21. Almost four fifths of the uncertainty came from nothing except holding the money for less time.' }, { label: '20 years', value: '1 year', explain: 'This is the row where the minus sign runs out. Set against a one year range that starts at -43%, the worst twenty year stretch since 1926 still paid +6.4% every single year.' }], footer: '1 year', sentiment: 'positive' },
+      {
+        hint: 'Press any of the three holding periods and I will put its range side by side with the one year range for you.',
+        recap: 'One year of holding can hand you anything from losing 43% to gaining 54%. Twenty years of holding has never once handed anyone a loss. Lesson 2 said your time horizon decides how much risk you can carry, and this is the proof of it: the holding period is not a detail around the investment, it is the part of the plan doing most of the work.',
+      }
     ),
 
     microCheck(
@@ -6294,10 +6366,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Long-Term Investing by the Numbers',[
-      ['1-Year Range','-43% to +54%, wildly unpredictable in any single year. You could lose nearly half or gain more than half. Short-term investing is gambling.'],
-      ['5-Year Range','Roughly -3% to +28% annualized. The range compresses dramatically. Only a few 5-year periods have been negative.'],
-      ['10-Year Range','Roughly -1% to +20% annualized. Barely any negative periods. The power of time is becoming apparent.'],
-      ['20-Year Range','+6.4% to +17.9% annualized. NEVER negative. Every 20-year holder in S&P 500 history has made money.']
+      ['1-Year Range','-43% to +54%, wildly unpredictable in any single year. You could lose nearly half or gain more than half. Short-term investing is gambling.', { stat: '-43% to +54%', sprite: 'bolt' }],
+      ['5-Year Range','Roughly -3% to +28% annualized. The range compresses dramatically. Only a few 5-year periods have been negative.', { stat: '-3% to +28%', sprite: 'funnel' }],
+      ['10-Year Range','Roughly -1% to +20% annualized. Barely any negative periods. The power of time is becoming apparent.', { stat: '-1% to +20%', sprite: 'hourglass' }],
+      ['20-Year Range','+6.4% to +17.9% annualized. NEVER negative. Every 20-year holder in S&P 500 history has made money.', { stat: 'Never negative', sprite: 'trophy' }]
     ]),
 
     ds('Order these from worst to best outcome for a $10,000 S&P 500 investment from 2003-2022:',[
@@ -6436,7 +6508,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Step-by-step setup guide for paper trading: sign up, fund virtual account, build portfolio, track results',
       undefined,
-      IF24_DIAGRAM
+      IF24_DIAGRAM,
+      {
+        hint: 'Press each of the four setup steps. Every one hides the reason it is there, including why the fake money is set at 100,000 dollars.',
+        recap: 'The simulator is not there to prove you can pick winners. It is there so the first time you watch 100,000 dollars fall, it is a rehearsal. Lesson 19 named the panic, these 30 days are where you practice sitting through it with nothing at stake.',
+      }
     ),
 
     microCheck(
@@ -6530,10 +6606,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Your 30-Day Paper Trading Challenge, Week by Week',[
-      ['Week 1: Setup & Initial Trades','Sign up for Investopedia\'s Stock Simulator. Calculate your allocation using 110-minus-age. Buy VTI, VXUS, and BND in your target percentages. Write your first journal entry documenting your allocation rationale and how it feels to "invest" $100,000.'],
-      ['Week 2: Observe & Document','Check your portfolio ONCE this week (not daily). Record the performance, your emotional response, and any urges to change your allocation. Did any positions move significantly? How did that feel? Write it down.'],
-      ['Week 3: Rebalance If Needed','If any position has drifted more than 5% from its target, rebalance by selling the overweight and buying the underweight. Document the rebalance trade with rationale. This practices the annual rebalancing you\'ll do with real money.'],
-      ['Week 4: Review & Reflect','Calculate your total return and compare to SPY. Review your investment journal. What emotions did you feel? Did you want to make changes? Did you stick to your plan? Write a final reflection on what you learned about yourself as an investor.']
+      ['Week 1: Setup & Initial Trades','Sign up for Investopedia\'s Stock Simulator. Calculate your allocation using 110-minus-age. Buy VTI, VXUS, and BND in your target percentages. Write your first journal entry documenting your allocation rationale and how it feels to "invest" $100,000.', { stat: '3 funds, day 1', sprite: 'cart' }],
+      ['Week 2: Observe & Document','Check your portfolio ONCE this week (not daily). Record the performance, your emotional response, and any urges to change your allocation. Did any positions move significantly? How did that feel? Write it down.', { stat: '1 check, not 7', sprite: 'hourglass' }],
+      ['Week 3: Rebalance If Needed','If any position has drifted more than 5% from its target, rebalance by selling the overweight and buying the underweight. Document the rebalance trade with rationale. This practices the annual rebalancing you\'ll do with real money.', { stat: '5% drift trigger', sprite: 'scale-tip' }],
+      ['Week 4: Review & Reflect','Calculate your total return and compare to SPY. Review your investment journal. What emotions did you feel? Did you want to make changes? Did you stick to your plan? Write a final reflection on what you learned about yourself as an investor.', { stat: '30 days vs SPY', sprite: 'graduation-cap' }]
     ]),
 
     ds('Order these paper trading steps from first to last:',[
@@ -6672,7 +6748,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Performance review framework: returns vs benchmark, process score, behavioral scorecard, journal analysis',
       undefined,
-      IF25_DIAGRAM
+      IF25_DIAGRAM,
+      {
+        hint: 'Press each of the four review boxes. They hold the real numbers from one 30 day review, including the month that scored 4 out of 4 while finishing down 1.2 percent.',
+        recap: 'Thirty days of returns tells you almost nothing, so grade the four things you actually controlled instead. Lesson 19 named the behavior gap, and this lesson prices it at 6.4 percent a year. A signed Investment Policy Statement is how you keep that money: you write the rules while you are calm, so the scared version of you in 2036 has to argue with a document instead of a feeling.',
+      }
     ),
 
     microCheck(
@@ -6766,10 +6846,10 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Your Investment Policy Statement Template',[
-      ['Section 1: Goals','What are you investing for? When do you need the money? How much do you need? Be specific, vague goals lead to vague commitment.'],
-      ['Section 2: Allocation','Stock/bond split: [110 minus your age]% stocks. Within stocks: [60]% VTI (U.S.) + [40]% VXUS (international). Bonds: [remaining]% BND. Write the exact percentages.'],
-      ['Section 3: Contributions','Amount: $[X] per month. Auto-transfer from checking on the [1st/15th]. Increase by [X]% with each pay raise. Account order: 401(k) match → Roth IRA → Max 401(k) → Taxable.'],
-      ['Section 4: Rules','Rebalance annually in [month] OR when drift exceeds 5%. I WILL NOT: sell during declines, chase tips, check more than weekly, invest in what I don\'t understand. Signed: [Your name]. Date: [Today].']
+      ['Section 1: Goals','What are you investing for? When do you need the money? How much do you need? Be specific, vague goals lead to vague commitment.', { stat: '3 questions', sprite: 'target' }],
+      ['Section 2: Allocation','Stock/bond split: [110 minus your age]% stocks. Within stocks: [60]% VTI (U.S.) + [40]% VXUS (international). Bonds: [remaining]% BND. Write the exact percentages.', { stat: '92% / 8% at 18', sprite: 'pie-slice' }],
+      ['Section 3: Contributions','Amount: $[X] per month. Auto-transfer from checking on the [1st/15th]. Increase by [X]% with each pay raise. Account order: 401(k) match → Roth IRA → Max 401(k) → Taxable.', { stat: '4 accounts, in order', sprite: 'calendar' }],
+      ['Section 4: Rules','Rebalance annually in [month] OR when drift exceeds 5%. I WILL NOT: sell during declines, chase tips, check more than weekly, invest in what I don\'t understand. Signed: [Your name]. Date: [Today].', { stat: '5% drift trigger', sprite: 'lock' }]
     ]),
 
     ds('Order these steps for transitioning from paper trading to real investing:',[

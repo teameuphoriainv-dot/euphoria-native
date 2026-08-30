@@ -44,7 +44,14 @@ const EXPLORABLE_LABS: Record<string, { route: string; label: string } | undefin
 };
 
 export type Normalized =
-  | { kind: 'prose'; label?: string; title: string; blocks: ProseBlock[]; lab?: { route: string; label: string } }
+  | {
+      kind: 'prose';
+      label?: string;
+      title: string;
+      blocks: ProseBlock[];
+      lab?: { route: string; label: string };
+      atlas?: { hint?: string; recap?: string };
+    }
   | { kind: 'choice'; prompt: string; options: string[]; correct: number; right: string; wrong: string }
   | { kind: 'reveal'; spec: RevealSpec }
   | { kind: 'match'; spec: MatchSpec }
@@ -75,6 +82,26 @@ export const RENDERABLE_VISUAL_KINDS = new Set([
 ]);
 
 /**
+ * The authored rows a visual exposes for tap-to-explain behavior.
+ *
+ * Web uses a different property name for nearly every chart family. Keeping this transpose in the
+ * pure normalization layer means the native component and the exhaustive curriculum audit read
+ * the exact same set; adding a new chart family cannot silently strand its `explain` fields.
+ */
+export function visualRows(v?: AnimatedVisual): Record<string, any>[] {
+  const a = v as (AnimatedVisual & Record<string, any>) | undefined;
+  if (!a?.type) return [];
+  const rows: unknown =
+    a.type === 'bars' || a.type === 'grid' ? a.items
+    : a.type === 'comparison' || a.type === 'pictograph' ? a.rows
+    : a.type === 'stack' || a.type === 'pie' ? a.segments
+    : a.type === 'flow' ? a.nodes
+    : a.type === 'line' ? a.points
+    : [];
+  return Array.isArray(rows) ? rows : [];
+}
+
+/**
  * True when a visual will actually put something on screen.
  *
  * TWO ways it can fail, and BOTH used to be invisible:
@@ -90,14 +117,7 @@ export const RENDERABLE_VISUAL_KINDS = new Set([
 export function visualIsRenderable(v?: AnimatedVisual): boolean {
   const a = v as (AnimatedVisual & Record<string, any>) | undefined;
   if (!a?.type || !RENDERABLE_VISUAL_KINDS.has(a.type)) return false;
-  const rows: unknown =
-    a.type === 'bars' || a.type === 'grid' ? a.items
-    : a.type === 'comparison' ? a.rows
-    : a.type === 'stack' || a.type === 'pie' ? a.segments
-    : a.type === 'flow' ? a.nodes
-    : a.type === 'line' ? a.points
-    : a.type === 'pictograph' ? a.rows
-    : null;
+  const rows: unknown = a.type === 'metric' ? null : visualRows(a);
   if (rows === null) return typeof a.value === 'string' && a.value.length > 0;  // metric
   if (a.type === 'pictograph' && (!(a.unitValue > 0) || typeof a.sprite !== 'string')) return false;
   return Array.isArray(rows) && rows.length > 0;
@@ -216,7 +236,18 @@ export function normalizeStep(step: LessonStep): Normalized {
     case 'matchingPairs':
       return { kind: 'match', spec: { title: s.title, pairs: (s.pairs ?? []).map((x: any) => ({ left: x.term, right: x.definition })) } };
     case 'tapReveal':
-      return { kind: 'reveal', spec: { title: s.title, cards: (s.cards ?? []).map(([term, def]: [string, string]) => ({ term, def })) } };
+      return {
+        kind: 'reveal',
+        spec: {
+          title: s.title,
+          cards: (s.cards ?? []).map(([term, def, meta]: [string, string, { stat?: string; sprite?: string }?]) => ({
+            term,
+            def,
+            ...(meta?.stat ? { stat: meta.stat } : {}),
+            ...(meta?.sprite ? { sprite: meta.sprite } : {}),
+          })),
+        },
+      };
     case 'keyTermsCards':
       return {
         kind: 'reveal',
@@ -279,6 +310,7 @@ export function normalizeStep(step: LessonStep): Normalized {
         kind: 'prose',
         label: s.sectionLabel,
         title: s.title,
+        ...(s.atlas ? { atlas: s.atlas } : {}),
         blocks: [
           ...paras(s.paragraphs),
           ...vis(s.diagramVisual),

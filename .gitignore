@@ -73,3 +73,7 @@ refs/audit/**/*.png
 # Python bytecode from the audit lanes in scripts/ — build output, never source.
 __pycache__/
 *.pyc
+
+# Goldie renders upload-ready App Store media here. Config and replay flows are source;
+# captures are deterministic build artifacts and would add large binary churn to git.
+goldie/out/

@@ -13,9 +13,44 @@ worked. Two facts learned the hard way and encoded here:
 So every tap is verified by comparing the label set before and after. Anything
 that does not change the screen is escalated rather than repeated.
 """
-import subprocess as sp, json, time, sys
+import subprocess as sp, json, os, time, sys
 
-U = "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
+
+def booted_simulator_udid():
+    """Use the requested simulator, or the one iOS simulator that is actually booted.
+
+    A fixed UDID made an audit silently target a simulator that had been shut down to reduce
+    CPU/GPU usage. The accessibility calls then returned empty trees, which looks like 300 app
+    failures even though the app was running correctly on a different device. Requiring exactly
+    one booted simulator keeps the target deterministic without baking one developer machine's
+    device identifier into the audit.
+    """
+    requested = os.environ.get("EUPHORIA_SIM_UDID")
+    if requested:
+        return requested
+
+    result = sp.run(
+        ["xcrun", "simctl", "list", "devices", "--json"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    payload = json.loads(result.stdout)
+    booted = [
+        device["udid"]
+        for devices in payload.get("devices", {}).values()
+        for device in devices
+        if device.get("state") == "Booted" and device.get("isAvailable", True)
+    ]
+    if len(booted) != 1:
+        raise RuntimeError(
+            f"Expected exactly one booted iOS simulator, found {len(booted)}. "
+            "Set EUPHORIA_SIM_UDID to choose explicitly."
+        )
+    return booted[0]
+
+
+U = booted_simulator_udid()
 BUNDLE = "com.euphoriainv.euphoria"
 
 # Short-lived cache for the accessibility tree.
@@ -163,7 +198,20 @@ def goto_lesson(course_slug, num, title=None, tries=3):
             time.sleep(2.5)
         sp.run(["xcrun", "simctl", "openurl", U,
                 f"euphorianative://lesson?course={slug}&num={num}"], capture_output=True)
-        time.sleep(3.5)
+        # Do not make a 300-route audit pay the full worst-case navigation timeout 300 times.
+        # Release builds usually expose the destination title in under a second. Poll the actual
+        # accessibility contract and return as soon as it is true; the 3.5s deadline preserves the
+        # old tolerance for a cold route without turning that tolerance into a mandatory sleep.
+        deadline = time.time() + 3.5
+        while time.time() < deadline:
+            time.sleep(0.25)
+            labs = ' '.join(labels()).lower()
+            if "available" in labs and "pick another" in labs:
+                break
+            if title and title.lower()[:28] in labs:
+                return True
+            if not title and ('lesson' in labs or 'continue' in labs):
+                return True
         dismiss_logbox(); dismiss_sheet()
         labs = ' '.join(labels()).lower()
         # REJECT THE FAILURE SCREEN FIRST. lesson.tsx renders "That lesson isn't available." when
@@ -305,4 +353,3 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
         if stalls >= stall_limit:
             return False, log
     return False, log
-

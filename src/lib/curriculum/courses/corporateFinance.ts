@@ -39,11 +39,11 @@ const CF2_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'How the Three Statem
 
 const CF3_HOOK_CHART: AnimatedVisual = { type: 'line', title: 'The Manhattan $24, Compounded at 7%', points: [{ label: '1626', value: '$24' }, { label: '1800', value: '$2.6M' }, { label: '1950', value: '$66B' }, { label: '2024', value: '$12T+' }], trend: 'up', footer: 'A tiny sum, given enough time, outgrows every building on the island', sentiment: 'positive' };
 
-const CF3_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Lottery Installments', items: [{ label: 'Year 1', value: 100, displayValue: '$100M' }, { label: 'Year 10', value: 85, displayValue: '$85M' }, { label: 'Year 20', value: 70, displayValue: '$70M' }, { label: 'Year 30', value: 55, displayValue: '$40M real' }], footer: '$100M erodes to $40M in real value', sentiment: 'negative' };
+const CF3_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Lottery Installments', items: [{ label: 'Year 1', value: 100, displayValue: '$100M' }, { label: 'Year 10', value: 85, displayValue: '$85M' }, { label: 'Year 20', value: 70, displayValue: '$70M' }, { label: 'Year 30', value: 55, displayValue: '$40M real' }], footer: '$100M erodes to $40M in real value', sentiment: 'negative', sprite: 'chart-down'  };
 
 const CF3_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Buffett: Start Early', items: [{ label: 'Age 20', value: 18, displayValue: '$10K' }, { label: 'Age 40', value: 36, displayValue: '$67K' }, { label: 'Age 60', value: 64, displayValue: '$174K' }, { label: 'Age 80', value: 100, displayValue: '$452K' }], footer: '$10K grows to $452K at 10% annually', sentiment: 'positive' };
 
-const CF3_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Time Value Toolkit', items: [{ label: 'Present Value', value: '$1,000 in hand today', color: '#A451E6' }, { label: 'Future Value', value: '$2,159 after 10 years at 8%', color: '#10B981' }, { label: 'Rule of 72', value: '72 / 8 means money doubles in 9 years', color: '#3B82F6' }], footer: 'FV = PV x (1 + r) raised to the number of years', sentiment: 'positive' };
+const CF3_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Time Value Toolkit', items: [{ label: 'Present Value', value: '$1,000 in hand today', sprite: 'wallet' }, { label: 'Future Value', value: '$2,159 after 10 years at 8%', sprite: 'tree' }, { label: 'Rule of 72', value: '72 / 8 means money doubles in 9 years', sprite: 'calculator' }], footer: 'FV = PV x (1 + r) raised to the number of years', sentiment: 'positive' };
 
 // ─── LESSON 4 SVGs (Capital Structure) ───
 
@@ -66,139 +66,139 @@ const CF5_STAKES_WITH: AnimatedVisual = { type: 'flow', title: 'Michael Burry, T
 const CF5_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'Three valuation methods', nodes: [{ label: '1. DCF Analysis', value: 'Project FCF, discount at WACC = Intrinsic Value' }, { label: '2. Comparables', value: 'Find peers, apply EV/EBITDA, P/E = Market Value' }, { label: '3. Precedent Txns', value: 'Prior M&A deals + control premium = Acquisition Value' }, { label: 'Fair Value Range', value: 'Where all three overlap' }], footer: 'Triangulation: Three Methods, One Truth', sentiment: 'positive' };
 
 // ─── LESSON 6 SVGs (Working Capital Management) ───
-const CF6_HOOK: AnimatedVisual = { type: 'metric', title: 'Dell: Negative Working Capital', value: '−$7 billion', detail: 'Customers pay BEFORE suppliers, the entire operation self-funded', footer: 'Negative working capital funded explosive growth', sentiment: 'positive' };
-const CF6_STAKES_WITHOUT: AnimatedVisual = { type: 'comparison', title: 'Sears: Capital Trapped', rows: [{ label: 'Inventory', value: '$8B', percent: 89 }, { label: 'Cash', value: '$1B', percent: 11 }], footer: 'Slow inventory turns starved the digital transformation, bankrupt 2018', sentiment: 'negative' };
-const CF6_STAKES_WITH: AnimatedVisual = { type: 'flow', title: 'Amazon: The Float', nodes: [{ label: 'Collect from customers', value: 'Day 0', color: '#10B981' }, { label: 'Pay suppliers', value: '~Day 20', color: '#3B82F6' }, { label: '$30B+ free float', value: 'Funds growth', color: '#10B981' }], footer: '$30B+ float funds decades of growth with no extra debt', sentiment: 'positive' };
-const CF6_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'Cash Conversion Cycle = DIO + DSO − DPO', items: [{ label: 'DIO', value: 45, displayValue: '+45 days' }, { label: 'DSO', value: 30, displayValue: '+30 days' }, { label: 'DPO', value: 60, displayValue: '−60 days' }, { label: 'CCC', value: 15, displayValue: '15 days' }], footer: 'A shorter cycle means faster cash recovery', sentiment: 'positive' };
+const CF6_HOOK: AnimatedVisual = { type: 'metric', title: 'Dell: Negative Working Capital', value: '−$7 billion', detail: 'Customers pay BEFORE suppliers, the entire operation self-funded', footer: 'Negative working capital funded explosive growth', sentiment: 'positive', sprite: 'stack-cash' };
+const CF6_STAKES_WITHOUT: AnimatedVisual = { type: 'comparison', title: 'Sears: Capital Trapped', rows: [{ label: 'Inventory', value: '$8B', percent: 89, explain: 'Eight of every nine dollars Sears held was merchandise, not money. You cannot pay a supplier or a software team in unsold sweaters.' }, { label: 'Cash', value: '$1B', percent: 11, explain: 'One billion in cash against eight billion in stuff. Selling the inventory faster was the only way to turn that pile into money, and Sears could not sell it fast enough.' }], footer: 'Slow inventory turns starved the digital transformation, bankrupt 2018', sentiment: 'negative' };
+const CF6_STAKES_WITH: AnimatedVisual = { type: 'flow', title: 'Amazon: The Float', nodes: [{ label: 'Collect from customers', value: 'Day 0', color: '#10B981', sprite: 'credit-card', explain: 'Day 0 means Amazon has your money the second you click buy, before it has paid a cent for the thing you bought.' }, { label: 'Pay suppliers', value: '~Day 20', color: '#3B82F6', sprite: 'factory', explain: 'The supplier waits about 20 days. So on every order Amazon is holding cash that is not really its own for close to three weeks.' }, { label: '$30B+ free float', value: 'Funds growth', color: '#10B981', sprite: 'vault', explain: 'Orders never stop arriving, so that 20 day gap never empties out: $30 billion sits there permanently. It acts like a loan that never comes due, which makes the debt versus equity choice from lesson 4 far less pressing for Amazon than for most companies.' }], footer: '$30B+ float funds decades of growth with no extra debt', sentiment: 'positive', sprite: 'hourglass' };
+const CF6_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'Cash Conversion Cycle = DIO + DSO − DPO', items: [{ label: 'DIO', value: 45, displayValue: '+45 days', sprite: 'cart', explain: 'Forty five days is how long a product sits before anyone buys it. Every one of those days your money is locked inside a box in a warehouse instead of in the bank.' }, { label: 'DSO', value: 30, displayValue: '+30 days', sprite: 'bill', explain: 'The sale already happened and you still wait 30 more days for the money. This is exactly the gap lesson 2 warned about: revenue on the income statement is not cash in your hand.' }, { label: 'DPO', value: 60, displayValue: '−60 days', sprite: 'calendar', explain: 'This is the only bar that gets subtracted, so it is the only one that hands days back. Taking 60 days to pay suppliers is a 60 day loan nobody charged you interest on.' }, { label: 'CCC', value: 15, displayValue: '15 days', sprite: 'scales', explain: '45 plus 30 is 75, minus 60 leaves 15. For 15 days the company covers its own bills out of pocket, and if it stretched DPO to 75 that number would hit zero.' }], footer: 'A shorter cycle means faster cash recovery', sentiment: 'positive', sprite: 'stopwatch' };
 
 // ─── LESSON 7 SVGs (Mergers & Acquisitions) ───
-const CF7_HOOK: AnimatedVisual = { type: 'line', title: 'AOL, Time Warner: $164B Deal', points: [{ label: '2000', value: '$164B' }, { label: '2001', value: '$110B' }, { label: '2002', value: '$65B' }], trend: 'down', footer: '$99B written off, the most destructive merger ever', sentiment: 'negative' };
-const CF7_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Undisciplined M&A Writeoffs', items: [{ label: 'AOL, TW', value: 99, displayValue: '$99B' }, { label: 'Sprint, Nextel', value: 30, displayValue: '$30B' }, { label: 'HP, Autonomy', value: 9, displayValue: '$8.8B' }], footer: '70% of acquisitions fail to create value', sentiment: 'negative' };
-const CF7_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Disney: Disciplined M&A', items: [{ label: 'Pixar', value: 74, displayValue: '$7.4B' }, { label: 'Marvel', value: 40, displayValue: '$4B' }, { label: 'Lucasfilm', value: 40, displayValue: '$4B' }], footer: 'Three deals generated $50B+ in cumulative revenue', sentiment: 'positive' };
-const CF7_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The M&A Process', nodes: [{ label: 'Target ID' }, { label: 'Valuation' }, { label: 'Due Diligence' }, { label: 'Negotiation' }, { label: 'Integration' }, { label: 'Value Creation' }], footer: 'Skipping due diligence has killed countless deals', sentiment: 'positive' };
+const CF7_HOOK: AnimatedVisual = { type: 'line', title: 'AOL, Time Warner: $164B Deal', points: [{ label: '2000', value: '$164B', explain: 'That $164 billion was paid almost entirely in AOL stock, and AOL stock was that high only because dial-up subscribers were still growing. The buyer paid with money that was itself a bubble.' }, { label: '2001', value: '$110B', explain: 'One year in, $54 billion is gone and nothing about the plan had changed yet. The market had simply decided the two companies were worth less together than they had been apart.' }, { label: '2002', value: '$65B', explain: '$65 billion left out of $164 billion. The $99 billion that evaporated is more than six times everything Disney has ever paid for Pixar, Marvel and Lucasfilm combined.' }], trend: 'down', footer: '$99B written off, the most destructive merger ever', sentiment: 'negative' };
+const CF7_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'Undisciplined M&A Writeoffs', items: [{ label: 'AOL, TW', value: 99, displayValue: '$99B', sprite: 'crack', explain: '$99 billion admitted as lost in a single accounting entry. That one number is more than twice the other two failures on this chart put together.' }, { label: 'Sprint, Nextel', value: 30, displayValue: '$30B', sprite: 'chain-break', explain: 'Sprint paid $35 billion and wrote off $30 billion of it, so about 86 cents of every dollar spent vanished. The two phone networks ran on incompatible technology, which is the kind of thing checking beforehand is for.' }, { label: 'HP, Autonomy', value: 9, displayValue: '$8.8B', sprite: 'receipt', explain: 'HP paid $11 billion and later said $8.8 billion of that value was never there. Autonomy had been booking hardware sales as software revenue, and nobody read the books closely enough to notice.' }], footer: '70% of acquisitions fail to create value', sentiment: 'negative', sprite: 'chart-down' };
+const CF7_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Disney: Disciplined M&A', items: [{ label: 'Pixar', value: 74, displayValue: '$7.4B', sprite: 'lightbulb', explain: '$7.4 billion for a studio Disney had already been distributing films for since 1991. Disney knew the people and the numbers years before it made an offer, which is due diligence done in advance.' }, { label: 'Marvel', value: 40, displayValue: '$4B', sprite: 'rocket', explain: '$4 billion bought roughly 5,000 characters, which works out to under a million dollars each. The Avengers films alone have since sold more than $7 billion of tickets.' }, { label: 'Lucasfilm', value: 40, displayValue: '$4B', sprite: 'gem', explain: 'Same $4 billion as Marvel, but for one franchise instead of thousands of characters. The first three Star Wars films Disney released sold about $4.4 billion of tickets, and studios keep roughly half of that.' }], footer: 'Three deals generated $50B+ in cumulative revenue', sentiment: 'positive', sprite: 'star' };
+const CF7_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The M&A Process', nodes: [{ label: 'Target ID', sprite: 'target', explain: 'Disney did not go shopping for a studio in general, it went after Pixar because it already distributed Pixar films and knew exactly what it was buying. Pick the wrong target here and no later step can rescue the deal.' }, { label: 'Valuation', sprite: 'calculator', explain: 'This is where promised synergies turn into a price. Take $2 billion of promised synergies, half cost savings that land at 70% and half revenue synergies that land at 30%, and you are really bidding for $1 billion of benefit, not $2 billion.' }, { label: 'Due Diligence', sprite: 'magnifier', explain: 'This is the step HP rushed. Three to six months of reading the books of a target costs a few million dollars in fees, and skipping it cost HP $8.8 billion.' }, { label: 'Negotiation', sprite: 'handshake', explain: 'The control premium is set here, usually 20 to 40% above the market price. Microsoft agreed to $95 a share for Activision when the stock sat at $65, so $30 of every share price was premium, not company.' }, { label: 'Integration', sprite: 'network', explain: 'Cutting a duplicate finance department is something the buyer controls, so 60 to 70% of cost synergies actually land. Cross-selling needs two sets of customers to cooperate, so only about 30% of revenue synergies ever show up.' }, { label: 'Value Creation', sprite: 'chart-up', explain: 'Roughly 3 deals in 10 reach this box. Value creation is not a step you perform, it is whatever is left over once the price was disciplined and the integration worked.' }], footer: 'Skipping due diligence has killed countless deals', sentiment: 'positive', sprite: 'funnel' };
 
 // ─── LESSON 8 SVGs (Dividend Policy & Share Buybacks) ───
-const CF8_HOOK: AnimatedVisual = { type: 'pie', title: 'Apple: $600B+ Returned to Shareholders', segments: [{ label: 'Buybacks', percent: 80, color: '#A451E6' }, { label: 'Dividends', percent: 20, color: '#10B981' }], centerLabel: '$600B+', footer: 'Buybacks reduced share count by 38% since 2012', sentiment: 'positive' };
-const CF8_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'IBM: Poorly Timed Buybacks', value: '$140B spent', detail: 'Bought at peak valuations while the business deteriorated', footer: 'Stock went nowhere for 20 years', sentiment: 'negative' };
-const CF8_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Apple: Buybacks Cut Share Count', items: [{ label: '2013', value: 100, displayValue: '26.3B shares' }, { label: '2024', value: 62, displayValue: '16.3B shares' }], footer: '38% fewer shares, each share worth more, stock up 10x', sentiment: 'positive' };
-const CF8_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Dividends vs. Buybacks', rows: [{ label: 'Dividends', value: 'Sticky, taxed now' }, { label: 'Buybacks', value: 'Flexible, tax-deferred' }, { label: 'Buyback rule', value: 'Create value only if undervalued' }], footer: 'Return excess cash after funding all positive-NPV projects', sentiment: 'positive' };
+const CF8_HOOK: AnimatedVisual = { type: 'pie', title: 'Apple: $600B+ Returned to Shareholders', segments: [{ label: 'Buybacks', percent: 80, color: '#A451E6', explain: 'Four of every five dollars Apple sent back went into buying its own stock, so most of that $600 billion never landed in anyone\'s bank account. It landed as a smaller share count instead.' }, { label: 'Dividends', percent: 20, color: '#10B981', explain: 'Only about $120 billion of the $600 billion arrived as actual cash you could spend. At Apple\'s stock price that check works out to well under 1 percent a year, which is why nobody buys Apple for the dividend.' }], centerLabel: '$600B+', footer: 'Buybacks reduced share count by 38% since 2012', sentiment: 'positive' };
+const CF8_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'IBM: Poorly Timed Buybacks', value: '$140B spent', detail: 'Bought at peak valuations while the business deteriorated', footer: 'Stock went nowhere for 20 years', sentiment: 'negative', sprite: 'chart-down' };
+const CF8_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Apple: Buybacks Cut Share Count', items: [{ label: '2013', value: 100, displayValue: '26.3B shares', sprite: 'stock-ticker', explain: '26.3 billion shares means one share was one 26,300,000,000th of Apple. Every dollar of profit had to be split that many ways before any of it counted as yours.' }, { label: '2024', value: 62, displayValue: '16.3B shares', sprite: 'gem', explain: 'Apple retired 10 billion shares, and it never had to earn one extra dollar to make each survivor count for more. The same profit now splits 16.3 billion ways instead of 26.3 billion.' }], footer: '38% fewer shares, each share worth more, stock up 10x', sentiment: 'positive', sprite: 'pie-slice' };
+const CF8_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Dividends vs. Buybacks', rows: [{ label: 'Dividends', value: 'Sticky, taxed now', explain: 'Sticky means you can raise it and almost never lower it: a cut drops the stock 25 to 35 percent, so every dividend is a promise the company is stuck with. And the tax lands the year the cash arrives, whether you wanted the cash that year or not.' }, { label: 'Buybacks', value: 'Flexible, tax-deferred', explain: 'Nobody punishes a company for buying back less this quarter, and you owe nothing until you sell, so you pick the tax year. That is why S&P 500 buybacks now run roughly twice the size of all dividends combined.' }, { label: 'Buyback rule', value: 'Create value only if undervalued', explain: 'A buyback is the company buying a stock, so the same rule applies to it as to you. Pay $100 for $150 of value and the $50 difference goes to everyone still holding. Pay $120 for that same $100 of value and the $20 gap comes out of their pockets. IBM\'s $140 billion was mostly the second kind.' }], footer: 'Return excess cash after funding all positive-NPV projects', sentiment: 'positive' };
 
 // ─── LESSON 9 SVGs (Risk Management & Hedging) ───
-const CF9_HOOK: AnimatedVisual = { type: 'comparison', title: 'Southwest: Fuel Hedge (2008)', rows: [{ label: 'Locked-in price', value: '$51/barrel', percent: 35 }, { label: 'Market price', value: '$147/barrel', percent: 100 }], footer: 'Strategic hedging saved Southwest $3.5B+', sentiment: 'positive' };
-const CF9_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'No Risk Management', value: 'FXCM −$225M', detail: 'Swiss franc unpegged in 2015, unhedged firms lost 20-30% overnight', footer: 'Several forex brokers went bankrupt within hours', sentiment: 'negative' };
-const CF9_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'P&G: Strategic Hedging', value: '$1.5B saved', detail: 'Hedges ~75% of currency exposure', footer: 'Protected shareholder value when the dollar surged 15%', sentiment: 'positive' };
-const CF9_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Four Risk Categories', items: [{ label: 'Market Risk', value: 'Rates, FX, commodities', color: '#A451E6' }, { label: 'Credit Risk', value: 'Counterparty default', color: '#A451E6' }, { label: 'Operational Risk', value: 'Process failure, fraud', color: '#A451E6' }, { label: 'Liquidity Risk', value: 'Can\'t meet obligations', color: '#A451E6' }], footer: 'Hedging creates value through predictability, not profit', sentiment: 'positive' };
+const CF9_HOOK: AnimatedVisual = { type: 'comparison', title: 'Southwest: Fuel Hedge (2008)', rows: [{ label: 'Locked-in price', value: '$51/barrel', percent: 35, explain: 'Southwest signed for this in 2007, a year before the spike. That is the whole trick: you fix the price while oil is still calm, not once everybody can already see the crisis coming.' }, { label: 'Market price', value: '$147/barrel', percent: 100, explain: '$147 is close to three times $51, so every barrel Southwest burned cost it $96 less than the airline parked at the next gate. Across roughly 47.6 million barrels that gap runs into the billions, which is where the headline saving comes from.' }], footer: 'Strategic hedging saved Southwest $3.5B+', sentiment: 'positive' };
+const CF9_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'No Risk Management', value: 'FXCM −$225M', detail: 'Swiss franc unpegged in 2015, unhedged firms lost 20-30% overnight', footer: 'Several forex brokers went bankrupt within hours', sentiment: 'negative', sprite: 'chain-break' };
+const CF9_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'P&G: Strategic Hedging', value: '$1.5B saved', detail: 'Hedges ~75% of currency exposure', footer: 'Protected shareholder value when the dollar surged 15%', sentiment: 'positive', sprite: 'umbrella' };
+const CF9_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Four Risk Categories', items: [{ label: 'Market Risk', value: 'Rates, FX, commodities', color: '#A451E6', sprite: 'stock-ticker', explain: 'This is the only one of the four that Southwest hedged. Rates, exchange rates and fuel prices move every day and nothing the company does inside its own walls can stop them, so it buys a contract instead.' }, { label: 'Credit Risk', value: 'Counterparty default', color: '#A451E6', sprite: 'handshake', explain: 'Your hedge is only as good as whoever sold it to you. A contract that pays you $96 a barrel is worth nothing if the bank on the other side goes under before it wires the money, which is exactly what worried firms in 2008.' }, { label: 'Operational Risk', value: 'Process failure, fraud', color: '#A451E6', sprite: 'crack', explain: 'This one starts inside the building: a payment sent twice, a trader hiding losses, a warehouse that floods. No derivative on earth pays out for it, so the fix is controls, audits and insurance.' }, { label: 'Liquidity Risk', value: 'Can\'t meet obligations', color: '#A451E6', sprite: 'bank-run', explain: 'You can be profitable on paper and still die here. It means the cash is not in the account on Friday when payroll runs, and next year of earnings does not pay this week of bills.' }], footer: 'Hedging creates value through predictability, not profit', sentiment: 'positive', sprite: 'shield' };
 
 // ─── LESSON 10 SVGs (Corporate Governance & Ethics) ───
-const CF10_HOOK: AnimatedVisual = { type: 'metric', title: 'FTX: Governance Collapse', value: '$32B → $0', detail: '$8B in customer funds secretly transferred to Alameda', footer: 'No independent board, no audit committee, no oversight', sentiment: 'negative' };
-const CF10_STAKES_WITHOUT: AnimatedVisual = { type: 'grid', title: 'Weak Governance', items: [{ label: 'No independent board', color: '#EF4444' }, { label: 'No audit committee', color: '#EF4444' }, { label: 'QuickBooks for $32B', color: '#EF4444' }, { label: '$8B fraud enabled', color: '#EF4444' }], footer: 'Weak governance enabled catastrophic fraud at FTX', sentiment: 'negative' };
-const CF10_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'J&J: Tylenol Crisis (1982)', value: '31M bottles recalled', detail: 'Board prioritized stakeholder safety over a $100M cost', footer: 'Strong governance preserved the brand for decades', sentiment: 'positive' };
-const CF10_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The Governance Structure', nodes: [{ label: 'Shareholders', value: 'Own' }, { label: 'Board', value: 'Oversees' }, { label: 'Management', value: 'Operates' }], footer: 'Audit, Compensation, and Governance committees provide checks', sentiment: 'positive' };
+const CF10_HOOK: AnimatedVisual = { type: 'metric', title: 'FTX: Governance Collapse', value: '$32B → $0', detail: '$8B in customer funds secretly transferred to Alameda', footer: 'No independent board, no audit committee, no oversight', sentiment: 'negative', sprite: 'crack' };
+const CF10_STAKES_WITHOUT: AnimatedVisual = { type: 'grid', title: 'Weak Governance', items: [{ label: 'No independent board', color: '#EF4444', sprite: 'question', explain: 'Every seat belonged to insiders. So when 8 billion dollars of customer money moved, the only people who could have said no were the same people moving it.' }, { label: 'No audit committee', color: '#EF4444', sprite: 'magnifier', explain: 'An audit committee exists to check the books before anyone outside sees them. With none, nobody ever compared what customers were told they held against what was actually sitting there.' }, { label: 'QuickBooks for $32B', color: '#EF4444', sprite: 'calculator', explain: 'QuickBooks is what a corner bakery runs its receipts through. Pushing 32 billion dollars through it means no system existed that could even flag an 8 billion dollar hole.' }, { label: '$8B fraud enabled', color: '#EF4444', sprite: 'vault', explain: 'That 8 billion is a full quarter of the 32 billion the company was supposedly worth. Money that size does not slip out quietly, it slips out when nobody has been assigned to look.' }], footer: 'Weak governance enabled catastrophic fraud at FTX', sentiment: 'negative', sprite: 'chain-break' };
+const CF10_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'J&J: Tylenol Crisis (1982)', value: '31M bottles recalled', detail: 'Board prioritized stakeholder safety over a $100M cost', footer: 'Strong governance preserved the brand for decades', sentiment: 'positive', sprite: 'shield' };
+const CF10_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The Governance Structure', nodes: [{ label: 'Shareholders', value: 'Own', sprite: 'key', explain: 'They own the company but never run it, and most will never meet the CEO. Their one real power is voting the board in or out once a year.' }, { label: 'Board', value: 'Oversees', sprite: 'compass', explain: 'This is the only layer that can fire a CEO. Strip out the independent seats, the way FTX did, and the middle of this chain stops being a check and turns into a rubber stamp.' }, { label: 'Management', value: 'Operates', sprite: 'factory', explain: 'Management runs the business day to day and touches the money, which is exactly why it is the layer being watched. That 340 times median pay figure lands here, and the board above it is who sets it.' }], footer: 'Audit, Compensation, and Governance committees provide checks', sentiment: 'positive', sprite: 'scales' };
 
 // ─── LESSON 11 SVGs (Capital Budgeting) ───
-const CF11_HOOK: AnimatedVisual = { type: 'metric', title: 'Netflix Content Spend (2023)', value: '$17 billion', detail: 'Capital budgeting decides which shows to greenlight', footer: 'NPV separates value-creating projects from money pits', sentiment: 'positive' };
-const CF11_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Quibi: No NPV Discipline', value: '$1.75B raised', detail: 'Projected cash flows never approached the cost of capital', footer: 'Shut down after 6 months, nearly all capital destroyed', sentiment: 'negative' };
-const CF11_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Amazon AWS: Disciplined Budgeting', items: [{ label: 'Invested', value: 60, displayValue: '$60B+' }, { label: 'Annual Revenue', value: 80, displayValue: '$80B+' }], footer: '30%+ margins, one of the greatest capital budgeting wins ever', sentiment: 'positive' };
-const CF11_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The NPV Framework', nodes: [{ label: 'Identify Project' }, { label: 'Estimate Cash Flows' }, { label: 'Choose Discount Rate' }, { label: 'Calculate NPV' }, { label: 'Accept if NPV > 0' }], footer: 'Accept all positive-NPV projects, reject negative-NPV ones', sentiment: 'positive' };
-const CF11_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Real-World Complications', items: [{ label: 'Sensitivity Analysis', value: 'Test NPV under varied assumptions', color: '#A451E6' }, { label: 'Sunk Costs', value: 'Ignore, money already spent', color: '#EF4444' }, { label: 'Opportunity Cost', value: 'Include the next-best alternative', color: '#F59E0B' }], footer: '65% of capital projects come in over budget', sentiment: 'positive' };
+const CF11_HOOK: AnimatedVisual = { type: 'metric', title: 'Netflix Content Spend (2023)', value: '$17 billion', detail: 'Capital budgeting decides which shows to greenlight', footer: 'NPV separates value-creating projects from money pits', sentiment: 'positive', sprite: 'stack-cash' };
+const CF11_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Quibi: No NPV Discipline', value: '$1.75B raised', detail: 'Projected cash flows never approached the cost of capital', footer: 'Shut down after 6 months, nearly all capital destroyed', sentiment: 'negative', sprite: 'chart-down' };
+const CF11_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Amazon AWS: Disciplined Budgeting', items: [{ label: 'Invested', value: 60, displayValue: '$60B+', sprite: 'factory', explain: 'Sixty billion dollars went into land, buildings and servers before most of those customers existed. That is the number the NPV had to justify years ahead of any of the revenue.' }, { label: 'Annual Revenue', value: 80, displayValue: '$80B+', sprite: 'coin', explain: 'Read the two bars differently: the left one happened over many years, the right one happens every single year. At $80B a year, the entire $60B build is under nine months of revenue.' }], footer: '30%+ margins, one of the greatest capital budgeting wins ever', sentiment: 'positive', sprite: 'chart-up' };
+const CF11_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The NPV Framework', nodes: [{ label: 'Identify Project', sprite: 'lightbulb', explain: 'The only step with no math in it. Somebody has to say "we should build a second plant" before any spreadsheet can test whether that is a good idea.' }, { label: 'Estimate Cash Flows', sprite: 'calculator', explain: 'Every number downstream inherits the mistakes made here. The 65% of projects that blow their budget mostly go wrong at this step, not in the arithmetic that follows.' }, { label: 'Choose Discount Rate', sprite: 'clock', explain: 'This is your WACC, the return investors already expect. At 10%, a dollar arriving in year 5 counts as only 62 cents today, so a late payoff is worth far less than an early one.' }, { label: 'Calculate NPV', sprite: 'scales', explain: 'Add up all those shrunken future dollars, then subtract what you pay now. In the worked example, five years of $3M shrinks to $11.37M, set against a $10M price tag.' }, { label: 'Accept if NPV > 0', sprite: 'check-badge', explain: 'Zero is the entire test, not some minimum size. A $688K NPV and a $688M NPV both pass, because both mean the project beat the 10% your investors already demanded.' }], footer: 'Accept all positive-NPV projects, reject negative-NPV ones', sentiment: 'positive', sprite: 'funnel' };
+const CF11_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Real-World Complications', items: [{ label: 'Sensitivity Analysis', value: 'Test NPV under varied assumptions', color: '#A451E6', sprite: 'magnifier', explain: 'Run the same project at 5% growth and again at 15%. If NPV stays above zero across that whole range, it is a real project. If it flips negative at 8%, your yes was resting on one optimistic guess.' }, { label: 'Sunk Costs', value: 'Ignore, money already spent', color: '#EF4444', sprite: 'chain-break', explain: 'The $50M is gone whether you continue or quit, so it belongs in neither column. The only live question is what the NEXT dollar earns.' }, { label: 'Opportunity Cost', value: 'Include the next-best alternative', color: '#F59E0B', sprite: 'arrow-split', explain: 'Land you already own is not free. If it could rent for $5M a year, building on it costs the project $5M a year, and that comes straight out of the cash flows.' }], footer: '65% of capital projects come in over budget', sentiment: 'positive', sprite: 'crack' };
 
 // ─── LESSON 12 SVGs (Cost of Capital & WACC) ───
-const CF12_HOOK: AnimatedVisual = { type: 'metric', title: 'Apple\'s Hurdle Rate', value: '~9% WACC', detail: 'Every project must earn MORE than investors expect', footer: 'The single most important number in corporate finance', sentiment: 'positive' };
-const CF12_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Dot-Com Bubble: Fake WACC', value: '$5T evaporated', detail: 'Artificially low 3-5% discount rates justified absurd valuations', footer: 'Projects that "passed" at 4% failed at the true 12-15%', sentiment: 'negative' };
-const CF12_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Berkshire: Strict Hurdle Rate', value: '15%+ required', detail: 'Refusing to invest below the threshold compounded 20%/yr', footer: '$1,000 became $37 million over 58 years', sentiment: 'positive' };
-const CF12_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'WACC = (E/V × Re) + (D/V × Rd × (1−T))', total: 'Blended Cost', segments: [{ label: 'Equity (60%)', value: 'Cost 12%', percent: 60, color: '#A451E6' }, { label: 'Debt (40%)', value: 'After-tax 4%', percent: 40, color: '#3B82F6' }], footer: 'Blended cost: 0.6×12% + 0.4×4% = 8.8%', sentiment: 'positive' };
-const CF12_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'CAPM: Cost of Equity', nodes: [{ label: 'Risk-Free Rate', value: '4%' }, { label: '+ Beta × Premium', value: '1.2 × 6%' }, { label: '= Cost of Equity', value: '11.2%' }], footer: 'Higher beta means a higher cost of equity and a higher WACC', sentiment: 'positive' };
+const CF12_HOOK: AnimatedVisual = { type: 'metric', title: 'Apple\'s Hurdle Rate', value: '~9% WACC', detail: 'Every project must earn MORE than investors expect', footer: 'The single most important number in corporate finance', sentiment: 'positive', sprite: 'target' };
+const CF12_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Dot-Com Bubble: Fake WACC', value: '$5T evaporated', detail: 'Artificially low 3-5% discount rates justified absurd valuations', footer: 'Projects that "passed" at 4% failed at the true 12-15%', sentiment: 'negative', sprite: 'chart-down' };
+const CF12_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Berkshire: Strict Hurdle Rate', value: '15%+ required', detail: 'Refusing to invest below the threshold compounded 20%/yr', footer: '$1,000 became $37 million over 58 years', sentiment: 'positive', sprite: 'chart-up' };
+const CF12_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'WACC = (E/V × Re) + (D/V × Rd × (1−T))', total: 'Blended Cost', segments: [{ label: 'Equity (60%)', value: 'Cost 12%', percent: 60, color: '#A451E6', explain: 'Equity is 60 cents of every dollar funding this company, and shareholders want 12% on it, so equity alone drags 7.2 points into the blend. They get paid last if the company breaks, which is exactly why their number is the big one.' }, { label: 'Debt (40%)', value: 'After-tax 4%', percent: 40, color: '#3B82F6', explain: 'The other 40 cents costs only 4% once the tax deduction is counted, so debt contributes just 1.6 points. Add 7.2 and 1.6 and you get 8.8%: the cheaper 40% is what pulls the whole hurdle down below the 12% equity price.' }], footer: 'Blended cost: 0.6×12% + 0.4×4% = 8.8%', sentiment: 'positive' };
+const CF12_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'CAPM: Cost of Equity', nodes: [{ label: 'Risk-Free Rate', value: '4%', sprite: 'certificate', explain: 'This is what a 10-year Treasury pays for taking essentially no risk. Before a stock has done anything impressive at all, it owes you this 4%, so every cost of equity starts here.' }, { label: '+ Beta × Premium', value: '1.2 × 6%', sprite: 'bolt', explain: 'Beta 1.2 means this stock swings about 20% harder than the market does, so you charge 1.2 times the 6% market premium instead of 6%. That turns a 6 point add-on into 7.2, and a beta of 2 would have made it 12.' }, { label: '= Cost of Equity', value: '11.2%', sprite: 'price-tag', explain: '4 plus 7.2 gives 11.2%, and that is a floor, not a wish. Compare it to the 4.5% the lenders settle for after tax: shareholder money costs roughly two and a half times what borrowed money costs.' }], footer: 'Higher beta means a higher cost of equity and a higher WACC', sentiment: 'positive', sprite: 'calculator' };
 
 // ─── LESSON 13 SVGs (Leveraged Buyouts & Private Equity) ───
-const CF13_HOOK: AnimatedVisual = { type: 'stack', title: 'KKR, RJR Nabisco LBO (1988)', total: '$25B Deal', segments: [{ label: 'Debt', value: '$20B', percent: 80, color: '#3B82F6' }, { label: 'Equity', value: '$5B', percent: 20, color: '#A451E6' }], footer: 'The largest LBO in history, 80% borrowed money', sentiment: 'positive' };
-const CF13_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Toys "R" Us LBO', value: '$7.5B debt', detail: '$400M/year in interest drained cash from e-commerce', footer: 'Bankrupt 2017, liquidated, 30,000 jobs destroyed', sentiment: 'negative' };
-const CF13_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Blackstone, Hilton LBO', points: [{ label: '2007 buy', value: '$26B' }, { label: '2010 trough', value: '$18B' }, { label: '2013 exit', value: '$40B' }], trend: 'up', footer: 'Tripled the investment, the largest PE profit in history', sentiment: 'positive' };
-const CF13_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'The LBO Capital Stack', total: '100% Purchase', segments: [{ label: 'Equity', value: '20-40%', percent: 30, color: '#A451E6' }, { label: 'Senior Debt', value: '40-50%', percent: 50, color: '#3B82F6' }, { label: 'Mezzanine/High-Yield', value: '10-20%', percent: 20, color: '#F59E0B' }], footer: 'Target cash flows service every layer', sentiment: 'positive' };
-const CF13_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'PE Value Creation Bridge', nodes: [{ label: 'Entry EBITDA' }, { label: 'Operational Improvement' }, { label: 'Revenue Growth' }, { label: 'Debt Paydown' }, { label: 'Multiple Expansion' }, { label: 'Exit Value' }], footer: 'The best PE returns combine all three levers', sentiment: 'positive' };
+const CF13_HOOK: AnimatedVisual = { type: 'stack', title: 'KKR, RJR Nabisco LBO (1988)', total: '$25B Deal', segments: [{ label: 'Debt', value: '$20B', percent: 80, color: '#3B82F6', explain: 'KKR did not have 20 billion dollars. It borrowed the money and then handed the loan to RJR Nabisco itself, so the cookies and cigarettes had to earn every interest payment.' }, { label: 'Equity', value: '$5B', percent: 20, color: '#A451E6', explain: 'Five billion is one fifth of the price, and it bought the entire company. Every dollar the deal earned above 25 billion belonged to that thin purple slice.' }], footer: 'The largest LBO in history, 80% borrowed money', sentiment: 'positive' };
+const CF13_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Toys "R" Us LBO', value: '$7.5B debt', detail: '$400M/year in interest drained cash from e-commerce', footer: 'Bankrupt 2017, liquidated, 30,000 jobs destroyed', sentiment: 'negative', sprite: 'crack' };
+const CF13_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Blackstone, Hilton LBO', points: [{ label: '2007 buy', value: '$26B', explain: 'Blackstone bought at the very top of the credit boom, months before the crash. Buying at the worst possible moment did not kill this deal, because nobody forced them to sell.' }, { label: '2010 trough', value: '$18B', explain: 'Eight billion below the purchase price. The debt did not shrink along with hotel values, so on paper the equity was gone and Blackstone marked the stake down by roughly 70 percent.' }, { label: '2013 exit', value: '$40B', explain: 'Forty billion is only 54 percent above the 26 billion they paid, yet the equity more than tripled. The gap between 54 and 200 is leverage doing its work.' }], trend: 'up', footer: 'Tripled the investment, the largest PE profit in history', sentiment: 'positive' };
+const CF13_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'The LBO Capital Stack', total: '100% Purchase', segments: [{ label: 'Equity', value: '20-40%', percent: 30, color: '#A451E6', explain: 'This purple band is the only money the buyer actually puts up. On a one billion dollar deal, 30 percent means 300 million of real cash and 700 million of borrowed cash.' }, { label: 'Senior Debt', value: '40-50%', percent: 50, color: '#3B82F6', explain: 'The cheapest money in the stack, because it gets paid first and it is secured by the buildings and the inventory. Cheap is exactly why the buyer wants half the deal to be this layer.' }, { label: 'Mezzanine/High-Yield', value: '10-20%', percent: 20, color: '#F59E0B', explain: 'Paid last, so it charges 10 to 12 percent instead of 5. Buyers reach for this layer only to stretch the price past whatever the banks were willing to lend.' }], footer: 'Target cash flows service every layer', sentiment: 'positive' };
+const CF13_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'PE Value Creation Bridge', nodes: [{ label: 'Entry EBITDA', sprite: 'factory', explain: 'Everything gets measured from this number. At 8x, 20 million of EBITDA sets the price at 160 million, and if 65 percent is borrowed the buyer writes a check for only 56 million.' }, { label: 'Operational Improvement', sprite: 'bolt', explain: 'Same sales, fewer costs. Strip 3 million of waste out of a 20 million EBITDA business and at 8x you just made the company 24 million more valuable without selling one extra item.' }, { label: 'Revenue Growth', sprite: 'chart-up', explain: 'Slower and harder than cost cutting, which is why firms squeeze costs in year one and chase revenue in years two and three. Growing EBITDA from 20 to 30 million is worth 100 million at a 10x exit.' }, { label: 'Debt Paydown', sprite: 'chain-break', explain: 'The quiet lever. Debt falling from 104 million to 60 million moves 44 million from the lenders to the owners, and the company does not have to be worth one dollar more for that to happen.' }, { label: 'Multiple Expansion', sprite: 'crowd', explain: 'The lever nobody controls. Selling at 10x what you bought at 8x adds two full turns, which on 30 million of EBITDA is 60 million created by the mood of other buyers, not by your work.' }, { label: 'Exit Value', sprite: 'handshake', explain: 'Three to seven years of work land on one number. Sell for 300 million, hand 60 million back to the lenders, and the 56 million check comes home as 240 million.' }], footer: 'The best PE returns combine all three levers', sentiment: 'positive', sprite: 'ladder' };
 
 // ─── LESSON 14 SVGs (IPOs & Going Public) ───
-const CF14_HOOK: AnimatedVisual = { type: 'comparison', title: 'Snowflake IPO (2020)', rows: [{ label: 'Offer price', value: '$120', percent: 47 }, { label: 'Day-one close', value: '$254', percent: 100 }], footer: 'A 112% pop, $3.4B "left on the table"', sentiment: 'negative' };
-const CF14_STAKES_WITHOUT: AnimatedVisual = { type: 'line', title: 'WeWork: IPO Pulled', points: [{ label: '2019 S-1 filed', value: '$47B' }, { label: '2021 SPAC', value: '$9B' }, { label: '2023 bankruptcy', value: '$0' }], trend: 'down', footer: 'The S-1 revealed losses, governance failures, self-dealing', sentiment: 'negative' };
-const CF14_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Google: Dutch Auction IPO', value: '18% pop only', detail: 'Auction pricing captured more of Google\'s own value', footer: '$1.67B raised funded growth to a $2T company', sentiment: 'positive' };
-const CF14_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The IPO Process', nodes: [{ label: 'S-1 Filing' }, { label: 'SEC Review' }, { label: 'Roadshow' }, { label: 'Book Building' }, { label: 'Pricing' }, { label: 'First Day of Trading' }], footer: 'Every dollar of "pop" is money the company left behind', sentiment: 'positive' };
-const CF14_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'IPO Readiness & Alternatives', items: [{ label: 'Traditional IPO', value: 'Underwriters, new capital', color: '#A451E6' }, { label: 'Direct Listing', value: 'No underwriters, no new capital', color: '#3B82F6' }, { label: 'SPAC', value: 'Blank-check merger path', color: '#F59E0B' }], footer: 'Being public costs $2-5M/year in compliance', sentiment: 'positive' };
+const CF14_HOOK: AnimatedVisual = { type: 'comparison', title: 'Snowflake IPO (2020)', rows: [{ label: 'Offer price', value: '$120', percent: 47, explain: 'This is the price Snowflake actually sold at, so every share it issued brought in $120 and not a cent more, no matter what the stock did an hour later.' }, { label: 'Day-one close', value: '$254', percent: 100, explain: 'The market paid $254 for the identical share on the same afternoon. That $134 gap went to whoever was handed an allocation at $120, and none of it reached the company.' }], footer: 'A 112% pop, $3.4B "left on the table"', sentiment: 'negative' };
+const CF14_STAKES_WITHOUT: AnimatedVisual = { type: 'line', title: 'WeWork: IPO Pulled', points: [{ label: '2019 S-1 filed', value: '$47B', explain: '$47 billion was the asking price WeWork wanted before any outsider had read the paperwork. That number came from private funding rounds, where nobody has to publish the losses.' }, { label: '2021 SPAC', value: '$9B', explain: 'Two years later the same company went public at $9B, under a fifth of the 2019 ask. The buildings had not changed. What changed is that the public got to check the books.' }, { label: '2023 bankruptcy', value: '$0', explain: '$47B to zero in four years, with shareholders left holding nothing. The valuation was a story, the losses were real, and only one of those survives contact with public markets.' }], trend: 'down', footer: 'The S-1 revealed losses, governance failures, self-dealing', sentiment: 'negative' };
+const CF14_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Google: Dutch Auction IPO', value: '18% pop only', detail: 'Auction pricing captured more of Google\'s own value', footer: '$1.67B raised funded growth to a $2T company', sentiment: 'positive', sprite: 'scales' };
+const CF14_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The IPO Process', nodes: [{ label: 'S-1 Filing', sprite: 'certificate', explain: 'This is the document that killed WeWork. It forces you to publish real losses, real risks and real related-party deals, and the moment it is filed anyone on the internet can read it.' }, { label: 'SEC Review', sprite: 'magnifier', explain: 'The SEC never rules on whether the company is a good buy. It only checks that you disclosed enough, which is why a business losing $1.7B a year can still legally reach this stage.' }, { label: 'Roadshow', sprite: 'plane', explain: 'Roughly two weeks of management flying city to city pitching maybe 50 to 100 large funds. The quiet period bars public hype, so those private rooms are the only place the story gets told.' }, { label: 'Book Building', sprite: 'bar-chart', explain: 'Underwriters write down how many shares each fund wants and at what price. That order book stays private, so only the bank knows whether demand was really sitting at $120 or closer to $250.' }, { label: 'Pricing', sprite: 'price-tag', explain: 'The final number is set the night before trading opens, and it is usually placed below what the order book supports. That deliberate gap is exactly what becomes the pop.' }, { label: 'First Day of Trading', sprite: 'stock-ticker', explain: 'The day Snowflake moved $134 a share, the company earned nothing from it. It had already sold at $120 the previous night, so day one is a scoreboard, not a payday.' }], footer: 'Every dollar of "pop" is money the company left behind', sentiment: 'positive', sprite: 'funnel' };
+const CF14_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'IPO Readiness & Alternatives', items: [{ label: 'Traditional IPO', value: 'Underwriters, new capital', color: '#A451E6', sprite: 'bank', explain: 'New shares get created and sold, so cash genuinely lands in the corporate account. You pay 3 to 7 percent to the underwriter for that, plus whatever the first-day pop quietly costs you on top.' }, { label: 'Direct Listing', value: 'No underwriters, no new capital', color: '#3B82F6', sprite: 'chain-break', explain: 'Spotify skipped the banks and saved around $300 million in fees, but raised zero new money. Existing holders simply start trading, so this only works if you do not actually need the cash.' }, { label: 'SPAC', value: 'Blank-check merger path', color: '#F59E0B', sprite: 'question', explain: 'You merge into a shell that already holds cash and public status, which is fast because it skips the S-1 gauntlet. SPAC deals hit 613 in 2021, then fell more than 90 percent once the returns came in.' }], footer: 'Being public costs $2-5M/year in compliance', sentiment: 'positive', sprite: 'arrow-split' };
 
 // ─── LESSON 15 SVGs (Financial Distress & Restructuring) ───
-const CF15_HOOK: AnimatedVisual = { type: 'line', title: 'GM: Distress to Rebirth', points: [{ label: '2009 debt', value: '$172B' }, { label: 'After Chapter 11', value: '$17B' }, { label: '2011 profit', value: '$7.6B' }], trend: 'up', footer: 'Bankruptcy didn\'t kill GM, it saved it', sentiment: 'positive' };
-const CF15_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Lehman Brothers', value: '$639B bankruptcy', detail: 'No viable restructuring path, pure liquidation', footer: 'Triggered a crisis that destroyed $10T worldwide', sentiment: 'negative' };
-const CF15_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Marvel: Restructured & Reborn', points: [{ label: '1996 debt', value: '$700M' }, { label: '1998 restructured', value: '$250M' }, { label: '2009 Disney sale', value: '$4B' }], trend: 'up', footer: 'Marvel IP has since generated $30B+ in box office', sentiment: 'positive' };
-const CF15_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'Absolute Priority Waterfall', total: 'Who Gets Paid', segments: [{ label: 'Secured Creditors', value: 'Paid first', percent: 40, color: '#10B981' }, { label: 'Unsecured Creditors', value: 'Next', percent: 30, color: '#3B82F6' }, { label: 'Preferred Stock', value: 'Then', percent: 20, color: '#F59E0B' }, { label: 'Common Stock', value: 'Last, usually $0', percent: 10, color: '#EF4444' }], footer: 'Common equity is almost always wiped out', sentiment: 'positive' };
-const CF15_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Three Paths from Distress', nodes: [{ label: 'Out-of-Court Workout', value: 'Fastest, cheapest', color: '#10B981' }, { label: 'Prepackaged Chapter 11', value: '30-60 days', color: '#3B82F6' }, { label: 'Traditional Chapter 11', value: '12-18 months', color: '#F59E0B' }], footer: 'Pre-packs preserve business value by minimizing court time', sentiment: 'positive' };
+const CF15_HOOK: AnimatedVisual = { type: 'line', title: 'GM: Distress to Rebirth', points: [{ label: '2009 debt', value: '$172B', explain: 'One hundred seventy two billion dollars was more than GM could ever earn its way out of. In a good year the company cleared roughly $7 billion, so paying that back honestly would have taken longer than a whole working life.' }, { label: 'After Chapter 11', value: '$17B', explain: '$172B down to $17B means ninety percent of the debt was not repaid, it was erased. Bondholders were handed stock in the new company and told the old claim no longer existed.' }, { label: '2011 profit', value: '$7.6B', explain: 'Two years after the largest industrial bankruptcy in American history, GM earned $7.6 billion. Same factories, same workers, same cars. The only thing that changed was who had a claim on the cash.' }], trend: 'up', footer: 'Bankruptcy didn\'t kill GM, it saved it', sentiment: 'positive' };
+const CF15_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Lehman Brothers', value: '$639B bankruptcy', detail: 'No viable restructuring path, pure liquidation', footer: 'Triggered a crisis that destroyed $10T worldwide', sentiment: 'negative', sprite: 'bank-run' };
+const CF15_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Marvel: Restructured & Reborn', points: [{ label: '1996 debt', value: '$700M', explain: 'Marvel owed $700 million while selling comic books. The characters that would later carry an entire movie industry sat on the books as almost worthless, so creditors saw a dying printer rather than Spider-Man.' }, { label: '1998 restructured', value: '$250M', explain: 'The $700 million was not paid down, it was negotiated down to $250 million. Creditors gave up about 64 cents of every dollar they were owed because a living Marvel was worth more to them than a liquidated one.' }, { label: '2009 Disney sale', value: '$4B', explain: 'Eleven years later the same company sold for $4 billion, nearly six times the debt that almost killed it. Everything Disney paid for already existed in 1996. It just needed the balance sheet cleared before anyone could use it.' }], trend: 'up', footer: 'Marvel IP has since generated $30B+ in box office', sentiment: 'positive' };
+const CF15_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'Absolute Priority Waterfall', total: 'Who Gets Paid', segments: [{ label: 'Secured Creditors', value: 'Paid first', percent: 40, color: '#10B981', explain: 'Secured means a specific object is pledged: a factory, a fleet, a warehouse. They sit at the top because they can point at a thing and call it theirs, which is why they usually recover most of what they lent.' }, { label: 'Unsecured Creditors', value: 'Next', percent: 30, color: '#3B82F6', explain: 'These lenders hold a promise and nothing else. They get only what survives the tier above them, which in Lehman worked out to about 27 cents on the dollar against 40 cents for the secured group.' }, { label: 'Preferred Stock', value: 'Then', percent: 20, color: '#F59E0B', explain: 'Preferred is called stock but it queues behind every lender in the building. The money almost always runs out somewhere above this line, so in practice the tier exists mostly on paper.' }, { label: 'Common Stock', value: 'Last, usually $0', percent: 10, color: '#EF4444', explain: 'Last means you are paid only after everyone above you is made whole, and a company filing for bankruptcy is by definition short of that. This is the real price of the leverage from lesson 4: shareholders keep all the upside and hit zero first.' }], footer: 'Common equity is almost always wiped out', sentiment: 'positive' };
+const CF15_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Three Paths from Distress', nodes: [{ label: 'Out-of-Court Workout', value: 'Fastest, cheapest', color: '#10B981', sprite: 'handshake', explain: 'No court, no filing, no headline. The catch is that every single creditor has to say yes, so one holdout demanding full payment can push the whole company into Chapter 11 anyway.' }, { label: 'Prepackaged Chapter 11', value: '30-60 days', color: '#3B82F6', sprite: 'stopwatch', explain: 'The deal is agreed before filing, and the court is used only to stamp it and bind the holdouts. That is the whole reason it takes 30 to 60 days instead of a year, and time inside bankruptcy is what actually burns the value.' }, { label: 'Traditional Chapter 11', value: '12-18 months', color: '#F59E0B', sprite: 'hourglass', explain: 'Twelve to eighteen months of lawyers at $50 to $100 million, with the word bankruptcy attached to your name the entire time. For a retailer that is often fatal, because customers stop showing up long before the plan is confirmed.' }], footer: 'Pre-packs preserve business value by minimizing court time', sentiment: 'positive', sprite: 'arrow-split' };
 
 // ─── LESSON 16 SVGs (International Corporate Finance) ───
-const CF16_HOOK: AnimatedVisual = { type: 'metric', title: 'Swiss Franc Unpegged (2015)', value: '+30% in minutes', detail: 'Unhedged franc-debt obligations exploded overnight', footer: '40% of S&P 500 revenue comes from abroad', sentiment: 'negative' };
-const CF16_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Unmanaged Currency Risk', value: '$50B+ erased', detail: 'The strong 2022 dollar erased multinational profits', footer: 'Microsoft lost $595M in a single quarter on FX', sentiment: 'negative' };
-const CF16_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Toyota: Natural Hedging', value: 'Factories in markets', detail: 'US-built cars unaffected when the yen strengthens', footer: 'Operational hedge saved Toyota billions', sentiment: 'positive' };
-const CF16_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Three Types of FX Exposure', items: [{ label: 'Transaction', value: 'Contractual cash flows', color: '#A451E6' }, { label: 'Translation', value: 'Consolidated statements', color: '#3B82F6' }, { label: 'Economic', value: 'Long-term competitive position', color: '#F59E0B' }], footer: 'Match the currency of debt to the currency of revenue', sentiment: 'positive' };
-const CF16_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Country Risk Spectrum', nodes: [{ label: 'Developed Markets', value: 'Low risk, low returns', color: '#10B981' }, { label: 'Emerging Markets', value: 'Moderate risk, higher returns', color: '#F59E0B' }, { label: 'Frontier Markets', value: 'High risk, highest potential', color: '#EF4444' }], footer: 'Risk-adjusted returns determine value creation', sentiment: 'positive' };
+const CF16_HOOK: AnimatedVisual = { type: 'metric', title: 'Swiss Franc Unpegged (2015)', value: '+30% in minutes', detail: 'Unhedged franc-debt obligations exploded overnight', footer: '40% of S&P 500 revenue comes from abroad', sentiment: 'negative', sprite: 'bolt' };
+const CF16_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Unmanaged Currency Risk', value: '$50B+ erased', detail: 'The strong 2022 dollar erased multinational profits', footer: 'Microsoft lost $595M in a single quarter on FX', sentiment: 'negative', sprite: 'chart-down' };
+const CF16_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Toyota: Natural Hedging', value: 'Factories in markets', detail: 'US-built cars unaffected when the yen strengthens', footer: 'Operational hedge saved Toyota billions', sentiment: 'positive', sprite: 'factory' };
+const CF16_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'Three Types of FX Exposure', items: [{ label: 'Transaction', value: 'Contractual cash flows', color: '#A451E6', sprite: 'receipt', explain: 'The euro is worth 1.10 dollars the day you sign and 1.05 dollars the day you get paid, so a 10 million euro invoice lands as 10.5 million dollars instead of 11. Same goods, same price, half a million gone between signature and settlement.' }, { label: 'Translation', value: 'Consolidated statements', color: '#3B82F6', sprite: 'book', explain: 'Microsoft\'s European sales in euros did not fall at all. The dollar got stronger, so those same euros converted into 595 million fewer dollars in one quarter. Nothing about the business changed, only the ruler used to measure it.' }, { label: 'Economic', value: 'Long-term competitive position', color: '#F59E0B', sprite: 'hourglass', explain: 'This one has no invoice to hedge. If the yen falls 20 percent, Japanese carmakers can cut US sticker prices 20 percent and still bring home the same yen. No forward contract fixes that, which is why Toyota\'s answer was a factory in Kentucky.' }], footer: 'Match the currency of debt to the currency of revenue', sentiment: 'positive', sprite: 'globe' };
+const CF16_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Country Risk Spectrum', nodes: [{ label: 'Developed Markets', value: 'Low risk, low returns', color: '#10B981', sprite: 'shield', explain: 'Low returns is not a flaw here, it is the price of a place where courts enforce contracts and nobody seizes your plant. Investors settle for 2 to 3 percent growth because they expect to actually collect it.' }, { label: 'Emerging Markets', value: 'Moderate risk, higher returns', color: '#F59E0B', sprite: 'seedling', explain: 'The 6 to 8 percent growth is the headline, but a Brazil project usually carries a 4 to 5 point country risk premium on top of your US discount rate. Add that first, because the growth number alone will talk you into a bad deal.' }, { label: 'Frontier Markets', value: 'High risk, highest potential', color: '#EF4444', sprite: 'rocket', explain: 'Highest potential is doing heavy lifting in that phrase. At this end the bad outcome is not a weak quarter, it is losing the asset: Western firms wrote off more than 60 billion dollars when Russia moved against their operations in 2022.' }], footer: 'Risk-adjusted returns determine value creation', sentiment: 'positive', sprite: 'compass' };
 
 // ─── LESSON 17 SVGs (Corporate Bonds & Debt Markets) ───
-const CF17_HOOK: AnimatedVisual = { type: 'comparison', title: 'Global Markets Compared', rows: [{ label: 'Bond market', value: '$130T', percent: 100 }, { label: 'Stock market', value: '$70T', percent: 54 }], footer: 'The bond market is how the world actually finances itself', sentiment: 'positive' };
-const CF17_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Ignored Bond Signals (2007)', value: '$10T destroyed', detail: 'Credit spreads widened, stock investors ignored the warning', footer: 'The bond market sees crises before stocks do', sentiment: 'negative' };
-const CF17_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Apple: Locked-In Low Rates', value: '2.6% for 40 years', detail: 'Issued record bonds when the Fed cut rates to zero', footer: 'Those who waited paid 5%+ by 2023', sentiment: 'positive' };
-const CF17_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'The Yield Ladder', items: [{ label: 'Treasuries', value: 30, displayValue: 'Risk-free' }, { label: 'Investment Grade', value: 55, displayValue: 'Moderate spread' }, { label: 'High Yield / Junk', value: 100, displayValue: 'Wide spread' }], footer: 'Credit spread = yield above treasuries for default risk', sentiment: 'positive' };
-const CF17_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'The Debt Financing Spectrum', nodes: [{ label: 'Bank Loans', value: 'Flexible, floating' }, { label: 'Investment Grade Bonds', value: 'Fixed, large, cheap' }, { label: 'High-Yield Bonds', value: 'Expensive, growth' }, { label: 'Leveraged Loans', value: 'PE-backed, cov-lite' }], footer: 'Companies refinance when rates decline', sentiment: 'positive' };
+const CF17_HOOK: AnimatedVisual = { type: 'comparison', title: 'Global Markets Compared', rows: [{ label: 'Bond market', value: '$130T', percent: 100, explain: 'Every dollar of that $130 trillion is somebody\'s written promise to pay somebody else back on a fixed date. It is the bigger bar because almost every government, bank and large company borrows, while only a small slice of companies ever sell stock to the public.' }, { label: 'Stock market', value: '$70T', percent: 54, explain: '$70 trillion sounds enormous until you notice it is barely half the bar above it. Stocks get the headlines, but for every dollar of company ownership traded in the world there is close to two dollars of debt sitting quietly behind it.' }], footer: 'The bond market is how the world actually finances itself', sentiment: 'positive' };
+const CF17_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Ignored Bond Signals (2007)', value: '$10T destroyed', detail: 'Credit spreads widened, stock investors ignored the warning', footer: 'The bond market sees crises before stocks do', sentiment: 'negative', sprite: 'crack' };
+const CF17_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Apple: Locked-In Low Rates', value: '2.6% for 40 years', detail: 'Issued record bonds when the Fed cut rates to zero', footer: 'Those who waited paid 5%+ by 2023', sentiment: 'positive', sprite: 'lock' };
+const CF17_DIAGRAM: AnimatedVisual = { type: 'bars', title: 'The Yield Ladder', items: [{ label: 'Treasuries', value: 30, displayValue: 'Risk-free', sprite: 'shield', explain: 'This bottom rung is not zero, it is the floor. Treasuries still pay you something like 4%, but that 4% is rent on your time only. You are being paid nothing for default risk, because the lender is the US government.' }, { label: 'Investment Grade', value: 55, displayValue: 'Moderate spread', sprite: 'check-badge', explain: 'An A-rated company pays roughly 120 basis points, meaning 1.2%, on top of that Treasury yield. On a $1 billion bond that gap costs $12 million a year, and that is the annual price of not being the US government.' }, { label: 'High Yield / Junk', value: 100, displayValue: 'Wide spread', sprite: 'flame', explain: 'A BB borrower pays 300 to 500 basis points over Treasuries, so a 4% world becomes 7 to 9% for them. Lenders set that gap against a 2 to 3% chance each year of never seeing the principal again.' }], footer: 'Credit spread = yield above treasuries for default risk', sentiment: 'positive', sprite: 'ladder' };
+const CF17_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'The Debt Financing Spectrum', nodes: [{ label: 'Bank Loans', value: 'Flexible, floating', sprite: 'handshake', explain: 'Floating rate means your interest bill moves every time the Fed does, so you never lock anything in. Companies too small or too unknown for bond buyers start here, because one bank will do the credit homework that thousands of scattered investors will not.' }, { label: 'Investment Grade Bonds', value: 'Fixed, large, cheap', sprite: 'vault', explain: 'This is the cheapest large money on earth. Apple sits here and locked 40-year borrowing at 2.6%, a rate fixed for longer than most of the people who bought those bonds will still be working.' }, { label: 'High-Yield Bonds', value: 'Expensive, growth', sprite: 'rocket', explain: 'Same instrument as the step before it, worse credit: 7 to 8% while Treasuries pay 4%. That extra 3 to 4% is the market charging for a 2 to 3% annual default chance, so this money is only worth taking if it grows something faster than 8%.' }, { label: 'Leveraged Loans', value: 'PE-backed, cov-lite', sprite: 'briefcase', explain: 'In 2021 more than 90% of these loans were covenant-lite, meaning almost no ratio tests the borrower had to keep passing. When conditions turned in 2022, lenders had no tripwire to trigger, so they learned about the trouble late and recovered less.' }], footer: 'Companies refinance when rates decline', sentiment: 'positive', sprite: 'arrow-split' };
 
 // ─── LESSON 18 SVGs (Treasury Management & Cash Flow) ───
-const CF18_HOOK: AnimatedVisual = { type: 'metric', title: 'SVB Collapse (2023)', value: '48 hours', detail: 'Short-term deposits invested in long-term bonds, $17B lost', footer: 'A failure of the most basic treasury function', sentiment: 'negative' };
-const CF18_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Treasury Failure: SVB', value: '$42B withdrawn', detail: 'Duration mismatch caused $17B in bond losses', footer: 'A bank run collapsed SVB in 48 hours', sentiment: 'negative' };
-const CF18_STAKES_WITH: AnimatedVisual = { type: 'stack', title: 'Microsoft: Treasury Excellence', total: '$111B Managed', segments: [{ label: 'Ultra-safe short-term', value: '80%', percent: 80, color: '#10B981' }, { label: 'Diversified fixed income', value: '20%', percent: 20, color: '#3B82F6' }], footer: 'Funded the $69B Activision deal without straining liquidity', sentiment: 'positive' };
-const CF18_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Treasurer\'s Mandate', items: [{ label: 'Cash Forecasting', value: '13-week forecast', color: '#A451E6' }, { label: 'Liquidity Management', value: 'Credit lines & reserves', color: '#A451E6' }, { label: 'Short-Term Investing', value: 'Earn on surplus', color: '#A451E6' }, { label: 'Bank Relationships', value: 'Fees & facilities', color: '#A451E6' }], footer: 'The treasurer is the guardian of corporate survival', sentiment: 'positive' };
-const CF18_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'The Cash Flow Statement', nodes: [{ label: 'Operating CF', value: 'Core business cash' }, { label: 'Investing CF', value: 'Growth spending' }, { label: 'Financing CF', value: 'Capital provider flows' }], footer: 'Free Cash Flow = Operating CF − CapEx', sentiment: 'positive' };
+const CF18_HOOK: AnimatedVisual = { type: 'metric', title: 'SVB Collapse (2023)', value: '48 hours', detail: 'Short-term deposits invested in long-term bonds, $17B lost', footer: 'A failure of the most basic treasury function', sentiment: 'negative', sprite: 'bank-run' };
+const CF18_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Treasury Failure: SVB', value: '$42B withdrawn', detail: 'Duration mismatch caused $17B in bond losses', footer: 'A bank run collapsed SVB in 48 hours', sentiment: 'negative', sprite: 'crack' };
+const CF18_STAKES_WITH: AnimatedVisual = { type: 'stack', title: 'Microsoft: Treasury Excellence', total: '$111B Managed', segments: [{ label: 'Ultra-safe short-term', value: '80%', percent: 80, color: '#10B981', explain: 'Eighty percent of $111 billion is about $89 billion that Microsoft can turn into spendable cash within a day or two. That is the pile that made a $69 billion cheque for Activision possible without asking anyone for permission.' }, { label: 'Diversified fixed income', value: '20%', percent: 20, color: '#3B82F6', explain: 'Only a fifth is allowed to reach for extra yield, and even that is spread across many issuers. SVB effectively ran this ratio backwards, put the bulk into long bonds, and had almost nothing liquid left when depositors showed up.' }], footer: 'Funded the $69B Activision deal without straining liquidity', sentiment: 'positive' };
+const CF18_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Treasurer\'s Mandate', items: [{ label: 'Cash Forecasting', value: '13-week forecast', color: '#A451E6', sprite: 'calendar', explain: 'Thirteen weeks is one quarter written out week by week. The whole point is to spot the week you run short about two months early, not on the morning the payment is due.' }, { label: 'Liquidity Management', value: 'Credit lines & reserves', color: '#A451E6', sprite: 'safety-net', explain: 'A revolver costs a fee every year even when you never touch it. Amazon pays that fee on $10 billion it almost never draws, because the day you actually need the money is the day nobody wants to lend it.' }, { label: 'Short-Term Investing', value: 'Earn on surplus', color: '#A451E6', sprite: 'coin', explain: 'Idle cash is not free, it is a bill you never see. At 4.5 percent, $2 billion parked in a plain account gives up roughly $90 million a year.' }, { label: 'Bank Relationships', value: 'Fees & facilities', color: '#A451E6', sprite: 'handshake', explain: 'Treasurers deliberately split the money across several banks even though one bank would be simpler. SVB depositors who kept everything in one place found out in 48 hours what the simpler version costs.' }], footer: 'The treasurer is the guardian of corporate survival', sentiment: 'positive', sprite: 'shield' };
+const CF18_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'The Cash Flow Statement', nodes: [{ label: 'Operating CF', value: 'Core business cash', sprite: 'factory', explain: 'This is the only one of the three a company can keep doing forever. Apple\'s $110 billion here is money customers actually handed over, not a profit figure an accountant assembled.' }, { label: 'Investing CF', value: 'Growth spending', sprite: 'seedling', explain: 'For a healthy company this number is almost always negative, and that is the good outcome: Apple\'s $11 billion goes out on chips and factories. Take it off the first column and you are left with the $99 billion of free cash flow.' }, { label: 'Financing CF', value: 'Capital provider flows', sprite: 'bank', explain: 'Dividends, buybacks and debt payments all sit here, money going back to the lenders and shareholders from lesson 4. If this is the only column putting cash in, the company is living on other people\'s money.' }], footer: 'Free Cash Flow = Operating CF − CapEx', sentiment: 'positive', sprite: 'stack-cash' };
 
 // ─── LESSON 19 SVGs (ESG & Sustainable Finance) ───
-const CF19_HOOK: AnimatedVisual = { type: 'line', title: 'Green Bond Issuance', points: [{ label: '2014', value: '$11B' }, { label: '2019', value: '$258B' }, { label: '2023', value: '$575B+' }], trend: 'up', footer: 'From near-zero to $575B+ in under a decade', sentiment: 'positive' };
-const CF19_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'ESG Failures Destroyed Value', items: [{ label: 'BP Spill', value: 65, displayValue: '$65B' }, { label: 'VW Emissions', value: 33, displayValue: '$33B' }, { label: 'PG&E Wildfire', value: 30, displayValue: '$30B' }], footer: 'ESG failures destroyed more value than most firms create', sentiment: 'negative' };
-const CF19_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Orsted: ESG as Strategy', points: [{ label: '2016 share price', value: '$36' }, { label: '2021 share price', value: '$216' }], trend: 'up', footer: 'Transformed into the world\'s largest offshore wind developer', sentiment: 'positive' };
-const CF19_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Three Pillars of ESG', items: [{ label: 'Environmental', value: 'Carbon, climate risk', color: '#10B981' }, { label: 'Social', value: 'Labor, supply chain', color: '#3B82F6' }, { label: 'Governance', value: 'Board, transparency', color: '#A451E6' }], footer: 'ESG risks compound, VW\'s scandal hit all three', sentiment: 'positive' };
-const CF19_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'ESG Integration in Valuation', nodes: [{ label: 'ESG Factors' }, { label: 'Revenue, Costs, WACC, Terminal Value' }, { label: 'Adjusted DCF' }, { label: 'ESG-Integrated Fair Value' }], footer: 'Material ESG factors vary by industry', sentiment: 'positive' };
+const CF19_HOOK: AnimatedVisual = { type: 'line', title: 'Green Bond Issuance', points: [{ label: '2014', value: '$11B', explain: 'Eleven billion sounds big until you remember the whole bond market that year was counted in trillions. Green bonds were a rounding error.' }, { label: '2019', value: '$258B', explain: 'In five years the number multiplied by 23. Almost nothing in bond markets moves like that, which is when corporate treasurers started returning the calls.' }, { label: '2023', value: '$575B+', explain: '$575 billion is more than 50 times the 2014 figure. Green borrowing stopped being a gesture and became a funding channel companies plan a decade of projects around.' }], trend: 'up', footer: 'From near-zero to $575B+ in under a decade', sentiment: 'positive' };
+const CF19_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'ESG Failures Destroyed Value', items: [{ label: 'BP Spill', value: 65, displayValue: '$65B', sprite: 'crack', explain: 'Sixty five billion dollars for one blown out well. The market cap before the spill was $180 billion, so a single environmental failure took 36 cents of every dollar BP was worth.' }, { label: 'VW Emissions', value: 33, displayValue: '$33B', sprite: 'car', explain: 'The cheating software saved maybe a few hundred dollars of engineering per car. The bill came to $33 billion, thousands of times what that shortcut was ever worth.' }, { label: 'PG&E Wildfire', value: 30, displayValue: '$30B', sprite: 'flame', explain: 'Thirty billion in wildfire liability was more than the utility could pay, so PG&E filed for bankruptcy. Shareholders did not take a haircut, they were wiped out.' }], footer: 'ESG failures destroyed more value than most firms create', sentiment: 'negative', sprite: 'chart-down' };
+const CF19_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Orsted: ESG as Strategy', points: [{ label: '2016 share price', value: '$36', explain: 'In 2016 this was still Danish Oil and Natural Gas, an oil and gas utility, and the market priced it like one.' }, { label: '2021 share price', value: '$216', explain: 'From $36 to $216 is six times your money in five years. The company did not paint a green label on an oil business, it sold the oil business and rebuilt around offshore wind.' }], trend: 'up', footer: 'Transformed into the world\'s largest offshore wind developer', sentiment: 'positive' };
+const CF19_DIAGRAM: AnimatedVisual = { type: 'grid', title: 'The Three Pillars of ESG', items: [{ label: 'Environmental', value: 'Carbon, climate risk', color: '#10B981', sprite: 'tree', explain: 'Split this pillar in two. Physical risk is a hurricane flooding your warehouse. Transition risk is a carbon tax making your product uneconomic. A coal miner and a beachfront hotel both carry E risk, and they are opposite kinds.' }, { label: 'Social', value: 'Labor, supply chain', color: '#3B82F6', sprite: 'factory', explain: 'The Nike sweatshop story cut the stock in half, and nobody in that supply chain was a Nike employee. S risk lives in the factories you contract with, not only the ones you own.' }, { label: 'Governance', value: 'Board, transparency', color: '#A451E6', sprite: 'magnifier', explain: 'Cambridge Analytica erased $120 billion at Facebook and no pipeline ever leaked. G is the pillar that decides whether the other two get reported honestly, which is why it links most tightly to returns.' }], footer: 'ESG risks compound, VW\'s scandal hit all three', sentiment: 'positive', sprite: 'scales' };
+const CF19_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'ESG Integration in Valuation', nodes: [{ label: 'ESG Factors', sprite: 'seedling', explain: 'The input, and it is not a score copied off a website. It is the short list of things that can actually move cash in this industry: carbon for a utility, water for a chip plant, almost neither for a software firm.' }, { label: 'Revenue, Costs, WACC, Terminal Value', sprite: 'arrow-split', explain: 'Four doors, not one. Carbon taxes hit costs, a 7 basis point greenium on $1 billion shaves WACC, and stranded assets quietly eat terminal value, which is usually the biggest slice of the whole valuation.' }, { label: 'Adjusted DCF', sprite: 'hourglass', explain: 'This is the same discounted cash flow model from lesson 5, with no new math bolted on. Only the inputs changed, which is why an ESG claim has to become a number before it can reach this box.' }, { label: 'ESG-Integrated Fair Value', sprite: 'price-tag', explain: 'One price comes out the end, not an ESG rating stapled beside the price. If your sustainability view never moves this number, it was a press release, not financial analysis.' }], footer: 'Material ESG factors vary by industry', sentiment: 'positive', sprite: 'calculator' };
 
 // ─── LESSON 20 SVGs (Financial Regulation & Compliance) ───
-const CF20_HOOK: AnimatedVisual = { type: 'metric', title: 'Dodd-Frank Act (2010)', value: '2,300 pages', detail: 'Born after the crisis destroyed $10T and 8.7M jobs', footer: 'Every major financial regulation was written in blood', sentiment: 'negative' };
-const CF20_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Wirecard: Regulation Circumvented', value: '€1.9B fabricated', detail: 'Auditors failed to verify bank statements for three years', footer: 'The €24B company collapsed in days', sentiment: 'negative' };
-const CF20_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'JPMorgan: Compliance Advantage', value: '$12B/year invested', detail: '$50B+ capital cushion above requirements', footer: 'Compliance enabled the $200B First Republic acquisition', sentiment: 'positive' };
-const CF20_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'Major Financial Regulations', nodes: [{ label: 'Glass-Steagall', value: '1933' }, { label: 'SOX', value: '2002' }, { label: 'Dodd-Frank', value: '2010' }, { label: 'Basel III', value: '2017' }], footer: 'Compliance is a strategic function, not just a cost center', sentiment: 'positive' };
-const CF20_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Compliance in Practice', items: [{ label: 'Tone at the Top', value: 'Leadership sets culture', color: '#A451E6' }, { label: 'Controls & Testing', value: 'Verify, don\'t trust', color: '#A451E6' }, { label: 'Whistleblower Channels', value: 'Surface issues early', color: '#A451E6' }], footer: 'A culture of regulatory excellence prevents catastrophe', sentiment: 'positive' };
+const CF20_HOOK: AnimatedVisual = { type: 'metric', title: 'Dodd-Frank Act (2010)', value: '2,300 pages', detail: 'Born after the crisis destroyed $10T and 8.7M jobs', footer: 'Every major financial regulation was written in blood', sentiment: 'negative', sprite: 'book' };
+const CF20_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Wirecard: Regulation Circumvented', value: '€1.9B fabricated', detail: 'Auditors failed to verify bank statements for three years', footer: 'The €24B company collapsed in days', sentiment: 'negative', sprite: 'crack' };
+const CF20_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'JPMorgan: Compliance Advantage', value: '$12B/year invested', detail: '$50B+ capital cushion above requirements', footer: 'Compliance enabled the $200B First Republic acquisition', sentiment: 'positive', sprite: 'shield' };
+const CF20_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'Major Financial Regulations', nodes: [{ label: 'Glass-Steagall', value: '1933', sprite: 'bank', explain: '1933 is four years after the crash, and the fix was a wall: the bank holding your family\'s savings could not also gamble in the stock market. That wall stood for 66 years before Congress tore it down in 1999, nine years before the next crash.' }, { label: 'SOX', value: '2002', sprite: 'certificate', explain: 'Enron collapsed in December 2001 and this law was signed seven months later. Congress moves that fast only when 4,500 people have just been laid off in a single week and watched their retirement savings vanish with the stock.' }, { label: 'Dodd-Frank', value: '2010', sprite: 'scales', explain: 'Two years after the crisis, and 2,300 pages long. Compare that with SOX arriving in seven months: the bigger the mess, the thicker the rulebook and the slower it shows up.' }, { label: 'Basel III', value: '2017', sprite: 'vault', explain: 'This is the odd one out, because it is not any single country\'s law. It is banks in dozens of countries agreeing on the same floor, and the floor they picked, 4.5% Common Equity Tier 1, is more than double the 2% that was in place when 2008 hit.' }], footer: 'Compliance is a strategic function, not just a cost center', sentiment: 'positive', sprite: 'calendar' };
+const CF20_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Compliance in Practice', items: [{ label: 'Tone at the Top', value: 'Leadership sets culture', color: '#A451E6', sprite: 'compass', explain: 'No control catches a boss who wants the numbers to lie. At Wirecard the fake 1.9 billion euros was signed off from the top, so the two layers underneath never stood a chance.' }, { label: 'Controls & Testing', value: 'Verify, don\'t trust', color: '#A451E6', sprite: 'magnifier', explain: 'Verify means a person actually pulls the bank statement and matches the number on it. Wirecard\'s auditors skipped that one step for three years, and three years is how long a 24 billion euro company can look healthy on paper.' }, { label: 'Whistleblower Channels', value: 'Surface issues early', color: '#A451E6', sprite: 'chat', explain: 'Enron\'s Sherron Watkins wrote her warning memo in August 2001, four months before the bankruptcy. A channel that reaches the board instead of the person being accused buys you those four months.' }], footer: 'A culture of regulatory excellence prevents catastrophe', sentiment: 'positive', sprite: 'safety-net' };
 
 // ─── LESSON 21 SVGs (Startup Finance & Venture Funding) ───
-const CF21_HOOK: AnimatedVisual = { type: 'metric', title: 'Thiel\'s Facebook Bet (2004)', value: '$500K → $1B+', detail: '10.2% stake delivered a 2,000x return', footer: 'For every Facebook, a thousand startups return zero', sentiment: 'positive' };
-const CF21_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'SoftBank Vision Fund Losses', items: [{ label: 'WeWork', value: 100, displayValue: '$18.5B ~$0' }, { label: 'Uber', value: 43, displayValue: '$8B loss' }, { label: 'Wirecard', value: 16, displayValue: '$3B gone' }], footer: '$27B in cumulative losses, overpaying destroys returns', sentiment: 'negative' };
-const CF21_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Sequoia: The Venture Model', items: [{ label: 'Apple', value: 60, displayValue: '$150K → billions' }, { label: 'Google', value: 80, displayValue: '$12.5M → $5B+' }, { label: 'WhatsApp', value: 100, displayValue: '$60M → $3B' }], footer: 'Invest early, price disciplined, win big, 100x+ to LPs', sentiment: 'positive' };
-const CF21_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The Funding Funnel', nodes: [{ label: '1,000 startups' }, { label: '100 seed funded' }, { label: '20 Series A' }, { label: '5 Series C' }, { label: '1-2 IPO/exit' }], footer: 'The power law: a few winners pay for hundreds of losers', sentiment: 'positive' };
-const CF21_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Term Sheet Anatomy', nodes: [{ label: 'Valuation', value: 'Headline number' }, { label: 'Liquidation Preference', value: 'Who gets paid first' }, { label: 'Anti-Dilution', value: 'Downside protection' }, { label: 'Board Composition', value: 'Who controls' }], footer: 'Terms matter more than the headline valuation', sentiment: 'positive' };
+const CF21_HOOK: AnimatedVisual = { type: 'metric', title: 'Thiel\'s Facebook Bet (2004)', value: '$500K → $1B+', detail: '10.2% stake delivered a 2,000x return', footer: 'For every Facebook, a thousand startups return zero', sentiment: 'positive', sprite: 'rocket' };
+const CF21_STAKES_WITHOUT: AnimatedVisual = { type: 'bars', title: 'SoftBank Vision Fund Losses', items: [{ label: 'WeWork', value: 100, displayValue: '$18.5B ~$0', sprite: 'crack', explain: 'SoftBank put in 18.5 billion dollars and got back close to nothing. This one company lost more than half of the fund\'s entire 27 billion in cumulative losses.' }, { label: 'Uber', value: 43, displayValue: '$8B loss', sprite: 'car', explain: 'Uber was a real business that actually went public, and SoftBank still lost 8 billion on it. The company was fine. The price SoftBank paid in 2019 was the problem.' }, { label: 'Wirecard', value: 16, displayValue: '$3B gone', sprite: 'magnifier', explain: 'Wirecard was not a good idea that went wrong, it was a fraud. All 3 billion went to zero with nothing left to sell, which is what happens when nobody checks the books.' }], footer: '$27B in cumulative losses, overpaying destroys returns', sentiment: 'negative', sprite: 'chart-down' };
+const CF21_STAKES_WITH: AnimatedVisual = { type: 'bars', title: 'Sequoia: The Venture Model', items: [{ label: 'Apple', value: 60, displayValue: '$150K → billions', sprite: 'seedling', explain: '150 thousand dollars is less than a parking space in San Francisco costs today, and it bought a slice of Apple. That is why funds will write tiny checks into things that look like toys.' }, { label: 'Google', value: 80, displayValue: '$12.5M → $5B+', sprite: 'tree', explain: '12.5 million became over 5 billion, roughly 400 times the money in. That single line paid for hundreds of Sequoia investments that returned nothing at all.' }, { label: 'WhatsApp', value: 100, displayValue: '$60M → $3B', sprite: 'phone', explain: '60 million became 3 billion in about five years, and it arrived as real cash from Facebook, not as a paper valuation. A 50x return that you can actually spend is rare.' }], footer: 'Invest early, price disciplined, win big, 100x+ to LPs', sentiment: 'positive', sprite: 'chart-up' };
+const CF21_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The Funding Funnel', nodes: [{ label: '1,000 startups', sprite: 'lightbulb', explain: 'Start counting here. Nine hundred of these thousand never raise a single outside dollar, so most founders never even reach the second box.' }, { label: '100 seed funded', sprite: 'coin', explain: 'One in ten gets seed money. That first check is usually 500 thousand to 3 million, and Y Combinator\'s version buys about 7 percent of the whole company.' }, { label: '20 Series A', sprite: 'ladder', explain: 'Four out of five seed funded startups never raise again. Seed money buys roughly 18 months, and if the product has no traction by then the account simply empties.' }, { label: '5 Series C', sprite: 'stack-cash', explain: 'Five out of the original thousand, so half of one percent. By now the company is raising 50 million or more, and the founders have been diluted through four separate rounds.' }, { label: '1-2 IPO/exit', sprite: 'trophy', explain: 'One or two out of a thousand, about 0.15 percent. Those one or two have to cover the 998 that failed and still hand the fund a profit on top.' }], footer: 'The power law: a few winners pay for hundreds of losers', sentiment: 'positive', sprite: 'funnel' };
+const CF21_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Term Sheet Anatomy', nodes: [{ label: 'Valuation', value: 'Headline number', sprite: 'price-tag', explain: 'This is the only number that makes the press release, and it is the one founders repeat at parties. In any exit under 100 million it matters least, because the next three boxes decide who actually touches the money.' }, { label: 'Liquidation Preference', value: 'Who gets paid first', sprite: 'scale-tip', explain: 'A 1x preference on 10 million invested means that investor takes the first 10 million of any sale. If the company sells for 8 million, the founders who own most of the shares get exactly zero.' }, { label: 'Anti-Dilution', value: 'Downside protection', sprite: 'shield', explain: 'If the next round prices shares lower, this quietly hands the earlier investor extra shares to repair their average price. Those shares come out of everyone without the clause, so a down round lands hardest on the founders.' }, { label: 'Board Composition', value: 'Who controls', sprite: 'key', explain: 'Owning and controlling are two different things. A founder can hold 60 percent of the shares and still be fired, because hiring and firing the CEO is a board vote, not a shareholder vote.' }], footer: 'Terms matter more than the headline valuation', sentiment: 'positive', sprite: 'certificate' };
 
 // ─── LESSON 22 SVGs (Executive Compensation & Incentives) ───
-const CF22_HOOK: AnimatedVisual = { type: 'metric', title: 'Musk\'s Tesla Pay (2021)', value: '$56B / $0 salary', detail: 'Entirely tied to market cap and revenue milestones', footer: 'Average S&P 500 CEO: $16.7M, 340x the median worker', sentiment: 'positive' };
-const CF22_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Lehman: Misaligned Pay', value: '$484M to CEO', detail: 'Rewarded short-term risk-taking with no downside', footer: 'Shareholders lost everything; the CEO kept his millions', sentiment: 'negative' };
-const CF22_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Musk\'s Tesla Plan: Aligned', points: [{ label: 'Start', value: '$50B' }, { label: 'Milestones', value: '$650B+' }, { label: 'Result', value: '$1.2T' }], trend: 'up', footer: 'Pay $0 unless shareholders won, they got a 24x return', sentiment: 'positive' };
-const CF22_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'The CEO Pay Package', total: '100% of Pay', segments: [{ label: 'Base Salary', value: '10-15%', percent: 13, color: '#3B82F6' }, { label: 'Annual Bonus', value: '15-25%', percent: 22, color: '#F59E0B' }, { label: 'Stock Options', value: '25-35%', percent: 30, color: '#A451E6' }, { label: 'Performance Shares', value: '25-35%', percent: 35, color: '#10B981' }], footer: 'Equity-heavy pay creates the strongest alignment', sentiment: 'positive' };
-const CF22_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Compensation Design Principles', items: [{ label: 'Pay for Performance', value: 'Pay varies with outcomes', color: '#A451E6' }, { label: 'Long-Term Orientation', value: '3-5 year vesting', color: '#A451E6' }, { label: 'Downside Exposure', value: 'Real losses if poor', color: '#A451E6' }], footer: 'The best packages use multiple balanced metrics', sentiment: 'positive' };
+const CF22_HOOK: AnimatedVisual = { type: 'metric', title: 'Musk\'s Tesla Pay (2021)', value: '$56B / $0 salary', detail: 'Entirely tied to market cap and revenue milestones', footer: 'Average S&P 500 CEO: $16.7M, 340x the median worker', sentiment: 'positive', sprite: 'paycheck' };
+const CF22_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Lehman: Misaligned Pay', value: '$484M to CEO', detail: 'Rewarded short-term risk-taking with no downside', footer: 'Shareholders lost everything; the CEO kept his millions', sentiment: 'negative', sprite: 'scale-tip' };
+const CF22_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Musk\'s Tesla Plan: Aligned', points: [{ label: 'Start', value: '$50B', explain: '$50B was the price of admission, not the prize. Every tranche of Musk\'s package sat above this line, so on the day it was signed the whole thing was worth exactly zero.' }, { label: 'Milestones', value: '$650B+', explain: '$650B is thirteen times the starting point, and it was the last of twelve separate hurdles. Stop at eleven and that final slice pays nothing, no matter how good the year was.' }, { label: 'Result', value: '$1.2T', explain: '$1.2T is 24 times $50B. Shareholders turned $1 into $24 before Musk collected anything, so the $56B reads as a receipt for their gain rather than a bill charged against it.' }], trend: 'up', footer: 'Pay $0 unless shareholders won, they got a 24x return', sentiment: 'positive' };
+const CF22_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'The CEO Pay Package', total: '100% of Pay', segments: [{ label: 'Base Salary', value: '10-15%', percent: 13, color: '#3B82F6', explain: 'This is the only slice that arrives whether the company doubles or halves. On the median $16.7M package that is roughly $2M of certainty against about $14M of maybe.' }, { label: 'Annual Bonus', value: '15-25%', percent: 22, color: '#F59E0B', explain: 'This slice settles in cash every twelve months, so it only ever pays for what happened this year. That short clock is why an EPS bonus quietly pushes a CEO toward a buyback instead of a research budget.' }, { label: 'Stock Options', value: '25-35%', percent: 30, color: '#A451E6', explain: 'Options are the one slice that can go to zero while the company is still perfectly healthy. End a dollar under the strike price and about 30 percent of the package pays nothing at all.' }, { label: 'Performance Shares', value: '25-35%', percent: 35, color: '#10B981', explain: 'The biggest slice, and the only one that asks how you did against rivals rather than against zero. Beat the peer median on TSR and it vests, merely match it and most of it evaporates.' }], footer: 'Equity-heavy pay creates the strongest alignment', sentiment: 'positive' };
+const CF22_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Compensation Design Principles', items: [{ label: 'Pay for Performance', value: 'Pay varies with outcomes', color: '#A451E6', sprite: 'target', explain: 'Roughly two thirds of a typical package already moves with the share price, so the real question is not whether pay varies but how far down it can go. If the floor is still $16M, nothing is actually varying.' }, { label: 'Long-Term Orientation', value: '3-5 year vesting', color: '#A451E6', sprite: 'hourglass', explain: 'Three to five years is longer than most bad decisions stay hidden. Vest that slowly and the person who booked the profit is still holding the stock when the bill for it arrives.' }, { label: 'Downside Exposure', value: 'Real losses if poor', color: '#A451E6', sprite: 'chart-down', explain: 'This is the exact rule Lehman skipped. Fuld\'s $484M was already banked, so 2008 cost him future pay and not one dollar of past pay, and past pay was where all the money was.' }], footer: 'The best packages use multiple balanced metrics', sentiment: 'positive', sprite: 'compass' };
 
 // ─── LESSON 23 SVGs (Corporate Tax Strategy) ───
-const CF23_HOOK: AnimatedVisual = { type: 'comparison', title: 'Statutory vs. Effective Tax', rows: [{ label: 'Statutory rate', value: '21%', percent: 100 }, { label: 'Amazon effective (2020)', value: '9.4%', percent: 45 }], footer: 'The gap is the value of legal tax strategy', sentiment: 'positive' };
-const CF23_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Apple: Tax Strategy Backfired', value: '€13B back taxes', detail: 'The EU ruled the "Double Irish" structure illegal', footer: 'Aggressive planning created reputational and financial risk', sentiment: 'negative' };
-const CF23_STAKES_WITH: AnimatedVisual = { type: 'grid', title: 'Amazon: Legal Tax Efficiency', items: [{ label: 'Accelerated Depreciation', color: '#10B981' }, { label: 'R&D Tax Credits', color: '#10B981' }, { label: 'Stock-Comp Deductions', color: '#10B981' }, { label: 'Loss Carryforwards', color: '#10B981' }], footer: 'Reinvested tax savings funded the AWS empire', sentiment: 'positive' };
-const CF23_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The Tax Funnel', nodes: [{ label: 'Gross Revenue' }, { label: '− COGS & OpEx' }, { label: '− Tax Shields' }, { label: 'Taxable Income × Rate' }, { label: 'Taxes Owed' }], footer: 'Interest, depreciation, and credits shrink the bill', sentiment: 'positive' };
-const CF23_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Strategic Tax Decisions', items: [{ label: 'Capital Structure', value: 'Interest deductibility', color: '#A451E6' }, { label: 'Location', value: 'State & country rates', color: '#A451E6' }, { label: 'M&A Structure', value: 'Asset vs. stock deal', color: '#A451E6' }, { label: 'Stock Comp', value: 'Deduction at vesting', color: '#A451E6' }], footer: 'Taxes influence every major corporate finance decision', sentiment: 'positive' };
+const CF23_HOOK: AnimatedVisual = { type: 'comparison', title: 'Statutory vs. Effective Tax', rows: [{ label: 'Statutory rate', value: '21%', percent: 100, explain: '21 cents of every dollar of profit is what the law says. Almost no large company hands over that much, so treat 21% as the sticker price, not the final bill.' }, { label: 'Amazon effective (2020)', value: '9.4%', percent: 45, explain: '9.4% of $21.3 billion is about $2.0 billion. At the full 21% the bill would have been $4.5 billion, so the gap kept roughly $2.5 billion inside the company in one year.' }], footer: 'The gap is the value of legal tax strategy', sentiment: 'positive' };
+const CF23_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Apple: Tax Strategy Backfired', value: '€13B back taxes', detail: 'The EU ruled the "Double Irish" structure illegal', footer: 'Aggressive planning created reputational and financial risk', sentiment: 'negative', sprite: 'scales' };
+const CF23_STAKES_WITH: AnimatedVisual = { type: 'grid', title: 'Amazon: Legal Tax Efficiency', items: [{ label: 'Accelerated Depreciation', color: '#10B981', sprite: 'hourglass', explain: 'The warehouse costs the same either way. Taking the deduction now instead of spreading it across the years the building gets used just means Amazon holds that cash while it is still worth the most.' }, { label: 'R&D Tax Credits', color: '#10B981', sprite: 'lightbulb', explain: 'A credit is not a deduction. A dollar of R&D credit cuts the tax bill by a full dollar, while a dollar of deduction only cuts it by 21 cents.' }, { label: 'Stock-Comp Deductions', color: '#10B981', sprite: 'certificate', explain: 'Amazon deducts more than $10 billion a year for shares handed to staff, cash it never wrote a check for. Paying people in stock buys a deduction with paper.' }, { label: 'Loss Carryforwards', color: '#10B981', sprite: 'chart-down', explain: 'The $3 billion Amazon lost back when everyone called it doomed is what shielded its first profitable years. Early failure got banked and spent later.' }], footer: 'Reinvested tax savings funded the AWS empire', sentiment: 'positive', sprite: 'shield' };
+const CF23_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The Tax Funnel', nodes: [{ label: 'Gross Revenue', sprite: 'stack-cash', explain: 'Nothing here is taxed yet. Tax never touches the top line, which is how a company can sell hundreds of billions of dollars of goods and still owe close to nothing.' }, { label: '− COGS & OpEx', sprite: 'factory', explain: 'Wages, shipping, servers. These come off first and nobody calls it tax planning, it is just what the business cost to run.' }, { label: '− Tax Shields', sprite: 'umbrella', explain: 'This is the one step a CFO actually fights over: interest, depreciation and credits. Everything above this line is arithmetic, this line is strategy.' }, { label: 'Taxable Income × Rate', sprite: 'calculator', explain: 'The 21% only bites what survived the funnel. Shrink the number entering this box and the rate itself stops mattering much.' }, { label: 'Taxes Owed', sprite: 'tax-form', explain: 'In the worked case, $1 billion of profit ends up owing $86.5 million. Divide that back out and the real rate is 8.65%, not 21%.' }], footer: 'Interest, depreciation, and credits shrink the bill', sentiment: 'positive', sprite: 'funnel' };
+const CF23_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'Strategic Tax Decisions', items: [{ label: 'Capital Structure', value: 'Interest deductibility', color: '#A451E6', sprite: 'scale-tip', explain: 'Interest is deductible, dividends are not. At 21%, $10 billion of debt carries a shield worth about $2.1 billion, which is why cash-rich firms still borrow.' }, { label: 'Location', value: 'State & country rates', color: '#A451E6', sprite: 'globe', explain: 'Wyoming charges 0%, New Jersey 11.5%, Ireland 12.5%. Moving a legal address is the cheapest move on this board because no factory has to move with it.' }, { label: 'M&A Structure', value: 'Asset vs. stock deal', color: '#A451E6', sprite: 'handshake', explain: 'Same $2 billion price, two different tax outcomes. The asset deal steps the basis up, and that extra depreciation is worth roughly $450 million today, over a fifth of what you paid.' }, { label: 'Stock Comp', value: 'Deduction at vesting', color: '#A451E6', sprite: 'paycheck', explain: 'The deduction lands at vesting, valued at whatever the shares are worth that day. If the stock has run up, the tax break grows even though the cost booked years earlier never changed.' }], footer: 'Taxes influence every major corporate finance decision', sentiment: 'positive', sprite: 'compass' };
 
 // ─── LESSON 24 SVGs (Financial Engineering & Structured Products) ───
-const CF24_HOOK: AnimatedVisual = { type: 'metric', title: 'CDS Market by 2007', value: '$62 trillion', detail: 'Larger than the entire world\'s GDP', footer: 'Financial engineering amplified a US housing problem globally', sentiment: 'negative' };
-const CF24_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'CDOs Misused', value: 'AAA → massive loss', detail: 'Subprime mortgages packaged as "safe" senior tranches', footer: 'CDOs amplified the housing bust into a global crisis', sentiment: 'negative' };
-const CF24_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'MBS: Engineering Used Well', points: [{ label: 'Past', value: '40% owned' }, { label: 'Today', value: '65% owned' }], trend: 'up', footer: 'Securitization funded 50 years of expanding homeownership', sentiment: 'positive' };
-const CF24_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'Tranching a $1B Mortgage Pool', total: '$1B Pool', segments: [{ label: 'Senior (AAA)', value: '$700M', percent: 70, color: '#10B981' }, { label: 'Mezzanine (BBB)', value: '$200M', percent: 20, color: '#F59E0B' }, { label: 'Equity (first loss)', value: '$100M', percent: 10, color: '#EF4444' }], footer: 'Equity absorbs losses first; senior is paid last', sentiment: 'positive' };
-const CF24_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Evolution of Financial Engineering', nodes: [{ label: 'Simple Bonds' }, { label: 'MBS/ABS (1980s)' }, { label: 'CDOs (1990s)' }, { label: 'Crisis (2008)' }, { label: 'Simpler CLOs (2010s)' }, { label: 'Tokenization/AI (2020s)' }], footer: 'The tool is neutral, impact depends on how it\'s used', sentiment: 'positive' };
+const CF24_HOOK: AnimatedVisual = { type: 'metric', title: 'CDS Market by 2007', value: '$62 trillion', detail: 'Larger than the entire world\'s GDP', footer: 'Financial engineering amplified a US housing problem globally', sentiment: 'negative', sprite: 'globe' };
+const CF24_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'CDOs Misused', value: 'AAA → massive loss', detail: 'Subprime mortgages packaged as "safe" senior tranches', footer: 'CDOs amplified the housing bust into a global crisis', sentiment: 'negative', sprite: 'crack' };
+const CF24_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'MBS: Engineering Used Well', points: [{ label: 'Past', value: '40% owned', explain: 'Before securitization a bank had to sit on every mortgage for 30 years, so it could only lend what it already held. That ceiling is why only 40 families in 100 owned their home.' }, { label: 'Today', value: '65% owned', explain: 'Selling the loans on lets the same dollar fund a new mortgage every few months. Same bank capital, 25 more families in every 100 with a house, which is what the tool does when nobody abuses it.' }], trend: 'up', footer: 'Securitization funded 50 years of expanding homeownership', sentiment: 'positive' };
+const CF24_DIAGRAM: AnimatedVisual = { type: 'stack', title: 'Tranching a $1B Mortgage Pool', total: '$1B Pool', segments: [{ label: 'Senior (AAA)', value: '$700M', percent: 70, color: '#10B981', explain: 'Seven tenths of the pool sits behind a $300M cushion, so losses must chew through 30 percent of every mortgage before this slice loses a cent. The cushion earned the AAA, not the mortgages.' }, { label: 'Mezzanine (BBB)', value: '$200M', percent: 20, color: '#F59E0B', explain: 'This $200M is protected, but only by a buffer half its own size. It is fine in a normal year and gone fast in a year where the whole country defaults at once.' }, { label: 'Equity (first loss)', value: '$100M', percent: 10, color: '#EF4444', explain: 'This slice eats the first $100M of losses, which is the entire reason it pays 15 percent while the senior slice pays 3. At an 8 percent default rate it loses 80 percent of its value and the other two lose nothing.' }], footer: 'Equity absorbs losses first; senior is paid last', sentiment: 'positive' };
+const CF24_DIAGRAM2: AnimatedVisual = { type: 'flow', title: 'Evolution of Financial Engineering', nodes: [{ label: 'Simple Bonds', sprite: 'certificate', explain: 'One borrower, one promise, one payment. You could read the whole deal on a page and name the person who owed you money.' }, { label: 'MBS/ABS (1980s)', sprite: 'house', explain: 'Now it is 10,000 mortgages inside one bond. You stop knowing any single borrower and start trusting the average, which holds up until every borrower has the same bad year.' }, { label: 'CDOs (1990s)', sprite: 'arrow-split', explain: 'This step took the leftover BBB slices from a hundred different MBS deals and sliced them again. Agencies then stamped 83 percent of the result AAA, the same grade as a US Treasury bond.' }, { label: 'Crisis (2008)', sprite: 'bank-run', explain: 'The models assumed house prices had never fallen nationwide, so they counted the pools as diversified. Prices fell about 30 percent everywhere at once and over $300B of AAA paper took losses.' }, { label: 'Simpler CLOs (2010s)', sprite: 'briefcase', explain: 'CLOs pool corporate loans and stop at one layer: no slicing of slices. That discipline is why a $1T market walked through COVID without a rescue.' }, { label: 'Tokenization/AI (2020s)', sprite: 'network', explain: 'The layering is gone, the temptation is not. Every new wrapper claims risk has been engineered away, so the only question worth asking is who holds the first loss.' }], footer: 'The tool is neutral, impact depends on how it\'s used', sentiment: 'positive', sprite: 'hourglass' };
 
 // ─── LESSON 25 SVGs (Corporate Finance Advanced Capstone) ───
-const CF25_HOOK: AnimatedVisual = { type: 'grid', title: 'The Integrated CFO Framework', items: [{ label: 'Valuation', color: '#A451E6' }, { label: 'Capital Structure', color: '#3B82F6' }, { label: 'Risk Management', color: '#F59E0B' }, { label: 'Tax & Governance', color: '#10B981' }], footer: 'Real decisions pull from every tool simultaneously', sentiment: 'positive' };
-const CF25_STAKES_WITHOUT: AnimatedVisual = { type: 'line', title: 'GE: Siloed Finance Thinking', points: [{ label: '2000 peak', value: '$500B' }, { label: '2008 crisis', value: '$200B' }, { label: '2018', value: '$80B' }], trend: 'down', footer: 'Decades of disconnected decisions lost $200B+', sentiment: 'negative' };
-const CF25_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Microsoft: Integrated Mastery', points: [{ label: '2014', value: '$300B' }, { label: '2019', value: '$1T' }, { label: '2024', value: '$3T' }], trend: 'up', footer: 'Every corporate finance lever pulled together, 10x in 10 years', sentiment: 'positive' };
-const CF25_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The CFO Nexus', nodes: [{ label: 'Capital Budgeting' }, { label: 'Capital Structure' }, { label: 'Working Capital' }, { label: 'Risk & Tax' }, { label: 'Governance & Returns' }, { label: 'Enterprise Value' }], footer: 'These are not separate topics, they are one system', sentiment: 'positive' };
-const CF25_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'The CFO Mindset', items: [{ label: 'Strategist', value: 'What to invest in', color: '#A451E6' }, { label: 'Architect', value: 'How to finance it', color: '#3B82F6' }, { label: 'Guardian', value: 'How to protect it', color: '#F59E0B' }, { label: 'Communicator', value: 'How to explain it', color: '#10B981' }], footer: 'Financial flexibility lets you act when competitors can\'t', sentiment: 'positive' };
+const CF25_HOOK: AnimatedVisual = { type: 'grid', title: 'The Integrated CFO Framework', items: [{ label: 'Valuation', color: '#A451E6', sprite: 'scales', explain: 'This box sets the ceiling on every deal you sign. If your DCF says 2.5 billion and you pay 3 billion, you just handed the seller 500 million of your shareholders\' money before day one.' }, { label: 'Capital Structure', color: '#3B82F6', sprite: 'scale-tip', explain: 'Microsoft raised 77 billion in debt while sitting on cash. Not because it needed the money, but because debt at those rates cost far less than the roughly 12 percent shareholders demand.' }, { label: 'Risk Management', color: '#F59E0B', sprite: 'shield', explain: 'GE managed risk deal by deal and never at the company level. Nobody added up how much of the whole company\'s earnings depended on one credit market staying open, until 2008 answered it for them.' }, { label: 'Tax & Governance', color: '#10B981', sprite: 'tax-form', explain: 'These two share a box because they fail together. A tax structure that saves 200 million is worthless if the board approving it never asked what it was approving.' }], footer: 'Real decisions pull from every tool simultaneously', sentiment: 'positive', sprite: 'network' };
+const CF25_STAKES_WITHOUT: AnimatedVisual = { type: 'line', title: 'GE: Siloed Finance Thinking', points: [{ label: '2000 peak', value: '$500B', explain: 'At 500 billion GE was the most valuable company on earth, and that is exactly why nobody pressed on how the quarterly numbers were being produced.' }, { label: '2008 crisis', value: '$200B', explain: 'Three hundred billion gone in eight years. GE Capital borrowed short and lent long, so when the credit market shut, the finance arm nearly took the jet engine business down with it.' }, { label: '2018', value: '$80B', explain: 'Eighty billion is 16 cents on the 2000 dollar. There is no single bad year in this line, which is the point: twenty years of decisions that each looked defensible on their own.' }], trend: 'down', footer: 'Decades of disconnected decisions lost $200B+', sentiment: 'negative' };
+const CF25_STAKES_WITH: AnimatedVisual = { type: 'line', title: 'Microsoft: Integrated Mastery', points: [{ label: '2014', value: '$300B', explain: 'The starting line is 300 billion, and in 2014 Microsoft was the company that had missed mobile. Nothing in this number promised the next ten years.' }, { label: '2019', value: '$1T', explain: 'Five years to add 700 billion, which is more than GE was worth at its all time peak. It came from the cloud pivot and the buyback program running at the same time, not one after the other.' }, { label: '2024', value: '$3T', explain: 'Three trillion is 10x in ten years. Pull it apart and it is four levers moving together: the 69 billion Activision deal, 77 billion of cheap debt, over 100 billion of buybacks, and pay tied to cloud growth.' }], trend: 'up', footer: 'Every corporate finance lever pulled together, 10x in 10 years', sentiment: 'positive' };
+const CF25_DIAGRAM: AnimatedVisual = { type: 'flow', title: 'The CFO Nexus', nodes: [{ label: 'Capital Budgeting', sprite: 'target', explain: 'Money goes in here, and lesson 11\'s rule decides which projects get any. If your WACC is 9 percent, an 8 percent project destroys value even though it turns a profit.' }, { label: 'Capital Structure', sprite: 'ladder', explain: 'This box sets the WACC the box before it has to beat. Swap equity at 12 percent for debt at 6 percent and the hurdle drops, which quietly turns projects you rejected last quarter into approvals.' }, { label: 'Working Capital', sprite: 'hourglass', explain: 'This is the plumbing from lesson 6. Cash stuck in inventory and unpaid invoices is cash you cannot invest, so shortening that cycle funds growth without asking a bank or a shareholder for anything.' }, { label: 'Risk & Tax', sprite: 'umbrella', explain: 'Both change the cash that actually arrives rather than the cash you earn. A hedge, or structuring a deal as an asset purchase, can each be worth 200 million without selling one extra unit.' }, { label: 'Governance & Returns', sprite: 'dividend', explain: 'The board decides what leaves the company. With the stock at 100 and your own DCF at 115, every 100 dollars of buyback buys 115 of value, so the hard part is the decision, not the arithmetic.' }, { label: 'Enterprise Value', sprite: 'gem', explain: 'Everything upstream collapses into one number: future cash flows discounted at WACC. Raise the cash flows or lower the WACC and this box moves. There is no third route to it.' }], footer: 'These are not separate topics, they are one system', sentiment: 'positive', sprite: 'funnel' };
+const CF25_DIAGRAM2: AnimatedVisual = { type: 'grid', title: 'The CFO Mindset', items: [{ label: 'Strategist', value: 'What to invest in', color: '#A451E6', sprite: 'compass', explain: 'This is the only one of the four that creates new value. The other three protect it. Rank projects by NPV, stop at the last positive one, and you have done this box\'s entire job.' }, { label: 'Architect', value: 'How to finance it', color: '#3B82F6', sprite: 'bank', explain: 'Same project, different funding, different answer. A billion in convertibles at 4 percent instead of straight bonds at 6 leaves 20 million a year inside the company and holds debt near 45 percent of capital rather than 57.' }, { label: 'Guardian', value: 'How to protect it', color: '#F59E0B', sprite: 'safety-net', explain: 'Guarding is not hoarding. Holding six months of cash while still buying discounted competitors is the version that works, because unused debt capacity is only an asset if you eventually spend it.' }, { label: 'Communicator', value: 'How to explain it', color: '#10B981', sprite: 'chat', explain: 'The role people skip. GE\'s numbers were legal and explained so poorly that the market stopped believing any of them, and a company nobody believes trades below what it is worth no matter what the DCF says.' }], footer: 'Financial flexibility lets you act when competitors can\'t', sentiment: 'positive', sprite: 'briefcase' };
 
 // Lessons 1-5 are raw object literals rather than L() calls, unlike every other
 // course file. Without this annotation TypeScript widens their `type: 'stack'`
@@ -222,7 +222,7 @@ const lessons: PathwayLesson[] = [
           value: '$118B',
           detail: 'cash from operations, fiscal 2024',
           footer: 'That is roughly $324 million every single day',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'stack-cash'
         },
       },
       {
@@ -236,7 +236,7 @@ const lessons: PathwayLesson[] = [
           title: 'Toys R Us, 2018',
           value: '800',
           detail: 'US stores closed after debt payments left nothing to reinvest',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'crack'
         },
         with: {
           label: 'Allocate cash well',
@@ -248,19 +248,19 @@ const lessons: PathwayLesson[] = [
           points: [
             {
               label: '2014',
-              value: '$300B',
+              value: '$300B', explain: 'This is the starting line, the year Satya Nadella took the CEO job. Microsoft was already 39 years old and worth $300 billion, so nothing here was a startup story.'
             },
             {
               label: '2018',
-              value: '$780B',
+              value: '$780B', explain: 'Four years of pointing profits at Azure added $480 billion, which is more than the whole company was worth in 2014. The extra value was bigger than the original.'
             },
             {
               label: '2021',
-              value: '$2.5T',
+              value: '$2.5T', explain: 'It more than triples again in three years. Microsoft did not sell a new Windows to do that, it kept sending the same cash to the same place.'
             },
             {
               label: '2024',
-              value: '$3.1T',
+              value: '$3.1T', explain: 'Ten years, roughly ten times bigger. That climb came from one decision repeated every year about where the profits went, not one lucky product.'
             },
           ],
           trend: 'up',
@@ -270,6 +270,10 @@ const lessons: PathwayLesson[] = [
       },
       {
         type: 'teachingSlide',
+        atlas: {
+          hint: 'Press each box. The $118 billion comes in through one door and leaves by three, and choosing which door is the entire job.',
+          recap: 'Corporate finance is not a stack of topics, it is one pile of cash and three doors. Invest, finance, return is the complete list, so every company headline you will ever read, a new factory, a bond sale, a buyback, is one of these three doors being used.',
+        },
         sectionLabel: 'The core idea',
         title: 'Every company makes the same three decisions',
         paragraphs: [
@@ -300,22 +304,22 @@ const lessons: PathwayLesson[] = [
           nodes: [
             {
               label: 'Operations',
-              value: '$118B in',
+              value: '$118B in', sprite: 'factory', explain: 'This is the only arrow pointing in. Every other box is Apple deciding where to send money it has already earned by selling things, so nothing else on this diagram happens without it.'
             },
             {
               label: 'Invest',
-              value: 'build or buy',
+              value: 'build or buy', sprite: 'seedling', explain: 'Chip designs, factories, whole companies. Cash that leaves through this door is supposed to come back bigger later, and that is the only reason to let it go.'
             },
             {
               label: 'Finance',
-              value: 'borrow or repay',
+              value: 'borrow or repay', sprite: 'bank', explain: 'This door runs both directions. Apple can pull extra cash in by borrowing or push cash out by paying lenders back, and that is a separate question from what it builds.'
             },
             {
               label: 'Return',
-              value: 'dividends, buybacks',
+              value: 'dividends, buybacks', sprite: 'dividend', explain: 'Cash that leaves here never comes back to the company. Apple authorized $110 billion of buybacks in 2024, which is nearly the entire $118 billion that came in the other door.'
             },
           ],
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'arrow-split'
         },
       },
       {
@@ -521,12 +525,12 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Profit on paper',
               value: '$10M',
-              percent: 100,
+              percent: 100, explain: 'That $10M is what the accountants counted, not what is sitting in the account. A sale gets added the moment the invoice goes out, even if the customer has not sent a single dollar.'
             },
             {
               label: 'Cash it can spend',
               value: '$0.5M',
-              percent: 5,
+              percent: 5, explain: 'Half a million against ten million of profit means the company can actually touch 5 cents of every dollar it says it earned. One month of payroll costs more than that.'
             },
           ],
           footer: 'Payroll gets paid with cash, not with paper profit',
@@ -548,14 +552,14 @@ const lessons: PathwayLesson[] = [
           title: 'The blind spot',
           value: '$0',
           detail: 'cash left when the bills come due',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'piggy-crack'
         },
         withVisual: {
           type: 'metric',
           title: 'The early warning',
           value: '6 months',
           detail: 'of runway spotted before trouble hits',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'hourglass'
         },
       },
       {
@@ -591,20 +595,20 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Income statement',
               value: 'Profit over a period',
-              color: '#A451E6',
+              color: '#A451E6', sprite: 'receipt', explain: 'This one covers a stretch of time, a quarter or a full year, and ends in a single number: revenue minus expenses. It answers whether more came in than went out, and nothing else.'
             },
             {
               label: 'Balance sheet',
               value: 'Owns and owes right now',
-              color: '#3B82F6',
+              color: '#3B82F6', sprite: 'scales', explain: 'This is a photograph taken at one instant, usually 11:59pm on the last day. It says nothing about what happened during the year, only what the company owned and owed at that exact moment.'
             },
             {
               label: 'Cash flow statement',
               value: 'Cash in, cash out',
-              color: '#10B981',
+              color: '#10B981', sprite: 'stack-cash', explain: 'The only one of the three that tracks money physically moving. A sale nobody has paid for adds zero here, which is why this statement is the hardest of the three to dress up.'
             },
           ],
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'book'
         },
       },
       {
@@ -627,6 +631,10 @@ const lessons: PathwayLesson[] = [
       },
       {
         type: 'teachingSlide',
+        atlas: {
+          hint: 'Press each of the four bars. Three of them come straight off the income statement, and the fourth one, the tallest, is the reason those three cannot pay anybody on Friday.',
+          recap: 'Profit is a subtraction and cash is a balance, and TechFit shows how far apart the two can drift: $10M reported earned while $120M sits in invoices nobody has paid. Lesson 1 said corporate finance is three decisions about cash. This is the lesson where you learn that the number on the income statement is not the cash those decisions get to spend.',
+        },
         sectionLabel: 'The aha',
         title: 'Profitable and broke at the same time',
         paragraphs: [
@@ -653,22 +661,22 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Revenue billed',
               value: '$100M',
-              percent: 83,
+              percent: 83, explain: 'Billed, not collected. All $100M counted the day the invoices went out, whether the customer paid in a week, paid in a year, or never paid at all.'
             },
             {
               label: 'Expenses',
               value: '$90M',
-              percent: 75,
+              percent: 75, explain: 'Salaries, servers, rent. Ninety cents of every revenue dollar goes straight back out, and unlike the revenue above it, most of this left as real cash on a real date.'
             },
             {
               label: 'Profit on paper',
               value: '$10M',
-              percent: 8,
+              percent: 8, explain: 'This is 100 minus 90, a subtraction and nothing more. TechFit never held a $10M pile anywhere: the number exists because two other numbers were put next to each other.'
             },
             {
               label: 'Stuck in unpaid invoices',
               value: '$120M',
-              percent: 100,
+              percent: 100, explain: 'The tallest bar is money TechFit is owed, not money it has, and it is bigger than a whole year of revenue because invoices from earlier periods are still unpaid too. For every $1 of profit reported, $12 sits in somebody else\'s pocket.'
             },
           ],
           footer: 'The profit is real on paper, but the cash is trapped in receivables',
@@ -883,23 +891,23 @@ const lessons: PathwayLesson[] = [
           points: [
             {
               label: '1626',
-              value: '$24',
+              value: '$24', explain: 'Twenty four dollars buys a pizza and a movie ticket. That is the entire deposit, and nobody ever adds a second one, so every number to the right grew out of this one.'
             },
             {
               label: '1726',
-              value: '$21K',
+              value: '$21K', explain: 'A full century of 7 percent turned $24 into about $21,000, roughly a used car. Compounding looks slow and boring for a very long time.'
             },
             {
               label: '1826',
-              value: '$18M',
+              value: '$18M', explain: 'The same 7 percent over the second century multiplied the pile about 860 times. Growth stacking on earlier growth is why equal stretches of time buy wildly unequal gains.'
             },
             {
               label: '1926',
-              value: '$16B',
+              value: '$16B', explain: 'This one century added about $16 billion, close to 900 times everything the first three centuries managed to build.'
             },
             {
               label: '2026',
-              value: '$13T',
+              value: '$13T', explain: 'About 99.9 percent of the $13 trillion showed up in this last century alone. The rate never changed, it was just working on a much bigger pile.'
             },
           ],
           trend: 'up',
@@ -924,12 +932,12 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Price paid today',
               value: '$1,000',
-              percent: 100,
+              percent: 100, explain: 'A thousand real dollars leaves the building today. That money could have been out earning the company\'s own 10 percent starting this afternoon.'
             },
             {
               label: 'Today\'s value received',
               value: '$751',
-              percent: 75,
+              percent: 75, explain: 'Cash that lands in three years is worth $751 right now. The company pays $1,000 for $751, so $249 is gone the moment it signs.'
             },
           ],
           footer: 'Every deal like this destroys $249',
@@ -942,12 +950,12 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Project return',
               value: '20%',
-              percent: 20,
+              percent: 20, explain: 'Twenty percent is what the project actually earns on the cash, double what that same cash costs to raise.'
             },
             {
               label: 'Cost of capital',
               value: '10%',
-              percent: 10,
+              percent: 10, explain: 'Ten percent is a floor, not a goal. A project returning 9 percent still loses money even though 9 percent sounds like a profit, and here the 10 point gap is the value created.'
             },
           ],
           footer: 'Return clears the hurdle, so the project adds value',
@@ -981,18 +989,18 @@ const lessons: PathwayLesson[] = [
           nodes: [
             {
               label: 'Today',
-              value: '$100',
+              value: '$100', explain: 'This $100 is not a promise, it is money you can invest this second. That is the only reason it beats the same $100 later.', sprite: 'coin'
             },
             {
               label: 'Invested at 7%',
-              value: '+$7',
+              value: '+$7', explain: 'Seven dollars is the exact price of waiting one year. Take the later money instead and this is the amount that quietly never exists.', sprite: 'seedling'
             },
             {
               label: 'In 1 year',
-              value: '$107',
+              value: '$107', explain: '$107 is what today\'s $100 becomes, so $100 arriving next year is the worse deal by $7. Same number on the label, different date, different value.', sprite: 'tree'
             },
           ],
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'chart-up'
         },
       },
       {
@@ -1021,6 +1029,10 @@ const lessons: PathwayLesson[] = [
       },
       {
         type: 'teachingSlide',
+        atlas: {
+          hint: 'Press any bar to see what that one step back from $1,000 actually costs you.',
+          recap: 'Keep this one thing: a dollar has a date stamped on it, and the date changes what it is worth. $1,000 three years out is $751 today, not $1,000, and the whole move is one division by 1.10 for each year of waiting. Lesson 2 showed you statements reporting money that already arrived. Discounting is how you put a price on money that has not arrived yet.',
+        },
         sectionLabel: 'The tool',
         title: 'Present value: dragging money back to today',
         paragraphs: [
@@ -1047,26 +1059,26 @@ const lessons: PathwayLesson[] = [
             {
               label: 'In 3 years',
               value: 1000,
-              displayValue: '$1,000',
+              displayValue: '$1,000', explain: 'This is the promise, not the prize. It is a full $1,000, but it sits three years away where you cannot invest a cent of it.'
             },
             {
               label: 'In 2 years',
               value: 909,
-              displayValue: '$909',
+              displayValue: '$909', explain: 'Stepping back one single year costs $91, and that first step is the biggest dollar drop of the three.'
             },
             {
               label: 'In 1 year',
               value: 826,
-              displayValue: '$826',
+              displayValue: '$826', explain: 'Dividing by 1.10 again takes off $83 instead of $91. Each cut is 10 percent of a smaller number, so the cuts shrink as you walk backward.'
             },
             {
               label: 'Today',
               value: 751,
-              displayValue: '$751',
+              displayValue: '$751', explain: '$751 is the honest price. Put it in an account paying 10 percent and it grows back to exactly $1,000 in three years, so these two amounts are the same money wearing different dates.'
             },
           ],
           footer: 'Each step back divides by 1.10',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'hourglass'
         },
       },
       {
@@ -1278,13 +1290,13 @@ const lessons: PathwayLesson[] = [
               label: 'Debt (borrowed)',
               value: '40%',
               percent: 40,
-              color: '#3B82F6',
+              color: '#3B82F6', explain: 'That 40 cents of every dollar arrived with a due date attached. It is the cheapest money in the whole stack, and it is also the only part that can drag the company into bankruptcy court.'
             },
             {
               label: 'Equity (ownership sold)',
               value: '60%',
               percent: 60,
-              color: '#A451E6',
+              color: '#A451E6', explain: 'The other 60 cents never has to be paid back, which sounds like the better deal. The catch is that those owners now take a cut of every profit the company ever makes, in exchange for one payment made years ago.'
             },
           ],
           sentiment: 'positive',
@@ -1305,14 +1317,14 @@ const lessons: PathwayLesson[] = [
           title: 'Lehman Brothers, 2008',
           value: '$613B',
           detail: 'in debts when it went bankrupt',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'bank-run'
         },
         withVisual: {
           type: 'metric',
           title: 'Apple, 2013',
           value: '~2%',
           detail: 'interest rate on its $17 billion bond sale',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'price-tag'
         },
       },
       {
@@ -1343,15 +1355,15 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Debt',
               value: 'Must repay, with interest',
-              color: '#3B82F6',
+              color: '#3B82F6', sprite: 'bill', explain: 'The interest bill arrives on a schedule whether the quarter was record-breaking or awful. In return the lender gets no vote, no board seat, and not one cent of the upside if the company doubles.'
             },
             {
               label: 'Equity',
               value: 'No repayment, but you sold a slice',
-              color: '#A451E6',
+              color: '#A451E6', sprite: 'pie-slice', explain: 'There is no due date here, which is the whole appeal. But you handed over a permanent slice, so if the company is worth 10 times more in a decade, that slice is worth 10 times more too, and it is not yours.'
             },
           ],
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'arrow-split'
         },
       },
       {
@@ -1367,6 +1379,10 @@ const lessons: PathwayLesson[] = [
       },
       {
         type: 'teachingSlide',
+        atlas: {
+          hint: 'Press either bar to see what that percent really costs. One of them is a bill with a due date, the other is a promise that never expires.',
+          recap: 'The gap is 5% against 15%, so debt looks like the obvious winner three times over. The thing that flips it is the bad year: the 5% is still due when sales collapse, and the 15% is not. Lesson 3 taught you to discount future money by a rate. Now you know where those rates come from, because 5% and 15% are just the prices two different groups charge a company for the same dollar.',
+        },
         sectionLabel: 'The aha',
         title: 'Debt is cheap but dangerous. Equity is safe but expensive.',
         paragraphs: [
@@ -1393,12 +1409,12 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Typical after tax cost of debt',
               value: '~5%',
-              percent: 25,
+              percent: 25, explain: 'Borrow $10 million at this rate and you owe $500,000 in interest every single year. It stays this low for two reasons: the lender is first in line if the company fails, and the tax deduction on interest means the government quietly pays part of that bill.'
             },
             {
               label: 'Return equity investors expect',
               value: '~15%',
-              percent: 75,
+              percent: 75, explain: 'Nobody writes a 15% check, which is exactly why equity feels free. But 15% a year triples an investment in about eight years, and shareholders bought their slice expecting that. Every dollar of profit left after the interest is theirs, permanently.'
             },
           ],
           footer: 'Debt is roughly 3x cheaper, but it must be paid even in a bad year',
@@ -1627,21 +1643,21 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Lowest',
               value: 67,
-              displayValue: '$67',
+              displayValue: '$67', sprite: 'bear', explain: 'The $67 target prices Tesla as a carmaker that has stopped growing. You are paying for the cars it sells today and nothing beyond that.'
             },
             {
               label: 'Average',
               value: 300,
-              displayValue: '$300',
+              displayValue: '$300', sprite: 'crowd', explain: 'The $300 average is nowhere near either end, so it describes almost no analyst\'s real view. Averaging a $67 forecast with a $1,500 one hides that the two sides disagree about the whole business.'
             },
             {
               label: 'Highest',
               value: 1500,
-              displayValue: '$1,500',
+              displayValue: '$1,500', sprite: 'bull', explain: '$1,500 is 22 times the low target. Every dollar above $67 is payment for a future nobody has seen yet, so about $1,433 of that price is pure assumption.'
             },
           ],
           footer: 'Valuation depends on assumptions about the future',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'arrow-split'
         },
       },
       {
@@ -1656,19 +1672,19 @@ const lessons: PathwayLesson[] = [
           points: [
             {
               label: 'Jan 2021',
-              value: '$171',
+              value: '$171', explain: 'At $171 the market was assuming everyone who bought a bike in lockdown would keep paying the subscription for years.'
             },
             {
               label: 'Dec 2021',
-              value: '$36',
+              value: '$36', explain: 'Eleven months later the same company costs $36. The bikes did not change, only the guess about how many more it would sell.'
             },
             {
               label: 'Jun 2022',
-              value: '$10',
+              value: '$10', explain: '$10 is roughly what is left once you stop paying for growth and price only the cash the business actually brings in.'
             },
             {
               label: 'Dec 2022',
-              value: '$8',
+              value: '$8', explain: '$8 out of $171 is under 5 cents on the dollar. A $1,000 bet at the peak is worth about $47 here.'
             },
           ],
           trend: 'down',
@@ -1684,7 +1700,7 @@ const lessons: PathwayLesson[] = [
           title: 'The habit that protects you',
           value: '20x',
           detail: 'price compared to earnings, checked before buying',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'magnifier'
         },
       },
       {
@@ -1715,21 +1731,21 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Next year',
               value: 91,
-              displayValue: '$91',
+              displayValue: '$91', sprite: 'coin', explain: 'Put $91 in an account paying 10% and you have $100 in a year. That is the whole reason a promise of $100 next year is worth $91 to you now.'
             },
             {
               label: 'In 5 years',
               value: 62,
-              displayValue: '$62',
+              displayValue: '$62', sprite: 'hourglass', explain: 'Five years of waiting cuts the same $100 to $62. You gave up 38 cents of every dollar purely for the delay, before anything went wrong with the business.'
             },
             {
               label: 'In 10 years',
               value: 39,
-              displayValue: '$39',
+              displayValue: '$39', sprite: 'chart-down', explain: 'By year 10 the $100 counts as $39, less than half the one-year number. This is why the far-off years of a forecast barely move the final answer.'
             },
           ],
           footer: 'At a 10% discount rate',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'clock'
         },
       },
       {
@@ -1765,18 +1781,18 @@ const lessons: PathwayLesson[] = [
           nodes: [
             {
               label: 'Project cash flows',
-              value: 'years 1 to 10',
+              value: 'years 1 to 10', sprite: 'calendar', explain: 'Ten years of numbers, and every one is a guess. Year 1 you can probably get within a few percent, year 10 is closer to a story than a measurement.'
             },
             {
               label: 'Discount each one',
-              value: 'divide by (1 + r)^n',
+              value: 'divide by (1 + r)^n', sprite: 'calculator', explain: 'The exponent is what does the damage. At 10% you divide by 1.1 ten times, and 39 cents of each future dollar is all that survives.'
             },
             {
               label: 'Sum them up',
-              value: '= company value',
+              value: '= company value', sprite: 'price-tag', explain: 'Add the ten shrunken numbers and you get one price for the entire business. Move r from 10% to 8% and that single number can jump by half.'
             },
           ],
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'funnel'
         },
       },
       {
@@ -1793,6 +1809,10 @@ const lessons: PathwayLesson[] = [
       },
       {
         type: 'teachingSlide',
+        atlas: {
+          hint: 'Press each of the three multiples. The utility and the growth stock are buying the exact same thing, $1 of yearly profit, at prices four times apart.',
+          recap: 'P/E is the discounting you met in lesson 3, squashed into one number: it is the entire future of a business priced against a single year of profit. So 12x is not cheap and 50x is not expensive until you know how fast those earnings are actually growing.',
+        },
         sectionLabel: 'The shortcut',
         title: 'P/E: valuation in one number',
         paragraphs: [
@@ -1814,17 +1834,17 @@ const lessons: PathwayLesson[] = [
             {
               label: 'Sleepy utility',
               value: '12x',
-              percent: 24,
+              percent: 24, explain: '12x means you hand over $12 for each $1 the utility earns in a year. Nobody expects it to earn much more next decade, so you are buying today\'s profits and little else.'
             },
             {
               label: 'Market average',
               value: '20x',
-              percent: 40,
+              percent: 40, explain: '20x is $20 paid per $1 of yearly profit. If earnings never grew at all, it would take 20 years of profit to hand your money back.'
             },
             {
               label: 'Hot growth stock',
               value: '50x',
-              percent: 100,
+              percent: 100, explain: 'At 50x you pay more than four times what the utility buyer pays for the same $1 of profit. That only works out if earnings roughly quadruple, and quadrupling is a promise, not a fact.'
             },
           ],
           footer: 'Higher multiples bake in bigger growth expectations',
@@ -2006,7 +2026,11 @@ const lessons: PathwayLesson[] = [
       'The cash conversion cycle, days to turn inventory into cash, equals days inventory outstanding plus days sales outstanding minus days payable outstanding. Sell stock faster, collect faster, pay suppliers later. Amazon\'s cycle is negative: customers pay first.'],
       [{ term: 'Cash Conversion Cycle', definition: 'DIO + DSO − DPO. Days from paying for inventory to collecting cash from customers.', example: 'A company with 45 DIO, 30 DSO, and 60 DPO has CCC = 45+30−60 = 15 days.' },
        { term: 'Days Sales Outstanding', definition: 'Average days to collect payment after a sale. Lower is better.', example: 'DSO of 30 means the company collects cash 30 days after invoicing customers.' }],
-      'Circular flow: Cash → Inventory → Sale → Receivable → Cash, with DIO, DSO, and DPO labeled on each segment', undefined, CF6_DIAGRAM),
+      'Circular flow: Cash → Inventory → Sale → Receivable → Cash, with DIO, DSO, and DPO labeled on each segment', undefined, CF6_DIAGRAM,
+      {
+        hint: 'Press each bar. DIO and DSO pile days onto the wait, DPO takes days off, and the last bar is whatever is left over.',
+        recap: 'The whole lesson is one subtraction: 45 plus 30 minus 60 leaves 15 days you fund yourself. Lesson 3 said cash today beats cash later, and the cash cycle is where that idea shows up on an actual calendar. Every day you cut off the cycle is a day you finance instead of a bank.',
+      }),
     microCheck('A company has DIO of 60 days, DSO of 45 days, and DPO of 30 days. What is the Cash Conversion Cycle?',
       ['15 days','75 days','35 days','135 days'], 1,
       'Correct! CCC = DIO + DSO − DPO = 60 + 45 − 30 = 75 days. This company waits 75 days between paying for inventory and collecting cash from sales.',
@@ -2039,7 +2063,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Synergies', definition: 'Value created by combining two companies that neither could achieve alone. Cost synergies (cutting redundancies) and revenue synergies (cross-selling).', example: 'When Disney acquired 21st Century Fox, cost synergies from eliminating duplicate corporate functions saved $2B+ annually.' },
        { term: 'Due Diligence', definition: 'The investigation of a target company\'s financials, operations, legal status, and strategic fit before acquisition.', example: 'Thorough due diligence of Whole Foods revealed consistent same-store sales and prime real estate locations that justified Amazon\'s $13.7B price.' },
        { term: 'Control Premium', definition: 'The amount paid above market price for full ownership, typically 20-40% for public companies.', example: 'Microsoft paid a 45% premium for Activision Blizzard ($95/share vs. $65 pre-announcement).' }],
-      'Funnel diagram: Target Identification → Valuation → Due Diligence → Negotiation → Integration → Value Creation (or Destruction)', undefined, CF7_DIAGRAM),
+      'Funnel diagram: Target Identification → Valuation → Due Diligence → Negotiation → Integration → Value Creation (or Destruction)', undefined, CF7_DIAGRAM,
+      {
+        hint: 'Press each stage. The deal is usually won or lost in the last one, not the first.',
+        recap: 'Between 70 and 90 percent of acquisitions fail to earn back what was paid, and almost none of them fail at the price. They fail at integration, where two payrolls, two systems and two ways of doing things have to become one. AOL and Time Warner agreed a $164 billion deal and wrote off $99 billion of it, which is the largest single admission in corporate history that buying a company and running one are different skills.',
+      }),
     microCheck('A company acquires a target for $10B, projecting $2B in synergies (60% cost, 40% revenue). If historical data shows 70% of cost synergies and 30% of revenue synergies are typically realized, what is the realistic synergy value?',
       ['$2B','$1.08B','$1.5B','$0.5B'], 1,
       'Correct! Cost synergies: $1.2B × 70% = $840M. Revenue synergies: $800M × 30% = $240M. Total: $1.08B, roughly half the projected $2B. This is why disciplined acquirers discount projected synergies heavily.',
@@ -2072,7 +2100,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Dividend Yield', definition: 'Annual dividends per share ÷ stock price. Measures the income return from dividends.', example: 'A stock paying $4/year in dividends at a $100 stock price has a 4% dividend yield.' },
        { term: 'Share Buyback', definition: 'A company repurchasing its own shares on the open market, reducing share count and increasing per-share ownership.', example: 'If a company with 1B shares buys back 100M, each remaining share now represents 1/900M of the company instead of 1/1B.' },
        { term: 'Payout Ratio', definition: 'Dividends ÷ Net Income. Measures what percentage of profits is returned to shareholders as dividends.', example: 'A company earning $10/share and paying $3/share in dividends has a 30% payout ratio.' }],
-      'Two channels from company profits: Dividends (steady stream to shareholders) and Buybacks (recycling shares back to treasury), with the remaining flowing to reinvestment', undefined, CF8_DIAGRAM),
+      'Two channels from company profits: Dividends (steady stream to shareholders) and Buybacks (recycling shares back to treasury), with the remaining flowing to reinvestment', undefined, CF8_DIAGRAM,
+      {
+        hint: 'Press either payout row and I will show you why one is a promise the company cannot take back and the other is a choice it can pause. The third row is the test that decides whether a buyback was worth doing at all.',
+        recap: 'A buyback is just the company buying its own stock, so whether it built or burned money comes down to price against intrinsic value, the number you learned to estimate in lesson 5. Apple bought below that number for a decade and turned 26.3 billion shares into 16.3 billion. IBM spent $140 billion near the top and had nothing to show for twenty years. Dividends and buybacks are not good or bad on their own: the price paid decides.',
+      }),
     microCheck('Apple reduced its share count from 26.3B to 16.3B through buybacks (38% reduction). If earnings stayed flat, what happened to EPS?',
       ['EPS stayed flat','EPS increased ~61%','EPS decreased 38%','Cannot determine'], 1,
       'Correct! Same total earnings spread across 38% fewer shares means each share gets ~61% more earnings. If total earnings were $100B: before: $100B/26.3B = $3.80 EPS. After: $100B/16.3B = $6.13 EPS. That\'s a 61% increase in EPS from financial engineering alone.',
@@ -2105,7 +2137,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Hedge', definition: 'A financial position taken to offset potential losses from an adverse price movement in an existing exposure.', example: 'A US company expecting €100M in revenue hedges by buying a forward contract to sell €100M at today\'s exchange rate.' },
        { term: 'Derivative', definition: 'A financial contract whose value is based on (derived from) an underlying asset like a commodity, currency, or interest rate.', example: 'An oil futures contract is a derivative, its value changes based on the underlying oil price.' },
        { term: 'Value at Risk (VaR)', definition: 'The maximum expected loss over a given period at a specific confidence level.', example: 'A 95% daily VaR of $10M means there\'s a 95% chance the company won\'t lose more than $10M in a single day.' }],
-      'Shield diagram with four quadrants (Market, Credit, Operational, Liquidity risk) and derivative instruments pointing at each', undefined, CF9_DIAGRAM),
+      'Shield diagram with four quadrants (Market, Credit, Operational, Liquidity risk) and derivative instruments pointing at each', undefined, CF9_DIAGRAM,
+      {
+        hint: 'Press any of the four risk boxes and I will tell you which ones a hedging contract can actually cover, and which ones no contract will touch.',
+        recap: 'Southwest did not get rich betting on oil, it made its biggest cost knowable a year in advance, and that is what hedging buys: predictability, not profit. Look at the grid again and notice only market risk sits at the end of a derivative. Credit risk depends on somebody else staying solvent, operational risk on your own controls, and liquidity risk on having cash on hand this week, which is the same cushion lesson 6 called working capital.',
+      }),
     microCheck('Southwest Airlines locks in jet fuel at $51/barrel. Market price rises to $147/barrel. Southwest saves $96/barrel. On 2 billion gallons (~47.6 million barrels), what are the approximate savings?',
       ['$96 million','$4.6 billion','$960 million','$9.6 billion'], 1,
       'Correct! $96 savings/barrel × ~47.6M barrels ≈ $4.6 billion. This hedge effectively funded Southwest\'s operations for the entire crisis while competitors were hemorrhaging cash.',
@@ -2135,7 +2171,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Board of Directors', definition: 'Elected representatives of shareholders who oversee management, set strategy, and ensure accountability.', example: 'Apple\'s board includes independent directors from diverse backgrounds, finance, tech, public policy, providing broad oversight.' },
        { term: 'Sarbanes-Oxley (SOX)', definition: 'A 2002 US law mandating stricter financial reporting, independent audits, and CEO/CFO personal certification of financial statements. Enacted after Enron and WorldCom.', example: 'Under SOX, CEOs must personally certify financial statements, making them criminally liable for fraud.' },
        { term: 'Fiduciary Duty', definition: 'The legal obligation of board members and officers to act in the best interest of shareholders, with loyalty and care.', example: 'A board member who approves a deal benefiting themselves personally violates fiduciary duty and can face lawsuits.' }],
-      'Three-layer pyramid: Shareholders (own) → Board (oversees) → Management (operates), with Audit, Compensation, and Governance committees as supporting pillars', undefined, CF10_DIAGRAM),
+      'Three-layer pyramid: Shareholders (own) → Board (oversees) → Management (operates), with Audit, Compensation, and Governance committees as supporting pillars', undefined, CF10_DIAGRAM,
+      {
+        hint: 'Press each of the three layers, Shareholders, Board and Management, to see what power that layer actually holds and what breaks when it goes missing.',
+        recap: 'Every number you learned to read in lesson 2 is only worth as much as the oversight standing behind it. FTX\'s books said 32 billion and the true answer was zero, because no independent person ever checked. Governance is not paperwork, it is the reason you can trust a statement you did not audit yourself.',
+      }),
     microCheck('Which governance failure was most critical in FTX\'s collapse?',
       ['The company grew too fast','There were no independent board members, no audit committee, and no separation between customer funds and corporate operations','The CEO was too young','Cryptocurrency is inherently risky'], 1,
       'Correct! FTX had zero independent oversight. Without an independent board or audit committee, there was no one to question the $8B transfer of customer funds. The governance vacuum enabled the fraud.',
@@ -2193,7 +2233,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Sensitivity Analysis', definition: 'Testing how changes in key assumptions (growth rate, costs, discount rate) affect NPV to assess project robustness.', example: 'If NPV is positive under all scenarios from 5% to 15% growth, the project is robust. If it turns negative at 8% growth, it\'s risky.' },
        { term: 'Sunk Cost', definition: 'Money already spent that cannot be recovered and should not influence future investment decisions.', example: 'A company spent $30M developing a drug that failed trials. The $30M is sunk, only future costs and revenues matter for the next decision.' },
        { term: 'Opportunity Cost', definition: 'The value of the next best alternative foregone when making a decision.', example: 'Using a warehouse for manufacturing means forgoing $5M/year in rental income, that\'s an opportunity cost of the manufacturing project.' }],
-      'Decision matrix showing optimistic, base, and pessimistic scenarios for a project, with NPV calculated under each', undefined, CF11_DIAGRAM2),
+      'Decision matrix showing optimistic, base, and pessimistic scenarios for a project, with NPV calculated under each', undefined, CF11_DIAGRAM2,
+      {
+        hint: 'Press each of the three tiles: one thing you test, one thing you refuse to count, and one thing people forget to charge the project for.',
+        recap: 'NPV is lesson 3 doing real work: drag every future dollar back to today, then check it clears what you pay now. Notice that nothing hard here is in the formula. It is all in the inputs. Guess the cash flows honestly, charge the project for the alternative you gave up, and let the $50M you already burned stay burned.',
+      }),
     fb('The capital budgeting metric that calculates the discount rate making NPV equal to zero is called the ___ Rate of Return.',['Internal','External','Required','Expected'],0),
     q('Project A: NPV = $5M, IRR = 15%, Payback = 6 years. Project B: NPV = $2M, IRR = 25%, Payback = 2 years. You can only choose one. Which should you pick?',
       ['Project B, a higher IRR percentage always means a better project regardless of its scale','Project A, higher NPV means more total value created for shareholders','Project B, a shorter payback is safer, so it should win even when its NPV is much lower','Cannot determine without more information, since NPV and IRR together still tell you nothing'],
@@ -2208,10 +2252,10 @@ const lessons: PathwayLesson[] = [
       { label: 'NPV', formula: 'Sum of PVs − Investment', result: '+$1,372,360' }
     ]),
     tr('Capital Budgeting Essentials',[
-      ['What is the NPV rule?','Accept all projects with NPV > 0 (they create value). Reject all projects with NPV < 0 (they destroy value). When capital is limited, rank by NPV.'],
-      ['Why is IRR sometimes misleading?','IRR doesn\'t account for project scale (a 50% return on $1M creates less value than 15% on $100M) and can give multiple answers for unconventional cash flows.'],
-      ['What are sunk costs and why do they matter?','Costs already incurred that can\'t be recovered. They should NEVER influence future decisions. "We\'ve already spent $50M" is not a reason to spend more.'],
-      ['How does sensitivity analysis help?','By testing NPV under different assumptions (optimistic, base, pessimistic), it reveals how robust a project is and which assumptions matter most.']
+      ['What is the NPV rule?','Accept all projects with NPV > 0 (they create value). Reject all projects with NPV < 0 (they destroy value). When capital is limited, rank by NPV.', { stat: 'Bar to clear: $0', sprite: 'target' }],
+      ['Why is IRR sometimes misleading?','IRR doesn\'t account for project scale (a 50% return on $1M creates less value than 15% on $100M) and can give multiple answers for unconventional cash flows.', { stat: '$500K vs $15M', sprite: 'scale-tip' }],
+      ['What are sunk costs and why do they matter?','Costs already incurred that can\'t be recovered. They should NEVER influence future decisions. "We\'ve already spent $50M" is not a reason to spend more.', { stat: '$50M already gone', sprite: 'receipt' }],
+      ['How does sensitivity analysis help?','By testing NPV under different assumptions (optimistic, base, pessimistic), it reveals how robust a project is and which assumptions matter most.', { stat: '3 scenarios, 1 answer', sprite: 'shield' }]
     ]),
     sc('You\'re a project manager. Your team has spent $8M over 2 years developing a product. Testing reveals it needs another $5M to launch, with projected revenues of $4M/year for 3 years. WACC is 10%. The NPV of the REMAINING investment is approximately -$50K. What do you recommend?',
       [{ label: 'Continue, we\'ve already invested $8M and can\'t waste it', outcome: 'This is the sunk cost fallacy. The $8M is gone regardless. The remaining investment has negative NPV, you\'d be investing $5M to get back less than $5M in present value. Continuing destroys MORE value.', correct: false },
@@ -2313,7 +2357,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'CAPM', definition: 'Capital Asset Pricing Model, estimates cost of equity based on the risk-free rate, beta, and market risk premium.', example: 'Re = 4% + 1.3 × 6% = 11.8% for a stock with beta of 1.3.' },
        { term: 'Risk-Free Rate', definition: 'The return on a theoretically zero-risk investment, typically the 10-year US Treasury bond yield.', example: 'In 2024, the risk-free rate was approximately 4-4.5%, reflecting treasury bond yields.' },
        { term: 'Market Risk Premium', definition: 'The excess return expected from the stock market above the risk-free rate, historically averaging 5-7%.', example: 'If stocks return 10% on average and treasuries yield 4%, the market risk premium is 6%.' }],
-      'CAPM formula with visual: risk-free foundation + beta multiplier × market premium = cost of equity', undefined, CF12_DIAGRAM2),
+      'CAPM formula with visual: risk-free foundation + beta multiplier × market premium = cost of equity', undefined, CF12_DIAGRAM2,
+      {
+        hint: 'Press each block in the CAPM chain to see where 11.2% actually comes from, starting at the Treasury rate and ending at the number your shareholders will not go below.',
+        recap: 'WACC is not a fact about the project, it is a fact about who paid for it. Shareholders here charge 11.2%, lenders charge 4.5% after tax, and blending them by how much of each you used gives the hurdle every project has to clear. That blended rate is the same discount rate you were using on project cash flows back in lesson 11, so a WACC that is off by two points quietly makes every NPV you calculate wrong.',
+      }),
     fb('The tax benefit of deducting interest payments from taxable income is called the tax ___.',['credit','shield','rebate','haven'],1),
     q('Company A has WACC of 8%. Company B has WACC of 14%. Both evaluate a project returning 11%. What happens?',
       ['Both should accept, an 11% return is good in absolute terms regardless of each firm\'s WACC','Both should reject, since an 11% return is never high enough to justify a real investment','A should accept (11% > 8% WACC) but B should reject (11% < 14% WACC)','The project is equally valuable to both, because WACC has no effect on whether a return is acceptable'],
@@ -2395,16 +2443,20 @@ const lessons: PathwayLesson[] = [
       'Returns come from debt paydown (most reliable), profit growth (moderate), and multiple expansion (least, market-dependent). Critics point to Toys "R" Us and Sears: cut too hard, debt too high. Defenders cite capital and expertise. Truth varies by deal.'],
       [{ term: 'Bolt-on Acquisition', definition: 'A smaller acquisition made by a PE portfolio company to add capabilities, customers, or geographic reach.', example: 'After acquiring a regional dental chain, a PE firm buys 15 smaller practices to create a national platform, a "buy and build" strategy.' },
        { term: 'Exit Strategy', definition: 'How a PE firm sells its investment, typically through IPO, sale to a strategic buyer, or sale to another PE firm.', example: 'Blackstone took Hilton public via IPO in 2013, gradually selling shares over the following years for a total $14B profit.' }],
-      'Value creation bridge: Entry EBITDA → Operational Improvement → Revenue Growth → Debt Paydown → Multiple Expansion → Exit Value', undefined, CF13_DIAGRAM2),
+      'Value creation bridge: Entry EBITDA → Operational Improvement → Revenue Growth → Debt Paydown → Multiple Expansion → Exit Value', undefined, CF13_DIAGRAM2,
+      {
+        hint: 'Press each block in the bridge. Entry EBITDA is where the money goes in and Exit Value is where it comes out, and the four blocks between them are the only places a return can possibly come from.',
+        recap: 'In the deal you just worked, the company gained 88 percent and the equity gained 329 percent, and the whole lesson lives in that gap. Lesson 4 called debt the cheaper slice of the capital structure; an LBO pushes that slice to 65 percent, and Toys "R" Us is what the same arithmetic looks like running backwards.',
+      }),
     fb('The standard private equity fee structure of 2% management fee plus 20% of profits is called ___.',['2 and 20','fee and carry','management premium','performance fee'],0),
     q('A PE firm buys a company for 8x EBITDA ($160M for $20M EBITDA) using 65% debt. Over 4 years, EBITDA grows to $30M and they sell at 10x ($300M). The remaining debt is $60M. What is the approximate equity return?',
       ['88% total return, measuring the rise in company value rather than the return on equity invested','329% equity return, ($300M - $60M debt - $56M original equity) = $184M profit on $56M invested','140% return, dividing the profit by the full $160M purchase price instead of the equity invested','50% return, applying the EBITDA growth rate as if it were the return to equity holders'],
       1,'Original equity: 35% × $160M = $56M. Exit: $300M − $60M remaining debt = $240M equity value. Profit: $184M on $56M = 329%. All three value levers fired: EBITDA grew 50%, multiple expanded from 8x to 10x, and debt paydown converted $44M of debt into equity value.'),
     tr('LBO & Private Equity Essentials',[
-      ['What makes a good LBO target?','Stable cash flows, strong market position, improvement potential, low existing debt, and valuable assets for collateral.'],
-      ['What are the three PE value creation levers?','Debt paydown (reliable), operational improvement (moderate), and multiple expansion (market-dependent).'],
-      ['Why is leverage a double-edged sword?','It amplifies both gains and losses. 70% debt turns a 20% gain into 67% equity return, but a 30% decline wipes out all equity.'],
-      ['What is the "2 and 20" model?','PE firms charge 2% annual management fee on capital plus 20% of profits above a hurdle rate (typically 8%).']
+      ['What makes a good LBO target?','Stable cash flows, strong market position, improvement potential, low existing debt, and valuable assets for collateral.', { stat: '5 boxes, and cash flow holds the veto', sprite: 'magnifier' }],
+      ['What are the three PE value creation levers?','Debt paydown (reliable), operational improvement (moderate), and multiple expansion (market-dependent).', { stat: '3 levers, only 1 is guaranteed', sprite: 'arrow-split' }],
+      ['Why is leverage a double-edged sword?','It amplifies both gains and losses. 70% debt turns a 20% gain into 67% equity return, but a 30% decline wipes out all equity.', { stat: '+20% value turns into +67% equity', sprite: 'scale-tip' }],
+      ['What is the "2 and 20" model?','PE firms charge 2% annual management fee on capital plus 20% of profits above a hurdle rate (typically 8%).', { stat: '$200M a year in fees on a $10B fund', sprite: 'paycheck' }]
     ]),
     sc('A PE firm is evaluating two LBO targets. Company A: Stable utility with $50M EBITDA, 5% growth, but already efficient. Company B: Turnaround retailer with $30M EBITDA declining 3%/year, but potential for major operational improvement. Which is better?',
       [{ label: 'Company A, stable cash flows are perfect for LBO debt service', outcome: 'Good instinct on cash flow stability, but limited upside. With only 5% growth and no improvement opportunity, returns will come mainly from debt paydown and multiple expansion, typically generating 12-15% IRR. Solid but not spectacular.', correct: true },
@@ -2485,7 +2537,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Dual-Class Shares', definition: 'A share structure where founders hold shares with 10x voting power, maintaining control even after going public.', example: 'Mark Zuckerberg controls 58% of Facebook\'s voting power with only 13% economic ownership through Class B shares (10 votes each).' },
        { term: 'Quiet Period', definition: 'SEC-mandated period before and after an IPO when the company cannot make promotional statements about the stock.', example: 'During the quiet period, the CEO cannot give media interviews hyping the stock, only the prospectus speaks.' },
        { term: 'Green Shoe Option', definition: 'An overallotment option allowing underwriters to sell up to 15% more shares than originally planned if demand is strong.', example: 'If an IPO sells 10M shares, the green shoe allows selling up to 11.5M shares to meet excess demand.' }],
-      'Decision tree: Stay Private (control, privacy, flexibility) vs. Go Public (capital, liquidity, visibility, but quarterly scrutiny and compliance costs)', undefined, CF14_DIAGRAM2),
+      'Decision tree: Stay Private (control, privacy, flexibility) vs. Go Public (capital, liquidity, visibility, but quarterly scrutiny and compliance costs)', undefined, CF14_DIAGRAM2,
+      {
+        hint: 'Press each of the three routes. Every one of them charges you something different: banker fees, the pop, or the new capital you never raise at all.',
+        recap: 'Snowflake sold shares at $120 and the market said $254 the same afternoon, so $3.75 billion of real capital went to whoever held an allocation instead of into the company. Lesson 5 taught you to value a company yourself, and pricing night is the day that skill pays: if you cannot defend your own number against the bank setting the price, that gap becomes somebody else\'s profit and it is gone permanently.',
+      }),
     fb('The SEC registration document that discloses a company\'s financials, risks, and business model before an IPO is called the ___.',['10-K','S-1','10-Q','8-K'],1),
     q('Google used a Dutch auction for its IPO instead of the traditional book-building process. Why?',
       ['It was cheaper to administer, since a Dutch auction skips the underwriting fees of a normal IPO','A Dutch auction lets the market set the price directly, minimizing the first-day pop and ensuring the company captures more of its own value instead of gifting it to institutional investors','Google\'s bankers strongly recommended it, as it gave the underwriters more control over allocations','It was required by the SEC, which mandates Dutch auctions for any technology company going public'],
@@ -2576,16 +2632,20 @@ const lessons: PathwayLesson[] = [
       'GM closed Pontiac, Saturn, Hummer and Saab, and focused on Chevrolet, Buick, GMC and Cadillac, lifting margins. In a prepackaged bankruptcy, the plan is agreed first, so Chapter 11 takes 30-60 days, not 12-18 months.'],
       [{ term: 'Workout', definition: 'An out-of-court restructuring where the company negotiates directly with creditors to modify debt terms without filing for bankruptcy.', example: 'A company might negotiate extending bond maturities from 3 years to 7 years and reducing the interest rate from 8% to 5% in a workout.' },
        { term: 'Prepackaged Bankruptcy', definition: 'A restructuring plan negotiated with creditors before filing Chapter 11, allowing rapid emergence (30-60 days vs. 12-18 months).', example: 'CEC Entertainment (Chuck E. Cheese) used a pre-pack to restructure $1.9B in debt and emerge from Chapter 11 in just 6 months during COVID.' }],
-      'Three paths from distress: Out-of-Court Workout (fastest, cheapest) → Prepackaged Chapter 11 (moderate) → Traditional Chapter 11 (longest, most expensive)', undefined, CF15_DIAGRAM2),
+      'Three paths from distress: Out-of-Court Workout (fastest, cheapest) → Prepackaged Chapter 11 (moderate) → Traditional Chapter 11 (longest, most expensive)', undefined, CF15_DIAGRAM2,
+      {
+        hint: 'Press each of the three paths. All three end with less debt, and what really separates them is how many months the word bankruptcy sits next to the company name.',
+        recap: 'Bankruptcy is not the end of a company, it is a court forcing the debt down to what the business can actually carry. The bill is paid in time: 60 days in a pre-pack against 18 months of fees and nervous customers. That is the other half of lesson 4, borrowing is cheap right up to the day you cannot pay, and after that the lenders own the decision.',
+      }),
     fb('The bankruptcy chapter that allows a company to continue operating while restructuring debts is Chapter ___.',['7','11','13','15'],1),
     q('A company\'s bonds trade at 25 cents on the dollar. A distressed investor buys $100M face value for $25M. After restructuring, bonds recover at 55 cents. What is the investor\'s return?',
       ['55% return, mistaking the 55-cent recovery rate itself for the investor\'s percentage gain','120% return, ($55M - $25M) / $25M = 120%','30% return, taking the gap between the 55-cent recovery and the 25-cent cost as the return','200% return, dividing the $55M recovery by the $25M cost without subtracting the cost first'],
       1,'Purchase: $25M. Recovery: 55% × $100M = $55M. Profit: $30M. Return: $30M/$25M = 120%. This is the distressed debt playbook, buy at deep discounts, profit from restructuring recovery.'),
     tr('Financial Distress Essentials',[
-      ['What triggers financial distress?','Declining cash flows, covenant violations, inability to service debt, credit downgrades, and negative working capital.'],
-      ['Chapter 7 vs. Chapter 11?','Chapter 7 = liquidation (company dies). Chapter 11 = reorganization (company restructures and continues operating).'],
-      ['What is the Absolute Priority Rule?','Secured creditors → Unsecured creditors → Preferred equity → Common equity. Each level must be fully paid before the next receives anything.'],
-      ['How do distressed investors profit?','Buy bonds at 20-40 cents, wait for restructuring to recover 50-80 cents. The spread is the profit.']
+      ['What triggers financial distress?','Declining cash flows, covenant violations, inability to service debt, credit downgrades, and negative working capital.', { stat: '5 red flags', sprite: 'chart-down' }],
+      ['Chapter 7 vs. Chapter 11?','Chapter 7 = liquidation (company dies). Chapter 11 = reorganization (company restructures and continues operating).', { stat: '7 vs 11', sprite: 'scales' }],
+      ['What is the Absolute Priority Rule?','Secured creditors → Unsecured creditors → Preferred equity → Common equity. Each level must be fully paid before the next receives anything.', { stat: '4 tiers', sprite: 'ladder' }],
+      ['How do distressed investors profit?','Buy bonds at 20-40 cents, wait for restructuring to recover 50-80 cents. The spread is the profit.', { stat: '30¢ in, 60¢ out', sprite: 'price-tag' }]
     ]),
     sc('You\'re on the board of a retail chain with $2B in debt and declining revenues. The company has 6 months of cash left. A creditor group offers a workout: extend maturities 3 years and reduce interest by 2%, in exchange for 30% equity. The alternative is Chapter 11. What do you recommend?',
       [{ label: 'Accept the workout, Chapter 11 would destroy the brand and scare away customers', outcome: 'Good instinct. The workout avoids $50-100M in bankruptcy costs, preserves customer confidence, and keeps control with existing management. Giving up 30% equity is painful but better than the uncertainty and cost of Chapter 11.', correct: true },
@@ -2655,7 +2715,11 @@ const lessons: PathwayLesson[] = [
       'Political risk means governments acting against business: Russia\'s seizures after the 2022 Ukraine invasion cost Western firms $60+ billion. Insurance, local partners and diversification help. Emerging markets grow 6-8% versus 2-3%, but judge risk-adjusted returns.'],
       [{ term: 'Political Risk', definition: 'The risk that government actions (regulation, expropriation, sanctions) will adversely affect business operations or investment value.', example: 'Western companies wrote off $60B+ in Russian assets after the 2022 invasion of Ukraine, political risk materialized overnight.' },
        { term: 'Country Risk Premium', definition: 'Additional return demanded by investors for investing in a country with higher political, economic, or legal risk compared to developed markets.', example: 'An investment in Brazil might require a 4-5% country risk premium above the US-based discount rate to compensate for currency volatility and political uncertainty.' }],
-      'Risk map: Developed Markets (low political risk, low returns) → Emerging Markets (moderate risk, higher returns) → Frontier Markets (high risk, highest potential returns)', undefined, CF16_DIAGRAM2),
+      'Risk map: Developed Markets (low political risk, low returns) → Emerging Markets (moderate risk, higher returns) → Frontier Markets (high risk, highest potential returns)', undefined, CF16_DIAGRAM2,
+      {
+        hint: 'Press each band of the spectrum, developed through frontier, to see what that extra return is actually paying you to accept.',
+        recap: 'This spectrum is a price list, not a ranking of good and bad countries. A frontier project has to clear a hurdle rate 4 or 5 points above the same project at home, and that is exactly the discount rate you built in lesson 12: raise the rate for the risk, then let the numbers say whether the growth is worth it.',
+      }),
     fb('The strategy of matching revenue and cost currencies through local production to reduce currency risk is called ___ hedging.',['financial','natural','synthetic','speculative'],1),
     q('Microsoft reports €5B in European revenue. The dollar strengthens 10% against the Euro. What happens to Microsoft\'s reported revenue (in dollars)?',
       ['Increases ~10%, assuming a stronger dollar lifts the dollar value of euro-denominated sales','Decreases ~10%, the same Euros translate into fewer dollars, reducing reported revenue by ~$500M','Stays the same, since the European business itself did not change its underlying performance','Increases by €500M, confusing the currency effect with real growth in the European unit'],
@@ -2731,7 +2795,11 @@ const lessons: PathwayLesson[] = [
       [{ term: 'Investment Grade', definition: 'Bonds rated BBB/Baa or above by rating agencies. Lower default risk, lower yields. Eligible for most institutional portfolios.', example: 'Apple\'s AA+ rated bonds yield about 0.5-1% above treasuries, extremely cheap debt for the company.' },
        { term: 'High-Yield (Junk) Bonds', definition: 'Bonds rated below BBB/Baa. Higher default risk, higher yields. Also called "speculative grade" or "junk bonds."', example: 'A BB-rated company might issue bonds at 7-8% when treasuries yield 4%, the 3-4% spread compensates for 2-3% annual default probability.' },
        { term: 'Maturity Wall', definition: 'A concentration of debt maturities in a short period, creating refinancing risk if market conditions are unfavorable.', example: 'A company with $5B in bonds maturing in 2025-2026 faces a "maturity wall", if rates are high and credit is tight, refinancing becomes expensive or impossible.' }],
-      'Spectrum: Bank Loans (flexible, floating rate, smaller) → Investment Grade Bonds (fixed rate, large, cheap) → High-Yield Bonds (expensive, growth-oriented) → Leveraged Loans (PE-backed, covenant-lite)', undefined, CF17_DIAGRAM2),
+      'Spectrum: Bank Loans (flexible, floating rate, smaller) → Investment Grade Bonds (fixed rate, large, cheap) → High-Yield Bonds (expensive, growth-oriented) → Leveraged Loans (PE-backed, covenant-lite)', undefined, CF17_DIAGRAM2,
+      {
+        hint: 'Press any of the four stops on this spectrum, from bank loans out to leveraged loans, and I will tell you what that borrower actually pays and who is willing to lend to them.',
+        recap: 'Moving right along this spectrum is not a change of product, it is a change of price: the paperwork is nearly identical from Apple to a junk issuer, and the 2.6% versus 8% gap is almost entirely the lender\'s guess about getting paid back. Lesson 4 asked debt or equity as if debt were one thing. It is four things, and which one you qualify for is decided by your credit, not your preference.',
+      }),
     fb('The additional yield a corporate bond pays above a risk-free treasury bond is called the credit ___.',['premium','spread','margin','buffer'],1),
     q('Apple had $145B in cash but issued $17B in bonds at 2.4% after-tax cost. Why borrow when you have cash?',
       ['Apple genuinely could not access its cash, since the $145B was frozen and unavailable to spend','The after-tax cost of debt (2.4%) was far cheaper than repatriating overseas cash at a 35% tax rate, borrowing domestically and using foreign cash for international operations was value-maximizing','Apple\'s CFO simply made a mistake, since a company with that much cash never needs to borrow','Bond markets required it, forcing any large company to issue debt before it can use its own cash'],
@@ -2812,16 +2880,20 @@ const lessons: PathwayLesson[] = [
       'Free cash flow (FCF) is operating cash flow minus capital spending. Profit can look positive while FCF is negative, as Enron showed for years. A FCF to net income ratio under 0.8 is a red flag.'],
       [{ term: 'Free Cash Flow (FCF)', definition: 'Operating Cash Flow minus Capital Expenditures. Cash available to all capital providers after maintaining and growing the business.', example: 'Apple: $110B operating cash flow − $11B CapEx = $99B in FCF, the engine behind $600B+ in shareholder returns.' },
        { term: 'Cash Conversion Ratio', definition: 'FCF ÷ Net Income. Measures how efficiently a company converts accounting profits into real cash. Above 1.0 is ideal.', example: 'A cash conversion ratio of 1.2 means the company generates 20% more cash than reported profits, strong quality of earnings.' }],
-      'Three columns: Operating CF (core business cash) → Investing CF (growth spending) → Financing CF (capital provider flows) → Net change in cash position', undefined, CF18_DIAGRAM2),
+      'Three columns: Operating CF (core business cash) → Investing CF (growth spending) → Financing CF (capital provider flows) → Net change in cash position', undefined, CF18_DIAGRAM2,
+      {
+        hint: 'Press each of the three columns. Only one of them actually brings money in, the other two mostly send it out, and which column a company leans on tells you how long it can keep going.',
+        recap: 'Free cash flow is just the first column minus the second: $110 billion in from customers, $11 billion out on equipment, $99 billion left over. Lesson 2 showed you an income statement where profit depends on timing choices somebody made. This statement has to match the bank balance, which is why Enron could post rising profits for years while the cash was quietly running the other way.',
+      }),
     fb('The most important cash flow metric, calculated as Operating Cash Flow minus Capital Expenditures, is called ___ Cash Flow.',['Gross','Net','Free','Total'],2),
     q('Company A: Net Income $500M, FCF $600M. Company B: Net Income $500M, FCF $200M. Which has better earnings quality?',
       ['Both are equal, since they report the same net income and net income is what defines quality','Company A, its FCF exceeds net income (1.2x cash conversion), indicating high-quality sustainable earnings','Company B, a lower FCF means the company is plowing more cash back into growth investments','Cannot determine, because earnings quality cannot be judged from net income and FCF alone'],
       1,'Company A converts 120% of net income to cash, excellent quality. Company B converts only 40%, a red flag suggesting aggressive revenue recognition, inventory buildup, or delayed CapEx maintenance. Cash doesn\'t lie; accounting earnings can.'),
     tr('Treasury Management Essentials',[
-      ['What is the 13-week cash flow forecast?','A rolling quarterly projection of all expected cash inflows and outflows, used to ensure the company can meet obligations and identify investment opportunities.'],
-      ['What is the SLR hierarchy?','Safety → Liquidity → Return. Corporate treasurers prioritize not losing money, then accessibility, then yield, the opposite of most investment approaches.'],
-      ['What caused SVB\'s collapse?','Duration mismatch: short-term deposits invested in long-term bonds. When rates rose, bonds lost $17B in value, triggering a bank run.'],
-      ['Why is FCF more reliable than net income?','FCF represents actual cash generated; net income can be manipulated through accounting choices. Enron had positive net income but negative FCF for years before collapse.']
+      ['What is the 13-week cash flow forecast?','A rolling quarterly projection of all expected cash inflows and outflows, used to ensure the company can meet obligations and identify investment opportunities.', { stat: '13 weeks out', sprite: 'compass' }],
+      ['What is the SLR hierarchy?','Safety → Liquidity → Return. Corporate treasurers prioritize not losing money, then accessibility, then yield, the opposite of most investment approaches.', { stat: 'Return ranks last of three', sprite: 'ladder' }],
+      ['What caused SVB\'s collapse?','Duration mismatch: short-term deposits invested in long-term bonds. When rates rose, bonds lost $17B in value, triggering a bank run.', { stat: '$17B of bond losses', sprite: 'scale-tip' }],
+      ['Why is FCF more reliable than net income?','FCF represents actual cash generated; net income can be manipulated through accounting choices. Enron had positive net income but negative FCF for years before collapse.', { stat: 'Below 0.8x is a red flag', sprite: 'magnifier' }]
     ]),
     sc('You\'re the treasurer of a tech company with $2B in cash. The CEO wants to invest 60% in higher-yielding corporate bonds (2-3 year maturity) and 40% in money market funds. Your operating expenses are $300M/month. What\'s your recommendation?',
       [{ label: 'Agree with the CEO, the higher yield on corporate bonds will generate $20-30M more per year', outcome: 'Dangerous. $1.2B in 2-3 year bonds is illiquid relative to $300M/month in operating expenses. If a downturn hits and revenue drops, you need that cash accessible. SVB failed precisely because of this duration mismatch.', correct: false },
@@ -2892,7 +2964,11 @@ const lessons: PathwayLesson[] = [
       'What counts varies by industry: carbon for energy firms, water for semiconductors. SASB, the Sustainability Accounting Standards Board, maps material factors for 77 industries. Rigorous ESG catches risks like Deepwater Horizon and VW\'s emissions fraud, marketing labels do not.'],
       [{ term: 'Materiality', definition: 'The concept that specific ESG factors vary in financial relevance by industry, only material factors should affect valuation.', example: 'Carbon emissions are highly material for utilities (regulated, carbon-taxed) but low materiality for a software company with minimal emissions.' },
        { term: 'Greenwashing', definition: 'Making misleading claims about a company\'s or product\'s environmental credentials to attract ESG-conscious investors or customers.', example: 'A fossil fuel company claiming to be "net zero by 2050" without a credible transition plan, stated ambitions without concrete actions.' }],
-      'Valuation impact flowchart: ESG Factors → Revenue, Costs, WACC, Terminal Value → Adjusted DCF → ESG-Integrated Fair Value', undefined, CF19_DIAGRAM2),
+      'Valuation impact flowchart: ESG Factors → Revenue, Costs, WACC, Terminal Value → Adjusted DCF → ESG-Integrated Fair Value', undefined, CF19_DIAGRAM2,
+      {
+        hint: 'Press any box in this chain to see where sustainability actually touches the price. One of the four inputs swallows most of the value, and it is not the obvious one.',
+        recap: 'ESG only counts as finance when it lands on one of those four inputs: revenue, costs, WACC or terminal value. Lesson 5 gave you the DCF and lesson 12 gave you WACC, and this lesson replaces neither. It changes what you feed them. That is the whole gap between BP losing 36 percent of its value in one afternoon and a company that priced the risk before the well blew.',
+      }),
     fb('A bond where proceeds are specifically allocated to environmental projects is called a ___ bond.',['social','sustainability','green','impact'],2),
     q('Volkswagen\'s emissions fraud cost $33 billion. This is an example of which ESG risk category?',
       ['Environmental only, since the scandal was entirely about the level of emissions from the cars','Social only, since the harm was limited to deceiving the public about vehicle performance','Governance only, the fraud was a failure of internal controls, board oversight, and corporate culture','All three: Environmental (emissions), Social (public health deception), and Governance (management fraud and board failure)'],
@@ -2973,16 +3049,20 @@ const lessons: PathwayLesson[] = [
       'AML (anti-money laundering) and KYC (know your customer) rules make banks verify identities and watch transactions. Penalties bite: HSBC paid $1.9B. Danske Bank faced $2B+ for €200B in suspicious Russian flows. Regulators now use AI too.'],
       [{ term: 'Three Lines of Defense', definition: 'A governance model where business units (1st), compliance functions (2nd), and internal audit (3rd) each play distinct roles in managing risk and ensuring regulatory compliance.', example: 'A trader (1st line) follows trading limits. Compliance (2nd line) monitors for breaches. Internal audit (3rd line) tests whether monitoring is effective.' },
        { term: 'AML/KYC', definition: 'Anti-Money Laundering and Know Your Customer, regulations requiring financial institutions to verify identities and monitor for illicit financial activity.', example: 'Opening a bank account requires government ID verification, source-of-funds documentation, and ongoing transaction monitoring, all KYC/AML requirements.' }],
-      'Three Lines of Defense: 1st Line (Business, owns risk) → 2nd Line (Compliance, monitors) → 3rd Line (Internal Audit, verifies) → Board/Regulators (oversee all)', undefined, CF20_DIAGRAM2),
+      'Three Lines of Defense: 1st Line (Business, owns risk) → 2nd Line (Compliance, monitors) → 3rd Line (Internal Audit, verifies) → Board/Regulators (oversee all)', undefined, CF20_DIAGRAM2,
+      {
+        hint: 'Press each of the three boxes. All three of these failed at Wirecard, and the one sitting at the top is the reason the other two never had a chance.',
+        recap: 'Rules only work in layers, and the top layer decides whether the other two matter. Lesson 10 called governance the people watching the company from inside. Regulation is that same job done from outside, and it only ever gets written after the inside version fails: Enron bought you SOX, 2008 bought you Dodd-Frank. Every date on that timeline is a crisis somebody already paid for.',
+      }),
     fb('The Dodd-Frank provision prohibiting banks from proprietary trading is called the ___ Rule.',['Volcker','Glass','Sherman','Clayton'],0),
     q('HSBC paid $1.9B in fines for AML failures. Danske Bank faced $2B+ for €200B in suspicious flows. What do these cases demonstrate?',
       ['AML regulations are too strict','The cost of compliance failure far exceeds the cost of compliance, and criminal penalties can threaten institutional survival','Banks should avoid international operations','Regulators are unfair to banks'],
       1,'$1.9B and $2B+ in fines vs. perhaps $50-100M/year in robust AML systems. The math is clear: invest in compliance or face existential penalties. Both cases also led to criminal charges against individual executives.'),
     tr('Financial Regulation Essentials',[
-      ['What triggered SOX?','Enron and WorldCom accounting frauds. SOX requires CEO/CFO certification, independent audits, and internal controls testing.'],
-      ['What triggered Dodd-Frank?','The 2008 financial crisis. Dodd-Frank imposed stress tests, restricted proprietary trading (Volcker Rule), and created consumer protections.'],
-      ['What is Basel III?','International banking capital requirements: minimum 4.5% CET1 ratio, liquidity coverage ratio, and leverage limits. Banks now hold 2-3x the capital they had in 2008.'],
-      ['What are the three lines of defense?','Business units own risk (1st), compliance monitors and advises (2nd), internal audit independently verifies (3rd).']
+      ['What triggered SOX?','Enron and WorldCom accounting frauds. SOX requires CEO/CFO certification, independent audits, and internal controls testing.', { stat: 'Signed 7 months after Enron', sprite: 'stopwatch' }],
+      ['What triggered Dodd-Frank?','The 2008 financial crisis. Dodd-Frank imposed stress tests, restricted proprietary trading (Volcker Rule), and created consumer protections.', { stat: '2,300 pages', sprite: 'bank-run' }],
+      ['What is Basel III?','International banking capital requirements: minimum 4.5% CET1 ratio, liquidity coverage ratio, and leverage limits. Banks now hold 2-3x the capital they had in 2008.', { stat: 'Up from 2% under Basel II', sprite: 'piggy-bank' }],
+      ['What are the three lines of defense?','Business units own risk (1st), compliance monitors and advises (2nd), internal audit independently verifies (3rd).', { stat: '3 lines, 1 fully independent', sprite: 'check-badge' }]
     ]),
     sc('Your company is preparing for its first SOX audit. The CFO wants to minimize compliance costs by testing only "the most important" controls. The auditor insists on testing all material controls. What do you advise?',
       [{ label: 'Side with the CFO, testing fewer controls saves money', outcome: 'Dangerous shortcut. SOX Section 404 requires testing ALL material controls. If the auditor issues an adverse opinion on internal controls, the stock price typically drops 5-10% and institutional investors flee. The $500K saved on testing is dwarfed by potential losses.', correct: false },
@@ -3052,7 +3132,11 @@ const lessons: PathwayLesson[] = [
       'A down round means raising at a lower valuation. In 2022-2023, the zero interest rate phenomenon hangover hit: startups priced at 50-100x revenue in 2021 raised at 10-20x. Instacart fell from $39B to $13B, Stripe from $95B to $50B.'],
       [{ term: 'SAFE', definition: 'Simple Agreement for Future Equity, a seed-stage investment instrument that converts to equity at the next priced round, with a valuation cap and/or discount.', example: 'An investor puts in $500K via SAFE with a $10M cap. At Series A valued at $20M, the SAFE converts at the $10M cap, giving the investor 2x the shares they\'d get at Series A price.' },
        { term: 'Down Round', definition: 'A funding round at a lower valuation than the previous round, triggering anti-dilution protections and signaling company distress.', example: 'Instacart raised at $39B in 2021, then was valued at $13B in 2023, a 67% down round that massively diluted earlier investors.' }],
-      'Term sheet anatomy: Valuation (headline) → Liquidation Preference (who gets paid first) → Anti-Dilution (downside protection) → Board Composition (who controls decisions) → Vesting (founder commitment)', undefined, CF21_DIAGRAM2),
+      'Term sheet anatomy: Valuation (headline) → Liquidation Preference (who gets paid first) → Anti-Dilution (downside protection) → Board Composition (who controls decisions) → Vesting (founder commitment)', undefined, CF21_DIAGRAM2,
+      {
+        hint: 'Press each of the four boxes on this term sheet. Valuation is the box everyone quotes, and it is the box that protects you least.',
+        recap: 'Judge the whole package, never the headline. A 30 million valuation carrying a 2x participating preference pays founders less than a 20 million valuation with clean 1x terms in almost every exit below 100 million. Lesson 15 showed you the distress waterfall, where senior claims swallow the estate before anyone junior is paid: a liquidation preference builds that same waterfall into a company that is doing perfectly well, and it puts the founders at the bottom of it.',
+      }),
     fb('In venture capital, the distribution where a few massive winners generate most returns is called the ___ law.',['power','Pareto','normal','exponential'],0),
     q('A VC invests $10M at a $40M post-money valuation with a 1x participating liquidation preference. The company later sells for $30M. How much does the VC receive?',
       ['$7.5M (their 25% share)','$10M liquidation preference first, then 25% of remaining $20M = $10M + $5M = $15M','$10M (just their money back)','$30M (everything)'],
@@ -3134,16 +3218,20 @@ const lessons: PathwayLesson[] = [
       'Every metric can be gamed: options reward risky bets, and bonuses tied to EPS, earnings per share, favor buybacks over research. Use several metrics. Broad employee ownership helps too: at Microsoft, thousands of employees became millionaires as equity paid off.'],
       [{ term: 'Total Shareholder Return (TSR)', definition: 'Stock price appreciation plus dividends, the total return shareholders receive. Often used as a performance metric relative to a peer group.', example: 'A CEO\'s performance shares vest only if the company\'s 3-year TSR is in the top quartile versus its peer group, rewarding relative outperformance.' },
        { term: 'ESOP', definition: 'Employee Stock Ownership Plan, a retirement plan that invests primarily in company stock, giving all employees an ownership stake.', example: 'Publix Super Markets is 100% employee-owned through its ESOP, with employees collectively owning $40B+ in company stock.' }],
-      'Compensation matrix: Metric (Revenue, EPS, TSR, ROIC) × Time Horizon (1-year bonus, 3-year vesting, 5-year performance) → Balanced alignment', undefined, CF22_DIAGRAM2),
+      'Compensation matrix: Metric (Revenue, EPS, TSR, ROIC) × Time Horizon (1-year bonus, 3-year vesting, 5-year performance) → Balanced alignment', undefined, CF22_DIAGRAM2,
+      {
+        hint: 'Press each of the three principles. They are not three ways of saying the same thing: one sets what the pay depends on, one sets how long you wait for it, and one sets what happens when the number goes the wrong way.',
+        recap: 'The whole lesson is one sentence: whatever you measure is what you get. A bonus tied to EPS is a standing order to buy back stock, which is the exact lever you met in lesson 8, and it costs the CEO nothing to pull. That is why the design that worked paid $0 until $50B became $1.2T, and why the design that failed handed over $484M with no way to take any of it back.',
+      }),
     fb('The governance mechanism giving shareholders a non-binding vote on executive pay is called "Say on ___."',['Pay','Compensation','Performance','Stock'],0),
     q('Dick Fuld earned $484M from Lehman while shareholders lost everything. Elon Musk earned $56B from Tesla while shareholders earned 24x. What\'s the key design difference?',
       ['Fuld was paid more','Musk was paid entirely in performance-based equity that was worthless unless shareholders earned massive returns. Fuld was paid in salary, bonuses, and time-vested equity regardless of long-term outcomes.','Musk worked harder','The companies were in different industries'],
       1,'Musk\'s compensation was all-or-nothing: $0 unless Tesla hit market cap and operational milestones. Fuld\'s was heavily weighted toward annual cash and bonuses that rewarded short-term metrics. The design determined the alignment.'),
     tr('Executive Compensation Essentials',[
-      ['What are the four components of CEO pay?','Base salary (10-15%), annual bonus (15-25%), stock options (25-35%), and performance shares/RSUs (25-35%).'],
-      ['What is the principal-agent problem?','Shareholders want long-term value; managers might prefer short-term gains, perks, or risk avoidance. Compensation tries to align these interests.'],
-      ['What is a clawback provision?','A requirement for executives to return compensation if financial results are restated. The SEC mandated universal clawbacks in 2023.'],
-      ['Why is the CEO-to-worker ratio controversial?','At 340:1, critics say it reflects governance capture. Defenders say it reflects scarce talent pricing. Both have merit.']
+      ['What are the four components of CEO pay?','Base salary (10-15%), annual bonus (15-25%), stock options (25-35%), and performance shares/RSUs (25-35%).', { stat: 'About 65% of it is equity', sprite: 'pie-slice' }],
+      ['What is the principal-agent problem?','Shareholders want long-term value; managers might prefer short-term gains, perks, or risk avoidance. Compensation tries to align these interests.', { stat: 'Two clocks, one wallet', sprite: 'arrow-split' }],
+      ['What is a clawback provision?','A requirement for executives to return compensation if financial results are restated. The SEC mandated universal clawbacks in 2023.', { stat: '$75M pulled back from Stumpf', sprite: 'magnet' }],
+      ['Why is the CEO-to-worker ratio controversial?','At 340:1, critics say it reflects governance capture. Defenders say it reflects scarce talent pricing. Both have merit.', { stat: '340:1', sprite: 'wage-gap' }]
     ]),
     sc('The compensation committee is designing a new CEO pay package. Option A: $2M salary + $5M cash bonus tied to annual EPS + $10M in time-vested RSUs. Option B: $1M salary + $2M cash bonus + $15M in performance shares vesting only if 3-year TSR exceeds the peer median. Which is better?',
       [{ label: 'Option A, more cash provides security and the RSUs provide equity alignment', outcome: 'Weak alignment. The $5M EPS bonus incentivizes buybacks over investment. Time-vested RSUs reward tenure, not performance, the CEO gets $10M just for staying, even if the stock drops 50%. Total pay has minimal connection to shareholder outcomes.', correct: false },
@@ -3214,7 +3302,11 @@ const lessons: PathwayLesson[] = [
       'Stock pay is a shield too: Amazon deducts the share value when options vest, $10B+ a year, holding its effective rate below 21%. The 2017 TCJA cut 35% to 21%, lifting after-tax earnings ~20%; a reversal would hurt.'],
       [{ term: 'TCJA', definition: 'Tax Cuts and Jobs Act (2017), reduced the US federal corporate tax rate from 35% to 21% and moved to a territorial system for international taxation.', example: 'The TCJA increased S&P 500 after-tax earnings by approximately 20%, contributing to the stock market rally from 2018-2019.' },
        { term: 'Territorial System', definition: 'A tax system where a country taxes only domestic income, not foreign income. Replaced the US worldwide system under the TCJA.', example: 'Under the old system, Apple owed US taxes on all global profits. Under the territorial system, only US-sourced profits are taxed at the US rate.' }],
-      'Decision matrix: Tax Factor × Business Decision = Capital Structure (debt vs. equity) × Location (state/country) × Investment (accelerated depreciation) × M&A (asset vs. stock deal)', undefined, CF23_DIAGRAM2),
+      'Decision matrix: Tax Factor × Business Decision = Capital Structure (debt vs. equity) × Location (state/country) × Investment (accelerated depreciation) × M&A (asset vs. stock deal)', undefined, CF23_DIAGRAM2,
+      {
+        hint: 'Press each of the four decisions. Every one is a spot where the tax code changes what a CFO actually does, not just what gets reported afterward.',
+        recap: 'None of these four are tricks bolted on at the end of the year. Back in lesson 4, debt looked cheaper than equity, and this is the whole reason why: interest is deductible and dividends are not. Tax is not a bill that arrives after the decisions, it is sitting inside them.',
+      }),
     fb('The 2017 law that reduced the US corporate tax rate from 35% to 21% is called the Tax Cuts and ___ Act.',['Reform','Jobs','Recovery','Growth'],1),
     q('Amazon reports $21.3B pre-tax income but pays only 9.4% effective tax. Is this legal?',
       ['No, Amazon is evading taxes','Yes, Amazon uses legal strategies: accelerated depreciation on warehouses, R&D credits, stock compensation deductions, and loss carryforwards from its unprofitable years','Amazon doesn\'t pay any taxes','Only the US portion is legal'],
@@ -3298,16 +3390,20 @@ const lessons: PathwayLesson[] = [
       'Companies hedge with derivatives: interest rate swaps trade fixed for floating rates ($400T+ notional), currency forwards lock exchange rates, commodity futures fix input costs. Next: tokenization, parametric insurance that pays out automatically when a measured event happens, and AI-driven products.'],
       [{ term: 'CLO', definition: 'Collateralized Loan Obligation, a structured product that pools corporate loans and issues tranches, similar to MBS but with corporate rather than mortgage loans.', example: 'A CLO pools 200 leveraged loans from PE-backed companies, issues AAA-rated senior tranches yielding 5% and equity tranches yielding 15-20%.' },
        { term: 'Interest Rate Swap', definition: 'A derivative where two parties exchange interest rate cash flows, typically fixed for floating, to manage rate risk.', example: 'A company with floating-rate debt swaps to fixed rate: it pays 4% fixed and receives SOFR floating, locking in its interest cost.' }],
-      'Evolution: Simple Bonds → MBS/ABS (1980s) → CDOs (1990s) → Crisis (2008) → Simpler CLOs, Better Regulation (2010s) → Tokenization/AI (2020s)', undefined, CF24_DIAGRAM2),
+      'Evolution: Simple Bonds → MBS/ABS (1980s) → CDOs (1990s) → Crisis (2008) → Simpler CLOs, Better Regulation (2010s) → Tokenization/AI (2020s)', undefined, CF24_DIAGRAM2,
+      {
+        hint: 'Press each stage of the timeline. Every step adds one more layer between you and the person actually making the mortgage payment, and the number of layers is the whole story.',
+        recap: 'Every step on this timeline moved risk, none of it deleted any. The $1B pool lost the same money however it was sliced; tranching only decided who ate it first. That is the exact capital structure ladder from lesson 4, senior debt on top and equity at the bottom, wrapped around a pile of loans instead of a company. So when someone hands you a AAA stamp, ask what sits underneath it and how thick that cushion really is.',
+      }),
     fb('The process of pooling loans and issuing securities backed by those loan payments is called ___.',['securitization','consolidation','aggregation','syndication'],0),
     q('AIG sold $440B in Credit Default Swaps without adequate capital reserves. When mortgage defaults spiked, what happened?',
       ['AIG earned record profits','AIG couldn\'t pay CDS claims and required a $182B government bailout, the largest corporate rescue in US history, because AIG\'s failure would have cascaded through the entire financial system','AIG restructured its debt','Nothing, CDS are risk-free'],
       1,'AIG treated CDS premiums as free income, never expecting to pay claims. When the housing market collapsed, AIG owed far more than it could pay. The government stepped in because AIG\'s counterparties (every major bank) would have faced catastrophic losses if AIG defaulted.'),
     tr('Financial Engineering Essentials',[
-      ['What is securitization?','Pooling financial assets and issuing securities backed by the pool\'s cash flows. Banks transfer risk and recycle capital; investors access diversified asset-backed securities.'],
-      ['How does tranching work?','A pool is divided into layers: senior (safest, lowest yield, last to absorb losses), mezzanine (moderate), and equity (riskiest, highest yield, first to absorb losses).'],
-      ['What caused the 2008 CDO crisis?','CDOs of subprime MBS were rated AAA by agencies using flawed models. When housing prices fell broadly, "safe" tranches suffered massive losses, $300B+ in AAA securities.'],
-      ['What is a Credit Default Swap?','Insurance on bonds, one party pays premiums, the other pays if the bond defaults. AIG sold $440B in CDS without reserves, requiring a $182B bailout.']
+      ['What is securitization?','Pooling financial assets and issuing securities backed by the pool\'s cash flows. Banks transfer risk and recycle capital; investors access diversified asset-backed securities.', { stat: '10,000 loans, 1 bond', sprite: 'bank' }],
+      ['How does tranching work?','A pool is divided into layers: senior (safest, lowest yield, last to absorb losses), mezzanine (moderate), and equity (riskiest, highest yield, first to absorb losses).', { stat: '70 / 20 / 10', sprite: 'pie-slice' }],
+      ['What caused the 2008 CDO crisis?','CDOs of subprime MBS were rated AAA by agencies using flawed models. When housing prices fell broadly, "safe" tranches suffered massive losses, $300B+ in AAA securities.', { stat: '83% stamped AAA', sprite: 'chart-down' }],
+      ['What is a Credit Default Swap?','Insurance on bonds, one party pays premiums, the other pays if the bond defaults. AIG sold $440B in CDS without reserves, requiring a $182B bailout.', { stat: '$440B sold, $0 reserved', sprite: 'umbrella' }]
     ]),
     sc('A bank proposes creating a CDO from your company\'s corporate loans. They\'ll package 500 loans, tranche them, and sell the tranches to investors. This frees up $2B in capital. But you\'d lose the ongoing relationship with borrowers. What do you recommend?',
       [{ label: 'Securitize everything, $2B in freed capital is too valuable to pass up', outcome: 'The 2008 crisis started with exactly this reasoning. When originators sell all loans, they lose incentive to maintain underwriting standards (moral hazard). Freed capital is only valuable if the originate-to-distribute model maintains credit quality. Full securitization without retention is dangerous.', correct: false },
@@ -3374,7 +3470,11 @@ const lessons: PathwayLesson[] = [
       ['The CFO links operations and financial markets. Building a factory changes CapEx, spending on assets, plus depreciation and free cash flow. Borrowing limits flexibility through covenants, the rules lenders attach to loans.',
       'Value dies when you chase one metric like EPS, earnings per share, ignore risk until a crisis, or let short-term pay drive strategy. The test: judge a downturn acquisition funded by junk bonds in a foreign currency.'],
       [{ term: 'Financial Flexibility', definition: 'Maintaining unused debt capacity, cash reserves, and credit facilities to capitalize on opportunities (discounted acquisitions, investment in downturns) when competitors are constrained.', example: 'JPMorgan\'s $50B+ excess capital allowed it to acquire First Republic during the 2023 banking crisis, an opportunity available only to the financially prepared.' }],
-      'The Integrated CFO: Strategist (what to invest in) + Architect (how to finance it) + Guardian (how to protect it) + Communicator (how to explain it to markets)', undefined, CF25_DIAGRAM2),
+      'The Integrated CFO: Strategist (what to invest in) + Architect (how to finance it) + Guardian (how to protect it) + Communicator (how to explain it to markets)', undefined, CF25_DIAGRAM2,
+      {
+        hint: 'Press each of the four roles. Most people think the CFO job is only the first two, and the fourth one is where GE lost the bulk of that 420 billion.',
+        recap: 'Every lesson in this course was one of these four roles wearing a different name. Lesson 11 taught you to rank projects, lesson 12 gave you the WACC those projects must beat, and here is the piece it took 25 lessons to earn: the WACC you choose as Architect is the same number you screen with as Strategist. Move one and you have silently moved the other.',
+      }),
     simulationFinale('Chief Financial Officer','You\'re the newly appointed CFO of a $5B revenue technology company. The company has $1B in cash, $2B in debt (at 5%), growing revenue at 15%/year, and a stock price of $100. The board presents three strategic priorities requiring your integrated analysis.',
       [{ prompt: 'Priority 1: A competitor is available for acquisition at $3B (8x EBITDA). Your DCF says fair value is $2.5B. Comparable transactions average 9x. The deal would add $500M in revenue with $80M in synergies. How do you evaluate this?',
          options: [

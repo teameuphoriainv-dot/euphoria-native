@@ -1,0 +1,19 @@
+steps:
+  - tool: restart-app
+    args:
+      bundleId: com.euphoriainv.euphoria
+  - wait: 1500
+  - tool: open-url
+    args:
+      url: "euphorianative://lesson?course=investing-fundamentals&num=1"
+  - wait: 3000
+  - echo: Continue is centred at 220,867 on the measured 440x956 6.9-inch capture screen.
+  - tap:
+      x: 0.5
+      y: 0.907
+  - wait: 1800
+  - echo: The Earning 8% row is centred at 220,488 on the same measured capture screen.
+  - tap:
+      x: 0.5
+      y: 0.51
+  - wait: 1200

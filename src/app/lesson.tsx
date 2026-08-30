@@ -129,6 +129,8 @@ export default function Lesson() {
   const [hinted, setHinted] = useState(false);
   const [outOfHearts, setOutOfHearts] = useState(false);
   const [solved, setSolved] = useState(false);
+  /** Rewritten teaching slides with authored recaps hand Continue to Atlas first. */
+  const [showRecap, setShowRecap] = useState(false);
   /** 17c. Holds the post-lesson navigation open so the reward offer can land on the win. */
   const [trialReward, setTrialReward] = useState(false);
   /** 17d. Raised when the hard wall is dismissed and a better ask is still unspent. */
@@ -163,12 +165,17 @@ export default function Lesson() {
       setOutOfHearts(true);
       return;
     }
+    if (norm?.kind === 'prose' && norm.atlas?.recap && !showRecap) {
+      setShowRecap(true);
+      return;
+    }
     if (idx < STREAK) {
       setIdx(idx + 1);
       setPick(null);
       setChecked(false);
       setSolved(false);
       setHinted(false);
+      setShowRecap(false);
     } else {
       // 17b funnel: first_lesson_completed, the activation step. Sampled BEFORE the call, because
       // `completeLesson` is what makes the count non-zero — reading it afterwards can never see the
@@ -373,7 +380,7 @@ export default function Lesson() {
   const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && !solved;
 
   const gated = norm ? gates(norm) && !solved : false;
-  const ctaLabel = isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
+  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
   const ctaDisabled = (isChoice && !checked && pick === null) || gated;
 
   return (
@@ -508,8 +515,26 @@ export default function Lesson() {
         {norm && (
           <Animated.View key={`s${idx}`} entering={FadeInDown} exiting={FadeOut} style={styles.stepBody}>
             {norm.kind === 'prose' && (
-              <>
-                <LessonProse label={norm.label} title={norm.title} blocks={norm.blocks} />
+              showRecap && norm.atlas?.recap ? (
+                <ScrollView
+                  style={styles.midScroll}
+                  contentContainerStyle={styles.recapContent}
+                  showsVerticalScrollIndicator={false}>
+                  <Atlas size={92} expression="happy" interactive={false} />
+                  <AtlasSpeech
+                    text={norm.atlas.recap}
+                    tail="top"
+                    tailAlign="center"
+                    maxWidth={320}
+                  />
+                </ScrollView>
+              ) : <>
+                <LessonProse
+                  label={norm.label}
+                  title={norm.title}
+                  blocks={norm.blocks}
+                  atlasHint={norm.atlas?.hint}
+                />
                 {/*
                   * THE INTERACTIVE LAB, offered beside the prose rather than instead of it.
                   *
@@ -816,6 +841,7 @@ const styles = StyleSheet.create({
   /** Questions start at the TOP rather than centred — a long prompt centred vertically pushes
    *  its own options off both ends. */
   choiceContent: { flexGrow: 1, paddingBottom: FOOTER_CLEARANCE },
+  recapContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, paddingBottom: FOOTER_CLEARANCE },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // paddingHorizontal matches `center` below. Without it the title ran into the screen edge
