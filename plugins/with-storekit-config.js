@@ -5,7 +5,9 @@ const { withDangerousMod } = require('@expo/config-plugins');
 
 const STOREKIT_REFERENCE = [
   '      <StoreKitConfigurationFileReference',
-  '         identifier = "../Configuration.storekit">',
+  // Scheme paths are resolved from xcshareddata/xcschemes, not from the
+  // .xcodeproj bundle root. The copied file lives beside the project in ios/.
+  '         identifier = "../../../Configuration.storekit">',
   '      </StoreKitConfigurationFileReference>',
 ].join('\n');
 

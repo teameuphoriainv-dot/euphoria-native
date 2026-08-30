@@ -76,6 +76,14 @@ async function request(method, resourcePath, body) {
 
 const get = (resourcePath) => request('GET', resourcePath);
 
+async function optionalGet(resourcePath) {
+  try {
+    return { ok: true, value: await get(resourcePath) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 const encode = (params) => new URLSearchParams(params).toString();
 
 try {
@@ -100,7 +108,16 @@ try {
     );
     const groupSubscriptions = (detail.included ?? [])
       .filter((item) => item.type === 'subscriptions')
-      .map((item) => ({ id: item.id, ...item.attributes }))
+      .map((item) => ({
+        id: item.id,
+        name: item.attributes?.name,
+        productId: item.attributes?.productId,
+        familySharable: item.attributes?.familySharable,
+        state: item.attributes?.state,
+        subscriptionPeriod: item.attributes?.subscriptionPeriod,
+        groupLevel: item.attributes?.groupLevel,
+        reviewNoteLength: null,
+      }))
       .sort((a, b) => String(a.productId).localeCompare(String(b.productId)));
     subscriptionGroups.push({ id: group.id, ...group.attributes, subscriptions: groupSubscriptions });
     subscriptions.push(...groupSubscriptions);
@@ -108,10 +125,127 @@ try {
 
   const versionQuery = encode({
     'filter[platform]': 'IOS',
+    include: 'build',
     limit: '10',
-    'fields[appStoreVersions]': 'versionString,appStoreState,appVersionState,createdDate',
+    'fields[appStoreVersions]': 'versionString,appStoreState,appVersionState,createdDate,build',
+    'fields[builds]': 'version,uploadedDate,expirationDate,expired,processingState,minOsVersion',
   });
   const versions = await get(`/v1/apps/${cfg.ascAppId}/appStoreVersions?${versionQuery}`);
+
+  let reviewSubmissions = [];
+  try {
+    const submissions = await get(`/v1/apps/${cfg.ascAppId}/reviewSubmissions?${encode({
+      include: 'items',
+      limit: '50',
+      'limit[items]': '50',
+    })}`);
+    const includedItems = new Map((submissions.included ?? [])
+      .filter((item) => item.type === 'reviewSubmissionItems')
+      .map((item) => [item.id, {
+        id: item.id,
+        state: item.attributes?.state ?? null,
+        targets: Object.fromEntries(Object.entries(item.relationships ?? {})
+          .map(([name, relationship]) => [name, relationship?.data?.id ?? null])
+          .filter(([, id]) => id)),
+      }]));
+    reviewSubmissions = (submissions.data ?? []).map((submission) => ({
+      id: submission.id,
+      ...submission.attributes,
+      items: (submission.relationships?.items?.data ?? [])
+        .map((item) => includedItems.get(item.id) ?? { id: item.id }),
+    }));
+
+    for (const submission of reviewSubmissions) {
+      if (!submission.id) continue;
+      const items = await optionalGet(`/v1/reviewSubmissions/${submission.id}/items?${encode({
+        include: 'appStoreVersion,subscriptionVersion,subscriptionGroupVersion',
+        limit: '50',
+      })}`);
+      if (!items.ok) {
+        submission.itemDetailsUnavailable = items.error;
+        continue;
+      }
+      submission.itemDetails = (items.value.data ?? []).map((item) => ({
+        id: item.id,
+        state: item.attributes?.state ?? null,
+        targets: Object.fromEntries(Object.entries(item.relationships ?? {})
+          .map(([name, relationship]) => [name, relationship?.data?.id ?? null])
+          .filter(([, id]) => id)),
+      }));
+    }
+  } catch (error) {
+    reviewSubmissions = [{ unavailable: error instanceof Error ? error.message : String(error) }];
+  }
+
+  const subscriptionVersions = [];
+  const subscriptionReviewScreenshots = [];
+  for (const subscription of subscriptions) {
+    const reviewNote = await optionalGet(`/v1/subscriptions/${subscription.id}?${encode({
+      'fields[subscriptions]': 'reviewNote',
+    })}`);
+    subscription.reviewNoteLength = reviewNote.ok
+      ? String(reviewNote.value.data?.attributes?.reviewNote ?? '').length
+      : null;
+    try {
+      const result = await get(`/v1/subscriptions/${subscription.id}/versions?limit=50`);
+      subscriptionVersions.push({
+        subscriptionId: subscription.id,
+        productId: subscription.productId,
+        versions: (result.data ?? []).map((version) => ({ id: version.id, ...version.attributes })),
+      });
+    } catch (error) {
+      subscriptionVersions.push({
+        subscriptionId: subscription.id,
+        productId: subscription.productId,
+        unavailable: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    const screenshot = await optionalGet(`/v1/subscriptions/${subscription.id}/appStoreReviewScreenshot`);
+    subscriptionReviewScreenshots.push({
+      subscriptionId: subscription.id,
+      productId: subscription.productId,
+      ...(screenshot.ok
+        ? {
+            screenshotId: screenshot.value.data?.id ?? null,
+            fileName: screenshot.value.data?.attributes?.fileName ?? null,
+            deliveryState: screenshot.value.data?.attributes?.assetDeliveryState?.state ?? null,
+          }
+        : { unavailable: screenshot.error }),
+    });
+  }
+
+  const subscriptionGroupVersions = [];
+  for (const group of subscriptionGroups) {
+    const versions = await optionalGet(`/v1/subscriptionGroups/${group.id}/versions?limit=50`);
+    subscriptionGroupVersions.push({
+      subscriptionGroupId: group.id,
+      referenceName: group.referenceName,
+      ...(versions.ok
+        ? { versions: (versions.value.data ?? []).map((version) => ({ id: version.id, ...version.attributes })) }
+        : { unavailable: versions.error }),
+    });
+  }
+
+  const storeVersion = (versions.data ?? [])[0];
+  let appReviewDetail = null;
+  if (storeVersion?.id) {
+    const detail = await optionalGet(`/v1/appStoreVersions/${storeVersion.id}/appStoreReviewDetail`);
+    if (detail.ok) {
+      const attributes = detail.value.data?.attributes ?? {};
+      appReviewDetail = {
+        id: detail.value.data?.id ?? null,
+        contactComplete: Boolean(attributes.contactFirstName && attributes.contactLastName
+          && attributes.contactPhone && attributes.contactEmail),
+        demoAccountRequired: attributes.demoAccountRequired ?? null,
+        demoAccountNamePresent: Boolean(attributes.demoAccountName),
+        demoAccountPasswordPresent: Boolean(attributes.demoAccountPassword),
+        notesLength: String(attributes.notes ?? '').length,
+      };
+    } else {
+      appReviewDetail = { unavailable: detail.error };
+    }
+  }
 
   const builds = await get(
     `/v1/apps/${cfg.ascAppId}/builds?${encode({ limit: '10', 'fields[builds]': 'version,uploadedDate,expirationDate,expired,processingState,minOsVersion' })}`,
@@ -150,7 +284,16 @@ try {
     subscriptions,
     missingExpectedProducts: missing,
     gracePeriod,
-    appStoreVersions: (versions.data ?? []).map((version) => ({ id: version.id, ...version.attributes })),
+    appStoreVersions: (versions.data ?? []).map((version) => ({
+      id: version.id,
+      ...version.attributes,
+      buildId: version.relationships?.build?.data?.id ?? null,
+    })),
+    reviewSubmissions,
+    appReviewDetail,
+    subscriptionVersions,
+    subscriptionGroupVersions,
+    subscriptionReviewScreenshots,
     builds: (builds.data ?? []).map((build) => ({ id: build.id, ...build.attributes })),
   }, null, 2));
 

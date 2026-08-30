@@ -39,7 +39,7 @@ import { LessonArt } from '@/components/lesson-art';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { courseAccent } from '@/lib/course-accents';
-import { COURSES, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { LeagueCrest } from '@/components/league-crest';
 import { TierUpSheet } from '@/components/tier-up-sheet';
@@ -733,6 +733,7 @@ export default function Home() {
               course={c}
               selected={c.id === activeCourseId}
               done={completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length}
+              available={isCourseAvailable(c.id)}
               onPress={() => setActiveCourse(c.id)}
             />
           ))}

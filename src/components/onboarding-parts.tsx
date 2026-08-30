@@ -152,7 +152,7 @@ export function TrialStep({
  * purchase screen, which is an App Review problem on an app that already carries an open 2.1(a).
  */
 const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
-  { label: 'All 12 courses, 300+ lessons', free: false },
+  { label: '10 courses, 250 lessons available now', free: false },
   { label: 'Coaching by Atlas', free: false },
   { label: 'AI market simulations', free: false },
   { label: 'Unlimited paper trading', free: false },

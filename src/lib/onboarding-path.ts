@@ -11,6 +11,7 @@
  * tolerance is personalized investment advice and forfeits that exclusion.
  */
 import { COURSES, getCourseById, getCoursesByTier } from './curriculum/courseIndex';
+import { isCourseAvailable } from './curriculum/availability';
 import type { CourseMeta, TierLevel } from './curriculum/types';
 
 export type Experience = 'beginner' | 'basics' | 'experienced';
@@ -199,6 +200,7 @@ export function recommendPathDetailed(p: Profile): PathPick[] {
   for (const { id, reason } of candidates(p)) {
     if (seen.has(id)) continue; // first mention wins, so the highest-priority reason is kept
     seen.add(id);
+    if (!isCourseAvailable(id)) continue;
     const course = getCourseById(id);
     if (course) out.push({ course, reason });
     if (out.length === PATH_LENGTH) break;

@@ -32,6 +32,7 @@ import { EARN } from './shop-items';
 import { allItemById as itemById } from './shop-items-extra';
 import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
+import { DEFAULT_AVAILABLE_COURSE_ID, isCourseAvailable } from './curriculum/availability';
 
 const XP_PER_LEVEL = 500;
 
@@ -922,7 +923,11 @@ export const useApp = create<AppState>()(
           set({ signedIn: false });
         }
       },
-      setActiveCourse: (id) => set({ activeCourseId: id }),
+      // Release availability is enforced at the state boundary so a stale screen, deep link, or
+      // future caller cannot reactivate authored courses that are still marked coming soon.
+      setActiveCourse: (id) => {
+        if (isCourseAvailable(id)) set({ activeCourseId: id });
+      },
 
       level: () => Math.floor(get().xp / XP_PER_LEVEL) + 1,
       levelProgress: () => {
@@ -1226,7 +1231,7 @@ export const useApp = create<AppState>()(
       // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
-      version: 3,
+      version: 4,
       /*
        * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
        * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
@@ -1247,6 +1252,11 @@ export const useApp = create<AppState>()(
            */
           if (from < 3 && (next as Partial<AppState>).themePref === 'system') {
             (next as Partial<AppState>).themePref = 'dark';
+          }
+          // v4. Builds before the release gate let both unreleased courses become active and
+          // persisted that id. Move those installs onto a released course during the update.
+          if (from < 4 && !isCourseAvailable(next.activeCourseId)) {
+            next.activeCourseId = DEFAULT_AVAILABLE_COURSE_ID;
           }
           return next;
         } catch (e) {

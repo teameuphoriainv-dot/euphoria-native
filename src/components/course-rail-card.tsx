@@ -23,12 +23,15 @@ export function CourseRailCard({
   course,
   selected,
   done,
+  available = true,
   onPress,
 }: {
   course: CourseMeta;
   selected: boolean;
   /** Lessons finished in this course. */
   done: number;
+  /** False while authored content is held behind the native release gate. */
+  available?: boolean;
   onPress: () => void;
 }) {
   const theme = useTheme();
@@ -36,10 +39,16 @@ export function CourseRailCard({
   const total = course.totalLessons;
 
   return (
-    <SpringPressable scaleTo={0.94} onPress={onPress}>
+    <SpringPressable
+      scaleTo={0.94}
+      onPress={onPress}
+      disabled={!available}
+      accessibilityLabel={`${course.title}${available ? `, ${String(done)} of ${String(total)} complete` : ', coming soon'}`}
+      accessibilityState={{ selected, disabled: !available }}>
       <View
         style={[
           styles.card,
+          !available && styles.comingSoonCard,
           {
             backgroundColor: selected ? accent + '1A' : theme.card,
             borderColor: selected ? accent : theme.border,
@@ -64,14 +73,18 @@ export function CourseRailCard({
           style={{ color: selected ? theme.text : theme.textSecondary }}>
           {course.title}
         </ThemedText>
-        <View style={styles.progress}>
-          <ThemedText type="label" style={{ color: selected ? accent : theme.mutedForeground }}>
-            {done}/{total}
-          </ThemedText>
-          <View style={styles.track}>
-            <ProgressBar value={total ? done / total : 0} height={4} tone={accent} />
+        {available ? (
+          <View style={styles.progress}>
+            <ThemedText type="label" style={{ color: selected ? accent : theme.mutedForeground }}>
+              {done}/{total}
+            </ThemedText>
+            <View style={styles.track}>
+              <ProgressBar value={total ? done / total : 0} height={4} tone={accent} />
+            </View>
           </View>
-        </View>
+        ) : (
+          <ThemedText type="label" style={{ color: theme.mutedForeground }}>COMING SOON</ThemedText>
+        )}
       </View>
     </SpringPressable>
   );
@@ -85,6 +98,7 @@ const styles = StyleSheet.create({
     padding: Spacing.two + Spacing.half,
     justifyContent: 'space-between', gap: Spacing.two,
   },
+  comingSoonCard: { opacity: 0.62 },
   progress: { gap: Spacing.one },
   track: { flexDirection: 'row' },
 });

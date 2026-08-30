@@ -55,6 +55,12 @@ assert.equal(Number(configuredAnnual.displayPrice), annual,
 const appConfig = JSON.parse(readFileSync(new URL('../app.json', import.meta.url), 'utf8'));
 assert.ok(appConfig.expo.plugins.includes('./plugins/with-storekit-config'),
   'app.json must wire Configuration.storekit into the generated Xcode launch scheme');
+const storekitPlugin = readFileSync(new URL('../plugins/with-storekit-config.js', import.meta.url), 'utf8');
+assert.match(
+  storekitPlugin,
+  /identifier = "\.\.\/\.\.\/\.\.\/Configuration\.storekit"/,
+  'the Xcode scheme path must resolve from xcshareddata/xcschemes to ios/Configuration.storekit',
+);
 
 // an annual that costs more than twelve months is not a saving
 assert.ok(annual < monthly * 12, 'the annual plan must cost less than 12 monthly payments');

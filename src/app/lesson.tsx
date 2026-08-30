@@ -44,7 +44,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
-import { COURSES, getCourseById, lessonKeyTerms, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { AVAILABLE_COURSES, getCourseById, isCourseAvailable, lessonKeyTerms, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { expandSteps, gates, normalizeStep } from '@/lib/lesson-steps';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
@@ -69,7 +69,7 @@ export default function Lesson() {
   const [lesson, setLesson] = useState<PathwayLesson | null>(null);
   const [notFound, setNotFound] = useState(false);
   // bad params are knowable at render — deriving this keeps setState out of the effect body
-  const badParams = !courseId || !Number.isFinite(lessonNum);
+  const badParams = !courseId || !Number.isFinite(lessonNum) || !isCourseAvailable(courseId);
   const missing = badParams || notFound;
   /*
    * The gate lives HERE rather than at the three call sites (home.tsx, learn.tsx,
@@ -294,7 +294,7 @@ export default function Lesson() {
               arrives by deep link reads the same sentence as one who tapped a node. */}
           <ThemedText type="title" style={styles.title}>Your free {TRIAL_DAYS} days are up.</ThemedText>
           <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
-            Euphoria Pro reopens every lesson across all {COURSES.length} courses.
+            Euphoria Pro reopens every available lesson across {AVAILABLE_COURSES.length} courses.
           </ThemedText>
         </View>
         <View style={styles.footer}>

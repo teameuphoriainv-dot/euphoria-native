@@ -22,7 +22,7 @@ import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
-import { COURSES, getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { COURSES, getCourseById, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -239,6 +239,7 @@ export default function Learn() {
         contentContainerStyle={styles.chipRow}>
         {COURSES.map((c) => {
           const on = c.id === activeCourseId;
+          const available = isCourseAvailable(c.id);
           const cAccent = courseAccent(c.id);
           const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
           return (
@@ -247,15 +248,19 @@ export default function Learn() {
               haptic={false}
               scaleTo={0.95}
               onPress={() => setActiveCourse(c.id)}
+              disabled={!available}
               accessibilityRole="button"
-              accessibilityLabel={`${c.title}, ${String(done)} of ${String(c.totalLessons)} complete`}
-              accessibilityState={{ selected: on }}
+              accessibilityLabel={available
+                ? `${c.title}, ${String(done)} of ${String(c.totalLessons)} complete`
+                : `${c.title}, coming soon`}
+              accessibilityState={{ selected: on, disabled: !available }}
               onLayout={(e) => {
                 chipX.current[c.id] = e.nativeEvent.layout.x;
               }}>
               <View
                 style={[
                   styles.chip,
+                  !available && styles.comingSoonChip,
                   {
                     backgroundColor: on ? cAccent + '2E' : theme.card,
                     borderColor: on ? cAccent : theme.border,
@@ -269,6 +274,9 @@ export default function Learn() {
                   style={{ color: on ? theme.text : theme.mutedForeground }}>
                   {c.title}
                 </ThemedText>
+                {!available && (
+                  <ThemedText type="label" style={{ color: theme.mutedForeground }}>SOON</ThemedText>
+                )}
               </View>
             </SpringPressable>
           );
@@ -477,6 +485,7 @@ const styles = StyleSheet.create({
   chipRow: { gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.two },
   // 44pt exactly: the HIG touch minimum, and the number the whole density fix is spending.
   chip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
+  comingSoonChip: { opacity: 0.62 },
   trailScroll: { flex: 1 },
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },

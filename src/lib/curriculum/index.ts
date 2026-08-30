@@ -12,6 +12,16 @@
 // Web (euphoriaweb-current/src/features/pathway) is the source of truth.
 // ============================================================================
 
+import { isCourseAvailable } from './availability';
+import {
+  COURSES,
+  getCourseById,
+  getCoursesByTier,
+  loadCourseLessons as loadCourseLessonsUncached,
+} from './courseIndex';
+import { CURRICULUM_STATS, STEP_TYPE_COUNTS, STEP_TYPES, type StepType } from './stepTypes.generated';
+import type { LessonStep, PathwayLesson } from './types';
+
 // ─── Course catalogue + loader ──────────────────────────────────────────────
 
 export {
@@ -19,9 +29,17 @@ export {
   COURSES,
   getCourseById,
   getCoursesByTier,
-} from './courseIndex';
+};
 
-import { loadCourseLessons as loadCourseLessonsUncached } from './courseIndex';
+/** Courses currently released to learners. Authored coming-soon content remains in COURSES. */
+export const AVAILABLE_COURSES = COURSES.filter((course) => isCourseAvailable(course.id));
+export const AVAILABLE_LESSON_COUNT = AVAILABLE_COURSES.reduce((total, course) => total + course.totalLessons, 0);
+
+export {
+  courseAvailability,
+  DEFAULT_AVAILABLE_COURSE_ID,
+  isCourseAvailable,
+} from './availability';
 
 /*
  * ONE LOAD PER COURSE, SHARED BY EVERY CALLER.
@@ -120,12 +138,9 @@ export {
   STEP_TYPE_COUNTS,
   /** { courses, lessons, steps, distinctStepTypes } */
   CURRICULUM_STATS,
-} from './stepTypes.generated';
+};
 
-export type { StepType } from './stepTypes.generated';
-
-import { STEP_TYPES, type StepType } from './stepTypes.generated';
-import type { LessonStep, PathwayLesson } from './types';
+export type { StepType };
 
 /**
  * Narrow `LessonStep` to one concrete variant.

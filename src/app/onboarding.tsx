@@ -43,7 +43,7 @@ import { ALL_AVATARS } from '@/lib/avatars';
 import { Ev, track } from '@/lib/analytics';
 import { TRIAL_DAYS, trialDayNumber, useTier, useTrialStarted } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
-import { COURSES } from '@/lib/curriculum/courseIndex';
+import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
 import { applyDailyNudge } from '@/lib/notifications';
 import { NudgeTimePicker } from '@/components/nudge-time-picker';
 import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
@@ -205,10 +205,8 @@ const NOTIFY: Choice[] = [
  *     fabricated reviews and testimonials a civil-penalty offence.
  * Real reviews can be surfaced post-launch via SKStoreReviewController / App Store Connect.
  */
-const TOTAL_LESSONS = COURSES.reduce((n, c) => n + c.totalLessons, 0);
-
 const PROOF: { icon: PixelSprite; title: string; sub: string }[] = [
-  { icon: book, title: `${TOTAL_LESSONS} lessons`, sub: `Across ${COURSES.length} courses, from first principles to advanced.` },
+  { icon: book, title: `${AVAILABLE_LESSON_COUNT} lessons`, sub: `Across ${AVAILABLE_COURSES.length} available courses, from first principles to advanced.` },
   { icon: chartUp, title: 'Practice without risk', sub: 'Paper trading uses simulated money, never your own.' },
   { icon: star, title: 'Atlas explains anything', sub: 'Ask mid-lesson and get it in plain English.' },
 ];
@@ -251,7 +249,7 @@ const TRIAL_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'soli
  * last five minutes rather than marketing.
  */
 const PRO_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'solid' | 'soft' | 'muted' }[] = [
-  { icon: lock, title: 'Every lesson reopens', sub: 'All 12 courses, 300 lessons, no counter.', tone: 'solid' as const },
+  { icon: lock, title: 'Every lesson reopens', sub: `${AVAILABLE_COURSES.length} courses, ${AVAILABLE_LESSON_COUNT} lessons, no counter.`, tone: 'solid' as const },
   { icon: star, title: 'Atlas becomes unlimited', sub: 'Ask as much as you like, mid-lesson.', tone: 'soft' as const },
   // A one-liner like the two above it. Without one this row rendered as a bare title against two
   // subtitled siblings, which reads as unfinished rather than as a shorter point.

@@ -18,7 +18,7 @@ import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 
-import { COURSES, type TierLevel } from '@/lib/curriculum';
+import { COURSES, isCourseAvailable, type TierLevel } from '@/lib/curriculum';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -70,6 +70,7 @@ export default function Courses() {
   const completedLessons = useApp((s) => s.completedLessons);
 
   const open = (id: string) => {
+    if (!isCourseAvailable(id)) return;
     setActiveCourse(id);
     router.back();
   };
@@ -117,27 +118,38 @@ export default function Courses() {
                 </ThemedText>
                 {group.map((c, i) => {
                   const accent = courseAccent(c.id);
+                  const available = isCourseAvailable(c.id);
                   const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
                   const progress = c.totalLessons ? done / c.totalLessons : 0;
                   return (
                     <RiseIn key={c.id} delay={Math.min((ti * 3 + i) * 55, STAGGER_CAP)}>
-                      <SpringPressable onPress={() => open(c.id)}>
-                        <Card style={styles.courseCard}>
+                      <SpringPressable
+                        onPress={() => open(c.id)}
+                        disabled={!available}
+                        accessibilityLabel={`${c.title}${available ? '' : ', coming soon'}`}
+                        accessibilityState={{ disabled: !available }}>
+                        <Card style={[styles.courseCard, !available && styles.comingSoonCard]}>
                           <View style={styles.markSlot}>
                             <CourseMark id={c.id} size={52} />
                           </View>
                           <View style={{ flex: 1 }}>
                             <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg }}>{c.title}</ThemedText>
                             <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }} numberOfLines={2}>
-                              {done > 0 ? `${done}/${c.totalLessons} lessons` : `${c.totalLessons} lessons`}
+                              {available
+                                ? done > 0 ? `${done}/${c.totalLessons} lessons` : `${c.totalLessons} lessons`
+                                : 'Coming soon'}
                             </ThemedText>
-                            {done > 0 && (
+                            {available && done > 0 && (
                               <View style={{ marginTop: Spacing.two }}>
                                 <ProgressBar value={progress} height={5} tone={accent} />
                               </View>
                             )}
                           </View>
-                          <UIcon name="chevronRight" size={16} color={theme.mutedForeground} strokeWidth={2.4} />
+                          {available ? (
+                            <UIcon name="chevronRight" size={16} color={theme.mutedForeground} strokeWidth={2.4} />
+                          ) : (
+                            <ThemedText type="label" style={{ color: theme.mutedForeground }}>SOON</ThemedText>
+                          )}
                         </Card>
                       </SpringPressable>
                     </RiseIn>
@@ -164,6 +176,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   spine: { position: 'absolute', left: Spacing.three + 34, top: 40, bottom: 40, width: 2 },
   courseCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  comingSoonCard: { opacity: 0.62 },
   // Fixed slot so titles stay aligned down the column even though marks differ in visual weight.
   markSlot: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center' },
 });
