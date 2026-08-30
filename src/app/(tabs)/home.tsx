@@ -658,7 +658,7 @@ export default function Home() {
           </View>
           <Card style={styles.quests}>
             {quests.map((q, i) => (
-              <View key={q.kind} style={[styles.quest, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border }]}>
+              <View key={`${q.kind}:${String(q.of)}`} style={[styles.quest, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border }]}>
                 <View style={[styles.questTick, { backgroundColor: q.done ? theme.success : 'transparent', borderColor: q.done ? theme.success : theme.border }]}>
                   {/* UNIT 12 deliverable 4. Undone quests carry their authored mark rather than an
                       empty ring — the row now says WHAT is being asked before you read the title.

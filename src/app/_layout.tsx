@@ -7,6 +7,7 @@ import {
 import { EBGaramond_400Regular, EBGaramond_500Medium, EBGaramond_600SemiBold, EBGaramond_700Bold } from '@expo-google-fonts/eb-garamond';
 import { Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { useFonts } from 'expo-font';
+import { Observe, ObserveRoot, useObserve } from 'expo-observe';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 
 import { PerfHud } from '@/components/perf-hud';
@@ -24,6 +25,7 @@ import '@/lib/widget';
 import { refreshEntitlement } from '@/lib/purchases';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import * as Updates from 'expo-updates';
 
 import { useTheme, useThemeMode } from '@/hooks/use-theme';
 import { useEffect } from 'react';
@@ -37,7 +39,30 @@ import { shouldCountReturn, useApp } from '@/lib/store';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+/*
+ * Production observability without product analytics or user identity.
+ *
+ * EAS Observe owns app-start, route-performance and JavaScript-error diagnostics. PostHog remains
+ * the consent-gated product funnel. Keeping those jobs separate prevents a crash tool from quietly
+ * becoming a second behavioral tracker, and no account, email, handle, portfolio or lesson answer
+ * is attached here.
+ *
+ * Router parameters that could ever carry an authentication credential are filtered at the SDK
+ * boundary. Most current routes do not use them; the list is defensive so a future deep-link flow
+ * cannot turn a useful navigation trace into a credential log.
+ */
+Observe.configure({
+  environment: Updates.channel ?? (__DEV__ ? 'development' : 'production'),
+  dispatchInDebug: false,
+  integrations: {
+    'expo-router': {
+      filteredParams: ['access_token', 'refresh_token', 'token', 'code', 'email'],
+    },
+  },
+});
+
+function RootLayout() {
+  const { markInteractive } = useObserve();
   const [loaded] = useFonts({
     DMSans_400Regular,
     DMSans_500Medium,
@@ -52,8 +77,13 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) SplashScreen.hideAsync();
-  }, [loaded]);
+    if (!loaded) return;
+    void SplashScreen.hideAsync();
+    // Fonts are the only startup work that deliberately holds the splash screen. Marking earlier
+    // would report a quick TTI for an app that is still visibly unavailable; marking later would
+    // mix route data and network latency into the startup metric.
+    markInteractive({ params: { fonts_loaded: true } });
+  }, [loaded, markInteractive]);
 
   /*
    * Ask RevenueCat what this Apple ID is actually entitled to, once per launch, so a subscription
@@ -137,3 +167,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default ObserveRoot.wrap(RootLayout);

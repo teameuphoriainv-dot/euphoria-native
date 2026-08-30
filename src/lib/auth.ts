@@ -140,7 +140,7 @@ export function currentAccessToken(): string | null {
  */
 
 /** Supabase's own floor. Stated here so the UI can refuse before a round trip rather than after. */
-export const PASSWORD_MIN = 6;
+export const PASSWORD_MIN = 8;
 
 export type AuthResult =
   | { ok: true; needsConfirmation: boolean }
@@ -164,7 +164,9 @@ function authMessage(raw: string | undefined): string {
     return 'That email already has an account. Try signing in instead.';
   if (m.includes('email not confirmed'))
     return 'Confirm your email address first. Check your inbox for the link.';
-  if (m.includes('password') && m.includes('6')) return `Passwords need at least ${String(PASSWORD_MIN)} characters.`;
+  if (m.includes('password') && /\b(?:6|8)\b/.test(m)) {
+    return `Passwords need at least ${String(PASSWORD_MIN)} characters.`;
+  }
   if (m.includes('rate limit') || m.includes('too many'))
     return 'Too many attempts just now. Wait a moment and try again.';
   if (m.includes('network') || m.includes('fetch')) return 'Could not reach the server. Check your connection.';

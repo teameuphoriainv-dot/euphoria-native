@@ -21,6 +21,12 @@ if (!/onAuthUserChange\(syncRevenueCatUser\)/.test(purchases)) {
 if (!/Purchases\.logIn\(userId\)/.test(purchases) || !/Purchases\.logOut\(\)/.test(purchases)) {
   fail('RevenueCat must log in and log out with the Supabase account lifecycle.');
 }
+if (!/\$posthogUserId:\s*profile\.analyticsOptIn\s*\?\s*installId\s*:\s*null/.test(purchases)) {
+  fail('RevenueCat/PostHog identity must use the pseudonymous install id and honor analytics consent.');
+}
+if (!/useApp\.subscribe\(\(state\)/.test(purchases)) {
+  fail('RevenueCat/PostHog identity must follow analytics-consent changes after SDK configuration.');
+}
 if (!/encodeURIComponent\(subject\)/.test(entitlement)) {
   fail('server entitlement lookup must continue using the verified subject.');
 }

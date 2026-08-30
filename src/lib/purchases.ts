@@ -110,8 +110,29 @@ export type PurchaseResult =
 
 let configured = false;
 let identityBound = false;
+let postHogIdentityBound = false;
 let revenueCatUserId: string | null = null;
 let identitySync: Promise<void> = Promise.resolve();
+
+/**
+ * RevenueCat's PostHog integration runs server-to-server, so it cannot read the PostHog client's
+ * current distinct id. Give it the same pseudonymous install id explicitly — but only while the
+ * person has opted into analytics. Removing the attribute on opt-out is what keeps a dashboard
+ * integration from bypassing the consent switch that protects every client-side event.
+ *
+ * This deliberately does NOT use the Supabase account id. RevenueCat needs that UUID for server
+ * entitlement checks; PostHog does not. Purchase events can still join the on-device funnel by the
+ * stable install id without turning an analytics profile into an account identity.
+ */
+function syncRevenueCatPostHogIdentity(): void {
+  if (!configured) return;
+  const { installId, profile } = useApp.getState();
+  void Purchases.setAttributes({
+    $posthogUserId: profile.analyticsOptIn ? installId : null,
+  }).catch((error: unknown) => {
+    if (__DEV__) console.warn('[iap] could not synchronize PostHog analytics identity', error);
+  });
+}
 
 /**
  * RevenueCat and the server must use the same subscriber key. The API verifies a Supabase token
@@ -127,11 +148,13 @@ function syncRevenueCatUser(userId: string | null): void {
         const { customerInfo } = await Purchases.logIn(userId);
         revenueCatUserId = userId;
         adoptCustomerInfo(customerInfo);
+        syncRevenueCatPostHogIdentity();
         return;
       }
       const customerInfo = await Purchases.logOut();
       revenueCatUserId = null;
       adoptCustomerInfo(customerInfo);
+      syncRevenueCatPostHogIdentity();
     })
     .catch((error: unknown) => {
       if (__DEV__) console.warn('[iap] could not synchronize account identity', error);
@@ -147,6 +170,17 @@ export function configurePurchases(): boolean {
   // Anonymous app-user-id by default, which is §9.9's upgrade step 1: the entitlement survives a
   // reinstall on the same Apple ID, where `activeDays` in AsyncStorage does not.
   Purchases.addCustomerInfoUpdateListener(adoptCustomerInfo);
+  syncRevenueCatPostHogIdentity();
+  if (!postHogIdentityBound) {
+    postHogIdentityBound = true;
+    let previousConsent = useApp.getState().profile.analyticsOptIn;
+    useApp.subscribe((state) => {
+      const nextConsent = state.profile.analyticsOptIn;
+      if (nextConsent === previousConsent) return;
+      previousConsent = nextConsent;
+      syncRevenueCatPostHogIdentity();
+    });
+  }
   if (!identityBound) {
     identityBound = true;
     onAuthUserChange(syncRevenueCatUser);
