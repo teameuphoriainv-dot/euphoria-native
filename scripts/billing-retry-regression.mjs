@@ -113,7 +113,7 @@ assert.deepEqual(proStateFrom(noDate, NOW), { pro: false, billingIssue: true });
 // the file, so it passed even with the CALL deleted — the import line and this very explanation
 // kept it green. Verified by deleting the call and watching it still pass. A check that a comment
 // can satisfy is not a check.
-const serverRaw = readFileSync(new URL('../src/app/api/_entitlement.ts', import.meta.url), 'utf8');
+const serverRaw = readFileSync(new URL('../src/lib/server/entitlement.ts', import.meta.url), 'utf8');
 const server = serverRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 assert.ok(
   /withinRetryGrace\s*\(/.test(server),

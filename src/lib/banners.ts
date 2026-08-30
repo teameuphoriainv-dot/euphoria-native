@@ -20,8 +20,8 @@
 import { ACHIEVEMENTS, earnedAchievements, type AchievementState } from './achievements';
 import {
   bolt, book, crown, diamondRing, flame, gem, rocket, star, target, trophy,
-  type PixelSprite,
-} from './pixel';
+} from './pixel/sprites';
+import type { PixelSprite } from './pixel/types';
 
 export type Banner = {
   id: string;

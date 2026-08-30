@@ -18,10 +18,10 @@
  * comment is as tidiness.
  */
 
-import { isAdvice, REFUSAL } from './_advice';
-import { decide, refuse } from './_entitlement';
-import { verifiedUserId } from './_identity';
-import { guard } from './_limit';
+import { isAdvice, REFUSAL } from '@/lib/server/advice';
+import { decide, refuse } from '@/lib/server/entitlement';
+import { verifiedUserId } from '@/lib/server/identity';
+import { guard } from '@/lib/server/limit';
 
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
 

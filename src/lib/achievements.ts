@@ -19,12 +19,13 @@
  * by the same act. Titles are the cheap half of identity — no art, no storage, and they say
  * something the avatar cannot.
  */
-import type { PixelSprite } from './pixel';
+import { magnifier } from './pixel/sprites-lesson';
 import {
   barChart, book, bull, calculator, chartUp, checkBadge, coin, crown, diamondRing, flame,
-  gem, globe, graduationCap, handshake, heart, ladder, magnifier, newspaper, rocket, seedling,
+  gem, globe, graduationCap, handshake, heart, ladder, newspaper, rocket, seedling,
   shield, stackCash, star, stockTicker, trophy, whale,
-} from './pixel';
+} from './pixel/sprites';
+import type { PixelSprite } from './pixel/types';
 
 /** The slice an achievement may read. Narrow on purpose: it is also what makes them testable. */
 export type AchievementState = {

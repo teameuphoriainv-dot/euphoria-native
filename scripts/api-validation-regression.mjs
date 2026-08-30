@@ -17,7 +17,7 @@
 // disagreeing with the code that runs.
 // ============================================================================
 
-import { isoDate, mayCarryKey, symbol, withKey } from '../src/app/api/_validate.ts';
+import { isoDate, mayCarryKey, symbol, withKey } from '../src/lib/server/validate.ts';
 
 const fail = [];
 const check = (name, got, want) => {
@@ -82,7 +82,7 @@ check(
 if (fail.length > 0) {
   console.log('\nFAILED\n');
   for (const f of fail) console.log(`  ${f}`);
-  console.log('\nFix src/app/api/_validate.ts. Do NOT relax a case to make this pass.\n');
+  console.log('\nFix src/lib/server/validate.ts. Do NOT relax a case to make this pass.\n');
   process.exit(1);
 }
 

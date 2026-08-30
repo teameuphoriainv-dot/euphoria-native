@@ -17,7 +17,7 @@
 // a directive plus a named security rather than on the word "buy".
 // ============================================================================
 
-import { isAdvice } from '../src/app/api/_advice.ts';
+import { isAdvice } from '../src/lib/server/advice.ts';
 
 const BLOCK = [
   'You should buy NVDA.',
@@ -133,7 +133,7 @@ for (const [name, re, mustBeAbsent] of cfg) {
 if (fail.length > 0) {
   console.log('\nFAILED\n');
   for (const f of fail) console.log(`  ${f}`);
-  console.log('\nFix src/app/api/_advice.ts. If an ALLOW case fails, the guard is eating the');
+  console.log('\nFix src/lib/server/advice.ts. If an ALLOW case fails, the guard is eating the');
   console.log('curriculum — that is the more damaging direction, not the safer one.\n');
   process.exit(1);
 }

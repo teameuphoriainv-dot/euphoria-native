@@ -20,9 +20,9 @@
  * live quotes.
  */
 
-import { finiteNonNegative } from './_chain';
-import { guard } from './_limit';
-import { mayCarryKey, symbol, withKey } from './_validate';
+import { finiteNonNegative } from '@/lib/server/chain';
+import { guard } from '@/lib/server/limit';
+import { mayCarryKey, symbol, withKey } from '@/lib/server/validate';
 
 const BASE = 'https://api.polygon.io';
 

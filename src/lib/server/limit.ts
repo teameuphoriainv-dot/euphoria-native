@@ -1,7 +1,7 @@
 /**
  * Server-side rate limiting.
  *
- * The leading underscore keeps expo-router from treating this as a route.
+ * This module lives outside `src/app` so Expo Router never treats it as a route.
  *
  * WHY THIS EXISTS: every API route in this app spends someone else's quota — Gemini tokens cost
  * real money, Polygon and Tradier are both rate-limited upstream, and the keys live on the server
@@ -55,7 +55,7 @@
  * like a broken limiter, and "fixing" it would mean rewriting working code.
  */
 
-import { verifiedUserId } from './_identity';
+import { verifiedUserId } from './identity';
 
 type Bucket = { count: number; resetAt: number };
 

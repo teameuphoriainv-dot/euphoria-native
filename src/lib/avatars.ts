@@ -12,11 +12,13 @@
  *
  * Every sprite is already in the shared catalogue. Nothing was drawn for this.
  */
+import { CHARACTERS } from './pixel/sprites-characters';
 import {
-  CHARACTERS, bear, bolt, book, bull, car, chartUp, compass, controller, crown, flame, gem, globe,
+  bear, bolt, book, bull, car, chartUp, compass, controller, crown, flame, gem, globe,
   graduationCap, heart, house, lightbulb, magnet, plane, rocket, seedling, shield, snowflake,
-  star, stockTicker, tree, trophy, umbrella, whale, type PixelSprite,
-} from './pixel';
+  star, stockTicker, tree, trophy, umbrella, whale,
+} from './pixel/sprites';
+import type { PixelSprite } from './pixel/types';
 
 export type Avatar = { id: string; label: string; sprite: PixelSprite };
 

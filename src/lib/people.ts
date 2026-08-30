@@ -1,4 +1,5 @@
-import { bear, bull, compass, crown, gem, rocket, seedling, snowflake, trophy, type PixelSprite } from './pixel';
+import { bear, bull, compass, crown, gem, rocket, seedling, snowflake, trophy } from './pixel/sprites';
+import type { PixelSprite } from './pixel/types';
 /**
  * The other learners.
  *

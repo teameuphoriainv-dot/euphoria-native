@@ -1,7 +1,7 @@
 /**
  * Input validation at the trust boundary for the API routes.
  *
- * The leading underscore keeps expo-router from treating this as a route.
+ * This module lives outside `src/app` so Expo Router never treats it as a route.
  *
  * WHY THIS EXISTS. Every route here interpolates caller-supplied values into an upstream URL that
  * carries OUR paid key. `.toUpperCase()` was doing duty as validation, and uppercasing is not

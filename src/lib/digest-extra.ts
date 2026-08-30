@@ -20,8 +20,9 @@ import { DIGEST_POSTS } from './digest-content';
 import { DIGEST_BODIES } from './digest-bodies';
 import {
   calculator, car, firstAid, gift, handshake, house, key, lock, paycheck, phone,
-  receipt, scales, taxForm, umbrella, type PixelSprite,
-} from './pixel';
+  receipt, scales, taxForm, umbrella,
+} from './pixel/sprites';
+import type { PixelSprite } from './pixel/types';
 
 /** Categories iOS adds. Kept apart from DigestCategory so the synced union stays untouched. */
 export type ExtraCategory = 'Earning' | 'Housing' | 'Staying safe' | 'Insurance' | 'Big purchases';

@@ -1,7 +1,7 @@
 /**
  * Server-side entitlement — F7.
  *
- * The leading underscore keeps expo-router from treating this as a route.
+ * This module lives outside `src/app` so Expo Router never treats it as a route.
  *
  * ── THE HOLE THIS EXISTS TO CLOSE ───────────────────────────────────────────────────────────
  * `atlas` and `options` are PAID features in `entitlement.ts`'s `Feature` union, and every check
@@ -36,7 +36,7 @@
  * is anonymous and requiring auth would refuse the entire userbase.
  */
 
-import { ENTITLEMENT_ID, withinRetryGrace } from '../../lib/billing-retry.ts';
+import { ENTITLEMENT_ID, withinRetryGrace } from '../billing-retry.ts';
 
 /** Cheap, bounded memo. An entitlement lookup per chat turn is its own cost problem. */
 type Cached = { entitled: boolean; at: number };

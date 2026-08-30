@@ -28,7 +28,7 @@
  * looks up. A hardcoded 'pro' made this regression green while the live dashboard identifier was
  * 'Euphoria Pro' -- it asserted the fail-open rules against a key no real response ever contains.
  */
-import { decide, ENTITLEMENT_ID as ID } from '../src/app/api/_entitlement.ts';
+import { decide, ENTITLEMENT_ID as ID } from '../src/lib/server/entitlement.ts';
 
 const fail = [];
 let n = 0;
@@ -108,7 +108,7 @@ delete process.env.ATLAS_REQUIRE_AUTH;
 if (fail.length > 0) {
   console.log('\nFAILED\n');
   for (const f of fail) console.log(`  ${f}`);
-  console.log('\nFix src/app/api/_entitlement.ts. If a FAILS OPEN case now denies, you have built');
+  console.log('\nFix src/lib/server/entitlement.ts. If a FAILS OPEN case now denies, you have built');
   console.log('a way to lock a paying member out of what they just bought.\n');
   process.exit(1);
 }

@@ -16,7 +16,7 @@
 
 import { readFileSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
-import { bearer, verifiedSubject } from '../src/app/api/_identity.ts';
+import { bearer, verifiedSubject } from '../src/lib/server/identity.ts';
 
 const SECRET = 'test-secret-do-not-use-anywhere-real';
 const enc = new TextEncoder();
@@ -110,7 +110,7 @@ bcheck('absent header', hdr(null), null);
  * a source check would have caught it and a unit test on the crypto would not.
  */
 {
-  const src = readFileSync('src/app/api/_identity.ts', 'utf8');
+  const src = readFileSync('src/lib/server/identity.ts', 'utf8');
 
   if (/if \(!token \|\| !secret\) return null;/.test(src)) {
     fail.push('verifiedSubject still refuses a missing secret up front, which rejects every ES256 token before the algorithm branch runs.');
@@ -132,7 +132,7 @@ bcheck('absent header', hdr(null), null);
 if (fail.length > 0) {
   console.log('\nFAILED\n');
   for (const f of fail) console.log(`  ${f}`);
-  console.log('\nFix src/app/api/_identity.ts. Every case here is a request being BELIEVED —');
+  console.log('\nFix src/lib/server/identity.ts. Every case here is a request being BELIEVED —');
   console.log('there is no safe direction to relax one.\n');
   process.exit(1);
 }

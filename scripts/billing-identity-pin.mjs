@@ -9,7 +9,7 @@ const fail = (message) => {
 
 const purchases = readFileSync(new URL('../src/lib/purchases.ts', import.meta.url), 'utf8');
 const auth = readFileSync(new URL('../src/lib/auth.ts', import.meta.url), 'utf8');
-const entitlement = readFileSync(new URL('../src/app/api/_entitlement.ts', import.meta.url), 'utf8');
+const entitlement = readFileSync(new URL('../src/lib/server/entitlement.ts', import.meta.url), 'utf8');
 const app = JSON.parse(readFileSync(new URL('../app.json', import.meta.url), 'utf8'));
 
 if (!/import\s+\{\s*onAuthUserChange\s*\}\s+from\s+['"]\.\/auth['"]/.test(purchases)) {

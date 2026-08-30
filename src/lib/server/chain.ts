@@ -1,12 +1,12 @@
 /**
  * Options chain mapping — provider shapes in, ONE `Contract` out.
  *
- * The leading underscore keeps expo-router from treating this as a route.
+ * This module lives outside `src/app` so Expo Router never treats it as a route.
  *
  * WHY ITS OWN FILE, and it is the same reason for the sixth time in this repo: a regression cannot
- * import `options+api.ts`. That route imports `./_entitlement`, `./_identity`, `./_limit` and
- * `./_validate` extensionless, which Node's ESM resolver will not follow, so the mapping inside it
- * was untestable. `cost-basis.ts`, `portfolio-value.ts`, `billing-retry.ts`, `day-keys.ts`,
+ * import `options+api.ts`. That route pulls in runtime/server dependencies which make the mapping
+ * an unsafe unit-test boundary, so the mapping inside it was untestable. `cost-basis.ts`,
+ * `portfolio-value.ts`, `billing-retry.ts`, `day-keys.ts`,
  * `trial-reward.ts` and `dismissal-offer.ts` all exist for exactly this reason.
  *
  * WHAT IS AT STAKE. marketdata.app answers COLUMNAR — parallel arrays keyed by name. Every field is

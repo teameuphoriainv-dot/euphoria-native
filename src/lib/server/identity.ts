@@ -1,7 +1,7 @@
 /**
  * Server-verified caller identity.
  *
- * The leading underscore keeps expo-router from treating this as a route.
+ * This module lives outside `src/app` so Expo Router never treats it as a route.
  *
  * ── THE PROBLEM THIS EXISTS TO FIX ──────────────────────────────────────────────────────────
  * `_limit.ts` keys its buckets on `X-Euphoria-Install`, a header the caller chooses, and says so

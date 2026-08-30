@@ -25,7 +25,7 @@ import {
   plausibleIv,
   spotFromCboe,
   STRIKE_WINDOW,
-} from '../src/app/api/_chain.ts';
+} from '../src/lib/server/chain.ts';
 
 // Shape copied from a live response, 2026-08-13.
 const live = {

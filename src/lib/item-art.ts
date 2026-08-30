@@ -18,11 +18,13 @@
  * item id, then by itemType). Only the ids iOS added are new.
  */
 import {
-  bolt, bull, bear, crown, diamondRing, frame, frameDiamond, frameFire, frameRainbow,
-  gem, graduationCap, heart, lightbulb, monocle, rocket, snowflake, sunglasses,
-  theme as themeSprite, themeGold, themeMidnight, themeNeon, topHat, trophy, whale, wizardHat,
-  type PixelSprite,
-} from '@/lib/pixel';
+  frameDiamond, frameFire, frameRainbow, themeGold, themeMidnight, themeNeon,
+} from '@/lib/pixel/sprites-additions';
+import {
+  bolt, bull, bear, crown, diamondRing, frame, gem, graduationCap, heart, lightbulb, monocle,
+  rocket, snowflake, sunglasses, theme as themeSprite, topHat, trophy, whale, wizardHat,
+} from '@/lib/pixel/sprites';
+import type { PixelSprite } from '@/lib/pixel/types';
 
 /** Bespoke art for a specific item. */
 export const ITEM_ART: Record<string, PixelSprite> = {

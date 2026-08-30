@@ -38,7 +38,7 @@ assert.strictEqual(
 );
 
 // It must be re-exported, never re-declared: a second literal is how it drifted the first time.
-const server = readFileSync(new URL('../src/app/api/_entitlement.ts', import.meta.url), 'utf8')
+const server = readFileSync(new URL('../src/lib/server/entitlement.ts', import.meta.url), 'utf8')
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/^[^\n]*\/\/[^\n]*$/gm, '');
 assert.ok(

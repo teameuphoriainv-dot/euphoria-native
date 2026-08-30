@@ -1,7 +1,7 @@
 /**
  * Output guard — refuses individualised investment advice before it reaches a user.
  *
- * The leading underscore keeps expo-router from treating this as a route.
+ * This module lives outside `src/app` so Expo Router never treats it as a route.
  *
  * WHY. `chat+api.ts`'s system prompt already says "Never give individualised investment advice and
  * never recommend specific securities." That is an instruction, not a boundary. OWASP's 2026 list
