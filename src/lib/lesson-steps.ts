@@ -9,7 +9,7 @@
  * Anything not yet renderable returns kind 'todo' WITH its real title, so an unsupported step
  * shows something honest instead of a blank screen.
  */
-import type { AnimatedVisual, LessonStep } from '@/lib/curriculum';
+import type { AnimatedVisual, InteractiveGraphStep, LessonStep } from '@/lib/curriculum';
 import type { MatchSpec } from '@/components/matching-pairs';
 import type { MultiSpec } from '@/components/multi-select';
 import type { NumberLineSpec } from '@/components/number-line';
@@ -18,6 +18,7 @@ import type { RevealSpec } from '@/components/tap-reveal';
 import type { CalcSpec } from '@/components/calc-blanks';
 import type { DecisionTreeSpec } from '@/components/decision-tree';
 import type { TileSpec } from '@/components/tile-builder';
+import { stableOptions } from './stable-options';
 
 export type ProseBlock =
   | { b: 'p'; text: string }
@@ -61,6 +62,7 @@ export type Normalized =
   | { kind: 'build'; spec: TileSpec }
   | { kind: 'calc'; spec: CalcSpec }
   | { kind: 'tree'; spec: DecisionTreeSpec }
+  | { kind: 'graph'; spec: InteractiveGraphStep }
   | { kind: 'todo'; type: string; title: string; blocks: ProseBlock[] };
 
 const p = (text: string): ProseBlock => ({ b: 'p', text });
@@ -193,6 +195,17 @@ const vis = (v?: AnimatedVisual): ProseBlock[] =>
 /** de-duplicate a tray while preserving author order — repeated distractors would be unplaceable */
 const uniq = (xs: string[]): string[] => Array.from(new Set(xs));
 
+const choice = (
+  prompt: string,
+  options: string[],
+  correct: number,
+  right: string,
+  wrong: string,
+): Extract<Normalized, { kind: 'choice' }> => {
+  const ordered = stableOptions(options, correct);
+  return { kind: 'choice', prompt, options: ordered.options, correct: ordered.correct, right, wrong };
+};
+
 export function normalizeStep(step: LessonStep): Normalized {
   const s = step as Extract<LessonStep, { type: string }> & Record<string, any>;
   // `as string`: expandSteps() below emits two SYNTHETIC types ('calcQuiz', 'calcWalkthrough')
@@ -202,24 +215,17 @@ export function normalizeStep(step: LessonStep): Normalized {
   switch (s.type as string) {
     // ─── single-choice family → the quiz UI lesson.tsx already has ─────────────
     case 'quiz':
-      return { kind: 'choice', prompt: s.question, options: s.options, correct: s.correct, right: s.explanation, wrong: s.explanation };
+      return choice(s.question, s.options, s.correct, s.explanation, s.explanation);
     case 'microCheck':
-      return { kind: 'choice', prompt: s.question, options: s.options, correct: s.correct, right: s.explanationCorrect, wrong: s.explanationWrong };
+      return choice(s.question, s.options, s.correct, s.explanationCorrect, s.explanationWrong);
     case 'fillBlank':
-      return { kind: 'choice', prompt: s.sentence, options: s.options, correct: s.correct, right: 'That fits.', wrong: 'Not the one.' };
+      return choice(s.sentence, s.options, s.correct, 'That fits.', 'Not the one.');
     case 'visualInteractive':
-      return { kind: 'choice', prompt: s.question, options: s.options, correct: s.correct, right: s.description ?? '', wrong: s.description ?? '' };
+      return choice(s.question, s.options, s.correct, s.description ?? '', s.description ?? '');
     case 'scenario': {
       const choices = (s.choices ?? []) as { label: string; outcome: string; correct: boolean }[];
       const correct = Math.max(0, choices.findIndex((c) => c.correct));
-      return {
-        kind: 'choice',
-        prompt: s.situation,
-        options: choices.map((c) => c.label),
-        correct,
-        right: choices[correct]?.outcome ?? '',
-        wrong: choices.find((c) => !c.correct)?.outcome ?? '',
-      };
+      return choice(s.situation, choices.map((c) => c.label), correct, choices[correct]?.outcome ?? '', choices.find((c) => !c.correct)?.outcome ?? '');
     }
 
     // ─── interactive components we already ship ───────────────────────────────
@@ -321,13 +327,7 @@ export function normalizeStep(step: LessonStep): Normalized {
         ],
       };
     case 'interactiveGraph':
-      // the chart itself is a later cycle; its written analysis stands on its own
-      return {
-        kind: 'prose',
-        label: s.sectionLabel,
-        title: s.title,
-        blocks: [...paras([s.description]), ...paras(s.paragraphs), ...terms(s.highlightedTerms), ...paras(s.insights)],
-      };
+      return { kind: 'graph', spec: step as InteractiveGraphStep };
     case 'stakesCard':
       return {
         kind: 'prose',
@@ -389,7 +389,7 @@ export function normalizeStep(step: LessonStep): Normalized {
        * question about something never explained, which is why the explorable case renders prose
        * and does not try to carry both on one screen.
        */
-      return { kind: 'choice', prompt: s.question, options: s.options, correct: s.correct, right: s.explanationCorrect, wrong: s.explanationWrong };
+      return choice(s.question, s.options, s.correct, s.explanationCorrect, s.explanationWrong);
     case 'simProse':
       // The scenario's setup, or its debrief. Both are authored prose that used to share ONE screen
       // with the decisions the learner never got to make.
@@ -404,7 +404,7 @@ export function normalizeStep(step: LessonStep): Normalized {
       const opts: any[] = s.options ?? [];
       const best = opts.reduce((b, o, i) => ((o?.score ?? -Infinity) > (opts[b]?.score ?? -Infinity) ? i : b), 0);
       const why = String(opts[best]?.consequence ?? '');
-      return { kind: 'choice', prompt: s.prompt, options: opts.map((o) => String(o?.label ?? '')), correct: best, right: why, wrong: why };
+      return choice(s.prompt, opts.map((o) => String(o?.label ?? '')), best, why, why);
     }
     case 'calcQuiz':
       /*
@@ -413,7 +413,7 @@ export function normalizeStep(step: LessonStep): Normalized {
        * the same compromise `fillBlank` above already makes ('That fits.' / 'Not the one.'), and
        * for the same reason: the alternative is an empty feedback bar.
        */
-      return { kind: 'choice', prompt: s.prompt, options: s.options, correct: s.correct, right: 'That is the one.', wrong: 'Not that one.' };
+      return choice(s.prompt, s.options, s.correct, 'That is the one.', 'Not that one.');
     case 'calcWalkthrough':
       /*
        * A worked line of a progressiveCalc: `formula` produces `result`. Rendered as a stat so the

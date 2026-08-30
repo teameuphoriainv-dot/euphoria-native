@@ -27,6 +27,7 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const { normalizeStep, expandSteps, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { buildInteractiveGraphModel, defaultGraphValues } = await import(pathToFileURL(join(ROOT, 'src/lib/interactive-graph-model.ts')).href);
 const { COURSES, loadCourseLessons } = await import(pathToFileURL(join(ROOT, 'src/lib/curriculum/courseIndex.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
@@ -56,10 +57,29 @@ if (process.argv.includes('--selftest')) {
   ok(chartLabel({ type: 'pixel', title: 'T' }) === '', 'chartLabel invented a label for an unrenderable kind');
   ok(!chartLabel({ type: 'bars', title: 'T', items: [{ label: 'L' }] }).includes('undefined'),
     'chartLabel leaked an undefined into the label');
+  const graph = {
+    type: 'interactiveGraph',
+    sectionLabel: 'The gap',
+    title: 'Market return versus investor return',
+    graphType: 'comparison',
+    description: 'Adjust the penalty.',
+    paragraphs: ['Behavior compounds.'],
+    highlightedTerms: [],
+    insights: ['Small gaps become large gaps.'],
+    sliders: [
+      { label: 'Market Return', min: 6, max: 12, default: 10, unit: '%' },
+      { label: 'Behavioral Penalty', min: 0, max: 6, default: 4, unit: '%' },
+      { label: 'Time Period', min: 10, max: 40, default: 30, unit: ' years' },
+    ],
+  };
+  const normalizedGraph = normalizeStep(graph);
+  ok(normalizedGraph.kind === 'graph', 'interactiveGraph was flattened to a non-interactive screen');
+  ok(normalizedGraph.spec.graphType === 'comparison', 'interactiveGraph lost its authored graph type');
+  ok(normalizedGraph.spec.sliders.length === 3, 'interactiveGraph lost its authored controls');
   const lost = expandSteps([{ type: 'progressiveCalc', title: 't', calcSteps: [{ nonsense: true }] }]);
   ok(lost.length === 0, 'a malformed calcStep produced a step it should not have');
   ok(expandSteps([{ type: 'quiz', question: 'q' }]).length === 1, 'a normal step was not passed through');
-  console.log('lesson-render-audit selftest ok — 12 assertions (8 must hold, 4 must not fire)');
+  console.log('lesson-render-audit selftest ok — graph semantics and visual safety assertions passed');
   process.exit(0);
 }
 
@@ -118,6 +138,16 @@ function isThin(n) {
       // a spec-driven interactive is thin only if it has nothing to interact with
       return arrays.length > 0 && arrays.every((a) => a.length === 0);
     }
+    case 'graph': {
+      try {
+        const model = buildInteractiveGraphModel(n.spec, defaultGraphValues(n.spec));
+        const marks = model.series.flatMap((series) => series.points)
+          .concat(model.bars, model.slices, model.cells);
+        return !n.spec?.title?.trim() || !model.accessibilityLabel?.trim() || marks.length === 0;
+      } catch {
+        return true;
+      }
+    }
     case 'prose': case 'todo':
     default: {
       const blocks = Array.isArray(n.blocks) ? n.blocks : [];
@@ -126,7 +156,7 @@ function isThin(n) {
   }
 }
 
-let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0, rawDecisions = 0;
+let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0, rawDecisions = 0, graphSteps = 0, graphScreens = 0, graphControls = 0, renderedGraphControls = 0;
 const unrenderable = [], unlabelled = [];
 const visualKinds = new Map();
 const byType = new Map();
@@ -157,6 +187,14 @@ for (const course of COURSES) {
         continue;
       }
       if (n.kind === 'todo') todo += 1;
+      if (step.type === 'interactiveGraph') {
+        graphSteps += 1;
+        graphControls += step.sliders?.length ?? 0;
+        if (n.kind === 'graph') {
+          graphScreens += 1;
+          renderedGraphControls += n.spec.sliders?.length ?? 0;
+        }
+      }
       // Count every visual the DATA carries, so a chart that never became a block is visible.
       for (const k of ['visual', 'diagramVisual', 'withVisual', 'withoutVisual']) {
         const v = step?.[k];
@@ -197,6 +235,9 @@ if (visualKinds.size) {
   console.log('  ' + [...visualKinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('   '));
 }
 console.log('');
+console.log(`Interactive graphs in the data: ${graphSteps}   reaching the screen: ${graphScreens}`);
+console.log(`Authored graph controls in the data: ${graphControls}   reaching the screen: ${renderedGraphControls}`);
+console.log('');
 
 if (thinByType.size) {
   console.log('thin steps by type:');
@@ -229,6 +270,10 @@ const gradedDecisions = byType.get('simDecision') ?? 0;
 console.log(`decisions in data ${rawDecisions} -> graded ${gradedDecisions} + tied-as-prose ${tiedDecisions}`);
 if (rawDecisions !== gradedDecisions + tiedDecisions) {
   console.error(`\nDECISIONS LOST: ${rawDecisions} in the data, ${gradedDecisions + tiedDecisions} accounted for.`);
+  process.exit(1);
+}
+if (graphSteps !== graphScreens || graphControls !== renderedGraphControls) {
+  console.error(`\nGRAPH SEMANTICS LOST: ${graphSteps} graphs/${graphControls} controls in data, ${graphScreens} graphs/${renderedGraphControls} controls rendered.`);
   process.exit(1);
 }
 if (unlabelled.length) {
