@@ -76,6 +76,11 @@ export const Ev = {
   firstActionSkipped: 'first_action_skipped',
   trialStarted: 'trial_started',
   paid: 'paid',
+  /** Notification measurement is intentionally outcome-shaped. `scheduled` means iOS accepted the
+   * request, not that a person saw it; `opened` is the first observable user outcome. */
+  notificationScheduled: 'notification_scheduled',
+  notificationOpened: 'notification_opened',
+  notificationPermission: 'notification_permission_result',
 } as const;
 
 export type EvName = (typeof Ev)[keyof typeof Ev];

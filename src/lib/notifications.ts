@@ -12,6 +12,7 @@
  */
 import * as Notifications from 'expo-notifications';
 
+import { Ev, track } from './analytics';
 import { DEFAULT_NUDGE_HOUR, TRIAL_DAYS, useApp } from './store';
 import { canSpend, clampToWindow, type NotifEntry } from './notif-budget';
 import { getNews } from './market';
@@ -37,6 +38,13 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Local notifications have no server receipt. A response is the first trustworthy user outcome,
+// so measure the tap rather than pretending that an accepted schedule was a delivered message.
+Notifications.addNotificationResponseReceivedListener((response) => {
+  const kind = response.notification.request.content.data?.kind;
+  if (typeof kind === 'string') track(Ev.notificationOpened, { kind });
+});
+
 /**
  * Apply the user's preference, and report what is ACTUALLY scheduled afterwards.
  *
@@ -58,6 +66,7 @@ export async function applyDailyNudge(
   if (status !== 'granted' && current.canAskAgain) {
     status = (await Notifications.requestPermissionsAsync()).status;
   }
+  track(Ev.notificationPermission, { status });
   if (status !== 'granted') return false;
 
   await Notifications.scheduleNotificationAsync({
@@ -66,6 +75,7 @@ export async function applyDailyNudge(
       title: 'Keep your streak alive',
       body: 'Five minutes with Atlas is all it takes.',
       sound: true,
+      data: { kind: 'streak' },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -73,7 +83,9 @@ export async function applyDailyNudge(
       minute: 0,
     },
   });
-  return true;
+  const accepted = (await scheduledNudges()).some((n) => n.identifier === DAILY_ID);
+  if (accepted) track(Ev.notificationScheduled, { kind: 'streak' });
+  return accepted;
 }
 
 /** What the OS actually has queued. Used by the dev self-check below and safe to call anywhere. */
@@ -130,6 +142,7 @@ export async function applyTrialReminder(schedule: boolean, now: Date = new Date
       title: 'One free day left',
       body: 'Your next day on Euphoria is the last of your free three. Nothing is charged automatically.',
       sound: true,
+      data: { kind: 'billing' },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -139,7 +152,9 @@ export async function applyTrialReminder(schedule: boolean, now: Date = new Date
   });
   // Report the truth: read it back rather than assuming the write landed.
   const all = await scheduledNudges();
-  return all.some((n) => n.identifier === TRIAL_ID);
+  const accepted = all.some((n) => n.identifier === TRIAL_ID);
+  if (accepted) track(Ev.notificationScheduled, { kind: 'billing' });
+  return accepted;
 }
 
 /*
@@ -293,7 +308,7 @@ export async function applyWinBack(schedule: boolean, now: Date = new Date()): P
 
     await Notifications.scheduleNotificationAsync({
       identifier: w.id,
-      content: { title: w.title, body: w.body, sound: true },
+      content: { title: w.title, body: w.body, sound: true, data: { kind: 'winback' } },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds,
@@ -302,6 +317,7 @@ export async function applyWinBack(schedule: boolean, now: Date = new Date()): P
     });
     spent.push({ at: ms, kind: 'winback' });
     st.recordNotif('winback', ms);
+    track(Ev.notificationScheduled, { kind: 'winback', day: w.days });
   }
 
   // Read back what iOS is really holding rather than trusting the writes above.
@@ -394,6 +410,7 @@ export async function applyMarketAlert(now: Date = new Date()): Promise<string |
       // The real headline, trimmed. Never a generated summary: rule 3.1, no invented content.
       body: strong.title.length > 120 ? `${strong.title.slice(0, 117)}...` : strong.title,
       sound: true,
+      data: { kind: 'market' },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -405,5 +422,7 @@ export async function applyMarketAlert(now: Date = new Date()): Promise<string |
 
   // Read back what iOS actually holds, per the rule this file has followed since it was written.
   const queued = await scheduledNudges();
-  return queued.some((n) => n.identifier === MARKET_ID) ? strong.title : null;
+  const accepted = queued.some((n) => n.identifier === MARKET_ID);
+  if (accepted) track(Ev.notificationScheduled, { kind: 'market' });
+  return accepted ? strong.title : null;
 }

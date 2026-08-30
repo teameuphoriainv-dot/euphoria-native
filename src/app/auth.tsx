@@ -25,6 +25,7 @@ import type { Profile } from '@/lib/onboarding-path';
 import {
   AUTH_ENABLED,
   PASSWORD_MIN,
+  registerAppleAuthorizationCode,
   signInWithIdToken,
   sendPasswordReset,
   signInWithEmail,
@@ -214,6 +215,11 @@ export default function Auth() {
         if (!r.ok) {
           setAuthError(r.message);
           return;
+        }
+        // Apple's code expires within minutes and can be exchanged only once. Await the server
+        // handoff before routing; a failure does not invalidate the successful Supabase sign-in.
+        if (which === 'apple' && identity.authorizationCode) {
+          await registerAppleAuthorizationCode(identity.authorizationCode);
         }
       }
       enterWith(identity);

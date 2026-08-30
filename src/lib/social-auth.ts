@@ -51,6 +51,12 @@ export type SocialIdentity = {
    * ("neither identityToken nor nonce appears anywhere in src/ today"). It appears now.
    */
   idToken: string | null;
+  /**
+   * Apple's single-use, short-lived server authorization code. The app sends this to the
+   * authenticated apple-auth-token Edge Function immediately after Supabase sign-in so the server
+   * can obtain an encrypted refresh token for automatic account-deletion revocation.
+   */
+  authorizationCode: string | null;
 };
 
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
@@ -110,6 +116,7 @@ export async function signInWithApple(): Promise<SocialIdentity | null> {
       provider: 'apple',
       id: credential.user,
       idToken: credential.identityToken ?? null,
+      authorizationCode: credential.authorizationCode ?? null,
       name: parts.length ? parts.join(' ') : null,
       email: credential.email ?? null,
     };
@@ -170,7 +177,14 @@ export async function signInWithGoogle(): Promise<SocialIdentity | null> {
     if (!isSuccessResponse(response)) return null;
 
     const { user } = response.data;
-    return { provider: 'google', id: user.id, name: user.name, email: user.email, idToken: response.data.idToken ?? null };
+    return {
+      provider: 'google',
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      idToken: response.data.idToken ?? null,
+      authorizationCode: null,
+    };
   } catch (e) {
     // Older/native failure paths still throw with a code; treat an in-flight cancel the same way.
     if (isErrorWithCode(e) && (e.code === 'SIGN_IN_CANCELLED' || e.code === '-5')) return null;

@@ -18,6 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
 
+import { checkPasswordSafety } from './password-safety';
+
 const URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -188,6 +190,19 @@ const OFF: AuthResult = { ok: false, message: 'Accounts are not switched on in t
 export async function signUpWithEmail(email: string, password: string): Promise<AuthResult> {
   const sb = supabase();
   if (!sb) return OFF;
+  const safety = await checkPasswordSafety(password);
+  if (safety === 'compromised') {
+    return {
+      ok: false,
+      message: 'That password appears in known data breaches. Choose a unique password instead.',
+    };
+  }
+  if (safety === 'unavailable') {
+    return {
+      ok: false,
+      message: 'We could not verify that password safely. Check your connection and try again.',
+    };
+  }
   const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
   if (error) return { ok: false, message: authMessage(error.message) };
   return { ok: true, needsConfirmation: data.session === null };
@@ -222,9 +237,10 @@ export async function sendPasswordReset(email: string): Promise<AuthResult> {
  * Sign in with an Apple or Google identity token from the native sheet.
  *
  * NATIVE, NOT OAUTH. `expo-apple-authentication` and Google Sign-In already completed the flow on
- * device and handed back a signed id token; Supabase verifies it directly. That is why the Apple
- * provider needs only the BUNDLE ID in its Client IDs field and no private key: the key and the
- * six-month secret rotation belong to the web OAuth path this app never takes.
+ * device and handed back a signed id token; Supabase verifies it directly. Authentication itself
+ * therefore needs only the bundle ID. The server-side Apple key used by apple-auth-token is a
+ * separate account-deletion concern: it exchanges the native authorization code and later revokes
+ * the resulting refresh token.
  */
 export async function signInWithIdToken(
   provider: 'apple' | 'google',
@@ -235,6 +251,30 @@ export async function signInWithIdToken(
   const { error } = await sb.auth.signInWithIdToken({ provider, token });
   if (error) return { ok: false, message: authMessage(error.message) };
   return { ok: true, needsConfirmation: false };
+}
+
+/**
+ * Exchange Apple's short-lived authorization code on the server and retain only an encrypted
+ * refresh token. This is deliberately separate from signInWithIdToken(): Supabase verifies the
+ * identity token for authentication, while Apple's /auth/token exchange exists solely so account
+ * deletion can later revoke the user's Apple authorization automatically.
+ *
+ * Failure does not undo a valid sign-in. Until the server's Sign in with Apple key is configured,
+ * deletion still removes the Euphoria account and the UI provides Apple's manual revocation path.
+ */
+export async function registerAppleAuthorizationCode(
+  authorizationCode: string,
+): Promise<boolean> {
+  const sb = supabase();
+  if (!sb || !session || !authorizationCode) return false;
+  const { data, error } = await sb.functions.invoke('apple-auth-token', {
+    body: { action: 'exchange', authorizationCode },
+  });
+  if (error) {
+    if (__DEV__) console.warn('[auth] Apple revocation token registration failed');
+    return false;
+  }
+  return data?.stored === true;
 }
 
 /** End the server session. Local profile state is the caller's business, not this module's. */
@@ -270,9 +310,20 @@ export async function signOutServer(): Promise<void> {
  * `ok: true` when there is no session: there is no server account to delete, so there is nothing
  * to fail at. That is the honest answer for a device-local profile, not a papered-over error.
  */
-export async function deleteServerAccount(): Promise<{ ok: boolean; message?: string }> {
+export async function deleteServerAccount(options?: { revokeApple?: boolean }): Promise<{
+  ok: boolean;
+  message?: string;
+  appleRevoked?: boolean;
+}> {
   const sb = supabase();
   if (!sb || !session) return { ok: true };
+  let appleRevoked: boolean | undefined;
+  if (options?.revokeApple) {
+    const { data, error } = await sb.functions.invoke('apple-auth-token', {
+      body: { action: 'revoke' },
+    });
+    appleRevoked = !error && data?.revoked === true;
+  }
   const { error } = await sb.rpc('delete_own_account');
   if (error) {
     // The server copy may still exist, but this device must not keep a refreshable session after
@@ -286,6 +337,7 @@ export async function deleteServerAccount(): Promise<{ ok: boolean; message?: st
     const missing = /function .*delete_own_account.* does not exist|PGRST202/i.test(error.message);
     return {
       ok: false,
+      appleRevoked,
       message: missing
         ? 'Your account on our servers could not be removed yet. Your data on this device has been deleted.'
         : 'Your account on our servers could not be reached. Your data on this device has been deleted.',
@@ -295,5 +347,5 @@ export async function deleteServerAccount(): Promise<{ ok: boolean; message?: st
   // making a second server request against a user that no longer exists.
   await sb.auth.signOut({ scope: 'local' });
   adoptSession(null);
-  return { ok: true };
+  return { ok: true, appleRevoked };
 }

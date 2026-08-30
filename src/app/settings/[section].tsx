@@ -282,7 +282,7 @@ function AccountSection() {
                      * portfolio being deleted. After the wipe there are no positions and no
                      * watchlist, so it cancels and returns null, which is the intent.
                      */
-                    void deleteServerAccount().then((server) => {
+                    void deleteServerAccount({ revokeApple: usedApple }).then((server) => {
                       // Local data goes regardless. Somebody who asked to be forgotten must not be
                       // left with their progress intact because a network call failed.
                       useApp.getState().deleteProfile();
@@ -294,7 +294,7 @@ function AccountSection() {
                         router.replace('/welcome');
                         // Said AFTER routing, and only on failure: they must not be told the server
                         // copy is gone when it is not.
-                        const appleRevocation = usedApple
+                        const appleRevocation = usedApple && server.appleRevoked !== true
                           ? ' To revoke Euphoria\'s Apple sign-in access, open iOS Settings, tap your Apple Account, then Sign in with Apple, Euphoria, and Delete.'
                           : '';
                         if (!server.ok && server.message) {

@@ -5,11 +5,12 @@
  * all, and at what hour — deliberately separated from `notifications.ts` so the rule can be tested
  * without an OS, and so a fifth notification type cannot be added without passing through here.
  *
- * THE NUMBERS ARE NOT GUESSED. They come from what the winning apps actually do:
- *   - Duolingo caps at 2 push notifications per day. Its gamification programme cut churn from
- *     47% to 28% and holds ~55% month-over-month DAU retention, roughly double the category.
- *   - Across mobile generally, users receiving MORE THAN 6 app-initiated pushes a week are 3.4x
- *     more likely to uninstall within 30 days, and CTR falls 10-20% for each message past five.
+ * THE NUMBERS ARE A CONSERVATIVE LAUNCH POLICY, not a claim about another company's private
+ * implementation. Apple requires notifications to be purposeful and asks teams to consider
+ * frequency, timing and value. Published cross-industry guidance commonly starts around 1-4 push
+ * messages per month and recommends cross-channel frequency caps. Until Euphoria has enough
+ * consented outcome data for a controlled experiment, two app-initiated messages per rolling week
+ * is the safer ceiling.
  *
  * The reconciliation that shapes this file: a streak reminder the user switched on and set the
  * hour for is NOT an app-initiated push. It is their own alarm clock, which is why Duolingo can
@@ -31,10 +32,10 @@ export type NotifKind = 'streak' | 'billing' | 'winback' | 'market';
  */
 export const PRIORITY: readonly NotifKind[] = ['billing', 'winback', 'market'] as const;
 
-/** Duolingo's ceiling, counting the streak reminder. */
+/** Hard interruption ceiling, counting the user-configured streak reminder. */
 export const MAX_PER_DAY = 2;
 
-/** App-initiated messages per rolling 7 days. Well under the 6/week uninstall cliff. */
+/** Conservative app-initiated message ceiling per rolling seven days. */
 export const MAX_OTHER_PER_WEEK = 2;
 
 export const WINDOW_START_HOUR = 9;

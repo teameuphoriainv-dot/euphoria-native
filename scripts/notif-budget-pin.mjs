@@ -1,10 +1,9 @@
 /**
  * THE NOTIFICATION BUDGET IS RESEARCH, NOT PREFERENCE, AND IT MUST NOT DRIFT.
  *
- * These numbers were derived from what actually works, not from taste:
- *   - Duolingo caps at 2/day and holds ~55% MoM DAU retention, roughly double the category.
- *   - Users getting MORE THAN 6 app-initiated pushes a week are 3.4x more likely to uninstall
- *     inside 30 days; CTR drops 10-20% per message past five.
+ * These are conservative launch limits selected from Apple's value/frequency guidance and broad
+ * cross-industry frequency-capping guidance. They are not presented as another company's private
+ * production limits. Change them only through a measured experiment with opt-out/uninstall guardrails.
  *
  * A cap is the kind of constant that gets nudged upward one release at a time, each nudge
  * defensible on its own, until the app is the thing people mute. This pin makes the number
@@ -25,8 +24,8 @@ try {
 }
 
 // 2. The researched numbers themselves.
-if (MAX_PER_DAY !== 2) fail(`MAX_PER_DAY is ${MAX_PER_DAY}, expected 2 (Duolingo's proven ceiling).`);
-if (MAX_OTHER_PER_WEEK !== 2) fail(`MAX_OTHER_PER_WEEK is ${MAX_OTHER_PER_WEEK}, expected 2. Above 6 app-initiated pushes a week, uninstall risk is 3.4x.`);
+if (MAX_PER_DAY !== 2) fail(`MAX_PER_DAY is ${MAX_PER_DAY}, expected the launch ceiling of 2.`);
+if (MAX_OTHER_PER_WEEK !== 2) fail(`MAX_OTHER_PER_WEEK is ${MAX_OTHER_PER_WEEK}, expected the conservative launch ceiling of 2.`);
 if (WINDOW_START_HOUR !== 9 || WINDOW_END_HOUR !== 21) fail(`delivery window is ${WINDOW_START_HOUR}..${WINDOW_END_HOUR}, expected 9..21. A notification at the wrong hour reads as spam whatever it says.`);
 if (PRIORITY[0] !== 'billing') fail('billing must outrank every other kind: missing it costs the user money.');
 
