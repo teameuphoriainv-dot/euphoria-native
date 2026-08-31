@@ -923,8 +923,8 @@ export const useApp = create<AppState>()(
           set({ signedIn: false });
         }
       },
-      // Release availability is enforced at the state boundary so a stale screen, deep link, or
-      // future caller cannot reactivate authored courses that are still marked coming soon.
+      // Availability is enforced at the state boundary so a stale screen, deep link, or future
+      // caller cannot activate an unknown or not-yet-reviewed course id.
       setActiveCourse: (id) => {
         if (isCourseAvailable(id)) set({ activeCourseId: id });
       },

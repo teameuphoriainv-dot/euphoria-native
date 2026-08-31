@@ -7,13 +7,9 @@ const { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT, COURSES, isCourseAvailable } 
 const { EMPTY_PROFILE, recommendPath } = await import('../src/lib/onboarding-path.ts');
 
 const comingSoon = COURSES.filter((course) => !isCourseAvailable(course.id));
-assert.deepEqual(
-  comingSoon.map((course) => course.id),
-  ['alternative-investments', 'wealth-management'],
-  'only the two web-unreleased courses may be coming soon',
-);
-assert.equal(AVAILABLE_COURSES.length, 10, 'native must expose ten released courses');
-assert.equal(AVAILABLE_LESSON_COUNT, 250, 'native must advertise only released lessons');
+assert.deepEqual(comingSoon, [], 'all twelve authored native courses must be available');
+assert.equal(AVAILABLE_COURSES.length, 12, 'native must expose all twelve authored courses');
+assert.equal(AVAILABLE_LESSON_COUNT, 300, 'native must advertise all authored lessons');
 assert.equal(isCourseAvailable('not-a-course'), false, 'unknown course ids must fail closed');
 
 const profiles = [
@@ -40,4 +36,4 @@ for (const path of [
   assert.match(source(path), /isCourseAvailable/, `${path} must render release availability`);
 }
 
-console.log('course availability regression: 10 available, 2 coming soon, selection guarded');
+console.log('course availability regression: 12 available, 300 lessons, unknown selection guarded');

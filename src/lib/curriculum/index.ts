@@ -31,7 +31,7 @@ export {
   getCoursesByTier,
 };
 
-/** Courses currently released to learners. Authored coming-soon content remains in COURSES. */
+/** Courses currently released to native learners. */
 export const AVAILABLE_COURSES = COURSES.filter((course) => isCourseAvailable(course.id));
 export const AVAILABLE_LESSON_COUNT = AVAILABLE_COURSES.reduce((total, course) => total + course.totalLessons, 0);
 

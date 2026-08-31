@@ -12,41 +12,41 @@ import type { PathwayLesson } from '../types';
 // ANIMATED VISUALS FOR QUANTITATIVE ANALYSIS TEACHING SLIDES
 // ═══════════════════════════════════════════════════════════════
 
-const QA2_TEACH1: AnimatedVisual = { type: 'bars', title: 'Expected Value of a Stock Bet', items: [{ label: 'P(rise) 70%', value: 105, displayValue: '+10.5%' }, { label: 'P(fall) 30%', value: 30, displayValue: '−3.0%' }, { label: 'Net EV', value: 75, displayValue: '+7.5%' }], footer: 'EV = (0.70 × 15%) + (0.30 × −10%) = +7.5%', sentiment: 'positive' };
+const QA2_TEACH1: AnimatedVisual = { type: 'bars', title: 'Expected Value of a Stock Bet', items: [{ label: 'P(rise) 70%', value: 105, displayValue: '+10.5%', sprite: 'chart-up', explain: 'The 15% gain does not count in full, because it only shows up 7 times in 10. Multiply 0.70 by 15% and the branch is worth 10.5 points. You never get to keep the whole upside on paper.' }, { label: 'P(fall) 30%', value: 30, displayValue: '−3.0%', sprite: 'chart-down', explain: 'A 10% loss sounds heavier than a 15% gain sounds nice, but it only lands 3 times in 10, so it pulls the total down by just 3 points. Low probability shrinks a scary number down to something small.' }, { label: 'Net EV', value: 75, displayValue: '+7.5%', sprite: 'target', explain: '10.5 minus 3 leaves 7.5, and here is the strange part: 7.5% is an outcome that never actually happens. This bet pays either plus 15% or minus 10%. The 7.5% is what you collect on average once you have made the bet many times.' }], footer: 'EV = (0.70 × 15%) + (0.30 × −10%) = +7.5%', sentiment: 'positive', sprite: 'scales' };
 
-const QA4_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Markowitz: The Free Lunch of Diversification', rows: [{ label: '60/40 stock/bond return', value: '~80% of stock return' }, { label: '60/40 volatility', value: '~60% of stock vol' }, { label: 'Covariance matrix (500 stocks)', value: '250,000 entries' }, { label: 'Correlation range', value: '−1 to +1' }], footer: 'Two risky assets can build a less risky portfolio.', sentiment: 'positive' };
+const QA4_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Markowitz: The Free Lunch of Diversification', rows: [{ label: '60/40 stock/bond return', value: '~80% of stock return', explain: 'Hand over 40 percent of your stock exposure and you hand over only about 20 percent of the return. Those two numbers refusing to match is the whole lesson.' }, { label: '60/40 volatility', value: '~60% of stock vol', explain: 'Now the other half: 80 percent of the return for 60 percent of the swing. Read the two rows together and the trade is 20 points of return given up to remove 40 points of risk.' }, { label: 'Covariance matrix (500 stocks)', value: '250,000 entries', explain: '500 times 500. A trading year gives you 252 days, so you are estimating a quarter of a million numbers from fewer than 300 observations each, which is how an optimal portfolio ends up being fitted noise.' }, { label: 'Correlation range', value: '−1 to +1', explain: 'Only the negative half of this range gives you something for free, and almost nothing in a real market lives there. Typical stock pairs sit between 0.3 and 0.7, so diversification helps a lot and never all the way.' }], footer: 'Two risky assets can build a less risky portfolio.', sentiment: 'positive' };
 
-const QA11_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Geometric Brownian Motion: dS = μS dt + σS dW', rows: [{ label: 'Drift μ', value: 'expected return / trend' }, { label: 'Volatility σ', value: 'magnitude of randomness' }, { label: 'Tesla σ', value: '~55%, wide paths' }, { label: 'Coca-Cola σ', value: '~18%, narrow paths' }], footer: 'Multiplicative structure keeps prices positive.', sentiment: 'positive' };
+const QA11_TEACH1: AnimatedVisual = { type: 'comparison', title: 'Geometric Brownian Motion: dS = μS dt + σS dW', rows: [{ label: 'Drift μ', value: 'expected return / trend', explain: 'This is the only piece of the equation that knows which way is up. Set μ to zero and the price still moves every single day, it just has no reason to end up anywhere in particular.' }, { label: 'Volatility σ', value: 'magnitude of randomness', explain: 'σ never says the price falls, it says how far from the drift the price is allowed to wander. It is a width, not a direction, which is why it can hurt you even when μ is positive.' }, { label: 'Tesla σ', value: '~55%, wide paths', explain: 'Drag is σ²/2, so 0.55 squared over 2 is about 15% a year gone before Tesla earns anything. Three times Coke\'s volatility costs roughly nine times Coke\'s drag.' }, { label: 'Coca-Cola σ', value: '~18%, narrow paths', explain: '0.18 squared over 2 is 1.6%, so a Coke-shaped path keeps almost all of its arithmetic return. That 1.6% against Tesla\'s 15% is the whole case for boring holdings in a compounding account.' }], footer: 'Multiplicative structure keeps prices positive.', sentiment: 'positive' };
 
-const QA11_TEACH2: AnimatedVisual = { type: 'grid', title: 'SDEs: The Language of Quant Finance', items: [{ label: 'GBM', value: 'dS = μS dt + σS dW, stocks', color: '#A451E6' }, { label: 'Vasicek', value: 'dr = θ(μ−r)dt + σ dW, rates', color: '#3B82F6' }, { label: 'CIR', value: 'σ√r diffusion, positive rates', color: '#10B981' }, { label: 'Heston', value: 'κ(θ−v)dt + ξ√v dW, vol', color: '#F59E0B' }], footer: 'Drift a + diffusion b, each SDE models a different quantity.', sentiment: 'positive' };
+const QA11_TEACH2: AnimatedVisual = { type: 'grid', title: 'SDEs: The Language of Quant Finance', items: [{ label: 'GBM', value: 'dS = μS dt + σS dW, stocks', color: '#A451E6', sprite: 'stock-ticker', explain: 'Both terms are multiplied by S, so a $10 stock and a $1,000 stock move by the same percentage rather than the same dollars. That single S is also what keeps the price above zero: if S reaches 0, both terms are 0 and it cannot go lower.' }, { label: 'Vasicek', value: 'dr = θ(μ−r)dt + σ dW, rates', color: '#3B82F6', sprite: 'magnet', explain: 'Look at θ(μ−r): when the rate sits above μ the bracket turns negative and drags it back down without anyone deciding to. GBM has no term like that, which is why a stock price can wander off and never come home.' }, { label: 'CIR', value: 'σ√r diffusion, positive rates', color: '#10B981', sprite: 'safety-net', explain: 'Swapping σ for σ√r means the randomness shrinks as the rate approaches zero. At r = 0 the shock is exactly 0, so only the upward pull is left and the rate cannot cross into negative territory.' }, { label: 'Heston', value: 'κ(θ−v)dt + ξ√v dW, vol', color: '#F59E0B', sprite: 'bolt', explain: 'The random thing here is not the price, it is v, the variance itself. That is the honest fix for GBM\'s worst assumption, that σ is one fixed number, and it is exactly where lesson 12 picks up.' }], footer: 'Drift a + diffusion b, each SDE models a different quantity.', sentiment: 'positive', sprite: 'book' };
 
-const QA12_TEACH1: AnimatedVisual = { type: 'grid', title: 'Three Stylized Facts of Volatility', items: [{ label: 'Clustering', value: 'big moves follow big moves', color: '#EF4444' }, { label: 'Mean reversion', value: 'extreme vol returns to normal', color: '#10B981' }, { label: 'Leverage effect', value: 'drops raise vol more than rallies', color: '#F59E0B' }], footer: 'VIX has ranged from 9 to 82, volatility is never constant.', sentiment: 'positive' };
+const QA12_TEACH1: AnimatedVisual = { type: 'grid', title: 'Three Stylized Facts of Volatility', items: [{ label: 'Clustering', value: 'big moves follow big moves', color: '#EF4444', sprite: 'magnet', explain: 'This is why one violent day is information, not noise. After the March 2020 crash the S&P moved more than 3 percent on 15 of 22 trading days, so the first big move was a warning about the next fifteen.' }, { label: 'Mean reversion', value: 'extreme vol returns to normal', color: '#10B981', sprite: 'anchor', explain: 'The VIX reached 80 in October 2008 and 82 in March 2020, and touched 9 in 2017, and it stayed at none of them. In GARCH this is the condition alpha plus beta under 1, which pulls every long horizon forecast back toward about 19.' }, { label: 'Leverage effect', value: 'drops raise vol more than rallies', color: '#F59E0B', sprite: 'scale-tip', explain: 'A 5 percent fall lifts the VIX by 3 or 4 points, a 5 percent rally lowers it by only 1 or 2. Volatility reacts to direction even though it only measures size, and that lopsidedness is what tilts the smile.' }], footer: 'VIX has ranged from 9 to 82, volatility is never constant.', sentiment: 'positive', sprite: 'magnifier' };
 
-const QA12_TEACH2: AnimatedVisual = { type: 'line', title: 'The Volatility Smile (Implied Vol by Strike)', points: [{ label: 'OTM put', value: '30%' }, { label: 'Near put', value: '24%' }, { label: 'ATM', value: '18%' }, { label: 'Near call', value: '21%' }, { label: 'OTM call', value: '25%' }], trend: 'up', footer: 'OTM puts trade at a premium, the market’s scar from Black Monday 1987.', sentiment: 'positive' };
+const QA12_TEACH2: AnimatedVisual = { type: 'line', title: 'The Volatility Smile (Implied Vol by Strike)', points: [{ label: 'OTM put', value: '30%', explain: 'Same stock, same expiry, but this contract is priced off 30 percent volatility while the at the money one uses 18. Buyers are paying about two thirds more per unit of risk purely for crash protection.' }, { label: 'Near put', value: '24%', explain: 'Six points above the at the money level and you have barely moved down the strike ladder. The curve climbs fastest on the put side, which is why equity traders call this a skew rather than a smile.' }, { label: 'ATM', value: '18%', explain: 'This is the lowest point on the whole curve, and it is the number people mean when they say \'the\' implied vol. Black-Scholes in lesson 5 predicts all five of these readings equal it, and none of them do.' }, { label: 'Near call', value: '21%', explain: 'Three points above at the money, against six points on the put side at the same distance out. The left wing is twice as steep, and that gap is the leverage effect showing up in prices.' }, { label: 'OTM call', value: '25%', explain: 'Even far out calls trade above 18, because a melt up is still a big move. Both wings lift off the middle, which is the market saying the real return distribution has fatter tails than the bell curve allows.' }], trend: 'up', footer: 'OTM puts trade at a premium, the market’s scar from Black Monday 1987.', sentiment: 'positive' };
 
-const QA13_TEACH1: AnimatedVisual = { type: 'metric', title: 'Bond Price = PV of All Cash Flows', value: '$61.39', detail: '$100 zero-coupon, 10 years, 5% yield', footer: 'Yields up → prices down, the central fact of fixed income.', sentiment: 'positive' };
+const QA13_TEACH1: AnimatedVisual = { type: 'metric', title: 'Bond Price = PV of All Cash Flows', value: '$61.39', detail: '$100 zero-coupon, 10 years, 5% yield', footer: 'Yields up → prices down, the central fact of fixed income.', sentiment: 'positive', sprite: 'hourglass' };
 
-const QA13_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Credit Spreads by Quality', rows: [{ label: 'Investment-grade spread', value: '0.8-2.0%' }, { label: 'High-yield (normal)', value: '3-8%' }, { label: 'High-yield (2008 crisis)', value: '~22%' }, { label: '2s10s inversion', value: 'predicted 8/8 recessions since 1970' }], footer: 'The yield curve encodes the market’s economic forecast.', sentiment: 'positive' };
+const QA13_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Credit Spreads by Quality', rows: [{ label: 'Investment-grade spread', value: '0.8-2.0%', explain: 'On a $10,000 bond, a 1% spread is $100 a year. That $100 is the entire payment you get for the risk the company folds, so the market is telling you it thinks folding is rare.' }, { label: 'High-yield (normal)', value: '3-8%', explain: 'Roughly four times the investment-grade pay on the same $10,000. The market is not being generous, it is quoting a default rate of about 4% a year on these borrowers and charging you to carry it.' }, { label: 'High-yield (2008 crisis)', value: '~22%', explain: 'At 22%, buyers were pricing in roughly a fifth of these companies dying inside a year. Anyone who bought there and was wrong made a fortune, because spreads fell back near 6% within eighteen months.' }, { label: '2s10s inversion', value: 'predicted 8/8 recessions since 1970', explain: 'Notice this says 8 of 8 while the opening slide said 10 of 10. Different curve definitions and different recession lists give different counts, so always ask what a perfect track record is actually counting.' }], footer: 'The yield curve encodes the market’s economic forecast.', sentiment: 'positive' };
 
-const QA14_TEACH1: AnimatedVisual = { type: 'flow', title: 'Barrier Option: Knock-Out Mechanics', nodes: [{ label: 'Down-and-out call, strike $100, barrier $85', value: 'behaves like vanilla call', color: '#3B82F6' }, { label: 'Stock touches $85', value: 'option permanently dies', color: '#EF4444' }, { label: 'In-Out Parity', value: 'knock-in + knock-out = vanilla', color: '#10B981' }], footer: 'Cheaper than vanilla, but protection can vanish at the worst time.', sentiment: 'positive' };
+const QA14_TEACH1: AnimatedVisual = { type: 'flow', title: 'Barrier Option: Knock-Out Mechanics', nodes: [{ label: 'Down-and-out call, strike $100, barrier $85', value: 'behaves like vanilla call', color: '#3B82F6', sprite: 'chart-up', explain: 'Until $85 is touched this is an ordinary $100 call: same delta, same payoff, same everything. The lower price tag is paid for entirely by what might happen, not by what has happened.' }, { label: 'Stock touches $85', value: 'option permanently dies', color: '#EF4444', sprite: 'chain-break', explain: '$85 is not a warning line, it is a switch. One second at $84 on day 30 and the $120 close at expiry pays you nothing, even though a vanilla call would have paid $20.' }, { label: 'In-Out Parity', value: 'knock-in + knock-out = vanilla', color: '#10B981', sprite: 'scales', explain: 'Own both versions and one of them is always alive, so together they are just a plain call. If the vanilla is $10 and the knock-out is $7, the knock-in has to be $3, with no model needed.' }], footer: 'Cheaper than vanilla, but protection can vanish at the worst time.', sentiment: 'positive', sprite: 'bolt' };
 
-const QA14_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Model Risk: One Barrier Option, Three Prices', rows: [{ label: 'GBM model', value: '$3.20' }, { label: 'Heston (stochastic vol)', value: '$3.65' }, { label: 'Local volatility', value: '$4.10' }, { label: 'Price range', value: '28%, pure model risk' }], footer: 'Exotics need Monte Carlo, and multi-model pricing.', sentiment: 'negative' };
+const QA14_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Model Risk: One Barrier Option, Three Prices', rows: [{ label: 'GBM model', value: '$3.20', explain: 'The cheapest of the three, and it is cheap for one reason: constant volatility understates how often the stock wanders down far enough to touch $85.' }, { label: 'Heston (stochastic vol)', value: '$3.65', explain: 'Let volatility move on its own and the price gains 45 cents, about 14 percent. Nothing about the contract changed, only how wild the path is allowed to get near the barrier.' }, { label: 'Local volatility', value: '$4.10', explain: 'Ninety cents above GBM on the identical option. Every input a client can see is the same, so the entire gap is an argument about volatility that lives inside your code.' }, { label: 'Price range', value: '28%, pure model risk', explain: '$3.20 to $4.10 is a 28 percent spread with the market perfectly still. Quote the low end and sell, and a rival using local vol has just taken your whole margin off you.' }], footer: 'Exotics need Monte Carlo, and multi-model pricing.', sentiment: 'negative' };
 
-const QA15_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Credit Curve: Lehman Brothers, Sept 2008', rows: [{ label: '5Y CDS, one week before', value: '150 bps' }, { label: '5Y CDS, day of bankruptcy', value: '700 bps' }, { label: 'Curve shape', value: 'inverted, imminent default' }, { label: 'Rating agency view', value: 'still rated A2' }], footer: 'CDS markets lead rating downgrades by months.', sentiment: 'negative' };
+const QA15_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Credit Curve: Lehman Brothers, Sept 2008', rows: [{ label: '5Y CDS, one week before', value: '150 bps', explain: '150 bp works out to roughly a 2.5% chance of default per year, which is unremarkable for a bank. Seven days before bankruptcy the market was still pricing Lehman as ordinary.' }, { label: '5Y CDS, day of bankruptcy', value: '700 bps', explain: 'From 150 to 700 in one week. Divide 700 by 60% and the implied default odds jumped from 2.5% to about 11.7% a year, a repricing that took trading days rather than quarters.' }, { label: 'Curve shape', value: 'inverted, imminent default', explain: 'Normally ten year protection costs more than one year protection, because more time means more chances to fail. Inverted flips that: the short end costs more, which is the market saying the danger is now, not later.' }, { label: 'Rating agency view', value: 'still rated A2', explain: 'A2 is upper medium grade, the same bucket as healthy ordinary companies. The spread had quintupled and the rating had not moved a notch, which tells you which of the two is a live traded price and which is an opinion updated on committee time.' }], footer: 'CDS markets lead rating downgrades by months.', sentiment: 'negative' };
 
-const QA16_TEACH1: AnimatedVisual = { type: 'grid', title: 'Short-Rate Models', items: [{ label: 'Vasicek', value: 'mean-reverting, allows negative rates', color: '#B862ED' }, { label: 'CIR', value: '√r diffusion, rates stay positive', color: '#10B981' }, { label: 'Hull-White', value: 'θ(t) fits today’s yield curve exactly', color: '#3B82F6' }], footer: 'Affine term structure → fast closed-form bond pricing.', sentiment: 'positive' };
+const QA16_TEACH1: AnimatedVisual = { type: 'grid', title: 'Short-Rate Models', items: [{ label: 'Vasicek', value: 'mean-reverting, allows negative rates', color: '#B862ED', sprite: 'chart-down', explain: 'The noise term is plain sigma, the same size whether the rate sits at 6% or at 0.1%. That constant shaking is exactly what lets a Vasicek path wander below zero.' }, { label: 'CIR', value: '√r diffusion, rates stay positive', color: '#10B981', sprite: 'safety-net', explain: 'The square root of r is the whole trick. At r = 4% the noise scales by 0.2, at r = 0.01% it scales by 0.01, so the randomness switches itself off right at the boundary.' }, { label: 'Hull-White', value: 'θ(t) fits today’s yield curve exactly', color: '#3B82F6', sprite: 'key', explain: 'θ(t) is a function, not a single number, so it carries one free value per maturity. That is why it can hit every bond price on today\'s curve at once instead of only fitting on average.' }], footer: 'Affine term structure → fast closed-form bond pricing.', sentiment: 'positive', sprite: 'magnet' };
 
-const QA16_TEACH2: AnimatedVisual = { type: 'flow', title: 'Model Calibration to Market Data', nodes: [{ label: 'Market swaption prices', value: 'calibration targets', color: '#3B82F6' }, { label: 'Minimize Σ(P_model − P_market)²', value: 'non-linear optimization', color: '#F59E0B' }, { label: 'Calibrated parameters', value: 'a, σ, θ(t)', color: '#10B981' }], footer: '1 bp error on $400T of swaps = $40B mispriced.', sentiment: 'positive' };
+const QA16_TEACH2: AnimatedVisual = { type: 'flow', title: 'Model Calibration to Market Data', nodes: [{ label: 'Market swaption prices', value: 'calibration targets', color: '#3B82F6', sprite: 'price-tag', explain: 'These are not estimates, they are prices someone actually paid this morning. The model gets no vote on them, it has to bend until it reproduces them.' }, { label: 'Minimize Σ(P_model − P_market)²', value: 'non-linear optimization', color: '#F59E0B', sprite: 'calculator', explain: 'Squaring is what sets the priority. One 5 bp miss costs 25, while five separate 1 bp misses cost 5 in total, so the optimizer always chases the single worst-fit swaption first.' }, { label: 'Calibrated parameters', value: 'a, σ, θ(t)', color: '#10B981', sprite: 'check-badge', explain: 'Only three outputs come out, squeezed from ten or more market prices, so the fit is overdetermined on purpose. If a and sigma jump around from Monday to Tuesday, the model is the wrong shape, not the market.' }], footer: '1 bp error on $400T of swaps = $40B mispriced.', sentiment: 'positive', sprite: 'scales' };
 
-const QA17_TEACH1: AnimatedVisual = { type: 'grid', title: 'What Makes a Good Feature', items: [{ label: 'Predictive power', value: 'correlates with future returns', color: '#10B981' }, { label: 'Stability', value: 'relationship consistent over time', color: '#3B82F6' }, { label: 'Uniqueness', value: 'adds information beyond others', color: '#B862ED' }, { label: 'Economic intuition', value: 'a reason WHY it should work', color: '#F59E0B' }], footer: 'Great features beat complex models, feature quality sets the ceiling.', sentiment: 'positive' };
+const QA17_TEACH1: AnimatedVisual = { type: 'grid', title: 'What Makes a Good Feature', items: [{ label: 'Predictive power', value: 'correlates with future returns', color: '#10B981', sprite: 'target', explain: 'This is the box everyone checks first and the easiest one to fake. Test 500 random features at the usual 5 percent bar and about 25 of them will look predictive on luck alone.' }, { label: 'Stability', value: 'relationship consistent over time', color: '#3B82F6', sprite: 'clock', explain: 'A feature that worked from 2010 to 2015 and quietly died in 2016 is worse than one that never worked, because five good years is exactly what convinces you to size it up right before it stops paying.' }, { label: 'Uniqueness', value: 'adds information beyond others', color: '#B862ED', sprite: 'key', explain: 'If your new feature is 0.9 correlated with the momentum feature you already have, it adds close to nothing. You have not added a second bet, you have doubled the first one and hidden it under a new name.' }, { label: 'Economic intuition', value: 'a reason WHY it should work', color: '#F59E0B', sprite: 'lightbulb', explain: 'This is the only row a computer cannot score for you. Ask who is on the other side and why they keep leaving this money out, and if you have no answer, assume the edge disappears the month after you deploy.' }], footer: 'Great features beat complex models, feature quality sets the ceiling.', sentiment: 'positive', sprite: 'gem' };
 
-const QA17_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Why 90% of ML Strategies Fail', rows: [{ label: 'Daily return predictability (R²)', value: '< 0.01' }, { label: 'Backtest accuracy', value: '70% 🤩' }, { label: 'Live accuracy', value: '50.1% 💀' }, { label: 'Cause', value: 'overfit noise, not signal' }], footer: 'Walk-forward validation + regularization is the only defense.', sentiment: 'negative' };
+const QA17_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Why 90% of ML Strategies Fail', rows: [{ label: 'Daily return predictability (R²)', value: '< 0.01', explain: 'Under 0.01 means the best predictor anyone has found explains less than one percent of what a stock does tomorrow. The other 99 percent is noise, and noise is sitting right there in your training file waiting to be memorized.' }, { label: 'Backtest accuracy', value: '70% 🤩', explain: 'Seventy should frighten you rather than please you. Honest daily prediction tops out near 52 percent, so a model claiming 70 is not 18 points better than the industry, it is reciting days it has already seen.' }, { label: 'Live accuracy', value: '50.1% 💀', explain: '50.1 is a coin flip with a rounding error. Every one of the 19.9 points that vanished was noise the model had memorized, and not one of those noise patterns showed up again.' }, { label: 'Cause', value: 'overfit noise, not signal', explain: 'The model did its job perfectly. It found patterns, exactly as instructed. The patterns simply were not real, and nothing inside the backtest could have told it the difference, which is why the check has to come from outside.' }], footer: 'Walk-forward validation + regularization is the only defense.', sentiment: 'negative' };
 
-const QA18_TEACH2: AnimatedVisual = { type: 'flow', title: 'Kyle Model: How Informed Trading Moves Prices', nodes: [{ label: 'Informed trader + noise traders', value: 'submit orders', color: '#B862ED' }, { label: 'Market maker observes order flow', value: 'cannot tell informed from noise', color: '#F59E0B' }, { label: 'Price = prior + λ × imbalance', value: 'permanent impact', color: '#EF4444' }], footer: 'The bid-ask spread compensates for adverse selection.', sentiment: 'positive' };
+const QA18_TEACH2: AnimatedVisual = { type: 'flow', title: 'Kyle Model: How Informed Trading Moves Prices', nodes: [{ label: 'Informed trader + noise traders', value: 'submit orders', color: '#B862ED', sprite: 'crowd', explain: 'The one who knows something deliberately trades small and slow. Buying the whole position at once would drag the price to fair value and destroy the edge before the order filled.' }, { label: 'Market maker observes order flow', value: 'cannot tell informed from noise', color: '#F59E0B', sprite: 'magnifier', explain: 'This is the whole model. The market maker sees net buying, not who sent it. Every order looks identical, so each one has to be priced as if it might be the smart one.' }, { label: 'Price = prior + λ × imbalance', value: 'permanent impact', color: '#EF4444', sprite: 'scale-tip', explain: 'Lambda is the price of one unit of imbalance. A high lambda market jumps on a small net order, and that is exactly the empty book the Dow had at 2:45.' }], footer: 'The bid-ask spread compensates for adverse selection.', sentiment: 'positive', sprite: 'funnel' };
 
-const QA19_TEACH1: AnimatedVisual = { type: 'grid', title: 'Seven Deadly Sins of Backtesting', items: [{ label: 'Look-ahead bias', value: 'using future data', color: '#EF4444' }, { label: 'Survivorship bias', value: 'ignoring delisted failures', color: '#EF4444' }, { label: 'Data snooping', value: 'picking the best of many tries', color: '#F59E0B' }, { label: 'Ignored costs', value: 'commissions, spread, impact', color: '#F59E0B' }], footer: 'Of 400 published strategies, fewer than 10% replicated out-of-sample.', sentiment: 'negative' };
+const QA19_TEACH1: AnimatedVisual = { type: 'grid', title: 'Seven Deadly Sins of Backtesting', items: [{ label: 'Look-ahead bias', value: 'using future data', color: '#EF4444', sprite: 'clock', explain: 'Trading on an earnings number the day before it was published. In real time you did not have that number, so every trade the backtest made on it is a trade you could never have placed.' }, { label: 'Survivorship bias', value: 'ignoring delisted failures', color: '#EF4444', sprite: 'chart-down', explain: 'Testing today\'s S&P 500 back to 2000 quietly deletes Enron, WorldCom and Bear Stearns. You keep every winner and drop everything that went to zero, worth 1 to 4 points of invented return a year.' }, { label: 'Data snooping', value: 'picking the best of many tries', color: '#F59E0B', sprite: 'dice', explain: 'Run 500 parameter sets at the usual 5 percent bar and about 25 look profitable on luck alone. Reporting only the best one is reporting the luckiest coin flip and calling it a discovery.' }, { label: 'Ignored costs', value: 'commissions, spread, impact', color: '#F59E0B', sprite: 'receipt', explain: 'A 0.1 percent edge against 0.15 percent of fees and spread is not a dented trade, it is a losing one. The signal can be completely real and the account still shrinks every time you use it.' }], footer: 'Of 400 published strategies, fewer than 10% replicated out-of-sample.', sentiment: 'negative', sprite: 'magnifier' };
 
-const QA19_TEACH2: AnimatedVisual = { type: 'flow', title: 'Robustness Testing', nodes: [{ label: 'Sensitivity analysis', value: 'vary every input', color: '#3B82F6' }, { label: 'Regime analysis', value: 'bull, bear, high/low vol', color: '#B862ED' }, { label: 'Paper trading', value: 'live data, simulated trades', color: '#10B981' }], footer: 'A robust strategy degrades gracefully, a fragile one collapses.', sentiment: 'positive' };
+const QA19_TEACH2: AnimatedVisual = { type: 'flow', title: 'Robustness Testing', nodes: [{ label: 'Sensitivity analysis', value: 'vary every input', color: '#3B82F6', sprite: 'scale-tip', explain: 'Rerun the same idea at 9, 11, 13 and 15 months instead of 12. If only 12 makes money, you did not find an edge, you found one lucky setting that will not repeat.' }, { label: 'Regime analysis', value: 'bull, bear, high/low vol', color: '#B862ED', sprite: 'bull', explain: 'Five straight good years proves nothing on its own: LTCM had five before it blew up. Cut the history into bull, bear, calm and wild and check the edge shows in all four, not just the easy one.' }, { label: 'Paper trading', value: 'live data, simulated trades', color: '#10B981', sprite: 'stock-ticker', explain: 'Three to six months of fake orders at real prices, and the size of the gap names your problem. Backtest 15 and paper 11 means execution costs 4 points. Backtest 15 and paper below zero means the backtest itself was broken.' }], footer: 'A robust strategy degrades gracefully, a fragile one collapses.', sentiment: 'positive', sprite: 'shield' };
 
 const lessons: PathwayLesson[] = [
   // ═══════════════════════════════════════════════════════════════
@@ -67,10 +67,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Medallion vs S&P 500 (1988-2024)',
         rows: [
-          { label: 'Medallion Fund (annual)', value: '+66%' },
-          { label: 'S&P 500 (annual)', value: '+10%' },
-          { label: '$10K → today (Medallion)', value: '$420M+' },
-          { label: '$10K → today (S&P 500)', value: '$340K' },
+          { label: 'Medallion Fund (annual)', value: '+66%', explain: 'That 66% is the average year, not the best one, and it is before fees. Renaissance charged 5% of your money plus 44% of the profit, and investors still walked away with about 39% a year after all of that came out.' },
+          { label: 'S&P 500 (annual)', value: '+10%', explain: 'Do not read 10% as the weak number. It is the return that beat roughly 92 out of every 100 professional stock pickers over 15 years, which is what makes the row above it so strange.' },
+          { label: '$10K → today (Medallion)', value: '$420M+', explain: 'Only 56 percentage points a year separate this row from the one below it. Run that gap for 36 years and it turns into about 1,200 times the money, which is the whole reason this course is about small repeatable edges.' },
+          { label: '$10K → today (S&P 500)', value: '$340K', explain: 'Turning $10,000 into $340,000 is a 34 bagger and a genuinely good outcome for doing nothing clever. Sitting next to $420 million, it shows you what an extra 56 points a year does when it never stops.' },
         ],
         footer: 'Math beat the market by 1,200x over 36 years.',
         sentiment: 'positive',
@@ -86,23 +86,23 @@ const lessons: PathwayLesson[] = [
           type: 'bars',
           title: 'Traditional Edge, Declining',
           items: [
-            { label: '1990s edge', value: 100, displayValue: 'Strong' },
-            { label: '2010s edge', value: 60, displayValue: 'Eroding' },
-            { label: 'Today', value: 25, displayValue: 'Weak' },
+            { label: '1990s edge', value: 100, displayValue: 'Strong', sprite: 'magnifier', explain: 'In 1990 an edge could be as ordinary as reading an annual report nobody else bothered to open. Filings arrived on paper by mail, so plain diligence was rare enough to pay.' },
+            { label: '2010s edge', value: 60, displayValue: 'Eroding', explain: 'The same filings went online and free. Work that used to take a week became a search box, and once everyone can see the data at the same moment, seeing it stops being an advantage.' },
+            { label: 'Today', value: 25, displayValue: 'Weak', sprite: 'scale-tip', explain: 'A quarter of the old edge is what survives. Notice the bar is not zero: human judgment still counts for something, it just no longer pays for itself the way it did in 1990.' },
           ],
           footer: '92% of active managers underperform the S&P over 15 yrs',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'chart-down'
         },
         withVisual: {
           type: 'bars',
           title: 'Quantitative Edge, Compounding',
           items: [
-            { label: '1990s edge', value: 35, displayValue: 'Emerging' },
-            { label: '2010s edge', value: 70, displayValue: 'Dominant' },
-            { label: 'Today', value: 100, displayValue: '80% of trades' },
+            { label: '1990s edge', value: 35, displayValue: 'Emerging', sprite: 'seedling', explain: '35 out of 100 means the maths already worked and almost nobody was running it. Medallion had been trading two years by 1990 and most of Wall Street had never heard the name.' },
+            { label: '2010s edge', value: 70, displayValue: 'Dominant', sprite: 'bolt', explain: 'The jump from 35 to 70 is mostly hardware, not insight. Reaction time fell from a human second to a machine microsecond, and speed is an edge you can buy rather than guess at.' },
+            { label: 'Today', value: 100, displayValue: '80% of trades', sprite: 'network', explain: 'Read both charts as one picture. The traditional bar fell 100 to 25 while this one climbed 35 to 100 over the same years. The edge did not vanish, it changed hands.' },
           ],
           footer: 'Renaissance: 66% / yr for 30+ years',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'chart-up'
         },
       }
     ),
@@ -131,13 +131,17 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'How Trading Evolved',
         nodes: [
-          { label: '1990s, Humans on the floor', value: 'Hand signals, gut, ~0% algos', color: '#EF4444' },
-          { label: '2000s, Early algorithms', value: 'First quant funds emerge', color: '#F59E0B' },
-          { label: '2010s, Algos dominate', value: '60%+ of US trades automated', color: '#3B82F6' },
-          { label: '2020s, AI + alt-data era', value: '80%+ algos, ML pipelines', color: '#AE66ED' },
+          { label: '1990s, Humans on the floor', value: 'Hand signals, gut, ~0% algos', color: '#EF4444', sprite: 'crowd', explain: 'Near enough 0% automated means every price you saw came out of somebody\'s mouth. An order took seconds to fill and a disputed fill took an argument to settle.' },
+          { label: '2000s, Early algorithms', value: 'First quant funds emerge', color: '#F59E0B', sprite: 'calculator', explain: 'Look at the date against 1988, when Medallion launched. The first wave of quant funds arrives more than a decade later, so Simons was not riding a trend, he was the thing everyone copied.' },
+          { label: '2010s, Algos dominate', value: '60%+ of US trades automated', color: '#3B82F6', sprite: 'stock-ticker', explain: 'Crossing 60% is the moment the majority flips. From this column on, the typical thing on the other side of your trade is a program, and it is reading the same news you are, faster.' },
+          { label: '2020s, AI + alt-data era', value: '80%+ algos, ML pipelines', color: '#AE66ED', sprite: 'factory', explain: 'Past 80%, and the raw material changed too. Alt-data means satellite photos of shop car parks and anonymised card receipts: numbers nobody ever collected to be stock research.' },
         ],
         footer: '25 years from shouting pits to silicon, and accelerating.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'hourglass'
+      },
+      {
+        hint: 'Press any of the four eras on this timeline and I will tell you what actually changed that decade, including the one where the machines quietly became the majority.',
+        recap: 'Keep hold of 66 against 10. Quantitative finance is not a promise that maths wins, it is the claim that a small repeatable statistical edge, applied across thousands of trades and left alone for 36 years, finishes about 1,200 times ahead of the market. Everything after this lesson is about finding an edge like that and proving it is real before you bet on it.',
       }
     ),
 
@@ -239,10 +243,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Quantitative Finance Facts',[
-      ['What percentage of U.S. equity trading is now algorithmic?','Over 80%, up from essentially 0% in 1990. The transition from human to algorithmic trading happened in just 25 years.'],
-      ['How much has the Medallion Fund generated in total profits?','Over $100 billion since 1988. A $1 investment in 1988 would be worth over $42,000 before fees, the greatest track record in investment history.'],
-      ['What kind of people does Renaissance Technologies hire?','Mathematicians, physicists, cryptographers, and computer scientists, not finance professionals. Jim Simons specifically avoided hiring anyone with a Wall Street background.'],
-      ['What happened to Long-Term Capital Management (LTCM)?','Despite being run by two Nobel Prize winners, LTCM collapsed in 1998 after losing $4.6 billion in months. The Federal Reserve had to orchestrate a bailout to prevent a global financial crisis.']
+      ['What percentage of U.S. equity trading is now algorithmic?','Over 80%, up from essentially 0% in 1990. The transition from human to algorithmic trading happened in just 25 years.', { stat: '0% to 80% in 25 years', sprite: 'stopwatch' }],
+      ['How much has the Medallion Fund generated in total profits?','Over $100 billion since 1988. A $1 investment in 1988 would be worth over $42,000 before fees, the greatest track record in investment history.', { stat: '$1 in 1988 becomes $42,000', sprite: 'vault' }],
+      ['What kind of people does Renaissance Technologies hire?','Mathematicians, physicists, cryptographers, and computer scientists, not finance professionals. Jim Simons specifically avoided hiring anyone with a Wall Street background.', { stat: 'PhDs hired, bankers not', sprite: 'graduation-cap' }],
+      ['What happened to Long-Term Capital Management (LTCM)?','Despite being run by two Nobel Prize winners, LTCM collapsed in 1998 after losing $4.6 billion in months. The Federal Reserve had to orchestrate a bailout to prevent a global financial crisis.', { stat: '2 Nobel winners, $4.6B gone', sprite: 'bank-run' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -389,10 +393,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Expected Value, Who Has the Edge?',
         rows: [
-          { label: 'Lottery ticket', value: '-50%' },
-          { label: 'Casino roulette', value: '-5.3%' },
-          { label: 'S&P 500 (long-term)', value: '+10% / yr' },
-          { label: "Thorp's quant strategy", value: '+20% / yr' },
+          { label: 'Lottery ticket', value: '-50%', explain: 'Half of every dollar that goes into tickets never comes back to players at all. Buy $20 of tickets every week for a year and the maths says about $520 of that $1,040 is simply gone before any winner is drawn.' },
+          { label: 'Casino roulette', value: '-5.3%', explain: 'Roulette looks almost fair, and that is exactly the design. Losing 5.3 cents on a dollar feels like nothing for one spin, but a busy wheel turns 60 times an hour and the casino keeps every one of those cents.' },
+          { label: 'S&P 500 (long-term)', value: '+10% / yr', explain: 'This is the first positive number on the list, and it flips who you are. In the two rows above you were the player paying the edge. Here you hold the edge and time does the repeating for you.' },
+          { label: "Thorp's quant strategy", value: '+20% / yr', explain: 'Twice the index, sustained for decades. Notice the gap is only 10 points, not 500. The edge per trade was small, and it turned into a fortune because he ran it thousands of times without a losing streak big enough to stop him.' },
         ],
         footer: 'Positive EV × many repetitions = near-guaranteed profit.',
         sentiment: 'positive',
@@ -410,7 +414,7 @@ const lessons: PathwayLesson[] = [
           value: '−EV',
           detail: 'Lottery, hot tips, gut bets',
           footer: "Gambling, not investing",
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'dice'
         },
         withVisual: {
           type: 'metric',
@@ -418,7 +422,7 @@ const lessons: PathwayLesson[] = [
           value: '+$400',
           detail: '0.6 × $1,000 − 0.4 × $500',
           footer: 'Calculated edge, repeatable',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'calculator'
         },
       }
     ),
@@ -444,7 +448,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Diagram showing expected value calculation: a decision tree branching into outcomes with probabilities, then collapsing to a single EV number. Casino roulette (-5.3% EV) vs diversified stock portfolio (+7-10% EV).',
       undefined,
-      QA2_TEACH1
+      QA2_TEACH1,
+      {
+        hint: 'Press either branch, the 70% rise or the 30% fall, to see how the probability shrinks its payout before the two get added into the net bar.',
+        recap: 'Expected value is a weighted average, not a forecast. This bet pays plus 15% or minus 10% and never 7.5%, yet 7.5% is what you actually end up with once you repeat it enough times. Lesson 1 said quants swap gut feeling for data, and this is the first number that does the swapping.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -547,10 +555,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Probability & Expected Value Facts',[
-      ['What is the expected value of a single spin of American roulette (betting $100 on red)?','EV = (18/38 × $100) + (20/38 × -$100) = $47.37 - $52.63 = -$5.26. The house edge is 5.26%, meaning you lose $5.26 per $100 bet on average.'],
-      ['What Sharpe ratio does the S&P 500 have over the long term?','Approximately 0.4. This means for every 1% of volatility, you earn about 0.4% of excess return. Renaissance\'s Medallion Fund reportedly exceeds 3.0.'],
-      ['How did Ed Thorp spot the Madoff fraud using probability?','Madoff claimed consistently positive monthly returns with almost zero variance. Thorp calculated the probability of this pattern occurring naturally and found it was astronomically low, essentially impossible without fabrication.'],
-      ['What is the Kelly criterion formula?','Kelly % = (bp - q) / b, where b = payoff odds, p = win probability, q = loss probability. It gives the mathematically optimal fraction of capital to risk on any positive-EV bet.']
+      ['What is the expected value of a single spin of American roulette (betting $100 on red)?','EV = (18/38 × $100) + (20/38 × -$100) = $47.37 - $52.63 = -$5.26. The house edge is 5.26%, meaning you lose $5.26 per $100 bet on average.', { stat: '-$5.26 per $100', sprite: 'coin' }],
+      ['What Sharpe ratio does the S&P 500 have over the long term?','Approximately 0.4. This means for every 1% of volatility, you earn about 0.4% of excess return. Renaissance\'s Medallion Fund reportedly exceeds 3.0.', { stat: '0.4 vs 3.0+', sprite: 'scale-tip' }],
+      ['How did Ed Thorp spot the Madoff fraud using probability?','Madoff claimed consistently positive monthly returns with almost zero variance. Thorp calculated the probability of this pattern occurring naturally and found it was astronomically low, essentially impossible without fabrication.', { stat: '$65B fraud, called early', sprite: 'magnifier' }],
+      ['What is the Kelly criterion formula?','Kelly % = (bp - q) / b, where b = payoff odds, p = win probability, q = loss probability. It gives the mathematically optimal fraction of capital to risk on any positive-EV bet.', { stat: '20% of bankroll at 60/40', sprite: 'pie-slice' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -696,14 +704,14 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'S&P 500 Daily Volatility (2005-2009)',
         items: [
-          { label: '2005, Calm', value: 12, displayValue: '~0.6%' },
-          { label: '2006, Calm', value: 15, displayValue: '~0.7%' },
-          { label: '2007, Stirring', value: 32, displayValue: '~1.4%' },
-          { label: '2008, Cluster', value: 100, displayValue: '~4.2%' },
-          { label: '2009, Decay', value: 55, displayValue: '~2.0%' },
+          { label: '2005, Calm', value: 12, displayValue: '~0.6%', sprite: 'clock', explain: 'A typical day moved about six tenths of a percent, so a $10,000 position swung around $60 and back. A whole year of days like this is what teaches people that tomorrow looks like today.' },
+          { label: '2006, Calm', value: 15, displayValue: '~0.7%', sprite: 'hourglass', explain: 'Barely a hair above 2005, and that is the point: quiet years sit next to quiet years. If each day were truly independent of the last, calm would not stack up two years deep like this.' },
+          { label: '2007, Stirring', value: 32, displayValue: '~1.4%', sprite: 'crack', explain: 'Double 2006, in a year most people remember as normal. The size of the moves changed months before the direction did, which is the whole reason quants watch volatility as its own series.' },
+          { label: '2008, Cluster', value: 100, displayValue: '~4.2%', sprite: 'flame', explain: 'Seven times a 2005 day, and it did not arrive as one terrible afternoon. 4.2% was the average day for twelve months, so the crash was a season, not an event.' },
+          { label: '2009, Decay', value: 55, displayValue: '~2.0%', sprite: 'parachute', explain: 'Still triple 2005 a full year after the panic. Volatility does not snap back, it drains, and that slow drain is the part a model can actually forecast.' },
         ],
         footer: 'Big moves follow big moves, the GARCH effect.',
-        sentiment: 'negative',
+        sentiment: 'negative', sprite: 'stock-ticker'
       }
     ),
   
@@ -716,9 +724,9 @@ const lessons: PathwayLesson[] = [
           type: 'line',
           title: 'No pattern detection',
           points: [
-            { label: 'Mon', value: '+0.9%' }, { label: 'Tue', value: '-1.2%' },
-            { label: 'Wed', value: '+0.3%' }, { label: 'Thu', value: '-0.8%' },
-            { label: 'Fri', value: '+0.2%' },
+            { label: 'Mon', value: '+0.9%', explain: 'Read alone, +0.9% is just a good Monday. Treat every day as independent and this is all you ever get: five separate numbers with no sixth one implied by them.' }, { label: 'Tue', value: '-1.2%', explain: 'A 2.1 point swing off Monday. Under the independence assumption that swing carries exactly zero information about what Wednesday does.' },
+            { label: 'Wed', value: '+0.3%', explain: 'Add the five days and the week comes to -0.6%, which is the only summary this view can produce. Averaging is the entire toolkit once you throw away the order.' }, { label: 'Thu', value: '-0.8%', explain: 'Two down days out of four so far. Shuffle these five numbers into any other order and the average, the variance and the conclusion all come out identical.' },
+            { label: 'Fri', value: '+0.2%', explain: 'The week ends and the model has learned nothing that helps on Monday. That is the real cost of ignoring time: five days of data, zero memory.' },
           ],
           trend: 'down',
           footer: 'Treated as random noise, so the signal inside it is never used',
@@ -728,9 +736,9 @@ const lessons: PathwayLesson[] = [
           type: 'line',
           title: 'Pattern Detected',
           points: [
-            { label: 'Day 1', value: '+0.4%' }, { label: 'Day 2', value: '+0.7%' },
-            { label: 'Day 3', value: '+1.1%' }, { label: 'Day 4', value: '+1.4%' },
-            { label: 'Day 5', value: '+1.9%' },
+            { label: 'Day 1', value: '+0.4%', explain: '+0.4% is the smallest of the five, and it is the one that matters most, because it came first. Here the position in the sequence is itself the information.' }, { label: 'Day 2', value: '+0.7%', explain: 'Up again after an up day. One pair proves nothing on its own, but this is the raw material of autocorrelation: what happens at lag 1, over and over.' },
+            { label: 'Day 3', value: '+1.1%', explain: 'Each day is adding three to five tenths of a percent on top of the day before. By the third step you are measuring a pattern, not admiring a coincidence.' }, { label: 'Day 4', value: '+1.4%', explain: 'Four rises in a row. Momentum pays roughly 1 to 3% a year, so this is what a real quant edge looks like up close: small, ordered and repeatable rather than dramatic.' },
+            { label: 'Day 5', value: '+1.9%', explain: '+1.9% is nearly five times day 1, and the run totals +5.5% for the week. Same size of daily numbers as the panel on the left, opposite outcome, purely because these ones are in order.' },
           ],
           trend: 'up',
           footer: 'Momentum + mean-reversion extracted',
@@ -763,13 +771,17 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Time Series Decomposition',
         nodes: [
-          { label: 'Raw price series', value: 'Messy, non-stationary', color: '#B862ED' },
-          { label: 'Trend component', value: 'Long-term direction', color: '#10B981' },
-          { label: 'Seasonal cycle', value: 'Repeating waves', color: '#F59E0B' },
-          { label: 'Residual noise', value: 'Random shocks', color: '#EF4444' },
+          { label: 'Raw price series', value: 'Messy, non-stationary', color: '#B862ED', sprite: 'bar-chart', explain: 'This is the only line anyone hands you, and it is the one no model can use. A price that climbs from $1 to $200 has a mean that never stops moving, so the average of the series says nothing about tomorrow.' },
+          { label: 'Trend component', value: 'Long-term direction', color: '#10B981', sprite: 'chart-up', explain: 'Pull this out and you have removed the exact thing that broke stationarity. What is left still wanders, but now it wanders around a fixed level instead of climbing away from you.' },
+          { label: 'Seasonal cycle', value: 'Repeating waves', color: '#F59E0B', sprite: 'calendar', explain: 'A wave with a length you already know: retail sales every December, gas demand every winter. Because the timing is public, it is the easiest piece to forecast and the hardest one to make money from.' },
+          { label: 'Residual noise', value: 'Random shocks', color: '#EF4444', sprite: 'dice', explain: 'Whatever survives after the other three are subtracted. Its sign has no memory, but its size does, and that leftover is precisely where the volatility clustering from the opening chart lives.' },
         ],
         footer: 'Raw = Trend + Season + Cycle + Noise',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'arrow-split'
+      },
+      {
+        hint: 'Press each stage of the decomposition to see what gets pulled out of the raw price line and what is still sitting there afterwards.',
+        recap: 'One idea carries this lesson: the raw price series is unusable and its pieces are not. Split off the trend and the season and you are finally left with something that has a steady average, which is what every model from here needs. Lesson 2 gave you probability on independent draws. Time series is the case where the draws remember each other, and the proof is that the leftover noise still clusters long after the trend has been removed.',
       }
     ),
   
@@ -872,10 +884,10 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap to Reveal
     tr('Time Series Analysis Essentials',[
-      ['What is the difference between SMA and EMA?','SMA weights all data points in the window equally. EMA gives exponentially more weight to recent data points, making it more responsive to new information. A 20-day EMA reacts faster to sudden price drops than a 20-day SMA.'],
-      ['What is a "golden cross" in trading?','When a short-term moving average (e.g., 50-day) crosses above a long-term moving average (e.g., 200-day). It signals bullish momentum. The reverse, a "death cross", signals bearish momentum.'],
-      ['Why did the Quant Meltdown of August 2007 happen?','Dozens of quant funds using similar time series models and mean-reversion strategies simultaneously unwound positions. The correlated liquidation created a death spiral that no individual fund\'s model predicted.'],
-      ['What is volatility clustering and why does it matter?','Large price moves tend to follow large price moves. After a 3% daily drop, the next several days are likely to be volatile too. This is modeled by GARCH processes and is critical for risk management and option pricing.']
+      ['What is the difference between SMA and EMA?','SMA weights all data points in the window equally. EMA gives exponentially more weight to recent data points, making it more responsive to new information. A 20-day EMA reacts faster to sudden price drops than a 20-day SMA.', { stat: 'SMA: 5% weight per day, all 20 days', sprite: 'scales' }],
+      ['What is a "golden cross" in trading?','When a short-term moving average (e.g., 50-day) crosses above a long-term moving average (e.g., 200-day). It signals bullish momentum. The reverse, a "death cross", signals bearish momentum.', { stat: 'Golden cross hit rate: 65-70% historically', sprite: 'bull' }],
+      ['Why did the Quant Meltdown of August 2007 happen?','Dozens of quant funds using similar time series models and mean-reversion strategies simultaneously unwound positions. The correlated liquidation created a death spiral that no individual fund\'s model predicted.', { stat: 'Global Alpha: down 30% in a week', sprite: 'crowd' }],
+      ['What is volatility clustering and why does it matter?','Large price moves tend to follow large price moves. After a 3% daily drop, the next several days are likely to be volatile too. This is modeled by GARCH processes and is critical for risk management and option pricing.', { stat: 'One 3% day, then days of 1 to 3%', sprite: 'magnet' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -1023,10 +1035,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'The Efficient Frontier',
         rows: [
-          { label: 'Bonds (low risk)', value: '5% return / 5% σ' },
-          { label: 'S&P 500', value: '10% / 15% σ' },
-          { label: 'Tech-heavy', value: '14% / 22% σ' },
-          { label: 'Markowitz Optimal', value: '12% / 9% σ ✦' },
+          { label: 'Bonds (low risk)', value: '5% return / 5% σ', explain: 'Five points of return for five points of swing: one unit of risk buys exactly one unit of return. That ratio is the yardstick every other row here gets measured against.' },
+          { label: 'S&P 500', value: '10% / 15% σ', explain: 'Double the bond return costs you three times the swing. A 15 percent sigma means a normal year lands anywhere from minus 5 to plus 25, and you are expected to sit through all of it.' },
+          { label: 'Tech-heavy', value: '14% / 22% σ', explain: 'Four more points of return for seven more points of risk. Extra return keeps getting more expensive the higher you climb, which is what makes the last row look impossible.' },
+          { label: 'Markowitz Optimal', value: '12% / 9% σ ✦', explain: 'Set it beside the S&P row: two points more return with six points less risk. Nothing new was bought. The same assets were reweighted so their bad months stopped landing on the same dates.' },
         ],
         footer: 'Same risk, more return, math finds the curve.',
         sentiment: 'positive',
@@ -1042,10 +1054,10 @@ const lessons: PathwayLesson[] = [
           type: 'pie',
           title: 'Naive Diversification',
           segments: [
-            { label: 'Apple', percent: 25, color: '#3B82F6' },
-            { label: 'Google', percent: 25, color: '#3B82F6' },
-            { label: 'Meta', percent: 25, color: '#3B82F6' },
-            { label: 'Amazon', percent: 25, color: '#3B82F6' },
+            { label: 'Apple', percent: 25, color: '#3B82F6', explain: 'A quarter of the money, but Apple, Google, Meta and Amazon all sell ads, chips and cloud into the same economy. Four slices, one bet.' },
+            { label: 'Google', percent: 25, color: '#3B82F6', explain: 'Another 25 percent of the same trade. When two holdings run at a correlation near 1, splitting money between them changes the names on the statement and nothing about the risk.' },
+            { label: 'Meta', percent: 25, color: '#3B82F6', explain: 'In 2022 Meta fell 64 percent in a year the S&P fell 19. A quarter of the portfolio in one such name is not protection, it is a quarter of that crash felt at full strength.' },
+            { label: 'Amazon', percent: 25, color: '#3B82F6', explain: 'The pie draws four slices so it feels like four holdings. Markowitz would count it closer to one, because the maths only cares about correlation, never about how many tickers you own.' },
           ],
           centerLabel: 'All Tech',
           footer: 'Correlation ≈ 1, they crash together',
@@ -1055,11 +1067,11 @@ const lessons: PathwayLesson[] = [
           type: 'pie',
           title: 'Markowitz-Optimal Portfolio',
           segments: [
-            { label: 'US Equity', percent: 35, color: '#3B82F6' },
-            { label: 'Intl Equity', percent: 20, color: '#10B981' },
-            { label: 'Bonds', percent: 25, color: '#F59E0B' },
-            { label: 'Real Assets', percent: 15, color: '#EF4444' },
-            { label: 'Cash', percent: 5, color: '#B862ED' },
+            { label: 'US Equity', percent: 35, color: '#3B82F6', explain: 'Still the largest slice, because this is still where the return comes from. The change is that growth now carries 35 percent of the portfolio instead of all 100.' },
+            { label: 'Intl Equity', percent: 20, color: '#10B981', explain: 'Also stocks, but priced in other currencies under other central banks, so it typically runs near 0.7 correlation with US equity rather than 1. That 0.3 gap is the entire reason this slice is here.' },
+            { label: 'Bonds', percent: 25, color: '#F59E0B', explain: 'The one slice that has historically risen while stocks fell, correlation roughly minus 0.2 to plus 0.3. In 2008 it was the only diversifier that kept working when everything else moved together.' },
+            { label: 'Real Assets', percent: 15, color: '#EF4444', explain: 'Property and commodities get paid by rents and physical demand rather than earnings multiples, so they run on a different clock. Fifteen percent is big enough to matter and small enough that being hard to sell cannot trap you.' },
+            { label: 'Cash', percent: 5, color: '#B862ED', explain: 'The worst returning slice on the chart, and worth holding anyway: it correlates with nothing, so it is the only 5 percent guaranteed to still be whole on the day everything else is cheap.' },
           ],
           centerLabel: 'Low ρ',
           footer: 'Same return, lower variance, math wins',
@@ -1088,7 +1100,11 @@ const lessons: PathwayLesson[] = [
       ],
       'A scatter plot of many random portfolios in risk-return space, with the efficient frontier curve highlighted at the upper boundary. Individual assets plotted as labeled points below the frontier.',
       undefined,
-      QA4_TEACH1
+      QA4_TEACH1,
+      {
+        hint: 'Press any row in this table. Each number only means something next to the row above it, and I will tell you what that pair is actually trading away.',
+        recap: 'The line to keep: money adds up, risk does not. Lesson 2 gave you expected value, which you can add straight across, so a 50/50 mix of a 15 percent asset and a 10 percent asset expects 12.5 percent. Risk refuses to behave: that same 50/50 mix of a 25 and a 20 percent asset lands near 13.5 percent instead of 22.5, because correlation sits inside the formula and expected value has no such term. Everything Markowitz built stands in that gap.',
+      }
     ),
   
     // Step 4, Micro-Check
@@ -1189,10 +1205,10 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap to Reveal
     tr('Portfolio Optimization Key Insights',[
-      ['What is the "free lunch" in finance?','Diversification. By combining assets with correlation < 1, you reduce portfolio risk without reducing expected return. Markowitz proved this mathematically in 1952, showing that portfolio risk is always less than the weighted average of individual risks when correlation < 1.'],
-      ['Why does the covariance matrix matter so much?','It\'s the fundamental input to portfolio optimization. It tells you how every asset moves relative to every other asset. Errors in the covariance matrix lead to "optimal" portfolios that are actually far from optimal, garbage in, garbage out.'],
-      ['What happened during 2008 that challenged MPT?','Correlations between stocks, real estate, commodities, and hedge funds all spiked toward 1.0 simultaneously. The only asset class that maintained its diversification benefit was government bonds. This proved that crisis-time correlations differ dramatically from normal-time correlations.'],
-      ['How did David Swensen use MPT at Yale?','Swensen allocated Yale\'s endowment across many low-correlation asset classes: stocks, bonds, real estate, timber, private equity, and venture capital. By maximizing diversification across truly different asset types, he achieved 13%+ annualized returns over 35 years.']
+      ['What is the "free lunch" in finance?','Diversification. By combining assets with correlation < 1, you reduce portfolio risk without reducing expected return. Markowitz proved this mathematically in 1952, showing that portfolio risk is always less than the weighted average of individual risks when correlation < 1.', { stat: 'Correlation under 1 is the entire condition', sprite: 'safety-net' }],
+      ['Why does the covariance matrix matter so much?','It\'s the fundamental input to portfolio optimization. It tells you how every asset moves relative to every other asset. Errors in the covariance matrix lead to "optimal" portfolios that are actually far from optimal, garbage in, garbage out.', { stat: '250,000 numbers, 252 days to estimate them', sprite: 'network' }],
+      ['What happened during 2008 that challenged MPT?','Correlations between stocks, real estate, commodities, and hedge funds all spiked toward 1.0 simultaneously. The only asset class that maintained its diversification benefit was government bonds. This proved that crisis-time correlations differ dramatically from normal-time correlations.', { stat: '0.1 assumed, 0.9 delivered, bonds the lone survivor', sprite: 'crack' }],
+      ['How did David Swensen use MPT at Yale?','Swensen allocated Yale\'s endowment across many low-correlation asset classes: stocks, bonds, real estate, timber, private equity, and venture capital. By maximizing diversification across truly different asset types, he achieved 13%+ annualized returns over 35 years.', { stat: '13% a year for 35 years, six asset classes deep', sprite: 'graduation-cap' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -1340,15 +1356,15 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Black-Scholes, 5 Inputs → 1 Fair Price',
         items: [
-          { label: 'S, Stock price', value: 'underlying', color: '#10B981' },
-          { label: 'K, Strike', value: 'agreed price', color: '#3B82F6' },
-          { label: 'T, Time to expiry', value: 'years', color: '#F59E0B' },
-          { label: 'r, Risk-free rate', value: 'discounting', color: '#EF4444' },
-          { label: 'σ, Volatility', value: 'the key input', color: '#B862ED' },
-          { label: 'C = SN(d₁) − Ke⁻ʳᵀN(d₂)', value: 'fair value', color: '#A451E6' },
+          { label: 'S, Stock price', value: 'underlying', color: '#10B981', sprite: 'stock-ticker', explain: 'S is the only input you can read off a screen this second. Everything else is either frozen into the contract or a guess about the future.' },
+          { label: 'K, Strike', value: 'agreed price', color: '#3B82F6', sprite: 'target', explain: 'K is written into the contract on day one and never moves again. The whole value of the option is just how far S ends up above this one frozen number.' },
+          { label: 'T, Time to expiry', value: 'years', color: '#F59E0B', sprite: 'hourglass', explain: 'T goes in as years, so 3 months is 0.25. Cutting the time in half does not cut the value in half: time value tracks the square root of T, so you keep about 70 percent of it.' },
+          { label: 'r, Risk-free rate', value: 'discounting', color: '#EF4444', sprite: 'bank', explain: 'At 4 percent, discounting a $100 strike three months out moves the price by about a dollar. That is why traders argue endlessly about volatility and almost never about r.' },
+          { label: 'σ, Volatility', value: 'the key input', color: '#B862ED', sprite: 'bolt', explain: 'Four of the five inputs are facts anyone can look up, and this one is not. So every disagreement about what an option is worth is really a disagreement about σ.' },
+          { label: 'C = SN(d₁) − Ke⁻ʳᵀN(d₂)', value: 'fair value', color: '#A451E6', sprite: 'scales', explain: 'Read it as two halves: SN(d₁) is the stock you expect to collect, Ke⁻ʳᵀN(d₂) is the cash you expect to hand over. The price is only the gap between them.' },
         ],
         footer: 'Revolutionized a $600+ trillion derivatives market.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'calculator'
       }
     ),
   
@@ -1363,7 +1379,7 @@ const lessons: PathwayLesson[] = [
           value: '$??',
           detail: '$5? $12? $3?',
           footer: 'Guesswork pricing, wide bid/ask',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'question'
         },
         withVisual: {
           type: 'metric',
@@ -1371,7 +1387,7 @@ const lessons: PathwayLesson[] = [
           value: '$7.83',
           detail: 'C = SN(d₁) − Ke⁻ʳᵀN(d₂)',
           footer: 'Mathematical precision, tight markets',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'check-badge'
         }
       }
     ),
@@ -1400,14 +1416,18 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Call Option Payoff (Strike $100)',
         rows: [
-          { label: 'Stock at $80, OTM', value: '−$10 (premium lost)' },
-          { label: 'Stock at $100, ATM', value: '−$10 (just premium)' },
-          { label: 'Stock at $110, ITM', value: '+$0 (break-even)' },
-          { label: 'Stock at $130, ITM', value: '+$20 profit' },
-          { label: 'Stock at $150, ITM', value: '+$40 profit' },
+          { label: 'Stock at $80, OTM', value: '−$10 (premium lost)', explain: 'At $20 below the strike the option expires worthless and you are out the $10 premium. You lose the same $10 at $80, at $50 and at zero, so the floor is already in place here.' },
+          { label: 'Stock at $100, ATM', value: '−$10 (just premium)', explain: 'Landing exactly on the strike pays nothing: the right to buy at $100 when the stock is $100 is worth zero. Being perfectly right costs you the same $10 as being $20 wrong.' },
+          { label: 'Stock at $110, ITM', value: '+$0 (break-even)', explain: 'The option is finally worth $10, which is exactly what you paid for it. Break-even sits a full premium above the strike, so the stock has to clear $110, not $100, before you make a cent.' },
+          { label: 'Stock at $130, ITM', value: '+$20 profit', explain: 'The stock is 30 percent above the strike and $10 of risk turned into $20, a 200 percent return. That gearing is why a modest move in S throws the option price around so violently.' },
+          { label: 'Stock at $150, ITM', value: '+$40 profit', explain: 'Nothing caps this row: at $200 it is $90, at $300 it is $190. Compare the two ends of the column, the loss stops dead at $10 while the profit just keeps going.' },
         ],
         footer: 'Capped downside, unlimited upside.',
         sentiment: 'positive',
+      },
+      {
+        hint: 'Press each row of this payoff table. It is the same $10 call every time, only the stock price changes, so watch where the loss stops and where the profit does not.',
+        recap: 'The loss is pinned at $10 across the first three rows and the last row has no ceiling, and that lopsided shape is what you are paying for. Four of the five inputs are facts you can look up, so the price of that shape comes down to σ. In lesson 4 volatility was the thing Markowitz taught you to diversify away. Here it is the product being sold.',
       }
     ),
   
@@ -1510,10 +1530,10 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap to Reveal
     tr('Derivatives Pricing Deep Dives',[
-      ['What is delta hedging and why does it matter?','Delta hedging means continuously buying/selling shares of the underlying stock to offset the option\'s delta, creating a risk-neutral portfolio. It\'s the core insight of Black-Scholes: if you can perfectly delta-hedge, the option can be priced using the risk-free rate. Market makers like Citadel Securities delta-hedge millions of options daily.'],
-      ['Why does implied volatility spike before earnings announcements?','Earnings create uncertainty about future stock prices. Options become more valuable when big moves are expected. Traders bid up option prices, which mathematically translates to higher implied volatility. After the announcement, uncertainty resolves and implied volatility collapses ("vol crush").'],
-      ['What is the volatility risk premium?','Options are systematically "overpriced" because implied volatility exceeds realized volatility on average. Investors overpay for options-as-insurance, just as you overpay for car insurance relative to expected accident costs. This premium makes systematic option selling profitable.'],
-      ['How did Black Monday change options pricing forever?','After the 1987 crash, out-of-the-money put options (crash insurance) became permanently more expensive relative to Black-Scholes predictions. The "volatility smile" emerged, implied volatility varies by strike price, with OTM puts having the highest implied vol. This reflects the market\'s learned fear of tail events.']
+      ['What is delta hedging and why does it matter?','Delta hedging means continuously buying/selling shares of the underlying stock to offset the option\'s delta, creating a risk-neutral portfolio. It\'s the core insight of Black-Scholes: if you can perfectly delta-hedge, the option can be priced using the risk-free rate. Market makers like Citadel Securities delta-hedge millions of options daily.', { stat: 'Delta 0.60 means holding 60 shares against one contract', sprite: 'shield' }],
+      ['Why does implied volatility spike before earnings announcements?','Earnings create uncertainty about future stock prices. Options become more valuable when big moves are expected. Traders bid up option prices, which mathematically translates to higher implied volatility. After the announcement, uncertainty resolves and implied volatility collapses ("vol crush").', { stat: 'About 50% implied vol before the print, near 25% the morning after', sprite: 'newspaper' }],
+      ['What is the volatility risk premium?','Options are systematically "overpriced" because implied volatility exceeds realized volatility on average. Investors overpay for options-as-insurance, just as you overpay for car insurance relative to expected accident costs. This premium makes systematic option selling profitable.', { stat: 'The VIX averages roughly 19 while realized volatility comes in nearer 16', sprite: 'umbrella' }],
+      ['How did Black Monday change options pricing forever?','After the 1987 crash, out-of-the-money put options (crash insurance) became permanently more expensive relative to Black-Scholes predictions. The "volatility smile" emerged, implied volatility varies by strike price, with OTM puts having the highest implied vol. This reflects the market\'s learned fear of tail events.', { stat: 'Far out-of-the-money puts at 30 to 40% implied vol against 15 to 20% at the money', sprite: 'chart-down' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -1662,11 +1682,11 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Monte Carlo, 1,000 Simulated Paths',
         rows: [
-          { label: 'Best 5% of paths', value: '+$180, $220' },
-          { label: 'Top quartile', value: '+$130, $180' },
-          { label: 'Median path', value: '+$112' },
-          { label: 'Bottom quartile', value: '$70, $100' },
-          { label: 'Worst 5%', value: '$40, $70' },
+          { label: 'Best 5% of paths', value: '+$180, $220', explain: 'Only 50 of the 1,000 paths land in this band. Nearly doubling your money is genuinely on the table, but it happens in one future out of twenty, so building a plan around it is building a plan around luck.' },
+          { label: 'Top quartile', value: '+$130, $180', explain: '250 paths finish in here. A gain of 30 to 80 percent is not exotic in this model, it is simply what one future in four looks like when the random draws break your way.' },
+          { label: 'Median path', value: '+$112', explain: 'This is the single number an ordinary forecast would report. Half of the 1,000 paths beat $112 and half fell short of it, so it marks the middle of the fan and promises nothing about where you actually land.' },
+          { label: 'Bottom quartile', value: '$70, $100', explain: '250 paths, a full quarter of the futures, finish below where they started. Same stock, same drift, same volatility as the winners above. The only difference is which random numbers came out.' },
+          { label: 'Worst 5%', value: '$40, $70', explain: '50 paths lose 30 to 60 percent of the money. A point forecast of $112 never shows you this row, and this row is the one that decides how much you can safely put in.' },
         ],
         footer: 'Each path = one possible future. Average = expected value.',
         sentiment: 'positive',
@@ -1684,7 +1704,7 @@ const lessons: PathwayLesson[] = [
           value: '1 path',
           detail: 'Optimistic guess only',
           footer: 'One scenario, one plan, fragile',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'target'
         },
         withVisual: {
           type: 'metric',
@@ -1692,7 +1712,7 @@ const lessons: PathwayLesson[] = [
           value: '10,000 paths',
           detail: 'Distribution of futures',
           footer: 'Plan for the 5%, 50%, 95% case',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'arrow-split'
         }
       }
     ),
@@ -1722,13 +1742,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Monte Carlo Convergence',
         rows: [
-          { label: 'N = 100 sims', value: '$10 ± $2.00' },
-          { label: 'N = 1,000 sims', value: '$10 ± $0.63' },
-          { label: 'N = 10,000 sims', value: '$10 ± $0.20' },
-          { label: 'N = 100,000 sims', value: '$10 ± $0.06' },
+          { label: 'N = 100 sims', value: '$10 ± $2.00', explain: 'A band of $2.00 around a $10 option is 20 percent wide. You cannot quote a price off this. All 100 runs told you is that the true answer sits somewhere between $8 and $12.' },
+          { label: 'N = 1,000 sims', value: '$10 ± $0.63', explain: 'Ten times the computing cut the error from $2.00 to $0.63, which is about 3.2 times better rather than 10 times better. The gap between 10 and 3.2 is the square root quietly taking its cut.' },
+          { label: 'N = 10,000 sims', value: '$10 ± $0.20', explain: 'Here is the whole rule in one row: 100 times the simulations of the first line bought exactly 10 times the accuracy, $2.00 down to $0.20. Accuracy is priced in squares.' },
+          { label: 'N = 100,000 sims', value: '$10 ± $0.06', explain: 'The last 90,000 runs bought you $0.14. You spent nine times more compute than the entire $0.20 estimate cost, just to pull the band from 20 cents in to 6.' },
         ],
         footer: 'Error ∝ 1/√N, 100× sims → 10× more accurate.',
         sentiment: 'positive',
+      },
+      {
+        hint: 'Press any row of this table and I will show you what those extra simulations actually bought you in cents.',
+        recap: 'Every row is the same rule: error falls with the square root of the number of runs, so 100 times the compute buys 10 times the accuracy and never more than that. In lesson 5, Black-Scholes handed you the $10 in one line of algebra for free. Monte Carlo has to buy that same $10 one decimal at a time, which is why you reach for it only when no formula exists.',
       }
     ),
   
@@ -1830,10 +1854,10 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap to Reveal
     tr('Monte Carlo Methods Deep Dive',[
-      ['Where did the name "Monte Carlo" come from?','Stanislaw Ulam and John von Neumann developed the method at Los Alamos during the Manhattan Project (1946). The name references the Monte Carlo Casino in Monaco, reflecting the method\'s reliance on randomness. Ulam\'s original insight came from wondering about the probability of winning solitaire.'],
-      ['How does Monte Carlo VaR work?','Generate thousands of random market scenarios. For each scenario, calculate the profit/loss of every position in the portfolio. Sort all P&L results from worst to best. The 1st percentile (for 99% VaR) is the VaR number, it tells you the loss that will only be exceeded 1% of the time.'],
-      ['What is variance reduction and why does it matter?','Variance reduction techniques (antithetic variates, importance sampling) achieve better accuracy without more simulations. Since Monte Carlo error only decreases by 1/√N, doubling simulations only improves accuracy by ~41%. Smart sampling techniques can improve accuracy by 5-10× at the same computational cost.'],
-      ['What was the London Whale incident?','In 2012, JPMorgan\'s Chief Investment Office changed their Monte Carlo VaR model mid-year, halving the reported risk of a $150B derivatives position. The position blew up, losing $6.2 billion. It proved that Monte Carlo VaR is only as reliable as the model design, and that models can be manipulated.']
+      ['Where did the name "Monte Carlo" come from?','Stanislaw Ulam and John von Neumann developed the method at Los Alamos during the Manhattan Project (1946). The name references the Monte Carlo Casino in Monaco, reflecting the method\'s reliance on randomness. Ulam\'s original insight came from wondering about the probability of winning solitaire.', { stat: '1946, named after a casino', sprite: 'dice' }],
+      ['How does Monte Carlo VaR work?','Generate thousands of random market scenarios. For each scenario, calculate the profit/loss of every position in the portfolio. Sort all P&L results from worst to best. The 1st percentile (for 99% VaR) is the VaR number, it tells you the loss that will only be exceeded 1% of the time.', { stat: 'Sort 10,000 P&Ls, read line 100', sprite: 'shield' }],
+      ['What is variance reduction and why does it matter?','Variance reduction techniques (antithetic variates, importance sampling) achieve better accuracy without more simulations. Since Monte Carlo error only decreases by 1/√N, doubling simulations only improves accuracy by ~41%. Smart sampling techniques can improve accuracy by 5-10× at the same computational cost.', { stat: 'Double the runs, gain only 41%', sprite: 'bolt' }],
+      ['What was the London Whale incident?','In 2012, JPMorgan\'s Chief Investment Office changed their Monte Carlo VaR model mid-year, halving the reported risk of a $150B derivatives position. The position blew up, losing $6.2 billion. It proved that Monte Carlo VaR is only as reliable as the model design, and that models can be manipulated.', { stat: 'Model halved, $6.2B lost', sprite: 'crack' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -1981,10 +2005,10 @@ const lessons: PathwayLesson[] = [
         title: 'Decomposing an 18% Hedge Fund Return',
         total: 'Total Return: 18%',
         segments: [
-          { label: 'Market beta', value: '+8%', percent: 44, color: '#3B82F6' },
-          { label: 'Value factor', value: '+3%', percent: 17, color: '#A451E6' },
-          { label: 'Momentum factor', value: '+4%', percent: 22, color: '#B862ED' },
-          { label: 'True alpha', value: '+3%', percent: 17, color: '#10B981' },
+          { label: 'Market beta', value: '+8%', percent: 44, color: '#3B82F6', explain: 'Eight of the eighteen points came from simply holding stocks while the market went up, so almost half the headline number was earned by showing up.' },
+          { label: 'Value factor', value: '+3%', percent: 17, color: '#A451E6', explain: 'This 3% came from leaning toward cheap stocks, and you can buy that same lean in a value ETF for about a tenth of a percent a year.' },
+          { label: 'Momentum factor', value: '+4%', percent: 22, color: '#B862ED', explain: 'Momentum paid more than value this year, 4% against 3%, and it is the line that flips fastest: in a different year this is often the negative one.' },
+          { label: 'True alpha', value: '+3%', percent: 17, color: '#10B981', explain: 'Only 3 points of the 18 are left once the three factors are counted, so about one sixth of that impressive return is what the manager actually added.' },
         ],
         footer: 'Only 3% is genuine skill, the rest is factor exposure.',
         sentiment: 'positive',
@@ -2000,8 +2024,8 @@ const lessons: PathwayLesson[] = [
           type: 'stack',
           title: 'Disguised Beta',
           segments: [
-            { label: 'Market risk', value: '80%', percent: 80, color: '#EF4444' },
-            { label: 'Alpha?', value: '???', percent: 20, color: '#F59E0B' },
+            { label: 'Market risk', value: '80%', percent: 80, color: '#EF4444', explain: 'Four fifths of this fund moves with the market, which means most of what is being sold as a strategy is the index wearing a costume.' },
+            { label: 'Alpha?', value: '???', percent: 20, color: '#F59E0B', explain: 'The remaining fifth is a question mark only because nobody ran the regression, and an unmeasured slice still gets charged the full 2-and-20.' },
           ],
           footer: 'Paying 2-and-20 for plain market beta',
           sentiment: 'negative',
@@ -2010,8 +2034,8 @@ const lessons: PathwayLesson[] = [
           type: 'stack',
           title: 'Pure Alpha Isolated',
           segments: [
-            { label: 'Factors stripped out', value: '85%', percent: 82, color: '#A451E6' },
-            { label: 'True alpha', value: '+3.2%', percent: 18, color: '#10B981' },
+            { label: 'Factors stripped out', value: '85%', percent: 82, color: '#A451E6', explain: 'Regress the four factors out and 85% of the return is accounted for, and that 85% is buyable in ETFs for roughly 0.1% a year.' },
+            { label: 'True alpha', value: '+3.2%', percent: 18, color: '#10B981', explain: '3.2% is the entire honest product, so the performance fee belongs on that slice and not on the 85% the market handed over for free.' },
           ],
           footer: 'Precision decomposition, pay for skill, not market',
           sentiment: 'positive',
@@ -2043,14 +2067,18 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Multi-Factor Decomposition',
         rows: [
-          { label: 'β₁ · Market', value: '1.1, systematic risk' },
-          { label: 'β₂ · SMB (size)', value: '0.4, small-minus-big' },
-          { label: 'β₃ · HML (value)', value: '0.3, high-minus-low B/M' },
-          { label: 'β₄ · MOM (momentum)', value: '0.2, winners minus losers' },
-          { label: 'α, Pure skill', value: '+2.1%' },
+          { label: 'β₁ · Market', value: '1.1, systematic risk', explain: 'A beta of 1.1 means a 10% market year gives this portfolio 11% before anything else happens, and a 10% crash takes 11% back.' },
+          { label: 'β₂ · SMB (size)', value: '0.4, small-minus-big', explain: '0.4 is a partial tilt, not a full bet: if small caps beat large caps by 3%, this loading adds 1.2 points, not the whole 3.' },
+          { label: 'β₃ · HML (value)', value: '0.3, high-minus-low B/M', explain: 'Value is the lightest tilt here at 0.3, which is why the decade from 2010 to 2020, when value lost badly, would have scratched this portfolio rather than wrecked it.' },
+          { label: 'β₄ · MOM (momentum)', value: '0.2, winners minus losers', explain: 'A 0.2 loading against a 5% momentum year is worth 1 point. Four separate loadings stacked together explain far more than any one of them alone.' },
+          { label: 'α, Pure skill', value: '+2.1%', explain: 'Add the four factor contributions and 2.1% is all that is left unexplained. It is the smallest number on the board, and it is the only one you cannot buy somewhere else.' },
         ],
         footer: '85% of returns explained by factors, only 15% is true alpha.',
         sentiment: 'positive',
+      },
+      {
+        hint: 'Press any of the four beta rows to see what that loading is actually worth in percentage points, then press the alpha row to see what is left over.',
+        recap: 'The lesson lives in the bottom row: loadings of 1.1, 0.4, 0.3 and 0.2 explain 85% of the return, and 2.1% is the remainder. Lesson 4 showed that shared movement between assets is the risk you cannot diversify away. Factor models take that same shared movement, give each piece a name and a price you can buy cheaply, and alpha is only whatever survives the subtraction.',
       }
     ),
   
@@ -2140,11 +2168,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap & Reveal
     tr('Match the Factor to Its Premium', [
-      ['Market (Equity Risk Premium)', '6-8% average annual excess return over risk-free rate'],
-      ['Size (SMB)', '2-3% annual premium, small caps outperform large caps'],
-      ['Value (HML)', '3-5% historical premium, cheap stocks beat expensive ones'],
-      ['Momentum (WML)', '4-8% annual premium, winners keep winning, losers keep losing'],
-      ['Quality (QMJ)', '3-5% annual premium, profitable stable firms beat unprofitable ones']
+      ['Market (Equity Risk Premium)', '6-8% average annual excess return over risk-free rate', { stat: 'About 7% a year for just owning stocks', sprite: 'stock-ticker' }],
+      ['Size (SMB)', '2-3% annual premium, small caps outperform large caps', { stat: '2-3% a year, the weakest of the classic four', sprite: 'seedling' }],
+      ['Value (HML)', '3-5% historical premium, cheap stocks beat expensive ones', { stat: '3-5% a year, and near zero from 2010 to 2020', sprite: 'price-tag' }],
+      ['Momentum (WML)', '4-8% annual premium, winners keep winning, losers keep losing', { stat: '4-8% a year, found in almost every market tested', sprite: 'bolt' }],
+      ['Quality (QMJ)', '3-5% annual premium, profitable stable firms beat unprofitable ones', { stat: '3-5% a year for owning boring, profitable firms', sprite: 'check-badge' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -2281,13 +2309,13 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Pairs Trade, Coca-Cola vs PepsiCo',
         nodes: [
-          { label: 'KO and PEP track each other for years', value: 'Cointegrated', color: '#3B82F6' },
-          { label: 'Spread widens, KO overpriced, PEP cheap', value: '+2σ signal', color: '#F59E0B' },
-          { label: 'Short KO, Long PEP, market-neutral', value: 'Bet on convergence', color: '#B862ED' },
-          { label: 'Spread snaps back to mean', value: 'Profit captured', color: '#10B981' },
+          { label: 'KO and PEP track each other for years', value: 'Cointegrated', color: '#3B82F6', sprite: 'network', explain: 'Neither price is predictable on its own, and that is the point. What holds still is the distance between them, so the number you are actually trading is not KO and it is not PEP, it is the gap.' },
+          { label: 'Spread widens, KO overpriced, PEP cheap', value: '+2σ signal', color: '#F59E0B', sprite: 'chain-break', explain: 'A +2σ gap is twice as far from normal as the spread usually wobbles, which puts it in the widest 2 or 3 days out of every hundred. Rare enough to mean something, common enough to show up several times a year.' },
+          { label: 'Short KO, Long PEP, market-neutral', value: 'Bet on convergence', color: '#B862ED', sprite: 'shield', explain: 'Both legs go on at the same moment, so if the whole market drops 5 percent the short leg gains back roughly what the long leg loses. What survives that cancellation is the gap alone, which is the only thing you claimed to have a view on.' },
+          { label: 'Spread snaps back to mean', value: 'Profit captured', color: '#10B981', sprite: 'magnet', explain: 'You never needed KO to fall or PEP to rise. The profit is the width of the gap you sold, collected when the two come back level, and it is the same profit whether both stocks doubled or both halved on the way.' },
         ],
         footer: 'Profit whether the market goes up, down, or sideways.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'scales'
       }
     ),
   
@@ -2300,8 +2328,8 @@ const lessons: PathwayLesson[] = [
           type: 'line',
           title: 'Directional Bet',
           points: [
-            { label: 'Q1', value: '+2%' }, { label: 'Q2', value: '+5%' },
-            { label: 'Q3', value: '−8%' }, { label: 'Q4', value: '−19%' },
+            { label: 'Q1', value: '+2%', explain: 'Up 2 percent and the book looks fine, but nothing has been tested yet. This quarter was paid for by the market rising, not by anything the strategy did.' }, { label: 'Q2', value: '+5%', explain: 'The best quarter of the year is also the most misleading one. Seven percent through June reads like an edge, when it is really just a rising market being borrowed.' },
+            { label: 'Q3', value: '−8%', explain: 'One quarter erases the whole first half and keeps going: +2 and +5 against −8 leaves you below where you started in January. Direction bets hand back gains at the same speed they made them.' }, { label: 'Q4', value: '−19%', explain: 'A single quarter down 19 percent is bigger than the other three put together, and the year lands about 20 percent down. Stock picking did not help here, because in a crash almost everything falls at once.' },
           ],
           trend: 'down',
           footer: 'Avg hedge fund lost 19% in 2008',
@@ -2311,8 +2339,8 @@ const lessons: PathwayLesson[] = [
           type: 'line',
           title: 'Stat Arb (Market-Neutral)',
           points: [
-            { label: 'Q1', value: '+2.5%' }, { label: 'Q2', value: '+2.8%' },
-            { label: 'Q3', value: '+3.1%' }, { label: 'Q4', value: '+3.5%' },
+            { label: 'Q1', value: '+2.5%', explain: 'Smaller than the directional book\'s best quarter, and that trade is deliberate. This 2.5 percent came from spreads closing, so it did not need the market to go anywhere.' }, { label: 'Q2', value: '+2.8%', explain: 'Boring is the feature, not a coincidence. Four quarters landing within one point of each other is what thousands of tiny convergences look like added together, instead of one lucky call.' },
+            { label: 'Q3', value: '+3.1%', explain: 'This is the quarter that settles the argument. The directional book lost 8 percent over these same three months while this one gained 3.1 percent, because it was never betting on direction.' }, { label: 'Q4', value: '+3.5%', explain: 'Compound the four quarters and the year comes to about 12.4 percent, against roughly 20 percent down for the directional book. Same market, opposite outcome, because only one of them was exposed to it.' },
           ],
           trend: 'up',
           footer: 'Steady profits regardless of market direction',
@@ -2345,14 +2373,18 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Mean-Reverting Spread Signals',
         rows: [
-          { label: 'Spread > +2σ', value: 'SELL, short KO / long PEP' },
-          { label: 'Spread > +1σ', value: 'Watch, building position' },
-          { label: 'Spread ≈ Mean', value: 'EXIT, book the profit' },
-          { label: 'Spread < −1σ', value: 'Watch, opposite side' },
-          { label: 'Spread < −2σ', value: 'BUY, long KO / short PEP' },
+          { label: 'Spread > +2σ', value: 'SELL, short KO / long PEP', explain: 'The gap sits inside 2σ on about 95 days out of 100, which is exactly why 2σ is the trigger. Note what you are selling: the expensive leg of a pair, not KO because you have a view on Coca-Cola.' },
+          { label: 'Spread > +1σ', value: 'Watch, building position', explain: 'Counting both directions, a gap of 1σ or wider turns up on roughly a third of all days, far too often to be news. Trade every one of those and you pay commissions and borrow costs on noise while the edge stays the same size.' },
+          { label: 'Spread ≈ Mean', value: 'EXIT, book the profit', explain: 'You leave at zero rather than riding to the far side, because the mean is the only level the maths actually predicts. Holding on for −2σ is a second bet, and you have no evidence for it.' },
+          { label: 'Spread < −1σ', value: 'Watch, opposite side', explain: 'Same rule, mirrored. Nothing has changed about either company, only which ticker is currently the expensive one, so the two roles simply swap.' },
+          { label: 'Spread < −2σ', value: 'BUY, long KO / short PEP', explain: 'This row is the exact reverse of the top row, and that symmetry is where the volume comes from. One pair hands you setups on both sides of the mean, which is how 3,000 pairs turn into roughly 150,000 trades a year.' },
         ],
         footer: 'Trade the tails, exit at the mean, repeat thousands of times.',
         sentiment: 'positive',
+      },
+      {
+        hint: 'Press any band on this ladder, from +2σ down to −2σ, to see why that row fires a trade and the row right next to it only waits.',
+        recap: 'The whole strategy rests on one number, the gap, and on that gap being stationary. That is the same stationarity you tested back in lesson 3, except here a failed ADF test is not an academic footnote: it is the difference between a pair that snaps back to you and a pair that walks away and never returns.',
       }
     ),
   
@@ -2442,11 +2474,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap & Reveal
     tr('Stat Arb Key Concepts', [
-      ['Z-Score = +2.5', 'Spread is 2.5 standard deviations above mean, strong SHORT spread signal (short expensive, long cheap)'],
-      ['Z-Score = -2.0', 'Spread is 2.0 standard deviations below mean, strong LONG spread signal (long expensive leg, short cheap leg)'],
-      ['Z-Score = 0', 'Spread is at its mean, EXIT all positions, the trade has converged'],
-      ['Half-Life = 5 days', 'Spread reverts quickly, expect fast profit but need quick execution'],
-      ['ADF p-value = 0.45', 'Cannot reject random walk, this pair is NOT cointegrated and should NOT be traded']
+      ['Z-Score = +2.5', 'Spread is 2.5 standard deviations above mean, strong SHORT spread signal (short expensive, long cheap)', { stat: '2.5σ, about 6 days in 1,000', sprite: 'scale-tip' }],
+      ['Z-Score = -2.0', 'Spread is 2.0 standard deviations below mean, strong LONG spread signal (long expensive leg, short cheap leg)', { stat: '−2.0σ, same bet with the legs swapped', sprite: 'arrow-split' }],
+      ['Z-Score = 0', 'Spread is at its mean, EXIT all positions, the trade has converged', { stat: 'Exit at 0, not at the far side', sprite: 'target' }],
+      ['Half-Life = 5 days', 'Spread reverts quickly, expect fast profit but need quick execution', { stat: 'Half the gap in 5 days, 88 percent in 15', sprite: 'stopwatch' }],
+      ['ADF p-value = 0.45', 'Cannot reject random walk, this pair is NOT cointegrated and should NOT be traded', { stat: 'p = 0.45 against a 0.05 bar', sprite: 'dice' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -2583,14 +2615,14 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Algo Trading System Architecture',
         nodes: [
-          { label: 'Market Data Handler', value: 'millions of msgs/sec', color: '#B862ED' },
-          { label: 'Signal Engine', value: 'alpha models fire', color: '#3B82F6' },
-          { label: 'Risk Engine', value: 'pre-trade checks', color: '#F59E0B' },
-          { label: 'Order Management System', value: 'route + track', color: '#10B981' },
-          { label: 'Exchange (NYSE / NASDAQ)', value: '< 10μs round trip', color: '#EF4444' },
+          { label: 'Market Data Handler', value: 'millions of msgs/sec', color: '#B862ED', sprite: 'stock-ticker', explain: 'Millions of messages a second is not a figure of speech. At the open the US feeds push tens of millions of quote updates every second, and this box has to read every one of them before your strategy is allowed an opinion.' },
+          { label: 'Signal Engine', value: 'alpha models fire', color: '#3B82F6', sprite: 'lightbulb', explain: 'This is the only box in the row that holds your actual idea. Everything to the left of it is plumbing and everything to the right is delivery, which is why a fund can have a brilliant signal and still lose money.' },
+          { label: 'Risk Engine', value: 'pre-trade checks', color: '#F59E0B', sprite: 'shield', explain: 'It sits between your idea and the exchange because a bug that reaches the market spends real cash. Knight Capital pushed orders past a broken check in 2012 and lost about $440 million in 45 minutes.' },
+          { label: 'Order Management System', value: 'route + track', color: '#10B981', sprite: 'arrow-split', explain: 'Route plus track sounds small until you count: one order to sell 500,000 shares leaves here as hundreds of child orders on different venues, and every single fill has to be matched back to the parent.' },
+          { label: 'Exchange (NYSE / NASDAQ)', value: '< 10μs round trip', color: '#EF4444', sprite: 'bank', explain: 'Under 10 microseconds is the whole loop, order out to the matching engine and confirmation back. A blink takes roughly 300,000 microseconds, so that loop closes about 30,000 times while your eyelid is down.' },
         ],
         footer: 'C++ / FPGA · kernel bypass · co-located servers, microseconds = millions',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'network'
       }
     ),
   
@@ -2603,23 +2635,23 @@ const lessons: PathwayLesson[] = [
           type: 'bars',
           title: 'Manual Trading',
           items: [
-            { label: 'Latency', value: 100, displayValue: '200 ms' },
-            { label: 'Market impact', value: 80, displayValue: '1.5%' },
-            { label: 'Slippage', value: 70, displayValue: 'High' },
+            { label: 'Latency', value: 100, displayValue: '200 ms', sprite: 'clock' },
+            { label: 'Market impact', value: 80, displayValue: '1.5%', sprite: 'chart-down' },
+            { label: 'Slippage', value: 70, displayValue: 'High', sprite: 'crack' },
           ],
           footer: 'Bleeding money on every fill',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'hourglass'
         },
         withVisual: {
           type: 'bars',
           title: 'Algo Execution',
           items: [
-            { label: 'Latency', value: 5, displayValue: '5 μs' },
-            { label: 'Market impact', value: 4, displayValue: '0.02%' },
-            { label: 'Slippage', value: 3, displayValue: 'Minimal' },
+            { label: 'Latency', value: 5, displayValue: '5 μs', sprite: 'bolt' },
+            { label: 'Market impact', value: 4, displayValue: '0.02%', sprite: 'pie-slice' },
+            { label: 'Slippage', value: 3, displayValue: 'Minimal', sprite: 'target' },
           ],
           footer: 'Surgical precision, 40,000× faster',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'stopwatch'
         }
       }
     ),
@@ -2648,13 +2680,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Execution Algos, $100M Order Cost',
         rows: [
-          { label: 'Manual market order', value: '~$1,500,000 impact' },
-          { label: 'TWAP (equal slices)', value: '~$300,000' },
-          { label: 'VWAP (volume-weighted)', value: '~$200,000' },
-          { label: 'Implementation Shortfall', value: '~$100,000 ✦' },
+          { label: 'Manual market order', value: '~$1,500,000 impact', explain: 'One click and a million and a half dollars is gone before the fill is even confirmed. None of that is a commission: it is the price running away from you because every other trader saw the size arrive at once.' },
+          { label: 'TWAP (equal slices)', value: '~$300,000', explain: 'Chopping the same order into equal slices across the day cuts the bill to a fifth, $1.2 million saved. TWAP knows nothing clever about the market, it simply refuses to be in a hurry.' },
+          { label: 'VWAP (volume-weighted)', value: '~$200,000', explain: 'VWAP takes another $100,000 off TWAP by trading heavier in the busy hours and lighter at lunch, so your shares hide inside volume somebody else was already creating.' },
+          { label: 'Implementation Shortfall', value: '~$100,000 ✦', explain: 'The winner costs one fifteenth of the market order, $100,000 against $1,500,000. It speeds up when the price is drifting away from you and slows down when the market is calm, so it pays for urgency only when urgency is actually worth something.' },
         ],
         footer: 'Algo execution saves 90%+ in market impact costs.',
         sentiment: 'positive',
+      },
+      {
+        hint: 'Every row is the same $100 million of stock. Press one to see what that particular way of feeding it to the market costs you.',
+        recap: 'The order costs money to place, not only to hold. Identical shares cost $1,500,000 through a market order and $100,000 through Implementation Shortfall, and the difference is pure execution. The statistical arbitrage edges you built in lesson 8 are worth tenths of a percent per trade, so a desk that hands 1.5 percent to the market turns a genuinely profitable signal into a losing fund.',
       }
     ),
   
@@ -2744,11 +2780,11 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap & Reveal
     tr('Algo Trading System Components', [
-      ['Market Data Handler', 'Ingests millions of messages per second from exchanges, every bid, ask, trade, and order book update'],
-      ['Signal Engine', 'Alpha models and trading strategies that decide WHAT to trade, WHEN, and HOW MUCH'],
-      ['Risk Engine', 'Pre-trade checks in microseconds: position limits, concentration, regulatory constraints'],
-      ['Order Management System (OMS)', 'Manages the lifecycle of every order, creation, routing, fills, and reconciliation'],
-      ['Smart Order Router (SOR)', 'Selects optimal exchange/venue for each order based on price, liquidity, and fill probability']
+      ['Market Data Handler', 'Ingests millions of messages per second from exchanges, every bid, ask, trade, and order book update', { stat: 'Peak US market data: tens of millions of messages per second', sprite: 'funnel' }],
+      ['Signal Engine', 'Alpha models and trading strategies that decide WHAT to trade, WHEN, and HOW MUCH', { stat: 'Roughly 5 microseconds from a price tick to an order leaving the building', sprite: 'calculator' }],
+      ['Risk Engine', 'Pre-trade checks in microseconds: position limits, concentration, regulatory constraints', { stat: 'Knight Capital, 2012: about $440 million lost in 45 minutes when this layer failed', sprite: 'lock' }],
+      ['Order Management System (OMS)', 'Manages the lifecycle of every order, creation, routing, fills, and reconciliation', { stat: 'Jane Street tracks live orders across 200+ venues at once', sprite: 'receipt' }],
+      ['Smart Order Router (SOR)', 'Selects optimal exchange/venue for each order based on price, liquidity, and fill probability', { stat: 'One US stock trades on 16 exchanges plus dozens of dark pools', sprite: 'compass' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -2885,16 +2921,16 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'The Complete Quant Pipeline',
         nodes: [
-          { label: 'Signal Research', value: 'mine for alpha', color: '#B862ED' },
-          { label: 'Factor Model', value: 'strip out beta', color: '#3B82F6' },
-          { label: 'Stat Arb Strategy', value: 'market-neutral', color: '#10B981' },
-          { label: 'Backtest', value: 'walk-forward, OOS', color: '#F59E0B' },
-          { label: 'Risk Engine', value: 'limits + kill switch', color: '#EF4444' },
-          { label: 'Algo Execution', value: 'VWAP / IS', color: '#A451E6' },
-          { label: 'Live Trading', value: 'monitor + scale', color: '#10B981' },
+          { label: 'Signal Research', value: 'mine for alpha', color: '#B862ED', sprite: 'magnifier' },
+          { label: 'Factor Model', value: 'strip out beta', color: '#3B82F6', sprite: 'arrow-split' },
+          { label: 'Stat Arb Strategy', value: 'market-neutral', color: '#10B981', sprite: 'scales' },
+          { label: 'Backtest', value: 'walk-forward, OOS', color: '#F59E0B', sprite: 'calendar' },
+          { label: 'Risk Engine', value: 'limits + kill switch', color: '#EF4444', sprite: 'shield' },
+          { label: 'Algo Execution', value: 'VWAP / IS', color: '#A451E6', sprite: 'stopwatch' },
+          { label: 'Live Trading', value: 'monitor + scale', color: '#10B981', sprite: 'stock-ticker' },
         ],
         footer: 'Renaissance hits Sharpe > 6, alpha > 30%, max DD < 5%, every stage world-class.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'network'
       }
     ),
   
@@ -2907,25 +2943,25 @@ const lessons: PathwayLesson[] = [
           type: 'grid',
           title: 'Fragmented Approach',
           items: [
-            { label: 'Signal', color: '#B862ED' },
-            { label: 'Risk', color: '#EF4444' },
-            { label: 'Execution', color: '#10B981' },
-            { label: 'Alpha leaks', value: 'between every seam', color: '#F59E0B' },
+            { label: 'Signal', color: '#B862ED', sprite: 'lightbulb' },
+            { label: 'Risk', color: '#EF4444', sprite: 'parachute' },
+            { label: 'Execution', color: '#10B981', sprite: 'bolt' },
+            { label: 'Alpha leaks', value: 'between every seam', color: '#F59E0B', sprite: 'crack' },
           ],
           footer: 'Disconnected components, Knight Capital lost $440M',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'chain-break'
         },
         withVisual: {
           type: 'grid',
           title: 'Integrated System',
           items: [
-            { label: 'Signal ↔ Factor', color: '#B862ED' },
-            { label: 'Factor ↔ Risk', color: '#3B82F6' },
-            { label: 'Risk ↔ Execution', color: '#F59E0B' },
-            { label: 'Greater than sum', value: '+66% / yr', color: '#10B981' },
+            { label: 'Signal ↔ Factor', color: '#B862ED', sprite: 'magnet' },
+            { label: 'Factor ↔ Risk', color: '#3B82F6', sprite: 'safety-net' },
+            { label: 'Risk ↔ Execution', color: '#F59E0B', sprite: 'scale-tip' },
+            { label: 'Greater than sum', value: '+66% / yr', color: '#10B981', sprite: 'chart-up' },
           ],
           footer: 'Renaissance Medallion: every stage talks to every other',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'gem'
         }
       }
     ),
@@ -2956,13 +2992,17 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Strategy validation funnel',
         nodes: [
-          { label: 'Hypotheses tested', value: '1,000' },
-          { label: 'Pass statistical tests', value: '200' },
-          { label: 'Survive factor adjustment', value: '50' },
-          { label: 'Pass walk-forward', value: '10' },
-          { label: 'Go live', value: '3' },
+          { label: 'Hypotheses tested', value: '1,000', sprite: 'question', explain: 'Every one of these 1,000 was somebody\'s real idea with a story behind it. The funnel is not filtering out lazy work, it is filtering out work that already looked good.' },
+          { label: 'Pass statistical tests', value: '200', sprite: 'calculator', explain: 'Test 1,000 ideas at the usual 5 percent threshold and about 50 pass on luck alone. So roughly a quarter of these 200 are noise wearing a p-value.' },
+          { label: 'Survive factor adjustment', value: '50', sprite: 'pie-slice', explain: 'Three quarters of the survivors die right here. They predicted returns for real, they just turned out to be momentum or value in a new costume.' },
+          { label: 'Pass walk-forward', value: '10', sprite: 'hourglass', explain: 'Only 1 in 5 still works on data it never saw while training. The other 40 fit the past beautifully and the future not at all.' },
+          { label: 'Go live', value: '3', sprite: 'rocket', explain: '3 out of 1,000 is 0.3 percent. The 7 that died at this last gate were genuine signals that could not carry enough capital to be worth the desk space.' },
         ],
-        footer: '99.7% of ideas die in the funnel. That rigor is the edge.',
+        footer: '99.7% of ideas die in the funnel. That rigor is the edge.', sprite: 'funnel'
+      },
+      {
+        hint: 'Press each stage of the funnel. A thousand ideas walk in at the top and you can see exactly which gate kills how many of them.',
+        recap: 'A strategy is only as strong as its weakest stage, and the funnel is where that gets enforced. Lesson 7 taught you to strip the known factors out of a signal and lesson 9 taught you to trade it without leaking the edge at the fill. Here is the price of both: 997 of every 1,000 ideas deserved to die, and being willing to kill them is the actual edge.',
       }
     ),
   
@@ -3052,13 +3092,13 @@ const lessons: PathwayLesson[] = [
   
     // Step 11, Tap & Reveal
     tr('The 7 Stages of a Production Quant Strategy', [
-      ['Stage 1: Signal Research', 'Mine data for predictive patterns with clear economic hypothesis, use ML, statistics, and alternative data'],
-      ['Stage 2: Factor Decomposition', 'Ensure the signal shows genuine alpha after removing all known factor exposures (market, size, value, momentum)'],
-      ['Stage 3: Strategy Design', 'Translate signal into tradeable rules, entry/exit thresholds, position sizing, universe selection'],
-      ['Stage 4: Backtesting', 'Walk-forward analysis with realistic costs. Beware overfitting: if it looks too good, it probably is'],
-      ['Stage 5: Risk Management', 'Position limits, drawdown triggers, factor exposure caps, kill switches, and regime-change detection'],
-      ['Stage 6: Execution Design', 'Choose algorithms (VWAP, IS) and infrastructure matching strategy\'s time horizon'],
-      ['Stage 7: Live Deployment', 'Start small, monitor vs backtest expectations, scale only when live performance confirms the edge']
+      ['Stage 1: Signal Research', 'Mine data for predictive patterns with clear economic hypothesis, use ML, statistics, and alternative data', { stat: '1,000 ideas tested a year', sprite: 'bar-chart' }],
+      ['Stage 2: Factor Decomposition', 'Ensure the signal shows genuine alpha after removing all known factor exposures (market, size, value, momentum)', { stat: '3 of 4 survivors die here', sprite: 'compass' }],
+      ['Stage 3: Strategy Design', 'Translate signal into tradeable rules, entry/exit thresholds, position sizing, universe selection', { stat: '5 rules beat 30 rules', sprite: 'target' }],
+      ['Stage 4: Backtesting', 'Walk-forward analysis with realistic costs. Beware overfitting: if it looks too good, it probably is', { stat: '10x more data than parameters', sprite: 'clock' }],
+      ['Stage 5: Risk Management', 'Position limits, drawdown triggers, factor exposure caps, kill switches, and regime-change detection', { stat: '25x leverage sank LTCM', sprite: 'lock' }],
+      ['Stage 6: Execution Design', 'Choose algorithms (VWAP, IS) and infrastructure matching strategy\'s time horizon', { stat: '50bps a trade erases the edge', sprite: 'factory' }],
+      ['Stage 7: Live Deployment', 'Start small, monitor vs backtest expectations, scale only when live performance confirms the edge', { stat: '3 of 1,000 make it this far', sprite: 'ladder' }]
     ]),
   
     // Step 12, Drag & Sort
@@ -3194,10 +3234,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Brownian Motion, Random Walks in Continuous Time',
         rows: [
-          { label: 'Path A, bullish drift', value: 'ends at +3σ' },
-          { label: 'Path B, flat', value: 'ends near μ' },
-          { label: 'Path C, bearish', value: 'ends at −3σ' },
-          { label: '99.7% confidence band', value: 'μ ± 3σ' },
+          { label: 'Path A, bullish drift', value: 'ends at +3σ', explain: 'All three paths came out of the same equation with the same μ and the same σ. Path A did not have better odds written into it, it just drew a run of positive shocks.' },
+          { label: 'Path B, flat', value: 'ends near μ', explain: 'This is the path people picture when they hear 8% a year, and it is the rarest of the three. The average is where the middle of the fan sits, not where any single future usually lands.' },
+          { label: 'Path C, bearish', value: 'ends at −3σ', explain: 'Same stock, same drift, and it finished as far below the middle as Path A finished above it. Nothing broke: a −3σ ending is a legal output of the model, not a bug in it.' },
+          { label: '99.7% confidence band', value: 'μ ± 3σ', explain: 'Three standard deviations wide catches 997 of every 1,000 paths, so the 3 that escape are the crashes. The 1987 drop was over 20σ, which a normal curve says should not happen once in the age of the universe.' },
         ],
         footer: 'Each path is one possible future, stochastic calculus prices them all.',
         sentiment: 'positive',
@@ -3215,7 +3255,7 @@ const lessons: PathwayLesson[] = [
           value: '$??',
           detail: 'Option price = guess',
           footer: 'Unquantified, unhedgeable risk',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'question'
         },
         withVisual: {
           type: 'metric',
@@ -3223,7 +3263,7 @@ const lessons: PathwayLesson[] = [
           value: 'dS = μS dt + σS dW',
           detail: 'Itô\'s lemma → exact price',
           footer: 'Quantified, perfectly hedgeable in theory',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'calculator'
         }
       }
     ),
@@ -3305,7 +3345,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Three SDE types side by side: GBM (trending upward with noise), OU process (oscillating around mean), CIR process (mean-reverting but strictly positive)',
       undefined,
-      QA11_TEACH2
+      QA11_TEACH2,
+      {
+        hint: 'Press each of the four SDEs. Every one has the same two-part shape, drift plus diffusion, and the whole difference between a stock and an interest rate is what sits in front of dW.',
+        recap: 'The number to carry out of here is σ²/2. It is why compound growth is μ − σ²/2 rather than μ, and it is the same correction sitting inside the Black-Scholes formula you used in lesson 5. So when lesson 4\'s Markowitz work told you diversification lowers portfolio σ, it was not only smoothing the ride: at 40% volatility the drag is 8% a year, and cutting σ to 20% hands 6 of those points straight back as growth.',
+      }
     ),
 
     // Step 7, Case Study
@@ -3359,10 +3403,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Stochastic Calculus Key Facts',[
-      ['What is the quadratic variation of Brownian motion?','(dW)² = dt. This is the fundamental property that distinguishes stochastic calculus from ordinary calculus and creates the Itô correction term.'],
-      ['How does Itô\'s lemma differ from the ordinary chain rule?','It has an extra term: ½σ²S²(∂²f/∂S²)dt. This second-derivative correction arises from (dW)² = dt and is absent in deterministic calculus where (dx)² ≈ 0.'],
-      ['What is volatility drag and why does it matter?','Volatility drag = σ²/2. It reduces compound growth below arithmetic mean returns. A stock with 10% mean return and 40% volatility has geometric growth of only 2%. This is why diversification (reducing portfolio σ) increases wealth accumulation.'],
-      ['Why can\'t stock prices follow ordinary Brownian motion?','Ordinary Brownian motion can go negative, but stock prices cannot. GBM fixes this by making changes proportional to the current price: dS = μS dt + σS dW, ensuring S > 0 always.']
+      ['What is the quadratic variation of Brownian motion?','(dW)² = dt. This is the fundamental property that distinguishes stochastic calculus from ordinary calculus and creates the Itô correction term.', { stat: '(dW)² = dt, not zero', sprite: 'magnifier' }],
+      ['How does Itô\'s lemma differ from the ordinary chain rule?','It has an extra term: ½σ²S²(∂²f/∂S²)dt. This second-derivative correction arises from (dW)² = dt and is absent in deterministic calculus where (dx)² ≈ 0.', { stat: 'One extra term: ½σ²S²f\'\'', sprite: 'arrow-split' }],
+      ['What is volatility drag and why does it matter?','Volatility drag = σ²/2. It reduces compound growth below arithmetic mean returns. A stock with 10% mean return and 40% volatility has geometric growth of only 2%. This is why diversification (reducing portfolio σ) increases wealth accumulation.', { stat: '10% mean, 40% σ, 2% actual growth', sprite: 'chart-down' }],
+      ['Why can\'t stock prices follow ordinary Brownian motion?','Ordinary Brownian motion can go negative, but stock prices cannot. GBM fixes this by making changes proportional to the current price: dS = μS dt + σS dW, ensuring S > 0 always.', { stat: 'S = 0 freezes both terms at 0', sprite: 'shield' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -3513,11 +3557,11 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'Volmageddon, VIX Spike Feb 5, 2018',
         points: [
-          { label: 'Jan 15', value: '11' },
-          { label: 'Jan 29', value: '14' },
-          { label: 'Feb 2', value: '17' },
-          { label: 'Feb 5', value: '50 ⚡' },
-          { label: 'Feb 10', value: '32' },
+          { label: 'Jan 15', value: '11', explain: 'A VIX of 11 means the market is pricing daily S&P moves of about 0.7 percent for the next month. That is close to the calmest this index has ever been.' },
+          { label: 'Jan 29', value: '14', explain: 'Three points higher in two weeks and nobody flinched, because 14 is still under the long run average of roughly 19. The quiet was ending quietly.' },
+          { label: 'Feb 2', value: '17', explain: 'Seventeen is an ordinary Friday. Nothing in this number tells you what happens on Monday, which is exactly why reading volatility one day at a time fails.' },
+          { label: 'Feb 5', value: '50 ⚡', explain: 'From 17 to 50 in a single session. Because the VIX is an annualised percentage, the market went from pricing a 1.1 percent daily move to a 3.1 percent daily move inside one afternoon.' },
+          { label: 'Feb 10', value: '32', explain: 'It did not snap back to 17. Five days later volatility was still nearly triple its January level, which is what mean reversion actually looks like: slow, not instant.' },
         ],
         trend: 'up',
         footer: 'VIX +116% in one day, XIV ETN: $2B → $0 in hours.',
@@ -3536,17 +3580,17 @@ const lessons: PathwayLesson[] = [
           value: 'σ = 20%',
           detail: 'Black-Scholes static',
           footer: 'Misprices options, misses regime changes',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'crack'
         },
         withVisual: {
           type: 'line',
           title: 'GARCH Dynamic Vol',
           points: [
-            { label: 'Calm', value: '12%' },
-            { label: 'Stress', value: '24%' },
-            { label: 'Crisis', value: '48%' },
-            { label: 'Decay', value: '28%' },
-            { label: 'Calm', value: '15%' },
+            { label: 'Calm', value: '12%', explain: 'Twelve percent a year is about 0.75 percent a day. A model frozen at 20 percent is charging for risk that is not in the market yet, so it overprices every option in this regime.' },
+            { label: 'Stress', value: '24%', explain: 'Volatility doubled without any crash, just a rough week. GARCH lifts its estimate because yesterday\'s squared return feeds directly into today\'s variance through the alpha term.' },
+            { label: 'Crisis', value: '48%', explain: 'Four times the calm reading. The static 20 percent model is still quoting 20 while the market moves 3 percent a day, so every option it prices is far too cheap right when protection matters most.' },
+            { label: 'Decay', value: '28%', explain: 'The fall from 48 to 28 is quick and then it stalls. That stall is the beta term carrying about 90 percent of yesterday\'s variance into today, so the tail of a crisis lasts months.' },
+            { label: 'Calm', value: '15%', explain: 'It settles at 15, not back at the 12 it started from. With persistence near 0.99 a single shock leaves the whole forecast raised for a long time after the headlines stop.' },
           ],
           trend: 'up',
           footer: 'Captures clustering, adapts to regimes',
@@ -3575,7 +3619,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Time series of S&P 500 daily returns showing clear volatility clustering: quiet periods alternating with turbulent periods',
       undefined,
-      QA12_TEACH1
+      QA12_TEACH1,
+      {
+        hint: 'Press each of the three facts to get the number behind it, including the 15 days out of 22 that made March 2020 the textbook case of clustering.',
+        recap: 'The single sigma you typed into Black-Scholes in lesson 5 was a convenience, never a measurement. Volatility has memory: today\'s variance is mostly yesterday\'s variance plus a kick from yesterday\'s shock, and that one sentence is all GARCH(1,1) says. Once you model the memory, the smile stops being an anomaly and starts being the price of it.',
+      }
     ),
 
     // Step 4, Micro-Check
@@ -3683,10 +3731,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Volatility Modeling Facts',[
-      ['What caused the February 2018 "Volmageddon"?','The VIX spiked 116% in one day, destroying the XIV inverse volatility ETN and other short-vol strategies. $2 billion in XIV value evaporated in hours. It proved that volatility is the most volatile asset in finance.'],
-      ['Why did the volatility smile steepen after the 1987 crash?','Before 1987, traders assumed GBM was roughly correct, constant vol, no jumps. After the S&P dropped 20.5% in ONE DAY (a ~25 sigma GBM event), the market permanently repriced tail risk. OTM puts have traded at elevated IV ever since.'],
-      ['What is the Variance Risk Premium and who earns it?','The VRP is the average difference between implied and realized volatility (~2-4 points for S&P 500). Option sellers earn it as compensation for bearing crash risk. Strategies that harvest VRP are profitable on average but suffer severe losses in crises.'],
-      ['Why is GARCH(1,1) still the industry standard despite being 40 years old?','Three parameters capture the essential dynamics: clustering (α), persistence (β), and mean reversion (α+β<1). More complex models often overfit. Studies consistently show GARCH(1,1) performs as well as or better than sophisticated ML models for volatility forecasting.']
+      ['What caused the February 2018 "Volmageddon"?','The VIX spiked 116% in one day, destroying the XIV inverse volatility ETN and other short-vol strategies. $2 billion in XIV value evaporated in hours. It proved that volatility is the most volatile asset in finance.', { stat: 'VIX +116% in one day', sprite: 'bolt' }],
+      ['Why did the volatility smile steepen after the 1987 crash?','Before 1987, traders assumed GBM was roughly correct, constant vol, no jumps. After the S&P dropped 20.5% in ONE DAY (a ~25 sigma GBM event), the market permanently repriced tail risk. OTM puts have traded at elevated IV ever since.', { stat: '20.5% drop in one session', sprite: 'chart-down' }],
+      ['What is the Variance Risk Premium and who earns it?','The VRP is the average difference between implied and realized volatility (~2-4 points for S&P 500). Option sellers earn it as compensation for bearing crash risk. Strategies that harvest VRP are profitable on average but suffer severe losses in crises.', { stat: 'IV minus RV: 2 to 4 points', sprite: 'umbrella' }],
+      ['Why is GARCH(1,1) still the industry standard despite being 40 years old?','Three parameters capture the essential dynamics: clustering (α), persistence (β), and mean reversion (α+β<1). More complex models often overfit. Studies consistently show GARCH(1,1) performs as well as or better than sophisticated ML models for volatility forecasting.', { stat: '3 parameters, 40 years on', sprite: 'calculator' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -3837,10 +3885,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Yield Curve, Normal vs Inverted',
         rows: [
-          { label: 'Normal: 1Y → 30Y', value: '1.5% → 4.8% (rising)' },
-          { label: 'Inverted: 1Y → 30Y', value: '5.2% → 3.8% (falling) ⚠' },
-          { label: 'Recession signal', value: '10/10 since 1970' },
-          { label: 'Avg lead time', value: '12-18 months' },
+          { label: 'Normal: 1Y → 30Y', value: '1.5% → 4.8% (rising)', explain: 'Lending for thirty years pays 3.3 percentage points more than lending for one. That gap is your fee for being locked in while inflation does whatever it wants for three decades.' },
+          { label: 'Inverted: 1Y → 30Y', value: '5.2% → 3.8% (falling) ⚠', explain: 'Getting paid 5.2% to wait one year and only 3.8% to wait thirty is backwards. It only makes sense if lenders are convinced rates are about to be cut, and rates get cut when something breaks.' },
+          { label: 'Recession signal', value: '10/10 since 1970', explain: 'Ten calls, ten hits, across 55 years. Almost nothing in finance has that record, which is why a shape on a chart gets watched harder than most economic forecasts.' },
+          { label: 'Avg lead time', value: '12-18 months', explain: 'The alarm goes off more than a year early, so it fires while the news still sounds fine and unemployment is still low. That delay is exactly why people talk themselves out of it every time.' },
         ],
         footer: 'Inverted curve has predicted every US recession since 1970.',
         sentiment: 'negative',
@@ -3858,7 +3906,7 @@ const lessons: PathwayLesson[] = [
           value: '−30%',
           detail: '2022 long-Treasury crash',
           footer: '"Bonds are safe", duration risk ignored',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'chart-down'
         },
         withVisual: {
           type: 'metric',
@@ -3866,7 +3914,7 @@ const lessons: PathwayLesson[] = [
           value: 'D = 5y · C = 40',
           detail: 'ΔP ≈ −D·Δy + ½C·(Δy)²',
           footer: 'Precise rate-risk management',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'calculator'
         }
       }
     ),
@@ -3948,7 +3996,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Credit spread comparison: IG spreads (tight) vs HY spreads (wide) vs distressed spreads (very wide), shown as horizontal bars',
       undefined,
-      QA13_TEACH2
+      QA13_TEACH2,
+      {
+        hint: 'Press each row here. Every number is a spread, meaning extra yield over a Treasury, and it is the market\'s price tag on a borrower it does not fully trust.',
+        recap: 'A credit spread is a probability quote wearing a percent sign. The same high-yield bonds paid 3 to 8 points extra in calm years and about 22 points in 2008, and nothing about the companies changed that fast: the market simply moved from pricing a small chance of default to a huge one. That is lesson 2\'s expected value in market form, default odds times what you lose, quoted back to you as yield. So when a bond offers you more, the honest question is never how much extra you earn, it is what the market knows about the odds that you do not.',
+      }
     ),
 
     // Step 7, Case Study
@@ -4002,10 +4054,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Fixed Income Key Facts',[
-      ['What is the approximate duration of a 30-year zero-coupon bond?','30 years, the maximum possible. With no coupons to provide earlier cash flows, all cash flow is at maturity. Duration equals maturity for zeros. This makes them the most rate-sensitive bonds.'],
-      ['How much did the global bond market lose in 2022?','Over $10 trillion. The Bloomberg Global Aggregate Bond Index fell 16.3%, its worst year ever. Long-duration government bonds lost 30-40%. It was the worst bond market in 250 years of recorded data.'],
-      ['What does a yield curve inversion signal?','The bond market expects the Fed will need to cut rates in the future, typically because a recession forces their hand. The 2s10s inversion has predicted every US recession since 1970.'],
-      ['Why does positive convexity benefit bondholders?','Positive convexity means bonds gain more from rate drops than they lose from equal rate increases. Mathematically, the ½×C×(Δy)² term is always positive, cushioning losses and amplifying gains.']
+      ['What is the approximate duration of a 30-year zero-coupon bond?','30 years, the maximum possible. With no coupons to provide earlier cash flows, all cash flow is at maturity. Duration equals maturity for zeros. This makes them the most rate-sensitive bonds.', { stat: 'duration 30 of 30', sprite: 'calendar' }],
+      ['How much did the global bond market lose in 2022?','Over $10 trillion. The Bloomberg Global Aggregate Bond Index fell 16.3%, its worst year ever. Long-duration government bonds lost 30-40%. It was the worst bond market in 250 years of recorded data.', { stat: '$10 trillion gone', sprite: 'crack' }],
+      ['What does a yield curve inversion signal?','The bond market expects the Fed will need to cut rates in the future, typically because a recession forces their hand. The 2s10s inversion has predicted every US recession since 1970.', { stat: 'zero misses since 1970', sprite: 'bear' }],
+      ['Why does positive convexity benefit bondholders?','Positive convexity means bonds gain more from rate drops than they lose from equal rate increases. Mathematically, the ½×C×(Δy)² term is always positive, cushioning losses and amplifying gains.', { stat: 'always adds, never subtracts', sprite: 'parachute' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -4156,10 +4208,10 @@ const lessons: PathwayLesson[] = [
         type: 'pie',
         title: 'OTC Exotic Options Market, ~$50T Notional',
         segments: [
-          { label: 'Barrier options', percent: 40, color: '#10B981' },
-          { label: 'Asian options', percent: 25, color: '#F59E0B' },
-          { label: 'Structured products', percent: 25, color: '#B862ED' },
-          { label: 'Lookbacks', percent: 10, color: '#3B82F6' },
+          { label: 'Barrier options', percent: 40, color: '#10B981', explain: 'Forty percent of $50 trillion is $20 trillion of notional riding on contracts that one price touch can cancel. Barriers lead the market because they are the cheapest way to buy a hedge.' },
+          { label: 'Asian options', percent: 25, color: '#F59E0B', explain: '$12.5 trillion, and it is airlines and refiners driving it. They buy fuel every month, so the number they need protected is the average price, not one closing print.' },
+          { label: 'Structured products', percent: 25, color: '#B862ED', explain: 'Another $12.5 trillion of notes sold to companies and savers with an exotic bolted inside. The buyer sees a headline coupon, the barrier is on page 40 of the term sheet.' },
+          { label: 'Lookbacks', percent: 10, color: '#3B82F6', explain: 'The smallest slice at $5 trillion, and price is the reason. A contract that pays off the best price of the entire year costs so much that few buyers will fund one.' },
         ],
         centerLabel: '$50T',
         footer: 'Path-dependent: payoff depends on HOW the price got there, not just WHERE it ended.',
@@ -4178,19 +4230,19 @@ const lessons: PathwayLesson[] = [
           value: '−$500B',
           detail: '2008 bank losses on exotic derivatives',
           footer: 'Path dependence ignored, gamma risk underestimated',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'chart-down'
         },
         withVisual: {
           type: 'grid',
           title: 'Mastered Exotics',
           items: [
-            { label: 'Barrier', value: 'knock-out math', color: '#10B981' },
-            { label: 'Asian', value: 'avg-price payoff', color: '#F59E0B' },
-            { label: 'Lookback', value: 'best-of-path', color: '#B862ED' },
-            { label: 'Pricing engine', value: 'Monte Carlo + FD', color: '#3B82F6' },
+            { label: 'Barrier', value: 'knock-out math', color: '#10B981', sprite: 'shield', explain: 'You stop pricing where the stock lands and start pricing whether it ever touches a level. That single switch is why a barrier call can run 30 percent under the vanilla.' },
+            { label: 'Asian', value: 'avg-price payoff', color: '#F59E0B', sprite: 'calendar', explain: 'Average 250 daily prices and the variance of the payoff variable collapses, so the Asian call lands 20 to 30 percent cheaper than the vanilla at the same strike.' },
+            { label: 'Lookback', value: 'best-of-path', color: '#B862ED', sprite: 'hourglass', explain: 'The payoff reaches back and grabs the lowest price of the whole path, so it can never be worse than a vanilla call. Never worse is exactly why it always costs more.' },
+            { label: 'Pricing engine', value: 'Monte Carlo + FD', color: '#3B82F6', sprite: 'calculator', explain: 'Monte Carlo prices any payoff you can write down but is slow. Finite differences are fast and die past two underlyings. Desks run both and treat a gap between them as a warning.' },
           ],
           footer: 'Accurate hedging, structured-product edge',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'compass'
         }
       }
     ),
@@ -4272,7 +4324,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Comparison diagram: Monte Carlo (many simulated paths converging to a price) vs finite differences (grid with PDE solved at each node)',
       undefined,
-      QA14_TEACH2
+      QA14_TEACH2,
+      {
+        hint: 'Press each of the three prices, then the range at the bottom. Same option, same $85 barrier, and each row tells you which assumption moved the number.',
+        recap: 'One barrier option, three defensible models, 90 cents apart. Nothing in the market moved between $3.20 and $4.10, only the volatility assumption you carried in from lesson 12, so on an exotic the model is not a technical detail, it is most of the price. Price with every model you have, quote the range, and hedge to the expensive end of it.',
+      }
     ),
 
     // Step 7, Case Study
@@ -4326,10 +4382,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Exotic Options Key Facts',[
-      ['What is in-out parity for barrier options?','Knock-in price + Knock-out price = Vanilla price (same strike, same barrier). This means you can always calculate one from the other two. It\'s the fundamental arbitrage relationship for barriers.'],
-      ['Why are lookback options the most expensive standard exotics?','Lookback options give perfect hindsight: buy at the minimum or sell at the maximum. This optimal entry/exit is always at least as valuable as any fixed-strike option, making lookbacks the most expensive.'],
-      ['How do most quants price path-dependent options?','Monte Carlo simulation: generate thousands of random price paths, compute the payoff for each, and average the discounted results. It\'s the universal tool for exotic pricing because it handles any payoff structure.'],
-      ['What caused the exotic CDO disaster in 2008?','Correlation models used to price CDO tranches assumed correlations were stable. Under stress, correlations spiked to near 1.0, causing all tranches to default simultaneously. The path-dependent triggers in CDO-squared structures amplified losses catastrophically.']
+      ['What is in-out parity for barrier options?','Knock-in price + Knock-out price = Vanilla price (same strike, same barrier). This means you can always calculate one from the other two. It\'s the fundamental arbitrage relationship for barriers.', { stat: 'In + out = vanilla', sprite: 'scales' }],
+      ['Why are lookback options the most expensive standard exotics?','Lookback options give perfect hindsight: buy at the minimum or sell at the maximum. This optimal entry/exit is always at least as valuable as any fixed-strike option, making lookbacks the most expensive.', { stat: 'Perfect hindsight', sprite: 'magnifier' }],
+      ['How do most quants price path-dependent options?','Monte Carlo simulation: generate thousands of random price paths, compute the payoff for each, and average the discounted results. It\'s the universal tool for exotic pricing because it handles any payoff structure.', { stat: 'Monte Carlo', sprite: 'dice' }],
+      ['What caused the exotic CDO disaster in 2008?','Correlation models used to price CDO tranches assumed correlations were stable. Under stress, correlations spiked to near 1.0, causing all tranches to default simultaneously. The path-dependent triggers in CDO-squared structures amplified losses catastrophically.', { stat: 'One bad input', sprite: 'crack' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -4479,11 +4535,11 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'CDS Spreads, The 2008 Credit Crisis',
         points: [
-          { label: '2006', value: '50 bp' },
-          { label: '2007', value: '80 bp' },
-          { label: 'Mar 2008', value: '250 bp' },
-          { label: 'Sep 2008', value: '950 bp' },
-          { label: '2009', value: '450 bp' },
+          { label: '2006', value: '50 bp', explain: '50 basis points is half a percent, so insuring $10M of debt for a year cost $50,000. Divide 50 by the 60 cents you lose in a default and the market was pricing under a 1% chance of default per year.' },
+          { label: '2007', value: '80 bp', explain: 'Thirty basis points more, while stock indexes were still setting records. Credit protection got 60% more expensive over a year that most people remember as calm.' },
+          { label: 'Mar 2008', value: '250 bp', explain: 'This is the month Bear Stearns collapsed. At 250 bp the implied default odds are about 4.2% a year, five times what the same protection was signalling in 2006.' },
+          { label: 'Sep 2008', value: '950 bp', explain: '9.5% of the insured amount, every year. Nobody pays a tenth of the notional to hedge a maybe, so this price says buyers thought default was close rather than possible.' },
+          { label: '2009', value: '450 bp', explain: 'The fall looks like recovery until you compare it with the first point. 450 is still nine times the 50 bp of 2006, so the market never went back to believing what it believed before.' },
         ],
         trend: 'up',
         footer: 'AIG bailout: $182B, largest in US history.',
@@ -4500,23 +4556,23 @@ const lessons: PathwayLesson[] = [
           type: 'flow',
           title: 'No Credit Derivatives',
           nodes: [
-            { label: 'Lend', value: 'concentrated', color: '#94A3B8' },
-            { label: 'Pray', value: 'no hedge available', color: '#F59E0B' },
-            { label: 'Absorb 100% loss', value: 'when default hits', color: '#EF4444' },
+            { label: 'Lend', value: 'concentrated', color: '#94A3B8', sprite: 'bank', explain: 'One borrower, one loan, and the whole exposure sits on your books until maturity. A bank with $500M out to a single company cannot shrink that number without selling the loan itself.' },
+            { label: 'Pray', value: 'no hedge available', color: '#F59E0B', sprite: 'question', explain: 'There is no instrument to buy. You can turn down the next loan, but the one already made cannot be undone, so your only risk control was the decision you took months ago.' },
+            { label: 'Absorb 100% loss', value: 'when default hits', color: '#EF4444', sprite: 'crack', explain: 'You eat every cent of the shortfall. Recovery might hand back 40 cents on the dollar, and the other 60 comes out of your own capital with nobody to bill for it.' },
           ],
           footer: 'No risk transfer, all eggs, one borrower',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'chain-break'
         },
         withVisual: {
           type: 'flow',
           title: 'With Credit Derivatives',
           nodes: [
-            { label: 'CDS', value: 'default insurance', color: '#10B981' },
-            { label: 'CDO tranching', value: 'AAA / mezz / equity', color: '#B862ED' },
-            { label: 'Precise risk transfer', value: 'price the risk', color: '#3B82F6' },
+            { label: 'CDS', value: 'default insurance', color: '#10B981', sprite: 'shield', explain: 'Pay 150 bp a year and somebody else covers the shortfall if the borrower fails. On $10M that is $150,000 a year: a known cost traded for an unknown one.' },
+            { label: 'CDO tranching', value: 'AAA / mezz / equity', color: '#B862ED', sprite: 'pie-slice', explain: 'The same pool of loans gets cut into slices that fail in a fixed order. Equity takes the first 3% of losses, so a pension fund can buy the top and a hedge fund hunting yield can buy the bottom, out of one pool.' },
+            { label: 'Precise risk transfer', value: 'price the risk', color: '#3B82F6', sprite: 'target', explain: 'Once protection trades, credit risk has a live price quoted in basis points every day. That price is what tells you the market changed its mind, and it moves in hours rather than on a ratings committee schedule.' },
           ],
           footer: 'Slice and transfer credit risk like a commodity',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'safety-net'
         }
       }
     ),
@@ -4545,11 +4601,11 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'CDS Cash Flows',
         rows: [
-          { label: 'Buyer pays seller', value: '200 bps / yr (premiums)' },
-          { label: 'If no default', value: 'Seller keeps premiums' },
-          { label: 'If default', value: 'Seller pays (1 − R) × Notional' },
-          { label: 'Pricing', value: 'Spread ≈ Hazard × (1 − R)' },
-          { label: 'Worked example', value: '200 bp ≈ 3.3% × (1 − 40%)' },
+          { label: 'Buyer pays seller', value: '200 bps / yr (premiums)', explain: '200 basis points is 2%, so on $10M the premium is $200,000 a year, usually paid quarterly, and it keeps going out whether anything happens or not.' },
+          { label: 'If no default', value: 'Seller keeps premiums', explain: 'Five quiet years and the seller banks $1M for writing a contract. That is why selling protection feels like free money, and it is the exact trade AIG scaled to $440 billion.' },
+          { label: 'If default', value: 'Seller pays (1 − R) × Notional', explain: 'R is the recovery rate. At the standard 40%, the seller pays $6M on $10M of notional, which is thirty years of those $200,000 premiums handed back in a single payment.' },
+          { label: 'Pricing', value: 'Spread ≈ Hazard × (1 − R)', explain: 'Read the whole thing as expected loss per year: the chance of default multiplied by the fraction you lose when it happens. It is the expected value calculation from lesson 2, quoted in basis points.' },
+          { label: 'Worked example', value: '200 bp ≈ 3.3% × (1 − 40%)', explain: 'Run it backwards and the quote hands you a belief: 200 divided by 60% gives a 3.3% chance of default per year. Every CDS spread on a screen is a probability wearing a price tag.' },
         ],
         footer: 'Insurance contract, priced in basis points per year.',
         sentiment: 'positive',
@@ -4610,7 +4666,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Credit curve diagram showing CDS spreads at different maturities: normal upward-sloping vs inverted (signaling imminent default)',
       undefined,
-      QA15_TEACH2
+      QA15_TEACH2,
+      {
+        hint: 'Press any row of the Lehman curve. All four describe the same bank in the same week, and they do not agree with each other.',
+        recap: 'A CDS spread is a default probability with a price tag on it: divide the spread by the loss you take in a default and you get the odds the market is quoting. That is the expected value machinery from lesson 2, only now it is posted on a screen every morning. Lehman is the proof of what that is worth. The spread ran 150 to 700 in a week while the rating sat at A2, so the traded number moved and the published opinion did not. When a price and a rating disagree, the price is the one with money behind it.',
+      }
     ),
 
     // Step 7, Case Study
@@ -4664,10 +4724,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Credit Derivatives Key Facts',[
-      ['What was Lehman Brothers\' actual recovery rate?','Only 8.6 cents on the dollar, far below the standard 40% assumption used in CDS pricing. This meant CDS sellers owed 91.4% of notional value, causing much larger losses than models predicted.'],
-      ['How large was AIG\'s CDS portfolio at its peak?','$440 billion in notional CDS sold. AIG collected billions in premiums believing super-senior CDO tranches would never default. When they did, AIG owed far more than it could pay, requiring a $182 billion government bailout.'],
-      ['What is the Gaussian copula and why did it fail?','A model for specifying default correlations in CDO pricing. It assumed correlations were stable and moderate. Under stress, correlations spiked to near 1.0 as defaults became systemic. This made CDO tranches far riskier than the model predicted.'],
-      ['What does an inverted credit curve signal?','When short-term CDS spreads exceed long-term spreads, the market expects imminent default. The company may not survive the near term. Lehman Brothers had a deeply inverted credit curve days before bankruptcy.']
+      ['What was Lehman Brothers\' actual recovery rate?','Only 8.6 cents on the dollar, far below the standard 40% assumption used in CDS pricing. This meant CDS sellers owed 91.4% of notional value, causing much larger losses than models predicted.', { stat: '8.6 cents recovered, 40 assumed', sprite: 'coin' }],
+      ['How large was AIG\'s CDS portfolio at its peak?','$440 billion in notional CDS sold. AIG collected billions in premiums believing super-senior CDO tranches would never default. When they did, AIG owed far more than it could pay, requiring a $182 billion government bailout.', { stat: '$440B sold, $182B bailout', sprite: 'vault' }],
+      ['What is the Gaussian copula and why did it fail?','A model for specifying default correlations in CDO pricing. It assumed correlations were stable and moderate. Under stress, correlations spiked to near 1.0 as defaults became systemic. This made CDO tranches far riskier than the model predicted.', { stat: 'correlation assumed 0.3, delivered near 1.0', sprite: 'calculator' }],
+      ['What does an inverted credit curve signal?','When short-term CDS spreads exceed long-term spreads, the market expects imminent default. The company may not survive the near term. Lehman Brothers had a deeply inverted credit curve days before bankruptcy.', { stat: 'short end above long end', sprite: 'hourglass' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -4817,14 +4877,14 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Evolution of Rate Models, $500T+ Market',
         nodes: [
-          { label: 'Vasicek (1977)', value: 'first SDE for rates', color: '#B862ED' },
-          { label: 'CIR (1985)', value: 'no-negative-rates', color: '#B862ED' },
-          { label: 'HJM (1992)', value: 'forward-rate framework', color: '#F59E0B' },
-          { label: 'LIBOR Market Model (1997)', value: 'fits caps + swaptions', color: '#10B981' },
-          { label: 'SABR (2002)', value: 'captures vol smile', color: '#10B981' },
+          { label: 'Vasicek (1977)', value: 'first SDE for rates', color: '#B862ED', sprite: 'seedling', explain: 'One equation started all of this in 1977: pull the rate toward a mean, add noise. It is 49 years old and every swaptions desk still teaches it first.' },
+          { label: 'CIR (1985)', value: 'no-negative-rates', color: '#B862ED', sprite: 'shield', explain: 'The fix took eight years. Multiply the noise by the square root of r and the shaking dies out as the rate nears zero, so a path cannot step across into negative territory.' },
+          { label: 'HJM (1992)', value: 'forward-rate framework', color: '#F59E0B', sprite: 'network', explain: 'This one flipped the question. Instead of tracking one rate, track all of them at once, and no-arbitrage hands you the drift for free the moment you pick a volatility.' },
+          { label: 'LIBOR Market Model (1997)', value: 'fits caps + swaptions', color: '#10B981', sprite: 'handshake', explain: 'The first model built around things you can actually trade: 3 month forward rates at quarterly resets, so caplet prices fall straight out of Black\'s formula instead of needing a translation.' },
+          { label: 'SABR (2002)', value: 'captures vol smile', color: '#10B981', sprite: 'arrow-split', explain: 'Four parameters, one smile. SABR is the only model on this line that admits volatility is itself random, which is why every strike gets to have its own vol number.' },
         ],
         footer: 'From single-factor equilibrium → multi-factor market-consistent models.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'ladder'
       }
     ),
 
@@ -4839,7 +4899,7 @@ const lessons: PathwayLesson[] = [
           value: '−$1.7B',
           detail: 'Orange County (1994) bet on rates without modeling',
           footer: 'Model curve misses market, billions mispriced',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'crack'
         },
         withVisual: {
           type: 'metric',
@@ -4847,7 +4907,7 @@ const lessons: PathwayLesson[] = [
           value: 'fit ≈ 0 bp',
           detail: 'Hull-White / SABR matches market',
           footer: 'Accurate pricing + hedging across $500T market',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'target'
         }
       }
     ),
@@ -4929,7 +4989,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Calibration diagram: market swaption prices as targets, optimization finding model parameters that minimize pricing errors',
       undefined,
-      QA16_TEACH2
+      QA16_TEACH2,
+      {
+        hint: 'Press each box in the calibration flow. Market prices go in on the left, and the three numbers that come out on the right are the only things the model is allowed to choose for itself.',
+        recap: 'Here is the whole lesson in one line: a rate model is not a forecast, it is a machine for pricing the contracts nobody quotes. Lesson 13 handed you today\'s yield curve as raw data. Hull-White\'s θ(t) bends until the model reprices that exact curve to within a basis point, and only then is it trusted with a Bermudan swaption. Notice which way the arrows run: the market is never wrong here, the parameters are.',
+      }
     ),
 
     // Step 7, Case Study
@@ -4969,10 +5033,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Interest Rate Model Facts',[
-      ['What is the HJM drift restriction?','In the HJM framework: α(t,T) = σ(t,T) × ∫σ(t,s)ds. The drift of each forward rate is completely determined by the volatility function. You only need to specify volatility, the drift follows from no-arbitrage. This is one of the most elegant results in mathematical finance.'],
-      ['Why did negative European rates in 2014 cause model crises?','Models like CIR (√r diffusion) and log-normal LMM assumed rates stay positive. When ECB rates went to -0.5%, these models couldn\'t handle negative values. The industry scrambled to adopt shifted log-normal and normal (Bachelier) models that allow negative rates.'],
-      ['What is SABR and why is it the industry standard for swaption smiles?','SABR (Stochastic Alpha Beta Rho) adds stochastic volatility to the forward rate. It produces an approximate closed-form implied vol formula that traders use to interpolate the swaption smile. Its four parameters (α, β, ρ, ν) capture level, skew, and curvature of the smile.'],
-      ['How large is the interest rate derivatives market?','Over $500 trillion in notional value, the largest derivatives market on earth. This includes interest rate swaps ($400T+), options on swaps (swaptions), caps/floors, and exotic structures. Every instrument is priced using calibrated rate models.']
+      ['What is the HJM drift restriction?','In the HJM framework: α(t,T) = σ(t,T) × ∫σ(t,s)ds. The drift of each forward rate is completely determined by the volatility function. You only need to specify volatility, the drift follows from no-arbitrage. This is one of the most elegant results in mathematical finance.', { stat: 'σ only', sprite: 'lightbulb' }],
+      ['Why did negative European rates in 2014 cause model crises?','Models like CIR (√r diffusion) and log-normal LMM assumed rates stay positive. When ECB rates went to -0.5%, these models couldn\'t handle negative values. The industry scrambled to adopt shifted log-normal and normal (Bachelier) models that allow negative rates.', { stat: '-0.5%', sprite: 'bank' }],
+      ['What is SABR and why is it the industry standard for swaption smiles?','SABR (Stochastic Alpha Beta Rho) adds stochastic volatility to the forward rate. It produces an approximate closed-form implied vol formula that traders use to interpolate the swaption smile. Its four parameters (α, β, ρ, ν) capture level, skew, and curvature of the smile.', { stat: '4 params', sprite: 'compass' }],
+      ['How large is the interest rate derivatives market?','Over $500 trillion in notional value, the largest derivatives market on earth. This includes interest rate swaps ($400T+), options on swaps (swaptions), caps/floors, and exotic structures. Every instrument is priced using calibrated rate models.', { stat: '$500T', sprite: 'globe' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -5123,14 +5187,14 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'ML Pipeline for Quant Trading',
         nodes: [
-          { label: 'Raw Data', value: 'prices, satellite, NLP, alt-data', color: '#B862ED' },
-          { label: 'Features', value: 'momentum, vol, sentiment, flow', color: '#F59E0B' },
-          { label: 'ML Model', value: 'XGBoost / LSTM / Transformer', color: '#10B981' },
-          { label: 'Signals', value: 'alpha forecasts + sizing', color: '#EF4444' },
-          { label: 'Live trade', value: 'walk-forward validated', color: '#3B82F6' },
+          { label: 'Raw Data', value: 'prices, satellite, NLP, alt-data', color: '#B862ED', sprite: 'globe', explain: 'Prices are the free part, and everyone on the planet already has them. The satellite shots and card receipts are what funds pay millions for, because that is the only column of this box a rival might be missing.' },
+          { label: 'Features', value: 'momentum, vol, sentiment, flow', color: '#F59E0B', sprite: 'funnel', explain: 'Nobody feeds raw prices into a model. A year of daily closes, 252 separate numbers, gets squeezed down to one momentum figure here, and that squeezing decides more about the result than the model does.' },
+          { label: 'ML Model', value: 'XGBoost / LSTM / Transformer', color: '#10B981', sprite: 'network', explain: 'This is the box everyone argues about and the box that changes the answer least. Swapping XGBoost for a Transformer typically moves live accuracy by a fraction of one percent, while a better feature moves it by a whole point.' },
+          { label: 'Signals', value: 'alpha forecasts + sizing', color: '#EF4444', sprite: 'bolt', explain: 'Notice this box has two jobs, not one. A forecast that is right 51 percent of the time still loses money if you bet the same amount whether the model is barely leaning or nearly certain.' },
+          { label: 'Live trade', value: 'walk-forward validated', color: '#3B82F6', sprite: 'check-badge', explain: 'Nothing reaches this last box until it has been scored on years it never trained on. That single gate is the whole difference between the plus 9 percent and the minus 15 percent you are about to see.' },
         ],
         footer: '90% of ML strategies fail live due to overfitting, rigor wins.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'factory'
       }
     ),
 
@@ -5143,9 +5207,9 @@ const lessons: PathwayLesson[] = [
           type: 'comparison',
           title: 'Naive ML',
           rows: [
-            { label: 'Backtest return', value: '+40% 🤩' },
-            { label: 'Live return', value: '−15% 💀' },
-            { label: 'Cause', value: 'overfit to noise' },
+            { label: 'Backtest return', value: '+40% 🤩', explain: 'Forty percent earned on days the model already studied is not a result, it is a memory test. The model was shown the answers, then graded on the same paper.' },
+            { label: 'Live return', value: '−15% 💀', explain: 'That is a 55 point swing between the two rows. The market did not change between them. The only thing that changed is whether the model had already seen the days it was betting on.' },
+            { label: 'Cause', value: 'overfit to noise', explain: 'Overfitting is not the model being stupid, it is the model being obedient. You told it to find patterns and 99 percent of what you handed it was noise, so noise is what it learned.' },
           ],
           footer: 'Memorized history, didn\'t learn it',
           sentiment: 'negative',
@@ -5154,9 +5218,9 @@ const lessons: PathwayLesson[] = [
           type: 'comparison',
           title: 'Rigorous ML',
           rows: [
-            { label: 'Backtest return', value: '+12%' },
-            { label: 'Live return', value: '+9% ✓' },
-            { label: 'Cause', value: 'real signal captured' },
+            { label: 'Backtest return', value: '+12%', explain: 'Twelve looks like the weaker number until you notice how it was produced: on years the model was never allowed to train on. It is a smaller claim, but it is an honest one.' },
+            { label: 'Live return', value: '+9% ✓', explain: 'Twelve became nine, a drop of three points. That gap is fees, slippage and a market that moved on. Compare it to the 55 point gap in the naive column: a real edge shrinks a little, a fake one flips sign.' },
+            { label: 'Cause', value: 'real signal captured', explain: 'Real signal survives the walk forward because it was never about those specific days. Momentum kept paying in 2023 for the same reason it paid in 2013, and the model can carry that reason into a year it has not met.' },
           ],
           footer: 'Walk-forward + ensemble + intuition-driven features',
           sentiment: 'positive',
@@ -5241,7 +5305,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Overfitting diagram: two curves, training error decreasing monotonically, validation error first decreasing then increasing as complexity grows. The sweet spot is where validation error is minimized.',
       undefined,
-      QA17_TEACH2
+      QA17_TEACH2,
+      {
+        hint: 'Press each row of this failure table, starting with the R squared under 0.01, to watch a 70 percent backtest turn into a 50.1 percent coin flip.',
+        recap: 'Keep one number from this lesson: 50.1 percent. Because daily returns are about 99 percent noise, a high backtest score is evidence that a model memorized history, not evidence that it has an edge, and the only score worth trusting is one earned on years the model never trained on. The features you feed it, momentum and value and quality, are the same factors you built by hand in lesson 7. Machine learning does not hand you a new edge, it combines old ones at scale, and it will happily invent a fake one the moment you stop checking it against unseen time.',
+      }
     ),
 
     // Step 7, Case Study
@@ -5295,10 +5363,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('ML in Quantitative Trading Facts',[
-      ['Why does Two Sigma hire more ML engineers than traders?','Their edge comes from data processing and model building, not human trading judgment. 1,600+ employees process petabytes of alternative data through ML pipelines. The human role is designing systems, not making individual trade decisions.'],
-      ['What is look-ahead bias and why is it the most common ML error in finance?','Look-ahead bias is using information that wasn\'t available at prediction time. Example: using full-year revenue to predict January returns. It makes backtests unrealistically profitable and is surprisingly easy to introduce accidentally through data preprocessing, feature timing, or corporate event handling.'],
-      ['Why is walk-forward validation essential instead of random cross-validation?','Financial data is time-ordered and non-stationary. Random splits leak future information into training data. Walk-forward mimics real-time prediction: train only on past data, test on the next period, then advance. It reveals whether the model generalizes across time regimes.'],
-      ['How many ML strategies that backtest profitably actually work in live trading?','Roughly 10% or fewer. The vast majority are overfit to historical patterns that don\'t recur. The low signal-to-noise ratio in finance means models easily memorize noise. Only strategies with genuine economic rationale, rigorous walk-forward validation, and realistic transaction costs survive live deployment.']
+      ['Why does Two Sigma hire more ML engineers than traders?','Their edge comes from data processing and model building, not human trading judgment. 1,600+ employees process petabytes of alternative data through ML pipelines. The human role is designing systems, not making individual trade decisions.', { stat: '1,600+ employees, mostly engineers', sprite: 'briefcase' }],
+      ['What is look-ahead bias and why is it the most common ML error in finance?','Look-ahead bias is using information that wasn\'t available at prediction time. Example: using full-year revenue to predict January returns. It makes backtests unrealistically profitable and is surprisingly easy to introduce accidentally through data preprocessing, feature timing, or corporate event handling.', { stat: 'The most common bug in finance ML', sprite: 'hourglass' }],
+      ['Why is walk-forward validation essential instead of random cross-validation?','Financial data is time-ordered and non-stationary. Random splits leak future information into training data. Walk-forward mimics real-time prediction: train only on past data, test on the next period, then advance. It reveals whether the model generalizes across time regimes.', { stat: 'Train on the past, test the next slice', sprite: 'calendar' }],
+      ['How many ML strategies that backtest profitably actually work in live trading?','Roughly 10% or fewer. The vast majority are overfit to historical patterns that don\'t recur. The low signal-to-noise ratio in finance means models easily memorize noise. Only strategies with genuine economic rationale, rigorous walk-forward validation, and realistic transaction costs survive live deployment.', { stat: 'About 1 in 10 survive live', sprite: 'chart-down' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -5449,11 +5517,11 @@ const lessons: PathwayLesson[] = [
         type: 'line',
         title: 'The Flash Crash, May 6, 2010',
         points: [
-          { label: '2:30 PM', value: '10,700' },
-          { label: '2:40 PM', value: '10,500' },
-          { label: '2:45 PM', value: '9,800 ⚡' },
-          { label: '2:55 PM', value: '10,300' },
-          { label: '3:00 PM', value: '10,500' },
+          { label: '2:30 PM', value: '10,700', explain: 'The Dow is already sliding on European debt fears, so the book is thinner than normal before anything strange happens.' },
+          { label: '2:40 PM', value: '10,500', explain: '200 points gone in ten minutes, and the selling algorithm is keyed to volume, not price. Its own selling creates volume, which tells it to sell faster.' },
+          { label: '2:45 PM', value: '9,800 ⚡', explain: '700 points in five minutes. Accenture printed at $0.01 inside this window, not because anyone valued it at a penny, but because a penny bid was the only bid left in the book.' },
+          { label: '2:55 PM', value: '10,300', explain: 'Up 500 points in ten minutes on zero news. Nothing about the companies changed in either direction, only who was willing to post a quote.' },
+          { label: '3:00 PM', value: '10,500', explain: 'Back within 200 points of the start. A 900 point drop that unwinds almost entirely in fifteen minutes is a liquidity failure, not the market repricing anything.' },
         ],
         trend: 'down',
         footer: '−1,000 pts in 5 min, HFT now 50%+ of US equity volume.',
@@ -5472,7 +5540,7 @@ const lessons: PathwayLesson[] = [
           value: '15 bps',
           detail: 'Market order @ $100.00 → fill $100.15',
           footer: 'Bleeding 15 bps every trade',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'piggy-crack'
         },
         withVisual: {
           type: 'metric',
@@ -5480,7 +5548,7 @@ const lessons: PathwayLesson[] = [
           value: '2 bps',
           detail: 'Algo @ $100.00 → fill $100.02',
           footer: '87% slippage savings, millions per year',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'target'
         }
       }
     ),
@@ -5510,11 +5578,11 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Limit Order Book Snapshot',
         rows: [
-          { label: 'Best Ask $100.01', value: '300 shares (sell side)' },
-          { label: 'Ask $100.02', value: '900 shares' },
-          { label: 'Spread', value: '$0.01 = 1 bp' },
-          { label: 'Best Bid $100.00', value: '500 shares (buy side)' },
-          { label: 'Bid $99.99', value: '1,200 shares' },
+          { label: 'Best Ask $100.01', value: '300 shares (sell side)', explain: 'Only 300 shares sit at the cheapest ask. Ask for 1,000 and you clear all 300 here, then pay $100.02 for the other 700.' },
+          { label: 'Ask $100.02', value: '900 shares', explain: 'Three times the size one cent further out. Depth almost always grows as you walk away from the touch, which is why your average fill gets worse the bigger your order is.' },
+          { label: 'Spread', value: '$0.01 = 1 bp', explain: 'A penny on a $100 stock is one hundredth of one percent. Buy and instantly sell and you are down that penny before the price has moved at all.' },
+          { label: 'Best Bid $100.00', value: '500 shares (buy side)', explain: '500 shares is everything the market will take from a seller at a round $100.00. Share number 501 gets $99.99, and that is with a healthy book.' },
+          { label: 'Bid $99.99', value: '1,200 shares', explain: 'These 1,200 shares are the cushion under the price. On May 6 levels like this one disappeared, so a sell order had nothing to land on until a penny.' },
         ],
         footer: 'Market makers earn the spread millions of times per day.',
         sentiment: 'positive',
@@ -5576,7 +5644,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Kyle model diagram: informed trader + noise traders → market maker observes aggregate order flow → sets price = prior + λ × order flow imbalance',
       undefined,
-      QA18_TEACH2
+      QA18_TEACH2,
+      {
+        hint: 'Press each box in the chain. The middle one is where the model actually lives: the market maker sees the order, never the person behind it.',
+        recap: 'The spread is not free money, it is rent for a risk. Every quote you post can be taken by someone who already knows where the price is going, and lambda is the price you charge per unit of that danger. This is the expected value math from lesson 2 run a million times a day: a penny of edge and a small chance of being picked off, repeated until the average becomes almost certain. That is how a market maker quotes a one cent spread and still has only one losing day in 1,238.',
+      }
     ),
 
     // Step 7, Case Study
@@ -5630,10 +5702,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('HFT and Market Microstructure Facts',[
-      ['What caused the Flash Crash of May 6, 2010?','A $4.1 billion sell order from Waddell & Reed executed via a volume-based algorithm (ignoring price impact) caused persistent selling. HFT market makers detected toxic flow and withdrew. Order book depth collapsed and prices fell 9.2% in 5 minutes before recovering when HFT re-entered.'],
-      ['How much have spreads improved since the rise of HFT?','NYSE spreads were 12.5 cents (1/8 dollar) before decimalization and HFT. Today, typical spreads are 1-2 cents, a 90%+ reduction. This saves all market participants billions annually.'],
-      ['Why do HFT firms build microwave tower networks between exchanges?','Microwave transmissions travel at nearly the speed of light through air, faster than light through fiber optic glass. The 5ms time saving between Chicago and New Jersey is worth billions in latency arbitrage opportunities over time.'],
-      ['What is adverse selection and why does it limit market maker profits?','Adverse selection occurs when informed traders systematically trade against market makers who have inferior information. The market maker buys at $100 from someone who knows the stock is about to drop to $99. Spreads must be wide enough to compensate for these losses.']
+      ['What caused the Flash Crash of May 6, 2010?','A $4.1 billion sell order from Waddell & Reed executed via a volume-based algorithm (ignoring price impact) caused persistent selling. HFT market makers detected toxic flow and withdrew. Order book depth collapsed and prices fell 9.2% in 5 minutes before recovering when HFT re-entered.', { stat: '9.2% in 5 minutes', sprite: 'chart-down' }],
+      ['How much have spreads improved since the rise of HFT?','NYSE spreads were 12.5 cents (1/8 dollar) before decimalization and HFT. Today, typical spreads are 1-2 cents, a 90%+ reduction. This saves all market participants billions annually.', { stat: '12.5 cents down to 1', sprite: 'price-tag' }],
+      ['Why do HFT firms build microwave tower networks between exchanges?','Microwave transmissions travel at nearly the speed of light through air, faster than light through fiber optic glass. The 5ms time saving between Chicago and New Jersey is worth billions in latency arbitrage opportunities over time.', { stat: '5 ms Chicago to NJ', sprite: 'bolt' }],
+      ['What is adverse selection and why does it limit market maker profits?','Adverse selection occurs when informed traders systematically trade against market makers who have inferior information. The market maker buys at $100 from someone who knows the stock is about to drop to $99. Spreads must be wide enough to compensate for these losses.', { stat: '$1 lost per share', sprite: 'shield' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -5784,10 +5856,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Backtest vs Reality',
         rows: [
-          { label: 'Backtest (in-sample)', value: '+35% / yr 🤩' },
-          { label: 'Paper trade (forward)', value: '+8%' },
-          { label: 'Live trading', value: '−5% 💀' },
-          { label: 'Cause', value: 'overfitting + data snooping' },
+          { label: 'Backtest (in-sample)', value: '+35% / yr 🤩', explain: 'Plus 35 percent a year doubles money in about two and a half years. But this score was earned on the same history the rules were tuned on, which is grading your own homework with the answer key open.' },
+          { label: 'Paper trade (forward)', value: '+8%', explain: 'Same code, same rules, prices nobody had seen yet: 35 becomes 8. About three quarters of the edge disappeared the moment the data was new, and not one line of the strategy changed.' },
+          { label: 'Live trading', value: '−5% 💀', explain: 'Paper orders cost nothing to be wrong. Real ones pay the spread and push the price, and that last step alone knocked 13 points off, from plus 8 to a loss.' },
+          { label: 'Cause', value: 'overfitting + data snooping', explain: 'Nothing broke in the market between the backtest and the loss. The strategy got picked because it happened to fit old noise, so the 35 percent was never there to lose.' },
         ],
         footer: 'The backtest was a beautiful fiction.',
         sentiment: 'negative',
@@ -5805,7 +5877,7 @@ const lessons: PathwayLesson[] = [
           value: '+35% → −5%',
           detail: '7 deadly sins of backtesting',
           footer: 'Beautiful fiction, kills capital live',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'crack'
         },
         withVisual: {
           type: 'metric',
@@ -5813,7 +5885,7 @@ const lessons: PathwayLesson[] = [
           value: '+12% → +9%',
           detail: 'walk-forward + OOS + realistic costs',
           footer: 'Modest but truthful, survives live',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'check-badge'
         }
       }
     ),
@@ -5895,7 +5967,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Robustness testing framework: sensitivity tornado chart showing how performance changes with each input variation',
       undefined,
-      QA19_TEACH2
+      QA19_TEACH2,
+      {
+        hint: 'Press each of the three tests to see what that one catches that a clean backtest is happy to hide from you.',
+        recap: 'Robustness is not one more test to pass, it is asking whether the result survives being nudged. The number worth trusting is the small one: a 12 percent backtest that still pays 9 percent live beats a 35 percent backtest that ends at a loss, because only the honest one ever met data it had not seen. Lesson 7 taught you to hunt for alpha. This is the test that decides whether the alpha was ever there.',
+      }
     ),
 
     // Step 7, Misconceptions
@@ -5946,10 +6022,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Backtesting & Validation Key Facts',[
-      ['Why does walk-forward analysis typically reduce backtest Sharpe by 50-70%?','In-sample optimization fits the model to historical noise, inflating the Sharpe. Walk-forward tests on genuinely unseen data, revealing the actual predictive power. The 50-70% reduction is the "cost" of removing overfitting, and represents the gap between illusion and reality.'],
-      ['How does survivorship bias affect backtest returns?','By testing only on stocks that survived, you exclude the worst performers (bankruptcies, delistings). This can inflate returns by 1-4% per year. The fix: use point-in-time databases that include delisted securities with their actual (often catastrophic) returns.'],
-      ['What is the deflated Sharpe ratio and why is it critical?','It adjusts the backtest Sharpe for the number of strategies tested. With N trials, the expected max Sharpe from luck alone is ~√(2×ln(N)). Only excess Sharpe above this threshold represents genuine skill. It eliminates most "profitable" strategies as statistical artifacts.'],
-      ['Why is paper trading the ultimate validation test?','Paper trading runs the strategy on LIVE data with no backtesting artifacts. It reveals look-ahead bias, execution problems, and real-time performance. If paper trading results are significantly worse than backtesting, the backtest was compromised.']
+      ['Why does walk-forward analysis typically reduce backtest Sharpe by 50-70%?','In-sample optimization fits the model to historical noise, inflating the Sharpe. Walk-forward tests on genuinely unseen data, revealing the actual predictive power. The 50-70% reduction is the "cost" of removing overfitting, and represents the gap between illusion and reality.', { stat: 'Sharpe drops 50 to 70% on unseen data', sprite: 'hourglass' }],
+      ['How does survivorship bias affect backtest returns?','By testing only on stocks that survived, you exclude the worst performers (bankruptcies, delistings). This can inflate returns by 1-4% per year. The fix: use point-in-time databases that include delisted securities with their actual (often catastrophic) returns.', { stat: '1 to 4% a year of invented return', sprite: 'bank-run' }],
+      ['What is the deflated Sharpe ratio and why is it critical?','It adjusts the backtest Sharpe for the number of strategies tested. With N trials, the expected max Sharpe from luck alone is ~√(2×ln(N)). Only excess Sharpe above this threshold represents genuine skill. It eliminates most "profitable" strategies as statistical artifacts.', { stat: '100 tries: a 2.0 Sharpe deflates near 0.8', sprite: 'calculator' }],
+      ['Why is paper trading the ultimate validation test?','Paper trading runs the strategy on LIVE data with no backtesting artifacts. It reveals look-ahead bias, execution problems, and real-time performance. If paper trading results are significantly worse than backtesting, the backtest was compromised.', { stat: '3 to 6 months of live prices, no capital', sprite: 'stopwatch' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -6101,10 +6177,10 @@ const lessons: PathwayLesson[] = [
         title: 'Transaction Cost Iceberg',
         total: 'Total: ~50-170 bps',
         segments: [
-          { label: 'Commissions', value: '~2 bps', percent: 3, color: '#B862ED' },
-          { label: 'Spread', value: '5-20 bps', percent: 17, color: '#3B82F6' },
-          { label: 'Market impact', value: '10-100 bps', percent: 60, color: '#EF4444' },
-          { label: 'Delay + opportunity', value: '5-50 bps', percent: 20, color: '#F59E0B' },
+          { label: 'Commissions', value: '~2 bps', percent: 3, color: '#B862ED', explain: 'Two basis points is two cents on every hundred dollars traded, and it is the only line here that arrives as an actual invoice. It is 3 percent of the bar, which is exactly why a broker can advertise zero commissions and lose almost nothing.' },
+          { label: 'Spread', value: '5-20 bps', percent: 17, color: '#3B82F6', explain: 'You pay this the instant you cross from the bid to the ask, before the price has moved a cent. At the top of the range, 20 bps on a 10 million dollar order is 20,000 dollars handed over for the privilege of trading right now instead of waiting.' },
+          { label: 'Market impact', value: '10-100 bps', percent: 60, color: '#EF4444', explain: 'Sixty percent of the iceberg, and it is self inflicted: the price runs away from you because you are the one buying. Nobody sends you a bill for it, which is the reason most traders never notice the biggest cost they pay.' },
+          { label: 'Delay + opportunity', value: '5-50 bps', percent: 20, color: '#F59E0B', explain: 'This block is made of drift while you got ready plus the shares you never managed to buy. It is invisible in a fill report by definition, because a fill report only lists trades that happened.' },
         ],
         footer: 'Hidden costs are 10-50× larger than commissions.',
         sentiment: 'negative',
@@ -6120,9 +6196,9 @@ const lessons: PathwayLesson[] = [
           type: 'comparison',
           title: 'Naive Execution',
           rows: [
-            { label: 'Gross alpha', value: '+3.0%' },
-            { label: 'Execution cost', value: '−2.1%' },
-            { label: 'Net alpha', value: '+0.9%' },
+            { label: 'Gross alpha', value: '+3.0%', explain: 'Three percent is what the model earned on paper, and it is the identical number in the other panel. Nothing that follows is about having a better idea.' },
+            { label: 'Execution cost', value: '−2.1%', explain: '2.1 out of 3.0 is 70 cents of every dollar the strategy earned, spent just getting in and out. That is not friction around the edges, that is most of the year.' },
+            { label: 'Net alpha', value: '+0.9%', explain: 'Under one percent is roughly what a savings account paid, for a year of research and risk. A backtest that reported only the 3.0 percent would have called this a success.' },
           ],
           footer: '70% of alpha lost to friction',
           sentiment: 'negative',
@@ -6131,9 +6207,9 @@ const lessons: PathwayLesson[] = [
           type: 'comparison',
           title: 'Optimized Execution',
           rows: [
-            { label: 'Gross alpha', value: '+3.0%' },
-            { label: 'Execution cost', value: '−0.6%' },
-            { label: 'Net alpha', value: '+2.4%' },
+            { label: 'Gross alpha', value: '+3.0%', explain: 'Same signal, same 3.0 percent, not one new idea added. Everything gained on this side of the chart is won after the decision to trade has already been made.' },
+            { label: 'Execution cost', value: '−0.6%', explain: 'Cutting 2.1 percent down to 0.6 percent is 1.5 percentage points of return created by nothing but better plumbing. Execution improvement is alpha you do not have to discover.' },
+            { label: 'Net alpha', value: '+2.4%', explain: '2.4 against 0.9 is nearly triple the take home from the exact same forecast. The 1.5 point gap between these two panels is larger than the entire net return of the naive version.' },
           ],
           footer: '80% of alpha preserved',
           sentiment: 'positive',
@@ -6165,10 +6241,10 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Almgren-Chriss, Speed vs Cost',
         rows: [
-          { label: 'Trade fast', value: 'high impact, low timing risk' },
-          { label: 'Trade slow', value: 'low impact, high timing risk' },
-          { label: 'Optimal trajectory', value: 'front-loaded curve ✦' },
-          { label: 'Risk-averse trader', value: '40% / 30% / 20% / 10%' },
+          { label: 'Trade fast', value: 'high impact, low timing risk', explain: 'Push the whole order through in ten minutes and you end up bidding against yourself, so every cent of impact is yours. What that buys is certainty: the price cannot drift away from you once you are already finished.' },
+          { label: 'Trade slow', value: 'low impact, high timing risk', explain: 'Stretch the same order over three days and each slice is small enough to hide inside normal volume, so impact nearly disappears. What replaces it is the price wandering while you wait, and that risk grows with the square root of the time you take.' },
+          { label: 'Optimal trajectory', value: 'front-loaded curve ✦', explain: 'The answer is neither speed nor patience, it is a curve that starts quick and tapers off. You clear the biggest part of the order while your exposure is largest, because that is precisely when a price drift costs you the most.' },
+          { label: 'Risk-averse trader', value: '40% / 30% / 20% / 10%', explain: 'Read the four numbers across: the first quarter of the clock does four times the work of the last. By the halfway point 70 percent is already filled, and only 10 percent of the order is still sitting exposed at the end.' },
         ],
         footer: 'Minimize Impact + Risk Penalty, the optimal curve.',
         sentiment: 'positive',
@@ -6233,13 +6309,17 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Square-Root Impact Law (impact bps vs % ADV)',
         items: [
-          { label: '5% of ADV', value: 22, displayValue: '22 bps' },
-          { label: '15% of ADV', value: 38, displayValue: '38 bps' },
-          { label: '25% of ADV', value: 50, displayValue: '50 bps' },
-          { label: '35% of ADV', value: 60, displayValue: '60 bps' },
+          { label: '5% of ADV', value: 22, displayValue: '22 bps', sprite: 'seedling', explain: 'Five percent of one day\'s volume already costs 22 bps, roughly eleven times the commission on the very same trade. The cheapest bar on this chart is still far and away the largest bill you pay.' },
+          { label: '15% of ADV', value: 38, displayValue: '38 bps', sprite: 'ladder', explain: 'Triple the order from 5 percent to 15 and the cost goes 22 to 38, not 22 to 66. Three times the shares for 1.7 times the cost is the square root doing its work.' },
+          { label: '25% of ADV', value: 50, displayValue: '50 bps', sprite: 'magnet', explain: 'This bar is five times the order of the first one and only 2.3 times the cost. Even so, half a percent of the trade value is gone before the position has earned you anything at all.' },
+          { label: '35% of ADV', value: 60, displayValue: '60 bps', sprite: 'flame', explain: 'Going from 25 percent to 35 percent of a day\'s volume buys only 10 more bps, the flattest step on the chart. Seven times the first order for 2.7 times its cost is why splitting helps, and why it stops helping once the pieces are already small.' },
         ],
         footer: 'Impact ∝ √(size), splitting orders has diminishing returns.',
-        sentiment: 'negative',
+        sentiment: 'negative', sprite: 'chart-up'
+      },
+      {
+        hint: 'Press any of the four bars. Each one is the same trade at a different size, and I will tell you why seven times as many shares does not cost seven times as much.',
+        recap: 'One rule runs this whole chart: impact grows with the square root of size, so seven times the order costs 2.7 times the impact rather than seven times. That is good news going down, since slicing a block really does save money, and it is brutal news going up, since the cost never stops climbing. Lesson 19 taught you to distrust a backtest that looks too clean, and this is the assumption it hides most often: that the fills were free. Every strategy has a size where this curve finally catches its alpha, and that size, not the backtest return, is its real capacity.',
       }
     ),
 
@@ -6294,10 +6374,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Execution Algorithms Key Facts',[
-      ['When should you use VWAP vs IS algorithms?','VWAP for patient, benchmark-tracking orders where minimizing deviation from the day\'s average price matters. IS (Implementation Shortfall) for urgent orders where capturing the current price quickly is more important than tracking a benchmark. IS front-loads execution; VWAP follows volume.'],
-      ['What destroyed Knight Capital in 45 minutes?','A software deployment error reactivated dormant test code that rapidly bought and sold 154 stocks, accumulating a $7 billion unintended position and losing $440 million, the company\'s entire capital. It demonstrates that execution infrastructure risk can be existential.'],
-      ['How does the square-root impact law affect portfolio construction?','Since impact scales with √(order size), larger positions are disproportionately expensive to enter and exit. This favors more diversified portfolios with smaller per-stock positions, even if a concentrated portfolio has slightly higher theoretical alpha, the execution costs may make the diversified version more profitable net of costs.'],
-      ['What is adverse selection risk in dark pools?','If you consistently get filled in dark pools, informed traders may be using you as liquidity. Dark pool fills that are followed by the price moving against you indicate toxic flow. Smart order routers monitor fill quality and reduce dark pool usage when adverse selection is detected.']
+      ['When should you use VWAP vs IS algorithms?','VWAP for patient, benchmark-tracking orders where minimizing deviation from the day\'s average price matters. IS (Implementation Shortfall) for urgent orders where capturing the current price quickly is more important than tracking a benchmark. IS front-loads execution; VWAP follows volume.', { stat: 'Over $1T a day is scored against VWAP', sprite: 'stopwatch' }],
+      ['What destroyed Knight Capital in 45 minutes?','A software deployment error reactivated dormant test code that rapidly bought and sold 154 stocks, accumulating a $7 billion unintended position and losing $440 million, the company\'s entire capital. It demonstrates that execution infrastructure risk can be existential.', { stat: '$440M gone in 45 minutes, across 154 stocks', sprite: 'crack' }],
+      ['How does the square-root impact law affect portfolio construction?','Since impact scales with √(order size), larger positions are disproportionately expensive to enter and exit. This favors more diversified portfolios with smaller per-stock positions, even if a concentrated portfolio has slightly higher theoretical alpha, the execution costs may make the diversified version more profitable net of costs.', { stat: '4x the position size, only 2x the impact', sprite: 'pie-slice' }],
+      ['What is adverse selection risk in dark pools?','If you consistently get filled in dark pools, informed traders may be using you as liquidity. Dark pool fills that are followed by the price moving against you indicate toxic flow. Smart order routers monitor fill quality and reduce dark pool usage when adverse selection is detected.', { stat: 'Half the spread saved, if the fill was not toxic', sprite: 'magnifier' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -6448,11 +6528,11 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Real-World (P) vs Risk-Neutral (Q)',
         rows: [
-          { label: 'P-measure drift', value: 'μ = 10% (real return)' },
-          { label: 'Q-measure drift', value: 'r = 5% (risk-free)' },
-          { label: 'P probability mass', value: 'leans toward higher prices' },
-          { label: 'Q probability mass', value: 'shifted left, fatter tail' },
-          { label: 'Pricing rule', value: 'Price = e⁻ʳᵀ · E^Q[payoff]' },
+          { label: 'P-measure drift', value: 'μ = 10% (real return)', explain: 'This 10% is the number nobody can agree on. Ask three analysts what this stock returns next year and you get three answers, so any option price built on top of it is a price only one desk believes.' },
+          { label: 'Q-measure drift', value: 'r = 5% (risk-free)', explain: 'Five percent is not a forecast, it is a quote you can read off a Treasury screen. Trading an argued number for a posted one is the whole maneuver, and it is why every desk lands on the same option price.' },
+          { label: 'P probability mass', value: 'leans toward higher prices', explain: 'Under P a $100 stock is expected at $110 in a year, so the fat part of the curve sits above the price today. That optimism is real and it is also personal, which makes it useless for quoting to a stranger.' },
+          { label: 'Q probability mass', value: 'shifted left, fatter tail', explain: 'Same stock, same σ, but the mass slides down to center on $105 and the left tail thickens. Nobody suddenly believes crashes got more likely: the shift is bookkeeping that pays for the 5 points of risk premium you just deleted.' },
+          { label: 'Pricing rule', value: 'Price = e⁻ʳᵀ · E^Q[payoff]', explain: 'Read it right to left: average the payoff under Q, then shrink it at 5% for the waiting. There is no μ anywhere in the line, and that missing letter is why a $640 trillion market can agree on numbers at all.' },
         ],
         footer: 'Under Q, all assets earn r, enabling pricing by expectation.',
         sentiment: 'positive',
@@ -6470,7 +6550,7 @@ const lessons: PathwayLesson[] = [
           value: 'Many prices',
           detail: 'μ, risk premia, utility required',
           footer: 'Every investor → different option price',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'arrow-split'
         },
         withVisual: {
           type: 'metric',
@@ -6478,7 +6558,7 @@ const lessons: PathwayLesson[] = [
           value: 'One price',
           detail: 'r and σ are all you need',
           footer: 'Universal, E^Q[e⁻ʳᵀ · payoff]',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'target'
         }
       }
     ),
@@ -6508,13 +6588,13 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'The Measure Change, P → Q',
         nodes: [
-          { label: 'P-World', value: 'dS = μS dt + σS dW (μ unknown)', color: '#B862ED' },
-          { label: 'Girsanov transform', value: 'λ = (μ − r) / σ', color: '#F59E0B' },
-          { label: 'Q-World', value: 'dS = rS dt + σS dW (r known)', color: '#10B981' },
-          { label: 'Pricing formula', value: 'e⁻ʳᵀ · E^Q[payoff]', color: '#3B82F6' },
+          { label: 'P-World', value: 'dS = μS dt + σS dW (μ unknown)', color: '#B862ED', sprite: 'question', explain: 'The μ in this line is the problem, not the maths. Every trader plugs in a different μ, so this one equation quietly produces as many option prices as there are opinions in the room.' },
+          { label: 'Girsanov transform', value: 'λ = (μ − r) / σ', color: '#F59E0B', sprite: 'bolt', explain: 'Put the opener numbers in: (10 − 5) / 20 = 0.25. That single 0.25 is the entire distance between the two worlds, and you have met it before, it is the Sharpe ratio wearing a different name.' },
+          { label: 'Q-World', value: 'dS = rS dt + σS dW (r known)', color: '#10B981', sprite: 'bank', explain: 'μ is gone and r has taken its seat. Notice σ never moved: volatility is the one input the measure change leaves completely untouched, which is why implied vol ends up being the only thing traders argue about.' },
+          { label: 'Pricing formula', value: 'e⁻ʳᵀ · E^Q[payoff]', color: '#3B82F6', sprite: 'calculator', explain: 'Two ingredients left, r and σ, and both are observable. That is the payoff for the whole detour through Girsanov: pricing collapses into averaging and discounting, work a machine does a million times a second.' },
         ],
         footer: 'No μ needed, price independent of risk preferences.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'key'
       }
     ),
 
@@ -6576,14 +6656,18 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Volatility Smile (post-1987)',
         rows: [
-          { label: 'Strike $80 (deep OTM put)', value: '32% IV' },
-          { label: 'Strike $90', value: '27% IV' },
-          { label: 'Strike $100 (ATM)', value: '23% IV' },
-          { label: 'Strike $110', value: '24% IV' },
-          { label: 'Strike $120 (deep OTM call)', value: '26% IV' },
+          { label: 'Strike $80 (deep OTM put)', value: '32% IV', explain: 'Nine points above the at-the-money reading, same stock, same expiry. Black-Scholes says all five of these should print 23, so crash buyers are paying roughly 40% more per unit of risk than the formula thinks it is worth.' },
+          { label: 'Strike $90', value: '27% IV', explain: 'Halfway down to $80 and you have already collected 4 of the 9 extra points. The curve steepens as it falls, so the market is not just adding fear, it is adding it faster the further down you look.' },
+          { label: 'Strike $100 (ATM)', value: '23% IV', explain: 'The floor of the whole curve, and the only number most people ever quote. If someone tells you implied vol is 23%, they have handed you one point of a five point curve and dropped everything interesting.' },
+          { label: 'Strike $110', value: '24% IV', explain: 'One point above the floor, against four points at the equally distant $90 strike. That 4 to 1 gap is the skew: the same distance costs four times as much on the downside.' },
+          { label: 'Strike $120 (deep OTM call)', value: '26% IV', explain: 'Even a melt up costs extra, 3 points over the middle. Both wings lift off 23, so the Q-measure carries fatter tails than a lognormal on both sides, it is simply far fatter on the left.' },
         ],
         footer: 'The skew is the market\'s Q-measure memory of crash risk.',
         sentiment: 'negative',
+      },
+      {
+        hint: 'Press each strike along the smile. The gap between its implied vol and the 23% at-the-money is the market telling you what Black-Scholes left out.',
+        recap: 'Keep one line from this lesson: swapping μ for r is legal only because you can hedge, so Q is a bookkeeping device, not a belief that crashes got likelier. The smile is where the device shows its seams. Lesson 5 built Black-Scholes on one flat volatility, and these five strikes on one stock print 23, 24, 26, 27 and 32, which is the market quoting a Q-measure with fatter tails than the formula was ever handed.',
       }
     ),
 
@@ -6624,10 +6708,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Risk-Neutral Pricing Key Insights',[
-      ['Why doesn\'t the derivative price depend on the stock\'s expected return μ?','Because you can perfectly hedge the derivative with the stock. The hedge portfolio is riskless, so it must earn the risk-free rate regardless of μ. The hedging argument eliminates dependence on μ (and therefore on risk preferences), leaving only r and σ as inputs.'],
-      ['What does the volatility smile tell us about the Q-measure?','The smile indicates that the Q-measure assigns more probability to extreme moves (especially downward) than a lognormal distribution. Post-1987, the persistent skew shows the market\'s Q-measure includes crash risk that Black-Scholes\'s lognormal assumption misses.'],
-      ['How did LTCM\'s failure relate to risk-neutral pricing assumptions?','LTCM\'s models assumed continuous hedging was possible (liquid markets), mean-reverting spreads, and known volatility. The 1998 crisis violated all three: liquidity vanished, spreads diverged, and volatility spiked. Risk-neutral pricing is exact only when you CAN actually hedge.'],
-      ['What happens in incomplete markets where Q is not unique?','If the market is incomplete (not all risks are hedgeable), there are multiple valid Q measures, each giving a different derivative price. The "correct" price falls within a range bounded by super-hedging (most expensive) and sub-hedging (cheapest) prices. Additional assumptions or market data are needed to select a specific Q.']
+      ['Why doesn\'t the derivative price depend on the stock\'s expected return μ?','Because you can perfectly hedge the derivative with the stock. The hedge portfolio is riskless, so it must earn the risk-free rate regardless of μ. The hedging argument eliminates dependence on μ (and therefore on risk preferences), leaving only r and σ as inputs.', { stat: 'Two inputs survive the hedge, r and σ', sprite: 'shield' }],
+      ['What does the volatility smile tell us about the Q-measure?','The smile indicates that the Q-measure assigns more probability to extreme moves (especially downward) than a lognormal distribution. Post-1987, the persistent skew shows the market\'s Q-measure includes crash risk that Black-Scholes\'s lognormal assumption misses.', { stat: '23% at the money, 32% at the $80 strike', sprite: 'chart-down' }],
+      ['How did LTCM\'s failure relate to risk-neutral pricing assumptions?','LTCM\'s models assumed continuous hedging was possible (liquid markets), mean-reverting spreads, and known volatility. The 1998 crisis violated all three: liquidity vanished, spreads diverged, and volatility spiked. Risk-neutral pricing is exact only when you CAN actually hedge.', { stat: '25 to 1 leverage, $4.6B gone in weeks', sprite: 'crack' }],
+      ['What happens in incomplete markets where Q is not unique?','If the market is incomplete (not all risks are hedgeable), there are multiple valid Q measures, each giving a different derivative price. The "correct" price falls within a range bounded by super-hedging (most expensive) and sub-hedging (cheapest) prices. Additional assumptions or market data are needed to select a specific Q.', { stat: 'One Q if complete, a price band if not', sprite: 'scales' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -6778,13 +6862,13 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Sklar\'s Theorem, Joint = Marginals + Copula',
         nodes: [
-          { label: 'Marginal X', value: 'F_X(x)', color: '#B862ED' },
-          { label: '⊕ Copula C', value: 'dependency structure', color: '#10B981' },
-          { label: 'Marginal Y', value: 'F_Y(y)', color: '#3B82F6' },
-          { label: '= Joint distribution', value: 'F(x,y) = C(F_X, F_Y)', color: '#EF4444' },
+          { label: 'Marginal X', value: 'F_X(x)', color: '#B862ED', sprite: 'bar-chart', explain: 'This box is asset X alone: how often it gains 1%, how often it drops 10%. It says nothing whatsoever about asset Y.' },
+          { label: '⊕ Copula C', value: 'dependency structure', color: '#10B981', sprite: 'magnet', explain: 'Every scrap of togetherness lives in this one function. Swap it and the two outer boxes do not change by a hair, but the odds of both assets crashing on the same day can jump from 2% to 15%.' },
+          { label: 'Marginal Y', value: 'F_Y(y)', color: '#3B82F6', sprite: 'stock-ticker', explain: 'Asset Y\'s own shape, measured separately. Two portfolios can have identical marginals here and still carry wildly different crash risk, because the middle box is different.' },
+          { label: '= Joint distribution', value: 'F(x,y) = C(F_X, F_Y)', color: '#EF4444', sprite: 'network', explain: 'Sklar proved this split always works, and that for continuous marginals only one C fits. So dependency is a choice you make on purpose, not something that quietly falls out of the data.' },
         ],
         footer: 'Wrong copula choice → catastrophic risk underestimation (2008).',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'arrow-split'
       }
     ),
 
@@ -6799,7 +6883,7 @@ const lessons: PathwayLesson[] = [
           value: 'λ_L = 0',
           detail: 'Correlation ρ only, no tail dep.',
           footer: '2008: $2T+ losses on AAA tranches',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'crack'
         },
         withVisual: {
           type: 'metric',
@@ -6807,7 +6891,7 @@ const lessons: PathwayLesson[] = [
           value: 'λ_L > 0',
           detail: 'ρ + crashes-cluster-together',
           footer: 'Accurate risk pricing under stress',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'shield'
         }
       }
     ),
@@ -6836,9 +6920,9 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Tail Dependence: Gaussian vs t-Copula',
         rows: [
-          { label: 'Gaussian, ρ = 0.5', value: 'P(Y < −3σ | X < −3σ) ≈ 2%' },
-          { label: 't-Copula, ν=4, ρ = 0.5', value: 'P(Y < −3σ | X < −3σ) ≈ 15%' },
-          { label: 'Multiplier', value: '7.5× more joint extremes' },
+          { label: 'Gaussian, ρ = 0.5', value: 'P(Y < −3σ | X < −3σ) ≈ 2%', explain: 'Both assets three standard deviations down on the same day: 2 times in 100. Push the threshold further out and Gaussian drives that toward zero, as though the two assets stop knowing each other exactly when it matters.' },
+          { label: 't-Copula, ν=4, ρ = 0.5', value: 'P(Y < −3σ | X < −3σ) ≈ 15%', explain: 'Same 0.5 correlation, same marginals, and the joint crash is now 15 in 100. The only thing that changed is the glue in the middle.' },
+          { label: 'Multiplier', value: '7.5× more joint extremes', explain: '7.5 times is the gap between two models a risk report cannot tell apart, because both of them truthfully print rho = 0.5. The number everyone quotes is blind to this.' },
         ],
         footer: 't-copula catches what Gaussian misses, extremes cluster.',
         sentiment: 'positive',
@@ -6902,14 +6986,18 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'CDO Tranche Loss Probability, Copula Choice',
         rows: [
-          { label: 'Senior · Gaussian', value: '0.01%' },
-          { label: 'Senior · t-Copula', value: '8% (800× higher!) ⚠' },
-          { label: 'Mezzanine · Gaussian', value: '2%' },
-          { label: 'Mezzanine · t-Copula', value: '18%' },
-          { label: 'Equity · t-Copula', value: '40%' },
+          { label: 'Senior · Gaussian', value: '0.01%', explain: 'One chance in 10,000. That is the figure that bought AAA ratings, and it comes from assuming the surviving 90% of borrowers do not care that the first 10% already defaulted.' },
+          { label: 'Senior · t-Copula', value: '8% (800× higher!) ⚠', explain: '8% is one in 12. Rating a one-in-12 loss as AAA is not a rounding error, it is a different asset. Same mortgages, same correlation, one swapped function.' },
+          { label: 'Mezzanine · Gaussian', value: '2%', explain: 'Mezzanine only starts losing once defaults chew past the 3% equity slice below it. Gaussian says that happens 2 times in 100.' },
+          { label: 'Mezzanine · t-Copula', value: '18%', explain: '18% against 2% is nine times worse, and notice it is a far smaller multiple than senior\'s 800×. The deeper into the tail you sit, the more the copula alone decides your answer.' },
+          { label: 'Equity · t-Copula', value: '40%', explain: 'Equity eats the first losses, so both models agree it is dangerous and nobody was fooled about it. The mispricing hid precisely where the model claimed there was nothing to see.' },
         ],
         footer: 'Same data, different copula → 800× difference in senior risk.',
         sentiment: 'negative',
+      },
+      {
+        hint: 'Press any row. Each one is the same pool of mortgages run through a different copula, and the distance between a pair of rows is where the AAA rating came from.',
+        recap: 'Read down the senior rows: 0.01% and 8%, one pool, one correlation, two copulas. The covariance matrix you built in lesson 4 gives you a single number per pair, and that number cannot tell these two models apart. Choose the copula deliberately and check what it claims about the tail you are actually exposed to.',
       }
     ),
 
@@ -6964,10 +7052,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Copulas & Dependency Modeling Key Facts',[
-      ['Why did the Gaussian copula underestimate CDO risk by 100-1000×?','With zero tail dependence, the Gaussian copula predicted near-zero probability of correlated defaults reaching senior tranches. A t-copula or Clayton copula with realistic tail dependency would have shown 5-15% loss probability for the same tranches, 100-1000× higher than Gaussian predictions.'],
-      ['What is the "correlation smile" in CDO pricing?','Implied correlation differs across tranches: equity implies low ρ, senior implies high ρ. If the Gaussian copula were correct, one ρ would fit all tranches. The smile reveals the model\'s failure to capture tail dependency, the market is trying to "fix" the model tranche-by-tranche.'],
-      ['How does the Clayton copula differ from Gaussian?','Clayton has lower-tail dependency (λ_L > 0) but zero upper-tail dependency. It captures the asymmetry of financial markets: crashes are contagious (prices fall together) but rallies are more independent. This makes Clayton particularly suitable for credit risk and downside risk modeling.'],
-      ['What did David Li himself say about the Gaussian copula?','Li warned: "The most dangerous part is when people believe everything coming out of the model." He recognized the limitations but couldn\'t control how Wall Street used his model. The lesson: model builders must communicate limitations clearly, and model users must understand them.']
+      ['Why did the Gaussian copula underestimate CDO risk by 100-1000×?','With zero tail dependence, the Gaussian copula predicted near-zero probability of correlated defaults reaching senior tranches. A t-copula or Clayton copula with realistic tail dependency would have shown 5-15% loss probability for the same tranches, 100-1000× higher than Gaussian predictions.', { stat: '0.01% became 5-15%', sprite: 'bank-run' }],
+      ['What is the "correlation smile" in CDO pricing?','Implied correlation differs across tranches: equity implies low ρ, senior implies high ρ. If the Gaussian copula were correct, one ρ would fit all tranches. The smile reveals the model\'s failure to capture tail dependency, the market is trying to "fix" the model tranche-by-tranche.', { stat: 'equity ρ 15%, senior ρ 60%', sprite: 'scale-tip' }],
+      ['How does the Clayton copula differ from Gaussian?','Clayton has lower-tail dependency (λ_L > 0) but zero upper-tail dependency. It captures the asymmetry of financial markets: crashes are contagious (prices fall together) but rallies are more independent. This makes Clayton particularly suitable for credit risk and downside risk modeling.', { stat: 'λ_L = 0.71, λ_U = 0', sprite: 'bear' }],
+      ['What did David Li himself say about the Gaussian copula?','Li warned: "The most dangerous part is when people believe everything coming out of the model." He recognized the limitations but couldn\'t control how Wall Street used his model. The lesson: model builders must communicate limitations clearly, and model users must understand them.', { stat: '$2T lost to one assumption', sprite: 'chat' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -7118,12 +7206,12 @@ const lessons: PathwayLesson[] = [
         type: 'flow',
         title: 'Bayesian Updating, Prior → Posterior',
         nodes: [
-          { label: 'Prior P(θ)', value: 'wide, uncertain', color: '#B862ED' },
-          { label: '× Likelihood L(data|θ)', value: 'how data fits θ', color: '#10B981' },
-          { label: '= Posterior P(θ|data)', value: 'narrower, confident', color: '#EF4444' },
+          { label: 'Prior P(θ)', value: 'wide, uncertain', color: '#B862ED', sprite: 'question', explain: 'Wide is the point. You are admitting up front that the true number could sit anywhere in a broad band, which is what stops the first ten data points from owning your entire answer.' },
+          { label: '× Likelihood L(data|θ)', value: 'how data fits θ', color: '#10B981', sprite: 'magnifier', explain: 'This is the only piece that ever touches the data. It scores every candidate value of theta by how likely that value was to produce the returns you actually saw.' },
+          { label: '= Posterior P(θ|data)', value: 'narrower, confident', color: '#EF4444', sprite: 'target', explain: 'Once the data is broadly consistent with the prior, the posterior comes out tighter than either piece alone, because the two sources of information stack. That is why confidence grows as observations pile up.' },
         ],
         footer: 'P(θ|data) ∝ P(data|θ) × P(θ), more data, narrower beliefs.',
-        sentiment: 'positive',
+        sentiment: 'positive', sprite: 'funnel'
       }
     ),
 
@@ -7138,7 +7226,7 @@ const lessons: PathwayLesson[] = [
           value: 'μ = 8.2%',
           detail: 'Point estimate, no prior, slow to adapt',
           footer: 'Overfit to recent data, Markowitz curse',
-          sentiment: 'negative',
+          sentiment: 'negative', sprite: 'crack'
         },
         withVisual: {
           type: 'metric',
@@ -7146,7 +7234,7 @@ const lessons: PathwayLesson[] = [
           value: 'μ ~ N(7.5%, 2.1%)',
           detail: 'Full distribution + prior + adaptive',
           footer: 'Natural regime detection, robust',
-          sentiment: 'positive',
+          sentiment: 'positive', sprite: 'scales'
         }
       }
     ),
@@ -7175,13 +7263,17 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Bayesian Updating, Posterior Width vs Data',
         rows: [
-          { label: 'Prior (no data)', value: 'σ_post = 4.0% (wide)' },
-          { label: '+10 observations', value: 'σ_post = 1.8%' },
-          { label: '+100 observations', value: 'σ_post = 0.6%' },
-          { label: '+1000 observations', value: 'σ_post = 0.2% (sharp)' },
+          { label: 'Prior (no data)', value: 'σ_post = 4.0% (wide)', explain: 'Before a single return arrives you are saying the true mean could plausibly sit 4% either side of your guess. That band is wide enough to hold a great asset and a dud at the same time.' },
+          { label: '+10 observations', value: 'σ_post = 1.8%', explain: 'Ten numbers took 4.0% down to 1.8%, cutting the band by more than half. The first scraps of data are the cheapest and they buy the most, because you started from knowing almost nothing.' },
+          { label: '+100 observations', value: 'σ_post = 0.6%', explain: 'Ten times more data only cut the band to a third, 1.8% to 0.6%, not to a tenth. That is the 1 over root N rule biting: every halving of the band costs you four times the data.' },
+          { label: '+1000 observations', value: 'σ_post = 0.2% (sharp)', explain: 'Reaching 0.2% took 1000 observations, roughly four years of daily returns. And if the regime flipped somewhere in the middle of those four years, that sharp number is confidently describing a market that no longer exists.' },
         ],
         footer: 'σ_posterior shrinks like 1/√N, data dominates the prior with scale.',
         sentiment: 'positive',
+      },
+      {
+        hint: 'Press each row to see how much of your uncertainty that batch of data actually bought you, starting from a prior 4.0% wide.',
+        recap: 'The width column is the lesson. Your posterior narrows like 1 over the square root of N, so getting from 1.8% down to 0.2% cost you a hundred times more data. In Lesson 4 the Markowitz optimizer blew up because it swallowed a noisy sample mean as if it were a fact. Bayes does not delete that noise, it forces you to carry it, and the thinner your data the more of the answer your prior is quietly supplying.',
       }
     ),
 
@@ -7292,10 +7384,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Bayesian Methods in Finance Key Facts',[
-      ['How does Bayesian shrinkage improve covariance estimation?','A sample covariance matrix from 250 days for 500 stocks has 125,250 parameters estimated from 125,000 data points, nearly as many parameters as observations. Shrinkage pulls the noisy sample toward a structured target (single-factor model), reducing estimation error by 40-60% and producing much better portfolio performance.'],
-      ['What is the advantage of Bayesian regime-switching over simple threshold models?','Bayesian regime-switching provides posterior probabilities of being in each regime, not just a binary signal. You might be 70% likely in a bull regime and 30% bear, enabling position sizing proportional to regime confidence. It also estimates transition probabilities and regime-specific parameters simultaneously.'],
-      ['How does Bayesian Model Averaging handle model uncertainty?','Instead of choosing one model and discarding others, BMA weights all candidate models by their posterior probability (how well they fit data given their complexity). Predictions are probability-weighted averages across models. This produces more robust forecasts because no single model needs to be "correct."'],
-      ['Why are Bayesian methods particularly suited to finance?','Finance has limited data (50-100 years), non-stationary dynamics (regimes change), and high parameter uncertainty. Bayesian methods handle all three: priors regularize with limited data, sequential updating adapts to non-stationarity, and posterior distributions explicitly quantify uncertainty.']
+      ['How does Bayesian shrinkage improve covariance estimation?','A sample covariance matrix from 250 days for 500 stocks has 125,250 parameters estimated from 125,000 data points, nearly as many parameters as observations. Shrinkage pulls the noisy sample toward a structured target (single-factor model), reducing estimation error by 40-60% and producing much better portfolio performance.', { stat: '125,250 parameters from 125,000 numbers', sprite: 'magnet' }],
+      ['What is the advantage of Bayesian regime-switching over simple threshold models?','Bayesian regime-switching provides posterior probabilities of being in each regime, not just a binary signal. You might be 70% likely in a bull regime and 30% bear, enabling position sizing proportional to regime confidence. It also estimates transition probabilities and regime-specific parameters simultaneously.', { stat: '70% bull, 30% bear, not a coin flip', sprite: 'scale-tip' }],
+      ['How does Bayesian Model Averaging handle model uncertainty?','Instead of choosing one model and discarding others, BMA weights all candidate models by their posterior probability (how well they fit data given their complexity). Predictions are probability-weighted averages across models. This produces more robust forecasts because no single model needs to be "correct."', { stat: '0 models thrown away', sprite: 'pie-slice' }],
+      ['Why are Bayesian methods particularly suited to finance?','Finance has limited data (50-100 years), non-stationary dynamics (regimes change), and high parameter uncertainty. Bayesian methods handle all three: priors regularize with limited data, sequential updating adapts to non-stationarity, and posterior distributions explicitly quantify uncertainty.', { stat: '50 to 100 years, all the data there is', sprite: 'hourglass' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -7531,7 +7623,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Convergence diagram: Quantum Computing + AI/ML + Alternative Data → Next-generation quant finance',
       undefined,
-      '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">The Convergence: AI + Quantum + Alt Data</text><circle cx="120" cy="100" r="50" fill="#B862ED" opacity="0.15" stroke="#B862ED" stroke-width="1.5"/><text x="120" y="95" text-anchor="middle" fill="#B862ED" font-size="10" font-weight="bold">Quantum</text><text x="120" y="110" text-anchor="middle" fill="#94A3B8" font-size="8">Compute</text><circle cx="280" cy="100" r="50" fill="#10B981" opacity="0.15" stroke="#10B981" stroke-width="1.5"/><text x="280" y="95" text-anchor="middle" fill="#10B981" font-size="10" font-weight="bold">AI / ML</text><text x="280" y="110" text-anchor="middle" fill="#94A3B8" font-size="8">Intelligence</text><circle cx="200" cy="45" r="50" fill="#F59E0B" opacity="0.15" stroke="#F59E0B" stroke-width="1.5"/><text x="200" y="40" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Alt Data</text><text x="200" y="55" text-anchor="middle" fill="#94A3B8" font-size="8">Information</text><circle cx="200" cy="85" r="20" fill="#EF4444" opacity="0.2"/><text x="200" y="88" text-anchor="middle" fill="#EF4444" font-size="8" font-weight="bold">Alpha</text><text x="200" y="180" text-anchor="middle" fill="#94A3B8" font-size="9">The firms mastering this convergence will define quant finance for the next generation</text></svg>'
+      '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">The Convergence: AI + Quantum + Alt Data</text><circle cx="120" cy="100" r="50" fill="#B862ED" opacity="0.15" stroke="#B862ED" stroke-width="1.5"/><text x="120" y="95" text-anchor="middle" fill="#B862ED" font-size="10" font-weight="bold">Quantum</text><text x="120" y="110" text-anchor="middle" fill="#94A3B8" font-size="8">Compute</text><circle cx="280" cy="100" r="50" fill="#10B981" opacity="0.15" stroke="#10B981" stroke-width="1.5"/><text x="280" y="95" text-anchor="middle" fill="#10B981" font-size="10" font-weight="bold">AI / ML</text><text x="280" y="110" text-anchor="middle" fill="#94A3B8" font-size="8">Intelligence</text><circle cx="200" cy="45" r="50" fill="#F59E0B" opacity="0.15" stroke="#F59E0B" stroke-width="1.5"/><text x="200" y="40" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Alt Data</text><text x="200" y="55" text-anchor="middle" fill="#94A3B8" font-size="8">Information</text><circle cx="200" cy="85" r="20" fill="#EF4444" opacity="0.2"/><text x="200" y="88" text-anchor="middle" fill="#EF4444" font-size="8" font-weight="bold">Alpha</text><text x="200" y="180" text-anchor="middle" fill="#94A3B8" font-size="9">The firms mastering this convergence will define quant finance for the next generation</text></svg>',
+      {
+        hint: 'Look at the three circles. Quantum is raw compute, AI is the pattern finding, alternative data is information nobody else has yet. Notice that alpha is only drawn in the small patch where all three overlap, not inside any single circle.',
+        recap: 'Lesson 6 gave you the tax on Monte Carlo: error falls as 1 over the square root of N, so halving your error costs four times the paths. Quantum amplitude estimation changes that exponent to 1 over N, which is why 1,000,000 classical paths become roughly 1,000 quantum iterations. The maths you spent this course learning does not get thrown away, it gets a faster engine underneath it.',
+      }
     ),
 
     // Step 7, Case Study
@@ -7571,10 +7667,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Quantum Computing & Future of Quant Finance Facts',[
-      ['What is the current bottleneck for quantum computing in finance?','Error correction. Today\'s quantum computers have 50-1,000 noisy physical qubits. Useful financial applications need thousands of error-corrected logical qubits, each requiring ~1,000 physical qubits. The hardware roadmap suggests this threshold by 2030-2035.'],
-      ['How does quantum Monte Carlo achieve a 1,000× speedup?','Classical MC convergence: error ∝ 1/√N, needing N = 10⁶ for 0.1% precision. Quantum AE convergence: error ∝ 1/N, needing N = 10³ for 0.1% precision. The quadratic improvement in convergence rate transforms pricing from hours to seconds.'],
-      ['What role will LLMs play in quant finance?','LLMs process unstructured text (earnings calls, filings, news) at superhuman speed. They extract sentiment, identify key information changes, and generate trading signals from text that traditional NLP methods miss. LLM-based signals have shown 1-3% annualized alpha over traditional approaches.'],
-      ['Why is MEV relevant to quantitative finance?','MEV (Maximal Extractable Value) in DeFi is the blockchain equivalent of HFT market-making and arbitrage. The same quantitative skills, optimization, game theory, speed, apply to extracting value from blockchain transaction ordering. Over $600M annually is extracted through MEV on Ethereum alone.']
+      ['What is the current bottleneck for quantum computing in finance?','Error correction. Today\'s quantum computers have 50-1,000 noisy physical qubits. Useful financial applications need thousands of error-corrected logical qubits, each requiring ~1,000 physical qubits. The hardware roadmap suggests this threshold by 2030-2035.', { stat: '~1,000 physical qubits buy 1 usable one', sprite: 'crack' }],
+      ['How does quantum Monte Carlo achieve a 1,000× speedup?','Classical MC convergence: error ∝ 1/√N, needing N = 10⁶ for 0.1% precision. Quantum AE convergence: error ∝ 1/N, needing N = 10³ for 0.1% precision. The quadratic improvement in convergence rate transforms pricing from hours to seconds.', { stat: '1,000,000 paths become about 1,000', sprite: 'bolt' }],
+      ['What role will LLMs play in quant finance?','LLMs process unstructured text (earnings calls, filings, news) at superhuman speed. They extract sentiment, identify key information changes, and generate trading signals from text that traditional NLP methods miss. LLM-based signals have shown 1-3% annualized alpha over traditional approaches.', { stat: '1 to 3% a year, purely from reading text', sprite: 'newspaper' }],
+      ['Why is MEV relevant to quantitative finance?','MEV (Maximal Extractable Value) in DeFi is the blockchain equivalent of HFT market-making and arbitrage. The same quantitative skills, optimization, game theory, speed, apply to extracting value from blockchain transaction ordering. Over $600M annually is extracted through MEV on Ethereum alone.', { stat: '$600M a year, one blockchain', sprite: 'network' }]
     ]),
 
     // Step 12, Drag & Sort
@@ -7808,7 +7904,11 @@ const lessons: PathwayLesson[] = [
       ],
       'Career paths: the quant toolkit maps to specific roles, with integration being the path to portfolio management',
       undefined,
-      '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">Your Quantitative Finance Journey</text><rect x="30" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#B862ED" stroke-width="1.5"/><text x="70" y="60" text-anchor="middle" fill="#B862ED" font-size="9" font-weight="bold">Foundation</text><text x="70" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Math, Stats, Prob</text><line x1="110" y1="65" x2="140" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><rect x="140" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#10B981" stroke-width="1.5"/><text x="180" y="60" text-anchor="middle" fill="#10B981" font-size="9" font-weight="bold">Core Quant</text><text x="180" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Pricing, Risk, ML</text><line x1="220" y1="65" x2="250" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><rect x="250" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#F59E0B" stroke-width="1.5"/><text x="290" y="60" text-anchor="middle" fill="#F59E0B" font-size="9" font-weight="bold">Integration</text><text x="290" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Full stack mastery</text><line x1="330" y1="65" x2="350" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><defs><marker id="arr25" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#F59E0B"/></marker></defs><rect x="350" y="35" width="35" height="60" fill="#EF4444" opacity="0.2" rx="4" stroke="#EF4444" stroke-width="1.5"/><text x="367" y="60" text-anchor="middle" fill="#EF4444" font-size="8" font-weight="bold">PM</text><text x="367" y="75" text-anchor="middle" fill="#94A3B8" font-size="6">Leader</text><text x="70" y="120" text-anchor="middle" fill="#B862ED" font-size="8">Lessons 1-10</text><text x="180" y="120" text-anchor="middle" fill="#10B981" font-size="8">Lessons 11-19</text><text x="290" y="120" text-anchor="middle" fill="#F59E0B" font-size="8">Lessons 20-24</text><text x="367" y="120" text-anchor="middle" fill="#EF4444" font-size="8">L25</text><text x="200" y="150" text-anchor="middle" fill="#94A3B8" font-size="9">You\'ve completed the journey from foundation to integration</text><text x="200" y="170" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Next: Risk Management, applying everything to protect capital</text></svg>'
+      '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="#0F172A" rx="8"/><text x="200" y="20" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">Your Quantitative Finance Journey</text><rect x="30" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#B862ED" stroke-width="1.5"/><text x="70" y="60" text-anchor="middle" fill="#B862ED" font-size="9" font-weight="bold">Foundation</text><text x="70" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Math, Stats, Prob</text><line x1="110" y1="65" x2="140" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><rect x="140" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#10B981" stroke-width="1.5"/><text x="180" y="60" text-anchor="middle" fill="#10B981" font-size="9" font-weight="bold">Core Quant</text><text x="180" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Pricing, Risk, ML</text><line x1="220" y1="65" x2="250" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><rect x="250" y="40" width="80" height="50" fill="#1E293B" rx="4" stroke="#F59E0B" stroke-width="1.5"/><text x="290" y="60" text-anchor="middle" fill="#F59E0B" font-size="9" font-weight="bold">Integration</text><text x="290" y="75" text-anchor="middle" fill="#94A3B8" font-size="7">Full stack mastery</text><line x1="330" y1="65" x2="350" y2="65" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr25)"/><defs><marker id="arr25" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#F59E0B"/></marker></defs><rect x="350" y="35" width="35" height="60" fill="#EF4444" opacity="0.2" rx="4" stroke="#EF4444" stroke-width="1.5"/><text x="367" y="60" text-anchor="middle" fill="#EF4444" font-size="8" font-weight="bold">PM</text><text x="367" y="75" text-anchor="middle" fill="#94A3B8" font-size="6">Leader</text><text x="70" y="120" text-anchor="middle" fill="#B862ED" font-size="8">Lessons 1-10</text><text x="180" y="120" text-anchor="middle" fill="#10B981" font-size="8">Lessons 11-19</text><text x="290" y="120" text-anchor="middle" fill="#F59E0B" font-size="8">Lessons 20-24</text><text x="367" y="120" text-anchor="middle" fill="#EF4444" font-size="8">L25</text><text x="200" y="150" text-anchor="middle" fill="#94A3B8" font-size="9">You\'ve completed the journey from foundation to integration</text><text x="200" y="170" text-anchor="middle" fill="#F59E0B" font-size="10" font-weight="bold">Next: Risk Management, applying everything to protect capital</text></svg>',
+      {
+        hint: 'Press each block of this path, from Foundation on the left across to PM on the right. Every one carries the lesson numbers that built it, and I will tell you what that stage still cannot do on its own.',
+        recap: 'Hold on to the chain from step 5: a signal worth 3% gross alpha leaves portfolio construction at 2.8%, then execution takes another 0.6%, and 2.2% is what you actually keep. More than a quarter of the edge is gone and the research never made a single mistake. Lesson 9 put the same point in dollars, the identical $100 million block costing $1,500,000 as a market order and $100,000 through Implementation Shortfall. That is the capstone in one line: your maths only pays out through the weakest stage it has to pass through, so integration is not a finishing touch, it is where the money survives or does not.',
+      }
     ),
 
     // Step 7, Case Study
@@ -7862,10 +7962,10 @@ const lessons: PathwayLesson[] = [
 
     // Step 11, Tap to Reveal
     tr('Capstone Integration Key Insights',[
-      ['How does execution connect to pricing in practice?','Risk-neutral pricing assumes continuous, costless hedging. Real hedging incurs transaction costs every rebalance. The optimal hedge frequency balances gamma risk (less rebalancing = more hedge error) against execution costs (more rebalancing = more costs). This integration of pricing theory with execution reality determines actual trading P&L.'],
-      ['Why does model risk amplify during crises?','Models are calibrated to "normal" data. During crises, the underlying dynamics change: volatility regime-switches, correlations spike, liquidity vanishes. Every model assumption is simultaneously violated. This is why the 2008 and 2020 crises caused the largest losses at firms most reliant on models calibrated to calm conditions.'],
-      ['How do Bayesian methods tie the entire quant framework together?','Bayesian methods manage uncertainty at every layer: return estimation (Black-Litterman), covariance estimation (shrinkage), model selection (BMA), regime detection (HMM posteriors), and even copula parameter estimation. The posterior distribution IS the natural representation of "what we know and how uncertain we are" about every model input.'],
-      ['What separates a good quant from a great quant?','A good quant can build and implement any individual model. A great quant understands how models connect, when they fail, and how to adapt. They see the integrated system: signals → portfolios → execution → risk. They know that mathematical elegance means nothing without practical robustness. And they maintain humility, the market is always capable of something no model has anticipated.']
+      ['How does execution connect to pricing in practice?','Risk-neutral pricing assumes continuous, costless hedging. Real hedging incurs transaction costs every rebalance. The optimal hedge frequency balances gamma risk (less rebalancing = more hedge error) against execution costs (more rebalancing = more costs). This integration of pricing theory with execution reality determines actual trading P&L.', { stat: 'Free in theory, paid every rebalance', sprite: 'scales' }],
+      ['Why does model risk amplify during crises?','Models are calibrated to "normal" data. During crises, the underlying dynamics change: volatility regime-switches, correlations spike, liquidity vanishes. Every model assumption is simultaneously violated. This is why the 2008 and 2020 crises caused the largest losses at firms most reliant on models calibrated to calm conditions.', { stat: '2008 and 2020: every assumption broke at once', sprite: 'crack' }],
+      ['How do Bayesian methods tie the entire quant framework together?','Bayesian methods manage uncertainty at every layer: return estimation (Black-Litterman), covariance estimation (shrinkage), model selection (BMA), regime detection (HMM posteriors), and even copula parameter estimation. The posterior distribution IS the natural representation of "what we know and how uncertain we are" about every model input.', { stat: 'Five layers of uncertainty, one posterior', sprite: 'network' }],
+      ['What separates a good quant from a great quant?','A good quant can build and implement any individual model. A great quant understands how models connect, when they fail, and how to adapt. They see the integrated system: signals → portfolios → execution → risk. They know that mathematical elegance means nothing without practical robustness. And they maintain humility, the market is always capable of something no model has anticipated.', { stat: 'Builds any model vs knows when it breaks', sprite: 'compass' }]
     ]),
 
     // Step 12, Drag & Sort
