@@ -25,7 +25,7 @@ for (const profile of profiles) {
 
 const source = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const store = source('../src/lib/store.ts');
-assert.match(store, /version:\s*4/, 'persisted course selections need the v4 migration');
+assert.match(store, /version:\s*ONBOARDING_REPLAY_STORE_VERSION/, 'the store must use the replay-safe v5 migration');
 assert.match(store, /if \(isCourseAvailable\(id\)\) set\(\{ activeCourseId: id \}\)/, 'the store must reject unreleased course selection');
 
 for (const path of [

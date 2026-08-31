@@ -33,6 +33,7 @@ import { allItemById as itemById } from './shop-items-extra';
 import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 import { DEFAULT_AVAILABLE_COURSE_ID, isCourseAvailable } from './curriculum/availability';
+import { ONBOARDING_REPLAY_STORE_VERSION, replayOnboardingOnUpgrade } from './onboarding-replay-migration';
 
 const XP_PER_LEVEL = 500;
 
@@ -1231,7 +1232,7 @@ export const useApp = create<AppState>()(
       // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
-      version: 4,
+      version: ONBOARDING_REPLAY_STORE_VERSION,
       /*
        * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
        * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
@@ -1241,7 +1242,7 @@ export const useApp = create<AppState>()(
        */
       migrate: (persisted, from) => {
         try {
-          const next = clearStaticPricing(persisted as Partial<AppState>, from) as AppState;
+          let next = clearStaticPricing(persisted as Partial<AppState>, from) as AppState;
           /*
            * v3. The first light-mode release defaulted themePref to 'system', so every install
            * that launched it has 'system' PERSISTED — changing the initial value alone would not
@@ -1253,11 +1254,13 @@ export const useApp = create<AppState>()(
           if (from < 3 && (next as Partial<AppState>).themePref === 'system') {
             (next as Partial<AppState>).themePref = 'dark';
           }
-          // v4. Builds before the release gate let both unreleased courses become active and
-          // persisted that id. Move those installs onto a released course during the update.
+          // v4. Reject a stale, unknown course id left by an older build.
           if (from < 4 && !isCourseAvailable(next.activeCourseId)) {
             next.activeCourseId = DEFAULT_AVAILABLE_COURSE_ID;
           }
+          // v5. Existing testers need one complete Welcome -> onboarding -> paywall -> sign-up
+          // rehearsal. This resets routing only; progress, entitlement and trial history survive.
+          next = replayOnboardingOnUpgrade(next, from);
           return next;
         } catch (e) {
           console.error('[store] migration failed, leaving state as-is', e);
