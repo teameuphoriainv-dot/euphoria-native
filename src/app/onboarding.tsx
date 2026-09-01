@@ -13,7 +13,17 @@
 import * as Linking from 'expo-linking';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  Alert,
+  InputAccessoryView,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -277,6 +287,8 @@ const LEGAL = {
   terms: 'https://euphoriainv.com/terms',
   privacy: 'https://euphoriainv.com/privacy',
 };
+const ONBOARDING_NAME_KEYBOARD_ACCESSORY_ID = 'onboarding-name-keyboard-accessory';
+
 /** Hosts that must never ship, kept as a regression tripwire: euphoria.app is a domain we do not
  *  own and it reached the paywall unnoticed. */
 const LEGAL_PLACEHOLDER_HOSTS = ['euphoria.app', 'example.com', 'localhost'];
@@ -327,9 +339,26 @@ function NameStep({ value, onChange }: { value: string; onChange: (v: string) =>
         autoCapitalize="words"
         autoCorrect={false}
         returnKeyType="done"
+        inputAccessoryViewID={Platform.OS === 'ios' ? ONBOARDING_NAME_KEYBOARD_ACCESSORY_ID : undefined}
+        onSubmitEditing={Keyboard.dismiss}
         accessibilityLabel="Your name"
         style={[styles.nameInput, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
       />
+      {Platform.OS === 'ios' ? (
+        <InputAccessoryView nativeID={ONBOARDING_NAME_KEYBOARD_ACCESSORY_ID}>
+          <View style={[styles.keyboardAccessory, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
+            <SpringPressable
+              haptic={false}
+              accessibilityLabel="Done typing"
+              onPress={() => Keyboard.dismiss()}
+              style={styles.keyboardDoneButton}>
+              <ThemedText type="body" style={{ color: theme.iconLilac }}>
+                Done
+              </ThemedText>
+            </SpringPressable>
+          </View>
+        </InputAccessoryView>
+      ) : null}
     </View>
   );
 }
@@ -508,6 +537,7 @@ export default function Onboarding() {
   };
 
   const next = () => {
+    Keyboard.dismiss();
     if (step === REVEAL_INDEX) {
       // last chance to stamp completion if the loader was skipped (reduced motion)
       if (!profile.completedAt) completeOnboarding();
@@ -1015,6 +1045,10 @@ export default function Onboarding() {
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AmbientBackground />
       <SafeAreaView style={styles.safe} edges={renderStep === PAYWALL_INDEX ? ['top'] : undefined}>
+      <KeyboardAvoidingView
+        style={styles.safe}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       <View style={styles.header}>
         <ProgressHeader step={step} total={TOTAL} onBack={hasBack ? back : undefined} />
       </View>
@@ -1036,7 +1070,9 @@ export default function Onboarding() {
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={[styles.content, renderStep === PAYWALL_INDEX && styles.paywallContent]}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled">
         <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
           <View key={renderStep} style={fillsViewport ? styles.grow : undefined}>{body()}</View>
@@ -1046,6 +1082,7 @@ export default function Onboarding() {
 
       {/* the loader drives itself — offering a button there would let users outrun it */}
       {!isLoader && renderStep !== PAYWALL_INDEX ? actionFooter : null}
+      </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
   );
@@ -1077,4 +1114,6 @@ const styles = StyleSheet.create({
   legalAction: { minWidth: 44, alignItems: 'center' },
   legalLink: { fontSize: FontSize.label, textDecorationLine: 'underline', opacity: 0.75 },
   legalDot: { fontSize: FontSize.label, opacity: 0.75 },
+  keyboardAccessory: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: Spacing.three },
+  keyboardDoneButton: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

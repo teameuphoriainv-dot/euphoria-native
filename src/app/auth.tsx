@@ -11,8 +11,18 @@
  *  - A provider that is not configured renders NO button. Never a button that cannot work.
  */
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  InputAccessoryView,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -43,6 +53,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+const PROFILE_CREATE_KEYBOARD_ACCESSORY_ID = 'profile-create-keyboard-accessory';
+
 export default function Auth() {
   const theme = useTheme();
   const signIn = useApp((s) => s.signIn);
@@ -63,6 +75,8 @@ export default function Auth() {
    * this screen did before, not render a password field that cannot work.
    */
   const [password, setPassword] = useState('');
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
   const [mode, setMode] = useState<'signup' | 'signin'>('signup');
   const [pending, setPending] = useState(false);
   /** A non-error message, e.g. "check your inbox". Kept apart from authError so a success is not
@@ -155,6 +169,14 @@ export default function Auth() {
       .finally(() => setPending(false));
   };
 
+  /** Every submit path closes the software keyboard first. The button and the keyboard's Done key
+   * must behave identically; otherwise the most convenient path leaves the form obscured while a
+   * request is in flight or the next screen is mounting. */
+  const submitForm = () => {
+    Keyboard.dismiss();
+    enter();
+  };
+
   /** Reset link. Reports success even for an unknown address, on purpose: see sendPasswordReset. */
   const forgot = () => {
     const e = email.trim();
@@ -211,7 +233,7 @@ export default function Auth() {
        * like-success failure this codebase has spent the week deleting.
        */
       if (AUTH_ENABLED && identity.idToken) {
-        const r = await signInWithIdToken(which, identity.idToken);
+        const r = await signInWithIdToken(which, identity.idToken, identity.accessToken);
         if (!r.ok) {
           setAuthError(r.message);
           return;
@@ -237,7 +259,17 @@ export default function Auth() {
   return (
     <SafeAreaView style={styles.safe}>
       <AmbientBackground starCount={40} />
-      <View style={styles.content}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.content}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <RiseIn>
           <View style={styles.head}>
             <Atlas size={72} expression="happy" interactive={false} idle />
@@ -308,9 +340,14 @@ export default function Auth() {
             accessibilityLabel="Your name"
             placeholderTextColor={theme.mutedForeground}
             autoCapitalize="words"
+            returnKeyType="next"
+            blurOnSubmit={false}
+            inputAccessoryViewID={Platform.OS === 'ios' ? PROFILE_CREATE_KEYBOARD_ACCESSORY_ID : undefined}
+            onSubmitEditing={() => emailRef.current?.focus()}
             style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginBottom: Spacing.two }]}
           />
           <TextInput
+            ref={emailRef}
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
@@ -318,6 +355,13 @@ export default function Auth() {
             placeholderTextColor={theme.mutedForeground}
             keyboardType="email-address"
             autoCapitalize="none"
+            returnKeyType={AUTH_ENABLED ? 'next' : 'done'}
+            blurOnSubmit={!AUTH_ENABLED}
+            onSubmitEditing={() => {
+              if (AUTH_ENABLED) passwordRef.current?.focus();
+              else Keyboard.dismiss();
+            }}
+            inputAccessoryViewID={Platform.OS === 'ios' ? PROFILE_CREATE_KEYBOARD_ACCESSORY_ID : undefined}
             style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card }]}
           />
           {/*
@@ -330,6 +374,7 @@ export default function Auth() {
             */}
           {AUTH_ENABLED && (
             <TextInput
+              ref={passwordRef}
               value={password}
               onChangeText={setPassword}
               placeholder={mode === 'signup' ? `Password (${String(PASSWORD_MIN)}+ characters)` : 'Password'}
@@ -339,54 +384,32 @@ export default function Auth() {
               autoCapitalize="none"
               autoCorrect={false}
               textContentType={mode === 'signup' ? 'newPassword' : 'password'}
+              returnKeyType="done"
+              onSubmitEditing={submitForm}
+              inputAccessoryViewID={Platform.OS === 'ios' ? PROFILE_CREATE_KEYBOARD_ACCESSORY_ID : undefined}
               style={[styles.input, { borderColor: theme.border, color: theme.text, backgroundColor: theme.card, marginTop: Spacing.two }]}
             />
           )}
+          {Platform.OS === 'ios' ? (
+            <InputAccessoryView nativeID={PROFILE_CREATE_KEYBOARD_ACCESSORY_ID}>
+              <View style={[styles.keyboardAccessory, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
+                <SpringPressable
+                  haptic={false}
+                  accessibilityLabel="Done typing"
+                  onPress={() => Keyboard.dismiss()}
+                  style={styles.keyboardDoneButton}>
+                  <ThemedText type="body" style={{ color: theme.iconLilac }}>
+                    Done
+                  </ThemedText>
+                </SpringPressable>
+              </View>
+            </InputAccessoryView>
+          ) : null}
           {notice ? (
             <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.two }}>
               {notice}
             </ThemedText>
           ) : null}
-          <SlabButton
-            label={!AUTH_ENABLED ? 'Sign up' : mode === 'signup' ? 'Create account' : 'Sign in'}
-            full
-            disabled={pending}
-            onPress={enter}
-            style={{ marginTop: Spacing.two + 2 }}
-          />
-          {AUTH_ENABLED && (
-            <View style={styles.modeRow}>
-              <SpringPressable
-                haptic={false}
-                hitSlop={12}
-                style={styles.modeAction}
-                onPress={() => {
-                  setMode(mode === 'signup' ? 'signin' : 'signup');
-                  setAuthError(null);
-                  setNotice(null);
-                }}
-                accessibilityRole="button"
-                accessibilityLabel={mode === 'signup' ? 'Switch to signing in' : 'Switch to creating an account'}>
-                <ThemedText type="small" themeColor="mutedForeground">
-                  {mode === 'signup' ? 'Already have an account? ' : 'Need an account? '}
-                  <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
-                    {mode === 'signup' ? 'Sign in' : 'Create one'}
-                  </ThemedText>
-                </ThemedText>
-              </SpringPressable>
-              {mode === 'signin' && (
-                <SpringPressable
-                  haptic={false}
-                  hitSlop={12}
-                  style={styles.modeAction}
-                  onPress={forgot}
-                  accessibilityRole="button"
-                  accessibilityLabel="Send a password reset link">
-                  <ThemedText type="small" style={{ color: theme.iconLilac }}>Forgot password?</ThemedText>
-                </SpringPressable>
-              )}
-            </View>
-          )}
         </RiseIn>
 
         {/*
@@ -395,8 +418,53 @@ export default function Auth() {
           * rule 1: say a thing once. This line survives only for the local-profile build, where it
           * is the ONLY way back in and its copy is accurate.
           */}
-        {!AUTH_ENABLED && (
-        <RiseIn delay={230}>
+      </ScrollView>
+
+      {/* Keep the primary action inside the keyboard-avoiding shell but outside the scrolling
+          form. On a 402x874 iPhone the keyboard starts at y=534; when this button lived in the
+          ScrollView its centre stayed at y=697 and vanished completely. A visible action also
+          gives people a natural first-tap way to finish without hunting for keyboard dismissal. */}
+      <View style={[styles.formFooter, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
+        <SlabButton
+          label={!AUTH_ENABLED ? 'Sign up' : mode === 'signup' ? 'Create account' : 'Sign in'}
+          full
+          disabled={pending}
+          onPress={submitForm}
+        />
+        {AUTH_ENABLED ? (
+          <View style={styles.modeRow}>
+            <SpringPressable
+              haptic={false}
+              hitSlop={12}
+              style={styles.modeAction}
+              onPress={() => {
+                Keyboard.dismiss();
+                setMode(mode === 'signup' ? 'signin' : 'signup');
+                setAuthError(null);
+                setNotice(null);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={mode === 'signup' ? 'Switch to signing in' : 'Switch to creating an account'}>
+              <ThemedText type="small" themeColor="mutedForeground">
+                {mode === 'signup' ? 'Already have an account? ' : 'Need an account? '}
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
+                  {mode === 'signup' ? 'Sign in' : 'Create one'}
+                </ThemedText>
+              </ThemedText>
+            </SpringPressable>
+            {mode === 'signin' && (
+              <SpringPressable
+                haptic={false}
+                hitSlop={12}
+                style={styles.modeAction}
+                onPress={() => { Keyboard.dismiss(); forgot(); }}
+                accessibilityRole="button"
+                accessibilityLabel="Send a password reset link">
+                <ThemedText type="small" style={{ color: theme.iconLilac }}>Forgot password?</ThemedText>
+              </SpringPressable>
+            )}
+          </View>
+        ) : (
           <SpringPressable haptic={false} onPress={enter} style={styles.signin}>
             {/* "Existing user? Sign in" implied ACCOUNT RECOVERY. There is none — a returning user
                 on a new phone signs in and gets an empty account, because there was never an account.
@@ -404,9 +472,9 @@ export default function Auth() {
                 routes signOut to /auth), which is what the line now describes. */}
             <ThemedText type="small" themeColor="mutedForeground">Signed out? <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>Sign back in</ThemedText></ThemedText>
           </SpringPressable>
-        </RiseIn>
         )}
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -426,7 +494,9 @@ const styles = StyleSheet.create({
   },
   modeAction: { minHeight: 44, justifyContent: 'center' },
   safe: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
+  flex: { flex: 1 },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
+  formFooter: { paddingHorizontal: Spacing.four, paddingTop: Spacing.two, paddingBottom: Spacing.two, borderTopWidth: StyleSheet.hairlineWidth },
   head: { alignItems: 'center', gap: Spacing.two },
   title: { fontSize: FontSize.title, textAlign: 'center', marginTop: Spacing.two },
   sub: { textAlign: 'center', maxWidth: 280 },
@@ -443,4 +513,6 @@ const styles = StyleSheet.create({
   line: { flex: 1, height: StyleSheet.hairlineWidth },
   input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.three, paddingVertical: 14, fontSize: FontSize.body },
   signin: { alignItems: 'center', paddingVertical: Spacing.two },
+  keyboardAccessory: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: Spacing.three },
+  keyboardDoneButton: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

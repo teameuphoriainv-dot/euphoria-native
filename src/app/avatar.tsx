@@ -14,7 +14,7 @@
  */
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { InputAccessoryView, Keyboard, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -35,6 +35,8 @@ import { ProfileAvatar } from '@/components/profile-avatar';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
+
+const PROFILE_AVATAR_KEYBOARD_ACCESSORY_ID = 'profile-avatar-name-keyboard-accessory';
 
 /** One cell. Extracted so the two groups are provably the same control, not two lookalikes. */
 function Tile({
@@ -156,6 +158,7 @@ export default function AvatarPicker() {
         <TextInput
           value={draft}
           onChangeText={setDraft}
+          inputAccessoryViewID={Platform.OS === 'ios' ? PROFILE_AVATAR_KEYBOARD_ACCESSORY_ID : undefined}
           onBlur={commitName}
           onSubmitEditing={commitName}
           returnKeyType="done"
@@ -165,9 +168,25 @@ export default function AvatarPicker() {
           accessibilityLabel="Display name"
           style={[styles.input, { color: theme.text, backgroundColor: theme.card, borderColor: theme.border }]}
         />
-        <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
+          <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
           {`${String(draft.length)}/${String(NAME_MAX)}`}
         </ThemedText>
+
+        {Platform.OS === 'ios' ? (
+          <InputAccessoryView nativeID={PROFILE_AVATAR_KEYBOARD_ACCESSORY_ID}>
+            <View style={[styles.keyboardAccessory, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
+              <SpringPressable
+                haptic={false}
+                accessibilityLabel="Done editing"
+                onPress={() => Keyboard.dismiss()}
+                style={styles.keyboardDoneButton}>
+                <ThemedText type="body" style={{ color: theme.iconLilac }}>
+                  Done
+                </ThemedText>
+              </SpringPressable>
+            </View>
+          </InputAccessoryView>
+        ) : null}
 
         <ThemedText type="label" themeColor="mutedForeground" style={styles.groupLabel}>BANNER</ThemedText>
         <View style={styles.bannerGrid}>
@@ -274,6 +293,8 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     fontSize: FontSize.bodyLg,
   },
+  keyboardAccessory: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: Spacing.three },
+  keyboardDoneButton: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   bannerGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
   bannerCell: { width: '48.5%' },
   bannerOption: { borderRadius: Radius.lg, padding: Spacing.one, minHeight: 92 },
