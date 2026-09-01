@@ -264,11 +264,11 @@ export interface ScenarioSimStep {
  */
 export type AnimatedVisual =
   | { type: 'bars'; title: string; sprite?: string; items: { label: string; value: number; displayValue?: string; sprite?: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'pie'; title: string; segments: { label: string; percent: number; color: string; explain?: string }[]; centerLabel?: string; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'pie'; title: string; sprite?: string; segments: { label: string; percent: number; color: string; explain?: string }[]; centerLabel?: string; footer?: string; sentiment: 'positive' | 'negative' }
   | { type: 'metric'; title: string; value: string; detail?: string; footer?: string; sentiment: 'positive' | 'negative'; sprite?: string }
   | { type: 'flow'; title: string; sprite?: string; nodes: { label: string; value?: string; color?: string; sprite?: string; explain?: string }[]; footer?: string; sentiment?: 'positive' | 'negative' }
-  | { type: 'comparison'; title: string; rows: { label: string; value: string; percent?: number; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'stack'; title: string; total?: string; segments: { label: string; value?: string; percent: number; color: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'comparison'; title: string; sprite?: string; rows: { label: string; value: string; percent?: number; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'stack'; title: string; sprite?: string; total?: string; segments: { label: string; value?: string; percent: number; color: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
   /**
    * `explain` turns a grid cell into something the learner can press: Atlas
    * answers with that sentence. Authored, never generated, so a cell only
@@ -276,7 +276,7 @@ export type AnimatedVisual =
    * no explanations anywhere renders exactly as it always did.
    */
   | { type: 'grid'; title: string; sprite?: string; items: { label: string; value?: string; color?: string; sprite?: string; explain?: string }[]; footer?: string; sentiment: 'positive' | 'negative' }
-  | { type: 'line'; title: string; points: { label: string; value: string; explain?: string }[]; trend: 'up' | 'down'; footer?: string; sentiment: 'positive' | 'negative' }
+  | { type: 'line'; title: string; sprite?: string; points: { label: string; value: string; explain?: string }[]; trend: 'up' | 'down'; footer?: string; sentiment: 'positive' | 'negative' }
   /** A single pixel sprite as a lesson illustration. `sprite` is an id from src/lib/pixel. */
   | { type: 'pixel'; title: string; sprite: string; caption?: string; footer?: string; sentiment: 'positive' | 'negative' }
   /**

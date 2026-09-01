@@ -22,7 +22,8 @@ const MIN_ZETA = 0.95;    // tokens.ts: "wobble on a ~100ms beat reads as lag ra
 const tokens = readFileSync(new URL('../src/shared/motion/tokens.ts', import.meta.url), 'utf8');
 const press = readFileSync(new URL('../src/shared/motion/spring-pressable.tsx', import.meta.url), 'utf8');
 
-const used = press.match(/withSpring\(scaleTo,\s*Spring\.(\w+)\)/);
+const used = press.match(/withSpring\(scaleTo,\s*Spring\.(\w+)\)/)
+  ?? press.match(/const pressSpring =[^]*?: Spring\.(\w+);/);
 assert.ok(used, 'SpringPressable no longer springs to scaleTo — has the press animation been removed?');
 const name = used[1];
 
@@ -65,7 +66,7 @@ assert.ok(shrink >= MIN_SHRINK,
   + `floor is ${(MIN_SHRINK * 100).toFixed(1)}%. Use a faster spring or a deeper scaleTo.`);
 
 // and the scale must actually return to rest, or taps accumulate shrink
-assert.ok(/withSpring\(1,\s*Spring\.\w+\)/.test(press), 'press release must spring back to 1');
+assert.ok(/withSpring\(1,\s*(?:Spring\.\w+|pressSpring)\)/.test(press), 'press release must spring back to 1');
 
 console.log(`PASS — a ${TAP_MS}ms tap shrinks ${(shrink * 100).toFixed(2)}% `
   + `(Spring.${name}: zeta ${zeta.toFixed(3)}, response ${(2 * Math.PI / w0).toFixed(2)}s, `

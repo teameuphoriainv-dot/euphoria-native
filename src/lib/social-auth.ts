@@ -51,6 +51,8 @@ export type SocialIdentity = {
    * ("neither identityToken nor nonce appears anywhere in src/ today"). It appears now.
    */
   idToken: string | null;
+  /** Paired Google OAuth token used to validate an ID token containing an `at_hash` claim. */
+  accessToken: string | null;
   /**
    * Apple's single-use, short-lived server authorization code. The app sends this to the
    * authenticated apple-auth-token Edge Function immediately after Supabase sign-in so the server
@@ -116,6 +118,7 @@ export async function signInWithApple(): Promise<SocialIdentity | null> {
       provider: 'apple',
       id: credential.user,
       idToken: credential.identityToken ?? null,
+      accessToken: null,
       authorizationCode: credential.authorizationCode ?? null,
       name: parts.length ? parts.join(' ') : null,
       email: credential.email ?? null,
@@ -177,12 +180,15 @@ export async function signInWithGoogle(): Promise<SocialIdentity | null> {
     if (!isSuccessResponse(response)) return null;
 
     const { user } = response.data;
+    // Supabase must receive this alongside an ID token whenever Google includes `at_hash`.
+    const tokens = await GoogleSignin.getTokens();
     return {
       provider: 'google',
       id: user.id,
       name: user.name,
       email: user.email,
       idToken: response.data.idToken ?? null,
+      accessToken: tokens.accessToken ?? null,
       authorizationCode: null,
     };
   } catch (e) {

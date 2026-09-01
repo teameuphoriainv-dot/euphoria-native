@@ -5,11 +5,12 @@
  * when the selected set exactly matches the correct set. Sibling to OrderSteps/TileBuilder.
  */
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { useLessonStepState } from '@/components/lesson-step-session';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -24,8 +25,8 @@ export type MultiSpec = {
 
 export function MultiSelect({ spec, onSolvedChange }: { spec: MultiSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
-  const [picked, setPicked] = useState<boolean[]>(() => spec.options.map(() => false));
-  const [checked, setChecked] = useState(false);
+  const [picked, setPicked] = useLessonStepState<boolean[]>('multi.picked', () => spec.options.map(() => false));
+  const [checked, setChecked] = useLessonStepState('multi.checked', false);
 
   const solved = checked && spec.options.every((o, i) => o.correct === picked[i]);
   const anyPicked = picked.some(Boolean);

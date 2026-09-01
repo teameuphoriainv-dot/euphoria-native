@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Games cards must either navigate, clearly be Pro, or clearly be Coming Soon.
+ * Games cards must either navigate or explain their unavailable state when pressed.
  *
  * A card with normal styling and no route looks like a broken tap target. App Review sees that as
  * unfinished UI, and users see it as the app ignoring them.
@@ -64,7 +64,8 @@ function findings(src) {
   return {
     gamesFound: games.length,
     dead,
-    disabledComingSoon: /disabled=\{\s*!!g\.pro\s*\|\|\s*!!g\.comingSoon\s*\}/.test(code),
+    disablesComingSoon: /disabled=\{\s*!!g\.pro\s*\|\|\s*!!g\.comingSoon\s*\}/.test(code),
+    explainsInactiveTap: /Alert\.alert\s*\(/.test(code),
     rendersSoon: /g\.comingSoon[\s\S]*Soon/.test(code),
   };
 }
@@ -76,10 +77,10 @@ function selftest() {
       { name: 'Locked', sprite: lightbulb, pro: true },
       { name: 'Soon Tile', sprite: lightbulb, comingSoon: true },
     ];
-    <SpringPressable disabled={!!g.pro || !!g.comingSoon}>{g.comingSoon && <Text>Soon</Text>}</SpringPressable>
+    <SpringPressable onPress={() => Alert.alert(g.name, 'Not playable yet')}>{g.comingSoon && <Text>Soon</Text>}</SpringPressable>
   `;
   const ok = findings(good);
-  if (ok.gamesFound !== 3 || ok.dead.length || !ok.disabledComingSoon || !ok.rendersSoon) {
+  if (ok.gamesFound !== 3 || ok.dead.length || ok.disablesComingSoon || !ok.explainsInactiveTap || !ok.rendersSoon) {
     throw new Error('selftest: good fixture did not pass');
   }
 
@@ -92,7 +93,8 @@ selftest();
 const result = findings(readFileSync('src/app/(tabs)/games.tsx', 'utf8'));
 if (result.gamesFound < 6) fail(`only found ${String(result.gamesFound)} game entries; parser likely drifted`);
 if (result.dead.length > 0) fail(`route-less cards need pro: true or comingSoon: true: ${result.dead.join(', ')}`);
-if (!result.disabledComingSoon) fail('SpringPressable must disable comingSoon cards, not just label them');
+if (result.disablesComingSoon) fail('comingSoon cards must answer taps instead of silently disabling them');
+if (!result.explainsInactiveTap) fail('route-less cards must explain their state when tapped');
 if (!result.rendersSoon) fail('comingSoon cards must render visible "Soon" copy');
 
 console.log('[game-card-readiness-pin] ok');

@@ -13,7 +13,7 @@ worked. Two facts learned the hard way and encoded here:
 So every tap is verified by comparing the label set before and after. Anything
 that does not change the screen is escalated rather than repeated.
 """
-import subprocess as sp, json, os, time, sys
+import subprocess as sp, json, os, re, time, sys
 
 
 def booted_simulator_udid():
@@ -71,7 +71,11 @@ def tree(fresh=False):
     now = time.time()
     if not fresh and _CACHE['val'] is not None and now - _CACHE['at'] < _TTL:
         return _CACHE['val']
-    r = sp.run(["idb", "ui", "describe-all", "--udid", U], capture_output=True, text=True)
+    try:
+        r = sp.run(["idb", "ui", "describe-all", "--udid", U], capture_output=True,
+                   text=True, timeout=8)
+    except sp.TimeoutExpired:
+        return []
     try: out = json.loads(r.stdout or "[]")
     except json.JSONDecodeError: out = []
     _CACHE['val'], _CACHE['at'] = out, time.time()
@@ -84,6 +88,43 @@ def nodes():
 
 def labels(): return {n[4] for n in nodes()}
 def find(sub): return [n for n in nodes() if sub.lower() in n[4].lower()]
+
+
+def authored_step_position(current_labels):
+    """Return the native authored-step header `(current, total)`, if present."""
+    for label in current_labels:
+        match = re.fullmatch(r"(\d+)/(\d+)", label.strip())
+        if match:
+            return int(match.group(1)), int(match.group(2))
+    return None
+
+
+def node_is_tappable(node, top=105, bottom=830):
+    return node[1] >= top and node[1] + node[3] <= bottom
+
+
+def bring_into_view(node, top=105, bottom=830):
+    """Scroll an exact target out from behind/beyond the lesson chrome before tapping it."""
+    label = node[4]
+    for _ in range(4):
+        exact = [candidate for candidate in nodes() if candidate[4] == label]
+        visible = [candidate for candidate in exact if node_is_tappable(candidate, top, bottom)]
+        if visible:
+            return visible[0]
+        candidate = exact[0] if exact else node
+        if candidate[1] + candidate[3] > bottom:
+            start, end = ('200', '700'), ('200', '400')
+        elif candidate[1] < top:
+            start, end = ('200', '350'), ('200', '650')
+        else:
+            return candidate
+        try:
+            sp.run(["idb", "ui", "swipe", "--udid", U, "--duration", "0.45",
+                    start[0], start[1], end[0], end[1]], capture_output=True, timeout=8, check=True)
+        except (sp.TimeoutExpired, sp.CalledProcessError):
+            return candidate
+        time.sleep(0.65)
+    return node
 
 
 def button(*subs):
@@ -106,10 +147,53 @@ def button(*subs):
     # stable here. Excluding AXImage cost another stall. AXStaticText is the only role that
     # actually caused the original bug (the paragraph "Select all that apply, then check."), so
     # it is the only one worth excluding.
-    SKIP = {'AXStaticText', 'AXApplication'}
-    hits = [n for n in nodes()
-            if n[5] not in SKIP and any(s.lower() in n[4].lower() for s in subs)]
-    return sorted(hits, key=lambda n: -n[1])
+    # Honour caller priority before vertical position. Calculator screens contain both an inner
+    # "Check" and the fixed lesson-footer "Continue" at the same time. Sorting all matches by
+    # y always returned the lower, disabled Continue even when the caller explicitly requested
+    # button('check', 'continue'), so correct numbers were never graded and were appended again.
+    for sub in subs:
+        needle = sub.lower()
+        hits = [n for n in nodes()
+                if n[5] != 'AXApplication'
+                and ((n[5] != 'AXStaticText' and needle in n[4].lower())
+                     or n[4].strip().lower() == needle)]
+        if hits:
+            return sorted(hits, key=lambda n: -n[1])
+    return []
+
+
+def post_solve_button():
+    """Control that submits an answer or advances an authored multi-stage interaction."""
+    return button('check', 'submit', 'next round', 'see the full order', 'next statement', 'finish',
+                  'continue', 'next decision', 'see results', 'finish decision path')
+
+
+def advance_warmup():
+    """Advance one exact beat of the canonical lesson warmup, if visible.
+
+    These choices are not scored curriculum answers, but picking an arbitrary accessibility row
+    would weaken the same evidence invariant used inside lessons. Keep the canonical first option
+    for each primer explicit and verify that every tap changes the screen.
+    """
+    beats = (
+        ('Warm up', 'warmup:intro'),
+        ("Curious, let's go", 'warmup:primer-1'),
+        ("Yes, let's do it", 'warmup:primer-2'),
+        # The warmup CTA reads 'Start lesson' whenever the recall pool is empty (fresh device, no
+        # completed lessons) and again as the final beat after the primers. Ordered last so a
+        # populated pool still walks intro -> primers -> start.
+        ('Start lesson', 'warmup:start'),
+    )
+    current = labels()
+    for label, action in beats:
+        if label not in current:
+            continue
+        exact = [node for node in nodes()
+                 if node[4] == label and node[5] != 'AXApplication']
+        if not exact:
+            return False, f'{action}:control-missing'
+        return tap(exact[0]), action
+    return None
 
 def at_launcher():
     l = labels()
@@ -127,10 +211,81 @@ def reconnect():
 def tap(n, settle=1.6):
     """Tap and report whether the screen actually changed."""
     before = labels()
+    n = bring_into_view(n)
     x, y, w, h = n[0], n[1], n[2], n[3]
     sp.run(["idb", "ui", "tap", "--udid", U, str(x + w // 2), str(y + h // 2)], capture_output=True)
     time.sleep(settle)
     return labels() != before
+
+
+def position_reveal_card(label, top=120, bottom=720):
+    """Place one tall reveal card wholly inside the safe lesson viewport after scroll settles."""
+    for _attempt in range(8):
+        exact = [candidate for candidate in nodes() if candidate[4] == label]
+        if not exact:
+            return None
+        candidate = exact[0]
+        if node_is_tappable(candidate, top, bottom):
+            return candidate
+        desired_y = 250
+        delta = desired_y - candidate[1]
+        distance = min(300, max(80, abs(delta)))
+        if delta > 0:
+            start_y, end_y = 350, min(700, 350 + distance)
+        else:
+            start_y, end_y = 650, max(200, 650 - distance)
+        try:
+            sp.run(["idb", "ui", "swipe", "--udid", U, "--duration", "0.45",
+                    "200", str(start_y), "200", str(end_y)],
+                   capture_output=True, timeout=8, check=True)
+        except (sp.TimeoutExpired, sp.CalledProcessError):
+            return None
+        # Measure only after momentum has stopped; the old 0.65s re-read observed an apparently
+        # safe frame that kept moving until the subsequent tap landed on empty space.
+        time.sleep(1.0)
+    return None
+
+
+def flip_reveal_card(node):
+    """Flip one exact reveal card and verify its accessibility state changed.
+
+    Reveal cards are 280pt tall inside a scrolling view. Rapidly alternating between cards above
+    and below the viewport leaves scroll momentum active, so a centre tap can be swallowed as the
+    end of a drag. Work on one current card at a time, keep the whole card above the pinned lesson
+    footer, let scrolling settle, and accept only disappearance of its exact hidden label.
+    """
+    hidden_label = node[4]
+    for _attempt in range(3):
+        target = position_reveal_card(hidden_label)
+        if target is None:
+            continue
+        sp.run(["idb", "ui", "tap", "--udid", U,
+                str(target[0] + target[2] // 2), str(target[1] + target[3] // 2)],
+               capture_output=True)
+        time.sleep(0.9)
+        current = [candidate for candidate in nodes() if candidate[4] == hidden_label]
+        if not current:
+            return True
+        time.sleep(0.6)
+    return False
+
+
+def reveal_hidden_cards(max_cards=12):
+    """Reveal cards sequentially, returning `(verified_flips, still_hidden)`."""
+    flipped = 0
+    for _ in range(max_cards):
+        hidden = [node for node in nodes() if 'not revealed yet' in node[4].lower()]
+        if not hidden:
+            return flipped, 0
+        # Avoid the old stale-frame ping-pong by preferring a card that already fits, then the
+        # card closest to the safe viewport.
+        target = min(hidden, key=lambda candidate: 0 if node_is_tappable(candidate, 105, 730)
+                     else min(abs(candidate[1] - 105), abs(candidate[1] + candidate[3] - 730)))
+        if not flip_reveal_card(target):
+            return flipped, len(hidden)
+        flipped += 1
+    remaining = len([node for node in nodes() if 'not revealed yet' in node[4].lower()])
+    return flipped, remaining
 
 def dismiss_logbox():
     """Clear a React Native LogBox banner if one is up.
@@ -191,11 +346,14 @@ def goto_lesson(course_slug, num, title=None, tries=3):
     # site -- an ad-hoc caller that passed the camelCase key straight through got the "That
     # lesson isn't available." screen and this function returned True (see below).
     slug = ''.join('-' + c.lower() if c.isupper() else c for c in course_slug)
-    for attempt in range(tries):
+    for _attempt in range(tries):
         dismiss_logbox(); dismiss_sheet()
-        if attempt:                     # a pushed screen blocks deep links; reset via home first
-            sp.run(["xcrun", "simctl", "openurl", U, "euphorianative://home"], capture_output=True)
-            time.sleep(2.5)
+        # ALWAYS reset via home, including the first attempt. Opening the same lesson URL while
+        # already inside it is a navigation no-op; its Ask Atlas label still contains the lesson
+        # title, so the old verifier accepted a mid-lesson screen as a fresh route and recorded
+        # only the tail. Unmounting the lesson is the only reliable reset of local step/input state.
+        sp.run(["xcrun", "simctl", "openurl", U, "euphorianative://home"], capture_output=True)
+        time.sleep(2.5)
         sp.run(["xcrun", "simctl", "openurl", U,
                 f"euphorianative://lesson?course={slug}&num={num}"], capture_output=True)
         # Do not make a 300-route audit pay the full worst-case navigation timeout 300 times.
@@ -228,7 +386,7 @@ def goto_lesson(course_slug, num, title=None, tries=3):
     return False
 
 
-def advance():
+def advance(allow_guess=True):
     """One step forward. Returns (moved, what_was_tried).
 
     NOTE THE TUPLE. `if not advance():` is always False because a non-empty tuple is truthy --
@@ -247,30 +405,22 @@ def advance():
     # flip them all first and let the next call take the button.
     hidden = [n for n in nodes() if 'not revealed yet' in n[4].lower()]
     if hidden:
-        # SCROLL FOR THE REST. Revealing only what is on screen leaves cards below the fold
-        # hidden, and Continue stays inert until EVERY card is flipped -- so the driver reveals
-        # what it can see, taps a dead button, and stalls forever on an unchanged label set.
-        # Measured: nine steps of a lesson driven correctly, then four identical iterations at a
-        # tap-reveal, which blocked a device verification entirely.
-        total = 0
-        for _ in range(6):
-            batch = [n for n in nodes() if 'not revealed yet' in n[4].lower()]
-            if not batch:
-                break
-            for n in batch:
-                tap(n, 0.45)
-            total += len(batch)
-            # look further down for more cards; harmless when the list already fits
-            sp.run(["idb", "ui", "swipe", "--udid", U, "--duration", "0.25",
-                    "200", "600", "200", "330"], capture_output=True)
-            time.sleep(0.8)
-        return True, f'reveal x{total}'
+        total, remaining = reveal_hidden_cards()
+        if remaining:
+            return False, f'reveal-stuck:{remaining}'
+        return total > 0, f'reveal x{total}'
 
-    btn = button('continue', 'check', 'next', 'got it')
+    btn = button('start the challenge', 'next statement', 'finish', 'begin', 'continue', 'check', 'next', 'got it')
     if not btn:
         return False, 'no-button'
     if tap(btn[0]):
         return True, 'button'
+    # A parity recording must use the extracted canonical answer. The legacy CLI probe can still
+    # opt into its arbitrary-row fallback, but run_lesson passes allow_guess=False: selecting the
+    # first tappable row made wrong feedback look like movement and recorded an incorrect journey
+    # as coverage before the answer solver ever got a turn.
+    if not allow_guess:
+        return False, 'stuck'
     # Silent no-op: the step needs solving first. Selecting any tappable
     # non-button row is enough to satisfy a choice/multi step.
     skip = ('continue', 'check', 'next', 'close', 'gearshape', 'atlas', 'tab bar')
@@ -289,7 +439,7 @@ if __name__ == '__main__':
     for i in range(maxs):
         if find(target):
             print(f"REACHED {target!r} at step {i}"); sys.exit(0)
-        moved, how = advance()
+        moved, how = advance(allow_guess=False)
         print(f"  step {i:>2} {how:<12} moved={moved}")
         if not moved and how in ('stuck', 'no-button'):
             print(f"  STOPPED — visible: {sorted(labels())[:6]}"); sys.exit(1)
@@ -303,7 +453,7 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
     step that is answered but does not ADVANCE is indistinguishable from progress unless the
     screen is compared. Solving is not advancing, and only advancing counts.
     """
-    log, stalls = [], 0
+    log, stalls, highest_authored_step = [], 0, 0
     for i in range(max_steps):
         # STOP WHEN THE RECORDING DOES. Without this the thread outlives its capture window and
         # keeps TAPPING while the next lesson tries to deep-link -- lesson N's driver fighting
@@ -311,32 +461,60 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
         # "did-not-navigate" when goto_lesson works perfectly when called on its own.
         if stop is not None and stop.is_set():
             return False, log
-        text = ' '.join(labels()).lower()
+        current_labels = labels()
+        authored_position = authored_step_position(current_labels)
+        if authored_position:
+            current_authored_step, _authored_total = authored_position
+            if current_authored_step < highest_authored_step:
+                log.append((i, f'step_regression:{current_authored_step}<{highest_authored_step}', False))
+                return False, log
+            highest_authored_step = max(highest_authored_step, current_authored_step)
+        # An unexpected tab route is not a hard lesson step. One failed run jumped from a checked
+        # quiz to Games and then logged three generic no-matches; make the route escape explicit.
+        if {'Home', 'Learn', 'Trade', 'Digest', 'Games'}.issubset(current_labels):
+            log.append((i, 'route_escape:tab-bar', False))
+            return False, log
+        text = ' '.join(current_labels).lower()
         if any(k in text for k in ('lesson complete', 'xp earned', 'you earned', 'well done', '+30 xp')):
             return True, log
-        for c in find('not revealed'):
-            # TAP NEAR THE CARD'S TOP, NOT ITS CENTRE. Continue is a fixed footer and the grid
-            # scrolls under it: as earlier cards reveal they grow (118 -> 217/271pt), pushing the
-            # last row to y=707..825 while Continue occupies 760..816. The card's centre (766)
-            # then lands ON Continue, so the tap reveals nothing and the step stalls forever.
-            # Measured on alternative-investments lesson 1.
-            ty = c[1] + min(28, max(8, c[3] // 4))
-            foot = button('continue', 'check')
-            if foot and ty >= foot[0][1]:
-                ty = max(c[1] + 8, foot[0][1] - 16)
-            sp.run(["idb", "ui", "tap", "--udid", U, str(c[0] + c[2] // 2), str(ty)],
-                   capture_output=True)
-            time.sleep(0.5)
-        moved, how = advance()
+        warmup = advance_warmup()
+        if warmup is not None:
+            moved, how = warmup
+            log.append((i, how, moved))
+            stalls = stalls + 1 if not moved else 0
+            if stalls >= stall_limit:
+                return False, log
+            continue
+        revealed = 0
+        hidden = find('not revealed')
+        if hidden:
+            revealed, remaining = reveal_hidden_cards()
+            if remaining:
+                log.append((i, f'reveal-stuck:{remaining}', False))
+                stalls += 1
+                if stalls >= stall_limit:
+                    return False, log
+                continue
+        # Evidence captures must never choose an arbitrary row merely to make the screen move.
+        # The authored-answer solver below owns all interaction choices.
+        graph_ok, graph_kind = getattr(solve_mod, 'exercise_graph', lambda _lesson: (False, 'not-graph'))(lesson)
+        if graph_kind != 'not-graph' and not graph_ok:
+            log.append((i, graph_kind, False))
+            stalls += 1
+            if stalls >= stall_limit:
+                return False, log
+            continue
+        moved, how = advance(allow_guess=False)
         if not moved and how in ('stuck', 'no-button'):
             ok, kind = solve_mod.answer(lesson)
-            btn = button('check', 'continue')
+            btn = post_solve_button()
             if ok and btn:
                 before = labels()
                 time.sleep(0.5)          # let the selection taps settle before checking them
-                btn = button('check', 'continue') or btn      # re-read: layout may have shifted
-                sp.run(["idb", "ui", "tap", "--udid", U, str(btn[0][0] + btn[0][2] // 2),
-                        str(btn[0][1] + btn[0][3] // 2)], capture_output=True)
+                btn = post_solve_button() or btn      # re-read: layout may have shifted
+                target = bring_into_view(btn[0])
+                sp.run(["idb", "ui", "tap", "--udid", U, str(target[0] + target[2] // 2),
+                        str(target[1] + target[3] // 2)], capture_output=True)
                 time.sleep(1.8)
                 after = labels()
                 # A WRONG ANSWER CHANGES THE SCREEN WITHOUT ADVANCING. multi-select relabels its
@@ -345,9 +523,17 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
                 # run reported moved=True thirty times in a row while sitting on one step.
                 rejected = any('not quite' in l.lower() for l in after)
                 moved = (after != before) and not rejected
-                how = f'solved:{kind}' + ('/rejected' if rejected else '')
+                how = (f'solved:{kind}' + ('/rejected' if rejected else '')
+                       + f'@{target[4]}[{target[0]},{target[1]},{target[2]},{target[3]}]')
             else:
                 how = f'unsolved:{kind}'
+        if graph_ok:
+            how = f'exercised:{graph_kind}+{how}'
+        if revealed:
+            # Reveals are authored interactions in their own right. They happen before the
+            # footer advances, so preserve them in the same action record instead of losing
+            # the evidence behind a generic "button" entry.
+            how = f'reveal({revealed})+{how}'
         log.append((i, how, moved))
         stalls = stalls + 1 if not moved else 0
         if stalls >= stall_limit:

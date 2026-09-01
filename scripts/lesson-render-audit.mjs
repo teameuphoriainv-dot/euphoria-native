@@ -26,8 +26,9 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const { normalizeStep, expandSteps, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { normalizeStep, expandSteps, expandedStepIdentities, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 const { buildInteractiveGraphModel, defaultGraphValues } = await import(pathToFileURL(join(ROOT, 'src/lib/interactive-graph-model.ts')).href);
+const { ACTIVE_CHALLENGE_QUESTIONS, challengeHappyPathScreens, challengeRuntimeStates, hasMasteryChallenge } = await import(pathToFileURL(join(ROOT, 'src/lib/mastery-challenge-model.ts')).href);
 const { COURSES, loadCourseLessons } = await import(pathToFileURL(join(ROOT, 'src/lib/curriculum/courseIndex.ts')).href);
 
 const VERBOSE = process.argv.includes('--thin');
@@ -77,7 +78,8 @@ if (process.argv.includes('--selftest')) {
   ok(normalizedGraph.spec.graphType === 'comparison', 'interactiveGraph lost its authored graph type');
   ok(normalizedGraph.spec.sliders.length === 3, 'interactiveGraph lost its authored controls');
   const lost = expandSteps([{ type: 'progressiveCalc', title: 't', calcSteps: [{ nonsense: true }] }]);
-  ok(lost.length === 0, 'a malformed calcStep produced a step it should not have');
+  ok(lost.length === 1, 'a progressive calculation was flattened into outer screens');
+  ok(isThin(normalizeStep(lost[0])), 'a malformed internal calculation round escaped the audit');
   ok(expandSteps([{ type: 'quiz', question: 'q' }]).length === 1, 'a normal step was not passed through');
   console.log('lesson-render-audit selftest ok — graph semantics and visual safety assertions passed');
   process.exit(0);
@@ -128,11 +130,27 @@ function isThin(n) {
   switch (n.kind) {
     case 'choice':
       return !(n.prompt ?? '').trim() || (n.options ?? []).length < 2;
+    case 'hook':
+      return !(n.spec?.title ?? '').trim() || !(n.spec?.fact ?? '').trim() || !(n.spec?.outcome ?? '').trim();
+    case 'stakes':
+      return !(n.spec?.without?.label ?? '').trim() || !(n.spec?.with?.label ?? '').trim();
+    case 'vocab':
+      // A vocabulary conversation carries authored content in `terms`, then derives its teach and
+      // ask beats at render time. It intentionally has neither prose blocks nor an interactive
+      // `spec`, so falling through would call every valid conversation thin.
+      return !(n.terms ?? []).some((term) =>
+        (term?.term ?? '').trim() && (term?.definition ?? '').trim(),
+      );
+    case 'teaching':
+      return !(n.spec?.title ?? '').trim()
+        || (!(n.spec?.paragraphs ?? []).some((paragraph) => paragraph?.trim())
+          && !n.spec?.diagramVisual
+          && !n.spec?.diagramSvg);
     // EVERY spec-driven kind must be listed here. `calc` was missing when it was added and all
     // 3 calculator steps read as thin -- a `calc` has no `blocks`, so it fell to the branch
     // below and `[].every()` is vacuously true. Sixth time this checker has under-read a shape
     // it checks; the shape list is the thing to keep in step with lesson-steps.ts's Normalized.
-    case 'reveal': case 'match': case 'order': case 'line': case 'multi': case 'build': case 'calc': case 'tree': {
+    case 'reveal': case 'match': case 'dragSort': case 'order': case 'line': case 'multi': case 'trueFalse': case 'build': case 'calc': case 'tree': {
       const spec = n.spec ?? {};
       const arrays = Object.values(spec).filter(Array.isArray);
       // a spec-driven interactive is thin only if it has nothing to interact with
@@ -148,6 +166,15 @@ function isThin(n) {
         return true;
       }
     }
+    case 'progressiveCalc': {
+      const calcSteps = n.spec?.calcSteps ?? [];
+      if (!(n.spec?.title ?? '').trim() || calcSteps.length === 0) return true;
+      return calcSteps.some((step) => {
+        if ('label' in step) return !step.label?.trim() || !step.formula?.trim() || !step.result?.trim();
+        return !step.prompt?.trim() || !Array.isArray(step.options) || step.options.length < 2
+          || !Number.isInteger(step.correct) || step.correct < 0 || step.correct >= step.options.length;
+      });
+    }
     case 'prose': case 'todo':
     default: {
       const blocks = Array.isArray(n.blocks) ? n.blocks : [];
@@ -156,7 +183,8 @@ function isThin(n) {
   }
 }
 
-let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawCalcSteps = 0, rawDecisions = 0, graphSteps = 0, graphScreens = 0, graphControls = 0, renderedGraphControls = 0;
+let steps = 0, lessons = 0, thin = 0, todo = 0, visualBlocks = 0, visualsInData = 0, rawSvgsInData = 0, renderedRawSvgs = 0, rawCalcSteps = 0, renderedCalcSteps = 0, rawDecisions = 0, graphSteps = 0, graphScreens = 0, graphControls = 0, renderedGraphControls = 0;
+let challengeLessons = 0, challengeQuestions = 0, challengeHappyScreens = 0, challengeStates = 0;
 const unrenderable = [], unlabelled = [];
 const visualKinds = new Map();
 const byType = new Map();
@@ -169,12 +197,23 @@ for (const course of COURSES) {
   const list = await loadCourseLessons(course.id);
   for (const lesson of list) {
     lessons += 1;
+    if (hasMasteryChallenge(lesson.challenge)) {
+      challengeLessons += 1;
+      challengeQuestions += lesson.challenge.slice(0, ACTIVE_CHALLENGE_QUESTIONS).length;
+      challengeHappyScreens += challengeHappyPathScreens(lesson.challenge);
+      challengeStates += challengeRuntimeStates(lesson.challenge);
+    }
     // audit what the app ACTUALLY renders, which is the expanded list
     for (const raw of lesson.steps ?? []) {
       if (raw?.type === 'progressiveCalc') rawCalcSteps += (raw.calcSteps ?? []).length;
       if (raw?.type === 'simulationFinale') rawDecisions += (raw.decisions ?? []).length;
     }
-    for (const step of expandSteps(lesson.steps ?? [])) {
+    const expanded = expandSteps(lesson.steps ?? []);
+    const identities = expandedStepIdentities(lesson.steps ?? []);
+    if (identities.length !== expanded.length) {
+      throw new Error(`${course.id} L${lesson.num}: ${expanded.length} runtime screens but ${identities.length} authored-step identities`);
+    }
+    for (const step of expanded) {
       steps += 1;
       byType.set(step.type, (byType.get(step.type) ?? 0) + 1);
       let n;
@@ -187,6 +226,7 @@ for (const course of COURSES) {
         continue;
       }
       if (n.kind === 'todo') todo += 1;
+      if (n.kind === 'progressiveCalc') renderedCalcSteps += n.spec.calcSteps.length;
       if (step.type === 'interactiveGraph') {
         graphSteps += 1;
         graphControls += step.sliders?.length ?? 0;
@@ -210,11 +250,47 @@ for (const course of COURSES) {
           }
         }
       }
+      for (const k of ['chartSvg', 'diagramSvg', 'withoutSvg', 'withSvg']) {
+        if (typeof step?.[k] === 'string' && step[k].trim()) rawSvgsInData += 1;
+      }
+      if (n.kind === 'hook') {
+        if (n.spec.visual?.type) {
+          visualBlocks += 1;
+          visualKinds.set(n.spec.visual.type, (visualKinds.get(n.spec.visual.type) ?? 0) + 1);
+        }
+        if (n.spec.chartSvg) renderedRawSvgs += 1;
+      }
+      if (n.kind === 'stakes') {
+        for (const visual of [n.spec.withoutVisual, n.spec.withVisual]) {
+          if (!visual?.type) continue;
+          visualBlocks += 1;
+          visualKinds.set(visual.type, (visualKinds.get(visual.type) ?? 0) + 1);
+        }
+        if (n.spec.withoutSvg) renderedRawSvgs += 1;
+        if (n.spec.withSvg) renderedRawSvgs += 1;
+      }
+      if (n.kind === 'teaching') {
+        if (n.spec.diagramVisual?.type) {
+          visualBlocks += 1;
+          visualKinds.set(n.spec.diagramVisual.type, (visualKinds.get(n.spec.diagramVisual.type) ?? 0) + 1);
+        }
+        if (n.spec.diagramSvg) renderedRawSvgs += 1;
+      }
       for (const b of (Array.isArray(n.blocks) ? n.blocks : [])) {
         if (b?.b === 'visual' && b.visual?.type) {
           visualBlocks += 1;
           visualKinds.set(b.visual.type, (visualKinds.get(b.visual.type) ?? 0) + 1);
         }
+        if (b?.b === 'pair') {
+          for (const visual of [b.leftVisual, b.rightVisual]) {
+            if (!visual?.type) continue;
+            visualBlocks += 1;
+            visualKinds.set(visual.type, (visualKinds.get(visual.type) ?? 0) + 1);
+          }
+          if (b.leftSvg) renderedRawSvgs += 1;
+          if (b.rightSvg) renderedRawSvgs += 1;
+        }
+        if (b?.b === 'svg' && b.xml) renderedRawSvgs += 1;
       }
       if (isThin(n)) {
         thin += 1;
@@ -231,12 +307,14 @@ console.log(`\ncourses ${COURSES.length}   lessons ${lessons}   steps ${steps}  
 console.log(`fell through to the 'todo' default: ${todo} step(s)`);
 console.log(`THIN (reach the screen with no readable body and no interaction): ${thin}`);
 console.log(`AnimatedVisuals in the data: ${visualsInData}   reaching the screen: ${visualBlocks}   all labelled for VoiceOver: ${unlabelled.length === 0 ? 'yes' : 'NO'}`);
+console.log(`Raw SVG visuals in the data: ${rawSvgsInData}   reaching the screen: ${renderedRawSvgs}`);
 if (visualKinds.size) {
   console.log('  ' + [...visualKinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('   '));
 }
 console.log('');
 console.log(`Interactive graphs in the data: ${graphSteps}   reaching the screen: ${graphScreens}`);
 console.log(`Authored graph controls in the data: ${graphControls}   reaching the screen: ${renderedGraphControls}`);
+console.log(`Mastery challenges: ${challengeLessons} lessons   ${challengeQuestions} active questions   ${challengeHappyScreens} happy-path screens   ${challengeStates} finite branch states`);
 console.log('');
 
 if (thinByType.size) {
@@ -253,19 +331,10 @@ if (VERBOSE && thinExamples.length) {
   for (const e of thinExamples.slice(0, 40)) console.log(`  ${e}`);
 }
 
-// PINNED BASELINE. 44 progressiveCalc steps still render as a bare title: each one is a sequence
-// of MCQs (4 in the case measured) and the normaliser emits ONE screen per step, so rendering them
-// properly needs a multi-question renderer rather than a normaliser case. Showing one of four
-// questions, or revealing the answers as a "walkthrough", would both quietly lose authored
-// assessment -- so this records the gap instead of papering over it.
-//
-// The number is a CEILING, not a target: this exits non-zero the moment a sync or an edit makes
-// MORE steps thin, which is the regression nothing else in `npm run check` would notice.
+// Zero is a hard ceiling: any readable-content or interaction loss fails the build.
 const BASELINE = 0;
-const { droppedCalcSteps, tiedDecisions } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
-const emittedCalc = byType.get('calcQuiz') ?? 0;
-const emittedWalk = byType.get('calcWalkthrough') ?? 0;
-console.log(`calcSteps in data ${rawCalcSteps} -> emitted ${emittedCalc + emittedWalk} (dropped ${droppedCalcSteps})`);
+const { tiedDecisions } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+console.log(`calculation rounds in data ${rawCalcSteps} -> reaching internal scene ${renderedCalcSteps}`);
 const gradedDecisions = byType.get('simDecision') ?? 0;
 console.log(`decisions in data ${rawDecisions} -> graded ${gradedDecisions} + tied-as-prose ${tiedDecisions}`);
 if (rawDecisions !== gradedDecisions + tiedDecisions) {
@@ -274,6 +343,14 @@ if (rawDecisions !== gradedDecisions + tiedDecisions) {
 }
 if (graphSteps !== graphScreens || graphControls !== renderedGraphControls) {
   console.error(`\nGRAPH SEMANTICS LOST: ${graphSteps} graphs/${graphControls} controls in data, ${graphScreens} graphs/${renderedGraphControls} controls rendered.`);
+  process.exit(1);
+}
+if (visualsInData !== visualBlocks) {
+  console.error(`\nANIMATED VISUALS LOST: ${visualsInData} in data, ${visualBlocks} rendered.`);
+  process.exit(1);
+}
+if (rawSvgsInData !== renderedRawSvgs) {
+  console.error(`\nRAW SVG VISUALS LOST: ${rawSvgsInData} in data, ${renderedRawSvgs} rendered.`);
   process.exit(1);
 }
 if (unlabelled.length) {
@@ -286,8 +363,12 @@ if (unrenderable.length) {
   for (const u of unrenderable.slice(0, 20)) console.error(`  ${u}`);
   process.exit(1);
 }
-if (rawCalcSteps !== emittedCalc + emittedWalk || droppedCalcSteps > 0) {
-  console.error(`\nCALC STEPS LOST: ${rawCalcSteps} in the data, ${emittedCalc + emittedWalk} emitted.`);
+if (rawCalcSteps !== renderedCalcSteps) {
+  console.error(`\nCALC STEPS LOST: ${rawCalcSteps} in the data, ${renderedCalcSteps} reaching the internal scene.`);
+  process.exit(1);
+}
+if (challengeLessons !== 295 || challengeQuestions !== 1180 || challengeHappyScreens !== 1770 || challengeStates !== 2065) {
+  console.error(`\nCHALLENGE RUNTIME ACCOUNTING DRIFTED: ${challengeLessons} lessons, ${challengeQuestions} questions, ${challengeHappyScreens} happy-path screens, ${challengeStates} finite states.`);
   process.exit(1);
 }
 if (thin > BASELINE) {

@@ -245,10 +245,15 @@ export async function sendPasswordReset(email: string): Promise<AuthResult> {
 export async function signInWithIdToken(
   provider: 'apple' | 'google',
   token: string,
+  accessToken?: string | null,
 ): Promise<AuthResult> {
   const sb = supabase();
   if (!sb) return OFF;
-  const { error } = await sb.auth.signInWithIdToken({ provider, token });
+  const { error } = await sb.auth.signInWithIdToken({
+    provider,
+    token,
+    ...(accessToken ? { access_token: accessToken } : {}),
+  });
   if (error) return { ok: false, message: authMessage(error.message) };
   return { ok: true, needsConfirmation: false };
 }

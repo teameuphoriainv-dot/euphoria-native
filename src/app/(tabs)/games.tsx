@@ -1,9 +1,9 @@
 /**
  * Games — hub of finance mini-games (Brilliant/Duolingo games tab). 2-col grid of game
- * cards with EUPHORIA icons + free/pro locks. Term Match is playable; others are stubs.
+ * cards with EUPHORIA icons plus explicit playable, Pro, and Coming Soon states.
  */
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -74,7 +74,26 @@ export default function Games() {
             const badgeColor = g.pro ? theme.warning : theme.iconLilac;
             return (
               <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
-                <SpringPressable onPress={() => g.route && router.push(g.route as never)} disabled={!!g.pro || !!g.comingSoon}>
+                <SpringPressable
+                  accessibilityLabel={`${g.name}${g.comingSoon ? ', coming soon' : g.pro ? ', Pro game' : ''}`}
+                  onPress={() => {
+                    if (g.route) {
+                      router.push(g.route as never);
+                      return;
+                    }
+                    /*
+                     * A STATUS CARD IS STILL A CONTROL. These entries used to be disabled, so the
+                     * press animation, haptic and handler were all suppressed: “Soon” explained the
+                     * state visually, but tapping it felt exactly like a broken button. Keep the
+                     * roadmap honest and give the tap a visible answer without inventing a route.
+                     */
+                    Alert.alert(
+                      g.name,
+                      g.comingSoon
+                        ? 'This game is still being built and is not playable yet.'
+                        : 'This Pro game is still being built and is not playable yet.',
+                    );
+                  }}>
                   {/*
                     * THE DIM IS ON THE CONTENT, NOT THE CARD.
                     *
@@ -82,7 +101,7 @@ export default function Games() {
                     * composited measurement put the badge text at ~3.55:1 against the screen — below
                     * the 4.5 AA minimum, and 9pt label text does not qualify as large text. The badge
                     * is the one thing on a locked card that must stay readable, since it is the entire
-                    * explanation for why the card does not respond.
+                    * explanation for why the card does not open a game route.
                     */}
                   <Card style={styles.gameCard}>
                     {(g.pro || g.comingSoon) && (

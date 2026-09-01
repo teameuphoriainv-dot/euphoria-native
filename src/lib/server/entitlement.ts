@@ -24,8 +24,8 @@
  * wrong in the closed direction costs a customer.
  *
  * ── THE ROLLOUT, WHICH IS THREE STEPS AND ONLY ONE IS DONE ──────────────────────────────────
- *   1. **Today.** `REVENUECAT_SECRET_KEY` unset → this module allows everything and behaviour is
- *      byte-identical to before it existed. Rate limits are the only bound.
+ *   1. `ATLAS_REQUIRE_AUTH=1` closes the anonymous proxy even when RevenueCat is not configured.
+ *      Signed-in callers continue to the next step.
  *   2. **Secret set, sign-in shipped.** Verified callers are checked against RevenueCat. A signed-in
  *      non-payer can no longer spend our tokens.
  *   3. **`ATLAS_REQUIRE_AUTH=1`.** Anonymous callers are refused outright. **Only this step actually
@@ -133,13 +133,18 @@ async function lookup(subject: string, secret: string): Promise<boolean | null> 
  * @param subject the SERVER-VERIFIED user id, or null for an anonymous caller
  */
 export async function decide(subject: string | null): Promise<Decision> {
+  // Authentication is independent of billing configuration. Checking this after the RevenueCat
+  // secret would make `ATLAS_REQUIRE_AUTH=1` a no-op in exactly the deployment that needs it most.
+  if (!subject && process.env.ATLAS_REQUIRE_AUTH === '1') {
+    return { allow: false, reason: 'auth-required' };
+  }
+
   const secret = process.env.REVENUECAT_SECRET_KEY;
-  // Step 1: nothing configured. Identical to the behaviour before this file existed.
+  // Billing enforcement is optional; authenticated free/trial quotas remain client-visible until
+  // a durable server quota is deployed.
   if (!secret) return { allow: true, reason: 'not-enforced' };
 
   if (!subject) {
-    // Step 3. Off by default, because there is no sign-in UI and this would refuse everybody.
-    if (process.env.ATLAS_REQUIRE_AUTH === '1') return { allow: false, reason: 'auth-required' };
     return { allow: true, reason: 'anonymous-allowed' };
   }
 

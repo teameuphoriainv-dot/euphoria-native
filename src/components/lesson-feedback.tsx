@@ -1,19 +1,13 @@
 /**
- * Per-question feedback, built from the Duolingo reference in refs/videos (video 3, sampled at
- * 6fps around t=124s).
+ * Per-question feedback matching the canonical web lesson's inline response card.
  *
  * What they do the instant you tap Check:
  *   1. a spark bursts AT the button                      ~350ms
- *   2. a verdict bar slides up from the bottom edge      ~260ms, spring
- *   3. the bar carries the verdict AND the next action, so the CTA is inside the reaction
+ *   2. an inline semantic response fades in               280ms
+ *   3. the response carries the verdict and next action
  *
- * The bar is the important part. Ours judged the answer by recolouring an icon and swapping a
- * face, which is a state change, not a reaction. A bar arriving from off-screen is a physical
- * event, and it lands under your thumb where you are already looking.
- *
- * Euphoria palette: success green stays (it is the app's semantic correct colour), wrong uses
- * the violet ramp's deep end rather than Duolingo's red, so a mistake reads as "not yet"
- * rather than as an alarm.
+ * Correct and wrong use the same emerald/red treatment as the website. Reduced Motion resolves
+ * the response immediately.
  */
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -23,15 +17,14 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withDelay,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Duration, Ease } from '@/shared/motion/tokens';
 
 /** Eight-point star, drawn once. Sharp points read as an impact; round ones read as a glow. */
 const SPARK = (() => {
@@ -77,10 +70,8 @@ export function SparkBurst({ size = 150, color = '#C89CF5', delay = 0 }: { size?
 }
 
 /**
- * The verdict bar. Springs up from the bottom edge and stays until the learner moves on.
- *
- * `children` is the CTA, so the button lives INSIDE the reaction rather than beside it — which
- * is what makes the whole bottom of the screen respond to the answer.
+ * The inline verdict remains in reading order until the learner moves on. `children` keeps the
+ * next action directly attached to the explanation, as it is on web.
  */
 export function FeedbackBanner({
   correct,
@@ -99,37 +90,19 @@ export function FeedbackBanner({
 
   useEffect(() => {
     if (reduced) { t.set(1); return; }
-    // slightly underdamped so the bar overshoots a few pixels and settles: it should feel
-    // thrown into place, not slid
-    t.set(withSpring(1, { stiffness: 220, damping: 18, mass: 1 }));
+    t.set(withTiming(1, { duration: Duration.base, easing: Ease.out }));
   }, [reduced, t]);
 
   const style = useAnimatedStyle(() => ({
     opacity: t.get(),
-    transform: [{ translateY: (1 - t.get()) * 190 }],
   }));
 
-  const tint = correct ? theme.success : theme.primary;
+  const tint = correct ? theme.success : theme.destructive;
 
   return (
-    // The tint is only 10% alpha. It needs an OPAQUE base under it or the bar shows whatever it
-    // covers — with real authored questions the option list has four long rows and reads straight
-    // through the verdict. Opaque background + tint as an overlay keeps the colour, kills the
-    // see-through.
-    <Animated.View style={[styles.banner, { backgroundColor: theme.background, borderTopColor: tint + '59' }, style]}>
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tint + '1A' }]} />
-      <View style={styles.verdictRow}>
-        <View style={[styles.verdictIcon, { backgroundColor: tint }]}>
-          <UIcon name={correct ? 'check' : 'close'} size={17} color="#fff" />
-        </View>
-        <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 23, color: tint }}>{title}</ThemedText>
-          {detail ? (
-            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2, lineHeight: 18 }}>{detail}</ThemedText>
-          ) : null}
-        </View>
-      </View>
-      {children ? <View style={{ marginTop: Spacing.two + 2 }}>{children}</View> : null}
+    <Animated.View style={[styles.banner, { backgroundColor: tint + '1A' }, style]}>
+      <ThemedText type="small" style={{ color: tint, textAlign: 'center' }}>{detail || title}</ThemedText>
+      {children ? <View style={{ marginTop: Spacing.three, gap: Spacing.three }}>{children}</View> : null}
     </Animated.View>
   );
 }
@@ -137,14 +110,9 @@ export function FeedbackBanner({
 const styles = StyleSheet.create({
   spark: { position: 'absolute', left: '50%', top: '50%', zIndex: 20 },
   banner: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopLeftRadius: Radius.lg,
-    borderTopRightRadius: Radius.lg,
-    overflow: 'hidden', // clip the tint overlay to the rounded top corners
-    paddingHorizontal: Spacing.four,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
-    paddingBottom: Spacing.two,
+    paddingBottom: Spacing.three,
   },
-  verdictRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
-  verdictIcon: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
 });

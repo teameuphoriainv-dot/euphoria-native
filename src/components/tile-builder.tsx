@@ -5,11 +5,12 @@
  * // ponytail: tap-to-place now; upgrade to gesture-handler drag when a lesson needs it.
  */
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { useLessonStepState } from '@/components/lesson-step-session';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -19,7 +20,7 @@ export type TileSpec = { title: string; slots: { label: string; correct: string 
 
 export function TileBuilder({ spec, onSolvedChange }: { spec: TileSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
-  const [placed, setPlaced] = useState<(string | null)[]>(() => spec.slots.map(() => null));
+  const [placed, setPlaced] = useLessonStepState<(string | null)[]>('build.placed', () => spec.slots.map(() => null));
 
   const full = placed.every((p) => p !== null);
   const correctness = placed.map((v, i) => (v == null ? null : v === spec.slots[i].correct));

@@ -26,9 +26,15 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
+  Easing,
   FadeIn,
   FadeInDown,
+  FadeOut,
+  FadeOutDown,
+  interpolate,
+  useAnimatedProps,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -43,6 +49,7 @@ import { Card } from '@/components/ui/card';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { AnimatedVisual } from '@/lib/curriculum';
+import { buildFlowMotionPlan, buildMetricMotionPlan, type FlowNodeMotion } from '@/lib/lesson-visual-motion';
 import { chartLabel, visualRows } from '@/lib/lesson-steps';
 import { getSprite, PixelSpriteView } from '@/lib/pixel';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -50,6 +57,34 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 type Sentiment = 'positive' | 'negative' | undefined;
 
 const clampPercent = (n: unknown) => Math.max(0, Math.min(100, Number(n) || 0));
+const LINE_DRAW_MS = 900;
+const FLOW_ORCHID = '#B862ED';
+const HEADER_SPRITE_TYPES = new Set(['bars', 'pie', 'flow', 'comparison', 'stack', 'grid', 'line']);
+const AnimatedPolyline = Animated.createAnimatedComponent(Polyline);
+
+/** Draw the authored line from start to finish, matching the canonical pathLength animation. */
+function DrawnPolyline({ points, length, color }: { points: string; length: number; color: string }) {
+  const reduced = useReducedMotion();
+  const offset = useSharedValue(reduced ? 0 : length);
+
+  useEffect(() => {
+    offset.set(reduced ? 0 : withTiming(0, { duration: LINE_DRAW_MS }));
+  }, [length, offset, reduced]);
+
+  const animatedProps = useAnimatedProps(() => ({ strokeDashoffset: offset.get() }));
+  return (
+    <AnimatedPolyline
+      animatedProps={animatedProps}
+      points={points}
+      fill="none"
+      stroke={color}
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeDasharray={[length, length]}
+    />
+  );
+}
 
 /**
  * Web AnimatedVisuals grows authored bars from zero over 550ms and staggers siblings by 80ms.
@@ -74,12 +109,147 @@ function AnimatedFill({ percent, color, delay = 0 }: { percent: number; color: s
   return <Animated.View style={[styles.fill, { backgroundColor: color }, animatedStyle]} />;
 }
 
-function VisualSprite({ id, size = 24 }: { id?: string; size?: number }) {
+function VisualSprite({ id, size = 24, scale }: { id?: string; size?: number; scale?: number }) {
   const sprite = id ? getSprite(id) : undefined;
   if (!sprite) return null;
   return (
     <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <PixelSpriteView sprite={sprite} size={size} />
+      <PixelSpriteView sprite={sprite} {...(scale === undefined ? { size } : { scale })} />
+    </View>
+  );
+}
+
+function VisualFadeUp({
+  delay,
+  duration,
+  translateY,
+  children,
+}: {
+  delay: number;
+  duration: number;
+  translateY: number;
+  children: ReactNode;
+}) {
+  return (
+    <Animated.View
+      entering={duration === 0
+        ? FadeIn.duration(0)
+        : FadeInDown.delay(delay).duration(duration).withInitialValues({ opacity: 0, transform: [{ translateY }] })}>
+      {children}
+    </Animated.View>
+  );
+}
+
+/** Production 49e stages each decorative chart mark above its title with the shared fade-up. */
+function VisualHeaderMark({ id, delay = 0, scale }: { id?: string; delay?: number; scale?: number }) {
+  const reduced = useReducedMotion();
+  const sprite = id ? getSprite(id) : undefined;
+  if (!sprite) return null;
+  return (
+    <Animated.View
+      entering={reduced
+        ? FadeIn.duration(0)
+        : FadeInDown.delay(delay).duration(350).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })}
+      style={styles.visualHeader}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants">
+      <PixelSpriteView sprite={sprite} {...(scale === undefined ? { size: 38 } : { scale })} />
+    </Animated.View>
+  );
+}
+
+/** Keyed per selection so Atlas exits and re-enters instead of replacing prose in place. */
+function VisualAtlasExplanation({ text }: { text: string }) {
+  const reduced = useReducedMotion();
+  const entering = reduced ? FadeIn.duration(0) : FadeInDown
+    .springify().stiffness(400).damping(28).mass(1)
+    .withInitialValues({ opacity: 0, transform: [{ translateY: 8 }] });
+  const exiting = reduced ? FadeOut.duration(0) : FadeOutDown
+    .springify().stiffness(400).damping(28).mass(1)
+    .withTargetValues({ opacity: 0, transform: [{ translateY: 4 }] });
+
+  return (
+    <Animated.View
+      entering={entering}
+      exiting={exiting}
+      collapsable={false}
+      style={styles.atlasExplanation}>
+      <Atlas size={44} expression="happy" interactive={false} />
+      <View style={styles.explain}>
+        <View style={styles.explainTail} accessible={false} />
+        <ThemedText type="small" themeColor="textSecondary">{text}</ThemedText>
+      </View>
+    </Animated.View>
+  );
+}
+
+/** Production's flow rail carries one lit signal down the chain and rings at its destination. */
+function AnimatedFlowRail({
+  accent,
+  last,
+  motion,
+}: {
+  accent: string;
+  last: boolean;
+  motion: FlowNodeMotion;
+}) {
+  const dot = useSharedValue(motion.dotDuration === 0 ? 1 : 0.35);
+  const connector = useSharedValue(motion.connectorDuration === 0 ? 1 : 0);
+  const ring = useSharedValue(0);
+
+  useEffect(() => {
+    dot.set(motion.dotDuration === 0
+      ? 1
+      : withDelay(motion.signalDelay, withTiming(1, {
+        duration: motion.dotDuration,
+        easing: Easing.out(Easing.cubic),
+      })));
+    connector.set(motion.connectorDuration === 0
+      ? 1
+      : withDelay(motion.signalDelay, withTiming(1, {
+        duration: motion.connectorDuration,
+        easing: Easing.out(Easing.cubic),
+      })));
+    ring.set(motion.ringDuration === 0
+      ? 0
+      : withDelay(motion.signalDelay, withTiming(1, {
+        duration: motion.ringDuration,
+        easing: Easing.out(Easing.cubic),
+      })));
+  }, [connector, dot, motion.connectorDuration, motion.dotDuration, motion.ringDuration, motion.signalDelay, ring]);
+
+  const dotStyle = useAnimatedStyle(() => ({ opacity: dot.get() }));
+  const connectorStyle = useAnimatedStyle(() => ({
+    height: `${connector.get() * 100}%` as `${number}%`,
+  }));
+  const ringStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(ring.get(), [0, 0.001, 1], [0, 0.85, 0]),
+    transform: [{ scale: interpolate(ring.get(), [0, 1], [1, 2.6]) }],
+  }));
+
+  return (
+    <View style={styles.flowRail} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={[styles.flowDotWrap, last && styles.flowDotWrapLast]}>
+        {last && motion.ringDuration > 0 ? (
+          <Animated.View style={[styles.flowArrivalRing, { borderColor: accent }, ringStyle]} />
+        ) : null}
+        <Animated.View
+          style={[
+            styles.flowDot,
+            last && styles.flowDotLast,
+            { backgroundColor: last ? accent : 'rgba(255,255,255,0.28)' },
+            dotStyle,
+          ]}
+        />
+      </View>
+      {!last ? (
+        <View style={styles.flowConnector}>
+          <Animated.View style={[styles.flowSignal, connectorStyle]}>
+            <LinearGradient colors={[accent, accent + '44']} style={StyleSheet.absoluteFill} />
+          </Animated.View>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -99,8 +269,9 @@ function parseVisualNumber(raw: string | number | undefined): number | null {
   return value;
 }
 
-export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
+export function LessonVisual({ visual, bare = false }: { visual: AnimatedVisual; bare?: boolean }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
   const v = visual as AnimatedVisual & Record<string, any>;
   const [openRow, setOpenRow] = useState<number | null>(null);
   const sentiment: Sentiment = v.sentiment;
@@ -109,6 +280,9 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
   const rows = visualRows(visual);
   const interactive = rows.some((row) => typeof row?.explain === 'string' && row.explain.trim().length > 0);
   const selected = openRow === null ? null : rows[openRow] ?? null;
+  const flowMotion = v.type === 'flow'
+    ? buildFlowMotionPlan((v.nodes ?? []).length, Boolean(v.sprite), reduced)
+    : null;
 
   const toggle = (index: number) => {
     const row = rows[index];
@@ -123,7 +297,14 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
       <SpringPressable
         key={index}
         haptic={false}
-        style={v.type === 'grid' ? styles.gridPressable : undefined}
+        hitSlop={v.type === 'comparison' ? 8 : undefined}
+        style={v.type === 'grid'
+          ? styles.gridPressable
+          : v.type === 'bars'
+            ? styles.barPressable
+            : v.type === 'flow'
+              ? styles.flowPressable
+              : undefined}
         onPress={() => toggle(index)}
         accessibilityRole="button"
         accessibilityLabel={[row.label, value].filter(Boolean).join('. ')}
@@ -134,8 +315,8 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
     );
   };
 
-  const Bar = ({ percent, color, delay = 0 }: { percent: number; color: string; delay?: number }) => (
-    <View style={[styles.track, { backgroundColor: theme.primary + '1F' }]}>
+  const Bar = ({ percent, color, delay = 0, horizontal = false }: { percent: number; color: string; delay?: number; horizontal?: boolean }) => (
+    <View style={[styles.track, horizontal && styles.barTrack, { backgroundColor: theme.primary + '1F' }]}>
       <AnimatedFill percent={percent} color={color} delay={delay} />
     </View>
   );
@@ -143,29 +324,44 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
   const body = (() => {
     switch (v.type) {
       case 'metric':
+        {
+          const motion = buildMetricMotionPlan(Boolean(v.sprite), reduced);
         return (
-          <View style={{ gap: Spacing.two, alignItems: 'center' }}>
-            <VisualSprite id={v.sprite} size={48} />
-            <ThemedText type="display" style={{ fontSize: FontSize.displaySm, color: accent }}>{v.value}</ThemedText>
-            {v.detail ? <ThemedText type="small" themeColor="mutedForeground" style={{ textAlign: 'center' }}>{v.detail}</ThemedText> : null}
+          <View style={styles.metric}>
+            <VisualFadeUp delay={motion.titleDelay} duration={motion.duration} translateY={motion.translateY}>
+              <ThemedText style={styles.metricTitle}>{v.title}</ThemedText>
+            </VisualFadeUp>
+            {v.sprite && motion.spriteDelay !== null ? (
+              <VisualFadeUp delay={motion.spriteDelay} duration={motion.duration} translateY={motion.translateY}>
+                <View style={styles.metricSprite}><VisualSprite id={v.sprite} scale={4} /></View>
+              </VisualFadeUp>
+            ) : null}
+            <VisualFadeUp delay={motion.valueDelay} duration={motion.duration} translateY={motion.translateY}>
+              <ThemedText type="display" style={[styles.metricValue, { color: accent }]}>{v.value}</ThemedText>
+            </VisualFadeUp>
+            {v.detail ? (
+              <VisualFadeUp delay={motion.detailDelay} duration={motion.duration} translateY={motion.translateY}>
+                <ThemedText style={styles.metricDetail}>{v.detail}</ThemedText>
+              </VisualFadeUp>
+            ) : null}
           </View>
         );
+        }
 
       case 'bars': {
         // `value` is a relative number on the author's own scale; `displayValue` is the label they
         // wrote for it. Normalise against the largest so the longest bar fills the track.
         const items: any[] = v.items ?? [];
         const max = Math.max(1, ...items.map((i) => Number(i.value) || 0));
+        const hasSprites = items.some((item) => Boolean(item.sprite));
         return (
-          <View style={{ gap: Spacing.two }}>
+          <View style={styles.barList}>
             {items.map((i, n) => pressable(i, n,
-              <Animated.View entering={FadeInDown.delay(n * 70).duration(350)} key={n} style={[styles.chartRow, i.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
-                <View style={styles.rowBetween}>
-                  <VisualSprite id={i.sprite} size={22} />
-                  <ThemedText type="small" style={{ flex: 1 }}>{i.label}</ThemedText>
-                  <ThemedText type="smallBold" style={{ color: accent }}>{i.displayValue ?? String(i.value)}</ThemedText>
-                </View>
-                <Bar percent={((Number(i.value) || 0) / max) * 100} color={accent} delay={n * 80} />
+              <Animated.View entering={FadeInDown.delay(n * 70).duration(350)} key={n} style={[styles.barRow, i.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
+                {hasSprites ? <View style={styles.barSprite}><VisualSprite id={i.sprite} size={20} /></View> : null}
+                <ThemedText type="small" numberOfLines={2} style={styles.barLabel}>{i.label}</ThemedText>
+                <Bar percent={((Number(i.value) || 0) / max) * 100} color={accent} delay={n * 80} horizontal />
+                <ThemedText type="smallBold" numberOfLines={1} style={[styles.barValue, { color: accent }]}>{i.displayValue ?? String(i.value)}</ThemedText>
               </Animated.View>
             ))}
           </View>
@@ -175,12 +371,12 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
       case 'comparison': {
         const rows: any[] = v.rows ?? [];
         return (
-          <View style={{ gap: Spacing.two }}>
+          <View style={styles.comparisonRows}>
             {rows.map((r, n) => pressable(r, n,
-              <Animated.View entering={FadeInDown.delay(n * 70).duration(350)} key={n} style={[styles.chartRow, r.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
-                <View style={styles.rowBetween}>
-                  <ThemedText type="small" style={{ flex: 1 }}>{r.label}</ThemedText>
-                  <ThemedText type="smallBold" style={{ color: accent }}>{r.value}</ThemedText>
+              <Animated.View entering={FadeInDown.delay(n * 70).duration(350)} key={n} style={[styles.comparisonRow, r.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
+                <View style={styles.comparisonBetween}>
+                  <ThemedText type="small" style={styles.comparisonLabel}>{r.label}</ThemedText>
+                  <ThemedText type="smallBold" style={styles.comparisonValue}>{r.value}</ThemedText>
                 </View>
                 {typeof r.percent === 'number' ? <Bar percent={r.percent} color={accent} delay={n * 80} /> : null}
               </Animated.View>
@@ -279,22 +475,29 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
 
       case 'flow': {
         const nodes: any[] = v.nodes ?? [];
+        if (!flowMotion) return null;
         return (
           <View>
             {nodes.map((nd, n) => {
               const last = n === nodes.length - 1;
-              const nodeAccent = nd.color ?? accent;
+              const nodeAccent = nd.color ?? FLOW_ORCHID;
+              const nodeMotion = flowMotion.nodes[n];
               return (
-                <Animated.View entering={FadeInDown.delay(n * 70).duration(350)} key={n} style={styles.flowRow}>
-                  <View style={styles.flowRail} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-                    <View style={[styles.flowDot, last && styles.flowDotLast, { backgroundColor: last ? nodeAccent : theme.mutedForeground + '73' }]} />
-                    {!last ? <View style={[styles.flowConnector, { backgroundColor: theme.primary + '3D' }]} /> : null}
-                  </View>
+                <Animated.View
+                  entering={flowMotion.duration === 0
+                    ? FadeIn.duration(0)
+                    : FadeInDown
+                      .delay(nodeMotion.entranceDelay)
+                      .duration(flowMotion.duration)
+                      .withInitialValues({ opacity: 0, transform: [{ translateY: flowMotion.translateY }] })}
+                  key={n}
+                  style={styles.flowRow}>
+                  <AnimatedFlowRail accent={nodeAccent} last={last} motion={nodeMotion} />
                   {pressable(nd, n,
-                    <View key={n} style={[styles.flowContent, nd.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
-                      <VisualSprite id={nd.sprite} size={24} />
-                      <ThemedText type={last ? 'smallBold' : 'small'} style={{ flex: 1 }}>{nd.label}</ThemedText>
-                      {nd.value ? <ThemedText type="smallBold" style={{ color: nodeAccent }}>{nd.value}</ThemedText> : null}
+                    <View key={n} style={[styles.flowContent, last && styles.flowContentLast, nd.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
+                      <VisualSprite id={nd.sprite} scale={1.5} />
+                      <ThemedText type="small" style={[styles.flowLabel, last && { color: nodeAccent }]}>{nd.label}</ThemedText>
+                      {nd.value ? <ThemedText type="smallBold" style={[styles.flowValue, { color: last ? nodeAccent : '#A79DB5' }]}>{nd.value}</ThemedText> : null}
                     </View>)}
                 </Animated.View>
               );
@@ -324,6 +527,11 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
             : pad.top + (index / Math.max(count - 1, 1)) * (height - pad.top - pad.bottom);
         }
         const coordinates = points.map((_, index) => `${String(x(index))},${String(y(index))}`).join(' ');
+        const lineLength = Math.max(1, points.slice(1).reduce((total, _, index) => {
+          const dx = x(index + 1) - x(index);
+          const dy = y(index + 1) - y(index);
+          return total + Math.sqrt(dx * dx + dy * dy);
+        }, 0));
         const area = `${String(pad.left)},${String(height)} ${coordinates} ${String(width - pad.right)},${String(height)}`;
         const spacing = (width - pad.left - pad.right) / Math.max(count - 1, 1);
         const longestValue = Math.max(1, ...points.map((point) => String(point.value).length));
@@ -331,10 +539,10 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
         const staggerLabels = spacing < longestValue * valueFontSize * 0.62;
         return (
           <View style={{ gap: Spacing.two }}>
-            <Animated.View entering={FadeIn.duration(900)}>
+            <View>
             <Svg width="100%" height={height} viewBox={`0 0 ${String(width)} ${String(height)}`} accessible={false}>
               <Polygon points={area} fill={accent + '24'} />
-              <Polyline points={coordinates} fill="none" stroke={accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <DrawnPolyline points={coordinates} length={lineLength} color={accent} />
               {points.map((point, index) => (
                 <Circle
                   key={`point-${String(index)}`}
@@ -360,7 +568,7 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
                 </SvgText>
               ))}
             </Svg>
-            </Animated.View>
+            </View>
             <View style={styles.lineLabels}>
               {points.map((point, index) => point.explain ? (
                 <SpringPressable
@@ -470,37 +678,67 @@ export function LessonVisual({ visual }: { visual: AnimatedVisual }) {
    * order — a title, a label, a number, another label — with nothing saying what is being compared.
    * `image` is the role because that is what this is: a graphic with a description.
    */
-  return (
-    <Card
-      style={{ gap: Spacing.two }}
-      accessible={!interactive}
-      accessibilityRole={interactive ? undefined : 'image'}
-      accessibilityLabel={interactive ? undefined : chartLabel(v)}
-    >
-      {['bars', 'flow', 'grid'].includes(v.type) ? <VisualSprite id={v.sprite} size={38} /> : null}
-      {v.title ? <ThemedText type="smallBold">{v.title}</ThemedText> : null}
+  const contents = (
+    <>
+      {HEADER_SPRITE_TYPES.has(v.type)
+        ? v.type === 'flow'
+          ? <VisualHeaderMark id={v.sprite} delay={flowMotion?.headerDelay} scale={2.4} />
+          : <VisualHeaderMark id={v.sprite} />
+        : null}
+      {v.title && v.type === 'flow' && flowMotion ? (
+        <VisualFadeUp delay={flowMotion.titleDelay} duration={flowMotion.duration} translateY={flowMotion.translateY}>
+          <ThemedText type="smallBold" style={styles.flowHeader}>{v.title}</ThemedText>
+        </VisualFadeUp>
+      ) : v.title && v.type !== 'metric' ? (
+        <ThemedText type="smallBold" style={v.type === 'comparison' ? styles.comparisonHeader : undefined}>{v.title}</ThemedText>
+      ) : null}
       {body}
       {interactive && openRow === null ? (
-        <ThemedText type="small" themeColor="mutedForeground" style={styles.prompt}>
+        <ThemedText type="small" themeColor="mutedForeground" style={[styles.prompt, v.type === 'comparison' && styles.comparisonPrompt]}>
           Tap any of these and Atlas will explain it
         </ThemedText>
       ) : null}
       {selected?.explain ? (
-        <View style={styles.atlasExplanation}>
-          <Atlas size={44} expression="happy" interactive={false} />
-          <View style={[styles.explain, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '3D' }]}>
-            <ThemedText type="small" themeColor="textSecondary">{selected.explain}</ThemedText>
-          </View>
-        </View>
+        <VisualAtlasExplanation key={`visual-atlas-${String(openRow)}`} text={selected.explain} />
       ) : null}
+    </>
+  );
+
+  const accessibility = {
+    accessible: !interactive,
+    accessibilityRole: interactive ? undefined : ('image' as const),
+    accessibilityLabel: interactive ? undefined : chartLabel(v),
+  };
+
+  if (bare) {
+    return <View style={[styles.bare, v.type === 'comparison' && styles.comparisonBare]} {...accessibility}>{contents}</View>;
+  }
+
+  return (
+    <Card style={{ gap: Spacing.two }} {...accessibility}>
+      {contents}
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
+  bare: { width: '100%', gap: Spacing.two },
+  metric: { width: '100%', alignItems: 'center', gap: 6, paddingVertical: 12 },
+  metricTitle: { color: 'rgba(242,239,247,0.70)', textAlign: 'center', fontSize: 11, lineHeight: 15, fontWeight: '600', letterSpacing: 0.3 },
+  metricSprite: { paddingVertical: 4 },
+  metricValue: { fontSize: 36, lineHeight: 40, letterSpacing: -0.9, fontVariant: ['tabular-nums'] },
+  metricDetail: { color: 'rgba(242,239,247,0.80)', textAlign: 'center', fontSize: 13, lineHeight: 18 },
   track: { height: 10, borderRadius: Radius.sm, overflow: 'hidden' },
   fill: { height: '100%', borderRadius: Radius.sm },
   rowBetween: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  comparisonBare: { gap: 12 },
+  comparisonHeader: { fontSize: 13, lineHeight: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.07)', paddingBottom: 8 },
+  comparisonRows: { gap: 10 },
+  comparisonRow: { paddingHorizontal: 6, paddingVertical: 4, borderRadius: Radius.md },
+  comparisonBetween: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },
+  comparisonLabel: { flex: 1, fontSize: 12, lineHeight: 15, opacity: 0.8 },
+  comparisonValue: { flexShrink: 0, fontSize: 12.5, lineHeight: 16, fontVariant: ['tabular-nums'] },
+  comparisonPrompt: { fontSize: 11, lineHeight: 15 },
   legend: { gap: 4 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   swatch: { width: 10, height: 10, borderRadius: 3 },
@@ -510,17 +748,35 @@ const styles = StyleSheet.create({
   gridCell: { flex: 1, gap: 2, padding: Spacing.two, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
   lineLabels: { flexDirection: 'row', alignItems: 'flex-start' },
   lineLabel: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 2, paddingVertical: 4 },
-  flowRow: { flexDirection: 'row', alignItems: 'stretch', gap: Spacing.two + 2, minHeight: 44 },
+  flowHeader: { width: '100%', fontSize: 13, lineHeight: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.07)', paddingBottom: 8 },
+  flowRow: { flexDirection: 'row', alignItems: 'stretch', gap: Spacing.two + 4, minHeight: 44 },
   flowRail: { width: 12, alignItems: 'center', alignSelf: 'stretch' },
-  flowDot: { width: 7, height: 7, marginTop: 13, borderRadius: Radius.pill },
-  flowDotLast: { width: 11, height: 11, marginTop: 11 },
-  flowConnector: { width: StyleSheet.hairlineWidth, flex: 1, minHeight: 14, marginTop: 3 },
-  flowContent: { flex: 1, minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.one, paddingVertical: Spacing.one, borderRadius: Radius.md },
+  flowDotWrap: { position: 'relative', width: 11, height: 18, alignItems: 'center', justifyContent: 'center' },
+  flowDotWrapLast: { height: 19 },
+  flowArrivalRing: { position: 'absolute', width: 11, height: 11, borderRadius: Radius.pill, borderWidth: 2 },
+  flowDot: { width: 7, height: 7, borderRadius: Radius.pill },
+  flowDotLast: { width: 11, height: 11 },
+  flowConnector: { position: 'relative', width: StyleSheet.hairlineWidth, flex: 1, minHeight: 14, marginBottom: 4, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.14)' },
+  flowSignal: { position: 'absolute', left: 0, top: 0, right: 0 },
+  flowPressable: { flex: 1, minWidth: 0 },
+  flowContent: { flex: 1, minWidth: 0, minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.one, paddingBottom: 12, borderRadius: Radius.md },
+  flowContentLast: { paddingBottom: 0 },
+  flowLabel: { flex: 1, minWidth: 0, color: '#F2EFF7', fontSize: 13.5, lineHeight: 18, fontWeight: '600' },
+  flowValue: { flexShrink: 1, maxWidth: '46%', textAlign: 'right', fontSize: 12, lineHeight: 16, fontVariant: ['tabular-nums'] },
   chartRow: { minHeight: 44, justifyContent: 'center', gap: 4, paddingHorizontal: Spacing.one, paddingVertical: Spacing.one, borderRadius: Radius.md },
+  barPressable: { width: '100%' },
+  barList: { gap: 5 },
+  barRow: { minHeight: 30, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4, paddingVertical: 2, borderRadius: Radius.md },
+  barTrack: { flex: 1 },
+  barSprite: { width: 20, alignItems: 'center', justifyContent: 'center' },
+  barLabel: { width: 110, flexShrink: 0, textAlign: 'right', fontSize: 11.5, lineHeight: 15 },
+  barValue: { width: 54, flexShrink: 0, fontSize: 12, lineHeight: 15, fontVariant: ['tabular-nums'] },
   unitKey: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pictographHeader: { minHeight: 44, paddingVertical: Spacing.one },
   marks: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 3 },
-  prompt: { textAlign: 'center', paddingVertical: Spacing.one },
+  prompt: { textAlign: 'center', paddingVertical: 2, fontSize: 12.5, lineHeight: 17 },
+  visualHeader: { alignItems: 'center', paddingBottom: 2 },
   atlasExplanation: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
-  explain: { flex: 1, padding: Spacing.two, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
+  explain: { position: 'relative', flex: 1, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 16, borderTopLeftRadius: 4, borderWidth: StyleSheet.hairlineWidth, backgroundColor: '#14121C', borderColor: 'rgba(255,255,255,0.12)' },
+  explainTail: { position: 'absolute', left: -6, top: 13, width: 10, height: 10, transform: [{ rotate: '45deg' }], backgroundColor: '#14121C', borderLeftWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)' },
 });

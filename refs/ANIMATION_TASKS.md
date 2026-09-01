@@ -7,6 +7,32 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[!]` blocked · `[-]` 
 
 ---
 
+## CURRENT RELEASE VISUAL TASKS — 2026-08-31
+
+- [~] **300/300 live-web-to-iOS lesson verification.** Complete and record both versions of every
+      lesson. Compare every screen, control state, gesture, Atlas response, graph, transition,
+      feedback state, Reduced Motion behavior, typography, spacing, color, radius, and safe-area
+      treatment. Store one machine-readable verdict per lesson; do not infer 300 passes from a
+      shared renderer or the 4,050-step content audit. Investing Fundamentals lessons 1 and 2 now
+      have accepted native recordings (2/300); 298 native recordings and all live-web evidence
+      remain. Lesson 2 validates all six authored interaction families and both graph controls.
+      All 300 hook openers now retain the web title/visual/outcome timing and inline `Begin` CTA;
+      renderer audits account for all 1,321 `AnimatedVisual` entries and all 11 authored raw SVGs.
+      Release-simulator inspection confirms both paths render. Quantitative Analysis lesson 24's
+      raw SVG still has overlapping authored annotations at phone width and needs web adjudication.
+- [~] **Goldie App Store screenshot production.** A current-Release Goldie run passes doctor,
+      capture, framing and verification for five 1320×2868 drafts, and all five pass human visual
+      review without clipping or stale lesson UI. Regenerate after source freeze using the approved
+      screenshot storyboard. Recheck the paper-trade fixture timestamp plus all required device
+      canvases, status-bar treatment, safe-area crops, copy, account fixtures, visual consistency,
+      export resolution and App Store ordering.
+- [~] **README visual/documentation polish.** Product facts, repository map, Goldie workflow,
+      quality/release gates, accessible runtime data-flow diagram, and status now match the current
+      tree. Add representative release-candidate screenshots after the UI stabilizes. Counts are
+      reconciled against the current tree/history (888 commits at `2b2408e` today).
+
+---
+
 ## RUNNING NOW
 
 - [~] **60-lesson recorded sweep** — 12 pathways × 5 lessons, each recorded at ~48fps, driven to

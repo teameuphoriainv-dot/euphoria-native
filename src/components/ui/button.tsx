@@ -1,10 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, StyleSheet, View, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon, type UIconName } from '@/components/ui-icon';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
+import { LessonColors, LessonDesign } from '@/constants/lesson-design';
 import { useTheme } from '@/hooks/use-theme';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Spring } from '@/shared/motion/tokens';
@@ -29,6 +30,7 @@ export function Button({
   style?: ViewStyle;
 }) {
   const theme = useTheme();
+  const lesson = theme === LessonColors;
   const bg = variant === 'primary' ? theme.primary : 'transparent';
   const fg = variant === 'primary' ? '#fff' : theme.text;
   const border = variant === 'outline' ? theme.border : 'transparent';
@@ -40,6 +42,7 @@ export function Button({
       disabled={disabled || loading}
       style={[
         styles.base,
+        lesson && styles.lessonBase,
         { backgroundColor: bg, borderColor: border, borderWidth: variant === 'outline' ? StyleSheet.hairlineWidth : 0, opacity: disabled ? 0.5 : 1 },
         full && styles.full,
         style,
@@ -135,8 +138,11 @@ export function SlabButton({
   accessibilityLabel?: string;
 }) {
   const theme = useTheme();
+  const lesson = theme === LessonColors;
   const reduced = useReducedMotion();
   const press = useSharedValue(0);
+  const depth = lesson ? LessonDesign.cta.depth : SLAB;
+  const radius = lesson ? LessonDesign.cta.radius : Radius.pill;
 
   const neutral = tone === 'neutral';
   const premium = tone === 'premium';
@@ -153,7 +159,7 @@ export function SlabButton({
   const faceStyle = useAnimatedStyle(() =>
     reduced
       ? { opacity: 1 - press.get() * 0.18 }
-      : { transform: [{ translateY: press.get() * SLAB }] },
+      : { transform: [{ translateY: press.get() * depth }] },
   );
 
   return (
@@ -162,11 +168,11 @@ export function SlabButton({
       accessibilityLabel={accessibilityLabel ?? label}
       disabled={disabled || loading}
       scaleTo={1}
-      onPressIn={() => press.set(withSpring(1, Spring.press))}
-      onPressOut={() => press.set(withSpring(0, Spring.press))}
-      style={[styles.slabWrap, { opacity: disabled ? 0.5 : 1 }, full && styles.full, style]}>
-      <View style={[styles.slab, { backgroundColor: slab }]} />
-      <Animated.View style={[styles.face, { backgroundColor: face }, faceStyle]}>
+      onPressIn={() => press.set(lesson ? withTiming(1, { duration: 200, easing: Easing.ease }) : withSpring(1, Spring.press))}
+      onPressOut={() => press.set(lesson ? withTiming(0, { duration: 200, easing: Easing.ease }) : withSpring(0, Spring.press))}
+      style={[styles.slabWrap, { opacity: disabled ? 0.5 : 1, paddingBottom: depth }, full && styles.full, lesson && full && styles.lessonFull, style]}>
+      <View style={[styles.slab, { backgroundColor: slab, top: depth, borderRadius: radius }]} />
+      <Animated.View style={[styles.face, lesson && styles.lessonFace, { backgroundColor: face, borderRadius: radius }, faceStyle]}>
         {/* Absolutely positioned and FIRST, so the label and any icon paint on top of it. The
             radius is repeated here rather than inherited: an absolute child does not clip to its
             parent's corners on iOS, and without it the ramp squares off the pill. */}
@@ -175,7 +181,7 @@ export function SlabButton({
             colors={[theme.gradientFrom, theme.premiumFrom, theme.premiumTo]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
-            style={[StyleSheet.absoluteFill, { borderRadius: Radius.pill }]}
+            style={[StyleSheet.absoluteFill, { borderRadius: radius }]}
           />
         ) : null}
         {loading ? (
@@ -190,7 +196,7 @@ export function SlabButton({
               * The face uses minHeight, not height, so a scaled label grows the button and the
               * slab grows with it.
               */}
-            <ThemedText type="heading" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ color: ink, fontSize: FontSize.bodyLg }}>{label}</ThemedText>
+            <ThemedText type="heading" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ color: ink, fontFamily: lesson ? Fonts.bold : undefined, fontSize: lesson ? 16 : FontSize.bodyLg, lineHeight: lesson ? 24 : undefined }}>{label}</ThemedText>
           </>
         )}
       </Animated.View>
@@ -208,6 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.two,
   },
+  lessonBase: { minHeight: 44, borderRadius: 12 },
   /** Reserves the travel so a pressed button never reflows what sits under it. */
   slabWrap: { paddingBottom: SLAB },
   /**
@@ -225,5 +232,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.two,
   },
+  lessonFace: { minHeight: 44, borderRadius: 12 },
   full: { alignSelf: 'stretch' },
+  lessonFull: { alignSelf: 'center', width: '100%', maxWidth: 600 },
 });

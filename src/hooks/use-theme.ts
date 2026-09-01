@@ -12,9 +12,11 @@
  * `system` is the default: it respects a setting the user configured once, at the OS level, and
  * never has to think about again. A bare light/dark toggle would force a choice from everyone.
  */
+import { useContext } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
+import { ThemeOverrideContext } from '@/lib/design-context';
 import { useApp } from '@/lib/store';
 
 /** 'light' or 'dark' — the resolved mode, after the preference and the OS are both consulted. */
@@ -29,5 +31,7 @@ export function useThemeMode(): 'light' | 'dark' {
 }
 
 export function useTheme() {
-  return Colors[useThemeMode()];
+  const override = useContext(ThemeOverrideContext);
+  const mode = useThemeMode();
+  return override ?? Colors[mode];
 }

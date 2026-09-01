@@ -5,7 +5,7 @@
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -18,6 +18,7 @@ import { Card } from '@/components/ui/card';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { phaseOf, startedCourses } from '@/lib/learner-phase';
+import { PixelSpriteView, lightbulb } from '@/lib/pixel';
 import { roundFor, shuffleSeeded } from '@/lib/term-bank';
 import { useApp } from '@/lib/store';
 import { NumberRollup } from '@/shared/motion/number-rollup';
@@ -60,14 +61,15 @@ export default function TermMatch() {
   const [matched, setMatched] = useState<string[]>([]);
   const [wrong, setWrong] = useState<string[]>([]);
   const [elapsed, setElapsed] = useState(0);
+  const [started, setStarted] = useState(false);
 
   const done = matched.length === pairs.length;
 
   useEffect(() => {
-    if (done) return;
+    if (!started || done) return;
     const t = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(t);
-  }, [done]);
+  }, [done, started]);
 
   // Finishing a round pays XP, so the league is climbable from more than one surface. The store
   // caps this to once per local day, because unlike a lesson a game has no permanent id to dedupe
@@ -142,11 +144,29 @@ export default function TermMatch() {
         <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.back} hitSlop={10} accessibilityRole="button" accessibilityLabel="Back">
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
-        <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingLg }}>Term Match</ThemedText>
-        <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.body, fontVariant: ['tabular-nums'] }}>{time}</ThemedText>
+        <PixelSpriteView sprite={lightbulb} size={26} />
+        <ThemedText type="title" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ flex: 1, fontSize: FontSize.headingLg }}>Term Match</ThemedText>
+        {started ? <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.body, fontVariant: ['tabular-nums'] }}>{time}</ThemedText> : null}
       </View>
 
-      <View style={styles.board}>
+      {!started ? (
+        <ScrollView contentContainerStyle={styles.intro} showsVerticalScrollIndicator={false}>
+          <Animated.View entering={FadeIn} style={styles.introInner}>
+            <PixelSpriteView sprite={lightbulb} size={68} />
+            <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.introTitle}>Term Match</ThemedText>
+            <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.introCopy}>
+              Tap one finance term and its literal definition to lock every pair.
+            </ThemedText>
+            <SlabButton
+              label="Start"
+              accessibilityLabel="Start Term Match"
+              full
+              onPress={() => { setStarted(true); }}
+              style={styles.introButton}
+            />
+          </Animated.View>
+        </ScrollView>
+      ) : <View style={styles.board}>
         <View style={styles.col}>
           {pairs.map((p) => (
             <SpringPressable key={p.id} disabled={matched.includes(p.id)} onPress={() => { pick('term', p.id); }}>
@@ -165,7 +185,7 @@ export default function TermMatch() {
             </SpringPressable>
           ))}
         </View>
-      </View>
+      </View>}
 
       {done && (
         <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.resultsWrap}>
@@ -197,6 +217,11 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   back: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+  intro: { flexGrow: 1, paddingHorizontal: Spacing.four, paddingVertical: Spacing.four },
+  introInner: { flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' },
+  introTitle: { fontSize: FontSize.titleSm, textAlign: 'center', marginTop: Spacing.three },
+  introCopy: { textAlign: 'center', marginTop: Spacing.two },
+  introButton: { alignSelf: 'stretch', marginTop: Spacing.five },
   board: { flexDirection: 'row', gap: Spacing.three, padding: Spacing.three, flex: 1, marginTop: Spacing.three },
   col: { flex: 1, gap: Spacing.two + 4 },
   cell: { minHeight: 68, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center', padding: Spacing.two + 4 },

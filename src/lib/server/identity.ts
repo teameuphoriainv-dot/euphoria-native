@@ -24,8 +24,8 @@
  * authentication bypass with extra steps, and it is one of the exact patterns the vibe-coding
  * research lists under broken access control.
  *
- * With `SUPABASE_JWT_SECRET` unset — which is the state today — every request is anonymous and
- * behaviour is identical to before this file existed. It activates the moment the secret lands.
+ * ES256 sessions verify against the configured project's JWKS and need no shared secret. The
+ * legacy HS256 path still requires `SUPABASE_JWT_SECRET`; when it is absent, HS256 fails closed.
  */
 
 /** Base64url → bytes. JWTs are base64url, which is not what atob expects. */
@@ -241,8 +241,6 @@ export function bearer(request: Request): string | null {
  * an isolate recycle to start honouring it.
  */
 export async function verifiedUserId(request: Request, now?: number): Promise<string | null> {
-  const secret = process.env.SUPABASE_JWT_SECRET;
-  if (!secret) return null;
   const token = bearer(request);
-  return token ? verifiedSubject(token, secret, now) : null;
+  return token ? verifiedSubject(token, process.env.SUPABASE_JWT_SECRET ?? '', now) : null;
 }

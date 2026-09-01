@@ -1,19 +1,28 @@
 /**
  * Learn — the Duolingo-style pathway trail. A horizontal course rail picks one of the 12
- * real curriculum courses; below it the serpentine lesson nodes (done / current / locked)
- * render that course's REAL lessons, tinted with the course accent. Progress comes from
- * `completedLessons` in the store; node art comes from <LessonArt>, which derives its own
- * metaphor from the course + lesson title.
+ * real curriculum courses; below it the circular saga nodes (done / current / locked) render
+ * that course's real lessons in the production web pathway language. Progress comes from
+ * `completedLessons` in the store.
  */
 import { router } from 'expo-router';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
+import Svg, { Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
 import { CourseMark } from '@/components/art/course-mark';
-import { assignLessonArt } from '@/components/lesson-art';
 import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
 import { entitled, type Refusal } from '@/lib/entitlement';
@@ -27,44 +36,104 @@ import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { PixelSpriteView, checkBadge, coin, lock } from '@/lib/pixel';
 import { ProfileButton } from '@/components/profile-button';
+import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
 
-/* ── UNIT 7: THE LIST MODEL, from Promova 138799 in pixels ───────────────────────────────
-   The serpentine could not reach 10 nodes and two attempts proved it (§22 C33, and again this
-   session with the header already fixed). The reason is structural: a serpentine spends horizontal
-   space on the curve and squeezes titles into a 130pt side gutter, so the pitch must clear a 36pt
-   two-line title AND a >=44pt tap target at once. Those two fight, and the loser is the artifact —
-   at GAP 58 the count hit 10 while "Complete" vanished under the active node's halo.
+/* Production web 49e saga geometry. The lesson state belongs to the pod itself: one solid dome,
+   one darker front lip, and one glyph. Rings and lesson art made the three states look like three
+   different components, while the compact list erased the sense of a journey altogether. */
+const SAGA_NODE = 56;
+const SAGA_CURRENT = 64;
+const SAGA_LIP = 4;
+const SAGA_PITCH = 124;
+const SAGA_LABEL_WIDTH = 136;
+const SAGA_LABEL_HEIGHT = 46;
+const SAGA_AMPLITUDE = 48;
+const SAGA_CURRENT_COLOR = '#22C55E';
+const SAGA_LOCKED_COLOR = '#17151F';
+const SAGA_UPCOMING_COLOR = '#1B1825';
+const SAGA_CHALLENGE_COLOR = '#F59E0B';
 
-   PROMOVA DID NOT ABANDON THE PATH. IT STRAIGHTENED IT. Measured off screen 138799:
+function sagaSegment(from: { x: number; y: number }, to: { x: number; y: number }) {
+  const bend = (to.y - from.y) / 2;
+  return `M ${String(from.x)} ${String(from.y)} C ${String(from.x)} ${String(from.y + bend)}, ${String(to.x)} ${String(to.y - bend)}, ${String(to.x)} ${String(to.y)}`;
+}
 
-     connector      one thin vertical line, left edge, through every node centre
-     status circle  ~24pt ON the line — done = fill + check, active = dark + bolt, locked = flat grey
-     title          ONE line, left-aligned right of the line, ~15pt
-     trailing glyph a small lesson-type icon at the far right
-     row pitch      ~43pt
-     rows visible   FOURTEEN
+function shade(hex: string, amount: number) {
+  const value = hex.replace('#', '');
+  if (!/^[0-9A-Fa-f]{6}$/.test(value)) return hex;
 
-   THE INSIGHT THAT DISSOLVES THE PROBLEM: the circle is not the tap target — THE ROW IS. A 24pt
-   circle costs nothing in reachability when the pressable is 370x56. C33's bind was that the node
-   had to be both the visual mark and the 44pt target. A row has to be neither small nor cramped.
+  const factor = 1 - amount;
+  const channel = (offset: number) => Math.round(Number.parseInt(value.slice(offset, offset + 2), 16) * factor)
+    .toString(16)
+    .padStart(2, '0');
+  return `#${channel(0)}${channel(2)}${channel(4)}`;
+}
 
-   EUPHORIA'S NUMBERS, adapted rather than copied:
-     ROW 56      12pt above the HIG minimum, and 587 / 56 = 10.5 — to be MEASURED, not assumed
-     DOT 28      bigger than Promova's 24 because ours carries a course accent worth seeing
-     title 15pt  up to two lines, with ~274pt of width instead of 130 — the old gutter is the only
-                 reason "Building a Rational Investment Frame…" ever had to truncate
-     mark 24pt   the AUTHORED per-lesson mark (§22 C16's 300 of them) moves to the right edge, where
-                 Promova puts its type glyph. This is the first layout that gives them room.
+function SagaCrown() {
+  return (
+    <Svg width={25} height={25} viewBox="0 0 32 32" aria-hidden>
+      <Path d="M4 9.5 10.5 15 16 6l5.5 9L28 9.5l-2.2 14H6.2L4 9.5Z" fill="#FFFFFF" />
+      <Path d="M7 26h18" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" />
+    </Svg>
+  );
+}
 
-   Locked rows keep their titles (4/4, §6.6.3) and tapping one opens the gate sheet. */
-const ROW = 56;
-const DOT = 28;
+function SagaBolt() {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 30 30" aria-hidden>
+      <Path d="M17.2 2.8 6.8 17h7l-1 10.2L23.2 13h-7l1-10.2Z" fill="#FFFFFF" />
+    </Svg>
+  );
+}
+
+/**
+ * The header flame uses the same authored pixel frames as the warmup, then adds one small physical
+ * beat so that the motion survives at 16pt: the crest flickers while the mark lifts, leans, and
+ * breathes by only two points. Keeping the wrapper here makes this a streak-specific motion cue,
+ * rather than turning every flame in the app into an idle loop.
+ */
+function LivingStreakFlame() {
+  const reduced = useReducedMotion();
+  const phase = useSharedValue(0);
+
+  useEffect(() => {
+    if (reduced) {
+      cancelAnimation(phase);
+      phase.set(0);
+      return;
+    }
+
+    phase.set(
+      withRepeat(
+        withTiming(1, { duration: 620, easing: Easing.inOut(Easing.sin) }),
+        -1,
+        true,
+      ),
+    );
+    return () => cancelAnimation(phase);
+  }, [phase, reduced]);
+
+  const motionStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: interpolate(phase.get(), [0, 1], [1, -2]) },
+      { rotate: `${String(interpolate(phase.get(), [0, 1], [-3, 3]))}deg` },
+      { scale: interpolate(phase.get(), [0, 1], [0.96, 1.06]) },
+    ],
+  }));
+
+  return (
+    <Animated.View style={[styles.streakFlame, motionStyle]} accessible={false}>
+      <PixelSpriteView sprite={flameSprite} size={16} play="loop" />
+    </Animated.View>
+  );
+}
 
 
 export default function Learn() {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
+  const sagaWidth = Math.min(width - Spacing.four * 2, 460);
 
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
@@ -113,9 +182,6 @@ export default function Learn() {
   }, [activeCourseId, attempt]);
 
   const lessons = useMemo(() => loaded?.lessons ?? [], [loaded]);
-  /* One distinct mark per lesson, assigned across the WHOLE course rather than per row — a row
-   * cannot know what the row above already took. See assignLessonArt. */
-  const lessonArt = useMemo(() => assignLessonArt(lessons.map((l) => l.title)), [lessons]);
   const trailCourseId = loaded?.id ?? activeCourseId;
   // Keyed to the course actually ON SCREEN, not the one being switched to. During the async
   // loadCourseLessons swap `loaded.id` is still the outgoing course, so accenting by
@@ -133,6 +199,15 @@ export default function Learn() {
   // the active node is the first unfinished lesson; -1 once the course is complete
   const current = doneFlags.indexOf(false);
   const total = lessons.length;
+  const units = useMemo(
+    () => Array.from({ length: Math.ceil(total / LESSONS_PER_UNIT) }, (_, unitIndex) => ({
+      index: unitIndex,
+      start: unitIndex * LESSONS_PER_UNIT,
+      lessons: lessons.slice(unitIndex * LESSONS_PER_UNIT, (unitIndex + 1) * LESSONS_PER_UNIT),
+      title: unitNameFor(trailCourseId, unitIndex * LESSONS_PER_UNIT) ?? `Level ${String(unitIndex + 1)}`,
+    })),
+    [lessons, total, trailCourseId],
+  );
 
   /*
    * The entitlement gate for lessons. Distinct from `locked` below, which is a PROGRESSION lock
@@ -207,7 +282,7 @@ export default function Learn() {
                 accessible
                 accessibilityLabel={`${String(streak)} day streak`}
                 style={[styles.countPill, styles.streakPill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-                <UIcon name="flame" size={14} color={theme.streak} />
+                <LivingStreakFlame />
                 <ThemedText type="smallBold" style={{ color: theme.streak }}>{streak}</ThemedText>
               </View>
             )}
@@ -300,145 +375,163 @@ export default function Learn() {
             )}
           </View>
         ) : (
-          <View style={{ marginTop: Spacing.two, opacity: stale ? 0.35 : 1 }}>
-            {lessons.map((lesson, i) => {
-              const done = doneFlags[i];
-              const active = i === current;
-              const locked = current >= 0 && i > current;
-              /* Milestone every 5th. 3 of 6 reference paths punctuate the path with a reward marker,
-                 and this differentiates because only every fifth row carries it. */
-              const milestone = (i + 1) % 5 === 0;
-              const dotFill = done ? accent : active ? accent + '2E' : theme.card;
-              const dotRing = done ? accent : active ? accent : theme.border;
-              const first = i === 0;
-              const last = i === lessons.length - 1;
-              /*
-                * UNIT HEADER every fifth lesson. Audit finding (FINDINGS.md, LEARN, 4/4): every
-                * comparator scopes the list to a NAMED unit and none shows more than about six
-                * items before a divider. This screen showed 25 in one scroll with nine consecutive
-                * padlocks.
-                *
-                * A Fragment, not a wrapping View: the rows draw a connecting rail from sibling
-                * layout, and boxing them changes it.
-                *
-                * The "UNIT n · m LESSONS" line above the name was REMOVED 2026-08-25: the unit's own
-                * name says what the section is, and the count restated a number the progress bar
-                * already carries. Only the name remains.
-                */
-              const unitName = i % LESSONS_PER_UNIT === 0 ? unitNameFor(trailCourseId, i) : null;
+          <View style={[styles.sagaCourse, { width: sagaWidth, opacity: stale ? 0.35 : 1 }]}>
+            {units.map((unit) => {
+              const centerX = sagaWidth / 2;
+              const nodes = unit.lessons.map((lesson, localIndex) => {
+                const lessonIndex = unit.start + localIndex;
+                return {
+                  lesson,
+                  lessonIndex,
+                  x: centerX + Math.sin((lessonIndex / 2.5) * Math.PI) * SAGA_AMPLITUDE,
+                  y: SAGA_CURRENT / 2 + localIndex * SAGA_PITCH,
+                };
+              });
+              const sagaHeight = nodes.length
+                ? nodes[nodes.length - 1].y + SAGA_NODE / 2 + SAGA_LABEL_HEIGHT
+                : 0;
+
               return (
-                <Fragment key={i}>
-                {unitName && (
+                <View key={unit.index} style={styles.sagaUnit}>
                   <View
                     style={[
-                      styles.unitHead,
-                      /*
-                       * THE FIRST UNIT GETS NO TOP SPACE. unitHead carries marginTop AND paddingTop
-                       * so that one unit is clearly separated from the one above it, which is right
-                       * for every header except the first: there is nothing above it to separate
-                       * from, so that space landed as a blank band directly under the course chips
-                       * and pushed the whole pathway down the screen for no reason.
-                       */
-                      i === 0 && { marginTop: 0, paddingTop: 0 },
-                      i > 0 && { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                      styles.levelHeader,
+                      { backgroundColor: accent + '0D', borderColor: accent + '4D' },
                     ]}>
-                    <ThemedText type="bodyMedium" numberOfLines={2}>
-                      {unitName}
-                    </ThemedText>
+                    <ThemedText type="label" style={[styles.levelEyebrow, { color: accent }]}>LEVEL {unit.index + 1}</ThemedText>
+                    <ThemedText type="bodyMedium" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
                   </View>
-                )}
-                <SpringPressable
-                  haptic={!locked}
-                  scaleTo={0.98}
-                  onPress={() => {
-                    /*
-                     * Read NON-REACTIVELY at tap time. `entitled()` returns a fresh object, so
-                     * subscribing to it through a zustand selector gave every render a new snapshot
-                     * and looped until React threw "Maximum update depth exceeded" — the same trap
-                     * you.tsx documents at `levelProgress()`. The refusal is only needed at the
-                     * moment of the tap, so nothing has to subscribe at all.
-                     */
-                    const refusal = entitled(useApp.getState(), 'lesson');
-                    if (!refusal.ok) {
-                      setGate(refusal);
-                      return;
-                    }
-                    router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
-                  }}
-                  disabled={locked}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    locked
-                      ? `${lesson.title}. Finish the lesson before this one to unlock it.`
-                      : `${lesson.title}${done ? '. Complete' : active ? '. Start here' : ''}`
-                  }>
-                  <View style={styles.row}>
-                    {/* The connector, as two half-segments rather than one Svg path: the first row
-                        must have nothing above it and the last nothing below, which a single path
-                        through all the centres cannot express — it overshot both ends. */}
-                    <View style={styles.railCol}>
-                      {!first && (
-                        <View style={[styles.wire, { top: 0, height: (ROW - DOT) / 2, backgroundColor: done || active ? accent + '66' : theme.border }]} />
-                      )}
-                      {!last && (
-                        <View style={[styles.wire, { bottom: 0, height: (ROW - DOT) / 2, backgroundColor: done ? accent + '66' : theme.border }]} />
-                      )}
-                      <View
-                        style={[
-                          styles.dot,
-                          { backgroundColor: dotFill, borderColor: dotRing, borderWidth: active ? 2.5 : 1.5, opacity: locked ? 0.55 : 1 },
-                        ]}>
-                        {/* The glyphs inside the node are sprites; the RING is not. The ring carries
-                            the course accent and the done/active/locked state, and it is the rail's
-                            own structure — the wires above and below attach to it. Replacing it with
-                            a sprite would throw away the only thing on this row that shows state. */}
-                        {done ? (
-                          <PixelSpriteView sprite={checkBadge} size={15} />
-                        ) : locked ? (
-                          <PixelSpriteView sprite={lock} size={13} />
-                        ) : (
-                          <View style={{ width: 9, height: 9, borderRadius: 1, backgroundColor: accent }} />
-                        )}
-                      </View>
-                    </View>
 
-                    <View style={styles.rowText}>
-                      <ThemedText
-                        type={active ? 'bodyMedium' : 'body'}
-                        numberOfLines={2}
-                        style={{ fontSize: FontSize.bodySm, lineHeight: 20, color: locked ? theme.mutedForeground : theme.text }}>
-                        {lesson.title}
-                      </ThemedText>
-                      {active && <ThemedText type="label" style={{ color: accent, marginTop: 1 }}>START HERE</ThemedText>}
-                    </View>
+                  <View style={[styles.sagaTrail, { width: sagaWidth, height: sagaHeight }]}>
+                    <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={sagaWidth} height={sagaHeight}>
+                      {nodes.slice(0, -1).map((node, localIndex) => {
+                        const next = nodes[localIndex + 1];
+                        const nextDone = doneFlags[next.lessonIndex];
+                        const nextActive = next.lessonIndex === current;
+                        return (
+                          <Path
+                            key={node.lessonIndex}
+                            d={sagaSegment(node, next)}
+                            fill="none"
+                            stroke={nextDone ? accent + '66' : nextActive ? SAGA_CURRENT_COLOR + '55' : theme.border}
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                          />
+                        );
+                      })}
+                    </Svg>
 
-                    {/* Promova puts a lesson-type glyph here. Ours puts the AUTHORED per-lesson mark,
-                        which until now was squeezed inside a 66pt circle competing with an accent
-                        ring at 18% of the same hue. At 24pt on a neutral ground it finally has both
-                        contrast and room. */}
-                    <View style={styles.rowMark}>
-                      {milestone && <UIcon name="sparkle" size={13} color={theme.warning} />}
-                      {/*
-                        * The SAME metaphor art the Home hero uses. This node used to be one of
-                        * ~300 hand-authored per-lesson SVGs with a 40-mark SVG fallback behind it —
-                        * two more art systems, in an app whose identity is pixel art, for a mark
-                        * rendered at 24pt.
-                        *
-                        * `artKeyFor(title)` was ALREADY being computed here to pick that fallback,
-                        * so the path and the hero were always agreeing on the metaphor and then
-                        * drawing it two different ways. Now they draw the same sprite.
-                        *
-                        * State is opacity, as on the course rail: a sprite carries its own palette,
-                        * and muting it to one tone would throw away the thing that makes a lesson
-                        * recognisable when you scroll back to find it.
-                        */}
-                      <View style={{ opacity: active ? 1 : 0.45 }}>
-                        <PixelSpriteView sprite={lessonArt[i] ?? coin} size={24} />
-                      </View>
-                    </View>
+                    {nodes.map((node) => {
+                      const { lesson, lessonIndex } = node;
+                      const done = doneFlags[lessonIndex];
+                      const active = lessonIndex === current;
+                      const locked = current >= 0 && lessonIndex > current;
+                      const challenge = (lessonIndex + 1) % 10 === 0;
+                      const capstone = lessonIndex === lessons.length - 1;
+                      const special = challenge || capstone;
+                      const nodeSize = active ? SAGA_CURRENT : SAGA_NODE;
+                      const completedFace = challenge ? SAGA_CHALLENGE_COLOR : accent;
+                      const face = locked
+                        ? SAGA_LOCKED_COLOR
+                        : active
+                          ? SAGA_CURRENT_COLOR
+                          : done
+                            ? completedFace
+                            : SAGA_UPCOMING_COLOR;
+                      const lip = locked ? '#0C0B11' : shade(face, 0.45);
+
+                      return (
+                        <View
+                          key={lessonIndex}
+                          style={[
+                            styles.sagaStop,
+                            {
+                              left: node.x - nodeSize / 2,
+                              top: node.y - nodeSize / 2,
+                              width: nodeSize,
+                              height: nodeSize + SAGA_LIP + SAGA_LABEL_HEIGHT,
+                            },
+                          ]}>
+                          <SpringPressable
+                            haptic={!locked}
+                            scaleTo={0.91}
+                            onPress={() => {
+                              const refusal = entitled(useApp.getState(), 'lesson');
+                              if (!refusal.ok) {
+                                setGate(refusal);
+                                return;
+                              }
+                              router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
+                            }}
+                            disabled={locked}
+                            accessibilityRole="button"
+                            accessibilityState={{ disabled: locked }}
+                            accessibilityLabel={
+                              locked
+                                ? `${lesson.title}. Finish the lesson before this one to unlock it.`
+                                : `${lesson.title}${done ? '. Complete' : active ? '. Start here' : ''}`
+                            }>
+                            <View style={[styles.nodeShell, special && styles.specialNode]}>
+                              <View
+                                style={[
+                                  styles.nodeLip,
+                                  special && styles.specialFace,
+                                  { width: nodeSize, height: nodeSize, top: locked ? 3 : SAGA_LIP, backgroundColor: lip },
+                                ]}
+                              />
+                              <View
+                                style={[
+                                  styles.sagaNode,
+                                  special && styles.specialFace,
+                                  {
+                                    width: nodeSize,
+                                    height: nodeSize,
+                                    backgroundColor: face,
+                                    shadowColor: '#000000',
+                                  },
+                                ]}>
+                                <View pointerEvents="none" style={styles.nodeHighlight} />
+                                <View style={special ? styles.specialGlyph : undefined}>
+                                  {capstone && !locked ? (
+                                    <SagaCrown />
+                                  ) : challenge && !locked ? (
+                                    <SagaBolt />
+                                  ) : done ? (
+                                    <UIcon name="check" size={24} color="#FFFFFF" strokeWidth={3.25} />
+                                  ) : active ? (
+                                    <View style={styles.playIcon} />
+                                  ) : locked ? (
+                                    <UIcon name="lock" size={19} color="#777381" />
+                                  ) : (
+                                    <ThemedText type="bodyMedium" style={styles.lessonNumber}>{lesson.num}</ThemedText>
+                                  )}
+                                </View>
+                              </View>
+                            </View>
+                          </SpringPressable>
+
+                          <View
+                            pointerEvents="none"
+                            style={[
+                              styles.nodeLabel,
+                              {
+                                left: (nodeSize - SAGA_LABEL_WIDTH) / 2,
+                                top: nodeSize + SAGA_LIP + Spacing.two + (special ? 12 : 0),
+                              },
+                            ]}>
+                            <ThemedText
+                              type={active ? 'smallBold' : 'small'}
+                              numberOfLines={2}
+                              style={{ color: active ? theme.text : theme.mutedForeground, textAlign: 'center' }}>
+                              {lesson.title}
+                            </ThemedText>
+                            {active && <ThemedText type="smallBold" style={[styles.currentLabel, { color: accent }]}>Current</ThemedText>}
+                          </View>
+                        </View>
+                      );
+                    })}
                   </View>
-                </SpringPressable>
-                </Fragment>
+                </View>
               );
             })}
           </View>
@@ -476,7 +569,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   countPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
   streakPill: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
-  unitHead: { marginTop: Spacing.four, marginBottom: Spacing.two, paddingTop: Spacing.four, paddingHorizontal: Spacing.one },
+  streakFlame: { width: 18, height: 18, alignItems: 'center', justifyContent: 'center' },
   track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
   fill: { height: 6, borderRadius: Radius.chip },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
@@ -487,34 +580,58 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
   comingSoonChip: { opacity: 0.62 },
   trailScroll: { flex: 1 },
-  content: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
+  content: { alignItems: 'center', paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },
 
-  /* ── THE ROW ────────────────────────────────────────────────────────────────────────────────
-     minHeight, not height: a two-line title has to be allowed to make its own row taller rather
-     than being clipped. Most titles fit one line in ~274pt, so the common row is exactly ROW and
-     the count holds; the long ones grow and the measured count reflects that honestly. */
-  row: { minHeight: ROW, flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
-  /* Fixed width so every dot lands on the same vertical axis regardless of title length — that
-     shared axis IS the path, and one row indenting differently would break the line. */
-  railCol: { width: DOT, alignItems: 'center', alignSelf: 'stretch', justifyContent: 'center' },
-  wire: { position: 'absolute', width: 2, borderRadius: 0 },
-  /*
-   * PIXELATED NODE. This was a true circle (borderRadius: DOT / 2) and it was the last round
-   * thing on a screen whose glyphs are all pixel sprites, so the ring read as a different visual
-   * system to everything inside it.
-   *
-   * SQUARED OFF RATHER THAN REPLACED WITH A SPRITE, deliberately. PixelSpriteView takes
-   * sprite/size/scale/play/playKey/frameMs/canvas and has NO colour prop, so a sprite bakes its
-   * palette in. This ring carries the COURSE ACCENT and three states (done, active, locked), and
-   * the wires above and below attach to it. A sprite ring would need one variant per state per
-   * course accent and would still lose the accent, which is exactly what the note beside the node
-   * warns about. A small radius keeps every one of those properties and costs no extra views, on
-   * a screen that renders 25 of these.
-   */
-  dot: { width: DOT, height: DOT, borderRadius: 3, alignItems: 'center', justifyContent: 'center' },
-  rowText: { flex: 1, paddingVertical: Spacing.one },
-  /* Fixed width so titles all wrap at the same point — a mark column that shrinks with its content
-     would give every row a different text width and the left edge of nothing would line up. */
-  rowMark: { width: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 3 },
+  sagaCourse: { marginTop: Spacing.two },
+  sagaUnit: { width: '100%', marginBottom: Spacing.five },
+  levelHeader: {
+    minHeight: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 1,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderRadius: Radius.lg,
+  },
+  levelEyebrow: { letterSpacing: 1.4 },
+  levelTitle: { textAlign: 'center' },
+  sagaTrail: { position: 'relative', marginTop: 12 },
+  sagaStop: { position: 'absolute' },
+  nodeShell: {
+    position: 'relative',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.36,
+    shadowRadius: 0,
+    elevation: 4,
+  },
+  specialNode: { transform: [{ rotate: '45deg' }] },
+  nodeLip: { position: 'absolute', left: 0, borderRadius: Radius.pill },
+  sagaNode: { alignItems: 'center', justifyContent: 'center', borderRadius: Radius.pill },
+  specialFace: { borderRadius: 17 },
+  nodeHighlight: {
+    position: 'absolute',
+    top: 4,
+    left: 9,
+    right: 9,
+    height: 7,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: Radius.pill,
+  },
+  specialGlyph: { transform: [{ rotate: '-45deg' }] },
+  playIcon: {
+    width: 0,
+    height: 0,
+    marginLeft: 4,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderLeftWidth: 17,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: '#FFFFFF',
+  },
+  lessonNumber: { color: '#F4F4F5' },
+  nodeLabel: { position: 'absolute', width: SAGA_LABEL_WIDTH, alignItems: 'center' },
+  currentLabel: { marginTop: 2, fontSize: 10, lineHeight: 13 },
 });

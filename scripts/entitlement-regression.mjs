@@ -64,6 +64,9 @@ console.log('\nF7 — server-side entitlement\n');
 console.log(' NOT CONFIGURED — must be a perfect no-op');
 await check('no secret, anonymous', { subject: null }, true, 'not-enforced');
 await check('no secret, signed in', {}, true, 'not-enforced');
+await check('no secret, auth required still refuses anonymous', {
+  subject: null, requireAuth: true,
+}, false, 'auth-required');
 
 console.log('\n CONFIGURED — RevenueCat answers');
 await check('active entitlement', {

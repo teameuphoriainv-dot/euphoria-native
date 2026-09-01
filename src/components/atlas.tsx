@@ -132,6 +132,9 @@ export function Atlas({
   shake = false,
   entrance,
   idle = false,
+  onPress,
+  accessibilityLabel = 'Atlas, the Euphoria mascot',
+  accessibilityHint,
 }: {
   size?: number;
   expression?: AtlasExpression;
@@ -159,6 +162,12 @@ export function Atlas({
    *  should be still until something happens. Reads correctly from ~96px up; below that
    *  it's sub-pixel and just costs a frame callback. */
   idle?: boolean;
+  /** Lets a screen make Atlas himself the action without nesting a Pressable around his own
+   * interactive Pressable. The mascot reaction still runs first; Reduced Motion suppresses the
+   * spin but never suppresses the action. */
+  onPress?: () => void;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }) {
   const reduced = useReducedMotion();
   const scale = useSharedValue(1);
@@ -469,6 +478,11 @@ export function Atlas({
     setTimeout(() => setSpinning(false), 900);
   };
 
+  const handlePress = () => {
+    spin();
+    onPress?.();
+  };
+
   /**
    * Per-ring cascade — the payoff of the vector rebuild.
    *
@@ -766,9 +780,11 @@ export function Atlas({
       // Atlas is decorative here — tapping only spins the mascot. Announcing it as an image with a
       // name is right; announcing it as a BUTTON would promise a destination it does not have, and
       // an unnamed button is worse still. The interactive variants elsewhere carry their own label.
-      accessibilityRole="image"
-      accessibilityLabel="Atlas, the Euphoria mascot"
-      onPress={spin}>
+      accessibilityRole={onPress ? 'button' : 'image'}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      hitSlop={onPress ? 4 : undefined}
+      onPress={handlePress}>
       <Animated.View style={wrapStyle}>
         <Animated.View style={breathStyle}>{svg}</Animated.View>
       </Animated.View>

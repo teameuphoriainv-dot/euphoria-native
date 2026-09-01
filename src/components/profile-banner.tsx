@@ -10,7 +10,7 @@
  * wallpaper while someone is looking at it, which is the same purity rule ambient-background.tsx
  * learned the hard way when a resize reshuffled its entire starfield.
  */
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
@@ -25,6 +25,8 @@ export function ProfileBanner({
   name,
   title,
   height = 96,
+  customContent = false,
+  style,
   children,
 }: {
   bannerId: string;
@@ -32,13 +34,16 @@ export function ProfileBanner({
   /** The earned word worn under the name, or empty. */
   title?: string;
   height?: number;
+  /** The caller supplies the entire identity row. Used by the richer profile hub. */
+  customContent?: boolean;
+  style?: StyleProp<ViewStyle>;
   /** The avatar, drawn over the band. */
   children?: React.ReactNode;
 }) {
   const b = bannerById(bannerId);
 
   return (
-    <View style={[styles.wrap, { backgroundColor: b.band, height }]}>
+    <View style={[styles.wrap, { backgroundColor: b.band, minHeight: height }, style]}>
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <View style={styles.motifs}>
           {Array.from({ length: MOTIFS }, (_, i) => (
@@ -55,17 +60,21 @@ export function ProfileBanner({
       </View>
 
       <View style={styles.content}>
-        {children}
-        <View style={{ flex: 1 }}>
-          <ThemedText type="title" numberOfLines={1} style={{ fontSize: FontSize.headingLg, color: b.ink }}>
-            {name}
-          </ThemedText>
-          {title ? (
-            <ThemedText type="label" numberOfLines={1} style={{ color: b.ink, opacity: 0.75 }}>
-              {title.toUpperCase()}
-            </ThemedText>
-          ) : null}
-        </View>
+        {customContent ? children : (
+          <>
+            {children}
+            <View style={{ flex: 1 }}>
+              <ThemedText type="title" numberOfLines={1} style={{ fontSize: FontSize.headingLg, color: b.ink }}>
+                {name}
+              </ThemedText>
+              {title ? (
+                <ThemedText type="label" numberOfLines={1} style={{ color: b.ink, opacity: 0.75 }}>
+                  {title.toUpperCase()}
+                </ThemedText>
+              ) : null}
+            </View>
+          </>
+        )}
       </View>
     </View>
   );

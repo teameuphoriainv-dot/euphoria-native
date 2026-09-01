@@ -10,14 +10,15 @@
  * real store state: xp, streak, completedLessons, level() and levelProgress(). If you add a stat
  * here and cannot point at the field behind it, it does not belong on the page.
  */
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ITEM_ART } from '@/lib/item-art';
 import { achievementById, isEarned, type AchievementState } from '@/lib/achievements';
-import { useApp } from '@/lib/store';
+import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { ProfileBanner } from '@/components/profile-banner';
 import { ProfileAvatar } from '@/components/profile-avatar';
 import { PixelSpriteView, lock, seedling, trophy } from '@/lib/pixel';
 import { StatMark, type StatMarkName } from '@/components/art/stat-mark';
@@ -29,6 +30,7 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
+import { bannerById } from '@/lib/banners';
 import { TIERS, tierProgress } from '@/lib/league';
 import { money } from '@/lib/stocks';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -45,8 +47,8 @@ import { STAGGER_CAP } from '@/shared/motion/tokens';
  * means nothing and the eye stops reading it.
  *
  * Reassigned from the existing 24-mark `ui-icon` set — no new glyph, per C2's grep-before-adding
- * rule: Games -> `target`, Ask Atlas -> `chat` (it IS a chat), Euphoria Pro -> `trophy`, which is
- * already what the plan card uses for pro, so the two surfaces now agree.
+ * rule. Euphoria Pro uses `trophy`, which is already what the plan card uses for Pro, so the two
+ * surfaces agree.
  *
  * Rows carry an EXPLICIT route. They used to derive one from the label via
  * `label.toLowerCase().split(' ')[0]`, which turned "Euphoria Pro" into `euphoria` - not a key in
@@ -87,8 +89,6 @@ const PLAY_ROWS: Row[] = [
   { icon: 'sparkle', label: 'Avatar & banner', route: '/avatar' },
   { icon: 'trophy', label: 'Achievements', route: '/achievements' },
   { icon: 'you', label: 'Friends', route: '/friends' },
-  { icon: 'target', label: 'Games', route: '/games' },
-  { icon: 'chat', label: 'Ask Atlas', route: '/chat' },
 ];
 
 const SETTINGS_ROWS: Row[] = [
@@ -110,6 +110,8 @@ const NUM = { fontVariant: ['tabular-nums' as const] };
 
 export default function You() {
   const theme = useTheme();
+  const { fontScale } = useWindowDimensions();
+  const usesLargePlanLayout = fontScale >= 1.8;
   const router = useRouter();
   const xp = useApp((s) => s.xp);
   const streak = useApp((s) => s.streak);
@@ -121,6 +123,8 @@ export default function You() {
 
   /* Equipped cosmetics (N21). Read here rather than inside the card so the card stays presentational. */
   const equipped = useApp((s) => s.equipped);
+  const bannerId = useApp((s) => s.bannerId);
+  const profileBanner = bannerById(bannerId);
   /* The title only renders while it is still EARNED. Reading the predicate rather than trusting
    * the stored id means a reset, or a threshold that moves, cannot leave a stale claim on screen. */
   const titleId = useApp((s) => s.titleId);
@@ -250,7 +254,14 @@ export default function You() {
         <RiseIn>
           {/* An equipped profile theme tints the identity card — the one surface on iOS that is
               recognisably "your profile". THEME_TINT is keyed by the item's own metadata value. */}
-          <Card style={styles.identity} tint={cardTint}>
+          <ProfileBanner
+            bannerId={bannerId}
+            name={name ?? 'Your profile'}
+            title={wornTitle ?? undefined}
+            height={112}
+            customContent
+            style={[styles.identity, { borderColor: cardTint ?? profileBanner.ink + '33' }]}
+          >
             {/* Atlas wearing whatever is equipped (N21). See profile-avatar.tsx for why the
                 hats go on the mascot rather than on an invented player character. */}
             {/* Tapping your own face is where every game puts this, so it is where it goes. */}
@@ -277,7 +288,11 @@ export default function You() {
                   * tightly because it is compact status chrome, not content. Two lines let the
                   * name wrap rather than vanish.
                   */}
-                <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} numberOfLines={2} style={{ flexShrink: 1 }}>
+                <ThemedText
+                  type="bodyMedium"
+                  maxFontSizeMultiplier={1.6}
+                  numberOfLines={2}
+                  style={{ flexShrink: 1, color: profileBanner.ink }}>
                   {name ?? 'Your profile'}
                 </ThemedText>
                 {/* An equipped badge sits with the plan chip: both are status, both are compact,
@@ -287,16 +302,16 @@ export default function You() {
                   style={[
                     styles.planChip,
                     {
-                      backgroundColor: (planTier === 'pro' ? theme.iconGold : theme.primary) + '24',
+                      backgroundColor: profileBanner.ink + '18',
                     },
                   ]}
                 >
                   <ThemedText
                     type="smallBold"
                     maxFontSizeMultiplier={1.4}
-                    style={{ fontSize: FontSize.tiny, color: planTier === 'pro' ? theme.iconGold : theme.iconLilac }}
+                    style={{ fontSize: FontSize.tiny, color: profileBanner.ink }}
                   >
-                    {planTier === 'pro' ? 'PRO' : planTier === 'expired' ? 'FREE' : 'FREE TRIAL'}
+                    {planTier === 'pro' ? 'PRO' : planTier === 'expired' ? 'TRIAL ENDED' : 'FREE TRIAL'}
                   </ThemedText>
                 </View>
               </View>
@@ -304,16 +319,16 @@ export default function You() {
                   rendered from the achievement rather than from stored copy, so a title you no
                   longer qualify for simply stops appearing instead of persisting a claim. */}
               {wornTitle ? (
-                <View style={[styles.titleChip, { borderColor: theme.primary + '55', backgroundColor: theme.primary + '18' }]}>
+                <View style={[styles.titleChip, { borderColor: profileBanner.ink + '55', backgroundColor: profileBanner.ink + '18' }]}>
                   {/* iconLilac, NOT primary. Measured 4.08:1 for primary on this chip's own
                       composited background — below the 4.5 AA minimum, and 11pt semibold does not
                       qualify as large text. digest.tsx already found and fixed exactly this
                       (its comment records primary at 4.49 vs iconLilac at 8.29); the fix simply
                       never reached this chip. */}
-                  <ThemedText type="label" style={{ color: theme.iconLilac }}>{wornTitle}</ThemedText>
+                  <ThemedText type="label" style={{ color: profileBanner.ink }}>{wornTitle}</ThemedText>
                 </View>
               ) : null}
-              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+              <ThemedText type="small" style={[NUM, { color: profileBanner.ink, opacity: 0.82 }]}>
                 {handle ? `@${handle} · ` : ''}Level {level}
               </ThemedText>
               {/*
@@ -327,11 +342,11 @@ export default function You() {
                 * The hero owns the bar because the page's headline is the tier. Level stays as a
                 * number, which is the part the bar was not already saying.
                 */}
-              <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
+              <ThemedText type="small" style={[NUM, { color: profileBanner.ink, opacity: 0.82 }]}>
                 {xp.toLocaleString()} XP total · {lp.toNext.toLocaleString()} to level {level + 1}
               </ThemedText>
             </View>
-          </Card>
+          </ProfileBanner>
         </RiseIn>
 
         {/*
@@ -353,7 +368,7 @@ export default function You() {
                 size={20}
               />
               <ThemedText type="bodyMedium">
-                {planTier === 'pro' ? 'Euphoria Pro' : planTier === 'expired' ? 'Free' : 'Free trial'}
+                {planTier === 'pro' ? 'Euphoria Pro' : planTier === 'expired' ? 'Trial ended' : 'Free trial'}
               </ThemedText>
               <View style={{ flex: 1 }} />
               {planTier === 'trial' && (
@@ -374,7 +389,7 @@ export default function You() {
 
             {planTier === 'expired' ? (
               <ThemedText type="small" themeColor="mutedForeground" style={NUM}>
-                Your free days are up. Pro reopens every lesson and Atlas.
+                Your trial has ended. Pro reopens every lesson and Atlas.
               </ThemedText>
             ) : (
               /*
@@ -395,7 +410,7 @@ export default function You() {
                * cap is a DATA limit that binds Pro equally, not a trial restriction, so printing
                * "unlimited" there would be false.
                */
-              <View style={styles.grants}>
+              <View style={[styles.grants, usesLargePlanLayout && styles.grantsLargeText]}>
                 {(planTier === 'pro'
                   ? ([
                       { label: 'Lessons', value: 'All open' },
@@ -404,13 +419,15 @@ export default function You() {
                     ] as const)
                   : ([
                       { label: 'Lessons', value: 'All open' },
-                      { label: 'Atlas', value: `${atlasLeft} left` },
-                      { label: 'Options', value: `${optionsLeft} left` },
+                      { label: 'Atlas', value: `${atlasLeft} of ${FREE_ATLAS_MESSAGES}` },
+                      { label: 'Paper trading', value: 'Included' },
                     ] as const)
                 ).map((g, i, arr) => (
                   // The last cell right-aligns so its text ends ON the card's right padding rather
                   // than starting there and trailing off.
-                  <View key={g.label} style={[styles.grant, i === arr.length - 1 && styles.grantLast]}>
+                  <View
+                    key={g.label}
+                    style={[styles.grant, i === arr.length - 1 && !usesLargePlanLayout && styles.grantLast]}>
                     <ThemedText type="bodyMedium" style={NUM}>{g.value}</ThemedText>
                     <ThemedText type="label" themeColor="mutedForeground">{g.label}</ThemedText>
                   </View>
@@ -535,9 +552,10 @@ export default function You() {
         </RiseIn>
 
 
-        {/* PLACES YOU GO, then the machinery. See the ROWS note above for why they are separated. */}
+        {/* Profile/social destinations, then the machinery. Games is already a tab and Atlas is
+            persistent lesson/header chrome, so neither is repeated here. */}
         <RiseIn delay={380}>
-          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>PLAY &amp; PEOPLE</ThemedText>
+          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>PROFILE &amp; PEOPLE</ThemedText>
           <Card padded={false}>
             {PLAY_ROWS.map((s, i) => (
               <SpringPressable key={s.label} haptic={false} onPress={() => router.push(s.route as never)}>
@@ -598,7 +616,7 @@ const styles = StyleSheet.create({
   // gap 20 not 16: Atlas renders at 62pt here and the tighter gutter let the mascot touch the name.
   // marginTop drops to 8 because `content` now owns the between-card rhythm; this only sets the
   // distance from the safe-area edge to the first card.
-  identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three + Spacing.one, marginTop: Spacing.two },
+  identity: { marginTop: Spacing.two, borderWidth: 1 },
   xpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: 6, marginBottom: 4 },
   identityTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one + 2 },
   planChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.sm },
@@ -621,6 +639,7 @@ const styles = StyleSheet.create({
    * these two rows are the same width and now look it.
    */
   grants: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two },
+  grantsLargeText: { flexDirection: 'column', alignItems: 'stretch' },
   grant: { gap: 1 },
   grantLast: { alignItems: 'flex-end' },
   planCta: { borderWidth: 1, borderRadius: Radius.pill, paddingVertical: Spacing.one + 2, alignItems: 'center' },

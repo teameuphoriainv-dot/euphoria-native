@@ -12,16 +12,17 @@
  *     moves. The half second between call and result is where the tension actually lives.
  *   - A BEST SCORE, so the run has an opponent.
  *
- * The chart is drawn as solid rectangles rather than a smoothed line, which is both the app's
- * visual language and honest about what it is: a game about a shape.
+ * The chart uses real candle anatomy plus a moving-average line and a momentum readout. The first
+ * version drew scalar bars with no indicator, which hid the useful signal and made the call feel
+ * like guesswork even though the underlying series was deliberately trend-readable.
  */
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import Svg, { Rect } from 'react-native-svg';
+import Svg, { Line, Polyline, Rect } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
@@ -29,12 +30,12 @@ import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { PixelSpriteView, heart } from '@/lib/pixel';
+import { PixelSpriteView, chartUp, heart } from '@/lib/pixel';
 import { phaseIndex, phaseOf } from '@/lib/learner-phase';
 import { useApp } from '@/lib/store';
 import {
-  LIVES, REVEAL_MS, ROUND_SECONDS, TIME_BONUS, WINDOW, isCorrect, makeSeries, multiplierFor,
-  nextValue, scoreFor, windowOf, type Round,
+  LIVES, REVEAL_MS, ROUND_SECONDS, TIME_BONUS, WINDOW, candlesOf, isCorrect, makeSeries,
+  multiplierFor, nextValue, scoreFor, trendIndicator, windowOf, type Round,
 } from '@/lib/trend-game';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -279,16 +280,25 @@ export default function TrendMaster() {
    *
    * The `|| 1` guards a dead-flat window, which would otherwise divide by zero and render nothing.
    */
-  const bars = useMemo(() => {
-    if (!round.series.length) return [];
+  const chart = useMemo(() => {
+    if (!round.series.length) return { candles: [], averagePoints: '' };
     const w = windowOf(round);
-    const all = reveal ? [...w, reveal.value] : w;
-    const lo = Math.min(...all);
-    const hi = Math.max(...all);
+    const closes = reveal ? [...w, reveal.value] : w;
+    const candles = candlesOf(closes);
+    const lo = Math.min(...candles.map((c) => c.low));
+    const hi = Math.max(...candles.map((c) => c.high));
     const span = hi - lo || 1;
-    // 12..96 rather than 0..100, so the lowest bar is still a visible bar and not a sliver.
-    return all.map((v) => 12 + ((v - lo) / span) * 84);
+    const y = (value: number) => 94 - ((value - lo) / span) * 88;
+    const movingAverages = closes.map((_, i) => {
+      const recent = closes.slice(Math.max(0, i - 4), i + 1);
+      return recent.reduce((sum, value) => sum + value, 0) / recent.length;
+    });
+    return {
+      candles: candles.map((c) => ({ ...c, openY: y(c.open), highY: y(c.high), lowY: y(c.low), closeY: y(c.close) })),
+      averagePoints: movingAverages.map((value, i) => `${String(i + 0.5)},${String(y(value))}`).join(' '),
+    };
   }, [round, reveal]);
+  const indicator = round.series.length ? trendIndicator(windowOf(round)) : null;
 
   const mult = multiplierFor(streak);
 
@@ -318,21 +328,23 @@ export default function TrendMaster() {
       </View>
 
       {phase === 'intro' && (
-        <Animated.View entering={FadeIn} style={styles.centre}>
-          <ThemedText type="display" style={{ fontSize: FontSize.titleSm, textAlign: 'center' }}>
-            Trend Master
-          </ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.blurb}>
-            Read the chart. Call the next move. Three lives, forty-five seconds, and every third correct
-            call raises your multiplier.
-          </ThemedText>
-          {best > 0 && (
-            <ThemedText type="bodyMedium" style={{ color: theme.iconGold, marginTop: Spacing.two }}>
-              {`Best: ${String(best)}`}
+        <ScrollView contentContainerStyle={styles.introScroll} showsVerticalScrollIndicator={false}>
+          <Animated.View entering={FadeIn} style={styles.introInner}>
+            <PixelSpriteView sprite={chartUp} size={68} />
+            <ThemedText type="display" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.titleSm, textAlign: 'center', marginTop: Spacing.three }}>
+              Trend Master
             </ThemedText>
-          )}
-          <SlabButton label="Start" full onPress={start} style={{ marginTop: Spacing.five }} />
-        </Animated.View>
+            <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.blurb}>
+              Read the candlesticks and momentum indicator, then call the next move before time runs out.
+            </ThemedText>
+            {best > 0 && (
+              <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} style={{ color: theme.iconGold, marginTop: Spacing.two }}>
+                {`Best: ${String(best)}`}
+              </ThemedText>
+            )}
+            <SlabButton label="Start" accessibilityLabel="Start Trend Master" full onPress={start} style={{ marginTop: Spacing.five }} />
+          </Animated.View>
+        </ScrollView>
       )}
 
       {phase === 'play' && (
@@ -387,18 +399,43 @@ export default function TrendMaster() {
             />
           </View>
 
-          <View style={[styles.chart, { borderColor: theme.border, backgroundColor: theme.card }]}>
+          <View
+            accessible
+            accessibilityRole="image"
+            accessibilityLabel={indicator ? `Candlestick chart. Three bar momentum ${indicator.direction}, ${Math.abs(indicator.momentum).toFixed(1)} points. Five close average ${indicator.average.toFixed(1)}.` : 'Candlestick chart'}
+            style={[styles.chart, { borderColor: theme.border, backgroundColor: theme.card }]}>
             <Svg width="100%" height={CHART_H} viewBox={`0 0 ${String(WINDOW + 1)} 100`} preserveAspectRatio="none">
-              {bars.map((v, i) => {
-                const isNew = reveal !== null && i === bars.length - 1;
-                const fill = isNew
-                  ? (reveal.ok ? theme.success : theme.destructive)
-                  : i === bars.length - 1 ? theme.primary : theme.primary + '77';
-                return <Rect key={i} x={i + 0.12} y={100 - v} width={0.76} height={v} fill={fill} />;
+              <Polyline points={chart.averagePoints} fill="none" stroke={theme.iconGold} strokeWidth={0.18} />
+              {chart.candles.map((c, i) => {
+                const isNew = reveal !== null && i === chart.candles.length - 1;
+                const rising = c.close >= c.open;
+                const fill = isNew ? (reveal.ok ? theme.success : theme.destructive) : rising ? theme.success : theme.destructive;
+                const bodyY = Math.min(c.openY, c.closeY);
+                const bodyH = Math.max(1.2, Math.abs(c.closeY - c.openY));
+                return (
+                  <Fragment key={i}>
+                    <Line x1={i + 0.5} x2={i + 0.5} y1={c.highY} y2={c.lowY} stroke={fill} strokeWidth={0.16} />
+                    <Rect x={i + 0.2} y={bodyY} width={0.6} height={bodyH} fill={fill} />
+                  </Fragment>
+                );
               })}
             </Svg>
-
           </View>
+
+          {indicator ? (
+            <View style={styles.indicatorRow}>
+              <View>
+                <ThemedText type="label" themeColor="mutedForeground">3-BAR MOMENTUM</ThemedText>
+                <ThemedText type="bodyMedium" style={{ color: indicator.direction === 'up' ? theme.success : theme.destructive }}>
+                  {`${indicator.direction === 'up' ? 'Rising' : 'Falling'} ${indicator.momentum >= 0 ? '+' : ''}${indicator.momentum.toFixed(1)}`}
+                </ThemedText>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <ThemedText type="label" themeColor="mutedForeground">5-CLOSE AVG</ThemedText>
+                <ThemedText type="bodyMedium" style={{ color: theme.iconGold }}>{indicator.average.toFixed(1)}</ThemedText>
+              </View>
+            </View>
+          ) : null}
 
           <ThemedText type="small" themeColor="mutedForeground" style={styles.prompt}>
             {reveal ? (reveal.ok ? 'Correct' : 'Wrong') : 'Where does the next bar go?'}
@@ -444,6 +481,8 @@ const styles = StyleSheet.create({
   },
   lives: { flexDirection: 'row', gap: 6 },
   centre: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: Spacing.four },
+  introScroll: { flexGrow: 1, paddingHorizontal: Spacing.four, paddingVertical: Spacing.four },
+  introInner: { flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' },
   blurb: { textAlign: 'center', marginTop: Spacing.two },
   play: { flex: 1, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
@@ -453,6 +492,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden', height: CHART_H,
   },
+  indicatorRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.two },
   scoreLine: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.two },
   prompt: { textAlign: 'center', marginTop: Spacing.three, marginBottom: Spacing.four },
   /* Not `marginTop: 'auto'`. That shoved the controls to the very bottom of a tall screen and

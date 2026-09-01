@@ -3,9 +3,11 @@
  * `misconceptions`, `summaryCards`, `stakesCard` and friends all reduce to the same handful of
  * blocks (see lib/lesson-steps.ts).
  */
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, { FadeIn, FadeInLeft, FadeInRight, useReducedMotion } from 'react-native-reanimated';
 
 import { Atlas } from '@/components/atlas';
+import { AuthoredSvg } from '@/components/authored-svg';
 import { LessonVisual } from '@/components/lesson-visual';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
@@ -28,6 +30,8 @@ export function LessonProse({
   atlasHint?: string;
 }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
+  const { width, height } = useWindowDimensions();
   return (
     // the CTA is a sibling pinned below this view, so the last paragraph needs its height as
     // padding or long teachingSlides scroll their final line underneath the button
@@ -44,6 +48,8 @@ export function LessonProse({
           if (b.b === 'p') return <ThemedText key={i} type="body" themeColor="textSecondary">{b.text}</ThemedText>;
 
           if (b.b === 'visual') return <LessonVisual key={i} visual={b.visual} />;
+
+          if (b.b === 'svg') return <AuthoredSvg key={i} xml={b.xml} label={b.label} />;
 
           if (b.b === 'stat')
             return (
@@ -64,15 +70,27 @@ export function LessonProse({
 
           if (b.b === 'pair')
             return (
-              <View key={i} style={styles.pairRow}>
-                <Card style={[styles.pairCell, { borderColor: theme.destructive + '3D' }]}>
+              <View key={i} style={[styles.pairRow, width >= 1024 && styles.pairRowWide]}>
+                <Animated.View
+                  entering={b.stakes ? (reduced ? FadeIn.duration(200) : FadeInLeft.delay(300).duration(280)) : undefined}
+                  style={styles.pairWrapper}>
+                <Card style={[styles.pairCell, b.stakes && styles.stakesCell, b.stakes && { minHeight: height * 0.55, backgroundColor: theme.destructive + '0A' }, { borderColor: theme.destructive + '4D' }]}>
                   <ThemedText type="label" style={{ color: theme.destructive }}>{b.leftLabel.toUpperCase()}</ThemedText>
+                  {b.leftVisual ? <LessonVisual visual={b.leftVisual} /> : null}
+                  {b.leftSvg ? <AuthoredSvg xml={b.leftSvg.xml} label={b.leftSvg.label} /> : null}
                   <ThemedText type="body" style={{ marginTop: 4 }}>{b.left}</ThemedText>
                 </Card>
-                <Card style={[styles.pairCell, { borderColor: theme.success + '3D' }]}>
+                </Animated.View>
+                <Animated.View
+                  entering={b.stakes ? (reduced ? FadeIn.duration(200) : FadeInRight.delay(300).duration(280)) : undefined}
+                  style={styles.pairWrapper}>
+                <Card style={[styles.pairCell, b.stakes && styles.stakesCell, b.stakes && { minHeight: height * 0.55, backgroundColor: theme.success + '0A' }, { borderColor: theme.success + '4D' }]}>
                   <ThemedText type="label" style={{ color: theme.success }}>{b.rightLabel.toUpperCase()}</ThemedText>
+                  {b.rightVisual ? <LessonVisual visual={b.rightVisual} /> : null}
+                  {b.rightSvg ? <AuthoredSvg xml={b.rightSvg.xml} label={b.rightSvg.label} /> : null}
                   <ThemedText type="body" style={{ marginTop: 4 }}>{b.right}</ThemedText>
                 </Card>
+                </Animated.View>
               </View>
             );
 
@@ -104,8 +122,11 @@ export function LessonProse({
 
 const styles = StyleSheet.create({
   stat: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
-  pairRow: { flexDirection: 'row', gap: Spacing.two },
-  pairCell: { flex: 1, borderWidth: 1, borderRadius: Radius.lg },
+  pairRow: { flexDirection: 'column', gap: 24 },
+  pairRowWide: { flexDirection: 'row' },
+  pairWrapper: { flex: 1 },
+  pairCell: { flex: 1, gap: 16, borderWidth: 1, borderRadius: Radius.lg },
+  stakesCell: { minHeight: 420, padding: 32, borderWidth: 2, borderRadius: 16 },
   eventRow: { flexDirection: 'row', gap: Spacing.two + 4, alignItems: 'flex-start' },
   when: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, minWidth: 58, alignItems: 'center' },
   atlasHint: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },

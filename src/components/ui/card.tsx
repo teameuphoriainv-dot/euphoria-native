@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/theme';
+import { LessonColors } from '@/constants/lesson-design';
 import { useTheme } from '@/hooks/use-theme';
 
 /** Alpha suffixes for the tint wash. Kept low on purpose — this is depth, not decoration, and
@@ -25,19 +26,27 @@ export function Card({
   tint?: string;
 }) {
   const theme = useTheme();
+  const lesson = theme === LessonColors;
   return (
     <View
       style={[
         {
           backgroundColor: elevated ? theme.cardElevated : theme.card,
-          borderColor: tint ? tint + '2E' : theme.border,
-          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: tint ? tint + '2E' : lesson ? LessonColors.border + '80' : theme.border,
+          borderWidth: lesson ? 1 : StyleSheet.hairlineWidth,
           borderRadius: Radius.lg,
+          ...(lesson ? {
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.5,
+            shadowRadius: 4,
+            elevation: 2,
+          } : null),
           // only when tinted — clipping every card in the app would silently crop anything a
           // caller deliberately overflows
           ...(tint ? ({ overflow: 'hidden' } as const) : null),
         },
-        padded && { padding: Spacing.three },
+        padded && { padding: lesson ? Spacing.four : Spacing.three },
         style,
       ]}
       {...rest}>

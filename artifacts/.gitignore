@@ -1,0 +1,3 @@
+# Generated parity manifests, checkpoints and recordings are local evidence, not source.
+*
+!.gitignore

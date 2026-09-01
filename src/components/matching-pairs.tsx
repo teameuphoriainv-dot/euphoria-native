@@ -5,21 +5,25 @@
  * OrderSteps/MultiSelect.
  */
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   FadeIn,
   interpolate,
   interpolateColor,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { useLessonStepState } from '@/components/lesson-step-session';
+import { Button } from '@/components/ui/button';
 import { UIcon } from '@/components/ui-icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { matchingPairsEscape, nextMatchingWrongAttempts } from '@/lib/matching-pairs-model';
 import { Duration } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
@@ -66,18 +70,31 @@ function MatchCell({
   const style = useAnimatedStyle(() => ({
     borderColor: interpolateColor(t.get(), [0, 1, 2], [theme.border, accent, theme.success]),
     borderWidth: interpolate(t.get(), [0, 1, 2], [StyleSheet.hairlineWidth, 2, 2]),
+    opacity: interpolate(t.get(), [0, 1, 2], [1, 1, 0.6]),
   }));
   return <Animated.View style={[styles.cell, { backgroundColor: tint }, style]}>{children}</Animated.View>;
 }
 
-export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSolvedChange: (solved: boolean) => void }) {
+export function MatchingPairs({
+  spec,
+  onSolvedChange,
+  onComplete,
+}: {
+  spec: MatchSpec;
+  onSolvedChange: (solved: boolean) => void;
+  onComplete: (passed: boolean) => void;
+}) {
   const theme = useTheme();
-  const [rightOrder] = useState(() => shuffle(spec.pairs.map((_, i) => i)));
-  const [selected, setSelected] = useState<number | null>(null);
-  const [matched, setMatched] = useState<number[]>([]);
-  const [wrong, setWrong] = useState<number | null>(null);
+  const { width } = useWindowDimensions();
+  const reduced = useReducedMotion();
+  const [rightOrder] = useLessonStepState<number[]>('match.rightOrder', () => shuffle(spec.pairs.map((_, i) => i)));
+  const [selected, setSelected] = useLessonStepState<number | null>('match.selected', null);
+  const [matched, setMatched] = useLessonStepState<number[]>('match.matched', []);
+  const [wrong, setWrong] = useLessonStepState<number | null>('match.wrong', null);
+  const [wrongAttempts, setWrongAttempts] = useLessonStepState('match.wrongAttempts', 0);
 
   const solved = matched.length === spec.pairs.length;
+  const escape = matchingPairsEscape(wrongAttempts, matched.length, spec.pairs.length);
 
   useEffect(() => {
     onSolvedChange(solved);
@@ -99,6 +116,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
       setSelected(null);
     } else {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setWrongAttempts(nextMatchingWrongAttempts);
       setWrong(j);
       setSelected(null);
       setTimeout(() => setWrong(null), 500);
@@ -107,12 +125,13 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
 
   return (
     <View>
+      <ThemedText type="label" style={{ color: theme.primary, marginBottom: Spacing.two }}>✦ MATCH THE PAIRS</ThemedText>
       <ThemedText type="title" style={{ marginBottom: Spacing.two }}>{spec.title}</ThemedText>
       <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: Spacing.four }}>
-        Tap a term, then tap its match.
+        {matched.length} of {spec.pairs.length} matched · Tap a term, then tap its match.
       </ThemedText>
 
-      <View style={styles.cols}>
+      <View style={[styles.cols, width >= 1024 && styles.colsWide]}>
         <View style={styles.col}>
           {spec.pairs.map((p, i) => {
             const isMatched = matched.includes(i);
@@ -166,7 +185,7 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
                 accessibilityHint={isMatched ? undefined : 'Activate to match this with the selected term.'}>
                 <MatchCell
                   stage={isMatched ? 2 : isWrong ? 1 : 0}
-                  accent={theme.warning}
+                  accent={theme.destructive}
                   tint={isMatched ? theme.success + '14' : theme.card}>
                   <ThemedText type="small" style={{ flex: 1 }}>{spec.pairs[j].right}</ThemedText>
                   {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
@@ -190,12 +209,34 @@ export function MatchingPairs({ spec, onSolvedChange }: { spec: MatchSpec; onSol
       {solved && (
         <ThemedText type="smallBold" style={{ color: theme.success, marginTop: Spacing.three }}>All matched. Nicely done.</ThemedText>
       )}
+
+      {escape && (
+        <Animated.View
+          entering={reduced ? undefined : FadeIn.duration(Duration.fast)}
+          style={styles.escape}>
+          <ThemedText
+            accessibilityLiveRegion="polite"
+            type="small"
+            themeColor="mutedForeground"
+            style={styles.escapeMessage}>
+            {escape.message}
+          </ThemedText>
+          <Button
+            label={escape.cta}
+            variant="ghost"
+            onPress={() => onComplete(escape.passed)}
+          />
+        </Animated.View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cols: { flexDirection: 'row', gap: Spacing.two + 4 },
-  col: { flex: 1, gap: Spacing.two + 4 },
-  cell: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, padding: Spacing.three, borderRadius: Radius.lg, minHeight: 64 },
+  cols: { flexDirection: 'column', alignItems: 'center', gap: 24 },
+  colsWide: { flexDirection: 'row', justifyContent: 'center', gap: 48 },
+  col: { width: '100%', maxWidth: 380, gap: 12 },
+  cell: { height: 90, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 12, borderWidth: 2 },
+  escape: { alignItems: 'center', gap: Spacing.one, marginTop: Spacing.four },
+  escapeMessage: { textAlign: 'center' },
 });

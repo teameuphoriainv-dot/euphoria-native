@@ -34,7 +34,7 @@ export class ChatError extends Error {
  * separate unit, and shipping a fake "typing" animation over a blocking request would be a lie
  * about what the network is doing.
  */
-export async function askAtlas(messages: ChatTurn[], signal?: AbortSignal): Promise<string> {
+export async function askAtlas(messages: ChatTurn[], signal?: AbortSignal, lessonContext?: unknown): Promise<string> {
   // Same C98 guard as `apiGet`. Atlas is the most visible casualty of a missing origin — a
   // reviewer taps the mascot, nothing happens, and it reads as the app being broken rather than
   // misconfigured.
@@ -42,7 +42,7 @@ export async function askAtlas(messages: ChatTurn[], signal?: AbortSignal): Prom
   const res = await fetch(`${apiBase()}/api/chat`, {
     method: 'POST',
     headers: apiHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, ...(lessonContext ? { lessonContext } : {}) }),
     signal,
   });
 

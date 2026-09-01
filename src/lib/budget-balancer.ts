@@ -38,6 +38,8 @@ export type Kind = 'fixed' | 'variable';
 export type Cost = { id: number; kind: Kind; label: string; weight: number; dist: number };
 
 export type State = {
+  /** Learner difficulty retained for every spawn in this run. */
+  phase: number;
   /** Beam angle in radians. Positive means the cost side has won. */
   angle: number;
   vel: number;
@@ -80,7 +82,12 @@ const VARIABLE_LABELS = ['Coffee', 'Takeout', 'Rideshare', 'New shoes', 'Movie n
  */
 export function tuning(phase: number): { spawnMs: number; fixedChance: number; startFixed: number } {
   const p = Math.max(0, Math.min(3, phase));
-  return { spawnMs: 3000 - p * 350, fixedChance: 0.22 + p * 0.04, startFixed: 1 + (p >= 2 ? 1 : 0) };
+  /*
+   * ONE FIXED COST AT THE START, for everybody. Two random fixed torques before the first input cut
+   * perfect-controller survival almost in half for practised learners; that is a difficulty cliff,
+   * not a test of balance. Later pressure still scales gradually through cadence and fixed share.
+   */
+  return { spawnMs: 3400 - p * 100, fixedChance: 0.16 + p * 0.015, startFixed: 1 };
 }
 
 function makeCost(seq: number, kind: Kind, rand: () => number): Cost {
@@ -97,6 +104,7 @@ export function createGame(seed: number, phase = 0): State {
   const rand = rng(seed);
   const t = tuning(phase);
   const s: State = {
+    phase: Math.max(0, Math.min(3, phase)),
     angle: 0, vel: 0, incomeDist: 0.5, costs: [], holdMs: 0, elapsedMs: 0,
     nextSpawnMs: t.spawnMs, score: 0, cleared: 0, over: false, seq: 0, rand, justCleared: null,
   };
@@ -162,7 +170,9 @@ export function step(prev: State, dtMs: number, inputDist: number): State {
   }
 
   if (s.elapsedMs >= s.nextSpawnMs) {
-    const t = tuning(0);
+    // Difficulty belongs to the RUN. This used to call tuning(0), silently discarding the phase
+    // after the initial board and making the adaptive contract false for every later spawn.
+    const t = tuning(s.phase);
     const kind: Kind = s.rand() < t.fixedChance ? 'fixed' : 'variable';
     s.costs.push(makeCost(s.seq++, kind, s.rand));
     s.nextSpawnMs = s.elapsedMs + t.spawnMs;
@@ -222,6 +232,7 @@ if (__DEV__) {
   for (let seed = 1; seed <= 120; seed++) {
     for (let ph = 0; ph <= 3; ph++) {
       const g0 = createGame(seed, ph);
+      bad(g0.phase !== ph, `seed ${seed} forgot phase ${ph}`);
       bad(Math.abs(costTorque(g0.costs) - incomeTorque(g0)) > 1e-9,
         `seed ${seed} phase ${ph} does not start level`);
       const first = step(g0, 16, g0.incomeDist);

@@ -1,156 +1,230 @@
 /**
- * NumberLine — place-a-value-on-a-line lesson step. Tap the track to drop a marker; press
- * Check to validate against a hidden target within a tolerance. On a miss the true target is
- * revealed (green) with the delta so the learner can re-place. onSolvedChange(true) when the
- * placed value is within tolerance. Sibling to TileBuilder/MultiSelect.
+ * Production-parity slider lesson step.
+ *
+ * The learner can tap or drag continuously until Submit. Submission freezes the chosen value,
+ * grades it against the authored tolerance, then reveals and snaps to the exact answer after the
+ * same 300ms beat as web. The learner advances explicitly with Continue, even after a close guess.
  */
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
-import { GestureResponderEvent, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  type GestureResponderEvent,
+  type LayoutChangeEvent,
+  PanResponder,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
+import Animated, { FadeIn, FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
+import { Atlas } from '@/components/atlas';
+import { AtlasCorrection } from '@/components/atlas-correction';
+import { SparkBurst } from '@/components/lesson-feedback';
+import { useLessonStepState } from '@/components/lesson-step-session';
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Button } from '@/components/ui/button';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { Duration } from '@/shared/motion/tokens';
+import {
+  changeNumberLineValue,
+  initialNumberLineValue,
+  NUMBER_LINE_REVEAL_MS,
+  numberLineDisplayValue,
+  numberLinePassed,
+  numberLinePhase,
+  numberLineValueAtX,
+  shouldNumberLineClaimGesture,
+  type NumberLineSpec,
+} from '@/lib/number-line-model';
 
-export type NumberLineSpec = {
-  prompt: string;
-  min: number;
-  max: number;
-  target: number;
-  tolerance: number;
-  ticks?: number[];
-  format?: (n: number) => string;
+export type { NumberLineSpec } from '@/lib/number-line-model';
+
+type NumberLineProps = {
+  spec: NumberLineSpec;
+  onSolvedChange: (solved: boolean) => void;
+  onComplete: (passed: boolean) => void;
 };
 
-export function NumberLine({ spec, onSolvedChange }: { spec: NumberLineSpec; onSolvedChange: (solved: boolean) => void }) {
+export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps) {
   const theme = useTheme();
-  const fmt = spec.format ?? ((n: number) => String(Math.round(n)));
+  const reduced = useReducedMotion();
+  const fmt = spec.format ?? ((current: number) => `${String(current)}${spec.unit ?? ''}`);
   const [width, setWidth] = useState(0);
-  const [value, setValue] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
+  const [value, setValue] = useLessonStepState('line.value', () => initialNumberLineValue(spec));
+  // Retain the historical snapshot key: Previous -> forward restores a frozen submission.
+  const [submitted, setSubmitted] = useLessonStepState('line.checked', false);
+  const [showReveal, setShowReveal] = useLessonStepState('line.reveal', false);
+  const phase = numberLinePhase(submitted, showReveal);
 
-  const pct = (v: number) => (v - spec.min) / (spec.max - spec.min);
-  const solved = checked && value != null && Math.abs(value - spec.target) <= spec.tolerance;
+  const isClose = numberLinePassed(value, spec);
+  const shownValue = numberLineDisplayValue(value, showReveal, spec);
+  const span = Math.max(spec.max - spec.min, Number.EPSILON);
+  const percent = Math.max(0, Math.min(1, (shownValue - spec.min) / span));
+  const percentStyle = `${percent * 100}%` as `${number}%`;
 
   useEffect(() => {
-    onSolvedChange(solved);
-    if (solved) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  }, [solved, onSolvedChange]);
+    onSolvedChange(phase === 'revealed');
+  }, [onSolvedChange, phase]);
 
-  const place = (e: GestureResponderEvent) => {
-    if (solved || width === 0) return;
-    const x = Math.max(0, Math.min(width, e.nativeEvent.locationX));
-    setValue(spec.min + (x / width) * (spec.max - spec.min));
-    setChecked(false);
-    Haptics.selectionAsync();
+  useEffect(() => {
+    if (phase !== 'waiting') return;
+    const revealTimer = setTimeout(() => setShowReveal(true), NUMBER_LINE_REVEAL_MS);
+    return () => clearTimeout(revealTimer);
+  }, [phase, setShowReveal]);
+
+  const change = useCallback((next: number) => {
+    if (submitted) return;
+    setValue((current) => changeNumberLineValue(current, next, submitted, spec));
+  }, [setValue, spec, submitted]);
+
+  const place = useCallback((event: GestureResponderEvent) => {
+    if (submitted || width <= 0) return;
+    change(numberLineValueAtX(event.nativeEvent.locationX, width, spec));
+  }, [change, spec, submitted, width]);
+
+  const panResponder = useMemo(() => PanResponder.create({
+    onMoveShouldSetPanResponder: (_event, gesture) => shouldNumberLineClaimGesture(gesture.dx, gesture.dy, submitted),
+    onPanResponderGrant: (event) => {
+      place(event);
+      void Haptics.selectionAsync();
+    },
+    onPanResponderMove: place,
+    onPanResponderRelease: place,
+    // Once a horizontal adjustment begins, the surrounding vertical ScrollView must not take it.
+    onPanResponderTerminationRequest: () => false,
+  }), [place, submitted]);
+
+  const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
+  const nudge = (direction: 1 | -1) => {
+    if (submitted) return;
+    change(value + direction * (spec.step ?? 1));
+    void Haptics.selectionAsync();
   };
 
-  const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
-  const readColor = value == null ? theme.mutedForeground : solved ? theme.success : theme.iconLilac;
-
-  /**
-   * Keyboard/assistive stepping.
-   *
-   * Placing a value here means tapping an exact x-coordinate, which a VoiceOver user cannot
-   * do — and `gates()` blocks Continue on this step type, so without an alternative input a
-   * screen-reader user could not finish the lesson AT ALL. This is a hard blocker, not a
-   * missing label.
-   *
-   * The step is the spec's own tolerance, so stepping can always land inside the accepted
-   * band; it is floored at 1% of the range so a tiny tolerance cannot demand hundreds of
-   * increments.
-   */
-  const step = Math.max(spec.tolerance, (spec.max - spec.min) / 100);
-  const nudge = (dir: 1 | -1) => {
-    if (solved) return;
-    const from = value ?? (spec.min + spec.max) / 2; // first action lands mid-range, not at an edge
-    setValue(Math.max(spec.min, Math.min(spec.max, from + dir * step)));
-    setChecked(false);
-    Haptics.selectionAsync();
+  const tapPlace = (event: GestureResponderEvent) => {
+    place(event);
+    void Haptics.selectionAsync();
   };
+
+  const submit = () => {
+    if (submitted) return;
+    setSubmitted(true);
+    void Haptics.notificationAsync(
+      isClose
+        ? Haptics.NotificationFeedbackType.Success
+        : Haptics.NotificationFeedbackType.Error,
+    );
+  };
+
+  const enter = reduced
+    ? FadeIn.duration(1)
+    : FadeInDown.duration(280).withInitialValues({ opacity: 0, transform: [{ translateY: 20 }] });
+  const revealEnter = reduced
+    ? FadeIn.duration(1)
+    : FadeInDown.duration(200).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] });
+  const promptEntry = reduced
+    ? FadeIn.duration(1)
+    : FadeInDown.duration(280).withInitialValues({ opacity: 0, transform: [{ translateY: 20 }] });
 
   return (
-    <View>
-      <ThemedText type="title" style={{ marginBottom: Spacing.four }}>{spec.prompt}</ThemedText>
+    <Animated.View entering={enter} style={styles.root}>
+      <Animated.View
+        entering={promptEntry}
+        style={styles.atlasRow}>
+        <Atlas expression={showReveal && isClose ? 'happy' : 'watching'} size={62} interactive={false} />
+        <View style={styles.promptBubble}>
+          <View style={styles.promptTail} accessible={false} />
+          <ThemedText style={styles.prompt}>{spec.prompt}</ThemedText>
+        </View>
+      </Animated.View>
 
-      {/* lineHeight pinned to the override. `display` supplies 40, and 40/34 = 1.18 sits under
-          the 1.2 readability floor — the same class of defect that clipped the
-          since-deleted before-after-slider at ratio 1.0. 42 restores 1.24. */}
-      <ThemedText type="display" style={{ fontSize: FontSize.displayLg, lineHeight: 42, color: readColor, textAlign: 'center', marginBottom: Spacing.four }}>
-        {value == null ? 'Tap the line' : fmt(value)}
+      <View style={styles.sliderWrap}>
+        <Pressable
+          {...panResponder.panHandlers}
+          disabled={submitted}
+          onPress={tapPlace}
+          onLayout={onLayout}
+          style={styles.hit}
+          accessibilityRole="adjustable"
+          accessibilityLabel={spec.prompt}
+          accessibilityHint={submitted ? 'Answer submitted.' : 'Swipe up or down, tap, or drag horizontally to change the value.'}
+          accessibilityState={{ disabled: submitted }}
+          accessibilityValue={{
+            min: spec.min,
+            max: spec.max,
+            now: shownValue,
+            text: fmt(shownValue),
+          }}
+          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+          onAccessibilityAction={(event) => nudge(event.nativeEvent.actionName === 'decrement' ? -1 : 1)}>
+          <View style={[styles.track, { backgroundColor: theme.muted }]}> 
+            <View style={[styles.trackFill, { width: percentStyle, backgroundColor: theme.primary }]} />
+            <View style={[styles.marker, { left: percentStyle, backgroundColor: theme.primary }]} />
+          </View>
+        </Pressable>
+
+        {spec.ticks ? (
+          <View style={styles.ticks}>
+            {spec.ticks.map((tickValue) => {
+              const tickPercent = ((tickValue - spec.min) / span) * 100;
+              return (
+                <ThemedText
+                  key={tickValue}
+                  type="small"
+                  themeColor="mutedForeground"
+                  style={[styles.tick, { left: `${tickPercent}%` }]}>
+                  {fmt(tickValue)}
+                </ThemedText>
+              );
+            })}
+          </View>
+        ) : null}
+      </View>
+
+      <ThemedText type="display" style={[styles.value, { color: theme.primary }]}> 
+        {fmt(shownValue)}
       </ThemedText>
 
-      <Pressable
-        onPress={place}
-        onLayout={onLayout}
-        style={styles.hit}
-        // 'adjustable' is what this control actually is — a slider — and it is what makes
-        // VoiceOver offer swipe-up/down as increment/decrement.
-        accessibilityRole="adjustable"
-        accessibilityLabel={spec.prompt}
-        accessibilityHint="Swipe up or down to change the value, then activate Check."
-        accessibilityValue={{
-          min: Math.round(spec.min),
-          max: Math.round(spec.max),
-          now: value == null ? Math.round(spec.min) : Math.round(value),
-          text: value == null ? 'No value placed yet' : fmt(value),
-        }}
-        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
-        onAccessibilityAction={(e) => nudge(e.nativeEvent.actionName === 'decrement' ? -1 : 1)}>
-        <View style={[styles.track, { backgroundColor: theme.muted }]}>
-          {checked && !solved && (
-            <View style={[styles.target, { left: `${pct(spec.target) * 100}%`, backgroundColor: theme.success }]} />
-          )}
-          {value != null && (
-            <View style={[styles.marker, { left: `${pct(value) * 100}%`, backgroundColor: solved ? theme.success : theme.primary }]} />
-          )}
-        </View>
-      </Pressable>
+      {submitted && isClose ? <SparkBurst size={150} /> : null}
 
-      {spec.ticks && (
-        <View style={styles.ticks}>
-          {spec.ticks.map((t) => (
-            <ThemedText key={t} type="small" themeColor="mutedForeground" style={{ position: 'absolute', left: `${pct(t) * 100}%`, transform: [{ translateX: -12 }] }}>
-              {fmt(t)}
-            </ThemedText>
-          ))}
-        </View>
+      {phase === 'revealed' ? (
+        <>
+          <Animated.View
+            entering={revealEnter}
+            style={[styles.reveal, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '33' }]}
+            accessibilityRole="summary">
+            <ThemedText type="small" themeColor="mutedForeground">The actual answer is</ThemedText>
+            <ThemedText type="title" style={{ color: theme.primary }}>~{fmt(spec.target)}</ThemedText>
+          </Animated.View>
+          <AtlasCorrection
+            show={!isClose}
+            answer={`It is about ${fmt(spec.target)}.`}
+            reason={spec.explanation}
+          />
+          <Button label="Continue" full onPress={() => onComplete(isClose)} style={styles.continueButton} />
+        </>
+      ) : phase === 'waiting' ? null : (
+        <Button label="Submit" onPress={submit} style={styles.submitButton} />
       )}
-
-      {solved ? (
-        <Animated.View entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={{ marginTop: Spacing.four }}>
-          <ThemedText type="smallBold" style={{ color: theme.success }}>Nailed it. {fmt(spec.target)}.</ThemedText>
-        </Animated.View>
-      ) : (
-        <SpringPressable
-          disabled={value == null}
-          onPress={() => { setChecked(true); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-          style={{ marginTop: Spacing.four }}
-          accessibilityRole="button"
-          // The visible label becomes the miss-feedback sentence after a wrong check, so the
-          // accessible name is stated separately and stays stable.
-          accessibilityLabel="Check your answer"
-          accessibilityState={{ disabled: value == null }}
-        >
-          <View style={[styles.check, { backgroundColor: value != null ? theme.primary + '1F' : theme.muted, borderColor: value != null ? theme.primary + '4D' : theme.border }]}>
-            <ThemedText type="smallBold" style={{ color: value != null ? theme.iconLilac : theme.mutedForeground }}>
-              {checked && !solved ? `Off by ${fmt(Math.abs((value ?? 0) - spec.target))}. Green is the target. Try again.` : 'Check'}
-            </ThemedText>
-          </View>
-        </SpringPressable>
-      )}
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  hit: { paddingVertical: 22 },
+  root: { position: 'relative', width: '100%', alignItems: 'center', gap: 24, paddingHorizontal: 8 },
+  atlasRow: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  promptBubble: { position: 'relative', flex: 1, minWidth: 0, borderRadius: 16, borderTopLeftRadius: 4, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: '#14121C', paddingHorizontal: 16, paddingVertical: 14 },
+  promptTail: { position: 'absolute', left: -6, top: 16, width: 10, height: 10, transform: [{ rotate: '45deg' }], backgroundColor: '#14121C', borderLeftWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)' },
+  prompt: { color: '#F2EFF7', fontSize: 15, lineHeight: 21, fontWeight: '600' },
+  sliderWrap: { width: '100%', maxWidth: 680, paddingHorizontal: 16 },
+  hit: { width: '100%', paddingVertical: 22 },
   track: { height: 8, borderRadius: Radius.sm, justifyContent: 'center' },
+  trackFill: { position: 'absolute', left: 0, height: 8, borderRadius: Radius.sm },
   marker: { position: 'absolute', width: 22, height: 22, borderRadius: 11, top: -7, transform: [{ translateX: -11 }], borderWidth: 3, borderColor: '#fff' },
-  target: { position: 'absolute', width: 4, height: 22, borderRadius: 2, top: -7, transform: [{ translateX: -2 }] },
   ticks: { height: 18, position: 'relative', marginTop: 2 },
-  check: { alignItems: 'center', paddingVertical: Spacing.two + 4, borderRadius: Radius.lg, borderWidth: 1 },
+  tick: { position: 'absolute', transform: [{ translateX: -12 }] },
+  value: { textAlign: 'center', fontSize: 30, lineHeight: 36 },
+  reveal: { width: '100%', maxWidth: 680, alignItems: 'center', gap: 4, padding: 20, borderRadius: 16, borderWidth: 1 },
+  submitButton: { minWidth: 112, paddingHorizontal: Spacing.four },
+  continueButton: { width: '100%', maxWidth: 600 },
 });

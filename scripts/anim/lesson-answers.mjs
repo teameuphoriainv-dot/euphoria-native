@@ -29,6 +29,13 @@ const HELPERS = [...readFileSync('src/lib/curriculum/helpers.ts', 'utf8')
 // Steps whose answer the driver actually needs. Everything else is prose it can tap through.
 const H = {
   q:  (question, options, correct) => ({ kind: 'quiz', options, correct }),
+  // The native renderer grades micro-checks exactly like a single-choice quiz. Keep the
+  // authored options/correct index; the generic helper shim discarded both and left the
+  // recorder stuck on every microCheck despite all answer data being present in the course.
+  microCheck: (_question, options, correct) => ({ kind: 'quiz', options, correct }),
+  explorable: (widget, title, _prompt, insight, params, check) => ({
+    kind: 'explorable', widget, title, insight, params: params ?? {}, check,
+  }),
   fb: (sentence, options, correct) => ({ kind: 'fillBlank', options, correct }),
   vi: (_d, question, options, correct) => ({ kind: 'visual', options, correct }),
   ds: (prompt, items) => ({ kind: 'dragSort', order: items }),
@@ -36,7 +43,20 @@ const H = {
   tf: (statements) => ({ kind: 'trueFalse', statements: statements.map((s) => ({ text: s.s, a: s.a })) }),
   m:  (title, pairs) => ({ kind: 'match', pairs }),
   tr: (title, cards) => ({ kind: 'tapReveal', count: cards.length }),
-  sc: (situation, choices) => ({ kind: 'scenario', correct: choices.findIndex((c) => c.correct) }),
+  sc: (_situation, choices) => ({
+    kind: 'scenario',
+    options: choices.map((choice) => choice.label),
+    correct: choices.findIndex((choice) => choice.correct),
+  }),
+  calculator: (_title, _formula, blanks) => ({ kind: 'calculator', blanks }),
+  decisionTree: (_scenario, decisions) => ({
+    kind: 'decisionTree',
+    decisions: decisions.map((decision) => ({
+      prompt: decision.prompt,
+      options: decision.options.map((option) => option.label),
+      correct: decision.options.findIndex((option) => option.correct),
+    })),
+  }),
   bi: (t, i, slots) => ({ kind: 'buildIt', slots: slots.map((s) => ({ options: s.options, correct: s.correct })) }),
   cq: (question, options, correct) => ({ kind: 'challenge', options, correct }),
   L:  (num, title, xp, steps, challenge) => ({ num, title, xp, steps, challenge }),
@@ -65,12 +85,14 @@ function evalCourse(path) {
 }
 
 function summarise(lessons) {
-  const need = new Set(['quiz', 'fillBlank', 'visual', 'dragSort', 'slider', 'trueFalse', 'match', 'tapReveal', 'scenario', 'buildIt']);
+  const need = new Set(['quiz', 'fillBlank', 'visual', 'dragSort', 'slider', 'trueFalse', 'match',
+    'tapReveal', 'scenario', 'buildIt', 'calculator', 'decisionTree']);
   let interactive = 0, answered = 0;
   for (const l of lessons) for (const s of l.steps || []) {
     if (!need.has(s.kind)) continue;
     interactive++;
-    if (s.correct !== undefined || s.order || s.answers || s.pairs || s.slots || s.count) answered++;
+    if (s.correct !== undefined || s.order || s.answers || s.pairs || s.slots || s.count
+        || s.blanks || s.decisions) answered++;
   }
   return { lessons: lessons.length, interactive, answered };
 }

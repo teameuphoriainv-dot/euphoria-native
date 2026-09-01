@@ -5,11 +5,12 @@
  * matches. Sibling to MatchingPairs/MultiSelect.
  */
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { useLessonStepState } from '@/components/lesson-step-session';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -54,8 +55,8 @@ const shuffledOrder = (n: number): number[] => {
 
 export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolvedChange: (solved: boolean) => void }) {
   const theme = useTheme();
-  const [order, setOrder] = useState<number[]>(() => shuffledOrder(spec.items.length));
-  const [selected, setSelected] = useState<number | null>(null);
+  const [order, setOrder] = useLessonStepState<number[]>('order.order', () => shuffledOrder(spec.items.length));
+  const [selected, setSelected] = useLessonStepState<number | null>('order.selected', null);
 
   const solved = order.every((v, i) => v === i);
 

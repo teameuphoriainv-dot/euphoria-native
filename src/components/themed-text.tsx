@@ -1,7 +1,9 @@
+import { useContext } from 'react';
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { TypographyOverrideContext } from '@/lib/design-context';
 
 /**
  * Typography scale (guardrail G1/G3 — intentional hierarchy):
@@ -16,9 +18,10 @@ export type ThemedTextProps = TextProps & {
 
 export function ThemedText({ style, type = 'body', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
+  const typography = useContext(TypographyOverrideContext);
   return (
     <Text
-      style={[{ color: theme[themeColor ?? 'text'] }, styles[type], style]}
+      style={[{ color: theme[themeColor ?? 'text'] }, styles[type], typography?.[type], style]}
       {...rest}
     />
   );

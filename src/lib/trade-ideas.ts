@@ -46,9 +46,10 @@ export type TradeIdea = {
   concept: string;
   /** One sentence, and it must contain a number the user can check on this same screen. */
   detail: string;
-  /** A real course id from `courseIndex.ts` — never a lesson number, because claiming that
-   *  lesson N covers a concept without having read lesson N is fabrication (§0.4). */
+  /** A real course id from `courseIndex.ts`. */
   courseId: string;
+  /** The audited lesson that teaches this exact concept. Pinned by the routing regression. */
+  lessonNumber: number;
 };
 
 /** The line that must appear wherever these render. 2/2 convergence, and it is not decoration. */
@@ -59,6 +60,12 @@ const titleOf = (id: string) => COURSES.find((c) => c.id === id)?.title ?? '';
 
 /** Course title for display, exported so the UI never hand-writes one that could drift. */
 export const ideaCourseTitle = titleOf;
+
+/** The Expo Router destination shared by the UI and its regression test. */
+export const tradeIdeaRoute = (idea: Pick<TradeIdea, 'courseId' | 'lessonNumber'>) => ({
+  pathname: '/lesson' as const,
+  params: { course: idea.courseId, num: String(idea.lessonNumber) },
+});
 
 export type IdeaInput = {
   cash: number;
@@ -95,6 +102,7 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
       concept: 'Getting started',
       detail: `You have ${fmt(cash)} in practice cash and no positions yet. Nothing here is real money.`,
       courseId: 'investing-fundamentals',
+      lessonNumber: 1,
     });
   }
 
@@ -107,7 +115,8 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
         id: 'concentration',
         concept: 'Concentration risk',
         detail: `${top} is ${Math.round(share * 100)}% of your portfolio. One name moving decides your whole result.`,
-        courseId: 'risk-management',
+        courseId: 'investing-fundamentals',
+        lessonNumber: 5,
       });
     }
 
@@ -118,7 +127,8 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
         id: 'few-names',
         concept: 'Diversification',
         detail: `You hold ${held.length} ${held.length === 1 ? 'name' : 'names'}. Diversification is about how many bets, not how big each one is.`,
-        courseId: 'risk-management',
+        courseId: 'investing-fundamentals',
+        lessonNumber: 5,
       });
     }
   }
@@ -131,7 +141,8 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
         id: 'cash-drag',
         concept: 'Cash drag',
         detail: `${Math.round(cashShare * 100)}% of your portfolio is uninvested cash. Sitting out has a cost too.`,
-        courseId: 'investing-fundamentals',
+        courseId: 'behavioral-finance',
+        lessonNumber: 13,
       });
     }
     if (held.length > 0 && cashShare <= 0.05) {
@@ -140,6 +151,7 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
         concept: 'Liquidity',
         detail: `Only ${Math.round(cashShare * 100)}% of your portfolio is cash. Fully invested means no room to act.`,
         courseId: 'personal-finance',
+        lessonNumber: 4,
       });
     }
   }
@@ -152,6 +164,7 @@ export function tradeIdeas({ cash, positions, watchlist, total }: IdeaInput, lim
       concept: 'Analysis paralysis',
       detail: `${watching.length} names on your watchlist, none bought. Watching is not a decision.`,
       courseId: 'behavioral-finance',
+      lessonNumber: 13,
     });
   }
 

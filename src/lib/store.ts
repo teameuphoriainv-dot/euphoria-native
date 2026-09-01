@@ -16,6 +16,7 @@ import { dayBeforeKey, dayKey, nextStreak, prevDayKey, weekKey, withToday } from
 import { resolveStreak } from './streak-freeze';
 import { prune as pruneNotifs, type NotifEntry, type NotifKind } from './notif-budget';
 import { valueOf } from './portfolio-value';
+import { appendMarketPortfolioSnapshot, appendPortfolioSnapshot } from './portfolio-history';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { outcomeFor, type WeekOutcome } from './league-week';
 import { TIER_UP_BONUS, tierForXp } from './league';
@@ -210,8 +211,7 @@ const snapshot = (
   positions: Record<string, number>,
   derivatives: { premium: number }[] = s.derivatives,
 ) => {
-  const v = valueOf(cash, positions, derivatives, priceOf);
-  return [...s.valueHistory, { t: Date.now(), v }].slice(-500);
+  return appendPortfolioSnapshot(s.valueHistory, { cash, positions, derivatives, priceOf });
 };
 
 const applyXp = (
@@ -576,11 +576,13 @@ export type AppState = {
   costBasis: Record<string, number>;
   /** Total paper account value: cash + every position marked at its current price. */
   portfolioValue: () => number;
+  /** Record the current marked value after a successful market-data refresh. */
+  recordPortfolioSnapshot: () => void;
   /** Buy at `price`. No-op when the cash is not there — the caller must not have to check. */
   buy: (sym: string, shares: number, price: number) => void;
   /** Sell at `price`. Clamped to what is actually held, so it cannot go short by accident. */
   sell: (sym: string, shares: number, price: number) => void;
-  /** Portfolio value snapshots, oldest first. Written on every trade.
+  /** Portfolio value snapshots, oldest first. Written on trades and successful mark refreshes.
    *
    *  This is the ONLY honest source for a portfolio chart. Polygon can give per-ticker history,
    *  but a curve built from today's holdings projected backwards is a BACKTEST of the current
@@ -884,6 +886,15 @@ export const useApp = create<AppState>()(
         const s = get();
         return valueOf(s.cash, s.positions, s.derivatives, priceOf);
       },
+      recordPortfolioSnapshot: () =>
+        set((s) => ({
+          valueHistory: appendMarketPortfolioSnapshot(s.valueHistory, {
+            cash: s.cash,
+            positions: s.positions,
+            derivatives: s.derivatives,
+            priceOf,
+          }),
+        })),
       buy: (sym, shares, price) =>
         set((s) => {
           const cost = shares * price;

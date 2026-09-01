@@ -20,7 +20,7 @@
  * FUTURES ARE DELIBERATELY ABSENT — separate venue, margin model and settlement calendar.
  */
 import { router } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { RetryNotice } from '@/components/retry-notice';
@@ -38,6 +38,7 @@ import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getChain, getExpirations, type Contract } from '@/lib/market';
 import { ASSUMED_VOL, CONTRACT_SIZE, premium, strikesAround } from '@/lib/options';
+import { chainScrollTarget } from '@/lib/options-scroll';
 import { ALL_SYMS, money, priceOf, STOCKS } from '@/lib/stocks';
 import { useTier } from '@/lib/entitlement';
 import { PRO_DERIVATIVE_PREVIEW, useApp } from '@/lib/store';
@@ -221,10 +222,19 @@ export default function Options() {
    */
   const scrollRef = useRef<ScrollView>(null);
   const didScroll = useRef('');
+  /** Updated at layout commit so an old async measurement can identify that it is stale. */
+  const activeChainKey = useRef('');
   /** The ATM row itself, measured in window coordinates. */
   const atmRef = useRef<View>(null);
   /** Current scroll offset, so a window measurement can be turned into a content offset. */
   const offsetY = useRef(0);
+
+  const resetChainPosition = useCallback(() => {
+    didScroll.current = '';
+    offsetY.current = 0;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    setPick(null);
+  }, []);
 
   // Expiries for the chosen underlying. An empty result means no token, which the UI states.
   useEffect(() => {
@@ -255,6 +265,10 @@ export default function Options() {
   // The chain for the chosen expiry. `loadedFor` derives loading without setState in the effect
   // body — the rule the rest of this codebase follows.
   const key = `${sym}:${expiry}`;
+  // Commit the identity before React Native can deliver a post-layout measurement callback.
+  useLayoutEffect(() => {
+    activeChainKey.current = key;
+  }, [key]);
   const loading = expiry !== '' && loadedFor !== key;
 
   /*
@@ -293,12 +307,19 @@ export default function Options() {
   const centreOnMoney = (k: string) => {
     if (didScroll.current === k) return;
     atmRef.current?.measureInWindow((_x: number, windowY: number) => {
-      if (!Number.isFinite(windowY)) return;
+      const target = chainScrollTarget({
+        measuredKey: k,
+        activeKey: activeChainKey.current,
+        offsetY: offsetY.current,
+        windowY,
+      });
+      if (target === null) return;
       didScroll.current = k;
       // A third of a screen of headroom, so the money reads as the centre of the chain rather than
       // the top of it. Window coordinates plus the live scroll offset give a content offset without
       // knowing the header height — which is what makes this survive a layout change.
-      scrollRef.current?.scrollTo({ y: Math.max(0, offsetY.current + windowY - 300), animated: false });
+      offsetY.current = target;
+      scrollRef.current?.scrollTo({ y: target, animated: false });
     });
   };
 
@@ -496,7 +517,7 @@ export default function Options() {
           <ThemedText type="label" themeColor="mutedForeground" style={styles.label}>Underlying</ThemedText>
           <View style={styles.chipRow}>
             {ALL_SYMS.map((s) => (
-              <Chip key={s} label={s} on={s === sym} onPress={() => { setSym(s); setPick(null); }} />
+              <Chip key={s} label={s} on={s === sym} onPress={() => { resetChainPosition(); setSym(s); }} />
             ))}
           </View>
         </RiseIn>
@@ -506,7 +527,7 @@ export default function Options() {
             <ThemedText type="label" themeColor="mutedForeground" style={styles.label}>Expiry</ThemedText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
               {expiries.map((e) => (
-                <Chip key={e} label={e.slice(5)} on={e === expiry} onPress={() => { setExpiry(e); setPick(null); }} />
+                <Chip key={e} label={e.slice(5)} on={e === expiry} onPress={() => { resetChainPosition(); setExpiry(e); }} />
               ))}
             </ScrollView>
           </RiseIn>

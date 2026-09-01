@@ -18,7 +18,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, runOnJS } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,7 +33,8 @@ import { phaseIndex, phaseOf } from '@/lib/learner-phase';
 import { PixelSpriteView, stackCash } from '@/lib/pixel';
 import { useApp } from '@/lib/store';
 import {
-  GOAL, LADDER, SIZE, canMove, emptyGrid, move, rng, spawn, type Dir, type Grid,
+  GOAL, LADDER, SIZE, bestTile, canMove, emptyGrid, milestoneFact, move, rng, spawn,
+  type Dir, type Grid,
 } from '@/lib/money-2048';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -86,6 +87,8 @@ export default function Money2048() {
   const [over, setOver] = useState(false);
   const [won, setWon] = useState(false);
   const [pop, setPop] = useState<{ id: number; text: string } | null>(null);
+  const [started, setStarted] = useState(false);
+  const [milestone, setMilestone] = useState<string | null>(null);
 
   /*
    * THE POP CLEARS ITSELF, in an effect keyed on the pop.
@@ -136,6 +139,12 @@ export default function Money2048() {
     const next = spawn(res.grid, rand);
     setGrid(next);
 
+    // A FACT IS EARNED BY A MERGE, not by a random spawn. Comparing the board before the move to
+    // the merged board (before spawn) makes that distinction structural and shows each rung only
+    // when it becomes the run's new high-water mark.
+    const reached = bestTile(res.grid);
+    if (reached > bestTile(grid)) setMilestone(milestoneFact(reached));
+
     if (res.gained > 0) {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const total = score + res.gained;
@@ -182,7 +191,7 @@ export default function Money2048() {
 
   const restart = () => {
     setGrid(build());
-    setScore(0); setOver(false); setWon(false); setPop(null);
+    setScore(0); setOver(false); setWon(false); setPop(null); setMilestone(null);
   };
 
   return (
@@ -194,9 +203,27 @@ export default function Money2048() {
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
         <PixelSpriteView sprite={stackCash} size={26} />
-        <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingLg }}>Money 2048</ThemedText>
+        <ThemedText type="title" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ flex: 1, fontSize: FontSize.headingLg }}>Money 2048</ThemedText>
       </View>
 
+      {!started ? (
+        <ScrollView contentContainerStyle={styles.intro} showsVerticalScrollIndicator={false}>
+          <Animated.View entering={FadeIn} style={styles.introInner}>
+            <PixelSpriteView sprite={stackCash} size={68} />
+            <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.introTitle}>Money 2048</ThemedText>
+            <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.introCopy}>
+              Swipe equal bills together to climb the U.S. denomination ladder from $1 to $100.
+            </ThemedText>
+            <SlabButton
+              label="Start"
+              accessibilityLabel="Start Money 2048"
+              full
+              onPress={() => { setStarted(true); }}
+              style={styles.introButton}
+            />
+          </Animated.View>
+        </ScrollView>
+      ) : <>
       <View style={[styles.scoreRow, { width: board }]}>
         <View>
           <ThemedText type="label" themeColor="mutedForeground">SCORE</ThemedText>
@@ -268,6 +295,13 @@ export default function Money2048() {
         {over ? 'No moves left' : won ? 'You made a $100. Keep going.' : 'Swipe to merge bills'}
       </ThemedText>
 
+      {milestone ? (
+        <Animated.View entering={FadeIn} style={[styles.fact, { width: board, backgroundColor: theme.card, borderColor: theme.iconGold }]}>
+          <ThemedText type="label" style={{ color: theme.iconGold }}>DENOMINATION FACT</ThemedText>
+          <ThemedText type="small" style={styles.factCopy}>{milestone}</ThemedText>
+        </Animated.View>
+      ) : null}
+
       {/*
         * THE D-PAD, and it is not an optional extra — without it this game cannot be played at all
         * by a VoiceOver user.
@@ -303,6 +337,7 @@ export default function Money2048() {
           <SlabButton label="Back to games" tone="neutral" full onPress={() => { router.back(); }} />
         </Animated.View>
       )}
+      </>}
     </SafeAreaView>
   );
 }
@@ -310,11 +345,18 @@ export default function Money2048() {
 const styles = StyleSheet.create({
   safe: { flex: 1, alignItems: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, alignSelf: 'stretch', paddingHorizontal: Spacing.four, paddingVertical: Spacing.three },
+  intro: { flexGrow: 1, paddingHorizontal: Spacing.four, paddingVertical: Spacing.four },
+  introInner: { flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' },
+  introTitle: { fontSize: FontSize.titleSm, textAlign: 'center', marginTop: Spacing.three },
+  introCopy: { textAlign: 'center', marginTop: Spacing.two },
+  introButton: { alignSelf: 'stretch', marginTop: Spacing.five },
   scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: Spacing.three },
   scoreLine: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.two },
   board: { borderRadius: Radius.lg, position: 'relative' },
   cell: { position: 'absolute', borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   hint: { marginTop: Spacing.three },
+  fact: { marginTop: Spacing.two, padding: Spacing.three, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth },
+  factCopy: { marginTop: 4 },
   dpad: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.three, marginTop: Spacing.three },
   /** 48pt: above the 44pt HIG minimum, because these are pressed repeatedly and fast. */
   dkey: { width: 48, height: 48, borderRadius: Radius.md, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },

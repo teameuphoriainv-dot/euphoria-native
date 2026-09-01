@@ -76,6 +76,7 @@ the dataset**; say "no strong match" rather than substituting something off-topi
 | Trial | **3 days** (`TRIAL_DAYS`), counted in *distinct days of real use*, not elapsed time |
 | Pricing | **$9.99/mo**, **$79.99/yr** — $6.67/mo, 33% off, deliberately under the ~$7.90 peer median |
 | Curriculum | 12 courses × 25 lessons = **300 lessons**, 60 unit names, 35 digest guides |
+| Screens | 4,050 authored steps = **4,050 lesson screens** + 1,770 mastery-challenge screens = **5,820 happy-path screens** |
 | Content during trial | **Unmetered.** Every lesson, every guide — 4/4 reference trials grant full access |
 | After the trial | A **hard wall** on content; the streak/XP/league loop stays open |
 | Screen | 402 × 874 pt |
@@ -591,12 +592,24 @@ Connect. Source work can prepare the evidence; it cannot substitute for those ac
 
 ## Open work
 
-- **300-lesson evidence run.** The corpus and render-path audits prove inventory and reachability;
-  they do not replace the per-lesson live web/native recordings and adjudications. Current
-  reachability evidence accounts for all 1,321 animated visuals, all 11 authored raw SVGs, all 289
-  interactive graphs, and all 665 graph controls. The dedicated hook renderer also preserves the
-  web-timed title/visual/outcome staging and inline `Begin` CTA across all 300 lessons; Release
-  inspection confirms the path, while live-web adjudication remains outstanding.
+- **300-lesson evidence run — 0/300 verified in every lane.** The corpus and render-path audits
+  prove inventory and reachability; they do not replace the per-lesson live web/native recordings
+  and adjudications. Reachability evidence accounts for all 1,321 animated visuals, all 11 authored
+  raw SVGs, all 289 interactive graphs, and all 665 graph controls, and the dedicated hook renderer
+  preserves the web-timed title/visual/outcome staging and inline `Begin` CTA across all 300
+  lessons. None of that is parity evidence. Live status is generated, never hand-written:
+
+  | Lane | Accepted | Blocker |
+  |---|---:|---|
+  | Native iOS | 0/300 | Automatable. Driver reaches the lesson body; `interactive_graph_controls` regression blocks explorable-graph lessons. |
+  | Live Chrome | 0/300 | **Operator-gated by design.** Requires a signed-in recording on `euphoriainv.com` plus an attested sidecar; the harness refuses local renders as live coverage. |
+  | Adjudication | 0/300 | Blocked — needs both recordings per lesson. |
+
+  Regenerate with `node scripts/parity/render-tasklist.mjs`; the board lives at
+  `docs/status/LESSONS_PARITY_VISUAL_TASKLIST.md`. Four harness defects were fixed to get this far:
+  a self-test fixture that summed 4,179 against an expected 4,050, a stale schema-v1 plan that made
+  every command fail, and two fresh-device blind spots (`Start lesson` unrecognised as the warmup
+  entry contract and as a warmup beat) that stalled the driver at action 0 on all 300 lessons.
 - **Release-candidate screenshots.** The current-Release five-image draft passes Goldie capture,
   framing, size verification and human review. Rebuild and replay the flows after source freeze,
   then review the final narrative before treating the verified PNGs as uploadable.

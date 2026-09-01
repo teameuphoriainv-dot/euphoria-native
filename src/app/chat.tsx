@@ -21,7 +21,7 @@
  * not by the reference set.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -33,7 +33,17 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  FadeIn,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
@@ -48,6 +58,7 @@ import { SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
+import type { AtlasLessonContext } from '@/lib/atlas-lesson-context';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 import { entitled, TRIAL_DAYS, useTier, type Refusal } from '@/lib/entitlement';
 
@@ -63,6 +74,61 @@ const STARTERS = [
  *  make sense after ANY answer, since we do not generate them per-response yet. */
 const FOLLOW_UPS = ['Explain it simpler', 'Give me an example'];
 
+/** Matches the web tutor's three pulsing "Atlas is typing" dots. Reduced Motion keeps all three
+ * visible and still, so the state remains understandable without a looping animation. */
+function ThinkingDot({ delay, color }: { delay: number; color: string }) {
+  const reduced = useReducedMotion();
+  const opacity = useSharedValue(reduced ? 1 : 0.3);
+
+  useEffect(() => {
+    if (reduced) {
+      opacity.value = 1;
+      return;
+    }
+    opacity.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 500 }),
+          withTiming(0.3, { duration: 500 }),
+        ),
+        -1,
+      ),
+    );
+    return () => cancelAnimation(opacity);
+  }, [delay, opacity, reduced]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  return <Animated.View style={[styles.thinkingDot, { backgroundColor: color }, animatedStyle]} />;
+}
+
+function ThinkingDots({ color }: { color: string }) {
+  return (
+    <View style={styles.thinkingDots}>
+      <ThinkingDot delay={0} color={color} />
+      <ThinkingDot delay={150} color={color} />
+      <ThinkingDot delay={300} color={color} />
+    </View>
+  );
+}
+
+function parseLessonContext(value?: string): AtlasLessonContext | undefined {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value) as Partial<AtlasLessonContext>;
+    if (
+      typeof parsed.lessonTitle !== 'string' ||
+      typeof parsed.lessonNumber !== 'number' ||
+      typeof parsed.step?.index !== 'number' ||
+      typeof parsed.step?.total !== 'number' ||
+      typeof parsed.attempt?.attempted !== 'boolean'
+    ) return undefined;
+    return parsed as AtlasLessonContext;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Questions remaining at which we start SAYING SO.
  *
@@ -75,8 +141,18 @@ const WARN_AT = 3;
 
 export default function ChatScreen() {
   const theme = useTheme();
-  const params = useLocalSearchParams<{ topic?: string }>();
+  const params = useLocalSearchParams<{ topic?: string; lessonContext?: string }>();
   const topic = params.topic ?? '';
+  const lessonContext = useMemo(() => parseLessonContext(params.lessonContext), [params.lessonContext]);
+  const lessonModes = useMemo(() => {
+    if (!lessonContext) return [];
+    return [
+      'Give me a hint',
+      'Explain differently',
+      ...(lessonContext.attempt.attempted && lessonContext.attempt.wasCorrect === false ? ['Why was I wrong?'] : []),
+      'Go deeper',
+    ];
+  }, [lessonContext]);
 
   const isPro = useApp((s) => s.isPro);
   const left = useApp((s) => s.atlasLeft());
@@ -113,6 +189,20 @@ export default function ChatScreen() {
     router.back();
   }
   const scroller = useRef<ScrollView>(null);
+  const lessonContextKey = lessonContext
+    ? `${lessonContext.courseId}:${String(lessonContext.lessonNumber)}:${String(lessonContext.step.index)}`
+    : '';
+  const [activeLessonContextKey, setActiveLessonContextKey] = useState(lessonContextKey);
+
+  // Expo Router can reuse this screen while replacing its params. Never send one lesson step's
+  // conversation alongside a different step's grounding context.
+  if (activeLessonContextKey !== lessonContextKey) {
+    setActiveLessonContextKey(lessonContextKey);
+    setTurns([]);
+    setDraft('');
+    setPending(false);
+    setError(null);
+  }
 
   const exhausted = !isPro && left <= 0;
   /*
@@ -138,7 +228,7 @@ export default function ChatScreen() {
       spend();
 
       try {
-        const reply = await askAtlas(next);
+        const reply = await askAtlas(next, undefined, lessonContext);
         setTurns([...next, { role: 'model', content: reply }]);
       } catch (e) {
         setError(chatErrorMessage(e instanceof ChatError ? e.code : 'unknown'));
@@ -146,7 +236,7 @@ export default function ChatScreen() {
         setPending(false);
       }
     },
-    [spend],
+    [lessonContext, spend],
   );
 
   const send = useCallback(
@@ -275,7 +365,9 @@ export default function ChatScreen() {
           <ThemedText type="bodyMedium">Atlas</ThemedText>
           {!!topic && (
             <ThemedText type="label" themeColor="mutedForeground" numberOfLines={1}>
-              {topic}
+              {lessonContext
+                ? `Step ${lessonContext.step.index + 1} of ${lessonContext.step.total} · ${lessonContext.lessonTitle}`
+                : topic}
             </ThemedText>
           )}
         </View>
@@ -315,17 +407,19 @@ export default function ChatScreen() {
           {turns.length === 0 && (
             <View style={styles.empty}>
               <View style={styles.emptyHead}>
-                <Atlas size={104} expression="happy" interactive={false} idle />
+                <Atlas size={lessonContext ? 52 : 104} expression="happy" interactive={false} idle={!lessonContext} />
                 <ThemedText type="title" style={styles.emptyTitle}>Hi, I&apos;m Atlas.</ThemedText>
                 <ThemedText type="body" themeColor="mutedForeground" style={styles.emptyLine}>
-                  Ask me anything about money. I&apos;ll keep it short.
+                  {lessonContext
+                    ? 'I can see this step. Ask me anything about it, or pick one below.'
+                    : 'Ask me anything about money. I\'ll keep it short.'}
                 </ThemedText>
               </View>
 
               {/* Full-width question rows, not centred pills. Answer.AI's welcome (screen 184765)
                   offers whole questions you can send as-is — a starter has to read as the thing
                   you were about to type, which centred 11pt caps did not. */}
-              <View style={styles.starters}>
+              {!lessonContext && <View style={styles.starters}>
                 {STARTERS.map((s) => (
                   <Pressable
                     key={s}
@@ -337,7 +431,7 @@ export default function ChatScreen() {
                     <ThemedText type="body" style={styles.starterText}>{s}</ThemedText>
                   </Pressable>
                 ))}
-              </View>
+              </View>}
             </View>
           )}
 
@@ -362,7 +456,7 @@ export default function ChatScreen() {
             <View style={styles.atlasRow} accessibilityLabel="Atlas is thinking">
               <Atlas size={30} expression="thinking" interactive={false} />
               <View style={[styles.atlasBubble, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <ThemedText type="body" themeColor="mutedForeground">Thinking…</ThemedText>
+                <ThinkingDots color={theme.primary} />
               </View>
             </View>
           )}
@@ -447,11 +541,39 @@ export default function ChatScreen() {
           )}
         </ScrollView>
 
+        {lessonContext && !exhausted && (
+          <ScrollView
+            horizontal
+            style={[styles.lessonModeRail, { borderTopColor: theme.border }]}
+            contentContainerStyle={styles.lessonModeDock}
+            keyboardShouldPersistTaps="handled"
+            showsHorizontalScrollIndicator={false}
+            accessibilityLabel="Atlas tutor actions"
+          >
+            {lessonModes.map((mode) => (
+              <Pressable
+                key={mode}
+                onPress={() => send(mode)}
+                disabled={pending}
+                style={[
+                  styles.lessonMode,
+                  { backgroundColor: theme.card, borderColor: theme.border, opacity: pending ? 0.45 : 1 },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={mode}
+                accessibilityState={{ disabled: pending }}
+              >
+                <ThemedText type="smallBold">{mode}</ThemedText>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
+
         <View style={[styles.composer, { borderTopColor: theme.border }]}>
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder={exhausted ? 'Free questions used up' : 'Ask Atlas…'}
+            placeholder={exhausted ? 'Free questions used up' : lessonContext ? 'Ask Atlas about this step…' : 'Ask Atlas…'}
             placeholderTextColor={theme.mutedForeground}
             editable={!exhausted}
             multiline
@@ -571,10 +693,38 @@ const styles = StyleSheet.create({
   userText: { color: '#FFFFFF' },
   atlasRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
   atlasBubble: {
-    flex: 1,
+    maxWidth: '85%',
+    flexShrink: 1,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.lg,
     paddingVertical: Spacing.two + 2,
+    paddingHorizontal: Spacing.three,
+  },
+  thinkingDots: {
+    minHeight: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  thinkingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  lessonModeRail: {
+    flexGrow: 0,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  lessonModeDock: {
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.two,
+  },
+  lessonMode: {
+    minHeight: 44,
+    justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.pill,
     paddingHorizontal: Spacing.three,
   },
   limit: {

@@ -3,6 +3,7 @@ import {
   DMSans_500Medium,
   DMSans_600SemiBold,
   DMSans_700Bold,
+  DMSans_900Black,
 } from '@expo-google-fonts/dm-sans';
 import { EBGaramond_400Regular, EBGaramond_500Medium, EBGaramond_600SemiBold, EBGaramond_700Bold } from '@expo-google-fonts/eb-garamond';
 import { Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
@@ -68,6 +69,7 @@ function RootLayout() {
     DMSans_500Medium,
     DMSans_600SemiBold,
     DMSans_700Bold,
+    DMSans_900Black,
     EBGaramond_400Regular,
     EBGaramond_500Medium,
     EBGaramond_600SemiBold,
@@ -160,6 +162,17 @@ function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="lesson-atlas"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.72, 1],
+              sheetInitialDetentIndex: 0,
+              sheetGrabberVisible: true,
+              sheetCornerRadius: 24,
+              gestureEnabled: true,
+            }}
+          />
         </Stack>
         {/* Renders nothing unless Preferences turns it on, so an OTA carrying it is invisible. */}
         <PerfHud />

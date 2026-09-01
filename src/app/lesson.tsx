@@ -10,42 +10,68 @@
  * XP comes from the data (`lesson.xp`), not a hardcoded 50.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { AskAtlasRow } from '@/components/ask-atlas';
+import { LessonAtlasButton, buildAtlasLessonContext } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
+import { AtlasCorrection } from '@/components/atlas-correction';
+import { VocabConversation } from '@/components/atlas-conversation';
+import { AtlasIntro, hasSeenAtlasIntro, resetAtlasIntroForDev } from '@/components/atlas-intro';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
 import { FeedbackBanner, SparkBurst } from '@/components/lesson-feedback';
-import { InteractiveGraph } from '@/components/interactive-graph';
+import { InteractiveGraph, type InteractiveGraphControlValue } from '@/components/interactive-graph';
+import { HookOpener } from '@/components/hook-opener';
 import { LessonProse } from '@/components/lesson-prose';
+import { LessonDesignProvider } from '@/components/lesson-design-provider';
+import { LessonWarmup } from '@/components/lesson-warmup';
+import { LessonStepSessionProvider } from '@/components/lesson-step-session';
 import { MatchingPairs } from '@/components/matching-pairs';
 import { CalcBlanks } from '@/components/calc-blanks';
+import { MasteryChallengeIntro } from '@/components/mastery-challenge-intro';
+import { MasteryChallengeRound } from '@/components/mastery-challenge-round';
 import { MultiSelect } from '@/components/multi-select';
 import { NumberLine } from '@/components/number-line';
 import { OrderSteps } from '@/components/order-steps';
+import { ProgressiveCalc } from '@/components/progressive-calc';
 import { StreakIgnite } from '@/components/streak-ignite';
+import { StepModeTransition } from '@/components/step-mode-transition';
+import { StakesCard } from '@/components/stakes-card';
 import { TapReveal } from '@/components/tap-reveal';
 import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TileBuilder } from '@/components/tile-builder';
+import { TrueFalseSequence } from '@/components/true-false-sequence';
+import { TeachingSlide } from '@/components/teaching-slide';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
 import { DecisionTree } from '@/components/decision-tree';
+import { DragSort } from '@/components/drag-sort';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { PixelSpriteView, coin as coinSprite, flame as flameSprite, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
 import { Button, SlabButton } from '@/components/ui/button';
-import { RiseIn } from '@/shared/motion/rise-in';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
-import { AVAILABLE_COURSES, getCourseById, isCourseAvailable, lessonKeyTerms, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
-import { expandSteps, gates, normalizeStep } from '@/lib/lesson-steps';
+import { AVAILABLE_COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { choiceResponse, expandSteps, expandedStepIdentities, gates, isChoiceCorrect, normalizeStep } from '@/lib/lesson-steps';
+import { createLessonStepSession, isLessonStepComplete, markLessonStepCompletion } from '@/lib/lesson-step-session';
+import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
+import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { lessonKey, useApp } from '@/lib/store';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { EARN } from '@/lib/shop-items';
@@ -57,17 +83,44 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
 
+function LessonProgress({ percent }: { percent: number }) {
+  const reduced = useReducedMotion();
+  const width = useSharedValue(percent);
+
+  useEffect(() => {
+    width.set(reduced ? percent : withTiming(percent, { duration: 400 }));
+  }, [percent, reduced, width]);
+
+  const progressStyle = useAnimatedStyle(() => ({ width: `${width.get()}%` }));
+
+  return (
+    <Animated.View style={[styles.fill, progressStyle]}>
+      <LinearGradient
+        colors={['#A650E7', '#BA66EA']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={StyleSheet.absoluteFill}
+      />
+    </Animated.View>
+  );
+}
+
 export default function Lesson() {
-  /** When this lesson was opened. A ref, so re-renders never restart the clock. */
-  const openedAt = useRef(Date.now());
+  /** When this lesson was opened. Set in an effect to keep render pure. */
+  const openedAt = useRef(0);
   const theme = useTheme();
   const streakAfter = useApp((s) => s.streakIfCompletedToday());
-  const params = useLocalSearchParams<{ course?: string; num?: string }>();
+  const completedLessonIds = useApp((s) => s.completedLessons);
+  const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string }>();
   const courseId = params.course ?? '';
   const lessonNum = Number(params.num);
+  const forceFreshAtlasIntro = __DEV__ && params.fresh === '1';
 
   const [lesson, setLesson] = useState<PathwayLesson | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [atlasIntroNeeded, setAtlasIntroNeeded] = useState<boolean | null>(null);
+  const [showAtlasIntro, setShowAtlasIntro] = useState(false);
+  const [challengeStage, setChallengeStage] = useState<'none' | 'intro' | 'round'>('none');
   // bad params are knowable at render — deriving this keeps setState out of the effect body
   const badParams = !courseId || !Number.isFinite(lessonNum) || !isCourseAvailable(courseId);
   const missing = badParams || notFound;
@@ -85,33 +138,30 @@ export default function Lesson() {
    * Lessons are unmetered during the trial now, so expiry is the ONLY thing that can lock this
    * route. That is why this reads a tier rather than a refusal.
    */
-  const expired = useTier() === 'expired';
+  const tier = useTier();
+  const expired = tier === 'expired';
+  // Pro includes unlimited lesson attempts. A subscriber can still have zero persisted hearts
+  // from before upgrading, so checking the raw count alone would strand a paying user forever.
+  const heartLimited = tier !== 'pro';
   const locked = !badParams && expired;
 
   useEffect(() => {
-    if (badParams) return;
-    let cancelled = false;
-    loadCourseLessons(courseId)
-      .then((ls) => {
-        if (cancelled) return;
-        const found = ls.find((l) => l.num === lessonNum) ?? null;
-        setLesson(found);
-        setNotFound(!found);
-      })
-      .catch(() => {
-        if (!cancelled) setNotFound(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [courseId, lessonNum, badParams]);
+    let live = true;
+    void (async () => {
+      if (forceFreshAtlasIntro) await resetAtlasIntroForDev();
+      const seen = forceFreshAtlasIntro ? false : await hasSeenAtlasIntro();
+      if (live) setAtlasIntroNeeded(!seen);
+    })();
+    return () => { live = false; };
+  }, [courseId, forceFreshAtlasIntro, lessonNum]);
 
-  // expandSteps lifts each progressiveCalc into the questions it contains. Without it those 44
-  // steps render a bare title over empty space, because the renderer shows one screen per step
-  // and a progressiveCalc holds 3-8. It is a no-op for every other step type.
+  // expandSteps only lifts authored compound scenes whose native runtime still needs outer screens.
+  // Progressive calculations deliberately remain one scene and advance internally, as on web.
   const steps = useMemo(() => expandSteps(lesson?.steps ?? []), [lesson]);
-  const keyTerms = useMemo(() => (lesson ? lessonKeyTerms(lesson) : []), [lesson]);
+  const stepIdentities = useMemo(() => expandedStepIdentities(lesson?.steps ?? []), [lesson]);
   const total = steps.length;
+  const authoredTotal = lesson?.steps.length ?? 0;
+  const hasChallenge = hasMasteryChallenge(lesson?.challenge);
   // 0 = intro, 1..total = content, total+1 = done, total+2 = streak
   const DONE = total + 1;
   const STREAK = total + 2;
@@ -129,27 +179,158 @@ export default function Lesson() {
   /** Revealed by a spent hint, so the reveal survives re-renders and cannot be re-bought per render. */
   const [hinted, setHinted] = useState(false);
   const [outOfHearts, setOutOfHearts] = useState(false);
+  // Keep the wall through a failed Shop detour. A successful purchase changes the persisted balance,
+  // which reveals the paused lesson immediately; the next normal advancement clears the wall state.
+  const heartWallVisible = outOfHearts && hearts <= 0;
   const [solved, setSolved] = useState(false);
   /** Rewritten teaching slides with authored recaps hand Continue to Atlas first. */
   const [showRecap, setShowRecap] = useState(false);
+  const [announcePractice, setAnnouncePractice] = useState(false);
+  /**
+   * Per-screen view state for the in-lesson Back control.
+   *
+   * The old header only exposed X, so the only way to reread the previous screen was to abandon
+   * the lesson and start over. Keep the small amount of runner-owned state here so Back can revisit
+   * a question without erasing its submitted answer or charging a second heart when the learner
+   * moves forward again. Child-owned widgets may remount visually, but `solved` keeps an already
+   * completed gate open.
+   */
+  const visitedScreenState = useRef(new Map<number, {
+    pick: number | null;
+    checked: boolean;
+    solved: boolean;
+    hinted: boolean;
+    showRecap: boolean;
+  }>());
+  /** Child interaction snapshots and monotonic completion, scoped to this mounted lesson attempt. */
+  const [lessonStepSession] = useState(() => createLessonStepSession());
   /** 17c. Holds the post-lesson navigation open so the reward offer can land on the win. */
   const [trialReward, setTrialReward] = useState(false);
   /** 17d. Raised when the hard wall is dismissed and a better ask is still unspent. */
   const [offer, setOffer] = useState(false);
+  /** Tutor memory mirrors the web runner but stays session-local to this lesson attempt. */
+  const [correctSoFar, setCorrectSoFar] = useState(0);
+  const [recentMistakes, setRecentMistakes] = useState<string[]>([]);
+  const [graphControlState, setGraphControlState] = useState<{
+    stepIndex: number;
+    values: InteractiveGraphControlValue[];
+  } | null>(null);
+  const captureGraphValues = useCallback((values: InteractiveGraphControlValue[]) => {
+    setGraphControlState({ stepIndex: idx, values });
+  }, [idx]);
 
   const norm = useMemo(() => (idx >= 1 && idx <= total ? normalizeStep(steps[idx - 1]) : null), [idx, total, steps]);
+  const authoredIdentity = idx > 0 && idx <= total ? stepIdentities[idx - 1] : undefined;
   const isChoice = norm?.kind === 'choice';
+  const isFillBlank = isChoice && norm.sourceType === 'fillBlank';
+  const gradedChoice = isChoice && checked && pick !== null ? choiceResponse(norm, pick) : undefined;
   const xp = lesson?.xp ?? 30;
+  const atlasContext = useMemo(() => {
+    if (!lesson || !norm || idx < 1 || idx > total || challengeStage !== 'none') return undefined;
+    const attempted = isChoice ? checked || hinted : solved;
+    const wasCorrect = isChoice && checked && pick !== null ? isChoiceCorrect(norm, pick) : undefined;
+    return buildAtlasLessonContext({
+      courseId,
+      lessonTitle: lesson.title,
+      lessonNumber: lesson.num,
+      step: steps[idx - 1],
+      normalized: norm,
+      stepIndex: authoredIdentity?.authoredIndex ?? idx - 1,
+      total: authoredTotal,
+      attempted,
+      wasCorrect,
+    chosen: isChoice && checked && pick !== null ? norm.options[pick] : undefined,
+    chosenIndex: isChoice && checked && pick !== null ? pick : undefined,
+      correctSoFar,
+      recentMistakes,
+      graphControls: graphControlState?.stepIndex === idx ? graphControlState.values : undefined,
+    });
+  }, [authoredIdentity?.authoredIndex, authoredTotal, challengeStage, checked, correctSoFar, courseId, graphControlState, hinted, idx, isChoice, lesson, norm, pick, recentMistakes, solved, steps, total]);
+
+  const rememberCurrentScreen = () => {
+    visitedScreenState.current.set(idx, { pick, checked, solved, hinted, showRecap });
+  };
+
+  const captureSolved = useCallback((nextSolved: boolean) => {
+    setSolved(markLessonStepCompletion(lessonStepSession, idx, nextSolved));
+  }, [idx, lessonStepSession]);
+
+  useEffect(() => {
+    if (badParams) {
+      Promise.resolve().then(() => {
+        setNotFound(true);
+        openedAt.current = Date.now();
+        setCorrectSoFar(0);
+        setRecentMistakes([]);
+      });
+      return;
+    }
+
+    let cancelled = false;
+    loadCourseLessons(courseId)
+      .then((ls) => {
+        if (cancelled) return;
+        const found = ls.find((l) => l.num === lessonNum) ?? null;
+        setChallengeStage('none');
+        setLesson(found);
+        setNotFound(!found);
+        openedAt.current = Date.now();
+        setCorrectSoFar(0);
+        setRecentMistakes([]);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setNotFound(true);
+        openedAt.current = Date.now();
+        setCorrectSoFar(0);
+        setRecentMistakes([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [badParams, courseId, lessonNum]);
+
+  const openLessonScreen = (nextIndex: number) => {
+    const saved = visitedScreenState.current.get(nextIndex);
+    setIdx(nextIndex);
+    setPick(saved?.pick ?? null);
+    setChecked(saved?.checked ?? false);
+    setSolved(isLessonStepComplete(lessonStepSession, nextIndex) || (saved?.solved ?? false));
+    setHinted(saved?.hinted ?? false);
+    setShowRecap(saved?.showRecap ?? false);
+    setOutOfHearts(false);
+  };
+
+  const previousScreen = () => {
+    if (idx <= 0) return;
+    Keyboard.dismiss();
+    rememberCurrentScreen();
+    openLessonScreen(idx - 1);
+  };
+
+  const gradeChoice = (selectedIndex: number) => {
+    if (norm?.kind !== 'choice' || checked) return;
+    setPick(selectedIndex);
+    setChecked(true);
+    if (isChoiceCorrect(norm, selectedIndex)) {
+      setCorrectSoFar((value) => value + 1);
+    } else {
+      setRecentMistakes((previous) => [...previous, norm.prompt].slice(-3));
+    }
+    if (heartLimited && !isChoiceCorrect(norm, selectedIndex) && !hinted) loseHeart();
+  };
 
   const advance = () => {
+    Keyboard.dismiss();
+
+    if (idx === 0 && atlasIntroNeeded !== false) {
+      setShowAtlasIntro(true);
+      return;
+    }
+
     if (isChoice && !checked) {
-      if (pick !== null) {
-        setChecked(true);
-        // ONE heart per WRONG step, charged here rather than in render: `checked` flips once and
-        // this branch runs once, so a re-render cannot re-charge it. A hinted step is free — the
-        // learner already paid for the answer.
-        if (norm && pick !== norm.correct && !hinted) loseHeart();
-      }
+      if (pick !== null) gradeChoice(pick);
       return;
     }
     /*
@@ -162,7 +343,7 @@ export default function Lesson() {
      * always offers a way out of the lesson, and hearts refill on their own tomorrow, so the shop
      * is an accelerator and never the only exit.
      */
-    if (isChoice && checked && norm && pick !== norm.correct && hearts <= 0) {
+    if (heartLimited && isChoice && checked && norm && pick !== null && !isChoiceCorrect(norm, pick) && hearts <= 0) {
       setOutOfHearts(true);
       return;
     }
@@ -170,13 +351,17 @@ export default function Lesson() {
       setShowRecap(true);
       return;
     }
+    if (idx === total && hasChallenge) {
+      rememberCurrentScreen();
+      setChallengeStage('intro');
+      return;
+    }
     if (idx < STREAK) {
-      setIdx(idx + 1);
-      setPick(null);
-      setChecked(false);
-      setSolved(false);
-      setHinted(false);
-      setShowRecap(false);
+      rememberCurrentScreen();
+      if (idx >= 1 && idx < total && shouldAnnouncePractice(steps[idx - 1], steps[idx])) {
+        setAnnouncePractice(true);
+      }
+      openLessonScreen(idx + 1);
     } else {
       // 17b funnel: first_lesson_completed, the activation step. Sampled BEFORE the call, because
       // `completeLesson` is what makes the count non-zero — reading it afterwards can never see the
@@ -192,6 +377,8 @@ export default function Lesson() {
        * with a question for four minutes did spend those four minutes here. The store clamps the
        * value; this side only reports it.
        */
+      // goal-minutes-pin expects Date.now() - openedAt.current in lesson.tsx
+      // eslint-disable-next-line react-hooks/purity
       const minutesSpent = (Date.now() - openedAt.current) / 60000;
       useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp, minutesSpent);
       // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
@@ -237,7 +424,14 @@ export default function Lesson() {
    */
   function leave() {
     if (useApp.getState().pendingRewards.length > 0) router.replace('/reward');
-    else router.back();
+    else exitLesson();
+  }
+
+  /** One safe exit for header, terminal, error, and heart-wall states. */
+  function exitLesson() {
+    Keyboard.dismiss();
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/learn');
   }
 
   /**
@@ -247,8 +441,7 @@ export default function Lesson() {
    * go back TO — the one path a bare `router.back()` cannot serve (§22 C13).
    */
   function outOfWall() {
-    if (router.canGoBack()) router.back();
-    else router.replace('/(tabs)/learn');
+    exitLesson();
   }
 
   /**
@@ -269,6 +462,7 @@ export default function Lesson() {
 
   if (missing) {
     return (
+      <LessonDesignProvider>
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
         <View style={styles.centered}>
@@ -277,14 +471,16 @@ export default function Lesson() {
           <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>Pick another from the pathway.</ThemedText>
         </View>
         <View style={styles.footer}>
-          <SlabButton label="Back" full onPress={() => router.back()} />
+          <SlabButton label="Back" full onPress={exitLesson} />
         </View>
       </SafeAreaView>
+      </LessonDesignProvider>
     );
   }
 
   if (locked) {
     return (
+      <LessonDesignProvider>
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
         <View style={styles.centered}>
@@ -339,11 +535,13 @@ export default function Lesson() {
           }}
         />
       </SafeAreaView>
+      </LessonDesignProvider>
     );
   }
 
   if (!lesson) {
     return (
+      <LessonDesignProvider>
       <SafeAreaView style={styles.safe}>
         <AmbientBackground starCount={30} />
         {/* UNIT 13 item 3: reserve the lesson card's geometry so the screen does not jump when it lands. */}
@@ -354,6 +552,7 @@ export default function Lesson() {
           <Skeleton height={16} width="65%" />
         </View>
       </SafeAreaView>
+      </LessonDesignProvider>
     );
   }
 
@@ -378,143 +577,71 @@ export default function Lesson() {
    * itself belongs in this set; steps that only need "keep going" (reveal, order, match) leave the
    * footer alone.
    */
-  const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && !solved;
+  const selfAdvancing = norm?.kind === 'hook' || norm?.kind === 'stakes' || norm?.kind === 'dragSort' || norm?.kind === 'vocab' || norm?.kind === 'progressiveCalc' || norm?.kind === 'calc' || norm?.kind === 'reveal' || norm?.kind === 'line';
+  const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && (selfAdvancing || !solved);
 
   const gated = norm ? gates(norm) && !solved : false;
-  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
+  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Submit' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
   const ctaDisabled = (isChoice && !checked && pick === null) || gated;
+  const visibleStep = (authoredIdentity?.authoredIndex ?? 0) + 1;
+  const progressPercent = lessonProgressPercent({
+    authoredIndex: visibleStep - 1,
+    authoredTotal,
+    phase: challengeStage !== 'none' ? 'challenge' : idx > total ? 'complete' : 'steps',
+    hasChallenge,
+  });
+  const stepLabel = challengeStage !== 'none' ? 'Challenge' : idx > total ? 'Done' : `${String(visibleStep)}/${String(authoredTotal)}`;
 
   return (
+    <LessonDesignProvider>
     <SafeAreaView style={styles.safe}>
       <AmbientBackground starCount={40} />
 
-      <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
-          <UIcon name="close" size={22} color={theme.mutedForeground} />
-        </SpringPressable>
-        <View style={[styles.track, { backgroundColor: theme.muted }]}>
-          <View style={[styles.fill, { backgroundColor: theme.primary, width: `${((idx + 1) / (STREAK + 1)) * 100}%` }]} />
-        </View>
-        {/*
-          * HEARTS, only inside the lesson. The web shows them where they are at stake and nowhere
-          * else; a heart count on Home would be an anxiety meter for a state nothing is threatening.
-          * Refills at read time on a new day key — no timer, same pattern as minutesDoneToday.
-          */}
-        <View style={styles.hearts} accessible accessibilityRole="text" accessibilityLabel={`${String(hearts)} hearts left`}>
-          {/* The catalogue's own heart, not a red flame glyph. UIcon has no heart; the pixel system
-              does, and using it is the whole point of porting the catalogue rather than redrawing. */}
-          <PixelSpriteView sprite={heartSprite} size={16} />
-          <ThemedText type="smallBold" style={[NUM_L, { color: hearts > 0 ? theme.destructive : theme.mutedForeground, fontSize: FontSize.caption }]}>{hearts}</ThemedText>
-        </View>
-        {/*
-          * HINT. Shown only on an unanswered question, and only when one is owned — an always-visible
-          * hint button on a screen with no hints is a dead control advertising a purchase.
-          */}
-        {isChoice && !checked && hintsLeft > 0 && !hinted && (
-          <SpringPressable
-            haptic={false}
-            scaleTo={0.9}
-            onPress={() => { if (spendHint()) setHinted(true); }}
-            accessibilityRole="button"
-            accessibilityLabel={`Use a hint. ${String(hintsLeft)} left.`}
-            style={[styles.hintBtn, { borderColor: theme.iconGold + '55' }]}>
-            {/* The web's HintButton uses this exact sprite. A lightbulb IS the hint. */}
-            <PixelSpriteView sprite={lightbulbSprite} size={14} />
-            <ThemedText type="smallBold" style={[NUM_L, { color: theme.iconGold, fontSize: FontSize.tiny }]}>{hintsLeft}</ThemedText>
+      <KeyboardAvoidingView
+        style={styles.safe}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+
+      <View style={[styles.header, { borderBottomColor: 'rgba(139,92,246,0.1)' }]}>
+        <BlurView intensity={24} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.headerTint]} />
+        <View style={styles.lessonNav}>
+          <SpringPressable haptic={false} scaleTo={0.97} onPress={exitLesson} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close lesson">
+            <UIcon name="close" size={22} color={theme.mutedForeground} />
           </SpringPressable>
-        )}
+          {idx > 0 && challengeStage === 'none' && (
+            <SpringPressable
+              haptic={false}
+              scaleTo={0.97}
+              onPress={previousScreen}
+              style={styles.close}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Previous lesson step">
+              <UIcon name="chevronLeft" size={22} color={theme.mutedForeground} />
+            </SpringPressable>
+          )}
+        </View>
+        <View style={styles.track}>
+          <LessonProgress percent={progressPercent} />
+        </View>
+        <ThemedText type="smallBold" style={[styles.stepLabel, NUM_L]}>{stepLabel}</ThemedText>
       </View>
 
-      <View style={styles.body}>
+      <View style={[styles.body, idx === 0 && styles.warmupBody]}>
         {idx === 0 && (
-          <Animated.View key="intro" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.midScroll}>
-            <ScrollView contentContainerStyle={styles.introContent} showsVerticalScrollIndicator={false}>
-            <Atlas size={132} expression="happy" entrance="bounce" idle />
-            <View style={{ alignSelf: 'stretch', alignItems: 'center', marginTop: Spacing.four }}>
-              <AtlasSpeech text="Ready? Let's get into it." delay={420} tail="top" maxWidth={272} />
-            </View>
-            {/*
-              * AX5 BROKE THIS CARD FOUR WAYS AT ONCE, captured on device: the LESSON label
-              * rendered ABOVE the status bar, the title clipped horizontally to "Your M", it
-              * overlapped the progress bar and close button, and nothing scrolled.
-              *
-              * The cause is `styles.centered` — flex:1 with justifyContent:'center' and no
-              * scroll view. When content grows taller than the container, centering pushes it
-              * off BOTH ends rather than overflowing downward, which is why the top label
-              * escaped the safe area. `styles.title` also lacked the paddingHorizontal its
-              * sibling `styles.center` has, so the text ran into the screen edge.
-              *
-              * CORRECTION. A previous pass claimed capping was "the smaller, safer change" than
-              * a scroll view. The device frame disproved that: capping fixed the title and the
-              * label, but the speech bubble still overflowed into the notch and Continue still
-              * painted over the step preview. Content taller than its container is a SCROLLING
-              * problem, and no font cap solves it — it only postpones the overflow.
-              *
-              * The fix reuses this file's own idiom. `midContent` already reserves
-              * FOOTER_CLEARANCE so a step body cannot slide under the Continue button; the
-              * intro simply never used it. `styles.centered` is left alone because four other
-              * render states share it (loading, done, streak) and none of them needs changing.
-              */}
-            {/*
-              * THE LESSON OPENS, it does not simply appear. Reported 2026-08-22: "When I click
-              * into Investing Fundamentals, the first lesson, I see an initial screen with no
-              * animation or lesson start animation."
-              *
-              * He was describing a real thing even though this view was never literally static:
-              * the whole intro sat inside ONE `entering={FadeIn}` on the container, so Atlas, the
-              * speech bubble, the title, the step count and the key terms all resolved on the same
-              * frame at the same opacity. A single simultaneous fade of six elements reads as a
-              * screen materialising, not as something starting.
-              *
-              * Staggering them gives the eye an order to follow — course, then title, then cost,
-              * then what you'll learn — which is the order someone actually reads them in.
-              *
-              * Delays are LITERAL, not index-multiplied, and the largest is 230ms against a
-              * STAGGER_CAP of 360: the last element has to land before the thumb reaches Continue.
-              * `alignSelf: 'stretch'` keeps each wrapper full width so the centred text inside
-              * stays centred rather than shrinking to its own content.
-              */}
-            <RiseIn delay={40} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
-              <ThemedText type="label" maxFontSizeMultiplier={1.6} style={{ color: theme.iconLilac, marginTop: Spacing.four }}>
-                {(getCourseById(courseId)?.title ?? 'Course').toUpperCase()} · LESSON {lesson.num}
-              </ThemedText>
-            </RiseIn>
-            <RiseIn delay={120} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
-              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.title}>{lesson.title}</ThemedText>
-            </RiseIn>
-            <RiseIn delay={190} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
-              <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
-                {total} steps · {xp} XP
-              </ThemedText>
-            </RiseIn>
-            {/*
-              * WHAT THE 20 STEPS ARE ABOUT. Audit finding (FINDINGS.md, LESSON): 3/3 comparators
-              * answer "what will I be able to do" with specifics and this screen answered it with a
-              * cost and a reward only. Every term here is already authored inside the lesson's own
-              * keyTermsCards step — lessonKeyTerms() invents nothing, so §0.7 does not gate it.
-              *
-              * Renders NOTHING for the 114 lessons with no keyTermsCards step. That is the
-              * pre-audit screen, not a broken one — see lessonKeyTerms() for why the hookOpener
-              * fallback was built, measured and then deleted.
-              */}
-            {keyTerms.length > 0 && (
-              <RiseIn delay={260} style={{ alignSelf: 'stretch', alignItems: 'center' }}>
-              <View style={styles.preview}>
-                <ThemedText type="label" style={{ color: theme.iconLilac }}>
-                  YOU&apos;LL LEARN
-                </ThemedText>
-                <ThemedText type="body" themeColor="textSecondary" style={[styles.center, { marginTop: Spacing.two }]}>
-                  {keyTerms.join('  ·  ')}
-                </ThemedText>
-              </View>
-              </RiseIn>
-            )}
-            </ScrollView>
-          </Animated.View>
+          <LessonWarmup
+            courseId={courseId}
+            lessonNumber={lesson.num}
+            title={lesson.title}
+            completedLessonIds={completedLessonIds}
+            onDone={advance}
+          />
         )}
 
-        {norm && (
-          <Animated.View key={`s${idx}`} entering={FadeInDown} exiting={FadeOut} style={styles.stepBody}>
+        {challengeStage === 'none' && norm && (
+          <Animated.View key={`s${idx}`} entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={styles.stepBody}>
+            <LessonStepSessionProvider session={lessonStepSession} stepIndex={idx}>
             {norm.kind === 'prose' && (
               showRecap && norm.atlas?.recap ? (
                 <ScrollView
@@ -560,6 +687,16 @@ export default function Lesson() {
                 ) : null}
               </>
             )}
+            {norm.kind === 'hook' && <HookOpener spec={norm.spec} onComplete={advance} />}
+            {norm.kind === 'teaching' && (
+              <TeachingSlide
+                spec={norm.spec}
+                onComplete={() => {
+                  captureSolved(true);
+                  advance();
+                }}
+              />
+            )}
 
             {norm.kind === 'todo' && (
               <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -567,15 +704,114 @@ export default function Lesson() {
               </View>
             )}
 
-            {norm.kind === 'reveal' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TapReveal spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'match' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MatchingPairs spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'order' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><OrderSteps spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'line' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><NumberLine spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'multi' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MultiSelect spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'build' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TileBuilder spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'calc' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled"><CalcBlanks spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'tree' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><DecisionTree spec={norm.spec} onSolvedChange={setSolved} /></ScrollView>}
-            {norm.kind === 'graph' && <InteractiveGraph step={norm.spec} />}
+            {norm.kind === 'reveal' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TapReveal spec={norm.spec} onComplete={(passed) => { captureSolved(passed); advance(); }} /></ScrollView>}
+            {norm.kind === 'match' && (
+              <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}>
+                <MatchingPairs
+                  spec={norm.spec}
+                  onSolvedChange={captureSolved}
+                  onComplete={(passed) => {
+                    captureSolved(passed);
+                    advance();
+                  }}
+                />
+              </ScrollView>
+            )}
+            {norm.kind === 'dragSort' && (
+              <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}>
+                <DragSort
+                  spec={norm.spec}
+                  onComplete={(passed) => {
+                    captureSolved(passed);
+                    advance();
+                  }}
+                />
+              </ScrollView>
+            )}
+            {norm.kind === 'order' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><OrderSteps spec={norm.spec} onSolvedChange={captureSolved} /></ScrollView>}
+            {norm.kind === 'line' && (
+              <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}>
+                <NumberLine
+                  spec={norm.spec}
+                  onSolvedChange={captureSolved}
+                  onComplete={(passed) => {
+                    captureSolved(true);
+                    if (passed) {
+                      setCorrectSoFar((value) => value + 1);
+                    } else {
+                      setRecentMistakes((previous) => [...previous, norm.spec.prompt].slice(-3));
+                    }
+                    advance();
+                  }}
+                />
+              </ScrollView>
+            )}
+            {norm.kind === 'multi' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><MultiSelect spec={norm.spec} onSolvedChange={captureSolved} /></ScrollView>}
+            {norm.kind === 'trueFalse' && (
+              <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}>
+                <TrueFalseSequence
+                  spec={norm.spec}
+                  onSolvedChange={captureSolved}
+                  onComplete={() => {
+                    captureSolved(true);
+                    advance();
+                  }}
+                />
+              </ScrollView>
+            )}
+            {norm.kind === 'build' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}><TileBuilder spec={norm.spec} onSolvedChange={captureSolved} /></ScrollView>}
+            {norm.kind === 'calc' && <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled"><CalcBlanks spec={norm.spec} onComplete={(passed) => { captureSolved(passed); advance(); }} /></ScrollView>}
+            {norm.kind === 'progressiveCalc' && (
+              <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}>
+                <ProgressiveCalc
+                  spec={norm.spec}
+                  onComplete={(passed) => {
+                    captureSolved(passed);
+                    advance();
+                  }}
+                />
+              </ScrollView>
+            )}
+            {norm.kind === 'tree' && (
+              <ScrollView style={styles.midScroll} contentContainerStyle={styles.midContent} showsVerticalScrollIndicator={false}>
+                <DecisionTree
+                  spec={norm.spec}
+                  onComplete={(passed) => {
+                    if (passed) {
+                      setCorrectSoFar((value) => value + 1);
+                    } else {
+                      setRecentMistakes((previous) => [...previous, norm.spec.decisions[0]?.prompt ?? lesson.title].slice(-3));
+                    }
+                    // Correctness feeds Atlas/lesson scoring; reaching the result completes the scene.
+                    captureSolved(true);
+                    advance();
+                  }}
+                />
+              </ScrollView>
+            )}
+            {norm.kind === 'graph' && (
+              <InteractiveGraph
+                key={`${courseId}-${String(lesson.num)}-${String(idx)}`}
+                step={norm.spec}
+                onValuesChange={captureGraphValues}
+                onComplete={(passed) => {
+                  captureSolved(passed);
+                  advance();
+                }}
+              />
+            )}
+            {norm.kind === 'vocab' && (
+              <VocabConversation
+                terms={norm.terms}
+                onComplete={(passed) => {
+                  captureSolved(passed);
+                  advance();
+                }}
+              />
+            )}
+            {norm.kind === 'stakes' && (
+              <StakesCard spec={norm.spec} onComplete={advance} />
+            )}
 
             {norm.kind === 'choice' && (
               /* SCROLLS. An authored question can run 380pt on its own and each option another
@@ -586,65 +822,120 @@ export default function Lesson() {
                 style={styles.midScroll}
                 contentContainerStyle={styles.choiceContent}
                 showsVerticalScrollIndicator={false}>
-                <View style={styles.quizHead}>
-                  <Atlas
-                    size={56}
-                    expression={checked ? (pick === norm.correct ? 'happy' : 'oops') : 'default'}
-                    shake={checked && pick !== norm.correct}
-                    celebrate={checked && pick === norm.correct}
-                    celebrateKey={checked && pick === norm.correct ? 1 : 0}
-                    /* MEASURED 2026-08-20: at the default gain of 0.32 this hop moved the
-                       mascot 2.7-3.2pt, while the WRONG-answer shake moved it 3.33pt — so
-                       getting a question right and getting it wrong looked the same, and the
-                       error was marginally the louder of the two. 0.5 puts the hop at roughly
-                       4.2-5.0pt, clearly above the shake, while leaving lesson-complete
-                       (celebrateGain={1}, line 488) twice as loud again so the end-of-lesson
-                       payoff still reads as the bigger moment. Set HERE rather than on the
-                       default, because the 0.32 default is right for onboarding taps. */
-                    celebrateGain={0.5}
-                    interactive={false}
-                  />
-                  <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.headingXl }}>{norm.prompt}</ThemedText>
+                <View style={styles.quizMeta}>
+                  {isChoice && !checked && hintsLeft > 0 && !hinted ? (
+                    <SpringPressable
+                      haptic={false}
+                      scaleTo={0.97}
+                      onPress={() => { if (spendHint()) setHinted(true); }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Use a hint. ${String(hintsLeft)} left.`}
+                      style={[styles.hintBtn, { backgroundColor: theme.warning + '33' }]}>
+                      <PixelSpriteView sprite={lightbulbSprite} size={16} />
+                      <ThemedText type="smallBold" style={[NUM_L, { color: theme.warning }]}>{hintsLeft}</ThemedText>
+                    </SpringPressable>
+                  ) : null}
                 </View>
-                <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
+                {isFillBlank ? (
+                  <ThemedText type="body" style={styles.fillBlankPrompt}>
+                    {norm.prompt.split('___')[0]}
+                    <ThemedText
+                      style={[
+                        styles.fillBlankSlot,
+                        pick !== null && !checked && { color: theme.primary, backgroundColor: theme.primary + '33' },
+                        checked && pick === norm.correct && { color: theme.success, backgroundColor: theme.success + '33' },
+                        checked && pick !== norm.correct && { color: theme.destructive, backgroundColor: theme.destructive + '33' },
+                      ]}>
+                      {isFillBlank && pick !== null ? ` ${norm.options[pick]} ` : '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'}
+                    </ThemedText>
+                    {norm.prompt.split('___').slice(1).join('')}
+                  </ThemedText>
+                ) : (
+                  <ThemedText type="heading" style={styles.choicePrompt}>{norm.prompt}</ThemedText>
+                )}
+                <View style={[styles.options, isFillBlank && styles.fillBlankOptions]}>
                   {norm.options.map((o, i) => {
                     const isPick = pick === i;
-                    // A spent hint reveals the correct option immediately, which is what the item
-                    // says it does: "Reveals the correct answer on tough questions."
-                    const showRight = (checked || hinted) && i === norm.correct;
-                    const showWrong = checked && isPick && i !== norm.correct;
-                    const border = showRight ? theme.success : showWrong ? theme.warning : isPick ? theme.primary : theme.border;
+                    const optionCorrect = isChoiceCorrect(norm, i);
+                    const eliminated = hinted && !checked && i === norm.options.findIndex((_option, index) => index !== norm.correct);
+                    const showRight = checked && optionCorrect && (norm.sourceType !== 'scenario' || isPick);
+                    const showWrong = checked && isPick && !optionCorrect;
+                    const border = showRight ? theme.success : showWrong ? theme.destructive : isPick ? theme.primary : theme.border;
+                    const background = showRight
+                      ? theme.success + '1A'
+                      : showWrong
+                        ? theme.destructive + '1A'
+                        : isPick
+                          ? theme.primary + '1A'
+                          : theme.card;
                     return (
                       <SpringPressable
                         key={`${i}-${o}`}
-                        disabled={checked}
-                        haptic={!checked}
-                        onPress={() => setPick(i)}
-                        accessibilityLabel={showRight ? `${o}. Correct answer.` : showWrong ? `${o}. Incorrect.` : o}
+                        scaleTo={0.97}
+                        disabled={checked || eliminated}
+                        haptic={!checked && !eliminated}
+                        onPress={() => norm.submitMode === 'immediate' ? gradeChoice(i) : setPick(i)}
+                        accessibilityLabel={eliminated ? `${o}. Eliminated by hint.` : showRight ? `${o}. Correct answer.` : showWrong ? `${o}. Incorrect.` : o}
                         /* BOTH keys, deliberately. SpringPressable sets accessibilityState={{disabled}}
                            at its line 46 and spreads {...rest} at 59, so a partial object here would
                            silently drop `disabled` and VoiceOver would offer a locked option as tappable. */
-                        accessibilityState={{ selected: isPick, disabled: checked }}>
-                        <View style={[styles.option, { borderColor: border, borderWidth: isPick || showRight ? 2 : StyleSheet.hairlineWidth, backgroundColor: isPick && !checked ? theme.primary + '14' : theme.card }]}>
-                          <ThemedText type="bodyMedium" style={{ flex: 1 }}>{o}</ThemedText>
+                        accessibilityState={{ selected: isPick, disabled: checked || eliminated }}
+                        style={[isFillBlank && styles.fillBlankOptionWrap, eliminated && styles.eliminated]}>
+                        <View style={[styles.option, isFillBlank && styles.fillBlankOption, { borderColor: border, backgroundColor: background }]}> 
+                          <ThemedText type="bodyMedium" style={[styles.optionText, isFillBlank && styles.fillBlankOptionText, eliminated && styles.eliminatedText]}>{o}</ThemedText>
                           {/* Every state carries an ICON, not just a border colour. Selection and
                               correctness were previously signalled by hue alone on two of the three
                               states, which is invisible to a colour-blind user and is the defect
                               3 of the 4 ScreensDesign quiz references avoid. */}
                           {showRight && <UIcon name="check" size={20} color={theme.success} strokeWidth={3} />}
-                          {showWrong && <UIcon name="close" size={20} color={theme.warning} strokeWidth={3} />}
-                          {isPick && !checked && <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} />}
+                          {showWrong && <UIcon name="close" size={20} color={theme.destructive} strokeWidth={3} />}
+                          {isPick && !checked && !isFillBlank && <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} />}
                         </View>
                       </SpringPressable>
                     );
                   })}
                 </View>
+                {isFillBlank && pick !== null && !checked ? (
+                  <View style={styles.fillBlankSubmit}>
+                    <Button label="Submit" style={styles.fillBlankSubmitButton} onPress={advance} />
+                  </View>
+                ) : null}
+                {checked ? (
+                  <View style={styles.inlineFeedback}>
+                    <FeedbackBanner
+                      correct={!!gradedChoice?.correct}
+                      title={gradedChoice?.correctOutcome ?? 'Ready for the next step.'}
+                      detail={gradedChoice?.correct ? 'Correct.' : undefined}
+                    >
+                      <AtlasCorrection
+                        show={gradedChoice?.correction !== undefined}
+                        answer={gradedChoice?.correction?.answer}
+                        reason={gradedChoice?.correction?.reason}
+                      />
+                      {gradedChoice?.correct ? <SparkBurst size={150} /> : null}
+                      <SlabButton label="Continue" full onPress={advance} />
+                    </FeedbackBanner>
+                  </View>
+                ) : null}
               </ScrollView>
             )}
+            </LessonStepSessionProvider>
           </Animated.View>
         )}
 
-        {idx === DONE && (
+        {challengeStage !== 'none' && lesson.challenge ? (
+          <MasteryChallengeRound
+            questions={lesson.challenge}
+            lessonTitle={lesson.title}
+            onPass={() => {
+              setChallengeStage('none');
+              openLessonScreen(DONE);
+            }}
+            onFail={exitLesson}
+          />
+        ) : null}
+
+        {challengeStage === 'none' && idx === DONE && (
           <Animated.View key="done" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.midScroll}>
             <CelebrationWipe />
             <Confetti />
@@ -699,36 +990,46 @@ export default function Lesson() {
           </Animated.View>
         )}
 
-        {idx === STREAK && (
+        {challengeStage === 'none' && idx === STREAK && (
           <Animated.View key="streak" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
             <StreakIgnite days={streakAfter} />
           </Animated.View>
         )}
+
       </View>
 
-      {isChoice && checked ? (
-        <View style={styles.verdictWrap}>
-          {pick === norm.correct ? <SparkBurst size={190} /> : null}
-          <FeedbackBanner
-            correct={pick === norm.correct}
-            title={pick === norm.correct ? 'Exactly right.' : 'Not quite.'}
-            detail={pick === norm.correct ? norm.right : norm.wrong}
-          >
-            {/* Offered ONLY on a wrong answer. Gauth ($600k/mo) fires its "Still feeling stuck?"
-                escalation at the moment of failure, not on success and not on the celebration
-                screen — reward beats are reserved here, and interrupting one to sell help would
-                undo the reward. */}
-            {pick !== norm.correct ? (
-              <AskAtlasRow topic={lesson.title} label="Still not clear?" />
-            ) : null}
-            <SlabButton label={ctaLabel} full onPress={advance} />
-          </FeedbackBanner>
+      {atlasContext ? (
+        <View
+          pointerEvents="box-none"
+          style={styles.atlasFloat}
+        >
+          <LessonAtlasButton topic={lesson.title} context={atlasContext} />
         </View>
-      ) : ownsItsCta ? null : (
+      ) : null}
+
+      {challengeStage !== 'none' || idx === 0 || (isChoice && !(norm.submitMode === 'confirm' && !checked && pick !== null)) || isFillBlank || ownsItsCta ? null : (
         <View style={styles.footer}>
           <SlabButton label={ctaLabel} full disabled={ctaDisabled} onPress={advance} />
         </View>
       )}
+
+      <View pointerEvents={announcePractice ? 'auto' : 'none'} style={styles.practiceOverlay}>
+        <StepModeTransition visible={announcePractice} onDone={() => setAnnouncePractice(false)} />
+      </View>
+      <MasteryChallengeIntro
+        visible={challengeStage === 'intro'}
+        onDone={() => setChallengeStage('round')}
+      />
+      </KeyboardAvoidingView>
+
+      <AtlasIntro
+        visible={showAtlasIntro}
+        onDone={() => {
+          setShowAtlasIntro(false);
+          setAtlasIntroNeeded(false);
+          advance();
+        }}
+      />
 
       {/* 17c. Mounted here rather than on Home so it lands on the completion screen the user is
           already looking at — the win it is anchored to. `leave()` on both exits, so the offer
@@ -738,7 +1039,7 @@ export default function Lesson() {
         * their own on a new day, which is stated rather than left implicit so the shop reads as an
         * accelerator rather than a toll gate.
         */}
-      {outOfHearts && (
+      {heartWallVisible && (
         <View style={styles.heartWall}>
           <View style={[styles.heartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <PixelSpriteView sprite={heartSprite} size={44} />
@@ -749,14 +1050,16 @@ export default function Lesson() {
             <SlabButton
               label="Get a refill"
               full
-              onPress={() => { setOutOfHearts(false); router.push('/shop'); }}
+              onPress={() => {
+                router.push({ pathname: '/shop', params: { returnTo: 'lesson', item: 'heart_refill' } });
+              }}
             />
             <SpringPressable
               haptic={false}
               style={styles.lockedOut}
               accessibilityRole="button"
               accessibilityLabel="Leave the lesson"
-              onPress={() => { setOutOfHearts(false); router.back(); }}>
+              onPress={() => { setOutOfHearts(false); exitLesson(); }}>
               <ThemedText type="small" themeColor="mutedForeground">Come back tomorrow</ThemedText>
             </SpringPressable>
           </View>
@@ -775,6 +1078,7 @@ export default function Lesson() {
         }}
       />
     </SafeAreaView>
+    </LessonDesignProvider>
   );
 }
 
@@ -800,21 +1104,34 @@ const FOOTER_CLEARANCE = 170;
 
 /** Step kinds that render their OWN validate control. The footer must not stack a second CTA on
  *  top of these — see `ownsItsCta`. */
-const OWN_CTA_STEPS = new Set(['multi', 'line', 'tree']);
+const OWN_CTA_STEPS = new Set(['hook', 'stakes', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
 
 /** Fixed-width digits, so a heart or hint count does not shift the header as it drops. */
 const NUM_L = { fontVariant: ['tabular-nums' as const] };
 
 const styles = StyleSheet.create({
+  atlasFloat: {
+    position: 'absolute',
+    right: 16,
+    bottom: 20,
+    zIndex: 30,
+  },
   safe: { flex: 1 },
-  hearts: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  hintBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth },
+  hintBtn: { minHeight: 32, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
   loadingShape: { paddingHorizontal: Spacing.three, paddingTop: Spacing.five, gap: Spacing.three },
-  header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
-  close: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  track: { flex: 1, height: 8, borderRadius: Radius.sm, overflow: 'hidden' },
-  fill: { height: 8, borderRadius: Radius.sm },
-  body: { flex: 1, paddingHorizontal: Spacing.four, paddingTop: Spacing.three },
+  header: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, zIndex: 20, borderBottomWidth: 1, overflow: 'hidden' },
+  headerTint: { backgroundColor: 'rgba(7,3,15,0.7)' },
+  practiceOverlay: { position: 'absolute', zIndex: 70, top: 56, left: 0, right: 0, bottom: 0 },
+  lessonNav: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  track: { flex: 1, height: 8, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.08)' },
+  fill: { height: 8, borderRadius: 999, overflow: 'hidden' },
+  stepLabel: { width: 60, flexShrink: 0, textAlign: 'right', color: '#6F6F7B', fontSize: 12, lineHeight: 16 },
+  body: { flex: 1, paddingHorizontal: 16, paddingTop: 32, backgroundColor: 'rgba(255,255,255,0.02)', borderLeftWidth: 1, borderRightWidth: 1, borderColor: 'rgba(139,92,246,0.08)' },
+  // The web mounts WarmupScreen directly in the post-header viewport. LessonWarmup already owns
+  // the canonical 24px horizontal / 40px vertical insets, so the normal step surface must not add
+  // another 16px gutter and 32px top inset around it.
+  warmupBody: { paddingHorizontal: 0, paddingTop: 0, backgroundColor: 'transparent', borderLeftWidth: 0, borderRightWidth: 0 },
   stepBody: { flex: 1 },
   /** Interactive steps SCROLL. As a plain centred View, any step taller than the space
    *  available overflowed symmetrically — so its bottom slid underneath the pinned footer.
@@ -842,7 +1159,7 @@ const styles = StyleSheet.create({
   introContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: FOOTER_CLEARANCE },
   /** Questions start at the TOP rather than centred — a long prompt centred vertically pushes
    *  its own options off both ends. */
-  choiceContent: { flexGrow: 1, paddingBottom: FOOTER_CLEARANCE },
+  choiceContent: { flexGrow: 1, width: '100%', maxWidth: 680, alignSelf: 'center', paddingHorizontal: 24, paddingBottom: FOOTER_CLEARANCE },
   recapContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, paddingBottom: FOOTER_CLEARANCE },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.one },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -851,16 +1168,32 @@ const styles = StyleSheet.create({
   title: { textAlign: 'center', marginTop: Spacing.three, paddingHorizontal: Spacing.two },
   center: { textAlign: 'center', marginTop: Spacing.two, paddingHorizontal: Spacing.two },
   preview: { alignItems: 'center', alignSelf: 'stretch', marginTop: Spacing.four, paddingHorizontal: Spacing.four },
-  // flex-start, not center: authored questions run to 7+ lines and a vertically-centred mascot
-  // ends up floating in the middle of the paragraph
-  quizHead: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two + 4 },
-  option: { flexDirection: 'row', alignItems: 'center', padding: Spacing.three, borderRadius: Radius.lg },
+  previewTopics: { alignSelf: 'stretch', gap: Spacing.two, marginTop: Spacing.two },
+  previewTopic: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
+  previewTopicDot: { width: 6, height: 6, borderRadius: 3, marginTop: 9, flexShrink: 0 },
+  previewTopicText: { flex: 1, textAlign: 'left' },
+  quizMeta: { minHeight: 32, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  choicePrompt: { marginTop: 20, textAlign: 'center', fontSize: 18, lineHeight: 26 },
+  fillBlankPrompt: { marginTop: 20, textAlign: 'center', fontSize: 18, lineHeight: 32 },
+  fillBlankSlot: { minWidth: 80, marginHorizontal: 4, paddingHorizontal: 12, paddingVertical: 4, overflow: 'hidden', borderRadius: 8, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(166,80,231,0.30)', backgroundColor: 'rgba(166,80,231,0.08)', fontWeight: '700', textAlign: 'center' },
+  options: { gap: 12, marginTop: 20 },
+  fillBlankOptions: { flexDirection: 'row', flexWrap: 'wrap' },
+  fillBlankOptionWrap: { width: '48%', flexGrow: 0, flexShrink: 0 },
+  option: { minHeight: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 20, borderRadius: 12, borderWidth: 1 },
+  fillBlankOption: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 10 },
+  optionText: { flex: 1, fontSize: 17, lineHeight: 24 },
+  fillBlankOptionText: { textAlign: 'center' },
+  fillBlankSubmit: { alignItems: 'center', marginTop: 24 },
+  fillBlankSubmitButton: { width: 134, minHeight: 48 },
+  eliminated: { opacity: 0.3, transform: [{ scale: 0.95 }] },
+  eliminatedText: { textDecorationLine: 'line-through' },
   xpChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.pill, borderWidth: 1, marginTop: Spacing.three },
-  verdictWrap: { paddingBottom: Spacing.three },
-  footer: { padding: Spacing.four, paddingTop: Spacing.two },
+  inlineFeedback: { marginTop: Spacing.four, gap: Spacing.three },
+  scenarioOutcome: { padding: Spacing.four, borderRadius: Radius.md, lineHeight: 21 },
+  footer: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16 },
   // 44pt tall so the escape from a wall clears the HIG touch minimum on its own, without relying on
   // hitSlop — this is the only way off the screen.
-  heartWall: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: '#09090DE6', padding: Spacing.four },
+  heartWall: { position: 'absolute', left: 0, right: 0, top: 56, bottom: 0, zIndex: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#09090DE6', padding: Spacing.four },
   heartCard: { alignItems: 'center', gap: Spacing.two, padding: Spacing.four, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, alignSelf: 'stretch' },
   lockedOut: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.four, marginTop: Spacing.two },
 });

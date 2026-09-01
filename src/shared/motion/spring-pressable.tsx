@@ -21,11 +21,13 @@
  * beat reads as lag rather than life" — so the fix is a faster, deeper press, NOT a bouncier
  * one. scripts/press-feedback-pin.mjs holds the perceptual floor.
  */
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 import * as Haptics from 'expo-haptics';
 import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 
+import { LessonColors } from '@/constants/lesson-design';
+import { ThemeOverrideContext } from '@/lib/design-context';
 import { Spring } from './tokens';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -51,6 +53,12 @@ export function SpringPressable({
   entering?: React.ComponentProps<typeof Animated.View>['entering'];
   exiting?: React.ComponentProps<typeof Animated.View>['exiting'];
 }) {
+  const reduced = useReducedMotion();
+  const themeOverride = useContext(ThemeOverrideContext);
+  // Canonical web lesson press spring; lesson options use its deliberate 0.97 touch response.
+  const pressSpring = themeOverride === LessonColors
+    ? { stiffness: 420, damping: 32, mass: 1 }
+    : Spring.press;
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
 
@@ -65,10 +73,10 @@ export function SpringPressable({
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPressIn={() => {
-        scale.set(withSpring(scaleTo, Spring.press));
+        scale.set(reduced ? 1 : withSpring(scaleTo, pressSpring));
       }}
       onPressOut={() => {
-        scale.set(withSpring(1, Spring.press));
+        scale.set(reduced ? 1 : withSpring(1, pressSpring));
       }}
       onPress={(e) => {
         if (haptic) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

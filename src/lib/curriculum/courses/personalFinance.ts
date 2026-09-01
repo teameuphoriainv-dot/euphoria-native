@@ -60,7 +60,7 @@ const PF2_DIAGRAM: AnimatedVisual = { type: 'pie', title: 'The 50/30/20 Rule', s
     explain: 'Everything that makes life better but would not break it. Eating out, streaming, the gym, new clothes. This is the slice you can actually move, which makes it the one worth watching.' },
   { label: 'Savings & Debt', percent: 20, color: '#10B981',
     explain: 'Money you send forward instead of spending: an emergency fund first, then investing, plus anything you pay off above the minimum. Move this one first on payday or it never happens.' },
-], centerLabel: 'After-tax income', footer: 'Housing, food, utilities vs. lifestyle vs. wealth building', sentiment: 'positive' };
+], centerLabel: 'After-tax income', footer: 'Housing, food, utilities vs. lifestyle vs. wealth building', sentiment: 'positive', sprite: 'arrow-split' };
 
 // ─── LESSON 3 (Tracking Your Spending) ───
 // Lesson 3 is about money leaving without being noticed, so the art is about
@@ -82,7 +82,7 @@ const PF3_DIAGRAM: AnimatedVisual = { type: 'line', title: 'The Latte Factor: $6
     explain: 'Ten more years roughly tripled it. Nothing about the habit changed, only how long the earlier money had to grow.' },
   { label: '30 years', value: '$940K',
     explain: 'Look at how steep the last stretch is. Most of that came from growth on growth, which is why starting early beats saving harder later.' },
-], trend: 'up', footer: 'Small daily habits compound at 8% over time', sentiment: 'negative' };
+], trend: 'up', footer: 'Small daily habits compound at 8% over time', sentiment: 'negative', sprite: 'food' };
 
 // ─── LESSON 4 (Building an Emergency Fund) ───
 // Lesson 4 is the buffer under you, so the art is fragility against safety:
@@ -132,7 +132,7 @@ const PF5_DIAGRAM: AnimatedVisual = { type: 'pie', title: 'The 5 FICO Score Fact
     explain: 'Whether you have handled different kinds of borrowing, like a card and a car loan. Worth knowing about, never worth taking on debt for.' },
   { label: 'New Credit', percent: 10, color: '#EF4444',
     explain: 'How many accounts you have opened recently. Several applications in a short window reads as needing money urgently, so space them out.' },
-], centerLabel: '300-850', footer: 'Payment history and utilization drive 65% of your score', sentiment: 'positive' };
+], centerLabel: '300-850', footer: 'Payment history and utilization drive 65% of your score', sentiment: 'positive', sprite: 'credit-card' };
 
 // ─── LESSON 6 (Managing Debt Wisely) ───
 // Lesson 6 is debt: what is owed, how it compounds against you, and getting out.
@@ -151,7 +151,7 @@ const PF6_DIAGRAM: AnimatedVisual = { type: 'comparison', title: 'Good Debt vs. 
     explain: 'Nothing is left over afterward. The dinner is eaten, the shirt is worn, and you are still paying 22% on it. That is why this bar is four times the mortgage.' },
   { label: 'Payday Loan', value: '400% APR, debt trap', percent: 400,
     explain: 'Look at the bar. It is so much longer than the others that they almost vanish. At 400%, a $300 loan can cost $1,200 to clear. This is the one to never touch.' },
-], footer: 'Interest rate vs. potential return is the key test', sentiment: 'negative' };
+], footer: 'Interest rate vs. potential return is the key test', sentiment: 'negative', sprite: 'scales' };
 
 // ─── LESSON 7 (Taxes 101) ───
 const PF7_HOOK: AnimatedVisual = { type: 'flow', title: 'How Tax Brackets Stack ($50K income)', nodes: [
@@ -161,7 +161,7 @@ const PF7_HOOK: AnimatedVisual = { type: 'flow', title: 'How Tax Brackets Stack 
     explain: 'Only the money above $11,600 gets taxed at 12%. The first chunk stays at 10%. The brackets stack, they do not replace each other.' },
   { label: 'Above $47,150', value: '22% bracket', color: '#F59E0B',
     explain: 'On $50,000, just $2,850 lands here. That is the only money taxed at 22%, which is why a raise can never leave you with less.' },
-], footer: 'Only income IN each bracket is taxed at that rate', sentiment: 'positive' };
+], footer: 'Only income IN each bracket is taxed at that rate', sentiment: 'positive', sprite: 'ladder' };
 // Lesson 7 is tax: the form, the myth about brackets, and what the myth costs.
 const PF7_STAKES_WITHOUT: AnimatedVisual = { type: 'metric', title: 'Tax-Illiterate', value: '$5,000+', detail: 'in raises turned down over 5 years from the bracket myth', footer: 'Plus $2,000+ in unclaimed credits', sentiment: 'negative', sprite: 'question' };
 const PF7_STAKES_WITH: AnimatedVisual = { type: 'metric', title: 'Tax-Literate', value: '$50K-$200K', detail: 'saved over a career, claim every credit, never refuse income', footer: 'Marginal brackets understood', sentiment: 'positive', sprite: 'tax-form' };
@@ -2152,11 +2152,11 @@ const lessons: PathwayLesson[] = [
         withoutVisual: { type: 'bars', title: 'Without insurance', items: [
           { label: '$87,000 medical bill', value: 100, displayValue: '$87,000' },
           { label: '$40,000 fire damage', value: 75, displayValue: '$40,000' },
-        ], footer: '= financial devastation', sentiment: 'negative' },
+        ], footer: '= financial devastation', sentiment: 'negative', sprite: 'piggy-crack' },
         withVisual: { type: 'bars', title: 'With insurance', items: [
           { label: '$500 deductible (not $87K)', value: 6, displayValue: '$500' },
           { label: '$250 deductible (not $40K)', value: 5, displayValue: '$250' },
-        ], footer: '= manageable costs', sentiment: 'positive' }
+        ], footer: '= manageable costs', sentiment: 'positive', sprite: 'parachute' }
       }
     ),
     teachingSlide(
@@ -2344,7 +2344,7 @@ const lessons: PathwayLesson[] = [
           explain: 'One dollar. For leaving ten thousand with them for a whole year. The bar is so short you can barely see it, and that is accurate.' },
         { label: 'Online HYSA (5.00% APY)', value: '$500/year', percent: 500,
           explain: 'Same $10,000, same government insurance, same you. The only thing that changed is which bank is holding it.' },
-      ], footer: '500x difference, same FDIC protection. Both insured up to $250,000 per depositor', sentiment: 'positive' }
+      ], footer: '500x difference, same FDIC protection. Both insured up to $250,000 per depositor', sentiment: 'positive', sprite: 'scales' }
     ),
     stakesCard(
       { label: 'Without Smart Banking', detail: 'Your money earns $1/year on $10,000 at a big bank (0.01% APY). Inflation at 3% means you lose $299 in purchasing power annually. Your savings literally shrink every year.' },
@@ -2354,12 +2354,12 @@ const lessons: PathwayLesson[] = [
           { label: 'Year 1', value: '$10,001' },
           { label: 'Year 5', value: '$10,005' },
           { label: 'Year 10', value: '$10,010' },
-        ], trend: 'down', footer: 'After inflation: LOST $2,600', sentiment: 'negative' },
+        ], trend: 'down', footer: 'After inflation: LOST $2,600', sentiment: 'negative', sprite: 'bank' },
         withVisual: { type: 'line', title: 'Online HYSA: 5.00%', points: [
           { label: 'Year 1', value: '$10,500' },
           { label: 'Year 5', value: '$12,763' },
           { label: 'Year 10', value: '$16,289' },
-        ], trend: 'up', footer: 'After inflation: GAINED $3,400+', sentiment: 'positive' }
+        ], trend: 'up', footer: 'After inflation: GAINED $3,400+', sentiment: 'positive', sprite: 'seedling' }
       }
     ),
     teachingSlide(
@@ -2556,8 +2556,8 @@ const lessons: PathwayLesson[] = [
       { label: 'Without a Wealth Plan', detail: '64% of Americans live paycheck to paycheck. The median retirement savings for 55-64 year olds is just $134,000, enough for about 3-5 years. Most people never build real wealth because they never had a plan.' },
       { label: 'With a Wealth Plan', detail: 'Following the wealth-building order of operations, a $45K/year earner saving 20% from age 22 retires with $2.8M at 65. The plan is simple. The execution just requires consistency.' },
       {
-        withoutVisual: { type: 'metric', title: 'No Plan: Average American', value: '$134,000', detail: 'Median savings at 65, Lasts: 3-5 years', footer: '64% live paycheck to paycheck', sentiment: 'negative' },
-        withVisual: { type: 'metric', title: 'With Plan: 20% Savings Rate', value: '$2,800,000', detail: 'Projected savings at 65, Lasts: 30+ years (4% rule)', footer: 'Financial freedom achieved', sentiment: 'positive' }
+        withoutVisual: { type: 'metric', title: 'No Plan: Average American', value: '$134,000', detail: 'Median savings at 65, Lasts: 3-5 years', footer: '64% live paycheck to paycheck', sentiment: 'negative', sprite: 'piggy-crack' },
+        withVisual: { type: 'metric', title: 'With Plan: 20% Savings Rate', value: '$2,800,000', detail: 'Projected savings at 65, Lasts: 30+ years (4% rule)', footer: 'Financial freedom achieved', sentiment: 'positive', sprite: 'target' }
       }
     ),
     teachingSlide(
@@ -2778,7 +2778,7 @@ const lessons: PathwayLesson[] = [
           explain: 'Same job, same person, same 45 years. The only difference is that this one asked, and kept asking at every job change.' },
         { label: 'Non-negotiator (cumulative earnings)', value: '$2.2M', percent: 220,
           explain: 'A million dollars, lost to a conversation that never happened. Not to bad luck or bad work, just to never asking.' },
-      ], footer: 'One negotiation compounds across every future raise', sentiment: 'positive' }
+      ], footer: 'One negotiation compounds across every future raise', sentiment: 'positive', sprite: 'paycheck' }
     ),
     stakesCard(
       { label: 'Without negotiation skills', detail: 'Workers who never negotiate earn $1M less over a career. They accept the first offer 60% of the time, leaving an average of $5,000-$10,000 on the table per job change.' },
@@ -2991,7 +2991,7 @@ const lessons: PathwayLesson[] = [
           explain: 'This half is fast, loud, and easy to reach. Every countdown timer and "only 3 left" tag is written directly to it.' },
         { label: 'Rational: Do I need this?', value: 'What\'s the real cost? Does this match my goals?',
           explain: 'This half is slower, and it needs a moment to switch on. That is the entire reason a 24-hour rule works.' },
-      ], footer: 'Retailers target the left. You need to activate the right.', sentiment: 'positive' }
+      ], footer: 'Retailers target the left. You need to activate the right.', sentiment: 'positive', sprite: 'scales' }
     ),
     stakesCard(
       { label: 'Without spending awareness', detail: 'The average American spends $18,000/year on non-essential purchases they later regret (Ladder/OnePoll 2023). Impulse purchases account for $5,400/year. Retailers use 50+ psychological tricks to trigger emotional buying.' },
@@ -3208,7 +3208,7 @@ const lessons: PathwayLesson[] = [
       { label: 'With education financing knowledge', detail: 'Strategic borrowers choose subsidized loans first, apply for every grant and scholarship, use income-driven repayment when needed, and pursue forgiveness programs. Smart decisions save $20K-$100K over a loan\'s lifetime.' },
       {
         withoutVisual: { type: 'metric', title: 'Uninformed Borrower', value: '$10-50K', detail: 'Extra interest paid, 20-year repayment average', footer: 'Missed forgiveness programs', sentiment: 'negative', sprite: 'bill' },
-        withVisual: { type: 'metric', title: 'Strategic Borrower', value: '$20-100K', detail: 'Interest saved, Subsidized first, scholarships maximized', footer: 'Forgiveness programs utilized', sentiment: 'positive' }
+        withVisual: { type: 'metric', title: 'Strategic Borrower', value: '$20-100K', detail: 'Interest saved, Subsidized first, scholarships maximized', footer: 'Forgiveness programs utilized', sentiment: 'positive', sprite: 'piggy-bank' }
       }
     ),
     teachingSlide(
@@ -3419,7 +3419,7 @@ const lessons: PathwayLesson[] = [
           explain: 'Lesson 8, now compulsory: no lender hands over $400,000 on a building nobody insured.' },
         { label: 'Interest', value: '$250K+ over 30yr', percent: 15, color: '#F59E0B',
           explain: 'Over thirty years you can hand the bank most of a second house. Lesson 6 called this rate versus return, and here it is at full scale.' },
-      ], footer: 'Hidden costs often exceed the mortgage payment itself', sentiment: 'negative' }
+      ], footer: 'Hidden costs often exceed the mortgage payment itself', sentiment: 'negative', sprite: 'house' }
     ),
     stakesCard(
       { label: 'Without rent vs buy analysis', detail: 'Many buyers underestimate true costs by 40-50%. A $2,000 mortgage actually costs $3,500/month when you add taxes, insurance, maintenance, and opportunity cost. 1 in 5 first-time buyers reports feeling "house poor."' },
@@ -3451,7 +3451,7 @@ const lessons: PathwayLesson[] = [
           explain: 'Budget about 2% a year. Some months are zero and then one month is a $9,000 roof, which is why it is averaged.' },
         { label: 'Insurance', value: '$200/mo', percent: 200,
           explain: 'Add these last three bars together: $1,267 a month that never appeared in the mortgage quote.' },
-      ], footer: 'Most buyers compare only the $1,920 mortgage, missing $1,267 in hidden costs', sentiment: 'negative' },
+      ], footer: 'Most buyers compare only the $1,920 mortgage, missing $1,267 in hidden costs', sentiment: 'negative', sprite: 'bill' },
       {
         hint: 'Tap each row. Only the first one appears in a listing',
         recap: 'Buying is not automatically smarter than renting, and renting is not throwing money away. It is $3,187 against whatever rent costs where you live. Run your own numbers and the slogans stop mattering.',
@@ -3637,7 +3637,7 @@ const lessons: PathwayLesson[] = [
           explain: 'Notice the line is steepening on its own. Nothing changed about the $200; the earlier money simply had longer to work.' },
         { label: 'Year 43', value: '$1.02M',
           explain: 'Only $103,000 of this was ever yours to deposit. The other $917,000 is time doing the work, which is the whole lesson.' },
-      ], trend: 'up', footer: '90% of the $1M comes from compound growth, not contributions', sentiment: 'positive' }
+      ], trend: 'up', footer: '90% of the $1M comes from compound growth, not contributions', sentiment: 'positive', sprite: 'hourglass' }
     ),
     stakesCard(
       { label: 'Without investing', detail: 'Cash loses 3-4% of purchasing power to inflation annually. $10,000 under a mattress for 30 years has the buying power of ~$4,000. The average non-investor retires with $65,000, enough for 2-3 years.' },
@@ -3665,7 +3665,7 @@ const lessons: PathwayLesson[] = [
           explain: 'Three cents per hundred dollars a year. It buys the whole market and then does almost nothing, on purpose.' },
         { label: 'Active fund (1.00% fee)', value: '$132,000', percent: 76,
           explain: 'One percent sounds harmless. Over thirty years it quietly takes $41,000, and 92% of these funds still lose to the boring one.' },
-      ], footer: 'A 0.97% fee gap quietly erases $41,000, 24% of your final wealth', sentiment: 'negative' },
+      ], footer: 'A 0.97% fee gap quietly erases $41,000, 24% of your final wealth', sentiment: 'negative', sprite: 'receipt' },
       {
         hint: 'Tap each fund. The only difference between them is the fee',
         recap: 'This is step 7 of lesson 10, and it is almost anticlimactic: buy the whole market, pay almost nothing to do it, and leave it alone. The fee is the one variable you fully control, so it is the one worth caring about.',

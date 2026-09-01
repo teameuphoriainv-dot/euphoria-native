@@ -25,20 +25,22 @@
 // screens that did not exist before. find_step() scans every entry for one whose options
 // are all on screen, so extra candidates cost nothing but a comparison.
 // ============================================================================
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // this file lives at scripts/anim/, so the repo root is two levels up
 const REPO = new URL('../..', import.meta.url).pathname;
-const COURSES = join(REPO, 'src/lib/curriculum/courses');
 const OUT = process.env.ANSWERS ?? '/tmp/lesson-answers.json';
 
 const { expandSteps, normalizeStep } = await import(
   pathToFileURL(join(REPO, 'src/lib/lesson-steps.ts')).href
 );
+const { COURSES, loadCourseLessons } = await import(
+  pathToFileURL(join(REPO, 'src/lib/curriculum/courseIndex.ts')).href
+);
 
-const SYNTHETIC = new Set(['calcQuiz', 'simDecision', 'explorableCheck']);
+const SYNTHETIC = new Set(['calcQuiz', 'simDecision']);
 
 let existing = {};
 try {
@@ -49,11 +51,17 @@ try {
 }
 
 let added = 0, lessonsTouched = 0;
-for (const file of readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort()) {
-  const key = file.replace('.ts', '');            // answers are keyed camelCase, like the filename
+const addedByType = { calcQuiz: 0, simDecision: 0 };
+for (const course of COURSES) {
+  // lesson-answers.mjs keys buckets by the camelCase curriculum filename.
+  const key = course.id.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
   const bucket = existing[key];
   if (!Array.isArray(bucket)) continue;
-  const lessons = (await import(pathToFileURL(join(COURSES, file)).href)).default ?? [];
+  // This must use the app's loader, not the raw course module. The loader removes retired step
+  // families (currently including simulationFinale) and duplicate vocabulary matches. Driving
+  // answers for raw, non-rendered screens made this guard disagree with the actual 4,050-screen
+  // lesson plan and blocked every parity recording before the simulator even launched.
+  const lessons = await loadCourseLessons(course.id);
   for (const lesson of lessons) {
     const entry = bucket.find((l) => l.num === lesson.num) ?? bucket[lesson.num - 1];
     if (!entry || !Array.isArray(entry.steps)) continue;
@@ -66,6 +74,7 @@ for (const file of readdirSync(COURSES).filter((f) => f.endsWith('.ts')).sort())
       if (n?.kind !== 'choice' || !Array.isArray(n.options) || n.options.length < 2) continue;
       entry.steps.push({ kind: 'quiz', options: n.options, correct: n.correct });
       added += 1;
+      addedByType[step.type] += 1;
     }
     if (entry.steps.length > before) lessonsTouched += 1;
   }
@@ -75,10 +84,11 @@ writeFileSync(OUT, JSON.stringify(existing));
 console.log(`added ${added} driver answers across ${lessonsTouched} lessons -> ${OUT}`);
 
 // A green run means nothing unless the numbers are the ones the app will actually show.
-const expectCalc = 136, expectDecisions = 781, expectChecks = 2;   // TWO, not three: corporateFinance L3's explorable carries no `check` at all
-if (added !== expectCalc + expectDecisions + expectChecks) {
-  console.error(`EXPECTED ${expectCalc + expectDecisions + expectChecks} (136 calcQuiz + 781 graded decisions + 2 explorable checks), got ${added}.`);
+const expectedByType = { calcQuiz: 0, simDecision: 0 };
+const mismatch = Object.keys(expectedByType).some((type) => addedByType[type] !== expectedByType[type]);
+if (mismatch || added !== Object.values(expectedByType).reduce((sum, count) => sum + count, 0)) {
+  console.error(`EXPECTED ${JSON.stringify(expectedByType)}, got ${JSON.stringify(addedByType)} (${added} total).`);
   console.error('Either the corpus changed or expandSteps did — reconcile before trusting a driver run.');
   process.exit(1);
 }
-console.log(`matches the audit: ${expectCalc} calcQuiz + ${expectDecisions} graded decisions + ${expectChecks} explorable checks`);
+console.log(`matches the rendered-corpus audit: ${JSON.stringify(addedByType)}`);

@@ -22,7 +22,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,13 +44,44 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 const GAME_ID = 'budget-balancer';
 /** One nudge from the accessible buttons and from VoiceOver's adjustable actions. */
-const NUDGE = 0.08;
+const NUDGE = 0.12;
 
 export default function BudgetBalancer() {
   // RESTART IS A REMOUNT, not a reset written from an effect. Keying the run on `seed` lets the
   // whole thing initialise in a lazy useState instead of a setState inside useEffect, which is
   // what react-hooks/set-state-in-effect is actually asking for rather than a disable comment.
   const [seed, setSeed] = useState(1);
+  const [started, setStarted] = useState(false);
+  const theme = useTheme();
+  if (!started) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <AmbientBackground />
+        <View style={styles.header}>
+          <SpringPressable haptic={false} scaleTo={0.85} onPress={() => { router.back(); }}
+            accessibilityRole="button" accessibilityLabel="Back to games">
+            <UIcon name="chevronLeft" size={26} color={theme.text} />
+          </SpringPressable>
+        </View>
+        <ScrollView contentContainerStyle={styles.intro} showsVerticalScrollIndicator={false}>
+          <Animated.View entering={FadeIn} style={styles.introInner}>
+            <PixelSpriteView sprite={scales} size={68} />
+            <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.introTitle}>Budget Balancer</ThemedText>
+            <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.introCopy}>
+              Move income along the beam and hold it level long enough to clear variable costs.
+            </ThemedText>
+            <SlabButton
+              label="Start"
+              accessibilityLabel="Start Budget Balancer"
+              full
+              onPress={() => { setStarted(true); }}
+              style={styles.introButton}
+            />
+          </Animated.View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
   return <Run key={seed} onRestart={() => { setSeed((n) => n + 1); }} />;
 }
 
@@ -312,6 +343,11 @@ function Run({ onRestart }: { onRestart: () => void }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  intro: { flexGrow: 1, paddingHorizontal: Spacing.four, paddingVertical: Spacing.four },
+  introInner: { flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' },
+  introTitle: { fontSize: FontSize.titleSm, textAlign: 'center', marginTop: Spacing.three },
+  introCopy: { textAlign: 'center', marginTop: Spacing.two },
+  introButton: { alignSelf: 'stretch', marginTop: Spacing.five },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.four, paddingVertical: Spacing.two },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   stage: { flex: 1, justifyContent: 'center', alignItems: 'center' },

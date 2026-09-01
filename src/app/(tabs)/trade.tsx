@@ -38,7 +38,7 @@ import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
-import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeas } from '@/lib/trade-ideas';
+import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeaRoute, tradeIdeas } from '@/lib/trade-ideas';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -149,6 +149,10 @@ export default function Trade() {
         .then((r) => {
           if (cancelled || !r?.count) return;
           lastPricedAt.current = Date.now();
+          // A portfolio curve changes when its marks change, not only when an order is placed.
+          // Snapshot after getMarks has populated the shared mark map so the curve and headline
+          // value the same positions at the same prices.
+          useApp.getState().recordPortfolioSnapshot();
           setPriced((n) => n + 1);
         })
         .catch(() => undefined);
@@ -411,9 +415,9 @@ export default function Trade() {
                   key={idea.id}
                   haptic={false}
                   scaleTo={0.98}
-                  onPress={() => router.push('/courses')}
+                  onPress={() => router.push(tradeIdeaRoute(idea))}
                   accessibilityRole="button"
-                  accessibilityLabel={`${idea.concept}. ${idea.detail} Opens ${ideaCourseTitle(idea.courseId)}.`}
+                  accessibilityLabel={`${idea.concept}. ${idea.detail} Opens ${ideaCourseTitle(idea.courseId)}, lesson ${idea.lessonNumber}.`}
                 >
                   <View
                     style={[

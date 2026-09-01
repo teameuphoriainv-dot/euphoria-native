@@ -14,8 +14,8 @@
  *     exist.
  */
 import { useMemo, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -45,6 +45,7 @@ const RARITY: Record<Rarity, string> = {
 export default function Shop() {
   const theme = useTheme();
   const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string; item?: string }>();
   const coins = useApp((s) => s.coins);
   const inventory = useApp((s) => s.inventory);
   const equipped = useApp((s) => s.equipped);
@@ -107,7 +108,20 @@ export default function Shop() {
                   scaleTo={0.97}
                   onPress={() => {
                     if (cosmetic && owned) { equipItem(item.id); return; }
-                    buyItem(item.id);
+                    const bought = buyItem(item.id);
+                    if (!bought) {
+                      Alert.alert(
+                        'Not enough Euphorium',
+                        `You need ${String(Math.max(0, item.price - coins))} more to buy ${item.name}. You can leave with Back and your hearts will refill tomorrow.`,
+                      );
+                      return;
+                    }
+                    // A lesson refill is a detour, not a new destination. Return to the exact
+                    // paused lesson as soon as the hearts exist instead of stranding the learner
+                    // in the shop and making them rediscover the Back control.
+                    if (params.returnTo === 'lesson' && params.item === item.id && item.itemType === 'heart_refill') {
+                      router.back();
+                    }
                   }}
                   accessibilityRole="button"
                   accessibilityLabel={`${item.name}, ${String(item.price)} Euphorium`}>

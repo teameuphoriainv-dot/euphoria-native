@@ -23,6 +23,7 @@
 import { finiteNonNegative } from '@/lib/server/chain';
 import { guard } from '@/lib/server/limit';
 import { mayCarryKey, symbol, withKey } from '@/lib/server/validate';
+import { filterEnglishNewsCandidates } from '@/lib/news-language';
 
 const BASE = 'https://api.polygon.io';
 
@@ -329,8 +330,8 @@ export async function GET(request: Request) {
             if (why) console.error('[market] alphavantage refused:', String(why).slice(0, 200));
           }
           if (feed.length > 0) {
-            return cached({
-              articles: feed.map((a) => ({
+            const articles = filterEnglishNewsCandidates(
+              feed.map((a) => ({
                 id: String(a.url),
                 title: a.title,
                 publisher: a.source,
@@ -347,7 +348,10 @@ export async function GET(request: Request) {
                 // so `a.image ? ...` is a truthful test rather than a truthy-empty trap.
                 image: String(a.banner_image ?? '').trim() || undefined,
               })),
-            });
+            );
+            // If Alpha returned only unsupported-script headlines, keep going to Polygon rather
+            // than turning a filtered feed into a false "quiet news day".
+            if (articles.length > 0) return cached({ articles });
           }
         } catch (e) {
           // Day-cap or outage: fall through to Polygon rather than failing the screen.
@@ -379,14 +383,16 @@ export async function GET(request: Request) {
 
       const d = await poly(`/v2/reference/news?${sym ? `ticker=${sym}&` : ''}order=desc&limit=12`, key);
       return cached({
-        articles: (d.results ?? []).map((a: Record<string, unknown>) => ({
-          id: a.id,
-          title: a.title,
-          publisher: (a.publisher as { name?: string } | undefined)?.name ?? '',
-          url: a.article_url,
-          published: a.published_utc,
-          image: String(a.image_url ?? '').trim() || undefined,
-        })),
+        articles: filterEnglishNewsCandidates(
+          (d.results ?? []).map((a: Record<string, unknown>) => ({
+            id: a.id,
+            title: a.title,
+            publisher: (a.publisher as { name?: string } | undefined)?.name ?? '',
+            url: a.article_url,
+            published: a.published_utc,
+            image: String(a.image_url ?? '').trim() || undefined,
+          })),
+        ),
       });
     }
 

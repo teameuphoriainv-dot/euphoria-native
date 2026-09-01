@@ -20,7 +20,9 @@ nonsense `r_frame_rate`. Count frames by decoding, never by trusting the header.
 """
 import subprocess as sp, time, os, re, sys
 
-UDID = "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
+# Keep capture on the exact device the lesson driver is operating. A recreated simulator gets a
+# new UDID; recording the old one produces an empty file that looks like "no animation".
+UDID = os.environ.get("EUPHORIA_SIM_UDID") or "755B55D9-8E4B-431C-9D1D-A635F38CFF5F"
 
 def record(path, seconds, fps=60, during=None, quality=None):
     """Record the screen. `during` is called once the stream is warm.
@@ -142,4 +144,3 @@ def record_transition(path, seconds, trigger, *, reset=None, expect_change=20, s
         return record(path, seconds, **kw), changed
     finally:
         th.join(timeout=seconds + 5)
-

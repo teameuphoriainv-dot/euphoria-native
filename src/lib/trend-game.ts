@@ -58,6 +58,45 @@ export type Round = {
   cursor: number;
 };
 
+export type Candle = { open: number; high: number; low: number; close: number };
+
+/**
+ * Turn the close series into readable OHLC candles.
+ *
+ * The engine intentionally stores one canonical price per tick because scoring only needs closes.
+ * The chart still needs a body and wick: each candle opens at the prior close, closes at this tick,
+ * and receives a bounded wick proportional to that move. This is deterministic display data, not a
+ * second random series, so the picture cannot disagree with the answer the engine scores.
+ */
+export function candlesOf(closes: number[]): Candle[] {
+  return closes.map((close, i) => {
+    const open = closes[i - 1] ?? close;
+    const wick = Math.max(0.7, Math.abs(close - open) * 0.35);
+    return {
+      open,
+      high: Math.min(100, Math.max(open, close) + wick),
+      low: Math.max(0, Math.min(open, close) - wick),
+      close,
+    };
+  });
+}
+
+export type TrendIndicator = {
+  direction: 'up' | 'down';
+  momentum: number;
+  average: number;
+};
+
+/** A visible, finance-literate signal: three-bar momentum plus the five-close average. */
+export function trendIndicator(closes: number[]): TrendIndicator {
+  const last = closes.at(-1) ?? 0;
+  const anchor = closes.at(-4) ?? closes[0] ?? last;
+  const recent = closes.slice(-5);
+  const average = recent.length ? recent.reduce((sum, value) => sum + value, 0) / recent.length : last;
+  const momentum = last - anchor;
+  return { direction: momentum >= 0 ? 'up' : 'down', momentum, average };
+}
+
 /**
  * A walk with drift. `difficulty` rises with the streak: higher means more noise relative to the
  * drift, so the trend gets harder to read rather than the timer getting shorter. Shortening a
@@ -115,6 +154,9 @@ if (typeof __DEV__ !== 'undefined' && __DEV__) {
 
   const s = makeSeries(7, 0);
   eq(s.every((v) => v >= 6 && v <= 94), true, 'the series stays inside its clamp');
+  const candles = candlesOf([10, 12, 11]);
+  eq(candles.every((c) => c.low <= Math.min(c.open, c.close)), true, 'candle lows contain their bodies');
+  eq(candles.every((c) => c.high >= Math.max(c.open, c.close)), true, 'candle highs contain their bodies');
 
   const r: Round = { series: [10, 20], cursor: 0 };
   // A window of 1 for the boundary test: last = 10, next = 20, so UP is correct.

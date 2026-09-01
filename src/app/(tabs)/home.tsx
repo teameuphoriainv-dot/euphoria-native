@@ -567,53 +567,26 @@ export default function Home() {
           </RiseIn>
         )}
 
-        {/* The hero — the next real lesson */}
+        {/* The next real lesson in its original position below status and trial state. */}
         <RiseIn delay={120}>
           <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
             {next ? (
               <>
-                {/*
-                  * DENSIFIED, and for the same reason Learn's rail was: measured, this card ran from
-                  * y=480 to y=1200 of an 874pt screen — about 36% of the viewport for ONE lesson,
-                  * with 96pt of it pure art. "YOUR PATH" was cut off and the Trade/Digest quick
-                  * actions sat entirely below the fold, present in the a11y tree at y=828 and
-                  * invisible to anyone who did not scroll.
-                  *
-                  * The art moves BESIDE the text instead of above it. Same information, and the
-                  * course accent still carries identity through the eyebrow, tint and border.
-                  * 6/6 of the reference home screens run two or more labelled sections and NONE
-                  * lets a single hero dominate — that count was already in this file's own comment
-                  * and the card had drifted back to dominating anyway.
-                  */}
                 <View style={styles.heroRow}>
                   <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={56} />
                   <View style={{ flex: 1 }}>
-                    {/*
-                      * AX5 REDUCED THIS TITLE TO "Your" / "Brain", losing "vs. Your Money".
-                      * Worse than the header greeting, because this card's button says Start:
-                      * an unreadable title means the user cannot tell what they are starting.
-                      *
-                      * The art is a fixed 56pt beside a flex:1 column, so at 3.12x a 19pt
-                      * heading becomes ~59pt in roughly 200pt of width and two lines buys two
-                      * words. Capping at 2x and allowing a third line fits the whole title.
-                      * The course label is capped for the same reason — it read "BEHAVIORA...".
-                      */}
                     <ThemedText type="label" maxFontSizeMultiplier={2} style={{ color: accent }} numberOfLines={1}>
                       {(course?.title ?? 'Course').toUpperCase()}
                     </ThemedText>
-                    <ThemedText type="heading" maxFontSizeMultiplier={2} style={{ marginTop: 2 }} numberOfLines={3}>{next.title}</ThemedText>
+                    <ThemedText type="heading" maxFontSizeMultiplier={2} style={{ marginTop: 2 }} numberOfLines={3}>
+                      {next.title}
+                    </ThemedText>
                     <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
                       Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
                     </ThemedText>
                   </View>
                 </View>
                 <View style={styles.heroCta}>
-                  {/* No `colors` override — the brand gradient, like every other CTA in the app.
-                      Across ten pulled references (Elevate blue, Nibble purple, RiseGuide black,
-                      EWA purple, Promova black, Deepstash dark, Facetune cyan, Praktika blue,
-                      BetterMe red, BitePal black) NOT ONE derives its primary button colour from
-                      the content it sits on. The course accent still carries identity here — the
-                      eyebrow, the card tint and its border — but the control is chrome. */}
                   <SlabButton
                     label={doneInCourse === 0 ? 'Start' : 'Continue'}
                     full
@@ -635,6 +608,7 @@ export default function Home() {
             )}
           </Card>
         </RiseIn>
+
 
         {/*
           * DAILY QUESTS — the 3/3 mechanic Home did not have.
@@ -687,26 +661,12 @@ export default function Home() {
           </Card>
         </RiseIn>
 
-        {/*
-          * A labelled section plus a horizontal rail, because Home had neither.
-          *
-          * ScreensDesign, six home/dashboard screens across six apps at $250k-$750k/mo
-          * (Elevate 111712, Nibble 132959, Deepstash 247089, Promova 138796,
-          * RiseGuide 270262, EWA 283665):
-          *   6/6  two or more LABELLED content sections
-          *   6/6  a horizontal multi-item row
-          *   0/6  a single hero card dominating the screen
-          *
-          * Onboarding promises a 75-lesson path across three courses and then Home showed
-          * exactly one lesson with no way to see the rest without leaving the tab. That is
-          * the blandness: nothing to browse. CourseRailCard already ships in learn.tsx, so
-          * this is the existing component in a second place, not a new one.
-          */}
         <View style={styles.sectionHead}>
           <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
-          {/* hitSlop 13 vertical, not 8: the label renders 18pt tall, so 8 gave a 34pt target —
-              under both Apple's 44pt and WCAG 2.5.8's 24pt floor. 18 + 13*2 = 44. */}
-          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
+          <SpringPressable
+            haptic={false}
+            onPress={() => router.push('/courses')}
+            hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
             <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>See all</ThemedText>
           </SpringPressable>
         </View>
@@ -714,15 +674,6 @@ export default function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.rail}
-          /*
-           * SNAP TO THE CARD GRID. This rail free-scrolled, so a flick came to rest wherever
-           * momentum died and left course cards halfway off the edge — the same defect fixed on
-           * the market-news rail, and here it is on the screen the app opens to.
-           *
-           * The interval is IMPORTED rather than written out: RAIL_CARD_WIDTH is the card's own
-           * width, so the snap cannot drift away from it if the card is ever resized. The gap
-           * term matches `styles.rail` below.
-           */
           snapToInterval={RAIL_CARD_WIDTH + Spacing.two + 4}
           snapToAlignment="start"
           decelerationRate="fast"
@@ -739,30 +690,9 @@ export default function Home() {
           ))}
         </ScrollView>
 
-        {/*
-         * GAMES, ON THE SCREEN THE APP OPENS TO.
-         *
-         * Reported 2026-08-22 (N12): "Games are buried — currently only discoverable by clicking
-         * into Profile. Should be a bigger, more visible part of the app."
-         *
-         * True: the only route in was a single row inside the You tab, below Friends.
-         *
-         * This is NOT the clutter that N9 asked to remove. Those were two cards reading
-         * "Trade / Paper trading" and "Digest / Today's read" — both permanent bottom tabs, so the
-         * cards were a second way to reach a place already on screen. Games has NO tab. For it,
-         * a card on Home is not a duplicate route, it is the only discoverable one. It also lands
-         * in roughly the space the deleted row freed, so the bottom half is still lighter than it
-         * was.
-         *
-         * The web app answers the same complaint by promoting Games to a top-level tab. The owner
-         * chose to fix these individually rather than restructure navigation, so this is the
-         * discoverability without the tab-bar surgery.
-         */}
         <RiseIn delay={180}>
           <SpringPressable onPress={() => router.push('/games')} accessibilityRole="button" accessibilityLabel="Games">
             <Card style={styles.gamesCard} tint={theme.iconGold}>
-              {/* Was a TARGET — the daily-goal mark — on the Games card, so two unrelated things wore the
-                  same symbol. A controller says what this is without reading the label. */}
               <PixelSpriteView sprite={controller} size={22} />
               <View style={{ flex: 1 }}>
                 <ThemedText type="heading" style={{ fontSize: FontSize.body }}>Games</ThemedText>

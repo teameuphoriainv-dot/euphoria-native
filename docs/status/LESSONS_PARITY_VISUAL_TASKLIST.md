@@ -1,390 +1,437 @@
-# Euphoria Native — 300 Lesson 1:1 Parity Taskboard
+# Euphoria Native — 300 Lesson Parity Task List
 
-## Objective
-Deliver strict 1:1 parity with the web journey for all 300 lessons by matching web behavior, visuals, timing, navigation, and accessibility state on every slide.
+> **Generated** from `artifacts/lesson-parity/manifest.json` at 2026-09-01T21:46:19Z.
+> Do not hand-edit. Regenerate with `node scripts/parity/render-tasklist.mjs`.
 
-## Current track (hard stop)
-- Track A: Lesson UI parity (content, visuals, interactions, feedback, timing, copy)
-- Track B: Accessibility parity (Dynamic Type, VoiceOver order/labels, reduced motion)
-- Track C: Navigation parity (continue, previous, back/exit, resume behavior)
-- Track D: Evidence parity (live web + Release iOS screen recording per lesson)
-- Track E: Release evidence closure (Goldie, entitlement, review assets, reviewer access)
+## Corpus (authoritative)
 
-```mermaid
-flowchart LR
-    A[Web snapshot sync] --> B[Lesson shell verification]
-    B --> C[Step-by-step live comparison]
-    C --> D[Automated mismatch triage]
-    D --> E[Native fix + matcher updates]
-    E --> F[Re-record lesson + web comparison]
-    F --> G[Acceptance gate]
-    G --> H[Submit evidence ledger]
+| Metric | Count |
+|---|---:|
+| Courses | 12 |
+| Lessons | 300 |
+| Authored steps | 4050 |
+| Expanded lesson screens | 4050 |
+| Mastery-challenge screens | 1770 |
+| **Total happy-path screens** | **5820** |
 
-    classDef done fill:#dcfce7,stroke:#166534,stroke-width:1px,color:#14532d
-    classDef active fill:#dbeafe,stroke:#1d4ed8,stroke-width:1px,color:#1e3a8a
-    classDef todo fill:#fef9c3,stroke:#a16207,stroke-width:1px,color:#78350f
+## Lane progress
 
-    class A,B active
-    class C,D,F,H todo
-```
+- **Native iOS** `░░░░░░░░░░░░░░░░░░░░░░░░░░░░` 0/300 (0.0%) — 1 failed, 299 pending
+- **Live Chrome** `░░░░░░░░░░░░░░░░░░░░░░░░░░░░` 0/300 (0.0%) — 0 failed, 300 pending
+- **Adjudication** `░░░░░░░░░░░░░░░░░░░░░░░░░░░░` 0/300 (0.0%) — 0 failed, 300 pending
 
-## Course-level board
+A lesson is **verified** only when all three lanes are 🟢. Live Chrome evidence is
+operator-attested by design: the harness refuses local renders as live-web coverage.
 
-- [ ] Investing Fundamentals (lessons 1–25)
-- [ ] Personal Finance (lessons 1–25)
-- [ ] Global Economics (lessons 1–25)
-- [ ] Corporate Finance (lessons 1–25)
-- [ ] Business Strategy (lessons 1–25)
-- [ ] Financial Analytics (lessons 1–25)
-- [ ] Behavioral Finance (lessons 1–25)
-- [ ] Applied Accounting (lessons 1–25)
-- [ ] Quantitative Analysis (lessons 1–25)
-- [ ] Risk Management (lessons 1–25)
-- [ ] Alternative Investments (lessons 1–25)
-- [ ] Wealth Management (lessons 1–25)
+## Open failure reasons
 
-## Per-lesson parity ledger (300 lessons)
-### Investing Fundamentals
-- [ ] IF-01 Lesson 01
-- [ ] IF-02 Lesson 02
-- [ ] IF-03 Lesson 03
-- [ ] IF-04 Lesson 04
-- [ ] IF-05 Lesson 05
-- [ ] IF-06 Lesson 06
-- [ ] IF-07 Lesson 07
-- [ ] IF-08 Lesson 08
-- [ ] IF-09 Lesson 09
-- [ ] IF-10 Lesson 10
-- [ ] IF-11 Lesson 11
-- [ ] IF-12 Lesson 12
-- [ ] IF-13 Lesson 13
-- [ ] IF-14 Lesson 14
-- [ ] IF-15 Lesson 15
-- [ ] IF-16 Lesson 16
-- [ ] IF-17 Lesson 17
-- [ ] IF-18 Lesson 18
-- [ ] IF-19 Lesson 19
-- [ ] IF-20 Lesson 20
-- [ ] IF-21 Lesson 21
-- [ ] IF-22 Lesson 22
-- [ ] IF-23 Lesson 23
-- [ ] IF-24 Lesson 24
-- [ ] IF-25 Lesson 25
+| Reason | Count |
+|---|---:|
+| `driver_stall_detected` | 1 |
+| `lesson_not_completed` | 1 |
+| `native_graph_control_coverage_incomplete` | 1 |
+| `native_interaction_coverage_incomplete` | 1 |
 
-### Personal Finance
-- [ ] PF-01 Lesson 01
-- [ ] PF-02 Lesson 02
-- [ ] PF-03 Lesson 03
-- [ ] PF-04 Lesson 04
-- [ ] PF-05 Lesson 05
-- [ ] PF-06 Lesson 06
-- [ ] PF-07 Lesson 07
-- [ ] PF-08 Lesson 08
-- [ ] PF-09 Lesson 09
-- [ ] PF-10 Lesson 10
-- [ ] PF-11 Lesson 11
-- [ ] PF-12 Lesson 12
-- [ ] PF-13 Lesson 13
-- [ ] PF-14 Lesson 14
-- [ ] PF-15 Lesson 15
-- [ ] PF-16 Lesson 16
-- [ ] PF-17 Lesson 17
-- [ ] PF-18 Lesson 18
-- [ ] PF-19 Lesson 19
-- [ ] PF-20 Lesson 20
-- [ ] PF-21 Lesson 21
-- [ ] PF-22 Lesson 22
-- [ ] PF-23 Lesson 23
-- [ ] PF-24 Lesson 24
-- [ ] PF-25 Lesson 25
+## Device-fit lane (typography, layout, friction)
 
-### Global Economics
-- [ ] GL-01 Lesson 01
-- [ ] GL-02 Lesson 02
-- [ ] GL-03 Lesson 03
-- [ ] GL-04 Lesson 04
-- [ ] GL-05 Lesson 05
-- [ ] GL-06 Lesson 06
-- [ ] GL-07 Lesson 07
-- [ ] GL-08 Lesson 08
-- [ ] GL-09 Lesson 09
-- [ ] GL-10 Lesson 10
-- [ ] GL-11 Lesson 11
-- [ ] GL-12 Lesson 12
-- [ ] GL-13 Lesson 13
-- [ ] GL-14 Lesson 14
-- [ ] GL-15 Lesson 15
-- [ ] GL-16 Lesson 16
-- [ ] GL-17 Lesson 17
-- [ ] GL-18 Lesson 18
-- [ ] GL-19 Lesson 19
-- [ ] GL-20 Lesson 20
-- [ ] GL-21 Lesson 21
-- [ ] GL-22 Lesson 22
-- [ ] GL-23 Lesson 23
-- [ ] GL-24 Lesson 24
-- [ ] GL-25 Lesson 25
+The parity harness proves *behavioral* parity. It does not prove the screen **fits**.
+These audits cover that and must be green before submission:
 
-### Corporate Finance
-- [ ] CF-01 Lesson 01
-- [ ] CF-02 Lesson 02
-- [ ] CF-03 Lesson 03
-- [ ] CF-04 Lesson 04
-- [ ] CF-05 Lesson 05
-- [ ] CF-06 Lesson 06
-- [ ] CF-07 Lesson 07
-- [ ] CF-08 Lesson 08
-- [ ] CF-09 Lesson 09
-- [ ] CF-10 Lesson 10
-- [ ] CF-11 Lesson 11
-- [ ] CF-12 Lesson 12
-- [ ] CF-13 Lesson 13
-- [ ] CF-14 Lesson 14
-- [ ] CF-15 Lesson 15
-- [ ] CF-16 Lesson 16
-- [ ] CF-17 Lesson 17
-- [ ] CF-18 Lesson 18
-- [ ] CF-19 Lesson 19
-- [ ] CF-20 Lesson 20
-- [ ] CF-21 Lesson 21
-- [ ] CF-22 Lesson 22
-- [ ] CF-23 Lesson 23
-- [ ] CF-24 Lesson 24
-- [ ] CF-25 Lesson 25
+| Check | Command | Covers |
+|---|---|---|
+| Type scale | `python3 scripts/type_audit.py` | font sizes, line height, truncation |
+| Dynamic Type | `python3 scripts/dynamic_type_audit.py` | accessibility text sizes, overflow |
+| Contrast | `python3 scripts/contrast_audit.py` | WCAG contrast on both themes |
+| Touch targets | `python3 scripts/touch_audit.py` | ≥44pt hit areas, friction |
+| Interactive states | `python3 scripts/states_audit.py` | pressed/disabled/focus states |
+| Reduced motion | `python3 scripts/reduced_motion_audit.py` | motion-off parity |
+| Locale | `python3 scripts/locale_audit.py` | string expansion overflow |
+| A11y | `node scripts/a11y-audit.mjs` | VoiceOver order and labels |
 
-### Business Strategy
-- [ ] BS-01 Lesson 01
-- [ ] BS-02 Lesson 02
-- [ ] BS-03 Lesson 03
-- [ ] BS-04 Lesson 04
-- [ ] BS-05 Lesson 05
-- [ ] BS-06 Lesson 06
-- [ ] BS-07 Lesson 07
-- [ ] BS-08 Lesson 08
-- [ ] BS-09 Lesson 09
-- [ ] BS-10 Lesson 10
-- [ ] BS-11 Lesson 11
-- [ ] BS-12 Lesson 12
-- [ ] BS-13 Lesson 13
-- [ ] BS-14 Lesson 14
-- [ ] BS-15 Lesson 15
-- [ ] BS-16 Lesson 16
-- [ ] BS-17 Lesson 17
-- [ ] BS-18 Lesson 18
-- [ ] BS-19 Lesson 19
-- [ ] BS-20 Lesson 20
-- [ ] BS-21 Lesson 21
-- [ ] BS-22 Lesson 22
-- [ ] BS-23 Lesson 23
-- [ ] BS-24 Lesson 24
-- [ ] BS-25 Lesson 25
+## Course rollup
 
-### Financial Analytics
-- [ ] FA-01 Lesson 01
-- [ ] FA-02 Lesson 02
-- [ ] FA-03 Lesson 03
-- [ ] FA-04 Lesson 04
-- [ ] FA-05 Lesson 05
-- [ ] FA-06 Lesson 06
-- [ ] FA-07 Lesson 07
-- [ ] FA-08 Lesson 08
-- [ ] FA-09 Lesson 09
-- [ ] FA-10 Lesson 10
-- [ ] FA-11 Lesson 11
-- [ ] FA-12 Lesson 12
-- [ ] FA-13 Lesson 13
-- [ ] FA-14 Lesson 14
-- [ ] FA-15 Lesson 15
-- [ ] FA-16 Lesson 16
-- [ ] FA-17 Lesson 17
-- [ ] FA-18 Lesson 18
-- [ ] FA-19 Lesson 19
-- [ ] FA-20 Lesson 20
-- [ ] FA-21 Lesson 21
-- [ ] FA-22 Lesson 22
-- [ ] FA-23 Lesson 23
-- [ ] FA-24 Lesson 24
-- [ ] FA-25 Lesson 25
+| Course | Lessons | Screens | Native | Web | Audit |
+|---|---:|---:|---:|---:|---:|
+| investing-fundamentals | 25 | 363 | 0/25 | 0/25 | 0/25 |
+| personal-finance | 25 | 352 | 0/25 | 0/25 | 0/25 |
+| global-economics | 25 | 329 | 0/25 | 0/25 | 0/25 |
+| corporate-finance | 25 | 263 | 0/25 | 0/25 | 0/25 |
+| business-strategy | 25 | 305 | 0/25 | 0/25 | 0/25 |
+| financial-analytics | 25 | 260 | 0/25 | 0/25 | 0/25 |
+| behavioral-finance | 25 | 333 | 0/25 | 0/25 | 0/25 |
+| applied-accounting | 25 | 362 | 0/25 | 0/25 | 0/25 |
+| quantitative-analysis | 25 | 374 | 0/25 | 0/25 | 0/25 |
+| risk-management | 25 | 341 | 0/25 | 0/25 | 0/25 |
+| alternative-investments | 25 | 396 | 0/25 | 0/25 | 0/25 |
+| wealth-management | 25 | 372 | 0/25 | 0/25 | 0/25 |
 
-### Behavioral Finance
-- [ ] BF-01 Lesson 01
-- [ ] BF-02 Lesson 02
-- [ ] BF-03 Lesson 03
-- [ ] BF-04 Lesson 04
-- [ ] BF-05 Lesson 05
-- [ ] BF-06 Lesson 06
-- [ ] BF-07 Lesson 07
-- [ ] BF-08 Lesson 08
-- [ ] BF-09 Lesson 09
-- [ ] BF-10 Lesson 10
-- [ ] BF-11 Lesson 11
-- [ ] BF-12 Lesson 12
-- [ ] BF-13 Lesson 13
-- [ ] BF-14 Lesson 14
-- [ ] BF-15 Lesson 15
-- [ ] BF-16 Lesson 16
-- [ ] BF-17 Lesson 17
-- [ ] BF-18 Lesson 18
-- [ ] BF-19 Lesson 19
-- [ ] BF-20 Lesson 20
-- [ ] BF-21 Lesson 21
-- [ ] BF-22 Lesson 22
-- [ ] BF-23 Lesson 23
-- [ ] BF-24 Lesson 24
-- [ ] BF-25 Lesson 25
+## Per-lesson ledger
 
-### Applied Accounting
-- [ ] AP-01 Lesson 01
-- [ ] AP-02 Lesson 02
-- [ ] AP-03 Lesson 03
-- [ ] AP-04 Lesson 04
-- [ ] AP-05 Lesson 05
-- [ ] AP-06 Lesson 06
-- [ ] AP-07 Lesson 07
-- [ ] AP-08 Lesson 08
-- [ ] AP-09 Lesson 09
-- [ ] AP-10 Lesson 10
-- [ ] AP-11 Lesson 11
-- [ ] AP-12 Lesson 12
-- [ ] AP-13 Lesson 13
-- [ ] AP-14 Lesson 14
-- [ ] AP-15 Lesson 15
-- [ ] AP-16 Lesson 16
-- [ ] AP-17 Lesson 17
-- [ ] AP-18 Lesson 18
-- [ ] AP-19 Lesson 19
-- [ ] AP-20 Lesson 20
-- [ ] AP-21 Lesson 21
-- [ ] AP-22 Lesson 22
-- [ ] AP-23 Lesson 23
-- [ ] AP-24 Lesson 24
-- [ ] AP-25 Lesson 25
+Columns: **N**ative · **W**eb-live · **A**udit. ⚪ pending · 🟡 running · 🟢 accepted · 🔴 failed
 
-### Quantitative Analysis
-- [ ] QA-01 Lesson 01
-- [ ] QA-02 Lesson 02
-- [ ] QA-03 Lesson 03
-- [ ] QA-04 Lesson 04
-- [ ] QA-05 Lesson 05
-- [ ] QA-06 Lesson 06
-- [ ] QA-07 Lesson 07
-- [ ] QA-08 Lesson 08
-- [ ] QA-09 Lesson 09
-- [ ] QA-10 Lesson 10
-- [ ] QA-11 Lesson 11
-- [ ] QA-12 Lesson 12
-- [ ] QA-13 Lesson 13
-- [ ] QA-14 Lesson 14
-- [ ] QA-15 Lesson 15
-- [ ] QA-16 Lesson 16
-- [ ] QA-17 Lesson 17
-- [ ] QA-18 Lesson 18
-- [ ] QA-19 Lesson 19
-- [ ] QA-20 Lesson 20
-- [ ] QA-21 Lesson 21
-- [ ] QA-22 Lesson 22
-- [ ] QA-23 Lesson 23
-- [ ] QA-24 Lesson 24
-- [ ] QA-25 Lesson 25
+### investing-fundamentals
 
-### Risk Management
-- [ ] RM-01 Lesson 01
-- [ ] RM-02 Lesson 02
-- [ ] RM-03 Lesson 03
-- [ ] RM-04 Lesson 04
-- [ ] RM-05 Lesson 05
-- [ ] RM-06 Lesson 06
-- [ ] RM-07 Lesson 07
-- [ ] RM-08 Lesson 08
-- [ ] RM-09 Lesson 09
-- [ ] RM-10 Lesson 10
-- [ ] RM-11 Lesson 11
-- [ ] RM-12 Lesson 12
-- [ ] RM-13 Lesson 13
-- [ ] RM-14 Lesson 14
-- [ ] RM-15 Lesson 15
-- [ ] RM-16 Lesson 16
-- [ ] RM-17 Lesson 17
-- [ ] RM-18 Lesson 18
-- [ ] RM-19 Lesson 19
-- [ ] RM-20 Lesson 20
-- [ ] RM-21 Lesson 21
-- [ ] RM-22 Lesson 22
-- [ ] RM-23 Lesson 23
-- [ ] RM-24 Lesson 24
-- [ ] RM-25 Lesson 25
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | Introduction to Investing | 17 | 🔴 | ⚪ | ⚪ | `lesson_not_completed`, `driver_stall_detected`, `native_interaction_coverage_incomplete`, `native_graph_control_coverage_incomplete` |
+| 2 | Risk vs. Reward | 14 | ⚪ | ⚪ | ⚪ | — |
+| 3 | The Magic of Compound Interest | 14 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Stocks vs. Bonds | 15 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Diversification | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | ETFs & Index Funds | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Mutual Funds & Fund Types | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Dollar Cost Averaging | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Building Your First Portfolio | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Investment Account Types | 14 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Reading Stock Charts | 15 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Understanding Market Orders | 15 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Dividends & Dividend Investing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Growth vs Value Investing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 15 | International Investing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Understanding Market Cycles | 15 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Introduction to Options | 14 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Tax-Efficient Investing | 14 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Behavioral Investing Pitfalls | 14 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Evaluating Investment Fees | 14 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Rebalancing Your Portfolio | 13 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Investment Research & Due Diligence | 14 | ⚪ | ⚪ | ⚪ | — |
+| 23 | The Power of Long-Term Investing | 14 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Paper Trading: Build Your Portfolio | 13 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Paper Trading: Evaluate & Graduate | 14 | ⚪ | ⚪ | ⚪ | — |
 
-### Alternative Investments
-- [ ] AI-01 Lesson 01
-- [ ] AI-02 Lesson 02
-- [ ] AI-03 Lesson 03
-- [ ] AI-04 Lesson 04
-- [ ] AI-05 Lesson 05
-- [ ] AI-06 Lesson 06
-- [ ] AI-07 Lesson 07
-- [ ] AI-08 Lesson 08
-- [ ] AI-09 Lesson 09
-- [ ] AI-10 Lesson 10
-- [ ] AI-11 Lesson 11
-- [ ] AI-12 Lesson 12
-- [ ] AI-13 Lesson 13
-- [ ] AI-14 Lesson 14
-- [ ] AI-15 Lesson 15
-- [ ] AI-16 Lesson 16
-- [ ] AI-17 Lesson 17
-- [ ] AI-18 Lesson 18
-- [ ] AI-19 Lesson 19
-- [ ] AI-20 Lesson 20
-- [ ] AI-21 Lesson 21
-- [ ] AI-22 Lesson 22
-- [ ] AI-23 Lesson 23
-- [ ] AI-24 Lesson 24
-- [ ] AI-25 Lesson 25
+### personal-finance
 
-### Wealth Management
-- [ ] WM-01 Lesson 01
-- [ ] WM-02 Lesson 02
-- [ ] WM-03 Lesson 03
-- [ ] WM-04 Lesson 04
-- [ ] WM-05 Lesson 05
-- [ ] WM-06 Lesson 06
-- [ ] WM-07 Lesson 07
-- [ ] WM-08 Lesson 08
-- [ ] WM-09 Lesson 09
-- [ ] WM-10 Lesson 10
-- [ ] WM-11 Lesson 11
-- [ ] WM-12 Lesson 12
-- [ ] WM-13 Lesson 13
-- [ ] WM-14 Lesson 14
-- [ ] WM-15 Lesson 15
-- [ ] WM-16 Lesson 16
-- [ ] WM-17 Lesson 17
-- [ ] WM-18 Lesson 18
-- [ ] WM-19 Lesson 19
-- [ ] WM-20 Lesson 20
-- [ ] WM-21 Lesson 21
-- [ ] WM-22 Lesson 22
-- [ ] WM-23 Lesson 23
-- [ ] WM-24 Lesson 24
-- [ ] WM-25 Lesson 25
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | Why Personal Finance Matters | 13 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Budgeting Basics | 14 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Tracking Your Spending | 14 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Building an Emergency Fund | 15 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Understanding Credit Scores | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Managing Debt Wisely | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Taxes 101 | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Insurance Essentials | 13 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Smart Saving & Banking | 13 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Building Long-Term Wealth | 14 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Negotiating Your Salary & Income | 14 | ⚪ | ⚪ | ⚪ | — |
+| 12 | The Psychology of Spending | 14 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Student Loans & Education Financing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Renting vs. Buying a Home | 14 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Introduction to Investing for Personal Finance | 14 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Retirement Accounts Deep Dive | 14 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Side Hustles & Multiple Income Streams | 14 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Financial Planning for Life Events | 14 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Identity Theft & Financial Security | 14 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Understanding Inflation & Purchasing Power | 14 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Estate Planning Basics | 14 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Charitable Giving & Tax Benefits | 14 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Financial Independence & Early Retirement | 14 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Teaching Kids About Money | 14 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Personal Finance Capstone | 14 | ⚪ | ⚪ | ⚪ | — |
 
+### global-economics
 
-### README production plan
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | What Is Economics? | 14 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Supply and Demand | 15 | ⚪ | ⚪ | ⚪ | — |
+| 3 | The Federal Reserve & Monetary Policy | 14 | ⚪ | ⚪ | ⚪ | — |
+| 4 | GDP: Measuring the Economy | 14 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Inflation & Deflation | 14 | ⚪ | ⚪ | ⚪ | — |
+| 6 | International Trade & Globalization | 14 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Fiscal Policy & Government Spending | 14 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Currency Markets & Exchange Rates | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Emerging Markets & Economic Development | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Global Economics Foundations Checkpoint | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Labor Markets & Employment | 13 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Income Inequality & Wealth Distribution | 13 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Economic Indicators & Leading Signals | 14 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Central Banks Around the World | 13 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Trade Wars & Tariffs | 13 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Economic Sanctions & Geopolitics | 12 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Commodity Markets & Natural Resources | 12 | ⚪ | ⚪ | ⚪ | — |
+| 18 | The Economics of Climate Change | 13 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Digital Economy & Platform Economics | 12 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Debt, Deficits & Sovereign Risk | 12 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Economic Bubbles & Financial Crises | 13 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Behavioral Economics in Policy | 13 | ⚪ | ⚪ | ⚪ | — |
+| 23 | The Future of Money: CBDCs & Digital Currency | 13 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Development Economics & Poverty | 13 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Global Economics Advanced Capstone | 6 | ⚪ | ⚪ | ⚪ | — |
 
-- [ ] Build architecture map with data contracts, routing, entitlement, billing, and build/deploy pipeline.
-- [ ] Add professional visuals: hero diagram, architecture diagram (Mermaid), release pipeline diagram, and screenshot references with captions.
-- [ ] Add an ASCII status board (build gate matrix + parity coverage matrix + evidence quality bar).
-- [ ] Add dependency and environment architecture (server boundary, secret handling, and runtime boundaries).
-- [ ] Add onboarding parity, lesson parity, accessibility, and App Store evidence sections.
-- [ ] Add release checklist with concrete commands and acceptance thresholds.
-- [ ] Add contribution and deployment workflow, recovery playbook, and rollback path.
-- [ ] Add security and privacy section with explicit assumptions and known gaps.
-- [ ] Add performance and observability section (metrics, alerts, and recovery posture).
-- [ ] Final copy pass: style, capitalization, naming consistency, and release-grade prose.
+### corporate-finance
 
-## Acceptance rule before completing any phase
-- No `[ ]` remains in a course section.
-- Every checked lesson has a timestamped pair of recordings and a verdict row.
-- Every visual and accessibility mismatch fixed or explicitly waived with rationale.
-- README sections must reflect current code state, not prior promises.
-- Evidence is stored at: `docs/status/PROGRESS.md` + `docs/status/GOLDIE_EVIDENCE_*.md` + lesson recordings + web-session captures.
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | What Is Corporate Finance? | 9 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Financial Statements: The Language of Business | 9 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Time Value of Money | 11 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Capital Structure: Debt vs. Equity | 10 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Valuing a Company | 11 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Working Capital Management | 6 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Mergers & Acquisitions | 6 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Dividend Policy & Share Buybacks | 6 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Risk Management & Hedging | 5 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Corporate Governance & Ethics | 5 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Capital Budgeting & Project Evaluation | 14 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Cost of Capital & WACC | 13 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Leveraged Buyouts & Private Equity | 13 | ⚪ | ⚪ | ⚪ | — |
+| 14 | IPOs & Going Public | 13 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Financial Distress & Restructuring | 12 | ⚪ | ⚪ | ⚪ | — |
+| 16 | International Corporate Finance | 12 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Corporate Bonds & Debt Markets | 12 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Treasury Management & Cash Flow | 12 | ⚪ | ⚪ | ⚪ | — |
+| 19 | ESG & Sustainable Finance | 12 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Financial Regulation & Compliance | 12 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Startup Finance & Venture Funding | 12 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Executive Compensation & Incentives | 12 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Corporate Tax Strategy | 12 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Financial Engineering & Structured Products | 12 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Corporate Finance Advanced Capstone | 12 | ⚪ | ⚪ | ⚪ | — |
+
+### business-strategy
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | What Is Business Strategy? | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Business Models & Revenue Strategies | 15 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Competitive Analysis & Market Positioning | 15 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Startup Fundraising & Venture Capital | 14 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Go-to-Market Strategy | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Scaling a Business | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Mergers, Acquisitions & Corporate Strategy | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Innovation & Disruption | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Leadership & Organizational Design | 14 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Strategic Planning Capstone | 14 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Customer Acquisition & Retention | 13 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Pricing Strategy & Revenue Optimization | 11 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Brand Building & Market Perception | 12 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Supply Chain Strategy | 11 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Digital Transformation | 11 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Data-Driven Decision Making | 11 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Strategic Partnerships & Alliances | 11 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Crisis Management & Business Continuity | 11 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Global Expansion Strategy | 11 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Platform Business Models | 11 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Sustainability & Corporate Social Responsibility | 11 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Talent Strategy & Human Capital | 11 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Product Strategy & Portfolio Management | 8 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Strategic Finance for Business Leaders | 8 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Business Strategy Advanced Capstone | 7 | ⚪ | ⚪ | ⚪ | — |
+
+### financial-analytics
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | What Is Financial Analytics? | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Descriptive Statistics for Finance | 14 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Probability & Risk Assessment | 14 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Regression Analysis & Forecasting | 15 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Financial Modeling Fundamentals | 14 | ⚪ | ⚪ | ⚪ | — |
+| 6 | DCF Analysis & Valuation | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Monte Carlo Simulation | 14 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Data Visualization & Financial Dashboards | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Machine Learning in Finance | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Financial Analytics Capstone | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Time Series Analysis for Finance | 14 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Sentiment Analysis & Alternative Data | 14 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Credit Scoring Models | 14 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Portfolio Analytics & Performance Attribution | 6 | ⚪ | ⚪ | ⚪ | — |
+| 15 | A/B Testing & Experimentation in Finance | 6 | ⚪ | ⚪ | ⚪ | — |
+| 16 | SQL & Database Queries for Finance | 6 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Python for Financial Analysis | 6 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Automated Reporting & Dashboards | 6 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Anomaly Detection & Fraud Analytics | 6 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Real-Time Data Processing & Streaming | 6 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Natural Language Processing in Finance | 6 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Predictive Modeling for Market Trends | 6 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Risk Analytics & Stress Testing Models | 6 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Big Data & Cloud Computing in Finance | 6 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Financial Analytics Advanced Capstone | 6 | ⚪ | ⚪ | ⚪ | — |
+
+### behavioral-finance
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | Your Brain vs. Your Money | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Cognitive Biases That Destroy Wealth | 15 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Emotional Cycles of Investing | 16 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Herd Behavior & Social Proof | 16 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Overconfidence & Illusion of Control | 14 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Mental Accounting & Framing Effects | 14 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Prospect Theory & Decision Making | 14 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Nudge Theory & Choice Architecture | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Building a Rational Investment Framework | 14 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Behavioral Finance Capstone | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Anchoring Bias & Price Perception | 16 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Sunk Cost Fallacy in Investing | 16 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Regret Aversion & Decision Paralysis | 16 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Status Quo Bias & Inertia | 16 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Narrative Fallacy & Storytelling in Markets | 16 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Attention Bias & Media Influence | 16 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Disposition Effect: Selling Winners Too Early | 13 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Gambler's Fallacy & Hot Hand Bias | 12 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Endowment Effect & Loss Aversion | 11 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Social Media & Modern Market Psychology | 9 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Behavioral Portfolio Theory | 10 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Debiasing Techniques & Cognitive Tools | 9 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Behavioral Economics in Everyday Life | 9 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Market Anomalies & Behavioral Explanations | 10 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Behavioral Finance Advanced Capstone | 6 | ⚪ | ⚪ | ⚪ | — |
+
+### applied-accounting
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | The Language of Accounting | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Financial Ratios: X-Raying a Company | 15 | ⚪ | ⚪ | ⚪ | — |
+| 3 | The Income Statement Deep Dive | 15 | ⚪ | ⚪ | ⚪ | — |
+| 4 | The Balance Sheet Decoded | 15 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Cash Flow Statement Mastery | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Journal Entries & Double-Entry Bookkeeping | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Cost Accounting & Break-Even Analysis | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Auditing & Internal Controls | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Forensic Accounting & Fraud Detection | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Applied Accounting Foundations Checkpoint | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Revenue Recognition & Accrual Accounting | 15 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Inventory Accounting Methods | 16 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Depreciation & Asset Management | 16 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Accounts Receivable & Payable Management | 16 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Payroll Accounting & Employee Benefits | 16 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Tax Accounting Fundamentals | 16 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Budgeting & Variance Analysis | 14 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Consolidation & Group Accounting | 13 | ⚪ | ⚪ | ⚪ | — |
+| 19 | International Accounting Standards (IFRS vs GAAP) | 13 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Nonprofit & Government Accounting | 13 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Managerial Accounting & Decision Making | 13 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Advanced Financial Statement Analysis | 13 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Accounting Information Systems | 13 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Ethics & Professional Standards in Accounting | 12 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Applied Accounting Advanced Capstone | 13 | ⚪ | ⚪ | ⚪ | — |
+
+### quantitative-analysis
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | What Is Quantitative Finance? | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Probability & Expected Value | 14 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Time Series Analysis | 14 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Portfolio Optimization & Markowitz | 14 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Derivatives Pricing & Black-Scholes | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Monte Carlo Methods in Finance | 14 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Factor Models & Alpha Generation | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Statistical Arbitrage | 14 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Algorithmic Trading Systems | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Quantitative Analysis Foundations Checkpoint | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Stochastic Calculus Foundations | 15 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Volatility Modeling & GARCH | 15 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Fixed Income Analytics | 15 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Exotic Options & Path-Dependent Derivatives | 15 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Credit Derivatives & CDS Pricing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Interest Rate Models | 16 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Machine Learning for Quant Trading | 15 | ⚪ | ⚪ | ⚪ | — |
+| 18 | High-Frequency Trading & Market Microstructure | 15 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Backtesting & Strategy Validation | 16 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Execution Algorithms & Transaction Costs | 15 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Risk-Neutral Pricing & Measure Theory | 16 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Copulas & Dependency Modeling | 15 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Bayesian Methods in Finance | 15 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Quantum Computing & Future of Quant Finance | 16 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Quantitative Analysis Advanced Capstone | 15 | ⚪ | ⚪ | ⚪ | — |
+
+### risk-management
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | What Is Risk? | 14 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Measuring & Managing Market Risk | 15 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Value at Risk Deep Dive | 15 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Credit Risk & Default Probability | 15 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Operational & Liquidity Risk | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Options & Hedging Strategies | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Fixed Income Risk & Duration | 14 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Enterprise Risk Management | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Regulatory Frameworks & Basel III | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Risk Management Capstone | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Tail Risk & Black Swan Events | 15 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Counterparty Risk & Collateral Management | 15 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Currency Risk & FX Hedging | 14 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Interest Rate Risk Management | 15 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Insurance & Risk Transfer | 14 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Cyber Risk & Technology Threats | 15 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Climate Risk & ESG Risk Factors | 14 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Model Risk & Validation | 15 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Scenario Analysis & War Gaming | 15 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Portfolio Risk Decomposition | 11 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Systemic Risk & Contagion | 11 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Behavioral Risk: Human Factors in Risk Management | 11 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Quantitative Risk Modeling | 11 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Risk Governance & Board Oversight | 11 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Risk Management Advanced Capstone | 6 | ⚪ | ⚪ | ⚪ | — |
+
+### alternative-investments
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | Beyond Stocks & Bonds | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Real Estate Investing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Cryptocurrency & Digital Assets | 15 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Commodities & Futures Trading | 14 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Private Equity & Venture Capital | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Hedge Fund Strategies | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Collectibles, Art & Alternative Assets | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Infrastructure & Farmland Investing | 15 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Portfolio Integration & Alternative Allocation | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Alternative Investments Capstone | 15 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Real Estate Investment Trusts (REITs) | 16 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Distressed Debt Investing | 16 | ⚪ | ⚪ | ⚪ | — |
+| 13 | DeFi & Tokenized Assets | 16 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Carbon Credits & Environmental Markets | 17 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Music Royalties & Intellectual Property | 17 | ⚪ | ⚪ | ⚪ | — |
+| 16 | SPACs & Blank Check Companies | 17 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Emerging Market Alternatives | 17 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Fund of Funds & Multi-Strategy | 17 | ⚪ | ⚪ | ⚪ | — |
+| 19 | Due Diligence for Alternatives | 17 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Liquidity & Lock-Up Considerations | 16 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Tax Implications of Alternative Investments | 16 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Alternative Data & Analytics | 17 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Structuring Alternative Investment Vehicles | 16 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Regulation & Compliance in Alternatives | 16 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Alternative Investments Advanced Capstone | 16 | ⚪ | ⚪ | ⚪ | — |
+
+### wealth-management
+
+| # | Lesson | Screens | N | W | A | Open issues |
+|---:|---|---:|:-:|:-:|:-:|---|
+| 1 | Building & Preserving Wealth | 15 | ⚪ | ⚪ | ⚪ | — |
+| 2 | Tax-Advantaged Investing | 14 | ⚪ | ⚪ | ⚪ | — |
+| 3 | Retirement Planning & Withdrawal Strategies | 14 | ⚪ | ⚪ | ⚪ | — |
+| 4 | Estate Planning & Trusts | 14 | ⚪ | ⚪ | ⚪ | — |
+| 5 | Insurance as a Wealth Tool | 15 | ⚪ | ⚪ | ⚪ | — |
+| 6 | Charitable Giving & Philanthropy | 15 | ⚪ | ⚪ | ⚪ | — |
+| 7 | Family Wealth & Multi-Generational Planning | 15 | ⚪ | ⚪ | ⚪ | — |
+| 8 | Advanced Tax Optimization | 14 | ⚪ | ⚪ | ⚪ | — |
+| 9 | Working with Financial Advisors | 15 | ⚪ | ⚪ | ⚪ | — |
+| 10 | Wealth Management Capstone | 14 | ⚪ | ⚪ | ⚪ | — |
+| 11 | Asset Location & Tax-Efficient Portfolios | 16 | ⚪ | ⚪ | ⚪ | — |
+| 12 | Social Security & Government Benefits | 15 | ⚪ | ⚪ | ⚪ | — |
+| 13 | Health Care Planning & HSAs | 15 | ⚪ | ⚪ | ⚪ | — |
+| 14 | Real Estate in Wealth Management | 16 | ⚪ | ⚪ | ⚪ | — |
+| 15 | Business Owner Wealth Strategies | 15 | ⚪ | ⚪ | ⚪ | — |
+| 16 | Divorce & Financial Separation | 15 | ⚪ | ⚪ | ⚪ | — |
+| 17 | Behavioral Wealth Management | 14 | ⚪ | ⚪ | ⚪ | — |
+| 18 | Alternative Investments for HNW Clients | 16 | ⚪ | ⚪ | ⚪ | — |
+| 19 | International Wealth Management | 15 | ⚪ | ⚪ | ⚪ | — |
+| 20 | Concentrated Stock Positions | 15 | ⚪ | ⚪ | ⚪ | — |
+| 21 | Wealth Transfer Techniques | 15 | ⚪ | ⚪ | ⚪ | — |
+| 22 | Impact Investing & Values-Based Portfolios | 15 | ⚪ | ⚪ | ⚪ | — |
+| 23 | Retirement Income Strategies | 15 | ⚪ | ⚪ | ⚪ | — |
+| 24 | Technology & Robo-Advisors in Wealth Management | 15 | ⚪ | ⚪ | ⚪ | — |
+| 25 | Wealth Management Advanced Capstone | 15 | ⚪ | ⚪ | ⚪ | — |
+
+## Acceptance rule
+
+- Every lesson row shows 🟢 in all three lanes.
+- Every device-fit audit above exits clean.
+- `npm run precheck` and `npm run check` both green.
+- No failure reason remains in the table above.

@@ -1092,10 +1092,10 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Asch Conformity Experiment',
         items: [
-          { label: 'Alone, no group', value: '99% answer correctly', color: '#10B981', sprite: 'check-badge' },
-          { label: 'Group all wrong', value: '75% conform at least once', color: '#EF4444', sprite: 'magnet' },
-          { label: 'Conform on most trials', value: '32% of participants', color: '#F59E0B', sprite: 'scale-tip' },
-          { label: 'One dissenter added', value: 'Conformity drops about 80%', color: '#10B981', sprite: 'chain-break' }
+          { label: 'Alone, no group', value: '99% answer correctly', color: '#10B981', sprite: 'check-badge', explain: 'This is the control number, and it matters more than it looks. Alone, people get this right 99 times out of 100, so the task is not hard and nobody is confused about which line is longer. Every wrong answer in the rest of this grid was caused by the room, not by the question.' },
+          { label: 'Group all wrong', value: '75% conform at least once', color: '#EF4444', sprite: 'magnet', explain: 'Three quarters cracked at least once. Flip it: only 1 in 4 held their own answer every single time, on a question they could not get wrong by themselves. Lesson 1 called this the fast System 1 read, and here it is counting the room before it measures the lines.' },
+          { label: 'Conform on most trials', value: '32% of participants', color: '#F59E0B', sprite: 'scale-tip', explain: 'This is the harsher number. Nearly a third did not just slip once, they went with the group on most of the trials, so agreeing had become their default answer rather than their occasional mistake.' },
+          { label: 'One dissenter added', value: 'Conformity drops about 80%', color: '#10B981', sprite: 'chain-break', explain: 'One person, not a majority, saying the true answer out loud cut conformity by about four fifths. The crowd never had to be outvoted, it only had to stop looking unanimous. That is the cheapest defence in this entire lesson.' }
         ],
         footer: 'The line task was easy, the wrong answer was obvious',
 
@@ -1111,10 +1111,10 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Following the Herd',
         items: [
-          { label: 'GameStop at $347', value: 'Bought because Reddit said so', color: '#EF4444', sprite: 'phone' },
-          { label: 'SPACs', value: 'Bought because a coworker tripled his money', color: '#EF4444', sprite: 'rocket' },
-          { label: 'Madoff\'s fund', value: 'Trusted because the "smart money" was in', color: '#EF4444', sprite: 'briefcase' },
-          { label: 'Outcome', value: 'GameStop fell 88%, SPACs fell 70%', color: '#EF4444', sprite: 'chart-down' }
+          { label: 'GameStop at $347', value: 'Bought because Reddit said so', color: '#EF4444', sprite: 'phone', explain: 'At $347 the price is not a valuation, it is a queue position. Almost nobody paying it could tell you what the company earned, only how many people said it was going higher.' },
+          { label: 'SPACs', value: 'Bought because a coworker tripled his money', color: '#EF4444', sprite: 'rocket', explain: 'One coworker tripling his money is a sample of one, and you only heard about it because it worked. The people whose SPACs went sideways were not showing you their accounts at lunch.' },
+          { label: 'Madoff\'s fund', value: 'Trusted because the "smart money" was in', color: '#EF4444', sprite: 'briefcase', explain: 'The smart money argument is circular: the banks and charities were in because other banks and charities were in. That loop held for 17 years and $65 billion, and at no point in it did anyone check the returns.' },
+          { label: 'Outcome', value: 'GameStop fell 88%, SPACs fell 70%', color: '#EF4444', sprite: 'chart-down', explain: 'Two completely different assets, two nearly identical falls. That is the tell. The only thing they had in common was the reason people owned them, so they broke together the moment the crowd stopped buying.' }
         ],
         footer: 'Social proof walked the herd straight off a cliff',
         sentiment: 'negative', sprite: 'bank-run'
@@ -1123,10 +1123,10 @@ const lessons: PathwayLesson[] = [
         type: 'grid',
         title: 'Independent Thinker',
         items: [
-          { label: 'GameStop frenzy', value: 'Seen as a textbook information cascade', color: '#10B981', sprite: 'book' },
-          { label: 'SPAC mania', value: 'Recognized as proof detached from fundamentals', color: '#3B82F6', sprite: 'scales' },
-          { label: 'Madoff returns', value: 'Questioned for being impossibly smooth', color: '#10B981', sprite: 'question' },
-          { label: 'Outcome', value: 'Avoids the loss, profits when herds reverse', color: '#10B981', sprite: 'shield' }
+          { label: 'GameStop frenzy', value: 'Seen as a textbook information cascade', color: '#10B981', sprite: 'book', explain: 'Naming it changes what you do next. Once you read the move as a cascade, the rising price stops being information about the company and becomes information about how many people are copying each other.' },
+          { label: 'SPAC mania', value: 'Recognized as proof detached from fundamentals', color: '#3B82F6', sprite: 'scales', explain: 'The signal here was celebrity sponsors, not filings. A blank-check company by definition has not bought a business yet, so there is literally nothing underneath the excitement to check.' },
+          { label: 'Madoff returns', value: 'Questioned for being impossibly smooth', color: '#10B981', sprite: 'question', explain: 'Smooth returns were the red flag, not the selling point. Real investing is bumpy, so 10 to 12% every year for 17 years was the fraud stating itself in plain arithmetic while everyone read it as skill.' },
+          { label: 'Outcome', value: 'Avoids the loss, profits when herds reverse', color: '#10B981', sprite: 'shield', explain: 'Sitting out the 88% fall is most of the win. The rest comes from Lesson 3: crowds overshoot on the way down as well, so the same discipline that kept you out at $347 is what lets you look seriously at $40.' }
         ],
         footer: 'Verify first, then decide whether to follow',
         sentiment: 'positive', sprite: 'magnifier'
@@ -2446,12 +2446,12 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Auto-Enrollment Impact on Pension Participation',
         items: [
-          { label: '50%', value: 67, displayValue: '61%', sprite: 'hourglass' },
-          { label: '50% 2', value: 100, displayValue: '61%', sprite: 'check-badge' },
-          { label: '50% 3', value: 56, displayValue: '61%', sprite: 'question' },
-          { label: '50% 4', value: 98, displayValue: '61%', sprite: 'piggy-bank' },
-          { label: '50% 5', value: 33, displayValue: '61%', sprite: 'chart-down' },
-          { label: '50% 6', value: 91, displayValue: '61%', sprite: 'stack-cash' }
+          { label: '50%', value: 67, displayValue: '61%', sprite: 'hourglass', explain: 'Before 2012, about 61 in 100 UK workers had any pension at all, so nearly 4 in 10 were putting away nothing for the day they stop working. Nobody had banned them from saving. They just never started.' },
+          { label: '50% 2', value: 100, displayValue: '61%', sprite: 'check-badge', explain: 'After auto-enrollment the figure reached 92 in 100. No new tax break, no better funds, no advertising campaign: the sign-up form went from something you had to ask for to something you had to refuse.' },
+          { label: '50% 3', value: 56, displayValue: '61%', sprite: 'question', explain: 'The worry was that people would storm out once they saw money leaving their pay. Only 8 to 10 in 100 opted out, so more than nine in ten stayed in a plan they never actively chose.' },
+          { label: '50% 4', value: 98, displayValue: '61%', sprite: 'piggy-bank', explain: 'Roughly 10 million UK workers were pulled into a pension by this one rule change. That is a group the size of London saving because of the way a form was written.' },
+          { label: '50% 5', value: 33, displayValue: '61%', sprite: 'chart-down', explain: 'What did not change is the striking part: same wages, same plans, same right to walk away. Lesson 1 called System 2 the effortful setting, and filling in a pension form is exactly the kind of work it keeps postponing.' },
+          { label: '50% 6', value: 91, displayValue: '61%', sprite: 'stack-cash', explain: '£17 billion a year in extra pension savings, and not one pound of it came from paying people to save. The policy cost almost nothing to run because the work was done by people doing nothing.' }
         ],
         footer: 'Opt-Out (After)',
       
@@ -2466,8 +2466,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Opt-In Default',
         rows: [
-          { label: 'Workers enrolled', value: '49% of those eligible', percent: 49 },
-          { label: 'Average 401(k) balance at 60', value: 'About $65,000' }
+          { label: 'Workers enrolled', value: '49% of those eligible', percent: 49, explain: '51 out of every 100 people who could join do not, and most of them are walking past employer match money that is free. It is not that they cannot afford it, it is that nobody made them open the envelope.' },
+          { label: 'Average 401(k) balance at 60', value: 'About $65,000', explain: 'At 60 you may need that pot to cover 25 more years, which works out at about $2,600 a year. That is a couple of months of rent, stretched over a quarter of a century.' }
         ],
         footer: 'Inertia keeps people out of the plan',
         sentiment: 'negative'
@@ -2475,8 +2475,8 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Opt-Out Default (Nudge)',
         rows: [
-          { label: 'Workers enrolled', value: '92% of those eligible', percent: 92 },
-          { label: 'Extra UK pension savings', value: '£17 billion added' }
+          { label: 'Workers enrolled', value: '92% of those eligible', percent: 92, explain: 'The same laziness that kept people out now keeps them in. Leaving costs one phone call, and almost nobody makes it, which is why the default is the real decision.' },
+          { label: 'Extra UK pension savings', value: '£17 billion added', explain: 'Split across the roughly 10 million workers who were newly enrolled, that is about £1,700 each per year that used to be spent and now is not. The money was always there, it was just landing in the wrong place.' }
         ],
         footer: 'The same inertia now keeps people in',
         sentiment: 'positive'
@@ -3113,15 +3113,15 @@ const lessons: PathwayLesson[] = [
         type: 'comparison',
         title: 'Behavioral Finance: Complete Framework',
         rows: [
-          { label: 'System 1 vs System 2', value: 'Dual-process thinking' },
-          { label: 'Cognitive Biases', value: '6 wealth destroyers' },
-          { label: 'Emotional Cycles', value: 'Euphoria → Despair' },
-          { label: 'Social Dynamics', value: 'Herding & groupthink' },
-          { label: 'Market Psychology', value: 'Bubbles & crashes' },
-          { label: 'Prospect Theory', value: 'Loss aversion 2.5x' },
-          { label: 'Nudge Theory', value: 'Choice architecture' },
-          { label: 'Rational Framework', value: 'IPS + Checklists' },
-          { label: 'Behavioral mastery', value: 'Build systems, not willpower | 9 lessons → 1 integrated framework' }
+          { label: 'System 1 vs System 2', value: 'Dual-process thinking', explain: 'Two systems, and only one of them costs you effort. Lesson 1 showed System 1 answering before you have decided to think, which is why the fast answer always arrives already feeling correct.' },
+          { label: 'Cognitive Biases', value: '6 wealth destroyers', explain: 'Six, not sixty. Lesson 2 cut the list on purpose, because a short list you can actually recall in a bad week beats a long one you can only recall in a calm one.' },
+          { label: 'Emotional Cycles', value: 'Euphoria → Despair', explain: 'That arrow is the whole trap. In lesson 3 the buying peaks at euphoria and the selling peaks at despair, so the cycle hands you the top and takes back the bottom, in that order.' },
+          { label: 'Social Dynamics', value: 'Herding & groupthink', explain: 'Herding is copying strangers, groupthink is copying the people at your own table. Lesson 4 showed the second one does more damage, because those people sound like they already checked.' },
+          { label: 'Market Psychology', value: 'Bubbles & crashes', explain: 'A bubble is not some separate market event. It is the emotional cycle from lesson 3 running in millions of people at the same time, with real money attached to every stage of it.' },
+          { label: 'Prospect Theory', value: 'Loss aversion 2.5x', explain: '2.5x means losing $1,000 hurts about as much as winning $2,500 feels good. Every hold-the-loser and sell-the-winner decision in lesson 7 falls out of that one lopsided number.' },
+          { label: 'Nudge Theory', value: 'Choice architecture', explain: 'Choice architecture is the part of the decision that was made before you showed up. Lesson 8\'s point is that whoever sets the default wins most of the time, so it should be you setting it.' },
+          { label: 'Rational Framework', value: 'IPS + Checklists', explain: 'Written on a quiet day, obeyed on a loud one. Lesson 9 built the IPS and the checklist so the decision is already finished before the emotion turns up to make it for you.' },
+          { label: 'Behavioral mastery', value: 'Build systems, not willpower | 9 lessons → 1 integrated framework', explain: 'Nine lessons compress into one line, and notice the word it leaves out. Motivation runs out by evening, while a system keeps working on the days you do not feel like being disciplined.' }
         ],
         footer: '9 lessons → 1 integrated framework',
       

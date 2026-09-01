@@ -115,6 +115,9 @@ bcheck('absent header', hdr(null), null);
   if (/if \(!token \|\| !secret\) return null;/.test(src)) {
     fail.push('verifiedSubject still refuses a missing secret up front, which rejects every ES256 token before the algorithm branch runs.');
   }
+  if (/verifiedUserId[\s\S]{0,300}if \(!secret\) return null;/.test(src)) {
+    fail.push('verifiedUserId still refuses every ES256 session when the legacy HS256 secret is absent.');
+  }
   if (!/alg !== 'HS256' && alg !== 'ES256'/.test(src)) {
     fail.push("the algorithm pin no longer accepts exactly HS256 and ES256. Widening it is how alg:none gets in; narrowing it silently drops real sessions.");
   }

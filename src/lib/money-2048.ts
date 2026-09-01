@@ -27,6 +27,23 @@ export const SIZE = 4;
 /** Reaching this is the win banner. The run may continue past it. */
 export const GOAL = LADDER.length - 1;
 
+/**
+ * Finance facts earned the first time a run reaches each denomination.
+ *
+ * These are about how cash works, not portrait trivia: denomination status, circulation and the
+ * operational limits of paper money. Index 1 ($1) is the starting tile, so milestones begin at $2.
+ */
+export const MILESTONE_FACTS: Partial<Record<number, string>> = {
+  2: '$2 is legal tender and is still issued by the U.S. Treasury.',
+  3: '$5 is the smallest U.S. bill redesigned with a large numeral for accessibility.',
+  4: '$10 is worth ten $1 bills but takes one slot in a cash register.',
+  5: '$20 is the most common bill dispensed by U.S. cash machines.',
+  6: '$50 reduces bill count, but many merchants inspect it before accepting it.',
+  7: '$100 is the largest U.S. denomination in general circulation today.',
+};
+
+export const milestoneFact = (tile: number): string | null => MILESTONE_FACTS[tile] ?? null;
+
 export type Grid = number[][];
 export type Dir = 'up' | 'down' | 'left' | 'right';
 
@@ -131,6 +148,9 @@ if (__DEV__) {
   if (collapse([1, 1, 2, 2]).gained !== 2 + 5) console.error('[2048] two merges must score both bills');
   // The top of the ladder is terminal — two $100 cannot become a $200 that has no bill.
   if (collapse([GOAL, GOAL, 0, 0]).row[1] !== GOAL) console.error('[2048] $100 must not merge past the ladder');
+  for (let tile = 2; tile <= GOAL; tile++) {
+    if (!milestoneFact(tile)?.includes(`$${String(LADDER[tile])}`)) console.error(`[2048] tile ${String(tile)} needs a denomination fact`);
+  }
 
   // A move that changes nothing must report moved:false, or rule 3 spawns a free tile every time
   // the player swipes into a wall.

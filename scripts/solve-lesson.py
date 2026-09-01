@@ -111,21 +111,17 @@ def step(d):
         e = max(cards, key=lambda e: e["frame"]["y"])
         return "card", lambda: tap_safe(e)
 
-    # 2. drag-sort: selection-sort via two-tap swaps, against the AUTHORED key
-    rows = [e for e in d if label(e).startswith("Position ")]
-    if rows and not all(e.get("enabled") is False for e in rows):
-        rows.sort(key=lambda e: e["frame"]["y"])
-        def rank(l):
-            for i, k in enumerate(ORDER_KEY):
-                if k.lower() in l.lower():
-                    return i
-            return 99
-        cur = [rank(label(e)) for e in rows]
-        for i in range(len(rows)):
-            if cur[i] != i and i in cur:
-                j = cur.index(i)
-                a, b = rows[i], rows[j]
-                return "swap", lambda a=a, b=b: (tap_safe(a, pause=0.9), tap_safe(b, pause=2.2))
+    # 2. production dragSort: each round shows one adjacent pair. Pick the item that appears
+    #    earlier in the authored order; the component owns Next round and the final reveal.
+    def rank(l):
+        for i, key in enumerate(ORDER_KEY):
+            if key.lower() in l.lower():
+                return i
+        return 99
+    pair = [e for e in d if e.get("enabled") is not False and rank(label(e)) < 99]
+    if len(pair) == 2 and any("Which one comes first" in label(e) for e in d):
+        answer = min(pair, key=lambda e: rank(label(e)))
+        return "pair", lambda answer=answer: tap_safe(answer, pause=1.3)
 
     # 3. multi-select: drive the set to exactly the correct one, using the announced state
     boxes = [e for e in d if "checkbox" in str(e.get("AXValue") or "")]
@@ -147,7 +143,7 @@ def step(d):
             return "match", lambda: (tap_safe(l, pause=0.9), tap_safe(r, pause=1.6))
 
     # 5. any enabled CTA
-    for name in ("Continue", "Check", "Check answer", "Check your answer"):
+    for name in ("Next round", "See the full order", "Continue", "Check", "Check answer", "Check your answer"):
         cta = [e for e in d if label(e) == name and e.get("enabled")]
         if cta:
             return "cta:" + name, lambda e=cta[0]: tap_safe(e)

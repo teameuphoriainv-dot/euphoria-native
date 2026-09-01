@@ -52,7 +52,7 @@ export const Colors = {
     backgroundSelected: 'hsl(240 10% 19%)',
     card: 'hsl(240 10% 9%)',
     cardElevated: 'hsl(240 10% 14%)',
-    border: 'hsl(240 10% 22%)',
+    border: '#32323E',
     input: 'hsl(240 10% 14%)',
     muted: 'hsl(240 10% 14%)',
     // brand (HEX so `color + '22'` alpha suffixes are valid 8-digit hex)
@@ -121,7 +121,7 @@ export const Colors = {
     backgroundSelected: 'hsl(240 5% 90%)',
     card: 'hsl(0 0% 100%)',
     cardElevated: 'hsl(0 0% 100%)',
-    border: 'hsl(240 6% 90%)',
+    border: '#E4E4E7',
     input: 'hsl(240 6% 90%)',
     muted: 'hsl(240 5% 95%)',
     primary: '#A650E7',
@@ -160,6 +160,7 @@ export const Fonts = {
   medium: 'DMSans_500Medium',
   semibold: 'DMSans_600SemiBold',
   bold: 'DMSans_700Bold',
+  black: 'DMSans_900Black',
   mono: Platform.select({ ios: 'ui-monospace', default: 'monospace' }) as string,
 };
 

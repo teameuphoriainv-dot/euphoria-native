@@ -44,7 +44,13 @@ for (const course of COURSES) {
         explanations += rows.filter((row) => typeof row.explain === 'string' && row.explain.trim()).length;
         rowSprites += rows.filter((row) => typeof row.sprite === 'string' && row.sprite.trim()).length;
 
-        const reached = normalized.kind === 'prose' && normalized.blocks.some((block) => block.b === 'visual' && block.visual === visual);
+        const reached = (normalized.kind === 'hook' && normalized.spec.visual === visual)
+          || (normalized.kind === 'stakes' && (normalized.spec.withoutVisual === visual || normalized.spec.withVisual === visual))
+          || (normalized.kind === 'teaching' && normalized.spec.diagramVisual === visual)
+          || (normalized.kind === 'prose' && normalized.blocks.some((block) =>
+            (block.b === 'visual' && block.visual === visual)
+            || (block.b === 'pair' && (block.leftVisual === visual || block.rightVisual === visual)),
+          ));
         strictEqual(reached, true, `${course.id} lesson ${lesson.num}: ${raw.type}.${key} did not reach native UI`);
       }
 
@@ -63,8 +69,8 @@ for (const course of COURSES) {
       }
 
       if (raw.type === 'teachingSlide' && raw.atlas) {
-        strictEqual(normalized.kind, 'prose', `${course.id} lesson ${lesson.num}: teaching slide changed kind`);
-        deepStrictEqual(normalized.atlas, raw.atlas, `${course.id} lesson ${lesson.num}: Atlas guide changed`);
+        strictEqual(normalized.kind, 'teaching', `${course.id} lesson ${lesson.num}: teaching slide changed kind`);
+        deepStrictEqual(normalized.spec.atlas, raw.atlas, `${course.id} lesson ${lesson.num}: Atlas guide changed`);
         atlasGuides += 1;
       }
     }

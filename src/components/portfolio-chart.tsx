@@ -5,8 +5,9 @@
  * detail" — rather than the multi-series, indicator-laden thing a stock chart can become. Its
  * ranges are 1D 1W 1M 3M 1Y ALL (no 1H, no YTD; those two are ours).
  *
- * WHAT IT PLOTS, AND WHY THAT MATTERS: `valueHistory` in the store, written on every trade. It is
- * NOT a back-test. Polygon could give per-ticker history and it would be easy to project today's
+ * WHAT IT PLOTS, AND WHY THAT MATTERS: `valueHistory` in the store, written on trades and
+ * successful market-mark refreshes. It is NOT a back-test. Polygon could give per-ticker history
+ * and it would be easy to project today's
  * holdings backwards into a rich five-year curve — but that curve is what this basket WOULD have
  * done, not what this account was worth, and showing one as the other is the same lie as the
  * $104,237.55 card that used to sit on this tab. So the chart starts empty and fills as you trade,

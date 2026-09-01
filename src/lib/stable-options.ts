@@ -20,5 +20,8 @@ export function stableOptions(options: string[], correctIndex: number) {
   return {
     options: indices.map((index) => options[index]),
     correct: indices.indexOf(correctIndex),
+    // Consumers with option-specific authored metadata need the same permutation. Returning the
+    // source positions avoids trying to recover identity from labels, which need not be unique.
+    sourceIndices: indices,
   };
 }
