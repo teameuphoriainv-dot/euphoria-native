@@ -1,6 +1,6 @@
 # Euphoria Native — 300 Lesson Parity Task List
 
-> **Generated** from `artifacts/lesson-parity/manifest.json` at 2026-09-01T21:46:19Z.
+> **Generated** from `artifacts/lesson-parity/manifest.json` at 2026-09-01T22:04:49Z.
 > Do not hand-edit. Regenerate with `node scripts/parity/render-tasklist.mjs`.
 
 ## Corpus (authoritative)

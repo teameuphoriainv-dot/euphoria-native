@@ -160,17 +160,22 @@ def compound_handle_values(raw):
     return (float(values[0]), float(values[1])) if len(values) >= 2 else None
 
 
-def ensure_node_visible(label, top=105, bottom=730):
+def ensure_node_visible(label, top=105, bottom=730, require_value=False):
     """Scroll a lesson graph until an exact accessibility target is safely tappable.
 
     React Native exposes rows that are below the viewport or behind the fixed Atlas/Continue
     footer. Tapping those coordinates either hits the footer or (in development) the floating
     Expo tools button. Accessibility presence alone therefore is not proof of tap visibility.
+
+    A slider publishes its label TWICE: a static caption and the control that carries AXValue.
+    The caption sorts first and is always on screen, so the plain lookup silently taps text and
+    the value never moves. `require_value` selects the node that actually owns the value.
     """
     wanted = norm(label)
     for _ in range(4):
         current = nodes()
-        matches = [node for node in current if norm(node[4]) == wanted]
+        matches = [node for node in current if norm(node[4]) == wanted
+                   and (not require_value or str(node[6]).strip())]
         if matches and node_is_unobscured(matches[0], top, bottom):
             return matches[0]
         if not matches:
@@ -190,6 +195,52 @@ def ensure_node_visible(label, top=105, bottom=730):
     return None
 
 
+def tap_fraction(node, fx, settle=0.7):
+    """Tap a horizontal fraction across a node instead of its centre.
+
+    The graph control is a single `accessibilityRole="adjustable"` track whose value follows the
+    touch position. A centre tap cannot move a thumb that already rests mid-track, so callers aim
+    at the far side of the current value.
+    """
+    x, y, w, h = node[0], node[1], node[2], node[3]
+    try:
+        sp.run(["idb", "ui", "tap", "--udid", U, str(int(x + w * fx)), str(int(y + h // 2))],
+               capture_output=True, timeout=IDB_TIMEOUT)
+    except sp.TimeoutExpired:
+        return False
+    time.sleep(settle)
+    return True
+
+
+def exercise_slider(label, minimum=None, maximum=None):
+    """Move one adjustable graph track and report whether its value provably changed.
+
+    Graph sliders are `accessibilityRole="adjustable"` tracks whose value follows touch position.
+    The `Increase X` / `Decrease X` buttons these call sites used to tap were retired when the
+    control gained accessibilityValue plus increment/decrement actions, so aim across the current
+    thumb instead. Authored min/max need not match the rendered track -- steps quantise and some
+    tracks do not start at zero -- so fall back to the opposite end before calling a control dead.
+    """
+    before = accessible_value(nodes(), label)
+    control = ensure_node_visible(label, require_value=True)
+    if control is None:
+        return False
+    numbers = re.findall(r"-?\d+(?:\.\d+)?", str(before or ''))
+    current = float(numbers[0]) if numbers else None
+    low = float(minimum or 0)
+    high = float(maximum if maximum is not None else (current if current is not None else 0))
+    span = high - low
+    ratio = (current - low) / span if current is not None and span else 0.0
+    first = 0.15 if ratio > 0.5 else 0.85
+    tap_fraction(control, first)
+    after = accessible_value(nodes(), label)
+    if before is not None and after == before:
+        control = ensure_node_visible(label, require_value=True) or control
+        tap_fraction(control, round(1.0 - first, 2))
+        after = accessible_value(nodes(), label)
+    return before is not None and after is not None and before != after
+
+
 def exercise_graph(lesson):
     """Exercise synthesized explorable controls. Returns (ok, evidence-kind).
 
@@ -207,19 +258,7 @@ def exercise_graph(lesson):
         changed = 0
         for slider in generic['sliders']:
             label = slider.get('label')
-            if not label:
-                continue
-            before = accessible_value(nodes(), label)
-            numbers = re.findall(r"-?\d+(?:\.\d+)?", str(before or ''))
-            current = float(numbers[0]) if numbers else None
-            maximum = float(slider.get('max', current if current is not None else 0))
-            direction = 'Decrease' if current is not None and current >= maximum else 'Increase'
-            control = ensure_node_visible(f'{direction} {label}')
-            if control is None:
-                continue
-            tap(control, 0.7)
-            after = accessible_value(nodes(), label)
-            if before is not None and after is not None and before != after:
+            if label and exercise_slider(label, slider.get('min'), slider.get('max')):
                 changed += 1
         expected = len(generic['sliders'])
         family = re.sub(r'[^A-Za-z0-9_-]+', '', str(generic.get('graphType') or 'generic')) or 'generic'
@@ -306,26 +345,19 @@ def exercise_graph(lesson):
                 return False, 'interactive_graph_controls_failed:prediction'
             tap(hit[0], 0.8)
         changed = 0
-        for label in ('Increase Inflation rate', 'Increase Years'):
-            current = nodes()
-            hit = ensure_node_visible(label)
-            current = nodes()
-            control_label = label.removeprefix('Increase ')
-            before = accessible_value(current, control_label)
-            if hit is None:
-                continue
-            try:
-                sp.run(["idb", "ui", "tap", "--udid", U,
-                        str(hit[0] + hit[2] // 2), str(hit[1] + hit[3] // 2)],
-                       capture_output=True, timeout=IDB_TIMEOUT, check=True)
-            except (sp.TimeoutExpired, sp.CalledProcessError):
-                continue
-            time.sleep(0.7)
-            after = accessible_value(nodes(), control_label)
-            if before is not None and after is not None and before != after:
+        for control_label in ('Inflation rate', 'Years'):
+            if exercise_slider(control_label):
                 changed += 1
         if changed != 2:
             return False, f'interactive_graph_controls_failed:inflation({changed}/2)'
+        # Proving the controls move is not enough to continue. The eroder's insight -- and with it
+        # the only advance affordance -- unlocks on `duration >= 28 && lostFraction >= 0.2`, so an
+        # exercise pass that parks the slider at a short horizon strands the lesson on this screen.
+        # Leave both controls at the long-horizon end the step is authored to teach.
+        for control_label in ('Years', 'Inflation rate'):
+            node = ensure_node_visible(control_label, require_value=True)
+            if node is not None:
+                tap_fraction(node, 0.95)
         return True, 'interactive_graph_controls:inflationEroder[3/3]'
 
     allocation_label = next((n[4] for n in ns if n[4].startswith('Portfolio allocation bar.')), None)
