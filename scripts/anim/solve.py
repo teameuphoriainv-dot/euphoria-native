@@ -601,11 +601,39 @@ def place_slider(ns, st):
     return abs(final - st['correct']) <= max(1.0, span * 0.03), f'slider(off:{final})'
 
 
+VOCAB_ASK = re.compile(r'which term means:\s*(.+)', re.I | re.S)
+
+
+def find_vocab_ask(lesson, screen_labels):
+    """Answer the vocabulary conversation's generated quiz.
+
+    `buildVocabConversation` emits `Which term means: <definition>` and the answer is simply the
+    term that owns that definition. Which of the reading-level variants renders is decided at
+    runtime, so match against all of them rather than guessing the level.
+    """
+    prompt = next((label for label in screen_labels if VOCAB_ASK.match(label.strip())), None)
+    if not prompt:
+        return None
+    wanted = norm(VOCAB_ASK.match(prompt.strip()).group(1))
+    if not wanted:
+        return None
+    for step in lesson.get('steps', []) or []:
+        if step.get('kind') != 'vocabTerms':
+            continue
+        for entry in step.get('terms') or []:
+            for definition in entry.get('definitions') or []:
+                d = norm(definition)
+                if d and (d == wanted or (len(wanted) > 20 and wanted in d) or (len(d) > 20 and d in wanted)):
+                    if any(norm(label) == norm(entry['term']) for label in screen_labels):
+                        return {'kind': 'quiz', 'options': [entry['term']], 'correct': 0}
+    return None
+
+
 def answer(lesson):
     """Apply the correct answer for whatever step is on screen. → (solved, kind)"""
     ns = nodes()
     labels = [n[4] for n in ns]
-    st = (find_drag_sort(lesson, labels) or find_step(lesson, labels) or find_match(lesson, labels)
+    st = (find_vocab_ask(lesson, labels) or find_drag_sort(lesson, labels) or find_step(lesson, labels) or find_match(lesson, labels)
           or find_truefalse(lesson, labels) or find_slider(lesson, labels)
           or find_calculator(lesson, labels) or find_decision(lesson, labels))
     if not st: return False, 'no-match'

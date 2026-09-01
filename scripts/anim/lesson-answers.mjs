@@ -43,6 +43,18 @@ const H = {
   tf: (statements) => ({ kind: 'trueFalse', statements: statements.map((s) => ({ text: s.s, a: s.a })) }),
   m:  (title, pairs) => ({ kind: 'match', pairs }),
   tr: (title, cards) => ({ kind: 'tapReveal', count: cards.length }),
+  // The Atlas vocabulary conversation generates its own quiz from these cards at render
+  // time (`Which term means: <definition>`), so the beats are not authored steps and the
+  // option matcher could never see them. Keep term + every reading-level definition.
+  keyTermsCards: (cards) => ({
+    kind: 'vocabTerms',
+    terms: (cards || []).map((card) => ({
+      term: card.term,
+      definitions: typeof card.definition === 'string'
+        ? [card.definition]
+        : Object.values(card.definition || {}).filter((d) => typeof d === 'string'),
+    })),
+  }),
   sc: (_situation, choices) => ({
     kind: 'scenario',
     options: choices.map((choice) => choice.label),

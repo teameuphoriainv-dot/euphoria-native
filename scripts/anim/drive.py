@@ -452,7 +452,11 @@ def advance(allow_guess=True):
             return False, f'reveal-stuck:{remaining}'
         return total > 0, f'reveal x{total}'
 
-    btn = button('start the challenge', 'next statement', 'finish', 'begin', 'continue', 'check', 'next', 'got it')
+    # Conversational steps carry their own CTAs (Atlas vocabulary runs `Teach me` -> `Let's go`
+    # -> `Done` across nine beats). `Skip` is deliberately absent: skipping past authored
+    # content would weaken the very interaction coverage the recording exists to prove.
+    btn = button('start the challenge', 'next statement', 'finish', 'begin', 'continue', 'check',
+                 'next', 'got it', 'teach me', "let's go", 'show me how', 'done')
     if not btn:
         return False, 'no-button'
     if tap(btn[0]):
