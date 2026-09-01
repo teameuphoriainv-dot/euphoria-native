@@ -84,6 +84,28 @@ function evalCourse(path) {
   return fn(H);
 }
 
+/** An explorable may carry an embedded micro-check as its sixth argument. That check renders as a
+ *  real, gating question below the widget, but it lived only on `step.check`, where the driver's
+ *  content matcher -- which keys on `step.options` -- could never see it. Every such screen
+ *  therefore reported `no-match` and stalled the lesson. Emit the check as its own quiz step so
+ *  the existing index-free matcher finds it with no solver changes. */
+function expandExplorableChecks(lessons) {
+  let added = 0;
+  for (const lesson of lessons) {
+    const expanded = [];
+    for (const step of lesson.steps || []) {
+      expanded.push(step);
+      const check = step.kind === 'explorable' ? step.check : null;
+      if (check && Array.isArray(check.options) && check.correct !== undefined) {
+        expanded.push({ kind: 'quiz', question: check.question, options: check.options, correct: check.correct });
+        added += 1;
+      }
+    }
+    lesson.steps = expanded;
+  }
+  return added;
+}
+
 function summarise(lessons) {
   const need = new Set(['quiz', 'fillBlank', 'visual', 'dragSort', 'slider', 'trueFalse', 'match',
     'tapReveal', 'scenario', 'buildIt', 'calculator', 'decisionTree']);
@@ -100,11 +122,13 @@ function summarise(lessons) {
 const files = process.argv[2] && !process.argv[2].startsWith('--')
   ? [process.argv[2]] : readdirSync(DIR).filter((f) => f.endsWith('.ts')).map((f) => join(DIR, f));
 const out = {};
-let ok = 0, bad = 0;
+let ok = 0, bad = 0, totalEmbedded = 0;
 for (const f of files) {
   const name = f.split('/').pop().replace('.ts', '');
   try {
     const lessons = evalCourse(f);
+    const embedded = expandExplorableChecks(lessons);
+    totalEmbedded += embedded;
     out[name] = lessons;
     const s = summarise(lessons);
     console.log(`  ok    ${name.padEnd(24)} ${String(s.lessons).padStart(3)} lessons · ${String(s.interactive).padStart(4)} interactive · ${s.answered} answerable`);
