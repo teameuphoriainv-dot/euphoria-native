@@ -504,6 +504,29 @@ if __name__ == '__main__':
             print(f"  STOPPED — visible: {sorted(labels())[:6]}"); sys.exit(1)
     print(f"did not reach {target!r} in {maxs} steps"); sys.exit(2)
 
+def tap_inline_terms(limit=2):
+    """Open an inline term popover, then close it again, and report how many were exercised.
+
+    Inline term popovers are the second most common authored interaction in the corpus (432) and
+    they never advance the step, so the driver skipped them entirely and every lesson carrying one
+    reported incomplete interaction coverage. The term toggles its own popover shut on a second
+    tap, so dismissal needs no blind tap near the header (which risks the close-lesson control).
+    """
+    opened = 0
+    candidates = [n for n in nodes() if n[4].lower().endswith(', tap for definition')]
+    for node in candidates[:limit]:
+        target = bring_into_view(node)
+        if not node_is_tappable(target):
+            continue
+        x, y = target[0] + target[2] // 2, target[1] + target[3] // 2
+        sp.run(["idb", "ui", "tap", "--udid", U, str(x), str(y)], capture_output=True)
+        time.sleep(0.7)
+        opened += 1
+        sp.run(["idb", "ui", "tap", "--udid", U, str(x), str(y)], capture_output=True)
+        time.sleep(0.4)
+    return opened
+
+
 def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
     """Drive one lesson to completion. Returns (done, log).
 
@@ -563,6 +586,10 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
             if stalls >= stall_limit:
                 return False, log
             continue
+        # Exercise inline term popovers BEFORE advancing: they never move the step, so once
+        # advance() has taken the Continue the terms are gone and the interaction is lost.
+        terms_opened = tap_inline_terms()
+        before_answer = labels()
         moved, how = advance(allow_guess=False)
         if not moved and how in ('stuck', 'no-button'):
             ok, kind = solve_mod.answer(lesson)
@@ -584,10 +611,19 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
                 moved = (after != before) and not rejected
                 how = (f'solved:{kind}' + ('/rejected' if rejected else '')
                        + f'@{target[4]}[{target[0]},{target[1]},{target[2]},{target[3]}]')
+            elif ok:
+                # A conversational step commits on selection and has no submit control, so
+                # post_solve_button() finds nothing. The interaction still happened -- calling it
+                # `unsolved` both mislabelled it and threw away its interaction-coverage credit.
+                time.sleep(1.2)
+                moved = labels() != before_answer
+                how = f'solved:{kind}'
             else:
                 how = f'unsolved:{kind}'
         if graph_ok:
             how = f'exercised:{graph_kind}+{how}'
+        if terms_opened:
+            how = f'inline_terms({terms_opened})+{how}'
         if revealed:
             # Reveals are authored interactions in their own right. They happen before the
             # footer advances, so preserve them in the same action record instead of losing

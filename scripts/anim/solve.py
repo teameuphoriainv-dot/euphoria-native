@@ -321,11 +321,10 @@ def exercise_graph(lesson):
 
         monthly_label = 'Monthly contribution'
         before_monthly = accessible_value(nodes(), monthly_label)
-        for _ in range(2):
-            increase = ensure_node_visible('Increase Monthly contribution')
-            if increase is None:
-                break
-            tap(increase, 0.7)
+        # The same retired-control trap as the eroder: `Increase Monthly contribution` vanished
+        # when the slider became one adjustable track, so this loop broke on its first pass and
+        # monthly never moved -- compound(...monthly=False) on every lesson carrying the lab.
+        exercise_slider(monthly_label)
         after_monthly = accessible_value(nodes(), monthly_label)
         monthly_numbers = [re.findall(r"-?\d+(?:\.\d+)?", str(value or ''))
                            for value in (before_monthly, after_monthly)]
@@ -625,7 +624,7 @@ def find_vocab_ask(lesson, screen_labels):
                 d = norm(definition)
                 if d and (d == wanted or (len(wanted) > 20 and wanted in d) or (len(d) > 20 and d in wanted)):
                     if any(norm(label) == norm(entry['term']) for label in screen_labels):
-                        return {'kind': 'quiz', 'options': [entry['term']], 'correct': 0}
+                        return {'kind': 'vocabAsk', 'options': [entry['term']], 'correct': 0}
     return None
 
 
@@ -637,7 +636,7 @@ def answer(lesson):
           or find_truefalse(lesson, labels) or find_slider(lesson, labels)
           or find_calculator(lesson, labels) or find_decision(lesson, labels))
     if not st: return False, 'no-match'
-    if st['kind'] in ('quiz', 'fillBlank', 'visual', 'challenge', 'scenario', 'decisionTree'):
+    if st['kind'] in ('quiz', 'fillBlank', 'visual', 'challenge', 'scenario', 'decisionTree', 'vocabAsk'):
         want = norm(st['options'][st['correct']])
         hit = [n for n in ns if norm(n[4]) == want]
         if not hit and len(want) >= 4:

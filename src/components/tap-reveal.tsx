@@ -163,7 +163,10 @@ export function TapReveal({ spec, onComplete }: { spec: RevealSpec; onComplete: 
               haptic={false}
               accessibilityRole="button"
               accessibilityState={{ expanded: isOpen }}
-              accessibilityLabel={isOpen ? `${card.term}. ${card.def}` : card.term}
+              // The unrevealed label must state the card's own state. Dropping it left VoiceOver
+              // unable to distinguish a flipped card from an unflipped one, and left the parity
+              // driver unable to see that a reveal step was still gating Continue.
+              accessibilityLabel={isOpen ? `${card.term}. ${card.def}` : `${card.term}. Not revealed yet.`}
               accessibilityHint={isOpen ? undefined : 'Activate to reveal the answer.'}>
               <FlipCard
                 term={card.term}

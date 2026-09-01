@@ -252,8 +252,15 @@ def observed_interaction_kind(action: str) -> str | None:
         return "matching_pairs"
     if "slider" in action:
         return "slider"
+    if "vocabAsk" in action:
+        return "atlas_vocabulary_conversation"
+    if "inline_terms" in action:
+        return "inline_term_popovers"
     if "trueFalse" in action:
-        return "multi_select"
+        # The authored taxonomy has no `multi_select` anywhere in the corpus; this interaction is
+        # `true_false_sequence` (273 authored). The old label reported a kind nothing authors and
+        # left every true/false lesson short one observed interaction.
+        return "true_false_sequence"
     if "dragSort" in action:
         return "reorder"
     if "buildIt" in action:
@@ -687,6 +694,9 @@ def selftest_command(_args) -> None:
     assert observed_graph_control_evidence(graph_action) == ("portfolioMixer", 5, 5)
     assert observed_graph_control_evidence("button") is None
     assert observed_interaction_kind("solved:decisionTree") == "decision_tree"
+    assert observed_interaction_kind("solved:trueFalse(2 set, 1 kept)") == "true_false_sequence"
+    assert observed_interaction_kind("solved:vocabAsk") == "atlas_vocabulary_conversation"
+    assert observed_interaction_kind("inline_terms(2)+button") == "inline_term_popovers"
     assert observed_interaction_kind("solved:dragSort") == "reorder"
     assert observed_interaction_kind("unsolved:no-match") is None
     with tempfile.TemporaryDirectory(prefix="euphoria-parity-selftest-") as temp_dir:
