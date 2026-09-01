@@ -67,6 +67,10 @@ BUNDLE = "com.euphoriainv.euphoria"
 _CACHE = {'at': 0.0, 'val': None}
 _TTL = 0.30
 
+class CompanionUnavailable(RuntimeError):
+    """idb's companion process is gone. Never let this read as an empty screen."""
+
+
 def tree(fresh=False):
     now = time.time()
     if not fresh and _CACHE['val'] is not None and now - _CACHE['at'] < _TTL:
@@ -76,6 +80,22 @@ def tree(fresh=False):
                    text=True, timeout=8)
     except sp.TimeoutExpired:
         return []
+    # A DEAD COMPANION IS NOT AN EMPTY SCREEN. idb reports a lost companion on stderr and leaves
+    # stdout empty, so `json.loads(stdout or "[]")` handed the driver a blank tree: every step
+    # then reported no-button/no-match and the lesson failed exactly as if the app were broken.
+    # One companion death mid-sweep silently invalidated every lesson after it. Recover once,
+    # then refuse to keep going rather than manufacture 288 false failures.
+    if r.returncode != 0 or not (r.stdout or '').strip():
+        detail = (r.stderr or '').strip()
+        sp.run(["idb", "kill"], capture_output=True, timeout=30)
+        time.sleep(2)
+        try:
+            r = sp.run(["idb", "ui", "describe-all", "--udid", U], capture_output=True,
+                       text=True, timeout=12)
+        except sp.TimeoutExpired:
+            raise CompanionUnavailable('idb companion timed out after restart') from None
+        if r.returncode != 0 or not (r.stdout or '').strip():
+            raise CompanionUnavailable(f'idb companion unavailable: {detail[:200]}')
     try: out = json.loads(r.stdout or "[]")
     except json.JSONDecodeError: out = []
     _CACHE['val'], _CACHE['at'] = out, time.time()
@@ -386,6 +406,28 @@ def goto_lesson(course_slug, num, title=None, tries=3):
     return False
 
 
+def settle_read_gate(max_wait=25):
+    """Satisfy a teaching slide's read gate, then report whether it opened.
+
+    `ready = bottomReached && remaining === 0`. The slide keeps Continue MOUNTED AND TAPPABLE the
+    whole time it is gated, so a tap that changes nothing is the gate -- not a missing control,
+    and not a stall worth counting. Scrolling is what sets bottomReached; once it is set the
+    button relabels to `Continue in Ns` until the dwell expires, so that label is the live signal.
+    """
+    for _ in range(8):
+        if any(re.match(r'continue in \d+\s*s', label.lower()) for label in labels()):
+            break
+        sp.run(["idb", "ui", "swipe", "--udid", U, "--duration", "0.35",
+                "200", "640", "200", "260"], capture_output=True)
+        time.sleep(0.45)
+    deadline = time.time() + max_wait
+    while time.time() < deadline:
+        if not any(re.match(r'continue in \d+\s*s', label.lower()) for label in labels()):
+            return True
+        time.sleep(1.0)
+    return False
+
+
 def advance(allow_guess=True):
     """One step forward. Returns (moved, what_was_tried).
 
@@ -415,6 +457,19 @@ def advance(allow_guess=True):
         return False, 'no-button'
     if tap(btn[0]):
         return True, 'button'
+    # MORE THAN ONE ADVANCE CONTROL CAN BE MOUNTED AT ONCE. A teaching slide's recap puts
+    # `Got it, continue lesson` above a Continue that is disabled for exactly as long as the
+    # recap is open (`disabled={!ready || showRecap}`). Taking only the first match sat on the
+    # dead control forever and the step read as a stall.
+    for other in btn[1:]:
+        if tap(other):
+            return True, f'button:{other[4][:28]}'
+    # A gated read step, not a dead end: scroll to the bottom, let the dwell timer expire, and
+    # take the button. Without this every teachingSlide is a permanent stall.
+    if settle_read_gate():
+        again = button('continue', 'next', 'got it', 'finish') or btn
+        if tap(again[0]):
+            return True, 'button:read-gate'
     # A parity recording must use the extracted canonical answer. The legacy CLI probe can still
     # opt into its arbitrary-row fallback, but run_lesson passes allow_guess=False: selecting the
     # first tappable row made wrong feedback look like movement and recorded an incorrect journey

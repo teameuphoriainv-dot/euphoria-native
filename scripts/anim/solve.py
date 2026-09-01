@@ -26,6 +26,11 @@ def nodes():
                    text=True, timeout=IDB_TIMEOUT)
     except sp.TimeoutExpired:
         return []
+    # A dead companion is not an empty screen. idb reports the lost connection on stderr with an
+    # empty stdout, so returning [] here made the solver report `no-match` on a perfectly rendered
+    # lesson -- the same silent failure that can invalidate an entire sweep after one crash.
+    if r.returncode != 0 or not (r.stdout or '').strip():
+        raise RuntimeError(f"idb companion unavailable: {(r.stderr or '').strip()[:200]}")
     try: t = json.loads(r.stdout or "[]")
     except json.JSONDecodeError: return []
     return [(round(n['frame']['x']), round(n['frame']['y']), round(n['frame']['width']),
