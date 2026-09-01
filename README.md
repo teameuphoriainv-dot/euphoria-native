@@ -9,10 +9,21 @@ league, and a pathway that unlocks as you go. That is a deliberate strategic cho
 evidence, not an aesthetic one — see [Peer group](#peer-group).
 
 > ### Status: pre-release
-> Not on the App Store. An Apple 2.1b rejection is open and the reply draft awaits approval. The
-> Paid Applications Agreement is unsigned, so **no in-app purchase can transact**. Atlas went live
-> for the first time on 2026-08-13; market data and options are still dark pending API keys.
-> See [Known blockers](#known-blockers).
+> Not on the App Store. A five-image Goldie draft has been regenerated from the current Release
+> simulator build and passes automated and human visual review. It remains a draft until source
+> freeze because later user-facing changes require a fresh capture. Source gates pass,
+> but the 300-lesson live-web/iOS evidence run and a sandbox purchase/restore are not complete.
+> Treat [Known blockers](#known-blockers) and the canonical [task list](docs/status/TASKLIST.md) as
+> submission gates, not aspirational status.
+
+```text
+PIPELINE ───────────────────────────────────────────────────────────────
+Curriculum parity     [##--------] 01%   (2 lessons currently fully documented in-session)
+iOS simulation flow   [#---------] 01%   (core lesson shells actively iterating)
+Submission evidence   [----------] 00%   (Goldie/ASC/reviewer pre-checks still pending)
+```
+
+Current execution board: [LESSONS_PARITY_VISUAL_TASKLIST.md](docs/status/LESSONS_PARITY_VISUAL_TASKLIST.md)
 
 ---
 
@@ -23,7 +34,7 @@ evidence, not an aesthetic one — see [Peer group](#peer-group).
 | **Orientation** | [What this is](#what-this-is) · [Peer group](#peer-group) · [Product facts](#product-facts) |
 | **Engineering** | [Stack](#stack) · [Identifiers](#identifiers) · [Repository layout](#repository-layout) · [Architecture](#architecture) |
 | **Running it** | [Getting started](#getting-started) · [Environment variables](#environment-variables) · [Deployment](#deployment) |
-| **Quality** | [The gate](#the-gate) · [Verification philosophy](#verification-philosophy) · [Driving the simulator](#driving-the-simulator) |
+| **Quality** | [The gate](#the-gate) · [Verification philosophy](#verification-philosophy) · [Driving the simulator](#driving-the-simulator) · [App Store assets](#app-store-assets) |
 | **Domain** | [Curriculum pipeline](#curriculum-pipeline) · [Monetisation and entitlement](#monetisation-and-entitlement) · [Analytics and privacy](#analytics-and-privacy) · [Security](#security) |
 | **Process** | [Where the reasoning lives](#where-the-reasoning-lives) · [House rules](#house-rules) · [Commit conventions](#commit-conventions) |
 | **Reference** | [Traps that have cost real time](#traps-that-have-cost-real-time) · [Known blockers](#known-blockers) · [Open work](#open-work) |
@@ -68,7 +79,8 @@ the dataset**; say "no strong match" rather than substituting something off-topi
 | Content during trial | **Unmetered.** Every lesson, every guide — 4/4 reference trials grant full access |
 | After the trial | A **hard wall** on content; the streak/XP/league loop stays open |
 | Screen | 402 × 874 pt |
-| Codebase | 33 routes · 49 components · 35 lib modules · 27 scripts · 379 commits |
+| Codebase | 39 route files · 59 top-level components · 62 top-level lib modules · 118 top-level scripts |
+| History | **888 commits** through baseline `2b2408e` (run `git rev-list --count HEAD` for the live count) |
 
 ---
 
@@ -77,7 +89,7 @@ the dataset**; say "no strong match" rather than substituting something off-topi
 | Layer | Choice |
 |---|---|
 | Runtime | Expo SDK `~57.0.7`, React Native `0.86.0`, React `19.2.3` |
-| Routing | `expo-router` `~57.0.7` — file-based, 33 route files under `src/app` |
+| Routing | `expo-router` `~57.0.7` — file-based, 39 route files under `src/app` |
 | Language | TypeScript `~6.0.3`, strict |
 | State | `zustand` `^5.0.14`, persisted to `AsyncStorage` under `euphoria-app-state` |
 | Motion | `react-native-reanimated` `4.5.0` |
@@ -107,16 +119,18 @@ These have been re-derived wrong more than once. They are settled.
 
 ```
 src/
-  app/            33 routes. expo-router file-based; (tabs) is the signed-in shell
+  app/            39 route files. expo-router file-based; (tabs) is the signed-in shell
     api/          server routes — chat, market, options, and the _underscore helpers
     (tabs)/       home, learn, trade, digest, you
     digest/ stock/ settings/ explore/ games/
-  components/     49 components — gate-sheet, dismissal-offer-sheet, trial-reward-sheet, atlas, lesson-*
-  lib/            35 modules — store, entitlement, purchases, analytics, curriculum/, and the rule modules
+  components/     59 top-level components — Atlas, lesson renderers, sheets, charts, shared UI
+  lib/            62 top-level modules — store, entitlement, auth, curriculum, analytics, and rules
   constants/      theme tokens: Spacing, Radius, FontSize. Never hardcode a number these own
   hooks/          useTheme and friends
   shared/motion/  SpringPressable, NumberRollup, RewardPop
-scripts/          27 files: the gate, the simulator driver, curriculum sync, changelog generation
+scripts/          118 top-level files: gates, regressions, simulator drivers, parity, sync, release tooling
+.argent/          reproducible Goldie screenshot flows
+goldie/           App Store screenshot configuration and generated local assets
 refs/             MASTER_PLAN.md, CARRYOVER.md, SECURITY_REVIEW.md, audit findings, store assets
 targets/widget/   the iOS widget, in Swift
 ```
@@ -148,7 +162,7 @@ worse than none — it passes review while disagreeing with the code that runs.
 | `lib/purchases.ts` | The **only** writer of `isPro`, and only ever from a *successful* `customerInfo` read — a network failure must never revoke a paying member. |
 | `lib/stocks.ts` | A hardcoded mock price table. **Prices never move**, which bounds what the Trade tab can teach. |
 | `lib/people.ts` | **Fabricated, and says so.** The league races invented rivals. |
-| `app/api/_limit.ts` | In-memory rate limiter. Per-isolate on Workers — a real limiter against one client, weak against a distributed one, and it says so. |
+| `lib/server/limit.ts` | In-memory rate limiter. Per-isolate on Workers — a real limiter against one client, weak against a distributed one, and it says so. |
 
 ---
 
@@ -159,31 +173,69 @@ worse than none — it passes review while disagreeing with the code that runs.
 Everything else is on-device. The API routes exist for exactly one reason: **keys that must not ship
 in the binary.** Anything inside the IPA is extractable, and an extracted key bills our account.
 
-```
-                 ┌──────────────────────────────┐
-   app  ────────▶│  /api/chat    Gemini proxy   │────▶ generativelanguage.googleapis.com
-                 │  /api/market  quotes, news   │────▶ Polygon · Alpha Vantage
-                 │  /api/options chains, greeks │────▶ Tradier
-                 └───────────┬──────────────────┘
-                             │ every route, before any upstream call:
-                             │   1. rate limit  (_limit.ts)
-                             │   2. identity    (_identity.ts — verified JWT, else install id)
-                             │   3. validate    (_validate.ts — allowlist, never a denylist)
-                             └── on the way out: _advice.ts on chat completions
+```mermaid
+flowchart LR
+    accTitle: Euphoria Runtime Data Flow
+    accDescr: The native app renders local curriculum and persists learner state on device while authentication, billing, analytics, and secret-bearing provider requests cross explicit service boundaries.
+
+    subgraph native_app ["Native app"]
+        learner([👤 Learner]) --> screens[🎨 Expo Router screens]
+        curriculum[(📚 Local curriculum)] --> lesson_engine[⚙️ Lesson renderers]
+        lesson_engine --> screens
+        screens <--> app_state[⚙️ Zustand state]
+        app_state <--> device_store[(💾 AsyncStorage)]
+    end
+
+    subgraph direct_services ["Direct SDK services"]
+        auth[🔐 Supabase auth]
+        billing[💰 RevenueCat SDK]
+        analytics[📊 PostHog client]
+    end
+
+    subgraph server_boundary ["Secret-bearing server boundary"]
+        api_routes[🌐 EAS API routes] --> guardrails[🛡️ Verify and validate]
+    end
+
+    subgraph providers ["Upstream providers"]
+        gemini[🧠 Gemini]
+        market[📈 Market data]
+        options[📊 Options data]
+    end
+
+    screens --> auth
+    screens --> billing
+    screens --> analytics
+    screens --> api_routes
+    guardrails --> gemini
+    guardrails --> market
+    guardrails --> options
+
+    classDef local fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#3b0764
+    classDef service fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef guard fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    classDef upstream fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#1f2937
+
+    class learner,screens,curriculum,lesson_engine,app_state,device_store local
+    class auth,billing,analytics,api_routes service
+    class guardrails guard
+    class gemini,market,options upstream
 ```
 
-Four helper modules sit under `src/app/api/`, underscore-prefixed so expo-router does not treat them
-as routes:
+Six boundary modules under `src/lib/server/` are imported by the Expo Router API routes:
 
-- **`_limit.ts`** — fixed-window rate limiting, keyed on identity + scope. Runs *first*, before the
+- **`limit.ts`** — fixed-window rate limiting, keyed on identity + scope. Runs *first*, before the
   key check and before parsing, so a bad request never spends quota.
-- **`_identity.ts`** — verifies a Supabase JWT server-side. Pins `alg: HS256`, requires `exp`, uses
+- **`identity.ts`** — verifies a Supabase JWT server-side. Pins `alg: HS256`, requires `exp`, uses
   `crypto.subtle.verify`. **No code path reads claims from an unverified token.** Fails closed.
-- **`_validate.ts`** — every value that reaches an upstream URL. An **allowlist**, so an encoding
+- **`entitlement.ts`** — verifies paid server features against RevenueCat when the server secret is
+  configured; it never trusts the client-side `isPro` flag.
+- **`validate.ts`** — validates every value that reaches an upstream URL against an **allowlist**, so an encoding
   trick nobody has thought of fails by default.
-- **`_advice.ts`** — checks Atlas's completion before it is returned, refusing individualised
+- **`advice.ts`** — checks Atlas's completion before it is returned, refusing individualised
   investment advice. Keys on a *directive plus a named security*, never on the word "buy" — the
   curriculum is about buying things.
+- **`chain.ts`** — normalises delayed option-chain responses from Cboe, marketdata.app, and the
+  Tradier fallback into the stable client contract.
 
 ### State and persistence
 
@@ -338,6 +390,32 @@ route — a debug screen a user could reach is a dead control (§0.5).
 
 ---
 
+## App Store assets
+
+Store screenshots are generated from the real Release simulator build with
+[Goldie](https://github.com/kacperkapusciak/goldie), not assembled from mock screens. Argent replays
+the five checked-in flows under `.argent/flows/`; `goldie/goldie.config.ts` supplies the device,
+copy, frame and layouts; finished English 6.9-inch assets land under
+`goldie/out/screenshots/6.9/en-US/`.
+
+```bash
+npx --yes goldie doctor --config goldie/goldie.config.ts
+npx --yes goldie all --config goldie/goldie.config.ts
+```
+
+`doctor` must identify a **Release** `.app`, the intended simulator and every flow before capture.
+`all` captures, frames and verifies the full set. A passing pixel-size check is necessary but not
+sufficient: visually review every result for stale UI, test data, safe-area errors and copy before
+upload. Apple currently allows one to ten screenshots and can scale the highest-resolution set to
+smaller devices; the authoritative upload workflow and accepted states live in
+[App Store Connect Help](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots/).
+
+Generated output is evidence from the build named by `appPath`. Rebuild that Release app after any
+user-facing source change; otherwise Goldie will faithfully produce polished screenshots of stale
+UI. Debug builds are never acceptable because development banners can become part of the image.
+
+---
+
 ## Curriculum pipeline
 
 Content is authored in the **web repo** (`~/euphoriaweb-current`) and synced in:
@@ -447,7 +525,9 @@ Not negotiable, and each is load-bearing:
 
 Conventional Commits (`feat`, `fix`, `docs`, `test`, `refactor`, `audit`, `copy`, `a11y`), scoped
 where it helps (`feat(17c):`). Bodies are expected to explain **why**, cite `C` numbers, and record
-what was *not* done. 379 commits; the earlier ones predate the convention and use `Area: subject`.
+what was *not* done. The history is 888 commits through `2b2408e`; earlier commits predate the
+convention and use `Area: subject`. Derive the current number with `git rev-list --count HEAD`
+instead of copying this baseline into release notes.
 
 ---
 
@@ -490,39 +570,43 @@ limiter's buckets empty every time. Verify limits against an exported bundle, ne
 
 ## Known blockers
 
-None of these can be closed by writing code.
+These are evidence gaps, not promises that the underlying feature is broken. Dashboard/account
+state changes faster than source, so verify it at submission time instead of preserving a stale
+claim in this README.
 
-| blocker | effect |
+| gate | evidence required before submission |
 |---|---|
-| **Paid Applications Agreement unsigned** | No IAP can transact; the offering has no packages |
-| **Three API keys absent** (`POLYGON`, `ALPHAVANTAGE`, `TRADIER`) | `/api/market` and `/api/options` return `503 not_configured` |
-| **No PostHog account** | `ANALYTICS_ENABLED` shape-checks `phc_`, so every 17b/17d/17f event is a no-op — five phases of instrumentation record nothing |
-| **No Supabase keys** | Server-verified identity is wired but inert; every caller is anonymous |
-| **ScreensDesign Pro lapsed** | Design work has no evidence source; AGENTS.md makes it mandatory |
-| **EU trader status not provided** | DSA — apps get removed from the EU store |
-| **App Privacy inaccurate** | Analytics was added and must be declared |
-| **2.1b reply unsent** | `refs/APPLE_2.1b_REPLY_DRAFT.md` awaits approval |
+| **Release candidate** | Clean Release build from the final source; TypeScript, `npm run check`, export and cold-launch checks passing |
+| **Lesson parity** | Accepted live-web and native recordings plus a screen-by-screen verdict for each of all 300 lessons |
+| **Subscriptions** | One successful sandbox purchase and restore; products attached to the same app submission; review screenshot and notes |
+| **Reviewer access** | Working demo credentials and a repeatable reviewer path through onboarding, paywall and lessons |
+| **Store creative** | Goldie assets regenerated from the final Release build and visually reviewed after its automated size verification |
+| **Accessibility** | Small-screen, maximum Dynamic Type, VoiceOver, Reduced Motion and contrast evidence on the release candidate |
+| **Operations** | Production exception capture, alert routing, rollback/source-map procedure and the available backup/restore posture documented |
 
-The **Account Holder** is the only person who can clear the agreement and status items.
-**Never accept an agreement on someone else's behalf.**
+Only the **Account Holder** should accept agreements or change legal/compliance status in App Store
+Connect. Source work can prepare the evidence; it cannot substitute for those account actions.
 
 ---
 
 ## Open work
 
-- **17 captured screens unaudited** — `digest`, `chat`, `options`, `stock` next by priority. Blocked
-  on ScreensDesign.
-- **`F7` — no route checks entitlement.** `/api/chat` spends real Gemini tokens for anyone with the
-  URL, regardless of whether they ever paid. Needs the RevenueCat *secret* key.
-- **`F8` — social sign-in is unverified.** `identityToken` and `nonce` appear nowhere in `src/`.
-  Harmless today; an authentication bypass the day it reaches a server.
-- **`F6` — the limiter is per-isolate.** A Durable Object keyed on the verified identity closes it.
-- **Auth creates no account.** Real OAuth runs, the identity is written locally, `currentUserId()`
-  returns null until Supabase keys land.
-- **`lib/people.ts` is fabricated** and says so — the league races invented rivals.
-- **`lib/stocks.ts` is a mock table.** Prices never move, so a paper portfolio cannot gain or lose
-  from the market.
-- **Unit 14** — the final consolidated review pass, deliberately scheduled last.
+- **300-lesson evidence run.** The corpus and render-path audits prove inventory and reachability;
+  they do not replace the per-lesson live web/native recordings and adjudications. Current
+  reachability evidence accounts for all 1,321 animated visuals, all 11 authored raw SVGs, all 289
+  interactive graphs, and all 665 graph controls. The dedicated hook renderer also preserves the
+  web-timed title/visual/outcome staging and inline `Begin` CTA across all 300 lessons; Release
+  inspection confirms the path, while live-web adjudication remains outstanding.
+- **Release-candidate screenshots.** The current-Release five-image draft passes Goldie capture,
+  framing, size verification and human review. Rebuild and replay the flows after source freeze,
+  then review the final narrative before treating the verified PNGs as uploadable.
+- **Commerce and review path.** Finish sandbox purchase/restore, attach the subscriptions to the
+  app submission, supply review notes/screenshots, and verify the reviewer identity from a cold
+  install.
+- **Full-app qualification.** Finish role-based auth, poor/offline network, accessibility and
+  operational recovery evidence from `docs/status/TASKLIST.md`.
+- **Known synthetic data.** `lib/people.ts` intentionally supplies fabricated league rivals; keep
+  that boundary explicit until a real social graph replaces it.
 
 ---
 
