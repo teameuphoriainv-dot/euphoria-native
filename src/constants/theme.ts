@@ -56,7 +56,7 @@ export const Colors = {
     input: 'hsl(240 10% 14%)',
     muted: 'hsl(240 10% 14%)',
     // brand (HEX so `color + '22'` alpha suffixes are valid 8-digit hex)
-    primary: '#A855EB',
+    primary: '#A148E9',
     primaryForeground: '#FFFFFF',
     accent: '#B57BEF',
     success: '#22C55E',
@@ -124,7 +124,7 @@ export const Colors = {
     border: '#E4E4E7',
     input: 'hsl(240 6% 90%)',
     muted: 'hsl(240 5% 95%)',
-    primary: '#A650E7',
+    primary: '#A349E6',
     primaryForeground: 'hsl(0 0% 100%)',
     accent: 'hsl(278 76% 66%)',
     success: '#21C45D',
