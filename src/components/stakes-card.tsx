@@ -60,7 +60,7 @@ function StakesPanel({
       style={[styles.panel, { minHeight, borderColor: color + '4D', backgroundColor: color + '0A' }]}>
       <View style={styles.panelHeading}>
         <UIcon name={positive ? 'check' : 'close'} size={20} color={color} strokeWidth={3} />
-        <ThemedText type="smallBold" style={{ color }}>{heading}</ThemedText>
+        {heading ? <ThemedText type="smallBold" style={{ color }}>{heading}</ThemedText> : null}
       </View>
       <View style={styles.visualStage}>
         {visual ? <LessonVisual visual={visual} bare /> : null}

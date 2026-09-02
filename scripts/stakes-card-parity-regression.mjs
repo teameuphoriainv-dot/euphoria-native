@@ -41,12 +41,21 @@ const firstStakes = firstLesson.steps.find((step) => step.type === 'stakesCard')
 assert.ok(firstStakes, 'investing lesson 1 lost its stakes scene');
 const firstNormalized = normalizeStep(firstStakes);
 assert.equal(firstNormalized.kind, 'stakes');
-assert.equal(firstNormalized.spec.withoutLabel, 'Without Investing');
-assert.equal(firstNormalized.spec.withLabel, 'With Investing');
+// An UNAUTHORED heading now renders nothing rather than a generic one. The old fallback headed
+// 265 of the 300 cards "Without Investing / With Investing" -- above `Barings Bank, No Risk
+// Controls` on Risk Management, above `WeWork: Fake Profitability` on Applied Accounting. The
+// authored visual title beneath already names each side and the panel's check/close icon still
+// carries the polarity. The invariant this block was written to protect is unchanged and is
+// asserted directly below: the bottom takeaway must never be promoted into the heading.
+assert.equal(firstNormalized.spec.withoutLabel, '');
+assert.equal(firstNormalized.spec.withLabel, '');
+assert.notEqual(firstNormalized.spec.withoutLabel, firstStakes.without.label);
+assert.notEqual(firstNormalized.spec.withLabel, firstStakes.with.label);
 
 const component = readFileSync('src/components/stakes-card.tsx', 'utf8');
 const runner = readFileSync('src/app/lesson.tsx', 'utf8');
 assert.match(component, /Why This Matters/, 'scene title must match production capitalization');
+assert.match(component, /\{heading \? <ThemedText/, 'panel must omit the heading text when no heading is authored');
 assert.match(component, /DIAGRAM_DWELL_SECONDS = 15/, 'diagram dwell must remain 15 seconds');
 assert.match(component, /FadeInLeft\.delay\(300\)/, 'without panel must enter from the left after 300ms');
 assert.match(component, /FadeInRight\.delay\(500\)/, 'with panel must enter from the right after 500ms');

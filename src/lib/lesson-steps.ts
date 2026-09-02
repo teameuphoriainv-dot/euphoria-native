@@ -341,7 +341,14 @@ function stakesFallbackHeadings(withoutPanelLabel: unknown): { without: string; 
   if (label.includes('lump sum') || label.includes('all at once') || label.includes('time the market') || label.includes('timing')) {
     return { without: 'Lump Sum', with: 'Dollar-Cost Avg' };
   }
-  return { without: 'Without Investing', with: 'With Investing' };
+  // NO HEADING rather than a wrong one. This branch caught 265 of the 300 stakes cards --
+  // every lesson outside the handful of investing scenes the lookup above was written for --
+  // and headed them "Without Investing / With Investing". On Risk Management that sits above
+  // `Barings Bank, No Risk Controls`; on Applied Accounting above `WeWork: Fake Profitability`.
+  // The authored visual title directly beneath already names each side, and the panel's
+  // check/close icon still carries the positive/negative signal, so the generic line was only
+  // ever noise. Authoring `withoutLabel`/`withLabel` on a card still overrides this.
+  return { without: '', with: '' };
 }
 
 export function normalizeStep(step: LessonStep): Normalized {
