@@ -106,47 +106,58 @@ copying it there is how the account gets burned.
 
 ## Measured subreddit list
 
-Pulled from Reddit's own community search on 2026-09-02. **Weekly visitors** is reach;
-**weekly contributions** is how alive the place is. A sub with big reach and few contributions
-is a lurker pool — good to be seen in, hard to become known in.
+Pulled from Reddit's community search on 2026-09-02. **Weekly visitors** is reach; **weekly
+contributions** is how alive it is. Reach with few contributions is a lurker pool — good to be
+seen in, hard to become known in.
 
-### Tier A — best fit, active, worth your weekly time
+Selected against what Euphoria actually is: **investing education with a market simulator and a
+learning loop**, teaching index-first, long-horizon investing. Not a budgeting app, and not a
+trading app.
 
-| Subreddit | Weekly visitors | Contributions | Why |
+### The eight to work
+
+| # | Subreddit | Weekly | Contribs | Why this one |
+|--:|---|--:|--:|---|
+| 1 | **r/investingforbeginners** | 105K | 2.6K | Self-describes as *"the reasonable middle child between r/investing and r/wallstreetbets."* That is Euphoria's positioning in someone else's words. |
+| 2 | **r/Bogleheads** | 503K | 6.3K | Index funds, low fees, stay the course. The curriculum teaches this exact thesis — *"time matters more than picking well."* Philosophy match, not just topic match. |
+| 3 | **r/IWantToLearn** | 137K | 491 | People post *"I want to learn investing"* and ask where to start. Euphoria is a literal answer to the question the sub exists for. Lowest-friction fit on this list. |
+| 4 | **r/Fire** | 587K | 10K | Highest contribution rate here. Young people optimising money early — the demographic, already motivated. |
+| 5 | **r/investing** | 449K | 4.1K | Mainstream and beginner-heavy in the comments even when posts are advanced. |
+| 6 | **r/stocks** | 806K | 9.3K | Largest reach, and its own description includes *financial education* with a beginner wiki. |
+| 7 | **r/financialindependence** | 112K | 2.7K | More serious sibling of r/Fire. Long-horizon thinking, which is the curriculum's spine. |
+| 8 | **r/Money** | 319K | 2.3K | Broad money community, lighter rules than r/personalfinance. |
+
+### Also worth having open
+
+| Subreddit | Weekly | Contribs | Note |
 |---|--:|--:|---|
-| **r/investingforbeginners** | 105K | 2.6K | Self-describes as *"the reasonable middle child between r/investing and r/wallstreetbets."* This is Euphoria's exact audience. |
-| **r/Bogleheads** | 503K | 6.3K | Index-first, long-horizon, anti-stock-picking — the closest sub to what the curriculum actually teaches. |
-| **r/FinancialPlanning** | 137K | 1.0K | Beginner questions, less crowded than r/personalfinance. |
-| **r/budget** | 90K | 1.5K | Budgeting is the lesson most beginners want first. |
-| **r/FluentInFinance** | 74K | 983 | Explicitly "get smarter with money". |
+| r/FinancialPlanning | 137K | 1.0K | Beginner questions, less crowded. |
+| r/BeginnerInvesting | 14K | 805 | Small, entirely on-topic. |
+| r/TheCollegeInvestor | 19K | 719 | Students investing. Direct demographic hit. |
+| r/FluentInFinance | 74K | 983 | *"Get smarter with money"* — explicit education framing. |
+| r/personalfinance | 2.1M | 25K | Biggest in the category, strictest rules. Answer, never link. |
 
-### Tier B — enormous reach, strict rules, read-only for a long time
+### Deliberately excluded
 
-| Subreddit | Weekly visitors | Contributions | Reality |
-|---|--:|--:|---|
-| **r/personalfinance** | 2.1M | 25K | The biggest in the category. Promotion removed on sight. Answer questions, never link. |
-| **r/povertyfinance** | 1.5M | 15K | Huge and sensitive. Be careful pitching a paid subscription here at all. |
-| **r/college** | 344K | 1.7K | Your demographic, but a general-life sub — money posts must earn their place. |
+Not oversights — these are the wrong rooms:
 
-### Tier C — small, aligned, low competition
+- **r/Daytrading (315K), r/Trading (109K), r/algotrading, r/RealDayTrading** — active-trading
+  culture. Euphoria teaches that time in the market beats picking well, which is the opposite of
+  what these subs are for. Showing up with a learning app reads as either naive or as bait.
+- **r/wallstreetbets** and the meme-ticker subs — same problem, louder.
+- **r/budget, r/budgetingforbeginners, r/povertyfinance** — Euphoria is not a budgeting app, and
+  pitching a paid subscription in a sub for people who are financially struggling is a bad look
+  regardless of fit.
+- **Regional FIRE subs** (r/FIREUK, r/fiaustralia, r/fican) — real communities, wrong storefront
+  until you localise.
 
-| Subreddit | Weekly visitors | Contributions | Note |
-|---|--:|--:|---|
-| **r/moneyadvice** | 26K | 1.5K | High contribution rate for its size — unusually active. |
-| **r/TheCollegeInvestor** | 19K | 719 | Students investing. Direct fit. |
-| **r/BeginnerInvesting** | 14K | 805 | Small but on-topic. |
-| **r/financestudents** | 14K | 684 | Career-focused, so a softer fit. |
-| **r/budgetingforbeginners** | 2.5K | 178 | Tiny, but nobody is competing for attention. |
-| **r/PersonalFinance4All** | 3.6K | 16 | Values match Euphoria exactly — *"financial literacy should be accessible to absolutely everyone"* — but 16 contributions a week means it is effectively dormant. Low effort, low return. |
+**Start with 1, 2 and 3.** r/investingforbeginners and r/IWantToLearn are where the questions
+Euphoria answers get asked out loud, and r/Bogleheads is where the philosophy already agrees
+with you.
 
-**Where to actually spend time:** r/investingforbeginners and r/Bogleheads first. Tier A gives
-you real people asking answerable questions without the removal risk of Tier B, and the
-contribution rates are high enough that a good comment gets seen.
-
-**How to extend this list:** repeat the search at `reddit.com/search/?q=<term>&type=sr` with
-terms like `compound interest`, `first paycheck`, `paper trading`, `stock market simulator`,
-`teach kids money`. Reddit surfaces communities by activity, and each search returns neighbours
-the last one missed.
+**To extend the list:** repeat `reddit.com/search/?q=<term>&type=sr` with `compound interest`,
+`index funds`, `first paycheck`, `custodial account`, `teach kids money`. Each search returns
+neighbours the last one missed.
 
 ## Sequence
 
