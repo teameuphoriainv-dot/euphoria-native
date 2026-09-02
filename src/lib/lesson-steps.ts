@@ -327,7 +327,11 @@ export function choiceResponse(
 function stakesFallbackHeadings(withoutPanelLabel: unknown): { without: string; with: string } {
   const label = String(withoutPanelLabel ?? '').toLowerCase();
   if (label.includes('single stock') && label.includes('80%')) return { without: 'Concentrated', with: 'Diversified' };
-  if (label.includes('22') || label.includes('starting at')) return { without: 'Starting Late', with: 'Starting Early' };
+  // `22` means the AGE 22, not any string containing those digits. A bare substring test also
+  // matched the YEAR 2022, so `100% in Meta (2022)` was headed "Starting Late / Starting Early"
+  // on the Diversification lesson -- timing labels on a comparison about concentration -- and
+  // never reached the `meta` branch below that produces the right pair.
+  if (/\b(age|at)\s*22\b/.test(label) || label.includes('starting at')) return { without: 'Starting Late', with: 'Starting Early' };
   if (label.includes('100% stocks')) return { without: '100% Stocks', with: '60/40 Balanced' };
   if (label.includes('meta') || label.includes('100%')) return { without: 'Single Stock', with: 'Diversified Portfolio' };
   if (label.includes('high-fee') || label.includes('active fund') || label.includes('1.5%') || label.includes('fund manager') || label.includes('pick stocks')) {

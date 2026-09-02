@@ -107,6 +107,17 @@ def nodes():
             for n in tree() if n.get('AXLabel')]
 
 def labels(): return {n[4] for n in nodes()}
+
+
+def labels_fresh():
+    """Labels from a forced re-read. The tree cache exists to stop repeated describe-all calls
+    inside one decision; polling for a change has to defeat it or it reads its own stale answer."""
+    return {n[4] for n in nodes_fresh()}
+
+
+def nodes_fresh():
+    _CACHE['at'] = 0.0
+    return nodes()
 def find(sub): return [n for n in nodes() if sub.lower() in n[4].lower()]
 
 
@@ -229,13 +240,24 @@ def reconnect():
     return not at_launcher()
 
 def tap(n, settle=1.6):
-    """Tap and report whether the screen actually changed."""
+    """Tap and report whether the screen actually changed.
+
+    POLL FOR THE CHANGE, do not sleep through it. A fixed settle after every tap dominated run
+    time -- ~50 actions x 1.6s is around 80 seconds of pure waiting per lesson, nearly all of it
+    spent after the screen had already updated. `settle` is still the ceiling, so a genuinely slow
+    screen gets exactly the time it always had, and a tap that changes nothing still costs the
+    full window before reporting False.
+    """
     before = labels()
     n = bring_into_view(n)
     x, y, w, h = n[0], n[1], n[2], n[3]
     sp.run(["idb", "ui", "tap", "--udid", U, str(x + w // 2), str(y + h // 2)], capture_output=True)
-    time.sleep(settle)
-    return labels() != before
+    deadline = time.time() + settle
+    while True:
+        if labels_fresh() != before:
+            return True
+        if time.time() >= deadline:
+            return False
 
 
 def position_reveal_card(label, top=120, bottom=720):

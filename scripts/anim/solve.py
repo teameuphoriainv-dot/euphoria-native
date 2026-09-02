@@ -464,7 +464,13 @@ def tap(n, settle=1.1):
                capture_output=True, timeout=IDB_TIMEOUT)
     except sp.TimeoutExpired:
         return
-    time.sleep(settle)
+    # Poll for the screen to change rather than sleeping the whole settle; the ceiling is
+    # unchanged, so a slow screen still gets its full window.
+    deadline = time.time() + settle
+    before = {node[4] for node in nodes()}
+    while time.time() < deadline:
+        if {node[4] for node in nodes()} != before:
+            return
 
 
 def entry_matches(raw, blank):
