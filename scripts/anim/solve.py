@@ -655,8 +655,13 @@ def answer(lesson):
         done = 0
         for left, right in st['pairs']:
             cur = nodes()
-            a = [n for n in cur if norm(left)[:40] in norm(n[4])]
-            b = [n for n in cur if norm(right)[:40] in norm(n[4])]
+            # SKIP CELLS ALREADY CONSUMED. These exercises are many-to-one -- `Debit (left side)`
+            # is the answer to two different terms -- and a matched cell stops being a button
+            # (it renders as static text). Always taking the first text match therefore re-tapped
+            # a dead cell and the board stalled at "2 of 4 matched".
+            live = [n for n in cur if n[5] != 'AXStaticText']
+            a = [n for n in live if norm(left)[:40] in norm(n[4])]
+            b = [n for n in live if norm(right)[:40] in norm(n[4])]
             if not a or not b: continue
             tap(a[0], 0.5); tap(b[0], 0.6); done += 1
         return (done > 0), f'match({done} pairs)'

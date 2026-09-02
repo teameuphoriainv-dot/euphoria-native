@@ -90,6 +90,10 @@ export function MatchingPairs({
   const [rightOrder] = useLessonStepState<number[]>('match.rightOrder', () => shuffle(spec.pairs.map((_, i) => i)));
   const [selected, setSelected] = useLessonStepState<number | null>('match.selected', null);
   const [matched, setMatched] = useLessonStepState<number[]>('match.matched', []);
+  // Right cells are tracked separately because these exercises are MANY-TO-ONE, not a
+  // bijection: four account types sort into two categories, six statements into two.
+  // A single index list cannot express "this left is done AND that right cell is used".
+  const [matchedRight, setMatchedRight] = useLessonStepState<number[]>('match.matchedRight', []);
   const [wrong, setWrong] = useLessonStepState<number | null>('match.wrong', null);
   const [wrongAttempts, setWrongAttempts] = useLessonStepState('match.wrongAttempts', 0);
 
@@ -109,10 +113,15 @@ export function MatchingPairs({
   };
 
   const tapRight = (j: number) => {
-    if (matched.includes(j) || selected == null) return;
-    if (j === selected) {
+    if (matchedRight.includes(j) || selected == null) return;
+    // MATCH ON TEXT, NOT INDEX. `Debit (left side)` legitimately appears twice, so index equality
+    // marked a visually identical, semantically correct answer WRONG -- the learner lost a heart on
+    // a coin flip with nothing on screen to tell the two cells apart, and the step could never be
+    // completed. Any cell carrying the selected term's category is a correct answer.
+    if (spec.pairs[j].right === spec.pairs[selected].right) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setMatched((m) => [...m, selected]);
+      setMatchedRight((r) => [...r, j]);
       setSelected(null);
     } else {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -176,7 +185,7 @@ export function MatchingPairs({
 
         <View style={styles.col}>
           {rightOrder.map((j) => {
-            const isMatched = matched.includes(j);
+            const isMatched = matchedRight.includes(j);
             const isWrong = wrong === j;
             return (
               <SpringPressable
