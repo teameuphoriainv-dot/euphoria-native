@@ -504,7 +504,7 @@ if __name__ == '__main__':
             print(f"  STOPPED — visible: {sorted(labels())[:6]}"); sys.exit(1)
     print(f"did not reach {target!r} in {maxs} steps"); sys.exit(2)
 
-def tap_inline_terms(limit=2):
+def tap_inline_terms(terms, limit=2):
     """Open an inline term popover, then close it again, and report how many were exercised.
 
     Inline term popovers are the second most common authored interaction in the corpus (432) and
@@ -513,7 +513,11 @@ def tap_inline_terms(limit=2):
     tap, so dismissal needs no blind tap near the header (which risks the close-lesson control).
     """
     opened = 0
-    candidates = [n for n in nodes() if n[4].lower().endswith(', tap for definition')]
+    wanted = {t.strip().lower() for t in (terms or []) if t}
+    if not wanted:
+        return 0
+    candidates = [n for n in nodes()
+                  if n[5] == 'AXButton' and n[4].strip().lower() in wanted]
     for node in candidates[:limit]:
         target = bring_into_view(node)
         if not node_is_tappable(target):
@@ -536,6 +540,10 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
     screen is compared. Solving is not advancing, and only advancing counts.
     """
     log, stalls, highest_authored_step = [], 0, 0
+    inline_terms_done = False
+    inline_terms = [t for step in (lesson.get('steps') or [])
+                    if step.get('kind') == 'teachingSlide'
+                    for t in (step.get('terms') or [])]
     for i in range(max_steps):
         # STOP WHEN THE RECORDING DOES. Without this the thread outlives its capture window and
         # keeps TAPPING while the next lesson tries to deep-link -- lesson N's driver fighting
@@ -588,7 +596,12 @@ def run_lesson(lesson, solve_mod, max_steps=48, stall_limit=3, stop=None):
             continue
         # Exercise inline term popovers BEFORE advancing: they never move the step, so once
         # advance() has taken the Continue the terms are gone and the interaction is lost.
-        terms_opened = tap_inline_terms()
+        # One observation is all interaction coverage needs. Re-opening popovers on every
+        # iteration cost two taps plus settles per step and burned the step budget before
+        # the lesson's later interactions were ever reached.
+        terms_opened = 0 if inline_terms_done else tap_inline_terms(inline_terms)
+        if terms_opened:
+            inline_terms_done = True
         before_answer = labels()
         moved, how = advance(allow_guess=False)
         if not moved and how in ('stuck', 'no-button'):

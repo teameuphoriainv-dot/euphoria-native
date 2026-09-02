@@ -46,6 +46,14 @@ const H = {
   // The Atlas vocabulary conversation generates its own quiz from these cards at render
   // time (`Which term means: <definition>`), so the beats are not authored steps and the
   // option matcher could never see them. Keep term + every reading-level definition.
+  // A teaching slide's highlighted terms render as inline popover buttons. iOS surfaces a
+  // nested <Text> link by its TEXT CONTENT and discards the child's accessibilityLabel, so
+  // the authored `, tap for definition` suffix never reaches the tree -- the driver has to
+  // match the authored term itself.
+  teachingSlide: (_sectionLabel, _title, _paragraphs, terms) => ({
+    kind: 'teachingSlide',
+    terms: (terms || []).map((t) => t?.term).filter(Boolean),
+  }),
   keyTermsCards: (cards) => ({
     kind: 'vocabTerms',
     terms: (cards || []).map((card) => ({
