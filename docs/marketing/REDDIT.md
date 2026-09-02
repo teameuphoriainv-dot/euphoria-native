@@ -286,6 +286,54 @@ from one who was caught.
 **Never claim it is free without qualification.** That is the one move that turns a survivable
 rule violation into a credibility problem you cannot repair.
 
+## The subs that actually convert
+
+There are three kinds of subreddit, and only one of them sends you users who stay.
+
+```text
+  builder subs          consumer app-discovery subs      audience subs
+  r/SideProject         r/productivity                   r/investingforbeginners
+  r/startups            r/ProductivityApps               r/Bogleheads
+  r/EntrepreneurRideAlong  r/GetStudying                 r/personalfinance
+  ──────────────────    ────────────────────────         ──────────────────
+  promo: welcome        promo: allowed with value        promo: banned
+  traffic: high         traffic: high                    traffic: n/a
+  RETENTION: poor       RETENTION: good  ← the target    would be excellent
+  they are builders     they want an app right now       cannot reach them
+```
+
+**r/SideProject is 309K other founders.** They will open your App Store page, admire the
+screenshots, and not become daily users of a finance curriculum. Useful for first reviews and
+early ranking signal, close to useless for retention. Post there once, on launch, and move on.
+
+The middle column is where the traffic that converts lives. These people are **actively looking
+for an app** and posting about one is on-topic.
+
+| Subreddit | Weekly | Contribs | Why it converts |
+|---|--:|--:|---|
+| **r/productivity** | 382K | 1.9K | Largest self-improvement audience on this list. People here install things. |
+| **r/GetStudying** | 134K | 2.3K | *"A community of motivated learners… improve our study habits."* Euphoria is a study app with streaks and a daily goal. This is the Duolingo comparison made literal, and almost nobody in finance is targeting it. |
+| **r/ProductivityApps** | 94K | 3.1K | Exists specifically to discuss apps. Highest contribution ratio of the group. |
+| **r/iosapps** | 54K | 3.8K | Consumers *and* developers, app showcases explicitly welcome. |
+| **r/apps** | 47K | 816 | *"The universal subreddit for anything application related."* |
+| **r/IPhoneApps** | 19K | 301 | Conditional — *"value first… not a place to drop a link and vanish."* Contribute first, then post. |
+
+**r/GetStudying is the standout.** 134K motivated learners, and Euphoria's real design
+comparators are Duolingo and Quizlet rather than Robinhood — a streak, a daily goal, quests, a
+pathway that unlocks. Framed as *"I built a study app for money"* rather than *"I built a
+fintech app"*, it belongs there, and no other finance product is competing for that attention.
+
+### Priority order for traffic that stays
+
+1. **r/GetStudying** — learners, on-topic, uncontested
+2. **r/productivity** and **r/ProductivityApps** — largest converting audience
+3. **r/iosapps**, **r/apps**, **r/IPhoneApps** — people choosing apps today
+4. **r/SideProject** — once, at launch, for the initial spike and reviews
+5. **Finance audience subs** — no links, indefinitely, for the long compounding presence
+
+Note r/androidapps (340K) is the largest app sub found and is **Android only** — irrelevant
+until an Android build exists, and worth remembering if one ever does.
+
 ## Sequence
 
 1. **Weeks 1–3, no promotion.** One real account. Comment usefully in audience subs. Aim for
