@@ -37,6 +37,19 @@ against those.
 A companion web app at `euphoriainv.com` serves the identical curriculum, and the two are kept in
 provable lockstep. See [Curriculum and parity](#curriculum-parity).
 
+<p align="center">
+  <img src="docs/media/demo.gif" alt="Euphoria — paper trading, the lesson pathway, the daily home screen, and Atlas" width="260">
+</p>
+
+## Features
+
+- **300 lessons across 12 pathways** — first principles through to wealth management, each course exactly 25 lessons, unlocking as you go.
+- **Atlas, an AI coach on every screen** — tap any figure in a lesson and it explains what the number means. A server-side guard blocks individualised buy/sell advice.
+- **A paper-trading desk on live market data** — real prices, virtual cash, no deposits or withdrawals. Nothing in the app is redeemable for money.
+- **A habit loop, not a course list** — daily goals, streaks, XP, quests and a league, because the failure mode of finance education is abandonment.
+- **A daily digest** — market news written for someone learning, not for someone already fluent.
+- **Proven parity with the web app** — all 12 courses are SHA-256 identical to what production serves, and all 4,050 screens match by index and kind.
+
 ## Screens
 
 Captured from the shipping build with `npm run screenshots:store`, not mocked. These are the six
@@ -527,3 +540,16 @@ message that iOS 26.5 "is not installed". `xcodebuild -downloadPlatform iOS` fix
 
 ---
 
+## Project
+
+| | |
+|---|---|
+| Status | **1.0 submitted to the App Store**, in review |
+| Platform | iOS 16+, iPhone. Built with Expo SDK 57 / React Native 0.86 |
+| Bundle ID | `com.euphoriainv.euphoria` |
+| Owner | INFISTACK TECHNOLOGY LLC |
+| Support | [euphoriainv.com](https://euphoriainv.com) · [Privacy](https://euphoriainv.com/privacy) · [Terms](https://euphoriainv.com/terms) |
+| Companion web app | [euphoriainv.com](https://euphoriainv.com) — serves the identical curriculum |
+
+This is a private product repository, not an open-source project. There is no public
+contribution process; issues and roadmap live with the team.
