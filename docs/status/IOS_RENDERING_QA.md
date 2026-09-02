@@ -62,30 +62,7 @@ behavioural parity are different axes.
 The duplicate React keys fixed alongside this were a SYMPTOM of the same authored duplication,
 not the cause. No curriculum change was needed, so web parity is untouched.
 
-## OPEN — needs a decision, not a unilateral fix
-
-### 4. Vocabulary conversation leaves ~60% of the screen empty
-**Observed:** `applied-accounting--01`, step 6/15. Settled state, not mid-animation.
-
-Content ends at the `Done` button ~32% down an 874pt screen; the remaining ~500pt is blank. The
-conversation renders one bubble at a time with no accumulated history, so the lower two-thirds is
-permanently empty for all 13 beats.
-
-    content:  { flexGrow: 1, paddingBottom: 48 }   // top-anchored
-    nextWrap: { alignSelf: 'flex-start', marginTop: 14 }
-
-### 5. CTA placement is inconsistent between step types
-The conversation's advance button sits at **y=321**; every other lesson step places its advance
-control near the bottom at **y≈694–746**. Within one lesson the primary action jumps ~370pt.
-
-**Why these are not yet fixed:** the goal is parity with the web app. If the web conversation renders
-the same way, both are a deliberate chat-style layout and changing iOS alone would *create* a
-divergence. The next step is to render the same vocabulary conversation on web and compare before
-touching either.
-
----
-
-### 6. MatchingPairs throws on every render — blocks the step (OPEN, highest severity)
+### 6. MatchingPairs threw on every render — blocked the step — FIXED
 **Observed:** Metro logged **30 identical error blocks**, every one framed at
 `matching-pairs.tsx:171` (the `</View>` closing the left column's `.map()`), with the component
 appearing twice in the stack:
@@ -111,8 +88,48 @@ is the footer Continue, which `ownsItsCta` releases once `solved` is true.
 - *"Text strings must be rendered within a `<Text>`".* Both columns wrap their content in
   `<ThemedText>`.
 
-**Blocked on:** the error message is EMPTY in the Metro log -- only the code frame survives. The
-next step is reading LogBox on the device during a run, which the captured log cannot provide.
+**Root cause (ae957bc):** duplicate React keys -- which the "Ruled out" list above wrongly
+excluded. LogBox on device supplied the message Metro had swallowed:
+
+    Encountered two children with the same key, `Credit (right side)`.
+
+Three authored steps repeat an option's text, so content-derived keys (`key={p.left}`) collided
+and React reconciled two cells as one. Keys are now index-qualified. Verified on device: LogBox
+gone, and `applied-accounting--01` no longer reports incomplete interaction coverage.
+
+The earlier pass that "ruled this out" checked `p.left`/`p.right` on the RAW authored pairs,
+which are TUPLES -- both fields read undefined, so all 201 steps looked identically broken and
+the real 3 were invisible. `normalizeStep` converts tuples to `{left, right}`; the check has to
+run on the normalized spec.
+
+**Residual content defect, also now fixed (see #7):** those three steps showed two visually
+identical options, and index matching made one correct and the other wrong with nothing on
+screen to tell them apart. ae957bc judged text matching unsafe because `matched` was a single
+index list shared by both columns; #7 added a separate `matchedRight` list, which is what makes
+matching on text correct.
+
+## OPEN — needs a decision, not a unilateral fix
+
+### 4. Vocabulary conversation leaves ~60% of the screen empty
+**Observed:** `applied-accounting--01`, step 6/15. Settled state, not mid-animation.
+
+Content ends at the `Done` button ~32% down an 874pt screen; the remaining ~500pt is blank. The
+conversation renders one bubble at a time with no accumulated history, so the lower two-thirds is
+permanently empty for all 13 beats.
+
+    content:  { flexGrow: 1, paddingBottom: 48 }   // top-anchored
+    nextWrap: { alignSelf: 'flex-start', marginTop: 14 }
+
+### 5. CTA placement is inconsistent between step types
+The conversation's advance button sits at **y=321**; every other lesson step places its advance
+control near the bottom at **y≈694–746**. Within one lesson the primary action jumps ~370pt.
+
+**Why these are not yet fixed:** the goal is parity with the web app. If the web conversation renders
+the same way, both are a deliberate chat-style layout and changing iOS alone would *create* a
+divergence. The next step is to render the same vocabulary conversation on web and compare before
+touching either.
+
+---
 
 ## Checked and clean
 

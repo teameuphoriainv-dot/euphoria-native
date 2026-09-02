@@ -36,7 +36,7 @@ Every row below was checked against this repository, not carried forward from an
 | Native's curriculum source and the deployed web bundle are byte-identical, course by course | `npm run parity:web` | Documented **PASS** (12/12 courses SHA-256 identical, 5,336 raw authored steps match, 900/900 content probes) in `docs/status/WEB_NATIVE_PARITY_EVIDENCE.md`. Requires a network fetch of the live production bundle, not run as part of this pass. |
 | The full regression suite is green | `npm run check` | Chains 57 script/lint invocations (see [Quality gates](#quality-gates)); not re-run for this document, taken as-is from `package.json`. |
 | The rule modules described below exist and say what this document claims | direct file read | Verified — see [The rule modules](#the-rule-modules). |
-| iOS renders that identical curriculum data correctly | manual simulator QA, logged in `docs/status/IOS_RENDERING_QA.md` | **Not fully clean.** 4 defects fixed, 1 open crash blocking a step type, 2 open items pending a design decision, several lower-severity gaps. See [Known open items](#known-open-items). |
+| iOS renders that identical curriculum data correctly | manual simulator QA, logged in `docs/status/IOS_RENDERING_QA.md` | **Not fully clean.** 6 defects fixed, no open crash, 2 open items pending a design decision, several lower-severity gaps. See [Known open items](#known-open-items). |
 
 `parity:structure` and `parity:web` prove the two apps teach the *same content*.
 `IOS_RENDERING_QA.md` documents a distinct axis — whether iOS *draws* that content correctly —
@@ -218,14 +218,15 @@ and reproduced the PASS result in the table above.
 ## Known open items
 
 Sourced from `docs/status/IOS_RENDERING_QA.md`, which is the log of defects the parity checks
-above cannot catch, because parity compares data and these are rendering/behaviour defects. Three
-prior defects (a mislabelled stakes card, a contrast failure on the primary button, and a missing
-VoiceOver reveal-state label) and one behavioural divergence (matching exercises scored wrong on
-iOS only) are already fixed. What remains open:
+above cannot catch, because parity compares data and these are rendering/behaviour defects. Six
+prior defects are already fixed: a mislabelled stakes card, a contrast failure on the primary
+button, a missing VoiceOver reveal-state label, a Digest exit that threw `GO_BACK was not
+handled`, a crash that duplicate React keys caused on every `MatchingPairs` render, and a
+behavioural divergence where matching exercises scored correct answers wrong on iOS only.
+What remains open:
 
 | Item | Severity | State |
 |---|---|---|
-| `MatchingPairs` throws on every render for the success path, blocking Continue | **Highest — open, unresolved** | Confirmed via 30 identical Metro error frames at `matching-pairs.tsx:171`; `matching_pairs` is authored 201 times, making this the largest known device-lane blocker. The underlying error message is empty in the captured Metro log — next step is reading LogBox live on device, not from a log capture. |
 | Vocabulary conversation leaves roughly 60% of the screen empty | Open — needs a decision, not a fix | Confirmed on `applied-accounting--01`, step 6/15, in a settled (non-animating) state. Not touched yet because the layout may be intentional parity with how the web app renders the same conversation; that comparison has not been done. |
 | CTA placement is inconsistent between step types | Open — needs a decision | The conversation step's advance button sits at y≈321; other step types place it at y≈694–746, a ~370pt jump within one lesson. Same open question as above: fix iOS alone, or match web's actual behaviour first. |
 | Type ramp has 20 steps against a 12-step healthy ceiling | Lower severity, unfixed | — |
