@@ -1,0 +1,20 @@
+# The core teaching loop. A lesson that cannot be entered or advanced is the single most
+# damaging regression this app can ship: `matching_pairs` alone is authored 201 times, and a
+# crash there once blocked the step kind entirely (fixed in ae957bc).
+appId: com.euphoriainv.euphoria
+---
+- launchApp:
+    clearState: false
+- openLink: euphorianative://lesson?course=investing-fundamentals&num=1
+- extendedWaitUntil:
+    visible: ".*Introduction to Investing.*"
+    timeout: 30000
+# The lesson's own cover page must offer a way in.
+- assertVisible: ".*[Ss]tart lesson.*"
+- tapOn: ".*[Ss]tart lesson.*"
+# Past the cover the hook screen carries the teaching content itself. A blank or stalled screen
+# here is what a mid-transition capture looks like, so assert on real authored copy.
+- extendedWaitUntil:
+    visible: ".*safest place for your money.*"
+    timeout: 40000
+- assertVisible: ".*Begin.*"

@@ -1,0 +1,22 @@
+# Paper trading. The disclosures here are load-bearing for review: they are what separate an
+# education product from an unlicensed brokerage under 3.2.1(viii).
+#
+# NOTE: assert on "Buy", not "Sell". They render as a pair but only the active side is exposed
+# as its own accessible element -- "Sell" is on screen and simply not assertable.
+appId: com.euphoriainv.euphoria
+---
+- launchApp:
+    clearState: false
+- openLink: euphorianative://stock/AAPL
+- extendedWaitUntil:
+    visible: "Apple"
+    timeout: 30000
+- assertVisible: "Buy"
+- assertVisible: "Shares"
+- assertVisible: ".*Follow.*"
+# The simulated-money framing must be present, not implied.
+- openLink: euphorianative://trade
+- extendedWaitUntil:
+    visible: ".*[Pp]ractice.*"
+    timeout: 25000
+- assertVisible: ".*[Nn]othing here is real money.*"

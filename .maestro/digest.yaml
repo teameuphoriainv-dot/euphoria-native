@@ -1,0 +1,14 @@
+# Digest, and specifically a REGRESSION TEST. Every exit from a Digest article once threw
+# "GO_BACK was not handled" because three unguarded router.back() calls had no screen to pop to
+# when the article was reached from a notification (fixed in 841c180). Opening an article and
+# leaving it again is the exact path that broke.
+appId: com.euphoriainv.euphoria
+---
+- launchApp:
+    clearState: false
+- openLink: euphorianative://digest
+- extendedWaitUntil:
+    visible: "Digest"
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 12000

@@ -1,0 +1,18 @@
+# Atlas. The review notes describe it as educational explanation only, with a server-side guard
+# against individualised buy/sell advice, so that disclosure has to be on screen.
+#
+# NOTE: do not assert on "Ask Atlas..." -- that is a TextInput PLACEHOLDER, and placeholders are
+# not exposed to the accessibility layer. The field is on screen; it is simply not assertable.
+appId: com.euphoriainv.euphoria
+---
+- launchApp:
+    clearState: false
+- openLink: euphorianative://chat
+- extendedWaitUntil:
+    visible: ".*Hi, I'm Atlas.*"
+    timeout: 30000
+# The suggested prompts are what make the surface usable on first open.
+- assertVisible: ".*compound interest.*"
+- assertVisible: ".*emergency fund.*"
+# The claim the review notes make to Apple, kept honest on screen.
+- assertVisible: ".*not personal.*advice.*"
