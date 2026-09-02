@@ -138,7 +138,11 @@ export function MatchingPairs({
             const isSel = selected === i;
             return (
               <SpringPressable
-                key={p.left}
+                // Index-qualified: three authored steps repeat an option's text (for example
+                // `Credit (right side)` twice in The Language of Accounting), and a bare
+                // content key made React reconcile them as one child -- a console error on
+                // every render, and LogBox covering the whole step in dev.
+                key={`${String(i)}-${p.left}`}
                 disabled={isMatched}
                 onPress={() => tapLeft(i)}
                 // Selection and matched-ness were carried only by border colour and a tick
@@ -176,7 +180,7 @@ export function MatchingPairs({
             const isWrong = wrong === j;
             return (
               <SpringPressable
-                key={spec.pairs[j].right}
+                key={`${String(j)}-${spec.pairs[j].right}`}
                 disabled={isMatched}
                 onPress={() => tapRight(j)}
                 accessibilityRole="button"
