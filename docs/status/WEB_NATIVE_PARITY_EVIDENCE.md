@@ -83,6 +83,37 @@ Production `euphoriainv.com/app` and the iOS simulator, same lesson, same moment
     web : 4/17  "Investing is buying a claim on something that earns"
     iOS : 4/17  "Investing is buying a claim on something that earns"
 
+## 6. Empirical browser walk — 14 lessons, 10 of 12 pathways
+
+Beyond the offline proofs, lessons were opened in a real signed-in browser on
+`euphoriainv.com` and their rendered step totals read off the UI counter, then compared to
+native's expansion. Each open is identity-checked: the lesson actually on screen must be the one
+requested, because an unverified walk once reported 17 for a lesson whose true value was 15.
+
+| Lesson | web | native |
+|---|---:|---:|
+| Introduction to Investing | 17 | 17 |
+| Risk vs. Reward | 14 | 14 |
+| The Magic of Compound Interest | 14 | 14 |
+| Stocks vs. Bonds | 15 | 15 |
+| Diversification | 15 | 15 |
+| Why Personal Finance Matters | 13 | 13 |
+| What Is Corporate Finance? | 9 | 9 |
+| What Is Economics? | 14 | 14 |
+| What Is Business Strategy? | 15 | 15 |
+| What Is Financial Analytics? | 15 | 15 |
+| Your Brain vs. Your Money | 15 | 15 |
+| The Language of Accounting | 15 | 15 |
+| What Is Quantitative Finance? | 15 | 15 |
+| What Is Risk? | 14 | 14 |
+
+**14/14 match, across 10 of the 12 pathways.** The remaining two (Alternative Investments,
+Wealth Management) are covered by the exhaustive offline proofs in sections 1-3.
+
+Also observed and consistent across both apps: with an empty recall pool the warmup CTA reads
+`Start lesson` rather than `Warm up` — the same behaviour that had to be taught to the native
+parity driver.
+
 ## Reproducing
 
     npm run parity:structure   # offline, in the check gate
