@@ -20,8 +20,9 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 
@@ -34,7 +35,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { LessonArt } from '@/components/lesson-art';
 import { CourseMark } from '@/components/art/course-mark';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
-import { courseAccent } from '@/lib/course-accents';
+import { courseAccent, courseHeroFill } from '@/lib/course-accents';
 import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { TierUpSheet } from '@/components/tier-up-sheet';
@@ -45,7 +46,7 @@ import {
 
 import { useShallow } from 'zustand/react/shallow';
 
-import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
+import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { ProfileButton } from '@/components/profile-button';
@@ -243,10 +244,7 @@ export default function Home() {
     if (allQuestsDone) claimQuestReward();
   }, [allQuestsDone, claimQuestReward]);
 
-  const streakGoal = useApp((st) => st.streakGoal);
 
-  /* The committed tier's NAME, which is the whole point of naming them (§22 C25). */
-  const goalTier = STREAK_TIERS.find((t) => t.days === streakGoal);
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
 
   return (
@@ -365,17 +363,12 @@ export default function Home() {
               <PixelSpriteView sprite={flameSprite} size={26} play="once" playKey={streak} />
             </View>
             {/*
-              * ONE LINE, in plain English. `goalTier` is the committed target when there is one;
-              * without a commitment it still has something true to say rather than rendering
-              * nothing, because an empty card is worse than a modest one.
+              * NO SENTENCE UNDER THE NUMBER. There was one -- "Determined · 1 of 14 days" -- and
+              * it was the streak explaining itself: the number, the flame and the seven day marks
+              * already say everything it said. "We can't have superfluous text anywhere." The
+              * committed tier still exists in state and still drives the goal logic; it just no
+              * longer narrates on the home screen.
               */}
-            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-              {goalTier
-                ? `${goalTier.name} · ${String(Math.min(streak, goalTier.days))} of ${String(goalTier.days)} days`
-                : streak > 0
-                  ? `${String(streak)} day${streak === 1 ? '' : 's'} in a row`
-                  : 'Finish a lesson to start your streak'}
-            </ThemedText>
             <View style={styles.weekRow}>
               {WEEK.map((d, i) => (
                 <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} today={i === todayIdx} />
@@ -430,10 +423,60 @@ export default function Home() {
               scaleTo={0.985}
               onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
               accessibilityRole="button"
-              accessibilityLabel={`${doneInCourse === 0 ? 'Start' : 'Continue'} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}, ${String(next.xp)} XP.`}>
-              <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
+              accessibilityLabel={`${doneInCourse === 0 ? 'Start' : 'Continue'} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.`}>
+              {/*
+                * GLASS, with the course colour as the light behind it.
+                *
+                * Asked for directly after the solid block landed: "make it glassmorphic, for the
+                * risk thing." Three layers, in order, inside one clipped rounded container:
+                *
+                *   1. THE LIGHT. A large circle of the course accent, offset to the top-right and
+                *      bleeding off the edge. Not a full fill -- blurring a flat gradient changes
+                *      nothing, and glass only reads as glass when there is a SHAPE behind it to
+                *      soften. This is the "glow in the background" that was already coded, moved
+                *      inside the card so it is material rather than a halo.
+                *   2. THE GLASS. expo-blur's BlurView over the whole card. It is a real
+                *      UIVisualEffectView, so it frosts the light blob AND the ambient stars behind
+                *      the card, which is what makes the surface feel translucent.
+                *   3. THE FROST AND THE EDGE. A 6% white wash so the glass has a body, and a 14%
+                *      white hairline border, which is the light catching the glass rim.
+                *
+                * NO shadowRadius anywhere. no-glow-pin.mjs forbids the coloured halo the design
+                * record rejected, and this respects it in spirit as well as letter: the colour
+                * never leaves the card's bounds, so it is a surface, not a glow around one.
+                *
+                * The blob still uses courseHeroFill's deepened stops rather than the raw pastel,
+                * and course-hero-contrast-pin.mjs still measures white against them. With the
+                * blur and frost over the top the real contrast is higher than that measurement,
+                * so the pin remains a valid worst-case floor for all twelve courses.
+                *
+                * TWO LINES OF TEXT ARE GONE. The "RISK MANAGEMENT" eyebrow said what the art and
+                * the colour already say. "Lesson 1 of 25 · 30 XP" collapses to a "1 / 25" pill --
+                * XP is a reward, not a reason to tap, and the lesson screen shows it anyway.
+                */}
+              <View style={styles.glassHero}>
+                {/*
+                  * A RADIAL LIGHT, not a circle. The first cut was a 340pt View circle at 85%
+                  * opacity, on the theory that the BlurView would diffuse it. On device it did
+                  * not: iOS's material blur softens an edge by twenty-odd points and leaves the
+                  * interior flat, so the card rendered as a hard red half with one soft diagonal.
+                  * A radial gradient has no edge to soften -- the falloff IS the glow -- and the
+                  * blur on top only has to frost it.
+                  */}
+                <Svg pointerEvents="none" style={StyleSheet.absoluteFill}>
+                  <Defs>
+                    <RadialGradient id="heroLight" cx="88%" cy="10%" r="75%">
+                      <Stop offset="0" stopColor={courseHeroFill(activeCourseId)[1]} stopOpacity="0.95" />
+                      <Stop offset="0.55" stopColor={courseHeroFill(activeCourseId)[0]} stopOpacity="0.45" />
+                      <Stop offset="1" stopColor={courseHeroFill(activeCourseId)[0]} stopOpacity="0" />
+                    </RadialGradient>
+                  </Defs>
+                  <Rect width="100%" height="100%" fill="url(#heroLight)" />
+                </Svg>
+                <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+                <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.glassFrost]} />
                 <View style={styles.heroRow}>
-                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={72} />
+                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={80} />
                   <View style={{ flex: 1 }}>
                     {/*
                       * AX5 REDUCED THIS TITLE TO "Your" / "Brain", losing "vs. Your Money". The
@@ -441,16 +484,15 @@ export default function Home() {
                       * card is the button, so an unreadable title means the user cannot tell what
                       * they are about to open.
                       */}
-                    <ThemedText type="label" maxFontSizeMultiplier={2} style={{ color: accent }} numberOfLines={1}>
-                      {(course?.title ?? 'Course').toUpperCase()}
-                    </ThemedText>
-                    <ThemedText type="title" maxFontSizeMultiplier={2} style={{ marginTop: 3, fontSize: FontSize.titleSm }} numberOfLines={3}>{next.title}</ThemedText>
-                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
-                      Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
-                    </ThemedText>
+                    <ThemedText type="title" maxFontSizeMultiplier={2} style={styles.heroTitleOnBlock} numberOfLines={3}>{next.title}</ThemedText>
+                    <View style={styles.heroPill}>
+                      <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={styles.heroPillText}>
+                        {next.num} / {course?.totalLessons ?? '—'}
+                      </ThemedText>
+                    </View>
                   </View>
                 </View>
-              </Card>
+              </View>
             </SpringPressable>
           ) : (
             <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
@@ -584,18 +626,27 @@ export default function Home() {
                 accessibilityRole="button"
                 accessibilityState={{ selected: on }}
                 accessibilityLabel={`${c.title}. ${String(done)} of ${String(c.totalLessons)} lessons done.${on ? ' Currently selected.' : ''}`}>
-                <Card style={[styles.pathCard, on && { borderColor: tint + '66', borderWidth: 1 }]} tint={on ? tint : undefined}>
+                {/*
+                  * EACH ROW WEARS ITS OWN COURSE COLOUR. Three identical near-black cards read as
+                  * one repeated thing; a translucent wash of each course's accent, like the quiz
+                  * app's lavender / blue / peach rows, makes them three separate blocks. 1F is 12%
+                  * alpha -- enough to tell them apart, dark enough that white text stays legible.
+                  *
+                  * "0 of 25 lessons" is gone. The track underneath already draws that fraction, so
+                  * the sentence was the bar reading itself out loud. A compact 0/25 at the right
+                  * edge keeps the number without the words, the way the quiz app's rows do.
+                  */}
+                <Card style={[styles.pathCard, { backgroundColor: tint + '1F', borderColor: tint + (on ? '80' : '33'), borderWidth: 1 }]}>
                   <CourseMark id={c.id} size={34} />
                   <View style={{ flex: 1 }}>
                     <ThemedText type="bodyMedium" maxFontSizeMultiplier={2} numberOfLines={2}>{c.title}</ThemedText>
-                    <View style={[styles.questTrack, { backgroundColor: theme.muted }]}>
+                    <View style={[styles.questTrack, { backgroundColor: tint + '33' }]}>
                       <View style={[styles.questFill, { backgroundColor: tint, width: `${Math.round((done / c.totalLessons) * 100)}%` }]} />
                     </View>
-                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 5 }}>
-                      {done} of {c.totalLessons} lessons
-                    </ThemedText>
                   </View>
-                  {on && <UIcon name="check" size={16} color={tint} />}
+                  <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={{ color: tint }}>
+                    {done}/{c.totalLessons}
+                  </ThemedText>
                 </Card>
               </SpringPressable>
             );
@@ -687,6 +738,24 @@ const styles = StyleSheet.create({
      the six reference home screens uses a hero this large. */
   heroTitle: { textAlign: 'center', fontSize: FontSize.titleSm, lineHeight: 28, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
   heroCta: { alignSelf: 'stretch', marginTop: Spacing.three },
+  /*
+   * THE SOLID BLOCK. Radius.lg to match every other card's corner. No shadow: the colour IS the
+   * separation now, and the design record rejects a coloured halo behind a card of the card's own
+   * hue ("the vibe-coded glow"). Generous vertical padding because a block earns its weight by
+   * being a block -- a thin strip of colour reads as a banner, not a section.
+   */
+  /*
+   * THE GLASS. overflow:hidden is load-bearing twice over: it clips the light blob to the card so
+   * the colour can never become a halo outside it, and it clips the BlurView to the rounded
+   * corners, which UIVisualEffectView does not do on its own. No shadow -- the rim highlight is
+   * the depth cue, the way a glass edge catches light.
+   */
+  glassHero: { borderRadius: Radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', paddingVertical: Spacing.four, paddingHorizontal: Spacing.three },
+  glassFrost: { backgroundColor: 'rgba(255,255,255,0.06)' },
+  heroTitleOnBlock: { color: '#FFFFFF', fontSize: FontSize.titleSm, lineHeight: 28 },
+  /* A pill, not a sentence. Translucent white on the block so it inherits the course colour. */
+  heroPill: { alignSelf: 'flex-start', marginTop: Spacing.two, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, backgroundColor: 'rgba(255,255,255,0.18)' },
+  heroPillText: { color: '#FFFFFF', fontSize: FontSize.caption },
   /*
    * marginTop was Spacing.four (24). That was correct while every section head was followed
    * immediately by a Card — the 24 separated a heading from the block ABOVE it, and the block's
