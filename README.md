@@ -602,7 +602,6 @@ message that iOS 26.5 "is not installed". `xcodebuild -downloadPlatform iOS` fix
 | Status | **1.0 submitted to the App Store**, in review |
 | Platform | iOS 16+, iPhone. Built with Expo SDK 57 / React Native 0.86 |
 | Bundle ID | `com.euphoriainv.euphoria` |
-| Owner | INFISTACK TECHNOLOGY LLC |
 | Support | [euphoriainv.com](https://euphoriainv.com) · [Privacy](https://euphoriainv.com/privacy) · [Terms](https://euphoriainv.com/terms) |
 | Companion web app | [euphoriainv.com](https://euphoriainv.com) — serves the identical curriculum |
 
