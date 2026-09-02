@@ -323,6 +323,55 @@ comparators are Duolingo and Quizlet rather than Robinhood — a streak, a daily
 pathway that unlocks. Framed as *"I built a study app for money"* rather than *"I built a
 fintech app"*, it belongs there, and no other finance product is competing for that attention.
 
+### Expanded converting list — three audiences, not one
+
+Euphoria is a **habit-forming learning app whose subject is money**. That gives three consumer
+audiences, none of which are finance subs, and all of which contain people who install apps.
+
+**A. App discovery — they want an app right now**
+
+| Subreddit | Weekly | Contribs |
+|---|--:|--:|
+| r/productivity | 382K | 1.9K |
+| **r/GetStudying** | 134K | 2.3K |
+| r/ProductivityApps | 94K | 3.1K |
+| r/iosapps | 54K | 3.8K |
+| r/apps | 47K | 816 |
+| r/IPhoneApps | 19K | 301 |
+
+**B. Habits and self-improvement — your Home screen is literally "Build a money habit"**
+
+| Subreddit | Weekly | Contribs | Note |
+|---|--:|--:|---|
+| **r/selfimprovement** | 547K | 7.2K | Largest on this entire list. |
+| **r/getdisciplined** | 236K | 2.9K | Streaks, daily goals, showing up. Euphoria's whole loop. |
+| r/DecidingToBeBetter | 218K | 2.1K | Read rules first. |
+| r/GetMotivated | 160K | 1.7K | Image/story heavy. |
+| r/MotivationalThoughts | 112K | 2.6K | |
+| **r/Habits** | 87K | 539 | Habit formation as a topic. Direct thematic hit. |
+| r/motivation | 21K | 546 | ⚠️ Its description bans self-promotion outright. Value only. |
+
+**C. Students — the demographic, already in learning mode**
+
+| Subreddit | Weekly | Contribs | Note |
+|---|--:|--:|---|
+| **r/ApplyingToCollege** | 382K | 11K | Highest contribution count found anywhere. About admissions, so money content must earn its place. |
+| r/college | 344K | 1.7K | |
+| **r/APStudents** | 94K | 2.6K | High-schoolers — Euphoria's 13+ end. |
+| r/CollegeRant | 76K | 1.9K | Vent space; be careful selling into it. |
+| r/studytips | 63K | 1.4K | |
+| r/study | 41K | 1.3K | |
+| r/Student | 18K | 147 | |
+
+**The critical caveat for groups B and C:** these are not app-showcase subs. Most restrict or ban
+self-promotion, and r/motivation says so in its own description. They convert *because* the
+people are right, not because linking is easy. Treat them exactly like the finance subs — value
+first, mod permission before any link, and never a bare post about the product.
+
+**Where the framing wins:** "I built a study app for money" lands in group A and C. "I spent a
+year building the habit of learning about money, here is what worked" lands in group B. Neither
+is a fintech pitch, which is why they work.
+
 ### Priority order for traffic that stays
 
 1. **r/GetStudying** — learners, on-topic, uncontested
