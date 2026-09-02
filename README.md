@@ -16,6 +16,14 @@
   <img alt="gates" src="https://img.shields.io/badge/gates-57%20%2B%2029%20%2B%2035-0b0710?style=flat-square&labelColor=1a0b2e&color=22C55E">
 </p>
 
+<p align="center">
+  <img src="docs/media/hero.png" alt="Euphoria — the course catalogue, a lesson, and the 300-lesson pathway" width="880">
+</p>
+
+<p align="center">
+  <em>Twelve pathways · 300 lessons · a simulated trading desk · and Atlas, who explains every number.</em>
+</p>
+
 **A finance-education iOS app for 18 to 25 year olds.** Twelve courses, three hundred lessons, a
 paper-trading desk, a daily digest, and **Atlas**, the mascot who runs onboarding and answers the
 questions you ask back.
@@ -55,6 +63,16 @@ switched off rather than showing invented data. See [Environment](#environment).
 | | [Traps](#traps-that-have-cost-real-time) · [Known open items](#known-open-items) |
 
 ---
+
+## Screens
+
+Captured from the shipping build with `npm run screenshots:store`, not mocked. These are the six
+tiles on the App Store listing.
+
+| | | |
+|:--:|:--:|:--:|
+| <img src="docs/media/01-intro.png" width="240"><br>**Money, finally explained**<br><sub>Twelve pathways, 300 lessons</sub> | <img src="docs/media/02-explain.png" width="240"><br>**See the why**<br><sub>Tap any figure, Atlas explains it</sub> | <img src="docs/media/03-path.png" width="240"><br>**300 lessons. One path.**<br><sub>First principles to wealth management</sub> |
+| <img src="docs/media/04-home.png" width="240"><br>**Build a money habit**<br><sub>Daily goals, streaks, quests</sub> | <img src="docs/media/05-paper-trade.png" width="240"><br>**Practice without risk**<br><sub>Live market data, virtual cash</sub> | <img src="docs/media/06-atlas.png" width="240"><br>**Meet your money coach**<br><sub>Atlas, on every screen</sub> |
 
 ## By the numbers
 
