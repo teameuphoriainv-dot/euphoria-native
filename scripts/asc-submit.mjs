@@ -24,6 +24,7 @@
  */
 import { Buffer } from 'node:buffer';
 import { createSign } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -71,6 +72,21 @@ async function api(method, resource, body) {
 }
 
 const fail = (msg) => { console.error(`\nBLOCKED: ${msg}\nNothing was changed.`); process.exit(2); };
+
+/*
+ * PREFLIGHT IS NOT OPTIONAL on a real submit. Build 24 was rejected under 3.1.2 by an automated
+ * check because the App Description carried no Terms of Use link -- a field a by-hand audit had
+ * simply not opened. Gating the submit on the script means that class of miss cannot recur
+ * regardless of who runs this or what they remember to look at.
+ */
+if (APPLY) {
+  const { status } = spawnSync(process.execPath, [path.join(ROOT, 'scripts/asc-preflight.mjs'), ...(WANT ? ['--build', WANT] : [])], { stdio: 'inherit' });
+  if (status !== 0) {
+    console.error('\nBLOCKED: pre-submission checks failed (see above). Nothing was submitted.');
+    process.exit(2);
+  }
+  console.log('');
+}
 
 // ---- preconditions, all read from the live API ----
 const versions = await api('GET', `/v1/apps/${cfg.ascAppId}/appStoreVersions?filter[platform]=IOS&limit=1&include=build`);

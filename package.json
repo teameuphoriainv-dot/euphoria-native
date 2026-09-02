@@ -85,7 +85,8 @@
     "screenshots:studio": "GOLDIE_CONFIG=goldie/goldie.config.ts npx -y goldie@0 studio",
     "ota": "eas update --branch production --environment production",
     "parity:web": "node --import ./scripts/ts-resolve-hooks.mjs scripts/prod-web-parity.mjs",
-    "parity:structure": "node --import ./scripts/ts-resolve-hooks.mjs scripts/web-native-structure-parity.mjs"
+    "parity:structure": "node --import ./scripts/ts-resolve-hooks.mjs scripts/web-native-structure-parity.mjs",
+    "asc:preflight": "node scripts/asc-preflight.mjs"
   },
   "private": true
 }
