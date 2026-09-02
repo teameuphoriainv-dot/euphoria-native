@@ -23,7 +23,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { AskAtlasButton } from '@/components/ask-atlas';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
@@ -310,7 +309,6 @@ export default function Digest() {
                 One idea a day. Read it, then practice it.
               </ThemedText>
             </View>
-            <AskAtlasButton topic="Digest" />
             <ProfileButton />
           </View>
         </RiseIn>

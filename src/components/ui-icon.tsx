@@ -112,6 +112,11 @@ const P = {
   ),
   chevronLeft: <Path d="M14.5 5 8 12l6.5 7" />,
   chevronRight: <Path d="M9.5 5 16 12l-6.5 7" />,
+  /* The vertical pair, mirrored off the horizontal ones above so all four share a stroke weight
+     and a bounding box. Added for the collapsible quests section on Home — a disclosure control
+     pointing right would read as navigation to another screen rather than as expand-in-place. */
+  chevronDown: <Path d="M5 9.5 12 16l7-6.5" />,
+  chevronUp: <Path d="M5 14.5 12 8l7 6.5" />,
   trophy: (
     <>
       <Path d="M7 5h10v3.5a5 5 0 0 1-10 0V5Z" />

@@ -24,36 +24,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { Atlas } from '@/components/atlas';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { WidgetPromo } from '@/components/widget-promo';
-import { nextWidgetAsk, WIDGET_ASK_XP } from '@/lib/widget-ask';
 import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { CourseRailCard, RAIL_CARD_WIDTH } from '@/components/course-rail-card';
 import { LessonArt } from '@/components/lesson-art';
+import { CourseMark } from '@/components/art/course-mark';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
-import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
-import { LeagueCrest } from '@/components/league-crest';
 import { TierUpSheet } from '@/components/tier-up-sheet';
 import {
-  PixelSpriteView, book, chartUp, coin as coinSprite, controller, star,
+  PixelSpriteView, book, chartUp, controller,
   flame as flameSprite, newspaper, targetGoal, type PixelSprite,
 } from '@/lib/pixel';
 
-import { tierProgress } from '@/lib/league';
 import { useShallow } from 'zustand/react/shallow';
 
 import { lessonKey, STREAK_TIERS, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
-import { openAtlasChat } from '@/components/ask-atlas';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { ProfileButton } from '@/components/profile-button';
 
@@ -153,10 +146,6 @@ export default function Home() {
   }, [resolveLeagueWeek]);
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
-  const coins = useApp((st) => st.coins);
-  // Lifetime xp, matching the League screen's header (weekly xp drives standings, not tier).
-  const xp = useApp((s) => s.xp);
-  const league = tierProgress(xp);
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
@@ -238,25 +227,24 @@ export default function Home() {
    * not with the caller, which is the only place it is safe to live.
    */
   const allQuestsDone = questsComplete(quests);
+  /*
+   * COLLAPSED BY DEFAULT. The section exists so the streak has something to feed, not so it can
+   * occupy a fifth of the first screen — the header still carries the score, so nothing you need
+   * at a glance is behind the toggle.
+   *
+   * Deliberately NOT persisted. It resets to collapsed every launch, which is the state that
+   * serves the screen's job; remembering "expanded" would quietly undo the decluttering for the
+   * one user who opened it once. If that turns out to be wrong it is a store field away.
+   */
+  const [questsOpen, setQuestsOpen] = useState(false);
+  const questsDone = quests.filter((q) => q.done).length;
   const claimQuestReward = useApp((st) => st.claimQuestReward);
   useEffect(() => {
     if (allQuestsDone) claimQuestReward();
   }, [allQuestsDone, claimQuestReward]);
 
   const streakGoal = useApp((st) => st.streakGoal);
-  const setStreakGoal = useApp((st) => st.setStreakGoal);
-  const planTier = useTier();
-  const trialDay = useApp(trialDayNumber);
 
-  // UNIT 15d. Held back until one lesson is done — see the note beside <WidgetPromo> below.
-  const widgetAsksSeen = useApp((st) => st.widgetAsksSeen);
-  const widgetAskDay = useApp((st) => st.widgetAskDay);
-  const widgetAdded = useApp((st) => st.widgetAdded);
-  const recordWidgetAsk = useApp((st) => st.recordWidgetAsk);
-  const widgetAsk =
-    completedLessons.length > 0
-      ? nextWidgetAsk({ widgetAsksSeen, widgetAskDay, widgetAdded })
-      : null;
   /* The committed tier's NAME, which is the whole point of naming them (§22 C25). */
   const goalTier = STREAK_TIERS.find((t) => t.days === streakGoal);
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
@@ -265,17 +253,17 @@ export default function Home() {
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={45} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Greeting + habit pills */}
+        {/* Greeting + profile. The pills that used to live here are gone — see below. */}
         <RiseIn>
           <View style={styles.headerRow}>
-            <View style={styles.greetLeft}>
               {/*
                 * THE GREETING IS THE WAY INTO YOUR PROFILE, now that You is not a tab.
                 *
-                * The mascot beside it is already the documented entry to chat and is not being
-                * repurposed. Tapping your own name to reach your own profile is the affordance
-                * most apps already teach, and it needs no new chrome in a header that AX5 has
-                * already broken once.
+                * Tapping your own name to reach your own profile is the affordance most apps
+                * already teach, and it needs no new chrome in a header that AX5 has already
+                * broken once. (It used to say "the mascot beside it is the entry to chat" —
+                * that mascot is gone from this screen, so the greeting is now the only way in
+                * besides the avatar.)
                 *
                 * CEILING, stated: this puts profile on HOME only. The web app keeps it reachable
                 * from every screen via the hamburger. A persistent header entry on all five tabs
@@ -320,295 +308,164 @@ export default function Home() {
                   numberOfLines={1}
                   adjustsFontSizeToFit
                   minimumFontScale={0.6}
-                  style={{ fontSize: FontSize.titleSm }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
+                  /*
+                   * BIGGER — titleSm (22) → titleLg (26). Asked for directly, and the room for it
+                   * came from this same edit: the coin pill, the streak pill and the Atlas circle
+                   * all left this row, so the greeting no longer competes for width with three
+                   * other things. headerRow's long-standing "three items fit; four did not" note
+                   * is now moot at two.
+                   *
+                   * adjustsFontSizeToFit stays. It is what stopped AX5 from clipping the greeting
+                   * to "H...", and a bigger base size makes that shrink-instead-of-truncate floor
+                   * MORE load-bearing, not less.
+                   */
+                  style={{ fontSize: FontSize.titleLg }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
               </SpringPressable>
-            </View>
             {/*
-              * `accessible` GROUPS each pill so VoiceOver reads one named thing. Without it these
-              * announced as a bare "3" and "0/10" — text is present, so C101's audit correctly did
-              * not flag them (it looks for elements with NO text at all), but a naked number carries
-              * no meaning when you cannot see the flame or the target beside it.
-              */}
-            <View style={styles.pillStack}>
-              {/*
-                * THE WALLET, and the way into the Shop. The web puts the balance top-right of its
-                * Shop tab; iOS has no spare tab slot (Games took the last one), so the balance
-                * lives beside the streak and goal pills it belongs with and is the entry point.
-                * Tappable, unlike its neighbours — hence SpringPressable rather than a bare View.
-                */}
-              <SpringPressable
-                haptic={false}
-                scaleTo={0.94}
-                onPress={() => router.push('/shop')}
-                accessibilityRole="button"
-                accessibilityLabel={`${String(coins)} Euphorium. Open the shop.`}
-                style={[styles.pill, { backgroundColor: theme.iconGold + '18', borderColor: theme.iconGold + '40' }]}>
-                {/* The catalogue's coin, not a vector sparkle. The balance is currency, so it should
-                    carry the same mark the Shop prices it in. Still, not animated: a balance sitting
-                    there is not a reaction. */}
-                <PixelSpriteView sprite={coinSprite} size={15} />
-                <ThemedText type="smallBold" style={{ color: theme.iconGold, fontSize: FontSize.caption }}>{coins}</ThemedText>
-              </SpringPressable>
-              <View
-                accessible
-                accessibilityLabel={`${String(streak)} day streak`}
-                accessibilityRole="text"
-                style={[styles.pill, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-                {/*
-                  * The catalogue's flame, playing ONCE when the streak CHANGES — which is exactly
-                  * how the web's StreakDisplay does it (play="once", playKey={currentStreak}).
-                  * A streak advancing is a reaction; a streak sitting still is not, so it does not
-                  * loop. See PixelSprite.tsx on why idle loops are a defect class here.
-                  */}
-                <PixelSpriteView sprite={flameSprite} size={15} play="once" playKey={streak} />
-                <ThemedText type="smallBold" style={{ color: theme.streak, fontSize: FontSize.caption }}>{streak}</ThemedText>
-              </View>
-              {/*
-                * THE GOAL PILL WAS REMOVED HERE, and it is a deletion rather than a sacrifice.
-                *
-                * It was a plain non-tappable <View> reading "0/5", and TODAY'S QUESTS sits a few
-                * hundred points below on the same screen showing "Reach your 5-minute goal … 0/5"
-                * — the same two numbers, with a progress bar and a label explaining them. One
-                * screen said the same thing twice and only one of the two was legible on its own.
-                *
-                * Removing it is what makes room for <ProfileButton>. Measured on device: with four
-                * items in this row at DEFAULT text size the greeting collapsed to "Hey / there" over
-                * two lines and "5 min to / keep your / streak" over three. That is the AX5 failure
-                * this header already has a history of, arriving without needing accessibility sizes
-                * at all. Three items fit; four did not.
-                */}
-            </View>
-            {/*
-              * ATLAS SITS BESIDE YOUR AVATAR, avatar furthest right. It used to sit on the far left
-              * against the greeting, which read as decoration rather than as a control, and made
-              * the header show two mascots for anyone still on the default avatar.
+              * THE COIN PILL, THE STREAK PILL AND THE ATLAS CIRCLE ALL LEFT THIS ROW.
               *
-              * WRAPPED, not added as a fourth sibling. headerRow's own note says "Three items fit;
-              * four did not" at the largest text size, and this row has an AX5 history. Grouping
-              * the two circles keeps headerRow at three children, and pulling Atlas out of the
-              * greeting block gives the greeting back the width it was competing for.
+              *  - COINS: asked to be removed from Home outright. It is not deleted from the app —
+              *    the balance belongs with the things it buys, so it goes to the Shop when that
+              *    section is built. `/shop` is still routed and still reachable; only this
+              *    entry point is gone.
+              *  - STREAK: not removed, MOVED. It is now the card immediately below, where the
+              *    number can be read at a glance instead of squeezed into a 12pt pill.
+              *  - ATLAS: asked to be removed from the main page. Nobody opens a home screen to
+              *    ask a question; they ask while a lesson has them stuck. Ask Atlas now lives on
+              *    the lesson screen and the Learn tab only.
+              *
+              * What is left is the greeting and the avatar — two items in a row with a documented
+              * history of breaking at four.
               */}
-            <View style={styles.rightCluster}>
-              <SpringPressable
-                haptic={false}
-                onPress={() => openAtlasChat()}
-                accessibilityRole="button"
-                accessibilityLabel="Ask Atlas"
-              >
-                <Atlas size={36} expression="happy" interactive={false} idle />
-              </SpringPressable>
-              <ProfileButton />
-            </View>
+            <ProfileButton />
           </View>
         </RiseIn>
 
-        {/* Week row */}
+        {/*
+          * THE STREAK CARD — the week strip, the goal bar and the header streak pill, folded into
+          * one rectangle.
+          *
+          * Modelled on the reference screenshot supplied 2026-09-01 (Brilliant's home): a bordered
+          * card whose top-left is the streak NUMBER at display size beside its flame, a single
+          * plain-English line under it, and the day marks along the bottom INSIDE the same card.
+          *
+          * Three separate elements said one thing before this. The header pill carried the number
+          * in 12pt, the week strip carried the days, and a third bar underneath carried the goal —
+          * "keep the streak date consolidated with the streak bar" is exactly that redundancy.
+          *
+          * The number is the hero here rather than a pill's afterthought, which is the whole point
+          * of the reference: a streak you can read from across the room is a streak you protect.
+          */}
         <RiseIn delay={60}>
-          <View style={styles.weekRow}>
-            {WEEK.map((d, i) => (
-              <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} today={i === todayIdx} />
-            ))}
-          </View>
-          {/*
-            * PROGRESS TOWARD THE COMMITTED TARGET, not just the raw streak — §8b's actual ask. A
-            * commitment you cannot see progress against is a question you answered once and never
-            * heard about again, which is the opposite of why Duolingo and Headway ask it.
-            *
-            * The NAME leads and the number follows: "Determined · 3 of 14 days" reads as an identity
-            * you are earning. "3/14" is a fraction.
-            */}
-          {goalTier && (
-            <View style={[styles.goalBar, { borderColor: theme.border }]}>
-              <PixelSpriteView sprite={star} size={14} />
-              <ThemedText type="small" style={{ flex: 1, color: theme.textSecondary }}>
-                <ThemedText type="smallBold">{goalTier.name}</ThemedText>
-                {` · ${String(Math.min(streak, goalTier.days))} of ${String(goalTier.days)} days`}
-              </ThemedText>
-              {streak >= goalTier.days && (
-                <ThemedText type="label" style={{ color: theme.success }}>DONE</ThemedText>
-              )}
+          <Card style={styles.streakCard}>
+            <View style={styles.streakTop}>
+              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.streakNum}>{streak}</ThemedText>
+              {/* play="once" on CHANGE, never looping — a streak advancing is a reaction, a streak
+                  sitting still is not. Same rule the header pill followed before it was folded in. */}
+              <PixelSpriteView sprite={flameSprite} size={26} play="once" playKey={streak} />
             </View>
-          )}
-        </RiseIn>
-
-        {/*
-         * LEAGUE MOVED UP, and the Trade/Digest quick cards deleted. Both from 2026-08-22:
-         *
-         *   N8 "'Saver League' (rank) is at the bottom of the page — should be moved up near the
-         *      top; it's a key status indicator."
-         *   N9 "'Your Path' section feels crowded/redundant — Lessons, Trade, and Digest already
-         *      have their own full tabs, so duplicating them here feels cluttered."
-         *
-         * The league card was placed at the bottom on 2026-08-19 to give a measured 118pt dead
-         * band a job. That reasoning was sound about the SPACE and wrong about the CARD: tier is
-         * status, and status belongs beside the streak and the week strip, not below every piece
-         * of content on the screen. Removing the Trade/Digest row takes ~120pt out of the bottom
-         * half, which is roughly what the league card occupied there — so the band it was filling
-         * largely goes away with it rather than reopening.
-         *
-         * The deleted row was two cards reading "Trade / Paper trading" and "Digest / Today's
-         * read". Both are bottom tabs, permanently on screen, one tap away. A card whose only job
-         * is to duplicate a tab is the clutter he is describing.
-         */}
-        {/*
-         * LEAGUE STANDING — fills the dead band at the bottom of Home.
-         *
-         * Measured 2026-08-19 on device: the Trade/Digest row ended at y=676 and the tab bar
-         * began at y=794, leaving 118pt — 13.5% of an 874pt viewport — empty at the scroll end.
-         * That gap was NOT a layout bug: `styles.content` sets
-         * `paddingBottom: BottomTabInset + Spacing.four` = 108, which is correct trailing padding
-         * for a ScrollView. It only read as dead because the content happened to stop there. So
-         * this is a product decision to give the space a job, not a fix.
-         *
-         * Tier and crest come from `lib/league.ts`, the same source the League screen reads, for
-         * the reason stated at league.tsx:10 — two surfaces showing DIFFERENT tiers for the same
-         * player is worse than one surface showing none.
-         *
-         * It deliberately does NOT show a rank. Rank is derived from weekly XP against the
-         * standings field on the League screen; recomputing it here would be a second
-         * implementation of the same rule, and those drift. Progress toward the next tier is
-         * derived from `tierProgress` and cannot disagree with anything.
-         */}
-        <RiseIn delay={280}>
-          <SpringPressable onPress={() => router.push('/league')} accessibilityRole="button"
-            accessibilityLabel={`${league.tier.name} league. ${league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}. Opens standings.`}>
-            <Card style={styles.leagueCard} tint={league.tier.color}>
-              <LeagueCrest tier={league.tier} size={44} />
-              <View style={styles.leagueText}>
-                <ThemedText type="label" themeColor="mutedForeground">{league.tier.name.toUpperCase()} LEAGUE</ThemedText>
-                <View style={[styles.questTrack, { backgroundColor: theme.border, marginTop: Spacing.one + 2 }]}>
-                  <View style={[styles.questFill, { width: `${Math.round(league.progress * 100)}%`, backgroundColor: league.tier.color }]} />
-                </View>
-                <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: Spacing.one }}>
-                  {league.next ? `${league.xpToNext} XP to ${league.next.name}` : 'Top tier reached'}
-                </ThemedText>
-              </View>
-              <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
-            </Card>
-          </SpringPressable>
-        </RiseIn>
-
-        {/*
-          * TRIAL STRIP — Bloom `156322`'s shape: a THREE-DAY tracker where the current day is
-          * highlighted and the rest read as pending. Bloom's "Daily Trivia Streak" renders a
-          * three-day arc as a progress OBJECT rather than a sentence, which is exactly what a
-          * 3-day trial is.
-          *
-          * `trialDayNumber` not `trialDaysLeft`: on the third active day daysLeft is 0 while the
-          * trial is still live, and "0 days left" on a fully usable day reads as already expired
-          * (§22 C14). Shown only during the trial — a Pro member must never see a countdown, and an
-          * expired one gets the paywall's own copy instead of a strip about days they no longer have.
-          */}
-        {planTier === 'trial' && (
-          <RiseIn delay={90}>
-            <SpringPressable haptic={false} scaleTo={0.99} onPress={() => router.push('/onboarding?step=paywall')}
-              accessibilityRole="button" accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
-              <Card style={styles.trialStrip} tint={theme.primary}>
-                <View style={{ flex: 1 }}>
-                  <ThemedText type="smallBold">Free trial · day {trialDay} of {TRIAL_DAYS}</ThemedText>
-                  <View style={styles.trialDots}>
-                    {Array.from({ length: TRIAL_DAYS }, (_, i) => (
-                      <View
-                        key={i}
-                        style={[
-                          styles.trialDot,
-                          {
-                            backgroundColor: i < trialDay ? theme.primary : 'transparent',
-                            borderColor: i < trialDay ? theme.primary : theme.border,
-                          },
-                        ]}
-                      />
-                    ))}
-                  </View>
-                </View>
-                <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
-              </Card>
-            </SpringPressable>
-          </RiseIn>
-        )}
-
-        {/*
-          * THE STREAK COMMITMENT ASK — 2/2 convergence, and it appears exactly ONCE.
-          *
-          * Duolingo's streak-commitment step is flagged uniqueness 7 in the dataset: the app asks
-          * you to PROACTIVELY commit to a multi-day goal rather than just counting upward. Headway
-          * `128564` does the same with NAMED tiers — 7-day Promising, 14 Determined, 30 Impressive,
-          * 50 Unstoppable — plus a mascot line. A number is a target; a name is an identity.
-          *
-          * Gated on `streak >= 1` so it never greets a user who has done nothing: asking someone to
-          * commit to fourteen days before their first lesson is asking for a promise about a product
-          * they have not used. `streakGoal === null` is what makes it one-time, which is why null and
-          * 0 are meaningfully different in the store.
-          */}
-        {streakGoal === null && streak >= 1 && (
-          <RiseIn delay={100}>
-            <Card style={styles.commit}>
-              <ThemedText type="bodyMedium">How far do you want to take this?</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground">
-                Pick a streak to aim for. We&apos;ll track it on this screen.
-              </ThemedText>
-              <View style={styles.commitRow}>
-                {STREAK_TIERS.map((t) => (
-                  <SpringPressable
-                    key={t.days}
-                    scaleTo={0.94}
-                    onPress={() => setStreakGoal(t.days)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Commit to a ${String(t.days)} day streak, ${t.name}`}
-                    style={{ flex: 1 }}>
-                    <View style={[styles.commitChip, { borderColor: theme.border, backgroundColor: theme.cardElevated }]}>
-                      <ThemedText type="smallBold">{t.days}</ThemedText>
-                      <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label }}>{t.name}</ThemedText>
-                    </View>
-                  </SpringPressable>
-                ))}
-              </View>
-            </Card>
-          </RiseIn>
-        )}
-
-        {/* The next real lesson in its original position below status and trial state. */}
-        <RiseIn delay={120}>
-          <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
-            {next ? (
-              <>
-                <View style={styles.heroRow}>
-                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={56} />
-                  <View style={{ flex: 1 }}>
-                    <ThemedText type="label" maxFontSizeMultiplier={2} style={{ color: accent }} numberOfLines={1}>
-                      {(course?.title ?? 'Course').toUpperCase()}
-                    </ThemedText>
-                    <ThemedText type="heading" maxFontSizeMultiplier={2} style={{ marginTop: 2 }} numberOfLines={3}>
-                      {next.title}
-                    </ThemedText>
-                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-                      Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
-                    </ThemedText>
-                  </View>
-                </View>
-                <View style={styles.heroCta}>
-                  <SlabButton
-                    label={doneInCourse === 0 ? 'Start' : 'Continue'}
-                    full
-                    onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
-                  />
-                </View>
-              </>
-            ) : (
-              <>
-                <ThemedText type="title" style={{ textAlign: 'center' }}>
-                  {doneInCourse > 0 ? 'Course complete.' : 'Loading your next lesson…'}
-                </ThemedText>
-                {doneInCourse > 0 && (
-                  <View style={styles.heroCta}>
-                    <SlabButton label="Pick a new course" full onPress={() => router.push('/courses')} />
-                  </View>
-                )}
-              </>
-            )}
+            {/*
+              * ONE LINE, in plain English. `goalTier` is the committed target when there is one;
+              * without a commitment it still has something true to say rather than rendering
+              * nothing, because an empty card is worse than a modest one.
+              */}
+            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
+              {goalTier
+                ? `${goalTier.name} · ${String(Math.min(streak, goalTier.days))} of ${String(goalTier.days)} days`
+                : streak > 0
+                  ? `${String(streak)} day${streak === 1 ? '' : 's'} in a row`
+                  : 'Finish a lesson to start your streak'}
+            </ThemedText>
+            <View style={styles.weekRow}>
+              {WEEK.map((d, i) => (
+                <DayCheck key={`${d}${i}`} label={d} done={isDone(i)} today={i === todayIdx} />
+              ))}
+            </View>
           </Card>
         </RiseIn>
 
+        {/*
+         * THREE BLOCKS WERE REMOVED FROM HERE, all on 2026-09-01. None is deleted from the app.
+         *
+         *  1. THE LEAGUE CARD. "Completely remove the leagues for now… at least don't remove the
+         *     links from the code." So the card is gone from Home and nothing else is: `/league`
+         *     is still a route, `lib/league.ts` and `tierProgress` are untouched, `resolveLeagueWeek`
+         *     still runs on mount above (a league week must still bank whether or not it is shown,
+         *     or a user returns to a stale ladder), and <TierUpSheet> still fires on a crossing.
+         *     Putting the card back is re-adding this JSX, not rebuilding a feature.
+         *
+         *  2. THE TRIAL STRIP. Moved to the Learn tab, not deleted — "make sure that the free trial
+         *     thing is on the lessons part of the app, not on the main page". It is a fact about
+         *     what you can STUDY, so it belongs where the studying is.
+         *
+         *  3. THE STREAK-COMMITMENT ASK ("How far do you want to take this?"). Cut as clutter. The
+         *     streak card above now shows the committed tier and progress toward it, so the ask was
+         *     the only thing on this screen still competing with the lessons for attention. The
+         *     STREAK_TIERS data and the store's `streakGoal` are untouched.
+         *
+         * The screen's job, restated because everything above was in the way of it: get you into
+         * the next lesson.
+         */}
+        {/*
+          * THE NEXT LESSON — now the biggest thing on the screen, and the CARD is the control.
+          *
+          * The Start/Continue button is gone: "The lesson cards are going to be big, with no start
+          * button. You just click on them to start." A card that is entirely tappable does not need
+          * a button repeating the offer, and the button was costing the card its size — the art was
+          * shrunk to 56pt and moved beside the text specifically to buy back the vertical space the
+          * CTA row occupied.
+          *
+          * With the CTA gone that space returns to the content, so the art goes back up to 72pt and
+          * the title to `title` size. The whole card is one SpringPressable, so the tap target is
+          * the full ~150pt rectangle rather than a 52pt button inside it.
+          *
+          * accessibilityRole="button" on the pressable is what keeps this reachable: without the
+          * SlabButton there is no other announced control, and a tappable Card that VoiceOver reads
+          * as static text would be a regression, not a simplification. The label states the action
+          * out loud because the screen no longer has the word "Start" anywhere on it.
+          */}
+        <RiseIn delay={120}>
+          {next ? (
+            <SpringPressable
+              scaleTo={0.985}
+              onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
+              accessibilityRole="button"
+              accessibilityLabel={`${doneInCourse === 0 ? 'Start' : 'Continue'} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}, ${String(next.xp)} XP.`}>
+              <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
+                <View style={styles.heroRow}>
+                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={72} />
+                  <View style={{ flex: 1 }}>
+                    {/*
+                      * AX5 REDUCED THIS TITLE TO "Your" / "Brain", losing "vs. Your Money". The
+                      * caps below are why it does not any more, and they matter MORE now: the
+                      * card is the button, so an unreadable title means the user cannot tell what
+                      * they are about to open.
+                      */}
+                    <ThemedText type="label" maxFontSizeMultiplier={2} style={{ color: accent }} numberOfLines={1}>
+                      {(course?.title ?? 'Course').toUpperCase()}
+                    </ThemedText>
+                    <ThemedText type="title" maxFontSizeMultiplier={2} style={{ marginTop: 3, fontSize: FontSize.titleSm }} numberOfLines={3}>{next.title}</ThemedText>
+                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 4 }}>
+                      Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
+                    </ThemedText>
+                  </View>
+                  <UIcon name="arrowRight" size={18} color={accent} />
+                </View>
+              </Card>
+            </SpringPressable>
+          ) : (
+            <Card elevated style={[styles.hero, { borderColor: accent + '30' }]} tint={accent}>
+              <ThemedText type="title" style={{ textAlign: 'center' }}>
+                {doneInCourse > 0 ? 'Course complete.' : 'Loading your next lesson…'}
+              </ThemedText>
+              {doneInCourse > 0 && (
+                <View style={styles.heroCta}>
+                  <SlabButton label="Pick a new course" full onPress={() => router.push('/courses')} />
+                </View>
+              )}
+            </Card>
+          )}
+        </RiseIn>
 
         {/*
           * DAILY QUESTS — the 3/3 mechanic Home did not have.
@@ -626,10 +483,38 @@ export default function Home() {
           * day-scopes — see lib/quests.ts for why there is no "read a guide" quest.
           */}
         <RiseIn delay={160}>
-          <View style={styles.sectionHead}>
-            <ThemedText type="label" themeColor="mutedForeground">TODAY&apos;S QUESTS</ThemedText>
-            <ThemedText type="small" themeColor="mutedForeground">Resets in {hoursLeft}h</ThemedText>
-          </View>
+          {/*
+            * COLLAPSIBLE, and COLLAPSED BY DEFAULT — "the quests are going to be collapsible so
+            * they're not taking so much space up".
+            *
+            * Three quest rows with progress tracks ran about 200pt, which on an 874pt screen was
+            * a fifth of the viewport spent on something you glance at once a day. Collapsed, the
+            * section is one 44pt header that still carries the score, so nothing is hidden that
+            * you needed at a glance: `2/3` and the reset countdown are the summary, and the rows
+            * are the detail behind it.
+            *
+            * The whole header is the toggle rather than a chevron-sized target, and it announces
+            * as a button with its expanded state so VoiceOver users get the same affordance.
+            */}
+          <SpringPressable
+            haptic={false}
+            scaleTo={0.995}
+            onPress={() => setQuestsOpen((v) => !v)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: questsOpen }}
+            accessibilityLabel={`Today's quests, ${String(questsDone)} of ${String(quests.length)} done. Resets in ${String(hoursLeft)} hours.`}>
+            <View style={styles.sectionHead}>
+              <ThemedText type="label" themeColor="mutedForeground">TODAY&apos;S QUESTS</ThemedText>
+              <View style={styles.questSummary}>
+                <ThemedText type="smallBold" style={{ color: questsDone === quests.length ? theme.success : theme.mutedForeground }}>
+                  {questsDone}/{quests.length}
+                </ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground">{hoursLeft}h</ThemedText>
+                <UIcon name={questsOpen ? 'chevronUp' : 'chevronDown'} size={16} color={theme.mutedForeground} />
+              </View>
+            </View>
+          </SpringPressable>
+          {questsOpen && (
           <Card style={styles.quests}>
             {quests.map((q, i) => (
               <View key={`${q.kind}:${String(q.of)}`} style={[styles.quest, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border }]}>
@@ -659,74 +544,79 @@ export default function Home() {
               </View>
             ))}
           </Card>
+          )}
         </RiseIn>
 
+        {/*
+          * YOUR PATH — a STACK of full-width cards, not a horizontal rail.
+          *
+          * The rail was chosen for a reason that has since been overruled: six reference home
+          * screens each ran a horizontal multi-item row, and Home had nothing to browse. What it
+          * cost is exactly what this restructure is about. A 132pt card in a side-scroller shows
+          * a course as a thumbnail, and a thumbnail is not an invitation to study — you have to
+          * discover the scroll, then aim at a small target. "The lesson cards are going to be big,
+          * with no start button. You just click on them to start."
+          *
+          * So the same courses render as full-width rows: art, name, and real progress out of the
+          * course's real lesson count. Tapping one sets it active, which re-points the big card at
+          * the top of this screen at that course's next lesson — the card above IS the confirmation,
+          * so no navigation is needed and none happens.
+          *
+          * `See all` still goes to /courses, which is where the locked and coming-soon ones live.
+          */}
         <View style={styles.sectionHead}>
           <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
-          <SpringPressable
-            haptic={false}
-            onPress={() => router.push('/courses')}
-            hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
+          {/* hitSlop 13 vertical, not 8: the label renders 18pt tall, so 8 gave a 34pt target —
+              under both Apple's 44pt and WCAG 2.5.8's 24pt floor. 18 + 13*2 = 44. */}
+          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
             <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>See all</ThemedText>
           </SpringPressable>
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.rail}
-          snapToInterval={RAIL_CARD_WIDTH + Spacing.two + 4}
-          snapToAlignment="start"
-          decelerationRate="fast"
-          style={styles.railScroll}>
-          {COURSES.map((c) => (
-            <CourseRailCard
-              key={c.id}
-              course={c}
-              selected={c.id === activeCourseId}
-              done={completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length}
-              available={isCourseAvailable(c.id)}
-              onPress={() => setActiveCourse(c.id)}
-            />
-          ))}
-        </ScrollView>
+        <View style={styles.pathStack}>
+          {COURSES.filter((c) => isCourseAvailable(c.id)).map((c) => {
+            const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
+            const on = c.id === activeCourseId;
+            const tint = courseAccent(c.id);
+            return (
+              <SpringPressable
+                key={c.id}
+                scaleTo={0.985}
+                onPress={() => setActiveCourse(c.id)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={`${c.title}. ${String(done)} of ${String(c.totalLessons)} lessons done.${on ? ' Currently selected.' : ''}`}>
+                <Card style={[styles.pathCard, on && { borderColor: tint + '66', borderWidth: 1 }]} tint={on ? tint : undefined}>
+                  <CourseMark id={c.id} size={34} />
+                  <View style={{ flex: 1 }}>
+                    <ThemedText type="bodyMedium" maxFontSizeMultiplier={2} numberOfLines={2}>{c.title}</ThemedText>
+                    <View style={[styles.questTrack, { backgroundColor: theme.muted }]}>
+                      <View style={[styles.questFill, { backgroundColor: tint, width: `${Math.round((done / c.totalLessons) * 100)}%` }]} />
+                    </View>
+                    <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 5 }}>
+                      {done} of {c.totalLessons} lessons
+                    </ThemedText>
+                  </View>
+                  {on && <UIcon name="check" size={16} color={tint} />}
+                </Card>
+              </SpringPressable>
+            );
+          })}
+        </View>
 
-        <RiseIn delay={180}>
-          <SpringPressable onPress={() => router.push('/games')} accessibilityRole="button" accessibilityLabel="Games">
-            <Card style={styles.gamesCard} tint={theme.iconGold}>
-              <PixelSpriteView sprite={controller} size={22} />
-              <View style={{ flex: 1 }}>
-                <ThemedText type="heading" style={{ fontSize: FontSize.body }}>Games</ThemedText>
-                <ThemedText type="small" themeColor="mutedForeground">Beat your best score</ThemedText>
-              </View>
-              <UIcon name="arrowRight" size={16} color={theme.iconGold} />
-            </Card>
-          </SpringPressable>
-        </RiseIn>
-
+        {/*
+         * THE GAMES CARD WAS REMOVED — "remove the games button and CTA completely from the main
+         * page". Games keeps its own bottom tab, so unlike the 2026-08-22 note this replaces, it
+         * is NOT losing its only route in: `/games` is a permanent tab, one tap away, at all times.
+         * That note argued the card was the only discoverable entry point; that stopped being true
+         * when Games became a tab, so the card was duplicating a permanently visible destination —
+         * which is the same clutter the Trade/Digest cards were deleted for.
+         *
+         * THE WIDGET PROMO WAS REMOVED for the same decluttering pass. `nextWidgetAsk`,
+         * `/widget-tutorial` and the WIDGET_ASK_XP award are all untouched; only the automatic
+         * modal on Home is gone.
+         */}
 
       </ScrollView>
-
-      {/*
-       * UNIT 15d. Home rather than onboarding for the FIRST ask, deliberately: Duolingo pitches its
-       * widget in onboarding (`112661`), but Duolingo's onboarding has already shown you a streak.
-       * Ours has not, so an ask there would be selling a thing the user has no feeling about yet.
-       * The gate below waits for one finished lesson, which is the first moment a streak is real.
-       */}
-      {widgetAsk !== null && (
-        <WidgetPromo
-          visible
-          variant={widgetAsk}
-          onDismiss={recordWidgetAsk}
-          onAdd={() => {
-            recordWidgetAsk();
-            router.push(
-              widgetAsk === 'transactional'
-                ? `/widget-tutorial?xp=${String(WIDGET_ASK_XP)}`
-                : '/widget-tutorial',
-            );
-          }}
-        />
-      )}
 
       {/* Crossing a tier is the rarest thing a user does — six times in a lifetime — and until now
           it happened in total silence. Mounted last so it sits above everything on Home. */}
@@ -753,7 +643,6 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   /* League standing strip. Row, not a stack: the crest is the anchor and the text column has to
      take the remaining width, or a long tier name wraps under the badge. */
-  gamesCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.three },
   leagueCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   leagueText: { flex: 1 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
@@ -765,7 +654,22 @@ const styles = StyleSheet.create({
   pillStack: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   rightCluster: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill, borderWidth: 1 },
-  weekRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, paddingHorizontal: Spacing.one },
+  /*
+   * THE STREAK CARD. `gap` is deliberately absent: the three rows inside want DIFFERENT spacing
+   * (number → line is tight, line → day marks is not), so each sets its own margin. A single gap
+   * here would flatten that into one rhythm and the number would stop reading as the headline.
+   */
+  streakCard: { paddingVertical: Spacing.three },
+  streakTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  /* lineHeight pinned to the size: `display` ships a 40pt line box, which left a visible dead
+     band under the number inside a card built to be compact. */
+  streakNum: { fontSize: FontSize.display, lineHeight: 32 },
+  weekRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
+  questSummary: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  /* The stacked path list. A plain gap column — each row is its own Card, so the stack needs no
+     dividers and no border of its own. */
+  pathStack: { gap: Spacing.two },
+  pathCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three },
   day: { alignItems: 'center', gap: 6 },
   dayMark: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   /*
@@ -784,7 +688,20 @@ const styles = StyleSheet.create({
      the six reference home screens uses a hero this large. */
   heroTitle: { textAlign: 'center', fontSize: FontSize.titleSm, lineHeight: 28, marginTop: Spacing.one, paddingHorizontal: Spacing.two },
   heroCta: { alignSelf: 'stretch', marginTop: Spacing.three },
-  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four, marginBottom: Spacing.two },
+  /*
+   * marginTop was Spacing.four (24). That was correct while every section head was followed
+   * immediately by a Card — the 24 separated a heading from the block ABOVE it, and the block's
+   * own height did the rest.
+   *
+   * Collapsing the quests broke that assumption: a collapsed section IS its head, so two heads
+   * could end up adjacent and the spacing stacked into a dead band — 8 (marginBottom) + 16
+   * (the ScrollView's content gap) + 24 = 48pt of empty screen between two single lines. Measured
+   * on device at 11:36; it read as the page having lost its middle.
+   *
+   * Spacing.two (8) + the container's own 16 gives 24 above a head, which is the same visual
+   * separation the 24 was providing before the container gap was counted twice.
+   */
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two, marginBottom: Spacing.two },
   railScroll: { marginHorizontal: -Spacing.three },
   rail: { paddingHorizontal: Spacing.three, gap: Spacing.two + 4 },
   duoRow: { flexDirection: 'row', gap: Spacing.three },

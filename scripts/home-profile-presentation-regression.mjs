@@ -23,18 +23,34 @@ const warmup = read('src/components/lesson-warmup.tsx');
 requireMatch(tabs, /Tabs\.Screen name="games"/, 'Games must remain a first-class tab');
 requireMatch(home, /import \{[\s\S]*?\bcontroller\b[\s\S]*?\} from '@\/lib\/pixel';/, 'Home game quest art must import the controller binding');
 requireMatch(home, /game: controller/, 'Home game quest art must use the imported controller binding');
-requireMatch(home, /router\.push\('\/games'\)/, 'The owner-approved Home layout must retain its Games card');
+/*
+ * THE GAMES CARD ASSERTION WAS REMOVED ON 2026-09-01, at the owner's direct instruction:
+ * "remove the games button and CTA completely from the main page".
+ *
+ * The two checks above it stay and are the ones that still matter. Games remains a FIRST-CLASS
+ * TAB, so unlike the note this replaces it is not losing its only route in — it is permanently on
+ * screen, one tap away, which is precisely why a card duplicating it was the clutter being cut.
+ * `game: controller` also stays: the quest art still uses that binding.
+ */
 forbidMatch(profile, /label: 'Games'/, 'Profile must not duplicate the Games tab');
 forbidMatch(profile, /label: 'Ask Atlas'/, 'Profile must not duplicate the persistent Atlas entry');
 
+/*
+ * THE HOME SEQUENCE, rewritten 2026-09-01. The previous list — week / league / trial / hero /
+ * quests / path / Games — was the layout the owner asked to be restructured away from, with a
+ * Brilliant home screen supplied as the reference. Asserting it here would have made this pin
+ * fail for the right reason on the wrong screen.
+ *
+ * What replaces it is the same KIND of assertion: the lesson must come before the things that are
+ * only status, because getting you into the next lesson is the screen's whole job. See
+ * scripts/home-layout-revert-regression.mjs, which pins the removals as absences.
+ */
 const homeOrder = [
-  ['week status', 'Week row'],
-  ['league status', "router.push('/league')"],
-  ['trial status', "planTier === 'trial'"],
-  ['lesson hero', 'Card elevated style={[styles.hero'],
+  ['greeting', 'Hey there'],
+  ['streak card', 'styles.streakCard'],
+  ['lesson card', 'styles.hero'],
   ['daily quests', 'TODAY&apos;S QUESTS'],
   ['learning pathway', 'YOUR PATH'],
-  ['Games card', "router.push('/games')"],
 ];
 let previousHomeIndex = -1;
 for (const [label, token] of homeOrder) {

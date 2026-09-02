@@ -26,7 +26,6 @@ import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
-import { AskAtlasButton } from '@/components/ask-atlas';
 import { Movers } from '@/components/movers';
 import { PortfolioChart } from '@/components/portfolio-chart';
 import { ThemedText } from '@/components/themed-text';
@@ -226,7 +225,6 @@ export default function Trade() {
                 <UIcon name="search" size={19} color={theme.mutedForeground} />
               </View>
             </SpringPressable>
-            <AskAtlasButton topic="Trading" />
             <ProfileButton />
           </View>
         </RiseIn>

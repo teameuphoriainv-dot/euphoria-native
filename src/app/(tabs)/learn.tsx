@@ -25,7 +25,7 @@ import { AskAtlasButton } from '@/components/ask-atlas';
 import { CourseMark } from '@/components/art/course-mark';
 import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
-import { entitled, type Refusal } from '@/lib/entitlement';
+import { entitled, TRIAL_DAYS, trialDayNumber, useTier, type Refusal } from '@/lib/entitlement';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
@@ -36,6 +36,7 @@ import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Card } from '@/components/ui/card';
 import { ProfileButton } from '@/components/profile-button';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
 
@@ -139,6 +140,9 @@ export default function Learn() {
   const setActiveCourse = useApp((s) => s.setActiveCourse);
   const completedLessons = useApp((s) => s.completedLessons);
   const streak = useApp((s) => s.streak);
+  // Trial strip, moved here from Home — see the note beside it in the tree below.
+  const planTier = useTier();
+  const trialDay = useApp(trialDayNumber);
 
   const course = getCourseById(activeCourseId);
 
@@ -294,6 +298,53 @@ export default function Learn() {
           </View>
         </View>
       </RiseIn>
+
+      {/*
+        * TRIAL STRIP — MOVED HERE FROM HOME on 2026-09-01: "make sure that the free trial thing is
+        * on the lessons part of the app, not on the main page".
+        *
+        * It belongs here on its own merits. What the trial gates is CONTENT — `entitled()` a few
+        * lines up is what refuses a locked lesson on this very screen — so the countdown now sits
+        * on the surface where running out actually stops you, instead of on a screen where it was
+        * one more status bar competing with the thing you came to do.
+        *
+        * Shape and reasoning carried over unchanged from home.tsx: a THREE-DAY tracker with the
+        * current day filled, from Bloom `156322`. `trialDayNumber` not `trialDaysLeft`, because on
+        * the third active day daysLeft is 0 while the trial is still live and "0 days left" on a
+        * fully usable day reads as already expired (§22 C14). Shown only during the trial — a Pro
+        * member must never see a countdown, and an expired one gets the paywall's own copy.
+        */}
+      {planTier === 'trial' && (
+        <RiseIn delay={60}>
+          <SpringPressable
+            haptic={false}
+            scaleTo={0.99}
+            onPress={() => router.push('/onboarding?step=paywall')}
+            accessibilityRole="button"
+            accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
+            <Card style={styles.trialStrip} tint={theme.primary}>
+              <View style={{ flex: 1 }}>
+                <ThemedText type="smallBold">Free trial · day {trialDay} of {TRIAL_DAYS}</ThemedText>
+                <View style={styles.trialDots}>
+                  {Array.from({ length: TRIAL_DAYS }, (_, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.trialDot,
+                        {
+                          backgroundColor: i < trialDay ? theme.primary : 'transparent',
+                          borderColor: i < trialDay ? theme.primary : theme.border,
+                        },
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+              <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
+            </Card>
+          </SpringPressable>
+        </RiseIn>
+      )}
 
       {/*
         * COMPACT COURSE CHIPS — 44pt, replacing a 150pt card rail.
@@ -564,6 +615,10 @@ export default function Learn() {
 }
 
 const styles = StyleSheet.create({
+  /* Carried over verbatim from home.tsx with the strip itself. */
+  trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three, marginHorizontal: Spacing.three, marginBottom: Spacing.two },
+  trialDots: { flexDirection: 'row', gap: 6, marginTop: 6 },
+  trialDot: { width: 26, height: 5, borderRadius: Radius.track, borderWidth: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
