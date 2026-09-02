@@ -38,19 +38,38 @@ eas build --platform ios --profile production
 Then in App Store Connect: attach the new build, **re-add the app version to the review
 submission** (see below), and submit.
 
-### The explain tile does not re-capture cleanly
+### Tiles are captured by hand, not by `goldie capture`
 
 `goldie capture` reinstalls the app on every invocation (the data container UUID changes), which
-wipes AsyncStorage. Two first-run gates then stand between the flow and the lesson content:
+wipes AsyncStorage. Since dba0874 that is fatal to the whole strip, not just one tile:
 
+- `(tabs)/_layout.tsx` redirects to `/auth` unless `hasAccount(profile)` is true, and that is
+  `authProvider ?? email` -- a name does NOT satisfy it. A reinstalled app therefore lands on
+  onboarding, so //home, //learn, //courses and //stock all capture the wrong screen.
 - `euphoria_atlas_intro_seen` is a STANDALONE AsyncStorage key, not part of the zustand store, so
-  seeding the store does not suppress the Atlas coach-mark that scrims the screen;
-- a 13.4s Atlas origin cinematic (`ORIGIN_MS` in `atlas-intro.tsx`) runs ahead of the lesson.
+  seeding the store never suppresses the Atlas coach-mark.
+- A 13.4s Atlas origin cinematic (`ORIGIN_MS` in `atlas-intro.tsx`) runs ahead of the first lesson.
 
-`goldie/manual-raw/explain.png` is a real capture of this build taken by hand with the status bar
-pinned to 9:41. Copy it over `goldie/out/raw/iphone-6.9/explain.png` after any `capture` run and
-before `frame`. The measured Skip (0.852, 0.957) and "Got it" (0.825, 0.779) coordinates are
-recorded in `.argent/flows/store-01-explain.yaml` if someone wants to make it deterministic.
+`goldie/manual-raw/` holds a real capture of each tile from the shipped build, taken with the
+status bar pinned to 9:41. To refresh after a build:
+
+```bash
+xcrun simctl uninstall <dev> com.euphoriainv.euphoria
+xcrun simctl install   <dev> /tmp/euphoria-goldie-derived/.../euphorianative.app
+xcrun simctl launch    <dev> com.euphoriainv.euphoria     # once, to create the store file
+# then in the container's RCTAsyncLocalStorage_V1:
+#   manifest.json           euphoria_atlas_intro_seen = "1"
+#   <state file> profile    completedAt, email, authProvider   <- the account gate
+xcrun simctl status_bar <dev> override --time "9:41" --batteryState charged --batteryLevel 100 \
+  --cellularBars 4 --wifiBars 3
+# deep-link each route, screenshot, copy into goldie/out/raw/iphone-6.9/ AND goldie/manual-raw/
+GOLDIE_CONFIG=goldie/goldie.config.ts npx -y goldie@0 frame
+GOLDIE_CONFIG=goldie/goldie.config.ts npx -y goldie@0 verify
+node scripts/asc-upload-screenshots.mjs --apply
+```
+
+Routes: `//courses` intro, `//lesson?course=investing-fundamentals&num=1` + tap the CTA at
+y=0.702 for explain, `//learn` path, `//home` home, `//stock/AAPL` paper-trade, `//chat` atlas.
 
 ## Review submission needs the app version re-added
 
