@@ -37,6 +37,16 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { STAGGER_GAP } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
+/** One safe exit for every way out of an article, mirroring lesson.tsx's exitLesson.
+ *  A bare `router.back()` throws "The action 'GO_BACK' was not handled by any navigator" whenever
+ *  there is no history to pop -- which is exactly the notification deep link, the most common way
+ *  this screen is opened. All three exits (the X, "Back to Digest", and the end-of-article done
+ *  button) went straight to router.back() and stranded the reader on that error. */
+function exitDigest() {
+  if (router.canGoBack()) router.back();
+  else router.replace('/(tabs)/digest');
+}
+
 /** A card holds a run of blocks, headings included. Headings do NOT start a new card. */
 type Card = { blocks: Block[] };
 
@@ -154,7 +164,7 @@ export default function DigestArticle() {
     return (
       <SafeAreaView style={[styles.safe, styles.center]}>
         <ThemedText type="heading">Article not found</ThemedText>
-        <SpringPressable onPress={() => router.back()} style={{ marginTop: Spacing.three }}>
+        <SpringPressable onPress={() => exitDigest()} style={{ marginTop: Spacing.three }}>
           <ThemedText type="bodyMedium" style={{ color: theme.iconLilac }}>Back to Digest</ThemedText>
         </SpringPressable>
       </SafeAreaView>
@@ -170,7 +180,7 @@ export default function DigestArticle() {
       <AmbientBackground starCount={30} />
 
       <View style={styles.header}>
-        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => router.back()} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
+        <SpringPressable haptic={false} scaleTo={0.85} onPress={() => exitDigest()} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
           <UIcon name="close" size={22} color={theme.mutedForeground} />
         </SpringPressable>
         {/* segmented rather than one continuous track: Brilliant's pattern, and it also tells you
@@ -265,7 +275,7 @@ export default function DigestArticle() {
           <SlabButton label={i === 0 ? 'Start reading' : 'Continue'} full onPress={advance} />
         )}
         {last ? (
-          <SpringPressable haptic={false} onPress={() => router.back()} style={styles.done}>
+          <SpringPressable haptic={false} onPress={() => exitDigest()} style={styles.done}>
             <ThemedText type="small" themeColor="mutedForeground">Back to Digest</ThemedText>
           </SpringPressable>
         ) : null}
