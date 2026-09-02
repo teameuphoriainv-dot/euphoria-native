@@ -5,38 +5,30 @@ Supabase APIs, not inferred from config files.
 
 ## Blocked on exactly one thing
 
-**The binary.** Build 23 (uploaded 30 Aug, app version 1.0.0) is attached to App Store version
-1.0. It predates six fixes that are already on `main`, including the `MatchingPairs` render crash
-— duplicate React keys throwing on every render, blocking a step kind authored **201 times**.
-A reviewer following the review notes ("The first lesson is on Home") can reach it. Shipping
-build 23 is a Guideline 2.1 rejection for a defect that is already fixed in source.
+**The binary.** The version still has build 23 (uploaded 30 Aug, app version 1.0.0) attached. It
+predates every fix on `main`, including the `MatchingPairs` render crash — duplicate React keys
+throwing on every render, blocking a step kind authored **201 times**. A reviewer following the
+review notes ("The first lesson is on Home") can reach it. Shipping build 23 is a Guideline 2.1
+rejection for a defect already fixed in source.
 
-Holding the build until the home-screen redesign lands, so one build carries everything.
-
-## When the redesign is pushed
+The Home redesign (dc95c18) and the account gate (dba0874) have both landed and are captured in
+the current screenshots. What remains:
 
 ```bash
-git fetch origin && git rebase origin/main     # pick up the redesign
-npm run check                                  # must exit 0
-
-# 1. Re-shoot the home tile, which is the only screenshot the redesign invalidates.
-xcodebuild -workspace ios/euphorianative.xcworkspace -scheme euphorianative \
-  -configuration Release -sdk iphonesimulator \
-  -derivedDataPath /tmp/euphoria-goldie-derived \
-  -destination 'generic/platform=iOS Simulator' build
-GOLDIE_CONFIG=goldie/goldie.config.ts npx -y goldie@0 capture
-GOLDIE_CONFIG=goldie/goldie.config.ts npx -y goldie@0 frame
-GOLDIE_CONFIG=goldie/goldie.config.ts npx -y goldie@0 verify
-
-# 2. Re-upload the strip (replaces the set; dry-runs without --apply).
-node scripts/asc-upload-screenshots.mjs --apply
-
-# 3. Build the submittable binary.
-eas build --platform ios --profile production
+npm run check                                   # must exit 0
+eas build --platform ios --profile production   # produces the submittable binary
 ```
 
 Then in App Store Connect: attach the new build, **re-add the app version to the review
 submission** (see below), and submit.
+
+### The deployed API is a separate blocker
+
+`scripts/../src/app/api/market+api.ts` filters non-English and duplicate newswire articles, but
+the DEPLOYED api at `euphoria-native.expo.app` still serves them: measured 2026-09-02, 8 of 12
+articles on the Trade tab were one GlobeNewswire release in th/ms/ja/id/ko and two Chinese
+variants. The app calls the deployed endpoint, so **this reaches users regardless of which binary
+ships** and is only fixed by redeploying the api.
 
 ### Tiles are captured by hand, not by `goldie capture`
 
@@ -95,7 +87,7 @@ Nothing had been delivered to Apple — the submission's `submittedDate` was nul
 | Sign in with Apple (4.8) | enabled alongside Google and email |
 | Screenshots | 6 images in `APP_IPHONE_67`; the stale 5-image 6.5" set was deleted |
 | Subscriptions | both `READY_TO_SUBMIT`, review notes and review screenshots COMPLETE |
-| Review details | contact complete, demo credentials set, 1782-char notes |
+| Review details | contact complete, demo credentials set, 2439-char notes rewritten 2026-09-02 to match the account-before-paywall flow |
 | Metadata | Name 25/30, Subtitle 30/30, Keywords 97/100, Promo 164/170, Description 2917/4000 |
 | Age / legal | 12+, privacy policy URL, copyright INFISTACK TECHNOLOGY LLC |
 | Apple credentials | `.p8` valid PKCS#8 and gitignored, key `NJ4H5Q7248`, team `9SS423KXF5` |
@@ -112,7 +104,9 @@ The API rejects it and lists the valid types. Apple routes 6.9" screenshots (132
 
 ## Owner action, not a code change
 
-Enable leaked-password protection: Supabase dashboard → Authentication → Sign In/Providers →
-Email. This is the only one of the 11 Supabase advisor warnings that can be cleared; the other 10
-are `search_path` warnings on functions that 11 RLS policies depend on, and changing them breaks
-access control.
+Leaked-password protection CANNOT currently be enabled: the project is on the Supabase Free plan
+and the API refuses the write — "Configuring leaked password protection via HaveIBeenPwned.org is
+available on Pro Plans and up." It is a Supabase advisor warning, not an App Store requirement,
+appears nowhere in the review guidelines, and cannot cause a rejection. The other 10 advisor
+warnings are `search_path` warnings on functions that 11 RLS policies depend on; changing those
+breaks access control.
