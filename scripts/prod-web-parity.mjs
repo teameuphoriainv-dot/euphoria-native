@@ -1,85 +1,107 @@
 #!/usr/bin/env node
 /**
- * Verify every native lesson's content against the JS bundle euphoriainv.com actually serves.
+ * Prove the iOS curriculum is byte-for-byte identical to what euphoriainv.com actually serves.
  *
- * This is the strongest content-parity evidence available and the cheapest: it compares against
- * the DEPLOYED ARTIFACT rather than a git commit, so it cannot be fooled by a stale pin, an
- * unpushed local branch, or an assumption about what shipped. Comparing rendered screens in a
- * browser is both slower and weaker -- text extraction is lossy, and driving 300 lessons through
- * the UI re-tests the same renderers 300 times to learn nothing new about content.
+ * Compares against the DEPLOYED BUNDLE, never a git commit. That distinction is the whole point:
+ * during this harness's development a stale plan pin, an unpushed local `master` 120 commits
+ * behind origin, and a diverged feature branch each produced a convincing false mismatch. Only
+ * the artifact production ships can settle it.
  *
- *   node --import ./scripts/ts-resolve-hooks.mjs scripts/prod-web-parity.mjs
+ * Method: Vite emits each course as its own ES-module chunk importing a single dependency-free
+ * helpers chunk, so the chunks can be mirrored locally (relative names preserved) and imported
+ * directly in Node. Each course's lesson array is then canonically serialised -- keys sorted
+ * recursively, undefined dropped -- and hashed on both sides. A hash over the canonical form is
+ * not a sample: one changed character in any step of any lesson changes the digest.
+ *
+ *   npm run parity:web
  */
-const ORIGIN = process.env.EUPHORIA_WEB_ORIGIN || 'https://www.euphoriainv.com';
-const PROBES_PER_LESSON = 3;
+import { createHash } from 'node:crypto';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-async function fetchText(url) {
+const ORIGIN = process.env.EUPHORIA_WEB_ORIGIN || 'https://www.euphoriainv.com';
+const COURSES = [
+  'investingFundamentals', 'personalFinance', 'globalEconomics', 'corporateFinance',
+  'businessStrategy', 'financialAnalytics', 'behavioralFinance', 'appliedAccounting',
+  'quantitativeAnalysis', 'riskManagement', 'alternativeInvestments', 'wealthManagement',
+];
+
+const canon = (v) => Array.isArray(v) ? v.map(canon)
+  : (v && typeof v === 'object')
+    ? Object.keys(v).sort().reduce((a, k) => { if (v[k] !== undefined) a[k] = canon(v[k]); return a; }, {})
+    : v;
+const digest = (value) => createHash('sha256').update(JSON.stringify(canon(value))).digest('hex');
+const lessonsOf = (mod) => Object.values(mod).find((v) => Array.isArray(v) && v.length && v[0]?.steps);
+
+async function text(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`${res.status} ${url}`);
   return res.text();
 }
 
-/** Vite splits the app; course data sits in lazily-imported chunks referenced from other chunks,
- *  so one pass over the entry HTML is not enough. Resolve transitively until closed. */
-async function fetchDeployedBundle() {
-  const html = await fetchText(`${ORIGIN}/app`);
-  const seen = new Set();
+/** Resolve the chunk graph transitively; course data sits behind lazy imports, so one pass over
+ *  the entry HTML is not enough. */
+async function discoverChunks() {
+  const html = await text(`${ORIGIN}/app`);
+  const seen = new Map();
   let queue = [...new Set([...html.matchAll(/assets\/([A-Za-z0-9_.-]+\.js)/g)].map((m) => m[1]))];
-  let all = '';
   while (queue.length) {
     const next = [];
     for (const name of queue) {
       if (seen.has(name)) continue;
-      seen.add(name);
-      let body = '';
-      try { body = await fetchText(`${ORIGIN}/assets/${name}`); } catch { continue; }
-      all += body + '\n';
+      let body;
+      try { body = await text(`${ORIGIN}/assets/${name}`); } catch { seen.set(name, null); continue; }
+      seen.set(name, body);
       for (const m of body.matchAll(/([A-Za-z0-9_.-]+-[A-Za-z0-9_-]{8}\.js)/g)) {
         if (!seen.has(m[1])) next.push(m[1]);
       }
     }
     queue = [...new Set(next)];
   }
-  return { source: all, chunks: seen.size };
+  return seen;
 }
 
-const { source: prod, chunks } = await fetchDeployedBundle();
-const { COURSES, loadCourseLessons } = await import('../src/lib/curriculum/courseIndex.ts');
+const chunks = await discoverChunks();
+const dir = mkdtempSync(join(tmpdir(), 'euphoria-prod-parity-'));
+try {
+  for (const [name, body] of chunks) if (body) writeFileSync(join(dir, name), body);
 
-let lessons = 0, titleOK = 0, probesRun = 0, probesOK = 0;
-const failures = [];
-for (const course of COURSES) {
-  for (const lesson of await loadCourseLessons(course.id)) {
-    lessons += 1;
-    const hasTitle = prod.includes(lesson.title);
-    if (hasTitle) titleOK += 1;
-    const probes = [...new Set((JSON.stringify(lesson.steps || []).match(/"[^"\\]{50,110}"/g) || [])
-      .map((s) => s.slice(1, -1)))].slice(0, PROBES_PER_LESSON);
-    const missing = [];
-    for (const probe of probes) {
-      probesRun += 1;
-      if (prod.includes(probe)) probesOK += 1; else missing.push(probe.slice(0, 60));
-    }
-    if (!hasTitle || missing.length) failures.push({ course: course.id, title: lesson.title, hasTitle, missing });
+  let ok = 0, checked = 0, lessons = 0, steps = 0;
+  const failures = [];
+  console.log('\nProduction curriculum parity — iOS vs the deployed euphoriainv.com bundle\n');
+  console.log('  course                    lessons  steps   result');
+
+  for (const course of COURSES) {
+    const file = [...chunks.keys()].find((n) => n.startsWith(`${course}-`));
+    if (!file) { failures.push(`${course}: no deployed chunk found`); continue; }
+    const web = lessonsOf(await import(pathToFileURL(join(dir, file)).href));
+    const native = lessonsOf(await import(`../src/lib/curriculum/courses/${course}.ts`));
+    if (!web || !native) { failures.push(`${course}: could not read lesson array`); continue; }
+
+    checked += 1;
+    lessons += native.length;
+    const s = native.reduce((a, l) => a + (l.steps || []).length, 0);
+    steps += s;
+    const same = digest(web) === digest(native);
+    if (same) ok += 1;
+    else failures.push(`${course}: curriculum content differs from production`);
+    console.log(`  ${course.padEnd(24)}${String(native.length).padStart(6)}${String(s).padStart(7)}   ${same ? 'IDENTICAL' : 'DIFFERS'}`);
   }
-}
 
-console.log('\nProduction web/native content parity');
-console.log(`  origin            ${ORIGIN}`);
-console.log(`  chunks fetched    ${chunks}`);
-console.log(`  lessons checked   ${lessons}`);
-console.log(`  titles present    ${titleOK}/${lessons}`);
-console.log(`  content probes    ${probesOK}/${probesRun}`);
-if (failures.length) {
-  console.log(`\nFAIL — ${failures.length} lesson(s) differ from what production serves\n`);
-  for (const f of failures.slice(0, 20)) {
-    console.log(`  ${f.course} · ${f.title} · title:${f.hasTitle ? 'ok' : 'MISSING'}`);
-    f.missing.forEach((m) => console.log(`      missing: ${m}`));
+  console.log(`\n  chunks fetched  ${chunks.size}`);
+  console.log(`  courses         ${ok}/${checked} identical`);
+  console.log(`  lessons         ${lessons}`);
+  console.log(`  authored steps  ${steps}`);
+
+  if (failures.length || checked !== COURSES.length || lessons !== 300) {
+    console.log('\nFAIL');
+    failures.forEach((f) => console.log(`  - ${f}`));
+    if (lessons !== 300) console.log(`  - expected 300 lessons, read ${lessons}`);
+    process.exit(1);
   }
-  process.exit(1);
+  console.log('\nPASS — every lesson of every pathway matches what production serves.\n');
+} finally {
+  rmSync(dir, { recursive: true, force: true });
 }
-if (lessons !== 300) {
-  console.log(`\nFAIL — expected 300 lessons, walked ${lessons}`);
-  process.exit(1);
-}
-console.log('\nPASS — every one of the 300 native lessons matches the deployed production bundle.\n');

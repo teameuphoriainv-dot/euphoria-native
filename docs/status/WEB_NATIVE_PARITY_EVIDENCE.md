@@ -88,5 +88,7 @@ Production `euphoriainv.com/app` and the iOS simulator, same lesson, same moment
     npm run parity:structure   # offline, in the check gate
     npm run parity:web         # fetches the deployed bundle
 
-The per-course hash comparison in section 1 is currently manual: the web side needs a browser
-to import the deployed ES-module chunks. Automating it is the obvious next hardening step.
+The per-course hash comparison in section 1 is fully automated — `npm run parity:web` resolves
+the deployed chunk graph (114 chunks), mirrors the course chunks and their single dependency-free
+helpers chunk locally, imports them in Node, and compares canonical SHA-256 digests. No browser
+required. It exits non-zero if any course differs, so it can be run in CI.
