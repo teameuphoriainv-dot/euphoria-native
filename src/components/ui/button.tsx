@@ -196,7 +196,37 @@ export function SlabButton({
               * The face uses minHeight, not height, so a scaled label grows the button and the
               * slab grows with it.
               */}
-            <ThemedText type="heading" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ color: ink, fontFamily: lesson ? Fonts.bold : undefined, fontSize: lesson ? 16 : FontSize.bodyLg, lineHeight: lesson ? 24 : undefined }}>{label}</ThemedText>
+            {/*
+              * NEVER SPREAD `fontFamily: undefined` INTO THIS STYLE.
+              *
+              * This read `fontFamily: lesson ? Fonts.bold : undefined`, and `lesson` is false for
+              * every button outside the lesson player -- which is nearly all of them. React Native
+              * flattens style objects by key, so writing the key at all applies it, and `undefined`
+              * OVERRODE the `heading` type's own fontFamily rather than falling through to it.
+              *
+              * The result: every ordinary button in the app rendered its label in the iOS SYSTEM
+              * font, not the brand face. It was never Nunito and it did not become DM Sans when
+              * the token changed, which is exactly why the type migration appeared to do nothing
+              * here. Caught by comparing "Sign up" against "Create your free profile" on the same
+              * screen: the heading was bold DM Sans and the button label was visibly lighter.
+              *
+              * This file's own codebase already documents this footgun for `color` in home.tsx
+              * ("never spread `color: undefined` into the style -- it overrides themeColor"). Same
+              * class, on the shared CTA, so it was on all 19 call sites at once.
+              *
+              * The lesson overrides are now a SEPARATE object, applied only when they exist, so the
+              * non-lesson path inherits `heading` untouched.
+              */}
+            <ThemedText
+              type="heading"
+              maxFontSizeMultiplier={1.6}
+              numberOfLines={1}
+              style={[
+                { color: ink, fontSize: lesson ? 16 : FontSize.bodyLg },
+                lesson ? { fontFamily: Fonts.bold, lineHeight: 24 } : null,
+              ]}>
+              {label}
+            </ThemedText>
           </>
         )}
       </Animated.View>
