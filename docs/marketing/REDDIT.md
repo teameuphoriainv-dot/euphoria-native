@@ -104,6 +104,50 @@ r/investing, where promotion is *removed on sight*.
 The launch-sub half of any such playbook transfers to you. The audience-sub half does not, and
 copying it there is how the account gets burned.
 
+## Measured subreddit list
+
+Pulled from Reddit's own community search on 2026-09-02. **Weekly visitors** is reach;
+**weekly contributions** is how alive the place is. A sub with big reach and few contributions
+is a lurker pool — good to be seen in, hard to become known in.
+
+### Tier A — best fit, active, worth your weekly time
+
+| Subreddit | Weekly visitors | Contributions | Why |
+|---|--:|--:|---|
+| **r/investingforbeginners** | 105K | 2.6K | Self-describes as *"the reasonable middle child between r/investing and r/wallstreetbets."* This is Euphoria's exact audience. |
+| **r/Bogleheads** | 503K | 6.3K | Index-first, long-horizon, anti-stock-picking — the closest sub to what the curriculum actually teaches. |
+| **r/FinancialPlanning** | 137K | 1.0K | Beginner questions, less crowded than r/personalfinance. |
+| **r/budget** | 90K | 1.5K | Budgeting is the lesson most beginners want first. |
+| **r/FluentInFinance** | 74K | 983 | Explicitly "get smarter with money". |
+
+### Tier B — enormous reach, strict rules, read-only for a long time
+
+| Subreddit | Weekly visitors | Contributions | Reality |
+|---|--:|--:|---|
+| **r/personalfinance** | 2.1M | 25K | The biggest in the category. Promotion removed on sight. Answer questions, never link. |
+| **r/povertyfinance** | 1.5M | 15K | Huge and sensitive. Be careful pitching a paid subscription here at all. |
+| **r/college** | 344K | 1.7K | Your demographic, but a general-life sub — money posts must earn their place. |
+
+### Tier C — small, aligned, low competition
+
+| Subreddit | Weekly visitors | Contributions | Note |
+|---|--:|--:|---|
+| **r/moneyadvice** | 26K | 1.5K | High contribution rate for its size — unusually active. |
+| **r/TheCollegeInvestor** | 19K | 719 | Students investing. Direct fit. |
+| **r/BeginnerInvesting** | 14K | 805 | Small but on-topic. |
+| **r/financestudents** | 14K | 684 | Career-focused, so a softer fit. |
+| **r/budgetingforbeginners** | 2.5K | 178 | Tiny, but nobody is competing for attention. |
+| **r/PersonalFinance4All** | 3.6K | 16 | Values match Euphoria exactly — *"financial literacy should be accessible to absolutely everyone"* — but 16 contributions a week means it is effectively dormant. Low effort, low return. |
+
+**Where to actually spend time:** r/investingforbeginners and r/Bogleheads first. Tier A gives
+you real people asking answerable questions without the removal risk of Tier B, and the
+contribution rates are high enough that a good comment gets seen.
+
+**How to extend this list:** repeat the search at `reddit.com/search/?q=<term>&type=sr` with
+terms like `compound interest`, `first paycheck`, `paper trading`, `stock market simulator`,
+`teach kids money`. Reddit surfaces communities by activity, and each search returns neighbours
+the last one missed.
+
 ## Sequence
 
 1. **Weeks 1–3, no promotion.** One real account. Comment usefully in audience subs. Aim for
