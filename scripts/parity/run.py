@@ -340,7 +340,13 @@ def native_capture(out: Path, lesson: dict, timeout: int) -> dict:
         done, log = drive.run_lesson(
             lesson_answers,
             solve,
-            max_steps=max(64, lesson["expandedScreens"] * 4),
+            # BUDGET THE WHOLE LESSON, not just its authored screens. Every lesson also appends a
+            # mastery challenge (1,770 challenge screens corpus-wide), and each challenge question
+            # costs several driver actions. Sizing from expandedScreens alone cut personal-finance--01
+            # off at exactly 64 steps while it was still advancing -- with every authored interaction
+            # already observed. Stalls are caught separately by stall_limit, so a generous ceiling
+            # only ever helps a lesson that is genuinely still moving.
+            max_steps=max(80, lesson.get("totalHappyPathScreens", lesson["expandedScreens"]) * 5),
             stall_limit=3,
             stop=stop,
         )
