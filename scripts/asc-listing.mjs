@@ -8,6 +8,7 @@
  *
  *   node scripts/asc-listing.mjs
  */
+import { Buffer } from 'node:buffer';
 import { createSign } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';

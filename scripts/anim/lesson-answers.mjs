@@ -142,13 +142,12 @@ function summarise(lessons) {
 const files = process.argv[2] && !process.argv[2].startsWith('--')
   ? [process.argv[2]] : readdirSync(DIR).filter((f) => f.endsWith('.ts')).map((f) => join(DIR, f));
 const out = {};
-let ok = 0, bad = 0, totalEmbedded = 0;
+let ok = 0, bad = 0;
 for (const f of files) {
   const name = f.split('/').pop().replace('.ts', '');
   try {
     const lessons = evalCourse(f);
-    const embedded = expandExplorableChecks(lessons);
-    totalEmbedded += embedded;
+    expandExplorableChecks(lessons);
     out[name] = lessons;
     const s = summarise(lessons);
     console.log(`  ok    ${name.padEnd(24)} ${String(s.lessons).padStart(3)} lessons · ${String(s.interactive).padStart(4)} interactive · ${s.answered} answerable`);
