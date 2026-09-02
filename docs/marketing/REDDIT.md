@@ -226,6 +226,66 @@ filtered sitewide, which cannot be appealed easily.
 One account, real history, is also what actually works. The founder in the transcript did it
 with one.
 
+## Where you can actually post — 20 subs, promotion permitted
+
+Measured 2026-09-02. These are communities whose stated purpose includes showing what you built.
+Posting here is what they are for, so the risk is format violations, not bans.
+
+### Tier 1 — biggest reach, promotion is the point
+
+| Subreddit | Weekly | Contribs | What it wants |
+|---|--:|--:|---|
+| **r/SideProject** | 309K | 18K | *"sharing and receiving constructive feedback on side projects."* The single biggest venue. |
+| **r/startups** | 113K | 2.7K | Read its rules first — it routes common posts into specific threads. |
+| **r/iosapps** | 54K | 3.8K | *"app showcases, reviews, news, updates, sales, developers, discounts and even freebies."* |
+| **r/EntrepreneurRideAlong** | 44K | 2.2K | *"Follow real founders in real time… building in public."* Long-form belongs here. |
+| **r/Startup_Ideas** | 27K | 1.9K | Ideas and descriptions of startups explicitly welcome. |
+
+### Tier 2 — app-specific, smaller, high intent
+
+| Subreddit | Weekly | Contribs | Note |
+|---|--:|--:|---|
+| **r/IPhoneApps** | 19K | 301 | Conditional: *"value first. This isn't a place to drop a link to your app and vanish."* Contribute before posting. |
+| **r/sideprojects** | 18K | 1.5K | Smaller sibling of r/SideProject. |
+| **r/StartupSoloFounder** | 8.7K | 1.5K | Solo founders; high contribution rate for its size. |
+| **r/alphaandbetausers** | 8.7K | 1.7K | Exists to connect makers with early users. |
+| **r/TestMyApp** | 4.4K | 746 | *"Showcase Apps Here!"* — no ambiguity. |
+| **r/TestFlight** | 3.2K | 225 | *"Where developers and testers meet for App Store betas."* |
+| **r/ShowYourApp** | 2.9K | 456 | Built for indie makers showing apps. |
+| **r/startups_promotion** | 2.2K | 206 | Promotion is the entire premise. |
+| **r/betatests** | 1.9K | 812 | Very high contribution ratio. |
+| **r/ShowMeYourApps** | 1.6K | 266 | *"share your mobile apps, get feedback and gain users."* |
+| **r/LaunchMyStartup** | 258 | 43 | Tiny, but zero competition. |
+
+Plus **r/iOSProgramming** and **r/apphookup** from the earlier list — the first for a technical
+angle, the second only when you have an actual discount or promotion to announce.
+
+### Read the rules before the first post in each
+
+⚠️ **r/Entrepreneur (286K)** looks like an obvious target and is not: its own description says
+*"this is a space for genuine connection and exchange of ideas, not self-promotion."* Excluded
+deliberately.
+
+⚠️ **r/iOSBeta (88K)** is about Apple's OS betas, not third-party app betas. Wrong room.
+
+## The free tier is the argument that unlocks the strict subs
+
+Most finance-sub rules ban soliciting **paid** services. Euphoria has genuinely free content, and
+that distinction is the whole conversation:
+
+- 12 courses and 300 lessons exist; the trial is 3 active days
+- the streak, XP, quests and league loop stay open after the trial ends
+- the paper-trading desk uses virtual cash — there is nothing to buy to use it
+- there is no deposit, no funding step, no real money anywhere
+
+So when you talk to a moderator, the honest framing is: *"free investing lessons for beginners,
+with an optional paid tier for the full library."* Say the paid tier exists in the first
+sentence. They will find out, and a founder who volunteered it is treated completely differently
+from one who was caught.
+
+**Never claim it is free without qualification.** That is the one move that turns a survivable
+rule violation into a credibility problem you cannot repair.
+
 ## Sequence
 
 1. **Weeks 1–3, no promotion.** One real account. Comment usefully in audience subs. Aim for
