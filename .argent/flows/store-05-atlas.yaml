@@ -1,5 +1,11 @@
+# Atlas's own surface. This used to be a bare `restart-app`, which landed on /welcome -- and
+# once the onboarding gate is satisfied that screen is unreachable, so the tile duplicated Home.
 steps:
   - tool: restart-app
     args:
       bundleId: com.euphoriainv.euphoria
-  - wait: 3500
+  - wait: 2000
+  - tool: open-url
+    args:
+      url: "euphorianative://chat"
+  - wait: 4500

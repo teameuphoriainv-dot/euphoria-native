@@ -4,6 +4,21 @@ import { fileURLToPath } from 'node:url';
 const configDir = dirname(fileURLToPath(import.meta.url));
 const appRoot = resolve(configDir, '..');
 
+
+/**
+ * A subtle Atlas cameo. Decorations draw OVER the background and UNDER the device, so a sprite
+ * parked in the margin peeks out beside the phone and can never cover app UI. Kept at ~0.11 of
+ * the tile width -- about 145px on a 1320px tile -- so it reads as a wink, not a second subject.
+ */
+const cameo = (expression: string, x: number, y: number, width = 0.20, rotate = 0) => ({
+  kind: 'image' as const,
+  src: `decor/atlas-${expression}.png`,
+  x,
+  y,
+  width,
+  rotate,
+});
+
 const config = {
   appRoot,
   appPath:
@@ -24,7 +39,8 @@ const config = {
     layout: 'classic',
   },
   store: {
-    name: 'Euphoria: Learn Investing',
+    // Matches the live listing; this previously read "Learn Investing".
+    name: 'Euphoria: Learn to Invest',
     subtitle: { 'en-US': 'Learn money. Practice safely.' },
     developer: 'Euphoria',
     category: 'Education',
@@ -37,24 +53,29 @@ const config = {
         'Build financial confidence through short, interactive lessons. Practice investing with a simulated wallet, learn from Atlas, and turn steady progress into a daily habit. Euphoria is educational only and does not provide personalized financial advice.',
     },
   },
+  // Owner-requested store order. Each scene keeps the per-scene layout and background it had in
+  // the approved strip -- the variety across hero/offset/classic/tilt-right/copy-below IS the
+  // format, and collapsing it to one layout is what made the previous pass look flat.
   scenes: [
+    {
+      kind: 'screenshot',
+      id: 'atlas',
+      flow: 'store-05-atlas',
+      headline: { 'en-US': 'Meet your money coach' },
+      subhead: { 'en-US': 'Atlas makes intimidating ideas feel learnable, one calm step at a time.' },
+      background: '#2B172F',
+      layout: 'copy-below',
+      decorations: [cameo('proud', 0.845, 0.80, 0.18, -11)],
+    },
     {
       kind: 'screenshot',
       id: 'explain',
       flow: 'store-01-explain',
       headline: { 'en-US': 'See the why' },
-      subhead: { 'en-US': 'Tap a visual and Atlas explains what the numbers mean.' },
+      subhead: { 'en-US': 'Every lesson opens with what you will know by the end.' },
       background: '#241431',
       layout: 'hero',
-    },
-    {
-      kind: 'screenshot',
-      id: 'home',
-      flow: 'store-02-home',
-      headline: { 'en-US': 'Build a money habit' },
-      subhead: { 'en-US': 'Daily goals, streaks, and quests turn progress into a routine.' },
-      background: '#132720',
-      layout: 'offset',
+      decorations: [cameo('thinking', 0.735, 0.175, 0.20, 12)],
     },
     {
       kind: 'screenshot',
@@ -64,6 +85,17 @@ const config = {
       subhead: { 'en-US': 'Go from first principles to wealth management at your pace.' },
       background: '#19233A',
       layout: 'classic',
+      decorations: [cameo('watching', 0.015, 0.235, 0.20, -13)],
+    },
+    {
+      kind: 'screenshot',
+      id: 'home',
+      flow: 'store-02-home',
+      headline: { 'en-US': 'Build a money habit' },
+      subhead: { 'en-US': 'Daily goals, streaks, and quests turn progress into a routine.' },
+      background: '#132720',
+      layout: 'offset',
+      decorations: [cameo('silly', 0.775, 0.205, 0.20, 10)],
     },
     {
       kind: 'screenshot',
@@ -75,15 +107,7 @@ const config = {
       },
       background: '#102722',
       layout: 'tilt-right',
-    },
-    {
-      kind: 'screenshot',
-      id: 'atlas',
-      flow: 'store-05-atlas',
-      headline: { 'en-US': 'Meet your money coach' },
-      subhead: { 'en-US': 'Atlas makes intimidating ideas feel learnable, one calm step at a time.' },
-      background: '#2B172F',
-      layout: 'copy-below',
+      decorations: [cameo('whoa', 0.020, 0.195, 0.21, -9)],
     },
   ],
 };
