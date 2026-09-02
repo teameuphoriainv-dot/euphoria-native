@@ -1188,7 +1188,13 @@ const styles = StyleSheet.create({
   eliminated: { opacity: 0.3, transform: [{ scale: 0.95 }] },
   eliminatedText: { textDecorationLine: 'line-through' },
   xpChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.pill, borderWidth: 1, marginTop: Spacing.three },
-  inlineFeedback: { marginTop: Spacing.four, gap: Spacing.three },
+  // The Atlas FAB floats at bottom:20 with zIndex 30, so it DRAWS OVER whatever lands there.
+  // Measured on device: Continue at 746..794 against the FAB at 766..820 -- 28pt of the
+  // primary CTA sat underneath the mascot, and a wrong answer's explanation makes the panel
+  // taller still. Reserve the FAB's lane below the block so its CTA can never land under it.
+  // Padding, not hiding: the moment right after a wrong answer is the worst time to remove
+  // the ask-for-help affordance.
+  inlineFeedback: { marginTop: Spacing.four, gap: Spacing.three, paddingBottom: 72 },
   scenarioOutcome: { padding: Spacing.four, borderRadius: Radius.md, lineHeight: 21 },
   footer: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16 },
   // 44pt tall so the escape from a wall clears the HIG touch minimum on its own, without relying on
