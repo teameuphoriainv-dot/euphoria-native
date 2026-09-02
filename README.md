@@ -7,6 +7,15 @@
  ╚══════╝ ╚═════╝ ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝
 ```
 
+<p align="center">
+  <img alt="platform" src="https://img.shields.io/badge/platform-iOS%2016%2B-0b0710?style=flat-square&labelColor=1a0b2e&color=A148E9">
+  <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2057-0b0710?style=flat-square&labelColor=1a0b2e&color=A148E9">
+  <img alt="lessons" src="https://img.shields.io/badge/lessons-300-0b0710?style=flat-square&labelColor=1a0b2e&color=A148E9">
+  <img alt="screens" src="https://img.shields.io/badge/screens-5%2C820-0b0710?style=flat-square&labelColor=1a0b2e&color=A148E9">
+  <img alt="parity" src="https://img.shields.io/badge/web%20parity-12%2F12%20SHA--256-0b0710?style=flat-square&labelColor=1a0b2e&color=22C55E">
+  <img alt="gates" src="https://img.shields.io/badge/gates-57%20%2B%2029%20%2B%2035-0b0710?style=flat-square&labelColor=1a0b2e&color=22C55E">
+</p>
+
 **A finance-education iOS app for 18 to 25 year olds.** Twelve courses, three hundred lessons, a
 paper-trading desk, a daily digest, and **Atlas**, the mascot who runs onboarding and answers the
 questions you ask back.
@@ -393,3 +402,47 @@ press feedback).
 **Also:** [CHANGELOG.md](CHANGELOG.md) · [CONSTITUTION.md](CONSTITUTION.md) ·
 [AGENTS.md](AGENTS.md) · [refs/SECURITY_REVIEW.md](refs/SECURITY_REVIEW.md) ·
 [docs/status/](docs/status/)
+
+## Proving it works
+
+Three gates, each catching a class the others cannot. They exist because each one was added
+after something got through.
+
+```text
+                        ┌──────────────────────────────────────────┐
+   source change  ──▶   │  npm run check            57 invocations │  types, lint, unit,
+                        │                                          │  curriculum parity
+                        └────────────────────┬─────────────────────┘
+                                             │
+                        ┌────────────────────▼─────────────────────┐
+   before submit  ──▶   │  npm run asc:preflight    29 checks      │  live ASC + live HTTP:
+                        │                                          │  every listing field
+                        └────────────────────┬─────────────────────┘
+                                             │
+                        ┌────────────────────▼─────────────────────┐
+   before submit  ──▶   │  npm run test:reviewer    5 flows        │  a real simulator,
+                        │                           35 steps       │  every control tapped
+                        └──────────────────────────────────────────┘
+```
+
+**`npm run check`** compares inputs. It was green the entire time nine user-facing rendering
+bugs existed, including one where matching exercises scored correct answers as wrong. Data
+parity and behaviour are different axes, which is why the other two gates exist.
+
+**`npm run asc:preflight`** reads App Store Connect and fetches every URL it finds. It was
+written after Apple rejected a build under 3.1.2 because the App Description carried no Terms
+of Use link — a field a careful by-hand audit had simply never opened. It fails on absent
+evidence and fetches links rather than pattern-matching them, because a 404 satisfies a regex
+and Apple's word is *functional*. `scripts/asc-submit.mjs` refuses to submit unless it exits 0.
+
+**`npm run test:reviewer`** walks App Review's own path on a simulator: the paywall's Terms,
+Privacy and Restore controls, Restore tapped through to a real RevenueCat response, the paywall
+dismissed and asserted *gone*, account deletion present, all five tabs, and the first lesson.
+
+One lesson is written into every flow: **assert on accessibility labels, not visual text.**
+React Native decides what reaches the accessibility tree. `Annual`, `$79.99`, `Sell` and the
+`Ask Atlas…` placeholder are all on screen and none are assertable — plan cards collapse into
+one composite element, and placeholders are never exposed. Asserting on those fails against a
+perfectly healthy screen, which reads as a product bug and is not one. Verify by screenshot
+before believing a failure.
+
