@@ -60,6 +60,35 @@ touching either.
 
 ---
 
+### 6. MatchingPairs throws on every render — blocks the step (OPEN, highest severity)
+**Observed:** Metro logged **30 identical error blocks**, every one framed at
+`matching-pairs.tsx:171` (the `</View>` closing the left column's `.map()`), with the component
+appearing twice in the stack:
+
+    MatchingPairs (src/components/matching-pairs.tsx:171:16)
+    MatchingPairs (src/components/matching-pairs.tsx:205:12)
+    Lesson (src/app/lesson.tsx:708:14)
+
+**User impact:** the parity driver matches every pair correctly and then cannot advance --
+`solved:match(N pairs) moved=true` followed by `moved=false` three times. It stalled
+`investing-fundamentals--08` and `applied-accounting--01`. `matching_pairs` is authored
+**201 times**, so this is the single largest device-lane blocker found so far.
+
+On the success path `MatchingPairs` renders only the text "All matched. Nicely done." and never
+calls `onComplete` -- that prop is wired solely to the *escape* (give-up) affordance. The only exit
+is the footer Continue, which `ownsItsCta` releases once `solved` is true.
+
+**Ruled out:**
+- *Duplicate/undefined React keys.* The authored pairs are tuples (`["Stocks", "Ownership..."]`),
+  but `normalizeStep` converts them to `{left, right}` before render, so keys resolve to unique
+  strings. (Checking the RAW lesson data instead of the normalized spec falsely reports all 201
+  steps as broken -- the same read-the-wrong-source trap logged elsewhere in this repo.)
+- *"Text strings must be rendered within a `<Text>`".* Both columns wrap their content in
+  `<ThemedText>`.
+
+**Blocked on:** the error message is EMPTY in the Metro log -- only the code frame survives. The
+next step is reading LogBox on the device during a run, which the captured log cannot provide.
+
 ## Checked and clean
 
 - **Reduced motion** — 0 unguarded vestibular defects; 46 of 59 animated files guarded, the
