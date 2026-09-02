@@ -37,6 +37,31 @@ distinguish a flipped card from an unflipped one.
 
 ---
 
+### 7. Matching exercises scored correct answers as WRONG on iOS but not web — FIXED
+**Severity: user-facing, three lessons, confirmed behavioural divergence.**
+
+Three lessons author a many-to-one CLASSIFICATION exercise:
+
+    The Language of Accounting    4 account types -> Debit / Credit
+    Cash Flow Statement Mastery   4 items         -> Operating / Investing / Financing
+    Systemic Risk & Contagion     6 statements    -> Systemic / Idiosyncratic
+
+Native's `MatchingPairs` matched on INDEX (`j === selected`) and kept one index list shared by
+both columns, so the second cell reading `Debit (left side)` was scored WRONG despite being the
+same, correct category. The learner lost a heart on a coin flip with nothing on screen to tell the
+two cells apart, and the step could never reach `solved` -- so Continue never appeared.
+
+The web app has always been correct. `MatchView` in StepRenderer.tsx:579 compares TEXT
+(`shuffledRight[ri] === step.pairs[selLeft][1]`) and tracks consumed right cells in a
+`Map<left, right>`. Native now does the same, arrived at before that file was read.
+
+**This is the defect class the curriculum proofs cannot catch, demonstrated concretely: the data
+was byte-identical and `parity:web` was green the entire time the bug existed.** Content parity and
+behavioural parity are different axes.
+
+The duplicate React keys fixed alongside this were a SYMPTOM of the same authored duplication,
+not the cause. No curriculum change was needed, so web parity is untouched.
+
 ## OPEN — needs a decision, not a unilateral fix
 
 ### 4. Vocabulary conversation leaves ~60% of the screen empty
