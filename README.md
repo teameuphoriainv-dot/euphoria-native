@@ -186,6 +186,48 @@ alias would survive a retirement but also moves the model under a system prompt 
 tuned against a known one, and a silent capability change on a finance app aimed at 18 to 25s is
 the worse failure.
 
+```mermaid
+flowchart TD
+    subgraph device["📱 On device"]
+        UI["src/app · 42 files<br/>expo-router screens"]
+        C["src/components · 77 files<br/>one per step kind"]
+        N["lesson-steps.ts<br/><b>normalizeStep()</b><br/>authored data → render kind"]
+        CUR[("src/lib/curriculum<br/>73,545 lines<br/>12 courses · 300 lessons")]
+        ST["store.ts · zustand + persist<br/>AsyncStorage"]
+    end
+
+    subgraph edge["☁️ EAS Hosting · Cloudflare Workers"]
+        API["market+api · chat+api · options+api"]
+        G["server/advice.ts<br/>buy/sell advice guard"]
+    end
+
+    subgraph ext["🔌 Third party"]
+        SB["Supabase<br/>auth · RLS"]
+        RC["RevenueCat<br/>entitlement: Euphoria Pro"]
+        PH["PostHog"]
+        GM["Gemini 3.5 Flash"]
+    end
+
+    CUR --> N --> C --> UI
+    UI <--> ST
+    UI -->|"prices · news · chat"| API
+    API --> G --> GM
+    UI --> SB
+    UI --> RC
+    UI --> PH
+
+    classDef d fill:#1a0b2e,stroke:#A148E9,color:#fff
+    classDef e fill:#12233a,stroke:#7C3AED,color:#fff
+    classDef x fill:#0d1f1c,stroke:#22C55E,color:#fff
+    class UI,C,N,CUR,ST d
+    class API,G e
+    class SB,RC,PH,GM x
+```
+
+**Why there is a server at all:** provider keys. Anything in the app bundle is extractable from
+the IPA, so Gemini, Polygon and MarketData keys live behind the three API routes and never ship.
+The advice guard sits there for the same reason — a client-side check is a suggestion.
+
 ```text
 ┌─ src/app ─────────────────── 42 files · 15,427 lines ──────────────────────┐
 │  expo-router file routes. (tabs)/ home learn trade digest games,           │
@@ -372,6 +414,19 @@ OTA updates: `npm run ota` runs `eas update --branch production --environment pr
 
 Three gates, each catching a class the others cannot. They exist because each one was added
 after something got through.
+
+```mermaid
+flowchart LR
+    A["source change"] --> B["npm run check<br/><b>57 invocations</b><br/>types · lint · unit · parity"]
+    B --> C["npm run asc:preflight<br/><b>29 checks</b><br/>live ASC + live HTTP"]
+    C --> D["npm run test:reviewer<br/><b>5 flows · 35 steps</b><br/>real simulator"]
+    D --> E(["submit"])
+    C -.->|"exit ≠ 0"| X["🚫 asc-submit refuses"]
+    classDef g fill:#0d1f1c,stroke:#22C55E,color:#fff
+    classDef r fill:#2a0f14,stroke:#ef4444,color:#fff
+    class B,C,D,E g
+    class X r
+```
 
 ```text
                         ┌──────────────────────────────────────────┐
