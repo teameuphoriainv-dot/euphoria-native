@@ -1,4 +1,4 @@
-import { FontSize } from '@/constants/theme';
+import { FontSize, Fonts } from '@/constants/theme';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -144,7 +144,7 @@ export function TabBar({ state, navigation }: TabBarProps) {
               type="small"
               maxFontSizeMultiplier={1.6}
               numberOfLines={1}
-              style={{ fontSize: FontSize.tiny, color, fontFamily: focused ? 'Nunito_700Bold' : 'DMSans_500Medium' }}>
+              style={{ fontSize: FontSize.tiny, color, fontFamily: focused ? Fonts.heading : Fonts.medium }}>
               {route.name === 'you' ? 'You' : route.name.charAt(0).toUpperCase() + route.name.slice(1)}
             </ThemedText>
           </SpringPressable>

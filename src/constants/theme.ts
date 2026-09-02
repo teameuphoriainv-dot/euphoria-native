@@ -150,9 +150,24 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 /** Font families — loaded via useFonts in the root layout (see _layout.tsx). */
 export const Fonts = {
-  /** Nunito — rounded, friendly display/headings (matches design mockups) */
-  display: 'Nunito_800ExtraBold',
-  heading: 'Nunito_700Bold',
+  /*
+   * DM SANS THROUGHOUT, matching euphoriainv.com.
+   *
+   * These were Nunito, a rounded friendly face chosen against early mockups, and that put native
+   * and web in two different typefaces for every heading in the product. The web loads exactly two
+   * families: Tailwind maps BOTH `sans` and `heading` to DM Sans, and EB Garamond is `display`,
+   * landing-page only by house rule and never on a control.
+   *
+   * Traced on the web app 2026-09-02 while looking for the "premium button font": there isn't one.
+   * The pricing CTAs set no font-family at all and simply inherit DM Sans. What reads as a distinct
+   * typeface there is weight (700 on a small pill), a full-round pill, and the 3D lip pressing 3px
+   * on active -- all three of which native already has. So aligning the family costs nothing and
+   * removes the one real divergence.
+   *
+   * Weights map to the web's own usage: font-black (900) for display, font-bold (700) for heading.
+   */
+  display: 'DMSans_900Black',
+  heading: 'DMSans_700Bold',
   /** EB Garamond — serif reserved for marketing/landing moments */
   serif: 'EBGaramond_700Bold',
   /** DM Sans — UI + body */

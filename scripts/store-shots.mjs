@@ -15,9 +15,9 @@
  * requirement.
  *
  * ── THE FONT, AND WHY THIS FILE CONFIGURES ONE ─────────────────────────────────────────────────
- * The first render fell back to a system sans because `fc-list` had no Nunito, and it looked close
+ * The first render fell back to a system sans because `fc-list` had no brand face, and it looked close
  * enough to ship — which is exactly why it needed catching. librsvg resolves fonts through
- * fontconfig, so this writes a SCOPED fontconfig pointing at the Nunito the app already bundles in
+ * fontconfig, so this writes a SCOPED fontconfig pointing at the DM Sans the app already bundles in
  * node_modules. Nothing is installed into ~/Library/Fonts: a screenshot script has no business
  * changing the machine it runs on.
  */
@@ -29,14 +29,14 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const OUT = path.join(ROOT, 'refs/store');
-const NUNITO_DIR = path.join(ROOT, 'node_modules/@expo-google-fonts/nunito');
+const FONT_DIR = path.join(ROOT, 'node_modules/@expo-google-fonts/dm-sans');
 
 // ── scoped fontconfig ─────────────────────────────────────────────────────────────────────────
 const fcDir = fs.mkdtempSync(path.join(os.tmpdir(), 'euphoria-fc-'));
 fs.writeFileSync(
   path.join(fcDir, 'fonts.conf'),
   `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd"><fontconfig>
-  <dir>${NUNITO_DIR}</dir>
+  <dir>${FONT_DIR}</dir>
   <dir>/System/Library/Fonts</dir>
   <cachedir>${fcDir}/cache</cachedir>
 </fontconfig>`,
@@ -50,7 +50,7 @@ const W = 1290;
 const H = 2796;
 const PHONE_W = 980;
 const PHONE_TOP = 560;
-const FONT = 'Nunito';
+const FONT = 'DM Sans';
 
 /**
  * SEVEN shots, not ten. Apple permits up to ten; it does not reward padding. Shots 1–3 are the set
@@ -124,7 +124,7 @@ if (made.length) {
 
 try {
   const n = execFileSync('fc-list', [], { env: process.env }).toString().toLowerCase().split('\n').filter((l) => l.includes('nunito')).length;
-  console.log(n > 0 ? `  font: Nunito visible to fontconfig (${n} faces)` : '  font: WARNING — Nunito NOT resolved, headlines fell back');
+  console.log(n > 0 ? `  font: DM Sans visible to fontconfig (${n} faces)` : '  font: WARNING — DM Sans NOT resolved, headlines fell back');
 } catch {
   console.log('  font: fc-list unavailable; could not confirm Nunito resolved');
 }
