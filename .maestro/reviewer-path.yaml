@@ -1,0 +1,89 @@
+# The path the App Review notes send a reviewer down, asserted control by control on a real
+# simulator.
+#
+# WHY THIS EXISTS. 3.1.1, 3.1.2 and 5.1.1(v) are enforced on CONTROLS a reviewer taps: a
+# dismissible paywall, a Restore control, Terms and Privacy links, and in-app account deletion.
+# Reading the source proves a handler exists; it does not prove the control renders, is hittable,
+# or survived a layout change.
+#
+# ASSERT ON ACCESSIBILITY LABELS, NOT ON VISUAL TEXT. The plan cards are composite accessible
+# elements -- React Native collapses their children into one label -- so "Annual" and "$79.99"
+# are on screen but are NOT separate nodes in the tree. An assertion on raw card text fails
+# against a correctly rendered paywall. The controls below all carry their own accessibilityLabel,
+# which is exactly what a reviewer (and VoiceOver) interacts with.
+#
+# Deep links reach each surface because (tabs)/_layout.tsx redirects to /auth unless
+# hasAccount(profile) is true; the runner seeds that, not this flow.
+appId: com.euphoriainv.euphoria
+---
+- launchApp:
+    clearState: false
+
+# ── Paywall: 3.1.1 and 3.1.2 controls ──────────────────────────────────────────────────────
+- openLink: euphorianative://onboarding?step=paywall
+- extendedWaitUntil:
+    visible: "Maybe later"
+    timeout: 25000
+- assertVisible: "Terms"               # 3.1.2 functional Terms link, in the binary
+- assertVisible: "Privacy"             # 3.1.2 functional Privacy link, in the binary
+- assertVisible: "Restore purchases"   # 3.1.1 restore is mandatory where a subscription sells
+
+# Each must be hittable, not merely present. Restore is safe with no prior purchase: it reports
+# "nothing to restore" rather than transacting.
+- tapOn: "Restore purchases"
+# Restore raises a native alert. With no prior purchase on the simulator's Apple ID that alert
+# reads "Nothing to restore" -- which is itself the proof the control is wired to RevenueCat and
+# not a no-op. It MUST be dismissed: a live alert swallows every subsequent tap, and a following
+# assertion then fails against a perfectly healthy screen.
+- extendedWaitUntil:
+    visible: "Nothing to restore"
+    timeout: 20000
+- tapOn: "OK"
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# The paywall must be escapable without paying.
+- openLink: euphorianative://onboarding?step=paywall
+- extendedWaitUntil:
+    visible: "Maybe later"
+    timeout: 25000
+- tapOn: "Maybe later"
+- extendedWaitUntil:
+    notVisible: "Maybe later"
+    timeout: 20000
+
+# ── Profile > Account: the surfaces the review notes name ──────────────────────────────────
+- openLink: euphorianative://settings/account
+- extendedWaitUntil:
+    visible: "Restore purchases"
+    timeout: 25000
+- assertVisible: "Delete profile"      # 5.1.1(v) in-app account deletion
+- assertVisible: "Privacy Policy"
+- assertVisible: "Terms of Use"
+- assertVisible: "Sign out"
+
+# ── The tabs a reviewer moves between ──────────────────────────────────────────────────────
+- openLink: euphorianative://home
+- extendedWaitUntil:
+    visible: "Learn"
+    timeout: 25000
+- tapOn: "Learn"
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn: "Trade"
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn: "Digest"
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn: "Games"
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn: "Home"
+- waitForAnimationToEnd:
+    timeout: 12000
+
+# ── The first lesson, which the notes point at directly ────────────────────────────────────
+- openLink: euphorianative://lesson?course=investing-fundamentals&num=1
+- waitForAnimationToEnd:
+    timeout: 20000
