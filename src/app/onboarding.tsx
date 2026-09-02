@@ -56,7 +56,7 @@ import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, r
 import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
 import { applyDailyNudge } from '@/lib/notifications';
 import { NudgeTimePicker } from '@/components/nudge-time-picker';
-import { estimateWeeks, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
+import { estimateWeeks, hasAccount, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
 import { NAME_MAX, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -541,22 +541,56 @@ export default function Onboarding() {
     if (step === REVEAL_INDEX) {
       // last chance to stamp completion if the loader was skipped (reduced motion)
       if (!profile.completedAt) completeOnboarding();
+      /*
+       * THE ACCOUNT WALL, and its position is the whole point.
+       *
+       * Account creation used to be the step AFTER the paywall, which made it the last thing
+       * between a new user and the app — and therefore the easiest thing to walk away from. It
+       * was also unenforced: the entry redirect only tested `completedAt`, so finishing the flow,
+       * never signing up, and relaunching landed you in Home with no account behind you.
+       *
+       * It now sits between the reveal and the paywall: you answer the questions, you SEE the
+       * three-course path you earned, and then you make an account to keep it. Asked for directly
+       * — "they have to create an account and stuff before, not after the premium stuff" — and it
+       * also puts the ask at the one moment the user has just been shown what they get.
+       *
+       * `?next=paywall` is what brings them back here rather than dropping them in the app: auth
+       * returns to `/onboarding?step=paywall`, a named param that already works in production
+       * (see startStep). Callers that do not pass it — the entry gate, the You page — keep their
+       * existing destinations untouched.
+       *
+       * The redirect is not the enforcement. A user who kills the app on the auth screen is
+       * caught by the tab-layout gate, which is the thing that actually cannot be walked around.
+       */
+      if (!hasAccount(profile)) {
+        router.replace('/auth?next=paywall' as never);
+        return;
+      }
       goTo(step + 1);
       return;
     }
     if (step < TOTAL - 1) goTo(step + 1);
-    // A first-time user finishes onboarding by creating an account. Someone who arrived here from
-    // the You page upsell already HAS one, so sending them to /auth would be nonsense - return
-    // them where they came from instead.
+    // Someone who arrived here from the You page upsell is mid-app - return them where they came
+    // from. Everyone else has just cleared the account wall two steps back, so the paywall is now
+    // the LAST step and it hands off to the app rather than to /auth.
     else if (enteredWithCompletedOnboarding) router.back();
-    else router.replace('/auth');
+    else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
   };
 
   /** Dismissing the first-run offer still has to finish account setup. A returning user who opened
    * the paywall from inside the app goes back to Home instead. */
+  /*
+   * "Maybe later". It used to send a first-time user to /auth, because /auth was the step after
+   * this one and skipping the purchase must never skip the sign-up. The account wall now sits
+   * BEFORE the paywall, so anyone standing here has already made an account and sending them back
+   * to /auth would ask them to sign in twice — the second time for no reason.
+   *
+   * Declining to pay is not declining to have an account, so this hands off to the app exactly
+   * like the CTA does. The tab gate still refuses anyone who somehow arrived without one.
+   */
   const dismissPaywall = () => {
     if (enteredWithCompletedOnboarding) router.replace('/home');
-    else router.replace('/auth');
+    else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
   };
   /**
    * BACK MEANS "UNDO MY LAST STEP", NOT "DECREMENT THE INDEX".
@@ -758,6 +792,33 @@ export default function Onboarding() {
     return true;
   })();
 
+  /**
+   * Is there anything for a Continue button to DO on this step?
+   *
+   * Single-select steps already commit on the card tap (advanceAfterPick, ~40 lines up), so the
+   * button under them was doing nothing a tap had not already done — you pick an option, the
+   * screen moves, and a Continue button sits there having never been the thing that moved it.
+   * Reported directly: "every time I click the option, it also automatically continues".
+   *
+   * So the button is drawn only where a tap CANNOT decide the step for you:
+   *   name       — free text; nothing to tap
+   *   multi      — topics and blockers take several answers, so only you know when you're done
+   *   statement  — nothing to pick at all; the button IS the interaction
+   *   avatar     — a pick here is cosmetic and never advances (see AvatarStep)
+   *   reveal     — the payoff screen, read at your own pace
+   *   paywall    — a purchase must always be deliberate
+   *   notifyOptIn — LOAD-BEARING EXCEPTION. It is `kind: 'single'`, but its answer() opens the iOS
+   *     permission dialog and advanceAfterPick is deliberately not called for it (see the caller),
+   *     so it is the one single-select where the tap does not advance and the button is the only
+   *     way out. Deriving this from the same `field !== 'notifyOptIn'` test the auto-advance uses
+   *     is the point: one condition, so the button and the advance can never disagree.
+   *
+   * The under-13 case keeps the footer (the fine print below renders regardless) but the button
+   * goes with every other single step — it was already disabled there, so nothing is lost.
+   */
+  const autoAdvances = liveDef?.kind === 'single' && liveDef.field !== 'notifyOptIn';
+  const showAction = !autoAdvances;
+
   const face: AtlasExpression =
     !def ? 'happy'
       : def.kind === 'reveal' ? 'proud'
@@ -947,7 +1008,7 @@ export default function Onboarding() {
           <ThemedText type="bodyMedium">No payment due now</ThemedText>
         </View>
       )}
-      <SlabButton
+      {showAction && <SlabButton
         label={
           step === REVEAL_INDEX
             ? 'Start learning'
@@ -972,7 +1033,7 @@ export default function Onboarding() {
                 : buyPro
             : next
         }
-      />
+      />}
       {underAge && (
         <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
           {`Euphoria is built for ages ${String(AGE_FLOOR)} and up. Come back when you get there. We'll be here.`}

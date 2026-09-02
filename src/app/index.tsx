@@ -1,5 +1,6 @@
 import { Redirect } from 'expo-router';
 
+import { hasAccount } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
 
 /**
@@ -22,8 +23,25 @@ import { useApp } from '@/lib/store';
  */
 export default function Index() {
   const hasHydrated = useApp((s) => s.hasHydrated);
-  const completedAt = useApp((s) => s.profile.completedAt);
+  const profile = useApp((s) => s.profile);
 
   if (!hasHydrated) return null;
-  return <Redirect href={completedAt ? '/(tabs)/home' : '/welcome'} />;
+  if (!profile.completedAt) return <Redirect href="/welcome" />;
+  /*
+   * FINISHED THE QUESTIONS, NEVER MADE AN ACCOUNT.
+   *
+   * This test used to be `completedAt ? home : welcome`, and that single missing condition WAS
+   * the escape hatch: account creation sat after the paywall, nothing required it, so quitting on
+   * the auth screen and relaunching walked straight into Home. The answers persist in the store,
+   * so the app had no reason to ask again.
+   *
+   * Sending them to /auth rather than back through onboarding is the point — their answers are
+   * already saved and re-running fifteen questions to reach a screen they skipped would be a
+   * punishment. They land on the one screen they actually owe.
+   *
+   * The tab layout repeats this check. That is not redundancy: this branch keeps a cold start
+   * from rendering a frame of Home before redirecting, and the layout catches every other door.
+   */
+  if (!hasAccount(profile)) return <Redirect href={'/auth' as never} />;
+  return <Redirect href="/(tabs)/home" />;
 }

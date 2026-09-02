@@ -10,7 +10,7 @@
  *  - A cancel is NOT an error. Backing out of the Apple/Google sheet returns you here silently.
  *  - A provider that is not configured renders NO button. Never a button that cannot work.
  */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -60,6 +60,21 @@ export default function Auth() {
   const signIn = useApp((s) => s.signIn);
   const setProfile = useApp((s) => s.setProfile);
   const firstRunDoneAt = useApp((s) => s.profile.firstRunDoneAt);
+  /*
+   * WHERE TO GO AFTER SIGNING IN.
+   *
+   * `?next=paywall` means onboarding sent us here from the reveal step and is waiting to show its
+   * last screen — return to it rather than dropping the user in the app, or the paywall is skipped
+   * entirely and a brand-new user never sees the offer.
+   *
+   * Named, not an index, for the same reason startStep in onboarding.tsx is: an index would point
+   * somewhere else the moment a step moves. Anything else (the entry gate, a returning user
+   * signing back in) keeps the original destination.
+   */
+  const params = useLocalSearchParams<{ next?: string }>();
+  const backToPaywall = params.next === 'paywall';
+  const landing = (): string =>
+    backToPaywall ? '/onboarding?step=paywall' : firstRunDoneAt ? '/(tabs)/home' : '/start';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   /** null until the OS answers. The Apple button renders only on `true` — an iPad on iOS 12 or an
@@ -122,7 +137,7 @@ export default function Auth() {
     signIn();
     // A brand new account gets one concrete thing to do; a returning user signing back in must
     // never see it. The stamp lives on the profile, so it survives a relaunch.
-    router.replace(firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+    router.replace(landing() as never);
   };
 
   /**
@@ -133,6 +148,25 @@ export default function Auth() {
    */
   const enter = () => {
     if (!AUTH_ENABLED) {
+      /*
+       * AN EMAIL IS REQUIRED EVEN WITH SUPABASE OFF, and this is a deliberate change to the
+       * local-only path.
+       *
+       * It used to call land() unconditionally: tapping the button with every field blank
+       * "created an account" that wrote nothing. That was harmless while auth was the last
+       * optional screen in the app. It is not harmless now that the tab layout refuses entry
+       * without an account, because a blank submission would write no email, leave hasAccount()
+       * false, and bounce the user straight back to this screen — an unescapable loop, and the
+       * only way out of it would be deleting the app.
+       *
+       * So the local path now asks for the one field the gate reads. No password: there is no
+       * server to check it against, and demanding one would be theatre.
+       */
+      if (!email.trim()) {
+        setAuthError('Enter an email address to create your account.');
+        return;
+      }
+      setAuthError(null);
       land();
       return;
     }
@@ -209,7 +243,7 @@ export default function Auth() {
     if (h && !useApp.getState().profile.handle) patch.handle = h;
     setProfile(patch);
     signIn();
-    router.replace(firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+    router.replace(landing() as never);
   };
 
   /** Shared by both providers. `null` back means the user cancelled — that is not an error and

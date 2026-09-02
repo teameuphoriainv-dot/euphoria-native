@@ -49,16 +49,27 @@ assert.match(src, /isProNow\s*\n?\s*\?\s*"You're on Euphoria Pro"/,
 
 // 6. Completing the loader stamps profile.completedAt before the paywall. The final routing
 // decision must therefore use a value frozen on entry, not the now-mutated live profile. Otherwise
-// first-time users skip /auth, which makes the App Review credentials impossible to follow.
+// returning upsell visitors are treated as first-timers and pushed forward instead of back.
 assert.match(src, /const \[enteredWithCompletedOnboarding\] = useState\(\(\) => Boolean\(useApp\.getState\(\)\.profile\.completedAt\)\);/,
   'onboarding must freeze whether completion existed on entry; the loader mutates the live value');
-assert.match(src, /else if \(enteredWithCompletedOnboarding\) router\.back\(\);\s*else router\.replace\('\/auth'\);/,
-  'the final first-run step must route to /auth while returning upsell visitors go back');
-assert.match(src, /const dismissPaywall = \(\) => \{\s*if \(enteredWithCompletedOnboarding\) router\.replace\('\/home'\);\s*else router\.replace\('\/auth'\);\s*\};/,
-  'Maybe later must not let a first-time user bypass the reviewer sign-in screen');
+
+// 6b. THE ACCOUNT WALL SITS BEFORE THE PAYWALL.
+//
+// This pin used to assert the opposite: that the step AFTER the paywall routed to /auth. That
+// ordering made sign-up the last thing in the flow and therefore the easiest to abandon, and
+// nothing downstream required it — finishing onboarding and quitting on the auth screen left a
+// user in the app with no account. The wall moved to the reveal step, so what must be pinned is
+// that it is still there and still ahead of the purchase.
+assert.match(src, /if \(!hasAccount\(profile\)\) \{\s*router\.replace\('\/auth\?next=paywall' as never\);/,
+  'the reveal step must send an account-less user to /auth BEFORE the paywall');
+assert.doesNotMatch(src, /else router\.replace\('\/auth'\);/,
+  'no step after the paywall may route to /auth — the account is collected before it, not after');
+assert.match(src, /const dismissPaywall = \(\) => \{[\s\S]*?router\.replace\(profile\.firstRunDoneAt \? '\/\(tabs\)\/home' : \('\/start' as never\)\);\s*\};/,
+  'Maybe later must hand off to the app, not ask an already-signed-up user to sign in again');
 assert.match(src, /accessibilityLabel="Maybe later">/,
   'the dismiss control must remain reachable to App Review and assistive technology');
 
 console.log('PASS — a free trial is offered only to a non-pro user whose trial clock has not '
-  + 'started; mid-trial, expired and pro users each get their own copy and CTA; first-run dismissal '
-  + 'still reaches account setup.');
+  + 'started; mid-trial, expired and pro users each get their own copy and CTA; the account wall '
+  + 'sits before the paywall and first-run dismissal '
+  + 'hands off to the app rather than asking for a second sign-in.');

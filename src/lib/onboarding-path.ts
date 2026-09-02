@@ -80,6 +80,27 @@ export const EMPTY_PROFILE: Profile = {
   firstRunDoneAt: null,
 };
 
+/**
+ * Does this profile have an account behind it?
+ *
+ * THE ONE DEFINITION. The app gates on this in three places (the entry redirect, the tab layout,
+ * and the end of onboarding), and three hand-rolled truth tests would drift apart the first time
+ * one of them was edited.
+ *
+ * Two ways to be true, and they are not equally strong:
+ *  - `authProvider` — Apple or Google proved the identity. Set even when AUTH_ENABLED is false,
+ *    because the provider sheet still runs and still returns a stable id (auth.tsx enterWith).
+ *  - `email` — the form path. Proves nothing on its own, but it IS the account when Supabase is
+ *    not configured, which is every build shipped so far.
+ *
+ * `name` is deliberately NOT enough. It is collected in onboarding step 0 by NameStep, long before
+ * anyone is asked to sign up, so treating it as an account would hand every user a free pass
+ * through the very gate this function exists to close.
+ */
+export function hasAccount(p: Profile): boolean {
+  return Boolean(p.authProvider ?? p.email?.trim());
+}
+
 const TIER_BY_EXPERIENCE: Record<Experience, TierLevel> = {
   beginner: 'easy',
   basics: 'intermediate',
@@ -242,4 +263,12 @@ if (__DEV__) {
 
   // Every pick must be able to explain itself, or the reveal screen renders a blank reason.
   if (recommendPathDetailed(P({ goal: 'trade' })).some((x) => !x.reason)) bad('every pick needs a reason');
+
+  // hasAccount gates entry to the whole app. A false positive here does not render wrong, it
+  // silently reopens the hole it was written to close — so the name case is asserted explicitly.
+  if (hasAccount(EMPTY_PROFILE)) bad('an empty profile must not count as an account');
+  if (hasAccount(P({ name: 'Sriyan' }))) bad('a name from onboarding step 0 must NOT count as an account');
+  if (hasAccount(P({ email: '   ' }))) bad('whitespace is not an email');
+  if (!hasAccount(P({ email: 'a@b.com' }))) bad('an email is an account when Supabase is off');
+  if (!hasAccount(P({ authProvider: 'apple', authId: 'x' }))) bad('a verified provider is an account');
 }
