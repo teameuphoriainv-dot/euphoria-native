@@ -4,7 +4,7 @@
  */
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, { useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -16,6 +16,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { PremiumText, usePremiumRamp } from '@/components/ui/premium';
 import { courseAccent } from '@/lib/course-accents';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -181,8 +182,9 @@ export function PremiumBenefits() {
       <View style={pb.row}>
         <ThemedText type="label" themeColor="mutedForeground" style={pb.label}>BENEFITS</ThemedText>
         <ThemedText type="label" themeColor="mutedForeground" style={pb.col}>FREE</ThemedText>
-        {/* The one place the premium ramp is allowed to speak as a word rather than a mark. */}
-        <ThemedText type="label" style={[pb.col, { color: theme.premiumFrom }]}>PRO</ThemedText>
+        {/* The one place the premium ramp is allowed to speak as a word rather than a mark, and
+            the web fills that word with the ramp rather than painting it a flat stop. */}
+        <PremiumText type="label" style={pb.col}>PRO</PremiumText>
       </View>
       {PREMIUM_BENEFITS.map((b, i) => (
         <View
@@ -195,8 +197,11 @@ export function PremiumBenefits() {
               : <View style={[pb.dash, { backgroundColor: theme.border }]} />}
           </View>
           <View style={pb.col}>
+            {/* THREE STOPS, not two. The reference's check circles run violet at the top-left
+                through magenta to orange at the bottom-right; dropping gradientFrom left them
+                pink-to-orange, which is the same family as the web and visibly not the same mark. */}
             <LinearGradient
-              colors={[theme.premiumFrom, theme.premiumTo]}
+              colors={[theme.gradientFrom, theme.premiumFrom, theme.premiumTo]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={pb.tick}>
@@ -218,6 +223,48 @@ const pb = StyleSheet.create({
   dash: { width: 11, height: 2, borderRadius: 1 },
   tick: { width: 19, height: 19, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 });
+
+/**
+ * The plan card's frame: the premium ramp when chosen, an ordinary hairline when not.
+ *
+ * Split out rather than branched inline because a gradient border in React Native is a gradient
+ * RECTANGLE with the content inset on top of it, so selected and unselected are two different
+ * element trees, not two values of one prop. Wrapping that choice here keeps PlanCard's body a
+ * single block instead of a duplicated one.
+ *
+ * `topSquared` exists because a badge sits flush on top of the card and the ramp must not round
+ * away from underneath it.
+ */
+function PremiumBorderOrPlain({
+  selected,
+  radius,
+  topSquared,
+  style,
+  children,
+}: {
+  selected: boolean;
+  radius: number;
+  topSquared: boolean;
+  style: StyleProp<ViewStyle>;
+  children: React.ReactNode;
+}) {
+  const ramp = usePremiumRamp();
+  if (!selected) return <View style={style}>{children}</View>;
+  return (
+    <LinearGradient
+      colors={ramp}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{
+        padding: 1.5,
+        borderRadius: radius,
+        borderTopLeftRadius: topSquared ? 0 : radius,
+        borderTopRightRadius: topSquared ? 0 : radius,
+      }}>
+      <View style={style}>{children}</View>
+    </LinearGradient>
+  );
+}
 
 export function PlanCard({
   selected,
@@ -256,13 +303,31 @@ export function PlanCard({
           <ThemedText type="smallBold" style={{ color: '#fff', fontSize: FontSize.label, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
         </LinearGradient>
       ) : null}
-      <View
+      {/*
+        * THE SELECTED CARD IS EDGED IN THE RAMP, matching euphoriainv.com's Premium price card,
+        * where the chosen plan is the only one with a gradient border and the other two are plain
+        * dark. It was a flat 1.5pt theme.primary, which made the selected plan read as "the violet
+        * one" while the badge directly above it and the CTA directly below were both the ramp.
+        * Unselected keeps its hairline border exactly as before.
+        */}
+      <PremiumBorderOrPlain
+        selected={selected}
+        radius={Radius.lg}
+        topSquared={Boolean(badge)}
         style={[
           styles.plan,
           {
-            backgroundColor: selected ? theme.primary + '14' : theme.card,
-            borderColor: selected ? theme.primary : theme.border,
-            borderWidth: selected ? 1.5 : StyleSheet.hairlineWidth,
+            /*
+             * OPAQUE WHEN SELECTED. This was `theme.primary + '14'`, an 8%-alpha violet, which was
+             * correct while the border was a flat stroke and became a defect the moment the frame
+             * became a gradient: the ramp behind it showed straight through and the card rendered
+             * as a FULL gradient fill instead of a gradient-edged dark card. Caught on device --
+             * it also dropped "Works out at $6.67 a month" onto orange at unreadable contrast.
+             * The web reference is explicit: gradient border, dark interior.
+             */
+            backgroundColor: theme.card,
+            borderColor: selected ? 'transparent' : theme.border,
+            borderWidth: selected ? 0 : StyleSheet.hairlineWidth,
             borderTopLeftRadius: badge ? 0 : Radius.lg,
             borderTopRightRadius: badge ? 0 : Radius.lg,
           },
@@ -280,7 +345,7 @@ export function PlanCard({
           <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{price}</ThemedText>
           {unit ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 1 }}>{unit}</ThemedText> : null}
         </View>
-      </View>
+      </PremiumBorderOrPlain>
     </SpringPressable>
   );
 }

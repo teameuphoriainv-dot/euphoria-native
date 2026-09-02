@@ -434,7 +434,6 @@ export default function Trade() {
                       <ThemedText type="smallBold" themeColor="mutedForeground">
                         {ideaCourseTitle(idea.courseId)}
                       </ThemedText>
-                      <UIcon name="arrowRight" size={13} color={theme.mutedForeground} />
                     </View>
                   </View>
                 </SpringPressable>

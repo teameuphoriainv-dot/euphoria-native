@@ -90,7 +90,6 @@ function Row({
       <ThemedText type="body" style={danger ? { color: theme.destructive } : undefined}>{label}</ThemedText>
       <View style={styles.rowRight}>
         {children ?? (!!value && <ThemedText type="small" themeColor="mutedForeground">{value}</ThemedText>)}
-        {onPress && <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />}
       </View>
     </View>
   );

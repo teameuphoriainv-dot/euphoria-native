@@ -201,7 +201,6 @@ export default function TermMatch() {
             </ThemedText>
             <RewardPop delay={200} style={{ marginTop: Spacing.three }}>
               <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-                <UIcon name="sparkle" size={16} color={theme.iconLilac} />
                 <NumberRollup value={40} prefix="+" suffix=" XP" type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.bodyLg }} />
               </View>
             </RewardPop>

@@ -562,7 +562,6 @@ export default function You() {
                 <View style={[styles.settingRow, i < PLAY_ROWS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <UIcon name={s.icon} size={20} color={s.accent ? theme.iconLilac : theme.mutedForeground} />
                   <ThemedText type="bodyMedium" style={{ flex: 1, color: s.accent ? theme.iconLilac : theme.text }}>{s.label}</ThemedText>
-                  <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
                 </View>
               </SpringPressable>
             ))}
@@ -577,7 +576,6 @@ export default function You() {
                 <View style={[styles.settingRow, i < SETTINGS_ROWS.length - 1 && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
                   <UIcon name={s.icon} size={20} color={s.accent ? theme.iconLilac : theme.mutedForeground} />
                   <ThemedText type="bodyMedium" style={{ flex: 1, color: s.accent ? theme.iconLilac : theme.text }}>{s.label}</ThemedText>
-                  <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
                 </View>
               </SpringPressable>
             ))}

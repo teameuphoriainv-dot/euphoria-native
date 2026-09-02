@@ -505,11 +505,9 @@ export default function ChatScreen() {
               accessibilityRole="button"
               accessibilityLabel={`${left} free questions left. Go Pro for unlimited.`}
             >
-              <UIcon name="sparkle" size={16} color={theme.iconLilac} />
               <ThemedText type="small" style={{ flex: 1, color: theme.iconLilac }}>
                 {left === 1 ? '1 free question left' : `${left} free questions left`}. Go Pro for unlimited.
               </ThemedText>
-              <UIcon name="arrowRight" size={15} color={theme.iconLilac} />
             </Pressable>
           )}
 

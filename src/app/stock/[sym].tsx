@@ -385,7 +385,6 @@ export default function StockDetail() {
             <View style={[styles.newsRow, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <UIcon name="feed" size={17} color={theme.mutedForeground} />
               <ThemedText type="body" style={{ flex: 1 }}>News about {name}</ThemedText>
-              <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
             </View>
           </SpringPressable>
         </RiseIn>

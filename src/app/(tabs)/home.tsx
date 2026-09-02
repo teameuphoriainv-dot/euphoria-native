@@ -449,7 +449,6 @@ export default function Home() {
                       Lesson {next.num} of {course?.totalLessons ?? '—'} · {next.xp} XP
                     </ThemedText>
                   </View>
-                  <UIcon name="arrowRight" size={18} color={accent} />
                 </View>
               </Card>
             </SpringPressable>

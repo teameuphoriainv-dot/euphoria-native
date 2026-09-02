@@ -22,6 +22,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
+import { Atlas } from '@/components/atlas';
 import { CourseMark } from '@/components/art/course-mark';
 import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
@@ -36,7 +37,7 @@ import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { Card } from '@/components/ui/card';
+import { PremiumBorder, PremiumText } from '@/components/ui/premium';
 import { ProfileButton } from '@/components/profile-button';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
 
@@ -54,6 +55,16 @@ const SAGA_CURRENT_COLOR = '#22C55E';
 const SAGA_LOCKED_COLOR = '#17151F';
 const SAGA_UPCOMING_COLOR = '#1B1825';
 const SAGA_CHALLENGE_COLOR = '#F59E0B';
+
+/**
+ * The premium ramp, spent across the trial's three days.
+ *
+ * The exact three stops SlabButton's `premium` tone paints, in the same order, so the trial card
+ * and the paywall CTA it opens are visibly one product. Read from the theme rather than written
+ * out: theme.ts owns these values and a second copy would drift.
+ */
+const TRIAL_RAMP = (t: { gradientFrom: string; premiumFrom: string; premiumTo: string }) =>
+  [t.gradientFrom, t.premiumFrom, t.premiumTo];
 
 function sagaSegment(from: { x: number; y: number }, to: { x: number; y: number }) {
   const bend = (to.y - from.y) / 2;
@@ -322,26 +333,63 @@ export default function Learn() {
             onPress={() => router.push('/onboarding?step=paywall')}
             accessibilityRole="button"
             accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
-            <Card style={styles.trialStrip} tint={theme.primary}>
+            {/*
+              * A GRADIENT BORDER, matching the web's Premium column and price card exactly. The
+              * reference runs violet from the top-left corner to orange at the bottom-right, so
+              * the card is edged in the ramp rather than tinted with one stop of it. A tint said
+              * "pinkish"; the ramp is the thing the web has taught the user to read as Premium.
+              */}
+            <PremiumBorder radius={Radius.lg} style={styles.trialBorder}>
+            <View style={styles.trialStrip}>
+              {/*
+                * ATLAS, SAD, WHERE THE ARROW WAS.
+                *
+                * The arrow said "there is another screen" and nothing else, and it sat hard against
+                * the right edge with the whole middle of the card empty, so the strip read as a
+                * status bar rather than an offer. Atlas is the app's one character; him being sad
+                * that your trial is running out says the same thing the arrow was trying to and
+                * says it in the app's own voice.
+                *
+                * `interactive={false}` and no `idle`: the whole card is already the control, and a
+                * mascot that animates on its own here would compete with the lesson trail below.
+                */}
+              <Atlas size={44} expression="sad" interactive={false} />
               <View style={{ flex: 1 }}>
-                <ThemedText type="smallBold">Free trial · day {trialDay} of {TRIAL_DAYS}</ThemedText>
+                {/*
+                  * THE PREMIUM COLOURWAY, and this is the surface it is reserved for.
+                  *
+                  * theme.ts warns that the pink-to-orange ramp is the one colour that MEANS
+                  * Premium and that spending it on an ordinary CTA wastes it. This card's only
+                  * job is to sell Premium, so it is the correct place for it, and it now matches
+                  * the paywall it opens instead of arriving as a violet surprise.
+                  */}
+                <PremiumText type="heading">Unlock Premium</PremiumText>
+                <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 1 }}>
+                  Day {trialDay} of {TRIAL_DAYS} on your free trial
+                </ThemedText>
                 <View style={styles.trialDots}>
+                  {/*
+                    * THE RAMP, SPENT ACROSS THE THREE DAYS. Filled days walk
+                    * gradientFrom -> premiumFrom -> premiumTo, the exact stops SlabButton's
+                    * premium tone paints, so the strip WARMS toward the offer as the trial runs
+                    * down. The colour is doing the same work as the copy rather than decorating it.
+                    */}
                   {Array.from({ length: TRIAL_DAYS }, (_, i) => (
                     <View
                       key={i}
                       style={[
                         styles.trialDot,
                         {
-                          backgroundColor: i < trialDay ? theme.primary : 'transparent',
-                          borderColor: i < trialDay ? theme.primary : theme.border,
+                          backgroundColor: i < trialDay ? TRIAL_RAMP(theme)[i] : 'transparent',
+                          borderColor: i < trialDay ? TRIAL_RAMP(theme)[i] : theme.border,
                         },
                       ]}
                     />
                   ))}
                 </View>
               </View>
-              <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
-            </Card>
+            </View>
+            </PremiumBorder>
           </SpringPressable>
         </RiseIn>
       )}
@@ -616,9 +664,18 @@ export default function Learn() {
 
 const styles = StyleSheet.create({
   /* Carried over verbatim from home.tsx with the strip itself. */
-  trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three, marginHorizontal: Spacing.three, marginBottom: Spacing.two },
-  trialDots: { flexDirection: 'row', gap: 6, marginTop: 6 },
-  trialDot: { width: 26, height: 5, borderRadius: Radius.track, borderWidth: 1 },
+  /* The border owns the outer margins; the row owns the padding inside it. */
+  trialBorder: { marginHorizontal: Spacing.three, marginBottom: Spacing.two },
+  trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three, paddingHorizontal: Spacing.three },
+  /*
+   * THE TRACK SPANS THE COLUMN. The three days were a fixed 26pt each, so they filled about a
+   * fifth of the row and left the middle of the card visibly empty next to Atlas -- the card read
+   * as unfinished rather than compact. `flex: 1` per day makes the three segments a progress track
+   * the width of the text above them, which is also what makes the ramp legible: three stops
+   * spread across 26pt are three dots, spread across the column they are a gradient you can read.
+   */
+  trialDots: { flexDirection: 'row', gap: 5, marginTop: 8, alignSelf: 'stretch' },
+  trialDot: { flex: 1, height: 6, borderRadius: Radius.track, borderWidth: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },

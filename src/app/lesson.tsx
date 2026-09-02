@@ -955,7 +955,6 @@ export default function Lesson() {
             <View style={styles.rewardRow}>
               <RewardPop delay={1180}>
                 <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-                  <UIcon name="sparkle" size={18} color={theme.iconLilac} />
                   <NumberRollup value={xp} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.subhead }} />
                 </View>
               </RewardPop>

@@ -26,7 +26,6 @@ import Svg, { Path } from 'react-native-svg';
 import { Atlas } from '@/components/atlas';
 import { AtlasSpeech, Typewriter } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -225,7 +224,6 @@ export function AtlasIntro({ visible, onDone }: { visible: boolean; onDone: () =
               accessibilityRole="button"
               accessibilityLabel="Skip the introduction">
               <ThemedText type="smallBold" style={styles.buttonText}>Skip</ThemedText>
-              <UIcon name="arrowRight" size={14} color="#FFFFFF" />
             </SpringPressable>
           ) : null}
         </>
@@ -249,7 +247,6 @@ export function AtlasIntro({ visible, onDone }: { visible: boolean; onDone: () =
               accessibilityRole="button"
               accessibilityLabel="Got it">
               <ThemedText type="smallBold" style={styles.buttonText}>Got it</ThemedText>
-              <UIcon name="arrowRight" size={15} color="#FFFFFF" />
             </SpringPressable>
           </Animated.View>
         </View>

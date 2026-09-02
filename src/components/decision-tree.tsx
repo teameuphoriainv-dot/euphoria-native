@@ -180,7 +180,6 @@ export function DecisionTree({ spec, onComplete }: { spec: DecisionTreeSpec; onC
                   <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
                     {decisionTreeNextLabel(selected, spec.decisions.length)}
                   </ThemedText>
-                  <UIcon name="arrowRight" size={16} color={theme.iconLilac} />
                 </View>
               </SpringPressable>
             </Animated.View>

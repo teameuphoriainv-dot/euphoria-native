@@ -151,7 +151,6 @@ export default function Search() {
                   {h.sym}{h.exchange ? ` · ${h.exchange}` : ''}
                 </ThemedText>
               </View>
-              <UIcon name="arrowRight" size={16} color={theme.mutedForeground} />
             </View>
           </SpringPressable>
           </RiseIn>

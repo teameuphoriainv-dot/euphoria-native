@@ -263,7 +263,6 @@ export function AtlasConversation({
                 accessibilityLabel={nextLabel}
                 style={[styles.next, { backgroundColor: theme.primary }]}>
                 <ThemedText type="smallBold" style={styles.nextText}>{nextLabel}</ThemedText>
-                <UIcon name="arrowRight" size={16} color="#FFFFFF" />
               </SpringPressable>
             </Animated.View>
           ) : null}
@@ -290,7 +289,6 @@ export function VocabConversation({
           accessibilityLabel="Continue"
           style={[styles.next, { backgroundColor: '#A650E7' }]}>
           <ThemedText type="smallBold" style={styles.nextText}>Continue</ThemedText>
-          <UIcon name="arrowRight" size={16} color="#FFFFFF" />
         </SpringPressable>
       </View>
     );

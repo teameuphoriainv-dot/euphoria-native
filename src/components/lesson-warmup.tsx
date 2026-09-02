@@ -86,7 +86,6 @@ export function LessonWarmup({
             <ThemedText type="bodyMedium" style={styles.buttonText}>
               {available.length ? 'Warm up' : 'Start lesson'}
             </ThemedText>
-            <UIcon name="arrowRight" size={16} color="#FFFFFF" />
           </SpringPressable>
         </Animated.View>
       ) : current ? (
@@ -164,7 +163,6 @@ export function LessonWarmup({
                 <ThemedText type="bodyMedium" style={styles.buttonText}>
                   {beat < available.length ? 'Next' : 'Start lesson'}
                 </ThemedText>
-                <UIcon name="arrowRight" size={16} color="#FFFFFF" />
               </SpringPressable>
             </View>
           ) : null}

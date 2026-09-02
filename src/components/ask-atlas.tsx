@@ -27,7 +27,6 @@ import {
   lessonAtlasProactivePrompt,
 } from '@/components/lesson-atlas-sheet-model';
 import { ThemedText } from '@/components/themed-text';
-import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { AtlasLessonContext } from '@/lib/atlas-lesson-context';
@@ -174,7 +173,6 @@ export function AskAtlasRow({ topic, label, context }: { topic?: string; label?:
             Ask Atlas about {topic ?? 'this'}
           </ThemedText>
         </View>
-        <UIcon name="arrowRight" size={17} color={theme.iconLilac} />
       </View>
     </SpringPressable>
   );
