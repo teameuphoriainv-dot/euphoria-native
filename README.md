@@ -35,11 +35,19 @@ $500k/mo or more in the comparator pull, nine were Education and one was Finance
 against those.
 
 A companion web app at `euphoriainv.com` serves the identical curriculum, and the two are kept in
-provable lockstep. See [Curriculum and parity](#curriculum-and-parity).
+provable lockstep. See [Curriculum and parity](#curriculum-parity).
 
----
+## Screens
 
-## Start here
+Captured from the shipping build with `npm run screenshots:store`, not mocked. These are the six
+tiles on the App Store listing.
+
+| | | |
+|:--:|:--:|:--:|
+| <img src="docs/media/01-intro.png" width="240"><br>**Money, finally explained**<br><sub>Twelve pathways, 300 lessons</sub> | <img src="docs/media/02-explain.png" width="240"><br>**See the why**<br><sub>Tap any figure, Atlas explains it</sub> | <img src="docs/media/03-path.png" width="240"><br>**300 lessons. One path.**<br><sub>First principles to wealth management</sub> |
+| <img src="docs/media/04-home.png" width="240"><br>**Build a money habit**<br><sub>Daily goals, streaks, quests</sub> | <img src="docs/media/05-paper-trade.png" width="240"><br>**Practice without risk**<br><sub>Live market data, virtual cash</sub> | <img src="docs/media/06-atlas.png" width="240"><br>**Meet your money coach**<br><sub>Atlas, on every screen</sub> |
+
+## What it is
 
 **Prerequisites:** Node 24 or newer, Xcode with an iOS simulator, `eas-cli`.
 `scripts/sim.sh doctor` checks the rest (ffmpeg, idb, maestro, cliclick, Pillow, numpy).
@@ -59,20 +67,8 @@ switched off rather than showing invented data. See [Environment](#environment).
 | | |
 |---|---|
 | **Contents** | [Product facts](#product-facts) · [Layout](#repository-layout) · [Architecture](#architecture) · [Environment](#environment) |
-| | [Curriculum and parity](#curriculum-and-parity) · [Quality gates](#quality-gates) · [Deployment](#deployment) |
-| | [Traps](#traps-that-have-cost-real-time) · [Known open items](#known-open-items) |
-
----
-
-## Screens
-
-Captured from the shipping build with `npm run screenshots:store`, not mocked. These are the six
-tiles on the App Store listing.
-
-| | | |
-|:--:|:--:|:--:|
-| <img src="docs/media/01-intro.png" width="240"><br>**Money, finally explained**<br><sub>Twelve pathways, 300 lessons</sub> | <img src="docs/media/02-explain.png" width="240"><br>**See the why**<br><sub>Tap any figure, Atlas explains it</sub> | <img src="docs/media/03-path.png" width="240"><br>**300 lessons. One path.**<br><sub>First principles to wealth management</sub> |
-| <img src="docs/media/04-home.png" width="240"><br>**Build a money habit**<br><sub>Daily goals, streaks, quests</sub> | <img src="docs/media/05-paper-trade.png" width="240"><br>**Practice without risk**<br><sub>Live market data, virtual cash</sub> | <img src="docs/media/06-atlas.png" width="240"><br>**Meet your money coach**<br><sub>Atlas, on every screen</sub> |
+| | [Curriculum and parity](#curriculum-parity) · [Quality gates](#what-each-gate-runs) · [Deployment](#deploying-the-api-routes) |
+| | [Traps](#traps-that-have-cost-real-time) · [Known open items](#known-issues-and-traps) |
 
 ## By the numbers
 
@@ -141,19 +137,7 @@ The long tail is deliberate. `decisionTree` appears once and `concept` twice; th
 specific lesson needed them, not because the format was worth generalising. The top five kinds
 carry 44% of the curriculum.
 
-## Targets
-
-Goals, not achievements. Nothing in this section is a current metric — the tables above are.
-
-| | Today | Target |
-|---|---|---|
-| MRR | pre-launch | **$100k** |
-| Daily revenue | pre-launch | **$100k** |
-| Users | pre-launch | **100k → 1M** |
-| Instagram | building | **50k followers** |
-| App Store | **submitted, in review** | ranked in Education |
-
-## Product facts
+### Product facts
 
 | | |
 |---|---|
@@ -169,58 +153,6 @@ which must agree across `app.json`, `src/lib/widget.ts` and `targets/widget/inde
 widget silently reads nothing. `android.package` is the distinct `com.euphoria.native`, a separate
 and unaudited Play listing. EAS project `@s-k-28/euphoria-native`. Apple team `9SS423KXF5`.
 App Store Connect app `6761808087`.
-
----
-
-## Repository layout
-
-```
-src/
-  app/            42 files, expo-router file-based routing
-    api/          chat+api.ts, market+api.ts, options+api.ts, the only server code in the app
-    (tabs)/       home, learn, trade, digest, games, the signed-in shell
-    digest/ stock/ settings/ explore/ games/
-                  you.tsx lives at the top level, NOT in (tabs): profile is a place you
-                  visit, not a thing you do, and five tab slots is the practical maximum
-  components/     77 files (72 at the top level), Atlas, lesson renderers, sheets, charts, UI
-  lib/            111 files (73 at the top level), store, entitlement, auth, curriculum, analytics
-    server/       code that runs inside the API routes (rate limiting, provider calls)
-  constants/      theme.ts, lesson-design.ts, spacing/radius/font tokens
-  hooks/          use-theme.ts, use-mastery-hints.ts
-  shared/motion/  spring-pressable, number-rollup, reward-pop, sheet-entrance, step-transition
-scripts/          176 files (148 at the top level), regressions, pins, parity checks, simulator
-                  drivers, curriculum/digest sync, release tooling (anim/, parity/, rive/ subdirs)
-targets/widget/   the iOS widget: Info.plist, expo-target.config.js, index.swift
-docs/status/      the living status record this README's claims are drawn from
-refs/             submission history, shipping notes, planning documents
-goldie/           App Store screenshot capture configuration
-```
-
-### Modules to read before you edit
-
-Six single-purpose files in `src/lib/`, each holding one rule that used to be duplicated:
-
-| File | The rule |
-|---|---|
-| `lib/cost-basis.ts` | average cost through buys, sells and grants |
-| `lib/portfolio-value.ts` | cash + shares at mark + contracts at cost |
-| `lib/billing-retry.ts` | `ENTITLEMENT_ID = 'Euphoria Pro'` and a 16-day billing-retry grace window |
-| `lib/day-keys.ts` | local day keys, Monday weeks, the streak rule |
-| `lib/trial-reward.ts` | when a discounted-offer trial reward may fire |
-| `lib/dismissal-offer.ts` | when a dismissal offer may fire |
-
-And four more worth knowing:
-
-- **`lib/entitlement.ts`** is the single authority on trial/expired/pro state. `tier()` orders pro
-  first, so a payer never sees a countdown.
-- **`lib/store.ts`** is 1,377 lines, and anything added to its state must also be added to
-  `partialize` or it will not survive a restart. The file says so in its own header.
-- **`lib/purchases.ts`** is the only writer of `isPro`, and only from a successful `customerInfo`
-  read, so a network failure can never revoke a paying member.
-- **`lib/server/limit.ts`** is an in-memory rate limiter, per-isolate on Cloudflare Workers. Its own
-  comments say it is weak against a distributed client.
-
----
 
 ## Architecture
 
@@ -290,7 +222,55 @@ promise Apple it exists, and a client-side guard is a suggestion, not a guarante
 
 ---
 
-## Development
+### Repository layout
+
+```
+src/
+  app/            42 files, expo-router file-based routing
+    api/          chat+api.ts, market+api.ts, options+api.ts, the only server code in the app
+    (tabs)/       home, learn, trade, digest, games, the signed-in shell
+    digest/ stock/ settings/ explore/ games/
+                  you.tsx lives at the top level, NOT in (tabs): profile is a place you
+                  visit, not a thing you do, and five tab slots is the practical maximum
+  components/     77 files (72 at the top level), Atlas, lesson renderers, sheets, charts, UI
+  lib/            111 files (73 at the top level), store, entitlement, auth, curriculum, analytics
+    server/       code that runs inside the API routes (rate limiting, provider calls)
+  constants/      theme.ts, lesson-design.ts, spacing/radius/font tokens
+  hooks/          use-theme.ts, use-mastery-hints.ts
+  shared/motion/  spring-pressable, number-rollup, reward-pop, sheet-entrance, step-transition
+scripts/          176 files (148 at the top level), regressions, pins, parity checks, simulator
+                  drivers, curriculum/digest sync, release tooling (anim/, parity/, rive/ subdirs)
+targets/widget/   the iOS widget: Info.plist, expo-target.config.js, index.swift
+docs/status/      the living status record this README's claims are drawn from
+refs/             submission history, shipping notes, planning documents
+goldie/           App Store screenshot capture configuration
+```
+
+### Modules to read before you edit
+
+Six single-purpose files in `src/lib/`, each holding one rule that used to be duplicated:
+
+| File | The rule |
+|---|---|
+| `lib/cost-basis.ts` | average cost through buys, sells and grants |
+| `lib/portfolio-value.ts` | cash + shares at mark + contracts at cost |
+| `lib/billing-retry.ts` | `ENTITLEMENT_ID = 'Euphoria Pro'` and a 16-day billing-retry grace window |
+| `lib/day-keys.ts` | local day keys, Monday weeks, the streak rule |
+| `lib/trial-reward.ts` | when a discounted-offer trial reward may fire |
+| `lib/dismissal-offer.ts` | when a dismissal offer may fire |
+
+And four more worth knowing:
+
+- **`lib/entitlement.ts`** is the single authority on trial/expired/pro state. `tier()` orders pro
+  first, so a payer never sees a countdown.
+- **`lib/store.ts`** is 1,377 lines, and anything added to its state must also be added to
+  `partialize` or it will not survive a restart. The file says so in its own header.
+- **`lib/purchases.ts`** is the only writer of `isPro`, and only from a successful `customerInfo`
+  read, so a network failure can never revoke a paying member.
+- **`lib/server/limit.ts`** is an in-memory rate limiter, per-isolate on Cloudflare Workers. Its own
+  comments say it is weak against a distributed client.
+
+## Getting started
 
 ```bash
 npm install
@@ -302,7 +282,7 @@ expo-router 57, zustand 5, Reanimated 4.5, Skia 2.6, Supabase JS 2.112.
 
 The three failure modes that cost the most time here are in [Traps that have cost real time](#traps-that-have-cost-real-time).
 
-## Environment
+### Environment
 
 Two classes, and confusing them is the classic mistake.
 
@@ -322,9 +302,7 @@ Two classes, and confusing them is the classic mistake.
 `.env.local` is gitignored, as are `*.p8`, `*.pem`, `.secrets/` and `dist/`. `.env.example` holds
 placeholders only and is the authoritative list, so read it rather than trusting this table.
 
----
-
-## Build profiles
+## Build and release
 
 | Profile | Distribution | Channel | Notes |
 |---|---|---|---|
@@ -344,7 +322,7 @@ npm run test:reviewer     # 5 Maestro flows on a simulator
 including the traps that have already cost a rejection, is in
 [docs/status/APP_STORE_SUBMISSION.md](docs/status/APP_STORE_SUBMISSION.md).
 
-## Deployment
+### Deploying the API routes
 
 **This sequence is exact and each step is load-bearing.** Getting it wrong produces a *successful*
 deploy serving `503 not_configured`, which reads as a bad key and sends you after the wrong problem.
@@ -377,62 +355,7 @@ export time is absent from the Worker no matter what the code does at runtime.
 
 OTA updates: `npm run ota` runs `eas update --branch production --environment production`.
 
----
-
-## Curriculum and parity
-
-Twelve courses of twenty-five lessons: investing fundamentals, personal finance, global economics,
-corporate finance, business strategy, financial analytics, behavioural finance, applied accounting,
-quantitative analysis, risk management, alternative investments, wealth management.
-
-| Quantity | Count | Source |
-|---|---:|---|
-| Courses x lessons | 12 x 25 = **300 lessons** | `docs/status/WEB_NATIVE_PARITY_EVIDENCE.md` |
-| Authored steps (raw, before UI expansion) | **5,336** | same, section 2, matched native against web per course |
-| Rendered lesson screens | **4,050** | `npm run parity:structure` |
-| Mastery-challenge screens | **1,770** | `scripts/mastery-challenge-parity-regression.mjs` |
-| Total happy-path screens | **5,820** | derived |
-
-Parity is enforced two ways:
-
-- **`npm run parity:structure`** runs offline. It runs `expandSteps()` on native's curriculum,
-  compares the result one-to-one against how the web `PathwayLessonViewer` renders `lesson.steps`,
-  and checks every screen matches by index *and* step kind across all 300 lessons. It is part of
-  `npm run check`, so a change to native's expansion logic fails the build.
-- **`npm run parity:web`** resolves the web app's actual deployed chunk graph, imports the course
-  chunks in Node, canonically serialises each course, SHA-256 hashes both sides and compares. It
-  checks the artifact production actually serves, not a git ref. A stale pin, an unpushed branch and
-  a diverged branch each produced a false mismatch before this method was adopted.
-
-**What parity does not prove.** Both checks compare *data*, meaning lesson content and screen order,
-not *rendering*. `docs/status/IOS_RENDERING_QA.md` exists because both stayed green through several
-rendering defects, including one that scored correct answers as wrong on iOS only. Content parity is
-not rendering correctness. Treat them as separate claims.
-
----
-
-## Quality gates
-
-`npm run check` chains **58** node/npx/python3 invocations, ending in
-`npx eslint src scripts --max-warnings 45`. A separate `npm run precheck` chains **26** more that
-are not part of `check`.
-
-| Command | Proves |
-|---|---|
-| `npm run check` | Every regression, pin and lint rule passes. The gate a change must clear before landing |
-| `npm run parity:structure` | Native's rendered lesson screens match the web player's, index for index and kind for kind, offline |
-| `npm run parity:web` | Native's curriculum source is byte-identical to what production serves, by SHA-256 over the deployed bundle |
-| `npm run test:mastery-challenge` | The 1,770 mastery-challenge screens match their web counterpart |
-| `npm run curriculum:check` | The curriculum sync from the web repo is current and semantically unchanged where it should be |
-
-**On pins.** A pin that has never been watched failing is not a pin, it is a comment that runs.
-`reduced_motion_audit.py` once shipped printing `[DEFECT]` and exiting 0, so it had never failed in
-its life and nobody knew. Break every new check deliberately, watch it exit non-zero, then restore
-it. See `CONSTITUTION.md`.
-
----
-
-## Proving it works
+## Verification
 
 Three gates, each catching a class the others cannot. They exist because each one was added
 after something got through.
@@ -475,7 +398,95 @@ one composite element, and placeholders are never exposed. Asserting on those fa
 perfectly healthy screen, which reads as a product bug and is not one. Verify by screenshot
 before believing a failure.
 
-## Traps that have cost real time
+### What each gate runs
+
+`npm run check` chains **58** node/npx/python3 invocations, ending in
+`npx eslint src scripts --max-warnings 45`. A separate `npm run precheck` chains **26** more that
+are not part of `check`.
+
+| Command | Proves |
+|---|---|
+| `npm run check` | Every regression, pin and lint rule passes. The gate a change must clear before landing |
+| `npm run parity:structure` | Native's rendered lesson screens match the web player's, index for index and kind for kind, offline |
+| `npm run parity:web` | Native's curriculum source is byte-identical to what production serves, by SHA-256 over the deployed bundle |
+| `npm run test:mastery-challenge` | The 1,770 mastery-challenge screens match their web counterpart |
+| `npm run curriculum:check` | The curriculum sync from the web repo is current and semantically unchanged where it should be |
+
+**On pins.** A pin that has never been watched failing is not a pin, it is a comment that runs.
+`reduced_motion_audit.py` once shipped printing `[DEFECT]` and exiting 0, so it had never failed in
+its life and nobody knew. Break every new check deliberately, watch it exit non-zero, then restore
+it. See `CONSTITUTION.md`.
+
+## Curriculum parity
+
+Twelve courses of twenty-five lessons: investing fundamentals, personal finance, global economics,
+corporate finance, business strategy, financial analytics, behavioural finance, applied accounting,
+quantitative analysis, risk management, alternative investments, wealth management.
+
+| Quantity | Count | Source |
+|---|---:|---|
+| Courses x lessons | 12 x 25 = **300 lessons** | `docs/status/WEB_NATIVE_PARITY_EVIDENCE.md` |
+| Authored steps (raw, before UI expansion) | **5,336** | same, section 2, matched native against web per course |
+| Rendered lesson screens | **4,050** | `npm run parity:structure` |
+| Mastery-challenge screens | **1,770** | `scripts/mastery-challenge-parity-regression.mjs` |
+| Total happy-path screens | **5,820** | derived |
+
+Parity is enforced two ways:
+
+- **`npm run parity:structure`** runs offline. It runs `expandSteps()` on native's curriculum,
+  compares the result one-to-one against how the web `PathwayLessonViewer` renders `lesson.steps`,
+  and checks every screen matches by index *and* step kind across all 300 lessons. It is part of
+  `npm run check`, so a change to native's expansion logic fails the build.
+- **`npm run parity:web`** resolves the web app's actual deployed chunk graph, imports the course
+  chunks in Node, canonically serialises each course, SHA-256 hashes both sides and compares. It
+  checks the artifact production actually serves, not a git ref. A stale pin, an unpushed branch and
+  a diverged branch each produced a false mismatch before this method was adopted.
+
+**What parity does not prove.** Both checks compare *data*, meaning lesson content and screen order,
+not *rendering*. `docs/status/IOS_RENDERING_QA.md` exists because both stayed green through several
+rendering defects, including one that scored correct answers as wrong on iOS only. Content parity is
+not rendering correctness. Treat them as separate claims.
+
+## Targets
+
+Goals, not achievements. Nothing in this section is a current metric — the tables above are.
+
+| | Today | Target |
+|---|---|---|
+| MRR | pre-launch | **$100k** |
+| Daily revenue | pre-launch | **$100k** |
+| Users | pre-launch | **100k → 1M** |
+| Instagram | building | **50k followers** |
+| App Store | **submitted, in review** | ranked in Education |
+
+## Known issues and traps
+
+From `docs/status/IOS_RENDERING_QA.md`, the log of defects the parity checks cannot catch. Six are
+already fixed: a mislabelled stakes card, a contrast failure on the primary button, a missing
+VoiceOver reveal-state label, a Digest exit that threw `GO_BACK was not handled`, a crash from
+duplicate React keys on every `MatchingPairs` render, and a divergence where matching exercises
+scored correct answers wrong on iOS only.
+
+| Item | Severity | State |
+|---|---|---|
+| Vocabulary conversation leaves roughly 60% of the screen empty | Needs a decision, not a fix | Confirmed on `applied-accounting--01`, step 6/15, settled state. The layout may be intentional parity with web; that comparison has not been done |
+| CTA placement is inconsistent between step types | Needs a decision | The conversation step's advance button sits at y 321; other step types place it at y 694 to 746, a 370pt jump inside one lesson |
+| Type ramp has 20 steps against a 12-step healthy ceiling | Lower | Unfixed |
+| 6 number formats are not locale-pinned | Lower | Same value can render differently per device |
+| 3 screens have no empty state, 1 has error handling but no retry | Lower | Unfixed |
+| Inline term-popover accessibility labels never reach VoiceOver | Lower | `accessibilityLabel` is set on a nested `<Text>`; iOS surfaces a nested text link by its text content and discards the child's label. Authored 432 times |
+
+Reduced motion is the one dimension logged clean: 0 unguarded vestibular defects, 46 of 59 animated
+files explicitly guarded, the remaining 13 correctly exempt (opacity cross-fades and touch-bound
+press feedback).
+
+---
+
+**Also:** [CHANGELOG.md](CHANGELOG.md) · [CONSTITUTION.md](CONSTITUTION.md) ·
+[AGENTS.md](AGENTS.md) · [refs/SECURITY_REVIEW.md](refs/SECURITY_REVIEW.md) ·
+[docs/status/](docs/status/)
+
+### Traps that have cost real time
 
 Every one of these was discovered the expensive way.
 
@@ -515,31 +526,4 @@ the limiter's buckets empty every time. Verify limits against an exported bundle
 message that iOS 26.5 "is not installed". `xcodebuild -downloadPlatform iOS` fixes it, at 8.5 GB.
 
 ---
-
-## Known open items
-
-From `docs/status/IOS_RENDERING_QA.md`, the log of defects the parity checks cannot catch. Six are
-already fixed: a mislabelled stakes card, a contrast failure on the primary button, a missing
-VoiceOver reveal-state label, a Digest exit that threw `GO_BACK was not handled`, a crash from
-duplicate React keys on every `MatchingPairs` render, and a divergence where matching exercises
-scored correct answers wrong on iOS only.
-
-| Item | Severity | State |
-|---|---|---|
-| Vocabulary conversation leaves roughly 60% of the screen empty | Needs a decision, not a fix | Confirmed on `applied-accounting--01`, step 6/15, settled state. The layout may be intentional parity with web; that comparison has not been done |
-| CTA placement is inconsistent between step types | Needs a decision | The conversation step's advance button sits at y 321; other step types place it at y 694 to 746, a 370pt jump inside one lesson |
-| Type ramp has 20 steps against a 12-step healthy ceiling | Lower | Unfixed |
-| 6 number formats are not locale-pinned | Lower | Same value can render differently per device |
-| 3 screens have no empty state, 1 has error handling but no retry | Lower | Unfixed |
-| Inline term-popover accessibility labels never reach VoiceOver | Lower | `accessibilityLabel` is set on a nested `<Text>`; iOS surfaces a nested text link by its text content and discards the child's label. Authored 432 times |
-
-Reduced motion is the one dimension logged clean: 0 unguarded vestibular defects, 46 of 59 animated
-files explicitly guarded, the remaining 13 correctly exempt (opacity cross-fades and touch-bound
-press feedback).
-
----
-
-**Also:** [CHANGELOG.md](CHANGELOG.md) · [CONSTITUTION.md](CONSTITUTION.md) ·
-[AGENTS.md](AGENTS.md) · [refs/SECURITY_REVIEW.md](refs/SECURITY_REVIEW.md) ·
-[docs/status/](docs/status/)
 
