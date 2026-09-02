@@ -159,6 +159,73 @@ with you.
 `index funds`, `first paycheck`, `custodial account`, `teach kids money`. Each search returns
 neighbours the last one missed.
 
+## Verified rules, and what they mean for a paid app
+
+**Check any subreddit's real rules yourself** — do not trust a blog list:
+
+```
+https://www.reddit.com/r/<subreddit>/about/rules.json
+```
+
+Must be opened while logged in; Reddit blocks anonymous requests to it.
+
+### r/investingforbeginners — verified 2026-09-02
+
+The best-fit subreddit on this list, and its second rule is the one that matters:
+
+> **No Soliciting.** *"Do not solicit paid services. This includes linking to videos, blogs or
+> websites that demonstrate a trading strategy which then forwards to a paid service."*
+
+Euphoria is a paid subscription. **Linking it here is a removal**, and the rule explicitly covers
+the indirect route — a piece of content that forwards to a paid service. The "post a case study
+and plug your product at the end" tactic is the exact pattern this rule names.
+
+Its other rules that shape what you can post:
+
+| Rule | Effect on us |
+|---|---|
+| No low-effort posts; opinions backed by facts, links preferred | Long-form with sources works. A launch announcement does not. |
+| Keep things professional | No meme framing. |
+| All advice in good faith | Fine — but it means mods read intent. |
+| Mods may remove anything at discretion | There is no rules-lawyering your way in. |
+
+### What this changes
+
+The honest conclusion: **in the audience subs, Euphoria cannot be promoted at all.** Not
+subtly, not at the end of a helpful post, not via a blog that links onward. The most valuable
+sub on the list prohibits precisely the technique that a promotional playbook would recommend.
+
+That leaves two legitimate routes, and they are the only two:
+
+1. **Be useful with no link, indefinitely.** Answer beginner questions in r/investingforbeginners,
+   r/Bogleheads and r/IWantToLearn as a person who knows the material. No product mention, no
+   profile funnel, no "I built something for this". The return is slow and real: you learn the
+   exact words people use for their confusion, and you build the account history that makes a
+   later post in a *launch* sub credible.
+2. **Promote only where promotion is allowed.** r/SideProject, r/iosapps, r/iOSProgramming,
+   r/AlphaAndBetaUsers. These exist for it. The traffic is smaller and buys fewer retained users,
+   but nothing there is against the rules.
+
+### On the storyline technique
+
+Value-first storytelling is genuinely how good Reddit posts are written, and it is the right
+shape for the launch subs: open with the problem, tell what you found, mention the product late.
+
+It is **not** a way around a No Soliciting rule. Mods for finance subs see that structure daily
+and read it for what it is. A post whose purpose is the last paragraph gets removed on intent,
+and the rule above is written to say exactly that. Use the technique where promotion is
+permitted; do not use it as camouflage where it is not.
+
+### One account
+
+Reddit permits alts. It does not permit using several accounts to promote the same thing —
+that is coordinated inauthentic behaviour, and detection correlates accounts by posting pattern,
+timing and device. When a pair is flagged both are usually banned, and the product's domain gets
+filtered sitewide, which cannot be appealed easily.
+
+One account, real history, is also what actually works. The founder in the transcript did it
+with one.
+
 ## Sequence
 
 1. **Weeks 1–3, no promotion.** One real account. Comment usefully in audience subs. Aim for
