@@ -20,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
-import { BottomTabInset, FontSize, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, FontSize, Radius, Spacing, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Atlas } from '@/components/atlas';
 import { ATLAS_AVATAR_ID, CHARACTER_AVATARS, MARK_AVATARS, type Avatar } from '@/lib/avatars';
@@ -287,6 +287,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.one },
   scroll: { paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.six },
   input: {
+    fontFamily: Fonts.body,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.three,

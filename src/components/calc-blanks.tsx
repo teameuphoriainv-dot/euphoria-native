@@ -167,7 +167,15 @@ const styles = StyleSheet.create({
     width: 116,
     minHeight: 42,
     paddingHorizontal: 12,
-    fontFamily: Fonts.mono,
+    /*
+     * DM SANS, not mono. `Fonts.mono` resolves to `ui-monospace`, which is a SYSTEM face on iOS,
+     * so this field was the one input in a lesson rendering outside the brand entirely. Monospace
+     * was presumably picked so digits align in a column, but the field is 116pt wide and holds a
+     * short numeric answer, so there is no column to align.
+     *
+     * Revert to Fonts.mono if a longer numeric entry ever lands here and the ragged digits show.
+     */
+    fontFamily: Fonts.body,
     fontSize: FontSize.small,
     textAlign: 'right',
   },

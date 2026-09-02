@@ -26,7 +26,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import {
   ALL_DIGEST_CATEGORIES as DIGEST_CATEGORIES,
   ALL_DIGEST_POSTS as DIGEST_POSTS,
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     marginTop: Spacing.two,
   },
-  searchInput: { flex: 1, fontSize: FontSize.bodySm, padding: 0 },
+  searchInput: { flex: 1, fontSize: FontSize.bodySm, padding: 0, fontFamily: Fonts.body },
 
   list: { marginTop: Spacing.two + 2, gap: Spacing.two },
   guide: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, padding: Spacing.two },

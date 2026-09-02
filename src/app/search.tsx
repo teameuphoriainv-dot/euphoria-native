@@ -20,7 +20,7 @@ import { SkeletonRows } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
 import { UIcon } from '@/components/ui-icon';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { searchTickers, type TickerHit } from '@/lib/market';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     // while letting the field grow — the same shape the price chart's fixed 120pt plot had.
     minHeight: 44,
   },
-  input: { flex: 1, fontSize: FontSize.bodySm },
+  input: { flex: 1, fontSize: FontSize.bodySm, fontFamily: Fonts.body },
   list: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six },
   hint: { textAlign: 'center', marginTop: Spacing.four },
   row: {

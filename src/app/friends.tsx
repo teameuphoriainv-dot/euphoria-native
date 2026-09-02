@@ -22,7 +22,7 @@ import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { tierForXp } from '@/lib/league';
 import { PEOPLE, type Person } from '@/lib/people';
@@ -226,6 +226,6 @@ const styles = StyleSheet.create({
   avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   num: { fontVariant: ['tabular-nums'] },
   btn: { paddingHorizontal: Spacing.two + 4, paddingVertical: 7, borderRadius: Radius.pill, borderWidth: StyleSheet.hairlineWidth, minWidth: 84, alignItems: 'center' },
-  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.two + 4, paddingVertical: 10, fontSize: FontSize.bodySm, marginBottom: Spacing.two },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.two + 4, paddingVertical: 10, fontSize: FontSize.bodySm, marginBottom: Spacing.two, fontFamily: Fonts.body },
   empty: { paddingVertical: Spacing.two, lineHeight: 20 },
 });

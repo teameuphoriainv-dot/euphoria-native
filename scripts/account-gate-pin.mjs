@@ -80,6 +80,17 @@ assert.match(auth, /backToPaywall \? '\/onboarding\?step=paywall'/,
 assert.match(auth, /if \(!email\.trim\(\)\) \{\s*setAuthError\('Enter an email address to create your account\.'\);/,
   'the AUTH_ENABLED=false path must require an email, or the account gate becomes an infinite loop');
 
+// ── 5b. "Signed out? Sign back in" is NOT the sign-up button ─────────────────────────────────
+// The control shared `enter` with Sign up, which was harmless until Sign up started requiring an
+// email. Then a signed-out user with a saved profile and an empty form was told to "create your
+// account" and could not get back in -- reported from a device with a screenshot. signOut only
+// flips `signedIn` (store.ts) and leaves the profile intact, so signing back in is a state flip
+// and must never be validated as a submission.
+assert.match(auth, /onPress=\{resume\}/,
+  'Sign back in must use its own handler; sharing `enter` re-breaks it the next time sign-up validation changes');
+assert.match(auth, /const resume = \(\) => \{\s*if \(!hasAccount\(useApp\.getState\(\)\.profile\)\) \{\s*enter\(\);/,
+  'resume must fall through to enter when the device has NO account, or it becomes a way around the gate');
+
 // ── 6. No Continue button on steps that commit on tap ────────────────────────────────────────
 assert.match(onboarding, /const autoAdvances = liveDef\?\.kind === 'single' && liveDef\.field !== 'notifyOptIn';/,
   'the auto-advance condition is gone or changed shape');

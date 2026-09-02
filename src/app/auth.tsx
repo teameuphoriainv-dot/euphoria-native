@@ -30,8 +30,8 @@ import { Atlas } from '@/components/atlas';
 import { ProviderButton } from '@/components/provider-button';
 import { ThemedText } from '@/components/themed-text';
 import { SlabButton } from '@/components/ui/button';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
-import type { Profile } from '@/lib/onboarding-path';
+import { Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
+import { hasAccount, type Profile } from '@/lib/onboarding-path';
 import {
   AUTH_ENABLED,
   PASSWORD_MIN,
@@ -209,6 +209,33 @@ export default function Auth() {
   const submitForm = () => {
     Keyboard.dismiss();
     enter();
+  };
+
+  /**
+   * "Signed out? Sign back in" — and it is NOT the sign-up button with different words.
+   *
+   * REGRESSION FIXED HERE. This control used to call `enter` directly, which was harmless while
+   * `enter` signed anyone in unconditionally. Adding the email requirement to the local path (so
+   * the account gate could not be satisfied by an empty form) broke it: the person tapping this
+   * has an account ON THIS DEVICE and an EMPTY FORM, so they were told "Enter an email address to
+   * create your account" and could not get back in. Reported with a screenshot of exactly that.
+   *
+   * The mistake was validating the form when this control does not use the form. `signOut` only
+   * sets `signedIn: false` (store.ts) and leaves name, email, handle and authProvider untouched,
+   * so signing back in is a state flip, not a submission.
+   *
+   * The account gate still holds, and that is why this checks the STORED profile rather than
+   * skipping the check: someone on a fresh install with nothing saved falls through to `enter`,
+   * which tells them to make an account. Only a profile that already has one gets waved through.
+   */
+  const resume = () => {
+    if (!hasAccount(useApp.getState().profile)) {
+      enter();
+      return;
+    }
+    setAuthError(null);
+    signIn();
+    router.replace(landing() as never);
   };
 
   /** Reset link. Reports success even for an unknown address, on purpose: see sendPasswordReset. */
@@ -499,7 +526,7 @@ export default function Auth() {
             )}
           </View>
         ) : (
-          <SpringPressable haptic={false} onPress={enter} style={styles.signin}>
+          <SpringPressable haptic={false} onPress={resume} accessibilityRole="button" accessibilityLabel="Sign back in" style={styles.signin}>
             {/* "Existing user? Sign in" implied ACCOUNT RECOVERY. There is none — a returning user
                 on a new phone signs in and gets an empty account, because there was never an account.
                 The only real journey through here is somebody who signed out on THIS device (you.tsx
@@ -545,7 +572,7 @@ const styles = StyleSheet.create({
   authError: { textAlign: 'center', marginTop: Spacing.two },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginVertical: Spacing.three },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
-  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.three, paddingVertical: 14, fontSize: FontSize.body },
+  input: { borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, paddingHorizontal: Spacing.three, paddingVertical: 14, fontSize: FontSize.body, fontFamily: Fonts.body },
   signin: { alignItems: 'center', paddingVertical: Spacing.two },
   keyboardAccessory: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: Spacing.three },
   keyboardDoneButton: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center' },

@@ -55,7 +55,7 @@ import { IAP_ENABLED } from '@/lib/purchases';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
 import type { AtlasLessonContext } from '@/lib/atlas-lesson-context';
@@ -742,6 +742,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   input: {
+    fontFamily: Fonts.body,
     flex: 1,
     maxHeight: 120,
     borderWidth: StyleSheet.hairlineWidth,
