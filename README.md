@@ -223,7 +223,66 @@ alias would survive a retirement but also moves the model under a system prompt 
 tuned against a known one, and a silent capability change on a finance app aimed at 18 to 25s is
 the worse failure.
 
+```text
+┌─ src/app ─────────────────── 42 files · 15,427 lines ──────────────────────┐
+│  expo-router file routes. (tabs)/ home learn trade digest games,           │
+│  plus lesson.tsx (1,205) and onboarding.tsx (1,180) — the two              │
+│  screens that carry the product.                                          │
+│                                                                            │
+│  api/  market+api.ts · chat+api.ts · options+api.ts                       │
+│        Expo API routes, deployed to EAS Hosting, NOT bundled in the app.   │
+└────────────────────────────┬───────────────────────────────────────────────┘
+                             │
+┌─ src/components ──────────── 77 files · 14,545 lines ──────────────────────┐
+│  One component per step kind: matching-pairs, order-steps, multi-select,   │
+│  stakes-card, interactive-graph… The lesson runner dispatches on           │
+│  `normalizeStep().kind` and never on raw authored shape.                   │
+└────────────────────────────┬───────────────────────────────────────────────┘
+                             │
+┌─ src/lib ─────────────────── 111 files · 91,041 lines ─────────────────────┐
+│  curriculum/   73,545 lines — 12 course files, the product's real mass     │
+│  store.ts       1,377 lines — zustand + persist. See the warning below.    │
+│  lesson-steps.ts  733      — normalizeStep(): authored data → render kind  │
+│  purchases.ts     376      — RevenueCat, entitlement "Euphoria Pro"        │
+│  auth.ts          356      — Supabase session, delete_own_account          │
+│  server/                   — advice · chain · entitlement · identity ·     │
+│                              limit · validate. Guards that must NOT be     │
+│                              client-side: the buy/sell advice block lives  │
+│                              here because a client check is a suggestion.  │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**The curriculum is 80% of `src/lib` by line count.** Treat it as data, not code: 12 course
+files, 300 lessons, 4,050 authored screens. Nothing in it should import from `src/app`.
+
+**`normalizeStep()` is the seam.** Authored lessons are terse and occasionally irregular; the
+renderer must never see that. Every step passes through `normalizeStep()` in `lesson-steps.ts`,
+which returns a discriminated `kind`, and `lesson.tsx` dispatches on that alone. When a lesson
+renders wrongly the bug is almost always in the normaliser, not the component.
+
+**`store.ts` has one rule that will bite you.** State is persisted through zustand's `persist`
+middleware with an explicit `partialize`. Anything you add to state and *not* to `partialize` is
+silently session-only — it will work perfectly in development and lose the user's data on
+relaunch. The file documents which omissions are deliberate (the perf HUD, hydration status) and
+why.
+
+**Server guards are server-side on purpose.** `src/lib/server/advice.ts` blocks individualised
+buy/sell recommendations from Atlas. That check cannot move to the client: the App Review notes
+promise Apple it exists, and a client-side guard is a suggestion, not a guarantee.
+
 ---
+
+## Development
+
+```bash
+npm install
+npm run ios          # builds and installs the dev client, then starts Metro
+```
+
+Node 24+, Xcode with an iOS simulator, and `eas-cli`. Expo SDK 57, React Native 0.86,
+expo-router 57, zustand 5, Reanimated 4.5, Skia 2.6, Supabase JS 2.112.
+
+The three failure modes that cost the most time here are in [Traps that have cost real time](#traps-that-have-cost-real-time).
 
 ## Environment
 
@@ -244,6 +303,61 @@ Two classes, and confusing them is the classic mistake.
 
 `.env.local` is gitignored, as are `*.p8`, `*.pem`, `.secrets/` and `dist/`. `.env.example` holds
 placeholders only and is the authoritative list, so read it rather than trusting this table.
+
+---
+
+## Build profiles
+
+| Profile | Distribution | Channel | Notes |
+|---|---|---|---|
+| `development` | internal | development | dev client, for daily work |
+| `development-simulator` | internal | development | dev client, simulator target |
+| `preview` | internal | preview | internal testing |
+| `production` | store | production | App Store submissions |
+
+**Before submitting, run the two gates that exist for it:**
+
+```bash
+npm run asc:preflight     # 29 live checks against App Store Connect
+npm run test:reviewer     # 5 Maestro flows on a simulator
+```
+
+`scripts/asc-submit.mjs` refuses to run without preflight passing. The full submission runbook,
+including the traps that have already cost a rejection, is in
+[docs/status/APP_STORE_SUBMISSION.md](docs/status/APP_STORE_SUBMISSION.md).
+
+## Deployment
+
+**This sequence is exact and each step is load-bearing.** Getting it wrong produces a *successful*
+deploy serving `503 not_configured`, which reads as a bad key and sends you after the wrong problem.
+
+```bash
+# 1. create the variable. env:create, NOT env:set, which does not exist on eas-cli 21.7.1
+npx eas env:create --name GEMINI_API_KEY --value "<v>" \
+    --environment production --visibility sensitive --scope project --non-interactive
+
+# 2. export UNDER that environment. env:exec takes the environment POSITIONALLY
+npx eas env:exec production "npx expo export --platform web"
+
+# 3. deploy and promote
+npx eas deploy --prod --environment production --non-interactive
+
+# 4. verify by reading the BODY. A successful deploy proves nothing about env
+curl -s -X POST https://euphoria-native.expo.app/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"messages":[{"role":"user","content":"hello"}]}'
+
+# 5. GET routes are EDGE-CACHED (cache-status: EAS). Without a cache-buster you are reading
+#    the PREVIOUS deployment's answer. This cost real time twice
+curl -s "https://euphoria-native.expo.app/api/options?action=expirations&sym=AAPL&_cb=$(date +%s)"
+```
+
+**Step 2 is the one everybody skips.** The built server bundle contains
+`process.env.GEMINI_API_KEY` as a *runtime* lookup, which makes it look as though export cannot
+matter. The export is what tells EAS Hosting which variables the deployment needs. A value absent at
+export time is absent from the Worker no matter what the code does at runtime.
+
+OTA updates: `npm run ota` runs `eas update --branch production --environment production`.
 
 ---
 
@@ -300,40 +414,48 @@ it. See `CONSTITUTION.md`.
 
 ---
 
-## Deployment
+## Proving it works
 
-**This sequence is exact and each step is load-bearing.** Getting it wrong produces a *successful*
-deploy serving `503 not_configured`, which reads as a bad key and sends you after the wrong problem.
+Three gates, each catching a class the others cannot. They exist because each one was added
+after something got through.
 
-```bash
-# 1. create the variable. env:create, NOT env:set, which does not exist on eas-cli 21.7.1
-npx eas env:create --name GEMINI_API_KEY --value "<v>" \
-    --environment production --visibility sensitive --scope project --non-interactive
-
-# 2. export UNDER that environment. env:exec takes the environment POSITIONALLY
-npx eas env:exec production "npx expo export --platform web"
-
-# 3. deploy and promote
-npx eas deploy --prod --environment production --non-interactive
-
-# 4. verify by reading the BODY. A successful deploy proves nothing about env
-curl -s -X POST https://euphoria-native.expo.app/api/chat \
-  -H 'Content-Type: application/json' \
-  -d '{"messages":[{"role":"user","content":"hello"}]}'
-
-# 5. GET routes are EDGE-CACHED (cache-status: EAS). Without a cache-buster you are reading
-#    the PREVIOUS deployment's answer. This cost real time twice
-curl -s "https://euphoria-native.expo.app/api/options?action=expirations&sym=AAPL&_cb=$(date +%s)"
+```text
+                        ┌──────────────────────────────────────────┐
+   source change  ──▶   │  npm run check            57 invocations │  types, lint, unit,
+                        │                                          │  curriculum parity
+                        └────────────────────┬─────────────────────┘
+                                             │
+                        ┌────────────────────▼─────────────────────┐
+   before submit  ──▶   │  npm run asc:preflight    29 checks      │  live ASC + live HTTP:
+                        │                                          │  every listing field
+                        └────────────────────┬─────────────────────┘
+                                             │
+                        ┌────────────────────▼─────────────────────┐
+   before submit  ──▶   │  npm run test:reviewer    5 flows        │  a real simulator,
+                        │                           35 steps       │  every control tapped
+                        └──────────────────────────────────────────┘
 ```
 
-**Step 2 is the one everybody skips.** The built server bundle contains
-`process.env.GEMINI_API_KEY` as a *runtime* lookup, which makes it look as though export cannot
-matter. The export is what tells EAS Hosting which variables the deployment needs. A value absent at
-export time is absent from the Worker no matter what the code does at runtime.
+**`npm run check`** compares inputs. It was green the entire time nine user-facing rendering
+bugs existed, including one where matching exercises scored correct answers as wrong. Data
+parity and behaviour are different axes, which is why the other two gates exist.
 
-OTA updates: `npm run ota` runs `eas update --branch production --environment production`.
+**`npm run asc:preflight`** reads App Store Connect and fetches every URL it finds. It was
+written after Apple rejected a build under 3.1.2 because the App Description carried no Terms
+of Use link — a field a careful by-hand audit had simply never opened. It fails on absent
+evidence and fetches links rather than pattern-matching them, because a 404 satisfies a regex
+and Apple's word is *functional*. `scripts/asc-submit.mjs` refuses to submit unless it exits 0.
 
----
+**`npm run test:reviewer`** walks App Review's own path on a simulator: the paywall's Terms,
+Privacy and Restore controls, Restore tapped through to a real RevenueCat response, the paywall
+dismissed and asserted *gone*, account deletion present, all five tabs, and the first lesson.
+
+One lesson is written into every flow: **assert on accessibility labels, not visual text.**
+React Native decides what reaches the accessibility tree. `Annual`, `$79.99`, `Sell` and the
+`Ask Atlas…` placeholder are all on screen and none are assertable — plan cards collapse into
+one composite element, and placeholders are never exposed. Asserting on those fails against a
+perfectly healthy screen, which reads as a product bug and is not one. Verify by screenshot
+before believing a failure.
 
 ## Traps that have cost real time
 
@@ -402,47 +524,4 @@ press feedback).
 **Also:** [CHANGELOG.md](CHANGELOG.md) · [CONSTITUTION.md](CONSTITUTION.md) ·
 [AGENTS.md](AGENTS.md) · [refs/SECURITY_REVIEW.md](refs/SECURITY_REVIEW.md) ·
 [docs/status/](docs/status/)
-
-## Proving it works
-
-Three gates, each catching a class the others cannot. They exist because each one was added
-after something got through.
-
-```text
-                        ┌──────────────────────────────────────────┐
-   source change  ──▶   │  npm run check            57 invocations │  types, lint, unit,
-                        │                                          │  curriculum parity
-                        └────────────────────┬─────────────────────┘
-                                             │
-                        ┌────────────────────▼─────────────────────┐
-   before submit  ──▶   │  npm run asc:preflight    29 checks      │  live ASC + live HTTP:
-                        │                                          │  every listing field
-                        └────────────────────┬─────────────────────┘
-                                             │
-                        ┌────────────────────▼─────────────────────┐
-   before submit  ──▶   │  npm run test:reviewer    5 flows        │  a real simulator,
-                        │                           35 steps       │  every control tapped
-                        └──────────────────────────────────────────┘
-```
-
-**`npm run check`** compares inputs. It was green the entire time nine user-facing rendering
-bugs existed, including one where matching exercises scored correct answers as wrong. Data
-parity and behaviour are different axes, which is why the other two gates exist.
-
-**`npm run asc:preflight`** reads App Store Connect and fetches every URL it finds. It was
-written after Apple rejected a build under 3.1.2 because the App Description carried no Terms
-of Use link — a field a careful by-hand audit had simply never opened. It fails on absent
-evidence and fetches links rather than pattern-matching them, because a 404 satisfies a regex
-and Apple's word is *functional*. `scripts/asc-submit.mjs` refuses to submit unless it exits 0.
-
-**`npm run test:reviewer`** walks App Review's own path on a simulator: the paywall's Terms,
-Privacy and Restore controls, Restore tapped through to a real RevenueCat response, the paywall
-dismissed and asserted *gone*, account deletion present, all five tabs, and the first lesson.
-
-One lesson is written into every flow: **assert on accessibility labels, not visual text.**
-React Native decides what reaches the accessibility tree. `Annual`, `$79.99`, `Sell` and the
-`Ask Atlas…` placeholder are all on screen and none are assertable — plan cards collapse into
-one composite element, and placeholders are never exposed. Asserting on those fails against a
-perfectly healthy screen, which reads as a product bug and is not one. Verify by screenshot
-before believing a failure.
 
