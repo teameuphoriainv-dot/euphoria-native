@@ -10,10 +10,6 @@
  *
  *   node --import ./scripts/ts-resolve-hooks.mjs scripts/prod-web-parity.mjs
  */
-import { mkdtempSync, readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-
 const ORIGIN = process.env.EUPHORIA_WEB_ORIGIN || 'https://www.euphoriainv.com';
 const PROBES_PER_LESSON = 3;
 
