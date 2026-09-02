@@ -1,0 +1,12 @@
+# The course catalogue. Opening the strip on Atlas jumped straight to the mascot without ever
+# saying what Euphoria is; this shows the breadth -- Foundations/Intermediate/Advanced and the
+# pathways under them -- before any single feature is pitched.
+steps:
+  - tool: restart-app
+    args:
+      bundleId: com.euphoriainv.euphoria
+  - wait: 2000
+  - tool: open-url
+    args:
+      url: "euphorianative://courses"
+  - wait: 4000

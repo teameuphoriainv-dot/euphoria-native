@@ -1,7 +1,13 @@
-# The lesson's own home page. Three taps used to drive into the bars visual, and every one of
-# them was a failure mode: the CTA moved between builds, a first-run coach-mark scrimmed the
-# screen, and the row tap landed mid-transition. The intro page already carries the promise --
-# lesson title, objective, progress -- and it captures deterministically with no interaction.
+# One step INTO the lesson, on the hook screen that carries the $40/$97/$414 bars and the line
+# "Tap any of these and Atlas will explain it" -- the headline's own claim, on screen.
+#
+# This flow has to survive a FRESH INSTALL every run. `goldie capture` reinstalls the app (the
+# data container UUID changes on each invocation), which wipes AsyncStorage, so seeding
+# `euphoria_atlas_intro_seen` beforehand does not survive. Both first-run gates therefore have
+# to be walked through rather than skipped:
+#   1. a 13.4s Atlas origin cinematic (ORIGIN_MS in atlas-intro.tsx) plays after the CTA;
+#   2. a coach-mark then scrims the lesson until "Got it" is pressed.
+# Earlier captures waited 3.5s and landed inside the fire animation every time.
 steps:
   - tool: restart-app
     args:
@@ -10,4 +16,21 @@ steps:
   - tool: open-url
     args:
       url: "euphorianative://lesson?course=investing-fundamentals&num=1"
-  - wait: 5000
+  - wait: 4500
+  # CTA measured by pixel scan for the #A148E9 slab: band y=1944-2084 on 1320x2868 -> 0.702.
+  - tap:
+      x: 0.5
+      y: 0.702
+  # SKIP, don't outlast. At 16s the cinematic was still on its third typed line, so waiting is
+  # both slower and unreliable -- the run time depends on TYPE_MS per character. The Skip pill
+  # measures x=992-1258, y=2683-2807 on a 1320x2868 capture -> (0.852, 0.957).
+  - wait: 3000
+  - tap:
+      x: 0.852
+      y: 0.957
+  - wait: 3000
+  # "Got it" pill measured at x=932-1246, y=2172-2296 -> (0.825, 0.779).
+  - tap:
+      x: 0.825
+      y: 0.779
+  - wait: 3500
