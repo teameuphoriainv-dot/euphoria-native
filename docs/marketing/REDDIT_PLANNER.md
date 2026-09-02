@@ -83,7 +83,7 @@ Promotion is the purpose. Direct links fine.
 
 | Subreddit | Weekly | Notes |
 |---|--:|---|
-| **r/SideProject** | 309K | Once, at launch. Build-in-public framing |
+| **r/SideProject** | 309K | **Zero subreddit rules** (`rules: []`, verified 2026-09-02) — only Reddit sitewide rules apply. Lowest-friction venue on this list. Once, at launch. |
 | **r/startups** | 113K | Routes posts into specific threads — read first |
 | **r/EntrepreneurRideAlong** | 44K | Long-form belongs here |
 | **r/Startup_Ideas** | 27K | |
