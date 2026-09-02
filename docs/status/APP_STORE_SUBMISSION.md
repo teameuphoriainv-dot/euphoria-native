@@ -3,6 +3,39 @@
 State as of 2026-09-02. Everything below was verified against the LIVE App Store Connect and
 Supabase APIs, not inferred from config files.
 
+## Rejected once on 3.1.2 — read this before any future submission
+
+Apple rejected build 24 on 2026-09-02 with an AUTOMATED message, before any human review:
+
+> The submission offers auto-renewable subscriptions but does not include a functional link to
+> the Terms of Use (EULA) in the app metadata that appears on the app's App Store product page.
+
+The App Description contained **no URL of any kind** — no Terms link, no Privacy link, nothing.
+The in-app paywall has always carried working Terms / Privacy / Restore controls
+(`LEGAL` in `src/app/onboarding.tsx`, both pointing at live 200 URLs), and Settings > Account
+carries them too. **Neither satisfies this check.** Apple's automated gate reads the App Store
+DESCRIPTION TEXT, which is separate metadata, and an audit that only verifies the in-app surface
+will pass while the submission fails. That is exactly what happened here.
+
+The description now ends with a subscription block carrying, in this order:
+
+- the subscription name, both durations and both prices;
+- the renewal and cancellation disclosure Schedule 2 requires;
+- `Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+- `Service Terms: https://euphoriainv.com/terms`
+- `Privacy Policy: https://euphoriainv.com/privacy`
+
+The Apple standard EULA URL is the one the check wants, because this app has NO custom EULA on
+its appInfo (`endUserLicenseAgreement` is null, i.e. it uses Apple's standard agreement). Linking
+only to euphoriainv.com/terms would leave the same gate unsatisfied. If a custom EULA is ever
+added in App Store Connect, that link becomes the correct one instead.
+
+**Resubmitting after a rejection** is not the `reviewSubmissions` PATCH used for a first
+submission. On the version page press **Add for Review** — the rejected item flips from `Rejected`
+to `Ready for Review` — and only then does **Resubmit to App Review** become active on the
+submission page. No new build is required for a metadata-only rejection; build 24 stayed attached
+throughout.
+
 ## Blocked on exactly one thing
 
 **The binary.** The version still has build 23 (uploaded 30 Aug, app version 1.0.0) attached. It
