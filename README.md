@@ -47,6 +47,85 @@ switched off rather than showing invented data. See [Environment](#environment).
 
 ---
 
+## By the numbers
+
+Every figure below is produced by a script in this repo, not typed by hand. `npm run
+parity:structure` walks the curriculum and compares it screen-for-screen against the web app; the
+counts here come from that same walk.
+
+| | |
+|---|---|
+| Courses | **12** |
+| Lessons | **300** — 25 per course, exactly |
+| Authored screens | **4,050** |
+| Mastery-challenge screens | **1,770** |
+| Total runtime screens | **5,820** (4,050 + 1,770, derived) |
+| Curriculum parity with web | **12/12 courses SHA-256 identical** |
+| Structural parity | **4,050 / 4,050 screens match by index and kind** |
+| Quality gate | **57 checks** in `npm run check` |
+
+```text
+SCREENS PER COURSE            25 lessons each · 4,050 total
+
+Alternative Investments ██████████████████████████████████  396
+Quantitative Analysis   ████████████████████████████████░░  374
+Wealth Management       ████████████████████████████████░░  372
+Investing Fundamentals  ███████████████████████████████░░░  363
+Applied Accounting      ███████████████████████████████░░░  362
+Personal Finance        ██████████████████████████████░░░░  352
+Risk Management         █████████████████████████████░░░░░  341
+Behavioral Finance      █████████████████████████████░░░░░  333
+Global Economics        ████████████████████████████░░░░░░  329
+Business Strategy       ██████████████████████████░░░░░░░░  305
+Corporate Finance       ███████████████████████░░░░░░░░░░░  263
+Financial Analytics     ██████████████████████░░░░░░░░░░░░  260
+```
+
+Alternative Investments carries the most screens and Financial Analytics the fewest — a 136-screen
+spread across courses that all hold exactly 25 lessons. Density is a function of how much a topic
+needs shown rather than told.
+
+```text
+SCREEN KINDS                  what a learner actually does
+
+quiz              ██████████████████████████████  441  10.9%
+teachingSlide     █████████████████████████████░  432  10.7%
+microCheck        █████████████████████░░░░░░░░░  312   7.7%
+hookOpener        ████████████████████░░░░░░░░░░  300   7.4%
+stakesCard        ████████████████████░░░░░░░░░░  300   7.4%
+interactiveGraph  ████████████████████░░░░░░░░░░  289   7.1%
+fillBlank         ███████████████████░░░░░░░░░░░  281   6.9%
+trueFalse         ███████████████████░░░░░░░░░░░  273   6.7%
+scenario          ███████████████████░░░░░░░░░░░  273   6.7%
+tapReveal         █████████████████░░░░░░░░░░░░░  248   6.1%
+dragSort          ████████████████░░░░░░░░░░░░░░  231   5.7%
+match             ██████████████░░░░░░░░░░░░░░░░  201   5.0%
+slider            ██████████████░░░░░░░░░░░░░░░░  199   4.9%
+keyTermsCards     █████████████░░░░░░░░░░░░░░░░░  186   4.6%
+progressiveCalc   ███░░░░░░░░░░░░░░░░░░░░░░░░░░░   44   1.1%
+buildIt           ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░   29   0.7%
+explorable        █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    4   0.1%
+calculator        █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    4   0.1%
+concept           █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    2   0.0%
+decisionTree      █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    1   0.0%
+```
+
+The long tail is deliberate. `decisionTree` appears once and `concept` twice; they exist because a
+specific lesson needed them, not because the format was worth generalising. The top five kinds
+carry 44% of the curriculum.
+
+## Targets
+
+Goals, not achievements. Nothing in this section is a current metric — the tables above are.
+
+| | Today | Target |
+|---|---|---|
+| MRR | pre-launch | **$100k** |
+| Daily revenue | pre-launch | **$100k** |
+| Users | pre-launch | **100k → 1M** |
+| Instagram | building | **50k followers** |
+| App Store | **submitted, in review** | ranked in Education |
+
 ## Product facts
 
 | | |
