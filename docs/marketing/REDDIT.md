@@ -55,6 +55,55 @@ minors is a reputational risk that outweighs the traffic. Reach teenagers throug
 around them — r/personalfinance threads about teaching kids money, r/Parenting, r/Teachers — or
 not at all on Reddit.
 
+## Finding subreddits: use Reddit's own ad targeting
+
+The best discovery method costs nothing and does not involve guessing.
+
+1. Go to the Reddit Ads campaign builder and start a new campaign. **You never publish it.**
+2. Open the targeting section and search Communities for a keyword — `personal finance`,
+   `investing`, `budgeting`, `financial literacy`, `college money`.
+3. Reddit surfaces related communities and keeps recommending more as you add them.
+
+This is Reddit's own engine telling you where its users actually cluster, with sizes attached.
+It beats any guessed list, including the one above.
+
+## Post structure that works
+
+Every post that does well has the same shape, and most founders get it backwards.
+
+```text
+  ✅ what works                        ❌ what fails
+  ─────────────────────────            ─────────────────────────
+  catchy headline, no product          product name in the headline
+  genuine value in your niche          feature list from line one
+  product mentioned mid or late        link in the first sentence
+  founder answering every comment      founder defending the product
+```
+
+Write the post you would have wanted to read *before* you built Euphoria. For this product the
+value half writes itself: what compounding actually costs you at 22, why a savings account loses
+to inflation, what a teenager should do with a first paycheck. Then the app is the natural
+answer, not the pitch.
+
+## On volume posting
+
+A common playbook says: write one post, put it in ten subreddits, and one may hit the front page.
+It does work for some people. It is also the single most common reason indie posts get filtered
+as spam, and mods across finance subs talk to each other.
+
+If you do it, **tailor each post to the sub** rather than pasting the same text. Two or three
+posts a week across different communities is a sustainable ceiling; more reads as campaigning.
+
+## Why another founder's playbook may not transfer
+
+Playbooks that work for developer tools often fail for consumer apps, and the reason is where
+the audience lives. A tool sold to builders is marketed in r/SideProject and r/SaaS, where
+promotion is *tolerated* — so volume works. Euphoria's users are in r/personalfinance and
+r/investing, where promotion is *removed on sight*.
+
+The launch-sub half of any such playbook transfers to you. The audience-sub half does not, and
+copying it there is how the account gets burned.
+
 ## Sequence
 
 1. **Weeks 1–3, no promotion.** One real account. Comment usefully in audience subs. Aim for
