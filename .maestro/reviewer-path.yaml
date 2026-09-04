@@ -47,9 +47,29 @@ appId: com.euphoriainv.euphoria
 - extendedWaitUntil:
     visible: "Maybe later"
     timeout: 25000
+
+# DEV BUILDS ONLY. React Native's LogBox error toast anchors to the bottom of the screen, sitting
+# directly over "Maybe later", and it swallows the tap -- the control is healthy, the overlay is
+# simply in front of it. On 2026-09-04 this failed the flow against a paywall that dismisses
+# perfectly the moment the toast is cleared. A release build (what a reviewer runs) has no LogBox
+# at all, so the toast is never there and this step is a no-op.
+- runFlow:
+    when:
+      visible: "RevenueCat"
+    commands:
+      - tapOn:
+          point: "96%,95%"
+      - waitForAnimationToEnd:
+          timeout: 4000
+
 - tapOn: "Maybe later"
+
+# ASSERT ON A PAYWALL-EXCLUSIVE STRING, NOT ON "Maybe later". dismissPaywall sends a first-run user
+# to /start, and start.tsx renders its OWN "Maybe later" -- so notVisible on that label fails
+# against a CORRECT dismissal. The renewal-terms sentence is rendered only under
+# step === PAYWALL_INDEX (onboarding.tsx), so its absence is the real proof the paywall is gone.
 - extendedWaitUntil:
-    notVisible: "Maybe later"
+    notVisible: "Cancel anytime in the App Store"
     timeout: 20000
 
 # ── Profile > Account: the surfaces the review notes name ──────────────────────────────────
@@ -60,6 +80,20 @@ appId: com.euphoriainv.euphoria
 - assertVisible: "Delete profile"      # 5.1.1(v) in-app account deletion
 - assertVisible: "Privacy Policy"
 - assertVisible: "Terms of Use"
+
+# "Sign out" is in the last section, below the fold -- absent from the a11y tree entirely, not
+# merely unhittable. A dev build makes it worse: the __DEV__ DEVELOPER section in
+# settings/[section].tsx occupies ~74pt that a release build does not have, pushing this off the
+# bottom. A reviewer scrolls to reach it, so the flow does too, and it then passes on either build.
+- scrollUntilVisible:
+    element: "Sign out"
+    direction: DOWN
+    timeout: 20000
+    speed: 60
+    # 100% (the default) demands the row be wholly unobstructed. In a dev build the LogBox toast
+    # sits at the bottom of the screen and clips it, so a healthy Sign out row never reaches 100%
+    # and the step fails against a correct screen.
+    visibilityPercentage: 80
 - assertVisible: "Sign out"
 
 # ── The tabs a reviewer moves between ──────────────────────────────────────────────────────
