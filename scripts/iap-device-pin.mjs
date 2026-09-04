@@ -21,7 +21,16 @@
 import { execFileSync } from 'node:child_process';
 
 const BUNDLE = 'com.euphoriainv.euphoria';
-const MARKER = 'the current offering has NO packages';
+
+/* THIS CHECK MUST NOT PASS ON THE ABSENCE OF A FAILURE STRING. An earlier draft passed whenever
+ * the empty-offering marker was missing, which also "passes" when the app fails to boot, when the
+ * log predicate stops matching, or when that copy is ever reworded -- a green check reporting
+ * nothing at all. purchases.ts:342 logs a POSITIVE marker on success, so that is the pass
+ * condition, and every other outcome blocks. */
+const RESOLVED = /\[iap\] (\d+) package\(s\): (.+)/;          // purchases.ts:342 — success
+const EMPTY = 'the current offering has NO packages';          // purchases.ts:337 — the 2.1(b) bug
+const KEYLESS = 'EXPO_PUBLIC_REVENUECAT_IOS_KEY absent';       // purchases.ts:331 — build misconfigured
+
 // stderr is ignored on purpose: simctl spawn emits a getpwuid_r warning on every call.
 const sh = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
 
@@ -33,24 +42,40 @@ try { sh('xcrun', ['simctl', 'terminate', dev, BUNDLE]); } catch { /* not runnin
 try { sh('xcrun', ['simctl', 'launch', dev, BUNDLE]); }
 catch { console.error(`${BUNDLE} is not installed on ${dev}.`); process.exit(2); }
 
-// RevenueCat resolves offerings a few seconds after launch. Poll rather than sleep a flat 20s.
-const deadline = Date.now() + 45000;
+/* RevenueCat resolves offerings a few seconds after launch, so poll for a VERDICT rather than
+ * sleeping a flat interval and reading whatever happens to be there. */
+const deadline = Date.now() + 60000;
 let log = '';
-while (Date.now() < deadline) {
-  log = sh('xcrun', ['simctl', 'spawn', dev, 'log', 'show', '--predicate', `process == "euphorianative"`, '--last', '2m', '--style', 'compact']);
-  if (log.includes(MARKER) || /\[iap\][^\n]*packages/.test(log)) break;
-  if (/Offerings|offering/i.test(log) && !/Error fetching offerings/.test(log)) break;
+let hit = null;
+while (Date.now() < deadline && !hit) {
+  log = sh('xcrun', ['simctl', 'spawn', dev, 'log', 'show', '--predicate', 'process == "euphorianative"', '--last', '3m', '--style', 'compact']);
+  if (RESOLVED.test(log)) hit = 'resolved';
+  else if (log.includes(EMPTY)) hit = 'empty';
+  else if (log.includes(KEYLESS)) hit = 'keyless';
 }
 
-const broken = log.includes(MARKER);
-const sawOfferingError = /Error fetching offerings|issue with your configuration/.test(log);
+if (hit === 'resolved') {
+  const [, count, ids] = log.match(RESOLVED);
+  if (Number(count) > 0) {
+    console.log(`PASS  2.1(b)  device resolved IAP packages  — ${count} package(s): ${ids.trim()}`);
+    process.exit(0);
+  }
+  hit = 'empty'; // "[iap] 0 package(s)" is the bug wearing the success marker.
+}
 
-console.log(`${broken ? 'FAIL' : 'PASS'}  2.1(b)  device resolved IAP packages  — ${broken ? 'offering is EMPTY on device' : 'no empty-offering marker'}`);
-if (sawOfferingError) console.log('        note: RevenueCat reported an offerings fetch error in this run');
+if (hit === null) {
+  console.error('FAIL  2.1(b)  device resolved IAP packages  — no [iap] marker in 60s; the app never reached IAP init');
+  console.error('        this is NOT a pass. The app may have failed to launch, or purchases.ts logging changed.');
+  process.exit(2);
+}
 
-if (broken) {
-  console.log('\nDO NOT SUBMIT. The paywall renders but nothing can be bought.');
+const why = hit === 'keyless'
+  ? 'EXPO_PUBLIC_REVENUECAT_IOS_KEY absent from this build'
+  : 'offering is EMPTY on device';
+console.log(`FAIL  2.1(b)  device resolved IAP packages  — ${why}`);
+console.log('\nDO NOT SUBMIT. The paywall renders but nothing can be bought.');
+if (hit === 'empty') {
   console.log('  Most likely: Paid Apps Agreement is not Active (bank account / tax forms outstanding).');
   console.log('  Check https://appstoreconnect.apple.com/business — STATUS column, not the date range.');
-  process.exit(1);
 }
+process.exit(1);
