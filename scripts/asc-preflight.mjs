@@ -12,7 +12,7 @@
  * Every check here is either a live API read or a live HTTP fetch. Nothing is assumed from
  * config files, and no check passes on the absence of evidence.
  *
- * Usage: node scripts/asc-preflight.mjs [--build 24]
+ * Usage: node scripts/asc-preflight.mjs [--build 24] [--agreement-verified]
  * Exit:  0 all checks pass · 1 one or more FAILED · 2 could not run
  */
 import { Buffer } from 'node:buffer';
@@ -140,6 +140,62 @@ for (const sub of subs) {
   const en = (ls.data ?? []).find((l) => l.attributes.locale === 'en-US');
   check(`3.1.2  ${sub.attributes.productId} has name + description`, Boolean(en?.attributes?.name && en?.attributes?.description), en?.attributes?.name ?? 'MISSING');
 }
+
+// ── 2.1(b) Purchasability ─────────────────────────────────────────────────────────────
+/*
+ * WHY THIS SECTION EXISTS. On 2026-09-04 build 24 was rejected under Guideline 2.1(b) -- "we are
+ * unable to purchase item" -- reviewed on an iPad Air 11-inch. Every check above this line passed
+ * on that same submission, 28/28. They read metadata; none of them could see whether a product
+ * could actually be BOUGHT.
+ *
+ * The root cause was account-level, not code: the Paid Apps Agreement sat at "Pending User Info"
+ * because no bank account and no tax forms had been filed. With that agreement inactive, StoreKit
+ * returns zero products, RevenueCat drops every package whose product it cannot resolve, and the
+ * paywall renders with fallback prices while being impossible to purchase from. The app logs
+ * "[iap] configured but the current offering has NO packages" and looks otherwise healthy.
+ */
+
+/* THIS CHECK ALONE WOULD NOT HAVE CAUGHT THE 2026-09-04 REJECTION, AND MUST NOT BE TRUSTED AS IF
+ * IT WOULD. RevenueCat's server returned current_offering_id "default" with both packages attached
+ * the entire time the app was unpurchasable -- the dashboard was correct; the device-side StoreKit
+ * fetch was not. What this DOES catch is a product being detached from the current offering in the
+ * RevenueCat dashboard, which is a real and separate way to ship a dead paywall. */
+const rcKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+  ?? (readFileSync(path.join(ROOT, '.env.local'), 'utf8').match(/^EXPO_PUBLIC_REVENUECAT_IOS_KEY=(.+)$/m)?.[1] ?? '').trim();
+if (!rcKey) {
+  check('3.1.2  RevenueCat offering reachable', false, 'EXPO_PUBLIC_REVENUECAT_IOS_KEY not set');
+} else {
+  try {
+    const r = await fetch('https://api.revenuecat.com/v1/subscribers/asc-preflight/offerings', {
+      headers: { Authorization: `Bearer ${rcKey}`, 'X-Platform': 'ios' },
+      signal: AbortSignal.timeout(20000),
+    });
+    const rc = await r.json();
+    const current = (rc.offerings ?? []).find((o) => o.identifier === rc.current_offering_id);
+    const shipped = (current?.packages ?? []).map((k) => k.platform_product_identifier);
+    check('3.1.2  RevenueCat current offering has packages', shipped.length > 0, `${rc.current_offering_id ?? 'no current offering'} -> ${shipped.join(', ') || 'EMPTY'}`);
+    for (const sub of subs) {
+      const id = sub.attributes.productId;
+      check(`3.1.2  ${id} attached to the current offering`, shipped.includes(id), shipped.includes(id) ? 'attached' : `MISSING from ${rc.current_offering_id}`);
+    }
+  } catch (e) {
+    check('3.1.2  RevenueCat offering reachable', false, String(e).slice(0, 120));
+  }
+}
+
+/* THE PAID APPS AGREEMENT HAS NO APP STORE CONNECT API. /v1/agreements, /v1/contracts and
+ * /v1/paidApplicationsAgreements all 404 as of 2026-09-04, so this file cannot read the one piece
+ * of state that actually caused the rejection. Rather than pass silently on a fact it cannot
+ * check -- the failure mode this whole script exists to prevent -- it fails until a human has
+ * looked and says so with --agreement-verified. Look at the STATUS column, not the dates: an
+ * agreement can show a live date range while sitting at "Pending User Info". */
+check(
+  '2.1(b)  Paid Apps Agreement confirmed Active (manual)',
+  process.argv.includes('--agreement-verified'),
+  process.argv.includes('--agreement-verified')
+    ? 'operator confirmed'
+    : 'UNVERIFIED -- open https://appstoreconnect.apple.com/business, confirm Paid Apps Agreement STATUS is Active (not "Pending User Info"), then rerun with --agreement-verified',
+);
 
 // ── Legal / rating ──────────────────────────────────────────────────────────────────────────
 check('2.3.6  age rating set', Boolean(infos.data?.[0]?.attributes?.appStoreAgeRating), infos.data?.[0]?.attributes?.appStoreAgeRating ?? 'MISSING');

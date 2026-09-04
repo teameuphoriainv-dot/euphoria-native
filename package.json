@@ -87,6 +87,7 @@
     "parity:web": "node --import ./scripts/ts-resolve-hooks.mjs scripts/prod-web-parity.mjs",
     "parity:structure": "node --import ./scripts/ts-resolve-hooks.mjs scripts/web-native-structure-parity.mjs",
     "asc:preflight": "node scripts/asc-preflight.mjs",
+    "iap:device": "node scripts/iap-device-pin.mjs",
     "test:reviewer": "maestro test .maestro/reviewer-path.yaml"
   },
   "private": true
