@@ -38,6 +38,23 @@ const booted = sh('xcrun', ['simctl', 'list', 'devices', 'booted']).match(/\(([0
 if (!booted) { console.error('no booted simulator. boot one and install the app first.'); process.exit(2); }
 const dev = booted[1];
 
+/* PRECONDITION: THE SIMULATOR MUST BE ABLE TO REACH STOREKIT AT ALL. A slimmed simulator with
+ * com.apple.storekitd disabled returns zero products for reasons that have nothing to do with the
+ * App Store, producing this bug's EXACT signature from a completely unrelated cause -- a false
+ * confirmation is worse here than no answer. simslim is optional; when present it is authoritative,
+ * and a capability failure exits 2 (cannot run) rather than 1 (product is broken). */
+try {
+  sh('simslim', ['doctor', dev, '--requires', 'storekit,app-store']);
+} catch (e) {
+  if (e.code === 'ENOENT') {
+    console.log('        note: simslim not installed — StoreKit daemon health unverified');
+  } else {
+    console.error('FAIL  2.1(b)  cannot measure — this simulator lacks StoreKit daemons (slimmed?)');
+    console.error('        run: simslim off ' + dev + '   (or use an unmodified simulator)');
+    process.exit(2);
+  }
+}
+
 try { sh('xcrun', ['simctl', 'terminate', dev, BUNDLE]); } catch { /* not running is fine */ }
 try { sh('xcrun', ['simctl', 'launch', dev, BUNDLE]); }
 catch { console.error(`${BUNDLE} is not installed on ${dev}.`); process.exit(2); }
