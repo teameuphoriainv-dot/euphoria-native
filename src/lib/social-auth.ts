@@ -62,6 +62,17 @@ export type SocialIdentity = {
 };
 
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+/**
+ * THE WEB CLIENT ID IS NOT OPTIONAL, AND IT IS NOT THE iOS ONE.
+ *
+ * Supabase validates the id token's `aud` against the client ids registered on its Google provider,
+ * and its documented React Native integration configures the SDK with `webClientId` — that is the
+ * audience it expects. Configuring only `iosClientId` mints a token for the iOS client, which is a
+ * different audience, and sign-in fails at the server with an unhelpful verification error rather
+ * than anything that names the real problem. Diagnosed 2026-09-05 from a GoTrue log reading
+ * "failed to verify signature: failed to verify id token signature".
+ */
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 
 /**
  * Shape-validated, not length-validated.
@@ -152,7 +163,11 @@ async function loadGoogle() {
   const mod = await import('@react-native-google-signin/google-signin');
   if (!googleConfigured) {
     // configure() is synchronous and idempotent, but it is pointless to re-run per tap.
-    mod.GoogleSignin.configure({ iosClientId: GOOGLE_IOS_CLIENT_ID });
+    mod.GoogleSignin.configure({
+      iosClientId: GOOGLE_IOS_CLIENT_ID,
+      // Drives the `aud` claim Supabase checks. Omitting it is the 2026-09-05 sign-in bug.
+      ...(GOOGLE_WEB_CLIENT_ID ? { webClientId: GOOGLE_WEB_CLIENT_ID } : {}),
+    });
     googleConfigured = true;
   }
   return mod;

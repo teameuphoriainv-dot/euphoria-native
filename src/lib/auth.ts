@@ -249,10 +249,18 @@ export async function signInWithIdToken(
 ): Promise<AuthResult> {
   const sb = supabase();
   if (!sb) return OFF;
+  /*
+   * ACCESS TOKEN IS APPLE-ONLY ON PURPOSE.
+   *
+   * Supabase's documented Google call passes the id token and nothing else. Sending an access token
+   * alongside it makes GoTrue validate the id token's `at_hash` against it — and getTokens() returns
+   * a FRESH access token, not the one the hash was computed from, so a correct sign-in fails a hash
+   * it was never going to match. Apple's flow is unaffected and keeps the parameter.
+   */
   const { error } = await sb.auth.signInWithIdToken({
     provider,
     token,
-    ...(accessToken ? { access_token: accessToken } : {}),
+    ...(accessToken && provider !== 'google' ? { access_token: accessToken } : {}),
   });
   if (error) return { ok: false, message: authMessage(error.message) };
   return { ok: true, needsConfirmation: false };
