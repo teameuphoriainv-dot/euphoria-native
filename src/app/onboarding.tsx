@@ -1028,9 +1028,22 @@ export default function Onboarding() {
           step === PAYWALL_INDEX
             ? isProNow
               ? () => router.replace('/home')
-              : offersTrial
-                ? next
-                : buyPro
+              /*
+               * THE PAID CTA ALWAYS STARTS A STOREKIT PURCHASE. It used to send the trial
+               * variant to `next`, so "Start my N-day free trial" — the ONLY control on the
+               * paywall — navigated away without ever calling buyPro. No payment sheet, no
+               * purchase, no error: the button simply did not sell anything.
+               *
+               * App Review rejected build 24 for exactly this, guideline 2.1(b): "there was
+               * no response when we chose Annual or Monthly and tapped Start my 3-day free
+               * trial." It was not a rendering bug; the buy handler was never wired to the
+               * button that says buy.
+               *
+               * The free days are an App Store INTRODUCTORY OFFER on the yearly/monthly
+               * product, so purchasing the package is precisely how the trial begins — which
+               * is also what the footer promises: "Cancel anytime in the App Store."
+               */
+              : buyPro
             : next
         }
       />}
@@ -1039,7 +1052,10 @@ export default function Onboarding() {
           {`Euphoria is built for ages ${String(AGE_FLOOR)} and up. Come back when you get there. We'll be here.`}
         </ThemedText>
       )}
-      {step === PAYWALL_INDEX && !offersTrial && !isProNow && !IAP_ENABLED && (
+      {/* Same class of bug: gating this on `!offersTrial` hid the reason on the one
+          variant that shows the trial CTA, leaving a live-looking button that cannot
+          transact and says nothing about why. A control explains itself or it is dead. */}
+      {step === PAYWALL_INDEX && !isProNow && !IAP_ENABLED && (
         <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
           {IAP_DISABLED_REASON}
         </ThemedText>

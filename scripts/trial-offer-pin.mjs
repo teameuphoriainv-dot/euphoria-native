@@ -37,10 +37,27 @@ for (const [re, what] of mustGate) {
   assert.match(src, re, `${what} is no longer gated on offersTrial — it can reach a user mid-trial`);
 }
 
-// 4. the CTA must not be `next` for anyone who already has a running trial: that was the dead
-//    control the reports actually hit — a button that says "start my free trial" and only paginates.
-assert.match(src, /\?\s*next\s*\n?\s*:\s*buyPro/,
-  'the paywall CTA no longer routes non-trial users to buyPro');
+// 4. THE PAID CTA MUST BUY — for EVERY non-pro user, trial-eligible or not.
+//
+// This pin used to assert the exact opposite. It required the literal `? next : buyPro`, which
+// pinned the trial CTA to the PAGINATION handler: "Start my N-day free trial" called `next`,
+// `next` found itself on the last step, and it navigated away without ever touching StoreKit.
+// The comment above it even described that as the bug — "a button that says 'start my free
+// trial' and only paginates" — and then pinned it in place for the offersTrial branch.
+//
+// App Review rejected build 24 on guideline 2.1(b) for precisely this: "there was no response
+// when we chose Annual or Monthly and tapped Start my 3-day free trial." A pin that encodes the
+// defect is worse than no pin, because it fails the person who arrives to fix it.
+//
+// The free days are an App Store introductory offer on the product, so BUYING is how the trial
+// starts. There is no path from this screen to a trial that does not go through StoreKit.
+const cta = src.match(/onPress=\{([\s\S]*?)\n\s*\}\n\s*\/>\}/);
+assert.ok(cta, 'the paywall CTA onPress block could not be located — this pin has gone blind');
+assert.doesNotMatch(cta[1], /\?\s*next\s*\n?\s*:\s*buyPro/,
+  'the paywall CTA routes trial-eligible users to `next`. That is the dead buy button App Review '
+  + 'rejected on 2.1(b): it paginates instead of opening the Apple payment sheet.');
+assert.match(cta[1], /:\s*buyPro\s*\n\s*:\s*next\s*$/,
+  'the paywall CTA must call buyPro for every non-pro user; only the already-pro branch may skip it');
 
 // 5. a paying subscriber must never be offered anything here
 assert.match(src, /const isProNow = tierNow === 'pro';/, 'the pro case is not distinguished');
