@@ -20,7 +20,13 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "euphoria_pro_monthly_id",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "euphoria_pro_monthly_intro_3d",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
           "localizations" : [
             {
               "description" : "Every lesson, unlimited Atlas, the full options desk.",
@@ -41,7 +47,13 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "euphoria_pro_yearly_id",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "euphoria_pro_yearly_intro_3d",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
           "localizations" : [
             {
               "description" : "Every lesson, unlimited Atlas, the full options desk. Save 33%.",

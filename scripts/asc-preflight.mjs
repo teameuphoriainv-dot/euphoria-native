@@ -139,6 +139,20 @@ for (const sub of subs) {
   const ls = await api(`/v1/subscriptions/${sub.id}/subscriptionLocalizations?limit=10`);
   const en = (ls.data ?? []).find((l) => l.attributes.locale === 'en-US');
   check(`3.1.2  ${sub.attributes.productId} has name + description`, Boolean(en?.attributes?.name && en?.attributes?.description), en?.attributes?.name ?? 'MISSING');
+  /*
+   * THE 2.1(b) FIX RESTS ON THIS FIELD. Build 24 was rejected for "no response when we chose
+   * Annual or Monthly and tapped Start my 3-day free trial": the trial was a day counter in
+   * AsyncStorage and the CTA never opened a purchase sheet. The trial is now Apple's own
+   * introductory offer, and the paywall reads its length from StoreKit — so a product with no
+   * offer configured here does not merely lose a badge, it silently removes the trial the entire
+   * funnel is written around. It was a manual step once; a manual step is what got us rejected.
+   */
+  const intro = await api(`/v1/subscriptions/${sub.id}/introductoryOffers?limit=10`);
+  const free = (intro.data ?? []).filter((o) => o.attributes?.offerMode === 'FREE_TRIAL');
+  check(`2.1(b)  ${sub.attributes.productId} has a free introductory offer`, free.length > 0,
+    free.length
+      ? free.map((o) => `${o.attributes.numberOfPeriods} x ${o.attributes.duration}`).join(', ')
+      : 'NONE — the paywall trial does not exist for this product');
 }
 
 // ── 2.1(b) Purchasability ─────────────────────────────────────────────────────────────
