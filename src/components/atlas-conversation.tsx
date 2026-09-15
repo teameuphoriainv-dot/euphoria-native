@@ -310,7 +310,20 @@ export function VocabConversation({
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  content: { flexGrow: 1, width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 24, paddingTop: Spacing.three, paddingBottom: 48 },
+  /*
+   * CENTRED WHEN SHORT, TOP PACKED WHEN LONG.
+   *
+   * This is a conversation that grows: it opens with one bubble and ends after thirteen beats, so
+   * top packing is right at the end and wrong at the start. Measured on device at beat 2, the
+   * bubble ended at y=291 and the Next button at y=428, leaving about 365pt of empty screen below
+   * the only control. 186 vocabulary steps in the corpus open exactly like that.
+   *
+   * `flexGrow: 1` with `justifyContent: 'center'` gives both behaviours from one rule: while the
+   * content is shorter than the viewport it sits in the middle of it, and the moment it is taller
+   * the container stops centring and it scrolls from the top as before. Nothing special-cases the
+   * length, and there is no spacer.
+   */
+  content: { flexGrow: 1, justifyContent: 'center', width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 24, paddingTop: Spacing.three, paddingBottom: 48 },
   progressTrack: { height: 4, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.07)' },
   progressFill: { width: '100%', height: 4, borderRadius: 999, backgroundColor: '#B862ED', transformOrigin: 'left' },
   conversationRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginTop: 20 },
