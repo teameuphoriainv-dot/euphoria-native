@@ -126,6 +126,49 @@ const KEYWORDS: readonly (readonly [Archetype, readonly string[]])[] = [
  * rate is reported by `scripts/mobile-deck-audit.mjs`, so a corpus drifting away from this table
  * shows up as a number rather than as quietly identical artwork everywhere.
  */
+/**
+ * Every archetype the text matches, best first, rather than only the winner.
+ *
+ * `pickArchetype` returns one. A deck needs several, and it needs them to be DIFFERENT: measured
+ * before this existed, 290 of the 721 decks put the same sprite on two cards and 48 used one sprite
+ * three times or more, which is what makes a lesson feel like one screen shown four times.
+ */
+export function rankArchetypes(...text: (string | undefined)[]): Archetype[] {
+  const sources = text.filter((t): t is string => Boolean(t && t.trim()));
+  const ranked: Archetype[] = [];
+  for (const source of sources) {
+    const hay = source.toLowerCase();
+    for (const [archetype, words] of KEYWORDS) {
+      if (ranked.includes(archetype)) continue;
+      for (const w of words) {
+        if (hay.includes(w)) { ranked.push(archetype); break; }
+      }
+    }
+  }
+  return ranked;
+}
+
+/**
+ * Pick an archetype the text matches that is NOT already used.
+ *
+ * Falls through the ranked matches first, because a second-best match that is still ABOUT this
+ * lesson beats an unrelated picture chosen for novelty. Only when every match is taken does it walk
+ * the vocabulary, and it starts that walk from a position derived from the text so two cards in the
+ * same deck do not both land on the same consolation archetype.
+ */
+export function pickDistinctArchetype(used: ReadonlySet<string>, ...text: (string | undefined)[]): Archetype {
+  for (const a of rankArchetypes(...text)) if (!used.has(a)) return a;
+
+  const seed = text.filter(Boolean).join(' ');
+  let h = 0;
+  for (let i = 0; i < seed.length; i += 1) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < ARCHETYPES.length; i += 1) {
+    const candidate = ARCHETYPES[(h + i) % ARCHETYPES.length];
+    if (!used.has(candidate)) return candidate;
+  }
+  return pickArchetype(...text);
+}
+
 export function pickArchetype(...text: (string | undefined)[]): Archetype {
   /*
    * EACH SOURCE IN TURN, most authoritative first. Not all of them joined together.

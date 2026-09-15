@@ -18,7 +18,7 @@ import type { AnimatedVisual, InteractiveGraphStep, LessonStep, TeachingSlideSte
 import { visualIsRenderable } from '../lesson-steps';
 import { compress, compressTitle } from './compress';
 import { interactiveFor } from './interactives';
-import { pickArchetype } from './archetypes';
+import { pickArchetype, pickDistinctArchetype } from './archetypes';
 import { overrideFor } from './overrides';
 import { CARD_BUDGET, DECK_MAX_CARDS, type MobileCard, type MobileDeck, type MobileInteractive, type SceneSpec } from './types';
 
@@ -45,8 +45,21 @@ const CARD_MARK: Partial<Record<MobileCard['kind'], string>> = {
   takeaway: 'check',
 };
 
-function scene(explainSource: string | undefined, ...text: (string | undefined)[]): SceneSpec {
-  const spec: SceneSpec = { archetype: pickArchetype(...text) };
+/**
+ * A scene, avoiding art already spent elsewhere in the same deck.
+ *
+ * `used` is mutated as it goes, which is deliberate: the caller builds the cards in order and each
+ * one should see what the ones before it took. Before this, 290 of the 721 decks repeated a sprite
+ * and 48 showed the same one three times or more.
+ */
+function scene(
+  used: Set<string>,
+  explainSource: string | undefined,
+  ...text: (string | undefined)[]
+): SceneSpec {
+  const archetype = pickDistinctArchetype(used, ...text);
+  used.add(archetype);
+  const spec: SceneSpec = { archetype };
   const explain = explainSource ? compress(explainSource, CARD_BUDGET.verdict) : '';
   return explain ? { ...spec, explain } : spec;
 }
@@ -70,6 +83,7 @@ function marked(spec: SceneSpec, kind: MobileCard['kind']): SceneSpec {
 function termCard(
   terms: { term: string; definition: string }[] | undefined,
   used: string[],
+  art: Set<string>,
 ): MobileCard | null {
   const first = (terms ?? []).find((t) => t?.term?.trim() && t?.definition?.trim());
   if (!first) return null;
@@ -92,7 +106,7 @@ function termCard(
      * the definition as a second look. Right picture when the term says what it is, a reasonable
      * one when it does not.
      */
-    scene: marked(scene(undefined, first.term, first.definition), 'term'),
+    scene: marked(scene(art, undefined, first.term, first.definition), 'term'),
   };
 }
 
@@ -101,11 +115,12 @@ function takeawayCard(
   sources: (string | string[] | undefined)[],
   used: string[],
   topic: string,
+  art: Set<string>,
 ): MobileCard | null {
   for (const source of sources) {
     if (!source) continue;
     const body = compress(source, CARD_BUDGET.takeaway, { avoid: used });
-    if (body) return { kind: 'takeaway', body, scene: marked(scene(undefined, body, topic), 'takeaway') };
+    if (body) return { kind: 'takeaway', body, scene: marked(scene(art, undefined, body, topic), 'takeaway') };
   }
   return null;
 }
@@ -118,22 +133,84 @@ function interactiveText(spec: MobileInteractive): string[] {
   return [];
 }
 
-function trim(cards: (MobileCard | null)[]): MobileCard[] {
-  return cards.filter((c): c is MobileCard => c !== null).slice(0, DECK_MAX_CARDS);
+/**
+ * The running orders a deck may use, as card kinds in sequence.
+ *
+ * WHY THIS EXISTS. Every deck used to be built in one fixed order, so across 721 decks there were
+ * exactly THREE distinct card sequences and all of them opened `idea, term`. Four cards shown in
+ * the same order 721 times is the definition of the boredom this whole rebuild was meant to remove.
+ *
+ * All of these teach the same material; they differ in where they START, which is the part a
+ * learner notices. Leading with the picture suits a step whose diagram IS the argument; leading
+ * with the word suits one that cannot be read until the word is known; leading with the claim is
+ * the plain version and is still the most common.
+ *
+ * Anything not named in the chosen order is appended in its natural position rather than dropped,
+ * so an order can never silently lose a card the step actually had.
+ */
+const RUNNING_ORDERS: readonly (readonly MobileCard['kind'][])[] = [
+  ['idea', 'term', 'chart', 'takeaway'],
+  ['idea', 'term', 'interactive', 'takeaway'],
+  ['chart', 'idea', 'term', 'takeaway'],
+  ['interactive', 'idea', 'term', 'takeaway'],
+  ['term', 'idea', 'chart', 'takeaway'],
+  ['idea', 'chart', 'term', 'takeaway'],
+  ['idea', 'interactive', 'term', 'takeaway'],
+];
+
+/**
+ * Put a deck's cards in an order chosen from the step's own id.
+ *
+ * DETERMINISTIC, not random. The same step produces the same deck on every launch and on every
+ * device, which matters because a learner going back a screen must not find the lesson rearranged,
+ * and because the audits have to be able to reproduce what they are checking.
+ *
+ * The id already carries a content fingerprint, so two adjacent steps in one lesson get different
+ * orders while one step keeps its order until an author edits it.
+ */
+function arrange(sourceId: string, cards: (MobileCard | null)[]): MobileCard[] {
+  const present = cards.filter((c): c is MobileCard => c !== null);
+  if (present.length < 3) return present.slice(0, DECK_MAX_CARDS);
+
+  let h = 0;
+  for (let i = 0; i < sourceId.length; i += 1) h = (h * 33 + sourceId.charCodeAt(i)) >>> 0;
+  const order = RUNNING_ORDERS[h % RUNNING_ORDERS.length];
+
+  /*
+   * THE TAKEAWAY IS ALWAYS LAST, whatever the running order says.
+   *
+   * It is held out of the shuffle entirely rather than trusted to the order. The first version let
+   * it be placed by name and then appended whatever the order had not mentioned, which produced
+   * `idea, term, takeaway, chart` on 115 decks: an order that names `interactive` places the
+   * takeaway third on a deck that has a chart instead, and the chart lands after it. A card that
+   * says "remember this" cannot come before the evidence.
+   */
+  const takeaway = present.filter((c) => c.kind === 'takeaway');
+  const remaining = present.filter((c) => c.kind !== 'takeaway');
+  const out: MobileCard[] = [];
+  for (const kind of order) {
+    if (kind === 'takeaway') continue;
+    const at = remaining.findIndex((c) => c.kind === kind);
+    if (at >= 0) out.push(...remaining.splice(at, 1));
+  }
+  // Anything the order did not name keeps its authored position, still ahead of the takeaway.
+  out.push(...remaining, ...takeaway);
+  return out.slice(0, DECK_MAX_CARDS);
 }
 
 function deckFromTeachingSlide(step: TeachingSlideStep, sourceId: string): MobileDeck {
   const used: string[] = [];
+  const art = new Set<string>();
   const title = compressTitle(step.title, CARD_BUDGET.title);
 
   const body = compress(step.paragraphs ?? [], CARD_BUDGET.body);
   if (body) used.push(body);
 
   const claim: MobileCard | null = body
-    ? { kind: 'idea', title, body, scene: scene(step.atlas?.hint, step.title, step.diagramDescription) }
+    ? { kind: 'idea', title, body, scene: scene(art, step.atlas?.hint, step.title, step.diagramDescription) }
     : null;
 
-  const word = termCard(step.highlightedTerms, used);
+  const word = termCard(step.highlightedTerms, used, art);
   if (word && word.kind === 'term') used.push(word.plain);
 
   /**
@@ -161,7 +238,7 @@ function deckFromTeachingSlide(step: TeachingSlideStep, sourceId: string): Mobil
       : null;
 
   // Authored send-offs only, for the reason given on the graph deck's takeaway below.
-  const takeaway = takeawayCard([step.atlas?.recap, step.realExample?.explanation], used, step.title);
+  const takeaway = takeawayCard([step.atlas?.recap, step.realExample?.explanation], used, step.title, art);
 
   return {
     type: 'mobileDeck',
@@ -169,12 +246,13 @@ function deckFromTeachingSlide(step: TeachingSlideStep, sourceId: string): Mobil
     sourceId,
     label: step.sectionLabel || 'Learn',
     title,
-    cards: trim([claim, word, chart, takeaway]),
+    cards: arrange(sourceId, [claim, word, chart, takeaway]),
   };
 }
 
 function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string): MobileDeck {
   const used: string[] = [];
+  const art = new Set<string>();
   const title = compressTitle(step.title, CARD_BUDGET.title);
 
   /**
@@ -186,10 +264,10 @@ function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string):
   if (body) used.push(body);
 
   const claim: MobileCard | null = body
-    ? { kind: 'idea', title, body, scene: scene(undefined, step.title, step.description) }
+    ? { kind: 'idea', title, body, scene: scene(art, undefined, step.title, step.description) }
     : null;
 
-  const word = termCard(step.highlightedTerms, used);
+  const word = termCard(step.highlightedTerms, used, art);
   if (word && word.kind === 'term') used.push(word.plain);
 
   const doing: MobileCard = { kind: 'interactive', spec: interactiveFor(step) };
@@ -212,7 +290,7 @@ function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string):
    * $278,000" (added to what?). A three card deck that ends on the interactive is better than a
    * four card deck that ends on a fragment, so when there is no real send-off there is no card.
    */
-  const takeaway = takeawayCard([step.realExample?.explanation], used, step.title);
+  const takeaway = takeawayCard([step.realExample?.explanation], used, step.title, art);
 
   return {
     type: 'mobileDeck',
@@ -220,7 +298,7 @@ function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string):
     sourceId,
     label: step.sectionLabel || 'Explore',
     title,
-    cards: trim([claim, word, doing, takeaway]),
+    cards: arrange(sourceId, [claim, word, doing, takeaway]),
   };
 }
 

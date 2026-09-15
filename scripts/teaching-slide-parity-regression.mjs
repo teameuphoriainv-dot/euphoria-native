@@ -39,7 +39,22 @@ deepStrictEqual(segments.filter((segment) => segment.kind === 'term').map((segme
 strictEqual(teachingDwellRemaining(15_000, 0), 15);
 strictEqual(teachingDwellRemaining(15_000, 14_001), 1);
 strictEqual(teachingDwellRemaining(15_000, 15_001), 0);
-strictEqual(TEACHING_SLIDE_DWELL_MS, 15_000);
+/*
+ * THE DWELL IS SIX SECONDS ON MOBILE, DELIBERATELY DIFFERENT FROM WEB.
+ *
+ * This asserted 15 seconds, matching production web. That is the right number on a desktop, where
+ * the whole comparison is visible at once and the cursor is already resting on Continue. On a phone
+ * a fifteen second greyed-out button reads as a frozen app: Sriyan sent a screenshot of "Continue
+ * in 5s" asking for it to be shorter, and by then it had been counting down for ten seconds.
+ *
+ * The gate is KEPT, only shortened. Removing it entirely would let a learner skim past the diagram,
+ * which is the thing it exists to prevent. Six is long enough to force a look and short enough not
+ * to read as broken.
+ *
+ * Pinned to an exact value rather than a range so that changing it stays a decision somebody makes
+ * on purpose.
+ */
+strictEqual(TEACHING_SLIDE_DWELL_MS, 6_000);
 strictEqual(TEACHING_SLIDE_SCROLL_MARGIN, 100);
 
 let slides = 0;

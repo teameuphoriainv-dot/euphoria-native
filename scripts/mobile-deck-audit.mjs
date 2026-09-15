@@ -157,6 +157,10 @@ function repeatedText(deck) {
 const stats = {
   heavy: 0, decks: 0, cards: 0, sourceChars: 0, deckChars: 0,
   byCardKind: new Map(), byInteractive: new Map(), bySize: new Map(), byArchetype: new Map(),
+  /** Distinct card sequences. Three of these across 721 decks is what "boring" measured as. */
+  byShape: new Map(),
+  /** Decks that put the same sprite on more than one card. */
+  repeatedArt: 0,
 };
 const failures = [];
 const overBudget = [];
@@ -191,6 +195,25 @@ for (const course of COURSES) {
 
       const src = step.paragraphs ?? [];
       stats.sourceChars += [...src, step.description ?? '', ...(step.insights ?? [])].join(' ').length;
+
+      stats.byShape.set(
+        deck.cards.map((c) => c.kind).join(','),
+        (stats.byShape.get(deck.cards.map((c) => c.kind).join(',')) ?? 0) + 1,
+      );
+      const deckArt = deck.cards.map((c) => c.scene?.archetype).filter(Boolean);
+      if (new Set(deckArt).size !== deckArt.length) {
+        stats.repeatedArt += 1;
+        failures.push(`${id} shows the same art on more than one card`);
+      }
+      /*
+       * A takeaway is the last word or it is not a takeaway. `arrange()` holds it out of the
+       * running order for this reason, and an earlier version did not, which put "remember this"
+       * ahead of the chart it was summarising on 115 decks.
+       */
+      const takeawayAt = deck.cards.findIndex((c) => c.kind === 'takeaway');
+      if (takeawayAt >= 0 && takeawayAt !== deck.cards.length - 1) {
+        failures.push(`${id} puts the takeaway before the evidence`);
+      }
 
       for (const card of deck.cards) {
         stats.cards += 1;
@@ -241,6 +264,14 @@ const stale = overrideKeys().filter((k) => !live.has(k));
 
 const pct = (n, d) => (d ? `${Math.round((n / d) * 100)}%` : 'n/a');
 
+/*
+ * VARIETY, PINNED, because it regresses silently.
+ * Before `arrange()` existed there were 3 distinct card sequences across all 721 decks and the most
+ * common one was 40% of them. Both numbers are the thing a learner experiences as sameness.
+ */
+const MIN_DECK_SHAPES = 8;
+const MAX_SHARE_ONE_SHAPE = 0.35;
+
 console.log('MOBILE DECK AUDIT');
 console.log(`  heavy steps          ${stats.heavy}`);
 console.log(`  decks derived        ${stats.decks}`);
@@ -249,6 +280,12 @@ console.log(`  cards per deck       ${[...stats.bySize].sort((a, b) => a[0] - b[
 console.log(`  card kinds           ${[...stats.byCardKind].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}:${v}`).join('  ')}`);
 console.log(`  interactives         ${[...stats.byInteractive].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}:${v}`).join('  ')}`);
 console.log(`  archetypes used      ${stats.byArchetype.size}/${ARCHETYPES.length}`);
+console.log(`  distinct deck shapes ${stats.byShape.size}   (floor ${MIN_DECK_SHAPES})`);
+{
+  const top = [...stats.byShape].sort((a, b) => b[1] - a[1])[0];
+  console.log(`  most common shape    ${pct(top[1], stats.decks)} ${top[0]}   (cap ${Math.round(MAX_SHARE_ONE_SHAPE * 100)}%)`);
+}
+console.log(`  decks repeating art  ${stats.repeatedArt}   (limit 0)`);
 console.log(`  sprite kit           ${KIT_IDS.size} sprites, every scene id checked against real art`);
 console.log(`  authored chars       ${stats.sourceChars}`);
 console.log(`  on-card chars        ${stats.deckChars}`);
@@ -269,6 +306,16 @@ if (SHOW_OVER) {
 if (SHOW_STALE && stale.length) {
   console.log('\nSTALE OVERRIDES, their step changed in a re-sync. Rewrite against the new text:');
   for (const k of stale) console.log(`  ${k}`);
+}
+
+{
+  const top = [...stats.byShape].sort((a, b) => b[1] - a[1])[0];
+  if (stats.byShape.size < MIN_DECK_SHAPES) {
+    failures.push(`only ${stats.byShape.size} distinct deck shapes, floor is ${MIN_DECK_SHAPES}`);
+  }
+  if (top && top[1] / stats.decks > MAX_SHARE_ONE_SHAPE) {
+    failures.push(`one deck shape is ${pct(top[1], stats.decks)} of all decks, cap is ${Math.round(MAX_SHARE_ONE_SHAPE * 100)}%`);
+  }
 }
 
 if (failures.length) {

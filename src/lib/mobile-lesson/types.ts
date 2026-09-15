@@ -70,7 +70,29 @@ export type MobileInteractive =
   /** Compound growth the learner steps through. 33 steps, wherever the sliders are unambiguous. */
   | { kind: 'grow'; prompt: string; startLabel: string; start: number; ratePercent: number; maxYears: number; verdict: string }
   /** Press to uncover the point. The fallback when a step has no usable insight. */
-  | { kind: 'reveal'; prompt: string; hidden: string; scene: SceneSpec };
+  | { kind: 'reveal'; prompt: string; hidden: string; scene: SceneSpec }
+  /**
+   * Guess the figure. The learner picks the missing number out of an authored sentence, then sees
+   * the sentence in full.
+   *
+   * 90% of graph steps have an insight that leads with a figure, which is what makes this possible
+   * without inventing anything. The SENTENCE and the REAL figure are both the author's. The two
+   * wrong options are arithmetic variants of the real one, they are never presented as true, and
+   * the authored sentence is shown in full immediately afterwards.
+   */
+  | {
+      kind: 'guess';
+      prompt: string;
+      /** The authored sentence with the figure replaced by a blank. */
+      masked: string;
+      /** The figure exactly as the author wrote it. */
+      answer: string;
+      /** The answer plus two arithmetic variants, in a fixed order. */
+      options: string[];
+      /** The authored sentence, whole. */
+      full: string;
+      scene: SceneSpec;
+    };
 
 /**
  * One card in a deck.

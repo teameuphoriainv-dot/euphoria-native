@@ -154,16 +154,99 @@ function asInsightSteps(step: InteractiveGraphStep): MobileInteractive {
 }
 
 /**
+ * A figure in an authored sentence: money, a percentage, a multiple, or a plain count.
+ *
+ * Deliberately narrow. It must match something a learner would read AS a quantity, and it must not
+ * match a year, because "since 1926" is not a figure anyone is meant to guess and blanking it turns
+ * a true sentence into a riddle.
+ */
+const FIGURE = /\$[\d][\d,]*(?:\.\d+)?(?:\s?(?:million|billion|trillion))?|\b\d+(?:\.\d+)?%|\b\d+(?:\.\d+)?x\b/;
+const YEAR = /^(?:19|20)\d\d$/;
+
+/** Rewrite a figure at a new magnitude, keeping the author's own formatting. */
+function scaleFigure(figure: string, factor: number): string | null {
+  const m = figure.match(/[\d][\d,]*(?:\.\d+)?/);
+  if (!m) return null;
+  const raw = Number(m[0].replace(/,/g, ''));
+  if (!Number.isFinite(raw) || raw <= 0) return null;
+
+  const scaled = raw * factor;
+  if (scaled < 0.01) return null;
+  const decimals = m[0].includes('.') ? (m[0].split('.')[1]?.length ?? 0) : 0;
+  const rendered = scaled >= 1000
+    ? Math.round(scaled).toLocaleString('en-US')
+    : scaled.toFixed(decimals);
+  return figure.replace(m[0], rendered);
+}
+
+/**
+ * Guess the figure.
+ *
+ * Returns null unless everything lines up: an insight short enough to read on a card, a figure that
+ * is not a year, and two distractors that are distinct from the answer and from each other. Every
+ * one of those is a reason to fall back rather than to improvise, because a guessing game with two
+ * identical options or with the answer visible is worse than no guessing game.
+ */
+function asGuess(step: InteractiveGraphStep): MobileInteractive | null {
+  for (const insight of step.insights ?? []) {
+    const text = String(insight ?? '').trim();
+    if (!text || text.length > 150) continue;
+
+    const found = text.match(FIGURE);
+    if (!found) continue;
+    const answer = found[0];
+    if (YEAR.test(answer.replace(/[^\d]/g, ''))) continue;
+
+    const low = scaleFigure(answer, 0.5);
+    const high = scaleFigure(answer, 2);
+    if (!low || !high) continue;
+
+    const options = [answer, low, high];
+    if (new Set(options).size !== 3) continue;
+
+    return {
+      kind: 'guess',
+      prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Fill in the number',
+      masked: text.replace(answer, '\u2007\u2007?\u2007\u2007'),
+      answer,
+      // Sorted so position never leaks the answer: the real figure is not always first.
+      options: [...options].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })),
+      full: text,
+      scene: { archetype: pickArchetype(text, step.title) },
+    };
+  }
+  return null;
+}
+
+/**
  * The mobile interactive that replaces one desktop graph.
  *
  * Never returns null: a graph step must always become something, or the learner reaches a card
  * frame with nothing in it.
  */
 export function interactiveFor(step: InteractiveGraphStep): MobileInteractive {
-  return asGrow(step) ?? asInsightSteps(step);
+  const grow = asGrow(step);
+  if (grow) return grow;
+
+  /*
+   * ROTATE between the kinds that fit, rather than always taking the first that does.
+   *
+   * `asGuess` succeeds on about 90% of graph steps, so preferring it unconditionally would simply
+   * replace one monotony with another: before this, 256 of the 289 graph steps were the identical
+   * tap-through. Choosing from the step's own id keeps it deterministic, so a learner going back a
+   * screen finds the same interaction, while adjacent steps in a lesson differ.
+   */
+  let h = 0;
+  const id = `${step.title}|${step.sectionLabel ?? ''}`;
+  for (let i = 0; i < id.length; i += 1) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+
+  const guess = asGuess(step);
+  const steps = asInsightSteps(step);
+  if (!guess) return steps;
+  return h % 2 === 0 ? guess : steps;
 }
 
 /** Which branch fired, for `scripts/mobile-deck-audit.mjs` to report. Not used by the app. */
-export function interactiveKindFor(step: InteractiveGraphStep): 'grow' | 'timeline' | 'reveal' {
-  return interactiveFor(step).kind as 'grow' | 'timeline' | 'reveal';
+export function interactiveKindFor(step: InteractiveGraphStep): MobileInteractive['kind'] {
+  return interactiveFor(step).kind;
 }

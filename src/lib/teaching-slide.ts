@@ -1,6 +1,18 @@
 import type { AnimatedVisual } from '@/lib/curriculum';
 
-export const TEACHING_SLIDE_DWELL_MS = 15_000;
+/**
+ * SIX SECONDS, NOT FIFTEEN.
+ *
+ * The gate exists so a learner cannot skim past a diagram without looking at it, and that is worth
+ * keeping. Fifteen was the web number, on a screen where the whole comparison is visible at once
+ * and the reader has a mouse hovering over Continue. On a phone the same wait reads as the app
+ * being broken: Sriyan sent a screenshot of a greyed-out "Continue in 5s" asking for it to be
+ * shorter, and at that point the button had already been counting for ten seconds.
+ *
+ * Six is long enough that the eye has to land on the content and short enough that nobody wonders
+ * whether the app has frozen.
+ */
+export const TEACHING_SLIDE_DWELL_MS = 6_000;
 export const TEACHING_SLIDE_SCROLL_MARGIN = 100;
 
 export type TeachingTerm = { term: string; definition: string; example?: string };

@@ -188,6 +188,56 @@ function RevealCard({ spec, onWorked }: { spec: Extract<MobileInteractive, { kin
 }
 
 /**
+ * Guess the figure, then read the sentence it came from.
+ *
+ * The learner is asked for a number rather than told it, which is the difference between reading
+ * that $10,000 becomes $174,494 and having to decide whether it does. 90% of the graph steps carry
+ * an insight that leads with a figure, which is what makes this possible without inventing
+ * anything: the sentence and the real figure are the author's, and the two wrong options are
+ * arithmetic variants that are never shown as true.
+ */
+function GuessLab({ spec, onWorked }: { spec: Extract<MobileInteractive, { kind: 'guess' }>; onWorked: () => void }) {
+  const reduced = useReducedMotion();
+  const [picked, setPicked] = useState<string | null>(null);
+  const answered = picked !== null;
+  const right = picked === spec.answer;
+
+  const choose = useCallback((value: string) => {
+    if (picked !== null) return;
+    setPicked(value);
+    onWorked();
+  }, [picked, onWorked]);
+
+  return (
+    <View style={styles.wrap}>
+      <ThemedText style={styles.prompt}>{spec.prompt}</ThemedText>
+      <PixelScene scene={spec.scene} size={72} />
+
+      {/* Blanked until answered, then the author's sentence in full. */}
+      <ThemedText style={styles.momentText}>{answered ? spec.full : spec.masked}</ThemedText>
+
+      {!answered ? (
+        <View style={styles.chipRow}>
+          {spec.options.map((o) => (
+            <SpringPressable key={o} onPress={() => choose(o)} accessibilityRole="button" accessibilityLabel={o}>
+              <View style={styles.guessChip}>
+                <ThemedText style={styles.guessChipText}>{o}</ThemedText>
+              </View>
+            </SpringPressable>
+          ))}
+        </View>
+      ) : (
+        <Animated.View entering={reduced ? undefined : FadeInDown.duration(280)}>
+          <ThemedText style={[styles.verdict, { color: right ? LessonColors.success : LessonColors.warning }]}>
+            {right ? 'That is the one.' : `It is ${spec.answer}.`}
+          </ThemedText>
+        </Animated.View>
+      )}
+    </View>
+  );
+}
+
+/**
  * `onWorked` fires the first time the learner actually does the thing.
  *
  * The deck uses it to unlock Continue, so a card with an interaction on it cannot be skipped past
@@ -198,6 +248,7 @@ export function DeckInteractive({ spec, onWorked }: { spec: MobileInteractive; o
   if (spec.kind === 'grow') return <GrowLab spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'timeline') return <MomentStepper spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'reveal') return <RevealCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'guess') return <GuessLab spec={spec} onWorked={onWorked} />;
   /*
    * Unreachable while MobileInteractive has three members, and deliberately not a throw. If a
    * fourth kind is added and someone forgets this switch, a learner should get a card that is
@@ -230,6 +281,18 @@ const styles = StyleSheet.create({
     borderColor: LessonColors.border,
   },
   chipOn: { backgroundColor: LessonColors.primary, borderColor: LessonColors.accent },
+  guessChip: {
+    minHeight: 52,
+    minWidth: 96,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: LessonColors.backgroundSelected,
+    borderWidth: 1,
+    borderColor: LessonColors.border,
+  },
+  guessChipText: { ...LessonTypography.heading, color: LessonColors.text },
   chipText: { ...LessonTypography.smallBold, color: LessonColors.mutedForeground },
   chipTextOn: { color: '#FFFFFF' },
   hint: { ...LessonTypography.small, color: LessonColors.mutedForeground, textAlign: 'center' },
