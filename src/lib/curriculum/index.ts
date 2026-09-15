@@ -21,7 +21,7 @@ import {
 } from './courseIndex';
 import { CURRICULUM_STATS, STEP_TYPE_COUNTS, STEP_TYPES, type StepType } from './stepTypes.generated';
 import { deriveDeck, isHeavyStep } from '../mobile-lesson/derive';
-import { shortenOptions, shortenPrompt } from '../mobile-lesson/question';
+import { STEP_TEXT_BUDGET, shortenField, shortenOptions, shortenPrompt } from '../mobile-lesson/question';
 import { stepId } from '../mobile-lesson/stepId';
 import type { LessonStep, PathwayLesson } from './types';
 
@@ -113,6 +113,46 @@ const lessonCache = new Map<string, Promise<PathwayLesson[]>>();
  */
 function withShorterQuestions(step: LessonStep): LessonStep {
   const s = step as Record<string, any>;
+
+  /*
+   * THE HOOK OPENER is the first screen of all 300 lessons and was the longest thing left in the
+   * corpus: `fact` at a median of 338 characters and a longest of 894, with `outcome` adding
+   * another 241 underneath it, on a screen that also carries a title, a chart and a button.
+   */
+  if (s.type === 'hookOpener') {
+    return {
+      ...s,
+      fact: shortenField(s.fact, STEP_TEXT_BUDGET.fact),
+      outcome: shortenField(s.outcome, STEP_TEXT_BUDGET.outcome),
+    } as LessonStep;
+  }
+
+  /*
+   * STAKES DETAIL only renders when neither panel has an authored visual, but when it does it is
+   * two paragraphs of about 305 characters inside panels that already have to share one screen.
+   */
+  if (s.type === 'stakesCard') {
+    return {
+      ...s,
+      without: s.without ? { ...s.without, detail: shortenField(s.without.detail, STEP_TEXT_BUDGET.stakesDetail) } : s.without,
+      with: s.with ? { ...s.with, detail: shortenField(s.with.detail, STEP_TEXT_BUDGET.stakesDetail) } : s.with,
+    } as LessonStep;
+  }
+
+  /*
+   * VOCABULARY definitions are shown one per beat, so the median of 154 is survivable and this cap
+   * is for the tail, which reaches 288. The term, the example and the sentence are left alone: they
+   * are already short, and the example is the thing that makes an abstract definition concrete.
+   */
+  if (s.type === 'keyTermsCards') {
+    return {
+      ...s,
+      terms: (s.terms ?? []).map((t: Record<string, any>) => ({
+        ...t,
+        definition: shortenField(t.definition, STEP_TEXT_BUDGET.definition),
+      })),
+    } as LessonStep;
+  }
 
   if (s.type === 'quiz' || s.type === 'microCheck' || s.type === 'visualInteractive') {
     return { ...s, question: shortenPrompt(s.question), options: shortenOptions(s.options ?? [], s.correct ?? 0) } as LessonStep;
