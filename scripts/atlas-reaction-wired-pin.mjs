@@ -62,7 +62,6 @@ function walk(dir, out = []) {
  * definition file is excluded because that is exactly where a dead prop still looks alive.
  */
 function callSites(prop, files) {
-  const re = new RegExp(`(?:<Atlas\\b[^>]*?|\\s)\\b${prop}\\b(?:\\s*=\\s*\\{|\\s|/?>)`, 's');
   return files.filter((f) => {
     if (f.endsWith('atlas.tsx')) return false;
     const src = readFileSync(f, 'utf8');
