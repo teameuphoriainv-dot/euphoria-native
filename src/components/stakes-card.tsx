@@ -24,6 +24,13 @@ import type { StakesCardSpec } from '@/lib/lesson-steps';
  */
 const DIAGRAM_DWELL_SECONDS = 6;
 
+/** True when two authored strings say the same thing, ignoring case and punctuation. */
+function sameWords(a?: string, b?: string): boolean {
+  const norm = (x?: string) => String(x ?? '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  const left = norm(a);
+  return left.length > 0 && left === norm(b);
+}
+
 /** Wall-time gate matching production useDwellGate(DWELL.diagram). */
 function useDiagramDwell() {
   const [remaining, setRemaining] = useState(DIAGRAM_DWELL_SECONDS);
@@ -49,6 +56,7 @@ function StakesPanel({
   showDetail,
   minHeight,
   visualMaxHeight,
+  tight,
 }: {
   positive: boolean;
   heading: string;
@@ -61,6 +69,8 @@ function StakesPanel({
   minHeight?: number;
   /** Caps the authored visual when the panels are stacked, so two of them still fit one screen. */
   visualMaxHeight?: number;
+  /** Smallest padding that still reads as a card. Set on screens under 720pt. */
+  tight?: boolean;
 }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
@@ -73,7 +83,7 @@ function StakesPanel({
   return (
     <Animated.View
       entering={entrance}
-      style={[styles.panel, { minHeight, borderColor: color + '4D', backgroundColor: color + '0A' }]}>
+      style={[styles.panel, tight && styles.panelTight, { minHeight, borderColor: color + '4D', backgroundColor: color + '0A' }]}>
       <View style={styles.panelHeading}>
         <UIcon name={positive ? 'check' : 'close'} size={20} color={color} strokeWidth={3} />
         {heading ? <ThemedText type="smallBold" style={{ color }}>{heading}</ThemedText> : null}
@@ -82,7 +92,16 @@ function StakesPanel({
         {visual ? <LessonVisual visual={visual} bare /> : null}
         {!visual && svg ? <AuthoredSvg xml={svg} label={`${heading} chart`} /> : null}
       </View>
-      <ThemedText type="bodyMedium">{label}</ThemedText>
+      {/*
+        THE LABEL IS DROPPED WHEN THE VISUAL ALREADY SAYS IT.
+        51 of the 600 panels in the corpus render a chart titled "Without a Budget" and then the
+        words "Without a budget" directly underneath it. That is a wasted line on every screen and
+        a line that does not fit on a short one: on a 667pt SE it was the element overlapping the
+        pinned Continue button.
+        Compared case and punctuation insensitively, because the two are authored separately and
+        differ only in capitalisation.
+      */}
+      {sameWords(label, visual?.title) ? null : <ThemedText type="bodyMedium">{label}</ThemedText>}
       {showDetail ? <ThemedText type="small" themeColor="textSecondary" style={styles.detail}>{detail}</ThemedText> : null}
     </Animated.View>
   );
@@ -123,11 +142,28 @@ export function StakesCard({ spec, onComplete }: { spec: StakesCardSpec; onCompl
    */
   const visualMaxHeight = sideBySide ? undefined : Math.round(height * 0.25);
 
+  /*
+   * A SHORT SCREEN NEEDS MORE THAN A PROPORTIONAL SHRINK.
+   *
+   * Everything above was measured on an 874pt iPhone, where the column ends around y=780 against a
+   * footer at 778. An SE is 667pt, and on it the same card ran to 661 with the second panel's label
+   * overlapping the Continue button: the header and the footer are FIXED costs, so a 207pt shorter
+   * screen loses 207pt of content space rather than a proportional share of it.
+   *
+   * Below 720pt the paddings and gaps drop to the smallest values that still read as separate
+   * cards. The threshold is the window height rather than a device name so a future size gets the
+   * right treatment without anyone updating a list.
+   */
+  const shortScreen = !sideBySide && height < 720;
+
   return (
     <View style={styles.shell}>
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={[styles.content, shortScreen && styles.contentTight]}
+      showsVerticalScrollIndicator={false}>
       <ThemedText type="title" style={styles.title}>Why This Matters</ThemedText>
-      <View style={[styles.panels, sideBySide && styles.panelsWide]}>
+      <View style={[styles.panels, sideBySide && styles.panelsWide, shortScreen && styles.panelsTight]}>
         <StakesPanel
           positive={false}
           heading={spec.withoutLabel}
@@ -137,7 +173,8 @@ export function StakesCard({ spec, onComplete }: { spec: StakesCardSpec; onCompl
           svg={spec.withoutSvg}
           showDetail={showDetail}
           minHeight={panelMinHeight}
-          visualMaxHeight={visualMaxHeight}
+          visualMaxHeight={shortScreen ? Math.round(height * 0.2) : visualMaxHeight}
+          tight={shortScreen}
         />
         <StakesPanel
           positive
@@ -148,7 +185,8 @@ export function StakesCard({ spec, onComplete }: { spec: StakesCardSpec; onCompl
           svg={spec.withSvg}
           showDetail={showDetail}
           minHeight={panelMinHeight}
-          visualMaxHeight={visualMaxHeight}
+          visualMaxHeight={shortScreen ? Math.round(height * 0.2) : visualMaxHeight}
+          tight={shortScreen}
         />
       </View>
     </ScrollView>
@@ -191,6 +229,9 @@ const styles = StyleSheet.create({
    */
   content: { flexGrow: 1, alignItems: 'center', gap: 14, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 96 },
   footer: { paddingTop: 8, paddingBottom: 12, alignItems: 'center' },
+  contentTight: { gap: 8, paddingTop: 4, paddingBottom: 72 },
+  panelsTight: { gap: 8 },
+  panelTight: { padding: 10, gap: 6 },
   title: { textAlign: 'center' },
   panels: { width: '100%', maxWidth: 1100, flexDirection: 'column', gap: 14 },
   panelsWide: { flexDirection: 'row' },
