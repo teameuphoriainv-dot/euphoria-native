@@ -34,6 +34,7 @@ const { COURSES, loadCourseLessons } = await imported('src/lib/curriculum/course
 const { deriveDeck, isHeavyStep } = await imported('src/lib/mobile-lesson/derive.ts');
 const { stepId } = await imported('src/lib/mobile-lesson/stepId.ts');
 const { CARD_BUDGET } = await imported('src/lib/mobile-lesson/types.ts');
+const { shortenOptions, shortenPrompt, QUESTION_BUDGET } = await imported('src/lib/mobile-lesson/question.ts');
 
 /*
  * THE LIMITS. Each is set a little looser than the measured value so that ordinary authoring churn
@@ -156,6 +157,45 @@ const medianReduction = median(reductions);
 const maxDeck = Math.max(...deckSizes);
 const minDeck = Math.min(...deckSizes);
 
+/*
+ * QUESTIONS AND OPTIONS, checked here rather than in their own script because they are the same
+ * promise: a lesson screen ends.
+ *
+ * The answer-length tell is pinned COMPARATIVELY. 66% of the corpus already had the correct option
+ * as the single longest before any of this existed, so an absolute threshold would fail the build
+ * on authored content nobody here wrote. What must hold is that shortening never ADDS one.
+ */
+let qN = 0, qLong = 0, tellBefore = 0, tellAfter = 0, tellCreated = 0, dupSets = 0;
+for (const course of COURSES) {
+  for (const lesson of await loadCourseLessons(course.id)) {
+    for (const step of lesson.steps) {
+      let opts = null, correct = 0, prompt = '';
+      if (step.type === 'quiz' || step.type === 'microCheck' || step.type === 'fillBlank') {
+        opts = step.options; correct = step.correct; prompt = step.question ?? step.sentence ?? '';
+      } else if (step.type === 'scenario') {
+        opts = (step.choices ?? []).map((c) => c.label);
+        correct = Math.max(0, (step.choices ?? []).findIndex((c) => c.correct));
+        prompt = step.situation ?? '';
+      }
+      if (!opts || opts.length < 2) continue;
+      qN += 1;
+      if (shortenPrompt(prompt).length > QUESTION_BUDGET.prompt) qLong += 1;
+
+      const out = shortenOptions(opts, correct);
+      if (new Set(out.map((o) => o.trim().toLowerCase())).size !== out.length) dupSets += 1;
+      const tells = (arr) => {
+        const lens = arr.map((o) => o.length);
+        const max = Math.max(...lens);
+        return lens[correct] === max && lens.filter((x) => x === max).length === 1;
+      };
+      const b = tells(opts), a = tells(out);
+      if (b) tellBefore += 1;
+      if (a) tellAfter += 1;
+      if (!b && a) tellCreated += 1;
+    }
+  }
+}
+
 console.log('MOBILE CARD BUDGET PIN');
 console.log(`  decks                 ${decks}`);
 console.log(`  cards                 ${cards}`);
@@ -164,6 +204,9 @@ console.log(`  cards per deck        ${minDeck}..${maxDeck}   (allowed ${LIMITS.
 console.log(`  over budget           ${overBudget} / ${cards} = ${(overRatio * 100).toFixed(1)}%   (limit ${(LIMITS.maxOverBudgetRatio * 100).toFixed(0)}%)`);
 console.log(`  empty cards           ${empty}   (limit ${LIMITS.maxEmptyCards})`);
 console.log(`  median step reduction ${(medianReduction * 100).toFixed(0)}%   (floor ${(LIMITS.minStepReduction * 100).toFixed(0)}%)`);
+console.log(`  questions             ${qN}, ${qLong} still over ${QUESTION_BUDGET.prompt} chars`);
+console.log(`  option sets with a duplicate answer  ${dupSets}   (limit 0)`);
+console.log(`  longest option is correct  ${tellBefore} authored -> ${tellAfter} shown, ${tellCreated} created by shortening   (limit 0)`);
 
 const problems = [];
 if (medianCard > LIMITS.medianCardChars) problems.push(`median card is ${medianCard} chars, over ${LIMITS.medianCardChars}`);
@@ -172,6 +215,10 @@ if (maxDeck > LIMITS.maxCardsPerDeck) problems.push(`a deck has ${maxDeck} cards
 if (minDeck < LIMITS.minCardsPerDeck) problems.push(`a deck has only ${minDeck} card(s)`);
 if (empty > LIMITS.maxEmptyCards) problems.push(`${empty} card(s) render no text`);
 if (medianReduction < LIMITS.minStepReduction) problems.push(`median step reduction is ${(medianReduction * 100).toFixed(0)}%, under the ${(LIMITS.minStepReduction * 100).toFixed(0)}% floor`);
+if (dupSets > 0) problems.push(`${dupSets} question(s) would show two identical answers after shortening`);
+if (tellCreated > 0) problems.push(`shortening CREATED the answer-length tell on ${tellCreated} question(s)`);
+if (tellAfter > tellBefore) problems.push('shortening increased how often the correct answer is the longest');
+if (qLong > qN * 0.25) problems.push(`${qLong} of ${qN} prompts are still over budget`);
 
 if (problems.length) {
   console.error('\nFAIL');

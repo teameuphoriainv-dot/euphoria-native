@@ -21,6 +21,7 @@ import {
 } from './courseIndex';
 import { CURRICULUM_STATS, STEP_TYPE_COUNTS, STEP_TYPES, type StepType } from './stepTypes.generated';
 import { deriveDeck, isHeavyStep } from '../mobile-lesson/derive';
+import { shortenOptions, shortenPrompt } from '../mobile-lesson/question';
 import { stepId } from '../mobile-lesson/stepId';
 import type { LessonStep, PathwayLesson } from './types';
 
@@ -94,13 +95,56 @@ const lessonCache = new Map<string, Promise<PathwayLesson[]>>();
  * SCRIPTS THAT CHECK PARITY AGAINST WEB MUST IMPORT `./courseIndex` DIRECTLY, not this module, or
  * they will compare native decks against web steps and fail for the wrong reason.
  */
+/*
+ * QUESTIONS AND ANSWER OPTIONS, SHORTENED FOR A PHONE.
+ *
+ * Measured over the 1,307 choice steps: prompts run to a median of 165 characters with a longest of
+ * 467, and 76% are over 120. Options are worse in the tail, median 52 but a longest of 1,030, with
+ * 45% over 60. On a 393pt screen a long prompt pushes the options below the fold, which is the same
+ * failure that made the explanation page necessary.
+ *
+ * Applied to the AUTHORED step, before normalizeStep shuffles anything. Only the strings change and
+ * nothing is reordered, so `correct` still points at the same answer and the shuffle downstream
+ * still pairs each option with its own authored feedback.
+ *
+ * `shortenOptions` is all or nothing per question and refuses any set where two options would
+ * collapse together or where the correct one would be left conspicuously the longest. See
+ * question.ts for why that matters more than the length does.
+ */
+function withShorterQuestions(step: LessonStep): LessonStep {
+  const s = step as Record<string, any>;
+
+  if (s.type === 'quiz' || s.type === 'microCheck' || s.type === 'visualInteractive') {
+    return { ...s, question: shortenPrompt(s.question), options: shortenOptions(s.options ?? [], s.correct ?? 0) } as LessonStep;
+  }
+  if (s.type === 'fillBlank') {
+    /*
+     * The sentence is NOT shortened. It carries the `___` slot the renderer splits on, and trimming
+     * it can remove the blank or the words either side of it that make the sentence gradeable.
+     * Its options still get the same treatment as any other set.
+     */
+    return { ...s, options: shortenOptions(s.options ?? [], s.correct ?? 0) } as LessonStep;
+  }
+  if (s.type === 'scenario') {
+    const choices = (s.choices ?? []) as { label: string; correct: boolean }[];
+    const correct = Math.max(0, choices.findIndex((c) => c.correct));
+    const labels = shortenOptions(choices.map((c) => c.label), correct);
+    return {
+      ...s,
+      situation: shortenPrompt(s.situation),
+      choices: choices.map((c, i) => ({ ...c, label: labels[i] })),
+    } as LessonStep;
+  }
+  return step;
+}
+
 function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLesson[] {
   return lessons.map((lesson) => {
-    if (!lesson.steps.some(isHeavyStep)) return lesson;
+    // Every lesson goes through the map now: a lesson with no heavy step still has questions.
     return {
       ...lesson,
       steps: lesson.steps.map((step, index) => {
-        if (!isHeavyStep(step)) return step;
+        if (!isHeavyStep(step)) return withShorterQuestions(step);
         const deck = deriveDeck(step, stepId(courseId, lesson.num, index, step));
         // A null deck cannot happen for a heavy step, and mobile-deck-audit.mjs fails the build if
         // one ever does. Keeping the authored step is the safe fallback: long, but never blank.
