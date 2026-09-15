@@ -25,7 +25,17 @@ import subprocess
 import sys
 import time
 
-# iPhone 17 point size. Read from the device rather than assumed where possible.
+# Python buffers stdout when it is not a terminal, so a sweep run in the background printed nothing
+# until it exited and looked hung. Each lesson takes a couple of minutes, which is long enough for
+# that to matter.
+try:
+    sys.stdout.reconfigure(line_buffering=True)
+except AttributeError:  # pragma: no cover - older interpreters
+    pass
+
+# Fallback only. The real height is read off the device, because hardcoding one phone is how a
+# sweep silently passes on every other phone: an SE is 667pt, 207pt shorter than a 17, and a screen
+# tuned on the taller device can overflow the shorter one while this script reports it as fitting.
 DEFAULT_H = 874
 # A gap larger than this below the last element is reported as a dead band.
 DEAD_BAND = 140
@@ -47,6 +57,18 @@ def describe(udid):
         return json.loads(out.stdout)
     except json.JSONDecodeError:
         return []
+
+
+def window_height(items, fallback=DEFAULT_H):
+    """The tallest frame in the tree is the window. Measured, not assumed."""
+    best = 0.0
+    for it in items:
+        f = it.get('frame') or {}
+        h = float(f.get('height', 0) or 0)
+        y = float(f.get('y', 0) or 0)
+        if y <= 1 and h > best:
+            best = h
+    return best if best > 200 else fallback
 
 
 def rows(items):
@@ -77,11 +99,11 @@ def tap(udid, label):
 ADVANCE = ('Continue', 'Got it', 'Begin', 'Start lesson', 'Next', "Let's go", 'Teach me', 'Show me another')
 
 
-def classify(lowest, label='x'):
+def classify(lowest, height=DEFAULT_H):
     """The two detectors, pulled out so they can be tested without a device."""
-    if lowest > DEFAULT_H:
+    if lowest > height:
         return 'below'
-    if DEFAULT_H - lowest > DEAD_BAND:
+    if height - lowest > DEAD_BAND:
         return 'dead'
     return None
 
@@ -104,7 +126,7 @@ def selftest():
         (874, None, 'content ending exactly at the fold must NOT be reported'),
     ]
     for lowest, want, why in checks:
-        got = classify(lowest)
+        got = classify(lowest, DEFAULT_H)
         if got != want:
             print(f'selftest FAILED: {why} (lowest={lowest} gave {got!r}, wanted {want!r})')
             return 1
@@ -138,21 +160,23 @@ def main():
 
     problems = []
     seen = set()
+    win = DEFAULT_H
     for _ in range(max_steps):
         items = describe(udid)
         r = rows(items)
         if not r:
             break
+        win = window_height(items)
         step = next((lab for lab, _, _ in r if '/' in lab and lab.replace('/', '').isdigit()), '?')
         lowest = max(b for _, _, b in r)
-        gap = DEFAULT_H - lowest
+        gap = win - lowest
 
         key = (step, round(lowest))
         if key not in seen:
             seen.add(key)
-            verdict = classify(lowest)
+            verdict = classify(lowest, win)
             if verdict == 'below':
-                problems.append(f'BELOW THE FOLD  step {step}: lowest element ends at {lowest:.0f}, window is {DEFAULT_H}')
+                problems.append(f'BELOW THE FOLD  step {step}: lowest element ends at {lowest:.0f}, window is {win:.0f}')
             elif verdict == 'dead':
                 lab = max(r, key=lambda x: x[2])[0][:44]
                 problems.append(f'DEAD BAND       step {step}: {gap:.0f}pt of empty screen below "{lab}"')
@@ -169,7 +193,7 @@ def main():
     # A SWEEP THAT VISITED NOTHING MUST NOT READ AS A PASS. Silence and success look identical
     # otherwise, and this walker stops the moment it meets a screen it cannot advance.
     visited = sorted({k[0] for k in seen})
-    print(f'{course} lesson {num}: visited {len(seen)} screen(s) across steps {",".join(visited)}')
+    print(f'{course} lesson {num} on a {win:.0f}pt window: visited {len(seen)} screen(s) across steps {",".join(visited)}')
     if len(seen) < 3:
         print('  INCONCLUSIVE: the walker could not get through the lesson, so this is not a pass')
         return 2
