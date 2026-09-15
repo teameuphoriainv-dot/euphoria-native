@@ -22,8 +22,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  View,
-} from 'react-native';
+  View, useWindowDimensions,} from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -923,6 +922,13 @@ export default function Onboarding() {
 
   const bodyStyle = useAnimatedStyle(() => ({ opacity: bodyOpacity.get() }));
 
+  /*
+   * A screen under 720pt has no slack to give. Same threshold StatementStep uses to decide whether
+   * it can centre a statement's evidence, reused rather than reinvented so the two cannot drift.
+   */
+  const { height: windowH } = useWindowDimensions();
+  const proofTight = windowH < 720;
+
   const body = () => {
     if (!def) return null;
     switch (def.kind) {
@@ -977,12 +983,25 @@ export default function Onboarding() {
           <StatementStep title={def.title} sub={def.sub}>
             {def.body === 'chart' ? <GrowthChart delay={CHILD_BASE} /> : null}
             {def.body === 'proof' ? (
-              <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
+              /*
+               * THE PROOF BLOCK TIGHTENS ON A SHORT SCREEN.
+               *
+               * Measured on a 375x667 SE: the three cards ran to y=604 against a Continue pinned at
+               * y=589, so the last one sat 15pt under the button on a screen that does not scroll.
+               * That underlap predates the statement layout work and was confirmed by an A/B on the
+               * device producing byte-identical frames, so it is this block's own size rather than
+               * anything the centring did.
+               *
+               * The header and the button are fixed costs, so the ~40pt reclaimed here is what the
+               * short screen was short by. The 720pt threshold is the one StatementStep already
+               * uses to decide whether it has room to centre, reused rather than reinvented.
+               */
+              <View style={{ gap: proofTight ? Spacing.two : Spacing.two + 4, marginTop: proofTight ? Spacing.two : Spacing.four }}>
                 {PROOF.map((p, i) => (
                   <RiseIn key={p.title} delay={childDelay(i)}>
                     <Card style={styles.proofCard}>
-                      <View style={[styles.proofIcon, { backgroundColor: theme.primary + '1F' }]}>
-                        <PixelSpriteView sprite={p.icon} size={20} />
+                      <View style={[styles.proofIcon, proofTight && styles.proofIconTight, { backgroundColor: theme.primary + '1F' }]}>
+                        <PixelSpriteView sprite={p.icon} size={proofTight ? 18 : 20} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{p.title}</ThemedText>
@@ -1274,6 +1293,7 @@ const styles = StyleSheet.create({
   paywallContent: { paddingTop: 0, paddingBottom: 0 },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  proofIconTight: { width: 34, height: 34 },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
   nameInput: { marginTop: Spacing.four, minHeight: 52, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.three, fontSize: FontSize.bodyLg, fontFamily: Fonts.body },
