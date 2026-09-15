@@ -104,6 +104,22 @@ const SACCADE_UNITS = 1.1;
  */
 const ARC_FLEX_UNITS = 1.6;
 
+/**
+ * The idle curiosity beat: how often Atlas looks around, and how far.
+ *
+ * 12 to 21 SECONDS, which is deliberately much slower than it first wants to be. The beat runs
+ * about 1.4s, so at a 6s period Atlas would be turning his head roughly a quarter of the time and
+ * would read as distracted rather than attentive. Long enough that it lands as "he is still there"
+ * and never as "he is fidgeting".
+ *
+ * 4.5 DEGREES, which is larger than the idle ROCK_DEG of 3.4 and far smaller than `thinking`'s
+ * resting -7. It has to out-read the rock it sums with, or the look is invisible; it must not
+ * reach an expression's own tilt, or a neutral Atlas briefly appears to change mood.
+ */
+const CURIOSITY_MIN_MS = 12_000;
+const CURIOSITY_RANGE_MS = 9_000;
+const CURIOSITY_DEG = 4.5;
+
 /** How far each ring trails the one before it on a tap spin. Separate masses do not arrive
  *  together; 55ms is enough to read as a ripple and short enough to still feel like one gesture. */
 const RING_LAG_MS = 55;
@@ -130,6 +146,7 @@ export function Atlas({
   nod = false,
   nodKey = 0,
   shake = false,
+  shakeKey = 0,
   entrance,
   idle = false,
   onPress,
@@ -149,7 +166,17 @@ export function Atlas({
   nod?: boolean;
   /** Bump to re-fire the nod. Same latch problem as `celebrateKey`. */
   nodKey?: number;
+  /** The WRONG-ANSWER reaction: a decaying horizontal shake, no vertical travel.
+   *
+   *  This beat was written, measured and then never called. A word-boundary search for `shake`
+   *  across src/app and src/components on 2026-09-14 returned ZERO call sites, so every wrong
+   *  answer in the app was met by a mascot standing perfectly still. It is wired up now through
+   *  <AtlasCorrection>, which is the one component all four wrong-answer surfaces already share. */
   shake?: boolean;
+  /** Bump to re-fire the shake. THE SAME LATCH BUG the two keys above exist to fix, and this
+   *  reaction is the one that needs it most: a learner can be wrong twice in a row on the same
+   *  mounted question, and a boolean would answer only the first of them. */
+  shakeKey?: number;
   /** Amplitude of the celebrate hop, as a fraction of the full cartoon beat. Defaults to the
    *  quiet per-tap reaction. Pass 1 for a once-per-lesson payoff — a global constant made the
    *  option-tap reaction correct and flattened the lesson-complete moment along with it. */
@@ -423,6 +450,15 @@ export function Atlas({
   }, [idle, reduced, idleMotion, breath, sway, rock]);
 
   // shake on wrong answer (V1 balance-scale reference)
+  //
+  // `shakeKey` is in the dependency list for the same reason `celebrateKey` and `nodKey` are: a
+  // boolean latches after the first fire, so two wrong answers on one mounted question produced a
+  // reaction and then silence. Callers that mount fresh per answer can leave the key at 0.
+  //
+  // A head follow-through rides along, 60ms late. Every other reaction in this file has one, and
+  // it is the thing the file's own celebrate note calls "the single biggest reason Duolingo's
+  // characters read as alive": the head is a separate mass, so it arrives after the body and rings
+  // down. Without it a shake reads as the whole image being dragged sideways.
   useEffect(() => {
     if (!shake || reduced) return;
     shakeX.set(withSequence(
@@ -433,7 +469,58 @@ export function Atlas({
       withTiming(-size * 0.025, { duration: 50 }),
       withSpring(0, { stiffness: 300, damping: 20, mass: 1 }),
     ));
-  }, [shake, reduced, shakeX, size]);
+    headLag.set(withDelay(60, withSequence(
+      withTiming(4, { duration: 90, easing: Easing.out(Easing.quad) }),
+      withTiming(-3.5, { duration: 110 }),
+      withSpring(0, { stiffness: 130, damping: 9, mass: 1 }),
+    )));
+  }, [shake, shakeKey, reduced, shakeX, headLag, size]);
+
+  /*
+   * THE IDLE CURIOSITY BEAT — Atlas looking around when nothing has happened for a while.
+   *
+   * Everything else in this file reacts to the learner. Blink, saccade and breath keep the face
+   * from reading as a photograph, but they are all sub-second twitches: across a long pause Atlas
+   * had no gesture with any SHAPE to it, which is what separates "rendered" from "waiting for you".
+   * A slow look away, a hold, and a return is the classic mascot idle and costs two shared values
+   * this component already owns.
+   *
+   * ── THE COST, STATED, BECAUSE §4.1 ABOVE IS ABOUT EXACTLY THIS ──────────────────────────────
+   * This is a ONE-SHOT on a long timer, not a fourth withRepeat. It fires every 12 to 21 seconds
+   * against blink's 2.8 to 6.2 and saccade's 0.9 to 2.6, so it is roughly an order of magnitude
+   * cheaper than the timers already measured as acceptable, and it inherits the same `idleMotion`
+   * gate: unfocused screens and anything under 72pt run nothing at all.
+   *
+   * GATED OFF WHEN A CHOREOGRAPHED BEAT OWNS THE SCREEN. `headLag` is shared with celebrate, nod,
+   * shake and the entrance, so a curiosity turn landing mid-celebration would fight the payoff it
+   * is standing next to. Payoff screens pass `celebrate` or `entrance`, and they opt out here.
+   */
+  useEffect(() => {
+    if (!idle || !idleMotion || reduced) return;
+    if (celebrate || shake || entrance) return;
+    let alive = true;
+    let t: ReturnType<typeof setTimeout>;
+    const loop = () => {
+      t = setTimeout(() => {
+        if (!alive) return;
+        // Direction alternates at random so the beat never reads as a metronome.
+        const deg = (Math.random() < 0.5 ? -1 : 1) * CURIOSITY_DEG;
+        headLag.set(withSequence(
+          withTiming(deg, { duration: 520, easing: Easing.inOut(Easing.quad) }),
+          // The HOLD is the part that reads as attention. Turning and returning in one motion is a
+          // twitch; pausing at the far end is a look.
+          withTiming(deg, { duration: 400 }),
+          withSpring(0, { stiffness: 90, damping: 14, mass: 1 }),
+        ));
+        loop();
+      }, CURIOSITY_MIN_MS + Math.random() * CURIOSITY_RANGE_MS);
+    };
+    loop();
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [idle, idleMotion, reduced, celebrate, shake, entrance, headLag]);
 
   // entrance: a calm settle, not an overshoot. One soft spring from a near-final scale plus
   // the fade — Atlas arrives and comes to rest. The old 1.12 -> 0.96 -> 1.0 sequence stacked

@@ -10,6 +10,16 @@
  * out from a screenshot after release.
  *
  * Limits: developer.apple.com App Store Connect reference.
+ *
+ * WHAT THIS DOES NOT CHECK, stated because a green line in `npm run check` invites the wrong
+ * inference. This measures refs/ASO_LISTING_DRAFT.md, which is a PLANNING document and says so in
+ * its own header. Measured 2026-09-14, it matches nothing on the store: its keyword block is
+ * `...,practice,...,risk` at 99 characters against a live `...,etf` at 97 and a staged `...,game,course`
+ * at 100, and its description is 2917 characters against 3613 live. That is fine for a draft and
+ * misleading as a verification, so the closing line below names the file it read.
+ *
+ * The LIVE and STAGED listings are checked by scripts/aso-keyword-truth.mjs, which reads the
+ * committed manifest refs/ASO_KEYWORDS.json and, with --live, asserts App Store Connect matches it.
  */
 import { readFileSync } from 'node:fs';
 
@@ -22,7 +32,17 @@ const LIMITS = [
 ];
 
 const fail = [];
-const src = readFileSync('refs/ASO_LISTING_DRAFT.md', 'utf8');
+const DRAFT = 'refs/ASO_LISTING_DRAFT.md';
+const src = readFileSync(DRAFT, 'utf8');
+
+/*
+ * The draft must keep saying it is a draft. If someone edits that disclaimer out, this file has
+ * quietly become a source of truth that nothing applies to the store, and the next reader will
+ * believe a green run means the listing is correct.
+ */
+if (!/Nothing here has been applied to the listing/.test(src)) {
+  fail.push(`${DRAFT} no longer says it is unapplied. Either it is now the source of truth, in which case something must apply it, or restore the disclaimer. The live listing is checked by scripts/aso-keyword-truth.mjs.`);
+}
 
 // Every fenced block, in document order. The draft presents them in the order of LIMITS above.
 const blocks = [...src.matchAll(/```\n([\s\S]*?)\n```/g)].map((m) => m[1]);
@@ -60,4 +80,4 @@ if (fail.length) {
   for (const f of fail) console.error(`[aso-count] ${f}`);
   process.exit(1);
 }
-console.log('[aso-count] ok');
+console.log(`[aso-count] ok, DRAFT ${DRAFT} fits. This says nothing about the live listing; run aso-keyword-truth.mjs for that.`);

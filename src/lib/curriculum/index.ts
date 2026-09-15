@@ -20,6 +20,8 @@ import {
   loadCourseLessons as loadCourseLessonsUncached,
 } from './courseIndex';
 import { CURRICULUM_STATS, STEP_TYPE_COUNTS, STEP_TYPES, type StepType } from './stepTypes.generated';
+import { deriveDeck, isHeavyStep } from '../mobile-lesson/derive';
+import { stepId } from '../mobile-lesson/stepId';
 import type { LessonStep, PathwayLesson } from './types';
 
 // ─── Course catalogue + loader ──────────────────────────────────────────────
@@ -71,11 +73,48 @@ export {
  */
 const lessonCache = new Map<string, Promise<PathwayLesson[]>>();
 
+/*
+ * THE MOBILE LESSON LAYER, applied here and only here.
+ *
+ * On iOS every `teachingSlide` and every `interactiveGraph` is replaced by a deck of three or four
+ * cards derived from it. That is 721 of the 4,050 steps in the corpus and, measured, essentially
+ * all of the prose: the median graph step runs 2,557 characters and the median teaching slide
+ * 1,636, against a phone viewport that holds about 1,000. The web app keeps showing the authored
+ * step exactly as written. This is the point where the two products diverge.
+ *
+ * ONE STEP IN, ONE STEP OUT. A deck replaces its source step 1:1, so `lesson.steps.length` is
+ * unchanged and the progress bar, the step counter and every saved position keep meaning what they
+ * meant. The cards are paged INSIDE the deck. Expanding one step into four here would have moved
+ * every learner's saved position the moment this shipped.
+ *
+ * IT IS APPLIED AT THE CHOKE POINT for the same reason the retired-step filter and the reading
+ * level are (see courseIndex.ts): every screen, the dev preview and saved progress then agree on
+ * how long a lesson is. Doing it in the renderer instead would let those three disagree.
+ *
+ * SCRIPTS THAT CHECK PARITY AGAINST WEB MUST IMPORT `./courseIndex` DIRECTLY, not this module, or
+ * they will compare native decks against web steps and fail for the wrong reason.
+ */
+function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLesson[] {
+  return lessons.map((lesson) => {
+    if (!lesson.steps.some(isHeavyStep)) return lesson;
+    return {
+      ...lesson,
+      steps: lesson.steps.map((step, index) => {
+        if (!isHeavyStep(step)) return step;
+        const deck = deriveDeck(step, stepId(courseId, lesson.num, index, step));
+        // A null deck cannot happen for a heavy step, and mobile-deck-audit.mjs fails the build if
+        // one ever does. Keeping the authored step is the safe fallback: long, but never blank.
+        return (deck ?? step) as LessonStep;
+      }),
+    };
+  });
+}
+
 /** Lazily load the 25 lessons for a course. Resolves to [] for an unknown id. */
 export function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
   const hit = lessonCache.get(courseId);
   if (hit) return hit;
-  const p = loadCourseLessonsUncached(courseId);
+  const p = loadCourseLessonsUncached(courseId).then((lessons) => withMobileDecks(lessons, courseId));
   lessonCache.set(courseId, p);
   // Evict on failure so a retry can genuinely retry.
   void p.catch(() => lessonCache.delete(courseId));

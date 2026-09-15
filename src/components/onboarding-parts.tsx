@@ -4,7 +4,7 @@
  */
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Animated, { useAnimatedProps, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -487,23 +487,93 @@ export function OptionCard({
   );
 }
 
+/*
+ * THE CURVES, AS FRACTIONS OF THE PLOT BOX.
+ *
+ * They used to be literal coordinates inside a fixed `viewBox="0 0 300 150"` with `height={150}`,
+ * which is what pinned this chart to a 150pt band no matter how much room the screen had. Measured
+ * on an iPhone 17 (402x874) on 2026-09-15: the plot ran y 371 to 544 and then 177pt of nothing sat
+ * between the legend and Continue. The chart WAS the screen and it was the smaller half of it.
+ *
+ * Expressed as fractions, the same shape draws at any size the layout hands it. The numbers are the
+ * originals divided by 300 and 150, so the curve is the one that shipped, not a redraw.
+ */
+const CURVE = {
+  /** The x-axis, and the two gridlines above it. */
+  axis: 0.9867,
+  grid: [0.6667, 0.3467],
+  /** Without daily practice: a shallow, nearly flat climb. */
+  without: 'M {0.0267 0.9333} C {0.3667 0.88} {0.7 0.8267} {0.9733 0.7467}',
+  /** With Euphoria: the S-curve, two cubic segments. */
+  with: 'M {0.0267 0.9467} C {0.3 0.92} {0.5 0.72} {0.6667 0.44} C {0.7733 0.2667} {0.8733 0.1467} {0.96 0.0933}',
+  /** Where the end dot lands, which is the terminus of the `with` curve. */
+  dot: [0.96, 0.0933],
+} as const;
+
+/**
+ * The plot's height bounds.
+ *
+ * MIN is exactly the height this chart used to be, so the smallest device can never come out of
+ * this change worse than it went in: on an iPhone SE the plot holds at 150 and the ScrollView the
+ * step already lives in takes care of the overflow.
+ *
+ * MAX stops the other end. `flexGrow` with no ceiling would hand the chart every spare point on a
+ * tall device, and a 500pt growth curve stops reading as a chart and starts reading as wallpaper.
+ * 300 keeps it the biggest thing on the screen without letting it become the only thing.
+ */
+const CHART_MIN_H = 150;
+const CHART_MAX_H = 300;
+
+/** Window height at or above which a statement step centres its evidence. See StatementStep. */
+const STATEMENT_CENTRE_MIN_H = 720;
+
+/** Substitutes the fractional pairs in a template with real coordinates for this box. */
+function scalePath(template: string, w: number, h: number): string {
+  return template.replace(/\{([\d.]+) ([\d.]+)\}/g, (_m, fx: string, fy: string) =>
+    `${(Number(fx) * w).toFixed(1)} ${(Number(fy) * h).toFixed(1)}`);
+}
+
 /** "With Euphoria" vs "Without daily practice" growth curves — both DRAW ON left→right. */
 export function GrowthChart({ delay = 0 }: { delay?: number }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
-  const LEN = 700;
-  const withCurve = useSharedValue(reduced ? 0 : LEN);
-  const withoutCurve = useSharedValue(reduced ? 0 : LEN);
+  /*
+   * MEASURED, not assumed. The plot fills whatever the flex chain leaves it, so its size is only
+   * known after layout. Until then there is nothing to draw: rendering at a guessed size and then
+   * re-rendering at the real one would run the whole draw-on animation twice, which reads as a
+   * glitch rather than as a chart being drawn.
+   */
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const measured = box.w > 0 && box.h > 0;
+  /*
+   * The dash sweep has to be at least as long as the path it hides, and the path is now as long as
+   * the box makes it. A constant would under-reach on a tall device and leave the curve partly
+   * drawn at rest. The perimeter is a cheap over-estimate that is always safe.
+   */
+  const len = (box.w + box.h) * 2;
+  const withCurve = useSharedValue(0);
+  const withoutCurve = useSharedValue(0);
   const dot = useSharedValue(reduced ? 1 : 0);
 
   useEffect(() => {
-    if (reduced) return;
+    if (!measured) return;
+    if (reduced) {
+      // The instant path: both curves fully drawn, the dot already landed. Reduced Motion asks for
+      // no movement, not for less chart.
+      withCurve.set(0);
+      withoutCurve.set(0);
+      dot.set(1);
+      return;
+    }
+    withCurve.set(len);
+    withoutCurve.set(len);
+    dot.set(0);
     // `delay` lets the caller line the draw-on up with the step's stagger instead of
     // racing it. Draw durations stay chart-specific; only the easing is tokenised.
     withoutCurve.set(withDelay(delay + Duration.fast, withTiming(0, { duration: 700, easing: Ease.outCubic })));
     withCurve.set(withDelay(delay + Duration.slow, withTiming(0, { duration: 1000, easing: Ease.outCubic })));
     dot.set(withDelay(delay + 1250, withTiming(1, { duration: Duration.base, easing: Ease.enter })));
-  }, [reduced, delay, withCurve, withoutCurve, dot]);
+  }, [reduced, delay, measured, len, withCurve, withoutCurve, dot]);
 
   const withProps = useAnimatedProps(() => ({ strokeDashoffset: withCurve.get() }));
   const withoutProps = useAnimatedProps(() => ({ strokeDashoffset: withoutCurve.get() }));
@@ -512,16 +582,29 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
   return (
     <View style={[styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
       <ThemedText type="small" themeColor="mutedForeground" style={{ fontSize: FontSize.label, lineHeight: 15 }}>Skill</ThemedText>
-      <Svg width="100%" height={150} viewBox="0 0 300 150">
-        <Line x1={0} y1={148} x2={300} y2={148} stroke={theme.border} strokeWidth={1} />
-        <Line x1={0} y1={100} x2={300} y2={100} stroke={theme.border} strokeWidth={0.5} />
-        <Line x1={0} y1={52} x2={300} y2={52} stroke={theme.border} strokeWidth={0.5} />
-        {/* without practice — shallow dashed (note: dashArray is used for the draw sweep, not visual dashes) */}
-        <AnimatedPath d="M8 140 C110 132 210 124 292 112" stroke={theme.mutedForeground} strokeWidth={2} fill="none" strokeLinecap="round" strokeDasharray={LEN} animatedProps={withoutProps} opacity={0.6} />
-        {/* with Euphoria — S-curve draws on */}
-        <AnimatedPath d="M8 142 C90 138 150 108 200 66 C232 40 262 22 288 14" stroke={theme.primary} strokeWidth={3} fill="none" strokeLinecap="round" strokeDasharray={LEN} animatedProps={withProps} />
-        <AnimatedCircle cx={288} cy={14} fill={theme.primary} animatedProps={dotProps} />
-      </Svg>
+      {/* The plot claims the leftover height between the two axis labels. The viewBox is set to the
+          MEASURED point size, so one user unit is one point in both directions and every stroke
+          width below means what it says at any chart height. */}
+      <View
+        style={styles.chartPlot}
+        onLayout={(e) => {
+          const { width, height } = e.nativeEvent.layout;
+          setBox((b) => (Math.abs(b.w - width) < 1 && Math.abs(b.h - height) < 1 ? b : { w: width, h: height }));
+        }}>
+        {measured ? (
+          <Svg width={box.w} height={box.h} viewBox={`0 0 ${String(box.w)} ${String(box.h)}`}>
+            <Line x1={0} y1={CURVE.axis * box.h} x2={box.w} y2={CURVE.axis * box.h} stroke={theme.border} strokeWidth={1} />
+            {CURVE.grid.map((g) => (
+              <Line key={g} x1={0} y1={g * box.h} x2={box.w} y2={g * box.h} stroke={theme.border} strokeWidth={0.5} />
+            ))}
+            {/* without practice — shallow dashed (note: dashArray is used for the draw sweep, not visual dashes) */}
+            <AnimatedPath d={scalePath(CURVE.without, box.w, box.h)} stroke={theme.mutedForeground} strokeWidth={2} fill="none" strokeLinecap="round" strokeDasharray={len} animatedProps={withoutProps} opacity={0.6} />
+            {/* with Euphoria — S-curve draws on */}
+            <AnimatedPath d={scalePath(CURVE.with, box.w, box.h)} stroke={theme.primary} strokeWidth={3} fill="none" strokeLinecap="round" strokeDasharray={len} animatedProps={withProps} />
+            <AnimatedCircle cx={CURVE.dot[0] * box.w} cy={CURVE.dot[1] * box.h} fill={theme.primary} animatedProps={dotProps} />
+          </Svg>
+        ) : null}
+      </View>
       {/*
         * "Time" BELONGS TO THE AXIS, not to the legend.
         *
@@ -672,13 +755,51 @@ export function MultiSelectStep({
   );
 }
 
-/** A screen that asserts rather than asks — the beats that break up the questions. */
+/**
+ * A screen that asserts rather than asks — the beats that break up the questions.
+ *
+ * ── IT USES ITS HEIGHT NOW ──────────────────────────────────────────────────────────────────
+ * This was a bare fragment, so it top-packed inside a ScrollView whose content container is
+ * `justifyContent: flex-start` and stranded everything left over at the bottom. Measured on an
+ * iPhone 17 (402x874) on 2026-09-15, both statement screens in the flow had a hole in them:
+ *
+ *   step 4  "The habit is what makes it stick"   legend ended y=585, Continue began y=762  -> 177pt
+ *   step 8  "Everything you need to start"       last card ended y=627, Continue at y=762  -> 135pt
+ *
+ * For comparison, the reveal step ends at y=743 against the same y=762 button, because it is the
+ * one step onboarding.tsx marks `fillsViewport`. The mechanism already existed and had simply
+ * never been extended to the statement archetype. It is now, in both places.
+ *
+ * THE HEADING STAYS PUT and only the BODY grows. A statement is a headline with evidence under it,
+ * so pushing the headline down to centre the whole block would cost the screen its anchor. The
+ * body claims the leftover height instead:
+ *   - a child that can grow (the chart) fills it and becomes the hero of the screen
+ *   - a child that cannot (the three proof cards) is centred in it, which splits the old hole
+ *     evenly above and below rather than dumping all of it at the bottom
+ * One rule, two correct outcomes, and no spacer anywhere.
+ */
 export function StatementStep({ title, sub, children }: { title: string; sub?: string; children?: React.ReactNode }) {
+  /*
+   * The height threshold for centring, and it is a measurement rather than a taste.
+   *
+   * The proof block is the tallest thing a statement carries: three cards at roughly 280pt, under
+   * a two-line headline, under the 99pt Atlas stage, over a 62pt pinned button. On a 667pt SE that
+   * already adds up to more than the viewport, so there is no slack and centring can only push the
+   * last card under the button. On the 874pt iPhone 17 there was 135pt spare, which is the hole
+   * this whole change is about.
+   *
+   * 720 sits between the two with room either side: every modern iPhone except the SE class clears
+   * it, and the SE class keeps the top-packed layout that has always fitted it.
+   */
+  const { height } = useWindowDimensions();
+  const roomToCentre = height >= STATEMENT_CENTRE_MIN_H;
   return (
-    <>
+    <View style={styles.statementBody}>
       <StepHeading title={title} sub={sub} />
-      {children ? <View style={{ marginTop: Spacing.three }}>{children}</View> : null}
-    </>
+      {children ? (
+        <View style={[styles.statementContent, roomToCentre && styles.statementCentre]}>{children}</View>
+      ) : null}
+    </View>
   );
 }
 
@@ -903,10 +1024,54 @@ const styles = StyleSheet.create({
   planRowLead: { borderWidth: 1, alignItems: 'flex-start' },
   /** Heading / course list / stats, spread across whatever height is left over. */
   planBody: { flexGrow: 1, justifyContent: 'space-between', gap: Spacing.two, paddingBottom: Spacing.two },
+  /** Opens the flex chain from the step down to its body. Paired with `fillsViewport` in
+   *  onboarding.tsx, which is what gives this height to claim in the first place. */
+  statementBody: { flexGrow: 1 },
+  /** The evidence under the headline. `center` is the fallback for content that cannot grow;
+   *  anything with its own flexGrow (the chart) fills this instead and centring becomes moot.
+   *
+   *  NO paddingBottom HERE. The step's ScrollView already pads its content container, and adding a
+   *  second one pushed the last proof card past the pinned Continue on an iPhone SE. See
+   *  `statementCentre` for why the centring itself is conditional. */
+  statementContent: { flexGrow: 1, flexShrink: 1, marginTop: Spacing.three },
+  /**
+   * CENTRING IS ONLY SAFE WHEN THERE IS SLACK TO CENTRE IN.
+   *
+   * Flexbox `center` has no safe variant in React Native: when the content is TALLER than the box,
+   * it overflows equally in both directions instead of pinning to the start, and the half that
+   * goes up is the half you cannot scroll back to.
+   *
+   * The short screen has no slack to give. Measured on an iPhone SE (375x667) on 2026-09-15, the
+   * proof step's three cards already run to y=604 against a Continue pinned at y=589 with NO
+   * centring at all: an A/B on the device against the pre-change layout produced byte-identical
+   * frames, so that underlap is a pre-existing defect of that screen and not something centring
+   * introduced. What matters here is that centring must not be allowed to make it worse.
+   *
+   * So a statement centres its evidence only where there is room, and top-packs everywhere else,
+   * which is exactly the layout the small screen had before and measured identically after. The
+   * tall screen gets the balance; the short screen is left precisely as it was found.
+   */
+  statementCentre: { justifyContent: 'center' },
   planSummary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.four,
     marginTop: Spacing.three, paddingVertical: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth },
   planStat: { alignItems: 'center' },
   planDivider: { width: StyleSheet.hairlineWidth, height: 34 },
-  chartCard: { borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three, gap: Spacing.one },
+  /*
+   * THE CHART IS NOW THE HERO OF ITS SCREEN, not a band inside it.
+   *
+   * `flexGrow` is what claims the 177pt that used to sit empty between the legend and Continue on
+   * an iPhone 17. `flexShrink` is its other half and matters more on a small device: on an SE the
+   * card gives height back rather than pushing the legend off the bottom, and the step's own
+   * ScrollView takes whatever is still over.
+   *
+   * `maxHeight` is the ceiling, and it is on the CARD rather than the plot so the two axis labels
+   * and the legend are inside the bound. Beyond it the parent's `justifyContent: center` takes
+   * over and the extra space splits evenly above and below, which is a balanced screen rather
+   * than a bottom-heavy one.
+   */
+  chartCard: { borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.three, gap: Spacing.one,
+    flexGrow: 1, flexShrink: 1, maxHeight: CHART_MAX_H + 96 },
+  /** The plot itself: everything the card has left after Skill, Time and the legend. */
+  chartPlot: { flexGrow: 1, flexShrink: 1, minHeight: CHART_MIN_H, maxHeight: CHART_MAX_H },
   chartLabels: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.one },
 });

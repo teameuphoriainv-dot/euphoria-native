@@ -493,6 +493,23 @@ export default function Onboarding() {
   const profile = useApp((s) => s.profile);
   const setProfile = useApp((s) => s.setProfile);
   const completeOnboarding = useApp((s) => s.completeOnboarding);
+  /**
+   * THE HAND-OFF INTO THE ATLAS TOUR.
+   *
+   * Arming is not showing. It is fired at the two places onboarding COMPLETES, and the overlay
+   * that reads it lives on the tab layout, so the tour cannot collide with anything still ahead of
+   * the user here: the account wall, the paywall, and `/start`'s first-lesson offer all sit between
+   * this moment and the tabs, and every one of them is a different screen.
+   *
+   * Arming at completion rather than at the final `router.replace` is deliberate. Someone who kills
+   * the app on the paywall is still a learner who finished onboarding, and index.tsx sends them
+   * straight to Home on the next launch, where the tour is waiting for them. Pinning it to one exit
+   * route would have dropped exactly that person.
+   *
+   * It can only ever move `unseen` to `armed` (see nextAtlasTourState), so a user who has already
+   * been walked around the app and later replays onboarding does not get a second tour.
+   */
+  const armAtlasTour = useApp((s) => s.armAtlasTour);
 
   const def = STEPS[renderStep];
   const liveDef = STEPS[step];
@@ -541,6 +558,7 @@ export default function Onboarding() {
     if (step === REVEAL_INDEX) {
       // last chance to stamp completion if the loader was skipped (reduced motion)
       if (!profile.completedAt) completeOnboarding();
+      armAtlasTour();
       /*
        * THE ACCOUNT WALL, and its position is the whole point.
        *
@@ -983,6 +1001,9 @@ export default function Onboarding() {
             lines={LOADER_LINES}
             onDone={() => {
               completeOnboarding();
+              // Onboarding is finished HERE, whatever the user does with the paywall next. See
+              // armAtlasTour above for why this is the arming point rather than the exit route.
+              armAtlasTour();
               goTo(REVEAL_INDEX);
             }}
           />
@@ -1069,11 +1090,24 @@ export default function Onboarding() {
   };
 
   const isLoader = liveDef?.kind === 'loader';
-  // The two tail steps must FILL the scroll viewport rather than sit at its top: both are
+  // The tail steps must FILL the scroll viewport rather than sit at its top: both are
   // content-light next to a pinned CTA, so top-packing strands the leftover height as a dead
   // band above the button. The flex chain is opened up only for them; every question step keeps
   // its existing top-packed layout untouched.
-  const fillsViewport = renderStep === REVEAL_INDEX;
+  //
+  // ── EXTENDED TO THE STATEMENT STEPS, 2026-09-15 ───────────────────────────────────────────
+  // The reveal was the only step that ever got this, and the statement steps have exactly the
+  // same shape and exactly the same defect. Measured on an iPhone 17 (402x874):
+  //
+  //   step 4  chart statement   content ended y=585   Continue y=762   ->  177pt of nothing
+  //   step 8  proof statement   content ended y=627   Continue y=762   ->  135pt of nothing
+  //   step 15 reveal            content ended y=743   Continue y=762   ->   19pt, correct
+  //
+  // The third line is the proof: this exact flag is the difference between the two outcomes.
+  // A question step is deliberately NOT included. Its options are a list you read from the top
+  // down, and stretching that list to the bottom of the screen would space the taps apart for no
+  // reason. Statements and the reveal are compositions; questions are lists.
+  const fillsViewport = renderStep === REVEAL_INDEX || def?.kind === 'statement';
 
   const actionFooter = (
     <View style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}>

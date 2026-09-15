@@ -91,7 +91,14 @@ export function MasteryChallengeIntro({ visible, onDone }: { visible: boolean; o
         accessibilityLabel="Start the challenge"
         accessibilityHint="Skips the introduction and reveals the mastery questions">
         <Animated.View style={atlasStyle}>
-          <Atlas expression="watching" size={150} interactive={false} />
+          {/*
+        `idle` because this is the largest Atlas anywhere in the app and the screen it sits on asks
+        the learner to decide whether to start the challenge. A 150pt mascot holding perfectly
+        still while someone reads and hesitates looks rendered rather than present. atlas.tsx gates
+        idle off under Reduced Motion and under 72pt, so this costs nothing to anyone who has asked
+        for less movement.
+      */}
+      <Atlas expression="watching" size={150} interactive={false} idle />
         </Animated.View>
         <Animated.View style={[styles.bubble, bubbleStyle]}>
           <View style={styles.tail} accessible={false} />

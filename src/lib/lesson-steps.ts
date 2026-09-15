@@ -22,6 +22,7 @@ import type { TileSpec } from '@/components/tile-builder';
 import type { TrueFalseSpec } from '@/lib/true-false-model';
 import type { VocabTerm } from '@/lib/vocab-conversation';
 import type { TeachingSlideSpec } from '@/lib/teaching-slide';
+import type { MobileDeck } from '@/lib/mobile-lesson/types';
 import type { ProgressiveCalcSpec } from '@/components/progressive-calc';
 import { stableOptions } from './stable-options';
 
@@ -101,6 +102,14 @@ export type Normalized =
   | { kind: 'vocab'; terms: VocabTerm[] }
   | { kind: 'teaching'; spec: TeachingSlideSpec }
   | { kind: 'progressiveCalc'; spec: ProgressiveCalcSpec }
+  /**
+   * A mobile deck: one authored teachingSlide or interactiveGraph rebuilt as three or four cards.
+   *
+   * The deck arrives ALREADY BUILT, in the step itself. `src/lib/curriculum/index.ts` derives it at
+   * load time so that every screen and every saved position agrees on how long a lesson is, which
+   * means there is nothing to normalise here beyond handing the spec through.
+   */
+  | { kind: 'deck'; spec: MobileDeck }
   | { kind: 'todo'; type: string; title: string; blocks: ProseBlock[] };
 
 export type HookOpenerSpec = {
@@ -493,6 +502,17 @@ export function normalizeStep(step: LessonStep): Normalized {
             : {}),
         },
       };
+    /*
+     * iOS shows a deck instead of the authored slide or graph. The step reaching here is already a
+     * deck object, built at load time in src/lib/curriculum/index.ts; see the comment on
+     * withMobileDecks there for why the substitution happens at the loader rather than here.
+     *
+     * The `teachingSlide` and `interactiveGraph` cases below are NOT dead. Anything importing
+     * ./curriculum/courseIndex directly gets untransformed web steps, which is exactly what the
+     * parity audits do, and the dev preview can render an authored step on request.
+     */
+    case 'mobileDeck':
+      return { kind: 'deck', spec: step as unknown as MobileDeck };
     case 'teachingSlide':
       return {
         kind: 'teaching',

@@ -26,7 +26,7 @@ import { useTheme } from '@/hooks/use-theme';
  *  reading as speech and starts reading as a glitch. */
 const CHAR_MS = 26;
 
-export function Typewriter({ text, delay = 0, style }: { text: string; delay?: number; style?: object }) {
+export function Typewriter({ text, delay = 0, style, skipKey = 0 }: { text: string; delay?: number; style?: object; skipKey?: number }) {
   const reduced = useReducedMotion();
   const [n, setN] = useState(reduced ? text.length : 0);
 
@@ -36,6 +36,18 @@ export function Typewriter({ text, delay = 0, style }: { text: string; delay?: n
     // so React bails unless `text` changed.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (reduced) { setN(text.length); return; }
+    /*
+     * SKIP TO THE END. A typewriter is a pace, and a pace the reader cannot overtake is a wait.
+     * At CHAR_MS a 110-character line takes 2.9 seconds, and every surface that uses this puts a
+     * live control next to it (Continue in onboarding, Next in the tour), so a fast reader either
+     * sat through the animation or tapped past a sentence they never saw.
+     *
+     * A KEY RATHER THAN A BOOLEAN, which is the same latch this repo fixed on the mascot's own
+     * reactions: `skipped` as a flag would stick and the NEXT line would render instantly.
+     * atlas-conversation.tsx already solved this for the vocab beats with its own `finish()`; this
+     * gives the shared bubble the same courtesy.
+     */
+    if (skipKey > 0) { setN(text.length); return; }
     setN(0);
     let i = 0;
     let iv: ReturnType<typeof setInterval>;
@@ -47,7 +59,7 @@ export function Typewriter({ text, delay = 0, style }: { text: string; delay?: n
       }, CHAR_MS);
     }, delay);
     return () => { clearTimeout(start); clearInterval(iv); };
-  }, [text, delay, reduced]);
+  }, [text, delay, reduced, skipKey]);
 
   /*
    * ACCESSIBILITY. Two copies of the text are on screen: a full one at opacity 0 reserving the box,
@@ -84,6 +96,7 @@ export function AtlasSpeech({
   maxWidth = 280,
   textStyle,
   tailAlign = 'left',
+  skipKey = 0,
 }: {
   text: string;
   delay?: number;
@@ -96,6 +109,11 @@ export function AtlasSpeech({
   /** Where the tail hangs. 'left' is the default because Atlas usually sits off to one side; the
    *  onboarding bubble hangs from a CENTRED Atlas, and a left tail there points at nothing. */
   tailAlign?: 'left' | 'center';
+  /** Bump to drop the rest of the typewriter and show the whole line at once. The bubble itself is
+   *  deliberately NOT a Pressable: this component renders inside other tappables (onboarding sets a
+   *  question in one), and swallowing those taps would break controls to fix a pace. The owning
+   *  screen decides what a tap means and bumps this. */
+  skipKey?: number;
 }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
@@ -118,7 +136,7 @@ export function AtlasSpeech({
   return (
     <Animated.View style={[{ maxWidth }, style]}>
       <View style={[styles.bubble, { backgroundColor: theme.card, borderColor: theme.border }]}>
-        <Typewriter text={text} delay={delay + 180} style={textStyle} />
+        <Typewriter text={text} delay={delay + 180} style={textStyle} skipKey={skipKey} />
       </View>
       <View style={[styles.tailWrap, tailAlign === 'center' && styles.tailCenter, tail === 'bottom' ? styles.tailBottom : styles.tailTop]}>
         <Svg width={18} height={11} viewBox="0 0 18 11">

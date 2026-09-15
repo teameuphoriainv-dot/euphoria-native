@@ -1,0 +1,48 @@
+{
+  "_README": [
+    "What's New copy, keyed by version string then locale. scripts/asc-apply.mjs reads this and",
+    "REFUSES to write it unless the staged version in App Store Connect matches the key, so copy",
+    "written for one release can never land on a different one.",
+    "",
+    "EVERY CLAIM HERE WAS MEASURED IN THE TREE BEFORE IT WAS WRITTEN. The evidence, in order:",
+    "",
+    "  'three or four illustrated cards', '721', 'all 300 lessons'",
+    "      scripts/mobile-deck-audit.mjs: 721 decks, 2402 cards, 3 cards in 482 decks and 4 in 239.",
+    "      Measured separately: 300 of 300 lessons carry at least one deck, and 721 of 721 decks",
+    "      carry a pixel scene, so 'all 300 lessons' and 'art throughout' are both literally true.",
+    "  'instead of long pages of text'",
+    "      scripts/mobile-card-budget-pin.mjs: median card 104 characters, median step reduction",
+    "      79%. The web step a deck replaces has a 2,557-character median.",
+    "  'the sliders are gone', 'compound growth', 'a story one moment at a time'",
+    "      The deck audit reports interactives as timeline 256 and grow 33, and no slider at all.",
+    "  'lessons remember where you were'",
+    "      src/lib/lesson-step-session.ts and src/lib/store.ts lessonResume, pinned by",
+    "      scripts/lesson-resume-regression.mjs and scripts/lesson-resume-corpus-regression.mjs.",
+    "  the mastery challenge fix",
+    "      src/app/lesson.tsx, Back is now bounded to idx < DONE. Pinned by",
+    "      scripts/lesson-interaction-regression.mjs. completeLesson awards xp, coins and the",
+    "      streak day, and it only runs on Continue from the streak screen, which is why being",
+    "      ejected cost all three.",
+    "  'Atlas reacts when you get one wrong'",
+    "      scripts/atlas-reaction-wired-pin.mjs: shake has 1 call site, a wrong answer.",
+    "  'a short walkthrough after you sign up'",
+    "      scripts/atlas-tour-regression.mjs: 5 beats, home to learn to trade to games to the first",
+    "      lesson, every route real, shown once.",
+    "",
+    "WHY ALL FOUR LOCALES ARE IDENTICAL. Nothing in this text is territory-specific: no price, no",
+    "currency, no word that differs between these four English storefronts. The earlier round had a",
+    "real reason to differ, the description carries localized subscription prices and one",
+    "maths/math spelling. This text carries neither. Writing four variants for the sake of variety",
+    "would invent difference and give four chances to drift from one truth instead of one.",
+    "",
+    "NOT SAID, deliberately: nothing about the league, rivals, leaderboards or friends. Every person",
+    "in src/lib/people.ts is fabricated and src/app/league.tsx says so on screen."
+  ],
+
+  "1.0.1": {
+    "en-US": "Lessons are now short illustrated cards instead of long pages of text.\n\nEvery explanation in the app has been rebuilt for a phone. Where a lesson used to put a wall of text on one screen, you now get three or four illustrated cards, one idea at a time. That is 721 rebuilt screens reaching all 300 lessons, with new animated pixel art throughout.\n\nThe old desktop sliders are gone. What replaced them is built for a thumb: step through how compound growth builds year by year, or tap through a story one moment at a time.\n\nLessons now remember where you were. Close the app in the middle of one, come back tomorrow, and you carry on from the screen you left instead of starting again.\n\nFixed: after passing a mastery challenge, going back could drop you into the challenge a second time and throw you out of a lesson you had already finished, taking the XP, the Euphorium and the streak day with it.\n\nAtlas now reacts when you get one wrong, instead of sitting perfectly still.\n\nAnd if you are new, Atlas gives you a short walkthrough of the app after you sign up, so you know what everything does before you start.",
+    "en-GB": "Lessons are now short illustrated cards instead of long pages of text.\n\nEvery explanation in the app has been rebuilt for a phone. Where a lesson used to put a wall of text on one screen, you now get three or four illustrated cards, one idea at a time. That is 721 rebuilt screens reaching all 300 lessons, with new animated pixel art throughout.\n\nThe old desktop sliders are gone. What replaced them is built for a thumb: step through how compound growth builds year by year, or tap through a story one moment at a time.\n\nLessons now remember where you were. Close the app in the middle of one, come back tomorrow, and you carry on from the screen you left instead of starting again.\n\nFixed: after passing a mastery challenge, going back could drop you into the challenge a second time and throw you out of a lesson you had already finished, taking the XP, the Euphorium and the streak day with it.\n\nAtlas now reacts when you get one wrong, instead of sitting perfectly still.\n\nAnd if you are new, Atlas gives you a short walkthrough of the app after you sign up, so you know what everything does before you start.",
+    "en-CA": "Lessons are now short illustrated cards instead of long pages of text.\n\nEvery explanation in the app has been rebuilt for a phone. Where a lesson used to put a wall of text on one screen, you now get three or four illustrated cards, one idea at a time. That is 721 rebuilt screens reaching all 300 lessons, with new animated pixel art throughout.\n\nThe old desktop sliders are gone. What replaced them is built for a thumb: step through how compound growth builds year by year, or tap through a story one moment at a time.\n\nLessons now remember where you were. Close the app in the middle of one, come back tomorrow, and you carry on from the screen you left instead of starting again.\n\nFixed: after passing a mastery challenge, going back could drop you into the challenge a second time and throw you out of a lesson you had already finished, taking the XP, the Euphorium and the streak day with it.\n\nAtlas now reacts when you get one wrong, instead of sitting perfectly still.\n\nAnd if you are new, Atlas gives you a short walkthrough of the app after you sign up, so you know what everything does before you start.",
+    "en-AU": "Lessons are now short illustrated cards instead of long pages of text.\n\nEvery explanation in the app has been rebuilt for a phone. Where a lesson used to put a wall of text on one screen, you now get three or four illustrated cards, one idea at a time. That is 721 rebuilt screens reaching all 300 lessons, with new animated pixel art throughout.\n\nThe old desktop sliders are gone. What replaced them is built for a thumb: step through how compound growth builds year by year, or tap through a story one moment at a time.\n\nLessons now remember where you were. Close the app in the middle of one, come back tomorrow, and you carry on from the screen you left instead of starting again.\n\nFixed: after passing a mastery challenge, going back could drop you into the challenge a second time and throw you out of a lesson you had already finished, taking the XP, the Euphorium and the streak day with it.\n\nAtlas now reacts when you get one wrong, instead of sitting perfectly still.\n\nAnd if you are new, Atlas gives you a short walkthrough of the app after you sign up, so you know what everything does before you start."
+  }
+}

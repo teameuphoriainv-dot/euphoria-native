@@ -168,7 +168,14 @@ export function AtlasConversation({
             ? FadeIn.duration(1)
             : FadeInDown.springify().stiffness(420).damping(22).mass(1)}
           style={styles.atlas}>
-          <Atlas expression={expression} size={72} interactive={false} />
+          {/*
+            * `idle` was missing, and this is the longest a learner ever sits looking at Atlas: a
+            * vocab conversation is several beats of reading with the mascot pinned beside it. He
+            * rendered at 72, which is exactly IDLE_MOTION_MIN_SIZE, so he was big enough for the
+            * breath and blink to be visible and was simply never asked for them. The entrance on
+            * the wrapper above only fires when the beat changes; between beats he was a statue.
+            */}
+          <Atlas expression={expression} size={72} interactive={false} idle />
         </Animated.View>
 
         <View style={styles.messageColumn}>
