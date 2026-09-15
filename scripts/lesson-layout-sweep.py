@@ -121,6 +121,15 @@ def main():
     udid, course, num = sys.argv[1], sys.argv[2], sys.argv[3]
     max_steps = int(sys.argv[4]) if len(sys.argv) > 4 else 24
 
+    # VALIDATE THE ARGUMENTS, because getting them wrong looks like a content problem.
+    # A zsh caller that word-splits with `set -- $spec` does not split at all, so a course arrived
+    # as "investing-fundamentals 4" with num="14". The deep link then pointed at a lesson that does
+    # not exist, the walker saw one screen, and the output read as if lesson 14 were broken.
+    if ' ' in course or not num.isdigit():
+        print(f'bad arguments: course={course!r} num={num!r}')
+        print('usage: lesson-layout-sweep.py <UDID> <course-id> <lessonNum> [max_steps]')
+        return 1
+
     subprocess.run(
         ['xcrun', 'simctl', 'openurl', udid, f'euphorianative://lesson?course={course}&num={num}'],
         capture_output=True,
