@@ -162,7 +162,7 @@ export function StakesCard({ spec, onComplete }: { spec: StakesCardSpec; onCompl
       style={styles.scroll}
       contentContainerStyle={[styles.content, shortScreen && styles.contentTight]}
       showsVerticalScrollIndicator={false}>
-      <ThemedText type="title" style={styles.title}>Why This Matters</ThemedText>
+      <ThemedText type="title" style={[styles.title, shortScreen && styles.titleTight]}>Why This Matters</ThemedText>
       <View style={[styles.panels, sideBySide && styles.panelsWide, shortScreen && styles.panelsTight]}>
         <StakesPanel
           positive={false}
@@ -173,7 +173,7 @@ export function StakesCard({ spec, onComplete }: { spec: StakesCardSpec; onCompl
           svg={spec.withoutSvg}
           showDetail={showDetail}
           minHeight={panelMinHeight}
-          visualMaxHeight={shortScreen ? Math.round(height * 0.2) : visualMaxHeight}
+          visualMaxHeight={shortScreen ? Math.round(height * 0.15) : visualMaxHeight}
           tight={shortScreen}
         />
         <StakesPanel
@@ -185,7 +185,7 @@ export function StakesCard({ spec, onComplete }: { spec: StakesCardSpec; onCompl
           svg={spec.withSvg}
           showDetail={showDetail}
           minHeight={panelMinHeight}
-          visualMaxHeight={shortScreen ? Math.round(height * 0.2) : visualMaxHeight}
+          visualMaxHeight={shortScreen ? Math.round(height * 0.15) : visualMaxHeight}
           tight={shortScreen}
         />
       </View>
@@ -229,10 +229,20 @@ const styles = StyleSheet.create({
    */
   content: { flexGrow: 1, alignItems: 'center', gap: 14, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 96 },
   footer: { paddingTop: 8, paddingBottom: 12, alignItems: 'center' },
-  contentTight: { gap: 8, paddingTop: 4, paddingBottom: 72 },
-  panelsTight: { gap: 8 },
-  panelTight: { padding: 10, gap: 6 },
+  /*
+   * MEASURED TWICE, because the first pass was not enough.
+   *
+   * Tightening to gap 8 / padding 10 fixed the budgeting card on a 667pt SE but not the compound
+   * interest one, whose panel labels run to two lines: content still reached y=630 against a
+   * Continue at 611, a 19pt overlap. The labels cannot be trimmed, they carry the comparison
+   * ("Starting at age 22, investing $400/month"), so the room has to come from the chrome.
+   * These values clear it with content ending near 600.
+   */
+  contentTight: { gap: 6, paddingTop: 2, paddingBottom: 64 },
+  panelsTight: { gap: 6 },
+  panelTight: { padding: 8, gap: 4 },
   title: { textAlign: 'center' },
+  titleTight: { fontSize: 20, lineHeight: 26 },
   panels: { width: '100%', maxWidth: 1100, flexDirection: 'column', gap: 14 },
   panelsWide: { flexDirection: 'row' },
   panel: { flex: 1, gap: 10, padding: 16, borderWidth: 2, borderRadius: 16 },
