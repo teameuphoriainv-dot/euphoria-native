@@ -860,7 +860,21 @@ export default function Onboarding() {
     if (step !== PAYWALL_INDEX || paywallSeenRef.current) return;
     paywallSeenRef.current = true;
     track(Ev.paywallSeen, { surface: 'onboarding', tier: tierNow, offers_trial: offersTrial, is_pro: isProNow });
-  }, [step, tierNow, offersTrial, isProNow]);
+    /*
+     * The same moment, written down where it survives the process.
+     *
+     * The ref above is an analytics latch and dies with the app, so it cannot tell the entry
+     * redirect on the NEXT launch whether this user was ever shown the offer. Without that, a
+     * force-quit here relaunched into Home with the paywall skipped for good.
+     *
+     * Stamped on ARRIVAL rather than on exit, deliberately: the question this answers is "has this
+     * person been shown the offer", and they have been. Stamping on exit would re-present the
+     * paywall to someone who force-quits on it repeatedly, which is nagging, not selling.
+     */
+    if (!useApp.getState().profile.onboardingPaywallSeenAt) {
+      setProfile({ onboardingPaywallSeenAt: Date.now() });
+    }
+  }, [step, tierNow, offersTrial, isProNow, setProfile]);
   const [busy, setBusy] = useState(false);
 
   /** Apple requires a Restore control on any screen selling a subscription — independent of

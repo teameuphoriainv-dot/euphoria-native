@@ -64,6 +64,21 @@ assert.match(index, /if \(!hasAccount\(profile\)\) return <Redirect href=\{'\/au
   'index.tsx must send a completed-but-accountless user to /auth, not to Home');
 assert.doesNotMatch(index, /href=\{completedAt \? '\/\(tabs\)\/home' : '\/welcome'\}/,
   'the old completedAt-only redirect is back — that single test WAS the escape hatch');
+/*
+ * THE SECOND ESCAPE HATCH, same shape as the first.
+ *
+ * completeOnboarding() stamps completedAt at the LOADER, two steps before the paywall. So
+ * `completedAt && hasAccount` was true for someone standing ON the paywall, and killing the app
+ * there relaunched them into Home having never seen the offer, with nothing that would route them
+ * back. One force-quit, no timing, no tooling.
+ *
+ * firstRunDoneAt cannot substitute: /start sits AFTER the paywall, so it is null for someone who
+ * saw the offer and declined it too.
+ */
+assert.match(index, /if \(!profile\.onboardingPaywallSeenAt\) \{[\s\S]{0,160}?'\/onboarding\?step=paywall&firstRun=1' as never/,
+  'index.tsx must resume a user who finished the questions but never reached the paywall');
+assert.match(onboarding, /if \(!useApp\.getState\(\)\.profile\.onboardingPaywallSeenAt\) \{/,
+  'the paywall must stamp onboardingPaywallSeenAt on arrival, or the entry gate loops forever');
 
 // ── 4. The wall is before the paywall, and auth comes back to it ─────────────────────────────
 assert.match(onboarding, /router\.replace\('\/auth\?next=paywall' as never\)/,

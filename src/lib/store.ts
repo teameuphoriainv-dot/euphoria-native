@@ -36,7 +36,7 @@ import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 import { DEFAULT_AVAILABLE_COURSE_ID, isCourseAvailable } from './curriculum/availability';
 import type { LessonResumePoint } from './lesson-step-session';
-import { ONBOARDING_REPLAY_STORE_VERSION, replayOnboardingOnUpgrade } from './onboarding-replay-migration';
+import { PAYWALL_SEEN_BACKFILL_STORE_VERSION, replayOnboardingOnUpgrade, backfillPaywallSeen } from './onboarding-replay-migration';
 
 const XP_PER_LEVEL = 500;
 
@@ -1302,7 +1302,7 @@ export const useApp = create<AppState>()(
       // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
-      version: ONBOARDING_REPLAY_STORE_VERSION,
+      version: PAYWALL_SEEN_BACKFILL_STORE_VERSION,
       /*
        * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
        * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
@@ -1331,6 +1331,17 @@ export const useApp = create<AppState>()(
           // v5. Existing testers need one complete Welcome -> onboarding -> paywall -> sign-up
           // rehearsal. This resets routing only; progress, entitlement and trial history survive.
           next = replayOnboardingOnUpgrade(next, from);
+          /*
+           * v6. `profile.onboardingPaywallSeenAt` is new, so every existing install is missing it,
+           * and the entry redirect now sends anyone without it to the paywall. Correct for someone
+           * who force-quit before reaching it; wrong for an install that finished the flow before
+           * the field existed, which would be handed a purchase screen out of nowhere.
+           *
+           * AFTER the v5 replay on purpose: that one nulls completedAt for anything below v5, and
+           * those installs are being sent through the whole flow again, so they meet the paywall
+           * honestly and must not be stamped.
+           */
+          next = backfillPaywallSeen(next, from);
           return next;
         } catch (e) {
           console.error('[store] migration failed, leaving state as-is', e);

@@ -25,7 +25,22 @@ for (const profile of profiles) {
 
 const source = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const store = source('../src/lib/store.ts');
-assert.match(store, /version:\s*ONBOARDING_REPLAY_STORE_VERSION/, 'the store must use the replay-safe v5 migration');
+/*
+ * The persisted version must come from the migration module's exported constant, never a literal:
+ * a hard-coded number here and a different one there is how a migration silently stops running.
+ * It is the LATEST constant, since versions only ever go up — v6 added the paywall-seen backfill.
+ * Both migration functions must still be applied, and in that order (see the ordering note in
+ * onboarding-replay-migration.ts: v6 keys off a completedAt that v5 may have nulled).
+ */
+assert.match(store, /version:\s*PAYWALL_SEEN_BACKFILL_STORE_VERSION/,
+  'the store must persist the latest migration version, taken from the shared constant');
+const replayAt = store.indexOf('replayOnboardingOnUpgrade(next, from)');
+const backfillAt = store.indexOf('backfillPaywallSeen(next, from)');
+assert.ok(replayAt > 0, 'the v5 onboarding replay migration is no longer applied');
+assert.ok(backfillAt > 0, 'the v6 paywall-seen backfill is no longer applied');
+assert.ok(replayAt < backfillAt,
+  'the backfill must run AFTER the replay, or an install being sent back through the whole flow '
+  + 'gets stamped as having already seen the paywall and skips it');
 assert.match(store, /if \(isCourseAvailable\(id\)\) set\(\{ activeCourseId: id \}\)/, 'the store must reject unreleased course selection');
 
 for (const path of [

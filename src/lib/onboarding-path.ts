@@ -52,6 +52,19 @@ export type Profile = {
    *  matters more than usual for Apple, whose name/email come back exactly once ever. */
   authProvider: 'apple' | 'google' | null;
   authId: string | null;
+  /**
+   * Epoch ms the onboarding paywall was actually put in front of this user. Null until it is.
+   *
+   * WHY IT IS PERSISTED AND `completedAt` IS NOT ENOUGH. `completeOnboarding()` stamps
+   * `completedAt` at the LOADER, two steps before the paywall, and the entry redirect tested only
+   * `completedAt` and `hasAccount`. So someone who signed up at the account wall, reached the
+   * paywall and killed the app relaunched straight into Home, never having seen the offer, with
+   * nothing anywhere that would route them back to it. One force-quit was the whole bypass.
+   *
+   * The analytics latch for the same moment is a `useRef`, which is in-memory and dies with the
+   * process, so it cannot answer this question on the next launch.
+   */
+  onboardingPaywallSeenAt: number | null;
   /** Epoch ms the guided first action was taken OR skipped. A STAMP rather than inferring from
    *  readPosts, so skipping is permanent: inferring would hand the screen back on every sign-in,
    *  and would treat someone who reads their first guide months later as brand new. */
@@ -75,6 +88,7 @@ export const EMPTY_PROFILE: Profile = {
   email: null,
   authProvider: null,
   authId: null,
+  onboardingPaywallSeenAt: null,
   firstRunDoneAt: null,
 };
 
