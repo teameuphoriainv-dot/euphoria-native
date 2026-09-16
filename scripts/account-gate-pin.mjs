@@ -70,8 +70,17 @@ assert.match(onboarding, /router\.replace\('\/auth\?next=paywall' as never\)/,
   'the reveal step must send an account-less user to /auth before the paywall');
 assert.match(auth, /const backToPaywall = params\.next === 'paywall';/,
   'auth must read ?next=paywall, or the user is dropped in the app and never sees the offer');
-assert.match(auth, /backToPaywall \? '\/onboarding\?step=paywall'/,
-  'auth must return to the paywall step it was called from');
+assert.match(auth, /backToPaywall \? '\/onboarding\?step=paywall&firstRun=1'/,
+  'auth must return to the paywall step it was called from, carrying firstRun=1');
+/*
+ * The marker is not decoration. Onboarding freezes enteredWithCompletedOnboarding from
+ * profile.completedAt at mount, and completeOnboarding() stamps that at the LOADER — two steps
+ * before this redirect. So the remount after /auth froze a value the flow itself had just set and
+ * read a brand-new user as a returning upsell visitor, which made /start unreachable for everyone
+ * and left profile.firstRunDoneAt null forever. See scripts/first-run-reachable-pin.mjs.
+ */
+assert.match(onboarding, /const resumingFirstRun = params\.firstRun === '1';/,
+  'onboarding must read the firstRun marker auth sends back, or the return remount misreads the user');
 
 // ── 5. The local path cannot create an empty account ─────────────────────────────────────────
 // With Supabase off, enter() used to call land() unconditionally. Under the new gate a blank

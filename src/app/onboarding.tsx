@@ -469,7 +469,7 @@ export default function Onboarding() {
   // row has to be able to reach the paywall. It is named rather than numeric on purpose - linking
   // by index would silently point somewhere else the moment a step is inserted, and outside dev a
   // rejected param falls back to step 0, which would drop a returning user into the whole flow.
-  const params = useLocalSearchParams<{ step?: string }>();
+  const params = useLocalSearchParams<{ step?: string; firstRun?: string }>();
   const wantsPaywall = params.step === 'paywall';
   const startStep =
     params.step && (__DEV__ || wantsPaywall)
@@ -491,7 +491,28 @@ export default function Onboarding() {
    * before the reveal and paywall. Reading the live value at the final step therefore made every
    * brand-new learner look like a returning upsell visitor and skipped `/auth` entirely.
    */
-  const [enteredWithCompletedOnboarding] = useState(() => Boolean(useApp.getState().profile.completedAt));
+  /*
+   * `firstRun=1` is set by /auth when it returns someone to the paywall mid-flow. Without it this
+   * flag reads its own first-run user as a returning visitor: completeOnboarding() stamps
+   * completedAt at the loader, two steps before the account wall, so the remount after /auth sees
+   * it already set. Every paywall exit then took the returning branch and /start was unreachable.
+   */
+  const resumingFirstRun = params.firstRun === '1';
+  const [enteredWithCompletedOnboarding] = useState(
+    () => !resumingFirstRun && Boolean(useApp.getState().profile.completedAt),
+  );
+
+  /**
+   * Where onboarding hands off when it is finished with someone.
+   *
+   * ONE function, because there were four exits and three of them disagreed. "Maybe later" and a
+   * completed purchase both went straight to '/home', so even a paying new user skipped the guided
+   * first action. The rule is the same for all of them: a user who has not done the first run gets
+   * it, and everyone else goes to the tabs.
+   */
+  const leaveOnboarding = () => {
+    router.replace(useApp.getState().profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+  };
 
   const profile = useApp((s) => s.profile);
   const setProfile = useApp((s) => s.setProfile);
@@ -599,7 +620,7 @@ export default function Onboarding() {
     // bare router.back() is a silent no-op. That is what "no response when we tapped the button"
     // looked like to App Review, and it would strand a user on the last step of onboarding.
     else if (enteredWithCompletedOnboarding && router.canGoBack()) router.back();
-    else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+    else leaveOnboarding();
   };
 
   /** Dismissing the first-run offer still has to finish account setup. A returning user who opened
@@ -615,7 +636,7 @@ export default function Onboarding() {
    */
   const dismissPaywall = () => {
     if (enteredWithCompletedOnboarding) router.replace('/home');
-    else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+    else leaveOnboarding();
   };
   /**
    * BACK MEANS "UNDO MY LAST STEP", NOT "DECREMENT THE INDEX".
@@ -886,7 +907,8 @@ export default function Onboarding() {
     setBusy(true);
     void purchase(pkg).then((r) => {
       setBusy(false);
-      if (r.ok && r.isPro) router.replace('/home');
+      // Paying is not a reason to skip the guided first action; it was '/home' unconditionally.
+      if (r.ok && r.isPro) { if (enteredWithCompletedOnboarding) router.replace('/home'); else leaveOnboarding(); }
       else if (!r.ok && r.kind === 'error') Alert.alert('Purchase failed', purchaseErrorMessage(r.code));
       // 'cancelled' is deliberately silent — backing out of the Apple sheet is not an error.
     });

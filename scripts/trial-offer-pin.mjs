@@ -98,8 +98,20 @@ assert.match(src, /isProNow\s*\n?\s*\?\s*"You're on Euphoria Pro"/,
 // 6. Completing the loader stamps profile.completedAt before the paywall. The final routing
 // decision must therefore use a value frozen on entry, not the now-mutated live profile. Otherwise
 // returning upsell visitors are treated as first-timers and pushed forward instead of back.
-assert.match(src, /const \[enteredWithCompletedOnboarding\] = useState\(\(\) => Boolean\(useApp\.getState\(\)\.profile\.completedAt\)\);/,
+//
+// FROZEN IS NECESSARY AND WAS NOT SUFFICIENT, and this assertion used to pin the insufficient
+// version verbatim. Freezing on entry does nothing about a REMOUNT: /auth replaces onboarding and
+// returns the user to ?step=paywall, so the second mount froze a completedAt that the flow itself
+// had set three steps earlier and read a brand-new user as a returning visitor. Every paywall exit
+// then took the returning branch, and /start — the guided first action — became unreachable for
+// everyone. See scripts/first-run-reachable-pin.mjs.
+//
+// So this now pins the PROPERTY (frozen at mount, from completedAt) rather than one spelling of
+// it, and the firstRun veto is required alongside.
+assert.match(src, /const \[enteredWithCompletedOnboarding\] = useState\(\s*\(\) =>[^;]*Boolean\(useApp\.getState\(\)\.profile\.completedAt\)[^;]*\);/,
   'onboarding must freeze whether completion existed on entry; the loader mutates the live value');
+assert.match(src, /!resumingFirstRun && Boolean\(useApp\.getState\(\)\.profile\.completedAt\)/,
+  'the frozen flag must let firstRun=1 veto it, or the remount after /auth reads a new user as returning');
 
 // 6b. THE ACCOUNT WALL SITS BEFORE THE PAYWALL.
 //
@@ -112,8 +124,19 @@ assert.match(src, /if \(!hasAccount\(profile\)\) \{\s*router\.replace\('\/auth\?
   'the reveal step must send an account-less user to /auth BEFORE the paywall');
 assert.doesNotMatch(src, /else router\.replace\('\/auth'\);/,
   'no step after the paywall may route to /auth — the account is collected before it, not after');
-assert.match(src, /const dismissPaywall = \(\) => \{[\s\S]*?router\.replace\(profile\.firstRunDoneAt \? '\/\(tabs\)\/home' : \('\/start' as never\)\);\s*\};/,
+/*
+ * "Maybe later" hands off through leaveOnboarding(), which is the ONE place the first-run decision
+ * is made. It used to be inlined here and in next(), while the purchase-success path went straight
+ * to '/home' — three exits, two of which skipped the guided first action even when the flag above
+ * was right. Pinning the helper and its body keeps the decision in one place rather than pinning
+ * one copy of it.
+ */
+assert.match(src, /const dismissPaywall = \(\) => \{[\s\S]*?leaveOnboarding\(\);\s*\};/,
   'Maybe later must hand off to the app, not ask an already-signed-up user to sign in again');
+assert.match(src, /const leaveOnboarding = \(\) => \{\s*router\.replace\(useApp\.getState\(\)\.profile\.firstRunDoneAt \? '\/\(tabs\)\/home' : \('\/start' as never\)\);\s*\};/,
+  'the shared exit must still send a user who has not done the first run to /start');
+assert.doesNotMatch(src, /if \(r\.ok && r\.isPro\) router\.replace\('\/home'\);/,
+  'a completed purchase must not skip the guided first action');
 assert.match(src, /accessibilityLabel="Maybe later">/,
   'the dismiss control must remain reachable to App Review and assistive technology');
 

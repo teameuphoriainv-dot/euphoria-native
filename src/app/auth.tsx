@@ -73,8 +73,24 @@ export default function Auth() {
    */
   const params = useLocalSearchParams<{ next?: string }>();
   const backToPaywall = params.next === 'paywall';
+  /*
+   * `firstRun=1` RIDES BACK WITH THE PAYWALL RETURN, and without it /start was unreachable.
+   *
+   * Onboarding freezes `enteredWithCompletedOnboarding` from `profile.completedAt` at mount, to
+   * tell "a returning user opened the paywall from the You page" apart from "a new user is
+   * finishing the flow". But completeOnboarding() stamps completedAt at the LOADER, two steps
+   * before the account wall — so by the time /auth replaces onboarding and sends the user back
+   * here, onboarding REMOUNTS with completedAt already set and reads its own first-run user as a
+   * returning visitor. Every paywall exit then took the returning branch to Home.
+   *
+   * The consequence was that no new user ever reached /start, the guided first action, whose own
+   * header explains it exists so onboarding does not end on a zero streak and an empty week strip.
+   * And because firstRunDoneAt is written ONLY by /start, it stayed null forever — so a long-time
+   * user signing back in later hit the branch below and got the first-run screen, which the note
+   * on this function says must never happen.
+   */
   const landing = (): string =>
-    backToPaywall ? '/onboarding?step=paywall' : firstRunDoneAt ? '/(tabs)/home' : '/start';
+    backToPaywall ? '/onboarding?step=paywall&firstRun=1' : firstRunDoneAt ? '/(tabs)/home' : '/start';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   /** null until the OS answers. The Apple button renders only on `true` — an iPad on iOS 12 or an
