@@ -336,7 +336,25 @@ function AccountSection() {
           onPress={() =>
             Alert.alert('Sign out?', 'Your progress stays on this device.', [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Sign out', style: 'destructive', onPress: () => { void signOut().finally(() => router.replace('/welcome')); } },
+              /*
+               * TO /auth, NOT /welcome, and the You tab has always done it this way.
+               *
+               * signOut() flips signedIn and nothing else — completedAt, the answers and the email
+               * all survive by design, which is what "Your progress stays on this device" above
+               * promises. But /welcome's only control is router.replace('/onboarding'), so this
+               * button put the user through all sixteen screens again to reach an app that had
+               * never forgotten them. Their answers were even pre-filled, so every screen was a tap
+               * to confirm something the app already knew.
+               *
+               * It was also lossy: completeOnboarding() re-runs at the loader and resets
+               * activeCourseId, so a replay could move the course they were part-way through.
+               * Force-quitting and relaunching was strictly faster and strictly safer than the
+               * app's own flow.
+               *
+               * /welcome remains right for DELETE ACCOUNT above, where deleteProfile() really has
+               * made them a new user.
+               */
+              { text: 'Sign out', style: 'destructive', onPress: () => { void signOut().finally(() => router.replace('/auth' as never)); } },
             ])
           }
         />
