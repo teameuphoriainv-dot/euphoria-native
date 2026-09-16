@@ -506,9 +506,9 @@ export default function Auth() {
               }}
               accessibilityRole="button"
               accessibilityLabel={mode === 'signup' ? 'Switch to signing in' : 'Switch to creating an account'}>
-              <ThemedText type="small" themeColor="mutedForeground">
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.modeText}>
                 {mode === 'signup' ? 'Already have an account? ' : 'Need an account? '}
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
+                <ThemedText type="smallBold" style={[styles.modeText, { color: theme.iconLilac }]}>
                   {mode === 'signup' ? 'Sign in' : 'Create one'}
                 </ThemedText>
               </ThemedText>
@@ -521,7 +521,7 @@ export default function Auth() {
                 onPress={() => { Keyboard.dismiss(); forgot(); }}
                 accessibilityRole="button"
                 accessibilityLabel="Send a password reset link">
-                <ThemedText type="small" style={{ color: theme.iconLilac }}>Forgot password?</ThemedText>
+                <ThemedText type="small" style={[styles.modeText, { color: theme.iconLilac }]}>Forgot password?</ThemedText>
               </SpringPressable>
             )}
           </View>
@@ -547,13 +547,22 @@ const styles = StyleSheet.create({
   /** Mode toggle and the reset link share a row so neither reads as the primary action. */
   modeRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 8,
     marginTop: 14,
   },
   modeAction: { minHeight: 44, justifyContent: 'center' },
+  /*
+   * `body` metrics (16/23) rather than `small` (13/18): at 13 the row read as unstyled system
+   * text. 16/23 is lifted straight off the ThemedText type scale so it stays on the ramp.
+   *
+   * Set on BOTH the outer and inner Text: the nested <ThemedText type="smallBold"> carries its
+   * own fontSize from the type map, so it overrides inheritance and would stay at 13 while the
+   * sentence around it grew.
+   */
+  modeText: { fontSize: 16, lineHeight: 23 },
   safe: { flex: 1 },
   flex: { flex: 1 },
   content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.four, gap: Spacing.four },
