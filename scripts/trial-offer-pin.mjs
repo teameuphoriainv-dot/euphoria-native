@@ -1,5 +1,18 @@
 /**
- * The paywall may only offer a FREE TRIAL to someone who has not started one.
+ * The paywall may only offer a FREE TRIAL that Apple will actually grant, and its CTA must BUY.
+ *
+ * ── 2026-09-08, App Store rejection 2.1(b) on build 24 ──────────────────────────────────────
+ * "There was no response when we chose Annual or Monthly and tapped Start my 3-day free trial."
+ * They were right, and this file had pinned the cause. The CTA read
+ * `offersTrial ? next : buyPro`, so the one user who is always offered a trial — a fresh install,
+ * which is every reviewer — got a button wired to pagination instead of to StoreKit. Selecting a
+ * plan changed nothing, no purchase sheet could open, and `next` at the last step fell through to
+ * a `router.back()` that is a no-op after /auth replaces the stack.
+ *
+ * The trial it promised was a device-local `activeDays` counter that Apple has never heard of.
+ * It is now an INTRODUCTORY OFFER on both products, so the sheet grants it and `offersTrial` is
+ * read from the store rather than from our own tier. What this file pins first is therefore no
+ * longer "who may be offered a trial" but "the purchase surface purchases".
  *
  * This screen has now got this wrong twice. The first time it offered a trial to an EXPIRED user;
  * that was fixed by branching on `spent`. On 2026-08-22 two cofounders independently reported the
@@ -22,42 +35,60 @@ assert.match(ent, /export const trialStarted = \(s: AppState\) => s\.activeDays\
   'entitlement.trialStarted is gone or no longer reads activeDays — tier() alone CANNOT tell a '
   + 'fresh install from a user on day 2, which is the whole bug');
 
-// 2. the paywall computes it, and requires BOTH not-pro and not-started
-assert.match(src, /const offersTrial = tierNow === 'trial' && !trialRunning;/,
-  'offersTrial must require tier==="trial" AND an unstarted clock; anything looser re-opens the bug');
+// 2. THE TRIAL IS APPLE'S ANSWER, NOT OURS. `offersTrial` must be derived from the introductory
+//    offer on the selected package, so this screen is structurally incapable of promising a trial
+//    the purchase sheet will not honour. A pro user is still excluded before the read is consulted.
+assert.match(src, /const storeTrialDays = isProNow \? null : \(selectedOffer\?\.freeTrialDays \?\? null\);/,
+  'the trial length must be read from the selected package\'s Apple introductory offer');
+assert.match(src, /const offersTrial = storeTrialDays !== null;/,
+  'offersTrial must be decided by StoreKit; deriving it from tier() is what shipped a trial Apple '
+  + 'had never agreed to grant');
+assert.match(src, /readPlanOffer\(pkgs, 'annual'\), monthly: readPlanOffer\(pkgs, 'monthly'\)/,
+  'both plans must be read from the live offering');
 
 // 3. every trial-specific surface is gated on offersTrial, and none on a bare !spent
 const mustGate = [
-  [/offersTrial\s*\?\s*`\$\{TRIAL_DAYS\} DAYS FREE/, 'the "N DAYS FREE" plan badge'],
+  [/annualOffer\?\.freeTrialDays \? `\$\{annualOffer\.freeTrialDays\} DAYS FREE/, 'the "N DAYS FREE" plan badge'],
   [/step === PAYWALL_INDEX && offersTrial && \(/, 'the "No payment due now" reassurance'],
-  [/offersTrial\s*\n?\s*\?\s*`Start my \$\{TRIAL_DAYS\}-day free trial`/, 'the trial CTA label'],
-  [/offersTrial\s*\?\s*`\$\{TRIAL_DAYS\} days free, then `\s*:\s*''/, 'the renewal fine print'],
+  [/offersTrial\s*\n?\s*\?\s*`Start my \$\{trialLen\}-day free trial`/, 'the trial CTA label'],
+  [/offersTrial\s*\?\s*`\$\{trialLen\} days free, then `\s*:\s*''/, 'the renewal fine print'],
 ];
 for (const [re, what] of mustGate) {
   assert.match(src, re, `${what} is no longer gated on offersTrial — it can reach a user mid-trial`);
 }
 
-// 4. THE PAID CTA MUST BUY — for EVERY non-pro user, trial-eligible or not.
-//
-// This pin used to assert the exact opposite. It required the literal `? next : buyPro`, which
-// pinned the trial CTA to the PAGINATION handler: "Start my N-day free trial" called `next`,
-// `next` found itself on the last step, and it navigated away without ever touching StoreKit.
-// The comment above it even described that as the bug — "a button that says 'start my free
-// trial' and only paginates" — and then pinned it in place for the offersTrial branch.
-//
-// App Review rejected build 24 on guideline 2.1(b) for precisely this: "there was no response
-// when we chose Annual or Monthly and tapped Start my 3-day free trial." A pin that encodes the
-// defect is worse than no pin, because it fails the person who arrives to fix it.
-//
-// The free days are an App Store introductory offer on the product, so BUYING is how the trial
-// starts. There is no path from this screen to a trial that does not go through StoreKit.
-const cta = src.match(/onPress=\{([\s\S]*?)\n\s*\}\n\s*\/>\}/);
-assert.ok(cta, 'the paywall CTA onPress block could not be located — this pin has gone blind');
-assert.doesNotMatch(cta[1], /\?\s*next\s*\n?\s*:\s*buyPro/,
-  'the paywall CTA routes trial-eligible users to `next`. That is the dead buy button App Review '
-  + 'rejected on 2.1(b): it paginates instead of opening the Apple payment sheet.');
-assert.match(cta[1], /:\s*buyPro\s*\n\s*:\s*next\s*$/,
-  'the paywall CTA must call buyPro for every non-pro user; only the already-pro branch may skip it');
+// 4. THE REJECTION PIN. The paywall CTA buys, for everyone, always. There must be no branch that
+//    hands a non-pro user anything other than `buyPro`, and in particular not `next`.
+assert.match(src, /step === PAYWALL_INDEX\s*\n\s*\?\s*isProNow\s*\n\s*\?\s*\(\) => router\.replace\('\/home'\)\s*\n\s*:\s*buyPro\s*\n\s*:\s*next/,
+  'the paywall CTA must call buyPro for every non-pro user — routing it to `next` is exactly what '
+  + 'App Review rejected build 24 for (2.1(b), "no response when we tapped Start my free trial")');
+assert.doesNotMatch(src, /offersTrial\s*\n?\s*\?\s*next/,
+  'a trial CTA that paginates instead of purchasing is the rejected control; the trial is an Apple '
+  + 'introductory offer now and is granted by the purchase sheet');
+
+// 4b. A BUY BUTTON MAY NEVER BE LIVE-LOOKING AND INERT. Until a real package is in hand it is
+//     either loading or disabled with its reason on screen — never tappable and silent.
+assert.match(src, /const canBuy = IAP_ENABLED && selectedOffer !== null;/,
+  'the screen must know whether it can actually transact');
+assert.match(src, /disabled=\{!canContinue \|\| busy \|\| \(step === PAYWALL_INDEX && !isProNow && !canBuy\)\}/,
+  'the CTA must be disabled while there is no package to buy');
+assert.match(src, /step === PAYWALL_INDEX && !isProNow && !canBuy && !offersLoading && \(/,
+  'a paywall that cannot sell must say why, in place of the fine print');
+
+// 4c. EVERY PRICE COMES FROM StoreKit. A hardcoded USD pair is a price Apple will not charge in
+//     any other storefront, and it is what made the dead button look like a working one.
+for (const [re, what] of [
+  [/const annualPrice = annualOffer\?\.priceString \?\? PRICING\.annual;/, 'the annual price'],
+  [/const monthlyPrice = monthlyOffer\?\.priceString \?\? PRICING\.monthly;/, 'the monthly price'],
+  [/const annualPerMonth = annualOffer\?\.perMonthString \?\? PRICING\.annualPerMonth;/, 'the monthly equivalent'],
+]) {
+  assert.match(src, re, `${what} must be read from the store, with PRICING only as the pre-load placeholder`);
+}
+
+// 4d. THE LAST STEP MUST NEVER BE A DEAD END. `router.back()` is a silent no-op when /auth reached
+//     this screen by replace, which is the ordinary first-run path.
+assert.match(src, /else if \(enteredWithCompletedOnboarding && router\.canGoBack\(\)\) router\.back\(\);/,
+  'the paywall exit must be canGoBack-guarded; a bare router.back() strands the user silently');
 
 // 5. a paying subscriber must never be offered anything here
 assert.match(src, /const isProNow = tierNow === 'pro';/, 'the pro case is not distinguished');
@@ -86,7 +117,7 @@ assert.match(src, /const dismissPaywall = \(\) => \{[\s\S]*?router\.replace\(pro
 assert.match(src, /accessibilityLabel="Maybe later">/,
   'the dismiss control must remain reachable to App Review and assistive technology');
 
-console.log('PASS — a free trial is offered only to a non-pro user whose trial clock has not '
-  + 'started; mid-trial, expired and pro users each get their own copy and CTA; the account wall '
-  + 'sits before the paywall and first-run dismissal '
-  + 'hands off to the app rather than asking for a second sign-in.');
+console.log('PASS — the paywall CTA always opens the App Store purchase sheet, the free trial is '
+  + 'whatever Apple\'s introductory offer grants and never our own counter, every price is read '
+  + 'from StoreKit, a button that cannot buy is disabled with its reason on screen, the last step '
+  + 'cannot dead-end, and the account wall still sits before the paywall.');

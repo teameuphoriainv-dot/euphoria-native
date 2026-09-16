@@ -78,6 +78,55 @@ export function findPackage(pkgs: PurchasesPackage[], plan: 'monthly' | 'annual'
 // apart. Existing importers of `ENTITLEMENT_ID` from this module keep working.
 export { ENTITLEMENT_ID } from './billing-retry';
 
+/**
+ * WHAT THE STORE IS ACTUALLY SELLING, for a plan the user has selected.
+ *
+ * Every number a paywall shows has to come from StoreKit, and this is the read that gets it. The
+ * onboarding paywall used to render a hardcoded `$9.99` / `$79.99` pair and a "3-day free trial"
+ * that existed only as a day counter in AsyncStorage. Both were untrue in ways that cost an App
+ * Review rejection (2.1(b), build 24): the price was wrong in every storefront but the US, and the
+ * trial was not something Apple had ever agreed to grant.
+ *
+ * `freeTrialDays` is non-null only when Apple will genuinely open the purchase sheet on a free
+ * introductory offer, so a caller can key its trial copy on it and be incapable of promising a
+ * trial that the sheet then does not honour.
+ */
+export type PlanOffer = {
+  pkg: PurchasesPackage;
+  /** The charge, formatted by StoreKit in the viewer's own currency. Never a literal from our source. */
+  priceString: string;
+  /** Price per month for the same product, so an annual card can show its monthly equivalent honestly. */
+  perMonthString: string | null;
+  /** The raw amount, for deriving the saving badge from what is really charged. */
+  price: number;
+  /** Days of FREE introductory offer Apple will grant on this product, or null when it has none. */
+  freeTrialDays: number | null;
+};
+
+/** Apple states an introductory period as a unit plus a count. Days are the only unit our copy
+ *  speaks, so the units are converted once, here, rather than at each call site. */
+const DAYS_IN_PERIOD_UNIT: Record<string, number> = { DAY: 1, WEEK: 7, MONTH: 30, YEAR: 365 };
+
+export function readPlanOffer(pkgs: PurchasesPackage[], plan: 'monthly' | 'annual'): PlanOffer | null {
+  const pkg = findPackage(pkgs, plan);
+  if (!pkg) return null;
+  const intro = pkg.product.introPrice;
+  const perUnit = DAYS_IN_PERIOD_UNIT[String(intro?.periodUnit ?? '').toUpperCase()];
+  /* A free trial is an introductory offer priced at ZERO. A discounted-but-paid intro offer is a
+     different product decision and must never be described as free, so it reads as no trial here. */
+  const freeTrialDays =
+    intro && intro.price === 0 && perUnit
+      ? perUnit * intro.periodNumberOfUnits * Math.max(1, intro.cycles)
+      : null;
+  return {
+    pkg,
+    priceString: pkg.product.priceString,
+    perMonthString: pkg.product.pricePerMonthString,
+    price: pkg.product.price,
+    freeTrialDays,
+  };
+}
+
 const KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY ?? '';
 
 /**

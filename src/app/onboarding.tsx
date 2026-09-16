@@ -51,8 +51,8 @@ import { Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ALL_AVATARS } from '@/lib/avatars';
 import { Ev, track } from '@/lib/analytics';
-import { TRIAL_DAYS, trialDayNumber, useTier, useTrialStarted } from '@/lib/entitlement';
-import { IAP_DISABLED_REASON, IAP_ENABLED, findPackage, getPackages, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
+import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
+import { IAP_DISABLED_REASON, IAP_ENABLED, getPackages, readPlanOffer, type PlanOffer, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
 import { applyDailyNudge } from '@/lib/notifications';
 import { NudgeTimePicker } from '@/components/nudge-time-picker';
@@ -573,7 +573,11 @@ export default function Onboarding() {
     // Someone who arrived here from the You page upsell is mid-app - return them where they came
     // from. Everyone else has just cleared the account wall two steps back, so the paywall is now
     // the LAST step and it hands off to the app rather than to /auth.
-    else if (enteredWithCompletedOnboarding) router.back();
+    // `canGoBack` guarded, as everywhere else in this file (see the BackChevron handler): a user
+    // who reached this screen from /auth got here by REPLACE, so there is nothing beneath it and a
+    // bare router.back() is a silent no-op. That is what "no response when we tapped the button"
+    // looked like to App Review, and it would strand a user on the last step of onboarding.
+    else if (enteredWithCompletedOnboarding && router.canGoBack()) router.back();
     else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
   };
 
@@ -699,9 +703,79 @@ export default function Onboarding() {
    * all", which is true for exactly one person: a non-Pro user whose trial clock has not started.
    */
   const isProNow = tierNow === 'pro';
-  const trialRunning = useTrialStarted();
   const trialDay = useApp(trialDayNumber);
-  const offersTrial = tierNow === 'trial' && !trialRunning;
+
+  /*
+   * ── THE TRIAL IS APPLE'S NOW, NOT A COUNTER IN AsyncStorage (2.1(b), build 24) ───────────────
+   *
+   * App Review rejected build 24 with "there was no response when we chose Annual or Monthly and
+   * tapped Start my 3-day free trial", and they were describing this screen exactly. Whenever a
+   * trial was on offer the CTA's `onPress` was `next`, not `buyPro` — so the plan cards set state
+   * nothing read, no purchase sheet could ever open, and `next` at the last step fell through to a
+   * `router.back()` that is a no-op after /auth replaces the stack. A dead button on a screen
+   * showing prices.
+   *
+   * Three things changed, and they are one decision:
+   *   1. The CTA always buys. A purchase surface that does not purchase is the whole finding.
+   *   2. The trial is an Apple INTRODUCTORY OFFER on both products, so StoreKit grants it: the
+   *      sheet says "3 days free, then <price>", it survives a reinstall, and someone who already
+   *      used it is charged rather than handed a second one. The `activeDays` counter in
+   *      entitlement.ts still runs the in-app soft gate; it is no longer what the paywall sells.
+   *   3. Every number here is READ FROM StoreKit. `PRICING` was a hardcoded USD pair, so a
+   *      reviewer in any other storefront was shown a price Apple would not charge.
+   *
+   * `offers` is null until the read lands and `offersFailed` records a read that came back with
+   * nothing. Between them the CTA can never be live-looking and inert, which is the state that got
+   * us rejected: it is either a working Buy button or a disabled one with its reason on screen.
+   */
+  const [offers, setOffers] = useState<{ annual: PlanOffer | null; monthly: PlanOffer | null } | null>(null);
+  const [offersFailed, setOffersFailed] = useState(false);
+  useEffect(() => {
+    if (step !== PAYWALL_INDEX || !IAP_ENABLED || offers) return;
+    let live = true;
+    void getPackages().then((pkgs) => {
+      if (!live) return;
+      // Empty means the offering exists with no products attached, or the SDK could not reach
+      // RevenueCat. Both are "cannot sell right now", and both must say so rather than spin.
+      if (pkgs.length === 0) {
+        setOffersFailed(true);
+        return;
+      }
+      setOffers({ annual: readPlanOffer(pkgs, 'annual'), monthly: readPlanOffer(pkgs, 'monthly') });
+    });
+    return () => {
+      live = false;
+    };
+  }, [step, offers]);
+
+  const annualOffer = offers?.annual ?? null;
+  const monthlyOffer = offers?.monthly ?? null;
+  const selectedOffer = plan === 'annual' ? annualOffer : monthlyOffer;
+  /** Only Apple may say a trial is on offer, so this is the single source for every trial word on
+   *  the screen — heading, badge, "No payment due now", CTA label and renewal terms alike. */
+  const storeTrialDays = isProNow ? null : (selectedOffer?.freeTrialDays ?? null);
+  const offersTrial = storeTrialDays !== null;
+  /** What the copy should say. Falls back to the entitlement engine's length only for the local
+   *  soft gate's own "day X of Y" line, never for anything describing a purchase. */
+  const trialLen = storeTrialDays ?? TRIAL_DAYS;
+  /** A purchase can only be attempted with a real package in hand. */
+  const canBuy = IAP_ENABLED && selectedOffer !== null;
+  /** Still waiting on the store, as opposed to having been told there is nothing to sell. */
+  const offersLoading = IAP_ENABLED && !offers && !offersFailed;
+
+  const annualPrice = annualOffer?.priceString ?? PRICING.annual;
+  const monthlyPrice = monthlyOffer?.priceString ?? PRICING.monthly;
+  const selectedPrice = plan === 'annual' ? annualPrice : monthlyPrice;
+  const annualPerMonth = annualOffer?.perMonthString ?? PRICING.annualPerMonth;
+  /** Derived from the prices Apple will really charge, so the badge cannot outlive a price change
+   *  made in App Store Connect. The written-out arithmetic above `PRICING` still governs the
+   *  fallback pair. */
+  const savingPct = (() => {
+    const a = annualOffer?.price;
+    const m = monthlyOffer?.price;
+    if (!a || !m) return PRICING.savingPct;
+    return Math.max(0, Math.round((1 - a / (m * 12)) * 100));
+  })();
 
   /*
    * PAYWALL_SEEN. This screen carried NO analytics at all — it was the one paid surface in the app
@@ -749,30 +823,31 @@ export default function Onboarding() {
   };
 
   /**
-   * BUY. Only reachable when the trial is spent, because that is the only time money is the answer.
+   * BUY. The ONLY thing the paywall CTA does now, trial or no trial.
    *
-   * Picks the package matching the selected plan card by its product identifier rather than by
-   * position: RevenueCat returns packages in dashboard order, and keying on [0]/[1] would silently
-   * swap the plans the day someone reorders them.
+   * It used to be reachable only once the local trial was spent, which is what left a fresh
+   * reviewer tapping a button wired to `next`. Whether the sheet opens on "3 days free, then
+   * $79.99" or straight on "$79.99" is Apple's call, made from the introductory offer on the
+   * product — not a branch in this file.
+   *
+   * It buys `selectedOffer.pkg`, the package this screen already read and priced. Nothing is
+   * looked up by array position: RevenueCat returns packages in dashboard order, so [0]/[1] would
+   * silently swap the plans the day someone reorders them, which is a wrong charge.
    */
   const buyPro = () => {
     if (!IAP_ENABLED) {
       Alert.alert('Euphoria Pro', IAP_DISABLED_REASON);
       return;
     }
+    const pkg = selectedOffer?.pkg;
+    if (!pkg) {
+      // The silent App Store Connect misconfiguration, said out loud rather than shown as a
+      // spinner that never resolves.
+      Alert.alert('Euphoria Pro', 'That plan is not available from the App Store right now.');
+      return;
+    }
     setBusy(true);
-    void getPackages().then(async (pkgs) => {
-      // Store-independent lookup — see findPackage. Keying on the App Store product id found
-      // nothing against the Test Store and the honest error path fired, which is how this was found.
-      const pkg = findPackage(pkgs, plan === 'annual' ? 'annual' : 'monthly');
-      if (!pkg) {
-        setBusy(false);
-        // The silent App Store Connect misconfiguration, said out loud rather than shown as a
-        // spinner that never resolves.
-        Alert.alert('Euphoria Pro', 'That plan is not available from the App Store right now.');
-        return;
-      }
-      const r = await purchase(pkg);
+    void purchase(pkg).then((r) => {
       setBusy(false);
       if (r.ok && r.isPro) router.replace('/home');
       else if (!r.ok && r.kind === 'error') Alert.alert('Purchase failed', purchaseErrorMessage(r.code));
@@ -924,7 +999,7 @@ export default function Onboarding() {
                   : spent
                     ? `Your free ${TRIAL_DAYS} days are up`
                     : offersTrial
-                      ? `Start your ${TRIAL_DAYS}-day FREE trial to continue`
+                      ? `Start your ${trialLen}-day FREE trial to continue`
                       : `You're on day ${trialDay} of ${TRIAL_DAYS}`
               }
             />
@@ -971,10 +1046,10 @@ export default function Onboarding() {
               <PlanCard
                 selected={plan === 'annual'}
                 onPress={() => setPlan('annual')}
-                badge={offersTrial ? `${TRIAL_DAYS} DAYS FREE · SAVE ${PRICING.savingPct}%` : `SAVE ${PRICING.savingPct}%`}
+                badge={annualOffer?.freeTrialDays ? `${annualOffer.freeTrialDays} DAYS FREE · SAVE ${savingPct}%` : `SAVE ${savingPct}%`}
                 title="Annual"
-                sub={`Works out at ${PRICING.annualPerMonth} a month`}
-                price={PRICING.annual}
+                sub={`Works out at ${annualPerMonth} a month`}
+                price={annualPrice}
                 unit="per year"
               />
               <View style={styles.monthlyPlan}>
@@ -983,7 +1058,7 @@ export default function Onboarding() {
                   onPress={() => setPlan('monthly')}
                   title="Monthly"
                   sub="Billed every month"
-                  price={PRICING.monthly}
+                  price={monthlyPrice}
                   unit="per month"
                 />
               </View>
@@ -1016,33 +1091,22 @@ export default function Onboarding() {
               ? isProNow
                 ? 'Back to learning'
                 : offersTrial
-                  ? `Start my ${TRIAL_DAYS}-day free trial`
-                  : `Get Euphoria Pro · ${plan === 'annual' ? PRICING.annual : PRICING.monthly}`
+                  ? `Start my ${trialLen}-day free trial`
+                  : `Get Euphoria Pro · ${selectedPrice}`
               : 'Continue'
         }
         full
         {...(step === PAYWALL_INDEX && !isProNow ? { tone: 'premium' as const } : {})}
-        loading={busy}
-        disabled={!canContinue || busy}
+        /* Waiting on the store is a LOADING button, never a live one that does nothing. The whole
+           rejection was a button that looked ready and was not. */
+        loading={busy || (step === PAYWALL_INDEX && !isProNow && offersLoading)}
+        disabled={!canContinue || busy || (step === PAYWALL_INDEX && !isProNow && !canBuy)}
+        /* One branch, and it buys. The trial is Apple's introductory offer on the product, so
+           there is no longer a "start the trial" path that skips the purchase sheet. */
         onPress={
           step === PAYWALL_INDEX
             ? isProNow
               ? () => router.replace('/home')
-              /*
-               * THE PAID CTA ALWAYS STARTS A STOREKIT PURCHASE. It used to send the trial
-               * variant to `next`, so "Start my N-day free trial" — the ONLY control on the
-               * paywall — navigated away without ever calling buyPro. No payment sheet, no
-               * purchase, no error: the button simply did not sell anything.
-               *
-               * App Review rejected build 24 for exactly this, guideline 2.1(b): "there was
-               * no response when we chose Annual or Monthly and tapped Start my 3-day free
-               * trial." It was not a rendering bug; the buy handler was never wired to the
-               * button that says buy.
-               *
-               * The free days are an App Store INTRODUCTORY OFFER on the yearly/monthly
-               * product, so purchasing the package is precisely how the trial begins — which
-               * is also what the footer promises: "Cancel anytime in the App Store."
-               */
               : buyPro
             : next
         }
@@ -1052,21 +1116,23 @@ export default function Onboarding() {
           {`Euphoria is built for ages ${String(AGE_FLOOR)} and up. Come back when you get there. We'll be here.`}
         </ThemedText>
       )}
-      {/* Same class of bug: gating this on `!offersTrial` hid the reason on the one
-          variant that shows the trial CTA, leaving a live-looking button that cannot
-          transact and says nothing about why. A control explains itself or it is dead. */}
-      {step === PAYWALL_INDEX && !isProNow && !IAP_ENABLED && (
+      {/* A control that explains itself is not a dead control (§0.5). This used to render only for
+          a missing key AND only when no trial was on offer, so the two states that actually reached
+          App Review — offering loaded empty, and the trial branch — showed nothing at all. */}
+      {step === PAYWALL_INDEX && !isProNow && !canBuy && !offersLoading && (
         <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-          {IAP_DISABLED_REASON}
+          {IAP_ENABLED
+            ? 'Subscriptions are not available from the App Store right now. Please try again in a moment.'
+            : IAP_DISABLED_REASON}
         </ThemedText>
       )}
       {step === PAYWALL_INDEX && (
         <>
           <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-            {offersTrial ? `${TRIAL_DAYS} days free, then ` : ''}
+            {offersTrial ? `${trialLen} days free, then ` : ''}
             {plan === 'annual'
-              ? `${PRICING.annual} per year, billed annually`
-              : `${PRICING.monthly} per month`}
+              ? `${annualPrice} per year, billed annually`
+              : `${monthlyPrice} per month`}
             . Renews until cancelled. Cancel anytime in the App Store.
           </ThemedText>
           <SpringPressable
