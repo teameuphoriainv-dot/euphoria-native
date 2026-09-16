@@ -123,13 +123,22 @@ function MomentStepper({ spec, onWorked }: { spec: Extract<MobileInteractive, { 
   const done = at >= total - 1;
   const moment = spec.moments[at];
 
+  /*
+   * The advance is computed OUTSIDE the updater, and onWorked() is called outside it too.
+   *
+   * It used to sit inside `setAt`'s updater, which meant calling a DIFFERENT component's setState
+   * (CardDeck's setWorked) from inside a reducer. React's updaters must be pure: React 18's eager
+   * path usually runs them synchronously in the event handler, which is why this behaved, but
+   * under StrictMode's double-invoke it fires twice and with pending lanes it can run during
+   * render, which is an update-during-render of another component.
+   *
+   * `at` is already in scope here, so nothing needed the updater form.
+   */
   const next = useCallback(() => {
-    setAt((i) => {
-      const v = Math.min(i + 1, total - 1);
-      if (v >= total - 1) onWorked();
-      return v;
-    });
-  }, [total, onWorked]);
+    const v = Math.min(at + 1, total - 1);
+    setAt(v);
+    if (v >= total - 1) onWorked();
+  }, [at, total, onWorked]);
 
   /*
    * ONE MOMENT ON SCREEN, REPLACED RATHER THAN STACKED.
