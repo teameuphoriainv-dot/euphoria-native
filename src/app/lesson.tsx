@@ -73,6 +73,7 @@ import { createLessonStepSession, isLessonStepComplete, markLessonStepCompletion
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { lessonKey, useApp } from '@/lib/store';
+import { queueLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { EARN } from '@/lib/shop-items';
 import { IAP_ENABLED } from '@/lib/purchases';
@@ -380,7 +381,10 @@ export default function Lesson() {
       // goal-minutes-pin expects Date.now() - openedAt.current in lesson.tsx
       // eslint-disable-next-line react-hooks/purity
       const minutesSpent = (Date.now() - openedAt.current) / 60000;
-      useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp, minutesSpent);
+      const completedId = lessonKey(courseId, lessonNum);
+      const alreadyCompleted = useApp.getState().completedLessons.includes(completedId);
+      useApp.getState().completeLesson(completedId, xp, minutesSpent);
+      if (!alreadyCompleted) queueLessonTrailCelebration(completedId);
       // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
       // a no-op) cannot re-fire activation.
       if (wasFirst && useApp.getState().completedLessons.length === 1) {
