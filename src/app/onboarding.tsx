@@ -188,15 +188,6 @@ const AGES: Choice[] = [
   { key: '45+', title: '45 or older' },
 ];
 
-const SOURCES: Choice[] = [
-  { key: 'tiktok', title: 'TikTok' },
-  { key: 'instagram', title: 'Instagram' },
-  { key: 'youtube', title: 'YouTube' },
-  { key: 'friend', title: 'Friend or family' },
-  { key: 'appstore', title: 'App Store' },
-  { key: 'other', title: 'Somewhere else' },
-];
-
 const NOTIFY: Choice[] = [
   { key: 'yes', icon: clock, title: 'Yes, keep me on streak', sub: 'One nudge a day, no spam' },
   { key: 'no', title: 'Not right now' },
@@ -440,8 +431,21 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'dailyMinutes', question: 'How much time can you give it?', options: DAILY, face: 'happy' },
   { kind: 'statement', title: 'Everything you need to start', body: 'proof', face: 'proud' },
   { kind: 'multi', field: 'blockers', question: 'What’s held you back so far?', options: BLOCKERS, face: 'thinking' },
-  { kind: 'single', field: 'ageBand', question: 'How old are you?', sub: 'It helps us pace the long-term material.', options: AGES, face: 'default' },
-  { kind: 'single', field: 'source', question: 'Where did you hear about us?', options: SOURCES, face: 'default' },
+  // The subtitle here used to read "It helps us pace the long-term material", which nothing in the
+  // app implements: ageBand is read in exactly one place, the under-13 gate below. A screen that
+  // explains itself with a feature that does not exist is the same problem as a dead control.
+  { kind: 'single', field: 'ageBand', question: 'How old are you?', sub: 'We ask so the app is age-appropriate.', options: AGES, face: 'default' },
+  /*
+   * "Where did you hear about us?" WAS HERE AND IS GONE. Removed 2026-09-15.
+   *
+   * `profile.source` was written on tap, persisted, and read by nothing anywhere in the codebase.
+   * The screen fired no analytics event either, so the answer reached no dashboard and no report:
+   * it was a tap that cost a new user a screen and bought nobody anything. The field is deleted
+   * from Profile in onboarding-path.ts rather than left orphaned.
+   *
+   * If attribution is wanted later, it needs a reader BEFORE it needs a question — an analytics
+   * event or a stored campaign — or it lands back exactly here.
+   */
   { kind: 'single', field: 'notifyOptIn', question: 'Want a daily nudge?', options: NOTIFY, face: 'happy' },
   { kind: 'avatar' },
   { kind: 'loader' },
@@ -624,8 +628,10 @@ export default function Onboarding() {
    *
    *   N4 "tapping the free trial banner takes you to the subscription screen; hitting back from
    *      there sends you to onboarding instead of back to Home."
-   *      The banner deep-links to `?step=paywall`, which starts at PAYWALL_INDEX (14). Walking the
-   *      index back put a returning user on step 13 — the middle of a flow they finished weeks ago.
+   *      The banner deep-links to `?step=paywall`, which starts at PAYWALL_INDEX (the last step).
+   *      Walking the index back put a returning user one step before it — the middle of a flow they
+   *      finished weeks ago. The index is written as a name here on purpose: this comment carried a
+   *      hard-coded 14 and went stale the moment a step was removed.
    *
    * The index alone cannot tell those apart; where the user ENTERED can. Steps above the entry
    * point are this screen's own history and are walked back one at a time. At the entry point there
@@ -652,7 +658,7 @@ export default function Onboarding() {
   /**
    * Commit-on-tap for single-select steps.
    *
-   * Onboarding is 15 steps, 8 of them single-select, and every one of those used to cost two
+   * Onboarding is 16 steps, 7 of them single-select, and every one of those used to cost two
    * taps: pick, then Continue. That is 8 taps that carry no information — the pick already IS
    * the answer. YNAB (screen 239304, the one Finance onboarding match in ScreensDesign) commits
    * on the card tap with no Continue at all.
@@ -886,13 +892,53 @@ export default function Onboarding() {
     });
   };
 
+  /*
+   * THE UNDER-13 PICK LIVES HERE, NOT IN THE PERSISTED PROFILE.
+   *
+   * The AGE FLOOR block above states that "nothing is persisted" when someone answers Under 13.
+   * That was not true: the onChange handler called `answer()` before its early return, so
+   * `profile.ageBand` was set to 'under-13' and `profile` is inside the store's partialize. The
+   * property the comment describes is the whole reason the option is offered rather than omitted,
+   * so the code is moved to match the documentation rather than the other way round.
+   *
+   * Component state, so it is gone on relaunch and never written to disk. The gate still renders
+   * from it and the radio still fills, because both read this in preference to the store.
+   */
+  const [underAgePick, setUnderAgePick] = useState(false);
+
+  /*
+   * THE NOTIFICATION STEP MUST NOT ARRIVE PRE-ANSWERED.
+   *
+   * `notifyOptIn` is a plain boolean defaulting to false, and `selected()` maps a boolean straight
+   * to 'yes' / 'no' — so the consent screen rendered with "Not right now" already filled in, on a
+   * question the user had not been asked yet. It was also the only single-select that could be
+   * passed without a tap. A pre-filled default on a consent question is the wrong default in both
+   * directions: it reads as the app having decided, and a mis-tap on Continue records an answer.
+   *
+   * Tracked here rather than by widening the field to `boolean | null`, because that type is read
+   * by applyDailyNudge, two call sites in notifications.ts and the settings toggle, none of which
+   * has a third state to mean.
+   *
+   * Seeded from `completedAt` so someone REPLAYING onboarding still sees the choice they made last
+   * time, while a first-run user sees an honest blank.
+   */
+  const [notifyAnswered, setNotifyAnswered] = useState(() => Boolean(useApp.getState().profile.completedAt));
+
   /** True only on the age step with the under-13 band chosen — see AGE_FLOOR above. */
-  const underAge = liveDef?.kind === 'single' && liveDef.field === 'ageBand' && profile.ageBand === UNDER_AGE;
+  const underAge = liveDef?.kind === 'single' && liveDef.field === 'ageBand' && underAgePick;
 
   const canContinue = (() => {
     if (underAge) return false;
     if (!liveDef) return true;
     if (liveDef.kind === 'name') return nameDraft.trim().length > 0;
+    /*
+     * The consent step is the one single-select that could be passed without a tap, because
+     * `notifyOptIn` is a boolean that `selected()` reads as 'no' before anybody has answered. Now
+     * that the radio renders blank until it is touched, leaving Continue live would show an enabled
+     * button under an empty question. Both answers are one tap away, so requiring one is a choice
+     * rather than friction — and it is the same rule the other single-selects already follow.
+     */
+    if (liveDef.kind === 'single' && liveDef.field === 'notifyOptIn') return notifyAnswered;
     if (liveDef.kind === 'single') return selected(liveDef.field) !== null;
     if (liveDef.kind === 'multi') return ((profile[liveDef.field] as string[]) ?? []).length > 0;
     return true;
@@ -953,17 +999,30 @@ export default function Onboarding() {
               question={def.question}
               sub={def.sub}
               options={def.options}
-              value={selected(def.field)}
+              value={
+                def.field === 'ageBand' && underAgePick ? UNDER_AGE
+                  : def.field === 'notifyOptIn' && !notifyAnswered ? null
+                    : selected(def.field)
+              }
               onChange={(k) => {
-                answer(def.field, k);
                 /*
-                 * UNDER 13 MUST NOT ADVANCE. Single-select steps auto-advance on pick, so guarding
-                 * only `canContinue` left the gate wide open — the Continue button was disabled
-                 * while the screen had already moved past it. Found by tapping it on the
-                 * simulator; the static pin passed the whole time, which is exactly why the pin
-                 * now asserts this line too.
+                 * UNDER 13 MUST NOT ADVANCE, AND MUST NOT BE WRITTEN DOWN. Single-select steps
+                 * auto-advance on pick, so guarding only `canContinue` left the gate wide open —
+                 * the Continue button was disabled while the screen had already moved past it.
+                 * Found by tapping it on the simulator; the static pin passed the whole time.
+                 *
+                 * The return now sits BEFORE `answer()` rather than after it. Below it, the store
+                 * never learns the age of a child the app has just refused, which is the property
+                 * the AGE FLOOR block promises and the reason the option is on the list at all.
                  */
-                if (def.field === 'ageBand' && k === UNDER_AGE) return;
+                if (def.field === 'ageBand' && k === UNDER_AGE) {
+                  setUnderAgePick(true);
+                  return;
+                }
+                // Any other band clears the refusal, so re-picking releases the gate.
+                if (def.field === 'ageBand') setUnderAgePick(false);
+                if (def.field === 'notifyOptIn') setNotifyAnswered(true);
+                answer(def.field, k);
                 // notifyOptIn opens the iOS permission dialog — do not advance behind it.
                 if (def.field !== 'notifyOptIn') advanceAfterPick();
               }}
