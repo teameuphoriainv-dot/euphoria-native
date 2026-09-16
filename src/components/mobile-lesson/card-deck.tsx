@@ -16,10 +16,11 @@
  * than leaving the step. Leaving from the middle of a deck would discard cards the learner has read
  * and is the kind of small wrongness that makes an app feel careless.
  */
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
+import { useLessonStepState } from '@/components/lesson-step-session';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ChartCard, IdeaCard, TakeawayCard, TermCard } from '@/components/mobile-lesson/cards';
@@ -46,6 +47,9 @@ function CardBody({ card, onWorked }: { card: MobileCard; onWorked: () => void }
   return null;
 }
 
+/** Stable identity so the snapshot initializer is not a new object on every render. */
+const EMPTY_WORKED: Record<number, boolean> = {};
+
 export interface CardDeckProps {
   deck: MobileDeck;
   /** Called once the last card is finished. The lesson advances to its next step. */
@@ -59,26 +63,45 @@ export interface CardDeckProps {
 
 export function CardDeck({ deck, onComplete, onExit }: CardDeckProps) {
   const reduced = useReducedMotion();
-  const [index, setIndex] = useState(0);
-  const [worked, setWorked] = useState<Record<number, boolean>>({});
+  /*
+   * POSITION SURVIVES STEPPING BACK INTO THE DECK.
+   *
+   * These were plain useState, and lesson.tsx keys the step body `key={`s${idx}`}`, so going back
+   * one screen and forward again REMOUNTED the deck: it restarted at card 0 with every interactive
+   * locked, and the learner had to re-tap their way through cards they had already read. The
+   * lesson's documented resume rule is "position only, not child snapshots", but that rule is about
+   * COLD resume — it was never about the in-session Back button that sits on the screen.
+   *
+   * useLessonStepState is the mechanism that already exists for this and is useState-compatible.
+   * It is per mounted lesson attempt and nothing is persisted, so leaving the lesson still starts
+   * the deck fresh.
+   */
+  const [index, setIndex] = useLessonStepState<number>('deck.index', 0);
+  const [worked, setWorked] = useLessonStepState<Record<number, boolean>>('deck.worked', EMPTY_WORKED);
 
   const card = deck.cards[index];
   const last = index >= deck.cards.length - 1;
   const locked = card ? needsWork(card) && !worked[index] : false;
 
+  /*
+   * The setters are in these dep arrays because useLessonStepState returns a useCallback, not the
+   * stable identity useState hands out. It is memoized on [context, stateKey], so both are stable
+   * for the life of a mounted step and listing them changes nothing at runtime — it just stops the
+   * lint rule from being right about a real (if currently harmless) staleness hazard.
+   */
   const markWorked = useCallback(() => {
     setWorked((w) => (w[index] ? w : { ...w, [index]: true }));
-  }, [index]);
+  }, [index, setWorked]);
 
   const advance = useCallback(() => {
     if (last) { onComplete(); return; }
     setIndex((i) => Math.min(i + 1, deck.cards.length - 1));
-  }, [last, onComplete, deck.cards.length]);
+  }, [last, onComplete, deck.cards.length, setIndex]);
 
   const back = useCallback(() => {
     if (index === 0) { onExit?.(); return; }
     setIndex((i) => Math.max(0, i - 1));
-  }, [index, onExit]);
+  }, [index, onExit, setIndex]);
 
   const dots = useMemo(() => deck.cards.map((_, i) => i), [deck.cards]);
 
