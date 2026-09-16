@@ -759,6 +759,20 @@ export default function Onboarding() {
         return;
       }
       setOffers({ annual: readPlanOffer(pkgs, 'annual'), monthly: readPlanOffer(pkgs, 'monthly') });
+    }).catch(() => {
+      /*
+       * A REJECTION MUST LAND SOMEWHERE, or the CTA spins forever.
+       *
+       * `getPackages` catches its own `getOfferings` failure, but it calls `configurePurchases()`
+       * outside that try, so a throw from the SDK setup rejected this promise instead. With no
+       * catch here neither `offers` nor `offersFailed` was ever set, `offersLoading` stayed true,
+       * and the reason line is suppressed while it is — a live-looking button that does nothing and
+       * explains nothing, which is the 2.1(b) state build 24 was rejected for.
+       *
+       * `configurePurchases` is now guarded too; this stays as the belt to that braces, because
+       * this screen is the one Apple actually reviews.
+       */
+      if (live) setOffersFailed(true);
     });
     return () => {
       live = false;

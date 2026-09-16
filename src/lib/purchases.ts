@@ -210,11 +210,31 @@ function syncRevenueCatUser(userId: string | null): void {
     });
 }
 
-/** Idempotent. Safe to call from several screens; only the first call reaches the SDK. */
+/**
+ * Idempotent. Safe to call from several screens; only the first call reaches the SDK.
+ *
+ * IT MUST NOT THROW, and it used to be able to.
+ *
+ * Every caller invokes this OUTSIDE its own try — `getPackages`, `purchase` and `restore` all open
+ * with `if (!configurePurchases())`. So a throw from `Purchases.configure` did not become a caught
+ * failure, it rejected the caller's promise. On the paywall that surfaced as the worst possible
+ * state: `getPackages()` rejects, neither `offers` nor `offersFailed` is ever set, `offersLoading`
+ * stays true, and the CTA is a spinner forever while the line that would explain it is suppressed
+ * because it requires `!offersLoading`. A purchase screen whose button does nothing and says
+ * nothing is precisely the 2.1(b) finding that got build 24 rejected.
+ *
+ * Returning false on a throw routes every caller into the path it already has for "cannot sell
+ * right now", which is a disabled button WITH a reason rather than a live-looking inert one.
+ */
 export function configurePurchases(): boolean {
   if (!IAP_ENABLED || configured) return configured;
-  Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
-  Purchases.configure({ apiKey: KEY });
+  try {
+    Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
+    Purchases.configure({ apiKey: KEY });
+  } catch {
+    // Leave `configured` false so a later screen can retry rather than inheriting a dead SDK.
+    return false;
+  }
   configured = true;
   // Anonymous app-user-id by default, which is §9.9's upgrade step 1: the entitlement survives a
   // reinstall on the same Apple ID, where `activeDays` in AsyncStorage does not.
