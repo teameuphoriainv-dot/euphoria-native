@@ -1,13 +1,15 @@
 /**
  * AmbientBackground — the celestial signature from euphoriainv.com: a drifting starfield with a
  * slow twinkle + a soft violet top-glow that breathes, behind hero/onboarding/home. This is what
- * makes flat-black screens feel alive. Reduced-motion → fully static. Absolute-fill; render first.
+ * makes flat-black screens feel alive. Reduced-motion → fully static. Simulators keep only the
+ * UI-thread drift so visual verification cannot saturate the host Mac. Absolute-fill; render first.
  *
  * Twinkle is done with THREE animated <G> groups rather than per-star shared values: 45–70 stars
  * would mean 45–70 timers for an effect nobody can resolve individually. Three desynced groups
  * read as random shimmer and cost three.
  */
 import { useIsFocused } from 'expo-router';
+import { isDevice } from 'expo-device';
 import { memo, useEffect, useMemo } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, {
@@ -103,6 +105,23 @@ function AmbientBackgroundInner({ glow = true, starCount = 70 }: { glow?: boolea
       return;
     }
     drift.set(withRepeat(withTiming(-26, { duration: 19000, easing: Easing.inOut(Easing.ease) }), -1, true));
+    /*
+     * MEASURED 2026-09-16 on one iPhone 17 simulator, same debug build and isolated route:
+     *   AmbientBackground alone ........ 84.4% app CPU
+     *   Atlas alone ..................... 17.9% app CPU
+     *   neither (tier preview) ..........  4.7% app CPU
+     *
+     * The four SVG prop loops cross the RNSVG boundary every frame; the plain wrapper drift does
+     * not. Keep that subtle movement for simulator screenshots, but reserve twinkle and glow pulse
+     * for physical devices. This changes no App Store behavior and makes local visual QA safe.
+     */
+    if (!isDevice) {
+      t0.set(1);
+      t1.set(1);
+      t2.set(1);
+      glowPulse.set(1);
+      return;
+    }
     // prime numbers-ish periods so the three groups never re-sync into a visible common pulse
     twinkle(t0, 2600, 0.35);
     twinkle(t1, 3700, 0.55);

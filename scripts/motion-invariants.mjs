@@ -254,6 +254,23 @@ const INVARIANTS = [
       return hits;
     },
   },
+  {
+    name: 'simulator starfield keeps the measured motion budget',
+    why: 'Measured in isolation: AmbientBackground used 84.4% simulator CPU while the same route '
+       + 'without it used 4.7%. RNSVG twinkle props must stay behind the physical-device gate.',
+    test(file, src) {
+      if (!file.endsWith('ambient-background.tsx')) return [];
+      const hits = [];
+      if (!/isDevice/.test(src)) hits.push('expo-device simulator detection is gone');
+      const gate = src.indexOf('if (!isDevice)');
+      const twinkles = src.indexOf('twinkle(t0');
+      if (gate < 0 || twinkles < 0 || gate > twinkles) hits.push('the simulator does not return before SVG twinkles start');
+      const branch = src.match(/if \(!isDevice\) \{([\s\S]*?)\n    \}/)?.[1] ?? '';
+      if (!branch.includes('glowPulse.set(1)')) hits.push('the simulator glow does not settle to its static state');
+      if (branch.includes('twinkle(')) hits.push('the simulator branch starts an RNSVG twinkle');
+      return hits;
+    },
+  },
 ];
 
 function run(files) {
@@ -359,7 +376,13 @@ if (process.argv.includes('--selftest')) {
     'a throttled NumberRollup was wrongly flagged');
   ok(!nrInv.test('src/components/other.tsx', 'setN(value);').length,
     'a different file was wrongly checked for the NumberRollup throttle');
-  console.log('motion-invariants selftest ok — 13 regressions caught, 15 harmless edits ignored');
+  const simInv = INVARIANTS.find((x) => x.name === 'simulator starfield keeps the measured motion budget');
+  ok(simInv.test('src/components/ambient-background.tsx', 'twinkle(t0);').length,
+    'an unguarded simulator starfield was NOT caught');
+  ok(!simInv.test('src/components/ambient-background.tsx',
+      'const isDevice = true;\n    if (!isDevice) {\n      glowPulse.set(1);\n      return;\n    }\n    twinkle(t0);').length,
+    'a gated simulator starfield was wrongly flagged');
+  console.log('motion-invariants selftest ok — 14 regressions caught, 16 harmless edits ignored');
   process.exit(0);
 }
 
