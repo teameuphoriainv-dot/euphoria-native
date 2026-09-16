@@ -139,10 +139,33 @@ function asInsightSteps(step: InteractiveGraphStep): MobileInteractive {
     .map(({ insight, label }) => ({ label, detail: '', sprite: pickArchetype(insight, step.title) }))
     .filter((m) => m.label.length > 0);
 
-  if (moments.length === 0) {
-    // No usable insight. Fall back to the step's own description, which every graph step has.
-    const hidden = compress(step.description ?? step.title, CARD_BUDGET.verdict, { mustReturn: true });
-    const scene: SceneSpec = { archetype: pickArchetype(step.title, step.description) };
+  /*
+   * FEWER THAN TWO MOMENTS IS NOT A TIMELINE, AND A ONE-BEAT ONE COULD NOT BE FINISHED.
+   *
+   * This guard used to read `=== 0`, which left the one-moment case to the renderer. MomentStepper
+   * computes `done = at >= total - 1`, so at total === 1 it is already true on the first frame: the
+   * "Next" button never renders, and `onWorked()` is only ever called from inside `next`. CardDeck's
+   * `locked` therefore stayed true forever and its Continue was permanently disabled with no reason
+   * on screen. `deck` is in both `selfAdvancing` and `OWN_CTA_STEPS`, so the lesson's own Continue is
+   * suppressed too, and where the interactive sorted to card 0 there was no Back either. The lesson
+   * could not be completed by any route except leaving it.
+   *
+   * It is not rare: 34 of the 165 timeline interactives, in 34 lessons across 11 of the 12 courses.
+   * `fitted.slice(0, 2)` yields one moment whenever exactly one authored insight survives
+   * `compress`, which is the common shape for a step with four long insights.
+   *
+   * REVEAL RATHER THAN PADDING TO TWO. Topping up from the pool would need `mustReturn`, which
+   * returns the insight at full length and puts the card back over the budget this layer exists to
+   * hold. A reveal is a real interactive that teaches the same sentence and unlocks on tap.
+   *
+   * The surviving insight is preferred over `step.description` as the hidden text: it is the
+   * sentence the author chose to call out, and it already compresses.
+   */
+  if (moments.length < 2) {
+    const survivor = moments[0]?.label;
+    const hidden = survivor
+      ?? compress(step.description ?? step.title, CARD_BUDGET.verdict, { mustReturn: true });
+    const scene: SceneSpec = { archetype: moments[0]?.sprite ?? pickArchetype(step.title, step.description) };
     return { kind: 'reveal', prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Tap to see', hidden, scene };
   }
 
