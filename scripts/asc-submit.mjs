@@ -31,6 +31,7 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const APPLY = process.argv.includes('--apply');
 const ATTACH_ONLY = process.argv.includes('--attach-only');
+const AGREEMENT_VERIFIED = process.argv.includes('--agreement-verified');
 const WANT = process.argv[process.argv.indexOf('--build') + 1];
 if (!process.argv.includes('--build') || !/^\d+$/.test(WANT ?? '')) {
   console.error('--build <number> is required, e.g. --build 24');
@@ -80,7 +81,11 @@ const fail = (msg) => { console.error(`\nBLOCKED: ${msg}\nNothing was changed.`)
  * regardless of who runs this or what they remember to look at.
  */
 if (APPLY) {
-  const { status } = spawnSync(process.execPath, [path.join(ROOT, 'scripts/asc-preflight.mjs'), ...(WANT ? ['--build', WANT] : [])], { stdio: 'inherit' });
+  const { status } = spawnSync(process.execPath, [
+    path.join(ROOT, 'scripts/asc-preflight.mjs'),
+    ...(WANT ? ['--build', WANT] : []),
+    ...(AGREEMENT_VERIFIED ? ['--agreement-verified'] : []),
+  ], { stdio: 'inherit' });
   if (status !== 0) {
     console.error('\nBLOCKED: pre-submission checks failed (see above). Nothing was submitted.');
     process.exit(2);
@@ -119,7 +124,11 @@ console.log(`review detail: contact=${contactOk} demo=${Boolean(d.demoAccountNam
 if (!contactOk) fail('App Review contact information is incomplete');
 
 const submissions = await api('GET', `/v1/apps/${cfg.ascAppId}/reviewSubmissions?limit=10&include=items`);
-const open = (submissions.data ?? []).find((s) => !s.attributes.submittedDate && s.attributes.state !== 'COMPLETE');
+// A rejected submission is resubmitted in place after its rejected item is marked resolved. Prefer
+// that review thread over an empty draft so the reviewer keeps the original messages and the
+// already-reviewed subscription items remain attached.
+const open = (submissions.data ?? []).find((s) => s.attributes.state === 'UNRESOLVED_ISSUES')
+  ?? (submissions.data ?? []).find((s) => !s.attributes.submittedDate && s.attributes.state !== 'COMPLETE');
 console.log(`open review submission: ${open ? `${open.id} (${open.attributes.state}, ${(open.relationships?.items?.data ?? []).length} items)` : 'none — one will be created'}`);
 
 if (!APPLY && !ATTACH_ONLY) {

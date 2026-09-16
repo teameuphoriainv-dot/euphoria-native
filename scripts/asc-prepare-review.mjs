@@ -91,8 +91,11 @@ if (process.argv.includes('--cancel-unresolved')) {
   process.exit(0);
 }
 
-const submission = (submissions.data ?? []).find((item) => ['PREPARE_FOR_SUBMISSION', 'READY_FOR_REVIEW'].includes(item.attributes?.state))
-  ?? (submissions.data ?? []).find((item) => item.attributes?.state === 'UNRESOLVED_ISSUES');
+const wantsRejectedItem = process.argv.includes('--resolve-rejected-app-item');
+const submission = wantsRejectedItem
+  ? (submissions.data ?? []).find((item) => item.attributes?.state === 'UNRESOLVED_ISSUES')
+  : (submissions.data ?? []).find((item) => ['PREPARE_FOR_SUBMISSION', 'READY_FOR_REVIEW'].includes(item.attributes?.state))
+    ?? (submissions.data ?? []).find((item) => item.attributes?.state === 'UNRESOLVED_ISSUES');
 if (!submission) throw new Error('No editable App Review submission exists for this app');
 
 const appVersions = await get(`/v1/apps/${cfg.ascAppId}/appStoreVersions?${encode({
