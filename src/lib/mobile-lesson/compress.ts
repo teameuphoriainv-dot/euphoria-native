@@ -54,6 +54,24 @@ const DISCOURSE_OPENERS = [
  * Every entry here weakens or pads a claim rather than qualifying it in a way a learner acts on.
  * Words that DO change a claim -- "usually", "rarely", "never", "always", "most", "some" -- are
  * deliberately absent, because dropping those would turn a careful statement into a false one.
+ *
+ * THAT TEST IS PER-WORD AND IT IS NOT ENOUGH. A word can be pure padding on its own and load
+ * bearing in front of the word that follows it, which is a property of the PAIR, not the entry.
+ * `stripFiller` used a bare \b word boundary, so both of these shipped to real cards:
+ *
+ *   "recommending the most cost-effective and suitable investments rather than those that
+ *    generate the highest fees"   ->   "... suitable investments than those that ..."
+ *
+ *   "Consistently high ROE across multiple years is one of the strongest indicators of a moat"
+ *    ->   "... is strongest indicators of a moat"
+ *
+ * The first is the definition of the FIDUCIARY STANDARD with its contrast destroyed; 16 cards
+ * across 6 courses read that way. The second is worse than ungrammatical: "one of the strongest"
+ * is a membership claim and "strongest" is a superlative, so the strip INVENTED a claim the
+ * author did not make, which is the one thing this file promises never to do.
+ *
+ * NEVER_BEFORE is therefore part of the list, not a patch on it. Adding a FILLER entry means
+ * asking what the next word does with it.
  */
 const FILLER = [
   'essentially', 'fundamentally', 'basically', 'simply', 'actually', 'really', 'quite',
@@ -61,8 +79,35 @@ const FILLER = [
   'somewhat', 'rather', 'fairly', 'truly', 'genuinely', 'clearly', 'obviously', 'notably',
   'significantly', 'substantially', 'considerably', 'effectively', 'ultimately', 'indeed',
   'in general', 'as such', 'that is to say', 'it is worth noting that', 'it should be noted that',
-  'one of the', 'a number of', 'the fact that',
+  'a number of', 'the fact that',
 ];
+
+/*
+ * 'one of the' USED TO BE ON THAT LIST AND IS NOT A HEDGE.
+ *
+ * It was first guarded here against superlatives, which fixed "is one of the strongest indicators"
+ * -> "is strongest indicators". The guard was the wrong shape: the phrase introduces a MEMBER of a
+ * set, so removing it leaves a bare plural where the sentence expects a singular, superlative or
+ * not. "It is one of the reasons the fund underperformed" became "It is reasons the fund
+ * underperformed". There is no following word that makes the strip safe, so there is no lookahead
+ * that rescues it, and it is deleted rather than guarded.
+ */
+
+/**
+ * Words a FILLER entry may not be stripped in front of, because the pair carries the meaning.
+ *
+ * Keyed by the FILLER entry. The value is the alternation for a negative lookahead, so a guarded
+ * entry is still stripped everywhere else: "rather large" loses "rather", "rather than" keeps it.
+ */
+const NEVER_BEFORE: Readonly<Record<string, string>> = {
+  // "rather than" is a contrast, not a hedge. Dropping "rather" leaves a comparative with nothing
+  // to compare, and a learner reads the wreckage as if the author wrote it.
+  rather: 'than',
+  // In a finance app "relatively safe" -> "safe" is a different statement about risk.
+  relatively: '(?:safe|safer|secure|stable|certain|liquid|risk-?free|riskless|predictable)',
+  // "effectively zero" is a rounding the author chose; "zero" is an absolute.
+  effectively: '(?:zero|nil|none|nothing|all|infinite|unlimited|free|impossible|certain)',
+};
 
 /**
  * Plain-English swaps.
@@ -208,7 +253,17 @@ function stripOpener(text: string): string {
 function stripFiller(text: string): string {
   let out = text;
   for (const word of FILLER) {
-    out = out.replace(new RegExp(`\\b${word}\\b\\s*`, 'gi'), '');
+    const guard = NEVER_BEFORE[word];
+    /*
+     * The lookahead swallows the space ITSELF and sits immediately after the word.
+     *
+     * Putting it after `\\s*` looks equivalent and is not: `\\s*` backtracks to zero width to make
+     * the lookahead succeed, so `rather\\s*(?!than)` happily matched "rather" in "rather than" by
+     * consuming no space and testing against " than", which does not begin with "than". The guard
+     * passed and the word was stripped anyway.
+     */
+    const pattern = guard ? `\\b${word}\\b(?!\\s*(?:${guard}))\\s*` : `\\b${word}\\b\\s*`;
+    out = out.replace(new RegExp(pattern, 'gi'), '');
   }
   return out;
 }
