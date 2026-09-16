@@ -845,6 +845,14 @@ export default function Lesson() {
                   captureSolved(true);
                   advance();
                 }}
+                /*
+                 * The comment above has described this prop as wired since the deck shipped, and it
+                 * was not being passed. CardDeck draws Back only when `index > 0 || onExit`
+                 * (card-deck.tsx:118), so card ONE of every deck had no Back at all and the only way
+                 * out of the first card was the header chevron. Same guard the header uses, so the
+                 * deck cannot offer a Back on a screen the lesson itself refuses to leave.
+                 */
+                onExit={idx > 0 && idx < DONE ? previousScreen : undefined}
               />
             )}
 
