@@ -38,6 +38,7 @@ import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
 import { takeLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration, Ease } from '@/shared/motion/tokens';
 import { PremiumBorder, PremiumText } from '@/components/ui/premium';
@@ -153,24 +154,7 @@ function SagaConnector({
 }
 
 function SagaNodeMotion({ earned, children }: { earned: boolean; children: ReactNode }) {
-  const reduced = useReducedMotion();
-  const scale = useSharedValue(earned && !reduced ? 0.94 : 1);
-  const lift = useSharedValue(earned && !reduced ? 4 : 0);
-
-  useEffect(() => {
-    if (!earned || reduced) {
-      scale.set(1);
-      lift.set(0);
-      return;
-    }
-    scale.set(withTiming(1, { duration: Duration.base, easing: Ease.enter }));
-    lift.set(withTiming(0, { duration: Duration.base, easing: Ease.enter }));
-  }, [earned, lift, reduced, scale]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: lift.get() }, { scale: scale.get() }],
-  }));
-  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
+  return <SemanticMotion event="node-unlock" enabled={earned}>{children}</SemanticMotion>;
 }
 
 /**

@@ -27,7 +27,6 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withDelay,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -38,8 +37,9 @@ import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TIERS, TIER_UP_BONUS } from '@/lib/league';
 import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { useSheetEntrance } from '@/shared/motion/sheet-entrance';
-import { Duration, Ease, Spring } from '@/shared/motion/tokens';
+import { Duration, Ease } from '@/shared/motion/tokens';
 
 const COPY_DELAY = 160;
 const REWARD_DELAY = 340;
@@ -86,24 +86,8 @@ function StageReveal({
 
 export function TierUpSheet({ tier, onClaim }: { tier: string | null; onClaim: () => void }) {
   const theme = useTheme();
-  const reduced = useReducedMotion();
   const visible = tier !== null;
   const { backdrop, sheet } = useSheetEntrance(visible);
-  const pop = useSharedValue(0);
-
-  useEffect(() => {
-    if (!visible) {
-      pop.set(0);
-      return;
-    }
-    pop.set(reduced ? withTiming(1, { duration: 220 }) : withSpring(1, Spring.reward));
-  }, [visible, reduced, pop]);
-
-  const crestStyle = useAnimatedStyle(() =>
-    reduced
-      ? { opacity: pop.get() }
-      : { opacity: pop.get(), transform: [{ scale: 0.6 + pop.get() * 0.4 }] },
-  );
 
   // Falls back to the first tier rather than rendering an empty sheet: a celebration that arrives
   // blank is worse than one that names the wrong rung, and this can only diverge if TIERS is edited
@@ -122,9 +106,9 @@ export function TierUpSheet({ tier, onClaim }: { tier: string | null; onClaim: (
       </Animated.View>
       <Animated.View style={[styles.dock, sheet]} pointerEvents="box-none">
         <View style={[styles.card, { backgroundColor: theme.cardElevated, borderColor: theme.border }]}>
-          <Animated.View style={crestStyle}>
+          <SemanticMotion event="league-promotion" enabled={visible} playKey={tier}>
             <LeagueCrest tier={t} size={128} />
-          </Animated.View>
+          </SemanticMotion>
           <StageReveal visible={visible} delay={COPY_DELAY} style={styles.copy}>
             <ThemedText type="label" style={{ color: t.color }}>NEW LEAGUE</ThemedText>
             <ThemedText type="display" style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>

@@ -24,7 +24,7 @@ import Svg, { Path } from 'react-native-svg';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { Duration, Ease } from '@/shared/motion/tokens';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 
 /** Eight-point star, drawn once. Sharp points read as an impact; round ones read as a glow. */
 const SPARK = (() => {
@@ -85,25 +85,15 @@ export function FeedbackBanner({
   children?: React.ReactNode;
 }) {
   const theme = useTheme();
-  const reduced = useReducedMotion();
-  const t = useSharedValue(reduced ? 1 : 0);
-
-  useEffect(() => {
-    if (reduced) { t.set(1); return; }
-    t.set(withTiming(1, { duration: Duration.base, easing: Ease.out }));
-  }, [reduced, t]);
-
-  const style = useAnimatedStyle(() => ({
-    opacity: t.get(),
-  }));
-
   const tint = correct ? theme.success : theme.destructive;
 
   return (
-    <Animated.View style={[styles.banner, { backgroundColor: tint + '1A' }, style]}>
+    <SemanticMotion
+      event={correct ? 'answer-correct' : 'answer-incorrect'}
+      style={[styles.banner, { backgroundColor: tint + '1A' }]}>
       <ThemedText type="small" style={{ color: tint, textAlign: 'center' }}>{detail || title}</ThemedText>
       {children ? <View style={{ marginTop: Spacing.three, gap: Spacing.three }}>{children}</View> : null}
-    </Animated.View>
+    </SemanticMotion>
   );
 }
 
