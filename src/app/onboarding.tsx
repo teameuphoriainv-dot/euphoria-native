@@ -635,8 +635,24 @@ export default function Onboarding() {
    * like the CTA does. The tab gate still refuses anyone who somehow arrived without one.
    */
   const dismissPaywall = () => {
-    if (enteredWithCompletedOnboarding) router.replace('/home');
-    else leaveOnboarding();
+    /*
+     * A RETURNING VISITOR GOES BACK, NOT HOME.
+     *
+     * Nine screens push to this paywall — learn, three points inside a lesson, four chat surfaces,
+     * digest, options, stock, you, settings. `router.replace('/home')` threw all of that away, so
+     * someone who hit a Pro wall mid-lesson and tapped "Maybe later" lost the lesson. The back
+     * chevron on this very screen already returned them correctly, which made the two controls
+     * disagree about what leaving means.
+     *
+     * Same canGoBack guard the rest of this file uses: a bare back() is a silent no-op when /auth
+     * reached this screen by replace, and replace('/home') stays as the floor for that case.
+     */
+    if (enteredWithCompletedOnboarding) {
+      if (router.canGoBack()) router.back();
+      else router.replace('/home');
+      return;
+    }
+    leaveOnboarding();
   };
   /**
    * BACK MEANS "UNDO MY LAST STEP", NOT "DECREMENT THE INDEX".
@@ -774,6 +790,16 @@ export default function Onboarding() {
    */
   const [offers, setOffers] = useState<{ annual: PlanOffer | null; monthly: PlanOffer | null } | null>(null);
   const [offersFailed, setOffersFailed] = useState(false);
+  /*
+   * Bumped by the retry control to re-run the read below. `offersFailed` cannot do that job: it is
+   * not in the effect's guard, and adding it there would make the effect re-run the instant it was
+   * set, which is a spin rather than a retry.
+   */
+  const [offerAttempt, setOfferAttempt] = useState(0);
+  const retryOffers = () => {
+    setOffersFailed(false);
+    setOfferAttempt((n) => n + 1);
+  };
   useEffect(() => {
     if (step !== PAYWALL_INDEX || !IAP_ENABLED || offers) return;
     let live = true;
@@ -804,7 +830,7 @@ export default function Onboarding() {
     return () => {
       live = false;
     };
-  }, [step, offers]);
+  }, [step, offers, offerAttempt]);
 
   const annualOffer = offers?.annual ?? null;
   const monthlyOffer = offers?.monthly ?? null;
@@ -1282,11 +1308,26 @@ export default function Onboarding() {
           a missing key AND only when no trial was on offer, so the two states that actually reached
           App Review — offering loaded empty, and the trial branch — showed nothing at all. */}
       {step === PAYWALL_INDEX && !isProNow && !canBuy && !offersLoading && (
-        <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-          {IAP_ENABLED
-            ? 'Subscriptions are not available from the App Store right now. Please try again in a moment.'
-            : IAP_DISABLED_REASON}
-        </ThemedText>
+        <>
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+            {IAP_ENABLED
+              ? 'Subscriptions are not available from the App Store right now.'
+              : IAP_DISABLED_REASON}
+          </ThemedText>
+          {/*
+            * The copy used to end "Please try again in a moment" with nothing on screen that could
+            * try again, and nothing behind it that would: the offer read is a one-shot effect keyed
+            * on `step`, and the paywall is the last step, so no navigation could re-trigger it. An
+            * instruction the app cannot honour is not much better than a dead control — so either
+            * the sentence goes or the button arrives, and the button is the one worth having when
+            * the failure is usually a flaky network.
+            */}
+          {IAP_ENABLED ? (
+            <SpringPressable haptic={false} onPress={retryOffers} accessibilityRole="button" accessibilityLabel="Try again">
+              <ThemedText type="small" style={[styles.fine, { color: theme.iconLilac }]}>Try again</ThemedText>
+            </SpringPressable>
+          ) : null}
+        </>
       )}
       {step === PAYWALL_INDEX && (
         <>
@@ -1380,7 +1421,26 @@ export default function Onboarding() {
         keyboardShouldPersistTaps="handled">
         <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
-          <View key={renderStep} style={fillsViewport ? styles.grow : undefined}>{body()}</View>
+          {/*
+            * STALE CONTENT MUST NOT TAKE TAPS.
+            *
+            * `renderStep` lags `step` by the 150ms cross-fade, so for that window the OUTGOING
+            * step is still mounted and still hit-testable — it is only at opacity 0. A second tap
+            * landing there ran against a `step` that had already advanced, so advanceAfterPick's
+            * `from === stepRef.current` guard compared n+1 to n+1, passed, and called next() a
+            * second time. The next question flashed past unanswered.
+            *
+            * The guard is fine for its own case (two taps BEFORE the advance) and cannot see this
+            * one, because by then nothing is stale about the step — only about what is on screen.
+            * So the fix belongs here: while what is drawn is not what is current, it takes no
+            * input at all.
+            */}
+          <View
+            key={renderStep}
+            pointerEvents={renderStep === step ? 'auto' : 'none'}
+            style={fillsViewport ? styles.grow : undefined}>
+            {body()}
+          </View>
         </Animated.View>
         {renderStep === PAYWALL_INDEX && !isLoader ? actionFooter : null}
       </ScrollView>

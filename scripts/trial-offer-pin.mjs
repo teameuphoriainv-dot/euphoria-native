@@ -133,6 +133,26 @@ assert.doesNotMatch(src, /else router\.replace\('\/auth'\);/,
  */
 assert.match(src, /const dismissPaywall = \(\) => \{[\s\S]*?leaveOnboarding\(\);\s*\};/,
   'Maybe later must hand off to the app, not ask an already-signed-up user to sign in again');
+/*
+ * ...and a RETURNING visitor must be returned, not rehomed. Nine screens push to this paywall, so
+ * replace('/home') discarded whatever the user was doing — a Pro wall hit mid-lesson lost the
+ * lesson. The back chevron on this same screen always returned them correctly, so the two controls
+ * disagreed about what leaving means.
+ */
+assert.match(src, /const dismissPaywall = \(\) => \{[\s\S]*?if \(router\.canGoBack\(\)\) router\.back\(\);/,
+  'Maybe later must return an in-app visitor where they came from, like the back chevron does');
+
+/*
+ * AN INSTRUCTION THE APP CANNOT HONOUR. The failure copy read "Please try again in a moment" with
+ * nothing on screen that could try again and nothing behind it that would: the offer read is a
+ * one-shot effect keyed on `step`, and the paywall is the last step, so no navigation re-triggered
+ * it. Either the sentence goes or the button arrives.
+ */
+assert.doesNotMatch(src, /not available from the App Store right now\. Please try again in a moment\./,
+  'the paywall promises a retry; it must offer one rather than only mention it');
+assert.match(src, /onPress=\{retryOffers\}/, 'the offer read must be retryable from the screen');
+assert.match(src, /\}, \[step, offers, offerAttempt\]\);/,
+  'the retry must actually re-run the offer effect, or the button is decoration');
 assert.match(src, /const leaveOnboarding = \(\) => \{\s*router\.replace\(useApp\.getState\(\)\.profile\.firstRunDoneAt \? '\/\(tabs\)\/home' : \('\/start' as never\)\);\s*\};/,
   'the shared exit must still send a user who has not done the first run to /start');
 assert.doesNotMatch(src, /if \(r\.ok && r\.isPro\) router\.replace\('\/home'\);/,
