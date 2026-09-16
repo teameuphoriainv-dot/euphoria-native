@@ -230,7 +230,21 @@ function asGuess(step: InteractiveGraphStep): MobileInteractive | null {
     return {
       kind: 'guess',
       prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Fill in the number',
-      masked: text.replace(answer, '\u2007\u2007?\u2007\u2007'),
+      /*
+       * EVERY occurrence, not the first.
+       *
+       * `String.replace` with a string needle swaps one match, so an insight that states its figure
+       * twice kept the second copy and the card shipped with its own answer in plain sight. Three
+       * did: personal-finance L14 s5 ("The ? rule: home value x 5% / 12..."), business-strategy
+       * L12 s5 ("...perceiving $9.99 as closer to $9 than $10.") and quantitative-analysis L11 s5
+       * ("...goes up ? then down 50%..."), which also read as a different claim than the authored
+       * "up 50% then down 50%". A guessing game showing its answer is the exact failure the header
+       * above calls worse than no guessing game.
+       *
+       * `split`/`join` rather than a RegExp: `answer` is authored text containing $ . % ( ) + and
+       * would have to be escaped to be a safe pattern.
+       */
+      masked: text.split(answer).join('\u2007\u2007?\u2007\u2007'),
       answer,
       // Sorted so position never leaks the answer: the real figure is not always first.
       options: [...options].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })),
