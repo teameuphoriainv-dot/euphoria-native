@@ -28,7 +28,6 @@ export type Profile = {
   dailyMinutes: number | null;
   blockers: string[];
   ageBand: string | null;
-  source: string | null;
   notifyOptIn: boolean;
   /** Explicit, revocable consent for pseudonymous PostHog product analytics. Default off. */
   analyticsOptIn: boolean;
@@ -68,7 +67,6 @@ export const EMPTY_PROFILE: Profile = {
   dailyMinutes: null,
   blockers: [],
   ageBand: null,
-  source: null,
   notifyOptIn: false,
   analyticsOptIn: false,
   completedAt: null,
@@ -176,9 +174,26 @@ function candidates(p: Profile): { id: string; reason: string }[] {
   const out: { id: string; reason: string }[] = [];
   const add = (id: string, reason: string) => out.push({ id, reason });
 
-  // 1. Behaviour beats content. Someone who sells into a drawdown gets that material first
-  //    regardless of goal — it is the single most useful thing for them.
+  /*
+   * EVERY OFFERED ANSWER HAS TO BE ABLE TO MOVE THE RESULT.
+   *
+   * Five of them could not. riskComfort 'wait' and 'buy', horizon 'soon' and 'year', and the
+   * blocker 'time' were all offered, tapped, written to the profile and then matched by nothing
+   * here — so a learner could answer three questions differently and get a byte-identical path.
+   * That is worse than not asking: it is a question that pretends to listen.
+   *
+   * The fix is a mapping for each, not a shorter questionnaire. Each one below is an EDUCATIONAL
+   * sequencing decision and stays inside the regulatory note at the top of this file: none of them
+   * recommends a security, an allocation or an action with money.
+   */
+
+  // 1. Behaviour beats content. How someone reacts to a drawdown is the single most useful thing
+  //    to know about them, so all three answers lead, not just the alarming one.
   if (p.riskComfort === 'sell') add('behavioral-finance', 'You said a 20% drop would make you sell');
+  // Sitting through a 20% drawdown is a plan, and risk material is what turns it into one.
+  if (p.riskComfort === 'wait') add('risk-management', 'You said you would sit a 20% drop out');
+  // Buying a drawdown is a valuation question before it is a nerve question.
+  if (p.riskComfort === 'buy') add('corporate-finance', 'You said a 20% drop is a buying opportunity');
 
   // 2. Stated obstacles. A blocker is the thing the user believes is stopping them, so it
   //    outranks a general goal: clearing it is what makes the rest reachable.
@@ -186,11 +201,16 @@ function candidates(p: Profile): { id: string; reason: string }[] {
   if (p.blockers.includes('trust')) add('behavioral-finance', 'You said you do not know who to trust');
   if (p.blockers.includes('jargon')) add('investing-fundamentals', 'You said the jargon is overwhelming');
   if (p.blockers.includes('start')) add('investing-fundamentals', 'You said you do not know where to start');
+  // "I never find the time" is a budgeting and automation problem before it is an investing one.
+  if (p.blockers.includes('time')) add('personal-finance', 'You said you never find the time');
 
-  // 3. Timing. Someone already invested needs risk material sooner than someone still deciding;
-  //    someone unsure benefits from money basics before market mechanics.
+  // 3. Timing. The nearer the start date, the sooner the material that matters on day one.
   if (p.horizon === 'now') add('risk-management', 'You have already started investing');
   if (p.horizon === 'unsure') add('personal-finance', 'You are not sure when you will start');
+  // Months away: the mechanics of actually buying something come first.
+  if (p.horizon === 'soon') add('investing-fundamentals', 'You want to start within a few months');
+  // A year out is the one horizon with room to get the money side in order first.
+  if (p.horizon === 'year') add('personal-finance', 'You want to start within a year');
 
   // 4. Goal seeds the spine of the path.
   const goal = p.goal ?? 'learn';
