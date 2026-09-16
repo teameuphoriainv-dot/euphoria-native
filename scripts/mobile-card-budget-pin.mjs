@@ -53,6 +53,22 @@ const LIMITS = {
   medianCardChars: 115,
   /** Measured 24%. The overrides.ts queue is allowed to grow, but not without someone noticing. */
   maxOverBudgetRatio: 0.30,
+  /**
+   * Measured 23.5% on 2026-09-15, RAISED from a hard-coded 25%, deliberately and not to pass.
+   *
+   * The old figure was calibrated while shortenPrompt returned the final question sentence alone
+   * for every over-budget prompt. That is how it kept prompts short: by deleting the scenario the
+   * question was about. Keeping the data costs characters, and this is the budget that pays for it.
+   * The real guarantees now live in maxPromptsLosingNumbers and the zero-tolerance check on losing
+   * the question, which are properties rather than proxies.
+   */
+  maxPromptsOverBudgetRatio: 0.35,
+  /**
+   * Measured 16, down from 653 before the shortener kept its setups. Not zero: a handful of
+   * prompts state their figures only inside a clause that will not survive any trim, and forcing
+   * those through whole would put a paragraph on the screen.
+   */
+  maxPromptsLosingNumbers: 40,
   /** Measured 4. A deck longer than this is a scroll view wearing a costume. */
   maxCardsPerDeck: 4,
   /** Measured 2. Below this a deck is not teaching anything. */
@@ -166,6 +182,7 @@ const minDeck = Math.min(...deckSizes);
  * on authored content nobody here wrote. What must hold is that shortening never ADDS one.
  */
 let qN = 0, qLong = 0, tellBefore = 0, tellAfter = 0, tellCreated = 0, dupSets = 0;
+let qLostQuestion = 0, qLostEveryNumber = 0;
 for (const course of COURSES) {
   for (const lesson of await loadCourseLessons(course.id)) {
     for (const step of lesson.steps) {
@@ -179,7 +196,21 @@ for (const course of COURSES) {
       }
       if (!opts || opts.length < 2) continue;
       qN += 1;
-      if (shortenPrompt(prompt).length > QUESTION_BUDGET.prompt) qLong += 1;
+      const shown = shortenPrompt(prompt);
+      if (shown.length > QUESTION_BUDGET.prompt) qLong += 1;
+      /*
+       * THE TWO THINGS LENGTH WAS ONLY EVER A PROXY FOR.
+       *
+       * shortenPrompt used to return the final question sentence alone for any over-budget prompt
+       * ending in '?', which is short and scores well here while being unanswerable. 766 of 1,026
+       * prompts were cut that way, 653 lost every number they were given, and 7 lost the question
+       * itself. A learner who cannot answer guesses and pays a heart for it.
+       *
+       * These assert the properties directly, so a future shortener cannot trade answerability for
+       * a better length figure.
+       */
+      if (/\?/.test(prompt) && !/\?/.test(shown)) qLostQuestion += 1;
+      if (/\d/.test(prompt) && !/\d/.test(shown)) qLostEveryNumber += 1;
 
       const out = shortenOptions(opts, correct);
       if (new Set(out.map((o) => o.trim().toLowerCase())).size !== out.length) dupSets += 1;
@@ -205,6 +236,8 @@ console.log(`  over budget           ${overBudget} / ${cards} = ${(overRatio * 1
 console.log(`  empty cards           ${empty}   (limit ${LIMITS.maxEmptyCards})`);
 console.log(`  median step reduction ${(medianReduction * 100).toFixed(0)}%   (floor ${(LIMITS.minStepReduction * 100).toFixed(0)}%)`);
 console.log(`  questions             ${qN}, ${qLong} still over ${QUESTION_BUDGET.prompt} chars`);
+console.log(`  prompts losing the question  ${qLostQuestion}   (limit 0)`);
+console.log(`  prompts losing every number  ${qLostEveryNumber}   (limit ${LIMITS.maxPromptsLosingNumbers})`);
 console.log(`  option sets with a duplicate answer  ${dupSets}   (limit 0)`);
 console.log(`  longest option is correct  ${tellBefore} authored -> ${tellAfter} shown, ${tellCreated} created by shortening   (limit 0)`);
 
@@ -218,7 +251,9 @@ if (medianReduction < LIMITS.minStepReduction) problems.push(`median step reduct
 if (dupSets > 0) problems.push(`${dupSets} question(s) would show two identical answers after shortening`);
 if (tellCreated > 0) problems.push(`shortening CREATED the answer-length tell on ${tellCreated} question(s)`);
 if (tellAfter > tellBefore) problems.push('shortening increased how often the correct answer is the longest');
-if (qLong > qN * 0.25) problems.push(`${qLong} of ${qN} prompts are still over budget`);
+if (qLong > qN * LIMITS.maxPromptsOverBudgetRatio) problems.push(`${qLong} of ${qN} prompts are still over budget`);
+if (qLostQuestion > 0) problems.push(`${qLostQuestion} prompt(s) lose their question entirely and cannot be answered`);
+if (qLostEveryNumber > LIMITS.maxPromptsLosingNumbers) problems.push(`${qLostEveryNumber} prompts lose every number they were given, over the allowance of ${LIMITS.maxPromptsLosingNumbers}`);
 
 if (problems.length) {
   console.error('\nFAIL');
