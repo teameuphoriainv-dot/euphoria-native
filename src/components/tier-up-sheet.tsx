@@ -20,13 +20,13 @@
  * REDUCED MOTION collapses the pop to a cross-fade, which is the substitution the repo's own
  * reduced_motion_audit documents, and it is honoured by useSheetEntrance for the sheet itself.
  */
-import { useEffect } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { type ReactNode, useEffect } from 'react';
+import { Modal, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
-  withSpring,
+  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -37,29 +37,57 @@ import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { TIERS, TIER_UP_BONUS } from '@/lib/league';
 import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { useSheetEntrance } from '@/shared/motion/sheet-entrance';
-import { Spring } from '@/shared/motion/tokens';
+import { Duration, Ease } from '@/shared/motion/tokens';
 
-export function TierUpSheet({ tier, onClaim }: { tier: string | null; onClaim: () => void }) {
-  const theme = useTheme();
+const COPY_DELAY = 160;
+const REWARD_DELAY = 340;
+const CTA_DELAY = 520;
+
+/** Badge first, then meaning, reward, action. Unlike the crest, supporting information settles in
+ * one monotonic pass so the rare milestone feels authored without making every element bounce. */
+function StageReveal({
+  visible,
+  delay,
+  children,
+  style,
+}: {
+  visible: boolean;
+  delay: number;
+  children: ReactNode;
+  style?: ViewStyle;
+}) {
   const reduced = useReducedMotion();
-  const visible = tier !== null;
-  const { backdrop, sheet } = useSheetEntrance(visible);
-  const pop = useSharedValue(0);
+  const opacity = useSharedValue(visible && reduced ? 1 : 0);
+  const rise = useSharedValue(visible && reduced ? 0 : 6);
 
   useEffect(() => {
     if (!visible) {
-      pop.set(0);
+      opacity.set(0);
+      rise.set(6);
       return;
     }
-    pop.set(reduced ? withTiming(1, { duration: 220 }) : withSpring(1, Spring.reward));
-  }, [visible, reduced, pop]);
+    if (reduced) {
+      opacity.set(1);
+      rise.set(0);
+      return;
+    }
+    opacity.set(withDelay(delay, withTiming(1, { duration: Duration.base, easing: Ease.enter })));
+    rise.set(withDelay(delay, withTiming(0, { duration: Duration.base, easing: Ease.enter })));
+  }, [delay, opacity, reduced, rise, visible]);
 
-  const crestStyle = useAnimatedStyle(() =>
-    reduced
-      ? { opacity: pop.get() }
-      : { opacity: pop.get(), transform: [{ scale: 0.6 + pop.get() * 0.4 }] },
-  );
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.get(),
+    transform: [{ translateY: rise.get() }],
+  }));
+  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
+}
+
+export function TierUpSheet({ tier, onClaim }: { tier: string | null; onClaim: () => void }) {
+  const theme = useTheme();
+  const visible = tier !== null;
+  const { backdrop, sheet } = useSheetEntrance(visible);
 
   // Falls back to the first tier rather than rendering an empty sheet: a celebration that arrives
   // blank is worse than one that names the wrong rung, and this can only diverge if TIERS is edited
@@ -78,23 +106,29 @@ export function TierUpSheet({ tier, onClaim }: { tier: string | null; onClaim: (
       </Animated.View>
       <Animated.View style={[styles.dock, sheet]} pointerEvents="box-none">
         <View style={[styles.card, { backgroundColor: theme.cardElevated, borderColor: theme.border }]}>
-          <Animated.View style={crestStyle}>
+          <SemanticMotion event="league-promotion" enabled={visible} playKey={tier}>
             <LeagueCrest tier={t} size={128} />
-          </Animated.View>
-          <ThemedText type="label" style={{ color: t.color }}>NEW LEAGUE</ThemedText>
-          <ThemedText type="display" style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>
-            {t.name}
-          </ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
-            {`You've climbed a rung. This one is yours for good.`}
-          </ThemedText>
-          <View style={[styles.pay, { borderColor: theme.iconGold + '40', backgroundColor: theme.iconGold + '18' }]}>
-            <PixelSpriteView sprite={coinSprite} size={17} />
-            <ThemedText type="smallBold" style={{ color: theme.iconGold, fontSize: FontSize.body }}>
-              {`+${String(TIER_UP_BONUS)} Euphorium`}
+          </SemanticMotion>
+          <StageReveal visible={visible} delay={COPY_DELAY} style={styles.copy}>
+            <ThemedText type="label" style={{ color: t.color }}>NEW LEAGUE</ThemedText>
+            <ThemedText type="display" style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>
+              {t.name}
             </ThemedText>
-          </View>
-          <SlabButton label="Collect" full onPress={onClaim} />
+            <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
+              {`You've climbed a rung. This one is yours for good.`}
+            </ThemedText>
+          </StageReveal>
+          <StageReveal visible={visible} delay={REWARD_DELAY} style={styles.stageCenter}>
+            <View style={[styles.pay, { borderColor: theme.iconGold + '40', backgroundColor: theme.iconGold + '18' }]}>
+              <PixelSpriteView sprite={coinSprite} size={17} />
+              <ThemedText type="smallBold" style={{ color: theme.iconGold, fontSize: FontSize.body }}>
+                {`+${String(TIER_UP_BONUS)} Euphorium`}
+              </ThemedText>
+            </View>
+          </StageReveal>
+          <StageReveal visible={visible} delay={CTA_DELAY} style={styles.stageFull}>
+            <SlabButton label="Collect" full onPress={onClaim} />
+          </StageReveal>
         </View>
       </Animated.View>
     </Modal>
@@ -122,6 +156,9 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
   },
+  copy: { alignItems: 'center', gap: Spacing.two },
+  stageCenter: { alignItems: 'center' },
+  stageFull: { alignSelf: 'stretch' },
   sub: { textAlign: 'center' },
   pay: {
     flexDirection: 'row',

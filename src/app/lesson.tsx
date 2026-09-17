@@ -82,13 +82,16 @@ import {
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { lessonKey, useApp } from '@/lib/store';
+import { queueLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { EARN } from '@/lib/shop-items';
 import { IAP_ENABLED } from '@/lib/purchases';
 import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
 import { trialRewardAvailable } from '@/lib/trial-reward';
+import { semanticMotionForLessonStep } from '@/lib/semantic-motion';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
 
@@ -508,7 +511,10 @@ export default function Lesson() {
       // goal-minutes-pin expects Date.now() - openedAt.current in lesson.tsx
       // eslint-disable-next-line react-hooks/purity
       const minutesSpent = (Date.now() - openedAt.current) / 60000;
-      useApp.getState().completeLesson(lessonKey(courseId, lessonNum), xp, minutesSpent);
+      const completedId = lessonKey(courseId, lessonNum);
+      const alreadyCompleted = useApp.getState().completedLessons.includes(completedId);
+      useApp.getState().completeLesson(completedId, xp, minutesSpent);
+      if (!alreadyCompleted) queueLessonTrailCelebration(completedId);
       // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
       // a no-op) cannot re-fire activation.
       if (wasFirst && useApp.getState().completedLessons.length === 1) {
@@ -783,7 +789,7 @@ export default function Lesson() {
         )}
 
         {challengeStage === 'none' && norm && (
-          <Animated.View key={`s${idx}`} entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={styles.stepBody}>
+          <SemanticMotion key={`s${idx}`} event={semanticMotionForLessonStep(norm.kind)} exit style={styles.stepBody}>
             <LessonStepSessionProvider session={lessonStepSession} stepIndex={idx}>
             {norm.kind === 'prose' && (
               showRecap && norm.atlas?.recap ? (
@@ -1115,7 +1121,7 @@ export default function Lesson() {
               </ScrollView>
             )}
             </LessonStepSessionProvider>
-          </Animated.View>
+          </SemanticMotion>
         )}
 
         {challengeStage !== 'none' && lesson.challenge ? (
@@ -1131,7 +1137,7 @@ export default function Lesson() {
         ) : null}
 
         {challengeStage === 'none' && idx === DONE && (
-          <Animated.View key="done" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.midScroll}>
+          <SemanticMotion key="done" event="lesson-complete" exit style={styles.midScroll}>
             <CelebrationWipe />
             <Confetti />
             <CelebrationRays size={330} delay={120} />
@@ -1181,7 +1187,7 @@ export default function Lesson() {
               <ThemedText type="body" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>Atlas is proud of you.</ThemedText>
             </RewardPop>
             </ScrollView>
-          </Animated.View>
+          </SemanticMotion>
         )}
 
         {challengeStage === 'none' && idx === STREAK && (

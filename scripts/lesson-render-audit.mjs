@@ -27,6 +27,7 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const { normalizeStep, expandSteps, expandedStepIdentities, visualIsRenderable, chartLabel } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
+const { semanticMotionForLessonStep } = await import(pathToFileURL(join(ROOT, 'src/lib/semantic-motion.ts')).href);
 const { buildInteractiveGraphModel, defaultGraphValues } = await import(pathToFileURL(join(ROOT, 'src/lib/interactive-graph-model.ts')).href);
 const { ACTIVE_CHALLENGE_QUESTIONS, challengeHappyPathScreens, challengeRuntimeStates, hasMasteryChallenge } = await import(pathToFileURL(join(ROOT, 'src/lib/mastery-challenge-model.ts')).href);
 const { COURSES, loadCourseLessons } = await import(pathToFileURL(join(ROOT, 'src/lib/curriculum/courseIndex.ts')).href);
@@ -190,6 +191,7 @@ const visualKinds = new Map();
 const byType = new Map();
 const thinByType = new Map();
 const thinExamples = [];
+const semanticMotionEvents = new Map();
 
 for (const course of COURSES) {
   // Audit the same resolved and filtered lesson list the app receives. Importing course modules
@@ -226,6 +228,9 @@ for (const course of COURSES) {
         continue;
       }
       if (n.kind === 'todo') todo += 1;
+      const semanticEvent = semanticMotionForLessonStep(n.kind);
+      if (!semanticEvent) throw new Error(`${course.id} L${lesson.num} ${step.type}: no semantic motion event for ${n.kind}`);
+      semanticMotionEvents.set(semanticEvent, (semanticMotionEvents.get(semanticEvent) ?? 0) + 1);
       if (n.kind === 'progressiveCalc') renderedCalcSteps += n.spec.calcSteps.length;
       if (step.type === 'interactiveGraph') {
         graphSteps += 1;
@@ -315,7 +320,13 @@ console.log('');
 console.log(`Interactive graphs in the data: ${graphSteps}   reaching the screen: ${graphScreens}`);
 console.log(`Authored graph controls in the data: ${graphControls}   reaching the screen: ${renderedGraphControls}`);
 console.log(`Mastery challenges: ${challengeLessons} lessons   ${challengeQuestions} active questions   ${challengeHappyScreens} happy-path screens   ${challengeStates} finite branch states`);
+console.log(`Semantic lesson motion: ${[...semanticMotionEvents.entries()].map(([event, count]) => `${event} ${count}`).join('   ')}`);
 console.log('');
+
+if ([...semanticMotionEvents.values()].reduce((sum, count) => sum + count, 0) !== steps) {
+  console.error(`\nSEMANTIC MOTION COVERAGE LOST: ${steps} runtime steps, ${[...semanticMotionEvents.values()].reduce((sum, count) => sum + count, 0)} classified.`);
+  process.exit(1);
+}
 
 if (thinByType.size) {
   console.log('thin steps by type:');

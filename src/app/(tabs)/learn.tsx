@@ -4,14 +4,15 @@
  * that course's real lessons in the production web pathway language. Progress comes from
  * `completedLessons` in the store.
  */
-import { router } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   cancelAnimation,
   Easing,
   interpolate,
+  useAnimatedProps,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -35,8 +36,11 @@ import { courseAccent } from '@/lib/course-accents';
 import { COURSES, getCourseById, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
 import { lessonKey, useApp } from '@/lib/store';
+import { takeLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration, Ease } from '@/shared/motion/tokens';
 import { PremiumBorder, PremiumText } from '@/components/ui/premium';
 import { ProfileButton } from '@/components/profile-button';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
@@ -55,6 +59,8 @@ const SAGA_CURRENT_COLOR = '#22C55E';
 const SAGA_LOCKED_COLOR = '#17151F';
 const SAGA_UPCOMING_COLOR = '#1B1825';
 const SAGA_CHALLENGE_COLOR = '#F59E0B';
+const SAGA_CONNECTOR_DRAW = 180;
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 /**
  * The premium ramp, spent across the trial's three days.
@@ -97,6 +103,58 @@ function SagaBolt() {
       <Path d="M17.2 2.8 6.8 17h7l-1 10.2L23.2 13h-7l1-10.2Z" fill="#FFFFFF" />
     </Svg>
   );
+}
+
+function EarnedConnector({ d, color }: { d: string; color: string }) {
+  const reduced = useReducedMotion();
+  const offset = useSharedValue(reduced ? 0 : SAGA_CONNECTOR_DRAW);
+
+  useEffect(() => {
+    offset.set(
+      reduced
+        ? 0
+        : withTiming(0, {
+            duration: Duration.screen,
+            easing: Ease.enter,
+          }),
+    );
+  }, [offset, reduced]);
+
+  const animatedProps = useAnimatedProps(() => ({ strokeDashoffset: offset.get() }));
+  return (
+    <AnimatedPath
+      d={d}
+      fill="none"
+      stroke={color}
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeDasharray={SAGA_CONNECTOR_DRAW}
+      animatedProps={animatedProps}
+    />
+  );
+}
+
+function SagaConnector({
+  d,
+  color,
+  accent,
+  earned,
+}: {
+  d: string;
+  color: string;
+  accent: string;
+  earned: boolean;
+}) {
+  return (
+    <>
+      <Path d={d} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
+      {earned && <EarnedConnector d={d} color={accent} />}
+    </>
+  );
+}
+
+function SagaNodeMotion({ earned, children }: { earned: boolean; children: ReactNode }) {
+  return <SemanticMotion event="node-unlock" enabled={earned}>{children}</SemanticMotion>;
 }
 
 /**
@@ -166,6 +224,17 @@ export default function Learn() {
   const [failed, setFailed] = useState<string | null>(null);
   /** Bumped by the retry so the effect re-runs for the same course id. */
   const [attempt, setAttempt] = useState(0);
+  const [celebratingLesson, setCelebratingLesson] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const lessonId = takeLessonTrailCelebration();
+      if (!lessonId) return;
+      setCelebratingLesson(lessonId);
+      const settle = setTimeout(() => setCelebratingLesson(null), Duration.screen + 700);
+      return () => clearTimeout(settle);
+    }, []),
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -507,14 +576,15 @@ export default function Learn() {
                         const next = nodes[localIndex + 1];
                         const nextDone = doneFlags[next.lessonIndex];
                         const nextActive = next.lessonIndex === current;
+                        const segment = sagaSegment(node, next);
+                        const earned = celebratingLesson === lessonKey(trailCourseId, node.lesson.num);
                         return (
-                          <Path
+                          <SagaConnector
                             key={node.lessonIndex}
-                            d={sagaSegment(node, next)}
-                            fill="none"
-                            stroke={nextDone ? accent + '66' : nextActive ? SAGA_CURRENT_COLOR + '55' : theme.border}
-                            strokeWidth={2}
-                            strokeLinecap="round"
+                            d={segment}
+                            color={nextDone ? accent + '66' : nextActive ? SAGA_CURRENT_COLOR + '55' : theme.border}
+                            accent={SAGA_CURRENT_COLOR}
+                            earned={earned}
                           />
                         );
                       })}
@@ -530,6 +600,7 @@ export default function Learn() {
                       const special = challenge || capstone;
                       const nodeSize = active ? SAGA_CURRENT : SAGA_NODE;
                       const completedFace = challenge ? SAGA_CHALLENGE_COLOR : accent;
+                      const earned = celebratingLesson === lessonKey(trailCourseId, lesson.num);
                       const face = locked
                         ? SAGA_LOCKED_COLOR
                         : active
@@ -551,7 +622,8 @@ export default function Learn() {
                               height: nodeSize + SAGA_LIP + SAGA_LABEL_HEIGHT,
                             },
                           ]}>
-                          <SpringPressable
+                          <SagaNodeMotion key={earned ? 'earned' : 'still'} earned={earned}>
+                            <SpringPressable
                             haptic={!locked}
                             scaleTo={0.91}
                             onPress={() => {
@@ -607,7 +679,8 @@ export default function Learn() {
                                 </View>
                               </View>
                             </View>
-                          </SpringPressable>
+                            </SpringPressable>
+                          </SagaNodeMotion>
 
                           <View
                             pointerEvents="none"

@@ -2,46 +2,15 @@
 
 Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before writing any code.
 
-# ScreensDesign is MANDATORY for design work
+# Design work uses primary visual references
 
-Use the ScreensDesign MCP for **every** design audit, design question, and design change.
-Not optional, not "when unsure", not only for big redesigns. Every one.
+Do not use ScreensDesign. For inspiration-led design work, inspect the actual Pinterest or social
+video rather than its title or summary, measure the relevant transition, and state which mechanism
+transfers to Euphoria before changing code.
 
-## And use it properly — the failure mode is real
+Preserve the existing design system in `src/constants/theme.ts` and the regression pins. Do not
+"establish" a replacement design system. Prefer one action-driven, orchestrated moment over
+scattered ambient effects, and provide a reduced-motion outcome for every new animation.
 
-On 2026-08-06 a whole paywall redesign was built, shipped, and reverted because a flow
-DESCRIPTION was treated as evidence:
-
-> "A two-part paywall. First, a timeline explains the 7-day free trial. Second, a screen
-> offers Yearly and Weekly subscription plans."
-
-The second screen does not exist on the main path. Facetune's timeline screen carries the
-price AND the CTA; the next screen is the App Store modal. Pulling the actual screen
-(`app_screens` app_id 972, offset 2) took one call and contradicted the summary.
-
-Rules that follow from that:
-
-1. **Read the SCREEN, never only the flow/app description.** Summaries are lossy and
-   sometimes wrong. `screen_detail` with `include_image: true` shows what actually shipped.
-2. **Use `neighbor_count`.** The screen before or after usually carries the mechanism —
-   Bend's dismissal offer is preceded by a gift-box modal that the offer screen alone
-   never reveals.
-3. **Count convergence across ≥4 apps.** Report the hit rate (4/4, 3/4). A 1/4 pattern is
-   not evidence; exclude it and say so.
-4. **State transferability.** These are mostly not finance-education apps. Say which
-   MECHANISM transfers and why, or mark it UNVERIFIED.
-5. **`search_screens` is currently BROKEN** — it returns a pydantic `extra_forbidden`
-   error on `app_id`. The error payload leaks the matched app ids; feed those to
-   `app_screens`, or route via `search_apps` + `detected_patterns` (e.g.
-   `HasTrialTimeline`, `SpecialOfferPaywall`).
-6. **NEVER infer absence from a paginated pull.** `app_screens` with an offset returned
-   positions 12, 14, 15, 18 — it skipped 13. That gap was read as "the second screen does
-   not exist", and correct work was reverted on the strength of it. `neighbor_count` on the
-   screen you already have shows what is genuinely adjacent. A missing position number is
-   pagination, not evidence of anything.
-7. If a screen genuinely has no match in the dataset, **say "no strong match"** and spec
-   from Apple HIG + the token system, labelled as such. Do not bend an off-topic pull to
-   fit — ScreensDesign's own guidance says to validate descriptions before using them.
-
-Zogo, Stash, Greenlight and NGPF are NOT in the dataset. For direct competitors use
-`search_store_screens` for App Store creative instead.
+For financial visualizations, motion must not imply nonexistent prices or causes. Use monotonic
+easing for data geometry; overshoot is reserved for expressive characters and earned rewards.

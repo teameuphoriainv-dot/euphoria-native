@@ -29,6 +29,7 @@ import {
   shuffleChallengeQuestions,
 } from '@/lib/mastery-challenge-model';
 import { PixelSpriteView, heart, lightbulb, trophy } from '@/lib/pixel';
+import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
 
@@ -143,7 +144,7 @@ export function MasteryChallengeRound({
 
   if (phase === 'passed') {
     return (
-      <Animated.View entering={resultEntrance} style={styles.result}>
+      <SemanticMotion event="mastery-increase" style={styles.result}>
         <Animated.View style={[styles.trophy, { backgroundColor: theme.success + '33' }, trophyStyle]}>
           <PixelSpriteView sprite={trophy} size={64} play="once" />
         </Animated.View>
@@ -153,7 +154,7 @@ export function MasteryChallengeRound({
         </ThemedText>
         <HeartRow hearts={hearts} />
         <Button label="Continue" onPress={onPass} style={styles.resultButton} />
-      </Animated.View>
+      </SemanticMotion>
     );
   }
 

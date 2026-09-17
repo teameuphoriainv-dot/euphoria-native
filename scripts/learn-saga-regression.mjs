@@ -24,8 +24,19 @@ includes('name="check"', 'completed lessons must retain a check');
 includes('name="lock"', 'locked lessons must retain a lock');
 includes('<View style={styles.playIcon} />', 'the current lesson must retain a play glyph');
 includes('strokeWidth={2}', 'compact nodes need a continuous connector that remains visible');
-assert.ok(!source.includes('strokeDasharray='), 'path connectors must not become decorative dashed rails');
+includes(
+  'strokeDasharray={SAGA_CONNECTOR_DRAW}',
+  'only the one-shot completion overlay may use a dash to draw the connector',
+);
+assert.equal(
+  (source.match(/strokeDasharray=/g) ?? []).length,
+  1,
+  'the permanent pathway must not become a decorative dashed rail',
+);
 includes('>Current</ThemedText>', 'the current lesson must retain its text label');
+includes('<SagaNodeMotion', 'a newly completed lesson must receive one earned node reaction');
+includes('<EarnedConnector', 'a newly completed lesson must draw the connector to the next node');
+includes('takeLessonTrailCelebration()', 'the completion animation must be consumed once on focus');
 includes('<LivingStreakFlame />', 'Learn streak must mount the dedicated living flame treatment');
 includes('<PixelSpriteView sprite={flameSprite} size={16} play="loop"', 'Learn streak must use the looping canonical pixel flame');
 includes('withRepeat(', 'the small header flame must have a visible physical motion loop');
