@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   flowPressable: { flex: 1, minWidth: 0 },
   flowContent: { flex: 1, minWidth: 0, minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.one, paddingBottom: 12, borderRadius: Radius.md },
   flowContentLast: { paddingBottom: 0 },
-  flowLabel: { flex: 1, minWidth: 0, color: '#F2EFF7', fontSize: 13.5, lineHeight: 18, fontWeight: '600' },
+  flowLabel: { flex: 1, minWidth: 0, color: '#F1EFF5', fontSize: 13.5, lineHeight: 18, fontWeight: '600' },
   flowValue: { flexShrink: 1, maxWidth: '46%', textAlign: 'right', fontSize: 12, lineHeight: 16, fontVariant: ['tabular-nums'] },
   chartRow: { minHeight: 44, justifyContent: 'center', gap: 4, paddingHorizontal: Spacing.one, paddingVertical: Spacing.one, borderRadius: Radius.md },
   barPressable: { width: '100%' },

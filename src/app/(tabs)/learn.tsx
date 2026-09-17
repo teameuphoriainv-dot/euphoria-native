@@ -4,7 +4,7 @@
  * that course's real lessons in the production web pathway language. Progress comes from
  * `completedLessons` in the store.
  */
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -56,8 +56,8 @@ const SAGA_LABEL_WIDTH = 136;
 const SAGA_LABEL_HEIGHT = 46;
 const SAGA_AMPLITUDE = 48;
 const SAGA_CURRENT_COLOR = '#22C55E';
-const SAGA_LOCKED_COLOR = '#17151F';
-const SAGA_UPCOMING_COLOR = '#1B1825';
+const SAGA_LOCKED_COLOR = '#17141F';
+const SAGA_UPCOMING_COLOR = '#17141F';
 const SAGA_CHALLENGE_COLOR = '#F59E0B';
 const SAGA_CONNECTOR_DRAW = 180;
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -202,6 +202,8 @@ function LivingStreakFlame() {
 
 export default function Learn() {
   const theme = useTheme();
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
   const { width } = useWindowDimensions();
   const sagaWidth = Math.min(width - Spacing.four * 2, 460);
 
@@ -265,13 +267,14 @@ export default function Learn() {
     };
   }, [activeCourseId, attempt]);
 
-  const lessons = useMemo(() => loaded?.lessons ?? [], [loaded]);
+  const lessons = useMemo(() => (qa ? [] : loaded?.lessons ?? []), [loaded, qa]);
   const trailCourseId = loaded?.id ?? activeCourseId;
   // Keyed to the course actually ON SCREEN, not the one being switched to. During the async
   // loadCourseLessons swap `loaded.id` is still the outgoing course, so accenting by
   // `activeCourseId` painted the OLD course's rows and unit names in the NEW course's colour.
   const accent = courseAccent(trailCourseId);
-  const pending = loaded?.id !== activeCourseId;
+  const pending = qa === 'loading' || (!qa && loaded?.id !== activeCourseId);
+  const shownFailed = qa === 'error' ? activeCourseId : failed;
   /** switching between two courses — dim the outgoing trail instead of flashing an empty path */
   const stale = pending && loaded !== null;
 
@@ -530,7 +533,7 @@ export default function Learn() {
         {total === 0 ? (
           <View style={styles.empty}>
             {pending ? <ActivityIndicator color={accent} /> : null}
-            {failed === activeCourseId && !pending ? (
+            {shownFailed === activeCourseId && !pending ? (
               /* RetryNotice already exists for exactly this: a true sentence plus a way out. */
               <RetryNotice
                 message="This course did not finish loading."
@@ -608,7 +611,7 @@ export default function Learn() {
                           : done
                             ? completedFace
                             : SAGA_UPCOMING_COLOR;
-                      const lip = locked ? '#0C0B11' : shade(face, 0.45);
+                      const lip = locked ? '#09090D' : shade(face, 0.45);
 
                       return (
                         <View

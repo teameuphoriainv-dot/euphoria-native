@@ -8,7 +8,7 @@ import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, w
 
 import { Radius } from '@/constants/theme';
 
-const COLORS = ['#A855EB', '#22C55E', '#FBBF24', '#C89CF5', '#B57BEF'];
+const COLORS = ['#A451E6', '#22C55E', '#FBBF24', '#C89CF5', '#B57BEF'];
 const N = 18;
 
 function Dot({ i }: { i: number }) {

@@ -38,7 +38,7 @@ const RARITY: Record<Rarity, string> = {
   common: '#8B8494',
   uncommon: '#34D399',
   rare: '#5FA8FF',
-  epic: '#C084FC',
+  epic: '#BB83F1',
   legendary: '#F0A72B',
 };
 
