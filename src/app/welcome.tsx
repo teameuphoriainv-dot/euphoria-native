@@ -13,6 +13,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { SlabButton } from '@/components/ui/button';
+import { AtlasSpeech } from '@/components/atlas-speech';
 import { Spacing } from '@/constants/theme';
 
 export default function Welcome() {
@@ -60,9 +61,7 @@ export default function Welcome() {
         {/* held until Atlas has actually landed, so the line is never revealed mid-fall */}
         <Animated.View entering={FadeIn.delay(900).duration(420)}>
           <ThemedText type="display" style={styles.title}>Hi, I&apos;m Atlas!</ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
-            I&apos;ll be your personal investing coach. One calm lesson at a time.
-          </ThemedText>
+          <AtlasSpeech text="I'll be your personal investing coach. One calm lesson at a time." tail="top" tailAlign="center" maxWidth={300} />
         </Animated.View>
       </View>
 
