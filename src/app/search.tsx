@@ -9,7 +9,7 @@
  * Debounced because every keystroke is an upstream request against a rate-limited key. 250ms is
  * below the threshold where typing feels laggy and well above per-character.
  */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,7 +29,9 @@ import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
 
 export default function Search() {
   const theme = useTheme();
-  const [q, setQ] = useState('');
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
+  const [q, setQ] = useState(() => (qa ? 'ZZZZQATEST' : ''));
   // Results carry the term they answer, so "loading" is derived rather than flag-managed — no
   // setState in the effect body, and a stale result can never render under a newer query.
   const [hits, setHits] = useState<{ term: string; results: TickerHit[] } | null>(null);
@@ -48,10 +50,12 @@ export default function Search() {
   }, []);
   const seq = useRef(0);
   const term = q.trim();
-  const loading = term.length > 0 && hits?.term !== term;
-  const results = !term || loading ? null : (hits?.results ?? null);
+  const loading = qa === 'loading' || (!qa && term.length > 0 && hits?.term !== term);
+  const results = qa === 'empty' ? [] : !term || loading || qa === 'error' ? null : (hits?.results ?? null);
+  const shownError = qa === 'error' ? 'upstream' : err;
 
   useEffect(() => {
+    if (qa) return;
     const term = q.trim();
     if (!term) return;
     // Guard against out-of-order responses: a slow "AA" must not overwrite a fast "AAPL".
@@ -71,7 +75,7 @@ export default function Search() {
         });
     }, 250);
     return () => clearTimeout(t);
-  }, [q, nonce]);
+  }, [q, nonce, qa]);
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -110,7 +114,7 @@ export default function Search() {
           {/* Blocking: on this screen the results ARE the screen, so an error replaces them
               rather than sitting alongside. err wins over loading — a skeleton that never
               resolves tells the user to wait for something that is not coming. */}
-          {err ? <RetryNotice code={err} onRetry={retry} /> : loading && <SkeletonRows count={5} height={60} />}
+          {shownError ? <RetryNotice code={shownError} onRetry={retry} /> : loading && <SkeletonRows count={5} height={60} />}
 
         {!loading && !term && (
           <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>

@@ -35,7 +35,9 @@ import { STAGGER_CAP } from '@/shared/motion/tokens';
 
 export default function News() {
   const theme = useTheme();
-  const { sym } = useLocalSearchParams<{ sym?: string }>();
+  const params = useLocalSearchParams<{ sym?: string; qa?: string }>();
+  const sym = params.sym;
+  const qa = __DEV__ ? params.qa : undefined;
   const [articles, setArticles] = useState<Article[] | null>(null);
   const [loaded, setLoaded] = useState(false);
   /*
@@ -59,6 +61,7 @@ export default function News() {
   const [at, setAt] = useState(0);
 
   useEffect(() => {
+    if (qa) return;
     let cancelled = false;
     // Clears a stale error when the dependency changes, before the fetch that may set a new one.
     // React bails out via Object.is when the value is already null, so on the common path this
@@ -80,7 +83,11 @@ export default function News() {
     return () => {
       cancelled = true;
     };
-  }, [sym, nonce]);
+  }, [sym, nonce, qa]);
+
+  const shownError = qa === 'error' ? 'upstream' : err;
+  const shownLoaded = qa === 'empty' ? true : qa === 'loading' || qa === 'error' ? false : loaded;
+  const shownArticles = qa === 'empty' ? [] : qa ? null : articles;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -108,9 +115,9 @@ export default function News() {
         </RiseIn>
 
         {/* UNIT 13 item 3: the shape of the article rows that are coming, not a bare spinner. */}
-        {err ? <RetryNotice code={err} onRetry={retry} /> : !loaded && <SkeletonRows count={4} height={92} />}
+        {shownError ? <RetryNotice code={shownError} onRetry={retry} /> : !shownLoaded && <SkeletonRows count={4} height={92} />}
 
-        {loaded && (articles?.length ?? 0) === 0 && (
+        {shownLoaded && (shownArticles?.length ?? 0) === 0 && (
           <RiseIn delay={60}>
             <Card style={styles.empty}>
               <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>
@@ -124,7 +131,7 @@ export default function News() {
           </RiseIn>
         )}
 
-        {articles?.map((a, i) => (
+        {shownArticles?.map((a, i) => (
           <RiseIn key={a.id ?? i} delay={60 + Math.min(i * 25, STAGGER_CAP)}>
             <SpringPressable
               scaleTo={0.98}
