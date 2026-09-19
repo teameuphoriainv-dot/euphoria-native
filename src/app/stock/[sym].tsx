@@ -32,6 +32,7 @@ import { getMarks } from '@/lib/market';
 import { markDateOf } from '@/lib/marks';
 import { money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { RetryNotice } from '@/components/retry-notice';
+import { Ev, track } from '@/lib/analytics';
 import { useApp } from '@/lib/store';
 import { entitled, useTier, type Refusal } from '@/lib/entitlement';
 import { GateSheet } from '@/components/gate-sheet';
@@ -472,12 +473,26 @@ export default function StockDetail() {
                       label="Buy"
                       full
                       disabled={!canBuy}
-                      onPress={() => buy(sym, qty, price)}
+                      onPress={() => {
+                        /* buy() is a NO-OP when the order is unaffordable, so the cash delta — not
+                           the tap — is what says a trade happened. Guarding on the tap would file a
+                           rejected order as engagement. Same shape as lesson.tsx guarding
+                           Ev.firstLesson on the completed count actually moving. */
+                        const before = useApp.getState().cash;
+                        buy(sym, qty, price);
+                        if (useApp.getState().cash !== before) track(Ev.tradePlaced, { side: 'buy', symbol: sym, shares: qty });
+                      }}
                     />
                   </View>
                   <SpringPressable
                     haptic={false}
-                    onPress={() => canSell && sell(sym, qty, price)}
+                    onPress={() => {
+                      if (!canSell) return;
+                      // applySell clamps to what is actually held, so a sell can also be a no-op.
+                      const before = useApp.getState().cash;
+                      sell(sym, qty, price);
+                      if (useApp.getState().cash !== before) track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
+                    }}
                     accessibilityRole="button"
                     accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
                     accessibilityState={{ disabled: !canSell }}
