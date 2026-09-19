@@ -30,6 +30,7 @@ import { CelebrationRays } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
 import { SlabButton } from '@/components/ui/button';
+import { AtlasSpeech } from '@/components/atlas-speech';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { money, STOCKS } from '@/lib/stocks';
@@ -66,11 +67,14 @@ export default function Reward() {
           <ThemedText type="title" maxFontSizeMultiplier={1.6} style={styles.centreText}>
             {total > 0 ? `You earned ${money(total)} of stock.` : 'Nothing to claim right now.'}
           </ThemedText>
-          <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.centreText}>
-            {total > 0
+          <AtlasSpeech
+            text={total > 0
               ? 'It is already in your portfolio. Finish another lesson for more.'
               : 'Finish a lesson to earn free stock.'}
-          </ThemedText>
+            tail="top"
+            tailAlign="center"
+            maxWidth={300}
+          />
         </ScrollView>
         <View style={styles.footer}>
           <SlabButton label="Back to learning" full onPress={() => router.back()} />
@@ -120,9 +124,7 @@ export default function Reward() {
             <ThemedText type="title" maxFontSizeMultiplier={1.6} style={styles.centreText}>
               You earned {remaining} free {remaining === 1 ? 'stock' : 'stocks'}.
             </ThemedText>
-            <ThemedText type="body" maxFontSizeMultiplier={1.6} themeColor="mutedForeground" style={styles.centreText}>
-              Tap a card to see what you got.
-            </ThemedText>
+            <AtlasSpeech text="Tap a card to see what you got." tail="top" tailAlign="center" maxWidth={300} />
           </RiseIn>
           <RiseIn delay={160}>
             <View style={styles.stack}>

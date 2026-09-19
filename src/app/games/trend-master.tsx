@@ -17,7 +17,7 @@
  * like guesswork even though the underlying series was deliberately trend-readable.
  */
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,10 +47,12 @@ type Phase = 'intro' | 'play' | 'over';
 
 export default function TrendMaster() {
   const theme = useTheme();
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
   const best = useApp((s) => s.gameBest[GAME_ID] ?? 0);
   const recordGameScore = useApp((s) => s.recordGameScore);
 
-  const [phase, setPhase] = useState<Phase>('intro');
+  const [phase, setPhase] = useState<Phase>(qa === 'over' ? 'over' : 'intro');
   const [round, setRound] = useState<Round>({ series: [], cursor: 0 });
 
   /*
@@ -63,7 +65,7 @@ export default function TrendMaster() {
    */
   const completedLessons = useApp((st) => st.completedLessons);
   const floor = phaseIndex(phaseOf({ completedLessons }));
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(qa === 'over' ? 120 : 0);
   const [streak, setStreak] = useState(0);
   const [lives, setLives] = useState(LIVES);
   const [left, setLeft] = useState(ROUND_SECONDS);

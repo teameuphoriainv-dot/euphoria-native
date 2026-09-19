@@ -80,5 +80,5 @@ const styles = StyleSheet.create({
   atlas: { alignItems: 'center', justifyContent: 'center' },
   bubble: { position: 'relative', borderRadius: 24, borderTopLeftRadius: 4, borderTopRightRadius: 4, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.14)', backgroundColor: '#14121C', paddingHorizontal: 28, paddingVertical: 16 },
   tail: { position: 'absolute', top: -7, left: '50%', marginLeft: -7, width: 14, height: 14, transform: [{ rotate: '45deg' }], backgroundColor: '#14121C', borderLeftWidth: StyleSheet.hairlineWidth, borderTopWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.14)' },
-  copy: { color: '#F2EFF7', fontSize: 24, lineHeight: 32, textAlign: 'center' },
+  copy: { color: '#F1EFF5', fontSize: 24, lineHeight: 32, textAlign: 'center' },
 });

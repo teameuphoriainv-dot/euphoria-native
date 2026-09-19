@@ -20,7 +20,7 @@
  * control (VoiceOver swipes up/down to move income) AND there are two always-visible buttons.
  */
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -47,11 +47,13 @@ const GAME_ID = 'budget-balancer';
 const NUDGE = 0.12;
 
 export default function BudgetBalancer() {
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qaOver = __DEV__ && params.qa === 'over';
   // RESTART IS A REMOUNT, not a reset written from an effect. Keying the run on `seed` lets the
   // whole thing initialise in a lazy useState instead of a setState inside useEffect, which is
   // what react-hooks/set-state-in-effect is actually asking for rather than a disable comment.
   const [seed, setSeed] = useState(1);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(qaOver);
   const theme = useTheme();
   if (!started) {
     return (
@@ -82,10 +84,10 @@ export default function BudgetBalancer() {
       </SafeAreaView>
     );
   }
-  return <Run key={seed} onRestart={() => { setSeed((n) => n + 1); }} />;
+  return <Run key={seed} qaOver={qaOver} onRestart={() => { setSeed((n) => n + 1); }} />;
 }
 
-function Run({ onRestart }: { onRestart: () => void }) {
+function Run({ onRestart, qaOver }: { onRestart: () => void; qaOver: boolean }) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const reduced = useReducedMotion();
@@ -97,7 +99,10 @@ function Run({ onRestart }: { onRestart: () => void }) {
   const armPx = Math.min(width - Spacing.four * 2, 340) / 2;
 
   // Created ONCE per mount, in a lazy initialiser rather than an effect. Every restart remounts.
-  const [initial] = useState(() => createGame((Date.now() % 100000) + 1, phase));
+  const [initial] = useState(() => {
+    const game = createGame((Date.now() % 100000) + 1, phase);
+    return qaOver ? { ...game, over: true, score: 120, cleared: 4 } : game;
+  });
   const angleSV = useSharedValue(0);
   // Seeded from the engine, not from a hardcoded 0.5: createGame starts the beam level and the
   // marker has to agree with it or the first frame fights the player.
@@ -118,7 +123,7 @@ function Run({ onRestart }: { onRestart: () => void }) {
   const gameRef = useRef<State>(initial);
   // Only the discrete facts live in React.
   const [view, setView] = useState<{ costs: Cost[]; score: number; over: boolean; cleared: number }>(
-    () => ({ costs: initial.costs, score: 0, over: false, cleared: 0 }),
+    () => ({ costs: initial.costs, score: initial.score, over: initial.over, cleared: initial.cleared }),
   );
   /*
    * THE REWARD NEEDS A VISIBLE MOMENT. Trend Master's third rule: a score ticking silently in a

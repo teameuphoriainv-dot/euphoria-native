@@ -145,7 +145,7 @@ function ToggleRow({
   );
 }
 
-function AccountSection() {
+function AccountSection({ forceBillingIssue = false }: { forceBillingIssue?: boolean }) {
   const theme = useTheme();
   const isPro = useApp((s) => s.isPro);
   const billingIssue = useApp((s) => s.billingIssue);
@@ -167,7 +167,7 @@ function AccountSection() {
             in lib/purchases), but only the user can fix the card, so keeping quiet wastes the window.
             Wording is deliberately not alarming: the overwhelming majority of these are an expired
             card, not a failed human. COPY IS UNAPPROVED (§20). */}
-        {billingIssue && (
+        {(billingIssue || forceBillingIssue) && (
           <Pressable onPress={openManageSubscriptions} accessibilityRole="button" accessibilityLabel="Fix payment method">
             <View style={[styles.billingIssue, { backgroundColor: theme.cardElevated, borderColor: theme.warning }]}>
               <UIcon name="bell" size={18} color={theme.warning} />
@@ -510,7 +510,9 @@ function PreferencesSection() {
 
 export default function SettingsSection() {
   const theme = useTheme();
-  const { section } = useLocalSearchParams<{ section: string }>();
+  const params = useLocalSearchParams<{ section: string; qa?: string }>();
+  const section = params.section;
+  const forceBillingIssue = __DEV__ && params.qa === 'billing-issue';
   const title = TITLES[section ?? ''] ?? 'Settings';
 
   return (
@@ -533,7 +535,7 @@ export default function SettingsSection() {
         </RiseIn>
         <RiseIn delay={80}>
           {section === 'account' ? (
-            <AccountSection />
+            <AccountSection forceBillingIssue={forceBillingIssue} />
           ) : section === 'notifications' ? (
             <NotificationsSection />
           ) : section === 'preferences' ? (

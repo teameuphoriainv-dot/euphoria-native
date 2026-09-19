@@ -19,7 +19,7 @@
  *
  * FUTURES ARE DELIBERATELY ABSENT — separate venue, margin model and settlement calendar.
  */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -170,6 +170,8 @@ function ChainRow({
 
 export default function Options() {
   const theme = useTheme();
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
   /*
    * Gate on ACCESS, not on isPro. A trial user is entitled to options — 4/4 reference trials grant
    * full premium access, and the three-contract cap is a data limit that binds Pro equally. Gating
@@ -269,7 +271,8 @@ export default function Options() {
   useLayoutEffect(() => {
     activeChainKey.current = key;
   }, [key]);
-  const loading = expiry !== '' && loadedFor !== key;
+  const loading = qa === 'loading' || qa === 'error' || (expiry !== '' && loadedFor !== key);
+  const shownError = qa === 'error' ? 'upstream' : err;
 
   /*
    * THE SPOT THAT PRODUCED THE CHAIN WINS.
@@ -596,8 +599,8 @@ export default function Options() {
             {loading ? (
               // A hung spinner is worse than an error: it tells the user to wait for something
               // that is never coming. err wins over loading for that reason.
-              err ? (
-                <RetryNotice code={err} onRetry={retry} />
+              shownError ? (
+                <RetryNotice code={shownError} onRetry={retry} />
               ) : (
                 // A skeleton, not a spinner. The research is specific about why: a spinner says
                 // "wait", a skeleton says "here is the shape of what is coming", and the chain

@@ -37,8 +37,8 @@ const AnimatedG = Animated.createAnimatedComponent(G);
  *  so the mark keeps its colour rather than drifting pale. DARK is the brand's #A855EB. These
  *  are the asset's existing tones — no new hue enters the palette. */
 const LIT = '#DEA5F5';
-const DARK = '#A855EB';
-const RIM = '#F0EEF4';
+const DARK = '#A451E6';
+const RIM = '#F1EFF5';
 
 const R_MID = 15.53;
 const BAND = 14.72;

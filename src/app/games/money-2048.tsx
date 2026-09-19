@@ -16,7 +16,7 @@
  * game.
  */
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -40,6 +40,12 @@ import { NumberRollup } from '@/shared/motion/number-rollup';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 const GAME_ID = 'money-2048';
+const QA_OVER_GRID: Grid = [
+  [1, 2, 1, 2],
+  [2, 1, 2, 1],
+  [1, 2, 1, 2],
+  [2, 1, 2, 1],
+];
 
 /**
  * Tile colour by ladder index, a deliberate progression rather than seven arbitrary swatches:
@@ -47,8 +53,8 @@ const GAME_ID = 'money-2048';
  * well the run is going before you have read a single number. $100 is the only pure hot colour on
  * the screen and it is the prize.
  */
-const TILE = ['#1A1822', '#2E3140', '#2F4A46', '#2C4E63', '#33407F', '#5B3D9E', '#8A6A1E', '#A32F5B'];
-const INK = ['#1A1822', '#9AA0B5', '#8FD8CB', '#87C6EA', '#AEB8FF', '#D7B9FF', '#FFD97A', '#FFC2D6'];
+const TILE = ['#17141F', '#32323E', '#2F4A46', '#2C4E63', '#33407F', '#5B3D9E', '#8A6A1E', '#A32F5B'];
+const INK = ['#17141F', '#9AA0B5', '#8FD8CB', '#87C6EA', '#AEB8FF', '#D7B9FF', '#FFD97A', '#FFC2D6'];
 
 /** How full the board starts. Pressure, not different rules — see the header. */
 const START_TILES = [2, 2, 3, 4];
@@ -66,6 +72,8 @@ const DIRS: { dir: Dir; glyph: string; label: string }[] = [
 
 export default function Money2048() {
   const theme = useTheme();
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
   const { width } = useWindowDimensions();
 
   const best = useApp((s) => s.gameBest[GAME_ID] ?? 0);
@@ -82,12 +90,12 @@ export default function Money2048() {
     return g;
   }, [rand, startTiles]);
 
-  const [grid, setGrid] = useState<Grid>(build);
-  const [score, setScore] = useState(0);
-  const [over, setOver] = useState(false);
+  const [grid, setGrid] = useState<Grid>(() => (qa === 'over' ? QA_OVER_GRID : build()));
+  const [score, setScore] = useState(qa === 'over' ? 240 : 0);
+  const [over, setOver] = useState(qa === 'over');
   const [won, setWon] = useState(false);
   const [pop, setPop] = useState<{ id: number; text: string } | null>(null);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(qa === 'over');
   const [milestone, setMilestone] = useState<string | null>(null);
 
   /*

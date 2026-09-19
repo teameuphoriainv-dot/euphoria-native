@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   atlasRow: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   promptBubble: { position: 'relative', flex: 1, minWidth: 0, borderRadius: 16, borderTopLeftRadius: 4, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: '#14121C', paddingHorizontal: 16, paddingVertical: 14 },
   promptTail: { position: 'absolute', left: -6, top: 16, width: 10, height: 10, transform: [{ rotate: '45deg' }], backgroundColor: '#14121C', borderLeftWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)' },
-  prompt: { color: '#F2EFF7', fontSize: 15, lineHeight: 21, fontWeight: '600' },
+  prompt: { color: '#F1EFF5', fontSize: 15, lineHeight: 21, fontWeight: '600' },
   sliderWrap: { width: '100%', maxWidth: 680, paddingHorizontal: 16 },
   hit: { width: '100%', paddingVertical: 22 },
   track: { height: 8, borderRadius: Radius.sm, justifyContent: 'center' },

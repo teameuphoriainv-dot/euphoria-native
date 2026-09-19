@@ -208,7 +208,7 @@ export function AtlasIntro({ visible, onDone }: { visible: boolean; onDone: () =
                     style={[
                       styles.dot,
                       index === lineIndex && styles.dotCurrent,
-                      { backgroundColor: index <= lineIndex ? '#C57FF3' : 'rgba(255,255,255,0.16)' },
+                      { backgroundColor: index <= lineIndex ? '#BB83F1' : 'rgba(255,255,255,0.16)' },
                     ]}
                   />
                 ))}
