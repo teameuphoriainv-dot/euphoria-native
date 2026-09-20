@@ -497,11 +497,15 @@ export function OptionCard({
         ]}>
         {icon ? (
           <View style={[styles.bubble, compact && styles.bubbleSm, roomy && styles.bubbleLg, { backgroundColor: theme.primary + '1F' }]}>
-            <PixelSpriteView sprite={icon} size={compact ? 18 : roomy ? 28 : 22} />
+            <PixelSpriteView sprite={icon} size={compact ? 18 : roomy ? 40 : 22} />
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
+          <ThemedText
+            type="heading"
+            style={roomy
+              ? { fontSize: FontSize.subhead, lineHeight: 24 }
+              : { fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
           {sub && !compact ? (
             /*
              * NOT mutedForeground, and this is the one sub in the file that earns the exception.
@@ -519,7 +523,9 @@ export function OptionCard({
              * 0.78 rather than a new token: it lands between the two existing values instead of
              * adding a third colour to a system that already has 382 call sites for this one.
              */
-            <ThemedText type="small" style={{ marginTop: 2, opacity: 0.78 }}>{sub}</ThemedText>
+            <ThemedText type="small" style={roomy
+              ? { marginTop: 3, opacity: 0.78, fontSize: FontSize.bodySm, lineHeight: 20 }
+              : { marginTop: 2, opacity: 0.78 }}>{sub}</ThemedText>
           ) : null}
         </View>
         <RadioDot selected={selected} />
@@ -1048,10 +1054,22 @@ const styles = StyleSheet.create({
   optionSm: { paddingVertical: Spacing.two, gap: Spacing.two },
   bubble: { width: 46, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   bubbleSm: { width: 34, height: 34 },
-  /* +14pt of vertical padding per card. At 3 cards that reclaims ~100pt of the 321 measured
-     empty, without pushing a 4-card screen (295pt dead, 4 x 14 = 56) anywhere near the fold. */
-  optionLg: { paddingVertical: Spacing.three + 14 },
-  bubbleLg: { width: 56, height: 56 },
+  /*
+   * HEIGHT FROM CONTENT, NOT FROM AIR.
+   *
+   * The first pass at this bought height with padding alone: +14pt a side around a 56pt bubble
+   * holding a 28pt sprite. The cards filled the screen and measured correctly — 321pt of dead
+   * space down to 226 — and looked inflated, because roughly two thirds of each card was empty.
+   * A 28pt icon centred in a 56pt bubble also reads as an empty plate, and the slack inside the
+   * bubble is what made the gap to the text look wide.
+   *
+   * So the padding comes back down (30 -> 22) and the difference is paid for by content: the
+   * sprite fills its bubble (28 -> 40 in 60), the title steps body -> subhead, the sub steps
+   * small -> bodySm. Slightly shorter cards than the inflated pass, with the content share up
+   * from ~48% to ~58% of the card.
+   */
+  optionLg: { paddingVertical: Spacing.three + 6 },
+  bubbleLg: { width: 60, height: 60 },
   // one idea per screen: the heading owns the top of the viewport, options sit well below it
   stepHead: { marginTop: Spacing.two },
   // Centred: the bubble hangs from Atlas, who is centred in the persistent stage above.
