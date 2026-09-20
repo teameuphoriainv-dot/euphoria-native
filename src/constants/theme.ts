@@ -23,10 +23,20 @@ import { Platform } from 'react-native';
  */
 export const Colors = {
   dark: {
-    // surfaces (muted = euphoriaweb's #A79DB5 lavender-grey — legible on dark)
+    /*
+     * surfaces. muted was euphoriaweb's #A79DB5 lavender-grey at 7.05:1 on `card`.
+     *
+     * That is not a contrast failure — it clears WCAG AAA. The problem is that it is used 382
+     * times across 76 files, so it is the app's DEFAULT register rather than its secondary one.
+     * `text` runs 16.57:1; when more than half the copy sits at 7, nothing reads as spoken at
+     * full volume and the whole app sounds tentative.
+     *
+     * #C6BFD2 is 10.22:1 — the same lavender family, clearly lifted, and still unmistakably
+     * below `text`, so hierarchy survives. One token, every screen.
+     */
     text: 'hsl(240 5% 96%)',
     textSecondary: '#C3BAD0',
-    mutedForeground: '#A79DB5',
+    mutedForeground: '#C6BFD2',
     /**
      * SURFACE RAMP — four deliberate tiers, ~5 lightness points apart.
      *
