@@ -579,9 +579,9 @@ const CURVE = {
   /** The x-axis, and the two gridlines above it. */
   axis: 0.9867,
   grid: [0.6667, 0.3467],
-  /** Without daily practice: a shallow, nearly flat climb. */
+  /** Occasional practice: a shallow, nearly flat climb. */
   without: 'M {0.0267 0.9333} C {0.3667 0.88} {0.7 0.8267} {0.9733 0.7467}',
-  /** With Euphoria: the S-curve, two cubic segments. */
+  /** Daily practice: the S-curve, two cubic segments. */
   with: 'M {0.0267 0.9467} C {0.3 0.92} {0.5 0.72} {0.6667 0.44} C {0.7733 0.2667} {0.8733 0.1467} {0.96 0.0933}',
   /** Where the end dot lands, which is the terminus of the `with` curve. */
   dot: [0.96, 0.0933],
@@ -610,7 +610,7 @@ function scalePath(template: string, w: number, h: number): string {
     `${(Number(fx) * w).toFixed(1)} ${(Number(fy) * h).toFixed(1)}`);
 }
 
-/** "With Euphoria" vs "Without daily practice" growth curves — both DRAW ON left→right. */
+/** Daily practice vs occasional practice growth curves — both DRAW ON left→right. */
 export function GrowthChart({ delay = 0 }: { delay?: number }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
@@ -689,7 +689,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
         * words and looks weird. It should be on the right side of the axis instead."
         *
         * Right, and the cause was ORDERING, not alignment. This sat AFTER `chartLabels`, so the
-        * two-line legend ("With Euphoria" / "Without daily practice") came between the label and
+        * two-line legend ("Ten minutes a day" / "Now and then") came between the label and
         * the axis it describes. `alignSelf: flex-end` was already putting it on the right — the
         * horizontal position was never the problem.
         *
@@ -706,8 +706,27 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
             so it needs 4.5:1 - and primary measures 4.48:1 on `card`. iconLilac is the palette's
             violet meant for text on dark and measures 8.26:1. The chart stroke and dot above stay
             primary: they are graphical, judged at 3:1, and pass. Same call as digest.tsx. */}
-        <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>With Euphoria</ThemedText>
-        <ThemedText type="small" themeColor="mutedForeground">Without daily practice</ThemedText>
+        {/*
+          * THE CURVES LABEL THE HABIT, NOT THE PRODUCT.
+          *
+          * They read "With Euphoria" / "Without daily practice", and the gap between them is
+          * roughly 4x. That is the SAME claim the copy on this step was rewritten to remove —
+          * see the note on the statement entry in onboarding.tsx: "The old copy promised
+          * '4x faster' with nothing behind it — an unsubstantiated performance claim inside a
+          * paid finance funnel." The text went; the graph that drew it louder stayed.
+          *
+          * A chart asserts a magnitude the reader absorbs without arguing, so an unlabelled
+          * 4x gap attributed to a named product is the stronger version of the claim, not a
+          * softer one. Same exposure the PROOF block already guards against: App Store 2.3.1
+          * (no misleading metadata) and FTC 16 CFR Part 465 (2024).
+          *
+          * Relabelled to compare PRACTICE FREQUENCIES. Compounding from consistent practice is
+          * a general property of learning, not a performance figure for this app, and it is
+          * what the headline above already says. Identical curves, identical motivation, and
+          * nothing asserted that cannot be stood behind.
+          */}
+        <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>Ten minutes a day</ThemedText>
+        <ThemedText type="small" themeColor="mutedForeground">Now and then</ThemedText>
       </View>
     </View>
   );
