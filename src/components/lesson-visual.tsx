@@ -497,7 +497,7 @@ export function LessonVisual({ visual, bare = false }: { visual: AnimatedVisual;
                     <View key={n} style={[styles.flowContent, last && styles.flowContentLast, nd.explain && openRow === n ? { backgroundColor: theme.primary + '1F' } : null]}>
                       <VisualSprite id={nd.sprite} scale={1.5} />
                       <ThemedText type="small" style={[styles.flowLabel, last && { color: nodeAccent }]}>{nd.label}</ThemedText>
-                      {nd.value ? <ThemedText type="smallBold" style={[styles.flowValue, { color: last ? nodeAccent : '#A79DB5' }]}>{nd.value}</ThemedText> : null}
+                      {nd.value ? <ThemedText type="smallBold" style={[styles.flowValue, { color: last ? nodeAccent : theme.mutedForeground }]}>{nd.value}</ThemedText> : null}
                     </View>)}
                 </Animated.View>
               );
