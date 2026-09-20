@@ -410,12 +410,20 @@ function AvatarStep() {
   const setAvatarId = useApp((s) => s.setAvatarId);
   return (
     <View>
-      <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>
-        Pick your avatar
-      </ThemedText>
-      <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 4 }}>
-        This is you around the app. You can change it any time from your profile.
-      </ThemedText>
+      {/*
+       * ASKED THROUGH THE BUBBLE, like every other step that asks for something.
+       *
+       * This was the last screen still using a bare left-aligned title under a silent Atlas —
+       * the same shape step 0 had before it was changed, down to the grey second line explaining
+       * where a setting lives. Two screens from the end of the flow is a poor place to stop
+       * looking like the app.
+       *
+       * "You can change it later" stays, and moves INTO the line Atlas says. With 54 avatars on
+       * offer the reassurance is doing real work — it is the difference between choosing and
+       * deliberating — but it was a mutedForeground aside pointing at Profile, which is a
+       * settings breadcrumb rather than a thing a mascot would tell you.
+       */}
+      <StepHeading speech title="Pick your avatar. You can change it later." />
       <View style={styles.avatarGrid}>
         {ALL_AVATARS.map((a) => {
           const on = a.id === avatarId;
