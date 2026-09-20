@@ -693,7 +693,23 @@ export default function Learn() {
                                     shadowColor: '#000000',
                                   },
                                 ]}>
-                                <View pointerEvents="none" style={styles.nodeHighlight} />
+                                {/*
+                                  * NOT ON A LOCKED NODE.
+                                  *
+                                  * This is a 15%-white specular strip. On a saturated face it blends
+                                  * into a lighter shade of that colour and reads as gloss on a raised
+                                  * button. The locked face is near-black, so there is no colour to blend
+                                  * with, so the same strip renders as a separate grey pill floating
+                                  * inside the circle — reported as "why is there a curved rectangle on
+                                  * the top of the circle".
+                                  *
+                                  * The locked node also loses its lip to the background (black wall on
+                                  * a black page), so the strip is the only thing left on it and reads
+                                  * as an artifact rather than as lighting. Suppressing it is also the
+                                  * honest state: gloss says "raised, press me", and a locked node is
+                                  * inert.
+                                  */}
+                                {locked ? null : <View pointerEvents="none" style={styles.nodeHighlight} />}
                                 <View style={special ? styles.specialGlyph : undefined}>
                                   {capstone && !locked ? (
                                     <SagaCrown />

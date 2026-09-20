@@ -111,14 +111,27 @@ export function PathNode({
     <View style={[styles.shell, { shadowOffset: { width: 0, height: rise + 1 } }]}>
         <View style={[styles.lip, { width: size, height: size, top: locked ? 3 : rise, backgroundColor: lip }]} />
         <View style={[styles.face, { width: size, height: size, backgroundColor: face }]}>
-          <View
-            pointerEvents="none"
-            style={[styles.highlight, { top: 4 * glyphScale, left: 9 * glyphScale, right: 9 * glyphScale, height: 7 * glyphScale }]}
-          />
+          {/*
+            * NOT ON A LOCKED NODE. The strip is 15% white — on a saturated face it blends into a
+            * lighter shade of that colour and reads as gloss on a raised button. The locked face
+            * is near-black, so there is no colour to blend with and the same strip renders as a
+            * separate grey pill inside the circle. Reported from the Learn trail as "why is there
+            * a curved rectangle on the top of the circle".
+            *
+            * The locked node also loses its lip to the background (a black side wall on a black
+            * page), so the strip ends up the only thing drawn on it. Suppressing it is the honest
+            * state as well as the tidier one: gloss says "raised, press me", and locked is inert.
+            */}
+          {locked ? null : (
+            <View
+              pointerEvents="none"
+              style={[styles.highlight, { top: 4 * glyphScale, left: 9 * glyphScale, right: 9 * glyphScale, height: 7 * glyphScale }]}
+            />
+          )}
           {label !== undefined ? (
             <ThemedText type="bodyMedium" style={styles.numeral}>{label}</ThemedText>
           ) : state === 'done' ? (
-            <UIcon name="check" size={Math.round(24 * glyphScale)} color="#FFFFFF" strokeWidth={3.25} />
+            <UIcon name="check" size={Math.round(24 * glyphScale)} color={GLYPH_INK} strokeWidth={3.25} />
           ) : state === 'current' ? (
             <PlayGlyph scale={glyphScale} />
           ) : (
