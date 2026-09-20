@@ -58,7 +58,7 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { CHILD_BASE, childDelay, useStepTransition } from '@/shared/motion/step-transition';
 import {
-  PixelSpriteView, bolt, book, chartUp, clock, flame, globe, graduationCap, lock, magnifier, rocket,
+  PixelSpriteView, bolt, book, chartUp, clock, flame, globe, graduationCap, lock, rocket,
   seedling, star, trophy, wallet, type PixelSprite,
 } from '@/lib/pixel';
 
@@ -101,16 +101,29 @@ const LEVELS: Choice[] = [
   { key: 'experienced', icon: rocket, title: "I'm experienced", sub: 'I want to sharpen my edge' },
 ];
 
+/*
+ * SEVEN, NOT NINE. These chips mirrored the curriculum one-for-one, which meant they also
+ * mirrored the parts of it that are not what a sixteen-year-old opens this app for: "Valuing
+ * companies" is corporate finance and "Startups & business" is business strategy — university
+ * subjects sitting between Budgeting & debt and Retirement & taxes.
+ *
+ * The COURSES are untouched. corporate-finance is still reached by riskComfort 'buy' and by the
+ * economy goal seed, business-strategy by the same seed, so nothing is orphaned — this removes
+ * two ways to ASK for them on a screen aimed at beginners, not the material itself.
+ *
+ * NOTE for whoever revisits scope: this is the onboarding half of a wider question. Five of the
+ * twelve courses (corporate-finance, business-strategy, applied-accounting, quantitative-analysis,
+ * financial-analytics) are university/CFA-level and still sit on the Learn rail, in SEED_BY_GOAL
+ * and in the "12 available courses" proof-screen claim. Trimming chips does not answer that.
+ */
 const TOPICS: Choice[] = [
   { key: 'stocks', icon: chartUp, title: 'Stocks & ETFs' },
   { key: 'budgeting', icon: wallet, title: 'Budgeting & debt' },
   { key: 'economy', icon: globe, title: 'The economy' },
-  { key: 'valuation', icon: magnifier, title: 'Valuing companies' },
   { key: 'psychology', icon: star, title: 'Investing psychology' },
   { key: 'risk', icon: lock, title: 'Risk & hedging' },
   { key: 'crypto', icon: bolt, title: 'Crypto & alternatives' },
   { key: 'retirement', icon: trophy, title: 'Retirement & taxes' },
-  { key: 'business', icon: rocket, title: 'Startups & business' },
 ];
 
 const HORIZONS: Choice[] = [
@@ -679,15 +692,34 @@ export default function Onboarding() {
    * decide whether a chevron is drawn at all, so it has to be a render-safe value.
    */
   const [entryStep] = useState(startStep);
+  /*
+   * A QUESTION YOU CAN SEE IS A QUESTION YOU CAN GO BACK TO.
+   *
+   * This used to key entirely off `entryStep`, which is correct for the TAIL of the flow and
+   * wrong for the questions. Arrive at a question step by any route that is not "I walked here" —
+   * a deep link, a notification, a resumed session, the QA harness — and entryStep freezes there,
+   * so a learner looking at question five could not reach question four. Reported twice from the
+   * simulator, and the honest reading is that the reason it happened does not matter: the arrow
+   * was missing on a screen that plainly had somewhere to go.
+   *
+   * So the questionnaire always steps back, whatever the entry. `step - 1` is always a real step
+   * below REVEAL_INDEX, and the answers are persisted, so the previous question renders with its
+   * existing choice ready to change.
+   *
+   * The tail keeps the old rule on purpose. `?step=paywall` is a real entry point (the Unlock
+   * Premium banner uses it), and someone who arrives at the paywall that way must not be able to
+   * reverse into a questionnaire they already finished.
+   */
+  const inQuestionnaire = step > 0 && step < REVEAL_INDEX;
   const back = () => {
-    if (step > entryStep) {
+    if (step > entryStep || inQuestionnaire) {
       goTo(step - 1);
       return;
     }
     if (router.canGoBack()) router.back();
   };
   /** Whether there is anywhere to go back TO. Drives whether a chevron is drawn at all. */
-  const hasBack = step > entryStep || router.canGoBack();
+  const hasBack = inQuestionnaire || step > entryStep || router.canGoBack();
 
   /**
    * Commit-on-tap for single-select steps.
