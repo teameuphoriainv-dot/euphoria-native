@@ -5,6 +5,17 @@ const source = readFileSync(new URL('../src/app/(tabs)/learn.tsx', import.meta.u
 
 const includes = (needle, message) => assert.ok(source.includes(needle), message);
 
+/*
+ * The node palette moved into src/components/path-node.tsx so Home could render the SAME node
+ * instead of a lookalike, and learn.tsx now imports those constants. Asserting the hex literal
+ * here would be asserting where the value is typed, not what it is -- so assert it where it now
+ * lives, and separately assert that learn.tsx still sources it from there. Both halves are
+ * needed: the first alone lets learn.tsx quietly stop using it, the second alone lets the
+ * constant change colour with every lane still green.
+ */
+const nodeSource = readFileSync(new URL('../src/components/path-node.tsx', import.meta.url), 'utf8');
+const nodeDefines = (needle, message) => assert.ok(nodeSource.includes(needle), message);
+
 includes('const SAGA_NODE = 56;', 'standard saga pods must stay at the compact 56pt scale');
 includes('const SAGA_CURRENT = 64;', 'the current saga pod must stay at the compact 64pt scale');
 includes('const SAGA_PITCH = 124;', 'saga stops must keep enough rhythm for a two-line label');
@@ -15,8 +26,10 @@ includes(
   'Math.sin((lessonIndex / 2.5) * Math.PI) * SAGA_AMPLITUDE',
   'the pathway must retain the production sinusoidal stagger',
 );
-includes("const SAGA_CURRENT_COLOR = '#22C55E';", 'the actionable lesson must remain green');
-includes("const SAGA_CHALLENGE_COLOR = '#F59E0B';", 'completed challenge pods must remain amber');
+nodeDefines("export const NODE_CURRENT_COLOR = '#22C55E';", 'the actionable lesson must remain green');
+nodeDefines("export const NODE_CHALLENGE_COLOR = '#F59E0B';", 'completed challenge pods must remain amber');
+includes('const SAGA_CURRENT_COLOR = NODE_CURRENT_COLOR;', 'learn must source its green from PathNode, not a second copy');
+includes('const SAGA_CHALLENGE_COLOR = NODE_CHALLENGE_COLOR;', 'learn must source its amber from PathNode, not a second copy');
 includes('styles.specialNode', 'challenge and capstone pods must retain their diamond silhouette');
 includes('<SagaCrown />', 'the capstone must retain its crown silhouette');
 includes('<SagaBolt />', 'challenge nodes must retain their bolt silhouette');

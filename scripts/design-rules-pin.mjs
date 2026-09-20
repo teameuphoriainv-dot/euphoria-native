@@ -81,8 +81,17 @@ for (const f of [...walk('src/app'), ...walk('src/components')]) {
   if (ART.test(f) || CANONICAL_LESSON_DESIGN.has(f) || DELIBERATE_PARITY_SURFACES.has(f)) continue;
   hex += (readFileSync(f, 'utf8').match(/#[0-9A-Fa-f]{6}\b/g) ?? []).length;
 }
-/** Measured 2026-09-01. Lower this when literals are removed; raising it needs a reason in the diff. */
-const HEX_CEILING = 91;
+/*
+ * Measured 2026-09-01 at 91. Lower this when literals are removed; raising it needs a reason.
+ *
+ * RAISED 2026-09-20 to 101 for src/components/path-node.tsx. The node's palette is deliberately
+ * theme-INDEPENDENT: a raised green button is the same green in light and dark, the way a
+ * physical object does not change colour with the room. Routing it through theme tokens would
+ * make the one element on the path that must look identical everywhere the one element that
+ * does not. These eleven literals also REPLACE copies that lived in learn.tsx, which now imports
+ * them -- so the count rose while the duplication fell, which is the trade this pin cannot see.
+ */
+const HEX_CEILING = 101;
 assert.ok(
   hex <= HEX_CEILING,
   `${String(hex)} hardcoded hex literals outside the art files, ceiling is ${String(HEX_CEILING)}. ` +

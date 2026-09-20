@@ -29,6 +29,7 @@ import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
 import { entitled, TRIAL_DAYS, trialDayNumber, useTier, type Refusal } from '@/lib/entitlement';
 import { ThemedText } from '@/components/themed-text';
+import { NODE_CHALLENGE_COLOR, NODE_CURRENT_COLOR, NODE_LOCKED_COLOR, NODE_UPCOMING_COLOR } from '@/components/path-node';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -56,10 +57,12 @@ const SAGA_PITCH = 124;
 const SAGA_LABEL_WIDTH = 136;
 const SAGA_LABEL_HEIGHT = 46;
 const SAGA_AMPLITUDE = 48;
-const SAGA_CURRENT_COLOR = '#22C55E';
-const SAGA_LOCKED_COLOR = '#17141F';
-const SAGA_UPCOMING_COLOR = '#17141F';
-const SAGA_CHALLENGE_COLOR = '#F59E0B';
+/* Sourced from <PathNode>, not redeclared. Home renders the same node shape from that component;
+ * keeping a second copy of these four hex values here is how the two screens would drift apart. */
+const SAGA_CURRENT_COLOR = NODE_CURRENT_COLOR;
+const SAGA_LOCKED_COLOR = NODE_LOCKED_COLOR;
+const SAGA_UPCOMING_COLOR = NODE_UPCOMING_COLOR;
+const SAGA_CHALLENGE_COLOR = NODE_CHALLENGE_COLOR;
 const SAGA_CONNECTOR_DRAW = 180;
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 

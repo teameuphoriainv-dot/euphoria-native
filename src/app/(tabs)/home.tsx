@@ -28,6 +28,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { TourAnchor } from '@/components/atlas-tour';
 import { ATLAS_TOUR_ANCHOR_NEXT_LESSON } from '@/lib/atlas-tour';
 
+import { PathNode } from '@/components/path-node';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
@@ -541,6 +542,41 @@ export default function Home() {
                     ) : null}
                   </View>
                 </View>
+                {/*
+                  * THE FOCAL POINT, AND WHY IT SITS HERE. Audited against Learn, this card was
+                  * the one thing on Home you were meant to tap and gave no sign of it -- a dark
+                  * rectangle among dark rectangles, while Learn hands you a lit green node that
+                  * plainly means "start here".
+                  *
+                  * The first attempt put the node INSIDE the row beside the title, and the owner
+                  * was right that it did not flow. Two failures: it took width from the title,
+                  * which pushed a two-line heading to three, and it put the action at the
+                  * title's eye level, so the "why this course" line was stranded AFTER the thing
+                  * you were meant to press. A row cannot carry art, a heading and an action at
+                  * once -- they compete instead of ranking.
+                  *
+                  * Bottom-right instead: art and title read across, the pill and the why-line
+                  * read down, and the node is the last thing the eye reaches. Reading order now
+                  * ends on the action, which is what "flow" means here.
+                  *
+                  * Not pressable: the card already is. PathNode without onPress renders the
+                  * shape only, so there is no nested touchable to double-scale the press.
+                  */}
+                <View style={styles.heroAction}>
+                  {/*
+                    * The node carries a label for the same reason every node on Learn does: a
+                    * bare green circle is an affordance without a promise. It also fills the
+                    * bottom-left of the card -- with art top-left, heading top-right and the
+                    * node bottom-right, that corner was the only empty quadrant, and an L-shaped
+                    * composition with a hole in it is the other half of what did not flow.
+                    */}
+                  <ThemedText type="label" style={styles.heroActionLabel}>CONTINUE</ThemedText>
+                  <PathNode
+                    state="current"
+                    size={60}
+                    accessibilityLabel={`Start ${next.title}`}
+                  />
+                </View>
               </View>
             </SpringPressable>
           ) : (
@@ -727,6 +763,10 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  heroAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.two },
+  /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
+     should show through the label the way it does through the pill. */
+  heroActionLabel: { color: 'rgba(255,255,255,0.72)', letterSpacing: 1.4 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three },
   trialDots: { flexDirection: 'row', gap: 6, marginTop: 6 },
