@@ -414,9 +414,17 @@ export default function Home() {
               )}
               {/* play="once" on CHANGE, never looping — a streak advancing is a reaction, a streak
                   sitting still is not. Same rule the header pill followed before it was folded in. */}
-              <View style={streak === 0 ? styles.flameUnlit : undefined}>
+              {/*
+                * THE FLAME IS THE NUMERAL'S UNIT, so it goes when there is no numeral. At a live
+                * streak "7" and a lit flame are one statement. At zero the card was saying the
+                * same thing three times over -- "Start your streak", an unlit flame, and a sad
+                * Atlas -- and the flame was the weakest of the three: it cannot carry emotion
+                * the way the mascot does, and it cannot carry the instruction the way the
+                * sentence does. Fewest shapes possible; every shape earns its place.
+                */}
+              {streak > 0 && (
                 <PixelSpriteView sprite={flameSprite} size={26} play="once" playKey={streak} />
-              </View>
+              )}
               {/*
                 * ATLAS WEARS THE STREAK. He is the app's character and he did not appear on its
                 * main screen at all -- twelve measured springs of squash-and-stretch, and the
@@ -845,9 +853,6 @@ const styles = StyleSheet.create({
    * (number → line is tight, line → day marks is not), so each sets its own margin. A single gap
    * here would flatten that into one rhythm and the number would stop reading as the headline.
    */
-  /* Unlit, not hidden: the flame is the thing the streak lights, so it should be visibly
-     waiting rather than absent. */
-  flameUnlit: { opacity: 0.3 },
   /* marginLeft auto pins him to the right edge without making the row space-between, which
      would also push the flame away from the words it belongs to. */
   streakAtlas: { marginLeft: 'auto' },
