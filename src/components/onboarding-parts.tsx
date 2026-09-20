@@ -475,6 +475,7 @@ export function OptionCard({
   roomy = false,
   multi = false,
   tall = false,
+  midList = false,
 }: {
   /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
   icon?: PixelSprite;
@@ -488,6 +489,8 @@ export function OptionCard({
   multi?: boolean;
   /** Three options and nothing else on screen — one more size step. See optionXl. */
   tall?: boolean;
+  /** Compact list SHORT enough to have slack: 5-6 rows. See optionSmPlus. */
+  midList?: boolean;
   /*
    * Taller row for SHORT lists. Measured on this iPhone 17 Pro (402x874) from real captures:
    *
@@ -521,6 +524,7 @@ export function OptionCard({
         style={[
           styles.option,
           compact && styles.optionSm,
+          midList && styles.optionSmPlus,
           roomy && styles.optionLg,
           tall && styles.optionXl,
           {
@@ -530,8 +534,8 @@ export function OptionCard({
           },
         ]}>
         {icon ? (
-          <View style={[styles.bubble, compact && styles.bubbleSm, roomy && styles.bubbleLg, tall && styles.bubbleXl, { backgroundColor: theme.primary + '1F' }]}>
-            <PixelSpriteView sprite={icon} size={compact ? 18 : tall ? 46 : roomy ? 40 : 22} />
+          <View style={[styles.bubble, compact && styles.bubbleSm, midList && styles.bubbleSmPlus, roomy && styles.bubbleLg, tall && styles.bubbleXl, { backgroundColor: theme.primary + '1F' }]}>
+            <PixelSpriteView sprite={icon} size={midList ? 26 : compact ? 18 : tall ? 46 : roomy ? 40 : 22} />
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
@@ -652,7 +656,7 @@ export function GrowthChart({ delay = 0 }: { delay?: number }) {
     // `delay` lets the caller line the draw-on up with the step's stagger instead of
     // racing it. Draw durations stay chart-specific; only the easing is tokenised.
     withoutCurve.set(withDelay(delay + Duration.fast, withTiming(0, { duration: 700, easing: Ease.outCubic })));
-    withCurve.set(withDelay(delay + Duration.slow, withTiming(0, { duration: 1000, easing: Ease.outCubic })));
+    withCurve.set(withDelay(delay + Duration.slow, withTiming(0, { duration: Duration.count, easing: Ease.outCubic })));
     dot.set(withDelay(delay + 1250, withTiming(1, { duration: Duration.base, easing: Ease.enter })));
   }, [reduced, delay, measured, len, withCurve, withoutCurve, dot]);
 
@@ -825,6 +829,7 @@ export function SingleSelectStep({
               title={o.title}
               sub={o.sub}
               compact={compact ?? options.length > 4}
+              midList={options.length > 4 && options.length <= 6}
               roomy={options.length <= 4}
               tall={options.length <= 3}
               selected={value === o.key}
@@ -864,6 +869,7 @@ export function MultiSelectStep({
               sub={o.sub}
               multi
               compact={options.length > 4}
+              midList={options.length > 4 && options.length <= 6}
               selected={values.includes(o.key)}
               onPress={() => onToggle(o.key)}
             />
@@ -1125,6 +1131,23 @@ const styles = StyleSheet.create({
   optionSm: { paddingVertical: Spacing.two, gap: Spacing.two },
   bubble: { width: 46, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   bubbleSm: { width: 34, height: 34 },
+  /*
+   * COMPACT LISTS THAT STILL HAVE ROOM.
+   *
+   * `compact` fires at > 4 options and has to serve both blockers (5 rows, ~200pt of screen left
+   * under them) and topics (9 rows, 78pt — the binding constraint on every size decision in this
+   * file). One style cannot be right for both: sized for topics it strands blockers, sized for
+   * blockers it pushes topics past the fold.
+   *
+   * So this is gated on 5-6 rows, which is blockers and ageBand. Topics keeps plain `optionSm`
+   * and is untouched by construction, verified after the change rather than assumed.
+   *
+   * ~20pt a row: 12 from padding, 8 from the icon bubble growing 34 -> 42 with its sprite. Held
+   * deliberately short of closing the gap entirely — "slightly bigger", not "stretched to fit",
+   * and a five-row list that reaches the button looks as wrong as one that stops halfway.
+   */
+  optionSmPlus: { paddingVertical: Spacing.two + 6 },
+  bubbleSmPlus: { width: 42, height: 42 },
   checkBox: { width: 22, height: 22, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
   /*
    * HEIGHT FROM CONTENT, NOT FROM AIR.
