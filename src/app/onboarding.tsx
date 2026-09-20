@@ -22,8 +22,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  View,
-} from 'react-native';
+  View, useWindowDimensions,} from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -187,15 +186,6 @@ const AGES: Choice[] = [
   { key: '25-34', title: '25–34' },
   { key: '35-44', title: '35–44' },
   { key: '45+', title: '45 or older' },
-];
-
-const SOURCES: Choice[] = [
-  { key: 'tiktok', title: 'TikTok' },
-  { key: 'instagram', title: 'Instagram' },
-  { key: 'youtube', title: 'YouTube' },
-  { key: 'friend', title: 'Friend or family' },
-  { key: 'appstore', title: 'App Store' },
-  { key: 'other', title: 'Somewhere else' },
 ];
 
 const NOTIFY: Choice[] = [
@@ -441,8 +431,21 @@ const STEPS: StepDef[] = [
   { kind: 'single', field: 'dailyMinutes', question: 'How much time can you give it?', options: DAILY, face: 'happy' },
   { kind: 'statement', title: 'Everything you need to start', body: 'proof', face: 'proud' },
   { kind: 'multi', field: 'blockers', question: 'What’s held you back so far?', options: BLOCKERS, face: 'thinking' },
-  { kind: 'single', field: 'ageBand', question: 'How old are you?', sub: 'It helps us pace the long-term material.', options: AGES, face: 'default' },
-  { kind: 'single', field: 'source', question: 'Where did you hear about us?', options: SOURCES, face: 'default' },
+  // The subtitle here used to read "It helps us pace the long-term material", which nothing in the
+  // app implements: ageBand is read in exactly one place, the under-13 gate below. A screen that
+  // explains itself with a feature that does not exist is the same problem as a dead control.
+  { kind: 'single', field: 'ageBand', question: 'How old are you?', sub: 'We ask so the app is age-appropriate.', options: AGES, face: 'default' },
+  /*
+   * "Where did you hear about us?" WAS HERE AND IS GONE. Removed 2026-09-15.
+   *
+   * `profile.source` was written on tap, persisted, and read by nothing anywhere in the codebase.
+   * The screen fired no analytics event either, so the answer reached no dashboard and no report:
+   * it was a tap that cost a new user a screen and bought nobody anything. The field is deleted
+   * from Profile in onboarding-path.ts rather than left orphaned.
+   *
+   * If attribution is wanted later, it needs a reader BEFORE it needs a question — an analytics
+   * event or a stored campaign — or it lands back exactly here.
+   */
   { kind: 'single', field: 'notifyOptIn', question: 'Want a daily nudge?', options: NOTIFY, face: 'happy' },
   { kind: 'avatar' },
   { kind: 'loader' },
@@ -466,7 +469,7 @@ export default function Onboarding() {
   // row has to be able to reach the paywall. It is named rather than numeric on purpose - linking
   // by index would silently point somewhere else the moment a step is inserted, and outside dev a
   // rejected param falls back to step 0, which would drop a returning user into the whole flow.
-  const params = useLocalSearchParams<{ step?: string }>();
+  const params = useLocalSearchParams<{ step?: string; firstRun?: string }>();
   const wantsPaywall = params.step === 'paywall';
   const startStep =
     params.step && (__DEV__ || wantsPaywall)
@@ -488,11 +491,49 @@ export default function Onboarding() {
    * before the reveal and paywall. Reading the live value at the final step therefore made every
    * brand-new learner look like a returning upsell visitor and skipped `/auth` entirely.
    */
-  const [enteredWithCompletedOnboarding] = useState(() => Boolean(useApp.getState().profile.completedAt));
+  /*
+   * `firstRun=1` is set by /auth when it returns someone to the paywall mid-flow. Without it this
+   * flag reads its own first-run user as a returning visitor: completeOnboarding() stamps
+   * completedAt at the loader, two steps before the account wall, so the remount after /auth sees
+   * it already set. Every paywall exit then took the returning branch and /start was unreachable.
+   */
+  const resumingFirstRun = params.firstRun === '1';
+  const [enteredWithCompletedOnboarding] = useState(
+    () => !resumingFirstRun && Boolean(useApp.getState().profile.completedAt),
+  );
+
+  /**
+   * Where onboarding hands off when it is finished with someone.
+   *
+   * ONE function, because there were four exits and three of them disagreed. "Maybe later" and a
+   * completed purchase both went straight to '/home', so even a paying new user skipped the guided
+   * first action. The rule is the same for all of them: a user who has not done the first run gets
+   * it, and everyone else goes to the tabs.
+   */
+  const leaveOnboarding = () => {
+    router.replace(useApp.getState().profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+  };
 
   const profile = useApp((s) => s.profile);
   const setProfile = useApp((s) => s.setProfile);
   const completeOnboarding = useApp((s) => s.completeOnboarding);
+  /**
+   * THE HAND-OFF INTO THE ATLAS TOUR.
+   *
+   * Arming is not showing. It is fired at the two places onboarding COMPLETES, and the overlay
+   * that reads it lives on the tab layout, so the tour cannot collide with anything still ahead of
+   * the user here: the account wall, the paywall, and `/start`'s first-lesson offer all sit between
+   * this moment and the tabs, and every one of them is a different screen.
+   *
+   * Arming at completion rather than at the final `router.replace` is deliberate. Someone who kills
+   * the app on the paywall is still a learner who finished onboarding, and index.tsx sends them
+   * straight to Home on the next launch, where the tour is waiting for them. Pinning it to one exit
+   * route would have dropped exactly that person.
+   *
+   * It can only ever move `unseen` to `armed` (see nextAtlasTourState), so a user who has already
+   * been walked around the app and later replays onboarding does not get a second tour.
+   */
+  const armAtlasTour = useApp((s) => s.armAtlasTour);
 
   const def = STEPS[renderStep];
   const liveDef = STEPS[step];
@@ -541,6 +582,7 @@ export default function Onboarding() {
     if (step === REVEAL_INDEX) {
       // last chance to stamp completion if the loader was skipped (reduced motion)
       if (!profile.completedAt) completeOnboarding();
+      armAtlasTour();
       /*
        * THE ACCOUNT WALL, and its position is the whole point.
        *
@@ -578,7 +620,7 @@ export default function Onboarding() {
     // bare router.back() is a silent no-op. That is what "no response when we tapped the button"
     // looked like to App Review, and it would strand a user on the last step of onboarding.
     else if (enteredWithCompletedOnboarding && router.canGoBack()) router.back();
-    else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+    else leaveOnboarding();
   };
 
   /** Dismissing the first-run offer still has to finish account setup. A returning user who opened
@@ -593,8 +635,24 @@ export default function Onboarding() {
    * like the CTA does. The tab gate still refuses anyone who somehow arrived without one.
    */
   const dismissPaywall = () => {
-    if (enteredWithCompletedOnboarding) router.replace('/home');
-    else router.replace(profile.firstRunDoneAt ? '/(tabs)/home' : ('/start' as never));
+    /*
+     * A RETURNING VISITOR GOES BACK, NOT HOME.
+     *
+     * Nine screens push to this paywall — learn, three points inside a lesson, four chat surfaces,
+     * digest, options, stock, you, settings. `router.replace('/home')` threw all of that away, so
+     * someone who hit a Pro wall mid-lesson and tapped "Maybe later" lost the lesson. The back
+     * chevron on this very screen already returned them correctly, which made the two controls
+     * disagree about what leaving means.
+     *
+     * Same canGoBack guard the rest of this file uses: a bare back() is a silent no-op when /auth
+     * reached this screen by replace, and replace('/home') stays as the floor for that case.
+     */
+    if (enteredWithCompletedOnboarding) {
+      if (router.canGoBack()) router.back();
+      else router.replace('/home');
+      return;
+    }
+    leaveOnboarding();
   };
   /**
    * BACK MEANS "UNDO MY LAST STEP", NOT "DECREMENT THE INDEX".
@@ -607,8 +665,10 @@ export default function Onboarding() {
    *
    *   N4 "tapping the free trial banner takes you to the subscription screen; hitting back from
    *      there sends you to onboarding instead of back to Home."
-   *      The banner deep-links to `?step=paywall`, which starts at PAYWALL_INDEX (14). Walking the
-   *      index back put a returning user on step 13 — the middle of a flow they finished weeks ago.
+   *      The banner deep-links to `?step=paywall`, which starts at PAYWALL_INDEX (the last step).
+   *      Walking the index back put a returning user one step before it — the middle of a flow they
+   *      finished weeks ago. The index is written as a name here on purpose: this comment carried a
+   *      hard-coded 14 and went stale the moment a step was removed.
    *
    * The index alone cannot tell those apart; where the user ENTERED can. Steps above the entry
    * point are this screen's own history and are walked back one at a time. At the entry point there
@@ -635,7 +695,7 @@ export default function Onboarding() {
   /**
    * Commit-on-tap for single-select steps.
    *
-   * Onboarding is 15 steps, 8 of them single-select, and every one of those used to cost two
+   * Onboarding is 16 steps, 7 of them single-select, and every one of those used to cost two
    * taps: pick, then Continue. That is 8 taps that carry no information — the pick already IS
    * the answer. YNAB (screen 239304, the one Finance onboarding match in ScreensDesign) commits
    * on the card tap with no Continue at all.
@@ -730,6 +790,16 @@ export default function Onboarding() {
    */
   const [offers, setOffers] = useState<{ annual: PlanOffer | null; monthly: PlanOffer | null } | null>(null);
   const [offersFailed, setOffersFailed] = useState(false);
+  /*
+   * Bumped by the retry control to re-run the read below. `offersFailed` cannot do that job: it is
+   * not in the effect's guard, and adding it there would make the effect re-run the instant it was
+   * set, which is a spin rather than a retry.
+   */
+  const [offerAttempt, setOfferAttempt] = useState(0);
+  const retryOffers = () => {
+    setOffersFailed(false);
+    setOfferAttempt((n) => n + 1);
+  };
   useEffect(() => {
     if (step !== PAYWALL_INDEX || !IAP_ENABLED || offers) return;
     let live = true;
@@ -742,11 +812,25 @@ export default function Onboarding() {
         return;
       }
       setOffers({ annual: readPlanOffer(pkgs, 'annual'), monthly: readPlanOffer(pkgs, 'monthly') });
+    }).catch(() => {
+      /*
+       * A REJECTION MUST LAND SOMEWHERE, or the CTA spins forever.
+       *
+       * `getPackages` catches its own `getOfferings` failure, but it calls `configurePurchases()`
+       * outside that try, so a throw from the SDK setup rejected this promise instead. With no
+       * catch here neither `offers` nor `offersFailed` was ever set, `offersLoading` stayed true,
+       * and the reason line is suppressed while it is — a live-looking button that does nothing and
+       * explains nothing, which is the 2.1(b) state build 24 was rejected for.
+       *
+       * `configurePurchases` is now guarded too; this stays as the belt to that braces, because
+       * this screen is the one Apple actually reviews.
+       */
+      if (live) setOffersFailed(true);
     });
     return () => {
       live = false;
     };
-  }, [step, offers]);
+  }, [step, offers, offerAttempt]);
 
   const annualOffer = offers?.annual ?? null;
   const monthlyOffer = offers?.monthly ?? null;
@@ -802,7 +886,21 @@ export default function Onboarding() {
     if (step !== PAYWALL_INDEX || paywallSeenRef.current) return;
     paywallSeenRef.current = true;
     track(Ev.paywallSeen, { surface: 'onboarding', tier: tierNow, offers_trial: offersTrial, is_pro: isProNow });
-  }, [step, tierNow, offersTrial, isProNow]);
+    /*
+     * The same moment, written down where it survives the process.
+     *
+     * The ref above is an analytics latch and dies with the app, so it cannot tell the entry
+     * redirect on the NEXT launch whether this user was ever shown the offer. Without that, a
+     * force-quit here relaunched into Home with the paywall skipped for good.
+     *
+     * Stamped on ARRIVAL rather than on exit, deliberately: the question this answers is "has this
+     * person been shown the offer", and they have been. Stamping on exit would re-present the
+     * paywall to someone who force-quits on it repeatedly, which is nagging, not selling.
+     */
+    if (!useApp.getState().profile.onboardingPaywallSeenAt) {
+      setProfile({ onboardingPaywallSeenAt: Date.now() });
+    }
+  }, [step, tierNow, offersTrial, isProNow, setProfile]);
   const [busy, setBusy] = useState(false);
 
   /** Apple requires a Restore control on any screen selling a subscription — independent of
@@ -849,19 +947,60 @@ export default function Onboarding() {
     setBusy(true);
     void purchase(pkg).then((r) => {
       setBusy(false);
-      if (r.ok && r.isPro) router.replace('/home');
+      // Paying is not a reason to skip the guided first action; it was '/home' unconditionally.
+      if (r.ok && r.isPro) { if (enteredWithCompletedOnboarding) router.replace('/home'); else leaveOnboarding(); }
       else if (!r.ok && r.kind === 'error') Alert.alert('Purchase failed', purchaseErrorMessage(r.code));
       // 'cancelled' is deliberately silent — backing out of the Apple sheet is not an error.
     });
   };
 
+  /*
+   * THE UNDER-13 PICK LIVES HERE, NOT IN THE PERSISTED PROFILE.
+   *
+   * The AGE FLOOR block above states that "nothing is persisted" when someone answers Under 13.
+   * That was not true: the onChange handler called `answer()` before its early return, so
+   * `profile.ageBand` was set to 'under-13' and `profile` is inside the store's partialize. The
+   * property the comment describes is the whole reason the option is offered rather than omitted,
+   * so the code is moved to match the documentation rather than the other way round.
+   *
+   * Component state, so it is gone on relaunch and never written to disk. The gate still renders
+   * from it and the radio still fills, because both read this in preference to the store.
+   */
+  const [underAgePick, setUnderAgePick] = useState(false);
+
+  /*
+   * THE NOTIFICATION STEP MUST NOT ARRIVE PRE-ANSWERED.
+   *
+   * `notifyOptIn` is a plain boolean defaulting to false, and `selected()` maps a boolean straight
+   * to 'yes' / 'no' — so the consent screen rendered with "Not right now" already filled in, on a
+   * question the user had not been asked yet. It was also the only single-select that could be
+   * passed without a tap. A pre-filled default on a consent question is the wrong default in both
+   * directions: it reads as the app having decided, and a mis-tap on Continue records an answer.
+   *
+   * Tracked here rather than by widening the field to `boolean | null`, because that type is read
+   * by applyDailyNudge, two call sites in notifications.ts and the settings toggle, none of which
+   * has a third state to mean.
+   *
+   * Seeded from `completedAt` so someone REPLAYING onboarding still sees the choice they made last
+   * time, while a first-run user sees an honest blank.
+   */
+  const [notifyAnswered, setNotifyAnswered] = useState(() => Boolean(useApp.getState().profile.completedAt));
+
   /** True only on the age step with the under-13 band chosen — see AGE_FLOOR above. */
-  const underAge = liveDef?.kind === 'single' && liveDef.field === 'ageBand' && profile.ageBand === UNDER_AGE;
+  const underAge = liveDef?.kind === 'single' && liveDef.field === 'ageBand' && underAgePick;
 
   const canContinue = (() => {
     if (underAge) return false;
     if (!liveDef) return true;
     if (liveDef.kind === 'name') return nameDraft.trim().length > 0;
+    /*
+     * The consent step is the one single-select that could be passed without a tap, because
+     * `notifyOptIn` is a boolean that `selected()` reads as 'no' before anybody has answered. Now
+     * that the radio renders blank until it is touched, leaving Continue live would show an enabled
+     * button under an empty question. Both answers are one tap away, so requiring one is a choice
+     * rather than friction — and it is the same rule the other single-selects already follow.
+     */
+    if (liveDef.kind === 'single' && liveDef.field === 'notifyOptIn') return notifyAnswered;
     if (liveDef.kind === 'single') return selected(liveDef.field) !== null;
     if (liveDef.kind === 'multi') return ((profile[liveDef.field] as string[]) ?? []).length > 0;
     return true;
@@ -905,6 +1044,13 @@ export default function Onboarding() {
 
   const bodyStyle = useAnimatedStyle(() => ({ opacity: bodyOpacity.get() }));
 
+  /*
+   * A screen under 720pt has no slack to give. Same threshold StatementStep uses to decide whether
+   * it can centre a statement's evidence, reused rather than reinvented so the two cannot drift.
+   */
+  const { height: windowH } = useWindowDimensions();
+  const proofTight = windowH < 720;
+
   const body = () => {
     if (!def) return null;
     switch (def.kind) {
@@ -915,17 +1061,30 @@ export default function Onboarding() {
               question={def.question}
               sub={def.sub}
               options={def.options}
-              value={selected(def.field)}
+              value={
+                def.field === 'ageBand' && underAgePick ? UNDER_AGE
+                  : def.field === 'notifyOptIn' && !notifyAnswered ? null
+                    : selected(def.field)
+              }
               onChange={(k) => {
-                answer(def.field, k);
                 /*
-                 * UNDER 13 MUST NOT ADVANCE. Single-select steps auto-advance on pick, so guarding
-                 * only `canContinue` left the gate wide open — the Continue button was disabled
-                 * while the screen had already moved past it. Found by tapping it on the
-                 * simulator; the static pin passed the whole time, which is exactly why the pin
-                 * now asserts this line too.
+                 * UNDER 13 MUST NOT ADVANCE, AND MUST NOT BE WRITTEN DOWN. Single-select steps
+                 * auto-advance on pick, so guarding only `canContinue` left the gate wide open —
+                 * the Continue button was disabled while the screen had already moved past it.
+                 * Found by tapping it on the simulator; the static pin passed the whole time.
+                 *
+                 * The return now sits BEFORE `answer()` rather than after it. Below it, the store
+                 * never learns the age of a child the app has just refused, which is the property
+                 * the AGE FLOOR block promises and the reason the option is on the list at all.
                  */
-                if (def.field === 'ageBand' && k === UNDER_AGE) return;
+                if (def.field === 'ageBand' && k === UNDER_AGE) {
+                  setUnderAgePick(true);
+                  return;
+                }
+                // Any other band clears the refusal, so re-picking releases the gate.
+                if (def.field === 'ageBand') setUnderAgePick(false);
+                if (def.field === 'notifyOptIn') setNotifyAnswered(true);
+                answer(def.field, k);
                 // notifyOptIn opens the iOS permission dialog — do not advance behind it.
                 if (def.field !== 'notifyOptIn') advanceAfterPick();
               }}
@@ -959,12 +1118,25 @@ export default function Onboarding() {
           <StatementStep title={def.title} sub={def.sub}>
             {def.body === 'chart' ? <GrowthChart delay={CHILD_BASE} /> : null}
             {def.body === 'proof' ? (
-              <View style={{ gap: Spacing.two + 4, marginTop: Spacing.four }}>
+              /*
+               * THE PROOF BLOCK TIGHTENS ON A SHORT SCREEN.
+               *
+               * Measured on a 375x667 SE: the three cards ran to y=604 against a Continue pinned at
+               * y=589, so the last one sat 15pt under the button on a screen that does not scroll.
+               * That underlap predates the statement layout work and was confirmed by an A/B on the
+               * device producing byte-identical frames, so it is this block's own size rather than
+               * anything the centring did.
+               *
+               * The header and the button are fixed costs, so the ~40pt reclaimed here is what the
+               * short screen was short by. The 720pt threshold is the one StatementStep already
+               * uses to decide whether it has room to centre, reused rather than reinvented.
+               */
+              <View style={{ gap: proofTight ? Spacing.two : Spacing.two + 4, marginTop: proofTight ? Spacing.two : Spacing.four }}>
                 {PROOF.map((p, i) => (
                   <RiseIn key={p.title} delay={childDelay(i)}>
                     <Card style={styles.proofCard}>
-                      <View style={[styles.proofIcon, { backgroundColor: theme.primary + '1F' }]}>
-                        <PixelSpriteView sprite={p.icon} size={20} />
+                      <View style={[styles.proofIcon, proofTight && styles.proofIconTight, { backgroundColor: theme.primary + '1F' }]}>
+                        <PixelSpriteView sprite={p.icon} size={proofTight ? 18 : 20} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <ThemedText type="heading" style={{ fontSize: FontSize.body }}>{p.title}</ThemedText>
@@ -983,6 +1155,9 @@ export default function Onboarding() {
             lines={LOADER_LINES}
             onDone={() => {
               completeOnboarding();
+              // Onboarding is finished HERE, whatever the user does with the paywall next. See
+              // armAtlasTour above for why this is the arming point rather than the exit route.
+              armAtlasTour();
               goTo(REVEAL_INDEX);
             }}
           />
@@ -1069,11 +1244,24 @@ export default function Onboarding() {
   };
 
   const isLoader = liveDef?.kind === 'loader';
-  // The two tail steps must FILL the scroll viewport rather than sit at its top: both are
+  // The tail steps must FILL the scroll viewport rather than sit at its top: both are
   // content-light next to a pinned CTA, so top-packing strands the leftover height as a dead
   // band above the button. The flex chain is opened up only for them; every question step keeps
   // its existing top-packed layout untouched.
-  const fillsViewport = renderStep === REVEAL_INDEX;
+  //
+  // ── EXTENDED TO THE STATEMENT STEPS, 2026-09-15 ───────────────────────────────────────────
+  // The reveal was the only step that ever got this, and the statement steps have exactly the
+  // same shape and exactly the same defect. Measured on an iPhone 17 (402x874):
+  //
+  //   step 4  chart statement   content ended y=585   Continue y=762   ->  177pt of nothing
+  //   step 8  proof statement   content ended y=627   Continue y=762   ->  135pt of nothing
+  //   step 15 reveal            content ended y=743   Continue y=762   ->   19pt, correct
+  //
+  // The third line is the proof: this exact flag is the difference between the two outcomes.
+  // A question step is deliberately NOT included. Its options are a list you read from the top
+  // down, and stretching that list to the bottom of the screen would space the taps apart for no
+  // reason. Statements and the reveal are compositions; questions are lists.
+  const fillsViewport = renderStep === REVEAL_INDEX || def?.kind === 'statement';
 
   const actionFooter = (
     <View style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}>
@@ -1120,11 +1308,26 @@ export default function Onboarding() {
           a missing key AND only when no trial was on offer, so the two states that actually reached
           App Review — offering loaded empty, and the trial branch — showed nothing at all. */}
       {step === PAYWALL_INDEX && !isProNow && !canBuy && !offersLoading && (
-        <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
-          {IAP_ENABLED
-            ? 'Subscriptions are not available from the App Store right now. Please try again in a moment.'
-            : IAP_DISABLED_REASON}
-        </ThemedText>
+        <>
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+            {IAP_ENABLED
+              ? 'Subscriptions are not available from the App Store right now.'
+              : IAP_DISABLED_REASON}
+          </ThemedText>
+          {/*
+            * The copy used to end "Please try again in a moment" with nothing on screen that could
+            * try again, and nothing behind it that would: the offer read is a one-shot effect keyed
+            * on `step`, and the paywall is the last step, so no navigation could re-trigger it. An
+            * instruction the app cannot honour is not much better than a dead control — so either
+            * the sentence goes or the button arrives, and the button is the one worth having when
+            * the failure is usually a flaky network.
+            */}
+          {IAP_ENABLED ? (
+            <SpringPressable haptic={false} onPress={retryOffers} accessibilityRole="button" accessibilityLabel="Try again">
+              <ThemedText type="small" style={[styles.fine, { color: theme.iconLilac }]}>Try again</ThemedText>
+            </SpringPressable>
+          ) : null}
+        </>
       )}
       {step === PAYWALL_INDEX && (
         <>
@@ -1218,7 +1421,26 @@ export default function Onboarding() {
         keyboardShouldPersistTaps="handled">
         <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
-          <View key={renderStep} style={fillsViewport ? styles.grow : undefined}>{body()}</View>
+          {/*
+            * STALE CONTENT MUST NOT TAKE TAPS.
+            *
+            * `renderStep` lags `step` by the 150ms cross-fade, so for that window the OUTGOING
+            * step is still mounted and still hit-testable — it is only at opacity 0. A second tap
+            * landing there ran against a `step` that had already advanced, so advanceAfterPick's
+            * `from === stepRef.current` guard compared n+1 to n+1, passed, and called next() a
+            * second time. The next question flashed past unanswered.
+            *
+            * The guard is fine for its own case (two taps BEFORE the advance) and cannot see this
+            * one, because by then nothing is stale about the step — only about what is on screen.
+            * So the fix belongs here: while what is drawn is not what is current, it takes no
+            * input at all.
+            */}
+          <View
+            key={renderStep}
+            pointerEvents={renderStep === step ? 'auto' : 'none'}
+            style={fillsViewport ? styles.grow : undefined}>
+            {body()}
+          </View>
         </Animated.View>
         {renderStep === PAYWALL_INDEX && !isLoader ? actionFooter : null}
       </ScrollView>
@@ -1240,6 +1462,7 @@ const styles = StyleSheet.create({
   paywallContent: { paddingTop: 0, paddingBottom: 0 },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  proofIconTight: { width: 34, height: 34 },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
   nameInput: { marginTop: Spacing.four, minHeight: 52, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.three, fontSize: FontSize.bodyLg, fontFamily: Fonts.body },

@@ -168,7 +168,14 @@ export function AtlasConversation({
             ? FadeIn.duration(1)
             : FadeInDown.springify().stiffness(420).damping(22).mass(1)}
           style={styles.atlas}>
-          <Atlas expression={expression} size={72} interactive={false} />
+          {/*
+            * `idle` was missing, and this is the longest a learner ever sits looking at Atlas: a
+            * vocab conversation is several beats of reading with the mascot pinned beside it. He
+            * rendered at 72, which is exactly IDLE_MOTION_MIN_SIZE, so he was big enough for the
+            * breath and blink to be visible and was simply never asked for them. The entrance on
+            * the wrapper above only fires when the beat changes; between beats he was a statue.
+            */}
+          <Atlas expression={expression} size={72} interactive={false} idle />
         </Animated.View>
 
         <View style={styles.messageColumn}>
@@ -303,7 +310,20 @@ export function VocabConversation({
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  content: { flexGrow: 1, width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 24, paddingTop: Spacing.three, paddingBottom: 48 },
+  /*
+   * CENTRED WHEN SHORT, TOP PACKED WHEN LONG.
+   *
+   * This is a conversation that grows: it opens with one bubble and ends after thirteen beats, so
+   * top packing is right at the end and wrong at the start. Measured on device at beat 2, the
+   * bubble ended at y=291 and the Next button at y=428, leaving about 365pt of empty screen below
+   * the only control. 186 vocabulary steps in the corpus open exactly like that.
+   *
+   * `flexGrow: 1` with `justifyContent: 'center'` gives both behaviours from one rule: while the
+   * content is shorter than the viewport it sits in the middle of it, and the moment it is taller
+   * the container stops centring and it scrolls from the top as before. Nothing special-cases the
+   * length, and there is no spacer.
+   */
+  content: { flexGrow: 1, justifyContent: 'center', width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 24, paddingTop: Spacing.three, paddingBottom: 48 },
   progressTrack: { height: 4, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.07)' },
   progressFill: { width: '100%', height: 4, borderRadius: 999, backgroundColor: '#B862ED', transformOrigin: 'left' },
   conversationRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginTop: 20 },

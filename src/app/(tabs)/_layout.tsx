@@ -1,5 +1,7 @@
 import { Redirect, Tabs } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
+import { AtlasTour } from '@/components/atlas-tour';
 import { TabBar } from '@/components/tab-bar';
 import { hasAccount } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
@@ -28,6 +30,16 @@ export default function TabsLayout() {
   if (!hasAccount(profile)) return <Redirect href={'/auth' as never} />;
 
   return (
+    /*
+     * THE TOUR IS HOSTED HERE, NOT ON A SCREEN, and the reason is the tab bar.
+     *
+     * Atlas walks four tabs, and every beat spotlights the tab you are standing on. An overlay
+     * mounted inside home.tsx would be clipped to Home and would vanish the moment the tour moved
+     * to Learn; one mounted here sits above the navigator AND above the tab bar, which is the one
+     * piece of chrome the tour actually points at. It renders null for everybody except a learner
+     * who has just finished onboarding, so this costs every other session one store read.
+     */
+    <View style={styles.root}>
     <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="home" options={{ title: 'Home' }} />
       <Tabs.Screen name="learn" options={{ title: 'Learn' }} />
@@ -49,5 +61,11 @@ export default function TabsLayout() {
         */}
       <Tabs.Screen name="games" options={{ title: 'Games' }} />
     </Tabs>
+      <AtlasTour />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});

@@ -21,6 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { outcomeFor, type WeekOutcome } from './league-week';
 import { TIER_UP_BONUS, tierForXp } from './league';
 import { DEFAULT_AVATAR_ID } from './avatars';
+import { nextAtlasTourState, type AtlasTourState } from './atlas-tour';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -34,7 +35,8 @@ import { allItemById as itemById } from './shop-items-extra';
 import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 import { DEFAULT_AVAILABLE_COURSE_ID, isCourseAvailable } from './curriculum/availability';
-import { ONBOARDING_REPLAY_STORE_VERSION, replayOnboardingOnUpgrade } from './onboarding-replay-migration';
+import type { LessonResumePoint } from './lesson-step-session';
+import { PAYWALL_SEEN_BACKFILL_STORE_VERSION, replayOnboardingOnUpgrade, backfillPaywallSeen } from './onboarding-replay-migration';
 
 const XP_PER_LEVEL = 500;
 
@@ -285,6 +287,23 @@ export type AppState = {
    */
   lessonsToday: number;
 
+  /**
+   * Where the learner is inside a lesson they have not finished, or null.
+   *
+   * THE ONLY piece of lesson position that survives the process. Everything else the runner holds
+   * (a graded pick, a half-completed drag, monotonic per-step completion) is session state and
+   * dies with the mount, deliberately: see the long note above LessonResumePoint in
+   * lesson-step-session.ts for why restoring child widget state would be worse than not.
+   *
+   * Written by lesson.tsx on every screen change and cleared by `completeLesson`, including on a
+   * REPEAT of an already finished lesson, which the dedupe below would otherwise skip. A pointer
+   * left behind by a completed lesson is exactly how "Continue" drops you back onto the last step
+   * of something you already finished.
+   */
+  lessonResume: LessonResumePoint | null;
+  /** Remember a position. Pass null to forget one; lesson.tsx does that on the terminal screens. */
+  setLessonResume: (point: LessonResumePoint | null) => void;
+
   /* ── EUPHORIUM (N21) ────────────────────────────────────────────────────────
    * The in-app currency, ported from the web Shop. RULE ZERO: rates and prices come from
    * lib/shop-items.ts, which is the web's table verbatim — never re-derived here.
@@ -526,6 +545,22 @@ export type AppState = {
    *  declined the other. */
   trialRewardSeenAt: number | null;
   markTrialRewardSeen: () => void;
+  /**
+   * Has the Atlas app tour run? See lib/atlas-tour.ts for the beats and the gate.
+   *
+   * A THREE-STATE FLAG, NOT A BOOLEAN, and `armed` is the whole reason. The app is already on the
+   * App Store, so a plain `hasSeenTour: false` default would have played a new-user walkthrough to
+   * every existing member on the next update. A persisted blob with no `atlasTour` key rehydrates
+   * to `unseen` and stays there forever; only finishing onboarding moves it to `armed`, and only
+   * finishing or skipping the tour moves it to `seen`.
+   *
+   * Every transition goes through `nextAtlasTourState`, so "arm never overwrites seen" is one rule
+   * in one pure function the regression can check, rather than a condition repeated at two call
+   * sites that can drift apart.
+   */
+  atlasTour: AtlasTourState;
+  armAtlasTour: () => void;
+  markAtlasTourSeen: () => void;
   /** 17e. Apple is retrying this member's payment. Written ONLY by lib/purchases from a successful
    *  customerInfo read, same authority rule as `isPro`.
    *
@@ -704,6 +739,7 @@ export const useApp = create<AppState>()(
       completedLessons: [],
       minutesToday: 0,
       lessonsToday: 0,
+      lessonResume: null,
       coins: 0,
       inventory: [],
       doubleXpUntil: 0,
@@ -776,6 +812,7 @@ export const useApp = create<AppState>()(
       isPro: false,
       specialOfferSeenAt: null,
       trialRewardSeenAt: null,
+      atlasTour: 'unseen',
       billingIssue: false,
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
@@ -784,6 +821,16 @@ export const useApp = create<AppState>()(
   setPro: (v) => set({ isPro: v }),
       markSpecialOfferSeen: () => set((s) => (s.specialOfferSeenAt ? s : { specialOfferSeenAt: Date.now() })),
       markTrialRewardSeen: () => set((s) => (s.trialRewardSeenAt ? s : { trialRewardSeenAt: Date.now() })),
+      // Both return the same state object when nothing changes, so zustand skips the notify and an
+      // effect that fires twice cannot re-arm or re-mark.
+      armAtlasTour: () => set((s) => {
+        const next = nextAtlasTourState(s.atlasTour, 'arm');
+        return next === s.atlasTour ? s : { atlasTour: next };
+      }),
+      markAtlasTourSeen: () => set((s) => {
+        const next = nextAtlasTourState(s.atlasTour, 'seen');
+        return next === s.atlasTour ? s : { atlasTour: next };
+      }),
       setBillingIssue: (v) => set({ billingIssue: v }),
 
       cash: STARTING_CASH,
@@ -1011,9 +1058,20 @@ export const useApp = create<AppState>()(
        * Optional with the old constant as its default, so a caller that omits it degrades to the
        * previous behaviour rather than crediting zero.
        */
+      setLessonResume: (point) => set({ lessonResume: point }),
       completeLesson: (id, xp, minutesSpent) =>
         set((s) => {
-          if (s.completedLessons.includes(id)) return s;
+          /*
+           * THE RESUME POINTER DIES WITH THE ATTEMPT, and it has to die on BOTH paths out of this
+           * reducer. The dedupe below makes a repeat of an already finished lesson a no-op, so
+           * clearing only inside the credited branch would leave a pointer behind whenever someone
+           * replayed a lesson they had already done. The next open of that lesson would then skip
+           * straight to its last step, which is the "stuck re-entering a finished lesson" state.
+           */
+          const lessonResume = s.lessonResume?.key === id ? null : s.lessonResume;
+          if (s.completedLessons.includes(id)) {
+            return lessonResume === s.lessonResume ? s : { lessonResume };
+          }
           const today = dayKey();
           // roll the tally over when the calendar day changed since the last completion
           const base = s.lastActiveDay === today ? s.minutesToday : 0;
@@ -1063,6 +1121,7 @@ export const useApp = create<AppState>()(
             activeDays: withToday(s.activeDays),
             pendingRewards: [...s.pendingRewards, ...cards],
             completedLessons: [...s.completedLessons, id],
+            lessonResume,
             coins: s.coins + lessonCoins + streakCoins,
             ...applyXp(s, (xp + bonus) * mult),
             minutesToday: minutes,
@@ -1218,11 +1277,11 @@ export const useApp = create<AppState>()(
         }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], lessonResume: null, minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
       deleteProfile: () =>
         set({
           xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0,
-          bestStreak: 0, completedLessons: [], minutesToday: 0, lessonsToday: 0, lastActiveDay: '',
+          bestStreak: 0, completedLessons: [], lessonResume: null, minutesToday: 0, lessonsToday: 0, lastActiveDay: '',
           readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {},
           valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [],
           rewardsEarned: 0, watchlist: [],
@@ -1243,7 +1302,7 @@ export const useApp = create<AppState>()(
       // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
-      version: ONBOARDING_REPLAY_STORE_VERSION,
+      version: PAYWALL_SEEN_BACKFILL_STORE_VERSION,
       /*
        * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
        * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
@@ -1272,6 +1331,17 @@ export const useApp = create<AppState>()(
           // v5. Existing testers need one complete Welcome -> onboarding -> paywall -> sign-up
           // rehearsal. This resets routing only; progress, entitlement and trial history survive.
           next = replayOnboardingOnUpgrade(next, from);
+          /*
+           * v6. `profile.onboardingPaywallSeenAt` is new, so every existing install is missing it,
+           * and the entry redirect now sends anyone without it to the paywall. Correct for someone
+           * who force-quit before reaching it; wrong for an install that finished the flow before
+           * the field existed, which would be handed a purchase screen out of nowhere.
+           *
+           * AFTER the v5 replay on purpose: that one nulls completedAt for anything below v5, and
+           * those installs are being sent through the whole flow again, so they meet the paywall
+           * honestly and must not be stamped.
+           */
+          next = backfillPaywallSeen(next, from);
           return next;
         } catch (e) {
           console.error('[store] migration failed, leaving state as-is', e);
@@ -1279,7 +1349,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, lessonResume: s.lessonResume, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, atlasTour: s.atlasTour, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote

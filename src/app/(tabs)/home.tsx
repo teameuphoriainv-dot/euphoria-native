@@ -25,6 +25,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
+import { TourAnchor } from '@/components/atlas-tour';
+import { ATLAS_TOUR_ANCHOR_NEXT_LESSON } from '@/lib/atlas-tour';
 
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -177,6 +179,21 @@ export default function Home() {
     () => completedLessons.filter((k) => k.startsWith(`${activeCourseId}:`)).length,
     [completedLessons, activeCourseId],
   );
+
+  /*
+   * "Continue" has to be TRUE, not just encouraging.
+   *
+   * The hero already resolves to the first lesson in the course that is not finished, which is the
+   * same rule learn.tsx's current node and start.tsx's first action use, so all three agree on
+   * WHICH lesson. What the label got wrong was the verb: it said Start whenever no lesson in the
+   * course was complete, including for someone who had quit lesson 1 nine screens in and whose
+   * position the runner will now restore. Subscribing to the key alone, not the pointer object,
+   * because the pointer is rewritten on every screen change inside a lesson and Home does not need
+   * to re-render for that.
+   */
+  const resumeKey = useApp((s) => s.lessonResume?.key ?? null);
+  const resuming = next !== null && resumeKey === lessonKey(activeCourseId, next.num);
+  const heroVerb = doneInCourse === 0 && !resuming ? 'Start' : 'Continue';
 
   // The week strip needs per-day history that nothing records yet; `streak` is the only real
   // signal, so fill backwards from today and stop. Exact when streak <= 7, which is the only
@@ -418,12 +435,19 @@ export default function Home() {
           * out loud because the screen no longer has the word "Start" anywhere on it.
           */}
         <RiseIn delay={120}>
+          {/*
+            * ANCHORED FOR THE ATLAS TOUR. The tour's last beat spotlights this exact rectangle and
+            * says "tap it", so the ring has to sit on the real card wherever it lands rather than
+            * on a hardcoded guess. <TourAnchor> is one unstyled View that reports its own window
+            * rect; it draws nothing and changes no layout. Everything inside is untouched.
+            */}
+          <TourAnchor id={ATLAS_TOUR_ANCHOR_NEXT_LESSON}>
           {next ? (
             <SpringPressable
               scaleTo={0.985}
               onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
               accessibilityRole="button"
-              accessibilityLabel={`${doneInCourse === 0 ? 'Start' : 'Continue'} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.`}>
+              accessibilityLabel={`${heroVerb} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.`}>
               {/*
                 * GLASS, with the course colour as the light behind it.
                 *
@@ -506,6 +530,7 @@ export default function Home() {
               )}
             </Card>
           )}
+          </TourAnchor>
         </RiseIn>
 
         {/*

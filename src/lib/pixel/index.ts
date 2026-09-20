@@ -32,3 +32,5 @@ export * from './sprites-additions';
 export * from './sprites-crests';
 export * from './sprites-lesson';
 export * from './sprites-characters';
+// The mobile deck kit: concept archetypes plus the accent/overlay compositor. iOS-original.
+export * from './sprites-mobile-kit';

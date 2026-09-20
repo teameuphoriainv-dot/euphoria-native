@@ -20,6 +20,9 @@ import {
   loadCourseLessons as loadCourseLessonsUncached,
 } from './courseIndex';
 import { CURRICULUM_STATS, STEP_TYPE_COUNTS, STEP_TYPES, type StepType } from './stepTypes.generated';
+import { deriveDeck, isHeavyStep } from '../mobile-lesson/derive';
+import { STEP_TEXT_BUDGET, shortenField, shortenOptions, shortenPrompt } from '../mobile-lesson/question';
+import { stepId } from '../mobile-lesson/stepId';
 import type { LessonStep, PathwayLesson } from './types';
 
 // ─── Course catalogue + loader ──────────────────────────────────────────────
@@ -71,11 +74,131 @@ export {
  */
 const lessonCache = new Map<string, Promise<PathwayLesson[]>>();
 
+/*
+ * THE MOBILE LESSON LAYER, applied here and only here.
+ *
+ * On iOS every `teachingSlide` and every `interactiveGraph` is replaced by a deck of three or four
+ * cards derived from it. That is 721 of the 4,050 steps in the corpus and, measured, essentially
+ * all of the prose: the median graph step runs 2,557 characters and the median teaching slide
+ * 1,636, against a phone viewport that holds about 1,000. The web app keeps showing the authored
+ * step exactly as written. This is the point where the two products diverge.
+ *
+ * ONE STEP IN, ONE STEP OUT. A deck replaces its source step 1:1, so `lesson.steps.length` is
+ * unchanged and the progress bar, the step counter and every saved position keep meaning what they
+ * meant. The cards are paged INSIDE the deck. Expanding one step into four here would have moved
+ * every learner's saved position the moment this shipped.
+ *
+ * IT IS APPLIED AT THE CHOKE POINT for the same reason the retired-step filter and the reading
+ * level are (see courseIndex.ts): every screen, the dev preview and saved progress then agree on
+ * how long a lesson is. Doing it in the renderer instead would let those three disagree.
+ *
+ * SCRIPTS THAT CHECK PARITY AGAINST WEB MUST IMPORT `./courseIndex` DIRECTLY, not this module, or
+ * they will compare native decks against web steps and fail for the wrong reason.
+ */
+/*
+ * QUESTIONS AND ANSWER OPTIONS, SHORTENED FOR A PHONE.
+ *
+ * Measured over the 1,307 choice steps: prompts run to a median of 165 characters with a longest of
+ * 467, and 76% are over 120. Options are worse in the tail, median 52 but a longest of 1,030, with
+ * 45% over 60. On a 393pt screen a long prompt pushes the options below the fold, which is the same
+ * failure that made the explanation page necessary.
+ *
+ * Applied to the AUTHORED step, before normalizeStep shuffles anything. Only the strings change and
+ * nothing is reordered, so `correct` still points at the same answer and the shuffle downstream
+ * still pairs each option with its own authored feedback.
+ *
+ * `shortenOptions` is all or nothing per question and refuses any set where two options would
+ * collapse together or where the correct one would be left conspicuously the longest. See
+ * question.ts for why that matters more than the length does.
+ */
+function withShorterQuestions(step: LessonStep): LessonStep {
+  const s = step as Record<string, any>;
+
+  /*
+   * THE HOOK OPENER is the first screen of all 300 lessons and was the longest thing left in the
+   * corpus: `fact` at a median of 338 characters and a longest of 894, with `outcome` adding
+   * another 241 underneath it, on a screen that also carries a title, a chart and a button.
+   */
+  if (s.type === 'hookOpener') {
+    return {
+      ...s,
+      fact: shortenField(s.fact, STEP_TEXT_BUDGET.fact),
+      outcome: shortenField(s.outcome, STEP_TEXT_BUDGET.outcome),
+    } as LessonStep;
+  }
+
+  /*
+   * STAKES DETAIL only renders when neither panel has an authored visual, but when it does it is
+   * two paragraphs of about 305 characters inside panels that already have to share one screen.
+   */
+  if (s.type === 'stakesCard') {
+    return {
+      ...s,
+      without: s.without ? { ...s.without, detail: shortenField(s.without.detail, STEP_TEXT_BUDGET.stakesDetail) } : s.without,
+      with: s.with ? { ...s.with, detail: shortenField(s.with.detail, STEP_TEXT_BUDGET.stakesDetail) } : s.with,
+    } as LessonStep;
+  }
+
+  /*
+   * VOCABULARY definitions are shown one per beat, so the median of 154 is survivable and this cap
+   * is for the tail, which reaches 288. The term, the example and the sentence are left alone: they
+   * are already short, and the example is the thing that makes an abstract definition concrete.
+   */
+  if (s.type === 'keyTermsCards') {
+    return {
+      ...s,
+      terms: (s.terms ?? []).map((t: Record<string, any>) => ({
+        ...t,
+        definition: shortenField(t.definition, STEP_TEXT_BUDGET.definition),
+      })),
+    } as LessonStep;
+  }
+
+  if (s.type === 'quiz' || s.type === 'microCheck' || s.type === 'visualInteractive') {
+    return { ...s, question: shortenPrompt(s.question), options: shortenOptions(s.options ?? [], s.correct ?? 0) } as LessonStep;
+  }
+  if (s.type === 'fillBlank') {
+    /*
+     * The sentence is NOT shortened. It carries the `___` slot the renderer splits on, and trimming
+     * it can remove the blank or the words either side of it that make the sentence gradeable.
+     * Its options still get the same treatment as any other set.
+     */
+    return { ...s, options: shortenOptions(s.options ?? [], s.correct ?? 0) } as LessonStep;
+  }
+  if (s.type === 'scenario') {
+    const choices = (s.choices ?? []) as { label: string; correct: boolean }[];
+    const correct = Math.max(0, choices.findIndex((c) => c.correct));
+    const labels = shortenOptions(choices.map((c) => c.label), correct);
+    return {
+      ...s,
+      situation: shortenPrompt(s.situation),
+      choices: choices.map((c, i) => ({ ...c, label: labels[i] })),
+    } as LessonStep;
+  }
+  return step;
+}
+
+function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLesson[] {
+  return lessons.map((lesson) => {
+    // Every lesson goes through the map now: a lesson with no heavy step still has questions.
+    return {
+      ...lesson,
+      steps: lesson.steps.map((step, index) => {
+        if (!isHeavyStep(step)) return withShorterQuestions(step);
+        const deck = deriveDeck(step, stepId(courseId, lesson.num, index, step));
+        // A null deck cannot happen for a heavy step, and mobile-deck-audit.mjs fails the build if
+        // one ever does. Keeping the authored step is the safe fallback: long, but never blank.
+        return (deck ?? step) as LessonStep;
+      }),
+    };
+  });
+}
+
 /** Lazily load the 25 lessons for a course. Resolves to [] for an unknown id. */
 export function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
   const hit = lessonCache.get(courseId);
   if (hit) return hit;
-  const p = loadCourseLessonsUncached(courseId);
+  const p = loadCourseLessonsUncached(courseId).then((lessons) => withMobileDecks(lessons, courseId));
   lessonCache.set(courseId, p);
   // Evict on failure so a retry can genuinely retry.
   void p.catch(() => lessonCache.delete(courseId));

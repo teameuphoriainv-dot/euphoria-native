@@ -114,6 +114,22 @@ export const LESSON_STEP_MOTION: Record<Normalized['kind'], LessonStepMotionEven
   prose: 'concept-reveal',
   teaching: 'concept-reveal',
   todo: 'concept-reveal',
+  /*
+   * A deck is the mobile substitution for a teachingSlide or an interactiveGraph, so it is the one
+   * kind here whose source is genuinely mixed: measured over the corpus it is 432 slides to 289
+   * graphs across 721 heavy steps, which is not a majority worth classifying by.
+   *
+   * It is classified as a reveal because of what the deriver does to both, not because of which
+   * one is more common. deckFromTeachingSlide and deckFromInteractiveGraph emit the SAME three
+   * card kinds, `idea`, `term` and `interactive`, so by the time a deck reaches this map the
+   * cause-and-effect reading a graph had on web is gone from the cards themselves. What enters the
+   * screen is an idea presented in sequence, which is exactly `teaching`.
+   *
+   * The deck spec does keep `sourceType`, so per deck motion is still available later. It would
+   * need semanticMotionForLessonStep to take the step rather than its kind, which is a change to
+   * the shape of this module and not something a merge should decide.
+   */
+  deck: 'concept-reveal',
   hook: 'cause-and-effect',
   stakes: 'cause-and-effect',
   reveal: 'cause-and-effect',

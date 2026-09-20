@@ -1,0 +1,105 @@
+{
+  "_README": [
+    "THE SOURCE OF TRUTH for every indexed listing field, and the evidence for every keyword in it.",
+    "",
+    "WHY THIS FILE EXISTS. Keywords were being chosen in a planning document and applied to the store",
+    "by hand. Two rounds in a row shipped, or nearly shipped, words the app does not contain:",
+    "ASO_MAX_PLAN.md proposed isa, tfsa, super and asx, and all four measure ZERO in the curriculum.",
+    "A plan cannot enforce anything. This file can, because scripts/aso-keyword-truth.mjs reads it and",
+    "fails the build on an undeclared or unevidenced term.",
+    "",
+    "HOW TO ADD A KEYWORD. Put it in the locale's list AND in `terms` with its evidence. There is no",
+    "way to add one without saying why it is true, which is the whole point.",
+    "",
+    "VERIFY AGAINST THE STORE with `node scripts/aso-keyword-truth.mjs --live`. That fails if this file",
+    "and App Store Connect have drifted, so a hand edit in the web UI cannot silently outlive this file."
+  ],
+
+  "appId": "6761808087",
+  "readFromApiOn": "2026-09-14",
+  "stagedVersion": "1.0.1",
+
+  "locales": {
+    "en-US": {
+      "name": "Euphoria: Learn to Invest",
+      "subtitle": "Personal Finance for Beginners",
+      "keywords": "stock,market,trading,simulator,paper,money,portfolio,budget,ai,teen,student,literacy,etf,game,course"
+    },
+    "en-GB": {
+      "name": "Euphoria: Learn to Invest",
+      "subtitle": "Investing & Money for Teens",
+      "keywords": "shares,stock,market,trading,simulator,portfolio,budget,ai,student,index,etf,game,course,compound,tax"
+    },
+    "en-CA": {
+      "name": "Euphoria: Learn to Invest",
+      "subtitle": "Personal Finance for Beginners",
+      "keywords": "stock,market,trading,simulator,paper,money,portfolio,budget,ai,teen,student,literacy,etf,game,course"
+    },
+    "en-AU": {
+      "name": "Euphoria: Learn to Invest",
+      "subtitle": "Investing & Money for Teens",
+      "keywords": "shares,index,market,trading,simulator,portfolio,budget,ai,student,bonds,etf,game,course,compound,tax"
+    }
+  },
+
+  "_termsNote": [
+    "kind 'curriculum': the app TEACHES this. Proved by a whole-word count in src/lib/curriculum/courses/",
+    "  at or above the threshold in the script. Counts below are measured, not estimated.",
+    "kind 'product': the app HAS this, but it is a feature or an audience rather than a subject, so a",
+    "  curriculum count is the wrong test. Proved by a phrase in a named file that must exist."
+  ],
+
+  "terms": {
+    "stock":     { "kind": "curriculum" },
+    "shares":    { "kind": "curriculum" },
+    "market":    { "kind": "curriculum" },
+    "trading":   { "kind": "curriculum" },
+    "portfolio": { "kind": "curriculum" },
+    "budget":    { "kind": "curriculum" },
+    "money":     { "kind": "curriculum" },
+    "paper":     { "kind": "curriculum" },
+    "etf":       { "kind": "curriculum" },
+    "index":     { "kind": "curriculum" },
+    "bonds":     { "kind": "curriculum" },
+    "compound":  { "kind": "curriculum" },
+    "tax":       { "kind": "curriculum" },
+    "literacy":  { "kind": "curriculum" },
+    "student":   { "kind": "curriculum" },
+    "course":    { "kind": "curriculum" },
+    "game":      { "kind": "curriculum" },
+    "ai":        { "kind": "curriculum" },
+
+    "simulator": {
+      "kind": "product",
+      "why": "The app ships a paper-trading portfolio on real market data. It is a feature, not a subject, so it measures only 18 in the corpus and must be proved against the feature instead.",
+      "evidence": [
+        { "path": "src/app/(tabs)/trade.tsx", "phrase": "paper trading" },
+        { "path": "src/lib/store.ts", "phrase": "STARTING_CASH" },
+        { "path": "src/lib/market.ts", "phrase": "Live market data client" }
+      ]
+    },
+    "teen": {
+      "kind": "product",
+      "why": "The stated audience, not a topic. AGE_FLOOR is 13 and the store description says 'for teenagers and complete beginners, aged 13 and up'.",
+      "evidence": [
+        { "path": "src/app/onboarding.tsx", "phrase": "export const AGE_FLOOR = 13;" }
+      ]
+    }
+  },
+
+  "_rejectedNote": [
+    "Terms investigated and REFUSED. Recorded with the measurement that refused them so the same",
+    "argument does not have to be had twice, and so re-adding one fails loudly with the reason.",
+    "Counts are whole-word, case-insensitive, across the twelve files in src/lib/curriculum/courses/."
+  ],
+
+  "rejected": {
+    "isa": "0 occurrences. A prefix match scores 3, and all three are the name Isaac. The UK tax wrapper is not taught anywhere in the corpus.",
+    "tfsa": "0 occurrences. The Canadian tax wrapper is not taught anywhere in the corpus.",
+    "asx": "0 occurrences. The Australian exchange is never named.",
+    "super": "28 occurrences, and every one is 'Super Bowl' or 'super-priority' in a bankruptcy lesson. Australian superannuation is not taught. A prefix match scores 217 by catching superior, supervised and superhuman, which is exactly how this nearly shipped.",
+    "superannuation": "0 occurrences.",
+    "roth": "708 occurrences, so it is genuinely taught, but it is a US-only term and the en-US field is already full. Available if something is dropped.",
+    "espanol": "The app has no i18n: no locales key in app.json and zero getLocales calls in src/. Spanish metadata would misrepresent an English-only app under Guideline 2.3.7."
+  }
+}

@@ -3,7 +3,21 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
+/*
+ * TWO LOADERS, ON PURPOSE.
+ *
+ * `./curriculum/index.ts` is what the APP sees: on iOS it has already replaced every teachingSlide
+ * and interactiveGraph with a mobileDeck (see withMobileDecks there). `./curriculum/courseIndex.ts`
+ * is the untransformed authored corpus.
+ *
+ * The census has to be taken on the AUTHORED corpus. Taking it on the transformed one made this
+ * script report 6 authored SVGs instead of 11, because five of them live on steps that are now
+ * decks -- which reads as "the census changed" when what actually changed is where they are stored.
+ * Counting authored on web and rendered on native is what makes the comparison mean "native loses
+ * nothing" rather than "native and native agree".
+ */
 import { COURSES, loadCourseLessons } from '../src/lib/curriculum/index.ts';
+import { loadCourseLessons as loadWebLessons } from '../src/lib/curriculum/courseIndex.ts';
 import { expandSteps, normalizeStep } from '../src/lib/lesson-steps.ts';
 
 const RAW_FIELDS = ['chartSvg', 'diagramSvg', 'withoutSvg', 'withSvg'];
@@ -11,12 +25,33 @@ let authored = 0;
 let rendered = 0;
 const missing = [];
 
+// Pass 1: the census, over the AUTHORED corpus.
+for (const course of COURSES) {
+  for (const lesson of await loadWebLessons(course.id)) {
+    for (const step of expandSteps(lesson.steps)) {
+      authored += RAW_FIELDS.filter((f) => typeof step[f] === 'string' && step[f].trim()).length;
+    }
+  }
+}
+
+// Pass 2: what the app actually renders.
 for (const course of COURSES) {
   for (const lesson of await loadCourseLessons(course.id)) {
     for (const step of expandSteps(lesson.steps)) {
+      /*
+       * A deck holds its source step's authored SVG on a chart card. Its own `type` carries none of
+       * the RAW_FIELDS, so without this branch every SVG that moved into a deck reads as lost.
+       */
+      if (step.type === 'mobileDeck') {
+        const kept = (step.cards ?? []).filter(
+          (c) => c.kind === 'chart' && typeof c.svg === 'string' && c.svg.trim(),
+        ).length;
+        rendered += kept;
+        continue;
+      }
+
       const expected = RAW_FIELDS.filter((field) => typeof step[field] === 'string' && step[field].trim()).length;
       if (expected === 0) continue;
-      authored += expected;
 
       const normalized = normalizeStep(step);
       let observed = 0;

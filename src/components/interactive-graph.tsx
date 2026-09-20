@@ -45,7 +45,19 @@ const GRAPH_GEOMETRY_MS = 300;
 const GRAPH_FAST_MS = 150;
 const WATERFALL_STAGGER_MS = 50;
 const COMPOUND_CURVE_MS = 250;
-const GRAPH_DWELL_SECONDS = 15;
+/**
+ * SIX SECONDS, NOT FIFTEEN.
+ *
+ * The gate exists so a learner cannot skim past a diagram without looking at it, and that is worth
+ * keeping. Fifteen was the web number, on a screen where the whole comparison is visible at once
+ * and the reader has a mouse hovering over Continue. On a phone the same wait reads as the app
+ * being broken: Sriyan sent a screenshot of a greyed-out "Continue in 5s" asking for it to be
+ * shorter, and at that point the button had already been counting for ten seconds.
+ *
+ * Six is long enough that the eye has to land on the content and short enough that nobody wonders
+ * whether the app has frozen.
+ */
+const GRAPH_DWELL_SECONDS = 6;
 // Measured canonical web graph-prompt spring: playful overshoot is intentional for Atlas.
 const WEB_GRAPH_BOUNCY = { stiffness: 500, damping: 18, mass: 0.8 } as const;
 

@@ -55,7 +55,30 @@ assert.match(runner, /norm\.submitMode === 'confirm' && !checked && pick !== nul
 assert.doesNotMatch(runner, /<FeedbackBanner/, 'web choice feedback must not use the oversized generic feedback sheet');
 assert.doesNotMatch(runner, /Quick check/, 'native must not add a choice heading that production web does not render');
 assert.match(runner, /choiceResponse\(norm, pick\)/, 'the runner must consume the tested canonical choice response');
-assert.match(runner, /<AtlasCorrection[\s\S]*?show=\{gradedChoice\?\.correction !== undefined\}/, 'wrong choices must hand correction to Atlas');
+/*
+ * WRONG CHOICES MUST HAND THE CORRECTION TO ATLAS, on a page of its own.
+ *
+ * This used to look for `<AtlasCorrection show={gradedChoice?.correction !== undefined}>` inline in
+ * the runner. That component is still right for the three widget surfaces that use it (number-line,
+ * drag-sort, true-false), but it was wrong for the choice family: the correction rendered in a
+ * bubble underneath the question and its four options, and the authored explanations behind those
+ * 1,307 questions run to a median of 285 characters with a maximum of 760. The Continue button was
+ * pushed off the bottom of the screen on a real device.
+ *
+ * So the assertion now pins the BEHAVIOUR rather than the component: a graded wrong answer reaches
+ * a dedicated explanation page, that page is handed the authored answer and reason, and Atlas is
+ * on it reacting. Pinning a component name is what let the presentation rot while the check stayed
+ * meaningful-looking.
+ */
+assert.match(runner, /<LessonExplanation/, 'wrong choices must reach a dedicated explanation page');
+assert.match(runner, /reason=\{gradedChoice\?\.correction\?\.reason\}/, 'the explanation page must be handed the authored reason');
+assert.match(runner, /answer=\{gradedChoice\?\.correction\?\.answer\}/, 'the explanation page must be handed the correct answer');
+assert.match(runner, /hasExplanationScreen\(gradedChoice\)/, 'the runner must decide the explanation page from the graded response');
+
+const explain = readFileSync(new URL('../src/components/lesson-explanation.tsx', import.meta.url), 'utf8');
+assert.match(explain, /<Atlas[\s\S]*?shake=\{!correct\}/, 'Atlas must react on the explanation page when the answer was wrong');
+assert.match(explain, /expression=\{correct \? 'happy' : 'oops'\}/, 'Atlas must wear the miss face on a wrong answer');
+assert.doesNotMatch(explain, /Not quite\.\s*At/, 'the explanation page must not hardcode any authored copy');
 assert.match(runner, /gradedChoice\?\.correctOutcome/, 'correct scenario outcomes must remain visible');
 
 console.log(`choice experience parity: PASS — ${String(choices)} immediate/confirm choice screens`);

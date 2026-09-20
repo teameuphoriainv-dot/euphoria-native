@@ -56,7 +56,22 @@ const component = readFileSync('src/components/stakes-card.tsx', 'utf8');
 const runner = readFileSync('src/app/lesson.tsx', 'utf8');
 assert.match(component, /Why This Matters/, 'scene title must match production capitalization');
 assert.match(component, /\{heading \? <ThemedText/, 'panel must omit the heading text when no heading is authored');
-assert.match(component, /DIAGRAM_DWELL_SECONDS = 15/, 'diagram dwell must remain 15 seconds');
+/*
+ * THE DWELL IS SIX SECONDS ON MOBILE, DELIBERATELY DIFFERENT FROM WEB.
+ *
+ * This asserted 15 seconds, matching production web. That is the right number on a desktop, where
+ * the whole comparison is visible at once and the cursor is already resting on Continue. On a phone
+ * a fifteen second greyed-out button reads as a frozen app: Sriyan sent a screenshot of "Continue
+ * in 5s" asking for it to be shorter, and by then it had been counting down for ten seconds.
+ *
+ * The gate is KEPT, only shortened. Removing it entirely would let a learner skim past the diagram,
+ * which is the thing it exists to prevent. Six is long enough to force a look and short enough not
+ * to read as broken.
+ *
+ * Pinned to an exact value rather than a range so that changing it stays a decision somebody makes
+ * on purpose.
+ */
+assert.match(component, /DIAGRAM_DWELL_SECONDS = 6;/, 'the mobile diagram dwell must stay at 6 seconds');
 assert.match(component, /FadeInLeft\.delay\(300\)/, 'without panel must enter from the left after 300ms');
 assert.match(component, /FadeInRight\.delay\(500\)/, 'with panel must enter from the right after 500ms');
 assert.match(component, /width >= 1024/, 'phone panels must stack and only become columns at the web lg breakpoint');

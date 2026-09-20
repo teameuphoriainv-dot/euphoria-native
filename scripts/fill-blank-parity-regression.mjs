@@ -30,7 +30,19 @@ assert.match(runner, /styles\.fillBlankOptions/, 'fill blank must use the web tw
 assert.match(runner, /styles\.fillBlankOptionWrap/, 'each fill-blank option must occupy one grid column');
 assert.match(runner, /fillBlankOptionWrap: \{ width: '48%'/, 'fill-blank choices must wrap into a two-column grid on iPhone');
 assert.match(runner, /fillBlankSlot: \{[^}]*backgroundColor: 'rgba\(166,80,231,0\.08\)'/, 'an unanswered inline blank must remain visibly outlined and tinted');
-assert.match(runner, /isFillBlank \? null : \([\s\S]*?Quick check/, 'fill blank must not gain the generic Quick check label');
+/*
+ * THE ASSERTION WAS INVERTED FROM ITS OWN MESSAGE.
+ *
+ * It read `assert.match(runner, /isFillBlank \? null : \(...Quick check/)`, which REQUIRES the
+ * runner to contain a "Quick check" label, while the message beside it says the fill blank must
+ * NOT gain one. It also directly contradicted
+ * scripts/choice-experience-parity-regression.mjs:56, which asserts the runner contains no
+ * "Quick check" anywhere. The two could never both pass, and this one had been red for so long
+ * that nobody noticed, because neither script is in `npm run check`. Both are now.
+ *
+ * Fixed to say what the message always said.
+ */
+assert.doesNotMatch(runner, /Quick check/, 'fill blank must not gain the generic Quick check label');
 assert.match(runner, /isFillBlank && pick !== null[\s\S]*?norm\.options\[pick\]/, 'the selected word must appear inside the sentence blank');
 assert.match(runner, /isFillBlank && pick !== null && !checked[\s\S]*?label="Submit"/, 'selection must reveal the web inline Submit action');
 assert.match(runner, /fillBlankSubmitButton: \{ width: 134, minHeight: 48 \}/, 'inline Submit must preserve the web large-button geometry');

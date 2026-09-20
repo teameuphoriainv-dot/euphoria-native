@@ -1,4 +1,20 @@
 #!/usr/bin/env node
+/**
+ * WHAT THIS GUARDS NOW, AND WHY IT IS STILL HERE.
+ *
+ * iOS no longer renders this step type. `src/lib/curriculum/index.ts` replaces every teachingSlide
+ * and every interactiveGraph with a `mobileDeck` before the app sees it, so in the shipping app the
+ * normalized kind counts are deck:721, teaching:0, graph:4 (the 4 being explorables, not graphs).
+ *
+ * It is kept, not deleted, for two reasons. It imports `./curriculum/courseIndex` directly, which
+ * is the untransformed authored corpus, so it still proves the normaliser can faithfully render
+ * what the web app renders, which is the contract the mobile deck is DERIVED from. And it is the
+ * safety net under a revert: if the deck layer is ever turned off, this is the evidence that the
+ * path it falls back to still works.
+ *
+ * So a failure here does not mean a learner sees something broken today. It means the reference
+ * path drifted, and the derivation is built on that path.
+ */
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';

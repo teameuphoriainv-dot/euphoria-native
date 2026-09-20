@@ -1,4 +1,20 @@
 #!/usr/bin/env node
+/**
+ * WHAT THIS GUARDS NOW, AND WHY IT IS STILL HERE.
+ *
+ * iOS no longer renders this step type. `src/lib/curriculum/index.ts` replaces every teachingSlide
+ * and every interactiveGraph with a `mobileDeck` before the app sees it, so in the shipping app the
+ * normalized kind counts are deck:721, teaching:0, graph:4 (the 4 being explorables, not graphs).
+ *
+ * It is kept, not deleted, for two reasons. It imports `./curriculum/courseIndex` directly, which
+ * is the untransformed authored corpus, so it still proves the normaliser can faithfully render
+ * what the web app renders, which is the contract the mobile deck is DERIVED from. And it is the
+ * safety net under a revert: if the deck layer is ever turned off, this is the evidence that the
+ * path it falls back to still works.
+ *
+ * So a failure here does not mean a learner sees something broken today. It means the reference
+ * path drifted, and the derivation is built on that path.
+ */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -23,7 +39,22 @@ deepStrictEqual(segments.filter((segment) => segment.kind === 'term').map((segme
 strictEqual(teachingDwellRemaining(15_000, 0), 15);
 strictEqual(teachingDwellRemaining(15_000, 14_001), 1);
 strictEqual(teachingDwellRemaining(15_000, 15_001), 0);
-strictEqual(TEACHING_SLIDE_DWELL_MS, 15_000);
+/*
+ * THE DWELL IS SIX SECONDS ON MOBILE, DELIBERATELY DIFFERENT FROM WEB.
+ *
+ * This asserted 15 seconds, matching production web. That is the right number on a desktop, where
+ * the whole comparison is visible at once and the cursor is already resting on Continue. On a phone
+ * a fifteen second greyed-out button reads as a frozen app: Sriyan sent a screenshot of "Continue
+ * in 5s" asking for it to be shorter, and by then it had been counting down for ten seconds.
+ *
+ * The gate is KEPT, only shortened. Removing it entirely would let a learner skim past the diagram,
+ * which is the thing it exists to prevent. Six is long enough to force a look and short enough not
+ * to read as broken.
+ *
+ * Pinned to an exact value rather than a range so that changing it stays a decision somebody makes
+ * on purpose.
+ */
+strictEqual(TEACHING_SLIDE_DWELL_MS, 6_000);
 strictEqual(TEACHING_SLIDE_SCROLL_MARGIN, 100);
 
 let slides = 0;

@@ -24,16 +24,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { CardDeck } from '@/components/mobile-lesson/card-deck';
 import { AmbientBackground } from '@/components/ambient-background';
 import { LessonAtlasButton, buildAtlasLessonContext } from '@/components/ask-atlas';
 import { Atlas } from '@/components/atlas';
-import { AtlasCorrection } from '@/components/atlas-correction';
+import { LessonExplanation, hasExplanationScreen } from '@/components/lesson-explanation';
 import { VocabConversation } from '@/components/atlas-conversation';
 import { AtlasIntro, hasSeenAtlasIntro, resetAtlasIntroForDev } from '@/components/atlas-intro';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
-import { FeedbackBanner, SparkBurst } from '@/components/lesson-feedback';
+import { SparkBurst } from '@/components/lesson-feedback';
 import { InteractiveGraph, type InteractiveGraphControlValue } from '@/components/interactive-graph';
 import { HookOpener } from '@/components/hook-opener';
 import { LessonProse } from '@/components/lesson-prose';
@@ -69,7 +70,15 @@ import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
 import { AVAILABLE_COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { choiceResponse, expandSteps, expandedStepIdentities, gates, isChoiceCorrect, normalizeStep } from '@/lib/lesson-steps';
-import { createLessonStepSession, isLessonStepComplete, markLessonStepCompletion } from '@/lib/lesson-step-session';
+import {
+  clampLessonScreen,
+  createLessonStepSession,
+  isLessonStepComplete,
+  isResumableScreen,
+  lessonShapeSignature,
+  markLessonStepCompletion,
+  resumeScreenFor,
+} from '@/lib/lesson-step-session';
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { lessonKey, useApp } from '@/lib/store';
@@ -85,6 +94,26 @@ import { RewardPop } from '@/shared/motion/reward-pop';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
+
+/** Module scope, so an impure Date.now() is never in render scope. Same reason start.tsx has one. */
+const nowMs = () => Date.now();
+
+/**
+ * The two facts the resume pointer is keyed to, computed from a lesson the loader just handed us.
+ *
+ * Read off the RUNTIME steps (post `expandSteps`), because that is the numbering `idx` walks and
+ * therefore the numbering that gets persisted. The distinction is currently free, since every
+ * authored type expandSteps lifts is in RETIRED_STEP_TYPES and the expansion is the identity across
+ * all 300 lessons, but it stops being free the moment one of them comes back, and a pointer that
+ * silently means a different numbering than it did last week is the failure this hash exists for.
+ */
+function lessonResumeShape(steps: PathwayLesson['steps']): { screens: number; shape: string } {
+  const runtime = expandSteps(steps ?? []);
+  return {
+    screens: runtime.length,
+    shape: lessonShapeSignature(runtime.map((s) => (s as { type?: string }).type ?? '')),
+  };
+}
 
 function LessonProgress({ percent }: { percent: number }) {
   const reduced = useReducedMotion();
@@ -114,6 +143,13 @@ export default function Lesson() {
   const theme = useTheme();
   const streakAfter = useApp((s) => s.streakIfCompletedToday());
   const completedLessonIds = useApp((s) => s.completedLessons);
+  /*
+   * The resume pointer is PERSISTED state, so reading it before rehydration settles reads the
+   * initial null and silently starts every deep-linked lesson over. Same race app/index.tsx guards
+   * its routing with. The load effect below waits on this rather than restoring optimistically,
+   * because "restored to the wrong place" cannot be undone once the learner starts tapping.
+   */
+  const hasHydrated = useApp((s) => s.hasHydrated);
   const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string; qa?: string }>();
   const courseId = params.course ?? '';
   const lessonNum = Number(params.num);
@@ -170,9 +206,27 @@ export default function Lesson() {
   const DONE = total + 1;
   const STREAK = total + 2;
 
+  /** Fingerprint of the runtime step shape now on screen. Written into every saved pointer. */
+  const resumeShape = useMemo(
+    () => lessonShapeSignature(steps.map((s) => (s as { type?: string }).type ?? '')),
+    [steps],
+  );
+
   const [idx, setIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
+  /**
+   * Was the answer on THIS visit to THIS screen the one that spent the heart?
+   *
+   * The out-of-hearts wall used to fire on `checked`, which is restored by `openLessonScreen` when
+   * you walk back into a question you already answered. Consequence, reachable with three wrong
+   * answers and one tap of Previous: get walled at screen 9, tap Previous to reread screen 5, and
+   * Continue on screen 5 raises the wall again for a heart that was spent minutes ago. Every
+   * question you ever got wrong becomes its own wall, and the lesson can no longer be finished
+   * from any of them. The heart was charged once, so the gate belongs to the grading, not to the
+   * graded state that outlives it.
+   */
+  const [justGraded, setJustGraded] = useState(false);
   /* Hearts and hints (N21). Both are shop mechanics the web has and iOS did not, so buying a
    * Heart Refill or a Hint Pack now buys something that exists. Kept ADDITIVE and contained: the
    * curriculum re-sync is about to change this runner, and a restructure would collide with it. */
@@ -271,6 +325,11 @@ export default function Lesson() {
       return;
     }
 
+    // Nothing is loaded until the persisted pointer is readable, or the restore below reads a null
+    // that had not loaded yet and every resumable lesson silently starts over. The skeleton is
+    // already on screen while this waits, so the user sees the normal load, not a stall.
+    if (!hasHydrated) return;
+
     let cancelled = false;
     loadCourseLessons(courseId)
       .then((ls) => {
@@ -279,6 +338,34 @@ export default function Lesson() {
         setChallengeStage('none');
         setLesson(found);
         setNotFound(!found);
+        /*
+         * A NEW LESSON GETS A CLEAN RUNNER. `idx` and the two per-attempt maps used to be seeded
+         * once per MOUNT while the lesson itself is loaded by an effect keyed on the params, so if
+         * this effect ever ran twice for one mount the second lesson inherited the first one's
+         * position and the first one's per-index answers. Resetting here makes the runner's state
+         * a function of the lesson it is showing rather than of the mount, which is what it always
+         * claimed to be.
+         */
+        visitedScreenState.current.clear();
+        lessonStepSession.snapshots.clear();
+        lessonStepSession.completed.clear();
+        setPick(null);
+        setChecked(false);
+        setSolved(false);
+        setHinted(false);
+        setShowRecap(false);
+        setOutOfHearts(false);
+        setJustGraded(false);
+        /*
+         * WHERE THE LESSON OPENS. `resumeScreenFor` returns 0, the warmup, for every pointer it
+         * declines to trust: a different lesson, a shape the curriculum has changed underneath, or
+         * an index outside the steps that exist now. It never returns a terminal screen, so
+         * reopening the app can never land on the completion celebration and pay out a lesson.
+         */
+        setIdx(found ? resumeScreenFor(useApp.getState().lessonResume, {
+          key: lessonKey(courseId, lessonNum),
+          ...lessonResumeShape(found.steps),
+        }) : 0);
         if (found && qa === 'complete') setIdx(expandSteps(found.steps).length + 1);
         if (found && qa === 'heart-wall') setOutOfHearts(true);
         openedAt.current = Date.now();
@@ -296,17 +383,51 @@ export default function Lesson() {
     return () => {
       cancelled = true;
     };
-  }, [badParams, courseId, lessonNum, qa]);
+  }, [badParams, courseId, lessonNum, hasHydrated, lessonStepSession, qa]);
+
+  /**
+   * Persist the position, or forget it.
+   *
+   * Written on EVERY screen change rather than on exit, because there is no exit event a force
+   * quit or an OS eviction will run. AsyncStorage has no synchronous write, so the last screen
+   * change before an instant kill can still be lost; one screen is the smallest window available
+   * without an awaited flush, which zustand's persist middleware does not expose.
+   *
+   * Terminal screens forget instead of remembering: the lesson is not credited until Continue is
+   * pressed from the streak screen, so a pointer aimed at the celebration would pay out a whole
+   * lesson for reopening the app.
+   */
+  const recordResume = (screen: number) => {
+    const key = lessonKey(courseId, lessonNum);
+    const st = useApp.getState();
+    if (!isResumableScreen(screen, total)) {
+      // Only ours to clear. Another lesson's pointer is not this lesson's business.
+      if (st.lessonResume?.key === key) st.setLessonResume(null);
+      return;
+    }
+    st.setLessonResume({ key, screen, shape: resumeShape, savedAt: nowMs() });
+  };
 
   const openLessonScreen = (nextIndex: number) => {
-    const saved = visitedScreenState.current.get(nextIndex);
-    setIdx(nextIndex);
+    /*
+     * CLAMPED, and the clamp is not decorative. `steps[idx - 1]` is undefined for any index past
+     * the end, and every render branch below then declines to draw, leaving a blank body under a
+     * live Continue button. That is the state Apple rejected build 1.0.0(6) over under guideline
+     * 2.1(a), described as "the app became unresponsive"; scripts/step-clamp-regression.mjs pins
+     * the onboarding half of it and scripts/lesson-resume-regression.mjs pins this half.
+     */
+    const target = clampLessonScreen(nextIndex, total);
+    const saved = visitedScreenState.current.get(target);
+    setIdx(target);
     setPick(saved?.pick ?? null);
     setChecked(saved?.checked ?? false);
-    setSolved(isLessonStepComplete(lessonStepSession, nextIndex) || (saved?.solved ?? false));
+    setSolved(isLessonStepComplete(lessonStepSession, target) || (saved?.solved ?? false));
     setHinted(saved?.hinted ?? false);
     setShowRecap(saved?.showRecap ?? false);
     setOutOfHearts(false);
+    // A restored answer was graded on a previous visit, so it has already paid its heart.
+    setJustGraded(false);
+    recordResume(target);
   };
 
   const previousScreen = () => {
@@ -320,6 +441,7 @@ export default function Lesson() {
     if (norm?.kind !== 'choice' || checked) return;
     setPick(selectedIndex);
     setChecked(true);
+    setJustGraded(true);
     if (isChoiceCorrect(norm, selectedIndex)) {
       setCorrectSoFar((value) => value + 1);
     } else {
@@ -350,7 +472,13 @@ export default function Lesson() {
      * always offers a way out of the lesson, and hearts refill on their own tomorrow, so the shop
      * is an accelerator and never the only exit.
      */
-    if (heartLimited && isChoice && checked && norm && pick !== null && !isChoiceCorrect(norm, pick) && hearts <= 0) {
+    /*
+     * `justGraded`, NOT `checked`. See the note on the state itself: `checked` is restored when
+     * you walk back into a question you already answered, so gating on it re-walled every past
+     * mistake once the hearts were gone and made the lesson unfinishable from any of them. The
+     * heart is spent exactly once, by the grading immediately above, so the gate belongs to that.
+     */
+    if (heartLimited && isChoice && justGraded && checked && norm && pick !== null && !isChoiceCorrect(norm, pick) && hearts <= 0) {
       setOutOfHearts(true);
       return;
     }
@@ -587,7 +715,7 @@ export default function Lesson() {
    * itself belongs in this set; steps that only need "keep going" (reveal, order, match) leave the
    * footer alone.
    */
-  const selfAdvancing = norm?.kind === 'hook' || norm?.kind === 'stakes' || norm?.kind === 'dragSort' || norm?.kind === 'vocab' || norm?.kind === 'progressiveCalc' || norm?.kind === 'calc' || norm?.kind === 'reveal' || norm?.kind === 'line';
+  const selfAdvancing = norm?.kind === 'deck' || norm?.kind === 'hook' || norm?.kind === 'stakes' || norm?.kind === 'dragSort' || norm?.kind === 'vocab' || norm?.kind === 'progressiveCalc' || norm?.kind === 'calc' || norm?.kind === 'reveal' || norm?.kind === 'line';
   const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && (selfAdvancing || !solved);
 
   const gated = norm ? gates(norm) && !solved : false;
@@ -619,7 +747,22 @@ export default function Lesson() {
           <SpringPressable haptic={false} scaleTo={0.97} onPress={exitLesson} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close lesson">
             <UIcon name="close" size={22} color={theme.mutedForeground} />
           </SpringPressable>
-          {idx > 0 && challengeStage === 'none' && (
+          {/*
+            * BACK STOPS AT THE LAST CONTENT SCREEN (`idx < DONE`).
+            *
+            * It used to be offered on the completion celebration and the streak screen too, and on
+            * the 295 of 300 lessons that carry a mastery challenge that was a way to lose a lesson
+            * you had already won: Back from the celebration lands on the last step, Continue from
+            * the last step re-enters the challenge, and the challenge's onFail is exitLesson. So
+            * pass the challenge, tap Back once, tap Continue, miss three questions, and you are
+            * thrown out of a lesson that was finished, with no XP, no coins, no streak day and no
+            * reward cards, because completeLesson only runs when Continue is pressed FROM the
+            * streak screen.
+            *
+            * There is also nothing back there to reread. Both terminal screens are payout, not
+            * teaching.
+            */}
+          {idx > 0 && idx < DONE && challengeStage === 'none' && (
             <SpringPressable
               haptic={false}
               scaleTo={0.97}
@@ -658,7 +801,7 @@ export default function Lesson() {
                   style={styles.midScroll}
                   contentContainerStyle={styles.recapContent}
                   showsVerticalScrollIndicator={false}>
-                  <Atlas size={92} expression="happy" interactive={false} />
+                  <Atlas size={92} expression="happy" interactive={false} idle />
                   <AtlasSpeech
                     text={norm.atlas.recap}
                     tail="top"
@@ -698,6 +841,31 @@ export default function Lesson() {
               </>
             )}
             {norm.kind === 'hook' && <HookOpener spec={norm.spec} onComplete={advance} />}
+            {/*
+              * The mobile deck. Replaces the authored teachingSlide or interactiveGraph on iOS and
+              * ships its own Back and Continue, so it is in OWN_CTA_STEPS and the footer stays out
+              * of its way. `onExit` is wired to the lesson's own back handler so that pressing Back
+              * on the FIRST card leaves the step, while pressing it on any later card walks back
+              * through the cards the learner has already read.
+              */}
+            {norm.kind === 'deck' && (
+              <CardDeck
+                deck={norm.spec}
+                onComplete={() => {
+                  captureSolved(true);
+                  advance();
+                }}
+                /*
+                 * The comment above has described this prop as wired since the deck shipped, and it
+                 * was not being passed. CardDeck draws Back only when `index > 0 || onExit`
+                 * (card-deck.tsx:118), so card ONE of every deck had no Back at all and the only way
+                 * out of the first card was the header chevron. Same guard the header uses, so the
+                 * deck cannot offer a Back on a screen the lesson itself refuses to leave.
+                 */
+                onExit={idx > 0 && idx < DONE ? previousScreen : undefined}
+              />
+            )}
+
             {norm.kind === 'teaching' && (
               <TeachingSlide
                 spec={norm.spec}
@@ -823,7 +991,28 @@ export default function Lesson() {
               <StakesCard spec={norm.spec} onComplete={advance} />
             )}
 
-            {norm.kind === 'choice' && (
+            {/*
+              THE EXPLANATION PAGE, shown INSTEAD of the question once it has been graded.
+              Measured over the corpus: 7,553 authored explanation strings behind 1,307 questions,
+              median 285 characters, longest 760, and 71% of them over about five lines on a 393pt
+              iPhone. Rendered under the question and its four options, as they were, the Continue
+              button was pushed off the bottom of the screen.
+              This is a second PAGE inside the same step, not a new step, so lesson length, the
+              progress bar and every saved resume position are untouched. See lesson-explanation.tsx.
+            */}
+            {norm.kind === 'choice' && checked && hasExplanationScreen(gradedChoice) && (
+              <LessonExplanation
+                correct={!!gradedChoice?.correct}
+                answer={gradedChoice?.correction?.answer}
+                reason={gradedChoice?.correction?.reason}
+                outcome={gradedChoice?.correctOutcome}
+                shakeKey={idx}
+              >
+                <SlabButton label="Continue" full onPress={advance} />
+              </LessonExplanation>
+            )}
+
+            {norm.kind === 'choice' && !(checked && hasExplanationScreen(gradedChoice)) && (
               /* SCROLLS. An authored question can run 380pt on its own and each option another
                  ~190pt, so a four-option step is roughly twice the viewport. As a plain View
                  the overflow fell under the pinned footer and the LAST OPTIONS COULD NOT BE
@@ -910,21 +1099,27 @@ export default function Lesson() {
                     <Button label="Submit" style={styles.fillBlankSubmitButton} onPress={advance} />
                   </View>
                 ) : null}
-                {checked ? (
+                {/*
+                  THE FAST PATH ONLY: a right answer with nothing authored to explain. The learner
+                  already knows they were right from the tick on the option, so this stays inline
+                  and small rather than costing them a tap to be told "Correct".
+                  Anything with words behind it went to its own page above, which is why the
+                  AtlasCorrection bubble is gone from here: it was the thing overflowing.
+                */}
+                {/*
+                  THE FAST PATH: a right answer with nothing authored to explain.
+                  NO BANNER. The option the learner tapped already carries a green tick, so a
+                  full-width sheet repeating "Correct" is a second announcement of something they
+                  can see. `scripts/choice-experience-parity-regression.mjs` has asserted exactly
+                  this since before the rewrite ("web choice feedback must not use the oversized
+                  generic feedback sheet") and had been failing the whole time, because that script
+                  is not in `npm run check`. It is now.
+                  Anything with words behind it goes to its own page above.
+                */}
+                {checked && !hasExplanationScreen(gradedChoice) ? (
                   <View style={styles.inlineFeedback}>
-                    <FeedbackBanner
-                      correct={!!gradedChoice?.correct}
-                      title={gradedChoice?.correctOutcome ?? 'Ready for the next step.'}
-                      detail={gradedChoice?.correct ? 'Correct.' : undefined}
-                    >
-                      <AtlasCorrection
-                        show={gradedChoice?.correction !== undefined}
-                        answer={gradedChoice?.correction?.answer}
-                        reason={gradedChoice?.correction?.reason}
-                      />
-                      {gradedChoice?.correct ? <SparkBurst size={150} /> : null}
-                      <SlabButton label="Continue" full onPress={advance} />
-                    </FeedbackBanner>
+                    <SparkBurst size={150} />
+                    <SlabButton label="Continue" full onPress={advance} />
                   </View>
                 ) : null}
               </ScrollView>
@@ -1117,7 +1312,7 @@ const FOOTER_CLEARANCE = 170;
 
 /** Step kinds that render their OWN validate control. The footer must not stack a second CTA on
  *  top of these — see `ownsItsCta`. */
-const OWN_CTA_STEPS = new Set(['hook', 'stakes', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
+const OWN_CTA_STEPS = new Set(['deck', 'hook', 'stakes', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
 
 /** Fixed-width digits, so a heart or hint count does not shift the header as it drops. */
 const NUM_L = { fontVariant: ['tabular-nums' as const] };

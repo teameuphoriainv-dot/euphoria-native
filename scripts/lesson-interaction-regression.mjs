@@ -28,10 +28,30 @@ requires(
   /contentContainerStyle=\{styles\.choiceContent\}/,
   'quiz content must keep one stable scroll layout before and after grading',
 );
+/*
+ * FEEDBACK NO LONGER MIRRORS THE WEB LESSON, AND THAT IS THE POINT.
+ *
+ * This used to require the graded feedback, a FeedbackBanner and the next action to sit inline
+ * under the question, matching the web reading order. On a phone that does not fit. Measured over
+ * the corpus: 7,553 authored explanation strings behind 1,307 questions, median 285 characters,
+ * longest 760, and 71% over roughly five lines on a 393pt screen. Stacked under a question and its
+ * four options, the Continue button was pushed off the bottom of the display. Sriyan hit it on the
+ * compound interest lesson and the fix was to give the explanation its own page.
+ *
+ * The invariant that still matters is not "inline", it is "the learner is never stranded": every
+ * graded state must put a next action on screen. That is what is asserted now, on both paths.
+ *   - explanation path: the page renders and the caller passes Continue into it
+ *   - fast path (right answer, nothing authored to say): Continue is still inline
+ */
 requires(
   lesson,
-  /checked \? \([\s\S]*?styles\.inlineFeedback[\s\S]*?<FeedbackBanner[\s\S]*?<SlabButton/,
-  'feedback and its next action must remain inline in reading order like the web lesson',
+  /<LessonExplanation[\s\S]*?<SlabButton label="Continue" full onPress=\{advance\}[\s\S]*?<\/LessonExplanation>/,
+  'the explanation page must carry its own Continue so the learner is never stranded',
+);
+requires(
+  lesson,
+  /checked && !hasExplanationScreen\(gradedChoice\) \? \([\s\S]*?styles\.inlineFeedback[\s\S]*?<SlabButton/,
+  'a right answer with nothing to explain must keep its next action inline and fast',
 );
 requires(
   lesson,
@@ -60,9 +80,18 @@ requires(
 );
 requires(
   lesson,
-  /idx > 0[\s\S]*?onPress=\{previousScreen\}[\s\S]*?accessibilityLabel="Previous lesson step"/,
-  'every in-progress lesson screen must expose a previous-step control',
+  /idx > 0 && idx < DONE && challengeStage === 'none'[\s\S]*?onPress=\{previousScreen\}[\s\S]*?accessibilityLabel="Previous lesson step"/,
+  'every in-progress lesson screen must expose a previous-step control, and no terminal screen may',
 );
+/*
+ * `idx < DONE` is load-bearing, not tidiness. Back used to be offered on the completion
+ * celebration and the streak screen. On the 295 of 300 lessons that carry a mastery challenge that
+ * was a way to LOSE a lesson you had already won: Back lands on the last content screen, Continue
+ * from the last content screen re-enters the challenge, and the challenge's onFail is exitLesson,
+ * so three missed questions threw the learner out with no XP, no coins, no streak day and no
+ * reward cards. completeLesson only runs on Continue from the streak screen, so nothing had been
+ * credited yet.
+ */
 requires(
   lesson,
   /visitedScreenState\.current\.set\(idx,[\s\S]*?openLessonScreen\(idx - 1\)/,
@@ -95,8 +124,31 @@ requires(
 );
 requires(
   lesson,
-  /if \(heartLimited && isChoice && checked[^\n]+hearts <= 0\)/,
+  /if \(heartLimited && isChoice && justGraded && checked[^\n]+hearts <= 0\)/,
   'the out-of-hearts wall must never trap a Pro member',
+);
+/*
+ * `justGraded` was added to that condition, so this pin is stricter than it was, not looser.
+ *
+ * The wall used to fire on `checked` alone. `openLessonScreen` RESTORES `checked` when you walk
+ * back into a question you already answered, so once the hearts were gone every past mistake
+ * became its own wall: get walled on screen 9, tap Previous to reread screen 5, and Continue on
+ * screen 5 raised the wall again for a heart spent minutes earlier. The lesson could then not be
+ * finished from any screen the learner had ever got wrong. The heart is charged exactly once, by
+ * `gradeChoice`, so the gate belongs to the grading and not to the graded state that outlives it.
+ *
+ * Pinned in both directions: the flag must be set where the heart is spent, and cleared wherever a
+ * screen is re-opened, or the fix is half-applied and the wall either never fires or never stops.
+ */
+requires(
+  lesson,
+  /setChecked\(true\);\s*\n\s*setJustGraded\(true\);/,
+  'the heart-wall gate must be armed by the grading that spends the heart',
+);
+requires(
+  lesson,
+  /setOutOfHearts\(false\);[\s\S]{0,160}?setJustGraded\(false\);/,
+  're-opening a screen must disarm the heart-wall gate, or a restored answer re-walls',
 );
 
 requires(

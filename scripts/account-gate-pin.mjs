@@ -64,14 +64,58 @@ assert.match(index, /if \(!hasAccount\(profile\)\) return <Redirect href=\{'\/au
   'index.tsx must send a completed-but-accountless user to /auth, not to Home');
 assert.doesNotMatch(index, /href=\{completedAt \? '\/\(tabs\)\/home' : '\/welcome'\}/,
   'the old completedAt-only redirect is back — that single test WAS the escape hatch');
+/*
+ * THE SECOND ESCAPE HATCH, same shape as the first.
+ *
+ * completeOnboarding() stamps completedAt at the LOADER, two steps before the paywall. So
+ * `completedAt && hasAccount` was true for someone standing ON the paywall, and killing the app
+ * there relaunched them into Home having never seen the offer, with nothing that would route them
+ * back. One force-quit, no timing, no tooling.
+ *
+ * firstRunDoneAt cannot substitute: /start sits AFTER the paywall, so it is null for someone who
+ * saw the offer and declined it too.
+ */
+assert.match(index, /if \(!profile\.onboardingPaywallSeenAt\) \{[\s\S]{0,160}?'\/onboarding\?step=paywall&firstRun=1' as never/,
+  'index.tsx must resume a user who finished the questions but never reached the paywall');
+assert.match(onboarding, /if \(!useApp\.getState\(\)\.profile\.onboardingPaywallSeenAt\) \{/,
+  'the paywall must stamp onboardingPaywallSeenAt on arrival, or the entry gate loops forever');
+
+/*
+ * BOTH SIGN-OUT CONTROLS MUST AGREE, and they did not.
+ *
+ * signOut() flips signedIn and nothing else — completedAt, the answers and the email all survive,
+ * which is what the Settings dialog's "Your progress stays on this device" promises. The You tab
+ * sent the user to /auth. Settings sent them to /welcome, whose only control is
+ * router.replace('/onboarding'), so that button replayed all sixteen screens to reach an app that
+ * had never forgotten them — and completeOnboarding() re-runs at the loader and resets
+ * activeCourseId, so the replay could move the course they were part-way through.
+ *
+ * /welcome stays correct for DELETE ACCOUNT, which calls deleteProfile() and really does make the
+ * user new. That is why this asserts the sign-out line specifically rather than banning /welcome.
+ */
+const settings = read('../src/app/settings/[section].tsx');
+const you = read('../src/app/you.tsx');
+for (const [src, where] of [[settings, 'Settings'], [you, 'the You tab']]) {
+  assert.match(src, /signOut\(\)\.finally\(\(\) => router\.replace\('\/auth' as never\)\)/,
+    `${where} must sign out to /auth; /welcome replays the whole flow for a user nothing forgot`);
+}
 
 // ── 4. The wall is before the paywall, and auth comes back to it ─────────────────────────────
 assert.match(onboarding, /router\.replace\('\/auth\?next=paywall' as never\)/,
   'the reveal step must send an account-less user to /auth before the paywall');
 assert.match(auth, /const backToPaywall = params\.next === 'paywall';/,
   'auth must read ?next=paywall, or the user is dropped in the app and never sees the offer');
-assert.match(auth, /backToPaywall \? '\/onboarding\?step=paywall'/,
-  'auth must return to the paywall step it was called from');
+assert.match(auth, /backToPaywall \? '\/onboarding\?step=paywall&firstRun=1'/,
+  'auth must return to the paywall step it was called from, carrying firstRun=1');
+/*
+ * The marker is not decoration. Onboarding freezes enteredWithCompletedOnboarding from
+ * profile.completedAt at mount, and completeOnboarding() stamps that at the LOADER — two steps
+ * before this redirect. So the remount after /auth froze a value the flow itself had just set and
+ * read a brand-new user as a returning upsell visitor, which made /start unreachable for everyone
+ * and left profile.firstRunDoneAt null forever. See scripts/first-run-reachable-pin.mjs.
+ */
+assert.match(onboarding, /const resumingFirstRun = params\.firstRun === '1';/,
+  'onboarding must read the firstRun marker auth sends back, or the return remount misreads the user');
 
 // ── 5. The local path cannot create an empty account ─────────────────────────────────────────
 // With Supabase off, enter() used to call land() unconditionally. Under the new gate a blank

@@ -1,0 +1,278 @@
+/**
+ * Shortening the questions and the answer options for a phone.
+ *
+ * MEASURED over the 1,307 choice steps in the corpus:
+ *   question prompts  median 165 characters, p90 269, longest 467, and 76% over 120
+ *   answer options    median 52, p90 192, longest 1,030, and 45% over 60
+ * A 1,030 character answer option is a paragraph pretending to be a button.
+ *
+ * THE PROMPT AND THE OPTIONS ARE NOT THE SAME PROBLEM, and treating them the same is how a
+ * shortener breaks a quiz.
+ *
+ * A PROMPT is prose. Trimming it can only cost context, and the compressor already refuses cuts
+ * that could change a claim, so it gets the same treatment as a lesson card.
+ *
+ * AN OPTION IS AN ANSWER. It is one of a set, and the set has to keep working:
+ *   - two options must never become the same string, or the learner is asked to choose between
+ *     identical buttons and one of them is marked wrong
+ *   - the correct option must not become the conspicuously different one, because length is a tell
+ *     and this corpus already has a history of it (76.5% of its questions once had the longest
+ *     option as the correct one)
+ *   - a qualifier that carries the whole distinction ("...but only for accounts under $10,000")
+ *     must never be the thing that gets cut
+ * So options are shortened ALL OR NOTHING, as a set, and only when every one of those invariants
+ * still holds afterwards. If any of them fails, the whole set is left exactly as authored. A long
+ * option is survivable. A quiz with two identical answers is not.
+ */
+import { compress, compressTitle, sentences } from './compress';
+
+/** Budgets, from what actually fits a 393pt screen without the options falling below the fold. */
+export const QUESTION_BUDGET = {
+  /** A prompt that stays under about three lines. */
+  prompt: 130,
+  /** An option that stays on one or two lines. */
+  option: 70,
+} as const;
+
+/**
+ * Budgets for the other text-heavy steps, measured the same way.
+ *
+ * HOOK OPENER is the first screen of all 300 lessons and the worst offender left in the corpus:
+ * `fact` runs to a median of 338 characters with a longest of 894, on a screen that also carries a
+ * title, a chart and a button. `outcome` adds another 241 under it.
+ *
+ * STAKES DETAIL only renders when neither panel has an authored visual, but when it does it is two
+ * paragraphs of about 305 characters each inside panels that already have to share one screen.
+ *
+ * VOCABULARY definitions are shown one per beat, so their median of 154 is survivable; the cap is
+ * here for the tail, which reaches 288.
+ */
+export const STEP_TEXT_BUDGET = {
+  /** The hook's hero statement. Long enough for a real statistic, short enough to land. */
+  fact: 150,
+  /** What the lesson will give you. One sentence. */
+  outcome: 110,
+  /** One side of a stakes comparison. */
+  stakesDetail: 150,
+  /** One vocabulary definition, on its own beat. */
+  definition: 180,
+} as const;
+
+/**
+ * Trim an authored field to a budget, or leave it exactly as written.
+ *
+ * Returns the original whenever compression cannot produce something shorter AND safe, because
+ * every one of these fields is load-bearing: a hook with no fact is a blank hero, and a definition
+ * with no text is a word with no meaning.
+ */
+export function shortenField(text: string | undefined, budget: number): string | undefined {
+  if (typeof text !== 'string') return text;
+  const trimmed = text.trim();
+  if (trimmed.length <= budget) return text;
+  const out = compress(trimmed, budget);
+  return out && out.length < trimmed.length ? out : text;
+}
+
+/**
+ * Shorten a question prompt.
+ *
+ * Falls back to the authored prompt rather than returning nothing: a question with no text is
+ * unanswerable, which is worse than a long one.
+ */
+/**
+ * Trim a setup to `room` characters while keeping the sentences that carry the DATA.
+ *
+ * `compress` cannot be used for this, for the same reason the block below gives for not using it on
+ * the whole prompt: it is topic-sentence-first. Handed "You're analyzing two portfolios. Portfolio
+ * A is 100% stocks. Portfolio B is 60% stocks and 40% bonds." it keeps the first sentence, which is
+ * the one sentence carrying nothing, and drops both that the question is about. That produced
+ * prompts that had visibly kept their setup and still could not be answered.
+ *
+ * So sentences with figures in them are kept first and non-numeric scene-setting is dropped first.
+ * Original order is preserved among the survivors, because a setup is a sequence and reordering it
+ * would change what it says.
+ */
+function keepTheData(setup: string, room: number): string {
+  const parts = sentences(setup);
+  if (parts.length === 0) return compress(setup, room);
+
+  const withData = parts.filter((s) => /\d/.test(s));
+  const pool = withData.length > 0 ? withData : parts;
+
+  // Fill from the END backwards: the sentence nearest the question is the one it refers to.
+  const kept: string[] = [];
+  let used = 0;
+  for (let i = pool.length - 1; i >= 0; i -= 1) {
+    const piece = pool[i];
+    const cost = piece.length + (kept.length > 0 ? 1 : 0);
+    if (used + cost > room) continue;
+    kept.unshift(piece);
+    used += cost;
+  }
+  if (kept.length > 0) return kept.join(' ');
+
+  // Not one whole sentence fits. Compress the nearest one rather than return nothing.
+  return compress(pool[pool.length - 1], room);
+}
+
+/**
+ * Below this there is no room to say anything useful, so keeping the whole authored prompt reads
+ * better than a stub of setup bolted to a question.
+ */
+const MIN_SETUP_CHARS = 30;
+
+/**
+ * Does the setup carry something the question needs?
+ *
+ * The test is deliberately CONSERVATIVE and asymmetric, because the two mistakes are not equally
+ * bad. Keeping a setup that was not needed costs some characters against a budget that already
+ * tolerates 25% overruns. Dropping one that WAS needed produces a question nobody can answer, and
+ * a wrong answer costs the learner a heart.
+ *
+ * The signal is data the question does not restate: a figure, a percentage, a money amount or a
+ * year that appears in the setup and nowhere in the question itself. That is exactly the shape of
+ * the 653 prompts measured as losing every number they were given.
+ */
+function setupIsLoadBearing(setup: string, question: string): boolean {
+  if (!setup) return false;
+  const hasData = /\d/.test(setup);
+  if (!hasData) return false;
+  // The question states its own numbers, so the setup is scene-setting rather than data.
+  if (/\d/.test(question)) return false;
+  return true;
+}
+
+export function shortenPrompt(prompt: string): string {
+  const text = String(prompt ?? '').trim();
+  if (text.length <= QUESTION_BUDGET.prompt) return text;
+
+  /*
+   * A prompt is often a SCENARIO followed by the actual question, and the question is the last
+   * sentence rather than the first. `compress` picks topic-sentence-first, which is the wrong end
+   * of this particular shape.
+   *
+   * THE SETUP IS OFTEN THE DATA, AND THIS USED TO THROW IT AWAY. The paragraph here claimed that
+   * dropping the setup "loses nothing a learner needs", and promised to keep "the question and as
+   * much of the setup before it as fits". The code did neither: it returned the final sentence
+   * alone, unconditionally, for every prompt over budget that ended in a question mark.
+   *
+   * Measured over the 1,026 quiz, microCheck, visualInteractive and scenario prompts: 766 were
+   * truncated this way and 653 lost every number in the prompt. Investing Fundamentals L4 s7 was
+   * authored as "In 2008, the S&P 500 fell 38.5%. An investor held a portfolio of 60% S&P 500
+   * stocks and 40% Treasury bonds. The bonds gained 25.9% that year. Approximately how much did the
+   * total portfolio change?" and reached the learner as nothing but that last sentence, above four
+   * numeric options. There is no answering that. The learner guesses and pays a heart for it.
+   *
+   * So the setup is dropped only when the question still stands without it, and otherwise
+   * compressed and kept. Running a little long is the cheaper failure: the budget pin allows up to
+   * 25% of prompts over budget and 90 of 1,307 use that allowance today.
+   */
+  const asked = text.match(/([^.!?]+\?)\s*$/);
+  if (asked) {
+    /*
+     * Strip a leading quote. `[^.!?]+` begins matching immediately after a '.' that sits INSIDE a
+     * quotation, so it captures the closing quote mark and 108 prompts opened on an orphan: the
+     * Investing Fundamentals L2 s13 prompt rendered as `" Using what you know about...`. The quote
+     * belongs to the setup, so it goes wherever the setup goes.
+     */
+    const question = asked[1].replace(/^[\s"'\u2018\u2019\u201C\u201D]+/, '').trim();
+    const setup = text.slice(0, asked.index ?? 0).trim();
+
+    if (question.length > 0 && question.length <= QUESTION_BUDGET.prompt) {
+      if (!setupIsLoadBearing(setup, question)) return question;
+
+      // Keep as much of the setup as the budget allows, in front of the question it belongs to.
+      const room = QUESTION_BUDGET.prompt - question.length - 1;
+      if (room >= MIN_SETUP_CHARS) {
+        const kept = keepTheData(setup, room);
+        if (kept) return `${kept} ${question}`;
+      }
+      // Nothing useful fits. The authored prompt is long but answerable, which beats short and not.
+      return text;
+    }
+
+    /*
+     * THE QUESTION ITSELF IS OVER BUDGET, AND IT STILL HAS TO SURVIVE.
+     *
+     * Falling through to `compress(text, ...)` here dropped the question altogether on 7 prompts,
+     * because compress is topic-sentence-first and the topic sentence of a scenario is the scene,
+     * not the ask. "You have stock worth $100,000 with a cost basis of $20,000. You're in the 37%
+     * tax bracket. If you donate this stock directly...?" came back as nothing but the first
+     * sentence: a statement, four options, and no question anywhere on the screen.
+     *
+     * Compressing the QUESTION keeps the ask. Returning it whole when that fails keeps it too, and
+     * a long question a learner can answer beats a short statement they cannot.
+     */
+    if (question.length > 0) {
+      const tightened = compress(question, QUESTION_BUDGET.prompt);
+      return tightened || question;
+    }
+  }
+
+  const shortened = compress(text, QUESTION_BUDGET.prompt);
+  return shortened || text;
+}
+
+/** Everything that must still be true of a set of options after shortening it. */
+function setIsStillValid(original: string[], shortened: string[], correct: number): boolean {
+  if (shortened.length !== original.length) return false;
+  if (shortened.some((o) => o.trim().length < 2)) return false;
+
+  // No two options may collapse into the same answer.
+  const seen = new Set(shortened.map((o) => o.trim().toLowerCase()));
+  if (seen.size !== shortened.length) return false;
+
+  /*
+   * SHORTENING MUST NEVER CREATE THE LENGTH TELL.
+   *
+   * If the correct option is the single longest, a learner can pick it without reading any of them.
+   * Measured on this corpus that was already true of 867 of the 1,307 questions, 66%, before any of
+   * this ran, which matches the 76.5% recorded in an earlier content audit.
+   *
+   * The rule is comparative, not absolute, and that distinction is the whole point. Refusing every
+   * set where the correct answer ends up longest would refuse 597 questions and fix none of them,
+   * because the tell is in the authored content and shortening is not what put it there. What this
+   * has to guarantee is that shortening does not MAKE it worse.
+   *
+   * A first version used an absolute threshold (longest > 1.5x the next) and created the tell on 25
+   * questions that did not have it. Comparing before against after takes that to zero while keeping
+   * the 295 questions where shortening happens to remove it, so the net effect on the corpus is
+   * 66% down to 46%.
+   */
+  const tells = (arr: string[]) => {
+    const lengths = arr.map((o) => o.length);
+    const longest = Math.max(...lengths);
+    return lengths[correct] === longest && lengths.filter((x) => x === longest).length === 1;
+  };
+  if (!tells(original) && tells(shortened)) return false;
+
+  return true;
+}
+
+/**
+ * Shorten a whole set of options, or return them untouched.
+ *
+ * `correct` is the index of the right answer in `options`, as authored.
+ */
+export function shortenOptions(options: string[], correct: number): string[] {
+  const authored = options.map((o) => String(o ?? ''));
+  if (authored.every((o) => o.length <= QUESTION_BUDGET.option)) return authored;
+
+  const shortened = authored.map((o) => {
+    if (o.length <= QUESTION_BUDGET.option) return o;
+    /*
+     * `compressTitle` rather than `compress`: an option is a label, not prose. The prose path
+     * splits on sentence boundaries and would happily return only the second half of an answer,
+     * and it treats "vs." as a full stop, which matters because options compare things constantly.
+     */
+    const trimmed = compressTitle(o, QUESTION_BUDGET.option);
+    return trimmed || o;
+  });
+
+  return setIsStillValid(authored, shortened, correct) ? shortened : authored;
+}
+
+/** Whether a set was actually shortened. Used by the audit to report coverage, not by the app. */
+export function optionsWereShortened(options: string[], correct: number): boolean {
+  return shortenOptions(options, correct).join('\u0000') !== options.join('\u0000');
+}

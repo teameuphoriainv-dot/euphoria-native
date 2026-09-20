@@ -43,5 +43,23 @@ export default function Index() {
    * from rendering a frame of Home before redirecting, and the layout catches every other door.
    */
   if (!hasAccount(profile)) return <Redirect href={'/auth' as never} />;
+  /*
+   * FINISHED THE QUESTIONS, MADE AN ACCOUNT, NEVER SAW THE OFFER.
+   *
+   * `completeOnboarding()` stamps `completedAt` at the LOADER, two steps before the paywall. With
+   * only the two tests above, someone who signed up at the account wall, reached the paywall and
+   * killed the app relaunched straight into Home — past the one screen that asks for money, with
+   * nothing anywhere that would ever route them back to it. One force-quit was the entire bypass,
+   * and it is the cheapest kind: no jailbreak, no timing, just closing the app.
+   *
+   * `firstRunDoneAt` cannot stand in for this. It is written only by /start, which sits AFTER the
+   * paywall, so it is null for someone who has seen the offer and declined it too.
+   *
+   * `firstRun=1` is the same marker /auth sends back, so onboarding treats this as the flow it
+   * is — resuming it — rather than as a returning user opening the upsell from inside the app.
+   */
+  if (!profile.onboardingPaywallSeenAt) {
+    return <Redirect href={'/onboarding?step=paywall&firstRun=1' as never} />;
+  }
   return <Redirect href="/(tabs)/home" />;
 }
