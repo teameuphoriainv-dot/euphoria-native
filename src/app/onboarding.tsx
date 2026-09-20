@@ -126,11 +126,24 @@ const TOPICS: Choice[] = [
   { key: 'retirement', icon: trophy, title: 'Retirement & taxes' },
 ];
 
+/*
+ * ICONS, LIKE EVERY OTHER ROOMY QUESTION.
+ *
+ * This was the one four-option step with no sprites, so it took the taller card treatment with
+ * nothing to put in it: one line of text centred in a box sized for an icon and a subtitle.
+ * Measured 252pt of dead screen against 197 on horizon's neighbours, and it read as an
+ * afterthought sitting between two screens that did not.
+ *
+ * Each answer already drives the path (four distinct mappings in candidates()), so the fix is to
+ * give the question the same weight as its neighbours, not to shrink it. Sprites chosen for the
+ * timeline they describe rather than for decoration: already in the market, a countdown, a thing
+ * planted that takes a year, and still reading up.
+ */
 const HORIZONS: Choice[] = [
-  { key: 'now', title: "I've already started" },
-  { key: 'soon', title: 'In the next few months' },
-  { key: 'year', title: 'Within a year' },
-  { key: 'unsure', title: "I'm not sure yet" },
+  { key: 'now', icon: chartUp, title: "I've already started" },
+  { key: 'soon', icon: clock, title: 'In the next few months' },
+  { key: 'year', icon: seedling, title: 'Within a year' },
+  { key: 'unsure', icon: book, title: "I'm not sure yet" },
 ];
 
 /** Behavioural signal, not a risk score — see the regulatory note in onboarding-path.ts. */
