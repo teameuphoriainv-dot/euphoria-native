@@ -58,8 +58,9 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { CHILD_BASE, childDelay, useStepTransition } from '@/shared/motion/step-transition';
 import {
-  PixelSpriteView, bolt, book, chartUp, clock, flame, globe, graduationCap, lock, rocket,
-  seedling, star, trophy, wallet, type PixelSprite,
+  PixelSpriteView, bolt, book, chartDown, chartUp, checkBadge, clock, compass, flame, globe,
+  graduationCap, hourglass, lock, question, rocket, seedling, star, trophy, wallet,
+  type PixelSprite,
 } from '@/lib/pixel';
 
 /**
@@ -157,12 +158,33 @@ const RISK: Choice[] = [
 ];
 
 
+/*
+ * ICONS, CHOSEN AGAINST THE CATALOGUE'S OWN DESCRIPTIONS.
+ *
+ * This was the only compact list with no sprites while TOPICS carries them at nine options, so
+ * five plain rows sat above ~227pt of empty screen. The first pass at picking these concluded
+ * "two of the five have no apt sprite" after looking at the fifteen already imported rather than
+ * the ~150 that exist — the wrong answer from the wrong sample.
+ *
+ * Each is matched to the author's written description, not to a guess from the name:
+ *
+ *   question   "A question mark. Something unknown or being asked."
+ *   hourglass  "An hourglass. Time passing and long horizons."
+ *   chartDown  "Descending bars. Losses, drawdowns, risk."
+ *   compass    "A compass. Direction and having a plan."
+ *   checkBadge "A verified badge. Something confirmed correct."
+ *
+ * Two earlier picks were dropped on the same test: piggyCrack is "savings emptied out", which is
+ * already broke rather than afraid of becoming so, and handshake is "deals, agreements, trades",
+ * which is a transaction rather than trust. An icon that is nearly right is a small lie told
+ * five times down a list.
+ */
 const BLOCKERS: Choice[] = [
-  { key: 'jargon', title: 'The jargon is overwhelming' },
-  { key: 'time', title: "I never find the time" },
-  { key: 'fear', title: 'I’m scared of losing money' },
-  { key: 'start', title: "I don't know where to start" },
-  { key: 'trust', title: "I don't know who to trust" },
+  { key: 'jargon', icon: question, title: 'The jargon is overwhelming' },
+  { key: 'time', icon: hourglass, title: "I never find the time" },
+  { key: 'fear', icon: chartDown, title: 'I’m scared of losing money' },
+  { key: 'start', icon: compass, title: "I don't know where to start" },
+  { key: 'trust', icon: checkBadge, title: "I don't know who to trust" },
 ];
 
 /**
