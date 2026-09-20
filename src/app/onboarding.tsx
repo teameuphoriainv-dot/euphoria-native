@@ -1435,7 +1435,10 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   safe: { flex: 1 },
   header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
-  content: { padding: Spacing.four, paddingTop: Spacing.two, flexGrow: 1, justifyContent: 'flex-start' },
+  /* paddingBottom: the 9-option topics list ends exactly at the ScrollView's clip, so the last
+     visible card rests sliced in half and reads as broken rather than scrollable. Trailing space
+     lets the list settle past the fold instead of on it. */
+  content: { padding: Spacing.four, paddingTop: Spacing.two, paddingBottom: Spacing.six, flexGrow: 1, justifyContent: 'flex-start' },
   paywallContent: { paddingTop: 0, paddingBottom: 0 },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },

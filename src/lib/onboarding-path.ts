@@ -209,7 +209,29 @@ function candidates(p: Profile): { id: string; reason: string }[] {
   // Buying a drawdown is a valuation question before it is a nerve question.
   if (p.riskComfort === 'buy') add('corporate-finance', 'You said a 20% drop is a buying opportunity');
 
-  // 2. Stated obstacles. A blocker is the thing the user believes is stopping them, so it
+  /*
+   * 2. WHAT THEY ACTUALLY ASKED FOR.
+   *
+   * This was rule 5, below goal, and that made it unreachable rather than merely low-priority.
+   * PATH_LENGTH is 3; `p.goal ?? 'learn'` always resolves, and every SEED_BY_GOAL entry is THREE
+   * distinct available courses — so by the end of the old rule 4 the list always held at least
+   * three, and recommendPathDetailed broke before it ever read a topic. Nine chips, every one
+   * mapped to a real available course, and not one of them could move the result.
+   *
+   * The same defect this function was rewritten to remove, hiding one rule further down: an
+   * answer that is collected, persisted, correctly mapped, and never consulted.
+   *
+   * Placed BELOW riskComfort and above everything else. Drawdown behaviour stays first — it is
+   * the one thing that predicts how somebody needs to be taught rather than what about. But a
+   * tapped chip is the only answer in this flow where the learner NAMES the subject; blockers,
+   * horizon and goal are all inferences from it. An explicit request outranks an inference.
+   */
+  for (const t of p.topics) {
+    const id = COURSE_BY_TOPIC[t];
+    if (id) add(id, `You picked ${TOPIC_LABEL[t] ?? t}`);
+  }
+
+  // 3. Stated obstacles. A blocker is the thing the user believes is stopping them, so it
   //    outranks a general goal: clearing it is what makes the rest reachable.
   if (p.blockers.includes('fear')) add('risk-management', 'You said losing money holds you back');
   if (p.blockers.includes('trust')) add('behavioral-finance', 'You said you do not know who to trust');
@@ -218,7 +240,7 @@ function candidates(p: Profile): { id: string; reason: string }[] {
   // "I never find the time" is a budgeting and automation problem before it is an investing one.
   if (p.blockers.includes('time')) add('personal-finance', 'You said you never find the time');
 
-  // 3. Timing. The nearer the start date, the sooner the material that matters on day one.
+  // 4. Timing. The nearer the start date, the sooner the material that matters on day one.
   if (p.horizon === 'now') add('risk-management', 'You have already started investing');
   if (p.horizon === 'unsure') add('personal-finance', 'You are not sure when you will start');
   // Months away: the mechanics of actually buying something come first.
@@ -226,15 +248,9 @@ function candidates(p: Profile): { id: string; reason: string }[] {
   // A year out is the one horizon with room to get the money side in order first.
   if (p.horizon === 'year') add('personal-finance', 'You want to start within a year');
 
-  // 4. Goal seeds the spine of the path.
+  // 5. Goal seeds the spine of the path.
   const goal = p.goal ?? 'learn';
   for (const id of SEED_BY_GOAL[goal]) add(id, GOAL_REASON[goal]);
-
-  // 5. Explicit topic picks.
-  for (const t of p.topics) {
-    const id = COURSE_BY_TOPIC[t];
-    if (id) add(id, `You picked ${TOPIC_LABEL[t] ?? t}`);
-  }
 
   // 6. Pad from the experience-matched tier, then anything, so PATH_LENGTH is always reached.
   const tier = p.experience ? TIER_BY_EXPERIENCE[p.experience] : 'easy';

@@ -422,6 +422,33 @@ export function ProgressHeader({ step, total, onBack }: { step: number; total: n
   );
 }
 
+/**
+ * MULTI-SELECT INDICATOR.
+ *
+ * The multi steps rendered the same RadioDot as the single ones, so a screen that said "Pick as
+ * many as you like" showed nine radio buttons under it. A circle is the platform's word for
+ * mutually exclusive, and people stop after one pick when they see one — which quietly thinned
+ * `topics`, the one answer where the learner names the subject directly.
+ *
+ * A square that fills and takes a tick is the other half of that vocabulary.
+ */
+function CheckBox({ selected }: { selected: boolean }) {
+  const theme = useTheme();
+  return (
+    <View
+      style={[
+        styles.checkBox,
+        {
+          borderColor: selected ? theme.primary : theme.border,
+          backgroundColor: selected ? theme.primary : 'transparent',
+          borderWidth: selected ? 0 : 1.5,
+        },
+      ]}>
+      {selected ? <UIcon name="check" size={14} color={theme.background} /> : null}
+    </View>
+  );
+}
+
 export function RadioDot({ selected }: { selected: boolean }) {
   const theme = useTheme();
   const reduced = useReducedMotion();
@@ -446,6 +473,7 @@ export function OptionCard({
   onPress,
   compact = false,
   roomy = false,
+  multi = false,
 }: {
   /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
   icon?: PixelSprite;
@@ -455,6 +483,8 @@ export function OptionCard({
   onPress: () => void;
   /** Tighter row for long lists, where a full icon+subtitle card would swamp the screen. */
   compact?: boolean;
+  /** Multi-select: draw a checkbox, because a radio dot tells the user to pick only one. */
+  multi?: boolean;
   /*
    * Taller row for SHORT lists. Measured on this iPhone 17 Pro (402x874) from real captures:
    *
@@ -528,7 +558,7 @@ export function OptionCard({
               : { marginTop: 2, opacity: 0.78 }}>{sub}</ThemedText>
           ) : null}
         </View>
-        <RadioDot selected={selected} />
+        {multi ? <CheckBox selected={selected} /> : <RadioDot selected={selected} />}
       </Animated.View>
     </SpringPressable>
   );
@@ -721,7 +751,7 @@ export function StepHeading({ title, sub, speech }: { title: string; sub?: strin
   return (
     <View style={[styles.stepHead, speech && styles.stepHeadSpeech]}>
       {speech ? (
-        <AtlasSpeech text={title} tail="top" tailAlign="center" maxWidth={330} textStyle={styles.stepQSpeech} />
+        <AtlasSpeech text={title} tail="top" tailAlign="center" maxWidth={352} textStyle={styles.stepQSpeech} />
       ) : (
         <ThemedText type="display" style={styles.stepQ}>{title}</ThemedText>
       )}
@@ -784,7 +814,9 @@ export function MultiSelectStep({
 }) {
   return (
     <>
-      <StepHeading title={question} sub={sub ?? 'Pick as many as you like.'} speech />
+      {/* No default sub. "Pick as many as you like." sat OUTSIDE the bubble in mutedForeground,
+          belonging to neither Atlas nor the options, and the checkbox now says it without words. */}
+      <StepHeading title={question} sub={sub} speech />
       <View style={styles.stepOptions}>
         {options.map((o, i) => (
           <RiseIn key={o.key} delay={childDelay(i)}>
@@ -792,6 +824,7 @@ export function MultiSelectStep({
               icon={o.icon}
               title={o.title}
               sub={o.sub}
+              multi
               compact={options.length > 4}
               selected={values.includes(o.key)}
               onPress={() => onToggle(o.key)}
@@ -1054,6 +1087,7 @@ const styles = StyleSheet.create({
   optionSm: { paddingVertical: Spacing.two, gap: Spacing.two },
   bubble: { width: 46, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   bubbleSm: { width: 34, height: 34 },
+  checkBox: { width: 22, height: 22, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
   /*
    * HEIGHT FROM CONTENT, NOT FROM AIR.
    *
