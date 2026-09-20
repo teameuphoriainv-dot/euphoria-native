@@ -539,9 +539,20 @@ export function OptionCard({
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
+          {/*
+            * 18pt for anything that can afford it, 16pt only where the list genuinely cannot.
+            *
+            * The size was tied to `roomy` (<= 4 rows), which left every compact list at 16 —
+            * including ageBand with 176pt of spare screen under it and blockers with 106pt. They
+            * wore the tight setting for no reason other than sharing a flag with topics.
+            *
+            * midList (5-6 rows) joins roomy at 18. Topics stays at 16 because it is still the
+            * binding constraint in this file: nine rows and ~75pt of slack, where four more
+            * points a row is four more points nine times.
+            */}
           <ThemedText
             type="heading"
-            style={roomy
+            style={roomy || midList
               ? { fontSize: FontSize.subhead, lineHeight: 24 }
               : { fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
           {sub && !compact ? (
@@ -1146,7 +1157,7 @@ const styles = StyleSheet.create({
    * deliberately short of closing the gap entirely — "slightly bigger", not "stretched to fit",
    * and a five-row list that reaches the button looks as wrong as one that stops halfway.
    */
-  optionSmPlus: { paddingVertical: Spacing.two + 6 },
+  optionSmPlus: { paddingVertical: Spacing.two + 10 },
   bubbleSmPlus: { width: 42, height: 42 },
   checkBox: { width: 22, height: 22, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
   /*
