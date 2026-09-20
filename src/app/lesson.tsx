@@ -13,7 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, InteractionManager } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   FadeIn,
@@ -81,6 +81,7 @@ import {
 } from '@/lib/lesson-step-session';
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
+import { applyDailyNudge } from '@/lib/notifications';
 import { lessonKey, useApp } from '@/lib/store';
 import { queueLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
@@ -523,6 +524,31 @@ export default function Lesson() {
       // a no-op) cannot re-fire activation.
       if (wasFirst && useApp.getState().completedLessons.length === 1) {
         track(Ev.firstLesson, { course: courseId, lesson: lessonNum });
+        /*
+         * THE NOTIFICATION ASK LIVES HERE NOW, not in onboarding.
+         *
+         * It used to be step 11, "Want a daily nudge?" — a permission dialog dressed as a
+         * question, asked of someone who had not yet seen a lesson. Removing that step left
+         * notifyOptIn stuck at its EMPTY_PROFILE `false`, and notifications.ts gates BOTH the
+         * streak nudge (:293) and market alerts (:389) on it, so the app sent nothing at all.
+         *
+         * Re-sited to the first lesson FINISHED, which is the first moment "keep your streak
+         * alive" is a promise about something the user has actually done. No new one-shot flag:
+         * this block is already guarded on the completed count moving to exactly 1, and iOS
+         * itself never re-prompts once canAskAgain goes false, so a second call cannot nag.
+         *
+         * runAfterInteractions because the celebration and the trial sheet animate straight
+         * after this line — a system permission alert thrown on top of a reward beat is how an
+         * app turns its best moment into an interruption, and a denial here is permanent.
+         *
+         * Persists what iOS ACTUALLY scheduled, never what we intended — the same rule the
+         * Settings toggle follows.
+         */
+        InteractionManager.runAfterInteractions(() => {
+          void applyDailyNudge(true).then((scheduled) => {
+            useApp.getState().setProfile({ notifyOptIn: scheduled });
+          });
+        });
         /*
          * 17c fires HERE, on the first lesson finished inside the trial — the win Headway's chest
          * is anchored to, and the only moment at which the approved copy ("That's your first lesson
