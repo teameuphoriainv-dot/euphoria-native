@@ -51,6 +51,24 @@ export const ANALYTICS_ENABLED = /^phc_[A-Za-z0-9]{20,}$/.test(KEY ?? '');
 export const Ev = {
   install: 'install',
   firstLesson: 'first_lesson_completed',
+  /**
+   * The PORTFOLIO side of the product, which had no instrumentation at all.
+   *
+   * Seventeen events existed before this one and not a single one fired on a trade. That made the
+   * central question about this product — does a user who makes a trade come back better than one
+   * who only takes lessons — literally unanswerable, while the monetization funnel was measured to
+   * three decimal places. trade.tsx's own comment says "Euphoria is a portfolio you are learning
+   * to run"; the analytics only ever measured the learning half.
+   *
+   * Deliberately NOT `first_trade`. PostHog derives first-occurrence per install itself, so an
+   * explicit first-flag buys nothing, needs its own persisted field, and would MISFIRE on a
+   * sell-everything-then-rebuy — a real sequence, not a hypothetical. Firing on every trade also
+   * measures depth rather than activation alone.
+   *
+   * `side` keeps opening a position separate from closing one. They are different behaviours and
+   * averaging them would hide whichever one actually predicts return.
+   */
+  tradePlaced: 'trade_placed',
   dayReturn: 'day_return',
   paywallSeen: 'paywall_seen',
   paywallDismissed: 'paywall_dismissed',

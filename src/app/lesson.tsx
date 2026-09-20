@@ -150,9 +150,10 @@ export default function Lesson() {
    * because "restored to the wrong place" cannot be undone once the learner starts tapping.
    */
   const hasHydrated = useApp((s) => s.hasHydrated);
-  const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string }>();
+  const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string; qa?: string }>();
   const courseId = params.course ?? '';
   const lessonNum = Number(params.num);
+  const qa = __DEV__ ? params.qa : undefined;
   const forceFreshAtlasIntro = __DEV__ && params.fresh === '1';
 
   const [lesson, setLesson] = useState<PathwayLesson | null>(null);
@@ -162,7 +163,7 @@ export default function Lesson() {
   const [challengeStage, setChallengeStage] = useState<'none' | 'intro' | 'round'>('none');
   // bad params are knowable at render — deriving this keeps setState out of the effect body
   const badParams = !courseId || !Number.isFinite(lessonNum) || !isCourseAvailable(courseId);
-  const missing = badParams || notFound;
+  const missing = qa === 'not-found' || badParams || notFound;
   /*
    * The gate lives HERE rather than at the three call sites (home.tsx, learn.tsx,
    * digest/[slug].tsx) because every one of them lands on this route. Guarding the list only would
@@ -313,6 +314,7 @@ export default function Lesson() {
   }, [idx, lessonStepSession]);
 
   useEffect(() => {
+    if (qa === 'loading') return;
     if (badParams) {
       Promise.resolve().then(() => {
         setNotFound(true);
@@ -364,6 +366,8 @@ export default function Lesson() {
           key: lessonKey(courseId, lessonNum),
           ...lessonResumeShape(found.steps),
         }) : 0);
+        if (found && qa === 'complete') setIdx(expandSteps(found.steps).length + 1);
+        if (found && qa === 'heart-wall') setOutOfHearts(true);
         openedAt.current = Date.now();
         setCorrectSoFar(0);
         setRecentMistakes([]);
@@ -379,7 +383,7 @@ export default function Lesson() {
     return () => {
       cancelled = true;
     };
-  }, [badParams, courseId, lessonNum, hasHydrated, lessonStepSession]);
+  }, [badParams, courseId, lessonNum, hasHydrated, lessonStepSession, qa]);
 
   /**
    * Persist the position, or forget it.
@@ -602,7 +606,7 @@ export default function Lesson() {
         <View style={styles.centered}>
           <Atlas size={110} expression="oops" idle />
           <ThemedText type="title" style={styles.title}>That lesson isn&apos;t available.</ThemedText>
-          <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>Pick another from the pathway.</ThemedText>
+          <AtlasSpeech text="Pick another from the pathway." tail="top" tailAlign="center" maxWidth={300} />
         </View>
         <View style={styles.footer}>
           <SlabButton label="Back" full onPress={exitLesson} />
@@ -1183,9 +1187,13 @@ export default function Lesson() {
                 </View>
               </RewardPop>
             </View>
-            <RewardPop delay={1620}>
-              <ThemedText type="body" themeColor="mutedForeground" style={[styles.center, { marginTop: Spacing.three }]}>Atlas is proud of you.</ThemedText>
-            </RewardPop>
+            {/* Atlas is ON this screen, expression="proud", mid-celebrate. So this line is HIS,
+                and he says it in his own bubble rather than it being printed as a grey caption
+                floating under the reward pills. delay matches the RewardPop it replaces, so it
+                still lands as the closing beat after XP, coins and streak have all settled. */}
+            <View style={{ marginTop: Spacing.three, alignItems: 'center' }}>
+              <AtlasSpeech text="Atlas is proud of you." delay={1620} tail="top" tailAlign="center" maxWidth={300} />
+            </View>
             </ScrollView>
           </SemanticMotion>
         )}

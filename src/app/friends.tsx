@@ -73,7 +73,7 @@ function PersonRow({ person, rel, onToggle }: { person: Person; rel: Relationshi
               borderColor: active ? theme.primary : theme.border,
             },
           ]}>
-          <ThemedText type="smallBold" style={{ color: active ? '#0A0A0F' : theme.mutedForeground }}>
+          <ThemedText type="smallBold" style={{ color: active ? '#09090D' : theme.mutedForeground }}>
             {LABEL[rel]}
           </ThemedText>
         </View>

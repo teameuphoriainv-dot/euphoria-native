@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   question: { textAlign: 'center', fontSize: 20, lineHeight: 28, marginBottom: 24 },
   options: { width: '100%', gap: 10 },
   option: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingHorizontal: 16, paddingVertical: 14, borderRadius: 16, borderWidth: 1 },
-  optionText: { flex: 1, color: '#F2EFF7', fontSize: 15, lineHeight: 21 },
+  optionText: { flex: 1, color: '#F1EFF5', fontSize: 15, lineHeight: 21 },
   mutedOption: { opacity: 0.5 },
   feedback: { width: '100%', alignItems: 'center', marginTop: 20 },
   correction: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },

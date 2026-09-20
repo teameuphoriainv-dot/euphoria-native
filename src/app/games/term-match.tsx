@@ -2,7 +2,7 @@
  * Term Match — tap-to-match mini-game. Match each term (left) to its definition (right):
  * correct pair locks green, wrong flashes amber. Score + timer; results card w/ celebration.
  */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -28,6 +28,8 @@ import { Duration } from '@/shared/motion/tokens';
 
 export default function TermMatch() {
   const theme = useTheme();
+  const params = useLocalSearchParams<{ qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
 
   /*
    * THE BOARD IS BUILT FOR THIS LEARNER, not for everybody.
@@ -58,10 +60,10 @@ export default function TermMatch() {
   const defs = useMemo(() => shuffleSeeded(pairs, seed + 7), [pairs, seed]);
   const [selTerm, setSelTerm] = useState<string | null>(null);
   const [selDef, setSelDef] = useState<string | null>(null);
-  const [matched, setMatched] = useState<string[]>([]);
+  const [matched, setMatched] = useState<string[]>(() => (qa === 'over' ? pairs.map((pair) => pair.id) : []));
   const [wrong, setWrong] = useState<string[]>([]);
   const [elapsed, setElapsed] = useState(0);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(qa === 'over');
 
   const done = matched.length === pairs.length;
 

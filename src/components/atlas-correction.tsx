@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   row: { width: '100%', flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   bubble: { position: 'relative', flex: 1, minWidth: 0, borderRadius: 16, borderTopLeftRadius: 4, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: '#14121C', paddingHorizontal: 16, paddingVertical: 14 },
   tail: { position: 'absolute', left: -6, top: 16, width: 10, height: 10, transform: [{ rotate: '45deg' }], backgroundColor: '#14121C', borderLeftWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.12)' },
-  answer: { color: '#F2EFF7', fontSize: 14.5, lineHeight: 20, fontWeight: '700' },
+  answer: { color: '#F1EFF5', fontSize: 14.5, lineHeight: 20, fontWeight: '700' },
   reason: { color: '#A79DB5', fontSize: 13.5, lineHeight: 21 },
   reasonAfter: { marginTop: 6 },
 });

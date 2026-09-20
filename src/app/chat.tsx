@@ -16,9 +16,11 @@
  * NOT adopted: thumbs/copy/regen controls (3/5) — there is no telemetry to receive the vote, and a
  * button that files a rating into nothing is exactly the dead control this app is trying to remove.
  *
- * The A.I. disclaimer is 1/5 in the references, which is not convergence. It ships anyway because
- * this is a FINANCE app and the domain risk is different from homework help. Justified by domain,
- * not by the reference set.
+ * REMOVED 2026-09-17, owner call: the standing "Atlas uses Google Gemini. General concepts, not
+ * personal advice." caption under the composer. It was 1/5 in the references to begin with, it
+ * restated a fact the user already consented to in the AI-consent Alert below, and it sat on EVERY
+ * turn of the conversation rather than at the moment of risk. The consent Alert is the surface that
+ * actually carries the third-party disclosure; do not reintroduce a permanent caption here.
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -55,6 +57,7 @@ import { IAP_ENABLED } from '@/lib/purchases';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
+import { AtlasSpeech } from '@/components/atlas-speech';
 import { Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { askAtlas, chatErrorMessage, ChatError, type ChatTurn } from '@/lib/atlas-chat';
@@ -141,7 +144,8 @@ const WARN_AT = 3;
 
 export default function ChatScreen() {
   const theme = useTheme();
-  const params = useLocalSearchParams<{ topic?: string; lessonContext?: string }>();
+  const params = useLocalSearchParams<{ topic?: string; lessonContext?: string; qa?: string }>();
+  const qa = __DEV__ ? params.qa : undefined;
   const topic = params.topic ?? '';
   const lessonContext = useMemo(() => parseLessonContext(params.lessonContext), [params.lessonContext]);
   const lessonModes = useMemo(() => {
@@ -158,10 +162,19 @@ export default function ChatScreen() {
   const left = useApp((s) => s.atlasLeft());
   const spend = useApp((s) => s.spendAtlasMessage);
 
-  const [turns, setTurns] = useState<ChatTurn[]>([]);
+  const [turns, setTurns] = useState<ChatTurn[]>(() => {
+    if (qa === 'conversation') {
+      return [
+        { role: 'user', content: 'Why did this stock price move today?' },
+        { role: 'model', content: 'Prices move when new information changes what buyers and sellers expect. Earnings, guidance, interest rates, and market sentiment can all shift that balance.' },
+      ];
+    }
+    if (qa === 'error' || qa === 'thinking') return [{ role: 'user', content: 'Why did this stock price move today?' }];
+    return [];
+  });
   const [draft, setDraft] = useState('');
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(qa === 'thinking');
+  const [error, setError] = useState<string | null>(qa === 'error' ? 'Atlas could not answer that right now. Try again in a moment.' : null);
   // Consent is intentionally session-scoped. Leaving and reopening Atlas asks again before any
   // new text is shared with the third-party model, and no old consent survives a reinstall.
   const [aiConsent, setAiConsent] = useState(false);
@@ -204,7 +217,8 @@ export default function ChatScreen() {
     setError(null);
   }
 
-  const exhausted = !isPro && left <= 0;
+  const remaining = qa === 'exhausted' ? 0 : left;
+  const exhausted = qa === 'exhausted' || (!isPro && remaining <= 0);
   /*
    * EXPIRY IS NOT THE SAME EVENT AS THE COUNT LIMIT, and conflating them was a measured hole:
    * `store.atlasLeft()` knows nothing about the trial clock, so an EXPIRED user opened this screen
@@ -374,20 +388,20 @@ export default function ChatScreen() {
         {/* "10/10" told the user nothing — a bare ratio reads as a score, not an allowance. Below
             the warn threshold it becomes a Pro CTA, which is where Answer.AI puts its "+ Add". */}
         {!isPro && !expired &&
-          (left <= WARN_AT ? (
+          (remaining <= WARN_AT ? (
             <Pressable
               onPress={() => router.push('/onboarding?step=paywall')}
               hitSlop={8}
               accessibilityRole="button"
-              accessibilityLabel={`${left} questions left. Go Pro for unlimited.`}
+              accessibilityLabel={`${remaining} questions left. Go Pro for unlimited.`}
             >
               <View style={[styles.warnPill, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{left} left</ThemedText>
+                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{remaining} left</ThemedText>
               </View>
             </Pressable>
           ) : (
-            <ThemedText type="small" themeColor="mutedForeground" accessibilityLabel={`${left} questions left`}>
-              {left} left
+            <ThemedText type="small" themeColor="mutedForeground" accessibilityLabel={`${remaining} questions left`}>
+              {remaining} left
             </ThemedText>
           ))}
       </View>
@@ -409,11 +423,14 @@ export default function ChatScreen() {
               <View style={styles.emptyHead}>
                 <Atlas size={lessonContext ? 52 : 104} expression="happy" interactive={false} idle={!lessonContext} />
                 <ThemedText type="title" style={styles.emptyTitle}>Hi, I&apos;m Atlas.</ThemedText>
-                <ThemedText type="body" themeColor="mutedForeground" style={styles.emptyLine}>
-                  {lessonContext
+                <AtlasSpeech
+                  text={lessonContext
                     ? 'I can see this step. Ask me anything about it, or pick one below.'
                     : 'Ask me anything about money. I\'ll keep it short.'}
-                </ThemedText>
+                  tail="top"
+                  tailAlign="center"
+                  maxWidth={300}
+                />
               </View>
 
               {/* Full-width question rows, not centred pills. Answer.AI's welcome (screen 184765)
@@ -498,15 +515,15 @@ export default function ChatScreen() {
 
           {/* Warned scarcity, before the wall. Answer.AI shows this as a banner AND keeps a count
               in the header — both, not either. Only after a real reply, so it never greets you. */}
-          {!isPro && !exhausted && left <= WARN_AT && !pending && turns.length > 0 && (
+          {!isPro && !exhausted && remaining <= WARN_AT && !pending && turns.length > 0 && (
             <Pressable
               onPress={() => router.push('/onboarding?step=paywall')}
               style={[styles.warnBanner, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '3A' }]}
               accessibilityRole="button"
-              accessibilityLabel={`${left} free questions left. Go Pro for unlimited.`}
+              accessibilityLabel={`${remaining} free questions left. Go Pro for unlimited.`}
             >
               <ThemedText type="small" style={{ flex: 1, color: theme.iconLilac }}>
-                {left === 1 ? '1 free question left' : `${left} free questions left`}. Go Pro for unlimited.
+                {remaining === 1 ? '1 free question left' : `${remaining} free questions left`}. Go Pro for unlimited.
               </ThemedText>
             </Pressable>
           )}
@@ -592,9 +609,6 @@ export default function ChatScreen() {
           </Pressable>
         </View>
 
-        <ThemedText type="small" themeColor="mutedForeground" style={styles.disclaimer}>
-          Atlas uses Google Gemini. General concepts, not personal advice.
-        </ThemedText>
       </KeyboardAvoidingView>
 
       {/* Sibling of the KeyboardAvoidingView, not a child of the ScrollView: the thread stays
@@ -753,5 +767,4 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
   sendBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  disclaimer: { textAlign: 'center', paddingHorizontal: Spacing.four, paddingTop: Spacing.two },
 });

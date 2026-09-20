@@ -97,7 +97,7 @@ export default function League() {
   const myAvatar = chosen?.sprite ?? (equippedBadge ? ITEM_ART[equippedBadge] : undefined) ?? star;
   const players = [
     ...field.map((p) => ({ name: p.name, xp: p.weeklyXp, color: p.color, avatar: p.avatar, me: false })),
-    { name: 'You', xp: weekly, color: '#A855EB', avatar: myAvatar, me: true },
+    { name: 'You', xp: weekly, color: '#A451E6', avatar: myAvatar, me: true },
   ].sort((a, b) => b.xp - a.xp);
   const zoned = tab === 'league';
   // Never zero: a divide-by-zero here would make every bar NaN% wide, which React Native renders

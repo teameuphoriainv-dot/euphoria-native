@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   pressable: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24, paddingHorizontal: 24 },
   bubble: { position: 'relative', borderRadius: 24, borderTopLeftRadius: 4, borderTopRightRadius: 4, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.14)', backgroundColor: '#14121C', paddingHorizontal: 28, paddingVertical: 16 },
   tail: { position: 'absolute', top: -7, left: '50%', marginLeft: -7, width: 14, height: 14, transform: [{ rotate: '45deg' }], backgroundColor: '#14121C', borderLeftWidth: StyleSheet.hairlineWidth, borderTopWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.14)' },
-  line: { color: '#F2EFF7', fontSize: 22, lineHeight: 29, textAlign: 'center' },
+  line: { color: '#F1EFF5', fontSize: 22, lineHeight: 29, textAlign: 'center' },
   details: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 20 },
   detailItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });
