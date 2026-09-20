@@ -78,6 +78,30 @@ const QUEST_SPRITE: Record<string, PixelSprite> = {
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 /**
+ * TEMPORARY — the dashboard-band bake-off. Remove once a variant is chosen.
+ *
+ * The band between the hero card and the pathway rail is the part in dispute: what shape should
+ * the four numbers take, and should the streak card and quests header fold into it. (The rail's
+ * own section label is deliberately NOT written out here: home-profile-presentation-regression
+ * pins the SOURCE ORDER of Home's sections by indexOf on their labels, so naming one in a
+ * comment above them all puts it first and fails the lane. Same trap as writing a hex literal
+ * in a comment under design-rules-pin.) Every variant
+ * below renders against the REAL hero, the REAL data and the REAL path, so the comparison is
+ * of the one thing that differs rather than of five different mockups.
+ *
+ *   'grid'   2x2 of bordered tiles                  -- Step
+ *   'strip'  one inline 4-column row, no chrome     -- Greenlight
+ *   'chips'  a horizontal row of pills              -- Robinhood's movers
+ *   'card'   one card, four stats inside it         -- Acorns' header block
+ *   'none'   no dashboard at all; today's screen    -- Bloom / Duolingo ship no Home tab
+ *
+ * Every variant except 'none' also FOLDS IN the streak card and the quests header, because all
+ * three currently state the same two facts. 'none' is today's screen untouched, as the control.
+ */
+type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none';
+const BAND: Band = 'grid';
+
+/**
  * <StatTile> — one cell of the Home grid.
  *
  * MEASURED off Step's home screen (teen banking, 7M users -- the closest analogue to this app's
@@ -95,6 +119,31 @@ const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
  * a caption that says what the number MEANS. The caption is not decoration -- "1,234" alone is
  * unreadable, "1,234 / balance" is a fact.
  */
+type Stat = { sprite: PixelSprite; label: string; value: string; caption: string; tint: string };
+
+/** One inline column. Greenlight shows Spending / Saving / Investing exactly like this: no card,
+ *  no border, just label over number. Four of these cost about a fifth of the grid's height. */
+function StatColumn({ stat }: { stat: Stat }) {
+  return (
+    <View style={styles.statCol}>
+      <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>{stat.label}</ThemedText>
+      <ThemedText type="title" maxFontSizeMultiplier={1.6} style={[styles.tileValue, { color: stat.tint }]} numberOfLines={1}>{stat.value}</ThemedText>
+    </View>
+  );
+}
+
+/** One pill. Robinhood's movers grid is built from these -- icon, label, value, all on one line. */
+function StatChip({ stat }: { stat: Stat }) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.chip, { backgroundColor: theme.cardElevated, borderColor: theme.border }]}>
+      <PixelSpriteView sprite={stat.sprite} size={12} />
+      <ThemedText type="small" themeColor="mutedForeground">{stat.label}</ThemedText>
+      <ThemedText type="smallBold" style={{ color: stat.tint }}>{stat.value}</ThemedText>
+    </View>
+  );
+}
+
 function StatTile({ sprite, label, value, caption, tint }: {
   sprite: PixelSprite;
   label: string;
@@ -321,6 +370,15 @@ export default function Home() {
    */
   const [questsOpen, setQuestsOpen] = useState(false);
   const questsDone = quests.filter((q) => q.done).length;
+
+  /* One model, five renderings. Each variant differs only in SHAPE, never in content, so the
+     bake-off compares layouts rather than five different sets of numbers. */
+  const stats: Stat[] = [
+    { sprite: flameSprite, label: 'Streak', value: String(streak), caption: streak === 1 ? 'day' : 'days', tint: theme.streak },
+    { sprite: bolt, label: 'XP', value: String(xp), caption: 'earned', tint: theme.iconLilac },
+    { sprite: target, label: 'Quests', value: `${String(questsDone)}/${String(quests.length)}`, caption: `${String(hoursLeft)}h left`, tint: questsDone === quests.length ? theme.success : theme.text },
+    { sprite: targetGoal, label: 'Today', value: `${String(minutesDone)}m`, caption: `of ${String(goalMinutes)}m goal`, tint: minutesDone >= goalMinutes ? theme.success : theme.text },
+  ];
   const claimQuestReward = useApp((st) => st.claimQuestReward);
   useEffect(() => {
     if (allQuestsDone) claimQuestReward();
@@ -436,7 +494,8 @@ export default function Home() {
           * The number is the hero here rather than a pill's afterthought, which is the whole point
           * of the reference: a streak you can read from across the room is a streak you protect.
           */}
-        <RiseIn delay={60}>
+        {/* Folded into the band in every variant but the control. */}
+        {BAND === 'none' && (<RiseIn delay={60}>
           <Card style={styles.streakCard}>
             <View style={styles.streakTop}>
               {/*
@@ -508,7 +567,7 @@ export default function Home() {
               ))}
             </View>
           </Card>
-        </RiseIn>
+        </RiseIn>)}
 
         {/*
          * THREE BLOCKS WERE REMOVED FROM HERE, all on 2026-09-01. None is deleted from the app.
@@ -708,39 +767,28 @@ export default function Home() {
             * The whole header is the toggle rather than a chevron-sized target, and it announces
             * as a button with its expanded state so VoiceOver users get the same affordance.
             */}
-          {/*
-            * THE GRID. Measured off Step's home screen -- teen banking, 7M users, the closest
-            * analogue to this app's audience and to its problem of having several unrelated
-            * numbers to show at once. Their answer is two strict tiers and nothing between:
-            * one primary card carrying the hero number with its CTA inside it, then four equal
-            * small cards in a 2x2. Across six shipped apps captured from their App Store
-            * listings, not one stacks full-width cards of equal weight the way this screen did.
-            *
-            * It sits between the hero and the quests for now and REPLACES NOTHING, so the
-            * mechanism can be judged on device before anything is deleted. If it earns its
-            * place, the streak card and the collapsed quests header both fold into it -- both
-            * currently say the same thing the grid says.
-            */}
-          <View style={styles.statGrid}>
-            <View style={styles.tileRow}>
-              <StatTile sprite={flameSprite} label="Streak" value={String(streak)} caption={streak === 1 ? 'day' : 'days'} tint={theme.streak} />
-              <StatTile sprite={bolt} label="XP" value={String(xp)} caption="earned" tint={theme.iconLilac} />
+          {BAND === 'grid' && (
+            <View style={styles.statGrid}>
+              <View style={styles.tileRow}>{stats.slice(0, 2).map((st) => <StatTile key={st.label} {...st} />)}</View>
+              <View style={styles.tileRow}>{stats.slice(2).map((st) => <StatTile key={st.label} {...st} />)}</View>
             </View>
-            <View style={styles.tileRow}>
-              <StatTile sprite={target} label="Quests" value={`${String(questsDone)}/${String(quests.length)}`} caption={`${String(hoursLeft)}h left`} tint={questsDone === quests.length ? theme.success : theme.text} />
-              {/*
-                * NOT COINS. The header comment a few hundred lines up records that the coin pill
-                * was "asked to be removed from Home outright" -- the balance belongs with the
-                * things it buys. A Coins tile here would quietly reverse that decision under
-                * cover of a layout change, which is the worst way for a decision to get undone.
-                * Minutes practised is the honest fourth number: today-scoped like Quests, the
-                * one the daily goal is measured against, and the only stat on this grid the
-                * user moves by using the app right now.
-                */}
-              <StatTile sprite={targetGoal} label="Today" value={`${String(minutesDone)}m`} caption={`of ${String(goalMinutes)}m goal`} tint={minutesDone >= goalMinutes ? theme.success : theme.text} />
+          )}
+          {BAND === 'strip' && (
+            <View style={[styles.statStrip, { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: theme.border }]}>
+              {stats.map((st) => <StatColumn key={st.label} stat={st} />)}
             </View>
-          </View>
+          )}
+          {BAND === 'chips' && (
+            <View style={styles.chipRow}>{stats.map((st) => <StatChip key={st.label} stat={st} />)}</View>
+          )}
+          {BAND === 'card' && (
+            <View style={[styles.statCard, { backgroundColor: theme.cardElevated, borderColor: theme.border }]}>
+              {stats.map((st) => <StatColumn key={st.label} stat={st} />)}
+            </View>
+          )}
 
+          {/* Folded into the band in every variant but the control. */}
+          {BAND === 'none' && (<>
           <SpringPressable
             haptic={false}
             scaleTo={0.995}
@@ -790,6 +838,7 @@ export default function Home() {
             ))}
           </Card>
           )}
+          </>)}
         </RiseIn>
 
         {/*
@@ -901,6 +950,11 @@ const styles = StyleSheet.create({
   /* Two per row at flex:1 rather than a wrapped percentage: a 48% basis plus a gap overflows on
      the narrowest supported width, and wrap then silently drops a tile onto its own line. */
   tileRow: { flexDirection: 'row', gap: Spacing.three },
+  statCol: { flex: 1, gap: 2 },
+  statStrip: { flexDirection: 'row', marginTop: Spacing.four, paddingVertical: Spacing.three },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: Radius.pill, borderWidth: 1 },
+  statCard: { flexDirection: 'row', marginTop: Spacing.four, padding: Spacing.four, borderRadius: Radius.lg, borderWidth: 1 },
   tile: { flex: 1, borderWidth: 1, borderRadius: Radius.md, padding: Spacing.three, gap: Spacing.one },
   tileHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   tileValue: { fontSize: FontSize.titleSm, lineHeight: 30 },
