@@ -50,6 +50,18 @@ export const ANALYTICS_ENABLED = /^phc_[A-Za-z0-9]{20,}$/.test(KEY ?? '');
  */
 export const Ev = {
   install: 'install',
+  /**
+   * EVERY STEP OF THE ONBOARDING FUNNEL, which had none.
+   *
+   * There were 18 events and not one fired before the paywall, so the only thing measurable about
+   * a 14-step funnel was whether someone reached the end of it. Which question loses people was
+   * unanswerable, which means every cut to this flow — including the two made on 2026-09-19 — was
+   * reasoning rather than measurement.
+   *
+   * Fired ONCE PER STEP PER SESSION. Stepping back and forward re-renders the step but must not
+   * re-count it, or the drop-off between two adjacent steps stops being a ratio of people.
+   */
+  onboardingStep: 'onboarding_step',
   firstLesson: 'first_lesson_completed',
   /**
    * The PORTFOLIO side of the product, which had no instrumentation at all.

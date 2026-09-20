@@ -52,8 +52,6 @@ import { Ev, track } from '@/lib/analytics';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, getPackages, readPlanOffer, type PlanOffer, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
-import { applyDailyNudge } from '@/lib/notifications';
-import { NudgeTimePicker } from '@/components/nudge-time-picker';
 import { estimateWeeks, hasAccount, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
 import { NAME_MAX, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -425,12 +423,10 @@ type StepDef =
  *                  clothes, which is why it needed a load-bearing exception in canContinue AND
  *                  in autoAdvances to work at all.
  *
- * ⚠ CONSEQUENCE, STATED: notifyOptIn now stays `false` (EMPTY_PROFILE) unless the user visits
- * Settings. notifications.ts gates BOTH the streak nudge (:293) and market alerts (:389) on it,
- * so with no other change this ships an app that never sends a push — and push is the strongest
- * retention lever here. The ask has to be re-sited after first value (first lesson complete),
- * where permission prompts convert far better than they do mid-signup. Until then this is a
- * known retention regression, not an oversight.
+ * The permission ask did not disappear with the step — it MOVED. It now fires in lesson.tsx on
+ * the first lesson finished, which is the first moment "keep your streak alive" refers to
+ * something the user has actually done. Removing the step without re-siting the ask would have
+ * left notifyOptIn stuck at its EMPTY_PROFILE `false` and killed every push the app sends.
  */
 const STEPS: StepDef[] = [
   { kind: 'name' },
@@ -559,20 +555,9 @@ export default function Onboarding() {
   const weeks = estimateWeeks(profile, path);
   const tierLabel = profile.experience === 'experienced' ? 'advanced' : profile.experience === 'basics' ? 'intermediate' : 'beginner';
 
-  /** Single-select write. Two fields aren't strings, so they're coerced here. */
+  /** Single-select write. Every remaining single-select field is a string, so no coercion. */
   const answer = (field: keyof Profile, value: string) => {
-    if (field === 'dailyMinutes') setProfile({ dailyMinutes: Number.parseInt(value, 10) });
-    else if (field === 'notifyOptIn') {
-      const want = value === 'yes';
-      // Optimistic so the radio fills immediately, then corrected to whatever iOS actually
-      // granted. Storing the tap alone is how this screen used to promise a nudge that no
-      // code anywhere scheduled.
-      setProfile({ notifyOptIn: want });
-      void applyDailyNudge(want).then((scheduled) => {
-        if (scheduled !== want) setProfile({ notifyOptIn: scheduled });
-      });
-    }
-    else setProfile({ [field]: value } as Partial<Profile>);
+    setProfile({ [field]: value } as Partial<Profile>);
     setNodKey((n) => n + 1);
   };
 
@@ -713,8 +698,6 @@ export default function Onboarding() {
    * on the card tap with no Continue at all.
    *
    * Two guards, both load-bearing:
-   *  - `notifyOptIn` is excluded by the caller. Its answer() opens the iOS permission dialog,
-   *    and advancing the screen behind a system modal is disorienting.
    *  - the step is re-checked after the delay. Continue is still on screen, so a user who taps
    *    an option and then Continue inside the window would otherwise advance twice.
    *
@@ -893,6 +876,30 @@ export default function Onboarding() {
    * distinguishes it from the gate-sheet walls, which share the event name deliberately: one
    * paywall_seen across all surfaces is the number you want, broken down by surface when you ask.
    */
+  /*
+   * FUNNEL INSTRUMENTATION. See Ev.onboardingStep for why this did not exist.
+   *
+   * A Set rather than a high-water mark: someone who goes back to change an answer has still only
+   * SEEN that step once, and counting the revisit would inflate the earlier step against the later
+   * one and invent a drop-off that never happened.
+   *
+   * Keyed on `step` and not `renderStep`, so it counts the step the user is actually on rather
+   * than the one still cross-fading out.
+   */
+  const stepSeenRef = useRef<Set<number>>(new Set());
+  useEffect(() => {
+    if (stepSeenRef.current.has(step)) return;
+    stepSeenRef.current.add(step);
+    const d = STEPS[step];
+    const field = d && 'field' in d ? String(d.field) : undefined;
+    track(Ev.onboardingStep, {
+      index: step,
+      total: TOTAL,
+      kind: d?.kind ?? 'unknown',
+      ...(field ? { field } : {}),
+    });
+  }, [step]);
+
   const paywallSeenRef = useRef(false);
   useEffect(() => {
     if (step !== PAYWALL_INDEX || paywallSeenRef.current) return;
@@ -980,23 +987,6 @@ export default function Onboarding() {
    */
   const [underAgePick, setUnderAgePick] = useState(false);
 
-  /*
-   * THE NOTIFICATION STEP MUST NOT ARRIVE PRE-ANSWERED.
-   *
-   * `notifyOptIn` is a plain boolean defaulting to false, and `selected()` maps a boolean straight
-   * to 'yes' / 'no' — so the consent screen rendered with "Not right now" already filled in, on a
-   * question the user had not been asked yet. It was also the only single-select that could be
-   * passed without a tap. A pre-filled default on a consent question is the wrong default in both
-   * directions: it reads as the app having decided, and a mis-tap on Continue records an answer.
-   *
-   * Tracked here rather than by widening the field to `boolean | null`, because that type is read
-   * by applyDailyNudge, two call sites in notifications.ts and the settings toggle, none of which
-   * has a third state to mean.
-   *
-   * Seeded from `completedAt` so someone REPLAYING onboarding still sees the choice they made last
-   * time, while a first-run user sees an honest blank.
-   */
-  const [notifyAnswered, setNotifyAnswered] = useState(() => Boolean(useApp.getState().profile.completedAt));
 
   /** True only on the age step with the under-13 band chosen — see AGE_FLOOR above. */
   const underAge = liveDef?.kind === 'single' && liveDef.field === 'ageBand' && underAgePick;
@@ -1005,14 +995,6 @@ export default function Onboarding() {
     if (underAge) return false;
     if (!liveDef) return true;
     if (liveDef.kind === 'name') return nameDraft.trim().length > 0;
-    /*
-     * The consent step is the one single-select that could be passed without a tap, because
-     * `notifyOptIn` is a boolean that `selected()` reads as 'no' before anybody has answered. Now
-     * that the radio renders blank until it is touched, leaving Continue live would show an enabled
-     * button under an empty question. Both answers are one tap away, so requiring one is a choice
-     * rather than friction — and it is the same rule the other single-selects already follow.
-     */
-    if (liveDef.kind === 'single' && liveDef.field === 'notifyOptIn') return notifyAnswered;
     if (liveDef.kind === 'single') return selected(liveDef.field) !== null;
     if (liveDef.kind === 'multi') return ((profile[liveDef.field] as string[]) ?? []).length > 0;
     return true;
@@ -1033,16 +1015,11 @@ export default function Onboarding() {
    *   avatar     — a pick here is cosmetic and never advances (see AvatarStep)
    *   reveal     — the payoff screen, read at your own pace
    *   paywall    — a purchase must always be deliberate
-   *   notifyOptIn — LOAD-BEARING EXCEPTION. It is `kind: 'single'`, but its answer() opens the iOS
-   *     permission dialog and advanceAfterPick is deliberately not called for it (see the caller),
-   *     so it is the one single-select where the tap does not advance and the button is the only
-   *     way out. Deriving this from the same `field !== 'notifyOptIn'` test the auto-advance uses
-   *     is the point: one condition, so the button and the advance can never disagree.
    *
    * The under-13 case keeps the footer (the fine print below renders regardless) but the button
    * goes with every other single step — it was already disabled there, so nothing is lost.
    */
-  const autoAdvances = liveDef?.kind === 'single' && liveDef.field !== 'notifyOptIn';
+  const autoAdvances = liveDef?.kind === 'single';
   const showAction = !autoAdvances;
 
   const face: AtlasExpression =
@@ -1074,9 +1051,7 @@ export default function Onboarding() {
               sub={def.sub}
               options={def.options}
               value={
-                def.field === 'ageBand' && underAgePick ? UNDER_AGE
-                  : def.field === 'notifyOptIn' && !notifyAnswered ? null
-                    : selected(def.field)
+                def.field === 'ageBand' && underAgePick ? UNDER_AGE : selected(def.field)
               }
               onChange={(k) => {
                 /*
@@ -1095,20 +1070,10 @@ export default function Onboarding() {
                 }
                 // Any other band clears the refusal, so re-picking releases the gate.
                 if (def.field === 'ageBand') setUnderAgePick(false);
-                if (def.field === 'notifyOptIn') setNotifyAnswered(true);
                 answer(def.field, k);
-                // notifyOptIn opens the iOS permission dialog — do not advance behind it.
-                if (def.field !== 'notifyOptIn') advanceAfterPick();
+                advanceAfterPick();
               }}
             />
-            {/*
-              UNIT 15a. The time picker sits BEFORE the yes/no, and the placement IS the mechanism
-              (Headway `128567`): once someone has chosen when they want to be nudged, iOS's prompt
-              is only asking whether — a far easier question than a cold "Allow notifications?".
-              Answering here also means the hour is already in the store when answer() fires, so
-              applyDailyNudge schedules against the user's choice on the very first call.
-            */}
-            {def.field === 'notifyOptIn' && <NudgeTimePicker />}
           </>
         );
       case 'name':

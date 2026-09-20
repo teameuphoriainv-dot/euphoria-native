@@ -403,10 +403,20 @@ export function ProgressHeader({ step, total, onBack }: { step: number; total: n
   return (
     <View style={styles.progressRow}>
       <BackChevron onPress={onBack} />
+      {/*
+        * ONE BAR, NOT THREE.
+        *
+        * It used to be three segments each filled by `((step+1)/total)*3 - i`, so the whole bar
+        * was really one value cut into thirds. That reads as three chapters the flow does not
+        * have — nothing in onboarding is grouped in threes — and it makes a single step look
+        * like a third of the journey on the screen where it lands at a boundary.
+        *
+        * One continuous fill of (step+1)/total: at 14 steps every screen is ~7.1% and the bar
+        * says exactly what it means. The two gaps are gone with the segments, so the bar also
+        * gets the full width back.
+        */}
       <View style={styles.segRow}>
-        {[0, 1, 2].map((i) => (
-          <Segment key={i} fill={Math.max(0, Math.min(1, ((step + 1) / total) * 3 - i))} color={theme.primary} track={theme.muted} />
-        ))}
+        <Segment fill={Math.max(0, Math.min(1, (step + 1) / total))} color={theme.primary} track={theme.muted} />
       </View>
     </View>
   );

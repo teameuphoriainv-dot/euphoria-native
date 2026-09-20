@@ -24,7 +24,7 @@
  *
  * The button must be derived from the SAME condition as the auto-advance, so the two can never
  * drift into disagreeing about which steps commit on tap. A hand-maintained second list is
- * exactly how notifyOptIn — the one single-select that does NOT auto-advance — would silently
+ * exactly how a single-select that neither auto-advances nor draws a button would silently
  * lose its only way forward.
  */
 import assert from 'node:assert/strict';
@@ -136,18 +136,29 @@ assert.match(auth, /const resume = \(\) => \{\s*if \(!hasAccount\(useApp\.getSta
   'resume must fall through to enter when the device has NO account, or it becomes a way around the gate');
 
 // ── 6. No Continue button on steps that commit on tap ────────────────────────────────────────
-assert.match(onboarding, /const autoAdvances = liveDef\?\.kind === 'single' && liveDef\.field !== 'notifyOptIn';/,
+// The `field !== 'notifyOptIn'` exclusion was dropped on 2026-09-19 WITH the step it guarded.
+// It existed because that one single-select opened the iOS permission dialog and must not have
+// advanced behind a system modal; the ask now lives in lesson.tsx on first lesson complete, so
+// there is no longer a single-select that does not commit on tap. The pin still guards the thing
+// it was written for — that auto-advance exists and the button is derived from it, never from a
+// second hand-kept list — it just guards the current shape.
+assert.match(onboarding, /const autoAdvances = liveDef\?\.kind === 'single';/,
   'the auto-advance condition is gone or changed shape');
 assert.match(onboarding, /const showAction = !autoAdvances;/,
   'the button must be derived from the auto-advance condition, never from a second hand-kept list');
 assert.match(onboarding, /\{showAction && <SlabButton/,
   'the footer button is no longer conditional — the redundant Continue is back');
 
-// notifyOptIn opens the iOS permission dialog and is deliberately excluded from the auto-advance,
-// so it is the ONE single-select where the button is the only way forward. If this exclusion is
-// ever dropped from either side, that step becomes a dead end.
-assert.match(onboarding, /if \(def\.field !== 'notifyOptIn'\) advanceAfterPick\(\);/,
-  'notifyOptIn must stay excluded from auto-advance; it is why showAction keeps a button there');
+// EVERY single-select now commits on tap. notifyOptIn was the one exception — it opened the iOS
+// permission dialog, so advancing behind a system modal was disorienting and the button had to be
+// the way forward. That step is gone (the ask moved to lesson.tsx, first lesson complete), and
+// with it the only case where a pick did not advance.
+//
+// This still guards the same failure the exclusion did, from the other direction: a single-select
+// that neither auto-advances NOR draws a button is a dead end. showAction is derived from
+// autoAdvances above, so the pick advancing unconditionally is what keeps that derivation honest.
+assert.match(onboarding, /\n\s*answer\(def\.field, k\);\n\s*advanceAfterPick\(\);/,
+  'a single-select pick must advance unconditionally, or the step becomes a dead end with no button');
 
 console.log('PASS — hasAccount is the single definition and a name alone never satisfies it; the '
   + 'tab layout refuses entry without an account and waits for hydration first; the wall sits '
