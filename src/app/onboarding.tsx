@@ -142,7 +142,10 @@ const TOPICS: Choice[] = [
 const HORIZONS: Choice[] = [
   { key: 'now', icon: chartUp, title: "I've already started" },
   { key: 'soon', icon: clock, title: 'In the next few months' },
-  { key: 'year', icon: seedling, title: 'Within a year' },
+  // graduationCap, not seedling: RISK already spends seedling on "Wait it out" one screen
+  // later, and the same sprite for two different meanings in consecutive questions reads as a
+  // mistake. A year out is the horizon with room to study first, which is what this now says.
+  { key: 'year', icon: graduationCap, title: 'Within a year' },
   { key: 'unsure', icon: book, title: "I'm not sure yet" },
 ];
 

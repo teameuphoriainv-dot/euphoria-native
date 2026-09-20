@@ -775,7 +775,21 @@ export function StepHeading({ title, sub, speech }: { title: string; sub?: strin
         <ThemedText type="display" style={styles.stepQ}>{title}</ThemedText>
       )}
       {sub ? (
-        <ThemedText type="body" themeColor="mutedForeground" style={styles.stepSub}>{sub}</ThemedText>
+        /*
+         * CENTRED UNDER A BUBBLE, LEFT-ALIGNED WITHOUT ONE.
+         *
+         * The sub was always full-width left-aligned while `speech` centres the bubble above it,
+         * so on every conversational step the reassurance sat visually adrift — the right words
+         * belonging to nobody. Reported on riskComfort, where the line ("There's no wrong
+         * answer") is doing the most work of any sub in the flow and looked the most abandoned.
+         *
+         * Alignment, not a new element: under a bubble this is Atlas still talking, so it tracks
+         * him. The statement steps keep the left-aligned display heading and its left sub.
+         */
+        <ThemedText
+          type="body"
+          themeColor="mutedForeground"
+          style={[styles.stepSub, speech && styles.stepSubSpeech]}>{sub}</ThemedText>
       ) : null}
     </View>
   );
@@ -1132,6 +1146,7 @@ const styles = StyleSheet.create({
   stepQSpeech: { fontSize: FontSize.subhead, lineHeight: 25 },
   stepQ: { textAlign: 'left', lineHeight: 34 },
   stepSub: { marginTop: Spacing.two, lineHeight: 21 },
+  stepSubSpeech: { textAlign: 'center', paddingHorizontal: Spacing.two },
   stepOptions: { marginTop: Spacing.four },
   loaderWrap: { alignItems: 'center', paddingTop: Spacing.four },
   loaderTitle: { marginTop: Spacing.four, textAlign: 'center' },
