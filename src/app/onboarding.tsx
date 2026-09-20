@@ -1316,7 +1316,15 @@ export default function Onboarding() {
   // A question step is deliberately NOT included. Its options are a list you read from the top
   // down, and stretching that list to the bottom of the screen would space the taps apart for no
   // reason. Statements and the reveal are compositions; questions are lists.
-  const fillsViewport = renderStep === REVEAL_INDEX || def?.kind === 'statement';
+  //
+  // ── EXTENDED TO THE LOADER, 2026-09-20 ───────────────────────────────────────────────────
+  // The loader is the most content-light screen in the flow AND the only one with no footer at
+  // all (`isLoader` suppresses it), so top-packing stranded more height here than anywhere else:
+  // a ring, a title and one line ending around the halfway mark with nothing below them.
+  //
+  // It qualifies on the rule already written above. A ring with a status line under it is a
+  // composition, not a list — there are no taps to space apart by centring it.
+  const fillsViewport = renderStep === REVEAL_INDEX || def?.kind === 'statement' || def?.kind === 'loader';
 
   const actionFooter = (
     <View style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}>

@@ -1202,7 +1202,9 @@ const styles = StyleSheet.create({
   stepSub: { marginTop: Spacing.two, lineHeight: 21 },
   stepSubSpeech: { textAlign: 'center', paddingHorizontal: Spacing.two },
   stepOptions: { marginTop: Spacing.four },
-  loaderWrap: { alignItems: 'center', paddingTop: Spacing.four },
+  /* flexGrow + centre: the step now fills the viewport (see fillsViewport), so the ring sits in
+     the middle of the screen it occupies rather than at the top of it. */
+  loaderWrap: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingTop: Spacing.four },
   loaderTitle: { marginTop: Spacing.four, textAlign: 'center' },
   loaderLine: { marginTop: Spacing.two, textAlign: 'center' },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three, borderRadius: Radius.lg, borderWidth: StyleSheet.hairlineWidth },
