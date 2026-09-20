@@ -17,6 +17,7 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { PremiumText, usePremiumRamp } from '@/components/ui/premium';
+import { DIGEST_POSTS } from '@/lib/digest-content';
 import { courseAccent } from '@/lib/course-accents';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -155,7 +156,25 @@ export function TrialStep({
 const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
   { label: '12 courses, 300 lessons available now', free: false },
   { label: 'Coaching by Atlas', free: false },
-  { label: 'AI market simulations', free: false },
+  /*
+   * WAS "AI market simulations", which shipped as a paid claim with no feature behind it.
+   *
+   * Searching the app for it finds only this label. Every other match for "simulat" is either the
+   * iOS Simulator or — pointedly — trade-ideas.ts, which exists to explain why the app does NOT
+   * do this: "Trade ideas — PURE DERIVATION from the portfolio the user already has… a simulator
+   * that issues directional calls is giving investment advice with no licence." The paywall was
+   * selling the one thing the trading code was written to avoid being.
+   *
+   * Same class as the invented testimonials and the "4x faster" copy this flow already removed,
+   * and the same exposure the PROOF block cites: App Store 2.3.1 and FTC 16 CFR Part 465.
+   *
+   * Replaced with a benefit that is real, gated, and not already claimed twice over. The Digest
+   * gives free readers FREE_CARDS = 1 card and then calls entitled(state, 'guide') — so "in full"
+   * is the actual Pro distinction, not a flourish. The count is DERIVED from DIGEST_POSTS for the
+   * reason the lesson count is: a number typed by hand is a claim that drifts the moment content
+   * changes, and this one sits on the screen where money is taken.
+   */
+  { label: `${DIGEST_POSTS.length} money guides, read in full`, free: false },
   { label: 'Unlimited paper trading', free: false },
   { label: 'Games, streaks & leaderboards', free: true },
 ];
