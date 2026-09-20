@@ -538,7 +538,10 @@ export default function Home() {
                 <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
                 <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.glassFrost]} />
                 <View style={styles.heroRow}>
-                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={80} />
+                  {/* 84. At 80 the art sat marooned in a column that had grown an action row; at 96 it took
+                      enough width back that the why-line wrapped to two. 84 clears the first without
+                      causing the second. */}
+                  <LessonArt courseId={activeCourseId} title={next.title} index={next.num - 1} size={84} />
                   <View style={{ flex: 1 }}>
                     {/*
                       * AX5 REDUCED THIS TITLE TO "Your" / "Brain", losing "vs. Your Money". The
@@ -552,47 +555,34 @@ export default function Home() {
                         {next.num} / {course?.totalLessons ?? '—'}
                       </ThemedText>
                     </View>
-                    {whyThisCourse ? (
-                      <ThemedText type="small" maxFontSizeMultiplier={1.8} style={styles.heroWhy} numberOfLines={2}>
-                        {whyThisCourse}
-                      </ThemedText>
-                    ) : null}
+                    {/*
+                      * THE FOCAL POINT, AND WHY IT SITS INSIDE THE TEXT COLUMN.
+                      *
+                      * Two earlier attempts were wrong in opposite directions and the owner
+                      * caught both. Putting the node in the row BESIDE the title stole width and
+                      * pushed a two-line heading to three. Moving it to a full-width row under
+                      * the row fixed the heading but split the pair: the CONTINUE label sat in
+                      * the card's bottom-left and its node in the bottom-right, a label and its
+                      * own button at opposite ends of a wide black gap, with the whole
+                      * bottom-left quadrant left dead.
+                      *
+                      * A label belongs next to the thing it labels. Both now live at the foot of
+                      * the text column, right-aligned as one unit, so the column reads straight
+                      * down -- heading, position, context, action -- and the card stops growing
+                      * empty rows to hold them.
+                      *
+                      * Not pressable: the card already is. PathNode without onPress renders the
+                      * shape only, so there is no nested touchable to double-scale the press.
+                      */}
+                    <View style={styles.heroAction}>
+                      <ThemedText type="label" style={styles.heroActionLabel}>CONTINUE</ThemedText>
+                      <PathNode
+                        state="current"
+                        size={52}
+                        accessibilityLabel={`Start ${next.title}`}
+                      />
+                    </View>
                   </View>
-                </View>
-                {/*
-                  * THE FOCAL POINT, AND WHY IT SITS HERE. Audited against Learn, this card was
-                  * the one thing on Home you were meant to tap and gave no sign of it -- a dark
-                  * rectangle among dark rectangles, while Learn hands you a lit green node that
-                  * plainly means "start here".
-                  *
-                  * The first attempt put the node INSIDE the row beside the title, and the owner
-                  * was right that it did not flow. Two failures: it took width from the title,
-                  * which pushed a two-line heading to three, and it put the action at the
-                  * title's eye level, so the "why this course" line was stranded AFTER the thing
-                  * you were meant to press. A row cannot carry art, a heading and an action at
-                  * once -- they compete instead of ranking.
-                  *
-                  * Bottom-right instead: art and title read across, the pill and the why-line
-                  * read down, and the node is the last thing the eye reaches. Reading order now
-                  * ends on the action, which is what "flow" means here.
-                  *
-                  * Not pressable: the card already is. PathNode without onPress renders the
-                  * shape only, so there is no nested touchable to double-scale the press.
-                  */}
-                <View style={styles.heroAction}>
-                  {/*
-                    * The node carries a label for the same reason every node on Learn does: a
-                    * bare green circle is an affordance without a promise. It also fills the
-                    * bottom-left of the card -- with art top-left, heading top-right and the
-                    * node bottom-right, that corner was the only empty quadrant, and an L-shaped
-                    * composition with a hole in it is the other half of what did not flow.
-                    */}
-                  <ThemedText type="label" style={styles.heroActionLabel}>CONTINUE</ThemedText>
-                  <PathNode
-                    state="current"
-                    size={60}
-                    accessibilityLabel={`Start ${next.title}`}
-                  />
                 </View>
               </View>
             </SpringPressable>
@@ -789,7 +779,9 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  heroAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: Spacing.two },
+  /* Spacing.two, not three: the action belongs to the block above it, and 16 read as a gap
+     between two unrelated things rather than the last line of one. */
+  heroAction: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', gap: Spacing.two, marginTop: Spacing.two },
   /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
      should show through the label the way it does through the pill. */
   heroActionLabel: { color: 'rgba(255,255,255,0.72)', letterSpacing: 1.4 },
