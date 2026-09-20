@@ -395,10 +395,27 @@ export default function Home() {
         <RiseIn delay={60}>
           <Card style={styles.streakCard}>
             <View style={styles.streakTop}>
-              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.streakNum}>{streak}</ThemedText>
+              {/*
+                * DAY ONE IS NOT A SCORE OF ZERO. The largest element on Home was a display-size
+                * "0" beside a lit flame, over seven empty rings -- the first thing a new user
+                * ever sees, and it reads as a scoreboard they are already losing. The flame made
+                * it worse by burning next to it, which says the streak is alive when it has not
+                * started.
+                *
+                * A zero streak is not a bad streak, it is an absent one, so it gets a sentence
+                * instead of a numeral and the flame goes unlit. The seven rings below stay:
+                * framed by this line they read as the week ahead rather than seven misses.
+                */}
+              {streak === 0 ? (
+                <ThemedText type="title" maxFontSizeMultiplier={1.6}>Start your streak</ThemedText>
+              ) : (
+                <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.streakNum}>{streak}</ThemedText>
+              )}
               {/* play="once" on CHANGE, never looping — a streak advancing is a reaction, a streak
                   sitting still is not. Same rule the header pill followed before it was folded in. */}
-              <PixelSpriteView sprite={flameSprite} size={26} play="once" playKey={streak} />
+              <View style={streak === 0 ? styles.flameUnlit : undefined}>
+                <PixelSpriteView sprite={flameSprite} size={26} play="once" playKey={streak} />
+              </View>
             </View>
             {/*
               * NO SENTENCE UNDER THE NUMBER. There was one -- "Determined · 1 of 14 days" -- and
@@ -726,7 +743,16 @@ export default function Home() {
                   <CourseMark id={c.id} size={34} />
                   <View style={{ flex: 1 }}>
                     <ThemedText type="bodyMedium" maxFontSizeMultiplier={2} numberOfLines={2}>{c.title}</ThemedText>
-                    <View style={[styles.questTrack, { backgroundColor: tint + '33' }]}>
+                    {/*
+                      * A NEUTRAL GROOVE, NOT A TINTED ONE. The track was `tint + '33'` sitting on
+                      * a `tint + '1F'` card, so an EMPTY track rendered as a solid course-coloured
+                      * line across the full width -- three of them stacked, each reading as a
+                      * finished course while the counter beside it said 0/25. The fill is drawn
+                      * in the same hue, so there was no value difference left to carry the one
+                      * thing the control exists to show. Neutral groove, coloured fill: empty now
+                      * reads empty.
+                      */}
+                    <View style={[styles.questTrack, { backgroundColor: 'rgba(255,255,255,0.10)' }]}>
                       <View style={[styles.questFill, { backgroundColor: tint, width: `${Math.round((done / c.totalLessons) * 100)}%` }]} />
                     </View>
                   </View>
@@ -799,6 +825,9 @@ const styles = StyleSheet.create({
    * (number → line is tight, line → day marks is not), so each sets its own margin. A single gap
    * here would flatten that into one rhythm and the number would stop reading as the headline.
    */
+  /* Unlit, not hidden: the flame is the thing the streak lights, so it should be visibly
+     waiting rather than absent. */
+  flameUnlit: { opacity: 0.3 },
   streakCard: { paddingVertical: Spacing.three },
   streakTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   /* lineHeight pinned to the size: `display` ships a 40pt line box, which left a visible dead
