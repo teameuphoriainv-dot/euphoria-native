@@ -21,6 +21,8 @@
  * valid under any per-ring ROTATION. It would need to follow along under translation or scale.
  */
 import { memo } from 'react';
+
+import { shade } from '@/lib/course-accents';
 import Animated from 'react-native-reanimated';
 import Svg, {
   Circle,
@@ -58,7 +60,32 @@ export const RING_CENTRES = [
 /** Per-ring animated transforms, supplied by the caller. `undefined` renders the mark at rest. */
 export type RingProps = Record<string, unknown>[] | undefined;
 
-function Ring({ i, animated }: { i: number; animated?: Record<string, unknown> }) {
+/**
+ * TINTING, AND WHY IT COMES WITH AN ID NAMESPACE.
+ *
+ * The four ring gradients and the weave ClipPath were declared with FIXED ids -- atlasRing0..3
+ * and atlasWeave. That is safe while every Atlas on a screen is the same colour, because they
+ * all resolve to identical definitions and nobody can tell which one won. The moment two
+ * instances want different colours, a fixed id is a collision: `url(#atlasRing0)` names one
+ * definition, and every Atlas mounted would render in whichever tint happened to be defined
+ * last rather than its own.
+ *
+ * So the namespace is derived from the tint itself. Two different tints can never share an id,
+ * two instances of the SAME tint safely do (they are identical definitions, so sharing is the
+ * correct outcome and costs one set of Defs instead of N).
+ *
+ * The untinted path is byte-for-byte what it always was -- same constants, same bare ids -- so
+ * the default Atlas everywhere in the app renders exactly as before.
+ */
+function palette(tint?: string) {
+  if (!tint) return { lit: LIT, dark: DARK, ns: '' };
+  /* The house pair is a light stop over a deeper one. Taking the accent as the LIT stop and
+     shading it for the DARK keeps that relationship at any hue without needing a second colour
+     per course. 0.3 was matched against the default pair's own light-to-dark ratio. */
+  return { lit: tint, dark: shade(tint, 0.3), ns: tint.replace(/[^0-9A-Za-z]/g, '') };
+}
+
+function Ring({ i, animated, ns = '' }: { i: number; animated?: Record<string, unknown>; ns?: string }) {
   const { cx, cy } = RING_CENTRES[i];
   const body = (
     <>
@@ -72,7 +99,7 @@ function Ring({ i, animated }: { i: number; animated?: Record<string, unknown> }
         cy={cy}
         r={R_MID}
         fill="none"
-        stroke={`url(#atlasRing${i})`}
+        stroke={`url(#atlasRing${ns}${i})`}
         strokeWidth={BAND - RIM_W * 2}
       />
     </>
@@ -87,38 +114,39 @@ function Ring({ i, animated }: { i: number; animated?: Record<string, unknown> }
 }
 
 /** The mark alone, drawn into an existing <Svg>. Caller owns the viewBox. */
-function AtlasMarkBodyInner({ rings }: { rings?: RingProps }) {
+function AtlasMarkBodyInner({ rings, tint }: { rings?: RingProps; tint?: string }) {
+  const { lit, dark, ns } = palette(tint);
   return (
     <>
       <Defs>
         {RING_CENTRES.map((_, i) => (
           // objectBoundingBox units, so each ring gets its own highlight from one shared
           // definition — a single global gradient would flatten the outer rings
-          <LinearGradient key={i} id={`atlasRing${i}`} x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor={LIT} />
-            <Stop offset="1" stopColor={DARK} />
+          <LinearGradient key={i} id={`atlasRing${ns}${i}`} x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={lit} />
+            <Stop offset="1" stopColor={dark} />
           </LinearGradient>
         ))}
-        <ClipPath id="atlasWeave">
+        <ClipPath id={`atlasWeave${ns}`}>
           <Circle cx={RING_CENTRES[0].cx} cy={RING_CENTRES[0].cy} r={R_OUT} />
         </ClipPath>
       </Defs>
       {[3, 2, 1, 0].map((i) => (
-        <Ring key={i} i={i} animated={rings?.[i]} />
+        <Ring key={i} i={i} animated={rings?.[i]} ns={ns} />
       ))}
       {/* the one crossing z-order cannot express */}
-      <G clipPath="url(#atlasWeave)">
-        <Ring i={3} animated={rings?.[3]} />
+      <G clipPath={`url(#atlasWeave${ns})`}>
+        <Ring i={3} animated={rings?.[3]} ns={ns} />
       </G>
     </>
   );
 }
 
 /** Standalone mark, for previews and anywhere the face is not wanted. */
-export function AtlasMark({ size = 120, rings }: { size?: number; rings?: RingProps }) {
+export function AtlasMark({ size = 120, rings, tint }: { size?: number; rings?: RingProps; tint?: string }) {
   return (
     <Svg width={size} height={size * 1.04} viewBox="0 0 100 104">
-      <AtlasMarkBody rings={rings} />
+      <AtlasMarkBody rings={rings} tint={tint} />
     </Svg>
   );
 }

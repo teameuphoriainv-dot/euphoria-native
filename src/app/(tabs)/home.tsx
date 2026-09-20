@@ -615,7 +615,7 @@ export default function Home() {
                   *
                   * Not pressable: the card already is.
                   */}
-                <View style={[styles.heroBar, { backgroundColor: theme.primary }]}>
+                <View style={[styles.heroBar, { backgroundColor: theme.primary, borderBottomColor: theme.ctaDepth }]}>
                   <ThemedText type="label" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>CONTINUE</ThemedText>
                   <PlayGlyph scale={0.62} color={theme.primaryForeground} />
                 </View>
@@ -816,7 +816,13 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   /* Negative margins cancel glassHero's own padding so the bar meets all three card edges.
      overflow:'hidden' on glassHero clips it to the bottom corner radius. */
-  heroBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.four, marginHorizontal: -Spacing.three, marginBottom: -Spacing.four, paddingVertical: Spacing.three },
+  /* FACE OVER A SLAB, because that is what a CTA looks like in this app. SlabButton -- the
+     primary CTA in 28 files -- is theme.primary over a darker theme.ctaDepth base, and this
+     bar was a flat fill of the same hue with no base at all. Same purple, different anatomy,
+     which is why it read as the wrong purple. The card clips at its bottom edge so the slab
+     cannot sit BELOW the face the way SlabButton's does; a bottom border is that base, and it
+     follows the corner radius. */
+  heroBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.four, marginHorizontal: -Spacing.three, marginBottom: -Spacing.four, paddingVertical: Spacing.three, borderBottomWidth: 5 },
   heroBarLabel: { letterSpacing: 1.4 },
   /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
      should show through the label the way it does through the pill. */

@@ -150,11 +150,16 @@ export function Atlas({
   entrance,
   idle = false,
   onPress,
+  tint,
   accessibilityLabel = 'Atlas, the Euphoria mascot',
   accessibilityHint,
 }: {
   size?: number;
   expression?: AtlasExpression;
+  /** Recolour the rings, e.g. to a course accent. Omit for the house violet.
+   *  The gradient ids are namespaced off this value, so two differently-tinted Atlases on one
+   *  screen cannot collide on `url(#atlasRing0)` — see the note in atlas-mark.tsx. */
+  tint?: string;
   interactive?: boolean;
   glasses?: boolean;
   celebrate?: boolean;
@@ -821,7 +826,7 @@ export function Atlas({
       {/* head rock + follow-through on the OUTER group, tap-spin on the inner one, so a spin
           mid-idle does not cancel the rock */}
       <AnimatedG animatedProps={headProps} origin="50, 62">
-        <AtlasMarkBody rings={ringProps} />
+        <AtlasMarkBody rings={ringProps} tint={tint} />
       </AnimatedG>
       <Circle cx={34.8} cy={26.5} r={whiteR[0]} fill="#fff" stroke={INK} strokeWidth={2.2} />
       <Circle cx={61.2} cy={25} r={whiteR[1]} fill="#fff" stroke={INK} strokeWidth={2.2} />
