@@ -435,6 +435,7 @@ export function OptionCard({
   selected,
   onPress,
   compact = false,
+  roomy = false,
 }: {
   /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
   icon?: PixelSprite;
@@ -444,6 +445,19 @@ export function OptionCard({
   onPress: () => void;
   /** Tighter row for long lists, where a full icon+subtitle card would swamp the screen. */
   compact?: boolean;
+  /*
+   * Taller row for SHORT lists. Measured on this iPhone 17 Pro (402x874) from real captures:
+   *
+   *   3 options (experience)   content ends y=553  ->  321pt dead   (37% of the screen)
+   *   4 options (horizon)      content ends y=579  ->  295pt dead
+   *   5 options (blockers)     content ends y=796  ->   78pt dead
+   *   9 options (topics)       content ends y=796  ->   78pt dead
+   *
+   * The last two are the binding constraint and must not grow — 78pt is one card's worth of
+   * slack. So this is gated on COUNT, never applied globally: the screens that are already full
+   * stay exactly as they are, and only the ones with a third of the viewport empty get taller.
+   */
+  roomy?: boolean;
 }) {
   const theme = useTheme();
   /*
@@ -464,6 +478,7 @@ export function OptionCard({
         style={[
           styles.option,
           compact && styles.optionSm,
+          roomy && styles.optionLg,
           {
             backgroundColor: selected ? theme.primary + '14' : theme.card,
             borderColor: selected ? theme.primary : theme.border,
@@ -471,14 +486,30 @@ export function OptionCard({
           },
         ]}>
         {icon ? (
-          <View style={[styles.bubble, compact && styles.bubbleSm, { backgroundColor: theme.primary + '1F' }]}>
-            <PixelSpriteView sprite={icon} size={compact ? 18 : 22} />
+          <View style={[styles.bubble, compact && styles.bubbleSm, roomy && styles.bubbleLg, { backgroundColor: theme.primary + '1F' }]}>
+            <PixelSpriteView sprite={icon} size={compact ? 18 : roomy ? 28 : 22} />
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
           <ThemedText type="heading" style={{ fontSize: FontSize.body, lineHeight: 21 }}>{title}</ThemedText>
           {sub && !compact ? (
-            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText>
+            /*
+             * NOT mutedForeground, and this is the one sub in the file that earns the exception.
+             *
+             * mutedForeground is not a contrast failure — measured 7.05:1 on the card, which
+             * clears WCAG AAA. The problem is register. `text` runs 16.57:1, muted runs 7.05,
+             * and muted is used 382 times across 76 files, so the app's DEFAULT voice is its
+             * secondary one and nothing ever reads as spoken at full volume.
+             *
+             * On an option card the sub is not metadata about the choice, it IS the choice:
+             * "Total beginner" is a label, "I'm starting from zero" is the sentence a user
+             * recognises themselves in. Putting the recognisable half in the aside voice while
+             * the generic half gets the confident one is exactly backwards.
+             *
+             * 0.78 rather than a new token: it lands between the two existing values instead of
+             * adding a third colour to a system that already has 382 call sites for this one.
+             */
+            <ThemedText type="small" style={{ marginTop: 2, opacity: 0.78 }}>{sub}</ThemedText>
           ) : null}
         </View>
         <RadioDot selected={selected} />
@@ -711,6 +742,7 @@ export function SingleSelectStep({
               title={o.title}
               sub={o.sub}
               compact={compact ?? options.length > 4}
+              roomy={options.length <= 4}
               selected={value === o.key}
               onPress={() => onChange(o.key)}
             />
@@ -1006,6 +1038,10 @@ const styles = StyleSheet.create({
   optionSm: { paddingVertical: Spacing.two, gap: Spacing.two },
   bubble: { width: 46, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   bubbleSm: { width: 34, height: 34 },
+  /* +14pt of vertical padding per card. At 3 cards that reclaims ~100pt of the 321 measured
+     empty, without pushing a 4-card screen (295pt dead, 4 x 14 = 56) anywhere near the fold. */
+  optionLg: { paddingVertical: Spacing.three + 14 },
+  bubbleLg: { width: 56, height: 56 },
   // one idea per screen: the heading owns the top of the viewport, options sit well below it
   stepHead: { marginTop: Spacing.two },
   // Centred: the bubble hangs from Atlas, who is centred in the persistent stage above.

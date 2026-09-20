@@ -13,6 +13,7 @@
  * on long strings. The full string is laid out once at zero opacity to reserve its box, and the
  * visible copy is sliced over the top, so the bubble never reflows mid-sentence.
  */
+import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
@@ -25,6 +26,20 @@ import { useTheme } from '@/hooks/use-theme';
 /** ms per character. 26 is close to the reference and stays readable; below ~18 it stops
  *  reading as speech and starts reading as a glitch. */
 const CHAR_MS = 26;
+
+/*
+ * A TICK WHILE ATLAS TALKS.
+ *
+ * `selectionAsync` and not `impactAsync`: this is the lightest tap iOS has, and it is the only
+ * one that reads as texture under a voice rather than as a series of events happening to you.
+ *
+ * ponytail: fires every Nth CHARACTER, not every character. At CHAR_MS=26 a per-character tick
+ * would ask the Taptic Engine for ~38 events a second, which iOS coalesces into an undifferentiated
+ * buzz — the ceiling is the hardware, not the code. N=5 lands a tick roughly every 130ms, close to
+ * a spoken syllable. Tune N here if it reads too busy or too sparse on a real device; the
+ * simulator does not render haptics at all, so this can only be judged in the hand.
+ */
+const HAPTIC_EVERY_N_CHARS = 5;
 
 export function Typewriter({ text, delay = 0, style, skipKey = 0 }: { text: string; delay?: number; style?: object; skipKey?: number }) {
   const reduced = useReducedMotion();
@@ -55,6 +70,9 @@ export function Typewriter({ text, delay = 0, style, skipKey = 0 }: { text: stri
       iv = setInterval(() => {
         i += 1;
         setN(i);
+        // Reduced Motion and the skip both return before this interval exists, so a user who
+        // opted out of animation never feels the typing either.
+        if (i % HAPTIC_EVERY_N_CHARS === 0) void Haptics.selectionAsync();
         if (i >= text.length) clearInterval(iv);
       }, CHAR_MS);
     }, delay);

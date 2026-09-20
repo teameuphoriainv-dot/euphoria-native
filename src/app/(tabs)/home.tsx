@@ -48,6 +48,7 @@ import {
 
 import { useShallow } from 'zustand/react/shallow';
 
+import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -152,6 +153,25 @@ export default function Home() {
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
+
+  /*
+   * WHY THIS COURSE IS THE ONE.
+   *
+   * `recommendPathDetailed` already returns the reason that earned each slot — "You said the
+   * jargon is overwhelming" — and the reveal screen prints it once. Every screen after that
+   * dropped it, so an app that calls itself personalised proved it had listened exactly one
+   * time, on one screen, and then never referred to the answers again.
+   *
+   * Read here rather than stored: the function is PURE and `profile` is already persisted, so
+   * this costs one memo and needs no new state, no store field and no migration. Null when the
+   * active course was chosen by hand from /courses rather than recommended — in that case there
+   * is no honest reason to show, and inventing one is the failure this is fixing.
+   */
+  const profile = useApp((s) => s.profile);
+  const whyThisCourse = useMemo(
+    () => recommendPathDetailed(profile).find((x) => x.course.id === activeCourseId)?.reason ?? null,
+    [profile, activeCourseId],
+  );
 
   const course = getCourseById(activeCourseId);
   const accent = courseAccent(activeCourseId);
@@ -447,7 +467,7 @@ export default function Home() {
               scaleTo={0.985}
               onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
               accessibilityRole="button"
-              accessibilityLabel={`${heroVerb} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.`}>
+              accessibilityLabel={`${heroVerb} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.${whyThisCourse ? ` ${whyThisCourse}.` : ''}`}>
               {/*
                 * GLASS, with the course colour as the light behind it.
                 *
@@ -514,6 +534,11 @@ export default function Home() {
                         {next.num} / {course?.totalLessons ?? '—'}
                       </ThemedText>
                     </View>
+                    {whyThisCourse ? (
+                      <ThemedText type="small" maxFontSizeMultiplier={1.8} style={styles.heroWhy} numberOfLines={2}>
+                        {whyThisCourse}
+                      </ThemedText>
+                    ) : null}
                   </View>
                 </View>
               </View>
@@ -781,6 +806,9 @@ const styles = StyleSheet.create({
   /* A pill, not a sentence. Translucent white on the block so it inherits the course colour. */
   heroPill: { alignSelf: 'flex-start', marginTop: Spacing.two, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, backgroundColor: 'rgba(255,255,255,0.18)' },
   heroPillText: { color: '#FFFFFF', fontSize: FontSize.caption },
+  /* 82% white, not grey: this sits on the course block and has to read as a sentence the app is
+     saying back to you, not as disabled metadata. */
+  heroWhy: { color: 'rgba(255,255,255,0.82)', fontSize: FontSize.caption, lineHeight: 17, marginTop: Spacing.two },
   /*
    * marginTop was Spacing.four (24). That was correct while every section head was followed
    * immediately by a Card — the 24 separated a heading from the block ABOVE it, and the block's

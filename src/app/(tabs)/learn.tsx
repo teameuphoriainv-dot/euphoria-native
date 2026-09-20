@@ -35,6 +35,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, getCourseById, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
+import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { takeLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -273,6 +274,23 @@ export default function Learn() {
   // loadCourseLessons swap `loaded.id` is still the outgoing course, so accenting by
   // `activeCourseId` painted the OLD course's rows and unit names in the NEW course's colour.
   const accent = courseAccent(trailCourseId);
+
+  /*
+   * WHY THIS COURSE IS IN YOUR PATH.
+   *
+   * Same source as Home's hero: `recommendPathDetailed` already carries the answer that earned
+   * each slot. Keyed to `trailCourseId` and NOT `activeCourseId` on purpose — the trail below
+   * lags the rail by one transition, and a reason that describes a different course than the
+   * lessons under it is worse than no reason at all.
+   *
+   * Null for a hand-picked course, and null for the courses the recommendation never reached.
+   * Both cases stay silent rather than inventing a justification.
+   */
+  const profile = useApp((s) => s.profile);
+  const whyTrailCourse = useMemo(
+    () => recommendPathDetailed(profile).find((x) => x.course.id === trailCourseId)?.reason ?? null,
+    [profile, trailCourseId],
+  );
   const pending = qa === 'loading' || (!qa && loaded?.id !== activeCourseId);
   const shownFailed = qa === 'error' ? activeCourseId : failed;
   /** switching between two courses — dim the outgoing trail instead of flashing an empty path */
@@ -529,6 +547,14 @@ export default function Learn() {
         })}
       </ScrollView>
 
+      {whyTrailCourse ? (
+        <View style={styles.whyRow}>
+          <ThemedText type="small" style={[styles.whyText, { color: accent }]} numberOfLines={2}>
+            {whyTrailCourse}
+          </ThemedText>
+        </View>
+      ) : null}
+
       <ScrollView style={styles.trailScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {total === 0 ? (
           <View style={styles.empty}>
@@ -767,6 +793,11 @@ const styles = StyleSheet.create({
   // 44pt exactly: the HIG touch minimum, and the number the whole density fix is spending.
   chip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: 14, borderRadius: Radius.pill },
   comingSoonChip: { opacity: 0.62 },
+  /* Between the rail and the trail, so it describes the course whose lessons are on screen.
+     Course accent rather than mutedForeground: grey subtext is the app-wide quality complaint
+     this is meant to answer, not repeat. */
+  whyRow: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
+  whyText: { fontSize: FontSize.caption, lineHeight: 17 },
   trailScroll: { flex: 1 },
   content: { alignItems: 'center', paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },

@@ -15,7 +15,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
-  InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -130,11 +129,6 @@ const RISK: Choice[] = [
   { key: 'buy', icon: rocket, title: 'Buy more', sub: "It's on sale" },
 ];
 
-const DAILY: Choice[] = [
-  { key: '5', icon: flame, title: '5 minutes', sub: 'One lesson a day' },
-  { key: '10', icon: bolt, title: '10 minutes', sub: 'Two lessons a day' },
-  { key: '20', icon: rocket, title: '20 minutes', sub: 'Four lessons a day' },
-];
 
 const BLOCKERS: Choice[] = [
   { key: 'jargon', title: 'The jargon is overwhelming' },
@@ -188,10 +182,6 @@ const AGES: Choice[] = [
   { key: '45+', title: '45 or older' },
 ];
 
-const NOTIFY: Choice[] = [
-  { key: 'yes', icon: clock, title: 'Yes, keep me on streak', sub: 'One nudge a day, no spam' },
-  { key: 'no', title: 'Not right now' },
-];
 
 /**
  * What this screen claims must be TRUE and checkable, so the numbers are derived from the
@@ -277,7 +267,6 @@ const LEGAL = {
   terms: 'https://euphoriainv.com/terms',
   privacy: 'https://euphoriainv.com/privacy',
 };
-const ONBOARDING_NAME_KEYBOARD_ACCESSORY_ID = 'onboarding-name-keyboard-accessory';
 
 /** Hosts that must never ship, kept as a regression tripwire: euphoria.app is a domain we do not
  *  own and it reached the paywall unnoticed. */
@@ -312,15 +301,33 @@ function openLegal(url: string) {
  */
 function NameStep({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const theme = useTheme();
+  /*
+   * DELIBERATELY TOP-PACKED, and not centred like the statement steps.
+   *
+   * Centring the field in the leftover height was tried: it removes the dead band below, but it
+   * floats the input away from the bubble asking for it, and a question and its answer belong
+   * together more than a screen belongs to be evenly filled. The space below stays.
+   */
   return (
     <View>
-      <ThemedText type="title" maxFontSizeMultiplier={2} style={{ fontSize: FontSize.titleSm }}>
-        What should we call you?
-      </ThemedText>
-      <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 4 }}>
-        It goes on your home screen and your profile. You can change it any time.
-      </ThemedText>
+      {/*
+       * ASKED THROUGH THE BUBBLE, like every other question in this flow.
+       *
+       * Steps 1-11 ask via <StepHeading speech>, which hangs a bubble off the Atlas stage above
+       * and centres it. This step used a bare left-aligned title instead, so the FIRST screen
+       * was the one screen that did not look like the app — a design-system break on the very
+       * first impression, before the user has any reason to forgive one.
+       *
+       * The grey subline is gone with it. "It goes on your home screen and your profile. You can
+       * change it any time." is a settings tooltip standing in for a welcome, and it was the
+       * first sentence the app ever said to anyone. A labelled text field under a question does
+       * not need explaining; mutedForeground on screen one just sets the tone at apologetic.
+       */}
+      <StepHeading speech title="Welcome to Euphoria. What should we call you?" />
       <TextInput
+        /* The one step whose control is useless until focused. Without this the first thing the
+           app asks anyone to do is tap a box before they can answer it. */
+        autoFocus
         value={value}
         onChangeText={onChange}
         placeholder="Your first name"
@@ -329,26 +336,10 @@ function NameStep({ value, onChange }: { value: string; onChange: (v: string) =>
         autoCapitalize="words"
         autoCorrect={false}
         returnKeyType="done"
-        inputAccessoryViewID={Platform.OS === 'ios' ? ONBOARDING_NAME_KEYBOARD_ACCESSORY_ID : undefined}
         onSubmitEditing={Keyboard.dismiss}
         accessibilityLabel="Your name"
         style={[styles.nameInput, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
       />
-      {Platform.OS === 'ios' ? (
-        <InputAccessoryView nativeID={ONBOARDING_NAME_KEYBOARD_ACCESSORY_ID}>
-          <View style={[styles.keyboardAccessory, { backgroundColor: theme.card, borderTopColor: theme.border }]}>
-            <SpringPressable
-              haptic={false}
-              accessibilityLabel="Done typing"
-              onPress={() => Keyboard.dismiss()}
-              style={styles.keyboardDoneButton}>
-              <ThemedText type="body" style={{ color: theme.iconLilac }}>
-                Done
-              </ThemedText>
-            </SpringPressable>
-          </View>
-        </InputAccessoryView>
-      ) : null}
     </View>
   );
 }
@@ -418,6 +409,29 @@ type StepDef =
   | { kind: 'paywall' };
 
 /** The flow. Adding a question is a new entry here — no JSX, no new branch. */
+/*
+ * TWO QUESTIONS CUT, 2026-09-19. The test was: does the answer change the recommended path?
+ *
+ * `candidates()` in onboarding-path.ts is the only function that builds a path, and neither of
+ * these appears in it. riskComfort carries 3 mappings, blockers 5, horizon 4, goal seeds the
+ * spine, topics map directly and experience sets the tier — all six stay. These two did not
+ * move the result by a single course.
+ *
+ *   dailyMinutes — fed the Home goal ring, which already reads `?? 10` in all five call sites
+ *                  (store.ts:998/1085, quests.ts:115, lessonsPerDay, estimateWeeks). Settings
+ *                  still exposes it, so nothing is lost but the question.
+ *
+ *   notifyOptIn  — was never a question. It is the iOS permission dialog wearing a question's
+ *                  clothes, which is why it needed a load-bearing exception in canContinue AND
+ *                  in autoAdvances to work at all.
+ *
+ * ⚠ CONSEQUENCE, STATED: notifyOptIn now stays `false` (EMPTY_PROFILE) unless the user visits
+ * Settings. notifications.ts gates BOTH the streak nudge (:293) and market alerts (:389) on it,
+ * so with no other change this ships an app that never sends a push — and push is the strongest
+ * retention lever here. The ask has to be re-sited after first value (first lesson complete),
+ * where permission prompts convert far better than they do mid-signup. Until then this is a
+ * known retention regression, not an oversight.
+ */
 const STEPS: StepDef[] = [
   { kind: 'name' },
   { kind: 'single', field: 'experience', question: 'How much do you already know?', options: LEVELS, face: 'watching' },
@@ -428,7 +442,6 @@ const STEPS: StepDef[] = [
   { kind: 'statement', title: 'The habit is what makes it stick', body: 'chart', face: 'proud', sub: 'Ten minutes a day builds real investing instinct.' },
   { kind: 'single', field: 'horizon', question: 'When do you want to start investing for real?', options: HORIZONS, face: 'watching' },
   { kind: 'single', field: 'riskComfort', question: 'Your portfolio drops 20% in a month. You…', sub: 'There’s no wrong answer. It tells Atlas how to coach you.', options: RISK, face: 'whoa' },
-  { kind: 'single', field: 'dailyMinutes', question: 'How much time can you give it?', options: DAILY, face: 'happy' },
   { kind: 'statement', title: 'Everything you need to start', body: 'proof', face: 'proud' },
   { kind: 'multi', field: 'blockers', question: 'What’s held you back so far?', options: BLOCKERS, face: 'thinking' },
   // The subtitle here used to read "It helps us pace the long-term material", which nothing in the
@@ -446,7 +459,6 @@ const STEPS: StepDef[] = [
    * If attribution is wanted later, it needs a reader BEFORE it needs a question — an analytics
    * event or a stored campaign — or it lands back exactly here.
    */
-  { kind: 'single', field: 'notifyOptIn', question: 'Want a daily nudge?', options: NOTIFY, face: 'happy' },
   { kind: 'avatar' },
   { kind: 'loader' },
   { kind: 'reveal' },
@@ -1480,6 +1492,4 @@ const styles = StyleSheet.create({
   legalAction: { minWidth: 44, alignItems: 'center' },
   legalLink: { fontSize: FontSize.label, textDecorationLine: 'underline', opacity: 0.75 },
   legalDot: { fontSize: FontSize.label, opacity: 0.75 },
-  keyboardAccessory: { minHeight: 46, borderTopWidth: StyleSheet.hairlineWidth, alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: Spacing.three },
-  keyboardDoneButton: { minWidth: 64, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });
