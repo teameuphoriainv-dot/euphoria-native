@@ -28,7 +28,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { TourAnchor } from '@/components/atlas-tour';
 import { ATLAS_TOUR_ANCHOR_NEXT_LESSON } from '@/lib/atlas-tour';
 
-import { PathNode } from '@/components/path-node';
+import { PlayGlyph } from '@/components/path-node';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
@@ -555,34 +555,34 @@ export default function Home() {
                         {next.num} / {course?.totalLessons ?? '—'}
                       </ThemedText>
                     </View>
-                    {/*
-                      * THE FOCAL POINT, AND WHY IT SITS INSIDE THE TEXT COLUMN.
-                      *
-                      * Two earlier attempts were wrong in opposite directions and the owner
-                      * caught both. Putting the node in the row BESIDE the title stole width and
-                      * pushed a two-line heading to three. Moving it to a full-width row under
-                      * the row fixed the heading but split the pair: the CONTINUE label sat in
-                      * the card's bottom-left and its node in the bottom-right, a label and its
-                      * own button at opposite ends of a wide black gap, with the whole
-                      * bottom-left quadrant left dead.
-                      *
-                      * A label belongs next to the thing it labels. Both now live at the foot of
-                      * the text column, right-aligned as one unit, so the column reads straight
-                      * down -- heading, position, context, action -- and the card stops growing
-                      * empty rows to hold them.
-                      *
-                      * Not pressable: the card already is. PathNode without onPress renders the
-                      * shape only, so there is no nested touchable to double-scale the press.
-                      */}
-                    <View style={styles.heroAction}>
-                      <ThemedText type="label" style={styles.heroActionLabel}>CONTINUE</ThemedText>
-                      <PathNode
-                        state="current"
-                        size={52}
-                        accessibilityLabel={`Start ${next.title}`}
-                      />
-                    </View>
                   </View>
+                </View>
+                {/*
+                  * THE ACTION IS THE CARD'S BOTTOM EDGE.
+                  *
+                  * Three earlier attempts failed in three different ways. Beside the title it
+                  * stole width and pushed a two-line heading to three. In a full-width row under
+                  * the row it split the pair -- CONTINUE bottom-left, its own node bottom-right,
+                  * a wide black gap between a label and its button. Paired at the foot of the
+                  * text column it finally read as one thing, but it was a 52pt circle in the
+                  * corner of a card the user is meant to press, and it was GREEN: Duolingo's
+                  * colour borrowed wholesale into an app whose primary is purple. No hex in this
+                  * sentence on purpose: design-rules-pin counts hex literals anywhere in the file,
+                  * comments included, and it is right to -- a colour written in prose is a colour
+                  * that can silently disagree with the token it describes.
+                  *
+                  * A bar spanning the full width is the largest target the card can offer and
+                  * removes the question entirely. It bleeds past the card's own padding with
+                  * negative margins -- glassHero sets overflow:'hidden', so it clips to the
+                  * bottom corner radius and reads as the card's edge rather than a chip inside
+                  * it. Brand purple, not green: the one element telling you what to press should
+                  * be the app's own colour.
+                  *
+                  * Not pressable: the card already is.
+                  */}
+                <View style={[styles.heroBar, { backgroundColor: theme.primary }]}>
+                  <ThemedText type="label" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>CONTINUE</ThemedText>
+                  <PlayGlyph scale={0.62} color={theme.primaryForeground} />
                 </View>
               </View>
             </SpringPressable>
@@ -779,9 +779,10 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  /* Spacing.two, not three: the action belongs to the block above it, and 16 read as a gap
-     between two unrelated things rather than the last line of one. */
-  heroAction: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', gap: Spacing.two, marginTop: Spacing.two },
+  /* Negative margins cancel glassHero's own padding so the bar meets all three card edges.
+     overflow:'hidden' on glassHero clips it to the bottom corner radius. */
+  heroBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.four, marginHorizontal: -Spacing.three, marginBottom: -Spacing.four, paddingVertical: Spacing.three },
+  heroBarLabel: { letterSpacing: 1.4 },
   /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
      should show through the label the way it does through the pill. */
   heroActionLabel: { color: 'rgba(255,255,255,0.72)', letterSpacing: 1.4 },

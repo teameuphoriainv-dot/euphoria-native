@@ -45,6 +45,30 @@ export const NODE_LIP = 4;
 
 export type PathNodeState = 'current' | 'done' | 'upcoming' | 'locked';
 
+/**
+ * The play triangle, as a CSS-border triangle rather than an SVG: ui-icon.tsx has no `play`
+ * glyph, and this shape is three border widths. Exported so the node and Home's continue bar
+ * draw the SAME triangle -- a second hand-rolled one would drift on proportion the first time
+ * either is tweaked.
+ */
+export function PlayGlyph({ scale = 1, color = '#FFFFFF' }: { scale?: number; color?: string }) {
+  return (
+    <View
+      style={{
+        width: 0,
+        height: 0,
+        marginLeft: 4 * scale,
+        borderTopWidth: 10 * scale,
+        borderBottomWidth: 10 * scale,
+        borderLeftWidth: 17 * scale,
+        borderTopColor: 'transparent',
+        borderBottomColor: 'transparent',
+        borderLeftColor: color,
+      }}
+    />
+  );
+}
+
 function faceColor(state: PathNodeState, doneColor: string) {
   if (state === 'locked') return NODE_LOCKED_COLOR;
   if (state === 'current') return NODE_CURRENT_COLOR;
@@ -96,17 +120,7 @@ export function PathNode({
           ) : state === 'done' ? (
             <UIcon name="check" size={Math.round(24 * glyphScale)} color="#FFFFFF" strokeWidth={3.25} />
           ) : state === 'current' ? (
-            <View
-              style={[
-                styles.play,
-                {
-                  marginLeft: 4 * glyphScale,
-                  borderTopWidth: 10 * glyphScale,
-                  borderBottomWidth: 10 * glyphScale,
-                  borderLeftWidth: 17 * glyphScale,
-                },
-              ]}
-            />
+            <PlayGlyph scale={glyphScale} />
           ) : (
             <UIcon name="lock" size={Math.round(19 * glyphScale)} color="#777381" />
           )}
@@ -150,11 +164,4 @@ const styles = StyleSheet.create({
   face: { alignItems: 'center', justifyContent: 'center', borderRadius: Radius.pill },
   highlight: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.pill },
   numeral: { color: '#F4F4F5' },
-  play: {
-    width: 0,
-    height: 0,
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-    borderLeftColor: '#FFFFFF',
-  },
 });
