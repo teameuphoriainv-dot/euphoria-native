@@ -12,6 +12,14 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
@@ -70,18 +78,19 @@ const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 function DayCheck({ label, done, today }: { label: string; done: boolean; today: boolean }) {
   const theme = useTheme();
-  /*
-   * THE BREATHING RING IS GONE, and it was working against itself. Today's ring pulsed its
-   * opacity down to 0.25 on an infinite loop, so for half of every 1500ms cycle the one cell
-   * that wants a tap was FAINTER than the six blanks beside it. On a zero streak that is seven
-   * empty circles where the important one spends half its life hiding. AGENTS.md is explicit
-   * that this codebase prefers one action-driven, orchestrated moment over scattered ambient
-   * effects, and an always-on breath is the definition of the latter.
-   *
-   * Today is now differentiated by state rather than by motion: a filled wash inside a
-   * full-strength ring, which reads as a slot waiting to be claimed instead of another blank.
-   * It also costs nothing under Reduced Motion, because there is no longer anything to guard.
-   */
+  const reduced = useReducedMotion();
+  const pulse = useSharedValue(0.9);
+
+  // only today-and-not-yet-done breathes: it's the one cell that wants a tap
+  useEffect(() => {
+    if (reduced || !today || done) {
+      pulse.set(0.9);
+      return;
+    }
+    pulse.set(withRepeat(withTiming(0.25, { duration: 1500, easing: Easing.inOut(Easing.ease) }), -1, true));
+  }, [reduced, today, done, pulse]);
+
+  const ringStyle = useAnimatedStyle(() => ({ opacity: pulse.get() }));
 
   return (
     /*
@@ -104,18 +113,16 @@ function DayCheck({ label, done, today }: { label: string; done: boolean; today:
         {label}
       </ThemedText>
       <View style={styles.dayMark}>
-        <Svg width={30} height={30} viewBox="0 0 30 30">
-          {/* Three states, three treatments: done is solid, TODAY is a washed slot inside a
-              full-strength ring, and the rest are hairline outlines that recede. 24 is 14%
-              alpha -- visible as an intent, nowhere near the solid fill of a completed day. */}
-          <Circle
-            cx={15}
-            cy={15}
-            r={13.5}
-            fill={done ? theme.primary : today ? theme.primary + '24' : 'none'}
-            stroke={done || today ? theme.primary : theme.border}
-            strokeWidth={today && !done ? 2.5 : 2}
+        {today && !done && (
+          <Animated.View
+            style={[
+              { position: 'absolute', width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: theme.primary },
+              ringStyle,
+            ]}
           />
+        )}
+        <Svg width={30} height={30} viewBox="0 0 30 30">
+          <Circle cx={15} cy={15} r={13.5} fill={done ? theme.primary : 'none'} stroke={done ? theme.primary : theme.border} strokeWidth={2} />
           {done && <Path d="M9.5 15.5l3.5 3.5 7-7.5" stroke="#fff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" fill="none" />}
         </Svg>
       </View>
