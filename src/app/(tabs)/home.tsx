@@ -28,6 +28,7 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { TourAnchor } from '@/components/atlas-tour';
 import { ATLAS_TOUR_ANCHOR_NEXT_LESSON } from '@/lib/atlas-tour';
 
+import { Atlas } from '@/components/atlas';
 import { PlayGlyph } from '@/components/path-node';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -415,6 +416,32 @@ export default function Home() {
                   sitting still is not. Same rule the header pill followed before it was folded in. */}
               <View style={streak === 0 ? styles.flameUnlit : undefined}>
                 <PixelSpriteView sprite={flameSprite} size={26} play="once" playKey={streak} />
+              </View>
+              {/*
+                * ATLAS WEARS THE STREAK. He is the app's character and he did not appear on its
+                * main screen at all -- twelve measured springs of squash-and-stretch, and the
+                * screen every session opens on had no face on it.
+                *
+                * The streak is the right state for him to carry because it is the only number on
+                * Home that is about the person rather than the content. Sad at zero, happy once
+                * it is alive, proud past the 30-day tier from STREAK_TIERS.
+                *
+                * SIZE 72 IS NOT COSMETIC. atlas.tsx sets IDLE_MOTION_MIN_SIZE = 72 and holds
+                * completely still below it, because under that size every idle movement he has
+                * is sub-pixel and was costing React commits to render nothing. At 64 he would be
+                * a frozen sticker, which is worse than no mascot on a screen we are trying to
+                * stop feeling static. 72 is the smallest size at which he is actually alive.
+                */}
+              <View style={styles.streakAtlas}>
+                <Atlas
+                  size={72}
+                  expression={streak === 0 ? 'sad' : streak >= 30 ? 'proud' : 'happy'}
+                  accessibilityLabel={
+                    streak === 0
+                      ? 'Atlas is waiting for you to start your streak'
+                      : `Atlas is pleased with your ${String(streak)} day streak`
+                  }
+                />
               </View>
             </View>
             {/*
@@ -821,6 +848,9 @@ const styles = StyleSheet.create({
   /* Unlit, not hidden: the flame is the thing the streak lights, so it should be visibly
      waiting rather than absent. */
   flameUnlit: { opacity: 0.3 },
+  /* marginLeft auto pins him to the right edge without making the row space-between, which
+     would also push the flame away from the words it belongs to. */
+  streakAtlas: { marginLeft: 'auto' },
   streakCard: { paddingVertical: Spacing.three },
   streakTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   /* lineHeight pinned to the size: `display` ships a 40pt line box, which left a visible dead
