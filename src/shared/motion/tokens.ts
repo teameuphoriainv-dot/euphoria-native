@@ -44,6 +44,20 @@ export const Duration = {
   slow: 400,
   /** Screen / step transition. MEASURED: Brilliant's light-tunnel transition = 467ms. */
   screen: 460,
+  /**
+   * HALF of a looping pulse, so the full cycle is one second.
+   *
+   * Not a transition, which is why it does not sit on the enter/exit scale: the typing dots in
+   * chat.tsx run withRepeat(withSequence(up, down)) and the WEB tutor's dots breathe once a
+   * second. 500 is that parity value, and it is the one duration in the app that is answerable
+   * to another platform rather than to this one's motion language.
+   *
+   * It exists as a token because the alternative is what happened on 2026-09-20: a sweep putting
+   * every literal on the scale found no exact match, rounded to Duration.screen (460), and
+   * quietly turned a one-second pulse into a 920ms one. A value with nowhere to live gets
+   * rounded; a named value does not.
+   */
+  pulse: 500,
   /** Number roll-up. */
   count: 900,
   /** An EARNED moment. MEASURED: Duolingo's streak ignite runs 3200ms and is two-stage —

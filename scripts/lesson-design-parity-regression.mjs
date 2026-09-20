@@ -44,7 +44,12 @@ requires(tokens, /body: \{ fontFamily: Fonts\.body, fontSize: 16, lineHeight: 26
 requires(lesson, /header: \{ height: 56,[^}]*gap: 12,[^}]*paddingHorizontal: 16/, 'lesson header must remain the web 56/12/16 geometry');
 requires(lesson, /close: \{ width: 40, height: 40, borderRadius: 20/, 'Close and Back targets must remain 40px circles');
 requires(lesson, /<LessonProgress percent=\{progressPercent\}/, 'header must use the animated gradient progress component');
-requires(lesson, /duration: 400/, 'progress must retain the web 400ms transition');
+// Literal OR its EXACT token equivalent. A pin that greps for a number fails a correct
+// refactor and passes a broken one that keeps the digits — which is what happened on
+// 2026-09-20 when a sweep moved these onto tokens.ts. The alternative is not "match
+// anything": each alternation names ONE token, so swapping in a different duration still
+// fails, which is how the 500 -> Duration.screen (460) regression was caught.
+requires(lesson, /duration:\s*(?:400|Duration\.slow)/, 'progress must retain the web 400ms transition');
 requires(lesson, /styles\.stepLabel[\s\S]*?\{stepLabel\}/, 'header must retain its textual current/total identity');
 requires(lesson, /body: \{ flex: 1, paddingHorizontal: 16, paddingTop: 32,/, 'viewer content must retain the web mobile 16px gutter and 32px top rhythm');
 requires(lesson, /option: \{ minHeight: 64,[^}]*paddingHorizontal: 20, paddingVertical: 20, borderRadius: 12, borderWidth: 1 \}/, 'quick-check options must retain web geometry');
@@ -62,7 +67,7 @@ requires(pressable, /stiffness: 420, damping: 32, mass: 1/, 'lesson press feedba
 requires(warmup, /buildRecallQuiz/, 'lesson warmup must draw from completed-lesson recall');
 requires(warmup, /PixelSpriteView sprite=\{flameSprite\} scale=\{9\} play="loop"/, 'lesson warmup must retain the canonical 144px pixel flame');
 requires(warmup, /First, a quick check on what you have already covered\./, 'lesson warmup must retain production recall copy');
-requires(reveal, /duration: 400[\s\S]*?rotateY/, 'tap-reveal cards must retain the web 400ms Y-axis flip');
+requires(reveal, /duration:\s*(?:400|Duration\.slow)[\s\S]*?rotateY/, 'tap-reveal cards must retain the web 400ms Y-axis flip');
 requires(reveal, /faces: \{ height: 280 \}/, 'tap-reveal cards must retain the web mobile 280px height');
 requires(matching, /cols: \{ flexDirection: 'column'/, 'matching pairs must stack their two columns on phones');
 requires(matching, /height: 90,[^}]*borderRadius: 12/, 'matching cells must retain the web 90px/r12 geometry');

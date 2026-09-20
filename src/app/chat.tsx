@@ -23,6 +23,7 @@
  * actually carries the third-party disclosure; do not reintroduce a permanent caption here.
  */
 import { router, useLocalSearchParams } from 'expo-router';
+import { Duration } from '@/shared/motion/tokens';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -92,8 +93,8 @@ function ThinkingDot({ delay, color }: { delay: number; color: string }) {
       delay,
       withRepeat(
         withSequence(
-          withTiming(1, { duration: 500 }),
-          withTiming(0.3, { duration: 500 }),
+          withTiming(1, { duration: Duration.pulse }),
+          withTiming(0.3, { duration: Duration.pulse }),
         ),
         -1,
       ),

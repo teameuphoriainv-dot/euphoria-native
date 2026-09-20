@@ -57,7 +57,12 @@ assert.match(chat, /styles\.lessonModeDock/, 'lesson Socratic modes must live in
 assert.match(chat, /lessonMode:\s*\{[^}]*minHeight:\s*44/, 'persistent lesson actions must keep a full native touch target');
 assert.match(chat, /atlasBubble:\s*\{[^}]*maxWidth:\s*['"]85%['"][^}]*flexShrink:\s*1/, 'Atlas bubbles must hug their content instead of spanning the row');
 assert.doesNotMatch(chat, /atlasBubble:\s*\{[^}]*flex:\s*1/, 'Atlas bubbles must not regress to full-row width');
-assert.match(chat, /withTiming\(1,\s*\{\s*duration:\s*500\s*\}\)/, 'typing dots must match the web tutor’s one-second pulse');
+// Literal OR its EXACT token equivalent. A pin that greps for a number fails a correct
+// refactor and passes a broken one that keeps the digits — which is what happened on
+// 2026-09-20 when a sweep moved these onto tokens.ts. The alternative is not "match
+// anything": each alternation names ONE token, so swapping in a different duration still
+// fails, which is how the 500 -> Duration.screen (460) regression was caught.
+assert.match(chat, /withTiming\(1,\s*\{\s*duration:\s*(?:500|Duration\.pulse)\s*\}\)/, 'typing dots must match the web tutor’s one-second pulse');
 assert.match(graph, /onValuesChange/, 'interactive graphs must publish the values the learner is currently viewing to Atlas');
 assert.match(lesson, /graphControls:/, 'lesson context must include current graph controls');
 
