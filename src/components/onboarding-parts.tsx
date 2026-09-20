@@ -474,6 +474,7 @@ export function OptionCard({
   compact = false,
   roomy = false,
   multi = false,
+  tall = false,
 }: {
   /** Omit for text-only choices (attribution, age band) — the icon bubble is then dropped. */
   icon?: PixelSprite;
@@ -485,6 +486,8 @@ export function OptionCard({
   compact?: boolean;
   /** Multi-select: draw a checkbox, because a radio dot tells the user to pick only one. */
   multi?: boolean;
+  /** Three options and nothing else on screen — one more size step. See optionXl. */
+  tall?: boolean;
   /*
    * Taller row for SHORT lists. Measured on this iPhone 17 Pro (402x874) from real captures:
    *
@@ -519,6 +522,7 @@ export function OptionCard({
           styles.option,
           compact && styles.optionSm,
           roomy && styles.optionLg,
+          tall && styles.optionXl,
           {
             backgroundColor: selected ? theme.primary + '14' : theme.card,
             borderColor: selected ? theme.primary : theme.border,
@@ -526,8 +530,8 @@ export function OptionCard({
           },
         ]}>
         {icon ? (
-          <View style={[styles.bubble, compact && styles.bubbleSm, roomy && styles.bubbleLg, { backgroundColor: theme.primary + '1F' }]}>
-            <PixelSpriteView sprite={icon} size={compact ? 18 : roomy ? 40 : 22} />
+          <View style={[styles.bubble, compact && styles.bubbleSm, roomy && styles.bubbleLg, tall && styles.bubbleXl, { backgroundColor: theme.primary + '1F' }]}>
+            <PixelSpriteView sprite={icon} size={compact ? 18 : tall ? 46 : roomy ? 40 : 22} />
           </View>
         ) : null}
         <View style={{ flex: 1 }}>
@@ -822,6 +826,7 @@ export function SingleSelectStep({
               sub={o.sub}
               compact={compact ?? options.length > 4}
               roomy={options.length <= 4}
+              tall={options.length <= 3}
               selected={value === o.key}
               onPress={() => onChange(o.key)}
             />
@@ -1137,6 +1142,21 @@ const styles = StyleSheet.create({
    */
   optionLg: { paddingVertical: Spacing.three + 6 },
   bubbleLg: { width: 60, height: 60 },
+  /*
+   * ONE MORE STEP FOR THREE-OPTION SCREENS.
+   *
+   * `roomy` was binary at <= 4, so a three-option question got a four-option question's card and
+   * inherited the missing card as empty screen. Measured on iPhone 17 Pro (402x874):
+   *
+   *   4 options (goal, horizon)   100-121pt dead
+   *   3 options (experience, risk)      181pt dead
+   *
+   * The 60-80pt gap is exactly one card. Split across three, that is ~20pt each — taken from
+   * content first (sprite 40 -> 46 in a 64pt bubble) and padding second, because buying height
+   * with padding alone is what made these cards read as inflated the first time.
+   */
+  optionXl: { paddingVertical: Spacing.three + 12 },
+  bubbleXl: { width: 64, height: 64 },
   // one idea per screen: the heading owns the top of the viewport, options sit well below it
   stepHead: { marginTop: Spacing.two },
   // Centred: the bubble hangs from Atlas, who is centred in the persistent stage above.
