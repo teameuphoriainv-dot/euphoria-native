@@ -44,8 +44,8 @@ import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } fro
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { TierUpSheet } from '@/components/tier-up-sheet';
 import {
-  PixelSpriteView, book, chartUp, controller,
-  flame as flameSprite, newspaper, targetGoal, type PixelSprite,
+  PixelSpriteView, bolt, book, chartUp, controller,
+  flame as flameSprite, newspaper, target, targetGoal, type PixelSprite,
 } from '@/lib/pixel';
 
 import { useShallow } from 'zustand/react/shallow';
@@ -76,6 +76,46 @@ const QUEST_SPRITE: Record<string, PixelSprite> = {
 
 
 const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+/**
+ * <StatTile> — one cell of the Home grid.
+ *
+ * MEASURED off Step's home screen (teen banking, 7M users -- the closest analogue to this app's
+ * audience and to its problem of having several unrelated numbers to surface at once). Their
+ * answer is two strict tiers and nothing between them: one primary card carrying the hero number
+ * with its CTA inside it, then four equal small cards in a 2x2 grid.
+ *
+ * Home stacked four or five FULL-WIDTH cards of equal weight instead. Across six shipped apps
+ * captured from their App Store listings -- Step, Greenlight, Robinhood, Acorns, Bloom, Duolingo
+ * -- not one does that. They rank by size (Step's grid, Robinhood's three tiers), drop to an
+ * inline strip (Greenlight), or have no dashboard at all (Bloom and Duolingo have no Home tab).
+ * Equal weight everywhere is why nothing on this screen reads as primary.
+ *
+ * Tile anatomy is Step's, unchanged: icon and label on one line, the number large beneath it,
+ * a caption that says what the number MEANS. The caption is not decoration -- "1,234" alone is
+ * unreadable, "1,234 / balance" is a fact.
+ */
+function StatTile({ sprite, label, value, caption, tint }: {
+  sprite: PixelSprite;
+  label: string;
+  value: string;
+  caption: string;
+  tint: string;
+}) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.tile, { backgroundColor: theme.cardElevated, borderColor: theme.border }]}>
+      <View style={styles.tileHead}>
+        <PixelSpriteView sprite={sprite} size={14} />
+        <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>{label}</ThemedText>
+      </View>
+      <ThemedText type="title" maxFontSizeMultiplier={1.6} style={[styles.tileValue, { color: tint }]} numberOfLines={1}>
+        {value}
+      </ThemedText>
+      <ThemedText type="small" themeColor="mutedForeground" numberOfLines={1}>{caption}</ThemedText>
+    </View>
+  );
+}
 
 function DayCheck({ label, done, today }: { label: string; done: boolean; today: boolean }) {
   const theme = useTheme();
@@ -152,6 +192,9 @@ export default function Home() {
   }, [resolveLeagueWeek]);
   const theme = useTheme();
   const streak = useApp((s) => s.streak);
+  const xp = useApp((s) => s.xp);
+  const minutesDone = useApp((s) => s.minutesDoneToday());
+  const goalMinutes = useApp((s) => s.dailyGoalMinutes());
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
@@ -665,6 +708,39 @@ export default function Home() {
             * The whole header is the toggle rather than a chevron-sized target, and it announces
             * as a button with its expanded state so VoiceOver users get the same affordance.
             */}
+          {/*
+            * THE GRID. Measured off Step's home screen -- teen banking, 7M users, the closest
+            * analogue to this app's audience and to its problem of having several unrelated
+            * numbers to show at once. Their answer is two strict tiers and nothing between:
+            * one primary card carrying the hero number with its CTA inside it, then four equal
+            * small cards in a 2x2. Across six shipped apps captured from their App Store
+            * listings, not one stacks full-width cards of equal weight the way this screen did.
+            *
+            * It sits between the hero and the quests for now and REPLACES NOTHING, so the
+            * mechanism can be judged on device before anything is deleted. If it earns its
+            * place, the streak card and the collapsed quests header both fold into it -- both
+            * currently say the same thing the grid says.
+            */}
+          <View style={styles.statGrid}>
+            <View style={styles.tileRow}>
+              <StatTile sprite={flameSprite} label="Streak" value={String(streak)} caption={streak === 1 ? 'day' : 'days'} tint={theme.streak} />
+              <StatTile sprite={bolt} label="XP" value={String(xp)} caption="earned" tint={theme.iconLilac} />
+            </View>
+            <View style={styles.tileRow}>
+              <StatTile sprite={target} label="Quests" value={`${String(questsDone)}/${String(quests.length)}`} caption={`${String(hoursLeft)}h left`} tint={questsDone === quests.length ? theme.success : theme.text} />
+              {/*
+                * NOT COINS. The header comment a few hundred lines up records that the coin pill
+                * was "asked to be removed from Home outright" -- the balance belongs with the
+                * things it buys. A Coins tile here would quietly reverse that decision under
+                * cover of a layout change, which is the worst way for a decision to get undone.
+                * Minutes practised is the honest fourth number: today-scoped like Quests, the
+                * one the daily goal is measured against, and the only stat on this grid the
+                * user moves by using the app right now.
+                */}
+              <StatTile sprite={targetGoal} label="Today" value={`${String(minutesDone)}m`} caption={`of ${String(goalMinutes)}m goal`} tint={minutesDone >= goalMinutes ? theme.success : theme.text} />
+            </View>
+          </View>
+
           <SpringPressable
             haptic={false}
             scaleTo={0.995}
@@ -822,6 +898,13 @@ const styles = StyleSheet.create({
      which is why it read as the wrong purple. The card clips at its bottom edge so the slab
      cannot sit BELOW the face the way SlabButton's does; a bottom border is that base, and it
      follows the corner radius. */
+  /* Two per row at flex:1 rather than a wrapped percentage: a 48% basis plus a gap overflows on
+     the narrowest supported width, and wrap then silently drops a tile onto its own line. */
+  tileRow: { flexDirection: 'row', gap: Spacing.three },
+  tile: { flex: 1, borderWidth: 1, borderRadius: Radius.md, padding: Spacing.three, gap: Spacing.one },
+  tileHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  tileValue: { fontSize: FontSize.titleSm, lineHeight: 30 },
+  statGrid: { gap: Spacing.three, marginTop: Spacing.four },
   heroBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.four, marginHorizontal: -Spacing.three, marginBottom: -Spacing.four, paddingVertical: Spacing.three, borderBottomWidth: 5 },
   heroBarLabel: { letterSpacing: 1.4 },
   /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
