@@ -59,6 +59,7 @@ import { TileBuilder } from '@/components/tile-builder';
 import { TrueFalseSequence } from '@/components/true-false-sequence';
 import { TeachingSlide } from '@/components/teaching-slide';
 import { DismissalOfferSheet } from '@/components/dismissal-offer-sheet';
+import { LeaveLessonSheet } from '@/components/leave-lesson-sheet';
 import { DecisionTree } from '@/components/decision-tree';
 import { DragSort } from '@/components/drag-sort';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
@@ -267,6 +268,7 @@ export default function Lesson() {
   const [trialReward, setTrialReward] = useState(false);
   /** 17d. Raised when the hard wall is dismissed and a better ask is still unspent. */
   const [offer, setOffer] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
   /** Tutor memory mirrors the web runner but stays session-local to this lesson attempt. */
   const [correctSoFar, setCorrectSoFar] = useState(0);
   const [recentMistakes, setRecentMistakes] = useState<string[]>([]);
@@ -591,6 +593,26 @@ export default function Lesson() {
     else exitLesson();
   }
 
+  /**
+   * THE HEADER X ASKS FIRST, and only the header X.
+   *
+   * Every other caller of `exitLesson` is already the answer to a question the learner was asked —
+   * the heart wall, the paywall's "Maybe later", a failed challenge, the error screen's Back. A
+   * confirmation there would be a second sheet on top of a decision they just made. This one guards
+   * the single control that is destructive on the FIRST tap.
+   *
+   * Nothing to confirm on the terminal screens either: past `idx >= DONE` the lesson is finished
+   * and paid out, so leaving costs nothing and the sheet would be theatre.
+   */
+  function requestExit() {
+    if (idx > 0 && idx < DONE) {
+      Keyboard.dismiss();
+      setConfirmLeave(true);
+      return;
+    }
+    exitLesson();
+  }
+
   /** One safe exit for header, terminal, error, and heart-wall states. */
   function exitLesson() {
     Keyboard.dismiss();
@@ -770,7 +792,7 @@ export default function Lesson() {
         <BlurView intensity={24} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.headerTint]} />
         <View style={styles.lessonNav}>
-          <SpringPressable haptic={false} scaleTo={0.97} onPress={exitLesson} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close lesson">
+          <SpringPressable haptic={false} scaleTo={0.97} onPress={requestExit} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close lesson">
             <UIcon name="close" size={22} color={theme.mutedForeground} />
           </SpringPressable>
           {/*
@@ -1299,6 +1321,20 @@ export default function Lesson() {
           </View>
         </View>
       )}
+
+      <LeaveLessonSheet
+        visible={confirmLeave}
+        stepNumber={idx}
+        stepCount={total}
+        onStay={() => setConfirmLeave(false)}
+        onLeave={() => {
+          // Closed BEFORE navigating. A Modal left visible while its screen is popped keeps its own
+          // native window on top of the destination, which is the "tapped leave and the app froze"
+          // shape rather than a navigation bug.
+          setConfirmLeave(false);
+          exitLesson();
+        }}
+      />
 
       <TrialRewardSheet
         visible={trialReward}

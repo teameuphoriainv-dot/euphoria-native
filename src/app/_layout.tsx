@@ -159,6 +159,13 @@ function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
+          {/*
+            * Lessons are full of horizontal drags (graph sliders, number lines, chart handles). A JS
+            * responder cannot outbid the native swipe-back recognizer, so a slider drag that
+            * started near the edge popped the lesson. The lesson has its own
+            * Close button and saves every step, so nothing is lost by turning the gesture off here.
+            */}
+          <Stack.Screen name="lesson" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
           <Stack.Screen
             name="lesson-atlas"
             options={{
