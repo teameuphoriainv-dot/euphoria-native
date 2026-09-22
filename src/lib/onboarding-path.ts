@@ -148,8 +148,42 @@ export const PATH_LENGTH = 3;
  *  two screens can never disagree about what "2 lessons a day" means in minutes. */
 export const MINUTES_PER_LESSON = 5;
 
-/** A chosen course plus the ANSWER that earned it its slot. */
-export type PathPick = { course: CourseMeta; reason: string };
+/**
+ * The answer fields that can earn a course its slot. Every one is a Profile key, so a pick can
+ * point at the exact field the learner filled in.
+ */
+export type PathSource = Extract<keyof Profile, 'riskComfort' | 'topics' | 'blockers' | 'horizon' | 'goal' | 'experience'>;
+
+/**
+ * A chosen course plus the ANSWER that earned it its slot.
+ *
+ * `source` and `answer` exist for the path-assembly loader, which lights each course node with the
+ * sprite of the option the learner actually tapped. `reason` alone is prose, and a loader that had
+ * to parse prose back into an option key would break the first time a reason was reworded.
+ *
+ * BOTH ARE NULL when no answer earned the slot: the goal seed for a learner who skipped the goal
+ * (candidates() quietly assumes 'learn'), the tier pad with no experience, and the final
+ * "rounds out" pad. Tagging those with a source would show a sprite for a choice nobody made.
+ * Pinned by scripts/onboarding-loader-answers-pin.mjs, both ways.
+ */
+export type PathPick = { course: CourseMeta; reason: string; source: PathSource | null; answer: string | null };
+
+/**
+ * The option a pick cites, looked up in the screen's own option lists.
+ *
+ * Generic over the option shape so this file stays free of React and sprites: onboarding.tsx owns
+ * the Choice arrays (and their icons), and hands them in. One lookup, shared by the loader and the
+ * pin, so the two cannot disagree about which sprite belongs to which pick.
+ */
+export function pickOption<T extends { key: string }>(
+  pick: Pick<PathPick, 'source' | 'answer'>,
+  lists: Partial<Record<PathSource, readonly T[]>>,
+): T | null {
+  if (!pick.source || pick.answer === null) return null;
+  return lists[pick.source]?.find((o) => o.key === pick.answer) ?? null;
+}
+
+type Candidate = { id: string; reason: string; source: PathSource | null; answer: string | null };
 
 /** Human-readable label for each topic chip, for reason copy. */
 const TOPIC_LABEL: Record<string, string> = {
@@ -184,9 +218,12 @@ const GOAL_REASON: Record<Goal, string> = {
  * Kept to EDUCATIONAL sequencing only, per the regulatory note at the top of this file: these
  * reasons explain why a COURSE is next, never what to do with money.
  */
-function candidates(p: Profile): { id: string; reason: string }[] {
-  const out: { id: string; reason: string }[] = [];
-  const add = (id: string, reason: string) => out.push({ id, reason });
+function candidates(p: Profile): Candidate[] {
+  const out: Candidate[] = [];
+  // `source` is required, not optional: a new rule added without saying which answer it reads
+  // would otherwise compile, and the loader would draw an empty socket for it.
+  const add = (id: string, reason: string, source: PathSource | null, answer: string | null) =>
+    out.push({ id, reason, source, answer });
 
   /*
    * EVERY OFFERED ANSWER HAS TO BE ABLE TO MOVE THE RESULT.
@@ -203,11 +240,11 @@ function candidates(p: Profile): { id: string; reason: string }[] {
 
   // 1. Behaviour beats content. How someone reacts to a drawdown is the single most useful thing
   //    to know about them, so all three answers lead, not just the alarming one.
-  if (p.riskComfort === 'sell') add('behavioral-finance', 'You said a 20% drop would make you sell');
+  if (p.riskComfort === 'sell') add('behavioral-finance', 'You said a 20% drop would make you sell', 'riskComfort', 'sell');
   // Sitting through a 20% drawdown is a plan, and risk material is what turns it into one.
-  if (p.riskComfort === 'wait') add('risk-management', 'You said you would sit a 20% drop out');
+  if (p.riskComfort === 'wait') add('risk-management', 'You said you would sit a 20% drop out', 'riskComfort', 'wait');
   // Buying a drawdown is a valuation question before it is a nerve question.
-  if (p.riskComfort === 'buy') add('corporate-finance', 'You said a 20% drop is a buying opportunity');
+  if (p.riskComfort === 'buy') add('corporate-finance', 'You said a 20% drop is a buying opportunity', 'riskComfort', 'buy');
 
   /*
    * 2. WHAT THEY ACTUALLY ASKED FOR.
@@ -228,35 +265,36 @@ function candidates(p: Profile): { id: string; reason: string }[] {
    */
   for (const t of p.topics) {
     const id = COURSE_BY_TOPIC[t];
-    if (id) add(id, `You picked ${TOPIC_LABEL[t] ?? t}`);
+    if (id) add(id, `You picked ${TOPIC_LABEL[t] ?? t}`, 'topics', t);
   }
 
   // 3. Stated obstacles. A blocker is the thing the user believes is stopping them, so it
   //    outranks a general goal: clearing it is what makes the rest reachable.
-  if (p.blockers.includes('fear')) add('risk-management', 'You said losing money holds you back');
-  if (p.blockers.includes('trust')) add('behavioral-finance', 'You said you do not know who to trust');
-  if (p.blockers.includes('jargon')) add('investing-fundamentals', 'You said the jargon is overwhelming');
-  if (p.blockers.includes('start')) add('investing-fundamentals', 'You said you do not know where to start');
+  if (p.blockers.includes('fear')) add('risk-management', 'You said losing money holds you back', 'blockers', 'fear');
+  if (p.blockers.includes('trust')) add('behavioral-finance', 'You said you do not know who to trust', 'blockers', 'trust');
+  if (p.blockers.includes('jargon')) add('investing-fundamentals', 'You said the jargon is overwhelming', 'blockers', 'jargon');
+  if (p.blockers.includes('start')) add('investing-fundamentals', 'You said you do not know where to start', 'blockers', 'start');
   // "I never find the time" is a budgeting and automation problem before it is an investing one.
-  if (p.blockers.includes('time')) add('personal-finance', 'You said you never find the time');
+  if (p.blockers.includes('time')) add('personal-finance', 'You said you never find the time', 'blockers', 'time');
 
   // 4. Timing. The nearer the start date, the sooner the material that matters on day one.
-  if (p.horizon === 'now') add('risk-management', 'You have already started investing');
-  if (p.horizon === 'unsure') add('personal-finance', 'You are not sure when you will start');
+  if (p.horizon === 'now') add('risk-management', 'You have already started investing', 'horizon', 'now');
+  if (p.horizon === 'unsure') add('personal-finance', 'You are not sure when you will start', 'horizon', 'unsure');
   // Months away: the mechanics of actually buying something come first.
-  if (p.horizon === 'soon') add('investing-fundamentals', 'You want to start within a few months');
+  if (p.horizon === 'soon') add('investing-fundamentals', 'You want to start within a few months', 'horizon', 'soon');
   // A year out is the one horizon with room to get the money side in order first.
-  if (p.horizon === 'year') add('personal-finance', 'You want to start within a year');
+  if (p.horizon === 'year') add('personal-finance', 'You want to start within a year', 'horizon', 'year');
 
   // 5. Goal seeds the spine of the path.
   const goal = p.goal ?? 'learn';
-  for (const id of SEED_BY_GOAL[goal]) add(id, GOAL_REASON[goal]);
+  // Null source when the goal was skipped: 'learn' is this function's assumption, not an answer.
+  for (const id of SEED_BY_GOAL[goal]) add(id, GOAL_REASON[goal], p.goal ? 'goal' : null, p.goal);
 
   // 6. Pad from the experience-matched tier, then anything, so PATH_LENGTH is always reached.
   const tier = p.experience ? TIER_BY_EXPERIENCE[p.experience] : 'easy';
   const tierWord = tier === 'easy' ? 'beginner' : tier === 'intermediate' ? 'intermediate' : 'advanced';
-  for (const c of getCoursesByTier(tier)) add(c.id, `Matched to your ${tierWord} level`);
-  for (const c of COURSES) add(c.id, 'Rounds out your path');
+  for (const c of getCoursesByTier(tier)) add(c.id, `Matched to your ${tierWord} level`, p.experience ? 'experience' : null, p.experience);
+  for (const c of COURSES) add(c.id, 'Rounds out your path', null, null);
 
   return out;
 }
@@ -268,12 +306,12 @@ function candidates(p: Profile): { id: string; reason: string }[] {
 export function recommendPathDetailed(p: Profile): PathPick[] {
   const seen = new Set<string>();
   const out: PathPick[] = [];
-  for (const { id, reason } of candidates(p)) {
+  for (const { id, reason, source, answer } of candidates(p)) {
     if (seen.has(id)) continue; // first mention wins, so the highest-priority reason is kept
     seen.add(id);
     if (!isCourseAvailable(id)) continue;
     const course = getCourseById(id);
-    if (course) out.push({ course, reason });
+    if (course) out.push({ course, reason, source, answer });
     if (out.length === PATH_LENGTH) break;
   }
   return out;
@@ -313,6 +351,9 @@ if (__DEV__) {
 
   // Every pick must be able to explain itself, or the reveal screen renders a blank reason.
   if (recommendPathDetailed(P({ goal: 'trade' })).some((x) => !x.reason)) bad('every pick needs a reason');
+  // The loader draws the cited answer's sprite, so a claimed answer nobody gave would be a lie.
+  if (recommendPathDetailed(EMPTY_PROFILE).some((x) => x.source !== null)) bad('an empty profile must not cite any answer');
+  if (recommendPathDetailed(P({ goal: 'trade', experience: 'basics' })).some((x) => !x.source)) bad('an answered profile needs a source on every pick');
 
   // hasAccount gates entry to the whole app. A false positive here does not render wrong, it
   // silently reopens the hole it was written to close — so the name case is asserted explicitly.

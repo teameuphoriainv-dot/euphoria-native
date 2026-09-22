@@ -22,7 +22,7 @@ import {
   StyleSheet,
   TextInput,
   View, useWindowDimensions,} from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -30,9 +30,9 @@ import type { AtlasExpression } from '@/components/atlas';
 import {
   ATLAS_SIZE,
   AtlasStage,
+  PAYWALL_MAX_FONT_SCALE,
   type Choice,
   GrowthChart,
-  LoaderStep,
   MultiSelectStep,
   PlanCard,
   PlanRevealStep,
@@ -41,6 +41,10 @@ import {
   StatementStep,
   StepHeading,
   TrialStep, PremiumBenefits } from '@/components/onboarding-parts';
+import { AtlasGuide } from '@/components/onboarding/atlas-guide';
+import { AvatarHero, heroAvatarId } from '@/components/onboarding/avatar-hero';
+import { DoubleItCheckBar, DoubleItStep, useDoubleIt, type DoubleItEvent } from '@/components/onboarding/double-it-step';
+import { PathAssemblyLoader } from '@/components/onboarding/path-assembly-loader';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
@@ -53,6 +57,8 @@ import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
 import { IAP_DISABLED_REASON, IAP_ENABLED, getPackages, readPlanOffer, type PlanOffer, purchase, restore as restorePurchases, purchaseErrorMessage } from '@/lib/purchases';
 import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
 import { estimateWeeks, hasAccount, lessonsPerDay, recommendPathDetailed, type Profile } from '@/lib/onboarding-path';
+import { ATLAS_BEATS } from '@/lib/onboarding/double-it';
+import { atlasLineFor, stepKeyOf, tryResultOf, type TryResult } from '@/lib/onboarding/atlas-lines';
 import { NAME_MAX, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -295,9 +301,16 @@ const PRO_STEPS: { icon: PixelSprite; title: string; sub?: string; tone: 'solid'
   { icon: chartUp, title: 'Paper trading and the options desk', sub: 'Trade stocks and options with virtual money.', tone: 'muted' as const },
 ];
 
+/*
+ * One line per node the path-assembly loader lights. The first line used to be "Reading your
+ * experience level…", and the recommender never reads it: experience earned 0 of 75,600 picks in
+ * scripts/onboarding-loader-answers-pin.mjs (O2 review, 2026-09-22). A status line claiming work
+ * the app does not do is the fabricated-claim failure in CONSTITUTION 3.1, so each line now says
+ * only what recommendPathDetailed actually does.
+ */
 const LOADER_LINES = [
-  'Reading your experience level…',
-  'Matching courses to your goal…',
+  'Reading your answers…',
+  'Picking your courses…',
   'Sequencing your path…',
 ];
 
@@ -372,7 +385,8 @@ function NameStep({ value, onChange }: { value: string; onChange: (v: string) =>
        * first sentence the app ever said to anyone. A labelled text field under a question does
        * not need explaining; mutedForeground on screen one just sets the tone at apologetic.
        */}
-      <StepHeading speech title="Welcome to Euphoria. What should we call you?" />
+      {/* Welcome already said hello ("Hi, I'm Atlas!"), so this asks, it does not greet twice. */}
+      <StepHeading speech title="What should we call you?" />
       <TextInput
         /* The one step whose control is useless until focused. Without this the first thing the
            app asks anyone to do is tap a box before they can answer it. */
@@ -408,6 +422,15 @@ function AvatarStep() {
   const theme = useTheme();
   const avatarId = useApp((s) => s.avatarId);
   const setAvatarId = useApp((s) => s.setAvatarId);
+  /*
+   * PRESELECTED. The stored default is the `atlas` id, which is not in the grid (Atlas is the
+   * mascot, never the user), so the step opened with nothing selected and looked unanswered.
+   * heroAvatarId maps atlas, empty and unknown ids to the first grid character.
+   */
+  const shown = heroAvatarId(avatarId);
+  useEffect(() => {
+    if (avatarId !== shown) setAvatarId(shown);
+  }, [avatarId, shown, setAvatarId]);
   return (
     <View>
       {/*
@@ -424,9 +447,13 @@ function AvatarStep() {
        * settings breadcrumb rather than a thing a mascot would tell you.
        */}
       <StepHeading speech title="Pick your avatar. You can change it later." />
+      {/* A 96pt preview of the pick. The user's own avatar, never Atlas (avatar-hero.tsx). */}
+      <View style={styles.avatarHero}>
+        <AvatarHero avatarId={shown} />
+      </View>
       <View style={styles.avatarGrid}>
         {ALL_AVATARS.map((a) => {
-          const on = a.id === avatarId;
+          const on = a.id === shown;
           return (
             <SpringPressable
               key={a.id}
@@ -459,6 +486,7 @@ type StepDef =
   | { kind: 'single'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'multi'; field: keyof Profile; question: string; sub?: string; options: Choice[]; face: AtlasExpression }
   | { kind: 'statement'; title: string; sub?: string; body?: 'chart' | 'proof'; face: AtlasExpression }
+  | { kind: 'try' }
   | { kind: 'loader' }
   | { kind: 'reveal' }
   | { kind: 'name' }
@@ -495,6 +523,12 @@ const STEPS: StepDef[] = [
   // No efficacy multiplier here. The old copy promised "4× faster" with nothing behind it —
   // an unsubstantiated performance claim inside a paid finance funnel. Credit the habit, not a number.
   { kind: 'statement', title: 'The habit is what makes it stick', body: 'chart', face: 'proud', sub: 'Ten minutes a day builds real investing instinct.' },
+  /*
+   * "Double it": the one hands-on screen, ADDED (owner decision 1, 2026-09-22: every existing
+   * screen stays). Right after the chart that says compounding builds, so the learner then makes it
+   * happen, and well before REVEAL_INDEX, the account wall (onboarding-try-it-pin --integrated).
+   */
+  { kind: 'try' },
   { kind: 'single', field: 'horizon', question: 'When do you want to start investing for real?', options: HORIZONS, face: 'watching' },
   { kind: 'single', field: 'riskComfort', question: 'Your portfolio drops 20% in a month. You…', sub: 'There’s no wrong answer. It tells Atlas how to coach you.', options: RISK, face: 'whoa' },
   { kind: 'statement', title: 'Everything you need to start', body: 'proof', face: 'proud' },
@@ -522,7 +556,14 @@ const STEPS: StepDef[] = [
 
 const TOTAL = STEPS.length;
 const PAYWALL_INDEX = TOTAL - 1;
-const PAYWALL_ATLAS = 52;
+/*
+ * The try step's Atlas (design 1.2 "Double it"): the coin grid, stepper and check bar need the
+ * height, and the design measured 64pt as what fits a 667pt SE with the bar open. The paywall no
+ * longer mounts the stage at all: its compact AtlasGuide row (COMPACT_GUIDE_HEIGHT 56pt) replaces
+ * the 69pt stage, so owner decision 2 adds Atlas's line there while the paywall gets 13pt SHORTER,
+ * never taller, at every Dynamic Type size (the row's height is fixed; CONSTITUTION 5.3).
+ */
+const TRY_ATLAS = 64;
 
 const REVEAL_INDEX = TOTAL - 2;
 
@@ -552,6 +593,27 @@ export default function Onboarding() {
     useApp.getState().setDisplayName(v);
   };
   const [nodKey, setNodKey] = useState(0);
+  /*
+   * THE TRY STEP'S STATE lives here, not in the step, because its Check bar replaces the pinned
+   * footer outside the ScrollView (double-it-step.tsx header). Its events drive the persistent
+   * AtlasStage: thinking while the years move, then the verdict face, and a nod on a right answer.
+   */
+  const [tryPhase, setTryPhase] = useState<DoubleItEvent>('idle');
+  /*
+   * How Double it went, for horizon's line (owner decision 2026-09-22: Atlas reacts to the previous
+   * answer on every screen; horizon used to say a fixed "Quick one about timing" right after it).
+   * Kept apart from the live state on purpose: re-entering the try step resets that state (below),
+   * and horizon is still fading out when it does, so a line read from the live state would flip to
+   * the generic one on the way out. Overwritten by the next resolve, which Continue requires.
+   */
+  const [tryResult, setTryResult] = useState<TryResult | null>(null);
+  const tryCtl = useDoubleIt({
+    onEvent: (e) => {
+      setTryPhase(e);
+      if (e === 'correct' || e === 'revealed') setNodKey((n) => n + 1);
+    },
+    onResolved: (r) => setTryResult(tryResultOf(r)),
+  });
   const [plan, setPlan] = useState<'annual' | 'monthly'>('annual');
   /**
    * Freeze how this visit began. `completeOnboarding()` stamps `profile.completedAt` in the loader,
@@ -604,6 +666,39 @@ export default function Onboarding() {
 
   const def = STEPS[renderStep];
   const liveDef = STEPS[step];
+
+  /*
+   * EVERY VISIT TO DOUBLE IT STARTS CLEAN. Its state lives up here (see tryCtl) and so survived
+   * Back: the sim (wave 2, 2026-09-22) showed Back from horizon and forward again landing on the old
+   * amber "Not yet." bar with the stepper locked. Keyed on `step`, not `renderStep`, so the reset
+   * lands during the 150ms cross-fade while the try body is not yet drawn, never as a visible jump.
+   */
+  const tryLive = liveDef?.kind === 'try';
+  const resetTry = tryCtl.reset;
+  useEffect(() => {
+    if (tryLive) resetTry();
+  }, [tryLive, resetTry]);
+
+  /*
+   * THE RATE CHIPS MUST CLEAR THE CHECK BAR. They mount on the verdict, the same render the bar
+   * grows from a Check button into the green panel, so the ScrollView's viewport shrinks by the
+   * bar's height just as its content grows by the chips'. Nothing scrolled, and the chips sat with
+   * their bottom edge clipped flush against the bar (sim wave 2, 04-tryit-correct: chip 41pt of its
+   * 44pt visible, 0pt gap). Scrolling to the end brings the whole chip row up with the content's
+   * paddingBottom as clearance on every screen height. Reduce Motion: the same end state, no glide.
+   */
+  const reducedMotion = useReducedMotion();
+  const tryResolved = tryPhase === 'correct' || tryPhase === 'revealed';
+  useEffect(() => {
+    // `tryLive` as well, not just the phase (review, 2026-09-22). tryPhase stays 'correct' for the
+    // rest of onboarding once the step is solved, so with only `tryResolved` in the deps, changing
+    // Reduce Motion in Settings mid-flow re-ran this and scrolled whatever screen was up, the
+    // paywall included. It only ever means anything while the try step is the live one.
+    if (!tryResolved || !tryLive) return;
+    // One frame so the chips and the taller bar are laid out before measuring the end.
+    const id = requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: !reducedMotion }));
+    return () => cancelAnimationFrame(id);
+  }, [tryResolved, tryLive, reducedMotion]);
 
   // Derived, not stored: a store getter returning a fresh array would give zustand an
   // unstable snapshot and loop renders (see you.tsx:43).
@@ -1100,8 +1195,10 @@ export default function Onboarding() {
   const autoAdvances = liveDef?.kind === 'single';
   const showAction = !autoAdvances;
 
+  const tryBeat = tryPhase === 'scrub' ? ATLAS_BEATS.idle : ATLAS_BEATS[tryPhase];
   const face: AtlasExpression =
     !def ? 'happy'
+      : def.kind === 'try' ? tryBeat.face
       : def.kind === 'reveal' ? 'proud'
         : def.kind === 'paywall' ? 'happy'
           : def.kind === 'loader' ? 'thinking'
@@ -1112,11 +1209,42 @@ export default function Onboarding() {
   const bodyStyle = useAnimatedStyle(() => ({ opacity: bodyOpacity.get() }));
 
   /*
+   * ATLAS GUIDES EVERY SCREEN (owner decision 2, 2026-09-22): one short line per step, reacting to
+   * the answer just given (atlas-lines.ts, pinned by onboarding-atlas-guide-pin). The bubble alone
+   * (showAtlas={false}) under the AtlasStage, so Atlas is drawn once per screen (CONSTITUTION 5.6).
+   * On the try step the line follows the verdict once there is one, never repeating the bar's words.
+   */
+  const guideLine = !def
+    ? null
+    : def.kind === 'try' && tryPhase !== 'idle' && tryPhase !== 'scrub' && tryBeat.line
+      ? tryBeat.line
+      : atlasLineFor(stepKeyOf(def), { ...profile, tryResult: tryResult ?? undefined });
+  const guide = <AtlasGuide line={guideLine} showAtlas={false} delay={CHILD_BASE} />;
+
+  /*
    * A screen under 720pt has no slack to give. Same threshold StatementStep uses to decide whether
    * it can centre a statement's evidence, reused rather than reinvented so the two cannot drift.
    */
-  const { height: windowH } = useWindowDimensions();
+  const { height: windowH, fontScale } = useWindowDimensions();
   const proofTight = windowH < 720;
+
+  /*
+   * ── THE PURCHASE SCREEN FITS, OR IT IS BROKEN (CONSTITUTION 5.3) ────────────────────────────
+   *
+   * Measured on the simulator 2026-09-22, all against the screen as it was BEFORE this change: an
+   * iPhone 17 Pro fitted at the default type size with 58pt to spare, put Restore under the home
+   * indicator at Extra Large and SCROLLED from XXXL upward (sim wave 2, 05-paywall-*), and a
+   * 375x667 SE scrolled at the DEFAULT size with the CTA cut off at the fold (measured here, on a
+   * booted SE simulator). Nothing capped the type, and the heading in particular grew until it
+   * owned the whole screen at AX5.
+   *
+   * Two halves, and both are needed. PAYWALL_MAX_FONT_SCALE states how far this screen scales at
+   * all. `paywallTight` takes the padding out of the benefit rows, the plan cards and the footer
+   * whenever the room is not there: a short phone, or type above the default anywhere. It is keyed
+   * on the live fontScale rather than on the device, so a 17 Pro at XXXL compacts exactly like an
+   * SE does, which is the case that was scrolling.
+   */
+  const paywallTight = windowH < 760 || fontScale > 1.05;
 
   const body = () => {
     if (!def) return null;
@@ -1204,10 +1332,14 @@ export default function Onboarding() {
             ) : null}
           </StatementStep>
         );
+      case 'try':
+        return <DoubleItStep ctl={tryCtl} atlas={guide} />;
       case 'loader':
         return (
-          <LoaderStep
+          <PathAssemblyLoader
+            picks={picks}
             lines={LOADER_LINES}
+            options={{ riskComfort: RISK, topics: TOPICS, blockers: BLOCKERS, horizon: HORIZONS, goal: GOALS, experience: LEVELS }}
             onDone={() => {
               completeOnboarding();
               // Onboarding is finished HERE, whatever the user does with the paywall next. See
@@ -1222,17 +1354,31 @@ export default function Onboarding() {
       default:
         return (
           <View style={styles.paywallBody}>
-            <StepHeading
-              title={
-                isProNow
-                  ? "You're on Euphoria Pro"
-                  : spent
-                    ? `Your free ${TRIAL_DAYS} days are up`
-                    : offersTrial
-                      ? `Start your ${trialLen}-day FREE trial to continue`
-                      : `You're on day ${trialDay} of ${TRIAL_DAYS}`
-              }
-            />
+            {/*
+              * NOT StepHeading. Every question step's heading is `display` (32pt) with no ceiling,
+              * and on this screen that is what pushed the CTA past the fold: at XXXL it took two
+              * lines with the CTA already cut off below, and at AX5 "You're on day 1 of 3" filled
+              * the screen on its own (sim wave 2, 05-paywall-AX5-scrolls.png). A purchase headline
+              * earns its size from weight, not from points, so it is one step down and capped like
+              * everything else here.
+              *
+              * The trial headline is also shorter: it read "Start your 3-day FREE trial to
+              * continue", which is the CTA's own sentence one line below it (CONSTITUTION 5.1).
+              * It now states what you get; the button says what to do.
+              */}
+            <ThemedText
+              type="display"
+              maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE}
+              numberOfLines={2}
+              style={[styles.paywallHeading, paywallTight && styles.paywallHeadingTight]}>
+              {isProNow
+                ? "You're on Euphoria Pro"
+                : spent
+                  ? `Your free ${TRIAL_DAYS} days are up`
+                  : offersTrial
+                    ? `Your first ${trialLen} days are free`
+                    : `You're on day ${trialDay} of ${TRIAL_DAYS}`}
+            </ThemedText>
             {/* The body stays top-packed, and the action follows it in the same scroll stack so no
                 flex spacer can separate Monthly from the CTA. */}
             {/* The timeline is about a trial. Showing "Today / Day 2 / Day 3" to someone whose
@@ -1257,7 +1403,7 @@ export default function Onboarding() {
               * keep their existing screen unchanged.
               */}
             {spent ? (
-              <View style={{ marginTop: Spacing.three }}>
+              <View style={{ marginTop: paywallTight ? Spacing.one : Spacing.three }}>
                 {PRO_STEPS.map((s, i) => (
                   <RiseIn key={s.title} delay={childDelay(i)}>
                     <TrialStep icon={s.icon} title={s.title} sub={s.sub} tone={s.tone} last={i === PRO_STEPS.length - 1} />
@@ -1266,10 +1412,10 @@ export default function Onboarding() {
               </View>
             ) : (
               <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.one }}>
-                <PremiumBenefits />
+                <PremiumBenefits tight={paywallTight} />
               </RiseIn>
             )}
-            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: Spacing.two }}>
+            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: paywallTight ? 0 : Spacing.two }}>
               {/* The plan NAME carries the billing period and the price carries the amount you
                   are actually charged. Both cards used to headline a "/mo" figure, so the annual
                   plan read as a second, cheaper monthly plan rather than as a yearly one. */}
@@ -1281,8 +1427,19 @@ export default function Onboarding() {
                 sub={`Works out at ${annualPerMonth} a month`}
                 price={annualPrice}
                 unit="per year"
+                tight={paywallTight}
               />
               <View style={styles.monthlyPlan}>
+                {/*
+                  * THE SUB STAYS, AND IT BUYS NOTHING TO DROP IT (review, 2026-09-22). It was
+                  * taken out to make the no-scroll budget, on the stated grounds that it cost 20pt.
+                  * It costs 0. PlanCard's row is `alignItems: 'center'`, so the card is as tall as
+                  * its TALLEST column, and that is the price column, not the title column:
+                  * price 24 + unit 1 + 18 = 43pt against title 22 + sub 2 + 18 = 42pt. Remove the
+                  * sub and the card still measures 43pt (and 55.6 against 54 at the 1.3 cap).
+                  * With nothing saved, what is left is CONSTITUTION 5.2, "if sibling rows have a
+                  * subtitle, all of them do": Annual carries one, so Monthly carries one.
+                  */}
                 <PlanCard
                   selected={plan === 'monthly'}
                   onPress={() => setPlan('monthly')}
@@ -1290,6 +1447,7 @@ export default function Onboarding() {
                   sub="Billed every month"
                   price={monthlyPrice}
                   unit="per month"
+                  tight={paywallTight}
                 />
               </View>
             </RiseIn>
@@ -1329,9 +1487,9 @@ export default function Onboarding() {
   const actionFooter = (
     <View style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}>
       {step === PAYWALL_INDEX && offersTrial && (
-        <View style={styles.noPay}>
+        <View style={[styles.noPay, paywallTight && styles.noPayTight]}>
           <UIcon name="check" size={16} color={theme.primary} />
-          <ThemedText type="bodyMedium">No payment due now</ThemedText>
+          <ThemedText type="bodyMedium" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1}>No payment due now</ThemedText>
         </View>
       )}
       {showAction && <SlabButton
@@ -1372,7 +1530,7 @@ export default function Onboarding() {
           App Review — offering loaded empty, and the trial branch — showed nothing at all. */}
       {step === PAYWALL_INDEX && !isProNow && !canBuy && !offersLoading && (
         <>
-          <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+          <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={styles.fine}>
             {IAP_ENABLED
               ? 'Subscriptions are not available from the App Store right now.'
               : IAP_DISABLED_REASON}
@@ -1387,29 +1545,55 @@ export default function Onboarding() {
             */}
           {IAP_ENABLED ? (
             <SpringPressable haptic={false} onPress={retryOffers} accessibilityRole="button" accessibilityLabel="Try again">
-              <ThemedText type="small" style={[styles.fine, { color: theme.iconLilac }]}>Try again</ThemedText>
+              <ThemedText type="small" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={[styles.fine, { color: theme.iconLilac }]}>Try again</ThemedText>
             </SpringPressable>
           ) : null}
         </>
       )}
       {step === PAYWALL_INDEX && (
         <>
-          <ThemedText type="small" themeColor="mutedForeground" style={styles.fine}>
+          {/* THE RENEWAL TERMS. App Store Review 3.1.2 wants them on the purchase screen, so this
+              line is never the thing that gets cut to make room: it is capped like everything else
+              and the padding around it gives way instead. */}
+          <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={styles.fine}>
             {offersTrial ? `${trialLen} days free, then ` : ''}
             {plan === 'annual'
               ? `${annualPrice} per year, billed annually`
               : `${monthlyPrice} per month`}
             . Renews until cancelled. Cancel anytime in the App Store.
           </ThemedText>
+          {/*
+            * THE 44pt DISMISS, BOUGHT UPWARDS (CONSTITUTION 5.10, measured 2026-09-22 on a booted
+            * iPhone 17 Pro via the accessibility frames, not by eye): this row was 766..792, a
+            * 26pt target, and 805.7..833.4 at the largest Dynamic Type, 27.7pt. Both are well
+            * under the 44pt floor, and the way out of the paywall should not be the hardest thing
+            * on it to hit.
+            *
+            * `hitSlop`, not `minHeight`, and UPWARDS only. Height cannot be bought here: the
+            * lowest required element already sits at 857 of 874 at AX5 (sim wave 3,
+            * 30-paywall-AX5), so growing this row by 18pt would push the legal links off the
+            * screen and break the no-scroll rule (5.3) to satisfy 5.10. Above the row is the
+            * renewal-terms line, which is plain text and takes no taps, so 18pt of upward slop
+            * collides with nothing. DOWNWARDS would: `legalRowTight` sets paddingTop 0 and each
+            * legal link already carries `hitSlop` top 13, and the legal row renders after this,
+            * so a tap in the shared band would open Terms instead of dismissing.
+            *
+            * 26 + 18 = 44 at the default size, 45.7 at AX5. Pinned by scripts/paywall-layout-pin.mjs.
+            */}
           <SpringPressable
             haptic={false}
             onPress={dismissPaywall}
+            /* NO tight variant here: maybeLaterTight cut paddingTop to 4, and 4 + lineHeight 18 +
+               hitSlop 18 is a 40pt target, under the 44pt floor in CONSTITUTION 5.10. The 4pt it
+               saved is not needed: measured on the simulator 2026-09-22 the paywall still ends well
+               clear of the bottom at Extra Large and at accessibility-medium. */
             style={styles.maybeLater}
+            hitSlop={{ top: 18 }}
             accessibilityRole="button"
             accessibilityLabel="Maybe later">
-            <ThemedText type="small" themeColor="mutedForeground">Maybe later</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1}>Maybe later</ThemedText>
           </SpringPressable>
-          <View style={styles.legalRow}>
+          <View style={[styles.legalRow, paywallTight && styles.legalRowTight]}>
             <SpringPressable
               haptic={false}
               onPress={() => openLegal(LEGAL.terms)}
@@ -1417,9 +1601,9 @@ export default function Onboarding() {
               hitSlop={{ top: 13, bottom: 13 }}
               accessibilityRole="link"
               accessibilityLabel="Terms">
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Terms</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={styles.legalLink}>Terms</ThemedText>
             </SpringPressable>
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={styles.legalDot}>·</ThemedText>
             <SpringPressable
               haptic={false}
               onPress={() => openLegal(LEGAL.privacy)}
@@ -1427,9 +1611,9 @@ export default function Onboarding() {
               hitSlop={{ top: 13, bottom: 13 }}
               accessibilityRole="link"
               accessibilityLabel="Privacy">
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Privacy</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={styles.legalLink}>Privacy</ThemedText>
             </SpringPressable>
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.legalDot}>·</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={styles.legalDot}>·</ThemedText>
             <SpringPressable
               haptic={false}
               onPress={restore}
@@ -1437,7 +1621,7 @@ export default function Onboarding() {
               hitSlop={{ top: 13, bottom: 13 }}
               accessibilityRole="button"
               accessibilityLabel="Restore purchases">
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.legalLink}>Restore</ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={styles.legalLink}>Restore</ThemedText>
             </SpringPressable>
           </View>
         </>
@@ -1462,6 +1646,11 @@ export default function Onboarding() {
         <ProgressHeader step={step} total={TOTAL} onBack={hasBack ? back : undefined} />
       </View>
 
+      {renderStep === PAYWALL_INDEX ? (
+        <View style={styles.paywallGuide}>
+          <AtlasGuide line={guideLine} variant="compact" expression={face} />
+        </View>
+      ) : (
       <AtlasStage
         t={atlasT}
         expression={face}
@@ -1473,8 +1662,9 @@ export default function Onboarding() {
         // (size is a dependency of Atlas's celebrate effect).
         celebrateKey={renderStep === REVEAL_INDEX ? 1 : 0}
         nodKey={renderStep < REVEAL_INDEX ? nodKey : 0}
-        size={renderStep === PAYWALL_INDEX ? PAYWALL_ATLAS : ATLAS_SIZE}
+        size={def?.kind === 'try' ? TRY_ATLAS : ATLAS_SIZE}
       />
+      )}
 
       <ScrollView
         ref={scrollRef}
@@ -1502,14 +1692,23 @@ export default function Onboarding() {
             key={renderStep}
             pointerEvents={renderStep === step ? 'auto' : 'none'}
             style={fillsViewport ? styles.grow : undefined}>
+            {/* The guide heads every step except three that place it themselves: the try step
+                takes it in its own slot, the paywall shows the compact row where the stage was,
+                and the reveal puts it UNDER its body, because the reveal's pixel beam has to run
+                from node 1 straight up into Atlas and a bubble between them would cut it (O3). */}
+            {def && def.kind !== 'try' && def.kind !== 'paywall' && def.kind !== 'reveal' ? guide : null}
             {body()}
+            {def?.kind === 'reveal' ? guide : null}
           </View>
         </Animated.View>
         {renderStep === PAYWALL_INDEX && !isLoader ? actionFooter : null}
       </ScrollView>
 
       {/* the loader drives itself — offering a button there would let users outrun it */}
-      {!isLoader && renderStep !== PAYWALL_INDEX ? actionFooter : null}
+      {/* The try step's Check bar takes the footer's place: Check, then the verdict, then Continue. */}
+      {!isLoader && renderStep !== PAYWALL_INDEX
+        ? def?.kind === 'try' ? <DoubleItCheckBar ctl={tryCtl} onContinue={next} /> : actionFooter
+        : null}
       </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
@@ -1526,20 +1725,30 @@ const styles = StyleSheet.create({
      lets the list settle past the fold instead of on it. */
   content: { padding: Spacing.four, paddingTop: Spacing.two, paddingBottom: Spacing.six, flexGrow: 1, justifyContent: 'flex-start' },
   paywallContent: { paddingTop: 0, paddingBottom: 0 },
+  paywallGuide: { paddingHorizontal: Spacing.four },
   proofCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4 },
   proofIcon: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   proofIconTight: { width: 34, height: 34 },
   /** Opens the flex chain so a child can claim the leftover viewport height. */
   grow: { flexGrow: 1 },
   nameInput: { marginTop: Spacing.four, minHeight: 52, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.three, fontSize: FontSize.bodyLg, fontFamily: Fonts.body },
+  avatarHero: { alignItems: 'center', marginTop: Spacing.three },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   /** Content-sized so no flexible spacer can separate Monthly from the purchase action. */
   paywallBody: { gap: Spacing.one, paddingBottom: Spacing.two + Spacing.one },
+  /* One step under `display` (32pt) and left-aligned like every other heading in the flow. 26pt
+     bold still outweighs everything else on the screen, which is what rule 5.4 asks of it. */
+  paywallHeading: { fontSize: FontSize.titleLg, lineHeight: 32, marginTop: Spacing.two },
+  paywallHeadingTight: { fontSize: FontSize.titleSm, lineHeight: 27, marginTop: 0 },
   monthlyPlan: { marginTop: Spacing.one },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.one, paddingHorizontal: Spacing.two },
   footer: { padding: Spacing.three, paddingTop: Spacing.one },
+  /* Padding is what gives way first on a short screen: the words above it are required content
+     (renewal terms, legal row), so they are never what gets trimmed to make the screen fit. */
+  noPayTight: { paddingBottom: Spacing.one },
+  legalRowTight: { paddingTop: 0 },
   paywallFooter: { paddingTop: 0, paddingBottom: Spacing.two },
   maybeLater: { alignItems: "center", paddingTop: Spacing.two },
   legalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: Spacing.one },

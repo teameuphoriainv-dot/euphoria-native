@@ -38,11 +38,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { AtlasSpeech } from '@/components/atlas-speech';
+import { LessonArt } from '@/components/lesson-art';
+import { PathNode } from '@/components/path-node';
 import { ThemedText } from '@/components/themed-text';
 import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Spacing, FontSize } from '@/constants/theme';
+import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
+import { courseAccent } from '@/lib/course-accents';
 import { getCourseById, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { pickToday } from '@/lib/digest-pick';
 import { lessonKey, useApp } from '@/lib/store';
@@ -66,7 +69,12 @@ export default function Start() {
 
   // Same resolution home.tsx uses for its hero, deliberately: two different answers to "what is
   // your next lesson" on two screens a tap apart is how a personalised path stops feeling like one.
-  const [lesson, setLesson] = useState<PathwayLesson | null>(null);
+  //
+  // undefined = still loading, null = nothing to start (fallback guide). They were one value, so
+  // for the length of the load the screen said the FALLBACK: Atlas began typing the guide line and
+  // then restarted on the path line when the lesson arrived, the Digest card flashed before the
+  // node, and a fast tap on the button in that window routed a new learner to the guide.
+  const [lesson, setLesson] = useState<PathwayLesson | null | undefined>(undefined);
   useEffect(() => {
     let cancelled = false;
     loadCourseLessons(activeCourseId)
@@ -83,6 +91,7 @@ export default function Start() {
   }, [activeCourseId, completedLessons]);
 
   const course = getCourseById(activeCourseId);
+  const accent = courseAccent(activeCourseId);
 
   /** Both paths stamp. Skipping is a decision, not a deferral: without stamping here the screen
    *  would greet the user again on every single sign-in. */
@@ -122,8 +131,12 @@ export default function Start() {
 
         <RiseIn delay={120}>
           <View style={styles.bubble}>
+            {/* WAS "Your plan is ready. Start the first lesson, ..." The reveal two screens back
+                already said "Your path is ready" and the paywall sat between them, so the learner
+                heard the same sentence twice in one flow (CONSTITUTION 5.1, say a thing once).
+                This line points at the node below instead of announcing the plan again. */}
             <AtlasSpeech
-              text="Your plan is ready. Start the first lesson, then Atlas will show you what to practice next."
+              text={lesson === null ? "Here's a guide to start with. Atlas will show you what to practice after." : 'This is where your path starts. Atlas will show you what to practice after.'}
               delay={260}
               tail="top"
             />
@@ -131,24 +144,56 @@ export default function Start() {
         </RiseIn>
 
         <RiseIn delay={320}>
-          <Card style={styles.card} elevated>
-            <ThemedText type="label" themeColor="mutedForeground">
-              {lesson ? `LESSON ${String(lesson.num)} · ${(course?.title ?? '').toUpperCase()}` : `TODAY · ${post.category.toUpperCase()}`}
-            </ThemedText>
-            <ThemedText type="title" style={styles.title}>{lesson ? lesson.title : post.title}</ThemedText>
-            <ThemedText type="body" themeColor="mutedForeground" style={styles.excerpt}>
-              {lesson ? `First lesson of the path we just built for you.` : post.excerpt}
-            </ThemedText>
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.mins}>
-              {lesson ? `${String(lesson.xp)} XP` : `${String(post.readMinutes)} min read`}
-            </ThemedText>
-          </Card>
+          {lesson ? (
+            /*
+             * THE SAME OBJECTS AS THE REVEAL, not a plain Card. The reveal drew node 1 in this
+             * course's accent with Atlas rising out of it, and the lead course row with its
+             * LessonArt mark (onboarding-parts.tsx, RevealPedestal and PlanRevealStep). A grey
+             * Card here was a third, unrelated shape for the same course, so the path the learner
+             * was just shown stopped being visibly the path they are now starting. The node label
+             * is the real lesson number, which for a new learner is the '1' the reveal showed.
+             * LessonArt is keyed by COURSE title, exactly as the reveal keys it, so the mark
+             * matches; keying it by lesson title would draw a different sprite for the same row.
+             */
+            <View style={[styles.lead, { backgroundColor: `${accent}14`, borderColor: `${accent}59` }]}>
+              <View style={styles.leadTop}>
+                <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                  <PathNode state="done" size={56} label={String(lesson.num)} doneColor={accent} accessibilityLabel={`Lesson ${String(lesson.num)}`} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText type="label" style={{ color: accent }}>
+                    {`LESSON ${String(lesson.num)} · ${(course?.title ?? '').toUpperCase()}`}
+                  </ThemedText>
+                  <ThemedText type="title" style={styles.title}>{lesson.title}</ThemedText>
+                </View>
+                <LessonArt courseId={activeCourseId} title={course?.title ?? lesson.title} index={0} size={48} />
+              </View>
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.mins}>
+                {`${String(lesson.xp)} XP`}
+              </ThemedText>
+            </View>
+          ) : lesson === undefined ? null : (
+            // Fallback only (course failed to load or every lesson is done): a guide is not a
+            // node on the path, so it keeps the plain card rather than borrowing the path's shape.
+            <Card style={styles.card} elevated>
+              <ThemedText type="label" themeColor="mutedForeground">
+                {`TODAY · ${post.category.toUpperCase()}`}
+              </ThemedText>
+              <ThemedText type="title" style={styles.title}>{post.title}</ThemedText>
+              <ThemedText type="body" themeColor="mutedForeground" style={styles.excerpt}>
+                {post.excerpt}
+              </ThemedText>
+              <ThemedText type="small" themeColor="mutedForeground" style={styles.mins}>
+                {`${String(post.readMinutes)} min read`}
+              </ThemedText>
+            </Card>
+          )}
         </RiseIn>
       </View>
 
       <View style={styles.footer}>
         <RiseIn delay={420}>
-          <SlabButton label={lesson ? 'Start your first lesson' : "Read today's guide"} full onPress={begin} />
+          <SlabButton label={lesson === null ? "Read today's guide" : 'Start your first lesson'} loading={lesson === undefined} full onPress={begin} />
           <SpringPressable haptic={false} onPress={later} style={styles.later}>
             <ThemedText type="bodyMedium" themeColor="mutedForeground">Maybe later</ThemedText>
           </SpringPressable>
@@ -164,6 +209,10 @@ const styles = StyleSheet.create({
   head: { alignItems: 'center' },
   bubble: { alignItems: 'center', marginTop: Spacing.three, marginBottom: Spacing.three },
   card: { gap: 6 },
+  // Same tint and border alphas as the reveal's lead row (planRowLead), so it reads as that row.
+  lead: { padding: Spacing.three, borderRadius: Radius.lg, borderWidth: 1, gap: 6 },
+  // 6pt of bottom room: PathNode draws its 4pt lip below the face, outside its own box.
+  leadTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingBottom: 6 },
   title: { fontSize: FontSize.titleSm, marginTop: 2 },
   excerpt: { lineHeight: 22 },
   mins: { marginTop: Spacing.two },
