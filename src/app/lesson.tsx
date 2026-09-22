@@ -34,6 +34,8 @@ import { AtlasIntro, hasSeenAtlasIntro, resetAtlasIntroForDev } from '@/componen
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { LessonCheckBar } from '@/components/lesson-check-bar';
 import { LessonComplete } from '@/components/lesson-complete';
+import { LessonSegmentBar } from '@/components/lesson-segment-bar';
+import { SegmentFinishCard, type SegmentNext } from '@/components/segment-finish-card';
 import { InteractiveGraph, type InteractiveGraphControlValue } from '@/components/interactive-graph';
 import { HookOpener } from '@/components/hook-opener';
 import { LessonProse } from '@/components/lesson-prose';
@@ -79,6 +81,20 @@ import {
   markLessonStepCompletion,
   resumeScreenFor,
 } from '@/lib/lesson-step-session';
+import { lessonXpRemainder } from '@/lib/lesson-segment-credit';
+import {
+  isSegmentBoundary,
+  legacyDoneKinds,
+  readSegmentRecord,
+  segmentEndingAt,
+  segmentEntry,
+  segmentIndexAt,
+  segmentXpShares,
+  segmentedProgress,
+  segmentsOf,
+  type SegmentKind,
+  type SegmentRecord,
+} from '@/lib/lesson-segments';
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge } from '@/lib/notifications';
@@ -115,6 +131,27 @@ function lessonResumeShape(steps: PathwayLesson['steps']): { screens: number; sh
   };
 }
 
+/**
+ * The part card that is currently up, or null.
+ *
+ * `k` is the index of the segment that just FINISHED, not the one coming next, because that is
+ * what the store was paid for and what the card reports. `xp` is what `completeLessonSegment`
+ * paid for THIS PART (the share times Double XP), never the share that was requested
+ * (CONSTITUTION 6.5) — a part credited twice returns 0 and the card then draws no chip rather
+ * than promising XP the ledger did not pay. It deliberately leaves out the daily-goal bonus that
+ * the same credit can trigger: with it folded in, finishing Learn one minute short of the goal
+ * drew "+60 XP" on a lesson worth 30 (measured 22 Sep 2026), and the part read as the payout.
+ */
+type SegmentBreak = { k: number; xp: number; streakAdvanced: boolean; streak: number };
+
+/** On-screen names for the three parts. The store and the pins speak `SegmentKind`; the header
+ *  eyebrow speaks the learner's language, and this is the only place the two are joined. */
+const PART_NAME: Record<SegmentKind, string> = { learn: 'Learn', vocab: 'Vocab', practice: 'Practice' };
+
+/** A segment with no screens of its own: a Practice that is the mastery challenge alone (16
+ *  lessons). `first = total + 1` and `last = total`, so the range is empty by construction. */
+const segmentHasScreens = (s: { first: number; last: number }) => s.first <= s.last;
+
 function LessonProgress({ percent }: { percent: number }) {
   const reduced = useReducedMotion();
   const width = useSharedValue(percent);
@@ -150,10 +187,48 @@ export default function Lesson() {
    * because "restored to the wrong place" cannot be undone once the learner starts tapping.
    */
   const hasHydrated = useApp((s) => s.hasHydrated);
-  const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string; qa?: string }>();
+  const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string; qa?: string; part?: string }>();
   const courseId = params.course ?? '';
   const lessonNum = Number(params.num);
   const qa = __DEV__ ? params.qa : undefined;
+  /**
+   * `?part=learn|vocab|practice`. Read as a primitive so the load effect can depend on it without
+   * depending on the params OBJECT, which `useLocalSearchParams` hands back new on every render.
+   *
+   * No caller passes it today (home, learn, start, home-variants, digest and trade-ideas all rely
+   * on auto-resume); it exists so a part can be linked to, and it is clamped rather than obeyed —
+   * see the load effect. Garbage is ignored the way `badParams` ignores a bad course.
+   */
+  const partParam = params.part;
+  /**
+   * This lesson's persisted part record, SUBSCRIBED rather than read from `getState()`.
+   *
+   * It is what the last screen's "Collect +N XP" is computed from, and it changes under this
+   * screen every time a part is credited. A `getState()` read inside render would be a snapshot
+   * that React has no reason to refresh, so the figure could disagree with the ledger that is
+   * about to pay it. Undefined until the first part lands, which `readSegmentRecord` handles.
+   */
+  const liveSegmentRecord = useApp((s) => s.lessonSegments[lessonKey(courseId, lessonNum)]);
+  /**
+   * THE LAST RECORD THIS RUN SAW, held past the payout.
+   *
+   * `completeLesson` deletes the record in the SAME write that marks the lesson complete
+   * (store.ts, `lessonSegments: withoutSegmentRecord(...)`), so the live subscription drops to
+   * undefined the instant Collect is pressed and `lessonXpRemainder` answers the lesson's FULL
+   * XP again. Measured on a 50 XP three part lesson: the footer reads "Collect +25 XP", the tap
+   * pays 25, and the same button then relabels itself "Collect +50 XP" for XP nothing will pay
+   * (CONSTITUTION 3.1). It is not a single frame either: on the first lesson ever finished the
+   * 17c sheet opens over this screen instead of leaving, so the wrong figure sits under it until
+   * the learner dismisses it.
+   *
+   * Captured in the Collect HANDLER, one line before `completeLesson`, and not in an effect
+   * watching the subscription: `react-hooks/set-state-in-effect` is an eslint ERROR here, and a
+   * ref read back during render would be the same stale-snapshot shape the note above rejects.
+   * The load effect clears it, so a second lesson reached without a remount cannot inherit the
+   * first one's paid parts.
+   */
+  const [paidOutRecord, setPaidOutRecord] = useState<SegmentRecord | undefined>(undefined);
+  const segmentRecord = liveSegmentRecord ?? paidOutRecord;
   const forceFreshAtlasIntro = __DEV__ && params.fresh === '1';
 
   const [lesson, setLesson] = useState<PathwayLesson | null>(null);
@@ -211,6 +286,55 @@ export default function Lesson() {
     () => lessonShapeSignature(steps.map((s) => (s as { type?: string }).type ?? '')),
     [steps],
   );
+
+  /*
+   * THE PARTS OF THIS LESSON (owner decision, 2026-09-22): Learn, then Vocab, then Practice, and
+   * two parts instead of three when the lesson has no keyTermsCards screen.
+   *
+   * Derived from the RUNTIME step types, the same list `idx`, the resume pointer and
+   * `lessonShapeSignature` walk, so the boundaries change exactly when the shape hash changes. A
+   * pointer that passes the shape check therefore always means the same boundaries; splitting on
+   * the authored steps instead would let a pointer survive a sync that moved a part edge under it.
+   */
+  const segments = useMemo(
+    () => segmentsOf(steps.map((s) => (s as { type?: string }).type ?? ''), hasChallenge),
+    [steps, hasChallenge],
+  );
+  /**
+   * Is this a REPLAY of a lesson that is already finished? Read once, when the lesson loads.
+   *
+   * The whole part layer is off on a replay (owner decision): no part cards, no segmented bar, and
+   * nothing is paid, because `completedLessons` already holds this lesson and both store writers
+   * refuse it. Read once rather than subscribed on purpose: `completeLesson` runs from the STREAK
+   * screen of THIS run, so a live subscription would flip the flag mid-run and change the header
+   * out from under a learner who is still looking at it.
+   */
+  const [replay, setReplay] = useState(false);
+  /** The part card that is up, or null. Overlay state only: never persisted, and the part it
+   *  reports was already credited when the card was raised, so losing it costs nothing. */
+  const [segmentBreak, setSegmentBreak] = useState<SegmentBreak | null>(null);
+  /** True when this run draws one track per part. A one-part lesson keeps the single bar. */
+  const segmented = !replay && segments.length > 1;
+  /*
+   * WHAT THE LEAVE SHEET IS ALLOWED TO SAY IS BEHIND THEM.
+   *
+   * Filtered through THIS run's segments instead of read straight off the record. The record is
+   * keyed by kind rather than by position so it survives a curriculum sync, and the cost of that
+   * is that a sync which removes a lesson's keyTermsCards leaves a 'vocab' in `done` for a lesson
+   * that no longer has one. Naming it would have the sheet promise a part the next open cannot
+   * keep. Ordered by the segments, not by `done`, so it always reads "Learn and Vocab".
+   *
+   * Empty on a replay and on a one-part run, where `segmented` is false and nothing is credited.
+   *
+   * DERIVED HERE, above the `missing` / `locked` / `!lesson` early returns, and not next to
+   * `xpRemaining` where it is read: a hook below an early return is called on some renders and
+   * not others, which is the rules-of-hooks crash rather than a style point.
+   */
+  const donePartNames = useMemo(() => {
+    if (!segmented) return [];
+    const { done } = readSegmentRecord(segmentRecord);
+    return segments.filter((s) => done.includes(s.kind)).map((s) => PART_NAME[s.kind]);
+  }, [segmented, segmentRecord, segments]);
 
   const [idx, setIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
@@ -423,10 +547,91 @@ export default function Lesson() {
          * an index outside the steps that exist now. It never returns a terminal screen, so
          * reopening the app can never land on the completion celebration and pay out a lesson.
          */
-        setIdx(found ? resumeScreenFor(useApp.getState().lessonResume, {
-          key: lessonKey(courseId, lessonNum),
+        const resumeKey = lessonKey(courseId, lessonNum);
+        const pointer = found ? resumeScreenFor(useApp.getState().lessonResume, {
+          key: resumeKey,
           ...lessonResumeShape(found.steps),
-        }) : 0);
+        }) : 0;
+        setIdx(pointer);
+        setSegmentBreak(null);
+        // Same rule as the two maps above: the runner's state is a function of the lesson it is
+        // showing, not of the mount. A held payout record from a previous lesson would subtract
+        // that lesson's part shares from this one's "Collect +N XP".
+        setPaidOutRecord(undefined);
+        const finished = found ? useApp.getState().completedLessons.includes(resumeKey) : false;
+        setReplay(finished);
+        if (found && !finished) {
+          const segs = segmentsOf(
+            expandSteps(found.steps).map((s) => (s as { type?: string }).type ?? ''),
+            hasMasteryChallenge(found.challenge),
+          );
+          /*
+           * BACKFILL, ONCE, LAZILY, AND IT PAYS NOTHING (design 2c).
+           *
+           * Someone who was mid-lesson when parts shipped has a resume pointer and no segment
+           * record. This cannot be done in the store's `migrate`, which is synchronous, because
+           * the boundaries need the runtime steps and those arrive from the async course loader —
+           * a version-gated backfill would have had to GUESS them. `pointer > 0` because
+           * `resumeScreenFor` has already refused a pointer for another lesson or another shape,
+           * so a 0 means there is nothing to adopt. The record is written even when it lists no
+           * finished parts: its existence is what stops this re-running on every open.
+           *
+           * It pays no XP, no minutes and no streak. The old build paid the whole lesson at the
+           * end and still will: `xpPaid` stays 0, so the final part pays `lesson.xp - 0`.
+           */
+          if (!useApp.getState().lessonSegments[resumeKey] && pointer > 0) {
+            useApp.getState().adoptLegacySegments(resumeKey, legacyDoneKinds(segs, pointer));
+          }
+          /*
+           * WHERE A PART-SPLIT LESSON OPENS. The first part that is not done, keeping a pointer
+           * that sits INSIDE that part so mid-part resume still works. A part after the first
+           * never opens on the warmup or the AtlasIntro gate, both of which only fire at idx 0.
+           */
+          const entry = segmentEntry(segs, useApp.getState().segmentsDoneFor(resumeKey), pointer);
+          setIdx(entry.screen);
+          if (entry.challengeIntro) setChallengeStage('intro');
+          /*
+           * `?part=`, CLAMPED TO THE FIRST UNFINISHED PART, never obeyed past it. Skipping Vocab
+           * would leave the lesson unfinishable from the quest's point of view and would scramble
+           * the remainder the final part pays, because `completeLesson` pays `xp - xpPaid`. A part
+           * at or before the first unfinished one is allowed and pays nothing on a second visit,
+           * since the store dedupes on (lesson, kind).
+           */
+          const requested = partParam ? segs.findIndex((s) => s.kind === partParam) : -1;
+          if (requested >= 0) {
+            const target = segs[Math.min(requested, entry.segment)];
+            /*
+             * `setChallengeStage('none')` IS NOT REDUNDANT. `entry.challengeIntro` above has
+             * already raised the mastery challenge whenever the first unfinished part is a
+             * challenge-only Practice, and a `?part=` that clamps to an EARLIER part only moved
+             * `idx`. Measured over the corpus on 22 Sep 2026: on all 16 challenge-only lessons
+             * (financial-analytics:14-25, global-economics:25, behavioral-finance:25,
+             * risk-management:25, corporate-finance:4) a link to `part=learn` opened content
+             * screen 1 with the challenge intro on top of it, so the challenge started from the
+             * Learn part and passing it paid the lesson out from there. `?part=` is not
+             * __DEV__-gated, so a deep link reaches this in a release build.
+             */
+            if (segmentHasScreens(target)) { setIdx(target.first); setChallengeStage('none'); }
+            else { setIdx(target.last); setChallengeStage('intro'); }
+          }
+          /*
+           * DEV ONLY. `?qa=part-break&part=<kind>` lands on that part's last screen with the card
+           * already up and CREDITS NOTHING, so a layout or Dynamic Type sweep can photograph the
+           * card without solving a lesson first. The xp shown is the share for display only.
+           */
+          if (qa === 'part-break') {
+            const k = Math.max(0, segs.findIndex((s) => s.kind === partParam));
+            if (k < segs.length - 1 && segmentHasScreens(segs[k])) {
+              setIdx(segs[k].last);
+              setSegmentBreak({
+                k,
+                xp: segmentXpShares(found.xp ?? 30, segs.map((s) => s.kind))[k],
+                streakAdvanced: false,
+                streak: useApp.getState().streak,
+              });
+            }
+          }
+        }
         if (found && qa === 'complete') setIdx(expandSteps(found.steps).length + 1);
         if (found && qa === 'heart-wall') setOutOfHearts(true);
         openedAt.current = Date.now();
@@ -444,7 +649,7 @@ export default function Lesson() {
     return () => {
       cancelled = true;
     };
-  }, [badParams, courseId, lessonNum, hasHydrated, lessonStepSession, qa]);
+  }, [badParams, courseId, lessonNum, hasHydrated, lessonStepSession, partParam, qa]);
 
   /**
    * Persist the position, or forget it.
@@ -537,6 +742,15 @@ export default function Lesson() {
   const advance = () => {
     Keyboard.dismiss();
 
+    /*
+     * NOTHING ADVANCES WHILE A PART CARD IS UP. The card is an overlay: the step underneath is
+     * still mounted, so anything that can still reach this function (a hardware keyboard, an
+     * accessibility action, a CTA that has not unmounted yet) would walk past the part card and
+     * straight into the next screen, skipping the choice the card exists to offer. The two ways
+     * forward are the card's own buttons.
+     */
+    if (segmentBreak !== null) return;
+
     if (idx === 0 && atlasIntroNeeded !== false) {
       setShowAtlasIntro(true);
       return;
@@ -576,6 +790,52 @@ export default function Lesson() {
       setShowRecap(true);
       return;
     }
+    /*
+     * THE END OF A NON-FINAL PART (design section 4.3).
+     *
+     * MUST STAY ABOVE THE CHALLENGE INTERCEPT BELOW. 16 lessons in the corpus end their vocab on
+     * the last screen and carry the mastery challenge as their whole Practice, so for those the
+     * part boundary and `idx === total && hasChallenge` are the SAME screen. Below the intercept
+     * this hook would never run for them and the last part card would silently disappear;
+     * scripts/lesson-segment-runner-pin.mjs pins the textual order for that reason.
+     *
+     * CREDITED WHEN THE CARD APPEARS, not when a button is pressed. "Done for now", a force quit
+     * and a backgrounded app all keep the part. Safe because the card is overlay state that is
+     * never persisted and the store dedupes on (lesson, kind), so a remount, a Back, a `?part=`
+     * link or a replay can never pay the same part twice.
+     *
+     * `segmentBreak === null` so a second advance under a card that is already up cannot re-enter
+     * this branch; the guard at the top of `advance` makes that unreachable, and this keeps the
+     * branch correct on its own terms rather than on that one's.
+     */
+    const endK = replay ? null : segmentEndingAt(segments, idx);
+    if (endK !== null && segmentBreak === null) {
+      rememberCurrentScreen();
+      const seg = segments[endK];
+      const share = segmentXpShares(xp, segments.map((s) => s.kind))[endK];
+      // The store is the only authority on what a part pays; this reads back what it applied.
+      const credit = useApp.getState().completeLessonSegment(lessonKey(courseId, lessonNum), seg.kind, share, (Date.now() - openedAt.current) / 60000);
+      if (credit.credited) {
+        track(Ev.lessonPartCompleted, {
+          course: courseId,
+          lesson: lessonNum,
+          part: seg.kind,
+          part_index: endK,
+          parts: segments.length,
+          streak_advanced: credit.streakAdvanced,
+          xp: credit.xp,
+          lesson_done: false,
+        });
+        /*
+         * The trail fills one arc of this lesson's ring and nothing else moves. The node bounce
+         * and the drawn connector both mean THE NEXT LESSON IS OPEN, which is false after a part:
+         * `doneFlags` only flips on `completedLessons`, which a part credit never touches.
+         */
+        queueLessonTrailCelebration(lessonKey(courseId, lessonNum), { segment: seg.kind });
+      }
+      setSegmentBreak({ k: endK, xp: credit.xp, streakAdvanced: credit.streakAdvanced, streak: credit.streak });
+      return;
+    }
     if (idx === total && hasChallenge) {
       rememberCurrentScreen();
       setChallengeStage('intro');
@@ -583,7 +843,16 @@ export default function Lesson() {
     }
     if (idx < STREAK) {
       rememberCurrentScreen();
-      if (idx >= 1 && idx < total && shouldAnnouncePractice(steps[idx - 1], steps[idx])) {
+      /*
+       * "Now quiz yourself" is suppressed at a part boundary. Measured over the corpus, the
+       * reading-to-practice edge is also a part edge on 276 lessons, and there the part card is
+       * the transition: two full-screen beats back to back would land the second one on a learner
+       * who has just chosen "Keep going". The pinned `shouldAnnouncePractice(steps[idx - 1],
+       * steps[idx])` call is WRAPPED rather than edited, so practice-transition-pin and
+       * step-mode-transition-regression still find it.
+       */
+      if (idx >= 1 && idx < total && shouldAnnouncePractice(steps[idx - 1], steps[idx])
+        && !(segmented && isSegmentBoundary(segments, idx))) {
         setAnnouncePractice(true);
       }
       openLessonScreen(idx + 1);
@@ -593,6 +862,9 @@ export default function Lesson() {
       // transition. Tracked here rather than in the store: `analytics` imports the store, so the
       // store importing analytics would close a cycle.
       const wasFirst = useApp.getState().completedLessons.length === 0;
+      // Sampled BEFORE the credit, for the same reason `wasFirst` is: `completeLesson` is what
+      // moves the streak, so reading it afterwards can never see whether it moved.
+      const streakBefore = useApp.getState().streak;
       /*
        * REAL TIME, not the lesson's listed length. Reported 2026-08-22: "it looks like the app
        * measures time based on the lesson's listed duration, not actual time spent in-app. After
@@ -602,13 +874,56 @@ export default function Lesson() {
        * with a question for four minutes did spend those four minutes here. The store clamps the
        * value; this side only reports it.
        */
-      // goal-minutes-pin expects Date.now() - openedAt.current in lesson.tsx
-      // eslint-disable-next-line react-hooks/purity
+      /*
+       * goal-minutes-pin expects Date.now() - openedAt.current in lesson.tsx.
+       *
+       * The `eslint-disable-next-line react-hooks/purity` that used to sit here went DEAD when
+       * the part layer landed: the compiler stops analysing `advance` once the part credit's
+       * `useApp.getState()` call is in it, so the rule no longer reports this line and eslint
+       * reported the directive itself as unused. Left in place it was one of the 45 warnings
+       * `npm run check` allows, spent on nothing.
+       */
       const minutesSpent = (Date.now() - openedAt.current) / 60000;
       const completedId = lessonKey(courseId, lessonNum);
       const alreadyCompleted = useApp.getState().completedLessons.includes(completedId);
+      /*
+       * THE FINAL PART IS STILL THIS CALL, unchanged in text and in arguments. The reducer
+       * subtracts what the parts were already paid (`xp - xpPaid`) itself, so goal-minutes-pin's
+       * `(id, xp, minutesSpent)` signature survives and the euphorium formula still sees the
+       * lesson's full XP, which is what owner decision "coins stay whole-lesson" requires.
+       */
+      const finalPart = segments.length > 0 ? segments[segments.length - 1].kind : 'practice';
+      const finalXp = useApp.getState().lessonXpRemaining(completedId, xp);
+      /*
+       * HELD BEFORE THE WRITE THAT DESTROYS IT. `completeLesson` drops this lesson's part record
+       * in the same `set` that marks the lesson complete, so one line below this the subscribed
+       * `liveSegmentRecord` is undefined and `lessonXpRemainder` answers the lesson's FULL XP.
+       * The footer under this screen is still mounted, so the button the learner just pressed
+       * would relabel itself from "Collect +25 XP" to "Collect +50 XP" for XP nothing pays
+       * (CONSTITUTION 3.1). On the first lesson ever finished the 17c sheet opens over this
+       * screen rather than leaving, so that figure sits there until the sheet is dismissed.
+       */
+      setPaidOutRecord(readSegmentRecord(useApp.getState().lessonSegments[completedId]));
       useApp.getState().completeLesson(completedId, xp, minutesSpent);
       if (!alreadyCompleted) queueLessonTrailCelebration(completedId);
+      /*
+       * The last part rides the SAME event as the others, with `lesson_done: true`, rather than a
+       * second event name. Two names would put the final step in a different query and make the
+       * part-to-part drop-off the one number nobody could read. Skipped on a replay, which pays
+       * nothing: counting it would inflate the denominator (analytics.ts:81).
+       */
+      if (!alreadyCompleted) {
+        track(Ev.lessonPartCompleted, {
+          course: courseId,
+          lesson: lessonNum,
+          part: finalPart,
+          part_index: Math.max(0, segments.length - 1),
+          parts: segments.length,
+          streak_advanced: useApp.getState().streak > streakBefore,
+          xp: finalXp,
+          lesson_done: true,
+        });
+      }
       // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
       // a no-op) cannot re-fire activation.
       if (wasFirst && useApp.getState().completedLessons.length === 1) {
@@ -667,6 +982,42 @@ export default function Lesson() {
   };
 
   /**
+   * "Keep going": straight into the next part.
+   *
+   * `openedAt.current` IS RESET HERE, and that is defect D1, not housekeeping. `openedAt` is set
+   * once per load, so without this reset part 2 re-counts part 1's minutes and part 3 re-counts
+   * both: a 9-minute lesson would credit 9 + 9 + 9, cross the daily goal early, pay the +50 bonus
+   * on work that was already counted and inflate `minutesToday`. The store caps the LESSON at 30
+   * through `minutesPaid`, which limits the damage and does not prevent it.
+   *
+   * NEVER `openLessonScreen(DONE)`: mastery-challenge-parity-regression pins the challenge's
+   * `onPass` as the only route into the completion screen, and a challenge-only Practice opens the
+   * challenge intro here instead, exactly as the last content screen does.
+   */
+  const keepGoing = () => {
+    if (segmentBreak === null) return;
+    const next = segments[segmentBreak.k + 1];
+    setSegmentBreak(null);
+    openedAt.current = Date.now();
+    if (!next) return;
+    if (segmentHasScreens(next)) openLessonScreen(next.first);
+    else setChallengeStage('intro');
+  };
+
+  /**
+   * "Done for now": `leave()`, never `exitLesson()`.
+   *
+   * `leave` routes to /reward when cards are waiting. A part credit queues none today, but the
+   * streak coins it can pay run through the same store, and the one thing a shortcut here would
+   * buy is the chance that a future reward earned by a part is dropped on the floor. The part is
+   * already credited, so this costs the learner nothing.
+   */
+  const doneForNow = () => {
+    setSegmentBreak(null);
+    leave();
+  };
+
+  /**
    * Where a finished lesson goes. Bloom pays out free stock the moment a quiz is passed;
    * `completeLesson` queues the cards, so route to them if any landed. A REPEAT of a finished lesson
    * queues nothing (same dedupe), so this correctly falls through to `back()` and never shows an
@@ -692,7 +1043,10 @@ export default function Lesson() {
    * and paid out, so leaving costs nothing and the sheet would be theatre.
    */
   function requestExit() {
-    if (idx > 0 && idx < DONE) {
+    // Nothing to confirm on a part card either: the part was credited when the card appeared, and
+    // the card's own "Done for now" is the same exit. A sheet here would ask a learner to confirm
+    // a choice the screen is already offering them.
+    if (idx > 0 && idx < DONE && segmentBreak === null) {
       Keyboard.dismiss();
       setConfirmLeave(true);
       return;
@@ -854,7 +1208,18 @@ export default function Lesson() {
   const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && (selfAdvancing || !solved);
 
   const gated = norm ? gates(norm) && !solved : false;
-  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
+  /*
+   * WHAT THE LAST SCREEN OFFERS TO PAY. `lesson.xp` would announce the Learn and Vocab XP a
+   * SECOND time, on top of the chips the part cards already showed, while the ledger pays only
+   * the remainder: a number on screen that nothing pays is CONSTITUTION 3.1. Computed with the
+   * store's own `lessonXpRemainder` rather than a second copy of `xp - xpPaid` (6.3), from the
+   * SUBSCRIBED record, so it cannot be a render snapshot that disagrees with what is about to
+   * be paid. With no parts credited it is the full `xp`, so an ordinary run reads as it always did.
+   */
+  const xpRemaining = lessonXpRemainder(readSegmentRecord(segmentRecord), xp);
+  // `xpRemaining`, not `xp`: the button must offer what the store is about to pay, which is the
+  // lesson's XP less the parts already credited. See the note on `xpRemaining`.
+  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xpRemaining} XP` : 'Continue';
   const ctaDisabled = (isChoice && !checked && pick === null) || gated;
   /** The lesson's own pinned CTA. Extracted so the Atlas float can ask whether it is on screen. */
   const footerShown = !(challengeStage !== 'none' || idx === 0 || (isChoice && !(!checked && pick !== null)) || isFillBlank || ownsItsCta);
@@ -872,13 +1237,54 @@ export default function Lesson() {
         ? (footerH || FLOOR_LIFT) + ATLAS_GAP
         : ATLAS_REST;
   const visibleStep = (authoredIdentity?.authoredIndex ?? 0) + 1;
+  /** One phase, read by both bars. Two copies of this ternary is the drift 6.3 is written for. */
+  const phase = challengeStage !== 'none' ? 'challenge' : idx > total ? 'complete' : 'steps';
   const progressPercent = lessonProgressPercent({
     authoredIndex: visibleStep - 1,
     authoredTotal,
-    phase: challengeStage !== 'none' ? 'challenge' : idx > total ? 'complete' : 'steps',
+    phase,
     hasChallenge,
   });
+  /*
+   * THE GLOBAL `N/M` LABEL DOES NOT BECOME PER-PART, and this is not a preference.
+   * scripts/anim/drive.py:577-583 fails any run whose authored step number goes DOWN, which is
+   * exactly what a per-part count does at every boundary, and the whole automated sweep would
+   * then report every three-part lesson as a step regression.
+   */
   const stepLabel = challengeStage !== 'none' ? 'Challenge' : idx > total ? 'Done' : `${String(visibleStep)}/${String(authoredTotal)}`;
+  /*
+   * Which part the header names. During the mastery challenge `idx` is still `total`, and for the
+   * 16 lessons whose Practice is the challenge alone `segmentIndexAt` would answer the segment
+   * BEFORE it (it is positional, by design), so the header would say "Vocab" over the challenge.
+   */
+  const currentSegment = challengeStage !== 'none' ? segments.length - 1 : segmentIndexAt(segments, idx);
+  const eyebrowSegment = segments[currentSegment];
+  /** Hidden on the warmup (nothing has started) and past the last screen (stepLabel says Done). */
+  const eyebrow = segmented && eyebrowSegment && (challengeStage !== 'none' || (idx >= 1 && idx <= total))
+    ? `${PART_NAME[eyebrowSegment.kind]} · Part ${String(currentSegment + 1)} of ${String(segments.length)}`
+    : null;
+  /** What "Keep going" leads to. A next part with no screens of its own is the challenge. */
+  const nextSegment = segmentBreak ? segments[segmentBreak.k + 1] : undefined;
+  const nextKind: SegmentNext = nextSegment
+    ? (segmentHasScreens(nextSegment) ? nextSegment.kind : 'challenge')
+    // Unreachable: `segmentEndingAt` answers null on the final segment, so a card always has a
+    // part after it. Typed rather than asserted, because a non-null assertion here would crash
+    // the runner on the day that stops being true instead of naming the next part wrong.
+    : 'practice';
+  /*
+   * WHEN BACK IS OFFERED. One authority, read by the header chevron AND by the deck's own Back
+   * (CardDeck draws it only when `index > 0 || onExit`), because the deck used to take a second
+   * copy of this rule and the copy is what drifts.
+   *
+   * The first two clauses are the shipped rule, pinned by lesson-resume-regression: no Back on
+   * the terminal screens, where it was a way to lose a lesson you had already won, and none
+   * during the challenge. The last two are the part rule: no Back out of a part card, and none
+   * off the first screen of a part after the first, which would step back into a part that has
+   * already been paid for.
+   */
+  const backAllowed = idx > 0 && idx < DONE && challengeStage === 'none'
+    && segmentBreak === null
+    && !(segmented && currentSegment > 0 && idx === segments[currentSegment]?.first);
 
   return (
     <LessonDesignProvider>
@@ -912,7 +1318,16 @@ export default function Lesson() {
             * There is also nothing back there to reread. Both terminal screens are payout, not
             * teaching.
             */}
-          {idx > 0 && idx < DONE && challengeStage === 'none' && (
+          {/*
+            * AND BACK NEVER STEPS INTO A PART THAT HAS BEEN PAID FOR. Two additions to the pinned
+            * condition above: no Back while a part card is up (the card is the decision, and the
+            * screen behind it is already credited), and no Back on the FIRST screen of a part
+            * after the first, which would walk into the previous part's last screen and offer a
+            * Continue that raises its card again. The card itself is harmless, since the store
+            * refuses a second credit for the same kind, but it would be a finished part asking to
+            * be finished again.
+            */}
+          {backAllowed && (
             <SpringPressable
               haptic={false}
               scaleTo={0.97}
@@ -925,9 +1340,35 @@ export default function Lesson() {
             </SpringPressable>
           )}
         </View>
-        <View style={styles.track}>
-          <LessonProgress percent={progressPercent} />
-        </View>
+        {/*
+          * ONE TRACK PER PART on a split run, the single bar on a replay.
+          *
+          * <LessonSegmentBar> draws its OWN per-part track backgrounds, so it replaces the whole
+          * `styles.track` wrapper and not just the fill: that View is `overflow: 'hidden'` with a
+          * translucent background of its own, and the gaps between parts would be painted by it,
+          * making an empty part indistinguishable from the gap beside it.
+          *
+          * The replay branch keeps `<LessonProgress percent={progressPercent} />` verbatim. That
+          * is the bar 300 lessons shipped with, it is pinned by lesson-design-parity-regression,
+          * and a segmented bar on a run with no part cards would promise breaks that never come.
+          */}
+        {segmented ? (
+          <View style={styles.barColumn}>
+            {eyebrow ? (
+              /* Names the part the learner is IN. The bar is decorative and hidden from VoiceOver,
+                 and `N/M` counts screens, so without this nothing on the header says which part
+                 this is. Sentence case, not shouted: the app retired 858 shouted strings. */
+              <ThemedText type="small" style={styles.eyebrow} numberOfLines={1}>{eyebrow}</ThemedText>
+            ) : null}
+            <View style={styles.barRow}>
+              <LessonSegmentBar fills={segmentedProgress(segments, idx, phase)} />
+            </View>
+          </View>
+        ) : (
+          <View style={styles.track}>
+            <LessonProgress percent={progressPercent} />
+          </View>
+        )}
         <ThemedText type="smallBold" style={[styles.stepLabel, NUM_L]}>{stepLabel}</ThemedText>
       </View>
 
@@ -1012,7 +1453,7 @@ export default function Lesson() {
                  * out of the first card was the header chevron. Same guard the header uses, so the
                  * deck cannot offer a Back on a screen the lesson itself refuses to leave.
                  */
-                onExit={idx > 0 && idx < DONE ? previousScreen : undefined}
+                onExit={backAllowed ? previousScreen : undefined}
                 onAtlasCard={setDeckAtlas}
                 onFooterHeight={setDeckFooterH}
               />
@@ -1312,7 +1753,10 @@ export default function Lesson() {
               <LessonComplete
                 courseId={courseId}
                 lessonTitle={lesson.title}
-                xp={xp}
+                /* What THIS screen pays: the lesson's XP less what the part cards already paid.
+                   `xp` here would announce the Learn and Vocab XP a second time. The euphorium
+                   below still uses the full `xp`, because coins stay whole-lesson (owner). */
+                xp={xpRemaining}
                 coins={Math.min(EARN.lessonMax, EARN.lessonMin + xp)}
                 streakDays={streakAfter}
               />
@@ -1339,7 +1783,13 @@ export default function Lesson() {
         * not an animation: nothing moves under the learner's finger, so there is nothing for
         * Reduce Motion to turn off.
         */}
-      {atlasContext && !deckAtlas && verdict === null ? (
+      {/* ...and a third: the part card draws its own Atlas, so the float would put two mascots on
+          one screen (CONSTITUTION 5.6) and land one of them on "Keep going".
+          ...and a fourth, the vocab conversation: AtlasConversation IS Atlas, talking, at 96pt.
+          Photographed on the simulator 2026-09-22 (personal-finance:9 part 2): the chat Atlas and
+          the float were on screen together, which is the same 5.6 break as the clip cards, on the
+          186 lessons that have a vocab part. */}
+      {atlasContext && !deckAtlas && norm?.kind !== 'vocab' && verdict === null && segmentBreak === null ? (
         <View
           pointerEvents="box-none"
           style={[styles.atlasFloat, { bottom: atlasLift }]}
@@ -1355,7 +1805,13 @@ export default function Lesson() {
         </View>
       ) : null}
 
-      {challengeStage === 'none' && isChoice && !whyOpen ? (
+      {/*
+        * The bar comes DOWN when a part card goes up. A part boundary that lands on a question
+        * leaves the bar mounted with a live Continue, and the card only covers it: two next
+        * actions on one screen, and the hidden one walks past the part choice. `advance` refuses
+        * while a card is up, so this is the visual half of the same rule.
+        */}
+      {challengeStage === 'none' && isChoice && !whyOpen && segmentBreak === null ? (
         <LessonCheckBar
           verdict={verdict}
           correctAnswer={norm.options.find((_o, i) => isChoiceCorrect(norm, i))}
@@ -1379,6 +1835,27 @@ export default function Lesson() {
       <MasteryChallengeIntro
         visible={challengeStage === 'intro'}
         onDone={() => setChallengeStage('round')}
+      />
+      {/*
+        * THE PART CARD. A sibling of the practice transition and the challenge intro, never a
+        * variant of the DONE screen: the lesson-complete moment has to stay the one payout beat,
+        * and a part is not a finished lesson.
+        *
+        * It reports what the store ACTUALLY paid (`segmentBreak.xp` is the credit's result, not
+        * the share that was asked for), so a part credited twice draws no XP chip instead of
+        * promising XP nothing paid.
+        */}
+      <SegmentFinishCard
+        visible={segmentBreak !== null}
+        partIndex={segmentBreak?.k ?? 0}
+        partCount={segments.length}
+        kind={segments[segmentBreak?.k ?? 0]?.kind ?? 'learn'}
+        nextKind={nextKind}
+        xp={segmentBreak?.xp ?? 0}
+        streakAdvanced={segmentBreak?.streakAdvanced ?? false}
+        streak={segmentBreak?.streak ?? 0}
+        onKeepGoing={keepGoing}
+        onDoneForNow={doneForNow}
       />
       </KeyboardAvoidingView>
 
@@ -1430,6 +1907,7 @@ export default function Lesson() {
         visible={confirmLeave}
         stepNumber={idx}
         stepCount={total}
+        donePartNames={donePartNames}
         onStay={() => setConfirmLeave(false)}
         onLeave={() => {
           // Closed BEFORE navigating. A Modal left visible while its screen is popped keeps its own
@@ -1511,6 +1989,29 @@ const styles = StyleSheet.create({
   lessonNav: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   track: { flex: 1, height: 8, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.08)' },
+  /* The segmented bar's slot. `flex: 1` takes the same width the single track had, so the header
+     geometry pinned by lesson-design-parity-regression (56 / gap 12 / padding 16) is unchanged.
+     Measured on iPhone 17 Pro: 12pt eyebrow line + 4pt gap + 8pt bar = 24pt inside the 56pt bar.
+
+     `minHeight` + `justifyContent: 'flex-end'` KEEP THE BAR STILL. The eyebrow is hidden on the
+     warmup (idx 0, nothing has started) and again past the last screen, so without a reserved
+     height this column is 8pt tall there and 24pt with the eyebrow. The header centres its
+     children, so the bar sat at y 24..32 on the warmup and y 32..40 one tap later: an 8pt hop of
+     the progress bar on the first Continue of every split lesson, and again on the way into the
+     completion screen. Computed from these style objects rather than photographed. minHeight and
+     not height, so the eyebrow can still grow at large Dynamic Type instead of being clipped. */
+  barColumn: { flex: 1, gap: 4, minHeight: 24, justifyContent: 'flex-end' },
+  /* An explicit row of the track's own height. The bar's outer view is `flex: 1`, which in a
+     content-sized column resolves against nothing; giving it a row to fill is what keeps the
+     tracks 8pt rather than collapsing them to zero. */
+  barRow: { flexDirection: 'row', alignSelf: 'stretch', height: 8 },
+  /* COMPUTED, NOT EYEBALLED (CONSTITUTION 5.9), and composited: the header is
+     rgba(7,3,15,0.7) over LessonColors.background #09090B, which resolves to rgb(7.6,4.8,13.8).
+     White at 0.6 measures 7.32:1 there. `LessonColors.mutedForeground` (#6F6F7B), the grey the
+     step label beside it uses, measures 4.09:1 on the same composite and is BELOW the 4.5 floor,
+     so reusing it would have added a second sub-floor label rather than one. rgba and not a new
+     hex, which is both the header's own idiom (headerTint, track) and the design-rules ratchet. */
+  eyebrow: { color: 'rgba(255,255,255,0.6)', fontSize: 11, lineHeight: 12, letterSpacing: 0.2 },
   fill: { height: 8, borderRadius: 999, overflow: 'hidden' },
   stepLabel: { width: 60, flexShrink: 0, textAlign: 'right', color: '#6F6F7B', fontSize: 12, lineHeight: 16 },
   body: { flex: 1, paddingHorizontal: 16, paddingTop: 32, backgroundColor: 'rgba(255,255,255,0.02)', borderLeftWidth: 1, borderRightWidth: 1, borderColor: 'rgba(139,92,246,0.08)' },

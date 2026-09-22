@@ -36,9 +36,13 @@ import { useTheme } from '@/hooks/use-theme';
 import { courseAccent } from '@/lib/course-accents';
 import { COURSES, getCourseById, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { LESSONS_PER_UNIT, unitNameFor } from '@/lib/course-units';
+import { expandSteps } from '@/lib/lesson-steps';
+import { hasMasteryChallenge } from '@/lib/mastery-challenge-model';
+import { readSegmentRecord, segmentsOf, type SegmentKind } from '@/lib/lesson-segments';
+import { SegmentRing } from '@/components/segment-ring';
 import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
-import { takeLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
+import { takeLessonTrailCelebration, type LessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -65,6 +69,36 @@ const SAGA_UPCOMING_COLOR = NODE_UPCOMING_COLOR;
 const SAGA_CHALLENGE_COLOR = NODE_CHALLENGE_COLOR;
 const SAGA_CONNECTOR_DRAW = 180;
 const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+/*
+ * THE PART RING SITS OUTSIDE THE POD FACE, AND OUTSIDE ITS LIP.
+ *
+ * 8pt, and the second number is why it is not smaller. The first cut used 5 and the bottom of the
+ * ring came out of the simulator half eaten: `nodeLip` is a full-size pill offset SAGA_LIP (4)
+ * BELOW the face, so the pod's real silhouette reaches nodeSize/2 + 4 from the centre, not
+ * nodeSize/2. SegmentRing measures its radius to the CENTRE of a 4pt stroke, so at 5 the stroke
+ * ran from nodeSize/2 + 3 to nodeSize/2 + 7 and the lip covered its inner pixels along the whole
+ * bottom arc. At 8 the stroke runs from nodeSize/2 + 6 outward and is tangent to the lip at worst.
+ *
+ * A ring drawn ON the face would also collide with the 15%-white specular strip and read as a
+ * second border on a pod that already has one.
+ *
+ * Challenge and capstone pods are the same square rotated 45 degrees (styles.specialNode), so
+ * their silhouette is the face's DIAGONAL, not its side. A circle sized for the side would be cut
+ * by all four corners. Math.SQRT2 is that diagonal, and it is why this is a function of `special`
+ * rather than one constant.
+ */
+const SAGA_RING_CLEARANCE = 8;
+const sagaRingSize = (nodeSize: number, special: boolean) =>
+  (special ? nodeSize * Math.SQRT2 : nodeSize) + SAGA_RING_CLEARANCE * 2;
+
+/**
+ * A stable empty shape for every node that is not the current one.
+ *
+ * A fresh `[]` per node per render would be a new identity in a list of 25, which is how a
+ * `useMemo` or a memoised child downstream quietly stops memoising.
+ */
+const NO_KINDS: SegmentKind[] = [];
 
 /**
  * The premium ramp, spent across the trial's three days.
@@ -230,15 +264,26 @@ export default function Learn() {
   const [failed, setFailed] = useState<string | null>(null);
   /** Bumped by the retry so the effect re-runs for the same course id. */
   const [attempt, setAttempt] = useState(0);
-  const [celebratingLesson, setCelebratingLesson] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState<LessonTrailCelebration | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      const lessonId = takeLessonTrailCelebration();
-      if (!lessonId) return;
-      setCelebratingLesson(lessonId);
-      const settle = setTimeout(() => setCelebratingLesson(null), Duration.screen + 700);
-      return () => clearTimeout(settle);
+      const celebration = takeLessonTrailCelebration();
+      if (!celebration) return;
+      setCelebrating(celebration);
+      const settle = setTimeout(() => setCelebrating(null), Duration.screen + 700);
+      /*
+       * CLEARED ON BLUR, NOT ONLY ON THE TIMER. Leaving the tab inside the settle window used to
+       * clear the timeout and leave `celebrating` set, and the next focus takes a null handoff and
+       * returns early, so the stale value survived: the node re-fired its "earned" bounce for a
+       * lesson finished minutes ago. The part ring makes that worse, because its SemanticMotion
+       * reads the same value and would replay an arc that was already filled when the tab opened.
+       * A celebration is one animation for one visit; it does not outlive the visit.
+       */
+      return () => {
+        clearTimeout(settle);
+        setCelebrating(null);
+      };
     }, []),
   );
 
@@ -307,6 +352,79 @@ export default function Learn() {
   // the active node is the first unfinished lesson; -1 once the course is complete
   const current = doneFlags.indexOf(false);
   const total = lessons.length;
+
+  /*
+   * HOW MANY PARTS THE CURRENT LESSON HAS — AND ONLY THE CURRENT ONE.
+   *
+   * ONE LESSON, NOT TWENTY-FIVE. Reading `lesson.steps` is not a field read: `withMobileDecks`
+   * (curriculum/index.ts) hides a getter behind it that runs `mobileSteps` on first touch, which
+   * is the whole reason `scripts/lazy-deck-pin.mjs` exists ("loading a course must not derive the
+   * decks of lessons nobody opened", 721 derivations and about 65ms of them corpus-wide). Looping
+   * every lesson here put that cost straight back, on the render thread rather than the loader, so
+   * lazy-deck-pin could not see it: MEASURED at 88.8 / 60.4 / 75.4ms for investing-fundamentals,
+   * personal-finance and financial-analytics under `--no-opt --no-sparkplug --no-maglev`, the same
+   * interpreter-only stand-in for Hermes that pin used, and paid again on every course switch.
+   * Exactly one node ever draws a ring, so exactly one lesson's shape is derived. Re-measured the
+   * same way for one lesson: 6.4 / 16.0 / 5.7ms.
+   *
+   * Derived from the steps rather than stored, because the store records finished parts by KIND
+   * ('learn' | 'vocab' | 'practice') and deliberately never the count (design 2b): a curriculum
+   * sync can add or remove a lesson's keyTermsCards screen, and a persisted count would then
+   * describe a shape that no longer exists. `segmentsOf` is the same pure function the runner
+   * splits the lesson with, fed the same deck-wrapped `expandSteps` list, so the ring cannot
+   * disagree with the part card the learner just closed.
+   */
+  const currentLesson = current >= 0 ? lessons[current] ?? null : null;
+  const currentKinds = useMemo<SegmentKind[]>(
+    () => (currentLesson === null
+      ? []
+      : segmentsOf(
+          expandSteps(currentLesson.steps).map((step) => step.type),
+          hasMasteryChallenge(currentLesson.challenge),
+        ).map((segment) => segment.kind)),
+    [currentLesson],
+  );
+
+  /*
+   * HOW MANY OF THEM ARE DONE.
+   *
+   * Subscribed to the `lessonSegments` record itself, not to the store's `segmentsDoneFor`
+   * getter. Zustand compares a selector's RESULT with Object.is and the getter's identity never
+   * changes, so selecting the getter alone would freeze this ring at whatever it showed on mount
+   * and a part finished mid-session would never appear.
+   *
+   * `readSegmentRecord` and not a raw `.done`: a persisted record can carry an unknown kind or a
+   * duplicate after a downgrade, and the validator is the one place that decides what a malformed
+   * record means. The getter's extra branch (a completed lesson counts every kind) is not needed
+   * here, because the only node that draws a ring is `current`, and `current` is by definition the
+   * first lesson NOT in `completedLessons`.
+   */
+  const lessonSegmentRecords = useApp((s) => s.lessonSegments);
+  const currentDone = useMemo(
+    () => (currentLesson === null
+      ? []
+      : readSegmentRecord(lessonSegmentRecords[lessonKey(trailCourseId, currentLesson.num)]).done),
+    [currentLesson, lessonSegmentRecords, trailCourseId],
+  );
+  /*
+   * MATCHED BY KIND, NEVER COUNTED. `segmentEntry` (lesson-segments.ts) opens the lesson at the
+   * first kind NOT in `done`, and this trail has to name the same part or the ring and the runner
+   * disagree about the same tap. Counting instead is wrong in exactly the case the kind-keyed
+   * record was chosen for (design 2b): a sync drops a lesson's keyTermsCards while `done` holds
+   * ['learn','vocab'], and `done.length` then indexes a two-part shape as 2 of 2 — a FULL ring on
+   * a lesson nobody finished, and an unclamped label reading "Part 3 of 2 next". Intersecting with
+   * the live shape cannot exceed it, so the clamp is not needed either.
+   */
+  const currentFilled = useMemo(
+    () => currentKinds.filter((kind) => currentDone.includes(kind)).length,
+    [currentKinds, currentDone],
+  );
+  const currentNextPart = useMemo(() => {
+    const j = currentKinds.findIndex((kind) => !currentDone.includes(kind));
+    // Every kind done on an unfinished lesson is the malformed case `segmentEntry` also meets; it
+    // answers the last segment, so this names the last part rather than inventing a fourth.
+    return j < 0 ? currentKinds.length - 1 : j;
+  }, [currentKinds, currentDone]);
   const units = useMemo(
     () => Array.from({ length: Math.ceil(total / LESSONS_PER_UNIT) }, (_, unitIndex) => ({
       index: unitIndex,
@@ -609,7 +727,16 @@ export default function Learn() {
                         const nextDone = doneFlags[next.lessonIndex];
                         const nextActive = next.lessonIndex === current;
                         const segment = sagaSegment(node, next);
-                        const earned = celebratingLesson === lessonKey(trailCourseId, node.lesson.num);
+                        /*
+                         * A PART NEVER DRAWS THE CONNECTOR. `celebrating.segment` is set only by a
+                         * non-final part credit, and the connector means "the next node is open".
+                         * The next node is still locked after Learn, because `doneFlags` reads
+                         * `completedLessons` and the part credit never writes it (design 3b). A
+                         * line drawn to a pod the learner cannot press is a promise the trail
+                         * cannot keep.
+                         */
+                        const earned = celebrating?.segment === undefined
+                          && celebrating?.lessonId === lessonKey(trailCourseId, node.lesson.num);
                         return (
                           <SagaConnector
                             key={node.lessonIndex}
@@ -632,7 +759,28 @@ export default function Learn() {
                       const special = challenge || capstone;
                       const nodeSize = active ? SAGA_CURRENT : SAGA_NODE;
                       const completedFace = challenge ? SAGA_CHALLENGE_COLOR : accent;
-                      const earned = celebratingLesson === lessonKey(trailCourseId, lesson.num);
+                      const nodeId = lessonKey(trailCourseId, lesson.num);
+                      /* Same rule as the connector above: the node's "earned" bounce means the
+                       * whole lesson is finished, so a part must not fire it. */
+                      const earned = celebrating?.segment === undefined && celebrating?.lessonId === nodeId;
+                      /*
+                       * THE RING BELONGS TO THE POD YOU ARE ON, AND ONLY TO IT.
+                       *
+                       * A done pod already carries a check, and a ring reading 3 of 3 beside it
+                       * would state the same fact twice (design rule 1). A locked pod has nothing
+                       * to report. Every other pod is either before `current` (done) or after it
+                       * (locked), so `active` is the only node that can ever be part way through:
+                       * `current` is the first lesson not in `completedLessons`, which is exactly
+                       * the lesson a part credit can belong to.
+                       *
+                       * Two-part and three-part lessons both get one; a single-segment lesson
+                       * cannot occur under the split rule, and the guard keeps a future corpus
+                       * from drawing a one-arc circle that says nothing.
+                       */
+                      const kinds = active ? currentKinds : NO_KINDS;
+                      const ringFilled = active ? currentFilled : 0;
+                      const showRing = active && kinds.length > 1;
+                      const ringSize = sagaRingSize(nodeSize, special);
                       const face = locked
                         ? SAGA_LOCKED_COLOR
                         : active
@@ -669,10 +817,27 @@ export default function Learn() {
                             disabled={locked}
                             accessibilityRole="button"
                             accessibilityState={{ disabled: locked }}
+                            /*
+                             * THE RING IS THE ONLY THING SOME LEARNERS CANNOT SEE.
+                             *
+                             * "Start here" is still right for an untouched lesson, and it is the
+                             * whole truth there: the arcs say how many parts are coming and the
+                             * count is in the lesson itself. Once a part is banked, "Start here"
+                             * is actively wrong, because the runner resumes at the next part. The
+                             * label states which one, so VoiceOver gets what the filled arcs say.
+                             */
                             accessibilityLabel={
                               locked
                                 ? `${lesson.title}. Finish the lesson before this one to unlock it.`
-                                : `${lesson.title}${done ? '. Complete' : active ? '. Start here' : ''}`
+                                : `${lesson.title}${
+                                    done
+                                      ? '. Complete'
+                                      : active && showRing && ringFilled > 0
+                                        ? `. Part ${String(currentNextPart + 1)} of ${String(kinds.length)} next`
+                                        : active
+                                          ? '. Start here'
+                                          : ''
+                                  }`
                             }>
                             <View style={[styles.nodeShell, special && styles.specialNode]}>
                               <View
@@ -729,6 +894,54 @@ export default function Learn() {
                             </View>
                             </SpringPressable>
                           </SagaNodeMotion>
+
+                          {/*
+                            * CENTRED ON THE FACE, NOT ON THE SHELL, AND PAINTED AFTER IT.
+                            *
+                            * The pod's stack is the face at the top of this box plus a 4pt lip
+                            * BELOW it plus a label, so the shell's own centre sits well under the
+                            * circle a learner sees. Ringing the shell would hang the arc low and
+                            * off-axis. The face occupies (0,0)..(nodeSize,nodeSize) of this box,
+                            * so its centre is nodeSize / 2 on both axes and the ring is inset by
+                            * half the difference.
+                            *
+                            * AFTER the pressable, not before. Drawn first, the lip and the pod's
+                            * own shadow ate the bottom arc: caught on the simulator, where a 1 of
+                            * 3 ring looked like an arc with a bite out of it. React Native paints
+                            * siblings in order with no z-index here, so "after" is the whole fix.
+                            *
+                            * pointerEvents="none" so it can never eat a tap. The pod is a 44pt-plus
+                            * target and this box now sits ON TOP of it, so without that every press
+                            * near the pod's edge would land on nothing.
+                            */}
+                          {showRing && (
+                            <View
+                              pointerEvents="none"
+                              style={[
+                                styles.nodeRing,
+                                { left: (nodeSize - ringSize) / 2, top: (nodeSize - ringSize) / 2 },
+                              ]}>
+                              {/*
+                                * ONE BEAT WHEN A PART LANDS, keyed so it replays per part rather
+                                * than once per mount. 'mastery-increase' and not 'lesson-complete':
+                                * the motion audits read 'lesson-complete' as a finished lesson, and
+                                * a part is not one. SemanticMotion resolves every event immediately
+                                * under Reduced Motion, so the filled arc still arrives.
+                                */}
+                              <SemanticMotion
+                                key={String(ringFilled)}
+                                event="mastery-increase"
+                                enabled={celebrating?.segment !== undefined && celebrating.lessonId === nodeId}>
+                                <SegmentRing
+                                  size={ringSize}
+                                  segments={kinds.length}
+                                  filled={ringFilled}
+                                  accent={accent}
+                                  track={theme.border}
+                                />
+                              </SemanticMotion>
+                            </View>
+                          )}
 
                           <View
                             pointerEvents="none"
@@ -837,6 +1050,9 @@ const styles = StyleSheet.create({
   levelTitle: { textAlign: 'center' },
   sagaTrail: { position: 'relative', marginTop: 12 },
   sagaStop: { position: 'absolute' },
+  /* Left and top are computed per node from the face size, so only the positioning mode lives
+     here. Width and height come from the ring itself. */
+  nodeRing: { position: 'absolute' },
   nodeShell: {
     position: 'relative',
     shadowOffset: { width: 0, height: 5 },

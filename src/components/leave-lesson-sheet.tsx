@@ -32,6 +32,7 @@ export function LeaveLessonSheet({
   visible,
   stepNumber,
   stepCount,
+  donePartNames = [],
   onStay,
   onLeave,
 }: {
@@ -39,6 +40,11 @@ export function LeaveLessonSheet({
   /** One-based position of the step the learner is on, used only to say where they will return to. */
   stepNumber: number;
   stepCount: number;
+  /**
+   * Display names of the parts of this lesson that are already finished ("Learn", "Vocab"), in
+   * lesson order. Empty on a one-part run, on a replay and before the first part card.
+   */
+  donePartNames?: readonly string[];
   onStay: () => void;
   onLeave: () => void;
 }) {
@@ -55,6 +61,25 @@ export function LeaveLessonSheet({
   const place = stepNumber > 0 && stepCount > 0
     ? `We'll bring you back to step ${String(stepNumber)} of ${String(stepCount)}.`
     : "We'll bring you back to where you left off.";
+
+  /*
+   * PART-SHAPED, and only once a part is actually behind them. A lesson is now Learn, then Vocab,
+   * then Practice, and the next open starts at the FIRST unfinished part, so a finished part is
+   * never replayed. For a learner two parts into a fourteen step lesson that is the fact that
+   * settles whether leaving costs anything, and "your progress is saved" does not say it: read
+   * on its own it sounds like the same one-pointer promise the sheet made before parts existed.
+   *
+   * It deliberately does NOT claim the XP. A lesson that was already in progress when parts
+   * shipped adopts its finished parts through `adoptLegacySegments`, which writes `xpPaid: 0` and
+   * pays nothing, so "the XP is yours" would be true for most learners and false for those.
+   * A number or a promise that nothing backs is CONSTITUTION 3.1, whoever it is true for.
+   */
+  const names = donePartNames.length > 1
+    ? `${donePartNames.slice(0, -1).join(', ')} and ${donePartNames[donePartNames.length - 1]}`
+    : donePartNames[0];
+  const banked = donePartNames.length === 0
+    ? null
+    : `You already finished ${names}, and ${donePartNames.length > 1 ? 'those parts stay' : 'that part stays'} finished.`;
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onStay}>
@@ -76,8 +101,11 @@ export function LeaveLessonSheet({
 
         <View style={[styles.sheet, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <ThemedText type="title" style={styles.lead}>Leaving already?</ThemedText>
+          {/* Two sentences at most, ever. With parts done the banked line replaces the generic
+              "progress is saved" rather than stacking on top of it: both say the same thing and
+              only one of them says which part (CONSTITUTION 5.1, say a thing once). */}
           <ThemedText type="body" themeColor="textSecondary" style={styles.body}>
-            Your progress on this lesson is saved. {place}
+            {banked ?? 'Your progress on this lesson is saved.'} {place}
           </ThemedText>
 
           <SlabButton label="Keep going" full onPress={onStay} />
