@@ -33,6 +33,7 @@ const imported = (path) => import(pathToFileURL(join(ROOT, path)).href);
 const { COURSES, loadCourseLessons } = await imported('src/lib/curriculum/courseIndex.ts');
 const { deriveDeck, isHeavyStep } = await imported('src/lib/mobile-lesson/derive.ts');
 const { stepId } = await imported('src/lib/mobile-lesson/stepId.ts');
+const { applyPlacement } = await imported('src/lib/mobile-lesson/parts/placements.ts');
 const { CARD_BUDGET } = await imported('src/lib/mobile-lesson/types.ts');
 const { shortenOptions, shortenPrompt, QUESTION_BUDGET } = await imported('src/lib/mobile-lesson/question.ts');
 
@@ -61,8 +62,17 @@ const LIMITS = {
    * question was about. Keeping the data costs characters, and this is the budget that pays for it.
    * The real guarantees now live in maxPromptsLosingNumbers and the zero-tolerance check on losing
    * the question, which are properties rather than proxies.
+   *
+   * RAISED AGAIN 2026-09-22 to 0.68, measured 860 / 1,307 = 65.8%, deliberately and not to pass.
+   * The A1 shortener now treats a setup as load-bearing whenever it has a figure the ask does not
+   * repeat, because the old per-question rule dropped 243 setups that carried numbers
+   * (investing-fundamentals L6 s3 lost both expense ratios it asked about). That took prompts
+   * losing every number from 16 to 0, and 684 of the 860 over-budget prompts are now shown exactly
+   * as authored: there is nothing left to cut without cutting data. Getting back under 35% means
+   * rewriting prompts in overrides.ts, not a tighter shortener. 0.68 still fails the build if the
+   * shortener stops trimming the ones it can (it trims 930 authored-over-budget down to 860).
    */
-  maxPromptsOverBudgetRatio: 0.35,
+  maxPromptsOverBudgetRatio: 0.68,
   /**
    * Measured 16, down from 653 before the shortener kept its setups. Not zero: a handful of
    * prompts state their figures only inside a clause that will not survive any trim, and forcing
@@ -104,6 +114,12 @@ function visibleChars(card) {
      */
     if (s.kind === 'timeline') return s.prompt.length + Math.max(0, ...s.moments.map((m) => m.label.length));
     if (s.kind === 'reveal') return s.prompt.length + s.hidden.length;
+    // A scene shows one caption at a time, like the timeline above, and has no verdict: the
+    // fallthrough would have measured it as its 23-character prompt and called it tiny.
+    if (s.kind === 'scene') return s.prompt.length + Math.max(0, ...s.beats.map((b) => b.caption.length));
+    // A dial shows every stepper label at once, plus its goal and verdict.
+    if (s.kind === 'dial') return s.prompt.length + s.inputs.reduce((n, i) => n + i.label.length, 0) + (s.goal ?? '').length + s.verdict.length;
+    if (s.kind === 'lever') return s.prompt.length + s.note.length + s.verdict.length;
     return s.prompt.length + (s.verdict ?? '').length;
   }
   return 0;
@@ -119,6 +135,8 @@ if (process.argv.includes('--selftest')) {
   ok(budgetOf({ kind: 'interactive' }) === 0, 'an interactive is not held to a body budget');
   ok(visibleChars({ kind: 'idea', title: 'ab', body: 'cde' }) === 5, 'visible chars must include the title');
   ok(visibleChars({ kind: 'reveal' }) === 0, 'an unknown kind must measure zero, not throw');
+  ok(visibleChars({ kind: 'interactive', spec: { kind: 'scene', prompt: 'ab', beats: [{ caption: 'abc' }, { caption: 'abcde' }] } }) === 7,
+    'a scene must measure its prompt plus its LONGEST caption, not its prompt alone');
   ok(median([1, 2, 3, 100]) === 3, 'median must not be an average');
   ok(median([]) === 0, 'median of nothing must be zero, not NaN');
   console.log('selftest passed');
@@ -140,7 +158,10 @@ for (const course of COURSES) {
   for (const lesson of await loadCourseLessons(course.id)) {
     lesson.steps.forEach((step, index) => {
       if (!isHeavyStep(step)) return;
-      const deck = deriveDeck(step, stepId(course.id, lesson.num, index, step));
+      // Placed parts included, over the RAW steps, as curriculum/index.ts renders them.
+      const id = stepId(course.id, lesson.num, index, step);
+      const derived = deriveDeck(step, id);
+      const deck = derived ? applyPlacement(derived, id, lesson.steps) : null;
       if (!deck) return;
       decks += 1;
       deckSizes.push(deck.cards.length);
