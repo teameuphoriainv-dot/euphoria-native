@@ -17,8 +17,12 @@ import Animated, { FadeIn, FadeInDown, useReducedMotion } from 'react-native-rea
 
 import { ThemedText } from '@/components/themed-text';
 import { PixelScene } from '@/components/mobile-lesson/PixelScene';
+import { DialCard } from '@/components/mobile-lesson/parts/dial-card';
+import { LeverCard } from '@/components/mobile-lesson/parts/lever-card';
+import { SceneCard } from '@/components/mobile-lesson/parts/scene-card';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { growValue, paidIn } from '@/lib/mobile-lesson/grow-math';
 import type { MobileInteractive } from '@/lib/mobile-lesson/types';
 
 /** US dollars, no cents. Cents on a forty year projection are noise pretending to be precision. */
@@ -39,22 +43,27 @@ const YEAR_STOPS = [1, 5, 10, 20, 30, 40, 50];
 /**
  * Compound growth the learner steps through.
  *
- * `future = principal * (1 + rate) ** years`, which is the standard annual-compounding formula and
- * is exactly what the lesson's own numbers assume. The principal and the rate come from authored
- * sliders. The number of years is the learner's own input, so the figure on screen is arithmetic
- * about a scenario THEY chose rather than a claim the lesson is making, which is what makes showing
- * a large dollar amount here honest.
+ * The value is `growValue` from grow-math.ts: a lump sum compounds yearly, and a monthly or yearly
+ * contribution compounds as a stream of deposits. This used to be `start * (1 + rate) ** years`
+ * for every card, so investing-fundamentals:8:4 showed $500 a month for 30 years at 10% as $8,725
+ * under a line promising ~$1,130,000. The amount and the rate come from authored sliders. The
+ * number of years is the learner's own input, so the figure on screen is arithmetic about a
+ * scenario THEY chose rather than a claim the lesson is making, which is what makes showing a large
+ * dollar amount here honest.
  */
 function GrowLab({ spec, onWorked }: { spec: Extract<MobileInteractive, { kind: 'grow' }>; onWorked: () => void }) {
   const reduced = useReducedMotion();
   const [years, setYears] = useState(() => Math.min(10, spec.maxYears));
   const [touched, setTouched] = useState(false);
 
-  const future = useMemo(
-    () => spec.start * (1 + spec.ratePercent / 100) ** years,
-    [spec.start, spec.ratePercent, years],
-  );
-  const multiple = spec.start > 0 ? future / spec.start : 1;
+  const future = useMemo(() => growValue(spec, years), [spec, years]);
+  /*
+   * Measured against what was PAID IN, not against one deposit. For $500 a month the one-deposit
+   * multiple at 30 years would read 2,260x, which is true arithmetic about nothing the learner did.
+   */
+  const put = paidIn(spec, years);
+  const multiple = put > 0 ? future / put : 1;
+  const recurring = spec.contribution === 'monthly' ? ' a month' : spec.contribution === 'yearly' ? ' a year' : '';
 
   const stops = useMemo(() => YEAR_STOPS.filter((y) => y <= spec.maxYears), [spec.maxYears]);
 
@@ -72,12 +81,14 @@ function GrowLab({ spec, onWorked }: { spec: Extract<MobileInteractive, { kind: 
         <View style={styles.figureText}>
           <ThemedText style={styles.figure}>{money(future)}</ThemedText>
           <ThemedText style={styles.figureNote}>
-            {`${money(spec.start)} at ${spec.ratePercent}% for ${years} ${years === 1 ? 'year' : 'years'}`}
+            {`${money(spec.start)}${recurring} at ${spec.ratePercent}% for ${years} ${years === 1 ? 'year' : 'years'}`}
           </ThemedText>
         </View>
       </Animated.View>
 
-      <ThemedText style={styles.multiple}>{`${multiple.toFixed(1)}x your starting amount`}</ThemedText>
+      <ThemedText style={styles.multiple}>
+        {recurring ? `${multiple.toFixed(1)}x the ${money(put)} you put in` : `${multiple.toFixed(1)}x your starting amount`}
+      </ThemedText>
 
       <View style={styles.sliderBlock}>
         <ThemedText style={styles.sliderLabel}>How long do you leave it?</ThemedText>
@@ -102,9 +113,10 @@ function GrowLab({ spec, onWorked }: { spec: Extract<MobileInteractive, { kind: 
         <Animated.View entering={reduced ? undefined : FadeInDown.duration(280)}>
           <ThemedText style={styles.verdict}>{spec.verdict}</ThemedText>
         </Animated.View>
-      ) : (
-        <ThemedText style={styles.hint}>Pick a number of years</ThemedText>
-      )}
+      ) : null /*
+        No "Pick a number of years" hint here any more: the prompt now says "Tap to jump ahead a few
+        years" and the chip row is headed "How long do you leave it?", so a third line saying the
+        same thing broke design rule 1 (say a thing once). */}
     </View>
   );
 }
@@ -258,9 +270,13 @@ export function DeckInteractive({ spec, onWorked }: { spec: MobileInteractive; o
   if (spec.kind === 'timeline') return <MomentStepper spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'reveal') return <RevealCard spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'guess') return <GuessLab spec={spec} onWorked={onWorked} />;
+  // The hand-placed parts (parts/placements.ts). One line per kind in the MobileInteractive union.
+  if (spec.kind === 'dial') return <DialCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'lever') return <LeverCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'scene') return <SceneCard spec={spec} onWorked={onWorked} />;
   /*
-   * Unreachable while MobileInteractive has three members, and deliberately not a throw. If a
-   * fourth kind is added and someone forgets this switch, a learner should get a card that is
+   * Unreachable while every member of MobileInteractive has a line above, and deliberately not a
+   * throw. If a kind is added and someone forgets this switch, a learner should get a card that is
    * merely bare rather than a crashed lesson, and scripts/mobile-deck-audit.mjs reports the
    * interactive kind counts so the omission is visible before it ships.
    */
@@ -304,7 +320,6 @@ const styles = StyleSheet.create({
   guessChipText: { ...LessonTypography.heading, color: LessonColors.text },
   chipText: { ...LessonTypography.smallBold, color: LessonColors.mutedForeground },
   chipTextOn: { color: '#FFFFFF' },
-  hint: { ...LessonTypography.small, color: LessonColors.mutedForeground, textAlign: 'center' },
   verdict: { ...LessonTypography.bodyMedium, color: LessonColors.text, textAlign: 'center' },
   momentSolo: { alignItems: 'center', gap: 16, width: '100%' },
   momentText: { ...LessonTypography.body, color: LessonColors.text, textAlign: 'center' },

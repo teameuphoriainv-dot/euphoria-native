@@ -19,6 +19,10 @@
  * stays as ONE outer screen ... instead of distorting lesson progress". Same reasoning, same shape.
  */
 import type { AnimatedVisual } from '@/lib/curriculum';
+import type { Contribution } from './grow-math';
+import type { DialSpec } from './parts/dial';
+import type { LeverSpec } from './parts/lever';
+import type { ScenePartSpec } from './parts/scene';
 
 /**
  * A pixel scene on a card.
@@ -61,14 +65,38 @@ export interface SceneSpec {
  * describes a capability the product does not have is a claim, and the next person to read it would
  * reasonably believe a pie card exists somewhere.
  */
+/*
+ * How many graph steps land on each kind is printed by `scripts/mobile-deck-audit.mjs`. It used to
+ * be written here as "256 of the 289", which stopped being true the day `guess` was added and kept
+ * being read as current. Counts in a comment go stale; the audit does not.
+ */
 export type MobileInteractive =
   /**
-   * The authored insights, one beat at a time. 256 of the 289 graph steps.
+   * The authored insights, one beat at a time.
    * Named `timeline` because the beats are ordered, not because the content is chronological.
    */
   | { kind: 'timeline'; prompt: string; moments: { label: string; detail: string; sprite?: string }[] }
-  /** Compound growth the learner steps through. 33 steps, wherever the sliders are unambiguous. */
-  | { kind: 'grow'; prompt: string; startLabel: string; start: number; ratePercent: number; maxYears: number; verdict: string }
+  /**
+   * Compound growth the learner steps through, wherever the sliders are unambiguous: a money
+   * amount and a rate of RETURN (see `isRate` in interactives.ts). The value on screen is
+   * `growValue` in grow-math.ts.
+   */
+  | {
+      kind: 'grow';
+      prompt: string;
+      startLabel: string;
+      /** The authored label of the rate slider, kept so graph-interactive-truth-pin.mjs can deny-list it. */
+      rateLabel: string;
+      start: number;
+      ratePercent: number;
+      /**
+       * How `start` is paid in, read from the money label. 'monthly' and 'yearly' compound as a
+       * stream of deposits; before this field all ten such cards were compounded as one deposit.
+       */
+      contribution: Contribution;
+      maxYears: number;
+      verdict: string;
+    }
   /** Press to uncover the point. The fallback when a step has no usable insight. */
   | { kind: 'reveal'; prompt: string; hidden: string; scene: SceneSpec }
   /**
@@ -92,7 +120,20 @@ export type MobileInteractive =
       /** The authored sentence, whole. */
       full: string;
       scene: SceneSpec;
-    };
+    }
+  /*
+   * THE HAND-PLACED PARTS. None of these is ever produced by `deriveDeck`: each is put on one named
+   * step by `applyPlacement` (parts/placements.ts), which the wrapped loader calls after deriving.
+   * Each has a dispatch line in `DeckInteractive` (deck-interactives.tsx); without it the card
+   * renders bare, which is the failure the THREE KINDS note above describes.
+   *
+   * The scene part is `ScenePartSpec`, NOT the `SceneSpec` at the top of this file: that one is the
+   * pixel art on a card and has no `kind`, so putting it here would break the discriminated union
+   * (every `spec.kind` narrowing in the renderer and the audits would stop compiling).
+   */
+  | DialSpec
+  | LeverSpec
+  | ScenePartSpec;
 
 /**
  * One card in a deck.
