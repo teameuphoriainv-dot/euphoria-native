@@ -99,7 +99,7 @@ const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
  * three currently state the same two facts. 'none' is today's screen untouched, as the control.
  */
 type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none';
-const BAND: Band = 'grid';
+const BAND: Band = 'card';
 
 /**
  * <StatTile> — one cell of the Home grid.
@@ -954,7 +954,9 @@ const styles = StyleSheet.create({
   statStrip: { flexDirection: 'row', marginTop: Spacing.four, paddingVertical: Spacing.three },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four },
   chip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: Radius.pill, borderWidth: 1 },
-  statCard: { flexDirection: 'row', marginTop: Spacing.four, padding: Spacing.four, borderRadius: Radius.lg, borderWidth: 1 },
+  // No marginTop: content already spaces its children by Spacing.three, and adding four on top left a
+  // 40pt hole under the hero where every other section sits 16pt apart (owner: "looks a bit odd").
+  statCard: { flexDirection: 'row', padding: Spacing.four, borderRadius: Radius.lg, borderWidth: 1 },
   tile: { flex: 1, borderWidth: 1, borderRadius: Radius.md, padding: Spacing.three, gap: Spacing.one },
   tileHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   tileValue: { fontSize: FontSize.titleSm, lineHeight: 30 },
