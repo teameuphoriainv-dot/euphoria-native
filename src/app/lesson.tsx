@@ -13,7 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, InteractionManager } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, InteractionManager, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   FadeIn,
@@ -32,9 +32,8 @@ import { LessonExplanation, hasExplanationScreen } from '@/components/lesson-exp
 import { VocabConversation } from '@/components/atlas-conversation';
 import { AtlasIntro, hasSeenAtlasIntro, resetAtlasIntroForDev } from '@/components/atlas-intro';
 import { AtlasSpeech } from '@/components/atlas-speech';
-import { CelebrationRays, CelebrationWipe } from '@/components/celebration-burst';
-import { Confetti } from '@/components/confetti';
-import { SparkBurst } from '@/components/lesson-feedback';
+import { LessonCheckBar } from '@/components/lesson-check-bar';
+import { LessonComplete } from '@/components/lesson-complete';
 import { InteractiveGraph, type InteractiveGraphControlValue } from '@/components/interactive-graph';
 import { HookOpener } from '@/components/hook-opener';
 import { LessonProse } from '@/components/lesson-prose';
@@ -64,7 +63,7 @@ import { DecisionTree } from '@/components/decision-tree';
 import { DragSort } from '@/components/drag-sort';
 import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
-import { PixelSpriteView, coin as coinSprite, flame as flameSprite, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
+import { PixelSpriteView, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
 import { Button, SlabButton } from '@/components/ui/button';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
@@ -91,8 +90,7 @@ import { IAP_ENABLED } from '@/lib/purchases';
 import { dismissalOfferAvailable } from '@/lib/dismissal-offer';
 import { trialRewardAvailable } from '@/lib/trial-reward';
 import { semanticMotionForLessonStep } from '@/lib/semantic-motion';
-import { NumberRollup } from '@/shared/motion/number-rollup';
-import { RewardPop } from '@/shared/motion/reward-pop';
+import { MAX_TRIES, firstTryCounts, pickAnswerLayout, type Verdict } from '@/lib/answer-layout';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
@@ -229,6 +227,38 @@ export default function Lesson() {
    * graded state that outlives it.
    */
   const [justGraded, setJustGraded] = useState(false);
+  /*
+   * THE CHECK BAR (owner decision 4, 2026-09-22). One entry per Check on this question, true when
+   * that attempt was right. A first miss gets an amber bar and ONE Try again; only attempts[0]
+   * counts toward mastery (firstTryCounts), so a retry is for learning and never a free pass.
+   * `retryOut` holds the options a Try again ruled out; `revealed` is See answer.
+   */
+  const [attempts, setAttempts] = useState<boolean[]>([]);
+  const [retryOut, setRetryOut] = useState<number[]>([]);
+  const [revealed, setRevealed] = useState(false);
+  /** Why? on the bar opens the authored explanation page; it is no longer forced on every miss. */
+  const [showWhy, setShowWhy] = useState(false);
+  /** The active deck card draws its own Atlas (card-deck.tsx cardDrawsAtlas), so the float hides. */
+  const [deckAtlas, setDeckAtlas] = useState(false);
+  /*
+   * THE BOTTOM LANE, MEASURED (S2 review, 2026-09-22). Two absolute overlays used to be positioned
+   * against guesses instead of against what is on the screen:
+   *   - the floating Ask-Atlas button sat at bottom:20, straight over the right end of whatever CTA
+   *     was in the footer. Measured on iPhone 17 Pro, personal-finance lesson 15 step 3: the deck's
+   *     Got it at y 784..828 under an Atlas at 766..820. On an unanswered question that CTA is
+   *     Check, so the learner's one way to submit an answer was under the mascot (sim screenshot
+   *     07-lesson-checkbar-miss-a). `footerH` is the lesson footer, `deckFooterH` the deck's own
+   *     Back / Got it row; the float is lifted above whichever is on screen.
+   *   - the check bar is absolute too, and the question below it reserved a FIXED 170pt. A taller
+   *     bar (the 'answer' bar carries an extra line, and Dynamic Type grows all of it) then covered
+   *     the last stacked option with no way to scroll it clear. `checkBarH` is the bar's own
+   *     onLayout height and the question pads by that instead.
+   * All three are heights, not positions, so nothing here depends on the screen's width.
+   */
+  const [footerH, setFooterH] = useState(0);
+  const [deckFooterH, setDeckFooterH] = useState(0);
+  const [checkBarH, setCheckBarH] = useState(0);
+  const { fontScale } = useWindowDimensions();
   /* Hearts and hints (N21). Both are shop mechanics the web has and iOS did not, so buying a
    * Heart Refill or a Hint Pack now buys something that exists. Kept ADDITIVE and contained: the
    * curriculum re-sync is about to change this runner, and a restructure would collide with it. */
@@ -261,6 +291,9 @@ export default function Lesson() {
     solved: boolean;
     hinted: boolean;
     showRecap: boolean;
+    attempts: boolean[];
+    retryOut: number[];
+    revealed: boolean;
   }>());
   /** Child interaction snapshots and monotonic completion, scoped to this mounted lesson attempt. */
   const [lessonStepSession] = useState(() => createLessonStepSession());
@@ -285,11 +318,36 @@ export default function Lesson() {
   const isChoice = norm?.kind === 'choice';
   const isFillBlank = isChoice && norm.sourceType === 'fillBlank';
   const gradedChoice = isChoice && checked && pick !== null ? choiceResponse(norm, pick) : undefined;
+  /*
+   * What the bar says. Derived, not stored, so a restored screen (Back, then forward) can never hold
+   * a verdict that disagrees with its attempts. Mirrors checkReducer in answer-layout.ts: right is
+   * 'correct', a second miss or See answer is 'answer', a first miss is 'retry'.
+   */
+  const verdict: Verdict | null = !isChoice || !checked || attempts.length === 0
+    ? null
+    : attempts[attempts.length - 1] ? 'correct' : revealed || attempts.length >= MAX_TRIES ? 'answer' : 'retry';
+  const whyOpen = isChoice && checked && showWhy && hasExplanationScreen(gradedChoice);
+  /** Row, 2x2 grid or stack, from the options as shown (answer-layout.ts; fillBlank keeps its own). */
+  const layout = isChoice ? pickAnswerLayout(norm.options, fontScale) : 'stack';
   const xp = lesson?.xp ?? 30;
   const atlasContext = useMemo(() => {
     if (!lesson || !norm || idx < 1 || idx > total || challengeStage !== 'none') return undefined;
     const attempted = isChoice ? checked || hinted : solved;
-    const wasCorrect = isChoice && checked && pick !== null ? isChoiceCorrect(norm, pick) : undefined;
+    /*
+     * THE FIRST TRY, not the pick on screen (S2 review, 2026-09-22). Only attempts[0] scores
+     * (firstTryCounts in answer-layout.ts, and the heart gate below reads attempts[0] for the same
+     * reason), but this read `isChoiceCorrect(norm, pick)`, which after a Try again is the RETRY's
+     * pick. On a question missed once and then answered right, the two disagreed.
+     *
+     * NOT A DEFECT ANY LEARNER HAS SEEN, and this comment says so rather than claiming a screen it
+     * cannot produce (CONSTITUTION 1.1). The only thing that reads this context is the floating
+     * Ask-Atlas button, and the button is drawn under `verdict === null` (see the float below),
+     * which is the exact negation of the condition that gives this value anything but `undefined`
+     * (`verdict` is non-null iff isChoice && checked && attempts.length > 0, line above). So today
+     * the tutor is never on screen holding a verdict at all. It is written to match the score so
+     * that the day Atlas is offered BESIDE the check bar, it cannot open by contradicting it.
+     */
+    const wasCorrect = isChoice && checked && attempts.length > 0 ? attempts[0] : undefined;
     return buildAtlasLessonContext({
       courseId,
       lessonTitle: lesson.title,
@@ -306,10 +364,10 @@ export default function Lesson() {
       recentMistakes,
       graphControls: graphControlState?.stepIndex === idx ? graphControlState.values : undefined,
     });
-  }, [authoredIdentity?.authoredIndex, authoredTotal, challengeStage, checked, correctSoFar, courseId, graphControlState, hinted, idx, isChoice, lesson, norm, pick, recentMistakes, solved, steps, total]);
+  }, [attempts, authoredIdentity?.authoredIndex, authoredTotal, challengeStage, checked, correctSoFar, courseId, graphControlState, hinted, idx, isChoice, lesson, norm, pick, recentMistakes, solved, steps, total]);
 
   const rememberCurrentScreen = () => {
-    visitedScreenState.current.set(idx, { pick, checked, solved, hinted, showRecap });
+    visitedScreenState.current.set(idx, { pick, checked, solved, hinted, showRecap, attempts, retryOut, revealed });
   };
 
   const captureSolved = useCallback((nextSolved: boolean) => {
@@ -427,6 +485,10 @@ export default function Lesson() {
     setSolved(isLessonStepComplete(lessonStepSession, target) || (saved?.solved ?? false));
     setHinted(saved?.hinted ?? false);
     setShowRecap(saved?.showRecap ?? false);
+    setAttempts(saved?.attempts ?? []);
+    setRetryOut(saved?.retryOut ?? []);
+    setRevealed(saved?.revealed ?? false);
+    setShowWhy(false);
     setOutOfHearts(false);
     // A restored answer was graded on a previous visit, so it has already paid its heart.
     setJustGraded(false);
@@ -442,15 +504,34 @@ export default function Lesson() {
 
   const gradeChoice = (selectedIndex: number) => {
     if (norm?.kind !== 'choice' || checked) return;
+    const correct = isChoiceCorrect(norm, selectedIndex);
+    const next = [...attempts, correct];
+    setAttempts(next);
     setPick(selectedIndex);
     setChecked(true);
     setJustGraded(true);
-    if (isChoiceCorrect(norm, selectedIndex)) {
+    /*
+     * ONLY THE FIRST TRY SCORES (owner decision 4). A right answer after Try again adds nothing to
+     * correctSoFar, the tutor's mastery memory, and a second miss costs no second heart: one
+     * question, one charge, however the retry goes. Before the check bar there was no retry, so
+     * this was every attempt; with one, counting the retry would make a four-option guess "right"
+     * half the time on the second go.
+     */
+    if (next.length > 1) return;
+    if (firstTryCounts(next)) {
       setCorrectSoFar((value) => value + 1);
     } else {
       setRecentMistakes((previous) => [...previous, norm.prompt].slice(-3));
     }
-    if (heartLimited && !isChoiceCorrect(norm, selectedIndex) && !hinted) loseHeart();
+    if (heartLimited && !correct && !hinted) loseHeart();
+  };
+
+  /** Try again: the missed option is ruled out and the question re-opens for one more Check. */
+  const tryAgain = () => {
+    if (verdict !== 'retry' || pick === null) return;
+    setRetryOut((out) => (out.includes(pick) ? out : [...out, pick]));
+    setPick(null);
+    setChecked(false);
   };
 
   const advance = () => {
@@ -465,6 +546,8 @@ export default function Lesson() {
       if (pick !== null) gradeChoice(pick);
       return;
     }
+    // A first miss is settled by Try again or See answer, never by Continue.
+    if (verdict === 'retry') return;
     /*
      * OUT OF HEARTS. Checked AFTER the answer is graded, so the last wrong answer still shows its
      * feedback rather than being swallowed by a gate — being told "you're out" without being told
@@ -481,7 +564,11 @@ export default function Lesson() {
      * mistake once the hearts were gone and made the lesson unfinishable from any of them. The
      * heart is spent exactly once, by the grading immediately above, so the gate belongs to that.
      */
-    if (heartLimited && isChoice && justGraded && checked && norm && pick !== null && !isChoiceCorrect(norm, pick) && hearts <= 0) {
+    /*
+     * attempts[0], not the pick on screen: the first try is the one that spent the heart. Reading
+     * the current pick let a right answer after Try again walk past the wall at zero hearts.
+     */
+    if (heartLimited && isChoice && justGraded && checked && attempts[0] === false && hearts <= 0) {
       setOutOfHearts(true);
       return;
     }
@@ -767,8 +854,23 @@ export default function Lesson() {
   const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && (selfAdvancing || !solved);
 
   const gated = norm ? gates(norm) && !solved : false;
-  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Submit' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
+  const ctaLabel = showRecap ? 'Got it' : isChoice && !checked ? 'Check' : idx === STREAK ? `Collect +${xp} XP` : 'Continue';
   const ctaDisabled = (isChoice && !checked && pick === null) || gated;
+  /** The lesson's own pinned CTA. Extracted so the Atlas float can ask whether it is on screen. */
+  const footerShown = !(challengeStage !== 'none' || idx === 0 || (isChoice && !(!checked && pick !== null)) || isFillBlank || ownsItsCta);
+  /*
+   * How far above the bottom the Ask-Atlas float sits. The lesson footer when it is up, the deck's
+   * own footer while a deck is the step, and the last footer height for the other steps that draw
+   * their own CTA in that same lane. FLOOR_LIFT is only the first frame, before anything has
+   * reported a layout: a fallback of 20 would put the mascot back on the button for that frame.
+   */
+  const atlasLift = footerShown
+    ? (footerH || FLOOR_LIFT) + ATLAS_GAP
+    : norm?.kind === 'deck'
+      ? (deckFooterH || FLOOR_LIFT) + ATLAS_GAP
+      : ownsItsCta
+        ? (footerH || FLOOR_LIFT) + ATLAS_GAP
+        : ATLAS_REST;
   const visibleStep = (authoredIdentity?.authoredIndex ?? 0) + 1;
   const progressPercent = lessonProgressPercent({
     authoredIndex: visibleStep - 1,
@@ -911,6 +1013,8 @@ export default function Lesson() {
                  * deck cannot offer a Back on a screen the lesson itself refuses to leave.
                  */
                 onExit={idx > 0 && idx < DONE ? previousScreen : undefined}
+                onAtlasCard={setDeckAtlas}
+                onFooterHeight={setDeckFooterH}
               />
             )}
 
@@ -1040,7 +1144,9 @@ export default function Lesson() {
             )}
 
             {/*
-              THE EXPLANATION PAGE, shown INSTEAD of the question once it has been graded.
+              THE EXPLANATION PAGE, opened by Why? on the check bar (owner decision 4, 2026-09-22).
+              It used to replace the question automatically on every graded answer with words
+              behind it; now the question stays on screen under the bar and this page is opt-in.
               Measured over the corpus: 7,553 authored explanation strings behind 1,307 questions,
               median 285 characters, longest 760, and 71% of them over about five lines on a 393pt
               iPhone. Rendered under the question and its four options, as they were, the Continue
@@ -1048,7 +1154,7 @@ export default function Lesson() {
               This is a second PAGE inside the same step, not a new step, so lesson length, the
               progress bar and every saved resume position are untouched. See lesson-explanation.tsx.
             */}
-            {norm.kind === 'choice' && checked && hasExplanationScreen(gradedChoice) && (
+            {norm.kind === 'choice' && whyOpen && (
               <LessonExplanation
                 correct={!!gradedChoice?.correct}
                 answer={gradedChoice?.correction?.answer}
@@ -1060,17 +1166,28 @@ export default function Lesson() {
               </LessonExplanation>
             )}
 
-            {norm.kind === 'choice' && !(checked && hasExplanationScreen(gradedChoice)) && (
+            {norm.kind === 'choice' && !whyOpen && (
               /* SCROLLS. An authored question can run 380pt on its own and each option another
                  ~190pt, so a four-option step is roughly twice the viewport. As a plain View
                  the overflow fell under the pinned footer and the LAST OPTIONS COULD NOT BE
                  TAPPED AT ALL — a question you cannot answer. */
               <ScrollView
                 style={styles.midScroll}
-                contentContainerStyle={styles.choiceContent}
+                /*
+                 * The bar's own height, not a constant. The check bar is absolute, so a stacked
+                 * four-option question ends under it the moment the bar is taller than
+                 * FOOTER_CLEARANCE, and the option cannot be scrolled clear because the scrollable
+                 * area stops where the padding stops. Reserving the measured height keeps the last
+                 * option reachable at every Dynamic Type size and on every verdict ('answer' is a
+                 * line taller than 'retry'). Never smaller than FOOTER_CLEARANCE, which is what the
+                 * unanswered question needs for the Check footer.
+                 */
+                contentContainerStyle={[styles.choiceContent, { paddingBottom: Math.max(FOOTER_CLEARANCE, checkBarH + CHECK_BAR_GAP) }]}
                 showsVerticalScrollIndicator={false}>
                 <View style={styles.quizMeta}>
-                  {isChoice && !checked && hintsLeft > 0 && !hinted ? (
+                  {/* Only before the first Check: after Try again the hint's pick can be the option
+                      already ruled out, spending a hint that removes nothing. */}
+                  {isChoice && !checked && attempts.length === 0 && hintsLeft > 0 && !hinted ? (
                     <SpringPressable
                       haptic={false}
                       scaleTo={0.97}
@@ -1091,7 +1208,8 @@ export default function Lesson() {
                         styles.fillBlankSlot,
                         pick !== null && !checked && { color: theme.primary, backgroundColor: theme.primary + '33' },
                         checked && pick === norm.correct && { color: theme.success, backgroundColor: theme.success + '33' },
-                        checked && pick !== norm.correct && { color: theme.destructive, backgroundColor: theme.destructive + '33' },
+                        // Amber, not red: a miss is a Try again now, not a verdict (check-bar-pin).
+                        checked && pick !== norm.correct && { color: theme.warning, backgroundColor: theme.warning + '33' },
                       ]}>
                       {isFillBlank && pick !== null ? ` ${norm.options[pick]} ` : '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'}
                     </ThemedText>
@@ -1100,18 +1218,22 @@ export default function Lesson() {
                 ) : (
                   <ThemedText type="heading" style={styles.choicePrompt}>{norm.prompt}</ThemedText>
                 )}
-                <View style={[styles.options, isFillBlank && styles.fillBlankOptions]}>
+                <View style={[styles.options, isFillBlank ? styles.fillBlankOptions : layout !== 'stack' && styles.tileOptions]}>
                   {norm.options.map((o, i) => {
                     const isPick = pick === i;
                     const optionCorrect = isChoiceCorrect(norm, i);
-                    const eliminated = hinted && !checked && i === norm.options.findIndex((_option, index) => index !== norm.correct);
-                    const showRight = checked && optionCorrect && (norm.sourceType !== 'scenario' || isPick);
+                    const ruledOut = retryOut.includes(i) && !checked;
+                    const eliminated = ruledOut || (hinted && !checked && i === norm.options.findIndex((_option, index) => index !== norm.correct));
+                    // Nothing turns green while a Try again is still on offer, or the retry is a giveaway.
+                    const settled = verdict === 'correct' || verdict === 'answer';
+                    const showRight = settled && optionCorrect && (norm.sourceType !== 'scenario' || isPick || verdict === 'answer');
                     const showWrong = checked && isPick && !optionCorrect;
-                    const border = showRight ? theme.success : showWrong ? theme.destructive : isPick ? theme.primary : theme.border;
+                    // A miss is AMBER (LessonColors.warning), never destructive: owner decision 4.
+                    const border = showRight ? theme.success : showWrong ? theme.warning : isPick ? theme.primary : theme.border;
                     const background = showRight
                       ? theme.success + '1A'
                       : showWrong
-                        ? theme.destructive + '1A'
+                        ? theme.warning + '1A'
                         : isPick
                           ? theme.primary + '1A'
                           : theme.card;
@@ -1121,21 +1243,24 @@ export default function Lesson() {
                         scaleTo={0.97}
                         disabled={checked || eliminated}
                         haptic={!checked && !eliminated}
-                        onPress={() => norm.submitMode === 'immediate' ? gradeChoice(i) : setPick(i)}
-                        accessibilityLabel={eliminated ? `${o}. Eliminated by hint.` : showRight ? `${o}. Correct answer.` : showWrong ? `${o}. Incorrect.` : o}
+                        /* PICK, THEN CHECK, for every choice family (design M5). The 'immediate'
+                           families used to grade on the tap itself; with only the first try
+                           scoring, a mis-tap would have spent the learner's one scored attempt. */
+                        onPress={() => setPick(i)}
+                        accessibilityLabel={ruledOut ? `${o}. Ruled out.` : eliminated ? `${o}. Eliminated by hint.` : showRight ? `${o}. Correct answer.` : showWrong ? `${o}. Not this one.` : o}
                         /* BOTH keys, deliberately. SpringPressable sets accessibilityState={{disabled}}
                            at its line 46 and spreads {...rest} at 59, so a partial object here would
                            silently drop `disabled` and VoiceOver would offer a locked option as tappable. */
                         accessibilityState={{ selected: isPick, disabled: checked || eliminated }}
-                        style={[isFillBlank && styles.fillBlankOptionWrap, eliminated && styles.eliminated]}>
-                        <View style={[styles.option, isFillBlank && styles.fillBlankOption, { borderColor: border, backgroundColor: background }]}> 
-                          <ThemedText type="bodyMedium" style={[styles.optionText, isFillBlank && styles.fillBlankOptionText, eliminated && styles.eliminatedText]}>{o}</ThemedText>
+                        style={[isFillBlank ? styles.fillBlankOptionWrap : layout === 'grid' ? styles.gridOptionWrap : layout === 'row' && styles.rowOptionWrap, eliminated && styles.eliminated]}>
+                        <View style={[styles.option, (isFillBlank || layout !== 'stack') && styles.fillBlankOption, { borderColor: border, backgroundColor: background }]}> 
+                          <ThemedText type="bodyMedium" style={[styles.optionText, (isFillBlank || layout !== 'stack') && styles.fillBlankOptionText, eliminated && styles.eliminatedText]}>{o}</ThemedText>
                           {/* Every state carries an ICON, not just a border colour. Selection and
                               correctness were previously signalled by hue alone on two of the three
                               states, which is invisible to a colour-blind user and is the defect
                               3 of the 4 ScreensDesign quiz references avoid. */}
                           {showRight && <UIcon name="check" size={20} color={theme.success} strokeWidth={3} />}
-                          {showWrong && <UIcon name="close" size={20} color={theme.destructive} strokeWidth={3} />}
+                          {showWrong && <UIcon name="close" size={20} color={theme.warning} strokeWidth={3} />}
                           {isPick && !checked && !isFillBlank && <UIcon name="check" size={20} color={theme.primary} strokeWidth={3} />}
                         </View>
                       </SpringPressable>
@@ -1144,32 +1269,16 @@ export default function Lesson() {
                 </View>
                 {isFillBlank && pick !== null && !checked ? (
                   <View style={styles.fillBlankSubmit}>
-                    <Button label="Submit" style={styles.fillBlankSubmitButton} onPress={advance} />
+                    <Button label="Check" style={styles.fillBlankSubmitButton} onPress={advance} />
                   </View>
                 ) : null}
                 {/*
-                  THE FAST PATH ONLY: a right answer with nothing authored to explain. The learner
-                  already knows they were right from the tick on the option, so this stays inline
-                  and small rather than costing them a tap to be told "Correct".
-                  Anything with words behind it went to its own page above, which is why the
-                  AtlasCorrection bubble is gone from here: it was the thing overflowing.
+                  NO INLINE FEEDBACK HERE ANY MORE. The verdict, Why? and Continue all live on the
+                  check bar that slides up over the footer (LessonCheckBar, mounted below), so the
+                  question and its options stay exactly where the learner answered them. The old
+                  fast path put a SparkBurst and a second Continue here, which would now be a
+                  second next action on one screen.
                 */}
-                {/*
-                  THE FAST PATH: a right answer with nothing authored to explain.
-                  NO BANNER. The option the learner tapped already carries a green tick, so a
-                  full-width sheet repeating "Correct" is a second announcement of something they
-                  can see. `scripts/choice-experience-parity-regression.mjs` has asserted exactly
-                  this since before the rewrite ("web choice feedback must not use the oversized
-                  generic feedback sheet") and had been failing the whole time, because that script
-                  is not in `npm run check`. It is now.
-                  Anything with words behind it goes to its own page above.
-                */}
-                {checked && !hasExplanationScreen(gradedChoice) ? (
-                  <View style={styles.inlineFeedback}>
-                    <SparkBurst size={150} />
-                    <SlabButton label="Continue" full onPress={advance} />
-                  </View>
-                ) : null}
               </ScrollView>
             )}
             </LessonStepSessionProvider>
@@ -1190,58 +1299,23 @@ export default function Lesson() {
 
         {challengeStage === 'none' && idx === DONE && (
           <SemanticMotion key="done" event="lesson-complete" exit style={styles.midScroll}>
-            <CelebrationWipe />
-            <Confetti />
-            <CelebrationRays size={330} delay={120} />
             {/*
-              * Same overflow the intro had: an unscrolled centred container pushes content off
-              * BOTH ends once Dynamic Type makes it taller than the screen. The three
-              * celebration layers above stay OUTSIDE this ScrollView because they are
-              * StyleSheet.absoluteFill — scrolling them would drag the confetti away with the
-              * content. `rewardRow` needed nothing; it already carries flexWrap.
+              * ONE MOMENT, not a stack (owner decision 5, 2026-09-22). This replaced
+              * CelebrationWipe + Confetti + CelebrationRays + Atlas's arrive-and-hop + three
+              * RewardPops + a speech bubble: Atlas now rises once out of the lesson's own path node
+              * on a pixel beam, and the same XP, euphorium and streak chips land in one row.
+              * The euphorium amount is completeLesson's arithmetic, min(lessonMax, lessonMin + xp),
+              * passed in rather than restated. Still inside the ScrollView: at AX5 the unscrolled
+              * version pushed content off both ends.
               */}
             <ScrollView contentContainerStyle={styles.introContent} showsVerticalScrollIndicator={false}>
-            <Atlas size={120} expression="proud" celebrate celebrateGain={1} entrance="arrive" idle />
-            <RewardPop delay={900}>
-              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={styles.title}>Lesson complete!</ThemedText>
-            </RewardPop>
-            <View style={styles.rewardRow}>
-              <RewardPop delay={1180}>
-                <View style={[styles.xpChip, { backgroundColor: theme.primary + '1F', borderColor: theme.primary + '4D' }]}>
-                  <NumberRollup value={xp} prefix="+" suffix=" XP" duration={700} type="heading" style={{ color: theme.iconLilac, fontSize: FontSize.subhead }} />
-                </View>
-              </RewardPop>
-              {/*
-                * THE EUPHORIUM EARNED, and the one place a sprite is allowed to move.
-                *
-                * The web plays `coin` with play="once" on exactly this screen, and its house rule
-                * is "no idle loops... 'once' for a reaction (a coin awarded, a streak extended)".
-                * A lesson completing is that reaction. It plays through and parks on its still.
-                *
-                * The amount matches completeLesson's arithmetic rather than restating a number:
-                * min(lessonMax, lessonMin + xp).
-                */}
-              <RewardPop delay={1340}>
-                <View style={[styles.xpChip, { backgroundColor: theme.iconGold + '18', borderColor: theme.iconGold + '40' }]}>
-                  <PixelSpriteView sprite={coinSprite} size={18} play="once" playKey={idx} />
-                  <NumberRollup value={Math.min(EARN.lessonMax, EARN.lessonMin + xp)} prefix="+" duration={700} type="heading" style={{ color: theme.iconGold, fontSize: FontSize.body }} />
-                </View>
-              </RewardPop>
-              <RewardPop delay={1500}>
-                <View style={[styles.xpChip, { backgroundColor: theme.streak + '18', borderColor: theme.streak + '40' }]}>
-                  {/* Same flame, same 'once' reaction as Home — a streak extending is the event. */}
-                  <PixelSpriteView sprite={flameSprite} size={18} play="once" playKey={streakAfter} />
-                  <NumberRollup value={streakAfter} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: FontSize.subhead }} />
-                </View>
-              </RewardPop>
-            </View>
-            {/* Atlas is ON this screen, expression="proud", mid-celebrate. So this line is HIS,
-                and he says it in his own bubble rather than it being printed as a grey caption
-                floating under the reward pills. delay matches the RewardPop it replaces, so it
-                still lands as the closing beat after XP, coins and streak have all settled. */}
-            <View style={{ marginTop: Spacing.three, alignItems: 'center' }}>
-              <AtlasSpeech text="Atlas is proud of you." delay={1620} tail="top" tailAlign="center" maxWidth={300} />
-            </View>
+              <LessonComplete
+                courseId={courseId}
+                lessonTitle={lesson.title}
+                xp={xp}
+                coins={Math.min(EARN.lessonMax, EARN.lessonMin + xp)}
+                streakDays={streakAfter}
+              />
             </ScrollView>
           </SemanticMotion>
         )}
@@ -1254,20 +1328,50 @@ export default function Lesson() {
 
       </View>
 
-      {atlasContext ? (
+      {/*
+        * HIDDEN in two cases, both one-mascot-per-screen (CONSTITUTION 5.6) and overlap:
+        *   - the active deck card draws its own Atlas (a scene or an Atlas clip), and
+        *   - the check bar is up: the float sits over the bar's Continue at bottom-right.
+        *
+        * AND OTHERWISE IT SITS ABOVE THE CTA LANE, never on it (see footerH above). `atlasLift` is
+        * a measured height plus an 8pt gap, so the mascot clears the button at every Dynamic Type
+        * size and every screen width rather than at the one the 20pt was eyeballed on. It is a cut,
+        * not an animation: nothing moves under the learner's finger, so there is nothing for
+        * Reduce Motion to turn off.
+        */}
+      {atlasContext && !deckAtlas && verdict === null ? (
         <View
           pointerEvents="box-none"
-          style={styles.atlasFloat}
+          style={[styles.atlasFloat, { bottom: atlasLift }]}
         >
           <LessonAtlasButton topic={lesson.title} context={atlasContext} />
         </View>
       ) : null}
 
-      {challengeStage !== 'none' || idx === 0 || (isChoice && !(norm.submitMode === 'confirm' && !checked && pick !== null)) || isFillBlank || ownsItsCta ? null : (
-        <View style={styles.footer}>
+      {/* Choice steps show Check once something is picked; once checked, the bar replaces it. */}
+      {footerShown ? (
+        <View style={styles.footer} onLayout={(e) => setFooterH(e.nativeEvent.layout.height)}>
           <SlabButton label={ctaLabel} full disabled={ctaDisabled} onPress={advance} />
         </View>
-      )}
+      ) : null}
+
+      {challengeStage === 'none' && isChoice && !whyOpen ? (
+        <LessonCheckBar
+          verdict={verdict}
+          correctAnswer={norm.options.find((_o, i) => isChoiceCorrect(norm, i))}
+          onContinue={advance}
+          onTryAgain={tryAgain}
+          onSeeAnswer={() => setRevealed(true)}
+          onWhy={hasExplanationScreen(gradedChoice) ? () => setShowWhy(true) : undefined}
+          onHeightChange={setCheckBarH}
+          /*
+           * No `xp`: nothing in the ledger awards XP per question. completeLesson credits the
+           * lesson's own xp once, at the end, so a "+N XP" chip here would be a number the store
+           * never pays (CONSTITUTION 3.1). The first-try rule still scores what exists: mastery
+           * memory and the heart, in gradeChoice.
+           */
+        />
+      ) : null}
 
       <View pointerEvents={announcePractice ? 'auto' : 'none'} style={styles.practiceOverlay}>
         <StepModeTransition visible={announcePractice} onDone={() => setAnnouncePractice(false)} />
@@ -1372,6 +1476,15 @@ export default function Lesson() {
  *  point, not a box, and comparing anchors is what made 96 look sufficient. */
 const FOOTER_CLEARANCE = 170;
 
+/** Gap between the bottom CTA lane and the floating Atlas above it, and the lane's height before
+ *  anything has measured itself (a lesson footer is a ~50pt SlabButton inside 8/16 padding). */
+const ATLAS_GAP = 8;
+const FLOOR_LIFT = 74;
+/** Where the float rests on a step with no CTA in that lane at all. */
+const ATLAS_REST = 20;
+/** Breathing room between the check bar's top edge and the last option scrolled clear of it. */
+const CHECK_BAR_GAP = 16;
+
 /** Step kinds that render their OWN validate control. The footer must not stack a second CTA on
  *  top of these — see `ownsItsCta`. */
 const OWN_CTA_STEPS = new Set(['deck', 'hook', 'stakes', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
@@ -1383,7 +1496,10 @@ const styles = StyleSheet.create({
   atlasFloat: {
     position: 'absolute',
     right: 16,
-    bottom: 20,
+    // `bottom` is set per render from the MEASURED CTA lane (atlasLift above). This is the resting
+    // value for a step with no button in that lane; anything that does have one overrides it, which
+    // is why the mascot no longer lands on the CTA.
+    bottom: ATLAS_REST,
     zIndex: 30,
   },
   safe: { flex: 1 },
@@ -1448,6 +1564,11 @@ const styles = StyleSheet.create({
   fillBlankSlot: { minWidth: 80, marginHorizontal: 4, paddingHorizontal: 12, paddingVertical: 4, overflow: 'hidden', borderRadius: 8, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(166,80,231,0.30)', backgroundColor: 'rgba(166,80,231,0.08)', fontWeight: '700', textAlign: 'center' },
   options: { gap: 12, marginTop: 20 },
   fillBlankOptions: { flexDirection: 'row', flexWrap: 'wrap' },
+  /* Short answers as tiles (answer-layout.ts): four one-number options stacked as full-width bars
+     spent a whole screen on four characters and pushed the question up out of view. */
+  tileOptions: { flexDirection: 'row', flexWrap: 'wrap' },
+  gridOptionWrap: { width: '48%', flexGrow: 0, flexShrink: 0 },
+  rowOptionWrap: { flex: 1 },
   fillBlankOptionWrap: { width: '48%', flexGrow: 0, flexShrink: 0 },
   option: { minHeight: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 20, borderRadius: 12, borderWidth: 1 },
   fillBlankOption: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 10 },

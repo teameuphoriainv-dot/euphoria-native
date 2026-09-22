@@ -23,10 +23,15 @@ requires(
   /norm\.kind === 'calc'[\s\S]*?keyboardDismissMode="interactive"[\s\S]*?keyboardShouldPersistTaps="handled"/,
   'calculation steps must dismiss on drag and accept the first control tap',
 );
+/*
+ * Still ONE layout before and after grading; the only thing that changes is the room reserved at
+ * the bottom, which now follows the check bar's measured height (see check-bar-pin 6a) instead of
+ * the fixed FOOTER_CLEARANCE that let a tall bar cover the last option.
+ */
 requires(
   lesson,
-  /contentContainerStyle=\{styles\.choiceContent\}/,
-  'quiz content must keep one stable scroll layout before and after grading',
+  /contentContainerStyle=\{\[styles\.choiceContent, \{ paddingBottom: Math\.max\(FOOTER_CLEARANCE, checkBarH \+ CHECK_BAR_GAP\) \}\]\}/,
+  'quiz content must keep one stable scroll layout before and after grading, reserving the bar it is under',
 );
 /*
  * FEEDBACK NO LONGER MIRRORS THE WEB LESSON, AND THAT IS THE POINT.
@@ -48,10 +53,17 @@ requires(
   /<LessonExplanation[\s\S]*?<SlabButton label="Continue" full onPress=\{advance\}[\s\S]*?<\/LessonExplanation>/,
   'the explanation page must carry its own Continue so the learner is never stranded',
 );
+/*
+ * THE FAST PATH MOVED ONTO THE CHECK BAR (owner decision 4, 2026-09-22). Every graded choice now
+ * gets the slide-up LessonCheckBar, which carries Continue for 'correct' and 'answer' and Try again
+ * for a first miss, so the inline SparkBurst + Continue under the options is gone (it would have
+ * been a second next action on one screen). "Never stranded" now means the bar is mounted for
+ * choice steps and its Continue is the lesson's own advance.
+ */
 requires(
   lesson,
-  /checked && !hasExplanationScreen\(gradedChoice\) \? \([\s\S]*?styles\.inlineFeedback[\s\S]*?<SlabButton/,
-  'a right answer with nothing to explain must keep its next action inline and fast',
+  /<LessonCheckBar[\s\S]*?verdict=\{verdict\}[\s\S]*?onContinue=\{advance\}[\s\S]*?onTryAgain=\{tryAgain\}/,
+  'a graded answer must put its next action on the check bar (Continue, or Try again on a first miss)',
 );
 requires(
   lesson,
@@ -140,6 +152,29 @@ requires(
  * Pinned in both directions: the flag must be set where the heart is spent, and cleared wherever a
  * screen is re-opened, or the fix is half-applied and the wall either never fires or never stops.
  */
+/*
+ * THE WALL READS THE FIRST TRY, not the last pick (final-gate review, 2026-09-22). With the check
+ * bar, a first miss that spends the last heart shows Try again; the old condition tested the pick
+ * on screen, so a right answer on the retry turned `!isChoiceCorrect(norm, pick)` false and the
+ * learner walked past the wall at zero hearts. The heart was spent by attempt one, so the gate
+ * reads attempt one.
+ */
+requires(
+  lesson,
+  /if \(heartLimited && isChoice && justGraded && checked && attempts\[0\] === false && hearts <= 0\)/,
+  'the out-of-hearts wall must follow the FIRST try, or a right retry walks past it at zero hearts',
+);
+/*
+ * NO HINT AFTER THE FIRST CHECK (final-gate review, 2026-09-22). Try again re-opens the question with
+ * `checked` false, so the hint button came back; its elimination picks the FIRST wrong option, which
+ * is often the one Try again already ruled out, so a bought hint could remove nothing. It also can no
+ * longer save the heart (attempt one already paid it). The hint belongs to the scored try only.
+ */
+requires(
+  lesson,
+  /isChoice && !checked && attempts\.length === 0 && hintsLeft > 0 && !hinted/,
+  'the hint must only be offered before the first Check, or Try again can spend a hint on nothing',
+);
 requires(
   lesson,
   /setChecked\(true\);\s*\n\s*setJustGraded\(true\);/,
@@ -149,6 +184,26 @@ requires(
   lesson,
   /setOutOfHearts\(false\);[\s\S]{0,160}?setJustGraded\(false\);/,
   're-opening a screen must disarm the heart-wall gate, or a restored answer re-walls',
+);
+
+/*
+ * ATLAS IS TOLD THE FIRST TRY, not the pick on screen (S2 review, 2026-09-22).
+ *
+ * Scoring is attempts[0] everywhere else: firstTryCounts decides XP and mastery, and the heart gate
+ * above reads attempts[0] for the same reason. The tutor's context read isChoiceCorrect(norm, pick),
+ * which after a Try again is the RETRY's pick, so a learner who missed and then got it right was
+ * told by Atlas that they had it right while the lesson had recorded the miss. The tutor must never
+ * argue with the score in front of the learner.
+ */
+requires(
+  lesson,
+  /const wasCorrect = isChoice && checked && attempts\.length > 0 \? attempts\[0\] : undefined;/,
+  "Atlas's lesson context must report the FIRST try, or the tutor contradicts the lesson's own scoring",
+);
+requires(
+  lesson,
+  /\}, \[attempts, authoredIdentity\?\.authoredIndex/,
+  'the Atlas context must recompute when the attempts change, or it hands Atlas the previous verdict',
 );
 
 requires(
