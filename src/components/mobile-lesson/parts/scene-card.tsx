@@ -1,97 +1,121 @@
 /**
- * Scene card: a lesson's idea acted out by pixel sprites, one beat at a time, with the lesson's own
- * sentence under the picture. The data and every rule it obeys are in lib/mobile-lesson/parts/scene.ts.
+ * Scene card: a lesson's idea as a short Atlas clip. Pixel props act out one beat at a time on a
+ * stage floored in the course's colour, Atlas stands on that floor reacting to each beat, and the
+ * lesson's own sentence runs underneath like a subtitle. The data and every rule it obeys are in
+ * lib/mobile-lesson/parts/scene.ts.
  *
- * WHAT CARRIED OVER FROM BRILLIANT (research 2026-09-22, frame-differenced from their recording):
- *   - It plays once on arrival and then stops. Their Hilbert curve draws for about 1.9s and never
- *     loops, and PixelSprite.tsx records idle loops as a known defect class in this app (the open
- *     4-5 commits/second idle-render investigation), so there is no withRepeat anywhere here.
- *   - Back is a cut, not a tween. Every change in their Koch stepper lands inside one 100ms sample.
- *     Going forward animates only what that beat changes; going back snaps to `stageAt(k)`.
- *   - Back / Play / Next buttons beside a dot pager, and the words sit outside the picture.
+ * WHY IT LOOKS LIKE A VIDEO PLAYER (owner ruling 2026-09-22: "clickthroughs should feel like short
+ * animated clips with Atlas"). The first version was a grey box of sprites over a caption, and read
+ * as a slideshow. What makes it read as a clip, each piece tied to a frame in research2/frames/:
+ *   - One framed player: stage and caption bar share a border, like one screen (Brilliant's card
+ *     frame, brilliant-lessons.md M8), not a picture floating above loose text.
+ *   - A floor band in the course accent, so the stage is a place Atlas stands in, and Investing's
+ *     green clip does not look like Personal Finance's orchid one.
+ *   - A thin progress line in the caption bar that fills for exactly as long as autoplay holds the
+ *     beat, so the learner can see a beat is timed and when it will move on.
+ *   - Captions swap the way Brilliant's screens do: out in 100ms with a small leftward drift, 100ms
+ *     of nothing, then in over 200ms (M7, timing/next.jpg f4-f8). Crossfading the two sentences
+ *     directly overlaps them for a frame and reads as one garbled line.
+ *   - Props stack by dropping onto the pile and tallies stamp in one by one, so a count is watched
+ *     happening rather than appearing finished.
  *
- * WORKED. `onWorked` fires once, the first time the last beat is reached, by autoplay or by hand.
- * CardDeck's needsWork() holds Continue until then, which is the only lock this card needs.
+ * WHAT CARRIED OVER FROM THE FIRST VERSION, and still holds:
+ *   - It plays once on arrival and then stops: no withRepeat anywhere. PixelSprite.tsx records idle
+ *     loops as a known defect class in this app (4-5 commits/second from an idle render).
+ *   - Back is a cut, not a tween (every Koch stepper change lands inside one 100ms sample).
+ *   - Next is disabled while a beat is still moving (Koch's grey ▶, timing/koch.jpg row 2), so a
+ *     tap mid-slide cannot start the next caption over a half-finished picture.
  *
- * TIMING. One JS setTimeout per beat, holding `dwellMs(beat)` (motion or reading time, whichever
- * is longer). It is cleared on pause, on unmount, when the screen loses focus and when the app goes
- * to the background, so a scene never advances where nobody can see it.
+ * THE CLOCK is the clip kit's useClipTimeline (clickthrough/pixel-stage.tsx), shared with the
+ * stage, predict, build-up and place cards, so every clip has the same autoplay, VoiceOver, focus,
+ * background and worked rules and the same controls. `onWorked` fires once at the last beat.
  *
- * ACCESSIBILITY (CONSTITUTION 5.10).
- *   - Tapping the stage advances a beat; the Next button is the same action for anyone who cannot
- *     or does not tap the picture, and every control is 44pt or larger with its own label.
- *   - With VoiceOver on the scene starts paused, because autoplay would change the caption under
- *     the reader's focus. Each beat change announces its caption.
- *   - Reduce Motion: no autoplay and no Play button. Each beat is the still `stageAt(k)` picture,
- *     sprites show their authored stills, and nothing moves or fades.
+ * ACCESSIBILITY (CONSTITUTION 5.10). Tapping the stage advances; the Next button is the same action.
+ * Every control is 48pt. With VoiceOver on the clip starts paused and each beat announces its
+ * caption. The stage and Atlas are hidden from VoiceOver: they carry no words.
+ * REDUCE MOTION: no autoplay and no Play button (the kit), every beat is the still `stageAt(k)`
+ * picture, captions swap in place, the progress line sits full, Atlas makes no entrance, and
+ * <Atlas> itself skips its nod and hop, so only his expression changes.
  *
- * NO ATLAS INSIDE THE SCENE: lesson.tsx already draws the floating Atlas on every step, and two on
- * one screen breaks CONSTITUTION 5.6 (PINNED). See parts/scene.ts.
+ * ONE MASCOT PER SCREEN (CONSTITUTION 5.6, PINNED): this card draws Atlas, so lesson.tsx must hide
+ * its floating Atlas while a scene is the active card. See SCENE_DRAWS_ATLAS in parts/scene.ts.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, AppState, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
+  cancelAnimation,
+  Easing,
   FadeIn,
+  FadeInDown,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
   withDelay,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { useIsFocused } from 'expo-router';
 
+import { Atlas } from '@/components/atlas';
+import { ClipControls, useClipTimeline } from '@/components/mobile-lesson/clickthrough/pixel-stage';
 import { ThemedText } from '@/components/themed-text';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { Colors, Radius } from '@/constants/theme';
+import { courseAccent } from '@/lib/course-accents';
+import { beatHoldMs } from '@/lib/mobile-lesson/clickthrough/timing';
 import { PixelSpriteView } from '@/lib/pixel/PixelSprite';
 import {
+  ACTOR_ENTER_MS,
+  ACTOR_EXIT_MS,
+  ACTOR_SLIDE_MS,
+  CAPTION_GAP_MS,
+  CAPTION_IN_MS,
+  CAPTION_OUT_MS,
   castOf,
   COPY_STAGGER_MS,
-  dwellMs,
+  copyOffsets,
+  COUNT_PT,
   markPoint,
   resolveActorSprite,
+  sceneMotionMs,
+  sceneReaction,
+  sceneStage,
+  SCENE_ATLAS_INSET,
+  SCENE_FLOOR_PT,
+  SCENE_STAGE_ASPECT,
+  SPRITE_PT,
   stageAt,
   type ActorState,
+  type SceneAtlasMood,
   type SceneCue,
   type ScenePartSpec,
 } from '@/lib/mobile-lesson/parts/scene';
-import { Duration, Ease } from '@/shared/motion/tokens';
-import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Ease, Spring } from '@/shared/motion/tokens';
 
-/** 4pt per art pixel on a 16px sprite. A multiple of 16, so every art edge lands on a whole point. */
-const SPRITE_PT = 64;
-/** A `count` shows up to ten copies; at 64pt ten would not fit a 361pt stage, at 32pt five per row do. */
-const COUNT_PT = 32;
-const COUNT_PER_ROW = 5;
-const COUNT_GAP = 6;
-/** How far each copy in a `stack` sits from the one below, so a pile reads as more than one thing. */
-const STACK_STEP = { x: 18, y: -14 };
 /** An entrance rises this far. Small on purpose: the motion says "arrived", not "flew in". */
 const ENTER_RISE = 12;
+/** The caption drifts this far left on its way out, the "few percent" of Brilliant's exit (M7). */
+const CAPTION_DRIFT = 8;
+/** The floor's top edge, one pixel-art cell tall so the band reads as a step, not a gradient. */
+const RIM_PT = 4;
+/** A clip's last beat is not the lesson's payoff; lesson complete keeps the full hop. */
+const ATLAS_HOP_GAIN = 0.5;
+/*
+ * Stage geometry (sprite sizes, floor, Atlas's size and inset, copy layout) lives in parts/scene.ts
+ * as pure functions, so part-scene-pin can measure that Atlas never overlaps a prop at real phone
+ * widths. It first lived here, where no pin could load it, and the "they meet, they do not
+ * overlap" claim it carried was measured at a stage width no phone has.
+ */
 
-/** How the stage should change on this render: animate the beat's cues, or cut straight to it. */
-type Change = { beat: number; animate: boolean };
+/*
+ * FLOOR COLOUR. Alpha is appended to courseAccent(), which is always a 6-digit hex, so the append is
+ * real (CONSTITUTION 5.8: appending to hsl renders at full opacity with no error). 1F is 12% and 59
+ * is 35%: decoration under the props, well below any text, so no contrast floor applies to it.
+ */
+const FLOOR_ALPHA = '1F';
+const RIM_ALPHA = '59';
 
-function copyOffsets(state: ActorState): { x: number; y: number }[] {
-  if (state.layout === 'count') {
-    const rows = Math.ceil(state.copies / COUNT_PER_ROW);
-    const perRow = Math.min(state.copies, COUNT_PER_ROW);
-    const w = perRow * COUNT_PT + (perRow - 1) * COUNT_GAP;
-    const h = rows * COUNT_PT + (rows - 1) * COUNT_GAP;
-    return Array.from({ length: state.copies }, (_, i) => ({
-      x: -w / 2 + (i % COUNT_PER_ROW) * (COUNT_PT + COUNT_GAP),
-      y: -h / 2 + Math.floor(i / COUNT_PER_ROW) * (COUNT_PT + COUNT_GAP),
-    }));
-  }
-  const extra = state.layout === 'stack' ? state.copies - 1 : 0;
-  // Centre the whole pile on the mark, not its first copy, so a stack of two stays inside its third.
-  const cx = -(extra * STACK_STEP.x) / 2 - SPRITE_PT / 2;
-  const cy = -(extra * STACK_STEP.y) / 2 - SPRITE_PT / 2;
-  return Array.from({ length: state.layout === 'stack' ? state.copies : 1 }, (_, i) => ({
-    x: cx + i * STACK_STEP.x,
-    y: cy + i * STACK_STEP.y,
-  }));
-}
+/** What the stage is doing on this render: which beat, which change of it, and whether to animate. */
+type Change = { beat: number; seq: number; animate: boolean };
 
 function Actor({
   actorKey,
@@ -99,7 +123,7 @@ function Actor({
   prev,
   cue,
   change,
-  stage,
+  area,
   reduced,
 }: {
   actorKey: string;
@@ -107,7 +131,8 @@ function Actor({
   prev: ActorState | undefined;
   cue: SceneCue | undefined;
   change: Change;
-  stage: { w: number; h: number };
+  /** The acting area: the stage above Atlas's floor. */
+  area: { w: number; h: number };
   reduced: boolean;
 }) {
   const sprite = useMemo(() => resolveActorSprite(actorKey), [actorKey]);
@@ -116,10 +141,10 @@ function Actor({
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    if (!stage.w) return;
+    if (!area.w) return;
     const to = markPoint(state.mark);
-    const tx = to.x * stage.w;
-    const ty = to.y * stage.h;
+    const tx = to.x * area.w;
+    const ty = to.y * area.h;
     const animate = change.animate && !reduced && !!cue;
     if (!animate) {
       // A cut: Back, a jump, reduced motion, or an actor this beat does not touch.
@@ -129,21 +154,27 @@ function Actor({
       return;
     }
     const delay = cue.atMs ?? 0;
-    const enterTiming = { duration: Duration.screen, easing: Ease.enter };
+    // Ease.enter is a bezier whose y-controls stay inside 0..1: props never overshoot their mark.
+    const move = { duration: ACTOR_SLIDE_MS, easing: Ease.enter };
     if (cue.do === 'exit') {
-      opacity.set(withDelay(delay, withTiming(0, { duration: Duration.exit, easing: Ease.exitCurve })));
+      opacity.set(withDelay(delay, withTiming(0, { duration: ACTOR_EXIT_MS, easing: Ease.exitCurve })));
       return;
     }
     if (cue.do === 'slide') {
       const fromMark = cue.from ?? (prev?.visible ? prev.mark : state.mark);
       const from = markPoint(fromMark);
-      x.set(from.x * stage.w);
-      y.set(from.y * stage.h);
-      if (!prev?.visible) opacity.set(1);
-      x.set(withDelay(delay, withTiming(tx, enterTiming)));
-      y.set(withDelay(delay, withTiming(ty, enterTiming)));
+      x.set(from.x * area.w);
+      y.set(from.y * area.h);
+      // An actor not yet on stage fades in as it sets off. Set straight to 1 it popped in at its
+      // start mark `atMs` before moving (chart-up in the diversification scene, beat 2).
+      if (!prev?.visible) {
+        opacity.set(0);
+        opacity.set(withDelay(delay, withTiming(1, { duration: ACTOR_ENTER_MS, easing: Ease.enter })));
+      }
+      x.set(withDelay(delay, withTiming(tx, move)));
+      y.set(withDelay(delay, withTiming(ty, move)));
       // An actor sliding off stage leaves it; stageAt already counts it hidden.
-      if (!state.visible) opacity.set(withDelay(delay + Duration.screen, withTiming(0, { duration: Duration.instant })));
+      if (!state.visible) opacity.set(withDelay(delay + ACTOR_SLIDE_MS, withTiming(0, { duration: ACTOR_EXIT_MS })));
       return;
     }
     // enter / play / stack / count
@@ -157,21 +188,21 @@ function Actor({
       // Already on stage somewhere else: move there rather than blink out and back. x must not be
       // set to the target first, or the move starts from where it ends and nothing travels.
       const at = markPoint(prev.mark);
-      x.set(at.x * stage.w);
-      y.set(at.y * stage.h);
+      x.set(at.x * area.w);
+      y.set(at.y * area.h);
       opacity.set(1);
-      x.set(withDelay(delay, withTiming(tx, enterTiming)));
-      y.set(withDelay(delay, withTiming(ty, enterTiming)));
+      x.set(withDelay(delay, withTiming(tx, move)));
+      y.set(withDelay(delay, withTiming(ty, move)));
       return;
     }
     x.set(tx);
     y.set(ty + ENTER_RISE);
     opacity.set(0);
-    y.set(withDelay(delay, withTiming(ty, enterTiming)));
-    opacity.set(withDelay(delay, withTiming(1, { duration: Duration.base, easing: Ease.enter })));
+    y.set(withDelay(delay, withTiming(ty, { duration: ACTOR_ENTER_MS, easing: Ease.enter })));
+    opacity.set(withDelay(delay, withTiming(1, { duration: ACTOR_ENTER_MS, easing: Ease.enter })));
     // `change` is the trigger; the rest are read fresh for that change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [change, stage.w, stage.h, reduced]);
+  }, [change, area.w, area.h, reduced]);
 
   const style = useAnimatedStyle(() => ({
     opacity: opacity.get(),
@@ -179,18 +210,21 @@ function Actor({
   }));
 
   if (!sprite) return null;
-  const playing = change.animate && !reduced && cue?.do === 'play';
+  const live = change.animate && !reduced;
+  const playing = live && cue?.do === 'play';
   const offsets = copyOffsets(state);
   const size = state.layout === 'count' ? COUNT_PT : SPRITE_PT;
-  const stagger = change.animate && !reduced && (cue?.do === 'stack' || cue?.do === 'count');
+  const tally = live && (cue?.do === 'stack' || cue?.do === 'count');
+  // A pile is built by dropping each copy onto it; a tally is stamped. Both one copy at a time.
+  const copyIn = cue?.do === 'stack' ? FadeInDown : FadeIn;
 
   return (
     <Animated.View pointerEvents="none" style={[styles.actor, style]}>
       {offsets.map((o, i) => (
         <Animated.View
-          // Keyed on the beat so a new tally re-runs its stagger instead of reusing mounted copies.
-          key={`${change.beat}:${i}`}
-          entering={stagger && i > 0 ? FadeIn.delay((cue?.atMs ?? 0) + i * COPY_STAGGER_MS).duration(Duration.fast) : undefined}
+          // Keyed on the change so a new tally re-runs its stagger instead of reusing mounted copies.
+          key={`${change.seq}:${i}`}
+          entering={tally && i > 0 ? copyIn.delay((cue?.atMs ?? 0) + i * COPY_STAGGER_MS).duration(ACTOR_ENTER_MS) : undefined}
           style={[styles.copy, { left: o.x, top: o.y }]}
         >
           <PixelSpriteView
@@ -198,7 +232,7 @@ function Actor({
             size={size}
             canvas="dark"
             play={playing && i === 0 ? 'once' : 'none'}
-            playKey={change.beat}
+            playKey={change.seq}
           />
         </Animated.View>
       ))}
@@ -206,236 +240,291 @@ function Actor({
   );
 }
 
+/**
+ * Atlas standing on the floor. He rises onto it once when the clip mounts (a character move, so the
+ * one spring in this card, Spring.bouncy, is allowed its overshoot), then only his face and his
+ * built-in nod and hop act. Hidden from VoiceOver: the caption carries every beat.
+ */
+function AtlasOnFloor({
+  mood,
+  reaction,
+  change,
+  reduced,
+  size,
+}: {
+  mood: SceneAtlasMood;
+  reaction: 'nod' | 'celebrate';
+  change: Change;
+  reduced: boolean;
+  size: number;
+}) {
+  const rise = useSharedValue(reduced ? 0 : size / 2);
+  const shown = useSharedValue(reduced ? 1 : 0);
+  useEffect(() => {
+    if (reduced) {
+      rise.set(0);
+      shown.set(1);
+      return;
+    }
+    rise.set(withSpring(0, Spring.bouncy));
+    shown.set(withTiming(1, { duration: ACTOR_ENTER_MS, easing: Ease.enter }));
+  }, [reduced, rise, shown]);
+  const style = useAnimatedStyle(() => ({ opacity: shown.get(), transform: [{ translateY: rise.get() }] }));
+  const acts = change.animate && !reduced;
+  return (
+    <Animated.View
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={[styles.atlas, { width: size, height: size }, style]}
+    >
+      <Atlas
+        size={size}
+        expression={mood}
+        interactive={false}
+        nod={acts && reaction === 'nod'}
+        nodKey={change.seq}
+        celebrate={acts && reaction === 'celebrate'}
+        celebrateKey={change.seq}
+        celebrateGain={ATLAS_HOP_GAIN}
+      />
+    </Animated.View>
+  );
+}
+
+/**
+ * The caption, swapped out / gap / in (CAPTION_OUT_MS, CAPTION_GAP_MS, CAPTION_IN_MS). A cut (Back,
+ * Reduce Motion) swaps in place. `shown` only changes inside timers, so the text on screen during
+ * the fade-out is still the old sentence and the new one never flashes in before its fade.
+ */
+function SceneCaption({ text, change, reduced }: { text: string; change: Change; reduced: boolean }) {
+  const [shown, setShown] = useState(text);
+  const animated = change.animate && !reduced;
+  // The clip clock mounts on beat 0 with animate true, so the first run is an arrival, not a swap.
+  // Treated as a swap it showed the first caption, faded it out, and faded the same words back in.
+  const arrived = useRef(false);
+  const opacity = useSharedValue(animated ? 0 : 1);
+  const drift = useSharedValue(0);
+
+  useEffect(() => {
+    if (!arrived.current) {
+      arrived.current = true;
+      if (animated) opacity.set(withTiming(1, { duration: CAPTION_IN_MS, easing: Ease.enter }));
+      return;
+    }
+    if (!animated) {
+      opacity.set(1);
+      drift.set(0);
+      // Keep `shown` in step for the next animated change; the render below already shows `text`.
+      const sync = setTimeout(() => setShown(text), 0);
+      return () => clearTimeout(sync);
+    }
+    opacity.set(withTiming(0, { duration: CAPTION_OUT_MS, easing: Ease.exitCurve }));
+    drift.set(withTiming(-CAPTION_DRIFT, { duration: CAPTION_OUT_MS, easing: Ease.exitCurve }));
+    const swap = setTimeout(() => {
+      setShown(text);
+      drift.set(0);
+      opacity.set(withTiming(1, { duration: CAPTION_IN_MS, easing: Ease.enter }));
+    }, CAPTION_OUT_MS + CAPTION_GAP_MS);
+    return () => clearTimeout(swap);
+    // Keyed on the change, not the text: a replay of beat 0 is a new change with the same words.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [change.seq]);
+
+  const style = useAnimatedStyle(() => ({ opacity: opacity.get(), transform: [{ translateX: drift.get() }] }));
+  return (
+    <Animated.View style={[styles.captionText, style]}>
+      <ThemedText style={styles.caption}>{animated ? shown : text}</ThemedText>
+    </Animated.View>
+  );
+}
+
+/**
+ * The per-beat progress line. While autoplay runs it fills over exactly the hold the clip clock
+ * uses (beatHoldMs), linearly, because it is a timer and not data. Paused, it freezes where it is;
+ * a beat reached by hand shows full; under Reduce Motion it is always full and never moves.
+ */
+function ProgressLine({
+  change,
+  playing,
+  holdMs,
+  reduced,
+  color,
+}: {
+  change: Change;
+  playing: boolean;
+  holdMs: number;
+  reduced: boolean;
+  color: string;
+}) {
+  const p = useSharedValue(1);
+  const lastSeq = useRef(change.seq);
+  useEffect(() => {
+    const newBeat = lastSeq.current !== change.seq;
+    lastSeq.current = change.seq;
+    if (reduced) {
+      p.set(1);
+      return;
+    }
+    if (playing) {
+      p.set(0);
+      p.set(withTiming(1, { duration: holdMs, easing: Easing.linear }));
+      return;
+    }
+    if (newBeat) p.set(1);
+    else cancelAnimation(p);
+  }, [change.seq, playing, holdMs, reduced, p]);
+  const style = useAnimatedStyle(() => ({ width: `${p.get() * 100}%` }));
+  return (
+    <View style={styles.track}>
+      <Animated.View style={[styles.fill, { backgroundColor: color }, style]} />
+    </View>
+  );
+}
+
 export function SceneCard({ spec, onWorked }: { spec: ScenePartSpec; onWorked: () => void }) {
   const reduced = !!useReducedMotion();
-  const focused = useIsFocused();
-  const total = spec.beats.length;
-  const last = total - 1;
+  const clipBeats = useMemo(
+    () => spec.beats.map((b) => ({ caption: b.caption, motionMs: sceneMotionMs(b) })),
+    [spec.beats],
+  );
+  const timeline = useClipTimeline(clipBeats, { onWorked });
+  const { beat, seq, animate, busy, playing, atEnd, next } = timeline;
+  const change = useMemo<Change>(() => ({ beat, seq, animate }), [beat, seq, animate]);
 
-  const [change, setChange] = useState<Change>({ beat: 0, animate: true });
-  const beat = change.beat;
-  const [playing, setPlaying] = useState(false);
-  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
-  const [stage, setStage] = useState({ w: 0, h: 0 });
-  const workedRef = useRef(false);
+  const [stage, setStage] = useState(() => sceneStage(0));
+  const onLayout = useCallback((e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    // Whole 4pt cells, so the floor's rim lands on a pixel edge.
+    setStage((s) => (s.w === w ? s : sceneStage(w)));
+  }, []);
+  const area = stage.area;
 
+  const accent = spec.course ? courseAccent(spec.course) : LessonColors.accent;
   const cast = useMemo(() => castOf(spec.beats), [spec.beats]);
   const now = useMemo(() => stageAt(spec.beats, beat), [spec.beats, beat]);
   const before = useMemo(() => (beat > 0 ? stageAt(spec.beats, beat - 1) : undefined), [spec.beats, beat]);
+  const current = spec.beats[beat];
 
-  const goTo = useCallback(
-    (k: number, animate: boolean) => {
-      const next = Math.max(0, Math.min(last, k));
-      setChange({ beat: next, animate });
-      AccessibilityInfo.announceForAccessibility(spec.beats[next].caption);
-      if (next === last) {
-        setPlaying(false);
-        if (!workedRef.current) {
-          workedRef.current = true;
-          onWorked();
-        }
-      }
-    },
-    [last, spec.beats, onWorked],
-  );
-
-  /*
-   * AUTOPLAY ON ARRIVAL, UNLESS REDUCE MOTION OR VOICEOVER. The screen-reader check is async, so
-   * the card mounts paused and starts only once it knows nobody is reading it with VoiceOver.
-   */
-  useEffect(() => {
-    if (reduced) return;
-    let alive = true;
-    AccessibilityInfo.isScreenReaderEnabled().then(
-      (on) => {
-        if (alive && !on) setPlaying(true);
-      },
-      () => {},
-    );
-    return () => {
-      alive = false;
-    };
-  }, [reduced]);
-
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (s) => setAppActive(s === 'active'));
-    return () => sub.remove();
-  }, []);
-
-  /*
-   * VOICEOVER TURNED ON MID-SCENE. The check above runs once, so without this a learner who
-   * starts VoiceOver while the scene autoplays would have captions changing under their focus,
-   * the exact thing starting paused exists to prevent (review 2026-09-22).
-   */
-  useEffect(() => {
-    const sub = AccessibilityInfo.addEventListener('screenReaderChanged', (on) => {
-      if (on) setPlaying(false);
-    });
-    return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    if (!playing || !focused || !appActive || reduced || beat >= last) return;
-    const id = setTimeout(() => goTo(beat + 1, true), dwellMs(spec.beats[beat]));
-    return () => clearTimeout(id);
-  }, [playing, focused, appActive, reduced, beat, last, spec.beats, goTo]);
-
-  const onLayout = useCallback((e: LayoutChangeEvent) => {
-    const w = e.nativeEvent.layout.width;
-    setStage((s) => (s.w === w ? s : { w, h: (w * 10) / 16 }));
-  }, []);
-
-  const next = useCallback(() => {
-    setPlaying(false);
-    if (beat < last) goTo(beat + 1, true);
-  }, [beat, last, goTo]);
-  const back = useCallback(() => {
-    setPlaying(false);
-    if (beat > 0) goTo(beat - 1, false);
-  }, [beat, goTo]);
-  const playPause = useCallback(() => {
-    if (beat >= last) {
-      goTo(0, true);
-      setPlaying(true);
-      return;
-    }
-    setPlaying((p) => !p);
-  }, [beat, last, goTo]);
-
-  const caption = spec.beats[beat].caption;
-  const atEnd = beat >= last;
-  const playLabel = atEnd ? 'Replay' : playing ? 'Pause' : 'Play';
+  // The stage is a second Next for touch users; it waits for the beat to finish, like the button.
+  const tapStage = useCallback(() => {
+    if (!busy && !atEnd) next();
+  }, [busy, atEnd, next]);
 
   return (
-    <View style={styles.wrap}>
+    /*
+     * Scrolls when it must. The card is about 400pt tall at default text and the deck leaves an SE
+     * roughly 385pt, more with Back hidden; at large Dynamic Type the caption alone can pass 200pt.
+     * As a plain centred View it overflowed into the deck's footer, covering these controls, and
+     * Next is the only way to reach the last beat that unlocks Continue.
+     */
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.wrap}
+      showsVerticalScrollIndicator={false}
+    >
       <ThemedText style={styles.prompt}>{spec.prompt}</ThemedText>
 
-      {/*
-       * The stage is a tap target for sighted touch users only. It is hidden from VoiceOver because
-       * the pictures carry no words; the caption and the Next button carry the beat.
-       */}
-      <Pressable
-        onPress={next}
-        onLayout={onLayout}
-        accessible={false}
-        importantForAccessibility="no-hide-descendants"
-        accessibilityElementsHidden
-        style={[styles.stage, stage.h ? { height: stage.h } : null]}
-      >
-        {cast.map((key) => {
-          const cue = spec.beats[beat].cast.find((c) => c.actor === key);
-          return (
+      <View style={styles.player}>
+        {/*
+         * A tap target for sighted touch users only, hidden from VoiceOver because the pictures
+         * carry no words; the caption and the Next button carry the beat.
+         */}
+        <Pressable
+          onPress={tapStage}
+          onLayout={onLayout}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+          accessibilityElementsHidden
+          style={[styles.stage, stage.h ? { height: stage.h } : null]}
+        >
+          <View style={[styles.floor, { backgroundColor: accent + FLOOR_ALPHA }]} />
+          <View style={[styles.rim, { backgroundColor: accent + RIM_ALPHA }]} />
+          {cast.map((key) => (
             <Actor
               key={key}
               actorKey={key}
               state={now[key]}
               prev={before?.[key]}
-              cue={cue}
+              cue={current.cast.find((c) => c.actor === key)}
               change={change}
-              stage={stage}
+              area={area}
               reduced={reduced}
             />
-          );
-        })}
-      </Pressable>
+          ))}
+          {/* Mounted once the stage is measured, so his size is final before he rises in. */}
+          {area.h ? (
+            <AtlasOnFloor
+              mood={current.atlas}
+              reaction={sceneReaction(current, beat, spec.beats.length)}
+              change={change}
+              reduced={reduced}
+              size={stage.atlasPt}
+            />
+          ) : null}
+        </Pressable>
 
-      <Animated.View key={beat} entering={reduced ? undefined : FadeIn.duration(Duration.base)} style={styles.captionBox}>
-        <ThemedText style={styles.caption}>{caption}</ThemedText>
-      </Animated.View>
-
-      <View
-        style={styles.pager}
-        accessible
-        accessibilityRole="progressbar"
-        accessibilityLabel={`Beat ${beat + 1} of ${total}`}
-        accessibilityValue={{ min: 1, max: total, now: beat + 1 }}
-      >
-        {spec.beats.map((_, i) => (
-          <View key={i} style={[styles.dot, i === beat && styles.dotOn]} />
-        ))}
+        <View style={styles.captionBar}>
+          <ProgressLine
+            change={change}
+            playing={playing}
+            holdMs={beatHoldMs(clipBeats[beat])}
+            reduced={reduced}
+            color={accent}
+          />
+          <View style={styles.captionBox}>
+            <SceneCaption text={current.caption} change={change} reduced={reduced} />
+          </View>
+        </View>
       </View>
 
-      <View style={styles.controls}>
-        <SpringPressable
-          onPress={back}
-          disabled={beat === 0}
-          accessibilityRole="button"
-          accessibilityLabel="Previous beat"
-          accessibilityState={{ disabled: beat === 0 }}
-        >
-          <View style={[styles.button, beat === 0 && styles.buttonOff]}>
-            <ThemedText style={styles.buttonText}>Back</ThemedText>
-          </View>
-        </SpringPressable>
-        {reduced ? null : (
-          <SpringPressable
-            onPress={playPause}
-            accessibilityRole="button"
-            accessibilityLabel={atEnd ? 'Replay the scene' : playing ? 'Pause the scene' : 'Play the scene'}
-          >
-            <View style={[styles.button, styles.buttonMain]}>
-              <ThemedText style={styles.buttonText}>{playLabel}</ThemedText>
-            </View>
-          </SpringPressable>
-        )}
-        <SpringPressable
-          onPress={next}
-          disabled={atEnd}
-          accessibilityRole="button"
-          accessibilityLabel="Next beat"
-          accessibilityState={{ disabled: atEnd }}
-        >
-          <View style={[styles.button, atEnd && styles.buttonOff]}>
-            <ThemedText style={styles.buttonText}>Next</ThemedText>
-          </View>
-        </SpringPressable>
-      </View>
-    </View>
+      <ClipControls timeline={timeline} />
+    </ScrollView>
   );
 }
 
 /*
- * CONTRAST follows lever-card.tsx's measurements (2026-09-22, CONSTITUTION 5.9), which use the same
- * tokens: LessonColors.mutedForeground on the lesson background is 4.01:1, under the 4.5 floor, so
- * the prompt uses Colors.dark.mutedForeground (11.16:1 there, 10.65:1 on backgroundElement). The
- * caption and button labels are LessonColors.text on backgroundElement / backgroundSelected, which
- * clears 4.5 comfortably. Hex values are named by token only: design-rules-pin counts literals.
+ * CONTRAST (CONSTITUTION 5.9, measured 2026-09-22 on these tokens): LessonColors.mutedForeground on
+ * the lesson background is 4.01:1, under the 4.5 floor, so the prompt uses Colors.dark.mutedForeground
+ * (11.16:1 there). The caption is LessonColors.text on LessonColors.card, which clears 4.5
+ * comfortably, and nothing is ever drawn behind it: the floor band stays inside the stage.
+ * Hex values are named by token only: design-rules-pin counts literals.
  */
 const MUTED = Colors.dark.mutedForeground;
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, paddingHorizontal: 16, width: '100%' },
+  scroll: { flex: 1, width: '100%' },
+  wrap: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 8 },
   prompt: { ...LessonTypography.label, color: MUTED, textAlign: 'center' },
-  stage: {
+  player: {
     width: '100%',
-    aspectRatio: 16 / 10,
-    backgroundColor: LessonColors.backgroundElement,
+    backgroundColor: LessonColors.card,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: LessonColors.border,
     overflow: 'hidden',
   },
+  stage: {
+    width: '100%',
+    aspectRatio: 1 / SCENE_STAGE_ASPECT,
+    backgroundColor: LessonColors.backgroundElement,
+    overflow: 'hidden',
+  },
+  floor: { position: 'absolute', left: 0, right: 0, bottom: 0, height: SCENE_FLOOR_PT },
+  rim: { position: 'absolute', left: 0, right: 0, bottom: SCENE_FLOOR_PT - RIM_PT, height: RIM_PT },
   actor: { position: 'absolute', left: 0, top: 0, width: 0, height: 0 },
   copy: { position: 'absolute' },
+  atlas: { position: 'absolute', right: SCENE_ATLAS_INSET.right, bottom: SCENE_ATLAS_INSET.bottom },
+  captionBar: { borderTopWidth: 1, borderTopColor: LessonColors.border },
+  track: { height: 2, backgroundColor: LessonColors.backgroundSelected },
+  fill: { height: 2 },
   // Reserves three lines (the 125-character ceiling) so the controls do not jump between beats.
-  captionBox: { minHeight: LessonTypography.bodyMedium.lineHeight * 3, justifyContent: 'center', width: '100%' },
-  caption: { ...LessonTypography.bodyMedium, color: LessonColors.text, textAlign: 'center' },
-  pager: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', minHeight: 12 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: LessonColors.backgroundSelected },
-  dotOn: { backgroundColor: LessonColors.accent },
-  controls: { flexDirection: 'row', gap: 10, justifyContent: 'center' },
-  button: {
-    minWidth: 76,
-    minHeight: 44,
-    alignItems: 'center',
+  captionBox: {
+    minHeight: LessonTypography.bodyMedium.lineHeight * 3 + 24,
     justifyContent: 'center',
     paddingHorizontal: 14,
-    borderRadius: Radius.md,
-    backgroundColor: LessonColors.backgroundElement,
-    borderWidth: 1,
-    borderColor: LessonColors.border,
+    paddingVertical: 12,
   },
-  buttonMain: { backgroundColor: LessonColors.backgroundSelected, borderColor: LessonColors.accent, borderWidth: 2 },
-  buttonOff: { opacity: 0.4 },
-  buttonText: { ...LessonTypography.smallBold, color: LessonColors.text },
+  captionText: { width: '100%' },
+  caption: { ...LessonTypography.bodyMedium, color: LessonColors.text, textAlign: 'center' },
 });
