@@ -64,6 +64,24 @@ export const Ev = {
   onboardingStep: 'onboarding_step',
   firstLesson: 'first_lesson_completed',
   /**
+   * ONE EVENT PER PART OF A LESSON, because splitting lessons into Learn, Vocab and Practice is a
+   * bet with no way to read it otherwise.
+   *
+   * `first_lesson_completed` and the completion rate only ever said whether someone reached the
+   * end. The whole argument for parts is that a long lesson loses people in the middle, and that
+   * claim is unfalsifiable without knowing WHICH part they stopped on. With `part` and
+   * `part_index` on every credit, the drop-off from Learn to Vocab to Practice is one funnel.
+   *
+   * `lesson_done` rides on this same event rather than a second one, so the last part is in the
+   * same series as the others. Two event names would put the final step in a different query and
+   * make the last drop-off the one number nobody could read.
+   *
+   * Fired by the runner, not the store: `store.ts` cannot import this module, which imports the
+   * store. It is fired only when the credit actually happened (`credited: true`), so a replayed
+   * part cannot inflate the denominator the way the `paywall_dismissed` double-count did.
+   */
+  lessonPartCompleted: 'lesson_part_completed',
+  /**
    * The PORTFOLIO side of the product, which had no instrumentation at all.
    *
    * Seventeen events existed before this one and not a single one fired on a trade. That made the
