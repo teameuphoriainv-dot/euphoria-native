@@ -4,8 +4,11 @@
  * WHY THIS EXISTS. `derive.ts` covers all 721 heavy steps by picking and trimming sentences the
  * curriculum author wrote. That is honest and it never invents a claim, but it is bounded by the
  * source: when the shortest TRUE complete sentence an author wrote is 120 characters, the derived
- * card is 120 characters. Measured over the corpus, 185 of the 721 steps land over the card budget
- * for exactly that reason, and those 185 are the queue this table exists to work through.
+ * card is 120 characters. The steps that land over the card budget for exactly that reason are the
+ * queue this table exists to work through. No count is written here on purpose: this comment once
+ * said "185 of the 721", and by 2026-09-22 the real number of over-budget idea cards was 201, so a
+ * number in a comment goes stale the first time the deriver or the corpus moves. The live count is
+ * whatever `mobile-deck-audit.mjs --over-budget` prints.
  *
  * HOW TO ADD ONE. Run `node --import ./scripts/ts-resolve-hooks.mjs scripts/mobile-deck-audit.mjs
  * --over-budget` to print the worst offenders with their step ids and their current derived cards.
