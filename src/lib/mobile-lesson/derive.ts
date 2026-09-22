@@ -24,6 +24,10 @@ import { overrideFor } from './overrides';
 import { textOf as dialText } from './parts/dial';
 import { textOf as leverText } from './parts/lever';
 import { textOf as sceneText } from './parts/scene';
+import { textOf as stageText } from './clickthrough/stage';
+import { textOf as predictText } from './clickthrough/predict';
+import { textOf as buildText } from './clickthrough/buildup';
+import { textOf as placeText } from './clickthrough/place';
 import { CARD_BUDGET, DECK_MAX_CARDS, type MobileCard, type MobileDeck, type MobileInteractive, type SceneSpec } from './types';
 
 /** Is this a step the mobile layer takes over? Everything else passes through untouched. */
@@ -144,6 +148,11 @@ function interactiveText(spec: MobileInteractive): string[] {
   if (spec.kind === 'dial') return dialText(spec);
   if (spec.kind === 'lever') return leverText(spec);
   if (spec.kind === 'scene') return sceneText(spec);
+  // The Atlas clips, same reason: unreachable from interactiveFor today, never silently empty.
+  if (spec.kind === 'stage') return stageText(spec);
+  if (spec.kind === 'predict') return predictText(spec);
+  if (spec.kind === 'build') return buildText(spec);
+  if (spec.kind === 'place') return placeText(spec);
   return [];
 }
 

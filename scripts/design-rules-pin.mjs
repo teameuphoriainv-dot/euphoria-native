@@ -27,6 +27,79 @@ assert.ok(
 );
 assert.match(avatar, /CHARACTER_AVATARS/, 'profile-avatar.tsx no longer falls back to a character sprite');
 
+/*
+ * The onboarding avatar step's 96pt hero (2026-09-22). The stored default avatar is the `atlas` id,
+ * which is not in the grid, so a hero that drew whatever was stored would have put a second Atlas
+ * under the AtlasStage on the one screen about the USER's picture. It must resolve through
+ * avatarFor() to the first grid character and never draw the mascot. (Block proposed by the O4
+ * builder; watched failing with the fallback changed to {id:'atlas'} and with an <Atlas> render.)
+ */
+const hero = strip(readFileSync(new URL('../src/components/onboarding/avatar-hero.tsx', import.meta.url), 'utf8'))
+  .replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+assert.ok(!/<Atlas[\s/>]/.test(hero), 'avatar-hero renders <Atlas>: the avatar is the user, Atlas is Atlas');
+assert.ok(!/from '@\/components\/atlas'/.test(hero), 'avatar-hero imports the Atlas mascot');
+assert.match(hero, /avatarFor\(stored\)\s*\?\?\s*FIRST_GRID/, 'heroAvatar no longer falls back to a grid character for the atlas id');
+assert.match(hero, /FIRST_GRID\s*=\s*CHARACTER_AVATARS\[0\]/, 'the hero fallback is no longer the first grid character');
+
+/*
+ * Onboarding: Atlas guides every screen (owner decision 2, 2026-09-22) and is still drawn ONCE.
+ * The guide bubble sits under the persistent AtlasStage with showAtlas={false}; the paywall swaps
+ * the stage for the compact row, which draws the only Atlas there. A guide with its own Atlas under
+ * the stage, or the stage kept on the paywall beside the compact row, is two mascots on one screen.
+ */
+const ob = strip(readFileSync(new URL('../src/app/onboarding.tsx', import.meta.url), 'utf8'));
+assert.match(ob, /const guide = <AtlasGuide line=\{guideLine\} showAtlas=\{false\}/,
+  'onboarding: the per-step guide must be the bubble alone (showAtlas={false}) under the AtlasStage');
+const paywallBranch = /renderStep === PAYWALL_INDEX \? \(([\s\S]*?)\) : \(\s*<AtlasStage/.exec(ob)?.[1] ?? '';
+assert.match(paywallBranch, /<AtlasGuide[^>]*variant="compact"/,
+  'onboarding: the paywall must show the compact guide where the AtlasStage was');
+assert.ok(!/<Atlas(?:Stage)?[\s/>]/.test(paywallBranch),
+  'onboarding: the paywall draws another Atlas beside the compact guide, which already draws him');
+assert.match(ob, /def\.kind !== 'try' && def\.kind !== 'paywall' && def\.kind !== 'reveal' \? guide : null/,
+  'onboarding: the guide no longer heads every ordinary step');
+assert.match(ob, /case 'try':\s*return <DoubleItStep ctl=\{tryCtl\} atlas=\{guide\}/, 'onboarding: the try step lost its guide slot');
+assert.match(ob, /def\?\.kind === 'reveal' \? guide : null/, 'onboarding: the reveal lost its guide');
+
+/*
+ * RULE 6 again, in the LESSON: the deck card and the floating Ask-Atlas button (S2 + K0 reviews,
+ * 2026-09-22). The scene part (src/lib/mobile-lesson/parts/scene.ts) and every Atlas clip
+ * (src/components/mobile-lesson/clickthrough/pixel-stage.tsx) mount their own <Atlas> inside the
+ * card, and lesson.tsx floats LessonAtlasButton, which is an <Atlas> too, over the step. Without
+ * the hand-off every scene deck and every clip deck showed two mascots at once.
+ *
+ * The hand-off is two halves and this pin holds BOTH, because either half alone is silent:
+ *   1. cardDrawsAtlas must actually READ the two flags. A version that returned a hardcoded true
+ *      (or listed the kinds and ignored the flags) would pass a regex for the kind names while
+ *      turning either file's flag into a lie. So the function is run here with the flags flipped.
+ *   2. lesson.tsx must take the report and hide its float (`!deckAtlas`) and hand it to the deck.
+ */
+const deckSrc = readFileSync(new URL('../src/components/mobile-lesson/card-deck.tsx', import.meta.url), 'utf8');
+const drawsSig = /export function cardDrawsAtlas\([^)]*\)[^{]*\{([\s\S]*?)\n\}/.exec(deckSrc);
+assert.ok(drawsSig, 'cardDrawsAtlas is gone from card-deck.tsx, so nothing decides which card owns the mascot');
+// Built with new Function on purpose: the point of this pin is to RUN the real cardDrawsAtlas with
+// the flags flipped, not to pattern-match its text, which is what a hardcoded true would satisfy.
+const drawsAtlas = new Function('SCENE_DRAWS_ATLAS', 'CLIP_DRAWS_ATLAS', `return (card) => {${drawsSig[1]}\n};`);
+const sceneCard = { kind: 'interactive', spec: { kind: 'scene' } };
+const clipCard = { kind: 'interactive', spec: { kind: 'stage' } };
+const plainCard = { kind: 'idea' };
+assert.equal(drawsAtlas(true, true)(sceneCard), true, 'a scene card must report that it draws Atlas');
+assert.equal(drawsAtlas(true, true)(clipCard), true, 'an Atlas clip card must report that it draws Atlas');
+assert.equal(drawsAtlas(true, true)(plainCard), false, 'a plain idea card must not claim the mascot and steal the float');
+assert.equal(drawsAtlas(false, true)(sceneCard), false, 'cardDrawsAtlas IGNORES SCENE_DRAWS_ATLAS: scene.ts could drop its Atlas and the lesson would still hide its own');
+assert.equal(drawsAtlas(true, false)(clipCard), false, 'cardDrawsAtlas IGNORES CLIP_DRAWS_ATLAS: pixel-stage.tsx could drop its Atlas and the lesson would still hide its own');
+// The flags as they stand today. Both files DO draw an Atlas, so both must be true or the lesson
+// is told the card is empty and shows the second mascot again.
+const sceneFlag = /export const SCENE_DRAWS_ATLAS = (true|false)/.exec(
+  readFileSync(new URL('../src/lib/mobile-lesson/parts/scene.ts', import.meta.url), 'utf8'));
+const clipFlag = /export const CLIP_DRAWS_ATLAS = (true|false)/.exec(
+  readFileSync(new URL('../src/components/mobile-lesson/clickthrough/pixel-stage.tsx', import.meta.url), 'utf8'));
+assert.equal(sceneFlag?.[1], 'true', 'SCENE_DRAWS_ATLAS is not true, but scene-card.tsx still mounts <Atlas>');
+assert.equal(clipFlag?.[1], 'true', 'CLIP_DRAWS_ATLAS is not true, but pixel-stage.tsx still mounts <Atlas>');
+const lessonSrc = strip(readFileSync(new URL('../src/app/lesson.tsx', import.meta.url), 'utf8'))
+  .replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+assert.match(lessonSrc, /onAtlasCard=\{setDeckAtlas\}/, 'lesson.tsx never asks the deck which card owns the mascot');
+assert.match(lessonSrc, /atlasContext && !deckAtlas/, 'lesson.tsx floats Ask-Atlas without checking deckAtlas, so a scene or clip card shows two Atlases');
+
 /* ── RULE 2: no half-finished rows ────────────────────────────────────────────────────────────
  * Two of the three Pro benefits carried a one-line sub and the third carried none, so it rendered
  * as a bare title against two subtitled siblings and read as unfinished.
@@ -91,7 +164,12 @@ for (const f of [...walk('src/app'), ...walk('src/components')]) {
  * does not. These eleven literals also REPLACE copies that lived in learn.tsx, which now imports
  * them -- so the count rose while the duplication fell, which is the trade this pin cannot see.
  */
-const HEX_CEILING = 101;
+/*
+ * LOWERED 2026-09-22 to 99: welcome.tsx's smooth SVG beam and its three violet literals
+ * (#A855EB twice, #C89CF5) became the stepped PixelBeam in theme tokens. Measured 99 after the
+ * batch, the lowest it can be set without failing today.
+ */
+const HEX_CEILING = 99;
 assert.ok(
   hex <= HEX_CEILING,
   `${String(hex)} hardcoded hex literals outside the art files, ceiling is ${String(HEX_CEILING)}. ` +
@@ -100,6 +178,6 @@ assert.ok(
 );
 
 console.log(
-  `design-rules-pin ok — one mascot per screen, ${String(entries.length)} Pro benefits all subtitled, ` +
+  `design-rules-pin ok — one mascot per screen (deck cards hand the float back), ${String(entries.length)} Pro benefits all subtitled, ` +
     `${String(hex)}/${String(HEX_CEILING)} hex literals`,
 );

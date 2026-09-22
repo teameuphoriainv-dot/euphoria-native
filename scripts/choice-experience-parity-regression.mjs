@@ -50,8 +50,15 @@ assert.deepEqual(
 );
 
 const runner = readFileSync(new URL('../src/app/lesson.tsx', import.meta.url), 'utf8');
-assert.match(runner, /norm\.submitMode === 'immediate' \? gradeChoice\(i\) : setPick\(i\)/, 'immediate choice families do not grade on option tap');
-assert.match(runner, /norm\.submitMode === 'confirm' && !checked && pick !== null/, 'fill blanks lost their explicit submit step');
+/*
+ * PICK, THEN CHECK, for every family (owner decision 4 + design M5, 2026-09-22). The normalizer
+ * still labels quiz families 'immediate' (asserted above, it is the web's contract), but the runner
+ * no longer grades on the tap: with only the first try scoring, a mis-tap would spend the learner's
+ * one scored attempt. So a tap only picks, and the footer's Check grades.
+ */
+assert.match(runner, /onPress=\{\(\) => setPick\(i\)\}/, 'an option tap must only pick; Check grades');
+assert.doesNotMatch(runner, /gradeChoice\(i\)/, 'an option tap must not grade the answer on its own');
+assert.match(runner, /isChoice && !\(!checked && pick !== null\)/, 'every choice step lost its explicit Check step');
 assert.doesNotMatch(runner, /<FeedbackBanner/, 'web choice feedback must not use the oversized generic feedback sheet');
 assert.doesNotMatch(runner, /Quick check/, 'native must not add a choice heading that production web does not render');
 assert.match(runner, /choiceResponse\(norm, pick\)/, 'the runner must consume the tested canonical choice response');

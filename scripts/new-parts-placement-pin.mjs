@@ -36,6 +36,10 @@ const { PLACEMENTS } = await imported('src/lib/mobile-lesson/parts/placements.ts
 const { SCENES, textOf: sceneText } = await imported('src/lib/mobile-lesson/parts/scene.ts');
 const { textOf: dialText } = await imported('src/lib/mobile-lesson/parts/dial.ts');
 const { textOf: leverText } = await imported('src/lib/mobile-lesson/parts/lever.ts');
+const { textOf: stageText } = await imported('src/lib/mobile-lesson/clickthrough/stage.ts');
+const { textOf: predictText } = await imported('src/lib/mobile-lesson/clickthrough/predict.ts');
+const { textOf: buildText } = await imported('src/lib/mobile-lesson/clickthrough/buildup.ts');
+const { textOf: placeText } = await imported('src/lib/mobile-lesson/clickthrough/place.ts');
 
 /*
  * The expected table, written out here and NOT read from PLACEMENTS, so an emptied or edited table
@@ -46,12 +50,35 @@ const EXPECTED = {
   'corporate-finance:6:2': { kind: 'dial', formula: 'ccc', slot: 'chart' },
   'personal-finance:14:4': { kind: 'dial', formula: 'rentRule', slot: 'interactive' },
   'alternative-investments:2:4': { kind: 'lever', slot: 'interactive' },
-  ...Object.fromEntries(Object.entries(SCENES).map(([key, s]) => [key, { kind: 'scene', slot: s.slot }])),
+  /*
+   * Scene keys are WRITTEN OUT (2026-09-22 integration) rather than spread from SCENES: spreading
+   * meant a scene deleted from scene.ts vanished from this table too and the pin agreed with itself.
+   * The slot is still read from SCENES, where it is authored.
+   */
+  ...Object.fromEntries([
+    'investing-fundamentals:3:2', 'investing-fundamentals:5:2', 'personal-finance:20:2',
+    'investing-fundamentals:20:4', 'corporate-finance:9:2', 'financial-analytics:23:2',
+    // S2's eight new scenes.
+    'personal-finance:7:2', 'behavioral-finance:19:2', 'business-strategy:20:2', 'personal-finance:23:2',
+    'global-economics:21:2', 'corporate-finance:4:4', 'behavioral-finance:23:2', 'personal-finance:6:2',
+  ].map((key) => [key, { kind: 'scene', slot: SCENES[key]?.slot ?? 'idea' }])),
+  // The Atlas clips (clickthrough/*), all over the chart card.
+  'personal-finance:3:2': { kind: 'stage', slot: 'chart' },
+  'personal-finance:12:2': { kind: 'stage', slot: 'chart' },
+  'personal-finance:15:2': { kind: 'predict', slot: 'chart' },
+  'investing-fundamentals:4:3': { kind: 'predict', slot: 'chart' },
+  'investing-fundamentals:6:2': { kind: 'build', slot: 'chart' },
+  'personal-finance:13:2': { kind: 'build', slot: 'chart' },
+  'corporate-finance:15:2': { kind: 'build', slot: 'chart' },
+  'personal-finance:2:2': { kind: 'place', slot: 'chart' },
+  'investing-fundamentals:8:2': { kind: 'place', slot: 'chart' },
+  'personal-finance:4:2': { kind: 'place', slot: 'chart' },
+  'corporate-finance:24:2': { kind: 'place', slot: 'chart' },
 };
 
 const failures = [];
 const fail = (msg) => failures.push(msg);
-const lines = { dial: dialText, lever: leverText, scene: sceneText };
+const lines = { dial: dialText, lever: leverText, scene: sceneText, stage: stageText, predict: predictText, build: buildText, place: placeText };
 
 // 1. The table.
 const placedKeys = Object.keys(PLACEMENTS).sort();
@@ -110,13 +137,24 @@ for (const [key, want] of Object.entries(EXPECTED)) {
   if (takeawayAt >= 0 && takeawayAt !== deck.cards.length - 1) fail(`${key} puts the takeaway before the part`);
 
   const siblings = deck.cards.filter((c) => specOf(c) !== part).map((c) => JSON.stringify(c)).join(' ');
+  /*
+   * A SHORT LABEL THE REPLACED CHART ALREADY CARRIED IS NOT A NEW REPEAT. The clip cards' textOf
+   * lists titles and row labels as well as sentences, and on personal-finance:2:2 the waffle's title
+   * "The 50/30/20 Rule" is the idea card's title, exactly as the chart card it replaced was titled;
+   * on personal-finance:13:2 the row label "Subsidized federal" is the first two words of the idea
+   * body. Neither is a sentence said twice (CONSTITUTION 5.1), and neither was introduced by the
+   * placement. Sentences (4+ words) stay strict whatever the chart said.
+   */
+  const replaced = JSON.stringify(derived.cards.find((c) => slotOf(c) === want.slot) ?? '');
   for (const line of lines[want.kind](part)) {
-    if (line.length > 12 && siblings.includes(line)) fail(`${key} repeats "${line}" on a sibling card`);
+    if (line.length <= 12 || !siblings.includes(line)) continue;
+    if (line.trim().split(/\s+/).length < 4 && replaced.includes(line)) continue;
+    fail(`${key} repeats "${line}" on a sibling card`);
   }
 }
 
 // 6. Nowhere else.
-const counts = { dial: 0, lever: 0, scene: 0 };
+const counts = { dial: 0, lever: 0, scene: 0, stage: 0, predict: 0, build: 0, place: 0 };
 for (const course of RAW.COURSES) {
   for (const lesson of await W.loadCourseLessons(course.id)) {
     for (const step of lesson.steps) {
@@ -133,9 +171,43 @@ for (const kind of Object.keys(counts)) {
   if (counts[kind] !== want) fail(`corpus renders ${counts[kind]} ${kind} card(s), the table places ${want}`);
 }
 
+/*
+ * 7. ONE MASCOT PER SCREEN (CONSTITUTION 5.6). Every card below mounts its own Atlas, and lesson.tsx
+ * floats an Ask-Atlas button over every step, so each of these decks showed two Atlases until the
+ * float learned to hide (S2 and K0 reviews, 2026-09-22; design-rules-pin does not see it). Source
+ * checks, because card-deck.tsx imports React Native and cannot load under node:
+ *   - every placed kind whose card file draws an Atlas is listed in cardDrawsAtlas, and
+ *   - lesson.tsx wires the deck's report into the float's condition.
+ */
+{
+  const { readFileSync } = await import('node:fs');
+  const read = (p) => readFileSync(join(ROOT, p), 'utf8');
+  const CARD_FILE = {
+    dial: 'src/components/mobile-lesson/parts/dial-card.tsx',
+    lever: 'src/components/mobile-lesson/parts/lever-card.tsx',
+    scene: 'src/components/mobile-lesson/parts/scene-card.tsx',
+    stage: 'src/components/mobile-lesson/clickthrough/stage-card.tsx',
+    predict: 'src/components/mobile-lesson/clickthrough/predict-card.tsx',
+    build: 'src/components/mobile-lesson/clickthrough/buildup-card.tsx',
+    place: 'src/components/mobile-lesson/clickthrough/place-card.tsx',
+  };
+  const deckSrc = read('src/components/mobile-lesson/card-deck.tsx');
+  const drawsFn = deckSrc.slice(deckSrc.indexOf('export function cardDrawsAtlas'), deckSrc.indexOf('export function cardDrawsAtlas') + 600);
+  for (const kind of new Set(Object.values(EXPECTED).map((e) => e.kind))) {
+    const file = CARD_FILE[kind];
+    if (!file) { fail(`no card file known for placed kind ${kind}; add it to this pin`); continue; }
+    const drawsAtlas = /<(?:Atlas|AtlasCue)\b/.test(read(file));
+    const listed = drawsFn.includes(`'${kind}'`);
+    if (drawsAtlas && !listed) fail(`${kind} card draws its own Atlas but cardDrawsAtlas does not list it, so the lesson shows two`);
+  }
+  const lessonSrc = read('src/app/lesson.tsx');
+  if (!/onAtlasCard=\{setDeckAtlas\}/.test(lessonSrc)) fail('lesson.tsx does not pass onAtlasCard to CardDeck');
+  if (!/\{atlasContext && !deckAtlas\b[^}]*\? \(/.test(lessonSrc)) fail('lesson.tsx floats Ask-Atlas without checking deckAtlas');
+}
+
 if (failures.length) {
   console.error(`new-parts-placement-pin: ${failures.length} failure(s)`);
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
 }
-console.log(`new-parts-placement-pin: OK. ${expectedKeys.length} placements render in the wrapped loader (dial ${counts.dial}, lever ${counts.lever}, scene ${counts.scene}), each in its slot with its neighbours untouched.`);
+console.log(`new-parts-placement-pin: OK. ${expectedKeys.length} placements render in the wrapped loader (${Object.entries(counts).map(([k, n]) => `${k} ${n}`).join(', ')}), each in its slot with its neighbours untouched.`);

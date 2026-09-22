@@ -185,7 +185,7 @@ for (const course of wrapped.COURSES) {
 
 // Every shipped placement must name a kind this hook supports.
 for (const [key, p] of Object.entries(PLACEMENTS)) {
-  if (!['dial', 'lever', 'scene'].includes(p.kind)) fail(`placement ${key} has unsupported kind ${p.kind}`);
+  if (!['dial', 'lever', 'scene', 'stage', 'predict', 'build', 'place'].includes(p.kind)) fail(`placement ${key} has unsupported kind ${p.kind}`);
   if (!/^[a-z-]+:\d+:\d+$/.test(key)) fail(`placement key ${key} is not course:lesson:stepIndex`);
 }
 if (decks !== 721) fail(`expected 721 decks through the wrapped loader, saw ${decks}`);

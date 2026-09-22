@@ -83,6 +83,8 @@ function titlesOf(deck) {
     if (c.kind === 'term') out.push({ field: `card${ci}.term`, text: c.term, budget: CARD_BUDGET.title });
     const spec = c.kind === 'interactive' ? c.spec : null;
     if (spec?.prompt) out.push({ field: `card${ci}.${spec.kind}.prompt`, text: spec.prompt, budget: CARD_BUDGET.prompt });
+    // The Atlas clips title their diagram instead of carrying a prompt (2026-09-22 integration).
+    if (spec && ['stage', 'predict', 'build', 'place'].includes(spec.kind)) out.push({ field: `card${ci}.${spec.kind}.title`, text: spec.title, budget: CARD_BUDGET.title });
   });
   return out.filter((t) => typeof t.text === 'string' && t.text.length > 0);
 }

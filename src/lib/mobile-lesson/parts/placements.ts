@@ -23,10 +23,14 @@ import { stepIdPosition } from '../stepId';
 import { buildDial, textOf as dialText } from './dial';
 import { buildLever, textOf as leverText } from './lever';
 import { SCENES, sceneBuilder } from './scene';
+import { buildStage, textOf as stageText } from '../clickthrough/stage';
+import { buildPredict, textOf as predictText } from '../clickthrough/predict';
+import { buildBuildup, textOf as buildText } from '../clickthrough/buildup';
+import { placeBuilder } from '../clickthrough/place';
 import { DECK_MAX_CARDS, type MobileCard, type MobileDeck, type MobileInteractive } from '../types';
 
 /** The part kinds a placement may build. */
-export type PlacementKind = 'dial' | 'lever' | 'scene';
+export type PlacementKind = 'dial' | 'lever' | 'scene' | 'stage' | 'predict' | 'build' | 'place';
 
 export type Placement = {
   /** Which part this is, so the audit can count placements by kind. */
@@ -53,6 +57,19 @@ const lever = (step: LessonStep, lessonSteps: LessonStep[]) => {
   const spec = buildLever(step, lessonSteps);
   return spec ? { spec, text: leverText(spec) } : null;
 };
+const stage = (step: LessonStep, lessonSteps: LessonStep[]) => {
+  const spec = buildStage(step, lessonSteps);
+  return spec ? { spec, text: stageText(spec) } : null;
+};
+const predict = (step: LessonStep, lessonSteps: LessonStep[]) => {
+  const spec = buildPredict(step, lessonSteps);
+  return spec ? { spec, text: predictText(spec) } : null;
+};
+const build = (step: LessonStep, lessonSteps: LessonStep[]) => {
+  const spec = buildBuildup(step, lessonSteps);
+  return spec ? { spec, text: buildText(spec) } : null;
+};
+const place = (step: LessonStep) => placeBuilder(step);
 
 /*
  * WHERE EACH PART GOES, AND WHY THAT CARD.
@@ -86,6 +103,30 @@ export const PLACEMENTS: Record<string, Placement> = {
       { kind: 'scene', slot: script.slot, build: sceneBuilder(key) },
     ]),
   ),
+  /*
+   * THE ATLAS CLIPS, hand-picked (owner decision 2026-09-22: about 10-15 lessons across the new
+   * kinds, never an auto-rollout over every eligible chart). Every one replaces the CHART card of a
+   * teaching slide with no other interactive, and re-stages that chart's own authored values and
+   * explains. Keys are lesson NUM, not array index: the design doc's keys were one lesson low and
+   * would have matched nothing (each builder's pin measured this).
+   *   stage   personal-finance:3:2 latte-factor line; personal-finance:12:2 spending-filter bars.
+   *   predict personal-finance:15:2 index vs active fund; investing-fundamentals:4:3 stocks vs bonds.
+   *   build   investing-fundamentals:6:2 index ETF flow; personal-finance:13:2 borrowing order;
+   *           corporate-finance:15:2 absolute-priority waterfall.
+   *   place   personal-finance:2:2 50/30/20 waffle; investing-fundamentals:8:2 dollar-cost shares;
+   *           personal-finance:4:2 emergency-fund coins; corporate-finance:24:2 70/20/10 stack.
+   */
+  'personal-finance:3:2': { kind: 'stage', slot: 'chart', build: stage },
+  'personal-finance:12:2': { kind: 'stage', slot: 'chart', build: stage },
+  'personal-finance:15:2': { kind: 'predict', slot: 'chart', build: predict },
+  'investing-fundamentals:4:3': { kind: 'predict', slot: 'chart', build: predict },
+  'investing-fundamentals:6:2': { kind: 'build', slot: 'chart', build },
+  'personal-finance:13:2': { kind: 'build', slot: 'chart', build },
+  'corporate-finance:15:2': { kind: 'build', slot: 'chart', build },
+  'personal-finance:2:2': { kind: 'place', slot: 'chart', build: place },
+  'investing-fundamentals:8:2': { kind: 'place', slot: 'chart', build: place },
+  'personal-finance:4:2': { kind: 'place', slot: 'chart', build: place },
+  'corporate-finance:24:2': { kind: 'place', slot: 'chart', build: place },
 };
 
 /**

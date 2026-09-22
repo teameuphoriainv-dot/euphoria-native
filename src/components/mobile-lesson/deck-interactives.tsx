@@ -20,6 +20,10 @@ import { PixelScene } from '@/components/mobile-lesson/PixelScene';
 import { DialCard } from '@/components/mobile-lesson/parts/dial-card';
 import { LeverCard } from '@/components/mobile-lesson/parts/lever-card';
 import { SceneCard } from '@/components/mobile-lesson/parts/scene-card';
+import { BuildupCard } from '@/components/mobile-lesson/clickthrough/buildup-card';
+import { PlaceCard } from '@/components/mobile-lesson/clickthrough/place-card';
+import { PredictCard } from '@/components/mobile-lesson/clickthrough/predict-card';
+import { StageCard } from '@/components/mobile-lesson/clickthrough/stage-card';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { growValue, paidIn } from '@/lib/mobile-lesson/grow-math';
@@ -274,6 +278,11 @@ export function DeckInteractive({ spec, onWorked }: { spec: MobileInteractive; o
   if (spec.kind === 'dial') return <DialCard spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'lever') return <LeverCard spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'scene') return <SceneCard spec={spec} onWorked={onWorked} />;
+  // The Atlas clips (clickthrough/*), hand-placed the same way.
+  if (spec.kind === 'stage') return <StageCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'predict') return <PredictCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'build') return <BuildupCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'place') return <PlaceCard spec={spec} onWorked={onWorked} />;
   /*
    * Unreachable while every member of MobileInteractive has a line above, and deliberately not a
    * throw. If a kind is added and someone forgets this switch, a learner should get a card that is

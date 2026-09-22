@@ -120,6 +120,17 @@ function visibleChars(card) {
     // A dial shows every stepper label at once, plus its goal and verdict.
     if (s.kind === 'dial') return s.prompt.length + s.inputs.reduce((n, i) => n + i.label.length, 0) + (s.goal ?? '').length + s.verdict.length;
     if (s.kind === 'lever') return s.prompt.length + s.note.length + s.verdict.length;
+    /*
+     * THE ATLAS CLIPS (clickthrough/*) carry a title and no prompt; the fallthrough below threw on
+     * them. Each shows one caption at a time under a mounted diagram, so the longest moment is the
+     * title plus one item's label, value and caption. Place also keeps every tray label on screen.
+     * No 70-char caption budget: the captions are the authored explains, word for word, 104-229
+     * characters on the 11 placements, and cutting them is exactly what the builders refuse to do.
+     */
+    if (s.kind === 'stage') return s.title.length + Math.max(0, ...s.items.map((i) => i.label.length + i.display.length + i.caption.length));
+    if (s.kind === 'predict') return s.title.length + s.anchor.label.length + s.anchor.display.length + s.target.label.length + s.target.display.length + s.target.caption.length;
+    if (s.kind === 'build') return s.title.length + Math.max(0, ...s.pieces.map((p) => p.label.length + (p.tag ?? '').length + p.caption.length));
+    if (s.kind === 'place') return s.title.length + s.slots.reduce((n, p) => n + p.label.length, 0) + Math.max(0, ...s.slots.map((p) => p.caption.length));
     return s.prompt.length + (s.verdict ?? '').length;
   }
   return 0;
@@ -137,6 +148,12 @@ if (process.argv.includes('--selftest')) {
   ok(visibleChars({ kind: 'reveal' }) === 0, 'an unknown kind must measure zero, not throw');
   ok(visibleChars({ kind: 'interactive', spec: { kind: 'scene', prompt: 'ab', beats: [{ caption: 'abc' }, { caption: 'abcde' }] } }) === 7,
     'a scene must measure its prompt plus its LONGEST caption, not its prompt alone');
+  // The Atlas clips have no `prompt` at all: the fallthrough read `undefined.length` and threw
+  // (2026-09-22 integration). A clip shows its title plus one caption at a time.
+  ok(visibleChars({ kind: 'interactive', spec: { kind: 'stage', title: 'ab', items: [{ label: 'L', display: 'D', caption: 'abc' }, { label: 'L', display: 'D', caption: 'abcdef' }] } }) === 10,
+    'a stage clip must measure its title plus its longest beat (label, value, caption)');
+  ok(visibleChars({ kind: 'interactive', spec: { kind: 'place', title: 'ab', slots: [{ label: 'xy', caption: 'abc' }, { label: 'z', caption: 'a' }] } }) === 8,
+    'a place clip must measure its title, every tray label and its longest caption');
   ok(median([1, 2, 3, 100]) === 3, 'median must not be an average');
   ok(median([]) === 0, 'median of nothing must be zero, not NaN');
   console.log('selftest passed');

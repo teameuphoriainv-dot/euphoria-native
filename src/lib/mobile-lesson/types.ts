@@ -23,6 +23,9 @@ import type { Contribution } from './grow-math';
 import type { DialSpec } from './parts/dial';
 import type { LeverSpec } from './parts/lever';
 import type { ScenePartSpec } from './parts/scene';
+import type { BuildSpec, PredictSpec } from './clickthrough/types';
+import type { StageClipSpec } from './clickthrough/stage';
+import type { PlaceBuilt } from './clickthrough/place';
 
 /**
  * A pixel scene on a card.
@@ -133,7 +136,17 @@ export type MobileInteractive =
    */
   | DialSpec
   | LeverSpec
-  | ScenePartSpec;
+  | ScenePartSpec
+  /*
+   * THE ATLAS CLIPS (clickthrough/*). Same hand-placed contract as the parts above. Stage and Place
+   * are their builders' superset types (a pictograph carries its sprite and unit key in `mark`),
+   * because the kit's bare StageSpec/PlaceSpec have no field for them and a pictograph without its
+   * unit key shows marks with no real number behind them.
+   */
+  | StageClipSpec
+  | PredictSpec
+  | BuildSpec
+  | PlaceBuilt;
 
 /**
  * One card in a deck.
