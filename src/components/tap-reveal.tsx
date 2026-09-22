@@ -4,14 +4,14 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { useLessonStepState } from '@/components/lesson-step-session';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getSprite, PixelSpriteView } from '@/lib/pixel';
-import { Ease } from '@/shared/motion/tokens';
+import { Duration, Ease } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
 export type RevealSpec = {
@@ -70,11 +70,31 @@ function RevealedCard({
   );
 }
 
-function FlipCard({
+/**
+ * The two faces of one card, CROSS-FADED IN PLACE. No rotation.
+ *
+ * A 3D Y-axis card flip (perspective 900, 400ms) arrived in e25ed9c, a commit whose message is entirely
+ * about the parity harness and never mentions this component. It went against two recorded
+ * decisions: c499b09 notes a 3D flip "was considered and REJECTED by the owner", and the web
+ * reveal this screen mirrors (euphoriaweb StepRenderer, `min-h-[210px]`, `initial={{ opacity: 0,
+ * y: 8 }}`, `duration: 0.28`) swaps the content without rotating. The same commit added
+ * scripts/tap-reveal-parity-regression.mjs banning that flip, so the pin went red on day one and
+ * stayed red for three weeks because no npm script runs it (A4 scout, 2026-09-22).
+ *
+ * The SHOWING face sits in flow and the other is absolute. 315b150 measured what happens when the
+ * hidden face reserves height instead: cards grew from 118 to 235pt and the last row sat 68pt
+ * below the screen, untappable. The fixed `height: 280` the flip needed brought a milder form of
+ * that back for every short card, so the card is minHeight 210 (the web value) and grows only when
+ * the revealed answer needs the room.
+ *
+ * Reduced motion keeps the state change and drops the interpolation: the front face is gone and
+ * the answer is there on the same frame.
+ */
+function RevealFaces({
   term,
   def,
   stat,
-  sprite: spriteId,
+  sprite,
   isOpen,
   termColor,
 }: {
@@ -85,47 +105,35 @@ function FlipCard({
   isOpen: boolean;
   termColor: string;
 }) {
+  const theme = useTheme();
   const reduced = useReducedMotion();
-  const t = useSharedValue(0);
+  const t = useSharedValue(isOpen ? 1 : 0);
 
   useEffect(() => {
-    if (reduced) {
-      t.set(isOpen ? 1 : 0);
-      return;
-    }
-    t.set(withTiming(isOpen ? 1 : 0, { duration: 400, easing: Easing.inOut(Easing.ease) }));
+    if (reduced) t.set(isOpen ? 1 : 0);
+    else t.set(withTiming(isOpen ? 1 : 0, { duration: Duration.base, easing: Ease.inOut }));
   }, [isOpen, reduced, t]);
 
-  const frontStyle = useAnimatedStyle(() => {
-    const angle = `${t.get() * 180}deg`;
-    return {
-      backfaceVisibility: 'hidden' as const,
-      transform: [{ perspective: 900 }, { rotateY: angle }],
-      opacity: 1 - t.get(),
-    };
-  });
-
-  const backStyle = useAnimatedStyle(() => {
-    const angle = `${180 - (t.get() * 180)}deg`;
-    return {
-      backfaceVisibility: 'hidden' as const,
-      transform: [{ perspective: 900 }, { rotateY: angle }],
-      opacity: t.get(),
-    };
-  });
+  const frontStyle = useAnimatedStyle(() => ({ opacity: 1 - t.get() }));
 
   return (
-      <View style={[styles.faces, styles.facesWidth]}>
-      <Animated.View style={[styles.card, frontStyle, isOpen ? styles.cardOpen : styles.cardClosed]}>
+    <View
+      style={[
+        styles.card,
+        isOpen
+          ? { borderColor: theme.iconGold + '4D', backgroundColor: theme.cardElevated }
+          : { borderColor: theme.border, backgroundColor: theme.card },
+      ]}>
+      {isOpen ? <RevealedCard term={term} def={def} stat={stat} sprite={sprite} /> : null}
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.front, isOpen ? styles.frontLeaving : null, frontStyle]}>
         <ThemedText type="bodyMedium" style={styles.closedTerm} maxFontSizeMultiplier={1.6}>
           {term}
         </ThemedText>
         <ThemedText type="small" style={{ color: termColor }}>
           Tap to reveal
         </ThemedText>
-      </Animated.View>
-      <Animated.View pointerEvents="none" style={[styles.card, backStyle, styles.back, isOpen ? styles.cardOpen : styles.cardClosed]}>
-        <RevealedCard term={term} def={def} stat={stat} sprite={spriteId} />
       </Animated.View>
     </View>
   );
@@ -168,7 +176,7 @@ export function TapReveal({ spec, onComplete }: { spec: RevealSpec; onComplete: 
               // driver unable to see that a reveal step was still gating Continue.
               accessibilityLabel={isOpen ? `${card.term}. ${card.def}` : `${card.term}. Not revealed yet.`}
               accessibilityHint={isOpen ? undefined : 'Activate to reveal the answer.'}>
-              <FlipCard
+              <RevealFaces
                 term={card.term}
                 def={card.def}
                 stat={card.stat}
@@ -187,7 +195,7 @@ export function TapReveal({ spec, onComplete }: { spec: RevealSpec; onComplete: 
         style={[styles.continue, { backgroundColor: allRevealed ? theme.primary : theme.primary + '66' }]}
         accessibilityRole="button"
         accessibilityLabel="Continue">
-        <ThemedText type="smallBold" style={{ color: '#fff' }}>Continue</ThemedText>
+        <ThemedText type="smallBold" style={{ color: theme.primaryForeground }}>Continue</ThemedText>
       </SpringPressable>
     </View>
   );
@@ -198,22 +206,19 @@ const styles = StyleSheet.create({
   title: { textAlign: 'center' },
   subtitle: { textAlign: 'center' },
   grid: { gap: Spacing.three, width: '100%' },
-  cardWrap: { width: '100%', height: 280 },
-  faces: { height: 280 },
-  facesWidth: { width: '100%' },
+  cardWrap: { width: '100%' },
   card: {
-    position: 'absolute',
-    inset: 0,
+    minHeight: 210,
     borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: Spacing.two,
   },
-  cardOpen: { borderColor: 'rgba(251,191,36,0.30)', backgroundColor: 'rgba(255,255,255,0.04)' },
-  cardClosed: { borderColor: 'rgba(255,255,255,0.10)', backgroundColor: 'rgba(255,255,255,0.02)' },
-  back: { borderColor: 'rgba(255,255,255,0.10)' },
+  front: { justifyContent: 'center', alignItems: 'center', gap: Spacing.two },
+  // Absolute only while fading out, so the leaving face adds no height (315b150). It sits on the
+  // card's border box, so it needs the card's own 24 inset to stay put as it fades.
+  frontLeaving: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, padding: 24 },
   closedTerm: { textAlign: 'center' },
   revealed: { alignItems: 'center', gap: 10 },
   stat: { fontSize: 36, lineHeight: 40, fontWeight: '900', textAlign: 'center', fontVariant: ['tabular-nums'] },

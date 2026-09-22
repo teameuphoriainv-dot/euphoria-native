@@ -18,6 +18,15 @@
  *
  * The rule is therefore narrow and specific: an EM dash with a word character either side is
  * prose, and prose is the thing being complained about.
+ *
+ * THE ESCAPED FORM COUNTS TOO. A string literal can spell the dash as the six characters
+ * backslash-u-2-0-1-4, and JS renders it as a real em dash on screen. This pin only matched the
+ * literal character, so two sentences shipped straight past it (A4 scout, 2026-09-22):
+ *   why-not-free.tsx:50  "...so we can make it better \u2014 nothing that identifies you personally."
+ *   options.tsx:713      "Held to expiry \u2014 no exercise or assignment yet."
+ * The escaped EN dash (\u2013) is caught as well, but only with a LETTER on at least one side,
+ * so an escaped numeric range such as 13\u201317 stays legal exactly like its literal twin above.
+ * The lone placeholder '\u2014' has no word either side and is still allowed.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -41,6 +50,11 @@ function decomment(src) {
     .join('\n');
 }
 
+/** `\u2014` or `\u{2014}` written as an escape, with a word character either side. */
+const ESCAPED_EM = /\w[^\S\n]*\\u\{?2014\}?[^\S\n]*\w/;
+/** Escaped en dash used as prose: a letter on at least one side. Digit-to-digit ranges pass. */
+const ESCAPED_EN_PROSE = /[A-Za-z][^\S\n]*\\u\{?2013\}?[^\S\n]*\w|\w[^\S\n]*\\u\{?2013\}?[^\S\n]*[A-Za-z]/;
+
 const offenders = [];
 for (const file of walk('src')) {
   decomment(readFileSync(file, 'utf8'))
@@ -48,6 +62,7 @@ for (const file of walk('src')) {
     .forEach((line, i) => {
       if (/console\.(log|warn|error|info)/.test(line)) return;
       if (/\w[^\S\n]*—[^\S\n]*\w/.test(line)) offenders.push(`${file}:${i + 1}: ${line.trim()}`);
+      else if (ESCAPED_EM.test(line) || ESCAPED_EN_PROSE.test(line)) offenders.push(`${file}:${i + 1}: ${line.trim()} (escaped)`);
     });
 }
 

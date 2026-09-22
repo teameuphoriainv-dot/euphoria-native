@@ -710,7 +710,7 @@ export default function Options() {
                 ? 'You\u2019ve used every preview contract. More arrives with a full options data plan.'
                 : chosen && chosen.cost > cash
                   ? `Costs more than your ${money(cash)} in cash.`
-                  : `One contract covers ${CONTRACT_SIZE} shares. Held to expiry \u2014 no exercise or assignment yet.`}
+                  : `One contract covers ${CONTRACT_SIZE} shares. Held to expiry. No exercise or assignment yet.`}
             </ThemedText>
           </Card>
         </RiseIn>
