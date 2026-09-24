@@ -38,11 +38,11 @@ const AnimatedG = Animated.createAnimatedComponent(G);
  *  are the asset's existing tones — no new hue enters the palette. */
 const LIT = '#DEA5F5';
 const DARK = '#A451E6';
-const RIM = '#F1EFF5';
+export const RIM = '#F1EFF5';
 
 const R_MID = 15.53;
 const BAND = 14.72;
-const RIM_W = 1.21;
+export const RIM_W = 1.21;
 /** Outer edge, needed as the weave clip radius. */
 const R_OUT = R_MID + BAND / 2;
 

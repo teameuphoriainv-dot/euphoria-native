@@ -149,6 +149,7 @@ export function Atlas({
   shakeKey = 0,
   entrance,
   idle = false,
+  still = false,
   onPress,
   accessibilityLabel = 'Atlas, the Euphoria mascot',
   accessibilityHint,
@@ -189,6 +190,11 @@ export function Atlas({
    *  should be still until something happens. Reads correctly from ~96px up; below that
    *  it's sub-pixel and just costs a frame callback. */
   idle?: boolean;
+  /** Hold the face perfectly still: no blink, saccade or smile-flex. `idle` does NOT do this --
+   *  those three timers are gated only by `idleMotion` (focus + size), so at 132pt they run
+   *  whatever `idle` says. StreakIgnite needs a pixel-identical hitstop and hard face cuts
+   *  between three stacked instances, and a blink landing inside either reads as a glitch. */
+  still?: boolean;
   /** Lets a screen make Atlas himself the action without nesting a Pressable around his own
    * interactive Pressable. The mascot reaction still runs first; Reduced Motion suppresses the
    * spin but never suppresses the action. */
@@ -281,7 +287,7 @@ export function Atlas({
    * 72 is where a 96-unit face renders at 0.75 and the smallest of these movements is still about a
    * pixel. Below it Atlas is decoration and holds still; above it he is the subject and behaves.
    */
-  const idleMotion = focused && size >= IDLE_MOTION_MIN_SIZE;
+  const idleMotion = focused && !still && size >= IDLE_MOTION_MIN_SIZE;
 
   const [spinning, setSpinning] = useState(false);
 
