@@ -191,18 +191,13 @@ export function AtlasConversation({
               <ThemedText style={styles.term}>{beat.term}</ThemedText>
             ) : null}
 
-            <View>
-              <ThemedText
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                style={[styles.message, styles.ghost]}>
-                {visibleText}
-              </ThemedText>
-              <ThemedText accessibilityElementsHidden style={[styles.message, styles.typed]}>
-                {shown}
-                {!done ? <ThemedText style={styles.cursor}>▌</ThemedText> : null}
-              </ThemedText>
-            </View>
+            {/* Full string laid out from the start, untyped remainder transparent, so a word never
+                starts on one line and jumps to the next as it types. No inline cursor: its width
+                would shift the wrap it exists to sit inside. */}
+            <ThemedText accessibilityElementsHidden style={styles.message}>
+              {shown}
+              <ThemedText style={styles.untyped}>{visibleText.slice(shown.length)}</ThemedText>
+            </ThemedText>
 
             {beat.kind === 'teach' && beat.aside && done ? (
               <Animated.View entering={FadeIn.duration(reduced ? 1 : 200)}>
@@ -333,9 +328,7 @@ const styles = StyleSheet.create({
   tail: { position: 'absolute', left: -9, top: 16 },
   term: { marginBottom: 4, color: '#BB83F1', fontFamily: Fonts.black, fontSize: 15, lineHeight: 20, letterSpacing: -0.2 },
   message: { color: '#F1EFF5', fontSize: 14.5, lineHeight: 22 },
-  ghost: { opacity: 0 },
-  typed: { position: 'absolute', top: 0, left: 0, right: 0 },
-  cursor: { color: '#BB83F1', fontSize: 14.5, lineHeight: 22 },
+  untyped: { color: 'transparent' },
   aside: { marginTop: 8, fontSize: 12.5, lineHeight: 18, fontStyle: 'italic' },
   options: { marginTop: 12, gap: 8 },
   option: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 16, paddingVertical: 12 },

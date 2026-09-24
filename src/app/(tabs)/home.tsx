@@ -10,7 +10,7 @@
  * Every number on this screen comes from the store or the curriculum. Nothing here is mock.
  */
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -34,6 +34,9 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
+import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
+import * as Haptics from 'expo-haptics';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { LessonArt } from '@/components/lesson-art';
@@ -98,8 +101,13 @@ const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
  * Every variant except 'none' also FOLDS IN the streak card and the quests header, because all
  * three currently state the same two facts. 'none' is today's screen untouched, as the control.
  */
-type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none';
-const BAND: Band = 'grid';
+type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none' | 'today';
+/*
+ * 'today' -- the chosen band. One quiet card: streak line, the week, the daily goal as a bar, and
+ * the quests as a checklist. No sprites, one accent (primary); success green only on a finished
+ * quest. Every number is live store state: streak and minutes are written by lesson completion.
+ */
+const BAND: Band = 'today';
 
 /**
  * <StatTile> — one cell of the Home grid.
@@ -341,6 +349,8 @@ export default function Home() {
       guidesToday: st.guidesToday,
       lastGameDay: st.lastGameDay,
       profile: st.profile,
+      streak: st.streak,
+      completedLessons: st.completedLessons,
     })),
   );
   const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
@@ -386,6 +396,23 @@ export default function Home() {
 
 
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
+
+  /*
+   * STREAK CELEBRATION -- the one place confetti is used on Home. Fires when the streak goes UP
+   * while Home is mounted (tabs stay mounted, so returning from a lesson counts), never on first
+   * mount: a burst for a number you already had is noise. Reduced Motion gets the haptic only.
+   */
+  const reducedMotion = useReducedMotion();
+  const confettiRef = useRef<PIConfettiMethods>(null);
+  const [blastAt, setBlastAt] = useState({ x: 0, y: 0 });
+  const prevStreak = useRef(streak);
+  useEffect(() => {
+    if (streak > prevStreak.current) {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      confettiRef.current?.restart();
+    }
+    prevStreak.current = streak;
+  }, [streak]);
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -787,6 +814,58 @@ export default function Home() {
             </View>
           )}
 
+          {BAND === 'today' && (
+            <Card style={styles.todayCard}>
+              <View style={styles.todayBody}>
+              <View style={styles.todayHead}>
+                <ThemedText type="title" maxFontSizeMultiplier={1.6}>
+                  {streak === 0 ? 'Start your streak' : `${String(streak)} day streak`}
+                </ThemedText>
+              </View>
+              <WeekStreak
+                isDone={isDone}
+                todayIdx={todayIdx}
+                onRowLayout={(x, y, w) => setBlastAt({ x: x + ((todayIdx + 0.5) * w) / 7, y: y + 23 + (STREAK_DOT + 6) / 2 })}
+              />
+              <View
+                accessible
+                accessibilityRole="progressbar"
+                accessibilityLabel={`${String(minutesDone)} of ${String(goalMinutes)} minutes today`}
+                accessibilityValue={{ min: 0, max: goalMinutes, now: Math.min(minutesDone, goalMinutes) }}
+                style={styles.todayGoal}>
+                <View style={[styles.todayTrack, { backgroundColor: theme.muted }]}>
+                  <View style={[styles.todayFill, { backgroundColor: theme.primary, width: `${Math.min(100, Math.round((minutesDone / Math.max(1, goalMinutes)) * 100))}%` }]} />
+                </View>
+              </View>
+              <View style={[styles.todayQuests, { borderTopColor: theme.border }]}>
+                {quests.map((q) => (
+                  <View
+                    key={`${q.kind}:${String(q.of)}`}
+                    accessible
+                    accessibilityLabel={`${q.title}, ${q.done ? 'done' : `${String(q.at)} of ${String(q.of)}`}`}
+                    style={styles.todayQuest}>
+                    <View style={[styles.todayTick, { backgroundColor: q.done ? theme.success : 'transparent', borderColor: q.done ? theme.success : theme.border }]}>
+                      {q.done ? <UIcon name="check" size={11} color={theme.primaryForeground} /> : null}
+                    </View>
+                    <ThemedText type="bodyMedium" style={{ flex: 1, color: q.done ? theme.mutedForeground : theme.text }}>
+                      {q.title}
+                    </ThemedText>
+                    <ThemedText type="small" style={{ color: q.done ? theme.success : theme.mutedForeground }}>
+                      {q.at}/{q.of}
+                    </ThemedText>
+                  </View>
+                ))}
+              </View>
+              {!reducedMotion && (
+                <PIConfetti ref={confettiRef} autoplay={false} fadeOutOnEnd containerStyle={StyleSheet.absoluteFill}>
+                  <PIConfetti.Origin blastPosition={blastAt} count={70} colors={[theme.primary, theme.iconLilac, theme.streak, theme.success]}>
+                    <PIConfetti.Flake size={7} />
+                  </PIConfetti.Origin>
+                </PIConfetti>
+              )}
+              </View>
+            </Card>
+          )}
           {/* Folded into the band in every variant but the control. */}
           {BAND === 'none' && (<>
           <SpringPressable
@@ -1000,6 +1079,15 @@ const styles = StyleSheet.create({
      would also push the flame away from the words it belongs to. */
   streakAtlas: { marginLeft: 'auto' },
   streakCard: { paddingVertical: Spacing.three },
+  todayCard: { marginTop: Spacing.four, paddingVertical: Spacing.four },
+  todayBody: { gap: Spacing.three },
+  todayHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two },
+  todayGoal: { gap: 6 },
+  todayTrack: { height: 6, borderRadius: Radius.track, overflow: 'hidden' },
+  todayFill: { height: 6, borderRadius: Radius.track },
+  todayQuests: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.two },
+  todayQuest: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: 6 },
+  todayTick: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   streakTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   /* lineHeight pinned to the size: `display` ships a 40pt line box, which left a visible dead
      band under the number inside a card built to be compact. */

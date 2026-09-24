@@ -80,29 +80,19 @@ export function Typewriter({ text, delay = 0, style, skipKey = 0 }: { text: stri
   }, [text, delay, reduced, skipKey]);
 
   /*
-   * ACCESSIBILITY. Two copies of the text are on screen: a full one at opacity 0 reserving the box,
-   * and the sliced visible one. An `opacity: 0` Text is STILL in the accessibility tree, so
-   * VoiceOver read every line twice — and once ~10 onboarding questions started routing through
-   * here, that was ten double-announcements. Focus landing mid-type also read a truncated question
-   * ("How much do you k").
+   * ONE TEXT, FULL LENGTH. The untyped remainder is laid out but transparent, so the line breaks
+   * are the final sentence's from the first character. Rendering only `text.slice(0, n)` let a
+   * half-typed word fit on line 1 and then jump to line 2 once it grew ("investing" in the
+   * onboarding questions) — the ghost reserved the box's height, not the words' positions.
    *
-   * The ghost is hidden from assistive tech, and the visible copy carries the FULL string as its
-   * label so it is announced complete and once, whatever the animation has reached.
+   * ACCESSIBILITY: the label is the full string, so VoiceOver announces it complete and once,
+   * whatever the animation has reached.
    */
   return (
-    <View>
-      {/* reserves the final box so the bubble never reflows as characters land */}
-      <ThemedText
-        type="bodyMedium"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        style={[styles.line, style, { opacity: 0 }]}>
-        {text}
-      </ThemedText>
-      <ThemedText type="bodyMedium" accessibilityLabel={text} style={[styles.line, style, styles.overlay]}>
-        {text.slice(0, n)}
-      </ThemedText>
-    </View>
+    <ThemedText type="bodyMedium" accessibilityLabel={text} style={[styles.line, style]}>
+      {text.slice(0, n)}
+      <ThemedText style={styles.untyped}>{text.slice(n)}</ThemedText>
+    </ThemedText>
   );
 }
 
@@ -172,7 +162,7 @@ export function AtlasSpeech({
 
 const styles = StyleSheet.create({
   line: { fontSize: FontSize.bodySm, lineHeight: 21 },
-  overlay: { position: 'absolute', top: 0, left: 0, right: 0 },
+  untyped: { color: 'transparent' },
   bubble: {
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.lg,

@@ -36,6 +36,7 @@ import { AppState as RNAppState } from 'react-native';
 
 import { Ev, flushAnalytics, track } from '@/lib/analytics';
 import { shouldCountReturn, useApp } from '@/lib/store';
+import { startActivitySync } from '@/lib/activity-sync';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -83,6 +84,9 @@ function RootLayout() {
     // mix route data and network latency into the startup metric.
     markInteractive({ params: { fonts_loaded: true } });
   }, [loaded, markInteractive]);
+
+  // Mirror today's minutes/lessons/streak to Supabase daily_activity (lib/activity-sync.ts).
+  useEffect(() => startActivitySync(), []);
 
   /*
    * Ask RevenueCat what this Apple ID is actually entitled to, once per launch, so a subscription
