@@ -41,6 +41,7 @@ import {
   balancePoint, createGame, step,
 } from '@/lib/budget-balancer';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { playSfx } from '@/lib/sfx';
 
 const GAME_ID = 'budget-balancer';
 /** One nudge from the accessible buttons and from VoiceOver's adjustable actions. */
@@ -159,6 +160,7 @@ function Run({ onRestart, qaOver }: { onRestart: () => void; qaOver: boolean }) 
         }
         if (next.over) {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          playSfx('gameOver');
           recordGameScore(GAME_ID, next.score);
           useApp.getState().awardGameXp();
           return;

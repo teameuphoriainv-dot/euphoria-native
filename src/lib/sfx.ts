@@ -22,6 +22,8 @@ const FILES = {
   purchase: require('../../assets/sounds/drop_002.m4a'),
   /* Reward card reveal: bong_001, used nowhere else, so turning a card over has its own sound. */
   reveal: require('../../assets/sounds/bong_001.m4a'),
+  /* A game run ending. minimize_004 falls in pitch: an ending, not a mistake, so never `wrong`. */
+  gameOver: require('../../assets/sounds/minimize_004.m4a'),
   /* Streak ignite. maximize_008 is the shorter, airier whoosh: it sits under the ~700ms turn
      without trailing past the landing. confirmation_004 is the landing chord -- deliberately NOT
      confirmation_002, which `complete` plays a moment earlier on the same lesson end. glass_002

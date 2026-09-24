@@ -38,6 +38,7 @@ import {
 } from '@/lib/money-2048';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { playSfx } from '@/lib/sfx';
 
 const GAME_ID = 'money-2048';
 const QA_OVER_GRID: Grid = [
@@ -166,6 +167,7 @@ export default function Money2048() {
     if (next.flat().includes(GOAL) && !won) {
       setWon(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      playSfx('complete');
       useApp.getState().awardGameXp();
     }
 
@@ -173,6 +175,7 @@ export default function Money2048() {
     if (!canMove(next)) {
       setOver(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      playSfx('gameOver');
     }
   }, [over, rand, recordGameScore, won, grid, score]);
 
