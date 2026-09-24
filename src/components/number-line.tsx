@@ -8,10 +8,8 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  type GestureResponderEvent,
   type LayoutChangeEvent,
   PanResponder,
-  Pressable,
   StyleSheet,
   View,
 } from 'react-native';
@@ -77,32 +75,32 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
     setValue((current) => changeNumberLineValue(current, next, submitted, spec));
   }, [setValue, spec, submitted]);
 
-  const place = useCallback((event: GestureResponderEvent) => {
+  const placeAt = useCallback((x: number) => {
     if (submitted || width <= 0) return;
-    change(numberLineValueAtX(event.nativeEvent.locationX, width, spec));
+    change(numberLineValueAtX(x, width, spec));
   }, [change, spec, submitted, width]);
 
+  // Handlers live on a plain View whose track children are pointerEvents="none", so locationX is always
+  // relative to this hit area. On a Pressable they were silently discarded (Pressable spreads its
+  // own responder handlers after any passed in), so only taps worked and a drag reached the
+  // navigator's swipe-back instead, closing the lesson.
   const panResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => !submitted,
     onMoveShouldSetPanResponder: (_event, gesture) => shouldNumberLineClaimGesture(gesture.dx, gesture.dy, submitted),
     onPanResponderGrant: (event) => {
-      place(event);
+      placeAt(event.nativeEvent.locationX);
       void Haptics.selectionAsync();
     },
-    onPanResponderMove: place,
-    onPanResponderRelease: place,
+    onPanResponderMove: (event) => placeAt(event.nativeEvent.locationX),
+    onPanResponderRelease: (event) => placeAt(event.nativeEvent.locationX),
     // Once a horizontal adjustment begins, the surrounding vertical ScrollView must not take it.
     onPanResponderTerminationRequest: () => false,
-  }), [place, submitted]);
+  }), [placeAt, submitted]);
 
   const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
   const nudge = (direction: 1 | -1) => {
     if (submitted) return;
     change(value + direction * (spec.step ?? 1));
-    void Haptics.selectionAsync();
-  };
-
-  const tapPlace = (event: GestureResponderEvent) => {
-    place(event);
     void Haptics.selectionAsync();
   };
 
@@ -139,12 +137,11 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
       </Animated.View>
 
       <View style={styles.sliderWrap}>
-        <Pressable
+        <View
           {...panResponder.panHandlers}
-          disabled={submitted}
-          onPress={tapPlace}
           onLayout={onLayout}
           style={styles.hit}
+          accessible
           accessibilityRole="adjustable"
           accessibilityLabel={spec.prompt}
           accessibilityHint={submitted ? 'Answer submitted.' : 'Swipe up or down, tap, or drag horizontally to change the value.'}
@@ -157,11 +154,11 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
           }}
           accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
           onAccessibilityAction={(event) => nudge(event.nativeEvent.actionName === 'decrement' ? -1 : 1)}>
-          <View style={[styles.track, { backgroundColor: theme.muted }]}> 
+          <View style={[styles.track, { backgroundColor: theme.muted }]} pointerEvents="none">
             <View style={[styles.trackFill, { width: percentStyle, backgroundColor: theme.primary }]} />
             <View style={[styles.marker, { left: percentStyle, backgroundColor: theme.primary }]} />
           </View>
-        </Pressable>
+        </View>
 
         {spec.ticks ? (
           <View style={styles.ticks}>

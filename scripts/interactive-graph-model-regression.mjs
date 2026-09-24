@@ -63,6 +63,16 @@ ok(graphControlSource.includes('onMoveShouldSetPanResponder'), 'generic graph co
 ok(graphControlSource.includes('Math.abs(gesture.dx) > Math.abs(gesture.dy)'), 'generic graph controls can steal vertical lesson scrolling');
 ok(graphControlSource.includes('onPanResponderMove'), 'generic graph controls do not update continuously while dragged');
 ok(graphControlSource.includes('onPanResponderTerminationRequest: () => false'), 'an active horizontal graph drag can be terminated by the lesson ScrollView');
+// Pressable spreads its own responder handlers after any passed in, so panHandlers on a Pressable
+// are silently dropped: taps worked, drags reached the navigator's swipe-back and closed the lesson.
+const numberLineSource = await readFile(join(ROOT, 'src/components/number-line.tsx'), 'utf8');
+const layoutSource = await readFile(join(ROOT, 'src/app/_layout.tsx'), 'utf8');
+for (const [name, source] of [['generic graph controls', graphControlSource], ['the number line', numberLineSource]]) {
+  ok(!/<Pressable[^>]*\{\.\.\.panResponder\.panHandlers\}/.test(source), `${name} spread panHandlers onto a Pressable, which discards the drag`);
+  ok(source.includes('onStartShouldSetPanResponder'), `${name} no longer claims the touch on press, so a tap cannot place the value`);
+  ok(source.includes('pointerEvents="none"'), `${name} track children can become the touch target and skew locationX`);
+}
+ok(/name="lesson" options=\{\{ gestureEnabled: false/.test(layoutSource), 'the lesson screen re-enabled swipe-back, which steals slider drags and closes the lesson');
 ok(graphControlSource.includes('accessibilityRole="adjustable"'), 'generic graph controls lost their adjustable accessibility role');
 ok(graphControlSource.includes("{ name: 'increment' }"), 'generic graph controls lost their accessibility increment action');
 ok(graphControlSource.includes("{ name: 'decrement' }"), 'generic graph controls lost their accessibility decrement action');
