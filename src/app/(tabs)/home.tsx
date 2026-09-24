@@ -953,7 +953,17 @@ export default function Home() {
           <Card style={styles.quests}>
             {quests.map((q, i) => (
               <View key={`${q.kind}:${String(q.of)}`} style={[styles.quest, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border }]}>
-                <View style={[styles.questTick, { backgroundColor: q.done ? theme.success : 'transparent', borderColor: q.done ? theme.success : theme.border }]}>
+                <View style={[
+                  styles.questTick,
+                  q.done
+                    ? { backgroundColor: theme.success, borderColor: theme.success }
+                    // NO RING around an undone quest. The circle was there when the mark was an
+                    // empty ring and the ring WAS the affordance; once each row carried its own
+                    // pixel sprite the border became a second outline around a drawing that already
+                    // has one, and five of them stacked read as chrome. Done keeps the filled ring,
+                    // because there the circle is the completion state rather than a frame.
+                    : styles.questTickOpen,
+                ]}>
                   {/* UNIT 12 deliverable 4. Undone quests carry their authored mark rather than an
                       empty ring — the row now says WHAT is being asked before you read the title.
                       Done still flips to the check on a filled ring, so the completion affordance
@@ -961,7 +971,7 @@ export default function Home() {
                   {q.done ? (
                     <UIcon name="check" size={13} color={theme.primaryForeground} />
                   ) : (
-                    <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={16} />
+                    <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={20} />
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
@@ -1119,6 +1129,8 @@ const styles = StyleSheet.create({
   quests: { paddingVertical: 0, paddingHorizontal: Spacing.three },
   quest: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three },
   questTick: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  /* Same 22pt footprint, so removing the ring does not shift the titles out of alignment. */
+  questTickOpen: { backgroundColor: 'transparent', borderWidth: 0 },
   questTrack: { height: 5, borderRadius: Radius.track, overflow: 'hidden', marginTop: 6 },
   questFill: { height: 5, borderRadius: Radius.track },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
