@@ -243,7 +243,11 @@ export default function Learn() {
   const params = useLocalSearchParams<{ qa?: string }>();
   const qa = __DEV__ ? params.qa : undefined;
   const { width } = useWindowDimensions();
-  const sagaWidth = Math.min(width - Spacing.four * 2, 460);
+  /* The trail's width, and with it the LEVEL card's edges. Spacing.three per side, the same gutter as
+     the header, the trial card and the course chips, so every card on this screen shares one left
+     and one right edge. It was Spacing.four, which inset the level card 8pt more than the trial
+     card directly above it. */
+  const sagaWidth = Math.min(width - Spacing.three * 2, 460);
 
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
@@ -1011,12 +1015,20 @@ const styles = StyleSheet.create({
   trialDots: { flexDirection: 'row', gap: 5, marginTop: 8, alignSelf: 'stretch' },
   trialDot: { flex: 1, height: 6, borderRadius: Radius.track, borderWidth: 1 },
   safe: { flex: 1 },
-  header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
-  headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.two },
-  countPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
+  /* paddingBottom separates the course progress track from whatever follows. With none, the track
+     sat 4pt above the trial card's gradient border and the two read as one broken double line. */
+  header: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two, paddingBottom: Spacing.two + Spacing.one },
+  /* CENTRED, not flex-start. At flex-start the title, the 32pt streak pill and the two 44pt round
+     buttons each hung from the top edge at a different height, so the row had three different
+     centres. The title can still wrap to two lines at large Dynamic Type; centring keeps the
+     controls on its middle rather than its first line, which is how Home's header reads too. */
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  /* 40pt, the same height as the Atlas and profile circles beside it, so the three controls read as
+     one set of equal-height capsules instead of a short pill next to two tall circles. */
+  countPill: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.pill, borderWidth: 1 },
   streakPill: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
   streakFlame: { width: 18, height: 18, alignItems: 'center', justifyContent: 'center' },
-  track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
+  track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.two + Spacing.one },
   fill: { height: 6, borderRadius: Radius.chip },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
   // content, so without this the chip row gets squeezed and clips.
