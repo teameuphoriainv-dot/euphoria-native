@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   PanResponder,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -266,20 +265,27 @@ function GraphControl({ slider, value, onChange, stepOverride }: { slider: Graph
   const step = stepOverride ?? controlStep(slider);
   const showEndpoints = slider.label.trim().toLowerCase() === 'years';
   const set = (next: number) => onChange(Math.max(slider.min, Math.min(slider.max, next)));
-  const place = useCallback((event: GestureResponderEvent) => {
+  const placeAt = useCallback((x: number) => {
     if (!width) return;
-    const x = Math.max(0, Math.min(width, event.nativeEvent.locationX));
-    const raw = slider.min + x / width * span;
+    const clamped = Math.max(0, Math.min(width, x));
+    const raw = slider.min + clamped / width * span;
     const snapped = slider.min + Math.round((raw - slider.min) / step) * step;
     onChange(Math.max(slider.min, Math.min(slider.max, snapped)));
   }, [onChange, slider.max, slider.min, span, step, width]);
+  // A plain View, NOT a Pressable, and the track below is pointerEvents="none" so locationX is always
+  // measured against this hit area rather than whichever child is under the finger. Pressable spreads its own responder handlers AFTER any passed in,
+  // so `{...panHandlers}` on a Pressable is silently discarded: only taps ever reached the slider and
+  // the drag fell through to the navigator's swipe-back, which closed the lesson.
   const panResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: (_event, gesture) => Math.abs(gesture.dx) >= 6 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
-    onPanResponderGrant: place,
-    onPanResponderMove: place,
-    onPanResponderRelease: place,
+    onPanResponderGrant: (event) => {
+      placeAt(event.nativeEvent.locationX);
+    },
+    onPanResponderMove: (event) => placeAt(event.nativeEvent.locationX),
+    onPanResponderRelease: (event) => placeAt(event.nativeEvent.locationX),
     onPanResponderTerminationRequest: () => false,
-  }), [place]);
+  }), [placeAt]);
   const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
 
   return (
@@ -288,21 +294,21 @@ function GraphControl({ slider, value, onChange, stepOverride }: { slider: Graph
         <ThemedText type="small" themeColor="mutedForeground" style={{ flex: 1 }}>{slider.label}</ThemedText>
         <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>{formatValue(value, slider)}</ThemedText>
       </View>
-      <Pressable
+      <View
         style={styles.trackHit}
-        onPress={place}
         onLayout={onLayout}
         {...panResponder.panHandlers}
+        accessible
         accessibilityRole="adjustable"
         accessibilityLabel={slider.label}
         accessibilityValue={{ min: slider.min, max: slider.max, now: value, text: formatValue(value, slider) }}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={(event) => set(value + (event.nativeEvent.actionName === 'decrement' ? -step : step))}>
-        <View style={[styles.track, { backgroundColor: theme.muted }]}> 
+        <View style={[styles.track, { backgroundColor: theme.muted }]} pointerEvents="none">
           <View style={[styles.trackFill, { width: percentStyle, backgroundColor: theme.primary }]} />
           <View style={[styles.thumb, { left: percentStyle, backgroundColor: theme.primary, borderColor: theme.primaryForeground }]} />
         </View>
-      </Pressable>
+      </View>
       {showEndpoints ? (
         <View style={styles.between}>
           <ThemedText type="small" themeColor="mutedForeground">today</ThemedText>
