@@ -699,10 +699,10 @@ export function LessonVisual({ visual, bare = false, chartMaxHeight }: {
         : null}
       {v.title && v.type === 'flow' && flowMotion ? (
         <VisualFadeUp delay={flowMotion.titleDelay} duration={flowMotion.duration} translateY={flowMotion.translateY}>
-          <ThemedText type="smallBold" style={styles.flowHeader}>{v.title}</ThemedText>
+          <ThemedText type="smallBold" style={[styles.flowHeader, chartMaxHeight ? styles.compactTitle : undefined]}>{v.title}</ThemedText>
         </VisualFadeUp>
       ) : v.title && v.type !== 'metric' ? (
-        <ThemedText type="smallBold" style={v.type === 'comparison' ? styles.comparisonHeader : undefined}>{v.title}</ThemedText>
+        <ThemedText type="smallBold" style={[v.type === 'comparison' ? styles.comparisonHeader : undefined, chartMaxHeight ? styles.compactTitle : undefined]}>{v.title}</ThemedText>
       ) : null}
       {body}
       {interactive && openRow === null ? (
@@ -715,7 +715,26 @@ export function LessonVisual({ visual, bare = false, chartMaxHeight }: {
 
   const contents = (
     <>
-      {chartMaxHeight ? <View style={[styles.cappedChart, { maxHeight: chartMaxHeight }]}>{chart}</View> : chart}
+      {/*
+        * THE CAP IS NO LONGER A maxHeight, AND THE COLUMN STRETCHES.
+        *
+        * Both halves were reproduced on the iPhone 17 simulator, applied-accounting lesson 5,
+        * "Why This Matters" (Toys "R" Us against Microsoft, two flow charts):
+        *
+        * 1. `alignItems: 'center'` shrink-wrapped the chart body. A flow row's label column is
+        *    `flex: 1, minWidth: 0`, and flex:1 inside a shrink-wrapped row resolves to ZERO width, so
+        *    every step label vanished and only the dots and sprites drew.
+        * 2. `maxHeight` never shortened anything. iOS leaves overflow visible, so a chart taller
+        *    than the cap still painted at full height while the layout placed the panel's caption
+        *    where the cap said the chart ended: "Tap any of these" was drawn straight through
+        *    "Ignoring cash flow". Every time the cap was active it produced an overlap, and when it
+        *    was not active it did nothing. The stakes card already scrolls with a pinned Continue,
+        *    so the panel simply takes the height its chart needs.
+        *
+        * `chartMaxHeight` stays as the COMPACT flag the stakes card passes, so its titles still
+        * centre the way that screen was designed.
+        */}
+      {chartMaxHeight ? <View style={styles.cappedChart}>{chart}</View> : chart}
       {selected?.explain ? (
         <VisualAtlasExplanation key={`visual-atlas-${String(openRow)}`} text={selected.explain} />
       ) : null}
@@ -741,7 +760,8 @@ export function LessonVisual({ visual, bare = false, chartMaxHeight }: {
 
 const styles = StyleSheet.create({
   bare: { width: '100%', gap: Spacing.two },
-  cappedChart: { width: '100%', alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
+  cappedChart: { width: '100%', alignItems: 'stretch', gap: Spacing.two },
+  compactTitle: { textAlign: 'center' },
   metric: { width: '100%', alignItems: 'center', gap: 6, paddingVertical: 12 },
   metricTitle: { color: 'rgba(242,239,247,0.70)', textAlign: 'center', fontSize: 11, lineHeight: 15, fontWeight: '600', letterSpacing: 0.3 },
   metricSprite: { paddingVertical: 4 },
