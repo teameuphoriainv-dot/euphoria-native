@@ -24,6 +24,7 @@ import { useLessonStepState } from '@/components/lesson-step-session';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Fonts, FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { playSfx } from '@/lib/sfx';
 
 export type CalcSpec = {
   title: string;
@@ -110,6 +111,7 @@ export function CalcBlanks({ spec, onComplete }: { spec: CalcSpec; onComplete: (
             void Haptics.notificationAsync(
               allCorrect ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error,
             );
+            playSfx(allCorrect ? 'correct' : 'wrong');
             setTimeout(() => onComplete(allCorrect), 1400);
           }}
           style={[styles.check, { backgroundColor: canCheck ? theme.primary : theme.primary + '3D' }]}

@@ -25,6 +25,7 @@ import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
+import { playSfx } from '@/lib/sfx';
 
 export default function TermMatch() {
   const theme = useTheme();
@@ -109,6 +110,7 @@ export default function TermMatch() {
 
     if (other === id) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      playSfx('correct');
       setMatched((m) => [...m, id]);
       setSelTerm(null);
       setSelDef(null);
@@ -116,6 +118,7 @@ export default function TermMatch() {
     }
 
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    playSfx('wrong');
     setWrong([id, other]);
     wrongTimer.current = setTimeout(() => {
       wrongTimer.current = null;

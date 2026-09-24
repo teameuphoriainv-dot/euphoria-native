@@ -6,7 +6,7 @@
  */
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   cancelAnimation,
@@ -16,6 +16,7 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  FadeIn,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
@@ -398,7 +399,7 @@ export default function Learn() {
             <ProfileButton />
           </View>
           <View style={[styles.track, { backgroundColor: theme.muted }]}>
-            <View style={[styles.fill, { backgroundColor: accent, width: `${total ? (doneCount / total) * 100 : 0}%` }]} />
+            <ProgressFill ratio={total ? doneCount / total : 0} color={accent} />
           </View>
         </View>
       </RiseIn>
@@ -575,7 +576,7 @@ export default function Learn() {
             )}
           </View>
         ) : (
-          <View style={[styles.sagaCourse, { width: sagaWidth, opacity: stale ? 0.35 : 1 }]}>
+          <TrailFade key={trailCourseId} stale={stale} style={[styles.sagaCourse, { width: sagaWidth }]}>
             {units.map((unit) => {
               const centerX = sagaWidth / 2;
               const nodes = unit.lessons.map((lesson, localIndex) => {
@@ -754,7 +755,7 @@ export default function Learn() {
                 </View>
               );
             })}
-          </View>
+          </TrailFade>
         )}
       </ScrollView>
 
@@ -783,6 +784,41 @@ export default function Learn() {
   );
 }
 
+/**
+ * The course progress fill. It used to set `width` directly, so finishing a lesson or switching
+ * course snapped the bar. Now the full-width fill is scaled from its left edge -- transform only, no
+ * relayout -- and eases to the new ratio. Reduced Motion jumps straight there.
+ */
+function ProgressFill({ ratio, color }: { ratio: number; color: string }) {
+  const reduced = useReducedMotion();
+  const r = useSharedValue(ratio);
+  useEffect(() => {
+    r.set(reduced ? ratio : withTiming(ratio, { duration: Duration.count, easing: Ease.out }));
+  }, [ratio, reduced, r]);
+  const style = useAnimatedStyle(() => ({ transform: [{ scaleX: r.get() }] }));
+  return <Animated.View style={[styles.fill, styles.fillFull, { backgroundColor: color }, style]} />;
+}
+
+/**
+ * The trail for one course. Keyed by course, so a switch mounts a fresh trail that settles in
+ * (Duration.base, Ease.enter) instead of snapping; while the next course loads, the old trail dims
+ * over Duration.fast rather than cutting to 35%.
+ */
+function TrailFade({ stale, style, children }: { stale: boolean; style: StyleProp<ViewStyle>; children: ReactNode }) {
+  const reduced = useReducedMotion();
+  const o = useSharedValue(stale ? 0.35 : 1);
+  useEffect(() => {
+    const to = stale ? 0.35 : 1;
+    o.set(reduced ? to : withTiming(to, { duration: Duration.fast, easing: Ease.inOut }));
+  }, [stale, reduced, o]);
+  const dim = useAnimatedStyle(() => ({ opacity: o.get() }));
+  return (
+    <Animated.View entering={reduced ? undefined : FadeIn.duration(Duration.base).easing(Ease.enter)} style={[style, dim]}>
+      {children}
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   /* Carried over verbatim from home.tsx with the strip itself. */
   /* The border owns the outer margins; the row owns the padding inside it. */
@@ -805,6 +841,8 @@ const styles = StyleSheet.create({
   streakFlame: { width: 18, height: 18, alignItems: 'center', justifyContent: 'center' },
   track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
   fill: { height: 6, borderRadius: Radius.chip },
+  // ProgressFill scales this from its left edge instead of changing its width.
+  fillFull: { width: '100%', transformOrigin: 'left' },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
   // content, so without this the chip row gets squeezed and clips.
   chipScroll: { flexGrow: 0, flexShrink: 0, height: 44 + Spacing.two + Spacing.two },
