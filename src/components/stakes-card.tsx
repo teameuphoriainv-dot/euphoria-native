@@ -88,9 +88,21 @@ function StakesPanel({
         <UIcon name={positive ? 'check' : 'close'} size={20} color={color} strokeWidth={3} />
         {heading ? <ThemedText type="smallBold" style={{ color }}>{heading}</ThemedText> : null}
       </View>
-      <View style={[styles.visualStage, visualMaxHeight ? { maxHeight: visualMaxHeight } : null]}>
-        {visual ? <LessonVisual visual={visual} bare /> : null}
-        {!visual && svg ? <AuthoredSvg xml={svg} label={`${heading} chart`} /> : null}
+      {/*
+        THE CEILING BELONGS TO THE CHART, NOT TO THE STAGE.
+        It was on this View, which also contains Atlas's tapped explanation. A maxHeight does not
+        shorten that bubble, and RN leaves overflow visible on iOS, so a learner who tapped a point
+        on the Microsoft chart got the explanation painted straight over the "Allocate cash well"
+        label below it. Handing the cap to LessonVisual leaves the chart just as constrained and
+        lets the explanation push the panel taller, which the surrounding ScrollView already allows.
+      */}
+      <View style={styles.visualStage}>
+        {visual ? <LessonVisual visual={visual} bare chartMaxHeight={visualMaxHeight} /> : null}
+        {!visual && svg ? (
+          <View style={visualMaxHeight ? { maxHeight: visualMaxHeight, width: '100%' } : undefined}>
+            <AuthoredSvg xml={svg} label={`${heading} chart`} />
+          </View>
+        ) : null}
       </View>
       {/*
         THE LABEL IS DROPPED WHEN THE VISUAL ALREADY SAYS IT.

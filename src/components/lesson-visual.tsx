@@ -269,7 +269,19 @@ function parseVisualNumber(raw: string | number | undefined): number | null {
   return value;
 }
 
-export function LessonVisual({ visual, bare = false }: { visual: AnimatedVisual; bare?: boolean }) {
+export function LessonVisual({ visual, bare = false, chartMaxHeight }: {
+  visual: AnimatedVisual;
+  bare?: boolean;
+  /**
+   * Ceiling for the CHART, not for the whole visual.
+   *
+   * A caller with two of these on one screen (stakes-card) has to cap them. Capping the container
+   * that also holds Atlas's tapped explanation does not shorten that explanation, it just makes it
+   * overflow: RN leaves overflow visible on iOS, so the bubble painted straight over the panel
+   * label underneath it. The explanation is deliberately OUTSIDE this cap and reflows the panel.
+   */
+  chartMaxHeight?: number;
+}) {
   const theme = useTheme();
   const reduced = useReducedMotion();
   const v = visual as AnimatedVisual & Record<string, any>;
@@ -678,7 +690,7 @@ export function LessonVisual({ visual, bare = false }: { visual: AnimatedVisual;
    * order — a title, a label, a number, another label — with nothing saying what is being compared.
    * `image` is the role because that is what this is: a graphic with a description.
    */
-  const contents = (
+  const chart = (
     <>
       {HEADER_SPRITE_TYPES.has(v.type)
         ? v.type === 'flow'
@@ -698,6 +710,12 @@ export function LessonVisual({ visual, bare = false }: { visual: AnimatedVisual;
           Tap any of these and Atlas will explain it
         </ThemedText>
       ) : null}
+    </>
+  );
+
+  const contents = (
+    <>
+      {chartMaxHeight ? <View style={[styles.cappedChart, { maxHeight: chartMaxHeight }]}>{chart}</View> : chart}
       {selected?.explain ? (
         <VisualAtlasExplanation key={`visual-atlas-${String(openRow)}`} text={selected.explain} />
       ) : null}
@@ -723,6 +741,7 @@ export function LessonVisual({ visual, bare = false }: { visual: AnimatedVisual;
 
 const styles = StyleSheet.create({
   bare: { width: '100%', gap: Spacing.two },
+  cappedChart: { width: '100%', alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
   metric: { width: '100%', alignItems: 'center', gap: 6, paddingVertical: 12 },
   metricTitle: { color: 'rgba(242,239,247,0.70)', textAlign: 'center', fontSize: 11, lineHeight: 15, fontWeight: '600', letterSpacing: 0.3 },
   metricSprite: { paddingVertical: 4 },
