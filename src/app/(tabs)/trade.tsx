@@ -24,6 +24,7 @@ import { useEffect, useState, useRef } from 'react';
 import { router } from 'expo-router';
 import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Movers } from '@/components/movers';
@@ -41,6 +42,7 @@ import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeaRoute, tradeIdeas } from '@
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration, Ease } from '@/shared/motion/tokens';
 import { getMarks } from '@/lib/market';
 import { changeOf } from '@/lib/marks';
 import { PixelSpriteView, arrowSplit, newspaper } from '@/lib/pixel';
@@ -72,6 +74,43 @@ function Change({ v }: { v: number }) {
  * something else. `null` renders no percentage at all, which is what a position with no recorded
  * cost basis honestly has.
  */
+/*
+ * A LIVE PRICE ACKNOWLEDGES ITS TICK. Rows re-render on every market refresh and the figure used to
+ * swap silently, so the list read as a static table. Now a soft green/red wash sits behind the price
+ * for one beat when it genuinely moves, then fades (Ease.out). The number itself never animates
+ * through in-between values, so no price is implied that did not exist (AGENTS.md financial rule).
+ * First render and Reduced Motion: no wash.
+ */
+function PriceTick({ value }: { value: string }) {
+  const theme = useTheme();
+  const reduced = useReducedMotion();
+  const prev = useRef(value);
+  const [up, setUp] = useState(true);
+  const wash = useSharedValue(0);
+  useEffect(() => {
+    if (prev.current === value) return;
+    const from = Number(prev.current.replace(/[^0-9.-]/g, ''));
+    const to = Number(value.replace(/[^0-9.-]/g, ''));
+    prev.current = value;
+    if (reduced || Number.isNaN(from) || Number.isNaN(to) || from === to) return;
+    setUp(to > from);
+    wash.set(withSequence(
+      withTiming(1, { duration: Duration.instant, easing: Ease.out }),
+      withTiming(0, { duration: Duration.count - Duration.base, easing: Ease.out }),
+    ));
+  }, [value, reduced, wash]);
+  const washStyle = useAnimatedStyle(() => ({ opacity: wash.get() }));
+  return (
+    <View>
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.tickWash, { backgroundColor: (up ? theme.success : theme.destructive) + '2E' }, washStyle]}
+      />
+      <ThemedText type="bodyMedium">{value}</ThemedText>
+    </View>
+  );
+}
+
 function Row({ sym, right, sub, last, change }: { sym: string; right: string; sub: string; last: boolean; change: number | null }) {
   const theme = useTheme();
   const stock = STOCKS[sym];
@@ -91,7 +130,7 @@ function Row({ sym, right, sub, last, change }: { sym: string; right: string; su
           <ThemedText type="small" themeColor="mutedForeground">{sub}</ThemedText>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <ThemedText type="bodyMedium">{right}</ThemedText>
+          <PriceTick value={right} />
           {change !== null && <Change v={change} />}
         </View>
       </View>
@@ -487,6 +526,7 @@ export default function Trade() {
 }
 
 const styles = StyleSheet.create({
+  tickWash: { position: 'absolute', top: -2, bottom: -2, left: -6, right: -6, borderRadius: Radius.chip },
   safe: { flex: 1 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four, gap: Spacing.three },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
