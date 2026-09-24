@@ -14,10 +14,11 @@
  * directory so the two features cannot invent contradictory populations. Nothing user-facing may
  * describe those people as real.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { LeagueCrest } from '@/components/league-crest';
@@ -34,7 +35,7 @@ import { avatarFor } from '@/lib/avatars';
 import { labelFor } from '@/lib/league-week';
 import { PEOPLE } from '@/lib/people';
 import { useApp, weekKey } from '@/lib/store';
-import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { Spring, STAGGER_CAP } from '@/shared/motion/tokens';
 
 const PROMOTE = 3; // top 3 promote
 const DEMOTE = 7; // rank 8+ (index >= 7) demote
@@ -65,7 +66,20 @@ function Zone({ label, color }: { label: string; color: string }) {
   );
 }
 
+/** The League/Friends underline slides between tabs (Spring.smooth, no overshoot -- navigation). */
+function TabIndicator({ index, width, color }: { index: number; width: number; color: string }) {
+  const reduced = useReducedMotion();
+  const x = useSharedValue(index * width);
+  useEffect(() => {
+    x.set(reduced ? index * width : withSpring(index * width, Spring.smooth));
+  }, [index, width, reduced, x]);
+  const style = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }] }));
+  if (!width) return null;
+  return <Animated.View pointerEvents="none" style={[styles.tabIndicator, { width, backgroundColor: color }, style]} />;
+}
+
 export default function League() {
+  const [tabsW, setTabsW] = useState(0);
   const theme = useTheme();
   const xp = useApp((s) => s.xp);
   const weekly = useApp((s) => s.weeklyXpNow());
@@ -178,10 +192,11 @@ export default function League() {
         </RiseIn>
       )}
 
-      <View style={styles.tabs}>
+      <View style={styles.tabs} onLayout={(e) => setTabsW(e.nativeEvent.layout.width)}>
+        <TabIndicator index={tab === 'league' ? 0 : 1} width={Math.max(0, tabsW - Spacing.three * 2) / 2} color={theme.primary} />
         {(['league', 'friends'] as const).map((t) => (
           <SpringPressable key={t} haptic={false} onPress={() => setTab(t)} style={{ flex: 1 }}>
-            <View style={[styles.tab, { borderBottomColor: tab === t ? theme.primary : 'transparent' }]}>
+            <View style={[styles.tab, { borderBottomColor: 'transparent' }]}>
               <ThemedText type="smallBold" themeColor={tab === t ? 'text' : 'mutedForeground'}>
                 {t === 'league' ? 'League' : 'Friends'}
               </ThemedText>
@@ -196,8 +211,10 @@ export default function League() {
             No friends yet. Follow practice profiles here. Mutual friends arrive when real accounts do.
           </ThemedText>
         )}
+        {/* Keyed by tab so a League/Friends switch re-cascades every row -- rows present in both
+            lists (you) used to stay put while the rest changed, so the switch read as nothing. */}
         {players.map((p, i) => (
-          <View key={p.name}>
+          <View key={`${tab}:${p.name}`}>
             {/*
               * The BOUNDARY is correct — PROMOTE is 3, this renders before index 3, so the rule
               * falls between rank 3 and rank 4 and the top three above it advance, matching the
@@ -278,6 +295,8 @@ export default function League() {
 }
 
 const styles = StyleSheet.create({
+  // Starts inside `tabs`' horizontal padding, so it lines up under the tab labels.
+  tabIndicator: { position: 'absolute', left: Spacing.three, bottom: 0, height: 2, borderRadius: 1 },
   safe: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingTop: Spacing.one },
   back: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
