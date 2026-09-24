@@ -44,6 +44,7 @@ import { SegmentRing } from '@/components/segment-ring';
 import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { takeLessonTrailCelebration, type LessonTrailCelebration } from '@/lib/lesson-trail-celebration';
+import { ProgressFill } from '@/shared/motion/progress-fill';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -517,7 +518,7 @@ export default function Learn() {
             <ProfileButton />
           </View>
           <View style={[styles.track, { backgroundColor: theme.muted }]}>
-            <ProgressFill ratio={total ? doneCount / total : 0} color={accent} />
+            <ProgressFill ratio={total ? doneCount / total : 0} color={accent} style={styles.fill} />
           </View>
         </View>
       </RiseIn>
@@ -997,20 +998,6 @@ export default function Learn() {
   );
 }
 
-/**
- * The course progress fill. It used to set `width` directly, so finishing a lesson or switching
- * course snapped the bar. Now the full-width fill is scaled from its left edge -- transform only, no
- * relayout -- and eases to the new ratio. Reduced Motion jumps straight there.
- */
-function ProgressFill({ ratio, color }: { ratio: number; color: string }) {
-  const reduced = useReducedMotion();
-  const r = useSharedValue(ratio);
-  useEffect(() => {
-    r.set(reduced ? ratio : withTiming(ratio, { duration: Duration.count, easing: Ease.out }));
-  }, [ratio, reduced, r]);
-  const style = useAnimatedStyle(() => ({ transform: [{ scaleX: r.get() }] }));
-  return <Animated.View style={[styles.fill, styles.fillFull, { backgroundColor: color }, style]} />;
-}
 
 /**
  * The trail for one course. Keyed by course, so a switch mounts a fresh trail that settles in
@@ -1054,8 +1041,6 @@ const styles = StyleSheet.create({
   streakFlame: { width: 18, height: 18, alignItems: 'center', justifyContent: 'center' },
   track: { height: 6, borderRadius: Radius.chip, overflow: 'hidden', marginTop: Spacing.three },
   fill: { height: 6, borderRadius: Radius.chip },
-  // ProgressFill scales this from its left edge instead of changing its width.
-  fillFull: { width: '100%', transformOrigin: 'left' },
   // fixed, unshrinkable — RN gives ScrollView flexShrink:1, and the trail below is ~1500pt of
   // content, so without this the chip row gets squeezed and clips.
   chipScroll: { flexGrow: 0, flexShrink: 0, height: 44 + Spacing.two + Spacing.two },

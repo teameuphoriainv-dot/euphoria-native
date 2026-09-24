@@ -23,7 +23,8 @@ import { PixelSpriteView } from '@/lib/pixel';
 import { useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { ProgressFill } from '@/shared/motion/progress-fill';
+import { Duration, STAGGER_CAP } from '@/shared/motion/tokens';
 
 export default function Achievements() {
   const theme = useTheme();
@@ -113,7 +114,7 @@ export default function Achievements() {
 
                       {!got && (
                         <View style={[styles.track, { backgroundColor: theme.border }]}>
-                          <View style={[styles.fill, { width: (`${String(Math.round(pct * 100))}%`) as `${number}%`, backgroundColor: theme.primary }]} />
+                          <ProgressFill ratio={pct} color={theme.primary} style={styles.fill} fillOnMount delay={Math.min(i * 16, STAGGER_CAP) + Duration.base} />
                         </View>
                       )}
                     </View>
