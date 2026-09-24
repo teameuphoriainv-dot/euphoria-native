@@ -16,6 +16,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { LeagueCrest } from '@/components/league-crest';
@@ -29,7 +31,7 @@ import { PEOPLE, type Person } from '@/lib/people';
 import { relationshipOf, useApp, type Relationship } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
+import { Duration, Ease, STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
 import { PixelSpriteView } from '@/lib/pixel';
 
 const LABEL: Record<Relationship, string> = {
@@ -41,6 +43,7 @@ const LABEL: Record<Relationship, string> = {
 
 function PersonRow({ person, rel, onToggle }: { person: Person; rel: Relationship; onToggle: () => void }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
   // A filled button is a call to action; an outlined one is a state you can undo. `none` and
   // `follows-you` are both invitations to act, so both are filled.
   const active = rel === 'none' || rel === 'follows-you';
@@ -60,7 +63,13 @@ function PersonRow({ person, rel, onToggle }: { person: Person; rel: Relationshi
       <LeagueCrest tier={tierForXp(person.xp)} size={22} />
       <SpringPressable
         haptic={false}
-        onPress={onToggle}
+        onPress={() => {
+          // Following is the meaningful direction: a success tap. Unfollowing is quieter, a light tick.
+          void (active
+            ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            : Haptics.selectionAsync());
+          onToggle();
+        }}
         hitSlop={8}
         accessibilityRole="button"
         accessibilityLabel={`${LABEL[rel]} ${person.name}`}
@@ -73,9 +82,12 @@ function PersonRow({ person, rel, onToggle }: { person: Person; rel: Relationshi
               borderColor: active ? theme.primary : theme.border,
             },
           ]}>
-          <ThemedText type="smallBold" style={{ color: active ? '#09090D' : theme.mutedForeground }}>
-            {LABEL[rel]}
-          </ThemedText>
+          {/* Keyed by state so Follow -> Following crossfades instead of snapping. */}
+          <Animated.View key={rel} entering={reduced ? undefined : FadeIn.duration(Duration.fast).easing(Ease.enter)}>
+            <ThemedText type="smallBold" style={{ color: active ? '#09090D' : theme.mutedForeground }}>
+              {LABEL[rel]}
+            </ThemedText>
+          </Animated.View>
         </View>
       </SpringPressable>
     </View>
