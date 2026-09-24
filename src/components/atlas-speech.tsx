@@ -126,7 +126,7 @@ export function AtlasSpeech({
   textStyle?: object;
   /** Where the tail hangs. 'left' is the default because Atlas usually sits off to one side; the
    *  onboarding bubble hangs from a CENTRED Atlas, and a left tail there points at nothing. */
-  tailAlign?: 'left' | 'center';
+  tailAlign?: 'left' | 'center' | 'right';
   /** Bump to drop the rest of the typewriter and show the whole line at once. The bubble itself is
    *  deliberately NOT a Pressable: this component renders inside other tappables (onboarding sets a
    *  question in one), and swallowing those taps would break controls to fix a pace. The owning
@@ -156,7 +156,7 @@ export function AtlasSpeech({
       <View style={[styles.bubble, { backgroundColor: theme.card, borderColor: theme.border }]}>
         <Typewriter text={text} delay={delay + 180} style={textStyle} skipKey={skipKey} />
       </View>
-      <View style={[styles.tailWrap, tailAlign === 'center' && styles.tailCenter, tail === 'bottom' ? styles.tailBottom : styles.tailTop]}>
+      <View style={[styles.tailWrap, tailAlign === 'center' ? styles.tailCenter : tailAlign === 'right' ? styles.tailRight : styles.tailLeft, tail === 'bottom' ? styles.tailBottom : styles.tailTop]}>
         <Svg width={18} height={11} viewBox="0 0 18 11">
           <Path
             d={tail === 'bottom' ? 'M0 0 L18 0 L7 11 Z' : 'M0 11 L18 11 L7 0 Z'}
@@ -179,7 +179,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two + 2,
     paddingHorizontal: Spacing.three,
   },
-  tailWrap: { position: 'absolute', left: Spacing.four },
+  tailWrap: { position: 'absolute' },
+  tailLeft: { left: Spacing.four },
+  /* For a bubble hanging over a mascot parked at the right edge (the lesson's floating Atlas). */
+  tailRight: { right: 17 },
   // -7, not -9. The tail path is `M0 11 L18 11 L7 0 Z` — its POINT is at x=7, not at the midpoint
   // of the 18pt box, so pulling back by half the width left the point 2pt off centre.
   tailCenter: { left: '50%', marginLeft: -7 },

@@ -51,7 +51,7 @@ requires(lesson, /<LessonProgress percent=\{progressPercent\}/, 'header must use
 // fails, which is how the 500 -> Duration.screen (460) regression was caught.
 requires(lesson, /duration:\s*(?:400|Duration\.slow)/, 'progress must retain the web 400ms transition');
 requires(lesson, /styles\.stepLabel[\s\S]*?\{stepLabel\}/, 'header must retain its textual current/total identity');
-requires(lesson, /body: \{ flex: 1, paddingHorizontal: 16, paddingTop: 32,/, 'viewer content must retain the web mobile 16px gutter and 32px top rhythm');
+requires(lesson, /body: \{ flex: 1, paddingHorizontal: 16, paddingTop: 32[,\s}]/, 'viewer content must retain the web mobile 16px gutter and 32px top rhythm');
 requires(lesson, /option: \{ minHeight: 64,[^}]*paddingHorizontal: 20, paddingVertical: 20, borderRadius: 12, borderWidth: 1 \}/, 'quick-check options must retain web geometry');
 requires(lesson, /optionText: \{ flex: 1, fontSize: 17, lineHeight: 24 \}/, 'quick-check option text must remain 17px');
 requires(lesson, /eliminated: \{ opacity: 0\.3, transform: \[\{ scale: 0\.95 \}\] \}/, 'hint elimination must preserve web opacity and scale');
