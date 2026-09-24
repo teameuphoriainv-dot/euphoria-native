@@ -17,6 +17,9 @@ const FILES = {
   correct: require('../../assets/sounds/confirmation_001.m4a'),
   wrong: require('../../assets/sounds/error_004.m4a'),
   complete: require('../../assets/sounds/confirmation_002.m4a'),
+  /* Shop purchase. drop_002 reads as a coin dropping, distinct from every lesson chime and from
+     the streak ember's glass_002 tink, so a purchase never sounds like a streak. */
+  purchase: require('../../assets/sounds/drop_002.m4a'),
   /* Streak ignite. maximize_008 is the shorter, airier whoosh: it sits under the ~700ms turn
      without trailing past the landing. confirmation_004 is the landing chord -- deliberately NOT
      confirmation_002, which `complete` plays a moment earlier on the same lesson end. glass_002
