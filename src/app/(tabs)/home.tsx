@@ -45,6 +45,10 @@ import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
 import { courseAccent, courseHeroFill } from '@/lib/course-accents';
 import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
+import { expandSteps } from '@/lib/lesson-steps';
+import { hasMasteryChallenge } from '@/lib/mastery-challenge-model';
+import { readSegmentRecord, segmentsOf, type SegmentKind } from '@/lib/lesson-segments';
+import { SegmentRing } from '@/components/segment-ring';
 import { TierUpSheet } from '@/components/tier-up-sheet';
 import {
   PixelSpriteView, bolt, book, chartUp, controller,
@@ -69,6 +73,32 @@ import { ProfileButton } from '@/components/profile-button';
  * `targetGoal` rather than the raw bullseye, because the daily goal is the one quest that also has
  * a pill in the header — the two should not be different pictures of the same thing.
  */
+/**
+ * On-screen names for the three lesson parts.
+ *
+ * `SegmentKind` values are lowercase identifiers the store persists, never copy. Printing a kind
+ * straight into the card would put "vocab" on screen, and a later rename of the persisted key
+ * would silently reword the hero.
+ */
+const PART_LABEL: Record<SegmentKind, string> = { learn: 'Learn', vocab: 'Vocab', practice: 'Practice' };
+
+/**
+ * The unfinished arcs of the hero's part ring.
+ *
+ * Brighter than `heroPill`'s 0.18 glass, because the pill is a filled shape and this is a 3pt
+ * stroke: the same alpha on a hairline disappears against a saturated course block. Both arcs are
+ * white over the same block, so the difference cannot invert on a dark course colour the way a
+ * fixed grey token does.
+ *
+ * 0.25 is measured, not picked. Composited over both gradient stops of all 12 course heroes it
+ * leaves a finished arc 3.14:1 against an unfinished one at worst, clearing the 3:1 that WCAG
+ * 1.4.11 asks of a graphic that carries meaning, while the track itself still stands off the
+ * block at 1.63:1 so the unfinished arcs do not simply vanish. The alphas either side lose one
+ * of those two: 0.20 reads 3.46:1 against the filled arc but only 1.47:1 against the block, and
+ * 0.35 reads 1.95:1 against the block but drops to 2.63:1 against the filled arc.
+ */
+const HERO_RING_TRACK = 'rgba(255,255,255,0.25)';
+
 const QUEST_SPRITE: Record<string, PixelSprite> = {
   lesson: book,
   goal: targetGoal,
@@ -103,9 +133,10 @@ const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
  */
 type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none' | 'today';
 /*
- * 'today' -- the chosen band. One quiet card: streak line, the week, the daily goal as a bar, and
- * the quests as a checklist. No sprites, one accent (primary); success green only on a finished
- * quest. Every number is live store state: streak and minutes are written by lesson completion.
+ * 'today' -- the chosen band (owner, 2026-09-23). One quiet card: streak line, the week, the daily
+ * goal as a bar, and the quests as a checklist. No sprites, one accent (primary); success green only
+ * on a finished quest. Every number is live store state. 'card' (one card, four stats) is the
+ * previous pick and stays available, spacing fix included.
  */
 const BAND: Band = 'today';
 
@@ -314,8 +345,61 @@ export default function Home() {
    * to re-render for that.
    */
   const resumeKey = useApp((s) => s.lessonResume?.key ?? null);
-  const resuming = next !== null && resumeKey === lessonKey(activeCourseId, next.num);
+  /*
+   * PARTS ARE THE SECOND WAY A LESSON CAN BE HALF DONE, and the pointer does not know about them.
+   *
+   * `lessonResume` holds ONE pointer for the whole app, so opening any other lesson overwrites it.
+   * Before parts that was a cosmetic bug: the hero fell back to "Start" for someone who was nine
+   * screens into lesson 1, and the runner restored them anyway. With parts it becomes a lie about
+   * banked reward. Someone who finished Learn, took the XP and tapped "Done for now" has a credit
+   * the store will not pay twice, and telling them to Start says that credit is not there.
+   *
+   * `readSegmentRecord` rather than the raw record: a persisted entry can carry an unknown kind or
+   * a duplicate after a downgrade, and the validator is the single place that decides what a
+   * malformed record means. The store's `segmentsDoneFor` has one extra branch, for a lesson in
+   * `completedLessons`, which cannot apply here: `next` is by construction the first lesson NOT in
+   * that list.
+   */
+  const lessonSegmentRecords = useApp((s) => s.lessonSegments);
+  const segmentsDone = useMemo(
+    () => (next === null ? [] : readSegmentRecord(lessonSegmentRecords[lessonKey(activeCourseId, next.num)]).done),
+    [next, lessonSegmentRecords, activeCourseId],
+  );
+  /*
+   * The part shape comes from the steps, not the store. The store records finished parts by KIND
+   * and never the count (design 2b), because a curriculum sync can add or remove a lesson's
+   * keyTermsCards screen and a persisted count would then describe a shape that no longer exists.
+   * Same pure function, same deck-wrapped `expandSteps` list, as the runner and the Learn trail.
+   */
+  const segmentKinds = useMemo<SegmentKind[]>(
+    () => (next === null
+      ? []
+      : segmentsOf(
+          expandSteps(next.steps).map((step) => step.type),
+          hasMasteryChallenge(next.challenge),
+        ).map((segment) => segment.kind)),
+    [next],
+  );
+  const resuming = next !== null && (resumeKey === lessonKey(activeCourseId, next.num) || segmentsDone.length > 0);
   const heroVerb = doneInCourse === 0 && !resuming ? 'Start' : 'Continue';
+  /*
+   * WHICH PART IS NEXT. Null until at least one is banked, so an untouched lesson keeps the plain
+   * card: "Part 1 of 3" on a lesson nobody has opened is a count, not progress, and the ring beside
+   * the pill already says how many parts there are.
+   *
+   * MATCHED BY KIND, NEVER COUNTED, because that is how `segmentEntry` (lesson-segments.ts) picks
+   * the screen this card's tap actually opens: the first kind not in `done`. Counting agrees with
+   * it only while the shape is stable, and the shape is the one thing the kind-keyed record was
+   * chosen to survive (design 2b). A sync that drops a lesson's keyTermsCards while `done` holds
+   * ['learn','vocab'] leaves a two-part lesson reading 2 of 2: a full ring and no part line on a
+   * lesson the runner is about to open at practice. Intersecting with the live shape cannot exceed
+   * it, which is also why no clamp is needed here any more.
+   */
+  const partsFilled = segmentKinds.filter((kind) => segmentsDone.includes(kind)).length;
+  const nextPartIndex = segmentKinds.findIndex((kind) => !segmentsDone.includes(kind));
+  const nextPart = partsFilled > 0 && nextPartIndex >= 0
+    ? { index: nextPartIndex, count: segmentKinds.length, kind: segmentKinds[nextPartIndex] }
+    : null;
 
   // The week strip needs per-day history that nothing records yet; `streak` is the only real
   // signal, so fill backwards from today and stop. Exact when streak <= 7, which is the only
@@ -649,7 +733,11 @@ export default function Home() {
               scaleTo={0.985}
               onPress={() => router.push({ pathname: '/lesson', params: { course: activeCourseId, num: String(next.num) } })}
               accessibilityRole="button"
-              accessibilityLabel={`${heroVerb} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.${whyThisCourse ? ` ${whyThisCourse}.` : ''}`}>
+              /* The ring and the part line are the only things on this card a screen reader
+                 cannot otherwise reach, and they are the difference between opening at the
+                 warmup and opening at the vocab. Announced right after the lesson number, in
+                 the same order they are read on screen. */
+              accessibilityLabel={`${heroVerb} ${next.title}. Lesson ${String(next.num)} of ${String(course?.totalLessons ?? 0)}.${nextPart ? ` Part ${String(nextPart.index + 1)} of ${String(nextPart.count)}, ${PART_LABEL[nextPart.kind]}.` : ''}${whyThisCourse ? ` ${whyThisCourse}.` : ''}`}>
               {/*
                 * GLASS, with the course colour as the light behind it.
                 *
@@ -714,10 +802,65 @@ export default function Home() {
                       * they are about to open.
                       */}
                     <ThemedText type="title" maxFontSizeMultiplier={2} style={styles.heroTitleOnBlock} numberOfLines={3}>{next.title}</ThemedText>
-                    <View style={styles.heroPill}>
-                      <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={styles.heroPillText}>
-                        {next.num} / {course?.totalLessons ?? '—'}
-                      </ThemedText>
+                    {/*
+                      * THE PILL KEEPS ITS OWN SIZE; THE ROW AROUND IT WRAPS.
+                      *
+                      * The AX5 note above is about this exact strip. `heroPill` is
+                      * alignSelf:'flex-start', so it has never stretched, and the ring beside it
+                      * is a fixed 22pt that does not scale with Dynamic Type either. What CAN
+                      * grow is "Part 2 of 3 · Vocab", so the row is flexWrap:'wrap' and the text
+                      * is flexShrink:1: at 3.12x the part line drops under the pill instead of
+                      * squeezing the count to "1 /" the way the title lost "vs. Your Money".
+                      */}
+                    <View style={styles.heroPillRow}>
+                      <View style={styles.heroPill}>
+                        <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={styles.heroPillText}>
+                          {next.num} / {course?.totalLessons ?? '—'}
+                        </ThemedText>
+                      </View>
+                      {/*
+                        * THE SAME RING THE TRAIL DRAWS, at pill scale. It is the one place Home
+                        * says a lesson comes in parts, and it says it next to the count it
+                        * qualifies rather than as a second progress bar somewhere else.
+                        *
+                        * Filled arcs use `primaryForeground`, the same white as the pill text.
+                        * Not appended with an alpha suffix, because primaryForeground is an
+                        * hsl() string in one theme and appending to hsl() renders at full
+                        * opacity, silently (design rule 8).
+                        *
+                        * THE TRACK IS GLASS, NOT `theme.border`. The hero block is the course
+                        * colour in BOTH themes, but `border` flips with the app theme, and its
+                        * light value is a near-white grey: measured against the white filled
+                        * arcs it is 1.27:1, which is nothing. A one-of-three ring was therefore
+                        * a solid white ring for every light theme learner, saying the lesson was
+                        * finished. Same white as the filled arcs at low alpha instead, so the
+                        * two always differ by opacity whatever the theme and whatever course
+                        * colour is behind them. rgba and not a hex literal, matching `heroPill`
+                        * and `glassFrost` below, so this adds nothing to design-rules-pin's hex
+                        * ratchet.
+                        */}
+                      {segmentKinds.length > 1 && (
+                        <SegmentRing
+                          size={22}
+                          /* 3, not the component's 4pt default. The trail draws this ring at
+                             74pt, where 4 is a confident band; at 22pt beside a pill the same
+                             stroke leaves a 9pt radius and the arcs close into a disc. */
+                          stroke={3}
+                          segments={segmentKinds.length}
+                          filled={partsFilled}
+                          accent={theme.primaryForeground}
+                          track={HERO_RING_TRACK}
+                        />
+                      )}
+                      {nextPart && (
+                        <ThemedText
+                          type="small"
+                          maxFontSizeMultiplier={1.6}
+                          numberOfLines={2}
+                          style={[styles.heroPartLine, { color: theme.primaryForeground }]}>
+                          Part {nextPart.index + 1} of {nextPart.count} · {PART_LABEL[nextPart.kind]}
+                        </ThemedText>
+                      )}
                     </View>
                   </View>
                 </View>
@@ -1033,7 +1176,9 @@ const styles = StyleSheet.create({
   statStrip: { flexDirection: 'row', marginTop: Spacing.four, paddingVertical: Spacing.three },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.four },
   chip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: Radius.pill, borderWidth: 1 },
-  statCard: { flexDirection: 'row', marginTop: Spacing.four, padding: Spacing.four, borderRadius: Radius.lg, borderWidth: 1 },
+  // No marginTop: content already spaces its children by Spacing.three, and adding four on top left a
+  // 40pt hole under the hero where every other section sits 16pt apart (owner: "looks a bit odd").
+  statCard: { flexDirection: 'row', padding: Spacing.four, borderRadius: Radius.lg, borderWidth: 1 },
   tile: { flex: 1, borderWidth: 1, borderRadius: Radius.md, padding: Spacing.three, gap: Spacing.one },
   tileHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   tileValue: { fontSize: FontSize.titleSm, lineHeight: 30 },
@@ -1079,7 +1224,9 @@ const styles = StyleSheet.create({
      would also push the flame away from the words it belongs to. */
   streakAtlas: { marginLeft: 'auto' },
   streakCard: { paddingVertical: Spacing.three },
-  todayCard: { marginTop: Spacing.four, paddingVertical: Spacing.four },
+  // No marginTop, same reason as statCard: content already spaces sections by Spacing.three, and
+  // four on top left a 40pt hole under the hero.
+  todayCard: { paddingVertical: Spacing.four },
   todayBody: { gap: Spacing.three },
   todayHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two },
   todayGoal: { gap: 6 },
@@ -1132,7 +1279,14 @@ const styles = StyleSheet.create({
   glassFrost: { backgroundColor: 'rgba(255,255,255,0.06)' },
   heroTitleOnBlock: { color: '#FFFFFF', fontSize: FontSize.titleSm, lineHeight: 28 },
   /* A pill, not a sentence. Translucent white on the block so it inherits the course colour. */
-  heroPill: { alignSelf: 'flex-start', marginTop: Spacing.two, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, backgroundColor: 'rgba(255,255,255,0.18)' },
+  /* marginTop moved to heroPillRow when the part ring joined the pill: left here it would push
+     the pill down relative to the ring beside it and the strip would read as two rows. */
+  heroPill: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, backgroundColor: 'rgba(255,255,255,0.18)' },
+  heroPillRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
+  /* flexShrink so the part line gives way before the fixed pill and ring do. Same white as the
+     pill text and the title, over the same glass, so course-hero-contrast-pin's worst-case
+     measurement of white against courseHeroFill still covers it. */
+  heroPartLine: { flexShrink: 1, fontSize: FontSize.caption },
   heroPillText: { color: '#FFFFFF', fontSize: FontSize.caption },
   /* 82% white, not grey: this sits on the course block and has to read as a sentence the app is
      saying back to you, not as disabled metadata. */

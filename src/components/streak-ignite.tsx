@@ -95,7 +95,7 @@ import { Canvas, Circle, RadialGradient, vec } from '@shopify/react-native-skia'
 import Svg, { ClipPath, Defs, G, Path, Rect } from 'react-native-svg';
 
 import { Atlas } from '@/components/atlas';
-import { RING_CENTRES } from '@/components/atlas-mark';
+import { RING_CENTRES, RIM, RIM_W } from '@/components/atlas-mark';
 import { ThemedText } from '@/components/themed-text';
 import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
 import { Colors, FontSize } from '@/constants/theme';
@@ -229,8 +229,6 @@ const CORE = 'M40 30C37 22 37 12 39.5 4C41.5 -2 44.5 -5 48 -5C51.5 -5 54.5 -2 56
  *  holes start at 42.6 and 48.3), while above it his head ring is solid across the fire's base. */
 const HOLE_CLIP_Y = 23;
 /** Atlas's own rim colour and width (atlas-mark RIM / RIM_W), so the fire is outlined like him. */
-const RIM = '#F1EFF5';
-const RIM_W = 1.21;
 /* UNLIT must read as a grey ember crown on the dark background, not vanish into it: `border` sat
    at ~1.5:1. mutedForeground at 65% alpha composites to ~4:1, its 85% core lighter on top. */
 const UNLIT = { body: `${Colors.dark.mutedForeground}A6`, core: `${Colors.dark.mutedForeground}D9` };

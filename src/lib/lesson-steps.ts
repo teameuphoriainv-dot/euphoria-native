@@ -467,7 +467,7 @@ export function normalizeStep(step: LessonStep): Normalized {
           step: 1,
           unit,
           explanation: s.explanation,
-          format: (n: number) => `${Number(n.toFixed(6))}${unit}`,
+          format: (n: number) => formatSliderValue(n, unit),
         },
       };
     }
@@ -750,4 +750,29 @@ export function expandSteps(steps: LessonStep[]): LessonStep[] {
 /** Steps that gate Continue until solved. Prose never blocks; interactives always do. */
 export function gates(n: Normalized): boolean {
   return n.kind === 'reveal' || n.kind === 'match' || n.kind === 'dragSort' || n.kind === 'order' || n.kind === 'line' || n.kind === 'multi' || n.kind === 'trueFalse' || n.kind === 'build' || n.kind === 'calc' || n.kind === 'tree' || n.kind === 'vocab' || n.kind === 'progressiveCalc';
+}
+
+/**
+ * A slider's authored number with its authored unit, the way a person would write it.
+ *
+ * The format used to be number + unit with nothing between, which is right for "%" and nothing
+ * else: the corpus carries 36 distinct slider units (measured 2026-09-22 over the wrapped loader).
+ * investing-fundamentals:3's rule-of-72 slider rendered "15years" (owner screenshot, 2026-09-22),
+ * the 14 plain "$" sliders rendered "15$", and "$M" rendered "15$M".
+ *
+ *   ""                  -> 15
+ *   " years" (spaced)   -> 15 years      the author already chose the gap
+ *   "$", "$M", "$/ton"  -> $15, $15M, $15/ton     currency leads, its suffix stays glued
+ *   "$ trillion"        -> $15 trillion
+ *   "%", "x", ":1", "B" -> 15%, 15x, 15:1, 15B    symbols and one-letter scales stay glued
+ *   "x annual income"   -> 15x annual income
+ *   "years", "bps", "VIX", "percentage points" -> 15 years ...   a word takes a space
+ */
+export function formatSliderValue(n: number, unit: string): string {
+  const num = String(Number(n.toFixed(6)));
+  if (!unit) return num;
+  if (unit.startsWith(' ')) return num + unit;
+  if (unit.startsWith('$')) return `$${num}${unit.slice(1)}`;
+  if (/^(?:[%×:]|[xBMK](?![A-Za-z]))/.test(unit)) return num + unit;
+  return `${num} ${unit}`;
 }

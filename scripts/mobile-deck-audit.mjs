@@ -31,6 +31,7 @@ const { COURSES, loadCourseLessons } = await imported('src/lib/curriculum/course
 const { deriveDeck, isHeavyStep } = await imported('src/lib/mobile-lesson/derive.ts');
 const { stepId, stepIdPosition } = await imported('src/lib/mobile-lesson/stepId.ts');
 const { overrideKeys } = await imported('src/lib/mobile-lesson/overrides.ts');
+const { applyPlacement } = await imported('src/lib/mobile-lesson/parts/placements.ts');
 const { ARCHETYPES, isArchetype } = await imported('src/lib/mobile-lesson/archetypes.ts');
 const { CARD_BUDGET, DECK_MIN_CARDS, DECK_MAX_CARDS } = await imported('src/lib/mobile-lesson/types.ts');
 const { BUDGET_GRACE } = await imported('src/lib/mobile-lesson/compress.ts');
@@ -88,6 +89,17 @@ function cardText(card) {
     const s = card.spec;
     if (s.kind === 'timeline') return [s.prompt, ...s.moments.map((m) => m.label)].join(' ');
     if (s.kind === 'reveal') return `${s.prompt} ${s.hidden}`;
+    // The placed parts. A scene has no verdict, so the fallthrough below would read it as its
+    // prompt alone and never notice a scene whose captions all came back empty.
+    if (s.kind === 'scene') return [s.prompt, ...s.beats.map((b) => b.caption)].join(' ');
+    if (s.kind === 'dial') return [s.prompt, ...s.inputs.map((i) => i.label), s.goal ?? '', s.verdict].join(' ').trim();
+    if (s.kind === 'lever') return `${s.prompt} ${s.note} ${s.verdict}`;
+    // The Atlas clips have a title and no prompt, so the fallthrough read them as "undefined " and
+    // could never call one empty. Every label and caption, as the clip shows them across its beats.
+    if (s.kind === 'stage') return [s.title, ...s.items.flatMap((i) => [i.label, i.display, i.caption])].join(' ');
+    if (s.kind === 'predict') return [s.title, s.anchor.label, s.anchor.display, s.target.label, s.target.display, s.target.caption].join(' ');
+    if (s.kind === 'build') return [s.title, ...s.pieces.flatMap((p) => [p.label, p.caption])].join(' ');
+    if (s.kind === 'place') return [s.title, ...s.slots.flatMap((p) => [p.label, p.caption])].join(' ');
     return `${s.prompt} ${s.verdict ?? ''}`;
   }
   return '';
@@ -118,6 +130,10 @@ if (process.argv.includes('--selftest')) {
 
   ok(cardText({ kind: 'idea', title: 'T', body: '' }) === 'T', 'cardText should survive an empty body');
   ok(cardText({ kind: 'term', term: 'X', plain: 'Y' }) === 'X Y', 'cardText should read a term card');
+  ok(cardText({ kind: 'interactive', spec: { kind: 'scene', prompt: 'P', beats: [{ caption: 'C' }] } }) === 'P C',
+    'cardText should read a scene\'s captions, not only its prompt');
+  ok(cardText({ kind: 'interactive', spec: { kind: 'build', title: 'T', pieces: [{ label: 'L', caption: 'C' }] } }) === 'T L C',
+    'cardText should read a clip\'s title, labels and captions, not print "undefined"');
   ok(bodyBudget({ kind: 'chart' }) === 0, 'a chart card has no body budget');
   ok(bodyBudget({ kind: 'term' }) === CARD_BUDGET.plain, 'a term card uses the vocabulary budget');
 
@@ -177,7 +193,10 @@ for (const course of COURSES) {
 
       let deck;
       try {
+        // applyPlacement too, over the RAW steps, exactly as curriculum/index.ts does: without it
+        // this audit checked 9 decks the app no longer shows and counted 0 dials, levers and scenes.
         deck = deriveDeck(step, id);
+        if (deck) deck = applyPlacement(deck, id, lesson.steps);
       } catch (err) {
         failures.push(`${id} THREW: ${err.message}`);
         return;

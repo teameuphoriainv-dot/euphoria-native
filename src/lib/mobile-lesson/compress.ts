@@ -8,17 +8,23 @@
  * paying learner. Removal can make a sentence blunt. It cannot make it false.
  *
  * WHAT IT ACHIEVES. Against the real corpus the median `interactiveGraph` step is 2,557 characters
- * and the median `teachingSlide` is 1,636. A deck of four cards at the budgets in `types.ts` comes
- * to roughly 220 characters, so this is about a 92% cut. That number is asserted corpus-wide by
- * `scripts/mobile-card-budget-pin.mjs` rather than trusted.
+ * and the median `teachingSlide` is 1,636. Measured per step, the deck that replaces one keeps a
+ * median of about 21% of what the author wrote: a median step cut of about 79%, with a floor of 72%
+ * enforced by `scripts/mobile-card-budget-pin.mjs` (minStepReduction). An earlier version of this
+ * comment claimed 92%, which counted card bodies only and ignored titles, prompts and beats.
  *
  * THE ORDER OF OPERATIONS matters and is deliberate:
  *   1. split the source into sentences
  *   2. try each sentence in authored order, because authors put the claim first
  *   3. on each one, apply surgery: asides, hedges, discourse markers, register swaps, tails
  *   4. take the first result that fits the budget
- *   5. if none fits, take the shortest surgical result and trim it at a clause boundary
- * Step 5 is the only lossy path and `worstCase()` reports how often it fires.
+ *   5. if none fits, take the shortest safe reduction that is within BUDGET_GRACE (1.4x) of the
+ *      budget, running long rather than cutting a sentence mid-coordination
+ *   6. if even that fails, return nothing, except with `mustReturn` (vocabulary), where the whole
+ *      first sentence after surgery is returned, because a term with no meaning is worse than a
+ *      long one
+ * Nothing here cuts a sentence at an arbitrary word. Only compressTitle cuts at a word, and only
+ * past TITLE_GRACE.
  */
 
 /**
@@ -192,8 +198,15 @@ const DANGLING_COORDINATOR = /\b(and|or|plus|but|nor|as well as|along with)[\s,]
  */
 const BARE_RESULT_CLAUSE = /\s+\b(so that|so|because|which means|meaning)\b[^.!?]*[.!?]?$/i;
 
-/** A parenthetical or bracketed aside. Never the main claim. */
-const ASIDE = /\s*[([][^)\]]*[)\]]/g;
+/**
+ * A parenthetical or bracketed aside. Never the main claim.
+ *
+ * An aside starts after a space (or at the start). A bracket glued to the word before it is part
+ * of that word: "401(k)", "506(c)", "3(c)(7)". Matching those too made 10 card strings in 8 decks
+ * show a bare "401" (measured 2026-09-22 through the wrapped loader), e.g. investing-fundamentals
+ * L10 s2's idea card "A 401 is a workplace retirement account." deck-derive-polish-pin check 5.
+ */
+const ASIDE = /(?:^|\s+)[([][^)\]]*[)\]]/g;
 
 /**
  * Openers that point at a sentence which will not be on the card.
@@ -212,15 +225,6 @@ const COMPARATIVE_ORPHAN = /\b(alone|instead|by contrast|the difference|that sam
 
 /** Roughly, does this read as a definition or a headline claim rather than an aside? */
 const CLAIM_SHAPE = /\b(is|are|means|refers to|works by|happens when|describes|measures|represents|lets you|means that)\b/i;
-
-let worstCaseCount = 0;
-/** How many times compression had to fall back to a clause trim. Read by the budget pin. */
-export function worstCase(): number {
-  return worstCaseCount;
-}
-export function resetWorstCase(): void {
-  worstCaseCount = 0;
-}
 
 function tidy(text: string): string {
   return text
@@ -343,10 +347,7 @@ export function compress(source: string | string[], budget: number, opts: Compre
     // and buying those that have shrunk" into "by selling". A two-line card is a design
     // compromise. A card that states the opposite of the lesson is a defect.
     const withinGrace = safe.filter((v) => v.length <= ceiling).sort((a, b) => a.length - b.length);
-    if (withinGrace.length > 0) {
-      worstCaseCount += 1;
-      return withinGrace[0];
-    }
+    if (withinGrace.length > 0) return withinGrace[0];
   }
 
   /**
@@ -356,10 +357,7 @@ export function compress(source: string | string[], budget: number, opts: Compre
    */
   if (opts.mustReturn) {
     const first = surgery(pool[0]);
-    if (first && !isRepeat(first)) {
-      worstCaseCount += 1;
-      return first;
-    }
+    if (first && !isRepeat(first)) return first;
   }
   return '';
 }
@@ -429,18 +427,119 @@ function safeReductions(sentence: string): string[] {
 
 
 /**
+ * How far past its budget a title may run before it is cut at all. A title wraps to a second line,
+ * so the budget (one line at 393pt) is a preference, not a wall. 1.3x is the most two lines hold.
+ */
+export const TITLE_GRACE = 1.3;
+
+/**
+ * Words a title must never end on, because each one promises a word that is not there.
+ *
+ * The old cutter sliced at budget-1 and backed off to a space, and 105 headings on real cards ended
+ * mid-phrase: "The Five Investment Accounts You Need to" (investing-fundamentals L10), "Pay Taxes
+ * Now or Later? The" (personal-finance L16), "Capital Gains: The Tax on Your" (investing-
+ * fundamentals L18). Pinned by scripts/title-cut-pin.mjs, which keeps its own copy of this list so
+ * shortening this one cannot quietly make the pin pass.
+ */
+export const TITLE_STOPWORDS = [
+  'to', 'of', 'the', 'a', 'an', 'and', 'or', 'your', 'in', 'for', 'with', 'on', 'at', 'by', 'how', 'what', 'is',
+  /*
+   * Past the list in the original report: with the cut moved out to 1.3x, the first run still
+   * produced "Why Company Culture Drives Performance More Than" and "...Differ from Real-World P".
+   */
+  'than', 'from', 'into', 'as', 'but', 'vs', 'between', 'about', 'that', 'which', 'who', 'when',
+  'where', 'why', 'are', 'its', 'their', 'our', 'this', 'these', 'those',
+];
+const TITLE_STOP = new Set(TITLE_STOPWORDS);
+
+/**
+ * Strip whatever a cut left hanging: a stopword, or a mark that promises more text (',' ':' ';'
+ * '&' a dash), repeatedly, because "Revenue, Spending, and" needs two passes. An unclosed '(' is
+ * cut back to before the bracket, since "Roth IRA (tax" is a half-open aside, not a title.
+ */
+function withoutDanglingEnd(text: string): string {
+  let out = text.trim();
+  const open = out.lastIndexOf('(');
+  if (open > 0 && out.indexOf(')', open) === -1) out = out.slice(0, open).trim();
+  for (let guard = 0; guard < 12; guard += 1) {
+    const before = out;
+    out = out.replace(/[\s,:;&\-–(]+$/, '');
+    const lastSpace = out.lastIndexOf(' ');
+    const last = out.slice(lastSpace + 1).toLowerCase().replace(/[^a-z']/g, '');
+    // A one-letter word at a cut is the stub of a longer phrase ("Real-World P"), never a word.
+    if (lastSpace > 0 && (TITLE_STOP.has(last) || /^[a-z]$/i.test(out.slice(lastSpace + 1)))) {
+      out = out.slice(0, lastSpace);
+    }
+    if (out === before) break;
+  }
+  return out;
+}
+
+/**
  * A card title from an authored title.
  *
- * Titles are already short. The work here is dropping the section prefixes the web uses for
+ * Titles are already short. The main work is dropping the section prefixes the web uses for
  * hierarchy ("Part 2: ", "Step 3 - ") which mean nothing on a card that shows its own position.
+ *
+ * WHEN ONE IS TOO LONG, in this order, each step only if the one before did not fit:
+ *   1. drop a subtitle after ':' or '?' when the head alone still says something (12+ chars):
+ *      "Pay Taxes Now or Later? The Roth vs. Traditional Choice" becomes "Pay Taxes Now or Later?";
+ *      a subtitle carrying a number is kept instead when the whole title fits TITLE_GRACE;
+ *   2. keep it whole up to TITLE_GRACE x budget, because a title can wrap to two lines;
+ *   3. past that, keep a whole first sentence when one ends inside the ceiling;
+ *   4. only then cut at a word, and keep backing off until it does not end on a TITLE_STOPWORDS
+ *      word, a dangling mark or a number cut from its unit. Never returns "... You Need to".
  */
 export function compressTitle(title: string, budget: number): string {
   let out = tidy(String(title ?? ''))
     .replace(/^(part|step|section|lesson|module|chapter)\s*\d+\s*[:.\-–]\s*/i, '')
-    .replace(/^\d+\s*[:.)\-–]\s*/, '');
+    /*
+     * A section number is one or two digits followed by a mark and a space ("2: ", "3) ", "4 - ").
+     * The old pattern (any run of digits, then any mark, spaces optional) also ate "30-" off
+     * "30-year annualized returns" (rendered "Year annualized returns") and the year off
+     * "2008: Stocks vs. Bonds", dropping the number the chart is about.
+     */
+    .replace(/^\d{1,2}\s*(?:[:.)]|\s[-–])\s+/, '');
   out = plainer(out);
   if (out.length <= budget) return capitalise(out);
-  const cut = out.slice(0, budget - 1);
+
+  const ceiling = Math.floor(budget * TITLE_GRACE);
+  const subtitle = out.match(/^(.{12,}?)(?::|(\?))\s+(\S.*)$/);
+  /*
+   * A subtitle that carries a number stays when the whole title fits the grace: dropping it turned
+   * the chart title "Income Statement Waterfall: Apple Q4 2022 ($B)" into "Income Statement
+   * Waterfall", losing the company, the year and the unit the bars are in.
+   */
+  if (subtitle && !(/\d/.test(subtitle[3]) && out.length <= ceiling)) {
+    const head = withoutDanglingEnd(subtitle[1]) + (subtitle[2] ?? '');
+    if (head.length >= 12) out = head;
+    if (out.length <= budget) return capitalise(out);
+  }
+
+  if (out.length <= ceiling) return capitalise(out);
+
+  /*
+   * A whole first sentence beats a word cut: "Debt is cheap but dangerous. Equity is safe but
+   * expensive." word-cut to "... Equity is safe", a claim the lesson does not make. "vs." and
+   * one-letter initials ("U.S.") are not sentence ends.
+   */
+  const sentenceEnd = [...out.slice(0, ceiling + 1).matchAll(/(?<!\bvs|\b[A-Za-z])[.!?](?=\s+[A-Z])/g)]
+    .map((m) => (m.index ?? 0) + 1)
+    .filter((i) => i >= 12)
+    .pop();
+  if (sentenceEnd) return capitalise(out.slice(0, sentenceEnd));
+
+  const cut = out.slice(0, ceiling + 1);
   const atWord = cut.lastIndexOf(' ');
-  return capitalise(atWord > 12 ? cut.slice(0, atWord) : cut);
+  let trimmed = withoutDanglingEnd(atWord > 12 ? cut.slice(0, atWord) : cut.slice(0, ceiling));
+  /*
+   * A cut must not end on a number whose scale was cut away: "...and the $3.5 Trillion Problem"
+   * word-cut to "...and the $3.5", a trillionth of the figure the author wrote.
+   */
+  for (let guard = 0; guard < 4 && /\d\S*$/.test(trimmed); guard += 1) {
+    const space = trimmed.lastIndexOf(' ');
+    if (space <= 12) break;
+    trimmed = withoutDanglingEnd(trimmed.slice(0, space));
+  }
+  return capitalise(trimmed || out.slice(0, ceiling).trim());
 }

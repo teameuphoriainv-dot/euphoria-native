@@ -1,23 +1,23 @@
 /**
- * Welcome — the mascot spotlight (Brilliant's "Hi, I'm Koji!" descent). Atlas drops in on
- * a violet light beam, then the greeting fades up. First screen before onboarding.
+ * Welcome: the mascot spotlight (Brilliant's "Hi, I'm Koji!" descent). Atlas drops in on
+ * a stepped pixel light beam, then the greeting fades up. First screen before onboarding.
  */
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { SlabButton } from '@/components/ui/button';
 import { AtlasSpeech } from '@/components/atlas-speech';
+import { PixelBeam } from '@/components/pixel-beam';
 import { Spacing } from '@/constants/theme';
 
 export default function Welcome() {
-  const { width, height } = useWindowDimensions();
+  const { height } = useWindowDimensions();
   const reduced = useReducedMotion();
   const drop = useSharedValue(reduced ? 0 : -(height * 0.42));
 
@@ -29,30 +29,27 @@ export default function Welcome() {
   }, [reduced, drop]);
 
   const atlasStyle = useAnimatedStyle(() => ({ transform: [{ translateY: drop.get() }] }));
-  const cx = width / 2;
-  const beamEnd = height * 0.52;
+  // Same reach as the old trapezoid: from the top edge down to just over half the screen.
+  const beamEnd = Math.round(height * 0.52);
 
   return (
     <SafeAreaView style={styles.safe}>
       <AmbientBackground />
-      {/* Light beam narrowing down to Atlas */}
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <Svg width={width} height={height}>
-          <Defs>
-            <SvgGradient id="beam" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#A855EB" stopOpacity={0} />
-              <Stop offset="0.8" stopColor="#A855EB" stopOpacity={0.18} />
-              <Stop offset="1" stopColor="#C89CF5" stopOpacity={0.42} />
-            </SvgGradient>
-          </Defs>
-          <Path d={`M${cx - 78} 0 L${cx + 78} 0 L${cx + 20} ${beamEnd} L${cx - 20} ${beamEnd} Z`} fill="url(#beam)" />
-        </Svg>
+      {/* Light beam narrowing down to Atlas. It was a smooth SVG gradient trapezoid with two
+          hardcoded violet hex literals: smooth edges broke the pixel-art rule (CONSTITUTION 5.5),
+          and the literals ignored the theme, so light mode got a dark-mode violet and the
+          design-rules-pin hex ratchet counted three extra matches. PixelBeam draws 7 flat bands
+          from theme.primary and theme.accent, each 8pt narrower than the one above, and fades
+          them in top to bottom at 40ms apart (120ms each, done by 360ms), well before the drop
+          spring lands Atlas. Under Reduce Motion the bands are simply there, like the drop. */}
+      <View style={[StyleSheet.absoluteFill, styles.beam]} pointerEvents="none">
+        <PixelBeam bands={7} baseWidth={40} step={8} height={beamEnd} order="down" stagger={40} bandDuration={120} />
       </View>
 
       <View style={styles.center}>
         {/* Atlas gets its own reserved stage. Without it the mascot and the headline shared one
             column, so the drop-in travelled straight through the text and the two were briefly
-            on top of each other — the arrival read as falling into the words. */}
+            on top of each other, so the arrival read as falling into the words. */}
         <View style={styles.stage}>
           <Animated.View style={atlasStyle}>
             <Atlas size={132} expression="happy" entrance="bounce" idle />
@@ -74,6 +71,7 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  beam: { alignItems: 'center' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // 132 mascot + 1.04 aspect, plus headroom so the overshoot at the end of the drop still has
   // somewhere to go. Clipped, so nothing can escape into the headline.

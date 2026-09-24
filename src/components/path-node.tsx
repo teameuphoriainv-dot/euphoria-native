@@ -131,7 +131,7 @@ export function PathNode({
           {label !== undefined ? (
             <ThemedText type="bodyMedium" style={styles.numeral}>{label}</ThemedText>
           ) : state === 'done' ? (
-            <UIcon name="check" size={Math.round(24 * glyphScale)} color={GLYPH_INK} strokeWidth={3.25} />
+            <UIcon name="check" size={Math.round(24 * glyphScale)} color="#FFFFFF" strokeWidth={3.25} />
           ) : state === 'current' ? (
             <PlayGlyph scale={glyphScale} />
           ) : (

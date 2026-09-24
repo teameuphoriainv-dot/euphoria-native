@@ -44,7 +44,9 @@ assert.match(runner, /fillBlankSlot: \{[^}]*backgroundColor: 'rgba\(166,80,231,0
  */
 assert.doesNotMatch(runner, /Quick check/, 'fill blank must not gain the generic Quick check label');
 assert.match(runner, /isFillBlank && pick !== null[\s\S]*?norm\.options\[pick\]/, 'the selected word must appear inside the sentence blank');
-assert.match(runner, /isFillBlank && pick !== null && !checked[\s\S]*?label="Submit"/, 'selection must reveal the web inline Submit action');
+// "Check", not the web's "Submit": every choice step now commits with Check and grades on the
+// slide-up check bar (owner decision 4, 2026-09-22). The inline placement and geometry still match.
+assert.match(runner, /isFillBlank && pick !== null && !checked[\s\S]*?label="Check"/, 'selection must reveal the inline Check action');
 assert.match(runner, /fillBlankSubmitButton: \{ width: 134, minHeight: 48 \}/, 'inline Submit must preserve the web large-button geometry');
 assert.match(runner, /\|\| isFillBlank \|\| ownsItsCta/, 'fill blank must not gain the pinned generic lesson footer');
 

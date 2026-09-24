@@ -16,10 +16,18 @@
  */
 import type { AnimatedVisual, InteractiveGraphStep, LessonStep, TeachingSlideStep } from '@/lib/curriculum';
 import { visualIsRenderable } from '../lesson-steps';
-import { compress, compressTitle } from './compress';
+import { MOBILE_KIT_ACCENTS } from '../pixel/sprites-mobile-kit';
+import { compress, compressTitle, sentences } from './compress';
 import { interactiveFor } from './interactives';
-import { pickArchetype, pickDistinctArchetype } from './archetypes';
+import { pickDistinctArchetype } from './archetypes';
 import { overrideFor } from './overrides';
+import { textOf as dialText } from './parts/dial';
+import { textOf as leverText } from './parts/lever';
+import { textOf as sceneText } from './parts/scene';
+import { textOf as stageText } from './clickthrough/stage';
+import { textOf as predictText } from './clickthrough/predict';
+import { textOf as buildText } from './clickthrough/buildup';
+import { textOf as placeText } from './clickthrough/place';
 import { CARD_BUDGET, DECK_MAX_CARDS, type MobileCard, type MobileDeck, type MobileInteractive, type SceneSpec } from './types';
 
 /** Is this a step the mobile layer takes over? Everything else passes through untouched. */
@@ -130,6 +138,21 @@ function interactiveText(spec: MobileInteractive): string[] {
   if (spec.kind === 'timeline') return spec.moments.map((m) => m.label);
   if (spec.kind === 'reveal') return [spec.hidden];
   if (spec.kind === 'grow') return [spec.verdict];
+  /*
+   * The placed parts. `interactiveFor` does not build these today (applyPlacement puts them in
+   * after derivation), so these lines are unreachable now and exist for the day one of them moves
+   * into interactiveFor: a silent `[]` then would let the takeaway repeat a sentence the part
+   * already shows (CONSTITUTION 5.1), which is the timeline/takeaway duplicate described below.
+   * Each part's own textOf is the single list of what it puts on screen.
+   */
+  if (spec.kind === 'dial') return dialText(spec);
+  if (spec.kind === 'lever') return leverText(spec);
+  if (spec.kind === 'scene') return sceneText(spec);
+  // The Atlas clips, same reason: unreachable from interactiveFor today, never silently empty.
+  if (spec.kind === 'stage') return stageText(spec);
+  if (spec.kind === 'predict') return predictText(spec);
+  if (spec.kind === 'build') return buildText(spec);
+  if (spec.kind === 'place') return placeText(spec);
   return [];
 }
 
@@ -250,6 +273,48 @@ function deckFromTeachingSlide(step: TeachingSlideStep, sourceId: string): Mobil
   };
 }
 
+/**
+ * A sentence that tells the learner to work a control the phone does not draw.
+ *
+ * The graph step's `description` was written for the desktop chart and its sliders, and the deck
+ * replaces both. Measured 2026-09-22 through the wrapped loader: 37 of the 289 graph decks opened
+ * their idea card on one of these, e.g. investing-fundamentals:3:4 read "Adjust the starting
+ * amount, monthly contribution, and annual return to see how your wealth grows exponentially over
+ * time." (121 characters, over the 90 budget) above a card with no slider on it. An instruction for
+ * a missing control is not a claim, so it is not a candidate for the claim card at all.
+ *
+ * Matched only at the START of a sentence: "Use the slider" opens an instruction, while "investors
+ * who move money in a panic" is a claim that happens to contain the verb.
+ */
+const CONTROL_INSTRUCTION = /^(adjust|drag|move|slide|toggle|use the slider|watch how|try changing|click)\b/i;
+
+/**
+ * A "Compare ..." / "See ..." / "Explore ..." sentence that comes AFTER a control instruction in the
+ * same passage is the rest of those directions, not a claim. Dropping only the control sentence let
+ * the next direction take the card: measured 2026-09-22, wealth-management:23:4 went from "Adjust
+ * your portfolio size..." to "Compare the 4% rule, 5% withdrawal, and 6% withdrawal." and
+ * financial-analytics:2:4 to "Compare low-volatility bonds to high-volatility stocks.", both still
+ * pointing at a chart the phone does not draw. Only the FOLLOWING sentence is dropped: a passage
+ * that OPENS with "Compare ..." or "See how ..." (78 and 62 graph descriptions) is usually the
+ * author's one-line summary and stays a candidate, which is why these verbs are not simply added to
+ * CONTROL_INSTRUCTION.
+ */
+const FOLLOW_ON_DIRECTION = /^(compare|see|explore)\b/i;
+
+/** Every authored sentence in `source` except the ones instructing a control the deck dropped. */
+function withoutControlInstructions(source: string[]): string[] {
+  return source.flatMap((passage) => {
+    let afterControl = false;
+    return sentences(passage).filter((s) => {
+      if (CONTROL_INSTRUCTION.test(s)) {
+        afterControl = true;
+        return false;
+      }
+      return !(afterControl && FOLLOW_ON_DIRECTION.test(s));
+    });
+  });
+}
+
 function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string): MobileDeck {
   const used: string[] = [];
   const art = new Set<string>();
@@ -260,7 +325,7 @@ function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string):
    * sentence explaining what the picture shows, which is the closest thing the step has to a thesis;
    * the paragraphs underneath it are commentary on a chart the phone is not going to draw.
    */
-  const body = compress([step.description ?? '', ...(step.paragraphs ?? [])], CARD_BUDGET.body);
+  const body = compress(withoutControlInstructions([step.description ?? '', ...(step.paragraphs ?? [])]), CARD_BUDGET.body);
   if (body) used.push(body);
 
   const claim: MobileCard | null = body
@@ -303,6 +368,63 @@ function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string):
 }
 
 /**
+ * The sprite-kit ramp each course's scenes are drawn in.
+ *
+ * WHY. `SceneSpec.accent` has existed since the kit shipped and not one deck ever set it: measured
+ * 2026-09-22 through the wrapped loader, 0 of the 1,806 scenes on the 721 decks carried an accent,
+ * so every scene in all 12 courses rendered in the same default orchid and a behavioural-finance
+ * lesson looked identical to a corporate-finance one.
+ *
+ * HOW EACH WAS CHOSEN. The kit has seven hued ramps (plus neutral) and the courses have twelve web
+ * accents in `src/lib/course-accents.ts`, so each course takes the ramp whose base colour is NEAREST
+ * IN HUE to its accent, computed rather than eyeballed (hue distance in degrees in the comment).
+ * Reuse is forced by 12 into 7; no ramp is invented, because a colour that is not already in
+ * `palette.ts` is exactly what the kit was written to keep out.
+ *
+ * An unknown course gets NO accent rather than a guessed one, so `scripts/deck-derive-polish-pin.mjs`
+ * fails the day a new course is synced without being added here.
+ */
+export const COURSE_SCENE_ACCENT: Readonly<Record<string, string>> = {
+  'investing-fundamentals': 'green', // #34D399 vs green 0 deg
+  'personal-finance': 'orchid', // #B862ED vs orchid 4 deg
+  'global-economics': 'teal', // #22D3EE vs teal 15 deg
+  'corporate-finance': 'blue', // #60A5FA vs blue 0 deg
+  'business-strategy': 'gold', // #FBBF24 vs gold 5 deg
+  'financial-analytics': 'gold', // #FB923C vs gold 11 deg (the kit has no orange ramp)
+  'behavioral-finance': 'pink', // #F472B6 vs pink 0 deg
+  'applied-accounting': 'blue', // #38BDF8 vs blue 15 deg
+  'quantitative-analysis': 'blue', // #818CF8 vs blue 21 deg, orchid 39 deg
+  'risk-management': 'red', // #F87171 vs red 0 deg
+  'alternative-investments': 'red', // #FB7185 vs red 9 deg, pink 23 deg
+  'wealth-management': 'gold', // #F59E0B vs gold 0 deg
+};
+
+/** The course's scene ramp, or undefined for a course the table does not know. */
+export function sceneAccentFor(sourceId: string): string | undefined {
+  const accent = COURSE_SCENE_ACCENT[sourceId.split(':')[0]];
+  // A name the kit does not define would silently fall through to orchid in `applyAccent`.
+  return accent && MOBILE_KIT_ACCENTS.includes(accent) ? accent : undefined;
+}
+
+/**
+ * Put the course's ramp on every scene in the deck: each card's scene and the scene inside a reveal
+ * or guess interactive. A scene that already names an accent (a hand-written override) keeps it.
+ */
+function tinted(deck: MobileDeck): MobileDeck {
+  const accent = sceneAccentFor(deck.sourceId);
+  if (!accent) return deck;
+  const tint = (s: SceneSpec): SceneSpec => (s.accent ? s : { ...s, accent });
+  const cards = deck.cards.map((card): MobileCard => {
+    if (card.kind === 'interactive') {
+      const spec = card.spec;
+      return spec.kind === 'reveal' || spec.kind === 'guess' ? { ...card, spec: { ...spec, scene: tint(spec.scene) } } : card;
+    }
+    return 'scene' in card && card.scene ? ({ ...card, scene: tint(card.scene) } as MobileCard) : card;
+  });
+  return { ...deck, cards };
+}
+
+/**
  * Derive the deck for one heavy step, or return null if this step is not one.
  *
  * A hand-written override for this exact step wins outright. `sourceId` carries a content
@@ -312,10 +434,10 @@ function deckFromInteractiveGraph(step: InteractiveGraphStep, sourceId: string):
  */
 export function deriveDeck(step: LessonStep, sourceId: string): MobileDeck | null {
   const override = overrideFor(sourceId);
-  if (override) return { ...override, sourceId };
+  if (override) return tinted({ ...override, sourceId });
 
   const t = (step as { type?: string })?.type;
-  if (t === 'teachingSlide') return deckFromTeachingSlide(step as TeachingSlideStep, sourceId);
-  if (t === 'interactiveGraph') return deckFromInteractiveGraph(step as InteractiveGraphStep, sourceId);
+  if (t === 'teachingSlide') return tinted(deckFromTeachingSlide(step as TeachingSlideStep, sourceId));
+  if (t === 'interactiveGraph') return tinted(deckFromInteractiveGraph(step as InteractiveGraphStep, sourceId));
   return null;
 }

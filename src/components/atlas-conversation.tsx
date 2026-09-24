@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
@@ -13,6 +13,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { useLessonStepState } from '@/components/lesson-step-session';
 import { ThemedText } from '@/components/themed-text';
+import { TypedMessage } from '@/components/typed-message';
 import { UIcon } from '@/components/ui-icon';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -26,44 +27,19 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 const TYPEWRITER_CPS = 46;
 const TYPEWRITER_MS = 1000 / TYPEWRITER_CPS;
 
-function useConversationTypewriter(text: string) {
-  const reduced = useReducedMotion();
-  const [typing, setTyping] = useState(() => ({
-    text,
-    shown: reduced ? text : '',
-    done: reduced || !text,
-  }));
-
-  useEffect(() => {
-    if (reduced || !text) return;
-    let count = 0;
-    const interval = setInterval(() => {
-      count += 1;
-      if (count >= text.length) {
-        clearInterval(interval);
-        setTyping({ text, shown: text, done: true });
-        return;
-      }
-      setTyping({ text, shown: text.slice(0, count), done: false });
-    }, TYPEWRITER_MS);
-    return () => clearInterval(interval);
-  }, [reduced, text]);
-
-  const finish = useCallback(() => {
-    setTyping({ text, shown: text, done: true });
-  }, [text]);
-
-  // Derive the reset frame instead of synchronously resetting state in an effect. The first timer
-  // tick adopts the new text; until then the new bubble is intentionally empty, like the web.
-  const current = reduced || !text
-    ? { text, shown: text, done: true }
-    : typing.text === text
-      ? typing
-      : { text, shown: '', done: false };
-  return { shown: current.shown, done: current.done, finish };
-}
-
-function ConversationProgress({ current, total }: { current: number; total: number }) {
+/*
+ * NO TYPEWRITER STATE IN THIS FILE. The typing used to be a hook here that called setState every
+ * TYPEWRITER_MS, which re-rendered this whole conversation once per character: 1,649 characters
+ * for the median vocab step, 2,194 for the worst (measured 2026-09-22 over all 186 vocab steps).
+ * The interval now lives in <TypedMessage>, a memoised leaf, and this component keeps one `done`
+ * flag per beat. scripts/typewriter-leaf-pin.mjs renders both and counts the commits.
+ */
+/*
+ * memo(): the progress bar only changes when the beat does. Before the typewriter moved out it
+ * re-rendered on every typed character along with everything else; memo keeps it out of the
+ * commits this component still makes for `done` and for picking an answer.
+ */
+const ConversationProgress = memo(function ConversationProgress({ current, total }: { current: number; total: number }) {
   const reduced = useReducedMotion();
   const progress = useSharedValue(total ? current / total : 0);
 
@@ -82,7 +58,7 @@ function ConversationProgress({ current, total }: { current: number; total: numb
       <Animated.View style={[styles.progressFill, fillStyle]} />
     </View>
   );
-}
+});
 
 function BubbleTail() {
   return (
@@ -115,7 +91,16 @@ export function AtlasConversation({
   const beat = beats[index];
   const asked = useMemo(() => beats.filter((item) => item.kind === 'ask').length, [beats]);
   const visibleText = beat?.kind === 'teach' ? beat.text : (beat?.text ?? '');
-  const { shown, done, finish } = useConversationTypewriter(visibleText);
+  /*
+   * ONE `done` PER BEAT, keyed by the beat index rather than a boolean. A plain flag would latch:
+   * finishing beat 2 would leave beat 3 already "done", with its options and Next showing before a
+   * word was typed. Storing WHICH beat finished resets on advance with no effect and no extra
+   * commit. Reduced Motion and an empty line are done on arrival, exactly as before.
+   */
+  const [doneBeat, setDoneBeat] = useState<number | null>(null);
+  const done = reduced || !visibleText || doneBeat === index;
+  // Both the tap-to-finish and the leaf's own end of typing land here; a repeat is a no-op.
+  const finish = useCallback(() => setDoneBeat(index), [index]);
 
   if (!beat) return null;
 
@@ -191,13 +176,23 @@ export function AtlasConversation({
               <ThemedText style={styles.term}>{beat.term}</ThemedText>
             ) : null}
 
-            {/* Full string laid out from the start, untyped remainder transparent, so a word never
-                starts on one line and jumps to the next as it types. No inline cursor: its width
-                would shift the wrap it exists to sit inside. */}
-            <ThemedText accessibilityElementsHidden style={styles.message}>
-              {shown}
-              <ThemedText style={styles.untyped}>{visibleText.slice(shown.length)}</ThemedText>
-            </ThemedText>
+            <View>
+              <ThemedText
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+                style={[styles.message, styles.ghost]}>
+                {visibleText}
+              </ThemedText>
+              <TypedMessage
+                key={`typed-${String(index)}`}
+                text={visibleText}
+                msPerChar={TYPEWRITER_MS}
+                finished={done}
+                onDone={finish}
+                style={TYPED_STYLE}
+                cursorStyle={styles.cursor}
+              />
+            </View>
 
             {beat.kind === 'teach' && beat.aside && done ? (
               <Animated.View entering={FadeIn.duration(reduced ? 1 : 200)}>
@@ -328,7 +323,9 @@ const styles = StyleSheet.create({
   tail: { position: 'absolute', left: -9, top: 16 },
   term: { marginBottom: 4, color: '#BB83F1', fontFamily: Fonts.black, fontSize: 15, lineHeight: 20, letterSpacing: -0.2 },
   message: { color: '#F1EFF5', fontSize: 14.5, lineHeight: 22 },
-  untyped: { color: 'transparent' },
+  ghost: { opacity: 0 },
+  typed: { position: 'absolute', top: 0, left: 0, right: 0 },
+  cursor: { color: '#BB83F1', fontSize: 14.5, lineHeight: 22 },
   aside: { marginTop: 8, fontSize: 12.5, lineHeight: 18, fontStyle: 'italic' },
   options: { marginTop: 12, gap: 8 },
   option: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 16, paddingVertical: 12 },
@@ -339,3 +336,7 @@ const styles = StyleSheet.create({
   nextText: { color: '#FFFFFF', fontSize: 14, lineHeight: 20 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
+
+// Hoisted so the memoised <TypedMessage> gets the same array every render. An inline
+// `[styles.message, styles.typed]` is a new identity each time and would defeat its memo().
+const TYPED_STYLE = [styles.message, styles.typed];

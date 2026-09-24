@@ -11,6 +11,8 @@ import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { LessonArt } from '@/components/lesson-art';
+import { PathNode } from '@/components/path-node';
+import { PixelBeam } from '@/components/pixel-beam';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -19,6 +21,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { PremiumText, usePremiumRamp } from '@/components/ui/premium';
 import { DIGEST_POSTS } from '@/lib/digest-content';
 import { courseAccent } from '@/lib/course-accents';
+import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -135,13 +138,52 @@ export function TrialStep({
           <LinearGradient colors={[dotBg, dotBg + '22']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.tlBar} />
         )}
       </View>
+      {/* Capped like the rest of the purchase screen: this is the `spent` user's paywall body
+          (PRO_STEPS in onboarding.tsx), so it lives under the same no-scroll rule (5.3). */}
       <View style={styles.tlBody}>
-        <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{title}</ThemedText>
-        {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 3, lineHeight: 19 }}>{sub}</ThemedText> : null}
+        <ThemedText type="heading" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{title}</ThemedText>
+        {sub ? <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={{ marginTop: 3, lineHeight: 19 }}>{sub}</ThemedText> : null}
       </View>
     </View>
   );
 }
+
+/**
+ * THE LARGEST DYNAMIC TYPE THE PURCHASE SCREEN SUPPORTS, stated once, here.
+ *
+ * CONSTITUTION 5.3: "Screens that ask for money do not scroll. Headline, benefits, both plans, CTA,
+ * renewal terms and legal row all visible at once. Verify at the largest Dynamic Type size the
+ * screen supports." It never said what that size was, so nothing capped it and iOS scaled the
+ * screen without limit. Measured on the simulator, 2026-09-22 (sim wave 2, 05-paywall-*):
+ *
+ *   iPhone 17 Pro, default type   content ended 816pt of 874    fits
+ *   iPhone 17 Pro, Extra Large    Restore under the home indicator
+ *   iPhone 17 Pro, XXXL / AX1     scrolls; AX5 shows the headline alone filling the screen
+ *   iPhone SE (375x667), default  scrolls: the CTA was cut off at the fold
+ *
+ * At AX5 (3.12x) no purchase screen can hold its required content on any phone, so the honest fix
+ * is a stated ceiling rather than a silent one: every text on the paywall is capped at this
+ * multiplier and the layout gives up padding to meet it (`tight` below). Above it iOS keeps
+ * growing the rest of the app; this one screen holds. scripts/paywall-layout-pin.mjs fails on any
+ * text here that carries no cap, because an uncapped line is invisible at the default size.
+ *
+ * 1.3 is not a new number: atlas-guide.tsx already caps THIS screen's compact Atlas row at 1.3 and
+ * atlas-lines.ts sizes the paywall line against it ("capped at two lines and a 1.3 font
+ * multiplier"). One screen with two different ceilings would be two rules; this is the one it
+ * already had, applied to the rest of the screen. It sits just above iOS's xLarge body step
+ * (19pt / 17pt = 1.12) and just over xxLarge (21 / 17 = 1.24).
+ *
+ * `tight` on the parts below is the other half: it takes 4pt out of each benefit row and 8pt off
+ * each plan card when the screen is short or the type is large, which is what buys the fit.
+ *
+ * WHAT IS PROVEN AND WHAT IS NOT (CONSTITUTION 1.2, 1.4). The table above is the screen BEFORE
+ * this change, photographed. The screen AFTER it has NOT been photographed at each size: on
+ * 2026-09-22 the simulators on :8081 were serving every file under src/app from a sibling
+ * worktree, so no edit to onboarding.tsx could be seen on a device at all (edits to this file
+ * hot-reloaded in the same session, which is how that was isolated). The ceiling is stated and
+ * pinned; it is not yet walked. Walk it before anyone calls 5.3 satisfied.
+ */
+export const PAYWALL_MAX_FONT_SCALE = 1.3;
 
 /** Selectable pricing tier. The highlighted tier carries a badge tab across its top edge. */
 /**
@@ -154,7 +196,16 @@ export function TrialStep({
  * purchase screen, which is an App Review problem on an app that already carries an open 2.1(a).
  */
 const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
-  { label: '12 courses, 300 lessons available now', free: false },
+  /*
+   * DERIVED, not typed. This was the literal '12 courses, 300 lessons available now', the only
+   * count on the purchase screen that nothing checked: PROOF and PRO_STEPS in onboarding.tsx
+   * already read AVAILABLE_COURSES / AVAILABLE_LESSON_COUNT, so a course added or held back would
+   * have left this row quoting a different number from the screen before it, on the screen where
+   * money is taken (CONSTITUTION 3.1). Measured 2026-09-22 with the wrapped loader: 12 courses,
+   * AVAILABLE_LESSON_COUNT 300, 300 lessons actually loaded, so the rendered text is byte-identical
+   * to the old literal and the paywall layout does not move.
+   */
+  { label: `${AVAILABLE_COURSES.length} courses, ${AVAILABLE_LESSON_COUNT} lessons available now`, free: false },
   { label: 'Coaching by Atlas', free: false },
   /*
    * WAS "AI market simulations", which shipped as a paid claim with no feature behind it.
@@ -194,22 +245,22 @@ const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
  * five captured competitor paywalls (C29/C31) — deleting measured work to satisfy a styling note
  * would be trading evidence for a preference.
  */
-export function PremiumBenefits() {
+export function PremiumBenefits({ tight = false }: { tight?: boolean }) {
   const theme = useTheme();
   return (
-    <View style={pb.wrap}>
-      <View style={pb.row}>
-        <ThemedText type="label" themeColor="mutedForeground" style={pb.label}>BENEFITS</ThemedText>
-        <ThemedText type="label" themeColor="mutedForeground" style={pb.col}>FREE</ThemedText>
+    <View style={[pb.wrap, tight && pb.wrapTight]}>
+      <View style={[pb.row, tight && pb.rowTight]}>
+        <ThemedText type="label" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={pb.label}>BENEFITS</ThemedText>
+        <ThemedText type="label" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={pb.col}>FREE</ThemedText>
         {/* The one place the premium ramp is allowed to speak as a word rather than a mark, and
             the web fills that word with the ramp rather than painting it a flat stop. */}
-        <PremiumText type="label" style={pb.col}>PRO</PremiumText>
+        <PremiumText type="label" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={pb.col}>PRO</PremiumText>
       </View>
       {PREMIUM_BENEFITS.map((b, i) => (
         <View
           key={b.label}
-          style={[pb.row, i > 0 ? { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border } : null]}>
-          <ThemedText type="small" maxFontSizeMultiplier={1.4} numberOfLines={2} style={pb.label}>{b.label}</ThemedText>
+          style={[pb.row, tight && pb.rowTight, i > 0 ? { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border } : null]}>
+          <ThemedText type="small" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={2} style={pb.label}>{b.label}</ThemedText>
           <View style={pb.col}>
             {b.free
               ? <UIcon name="check" size={13} color={theme.mutedForeground} />
@@ -235,7 +286,11 @@ export function PremiumBenefits() {
 
 const pb = StyleSheet.create({
   wrap: { marginTop: Spacing.three },
+  /* See PAYWALL_MAX_FONT_SCALE: on a short screen or at large type the whole purchase screen has to
+     fit without scrolling, and six rows of 4pt is 48pt of the budget. */
+  wrapTight: { marginTop: Spacing.two },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: Spacing.two },
+  rowTight: { paddingVertical: 3 },
   label: { flex: 1 },
   col: { width: 48, alignItems: 'center' },
   // a dash, not a cross: the free tier is missing this, it has not failed at it
@@ -293,6 +348,7 @@ export function PlanCard({
   sub,
   price,
   unit,
+  tight = false,
 }: {
   selected: boolean;
   onPress: () => void;
@@ -302,6 +358,8 @@ export function PlanCard({
   price: string;
   /** Billing period shown under the amount, e.g. "per year". */
   unit?: string;
+  /** Short screen or large type: the card gives up padding so the screen still fits (5.3). */
+  tight?: boolean;
 }) {
   const theme = useTheme();
   return (
@@ -319,7 +377,7 @@ export function PlanCard({
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.planBadge}>
-          <ThemedText type="smallBold" style={{ color: '#fff', fontSize: FontSize.label, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
+          <ThemedText type="smallBold" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={{ color: '#fff', fontSize: FontSize.label, lineHeight: 15, letterSpacing: 0.8 }}>{badge}</ThemedText>
         </LinearGradient>
       ) : null}
       {/*
@@ -335,6 +393,7 @@ export function PlanCard({
         topSquared={Boolean(badge)}
         style={[
           styles.plan,
+          tight && styles.planTight,
           {
             /*
              * OPAQUE WHEN SELECTED. This was `theme.primary + '14'`, an 8%-alpha violet, which was
@@ -355,14 +414,14 @@ export function PlanCard({
           {selected ? <UIcon name="check" size={12} color="#fff" /> : null}
         </View>
         <View style={{ flex: 1 }}>
-          <ThemedText type="heading" style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{title}</ThemedText>
-          {sub ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>{sub}</ThemedText> : null}
+          <ThemedText type="heading" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={{ fontSize: FontSize.bodyLg, lineHeight: 22 }}>{title}</ThemedText>
+          {sub ? <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={2} style={{ marginTop: 2 }}>{sub}</ThemedText> : null}
         </View>
         {/* price stacked over its billing period: the amount is what you are charged, the unit
             says how often, so annual and monthly are never both reading as "/mo" */}
         <View style={{ alignItems: 'flex-end' }}>
-          <ThemedText type="heading" style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{price}</ThemedText>
-          {unit ? <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 1 }}>{unit}</ThemedText> : null}
+          <ThemedText type="heading" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={{ fontSize: FontSize.subhead, lineHeight: 24 }}>{price}</ThemedText>
+          {unit ? <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={{ marginTop: 1 }}>{unit}</ThemedText> : null}
         </View>
       </PremiumBorderOrPlain>
     </SpringPressable>
@@ -1016,6 +1075,92 @@ export function LoaderStep({ lines, onDone }: { lines: string[]; onDone: () => v
   );
 }
 
+/*
+ * THE REVEAL BEAT (design.md 1.2 step 11), timed from the moment the step mounts:
+ *     0ms  node 1 is already there, in the lead course's accent, numbered like the loader's node
+ *   150ms  a 5-band pixel beam grows UP out of the node toward Atlas, one band every 50ms
+ *   ~400ms Atlas's celebrate hop (owned by <AtlasStage> in onboarding.tsx, not timed here)
+ *   700ms  the stats start rolling up
+ *
+ * WHY THE NODE AND NOT A NEW PEDESTAL. The loader (onboarding/path-assembly-loader.tsx) lights
+ * three PathNodes, numbered 1-3, in each course's accent. If the reveal drew a different object for
+ * course 1, the thing the learner just watched light up would vanish on the next screen and a new
+ * shape would claim to be the same course. Drawing the same PathNode (state 'done', label '1',
+ * courseAccent) is what makes Atlas read as rising out of the path they built, the Brilliant
+ * pattern where the completion disc IS the map node (research2/frames/brilliant/hi/complete_01.jpg).
+ */
+const REVEAL_BEAM_DELAY = 150;
+const REVEAL_BEAM_STAGGER = 50;
+const REVEAL_STATS_AT = 700;
+const REVEAL_NODE = 44;
+/* 5 bands of 8pt: 8 is two of the 4pt art pixels <PixelSpriteView scale={4}> draws, so the stair
+ * edges land on the same grid as the sprites around them (CONSTITUTION 5.5). */
+const REVEAL_BEAM_H = 40;
+/*
+ * The beam's narrow end is HALF the node, not the node's width. The node is a circle: a 40pt flat
+ * band laid on a 44pt circle has its two bottom corners hanging about 13pt above the curve, so the
+ * light read as a slab balanced on a ball instead of coming out of it. At 24pt the corners sit
+ * within 4pt of the curve, and REVEAL_BEAM_SINK tucks them behind the node's face (the node is
+ * drawn after the beam, so it paints over the overlap).
+ */
+const REVEAL_BEAM_BASE = 24;
+const REVEAL_BEAM_SINK = 4;
+
+/**
+ * Node 1 with the beam standing on it. Sits first in the reveal body so its top edge touches the
+ * AtlasStage directly above: the beam's wide end is under Atlas and its narrow end in the node.
+ * Decorative only; the lead course row below says the same course in words, so VoiceOver skips
+ * this rather than reading "1" with no context.
+ */
+function RevealPedestal({ courseId, courseTitle }: { courseId: string; courseTitle: string }) {
+  return (
+    <View style={styles.pedestal} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {/* Timing curve inside PixelBeam, never a spring: the beam is light, not a character, so it
+          must not overshoot. Under Reduce Motion PixelBeam renders every band in place. */}
+      <View style={{ marginBottom: -REVEAL_BEAM_SINK }}>
+        <PixelBeam
+          bands={5}
+          baseWidth={REVEAL_BEAM_BASE}
+          height={REVEAL_BEAM_H}
+          order="up"
+          delay={REVEAL_BEAM_DELAY}
+          stagger={REVEAL_BEAM_STAGGER}
+        />
+      </View>
+      <PathNode state="done" size={REVEAL_NODE} label="1" doneColor={courseAccent(courseId)} accessibilityLabel={courseTitle} />
+    </View>
+  );
+}
+
+/**
+ * A stat that starts rolling at REVEAL_STATS_AT instead of on mount.
+ *
+ * NumberRollup counts from its mount, so mounted with the step it would start at 0ms, on top of
+ * the beam (150ms) and Atlas's hop: three motions starting together read as one blur rather than a
+ * sequence, which is the "one orchestrated moment" AGENTS.md asks for turned into three scattered
+ * ones. It is held back by mounting it late, with a static '0' in its place, because
+ * NumberRollup starts from '0' too, so the swap is invisible.
+ *
+ * Reduce Motion renders the final value as plain text and never mounts NumberRollup: NumberRollup's
+ * reduced branch still paints one frame of '0' before its effect lands the value, which is a
+ * flicker on the one path that promised a static screen.
+ */
+function RevealStat({ value, color }: { value: number; color: string }) {
+  const reduced = useReducedMotion();
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (reduced) return;
+    const t = setTimeout(() => setArmed(true), REVEAL_STATS_AT);
+    return () => clearTimeout(t);
+  }, [reduced]);
+  if (reduced) return <ThemedText type="display" style={{ color }}>{String(value)}</ThemedText>;
+  return armed
+    ? <NumberRollup value={value} type="display" style={{ color }} />
+    // The held '0' is only a start frame: VoiceOver landing here in the first 700ms must hear the
+    // real count, not a zero the plan does not contain.
+    : <ThemedText type="display" style={{ color }} accessibilityLabel={String(value)}>0</ThemedText>;
+}
+
 /** The payoff: the answers become a named, ordered path of REAL courses. */
 export function PlanRevealStep({
   tierLabel,
@@ -1035,11 +1180,16 @@ export function PlanRevealStep({
     // Spread across the leftover viewport height instead of packing to the top — the stats used
     // to sit directly under the last course card with a dead band beneath them.
     <View style={styles.planBody}>
+      {/* Grouped with the heading so planBody's space-between cannot open a gap between the node
+          and Atlas: the beam only reads as rising out of the node into Atlas if it touches both. */}
+      <View>
+      {picks[0] ? <RevealPedestal courseId={picks[0].course.id} courseTitle={picks[0].course.title} /> : null}
       {/* "a advanced track" — tierLabel is data, so the article has to agree with it. */}
       <StepHeading
         title="Your path is ready"
         sub={`Tuned for ${/^[aeiou]/i.test(tierLabel) ? 'an' : 'a'} ${tierLabel} track, ${perDay} lesson${perDay === 1 ? '' : 's'} a day.`}
       />
+      </View>
       {/*
         * PROMOTED from the bottom of the screen.
         *
@@ -1054,12 +1204,12 @@ export function PlanRevealStep({
         */}
       <View style={[styles.planSummary, { backgroundColor: theme.card, borderColor: theme.border }]}>
         <View style={styles.planStat}>
-          <NumberRollup value={totalLessons} type="display" style={{ color: theme.primary }} />
+          <RevealStat value={totalLessons} color={theme.primary} />
           <ThemedText type="small" themeColor="mutedForeground">lessons</ThemedText>
         </View>
         <View style={[styles.planDivider, { backgroundColor: theme.border }]} />
         <View style={styles.planStat}>
-          <NumberRollup value={weeks} type="display" style={{ color: theme.primary }} />
+          <RevealStat value={weeks} color={theme.primary} />
           <ThemedText type="small" themeColor="mutedForeground">weeks</ThemedText>
         </View>
       </View>
@@ -1147,6 +1297,8 @@ const styles = StyleSheet.create({
   tlBar: { width: 3, flex: 1, borderRadius: Radius.hairline, marginTop: 2, minHeight: 14 },
   tlBody: { flex: 1, paddingBottom: Spacing.three },
   plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three + 4, borderRadius: Radius.lg },
+  /** 20pt of padding twice over is 32pt of the no-scroll budget on a 667pt SE (PAYWALL_MAX_FONT_SCALE). */
+  planTight: { padding: Spacing.two + 4 },
   // sits flush on the card's top edge, which squares off its top corners
   planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
   planRadio: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
@@ -1230,6 +1382,11 @@ const styles = StyleSheet.create({
   /** Course 1 only: a real border (not a hairline) so the accent tint reads as deliberate. */
   planRowLead: { borderWidth: 1, alignItems: 'flex-start' },
   /** Heading / course list / stats, spread across whatever height is left over. */
+  // The beam's wide top band meets the AtlasStage above; the node's 4pt lip needs the bottom room.
+  // marginTop cancels the ScrollView's own paddingTop (Spacing.two, `content` in onboarding.tsx):
+  // without it an 8pt empty band separated the beam's wide end from Atlas, so the light stopped
+  // short of him instead of carrying him.
+  pedestal: { alignItems: 'center', marginTop: -Spacing.two, marginBottom: Spacing.two + 4 },
   planBody: { flexGrow: 1, justifyContent: 'space-between', gap: Spacing.two, paddingBottom: Spacing.two },
   /** Opens the flex chain from the step down to its body. Paired with `fillsViewport` in
    *  onboarding.tsx, which is what gives this height to claim in the first place. */

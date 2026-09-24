@@ -192,3 +192,177 @@ export const targetGoal: PixelSprite = {
   name: 'Daily goal target',
   palette: { r: '#8028C3', w: '#E3C4FA', R: '#F0A72B' },
 };
+
+/* ── SCENE PROPS ──────────────────────────────────────────────────────────────────────────────
+ * Three props the lesson scenes (lib/mobile-lesson/parts/scene.ts) need and the 84-sprite catalogue
+ * does not have. Reused first where anything fit: `receipt` and `bill` were tried for the price
+ * tags and both read as "a payment", not "a price someone set", which is the whole point of the
+ * anchoring scene. They are NOT in ADDED_SPRITES (the shop list) and NOT in SPRITE_CATALOGUE, so a
+ * lesson's content cannot reference them; scene.ts reaches them only through `add:<id>`.
+ * Outlines use the deep steps (D, O), never K: K is invisible on the dark stage.
+ */
+
+/** The coffee mug from Kahneman, Knetsch and Thaler's endowment-effect experiment. */
+export const sceneMug: PixelSprite = {
+  id: 'mug',
+  name: 'Mug',
+  tags: ['scene', 'endowment', 'ownership'],
+  blurb: 'A plain mug with an orchid band: the thing you own and suddenly value more.',
+  rows: [
+    '................',
+    '................',
+    '....DDDDDDDD....',
+    '...DwwwwwwwwD...',
+    '...DWWWWWWWWDDD.',
+    '...DwwwwwwwwD..D',
+    '...DPPPPPPPPD..D',
+    '...DppppppppD..D',
+    '...DwwwwwwwwD..D',
+    '...DwwwwwwwwDDD.',
+    '...DxwwwwwwxD...',
+    '....DxxxxxxD....',
+    '.....DDDDDD.....',
+    '................',
+    '................',
+    '................',
+  ],
+  // Steam rises once when the scene plays it: the mug is "yours", warm, in use. Rows 0-1 only, so
+  // the silhouette below never moves and the still frame is the rows above.
+  frameMs: 140,
+  frames: [
+    [
+      '................',
+      '................',
+      '....DDDDDDDD....',
+      '...DwwwwwwwwD...',
+      '...DWWWWWWWWDDD.',
+      '...DwwwwwwwwD..D',
+      '...DPPPPPPPPD..D',
+      '...DppppppppD..D',
+      '...DwwwwwwwwD..D',
+      '...DwwwwwwwwDDD.',
+      '...DxwwwwwwxD...',
+      '....DxxxxxxD....',
+      '.....DDDDDD.....',
+      '................',
+      '................',
+      '................',
+    ],
+    [
+      '................',
+      '.....x....x.....',
+      '....DDDDDDDD....',
+      '...DwwwwwwwwD...',
+      '...DWWWWWWWWDDD.',
+      '...DwwwwwwwwD..D',
+      '...DPPPPPPPPD..D',
+      '...DppppppppD..D',
+      '...DwwwwwwwwD..D',
+      '...DwwwwwwwwDDD.',
+      '...DxwwwwwwxD...',
+      '....DxxxxxxD....',
+      '.....DDDDDD.....',
+      '................',
+      '................',
+      '................',
+    ],
+    [
+      '......x....x....',
+      '.....x....x.....',
+      '....DDDDDDDD....',
+      '...DwwwwwwwwD...',
+      '...DWWWWWWWWDDD.',
+      '...DwwwwwwwwD..D',
+      '...DPPPPPPPPD..D',
+      '...DppppppppD..D',
+      '...DwwwwwwwwD..D',
+      '...DwwwwwwwwDDD.',
+      '...DxwwwwwwxD...',
+      '....DxxxxxxD....',
+      '.....DDDDDD.....',
+      '................',
+      '................',
+      '................',
+    ],
+    [
+      '......x....x....',
+      '................',
+      '....DDDDDDDD....',
+      '...DwwwwwwwwD...',
+      '...DWWWWWWWWDDD.',
+      '...DwwwwwwwwD..D',
+      '...DPPPPPPPPD..D',
+      '...DppppppppD..D',
+      '...DwwwwwwwwD..D',
+      '...DwwwwwwwwDDD.',
+      '...DxwwwwwwxD...',
+      '....DxxxxxxD....',
+      '.....DDDDDD.....',
+      '................',
+      '................',
+      '................',
+    ],
+  ],
+};
+
+/** A gold price tag: the price you actually pay. */
+export const scenePriceTag: PixelSprite = {
+  id: 'price-tag',
+  name: 'Price tag',
+  tags: ['scene', 'price', 'anchoring'],
+  blurb: 'A gold price tag with a string hole: the real price.',
+  rows: [
+    '................',
+    '................',
+    '................',
+    '.....OOOOOOOOOO.',
+    '....OGGGGGGGGGO.',
+    '...OGGGGyyyyyGO.',
+    '..OGGkGGGGGGGGO.',
+    '..OGkkGGyyyyGGO.',
+    '..OGGkGGGGGGGGO.',
+    '...OGGGGyyyyyGO.',
+    '....OGGGGGGGGGO.',
+    '.....OOOOOOOOOO.',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+};
+
+/**
+ * The same tag in paper grey with a red slash: the crossed-out "was" price. Same silhouette as
+ * price-tag on purpose, so the two read as one tag before and after, not two different objects.
+ */
+export const sceneTagSlashed: PixelSprite = {
+  id: 'tag-slashed',
+  name: 'Crossed-out price tag',
+  tags: ['scene', 'price', 'anchoring'],
+  blurb: 'A grey price tag struck through in red: the anchor price nobody was meant to pay.',
+  rows: [
+    '................',
+    '................',
+    '............RR..',
+    '.....DDDDDDRRDD.',
+    '....DwwwwwRRwwD.',
+    '...DwwwwxRRxxwD.',
+    '..DwwkwwRRwwwwD.',
+    '..DwkkwRRxxxwwD.',
+    '..DwwkRRwwwwwwD.',
+    '...DwRRwxxxxxwD.',
+    '....RRwwwwwwwwD.',
+    '...RRDDDDDDDDDD.',
+    '..RR............',
+    '................',
+    '................',
+    '................',
+  ],
+};
+
+/** The scene-only props, by id. scene.ts resolves `add:<id>` against this and nothing else. */
+export const SCENE_PROPS: Record<string, PixelSprite> = {
+  [sceneMug.id]: sceneMug,
+  [scenePriceTag.id]: scenePriceTag,
+  [sceneTagSlashed.id]: sceneTagSlashed,
+};

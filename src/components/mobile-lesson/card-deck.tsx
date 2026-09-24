@@ -16,9 +16,9 @@
  * than leaving the step. Leaving from the middle of a deck would discard cards the learner has read
  * and is the kind of small wrongness that makes an app feel careless.
  */
-import { useCallback, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { FadeIn, Keyframe, useReducedMotion } from 'react-native-reanimated';
 
 import { useLessonStepState } from '@/components/lesson-step-session';
 import { ThemedText } from '@/components/themed-text';
@@ -26,7 +26,38 @@ import { Button } from '@/components/ui/button';
 import { ChartCard, IdeaCard, TakeawayCard, TermCard } from '@/components/mobile-lesson/cards';
 import { DeckInteractive } from '@/components/mobile-lesson/deck-interactives';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
+import { CLIP_DRAWS_ATLAS } from '@/components/mobile-lesson/clickthrough/pixel-stage';
+import { SCENE_DRAWS_ATLAS } from '@/lib/mobile-lesson/parts/scene';
 import type { MobileCard, MobileDeck } from '@/lib/mobile-lesson/types';
+
+/**
+ * Does this card draw its own Atlas?
+ *
+ * Prevents: two Atlases on one screen (CONSTITUTION 5.6, one mascot per screen). The scene part and
+ * every Atlas clip mount an <Atlas> inside the card, and lesson.tsx floats its Ask-Atlas button over
+ * every step, so without this the 14 scene decks and 11 clip decks each showed two (S2 and K0
+ * reviews, 2026-09-22). lesson.tsx hides its button while this is true for the active card.
+ */
+export function cardDrawsAtlas(card: MobileCard | undefined): boolean {
+  if (card?.kind !== 'interactive') return false;
+  const k = card.spec.kind;
+  if (k === 'scene') return SCENE_DRAWS_ATLAS;
+  return (k === 'stage' || k === 'predict' || k === 'build' || k === 'place') && CLIP_DRAWS_ATLAS;
+}
+
+/*
+ * CARD-TO-CARD, measured from Brilliant's step change (research2 brilliant-lessons.md M7): the old
+ * card drifts 8pt left and fades in 100ms, the screen is empty for 100ms, then the new card fades in
+ * over 200ms. Before, the old card vanished in one frame and the new one faded over it, which read as
+ * a flash rather than a turn of the page. Opacity and an 8pt drift only: no scale, no spring.
+ */
+const CARD_EXIT_MS = 100;
+const CARD_BLANK_MS = 100;
+const CARD_IN_MS = 200;
+const cardExit = new Keyframe({
+  0: { opacity: 1, transform: [{ translateX: 0 }] },
+  100: { opacity: 0, transform: [{ translateX: -8 }] },
+}).duration(CARD_EXIT_MS);
 
 /**
  * Does this card require the learner to do something before Continue unlocks?
@@ -59,9 +90,20 @@ export interface CardDeckProps {
    * Omitted means there is nothing behind this step and back is hidden on card one.
    */
   onExit?: () => void;
+  /** Told whether the active card draws its own Atlas, so the lesson can hide its floating one. */
+  onAtlasCard?: (drawsAtlas: boolean) => void;
+  /**
+   * Told the height of the Back / Got it footer, so the lesson can float Ask-Atlas ABOVE it.
+   *
+   * Prevents: the floating Atlas (bottom:20, right:16, 52pt) sitting on the right end of Got it.
+   * Measured on iPhone 17 Pro, 2026-09-22, personal-finance lesson 15 step 3: Got it at y 784..828
+   * against the Atlas at 766..820, so the mascot covered the CTA and took its taps.
+   * Measured, not a constant, because Dynamic Type grows both buttons. Reports 0 on unmount.
+   */
+  onFooterHeight?: (height: number) => void;
 }
 
-export function CardDeck({ deck, onComplete, onExit }: CardDeckProps) {
+export function CardDeck({ deck, onComplete, onExit, onAtlasCard, onFooterHeight }: CardDeckProps) {
   const reduced = useReducedMotion();
   /*
    * POSITION SURVIVES STEPPING BACK INTO THE DECK.
@@ -83,6 +125,23 @@ export function CardDeck({ deck, onComplete, onExit }: CardDeckProps) {
   const last = index >= deck.cards.length - 1;
   const locked = card ? needsWork(card) && !worked[index] : false;
 
+  const drawsAtlas = cardDrawsAtlas(card);
+  useEffect(() => { onAtlasCard?.(drawsAtlas); }, [drawsAtlas, onAtlasCard]);
+  // Leaving the step must hand the floating Atlas back, or the next step would start without it.
+  useEffect(() => () => onAtlasCard?.(false), [onAtlasCard]);
+  // Same hand-back for the footer lane: the next step must not inherit this deck's lift.
+  useEffect(() => () => onFooterHeight?.(0), [onFooterHeight]);
+  const onFooterLayout = useCallback(
+    (e: LayoutChangeEvent) => onFooterHeight?.(e.nativeEvent.layout.height),
+    [onFooterHeight],
+  );
+
+  /*
+   * Forward waits out the exit plus the blank beat; Back is a cut (no delay), the same rule the
+   * scene card's captions follow, because rereading should not cost the learner a pause.
+   */
+  const [forward, setForward] = useState(true);
+
   /*
    * The setters are in these dep arrays because useLessonStepState returns a useCallback, not the
    * stable identity useState hands out. It is memoized on [context, stateKey], so both are stable
@@ -95,11 +154,13 @@ export function CardDeck({ deck, onComplete, onExit }: CardDeckProps) {
 
   const advance = useCallback(() => {
     if (last) { onComplete(); return; }
+    setForward(true);
     setIndex((i) => Math.min(i + 1, deck.cards.length - 1));
   }, [last, onComplete, deck.cards.length, setIndex]);
 
   const back = useCallback(() => {
     if (index === 0) { onExit?.(); return; }
+    setForward(false);
     setIndex((i) => Math.max(0, i - 1));
   }, [index, onExit, setIndex]);
 
@@ -128,16 +189,21 @@ export function CardDeck({ deck, onComplete, onExit }: CardDeckProps) {
         </View>
       </View>
 
-      <Animated.View
-        // Remounting on index is what makes each card's entering animation actually run.
-        key={index}
-        entering={reduced ? undefined : FadeIn.duration(200)}
-        style={styles.stage}
-      >
-        <CardBody card={card} onWorked={markWorked} />
-      </Animated.View>
+      <View style={styles.stage}>
+        <Animated.View
+          // Remounting on index is what makes each card's entering animation actually run.
+          key={index}
+          entering={reduced ? undefined : FadeIn.delay(forward ? CARD_EXIT_MS + CARD_BLANK_MS : 0).duration(CARD_IN_MS)}
+          exiting={reduced ? undefined : cardExit}
+          // Absolute so the leaving card and the arriving one overlap for their 100ms instead of
+          // stacking in the column and shoving the new card down half a screen.
+          style={StyleSheet.absoluteFill}
+        >
+          <CardBody card={card} onWorked={markWorked} />
+        </Animated.View>
+      </View>
 
-      <View style={styles.footer}>
+      <View style={styles.footer} onLayout={onFooterLayout}>
         {index > 0 || onExit ? (
           <Button variant="ghost" label="Back" onPress={back} />
         ) : null}

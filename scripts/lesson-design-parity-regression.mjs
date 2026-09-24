@@ -67,8 +67,15 @@ requires(pressable, /stiffness: 420, damping: 32, mass: 1/, 'lesson press feedba
 requires(warmup, /buildRecallQuiz/, 'lesson warmup must draw from completed-lesson recall');
 requires(warmup, /PixelSpriteView sprite=\{flameSprite\} scale=\{9\} play="loop"/, 'lesson warmup must retain the canonical 144px pixel flame');
 requires(warmup, /First, a quick check on what you have already covered\./, 'lesson warmup must retain production recall copy');
-requires(reveal, /duration:\s*(?:400|Duration\.slow)[\s\S]*?rotateY/, 'tap-reveal cards must retain the web 400ms Y-axis flip');
-requires(reveal, /faces: \{ height: 280 \}/, 'tap-reveal cards must retain the web mobile 280px height');
+// The web reveal (euphoriaweb StepRenderer: min-h-[210px], opacity + y:8, duration 0.28) swaps
+// content in place and never rotates, and c499b09 records a 3D flip as rejected by the owner. These
+// two lines used to REQUIRE the rotateY flip and a fixed 280 height, which contradicted
+// tap-reveal-parity-regression.mjs (it bans rotateY) from the day both landed in e25ed9c; that pin
+// was simply never run. Plan item A4 (2026-09-22) removed the flip, so this pin now asserts the
+// web behaviour instead of the rejected one.
+requires(reveal, /withTiming\(isOpen \? 1 : 0, \{ duration: (?:280|Duration\.base)/, 'tap-reveal cards must cross-fade over the web 280ms');
+forbids(reveal, /rotateY/, 'tap-reveal cards must not flip on the Y axis (owner rejected it, c499b09)');
+requires(reveal, /minHeight: 210/, 'tap-reveal cards must keep the web 210px minimum height');
 requires(matching, /cols: \{ flexDirection: 'column'/, 'matching pairs must stack their two columns on phones');
 requires(matching, /height: 90,[^}]*borderRadius: 12/, 'matching cells must retain the web 90px/r12 geometry');
 requires(atlasSheet, /height: '72%'/, 'Atlas tutor must retain the web mobile 72vh composition');

@@ -17,35 +17,66 @@
  * slider moved nothing while the legend read "Your allocation". See the `comparisonModel` comment
  * in `src/lib/curriculum/types.ts` for that whole story.
  *
- * So there are exactly two outcomes here:
- *   1. The sliders CONFIDENTLY carry a money amount and a percentage rate. Then the learner gets a
- *      real compound calculator whose arithmetic is correct and checkable, with the time horizon as
- *      their own input rather than as a claim the lesson is making.
- *   2. Anything else. Then the learner taps through the authored insights one at a time. Every word
- *      on screen was written by the curriculum author, so it cannot be wrong.
- * There is no third branch that guesses.
+ * So there are four outcomes, chosen in this order by `interactiveFor`:
+ *   1. `grow`: the sliders CONFIDENTLY carry a money amount and a rate of RETURN (see `isRate` for
+ *      what does not count). The learner gets a compound calculator whose arithmetic is in
+ *      grow-math.ts, with the time horizon as their own input rather than a claim the lesson makes.
+ *   2. `guess`: otherwise, when an insight holds a whole figure that can be blanked, and the step's
+ *      id hashes even. The sentence and the real figure are the author's.
+ *   3. `timeline`: otherwise, when at least two insights compress to a card-sized beat. The learner
+ *      taps through them one at a time, every word written by the curriculum author.
+ *   4. `reveal`: when fewer than two do. One authored sentence, uncovered on tap, because a
+ *      one-beat timeline could never be finished (see `asInsightSteps`).
+ * None of the four guesses at what a number means.
  */
 import type { InteractiveGraphStep } from '@/lib/curriculum';
 import type { MobileInteractive, SceneSpec } from './types';
 import { CARD_BUDGET } from './types';
-import { compress, compressTitle } from './compress';
+import { contradictsLab, contributionOf, describesOneDeposit, type GrowInputs } from './grow-math';
+import { compress } from './compress';
 import { pickArchetype } from './archetypes';
 
 type Slider = NonNullable<InteractiveGraphStep['sliders']>[number];
 
+/**
+ * Money the learner OWES, not money that grows. personal-finance:6:4 "Total Debt" and 13:4 "Loan
+ * Balance" were compounded upward as if a balance you pay down were an investment.
+ */
+const MONEY_DENY = /debt|loan|owed/i;
+
 /** A slider holding an amount of money. Unit is the strong signal; the label confirms it. */
 function isMoney(s: Slider): boolean {
+  if (MONEY_DENY.test(s.label)) return false;
   const unit = (s.unit ?? '').trim();
   if (unit === '$' || unit === 'USD') return true;
   return /\b(amount|balance|principal|savings|portfolio|income|salary|contribution|deposit|invest)\b/i.test(s.label)
     && !/%/.test(unit);
 }
 
+/*
+ * A RATE OF RETURN, NOT ANY PERCENTAGE THAT SAYS "RATE".
+ *
+ * This used to accept any % slider whose label matched return|rate|yield|growth|interest|apy|apr,
+ * and `asGrow` takes the first match, so 11 of 33 grow cards compounded something that is not a
+ * return (graph-interactive-truth-pin.mjs, 2026-09-22): Marginal Tax Rate 32% on
+ * wealth-management:16:4 grew $2,000,000 sixteenfold in ten years; Savings Rate on
+ * personal-finance:10:4, 23:4 and 25:4; Monthly Churn Rate on business-strategy:11:4; Withdrawal
+ * Rate on financial-analytics:7:4 and wealth-management:23:4; Rate Change on risk-management:7:4
+ * and 14:4; an APR on personal-finance:6:4.
+ *
+ * The deny list is tested first so a label like "Tax Savings Rate" cannot slip in on "rate".
+ * `hysa` is on the allow list because personal-finance:4:5 "HYSA Interest Rate" and 9:4 "HYSA
+ * Rate" are exactly interest earned on savings, which is a return.
+ */
+const RATE_DENY = /tax|savings rate|churn|withdrawal|rate change|\bapr\b|fee|inflation/i;
+const RATE_RETURN = /\b(return|yield|apy|hysa)\b|growth rate|interest (rate )?on savings/i;
+
 /** A slider holding an annual percentage rate of return. */
 function isRate(s: Slider): boolean {
   const unit = (s.unit ?? '').trim();
   if (unit !== '%' && !/percent/i.test(unit)) return false;
-  return /\b(return|rate|yield|growth|interest|apy|apr)\b/i.test(s.label);
+  if (RATE_DENY.test(s.label)) return false;
+  return RATE_RETURN.test(s.label);
 }
 
 /** A slider holding a number of years. */
@@ -84,15 +115,40 @@ function asGrow(step: InteractiveGraphStep): MobileInteractive | null {
    */
   const years = sliders.find(isYears);
 
-  const verdict = compress(step.insights ?? [], CARD_BUDGET.verdict);
-  if (!verdict) return null;
+  /*
+   * Monthly and yearly money is paid in again every period, not deposited once. Ten grow cards
+   * have a "Monthly ..." or "Annual ..." money slider and all ten were compounded as a lump sum,
+   * so investing-fundamentals:8:4 showed $8,725 at 30 years under a line promising ~$1,130,000.
+   */
+  const inputs: GrowInputs = {
+    start: money.default,
+    ratePercent: rate.default,
+    contribution: contributionOf(money.label),
+  };
+
+  /*
+   * No verdict that argues with the lab. The verdict sits under the number the learner just made,
+   * so an insight stating a different figure for the same scenario is two answers on one screen.
+   * See `contradictsLab` for personal-finance:17:4, the card this drops a sentence from.
+   * A sentence that names the deposit as a one-off on a monthly or yearly card is the same defect
+   * by another route; see `describesOneDeposit` for personal-finance:24:4.
+   */
+  const argues = (t: string) => contradictsLab(t, inputs) || describesOneDeposit(t, inputs);
+  const pool = (step.insights ?? []).filter((i) => !argues(String(i ?? '')));
+  const verdict = compress(pool, CARD_BUDGET.verdict);
+  if (!verdict || argues(verdict)) return null;
 
   return {
     kind: 'grow',
-    prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Drag the years',
+    /*
+     * An instruction, not the title. Every graph deck used `step.title` here, so the prompt repeated
+     * the deck heading directly above it (289 of 289, graph-interactive-truth-pin.mjs) and never told
+     * the learner what to touch.
+     */
+    prompt: 'Tap to jump ahead a few years',
     startLabel: money.label,
-    start: money.default,
-    ratePercent: rate.default,
+    rateLabel: rate.label,
+    ...inputs,
     maxYears: years && years.max > 1 ? Math.min(years.max, 50) : 40,
     verdict,
   };
@@ -166,14 +222,11 @@ function asInsightSteps(step: InteractiveGraphStep): MobileInteractive {
     const hidden = survivor
       ?? compress(step.description ?? step.title, CARD_BUDGET.verdict, { mustReturn: true });
     const scene: SceneSpec = { archetype: moments[0]?.sprite ?? pickArchetype(step.title, step.description) };
-    return { kind: 'reveal', prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Tap to see', hidden, scene };
+    // Prompts are instructions, never the title; see the note on the grow prompt in `asGrow`.
+    return { kind: 'reveal', prompt: 'Tap to see the catch', hidden, scene };
   }
 
-  return {
-    kind: 'timeline',
-    prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Tap through',
-    moments,
-  };
+  return { kind: 'timeline', prompt: 'Tap through it', moments };
 }
 
 /**
@@ -183,7 +236,13 @@ function asInsightSteps(step: InteractiveGraphStep): MobileInteractive {
  * match a year, because "since 1926" is not a figure anyone is meant to guess and blanking it turns
  * a true sentence into a riddle.
  */
-const FIGURE = /\$[\d][\d,]*(?:\.\d+)?(?:\s?(?:million|billion|trillion))?|\b\d+(?:\.\d+)?%|\b\d+(?:\.\d+)?x\b/;
+/*
+ * The `[KMB]\b` suffix is part of the dollar figure. Without it "$30K" matched as "$30", and the card
+ * read "Age 25: ? K invested" with options $15 / $30 / $60: 16 guess cards left a K, M or B hanging
+ * after the blank (graph-interactive-truth-pin.mjs, 2026-09-22). `scaleFigure` keeps the suffix,
+ * so the options become $15K / $30K / $60K.
+ */
+const FIGURE = /\$[\d][\d,]*(?:\.\d+)?(?:\s?(?:million|billion|trillion)|[KMB]\b)?|\b\d+(?:\.\d+)?%|\b\d+(?:\.\d+)?x\b/;
 const YEAR = /^(?:19|20)\d\d$/;
 
 /** Rewrite a figure at a new magnitude, keeping the author's own formatting. */
@@ -200,6 +259,37 @@ function scaleFigure(figure: string, factor: number): string | null {
     ? Math.round(scaled).toLocaleString('en-US')
     : scaled.toFixed(decimals);
   return figure.replace(m[0], rendered);
+}
+
+/**
+ * Start offsets of `answer` in `text` that are a whole figure rather than the tail or head of a
+ * longer one. Before: not a digit, '.', ',' or '$'. After: not a digit, not '.' or ',' followed by
+ * a digit, and not a K/M/B magnitude, so "$10" is not a whole match inside "$10,000" or "$10K".
+ *
+ * `indexOf` rather than a RegExp: `answer` is authored text containing $ . % ( ) + and would have
+ * to be escaped to be a safe pattern.
+ */
+function wholeOccurrences(text: string, answer: string): number[] {
+  const out: number[] = [];
+  for (let at = text.indexOf(answer); at >= 0; at = text.indexOf(answer, at + answer.length)) {
+    const before = text[at - 1] ?? '';
+    const after = text.slice(at + answer.length, at + answer.length + 2);
+    if (/[\d.,$]/.test(before)) continue;
+    if (/^\d|^[.,]\d|^[KMB]\b/.test(after)) continue;
+    out.push(at);
+  }
+  return out;
+}
+
+/** `text` with the answer blanked at exactly these offsets, and nowhere else. */
+function maskAt(text: string, answer: string, offsets: number[]): string {
+  let out = '';
+  let from = 0;
+  for (const at of offsets) {
+    out += text.slice(from, at) + '\u2007\u2007?\u2007\u2007';
+    from = at + answer.length;
+  }
+  return out + text.slice(from);
 }
 
 /**
@@ -220,6 +310,15 @@ function asGuess(step: InteractiveGraphStep): MobileInteractive | null {
     const answer = found[0];
     if (YEAR.test(answer.replace(/[^\d]/g, ''))) continue;
 
+    /*
+     * Skip the insight if the answer ALSO sits inside a longer figure anywhere in it. Blanking only
+     * the whole occurrences would leave "25%" on screen under a "5%" blank, and
+     * scripts/deck-completable-pin.mjs rightly reads a masked sentence that still contains the
+     * answer string as a leak. A different insight, or a different kind, is the honest fallback.
+     */
+    const whole = wholeOccurrences(text, answer);
+    if (whole.length === 0 || whole.length !== text.split(answer).length - 1) continue;
+
     const low = scaleFigure(answer, 0.5);
     const high = scaleFigure(answer, 2);
     if (!low || !high) continue;
@@ -229,7 +328,7 @@ function asGuess(step: InteractiveGraphStep): MobileInteractive | null {
 
     return {
       kind: 'guess',
-      prompt: compressTitle(step.title, CARD_BUDGET.prompt) || 'Fill in the number',
+      prompt: 'Guess the missing number',
       /*
        * EVERY occurrence, not the first.
        *
@@ -241,10 +340,13 @@ function asGuess(step: InteractiveGraphStep): MobileInteractive | null {
        * "up 50% then down 50%". A guessing game showing its answer is the exact failure the header
        * above calls worse than no guessing game.
        *
-       * `split`/`join` rather than a RegExp: `answer` is authored text containing $ . % ( ) + and
-       * would have to be escaped to be a safe pattern.
+       * WHOLE figures only. The first fix used `split(answer).join(...)`, which also blanked the
+       * answer where it sat inside a longer figure: alternative-investments:2:4's answer "5%" was
+       * masked inside "25%" too, so the card read "= 2 ? return on equity" and gave away part of a
+       * different number. `wholeOccurrences` only counts a match with no digit, '.' or ',' before
+       * it and no digit after it.
        */
-      masked: text.split(answer).join('\u2007\u2007?\u2007\u2007'),
+      masked: maskAt(text, answer, whole),
       answer,
       // Sorted so position never leaks the answer: the real figure is not always first.
       options: [...options].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })),
@@ -270,8 +372,9 @@ export function interactiveFor(step: InteractiveGraphStep): MobileInteractive {
    *
    * `asGuess` succeeds on about 90% of graph steps, so preferring it unconditionally would simply
    * replace one monotony with another: before this, 256 of the 289 graph steps were the identical
-   * tap-through. Choosing from the step's own id keeps it deterministic, so a learner going back a
-   * screen finds the same interaction, while adjacent steps in a lesson differ.
+   * tap-through (scripts/mobile-deck-audit.mjs prints the current split). Choosing from the step's
+   * own id keeps it deterministic, so a learner going back a screen finds the same interaction,
+   * while adjacent steps in a lesson differ.
    */
   let h = 0;
   const id = `${step.title}|${step.sectionLabel ?? ''}`;

@@ -37,16 +37,28 @@ import { ALL_SYMS, priceOf } from './stocks';
 import { DEFAULT_AVAILABLE_COURSE_ID, isCourseAvailable } from './curriculum/availability';
 import type { LessonResumePoint } from './lesson-step-session';
 import { PAYWALL_SEEN_BACKFILL_STORE_VERSION, replayOnboardingOnUpgrade, backfillPaywallSeen } from './onboarding-replay-migration';
+import { readSegmentRecord, type SegmentKind, type SegmentRecord } from './lesson-segments';
+import {
+  ALL_SEGMENT_KINDS,
+  MAX_MINUTES_PER_LESSON,
+  MIN_MINUTES_PER_LESSON,
+  XP_DAILY_GOAL,
+  creditSegment,
+  lessonMinutesRemaining,
+  lessonXpRemainder,
+  withoutSegmentRecord,
+  type SegmentCreditResult,
+} from './lesson-segment-credit';
 
 const XP_PER_LEVEL = 500;
 
 /** Hearts, mirroring the web's `heart_refill` metadata ({ hearts: 5 }). */
 const MAX_HEARTS = 5;
 
-/** Bounds on the minutes ONE lesson may credit to the daily goal. The floor pays a genuinely fast
- *  completion; the ceiling stops a lesson left open in a pocket from swallowing the whole goal. */
-const MIN_MINUTES_PER_LESSON = 1;
-const MAX_MINUTES_PER_LESSON = 30;
+/* MIN_MINUTES_PER_LESSON and MAX_MINUTES_PER_LESSON were defined here, module-private. They moved
+ * to `lesson-segment-credit.ts` because a lesson now pays in parts and the ceiling has to be
+ * shared: left private here, the per-part credit would have carried its own 30 and a three-part
+ * lesson could have credited 90 minutes against a ten-minute goal. Their docblock moved with them. */
 
 /**
  * Distinct days of real use the trial lasts. **THIS IS THE OFFER.**
@@ -180,7 +192,14 @@ export const NAME_MAX = 18;
 export const XP_LESSON = 50;
 export const XP_GUIDE = 25;
 export const XP_GAME = 20;
-export const XP_DAILY_GOAL = 50;
+/*
+ * XP_DAILY_GOAL is DEFINED in `lesson-segment-credit.ts` and re-exported here, so every existing
+ * importer keeps working. Both paths that pay it — `completeLesson` below and the per-part credit
+ * — now need the number, and a second literal is a second source of truth (§6.3). Defining it
+ * there also lets the Node regression import the real bonus instead of restating 50 in a fixture
+ * that would never notice the day it changed.
+ */
+export { XP_DAILY_GOAL };
 
 /**
  * Apply an XP award to BOTH counters, rolling the weekly tally over when the week has changed.
@@ -303,6 +322,39 @@ export type AppState = {
   lessonResume: LessonResumePoint | null;
   /** Remember a position. Pass null to forget one; lesson.tsx does that on the terminal screens. */
   setLessonResume: (point: LessonResumePoint | null) => void;
+
+  /**
+   * Which PARTS of an unfinished lesson have already been paid, keyed by `lessonKey`.
+   *
+   * KEYED BY KIND, NOT POSITION. A curriculum sync can add or remove a lesson's keyTermsCards
+   * screen, which moves every boundary; a record of "parts 0 and 1 are done" would then credit or
+   * re-charge the wrong screens, silently. A record of "learn and vocab are done" survives it.
+   *
+   * IN-PROGRESS LESSONS ONLY. `completeLesson` deletes the entry, and both writers refuse a lesson
+   * already in `completedLessons`, so this map cannot grow past the lessons someone started and
+   * did not finish. `completedLessons` keeps its old meaning — EVERY part done — which is what
+   * leaves all ~25 of its readers (the path flags, the unlock rule, Home's next, the quest, the
+   * gate sheet) untouched by parts.
+   *
+   * There is NO store version bump behind this. An already finished lesson needs nothing written:
+   * `segmentsDoneFor` answers every kind from `completedLessons`. An in-progress one cannot be
+   * backfilled inside `migrate`, which is synchronous while the segment boundaries need the
+   * lesson's runtime steps from the async `loadCourseLessons` — a version-gated backfill would
+   * have had to guess them. `adoptLegacySegments` does it lazily instead, on first open.
+   */
+  lessonSegments: Record<string, SegmentRecord>;
+  /**
+   * Credit ONE non-final part. Returns what actually happened (§6.5) so the runner can draw the
+   * card and fire one event; a repeat returns `credited: false` and pays nothing.
+   */
+  completeLessonSegment: (id: string, kind: SegmentKind, share: number, minutesSpent: number) => SegmentCreditResult;
+  /** Adopt a pre-parts resume pointer as finished parts. PAYS NOTHING — see `lessonSegments`. */
+  adoptLegacySegments: (id: string, kinds: SegmentKind[]) => void;
+  /** Parts already done. A finished lesson answers every kind, with no record needed. */
+  segmentsDoneFor: (id: string) => SegmentKind[];
+  /** XP the final part still owes, for the DONE screen and the Collect button. Showing the
+   *  lesson's full XP there would announce the Learn and Vocab awards a second time. */
+  lessonXpRemaining: (id: string, xp: number) => number;
 
   /* ── EUPHORIUM (N21) ────────────────────────────────────────────────────────
    * The in-app currency, ported from the web Shop. RULE ZERO: rates and prices come from
@@ -740,6 +792,7 @@ export const useApp = create<AppState>()(
       minutesToday: 0,
       lessonsToday: 0,
       lessonResume: null,
+      lessonSegments: {},
       coins: 0,
       inventory: [],
       doubleXpUntil: 0,
@@ -1072,12 +1125,25 @@ export const useApp = create<AppState>()(
           if (s.completedLessons.includes(id)) {
             return lessonResume === s.lessonResume ? s : { lessonResume };
           }
+          /*
+           * WHAT THE PARTS ALREADY PAID. A lesson now finishes in two or three parts and the
+           * earlier ones credited XP and minutes when their cards appeared. Without this read the
+           * final screen would pay the lesson's full XP a second time, so a three-part lesson
+           * would be worth roughly double a one-part one and nothing on screen would say so.
+           *
+           * The early return above needs no deletion of the record: both writers refuse a lesson
+           * already in `completedLessons`, so a completed lesson can never hold one.
+           */
+          const seg = readSegmentRecord(s.lessonSegments[id]);
           const today = dayKey();
           // roll the tally over when the calendar day changed since the last completion
           const base = s.lastActiveDay === today ? s.minutesToday : 0;
           const earned = Math.min(
             MAX_MINUTES_PER_LESSON,
             Math.max(MIN_MINUTES_PER_LESSON, Math.round(minutesSpent ?? MINUTES_PER_LESSON)),
+            // and never past what the parts of THIS lesson have already credited, or a three-part
+            // lesson could pay 30 minutes three times over against a ten-minute daily goal
+            lessonMinutesRemaining(seg),
           );
           const minutes = base + earned;
           // Crossing the daily commitment pays a bonus, and crossing happens exactly once per day,
@@ -1122,8 +1188,16 @@ export const useApp = create<AppState>()(
             pendingRewards: [...s.pendingRewards, ...cards],
             completedLessons: [...s.completedLessons, id],
             lessonResume,
+            /*
+             * THE RECORD DIES WITH THE LESSON, in the same write that marks it complete. Leaving
+             * it would keep an entry for every lesson ever finished, and `lessonXpRemaining` would
+             * then keep subtracting the old shares from a REPLAY of that lesson.
+             */
+            lessonSegments: withoutSegmentRecord(s.lessonSegments, id),
             coins: s.coins + lessonCoins + streakCoins,
-            ...applyXp(s, (xp + bonus) * mult),
+            // The REMAINDER, not the lesson's XP. The parts already paid `seg.xpPaid`; the goal
+            // bonus and Double XP still apply to what is left, exactly as they did before parts.
+            ...applyXp(s, (lessonXpRemainder(seg, xp) + bonus) * mult),
             minutesToday: minutes,
             lessonsToday: (s.lastActiveDay === today ? s.lessonsToday : 0) + 1,
             lastActiveDay: today,
@@ -1135,6 +1209,83 @@ export const useApp = create<AppState>()(
             streakFreezes: resolved.freezeUsed ? s.streakFreezes - 1 : s.streakFreezes,
           };
         }),
+
+      /**
+       * CREDIT ONE NON-FINAL PART. The arithmetic lives in `lesson-segment-credit.ts`; this is the
+       * wiring, and it is deliberately thin.
+       *
+       * `applyXp` is applied HERE rather than in the helper because it is private to this file and
+       * is the one place a tier crossing is detected. An award that routed around it would leave
+       * lifetime and weekly XP disagreeing and swallow the promotion celebration.
+       *
+       * `activeDays` is stamped here too, because `withToday` reads the real clock and the helper
+       * is kept clock-free so a regression can place "today" wherever it needs to. A part marks a
+       * trial day for the same reason a trade and an Atlas message already do: it is real use.
+       *
+       * The result is captured out of the reducer rather than recomputed after it. Reading the
+       * store again would race a second credit and could report another part's streak.
+       */
+      completeLessonSegment: (id, kind, share, minutesSpent) => {
+        let out: SegmentCreditResult = { credited: false, xp: 0, streakAdvanced: false, streak: get().streak };
+        set((s) => {
+          const credit = creditSegment(s, {
+            id,
+            kind,
+            share,
+            minutes: minutesSpent,
+            today: dayKey(),
+            yesterday: prevDayKey(),
+            dayBefore: dayBeforeKey(),
+            // Double XP applies to a part exactly as it applies to a lesson. The item says "All XP
+            // earned is doubled", and a part that ignored it would make the item worth less the
+            // more a lesson is split up.
+            mult: get().doubleXpUntil > Date.now() ? 2 : 1,
+          });
+          out = credit.result;
+          // Returning `s` itself is a true no-op in zustand (it compares with Object.is before
+          // merging), so a refused repeat cannot re-render every screen that reads this store.
+          if (!credit.patch) return s;
+          const { xpToApply, ...patch } = credit.patch;
+          return { ...patch, activeDays: withToday(s.activeDays), ...applyXp(s, xpToApply) };
+        });
+        return out;
+      },
+
+      /**
+       * ADOPT A PRE-PARTS RESUME POINTER, once, on the first open of a lesson that was started
+       * before parts existed.
+       *
+       * IT PAYS NOTHING: no XP, no minutes, no streak, no `lastActiveDay`. Someone mid-lesson at
+       * upgrade did the reading but was never paid per part, so paying now would mint XP for work
+       * the old build already paid for in full at the end. `xpPaid: 0` means the final part still
+       * pays `lesson.xp - 0`, the whole lesson. Nothing is lost and nothing is paid twice.
+       *
+       * Refuses a finished lesson, and refuses to overwrite an existing record — a second adoption
+       * would reset `xpPaid` to 0 after parts had genuinely been paid, which is the farm.
+       */
+      adoptLegacySegments: (id, kinds) =>
+        set((s) => {
+          if (s.completedLessons.includes(id)) return s;
+          if (s.lessonSegments[id]) return s;
+          // Through `readSegmentRecord` rather than trusting the argument: it is derived from a
+          // persisted pointer, so unknown kinds and duplicates are possible input, not theory.
+          const record = readSegmentRecord({ done: kinds, xpPaid: 0, minutesPaid: 0 });
+          // Written even when nothing finished, because its EXISTENCE is what tells the runner the
+          // lesson has been adopted. Without the empty record, adoption would re-run every open.
+          return { lessonSegments: { ...s.lessonSegments, [id]: record } };
+        }),
+
+      /*
+       * A FINISHED LESSON ANSWERS EVERY KIND, with no data written. That single line is the whole
+       * migration (design 2c): every lesson completed before parts existed counts all its parts
+       * done, and stays right for any segment shape a future curriculum sync produces.
+       */
+      segmentsDoneFor: (id) =>
+        get().completedLessons.includes(id)
+          ? [...ALL_SEGMENT_KINDS]
+          : readSegmentRecord(get().lessonSegments[id]).done,
+
+      lessonXpRemaining: (id, xp) => lessonXpRemainder(readSegmentRecord(get().lessonSegments[id]), xp),
       /* ── EUPHORIUM ────────────────────────────────────────────────────────────
        * All rates come from `shop-items.ts::EARN`, which is the web Shop's own "How to earn
        * Euphorium" panel. Nothing here invents a number.
@@ -1277,11 +1428,11 @@ export const useApp = create<AppState>()(
         }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], lessonResume: null, minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], lessonResume: null, lessonSegments: {}, minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
       deleteProfile: () =>
         set({
           xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0,
-          bestStreak: 0, completedLessons: [], lessonResume: null, minutesToday: 0, lessonsToday: 0, lastActiveDay: '',
+          bestStreak: 0, completedLessons: [], lessonResume: null, lessonSegments: {}, minutesToday: 0, lessonsToday: 0, lastActiveDay: '',
           readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {},
           valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [],
           rewardsEarned: 0, watchlist: [],
@@ -1349,7 +1500,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, lessonResume: s.lessonResume, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, atlasTour: s.atlasTour, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, lessonResume: s.lessonResume, lessonSegments: s.lessonSegments, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, atlasTour: s.atlasTour, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote
