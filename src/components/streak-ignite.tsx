@@ -74,7 +74,7 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { NumberFlow } from 'number-flow-react-native';
+import { AppNumberFlow } from '@/shared/motion/app-number-flow';
 import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
 import Animated, {
   cancelAnimation,
@@ -98,7 +98,7 @@ import { Atlas } from '@/components/atlas';
 import { RING_CENTRES, RIM, RIM_W } from '@/components/atlas-mark';
 import { ThemedText } from '@/components/themed-text';
 import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
-import { Colors, FontSize } from '@/constants/theme';
+import { Colors, Fonts, FontSize } from '@/constants/theme';
 import { playSfx, warmSfx } from '@/lib/sfx';
 import { Duration, Ease, Spring, STAGGER_GAP } from '@/shared/motion/tokens';
 
@@ -799,7 +799,7 @@ export function StreakIgnite({
       {/* A plinth under his feet, outside HeroUnit so it never turns. */}
       <Animated.View style={[styles.countBox, countStyle]}>
         {/* Capped so the numeral stays inside the bloom; uncapped it reaches ~125pt at AX5. */}
-        <NumberFlow
+        <AppNumberFlow
           value={shown}
           animated={!reduced}
           spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
@@ -826,7 +826,10 @@ export function StreakIgnite({
 
       {!reduced && (
         <>
-          <PIConfetti ref={confetti} autoplay={false} fadeOutOnEnd containerStyle={StyleSheet.absoluteFill}>
+          {/* Keyed by tier: fast-confetti sizes its sprite and transform arrays once, so a flake count
+              that changes on a live instance throws "transforms and sprites arrays must have the same
+              length" (seen when `days` changed under fast refresh). A new count is a new instance. */}
+          <PIConfetti key={milestone ? 'milestone' : 'day'} ref={confetti} autoplay={false} fadeOutOnEnd containerStyle={StyleSheet.absoluteFill}>
             <PIConfetti.Origin
               blastPosition={crown}
               count={milestone ? 110 : 70}
@@ -875,7 +878,9 @@ const styles = StyleSheet.create({
   // lineHeight gives each rolling digit slot headroom: NumberFlow fades the top/bottom edge of every
   // slot, and with no lineHeight the slot was barely taller than the 800-weight glyph, so the fade
   // cut into the digit itself (owner: "the numbers are cut off"). The fade now lands in empty space.
-  count: { fontSize: FontSize.hero, lineHeight: Math.round(FontSize.hero * 1.35), fontWeight: '800', color: Colors.dark.streak },
+  // DM Sans Black by FAMILY: the custom family ignores fontWeight, and a width measured in one face
+  // but drawn in another clipped the second digit ("20" -> "2" and half a "0").
+  count: { fontFamily: Fonts.black, fontSize: FontSize.hero, lineHeight: Math.round(FontSize.hero * 1.35), color: Colors.dark.streak },
   label: { color: Colors.dark.streak, marginTop: 4 },
   week: { alignSelf: 'stretch', marginTop: 20, paddingHorizontal: 8 },
   ember: {

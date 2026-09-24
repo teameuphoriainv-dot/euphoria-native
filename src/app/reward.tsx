@@ -18,6 +18,7 @@
  *   - No "Share +50". Bloom pays its soft currency for social shares; we have no such currency and
  *     no share destination, and a button that pays nothing is the dead control this app is purging.
  */
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -34,6 +35,7 @@ import { AtlasSpeech } from '@/components/atlas-speech';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { money, STOCKS } from '@/lib/stocks';
+import { playSfx } from '@/lib/sfx';
 import { useApp } from '@/lib/store';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -54,6 +56,9 @@ export default function Reward() {
     const card = pending[0];
     if (!card) return;
     claim();
+    // Turning a card over is the earned beat: the confetti and pop were already here, it was silent.
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    playSfx('reveal');
     setRevealed(card);
     setTotal((t) => t + card.value);
   };

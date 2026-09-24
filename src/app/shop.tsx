@@ -18,7 +18,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { NumberFlow } from 'number-flow-react-native';
+import { AppNumberFlow } from '@/shared/motion/app-number-flow';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ShopArt } from '@/components/shop-art';
@@ -76,7 +76,7 @@ export default function Shop() {
           <PixelSpriteView sprite={coinSprite} size={15} />
           {/* NumberFlow, not NumberRollup: a balance must roll FROM the old value to the new one
               when coins are spent; NumberRollup replays from 0 on every change (reward reveals). */}
-          <NumberFlow
+          <AppNumberFlow
             value={coins}
             spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
             style={{ fontFamily: Fonts.semibold, fontSize: 13, lineHeight: 20, color: theme.iconGold }}
