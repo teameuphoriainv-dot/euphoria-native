@@ -1,6 +1,6 @@
 /**
  * CLICKTHROUGH BUILD-UP PIN: the build-up card (design M3) shows only authored text, in authored
- * order, inside Hilbert's 2.5s budget, refuses to build without every figure, and never passes an
+ * order, inside Hilbert's budget (BUILD_MAX_MS), refuses to build without every figure, and never passes an
  * authored hex to the renderer.
  *
  *   node --import ./scripts/ts-resolve-hooks.mjs scripts/clickthrough-buildup-pin.mjs
@@ -195,7 +195,7 @@ for (const kit of ['useClipTimeline', 'ClipControls', 'AtlasCue', 'CellRect', 'S
 check('card has no hex literal', !/#[0-9A-Fa-f]{6}\b/.test(code));
 check('card never reads an authored colour', !/\.color\b|segments|\.nodes\b/.test(code));
 check('reduced motion builds on the first frame', /const built = reduced \|\|/.test(code));
-// The timeline clamps beat 0's motion to BEAT_MAX_MS (1500), but a 4-piece build runs 1830ms, so
+// The timeline clamps beat 0's motion to BEAT_MAX_MS (3500), but a 4-piece build runs 3660ms, so
 // with the timeline's own `busy` Next went live mid-build on personal-finance:13:2 and
 // corporate-finance:15:2 and captioned a row that had no label yet. Controls must wait on `built`.
 check('Next waits for the build to land', /busy:\s*timeline\.busy\s*\|\|\s*!built/.test(code));
