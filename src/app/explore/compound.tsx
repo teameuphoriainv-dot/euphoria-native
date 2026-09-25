@@ -13,8 +13,9 @@ import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
-import { NumberRollup } from '@/shared/motion/number-rollup';
+import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
+import { Duration, Ease } from '@/shared/motion/tokens';
+import { AppNumberFlow } from '@/shared/motion/app-number-flow';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -90,7 +91,17 @@ export default function CompoundLab() {
             {/* SPLIT NUMBER guard: displayLg reaches ~106pt at AX5 and a projection wrapping
                 mid-figure reads as a different amount. Numeric data gets cap + one line, the
                 opposite of the treatment prose gets in this codebase. */}
-            <NumberRollup value={fv} prefix="$" duration={600} type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.displayLg, marginTop: 2 }} />
+            {/* Rolls from the OLD projection to the new one. NumberRollup counted up from $0 on every
+                stepper tap, so each +50 replayed the whole figure and hid how much the tap changed. */}
+            <View accessible accessibilityLabel={`$${fv.toLocaleString('en-US')}`} style={{ marginTop: 2 }}>
+              <AppNumberFlow
+                value={fv}
+                locales="en-US"
+                format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
+                spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
+                style={{ fontFamily: Fonts.display, fontSize: FontSize.displayLg, color: theme.text }}
+              />
+            </View>
             <View style={styles.splitRow}>
               {/* 'en-US' pinned, matching lib/stocks.ts money(). The $ here is a LITERAL character in
                   JSX text, so an unpinned number renders "$42.000" on a German phone — a US symbol
