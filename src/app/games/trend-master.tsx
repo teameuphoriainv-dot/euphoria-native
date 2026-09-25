@@ -39,6 +39,7 @@ import {
 } from '@/lib/trend-game';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { playSfx } from '@/lib/sfx';
 
 const GAME_ID = 'trend-master';
 const CHART_H = 190;
@@ -192,6 +193,7 @@ export default function TrendMaster() {
     void Haptics.notificationAsync(
       ok ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error,
     );
+    playSfx(ok ? 'correct' : 'wrong');
 
     /*
      * The pause IS the game. Resolving instantly removes the only moment of tension it has.

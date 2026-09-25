@@ -9,6 +9,7 @@
  *
  * XP comes from the data (`lesson.xp`), not a hardcoded 50.
  */
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -99,6 +100,7 @@ import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challe
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge } from '@/lib/notifications';
 import { lessonKey, useApp } from '@/lib/store';
+import { playSfx } from '@/lib/sfx';
 import { queueLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { EARN } from '@/lib/shop-items';
@@ -281,6 +283,7 @@ export default function Lesson() {
   const DONE = total + 1;
   const STREAK = total + 2;
 
+
   /** Fingerprint of the runtime step shape now on screen. Written into every saved pointer. */
   const resumeShape = useMemo(
     () => lessonShapeSignature(steps.map((s) => (s as { type?: string }).type ?? '')),
@@ -337,6 +340,12 @@ export default function Lesson() {
   }, [segmented, segmentRecord, segments]);
 
   const [idx, setIdx] = useState(0);
+
+  // The lesson-complete screen already celebrates visually (wipe, confetti, rays, rolling XP); it
+  // was silent. One chime as it lands. Keyed on reaching DONE so it plays once per completion.
+  useEffect(() => {
+    if (idx === DONE && total > 0) playSfx('complete');
+  }, [idx, DONE, total]);
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   /**
@@ -715,6 +724,10 @@ export default function Lesson() {
     setPick(selectedIndex);
     setChecked(true);
     setJustGraded(true);
+    // Every Check is felt and heard on the tap that caused it, the retry included -- answering was
+    // the app's most frequent action and it had neither, a large part of why it felt static.
+    void Haptics.notificationAsync(correct ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error);
+    playSfx(correct ? 'correct' : 'wrong');
     /*
      * ONLY THE FIRST TRY SCORES (owner decision 4). A right answer after Try again adds nothing to
      * correctSoFar, the tutor's mastery memory, and a second miss costs no second heart: one

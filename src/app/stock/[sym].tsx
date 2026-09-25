@@ -13,6 +13,7 @@
  * The chart is gone. `lib/stocks.ts` holds one static price per ticker and no series, so any line
  * drawn here is decoration pretending to be data. It returns when quotes do.
  */
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -25,6 +26,7 @@ import { PriceChart } from '@/components/price-chart';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
+import { playSfx } from '@/lib/sfx';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -58,6 +60,14 @@ function closeLabel(asOf: number | null | undefined): string | null {
   const stamp = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
   const days = Math.floor((Date.now() - asOf) / 86_400_000);
   return days >= 2 ? `Previous close · ${stamp} · ${days} days ago` : `Previous close · ${stamp}`;
+}
+
+/** A FILLED order is felt and heard -- the same cash-delta test that files the analytics event, so
+ *  a rejected or clamped-to-nothing order stays silent rather than confirming a trade that did not
+ *  happen. */
+function orderFilled() {
+  void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  playSfx('purchase');
 }
 
 export default function StockDetail() {
@@ -480,7 +490,10 @@ export default function StockDetail() {
                            Ev.firstLesson on the completed count actually moving. */
                         const before = useApp.getState().cash;
                         buy(sym, qty, price);
-                        if (useApp.getState().cash !== before) track(Ev.tradePlaced, { side: 'buy', symbol: sym, shares: qty });
+                        if (useApp.getState().cash !== before) {
+                          track(Ev.tradePlaced, { side: 'buy', symbol: sym, shares: qty });
+                          orderFilled();
+                        }
                       }}
                     />
                   </View>
@@ -491,7 +504,10 @@ export default function StockDetail() {
                       // applySell clamps to what is actually held, so a sell can also be a no-op.
                       const before = useApp.getState().cash;
                       sell(sym, qty, price);
-                      if (useApp.getState().cash !== before) track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
+                      if (useApp.getState().cash !== before) {
+                        track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
+                        orderFilled();
+                      }
                     }}
                     accessibilityRole="button"
                     accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}

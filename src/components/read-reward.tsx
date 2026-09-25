@@ -29,6 +29,7 @@
  *
  * TUNE is the iteration surface. Preview in isolation at /dev-beat.
  */
+import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import { Ease } from '@/shared/motion/tokens';
 import { StyleSheet, View } from 'react-native';
@@ -44,6 +45,7 @@ import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { playSfx } from '@/lib/sfx';
 import { RewardPop } from '@/shared/motion/reward-pop';
 
 /** ── ITERATION SURFACE ────────────────────────────────────────────────────── */
@@ -108,6 +110,15 @@ function Glow({ size, color, style }: { size: number; color: string; style: obje
 export function ReadReward({ streak, runKey = 0 }: { streak: number; runKey?: number }) {
   const theme = useTheme();
   const glow = useSharedValue(0);
+
+  // The finish is felt and heard as the title lands -- it popped in visually but was silent.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      playSfx('complete');
+    }, TUNE.titleAt);
+    return () => clearTimeout(t);
+  }, [runKey]);
 
   useEffect(() => {
     glow.set(0);

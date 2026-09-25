@@ -31,6 +31,7 @@ import {
 } from '@/lib/decision-tree-model';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
+import { playSfx } from '@/lib/sfx';
 
 export type { DecisionTreeSpec } from '@/lib/decision-tree-model';
 
@@ -61,6 +62,7 @@ export function DecisionTree({ spec, onComplete }: { spec: DecisionTreeSpec; onC
         ? Haptics.NotificationFeedbackType.Success
         : Haptics.NotificationFeedbackType.Error,
     );
+    playSfx(option.correct ? 'correct' : 'wrong');
   };
 
   const move = () => {

@@ -23,6 +23,7 @@ import {
 } from '@/lib/drag-sort-model';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
+import { playSfx } from '@/lib/sfx';
 
 export function DragSort({ spec, onComplete }: { spec: DragSortSpec; onComplete: (passed: boolean) => void }) {
   const theme = useTheme();
@@ -42,6 +43,7 @@ export function DragSort({ spec, onComplete }: { spec: DragSortSpec; onComplete:
         ? Haptics.NotificationFeedbackType.Success
         : Haptics.NotificationFeedbackType.Error,
     );
+    playSfx(side === round?.correct ? 'correct' : 'wrong');
   };
 
   const nextRound = () => setFlow((current) => advanceDragSort(current, rounds.length));
