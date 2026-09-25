@@ -3,7 +3,7 @@
  * Animates 0 → value on mount via requestAnimationFrame (easeOutCubic). Reduced-motion → instant.
  * Renders as a ThemedText so it drops in anywhere a number lives.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { ThemedText, type ThemedTextProps } from '@/components/themed-text';
@@ -44,6 +44,14 @@ export function NumberRollup({
    */
   const [text, setText] = useState(() => prefix + withCommas(0) + suffix);
   const reduced = useReducedMotion();
+  /*
+   * COUNT FROM WHAT IS SHOWING, not from 0. This rendered value * ease(p), so EVERY change counted
+   * up from zero again: a 2048 score replayed 0 -> score on each merge, a calculator projection
+   * restarted at $0 on each tap. `shown` is the number currently on screen (updated per frame), so
+   * a change rolls old -> new, and a change landing mid-count carries on from where it is. First
+   * mount still counts up from 0, which is the reveal every reward call site wants.
+   */
+  const shown = useRef(0);
 
   useEffect(() => {
     const render = (v: number) => prefix + withCommas(v) + suffix;
@@ -52,8 +60,10 @@ export function NumberRollup({
       // it. One render, then return -- there is no rAF loop on this branch.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setText(render(value));
+      shown.current = value;
       return;
     }
+    const from = shown.current;
     let raf = 0;
     let start: number | null = null;
     let lastAt = 0;
@@ -63,12 +73,15 @@ export function NumberRollup({
       if (start === null) start = t;
       const p = Math.min(1, (t - start) / duration);
       if (p >= 1) {
+        shown.current = value;
         setText(render(value));
         return;
       }
       if (t - lastAt >= MIN_GAP_MS) {
         lastAt = t;
-        const next = render(value * (1 - Math.pow(1 - p, 3)));
+        const v = from + (value - from) * (1 - Math.pow(1 - p, 3));
+        shown.current = v;
+        const next = render(v);
         // Identical text means an identical tree; skipping it costs the viewer nothing.
         if (next !== lastText) {
           lastText = next;
