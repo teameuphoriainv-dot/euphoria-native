@@ -4,7 +4,7 @@
  * that course's real lessons in the production web pathway language. Progress comes from
  * `completedLessons` in the store.
  */
-import { router, useFocusEffect, useLocalSearchParams, useTheme as useNavigationTheme } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,7 +20,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
@@ -30,6 +30,7 @@ import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
 import { entitled, TRIAL_DAYS, trialDayNumber, useTier, type Refusal } from '@/lib/entitlement';
 import { ThemedText } from '@/components/themed-text';
+import { Card } from '@/components/ui/card';
 import { NODE_CHALLENGE_COLOR, NODE_CURRENT_COLOR, NODE_LOCKED_COLOR, NODE_UPCOMING_COLOR } from '@/components/path-node';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
@@ -241,7 +242,6 @@ function LivingStreakFlame() {
 
 export default function Learn() {
   const theme = useTheme();
-  const sceneBg = useNavigationTheme().colors.background;
   const params = useLocalSearchParams<{ qa?: string }>();
   const qa = __DEV__ ? params.qa : undefined;
   const { width } = useWindowDimensions();
@@ -512,9 +512,12 @@ export default function Learn() {
             <AskAtlasButton topic={course?.title} />
             <ProfileButton />
           </View>
-          <View style={[styles.track, { backgroundColor: theme.muted }]}>
-            <ProgressFill ratio={total ? doneCount / total : 0} color={accent} style={styles.fill} />
-          </View>
+          {/* Appears after the first lesson: at 0 it was an empty bar stacked on the trial bar. */}
+          {doneCount > 0 && (
+            <View style={[styles.track, { backgroundColor: theme.muted }]}>
+              <ProgressFill ratio={total ? doneCount / total : 0} color={accent} style={styles.fill} />
+            </View>
+          )}
         </View>
       </RiseIn>
 
@@ -533,71 +536,6 @@ export default function Learn() {
         * fully usable day reads as already expired (§22 C14). Shown only during the trial — a Pro
         * member must never see a countdown, and an expired one gets the paywall's own copy.
         */}
-      {planTier === 'trial' && (
-        <RiseIn delay={60}>
-          <SpringPressable
-            haptic={false}
-            scaleTo={0.99}
-            onPress={() => router.push('/onboarding?step=paywall')}
-            accessibilityRole="button"
-            accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
-            {/*
-              * A GRADIENT BORDER, matching the web's Premium column and price card exactly. The
-              * reference runs violet from the top-left corner to orange at the bottom-right, so
-              * the card is edged in the ramp rather than tinted with one stop of it. A tint said
-              * "pinkish"; the ramp is the thing the web has taught the user to read as Premium.
-              */}
-            <PremiumBorder radius={Radius.lg} style={styles.trialBorder}>
-            <View style={styles.trialStrip}>
-              {/*
-                * ATLAS, SAD, WHERE THE ARROW WAS.
-                *
-                * The arrow said "there is another screen" and nothing else, and it sat hard against
-                * the right edge with the whole middle of the card empty, so the strip read as a
-                * status bar rather than an offer. Atlas is the app's one character; him being sad
-                * that your trial is running out says the same thing the arrow was trying to and
-                * says it in the app's own voice.
-                *
-                * `interactive={false}` and no `idle`: the whole card is already the control, and a
-                * mascot that animates on its own here would compete with the lesson trail below.
-                */}
-              <Atlas size={44} expression="sad" interactive={false} />
-              <View style={{ flex: 1 }}>
-                {/*
-                  * THE PREMIUM COLOURWAY, and this is the surface it is reserved for.
-                  *
-                  * theme.ts warns that the pink-to-orange ramp is the one colour that MEANS
-                  * Premium and that spending it on an ordinary CTA wastes it. This card's only
-                  * job is to sell Premium, so it is the correct place for it, and it now matches
-                  * the paywall it opens instead of arriving as a violet surprise.
-                  */}
-                <PremiumText type="heading">Unlock Premium</PremiumText>
-                <View style={styles.trialDots}>
-                  {/*
-                    * THE RAMP, SPENT ACROSS THE THREE DAYS. Filled days walk
-                    * gradientFrom -> premiumFrom -> premiumTo, the exact stops SlabButton's
-                    * premium tone paints, so the strip WARMS toward the offer as the trial runs
-                    * down. The colour is doing the same work as the copy rather than decorating it.
-                    */}
-                  {Array.from({ length: TRIAL_DAYS }, (_, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.trialDot,
-                        {
-                          backgroundColor: i < trialDay ? TRIAL_RAMP(theme)[i] : 'transparent',
-                          borderColor: i < trialDay ? TRIAL_RAMP(theme)[i] : theme.border,
-                        },
-                      ]}
-                    />
-                  ))}
-                </View>
-              </View>
-            </View>
-            </PremiumBorder>
-          </SpringPressable>
-        </RiseIn>
-      )}
 
       {/*
         * COMPACT COURSE CHIPS — 44pt, replacing a 150pt card rail.
@@ -653,9 +591,6 @@ export default function Learn() {
                   style={{ color: on ? theme.text : theme.mutedForeground }}>
                   {c.title}
                 </ThemedText>
-                {!available && (
-                  <ThemedText type="label" style={{ color: theme.mutedForeground }}>SOON</ThemedText>
-                )}
               </View>
             </SpringPressable>
           );
@@ -663,6 +598,72 @@ export default function Learn() {
       </ScrollView>
 
       <ScrollView style={styles.trailScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Scrolls away with the trail instead of pinning ~90pt above it. */}
+        {planTier === 'trial' && (
+          <RiseIn delay={60} style={styles.trialSlot}>
+            <SpringPressable
+              haptic={false}
+              scaleTo={0.99}
+              onPress={() => router.push('/onboarding?step=paywall')}
+              accessibilityRole="button"
+              accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
+              {/*
+                * A GRADIENT BORDER, matching the web's Premium column and price card exactly. The
+                * reference runs violet from the top-left corner to orange at the bottom-right, so
+                * the card is edged in the ramp rather than tinted with one stop of it. A tint said
+                * "pinkish"; the ramp is the thing the web has taught the user to read as Premium.
+                */}
+              <PremiumBorder radius={Radius.lg} style={styles.trialBorder}>
+              <View style={styles.trialStrip}>
+                {/*
+                  * ATLAS, SAD, WHERE THE ARROW WAS.
+                  *
+                  * The arrow said "there is another screen" and nothing else, and it sat hard against
+                  * the right edge with the whole middle of the card empty, so the strip read as a
+                  * status bar rather than an offer. Atlas is the app's one character; him being sad
+                  * that your trial is running out says the same thing the arrow was trying to and
+                  * says it in the app's own voice.
+                  *
+                  * `interactive={false}` and no `idle`: the whole card is already the control, and a
+                  * mascot that animates on its own here would compete with the lesson trail below.
+                  */}
+                <Atlas size={44} expression="sad" interactive={false} />
+                <View style={{ flex: 1 }}>
+                  {/*
+                    * THE PREMIUM COLOURWAY, and this is the surface it is reserved for.
+                    *
+                    * theme.ts warns that the pink-to-orange ramp is the one colour that MEANS
+                    * Premium and that spending it on an ordinary CTA wastes it. This card's only
+                    * job is to sell Premium, so it is the correct place for it, and it now matches
+                    * the paywall it opens instead of arriving as a violet surprise.
+                    */}
+                  <PremiumText type="heading">Unlock Premium</PremiumText>
+                  <View style={styles.trialDots}>
+                    {/*
+                      * THE RAMP, SPENT ACROSS THE THREE DAYS. Filled days walk
+                      * gradientFrom -> premiumFrom -> premiumTo, the exact stops SlabButton's
+                      * premium tone paints, so the strip WARMS toward the offer as the trial runs
+                      * down. The colour is doing the same work as the copy rather than decorating it.
+                      */}
+                    {Array.from({ length: TRIAL_DAYS }, (_, i) => (
+                      <View
+                        key={i}
+                        style={[
+                          styles.trialDot,
+                          {
+                            backgroundColor: i < trialDay ? TRIAL_RAMP(theme)[i] : 'transparent',
+                            borderColor: i < trialDay ? TRIAL_RAMP(theme)[i] : theme.border,
+                          },
+                        ]}
+                      />
+                    ))}
+                  </View>
+                </View>
+              </View>
+              </PremiumBorder>
+            </SpringPressable>
+          </RiseIn>
+        )}
         {total === 0 ? (
           <View style={styles.empty}>
             {pending ? <ActivityIndicator color={accent} /> : null}
@@ -697,16 +698,36 @@ export default function Learn() {
 
               return (
                 <View key={unit.index} style={styles.sagaUnit}>
-                  <View
-                    style={[
-                      styles.levelHeader,
-                      { backgroundColor: accent + '0D', borderColor: accent + '4D' },
-                    ]}>
-                    <ThemedText type="bodyMedium" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
-                  </View>
+                  <Card padded={false} tint={accent} depthColor={accent + '80'} style={styles.levelHeader}>
+                    <ThemedText type="heading" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
+                  </Card>
 
                   <View style={[styles.sagaTrail, { width: sagaWidth, height: sagaHeight }]}>
                     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={sagaWidth} height={sagaHeight}>
+                      {/* The connector is CUT OUT under each title (mask), so it never strikes through
+                          text and the real background shows through at any scroll position. A solid
+                          backing could not match the ambient gradient and read as a box. */}
+                      <Defs>
+                        <Mask id={`saga-labels-${String(unit.index)}`}>
+                          <Rect x={0} y={0} width={sagaWidth} height={sagaHeight} fill="white" />
+                          {nodes.map((node) => {
+                            const size = node.lessonIndex === current ? SAGA_CURRENT : SAGA_NODE;
+                            const special = (node.lessonIndex + 1) % 10 === 0 || node.lessonIndex === lessons.length - 1;
+                            return (
+                              <Rect
+                                key={node.lessonIndex}
+                                x={node.x - SAGA_LABEL_WIDTH / 2}
+                                y={node.y + size / 2 + SAGA_LIP + Spacing.two + (special ? 12 : 0) - 4}
+                                width={SAGA_LABEL_WIDTH}
+                                height={SAGA_LABEL_HEIGHT - Spacing.two + 4}
+                                rx={Radius.sm}
+                                fill="black"
+                              />
+                            );
+                          })}
+                        </Mask>
+                      </Defs>
+                      <G mask={`url(#saga-labels-${String(unit.index)})`}>
                       {nodes.slice(0, -1).map((node, localIndex) => {
                         const next = nodes[localIndex + 1];
                         const nextDone = doneFlags[next.lessonIndex];
@@ -732,6 +753,7 @@ export default function Learn() {
                           />
                         );
                       })}
+                      </G>
                     </Svg>
 
                     {nodes.map((node) => {
@@ -940,10 +962,7 @@ export default function Learn() {
                             <ThemedText
                               type={active ? 'smallBold' : 'small'}
                               numberOfLines={2}
-                              // Backed in the SCENE colour (the navigation theme's background, which is what
-                              // actually shows behind the trail -- theme.background is lighter and read as a
-                              // grey box) so the connector passes behind the title instead of through it.
-                              style={[styles.nodeTitle, { color: active ? theme.text : theme.mutedForeground, backgroundColor: sceneBg }]}>
+                              style={[styles.nodeTitle, { color: active ? theme.text : theme.mutedForeground }]}>
                               {lesson.title}
                             </ThemedText>
                           </View>
@@ -1007,7 +1026,8 @@ function TrailFade({ stale, style, children }: { stale: boolean; style: StylePro
 const styles = StyleSheet.create({
   /* Carried over verbatim from home.tsx with the strip itself. */
   /* The border owns the outer margins; the row owns the padding inside it. */
-  trialBorder: { marginHorizontal: Spacing.three, marginTop: Spacing.three, marginBottom: Spacing.two },
+  trialSlot: { alignSelf: 'stretch' },
+  trialBorder: { marginTop: Spacing.two },
   trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three, paddingHorizontal: Spacing.three },
   /*
    * THE TRACK SPANS THE COLUMN. The three days were a fixed 26pt each, so they filled about a
@@ -1036,8 +1056,6 @@ const styles = StyleSheet.create({
   /* Between the rail and the trail, so it describes the course whose lessons are on screen.
      Course accent rather than mutedForeground: grey subtext is the app-wide quality complaint
      this is meant to answer, not repeat. */
-  whyRow: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
-  whyText: { fontSize: FontSize.caption, lineHeight: 17 },
   trailScroll: { flex: 1 },
   content: { alignItems: 'center', paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },
@@ -1051,10 +1069,7 @@ const styles = StyleSheet.create({
     gap: 1,
     paddingHorizontal: Spacing.three,
     paddingVertical: 6,
-    borderWidth: 1,
-    borderRadius: Radius.lg,
   },
-  levelEyebrow: { letterSpacing: 1.4 },
   levelTitle: { textAlign: 'center' },
   sagaTrail: { position: 'relative', marginTop: 12 },
   sagaStop: { position: 'absolute' },
@@ -1095,6 +1110,6 @@ const styles = StyleSheet.create({
   },
   lessonNumber: { color: '#F4F4F5' },
   nodeLabel: { position: 'absolute', width: SAGA_LABEL_WIDTH, alignItems: 'center' },
-  nodeTitle: { textAlign: 'center', paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.sm, overflow: 'hidden' },
+  nodeTitle: { textAlign: 'center' },
   currentLabel: { marginTop: 2, fontSize: 10, lineHeight: 13 },
 });
