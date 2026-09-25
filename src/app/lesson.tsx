@@ -642,6 +642,10 @@ export default function Lesson() {
         }
         if (found && qa === 'complete') setIdx(expandSteps(found.steps).length + 1);
         if (found && qa === 'heart-wall') setOutOfHearts(true);
+        // Dev-only (`qa` is __DEV__-gated above): `qa=step-3` opens straight onto screen 3, so a
+        // layout fix deep in a lesson can be checked on the simulator without tapping through it.
+        const qaStep = found && qa?.startsWith('step-') ? Number(qa.slice(5)) : NaN;
+        if (found && Number.isInteger(qaStep) && qaStep >= 0) setIdx(Math.min(qaStep, expandSteps(found.steps).length));
         openedAt.current = Date.now();
         setCorrectSoFar(0);
         setRecentMistakes([]);
