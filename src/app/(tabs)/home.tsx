@@ -839,7 +839,7 @@ export default function Home() {
                         * and `glassFrost` below, so this adds nothing to design-rules-pin's hex
                         * ratchet.
                         */}
-                      {segmentKinds.length > 1 && (
+                      {segmentKinds.length > 1 && partsFilled > 0 && (
                         <SegmentRing
                           size={22}
                           /* 3, not the component's 4pt default. The trail draws this ring at
@@ -888,7 +888,7 @@ export default function Home() {
                   * Not pressable: the card already is.
                   */}
                 <View style={[styles.heroBar, { backgroundColor: theme.primary, borderBottomColor: theme.ctaDepth }]}>
-                  <ThemedText type="bodyMedium" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>Continue</ThemedText>
+                  <ThemedText type="bodyMedium" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>{heroVerb}</ThemedText>
                   <PlayGlyph scale={0.62} color={theme.primaryForeground} />
                 </View>
               </View>
@@ -970,16 +970,6 @@ export default function Home() {
                 todayIdx={todayIdx}
                 onRowLayout={(x, y, w) => setBlastAt({ x: x + ((todayIdx + 0.5) * w) / 7, y: y + 23 + (STREAK_DOT + 6) / 2 })}
               />
-              <View
-                accessible
-                accessibilityRole="progressbar"
-                accessibilityLabel={`${String(minutesDone)} of ${String(goalMinutes)} minutes today`}
-                accessibilityValue={{ min: 0, max: goalMinutes, now: Math.min(minutesDone, goalMinutes) }}
-                style={styles.todayGoal}>
-                <View style={[styles.todayTrack, { backgroundColor: theme.muted }]}>
-                  <View style={[styles.todayFill, { backgroundColor: theme.primary, width: `${Math.min(100, Math.round((minutesDone / Math.max(1, goalMinutes)) * 100))}%` }]} />
-                </View>
-              </View>
               <View style={[styles.todayQuests, { borderTopColor: theme.border }]}>
                 {quests.map((q) => (
                   <View
@@ -987,15 +977,18 @@ export default function Home() {
                     accessible
                     accessibilityLabel={`${q.title}, ${q.done ? 'done' : `${String(q.at)} of ${String(q.of)}`}`}
                     style={styles.todayQuest}>
-                    <View style={[styles.todayTick, { backgroundColor: q.done ? theme.success : 'transparent', borderColor: q.done ? theme.success : theme.border }]}>
-                      {q.done ? <UIcon name="check" size={11} color={theme.primaryForeground} /> : null}
+                    {/* Open quests show their own icon, not an empty ring; done is the green check. */}
+                    <View style={[styles.todayTick, q.done && { backgroundColor: theme.success, borderWidth: 1.5, borderColor: theme.success }]}>
+                      {q.done ? <UIcon name="check" size={11} color={theme.primaryForeground} /> : <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={18} />}
                     </View>
                     <ThemedText type="bodyMedium" style={{ flex: 1, color: q.done ? theme.mutedForeground : theme.text }}>
                       {q.title}
                     </ThemedText>
-                    <ThemedText type="small" style={{ color: q.done ? theme.success : theme.mutedForeground }}>
-                      {q.at}/{q.of}
-                    </ThemedText>
+                    {q.of > 1 ? (
+                      <ThemedText type="small" style={{ color: q.done ? theme.success : theme.mutedForeground }}>
+                        {q.at}/{q.of}
+                      </ThemedText>
+                    ) : null}
                   </View>
                 ))}
               </View>
@@ -1096,7 +1089,7 @@ export default function Home() {
           * league card says something nothing else on Home does. It rises in the first time it
           * scrolls into view (owner: selective reveals).
           */}
-        <Reveal style={styles.leagueSlot}>
+        <Reveal>
           <LeagueCard />
         </Reveal>
 
@@ -1123,7 +1116,6 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  leagueSlot: { marginTop: Spacing.two },
   safe: { flex: 1 },
   /* Negative margins cancel glassHero's own padding so the bar meets all three card edges.
      overflow:'hidden' on glassHero clips it to the bottom corner radius. */
@@ -1195,12 +1187,9 @@ const styles = StyleSheet.create({
   todayCard: { paddingVertical: Spacing.four },
   todayBody: { gap: Spacing.three },
   todayHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two },
-  todayGoal: { gap: 6 },
-  todayTrack: { height: 6, borderRadius: Radius.track, overflow: 'hidden' },
-  todayFill: { height: 6, borderRadius: Radius.track },
   todayQuests: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.two },
   todayQuest: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: 6 },
-  todayTick: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  todayTick: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   streakTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   /* lineHeight pinned to the size: `display` ships a 40pt line box, which left a visible dead
      band under the number inside a card built to be compact. */

@@ -72,7 +72,7 @@ export function LeagueCard() {
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1, gap: Spacing.three },
+  card: { gap: Spacing.three },
   head: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   title: { flex: 1, fontSize: FontSize.titleSm },
   xpLine: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
