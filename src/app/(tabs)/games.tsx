@@ -3,7 +3,7 @@
  * cards with EUPHORIA icons plus explicit playable, Pro, and Coming Soon states.
  */
 import { router } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -21,6 +21,9 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP } from '@/shared/motion/tokens';
 import { ProfileButton } from '@/components/profile-button';
+import { useSharedValue } from 'react-native-reanimated';
+import { CompactTitle } from '@/shared/motion/compact-title';
+import { RevealScrollView } from '@/shared/motion/scroll-reveal';
 
 /**
  * THE SPRITE LIVES ON THE ENTRY, not in a lookup keyed by name.
@@ -52,11 +55,12 @@ const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean;
 ];
 
 export default function Games() {
+  const scrollY = useSharedValue(0);
   const theme = useTheme();
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={40} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <RevealScrollView scrollY={scrollY} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
           {/* Was a bare title with no row, so the profile button had nowhere to sit. */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.two }}>
@@ -126,7 +130,8 @@ export default function Games() {
             );
           })}
         </View>
-      </ScrollView>
+      </RevealScrollView>
+      <CompactTitle title="Games" scrollY={scrollY} />
     </SafeAreaView>
   );
 }

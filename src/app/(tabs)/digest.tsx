@@ -18,7 +18,7 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
@@ -46,6 +46,9 @@ import {
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 import { ProfileButton } from '@/components/profile-button';
+import { useSharedValue } from 'react-native-reanimated';
+import { CompactTitle } from '@/shared/motion/compact-title';
+import { RevealScrollView } from '@/shared/motion/scroll-reveal';
 
 /**
  * A mark per Digest category.
@@ -241,6 +244,7 @@ function GuideCard({ post, read }: { post: ExtraPost; read: boolean }) {
 }
 
 export default function Digest() {
+  const scrollY = useSharedValue(0);
   const theme = useTheme();
   const readPosts = useApp((s) => s.readPosts);
   const dailyPick = useApp((s) => s.dailyPick);
@@ -297,7 +301,7 @@ export default function Digest() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={40} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <RevealScrollView scrollY={scrollY} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ flex: 1 }}>
@@ -440,7 +444,8 @@ export default function Digest() {
           ) : null}
         </View>
         )}
-      </ScrollView>
+      </RevealScrollView>
+      <CompactTitle title="Digest" scrollY={scrollY} />
     </SafeAreaView>
   );
 }

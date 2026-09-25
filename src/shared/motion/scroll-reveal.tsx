@@ -31,8 +31,13 @@ const RISE = 14;
 type Ctx = { scrollY: SharedValue<number>; viewportH: number } | null;
 const RevealContext = createContext<Ctx>(null);
 
-export function RevealScrollView({ children, ...rest }: ScrollViewProps & { children: ReactNode }) {
-  const scrollY = useSharedValue(0);
+export function RevealScrollView({
+  children,
+  scrollY: external,
+  ...rest
+}: ScrollViewProps & { children: ReactNode; /** Optional: share scroll position with siblings (e.g. CompactTitle). */ scrollY?: SharedValue<number> }) {
+  const own = useSharedValue(0);
+  const scrollY = external ?? own;
   const { height } = useWindowDimensions();
   const onScroll = useAnimatedScrollHandler((e) => {
     scrollY.set(e.contentOffset.y);
