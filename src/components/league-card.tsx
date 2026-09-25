@@ -47,7 +47,7 @@ export function LeagueCard() {
       accessibilityLabel={`${tier.name} League. ${String(weekly)} of ${String(goal.xp)} XP this week. ${
         done ? `${cleared.label}, plus ${String(cleared.coins)} coins.` : `Reach ${String(goal.xp)} XP for plus ${String(goal.coins)} coins.`
       } ${daysLeft()}. Practice rank ${String(rank)} of ${String(total)}.`}>
-      <Card style={[styles.card, { borderColor: tier.color + '55' }]}>
+      <Card depthColor={tier.color + 'B3'} style={[styles.card, { borderColor: tier.color + '59' }]}>
         <View style={styles.head}>
           <LeagueCrest tier={tier} size={36} />
           <ThemedText type="title" style={styles.title}>{`${tier.name} League`}</ThemedText>

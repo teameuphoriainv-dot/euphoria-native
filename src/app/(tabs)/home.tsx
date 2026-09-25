@@ -958,7 +958,7 @@ export default function Home() {
           )}
 
           {BAND === 'today' && (
-            <Card style={styles.todayCard}>
+            <Card depthColor={theme.primary + '8C'} style={[styles.todayCard, { borderColor: theme.primary + '40' }]}>
               <View style={styles.todayBody}>
               <View style={styles.todayHead}>
                 <ThemedText type="title" maxFontSizeMultiplier={1.6}>

@@ -41,7 +41,6 @@ import { expandSteps } from '@/lib/lesson-steps';
 import { hasMasteryChallenge } from '@/lib/mastery-challenge-model';
 import { readSegmentRecord, segmentsOf, type SegmentKind } from '@/lib/lesson-segments';
 import { SegmentRing } from '@/components/segment-ring';
-import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { takeLessonTrailCelebration, type LessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { ProgressFill } from '@/shared/motion/progress-fill';
@@ -336,11 +335,6 @@ export default function Learn() {
    * Null for a hand-picked course, and null for the courses the recommendation never reached.
    * Both cases stay silent rather than inventing a justification.
    */
-  const profile = useApp((s) => s.profile);
-  const whyTrailCourse = useMemo(
-    () => recommendPathDetailed(profile).find((x) => x.course.id === trailCourseId)?.reason ?? null,
-    [profile, trailCourseId],
-  );
   const pending = qa === 'loading' || (!qa && loaded?.id !== activeCourseId);
   const shownFailed = qa === 'error' ? activeCourseId : failed;
   /** switching between two courses — dim the outgoing trail instead of flashing an empty path */
@@ -577,9 +571,6 @@ export default function Learn() {
                   * the paywall it opens instead of arriving as a violet surprise.
                   */}
                 <PremiumText type="heading">Unlock Premium</PremiumText>
-                <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 1 }}>
-                  Day {trialDay} of {TRIAL_DAYS} on your free trial
-                </ThemedText>
                 <View style={styles.trialDots}>
                   {/*
                     * THE RAMP, SPENT ACROSS THE THREE DAYS. Filled days walk
@@ -670,14 +661,6 @@ export default function Learn() {
         })}
       </ScrollView>
 
-      {whyTrailCourse ? (
-        <View style={styles.whyRow}>
-          <ThemedText type="small" style={[styles.whyText, { color: accent }]} numberOfLines={2}>
-            {whyTrailCourse}
-          </ThemedText>
-        </View>
-      ) : null}
-
       <ScrollView style={styles.trailScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {total === 0 ? (
           <View style={styles.empty}>
@@ -718,7 +701,6 @@ export default function Learn() {
                       styles.levelHeader,
                       { backgroundColor: accent + '0D', borderColor: accent + '4D' },
                     ]}>
-                    <ThemedText type="label" style={[styles.levelEyebrow, { color: accent }]}>LEVEL {unit.index + 1}</ThemedText>
                     <ThemedText type="bodyMedium" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
                   </View>
 
@@ -960,7 +942,6 @@ export default function Learn() {
                               style={{ color: active ? theme.text : theme.mutedForeground, textAlign: 'center' }}>
                               {lesson.title}
                             </ThemedText>
-                            {active && <ThemedText type="smallBold" style={[styles.currentLabel, { color: accent }]}>Current</ThemedText>}
                           </View>
                         </View>
                       );
