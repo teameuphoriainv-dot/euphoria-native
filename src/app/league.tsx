@@ -33,28 +33,17 @@ import { PixelSpriteView, bolt, coin as coinSprite, star } from '@/lib/pixel';
 import { ITEM_ART } from '@/lib/item-art';
 import { avatarFor } from '@/lib/avatars';
 import { labelFor } from '@/lib/league-week';
+import { daysLeft, PROMOTE } from '@/lib/league-standings';
 import { PEOPLE } from '@/lib/people';
-import { useApp, weekKey } from '@/lib/store';
+import { useApp } from '@/lib/store';
 import { Spring, STAGGER_CAP } from '@/shared/motion/tokens';
 
-const PROMOTE = 3; // top 3 promote
 const DEMOTE = 7; // rank 8+ (index >= 7) demote
 
 function commas(n: number) {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-/** Days left in the league week. weekKey() returns the Monday a week belongs to, so it closes at
- *  the end of the following Sunday. Derived rather than printed, because the previous copy read
- *  "3 days left" on every day of the week including Sunday. */
-function daysLeft(): string {
-  const monday = new Date(`${weekKey()}T00:00:00`);
-  const endOfSunday = new Date(monday.getTime() + 7 * 86_400_000);
-  const days = Math.ceil((endOfSunday.getTime() - Date.now()) / 86_400_000);
-  if (days <= 1) return 'Ends today';
-  if (days === 2) return '1 day left';
-  return `${days - 1} days left`;
-}
 
 function Zone({ label, color }: { label: string; color: string }) {
   return (

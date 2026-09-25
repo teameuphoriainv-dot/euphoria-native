@@ -40,10 +40,9 @@ import * as Haptics from 'expo-haptics';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { LessonArt } from '@/components/lesson-art';
-import { CourseMark } from '@/components/art/course-mark';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
 import { courseAccent, courseHeroFill } from '@/lib/course-accents';
-import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { expandSteps } from '@/lib/lesson-steps';
 import { hasMasteryChallenge } from '@/lib/mastery-challenge-model';
@@ -61,7 +60,7 @@ import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { Reveal, RevealScrollView } from '@/shared/motion/scroll-reveal';
-import { ProgressFill } from '@/shared/motion/progress-fill';
+import { LeagueCard } from '@/components/league-card';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { ProfileButton } from '@/components/profile-button';
 
@@ -287,7 +286,6 @@ export default function Home() {
   const goalMinutes = useApp((s) => s.dailyGoalMinutes());
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
-  const setActiveCourse = useApp((s) => s.setActiveCourse);
 
   /*
    * WHY THIS COURSE IS THE ONE.
@@ -307,22 +305,6 @@ export default function Home() {
     () => recommendPathDetailed(profile).find((x) => x.course.id === activeCourseId)?.reason ?? null,
     [profile, activeCourseId],
   );
-
-  /*
-   * THE COURSE LIST, TRIMMED (owner decision). It listed every available course -- about ten identical
-   * 0/25 cards under a hero that already says what to do next, which read as a static wall and as a
-   * repeat of the hero. Now: the courses you have actually started (and the active one), plus ONE
-   * suggested next course from the onboarding recommendation. "See all" keeps the full list a tap away.
-   */
-  const pathCourses = useMemo(() => {
-    const avail = COURSES.filter((c) => isCourseAvailable(c.id));
-    const started = avail.filter((c) => c.id === activeCourseId || completedLessons.some((k) => k.startsWith(`${c.id}:`)));
-    const suggestedId = recommendPathDetailed(profile)
-      .map((x) => x.course.id)
-      .find((id) => avail.some((c) => c.id === id) && !started.some((c) => c.id === id));
-    const next = avail.find((c) => c.id === suggestedId) ?? avail.find((c) => !started.includes(c));
-    return next ? [...started, next] : started;
-  }, [activeCourseId, completedLessons, profile]);
 
   const course = getCourseById(activeCourseId);
   const accent = courseAccent(activeCourseId);
@@ -1108,64 +1090,14 @@ export default function Home() {
           *
           * `See all` still goes to /courses, which is where the locked and coming-soon ones live.
           */}
-        {/* Below the fold: rises in the first time it scrolls into view (owner: selective reveals). */}
-        <Reveal>
-        <View style={styles.sectionHead}>
-          <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
-          {/* hitSlop 13 vertical, not 8: the label renders 18pt tall, so 8 gave a 34pt target —
-              under both Apple's 44pt and WCAG 2.5.8's 24pt floor. 18 + 13*2 = 44. */}
-          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
-            <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>See all</ThemedText>
-          </SpringPressable>
-        </View>
-        <View style={styles.pathStack}>
-          {pathCourses.map((c) => {
-            const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
-            const on = c.id === activeCourseId;
-            const tint = courseAccent(c.id);
-            return (
-              <SpringPressable
-                key={c.id}
-                scaleTo={0.985}
-                onPress={() => setActiveCourse(c.id)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: on }}
-                accessibilityLabel={`${c.title}. ${String(done)} of ${String(c.totalLessons)} lessons done.${on ? ' Currently selected.' : ''}`}>
-                {/*
-                  * EACH ROW WEARS ITS OWN COURSE COLOUR. Three identical near-black cards read as
-                  * one repeated thing; a translucent wash of each course's accent, like the quiz
-                  * app's lavender / blue / peach rows, makes them three separate blocks. 1F is 12%
-                  * alpha -- enough to tell them apart, dark enough that white text stays legible.
-                  *
-                  * "0 of 25 lessons" is gone. The track underneath already draws that fraction, so
-                  * the sentence was the bar reading itself out loud. A compact 0/25 at the right
-                  * edge keeps the number without the words, the way the quiz app's rows do.
-                  */}
-                <Card style={[styles.pathCard, { backgroundColor: tint + '1F', borderColor: tint + (on ? '80' : '33'), borderWidth: 1 }]}>
-                  <CourseMark id={c.id} size={34} />
-                  <View style={{ flex: 1 }}>
-                    <ThemedText type="bodyMedium" maxFontSizeMultiplier={2} numberOfLines={2}>{c.title}</ThemedText>
-                    {/*
-                      * A NEUTRAL GROOVE, NOT A TINTED ONE. The track was `tint + '33'` sitting on
-                      * a `tint + '1F'` card, so an EMPTY track rendered as a solid course-coloured
-                      * line across the full width -- three of them stacked, each reading as a
-                      * finished course while the counter beside it said 0/25. The fill is drawn
-                      * in the same hue, so there was no value difference left to carry the one
-                      * thing the control exists to show. Neutral groove, coloured fill: empty now
-                      * reads empty.
-                      */}
-                    <View style={[styles.questTrack, { backgroundColor: 'rgba(255,255,255,0.10)' }]}>
-                      <ProgressFill ratio={done / c.totalLessons} color={tint} style={styles.questFill} fillOnMount />
-                    </View>
-                  </View>
-                  <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={{ color: tint }}>
-                    {done}/{c.totalLessons}
-                  </ThemedText>
-                </Card>
-              </SpringPressable>
-            );
-          })}
-        </View>
+        {/*
+          * WHERE YOU STAND THIS WEEK. This slot held the course list: first every available course,
+          * then a trimmed one; the owner rejected both as repeating the hero and the Learn tab. The
+          * league card says something nothing else on Home does. It rises in the first time it
+          * scrolls into view (owner: selective reveals).
+          */}
+        <Reveal style={styles.leagueSlot}>
+          <LeagueCard />
         </Reveal>
 
         {/*
@@ -1191,6 +1123,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  leagueSlot: { marginTop: Spacing.two },
   safe: { flex: 1 },
   /* Negative margins cancel glassHero's own padding so the bar meets all three card edges.
      overflow:'hidden' on glassHero clips it to the bottom corner radius. */

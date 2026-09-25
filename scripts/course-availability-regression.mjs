@@ -46,7 +46,9 @@ assert.match(store, /if \(isCourseAvailable\(id\)\) set\(\{ activeCourseId: id \
 for (const path of [
   '../src/app/courses.tsx',
   '../src/app/(tabs)/learn.tsx',
-  '../src/app/(tabs)/home.tsx',
+  // home.tsx left this list on 2026-09-24: Home no longer lists courses (owner replaced the course
+  // list with the league card), so it has no availability to render. The store guard above still
+  // refuses an unreleased selection from anywhere.
 ]) {
   assert.match(source(path), /isCourseAvailable/, `${path} must render release availability`);
 }

@@ -50,7 +50,10 @@ const homeOrder = [
   ['streak card', 'styles.streakCard'],
   ['lesson card', 'styles.hero'],
   ['daily quests', 'TODAY&apos;S QUESTS'],
-  ['learning pathway', 'YOUR PATH'],
+  // 2026-09-24 owner decision: the course list (which repeated the hero and the Learn tab) was
+  // replaced by the league card. Matched on the ELEMENT, not a word: 'YOUR PATH' survives in
+  // comments, which would let this pass after the section itself is gone.
+  ['league card', '<LeagueCard'],
 ];
 let previousHomeIndex = -1;
 for (const [label, token] of homeOrder) {
