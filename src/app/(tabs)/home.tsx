@@ -11,7 +11,7 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -60,6 +60,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { Reveal, RevealScrollView } from '@/shared/motion/scroll-reveal';
+import { ProgressFill } from '@/shared/motion/progress-fill';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { ProfileButton } from '@/components/profile-button';
 
@@ -306,6 +308,22 @@ export default function Home() {
     [profile, activeCourseId],
   );
 
+  /*
+   * THE COURSE LIST, TRIMMED (owner decision). It listed every available course -- about ten identical
+   * 0/25 cards under a hero that already says what to do next, which read as a static wall and as a
+   * repeat of the hero. Now: the courses you have actually started (and the active one), plus ONE
+   * suggested next course from the onboarding recommendation. "See all" keeps the full list a tap away.
+   */
+  const pathCourses = useMemo(() => {
+    const avail = COURSES.filter((c) => isCourseAvailable(c.id));
+    const started = avail.filter((c) => c.id === activeCourseId || completedLessons.some((k) => k.startsWith(`${c.id}:`)));
+    const suggestedId = recommendPathDetailed(profile)
+      .map((x) => x.course.id)
+      .find((id) => avail.some((c) => c.id === id) && !started.some((c) => c.id === id));
+    const next = avail.find((c) => c.id === suggestedId) ?? avail.find((c) => !started.includes(c));
+    return next ? [...started, next] : started;
+  }, [activeCourseId, completedLessons, profile]);
+
   const course = getCourseById(activeCourseId);
   const accent = courseAccent(activeCourseId);
 
@@ -501,7 +519,7 @@ export default function Home() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={45} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <RevealScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Greeting + profile. The pills that used to live here are gone — see below. */}
         <RiseIn>
           <View style={styles.headerRow}>
@@ -1090,6 +1108,8 @@ export default function Home() {
           *
           * `See all` still goes to /courses, which is where the locked and coming-soon ones live.
           */}
+        {/* Below the fold: rises in the first time it scrolls into view (owner: selective reveals). */}
+        <Reveal>
         <View style={styles.sectionHead}>
           <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
           {/* hitSlop 13 vertical, not 8: the label renders 18pt tall, so 8 gave a 34pt target —
@@ -1099,7 +1119,7 @@ export default function Home() {
           </SpringPressable>
         </View>
         <View style={styles.pathStack}>
-          {COURSES.filter((c) => isCourseAvailable(c.id)).map((c) => {
+          {pathCourses.map((c) => {
             const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
             const on = c.id === activeCourseId;
             const tint = courseAccent(c.id);
@@ -1135,7 +1155,7 @@ export default function Home() {
                       * reads empty.
                       */}
                     <View style={[styles.questTrack, { backgroundColor: 'rgba(255,255,255,0.10)' }]}>
-                      <View style={[styles.questFill, { backgroundColor: tint, width: `${Math.round((done / c.totalLessons) * 100)}%` }]} />
+                      <ProgressFill ratio={done / c.totalLessons} color={tint} style={styles.questFill} fillOnMount />
                     </View>
                   </View>
                   <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={{ color: tint }}>
@@ -1146,6 +1166,7 @@ export default function Home() {
             );
           })}
         </View>
+        </Reveal>
 
         {/*
          * THE GAMES CARD WAS REMOVED — "remove the games button and CTA completely from the main
@@ -1160,7 +1181,7 @@ export default function Home() {
          * modal on Home is gone.
          */}
 
-      </ScrollView>
+      </RevealScrollView>
 
       {/* Crossing a tier is the rarest thing a user does — six times in a lifetime — and until now
           it happened in total silence. Mounted last so it sits above everything on Home. */}
