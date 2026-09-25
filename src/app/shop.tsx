@@ -17,21 +17,25 @@ import { useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+import { AppNumberFlow } from '@/shared/motion/app-number-flow';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { ShopArt } from '@/components/shop-art';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, FontSize, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, Fonts, FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { PixelSpriteView, coin as coinSprite } from '@/lib/pixel';
 import { SHOP_CATEGORIES, type Rarity, type ShopCategory } from '@/lib/shop-items';
 import { ALL_SHOP_ITEMS as SHOP_ITEMS } from '@/lib/shop-items-extra';
+import { playSfx } from '@/lib/sfx';
 import { useApp } from '@/lib/store';
+import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { Duration, Ease, STAGGER_CAP } from '@/shared/motion/tokens';
 
 /** Rarity colours read off the web's own tags: common grey, uncommon green, rare blue, then up. */
 const RARITY: Record<Rarity, string> = {
@@ -50,6 +54,8 @@ export default function Shop() {
   const inventory = useApp((s) => s.inventory);
   const equipped = useApp((s) => s.equipped);
   const buyItem = useApp((s) => s.buyItem);
+  /** Only the card just bought gets the pop -- not every owned card each time the shop opens. */
+  const [justBought, setJustBought] = useState<string | null>(null);
   const equipItem = useApp((s) => s.equipItem);
   const [tab, setTab] = useState<ShopCategory>('power-up');
 
@@ -68,7 +74,13 @@ export default function Shop() {
         </View>
         <View style={[styles.balance, { borderColor: theme.iconGold + '55', backgroundColor: theme.iconGold + '18' }]}>
           <PixelSpriteView sprite={coinSprite} size={15} />
-          <ThemedText type="smallBold" style={[NUM, { color: theme.iconGold }]}>{coins}</ThemedText>
+          {/* NumberFlow, not NumberRollup: a balance must roll FROM the old value to the new one
+              when coins are spent; NumberRollup replays from 0 on every change (reward reveals). */}
+          <AppNumberFlow
+            value={coins}
+            spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
+            style={{ fontFamily: Fonts.semibold, fontSize: 13, lineHeight: 20, color: theme.iconGold }}
+          />
         </View>
       </View>
 
@@ -109,6 +121,11 @@ export default function Shop() {
                   onPress={() => {
                     if (cosmetic && owned) { equipItem(item.id); return; }
                     const bought = buyItem(item.id);
+                    // A purchase is an earned moment: felt, heard, and the card's badge pops (below).
+                    // A refused one is felt as an error before the explanation appears.
+                    void Haptics.notificationAsync(bought ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error);
+                    playSfx(bought ? 'purchase' : 'wrong');
+                    if (bought) setJustBought(item.id);
                     if (!bought) {
                       Alert.alert(
                         'Not enough Euphorium',
@@ -146,7 +163,13 @@ export default function Shop() {
                         {isEquipped ? (
                           <ThemedText type="small" style={{ color: theme.success, fontSize: FontSize.tiny }}>Equipped</ThemedText>
                         ) : owned ? (
-                          <ThemedText type="small" style={{ color: theme.iconLilac, fontSize: FontSize.tiny }}>Equip</ThemedText>
+                          justBought === item.id ? (
+                            <RewardPop>
+                              <ThemedText type="small" style={{ color: theme.iconLilac, fontSize: FontSize.tiny }}>Equip</ThemedText>
+                            </RewardPop>
+                          ) : (
+                            <ThemedText type="small" style={{ color: theme.iconLilac, fontSize: FontSize.tiny }}>Equip</ThemedText>
+                          )
                         ) : short > 0 ? (
                           /* `price - coins`: how many MORE you need. Not a second price. */
                           <View style={[styles.needPill, { borderColor: theme.border }]}>
