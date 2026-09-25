@@ -22,7 +22,8 @@
  */
 import { useEffect, useState, useRef } from 'react';
 import { router } from 'expo-router';
-import { AppState, ScrollView, StyleSheet, View } from 'react-native';
+import { AppState, StyleSheet, View } from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -39,7 +40,9 @@ import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
 import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeaRoute, tradeIdeas } from '@/lib/trade-ideas';
 import { NumberRollup } from '@/shared/motion/number-rollup';
+import { CompactTitle } from '@/shared/motion/compact-title';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { RevealScrollView } from '@/shared/motion/scroll-reveal';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { getMarks } from '@/lib/market';
 import { changeOf } from '@/lib/marks';
@@ -101,6 +104,7 @@ function Row({ sym, right, sub, last, change }: { sym: string; right: string; su
 
 export default function Trade() {
   const theme = useTheme();
+  const scrollY = useSharedValue(0);
   const cash = useApp((s) => s.cash);
   const positions = useApp((s) => s.positions);
   const costBasis = useApp((s) => s.costBasis);
@@ -204,7 +208,7 @@ export default function Trade() {
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={35} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <RevealScrollView scrollY={scrollY} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
           <View style={styles.titleRow}>
             <View style={{ flex: 1 }}>
@@ -481,7 +485,8 @@ export default function Trade() {
             ))}
           </Card>
         </RiseIn>
-      </ScrollView>
+      </RevealScrollView>
+      <CompactTitle title="Trade" scrollY={scrollY} />
     </SafeAreaView>
   );
 }
