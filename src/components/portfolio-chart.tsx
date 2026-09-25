@@ -18,7 +18,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing, FontSize } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { toPath } from '@/lib/market';
 import { money } from '@/lib/stocks';
@@ -132,6 +132,8 @@ export function PortfolioChart() {
         )}
       </View>
 
+      {/* No history: the caption above says so; an empty plot was a bare rule and ~70pt of nothing. */}
+      {history.length > 0 && (
       <View style={[styles.plot, { height: h }]}>
         {d ? (
           <Svg width="100%" height={h} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
@@ -148,6 +150,7 @@ export function PortfolioChart() {
           <View style={[styles.flat, { backgroundColor: theme.border }]} />
         )}
       </View>
+      )}
 
       {usable.length > 1 && (
       <View style={styles.ranges}>
@@ -165,7 +168,7 @@ export function PortfolioChart() {
               style={{ flex: 1 }}
             >
               <View style={[styles.range, on && { backgroundColor: color + '22' }]}>
-                <ThemedText type="smallBold" style={{ fontSize: FontSize.caption, color: on ? color : theme.mutedForeground }}>
+                <ThemedText type="smallBold" style={{ color: on ? color : theme.mutedForeground }}>
                   {r.key}
                 </ThemedText>
               </View>

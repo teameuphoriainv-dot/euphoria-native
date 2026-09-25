@@ -19,8 +19,17 @@ export function NumberRollup({
   prefix = '',
   suffix = '',
   duration = 900,
+  countOnMount = true,
   ...rest
-}: Omit<ThemedTextProps, 'children'> & { value: number; prefix?: string; suffix?: string; duration?: number }) {
+}: Omit<ThemedTextProps, 'children'> & {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+  /** false: first paint shows the value as-is and only later changes roll. For balances, where a
+   *  count up from $0 shows a move that never happened (AGENTS.md financial-motion rule). */
+  countOnMount?: boolean;
+}) {
   /*
    * TEXT, NOT A NUMBER, IS THE STATE — because the number changes far more often than the text.
    *
@@ -42,7 +51,7 @@ export function NumberRollup({
    * theme colour and type scale -- on a MONEY display, and that trade needs typography verified
    * on device rather than assumed at speed.
    */
-  const [text, setText] = useState(() => prefix + withCommas(0) + suffix);
+  const [text, setText] = useState(() => prefix + withCommas(countOnMount ? 0 : value) + suffix);
   const reduced = useReducedMotion();
   /*
    * COUNT FROM WHAT IS SHOWING, not from 0. This rendered value * ease(p), so EVERY change counted
@@ -51,7 +60,7 @@ export function NumberRollup({
    * a change rolls old -> new, and a change landing mid-count carries on from where it is. First
    * mount still counts up from 0, which is the reveal every reward call site wants.
    */
-  const shown = useRef(0);
+  const shown = useRef(countOnMount ? 0 : value);
 
   useEffect(() => {
     const render = (v: number) => prefix + withCommas(v) + suffix;
