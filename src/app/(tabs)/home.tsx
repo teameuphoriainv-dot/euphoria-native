@@ -37,7 +37,7 @@ import { Card } from '@/components/ui/card';
 import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
 import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
 import * as Haptics from 'expo-haptics';
-import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
+import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { LessonArt } from '@/components/lesson-art';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
@@ -888,7 +888,7 @@ export default function Home() {
                   * Not pressable: the card already is.
                   */}
                 <View style={[styles.heroBar, { backgroundColor: theme.primary, borderBottomColor: theme.ctaDepth }]}>
-                  <ThemedText type="label" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>CONTINUE</ThemedText>
+                  <ThemedText type="bodyMedium" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>Continue</ThemedText>
                   <PlayGlyph scale={0.62} color={theme.primaryForeground} />
                 </View>
               </View>
@@ -1148,7 +1148,7 @@ const styles = StyleSheet.create({
   tileValue: { fontSize: FontSize.titleSm, lineHeight: 30 },
   statGrid: { gap: Spacing.three, marginTop: Spacing.four },
   heroBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.four, marginHorizontal: -Spacing.three, marginBottom: -Spacing.four, paddingVertical: Spacing.three, borderBottomWidth: 5 },
-  heroBarLabel: { letterSpacing: 1.4 },
+  heroBarLabel: { fontFamily: Fonts.heading, fontSize: 17 },
   /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
      should show through the label the way it does through the pill. */
   heroActionLabel: { color: 'rgba(255,255,255,0.72)', letterSpacing: 1.4 },

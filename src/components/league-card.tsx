@@ -59,16 +59,12 @@ export function LeagueCard() {
             spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
             style={{ fontFamily: Fonts.black, fontSize: FontSize.title, color: tier.color }}
           />
-          <ThemedText type="bodyMedium" themeColor="mutedForeground">{` / ${goal.xp.toLocaleString('en-US')} XP this week`}</ThemedText>
+          <ThemedText type="bodyMedium" themeColor="mutedForeground">
+            {done ? ` XP · ${cleared.label}` : ` / ${goal.xp.toLocaleString('en-US')} XP · +${String(goal.coins)} coins`}
+          </ThemedText>
         </View>
         <View style={[styles.track, { backgroundColor: theme.muted }]}>
           <ProgressFill ratio={ratio} color={done ? theme.success : tier.color} style={styles.fill} fillOnMount />
-        </View>
-        <View style={styles.foot}>
-          <ThemedText type="small" style={{ color: done ? theme.success : theme.text }}>
-            {done ? `${cleared.label} · +${String(cleared.coins)} coins` : `Reach ${goal.xp.toLocaleString('en-US')} XP for +${String(goal.coins)} coins`}
-          </ThemedText>
-          <ThemedText type="small" themeColor="mutedForeground">{`#${String(rank)} of ${String(total)}`}</ThemedText>
         </View>
       </Card>
     </SpringPressable>
@@ -82,5 +78,4 @@ const styles = StyleSheet.create({
   xpLine: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
   track: { height: 8, borderRadius: Radius.chip, overflow: 'hidden' },
   fill: { height: 8, borderRadius: Radius.chip },
-  foot: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: Spacing.two },
 });
