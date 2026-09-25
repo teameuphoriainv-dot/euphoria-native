@@ -1,10 +1,12 @@
 import { Redirect, Tabs } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 
 import { AtlasTour } from '@/components/atlas-tour';
 import { TabBar } from '@/components/tab-bar';
 import { hasAccount } from '@/lib/onboarding-path';
 import { useApp } from '@/lib/store';
+import { Duration } from '@/shared/motion/tokens';
 
 export default function TabsLayout() {
   /*
@@ -25,6 +27,7 @@ export default function TabsLayout() {
    */
   const hasHydrated = useApp((s) => s.hasHydrated);
   const profile = useApp((s) => s.profile);
+  const reduced = useReducedMotion();
 
   if (!hasHydrated) return null;
   if (!hasAccount(profile)) return <Redirect href={'/auth' as never} />;
@@ -40,7 +43,20 @@ export default function TabsLayout() {
      * who has just finished onboarding, so this costs every other session one store read.
      */
     <View style={styles.root}>
-    <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
+    {/*
+      * TABS USED TO SWAP WITH NO TRANSITION -- the app's most frequent navigation, and since tab
+      * screens stay mounted their entrance cascades only ever played once per launch, so every
+      * later visit to a tab was completely still. 'shift' slides the incoming tab a little from
+      * the side you tapped while crossfading: orientation, not decoration. Duration.fast because
+      * this fires dozens of times a session; Reduced Motion gets an instant swap.
+      */}
+    <Tabs
+      tabBar={(props) => <TabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+        animation: reduced ? 'none' : 'shift',
+        transitionSpec: { animation: 'timing', config: { duration: Duration.fast } },
+      }}>
       <Tabs.Screen name="home" options={{ title: 'Home' }} />
       <Tabs.Screen name="learn" options={{ title: 'Learn' }} />
       <Tabs.Screen name="trade" options={{ title: 'Trade' }} />
