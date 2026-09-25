@@ -4,7 +4,7 @@
  * that course's real lessons in the production web pathway language. Progress comes from
  * `completedLessons` in the store.
  */
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, useTheme as useNavigationTheme } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -241,6 +241,7 @@ function LivingStreakFlame() {
 
 export default function Learn() {
   const theme = useTheme();
+  const sceneBg = useNavigationTheme().colors.background;
   const params = useLocalSearchParams<{ qa?: string }>();
   const qa = __DEV__ ? params.qa : undefined;
   const { width } = useWindowDimensions();
@@ -939,7 +940,10 @@ export default function Learn() {
                             <ThemedText
                               type={active ? 'smallBold' : 'small'}
                               numberOfLines={2}
-                              style={{ color: active ? theme.text : theme.mutedForeground, textAlign: 'center' }}>
+                              // Backed in the SCENE colour (the navigation theme's background, which is what
+                              // actually shows behind the trail -- theme.background is lighter and read as a
+                              // grey box) so the connector passes behind the title instead of through it.
+                              style={[styles.nodeTitle, { color: active ? theme.text : theme.mutedForeground, backgroundColor: sceneBg }]}>
                               {lesson.title}
                             </ThemedText>
                           </View>
@@ -1003,7 +1007,7 @@ function TrailFade({ stale, style, children }: { stale: boolean; style: StylePro
 const styles = StyleSheet.create({
   /* Carried over verbatim from home.tsx with the strip itself. */
   /* The border owns the outer margins; the row owns the padding inside it. */
-  trialBorder: { marginHorizontal: Spacing.three, marginBottom: Spacing.two },
+  trialBorder: { marginHorizontal: Spacing.three, marginTop: Spacing.three, marginBottom: Spacing.two },
   trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three, paddingHorizontal: Spacing.three },
   /*
    * THE TRACK SPANS THE COLUMN. The three days were a fixed 26pt each, so they filled about a
@@ -1091,5 +1095,6 @@ const styles = StyleSheet.create({
   },
   lessonNumber: { color: '#F4F4F5' },
   nodeLabel: { position: 'absolute', width: SAGA_LABEL_WIDTH, alignItems: 'center' },
+  nodeTitle: { textAlign: 'center', paddingHorizontal: 6, paddingVertical: 2, borderRadius: Radius.sm, overflow: 'hidden' },
   currentLabel: { marginTop: 2, fontSize: 10, lineHeight: 13 },
 });
