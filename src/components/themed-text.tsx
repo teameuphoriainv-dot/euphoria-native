@@ -35,6 +35,8 @@ const styles = StyleSheet.create({
   bodyMedium: { fontFamily: Fonts.medium, fontSize: 16, lineHeight: 23 },
   small: { fontFamily: Fonts.body, fontSize: 13, lineHeight: 18 },
   smallBold: { fontFamily: Fonts.semibold, fontSize: 13, lineHeight: 18 },
-  label: { fontFamily: Fonts.semibold, fontSize: 11, lineHeight: 14, letterSpacing: 0.6, textTransform: 'uppercase' },
+  // Was 11pt uppercase with tracking -- the generated-UI 'eyebrow' tell, used 89 times. Now a
+  // 13pt caption (Duolingo's caption size), cased as written.
+  label: { fontFamily: Fonts.semibold, fontSize: 13, lineHeight: 18 },
   code: { fontFamily: Fonts.mono, fontSize: 13 },
 });

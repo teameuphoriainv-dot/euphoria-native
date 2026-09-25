@@ -40,7 +40,8 @@ export function LeagueCard() {
 
   return (
     <SpringPressable
-      scaleTo={0.985}
+      scaleTo={1}
+      sink={3}
       onPress={() => router.push('/league')}
       accessibilityRole="button"
       accessibilityLabel={`${tier.name} League. ${String(weekly)} of ${String(goal.xp)} XP this week. ${

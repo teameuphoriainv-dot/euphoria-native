@@ -9,6 +9,8 @@ import { useTheme } from '@/hooks/use-theme';
  *  every card on a screen carrying a loud gradient reads as busy rather than rich. */
 const TINT_STRONG = '24'; // ~14%
 const TINT_FAINT = '05'; // ~2%
+const DEPTH_BORDER = 2;
+const DEPTH_BOTTOM = 4;
 
 export function Card({
   style,
@@ -33,7 +35,10 @@ export function Card({
         {
           backgroundColor: elevated ? theme.cardElevated : theme.card,
           borderColor: tint ? tint + '2E' : lesson ? LessonColors.border + '80' : theme.border,
-          borderWidth: lesson ? 1 : StyleSheet.hairlineWidth,
+          borderWidth: lesson ? 1 : DEPTH_BORDER,
+          // Duolingo's card anatomy: a 2px edge and a heavier 4px bottom, so a card reads as a solid
+          // object resting on the page instead of a hairline outline. Lessons keep their own style.
+          ...(lesson ? null : { borderBottomWidth: DEPTH_BOTTOM, borderBottomColor: tint ? tint + '55' : theme.border }),
           borderRadius: Radius.lg,
           ...(lesson ? {
             shadowColor: '#000000',

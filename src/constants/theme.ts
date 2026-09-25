@@ -176,8 +176,11 @@ export const Fonts = {
    *
    * Weights map to the web's own usage: font-black (900) for display, font-bold (700) for heading.
    */
-  display: 'DMSans_900Black',
-  heading: 'DMSans_700Bold',
+  /* DESIGN PILOT (2026-09-25, owner): headings get a display face with personality, the way
+     Duolingo's Feather Bold carries its chrome. Nunito is the free rounded face closest to it;
+     body copy stays DM Sans for web parity. */
+  display: 'Nunito_900Black',
+  heading: 'Nunito_800ExtraBold',
   /** EB Garamond — serif reserved for marketing/landing moments */
   serif: 'EBGaramond_700Bold',
   /** DM Sans — UI + body */
