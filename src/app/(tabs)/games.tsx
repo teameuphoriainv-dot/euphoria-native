@@ -54,82 +54,100 @@ const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean;
   { name: 'Candlesticks', sprite: stockTicker, pro: true },
 ];
 
+/** Status is said ONCE, by the section heading, instead of a 9pt chip on every tile. */
+const SECTIONS = [
+  { title: 'Play now', games: GAMES.filter((g) => g.route) },
+  { title: 'Soon', games: GAMES.filter((g) => g.comingSoon) },
+];
+/** Pro is ONE card, not a wall of locked tiles: nine dead tiles were the heaviest thing here. */
+const PRO = GAMES.filter((g) => g.pro);
+
 export default function Games() {
   const scrollY = useSharedValue(0);
   const theme = useTheme();
+  const plate = { backgroundColor: theme.primary + '18' };
+  let n = 0; // running index so the stagger continues across sections
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={40} />
       <RevealScrollView scrollY={scrollY} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <RiseIn>
-          {/* Was a bare title with no row, so the profile button had nowhere to sit. */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.two }}>
-            <View style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Games</ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground">Learn by playing. Concepts become muscle memory.</ThemedText>
-            </View>
+          <View style={styles.header}>
+            <ThemedText type="title" style={styles.title}>Games</ThemedText>
             <ProfileButton />
           </View>
         </RiseIn>
 
-        <View style={styles.grid}>
-          {GAMES.map((g, i) => {
-            const inactive = !!g.pro || !!g.comingSoon;
-            const badgeColor = g.pro ? theme.warning : theme.iconLilac;
-            return (
-              <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
-                <SpringPressable
-                  accessibilityLabel={`${g.name}${g.comingSoon ? ', coming soon' : g.pro ? ', Pro game' : ''}`}
-                  onPress={() => {
-                    if (g.route) {
-                      router.push(g.route as never);
-                      return;
-                    }
-                    /*
-                     * A STATUS CARD IS STILL A CONTROL. These entries used to be disabled, so the
-                     * press animation, haptic and handler were all suppressed: “Soon” explained the
-                     * state visually, but tapping it felt exactly like a broken button. Keep the
-                     * roadmap honest and give the tap a visible answer without inventing a route.
-                     */
-                    Alert.alert(
-                      g.name,
-                      g.comingSoon
-                        ? 'This game is still being built and is not playable yet.'
-                        : 'This Pro game is still being built and is not playable yet.',
-                    );
-                  }}>
-                  {/*
-                    * THE DIM IS ON THE CONTENT, NOT THE CARD.
-                    *
-                    * `opacity: 0.6` on the whole Card dimmed the Pro badge along with the art, and a
-                    * composited measurement put the badge text at ~3.55:1 against the screen — below
-                    * the 4.5 AA minimum, and 9pt label text does not qualify as large text. The badge
-                    * is the one thing on a locked card that must stay readable, since it is the entire
-                    * explanation for why the card does not open a game route.
-                    */}
-                  <Card style={styles.gameCard}>
-                    {(g.pro || g.comingSoon) && (
-                      <View style={[styles.statusBadge, { backgroundColor: badgeColor + '2A' }]}>
-                        <UIcon name={g.pro ? 'lock' : 'sparkle'} size={11} color={badgeColor} />
-                        <ThemedText type="label" style={{ color: badgeColor, fontSize: FontSize.micro }}>
-                          {g.pro ? 'Pro' : 'Soon'}
+        {SECTIONS.map((sec) => (
+          <View key={sec.title}>
+            <ThemedText type="heading" style={styles.section}>{sec.title}</ThemedText>
+            <View style={styles.grid}>
+              {sec.games.map((g) => {
+                const inactive = !g.route;
+                const i = n++;
+                return (
+                  <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
+                    <SpringPressable
+                      accessibilityLabel={`${g.name}${g.comingSoon ? ', coming soon, not playable yet' : g.pro ? ', Pro, locked' : ''}`}
+                      accessibilityHint={g.route ? 'Opens the game' : 'Shows when this game is available'}
+                      onPress={() => {
+                        if (g.route) {
+                          router.push(g.route as never);
+                          return;
+                        }
+                        /*
+                         * A STATUS CARD IS STILL A CONTROL. These entries used to be disabled, so the
+                         * press animation, haptic and handler were all suppressed and tapping felt
+                         * like a broken button. Keep the roadmap honest and give the tap an answer
+                         * without inventing a route.
+                         */
+                        Alert.alert(
+                          g.name,
+                          g.comingSoon
+                            ? 'This game is still being built and is not playable yet.'
+                            : 'This Pro game is still being built and is not playable yet.',
+                        );
+                      }}>
+                      {/* Playable tiles carry the primary depth edge so they read as tappable blocks;
+                          locked ones stay neutral. The dim is on the art only -- names keep AA
+                          contrast via mutedForeground at full opacity. */}
+                      <Card style={[styles.gameCard, inactive && styles.flat]} {...(g.route ? { tint: theme.primary } : null)}>
+                        <View style={[styles.iconBubble, plate, inactive && styles.dim]}>
+                          <PixelSpriteView sprite={g.sprite} size={40} />
+                        </View>
+                        <ThemedText type="heading" themeColor={inactive ? 'mutedForeground' : undefined} style={styles.name}>
+                          {g.name}
                         </ThemedText>
-                      </View>
-                    )}
-                    <View style={[styles.iconBubble, { backgroundColor: theme.primary + '18' }, inactive && { opacity: 0.6 }]}>
-                      <PixelSpriteView sprite={g.sprite} size={40} />
-                    </View>
-                    <ThemedText
-                      type="heading"
-                      style={[{ fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two }, inactive && { opacity: 0.6 }]}>
-                      {g.name}
-                    </ThemedText>
-                  </Card>
-                </SpringPressable>
-              </RiseIn>
-            );
-          })}
-        </View>
+                      </Card>
+                    </SpringPressable>
+                  </RiseIn>
+                );
+              })}
+            </View>
+          </View>
+        ))}
+
+        <ThemedText type="heading" style={styles.section}>Pro</ThemedText>
+        <RiseIn delay={Math.min(n * 40, STAGGER_CAP)}>
+          <SpringPressable
+            accessibilityLabel={`${String(PRO.length)} Pro games, locked: ${PRO.map((g) => g.name).join(', ')}`}
+            accessibilityHint="Shows when these games are available"
+            onPress={() => Alert.alert('Pro games', 'These Pro games are still being built and are not playable yet.')}>
+            <Card>
+              <View style={styles.proHead}>
+                <ThemedText type="heading" style={{ flex: 1 }}>{`${String(PRO.length)} Pro games`}</ThemedText>
+                <UIcon name="lock" size={16} color={theme.mutedForeground} />
+              </View>
+              <View style={styles.proStrip}>
+                {PRO.map((g) => (
+                  <View key={g.name} style={[styles.proIcon, plate, styles.dim]}>
+                    <PixelSpriteView sprite={g.sprite} size={26} />
+                  </View>
+                ))}
+              </View>
+            </Card>
+          </SpringPressable>
+        </RiseIn>
       </RevealScrollView>
       <CompactTitle title="Games" scrollY={scrollY} />
     </SafeAreaView>
@@ -139,9 +157,18 @@ export default function Games() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: Spacing.three, paddingBottom: BottomTabInset + Spacing.four },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, marginTop: Spacing.four },
-  cell: { width: '47%', flexGrow: 1 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  title: { fontSize: FontSize.titleSm },
+  section: { marginTop: Spacing.four, marginBottom: Spacing.two },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Spacing.three },
+  cell: { width: '48%' },
   gameCard: { alignItems: 'center', paddingVertical: Spacing.four },
   iconBubble: { width: 68, height: 68, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
-  statusBadge: { position: 'absolute', top: 10, right: 10, flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 7, paddingVertical: 3, borderRadius: Radius.pill },
+  dim: { opacity: 0.6 },
+  // Not playable, so not a raised block: only tiles you can open get the thick depth edge.
+  flat: { borderBottomWidth: 2 },
+  proHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  proStrip: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
+  proIcon: { width: 40, height: 40, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  name: { fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two, textAlign: 'center' },
 });
