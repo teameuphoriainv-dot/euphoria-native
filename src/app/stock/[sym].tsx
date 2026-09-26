@@ -474,17 +474,9 @@ export default function StockDetail() {
                       accessibilityLabel="Buy. Paper trading is part of Euphoria Pro."
                     />
                   </View>
-                  <SpringPressable
-                    haptic={false}
-                    onPress={openGate}
-                    accessibilityRole="button"
-                    accessibilityLabel="Sell. Paper trading is part of Euphoria Pro."
-                    style={{ flex: 1 }}>
-                    <View style={[styles.sell, styles.locked, { borderColor: theme.border }]}>
-                      <ThemedText type="bodyMedium">Sell</ThemedText>
-                      <UIcon name="lock" size={16} color={theme.mutedForeground} />
-                    </View>
-                  </SpringPressable>
+                  <View style={{ flex: 1 }}>
+                    <SlabButton label="Sell" tone="neutral" icon="lock" full onPress={openGate} accessibilityLabel="Sell. Paper trading is part of Euphoria Pro." />
+                  </View>
                 </>
               ) : (
                 <>
@@ -508,28 +500,26 @@ export default function StockDetail() {
                       }}
                     />
                   </View>
-                  <SpringPressable
-                    haptic={false}
-                    onPress={() => {
-                      if (!canSell) return;
-                      // applySell clamps to what is actually held, so a sell can also be a no-op.
-                      const before = useApp.getState().cash;
-                      sell(sym, qty, price);
-                      if (useApp.getState().cash !== before) {
-                        track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
-                        orderFilled();
-                        setFilled((cur) => ({ text: `Sold ${String(qty)} ${sym}`, n: (cur?.n ?? 0) + 1 }));
-                      }
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
-                    accessibilityState={{ disabled: !canSell }}
-                    style={{ flex: 1 }}
-                  >
-                    <View style={[styles.sell, { borderColor: theme.border, opacity: canSell ? 1 : 0.4 }]}>
-                      <ThemedText type="bodyMedium">Sell</ThemedText>
-                    </View>
-                  </SpringPressable>
+                  {/* Same SlabButton as Buy (neutral tone) so the pair has one height, shape and depth. */}
+                  <View style={{ flex: 1 }}>
+                    <SlabButton
+                      label="Sell"
+                      tone="neutral"
+                      full
+                      disabled={!canSell}
+                      accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
+                      onPress={() => {
+                        // applySell clamps to what is actually held, so a sell can also be a no-op.
+                        const before = useApp.getState().cash;
+                        sell(sym, qty, price);
+                        if (useApp.getState().cash !== before) {
+                          track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
+                          orderFilled();
+                          setFilled((cur) => ({ text: `Sold ${String(qty)} ${sym}`, n: (cur?.n ?? 0) + 1 }));
+                        }
+                      }}
+                    />
+                  </View>
                 </>
               )}
             </View>
@@ -617,16 +607,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.one,
   },
   actions: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.one },
-  sell: {
-    height: 50,
-    borderRadius: Radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   hint: { textAlign: 'center' },
   filled: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: Spacing.two, minHeight: 20 },
   // Bloom puts the lock INSIDE the control, to the right of its label. Row layout, full contrast —
   // deliberately no opacity change: this control works, it just answers differently.
-  locked: { flexDirection: 'row', gap: Spacing.two },
 });
