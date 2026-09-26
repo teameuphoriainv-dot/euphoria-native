@@ -9,7 +9,6 @@
  *
  * XP comes from the data (`lesson.xp`), not a hardcoded 50.
  */
-import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -99,7 +98,8 @@ import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challe
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge } from '@/lib/notifications';
 import { lessonKey, useApp } from '@/lib/store';
-import { playSfx } from '@/lib/sfx';
+import { accuracy, bestCombo, comboAt, comboRate, COMBO_MIN, isPerfect, type FirstTryLog } from '@/lib/combo';
+import { feedback, warmLesson } from '@/lib/feedback';
 import { queueLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
 import { TRIAL_DAYS, useTier } from '@/lib/entitlement';
 import { EARN } from '@/lib/shop-items';
@@ -173,6 +173,16 @@ function LessonProgress({ percent }: { percent: number }) {
       />
     </Animated.View>
   );
+}
+
+/** "92% accuracy · Best combo 7" for the finish screen; null when nothing was graded. */
+function lessonStats(log: FirstTryLog): string | null {
+  const acc = accuracy(log);
+  if (acc === null) return null;
+  const best = bestCombo(log);
+  return [`${String(Math.round(acc * 100))}% accuracy`, best >= COMBO_MIN ? `Best combo ${String(best)}` : null]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 export default function Lesson() {
@@ -343,7 +353,7 @@ export default function Lesson() {
   // The lesson-complete screen already celebrates visually (wipe, confetti, rays, rolling XP); it
   // was silent. One chime as it lands. Keyed on reaching DONE so it plays once per completion.
   useEffect(() => {
-    if (idx === DONE && total > 0) playSfx('complete');
+    if (idx === DONE && total > 0) feedback('lessonComplete');
   }, [idx, DONE, total]);
   const [pick, setPick] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -436,6 +446,10 @@ export default function Lesson() {
   const [confirmLeave, setConfirmLeave] = useState(false);
   /** Tutor memory mirrors the web runner but stays session-local to this lesson attempt. */
   const [correctSoFar, setCorrectSoFar] = useState(0);
+  // First-try results by screen, for the combo chip and the finish-screen stats (lib/combo.ts).
+  const [firstTryLog, setFirstTryLog] = useState<FirstTryLog>({});
+  // Create the lesson's sound players up front so the first Check is not the one that loads audio.
+  useEffect(warmLesson, []);
   const [recentMistakes, setRecentMistakes] = useState<string[]>([]);
   const [graphControlState, setGraphControlState] = useState<{
     stepIndex: number;
@@ -513,6 +527,7 @@ export default function Lesson() {
         setNotFound(true);
         openedAt.current = Date.now();
         setCorrectSoFar(0);
+        setFirstTryLog({});
         setRecentMistakes([]);
       });
       return;
@@ -648,6 +663,7 @@ export default function Lesson() {
         if (found && Number.isInteger(qaStep) && qaStep >= 0) setIdx(Math.min(qaStep, expandSteps(found.steps).length));
         openedAt.current = Date.now();
         setCorrectSoFar(0);
+        setFirstTryLog({});
         setRecentMistakes([]);
       })
       .catch(() => {
@@ -655,6 +671,7 @@ export default function Lesson() {
         setNotFound(true);
         openedAt.current = Date.now();
         setCorrectSoFar(0);
+        setFirstTryLog({});
         setRecentMistakes([]);
       });
 
@@ -729,8 +746,13 @@ export default function Lesson() {
     setJustGraded(true);
     // Every Check is felt and heard on the tap that caused it, the retry included -- answering was
     // the app's most frequent action and it had neither, a large part of why it felt static.
-    void Haptics.notificationAsync(correct ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error);
-    playSfx(correct ? 'correct' : 'wrong');
+    // A first-try correct extends the run; from 3 in a row the chime climbs (feedback 'combo').
+    const scored = next.length === 1 && !hinted;
+    const run = scored && correct ? comboAt({ ...firstTryLog, [idx]: true }, idx) : 0;
+    if (!correct) feedback('wrong');
+    else if (run >= COMBO_MIN) feedback('combo', { rate: comboRate(run) });
+    else feedback('correct');
+    if (scored) setFirstTryLog((log) => ({ ...log, [idx]: correct }));
     /*
      * ONLY THE FIRST TRY SCORES (owner decision 4). A right answer after Try again adds nothing to
      * correctSoFar, the tutor's mastery memory, and a second miss costs no second heart: one
@@ -1788,6 +1810,8 @@ export default function Lesson() {
                 xp={xpRemaining}
                 coins={Math.min(EARN.lessonMax, EARN.lessonMin + xp)}
                 streakDays={streakAfter}
+                perfect={isPerfect(firstTryLog)}
+                stats={lessonStats(firstTryLog)}
               />
             </ScrollView>
           </SemanticMotion>
@@ -1849,6 +1873,7 @@ export default function Lesson() {
           onSeeAnswer={() => setRevealed(true)}
           onWhy={hasExplanationScreen(gradedChoice) ? () => setShowWhy(true) : undefined}
           onHeightChange={setCheckBarH}
+          combo={verdict === 'correct' ? comboAt(firstTryLog, idx) : 0}
           /*
            * No `xp`: nothing in the ledger awards XP per question. completeLesson credits the
            * lesson's own xp once, at the end, so a "+N XP" chip here would be a number the store

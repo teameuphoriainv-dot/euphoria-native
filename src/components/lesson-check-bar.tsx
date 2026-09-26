@@ -61,6 +61,8 @@ export type LessonCheckBarProps = {
   verdict: Verdict | null;
   /** XP earned by this question. Pass null unless firstTryCounts(attempts) is true. */
   xp?: number | null;
+  /** First-try-correct run ending on this question (lib/combo.ts). Shown from 3 on a correct. */
+  combo?: number;
   /** The right option's text, shown once the answer is revealed. */
   correctAnswer?: string;
   onContinue: () => void;
@@ -85,6 +87,7 @@ export type LessonCheckBarProps = {
 export function LessonCheckBar({
   verdict,
   xp = null,
+  combo = 0,
   correctAnswer,
   onContinue,
   onTryAgain,
@@ -133,13 +136,16 @@ export function LessonCheckBar({
   };
 
   const showXp = verdict === 'correct' && typeof xp === 'number' && xp > 0;
+  // The combo chip uses the same slot and fade as XP: one quiet line, never a second animation.
+  const showCombo = verdict === 'correct' && !showXp && combo >= 3;
+  const showChip = showXp || showCombo;
   useEffect(() => {
-    if (!showXp) {
+    if (!showChip) {
       xpIn.set(0);
       return;
     }
     xpIn.set(reduced ? 1 : withDelay(XP_AFTER_MS, withTiming(1, { duration: Duration.fast, easing: Ease.out })));
-  }, [showXp, reduced, xpIn]);
+  }, [showChip, reduced, xpIn]);
 
   // Prevents: a VoiceOver user checking an answer and hearing nothing, because the verdict appears
   // in a bar that never takes focus.
@@ -175,9 +181,12 @@ export function LessonCheckBar({
           <UIcon name={verdict === 'correct' ? 'check' : 'target'} size={22} color={tone} strokeWidth={3} />
           <ThemedText type="heading" style={[styles.title, { color: tone }]}>{VERDICT_TITLE[verdict]}</ThemedText>
         </View>
-        {showXp ? (
-          <Animated.View style={[styles.xpChip, chip]} accessible accessibilityLabel={`Plus ${String(xp)} XP`}>
-            <ThemedText type="smallBold" style={styles.xpText}>{`+${String(xp)} XP`}</ThemedText>
+        {showChip ? (
+          <Animated.View
+            style={[styles.xpChip, chip]}
+            accessible
+            accessibilityLabel={showXp ? `Plus ${String(xp)} XP` : `${String(combo)} correct in a row`}>
+            <ThemedText type="smallBold" style={styles.xpText}>{showXp ? `+${String(xp)} XP` : `${String(combo)} in a row`}</ThemedText>
           </Animated.View>
         ) : null}
       </View>

@@ -16,7 +16,7 @@
  * version drew scalar bars with no indicator, which hid the useful signal and made the call feel
  * like guesswork even though the underlying series was deliberately trend-readable.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';

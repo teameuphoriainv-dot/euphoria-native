@@ -14,7 +14,7 @@
  * "in dollars" types "$751". Stripping punctuation the prompt itself invites is not the same as
  * guessing what a wrong answer meant — anything that does not parse to a finite number stays wrong.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useMemo } from 'react';
 import { InputAccessoryView, Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
 

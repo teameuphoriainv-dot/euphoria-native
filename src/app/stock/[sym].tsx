@@ -13,7 +13,6 @@
  * The chart is gone. `lib/stocks.ts` holds one static price per ticker and no series, so any line
  * drawn here is decoration pretending to be data. It returns when quotes do.
  */
-import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -26,7 +25,7 @@ import { PriceChart } from '@/components/price-chart';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
-import { playSfx } from '@/lib/sfx';
+import { feedback } from '@/lib/feedback';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -68,8 +67,7 @@ function closeLabel(asOf: number | null | undefined): string | null {
  *  a rejected or clamped-to-nothing order stays silent rather than confirming a trade that did not
  *  happen. */
 function orderFilled() {
-  void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  playSfx('purchase');
+  feedback('purchase');
 }
 
 export default function StockDetail() {

@@ -22,7 +22,7 @@
  * one. scripts/press-feedback-pin.mjs holds the perceptual floor.
  */
 import { useContext, type ReactNode } from 'react';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 

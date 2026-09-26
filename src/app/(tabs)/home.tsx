@@ -36,7 +36,7 @@ import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
 import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';

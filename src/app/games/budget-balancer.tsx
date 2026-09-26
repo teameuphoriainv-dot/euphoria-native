@@ -19,7 +19,7 @@
  * The mechanic here is a drag, which has the same problem, so the play area is an `adjustable`
  * control (VoiceOver swipes up/down to move income) AND there are two always-visible buttons.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';

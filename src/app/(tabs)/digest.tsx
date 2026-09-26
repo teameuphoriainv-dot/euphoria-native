@@ -16,7 +16,7 @@
  * Type matches the other tabs (title @22 + the shared ThemedText scale). The serif that used to
  * live here came over with the web page and was the only serif in the app.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';

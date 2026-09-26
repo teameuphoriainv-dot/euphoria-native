@@ -33,7 +33,7 @@
  * WHO MOUNTS IT. W3/the integrator, as a sibling of <StepModeTransition> and
  * <MasteryChallengeIntro>, and never inside the DONE or STREAK JSX.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect } from 'react';
 import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 

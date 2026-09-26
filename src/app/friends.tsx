@@ -16,7 +16,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { AmbientBackground } from '@/components/ambient-background';

@@ -4,7 +4,7 @@
  * shuffled once on mount. onSolvedChange(true) when every pair is matched. Sibling to
  * OrderSteps/MultiSelect.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {

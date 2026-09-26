@@ -4,7 +4,7 @@
  * The authored `next` index determines the branch. Feedback is shown before the learner moves,
  * then the finished result holds for production's 800ms before reporting path correctness.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {

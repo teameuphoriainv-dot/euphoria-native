@@ -5,7 +5,7 @@
  * grades it against the authored tolerance, then reveals and snaps to the exact answer after the
  * same 300ms beat as web. The learner advances explicitly with Continue, even after a close guess.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type LayoutChangeEvent,

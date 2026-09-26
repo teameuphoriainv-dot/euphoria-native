@@ -153,6 +153,10 @@ export type LessonCompleteProps = {
   streakDays: number;
   /** Atlas's closing line. */
   line?: string;
+  /** Every graded question right first try (lib/combo.ts isPerfect): the title says so. */
+  perfect?: boolean;
+  /** One quiet line under the chips, e.g. "92% accuracy · Best combo 7". Null hides it. */
+  stats?: string | null;
 };
 
 export function LessonComplete({
@@ -161,8 +165,11 @@ export function LessonComplete({
   xp,
   coins,
   streakDays,
-  line = 'Atlas is proud of you.',
+  line,
+  perfect = false,
+  stats = null,
 }: LessonCompleteProps) {
+  const atlasLine = line ?? (perfect ? 'Not a single miss.' : 'Atlas is proud of you.');
   const theme = useTheme();
   const reduced = useReducedMotion();
   const accent = courseAccent(courseId);
@@ -250,7 +257,7 @@ export function LessonComplete({
 
       <Animated.View style={titleStyle}>
         <ThemedText type="display" accessibilityRole="header" maxFontSizeMultiplier={1.6} style={styles.title}>
-          Lesson complete!
+          {perfect ? 'Perfect lesson!' : 'Lesson complete!'}
         </ThemedText>
       </Animated.View>
 
@@ -268,10 +275,14 @@ export function LessonComplete({
           <PixelSpriteView sprite={flameSprite} size={18} play={chipsLive ? 'once' : 'none'} />
           <NumberRollup value={streakDays} suffix=" day streak" duration={700} type="heading" style={{ color: theme.streak, fontSize: FontSize.subhead }} />
         </View>
+        {/* Rides the chips beat: one row of numbers, not a second entrance. */}
+        {stats ? (
+          <ThemedText type="smallBold" themeColor="mutedForeground" style={styles.stats}>{stats}</ThemedText>
+        ) : null}
       </Animated.View>
 
       <View style={styles.line}>
-        <AtlasSpeech text={line} delay={reduced ? 0 : COMPLETE_BEATS.line} tail="top" tailAlign="center" maxWidth={300} />
+        <AtlasSpeech text={atlasLine} delay={reduced ? 0 : COMPLETE_BEATS.line} tail="top" tailAlign="center" maxWidth={300} />
       </View>
     </View>
   );
@@ -286,4 +297,5 @@ const styles = StyleSheet.create({
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.three },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.pill, borderWidth: 1 },
   line: { marginTop: Spacing.three, alignItems: 'center' },
+  stats: { width: '100%', textAlign: 'center' },
 });

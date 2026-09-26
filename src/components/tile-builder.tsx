@@ -4,7 +4,7 @@
  * green + lock; wrong turn amber (tap to clear + retry). onSolvedChange(true) when all correct.
  * // ponytail: tap-to-place now; upgrade to gesture-handler drag when a lesson needs it.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';

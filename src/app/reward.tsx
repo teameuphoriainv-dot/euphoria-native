@@ -18,7 +18,7 @@
  *   - No "Share +50". Bloom pays its soft currency for social shares; we have no such currency and
  *     no share destination, and a button that pays nothing is the dead control this app is purging.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
