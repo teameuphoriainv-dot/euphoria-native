@@ -828,8 +828,8 @@ export default function Home() {
                       */}
                     <View style={styles.heroPillRow}>
                       <View style={styles.heroPill}>
-                        <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={styles.heroPillText}>
-                          {next.num} / {course?.totalLessons ?? '—'}
+                        <ThemedText type="bodyMedium" maxFontSizeMultiplier={1.6} style={styles.heroPillText}>
+                          {`Lesson ${String(next.num)} of ${String(course?.totalLessons ?? '—')}`}
                         </ThemedText>
                       </View>
                       {/*
@@ -1272,13 +1272,14 @@ const styles = StyleSheet.create({
   /* A pill, not a sentence. Translucent white on the block so it inherits the course colour. */
   /* marginTop moved to heroPillRow when the part ring joined the pill: left here it would push
      the pill down relative to the ring beside it and the strip would read as two rows. */
-  heroPill: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, backgroundColor: 'rgba(255,255,255,0.18)' },
+  // Plain readable text now, not a small glass chip reading '1 / 25' (owner: itty text).
+  heroPill: { alignSelf: 'flex-start' },
   heroPillRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.two },
   /* flexShrink so the part line gives way before the fixed pill and ring do. Same white as the
      pill text and the title, over the same glass, so course-hero-contrast-pin's worst-case
      measurement of white against courseHeroFill still covers it. */
   heroPartLine: { flexShrink: 1, fontSize: FontSize.caption },
-  heroPillText: { color: '#FFFFFF', fontSize: FontSize.caption },
+  heroPillText: { color: '#FFFFFF' },
   /* 82% white, not grey: this sits on the course block and has to read as a sentence the app is
      saying back to you, not as disabled metadata. */
   heroWhy: { color: 'rgba(255,255,255,0.82)', fontSize: FontSize.caption, lineHeight: 17, marginTop: Spacing.two },

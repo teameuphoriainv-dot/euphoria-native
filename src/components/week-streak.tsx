@@ -3,7 +3,6 @@ import Animated, { useReducedMotion, withSpring, withTiming } from 'react-native
 
 import { Atlas } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
-import { FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { Duration, Spring } from '@/shared/motion/tokens';
 
@@ -90,7 +89,7 @@ export function WeekStreak({ isDone, todayIdx, onRowLayout }: {
 const styles = StyleSheet.create({
   wkRow: { flexDirection: 'row' },
   wkCell: { flex: 1, alignItems: 'center', gap: 8 },
-  wkLabel: { fontSize: FontSize.label, lineHeight: 15 },
+  wkLabel: { fontSize: 13, lineHeight: 18 },
   wkSlot: { alignSelf: 'stretch', height: STREAK_DOT + 6, alignItems: 'center', justifyContent: 'center' },
   wkBand: { position: 'absolute', top: 0, bottom: 0 },
   wkDot: { width: STREAK_DOT, height: STREAK_DOT, borderRadius: STREAK_DOT / 2, borderWidth: 2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
