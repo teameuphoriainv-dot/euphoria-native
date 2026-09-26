@@ -23,7 +23,7 @@ import { SlabButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
-import { FontSize, Radius, Spacing } from '@/constants/theme';
+import { FontSize, Spacing } from '@/constants/theme';
 
 /** Maps the market API's error codes to a sentence a person can act on. */
 export function retryMessage(code?: string): string {
