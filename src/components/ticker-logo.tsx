@@ -66,6 +66,14 @@ export function TickerLogo({ sym, size = 44 }: { sym: string; size?: number }) {
   const radius = size >= 40 ? Radius.md : Radius.sm;
   // A bundled asset is a module id (number); the proxy needs a {uri}. Both are valid ImageSource.
   const bundled = BUNDLED_LOGOS[sym.toUpperCase()];
+  /*
+   * REAL SOURCES, IN ORDER, each tried only when the one before fails to decode (owner: logos for
+   * everything). Bundled bytes first (no network); logo.dev when a publishable key is configured;
+   * Elbstream, which needs no key, covers ~400k symbols and serves ETFs as their issuer's mark;
+   * then our Polygon proxy. The lettered badge stays the floor under all of them.
+   */
+  const sources = logoSources(sym, bundled);
+  const [srcIdx, setSrcIdx] = useState(0);
 
   return (
     <View style={[styles.wrap, { width: size, height: size, borderRadius: radius, backgroundColor: theme.primary + '1F' }]}>
@@ -93,17 +101,30 @@ export function TickerLogo({ sym, size = 44 }: { sym: string; size?: number }) {
         * exactly why bundled art has to be looked at rather than assumed.
         */}
       <AnimatedImage
-        source={bundled ?? { uri: `${apiBase()}/api/market?action=logo&sym=${encodeURIComponent(sym)}` }}
+        key={srcIdx}
+        source={sources[srcIdx]}
         style={[StyleSheet.absoluteFill, { width: size, height: size, borderRadius: radius }, markStyle]}
         resizeMode="contain"
         onLoad={() => setLoaded(true)}
         // Silent on purpose: a missing logo is normal (most tickers have none) and is not an
         // error the user should ever see.
-        onError={() => undefined}
+        onError={() => setSrcIdx((i) => (i < sources.length - 1 ? i + 1 : i))}
         accessible={false}
       />
     </View>
   );
+}
+
+const LOGO_DEV_KEY = process.env.EXPO_PUBLIC_LOGO_DEV_KEY;
+
+function logoSources(sym: string, bundled: number | undefined) {
+  const s = encodeURIComponent(sym.toUpperCase());
+  return [
+    ...(bundled ? [bundled] : []),
+    ...(LOGO_DEV_KEY ? [{ uri: `https://img.logo.dev/ticker/${s}?token=${LOGO_DEV_KEY}&size=128&format=png&retina=true&fallback=404` }] : []),
+    { uri: `https://api.elbstream.com/logos/symbol/${s}?format=png&size=128` },
+    { uri: `${apiBase()}/api/market?action=logo&sym=${s}` },
+  ];
 }
 
 const styles = StyleSheet.create({
