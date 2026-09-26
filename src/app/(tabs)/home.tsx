@@ -37,6 +37,7 @@ import { Card } from '@/components/ui/card';
 import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
 import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
 import * as Haptics from 'expo-haptics';
+import { RewardPop } from '@/shared/motion/reward-pop';
 import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { LessonArt } from '@/components/lesson-art';
@@ -438,6 +439,16 @@ export default function Home() {
     })),
   );
   const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
+  /* A quest that turns done WHILE Home is mounted (back from a lesson) pops its check -- an earned
+     moment. Ones already done at mount just render, so opening Home never replays old wins. */
+  const questKey = (q: { kind: string; of: number }) => `${q.kind}:${String(q.of)}`;
+  const [doneAtMount] = useState(() => new Set(quests.filter((q) => q.done).map(questKey)));
+  const questsDoneNow = quests.filter((q) => q.done).length;
+  const prevDone = useRef(questsDoneNow);
+  useEffect(() => {
+    if (questsDoneNow > prevDone.current) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    prevDone.current = questsDoneNow;
+  }, [questsDoneNow]);
   const hoursLeft = useMemo(() => hoursUntilReset(now), [now]);
 
   /*
@@ -978,9 +989,17 @@ export default function Home() {
                     accessibilityLabel={`${q.title}, ${q.done ? 'done' : `${String(q.at)} of ${String(q.of)}`}`}
                     style={styles.todayQuest}>
                     {/* Open quests show their own icon, not an empty ring; done is the green check. */}
-                    <View style={[styles.todayTick, q.done && { backgroundColor: theme.success, borderWidth: 1.5, borderColor: theme.success }]}>
-                      {q.done ? <UIcon name="check" size={11} color={theme.primaryForeground} /> : <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={18} />}
-                    </View>
+                    {q.done && !doneAtMount.has(questKey(q)) ? (
+                      <RewardPop>
+                        <View style={[styles.todayTick, { backgroundColor: theme.success, borderWidth: 1.5, borderColor: theme.success }]}>
+                          <UIcon name="check" size={11} color={theme.primaryForeground} />
+                        </View>
+                      </RewardPop>
+                    ) : (
+                      <View style={[styles.todayTick, q.done && { backgroundColor: theme.success, borderWidth: 1.5, borderColor: theme.success }]}>
+                        {q.done ? <UIcon name="check" size={11} color={theme.primaryForeground} /> : <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={18} />}
+                      </View>
+                    )}
                     <ThemedText type="bodyMedium" style={{ flex: 1, color: q.done ? theme.mutedForeground : theme.text }}>
                       {q.title}
                     </ThemedText>

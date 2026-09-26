@@ -51,6 +51,9 @@ export default function TabsLayout() {
       * this fires dozens of times a session; Reduced Motion gets an instant swap.
       */}
     <Tabs
+      // Kept attached: detaching an inactive tab left it blank for seconds on return (the whole
+      // scene, background included) once the shift transition had run. Five tabs; memory is fine.
+      detachInactiveScreens={false}
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,

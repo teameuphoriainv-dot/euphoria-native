@@ -16,8 +16,9 @@
  * Type matches the other tabs (title @22 + the shared ThemedText scale). The serif that used to
  * live here came over with the web page and was the only serif in the app.
  */
-import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import * as Haptics from 'expo-haptics';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
@@ -42,13 +43,14 @@ import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { Duration, Ease, STAGGER_CAP } from '@/shared/motion/tokens';
+import { RewardPop } from '@/shared/motion/reward-pop';
 import {
   PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, car, house, paycheck, shield, umbrella,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 import { ProfileButton } from '@/components/profile-button';
-import { useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeIn, useSharedValue } from 'react-native-reanimated';
 import { CompactTitle } from '@/shared/motion/compact-title';
 import { RevealScrollView } from '@/shared/motion/scroll-reveal';
 
@@ -152,7 +154,7 @@ function TodayCard({ post }: { post: ExtraPost }) {
  * says the day is closed, shows what the read bought, and points at tomorrow. The library below
  * stays fully readable: this frames the habit, it does not gate the content.
  */
-function DoneCard({ post, streak }: { post: ExtraPost; streak: number }) {
+function DoneCard({ post, streak, fresh = false }: { post: ExtraPost; streak: number; fresh?: boolean }) {
   const theme = useTheme();
   return (
     <Card style={styles.today} tint={theme.success} elevated>
@@ -160,7 +162,13 @@ function DoneCard({ post, streak }: { post: ExtraPost; streak: number }) {
         {/* The catalogue's own check, not a vector tick on a green disc. This card is the payoff
             for finishing a guide and it sits directly above a grid of pixel marks — a smooth
             circle here was the one thing on the screen speaking a different language. */}
-        <PixelSpriteView sprite={checkBadge} size={40} />
+        {fresh ? (
+          <RewardPop>
+            <PixelSpriteView sprite={checkBadge} size={40} />
+          </RewardPop>
+        ) : (
+          <PixelSpriteView sprite={checkBadge} size={40} />
+        )}
         <View style={{ flex: 1 }}>
           <ThemedText type="heading" style={{ fontSize: FontSize.heading }}>
             Done for today
@@ -255,6 +263,20 @@ export default function Digest() {
   // Today is done only when the guide pinned to TODAY has been read. Reading a catch-up guide is
   // not the ritual, and yesterday's pin must not close today.
   const doneToday = dailyPick?.day === dayKey() && readPosts.includes(dailyPick.slug);
+  /* Today's read lands while the article is on top, so the payoff plays when you come BACK: on
+     focus, a done state this tab has not shown yet swaps in once with the check popping and a
+     success haptic. Already done at mount = no replay. */
+  const shownDone = useRef(doneToday);
+  const [freshDone, setFreshDone] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (doneToday && !shownDone.current) {
+        shownDone.current = true;
+        setFreshDone(true);
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }, [doneToday]),
+  );
 
   const [filter, setFilter] = useState<string>(ALL);
   const [query, setQuery] = useState('');
@@ -309,7 +331,17 @@ export default function Digest() {
           <ProfileButton />
         </View>
 
-        {doneToday ? <DoneCard post={today} streak={streak} /> : <TodayCard post={today} />}
+        {doneToday ? (
+          freshDone ? (
+            <Animated.View entering={FadeIn.duration(Duration.base).easing(Ease.enter)}>
+              <DoneCard post={today} streak={streak} fresh />
+            </Animated.View>
+          ) : (
+            <DoneCard post={today} streak={streak} />
+          )
+        ) : (
+          <TodayCard post={today} />
+        )}
 
         <RiseIn delay={130}>
           <View style={[styles.search, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}>

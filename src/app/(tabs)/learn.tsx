@@ -46,6 +46,7 @@ import { takeLessonTrailCelebration, type LessonTrailCelebration } from '@/lib/l
 import { ProgressFill } from '@/shared/motion/progress-fill';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
+import { Nudge } from '@/shared/motion/nudge';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration, Ease } from '@/shared/motion/tokens';
 import { ProfileButton } from '@/components/profile-button';
@@ -425,6 +426,13 @@ export default function Learn() {
    * unentitled one opens the sheet.
    */
   const [gate, setGate] = useState<Refusal | null>(null);
+  // A tap on a locked node answers "not yet": shake + haptic, and its title briefly says why.
+  const [nudge, setNudge] = useState<{ index: number; n: number } | null>(null);
+  useEffect(() => {
+    if (!nudge) return;
+    const t = setTimeout(() => setNudge((cur) => (cur === nudge ? null : cur)), 1600);
+    return () => clearTimeout(t);
+  }, [nudge]);
 
   /*
    * Keep the selected chip in view when the course changes from elsewhere (e.g. /courses).
@@ -714,10 +722,15 @@ export default function Learn() {
                             },
                           ]}>
                           <SagaNodeMotion key={earned ? 'earned' : 'still'} earned={earned}>
+                            <Nudge trigger={nudge?.index === lessonIndex ? nudge.n : 0}>
                             <SpringPressable
                             haptic={!locked}
-                            scaleTo={0.91}
+                            scaleTo={locked ? 0.97 : 0.91}
                             onPress={() => {
+                              if (locked) {
+                                setNudge((cur) => ({ index: lessonIndex, n: (cur?.n ?? 0) + 1 }));
+                                return;
+                              }
                               const refusal = entitled(useApp.getState(), 'lesson');
                               if (!refusal.ok) {
                                 setGate(refusal);
@@ -725,7 +738,6 @@ export default function Learn() {
                               }
                               router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
                             }}
-                            disabled={locked}
                             accessibilityRole="button"
                             accessibilityState={{ disabled: locked }}
                             /*
@@ -804,6 +816,7 @@ export default function Learn() {
                               </View>
                             </View>
                             </SpringPressable>
+                            </Nudge>
                           </SagaNodeMotion>
 
                           {/*
@@ -867,7 +880,7 @@ export default function Learn() {
                               type={active ? 'smallBold' : 'small'}
                               numberOfLines={2}
                               style={[styles.nodeTitle, { color: active ? theme.text : theme.mutedForeground }]}>
-                              {lesson.title}
+                              {nudge?.index === lessonIndex ? 'Finish the lesson before this one' : lesson.title}
                             </ThemedText>
                           </View>
                         </View>

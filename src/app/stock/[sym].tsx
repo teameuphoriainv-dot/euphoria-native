@@ -40,6 +40,8 @@ import { entitled, useTier, type Refusal } from '@/lib/entitlement';
 import { GateSheet } from '@/components/gate-sheet';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Duration, Ease } from '@/shared/motion/tokens';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -73,6 +75,14 @@ function orderFilled() {
 export default function StockDetail() {
   const theme = useTheme();
   const { sym } = useLocalSearchParams<{ sym: string }>();
+  // The fill confirmation: "Bought 2 NVDA" replaces the hint for a moment, so a trade is SEEN, not
+  // only heard. Keyed by n so back-to-back orders replay it.
+  const [filled, setFilled] = useState<{ text: string; n: number } | null>(null);
+  useEffect(() => {
+    if (!filled) return;
+    const t = setTimeout(() => setFilled((cur) => (cur === filled ? null : cur)), 1600);
+    return () => clearTimeout(t);
+  }, [filled]);
   // The static table seeds seven tickers with a hand-written blurb. Search returns thousands, so
   // an unknown symbol is NORMAL here, not an error — resolve what we can live and show the rest.
   const stock = sym ? STOCKS[sym] : undefined;
@@ -493,6 +503,7 @@ export default function StockDetail() {
                         if (useApp.getState().cash !== before) {
                           track(Ev.tradePlaced, { side: 'buy', symbol: sym, shares: qty });
                           orderFilled();
+                          setFilled((cur) => ({ text: `Bought ${String(qty)} ${sym}`, n: (cur?.n ?? 0) + 1 }));
                         }
                       }}
                     />
@@ -507,6 +518,7 @@ export default function StockDetail() {
                       if (useApp.getState().cash !== before) {
                         track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
                         orderFilled();
+                        setFilled((cur) => ({ text: `Sold ${String(qty)} ${sym}`, n: (cur?.n ?? 0) + 1 }));
                       }
                     }}
                     accessibilityRole="button"
@@ -524,6 +536,12 @@ export default function StockDetail() {
 
             {/* Says WHY the button is off. A disabled control with no reason is the same dead end
                 as a button that does nothing. */}
+            {filled ? (
+              <Animated.View key={filled.n} entering={FadeInDown.duration(Duration.base).easing(Ease.enter)} style={styles.filled}>
+                <UIcon name="check" size={14} color={theme.success} />
+                <ThemedText type="smallBold" style={{ color: theme.success }}>{filled.text}</ThemedText>
+              </Animated.View>
+            ) : (
             <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
               {expired
                 ? 'Paper trading is part of Euphoria Pro. Prices and stats stay open.'
@@ -531,6 +549,7 @@ export default function StockDetail() {
                   ? `Not enough cash. You have ${money(cash)}.`
                   : `Cash after this buy: ${money(cash - cost)}`}
             </ThemedText>
+            )}
           </Card>
         </RiseIn>
       </ScrollView>
@@ -606,6 +625,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hint: { textAlign: 'center' },
+  filled: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: Spacing.two, minHeight: 20 },
   // Bloom puts the lock INSIDE the control, to the right of its label. Row layout, full contrast —
   // deliberately no opacity change: this control works, it just answers differently.
   locked: { flexDirection: 'row', gap: Spacing.two },
