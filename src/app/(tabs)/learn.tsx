@@ -20,7 +20,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Defs, G, Mask, Path, Rect } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
@@ -641,6 +641,21 @@ export default function Learn() {
                               />
                             );
                           })}
+                          {/* ...and around each node's ring, so the line starts outside it instead of
+                              running through the gap between the button and its ring. */}
+                          {nodes.map((node) => {
+                            const size = node.lessonIndex === current ? SAGA_CURRENT : SAGA_NODE;
+                            const special = (node.lessonIndex + 1) % 10 === 0 || node.lessonIndex === lessons.length - 1;
+                            return (
+                              <Circle
+                                key={`r${String(node.lessonIndex)}`}
+                                cx={node.x}
+                                cy={node.y + SAGA_LIP / 2}
+                                r={(sagaRingSize(size, special) + SAGA_LIP) / 2 + 1}
+                                fill="black"
+                              />
+                            );
+                          })}
                         </Mask>
                       </Defs>
                       <G mask={`url(#saga-labels-${String(unit.index)})`}>
@@ -847,7 +862,10 @@ export default function Learn() {
                               pointerEvents="none"
                               style={[
                                 styles.nodeRing,
-                                { left: (nodeSize - ringSize) / 2, top: (nodeSize - ringSize) / 2 },
+                                /* Centred on the WHOLE button (face + its SAGA_LIP bottom edge), not the
+                                   face alone: same top, SAGA_LIP larger. Centred on the face, the lip
+                                   ran into the bottom arc and the gap was uneven top vs bottom. */
+                                { left: (nodeSize - ringSize - SAGA_LIP) / 2, top: (nodeSize - ringSize) / 2 },
                               ]}>
                               {/*
                                 * ONE BEAT WHEN A PART LANDS, keyed so it replays per part rather
@@ -861,7 +879,7 @@ export default function Learn() {
                                 event="mastery-increase"
                                 enabled={celebrating?.segment !== undefined && celebrating.lessonId === nodeId}>
                                 <SegmentRing
-                                  size={ringSize}
+                                  size={ringSize + SAGA_LIP}
                                   segments={kinds.length}
                                   filled={ringFilled}
                                   accent={accent}
@@ -1014,10 +1032,11 @@ const styles = StyleSheet.create({
   specialFace: { borderRadius: 17 },
   nodeHighlight: {
     position: 'absolute',
-    top: 4,
-    left: 9,
-    right: 9,
-    height: 7,
+    // Inset to the circle's chord at this height; at 9pt it poked past the round face.
+    top: 6,
+    left: 16,
+    right: 16,
+    height: 6,
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: Radius.pill,
   },
