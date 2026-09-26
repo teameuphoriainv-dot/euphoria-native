@@ -16,8 +16,9 @@
  * Type matches the other tabs (title @22 + the shared ThemedText scale). The serif that used to
  * live here came over with the web page and was the only serif in the app.
  */
-import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import * as Haptics from 'expo-haptics';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
@@ -25,7 +26,9 @@ import { SvgXml } from 'react-native-svg';
 import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ProgressBar } from '@/components/ui/progress-bar';
 import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import {
   ALL_DIGEST_CATEGORIES as DIGEST_CATEGORIES,
@@ -40,13 +43,14 @@ import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
-import { STAGGER_CAP } from '@/shared/motion/tokens';
+import { Duration, Ease, STAGGER_CAP } from '@/shared/motion/tokens';
+import { RewardPop } from '@/shared/motion/reward-pop';
 import {
   PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, car, house, paycheck, shield, umbrella,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 import { ProfileButton } from '@/components/profile-button';
-import { useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeIn, useSharedValue } from 'react-native-reanimated';
 import { CompactTitle } from '@/shared/motion/compact-title';
 import { RevealScrollView } from '@/shared/motion/scroll-reveal';
 
@@ -97,7 +101,7 @@ function Hero({ post, size }: { post: ExtraPost; size: number }) {
 function TodayCard({ post }: { post: ExtraPost }) {
   const theme = useTheme();
   return (
-    <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)}>
+    <View>
       {/*
         * ART BESIDE THE TEXT, NOT ABOVE IT. Measured on the QA device: this card ran y=146..494 of
         * an 874pt screen, about 40% of the viewport for ONE guide, and left exactly TWO library
@@ -119,14 +123,11 @@ function TodayCard({ post }: { post: ExtraPost }) {
           <View style={styles.todayHead}>
             <View style={styles.metaRow}>
               <ThemedText type="label" style={{ color: theme.iconLilac }}>
-                Today · {post.category}
+                Today · {post.category} · {post.readMinutes} min
               </ThemedText>
             </View>
             <ThemedText type="heading" maxFontSizeMultiplier={1.6} style={styles.todayTitle}>
               {post.title}
-            </ThemedText>
-            <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-              {post.readMinutes} min read
             </ThemedText>
           </View>
         </View>
@@ -141,16 +142,10 @@ function TodayCard({ post }: { post: ExtraPost }) {
           {post.excerpt}
         </ThemedText>
 
-        <View style={styles.cta}>
-          {/* iconLilac, not primary: this is 13px semibold, which is NOT "large text" under
-              WCAG, and primary on a card measures 4.49 against a 4.5 threshold. iconLilac is
-              the palette's violet meant for text on dark and measures 8.29 on the same card. */}
-          <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
-            Read today’s guide
-          </ThemedText>
-        </View>
+        {/* The card's one control: a real button, not 13px link text at the bottom of the hero. */}
+        <SlabButton label="Read today’s guide" full onPress={() => router.push(`/digest/${post.slug}`)} style={{ marginTop: Spacing.three }} />
       </Card>
-    </SpringPressable>
+    </View>
   );
 }
 
@@ -159,7 +154,7 @@ function TodayCard({ post }: { post: ExtraPost }) {
  * says the day is closed, shows what the read bought, and points at tomorrow. The library below
  * stays fully readable: this frames the habit, it does not gate the content.
  */
-function DoneCard({ post, streak }: { post: ExtraPost; streak: number }) {
+function DoneCard({ post, streak, fresh = false }: { post: ExtraPost; streak: number; fresh?: boolean }) {
   const theme = useTheme();
   return (
     <Card style={styles.today} tint={theme.success} elevated>
@@ -167,7 +162,13 @@ function DoneCard({ post, streak }: { post: ExtraPost; streak: number }) {
         {/* The catalogue's own check, not a vector tick on a green disc. This card is the payoff
             for finishing a guide and it sits directly above a grid of pixel marks — a smooth
             circle here was the one thing on the screen speaking a different language. */}
-        <PixelSpriteView sprite={checkBadge} size={40} />
+        {fresh ? (
+          <RewardPop>
+            <PixelSpriteView sprite={checkBadge} size={40} />
+          </RewardPop>
+        ) : (
+          <PixelSpriteView sprite={checkBadge} size={40} />
+        )}
         <View style={{ flex: 1 }}>
           <ThemedText type="heading" style={{ fontSize: FontSize.heading }}>
             Done for today
@@ -262,6 +263,20 @@ export default function Digest() {
   // Today is done only when the guide pinned to TODAY has been read. Reading a catch-up guide is
   // not the ritual, and yesterday's pin must not close today.
   const doneToday = dailyPick?.day === dayKey() && readPosts.includes(dailyPick.slug);
+  /* Today's read lands while the article is on top, so the payoff plays when you come BACK: on
+     focus, a done state this tab has not shown yet swaps in once with the check popping and a
+     success haptic. Already done at mount = no replay. */
+  const shownDone = useRef(doneToday);
+  const [freshDone, setFreshDone] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (doneToday && !shownDone.current) {
+        shownDone.current = true;
+        setFreshDone(true);
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }, [doneToday]),
+  );
 
   const [filter, setFilter] = useState<string>(ALL);
   const [query, setQuery] = useState('');
@@ -273,6 +288,11 @@ export default function Digest() {
     for (const p of DIGEST_POSTS) m[p.category] = (m[p.category] ?? 0) + 1;
     return m;
   }, []);
+  const readCounts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const p of DIGEST_POSTS) if (readPosts.includes(p.slug)) m[p.category] = (m[p.category] ?? 0) + 1;
+    return m;
+  }, [readPosts]);
   // On first paint the list staggers in behind the header and hero, so it starts late on purpose.
   // A filter TAP is a different event: the user acted and wants to see the list answer, so the
   // cascade starts immediately and only the per-item offset remains. Same animation, different
@@ -302,46 +322,28 @@ export default function Digest() {
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground starCount={40} />
       <RevealScrollView scrollY={scrollY} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <RiseIn>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ flex: 1 }}>
-              <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>
-                Digest
-              </ThemedText>
-              <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-                One idea a day. Read it, then practice it.
-              </ThemedText>
-            </View>
-            <ProfileButton />
-          </View>
-        </RiseIn>
+        {/* Header and today's card paint on the first frame (no RiseIn): an entrance fade here
+            left the tab blank while it mounted. The grid below still staggers in. */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <ThemedText type="title" style={{ flex: 1, fontSize: FontSize.titleSm }}>
+            Digest
+          </ThemedText>
+          <ProfileButton />
+        </View>
 
-        <RiseIn delay={70}>
-          {doneToday ? <DoneCard post={today} streak={streak} /> : <TodayCard post={today} />}
-        </RiseIn>
+        {doneToday ? (
+          freshDone ? (
+            <Animated.View entering={FadeIn.duration(Duration.base).easing(Ease.enter)}>
+              <DoneCard post={today} streak={streak} fresh />
+            </Animated.View>
+          ) : (
+            <DoneCard post={today} streak={streak} />
+          )
+        ) : (
+          <TodayCard post={today} />
+        )}
 
         <RiseIn delay={130}>
-          <View style={styles.sectionHead}>
-            <ThemedText type="label" themeColor="mutedForeground">
-              All guides
-            </ThemedText>
-            <ThemedText type="small" themeColor="mutedForeground">
-              {readPosts.length} of {DIGEST_POSTS.length} read
-            </ThemedText>
-          </View>
-        </RiseIn>
-
-        {/*
-          * SEARCH. 3/3 of the reference libraries carry one (Deepstash `247137`, Bloomberg
-          * `101198`, Headway `128659`) and Digest had none. It was survivable at 25 guides and
-          * stops being so at 60: the only way to reach a specific guide was to remember its
-          * category and scroll.
-          *
-          * A plain input rather than a routed search screen, because the list it filters is
-          * already on this screen and a route would throw away the scroll position to show the
-          * same rows.
-          */}
-        <RiseIn delay={145}>
           <View style={[styles.search, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}>
             <UIcon name="search" size={17} color={theme.mutedForeground} />
             <TextInput
@@ -360,6 +362,30 @@ export default function Digest() {
             />
           </View>
         </RiseIn>
+
+        <RiseIn delay={145}>
+          <View style={styles.sectionHead}>
+            <ThemedText type="label" themeColor="mutedForeground">
+              {browsing ? 'Categories' : 'Guides'}
+            </ThemedText>
+            {readPosts.length > 0 ? (
+              <ThemedText type="small" themeColor="mutedForeground">
+                {readPosts.length} of {DIGEST_POSTS.length} read
+              </ThemedText>
+            ) : null}
+          </View>
+        </RiseIn>
+
+        {/*
+          * SEARCH. 3/3 of the reference libraries carry one (Deepstash `247137`, Bloomberg
+          * `101198`, Headway `128659`) and Digest had none. It was survivable at 25 guides and
+          * stops being so at 60: the only way to reach a specific guide was to remember its
+          * category and scroll.
+          *
+          * A plain input rather than a routed search screen, because the list it filters is
+          * already on this screen and a route would throw away the scroll position to show the
+          * same rows.
+          */}
 
         {/*
          * SECTIONS DOWN THE PAGE, NOT CHIPS ACROSS THE TOP.
@@ -393,16 +419,22 @@ export default function Digest() {
                         setTouched(true);
                       }}
                       accessibilityRole="button"
-                      accessibilityLabel={`${c}, ${String(counts[c] ?? 0)} guides`}>
-                      <View style={[styles.sectionCard, { borderColor: tint + '40', backgroundColor: tint + '10' }]}>
+                      accessibilityLabel={`${c}, ${String(readCounts[c] ?? 0)} of ${String(counts[c] ?? 0)} read`}>
+                      {/* Colour on the wash and icon only; one neutral depth edge so ten tiles do not read as a rainbow. */}
+                      <Card tint={tint} depthColor={theme.border} style={styles.sectionCard}>
                         <PixelSpriteView sprite={CATEGORY_ART[c]} size={44} />
                         <ThemedText type="heading" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.body, textAlign: 'center' }} numberOfLines={2}>
                           {c}
                         </ThemedText>
                         <ThemedText type="small" themeColor="mutedForeground">
-                          {counts[c] ?? 0} {counts[c] === 1 ? 'guide' : 'guides'}
+                          {readCounts[c] ? `${String(readCounts[c])} of ${String(counts[c] ?? 0)} read` : `${String(counts[c] ?? 0)} ${counts[c] === 1 ? 'guide' : 'guides'}`}
                         </ThemedText>
-                      </View>
+                        {readCounts[c] ? (
+                          <View style={styles.tileBar}>
+                            <ProgressBar value={readCounts[c] / (counts[c] ?? 1)} tone={tint} />
+                          </View>
+                        ) : null}
+                      </Card>
                     </SpringPressable>
                   </RiseIn>
                 </View>
@@ -419,8 +451,8 @@ export default function Digest() {
                 accessibilityRole="button"
                 accessibilityLabel="Back to all categories"
                 style={styles.backRow}>
-                <UIcon name="chevronLeft" size={16} color={theme.iconLilac} />
-                <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>All categories</ThemedText>
+                <UIcon name="chevronLeft" size={20} color={theme.iconLilac} />
+                <ThemedText type="bodyMedium" style={{ color: theme.iconLilac }}>All categories</ThemedText>
               </SpringPressable>
             </RiseIn>
           ) : null
@@ -439,7 +471,7 @@ export default function Digest() {
           ))}
           {library.length === 0 ? (
             <ThemedText type="small" themeColor="mutedForeground" style={styles.empty}>
-              Nothing else in {filter} yet.
+              {q ? `No guides match “${query.trim()}”` : `Nothing else in ${filter} yet.`}
             </ThemedText>
           ) : null}
         </View>
@@ -472,7 +504,6 @@ const styles = StyleSheet.create({
      the uncapped font, not the leading. */
   todayTitle: { fontSize: FontSize.heading, lineHeight: 25, marginTop: 4 },
   todayExcerpt: { marginTop: Spacing.two, lineHeight: 21 },
-  cta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: Spacing.two },
 
   doneHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 2 },
   doneCheck: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
@@ -521,10 +552,9 @@ const styles = StyleSheet.create({
     minHeight: 132,
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.two,
-    borderRadius: Radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
   },
-  backRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, marginTop: Spacing.three, paddingVertical: Spacing.one },
+  tileBar: { alignSelf: 'stretch', flexDirection: 'row', paddingHorizontal: Spacing.two },
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, marginTop: Spacing.three, paddingVertical: Spacing.two, minHeight: 44 },
   chipRow: { gap: Spacing.one + 2, paddingRight: Spacing.three },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: Radius.pill, borderWidth: 1.5 },
   search: {

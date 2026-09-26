@@ -17,7 +17,6 @@
  */
 import type { DigestCategory, DigestPost } from './digest-content';
 import { DIGEST_POSTS } from './digest-content';
-import { DIGEST_BODIES } from './digest-bodies';
 import {
   calculator, car, firstAid, gift, handshake, house, key, lock, paycheck, phone,
   receipt, scales, taxForm, umbrella,
@@ -600,4 +599,7 @@ export const ALL_DIGEST_CATEGORIES = [
 ] as AnyDigestCategory[];
 
 export const allBodyFor = (slug: string): string | undefined =>
-  EXTRA_BODIES[slug] ?? DIGEST_BODIES[slug];
+  // Lazy: the ~140KB bodies module is only needed by the reader, so the Digest tab no longer
+  // evaluates it on first mount.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  EXTRA_BODIES[slug] ?? (require('./digest-bodies') as typeof import('./digest-bodies')).DIGEST_BODIES[slug];
