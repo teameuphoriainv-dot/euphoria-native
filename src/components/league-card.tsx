@@ -56,7 +56,7 @@ export function LeagueCard() {
         {/* Day zero leads with what to do, not a zero (Duolingo hides zero scores). */}
         {weekly === 0 ? (
           <ThemedText type="bodyMedium" themeColor="mutedForeground">
-            {`Finish a lesson to join · ${goal.xp.toLocaleString('en-US')} XP earns +${String(goal.coins)} coins`}
+            Finish a lesson to join the league
           </ThemedText>
         ) : (
           <View style={styles.xpLine}>
