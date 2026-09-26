@@ -312,6 +312,26 @@ export default function Digest() {
         {doneToday ? <DoneCard post={today} streak={streak} /> : <TodayCard post={today} />}
 
         <RiseIn delay={130}>
+          <View style={[styles.search, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}>
+            <UIcon name="search" size={17} color={theme.mutedForeground} />
+            <TextInput
+              value={query}
+              onChangeText={(t) => {
+                setQuery(t);
+                setTouched(true);
+              }}
+              placeholder="Search guides"
+              placeholderTextColor={theme.mutedForeground}
+              style={[styles.searchInput, { color: theme.text }]}
+              autoCorrect={false}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+              accessibilityLabel="Search guides"
+            />
+          </View>
+        </RiseIn>
+
+        <RiseIn delay={145}>
           <View style={styles.sectionHead}>
             <ThemedText type="label" themeColor="mutedForeground">
               {browsing ? 'Categories' : 'Guides'}
@@ -334,25 +354,6 @@ export default function Digest() {
           * already on this screen and a route would throw away the scroll position to show the
           * same rows.
           */}
-        <RiseIn delay={145}>
-          <View style={[styles.search, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}>
-            <UIcon name="search" size={17} color={theme.mutedForeground} />
-            <TextInput
-              value={query}
-              onChangeText={(t) => {
-                setQuery(t);
-                setTouched(true);
-              }}
-              placeholder="Search guides"
-              placeholderTextColor={theme.mutedForeground}
-              style={[styles.searchInput, { color: theme.text }]}
-              autoCorrect={false}
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-              accessibilityLabel="Search guides"
-            />
-          </View>
-        </RiseIn>
 
         {/*
          * SECTIONS DOWN THE PAGE, NOT CHIPS ACROSS THE TOP.

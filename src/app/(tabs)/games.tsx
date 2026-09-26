@@ -58,8 +58,9 @@ const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean;
 const SECTIONS = [
   { title: 'Play now', games: GAMES.filter((g) => g.route) },
   { title: 'Soon', games: GAMES.filter((g) => g.comingSoon) },
-  { title: 'Pro', games: GAMES.filter((g) => g.pro) },
 ];
+/** Pro is ONE card, not a wall of locked tiles: nine dead tiles were the heaviest thing here. */
+const PRO = GAMES.filter((g) => g.pro);
 
 export default function Games() {
   const scrollY = useSharedValue(0);
@@ -111,8 +112,7 @@ export default function Games() {
                           locked ones stay neutral. The dim is on the art only -- names keep AA
                           contrast via mutedForeground at full opacity. */}
                       <Card style={styles.gameCard} {...(g.route ? { tint: theme.primary } : null)}>
-                        {g.pro && <View style={styles.lock}><UIcon name="lock" size={14} color={theme.mutedForeground} /></View>}
-                        <View style={[styles.iconBubble, !inactive && plate, inactive && styles.dim]}>
+                        <View style={[styles.iconBubble, plate, inactive && styles.dim]}>
                           <PixelSpriteView sprite={g.sprite} size={40} />
                         </View>
                         <ThemedText type="heading" themeColor={inactive ? 'mutedForeground' : undefined} style={styles.name}>
@@ -126,6 +126,28 @@ export default function Games() {
             </View>
           </View>
         ))}
+
+        <ThemedText type="heading" style={styles.section}>Pro</ThemedText>
+        <RiseIn delay={Math.min(n * 40, STAGGER_CAP)}>
+          <SpringPressable
+            accessibilityLabel={`${String(PRO.length)} Pro games, locked: ${PRO.map((g) => g.name).join(', ')}`}
+            accessibilityHint="Shows when these games are available"
+            onPress={() => Alert.alert('Pro games', 'These Pro games are still being built and are not playable yet.')}>
+            <Card>
+              <View style={styles.proHead}>
+                <ThemedText type="heading" style={{ flex: 1 }}>{`${String(PRO.length)} Pro games`}</ThemedText>
+                <UIcon name="lock" size={16} color={theme.mutedForeground} />
+              </View>
+              <View style={styles.proStrip}>
+                {PRO.map((g) => (
+                  <View key={g.name} style={[styles.proIcon, plate, styles.dim]}>
+                    <PixelSpriteView sprite={g.sprite} size={26} />
+                  </View>
+                ))}
+              </View>
+            </Card>
+          </SpringPressable>
+        </RiseIn>
       </RevealScrollView>
       <CompactTitle title="Games" scrollY={scrollY} />
     </SafeAreaView>
@@ -143,6 +165,8 @@ const styles = StyleSheet.create({
   gameCard: { alignItems: 'center', paddingVertical: Spacing.four },
   iconBubble: { width: 68, height: 68, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
   dim: { opacity: 0.6 },
-  lock: { position: 'absolute', top: Spacing.two, right: Spacing.two },
+  proHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  proStrip: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
+  proIcon: { width: 40, height: 40, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   name: { fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two, textAlign: 'center' },
 });

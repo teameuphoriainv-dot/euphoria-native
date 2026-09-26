@@ -247,11 +247,6 @@ export default function Trade() {
           <View style={styles.titleRow}>
             <View style={{ flex: 1 }}>
               <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Trade</ThemedText>
-              {/* "Practice with $10,000. No real money." stated the rules and nothing else. This
-                  says what the user GETS. */}
-              <ThemedText type="small" themeColor="mutedForeground">
-                Build a practice portfolio. Risk nothing.
-              </ThemedText>
             </View>
             <SpringPressable
               haptic={false}

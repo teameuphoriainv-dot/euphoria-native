@@ -63,9 +63,11 @@ export function LeagueCard() {
             {done ? ` XP · ${cleared.label}` : ` / ${goal.xp.toLocaleString('en-US')} XP · +${String(goal.coins)} coins`}
           </ThemedText>
         </View>
-        <View style={[styles.track, { backgroundColor: theme.muted }]}>
-          <ProgressFill ratio={ratio} color={done ? theme.success : tier.color} style={styles.fill} fillOnMount />
-        </View>
+        {weekly > 0 && (
+          <View style={[styles.track, { backgroundColor: theme.muted }]}>
+            <ProgressFill ratio={ratio} color={done ? theme.success : tier.color} style={styles.fill} fillOnMount />
+          </View>
+        )}
       </Card>
     </SpringPressable>
   );

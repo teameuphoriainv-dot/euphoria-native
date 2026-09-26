@@ -72,6 +72,12 @@ export function NumberRollup({
       shown.current = value;
       return;
     }
+    // A balance that hydrates after mount (0, then the real value) must not count up from $0.
+    if (!countOnMount && shown.current === 0) {
+      setText(render(value));
+      shown.current = value;
+      return;
+    }
     const from = shown.current;
     let raf = 0;
     let start: number | null = null;
@@ -101,7 +107,7 @@ export function NumberRollup({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [value, duration, reduced, prefix, suffix]);
+  }, [value, duration, reduced, prefix, suffix, countOnMount]);
 
   return <ThemedText {...rest}>{text}</ThemedText>;
 }
