@@ -53,16 +53,23 @@ export function LeagueCard() {
           <ThemedText type="title" style={styles.title}>{`${tier.name} League`}</ThemedText>
           <ThemedText type="small" themeColor="mutedForeground">{daysLeft()}</ThemedText>
         </View>
-        <View style={styles.xpLine}>
-          <AppNumberFlow
-            value={weekly}
-            spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
-            style={{ fontFamily: Fonts.black, fontSize: FontSize.title, color: tier.color }}
-          />
+        {/* Day zero leads with what to do, not a zero (Duolingo hides zero scores). */}
+        {weekly === 0 ? (
           <ThemedText type="bodyMedium" themeColor="mutedForeground">
-            {done ? ` XP · ${cleared.label}` : ` / ${goal.xp.toLocaleString('en-US')} XP · +${String(goal.coins)} coins`}
+            {`Finish a lesson to join · ${goal.xp.toLocaleString('en-US')} XP earns +${String(goal.coins)} coins`}
           </ThemedText>
-        </View>
+        ) : (
+          <View style={styles.xpLine}>
+            <AppNumberFlow
+              value={weekly}
+              spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
+              style={{ fontFamily: Fonts.black, fontSize: FontSize.title, color: tier.color }}
+            />
+            <ThemedText type="bodyMedium" themeColor="mutedForeground">
+              {done ? ` XP · ${cleared.label}` : ` / ${goal.xp.toLocaleString('en-US')} XP · +${String(goal.coins)} coins`}
+            </ThemedText>
+          </View>
+        )}
         {weekly > 0 && (
           <View style={[styles.track, { backgroundColor: theme.muted }]}>
             <ProgressFill ratio={ratio} color={done ? theme.success : tier.color} style={styles.fill} fillOnMount />

@@ -19,16 +19,12 @@ export function NumberRollup({
   prefix = '',
   suffix = '',
   duration = 900,
-  countOnMount = true,
   ...rest
 }: Omit<ThemedTextProps, 'children'> & {
   value: number;
   prefix?: string;
   suffix?: string;
   duration?: number;
-  /** false: first paint shows the value as-is and only later changes roll. For balances, where a
-   *  count up from $0 shows a move that never happened (AGENTS.md financial-motion rule). */
-  countOnMount?: boolean;
 }) {
   /*
    * TEXT, NOT A NUMBER, IS THE STATE — because the number changes far more often than the text.
@@ -51,7 +47,7 @@ export function NumberRollup({
    * theme colour and type scale -- on a MONEY display, and that trade needs typography verified
    * on device rather than assumed at speed.
    */
-  const [text, setText] = useState(() => prefix + withCommas(countOnMount ? 0 : value) + suffix);
+  const [text, setText] = useState(() => prefix + withCommas(0) + suffix);
   const reduced = useReducedMotion();
   /*
    * COUNT FROM WHAT IS SHOWING, not from 0. This rendered value * ease(p), so EVERY change counted
@@ -60,7 +56,7 @@ export function NumberRollup({
    * a change rolls old -> new, and a change landing mid-count carries on from where it is. First
    * mount still counts up from 0, which is the reveal every reward call site wants.
    */
-  const shown = useRef(countOnMount ? 0 : value);
+  const shown = useRef(0);
 
   useEffect(() => {
     const render = (v: number) => prefix + withCommas(v) + suffix;
@@ -68,12 +64,6 @@ export function NumberRollup({
       // Reduced Motion takes the instant path: land on the final value instead of animating to
       // it. One render, then return -- there is no rAF loop on this branch.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setText(render(value));
-      shown.current = value;
-      return;
-    }
-    // A balance that hydrates after mount (0, then the real value) must not count up from $0.
-    if (!countOnMount && shown.current === 0) {
       setText(render(value));
       shown.current = value;
       return;
@@ -107,7 +97,7 @@ export function NumberRollup({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [value, duration, reduced, prefix, suffix, countOnMount]);
+  }, [value, duration, reduced, prefix, suffix]);
 
   return <ThemedText {...rest}>{text}</ThemedText>;
 }

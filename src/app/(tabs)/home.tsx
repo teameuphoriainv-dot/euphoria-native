@@ -579,7 +579,7 @@ export default function Home() {
                    * to "H...", and a bigger base size makes that shrink-instead-of-truncate floor
                    * MORE load-bearing, not less.
                    */
-                  style={{ fontSize: FontSize.titleLg }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
+                  style={{ fontSize: FontSize.titleLg }}>{/* First name only: the full name ran into the avatar. */ name ? `Hey there, ${name.split(' ')[0]}` : 'Hey there'}</ThemedText>
               </SpringPressable>
             {/*
               * THE COIN PILL, THE STREAK PILL AND THE ATLAS CIRCLE ALL LEFT THIS ROW.

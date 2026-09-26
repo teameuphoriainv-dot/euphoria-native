@@ -420,7 +420,8 @@ export default function Digest() {
                       }}
                       accessibilityRole="button"
                       accessibilityLabel={`${c}, ${String(readCounts[c] ?? 0)} of ${String(counts[c] ?? 0)} read`}>
-                      <Card tint={tint} style={styles.sectionCard}>
+                      {/* Colour on the wash and icon only; one neutral depth edge so ten tiles do not read as a rainbow. */}
+                      <Card tint={tint} depthColor={theme.border} style={styles.sectionCard}>
                         <PixelSpriteView sprite={CATEGORY_ART[c]} size={44} />
                         <ThemedText type="heading" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.body, textAlign: 'center' }} numberOfLines={2}>
                           {c}

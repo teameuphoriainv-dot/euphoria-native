@@ -39,7 +39,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
 import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeaRoute, tradeIdeas } from '@/lib/trade-ideas';
-import { NumberRollup } from '@/shared/motion/number-rollup';
 import { CompactTitle } from '@/shared/motion/compact-title';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { RevealScrollView } from '@/shared/motion/scroll-reveal';
@@ -268,9 +267,12 @@ export default function Trade() {
             <View style={styles.amountRow}>
               {/* Capped: displayLg is 34pt, which reaches ~106pt at AX5, and "$10,000" then needs
                   roughly 450pt inside a ~330pt card — the frame showed it cut to "$10,0" with the
-                  rest pushed out of the card. NumberRollup spreads its props into ThemedText, so
-                  the cap forwards. 1.6 keeps the hero number hero-sized and inside its box. */}
-              <NumberRollup value={Math.floor(total)} prefix="$" countOnMount={false} type="display" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.displayLg }} />
+                  rest pushed out of the card. The cap is on the ThemedText. 1.6 keeps the hero number hero-sized and inside its box. */}
+              {/* Plain text, never rolled: the total moves when daily-close marks refresh, and a count
+                  between two figures shows a price move that never happened (AGENTS.md). */}
+              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.displayLg }}>
+                {`$${Math.floor(total).toLocaleString('en-US')}`}
+              </ThemedText>
               <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.subhead, marginBottom: 3 }}>
                 .{total.toFixed(2).split('.')[1]}
               </ThemedText>

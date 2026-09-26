@@ -111,7 +111,7 @@ export default function Games() {
                       {/* Playable tiles carry the primary depth edge so they read as tappable blocks;
                           locked ones stay neutral. The dim is on the art only -- names keep AA
                           contrast via mutedForeground at full opacity. */}
-                      <Card style={styles.gameCard} {...(g.route ? { tint: theme.primary } : null)}>
+                      <Card style={[styles.gameCard, inactive && styles.flat]} {...(g.route ? { tint: theme.primary } : null)}>
                         <View style={[styles.iconBubble, plate, inactive && styles.dim]}>
                           <PixelSpriteView sprite={g.sprite} size={40} />
                         </View>
@@ -165,6 +165,8 @@ const styles = StyleSheet.create({
   gameCard: { alignItems: 'center', paddingVertical: Spacing.four },
   iconBubble: { width: 68, height: 68, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
   dim: { opacity: 0.6 },
+  // Not playable, so not a raised block: only tiles you can open get the thick depth edge.
+  flat: { borderBottomWidth: 2 },
   proHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   proStrip: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   proIcon: { width: 40, height: 40, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
