@@ -29,6 +29,7 @@ import { PanResponder, StyleSheet, useWindowDimensions, View } from 'react-nativ
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 import Svg, { Rect } from 'react-native-svg';
 
+import { SlabButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { Radius } from '@/constants/theme';
@@ -234,17 +235,7 @@ export function PredictCard({ spec, onWorked }: { spec: PredictSpec; onWorked: (
           <PixelGlyph rows={PLUS} />
         </View>
       </SpringPressable>
-      <SpringPressable
-        onPress={check}
-        disabled={!touched}
-        accessibilityRole="button"
-        accessibilityLabel="Check your guess"
-        accessibilityState={{ disabled: !touched }}
-      >
-        <View style={[styles.button, styles.check, !touched && styles.buttonOff]}>
-          <ThemedText style={styles.checkText} maxFontSizeMultiplier={LABEL_SCALE_MAX}>Check</ThemedText>
-        </View>
-      </SpringPressable>
+      <SlabButton label="Check" onPress={check} disabled={!touched} accessibilityLabel="Check your guess" style={styles.check} />
     </View>
   );
 
@@ -373,7 +364,6 @@ const styles = StyleSheet.create({
     borderColor: LessonColors.border,
   },
   buttonOff: { opacity: 0.4 },
-  check: { minWidth: 96, backgroundColor: LessonColors.backgroundSelected, borderColor: LessonColors.accent, borderWidth: 2 },
-  checkText: { ...LessonTypography.smallBold, color: LessonColors.text },
+  check: { minWidth: 96 },
   footer: { ...LessonTypography.small, color: CLIP_MUTED, textAlign: 'center' },
 });

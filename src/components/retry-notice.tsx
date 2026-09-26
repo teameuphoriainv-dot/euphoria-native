@@ -19,11 +19,11 @@
  */
 import { StyleSheet, View } from 'react-native';
 
+import { SlabButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
-import { FontSize, Radius, Spacing } from '@/constants/theme';
-import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { FontSize, Spacing } from '@/constants/theme';
 
 /** Maps the market API's error codes to a sentence a person can act on. */
 export function retryMessage(code?: string): string {
@@ -63,13 +63,7 @@ export function RetryNotice({
         {text}
       </ThemedText>
       {canRetry && (
-        <SpringPressable
-          onPress={onRetry}
-          accessibilityLabel="Try again"
-          style={[styles.button, { borderColor: theme.border }]}
-        >
-          <ThemedText style={[styles.buttonText, { color: theme.accent }]}>Try again</ThemedText>
-        </SpringPressable>
+        <SlabButton label="Try again" tone="neutral" onPress={onRetry} />
       )}
     </View>
   );
@@ -80,12 +74,4 @@ const styles = StyleSheet.create({
   text: { textAlign: 'center', fontSize: FontSize.bodySm, lineHeight: FontSize.bodySm * 1.45 },
   // 44pt minimum height — Apple HIG, and the touch lane already caught this app shipping a
   // 41pt tab bar and an 18pt link.
-  button: {
-    minHeight: 44,
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.three,
-    borderRadius: Radius.pill,
-    borderWidth: 1,
-  },
-  buttonText: { fontSize: FontSize.bodySm },
 });

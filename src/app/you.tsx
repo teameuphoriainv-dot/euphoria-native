@@ -17,6 +17,7 @@ import { ITEM_ART } from '@/lib/item-art';
 import { achievementById, isEarned, type AchievementState } from '@/lib/achievements';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 
+import { SlabButton } from '@/components/ui/button';
 import { AmbientBackground } from '@/components/ambient-background';
 import { ProfileBanner } from '@/components/profile-banner';
 import { ProfileAvatar } from '@/components/profile-avatar';
@@ -435,19 +436,9 @@ export default function You() {
               </View>
             )}
             {planTier !== 'pro' && (
-              <SpringPressable
-                scaleTo={0.97}
-                onPress={() => router.push('/onboarding?step=paywall')}
-                accessibilityRole="button"
-                accessibilityLabel="See Euphoria Pro">
-                {/* Unit 4 replaces this route with the contextual gate sheet. Until then it goes
-                    where every other upsell in the app already goes, rather than nowhere. */}
-                <View style={[styles.planCta, { borderColor: theme.primary }]}>
-                  <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>
-                    See Euphoria Pro
-                  </ThemedText>
-                </View>
-              </SpringPressable>
+              /* Unit 4 replaces this route with the contextual gate sheet. Until then it goes
+                 where every other upsell in the app already goes, rather than nowhere. */
+              <SlabButton label="See Euphoria Pro" tone="premium" full onPress={() => router.push('/onboarding?step=paywall')} />
             )}
           </Card>
         </RiseIn>
@@ -640,7 +631,6 @@ const styles = StyleSheet.create({
   grantsLargeText: { flexDirection: 'column', alignItems: 'stretch' },
   grant: { gap: 1 },
   grantLast: { alignItems: 'flex-end' },
-  planCta: { borderWidth: 1, borderRadius: Radius.pill, paddingVertical: Spacing.one + 2, alignItems: 'center' },
   rungXp: { marginTop: 2, textAlign: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
   gridHalf: { width: '47%', flexGrow: 1 },

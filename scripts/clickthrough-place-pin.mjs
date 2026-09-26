@@ -168,9 +168,10 @@ const card = readFileSync(join(ROOT, 'src/components/mobile-lesson/clickthrough/
 const code = card.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 check(!/PanResponder|Gesture\w*|onResponder\w*|onPan\w*|react-native-gesture-handler/.test(code), 'place-card must be tap only: no PanResponder, gesture handler or responder props');
 // Up to the child element: a prop like onPress={() => x} holds a ">" but never a "<".
-const pressables = code.match(/<SpringPressable[^<]*/g) ?? [];
+const pressables = code.match(/<(?:SpringPressable|SlabButton)\b[^<]*/g) ?? [];
 check(pressables.length >= 4, `expected token, spot, Check and Try again pressables, found ${pressables.length}`);
-for (const p of pressables) check(/accessibilityRole="button"/.test(p), `a pressable without accessibilityRole="button": ${p.slice(0, 80)}`);
+// SlabButton carries the role itself (it renders a SpringPressable with accessibilityRole="button").
+for (const p of pressables) check(/^<SlabButton\b/.test(p) || /accessibilityRole="button"/.test(p), `a pressable without accessibilityRole="button": ${p.slice(0, 80)}`);
 check(/useReducedMotion\(\)/.test(code), 'place-card must read useReducedMotion');
 for (const m of code.match(/entering=\{[^}]*\}/g) ?? []) check(/reduced|animate \?/.test(m), `an entering animation not guarded by Reduce Motion: ${m}`);
 check(!/withSpring|springify/.test(code), 'no spring on the card: data geometry never overshoots (Atlas acts inside AtlasCue)');

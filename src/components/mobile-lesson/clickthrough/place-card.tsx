@@ -38,6 +38,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { G, Rect } from 'react-native-svg';
 
+import { SlabButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { Colors, Radius } from '@/constants/theme';
@@ -426,11 +427,7 @@ export function PlaceCard({ spec, onWorked }: { spec: PlaceSpec; onWorked: (resu
           accessibilityLiveRegion="polite"
         >
           <ThemedText style={styles.barText}>Not quite. The green ones stay put.</ThemedText>
-          <SpringPressable onPress={() => dispatch({ type: 'retry' })} accessibilityRole="button" accessibilityLabel="Try again">
-            <View style={[styles.cta, styles.ctaMiss]}>
-              <ThemedText style={styles.ctaMissText}>Try again</ThemedText>
-            </View>
-          </SpringPressable>
+          <SlabButton label="Try again" tone="neutral" onPress={() => dispatch({ type: 'retry' })} />
         </Animated.View>
       ) : (
         <>
@@ -439,17 +436,7 @@ export function PlaceCard({ spec, onWorked }: { spec: PlaceSpec; onWorked: (resu
               <Token key={t} label={spec.slots[t].label} picked={state.picked === t} reduced={reduced} onPress={() => dispatch({ type: 'pick', token: t })} />
             ))}
           </View>
-          <SpringPressable
-            onPress={onCheck}
-            disabled={!allFilled(state)}
-            accessibilityRole="button"
-            accessibilityLabel="Check"
-            accessibilityState={{ disabled: !allFilled(state) }}
-          >
-            <View style={[styles.cta, !allFilled(state) && styles.ctaOff]}>
-              <ThemedText style={styles.ctaText}>Check</ThemedText>
-            </View>
-          </SpringPressable>
+          <SlabButton label="Check" full disabled={!allFilled(state)} onPress={onCheck} />
         </>
       )}
     </View>
@@ -506,13 +493,8 @@ const styles = StyleSheet.create({
   token: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: Radius.md, backgroundColor: LessonColors.backgroundElement, borderWidth: 1, borderColor: LessonColors.border },
   tokenOn: { backgroundColor: LessonColors.backgroundSelected, borderColor: LessonColors.accent, borderWidth: 2 },
   tokenText: { ...LessonTypography.smallBold, color: LessonColors.text },
-  cta: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.md, backgroundColor: LessonColors.text, paddingHorizontal: 20 },
-  ctaOff: { opacity: 0.4 },
-  ctaText: { ...LessonTypography.heading, color: LessonColors.background },
   bar: { gap: 10, padding: 12, borderRadius: Radius.md, borderWidth: 2 },
   barMiss: { borderColor: LessonColors.warning, backgroundColor: LessonColors.backgroundElement },
   barText: { ...LessonTypography.bodyMedium, color: LessonColors.warning },
-  ctaMiss: { backgroundColor: LessonColors.warning },
-  ctaMissText: { ...LessonTypography.heading, color: LessonColors.background },
   footer: { ...LessonTypography.small, color: CLIP_MUTED, textAlign: 'center' },
 });

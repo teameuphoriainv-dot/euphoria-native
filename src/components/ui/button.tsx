@@ -31,9 +31,25 @@ export function Button({
 }) {
   const theme = useTheme();
   const lesson = theme === LessonColors;
-  const bg = variant === 'primary' ? theme.primary : 'transparent';
-  const fg = variant === 'primary' ? '#fff' : theme.text;
-  const border = variant === 'outline' ? theme.border : 'transparent';
+  /* ONE BUTTON LANGUAGE (owner, on the Buy/Sell pair: "apply all around the app"). Primary and
+     outline render the slab: primary = the purple slab, outline = the neutral slab, so every
+     paired or secondary action matches the primary's height, pill shape and depth. Ghost stays a
+     flat text action -- tertiary exits ("Back", "Exit") must not compete with the slab. */
+  if (variant !== 'ghost') {
+    return (
+      <SlabButton
+        label={label}
+        onPress={onPress}
+        loading={loading}
+        disabled={disabled}
+        full={full}
+        style={style}
+        tone={variant === 'outline' ? 'neutral' : 'primary'}
+      />
+    );
+  }
+  // Ghost only from here: a flat text action.
+  const fg = theme.text;
 
   return (
     <SpringPressable
@@ -43,7 +59,7 @@ export function Button({
       style={[
         styles.base,
         lesson && styles.lessonBase,
-        { backgroundColor: bg, borderColor: border, borderWidth: variant === 'outline' ? StyleSheet.hairlineWidth : 0, opacity: disabled ? 0.5 : 1 },
+        { backgroundColor: 'transparent', opacity: disabled ? 0.5 : 1 },
         full && styles.full,
         style,
       ]}>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
+import { SlabButton } from '@/components/ui/button';
 import { Atlas } from '@/components/atlas';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
@@ -75,18 +76,12 @@ export function LessonWarmup({
               First, a quick check on what you have already covered.
             </ThemedText>
           ) : null}
-          <SpringPressable
-            scaleTo={0.97}
+          <SlabButton
+            label={available.length ? 'Warm up' : 'Start lesson'}
             disabled={questions === null}
             onPress={start}
-            style={[styles.primaryButton, { backgroundColor: theme.primary }, questions === null && styles.disabled]}
-            accessibilityRole="button"
-            accessibilityLabel={available.length ? 'Warm up' : 'Start lesson'}
-            accessibilityState={{ disabled: questions === null }}>
-            <ThemedText type="bodyMedium" style={styles.buttonText}>
-              {available.length ? 'Warm up' : 'Start lesson'}
-            </ThemedText>
-          </SpringPressable>
+            style={styles.primaryButton}
+          />
         </Animated.View>
       ) : current ? (
         <Animated.View key={`recall-${String(beat)}`} entering={enter} style={styles.recall}>
@@ -178,8 +173,7 @@ const styles = StyleSheet.create({
   flameStage: { alignItems: 'center', justifyContent: 'center', padding: 40, marginBottom: 16 },
   title: { textAlign: 'center', lineHeight: 32 },
   subtitle: { textAlign: 'center', lineHeight: 20, marginTop: 12 },
-  primaryButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 32, paddingHorizontal: 32, borderRadius: 999 },
-  disabled: { opacity: 0.45 },
+  primaryButton: { marginTop: 32, alignSelf: 'center', minWidth: 200 },
   buttonText: { color: '#FFFFFF' },
   recall: { width: '100%', maxWidth: 576, alignItems: 'center' },
   beats: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 20 },

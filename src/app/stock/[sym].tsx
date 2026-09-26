@@ -40,6 +40,8 @@ import { entitled, useTier, type Refusal } from '@/lib/entitlement';
 import { GateSheet } from '@/components/gate-sheet';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Duration, Ease } from '@/shared/motion/tokens';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -73,6 +75,14 @@ function orderFilled() {
 export default function StockDetail() {
   const theme = useTheme();
   const { sym } = useLocalSearchParams<{ sym: string }>();
+  // The fill confirmation: "Bought 2 NVDA" replaces the hint for a moment, so a trade is SEEN, not
+  // only heard. Keyed by n so back-to-back orders replay it.
+  const [filled, setFilled] = useState<{ text: string; n: number } | null>(null);
+  useEffect(() => {
+    if (!filled) return;
+    const t = setTimeout(() => setFilled((cur) => (cur === filled ? null : cur)), 1600);
+    return () => clearTimeout(t);
+  }, [filled]);
   // The static table seeds seven tickers with a hand-written blurb. Search returns thousands, so
   // an unknown symbol is NORMAL here, not an error — resolve what we can live and show the rest.
   const stock = sym ? STOCKS[sym] : undefined;
@@ -400,7 +410,8 @@ export default function StockDetail() {
           </SpringPressable>
         </RiseIn>
 
-        <RiseIn delay={200}>
+        {/* Two different actions, so two separate blocks: they sat flush and read as one. */}
+        <RiseIn delay={200} style={{ marginTop: Spacing.three }}>
           <AskAtlasRow topic={name} label="Not sure about this one?" />
         </RiseIn>
 
@@ -464,17 +475,9 @@ export default function StockDetail() {
                       accessibilityLabel="Buy. Paper trading is part of Euphoria Pro."
                     />
                   </View>
-                  <SpringPressable
-                    haptic={false}
-                    onPress={openGate}
-                    accessibilityRole="button"
-                    accessibilityLabel="Sell. Paper trading is part of Euphoria Pro."
-                    style={{ flex: 1 }}>
-                    <View style={[styles.sell, styles.locked, { borderColor: theme.border }]}>
-                      <ThemedText type="bodyMedium">Sell</ThemedText>
-                      <UIcon name="lock" size={16} color={theme.mutedForeground} />
-                    </View>
-                  </SpringPressable>
+                  <View style={{ flex: 1 }}>
+                    <SlabButton label="Sell" tone="neutral" icon="lock" full onPress={openGate} accessibilityLabel="Sell. Paper trading is part of Euphoria Pro." />
+                  </View>
                 </>
               ) : (
                 <>
@@ -493,37 +496,43 @@ export default function StockDetail() {
                         if (useApp.getState().cash !== before) {
                           track(Ev.tradePlaced, { side: 'buy', symbol: sym, shares: qty });
                           orderFilled();
+                          setFilled((cur) => ({ text: `Bought ${String(qty)} ${sym}`, n: (cur?.n ?? 0) + 1 }));
                         }
                       }}
                     />
                   </View>
-                  <SpringPressable
-                    haptic={false}
-                    onPress={() => {
-                      if (!canSell) return;
-                      // applySell clamps to what is actually held, so a sell can also be a no-op.
-                      const before = useApp.getState().cash;
-                      sell(sym, qty, price);
-                      if (useApp.getState().cash !== before) {
-                        track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
-                        orderFilled();
-                      }
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
-                    accessibilityState={{ disabled: !canSell }}
-                    style={{ flex: 1 }}
-                  >
-                    <View style={[styles.sell, { borderColor: theme.border, opacity: canSell ? 1 : 0.4 }]}>
-                      <ThemedText type="bodyMedium">Sell</ThemedText>
-                    </View>
-                  </SpringPressable>
+                  {/* Same SlabButton as Buy (neutral tone) so the pair has one height, shape and depth. */}
+                  <View style={{ flex: 1 }}>
+                    <SlabButton
+                      label="Sell"
+                      tone="neutral"
+                      full
+                      disabled={!canSell}
+                      accessibilityLabel={canSell ? `Sell ${qty} shares` : 'Sell unavailable, you hold none'}
+                      onPress={() => {
+                        // applySell clamps to what is actually held, so a sell can also be a no-op.
+                        const before = useApp.getState().cash;
+                        sell(sym, qty, price);
+                        if (useApp.getState().cash !== before) {
+                          track(Ev.tradePlaced, { side: 'sell', symbol: sym, shares: qty });
+                          orderFilled();
+                          setFilled((cur) => ({ text: `Sold ${String(qty)} ${sym}`, n: (cur?.n ?? 0) + 1 }));
+                        }
+                      }}
+                    />
+                  </View>
                 </>
               )}
             </View>
 
             {/* Says WHY the button is off. A disabled control with no reason is the same dead end
                 as a button that does nothing. */}
+            {filled ? (
+              <Animated.View key={filled.n} entering={FadeInDown.duration(Duration.base).easing(Ease.enter)} style={styles.filled}>
+                <UIcon name="check" size={14} color={theme.success} />
+                <ThemedText type="smallBold" style={{ color: theme.success }}>{filled.text}</ThemedText>
+              </Animated.View>
+            ) : (
             <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
               {expired
                 ? 'Paper trading is part of Euphoria Pro. Prices and stats stay open.'
@@ -531,6 +540,7 @@ export default function StockDetail() {
                   ? `Not enough cash. You have ${money(cash)}.`
                   : `Cash after this buy: ${money(cash - cost)}`}
             </ThemedText>
+            )}
           </Card>
         </RiseIn>
       </ScrollView>
@@ -598,15 +608,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.one,
   },
   actions: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.one },
-  sell: {
-    height: 50,
-    borderRadius: Radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   hint: { textAlign: 'center' },
+  filled: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: Spacing.two, minHeight: 20 },
   // Bloom puts the lock INSIDE the control, to the right of its label. Row layout, full contrast —
   // deliberately no opacity change: this control works, it just answers differently.
-  locked: { flexDirection: 'row', gap: Spacing.two },
 });
