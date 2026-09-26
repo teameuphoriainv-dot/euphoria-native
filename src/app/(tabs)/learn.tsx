@@ -6,7 +6,7 @@
  */
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   cancelAnimation,
@@ -16,19 +16,20 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  FadeIn,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Defs, G, Mask, Path, Rect } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { AskAtlasButton } from '@/components/ask-atlas';
-import { Atlas } from '@/components/atlas';
 import { CourseMark } from '@/components/art/course-mark';
 import { GateSheet } from '@/components/gate-sheet';
 import { RetryNotice } from '@/components/retry-notice';
-import { entitled, TRIAL_DAYS, trialDayNumber, useTier, type Refusal } from '@/lib/entitlement';
+import { entitled, type Refusal } from '@/lib/entitlement';
 import { ThemedText } from '@/components/themed-text';
+import { Card } from '@/components/ui/card';
 import { NODE_CHALLENGE_COLOR, NODE_CURRENT_COLOR, NODE_LOCKED_COLOR, NODE_UPCOMING_COLOR } from '@/components/path-node';
 import { UIcon } from '@/components/ui-icon';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
@@ -40,14 +41,14 @@ import { expandSteps } from '@/lib/lesson-steps';
 import { hasMasteryChallenge } from '@/lib/mastery-challenge-model';
 import { readSegmentRecord, segmentsOf, type SegmentKind } from '@/lib/lesson-segments';
 import { SegmentRing } from '@/components/segment-ring';
-import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { takeLessonTrailCelebration, type LessonTrailCelebration } from '@/lib/lesson-trail-celebration';
+import { ProgressFill } from '@/shared/motion/progress-fill';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
+import { Nudge } from '@/shared/motion/nudge';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration, Ease } from '@/shared/motion/tokens';
-import { PremiumBorder, PremiumText } from '@/components/ui/premium';
 import { ProfileButton } from '@/components/profile-button';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
 
@@ -99,16 +100,6 @@ const sagaRingSize = (nodeSize: number, special: boolean) =>
  * `useMemo` or a memoised child downstream quietly stops memoising.
  */
 const NO_KINDS: SegmentKind[] = [];
-
-/**
- * The premium ramp, spent across the trial's three days.
- *
- * The exact three stops SlabButton's `premium` tone paints, in the same order, so the trial card
- * and the paywall CTA it opens are visibly one product. Read from the theme rather than written
- * out: theme.ts owns these values and a second copy would drift.
- */
-const TRIAL_RAMP = (t: { gradientFrom: string; premiumFrom: string; premiumTo: string }) =>
-  [t.gradientFrom, t.premiumFrom, t.premiumTo];
 
 function sagaSegment(from: { x: number; y: number }, to: { x: number; y: number }) {
   const bend = (to.y - from.y) / 2;
@@ -253,9 +244,6 @@ export default function Learn() {
   const setActiveCourse = useApp((s) => s.setActiveCourse);
   const completedLessons = useApp((s) => s.completedLessons);
   const streak = useApp((s) => s.streak);
-  // Trial strip, moved here from Home — see the note beside it in the tree below.
-  const planTier = useTier();
-  const trialDay = useApp(trialDayNumber);
 
   const course = getCourseById(activeCourseId);
 
@@ -338,11 +326,6 @@ export default function Learn() {
    * Null for a hand-picked course, and null for the courses the recommendation never reached.
    * Both cases stay silent rather than inventing a justification.
    */
-  const profile = useApp((s) => s.profile);
-  const whyTrailCourse = useMemo(
-    () => recommendPathDetailed(profile).find((x) => x.course.id === trailCourseId)?.reason ?? null,
-    [profile, trailCourseId],
-  );
   const pending = qa === 'loading' || (!qa && loaded?.id !== activeCourseId);
   const shownFailed = qa === 'error' ? activeCourseId : failed;
   /** switching between two courses — dim the outgoing trail instead of flashing an empty path */
@@ -447,6 +430,13 @@ export default function Learn() {
    * unentitled one opens the sheet.
    */
   const [gate, setGate] = useState<Refusal | null>(null);
+  // A tap on a locked node answers "not yet": shake + haptic, and its title briefly says why.
+  const [nudge, setNudge] = useState<{ index: number; n: number } | null>(null);
+  useEffect(() => {
+    if (!nudge) return;
+    const t = setTimeout(() => setNudge((cur) => (cur === nudge ? null : cur)), 1600);
+    return () => clearTimeout(t);
+  }, [nudge]);
 
   /*
    * Keep the selected chip in view when the course changes from elsewhere (e.g. /courses).
@@ -519,95 +509,15 @@ export default function Learn() {
             <AskAtlasButton topic={course?.title} />
             <ProfileButton />
           </View>
-          <View style={[styles.track, { backgroundColor: theme.muted }]}>
-            <View style={[styles.fill, { backgroundColor: accent, width: `${total ? (doneCount / total) * 100 : 0}%` }]} />
-          </View>
+          {/* Appears after the first lesson: at 0 it was an empty bar stacked on the trial bar. */}
+          {doneCount > 0 && (
+            <View style={[styles.track, { backgroundColor: theme.muted }]}>
+              <ProgressFill ratio={total ? doneCount / total : 0} color={accent} style={styles.fill} />
+            </View>
+          )}
         </View>
       </RiseIn>
 
-      {/*
-        * TRIAL STRIP — MOVED HERE FROM HOME on 2026-09-01: "make sure that the free trial thing is
-        * on the lessons part of the app, not on the main page".
-        *
-        * It belongs here on its own merits. What the trial gates is CONTENT — `entitled()` a few
-        * lines up is what refuses a locked lesson on this very screen — so the countdown now sits
-        * on the surface where running out actually stops you, instead of on a screen where it was
-        * one more status bar competing with the thing you came to do.
-        *
-        * Shape and reasoning carried over unchanged from home.tsx: a THREE-DAY tracker with the
-        * current day filled, from Bloom `156322`. `trialDayNumber` not `trialDaysLeft`, because on
-        * the third active day daysLeft is 0 while the trial is still live and "0 days left" on a
-        * fully usable day reads as already expired (§22 C14). Shown only during the trial — a Pro
-        * member must never see a countdown, and an expired one gets the paywall's own copy.
-        */}
-      {planTier === 'trial' && (
-        <RiseIn delay={60}>
-          <SpringPressable
-            haptic={false}
-            scaleTo={0.99}
-            onPress={() => router.push('/onboarding?step=paywall')}
-            accessibilityRole="button"
-            accessibilityLabel={`Free trial, day ${String(trialDay)} of ${String(TRIAL_DAYS)}. See Euphoria Pro.`}>
-            {/*
-              * A GRADIENT BORDER, matching the web's Premium column and price card exactly. The
-              * reference runs violet from the top-left corner to orange at the bottom-right, so
-              * the card is edged in the ramp rather than tinted with one stop of it. A tint said
-              * "pinkish"; the ramp is the thing the web has taught the user to read as Premium.
-              */}
-            <PremiumBorder radius={Radius.lg} style={styles.trialBorder}>
-            <View style={styles.trialStrip}>
-              {/*
-                * ATLAS, SAD, WHERE THE ARROW WAS.
-                *
-                * The arrow said "there is another screen" and nothing else, and it sat hard against
-                * the right edge with the whole middle of the card empty, so the strip read as a
-                * status bar rather than an offer. Atlas is the app's one character; him being sad
-                * that your trial is running out says the same thing the arrow was trying to and
-                * says it in the app's own voice.
-                *
-                * `interactive={false}` and no `idle`: the whole card is already the control, and a
-                * mascot that animates on its own here would compete with the lesson trail below.
-                */}
-              <Atlas size={44} expression="sad" interactive={false} />
-              <View style={{ flex: 1 }}>
-                {/*
-                  * THE PREMIUM COLOURWAY, and this is the surface it is reserved for.
-                  *
-                  * theme.ts warns that the pink-to-orange ramp is the one colour that MEANS
-                  * Premium and that spending it on an ordinary CTA wastes it. This card's only
-                  * job is to sell Premium, so it is the correct place for it, and it now matches
-                  * the paywall it opens instead of arriving as a violet surprise.
-                  */}
-                <PremiumText type="heading">Unlock Premium</PremiumText>
-                <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={2} style={{ marginTop: 1 }}>
-                  Day {trialDay} of {TRIAL_DAYS} on your free trial
-                </ThemedText>
-                <View style={styles.trialDots}>
-                  {/*
-                    * THE RAMP, SPENT ACROSS THE THREE DAYS. Filled days walk
-                    * gradientFrom -> premiumFrom -> premiumTo, the exact stops SlabButton's
-                    * premium tone paints, so the strip WARMS toward the offer as the trial runs
-                    * down. The colour is doing the same work as the copy rather than decorating it.
-                    */}
-                  {Array.from({ length: TRIAL_DAYS }, (_, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.trialDot,
-                        {
-                          backgroundColor: i < trialDay ? TRIAL_RAMP(theme)[i] : 'transparent',
-                          borderColor: i < trialDay ? TRIAL_RAMP(theme)[i] : theme.border,
-                        },
-                      ]}
-                    />
-                  ))}
-                </View>
-              </View>
-            </View>
-            </PremiumBorder>
-          </SpringPressable>
-        </RiseIn>
-      )}
 
       {/*
         * COMPACT COURSE CHIPS — 44pt, replacing a 150pt card rail.
@@ -663,22 +573,11 @@ export default function Learn() {
                   style={{ color: on ? theme.text : theme.mutedForeground }}>
                   {c.title}
                 </ThemedText>
-                {!available && (
-                  <ThemedText type="label" style={{ color: theme.mutedForeground }}>SOON</ThemedText>
-                )}
               </View>
             </SpringPressable>
           );
         })}
       </ScrollView>
-
-      {whyTrailCourse ? (
-        <View style={styles.whyRow}>
-          <ThemedText type="small" style={[styles.whyText, { color: accent }]} numberOfLines={2}>
-            {whyTrailCourse}
-          </ThemedText>
-        </View>
-      ) : null}
 
       <ScrollView style={styles.trailScroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {total === 0 ? (
@@ -697,7 +596,7 @@ export default function Learn() {
             )}
           </View>
         ) : (
-          <View style={[styles.sagaCourse, { width: sagaWidth, opacity: stale ? 0.35 : 1 }]}>
+          <TrailFade key={trailCourseId} stale={stale} style={[styles.sagaCourse, { width: sagaWidth }]}>
             {units.map((unit) => {
               const centerX = sagaWidth / 2;
               const nodes = unit.lessons.map((lesson, localIndex) => {
@@ -715,17 +614,51 @@ export default function Learn() {
 
               return (
                 <View key={unit.index} style={styles.sagaUnit}>
-                  <View
-                    style={[
-                      styles.levelHeader,
-                      { backgroundColor: accent + '0D', borderColor: accent + '4D' },
-                    ]}>
-                    <ThemedText type="label" style={[styles.levelEyebrow, { color: accent }]}>LEVEL {unit.index + 1}</ThemedText>
-                    <ThemedText type="bodyMedium" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
-                  </View>
+                  <Card padded={false} tint={accent} depthColor={accent + '80'} style={styles.levelHeader}>
+                    <ThemedText type="heading" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
+                  </Card>
 
                   <View style={[styles.sagaTrail, { width: sagaWidth, height: sagaHeight }]}>
                     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={sagaWidth} height={sagaHeight}>
+                      {/* The connector is CUT OUT under each title (mask), so it never strikes through
+                          text and the real background shows through at any scroll position. A solid
+                          backing could not match the ambient gradient and read as a box. */}
+                      <Defs>
+                        <Mask id={`saga-labels-${String(unit.index)}`}>
+                          <Rect x={0} y={0} width={sagaWidth} height={sagaHeight} fill="white" />
+                          {nodes.map((node) => {
+                            const size = node.lessonIndex === current ? SAGA_CURRENT : SAGA_NODE;
+                            const special = (node.lessonIndex + 1) % 10 === 0 || node.lessonIndex === lessons.length - 1;
+                            return (
+                              <Rect
+                                key={node.lessonIndex}
+                                x={node.x - SAGA_LABEL_WIDTH / 2}
+                                y={node.y + size / 2 + SAGA_LIP + Spacing.two + (special ? 12 : 0) - 4}
+                                width={SAGA_LABEL_WIDTH}
+                                height={SAGA_LABEL_HEIGHT - Spacing.two + 4}
+                                rx={Radius.sm}
+                                fill="black"
+                              />
+                            );
+                          })}
+                          {/* ...and around each node's ring, so the line starts outside it instead of
+                              running through the gap between the button and its ring. */}
+                          {nodes.map((node) => {
+                            const size = node.lessonIndex === current ? SAGA_CURRENT : SAGA_NODE;
+                            const special = (node.lessonIndex + 1) % 10 === 0 || node.lessonIndex === lessons.length - 1;
+                            return (
+                              <Circle
+                                key={`r${String(node.lessonIndex)}`}
+                                cx={node.x}
+                                cy={node.y + SAGA_LIP / 2}
+                                r={(sagaRingSize(size, special) + SAGA_LIP) / 2 + 1}
+                                fill="black"
+                              />
+                            );
+                          })}
+                        </Mask>
+                      </Defs>
+                      <G mask={`url(#saga-labels-${String(unit.index)})`}>
                       {nodes.slice(0, -1).map((node, localIndex) => {
                         const next = nodes[localIndex + 1];
                         const nextDone = doneFlags[next.lessonIndex];
@@ -751,6 +684,7 @@ export default function Learn() {
                           />
                         );
                       })}
+                      </G>
                     </Svg>
 
                     {nodes.map((node) => {
@@ -807,10 +741,15 @@ export default function Learn() {
                             },
                           ]}>
                           <SagaNodeMotion key={earned ? 'earned' : 'still'} earned={earned}>
+                            <Nudge trigger={nudge?.index === lessonIndex ? nudge.n : 0}>
                             <SpringPressable
                             haptic={!locked}
-                            scaleTo={0.91}
+                            scaleTo={locked ? 0.97 : 0.91}
                             onPress={() => {
+                              if (locked) {
+                                setNudge((cur) => ({ index: lessonIndex, n: (cur?.n ?? 0) + 1 }));
+                                return;
+                              }
                               const refusal = entitled(useApp.getState(), 'lesson');
                               if (!refusal.ok) {
                                 setGate(refusal);
@@ -818,7 +757,6 @@ export default function Learn() {
                               }
                               router.push({ pathname: '/lesson', params: { course: trailCourseId, num: String(lesson.num) } });
                             }}
-                            disabled={locked}
                             accessibilityRole="button"
                             accessibilityState={{ disabled: locked }}
                             /*
@@ -897,6 +835,7 @@ export default function Learn() {
                               </View>
                             </View>
                             </SpringPressable>
+                            </Nudge>
                           </SagaNodeMotion>
 
                           {/*
@@ -923,7 +862,10 @@ export default function Learn() {
                               pointerEvents="none"
                               style={[
                                 styles.nodeRing,
-                                { left: (nodeSize - ringSize) / 2, top: (nodeSize - ringSize) / 2 },
+                                /* Centred on the WHOLE button (face + its SAGA_LIP bottom edge), not the
+                                   face alone: same top, SAGA_LIP larger. Centred on the face, the lip
+                                   ran into the bottom arc and the gap was uneven top vs bottom. */
+                                { left: (nodeSize - ringSize - SAGA_LIP) / 2, top: (nodeSize - ringSize) / 2 },
                               ]}>
                               {/*
                                 * ONE BEAT WHEN A PART LANDS, keyed so it replays per part rather
@@ -937,7 +879,7 @@ export default function Learn() {
                                 event="mastery-increase"
                                 enabled={celebrating?.segment !== undefined && celebrating.lessonId === nodeId}>
                                 <SegmentRing
-                                  size={ringSize}
+                                  size={ringSize + SAGA_LIP}
                                   segments={kinds.length}
                                   filled={ringFilled}
                                   accent={accent}
@@ -959,10 +901,9 @@ export default function Learn() {
                             <ThemedText
                               type={active ? 'smallBold' : 'small'}
                               numberOfLines={2}
-                              style={{ color: active ? theme.text : theme.mutedForeground, textAlign: 'center' }}>
-                              {lesson.title}
+                              style={[styles.nodeTitle, { color: active ? theme.text : theme.mutedForeground }]}>
+                              {nudge?.index === lessonIndex ? 'Finish the lesson before this one' : lesson.title}
                             </ThemedText>
-                            {active && <ThemedText type="smallBold" style={[styles.currentLabel, { color: accent }]}>Current</ThemedText>}
                           </View>
                         </View>
                       );
@@ -971,7 +912,7 @@ export default function Learn() {
                 </View>
               );
             })}
-          </View>
+          </TrailFade>
         )}
       </ScrollView>
 
@@ -1000,10 +941,30 @@ export default function Learn() {
   );
 }
 
+
+/**
+ * The trail for one course. Keyed by course, so a switch mounts a fresh trail that settles in
+ * (Duration.base, Ease.enter) instead of snapping; while the next course loads, the old trail dims
+ * over Duration.fast rather than cutting to 35%.
+ */
+function TrailFade({ stale, style, children }: { stale: boolean; style: StyleProp<ViewStyle>; children: ReactNode }) {
+  const reduced = useReducedMotion();
+  const o = useSharedValue(stale ? 0.35 : 1);
+  useEffect(() => {
+    const to = stale ? 0.35 : 1;
+    o.set(reduced ? to : withTiming(to, { duration: Duration.fast, easing: Ease.inOut }));
+  }, [stale, reduced, o]);
+  const dim = useAnimatedStyle(() => ({ opacity: o.get() }));
+  return (
+    <Animated.View entering={reduced ? undefined : FadeIn.duration(Duration.base).easing(Ease.enter)} style={[style, dim]}>
+      {children}
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   /* Carried over verbatim from home.tsx with the strip itself. */
   /* The border owns the outer margins; the row owns the padding inside it. */
-  trialBorder: { marginHorizontal: Spacing.three, marginBottom: Spacing.two },
   trialStrip: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.three, paddingHorizontal: Spacing.three },
   /*
    * THE TRACK SPANS THE COLUMN. The three days were a fixed 26pt each, so they filled about a
@@ -1012,8 +973,6 @@ const styles = StyleSheet.create({
    * the width of the text above them, which is also what makes the ramp legible: three stops
    * spread across 26pt are three dots, spread across the column they are a gradient you can read.
    */
-  trialDots: { flexDirection: 'row', gap: 5, marginTop: 8, alignSelf: 'stretch' },
-  trialDot: { flex: 1, height: 6, borderRadius: Radius.track, borderWidth: 1 },
   safe: { flex: 1 },
   /* paddingBottom separates the course progress track from whatever follows. With none, the track
      sat 4pt above the trial card's gradient border and the two read as one broken double line. */
@@ -1040,8 +999,6 @@ const styles = StyleSheet.create({
   /* Between the rail and the trail, so it describes the course whose lessons are on screen.
      Course accent rather than mutedForeground: grey subtext is the app-wide quality complaint
      this is meant to answer, not repeat. */
-  whyRow: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.two },
-  whyText: { fontSize: FontSize.caption, lineHeight: 17 },
   trailScroll: { flex: 1 },
   content: { alignItems: 'center', paddingHorizontal: Spacing.three, paddingBottom: BottomTabInset + Spacing.five },
   empty: { paddingTop: Spacing.six, alignItems: 'center', gap: Spacing.two },
@@ -1055,10 +1012,7 @@ const styles = StyleSheet.create({
     gap: 1,
     paddingHorizontal: Spacing.three,
     paddingVertical: 6,
-    borderWidth: 1,
-    borderRadius: Radius.lg,
   },
-  levelEyebrow: { letterSpacing: 1.4 },
   levelTitle: { textAlign: 'center' },
   sagaTrail: { position: 'relative', marginTop: 12 },
   sagaStop: { position: 'absolute' },
@@ -1078,10 +1032,11 @@ const styles = StyleSheet.create({
   specialFace: { borderRadius: 17 },
   nodeHighlight: {
     position: 'absolute',
-    top: 4,
-    left: 9,
-    right: 9,
-    height: 7,
+    // Inset to the circle's chord at this height; at 9pt it poked past the round face.
+    top: 6,
+    left: 16,
+    right: 16,
+    height: 6,
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: Radius.pill,
   },
@@ -1099,5 +1054,6 @@ const styles = StyleSheet.create({
   },
   lessonNumber: { color: '#F4F4F5' },
   nodeLabel: { position: 'absolute', width: SAGA_LABEL_WIDTH, alignItems: 'center' },
+  nodeTitle: { textAlign: 'center' },
   currentLabel: { marginTop: 2, fontSize: 10, lineHeight: 13 },
 });

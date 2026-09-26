@@ -46,7 +46,10 @@ assert.equal(
   1,
   'the permanent pathway must not become a decorative dashed rail',
 );
-includes('>Current</ThemedText>', 'the current lesson must retain its text label');
+// 2026-09-25 owner decision: the visible "Current" word was removed as clutter (the green play
+// node already marks it by shape, pinned above). What must survive is the NON-visual cue: the
+// active node's VoiceOver label still says which lesson is current.
+includes("? '. Start here'", 'the current lesson must still be announced to VoiceOver');
 includes('<SagaNodeMotion', 'a newly completed lesson must receive one earned node reaction');
 includes('<EarnedConnector', 'a newly completed lesson must draw the connector to the next node');
 includes('takeLessonTrailCelebration()', 'the completion animation must be consumed once on focus');
