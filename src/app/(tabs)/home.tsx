@@ -10,8 +10,8 @@
  * Every number on this screen comes from the store or the curriculum. Nothing here is mock.
  */
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -34,13 +34,16 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
+import { STREAK_DOT, WeekStreak } from '@/components/week-streak';
+import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
+import * as Haptics from 'expo-haptics';
+import { RewardPop } from '@/shared/motion/reward-pop';
+import { BottomTabInset, Radius, Spacing, FontSize, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { LessonArt } from '@/components/lesson-art';
-import { CourseMark } from '@/components/art/course-mark';
 import { hoursUntilReset, questsComplete, questsForToday } from '@/lib/quests';
 import { courseAccent, courseHeroFill } from '@/lib/course-accents';
-import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
+import { loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { expandSteps } from '@/lib/lesson-steps';
 import { hasMasteryChallenge } from '@/lib/mastery-challenge-model';
@@ -57,6 +60,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { recommendPathDetailed } from '@/lib/onboarding-path';
 import { lessonKey, useApp } from '@/lib/store';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { Reveal, RevealScrollView } from '@/shared/motion/scroll-reveal';
+import { LeagueCard } from '@/components/league-card';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { ProfileButton } from '@/components/profile-button';
 
@@ -128,8 +133,14 @@ const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
  * Every variant except 'none' also FOLDS IN the streak card and the quests header, because all
  * three currently state the same two facts. 'none' is today's screen untouched, as the control.
  */
-type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none';
-const BAND: Band = 'card';
+type Band = 'grid' | 'strip' | 'chips' | 'card' | 'none' | 'today';
+/*
+ * 'today' -- the chosen band (owner, 2026-09-23). One quiet card: streak line, the week, the daily
+ * goal as a bar, and the quests as a checklist. No sprites, one accent (primary); success green only
+ * on a finished quest. Every number is live store state. 'card' (one card, four stats) is the
+ * previous pick and stays available, spacing fix included.
+ */
+const BAND: Band = 'today';
 
 /**
  * <StatTile> — one cell of the Home grid.
@@ -276,7 +287,6 @@ export default function Home() {
   const goalMinutes = useApp((s) => s.dailyGoalMinutes());
   const completedLessons = useApp((s) => s.completedLessons);
   const activeCourseId = useApp((s) => s.activeCourseId);
-  const setActiveCourse = useApp((s) => s.setActiveCourse);
 
   /*
    * WHY THIS COURSE IS THE ONE.
@@ -424,9 +434,21 @@ export default function Home() {
       guidesToday: st.guidesToday,
       lastGameDay: st.lastGameDay,
       profile: st.profile,
+      streak: st.streak,
+      completedLessons: st.completedLessons,
     })),
   );
   const quests = useMemo(() => questsForToday(questState, now), [questState, now]);
+  /* A quest that turns done WHILE Home is mounted (back from a lesson) pops its check -- an earned
+     moment. Ones already done at mount just render, so opening Home never replays old wins. */
+  const questKey = (q: { kind: string; of: number }) => `${q.kind}:${String(q.of)}`;
+  const [doneAtMount] = useState(() => new Set(quests.filter((q) => q.done).map(questKey)));
+  const questsDoneNow = quests.filter((q) => q.done).length;
+  const prevDone = useRef(questsDoneNow);
+  useEffect(() => {
+    if (questsDoneNow > prevDone.current) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    prevDone.current = questsDoneNow;
+  }, [questsDoneNow]);
   const hoursLeft = useMemo(() => hoursUntilReset(now), [now]);
 
   /*
@@ -470,10 +492,27 @@ export default function Home() {
 
   const isDone = (i: number) => i <= todayIdx && todayIdx - i < streak;
 
+  /*
+   * STREAK CELEBRATION -- the one place confetti is used on Home. Fires when the streak goes UP
+   * while Home is mounted (tabs stay mounted, so returning from a lesson counts), never on first
+   * mount: a burst for a number you already had is noise. Reduced Motion gets the haptic only.
+   */
+  const reducedMotion = useReducedMotion();
+  const confettiRef = useRef<PIConfettiMethods>(null);
+  const [blastAt, setBlastAt] = useState({ x: 0, y: 0 });
+  const prevStreak = useRef(streak);
+  useEffect(() => {
+    if (streak > prevStreak.current) {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      confettiRef.current?.restart();
+    }
+    prevStreak.current = streak;
+  }, [streak]);
+
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={45} />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <RevealScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Greeting + profile. The pills that used to live here are gone — see below. */}
         <RiseIn>
           <View style={styles.headerRow}>
@@ -540,7 +579,7 @@ export default function Home() {
                    * to "H...", and a bigger base size makes that shrink-instead-of-truncate floor
                    * MORE load-bearing, not less.
                    */
-                  style={{ fontSize: FontSize.titleLg }}>{name ? `Hey there, ${name}` : 'Hey there'}</ThemedText>
+                  style={{ fontSize: FontSize.titleLg }}>{/* First name only: the full name ran into the avatar. */ name ? `Hey there, ${name.split(' ')[0]}` : 'Hey there'}</ThemedText>
               </SpringPressable>
             {/*
               * THE COIN PILL, THE STREAK PILL AND THE ATLAS CIRCLE ALL LEFT THIS ROW.
@@ -811,7 +850,7 @@ export default function Home() {
                         * and `glassFrost` below, so this adds nothing to design-rules-pin's hex
                         * ratchet.
                         */}
-                      {segmentKinds.length > 1 && (
+                      {segmentKinds.length > 1 && partsFilled > 0 && (
                         <SegmentRing
                           size={22}
                           /* 3, not the component's 4pt default. The trail draws this ring at
@@ -860,7 +899,7 @@ export default function Home() {
                   * Not pressable: the card already is.
                   */}
                 <View style={[styles.heroBar, { backgroundColor: theme.primary, borderBottomColor: theme.ctaDepth }]}>
-                  <ThemedText type="label" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>CONTINUE</ThemedText>
+                  <ThemedText type="bodyMedium" style={[styles.heroBarLabel, { color: theme.primaryForeground }]}>{heroVerb}</ThemedText>
                   <PlayGlyph scale={0.62} color={theme.primaryForeground} />
                 </View>
               </View>
@@ -929,6 +968,59 @@ export default function Home() {
             </View>
           )}
 
+          {BAND === 'today' && (
+            <Card depthColor={theme.primary + '8C'} style={[styles.todayCard, { borderColor: theme.primary + '40' }]}>
+              <View style={styles.todayBody}>
+              <View style={styles.todayHead}>
+                <ThemedText type="title" maxFontSizeMultiplier={1.6}>
+                  {streak === 0 ? 'Start your streak' : `${String(streak)} day streak`}
+                </ThemedText>
+              </View>
+              <WeekStreak
+                isDone={isDone}
+                todayIdx={todayIdx}
+                onRowLayout={(x, y, w) => setBlastAt({ x: x + ((todayIdx + 0.5) * w) / 7, y: y + 23 + (STREAK_DOT + 6) / 2 })}
+              />
+              <View style={[styles.todayQuests, { borderTopColor: theme.border }]}>
+                {quests.map((q) => (
+                  <View
+                    key={`${q.kind}:${String(q.of)}`}
+                    accessible
+                    accessibilityLabel={`${q.title}, ${q.done ? 'done' : `${String(q.at)} of ${String(q.of)}`}`}
+                    style={styles.todayQuest}>
+                    {/* Open quests show their own icon, not an empty ring; done is the green check. */}
+                    {q.done && !doneAtMount.has(questKey(q)) ? (
+                      <RewardPop>
+                        <View style={[styles.todayTick, { backgroundColor: theme.success, borderWidth: 1.5, borderColor: theme.success }]}>
+                          <UIcon name="check" size={11} color={theme.primaryForeground} />
+                        </View>
+                      </RewardPop>
+                    ) : (
+                      <View style={[styles.todayTick, q.done && { backgroundColor: theme.success, borderWidth: 1.5, borderColor: theme.success }]}>
+                        {q.done ? <UIcon name="check" size={11} color={theme.primaryForeground} /> : <PixelSpriteView sprite={QUEST_SPRITE[q.kind] ?? book} size={18} />}
+                      </View>
+                    )}
+                    <ThemedText type="bodyMedium" style={{ flex: 1, color: q.done ? theme.mutedForeground : theme.text }}>
+                      {q.title}
+                    </ThemedText>
+                    {q.of > 1 ? (
+                      <ThemedText type="small" style={{ color: q.done ? theme.success : theme.mutedForeground }}>
+                        {q.at}/{q.of}
+                      </ThemedText>
+                    ) : null}
+                  </View>
+                ))}
+              </View>
+              {!reducedMotion && (
+                <PIConfetti ref={confettiRef} autoplay={false} fadeOutOnEnd containerStyle={StyleSheet.absoluteFill}>
+                  <PIConfetti.Origin blastPosition={blastAt} count={70} colors={[theme.primary, theme.iconLilac, theme.streak, theme.success]}>
+                    <PIConfetti.Flake size={7} />
+                  </PIConfetti.Origin>
+                </PIConfetti>
+              )}
+              </View>
+            </Card>
+          )}
           {/* Folded into the band in every variant but the control. */}
           {BAND === 'none' && (<>
           <SpringPressable
@@ -1010,62 +1102,15 @@ export default function Home() {
           *
           * `See all` still goes to /courses, which is where the locked and coming-soon ones live.
           */}
-        <View style={styles.sectionHead}>
-          <ThemedText type="label" themeColor="mutedForeground">YOUR PATH</ThemedText>
-          {/* hitSlop 13 vertical, not 8: the label renders 18pt tall, so 8 gave a 34pt target —
-              under both Apple's 44pt and WCAG 2.5.8's 24pt floor. 18 + 13*2 = 44. */}
-          <SpringPressable haptic={false} onPress={() => router.push('/courses')} hitSlop={{ top: 13, bottom: 13, left: 8, right: 8 }}>
-            <ThemedText type="smallBold" style={{ color: theme.iconLilac }}>See all</ThemedText>
-          </SpringPressable>
-        </View>
-        <View style={styles.pathStack}>
-          {COURSES.filter((c) => isCourseAvailable(c.id)).map((c) => {
-            const done = completedLessons.filter((id) => id.startsWith(`${c.id}:`)).length;
-            const on = c.id === activeCourseId;
-            const tint = courseAccent(c.id);
-            return (
-              <SpringPressable
-                key={c.id}
-                scaleTo={0.985}
-                onPress={() => setActiveCourse(c.id)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: on }}
-                accessibilityLabel={`${c.title}. ${String(done)} of ${String(c.totalLessons)} lessons done.${on ? ' Currently selected.' : ''}`}>
-                {/*
-                  * EACH ROW WEARS ITS OWN COURSE COLOUR. Three identical near-black cards read as
-                  * one repeated thing; a translucent wash of each course's accent, like the quiz
-                  * app's lavender / blue / peach rows, makes them three separate blocks. 1F is 12%
-                  * alpha -- enough to tell them apart, dark enough that white text stays legible.
-                  *
-                  * "0 of 25 lessons" is gone. The track underneath already draws that fraction, so
-                  * the sentence was the bar reading itself out loud. A compact 0/25 at the right
-                  * edge keeps the number without the words, the way the quiz app's rows do.
-                  */}
-                <Card style={[styles.pathCard, { backgroundColor: tint + '1F', borderColor: tint + (on ? '80' : '33'), borderWidth: 1 }]}>
-                  <CourseMark id={c.id} size={34} />
-                  <View style={{ flex: 1 }}>
-                    <ThemedText type="bodyMedium" maxFontSizeMultiplier={2} numberOfLines={2}>{c.title}</ThemedText>
-                    {/*
-                      * A NEUTRAL GROOVE, NOT A TINTED ONE. The track was `tint + '33'` sitting on
-                      * a `tint + '1F'` card, so an EMPTY track rendered as a solid course-coloured
-                      * line across the full width -- three of them stacked, each reading as a
-                      * finished course while the counter beside it said 0/25. The fill is drawn
-                      * in the same hue, so there was no value difference left to carry the one
-                      * thing the control exists to show. Neutral groove, coloured fill: empty now
-                      * reads empty.
-                      */}
-                    <View style={[styles.questTrack, { backgroundColor: 'rgba(255,255,255,0.10)' }]}>
-                      <View style={[styles.questFill, { backgroundColor: tint, width: `${Math.round((done / c.totalLessons) * 100)}%` }]} />
-                    </View>
-                  </View>
-                  <ThemedText type="smallBold" maxFontSizeMultiplier={1.6} style={{ color: tint }}>
-                    {done}/{c.totalLessons}
-                  </ThemedText>
-                </Card>
-              </SpringPressable>
-            );
-          })}
-        </View>
+        {/*
+          * WHERE YOU STAND THIS WEEK. This slot held the course list: first every available course,
+          * then a trimmed one; the owner rejected both as repeating the hero and the Learn tab. The
+          * league card says something nothing else on Home does. It rises in the first time it
+          * scrolls into view (owner: selective reveals).
+          */}
+        <Reveal>
+          <LeagueCard />
+        </Reveal>
 
         {/*
          * THE GAMES CARD WAS REMOVED — "remove the games button and CTA completely from the main
@@ -1080,7 +1125,7 @@ export default function Home() {
          * modal on Home is gone.
          */}
 
-      </ScrollView>
+      </RevealScrollView>
 
       {/* Crossing a tier is the rarest thing a user does — six times in a lifetime — and until now
           it happened in total silence. Mounted last so it sits above everything on Home. */}
@@ -1114,7 +1159,7 @@ const styles = StyleSheet.create({
   tileValue: { fontSize: FontSize.titleSm, lineHeight: 30 },
   statGrid: { gap: Spacing.three, marginTop: Spacing.four },
   heroBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginTop: Spacing.four, marginHorizontal: -Spacing.three, marginBottom: -Spacing.four, paddingVertical: Spacing.three, borderBottomWidth: 5 },
-  heroBarLabel: { letterSpacing: 1.4 },
+  heroBarLabel: { fontFamily: Fonts.heading, fontSize: 17 },
   /* rgba, matching heroWhy above: this sits on the course block, and the block's own colour
      should show through the label the way it does through the pill. */
   heroActionLabel: { color: 'rgba(255,255,255,0.72)', letterSpacing: 1.4 },
@@ -1156,6 +1201,14 @@ const styles = StyleSheet.create({
      would also push the flame away from the words it belongs to. */
   streakAtlas: { marginLeft: 'auto' },
   streakCard: { paddingVertical: Spacing.three },
+  // No marginTop, same reason as statCard: content already spaces sections by Spacing.three, and
+  // four on top left a 40pt hole under the hero.
+  todayCard: { paddingVertical: Spacing.four },
+  todayBody: { gap: Spacing.three },
+  todayHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.two },
+  todayQuests: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.two },
+  todayQuest: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: 6 },
+  todayTick: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   streakTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   /* lineHeight pinned to the size: `display` ships a 40pt line box, which left a visible dead
      band under the number inside a card built to be compact. */

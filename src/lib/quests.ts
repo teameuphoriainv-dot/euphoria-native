@@ -61,7 +61,7 @@ export type QuestState = Pick<
   | 'guidesToday'
   | 'lastGameDay'
   | 'profile'
->;
+> & Partial<Pick<AppState, 'streak' | 'completedLessons'>>;
 
 export type QuestKind = 'lesson' | 'goal' | 'trade' | 'guide' | 'game';
 
@@ -133,30 +133,30 @@ export function questsForToday(s: QuestState, now: Date): Quest[] {
 
   const goalQuest = q('goal', `Reach your ${String(goal)}-minute goal`, minutes, goal);
 
-  const rotating: Quest[] = [
-    q('lesson', 'Finish a lesson', lessonsToday, 1),
-    q('lesson', 'Finish 3 lessons', lessonsToday, 3),
-    q('trade', 'Place a paper trade', tradesToday, 1),
-    q('trade', 'Place 2 paper trades', tradesToday, 2),
-    q('guide', 'Read a guide', guidesToday, 1),
-    q('game', 'Play a game', playedGame, 1),
-  ];
-
   /*
-   * The goal quest plus TWO distinct picks from the six.
-   *
-   * The goal is always present because it is the only quest measuring the commitment the user
-   * themselves set; rotating it out would make their own daily target invisible on some days.
-   *
-   * The two picks must be DISTINCT, and the arithmetic makes that a property rather than a hope:
-   * the second index is `i + 1 + (k mod (n-1))` where k >= 0, so the offset lands in [1, n-1] and
-   * can never be 0 mod n. A shuffle would need a seeded PRNG and a loop to say the same thing.
-   * The second seed is drawn from a salted key so the two picks do not move in lockstep.
+   * PERSONALISED, not rotated. The goal stays (it is the user's own commitment). The second quest
+   * is what this user's progress says matters most today; the third is a daily-seeded pick from
+   * what they have unlocked, so the list still varies. Ceiling: rules, not a model -- add signals
+   * (weak units, onboarding goal) when there is data for them.
    */
-  const n = rotating.length;
-  const i = seedFor(today) % n;
-  const j = (i + 1 + (seedFor(`${today}b`) % (n - 1))) % n;
-  return [goalQuest, rotating[i], rotating[j]];
+  const streak = s.streak ?? 0;
+  const lessonsDone = s.completedLessons?.length ?? 0;
+  const everTraded = s.valueHistory.length > 0;
+
+  const primary =
+    lessonsDone === 0 ? q('lesson', 'Finish your first lesson', lessonsToday, 1)
+    : streak > 0 ? q('lesson', `Keep your ${String(streak)}-day streak`, lessonsToday, 1)
+    : q('lesson', 'Finish a lesson', lessonsToday, 1);
+
+  const pool = [
+    lessonsDone >= 3 ? q('lesson', 'Finish 2 lessons', lessonsToday, 2) : null,
+    everTraded ? q('trade', 'Place 2 paper trades', tradesToday, 2)
+      : lessonsDone >= 2 ? q('trade', 'Place your first paper trade', tradesToday, 1) : null,
+    q('guide', 'Read a guide', guidesToday, 1),
+    lessonsDone >= 1 ? q('game', 'Play a game', playedGame, 1) : null,
+  ].filter((x): x is Quest => x !== null);
+
+  return [goalQuest, primary, pool[seedFor(today) % pool.length]];
 }
 
 /** All of today's quests done. Feeds the reward hook-up in home.tsx. */
