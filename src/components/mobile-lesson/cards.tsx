@@ -1,12 +1,22 @@
 /**
  * The four static card bodies: the claim, the word, the chart and the takeaway.
  *
- * Each one is a single idea on a single screen. There is no scroll view in here on purpose. If a
- * card needs to scroll, the compressor was too generous and the fix belongs in
- * `src/lib/mobile-lesson/overrides.ts`, not in a taller card. `scripts/mobile-deck-audit.mjs`
- * prints exactly which cards are over budget so that queue is visible rather than theoretical.
+ * Each one is a single idea on a single screen. If a card's TEXT runs long, the compressor was too
+ * generous and the fix belongs in `src/lib/mobile-lesson/overrides.ts`, not in a taller card.
+ * `scripts/mobile-deck-audit.mjs` prints exactly which cards are over budget.
+ *
+ * THE FRAME SCROLLS ANYWAY, AS A FLOOR, NOT AS THE DESIGN. Authored charts are not compressible:
+ * a flow of eleven steps is eleven rows. Before <CardFrame>, `centre` was a flex:1 column with
+ * justifyContent centre and nothing else, so a chart taller than the stage centred on it and spilled
+ * out of BOTH ends. Reproduced on the iPhone 17 simulator, applied-accounting lesson 5, "From Net
+ * Income to Free Cash Flow": the card label went under the lesson header and the chart's last rows
+ * and its "Tap any of these" line painted over the deck's Back button. A card that fits is laid out
+ * exactly as before (flexGrow + centre); only a card that cannot fit scrolls, inside its own stage.
  */
-import { StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
 import { AuthoredSvg } from '@/components/authored-svg';
@@ -24,11 +34,60 @@ function useEnter(reduced: boolean) {
   };
 }
 
+/**
+ * Centres a card that fits and scrolls one that does not, never painting past its stage.
+ *
+ * The indicator only shows when there is somewhere to scroll to, so a card that fits looks exactly
+ * like the old static column.
+ */
+function CardFrame({ children }: { children: ReactNode }) {
+  const [frame, setFrame] = useState(0);
+  const [content, setContent] = useState(0);
+  const overflows = frame > 0 && content > frame + 1;
+  /*
+   * Rows that scroll under the deck's dots or down into Back fade out rather than being sliced by
+   * the frame edge. A MASK, not a painted gradient: the lesson sits on the starfield, so any solid
+   * colour laid over the edge would show as a band. The mask is fully opaque when the card fits,
+   * so a fitting card renders exactly as it did before; it stays mounted either way so the scroll
+   * view is never remounted (and never re-measured) when `overflows` flips.
+   */
+  const fade = overflows && frame > 0 ? Math.min(0.12, CARD_EDGE_FADE / frame) : 0;
+  return (
+    <MaskedView
+      style={styles.frame}
+      maskElement={
+        <LinearGradient
+          style={StyleSheet.absoluteFill}
+          colors={['transparent', '#000', '#000', 'transparent']}
+          locations={fade > 0 ? [0, fade, 1 - fade, 1] : [0, 0.0001, 0.9999, 1]}
+        />
+      }>
+      <ScrollView
+        style={styles.frame}
+        contentContainerStyle={[styles.centre, overflows && styles.centreScrolling]}
+        showsVerticalScrollIndicator={overflows}
+        scrollEnabled={overflows}
+        bounces={overflows}
+        onLayout={(e) => setFrame(e.nativeEvent.layout.height)}
+        onContentSizeChange={(_w, h) => setContent(h)}>
+        {children}
+      </ScrollView>
+    </MaskedView>
+  );
+}
+
+/** How far the fade reaches at each edge of a scrolling card, in points. */
+const CARD_EDGE_FADE = 28;
+
+/** Case- and punctuation-blind, because the deck label and the chart title are authored apart. */
+const sameWords = (a?: string, b?: string) =>
+  !!a && !!b && a.toLowerCase().replace(/[^a-z0-9]/g, '') === b.toLowerCase().replace(/[^a-z0-9]/g, '');
+
 export function IdeaCard({ card }: { card: Extract<MobileCard, { kind: 'idea' }> }) {
   const reduced = useReducedMotion();
   const enter = useEnter(reduced);
   return (
-    <View style={styles.centre}>
+    <CardFrame>
       <Animated.View entering={enter.art}>
         <PixelScene scene={card.scene} size={128} />
       </Animated.View>
@@ -36,7 +95,7 @@ export function IdeaCard({ card }: { card: Extract<MobileCard, { kind: 'idea' }>
         <ThemedText style={styles.title}>{card.title}</ThemedText>
         <ThemedText style={styles.body}>{card.body}</ThemedText>
       </Animated.View>
-    </View>
+    </CardFrame>
   );
 }
 
@@ -51,7 +110,7 @@ export function TermCard({ card }: { card: Extract<MobileCard, { kind: 'term' }>
   const reduced = useReducedMotion();
   const enter = useEnter(reduced);
   return (
-    <View style={styles.centre}>
+    <CardFrame>
       <Animated.View entering={enter.art}>
         <PixelScene scene={card.scene} size={112} />
       </Animated.View>
@@ -60,7 +119,7 @@ export function TermCard({ card }: { card: Extract<MobileCard, { kind: 'term' }>
         <ThemedText style={styles.term}>{card.term}</ThemedText>
         <ThemedText style={styles.body}>{card.plain}</ThemedText>
       </Animated.View>
-    </View>
+    </CardFrame>
   );
 }
 
@@ -75,13 +134,15 @@ export function TermCard({ card }: { card: Extract<MobileCard, { kind: 'term' }>
 export function ChartCard({ card }: { card: Extract<MobileCard, { kind: 'chart' }> }) {
   const reduced = useReducedMotion();
   return (
-    <View style={styles.centre}>
-      <ThemedText style={styles.kicker}>{card.title}</ThemedText>
+    <CardFrame>
+      {/* The kicker repeats the chart's own title on most chart cards ("COMPOUNDING $10,000 AT
+          10%" over "Compounding $10,000 at 10%"). Said once, by the chart. */}
+      {sameWords(card.title, card.visual?.title) ? null : <ThemedText style={styles.kicker}>{card.title}</ThemedText>}
       <Animated.View entering={reduced ? undefined : FadeIn.duration(280)} style={styles.chartWrap}>
         {card.visual ? <LessonVisual visual={card.visual} /> : null}
         {!card.visual && card.svg ? <AuthoredSvg xml={card.svg} label={card.title} /> : null}
       </Animated.View>
-    </View>
+    </CardFrame>
   );
 }
 
@@ -89,7 +150,7 @@ export function TakeawayCard({ card }: { card: Extract<MobileCard, { kind: 'take
   const reduced = useReducedMotion();
   const enter = useEnter(reduced);
   return (
-    <View style={styles.centre}>
+    <CardFrame>
       <Animated.View entering={enter.art}>
         <PixelScene scene={card.scene} size={120} />
       </Animated.View>
@@ -97,18 +158,22 @@ export function TakeawayCard({ card }: { card: Extract<MobileCard, { kind: 'take
         <ThemedText style={styles.kicker}>Remember this</ThemedText>
         <ThemedText style={styles.takeaway}>{card.body}</ThemedText>
       </Animated.View>
-    </View>
+    </CardFrame>
   );
 }
 
 const styles = StyleSheet.create({
+  frame: { flex: 1 },
   centre: {
-    flex: 1,
+    flexGrow: 1,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 24,
     paddingHorizontal: 24,
   },
+  /* Room for the edge fades, so the first and last rows can scroll fully clear of them. */
+  centreScrolling: { paddingVertical: CARD_EDGE_FADE },
   block: { alignItems: 'center', gap: 10 },
   chartWrap: { width: '100%' },
   title: {

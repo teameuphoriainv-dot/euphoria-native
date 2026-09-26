@@ -11,7 +11,6 @@
  */
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, InteractionManager, useWindowDimensions } from 'react-native';
@@ -643,6 +642,10 @@ export default function Lesson() {
         }
         if (found && qa === 'complete') setIdx(expandSteps(found.steps).length + 1);
         if (found && qa === 'heart-wall') setOutOfHearts(true);
+        // Dev-only (`qa` is __DEV__-gated above): `qa=step-3` opens straight onto screen 3, so a
+        // layout fix deep in a lesson can be checked on the simulator without tapping through it.
+        const qaStep = found && qa?.startsWith('step-') ? Number(qa.slice(5)) : NaN;
+        if (found && Number.isInteger(qaStep) && qaStep >= 0) setIdx(Math.min(qaStep, expandSteps(found.steps).length));
         openedAt.current = Date.now();
         setCorrectSoFar(0);
         setRecentMistakes([]);
@@ -1244,7 +1247,7 @@ export default function Lesson() {
    */
   const atlasLift = footerShown
     ? (footerH || FLOOR_LIFT) + ATLAS_GAP
-    : norm?.kind === 'deck'
+    : norm?.kind === 'deck' || norm?.kind === 'hook'
       ? (deckFooterH || FLOOR_LIFT) + ATLAS_GAP
       : ownsItsCta
         ? (footerH || FLOOR_LIFT) + ATLAS_GAP
@@ -1309,9 +1312,21 @@ export default function Lesson() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
 
-      <View style={[styles.header, { borderBottomColor: 'rgba(139,92,246,0.1)' }]}>
-        <BlurView intensity={24} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
-        <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.headerTint]} />
+      {/*
+        * ONE SURFACE FROM THE DYNAMIC ISLAND DOWN.
+        *
+        * This bar used to be its own box: a blur, a 70% tint and a 1pt border, starting 62pt below
+        * the top of the screen. The status bar band above it is the bare starfield, so the phone
+        * showed two stacked bands with a hard line under the second, and the island floated over
+        * the wrong one. Nothing scrolls beneath this bar (the body is laid out BELOW it), so the
+        * blur had nothing to blur and the box was pure decoration. Removed.
+        *
+        * THE BAR IS CENTRED UNDER THE ISLAND. The left slot (close + back) and the right slot (the
+        * count) are the same fixed width, so the progress column is centred on the screen, which
+        * is where the island is. The left slot keeps its width when Back is hidden, so the bar no
+        * longer slides 52pt sideways on the first Continue of every lesson.
+        */}
+      <View style={styles.header}>
         <View style={styles.lessonNav}>
           <SpringPressable haptic={false} scaleTo={0.97} onPress={requestExit} style={styles.close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close lesson">
             <UIcon name="close" size={22} color={theme.mutedForeground} />
@@ -1367,15 +1382,16 @@ export default function Lesson() {
           */}
         {segmented ? (
           <View style={styles.barColumn}>
-            {eyebrow ? (
-              /* Names the part the learner is IN. The bar is decorative and hidden from VoiceOver,
-                 and `N/M` counts screens, so without this nothing on the header says which part
-                 this is. Sentence case, not shouted: the app retired 858 shouted strings. */
-              <ThemedText type="small" style={styles.eyebrow} numberOfLines={1}>{eyebrow}</ThemedText>
-            ) : null}
             <View style={styles.barRow}>
               <LessonSegmentBar fills={segmentedProgress(segments, idx, phase)} />
             </View>
+            {eyebrow ? (
+              /* Names the part the learner is IN. The bar is decorative and hidden from VoiceOver,
+                 and `N/M` counts screens, so without this nothing on the header says which part
+                 this is. Sentence case, not shouted: the app retired 858 shouted strings.
+                 UNDER the bar, centred, so the bar is the first thing below the island. */
+              <ThemedText type="small" style={styles.eyebrow} numberOfLines={1}>{eyebrow}</ThemedText>
+            ) : null}
           </View>
         ) : (
           <View style={styles.track}>
@@ -1444,7 +1460,7 @@ export default function Lesson() {
                 ) : null}
               </>
             )}
-            {norm.kind === 'hook' && <HookOpener spec={norm.spec} onComplete={advance} />}
+            {norm.kind === 'hook' && <HookOpener spec={norm.spec} onComplete={advance} onFooterHeight={setDeckFooterH} />}
             {/*
               * The mobile deck. Replaces the authored teachingSlide or interactiveGraph on iOS and
               * ships its own Back and Continue, so it is in OWN_CTA_STEPS and the footer stays out
@@ -1980,6 +1996,9 @@ const CHECK_BAR_GAP = 16;
  *  top of these — see `ownsItsCta`. */
 const OWN_CTA_STEPS = new Set(['deck', 'hook', 'stakes', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
 
+/** Close (40) + gap (4) + back (40): the left slot, mirrored by the count on the right. */
+const NAV_SLOT = 84;
+
 /** Fixed-width digits, so a heart or hint count does not shift the header as it drops. */
 const NUM_L = { fontVariant: ['tabular-nums' as const] };
 
@@ -1996,10 +2015,10 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   hintBtn: { minHeight: 32, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
   loadingShape: { paddingHorizontal: Spacing.three, paddingTop: Spacing.five, gap: Spacing.three },
-  header: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, zIndex: 20, borderBottomWidth: 1, overflow: 'hidden' },
-  headerTint: { backgroundColor: 'rgba(7,3,15,0.7)' },
+  header: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, zIndex: 20 },
   practiceOverlay: { position: 'absolute', zIndex: 70, top: 56, left: 0, right: 0, bottom: 0 },
-  lessonNav: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  /* NAV_SLOT wide on BOTH sides (see stepLabel), which is what centres the bar under the island. */
+  lessonNav: { width: NAV_SLOT, flexDirection: 'row', alignItems: 'center', gap: 4 },
   close: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   track: { flex: 1, height: 8, borderRadius: 999, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.08)' },
   /* The segmented bar's slot. `flex: 1` takes the same width the single track had, so the header
@@ -2013,7 +2032,7 @@ const styles = StyleSheet.create({
      the progress bar on the first Continue of every split lesson, and again on the way into the
      completion screen. Computed from these style objects rather than photographed. minHeight and
      not height, so the eyebrow can still grow at large Dynamic Type instead of being clipped. */
-  barColumn: { flex: 1, gap: 4, minHeight: 24, justifyContent: 'flex-end' },
+  barColumn: { flex: 1, gap: 5, minHeight: 25, justifyContent: 'flex-start' },
   /* An explicit row of the track's own height. The bar's outer view is `flex: 1`, which in a
      content-sized column resolves against nothing; giving it a row to fill is what keeps the
      tracks 8pt rather than collapsing them to zero. */
@@ -2023,15 +2042,19 @@ const styles = StyleSheet.create({
      White at 0.6 measures 7.32:1 there. `LessonColors.mutedForeground` (#6F6F7B), the grey the
      step label beside it uses, measures 4.09:1 on the same composite and is BELOW the 4.5 floor,
      so reusing it would have added a second sub-floor label rather than one. rgba and not a new
-     hex, which is both the header's own idiom (headerTint, track) and the design-rules ratchet. */
-  eyebrow: { color: 'rgba(255,255,255,0.6)', fontSize: 11, lineHeight: 12, letterSpacing: 0.2 },
+     hex, which is both the header's own idiom (track) and the design-rules ratchet. Since the
+     header lost its tint (2026-09-24) it composites straight onto #09090B, where white at 0.6 is
+     still well above the floor, so the step count now uses the same value instead of #6F6F7B. */
+  eyebrow: { color: 'rgba(255,255,255,0.6)', fontSize: 11, lineHeight: 12, letterSpacing: 0.2, textAlign: 'center' },
   fill: { height: 8, borderRadius: 999, overflow: 'hidden' },
-  stepLabel: { width: 60, flexShrink: 0, textAlign: 'right', color: '#6F6F7B', fontSize: 12, lineHeight: 16 },
-  body: { flex: 1, paddingHorizontal: 16, paddingTop: 32, backgroundColor: 'rgba(255,255,255,0.02)', borderLeftWidth: 1, borderRightWidth: 1, borderColor: 'rgba(139,92,246,0.08)' },
+  stepLabel: { width: NAV_SLOT, flexShrink: 0, textAlign: 'right', color: 'rgba(255,255,255,0.6)', fontSize: 12, lineHeight: 16 },
+  /* No panel tint and no side rules: under a borderless header they drew a box whose top edge was
+     the header's old bottom line, which is the seam this pass removes. */
+  body: { flex: 1, paddingHorizontal: 16, paddingTop: 32 },
   // The web mounts WarmupScreen directly in the post-header viewport. LessonWarmup already owns
   // the canonical 24px horizontal / 40px vertical insets, so the normal step surface must not add
   // another 16px gutter and 32px top inset around it.
-  warmupBody: { paddingHorizontal: 0, paddingTop: 0, backgroundColor: 'transparent', borderLeftWidth: 0, borderRightWidth: 0 },
+  warmupBody: { paddingHorizontal: 0, paddingTop: 0 },
   stepBody: { flex: 1 },
   /** Interactive steps SCROLL. As a plain centred View, any step taller than the space
    *  available overflowed symmetrically — so its bottom slid underneath the pinned footer.

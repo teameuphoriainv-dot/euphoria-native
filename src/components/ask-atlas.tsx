@@ -127,7 +127,7 @@ export function LessonAtlasButton({ context }: { topic: string; context: AtlasLe
             text={says}
             delay={PROACTIVE_SHOW_AT_MS}
             tail="bottom"
-            tailAlign="center"
+            tailAlign="right"
             maxWidth={230}
             textStyle={styles.lessonSpeechText}
           />
@@ -185,10 +185,18 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
   },
+  /*
+   * ABOVE Atlas, not beside him. Beside him (right 64, bottom 10) the bubble shared Atlas's own
+   * height, and Atlas rests on the CTA line on every step that draws its own button: reproduced on
+   * the iPhone 17 simulator, investing-fundamentals lesson 3, where "Stuck on anything? Tap me."
+   * sat on top of the Begin button for its whole 7 seconds. Above him it can only cover content,
+   * which is scrolled and not tapped, and its tail now points at the mascot that is speaking.
+   */
   lessonSpeech: {
     position: 'absolute',
-    right: 64,
-    bottom: 10,
+    right: 0,
+    bottom: 62,
+    alignItems: 'flex-end',
     width: 230,
     maxWidth: 230,
   },

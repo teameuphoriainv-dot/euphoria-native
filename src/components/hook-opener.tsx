@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, Keyframe, useReducedMotion } from 'react-native-reanimated';
 
@@ -10,7 +11,24 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { HookOpenerSpec } from '@/lib/lesson-steps';
 
-export function HookOpener({ spec, onComplete }: { spec: HookOpenerSpec; onComplete: () => void }) {
+/**
+ * BEGIN IS PINNED, like Continue and Got it on every other screen of the lesson.
+ *
+ * It used to be the last thing in the scroll, so it landed at a different height on every one of
+ * the 300 hooks: mid-screen on a short one, half below the bottom edge on applied-accounting 5. The
+ * floating Atlas rests at a fixed spot, so his "Stuck on anything? Tap me." bubble (which fires on
+ * this exact screen, step index 0) covered Begin on some hooks whichever side of him it was drawn.
+ * Both were reproduced on the iPhone 17 simulator. Pinned, Begin is always in the one lane the
+ * learner's thumb already knows, and `onFooterHeight` lets the lesson lift Atlas above it the same
+ * way it does for the deck.
+ */
+export function HookOpener({ spec, onComplete, onFooterHeight }: {
+  spec: HookOpenerSpec;
+  onComplete: () => void;
+  /** The pinned footer's measured height, so the floating Atlas can sit above Begin. 0 on unmount. */
+  onFooterHeight?: (height: number) => void;
+}) {
+  useEffect(() => () => onFooterHeight?.(0), [onFooterHeight]);
   const theme = useTheme();
   const reduced = useReducedMotion();
   const textEntrance = reduced ? FadeIn.duration(0) : FadeInUp.duration(500);
@@ -23,6 +41,7 @@ export function HookOpener({ spec, onComplete }: { spec: HookOpenerSpec; onCompl
   const outcomeEntrance = reduced ? FadeIn.duration(0) : FadeInUp.delay(500).duration(500);
 
   return (
+    <View style={styles.shell}>
     <ScrollView
       style={styles.scroll}
       showsVerticalScrollIndicator={false}
@@ -44,14 +63,21 @@ export function HookOpener({ spec, onComplete }: { spec: HookOpenerSpec; onCompl
 
         <Animated.View entering={outcomeEntrance} style={styles.outcome}>
           <ThemedText type="small" style={styles.center}>{spec.outcome}</ThemedText>
-          <Button label="Begin" onPress={onComplete} style={styles.begin} />
         </Animated.View>
       </View>
     </ScrollView>
+    <Animated.View
+      entering={outcomeEntrance}
+      style={styles.footer}
+      onLayout={(e) => onFooterHeight?.(e.nativeEvent.layout.height)}>
+      <Button label="Begin" onPress={onComplete} />
+    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: { flex: 1 },
   scroll: { flex: 1 },
   content: {
     flexGrow: 1,
@@ -74,5 +100,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
   },
   outcome: { width: '100%', alignItems: 'center', gap: Spacing.three },
-  begin: { minWidth: 160 },
+  /* The deck footer's own geometry (card-deck.tsx), so Begin, Got it and Continue share one lane. */
+  footer: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12 },
 });
