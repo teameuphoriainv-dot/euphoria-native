@@ -14,6 +14,7 @@ import {
 } from '@/lib/pixel';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
+import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { BottomTabInset, Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -38,11 +39,11 @@ import { RevealScrollView } from '@/shared/motion/scroll-reveal';
  * balance, Credit Climb is `ladder` because it is a climb, Black Swan is `crack` because the point
  * of a black swan is the break, not the bird.
  */
-const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean; comingSoon?: boolean }[] = [
-  { name: 'Term Match', sprite: lightbulb, route: '/games/term-match' },
-  { name: 'Trend Master', sprite: chartUp, route: '/games/trend-master' },
-  { name: 'Money 2048', sprite: stackCash, route: '/games/money-2048' },
-  { name: 'Budget Balancer', sprite: scales, route: '/games/budget-balancer' },
+const GAMES: { name: string; sprite: PixelSprite; route?: string; hook?: string; pro?: boolean; comingSoon?: boolean }[] = [
+  { name: 'Term Match', sprite: lightbulb, route: '/games/term-match', hook: 'Match money words to what they mean.' },
+  { name: 'Trend Master', sprite: chartUp, route: '/games/trend-master', hook: 'Call the next move on a real-looking chart.' },
+  { name: 'Money 2048', sprite: stackCash, route: '/games/money-2048', hook: 'Merge coins into bigger savings.' },
+  { name: 'Budget Balancer', sprite: scales, route: '/games/budget-balancer', hook: 'Make a month of money add up.' },
   { name: 'Credit Climb', sprite: ladder, comingSoon: true },
   { name: 'Market Reaction', sprite: bolt, comingSoon: true },
   { name: 'Bias Busted', sprite: magnifier, pro: true },
@@ -55,8 +56,13 @@ const GAMES: { name: string; sprite: PixelSprite; route?: string; pro?: boolean;
 ];
 
 /** Status is said ONCE, by the section heading, instead of a 9pt chip on every tile. */
+const PLAYABLE = GAMES.filter((g) => g.route);
+/** Today's featured game: rotates daily through the playable ones (local day). */
+const FEATURED = PLAYABLE[Math.floor((Date.now() - new Date().getTimezoneOffset() * 60_000) / 86_400_000) % PLAYABLE.length];
+
 const SECTIONS = [
-  { title: 'Play now', games: GAMES.filter((g) => g.route) },
+  // Play now leads with one featured hero; the rest sit three across under it.
+  { title: 'Play now', games: PLAYABLE.filter((g) => g !== FEATURED) },
   { title: 'Soon', games: GAMES.filter((g) => g.comingSoon) },
 ];
 /** Pro is ONE card, not a wall of locked tiles: nine dead tiles were the heaviest thing here. */
@@ -81,12 +87,24 @@ export default function Games() {
         {SECTIONS.map((sec) => (
           <View key={sec.title}>
             <ThemedText type="heading" style={styles.section}>{sec.title}</ThemedText>
-            <View style={styles.grid}>
+            {sec.title === 'Play now' ? (
+              <RiseIn>
+                <Card tint={theme.primary} style={styles.hero}>
+                  <View style={[styles.heroIcon, plate]}>
+                    <PixelSpriteView sprite={FEATURED.sprite} size={56} />
+                  </View>
+                  <ThemedText type="title" style={[styles.center, { fontSize: FontSize.titleSm }]}>{FEATURED.name}</ThemedText>
+                  <ThemedText type="body" themeColor="mutedForeground" style={styles.center}>{FEATURED.hook}</ThemedText>
+                  <SlabButton label="Play" full onPress={() => router.push(FEATURED.route as never)} style={{ marginTop: Spacing.two }} />
+                </Card>
+              </RiseIn>
+            ) : null}
+            <View style={[styles.grid, sec.title === 'Play now' && { marginTop: Spacing.three }]}>
               {sec.games.map((g) => {
                 const inactive = !g.route;
                 const i = n++;
                 return (
-                  <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={styles.cell}>
+                  <RiseIn key={g.name} delay={Math.min(i * 40, STAGGER_CAP)} style={sec.title === 'Play now' ? styles.cellThird : styles.cell}>
                     <SpringPressable
                       accessibilityLabel={`${g.name}${g.comingSoon ? ', coming soon, not playable yet' : g.pro ? ', Pro, locked' : ''}`}
                       accessibilityHint={g.route ? 'Opens the game' : 'Shows when this game is available'}
@@ -168,6 +186,10 @@ const styles = StyleSheet.create({
   section: { marginTop: Spacing.four, marginBottom: Spacing.two },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Spacing.three },
   cell: { width: '48%' },
+  cellThird: { width: '31%' },
+  hero: { alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.four },
+  heroIcon: { width: 88, height: 88, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
+  center: { textAlign: 'center' },
   gameCard: { alignItems: 'center', paddingVertical: Spacing.four },
   iconBubble: { width: 68, height: 68, borderRadius: Radius.lg, alignItems: 'center', justifyContent: 'center' },
   dim: { opacity: 0.6 },
