@@ -1019,7 +1019,8 @@ export default function Home() {
                     <ThemedText type="bodyMedium" style={{ flex: 1, color: q.done ? theme.mutedForeground : theme.text }}>
                       {q.title}
                     </ThemedText>
-                    {q.of > 1 ? (
+                    {/* No leading zero on day one: the count appears once there is progress. */}
+                    {q.of > 1 && q.at > 0 ? (
                       <ThemedText type="small" style={{ color: q.done ? theme.success : theme.mutedForeground }}>
                         {q.at}/{q.of}
                       </ThemedText>

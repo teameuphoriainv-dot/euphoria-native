@@ -121,13 +121,14 @@ export function PortfolioChart() {
   return (
     <View style={styles.wrap}>
       <View style={styles.headRow}>
-        {delta ? (
+        {/* A zero change is neutral, never a green +$0.00 (honest, and no leading zero). */}
+        {delta && !flat ? (
           <ThemedText type="smallBold" style={{ color }}>
             {up ? '+' : '−'}{money(Math.abs(delta.abs))} ({Math.abs(delta.pct).toFixed(2)}%) {range2.label}
           </ThemedText>
         ) : (
           <ThemedText type="small" themeColor="mutedForeground">
-            {history.length === 0 ? 'Your chart builds as you trade' : `Nothing ${range2.label}`}
+            {history.length === 0 ? 'Your chart builds as you trade' : 'No change yet'}
           </ThemedText>
         )}
       </View>

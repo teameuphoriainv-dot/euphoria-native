@@ -139,11 +139,17 @@ export default function Games() {
                 <UIcon name="lock" size={16} color={theme.mutedForeground} />
               </View>
               <View style={styles.proStrip}>
-                {PRO.map((g) => (
+                {/* Four readable icons and a count, not seven tiny ones. */}
+                {PRO.slice(0, 4).map((g) => (
                   <View key={g.name} style={[styles.proIcon, plate, styles.dim]}>
-                    <PixelSpriteView sprite={g.sprite} size={26} />
+                    <PixelSpriteView sprite={g.sprite} size={34} />
                   </View>
                 ))}
+                {PRO.length > 4 ? (
+                  <View style={[styles.proIcon, plate]}>
+                    <ThemedText type="heading" themeColor="mutedForeground">{`+${String(PRO.length - 4)}`}</ThemedText>
+                  </View>
+                ) : null}
               </View>
             </Card>
           </SpringPressable>
@@ -169,6 +175,6 @@ const styles = StyleSheet.create({
   flat: { borderBottomWidth: 2 },
   proHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   proStrip: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
-  proIcon: { width: 40, height: 40, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  proIcon: { width: 52, height: 52, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   name: { fontSize: FontSize.bodySm, lineHeight: 20, marginTop: Spacing.two, textAlign: 'center' },
 });
