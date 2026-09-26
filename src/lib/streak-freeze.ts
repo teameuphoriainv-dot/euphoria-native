@@ -42,3 +42,102 @@ export function resolveStreak(p: {
   // it cannot bridge — spending it here would take the item and still lose the streak.
   return { streak: 1, freezeUsed: false };
 }
+
+/*
+ * STREAK SAFETY NET (owner decision, research-backed): a broken streak makes learners disengage
+ * (Silverman & Barasch 2023), and a repair window softens that (Duolingo's streak repair). Pure,
+ * so the rules are pinned by scripts/streak-freeze-regression.mjs rather than by a device.
+ */
+
+/** An open earn-back: finish `need` lessons before `deadline` (epoch ms) to restore `lost` days. */
+export type StreakRepair = { lost: number; need: number; done: number; deadline: number };
+
+export const REPAIR_WINDOW_MS = 48 * 3_600_000;
+/** Streaks shorter than this simply restart; there is little to earn back. */
+export const REPAIR_MIN_LOST = 3;
+/** Missed more days than this and it is a fresh start, not a repair. */
+export const REPAIR_MAX_MISSED = 2;
+/** Lessons needed to earn a streak back: 2, or 3 for a streak of 30+ (Duolingo's number). */
+export const repairNeed = (lost: number) => (lost >= 30 ? 3 : 2);
+/** A freeze is earned once per run at each of these lengths. */
+export const FREEZE_MILESTONES = [7, 30] as const;
+/** Earned freezes stop at this many held; shop purchases are not capped. */
+export const EARNED_FREEZE_CAP = 2;
+
+/** Whole days from day key `a` to day key `b` ('YYYY-MM-DD'). */
+export function daysBetween(a: string, b: string): number {
+  const ms = (k: string) => Date.UTC(Number(k.slice(0, 4)), Number(k.slice(5, 7)) - 1, Number(k.slice(8, 10)));
+  return Math.round((ms(b) - ms(a)) / 86_400_000);
+}
+
+/** The highest milestone at or below `streak` (0 if none) -- used so a restored or migrated run is
+ *  never paid a milestone it already passed. */
+export const milestoneAtOrBelow = (streak: number) => FREEZE_MILESTONES.filter((m) => m <= streak).reduce((a, m) => Math.max(a, m), 0);
+
+/**
+ * One day's activity, resolved: the streak (with freeze and repair), the freezes held after it,
+ * the repair window, and whether a milestone freeze was earned. `isLesson` is true only for a
+ * finished lesson: guides and lesson parts keep the day but never count toward a repair.
+ */
+export function resolveDay(p: {
+  streak: number;
+  lastActiveDay: string;
+  today: string;
+  yesterday: string;
+  dayBefore: string;
+  freezes: number;
+  repair: StreakRepair | null;
+  milestoneRun: number;
+  now: number;
+  isLesson: boolean;
+}): {
+  streak: number;
+  freezes: number;
+  freezeUsed: boolean;
+  repair: StreakRepair | null;
+  milestoneRun: number;
+  freezeEarned: boolean;
+  /** The days restored when a repair completes on this activity (for the roll-up), else null. */
+  restored: number | null;
+} {
+  const base = resolveStreak(p);
+  let streak = base.streak;
+  let freezes = base.freezeUsed ? p.freezes - 1 : p.freezes;
+  let repair = p.repair && p.now <= p.repair.deadline ? p.repair : null;
+  let milestoneRun = p.milestoneRun;
+  let restored: number | null = null;
+
+  const broke = p.streak > 0 && p.lastActiveDay !== '' && streak === 1 && p.lastActiveDay !== p.today && p.lastActiveDay !== p.yesterday;
+  if (broke) {
+    milestoneRun = 0;
+    const missed = daysBetween(p.lastActiveDay, p.today) - 1;
+    if (p.streak >= REPAIR_MIN_LOST && missed <= REPAIR_MAX_MISSED) {
+      repair = { lost: p.streak, need: repairNeed(p.streak), done: 0, deadline: p.now + REPAIR_WINDOW_MS };
+    }
+  }
+
+  if (repair && p.isLesson) {
+    const done = repair.done + 1;
+    if (done >= repair.need) {
+      restored = repair.lost;
+      streak = repair.lost + streak;
+      milestoneRun = milestoneAtOrBelow(repair.lost);
+      repair = null;
+    } else {
+      repair = { ...repair, done };
+    }
+  }
+
+  let freezeEarned = false;
+  for (const m of FREEZE_MILESTONES) {
+    if (streak >= m && milestoneRun < m) {
+      milestoneRun = m;
+      if (freezes < EARNED_FREEZE_CAP) {
+        freezes += 1;
+        freezeEarned = true;
+      }
+    }
+  }
+
+  return { streak, freezes, freezeUsed: base.freezeUsed, repair, milestoneRun, freezeEarned, restored };
+}

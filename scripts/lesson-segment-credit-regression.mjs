@@ -167,11 +167,13 @@ console.log(`  largest non-final share across the corpus: ${biggestNonFinal}`);
   eq('(d) and +25 coins is paid exactly once', [one.state.coins, two.state.coins], [125, 125]);
 
   // a freeze bridges one missed day, and only one part may spend it
-  const gap = stateAt({ streak: 6, lastActiveDay: D.dayBefore, streakFreezes: 1 });
+  // streak 4, not 6: reaching day 7 now earns a milestone freeze (streak safety net), which would
+  // mask the spend this case is about.
+  const gap = stateAt({ streak: 4, lastActiveDay: D.dayBefore, streakFreezes: 1 });
   const g1 = credit(gap, { id: 'c:1', kind: 'learn', share: 10, minutes: 2 });
   const g2 = credit(g1.state, { id: 'c:1', kind: 'vocab', share: 5, minutes: 2 });
-  eq('(d) one missed day, one freeze: the streak is saved and one freeze is spent', [g1.result.streak, g1.state.streakFreezes], [7, 0]);
-  eq('(d) the second part of the same day spends no second freeze', [g2.result.streak, g2.state.streakFreezes], [7, 0]);
+  eq('(d) one missed day, one freeze: the streak is saved and one freeze is spent', [g1.result.streak, g1.state.streakFreezes], [5, 0]);
+  eq('(d) the second part of the same day spends no second freeze', [g2.result.streak, g2.state.streakFreezes], [5, 0]);
 
   /*
    * THE TWO PATHS AGREE BECAUSE THEY CALL THE SAME RULE. `completeLesson` keeps its streak block
@@ -327,8 +329,10 @@ console.log(`  largest non-final share across the corpus: ${biggestNonFinal}`);
   has('store: the finished lesson still counts ONE lesson for the quest',
     /lessonsToday: \(s\.lastActiveDay === today \? s\.lessonsToday : 0\) \+ 1/,
     'completeLesson no longer counts the lesson, or a part started counting itself as one');
-  has('store: completeLesson passes the same six inputs to resolveStreak as the part path',
-    /resolveStreak\(\{\s*streak: s\.streak,\s*lastActiveDay: s\.lastActiveDay,\s*today,\s*yesterday: prevDayKey\(\),\s*dayBefore: dayBeforeKey\(\),\s*freezes: s\.streakFreezes,\s*\}\)/,
+  // Both paths now call resolveDay (streak safety net) from the same state; the part path passes
+  // isLesson: false, the finish isLesson: true.
+  has('store: completeLesson passes the same streak inputs to resolveDay as the part path',
+    /resolveDay\(\{\s*streak: s\.streak,\s*lastActiveDay: s\.lastActiveDay,\s*today,\s*yesterday: prevDayKey\(\),\s*dayBefore: dayBeforeKey\(\),\s*freezes: s\.streakFreezes,\s*repair: s\.streakRepair,\s*milestoneRun: s\.freezeMilestoneRun,\s*now: Date\.now\(\),\s*isLesson: true,\s*\}\)/,
     'the two streak paths no longer resolve from the same state, so a part and a finish can disagree');
   has('store: part progress survives a restart',
     /lessonSegments: s\.lessonSegments/,

@@ -13,7 +13,8 @@
 import { applyBuy, applyGrant, applySell, clearStaticPricing } from './cost-basis';
 import { signOutServer } from './auth';
 import { dayBeforeKey, dayKey, nextStreak, prevDayKey, weekKey, withToday } from './day-keys';
-import { resolveStreak } from './streak-freeze';
+import { resolveDay, type StreakRepair } from './streak-freeze';
+import { applyStreakSafety, STREAK_SAFETY_STORE_VERSION } from './streak-safety-migration';
 import { prune as pruneNotifs, type NotifEntry, type NotifKind } from './notif-budget';
 import { valueOf } from './portfolio-value';
 import { appendMarketPortfolioSnapshot, appendPortfolioSnapshot } from './portfolio-history';
@@ -36,7 +37,7 @@ import { allMarks, hydrateMarks, persistableMarks } from './marks';
 import { ALL_SYMS, priceOf } from './stocks';
 import { DEFAULT_AVAILABLE_COURSE_ID, isCourseAvailable } from './curriculum/availability';
 import type { LessonResumePoint } from './lesson-step-session';
-import { PAYWALL_SEEN_BACKFILL_STORE_VERSION, replayOnboardingOnUpgrade, backfillPaywallSeen } from './onboarding-replay-migration';
+import { replayOnboardingOnUpgrade, backfillPaywallSeen } from './onboarding-replay-migration';
 import { readSegmentRecord, type SegmentKind, type SegmentRecord } from './lesson-segments';
 import {
   ALL_SEGMENT_KINDS,
@@ -467,6 +468,16 @@ export type AppState = {
   dailyGoalMinutes: () => number;
   /** Streak the next completion today would produce — for previewing the reward before it's written. */
   streakIfCompletedToday: () => number;
+  /** What finishing a lesson now would do to the streak (freeze, repair, milestone freeze). */
+  streakPreview: () => ReturnType<typeof resolveDay>;
+  /** The streak as it stands right now, before today's activity: 0 once a break has happened
+   *  (the stored value only resolves on the next activity), plus any earn-back that is or would
+   *  be open. Primitives only, so a component can select it with useShallow. */
+  streakNow: () => { streak: number; repairLost: number; repairLeft: number; repairDeadline: number };
+  /** Open earn-back window after a break, or null. */
+  streakRepair: StreakRepair | null;
+  /** Highest freeze milestone already paid in the current run. */
+  freezeMilestoneRun: number;
   /** Lifetime XP earned this league week. Drives STANDINGS (promote/demote) while `xp` drives the
    *  permanent tier, so a quiet week costs you rank but never costs you the tier you earned. */
   weeklyXp: number;
@@ -796,7 +807,10 @@ export const useApp = create<AppState>()(
       coins: 0,
       inventory: [],
       doubleXpUntil: 0,
-      streakFreezes: 0,
+      // One free freeze to start: a first missed day should not cost a brand-new streak.
+      streakFreezes: 1,
+      streakRepair: null,
+      freezeMilestoneRun: 0,
       hints: 0,
       hearts: MAX_HEARTS,
       heartsDay: '',
@@ -1050,6 +1064,42 @@ export const useApp = create<AppState>()(
       minutesDoneToday: () => (get().lastActiveDay === dayKey() ? get().minutesToday : 0),
       dailyGoalMinutes: () => get().profile.dailyMinutes ?? 10,
       streakIfCompletedToday: () => nextStreak(get().streak, get().lastActiveDay),
+      streakNow: () => {
+        const s = get();
+        const today = dayKey();
+        const alive =
+          s.lastActiveDay === '' ||
+          s.lastActiveDay === today ||
+          s.lastActiveDay === prevDayKey() ||
+          (s.lastActiveDay === dayBeforeKey() && s.streakFreezes > 0);
+        const open = s.streakRepair && Date.now() <= s.streakRepair.deadline ? s.streakRepair : null;
+        const rep = alive
+          ? open
+          : resolveDay({ streak: s.streak, lastActiveDay: s.lastActiveDay, today, yesterday: prevDayKey(), dayBefore: dayBeforeKey(), freezes: 0, repair: s.streakRepair, milestoneRun: s.freezeMilestoneRun, now: Date.now(), isLesson: false }).repair;
+        return {
+          streak: alive ? s.streak : 0,
+          repairLost: rep?.lost ?? 0,
+          repairLeft: rep ? rep.need - rep.done : 0,
+          // Only a window that is actually OPEN has a deadline. A would-open one is computed from
+          // Date.now() and would change on every call, re-rendering subscribers forever.
+          repairDeadline: open && rep === open ? open.deadline : 0,
+        };
+      },
+      streakPreview: () => {
+        const s = get();
+        return resolveDay({
+          streak: s.streak,
+          lastActiveDay: s.lastActiveDay,
+          today: dayKey(),
+          yesterday: prevDayKey(),
+          dayBefore: dayBeforeKey(),
+          freezes: s.streakFreezes,
+          repair: s.streakRepair,
+          milestoneRun: s.freezeMilestoneRun,
+          now: Date.now(),
+          isLesson: true,
+        });
+      },
 
       weeklyXpNow: () => (get().weekStart === weekKey() ? get().weeklyXp : 0),
 
@@ -1165,13 +1215,17 @@ export const useApp = create<AppState>()(
            * a second write could interleave and take the paid item without crediting the day.
            * resolveStreak absorbs exactly ONE missed day, which is all the item promises.
            */
-          const resolved = resolveStreak({
+          const resolved = resolveDay({
             streak: s.streak,
             lastActiveDay: s.lastActiveDay,
             today,
             yesterday: prevDayKey(),
             dayBefore: dayBeforeKey(),
             freezes: s.streakFreezes,
+            repair: s.streakRepair,
+            milestoneRun: s.freezeMilestoneRun,
+            now: Date.now(),
+            isLesson: true,
           });
           const streakNext = resolved.streak;
           // +25 only when the streak actually ADVANCES. Finishing a second lesson the same day is
@@ -1206,7 +1260,11 @@ export const useApp = create<AppState>()(
             // was just resolved, and the two values would silently disagree.
             streak: streakNext,
             bestStreak: Math.max(s.bestStreak ?? 0, streakNext),
-            streakFreezes: resolved.freezeUsed ? s.streakFreezes - 1 : s.streakFreezes,
+            // resolveDay spends a freeze, pays a milestone freeze, and opens/advances/closes a
+            // repair -- all in this same write, so none of them can interleave with the day.
+            streakFreezes: resolved.freezes,
+            streakRepair: resolved.repair,
+            freezeMilestoneRun: resolved.milestoneRun,
           };
         }),
 
@@ -1418,6 +1476,13 @@ export const useApp = create<AppState>()(
             // A guide read counts as your day, so Digest can keep a streak alive on its own.
             streak: nextStreak(s.streak, s.lastActiveDay),
             bestStreak: Math.max(s.bestStreak ?? 0, nextStreak(s.streak, s.lastActiveDay)),
+            /* A guide keeps the day but must not hide a break: a later lesson would see
+               lastActiveDay === today and never open the earn-back. freezes: 0 keeps guides from
+               spending one (unchanged behaviour); isLesson false means it never counts toward it. */
+            ...(() => {
+              const d = resolveDay({ streak: s.streak, lastActiveDay: s.lastActiveDay, today, yesterday: prevDayKey(), dayBefore: dayBeforeKey(), freezes: 0, repair: s.streakRepair, milestoneRun: s.freezeMilestoneRun, now: Date.now(), isLesson: false });
+              return { streakRepair: d.repair, freezeMilestoneRun: d.milestoneRun, streakFreezes: s.streakFreezes + (d.freezeEarned ? 1 : 0) };
+            })(),
             lastActiveDay: today,
             // Rolling the tally is NOT optional next to that stamp. minutesDoneToday() gates on
             // lastActiveDay === today, so stamping today while leaving a stale minutesToday would
@@ -1428,7 +1493,7 @@ export const useApp = create<AppState>()(
         }),
       setDailyPick: (day, slug) =>
         set((s) => (s.dailyPick?.day === day && s.dailyPick.slug === slug ? s : { dailyPick: { day, slug } })),
-      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, completedLessons: [], lessonResume: null, lessonSegments: {}, minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
+      reset: () => set({ xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0, bestStreak: 0, streakRepair: null, freezeMilestoneRun: 0, completedLessons: [], lessonResume: null, lessonSegments: {}, minutesToday: 0, lastActiveDay: '', readPosts: [], dailyPick: null, cash: STARTING_CASH, positions: {}, costBasis: {}, valueHistory: [], derivativeTrades: 0, derivatives: [], pendingRewards: [], rewardsEarned: 0, watchlist: [] }),
       deleteProfile: () =>
         set({
           xp: 0, weeklyXp: 0, weekStart: '', lastGameDay: '', following: [], streak: 0,
@@ -1453,7 +1518,7 @@ export const useApp = create<AppState>()(
       // v1: Phase 16. Every basis recorded before the mark went live was paid in static dollars.
       // The rule lives in cost-basis.ts beside the reducers it protects, so the regression imports
       // it rather than restating it — the drift C113 records happened exactly once already.
-      version: PAYWALL_SEEN_BACKFILL_STORE_VERSION,
+      version: STREAK_SAFETY_STORE_VERSION,
       /*
        * WRAPPED, because a migration that throws does not fail loudly — it hangs the app forever.
        * zustand calls `migrate` inside a promise chain; a throw rejects it and `onRehydrateStorage`
@@ -1493,6 +1558,8 @@ export const useApp = create<AppState>()(
            * honestly and must not be stamped.
            */
           next = backfillPaywallSeen(next, from);
+          // v7. Streak safety net: starter freeze + no retroactive milestone (streak-safety-migration.ts).
+          next = applyStreakSafety(next, from);
           return next;
         } catch (e) {
           console.error('[store] migration failed, leaving state as-is', e);
@@ -1500,7 +1567,7 @@ export const useApp = create<AppState>()(
         }
       },
       // only persist data, not the action fns / derived getters
-      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, lessonResume: s.lessonResume, lessonSegments: s.lessonSegments, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, atlasTour: s.atlasTour, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
+      partialize: (s) => ({ signedIn: s.signedIn, xp: s.xp, streak: s.streak, bestStreak: s.bestStreak, completedLessons: s.completedLessons, lessonResume: s.lessonResume, lessonSegments: s.lessonSegments, minutesToday: s.minutesToday, lessonsToday: s.lessonsToday, coins: s.coins, themePref: s.themePref, avatarId: s.avatarId, titleId: s.titleId, bannerId: s.bannerId, gameBest: s.gameBest, lastWeekResolved: s.lastWeekResolved, lastWeekOutcome: s.lastWeekOutcome, pendingTierUp: s.pendingTierUp, inventory: s.inventory, doubleXpUntil: s.doubleXpUntil, streakFreezes: s.streakFreezes, streakRepair: s.streakRepair, freezeMilestoneRun: s.freezeMilestoneRun, hints: s.hints, hearts: s.hearts, heartsDay: s.heartsDay, equipped: s.equipped, lastActiveDay: s.lastActiveDay, activeCourseId: s.activeCourseId, readPosts: s.readPosts, dailyPick: s.dailyPick, profile: s.profile, weeklyXp: s.weeklyXp, weekStart: s.weekStart, lastGameDay: s.lastGameDay, guidesDay: s.guidesDay, guidesToday: s.guidesToday, following: s.following, isPro: s.isPro, specialOfferSeenAt: s.specialOfferSeenAt, trialRewardSeenAt: s.trialRewardSeenAt, atlasTour: s.atlasTour, billingIssue: s.billingIssue, atlasAsked: s.atlasAsked, cash: s.cash, positions: s.positions,
       // Read from the module map, NOT from `s.marks`. `setMark` writes to the map (it cannot touch
       // the store without a cycle), so the state field is only ever a persistence mirror — reading
       // `s.marks` here would save the marks the app STARTED with and quietly discard every quote

@@ -281,7 +281,10 @@ export default function Home() {
     resolveLeagueWeek();
   }, [resolveLeagueWeek]);
   const theme = useTheme();
-  const streak = useApp((s) => s.streak);
+  // Live (streakNow): after a break the stored streak is stale until the next activity, and the
+  // card must say "Earn back" / "Fresh start" rather than a number that is already gone.
+  const { streak, repairLost, repairLeft, repairDeadline } = useApp(useShallow((s) => s.streakNow()));
+  const bestStreak = useApp((s) => s.bestStreak ?? 0);
   const xp = useApp((s) => s.xp);
   const minutesDone = useApp((s) => s.minutesDoneToday());
   const goalMinutes = useApp((s) => s.dailyGoalMinutes());
@@ -972,9 +975,22 @@ export default function Home() {
             <Card depthColor={theme.primary + '8C'} style={[styles.todayCard, { borderColor: theme.primary + '40' }]}>
               <View style={styles.todayBody}>
               <View style={styles.todayHead}>
+                {/* Never "streak lost": an open earn-back says how to win it back, and a past best
+                    frames day 1 as a fresh start (streak safety net). */}
                 <ThemedText type="title" maxFontSizeMultiplier={1.6}>
-                  {streak === 0 ? 'Start your streak' : `${String(streak)} day streak`}
+                  {repairLost
+                    ? `Earn back your ${String(repairLost)}-day streak`
+                    : streak === 0
+                      ? bestStreak > 0 ? 'Fresh start' : 'Start your streak'
+                      : `${String(streak)} day streak`}
                 </ThemedText>
+                {repairLost ? (
+                  <ThemedText type="bodyMedium" themeColor="mutedForeground">
+                    {`${String(repairLeft)} ${repairLeft === 1 ? 'lesson' : 'lessons'} ${repairDeadline ? `by ${new Date(repairDeadline).toLocaleString('en-US', { weekday: 'short', hour: 'numeric' })}` : 'within 48 hours'}`}
+                  </ThemedText>
+                ) : streak === 0 && bestStreak > 0 ? (
+                  <ThemedText type="bodyMedium" themeColor="mutedForeground">{`Best: ${String(bestStreak)} days. Day 1 is today.`}</ThemedText>
+                ) : null}
               </View>
               <WeekStreak
                 isDone={isDone}
