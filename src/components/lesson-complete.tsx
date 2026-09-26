@@ -277,7 +277,7 @@ export function LessonComplete({
         </View>
         {/* Rides the chips beat: one row of numbers, not a second entrance. */}
         {stats ? (
-          <ThemedText type="smallBold" themeColor="mutedForeground" style={styles.stats}>{stats}</ThemedText>
+          <ThemedText type="bodyMedium" style={styles.stats}>{stats}</ThemedText>
         ) : null}
       </Animated.View>
 
