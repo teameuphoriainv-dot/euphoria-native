@@ -410,7 +410,8 @@ export default function StockDetail() {
           </SpringPressable>
         </RiseIn>
 
-        <RiseIn delay={200}>
+        {/* Two different actions, so two separate blocks: they sat flush and read as one. */}
+        <RiseIn delay={200} style={{ marginTop: Spacing.three }}>
           <AskAtlasRow topic={name} label="Not sure about this one?" />
         </RiseIn>
 
