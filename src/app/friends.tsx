@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from '@/lib/haptics';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
+import { EmptyState } from '@/components/empty-state';
 import { AmbientBackground } from '@/components/ambient-background';
 import { LeagueCrest } from '@/components/league-crest';
 import { ThemedText } from '@/components/themed-text';
@@ -135,9 +136,7 @@ export default function Friends() {
      the memo already invalidates through rel. */
   }, [query, rel]);
 
-  const empty = (text: string) => (
-    <ThemedText type="small" themeColor="mutedForeground" style={styles.empty}>{text}</ThemedText>
-  );
+  const empty = (text: string) => <EmptyState title={text} />;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>

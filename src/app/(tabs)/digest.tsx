@@ -23,6 +23,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgXml } from 'react-native-svg';
 
+import { EmptyState } from '@/components/empty-state';
 import { AmbientBackground } from '@/components/ambient-background';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -470,9 +471,7 @@ export default function Digest() {
             </RiseIn>
           ))}
           {library.length === 0 ? (
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.empty}>
-              {q ? `No guides match “${query.trim()}”` : `Nothing else in ${filter} yet.`}
-            </ThemedText>
+            <EmptyState title={q ? `No guides match “${query.trim()}”` : `Nothing else in ${filter} yet`} />
           ) : null}
         </View>
         )}
