@@ -142,7 +142,7 @@ export function NewsGallery({ symbols, delay = 0 }: { symbols: string[]; delay?:
   return (
     <RiseIn delay={delay}>
       <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
-        {scope === undefined ? 'MARKET NEWS' : `NEWS · ${scope}`}
+        {scope === undefined ? 'Market news' : `News · ${scope}`}
       </ThemedText>
       <ScrollView
         horizontal

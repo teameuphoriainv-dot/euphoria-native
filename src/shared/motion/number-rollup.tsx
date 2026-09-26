@@ -20,7 +20,12 @@ export function NumberRollup({
   suffix = '',
   duration = 900,
   ...rest
-}: Omit<ThemedTextProps, 'children'> & { value: number; prefix?: string; suffix?: string; duration?: number }) {
+}: Omit<ThemedTextProps, 'children'> & {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+}) {
   /*
    * TEXT, NOT A NUMBER, IS THE STATE — because the number changes far more often than the text.
    *

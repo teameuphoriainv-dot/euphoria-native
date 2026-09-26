@@ -39,7 +39,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { ALL_SYMS, money, priceOf, shares, STOCKS } from '@/lib/stocks';
 import { useApp } from '@/lib/store';
 import { IDEAS_DISCLAIMER, ideaCourseTitle, tradeIdeaRoute, tradeIdeas } from '@/lib/trade-ideas';
-import { NumberRollup } from '@/shared/motion/number-rollup';
 import { CompactTitle } from '@/shared/motion/compact-title';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { RevealScrollView } from '@/shared/motion/scroll-reveal';
@@ -115,7 +114,8 @@ export default function Trade() {
   const held = Object.keys(positions).filter((s) => (positions[s] ?? 0) > 0);
   // Derived, never stored — same contract as quests. Recomputes whenever cash, positions or the
   // watchlist move, which is exactly when an observation about them could stop being true.
-  const ideas = tradeIdeas({ cash, positions, watchlist, total });
+  // 'first-position' only restated the empty portfolio card above it, so it is not shown.
+  const ideas = tradeIdeas({ cash, positions, watchlist, total }).filter((i) => i.id !== 'first-position');
   // Followed tickers the user does not already hold. NOT "everything minus your positions" —
   // that was a list nobody chose, labelled as though they had.
   const watch = watchlist.filter((s) => !held.includes(s) && STOCKS[s]);
@@ -205,6 +205,39 @@ export default function Trade() {
   // to print its own static "since you started" line directly above the chart's range line — the
   // same fact stated twice, disagreeing about scope. One component owns it.
 
+  // New users see what to buy first; once you hold something, the list drops below the context.
+  const stockList = (
+        <RiseIn delay={held.length > 0 ? 170 : 120}>
+          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
+            {watch.length > 0 ? 'Watchlist' : held.length > 0 ? 'More stocks' : 'Pick your first stock'}
+          </ThemedText>
+          <Card padded={false}>
+            {/*
+              * LIVE, NOT THE STATIC STRING. This rendered `STOCKS[sym].price` -- the hardcoded
+              * string from stocks.ts -- and `STOCKS[sym].chg` beside it, so no amount of live
+              * pricing could ever reach these rows. Caught on device: after the marks fetch
+              * shipped, the positions above were live while the watchlist still read
+              * "NVIDIA, NVDA, $1,184.00" against a real close of $217.56, and
+              * "Alphabet, GOOGL, $182.11" against $344.72.
+              *
+              * `priceOf` falls back to the same static number when no mark has arrived, so the
+              * cold-start frame is unchanged; it simply stops being the ONLY thing this row can
+              * ever show. The change percent falls back the same way.
+              */}
+            {(watch.length > 0 ? watch : suggestions).map((sym, i, arr) => (
+              <Row
+                key={sym}
+                sym={sym}
+                sub={sym}
+                right={money(priceOf(sym))}
+                change={changeOf(sym) ?? null}
+                last={i === arr.length - 1}
+              />
+            ))}
+          </Card>
+        </RiseIn>
+  );
+
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
       <AmbientBackground glow={false} starCount={35} />
@@ -213,11 +246,6 @@ export default function Trade() {
           <View style={styles.titleRow}>
             <View style={{ flex: 1 }}>
               <ThemedText type="title" style={{ fontSize: FontSize.titleSm }}>Trade</ThemedText>
-              {/* "Practice with $10,000. No real money." stated the rules and nothing else. This
-                  says what the user GETS. */}
-              <ThemedText type="small" themeColor="mutedForeground">
-                Build a practice portfolio. Risk nothing.
-              </ThemedText>
             </View>
             <SpringPressable
               haptic={false}
@@ -239,20 +267,27 @@ export default function Trade() {
             <View style={styles.amountRow}>
               {/* Capped: displayLg is 34pt, which reaches ~106pt at AX5, and "$10,000" then needs
                   roughly 450pt inside a ~330pt card — the frame showed it cut to "$10,0" with the
-                  rest pushed out of the card. NumberRollup spreads its props into ThemedText, so
-                  the cap forwards. 1.6 keeps the hero number hero-sized and inside its box. */}
-              <NumberRollup value={Math.floor(total)} prefix="$" type="display" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.displayLg }} />
+                  rest pushed out of the card. The cap is on the ThemedText. 1.6 keeps the hero number hero-sized and inside its box. */}
+              {/* Plain text, never rolled: the total moves when daily-close marks refresh, and a count
+                  between two figures shows a price move that never happened (AGENTS.md). */}
+              <ThemedText type="display" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.displayLg }}>
+                {`$${Math.floor(total).toLocaleString('en-US')}`}
+              </ThemedText>
               <ThemedText type="heading" themeColor="mutedForeground" style={{ fontSize: FontSize.subhead, marginBottom: 3 }}>
                 .{total.toFixed(2).split('.')[1]}
               </ThemedText>
             </View>
             <PortfolioChart />
-            <View style={[styles.cashRow, { borderTopColor: theme.border }]}>
-              <ThemedText type="small" themeColor="mutedForeground">Cash available</ThemedText>
-              <ThemedText type="smallBold">{money(cash)}</ThemedText>
-            </View>
+            {/* Hidden while all of it is cash: it only repeated the headline. */}
+            {Math.abs(total - cash) >= 0.005 && (
+              <View style={[styles.cashRow, { borderTopColor: theme.border }]}>
+                <ThemedText type="small" themeColor="mutedForeground">Cash available</ThemedText>
+                <ThemedText type="smallBold">{money(cash)}</ThemedText>
+              </View>
+            )}
           </Card>
         </RiseIn>
+        {held.length === 0 && stockList}
 
         {/* Navigation, grouped and horizontal. As three stacked full-width pills between a
             section label and its list, these read as list items and orphaned the WATCHLIST
@@ -289,10 +324,10 @@ export default function Trade() {
                 accessibilityLabel={a.label}
                 style={{ flex: 1 }}
               >
-                <View style={[styles.action, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                <Card padded={false} style={styles.action}>
                   <PixelSpriteView sprite={a.sprite} size={20} />
                   <ThemedText type="smallBold">{a.label}</ThemedText>
-                </View>
+                </Card>
               </SpringPressable>
             ))}
           </View>
@@ -431,7 +466,7 @@ export default function Trade() {
                     ]}
                   >
                     <ThemedText type="label" style={{ color: theme.iconLilac }}>
-                      {idea.concept.toUpperCase()}
+                      {idea.concept}
                     </ThemedText>
                     <ThemedText type="small" style={styles.ideaBody}>{idea.detail}</ThemedText>
                     <View style={styles.ideaLink}>
@@ -456,35 +491,7 @@ export default function Trade() {
           <Movers />
         </RiseIn>
 
-        <RiseIn delay={held.length > 0 ? 170 : 120}>
-          <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
-            {watch.length > 0 ? 'Watchlist' : held.length > 0 ? 'More stocks' : 'Pick your first stock'}
-          </ThemedText>
-          <Card padded={false}>
-            {/*
-              * LIVE, NOT THE STATIC STRING. This rendered `STOCKS[sym].price` -- the hardcoded
-              * string from stocks.ts -- and `STOCKS[sym].chg` beside it, so no amount of live
-              * pricing could ever reach these rows. Caught on device: after the marks fetch
-              * shipped, the positions above were live while the watchlist still read
-              * "NVIDIA, NVDA, $1,184.00" against a real close of $217.56, and
-              * "Alphabet, GOOGL, $182.11" against $344.72.
-              *
-              * `priceOf` falls back to the same static number when no mark has arrived, so the
-              * cold-start frame is unchanged; it simply stops being the ONLY thing this row can
-              * ever show. The change percent falls back the same way.
-              */}
-            {(watch.length > 0 ? watch : suggestions).map((sym, i, arr) => (
-              <Row
-                key={sym}
-                sym={sym}
-                sub={sym}
-                right={money(priceOf(sym))}
-                change={changeOf(sym) ?? STOCKS[sym].chg}
-                last={i === arr.length - 1}
-              />
-            ))}
-          </Card>
-        </RiseIn>
+        {held.length > 0 && stockList}
       </RevealScrollView>
       <CompactTitle title="Trade" scrollY={scrollY} />
     </SafeAreaView>
@@ -507,7 +514,7 @@ const styles = StyleSheet.create({
   idea: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two + 2, gap: 3 },
   ideaBody: { lineHeight: 19 },
   ideaLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one, fontSize: FontSize.label, lineHeight: 15 },
+  disclaimer: { marginTop: Spacing.one + 2, paddingHorizontal: Spacing.one },
   sectionLabel: { marginBottom: Spacing.two },
   actions: { flexDirection: 'row', gap: Spacing.two },
   action: {
@@ -515,8 +522,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
     paddingVertical: Spacing.three,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: Radius.lg,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three },
   round: { width: 40, height: 40, borderRadius: 20, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center' },
