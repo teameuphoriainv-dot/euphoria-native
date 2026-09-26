@@ -32,7 +32,8 @@ const store = source('../src/lib/store.ts');
  * Both migration functions must still be applied, and in that order (see the ordering note in
  * onboarding-replay-migration.ts: v6 keys off a completedAt that v5 may have nulled).
  */
-assert.match(store, /version:\s*PAYWALL_SEEN_BACKFILL_STORE_VERSION/,
+// v7 (streak safety net, streak-safety-migration.ts) is now the latest.
+assert.match(store, /version:\s*STREAK_SAFETY_STORE_VERSION/,
   'the store must persist the latest migration version, taken from the shared constant');
 const replayAt = store.indexOf('replayOnboardingOnUpgrade(next, from)');
 const backfillAt = store.indexOf('backfillPaywallSeen(next, from)');

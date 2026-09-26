@@ -97,7 +97,7 @@ import {
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge } from '@/lib/notifications';
-import { lessonKey, useApp } from '@/lib/store';
+import { lessonKey, useApp, type AppState } from '@/lib/store';
 import { accuracy, bestCombo, comboAt, comboRate, COMBO_MIN, isPerfect, type FirstTryLog } from '@/lib/combo';
 import { feedback, warmLesson } from '@/lib/feedback';
 import { queueLessonTrailCelebration } from '@/lib/lesson-trail-celebration';
@@ -111,6 +111,7 @@ import { MAX_TRIES, firstTryCounts, pickAnswerLayout, type Verdict } from '@/lib
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
+import { RiseIn } from '@/shared/motion/rise-in';
 
 /** Module scope, so an impure Date.now() is never in render scope. Same reason start.tsx has one. */
 const nowMs = () => Date.now();
@@ -185,11 +186,30 @@ function lessonStats(log: FirstTryLog): string | null {
     .join(' · ');
 }
 
+/** The celebration's number and its one-line note (streak safety net). */
+function streakSnapshot(p: ReturnType<AppState['streakPreview']>): { days: number; note: string | null } {
+  const note = p.restored
+    ? `Streak earned back: ${String(p.streak)} days`
+    : p.repair
+      ? `${String(p.repair.done)} of ${String(p.repair.need)} lessons to earn back your ${String(p.repair.lost)}-day streak`
+      : p.freezeEarned
+        ? `${String(p.streak)} days. Atlas packed you a Streak Freeze.`
+        : p.freezeUsed
+          ? 'A Streak Freeze saved your streak.'
+          : null;
+  return { days: p.streak, note };
+}
+
 export default function Lesson() {
   /** When this lesson was opened. Set in an effect to keep render pure. */
   const openedAt = useRef(0);
   const theme = useTheme();
-  const streakAfter = useApp((s) => s.streakIfCompletedToday());
+  // Freeze-, repair- and milestone-aware (streakPreview), so a saved or earned-back day shows its
+  // real number rather than nextStreak's plain +1.
+  const streakAfter = useApp((s) => s.streakPreview().streak);
+  // Captured just before completeLesson commits: afterwards the preview no longer knows the day
+  // was restored or paid a freeze, and the celebration needs to say so.
+  const [streakSnap, setStreakSnap] = useState<{ days: number; note: string | null } | null>(null);
   const completedLessonIds = useApp((s) => s.completedLessons);
   /*
    * The resume pointer is PERSISTED state, so reading it before rehydration settles reads the
@@ -932,6 +952,8 @@ export default function Lesson() {
        */
       const finalPart = segments.length > 0 ? segments[segments.length - 1].kind : 'practice';
       const finalXp = useApp.getState().lessonXpRemaining(completedId, xp);
+      // Snapshot BEFORE the write: afterwards the preview cannot tell a restored or freeze-paid day.
+      setStreakSnap(streakSnapshot(useApp.getState().streakPreview()));
       /*
        * HELD BEFORE THE WRITE THAT DESTROYS IT. `completeLesson` drops this lesson's part record
        * in the same `set` that marks the lesson complete, so one line below this the subscribed
@@ -1819,7 +1841,13 @@ export default function Lesson() {
 
         {challengeStage === 'none' && idx === STREAK && (
           <Animated.View key="streak" entering={FadeIn} exiting={FadeOut.duration(Duration.exit)} style={styles.centered}>
-            <StreakIgnite days={streakAfter} />
+            <StreakIgnite days={streakSnap?.days ?? streakAfter} />
+            {/* One line, after the ignite resolves: never a second celebration on top of it. */}
+            {streakSnap?.note ? (
+              <RiseIn delay={Duration.earned}>
+                <ThemedText type="bodyMedium" style={styles.streakNote}>{streakSnap.note}</ThemedText>
+              </RiseIn>
+            ) : null}
           </Animated.View>
         )}
 
@@ -2028,6 +2056,7 @@ const NAV_SLOT = 84;
 const NUM_L = { fontVariant: ['tabular-nums' as const] };
 
 const styles = StyleSheet.create({
+  streakNote: { textAlign: 'center', marginTop: Spacing.three, paddingHorizontal: Spacing.four },
   atlasFloat: {
     position: 'absolute',
     right: 16,

@@ -29,11 +29,28 @@ import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { STAGGER_CAP, STAGGER_GAP } from '@/shared/motion/tokens';
 
+/** Well-known names people recognise: big stocks, a few household brands, and index funds. */
+const SUGGESTION_POOL = [
+  'AAPL', 'MSFT', 'NVDA', 'AMZN', 'GOOGL', 'META', 'TSLA', 'NFLX', 'DIS', 'NKE', 'SBUX', 'KO',
+  'MCD', 'COST', 'WMT', 'JPM', 'V', 'Ford', 'Uber', 'Spotify', 'AMD', 'SPY', 'QQQ', 'VTI', 'VOO',
+] as const;
+
+function pickSuggestions(n: number): string[] {
+  const pool = [...SUGGESTION_POOL];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, n);
+}
+
 export default function Search() {
   const theme = useTheme();
   const params = useLocalSearchParams<{ qa?: string }>();
   const qa = __DEV__ ? params.qa : undefined;
   const [q, setQ] = useState(() => (qa ? 'ZZZZQATEST' : ''));
+  // Three fresh suggestions every time the screen opens (owner), drawn once per mount.
+  const [suggestions] = useState(() => pickSuggestions(3));
   // Results carry the term they answer, so "loading" is derived rather than flag-managed — no
   // setState in the effect body, and a stale result can never render under a newer query.
   const [hits, setHits] = useState<{ term: string; results: TickerHit[] } | null>(null);
@@ -119,7 +136,7 @@ export default function Search() {
           {shownError ? <RetryNotice code={shownError} onRetry={retry} /> : loading && <SkeletonRows count={5} height={60} />}
 
         {!loading && !term && (
-          <EmptyState title="Find a stock to practise with" suggestions={['AAPL', 'Ford', 'SPY']} onSuggestion={setQ} />
+          <EmptyState title="Find a stock to practice with" suggestions={suggestions} onSuggestion={setQ} />
         )}
 
         {!loading && results?.length === 0 && (

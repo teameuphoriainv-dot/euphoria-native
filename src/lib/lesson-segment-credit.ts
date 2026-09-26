@@ -26,7 +26,7 @@
  * KEEP THIS FILE ERASABLE-SYNTAX-ONLY. Node strips types rather than compiling them.
  */
 import { readSegmentRecord, type SegmentKind, type SegmentRecord } from './lesson-segments';
-import { resolveStreak } from './streak-freeze';
+import { resolveDay, type StreakRepair } from './streak-freeze';
 import { EARN } from './shop-items';
 
 /**
@@ -95,6 +95,9 @@ export type SegmentCreditState = {
   streak: number;
   bestStreak: number;
   streakFreezes: number;
+  /** Optional so older fixtures still type-check; the store always has both. */
+  streakRepair?: StreakRepair | null;
+  freezeMilestoneRun?: number;
   coins: number;
   profile: { dailyMinutes: number | null };
 };
@@ -111,6 +114,8 @@ export type SegmentCreditOptions = {
   dayBefore: string;
   /** 2 while Double XP is active, 1 otherwise. */
   mult: number;
+  /** Epoch ms, for the repair window. Defaults to Date.now(). */
+  now?: number;
 };
 
 export type SegmentCreditPatch = {
@@ -122,6 +127,8 @@ export type SegmentCreditPatch = {
   streak: number;
   bestStreak: number;
   streakFreezes: number;
+  streakRepair: StreakRepair | null;
+  freezeMilestoneRun: number;
   /** NOT a state field. The store must spread `applyXp(s, xpToApply)` — see the header. */
   xpToApply: number;
 };
@@ -201,13 +208,19 @@ export function creditSegment(
    * streak they paid to protect. The freeze is decremented in the same patch, for the reason
    * `streak-freeze.ts` gives: two writes could interleave and take the item without the day.
    */
-  const resolved = resolveStreak({
+  // resolveDay, so a part on the comeback day still opens the earn-back (a part never counts
+  // toward it: isLesson false). Same spend-in-one-write rule as before.
+  const resolved = resolveDay({
     streak: s.streak,
     lastActiveDay: s.lastActiveDay,
     today: o.today,
     yesterday: o.yesterday,
     dayBefore: o.dayBefore,
     freezes: s.streakFreezes,
+    repair: s.streakRepair ?? null,
+    milestoneRun: s.freezeMilestoneRun ?? 0,
+    now: o.now ?? Date.now(),
+    isLesson: false,
   });
   const streakAdvanced = resolved.streak > s.streak;
   // +25 only when the streak actually ADVANCES. A second part the same day is not a second streak
@@ -239,7 +252,9 @@ export function creditSegment(
       lastActiveDay: o.today,
       streak: resolved.streak,
       bestStreak: Math.max(s.bestStreak ?? 0, resolved.streak),
-      streakFreezes: resolved.freezeUsed ? s.streakFreezes - 1 : s.streakFreezes,
+      streakFreezes: resolved.freezes,
+      streakRepair: resolved.repair,
+      freezeMilestoneRun: resolved.milestoneRun,
       xpToApply: (share + bonus) * mult,
     },
     result: {

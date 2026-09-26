@@ -31,7 +31,7 @@ export const COURSE_UNITS: Readonly<Record<string, readonly string[]>> = {
     'Building Your First Portfolio',
     'Actually Placing a Trade',
     'What Quietly Eats Returns',
-    'Practise With Fake Money',
+    'Practice With Fake Money',
   ],
   'personal-finance': [
     'Getting Control of Your Money',
