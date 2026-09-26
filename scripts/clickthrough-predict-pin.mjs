@@ -199,7 +199,8 @@ check('targetCells come from the authored percent', /targetCells = cellsFor\(spe
 const reveal = code.match(/\{revealed \? \([\s\S]*?<CellRect[\s\S]*?\/>/)?.[0] ?? '';
 check('revealed bar draws the authored percent', /cells=\{targetCells\}/.test(reveal) && !/guess/i.test(reveal.replace(/\{revealed \? \(/, '')), reveal.slice(0, 80));
 check('Check disabled until touched', /onPress=\{check\}\s*disabled=\{!touched\}/.test(code));
-check('Check is a button', /accessibilityRole="button"\s*accessibilityLabel="Check your guess"/.test(code));
+// SlabButton renders an accessibilityRole="button" SpringPressable, so either form is a button.
+check('Check is a button', /accessibilityRole="button"\s*accessibilityLabel="Check your guess"|<SlabButton[^>]*accessibilityLabel="Check your guess"/.test(code));
 check('guess row is adjustable while guessing', /accessibilityRole=\{checked \? 'text' : 'adjustable'\}/.test(code) && /name: 'increment'/.test(code));
 check('beats carry the live verdict before Check', /predictBeats\(spec, shownVerdict, checked\)/.test(code) && /shownVerdict = verdict \?\? verdictOf\(guess,/.test(code));
 check('no spring on geometry', !/withSpring/.test(code));
